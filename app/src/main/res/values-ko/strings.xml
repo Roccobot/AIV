@@ -398,6 +398,7 @@
     <string name="look_tint">색조</string>
     <string name="look_saturation">채도</string>
     <string name="look_vibrance">생동감</string>
+    <string name="look_filter">필터</string>
     <string name="look_bw">흑백</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">색조</string>

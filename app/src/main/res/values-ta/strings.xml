@@ -414,6 +414,7 @@
     <string name="look_tint">சாயல்</string>
     <string name="look_saturation">நிறச்செறிவு</string>
     <string name="look_vibrance">உயிர்ப்பு</string>
+    <string name="look_filter">வடிகட்டி</string>
     <string name="look_bw">கருப்பு வெள்ளை</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">நிறச்சாயல்</string>

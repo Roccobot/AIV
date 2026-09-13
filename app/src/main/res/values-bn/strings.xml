@@ -414,6 +414,7 @@
     <string name="look_tint">আভা</string>
     <string name="look_saturation">স্যাচুরেশন</string>
     <string name="look_vibrance">প্রাণবন্ততা</string>
+    <string name="look_filter">ফিল্টার</string>
     <string name="look_bw">সাদা-কালো</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">বর্ণ</string>

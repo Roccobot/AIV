@@ -20,6 +20,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.down
 import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.up
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
@@ -34,6 +35,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -182,6 +184,7 @@ class SviluppoTest {
     fun `il gettone cambia i cursori in scena`() {
         banco.setContent { Scena() }
         pronta()
+        modulo(R.string.look_light)
 
         banco.onNodeWithText(testo(R.string.look_exposure)).assertExists()
         assertEquals(0, quanti(testo(R.string.look_saturation)))
@@ -334,6 +337,7 @@ class SviluppoTest {
     fun `il tocco lungo su un gettone azzera solo il suo modulo`() {
         banco.setContent { Scena() }
         pronta()
+        modulo(R.string.look_light)
 
         muovi(1, 0.5f)
         assertTrue(valore(1) > 0.2f)
@@ -620,6 +624,7 @@ class SviluppoTest {
     fun `il tocco lungo sul dettaglio azzera solo il dettaglio`() {
         banco.setContent { Scena() }
         pronta()
+        modulo(R.string.look_light)
         muovi(1, 0.5f)
         assertTrue(valore(1) > 0.2f)
 
@@ -881,141 +886,6 @@ class SviluppoTest {
     }
 
     /**
-     * **La lente del colore mirato c'è mentre il dito è giù, e sparisce quando si alza.**
-     *
-     * ⚠️⚠️ **NASCE DALLA SUA RISPOSTA A `d-mirato-hsl`** (giro della `2.23`: *serve un selettore
-     * con zoom e anteprima dei pixel campionati*), e quello che il banco può vederne è questo:
-     * che il palco cambi disegno col dito giù e torni **identico** al rilascio. Il difetto che
-     * presidia è quello della `2.17`, cioè una cosa che si accende con un gesto e resta accesa.
-     * ⚠️ **Si contano i pixel DIVERSI e non quelli di un colore**: il bordo e il mirino sono
-     * tratti sottili, e l'antialiasing non garantisce un solo pixel del colore esatto, quindi una
-     * misura sul colore potrebbe restare a zero con la lente in scena.
-     * ⚠️ **Quello che NON vede**: se la lente mostri il pixel giusto, che è il suo mestiere. Il
-     * conto vive sulla scheda grafica e qui non gira, quindi quello si guarda sul telefono.
-     * ⚠️ **Il modulo è l'HSL e non le Curve, dalla `2.32`**: là il mirato non c'è più (sua risposta
-     * `via` a `d-mirato-curve`), e il tasto che lo arma è un'icona, quindi si cerca per descrizione.
-     * ⚠️⚠️ **LA SCENA È GRANDE, E DALLA `2.33` NON È PIÙ FACOLTATIVO**: da quando la scheda è alta
-     * quanto il modulo più alto, sul banco di serie il palco perde una settantina di pixel, e là
-     * dentro non ci stanno né la lente né un rettangolo di ritaglio col suo lato minimo. È lo
-     * stesso rimedio già dichiarato sulla prova della lente deformata, e misura la cosa che deve
-     * misurare invece dei limiti di una scena minuscola.
-     */
-    @Test
-    @Config(qualifiers = "w600dp-h900dp")
-    fun `la lente del mirato c'e col dito giu e sparisce al rilascio`() {
-        banco.setContent { Scena() }
-        pronta()
-        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
-        banco.waitForIdle()
-        banco.onNodeWithContentDescription(testo(R.string.look_target)).performClick()
-        banco.waitForIdle()
-
-        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        val riposo = palco.captureToImage().toPixelMap()
-
-        palco.performTouchInput { down(center) }
-        banco.waitForIdle()
-        val conDito = palco.captureToImage().toPixelMap()
-        assertTrue(
-            "col dito giù il palco deve portare la lente, e invece è identico",
-            diversi(riposo, conDito) > 0
-        )
-
-        palco.performTouchInput { up() }
-        banco.waitForIdle()
-        assertEquals(
-            "al rilascio la lente doveva sparire",
-            0,
-            diversi(riposo, palco.captureToImage().toPixelMap())
-        )
-    }
-
-    /**
-     * **La lente segue il dito, invece di restare dove il dito è sceso.**
-     *
-     * ⚠️⚠️ **È LA SUA RICHIESTA DEL GIRO DELLA `2.24`** (voce `mirato-lente` non approvata:
-     * *dev'essere possibile trascinare il 'mirino', perché difficilmente con il dito si azzecca il
-     * punto giusto al primo colpo*), e rovescia quello che la `2.24` aveva scritto apposta.
-     * ⚠️ **Si confrontano due scatti col dito GIÙ**, in due punti diversi: se la lente restasse
-     * ancorata, il secondo sarebbe identico al primo, perché nient'altro si muove.
-     * ⚠️⚠️ **SI MISURA IN ORIZZONTALE, E IL BANCO LO HA IMPOSTO**: qui il palco è alto una
-     * quarantina di pixel, quindi un movimento verticale grande quanto un quarto di lui non arriva
-     * nemmeno alla soglia del tocco, e il gesto resta fermo **col codice giusto**. Una spia messa
-     * dentro il rilevatore lo ha misurato: gli eventi arrivavano, e la distanza era sei pixel
-     * contro sedici di soglia. In larghezza lo spazio c'è.
-     * ⚠️ **Il clock resta fermo**, così ogni scatto è un fotogramma dichiarato invece del punto in
-     * cui `waitForIdle` decide di fermarsi. ⚠️⚠️ **E LA RAGIONE DI PRIMA È DECADUTA CON LA `2.30`**:
-     * l'attesa dell'armamento serviva a separare la scelta dal trascinamento, e nell'HSL il
-     * trascinamento non muove niente, quindi quell'attesa non c'è più (suo riscontro sulla voce
-     * `geo-mirato`). Chi legge quella nota in un commento vecchio sappia che oggi qui non scade
-     * niente.
-     * ⚠️⚠️ **SI GUARDA DOVE SONO I PIXEL CAMBIATI E NON QUANTI: LO HA DETTO LA
-     * CONTROPROVA.** La prima stesura confrontava i due scatti col dito giù e chiedeva che
-     * fossero diversi: col difetto rimesso **restava verde**, perché fra i due fotogrammi cambiava
-     * anche il contatore dell'armamento, che cresceva da sé. ⚠️ **Quel contatore è uscito con la
-     * `2.26`** (§ '📈 Il modulo Curve, e il colore mirato'), quindi oggi il conto dei pixel diversi
-     * direbbe il vero lo stesso: il baricentro resta perché dice *dove* è la lente, che è la cosa
-     * che questo caso misura, e non dipende da che cosa la lente porti dentro.
-     * ⚠️ **Controprovata** rimettendo l'ancoraggio della `2.24`, cioè togliendo l'assegnazione di
-     * `lens` dentro il ciclo: il baricentro non si muove.
-     * ⚠️⚠️ **LA SCENA È GRANDE, E DALLA `2.33` NON È PIÙ FACOLTATIVO**: da quando la scheda è alta
-     * quanto il modulo più alto, sul banco di serie il palco perde una settantina di pixel, e là
-     * dentro non ci stanno né la lente né un rettangolo di ritaglio col suo lato minimo. È lo
-     * stesso rimedio già dichiarato sulla prova della lente deformata, e misura la cosa che deve
-     * misurare invece dei limiti di una scena minuscola.
-     */
-    @Test
-    @Config(qualifiers = "w600dp-h900dp")
-    fun `la lente segue il dito che si sposta`() {
-        banco.setContent { Scena() }
-        pronta()
-        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
-        banco.waitForIdle()
-        banco.onNodeWithContentDescription(testo(R.string.look_target)).performClick()
-        banco.waitForIdle()
-        banco.mainClock.autoAdvance = false
-
-        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        val riposo = palco.captureToImage().toPixelMap()
-        palco.performTouchInput { down(center) }
-        banco.mainClock.advanceTimeByFrame()
-        val primo = centroX(riposo, palco.captureToImage().toPixelMap())
-
-        val salto = riposo.width / 3f
-        palco.performTouchInput { moveTo(center + Offset(-salto, 0f)) }
-        banco.mainClock.advanceTimeByFrame()
-        val poi = centroX(riposo, palco.captureToImage().toPixelMap())
-
-        assertTrue("senza la lente in scena non c'e niente da misurare", primo > 0f && poi > 0f)
-        assertTrue(
-            "la lente doveva seguire il dito: era a $primo e adesso e a $poi",
-            primo - poi > salto / 3f
-        )
-        palco.performTouchInput { up() }
-    }
-
-    /**
-     * **Il mirino porta il colore della FASCIA, non quello del pixel.**
-     *
-     * ⚠️⚠️ **È L'ALTRA METÀ DELLA SUA RICHIESTA** (*deve variare dinamicamente il colore per
-     * corrispondere a uno degli 8 colori standard, in modo che si capisca all'istante su cosa si
-     * agirà se ci si ferma lì*): quello che deve dire l'anello è **quale delle otto** si sta per
-     * toccare, quindi due rossi diversi devono darlo identico. Prendendo il colore del pixel la
-     * lente direbbe una cosa vera e inutile, cioè quello che già si vede.
-     * ⚠️ **E un grigio non ha fascia**: là il mirino resta bianco, che è il caso in cui `Mix.bandOf`
-     * risponde `-1`.
-     * ⚠️ **Controprovata** facendo tornare il colore del pixel: i due rossi divergono.
-     */
-    @Test
-    fun `il mirino prende il colore della fascia e non del pixel`() {
-        val chiaro = tintOfPixel(Color.rgb(255, 40, 40))
-        val cupo = tintOfPixel(Color.rgb(120, 12, 12))
-        assertTrue("un rosso deve avere la sua fascia", chiaro != null)
-        assertEquals("due rossi sono la stessa fascia, quindi lo stesso segno", chiaro, cupo)
-        assertEquals("un grigio non appartiene a nessuna fascia", null, tintOfPixel(Color.GRAY))
-    }
-
-    /**
      * **Caso 25: la geometria a riposo non sposta un pixel, e la maglia è la griglia.**
      *
      * ⚠️⚠️ **A RIPOSO IL CONTO DEVE ESSERE L'IDENTITÀ ESATTA, E NON 'QUASI'**: la deformazione
@@ -1166,83 +1036,6 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 30: la lente del colore mirato inquadra il punto toccato, con la stessa
-     * deformazione.**
-     *
-     * ⚠️⚠️ **È LA SUA SEGNALAZIONE** (giro della `2.29`, voce `geo-mirato` non approvata: *Il punto
-     * non è quello giusto, si vede l'immagine prima della distorsione*), e quello che il banco può
-     * misurarne è il conto su cui la lente si regge: la deformazione è **invariante per
-     * similitudine**, quindi costruita sul riquadro ingrandito attorno al dito posa il pixel
-     * toccato esattamente al centro del tondo.
-     * ⚠️ **Senza quella proprietà la lente non si poteva fare così**, e la `2.29` infatti aveva
-     * preso l'altra strada: disegnare l'immagine non deformata e spostare l'inquadratura sul punto
-     * sorgente, cioè mostrare un'altra immagine.
-     * ⚠️ **Controprovata** costruendo il riquadro attorno al punto sorgente, come faceva la `2.29`:
-     * il pixel toccato cade lontano dal centro.
-     */
-    @Test
-    fun `la lente inquadra il punto toccato con la stessa deformazione`() {
-        val geo = Geometry(
-            straighten = 0.5f, aspect = 0.2f, horizontal = -0.4f, vertical = 0.6f, distortion = 0.5f
-        )
-        val l = 0f
-        val t = 0f
-        val r = 120f
-        val b = 90f
-        val piano = Warp.plan(geo, (l + r) / 2f, (t + b) / 2f, r - l, b - t)
-
-        // Il dito da qualche parte sul palco, il tondo della lente sopra di lui, e il riquadro
-        // dell'immagine ingrandito di `k` attorno al dito: è il conto di `AdvancedEditorScreen`.
-        val k = 6f
-        val ditoX = 80f
-        val ditoY = 30f
-        val cx = 200f
-        val cy = 150f
-        val vl = cx + (l - ditoX) * k
-        val vt = cy + (t - ditoY) * k
-        val lente = Warp.plan(
-            geo,
-            cx + ((l + r) / 2f - ditoX) * k,
-            cy + ((t + b) / 2f - ditoY) * k,
-            (r - l) * k,
-            (b - t) * k
-        )
-
-        val fonte = piano.back(ditoX, ditoY)
-        val posato = lente.map(cx + (fonte[0] - ditoX) * k, cy + (fonte[1] - ditoY) * k)
-        assertEquals("il pixel toccato doveva cadere al centro del tondo", cx, posato[0], 0.1f)
-        assertEquals("e in verticale", cy, posato[1], 0.1f)
-
-        // E non solo al centro: dentro il tondo la deformazione è quella del palco, scalata.
-        for (x in listOf(10f, 60f, 110f)) {
-            for (y in listOf(10f, 45f, 80f)) {
-                val sul = piano.map(x, y)
-                val nel = lente.map(vl + (x - l) * k, vt + (y - t) * k)
-                assertEquals("in ($x, $y)", cx + (sul[0] - ditoX) * k, nel[0], 0.1f)
-                assertEquals("in ($x, $y)", cy + (sul[1] - ditoY) * k, nel[1], 0.1f)
-            }
-        }
-
-        /*
-         * ⚠️ **La controprova vive dentro la prova**: col riquadro costruito attorno al punto
-         * SORGENTE, che è la strada della `2.29`, il pixel toccato non cade più al centro del
-         * tondo. Cioè la misura qui sopra distingue le due scelte invece di essere vera comunque.
-         */
-        val comeAllora = Warp.plan(
-            geo,
-            cx + ((l + r) / 2f - fonte[0]) * k,
-            cy + ((t + b) / 2f - fonte[1]) * k,
-            (r - l) * k,
-            (b - t) * k
-        )
-        val storto = comeAllora.map(cx, cy)
-        assertTrue(
-            "ancorata al punto sorgente la lente doveva sbagliare bersaglio",
-            abs(storto[0] - cx) + abs(storto[1] - cy) > 1f
-        )
-    }
-
-    /**
      * **Caso 31: la geometria non esce dal riquadro dell'immagine.**
      *
      * ⚠️⚠️ **È L'ALTRA METÀ DEL SUO RISCONTRO** (giro della `2.29`, voce `geo-dritto`: *anche il
@@ -1330,6 +1123,7 @@ class SviluppoTest {
 
         banco.setContent { Scena() }
         pronta()
+        modulo(R.string.look_light)
         muovi(1, 0.5f)
         assertTrue(valore(1) > 0.2f)
 
@@ -1428,7 +1222,7 @@ class SviluppoTest {
      * dallo schermo per chi non sa che si scorre.
      */
     @Test
-    fun `i moduli sono icone che si annunciano, e si apre la luce`() {
+    fun `i moduli sono icone che si annunciano, e si apre il ritaglio`() {
         banco.setContent { Scena() }
         pronta()
 
@@ -1436,7 +1230,14 @@ class SviluppoTest {
             assertEquals("il gettone di ${testo(nome)} deve annunciarsi", 1, quantiDetti(nome))
             assertEquals("il gettone di ${testo(nome)} non deve scrivere", 0, quanti(testo(nome)))
         }
-        assertEquals("di fabbrica si guarda la Luce, coi suoi sei cursori", 6, quantiCursori())
+        assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
+        assertEquals(
+            "di fabbrica si apre il Ritaglio, quindi ci sono i suoi formati",
+            1,
+            quanti(testo(R.string.editor_shape_original))
+        )
+        modulo(R.string.look_light)
+        assertEquals("e la Luce, toccata, porta i suoi sei", 6, quantiCursori())
     }
 
     /**
@@ -1481,8 +1282,7 @@ class SviluppoTest {
      * lascia al palco, e un conto scritto qui direbbe il vero fino al primo cursore in più.
      * ⚠️⚠️ **LA SCENA È GRANDE, E DALLA `2.33` NON È PIÙ FACOLTATIVO**: da quando la scheda è alta
      * quanto il modulo più alto, sul banco di serie il palco perde una settantina di pixel, e là
-     * dentro non ci stanno né la lente né un rettangolo di ritaglio col suo lato minimo. È lo
-     * stesso rimedio già dichiarato sulla prova della lente deformata, e misura la cosa che deve
+     * dentro non ci sta un rettangolo di ritaglio col suo lato minimo. Misura la cosa che deve
      * misurare invece dei limiti di una scena minuscola.
      */
     @Test
@@ -1553,10 +1353,15 @@ class SviluppoTest {
 
         banco.setContent { Scena() }
         pronta()
+        /*
+         * ⚠️ **Si passa dalla Luce, e dalla `2.35` serve**: l'editor si apre sul Ritaglio (sua
+         * istruzione), quindi la controprova 'in un altro modulo i formati non ci sono' vuole un
+         * altro modulo davvero aperto.
+         */
+        modulo(R.string.look_light)
         for (numero in FORME) assertEquals("nella Luce i formati non ci sono", 0, quanti(numero))
 
-        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
-        banco.waitForIdle()
+        modulo(R.string.look_crop)
         for (numero in FORME) assertEquals("manca il formato $numero", 1, quanti(numero))
         assertEquals(1, quanti(testo(R.string.editor_free)))
         assertEquals(1, quanti(testo(R.string.editor_shape_original)))
@@ -1601,81 +1406,6 @@ class SviluppoTest {
         assertTrue(
             "sopra l'immagine deve esserci la squadretta",
             (0 until cima).any { scatto[sinistra!! + 1, it] != fondo }
-        )
-    }
-
-    /**
-     * **Caso 41: dentro la lente l'immagine è quella DEFORMATA.**
-     *
-     * ⚠️⚠️ **È IL SUO RISCONTRO, ED È LA SECONDA VOLTA** (giro della `2.31`, voce `geo-lente` non
-     * approvata: *continua ad essere lento e a non mostrare l'immagine deformata*). La `2.30` aveva
-     * portato la maglia dentro il tondo e lo aveva presidiato misurando il **conto**, cioè dove
-     * cade il punto toccato: quel numero era giusto e il disegno no, e fra le due cose il banco
-     * guardava la prima. Questa prova guarda i pixel.
-     * ⚠️⚠️ **SI MISURA IL CONTENUTO DELLA LENTE E NON IL PALCO, E I QUATTRO SCATTI SERVONO TUTTI**:
-     * col dito giù cambia la sola lente, quindi la differenza fra riposo e dito giù è la sua
-     * maschera; dentro quella maschera, i pixel devono **cambiare** quando la geometria si muove.
-     * Disegnando l'immagine non deformata, là dentro i due casi darebbero lo stesso identico
-     * disegno.
-     * ⚠️ **La scena è grande**, perché sul banco di serie il palco è alto una settantina di pixel e
-     * la lente non ci starebbe affatto.
-     * ⚠️ **L'immagine è una sfumatura e il cursore è la distorsione**: su un quadrato bianco pieno
-     * nessuna deformazione si vede, e la distorsione è quella che curva le righe, cioè quella che
-     * cambia di più il contenuto di un tondo preso al centro.
-     */
-    @Test
-    @Config(qualifiers = "w600dp-h900dp")
-    fun `la lente mostra l'immagine deformata`() {
-        banco.setContent { Scena(sfumato()) }
-        pronta()
-        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-
-        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
-        banco.waitForIdle()
-        banco.onNodeWithContentDescription(testo(R.string.look_target)).performClick()
-        banco.waitForIdle()
-
-        val fermoSu = palco.captureToImage().toPixelMap()
-        palco.performTouchInput { down(center + Offset(width * 0.3f, height * 0.2f)) }
-        banco.waitForIdle()
-        val fermoGiu = palco.captureToImage().toPixelMap()
-        palco.performTouchInput { up() }
-        banco.waitForIdle()
-
-        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
-        banco.waitForIdle()
-        muovi(4, 1f)
-        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
-        banco.waitForIdle()
-
-        val mossoSu = palco.captureToImage().toPixelMap()
-        palco.performTouchInput { down(center + Offset(width * 0.3f, height * 0.2f)) }
-        banco.waitForIdle()
-        val mossoGiu = palco.captureToImage().toPixelMap()
-        palco.performTouchInput { up() }
-
-        var dentro = 0
-        var cambiati = 0
-        for (y in 0 until fermoSu.height) {
-            for (x in 0 until fermoSu.width) {
-                val lente = fermoSu[x, y] != fermoGiu[x, y] && mossoSu[x, y] != mossoGiu[x, y]
-                if (!lente) continue
-                dentro += 1
-                if (fermoGiu[x, y] != mossoGiu[x, y]) cambiati += 1
-            }
-        }
-        fun riquadro(a: PixelMap, b: PixelMap): String {
-            var x0 = 9999; var y0 = 9999; var x1 = -1; var y1 = -1
-            for (y in 0 until a.height) for (x in 0 until a.width) if (a[x, y] != b[x, y]) {
-                if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y
-            }
-            return "$x0,$y0 - $x1,$y1"
-        }
-        println("SPIA palco ${fermoSu.width}x${fermoSu.height} fermo=" + riquadro(fermoSu, fermoGiu) + " mosso=" + riquadro(mossoSu, mossoGiu) + " dentro=" + dentro)
-        assertTrue("senza la lente in scena non c'è niente da misurare", dentro > 100)
-        assertTrue(
-            "dentro la lente il disegno non cambia con la geometria: $cambiati su $dentro",
-            cambiati > dentro / 4
         )
     }
 
@@ -1748,14 +1478,18 @@ class SviluppoTest {
         for (nome in MODULI) {
             assertEquals("nella fila ci sono tutti e sette", 1, quantiDetti(nome))
         }
-        val primo = dove(R.string.look_detail)
-        val ultimo = dove(R.string.look_crop)
+        /*
+         * ⚠️ **I due estremi sono cambiati con l'ordine di fabbrica della `2.35`**: là la fila
+         * comincia col Dettaglio e finisce con l'HSL, quindi rovesciata deve cominciare con l'HSL.
+         */
+        val primo = dove(R.string.look_mix)
+        val ultimo = dove(R.string.look_detail)
         assertTrue(
-            "col nome rovesciato il Dettaglio apre la fila e il Ritaglio la chiude",
+            "col nome rovesciato l'HSL apre la fila e il Dettaglio la chiude",
             primo < ultimo
         )
-        assertEquals("e restano su una riga sola", dove(R.string.look_detail, alto = true),
-            dove(R.string.look_crop, alto = true), 1f)
+        assertEquals("e restano su una riga sola", dove(R.string.look_mix, alto = true),
+            dove(R.string.look_detail, alto = true), 1f)
     }
 
     /**
@@ -1769,19 +1503,24 @@ class SviluppoTest {
      * dichiarato in `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
      */
     @Test
-    fun `le sei forme del ritaglio vanno su una fila sola`() {
+    fun `le sei forme del ritaglio vanno su due righe da tre`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
-        banco.waitForIdle()
+        modulo(R.string.look_crop)
 
         val cime = (FORME + listOf(testo(R.string.editor_free), testo(R.string.editor_shape_original)))
             .map { banco.onNodeWithText(it).fetchSemanticsNode().boundsInRoot.top }
         assertEquals("le sei forme ci sono tutte", 6, cime.size)
-        assertTrue(
-            "e cominciano tutte alla stessa altezza, cioè su una riga sola",
-            cime.max() - cime.min() < 1f
-        )
+        /*
+         * ⚠️ **Si raggruppano le cime con una tolleranza**: due celle della stessa riga possono
+         * differire di una frazione di pixel, e un confronto esatto conterebbe sei righe.
+         */
+        val righe = mutableListOf<Float>()
+        for (c in cime) if (righe.none { abs(it - c) < 2f }) righe.add(c)
+        assertEquals("le sei forme vanno su due righe", 2, righe.size)
+        for (riga in righe) {
+            assertEquals("e ogni riga ne porta tre", 3, cime.count { abs(it - riga) < 2f })
+        }
     }
 
     /**
@@ -1854,6 +1593,7 @@ class SviluppoTest {
     fun `auto scrive nei punti e si puo disfare`() {
         banco.setContent { Scena(sfumato()) }
         pronta()
+        modulo(R.string.look_light)
 
         val neri = valore(5)
         val bianchi = valore(4)
@@ -1867,6 +1607,108 @@ class SviluppoTest {
             valore(5) != neri || valore(4) != bianchi
         )
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsEnabled()
+    }
+
+    /**
+     * **Il respiro: un corpo corto si stacca fino al tetto e poi si centra.**
+     *
+     * ⚠️⚠️ **È LA SECONDA METÀ DELLA SUA RICHIESTA DELLA `2.35`** (*fa' respirare di più quelli
+     * ristretti inutilmente*): dalla `2.33` la scheda è alta quanto il modulo più alto, e fino alla
+     * `2.34` lo spazio che avanzava in un modulo corto restava **tutto in fondo**.
+     * ⚠️⚠️ **SI MISURA CHIAMANDO IL CONTO, PERCHÉ È KOTLIN PURO**: `Breathe` è un `Arrangement`, e
+     * una prova che montasse una scheda misurerebbe la somma di molte cose invece di questa.
+     * ⚠️ **Il tetto è la cosa che conta**: senza, un corpo di tre file dentro una scheda alta il
+     * doppio darebbe mezzo centimetro fra una fila e l'altra, cioè tre isole. Controprovata
+     * togliendo il `min`: l'aria diventa 50 e il primo blocco parte da 0.
+     */
+    @Test
+    fun `un corpo corto respira fino al tetto e poi si centra`() {
+        val misure = intArrayOf(40, 40, 40)
+        val dove = IntArray(3)
+        with(Density(1f)) { with(Breathe) { arrange(240, misure, dove) } }
+
+        val aria = dove[1] - (dove[0] + 40)
+        assertEquals("l'aria fra due file non supera il tetto", 12, aria)
+        assertEquals("la seconda aria è la stessa", aria, dove[2] - (dove[1] + 40))
+        val sopra = dove[0]
+        val sotto = 240 - (dove[2] + 40)
+        assertTrue(
+            "e quello che avanza si divide sopra e sotto: $sopra contro $sotto",
+            abs(sopra - sotto) <= 1
+        )
+    }
+
+    /**
+     * **Il corpo più alto non guadagna aria: là non avanza niente.**
+     *
+     * ⚠️ **È il rovescio della prova qui sopra, e vale come controprova permanente**: il tetto non
+     * deve diventare una spaziatura, o il modulo che detta l'altezza si allungherebbe di suo e la
+     * scheda crescerebbe a ogni versione.
+     */
+    @Test
+    fun `il corpo che riempie la scheda non prende aria`() {
+        val misure = intArrayOf(60, 60, 60)
+        val dove = IntArray(3)
+        with(Density(1f)) { with(Breathe) { arrange(180, misure, dove) } }
+        assertEquals(0, dove[0])
+        assertEquals(60, dove[1])
+        assertEquals(120, dove[2])
+    }
+
+    /**
+     * **Il filtro del bianco e nero: a riposo è Rec. 709, e i pesi sommano sempre uno.**
+     *
+     * ⚠️⚠️ **LA SOMMA È LA PROPRIETÀ CHE TIENE FERMA L'ESPOSIZIONE**: con pesi che non sommano a
+     * uno un grigio cambierebbe valore, cioè il cursore 'Filtro' sarebbe anche un'esposizione, e a
+     * fondo corsa l'immagine si scurirebbe senza che nessuno abbia toccato la Luce.
+     * ⚠️ **E a riposo dev'essere l'identità ESATTA**: chi aggiorna non deve ritrovarsi le sue
+     * immagini in bianco e nero diverse da ieri.
+     * ⚠️ **I due versi si misurano su un cielo**: verso il caldo deve venire più scuro (il filtro
+     * rosso), verso il freddo più chiaro. È il verso, e un segno sbagliato non lo vedrebbe nessun
+     * compilatore.
+     */
+    @Test
+    fun `il filtro non cambia il grigio a riposo e i suoi pesi sommano uno`() {
+        assertArrayEquals(Chroma.REC709, Chroma().grey, 1e-6f)
+        for (k in listOf(-1f, -0.5f, -0.1f, 0f, 0.1f, 0.5f, 1f)) {
+            val pesi = Chroma.greyMix(k)
+            assertEquals("i pesi di $k devono sommare uno", 1f, pesi.sum(), 1e-5f)
+            assertTrue("e nessuno può essere negativo", pesi.all { it >= 0f })
+        }
+
+        // Un cielo azzurro, cioè il caso da cui la funzione nasce.
+        fun grigio(k: Float): Float {
+            val p = Chroma.greyMix(k)
+            return 0.35f * p[0] + 0.55f * p[1] + 0.95f * p[2]
+        }
+        assertTrue("col filtro caldo il cielo deve venire più scuro", grigio(1f) < grigio(0f))
+        assertTrue("e col freddo più chiaro", grigio(-1f) > grigio(0f))
+    }
+
+    /**
+     * **Il 'Filtro' c'è sempre, ed è acceso SOLO col bianco e nero.**
+     *
+     * ⚠️⚠️ **QUELLO CHE PUÒ ROMPERSI IN SILENZIO È IL VERSO DELLA CONDIZIONE**: scritta al
+     * contrario, il cursore sarebbe acceso a colori (dove non governa niente) e spento in bianco e
+     * nero (dove è l'unico che conta), e il codice compilerebbe uguale.
+     * ⚠️ **E la riga c'è anche a colori**: comparendo all'accensione cambierebbe l'altezza del
+     * corpo, cioè la scheda tornerebbe a ballare, che è quello che la `2.33` esiste per evitare.
+     */
+    @Test
+    fun `il filtro si accende col bianco e nero e la riga c'è sempre`() {
+        banco.setContent { Scena() }
+        pronta()
+        modulo(R.string.look_color)
+
+        assertEquals("il Colore porta cinque cursori", 5, quantiCursori())
+        cursore(4).assertIsNotEnabled()
+
+        banco.onNodeWithText(testo(R.string.look_bw)).performClick()
+        banco.waitForIdle()
+
+        assertEquals("e restano cinque anche in bianco e nero", 5, quantiCursori())
+        cursore(4).assertIsEnabled()
+        cursore(2).assertIsNotEnabled()
     }
 
     /**
@@ -1910,27 +1752,6 @@ class SviluppoTest {
         banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
             .fetchSemanticsNodes().size
 
-    /**
-     * Il punto medio, in orizzontale, dei pixel cambiati fra due scatti: `0` se non ne è cambiato
-     * nessuno.
-     *
-     * ⚠️ **Dice DOVE è successo qualcosa**, che è la sola misura che distingue una lente che si
-     * sposta da una lente ferma con dentro qualcosa che si muove.
-     */
-    private fun centroX(a: PixelMap, b: PixelMap): Float {
-        var somma = 0f
-        var conto = 0
-        for (y in 0 until minOf(a.height, b.height)) {
-            for (x in 0 until minOf(a.width, b.width)) {
-                if (a[x, y] != b[x, y]) {
-                    somma += x
-                    conto += 1
-                }
-            }
-        }
-        return if (conto == 0) 0f else somma / conto
-    }
-
     /** Quanti pixel cambiano fra due scatti dello stesso nodo. */
     private fun diversi(a: PixelMap, b: PixelMap): Int {
         var conto = 0
@@ -1956,6 +1777,18 @@ class SviluppoTest {
 
     private fun quantiDetti(id: Int): Int =
         banco.onAllNodesWithContentDescription(testo(id)).fetchSemanticsNodes().size
+
+    /**
+     * Apre il modulo che si annuncia con [nome], toccando il suo gettone.
+     *
+     * ⚠️⚠️ **DALLA `2.35` LA LUCE SI APRE, E PRIMA ERA APERTA DI SERIE**: l'editor nasce sul
+     * Ritaglio (sua istruzione, 2026-09-13), quindi una prova che misura i cursori di un modulo
+     * deve dire quale, come farebbe un dito.
+     */
+    private fun modulo(nome: Int) {
+        banco.onNodeWithContentDescription(testo(nome)).performClick()
+        banco.waitForIdle()
+    }
 
     /** Sceglie una fascia toccando la sua pastiglia. */
     private fun fascia(nome: Int) {

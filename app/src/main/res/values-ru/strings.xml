@@ -446,6 +446,7 @@
     <string name="look_tint">Оттенок</string>
     <string name="look_saturation">Насыщенность</string>
     <string name="look_vibrance">Красочность</string>
+    <string name="look_filter">Светофильтр</string>
     <string name="look_bw">Чёрно-белое</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Оттенок</string>

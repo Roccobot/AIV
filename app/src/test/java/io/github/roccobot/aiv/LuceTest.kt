@@ -619,6 +619,16 @@ class LuceTest {
                 .fetchSemanticsNodes().isNotEmpty()
         }
         banco.waitForIdle()
+        /*
+         * ⚠️⚠️ **SI APRE LA LUCE, E DALLA `2.35` SERVE**: l'editor nasce sul **Ritaglio** (sua
+         * istruzione, 2026-09-13), e questo banco misura i cursori della Luce, che là non ci sono.
+         * Senza questa riga ogni caso che tocca un cursore muore con *no existing nodes*, cioè
+         * rosso per una decisione e non per un difetto.
+         * ⚠️ **Vive qui e non in ogni caso**: è la scena da cui queste prove partono, ed è anche
+         * quello che fa lui prima di lavorare sulla luce.
+         */
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
     }
 
     /**

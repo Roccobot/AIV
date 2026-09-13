@@ -414,6 +414,7 @@
     <string name="look_tint">رنگت</string>
     <string name="look_saturation">سیرابی</string>
     <string name="look_vibrance">شوخی</string>
+    <string name="look_filter">فلٹر</string>
     <string name="look_bw">سیاہ و سفید</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">رنگت</string>

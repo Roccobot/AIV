@@ -430,6 +430,7 @@
     <string name="look_tint">Matiz</string>
     <string name="look_saturation">Saturação</string>
     <string name="look_vibrance">Vibração</string>
+    <string name="look_filter">Filtro</string>
     <string name="look_bw">Preto e branco</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Matiz</string>

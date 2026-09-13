@@ -414,6 +414,7 @@
     <string name="look_tint">रंगत</string>
     <string name="look_saturation">संतृप्ति</string>
     <string name="look_vibrance">सजीवता</string>
+    <string name="look_filter">फ़िल्टर</string>
     <string name="look_bw">श्याम-श्वेत</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">रंगत</string>

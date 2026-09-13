@@ -414,6 +414,7 @@
     <string name="look_tint">Kiwango cha rangi</string>
     <string name="look_saturation">Ukolezi</string>
     <string name="look_vibrance">Uchangamfu</string>
+    <string name="look_filter">Kichujio</string>
     <string name="look_bw">Nyeusi na nyeupe</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Toni</string>

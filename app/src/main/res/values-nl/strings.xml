@@ -414,6 +414,7 @@
     <string name="look_tint">Tint</string>
     <string name="look_saturation">Verzadiging</string>
     <string name="look_vibrance">Levendigheid</string>
+    <string name="look_filter">Filter</string>
     <string name="look_bw">Zwart-wit</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Kleurtoon</string>

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -981,6 +982,20 @@ internal fun SheetChip(
  * numeri lo spazio che serve alle parole.
  * ⚠️ **Il corpo lo passa questa fila e non [SheetChip]**: gli altri chip della scheda (il verso
  * della selezione) hanno due celle su tutta la larghezza, quindi là non c'è niente da stringere.
+ *
+ * ⚠️⚠️ **MA DALLA `2.35` [wrap] ROVESCIA LE DUE RIGHE QUI SOPRA PER CHI HA SPAZIO, ED È IL SUO
+ * RISCONTRO** (giro della `2.34`, voce `crop-fila` non approvata: *In realtà, come ho scritto in
+ * chat, non serve. Anzi, devono occupare più spazio*, e in chat *i chip delle proporzioni possono
+ * stare anche su 3 righe*). La ragione che aveva dettato la fila unica era *preferisco lo spazio
+ * per l'immagine*, e **quella ragione è caduta con la `2.33`**: da quando la scheda è alta quanto
+ * il modulo più alto, una riga in più nel Ritaglio non toglie un pixel al palco, perché là lo
+ * spazio avanza comunque.
+ * - ⚠️ **Quindi la fila unica resta dov'è ancora vera**, cioè nell'editor di casa: là la scheda si
+ *   dimensiona sul proprio contenuto, e una seconda riga scenderebbe davvero sull'immagine.
+ * - ⚠️ **E col ritorno a capo torna il corpo pieno**: la ragione del gradino più piccolo era il
+ *   troncamento in una riga da sei celle, e con tre celle per riga quella parola sta comoda in
+ *   tutte le ventotto lingue (su 360dp una cella vale un centinaio di punti contro i 57 di prima).
+ *   Con lui cade la domanda `d-crop-corpo`, e la sua risposta lo dice: *Non serve*.
  */
 @Composable
 internal fun ShapeRow(
@@ -988,24 +1003,71 @@ internal fun ShapeRow(
     lay: Lay,
     enabled: Boolean,
     onShape: (Shape) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /**
+     * Se le sei forme possono andare a capo, cioè se chi le mostra ha spazio da spendere.
+     *
+     * ⚠️ **Non ha un valore di serie 'a capo'**: la fila unica è quella dell'editor di casa, che
+     * è il chiamante più vecchio e quello in cui lo spazio costa; chi può permettersi il ritorno
+     * a capo lo dichiara.
+     */
+    wrap: Boolean = false
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth().oneOf(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        for (one in Shape.entries) {
-            SheetChip(
-                text = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty(),
-                selected = one == shape,
-                enabled = enabled,
-                onClick = { onShape(one) },
-                modifier = Modifier.weight(if (one.word != null) SHAPE_WORD else 1f),
-                style = MaterialTheme.typography.labelMedium
-            )
+    @Composable
+    fun chip(one: Shape, cella: Modifier) {
+        SheetChip(
+            text = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty(),
+            selected = one == shape,
+            enabled = enabled,
+            onClick = { onShape(one) },
+            modifier = cella,
+            style = if (wrap) {
+                MaterialTheme.typography.labelLarge
+            } else {
+                MaterialTheme.typography.labelMedium
+            }
+        )
+    }
+    if (wrap) {
+        /*
+         * ⚠️⚠️ **TRE CELLE PER RIGA E NON 'QUELLE CHE CI STANNO', ED È UNA SCELTA MISURATA**: con
+         * un flusso libero le celle si dimensionano sul testo, quindi la riga finirebbe con un
+         * vuoto a destra diverso in ogni lingua, e '1:1' verrebbe largo un terzo di 'Originale'.
+         * Con tre colonne uguali le due righe si leggono come una griglia, e la parola più lunga
+         * delle ventotto lingue sta comoda per costruzione.
+         * ⚠️ **Il peso di [SHAPE_WORD] qui non serve**: serviva a rubare spazio ai numeri per
+         * darlo alle parole in una riga da sei, e con tre celle per riga ce n'è per tutti.
+         */
+        FlowRow(
+            modifier = modifier.fillMaxWidth().oneOf(),
+            horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP),
+            verticalArrangement = Arrangement.spacedBy(SHAPE_GAP),
+            maxItemsInEachRow = SHAPE_WRAP
+        ) {
+            for (one in Shape.entries) chip(one, Modifier.weight(1f))
+        }
+    } else {
+        Row(
+            modifier = modifier.fillMaxWidth().oneOf(),
+            horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)
+        ) {
+            for (one in Shape.entries) {
+                chip(one, Modifier.weight(if (one.word != null) SHAPE_WORD else 1f))
+            }
         }
     }
 }
+
+/** Il distacco fra due forme, uguale nelle due direzioni quando la fila va a capo. */
+private val SHAPE_GAP = 6.dp
+
+/**
+ * Quante forme entrano in una riga quando la fila va a capo: vedi il conto in [ShapeRow].
+ *
+ * ⚠️ **Sei diviso tre fa due righe piene**, e non una riga da quattro con due orfane sotto: le
+ * forme sono sei, e un numero che non le divide lascia una riga spaiata.
+ */
+private const val SHAPE_WRAP = 3
 
 /**
  * Quanto è più larga la cella di una forma che si dice a parole: vedi il conto in [ShapeRow].

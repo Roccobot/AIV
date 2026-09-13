@@ -414,6 +414,7 @@
     <string name="look_tint">ఛాయ</string>
     <string name="look_saturation">సంతృప్తత</string>
     <string name="look_vibrance">సజీవత</string>
+    <string name="look_filter">ఫిల్టర్</string>
     <string name="look_bw">నలుపు తెలుపు</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">రంగు ఛాయ</string>
