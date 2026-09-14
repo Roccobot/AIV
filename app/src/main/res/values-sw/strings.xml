@@ -438,11 +438,11 @@
     <string name="look_tone_board">Mkunjo wa toni</string>
     <string name="look_target">Lengwa</string>
     <string name="look_auto">Otomatiki</string>
-    <string name="look_presets">Mipangilio</string>
-    <string name="look_preset_save">Hifadhi mpangilio</string>
+    <string name="look_presets">Mitindo</string>
+    <string name="look_preset_save">Hifadhi mtindo</string>
     <string name="look_preset_name">Jina la mpangilio</string>
-    <string name="look_preset_mine">Yako</string>
-    <string name="look_preset_house">Iliyojengwa</string>
+    <string name="look_preset_mine">Mitindo yako</string>
+    <string name="look_preset_house">Mitindo ya AIV</string>
     <string name="look_preset_remove">Ondoa</string>
     <string name="look_preset_gone">Mpangilio umeondolewa</string>
     <string name="look_geometry">Jiometri</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">Kwenye pipa, \'Rudisha\' huchukua nafasi ya \'Badilisha jina\'.</string>
     <string name="settings_buttons_before">Sogeza mbele</string>
     <string name="settings_buttons_after">Sogeza nyuma</string>
+    <string name="look_corners">Pembe</string>
+    <string name="look_preset_add">Ongeza kwenye mtindo wa sasa</string>
+    <string name="settings_styles">Mitindo ya kuhariri</string>
+    <string name="settings_styles_desc">Panga upya, badilisha jina au futa mitindo ya kihariri kamili, ile ya programu na yako.</string>
+    <string name="settings_styles_none">Bado hujahifadhi mtindo wowote.</string>
+    <string name="settings_styles_reset">Rejesha</string>
+    <string name="settings_styles_reset_ask">Una uhakika unataka kurejesha mitindo chaguo-msingi ya programu? Mitindo yako mwenyewe itafutwa.</string>
+    <string name="settings_styles_export">Hamisha</string>
+    <string name="settings_styles_import">Ingiza</string>
+    <string name="settings_styles_saved">Mitindo imehamishwa</string>
+    <string name="settings_styles_loaded">Mitindo imeingizwa</string>
+    <string name="settings_styles_bad">Faili hii haina mtindo wowote</string>
+    <string name="hint_modules">Telezesha aikoni ili kufikia moduli zote za kuhariri. Bonyeza kwa muda mrefu aikoni ya moduli ili kuondoa mabadiliko yake pekee.</string>
 </resources>

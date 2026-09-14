@@ -197,6 +197,16 @@ def controlla_xml(percorso):
         if errore:
             blocca.append(f'tracciato fuori grammatica: {errore}')
             continue
+        # ⚠️⚠️ LE DUE BANDIERINE DI UN ARCO VALGONO `0` O `1` E NIENT'ALTRO, e senza questa riga
+        # un tracciato con dentro `0.5` passava indisturbato: e successo in `ic_mod_detail`
+        # dalla 2.32 alla 2.40, dove i raggi erano finiti al posto della rotazione e della
+        # bandierina dell'arco maggiore. Otto archi su dodici venivano giusti per caso (la
+        # specifica scala i raggi troppo piccoli), quattro no, e il disegno sbagliava del 4,95%
+        # della tela. Un numero fuori posto in un arco non da nessun errore: si vede guardando.
+        for lettera, n in comandi:
+            if lettera.upper() == 'A' and (n[3] not in (0.0, 1.0) or n[4] not in (0.0, 1.0)):
+                blocca.append(f'arco con una bandierina che non e 0 o 1: {n[3]},{n[4]}')
+                break
         tratto = p.get(ANDROID + 'strokeWidth') is not None
         riempimento = p.get(ANDROID + 'fillType') or 'nonZero'
         if incollati:

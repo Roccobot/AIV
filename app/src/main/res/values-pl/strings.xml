@@ -470,11 +470,11 @@
     <string name="look_tone_board">Krzywa tonalna</string>
     <string name="look_target">Celowany</string>
     <string name="look_auto">Auto</string>
-    <string name="look_presets">Ustawienia</string>
-    <string name="look_preset_save">Zapisz ustawienie</string>
+    <string name="look_presets">Style</string>
+    <string name="look_preset_save">Zapisz styl</string>
     <string name="look_preset_name">Nazwa ustawienia</string>
-    <string name="look_preset_mine">Twoje</string>
-    <string name="look_preset_house">Wbudowane</string>
+    <string name="look_preset_mine">Twoje style</string>
+    <string name="look_preset_house">Style AIV</string>
     <string name="look_preset_remove">Usuń</string>
     <string name="look_preset_gone">Usunięto ustawienie</string>
     <string name="look_geometry">Geometria</string>
@@ -580,4 +580,17 @@
     <string name="settings_buttons_bin">W koszu \'Przywróć\' zajmuje miejsce \'Zmień nazwę\'.</string>
     <string name="settings_buttons_before">Przesuń wcześniej</string>
     <string name="settings_buttons_after">Przesuń później</string>
+    <string name="look_corners">Narożniki</string>
+    <string name="look_preset_add">Dodaj do bieżącego stylu</string>
+    <string name="settings_styles">Style edycji</string>
+    <string name="settings_styles_desc">Zmień kolejność, nazwę lub usuń style pełnego edytora: zarówno wbudowane, jak i własne.</string>
+    <string name="settings_styles_none">Nie zapisano jeszcze żadnego stylu.</string>
+    <string name="settings_styles_reset">Przywróć</string>
+    <string name="settings_styles_reset_ask">Czy na pewno przywrócić domyślne style aplikacji? Twoje własne style zostaną usunięte.</string>
+    <string name="settings_styles_export">Eksportuj</string>
+    <string name="settings_styles_import">Importuj</string>
+    <string name="settings_styles_saved">Wyeksportowano style</string>
+    <string name="settings_styles_loaded">Zaimportowano style</string>
+    <string name="settings_styles_bad">Ten plik nie zawiera żadnego stylu</string>
+    <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
 </resources>

@@ -235,6 +235,30 @@ testa, e la prima a cambiare sarebbe stata quella che nessuno guarda.
   uno scarto sopra zero guardi **prima** se è una scala o una traslazione uniforme, che si vede
   dall'inchiostro: stesso centro e lati in proporzione.
 
+⚠️⚠️ **E DALLA `2.50` L'ARROTONDAMENTO A 0,4 È UNA REGOLA DEL PROGETTO E NON PIÙ UN TRATTAMENTO
+CHE SI RICORDA, ED È SUA ISTRUZIONE** (2026-09-14, voce `geo-glifo`: *mi pare che manchi
+l'arrotondamento di 0,4px sugli spigoli netti. Impostalo come regola del progetto d'ora in avanti
+per tutti gli SVG che ti passo o crei in autonomia. Verifica anche le altre icone esistenti*).
+Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il verificatore è
+`tools/icon-round.py`.
+- ⚠️ **Verifica e non riscrive**, ed è misurato: la prima stesura aveva un `--fix`, e sul segno
+  di spunta ha raccordato il vertice dove il giro si chiude invece della punta, lasciando una
+  quadratica lunga un millesimo di unità. Un tracciato riscritto male non dà nessun errore, si
+  vede solo guardando, quindi lo strumento dice **dove** manca un raccordo e con che raggio, e il
+  raccordo lo fa chi disegna.
+- ⚠️⚠️ **LE ESISTENTI NE HANNO 142, SU VENTI DISEGNI SU QUARANTUNO, E SONO QUASI TUTTI SUOI**:
+  quindi 'verifica anche le altre' ha una risposta, ed è che la regola di oggi le esistenti non
+  la rispettano. Toccarle è una decisione sua e non mia, per la stessa ragione della `1.33`: un
+  disegno approvato non si cambia perché uno strumento lo segnala.
+- ⚠️⚠️ **E LA VERIFICA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUNO AVEVA
+  VISTO**: in `ic_mod_detail` i dodici archi portavano i raggi al posto della rotazione e della
+  bandierina dell'arco maggiore, quindi quattro tondi su sei venivano disegnati col raggio
+  sbagliato (2.849 pixel su 57.600, il 4,95% della tela). La rete che avrebbe dovuto prenderlo
+  è `icon-check.py`, che dalla `2.50` **rifiuta** una bandierina che non sia `0` o `1`.
+- ⚠️ **Quanto si vede è un'altra domanda, e il conto la chiude**: su un angolo retto un raccordo
+  da 0,4 fa arretrare il vertice di **0,166 unità** su 24, cioè mezzo pixel su uno schermo a tre
+  volte. È un trattamento di correttezza formale, non un effetto visibile a 24dp.
+
 ⚠️⚠️ **E DALLA `2.32` UN DISEGNO PUÒ NASCERE QUI: I NOVE GLIFI DELL'EDITOR COMPLETO SONO
 AMMORBIDITI DALLA SESSIONE**, ed è sua richiesta (2026-09-13, dopo aver guardato la tavola dei
 glifi: *cerca solo di arrotondare di ~0,4px i bordi esterni, che è il trattamento che ho fatto a
@@ -3080,6 +3104,33 @@ correzione di prospettiva, quindi chiamarne uno 'Prospettiva' direbbe che l'altr
 Lightroom li chiama 'Verticale' e 'Orizzontale', e qui il campo del codice porta la stessa parola
 che si legge nel telefono.
 
+⚠️⚠️ **E DALLA `2.50` LA GEOMETRIA HA UN COMANDO CHE NON È UN CURSORE: 'ANGOLI', ED È SUA
+RICHIESTA** (2026-09-14: *il modulo 'Geometria' deve includere uno strumento 'Angoli', che
+permette di deformare l'immagine trascinando un angolo per volta, sempre con un auto-ritaglio per
+non lasciare parti vuote*). I cinque cursori dicono **quanto**; questo dice **dove va quel
+vertice**, che è una cosa che nessuna manopola può esprimere: è la stessa distanza che c'è fra un
+cursore e il grafico delle Curve.
+- ⚠️⚠️ **È UN'OMOGRAFIA DA QUADRATO A QUADRILATERO, E IL CONTO STA ACCANTO AGLI ALTRI**: la mappa
+  di Heckbert porta il quadrato unitario sui quattro angoli spostati, e la sua inversa è la
+  matrice aggiunta, che serve al colore mirato come per gli altri comandi. Entra come quinto
+  passo di `Warp.map`, quindi il ritaglio di copertura, la maglia e la lettura inversa la
+  prendono per costruzione invece di essere una seconda strada.
+- ⚠️⚠️ **UNA MANIGLIA NON PUÒ ANDARE OVUNQUE, E LA GUARDIA È LA CONVESSITÀ**: con un vertice
+  tirato oltre la diagonale il quadrilatero si ripiega, e la mappa non è più invertibile, cioè il
+  colore mirato prenderebbe un pixel da un'altra parte della fotografia (è lo stesso difetto che
+  il banco aveva trovato sul fondo corsa della distorsione). Il movimento si accetta solo se i
+  quattro prodotti vettoriali restano dello stesso segno, e il guinzaglio è `PULL`.
+- ⚠️⚠️ **A STRUMENTO ARMATO L'IMMAGINE SI RIMPICCIOLISCE, E LA SCALA NON DIPENDE DAGLI ANGOLI**:
+  le quattro maniglie vivono **fuori** dall'immagine, quindi senza aria non si potrebbero
+  prendere. La scala di lavoro è una frazione fissa del `fit` calcolato **senza** gli angoli, e
+  non del `fit` vero: legata a quello, ogni pixel di dito muoverebbe anche la cornice, e la
+  maniglia resterebbe incollata al bordo mentre la si tira.
+- ⚠️ **Il riquadro di quello che si salva si vede dentro**, cioè il rettangolo della copertura
+  disegnato sopra l'immagine rimpicciolita: senza, si tirerebbe un angolo senza sapere quanto il
+  ritaglio automatico sta mangiando.
+- ⚠️ **Il palco fa solo quello finché è armato**, come nel Ritaglio e nel colore mirato: pinza,
+  panoramica, doppio tocco e confronto restano fermi, perché il dito ha già un mestiere.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che a riposo il conto sia
 l'identità **esatta** e la maglia coincida con la griglia, che l'andata e il ritorno si disfacciano
 a vicenda con tutti e cinque i cursori a fondo corsa, che la copertura non lasci bordi vuoti (con
@@ -3370,6 +3421,79 @@ un nome proprio, come quello di una cartella.
 ⚠️ **Si cancella con un'offerta di rimetterlo e non con una conferma**, che è il criterio di casa:
 una conferma protegge quello che si perderebbe, e qui non si perde niente finché la notifica è in
 scena. ⚠️ **Rimetterlo è salvarlo di nuovo**, cioè la stessa porta dell'andata.
+
+⚠️⚠️ **MA DALLA `2.50` NON SONO PIÙ UN PANNELLO ACCANTO AD 'AUTO': SONO L'OTTAVO MODULO, E SI
+CHIAMA 'STILI'** (sua istruzione, 2026-09-14: *il modulo Preset ... deve vivere nello stesso
+spazio della bottomsheet*). Quindi la nota qui sopra, che spiegava perché non potevano essere un
+modulo, è **superata**: quell'argomento diceva che un elenco che cresce alzerebbe la scheda di
+tutti e sette gli altri, e la risposta è che l'elenco **scorre** dentro l'altezza che la scheda
+ha già (§ `SteadyBody`).
+- ⚠️ **Il gettone entra in `MOD_KEYS` come gli altri**, quindi si riordina e si ritrova
+  nell'archivio di chi ha già scelto il proprio ordine.
+- ⚠️⚠️ **'Di serie' SI CHIAMA 'STILI AIV', ED È SUO** (stessa istruzione): i venti di casa hanno
+  un nome proprio, e 'di serie' diceva com'erano arrivati invece di che cosa sono.
+- ⚠️⚠️ **IL TOCCO AZZERA E RISCRIVE, IL TOCCO LUNGO TOCCA SOLO I MODULI CHE IL PRESET NOMINA, ED
+  È LA SUA SPECIFICA ALLA LETTERA** (*tocco sullo stile = modifica assoluta (azzera tutto, poi
+  modifica); tocco prolungato = modifica additiva (tocca i valori inclusi, non modifica gli
+  altri)*). La regola della `2.39` resta il gesto normale; il gesto lungo serve a **comporre**,
+  cioè a mettere un preset di sole curve sopra uno di sola luce.
+  - ⚠️ **'Additiva' non vuol dire che i numeri si sommano**: un modulo nominato si **sostituisce**
+    per intero, perché dentro un modulo i cursori si leggono insieme, e sommarli darebbe una
+    taratura che nessuno dei due descrive.
+  - ⚠️⚠️ **CHE COSA UN PRESET 'NOMINA' LO DICE IL FORMATO, e non serve un secondo dato**: un
+    modulo a riposo non si scrive nel file, quindi *questo preset parla di luce?* si risponde
+    chiedendo se la sua luce è a riposo. Un elenco scritto accanto sarebbe la stessa informazione
+    in due posti, e il primo a divergere sarebbe quello che nessuno guarda.
+- ⚠️ **L'immagine cambia mentre si scorre l'elenco** (*man mano che si tocca un predefinito o un
+  altro, l'immagine deve aggiornarsi in tempo reale*), che è quello che rende il pannello un
+  banco di prova invece di un elenco da leggere.
+
+⚠️⚠️ **I VENTI HANNO NOMI NUOVI E STANNO IN ORDINE ALFABETICO, E SONO SUOI** (stessa istruzione):
+'Combo' diventa **'Roccobot'**, i due rossi si chiamano **'Rosso -'** e **'Rosso - -'**, il color
+grading caldo porta il suo verso fra parentesi, i tre del trattamento portano il prefisso
+**'T&O - '**, e il misto si chiama **'Blu/Rosso'**. ⚠️ **L'ordine è alfabetico e non quello di
+arrivo**: un elenco che cresce con quelli salvati non ha un ordine naturale, e quello di arrivo lo
+sapeva solo chi lo aveva scritto.
+
+⚠️⚠️ **E SI GOVERNANO DALLE IMPOSTAZIONI, NELLA PAGINA 'STILI DI MODIFICA'** (sua richiesta): là
+si riordinano, si rinominano e si cancellano tutti in un colpo, e c'è **'Ripristina'** per
+rimettere i venti di casa. ⚠️ **Il testo dell'avviso è suo alla lettera**, e dice che cosa si
+perde invece di chiedere se si è sicuri.
+- ⚠️ **'Salva preset' si chiama 'Salva stile'**, perché 'preset' è la parola del codice e 'stile'
+  quella che si legge nel telefono: è il criterio di § '🗣️ Come si chiamano le cose'.
+- ⚠️⚠️ **'IMPORTA' ED 'ESPORTA' PASSANO DAL SELETTORE DI SISTEMA E NON DA UNA CARTELLA DI CASA**,
+  cioè da `CreateDocument` e `OpenDocument`: un file che l'utente deve poter mandare a qualcuno
+  vive dove lo mette lui. ⚠️ **Il formato è quello dell'archivio**, non un secondo: importare è
+  leggere lo stesso JSON, quindi un file esportato oggi si rilegge domani con le stesse regole
+  di compatibilità (ogni campo che manca vale il suo valore di riposo).
+- ⚠️ **Un preset di casa cancellato non sparisce dall'app**: i suoi valori vivono nel programma,
+  quindi l'archivio ne tiene la chiave fra i **nascosti**. 'Ripristina' porta via quell'elenco
+  insieme a tutto il resto, ed è la ragione per cui il comando è uno e non due.
+- ⚠️ **I due gruppi si riordinano separatamente**: l'elenco vero ha gli stili dell'app sopra e i
+  propri sotto (sua istruzione: *quelli salvati, in basso*), quindi un ordine unico permetterebbe
+  di infilare un proprio in mezzo a quelli di casa, cioè di chiedere una cosa che l'elenco non sa
+  mostrare.
+- ⚠️ **La pagina nasce con la strada delle sotto-pagine**, cioè per il primo dei quattro modi: è
+  un **elenco** che cresce e porta comandi propri riga per riga (§ '⚙️ Dove va un'impostazione, e
+  chi la deve trovare').
+
+⚠️⚠️ **E 'AUTO' COMPARE SOLO NEI DUE MODULI CHE GOVERNA, DALLA `2.50`** (sua istruzione: *l'icona
+di 'Auto' deve apparire solo se è attivo 'Luce' o 'Colore'*). Quel comando scrive in sei cursori,
+e sono tutti di quei due moduli: negli altri cinque era un tasto che cambiava valori che non si
+vedevano. ⚠️ **La condizione si legge dalla tabella dei moduli**, come quella del colore mirato, e
+non da un elenco di nomi scritto accanto al tasto.
+
+⚠️⚠️ **IL PRIMO AVVIO DELL'EDITOR PORTA UN MINI-ONBOARDING SULLA FILA DEI MODULI, E IL TESTO È SUO
+ALLA LETTERA** (2026-09-14): le icone dei moduli passano all'arancione degli onboarding e sfumano
+verso destra dentro il velo, una freccia dello stesso colore indica lo scorrimento, e sopra c'è
+scritto che si scorre e che il tocco lungo azzera un modulo solo. La chiave è `Hint.MODULES`.
+- ⚠️ **Nasce con l'ottavo gettone**: fino alla `2.40` i sette stavano nella larghezza, e con gli
+  Stili la fila scorre sul suo schermo (*nel mio caso, con il mio schermo, sarà l'unico a
+  richiedere uno scorrimento a destra, ma va benissimo così*).
+- ⚠️⚠️ **IL VELO CONSUMA IL PRIMO TOCCO, E QUESTO ROMPE LE PROVE CHE TOCCANO UN GETTONE**: quattro
+  prove del banco sono diventate rosse in un colpo, e non per un difetto. Adesso `@Before` scrive
+  la chiave come già vista, che è anche la condizione vera di chi ha già aperto l'editor una
+  volta.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`PresetTest`, ogni caso controprovato): l'andata e
 ritorno campo per campo coi cinque moduli pieni, che un preset non porti e non tocchi i tre moduli
@@ -4087,6 +4211,18 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     dipende dal verso di avvolgimento, e quanto costerebbe unire i tracciati. ⚠️ Se Chromium
     non c'è **lo dichiara** invece di tacere, che è la differenza fra un controllo saltato e un
     controllo passato.
+- **`tools/icon-round.py`**, dalla `2.50`: dice quali spigoli **esterni** di un'icona sono
+  ancora vivi, con l'angolo e il raggio che spetta a ognuno. È il presidio della regola
+  dell'arrotondamento a 0,4, che vive in § '🖌️ Come entra un disegno'. ⚠️ **Avvisa e non
+  blocca**, perché gli spigoli vivi di oggi stanno in disegni già approvati.
+  - ⚠️⚠️ **DUE FALSI POSITIVI L'HANNO COSTRETTO A GUARDARE LE TANGENTI E NON LE CORDE**, e la
+    differenza è un fattore quattro: un raccordo già fatto è un arco, e la sua corda svolta di
+    metà arco, cioè esattamente quanto basta a farlo sembrare vivo; e le curve **smooth** (`s`,
+    `t`) sono tangenti per costruzione, quindi il loro giunto non è mai uno spigolo. Prima
+    contava 1.059 punte su 41 disegni, poi 259, e adesso 142.
+  - ⚠️ **Un giro che torna a un centesimo di unità dal proprio punto di partenza è chiuso**: i
+    tracciati sono scritti a due decimali, e senza quella tolleranza la chiusura diventa una
+    rettina che svolta, cioè uno spigolo che non esiste.
 - ⚠️⚠️ **IL BANCO DI PROVA, dalla `1.73`: `./gradlew :app:testDebugUnitTest`**, e apre l'app
   **finta** su una macchina senza telefono e senza emulatore, la tocca e verifica che risponda.
   Le prove vivono in `app/src/test/`, e le librerie (Robolectric più `ui-test-junit4`) sono di

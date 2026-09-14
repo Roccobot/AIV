@@ -7,11 +7,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,7 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -196,6 +206,128 @@ fun BoxScope.HintSpot(
 }
 
 /**
+ * Il velo che evidenzia **una fila che continua fuori dallo schermo**: le sue icone in arancione,
+ * che sfumano nel velo verso destra, una freccia che indica il verso, e la frase sopra.
+ *
+ * ⚠️⚠️ **NASCE NELLA `2.50` PER LA FILA DEI MODULI DELL'EDITOR COMPLETO, ED È SUO IL DISEGNO**
+ * (campo libero del giro della `2.40`: *le icone dei moduli diventano arancione-onboarding e
+ * sfumano verso destra nel velo della sovrapposizione. Una freccia anch'essa arancione sopra il
+ * velo indica lo scorrimento. Un testo centrato sopra le icone*). Gli altri tre veli non
+ * servivano: [HintVeil] mette una copia del FAB nell'angolo, [HintSpot] illumina **una** cosa
+ * sola, e [HintCentre] non indica niente. Qui la cosa da dire è che l'elenco **continua**, e a
+ * dirlo sono la sfumatura e la freccia insieme.
+ *
+ * ⚠️⚠️ **LE ICONE SONO UNA COPIA DISEGNATA, NON LA FILA VERA**: quella vive dentro la scheda e
+ * sotto il velo, quindi non si può tingere da qui. La copia cade **sopra** l'originale perché usa
+ * lo stesso riquadro misurato e la stessa misura di cella ([modCell]), che è una funzione sola
+ * letta da tutti e due: con due conti, il primo a divergere sarebbe questo, cioè quello che si
+ * vede una volta e che nessuno rimisura.
+ * ⚠️ **Non risponde al tocco**, come la copia di [HintSpot] e al contrario di quella di
+ * [HintVeil]: qui il gesto da imparare è uno scorrimento, e uno scorrimento dentro un velo che si
+ * chiude al primo tocco non arriverebbe da nessuna parte.
+ */
+@Composable
+fun BoxScope.HintStrip(
+    text: String,
+    /** Dove sta la fila da evidenziare, in coordinate della radice. */
+    spot: Rect,
+    /** I glifi della fila, nell'ordine in cui si vedono. */
+    icons: List<ImageVector>,
+    onDone: () -> Unit
+) {
+    var origine by remember { mutableStateOf(Offset.Zero) }
+    Box(
+        modifier = Modifier
+            .matchParentSize()
+            .onGloballyPositioned { origine = it.positionInRoot() }
+            .background(HINT_SCRIM)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDone
+            )
+    ) {
+        with(LocalDensity.current) {
+            val x = (spot.left - origine.x).toDp()
+            val y = (spot.top - origine.y).toDp()
+            val larga = spot.width.toDp()
+            val alta = spot.height.toDp()
+            /*
+             * ⚠️⚠️ **LA SFUMATURA SI OTTIENE TOGLIENDO OPACITÀ, NON DIPINGENDO SOPRA**: un
+             * rettangolo del colore del velo steso sulle icone le spegnerebbe verso un nero che
+             * sotto non c'è (là sotto c'è la scheda, già velata). Con `DstIn` su un livello a
+             * parte è la **copia** a sbiadire, quindi quello che resta verso destra è il velo con
+             * sotto la fila vera, cioè esattamente 'le icone si perdono nel velo'.
+             */
+            Row(
+                modifier = Modifier
+                    .offset(x = x, y = y)
+                    .size(width = larga, height = alta)
+                    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                    .drawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                0f to Color.Black,
+                                HINT_FADE to Color.Black,
+                                1f to Color.Transparent
+                            ),
+                            blendMode = BlendMode.DstIn
+                        )
+                    },
+                horizontalArrangement = Arrangement.spacedBy(MOD_GAP)
+            ) {
+                val cella = modCell(larga, icons.size)
+                icons.forEach { glifo ->
+                    Box(
+                        modifier = Modifier.size(width = cella, height = alta),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(imageVector = glifo, contentDescription = null, tint = HINT_MARK)
+                    }
+                }
+            }
+            /*
+             * ⚠️ **La freccia sta sopra il velo e fuori dalla fila**, appoggiata al bordo destro:
+             * dentro la sfumatura sarebbe il primo segno a sparire, cioè quello che indica il
+             * verso si perderebbe proprio dalla parte in cui indica.
+             */
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = HINT_MARK,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(y = y + (alta - HINT_ARROW) / 2)
+                    .padding(end = HINT_ARROW_SIDE)
+                    .size(HINT_ARROW)
+            )
+            /*
+             * ⚠️ **Il testo si posa in una scatola che finisce dove comincia la fila**, allineato
+             * in fondo: così resta appena sopra le icone qualunque sia l'altezza della scheda, e
+             * non serve sapere quanto è alto per sottrarlo.
+             */
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .height(y)
+                    .padding(horizontal = HINT_SIDE, vertical = HINT_GAP),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.widthIn(max = HINT_WIDTH)
+                )
+            }
+        }
+    }
+}
+
+/**
  * Il velo che dice una cosa e basta: frase **in mezzo allo schermo**, nessun FAB da
  * evidenziare.
  *
@@ -332,3 +464,18 @@ private val HINT_GAP = 14.dp
  * capita invece che dove si legge.
  */
 private val HINT_WIDTH = 260.dp
+
+/**
+ * Da dove comincia a sbiadire la copia di una fila che continua fuori dallo schermo.
+ *
+ * ⚠️ **Poco più di metà fila, e non dal primo pixel**: la sfumatura deve dire 'di là ce n'è
+ * ancora', non nascondere quello che si sta spiegando. Con una rampa che parte dal bordo
+ * sinistro, il primo gettone sarebbe già mezzo spento.
+ */
+private const val HINT_FADE = 0.55f
+
+/** Quanto è grande la freccia che indica il verso dello scorrimento. */
+private val HINT_ARROW = 28.dp
+
+/** Quanto la freccia sta lontana dal bordo dello schermo. */
+private val HINT_ARROW_SIDE = 4.dp

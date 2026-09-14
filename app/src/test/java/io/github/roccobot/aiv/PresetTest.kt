@@ -1,11 +1,16 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -43,7 +48,7 @@ class PresetTest {
      */
     @Before
     fun pulisci() {
-        Presets.mine(app).forEach { Presets.remove(app, it.name) }
+        Presets.mine(app).forEach { Presets.remove(app, it) }
         assertTrue("L'archivio doveva partire vuoto", Presets.mine(app).isEmpty())
     }
 
@@ -156,12 +161,21 @@ class PresetTest {
         Presets.save(app, "Uno", Look(light = Light(exposure = 0.5f)))
         Presets.save(app, "Due", Look(chroma = Chroma(saturation = 0.3f)))
 
-        val resto = Presets.remove(app, "Uno")
-        assertEquals("Non è rimasto il solo 'Due'", listOf("Due"), resto.map { it.name })
-        assertEquals("Il disco dice un'altra cosa", listOf("Due"), Presets.mine(app).map { it.name })
+        val uno = Presets.mine(app).first { it.name == "Uno" }
+        val dove = Presets.remove(app, uno)
+        assertEquals("Non è rimasto il solo 'Due'", listOf("Due"), Presets.mine(app).map { it.name })
 
-        Presets.save(app, "Uno", Look(light = Light(exposure = 0.5f)))
-        assertEquals("Rimetterlo non ha funzionato", 2, Presets.mine(app).size)
+        /*
+         * ⚠️ **Rimetterlo è la strada di 'Annulla', dalla `2.50`**: là si ripassa dalla stessa
+         * porta con il posto che aveva, quindi la prova misura anche che torni **dov'era** e non
+         * in coda, che è il difetto che nessuno noterebbe con un elenco di due.
+         */
+        Presets.restore(app, uno, dove)
+        assertEquals(
+            "Rimetterlo non lo ha riportato al suo posto",
+            listOf("Uno", "Due"),
+            Presets.mine(app).map { it.name }
+        )
     }
 
     /**
@@ -188,40 +202,53 @@ class PresetTest {
     }
 
     /**
-     * **Caso 7: l'elenco mette i propri davanti a quelli di casa.**
+     * **Caso 7: gli 'Stili AIV' vengono prima, i propri sotto.**
      *
-     * ⚠️ **E il più recente è il primo**: chi salva un preset lo cerca dove lo ha appena messo,
-     * cioè in cima.
+     * ⚠️⚠️ **L'ORDINE SI È ROVESCIATO CON LA `2.50`, ED È SUA ISTRUZIONE** (nota sulla voce
+     * `preset-salva` del giro della `2.40`: *'Di serie' ... deve restare, ma diventa 'Stili AIV'
+     * ... mentre quelli salvati, in basso, diventeranno 'Stili personali'*). Fino alla `2.40` i
+     * propri stavano in cima, col più recente per primo.
+     * ⚠️ **E fra i propri l'ordine è quello di salvataggio**, cioè il più recente in fondo: da
+     * quando la pagina delle impostazioni li riordina a mano, mettere il nuovo in cima
+     * scavalcherebbe l'ordine che l'utente ha scelto.
      */
     @Test
-    fun `i propri vengono prima di quelli di casa`() {
+    fun `gli stili di casa vengono prima dei propri`() {
         Presets.save(app, "Vecchio", Look(light = Light(exposure = 0.5f)))
         Presets.save(app, "Nuovo", Look(light = Light(contrast = 0.5f)))
 
         val tutti = Presets.all(app)
-        assertEquals("Il più recente non è il primo", "Nuovo", tutti[0].name)
-        assertEquals("Il secondo non è l'altro mio", "Vecchio", tutti[1].name)
-        assertEquals("I venti di casa non seguono", HOUSE.size + 2, tutti.size)
-        assertTrue("Il terzo non è di casa", tutti[2].house)
+        assertEquals("I venti di casa non aprono l'elenco", HOUSE.size + 2, tutti.size)
+        assertTrue("Il primo non è di casa", tutti[0].house)
+        assertTrue("L'ultimo di casa non è al suo posto", tutti[HOUSE.size - 1].house)
+        assertEquals("Il primo dei propri non segue quelli di casa", "Vecchio", tutti[HOUSE.size].name)
+        assertEquals("Il più recente non è l'ultimo", "Nuovo", tutti.last().name)
+        assertTrue("Un proprio si dichiara di casa", !tutti.last().house)
     }
 
     /**
-     * **Caso 8: il pannello elenca, applica, e resta aperto.**
+     * **Caso 8: il modulo elenca, applica, e resta in scena.**
      *
-     * ⚠️⚠️ **CHE RESTI APERTO È METÀ DELLA FUNZIONE**: un preset si sceglie confrontando, e un
-     * pannello che si chiudesse a ogni tocco costringerebbe a riaprirlo per provare il prossimo.
+     * ⚠️⚠️ **CHE RESTI IN SCENA È METÀ DELLA FUNZIONE**: un preset si sceglie confrontando, e un
+     * elenco che si chiudesse a ogni tocco costringerebbe a riaprirlo per provare il prossimo.
      * Misurato dal nome, che dopo il tocco deve essere ancora in scena.
+     * ⚠️ **Dalla `2.50` è il corpo di un modulo e non una scheda che si apre** (sua istruzione:
+     * *inserisci i modelli in un modulo a parte*), quindi non c'è più niente da chiudere e il
+     * tocco dichiara anche se era lungo, cioè se applica in modo additivo.
      */
     @Test
-    fun `il pannello applica il preset toccato e resta aperto`() {
+    fun `il modulo applica il preset toccato e resta in scena`() {
         var scelto: Preset? = null
-        var chiuso = false
+        var additivo: Boolean? = null
         banco.setContent {
             AivTheme(darkTheme = false) {
-                PresetSheet(
+                PresetBody(
                     look = Look.NONE,
-                    onPick = { scelto = it },
-                    onDismiss = { chiuso = true }
+                    height = 320.dp,
+                    onPick = { p, add ->
+                        scelto = p
+                        additivo = add
+                    }
                 )
             }
         }
@@ -232,49 +259,66 @@ class PresetTest {
 
         assertEquals("Il tocco non ha applicato quel preset", nome, scelto?.name)
         assertTrue("Il preset applicato non cambia niente", !(scelto?.look?.idle ?: true))
-        assertTrue("Il pannello si è chiuso da sé", !chiuso)
+        assertEquals("Un tocco normale si è dichiarato additivo", false, additivo)
         banco.onNodeWithText(nome).assertIsDisplayed()
     }
 
     /**
-     * **Caso 9: il comando che toglie c'è solo sui propri.**
+     * **Caso 9: nell'elenco del modulo non si cancella niente, e non è una dimenticanza.**
      *
-     * ⚠️⚠️ **UN PRESET DI CASA NON SI CANCELLA PERCHÉ NON VIVE IN NESSUN ARCHIVIO**: un comando
-     * che lo proponesse non farebbe niente, e sarebbe un tasto che mente. ⚠️ **Si misura
-     * contando**: con un preset proprio in elenco i comandi sono uno, e senza sono zero.
-     * Controprovato passando `onRemove` anche ai venti di casa: là ne comparivano ventuno.
+     * ⚠️⚠️ **DALLA `2.50` GLI STILI SI GESTISCONO NELLE IMPOSTAZIONI, ED È SUA ISTRUZIONE**
+     * (nota sulla voce `preset-salva` del giro della `2.40`: *servirà una nuova sezione delle
+     * Impostazioni ... in cui si possono riordinare, rinominare e cancellare*). Qui si **sceglie**
+     * uno stile, e un comando che cancella accanto a uno che applica è il modo per perdere uno
+     * stile mentre se ne prova un altro. Il caso vale anche con un preset proprio in elenco, che
+     * è il solo che si potrebbe cancellare.
      */
     @Test
-    fun `senza preset propri non c e nessun comando che toglie`() {
+    fun `l elenco del modulo non porta nessun comando che toglie`() {
+        Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
         banco.setContent {
             AivTheme(darkTheme = false) {
-                PresetSheet(look = Look.NONE, onPick = {}, onDismiss = {})
+                PresetBody(look = Look.NONE, height = 320.dp, onPick = { _, _ -> })
             }
         }
+        /*
+         * ⚠️ **Si scorre fino a lui**: i propri stanno **sotto** i venti di casa (sua istruzione,
+         * *quelli salvati, in basso*), e in un elenco pigro quello che è fuori scena non è nemmeno
+         * nell'albero. Senza questa riga la prova misurerebbe zero comandi perché la riga non c'è,
+         * invece che perché il comando non esiste.
+         */
+        banco.onNode(hasScrollAction()).performScrollToNode(hasText("Mio"))
+        banco.onNodeWithText("Mio").assertIsDisplayed()
         assertEquals(
-            "I venti di casa portano un comando che non potrebbe fare niente",
+            "L'elenco che applica porta anche un comando che cancella",
             0,
             comandiCheTolgono()
         )
     }
 
     /**
-     * **Caso 9b: con un preset proprio in elenco, il comando è uno solo.**
+     * **Caso 9b: la pagina 'Stili di modifica' li cancella tutti, di casa compresi.**
      *
      * ⚠️ **Sono due prove e non una**, e non è una scelta di stile: `setContent` si chiama una
-     * volta sola per regola, quindi le due scene vogliono due prove. La seconda salva **prima** di
-     * montare, perché il pannello legge l'archivio all'apertura.
+     * volta sola per regola, quindi le due scene vogliono due prove. Questa salva **prima** di
+     * montare, perché la pagina legge l'archivio all'apertura.
+     * ⚠️⚠️ **ANCHE QUELLI DI CASA SI CANCELLANO, ED È SUA ISTRUZIONE** (*sia i predefiniti di
+     * fabbrica che quelli creati dall'utente*): il conto è quindi i venti di casa più i propri, e
+     * una prova che ne contasse uno solo direbbe che i suoi non si toccano.
      */
     @Test
-    fun `un preset proprio porta il comando che lo toglie`() {
+    fun `la pagina degli stili porta il comando che toglie su tutti`() {
         Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
         banco.setContent {
             AivTheme(darkTheme = false) {
-                PresetSheet(look = Look.NONE, onPick = {}, onDismiss = {})
+                StyleSettings(scroll = rememberScrollState())
             }
         }
-        banco.onNodeWithText("Mio").assertIsDisplayed()
-        assertEquals("Il comando che toglie non è uno solo", 1, comandiCheTolgono())
+        assertEquals(
+            "I comandi che tolgono non sono uno per stile",
+            HOUSE.size + 1,
+            comandiCheTolgono()
+        )
     }
 
     /** Quanti comandi 'Elimina' sono in scena: il banco non ha un conto pronto. */

@@ -438,11 +438,11 @@
     <string name="look_tone_board">Ton eğrisi</string>
     <string name="look_target">Hedefli</string>
     <string name="look_auto">Otomatik</string>
-    <string name="look_presets">Hazır ayarlar</string>
-    <string name="look_preset_save">Hazır ayarı kaydet</string>
+    <string name="look_presets">Stiller</string>
+    <string name="look_preset_save">Stili kaydet</string>
     <string name="look_preset_name">Hazır ayar adı</string>
-    <string name="look_preset_mine">Seninkiler</string>
-    <string name="look_preset_house">Yerleşik</string>
+    <string name="look_preset_mine">Senin stillerin</string>
+    <string name="look_preset_house">AIV stilleri</string>
     <string name="look_preset_remove">Kaldır</string>
     <string name="look_preset_gone">Hazır ayar kaldırıldı</string>
     <string name="look_geometry">Geometri</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">Çöp kutusunda \'Geri al\', \'Yeniden adlandır\'ın yerini alır.</string>
     <string name="settings_buttons_before">Öne al</string>
     <string name="settings_buttons_after">Arkaya al</string>
+    <string name="look_corners">Köşeler</string>
+    <string name="look_preset_add">Geçerli stile ekle</string>
+    <string name="settings_styles">Düzenleme stilleri</string>
+    <string name="settings_styles_desc">Tam düzenleyicinin stillerini yeniden sırala, adlandır veya sil: hem uygulamanınkileri hem de kendininkileri.</string>
+    <string name="settings_styles_none">Henüz hiç stil kaydetmedin.</string>
+    <string name="settings_styles_reset">Geri yükle</string>
+    <string name="settings_styles_reset_ask">Uygulamanın varsayılan stillerini geri yüklemek istiyor musun? Kendi stillerin silinecek.</string>
+    <string name="settings_styles_export">Dışa aktar</string>
+    <string name="settings_styles_import">İçe aktar</string>
+    <string name="settings_styles_saved">Stiller dışa aktarıldı</string>
+    <string name="settings_styles_loaded">Stiller içe aktarıldı</string>
+    <string name="settings_styles_bad">Bu dosyada hiç stil yok</string>
+    <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
 </resources>

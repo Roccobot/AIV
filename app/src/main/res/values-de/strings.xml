@@ -438,11 +438,11 @@
     <string name="look_tone_board">Tonwertkurve</string>
     <string name="look_target">Gezielt</string>
     <string name="look_auto">Auto</string>
-    <string name="look_presets">Presets</string>
-    <string name="look_preset_save">Preset speichern</string>
+    <string name="look_presets">Stile</string>
+    <string name="look_preset_save">Stil speichern</string>
     <string name="look_preset_name">Preset-Name</string>
-    <string name="look_preset_mine">Deine</string>
-    <string name="look_preset_house">Mitgeliefert</string>
+    <string name="look_preset_mine">Deine Stile</string>
+    <string name="look_preset_house">AIV-Stile</string>
     <string name="look_preset_remove">Entfernen</string>
     <string name="look_preset_gone">Preset entfernt</string>
     <string name="look_geometry">Geometrie</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">Im Papierkorb steht \'Wiederherstellen\' an der Stelle von \'Umbenennen\'.</string>
     <string name="settings_buttons_before">Nach vorn</string>
     <string name="settings_buttons_after">Nach hinten</string>
+    <string name="look_corners">Ecken</string>
+    <string name="look_preset_add">Zum aktuellen Look hinzufügen</string>
+    <string name="settings_styles">Bearbeitungsstile</string>
+    <string name="settings_styles_desc">Stile des vollständigen Editors neu anordnen, umbenennen oder entfernen, sowohl die mitgelieferten als auch deine.</string>
+    <string name="settings_styles_none">Du hast noch keinen Stil gespeichert.</string>
+    <string name="settings_styles_reset">Wiederherstellen</string>
+    <string name="settings_styles_reset_ask">Möchtest du wirklich die Standardstile der App wiederherstellen? Deine eigenen Stile werden gelöscht.</string>
+    <string name="settings_styles_export">Exportieren</string>
+    <string name="settings_styles_import">Importieren</string>
+    <string name="settings_styles_saved">Stile exportiert</string>
+    <string name="settings_styles_loaded">Stile importiert</string>
+    <string name="settings_styles_bad">Diese Datei enthält keinen Stil</string>
+    <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
 </resources>

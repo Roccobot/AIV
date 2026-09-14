@@ -454,11 +454,11 @@
     <string name="look_tone_board">Curva de tons</string>
     <string name="look_target">Direcionado</string>
     <string name="look_auto">Auto</string>
-    <string name="look_presets">Predefinições</string>
-    <string name="look_preset_save">Salvar predefinição</string>
+    <string name="look_presets">Estilos</string>
+    <string name="look_preset_save">Guardar estilo</string>
     <string name="look_preset_name">Nome da predefinição</string>
-    <string name="look_preset_mine">Suas</string>
-    <string name="look_preset_house">Integradas</string>
+    <string name="look_preset_mine">Os teus estilos</string>
+    <string name="look_preset_house">Estilos AIV</string>
     <string name="look_preset_remove">Remover</string>
     <string name="look_preset_gone">Predefinição removida</string>
     <string name="look_geometry">Geometria</string>
@@ -563,4 +563,17 @@
     <string name="settings_buttons_bin">Na lixeira, \'Restaurar\' fica no lugar de \'Renomear\'.</string>
     <string name="settings_buttons_before">Mover para antes</string>
     <string name="settings_buttons_after">Mover para depois</string>
+    <string name="look_corners">Cantos</string>
+    <string name="look_preset_add">Adicionar ao estilo atual</string>
+    <string name="settings_styles">Estilos de edição</string>
+    <string name="settings_styles_desc">Reordena, renomeia ou remove os estilos do editor completo, tanto os da app como os teus.</string>
+    <string name="settings_styles_none">Ainda não guardaste nenhum estilo.</string>
+    <string name="settings_styles_reset">Restaurar</string>
+    <string name="settings_styles_reset_ask">Queres mesmo restaurar os estilos predefinidos da app? Os teus estilos personalizados serão eliminados.</string>
+    <string name="settings_styles_export">Exportar</string>
+    <string name="settings_styles_import">Importar</string>
+    <string name="settings_styles_saved">Estilos exportados</string>
+    <string name="settings_styles_loaded">Estilos importados</string>
+    <string name="settings_styles_bad">Este ficheiro não contém nenhum estilo</string>
+    <string name="hint_modules">Desliza os ícones para chegares a todos os módulos de edição. Mantém premido o ícone de um módulo para repor apenas as alterações dele.</string>
 </resources>

@@ -377,6 +377,27 @@ fun SettingsScreen(
             }
         }
 
+        /*
+         * ⚠️⚠️ **NASCE NELLA `2.50` ED È UN ELENCO CON COMANDI PER RIGA, come i campi info**: il
+         * guscio che scorre serve al trascinamento che arriva al bordo, quindi nasce qui e lo
+         * ricevono tutti e due (vedi [Reorderable]).
+         * ⚠️ **Sotto 'Editor e salvataggio' e non in una sezione sua**: quella pagina **è** quella
+         * dell'editor di immagini, e una sezione con quel nome là dentro scriverebbe la stessa
+         * parola due volte a mezzo centimetro di distanza.
+         */
+        Page.STYLES -> {
+            val scroll = rememberScrollState()
+            Shell(
+                title = stringResource(R.string.settings_styles),
+                onBack = { back() },
+                modifier = modifier,
+                scroll = scroll
+            ) {
+                Detail(stringResource(R.string.settings_styles_desc))
+                StyleSettings(scroll = scroll)
+            }
+        }
+
         Page.BUTTONS -> Shell(
             title = stringResource(R.string.settings_buttons),
             onBack = { back() },
@@ -486,7 +507,7 @@ fun SettingsScreen(
 private enum class Page {
     ROOT,
     FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
-    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING
+    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES
 }
 
 /**
@@ -1708,6 +1729,31 @@ private fun EditingPage(
      * ⚠️ **Il riepilogo si compone dai titoli delle tre voci**, come quello dello zoom: scritto
      * a mano invecchierebbe al primo trasloco, e il precedente è misurato.
      */
+    /*
+     * ⚠️⚠️ **GLI STILI DELL'EDITOR COMPLETO SI GESTISCONO QUI, DALLA `2.50`, ED È SUA
+     * ISTRUZIONE** (nota sulla voce `preset-salva` del giro della `2.40`: *servirà una nuova
+     * sezione delle Impostazioni (visibile a chi ha l'editor completo): 'Stili di modifica'*).
+     * ⚠️⚠️ **NON SI APPIATTISCE NELLA RICERCA, come l'elenco dei campi info, e per la stessa
+     * ragione**: dentro c'è un elenco che si riordina, e le sue frecce lavorano sull'ordine
+     * **intero**, quindi in un elenco filtrato sposterebbero uno stile in una posizione che non
+     * si vede. La copertura è l'altra: i nomi dei tre comandi entrano fra i testi che la ricerca
+     * confronta su questa riga.
+     * ⚠️ **C'è dove c'è l'editor completo**, come la qualità di scrittura: gli stili sono suoi, e
+     * su un telefono che non lo può aprire quella pagina non avrebbe niente da governare.
+     */
+    if (advancedEditorAvailable()) {
+        PageRow(
+            label = stringResource(R.string.settings_styles),
+            summary = stringResource(R.string.settings_styles_desc),
+            onOpen = { onOpen(Page.STYLES) },
+            extra = listOf(
+                stringResource(R.string.settings_styles_reset),
+                stringResource(R.string.settings_styles_export),
+                stringResource(R.string.settings_styles_import)
+            )
+        )
+    }
+
     PageOfRows(
         label = stringResource(R.string.settings_rename_download),
         summary = listOf(

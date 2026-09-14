@@ -823,7 +823,8 @@ fun GridScreen(
             // ⚠️ Dalla 1.95 c'è anche quello della copertina, che vive in questa schermata ma
             // non passa da qui: indica l'icona dell'intestazione, quindi ha un velo suo e si
             // archivia per conto proprio.
-            Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN, Hint.COVER -> Unit
+            // ⚠️ E dalla `2.50` quello della fila dei moduli, che vive nell'editor completo.
+            Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN, Hint.COVER, Hint.MODULES -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -2479,6 +2480,9 @@ fun GridScreen(
                         // ⚠️ E idem per la copertina: quel velo indica l'icona dell'intestazione,
                         // quindi è un `HintSpot` e la sua frase la sceglie lui.
                         Hint.COVER -> R.string.hint_cover
+                        // ⚠️ E idem per la fila dei moduli dell'editor completo, che è un
+                        // `HintStrip`: indica una fila che continua fuori dallo schermo.
+                        Hint.MODULES -> R.string.hint_modules
                     }
                 ),
                 // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp

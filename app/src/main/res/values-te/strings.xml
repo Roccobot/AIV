@@ -438,11 +438,11 @@
     <string name="look_tone_board">టోన్ కర్వ్</string>
     <string name="look_target">లక్ష్యం</string>
     <string name="look_auto">ఆటో</string>
-    <string name="look_presets">ప్రీసెట్‌లు</string>
-    <string name="look_preset_save">ప్రీసెట్‌ను సేవ్ చేయి</string>
+    <string name="look_presets">శైలులు</string>
+    <string name="look_preset_save">శైలిని సేవ్ చేయి</string>
     <string name="look_preset_name">ప్రీసెట్ పేరు</string>
-    <string name="look_preset_mine">మీవి</string>
-    <string name="look_preset_house">అంతర్నిర్మితం</string>
+    <string name="look_preset_mine">మీ శైలులు</string>
+    <string name="look_preset_house">AIV శైలులు</string>
     <string name="look_preset_remove">తొలగించు</string>
     <string name="look_preset_gone">ప్రీసెట్ తొలగించబడింది</string>
     <string name="look_geometry">జ్యామితి</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">చెత్తబుట్టలో \'పేరు మార్చు\' స్థానంలో \'తిరిగి తెచ్చు\' వస్తుంది.</string>
     <string name="settings_buttons_before">ముందుకు జరుపు</string>
     <string name="settings_buttons_after">వెనక్కి జరుపు</string>
+    <string name="look_corners">మూలలు</string>
+    <string name="look_preset_add">ప్రస్తుత శైలికి జోడించు</string>
+    <string name="settings_styles">సవరణ శైలులు</string>
+    <string name="settings_styles_desc">పూర్తి ఎడిటర్ శైలులను క్రమం మార్చండి, పేరు మార్చండి లేదా తొలగించండి; యాప్‌వి మరియు మీవి రెండూ.</string>
+    <string name="settings_styles_none">మీరు ఇంకా ఏ శైలినీ సేవ్ చేయలేదు.</string>
+    <string name="settings_styles_reset">పునరుద్ధరించు</string>
+    <string name="settings_styles_reset_ask">యాప్ డిఫాల్ట్ శైలులను పునరుద్ధరించాలా? మీ సొంత శైలులు తొలగించబడతాయి.</string>
+    <string name="settings_styles_export">ఎగుమతి</string>
+    <string name="settings_styles_import">దిగుమతి</string>
+    <string name="settings_styles_saved">శైలులు ఎగుమతి అయ్యాయి</string>
+    <string name="settings_styles_loaded">శైలులు దిగుమతి అయ్యాయి</string>
+    <string name="settings_styles_bad">ఈ ఫైల్‌లో ఏ శైలీ లేదు</string>
+    <string name="hint_modules">అన్ని సవరణ మాడ్యూళ్లకు చేరుకోవడానికి చిహ్నాలను స్వైప్ చేయండి. ఒక మాడ్యూల్ చిహ్నాన్ని నొక్కి పట్టుకుంటే దాని మార్పులు మాత్రమే రీసెట్ అవుతాయి.</string>
 </resources>

@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -56,6 +57,7 @@ import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -74,6 +76,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
@@ -96,6 +99,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -107,6 +111,8 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -301,132 +307,172 @@ fun AdvancedEditorScreen(
         Mix.bandOf(pixel).takeIf { it >= 0 }?.let { gaze.band = it }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+    /*
+     * ⚠️⚠️ **IL MINI-ONBOARDING DELLA FILA DEI MODULI, DALLA `2.50`, ED È SUA RICHIESTA** (campo
+     * libero del giro della `2.40`: *aggiungiamo un mini-onboarding al primo avvio dell'editor*).
+     * Serve perché dalla `2.50` i moduli sono otto e la fila **continua fuori dallo schermo**: uno
+     * scorrimento non si dichiara da sé, e senza il velo l'ottavo modulo lo troverebbe solo chi
+     * prova a trascinare per caso.
+     * ⚠️ **Il riquadro da illuminare arriva da una misura e non da un conto**: la fila vive dentro
+     * la scheda, che ha i suoi rientri e la sua altezza, quindi rifare quella catena qui vorrebbe
+     * dire una seconda geometria che cade sul vuoto al primo ritocco. È lo stesso criterio del
+     * velo della copertina.
+     * ⚠️ **Parte da 'già visto'**, come gli altri: il valore vero arriva dal disco un fotogramma
+     * dopo, e partendo dal contrario il velo lampeggerebbe a ogni apertura.
+     */
+    val scope = rememberCoroutineScope()
+    val hinted by produceState(true) { Hint.MODULES.flow(context).collect { value = it } }
+    var strip by remember { mutableStateOf(Rect.Zero) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                        )
                     )
-                )
-                // ⚠️ I due lati non hanno lo stesso rientro, e la ragione è quella scritta in
-                // `EditorScreen`: da una parte c'è un'icona, dall'altra una parola.
-                .padding(start = 4.dp, end = STAGE_SIDE - TEXT_BUTTON_PAD),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
-            }
-            /*
-             * ⚠️⚠️ **IN TESTA C'È QUELLO CHE SI STA FACENDO, E NON QUALE DEI DUE EDITOR È, DALLA
-             * `2.20`** (sua istruzione, 2026-09-12: *mentre modifico le immagini deve apparire
-             * 'Modifica immagine', che è quello che sto facendo, sia che usi l'editor semplice,
-             * sia che usi quello completo. L'utente deve pensare alla differenza tra i due (e alla
-             * loro stessa esistenza) solo quando fa la scelta*). Quindi la stringa è la stessa
-             * delle due schermate, e i nomi dei due editor restano dove la scelta si fa: il
-             * selettore e l'elenco delle app.
-             * ⚠️ **Con lei decade la nota della `1.49`**, che diceva *questa schermata si chiama
-             * 'Editor' e non 'Modifica'*: là il ragionamento partiva dal fatto che 'Modifica' è la
-             * funzione che apre anche un'app di fuori, e con due editor in casa il nome del
-             * singolo è diventato la cosa che non serve sapere mentre si lavora.
-             */
-            Text(
-                text = stringResource(R.string.editor_title),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f).heading()
-            )
-            TextButton(
-                onClick = { onSave(look) },
-                enabled = origin != null && !busy && !look.idle
+                    // ⚠️ I due lati non hanno lo stesso rientro, e la ragione è quella scritta in
+                    // `EditorScreen`: da una parte c'è un'icona, dall'altra una parola.
+                    .padding(start = 4.dp, end = STAGE_SIDE - TEXT_BUTTON_PAD),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.editor_save))
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .background(stageBack())
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
-            contentAlignment = Alignment.Center
-        ) {
-            val picture = origin
-            if (picture == null) {
-                CircularProgressIndicator()
-            } else {
-                LookStage(
-                    picture = picture,
-                    full = full,
-                    look = if (comparing) Look.NONE else peek?.invoke(look) ?: look,
-                    onCompare = { comparing = it },
-                    /*
-                     * ⚠️⚠️ **IL MIRATO VALE SOLO NEL MODULO CHE LO SA USARE, E SI GUARDA QUI**: il
-                     * tasto che lo arma compare in quello solo, ma passando a un altro modulo
-                     * resterebbe armato e il palco smetterebbe di rispondere a pinza e doppio
-                     * tocco senza che nessuno veda più il tasto per spegnerlo. Chiedendolo alla
-                     * tabella dei moduli, quel caso non esiste.
-                     * ⚠️⚠️ **ED È UNA DOMANDA SOLA DALLA `2.32`, PERCHÉ I MODI SONO TORNATI UNO**:
-                     * fino alla `2.31` la stessa riga diceva anche **che gesto** fosse, perché le
-                     * Curve trascinavano e l'HSL sceglieva e basta. Con le Curve fuori (sua
-                     * risposta `via` a `d-mirato-curve`) resta un comportamento solo, e un enum a
-                     * tre stati dichiarerebbe una possibilità che non esiste più.
-                     */
-                    aiming = { gaze.aiming && MODULES[gaze.module].extra == Extra.BANDS },
-                    onAimStart = { aimStart(it) },
-                    onAimEnd = { push() },
-                    /*
-                     * ⚠️ **Il ritaglio si accende dalla stessa tabella del mirato**, e per la
-                     * stessa ragione: quelle squadrette vivono sul palco, quindi passando a un
-                     * altro modulo resterebbero in scena a prendere il dito senza che niente in
-                     * fondo allo schermo lo dica.
-                     */
-                    cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
-                    keep = cropShape(gaze).value(cropLay(gaze), posedAspect(origin, look.spin)),
-                    onCut = { look = look.copy(crop = it) },
-                    onCutEnd = { push() },
-                    modifier = Modifier.fillMaxSize()
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
+                }
+                /*
+                 * ⚠️⚠️ **IN TESTA C'È QUELLO CHE SI STA FACENDO, E NON QUALE DEI DUE EDITOR È, DALLA
+                 * `2.20`** (sua istruzione, 2026-09-12: *mentre modifico le immagini deve apparire
+                 * 'Modifica immagine', che è quello che sto facendo, sia che usi l'editor semplice,
+                 * sia che usi quello completo. L'utente deve pensare alla differenza tra i due (e alla
+                 * loro stessa esistenza) solo quando fa la scelta*). Quindi la stringa è la stessa
+                 * delle due schermate, e i nomi dei due editor restano dove la scelta si fa: il
+                 * selettore e l'elenco delle app.
+                 * ⚠️ **Con lei decade la nota della `1.49`**, che diceva *questa schermata si chiama
+                 * 'Editor' e non 'Modifica'*: là il ragionamento partiva dal fatto che 'Modifica' è la
+                 * funzione che apre anche un'app di fuori, e con due editor in casa il nome del
+                 * singolo è diventato la cosa che non serve sapere mentre si lavora.
+                 */
+                Text(
+                    text = stringResource(R.string.editor_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.weight(1f).heading()
                 )
+                TextButton(
+                    onClick = { onSave(look) },
+                    enabled = origin != null && !busy && !look.idle
+                ) {
+                    Text(stringResource(R.string.editor_save))
+                }
             }
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .background(stageBack())
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
+                contentAlignment = Alignment.Center
+            ) {
+                val picture = origin
+                if (picture == null) {
+                    CircularProgressIndicator()
+                } else {
+                    LookStage(
+                        picture = picture,
+                        full = full,
+                        look = if (comparing) Look.NONE else peek?.invoke(look) ?: look,
+                        onCompare = { comparing = it },
+                        /*
+                         * ⚠️⚠️ **IL MIRATO VALE SOLO NEL MODULO CHE LO SA USARE, E SI GUARDA QUI**: il
+                         * tasto che lo arma compare in quello solo, ma passando a un altro modulo
+                         * resterebbe armato e il palco smetterebbe di rispondere a pinza e doppio
+                         * tocco senza che nessuno veda più il tasto per spegnerlo. Chiedendolo alla
+                         * tabella dei moduli, quel caso non esiste.
+                         * ⚠️⚠️ **ED È UNA DOMANDA SOLA DALLA `2.32`, PERCHÉ I MODI SONO TORNATI UNO**:
+                         * fino alla `2.31` la stessa riga diceva anche **che gesto** fosse, perché le
+                         * Curve trascinavano e l'HSL sceglieva e basta. Con le Curve fuori (sua
+                         * risposta `via` a `d-mirato-curve`) resta un comportamento solo, e un enum a
+                         * tre stati dichiarerebbe una possibilità che non esiste più.
+                         */
+                        aiming = { gaze.aiming && MODULES[gaze.module].extra == Extra.BANDS },
+                        onAimStart = { aimStart(it) },
+                        onAimEnd = { push() },
+                        /*
+                         * ⚠️ **Il ritaglio si accende dalla stessa tabella del mirato**, e per la
+                         * stessa ragione: quelle squadrette vivono sul palco, quindi passando a un
+                         * altro modulo resterebbero in scena a prendere il dito senza che niente in
+                         * fondo allo schermo lo dica.
+                         */
+                        cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
+                        keep = cropShape(gaze).value(cropLay(gaze), posedAspect(origin, look.spin)),
+                        onCut = { look = look.copy(crop = it) },
+                        onCutEnd = { push() },
+                        /*
+                         * ⚠️⚠️ **LO STRUMENTO 'ANGOLI' SI ARMA COME IL COLORE MIRATO, DALLA `2.50`**:
+                         * è lo stesso tasto e lo stesso stato, e a dire quale dei due gesti sia è la
+                         * tabella dei moduli. Passando a un altro modulo il valore torna nullo, cioè
+                         * le maniglie se ne vanno insieme al tasto che le spegne.
+                         */
+                        corners = look.geo.corners.takeIf {
+                            gaze.aiming && MODULES[gaze.module].extra == Extra.CORNERS
+                        },
+                        onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
+                        onCornersEnd = { push() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+
+            LookSheet(
+                look = look,
+                busy = busy,
+                ready = origin != null,
+                canUndo = at > 0,
+                canRedo = at < history.size - 1,
+                origin = origin,
+                gaze = gaze,
+                onStrip = { strip = it },
+                /*
+                 * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
+                 * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
+                 * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
+                 * cui `push` legge [look] invece di riceverlo, e la ragione per esteso vive su
+                 * [Dial.set].
+                 */
+                onLive = { cambia -> look = cambia(look) },
+                onSettled = { push() },
+                onPeek = { senza -> peek = senza },
+                onUndo = {
+                    if (at > 0) {
+                        at -= 1
+                        look = history[at]
+                    }
+                },
+                onRedo = {
+                    if (at < history.size - 1) {
+                        at += 1
+                        look = history[at]
+                    }
+                },
+                onOriginal = {
+                    look = Look.NONE
+                    push()
+                }
+            )
         }
 
-        LookSheet(
-            look = look,
-            busy = busy,
-            ready = origin != null,
-            canUndo = at > 0,
-            canRedo = at < history.size - 1,
-            origin = origin,
-            gaze = gaze,
-            /*
-             * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
-             * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
-             * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
-             * cui `push` legge [look] invece di riceverlo, e la ragione per esteso vive su
-             * [Dial.set].
-             */
-            onLive = { cambia -> look = cambia(look) },
-            onSettled = { push() },
-            onPeek = { senza -> peek = senza },
-            onUndo = {
-                if (at > 0) {
-                    at -= 1
-                    look = history[at]
-                }
-            },
-            onRedo = {
-                if (at < history.size - 1) {
-                    at += 1
-                    look = history[at]
-                }
-            },
-            onOriginal = {
-                look = Look.NONE
-                push()
-            }
-        )
+        if (!hinted && strip != Rect.Zero) {
+            HintStrip(
+                text = stringResource(R.string.hint_modules),
+                spot = strip,
+                icons = LocalPadLook.current.mods.map { modGlyph(it) },
+                onDone = { scope.launch { Hint.MODULES.remember(context) } }
+            )
+        }
     }
 }
 
@@ -510,6 +556,21 @@ private fun LookStage(
     onCut: (ImageEdit.Crop) -> Unit,
     /** Il gesto del ritaglio è finito: quello che si è fatto diventa un passo della storia. */
     onCutEnd: () -> Unit,
+    /**
+     * I quattro angoli mentre lo strumento **Angoli** è armato, e `null` quando non lo è.
+     *
+     * ⚠️⚠️ **ARMATO, IL PALCO FA SOLO QUESTO**: pinza, panoramica, doppio tocco e confronto restano
+     * fermi, come col colore mirato e col Ritaglio, e per la stessa ragione, cioè che in questo
+     * rilevatore ogni gesto nasce dallo stesso dito che scende.
+     * ⚠️⚠️ **E L'IMMAGINE SI VEDE INTERA E RIMPICCIOLITA**: con la scala di copertura un angolo
+     * tirato in fuori finisce oltre il bordo dello schermo, cioè proprio la maniglia che si sta
+     * tirando esce dall'inquadratura. Il riquadro che resterà si vede lo stesso, disegnato sopra
+     * (vedi [ARMED_FIT]).
+     */
+    corners: Corners?,
+    onCorners: (Corners) -> Unit,
+    /** Il gesto su un angolo è finito: quello che si è fatto diventa un passo della storia. */
+    onCornersEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -528,6 +589,9 @@ private fun LookStage(
     val cutTo by rememberUpdatedState(onCut)
     /** Il rapporto da tenere, letto dentro il gesto e non catturato: vedi [geoNow]. */
     val keepNow by rememberUpdatedState(keep)
+    /** Gli angoli di adesso e dove scriverli, per chi li legge dentro un gesto: vedi [geoNow]. */
+    val cornerNow by rememberUpdatedState(corners)
+    val cornerTo by rememberUpdatedState(onCorners)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
 
     /**
@@ -645,6 +709,18 @@ private fun LookStage(
      */
     LaunchedEffect(cutting != null) {
         if (cutting != null) {
+            scale = 1f
+            shift = Offset.Zero
+        }
+    }
+
+    /*
+     * ⚠️ **E con lo strumento 'Angoli' armato per la stessa ragione**, dalla `2.50`: le quattro
+     * maniglie vivono agli angoli dell'immagine, e con l'immagine ingrandita starebbero fuori dallo
+     * schermo tutte e quattro.
+     */
+    LaunchedEffect(corners != null) {
+        if (corners != null) {
             scale = 1f
             shift = Offset.Zero
         }
@@ -924,6 +1000,61 @@ private fun LookStage(
                         }
                         return@awaitEachGesture
                     }
+                    /*
+                     * ⚠️⚠️ **LO STRUMENTO 'ANGOLI' TIRA UN VERTICE PER VOLTA, DALLA `2.50`, ED È SUA
+                     * RICHIESTA** (campo libero del giro della `2.40`, punto 5: *deformare
+                     * l'immagine trascinando un angolo per volta*). Il gesto è quello delle
+                     * squadrette del ritaglio, con due differenze: quello che si muove è un vertice
+                     * dell'immagine invece di un lato del rettangolo, e la presa è un tondo invece
+                     * di una squadretta.
+                     * ⚠️ **Un dito che scende lontano da una maniglia non fa niente**, come nel
+                     * Ritaglio: l'alternativa sarebbe deformare dal punto toccato, cioè un angolo
+                     * che salta sotto il dito.
+                     */
+                    val angoli = cornerNow
+                    if (angoli != null) {
+                        val vista = viewport(room, shown, scale, shift, air(), framed)
+                        val piano = Warp.plan(
+                            geoNow, vista.centerX(), vista.centerY(),
+                            vista.width(), vista.height(), hold = ARMED_FIT
+                        )
+                        val presa = nearestCorner(
+                            down.position, cornerSpots(piano, vista), GRIP.toPx()
+                        )
+                        /*
+                         * ⚠️ **Quanti pixel vale un'unità isotropa**: la mappa finale posa un punto
+                         * a `centro + n * cover * half`, quindi è quel prodotto a convertire il
+                         * passo del dito nello scarto dell'angolo. Con la scala di lavoro ferma
+                         * durante il gesto (vedi [ARMED_FIT]) il fattore non cambia, e la maniglia
+                         * va dove va il dito.
+                         */
+                        val unita = piano.half * piano.cover
+                        if (presa >= 0 && unita > 0f) {
+                            down.consume()
+                            var ora: Corners = angoli
+                            drag(down.id) { change ->
+                                val passo = change.positionChange()
+                                change.consume()
+                                val dx = (ora.dx(presa) + passo.x / unita)
+                                    .coerceIn(-Warp.PULL, Warp.PULL)
+                                val dy = (ora.dy(presa) + passo.y / unita)
+                                    .coerceIn(-Warp.PULL, Warp.PULL)
+                                val prova = ora.with(presa, dx, dy)
+                                /*
+                                 * ⚠️⚠️ **IL DITO SI FERMA DOVE IL QUADRILATERO SI ROVESCEREBBE**, e
+                                 * non è il valore che si rifiuta: scrivendolo e poi scartandolo,
+                                 * l'angolo scatterebbe indietro appena passa il confine. Il perché
+                                 * quel confine esista vive su [Warp.convex].
+                                 */
+                                if (Warp.convex(prova, piano.ax, piano.ay)) {
+                                    ora = prova
+                                    cornerTo(prova)
+                                }
+                            }
+                            onCornersEnd()
+                        }
+                        return@awaitEachGesture
+                    }
                     if (aiming()) {
                         /*
                          * ⚠️⚠️ **IL DITO SI TRASCINA E LA SCELTA ARRIVA QUANDO SI ALZA, DALLA
@@ -1087,9 +1218,16 @@ private fun LookStage(
          * triangoli per disegnare un rettangolo sarebbero mille occasioni di una cucitura che a
          * rettangolo non esiste.
          */
+        /*
+         * ⚠️⚠️ **CON LO STRUMENTO 'ANGOLI' ARMATO SI DISEGNA LA VISTA DI LAVORO, DALLA `2.50`**:
+         * l'immagine intera rimpicciolita invece della sola parte che resta, o la maniglia che si
+         * tira uscirebbe dallo schermo. Il perché per esteso vive sul parametro `hold` di
+         * [Warp.plan], e il riquadro che resterà si disegna sopra.
+         */
+        val armato = corners != null
         fun stendi(mappa: Bitmap, dove: RectF, nitido: Boolean) {
             val paint = pennello(mappa, dove, nitido, lato)
-            if (look.geo.idle) {
+            if (look.geo.idle && !armato) {
                 drawIntoCanvas { tela ->
                     tela.drawRect(dove.left, dove.top, dove.right, dove.bottom, paint)
                 }
@@ -1107,7 +1245,8 @@ private fun LookStage(
              * sopra ferma il disegno al palco, che è più grande, quindi da solo non bastava.
              */
             val piano = Warp.plan(
-                look.geo, view.centerX(), view.centerY(), view.width(), view.height()
+                look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
+                hold = if (armato) ARMED_FIT else null
             )
             clipRect(dove.left, dove.top, dove.right, dove.bottom) {
                 drawIntoCanvas { tela ->
@@ -1178,10 +1317,146 @@ private fun LookStage(
             )
         }
 
+        /*
+         * ⚠️⚠️ **LE QUATTRO MANIGLIE DEGLI ANGOLI, DALLA `2.50`, E IL RIQUADRO CHE RESTERÀ**: qui
+         * si vede l'immagine intera rimpicciolita (la vista di lavoro), quindi il velo dice quello
+         * che l'auto-ritaglio porterà via. Senza quel riquadro lo strumento chiederebbe di tirare
+         * un angolo senza dire che cosa si perde, che è metà della sua richiesta.
+         * ⚠️ **Il riquadro tenuto si RICAVA dalle due scale e non è un secondo conto**: quello che
+         * resta è il rettangolo che la copertura riempie, quindi nella vista di lavoro è lo stesso
+         * rettangolo scalato del rapporto fra le due. Con un conto suo, il velo direbbe una cosa e
+         * il file ne porterebbe un'altra.
+         */
+        if (armato) {
+            val lavoro = Warp.plan(
+                look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
+                hold = ARMED_FIT
+            )
+            val finale = Warp.plan(
+                look.geo, view.centerX(), view.centerY(), view.width(), view.height()
+            )
+            val k = if (finale.cover > 0f) lavoro.cover / finale.cover else 1f
+            val tenuto = Rect(
+                view.centerX() - view.width() / 2f * k,
+                view.centerY() - view.height() / 2f * k,
+                view.centerX() + view.width() / 2f * k,
+                view.centerY() + view.height() / 2f * k
+            )
+            cornerOverlay(
+                frame = Rect(0f, 0f, room.width, room.height),
+                keep = tenuto,
+                spots = cornerSpots(lavoro, view),
+                grip = CORNER_GRIP.toPx(),
+                halo = GRIP_HALO.toPx()
+            )
+        }
+
     }
 
     }
 }
+
+/**
+ * Dove cadono sullo schermo i quattro angoli dell'immagine, in senso orario da in alto a sinistra.
+ *
+ * ⚠️ **È lo stesso ordine di [Corners]**, e non è una coincidenza da mantenere a memoria: l'indice
+ * che esce da [nearestCorner] finisce dritto in `Corners.with`, quindi due ordini diversi
+ * muoverebbero l'angolo sbagliato senza dare nessun errore.
+ */
+private fun cornerSpots(plan: WarpPlan, view: RectF): List<Offset> = listOf(
+    plan.map(view.left, view.top),
+    plan.map(view.right, view.top),
+    plan.map(view.right, view.bottom),
+    plan.map(view.left, view.bottom)
+).map { Offset(it[0], it[1]) }
+
+/**
+ * Quale dei quattro angoli il dito ha preso, o `-1` se nessuno è abbastanza vicino.
+ *
+ * ⚠️ **Il più vicino e non il primo che rientra**: con un'immagine molto deformata due maniglie
+ * possono avvicinarsi, e il primo che rientra dipenderebbe dall'ordine dell'elenco.
+ */
+private fun nearestCorner(at: Offset, spots: List<Offset>, reach: Float): Int {
+    var best = -1
+    var near = reach
+    spots.forEachIndexed { i, p ->
+        val d = (p - at).getDistance()
+        if (d <= near) {
+            near = d
+            best = i
+        }
+    }
+    return best
+}
+
+/**
+ * Il velo, il riquadro che resterà e le quattro maniglie dello strumento 'Angoli'.
+ *
+ * ⚠️ **Le maniglie si disegnano per ultime**, quindi restano in vista anche quando l'angolo cade
+ * fuori dal riquadro tenuto, cioè proprio nel caso in cui si sta tirando.
+ * ⚠️ **Il contorno dell'immagine deformata è più tenue del riquadro**: sono due cose diverse, e il
+ * secondo è quello che conta, cioè quello che resterà nel file.
+ */
+private fun DrawScope.cornerOverlay(
+    frame: Rect,
+    keep: Rect,
+    spots: List<Offset>,
+    grip: Float,
+    halo: Float
+) {
+    val dim = Color.Black.copy(alpha = VEIL)
+    val line = Color.White
+    drawRect(dim, topLeft = frame.topLeft, size = Size(frame.width, keep.top - frame.top))
+    drawRect(
+        dim, topLeft = Offset(frame.left, keep.bottom),
+        size = Size(frame.width, frame.bottom - keep.bottom)
+    )
+    drawRect(
+        dim, topLeft = Offset(frame.left, keep.top),
+        size = Size(keep.left - frame.left, keep.height)
+    )
+    drawRect(
+        dim, topLeft = Offset(keep.right, keep.top),
+        size = Size(frame.right - keep.right, keep.height)
+    )
+
+    if (spots.size == 4) {
+        val contorno = Path().apply {
+            moveTo(spots[0].x, spots[0].y)
+            lineTo(spots[1].x, spots[1].y)
+            lineTo(spots[2].x, spots[2].y)
+            lineTo(spots[3].x, spots[3].y)
+            close()
+        }
+        drawPath(contorno, line.copy(alpha = 0.45f), style = Stroke(width = EDGE_PX))
+    }
+    drawRect(
+        color = line.copy(alpha = 0.9f),
+        topLeft = keep.topLeft,
+        size = keep.size,
+        style = Stroke(width = EDGE_PX)
+    )
+    for (p in spots) {
+        drawCircle(Color.Black.copy(alpha = 0.35f), grip + halo, p)
+        drawCircle(line, grip, p)
+    }
+}
+
+/**
+ * Quanto si rimpicciolisce l'immagine mentre lo strumento 'Angoli' è armato.
+ *
+ * ⚠️⚠️ **IL NUMERO È IL GUINZAGLIO LETTO AL ROVESCIO**: un angolo può allontanarsi di
+ * [Warp.PULL] unità isotrope, cioè arrivare a `1 + PULL` semilati dal centro, quindi perché la
+ * maniglia resti dentro il palco la vista deve stare sotto `1 / (1 + PULL)`. Con `PULL` a 0,35
+ * quel confine vale 0,74, e questo numero ci sta sotto con un filo di margine.
+ * ⚠️ **Non si misura sul contorno deformato**, e la ragione è sul parametro `hold` di [Warp.plan]:
+ * una scala che seguisse gli angoli farebbe stringere l'immagine di quanto la maniglia avanza,
+ * cioè la terrebbe incollata al bordo.
+ */
+private const val ARMED_FIT = 0.7f
+
+/** Il raggio del tondo di una maniglia d'angolo: un tondo dice 'portami dove vuoi'. */
+private val CORNER_GRIP = 7.dp
 
 /** Come è andata a finire l'attesa di [settled]. */
 private enum class Settled { UP, MOVED, MULTI }
@@ -1537,7 +1812,18 @@ private class Module(
      */
     val icon: @Composable () -> ImageVector,
     /** Che cosa questo modulo ha in più dei suoi cursori: vedi [Extra]. */
-    val extra: Extra = Extra.NONE
+    val extra: Extra = Extra.NONE,
+    /**
+     * Se il tasto 'Auto' ha senso mentre si guarda questo modulo, dalla `2.50`.
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA, E IL CRITERIO È CHE COSA QUEL TASTO TOCCA** (campo libero del giro
+     * della `2.40`, punto 5: *l'icona di 'Auto' deve apparire solo se è attivo 'Luce' o
+     * 'Colore'*): quel comando scrive in sei cursori, i quattro della Luce e i due del
+     * bilanciamento del bianco, quindi in un altro modulo cambia dei numeri che non si vedono.
+     * ⚠️ **Vive nella tabella e non in un `when` della scheda**, come la condizione del colore
+     * mirato: la domanda 'questo modulo offre quel comando?' si fa in un posto solo.
+     */
+    val auto: Boolean = false
 )
 
 /**
@@ -1571,7 +1857,28 @@ private enum class Extra {
      * mirato quando è armato. Il palco lo chiede con lo stesso criterio, cioè alla tabella dei
      * moduli, invece di tenere una seconda bandierina che qualcuno deve ricordarsi di spegnere.
      */
-    CROP
+    CROP,
+
+    /**
+     * Lo strumento **Angoli** e le sue quattro maniglie sul palco, cioè la Geometria, dalla `2.50`.
+     *
+     * ⚠️⚠️ **È IL SECONDO CHE CAMBIA QUELLO CHE IL PALCO FA COL DITO, MA A COMANDO**: il Ritaglio
+     * prende il dito appena è in scena, questo lo prende quando lo strumento è **armato**, come il
+     * colore mirato. La ragione è che qui i cursori sono cinque e si tarano guardando l'immagine da
+     * vicino: togliere pinza e panoramica a chi raddrizza un orizzonte sarebbe un peggioramento.
+     */
+    CORNERS,
+
+    /**
+     * L'elenco degli **stili**, cioè il modulo dei preset, dalla `2.50`.
+     *
+     * ⚠️⚠️ **È IL PRIMO CORPO CHE RICEVE L'ALTEZZA INVECE DI DETTARLA**: gli altri sette sono
+     * alti quanto il loro contenuto e il più alto detta la misura di tutti (vedi [SteadyBody]),
+     * mentre questo è un elenco che cresce con quello che l'utente salva. Scorre dentro l'altezza
+     * comune, e per questo resta fuori dalla misura: contarlo vorrebbe dire una scheda che si
+     * alza a ogni stile salvato, anche per chi gli stili non li usa.
+     */
+    PRESETS
 }
 
 /**
@@ -1913,9 +2220,12 @@ private val MODULES = listOf(
      * ⚠️⚠️ **QUESTO NON CAMBIA IL COLORE DI UN PIXEL**: gli altri sei dicono di che colore è un
      * pixel, questo dice dove va a finire, e la ragione per cui il suo conto si fa dopo lo shader
      * vive in testa a `Geometry.kt`.
-     * ⚠️ **Non offre il colore mirato**, e la condizione se lo dice da sé: `Extra.NONE` vuol dire
-     * che la scheda mostra i soli cursori, e mirare un colore in un modulo che i colori non li
-     * tocca non vorrebbe dire niente.
+     * ⚠️ **Non offre il colore mirato**, e la condizione se lo dice da sé: quel tasto vive nel solo
+     * modulo che ha un colore da puntare, e mirare in un modulo che i colori non li tocca non
+     * vorrebbe dire niente.
+     * ⚠️⚠️ **MA DALLA `2.50` OFFRE LO STRUMENTO 'ANGOLI', CHE ARMA IL DITO SULL'IMMAGINE ALLO
+     * STESSO MODO** (vedi [Extra.CORNERS]): il tasto è lo stesso della fila in fondo, e a dire
+     * quale dei due gesti sia è questa tabella.
      */
     Module(
         PadKey.MOD_GEOMETRY,
@@ -1923,7 +2233,8 @@ private val MODULES = listOf(
         rows = { GEO_ROWS },
         clear = { it.copy(geo = Geometry.NONE) },
         spent = { !it.geo.idle },
-        icon = { Glyphs.ModGeometry }
+        icon = { Glyphs.ModGeometry },
+        extra = Extra.CORNERS
     ),
     /*
      * ⚠️⚠️ **QUESTO È APERTO DI FABBRICA, DALLA `2.35`, ED È SUA ISTRUZIONE** (*ritaglio (nuovo
@@ -1944,13 +2255,19 @@ private val MODULES = listOf(
         icon = { Glyphs.ModCrop },
         extra = Extra.CROP
     ),
+    /*
+     * ⚠️ **I DUE MODULI CHE 'Auto' TOCCA**, dalla `2.50`: quel comando scrive nei quattro cursori
+     * della Luce e nei due del bilanciamento del bianco, quindi la sua icona compare mentre si
+     * guarda uno di questi due e non altrove (vedi [Module.auto]).
+     */
     Module(
         PadKey.MOD_LIGHT,
         R.string.look_light,
         rows = { LIGHT_ROWS },
         clear = { it.copy(light = Light.NONE) },
         spent = { !it.light.idle },
-        icon = { Glyphs.ModLight }
+        icon = { Glyphs.ModLight },
+        auto = true
     ),
     Module(
         PadKey.MOD_COLOUR,
@@ -1958,7 +2275,8 @@ private val MODULES = listOf(
         rows = { COLOUR_ROWS },
         clear = { it.copy(chroma = Chroma.NONE) },
         spent = { !it.chroma.idle },
-        icon = { Icons.Filled.Palette }
+        icon = { Icons.Filled.Palette },
+        auto = true
     ),
     Module(
         PadKey.MOD_MIX,
@@ -1968,6 +2286,36 @@ private val MODULES = listOf(
         spent = { !it.mix.idle },
         icon = { Glyphs.ModMix },
         extra = Extra.BANDS
+    ),
+    /*
+     * ⚠️⚠️ **L'OTTAVO È L'ELENCO DEGLI STILI, DALLA `2.50`, ED È SUA ISTRUZIONE** (campo libero
+     * del giro della `2.40`, punto 1: *inserisci i modelli in un modulo a parte*). Fino alla
+     * `2.40` gli stili si aprivano da un'icona in fondo alla scheda, cioè da una superficie in
+     * più davanti all'immagine su cui si lavora.
+     * ⚠️⚠️ **IL 'RESET MODULO' AZZERA I CINQUE MODULI DI COLORE, che è quello che uno stile
+     * governa**: un preset non lascia un valore suo da rimettere a zero, lascia i cursori dove li
+     * ha portati, quindi il tocco lungo su questo gettone vuol dire 'togli l'aspetto'. ⚠️ **La
+     * posa, il ritaglio e la geometria restano**, per la stessa ragione per cui un preset non li
+     * porta: dipendono da come è stata scattata quell'immagine.
+     * ⚠️ **Il punto d'accento non si accende**, al contrario degli altri sette: si accenderebbe
+     * per quello che hanno fatto loro, cioè direbbe 'questo modulo ha toccato l'immagine' anche a
+     * chi non ha mai aperto l'elenco.
+     * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32`: se
+     * non dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+     */
+    Module(
+        PadKey.MOD_PRESET,
+        R.string.look_presets,
+        rows = { emptyList() },
+        clear = {
+            it.copy(
+                light = Light.NONE, chroma = Chroma.NONE, mix = Mix.NONE,
+                detail = Detail.NONE, tone = Tone.NONE
+            )
+        },
+        spent = { false },
+        icon = { Icons.Filled.Style },
+        extra = Extra.PRESETS
     )
 )
 
@@ -2012,6 +2360,39 @@ private fun modIndex(key: PadKey): Int = MODULES.indexOfFirst { it.key == key }
  * dove servono i chiamanti dei tre tasti: qui c'è la forma della fila, e là che cosa fa ognuno.
  */
 private const val POSE_KEYS = 5
+
+/**
+ * Quanti gettoni di modulo entrano in uno schermo prima che la fila debba scorrere.
+ *
+ * ⚠️⚠️ **È LA MISURA DI PRIMA, NON UN TETTO, ED È QUELLO CHE HA CHIESTO LUI** (campo libero del
+ * giro della `2.40`: *nel mio caso, con il mio schermo, sarà l'unico a richiedere uno scorrimento
+ * a destra, ma va benissimo così*). Dividendo la larghezza per **otto** nessun gettone
+ * sporgerebbe, e tutti si stringerebbero di un ottavo: la fila cambierebbe aspetto per fare posto
+ * a un modulo, invece di continuare fuori dallo schermo.
+ * ⚠️ **Con sette o meno moduli in scena non cambia niente**, perché là la cella si divide la
+ * larghezza come ha sempre fatto: questo numero entra in funzione dall'ottavo in poi.
+ */
+private const val MOD_FIT = 7
+
+/**
+ * L'aria fra due gettoni della fila dei moduli.
+ *
+ * ⚠️ **La legge anche il velo del mini-onboarding**, che quella fila la ricopia sopra di sé: è la
+ * stessa ragione per cui [modCell] è una funzione sola.
+ */
+internal val MOD_GAP = 4.dp
+
+/**
+ * Quanto è larga la cella di un gettone, data la larghezza [width] e quanti moduli sono in scena.
+ *
+ * ⚠️ **La leggono in due**, la fila vera e il mini-onboarding che la ricopia sopra il velo: con
+ * due conti, il primo a divergere sarebbe quello del velo, cioè quello che si vede una volta sola
+ * e che nessuno rimisura.
+ */
+internal fun modCell(width: Dp, count: Int): Dp {
+    val quanti = minOf(count, MOD_FIT).coerceAtLeast(1)
+    return (width - MOD_GAP * (quanti - 1)) / quanti
+}
 
 /**
  * Quanto è alta la riga dei quattro comandi del ritaglio: 'Indietro', 'Avanti', 'Applica' e
@@ -2226,6 +2607,15 @@ private fun LookSheet(
     origin: Bitmap?,
     /** Dove si ha lo sguardo: il modulo, la fascia, il canale, e se il mirato è armato. */
     gaze: Gaze,
+    /**
+     * Dove sta la fila dei gettoni, in coordinate della radice, dalla `2.50`.
+     *
+     * ⚠️ **Serve al mini-onboarding, che vive nella schermata e non qui**: quel velo copre tutto
+     * lo schermo, quindi nasce fuori da questa scheda, e il riquadro da illuminare lo sa solo chi
+     * la fila la disegna. È lo stesso criterio del velo della copertina, che riceve il riquadro
+     * misurato invece di ricalcolare la catena dei rientri.
+     */
+    onStrip: (Rect) -> Unit,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit,
@@ -2235,12 +2625,6 @@ private fun LookSheet(
 ) {
     val module = gaze.module
     val chosen = MODULES[module]
-    /*
-     * ⚠️ **Il pannello dei preset è uno stato di questa scheda e non dello sguardo**: [Gaze] dice
-     * dove si lavora, questo dice che cosa è aperto sopra. Messo là, un pannello aperto
-     * sopravvivrebbe a un cambio di modulo senza che nessuno lo abbia chiesto.
-     */
-    var presets by remember { mutableStateOf(false) }
     /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
@@ -2289,26 +2673,46 @@ private fun LookSheet(
              * ⚠️ **Arriva da `LocalPadLook` come gli altri quattro ordini**, perché questa scheda
              * le impostazioni non le riceve.
              */
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                for (key in LocalPadLook.current.mods) {
-                    val i = modIndex(key)
-                    val mod = MODULES[i]
-                    ModuleChip(
-                        name = stringResource(mod.name),
-                        icon = mod.icon(),
-                        chosen = i == module,
-                        spent = mod.spent(look),
-                        enabled = ready && !busy,
-                        onTap = { gaze.module = i },
-                        onHold = {
-                            onLive(mod.clear)
-                            onSettled()
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
+            /*
+             * ⚠️⚠️ **E DALLA `2.50` SCORRE DI NUOVO, PERCHÉ I MODULI SONO OTTO, ED È SUA
+             * ISTRUZIONE** (campo libero del giro della `2.40`: *nel mio caso, con il mio schermo,
+             * sarà l'unico a richiedere uno scorrimento a destra, ma va benissimo così*). ⚠️ **Non
+             * è il ritorno del rimedio della `2.23`, e la differenza è misurabile**: là la fila
+             * scorreva perché i **nomi scritti** andavano a capo e il palco si riduceva a zero
+             * pixel, cioè scorrere copriva un difetto; qui i gettoni sono icone, la cella resta
+             * quella di sempre e a sporgere è il solo ottavo.
+             * ⚠️⚠️ **LA CELLA SI MISURA SU [MOD_FIT] E NON SU QUANTI SONO**, ed è quello che tiene
+             * la fila com'era: dividendola per otto, tutti i gettoni si stringerebbero e nessuno
+             * sporgerebbe, cioè si perderebbe la misura che lui guarda da dieci versioni.
+             * ⚠️ **Chi scorre lo scopre dal mini-onboarding**, che è la seconda metà della sua
+             * richiesta: un elenco che continua fuori dallo schermo non lo dichiara da sé.
+             */
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+                val cella = modCell(maxWidth, LocalPadLook.current.mods.size)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .onGloballyPositioned { onStrip(it.boundsInRoot()) },
+                    horizontalArrangement = Arrangement.spacedBy(MOD_GAP)
+                ) {
+                    for (key in LocalPadLook.current.mods) {
+                        val i = modIndex(key)
+                        val mod = MODULES[i]
+                        ModuleChip(
+                            name = stringResource(mod.name),
+                            icon = mod.icon(),
+                            chosen = i == module,
+                            spent = mod.spent(look),
+                            enabled = ready && !busy,
+                            onTap = { gaze.module = i },
+                            onHold = {
+                                onLive(mod.clear)
+                                onSettled()
+                            },
+                            modifier = Modifier.width(cella)
+                        )
+                    }
                 }
             }
 
@@ -2329,8 +2733,10 @@ private fun LookSheet(
             SteadyBody(
                 slots = MODULES.size,
                 chosen = module,
-                modifier = Modifier.fillMaxWidth()
-            ) { indice ->
+                modifier = Modifier.fillMaxWidth(),
+                // ⚠️ L'elenco degli stili resta fuori dalla misura e la riceve: vedi [Extra.PRESETS].
+                measured = { MODULES[it].extra != Extra.PRESETS }
+            ) { indice, comune ->
                 ModuleBody(
                     module = indice,
                     look = look,
@@ -2339,6 +2745,7 @@ private fun LookSheet(
                     busy = busy,
                     origin = origin,
                     nameWidth = nameWidth,
+                    height = comune,
                     onLive = onLive,
                     onSettled = onSettled,
                     onPeek = onPeek
@@ -2391,14 +2798,34 @@ private fun LookSheet(
                  * posto due cose che agiscono su due oggetti diversi. Adesso in fondo ci sono i
                  * comandi dell'immagine e nel modulo quelli del suo ritaglio.
                  */
-                if (chosen.extra == Extra.BANDS) {
+                /*
+                 * ⚠️⚠️ **E DALLA `2.50` QUESTO TASTO SERVE A DUE MODULI, CIOÈ ARMA IL DITO SENZA
+                 * DIRE CHE COSA FARÀ**: nell'HSL sceglie la fascia del colore toccato, nella
+                 * Geometria tira uno dei quattro angoli. Il gesto lo decide la tabella dei moduli,
+                 * che è dove vive già la domanda 'questo modulo prende il dito sull'immagine?'.
+                 * ⚠️ **Il glifo e il nome cambiano con lui**, perché sono la cosa che dice che cosa
+                 * si sta per armare: un mirino su un modulo che di colori non parla direbbe il
+                 * falso.
+                 */
+                val armabile = chosen.extra == Extra.BANDS || chosen.extra == Extra.CORNERS
+                if (armabile) {
                     IconButton(
                         onClick = { gaze.aiming = !gaze.aiming },
                         enabled = ready && !busy
                     ) {
                         Icon(
-                            imageVector = Glyphs.Aim,
-                            contentDescription = stringResource(R.string.look_target),
+                            imageVector = if (chosen.extra == Extra.CORNERS) {
+                                Icons.Filled.Transform
+                            } else {
+                                Glyphs.Aim
+                            },
+                            contentDescription = stringResource(
+                                if (chosen.extra == Extra.CORNERS) {
+                                    R.string.look_corners
+                                } else {
+                                    R.string.look_target
+                                }
+                            ),
                             tint = if (gaze.aiming) {
                                 MaterialTheme.colorScheme.primary
                             } else {
@@ -2420,30 +2847,34 @@ private fun LookSheet(
                  * dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
                  */
                 /*
-                 * ⚠️⚠️ **I PRESET VIVONO ACCANTO AD 'AUTO', DALLA `2.39`, ED È IL LORO PARENTE
-                 * STRETTO**: tutti e due scrivono nei cursori invece di dipingere, quindi quello
-                 * che ne esce è un passo della storia e 'Annulla' lo disfa. La differenza è chi
-                 * decide i numeri: là un conto sull'immagine, qui un aspetto scelto a mano.
-                 * ⚠️ **Un pannello e non un ottavo gettone**: dalla `2.33` la scheda è alta quanto
-                 * il modulo più alto, quindi un modulo fatto di un elenco che cresce alzerebbe la
-                 * scheda di tutti e sette gli altri. Il perché per esteso vive su [PresetSheet].
-                 * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella
-                 * `2.32`: se non dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+                 * ⚠️⚠️ **GLI STILI NON SONO PIÙ QUI, DALLA `2.50`: SONO L'OTTAVO MODULO** (campo
+                 * libero del giro della `2.40`, punto 1: *inserisci i modelli in un modulo a
+                 * parte*). Fino alla `2.40` un'icona in questa fila apriva un pannello sopra la
+                 * scheda, e la ragione che lo teneva fuori dalla fila dei moduli era l'altezza: un
+                 * elenco che cresce l'avrebbe alzata per tutti. Adesso quel corpo la riceve invece
+                 * di dettarla (vedi [SteadyBody]), e la ragione è caduta.
                  */
-                IconButton(onClick = { presets = true }, enabled = ready && !busy) {
-                    Icon(Icons.Filled.Style, stringResource(R.string.look_presets))
-                }
+                /*
+                 * ⚠️⚠️ **'AUTO' COMPARE SOLO DOVE TOCCA QUALCOSA, DALLA `2.50`, ED È SUA
+                 * RICHIESTA** (stesso campo libero, punto 5: *l'icona di 'Auto' deve apparire solo
+                 * se è attivo 'Luce' o 'Colore'*): quel comando scrive nei quattro cursori della
+                 * Luce e nei due del bilanciamento del bianco, quindi altrove cambiava dei numeri
+                 * che non si vedono. La condizione la porta la tabella dei moduli ([Module.auto]),
+                 * come quella del colore mirato.
+                 */
                 val sorgente = origin
-                IconButton(
-                    onClick = {
-                        if (sorgente != null) {
-                            onLive { Auto.tuned(it, Auto.probe(sorgente)) }
-                            onSettled()
-                        }
-                    },
-                    enabled = ready && !busy && sorgente != null
-                ) {
-                    Icon(Glyphs.Auto, stringResource(R.string.look_auto))
+                if (chosen.auto) {
+                    IconButton(
+                        onClick = {
+                            if (sorgente != null) {
+                                onLive { Auto.tuned(it, Auto.probe(sorgente)) }
+                                onSettled()
+                            }
+                        },
+                        enabled = ready && !busy && sorgente != null
+                    ) {
+                        Icon(Glyphs.Auto, stringResource(R.string.look_auto))
+                    }
                 }
                 IconButton(onClick = onUndo, enabled = canUndo && !busy) {
                     Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))
@@ -2458,23 +2889,6 @@ private fun LookSheet(
         }
     }
 
-    /*
-     * ⚠️ **Il pannello si monta QUI e non nella schermata**, cioè accanto al tasto che lo apre: è
-     * una finestra sua, quindi il posto nell'albero non cambia niente a quello che si vede, e
-     * tenerlo accanto al suo comando vuol dire che chi legge il tasto trova subito che cosa apre.
-     * ⚠️ **Applicare è un passo come un altro**: `onLive` più `onSettled`, la stessa coppia con cui
-     * scrive 'Auto', quindi 'Annulla' disfa un preset senza una strada sua.
-     */
-    if (presets) {
-        PresetSheet(
-            look = look,
-            onPick = { scelto ->
-                onLive { scelto.applyTo(it) }
-                onSettled()
-            },
-            onDismiss = { presets = false }
-        )
-    }
 }
 
 /**
@@ -2505,12 +2919,37 @@ private fun ModuleBody(
     origin: Bitmap?,
     /** La colonna dei nomi, misurata una volta per tutti i moduli: vedi [knobNameWidth]. */
     nameWidth: Dp,
+    /**
+     * L'altezza comune della scheda, per il solo corpo che la riceve invece di dettarla.
+     *
+     * ⚠️ **Gli altri sette la ignorano**, ed è giusto così: sono alti quanto il loro contenuto, e
+     * il più alto di loro è quello che questo numero misura. L'unico che la legge è l'elenco degli
+     * stili, che ci scorre dentro (vedi [Extra.PRESETS]).
+     */
+    height: Dp,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit
 ) {
     val mod = MODULES[module]
     val band = gaze.band
+
+    /*
+     * ⚠️⚠️ **L'ELENCO DEGLI STILI È UN CORPO COME GLI ALTRI, DALLA `2.50`**: quello che cambia è
+     * che riceve l'altezza invece di dettarla, e che i suoi due gesti scrivono un [Look] intero
+     * invece di un cursore. Applicare resta un passo della storia, cioè `onLive` più `onSettled`,
+     * la stessa coppia con cui scrive 'Auto': 'Annulla' disfa uno stile senza una strada sua.
+     */
+    if (mod.extra == Extra.PRESETS) {
+        PresetBody(
+            look = look,
+            height = height,
+            onPick = { scelto, add ->
+                onLive { if (add) scelto.addTo(it) else scelto.applyTo(it) }
+                onSettled()
+            }
+        )
+    }
 
     /**
      * Il cursore che sta alla riga [riga] del modulo e della fascia che si stanno guardando
@@ -3018,15 +3457,27 @@ internal fun SteadyBody(
     slots: Int,
     chosen: Int,
     modifier: Modifier = Modifier,
-    body: @Composable (Int) -> Unit
+    /**
+     * Se lo slot [it] entra nella misura dell'altezza comune.
+     *
+     * ⚠️⚠️ **NASCE COL MODULO DEGLI STILI, DALLA `2.50`, E SENZA DI LEI QUEL MODULO DETTEREBBE
+     * L'ALTEZZA DI TUTTI**: il suo corpo è un elenco che cresce con quello che l'utente salva,
+     * quindi misurarlo vorrebbe dire una scheda che si alza a ogni stile nuovo, anche per chi gli
+     * stili non li usa. Chi resta fuori dalla misura la **riceve** e ci scorre dentro.
+     * ⚠️ **Almeno uno deve entrarci**, o non ci sarebbe nessuna altezza da ricevere: qui ce ne
+     * sono sette su otto, e la domanda la fa la tabella dei moduli.
+     */
+    measured: (Int) -> Boolean = { true },
+    body: @Composable (Int, Dp) -> Unit
 ) {
     var tallest by remember { mutableStateOf<Int?>(null) }
+    val comune = with(LocalDensity.current) { (tallest ?: 0).toDp() }
     Box(modifier) {
         if (tallest == null) {
             Layout(
                 content = {
                     for (i in 0 until slots) {
-                        Column(modifier = Modifier.fillMaxWidth()) { body(i) }
+                        if (measured(i)) Column(modifier = Modifier.fillMaxWidth()) { body(i, 0.dp) }
                     }
                 },
                 modifier = Modifier.clearAndSetSemantics { }
@@ -3046,12 +3497,10 @@ internal fun SteadyBody(
             }
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = with(LocalDensity.current) { (tallest ?: 0).toDp() }),
+            modifier = Modifier.fillMaxWidth().heightIn(min = comune),
             verticalArrangement = Breathe
         ) {
-            body(chosen)
+            body(chosen, comune)
         }
     }
 }

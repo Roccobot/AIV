@@ -502,11 +502,11 @@
     <string name="look_tone_board">منحنى النغمات</string>
     <string name="look_target">مُستهدف</string>
     <string name="look_auto">تلقائي</string>
-    <string name="look_presets">الإعدادات المسبقة</string>
-    <string name="look_preset_save">حفظ إعداد مسبق</string>
+    <string name="look_presets">الأنماط</string>
+    <string name="look_preset_save">حفظ النمط</string>
     <string name="look_preset_name">اسم الإعداد المسبق</string>
-    <string name="look_preset_mine">إعداداتك</string>
-    <string name="look_preset_house">مضمّنة</string>
+    <string name="look_preset_mine">أنماطك</string>
+    <string name="look_preset_house">أنماط AIV</string>
     <string name="look_preset_remove">إزالة</string>
     <string name="look_preset_gone">تمت إزالة الإعداد المسبق</string>
     <string name="look_geometry">الهندسة</string>
@@ -614,4 +614,17 @@
     <string name="settings_buttons_bin">في سلة المهملات تحل \'استعادة\' محل \'إعادة تسمية\'.</string>
     <string name="settings_buttons_before">نقل إلى الأمام</string>
     <string name="settings_buttons_after">نقل إلى الخلف</string>
+    <string name="look_corners">الزوايا</string>
+    <string name="look_preset_add">إضافة إلى المظهر الحالي</string>
+    <string name="settings_styles">أنماط التحرير</string>
+    <string name="settings_styles_desc">أعد ترتيب أنماط المحرر الكامل أو غيّر أسماءها أو احذفها، سواء المدمجة أو أنماطك.</string>
+    <string name="settings_styles_none">لم تحفظ أي نمط بعد.</string>
+    <string name="settings_styles_reset">استعادة</string>
+    <string name="settings_styles_reset_ask">هل تريد فعلاً استعادة الأنماط الافتراضية للتطبيق؟ سيتم حذف أنماطك الخاصة.</string>
+    <string name="settings_styles_export">تصدير</string>
+    <string name="settings_styles_import">استيراد</string>
+    <string name="settings_styles_saved">تم تصدير الأنماط</string>
+    <string name="settings_styles_loaded">تم استيراد الأنماط</string>
+    <string name="settings_styles_bad">هذا الملف لا يحتوي على أي نمط</string>
+    <string name="hint_modules">مرّر الأيقونات للوصول إلى كل وحدات التحرير. اضغط مطولاً على أيقونة وحدة لتصفير تعديلاتها وحدها.</string>
 </resources>

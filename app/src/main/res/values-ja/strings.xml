@@ -422,11 +422,11 @@
     <string name="look_tone_board">トーンカーブ</string>
     <string name="look_target">ターゲット</string>
     <string name="look_auto">自動</string>
-    <string name="look_presets">プリセット</string>
-    <string name="look_preset_save">プリセットを保存</string>
+    <string name="look_presets">スタイル</string>
+    <string name="look_preset_save">スタイルを保存</string>
     <string name="look_preset_name">プリセット名</string>
-    <string name="look_preset_mine">マイプリセット</string>
-    <string name="look_preset_house">標準</string>
+    <string name="look_preset_mine">自分のスタイル</string>
+    <string name="look_preset_house">AIV のスタイル</string>
     <string name="look_preset_remove">削除</string>
     <string name="look_preset_gone">プリセットを削除しました</string>
     <string name="look_geometry">ジオメトリ</string>
@@ -529,4 +529,17 @@
     <string name="settings_buttons_bin">ごみ箱では「名前を変更」の位置に「元に戻す」が入ります。</string>
     <string name="settings_buttons_before">前へ移動</string>
     <string name="settings_buttons_after">後ろへ移動</string>
+    <string name="look_corners">四隅</string>
+    <string name="look_preset_add">現在の調整に加える</string>
+    <string name="settings_styles">編集スタイル</string>
+    <string name="settings_styles_desc">完全版エディターのスタイルを並べ替え、名前変更、削除できます。内蔵のものも自分のものも対象です。</string>
+    <string name="settings_styles_none">まだスタイルを保存していません。</string>
+    <string name="settings_styles_reset">元に戻す</string>
+    <string name="settings_styles_reset_ask">アプリの初期スタイルに戻しますか？自分で作ったスタイルは削除されます。</string>
+    <string name="settings_styles_export">書き出す</string>
+    <string name="settings_styles_import">読み込む</string>
+    <string name="settings_styles_saved">スタイルを書き出しました</string>
+    <string name="settings_styles_loaded">スタイルを読み込みました</string>
+    <string name="settings_styles_bad">このファイルにはスタイルがありません</string>
+    <string name="hint_modules">アイコンをスワイプするとすべての編集モジュールに届きます。モジュールのアイコンを長押しすると、そのモジュールの調整だけを戻せます。</string>
 </resources>

@@ -438,11 +438,11 @@
     <string name="look_tone_board">Tooncurve</string>
     <string name="look_target">Doelgericht</string>
     <string name="look_auto">Auto</string>
-    <string name="look_presets">Presets</string>
-    <string name="look_preset_save">Preset opslaan</string>
+    <string name="look_presets">Stijlen</string>
+    <string name="look_preset_save">Stijl opslaan</string>
     <string name="look_preset_name">Presetnaam</string>
-    <string name="look_preset_mine">Van jou</string>
-    <string name="look_preset_house">Ingebouwd</string>
+    <string name="look_preset_mine">Jouw stijlen</string>
+    <string name="look_preset_house">AIV-stijlen</string>
     <string name="look_preset_remove">Verwijderen</string>
     <string name="look_preset_gone">Preset verwijderd</string>
     <string name="look_geometry">Geometrie</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">In de prullenbak staat \'Terugzetten\' op de plaats van \'Naam wijzigen\'.</string>
     <string name="settings_buttons_before">Naar voren</string>
     <string name="settings_buttons_after">Naar achteren</string>
+    <string name="look_corners">Hoeken</string>
+    <string name="look_preset_add">Aan huidige stijl toevoegen</string>
+    <string name="settings_styles">Bewerkingsstijlen</string>
+    <string name="settings_styles_desc">Herschik, hernoem of verwijder de stijlen van de volledige editor, zowel de meegeleverde als die van jou.</string>
+    <string name="settings_styles_none">Je hebt nog geen stijl opgeslagen.</string>
+    <string name="settings_styles_reset">Herstellen</string>
+    <string name="settings_styles_reset_ask">Wil je echt de standaardstijlen van de app herstellen? Je eigen stijlen worden verwijderd.</string>
+    <string name="settings_styles_export">Exporteren</string>
+    <string name="settings_styles_import">Importeren</string>
+    <string name="settings_styles_saved">Stijlen geëxporteerd</string>
+    <string name="settings_styles_loaded">Stijlen geïmporteerd</string>
+    <string name="settings_styles_bad">Dit bestand bevat geen enkele stijl</string>
+    <string name="hint_modules">Veeg door de pictogrammen om alle bewerkingsmodules te bereiken. Houd het pictogram van een module ingedrukt om alleen die wijzigingen te wissen.</string>
 </resources>

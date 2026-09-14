@@ -438,11 +438,11 @@
     <string name="look_tone_board">টোন কার্ভ</string>
     <string name="look_target">টার্গেটেড</string>
     <string name="look_auto">স্বয়ংক্রিয়</string>
-    <string name="look_presets">প্রিসেট</string>
-    <string name="look_preset_save">প্রিসেট সংরক্ষণ করুন</string>
+    <string name="look_presets">স্টাইল</string>
+    <string name="look_preset_save">স্টাইল সংরক্ষণ</string>
     <string name="look_preset_name">প্রিসেটের নাম</string>
-    <string name="look_preset_mine">আপনার</string>
-    <string name="look_preset_house">অন্তর্নির্মিত</string>
+    <string name="look_preset_mine">আপনার স্টাইল</string>
+    <string name="look_preset_house">AIV স্টাইল</string>
     <string name="look_preset_remove">সরান</string>
     <string name="look_preset_gone">প্রিসেট সরানো হয়েছে</string>
     <string name="look_geometry">জ্যামিতি</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">আবর্জনায় \'নাম বদলান\'-এর জায়গায় \'ফিরিয়ে আনুন\' আসে।</string>
     <string name="settings_buttons_before">আগে সরান</string>
     <string name="settings_buttons_after">পরে সরান</string>
+    <string name="look_corners">কোণ</string>
+    <string name="look_preset_add">বর্তমান স্টাইলে যোগ করুন</string>
+    <string name="settings_styles">সম্পাদনার স্টাইল</string>
+    <string name="settings_styles_desc">সম্পূর্ণ সম্পাদকের স্টাইল সাজান, নাম বদলান বা মুছুন, অ্যাপের নিজস্ব ও আপনার দুই-ই।</string>
+    <string name="settings_styles_none">আপনি এখনও কোনও স্টাইল সংরক্ষণ করেননি।</string>
+    <string name="settings_styles_reset">পুনরুদ্ধার</string>
+    <string name="settings_styles_reset_ask">আপনি কি সত্যিই অ্যাপের ডিফল্ট স্টাইল ফিরিয়ে আনতে চান? আপনার নিজের স্টাইল মুছে যাবে।</string>
+    <string name="settings_styles_export">রপ্তানি</string>
+    <string name="settings_styles_import">আমদানি</string>
+    <string name="settings_styles_saved">স্টাইল রপ্তানি হয়েছে</string>
+    <string name="settings_styles_loaded">স্টাইল আমদানি হয়েছে</string>
+    <string name="settings_styles_bad">এই ফাইলে কোনও স্টাইল নেই</string>
+    <string name="hint_modules">সব সম্পাদনা মডিউলে পৌঁছাতে আইকনগুলি সোয়াইপ করুন। কোনও মডিউলের আইকন চেপে ধরে রাখলে শুধু তার পরিবর্তন মুছে যায়।</string>
 </resources>

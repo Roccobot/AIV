@@ -470,11 +470,11 @@
     <string name="look_tone_board">Тонова крива</string>
     <string name="look_target">Точково</string>
     <string name="look_auto">Авто</string>
-    <string name="look_presets">Пресети</string>
-    <string name="look_preset_save">Зберегти пресет</string>
+    <string name="look_presets">Стилі</string>
+    <string name="look_preset_save">Зберегти стиль</string>
     <string name="look_preset_name">Назва пресета</string>
-    <string name="look_preset_mine">Ваші</string>
-    <string name="look_preset_house">Вбудовані</string>
+    <string name="look_preset_mine">Ваші стилі</string>
+    <string name="look_preset_house">Стилі AIV</string>
     <string name="look_preset_remove">Видалити</string>
     <string name="look_preset_gone">Пресет видалено</string>
     <string name="look_geometry">Геометрія</string>
@@ -580,4 +580,17 @@
     <string name="settings_buttons_bin">У кошику \'Повернути\' стоїть на місці \'Перейменувати\'.</string>
     <string name="settings_buttons_before">Пересунути раніше</string>
     <string name="settings_buttons_after">Пересунути пізніше</string>
+    <string name="look_corners">Кути</string>
+    <string name="look_preset_add">Додати до поточного стилю</string>
+    <string name="settings_styles">Стилі обробки</string>
+    <string name="settings_styles_desc">Змінюйте порядок, перейменовуйте та видаляйте стилі повного редактора: і вбудовані, і власні.</string>
+    <string name="settings_styles_none">Ви ще не зберегли жодного стилю.</string>
+    <string name="settings_styles_reset">Відновити</string>
+    <string name="settings_styles_reset_ask">Справді відновити стандартні стилі застосунку? Ваші власні стилі буде видалено.</string>
+    <string name="settings_styles_export">Експорт</string>
+    <string name="settings_styles_import">Імпорт</string>
+    <string name="settings_styles_saved">Стилі експортовано</string>
+    <string name="settings_styles_loaded">Стилі імпортовано</string>
+    <string name="settings_styles_bad">У цьому файлі немає стилів</string>
+    <string name="hint_modules">Гортайте значки, щоб дістатися до всіх модулів обробки. Утримуйте значок модуля, щоб скинути лише його зміни.</string>
 </resources>

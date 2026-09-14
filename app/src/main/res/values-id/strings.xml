@@ -422,11 +422,11 @@
     <string name="look_tone_board">Kurva nada</string>
     <string name="look_target">Tertarget</string>
     <string name="look_auto">Otomatis</string>
-    <string name="look_presets">Prasetel</string>
-    <string name="look_preset_save">Simpan prasetel</string>
+    <string name="look_presets">Gaya</string>
+    <string name="look_preset_save">Simpan gaya</string>
     <string name="look_preset_name">Nama prasetel</string>
-    <string name="look_preset_mine">Milikmu</string>
-    <string name="look_preset_house">Bawaan</string>
+    <string name="look_preset_mine">Gaya milikmu</string>
+    <string name="look_preset_house">Gaya AIV</string>
     <string name="look_preset_remove">Hapus</string>
     <string name="look_preset_gone">Prasetel dihapus</string>
     <string name="look_geometry">Geometri</string>
@@ -529,4 +529,17 @@
     <string name="settings_buttons_bin">Di tempat sampah, \'Pulihkan\' menggantikan \'Ganti nama\'.</string>
     <string name="settings_buttons_before">Pindah ke depan</string>
     <string name="settings_buttons_after">Pindah ke belakang</string>
+    <string name="look_corners">Sudut</string>
+    <string name="look_preset_add">Tambahkan ke gaya saat ini</string>
+    <string name="settings_styles">Gaya penyuntingan</string>
+    <string name="settings_styles_desc">Ubah urutan, ganti nama, atau hapus gaya editor lengkap, baik bawaan maupun milikmu.</string>
+    <string name="settings_styles_none">Kamu belum menyimpan gaya apa pun.</string>
+    <string name="settings_styles_reset">Pulihkan</string>
+    <string name="settings_styles_reset_ask">Yakin ingin memulihkan gaya bawaan aplikasi? Gaya buatanmu akan dihapus.</string>
+    <string name="settings_styles_export">Ekspor</string>
+    <string name="settings_styles_import">Impor</string>
+    <string name="settings_styles_saved">Gaya diekspor</string>
+    <string name="settings_styles_loaded">Gaya diimpor</string>
+    <string name="settings_styles_bad">Berkas ini tidak berisi gaya apa pun</string>
+    <string name="hint_modules">Geser ikonnya untuk menjangkau semua modul penyuntingan. Tekan lama ikon modul untuk mengatur ulang perubahannya saja.</string>
 </resources>

@@ -50,6 +50,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import kotlin.math.abs
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
 
 /**
  * La riga su cui i due moduli si sovrappongono: la **seconda** di tutti e due, cioè il contrasto
@@ -70,7 +72,8 @@ private val MODULI = listOf(
     R.string.look_color,
     R.string.look_mix,
     R.string.look_tone,
-    R.string.look_detail
+    R.string.look_detail,
+    R.string.look_presets
 )
 
 /**
@@ -156,6 +159,18 @@ class SviluppoTest {
 
     @get:Rule
     val banco = createComposeRule()
+
+    /**
+     * ⚠️⚠️ **IL MINI-ONBOARDING DEI MODULI SI SPEGNE PRIMA, DALLA `2.50`**: il suo velo copre lo
+     * schermo e **consuma il primo tocco**, che è quello che deve fare davanti a chi apre l'editor
+     * la prima volta e quello che rende rossa qualunque prova che tocchi un gettone. È la stessa
+     * riga che [NascosteTest] scrive per la scorciatoia delle colonne.
+     */
+    @Before
+    fun senzaOnboarding() {
+        runBlocking { Hint.MODULES.remember(ApplicationProvider.getApplicationContext()) }
+    }
+
 
     /**
      * **Caso 1: sotto la soglia il Colore è a riposo, e il bianco e nero non ha soglia.**
@@ -1117,11 +1132,7 @@ class SviluppoTest {
      * dentro il riquadro, quindi una misura fatta dopo di lei non distingue un trapezio centrato da
      * uno scivolato.
      */
-    private fun senzaCopertura(piano: WarpPlan) = WarpPlan(
-        half = piano.half, cx = piano.cx, cy = piano.cy, ax = piano.ax, ay = piano.ay,
-        cosT = piano.cosT, sinT = piano.sinT, stretch = piano.stretch,
-        slantX = piano.slantX, slantY = piano.slantY, bend = piano.bend, cover = 1f
-    )
+    private fun senzaCopertura(piano: WarpPlan) = piano.copy(cover = 1f)
 
     /**
      * **Caso 28: il sesto modulo porta i suoi cinque cursori, azzera solo i suoi, e toglie il
@@ -1504,20 +1515,23 @@ class SviluppoTest {
         pronta()
 
         for (nome in MODULI) {
-            assertEquals("nella fila ci sono tutti e sette", 1, quantiDetti(nome))
+            assertEquals("nella fila ci sono tutti e otto", 1, quantiDetti(nome))
         }
         /*
-         * ⚠️ **I due estremi sono cambiati con l'ordine di fabbrica della `2.35`**: là la fila
-         * comincia col Dettaglio e finisce con l'HSL, quindi rovesciata deve cominciare con l'HSL.
+         * ⚠️⚠️ **SI MISURANO I DUE CHE APRONO LA FILA E NON I DUE ESTREMI, DALLA `2.50`**: con
+         * l'ottavo gettone la fila **scorre** (sua richiesta: *nel mio caso, con il mio schermo,
+         * sarà l'unico a richiedere uno scorrimento a destra*), quindi l'ultimo cade fuori dal
+         * viewport e il suo riquadro arriva ritagliato. Rovesciando l'ordine di fabbrica i primi
+         * due sono gli Stili e l'HSL, e quelli si vedono sempre.
          */
-        val primo = dove(R.string.look_mix)
-        val ultimo = dove(R.string.look_detail)
+        val primo = dove(R.string.look_presets)
+        val secondo = dove(R.string.look_mix)
         assertTrue(
-            "col nome rovesciato l'HSL apre la fila e il Dettaglio la chiude",
-            primo < ultimo
+            "coi gettoni rovesciati gli Stili aprono la fila e l'HSL li segue",
+            primo < secondo
         )
-        assertEquals("e restano su una riga sola", dove(R.string.look_mix, alto = true),
-            dove(R.string.look_detail, alto = true), 1f)
+        assertEquals("e restano su una riga sola", dove(R.string.look_presets, alto = true),
+            dove(R.string.look_mix, alto = true), 1f)
     }
 
     /**
@@ -2108,6 +2122,131 @@ class SviluppoTest {
         assertEquals(0.7f, tirato.knots[1].at, 1e-4f)
         assertEquals(1f, tirato.knots[2].at, 1e-4f)
         assertEquals(0.8f, tirato.knots[2].to, 1e-4f)
+    }
+
+    /**
+     * **Caso 44: lo strumento 'Angoli' si disfa a vicenda, e a riposo non esiste.**
+     *
+     * ⚠️⚠️ **L'ANDATA E RITORNO È LA COSA CHE PUÒ ROMPERSI IN SILENZIO**: il palco disegna con la
+     * mappa diretta e il colore mirato legge con l'inversa, quindi un segno sbagliato nella matrice
+     * aggiunta non dà nessun errore e prende un pixel da un'altra parte della fotografia. È lo
+     * stesso difetto che questa prova ha già trovato una volta, sul fondo corsa della distorsione.
+     * ⚠️ **A riposo la mappa non si fa affatto**: con gli angoli fermi la formula darebbe
+     * l'identità in aritmetica esatta e non in `Float`, quindi un'immagine non toccata perderebbe
+     * un millesimo di pixel per niente.
+     */
+    @Test
+    fun `gli angoli si disfano con la mappatura inversa`() {
+        assertEquals(
+            "a riposo l'omografia degli angoli non deve esistere",
+            null,
+            Warp.quad(Corners.NONE, 1f, 0.75f)
+        )
+
+        val tirati = Corners(
+            x0 = 0.2f, y0 = -0.15f,
+            x1 = -0.1f, y1 = 0.3f,
+            x2 = 0.25f, y2 = 0.1f,
+            x3 = -0.2f, y3 = -0.05f
+        )
+        assertTrue(
+            "questi quattro angoli devono fare un quadrilatero convesso",
+            Warp.convex(tirati, 1f, 0.75f)
+        )
+        val piano = Warp.plan(
+            Geometry(straighten = 0.4f, distortion = -0.3f, corners = tirati),
+            200f, 150f, 400f, 300f
+        )
+        for (x in listOf(20f, 200f, 380f)) {
+            for (y in listOf(15f, 150f, 285f)) {
+                val avanti = piano.map(x, y)
+                val indietro = piano.back(avanti[0], avanti[1])
+                assertEquals("l'andata e ritorno non torna in x", x, indietro[0], 0.5f)
+                assertEquals("l'andata e ritorno non torna in y", y, indietro[1], 0.5f)
+            }
+        }
+    }
+
+    /**
+     * **Caso 45: il quadrilatero non si rovescia, e la vista di lavoro non segue gli angoli.**
+     *
+     * ⚠️⚠️ **SONO LE DUE PROPRIETÀ CHE RENDONO USABILE LO STRUMENTO, e nessuna delle due dà errore
+     * se cade.** Senza la guardia di convessità, un angolo tirato oltre la diagonale incrocia due
+     * lati e l'immagine si ripiega su se stessa; e se la scala di lavoro guardasse il contorno
+     * vero, tirando un angolo in fuori l'immagine si stringerebbe di altrettanto e la maniglia
+     * resterebbe **incollata al bordo** senza avanzare di un pixel.
+     */
+    @Test
+    fun `il quadrilatero resta convesso e la vista di lavoro sta ferma`() {
+        // L'angolo di sopra a sinistra portato oltre quello di sotto a destra: i lati si incrociano.
+        val rovescio = Corners(x0 = 2.5f, y0 = 2.5f)
+        assertTrue(
+            "un angolo portato oltre la diagonale doveva essere rifiutato",
+            !Warp.convex(rovescio, 1f, 0.75f)
+        )
+
+        val geo = Geometry(vertical = 0.4f)
+        val fermo = Warp.plan(geo, 200f, 150f, 400f, 300f, hold = 0.7f)
+        val mosso = Warp.plan(
+            geo.copy(corners = Corners(x0 = -0.3f, y0 = -0.3f)),
+            200f, 150f, 400f, 300f, hold = 0.7f
+        )
+        assertEquals(
+            "la scala di lavoro si è mossa con l'angolo",
+            fermo.cover,
+            mosso.cover,
+            1e-4f
+        )
+        /*
+         * ⚠️ **E la copertura invece li guarda**: quello che si salva non deve lasciare vuoti, e un
+         * angolo tirato dentro chiede di ingrandire. Le due scale hanno due mestieri diversi.
+         */
+        val salvata = Warp.plan(
+            geo.copy(corners = Corners(x0 = 0.3f, y0 = 0.3f)), 200f, 150f, 400f, 300f
+        )
+        assertTrue(
+            "la copertura doveva crescere con un angolo tirato dentro",
+            salvata.cover > Warp.plan(geo, 200f, 150f, 400f, 300f).cover
+        )
+    }
+
+    /**
+     * **Caso 46: armato lo strumento, tirare una maniglia cambia il disegno.**
+     *
+     * ⚠️⚠️ **È IL COLLEGAMENTO CHE PUÒ ROMPERSI, COME NEL RITAGLIO**: gli angoli, il gesto e il
+     * disegno vivono in tre posti, e se il valore non arrivasse al palco il codice compilerebbe lo
+     * stesso e il dito non farebbe niente. È il caso proattivo di una modifica che tocca la
+     * gerarchia dei tocchi.
+     * ⚠️ **La scena è grande** come le altre prove che tirano una presa, e la maniglia si cerca
+     * dove l'immagine comincia davvero invece che a un conto scritto qui.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `una maniglia d angolo tirata cambia il disegno`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_corners)).performClick()
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val riposo = palco.captureToImage().toPixelMap()
+        val (da, _) = bordi(riposo)
+        val cima = (0 until riposo.height).first { riposo[da + 4, it] != riposo[0, 0] }
+
+        palco.performTouchInput { down(Offset(da + 2f, cima + 2f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { moveTo(Offset(width / 3f, height / 3f)) }
+        banco.waitForIdle()
+        val tirato = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+
+        assertTrue(
+            "tirando la maniglia d'angolo il palco doveva cambiare disegno",
+            diversi(riposo, tirato) > 0
+        )
     }
 
     /**
