@@ -3110,7 +3110,7 @@ permette di deformare l'immagine trascinando un angolo per volta, sempre con un 
 non lasciare parti vuote*). I cinque cursori dicono **quanto**; questo dice **dove va quel
 vertice**, che è una cosa che nessuna manopola può esprimere: è la stessa distanza che c'è fra un
 cursore e il grafico delle Curve.
-- ⚠️⚠️ **È UN'OMOGRAFIA DA QUADRATO A QUADRILATERO, E IL CONTO STA ACCANTO AGLI ALTRI**: la mappa
+- ⚠️⚠️ **È UN'OMOGRAFIA DA QUADRATO A QUADRILATERO, E IL CONTO VIVE ACCANTO AGLI ALTRI**: la mappa
   di Heckbert porta il quadrato unitario sui quattro angoli spostati, e la sua inversa è la
   matrice aggiunta, che serve al colore mirato come per gli altri comandi. Entra come quinto
   passo di `Warp.map`, quindi il ritaglio di copertura, la maglia e la lettura inversa la
