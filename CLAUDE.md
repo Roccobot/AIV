@@ -2386,6 +2386,29 @@ vorrebbe dire due segni per lo stesso gesto a un tocco di distanza, visto che da
 immagine si entra nell'uno o nell'altro editor. ⚠️ **Anche il terzo, che lui non ha nominato**:
 due icone accanto a una scritta sarebbero una fila che si legge in due modi.
 
+⚠️⚠️ **E DAL 2026-09-14 QUELLA BARRA SI SPECCHIA COL LATO DEL FAB, CON UN'ECCEZIONE SUA** (sua
+richiesta, con una schermata: *l'ordine delle icone della barra bassa deve essere speculare
+quando il FAB è a sinistra, con la sola eccezione di 'Annulla'/'Ripristina', che devono essere
+sempre il primo a sinistra del secondo*). Il lato lo dà la stessa preferenza che governa il FAB,
+cioè quella che già decide da che parte vanno le pastiglie dell'intestazione e dove cade il menu
+ancorato.
+- ⚠️⚠️ **L'ECCEZIONE NON È UN CAPRICCIO: QUEI DUE COMANDI SONO UN VERSO DEL TEMPO**, e uno
+  specchio lo rovescerebbe, cioè metterebbe 'Ripristina' sotto il dito che cerca 'Annulla'. Le
+  altre icone un ordine che voglia dire qualcosa non ce l'hanno, e per questo si specchiano.
+- ⚠️ **Con loro si specchia anche 'Salva stile'**, che di quella barra fa parte: col FAB a
+  destra è a sinistra, col FAB a sinistra passa dall'altro lato. ⚠️ **È una lettura e non una
+  sua parola**, quindi la voce di collaudo glielo chiede.
+- ⚠️⚠️ **E IL TESTO DELLA VOCE DELLE IMPOSTAZIONI È RISCRITTO DA LUI, ALLA LETTERA**:
+  `settings_hand` diventa **'Posizione preferita dei pulsanti'** e `settings_hand_desc` *Il lato
+  preferito per i tasti principali nell'uso a una mano per destri e mancini. Definisce il
+  posizionamento del tasto d'azione fluttuante ('FAB'), di alcuni pulsanti di navigazione e di
+  parti di UI dell'editor.* ⚠️ **La ragione è che quella voce governa più del FAB**, e il titolo
+  di prima ('Posizione dei tasti flottanti') ne nominava uno solo. ⚠️ **Le chiavi non si
+  toccano**, e le altre ventisette lingue vanno con la versione in cui il testo entra, come il
+  `t-stili-pagina` del giro della `2.50`.
+- ⚠️⚠️ **NON È FATTO**: il via libera per la versione dopo non c'è ancora, ed è suo (*aspettiamo
+  il prossimo weekend*).
+
 ⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
 riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
 vera, coi comandi che camminano avanti e indietro; dalla `2.16` guarda anche il **doppio tocco**
@@ -3460,6 +3483,22 @@ ha già (§ `SteadyBody`).
   nell'archivio di chi ha già scelto il proprio ordine.
 - ⚠️⚠️ **'Di serie' SI CHIAMA 'STILI AIV', ED È SUO** (stessa istruzione): i venti di casa hanno
   un nome proprio, e 'di serie' diceva com'erano arrivati invece di che cosa sono.
+  - ⚠️⚠️ **MA NELL'ELENCO DEL MODULO QUEL TITOLO NON SI SCRIVE, DAL SUO RITOCCO DEL 2026-09-14**
+    (*il nome della categoria ('Stili AIV') a ben vedere non serve: in questo contesto i pixel
+    verticali sono preziosi e si capisce perfettamente che i primi sono di fabbrica*). A dividere
+    i due gruppi resta un separatore solo, **'Stili salvati'**, e compare **solo se c'è almeno
+    uno stile suo**: senza stili salvati non c'è niente da separare, e un titoletto da solo
+    annuncerebbe una parte che non esiste.
+    - ⚠️ **Il nome non diventa terminologia morta**: 'Stili AIV' resta come si chiamano quei
+      venti, e la pagina delle impostazioni lui non l'ha nominata, quindi là non si tocca niente.
+    - ⚠️ **L'ordine dei due gruppi non cambia**: gli stili dell'app sopra e i propri sotto, che è
+      la sua istruzione del giro della `2.50` (*quelli salvati, in basso*).
+  - ⚠️⚠️ **E 'SALVA STILE' VIVE SULLA BARRA DELLE ICONE, IN BASSO A SINISTRA** (stessa
+    richiesta): allineato all'inizio delle righe degli stili, e **fisso**, cioè fuori
+    dall'elenco che scorre. Un comando che se ne va insieme all'elenco si ritrova risalendo, e
+    qui l'elenco cresce con quello che si salva.
+  - ⚠️⚠️ **NESSUNO DEI DUE È FATTO**: sono arrivati in chat il 2026-09-14 con una schermata, e
+    il via libera per la versione dopo non c'è ancora.
 - ⚠️⚠️ **IL TOCCO AZZERA E RISCRIVE, IL TOCCO LUNGO TOCCA SOLO I MODULI CHE IL PRESET NOMINA, ED
   È LA SUA SPECIFICA ALLA LETTERA** (*tocco sullo stile = modifica assoluta (azzera tutto, poi
   modifica); tocco prolungato = modifica additiva (tocca i valori inclusi, non modifica gli
