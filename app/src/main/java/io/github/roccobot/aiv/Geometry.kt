@@ -57,22 +57,98 @@ import kotlin.math.sqrt
  * ⚠️ **Sono tutti frazioni da -1 a +1**, come i cursori degli altri moduli, e l'interfaccia li
  * mostra da -100 a +100: è il linguaggio di Lightroom, che è quello che lui conosce. Quanto valgano
  * al fondo della corsa lo dicono le costanti di [Warp], una per cursore.
+ *
+ * ⚠️⚠️ **E DALLA `2.50` C'È UN SESTO COMANDO CHE NON È UN CURSORE, LO STRUMENTO 'ANGOLI'**: vive
+ * in [corners], si dà col dito sul palco, e il conto che porta è la stessa famiglia dei due
+ * keystone, cioè un'omografia. Quello che cambia è chi la dichiara: là due numeri, qui i quattro
+ * vertici uno per uno.
  */
 data class Geometry(
     val straighten: Float = 0f,
     val aspect: Float = 0f,
     val horizontal: Float = 0f,
     val vertical: Float = 0f,
-    val distortion: Float = 0f
+    val distortion: Float = 0f,
+    /** Lo strumento 'Angoli': vedi [Corners]. */
+    val corners: Corners = Corners.NONE
 ) {
 
     /** Se questo modulo non sposta un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
     val idle: Boolean
         get() = abs(straighten) < DEAD && abs(aspect) < DEAD && abs(horizontal) < DEAD &&
-            abs(vertical) < DEAD && abs(distortion) < DEAD
+            abs(vertical) < DEAD && abs(distortion) < DEAD && corners.idle
 
     companion object {
         val NONE = Geometry()
+
+        private const val DEAD = 0.0005f
+    }
+}
+
+/**
+ * Lo strumento **Angoli**: dove sono finiti i quattro vertici dell'immagine, uno per volta.
+ *
+ * ⚠️⚠️ **NASCE NELLA `2.50` ED È SUA RICHIESTA** (campo libero del giro della `2.40`: *il modulo
+ * 'Geometria' deve includere uno strumento 'Angoli', che permette di deformare l'immagine
+ * trascinando un angolo per volta, sempre con un auto-ritaglio per non lasciare parti vuote*).
+ * Fra i tre nomi che ha dato ('Trasforma', 'Distorci', 'Angoli') vale il terzo, che è quello che
+ * dice **che cosa si tocca** invece di che cosa succede: gli altri due descrivono anche i due
+ * keystone e la distorsione, che quel modulo ha già.
+ *
+ * ⚠️⚠️ **NON È UN SESTO CURSORE E NON POTREBBE ESSERLO**: un cursore dice *quanto*, e qui i gradi
+ * di libertà sono **otto**, due per angolo. Il comando sono quattro maniglie sul palco, cioè la
+ * stessa strada del Ritaglio, e per questo il modulo passa dal dito quando lo strumento è armato.
+ *
+ * ⚠️ **Gli scarti sono in unità ISOTROPE**, cioè frazioni del semilato lungo, come tutto quello
+ * che [WarpPlan] maneggia: su un'immagine larga uno scarto in frazione di asse sposterebbe
+ * l'angolo di sopra e quello di fianco di due quantità diverse a parità di dito.
+ *
+ * ⚠️ **L'ordine dei quattro è quello di un giro orario partendo da in alto a sinistra**, che è
+ * anche l'ordine che [Warp.quad] si aspetta: cambiarlo qui senza cambiarlo là darebbe
+ * un'omografia che incrocia due lati, cioè un'immagine ripiegata su se stessa.
+ */
+data class Corners(
+    val x0: Float = 0f,
+    val y0: Float = 0f,
+    val x1: Float = 0f,
+    val y1: Float = 0f,
+    val x2: Float = 0f,
+    val y2: Float = 0f,
+    val x3: Float = 0f,
+    val y3: Float = 0f
+) {
+
+    /** Se nessun angolo si è mosso. */
+    val idle: Boolean
+        get() = abs(x0) < DEAD && abs(y0) < DEAD && abs(x1) < DEAD && abs(y1) < DEAD &&
+            abs(x2) < DEAD && abs(y2) < DEAD && abs(x3) < DEAD && abs(y3) < DEAD
+
+    /** Lo scarto orizzontale dell'angolo [i], con [i] da 0 a 3 in senso orario da in alto a sinistra. */
+    fun dx(i: Int): Float = when (i) {
+        0 -> x0
+        1 -> x1
+        2 -> x2
+        else -> x3
+    }
+
+    /** Lo scarto verticale dell'angolo [i]. */
+    fun dy(i: Int): Float = when (i) {
+        0 -> y0
+        1 -> y1
+        2 -> y2
+        else -> y3
+    }
+
+    /** Gli stessi angoli con il numero [i] spostato a ([dx], [dy]). */
+    fun with(i: Int, dx: Float, dy: Float): Corners = when (i) {
+        0 -> copy(x0 = dx, y0 = dy)
+        1 -> copy(x1 = dx, y1 = dy)
+        2 -> copy(x2 = dx, y2 = dy)
+        else -> copy(x3 = dx, y3 = dy)
+    }
+
+    companion object {
+        val NONE = Corners()
 
         private const val DEAD = 0.0005f
     }
@@ -91,7 +167,7 @@ data class Geometry(
  * ciascun asse: una rotazione fatta in coordinate normalizzate per asse non è una rotazione, è
  * un'ellisse, e raddrizzare un orizzonte lo storcerebbe invece di raddrizzarlo.
  */
-internal class WarpPlan(
+internal data class WarpPlan(
     /** Metà del lato lungo del rettangolo, cioè l'unità in cui vivono i conti. */
     val half: Float,
     /** Il centro del rettangolo. */
@@ -107,6 +183,8 @@ internal class WarpPlan(
     val slantX: Float,
     val slantY: Float,
     val bend: Float,
+    /** L'omografia dei quattro angoli, o `null` se nessuno si è mosso: vedi [Warp.quad]. */
+    val quad: Quad?,
     /** Quanto si ingrandisce perché nessun bordo resti scoperto: vedi [Warp.cover]. */
     val cover: Float
 ) {
@@ -165,6 +243,16 @@ internal class WarpPlan(
             nx = ax * (v + slantX) / d
         }
 
+        // 5. Gli angoli tirati a mano, che sono anche loro un'omografia: viene per ultima perché
+        // è l'unica dettata dal dito, cioè quella che si guarda mentre si tira. Messa davanti ai
+        // keystone, tirare un angolo sposterebbe un punto che i due cursori poi rimuovono altrove.
+        val q = quad
+        if (q != null && ax > 0f && ay > 0f) {
+            val p = q.map((nx + ax) / (2f * ax), (ny + ay) / (2f * ay))
+            nx = p[0]
+            ny = p[1]
+        }
+
         return floatArrayOf(cx + nx * cover * half, cy + ny * cover * half)
     }
 
@@ -183,6 +271,18 @@ internal class WarpPlan(
     fun back(x: Float, y: Float): FloatArray {
         var nx = (x - cx) / (half * cover)
         var ny = (y - cy) / (half * cover)
+
+        /*
+         * Gli angoli si disfano per primi, perché nell'andata sono l'ultimo passo, e la loro
+         * inversa è la matrice aggiunta: un'omografia si inverte in forma chiusa, quindi qui non
+         * serve nessun Newton.
+         */
+        val q = quad
+        if (q != null && ax > 0f && ay > 0f) {
+            val p = q.back(nx, ny)
+            nx = p[0] * 2f * ax - ax
+            ny = p[1] * 2f * ay - ay
+        }
 
         /*
          * I due keystone si disfano in ordine contrario, e ognuno ha la sua formula chiusa: la
@@ -238,6 +338,67 @@ internal class WarpPlan(
 
         /** Quanti giri di Newton per invertire la distorsione: vedi [back]. */
         const val NEWTON = 4
+    }
+}
+
+/**
+ * L'omografia che porta il quadrato unitario sui quattro angoli dello strumento 'Angoli'.
+ *
+ * ⚠️⚠️ **È LA MAPPA CHE HECKBERT CHIAMA 'square to quad', E NON SI RICAVA RISOLVENDO UN SISTEMA
+ * A OTTO INCOGNITE**: partendo dal quadrato unitario i conti si chiudono in una decina di righe,
+ * e l'unico caso da distinguere è quello **affine**, cioè il parallelogramma, dove il
+ * denominatore del sistema è zero. Scritta come una soluzione generale sarebbe la stessa mappa
+ * ottenuta con un'eliminazione di Gauss su otto righe, cioè molto più codice per lo stesso
+ * risultato e un errore numerico più grande.
+ *
+ * ⚠️ **Il rettangolo si porta sul quadrato PRIMA**, e non è una comodità: questa formula vive
+ * sul quadrato unitario, quindi chi la chiama normalizza ([WarpPlan.map]) e denormalizza
+ * ([WarpPlan.back]). Fare i conti direttamente sul rettangolo vorrebbe dire una seconda
+ * derivazione con `ax` e `ay` dentro, cioè la stessa matematica scritta due volte.
+ */
+internal class Quad(
+    val a: Float,
+    val b: Float,
+    val c: Float,
+    val d: Float,
+    val e: Float,
+    val f: Float,
+    val g: Float,
+    val h: Float
+) {
+
+    /** Dove finisce il punto ([u], [v]) del quadrato unitario. */
+    fun map(u: Float, v: Float): FloatArray {
+        val w = g * u + h * v + 1f
+        val safe = if (abs(w) > EPS) w else EPS
+        return floatArrayOf((a * u + b * v + c) / safe, (d * u + e * v + f) / safe)
+    }
+
+    /**
+     * Da quale punto del quadrato unitario viene ([x], [y]).
+     *
+     * ⚠️ **I nove coefficienti sono l'AGGIUNTA della matrice**, cioè l'inversa a meno del
+     * determinante, e il determinante si semplifica nella divisione: calcolarlo sarebbe un conto
+     * in più che non cambia il risultato.
+     */
+    fun back(x: Float, y: Float): FloatArray {
+        val ia = e - f * h
+        val ib = c * h - b
+        val ic = b * f - c * e
+        val id = f * g - d
+        val ie = a - c * g
+        val iff = c * d - a * f
+        val ig = d * h - e * g
+        val ih = b * g - a * h
+        val ii = a * e - b * d
+        val w = ig * x + ih * y + ii
+        val safe = if (abs(w) > EPS) w else EPS
+        return floatArrayOf((ia * x + ib * y + ic) / safe, (id * x + ie * y + iff) / safe)
+    }
+
+    private companion object {
+        /** Un denominatore non scende sotto questo: un punto all'infinito farebbe sparire l'immagine. */
+        const val EPS = 1e-6f
     }
 }
 
@@ -356,39 +517,153 @@ internal object Warp {
      * vista lo mette, il salvataggio all'origine, e un centro implicito costringerebbe uno dei due
      * a spostare le coordinate prima e dopo.
      */
-    fun plan(geo: Geometry, cx: Float, cy: Float, w: Float, h: Float): WarpPlan {
+    fun plan(
+        geo: Geometry,
+        cx: Float,
+        cy: Float,
+        w: Float,
+        h: Float,
+        /**
+         * La scala di lavoro al posto di quella di copertura: quanto rimpicciolire l'immagine
+         * **intera** dentro il rettangolo, invece di ingrandirla fin dove non lascia vuoti.
+         *
+         * ⚠️⚠️ **ESISTE PER LO STRUMENTO 'ANGOLI', DALLA `2.50`, E SENZA DI LUI QUELLO STRUMENTO
+         * NON SI POTREBBE USARE**: la copertura ingrandisce fin dove serve a non lasciare vuoti,
+         * quindi un angolo tirato in fuori finisce **oltre il bordo** dello schermo, cioè proprio
+         * la maniglia che si sta tirando esce dall'inquadratura. Armato lo strumento, il palco
+         * chiede l'immagine intera e disegna sopra il riquadro che resterà.
+         * ⚠️⚠️ **E LA SCALA NON DIPENDE DAGLI ANGOLI, CHE È QUELLO CHE FA SEGUIRE IL DITO**: il
+         * contenimento si misura sulla geometria **senza** di loro, quindi mentre si tira un
+         * angolo la vista non si muove e la maniglia va esattamente dove va il dito. Misurandolo
+         * sul contorno vero, un angolo tirato in fuori farebbe stringere l'immagine di altrettanto
+         * e la maniglia resterebbe **incollata al bordo** senza avanzare di un pixel.
+         * ⚠️ **Il salvataggio non lo passa mai**: quello che si scrive sul file è la copertura,
+         * che è la cosa che lui ha chiesto (*sempre con un auto-ritaglio per non lasciare parti
+         * vuote*). Questa è una vista di lavoro, non un secondo risultato.
+         */
+        hold: Float? = null
+    ): WarpPlan {
         val half = max(w, h) / 2f
         val safe = if (half > 0f) half else 1f
         val angle = geo.straighten * TILT * Math.PI.toFloat() / 180f
+        val ax = (w / 2f) / safe
+        val ay = (h / 2f) / safe
         val plain = WarpPlan(
             half = safe,
             cx = cx,
             cy = cy,
-            ax = (w / 2f) / safe,
-            ay = (h / 2f) / safe,
+            ax = ax,
+            ay = ay,
             cosT = cos(angle),
             sinT = sin(angle),
             stretch = 1f + geo.aspect * STRETCH,
             slantX = geo.horizontal * SLANT,
             slantY = geo.vertical * SLANT,
             bend = geo.distortion * BEND,
+            quad = quad(geo.corners, ax, ay),
             cover = 1f
         )
-        return WarpPlan(
-            half = plain.half,
-            cx = plain.cx,
-            cy = plain.cy,
-            ax = plain.ax,
-            ay = plain.ay,
-            cosT = plain.cosT,
-            sinT = plain.sinT,
-            stretch = plain.stretch,
-            slantX = plain.slantX,
-            slantY = plain.slantY,
-            bend = plain.bend,
-            cover = cover(plain)
+        val scala =
+            if (hold != null) hold * fit(plain.copy(quad = null)) else cover(plain)
+        return plain.copy(cover = scala)
+    }
+
+    /**
+     * Quanto può allontanarsi un angolo dal suo posto, in unità isotrope.
+     *
+     * ⚠️ **Non è una corsa di cursore ma un guinzaglio**: il dito porta l'angolo dove vuole, e
+     * questo numero dice fin dove l'app lo segue. Un terzo di semilato lungo basta per
+     * raddrizzare qualunque facciata, tiene la **copertura** dentro numeri ragionevoli (un angolo
+     * tirato dentro di un terzo chiede già una scala di una volta e mezzo, cioè un'immagine
+     * ingrandita di altrettanto per non lasciare vuoti), e soprattutto tiene la maniglia dentro
+     * lo schermo: il conto vive su `ARMED_FIT`, in `AdvancedEditorScreen.kt`.
+     */
+    const val PULL = 0.35f
+
+    /**
+     * L'omografia degli angoli, o `null` se nessuno si è mosso.
+     *
+     * ⚠️⚠️ **IL `null` NON È UN'OTTIMIZZAZIONE: È LA NEUTRALITÀ**. Con gli angoli a riposo la
+     * formula dà l'identità **in aritmetica esatta** e non in `Float`, quindi applicarla lo stesso
+     * sposterebbe i pixel di un millesimo per niente. È la stessa guardia delle altre quattro.
+     */
+    fun quad(c: Corners, ax: Float, ay: Float): Quad? {
+        if (c.idle || ax <= 0f || ay <= 0f) return null
+        // I quattro vertici di arrivo, in unità isotrope e in senso orario da in alto a sinistra.
+        val x0 = -ax + c.x0
+        val y0 = -ay + c.y0
+        val x1 = ax + c.x1
+        val y1 = -ay + c.y1
+        val x2 = ax + c.x2
+        val y2 = ay + c.y2
+        val x3 = -ax + c.x3
+        val y3 = ay + c.y3
+
+        val sx = x0 - x1 + x2 - x3
+        val sy = y0 - y1 + y2 - y3
+        if (abs(sx) < FLAT && abs(sy) < FLAT) {
+            // Un parallelogramma: la mappa è affine, cioè un'omografia col denominatore costante.
+            return Quad(
+                a = x1 - x0,
+                b = x3 - x0,
+                c = x0,
+                d = y1 - y0,
+                e = y3 - y0,
+                f = y0,
+                g = 0f,
+                h = 0f
+            )
+        }
+        val dx1 = x1 - x2
+        val dx2 = x3 - x2
+        val dy1 = y1 - y2
+        val dy2 = y3 - y2
+        val den = dx1 * dy2 - dx2 * dy1
+        if (abs(den) < FLAT) return null
+        val g = (sx * dy2 - sy * dx2) / den
+        val h = (dx1 * sy - dy1 * sx) / den
+        return Quad(
+            a = x1 - x0 + g * x1,
+            b = x3 - x0 + h * x3,
+            c = x0,
+            d = y1 - y0 + g * y1,
+            e = y3 - y0 + h * y3,
+            f = y0,
+            g = g,
+            h = h
         )
     }
+
+    /**
+     * Se i quattro angoli formano ancora un quadrilatero **convesso**, cioè se la deformazione si
+     * può disegnare.
+     *
+     * ⚠️⚠️ **SENZA DI LEI L'IMMAGINE SI RIPIEGA, E NON DÀ NESSUN ERRORE**: tirando un angolo oltre
+     * la diagonale, due lati si incrociano e l'omografia manda una parte della fotografia sopra
+     * l'altra a rovescio. Il guinzaglio di [PULL] da solo non basta, perché su un'immagine molto
+     * allungata mezza unità è più della semialtezza.
+     *
+     * ⚠️ **Si misura col verso dei quattro prodotti vettoriali**: in un quadrilatero convesso
+     * hanno tutti lo stesso segno, e la prima volta che uno si rovescia il contorno ha una
+     * rientranza. Il chiamante la usa per **fermare** il dito invece di rifiutare il valore, o
+     * l'angolo scatterebbe indietro appena passa il confine.
+     */
+    fun convex(c: Corners, ax: Float, ay: Float): Boolean {
+        val xs = floatArrayOf(-ax + c.x0, ax + c.x1, ax + c.x2, -ax + c.x3)
+        val ys = floatArrayOf(-ay + c.y0, -ay + c.y1, ay + c.y2, ay + c.y3)
+        var sign = 0f
+        for (i in 0..3) {
+            val j = (i + 1) % 4
+            val k = (i + 2) % 4
+            val cross = (xs[j] - xs[i]) * (ys[k] - ys[j]) - (ys[j] - ys[i]) * (xs[k] - xs[j])
+            if (abs(cross) < FLAT) return false
+            if (sign == 0f) sign = cross else if (sign * cross < 0f) return false
+        }
+        return true
+    }
+
+    /** Sotto questo un determinante si legge come zero: vedi [quad] e [convex]. */
+    private const val FLAT = 1e-6f
 
     /**
      * Di quanto si deve ingrandire l'immagine deformata perché il rettangolo resti coperto.
@@ -428,6 +703,40 @@ internal object Warp {
             }
         }
         if (worst <= 0f || worst >= 1f || worst == Float.MAX_VALUE) return 1f
+        return 1f / worst
+    }
+
+    /**
+     * Di quanto si deve **rimpicciolire** l'immagine deformata perché ci stia tutta nel rettangolo.
+     *
+     * ⚠️⚠️ **È IL ROVESCIO ESATTO DI [cover], E SERVE ALLO STRUMENTO 'ANGOLI'**: quella cerca il
+     * punto del contorno più **rientrato** e ingrandisce fin dove non restano vuoti, questa cerca
+     * il più **sporgente** e stringe fin dove non resta niente fuori. Le due misure girano sullo
+     * stesso contorno con lo stesso ciclo, e a distinguerle sono un `min` e un `max`.
+     *
+     * ⚠️ **Non scende mai sopra uno**: con una deformazione che rientra da tutte le parti non c'è
+     * niente da stringere, e la vista resta quella di sempre.
+     */
+    fun fit(plan: WarpPlan): Float {
+        var worst = 0f
+        val w = plan.ax * plan.half
+        val h = plan.ay * plan.half
+        for (i in 0..EDGE_STEPS) {
+            val t = i.toFloat() / EDGE_STEPS
+            val xs = plan.cx - w + 2f * w * t
+            val ys = plan.cy - h + 2f * h * t
+            for (p in listOf(
+                plan.map(xs, plan.cy - h),
+                plan.map(xs, plan.cy + h),
+                plan.map(plan.cx - w, ys),
+                plan.map(plan.cx + w, ys)
+            )) {
+                val dx = if (w > 0f) abs(p[0] - plan.cx) / w else 0f
+                val dy = if (h > 0f) abs(p[1] - plan.cy) / h else 0f
+                worst = max(worst, max(dx, dy))
+            }
+        }
+        if (worst <= 1f) return 1f
         return 1f / worst
     }
 

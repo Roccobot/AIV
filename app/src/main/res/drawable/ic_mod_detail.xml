@@ -15,7 +15,23 @@
      IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
      `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
      Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
-     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+     un tracciato che passa di qui lo legge qualunque parser conforme.
+
+     ⚠️ MA I DODICI ARCHI ERANO SCRITTI MALE DALLA 2.32 ALLA 2.40, e la 2.50 li ha corretti:
+     la scrittura portava i raggi al posto della rotazione e della bandierina dell'arco
+     maggiore (`A1,1,0.5,0.5,0,...` invece di `A0.5,0.5,0,1,0,...`), cioè due bandierine con
+     dentro `0.5` e `1.5`, che in SVG valgono `0` o `1` e nient'altro. La misura di allora era
+     giusta, la serializzazione no.
+     - Il disegno ne usciva sbagliato per i QUATTRO tondi piccoli: con `rx` a 1 invece che a
+       0,5 e la corda più corta del diametro, nessuna scalatura li riportava a misura, e la
+       bandierina vera prendeva l'arco maggiore. Fa 2.849 pixel su 57.600, cioè il 4,95% della
+       tela, e adesso l'inchiostro comincia a 2,50 invece che a 1,50.
+     - Gli altri otto venivano giusti PER CASO, ed è la ragione per cui nessuno se n'era
+       accorto: là la corda vale esattamente il diametro voluto, quindi la specifica impone di
+       scalare i raggi troppo piccoli e li riporta alla misura giusta.
+     - A prenderlo è stato `tools/icon-round.py`, che leggeva quei quattro come spigoli vivi a
+       60 gradi; la rete che avrebbe dovuto vederlo prima è `tools/icon-check.py`, che dalla
+       2.50 rifiuta una bandierina che non sia 0 o 1. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -24,5 +40,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M12,3.4L12,20.6Q12,21,12.445,20.989C17.208,20.757,21,16.821,21,12C21,7.179,17.208,3.243,12.445,3.011Q12,3,12,3.4ZM5,14A1,1,1,1,0,7,14A1,1,1,1,0,5,14ZM5,18A1,1,1,1,0,7,18A1,1,1,1,0,5,18ZM5,10A1,1,1,1,0,7,10A1,1,1,1,0,5,10ZM2.5,10A1,1,0.5,0.5,0,3.5,10A1,1,0.5,0.5,0,2.5,10ZM5,6A1,1,1,1,0,7,6A1,1,1,1,0,5,6ZM2.5,14A1,1,0.5,0.5,0,3.5,14A1,1,0.5,0.5,0,2.5,14ZM9.5,21A1,1,0.5,0.5,0,10.5,21A1,1,0.5,0.5,0,9.5,21ZM9.5,3A1,1,0.5,0.5,0,10.5,3A1,1,0.5,0.5,0,9.5,3ZM9,6A1,1,1,1,0,11,6A1,1,1,1,0,9,6ZM8.5,14A1,1,1.5,1.5,0,11.5,14A1,1,1.5,1.5,0,8.5,14ZM8.5,10A1,1,1.5,1.5,0,11.5,10A1,1,1.5,1.5,0,8.5,10ZM9,18A1,1,1,1,0,11,18A1,1,1,1,0,9,18Z" />
+        android:pathData="M12,3.4L12,20.6Q12,21,12.445,20.989C17.208,20.757,21,16.821,21,12C21,7.179,17.208,3.243,12.445,3.011Q12,3,12,3.4ZM5,14A1,1,0,1,0,7,14A1,1,0,1,0,5,14ZM5,18A1,1,0,1,0,7,18A1,1,0,1,0,5,18ZM5,10A1,1,0,1,0,7,10A1,1,0,1,0,5,10ZM2.5,10A0.5,0.5,0,1,0,3.5,10A0.5,0.5,0,1,0,2.5,10ZM5,6A1,1,0,1,0,7,6A1,1,0,1,0,5,6ZM2.5,14A0.5,0.5,0,1,0,3.5,14A0.5,0.5,0,1,0,2.5,14ZM9.5,21A0.5,0.5,0,1,0,10.5,21A0.5,0.5,0,1,0,9.5,21ZM9.5,3A0.5,0.5,0,1,0,10.5,3A0.5,0.5,0,1,0,9.5,3ZM9,6A1,1,0,1,0,11,6A1,1,0,1,0,9,6ZM8.5,14A1.5,1.5,0,1,0,11.5,14A1.5,1.5,0,1,0,8.5,14ZM8.5,10A1.5,1.5,0,1,0,11.5,10A1.5,1.5,0,1,0,8.5,10ZM9,18A1,1,0,1,0,11,18A1,1,0,1,0,9,18Z" />
 </vector>

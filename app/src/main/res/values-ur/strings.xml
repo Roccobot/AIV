@@ -438,11 +438,11 @@
     <string name="look_tone_board">ٹون کرو</string>
     <string name="look_target">ہدف شدہ</string>
     <string name="look_auto">خودکار</string>
-    <string name="look_presets">پری سیٹ</string>
-    <string name="look_preset_save">پری سیٹ محفوظ کریں</string>
+    <string name="look_presets">انداز</string>
+    <string name="look_preset_save">انداز محفوظ کریں</string>
     <string name="look_preset_name">پری سیٹ کا نام</string>
-    <string name="look_preset_mine">آپ کے</string>
-    <string name="look_preset_house">شامل شدہ</string>
+    <string name="look_preset_mine">آپ کے انداز</string>
+    <string name="look_preset_house">AIV انداز</string>
     <string name="look_preset_remove">ہٹائیں</string>
     <string name="look_preset_gone">پری سیٹ ہٹا دیا گیا</string>
     <string name="look_geometry">جیومیٹری</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">ردی میں \'نام بدلیں\' کی جگہ \'بحال کریں\' آتا ہے۔</string>
     <string name="settings_buttons_before">آگے منتقل کریں</string>
     <string name="settings_buttons_after">پیچھے منتقل کریں</string>
+    <string name="look_corners">کونے</string>
+    <string name="look_preset_add">موجودہ انداز میں شامل کریں</string>
+    <string name="settings_styles">ترمیم کے انداز</string>
+    <string name="settings_styles_desc">مکمل ایڈیٹر کے انداز کو ترتیب دیں، نام بدلیں یا حذف کریں، چاہے ایپ کے ہوں یا آپ کے۔</string>
+    <string name="settings_styles_none">آپ نے ابھی تک کوئی انداز محفوظ نہیں کیا۔</string>
+    <string name="settings_styles_reset">بحال کریں</string>
+    <string name="settings_styles_reset_ask">کیا آپ واقعی ایپ کے طے شدہ انداز بحال کرنا چاہتے ہیں؟ آپ کے اپنے انداز حذف ہو جائیں گے۔</string>
+    <string name="settings_styles_export">برآمد کریں</string>
+    <string name="settings_styles_import">درآمد کریں</string>
+    <string name="settings_styles_saved">انداز برآمد ہو گئے</string>
+    <string name="settings_styles_loaded">انداز درآمد ہو گئے</string>
+    <string name="settings_styles_bad">اس فائل میں کوئی انداز نہیں ہے</string>
+    <string name="hint_modules">تمام ایڈیٹنگ ماڈیولز تک پہنچنے کے لیے آئیکنز کو سوائپ کریں۔ کسی ماڈیول کے آئیکن کو دیر تک دبائیں تاکہ صرف اُس کی تبدیلیاں صفر ہوں۔</string>
 </resources>

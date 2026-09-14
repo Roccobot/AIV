@@ -438,11 +438,11 @@
     <string name="look_tone_board">टोन कर्व</string>
     <string name="look_target">लक्षित</string>
     <string name="look_auto">स्वतः</string>
-    <string name="look_presets">प्रीसेट</string>
-    <string name="look_preset_save">प्रीसेट सहेजें</string>
+    <string name="look_presets">स्टाइल</string>
+    <string name="look_preset_save">स्टाइल सहेजें</string>
     <string name="look_preset_name">प्रीसेट का नाम</string>
-    <string name="look_preset_mine">आपके</string>
-    <string name="look_preset_house">अंतर्निहित</string>
+    <string name="look_preset_mine">आपकी स्टाइल</string>
+    <string name="look_preset_house">AIV स्टाइल</string>
     <string name="look_preset_remove">हटाएं</string>
     <string name="look_preset_gone">प्रीसेट हटाया गया</string>
     <string name="look_geometry">ज्यामिति</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">रद्दी में \'नाम बदलें\' की जगह \'वापस लाएँ\' आता है।</string>
     <string name="settings_buttons_before">पहले खिसकाएँ</string>
     <string name="settings_buttons_after">बाद में खिसकाएँ</string>
+    <string name="look_corners">कोने</string>
+    <string name="look_preset_add">मौजूदा स्टाइल में जोड़ें</string>
+    <string name="settings_styles">संपादन स्टाइल</string>
+    <string name="settings_styles_desc">पूर्ण संपादक की स्टाइल को फिर से क्रमबद्ध करें, नाम बदलें या हटाएँ, चाहे ऐप की हों या आपकी।</string>
+    <string name="settings_styles_none">आपने अभी तक कोई स्टाइल सहेजी नहीं है।</string>
+    <string name="settings_styles_reset">पुनर्स्थापित करें</string>
+    <string name="settings_styles_reset_ask">क्या आप वाकई ऐप की डिफ़ॉल्ट स्टाइल पुनर्स्थापित करना चाहते हैं? आपकी अपनी स्टाइल हटा दी जाएँगी।</string>
+    <string name="settings_styles_export">निर्यात</string>
+    <string name="settings_styles_import">आयात</string>
+    <string name="settings_styles_saved">स्टाइल निर्यात हो गईं</string>
+    <string name="settings_styles_loaded">स्टाइल आयात हो गईं</string>
+    <string name="settings_styles_bad">इस फ़ाइल में कोई स्टाइल नहीं है</string>
+    <string name="hint_modules">सभी संपादन मॉड्यूल तक पहुँचने के लिए आइकन स्वाइप करें। किसी मॉड्यूल का आइकन देर तक दबाएँ ताकि सिर्फ़ उसके बदलाव रीसेट हों।</string>
 </resources>

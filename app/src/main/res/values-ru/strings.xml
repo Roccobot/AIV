@@ -470,11 +470,11 @@
     <string name="look_tone_board">Тоновая кривая</string>
     <string name="look_target">Точечно</string>
     <string name="look_auto">Авто</string>
-    <string name="look_presets">Пресеты</string>
-    <string name="look_preset_save">Сохранить пресет</string>
+    <string name="look_presets">Стили</string>
+    <string name="look_preset_save">Сохранить стиль</string>
     <string name="look_preset_name">Имя пресета</string>
-    <string name="look_preset_mine">Ваши</string>
-    <string name="look_preset_house">Встроенные</string>
+    <string name="look_preset_mine">Ваши стили</string>
+    <string name="look_preset_house">Стили AIV</string>
     <string name="look_preset_remove">Удалить</string>
     <string name="look_preset_gone">Пресет удалён</string>
     <string name="look_geometry">Геометрия</string>
@@ -580,4 +580,17 @@
     <string name="settings_buttons_bin">В корзине \'Вернуть\' занимает место \'Переименовать\'.</string>
     <string name="settings_buttons_before">Сдвинуть раньше</string>
     <string name="settings_buttons_after">Сдвинуть позже</string>
+    <string name="look_corners">Углы</string>
+    <string name="look_preset_add">Добавить к текущему стилю</string>
+    <string name="settings_styles">Стили обработки</string>
+    <string name="settings_styles_desc">Меняйте порядок, переименовывайте и удаляйте стили полного редактора: и встроенные, и свои.</string>
+    <string name="settings_styles_none">Вы ещё не сохранили ни одного стиля.</string>
+    <string name="settings_styles_reset">Восстановить</string>
+    <string name="settings_styles_reset_ask">Действительно восстановить стандартные стили приложения? Ваши собственные стили будут удалены.</string>
+    <string name="settings_styles_export">Экспорт</string>
+    <string name="settings_styles_import">Импорт</string>
+    <string name="settings_styles_saved">Стили экспортированы</string>
+    <string name="settings_styles_loaded">Стили импортированы</string>
+    <string name="settings_styles_bad">В этом файле нет стилей</string>
+    <string name="hint_modules">Пролистайте значки, чтобы добраться до всех модулей обработки. Удерживайте значок модуля, чтобы сбросить только его изменения.</string>
 </resources>

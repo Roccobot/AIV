@@ -438,11 +438,11 @@
     <string name="look_tone_board">தொனி வளைவு</string>
     <string name="look_target">இலக்கு</string>
     <string name="look_auto">தானியங்கு</string>
-    <string name="look_presets">முன்னமைவுகள்</string>
-    <string name="look_preset_save">முன்னமைவைச் சேமி</string>
+    <string name="look_presets">பாணிகள்</string>
+    <string name="look_preset_save">பாணியைச் சேமி</string>
     <string name="look_preset_name">முன்னமைவின் பெயர்</string>
-    <string name="look_preset_mine">உங்களுடையவை</string>
-    <string name="look_preset_house">உள்ளமைந்தவை</string>
+    <string name="look_preset_mine">உங்கள் பாணிகள்</string>
+    <string name="look_preset_house">AIV பாணிகள்</string>
     <string name="look_preset_remove">அகற்று</string>
     <string name="look_preset_gone">முன்னமைவு அகற்றப்பட்டது</string>
     <string name="look_geometry">வடிவியல்</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">குப்பையில் \'பெயர் மாற்று\' இடத்தில் \'மீட்டெடு\' வரும்.</string>
     <string name="settings_buttons_before">முன்னால் நகர்த்து</string>
     <string name="settings_buttons_after">பின்னால் நகர்த்து</string>
+    <string name="look_corners">மூலைகள்</string>
+    <string name="look_preset_add">தற்போதைய பாணியில் சேர்</string>
+    <string name="settings_styles">திருத்தப் பாணிகள்</string>
+    <string name="settings_styles_desc">முழு எடிட்டரின் பாணிகளை மறுவரிசைப்படுத்தவும், பெயர் மாற்றவும் அல்லது நீக்கவும்; செயலியுடையவை மற்றும் உங்களுடையவை.</string>
+    <string name="settings_styles_none">நீங்கள் இதுவரை எந்தப் பாணியையும் சேமிக்கவில்லை.</string>
+    <string name="settings_styles_reset">மீட்டமை</string>
+    <string name="settings_styles_reset_ask">செயலியின் இயல்புநிலைப் பாணிகளை மீட்டமைக்க வேண்டுமா? உங்கள் சொந்தப் பாணிகள் நீக்கப்படும்.</string>
+    <string name="settings_styles_export">ஏற்றுமதி</string>
+    <string name="settings_styles_import">இறக்குமதி</string>
+    <string name="settings_styles_saved">பாணிகள் ஏற்றுமதி செய்யப்பட்டன</string>
+    <string name="settings_styles_loaded">பாணிகள் இறக்குமதி செய்யப்பட்டன</string>
+    <string name="settings_styles_bad">இந்தக் கோப்பில் எந்தப் பாணியும் இல்லை</string>
+    <string name="hint_modules">அனைத்து திருத்தத் தொகுதிகளையும் அடைய சின்னங்களை நகர்த்தவும். ஒரு தொகுதியின் சின்னத்தை நீண்ட நேரம் அழுத்தினால் அதன் மாற்றங்கள் மட்டும் மீட்டமைக்கப்படும்.</string>
 </resources>

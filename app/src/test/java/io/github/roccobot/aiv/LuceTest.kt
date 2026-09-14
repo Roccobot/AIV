@@ -46,6 +46,8 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import kotlin.math.abs
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
 
 /**
  * Il banco dell'**editor completo**: il modulo Luce e la pila dei passi.
@@ -74,6 +76,18 @@ class LuceTest {
 
     @get:Rule
     val banco = createComposeRule()
+
+    /**
+     * ⚠️⚠️ **IL MINI-ONBOARDING DEI MODULI SI SPEGNE PRIMA, DALLA `2.50`**: il suo velo copre lo
+     * schermo e **consuma il primo tocco**, che è quello che deve fare davanti a chi apre l'editor
+     * la prima volta e quello che rende rossa qualunque prova che tocchi un gettone. È la stessa
+     * riga che [NascosteTest] scrive per la scorciatoia delle colonne.
+     */
+    @Before
+    fun senzaOnboarding() {
+        runBlocking { Hint.MODULES.remember(ApplicationProvider.getApplicationContext()) }
+    }
+
 
     /**
      * **Caso 1: sotto la soglia un cursore vale zero, e appena sopra no.**

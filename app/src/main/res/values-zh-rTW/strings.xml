@@ -422,11 +422,11 @@
     <string name="look_tone_board">色調曲線</string>
     <string name="look_target">定向</string>
     <string name="look_auto">自動</string>
-    <string name="look_presets">預設集</string>
-    <string name="look_preset_save">儲存預設集</string>
+    <string name="look_presets">風格</string>
+    <string name="look_preset_save">儲存風格</string>
     <string name="look_preset_name">預設集名稱</string>
-    <string name="look_preset_mine">我的</string>
-    <string name="look_preset_house">內建</string>
+    <string name="look_preset_mine">我的風格</string>
+    <string name="look_preset_house">AIV 風格</string>
     <string name="look_preset_remove">刪除</string>
     <string name="look_preset_gone">已刪除預設集</string>
     <string name="look_geometry">幾何校正</string>
@@ -529,4 +529,17 @@
     <string name="settings_buttons_bin">在回收筒裡，\'還原\' 出現在 \'重新命名\' 的位置。</string>
     <string name="settings_buttons_before">前移</string>
     <string name="settings_buttons_after">後移</string>
+    <string name="look_corners">四角</string>
+    <string name="look_preset_add">疊加到目前風格</string>
+    <string name="settings_styles">編輯風格</string>
+    <string name="settings_styles_desc">重新排序、重新命名或刪除完整編輯器的風格，內建的與你自己的都可以。</string>
+    <string name="settings_styles_none">你還沒有儲存任何風格。</string>
+    <string name="settings_styles_reset">還原</string>
+    <string name="settings_styles_reset_ask">確定要還原應用程式的預設風格嗎？你自己的風格將被刪除。</string>
+    <string name="settings_styles_export">匯出</string>
+    <string name="settings_styles_import">匯入</string>
+    <string name="settings_styles_saved">已匯出風格</string>
+    <string name="settings_styles_loaded">已匯入風格</string>
+    <string name="settings_styles_bad">此檔案不含任何風格</string>
+    <string name="hint_modules">滑動圖示即可到達所有編輯模組。長按某個模組的圖示，只重設該模組的調整。</string>
 </resources>

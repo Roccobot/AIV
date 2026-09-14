@@ -13,7 +13,7 @@ import java.io.File
  * dove finisce il soggetto, quanto pende l'orizzonte), mentre un preset è un aspetto che si porta
  * da un'immagine all'altra. Applicarne uno che raddrizza di tre gradi girerebbe anche le
  * fotografie dritte.
- * - ⚠️ **Quindi i moduli sono cinque e non sette**, e coincidono esattamente con quelli che i
+ * - ⚠️ **Quindi i moduli sono cinque e non otto**, e coincidono esattamente con quelli che i
  *   preset di Lightroom sanno dire: Luce, Colore, HSL, Dettaglio e Curve.
  *
  * ⚠️⚠️ **IL NOME NON SI TRADUCE, NEMMENO QUELLO DEI VENTI DI CASA**: è un nome proprio, come
@@ -25,10 +25,24 @@ data class Preset(
     val name: String,
     val look: Look,
     /**
+     * Con che cosa questo preset si nomina nell'archivio.
+     *
+     * ⚠️⚠️ **NASCE CON LA `2.50`, E SENZA DI LEI UN PRESET DI CASA NON SI POTREBBE RINOMINARE**
+     * (sua richiesta, giro della `2.40`: *si possono riordinare, rinominare e cancellare a
+     * piacere sia i predefiniti di fabbrica che quelli creati dall'utente*). Il nome è quello che
+     * si vede e adesso si può cambiare, quindi non può più essere anche l'identità: l'archivio
+     * tiene le rinomine, i cancellati e l'ordine, e li tiene **per chiave**.
+     * ⚠️ **Per i propri la chiave È il nome**, perché là l'identità non ha un secondo posto in cui
+     * vivere: due preset propri che si chiamano uguale sono indistinguibili nell'elenco, e per
+     * questo salvarne uno col nome di un altro lo sostituisce.
+     */
+    val key: String = name,
+    /**
      * Se è uno dei venti che l'app porta con sé.
      *
-     * ⚠️ **Serve a una cosa sola, e non è la grafica**: un preset di casa non si cancella e non si
-     * rinomina, perché non vive in nessun archivio da cui toglierlo. Chi non lo vuole lo ignora.
+     * ⚠️ **Serve a due cose**: il gruppo in cui compare ('Stili AIV' o 'Stili personali'), e dove
+     * l'archivio scrive quello che di lui è cambiato (una rinomina fra le rinomine, una
+     * cancellazione fra i cancellati, invece del preset intero).
      */
     val house: Boolean = false
 ) {
@@ -41,6 +55,8 @@ data class Preset(
      * uno sopra un altro darebbe qualcosa che nessuno dei due descrive. Così invece un preset
      * dice **dove si arriva**, e per tornare indietro c'è 'Annulla', perché quello che ne esce è
      * un [Look] come un altro.
+     * ⚠️ **Dalla `2.50` è quello che fa il TOCCO**, e il tocco lungo fa l'altra cosa: vedi
+     * [addTo].
      */
     fun applyTo(base: Look): Look = base.copy(
         light = look.light,
@@ -48,6 +64,30 @@ data class Preset(
         mix = look.mix,
         detail = look.detail,
         tone = look.tone
+    )
+
+    /**
+     * [base] con sopra i **soli moduli che questo preset dichiara**: il tocco lungo, dalla `2.50`.
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA, E LE DUE RIGHE SONO SUE** (campo libero del giro della `2.40`:
+     * *tocco sullo stile = modifica assoluta (azzera tutto, poi modifica); tocco prolungato =
+     * modifica additiva (tocca i valori inclusi, non modifica gli altri)*). Il gesto lungo serve a
+     * **comporre**: un preset di sole curve sopra uno di sola luce, senza che il secondo porti via
+     * quello che il primo aveva messo.
+     * ⚠️⚠️ **QUELLO CHE 'DICHIARA' LO DICE IL FORMATO, e non serve un secondo dato**: un modulo a
+     * riposo non si scrive nel file (vedi [Presets]), quindi 'questo preset parla di luce?' si
+     * risponde chiedendo se la sua luce è a riposo. Un elenco di moduli scritto accanto sarebbe la
+     * stessa informazione in due posti, e il primo a divergere sarebbe quello che nessuno guarda.
+     * ⚠️ **Un modulo a riposo non azzera niente**: additiva vuol dire che quello che il preset non
+     * nomina resta com'è, e un preset che nomina un modulo lo **sostituisce** per intero, perché
+     * dentro un modulo i cursori si leggono insieme.
+     */
+    fun addTo(base: Look): Look = base.copy(
+        light = if (look.light.idle) base.light else look.light,
+        chroma = if (look.chroma.idle) base.chroma else look.chroma,
+        mix = if (look.mix.idle) base.mix else look.mix,
+        detail = if (look.detail.idle) base.detail else look.detail,
+        tone = if (look.tone.idle) base.tone else look.tone
     )
 
     companion object {
@@ -67,7 +107,7 @@ data class Preset(
 }
 
 /**
- * Dove vivono i preset propri, e come si leggono i venti di casa.
+ * Dove vivono i preset, e che cosa di loro l'utente ha cambiato.
  *
  * ⚠️⚠️ **L'ARCHIVIO È UN FILE E NON UNA PREFERENZA**, al contrario di quasi tutto il resto
  * dell'app: una preferenza tiene un valore, qui invece cresce un elenco di oggetti annidati (otto
@@ -84,49 +124,257 @@ data class Preset(
  * - ⚠️ **Ogni campo che manca vale il suo valore di riposo**, ed è quello che rende il formato
  *   compatibile in avanti e all'indietro: un file scritto oggi si legge domani anche se domani i
  *   cursori sono sei, e un file scritto domani si legge oggi perdendo quello che oggi non esiste.
+ *
+ * ⚠️⚠️ **DALLA `2.50` IL FILE È UN OGGETTO E NON PIÙ UN ELENCO, E IL VECCHIO SI LEGGE LO STESSO**:
+ * finché i preset propri erano l'unica cosa che l'utente poteva toccare, l'archivio era il loro
+ * elenco; adesso può **riordinare, rinominare e cancellare anche quelli di casa** (sua richiesta,
+ * giro della `2.40`), e quelle tre cose non stanno dentro un elenco di preset propri. Un file
+ * scritto prima comincia con `[`, e allora è l'elenco di prima e basta: senza quella riga,
+ * aggiornare l'app porterebbe via a chi ce li ha tutti i preset salvati.
+ * - **Che cosa tiene**: `mine` (i propri, nell'ordine scelto), `names` (le rinomine di quelli di
+ *   casa, per chiave), `gone` (le chiavi di casa cancellate) e `house` (l'ordine di quelli di
+ *   casa).
+ * - ⚠️ **Di un preset di casa non si scrive mai il contenuto**, nemmeno rinominato: i suoi valori
+ *   vivono nel programma, e copiarli nell'archivio vorrebbe dire che una taratura corretta in una
+ *   versione futura non arriverebbe a chi lo ha rinominato.
  */
 object Presets {
 
-    /** I preset dell'utente, dal più recente al più vecchio, e poi i venti di casa. */
-    fun all(context: Context): List<Preset> = mine(context) + HOUSE
-
-    /** I soli preset salvati dall'utente. */
-    fun mine(context: Context): List<Preset> {
-        val file = store(context)
-        if (!file.isFile) return emptyList()
-        val testo = runCatching { file.readText() }.getOrNull() ?: return emptyList()
-        val righe = runCatching { JSONArray(testo) }.getOrNull() ?: return emptyList()
-        return (0 until righe.length()).mapNotNull { i ->
-            val o = righe.optJSONObject(i) ?: return@mapNotNull null
-            val nome = o.optString("name").trim()
-            if (nome.isEmpty()) null else Preset(nome, readLook(o))
-        }
-    }
+    /** Quello che l'elenco mostra: prima i venti di casa, poi i propri. */
+    fun all(context: Context): List<Preset> = house(context) + mine(context)
 
     /**
-     * Salva [look] col nome [name], e ridà l'elenco nuovo.
+     * I preset di casa, nell'ordine scelto, coi nomi effettivi e senza i cancellati.
+     *
+     * ⚠️ **L'ordine si applica alla lista del programma e non la sostituisce**: una chiave
+     * salvata che non esiste più (un preset tolto da una versione futura) si scarta, e una che
+     * l'archivio non nomina resta al suo posto di fabbrica. È lo stesso criterio di `padOrderOf`
+     * per i riquadri.
+     */
+    fun house(context: Context): List<Preset> {
+        val book = read(context)
+        val vivi = HOUSE.filterNot { book.gone.contains(it.key) }
+        val posto = book.house.withIndex().associate { (i, k) -> k to i }
+        return vivi
+            .sortedBy { posto[it.key] ?: (book.house.size + vivi.indexOf(it)) }
+            .map { p -> book.names[p.key]?.let { p.copy(name = it) } ?: p }
+    }
+
+    /** I soli preset salvati dall'utente, nell'ordine scelto. */
+    fun mine(context: Context): List<Preset> = read(context).mine
+
+    /**
+     * Salva [look] col nome [name], e ridà l'elenco nuovo dei propri.
      *
      * ⚠️ **Un nome già usato SOSTITUISCE invece di aggiungere**, e il confronto non guarda le
      * maiuscole: due preset che si chiamano uguale sono indistinguibili nell'elenco, quindi
      * l'unica cosa che si potrebbe fare con il secondo è cercare di capire quale sia.
+     * ⚠️ **Un nome nuovo va in CODA e non in cima, dalla `2.50`**: l'ordine adesso è una scelta
+     * dell'utente, e infilare l'ultimo arrivato davanti a quelli che lui ha disposto vorrebbe dire
+     * rifargli la fila a ogni salvataggio.
      */
     fun save(context: Context, name: String, look: Look): List<Preset> {
         val fresco = Preset.of(name.take(Preset.NAME_MAX), look)
         if (fresco.name.isEmpty()) return mine(context)
-        val resto = mine(context).filterNot { it.name.equals(fresco.name, ignoreCase = true) }
-        return write(context, listOf(fresco) + resto)
+        val book = read(context)
+        val vecchio = book.mine.indexOfFirst { it.name.equals(fresco.name, ignoreCase = true) }
+        val nuovi = book.mine.toMutableList()
+        if (vecchio >= 0) nuovi[vecchio] = fresco else nuovi.add(fresco)
+        return write(context, book.copy(mine = nuovi)).mine
     }
 
-    /** Toglie il preset [name] dai propri, e ridà l'elenco nuovo. */
-    fun remove(context: Context, name: String): List<Preset> =
-        write(context, mine(context).filterNot { it.name.equals(name, ignoreCase = true) })
+    /**
+     * Toglie [p] dall'elenco, e ridà il posto da cui è uscito, per chi lo vuole rimettere.
+     *
+     * ⚠️⚠️ **UN PRESET DI CASA NON SI CANCELLA DAVVERO: SI NASCONDE**, perché i suoi valori vivono
+     * nel programma e non nell'archivio. Quello che si scrive è la sua chiave fra i cancellati, e
+     * 'Ripristina' porta via quell'elenco insieme a tutto il resto.
+     */
+    fun remove(context: Context, p: Preset): Int {
+        val book = read(context)
+        if (p.house) {
+            val dove = book.house.indexOf(p.key)
+            write(context, book.copy(gone = book.gone + p.key))
+            return dove
+        }
+        val dove = book.mine.indexOfFirst { it.name.equals(p.name, ignoreCase = true) }
+        if (dove < 0) return -1
+        write(context, book.copy(mine = book.mine.filterIndexed { i, _ -> i != dove }))
+        return dove
+    }
 
-    /** Scrive l'elenco e lo ridà, o ridà quello vecchio se il disco non collabora. */
-    private fun write(context: Context, elenco: List<Preset>): List<Preset> {
-        val righe = JSONArray()
-        elenco.forEach { righe.put(writeLook(it)) }
-        val fatto = runCatching { store(context).writeText(righe.toString()) }.isSuccess
-        return if (fatto) elenco else mine(context)
+    /** Rimette [p] dov'era, cioè quello che fa l''Annulla' della notifica. */
+    fun restore(context: Context, p: Preset, at: Int) {
+        val book = read(context)
+        if (p.house) {
+            write(context, book.copy(gone = book.gone - p.key))
+            return
+        }
+        val nuovi = book.mine.toMutableList()
+        nuovi.add(at.coerceIn(0, nuovi.size), p)
+        write(context, book.copy(mine = nuovi))
+    }
+
+    /**
+     * Cambia il nome di [p], e ridà il preset com'è adesso.
+     *
+     * ⚠️ **Per un preset proprio il nome è anche la chiave**, quindi rinominarlo lo fa diventare
+     * un altro: se quel nome è già di un altro dei suoi, i due si fonderebbero, e per questo il
+     * doppione si scarta invece di sostituire (a sostituire è il salvataggio, dove l'utente ha
+     * appena scritto dei valori nuovi).
+     */
+    fun rename(context: Context, p: Preset, name: String): Preset {
+        val pulito = name.trim().take(Preset.NAME_MAX)
+        if (pulito.isEmpty()) return p
+        val book = read(context)
+        if (p.house) {
+            write(context, book.copy(names = book.names + (p.key to pulito)))
+            return p.copy(name = pulito)
+        }
+        val preso = book.mine.any {
+            !it.name.equals(p.name, ignoreCase = true) && it.name.equals(pulito, ignoreCase = true)
+        }
+        if (preso) return p
+        val nuovo = p.copy(name = pulito, key = pulito)
+        write(context, book.copy(mine = book.mine.map { if (it.name == p.name) nuovo else it }))
+        return nuovo
+    }
+
+    /** Sposta il preset che sta in [from] all'indice [to], dentro il suo gruppo. */
+    fun move(context: Context, p: Preset, from: Int, to: Int) {
+        val book = read(context)
+        if (p.house) {
+            val chiavi = houseOrder(book).toMutableList()
+            if (from !in chiavi.indices || to !in chiavi.indices) return
+            chiavi.add(to, chiavi.removeAt(from))
+            write(context, book.copy(house = chiavi))
+            return
+        }
+        val nuovi = book.mine.toMutableList()
+        if (from !in nuovi.indices || to !in nuovi.indices) return
+        nuovi.add(to, nuovi.removeAt(from))
+        write(context, book.copy(mine = nuovi))
+    }
+
+    /**
+     * Butta via tutto quello che l'utente ha fatto: l'app torna ai venti di casa, nell'ordine e
+     * coi nomi di fabbrica.
+     *
+     * ⚠️ **Si cancella il file invece di riscriverlo vuoto**: l'assenza è già il valore di
+     * fabbrica, e un file vuoto vorrebbe dire due modi di dire la stessa cosa.
+     */
+    fun reset(context: Context) {
+        runCatching { store(context).delete() }
+    }
+
+    /**
+     * L'archivio come testo, per chi lo vuole salvare fuori dall'app.
+     *
+     * ⚠️⚠️ **SI ESPORTA L'ARCHIVIO INTERO E NON I SOLI STILI PROPRI**, ed è la lettura della sua
+     * richiesta fino in fondo (*da dove si potrà salvare un XML o JSON con i propri stili
+     * personalizzati, o importarlo in seguito dopo una nuova installazione*): quello che si vuole
+     * ritrovare dopo un'installazione nuova non sono solo gli stili creati, sono anche le rinomine
+     * e l'ordine in cui li si era messi, cioè tutto quello che di quell'elenco era suo.
+     * ⚠️ **È lo stesso testo che vive su disco**, quindi non c'è un secondo formato da tenere
+     * allineato al primo, e un file esportato si può rimettere a mano.
+     */
+    fun export(context: Context): String = book(read(context)).toString(2)
+
+    /**
+     * Rimette un archivio esportato, e dice se ci è riuscito.
+     *
+     * ⚠️ **Sostituisce invece di fondere**, ed è la scelta che rende il gesto prevedibile: un
+     * archivio importato è una fotografia di com'era l'elenco, e mescolarlo a quello che c'è
+     * darebbe una terza cosa che nessuno dei due descrive. Chi vuole tenere tutti e due esporta
+     * prima.
+     * ⚠️ **Un testo che non si legge non tocca niente**: la scrittura arriva dopo la lettura, e
+     * senza quell'ordine un file storto svuoterebbe l'archivio.
+     */
+    fun load(context: Context, text: String): Boolean {
+        val letto = runCatching { parse(text) }.getOrNull() ?: return false
+        write(context, letto)
+        return true
+    }
+
+    // ── L'archivio ───────────────────────────────────────────────────────────
+
+    /** Quello che il file tiene: i propri, e che cosa è stato fatto a quelli di casa. */
+    private data class Book(
+        val mine: List<Preset> = emptyList(),
+        val names: Map<String, String> = emptyMap(),
+        val gone: List<String> = emptyList(),
+        val house: List<String> = emptyList()
+    )
+
+    private fun read(context: Context): Book {
+        val file = store(context)
+        if (!file.isFile) return Book()
+        val testo = runCatching { file.readText() }.getOrNull() ?: return Book()
+        return runCatching { parse(testo) }.getOrDefault(Book())
+    }
+
+    /**
+     * Legge un archivio, nel formato di oggi o in quello di prima della `2.50`.
+     *
+     * ⚠️ **La forma si riconosce dal primo carattere e non si indovina**: un `[` è l'elenco di
+     * prima, tutto il resto passa da `JSONObject`, che su un testo storto va in errore, e quel
+     * caso lo prende chi chiama.
+     */
+    private fun parse(text: String): Book {
+        val pulito = text.trim()
+        if (pulito.startsWith("[")) return Book(mine = readMine(JSONArray(pulito)))
+        val o = JSONObject(pulito)
+        val names = mutableMapOf<String, String>()
+        o.optJSONObject("names")?.let { n ->
+            n.keys().forEach { k -> n.optString(k).takeIf { it.isNotEmpty() }?.let { names[k] = it } }
+        }
+        return Book(
+            mine = readMine(o.optJSONArray("mine") ?: JSONArray()),
+            names = names,
+            gone = strings(o.optJSONArray("gone")),
+            house = strings(o.optJSONArray("house"))
+        )
+    }
+
+    private fun book(b: Book): JSONObject {
+        val o = JSONObject()
+        o.put("mine", JSONArray().apply { b.mine.forEach { put(writeLook(it)) } })
+        if (b.names.isNotEmpty()) {
+            o.put("names", JSONObject().apply { b.names.forEach { (k, v) -> put(k, v) } })
+        }
+        if (b.gone.isNotEmpty()) o.put("gone", JSONArray().apply { b.gone.forEach { put(it) } })
+        if (b.house.isNotEmpty()) o.put("house", JSONArray().apply { b.house.forEach { put(it) } })
+        return o
+    }
+
+    /** Scrive l'archivio e lo ridà, o ridà quello vecchio se il disco non collabora. */
+    private fun write(context: Context, b: Book): Book {
+        val fatto = runCatching { store(context).writeText(book(b).toString()) }.isSuccess
+        return if (fatto) b else read(context)
+    }
+
+    /**
+     * L'ordine dei preset di casa, completato con quello che l'archivio non nomina.
+     *
+     * ⚠️ **Serve prima di uno spostamento e non alla lettura**: un archivio nato prima della
+     * `2.50` non ha nessun ordine, e muovere una riga dentro una lista vuota non vorrebbe dire
+     * niente.
+     */
+    private fun houseOrder(b: Book): List<String> {
+        val vive = HOUSE.map { it.key }.filterNot { b.gone.contains(it) }
+        val scelte = b.house.filter { vive.contains(it) }
+        return scelte + vive.filterNot { scelte.contains(it) }
+    }
+
+    private fun strings(a: JSONArray?): List<String> {
+        if (a == null) return emptyList()
+        return (0 until a.length()).mapNotNull { a.optString(it).takeIf { s -> s.isNotEmpty() } }
+    }
+
+    private fun readMine(a: JSONArray): List<Preset> = (0 until a.length()).mapNotNull { i ->
+        val o = a.optJSONObject(i) ?: return@mapNotNull null
+        val nome = o.optString("name").trim()
+        if (nome.isEmpty()) null else Preset(nome, readLook(o))
     }
 
     private fun store(context: Context): File = File(context.filesDir, STORE)
@@ -135,7 +383,8 @@ object Presets {
     //
     // ⚠️⚠️ **UN CAMPO A RIPOSO NON SI SCRIVE**, e non è un risparmio di byte: un preset di sola
     // Luce deve leggersi come tale, e con i moduli scritti per intero il file direbbe che tocca
-    // anche il colore e le curve, a zero. Chi lo apre vedrebbe un preset che fa tutto.
+    // anche il colore e le curve, a zero. Chi lo apre vedrebbe un preset che fa tutto, e dalla
+    // `2.50` anche il tocco lungo leggerebbe il contrario del vero (vedi [Preset.addTo]).
 
     private fun writeLook(p: Preset): JSONObject {
         val o = JSONObject()
@@ -235,7 +484,7 @@ object Presets {
     /** Sotto questa soglia un valore non si scrive: è la stessa dei moduli. */
     private const val DEAD = 0.0005f
 
-    /** Come si chiama il file dei preset propri, dentro `filesDir`. */
+    /** Come si chiama il file dei preset, dentro `filesDir`. */
     private const val STORE = "presets.json"
 }
 
@@ -252,16 +501,21 @@ private fun mix(vararg bands: Pair<Int, Band>): Mix =
 private fun curve(vararg knots: Pair<Float, Float>): Curve =
     Curve(knots.map { Knot(it.first, it.second) })
 
-/** Un preset di casa, coi suoi cinque moduli facoltativi. */
+/** Un preset di casa, con la sua chiave e i suoi cinque moduli facoltativi. */
 private fun house(
+    key: String,
     name: String,
     light: Light = Light.NONE,
     chroma: Chroma = Chroma.NONE,
     mix: Mix = Mix.NONE,
     detail: Detail = Detail.NONE,
     tone: Tone = Tone.NONE
-): Preset = Preset(name, Look(light = light, chroma = chroma, mix = mix, detail = detail,
-    tone = tone), house = true)
+): Preset = Preset(
+    name = name,
+    look = Look(light = light, chroma = chroma, mix = mix, detail = detail, tone = tone),
+    key = key,
+    house = true
+)
 
 /**
  * I venti preset che l'app porta con sé.
@@ -289,9 +543,25 @@ private fun house(
  * 'Primari verdi' rifanno nelle nostre fasce quello che i suoi 'Contrasto colore classico' e
  * 'Contrasto colore foliage' ottenevano dalla taratura dei primari, che è un'altra macchina. Il
  * risultato somiglia, la strada no, e per questo hanno un nome diverso dal suo.
+ *
+ * ⚠️⚠️ **I NOMI E L'ORDINE SONO SUOI, DALLA `2.50`** (campo libero del giro della `2.40`, punto 4:
+ * *'Combo' diventa 'Roccobot'. Gli altri vanno elencati in ordine alfabetico, dopo queste
+ * rinomine*). Quindi 'Roccobot' è il primo e gli altri diciannove seguono in ordine alfabetico,
+ * che è l'ordine in cui questa lista è scritta.
+ * - ⚠️⚠️ **L'ORDINE SI SCRIVE E LO PRESIDIA IL BANCO, invece di ordinarlo a ogni lettura**: un
+ *   `sortedBy` dipenderebbe da come la piattaforma confronta due stringhe (le maiuscole, gli
+ *   accenti, la lingua del telefono), quindi la fila che l'utente vede cambierebbe col telefono.
+ *   La prova misura l'invariante, cioè che dal secondo in poi siano in ordine, e un preset nuovo
+ *   messo nel posto sbagliato la fa diventare rossa.
+ * - ⚠️ **Le sue frecce diventano trattini**, ed è la regola dei caratteri applicata: aveva scritto
+ *   `Rosso –` con un trattino lungo, che in questo progetto non si usa da nessuna parte, nemmeno
+ *   in un nome proprio.
+ * - ⚠️ **La chiave non segue il nome**, e per questo rinominare 'Pellicola' in 'Curva pellicola'
+ *   non ha toccato la sua: quello che vive nell'archivio di chi aggiorna è la chiave, e cambiarla
+ *   vorrebbe dire un preset che riappare dopo essere stato cancellato.
  */
 val HOUSE: List<Preset> = listOf(
-    house("Combo",
+    house("combo", "Roccobot",
         light = Light(exposure = -.2f, contrast = -.3f, highlights = -.3f, shadows = .2f, blacks = .4f),
         chroma = Chroma(saturation = .1f, vibrance = .1f),
         mix = mix(
@@ -306,23 +576,14 @@ val HOUSE: List<Preset> = listOf(
             .502f to .502f, .8824f to .8706f, 1f to .9647f
         ))
     ),
-    house("Rosso←",
+    house("bn", "Bianco e nero",
+        light = Light(contrast = .15f, blacks = -.1f),
+        chroma = Chroma(mono = true, filter = .35f),
         mix = mix(
-            0 to Band(sat = .1f, lum = .07f), 1 to Band(hue = -.12f, sat = .2f, lum = -.18f),
-            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
-            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
-            6 to Band(hue = .04f), 7 to Band(hue = .01f)
+            3 to Band(lum = .15f), 5 to Band(lum = -.3f)
         )
     ),
-    house("Rosso←←",
-        mix = mix(
-            0 to Band(hue = -.06f, lum = -.35f), 1 to Band(hue = -.14f, lum = -.2f),
-            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
-            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
-            6 to Band(hue = .04f), 7 to Band(hue = .01f)
-        )
-    ),
-    house("Color grading- caldo",
+    house("grading-caldo", "Color grading (caldo)",
         mix = mix(
             0 to Band(hue = -.12f, sat = .05f, lum = .07f), 1 to Band(hue = -.08f, sat = .05f, lum = -.14f),
             2 to Band(hue = .08f, sat = .03f, lum = .05f), 3 to Band(hue = -.12f, sat = .08f, lum = .05f),
@@ -330,26 +591,34 @@ val HOUSE: List<Preset> = listOf(
             6 to Band(hue = .13f, sat = .13f), 7 to Band(hue = .01f)
         )
     ),
-    house("Curva chiaroscuro",
+    house("curva-chiaroscuro", "Curva chiaroscuro",
         tone = Tone(all = curve(
             0f to .0706f, .149f to .1451f, .251f to .2196f,
             .502f to .502f, .8824f to .8706f, 1f to .9647f
         ))
     ),
-    house("Curva onde",
+    house("curva-onde", "Curva onde",
         tone = Tone(all = curve(
             0f to .0706f, .1569f to .1882f, .2863f to .2667f,
             .498f to .5059f, .5608f to .5451f, .8824f to .8706f,
             1f to .9647f
         ))
     ),
-    house("Dettagli fini",
+    house("pellicola", "Curva pellicola",
+        light = Light(contrast = .1f, whites = -.1f, blacks = .25f),
+        chroma = Chroma(saturation = -.15f, vibrance = .12f),
+        tone = Tone(all = curve(
+            0f to .055f, .25f to .22f, .75f to .79f,
+            1f to .96f
+        ))
+    ),
+    house("dettagli-fini", "Dettagli fini",
         detail = Detail(sharpen = .7f, masking = .7f)
     ),
-    house("Dettagli grossolani",
+    house("dettagli-grossi", "Dettagli grossolani",
         detail = Detail(sharpen = .85f, radius = .6781f, masking = .75f, noise = .2f, noiseColor = .1f)
     ),
-    house("Mix colori turchese",
+    house("mix-turchese", "Mix colori turchese",
         mix = mix(
             0 to Band(hue = .02f), 1 to Band(hue = -.03f),
             2 to Band(hue = -.33f), 3 to Band(hue = .02f),
@@ -357,39 +626,53 @@ val HOUSE: List<Preset> = listOf(
             6 to Band(hue = -.13f)
         )
     ),
-    house("Neutro",
+    house("notturno", "Notturno",
+        light = Light(exposure = .25f, highlights = -.2f, shadows = .45f, blacks = .15f),
+        detail = Detail(sharpen = .3f, masking = .6f, noise = .55f, noiseColor = .45f)
+    ),
+    house("primari-caldi", "Primari caldi",
+        light = Light(contrast = .08f),
         mix = mix(
-            0 to Band(sat = .05f), 1 to Band(hue = .07f, sat = -.49f, lum = .05f),
-            2 to Band(hue = .2f, sat = .06f, lum = .05f), 3 to Band(hue = .06f, sat = .35f, lum = .05f),
-            4 to Band(hue = .42f, sat = .1f, lum = -.05f), 5 to Band(sat = .25f)
+            0 to Band(hue = .28f, sat = -.5f), 1 to Band(hue = .15f, sat = -.2f),
+            3 to Band(sat = .45f), 5 to Band(hue = -.3f, sat = .08f)
         )
     ),
-    house("Chiaro",
+    house("primari-verdi", "Primari verdi",
+        light = Light(contrast = .08f),
         mix = mix(
-            0 to Band(hue = .38f, sat = -.06f, lum = -.21f), 1 to Band(sat = -.17f),
-            2 to Band(hue = -.75f, sat = .18f, lum = .19f), 3 to Band(hue = -.78f, sat = -.08f),
-            4 to Band(hue = -.38f, sat = -.08f, lum = .22f), 5 to Band(hue = -.22f, sat = .26f, lum = .39f),
-            6 to Band(hue = .28f, sat = -.63f), 7 to Band(hue = .64f, sat = -.62f)
+            0 to Band(hue = .28f, sat = -.5f), 1 to Band(hue = .15f, sat = -.2f),
+            2 to Band(hue = .4f, sat = .3f), 3 to Band(hue = .75f, sat = 1f),
+            4 to Band(sat = .2f), 5 to Band(sat = .4f)
         )
     ),
-    house("Standard",
+    house("ritratto", "Ritratto",
+        light = Light(highlights = -.25f, shadows = .2f, blacks = .08f),
+        chroma = Chroma(temp = .05f, vibrance = .2f),
         mix = mix(
-            0 to Band(hue = .36f, sat = .05f), 1 to Band(hue = -.06f, sat = .49f, lum = .05f),
-            2 to Band(hue = .03f, sat = .28f, lum = .05f), 3 to Band(hue = .4f, sat = .35f, lum = .05f),
-            4 to Band(hue = -.12f, sat = .43f, lum = -.05f), 5 to Band(hue = -.32f, sat = .62f)
+            0 to Band(sat = -.08f), 1 to Band(hue = .05f, sat = -.12f, lum = .12f),
+            2 to Band(sat = -.1f)
+        ),
+        detail = Detail(sharpen = .35f, masking = .8f)
+    ),
+    house("rosso-1", "Rosso -",
+        mix = mix(
+            0 to Band(sat = .1f, lum = .07f), 1 to Band(hue = -.12f, sat = .2f, lum = -.18f),
+            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
+            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
+            6 to Band(hue = .04f), 7 to Band(hue = .01f)
         )
     ),
-    house("Slavato",
+    house("rosso-2", "Rosso - -",
         mix = mix(
-            0 to Band(hue = .36f, sat = -.13f), 1 to Band(sat = -.15f),
-            2 to Band(hue = -.44f, sat = -.1f), 3 to Band(hue = 1f),
-            4 to Band(hue = .1f, sat = -.11f, lum = -.32f), 5 to Band(hue = -.17f, sat = .19f, lum = -.23f),
-            6 to Band(hue = -.1f, sat = -.63f), 7 to Band(hue = -.13f, sat = -.62f)
+            0 to Band(hue = -.06f, lum = -.35f), 1 to Band(hue = -.14f, lum = -.2f),
+            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
+            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
+            6 to Band(hue = .04f), 7 to Band(hue = .01f)
         )
     ),
-    house("Blu Rosso",
+    house("to-blu-rosso", "T&O - Blu/Rosso",
         light = Light(
-            exposure = -.15f, contrast = -.5f, highlights = -.6f, shadows = .5f, whites = .5f, 
+            exposure = -.15f, contrast = -.5f, highlights = -.6f, shadows = .5f, whites = .5f,
             blacks = .2f
         ),
         chroma = Chroma(vibrance = -.08f),
@@ -404,47 +687,34 @@ val HOUSE: List<Preset> = listOf(
             .502f to .502f, .8824f to .8706f, 1f to .9647f
         ))
     ),
-    house("Bianco e nero",
-        light = Light(contrast = .15f, blacks = -.1f),
-        chroma = Chroma(mono = true, filter = .35f),
+    house("to-chiaro", "T&O - Chiaro",
         mix = mix(
-            3 to Band(lum = .15f), 5 to Band(lum = -.3f)
+            0 to Band(hue = .38f, sat = -.06f, lum = -.21f), 1 to Band(sat = -.17f),
+            2 to Band(hue = -.75f, sat = .18f, lum = .19f), 3 to Band(hue = -.78f, sat = -.08f),
+            4 to Band(hue = -.38f, sat = -.08f, lum = .22f), 5 to Band(hue = -.22f, sat = .26f, lum = .39f),
+            6 to Band(hue = .28f, sat = -.63f), 7 to Band(hue = .64f, sat = -.62f)
         )
     ),
-    house("Ritratto",
-        light = Light(highlights = -.25f, shadows = .2f, blacks = .08f),
-        chroma = Chroma(temp = .05f, vibrance = .2f),
+    house("to-neutro", "T&O - Neutro",
         mix = mix(
-            0 to Band(sat = -.08f), 1 to Band(hue = .05f, sat = -.12f, lum = .12f),
-            2 to Band(sat = -.1f)
-        ),
-        detail = Detail(sharpen = .35f, masking = .8f)
-    ),
-    house("Notturno",
-        light = Light(exposure = .25f, highlights = -.2f, shadows = .45f, blacks = .15f),
-        detail = Detail(sharpen = .3f, masking = .6f, noise = .55f, noiseColor = .45f)
-    ),
-    house("Pellicola",
-        light = Light(contrast = .1f, whites = -.1f, blacks = .25f),
-        chroma = Chroma(saturation = -.15f, vibrance = .12f),
-        tone = Tone(all = curve(
-            0f to .055f, .25f to .22f, .75f to .79f,
-            1f to .96f
-        ))
-    ),
-    house("Primari caldi",
-        light = Light(contrast = .08f),
-        mix = mix(
-            0 to Band(hue = .28f, sat = -.5f), 1 to Band(hue = .15f, sat = -.2f),
-            3 to Band(sat = .45f), 5 to Band(hue = -.3f, sat = .08f)
+            0 to Band(sat = .05f), 1 to Band(hue = .07f, sat = -.49f, lum = .05f),
+            2 to Band(hue = .2f, sat = .06f, lum = .05f), 3 to Band(hue = .06f, sat = .35f, lum = .05f),
+            4 to Band(hue = .42f, sat = .1f, lum = -.05f), 5 to Band(sat = .25f)
         )
     ),
-    house("Primari verdi",
-        light = Light(contrast = .08f),
+    house("to-slavato", "T&O - Slavato",
         mix = mix(
-            0 to Band(hue = .28f, sat = -.5f), 1 to Band(hue = .15f, sat = -.2f),
-            2 to Band(hue = .4f, sat = .3f), 3 to Band(hue = .75f, sat = 1f),
-            4 to Band(sat = .2f), 5 to Band(sat = .4f)
+            0 to Band(hue = .36f, sat = -.13f), 1 to Band(sat = -.15f),
+            2 to Band(hue = -.44f, sat = -.1f), 3 to Band(hue = 1f),
+            4 to Band(hue = .1f, sat = -.11f, lum = -.32f), 5 to Band(hue = -.17f, sat = .19f, lum = -.23f),
+            6 to Band(hue = -.1f, sat = -.63f), 7 to Band(hue = -.13f, sat = -.62f)
+        )
+    ),
+    house("to-standard", "T&O - Standard",
+        mix = mix(
+            0 to Band(hue = .36f, sat = .05f), 1 to Band(hue = -.06f, sat = .49f, lum = .05f),
+            2 to Band(hue = .03f, sat = .28f, lum = .05f), 3 to Band(hue = .4f, sat = .35f, lum = .05f),
+            4 to Band(hue = -.12f, sat = .43f, lum = -.05f), 5 to Band(hue = -.32f, sat = .62f)
         )
     )
 )

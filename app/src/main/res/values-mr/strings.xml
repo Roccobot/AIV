@@ -438,11 +438,11 @@
     <string name="look_tone_board">टोन कर्व्ह</string>
     <string name="look_target">लक्ष्यित</string>
     <string name="look_auto">स्वयं</string>
-    <string name="look_presets">प्रीसेट</string>
-    <string name="look_preset_save">प्रीसेट जतन करा</string>
+    <string name="look_presets">शैली</string>
+    <string name="look_preset_save">शैली जतन करा</string>
     <string name="look_preset_name">प्रीसेटचे नाव</string>
-    <string name="look_preset_mine">तुमचे</string>
-    <string name="look_preset_house">अंगभूत</string>
+    <string name="look_preset_mine">तुमच्या शैली</string>
+    <string name="look_preset_house">AIV शैली</string>
     <string name="look_preset_remove">काढा</string>
     <string name="look_preset_gone">प्रीसेट काढला</string>
     <string name="look_geometry">भूमिती</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">कचऱ्यात \'नाव बदला\'च्या जागी \'पुन्हा आणा\' येते.</string>
     <string name="settings_buttons_before">आधी हलवा</string>
     <string name="settings_buttons_after">नंतर हलवा</string>
+    <string name="look_corners">कोपरे</string>
+    <string name="look_preset_add">सध्याच्या शैलीत जोडा</string>
+    <string name="settings_styles">संपादन शैली</string>
+    <string name="settings_styles_desc">पूर्ण संपादकाच्या शैली पुन्हा क्रमवारी लावा, नाव बदला किंवा हटवा, अ‍ॅपच्या आणि तुमच्या दोन्ही.</string>
+    <string name="settings_styles_none">तुम्ही अद्याप कोणतीही शैली जतन केलेली नाही.</string>
+    <string name="settings_styles_reset">पुनर्संचयित करा</string>
+    <string name="settings_styles_reset_ask">तुम्हाला खरंच अ‍ॅपच्या डीफॉल्ट शैली पुनर्संचयित करायच्या आहेत का? तुमच्या स्वतःच्या शैली हटवल्या जातील.</string>
+    <string name="settings_styles_export">निर्यात</string>
+    <string name="settings_styles_import">आयात</string>
+    <string name="settings_styles_saved">शैली निर्यात झाल्या</string>
+    <string name="settings_styles_loaded">शैली आयात झाल्या</string>
+    <string name="settings_styles_bad">या फाइलमध्ये कोणतीही शैली नाही</string>
+    <string name="hint_modules">सर्व संपादन मॉड्यूलपर्यंत पोहोचण्यासाठी चिन्हे सरकवा. एखाद्या मॉड्यूलचे चिन्ह दाबून धरल्यास फक्त त्याचे बदल शून्य होतात.</string>
 </resources>

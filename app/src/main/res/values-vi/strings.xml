@@ -422,11 +422,11 @@
     <string name="look_tone_board">Đường cong tông màu</string>
     <string name="look_target">Nhắm mục tiêu</string>
     <string name="look_auto">Tự động</string>
-    <string name="look_presets">Cài đặt sẵn</string>
-    <string name="look_preset_save">Lưu cài đặt sẵn</string>
+    <string name="look_presets">Kiểu</string>
+    <string name="look_preset_save">Lưu kiểu</string>
     <string name="look_preset_name">Tên cài đặt sẵn</string>
-    <string name="look_preset_mine">Của bạn</string>
-    <string name="look_preset_house">Có sẵn</string>
+    <string name="look_preset_mine">Kiểu của bạn</string>
+    <string name="look_preset_house">Kiểu AIV</string>
     <string name="look_preset_remove">Xóa</string>
     <string name="look_preset_gone">Đã xóa cài đặt sẵn</string>
     <string name="look_geometry">Hình học</string>
@@ -529,4 +529,17 @@
     <string name="settings_buttons_bin">Trong thùng rác, \'Phục hồi\' thay chỗ của \'Đổi tên\'.</string>
     <string name="settings_buttons_before">Chuyển lên trước</string>
     <string name="settings_buttons_after">Chuyển xuống sau</string>
+    <string name="look_corners">Góc ảnh</string>
+    <string name="look_preset_add">Thêm vào kiểu hiện tại</string>
+    <string name="settings_styles">Kiểu chỉnh sửa</string>
+    <string name="settings_styles_desc">Sắp xếp, đổi tên hoặc xoá các kiểu của trình chỉnh sửa đầy đủ, cả kiểu có sẵn lẫn kiểu của bạn.</string>
+    <string name="settings_styles_none">Bạn chưa lưu kiểu nào.</string>
+    <string name="settings_styles_reset">Khôi phục</string>
+    <string name="settings_styles_reset_ask">Bạn có chắc muốn khôi phục các kiểu mặc định của ứng dụng? Các kiểu của bạn sẽ bị xoá.</string>
+    <string name="settings_styles_export">Xuất</string>
+    <string name="settings_styles_import">Nhập</string>
+    <string name="settings_styles_saved">Đã xuất kiểu</string>
+    <string name="settings_styles_loaded">Đã nhập kiểu</string>
+    <string name="settings_styles_bad">Tệp này không chứa kiểu nào</string>
+    <string name="hint_modules">Vuốt các biểu tượng để đến mọi mô-đun chỉnh sửa. Nhấn giữ biểu tượng của một mô-đun để đặt lại riêng các thay đổi của nó.</string>
 </resources>

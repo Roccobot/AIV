@@ -438,11 +438,11 @@
     <string name="look_tone_board">منحنی تون</string>
     <string name="look_target">هدفمند</string>
     <string name="look_auto">خودکار</string>
-    <string name="look_presets">پیش‌تنظیم‌ها</string>
-    <string name="look_preset_save">ذخیره پیش‌تنظیم</string>
+    <string name="look_presets">سبک‌ها</string>
+    <string name="look_preset_save">ذخیرهٔ سبک</string>
     <string name="look_preset_name">نام پیش‌تنظیم</string>
-    <string name="look_preset_mine">مال شما</string>
-    <string name="look_preset_house">از پیش‌ساخته</string>
+    <string name="look_preset_mine">سبک‌های شما</string>
+    <string name="look_preset_house">سبک‌های AIV</string>
     <string name="look_preset_remove">حذف</string>
     <string name="look_preset_gone">پیش‌تنظیم حذف شد</string>
     <string name="look_geometry">هندسه</string>
@@ -546,4 +546,17 @@
     <string name="settings_buttons_bin">در زباله‌دان \'بازگرداندن\' جای \'تغییر نام\' را می‌گیرد.</string>
     <string name="settings_buttons_before">جابه‌جایی به جلو</string>
     <string name="settings_buttons_after">جابه‌جایی به عقب</string>
+    <string name="look_corners">گوشه‌ها</string>
+    <string name="look_preset_add">افزودن به ظاهر فعلی</string>
+    <string name="settings_styles">سبک‌های ویرایش</string>
+    <string name="settings_styles_desc">سبک‌های ویرایشگر کامل را مرتب، تغییرنام یا حذف کنید؛ چه سبک‌های آماده و چه سبک‌های خودتان.</string>
+    <string name="settings_styles_none">هنوز هیچ سبکی ذخیره نکرده‌اید.</string>
+    <string name="settings_styles_reset">بازیابی</string>
+    <string name="settings_styles_reset_ask">واقعاً می‌خواهید سبک‌های پیش‌فرض برنامه را بازیابی کنید؟ سبک‌های خودتان حذف می‌شوند.</string>
+    <string name="settings_styles_export">برون‌بری</string>
+    <string name="settings_styles_import">درون‌ریزی</string>
+    <string name="settings_styles_saved">سبک‌ها برون‌بری شد</string>
+    <string name="settings_styles_loaded">سبک‌ها درون‌ریزی شد</string>
+    <string name="settings_styles_bad">این فایل هیچ سبکی ندارد</string>
+    <string name="hint_modules">نمادها را بکشید تا به همهٔ بخش‌های ویرایش برسید. نماد یک بخش را نگه دارید تا فقط تغییرات همان بخش صفر شود.</string>
 </resources>

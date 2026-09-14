@@ -454,11 +454,11 @@
     <string name="look_tone_board">Courbe des tonalités</string>
     <string name="look_target">Ciblé</string>
     <string name="look_auto">Auto</string>
-    <string name="look_presets">Préréglages</string>
-    <string name="look_preset_save">Enregistrer le préréglage</string>
+    <string name="look_presets">Styles</string>
+    <string name="look_preset_save">Enregistrer le style</string>
     <string name="look_preset_name">Nom du préréglage</string>
-    <string name="look_preset_mine">Les vôtres</string>
-    <string name="look_preset_house">Intégrés</string>
+    <string name="look_preset_mine">Tes styles</string>
+    <string name="look_preset_house">Styles AIV</string>
     <string name="look_preset_remove">Supprimer</string>
     <string name="look_preset_gone">Préréglage supprimé</string>
     <string name="look_geometry">Géométrie</string>
@@ -563,4 +563,17 @@
     <string name="settings_buttons_bin">Dans la corbeille, \'Restaurer\' prend la place de \'Renommer\'.</string>
     <string name="settings_buttons_before">Déplacer avant</string>
     <string name="settings_buttons_after">Déplacer après</string>
+    <string name="look_corners">Coins</string>
+    <string name="look_preset_add">Ajouter au style actuel</string>
+    <string name="settings_styles">Styles de retouche</string>
+    <string name="settings_styles_desc">Réorganise, renomme ou supprime les styles de l\'éditeur complet, ceux de l\'app comme les tiens.</string>
+    <string name="settings_styles_none">Tu n\'as encore enregistré aucun style.</string>
+    <string name="settings_styles_reset">Restaurer</string>
+    <string name="settings_styles_reset_ask">Veux-tu vraiment restaurer les styles par défaut de l\'app ? Tes styles personnalisés seront supprimés.</string>
+    <string name="settings_styles_export">Exporter</string>
+    <string name="settings_styles_import">Importer</string>
+    <string name="settings_styles_saved">Styles exportés</string>
+    <string name="settings_styles_loaded">Styles importés</string>
+    <string name="settings_styles_bad">Ce fichier ne contient aucun style</string>
+    <string name="hint_modules">Fais défiler les icônes pour atteindre tous les modules de retouche. Appuie longuement sur l\'icône d\'un module pour annuler ses seuls réglages.</string>
 </resources>

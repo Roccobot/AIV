@@ -422,11 +422,11 @@
     <string name="look_tone_board">เส้นโค้งโทน</string>
     <string name="look_target">เจาะจง</string>
     <string name="look_auto">อัตโนมัติ</string>
-    <string name="look_presets">พรีเซ็ต</string>
-    <string name="look_preset_save">บันทึกพรีเซ็ต</string>
+    <string name="look_presets">สไตล์</string>
+    <string name="look_preset_save">บันทึกสไตล์</string>
     <string name="look_preset_name">ชื่อพรีเซ็ต</string>
-    <string name="look_preset_mine">ของคุณ</string>
-    <string name="look_preset_house">มีมาให้</string>
+    <string name="look_preset_mine">สไตล์ของคุณ</string>
+    <string name="look_preset_house">สไตล์ AIV</string>
     <string name="look_preset_remove">ลบ</string>
     <string name="look_preset_gone">ลบพรีเซ็ตแล้ว</string>
     <string name="look_geometry">เรขาคณิต</string>
@@ -529,4 +529,17 @@
     <string name="settings_buttons_bin">ในถังขยะ \'กู้คืน\' อยู่ในตำแหน่งของ \'เปลี่ยนชื่อ\'</string>
     <string name="settings_buttons_before">ย้ายไปก่อนหน้า</string>
     <string name="settings_buttons_after">ย้ายไปถัดไป</string>
+    <string name="look_corners">มุมภาพ</string>
+    <string name="look_preset_add">เพิ่มลงในสไตล์ปัจจุบัน</string>
+    <string name="settings_styles">สไตล์การแก้ไข</string>
+    <string name="settings_styles_desc">จัดลำดับ เปลี่ยนชื่อ หรือลบสไตล์ของตัวแก้ไขแบบเต็ม ทั้งของแอปและของคุณ</string>
+    <string name="settings_styles_none">คุณยังไม่ได้บันทึกสไตล์ใด ๆ</string>
+    <string name="settings_styles_reset">คืนค่า</string>
+    <string name="settings_styles_reset_ask">ต้องการคืนค่าสไตล์เริ่มต้นของแอปหรือไม่ สไตล์ที่คุณสร้างจะถูกลบ</string>
+    <string name="settings_styles_export">ส่งออก</string>
+    <string name="settings_styles_import">นำเข้า</string>
+    <string name="settings_styles_saved">ส่งออกสไตล์แล้ว</string>
+    <string name="settings_styles_loaded">นำเข้าสไตล์แล้ว</string>
+    <string name="settings_styles_bad">ไฟล์นี้ไม่มีสไตล์ใด ๆ</string>
+    <string name="hint_modules">ปัดไอคอนเพื่อเข้าถึงโมดูลแก้ไขทั้งหมด แตะค้างที่ไอคอนของโมดูลเพื่อล้างเฉพาะการปรับของโมดูลนั้น</string>
 </resources>

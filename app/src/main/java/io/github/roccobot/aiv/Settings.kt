@@ -929,7 +929,17 @@ val STEP_KEYS = listOf(
  */
 val MOD_KEYS = listOf(
     PadKey.MOD_DETAIL, PadKey.MOD_TONE, PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
-    PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX
+    PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX,
+    /*
+     * ⚠️⚠️ **L'OTTAVO ARRIVA IN CODA CON LA `2.50`, E SUL SUO SCHERMO SARÀ L'UNICO DA
+     * RAGGIUNGERE SCORRENDO** (campo libero del giro della `2.40`: *nel mio caso, con il mio
+     * schermo, sarà l'unico a richiedere uno scorrimento a destra, ma va benissimo così*). Fino
+     * alla `2.40` gli stili erano un pannello che si apriva da un'icona in fondo alla scheda.
+     * ⚠️ **Chi ha già riordinato la fila se lo ritrova lo stesso**, e in coda: `padOrderOf` infila
+     * un tasto nuovo subito dopo l'ultimo dei suoi predecessori già in scena, che qui è l'ultimo
+     * dell'ordine scelto.
+     */
+    PadKey.MOD_PRESET
 )
 
 /**
@@ -1441,7 +1451,21 @@ enum class Hint(token: String) {
      * ⚠️ **Indica l'ICONA e non un FAB**, cioè il terzo genere di velo: gli altri due evidenziano
      * il FAB in fondo o non evidenziano niente. Da qui `HintSpot`.
      */
-    COVER("cover-hint-seen");
+    COVER("cover-hint-seen"),
+
+    /**
+     * La fila dei moduli dell'editor completo, dalla `2.50`: **la prima volta che quell'editor si
+     * apre**.
+     *
+     * ⚠️⚠️ **NASCE PERCHÉ QUELLA FILA HA COMINCIATO A CONTINUARE FUORI DALLO SCHERMO** (campo
+     * libero del giro della `2.40`: *aggiungiamo un mini-onboarding al primo avvio dell'editor*):
+     * coi moduli diventati otto l'ultimo si raggiunge scorrendo, e una fila che scorre non lo
+     * dichiara da sé. Il testo è suo alla lettera, e dice due cose: che si scorre, e che il tocco
+     * lungo su un gettone azzera quel modulo.
+     * ⚠️ **Indica una FILA e non un pezzo solo**, cioè il quarto genere di velo: da qui
+     * `HintStrip`.
+     */
+    MODULES("modules-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 
