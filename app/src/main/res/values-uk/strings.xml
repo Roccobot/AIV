@@ -470,6 +470,13 @@
     <string name="look_tone_board">Тонова крива</string>
     <string name="look_target">Точково</string>
     <string name="look_auto">Авто</string>
+    <string name="look_presets">Пресети</string>
+    <string name="look_preset_save">Зберегти пресет</string>
+    <string name="look_preset_name">Назва пресета</string>
+    <string name="look_preset_mine">Ваші</string>
+    <string name="look_preset_house">Вбудовані</string>
+    <string name="look_preset_remove">Видалити</string>
+    <string name="look_preset_gone">Пресет видалено</string>
     <string name="look_geometry">Геометрія</string>
     <string name="look_crop">Кадрування</string>
     <string name="look_straighten">Вирівнювання</string>

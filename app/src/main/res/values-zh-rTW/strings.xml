@@ -422,6 +422,13 @@
     <string name="look_tone_board">色調曲線</string>
     <string name="look_target">定向</string>
     <string name="look_auto">自動</string>
+    <string name="look_presets">預設集</string>
+    <string name="look_preset_save">儲存預設集</string>
+    <string name="look_preset_name">預設集名稱</string>
+    <string name="look_preset_mine">我的</string>
+    <string name="look_preset_house">內建</string>
+    <string name="look_preset_remove">刪除</string>
+    <string name="look_preset_gone">已刪除預設集</string>
     <string name="look_geometry">幾何校正</string>
     <string name="look_crop">裁切</string>
     <string name="look_straighten">拉直</string>

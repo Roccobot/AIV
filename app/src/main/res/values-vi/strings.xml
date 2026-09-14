@@ -422,6 +422,13 @@
     <string name="look_tone_board">Đường cong tông màu</string>
     <string name="look_target">Nhắm mục tiêu</string>
     <string name="look_auto">Tự động</string>
+    <string name="look_presets">Cài đặt sẵn</string>
+    <string name="look_preset_save">Lưu cài đặt sẵn</string>
+    <string name="look_preset_name">Tên cài đặt sẵn</string>
+    <string name="look_preset_mine">Của bạn</string>
+    <string name="look_preset_house">Có sẵn</string>
+    <string name="look_preset_remove">Xóa</string>
+    <string name="look_preset_gone">Đã xóa cài đặt sẵn</string>
     <string name="look_geometry">Hình học</string>
     <string name="look_crop">Cắt</string>
     <string name="look_straighten">Làm thẳng</string>

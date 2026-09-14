@@ -438,6 +438,13 @@
     <string name="look_tone_board">టోన్ కర్వ్</string>
     <string name="look_target">లక్ష్యం</string>
     <string name="look_auto">ఆటో</string>
+    <string name="look_presets">ప్రీసెట్‌లు</string>
+    <string name="look_preset_save">ప్రీసెట్‌ను సేవ్ చేయి</string>
+    <string name="look_preset_name">ప్రీసెట్ పేరు</string>
+    <string name="look_preset_mine">మీవి</string>
+    <string name="look_preset_house">అంతర్నిర్మితం</string>
+    <string name="look_preset_remove">తొలగించు</string>
+    <string name="look_preset_gone">ప్రీసెట్ తొలగించబడింది</string>
     <string name="look_geometry">జ్యామితి</string>
     <string name="look_crop">కత్తిరించు</string>
     <string name="look_straighten">సరిచేయి</string>

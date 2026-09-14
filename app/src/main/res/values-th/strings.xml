@@ -422,6 +422,13 @@
     <string name="look_tone_board">เส้นโค้งโทน</string>
     <string name="look_target">เจาะจง</string>
     <string name="look_auto">อัตโนมัติ</string>
+    <string name="look_presets">พรีเซ็ต</string>
+    <string name="look_preset_save">บันทึกพรีเซ็ต</string>
+    <string name="look_preset_name">ชื่อพรีเซ็ต</string>
+    <string name="look_preset_mine">ของคุณ</string>
+    <string name="look_preset_house">มีมาให้</string>
+    <string name="look_preset_remove">ลบ</string>
+    <string name="look_preset_gone">ลบพรีเซ็ตแล้ว</string>
     <string name="look_geometry">เรขาคณิต</string>
     <string name="look_crop">ครอบตัด</string>
     <string name="look_straighten">ปรับให้ตรง</string>

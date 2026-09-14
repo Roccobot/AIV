@@ -438,6 +438,13 @@
     <string name="look_tone_board">Tooncurve</string>
     <string name="look_target">Doelgericht</string>
     <string name="look_auto">Auto</string>
+    <string name="look_presets">Presets</string>
+    <string name="look_preset_save">Preset opslaan</string>
+    <string name="look_preset_name">Presetnaam</string>
+    <string name="look_preset_mine">Van jou</string>
+    <string name="look_preset_house">Ingebouwd</string>
+    <string name="look_preset_remove">Verwijderen</string>
+    <string name="look_preset_gone">Preset verwijderd</string>
     <string name="look_geometry">Geometrie</string>
     <string name="look_crop">Bijsnijden</string>
     <string name="look_straighten">Rechtzetten</string>

@@ -438,6 +438,13 @@
     <string name="look_tone_board">টোন কার্ভ</string>
     <string name="look_target">টার্গেটেড</string>
     <string name="look_auto">স্বয়ংক্রিয়</string>
+    <string name="look_presets">প্রিসেট</string>
+    <string name="look_preset_save">প্রিসেট সংরক্ষণ করুন</string>
+    <string name="look_preset_name">প্রিসেটের নাম</string>
+    <string name="look_preset_mine">আপনার</string>
+    <string name="look_preset_house">অন্তর্নির্মিত</string>
+    <string name="look_preset_remove">সরান</string>
+    <string name="look_preset_gone">প্রিসেট সরানো হয়েছে</string>
     <string name="look_geometry">জ্যামিতি</string>
     <string name="look_crop">ক্রপ</string>
     <string name="look_straighten">সোজা করুন</string>

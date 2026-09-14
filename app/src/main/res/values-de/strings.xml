@@ -438,6 +438,13 @@
     <string name="look_tone_board">Tonwertkurve</string>
     <string name="look_target">Gezielt</string>
     <string name="look_auto">Auto</string>
+    <string name="look_presets">Presets</string>
+    <string name="look_preset_save">Preset speichern</string>
+    <string name="look_preset_name">Preset-Name</string>
+    <string name="look_preset_mine">Deine</string>
+    <string name="look_preset_house">Mitgeliefert</string>
+    <string name="look_preset_remove">Entfernen</string>
+    <string name="look_preset_gone">Preset entfernt</string>
     <string name="look_geometry">Geometrie</string>
     <string name="look_crop">Zuschneiden</string>
     <string name="look_straighten">Ausrichten</string>

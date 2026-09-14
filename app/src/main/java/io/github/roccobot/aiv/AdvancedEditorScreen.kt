@@ -51,6 +51,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -2143,6 +2144,12 @@ private fun LookSheet(
     val module = gaze.module
     val chosen = MODULES[module]
     /*
+     * ⚠️ **Il pannello dei preset è uno stato di questa scheda e non dello sguardo**: [Gaze] dice
+     * dove si lavora, questo dice che cosa è aperto sopra. Messo là, un pannello aperto
+     * sopravvivrebbe a un cambio di modulo senza che nessuno lo abbia chiesto.
+     */
+    var presets by remember { mutableStateOf(false) }
+    /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
      * rientro di sistema dentro invece che sopra. Le ragioni di ognuna di quelle righe sono
@@ -2338,6 +2345,20 @@ private fun LookSheet(
                  * ⚠️ **Il glifo è di Material e nasce provvisorio**, come i due della `1.80`: se non
                  * dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
                  */
+                /*
+                 * ⚠️⚠️ **I PRESET VIVONO ACCANTO AD 'AUTO', DALLA `2.39`, ED È IL LORO PARENTE
+                 * STRETTO**: tutti e due scrivono nei cursori invece di dipingere, quindi quello
+                 * che ne esce è un passo della storia e 'Annulla' lo disfa. La differenza è chi
+                 * decide i numeri: là un conto sull'immagine, qui un aspetto scelto a mano.
+                 * ⚠️ **Un pannello e non un ottavo gettone**: dalla `2.33` la scheda è alta quanto
+                 * il modulo più alto, quindi un modulo fatto di un elenco che cresce alzerebbe la
+                 * scheda di tutti e sette gli altri. Il perché per esteso vive su [PresetSheet].
+                 * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella
+                 * `2.32`: se non dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+                 */
+                IconButton(onClick = { presets = true }, enabled = ready && !busy) {
+                    Icon(Icons.Filled.Style, stringResource(R.string.look_presets))
+                }
                 val sorgente = origin
                 IconButton(
                     onClick = {
@@ -2361,6 +2382,24 @@ private fun LookSheet(
                 }
             }
         }
+    }
+
+    /*
+     * ⚠️ **Il pannello si monta QUI e non nella schermata**, cioè accanto al tasto che lo apre: è
+     * una finestra sua, quindi il posto nell'albero non cambia niente a quello che si vede, e
+     * tenerlo accanto al suo comando vuol dire che chi legge il tasto trova subito che cosa apre.
+     * ⚠️ **Applicare è un passo come un altro**: `onLive` più `onSettled`, la stessa coppia con cui
+     * scrive 'Auto', quindi 'Annulla' disfa un preset senza una strada sua.
+     */
+    if (presets) {
+        PresetSheet(
+            look = look,
+            onPick = { scelto ->
+                onLive { scelto.applyTo(it) }
+                onSettled()
+            },
+            onDismiss = { presets = false }
+        )
     }
 }
 
