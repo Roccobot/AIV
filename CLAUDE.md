@@ -250,6 +250,18 @@ Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il
   quindi 'verifica anche le altre' ha una risposta, ed è che la regola di oggi le esistenti non
   la rispettano. Toccarle è una decisione sua e non mia, per la stessa ragione della `1.33`: un
   disegno approvato non si cambia perché uno strumento lo segnala.
+  - ⚠️⚠️ **QUEL NUMERO È DEL CRITERIO LARGO, E IL CRITERIO SI STRINGE: SOLO GLI ANGOLI CONVESSI
+    ESTERNI** (sua nota su `d-spigoli-icone`, giro della `2.50`: *la regola va affinata: solo gli
+    angoli convessi esterni (le 'punte')*). Chi legge 142 come una misura definitiva si sbaglia:
+    è quanti ne conta il verificatore prima dell'affinamento, e scenderà.
+  - ⚠️⚠️ **E CON LUI CADE LA FRASE DELLA `2.32` SUI BUCHI**, che diceva il contrario: là un buco
+    prendeva gli stessi raccordi *perché i suoi angoli sporgono verso l'inchiostro*. Adesso no,
+    ed è la stessa parola che lo dice: una punta è convessa **e** esterna, e l'angolo di un buco
+    la seconda metà non ce l'ha.
+  - ⚠️⚠️ **LA DECISIONE SULLE ESISTENTI ASPETTA UNA TAVOLA, ED È LA SUA SCELTA `guardo`**: la
+    domanda offriva di arrotondarle tutte, solo quelle di casa, o nessuna, e lui ha scelto di
+    vedere prima il **prima e il dopo dei venti disegni**. Quindi finché quella tavola non
+    esiste, in `res/` non si tocca niente.
 - ⚠️⚠️ **E LA VERIFICA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUNO AVEVA
   VISTO**: in `ic_mod_detail` i dodici archi portavano i raggi al posto della rotazione e della
   bandierina dell'arco maggiore, quindi quattro tondi su sei venivano disegnati col raggio
@@ -265,8 +277,11 @@ glifi: *cerca solo di arrotondare di ~0,4px i bordi esterni, che è il trattamen
 tutte quelle preparate da me finora*). Fino a quel giorno un disegno di casa arrivava da lui, e
 questo è lo stesso trattamento applicato ai glifi di Material che l'editor già usava.
 - **Che cosa si tocca**: i giunti che svoltano nel verso del proprio sottotracciato, cioè gli
-  spigoli che **sporgono**. Un angolo che rientra è un raccordo interno e non un bordo esterno;
-  un buco prende gli stessi raccordi, perché i suoi angoli sporgono verso l'inchiostro.
+  spigoli che **sporgono**. Un angolo che rientra è un raccordo interno e non un bordo esterno.
+  ⚠️⚠️ **E la coda di questa riga è decaduta con la `2.50`**: diceva che *un buco prende gli
+  stessi raccordi, perché i suoi angoli sporgono verso l'inchiostro*, e la sua nota su
+  `d-spigoli-icone` dice **solo gli angoli convessi esterni**. Il perché per esteso vive qui
+  sopra, nel blocco della regola del progetto.
 - ⚠️⚠️ **IL RAGGIO NON È COSTANTE, LO È QUANTO IL VERTICE ARRETRA, E SENZA QUELLA MISURA LE
   PUNTE VENGONO TOZZE**: con 0,4 fisso un angolo di 30 gradi arretra di **1,15 unità** su 24,
   cioè il 5% della tela, contro le 0,17 di un angolo retto, e le tre stelle di 'Auto' si
@@ -1901,10 +1916,23 @@ ricomprimere anche quando gira una fotografia, cioè perdere qualità per un ges
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
 - ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
   l'HSL, il Dettaglio, le **Curve**, l'anteprima a risoluzione piena, la **Geometria**, il
-  **Ritaglio** e, con la `2.39`, i **preset**, che è l'ultimo pezzo previsto (§ '🎞️ I preset, venti
-  di casa e quelli che si salvano'). ⚠️ **L'ordine di uscita non è l'ordine della fila**, che dalla
-  `2.31` comincia dagli ultimi due arrivati: § '✂️ Il modulo Ritaglio, e la fila che è diventata di
-  icone'.
+  **Ritaglio** e, con la `2.39`, i **preset** (§ '🎞️ I preset, venti di casa e quelli che si
+  salvano'). ⚠️ **L'ordine di uscita non è l'ordine della fila**, che dalla `2.31` comincia dagli
+  ultimi due arrivati: § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
+  - ⚠️⚠️ **I PRESET ERANO 'L'ULTIMO PEZZO PREVISTO', E DALLA RISPOSTA `effetti` NON LO SONO
+    PIÙ** (`d-dopo-editor`, giro della `2.50`, con la sua nota: *'Effetti', con 'Chiarezza',
+    'Texture', 'Foschia', `Grana` e `Vignettatura`*). La domanda gli chiedeva da dove ripartire
+    e offriva quattro strade; lui ne ha **accorpate due** in un modulo solo, quindi il nono
+    porta **cinque** cursori e non tre, nell'ordine in cui li ha scritti.
+    - ⚠️ **Le maschere restano fuori**, ed è la sua risposta del giro prima (`d-preset-manca`,
+      2026-09-14: *le maschere no, nel modo più assoluto*): quella non è una tappa rimandata,
+      è una porta chiusa.
+    - ⚠️ **Tre dei cinque guardano i pixel vicini**, come il Dettaglio, quindi costano il bordo
+      delle tessere nel salvataggio (§ '🔍 Il modulo Dettaglio, e le prime due operazioni che
+      guardano i vicini'); grana e vignettatura no.
+    - ⚠️ **'Previsto' era vero quando era scritto**, e questa nota esiste per non farlo leggere
+      come una promessa mancata: il piano di allora arrivava ai preset, e la domanda che lo
+      chiudeva ha aperto la tappa dopo.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -3448,17 +3476,24 @@ ha già (§ `SteadyBody`).
   altro, l'immagine deve aggiornarsi in tempo reale*), che è quello che rende il pannello un
   banco di prova invece di un elenco da leggere.
 
-⚠️⚠️ **I VENTI HANNO NOMI NUOVI E STANNO IN ORDINE ALFABETICO, E SONO SUOI** (stessa istruzione):
+⚠️⚠️ **I VENTI HANNO NOMI NUOVI E SONO IN ORDINE ALFABETICO, E SONO SUOI** (stessa istruzione):
 'Combo' diventa **'Roccobot'**, i due rossi si chiamano **'Rosso -'** e **'Rosso - -'**, il color
 grading caldo porta il suo verso fra parentesi, i tre del trattamento portano il prefisso
 **'T&O - '**, e il misto si chiama **'Blu/Rosso'**. ⚠️ **L'ordine è alfabetico e non quello di
 arrivo**: un elenco che cresce con quelli salvati non ha un ordine naturale, e quello di arrivo lo
 sapeva solo chi lo aveva scritto.
 
-⚠️⚠️ **E SI GOVERNANO DALLE IMPOSTAZIONI, NELLA PAGINA 'STILI DI MODIFICA'** (sua richiesta): là
+⚠️⚠️ **E SI GOVERNANO DALLE IMPOSTAZIONI, NELLA PAGINA 'STILI DELL'EDITOR'** (sua richiesta): là
 si riordinano, si rinominano e si cancellano tutti in un colpo, e c'è **'Ripristina'** per
 rimettere i venti di casa. ⚠️ **Il testo dell'avviso è suo alla lettera**, e dice che cosa si
 perde invece di chiedere se si è sicuri.
+- ⚠️⚠️ **QUEL NOME È SUO E ARRIVA DAL GIRO DELLA `2.50`**: la `2.50` la chiamava **'Stili di
+  modifica'**, che era la mia proposta, e lui l'ha riscritta in **'Stili dell'editor'** nel campo
+  del testo `t-stili-pagina`. ⚠️ **Nel telefono ci arriva con la versione dopo**, insieme alle
+  altre ventotto lingue, che è il modo in cui un testo riscritto entra sempre; chi legge il nome
+  vecchio in un commento o in una schermata sappia che è la stessa pagina.
+- ⚠️ **La riga sotto non cambia**, e dice già quello che il nome nuovo dice meglio: *Riordina,
+  rinomina e cancella gli stili dell'editor completo.*
 - ⚠️ **'Salva preset' si chiama 'Salva stile'**, perché 'preset' è la parola del codice e 'stile'
   quella che si legge nel telefono: è il criterio di § '🗣️ Come si chiamano le cose'.
 - ⚠️⚠️ **'IMPORTA' ED 'ESPORTA' PASSANO DAL SELETTORE DI SISTEMA E NON DA UNA CARTELLA DI CASA**,
@@ -4214,7 +4249,7 @@ e il job le scrive su disco per la durata di una sola esecuzione.
 - **`tools/icon-round.py`**, dalla `2.50`: dice quali spigoli **esterni** di un'icona sono
   ancora vivi, con l'angolo e il raggio che spetta a ognuno. È il presidio della regola
   dell'arrotondamento a 0,4, che vive in § '🖌️ Come entra un disegno'. ⚠️ **Avvisa e non
-  blocca**, perché gli spigoli vivi di oggi stanno in disegni già approvati.
+  blocca**, perché gli spigoli vivi di oggi vivono in disegni già approvati.
   - ⚠️⚠️ **DUE FALSI POSITIVI L'HANNO COSTRETTO A GUARDARE LE TANGENTI E NON LE CORDE**, e la
     differenza è un fattore quattro: un raccordo già fatto è un arco, e la sua corda svolta di
     metà arco, cioè esattamente quanto basta a farlo sembrare vivo; e le curve **smooth** (`s`,
@@ -4223,6 +4258,11 @@ e il job le scrive su disco per la durata di una sola esecuzione.
   - ⚠️ **Un giro che torna a un centesimo di unità dal proprio punto di partenza è chiuso**: i
     tracciati sono scritti a due decimali, e senza quella tolleranza la chiusura diventa una
     rettina che svolta, cioè uno spigolo che non esiste.
+  - ⚠️⚠️ **E IL CRITERIO VA STRETTO UN'ALTRA VOLTA, SU SUA NOTA: SOLO GLI ANGOLI CONVESSI
+    ESTERNI** (`d-spigoli-icone`, giro della `2.50`). Quindi anche il 142 è un numero di
+    passaggio, come il 1.059 e il 259 prima di lui: i tre si leggono insieme perché ognuno
+    misura un criterio diverso, e il quarto arriva con l'affinamento. Il perché vive in
+    § '🖌️ Come entra un disegno'.
 - ⚠️⚠️ **IL BANCO DI PROVA, dalla `1.73`: `./gradlew :app:testDebugUnitTest`**, e apre l'app
   **finta** su una macchina senza telefono e senza emulatore, la tocca e verifica che risponda.
   Le prove vivono in `app/src/test/`, e le librerie (Robolectric più `ui-test-junit4`) sono di
