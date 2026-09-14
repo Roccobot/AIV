@@ -473,6 +473,9 @@
     <string name="editor_shape_original">Asili</string>
     <string name="editor_save">Hifadhi</string>
     <string name="editor_apply">Tumia</string>
+    <string name="editor_crop_back">Upunguzaji nyuma</string>
+    <string name="editor_crop_on">Upunguzaji mbele</string>
+    <string name="editor_crop_clear">Weka upya upunguzaji</string>
     <string name="editor_undo">Tendua</string>
     <string name="editor_redo">Rudia</string>
     <string name="editor_original">Asili</string>

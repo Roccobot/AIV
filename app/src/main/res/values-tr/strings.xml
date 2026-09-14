@@ -473,6 +473,9 @@
     <string name="editor_shape_original">Orijinal</string>
     <string name="editor_save">Kaydet</string>
     <string name="editor_apply">Uygula</string>
+    <string name="editor_crop_back">Kırpmada geri</string>
+    <string name="editor_crop_on">Kırpmada ileri</string>
+    <string name="editor_crop_clear">Kırpmayı sıfırla</string>
     <string name="editor_undo">Geri al</string>
     <string name="editor_redo">Yinele</string>
     <string name="editor_original">Özgün</string>

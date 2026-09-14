@@ -489,6 +489,9 @@
     <string name="editor_shape_original">Original</string>
     <string name="editor_save">Enregistrer</string>
     <string name="editor_apply">Appliquer</string>
+    <string name="editor_crop_back">Recadrage en arrière</string>
+    <string name="editor_crop_on">Recadrage en avant</string>
+    <string name="editor_crop_clear">Réinitialiser le recadrage</string>
     <string name="editor_undo">Annuler</string>
     <string name="editor_redo">Rétablir</string>
     <string name="editor_original">Original</string>

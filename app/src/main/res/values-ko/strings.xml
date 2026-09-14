@@ -457,6 +457,9 @@
     <string name="editor_shape_original">원본</string>
     <string name="editor_save">저장</string>
     <string name="editor_apply">적용</string>
+    <string name="editor_crop_back">자르기 뒤로</string>
+    <string name="editor_crop_on">자르기 앞으로</string>
+    <string name="editor_crop_clear">자르기 초기화</string>
     <string name="editor_undo">실행 취소</string>
     <string name="editor_redo">다시 실행</string>
     <string name="editor_original">원본</string>

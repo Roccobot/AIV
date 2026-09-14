@@ -457,6 +457,9 @@
     <string name="editor_shape_original">Gốc</string>
     <string name="editor_save">Lưu</string>
     <string name="editor_apply">Áp dụng</string>
+    <string name="editor_crop_back">Lùi cắt</string>
+    <string name="editor_crop_on">Tiến cắt</string>
+    <string name="editor_crop_clear">Đặt lại cắt</string>
     <string name="editor_undo">Hoàn tác</string>
     <string name="editor_redo">Làm lại</string>
     <string name="editor_original">Ảnh gốc</string>

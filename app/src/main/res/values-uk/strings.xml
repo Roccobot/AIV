@@ -505,6 +505,9 @@
     <string name="editor_shape_original">Вихідні</string>
     <string name="editor_save">Зберегти</string>
     <string name="editor_apply">Застосувати</string>
+    <string name="editor_crop_back">Кадрування назад</string>
+    <string name="editor_crop_on">Кадрування вперед</string>
+    <string name="editor_crop_clear">Скинути кадрування</string>
     <string name="editor_undo">Скасувати</string>
     <string name="editor_redo">Повторити</string>
     <string name="editor_original">Оригінал</string>

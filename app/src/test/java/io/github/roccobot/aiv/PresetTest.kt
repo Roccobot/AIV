@@ -83,7 +83,7 @@ class PresetTest {
             spin = Spin(turns = 1, mirror = false),
             crop = ImageEdit.Crop(0.1f, 0.1f, 0.8f, 0.8f),
             geo = Geometry(straighten = 0.3f),
-            framed = true
+            framing = Framing(listOf(ImageEdit.Crop(0.1f, 0.1f, 0.8f, 0.8f)), 1)
         )
         val preso = Preset.of("Solo colore", storto)
         assertEquals("Il preset si è portato la posa", Spin.STILL, preso.look.spin)
@@ -95,13 +95,13 @@ class PresetTest {
             spin = Spin(turns = 2, mirror = false),
             crop = ImageEdit.Crop(0.2f, 0.2f, 0.5f, 0.5f),
             geo = Geometry(distortion = 0.05f),
-            framed = true
+            framing = Framing(listOf(ImageEdit.Crop(0.2f, 0.2f, 0.5f, 0.5f)), 1)
         )
         val dopo = preso.applyTo(base)
         assertEquals("Applicare ha girato l'immagine", base.spin, dopo.spin)
         assertEquals("Applicare ha spostato il ritaglio", base.crop, dopo.crop)
         assertEquals("Applicare ha toccato la geometria", base.geo, dopo.geo)
-        assertEquals("Applicare ha cambiato la porzione inquadrata", base.framed, dopo.framed)
+        assertEquals("Applicare ha cambiato la porzione inquadrata", base.framing, dopo.framing)
         assertEquals("Il Colore non è arrivato", PIENO.chroma, dopo.chroma)
         assertEquals("La Luce non è arrivata", PIENO.light, dopo.light)
     }

@@ -473,6 +473,9 @@
     <string name="editor_shape_original">అసలు</string>
     <string name="editor_save">భద్రపరచండి</string>
     <string name="editor_apply">వర్తింపజేయి</string>
+    <string name="editor_crop_back">క్రాప్‌లో వెనుకకు</string>
+    <string name="editor_crop_on">క్రాప్‌లో ముందుకు</string>
+    <string name="editor_crop_clear">క్రాప్ రీసెట్ చేయి</string>
     <string name="editor_undo">చర్యరద్దు</string>
     <string name="editor_redo">మళ్ళీ చేయి</string>
     <string name="editor_original">అసలు</string>

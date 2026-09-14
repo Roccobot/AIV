@@ -526,7 +526,7 @@ data class Curve(val knots: List<Knot> = ENDS) {
 
     /**
      * Questa curva col punto [i] portato in ([at], [to]), tenuto dentro l'intervallo e fra i suoi
-     * vicini.
+     * vicini, e col punto di bordo [edge] portato allo stesso livello.
      *
      * ⚠️⚠️ **I DUE ESTREMI NON SI MUOVONO IN ORIZZONTALE, ed è la specifica del tipo e non una
      * prudenza**: una curva tonale deve dire che cosa fare di ogni tono, quindi il primo punto sta
@@ -537,17 +537,71 @@ data class Curve(val knots: List<Knot> = ENDS) {
      * di larghezza zero, cioè una divisione per zero nella spline, e due punti in ordine invertito
      * una curva che torna indietro. Il margine è [GAP], che è anche la distanza sotto la quale due
      * punti non si distinguerebbero col dito.
+     *
+     * ⚠️⚠️ **[edge] NASCE CON LA `2.40`, ED È LA SUA RICHIESTA SUGLI ESTREMI** (2026-09-14: *se
+     * trascino il punto iniziale a destra o il finale a sinistra, dovrebbero muoversi lasciando la
+     * loro vecchia posizione ad un nuovo punto allo stesso livello*): il punto rimasto al bordo
+     * segue in **verticale** quello che si sta trascinando, così fra i due il tratto è piatto
+     * mentre si tira. Con un bordo fermo al valore di partenza si vedrebbe una rampa, cioè proprio
+     * quello che nessuno ha chiesto. ⚠️ **Vale `-1` quando non c'è nessun bordo da tenere**, che è
+     * il caso di ogni altro punto.
      */
-    fun move(i: Int, at: Float, to: Float): Curve = copy(
+    fun move(i: Int, at: Float, to: Float, edge: Int = -1): Curve = copy(
         knots = knots.toMutableList().also {
             val x = when (i) {
                 0 -> 0f
                 it.size - 1 -> 1f
                 else -> at.coerceIn(it[i - 1].at + GAP, it[i + 1].at - GAP)
             }
-            it[i] = Knot(x, to.coerceIn(0f, 1f))
+            val y = to.coerceIn(0f, 1f)
+            it[i] = Knot(x, y)
+            if (edge in it.indices && edge != i) it[edge] = Knot(it[edge].at, y)
         }
     )
+
+    /**
+     * Questa curva con l'estremo raddoppiato, per il dito che lo sta portando dentro.
+     *
+     * ⚠️⚠️ **È IL PEZZO CHE FA NASCERE IL PUNTO CHE LUI HA CHIESTO**: il gemello resta al bordo e
+     * quello che il dito muove è la copia, che da quel momento è un punto come gli altri, cioè si
+     * sposta anche in orizzontale. Nasce **sovrapposto** e non a metà strada: il gesto è appena
+     * cominciato, e un punto che saltasse via al primo pixel sarebbe un movimento che nessuno ha
+     * chiesto.
+     * ⚠️ **Al tetto dei punti non si fa niente**, e il chiamante lo sa: senza il gemello l'estremo
+     * resta un estremo, cioè si muove solo in verticale come prima della `2.40`.
+     * ⚠️ **Quello che resta a filo lo toglie [tidy]**, a gesto finito: chi porta l'estremo dentro e
+     * poi lo riporta indietro non si ritrova due punti l'uno sull'altro.
+     */
+    fun pin(start: Boolean): Curve = when {
+        knots.size >= MAX_KNOTS -> this
+        start -> copy(knots = listOf(knots.first()) + knots)
+        else -> copy(knots = knots + knots.last())
+    }
+
+    /**
+     * Questa curva senza il gemello che [pin] ha lasciato a filo del proprio bordo.
+     *
+     * ⚠️ **Guarda i soli due bordi e non gli altri punti**: due punti vicini in mezzo alla curva
+     * li ha messi l'utente, e toglierne uno sarebbe una decisione che nessuno ha preso. Qui si
+     * chiude il solo caso che il gesto degli estremi può lasciare aperto.
+     * ⚠️ **Serve che anche il livello coincida**: un punto tirato a filo del bordo ma a un'altra
+     * altezza è un tratto ripidissimo, cioè una cosa che si può volere.
+     */
+    fun tidy(): Curve {
+        var out = knots
+        if (out.size > 2 && out[1].at - out[0].at < GAP * 2f &&
+            abs(out[1].to - out[0].to) < DEAD
+        ) {
+            out = out.toMutableList().also { it.removeAt(1) }
+        }
+        val n = out.size
+        if (n > 2 && out[n - 1].at - out[n - 2].at < GAP * 2f &&
+            abs(out[n - 1].to - out[n - 2].to) < DEAD
+        ) {
+            out = out.toMutableList().also { it.removeAt(n - 2) }
+        }
+        return if (out === knots) this else copy(knots = out)
+    }
 
     /**
      * L'indice del punto che sta a un dito da [at], oppure `-1` se là non c'è niente.
@@ -823,8 +877,7 @@ data class Look(
     val tone: Tone = Tone.NONE,
     val geo: Geometry = Geometry.NONE,
     /**
-     * Se il palco inquadra il **taglio** invece dell'immagine intera, cioè se il ritaglio è stato
-     * confermato con 'Applica'.
+     * I tagli **applicati**, cioè quello che il palco inquadra al posto dell'immagine intera.
      *
      * ⚠️⚠️ **È L'UNICO CAMPO CHE NON CAMBIA UN PIXEL DEL FILE: DICE CHE COSA SI VEDE MENTRE SI
      * LAVORA**, e il taglio si applica al salvataggio comunque, come è sempre stato. Vive qui e
@@ -833,11 +886,11 @@ data class Look(
      * ⚠️ **Perciò non entra né in [idle] né in [lossless]**: un'immagine con la sola vista
      * confermata esce identica a com'è entrata, e un 'Salva' acceso per niente sarebbe una
      * promessa falsa.
-     * ⚠️ **Nel modulo Ritaglio l'immagine torna comunque intera**, perché le squadrette si tirano
-     * ai bordi di quello che si vede: la condizione vive sul palco, dove si sa quale modulo è in
-     * scena.
+     * ⚠️⚠️ **ERA UN BOOLEANO FINO ALLA `2.39`, E CON LUI L'IMMAGINE TORNAVA INTERA DENTRO IL
+     * RITAGLIO**: adesso vale anche là, che è la sua richiesta, e il perché di ogni pezzo vive
+     * su [Framing].
      */
-    val framed: Boolean = false
+    val framing: Framing = Framing.NONE
 ) {
 
     /**
@@ -881,6 +934,79 @@ data class Look(
 
     companion object {
         val NONE = Look()
+    }
+}
+
+/**
+ * I tagli **applicati** col comando 'Applica' del modulo Ritaglio, e dove si è nella loro storia.
+ *
+ * ⚠️⚠️ **DALLA `2.40` 'APPLICA' TAGLIA DAVVERO ANCHE DENTRO IL RITAGLIO, ED È SUA RICHIESTA**
+ * (2026-09-14: *ho come l'impressione che il tasto sia in realtà inutile, perché il taglio è sempre
+ * applicato in tempo reale e non distruttivo. Potrebbe avere senso se fosse applicato effettivamente
+ * anche nel modulo Ritaglio (resta solo la parte ritagliata), ma apparissero dei tasti
+ * 'Indietro'/'Avanti'/'Azzera' SOLO PER IL RITAGLIO*). Fino alla `2.39` questo era un booleano e
+ * nel Ritaglio l'immagine tornava intera, quindi là dentro quel tasto non faceva niente che si
+ * vedesse: la sua osservazione è esatta.
+ *
+ * ⚠️⚠️ **È UNA STORIA E NON UN VALORE, PERCHÉ I SUOI TRE COMANDI LO CHIEDONO**: 'Indietro' disfa
+ * l'ultima applicazione e 'Avanti' la rifà, quindi serve sapere anche quelle che si sono disfatte.
+ * La forma è quella della storia dei passi, cioè **una lista e un indice** e non due pile: con due
+ * pile ogni applicazione nuova deve ricordarsi di svuotare la seconda, e chi se ne dimentica lascia
+ * un 'Avanti' che riporta a una strada abbandonata.
+ *
+ * ⚠️⚠️ **I TAGLI SONO IN FRAZIONI DELL'IMMAGINE INTERA E NON UNO DENTRO L'ALTRO**: così
+ * [Look.crop] resta quello che il salvataggio applica, cioè il rettangolo totale, e nessuno deve
+ * comporre una catena per sapere che cosa tagliare. Quello che si compone è il gesto, sul palco,
+ * dove il dito tira le squadrette dentro la porzione che si vede.
+ */
+data class Framing(
+    /** I tagli applicati, dal primo all'ultimo, ognuno in frazioni dell'immagine **intera**. */
+    val steps: List<ImageEdit.Crop> = emptyList(),
+    /** Quanti ne valgono adesso: quelli oltre questo numero sono i disfatti che 'Avanti' rifà. */
+    val at: Int = 0
+) {
+
+    /**
+     * Il taglio che il palco inquadra, o `null` se si vede l'immagine intera.
+     *
+     * ⚠️ **Un taglio intero vale `null`**, così chi lo legge ha un ramo solo: applicare il
+     * rettangolo pieno non cambia niente di quello che si vede, e un `Crop` che copre tutto
+     * farebbe fare al palco un conto che dà sé stesso.
+     */
+    val shown: ImageEdit.Crop? get() = steps.getOrNull(at - 1)?.takeIf { !it.whole }
+
+    /** Se c'è un'applicazione da disfare, cioè se 'Indietro' ha qualcosa da fare. */
+    val undoable: Boolean get() = at > 0
+
+    /** Se c'è un'applicazione da rifare, cioè se 'Avanti' ha qualcosa da fare. */
+    val redoable: Boolean get() = at < steps.size
+
+    /**
+     * Questa storia con [cut] applicato.
+     *
+     * ⚠️ **Le applicazioni disfatte se ne vanno**, come i passi della storia dell'immagine: da qui
+     * in avanti la strada è un'altra, e tenerle vorrebbe dire un 'Avanti' che porta dove nessuno
+     * è più passato.
+     */
+    fun applied(cut: ImageEdit.Crop): Framing = Framing(steps.take(at) + cut, at + 1)
+
+    /** Questa storia con l'ultima applicazione disfatta. */
+    fun back(): Framing = if (undoable) copy(at = at - 1) else this
+
+    /** Questa storia con l'applicazione disfatta rimessa. */
+    fun on(): Framing = if (redoable) copy(at = at + 1) else this
+
+    /**
+     * Gli stessi tagli, riscritti dopo la posa [gesto].
+     *
+     * ⚠️ **Vanno girati come [Look.crop]**, e per la stessa ragione: sono in frazioni
+     * dell'immagine **già posata**, quindi un quarto di giro che non li riscrivesse lascerebbe il
+     * palco a inquadrare un'altra porzione di fotografia.
+     */
+    fun spun(gesto: Spin): Framing = copy(steps = steps.map { spunRect(it, gesto) })
+
+    companion object {
+        val NONE = Framing()
     }
 }
 

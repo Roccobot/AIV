@@ -489,6 +489,9 @@
     <string name="editor_shape_original">Original</string>
     <string name="editor_save">Salvar</string>
     <string name="editor_apply">Aplicar</string>
+    <string name="editor_crop_back">Corte para trás</string>
+    <string name="editor_crop_on">Corte para frente</string>
+    <string name="editor_crop_clear">Redefinir corte</string>
     <string name="editor_undo">Desfazer</string>
     <string name="editor_redo">Refazer</string>
     <string name="editor_original">Original</string>

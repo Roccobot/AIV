@@ -457,6 +457,9 @@
     <string name="editor_shape_original">原始</string>
     <string name="editor_save">保存</string>
     <string name="editor_apply">应用</string>
+    <string name="editor_crop_back">裁剪后退</string>
+    <string name="editor_crop_on">裁剪前进</string>
+    <string name="editor_crop_clear">重置裁剪</string>
     <string name="editor_undo">撤销</string>
     <string name="editor_redo">重做</string>
     <string name="editor_original">原图</string>

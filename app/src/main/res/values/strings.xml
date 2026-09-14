@@ -168,6 +168,12 @@
     <string name="editor_wide">Landscape</string>
     <string name="editor_save">Save</string>
     <string name="editor_apply">Apply</string>
+    <!-- The crop module has a history of its own: these undo and redo the
+         applied crops, and the third one brings the whole image back. They sit in
+         the module, away from the general undo and redo of the sheet. -->
+    <string name="editor_crop_back">Crop step back</string>
+    <string name="editor_crop_on">Crop step forward</string>
+    <string name="editor_crop_clear">Reset crop</string>
     <string name="editor_undo">Undo</string>
     <string name="editor_redo">Redo</string>
     <string name="editor_original">Reset</string>

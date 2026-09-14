@@ -473,6 +473,9 @@
     <string name="editor_shape_original">اصل</string>
     <string name="editor_save">محفوظ کریں</string>
     <string name="editor_apply">لاگو کریں</string>
+    <string name="editor_crop_back">کراپ میں واپس</string>
+    <string name="editor_crop_on">کراپ میں آگے</string>
+    <string name="editor_crop_clear">کراپ ری سیٹ کریں</string>
     <string name="editor_undo">کالعدم</string>
     <string name="editor_redo">دوبارہ کریں</string>
     <string name="editor_original">اصل</string>
