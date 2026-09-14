@@ -422,6 +422,13 @@
     <string name="look_tone_board">Kurva nada</string>
     <string name="look_target">Tertarget</string>
     <string name="look_auto">Otomatis</string>
+    <string name="look_presets">Prasetel</string>
+    <string name="look_preset_save">Simpan prasetel</string>
+    <string name="look_preset_name">Nama prasetel</string>
+    <string name="look_preset_mine">Milikmu</string>
+    <string name="look_preset_house">Bawaan</string>
+    <string name="look_preset_remove">Hapus</string>
+    <string name="look_preset_gone">Prasetel dihapus</string>
     <string name="look_geometry">Geometri</string>
     <string name="look_crop">Pangkas</string>
     <string name="look_straighten">Luruskan</string>

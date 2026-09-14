@@ -438,6 +438,13 @@
     <string name="look_tone_board">منحنی تون</string>
     <string name="look_target">هدفمند</string>
     <string name="look_auto">خودکار</string>
+    <string name="look_presets">پیش‌تنظیم‌ها</string>
+    <string name="look_preset_save">ذخیره پیش‌تنظیم</string>
+    <string name="look_preset_name">نام پیش‌تنظیم</string>
+    <string name="look_preset_mine">مال شما</string>
+    <string name="look_preset_house">از پیش‌ساخته</string>
+    <string name="look_preset_remove">حذف</string>
+    <string name="look_preset_gone">پیش‌تنظیم حذف شد</string>
     <string name="look_geometry">هندسه</string>
     <string name="look_crop">برش</string>
     <string name="look_straighten">تراز کردن</string>

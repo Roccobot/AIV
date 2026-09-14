@@ -454,6 +454,13 @@
     <string name="look_tone_board">Courbe des tonalités</string>
     <string name="look_target">Ciblé</string>
     <string name="look_auto">Auto</string>
+    <string name="look_presets">Préréglages</string>
+    <string name="look_preset_save">Enregistrer le préréglage</string>
+    <string name="look_preset_name">Nom du préréglage</string>
+    <string name="look_preset_mine">Les vôtres</string>
+    <string name="look_preset_house">Intégrés</string>
+    <string name="look_preset_remove">Supprimer</string>
+    <string name="look_preset_gone">Préréglage supprimé</string>
     <string name="look_geometry">Géométrie</string>
     <string name="look_crop">Recadrer</string>
     <string name="look_straighten">Redresser</string>

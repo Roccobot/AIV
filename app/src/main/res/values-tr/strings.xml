@@ -438,6 +438,13 @@
     <string name="look_tone_board">Ton eğrisi</string>
     <string name="look_target">Hedefli</string>
     <string name="look_auto">Otomatik</string>
+    <string name="look_presets">Hazır ayarlar</string>
+    <string name="look_preset_save">Hazır ayarı kaydet</string>
+    <string name="look_preset_name">Hazır ayar adı</string>
+    <string name="look_preset_mine">Seninkiler</string>
+    <string name="look_preset_house">Yerleşik</string>
+    <string name="look_preset_remove">Kaldır</string>
+    <string name="look_preset_gone">Hazır ayar kaldırıldı</string>
     <string name="look_geometry">Geometri</string>
     <string name="look_crop">Kırp</string>
     <string name="look_straighten">Düzleştirme</string>

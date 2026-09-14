@@ -1876,10 +1876,11 @@ mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
 - ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
-  l'HSL, il Dettaglio, le **Curve**, l'anteprima a risoluzione piena, la **Geometria** e il
-  **Ritaglio**, e quello che resta (i preset) vive nel piano d'azione, che è il posto delle versioni
-  in sequenza. ⚠️ **L'ordine di uscita non è l'ordine della fila**, che dalla `2.31` comincia dagli
-  ultimi due arrivati: § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
+  l'HSL, il Dettaglio, le **Curve**, l'anteprima a risoluzione piena, la **Geometria**, il
+  **Ritaglio** e, con la `2.39`, i **preset**, che è l'ultimo pezzo previsto (§ '🎞️ I preset, venti
+  di casa e quelli che si salvano'). ⚠️ **L'ordine di uscita non è l'ordine della fila**, che dalla
+  `2.31` comincia dagli ultimi due arrivati: § '✂️ Il modulo Ritaglio, e la fila che è diventata di
+  icone'.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -3301,6 +3302,81 @@ i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce d
 - ⚠️⚠️ **IL BANCO HA IMPOSTO ANCHE COME SI INIETTA QUEL GESTO**: i tre momenti del dito (giù,
   movimento, su) vanno in **tre** chiamate separate, perché scritti in un blocco solo il movimento e
   il distacco arrivano insieme e a `drag` resta un evento con delta zero.
+
+## 🎞️ I preset, venti di casa e quelli che si salvano
+
+⚠️⚠️ **DALLA `2.39`, ED È L'ULTIMO PEZZO DELL'EDITOR COMPLETO**: un preset è un **aspetto** che si
+porta da un'immagine all'altra, cioè i cinque moduli di colore (Luce, Colore, HSL, Dettaglio,
+Curve) con un nome sopra. Ne arrivano **venti** in casa e se ne salvano quanti se ne vogliono.
+
+⚠️⚠️ **QUATTORDICI DEI VENTI SONO SUOI, CONVERTITI DAI SUOI XMP DI LIGHTROOM, E LA CONVERSIONE L'HA
+FATTA LA SESSIONE** (sua istruzione, 2026-09-14: *aggiungi i miei, più uno creato ex novo da te per
+arrivare alla cifra tonda di 20. Per ora lasciamo stare l'importazione degli XMP*). Quindi
+nell'APK non c'è **nessun lettore XMP**: quello che è entrato sono i valori già tradotti, scritti
+in Kotlin come qualunque altra costante.
+- ⚠️⚠️ **I SUOI XMP ERANO DICIANNOVE E I PRESET SUOI SONO QUATTORDICI, PERCHÉ CINQUE NON AVEVANO
+  NIENTE DA TRAVASARE**: erano fatti di **taratura dei primari della fotocamera**, di color
+  grading a tre zone e di maschere locali, che AIV non ha. Portarli avrebbe voluto dire cinque
+  righe nell'elenco che non cambiano un pixel, ed è il difetto che il banco misura (caso 6).
+- ⚠️ **Quindi quelli di casa sono SEI e non uno**: quattro coprono i mestieri che i suoi
+  quattordici non toccavano (bianco e nero, ritratto, notturno, pellicola) e **due sono
+  riscritture dichiarate** di 'Contrasto colore classico' e 'foliage', cioè lo stesso effetto
+  rifatto nelle otto fasce dell'HSL invece che nei primari. Hanno un nome diverso dal suo proprio
+  perché non sono la stessa cosa.
+- ⚠️ **Che cosa resta fuori si dichiara**, e vale per tutti e quattordici: chiarezza, texture,
+  foschia, grana, vignettatura, sfrangiatura e viraggio diviso non esistono in questo editor.
+
+⚠️⚠️ **UN PRESET NON PORTA LA POSA, IL RITAGLIO E LA GEOMETRIA**: quei tre dipendono da **come è
+stata scattata quell'immagine** (da che parte sta il cielo, dove finisce il soggetto, quanto pende
+l'orizzonte), mentre un preset si porta da un'immagine all'altra. Applicarne uno che raddrizza di
+tre gradi girerebbe anche le fotografie dritte.
+- ⚠️ **Sono i cinque moduli che i preset di Lightroom sanno dire**, e la coincidenza non è casuale:
+  quel formato quei tre non li tratta come un aspetto.
+
+⚠️⚠️ **APPLICARE SOSTITUISCE INVECE DI SOMMARE, ED È QUELLO CHE RENDE UN PRESET PREVEDIBILE**: con
+una somma, applicarne uno sopra un altro darebbe qualcosa che nessuno dei due descrive, e
+applicare due volte lo stesso darebbe due immagini diverse. Così un preset dice **dove si
+arriva**, e per tornare indietro c'è 'Annulla', perché quello che ne esce è un `Look` come un
+altro. È la stessa strada del tasto 'Auto', che scrive nei cursori e non dipinge niente.
+
+⚠️⚠️ **IL PANNELLO NON È UN OTTAVO MODULO, ED È UNA SCELTA MISURATA**: dalla `2.33` la scheda è
+alta quanto il **modulo più alto**, quindi un modulo fatto di un elenco che cresce con quello che
+si salva alzerebbe la scheda di tutti e sette gli altri, cioè accorcerebbe il palco anche a chi i
+preset non li usa. Il tasto vive **accanto ad 'Auto'**, che è il suo parente stretto.
+- ⚠️ **Il tocco applica e il pannello RESTA APERTO**: un preset si sceglie confrontando, e un
+  pannello che si chiudesse a ogni tocco costringerebbe a riaprirlo per provare il prossimo.
+- ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32`: se non
+  dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+
+⚠️⚠️ **L'ARCHIVIO È UN FILE E NON UNA PREFERENZA**, al contrario di quasi tutto il resto dell'app:
+una preferenza tiene un valore, qui invece cresce un elenco di oggetti annidati (otto fasce e
+quattro curve per ognuno), e scriverlo in un `DataStore` vorrebbe dire una stringa lunghissima
+sotto una chiave sola, cioè un file travestito. Vive in `filesDir` come le copertine, perché
+quello che vive nella cache il sistema lo può buttare.
+- ⚠️⚠️ **OGNI CAMPO CHE MANCA VALE IL SUO VALORE DI RIPOSO, ed è quello che tiene il formato
+  compatibile nei due versi**: un file scritto oggi si legge domani anche se domani i cursori sono
+  sei, e uno scritto domani si legge oggi perdendo quello che oggi non esiste. ⚠️ **E un modulo a
+  riposo non si scrive affatto**: un preset di sola Luce deve rileggersi come tale, o direbbe che
+  tocca anche il colore e le curve, a zero.
+- ⚠️ **Si legge e si scrive a mano con `org.json`**, che è nella piattaforma: una libreria di
+  serializzazione automatica avrebbe legato la forma del file a quella delle classi, e il giorno
+  che un modulo prende un campo i preset salvati non si leggerebbero più.
+
+⚠️ **Un nome già usato SOSTITUISCE**, senza guardare le maiuscole: due preset che si chiamano
+uguale sono indistinguibili nell'elenco, quindi l'unica cosa che si potrebbe fare col secondo è
+cercare di capire quale sia. ⚠️ **E il nome non si traduce**, nemmeno quello dei venti di casa: è
+un nome proprio, come quello di una cartella.
+
+⚠️ **Si cancella con un'offerta di rimetterlo e non con una conferma**, che è il criterio di casa:
+una conferma protegge quello che si perderebbe, e qui non si perde niente finché la notifica è in
+scena. ⚠️ **Rimetterlo è salvarlo di nuovo**, cioè la stessa porta dell'andata.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`PresetTest`, ogni caso controprovato): l'andata e
+ritorno campo per campo coi cinque moduli pieni, che un preset non porti e non tocchi i tre moduli
+di geometria, che applicare due volte dia la stessa immagine, il nome doppio, la cancellazione, i
+venti di casa (venti, pieni, distinti), l'ordine dell'elenco, e il pannello che applica restando
+aperto col comando che toglie sui soli propri. **Non** vede come un preset cambia un'immagine, che
+è la sola cosa che conta davvero: quella si guarda sul telefono, e la voce di collaudo lo chiede.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

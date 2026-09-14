@@ -438,6 +438,13 @@
     <string name="look_tone_board">Mkunjo wa toni</string>
     <string name="look_target">Lengwa</string>
     <string name="look_auto">Otomatiki</string>
+    <string name="look_presets">Mipangilio</string>
+    <string name="look_preset_save">Hifadhi mpangilio</string>
+    <string name="look_preset_name">Jina la mpangilio</string>
+    <string name="look_preset_mine">Yako</string>
+    <string name="look_preset_house">Iliyojengwa</string>
+    <string name="look_preset_remove">Ondoa</string>
+    <string name="look_preset_gone">Mpangilio umeondolewa</string>
     <string name="look_geometry">Jiometri</string>
     <string name="look_crop">Punguza</string>
     <string name="look_straighten">Nyoosha</string>

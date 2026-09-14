@@ -1,0 +1,349 @@
+package io.github.roccobot.aiv
+
+import android.content.Context
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/**
+ * Il banco di prova dei **preset** dell'editor completo, dalla `2.39`.
+ *
+ * ⚠️⚠️ **QUELLO CHE QUI SI ROMPE IN SILENZIO È L'ANDATA E RITORNO**: un campo dimenticato in
+ * [Presets] non dà nessun errore e non lo vede nessun compilatore, perché ogni campo che manca
+ * vale il suo valore di riposo. Il preset si salva, si riapre, e fa un'altra cosa: chi lo ha
+ * salvato pensa di averlo perso e non sa perché.
+ *
+ * ⚠️ **Quello che il banco non vede**: come i venti di casa cambiano un'immagine, che è la sola
+ * cosa che conta davvero di un preset. Quello si guarda sul telefono, e la voce di collaudo lo
+ * chiede.
+ */
+@RunWith(AndroidJUnit4::class)
+class PresetTest {
+
+    @get:Rule
+    val banco = createComposeRule()
+
+    private val app: Context get() = ApplicationProvider.getApplicationContext()
+
+    /**
+     * ⚠️ **L'archivio si svuota prima di ogni prova**: è un file, quindi quello che una prova
+     * scrive lo trova la prossima, e due prove che si passano lo stato sono due prove che
+     * falliscono in ordine sparso.
+     */
+    @Before
+    fun pulisci() {
+        Presets.mine(app).forEach { Presets.remove(app, it.name) }
+        assertTrue("L'archivio doveva partire vuoto", Presets.mine(app).isEmpty())
+    }
+
+    /**
+     * **Caso 1: quello che si salva è quello che si riapre, campo per campo.**
+     *
+     * ⚠️⚠️ **IL `Look` DI PROVA HA I CINQUE MODULI TUTTI PIENI, e non è abbondanza**: un solo
+     * modulo lasciato a riposo sarebbe un campo che la prova non guarda, cioè esattamente quello
+     * che ci si dimentica di scrivere. Le otto fasce portano valori **diversi** l'una dall'altra
+     * per la stessa ragione: con otto bande uguali, un indice scambiato nel giro di lettura non
+     * si vedrebbe.
+     */
+    @Test
+    fun `un preset salvato si riapre identico`() {
+        Presets.save(app, "Tutto", PIENO)
+        val letto = Presets.mine(app).single()
+
+        assertEquals("Il nome non è tornato", "Tutto", letto.name)
+        assertEquals("La Luce non è tornata", PIENO.light, letto.look.light)
+        assertEquals("Il Colore non è tornato", PIENO.chroma, letto.look.chroma)
+        assertEquals("L'HSL non è tornato", PIENO.mix, letto.look.mix)
+        assertEquals("Il Dettaglio non è tornato", PIENO.detail, letto.look.detail)
+        assertEquals("Le Curve non sono tornate", PIENO.tone, letto.look.tone)
+    }
+
+    /**
+     * **Caso 2: un preset non porta la posa, il ritaglio e la geometria.**
+     *
+     * ⚠️⚠️ **SENZA QUESTA RIGA UN PRESET RADDRIZZEREBBE LE FOTOGRAFIE DRITTE**: quei tre
+     * dipendono da come è stata scattata quell'immagine, non dall'aspetto che si vuole dare.
+     * ⚠️ **E si misura in tutti e due i versi**: che non li **prenda** salvando, e che non li
+     * **tocchi** applicando, perché sono due righe diverse e sbagliarne una sola è possibile.
+     */
+    @Test
+    fun `un preset non porta la posa il ritaglio e la geometria`() {
+        val storto = PIENO.copy(
+            spin = Spin(turns = 1, mirror = false),
+            crop = ImageEdit.Crop(0.1f, 0.1f, 0.8f, 0.8f),
+            geo = Geometry(straighten = 0.3f),
+            framed = true
+        )
+        val preso = Preset.of("Solo colore", storto)
+        assertEquals("Il preset si è portato la posa", Spin.STILL, preso.look.spin)
+        assertEquals("Il preset si è portato il ritaglio", ImageEdit.Crop.WHOLE, preso.look.crop)
+        assertEquals("Il preset si è portato la geometria", Geometry.NONE, preso.look.geo)
+
+        // ⚠️ La base porta una posa e un ritaglio suoi: applicare un preset non li deve muovere.
+        val base = Look(
+            spin = Spin(turns = 2, mirror = false),
+            crop = ImageEdit.Crop(0.2f, 0.2f, 0.5f, 0.5f),
+            geo = Geometry(distortion = 0.05f),
+            framed = true
+        )
+        val dopo = preso.applyTo(base)
+        assertEquals("Applicare ha girato l'immagine", base.spin, dopo.spin)
+        assertEquals("Applicare ha spostato il ritaglio", base.crop, dopo.crop)
+        assertEquals("Applicare ha toccato la geometria", base.geo, dopo.geo)
+        assertEquals("Applicare ha cambiato la porzione inquadrata", base.framed, dopo.framed)
+        assertEquals("Il Colore non è arrivato", PIENO.chroma, dopo.chroma)
+        assertEquals("La Luce non è arrivata", PIENO.light, dopo.light)
+    }
+
+    /**
+     * **Caso 3: applicare sostituisce invece di sommare.**
+     *
+     * ⚠️⚠️ **È LA PROPRIETÀ CHE RENDE UN PRESET PREVEDIBILE**: sommando, applicarne uno sopra un
+     * altro darebbe qualcosa che nessuno dei due descrive, e applicare due volte lo stesso darebbe
+     * due immagini diverse. Qui si misura proprio quello: due applicazioni di fila e una sola
+     * devono dare lo stesso risultato.
+     */
+    @Test
+    fun `applicare due volte lo stesso preset da la stessa immagine`() {
+        val preset = Preset.of("Doppio", PIENO)
+        val una = preset.applyTo(Look.NONE)
+        val due = preset.applyTo(preset.applyTo(Look.NONE))
+        assertEquals("La seconda applicazione ha cambiato qualcosa", una, due)
+
+        // ⚠️ E un preset applicato su un'immagine già sviluppata cancella quello che c'era: la
+        // Luce della base non deve restare a metà.
+        val sopra = preset.applyTo(Look(light = Light(exposure = 1.5f, blacks = -0.4f)))
+        assertEquals("Un valore della base è sopravvissuto", PIENO.light, sopra.light)
+    }
+
+    /**
+     * **Caso 4: lo stesso nome sostituisce, e non lascia due righe indistinguibili.**
+     *
+     * ⚠️ **Il confronto non guarda le maiuscole**, perché nell'elenco due nomi che differiscono
+     * solo per quelle si leggono uguali: l'unica cosa che si potrebbe fare col secondo è cercare
+     * di capire quale sia.
+     */
+    @Test
+    fun `salvare con un nome gia usato sostituisce`() {
+        Presets.save(app, "Sera", Look(light = Light(exposure = 0.5f)))
+        Presets.save(app, "SERA", Look(light = Light(exposure = -0.5f)))
+
+        val miei = Presets.mine(app)
+        assertEquals("Sono due righe invece di una", 1, miei.size)
+        assertEquals("Ha tenuto il valore vecchio", -0.5f, miei.single().look.light.exposure, 1e-4f)
+        assertEquals("Il nome non è quello scritto per ultimo", "SERA", miei.single().name)
+    }
+
+    /**
+     * **Caso 5: quello che si toglie se ne va, e il resto resta.**
+     *
+     * ⚠️ **Si misura anche che rimetterlo funzioni**, perché è la strada che percorre 'Annulla'
+     * della notifica: là si salva di nuovo, cioè si passa dalla stessa porta dell'andata.
+     */
+    @Test
+    fun `togliere un preset lascia gli altri al loro posto`() {
+        Presets.save(app, "Uno", Look(light = Light(exposure = 0.5f)))
+        Presets.save(app, "Due", Look(chroma = Chroma(saturation = 0.3f)))
+
+        val resto = Presets.remove(app, "Uno")
+        assertEquals("Non è rimasto il solo 'Due'", listOf("Due"), resto.map { it.name })
+        assertEquals("Il disco dice un'altra cosa", listOf("Due"), Presets.mine(app).map { it.name })
+
+        Presets.save(app, "Uno", Look(light = Light(exposure = 0.5f)))
+        assertEquals("Rimetterlo non ha funzionato", 2, Presets.mine(app).size)
+    }
+
+    /**
+     * **Caso 6: i venti di casa sono venti, nessuno vuoto e nessuno omonimo.**
+     *
+     * ⚠️⚠️ **UN PRESET VUOTO NON SI VEDE E NON DÀ NESSUN ERRORE**: toccarlo non cambierebbe un
+     * pixel, e chi lo prova penserebbe che i preset non funzionino. Quattordici nascono dai suoi
+     * XMP e sei sono scritti in casa, e un errore di battitura in uno dei due elenchi si ferma
+     * qui.
+     */
+    @Test
+    fun `i venti di casa sono venti pieni e distinti`() {
+        assertEquals("Non sono venti", 20, HOUSE.size)
+        HOUSE.forEach { p ->
+            assertTrue("Il preset '${p.name}' non cambia niente", !p.look.idle)
+            assertTrue("Il preset '${p.name}' non si dichiara di casa", p.house)
+            assertTrue("Un preset di casa ha il nome vuoto", p.name.isNotBlank())
+        }
+        assertEquals(
+            "Due preset di casa si chiamano uguale",
+            HOUSE.size,
+            HOUSE.map { it.name.lowercase() }.toSet().size
+        )
+    }
+
+    /**
+     * **Caso 7: l'elenco mette i propri davanti a quelli di casa.**
+     *
+     * ⚠️ **E il più recente è il primo**: chi salva un preset lo cerca dove lo ha appena messo,
+     * cioè in cima.
+     */
+    @Test
+    fun `i propri vengono prima di quelli di casa`() {
+        Presets.save(app, "Vecchio", Look(light = Light(exposure = 0.5f)))
+        Presets.save(app, "Nuovo", Look(light = Light(contrast = 0.5f)))
+
+        val tutti = Presets.all(app)
+        assertEquals("Il più recente non è il primo", "Nuovo", tutti[0].name)
+        assertEquals("Il secondo non è l'altro mio", "Vecchio", tutti[1].name)
+        assertEquals("I venti di casa non seguono", HOUSE.size + 2, tutti.size)
+        assertTrue("Il terzo non è di casa", tutti[2].house)
+    }
+
+    /**
+     * **Caso 8: il pannello elenca, applica, e resta aperto.**
+     *
+     * ⚠️⚠️ **CHE RESTI APERTO È METÀ DELLA FUNZIONE**: un preset si sceglie confrontando, e un
+     * pannello che si chiudesse a ogni tocco costringerebbe a riaprirlo per provare il prossimo.
+     * Misurato dal nome, che dopo il tocco deve essere ancora in scena.
+     */
+    @Test
+    fun `il pannello applica il preset toccato e resta aperto`() {
+        var scelto: Preset? = null
+        var chiuso = false
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                PresetSheet(
+                    look = Look.NONE,
+                    onPick = { scelto = it },
+                    onDismiss = { chiuso = true }
+                )
+            }
+        }
+
+        val nome = HOUSE.first().name
+        banco.onNodeWithText(nome).performClick()
+        banco.waitForIdle()
+
+        assertEquals("Il tocco non ha applicato quel preset", nome, scelto?.name)
+        assertTrue("Il preset applicato non cambia niente", !(scelto?.look?.idle ?: true))
+        assertTrue("Il pannello si è chiuso da sé", !chiuso)
+        banco.onNodeWithText(nome).assertIsDisplayed()
+    }
+
+    /**
+     * **Caso 9: il comando che toglie c'è solo sui propri.**
+     *
+     * ⚠️⚠️ **UN PRESET DI CASA NON SI CANCELLA PERCHÉ NON VIVE IN NESSUN ARCHIVIO**: un comando
+     * che lo proponesse non farebbe niente, e sarebbe un tasto che mente. ⚠️ **Si misura
+     * contando**: con un preset proprio in elenco i comandi sono uno, e senza sono zero.
+     * Controprovato passando `onRemove` anche ai venti di casa: là ne comparivano ventuno.
+     */
+    @Test
+    fun `senza preset propri non c e nessun comando che toglie`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                PresetSheet(look = Look.NONE, onPick = {}, onDismiss = {})
+            }
+        }
+        assertEquals(
+            "I venti di casa portano un comando che non potrebbe fare niente",
+            0,
+            comandiCheTolgono()
+        )
+    }
+
+    /**
+     * **Caso 9b: con un preset proprio in elenco, il comando è uno solo.**
+     *
+     * ⚠️ **Sono due prove e non una**, e non è una scelta di stile: `setContent` si chiama una
+     * volta sola per regola, quindi le due scene vogliono due prove. La seconda salva **prima** di
+     * montare, perché il pannello legge l'archivio all'apertura.
+     */
+    @Test
+    fun `un preset proprio porta il comando che lo toglie`() {
+        Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                PresetSheet(look = Look.NONE, onPick = {}, onDismiss = {})
+            }
+        }
+        banco.onNodeWithText("Mio").assertIsDisplayed()
+        assertEquals("Il comando che toglie non è uno solo", 1, comandiCheTolgono())
+    }
+
+    /** Quanti comandi 'Elimina' sono in scena: il banco non ha un conto pronto. */
+    private fun comandiCheTolgono(): Int = banco
+        .onAllNodesWithContentDescription(app.getString(R.string.look_preset_remove))
+        .fetchSemanticsNodes().size
+
+    /**
+     * **Caso 10: il tasto che salva è spento quando non c'è niente da salvare.**
+     *
+     * ⚠️ **Un preset preso da un'immagine non toccata sarebbe una riga che non fa niente**, cioè
+     * lo stesso difetto del caso 6 con un nome scelto a mano.
+     */
+    @Test
+    fun `il tasto che salva e spento su un immagine non toccata`() {
+        assertTrue("Un Look a riposo si dichiara degno di un preset", Preset.of("", Look.NONE).look.idle)
+        assertTrue("Un Look sviluppato non si dichiara degno", !Preset.of("", PIENO).look.idle)
+        // ⚠️ La posa da sola non basta: un preset non la porta, quindi non c'è niente da salvare.
+        assertTrue(
+            "Una posa da sola fa credere che ci sia un preset da prendere",
+            Preset.of("", Look(spin = Spin(turns = 1, mirror = false))).look.idle
+        )
+    }
+
+    /**
+     * **Caso 11: un modulo a riposo non finisce nel file.**
+     *
+     * ⚠️⚠️ **NON È UN RISPARMIO DI BYTE**: un preset di sola Luce deve **rileggersi** come tale, e
+     * con i moduli scritti per intero direbbe che tocca anche il colore e le curve, a zero. Chi
+     * apre quel file vedrebbe un preset che fa tutto.
+     */
+    @Test
+    fun `un modulo a riposo non si scrive`() {
+        Presets.save(app, "Sola luce", Look(light = Light(exposure = 0.5f)))
+        val letto = Presets.mine(app).single()
+        assertEquals("Il Colore è entrato da solo", Chroma.NONE, letto.look.chroma)
+        assertEquals("L'HSL è entrato da solo", Mix.NONE, letto.look.mix)
+        assertEquals("Il Dettaglio è entrato da solo", Detail.NONE, letto.look.detail)
+        assertEquals("Le Curve sono entrate da sole", Tone.NONE, letto.look.tone)
+        assertNotEquals("La Luce non è arrivata", Light.NONE, letto.look.light)
+    }
+}
+
+/**
+ * Un [Look] coi cinque moduli tutti pieni, e le otto fasce diverse l'una dall'altra.
+ *
+ * ⚠️ **I numeri non sono tondi di proposito**: un arrotondamento nella scrittura del file si
+ * vedrebbe su `0,37` e non su `0,5`.
+ */
+private val PIENO = Look(
+    light = Light(
+        exposure = 0.75f, contrast = -0.37f, highlights = 0.21f,
+        shadows = -0.62f, whites = 0.14f, blacks = -0.08f
+    ),
+    chroma = Chroma(
+        temp = 0.31f, tint = -0.17f, saturation = 0.44f,
+        vibrance = -0.23f, mono = true, filter = 0.56f
+    ),
+    mix = Mix(List(Mix.COUNT) { i ->
+        Band(hue = 0.01f * (i + 1), sat = -0.02f * (i + 1), lum = 0.03f * (i + 1))
+    }),
+    detail = Detail(
+        sharpen = 0.61f, radius = -0.29f, masking = 0.47f,
+        noise = 0.33f, noiseColor = 0.18f
+    ),
+    tone = Tone(
+        all = Curve(listOf(Knot(0f, 0.05f), Knot(0.5f, 0.62f), Knot(1f, 0.97f))),
+        red = Curve(listOf(Knot(0f, 0f), Knot(0.33f, 0.41f), Knot(1f, 1f))),
+        green = Curve(listOf(Knot(0f, 0.02f), Knot(1f, 0.98f))),
+        blue = Curve(listOf(Knot(0f, 0f), Knot(0.7f, 0.58f), Knot(1f, 1f)))
+    )
+)

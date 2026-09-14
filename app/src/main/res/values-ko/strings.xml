@@ -422,6 +422,13 @@
     <string name="look_tone_board">톤 곡선</string>
     <string name="look_target">타깃</string>
     <string name="look_auto">자동</string>
+    <string name="look_presets">프리셋</string>
+    <string name="look_preset_save">프리셋 저장</string>
+    <string name="look_preset_name">프리셋 이름</string>
+    <string name="look_preset_mine">내 프리셋</string>
+    <string name="look_preset_house">기본 제공</string>
+    <string name="look_preset_remove">삭제</string>
+    <string name="look_preset_gone">프리셋을 삭제했습니다</string>
     <string name="look_geometry">지오메트리</string>
     <string name="look_crop">자르기</string>
     <string name="look_straighten">수평 맞추기</string>

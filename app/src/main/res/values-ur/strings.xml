@@ -438,6 +438,13 @@
     <string name="look_tone_board">ٹون کرو</string>
     <string name="look_target">ہدف شدہ</string>
     <string name="look_auto">خودکار</string>
+    <string name="look_presets">پری سیٹ</string>
+    <string name="look_preset_save">پری سیٹ محفوظ کریں</string>
+    <string name="look_preset_name">پری سیٹ کا نام</string>
+    <string name="look_preset_mine">آپ کے</string>
+    <string name="look_preset_house">شامل شدہ</string>
+    <string name="look_preset_remove">ہٹائیں</string>
+    <string name="look_preset_gone">پری سیٹ ہٹا دیا گیا</string>
     <string name="look_geometry">جیومیٹری</string>
     <string name="look_crop">تراشنا</string>
     <string name="look_straighten">سیدھا کرنا</string>

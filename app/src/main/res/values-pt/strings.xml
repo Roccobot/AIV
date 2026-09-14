@@ -454,6 +454,13 @@
     <string name="look_tone_board">Curva de tons</string>
     <string name="look_target">Direcionado</string>
     <string name="look_auto">Auto</string>
+    <string name="look_presets">Predefinições</string>
+    <string name="look_preset_save">Salvar predefinição</string>
+    <string name="look_preset_name">Nome da predefinição</string>
+    <string name="look_preset_mine">Suas</string>
+    <string name="look_preset_house">Integradas</string>
+    <string name="look_preset_remove">Remover</string>
+    <string name="look_preset_gone">Predefinição removida</string>
     <string name="look_geometry">Geometria</string>
     <string name="look_crop">Cortar</string>
     <string name="look_straighten">Endireitar</string>

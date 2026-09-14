@@ -470,6 +470,13 @@
     <string name="look_tone_board">Krzywa tonalna</string>
     <string name="look_target">Celowany</string>
     <string name="look_auto">Auto</string>
+    <string name="look_presets">Ustawienia</string>
+    <string name="look_preset_save">Zapisz ustawienie</string>
+    <string name="look_preset_name">Nazwa ustawienia</string>
+    <string name="look_preset_mine">Twoje</string>
+    <string name="look_preset_house">Wbudowane</string>
+    <string name="look_preset_remove">Usuń</string>
+    <string name="look_preset_gone">Usunięto ustawienie</string>
     <string name="look_geometry">Geometria</string>
     <string name="look_crop">Kadrowanie</string>
     <string name="look_straighten">Prostowanie</string>

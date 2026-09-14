@@ -438,6 +438,13 @@
     <string name="look_tone_board">தொனி வளைவு</string>
     <string name="look_target">இலக்கு</string>
     <string name="look_auto">தானியங்கு</string>
+    <string name="look_presets">முன்னமைவுகள்</string>
+    <string name="look_preset_save">முன்னமைவைச் சேமி</string>
+    <string name="look_preset_name">முன்னமைவின் பெயர்</string>
+    <string name="look_preset_mine">உங்களுடையவை</string>
+    <string name="look_preset_house">உள்ளமைந்தவை</string>
+    <string name="look_preset_remove">அகற்று</string>
+    <string name="look_preset_gone">முன்னமைவு அகற்றப்பட்டது</string>
     <string name="look_geometry">வடிவியல்</string>
     <string name="look_crop">வெட்டு</string>
     <string name="look_straighten">நேராக்கு</string>
