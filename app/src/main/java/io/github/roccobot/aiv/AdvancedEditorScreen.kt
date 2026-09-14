@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -49,6 +50,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
@@ -588,13 +591,16 @@ private fun LookStage(
      * Il taglio che il palco **inquadra**, o `null` se si vede l'immagine intera.
      *
      * ⚠️⚠️ **DALLA `2.33`, ED È IL SUO 'APPLICA'** (2026-09-13: *manca 'Applica' per il
-     * ritaglio*, e la sua scelta fra le due letture: *il palco passa a inquadrare la porzione
-     * scelta, e negli altri moduli si lavora su quella*). Fino alla `2.32` il rettangolo si
-     * tirava e non si vedeva mai applicato: il taglio compariva solo nel file salvato.
-     * ⚠️ **Nel modulo Ritaglio non vale**, ed è la seconda metà della sua risposta: là l'immagine
-     * torna intera con le squadrette dov'erano, quindi il taglio si può allargare o rifare.
+     * ritaglio*). Fino alla `2.32` il rettangolo si tirava e non si vedeva mai applicato: il
+     * taglio compariva solo nel file salvato.
+     * ⚠️⚠️ **E DALLA `2.40` VALE ANCHE DENTRO IL RITAGLIO, ED È LA SUA RICHIESTA** (2026-09-14:
+     * *Potrebbe avere senso se fosse applicato effettivamente anche nel modulo Ritaglio (resta
+     * solo la parte ritagliata)*). Fino alla `2.39` là l'immagine tornava intera, quindi il tasto
+     * non faceva niente che si vedesse proprio nel modulo in cui lo si tocca; adesso le squadrette
+     * ripartono ai bordi della porzione e si ritaglia dentro quella, e a tornare indietro sono i
+     * tre comandi suoi (vedi [Framing]).
      */
-    val framed = look.crop.takeIf { look.framed && cutting == null && !it.whole }
+    val framed = look.framing.shown
 
     /**
      * Quanto è larga rispetto all'alta la porzione che si vede: l'immagine intera, o il taglio.
@@ -871,9 +877,20 @@ private fun LookStage(
                     val taglio = cutNow
                     if (taglio != null) {
                         val vista = viewport(room, shown, scale, shift, air(), framed)
-                        val frame = Rect(vista.left, vista.top, vista.right, vista.bottom)
-                        var going = cropBox(taglio, frame)
-                        val presa = grabbed(down.position, going, GRIP.toPx())
+                        /*
+                         * ⚠️⚠️ **LE SQUADRETTE SI TIRANO DENTRO LA PORZIONE APPLICATA, DALLA
+                         * `2.40`**: quello che si vede è il taglio confermato, quindi il riquadro
+                         * del gesto è il suo e il rettangolo che si muove è in frazioni **di lui**.
+                         * Senza le due conversioni il dito tirerebbe un rettangolo dell'immagine
+                         * intera dentro un riquadro che ne mostra un pezzo, cioè il rettangolo
+                         * scapperebbe da sotto le dita.
+                         * ⚠️ **Senza niente applicato è un ramo solo**: le due funzioni sono
+                         * l'identità, e il riquadro resta quello dell'immagine.
+                         */
+                        val dentro = cutout(vista, framed)
+                        val frame = Rect(dentro.left, dentro.top, dentro.right, dentro.bottom)
+                        var going = cropBox(relativeTo(framed, taglio), frame)
+                        val presa = grabbed(down.position, going, GRIP.toPx(), keepNow == null)
                         if (presa != Grab.NONE) {
                             down.consume()
                             drag(down.id) { change ->
@@ -901,7 +918,7 @@ private fun LookStage(
                                     keepNow,
                                     LEAST_SIDE.toPx()
                                 )
-                                cutTo(cropFractions(going, frame))
+                                cutTo(absolute(framed, cropFractions(going, frame)))
                             }
                             onCutEnd()
                         }
@@ -1145,13 +1162,19 @@ private fun LookStage(
          */
         val taglio = cutting
         if (taglio != null) {
-            val frame = Rect(view.left, view.top, view.right, view.bottom)
+            /*
+             * ⚠️ **Il riquadro è quello della porzione applicata**, cioè lo stesso che riceve il
+             * gesto: il disegno e il dito devono dire la stessa cosa, e con due conti diversi le
+             * squadrette si vedrebbero dove il dito non le prende.
+             */
+            val frame = Rect(visto.left, visto.top, visto.right, visto.bottom)
             cropOverlay(
                 frame,
-                cropBox(taglio, frame),
+                cropBox(relativeTo(framed, taglio), frame),
                 HANDLE_ARM.toPx(),
                 HANDLE_THICK.toPx(),
-                GRIP_HALO.toPx()
+                GRIP_HALO.toPx(),
+                keep == null
             )
         }
 
@@ -1364,6 +1387,42 @@ private fun spread(seen: RectF, cut: ImageEdit.Crop): RectF {
     val left = seen.left - cut.left * w
     val top = seen.top - cut.top * h
     return RectF(left, top, left + w, top + h)
+}
+
+/**
+ * Il taglio [cut], che è in frazioni dell'immagine intera, riscritto in frazioni della porzione
+ * [outer] che il palco inquadra.
+ *
+ * ⚠️⚠️ **È LA COPPIA DI [absolute], E LE DUE NASCONO COL RITAGLIO CHE TAGLIA DAVVERO** (`2.40`):
+ * col taglio applicato le squadrette si tirano dentro la porzione, quindi il rettangolo che il
+ * dito muove va letto e scritto **in frazioni di lei**, mentre [Look.crop] resta quello che il
+ * salvataggio applica, cioè il rettangolo totale.
+ * ⚠️ **Senza niente applicato sono l'identità**, e questo è quello che tiene un ramo solo sul
+ * palco: `null` vuol dire 'la porzione è tutta l'immagine'.
+ */
+private fun relativeTo(outer: ImageEdit.Crop?, cut: ImageEdit.Crop): ImageEdit.Crop {
+    if (outer == null) return cut
+    val w = (outer.right - outer.left).coerceAtLeast(0.001f)
+    val h = (outer.bottom - outer.top).coerceAtLeast(0.001f)
+    return ImageEdit.Crop(
+        ((cut.left - outer.left) / w).coerceIn(0f, 1f),
+        ((cut.top - outer.top) / h).coerceIn(0f, 1f),
+        ((cut.right - outer.left) / w).coerceIn(0f, 1f),
+        ((cut.bottom - outer.top) / h).coerceIn(0f, 1f)
+    )
+}
+
+/** Il taglio [part], che è in frazioni della porzione [outer], riportato all'immagine intera. */
+private fun absolute(outer: ImageEdit.Crop?, part: ImageEdit.Crop): ImageEdit.Crop {
+    if (outer == null) return part
+    val w = outer.right - outer.left
+    val h = outer.bottom - outer.top
+    return ImageEdit.Crop(
+        outer.left + part.left * w,
+        outer.top + part.top * h,
+        outer.left + part.right * w,
+        outer.top + part.bottom * h
+    )
 }
 
 /** Dove cade il taglio [cut] dentro il riquadro [view] dell'immagine intera: vedi [spread]. */
@@ -1876,9 +1935,11 @@ private val MODULES = listOf(
         PadKey.MOD_CROP,
         R.string.look_crop,
         rows = { emptyList() },
-        // ⚠️ Il 'Reset modulo' porta via anche la vista confermata: senza, il palco resterebbe a
+        // ⚠️ Il 'Reset modulo' porta via anche i tagli applicati: senza, il palco resterebbe a
         // inquadrare un taglio che non c'è più, cioè l'immagine intera dentro un riquadro.
-        clear = { it.copy(spin = Spin.STILL, crop = ImageEdit.Crop.WHOLE, framed = false) },
+        // ⚠️ **Azzera anche la posa, al contrario del comando 'Azzera' della fila**: questo è il
+        // gesto che rimette a nuovo il modulo, quello là guarda il solo ritaglio.
+        clear = { it.copy(spin = Spin.STILL, crop = ImageEdit.Crop.WHOLE, framing = Framing.NONE) },
         spent = { !it.square },
         icon = { Glyphs.ModCrop },
         extra = Extra.CROP
@@ -1952,6 +2013,31 @@ private fun modIndex(key: PadKey): Int = MODULES.indexOfFirst { it.key == key }
  */
 private const val POSE_KEYS = 5
 
+/**
+ * Quanto è alta la riga dei quattro comandi del ritaglio: 'Indietro', 'Avanti', 'Applica' e
+ * 'Azzera'.
+ *
+ * ⚠️⚠️ **È LA MISURA DI RIGA DI QUESTA SCHEDA E NON QUELLA DI UN TASTO, ED È UNA MISURA A
+ * IMPORLA**: il corpo del Ritaglio aveva **30** punti liberi prima di superare le Curve, che dalla
+ * `2.33` sono il modulo che detta l'altezza della scheda (misurato: Ritaglio 208 contro Curve 238).
+ * Una cella di [ActionPad] ne chiede 64 anche senza etichetta e un `IconButton` di Material 48:
+ * tutti e due avrebbero alzato la scheda **in tutti e sette i moduli**, che è il ballo che la
+ * `2.33` esiste per togliere.
+ * ⚠️ **Il bersaglio non è quello che si perde**: le quattro celle si dividono tutta la larghezza,
+ * quindi ognuna è larga una settantina di punti, cioè più di un `IconButton`; l'altezza è sotto
+ * i suoi 48 come già la riga di un cursore ([DIAL_ROW]), che porta la stessa nota.
+ * ⚠️ **Sono quattro e non tre**, cioè i tre che ha chiesto lui più 'Applica': quello che si applica
+ * e quello che si disfa sono lo stesso gesto in due versi, e tenerli separati vorrebbe dire cercare
+ * il secondo in un'altra parte della scheda.
+ */
+private val CROP_CMD_ROW = 32.dp
+
+/** Quanto è grande il glifo di un comando del ritaglio: la misura dei glifi di comando dell'app. */
+private val CROP_CMD_ICON = 24.dp
+
+/** Lo stondamento della cella di un comando del ritaglio, cioè quello dei chip di questa scheda. */
+private val CROP_CMD_ROUND = 8.dp
+
 /** La forma scelta nel Ritaglio, cioè l'indice di [Gaze.shape] riportato al suo valore. */
 private fun cropShape(gaze: Gaze): Shape =
     Shape.entries.getOrElse(gaze.shape) { Shape.FREE }
@@ -1989,8 +2075,14 @@ private fun posedAspect(src: Bitmap?, spin: Spin): Float {
  * è che là esiste una forma scelta (i gettoni dei formati) da rifare sull'aspetto nuovo. Qui il
  * rettangolo è libero, quindi girarlo lo lascia esattamente sulla stessa porzione di immagine.
  */
-internal fun spunLook(look: Look, gesto: Spin): Look =
-    look.copy(spin = look.spin.then(gesto), crop = spunRect(look.crop, gesto))
+internal fun spunLook(look: Look, gesto: Spin): Look = look.copy(
+    spin = look.spin.then(gesto),
+    crop = spunRect(look.crop, gesto),
+    // ⚠️ **Anche i tagli applicati**, dalla `2.40`: sono rettangoli come [Look.crop] e vivono
+    // nello stesso spazio, quindi una posa che riscrivesse solo lui lascerebbe il palco a
+    // inquadrare un'altra porzione di fotografia (vedi [Framing.spun]).
+    framing = look.framing.spun(gesto)
+)
 
 /**
  * Il modulo aperto di fabbrica, cioè il **Ritaglio** dalla `2.35`.
@@ -2291,32 +2383,14 @@ private fun LookSheet(
                  * quindi il glifo passa all'accento quando la modalità è armata.
                  */
                 /*
-                 * ⚠️⚠️ **'APPLICA' C'È NEL SOLO RITAGLIO, DALLA `2.33`, ED È SUA RICHIESTA**
-                 * (2026-09-13: *manca 'Applica' per il ritaglio*). Quello che fa è la sua scelta
-                 * fra le due letture: il palco passa a inquadrare la porzione tenuta, e negli
-                 * altri moduli si lavora su quella; rientrando qui l'immagine torna intera con le
-                 * squadrette dov'erano, quindi il taglio si può allargare o rifare.
-                 * ⚠️⚠️ **NON TAGLIA NIENTE, E QUESTO È IL PUNTO**: il rettangolo era già nel
-                 * modello e il file si salva tagliato comunque, da sempre. Quello che mancava era
-                 * il momento in cui **si vede**, e per questo il tasto scrive un valore
-                 * ([Look.framed]) invece di riscrivere un'immagine.
-                 * ⚠️ **Il glifo e la parola sono quelli dell'editor di casa**, come i tre comandi
-                 * della storia: lo stesso gesto a un tocco di distanza non può avere due segni.
-                 * ⚠️ **Prende il posto di 'Mirato'**, cioè il primo: i due comandi che
-                 * appartengono a un modulo solo vivono nello stesso punto della fila, e chi ne
-                 * impara uno ritrova l'altro.
+                 * ⚠️⚠️ **'APPLICA' NON È PIÙ QUI, DALLA `2.40`, E CON LUI SE NE VANNO I TRE
+                 * COMANDI DEL RITAGLIO**: vivono nel corpo del modulo, tutti e quattro insieme
+                 * (vedi la fila in [ModuleBody]). La ragione è la sua osservazione sul tasto che
+                 * sembrava inutile: una fila di fondo che porta 'Annulla' e 'Ripristina'
+                 * dell'immagine, più un 'Applica' che parla del solo ritaglio, mette nello stesso
+                 * posto due cose che agiscono su due oggetti diversi. Adesso in fondo ci sono i
+                 * comandi dell'immagine e nel modulo quelli del suo ritaglio.
                  */
-                if (chosen.extra == Extra.CROP) {
-                    IconButton(
-                        onClick = {
-                            onLive { it.copy(framed = true) }
-                            onSettled()
-                        },
-                        enabled = ready && !busy && !look.crop.whole && !look.framed
-                    ) {
-                        Icon(Glyphs.EditApply, stringResource(R.string.editor_apply))
-                    }
-                }
                 if (chosen.extra == Extra.BANDS) {
                     IconButton(
                         onClick = { gaze.aiming = !gaze.aiming },
@@ -2514,10 +2588,17 @@ private fun ModuleBody(
                 gaze.shape = one.ordinal
                 onSettled()
             },
-            modifier = Modifier.padding(bottom = 4.dp)
+            /*
+             * ⚠️⚠️ **I TRE BLOCCHI NON PORTANO PIÙ UN DISTACCO SCRITTO A MANO, DALLA `2.40`, E
+             * NON È UNA SPREMITURA**: l'aria fra le righe di un modulo la dà [Breathe], che dalla
+             * `2.35` la distribuisce dove avanza; scritta anche qui si sommava alla sua, e nel
+             * Ritaglio, che è il modulo più fitto, era l'unica a esserci. Toglierla lascia posto
+             * ai quattro comandi e mette lo spazio dove il pannello lo mette dappertutto.
+             */
+            modifier = Modifier
         )
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             for (one in Lay.entries) {
@@ -2584,8 +2665,87 @@ private fun ModuleBody(
                     enabled = live
                 ) { pose(Spin(1, false)) }
             ),
-            modifier = Modifier.padding(bottom = 6.dp)
+            modifier = Modifier
         )
+        /*
+         * ⚠️⚠️ **I QUATTRO COMANDI DEL RITAGLIO VIVONO QUI, DALLA `2.40`, ED È LA SUA
+         * RICHIESTA** (2026-09-14: *apparissero dei tasti 'Annulla'/'Ripristina'/'Azzera' SOLO
+         * PER IL RITAGLIO (magari posizionati altrove e chiamati 'Indietro'/'Avanti'/'Azzera')*).
+         * Il *magari altrove* era una possibilità e la scelta è mia: stanno **tutti e quattro
+         * insieme** dentro il modulo, e la fila di fondo torna a portare i soli comandi
+         * dell'immagine. Due storie con gli stessi gesti a mezzo centimetro di distanza sono due
+         * cose che si scambiano, e 'Applica' in fondo era proprio il caso che lui ha notato.
+         * ⚠️⚠️ **NON È UN [ActionPad], E LA RAGIONE È UNA MISURA, NON UNO STILE**: una cella di
+         * quel pezzo è alta 64 punti anche senza etichetta, e il corpo del Ritaglio ne aveva
+         * **30** liberi prima di superare le Curve, che dalla `2.33` è il modulo che detta
+         * l'altezza della scheda (misurato: Ritaglio 208, Curve 238). Con quella fila il Ritaglio
+         * arrivava a 278, cioè la scheda cresceva di 40 punti **in tutti e sette i moduli** e sul
+         * banco il palco andava a **zero**: è il difetto della `2.23` rifatto, e l'hanno preso le
+         * prove sui pixel.
+         * ⚠️⚠️ **QUINDI LA RIGA È ALTA [CROP_CMD_ROW], CHE È LA MISURA DI RIGA DI QUESTA
+         * SCHEDA**: quanto un chip delle forme, e quattro punti sotto [DIAL_ROW]. ⚠️ **Il
+         * bersaglio non è quello che si perde**: le quattro celle si dividono tutta la larghezza,
+         * quindi ognuna è larga una settantina di punti, cioè più di un `IconButton` di Material;
+         * l'altezza è sotto i suoi 48 come già la riga di un cursore, che porta la stessa nota.
+         * ⚠️ **Il nome vive nella descrizione parlata**, come nei sette gettoni dei moduli: è
+         * quello che un lettore di schermo annuncia e quello che il banco cerca.
+         */
+        val portata = relativeTo(look.framing.shown, look.crop)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            CropCmd(
+                icon = Icons.AutoMirrored.Filled.ArrowBack,
+                label = R.string.editor_crop_back,
+                enabled = live && look.framing.undoable
+            ) {
+                onLive { k ->
+                    val prima = k.framing.back()
+                    k.copy(framing = prima, crop = prima.shown ?: ImageEdit.Crop.WHOLE)
+                }
+                onSettled()
+            }
+            CropCmd(
+                icon = Icons.AutoMirrored.Filled.ArrowForward,
+                label = R.string.editor_crop_on,
+                enabled = live && look.framing.redoable
+            ) {
+                onLive { k ->
+                    val dopo = k.framing.on()
+                    k.copy(framing = dopo, crop = dopo.shown ?: ImageEdit.Crop.WHOLE)
+                }
+                onSettled()
+            }
+            /*
+             * ⚠️ **Si accende quando c'è qualcosa da applicare**, cioè quando il rettangolo vivo è
+             * più piccolo della porzione che si vede: applicare un rettangolo che la copre tutta
+             * non cambierebbe niente, e un tasto acceso che non fa niente è peggio di uno spento.
+             */
+            CropCmd(
+                icon = Glyphs.EditApply,
+                label = R.string.editor_apply,
+                enabled = live && !portata.whole
+            ) {
+                onLive { k -> k.copy(framing = k.framing.applied(k.crop)) }
+                onSettled()
+            }
+            /*
+             * ⚠️ **'Azzera' guarda il solo ritaglio e non la posa**, al contrario del tocco lungo
+             * sul gettone del modulo: quello rimette a nuovo il modulo intero, questo risponde
+             * alla domanda *rivoglio l'immagine tutta quanta*.
+             */
+            CropCmd(
+                icon = Icons.Filled.CropFree,
+                label = R.string.editor_crop_clear,
+                enabled = live && (!look.crop.whole || look.framing.undoable)
+            ) {
+                onLive { k ->
+                    k.copy(framing = Framing.NONE, crop = ImageEdit.Crop.WHOLE)
+                }
+                onSettled()
+            }
+        }
     }
 
     /*
@@ -2820,6 +2980,39 @@ private fun MonoSwitch(
  * nero, e [body] aveva un secondo argomento che chiedeva *dammi il più alto che puoi venire*. Il
  * perché quella riga sia tornata sempre in scena vive su [NOT_MONO].
  */
+/**
+ * Uno dei quattro comandi del ritaglio: un glifo in una cella che si divide la riga con le altre.
+ *
+ * ⚠️ **Il nome vive nella descrizione parlata del glifo**, come nei sette gettoni dei moduli: la
+ * riga è alta [CROP_CMD_ROW] e una parola là sotto non ci starebbe, ma un lettore di schermo la
+ * annuncia lo stesso, ed è anche quello che il banco cerca.
+ * ⚠️ **Il tocco vive sulla cella e non sul glifo**, quindi il bersaglio è largo un quarto di riga:
+ * è il modo in cui questa fila compra in larghezza l'altezza che non ha.
+ */
+@Composable
+private fun RowScope.CropCmd(
+    icon: ImageVector,
+    label: Int,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .height(CROP_CMD_ROW)
+            .clip(RoundedCornerShape(CROP_CMD_ROUND))
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = stringResource(label),
+            modifier = Modifier.size(CROP_CMD_ICON),
+            tint = LocalContentColor.current.copy(alpha = if (enabled) 1f else OFF_INK)
+        )
+    }
+}
+
 @Composable
 internal fun SteadyBody(
     slots: Int,
@@ -3081,11 +3274,24 @@ private fun CurveBoard(
     val line = with(LocalDensity.current) { BOARD_LINE.toPx() }
     val pad = with(LocalDensity.current) { BOARD_PAD.toPx() }
 
+    /*
+     * ⚠️⚠️ **LA CURVA SI LEGGE VIVA, E LA CHIAVE NON LA PORTA PIÙ: È LA CORREZIONE DELLA `2.40`**
+     * (sua richiesta, 2026-09-14: *toccare un punto libero e trascinarlo dovrebbe sia aggiungere un
+     * nuovo punto che spostarlo creando la curva*). Fino alla `2.39` la chiave del rilevatore
+     * portava il **numero di punti**, quindi l'istante in cui il gesto ne faceva nascere uno
+     * cambiava la chiave e Compose **annullava il rilevatore in corso**: il punto compariva e il
+     * dito non lo muoveva più. Il codice era giusto, il gesto partiva, e la metà che lui chiedeva
+     * non arrivava mai.
+     * ⚠️ **La chiave portava il conto perché il corpo catturava la curva**, che è il difetto vero:
+     * con uno stato aggiornato quel bisogno non c'è, e il gesto legge sempre l'ultima.
+     */
+    val viva by rememberUpdatedState(curve)
+
     Canvas(
         modifier = modifier
             .height(BOARD_H)
             .semantics { contentDescription = board }
-            .pointerInput(enabled, curve.knots.size) {
+            .pointerInput(enabled) {
                 if (!enabled) return@pointerInput
                 val wide = (size.width - 2 * pad).coerceAtLeast(1f)
                 val tall = (size.height - 2 * pad).coerceAtLeast(1f)
@@ -3097,7 +3303,7 @@ private fun CurveBoard(
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     val x = atOf(down.position)
-                    val near = curve.nearest(x)
+                    val near = viva.nearest(x)
                     /*
                      * ⚠️ **Il tempo si misura qui e non dentro il ciclo degli eventi**, per la
                      * ragione scritta su [settled]: un dito fermo non genera nessun evento, quindi
@@ -3120,15 +3326,44 @@ private fun CurveBoard(
                      * finito il punto, e da lì in poi il gesto muove quello. Ricavarlo dopo, dalla
                      * curva viva, vorrebbe dire cercarlo a ogni fotogramma mentre si sposta.
                      */
-                    val i = if (near >= 0) near else curve.grow(x).second
+                    val i = if (near >= 0) near else viva.grow(x).second
                     if (near < 0) {
                         onEdit { it.grow(x).first }
                     }
                     if (esito == Settled.MOVED) {
+                        /*
+                         * ⚠️⚠️ **UN ESTREMO TRASCINATO LASCIA UN PUNTO AL BORDO, DALLA `2.40`, ED È
+                         * SUA RICHIESTA** (2026-09-14: *se trascino il punto iniziale a destra o il
+                         * finale a sinistra, dovrebbero muoversi lasciando la loro vecchia
+                         * posizione ad un nuovo punto allo stesso livello*). Il gemello nasce
+                         * **qui**, cioè quando il gesto è già un trascinamento: un tocco secco su
+                         * un estremo non deve lasciare niente dietro di sé.
+                         * ⚠️ **L'indice del punto mosso scala di uno** quando il gemello entra in
+                         * testa, e resta dov'è quando entra in coda: da quel momento il dito muove
+                         * un punto come gli altri, che si sposta anche in orizzontale.
+                         * ⚠️ **Al tetto dei punti non si fa niente**, e l'estremo resta un estremo:
+                         * [Curve.pin] risponde la curva com'è, quindi l'indice non va toccato.
+                         */
+                        val estremi = viva.knots.lastIndex
+                        val bordo = (i == 0 || i == estremi) && viva.knots.size < Curve.MAX_KNOTS
+                        val testa = i == 0
+                        if (bordo) onEdit { it.pin(testa) }
+                        val quale = if (bordo && testa) 1 else i
+                        val gemello = if (!bordo) -1 else if (testa) 0 else i + 1
                         drag(down.id) { change ->
-                            onEdit { it.move(i, atOf(change.position), toOf(change.position)) }
+                            onEdit {
+                                it.move(
+                                    quale,
+                                    atOf(change.position),
+                                    toOf(change.position),
+                                    gemello
+                                )
+                            }
                             change.consume()
                         }
+                        // ⚠️ **Il gemello rimasto a filo se ne va**: chi porta l'estremo dentro e
+                        // poi lo riporta indietro non si ritrova due punti l'uno sull'altro.
+                        if (bordo) onEdit { it.tidy() }
                     }
                     onSettled()
                 }

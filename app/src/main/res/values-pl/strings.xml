@@ -505,6 +505,9 @@
     <string name="editor_shape_original">Oryginalne</string>
     <string name="editor_save">Zapisz</string>
     <string name="editor_apply">Zastosuj</string>
+    <string name="editor_crop_back">Kadr wstecz</string>
+    <string name="editor_crop_on">Kadr dalej</string>
+    <string name="editor_crop_clear">Resetuj kadr</string>
     <string name="editor_undo">Cofnij</string>
     <string name="editor_redo">Ponów</string>
     <string name="editor_original">Oryginał</string>

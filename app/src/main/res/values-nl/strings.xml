@@ -473,6 +473,9 @@
     <string name="editor_shape_original">Origineel</string>
     <string name="editor_save">Opslaan</string>
     <string name="editor_apply">Toepassen</string>
+    <string name="editor_crop_back">Uitsnede terug</string>
+    <string name="editor_crop_on">Uitsnede vooruit</string>
+    <string name="editor_crop_clear">Uitsnede resetten</string>
     <string name="editor_undo">Ongedaan maken</string>
     <string name="editor_redo">Opnieuw</string>
     <string name="editor_original">Origineel</string>

@@ -136,6 +136,9 @@
     <string name="editor_wide">Orizzontale</string>
     <string name="editor_save">Salva</string>
     <string name="editor_apply">Applica</string>
+    <string name="editor_crop_back">Indietro nel ritaglio</string>
+    <string name="editor_crop_on">Avanti nel ritaglio</string>
+    <string name="editor_crop_clear">Azzera il ritaglio</string>
     <string name="editor_undo">Annulla</string>
     <string name="editor_redo">Ripristina</string>
     <string name="editor_original">Azzera</string>

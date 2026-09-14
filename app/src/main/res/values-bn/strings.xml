@@ -473,6 +473,9 @@
     <string name="editor_shape_original">আসল</string>
     <string name="editor_save">সংরক্ষণ করুন</string>
     <string name="editor_apply">প্রয়োগ করুন</string>
+    <string name="editor_crop_back">ক্রপে পিছনে</string>
+    <string name="editor_crop_on">ক্রপে সামনে</string>
+    <string name="editor_crop_clear">ক্রপ রিসেট করুন</string>
     <string name="editor_undo">পূর্বাবস্থা</string>
     <string name="editor_redo">পুনরায় করুন</string>
     <string name="editor_original">মূল</string>

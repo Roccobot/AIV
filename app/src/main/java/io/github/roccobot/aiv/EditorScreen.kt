@@ -1272,7 +1272,9 @@ private fun CropStage(
                 detectDragGestures(
                     onDragStart = { at ->
                         going = cropBox(now, frame)
-                        held = grabbed(at, going, grip)
+                        // ⚠️ **Le maniglie di lato ci sono con la sola forma libera**, dalla
+                        // `2.40`: il perché vive su [grabbed], e il disegno dice la stessa cosa.
+                        held = grabbed(at, going, grip, keep == null)
                     },
                     onDragEnd = { held = Grab.NONE },
                     onDragCancel = { held = Grab.NONE }
@@ -1291,7 +1293,7 @@ private fun CropStage(
                 dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt())
             )
             val r = cropBox(crop, frame)
-            cropOverlay(frame, r, arm, thick, halo)
+            cropOverlay(frame, r, arm, thick, halo, keep == null)
 
             // ── La lente ──
             eyeOf(held, r)?.let { eye ->
@@ -1321,7 +1323,15 @@ private fun CropStage(
  * ⚠️ **I terzi si disegnano sempre e non solo mentre si trascina**: sono la ragione per cui un
  * ritaglio viene dritto, e comparendo solo al tocco arriverebbero dopo che la decisione è presa.
  */
-internal fun DrawScope.cropOverlay(frame: Rect, r: Rect, arm: Float, thick: Float, halo: Float) {
+internal fun DrawScope.cropOverlay(
+    frame: Rect,
+    r: Rect,
+    arm: Float,
+    thick: Float,
+    halo: Float,
+    /** Se si disegnano anche le quattro maniglie di lato: vedi [grabbed]. */
+    sides: Boolean = true
+) {
     val dim = Color.Black.copy(alpha = VEIL)
     val line = Color.White
     // Il velo, in quattro pezzi intorno al rettangolo tenuto.
@@ -1348,6 +1358,62 @@ internal fun DrawScope.cropOverlay(frame: Rect, r: Rect, arm: Float, thick: Floa
     bracket(Offset(r.right, r.top), -1, 1, reach, thick, CROP_GRIP, halo, line)
     bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, CROP_GRIP, halo, line)
     bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, CROP_GRIP, halo, line)
+    /*
+     * ⚠️⚠️ **LE QUATTRO BARRETTE DI LATO, DALLA `2.40`**: dicono che quel bordo si muove da solo,
+     * ed è il gesto che lui ha chiesto. ⚠️ **Il segno è diverso da quello degli angoli di
+     * proposito**: una squadretta appoggiata a due lati dice *muovo tutti e due*, un tratto dritto
+     * dice *muovo questo*, e due segni uguali per due gesti diversi sarebbero una promessa falsa.
+     * ⚠️ **Si accorciano come i bracci**: su un rettangolo stretto un tratto lungo quanto il
+     * braccio toccherebbe le due squadrette del suo lato.
+     */
+    if (!sides) return
+    val half = min(arm, min(r.width, r.height) / 4f)
+    bar(Offset(r.left, r.center.y), false, -1, half, thick, CROP_GRIP, halo, line)
+    bar(Offset(r.right, r.center.y), false, 1, half, thick, CROP_GRIP, halo, line)
+    bar(Offset(r.center.x, r.top), true, -1, half, thick, CROP_GRIP, halo, line)
+    bar(Offset(r.center.x, r.bottom), true, 1, half, thick, CROP_GRIP, halo, line)
+}
+
+/**
+ * Una maniglia di lato: un tratto dritto appoggiato FUORI dal rettangolo, centrato su [at].
+ *
+ * ⚠️⚠️ **FUORI COME LE SQUADRETTE, E PER LA STESSA RAGIONE MISURATA** (vedi [bracket]): dentro
+ * appoggerebbe sull'immagine non velata, dove su una schermata bianca il bianco su bianco sparisce;
+ * fuori appoggia sul velo, che è il fondo su cui l'accento e il suo filo si vedono sempre.
+ * ⚠️ **L'alone è lo stesso tratto più grosso disegnato prima**, come nella squadretta: un contorno
+ * di spessore uniforme, capi compresi, senza nessuna cucitura da nascondere.
+ *
+ * [horizontal] dice se il tratto corre in orizzontale, cioè se è la maniglia del lato di sopra o di
+ * sotto; [out] vale `1` se da quel bordo si esce verso destra o verso il basso, `-1` se no.
+ */
+private fun DrawScope.bar(
+    at: Offset,
+    horizontal: Boolean,
+    out: Int,
+    half: Float,
+    thick: Float,
+    ink: Color,
+    halo: Float,
+    haloInk: Color
+) {
+    val c = if (horizontal) {
+        Offset(at.x, at.y + out * thick / 2f)
+    } else {
+        Offset(at.x + out * thick / 2f, at.y)
+    }
+    val da = if (horizontal) Offset(c.x - half, c.y) else Offset(c.x, c.y - half)
+    val a = if (horizontal) Offset(c.x + half, c.y) else Offset(c.x, c.y + half)
+
+    fun traccia(spessore: Float, colore: Color) = drawLine(
+        color = colore,
+        start = da,
+        end = a,
+        strokeWidth = spessore,
+        cap = StrokeCap.Round
+    )
+
+    traccia(thick + 2f * halo, haloInk)
+    traccia(thick, ink)
 }
 
 /**
@@ -1364,6 +1430,12 @@ private fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
     Grab.TOP_RIGHT -> r.topRight
     Grab.BOTTOM_LEFT -> r.bottomLeft
     Grab.BOTTOM_RIGHT -> r.bottomRight
+    /*
+     * ⚠️ **Nemmeno le quattro maniglie di lato, dalla `2.40`**: là quello che si muove è una
+     * **retta** e non un punto, quindi non c'è un pixel da ingrandire. È la stessa ragione per
+     * cui lo spostamento del rettangolo intero non ha una lente.
+     */
+    Grab.LEFT, Grab.TOP, Grab.RIGHT, Grab.BOTTOM -> null
     Grab.INSIDE, Grab.NONE -> null
 }
 
@@ -1476,8 +1548,16 @@ private fun DrawScope.lens(
     drawCircle(color = line, radius = radius, center = centre, style = Stroke(width = thick))
 }
 
-/** Quale presa ha preso il dito. */
-internal enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, INSIDE }
+/**
+ * Quale presa ha preso il dito.
+ *
+ * ⚠️⚠️ **I QUATTRO LATI SONO NATI CON LA `2.40`, ED È SUA RICHIESTA** (2026-09-14: *Il 'Ritaglio'
+ * dovrebbe avere anche delle maniglie a metà dei lati, non solo negli angoli: servirebbero a
+ * trascinare solo il lato, senza modificare l'altra dimensione*). Un angolo muove due bordi, un
+ * lato ne muove uno: sono due gesti diversi, e fino alla `2.39` il secondo si poteva solo imitare
+ * tirando un angolo e rimettendo a posto l'altro bordo.
+ */
+internal enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, LEFT, TOP, RIGHT, BOTTOM, INSIDE }
 
 /**
  * Una squadretta d'angolo: due bracci arrotondati appoggiati FUORI dal rettangolo.
@@ -1552,13 +1632,35 @@ internal fun DrawScope.bracket(
     traccia(thick, ink)
 }
 
-internal fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
-    val near = listOf(
+/**
+ * Quale maniglia prende il dito che scende in [at], dato il rettangolo [r].
+ *
+ * ⚠️⚠️ **I QUATTRO LATI CI SONO SOLO CON LA FORMA LIBERA, DALLA `2.40`, ED È LA SUA FRASE LETTA
+ * ALLA LETTERA** (*servirebbero a trascinare solo il lato, senza modificare l'altra dimensione*):
+ * con un rapporto forzato quella promessa non si può mantenere, perché muovere un lato cambia
+ * l'altro per definizione. Quindi là i lati non si prendono, e il disegno lo dice non mostrandoli.
+ * [sides] lo dichiara il chiamante, che è quello che sa se una forma è scelta.
+ */
+internal fun grabbed(at: Offset, r: Rect, grip: Float, sides: Boolean = true): Grab {
+    val angoli = listOf(
         Grab.TOP_LEFT to Offset(r.left, r.top),
         Grab.TOP_RIGHT to Offset(r.right, r.top),
         Grab.BOTTOM_LEFT to Offset(r.left, r.bottom),
         Grab.BOTTOM_RIGHT to Offset(r.right, r.bottom)
-    ).minByOrNull { (_, corner) -> (corner - at).getDistance() }
+    )
+    /*
+     * ⚠️ **I lati entrano nello stesso confronto degli angoli e non in un secondo giro**: su un
+     * rettangolo piccolo un angolo e il mezzo del lato accanto cadono tutti e due nella presa, e
+     * con due passate vincerebbe sempre quella scritta per prima invece del punto più vicino al
+     * dito.
+     */
+    val lati = if (!sides) emptyList() else listOf(
+        Grab.LEFT to Offset(r.left, r.center.y),
+        Grab.RIGHT to Offset(r.right, r.center.y),
+        Grab.TOP to Offset(r.center.x, r.top),
+        Grab.BOTTOM to Offset(r.center.x, r.bottom)
+    )
+    val near = (angoli + lati).minByOrNull { (_, corner) -> (corner - at).getDistance() }
     if (near != null && (near.second - at).getDistance() <= grip) {
         // ⚠️⚠️ **MA NON QUANDO IL DITO È PIÙ VICINO AL CENTRO CHE ALL'ANGOLO**: su un ritaglio
         // piccolo tutti e quattro gli angoli cadono dentro la presa, e senza questo confronto
@@ -1617,6 +1719,12 @@ internal fun dragged(
         Grab.TOP_RIGHT -> { right += delta.x; top += delta.y }
         Grab.BOTTOM_LEFT -> { left += delta.x; bottom += delta.y }
         Grab.BOTTOM_RIGHT -> { right += delta.x; bottom += delta.y }
+        // ⚠️ **Un lato muove il suo bordo e basta**, dalla `2.40`: è la differenza fra le due
+        // famiglie di maniglie, ed è quello che ha chiesto (*senza modificare l'altra dimensione*).
+        Grab.LEFT -> left += delta.x
+        Grab.RIGHT -> right += delta.x
+        Grab.TOP -> top += delta.y
+        Grab.BOTTOM -> bottom += delta.y
         else -> Unit
     }
     /*
@@ -1629,7 +1737,17 @@ internal fun dragged(
     top = within(top, frame.top, bottom - small)
     bottom = within(bottom, top + small, frame.bottom)
 
-    if (keep == null) return Rect(left, top, right, bottom)
+    /*
+     * ⚠️ **Con una presa di lato il rapporto non si tiene, e il caso non arriva qui**: i lati
+     * esistono solo con la forma libera (vedi [grabbed]), e la guardia è scritta lo stesso perché
+     * un chiamante nuovo che se ne dimenticasse otterrebbe un rettangolo tirato da un'ancora che
+     * non è la sua, cioè un movimento che nessuno ha chiesto.
+     */
+    if (keep == null || held == Grab.LEFT || held == Grab.RIGHT ||
+        held == Grab.TOP || held == Grab.BOTTOM
+    ) {
+        return Rect(left, top, right, bottom)
+    }
 
     // L'angolo che sta fermo è quello opposto a quello preso.
     val anchorX = if (held == Grab.TOP_LEFT || held == Grab.BOTTOM_LEFT) right else left

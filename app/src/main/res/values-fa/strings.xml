@@ -473,6 +473,9 @@
     <string name="editor_shape_original">اصلی</string>
     <string name="editor_save">ذخیره</string>
     <string name="editor_apply">اعمال</string>
+    <string name="editor_crop_back">بازگشت در برش</string>
+    <string name="editor_crop_on">جلو در برش</string>
+    <string name="editor_crop_clear">بازنشانی برش</string>
     <string name="editor_undo">واگرد</string>
     <string name="editor_redo">انجام دوباره</string>
     <string name="editor_original">اصل</string>

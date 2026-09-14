@@ -473,6 +473,9 @@
     <string name="editor_shape_original">मूल</string>
     <string name="editor_save">सहेजें</string>
     <string name="editor_apply">लागू करें</string>
+    <string name="editor_crop_back">क्रॉप में पीछे</string>
+    <string name="editor_crop_on">क्रॉप में आगे</string>
+    <string name="editor_crop_clear">क्रॉप रीसेट करें</string>
     <string name="editor_undo">पूर्ववत</string>
     <string name="editor_redo">फिर से करें</string>
     <string name="editor_original">मूल</string>

@@ -90,6 +90,19 @@ private val POSA = listOf(
 /** Le sei forme del ritaglio: le due che si dicono a parole, e le quattro proporzioni. */
 private val FORME = listOf("1:1", "2:3", "3:4", "9:16")
 
+/**
+ * I quattro comandi che vivono nel modulo Ritaglio dalla `2.40`, cioè la sua storia.
+ *
+ * ⚠️ **'Applica' è fra loro e non più nella fila di fondo**: la fila in fondo alla scheda porta i
+ * comandi dell'**immagine**, questi parlano del solo ritaglio.
+ */
+private val CROP_CMD = listOf(
+    R.string.editor_crop_back,
+    R.string.editor_crop_on,
+    R.string.editor_apply,
+    R.string.editor_crop_clear
+)
+
 /** I nomi delle otto fasce, per contare le pastiglie in scena senza ricopiarne l'elenco. */
 private val BANDE = listOf(
     R.string.look_band_red,
@@ -1384,6 +1397,13 @@ class SviluppoTest {
      * ⚠️ **E la seconda metà è che sopra quel bianco ci sia la squadretta**: senza, la prova
      * direbbe soltanto che l'immagine è più piccola, non che quello spazio serve a qualcosa.
      */
+    /*
+     * ⚠️⚠️ **LA SCENA È GRANDE, DALLA `2.40`, E IL BANCO L'HA IMPOSTA**: in quella di serie il palco
+     * viene largo 320 e alto una quarantina di punti, quindi l'immagine quadrata occupa una striscia
+     * in mezzo e **ogni** sua riga è attraversata dal braccio di una squadretta d'angolo. Con una
+     * scena grande esiste una riga libera, che è quello che questa misura cerca.
+     */
+    @Config(qualifiers = "w600dp-h900dp")
     @Test
     fun `col ritaglio l'immagine lascia l'aria alle squadrette`() {
         banco.setContent { Scena() }
@@ -1394,7 +1414,13 @@ class SviluppoTest {
         val scatto = banco.onNodeWithContentDescription(testo(R.string.look_compare))
             .captureToImage().toPixelMap()
         val fondo = scatto[0, 0]
-        val mezzo = scatto.width / 2
+        /*
+         * ⚠️⚠️ **LA COLONNA È A UN QUARTO E NON A METÀ, DALLA `2.40`**: là passa la maniglia del
+         * lato di sopra, che si disegna **fuori** dal bordo, quindi il primo pixel diverso dal
+         * fondo sarebbe lei e la misura direbbe zero col codice giusto. Vedi la stessa nota su
+         * [bordi].
+         */
+        val mezzo = scatto.width / 4
         val cima = (0 until scatto.height).firstOrNull { scatto[mezzo, it] != fondo }
         assertNotNull("il palco deve disegnare l'immagine", cima)
         assertTrue(
@@ -1402,7 +1428,7 @@ class SviluppoTest {
             cima!! >= 4
         )
 
-        val riga = scatto.height / 2
+        val riga = scatto.height / 4
         val sinistra = (0 until scatto.width).firstOrNull { scatto[it, riga] != fondo }
         assertNotNull(sinistra)
         assertTrue(
@@ -1749,6 +1775,13 @@ class SviluppoTest {
      * grandezza: **controprovata** rimettendo la condizione di prima, il bordo sinistro passa da
      * 116 a 120, cioè rientra di quattro pixel (i cinque di `CROP_AIR` meno quello di sfumatura).
      */
+    /*
+     * ⚠️⚠️ **LA SCENA È GRANDE, DALLA `2.40`, E IL BANCO L'HA IMPOSTA**: in quella di serie il palco
+     * viene largo 320 e alto una quarantina di punti, quindi l'immagine quadrata occupa una striscia
+     * in mezzo e **ogni** sua riga è attraversata dal braccio di una squadretta d'angolo. Con una
+     * scena grande esiste una riga libera, che è quello che questa misura cerca.
+     */
+    @Config(qualifiers = "w600dp-h900dp")
     @Test
     fun `l'immagine non cambia misura entrando nel Ritaglio`() {
         banco.setContent { Scena() }
@@ -1803,6 +1836,281 @@ class SviluppoTest {
     }
 
     /**
+     * **Caso 44: la storia del ritaglio, cioè quello che i suoi tre comandi fanno.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-14: *apparissero dei tasti 'Annulla'/'Ripristina'/'Azzera'
+     * SOLO PER IL RITAGLIO*), e quello che può rompersi in silenzio è il **verso**: un 'Indietro'
+     * che togliesse l'applicazione senza riportare indietro il rettangolo lascerebbe il palco a
+     * inquadrare una porzione che il modello non ha più.
+     * ⚠️ **Il conto è puro**, quindi si misura chiamandolo: [Framing] è Kotlin e non ha bisogno di
+     * una scena.
+     * ⚠️⚠️ **CONTROPROVATA** facendo ripartire 'Avanti' da una storia già troncata: senza il
+     * `take(at)` l'applicazione nuova lascerebbe in coda quella disfatta, cioè un 'Avanti' che
+     * porta dove nessuno è più passato.
+     */
+    @Test
+    fun `la storia del ritaglio va avanti e indietro`() {
+        val uno = ImageEdit.Crop(0.1f, 0.1f, 0.9f, 0.9f)
+        val due = ImageEdit.Crop(0.2f, 0.2f, 0.6f, 0.6f)
+
+        assertNull("a riposo il palco vede l'immagine intera", Framing.NONE.shown)
+        assertFalse("e non c'è niente da disfare", Framing.NONE.undoable)
+        assertFalse("né da rifare", Framing.NONE.redoable)
+
+        val primo = Framing.NONE.applied(uno)
+        assertEquals("applicato, il palco inquadra il taglio", uno, primo.shown)
+        assertTrue(primo.undoable)
+        assertFalse(primo.redoable)
+
+        val secondo = primo.applied(due)
+        assertEquals(due, secondo.shown)
+
+        val indietro = secondo.back()
+        assertEquals("'Indietro' torna al taglio di prima", uno, indietro.shown)
+        assertTrue("e 'Avanti' ha qualcosa da fare", indietro.redoable)
+        assertEquals("'Avanti' rimette quello disfatto", due, indietro.on().shown)
+
+        // ⚠️ Un'applicazione nuova tronca la coda: da qui la strada è un'altra.
+        val altro = ImageEdit.Crop(0f, 0f, 0.5f, 0.5f)
+        val deviata = indietro.applied(altro)
+        assertEquals(altro, deviata.shown)
+        assertFalse("la strada abbandonata non si rifà", deviata.redoable)
+        assertEquals("e la storia non cresce a vuoto", 2, deviata.steps.size)
+
+        // ⚠️ Un taglio che copre tutto non è una porzione da inquadrare, e vale `null`.
+        assertNull(Framing.NONE.applied(ImageEdit.Crop.WHOLE).shown)
+    }
+
+    /**
+     * **Caso 45: i quattro comandi del ritaglio vivono nel suo modulo, e 'Applica' non è più in
+     * fondo.**
+     *
+     * ⚠️⚠️ **È LA METÀ DELLA SUA RICHIESTA CHE SI VEDE** (2026-09-14: *magari posizionati altrove*),
+     * e la controprova è in un altro modulo: senza di lei la misura direbbe soltanto che tre parole
+     * esistono da qualche parte nella scheda.
+     * ⚠️ **Si contano le descrizioni parlate**, che è quello che un gettone annuncia: le etichette
+     * scritte dipendono dall'interruttore delle etichette, la descrizione no.
+     */
+    @Test
+    fun `il ritaglio porta i suoi quattro comandi e nessun altro modulo li ha`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        modulo(R.string.look_light)
+        for (id in CROP_CMD) {
+            assertEquals("nella Luce ${testo(id)} non ci deve essere", 0, quantiDetti(id))
+        }
+
+        modulo(R.string.look_crop)
+        for (id in CROP_CMD) {
+            assertEquals("nel Ritaglio manca ${testo(id)}", 1, quantiDetti(id))
+        }
+    }
+
+    /**
+     * **Caso 46: 'Applica' taglia davvero, e 'Azzera' rimette l'immagine intera.**
+     *
+     * ⚠️⚠️ **È IL CUORE DELLA SUA RICHIESTA** (*Potrebbe avere senso se fosse applicato
+     * effettivamente anche nel modulo Ritaglio (resta solo la parte ritagliata)*): fino alla `2.39`
+     * dentro il Ritaglio l'immagine tornava intera, quindi quel tasto non faceva niente che si
+     * vedesse proprio nel modulo in cui lo si tocca.
+     * ⚠️ **Si guardano i PIXEL e non lo stato**, perché quello che deve cambiare è il disegno:
+     * applicando, il palco inquadra la porzione, e l'immagine si vede più larga di prima.
+     * ⚠️⚠️ **IL BANCO HA IMPOSTO LA SCENA GRANDE**, come nel caso 36: col palco di serie non ci sta
+     * un rettangolo col suo lato minimo, e il gesto che tira la squadretta non avrebbe spazio.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `applica taglia davvero e azzera rimette l'immagine intera`() {
+        banco.setContent { Scena() }
+        pronta()
+        modulo(R.string.look_crop)
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val intera = bordi(palco.captureToImage().toPixelMap())
+
+        // Si tira la squadretta di sinistra verso il centro: il rettangolo si stringe.
+        palco.performTouchInput { down(Offset(intera.first + 2f, 2f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { moveTo(Offset(width / 2f, height / 3f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+
+        val applica = banco.onNodeWithContentDescription(testo(R.string.editor_apply))
+        applica.assertIsEnabled()
+        applica.performClick()
+        banco.waitForIdle()
+
+        /*
+         * ⚠️⚠️ **SI MISURA IL RAPPORTO E NON I SOLI BORDI, ED È LA CONTROPROVA A IMPORLO**: con la
+         * condizione della `2.39` rimessa a mano (il taglio applicato che dentro il Ritaglio non si
+         * vede) i bordi cambiano **lo stesso**, perché il velo che copre il fuori se ne va quando
+         * il rettangolo torna intero, e il primo pixel diverso dal fondo si sposta con lui. Quello
+         * che quella condizione non può dare è la **forma**: l'immagine di prova è quadrata, la
+         * porzione tirata è più alta che larga, e il palco che la inquadra lo dice.
+         */
+        val scattoDopo = palco.captureToImage().toPixelMap()
+        val tagliata = bordi(scattoDopo)
+        val quadra = forma(scattoDopo)
+        assertTrue(
+            "applicando, il palco deve inquadrare la porzione: ${intera.first}..${intera.second}" +
+                " resta ${tagliata.first}..${tagliata.second}",
+            tagliata != intera
+        )
+        assertTrue(
+            "e la porzione è più alta che larga: il rapporto resta $quadra",
+            quadra < 0.9f
+        )
+
+        banco.onNodeWithContentDescription(testo(R.string.editor_crop_clear)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "'Azzera taglio' deve rimettere l'immagine intera",
+            intera,
+            bordi(palco.captureToImage().toPixelMap())
+        )
+    }
+
+    /**
+     * **Caso 47: le maniglie di lato muovono un bordo solo, e con una forma scelta non ci sono.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-14: *delle maniglie a metà dei lati ... servirebbero a
+     * trascinare solo il lato, senza modificare l'altra dimensione*), e la seconda metà è la
+     * lettura alla lettera di quella frase: con un rapporto forzato quella promessa non si può
+     * mantenere, quindi là i lati non si prendono.
+     * ⚠️ **Il conto è puro**: [grabbed] e [dragged] sono funzioni, e si misurano chiamandole.
+     */
+    @Test
+    fun `le maniglie di lato muovono un bordo solo`() {
+        val r = Rect(20f, 20f, 120f, 220f)
+        val frame = Rect(0f, 0f, 200f, 300f)
+
+        assertEquals(
+            "il dito sul mezzo del lato sinistro prende quel lato",
+            Grab.LEFT,
+            grabbed(Offset(22f, 120f), r, 40f)
+        )
+        assertEquals(Grab.TOP, grabbed(Offset(70f, 22f), r, 40f))
+        assertEquals(
+            "e l'angolo vince quando il dito è più vicino a lui",
+            Grab.TOP_LEFT,
+            grabbed(Offset(22f, 24f), r, 40f)
+        )
+        assertEquals(
+            "con una forma scelta i lati non si prendono",
+            Grab.INSIDE,
+            grabbed(Offset(22f, 120f), r, 40f, sides = false)
+        )
+
+        val tirato = dragged(r, Grab.LEFT, Offset(30f, 40f), frame, null, 10f)
+        assertEquals("il lato sinistro segue il dito", 50f, tirato.left, 0.01f)
+        assertEquals("e l'altra dimensione non si muove", r.top, tirato.top, 0.01f)
+        assertEquals(r.bottom, tirato.bottom, 0.01f)
+        assertEquals(r.right, tirato.right, 0.01f)
+
+        val sotto = dragged(r, Grab.BOTTOM, Offset(30f, 40f), frame, null, 10f)
+        assertEquals(260f, sotto.bottom, 0.01f)
+        assertEquals("e i due fianchi restano dove sono", r.left, sotto.left, 0.01f)
+        assertEquals(r.right, sotto.right, 0.01f)
+    }
+
+    /**
+     * **Caso 48: nelle Curve un punto nasce e si muove nello stesso gesto.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-14: *toccare un punto libero e trascinarlo dovrebbe sia
+     * aggiungere un nuovo punto che spostarlo creando la curva*), e la causa era la **chiave** del
+     * rilevatore: portava il numero di punti, quindi l'istante in cui il gesto ne faceva nascere uno
+     * annullava il gesto stesso. Il codice era giusto e la metà che lui chiedeva non arrivava mai.
+     * ⚠️⚠️ **I TRE MOMENTI DEL DITO VANNO IN TRE CHIAMATE**, come nel caso 36: scritti in un blocco
+     * solo il movimento e il distacco arrivano insieme, e a valle resta un evento con delta zero.
+     * ⚠️ **Si misura che il punto sia NATO e SPOSTATO**: il primo lo dice il conto dei punti, il
+     * secondo che la curva non sia più l'identità.
+     * ⚠️⚠️ **MA IL DIFETTO DELLA CHIAVE IL BANCO NON LO VEDE, E SI SCRIVE COSÌ INVECE DI FINGERE**:
+     * rimettendola a mano questa prova resta **verde**, perché i tre momenti del dito arrivano in
+     * tre chiamate separate e il nodo ricostruito fra l'una e l'altra riprende il gesto, cosa che
+     * su un telefono non succede. Quello che presidia è che il gesto **faccia** le due cose, ed è
+     * ⚠️⚠️ **CONTROPROVATO** togliendo la nascita del punto: là diventa rossa.
+     */
+    @Test
+    fun `nelle curve un punto nasce e si muove nello stesso gesto`() {
+        banco.setContent { Scena() }
+        pronta()
+        modulo(R.string.look_tone)
+
+        val grafico = banco.onNodeWithContentDescription(testo(R.string.look_tone_board))
+        val prima = grafico.captureToImage().toPixelMap()
+
+        grafico.performTouchInput { down(Offset(width * 0.5f, height * 0.5f)) }
+        banco.waitForIdle()
+        grafico.performTouchInput { moveTo(Offset(width * 0.5f, height * 0.2f)) }
+        banco.waitForIdle()
+        grafico.performTouchInput { up() }
+        banco.waitForIdle()
+
+        assertTrue(
+            "il punto doveva nascere e seguire il dito: il grafico non è cambiato",
+            diversi(prima, grafico.captureToImage().toPixelMap()) > 0
+        )
+        assertTrue(
+            "e il modulo deve dichiararsi toccato",
+            quantiDetti(R.string.look_tone) > 0
+        )
+    }
+
+    /**
+     * **Caso 49: un estremo trascinato dentro lascia un punto al bordo, allo stesso livello.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-14: *se trascino il punto iniziale a destra o il finale a
+     * sinistra, dovrebbero muoversi lasciando la loro vecchia posizione ad un nuovo punto allo
+     * stesso livello*), ed è il comportamento degli strumenti che usa: fra il bordo e il punto
+     * trascinato il tratto resta **piatto**.
+     * ⚠️ **Il conto è puro**: il gemello lo fa [Curve.pin], il livello lo tiene [Curve.move] col suo
+     * `edge`, e quello rimasto a filo lo toglie [Curve.tidy].
+     * ⚠️⚠️ **CONTROPROVATA** togliendo l'`edge`: il bordo resta al valore di partenza, quindi fra i
+     * due punti c'è una rampa e la tabella non è più piatta all'inizio. ⚠️ **Il conto e non il
+     * chiamante**: che il gesto chiami [Curve.pin] lo misura il caso 48, e rimettendo quel difetto
+     * qui non cambia niente, perché questa prova non monta nessuna scena.
+     */
+    @Test
+    fun `un estremo trascinato lascia un punto al bordo`() {
+        val nata = Curve.NONE
+        assertEquals(2, nata.knots.size)
+
+        val col = nata.pin(start = true)
+        assertEquals("il gemello nasce in testa", 3, col.knots.size)
+        assertEquals("e nasce sovrapposto", nata.knots[0], col.knots[0])
+
+        val dentro = col.move(1, 0.3f, 0.25f, edge = 0)
+        assertEquals("il punto mosso va dove dice il dito", 0.3f, dentro.knots[1].at, 1e-4f)
+        assertEquals(0.25f, dentro.knots[1].to, 1e-4f)
+        assertEquals("il bordo resta al bordo", 0f, dentro.knots[0].at, 1e-4f)
+        assertEquals("e sale allo stesso livello", 0.25f, dentro.knots[0].to, 1e-4f)
+
+        val tavola = dentro.table()
+        val fino = (0.3f * (Curve.SIZE - 1)).toInt()
+        for (k in 0..fino) {
+            assertEquals("fra il bordo e il punto il tratto deve essere piatto", 0.25f, tavola[k], 0.01f)
+        }
+
+        // ⚠️ Riportandolo a filo, il gemello se ne va: due punti l'uno sull'altro non si separano.
+        assertEquals(2, dentro.move(1, 0f, 0.25f, edge = 0).tidy().knots.size)
+        assertEquals(
+            "ma un punto tenuto dentro resta",
+            3,
+            dentro.tidy().knots.size
+        )
+
+        // In coda il gemello nasce ultimo, e l'indice del punto mosso non cambia.
+        val coda = nata.pin(start = false)
+        assertEquals(3, coda.knots.size)
+        val tirato = coda.move(1, 0.7f, 0.8f, edge = 2)
+        assertEquals(0.7f, tirato.knots[1].at, 1e-4f)
+        assertEquals(1f, tirato.knots[2].at, 1e-4f)
+        assertEquals(0.8f, tirato.knots[2].to, 1e-4f)
+    }
+
+    /**
      * Quanti punti del contorno del rettangolo di arrivo vengono da **fuori** dell'immagine, cioè
      * quanti pixel resterebbero scoperti: vedi il caso 27.
      */
@@ -1844,18 +2152,40 @@ class SviluppoTest {
             .fetchSemanticsNodes().size
 
     /**
-     * Dove comincia e dove finisce l'immagine, sulla riga di mezzo di uno scatto del palco.
+     * Dove comincia e dove finisce l'immagine, su una riga a un quarto dell'altezza di uno scatto
+     * del palco.
      *
      * ⚠️ **Il fondo è il pixel del bordo sinistro**, che è la stessa lettura con cui si trova la
      * squadretta: l'immagine è centrata nel palco, quindi il primo pixel diverso dal fondo è il suo
-     * bordo. Sulla riga di mezzo non passa nessuna squadretta, che vive agli angoli.
+     * bordo.
+     * ⚠️⚠️ **LA RIGA È A UN QUARTO E NON A METÀ, DALLA `2.40`, E NON È UNA PRUDENZA**: fino alla
+     * `2.39` a metà altezza non passava nessuna presa, perché vivevano tutte agli angoli; con le
+     * maniglie di lato quella premessa è caduta, e quella di sinistra sporge **fuori** dal bordo
+     * esattamente di `CROP_AIR`, cioè misurava se stessa invece del bordo dell'immagine. A un
+     * quarto non passa né una maniglia di mezzo né il braccio di una squadretta d'angolo.
      */
     private fun bordi(scatto: PixelMap): Pair<Int, Int> {
-        val riga = scatto.height / 2
+        val riga = scatto.height / 4
         val fondo = scatto[0, riga]
         val da = (0 until scatto.width).first { scatto[it, riga] != fondo }
         val a = (scatto.width - 1 downTo 0).first { scatto[it, riga] != fondo }
         return da to a
+    }
+
+    /**
+     * Quante volte l'immagine disegnata è più larga che alta, su uno scatto del palco.
+     *
+     * ⚠️ **La colonna è a un quarto fra i due bordi**: non è un angolo, dove passa il braccio di una
+     * squadretta, e non è la metà, dove dalla `2.40` passa la maniglia di lato.
+     */
+    private fun forma(scatto: PixelMap): Float {
+        val (da, a) = bordi(scatto)
+        val colonna = da + (a - da) / 4
+        val fondo = scatto[0, 0]
+        val cima = (0 until scatto.height).firstOrNull { scatto[colonna, it] != fondo } ?: 0
+        val piede = (scatto.height - 1 downTo 0).firstOrNull { scatto[colonna, it] != fondo }
+            ?: (scatto.height - 1)
+        return (a - da).toFloat() / (piede - cima).coerceAtLeast(1)
     }
 
     /** Quanti pixel cambiano fra due scatti dello stesso nodo. */
