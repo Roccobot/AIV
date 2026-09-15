@@ -2125,6 +2125,56 @@ class SviluppoTest {
     }
 
     /**
+     * **Caso 50: un punto nato in mezzo non trascina con sé l'estremo.**
+     *
+     * ⚠️⚠️ **È IL DIFETTO CRITICO DELLA `2.50`, ARRIVATO DA LUI** (2026-09-14: *nelle curve adesso,
+     * se tocco e trascino la curva direttamente, si crea una retta orizzontale che arriva fino al
+     * margine sinistro o destro, distruggendo l'immagine*). La causa è una lettura fatta troppo
+     * presto: `viva` non si aggiorna dentro la stessa coroutine del gesto, quindi il conto degli
+     * estremi guardava la curva **prima** che il punto nascesse, e l'indice del punto nuovo cadeva
+     * esattamente sull'ultimo indice di quella. Da lì il gesto si credeva su un estremo, faceva
+     * nascere il gemello e portava il bordo al livello del dito: fra il punto trascinato e il
+     * margine la tabella diventava piatta.
+     * ⚠️ **Si misura a PIXEL nella striscia vicino al bordo destro**, perché lo stato della curva
+     * vive dentro la schermata e di qui non si legge: col difetto la curva passa **in basso** fin
+     * là, senza difetto a quell'altezza non c'è niente.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo la lettura tardiva: la striscia bassa cambia di centinaia
+     * di pixel.
+     */
+    @Test
+    fun `un punto nato in mezzo non trascina il bordo`() {
+        banco.setContent { Scena() }
+        pronta()
+        modulo(R.string.look_tone)
+
+        val grafico = banco.onNodeWithContentDescription(testo(R.string.look_tone_board))
+        val prima = grafico.captureToImage().toPixelMap()
+
+        grafico.performTouchInput { down(Offset(width * 0.5f, height * 0.5f)) }
+        banco.waitForIdle()
+        // ⚠️ Due colpi e non uno: il primo oltre la soglia se lo prende `settled`, e senza il
+        // secondo a `drag` non arriva niente. È la trappola misurata scrivendo la prova della
+        // `2.18`, e con un colpo solo questa prova sarebbe verde a vuoto.
+        grafico.performTouchInput { moveTo(Offset(width * 0.5f, height * 0.6f)) }
+        banco.waitForIdle()
+        grafico.performTouchInput { moveTo(Offset(width * 0.5f, height * 0.85f)) }
+        banco.waitForIdle()
+        grafico.performTouchInput { up() }
+        banco.waitForIdle()
+
+        val dopo = grafico.captureToImage().toPixelMap()
+        assertTrue(
+            "il punto doveva nascere e seguire il dito: il grafico non è cambiato",
+            diversi(prima, dopo) > 0
+        )
+        assertEquals(
+            "vicino al margine destro, in basso, non deve passare nessuna curva",
+            0,
+            diversiIn(prima, dopo, da = 0.86f, fino = 0.96f, su = 0.60f, giu = 0.95f)
+        )
+    }
+
+    /**
      * **Caso 44: lo strumento 'Angoli' si disfa a vicenda, e a riposo non esiste.**
      *
      * ⚠️⚠️ **L'ANDATA E RITORNO È LA COSA CHE PUÒ ROMPERSI IN SILENZIO**: il palco disegna con la
@@ -2325,6 +2375,31 @@ class SviluppoTest {
         val piede = (scatto.height - 1 downTo 0).firstOrNull { scatto[colonna, it] != fondo }
             ?: (scatto.height - 1)
         return (a - da).toFloat() / (piede - cima).coerceAtLeast(1)
+    }
+
+    /**
+     * Quanti pixel cambiano fra due scatti dentro un riquadro, dato in frazioni del nodo.
+     *
+     * ⚠️ **In frazioni e non in pixel**: la scena di prova non ha la misura di un telefono, quindi
+     * un riquadro scritto in pixel misurerebbe un'altra parte del grafico.
+     */
+    private fun diversiIn(
+        a: PixelMap,
+        b: PixelMap,
+        da: Float,
+        fino: Float,
+        su: Float,
+        giu: Float
+    ): Int {
+        val larghi = minOf(a.width, b.width)
+        val alti = minOf(a.height, b.height)
+        var conto = 0
+        for (y in (alti * su).toInt() until (alti * giu).toInt()) {
+            for (x in (larghi * da).toInt() until (larghi * fino).toInt()) {
+                if (a[x, y] != b[x, y]) conto += 1
+            }
+        }
+        return conto
     }
 
     /** Quanti pixel cambiano fra due scatti dello stesso nodo. */

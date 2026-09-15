@@ -2756,6 +2756,27 @@ toglie, che è lo stesso gesto con cui si azzera un modulo e una fascia, un grad
   là l'accessibilità si ferma alla descrizione. Chi lavora così ha i sei cursori della Luce, che
   coprono lo stesso mestiere con dei comandi che si annunciano.
 
+⚠️⚠️ **E LA CURVA SI FOTOGRAFA QUANDO IL DITO SCENDE, DALLA `2.51`: RILEGGERLA A GESTO INIZIATO
+DISTRUGGEVA L'IMMAGINE** (sua segnalazione, 2026-09-14: *se tocco e trascino la curva direttamente,
+si crea una retta orizzontale che arriva fino al margine sinistro o destro*). Il gesto leggeva lo
+stato **dopo** aver fatto nascere il punto, e fra le due righe non c'è nessuna ricomposizione:
+quindi `rememberUpdatedState` rispondeva ancora la curva di prima, e l'indice del punto appena nato
+cadeva esattamente sul suo ultimo indice. Da lì il gesto si credeva su un estremo, faceva nascere
+il gemello della `2.40` e portava il bordo al livello del dito, cioè appiattiva la tabella dal
+punto trascinato fino al margine.
+- ⚠️⚠️ **CON LA CURVA A RIPOSO SUCCEDEVA SEMPRE**: là i punti sono due, quindi l'ultimo indice vale
+  uno ed è esattamente il posto in cui `grow` infila il punto nuovo. Non era un caso limite, era
+  ogni tocco sull'ultimo segmento.
+- **La correzione è in due metà**: la fotografia della curva alla discesa del dito, e la condizione
+  che un estremo lo sia **solo se il punto c'era già** (`near >= 0`). La seconda chiude anche il
+  caso del tetto dei punti, dove `grow` risponde un indice qualunque.
+- ⚠️⚠️ **E LA PROVA CHE LO PRESIDIA È NATA VERDE A VUOTO, PER LA TRAPPOLA DELLA `2.18`**: col
+  gesto iniettato in un colpo solo, quel movimento se lo prende `settled` per pagare la soglia e a
+  `drag` non arriva niente, quindi il punto nasceva e non si muoveva. Serve un **secondo** colpo, e
+  la prima stesura misurava una curva rimasta la diagonale credendo di aver misurato il difetto.
+- ⚠️ **Il caso 48 misura meno di quanto il suo nome dica**, e adesso si sa: con un colpo solo
+  quello che cambia nel grafico è il **pallino** del punto nuovo, non la curva.
+
 ⚠️⚠️ **E IL COLORE MIRATO ARRIVA QUI, PERCHÉ È LA SUA RISPOSTA `curve` A `d-hsl-mirato`** (giro
 della `2.21`). Il tasto **'Mirato'** arma una modalità in cui il dito lavora **sull'immagine**
 invece che sui comandi, e i due moduli che lo offrono rispondono in due modi, che sono le loro due
@@ -3042,9 +3063,10 @@ nei corti va distribuito invece di restare in fondo.
 che la curva a riposo sia l'identità **esatta**, che la spline non oltrepassi e che un tratto piatto
 resti piatto, che la tabella componga il canale sotto il composito, che gli estremi non si muovano
 in orizzontale e non si tolgano, che il modulo porti i quattro canali e nessun cursore, che il
-mirato si offra nei soli due moduli, e i due conti che fa su un pixel. **Non** vede i pixel che ne
-escono, né i due gesti sul grafico: quelli si guardano sul telefono, e la voce di collaudo li
-chiede.
+mirato si offra nei soli due moduli, e i due conti che fa su un pixel; dalla `2.51` anche che un
+punto nato in mezzo **non** trascini con sé il bordo, e quello si misura a pixel. **Non** vede i
+pixel che ne escono, né il tocco lungo che toglie un punto: quelli si guardano sul telefono, e la
+voce di collaudo li chiede.
 
 ## 📐 Il modulo Geometria, e il conto che non passa dallo shader
 

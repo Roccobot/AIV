@@ -3752,7 +3752,21 @@ private fun CurveBoard(
                 awaitEachGesture {
                     val down = awaitFirstDown()
                     val x = atOf(down.position)
-                    val near = viva.nearest(x)
+                    /*
+                     * ⚠️⚠️ **LA CURVA SI FOTOGRAFA QUI, E RILEGGERLA PIÙ SOTTO ERA IL DIFETTO DELLA
+                     * `2.50`** (sua segnalazione, 2026-09-14: *se tocco e trascino la curva
+                     * direttamente, si crea una retta orizzontale che arriva fino al margine
+                     * sinistro o destro, distruggendo l'immagine*). Fra `onEdit` e la riga dopo non
+                     * c'è nessuna ricomposizione, quindi [rememberUpdatedState] risponde ancora
+                     * **quella di prima**: il conto degli estremi guardava la curva senza il punto
+                     * appena nato, e l'indice di quel punto cadeva esattamente sul suo ultimo
+                     * indice. Da lì il gesto si credeva su un estremo, faceva nascere il gemello e
+                     * portava il bordo al livello del dito.
+                     * ⚠️ **Una fotografia sola per tutto il gesto**: il dito lavora sulla curva che
+                     * aveva sotto quando è sceso, e quello che il gesto scrive lo scrive per indice.
+                     */
+                    val partenza = viva
+                    val near = partenza.nearest(x)
                     /*
                      * ⚠️ **Il tempo si misura qui e non dentro il ciclo degli eventi**, per la
                      * ragione scritta su [settled]: un dito fermo non genera nessun evento, quindi
@@ -3775,7 +3789,7 @@ private fun CurveBoard(
                      * finito il punto, e da lì in poi il gesto muove quello. Ricavarlo dopo, dalla
                      * curva viva, vorrebbe dire cercarlo a ogni fotogramma mentre si sposta.
                      */
-                    val i = if (near >= 0) near else viva.grow(x).second
+                    val i = if (near >= 0) near else partenza.grow(x).second
                     if (near < 0) {
                         onEdit { it.grow(x).first }
                     }
@@ -3792,12 +3806,19 @@ private fun CurveBoard(
                          * un punto come gli altri, che si sposta anche in orizzontale.
                          * ⚠️ **Al tetto dei punti non si fa niente**, e l'estremo resta un estremo:
                          * [Curve.pin] risponde la curva com'è, quindi l'indice non va toccato.
+                         * ⚠️⚠️ **E SOLO UN PUNTO CHE C'ERA GIÀ PUÒ ESSERE UN ESTREMO**, che è la
+                         * seconda metà della correzione della `2.50`: un punto appena nato sta per
+                         * definizione **fra** due punti, quindi `near < 0` chiude il caso senza
+                         * bisogno di guardare gli indici. Con la sola fotografia della curva un
+                         * tocco al tetto dei punti, dove [Curve.grow] risponde un indice qualunque,
+                         * potrebbe ancora cadere su zero.
                          */
-                        val estremi = viva.knots.lastIndex
-                        val bordo = (i == 0 || i == estremi) && viva.knots.size < Curve.MAX_KNOTS
-                        val testa = i == 0
+                        val bordo = near >= 0 &&
+                            (near == 0 || near == partenza.knots.lastIndex) &&
+                            partenza.knots.size < Curve.MAX_KNOTS
+                        val testa = bordo && near == 0
                         if (bordo) onEdit { it.pin(testa) }
-                        val quale = if (bordo && testa) 1 else i
+                        val quale = if (testa) 1 else i
                         val gemello = if (!bordo) -1 else if (testa) 0 else i + 1
                         drag(down.id) { change ->
                             onEdit {
