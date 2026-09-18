@@ -246,18 +246,25 @@ Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il
   quadratica lunga un millesimo di unità. Un tracciato riscritto male non dà nessun errore, si
   vede solo guardando, quindi lo strumento dice **dove** manca un raccordo e con che raggio, e il
   raccordo lo fa chi disegna.
-- ⚠️⚠️ **LE ESISTENTI NE HANNO 142, SU VENTI DISEGNI SU QUARANTUNO, E SONO QUASI TUTTI SUOI**:
+- ⚠️⚠️ **LE ESISTENTI NE HANNO 87, SU QUINDICI DISEGNI SU QUARANTUNO, E SONO QUASI TUTTI SUOI**:
   quindi 'verifica anche le altre' ha una risposta, ed è che la regola di oggi le esistenti non
   la rispettano. Toccarle è una decisione sua e non mia, per la stessa ragione della `1.33`: un
   disegno approvato non si cambia perché uno strumento lo segnala.
-  - ⚠️⚠️ **QUEL NUMERO È DEL CRITERIO LARGO, E IL CRITERIO SI STRINGE: SOLO GLI ANGOLI CONVESSI
-    ESTERNI** (sua nota su `d-spigoli-icone`, giro della `2.50`: *la regola va affinata: solo gli
-    angoli convessi esterni (le 'punte')*). Chi legge 142 come una misura definitiva si sbaglia:
-    è quanti ne conta il verificatore prima dell'affinamento, e scenderà.
+  - ⚠️⚠️ **QUEL NUMERO È DEL CRITERIO STRETTO, CHE È IL SUO: SOLO GLI ANGOLI CONVESSI ESTERNI**
+    (sua nota su `d-spigoli-icone`, giro della `2.50`: *la regola va affinata: solo gli angoli
+    convessi esterni (le 'punte')*). L'affinamento è entrato nel verificatore il 2026-09-18: un
+    sottotracciato porta punte solo se è un **contorno** e non un buco, e a dirlo è la profondità
+    di contenimento, quindi un'isola dentro un buco torna a contare.
+  - ⚠️⚠️ **I NUMERI DI QUEL BLOCCO SONO DUE E SI LEGGONO INSIEME**: col criterio largo ne conta
+    **138** e con quello stretto **87**. ⚠️ **E il 142 della `2.50` non è più il numero del criterio
+    largo**, perché i disegni sono cambiati nel frattempo: chi confronta guardi prima le due date.
   - ⚠️⚠️ **E CON LUI CADE LA FRASE DELLA `2.32` SUI BUCHI**, che diceva il contrario: là un buco
     prendeva gli stessi raccordi *perché i suoi angoli sporgono verso l'inchiostro*. Adesso no,
     ed è la stessa parola che lo dice: una punta è convessa **e** esterna, e l'angolo di un buco
     la seconda metà non ce l'ha.
+    - ⚠️ **Quanto pesi quella metà è misurato, e non è un dettaglio**: sono **51** punte su 138,
+      cioè più di un terzo, e cinque disegni escono dall'elenco per intero. In `ic_download` le
+      sette punte erano quelle della freccia **scavata dentro** la cartella.
   - ⚠️⚠️ **LA DECISIONE SULLE ESISTENTI ASPETTA UNA TAVOLA, ED È LA SUA SCELTA `guardo`**: la
     domanda offriva di arrotondarle tutte, solo quelle di casa, o nessuna, e lui ha scelto di
     vedere prima il **prima e il dopo dei venti disegni**. Quindi finché quella tavola non
@@ -4468,15 +4475,24 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     differenza è un fattore quattro: un raccordo già fatto è un arco, e la sua corda svolta di
     metà arco, cioè esattamente quanto basta a farlo sembrare vivo; e le curve **smooth** (`s`,
     `t`) sono tangenti per costruzione, quindi il loro giunto non è mai uno spigolo. Prima
-    contava 1.059 punte su 41 disegni, poi 259, e adesso 142.
+    contava 1.059 punte su 41 disegni, poi 259, e poi 142.
   - ⚠️ **Un giro che torna a un centesimo di unità dal proprio punto di partenza è chiuso**: i
     tracciati sono scritti a due decimali, e senza quella tolleranza la chiusura diventa una
     rettina che svolta, cioè uno spigolo che non esiste.
-  - ⚠️⚠️ **E IL CRITERIO VA STRETTO UN'ALTRA VOLTA, SU SUA NOTA: SOLO GLI ANGOLI CONVESSI
-    ESTERNI** (`d-spigoli-icone`, giro della `2.50`). Quindi anche il 142 è un numero di
-    passaggio, come il 1.059 e il 259 prima di lui: i tre si leggono insieme perché ognuno
-    misura un criterio diverso, e il quarto arriva con l'affinamento. Il perché vive in
-    § '🖌️ Come entra un disegno'.
+  - ⚠️⚠️ **E IL CRITERIO SI È STRETTO UN'ALTRA VOLTA IL 2026-09-18, SU SUA NOTA: SOLO GLI ANGOLI
+    CONVESSI ESTERNI** (`d-spigoli-icone`, giro della `2.50`). Quindi i numeri sono quattro e
+    ognuno misura un criterio diverso: **1.059** con le corde, **259** con le tangenti, **142**
+    alla `2.50` (oggi quello stesso criterio ne conta 138, perché i disegni sono cambiati), e
+    **87** con gli angoli di un buco esclusi. Il perché vive in § '🖌️ Come entra un disegno'.
+  - ⚠️⚠️ **A DIRE SE UN SOTTOTRACCIATO È UN CONTORNO O UN BUCO È LA PROFONDITÀ DI CONTENIMENTO,
+    NON IL VERSO DEL GIRO**: pari vuol dire contorno, dispari vuol dire buco, e così un'isola
+    dentro un buco torna a portare punte (in casa succede, in `ic_folder_new`). Il verso da solo
+    direbbe il vero solo dove chi ha disegnato lo ha usato per quello, e `android:fillType` può
+    essere `evenOdd`, dove non significa niente.
+  - ⚠️ **Il punto con cui si misura il contenimento non è un vertice**, ed è la trappola che
+    quella scelta evita: due giri che si toccano hanno i vertici l'uno sul bordo dell'altro, e là
+    un conto dei raggi risponde a caso. Si prende il mezzo del lato più lungo, scostato di un
+    millesimo verso l'interno.
 - ⚠️⚠️ **IL BANCO DI PROVA, dalla `1.73`: `./gradlew :app:testDebugUnitTest`**, e apre l'app
   **finta** su una macchina senza telefono e senza emulatore, la tocca e verifica che risponda.
   Le prove vivono in `app/src/test/`, e le librerie (Robolectric più `ui-test-junit4`) sono di
