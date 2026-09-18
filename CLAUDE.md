@@ -2862,6 +2862,19 @@ quel punto**.
 - ⚠️⚠️ **SI PRENDE LA MEDIA DEI MINIMI E NON IL MINIMO DEL BLOCCO**, che è la forma classica: il
   minimo su un blocco fa una mappa a gradini, e ogni gradino diventa un alone intorno ai contorni
   forti. La media cambia piano, che è quello che una mappa di velo deve fare.
+  - ⚠️⚠️ **MA DALLA `2.60` QUELLA MEDIA SEGUE I BORDI, ED È LA PRIMA METÀ DEL SUO RISCONTRO**
+    (giro della `2.55`: *Foschia: servirebbero regolazioni più raffinate*). Una media uniforme
+    prende il velo del cielo e lo spalma **dentro** il profilo che ha sotto di sé, quindi là la
+    sottrazione arriva più in basso di quanto spetti: su un profilo contro un cielo velato a 0,62
+    la roccia vicino al bordo perdeva **15 livelli** rispetto a quella lontana e finiva sul nero,
+    su quattro righe, e il cielo appena sopra riceveva una stima sbagliata di **33 livelli**. Con
+    un peso che cade dove il vicino è diverso dal centro, tutti e due gli scarti vanno a **zero**.
+  - ⚠️ **E il velo vero non si perde**: sul cielo che sfuma dolcemente, cioè il caso per cui il
+    cursore esiste, la mappa coincide col canale scuro a meno di **zero** livelli con e senza il
+    peso. Quello che il peso toglie è la sbavatura fra due cose diverse, non la stima.
+  - ⚠️ **La soglia è sua e non quella del rumore** (`HAZE_EDGE`, 20 contro 120): là si separa la
+    grana di un sensore da un contorno, qui il velo di una regione da quello della regione
+    accanto, e le due distanze non sono la stessa. Il numero è il primo che azzera l'alone.
 - ⚠️⚠️ **LA LUCE ATMOSFERICA SI PRENDE BIANCA, E LA SCELTA È DICHIARATA PERCHÉ L'ALTRA STRADA NON
   STA IN PIEDI QUI**: il modello completo la stima sull'immagine **intera**, cioè con un numero
   che l'anteprima e il file pieno dovrebbero condividere. Quel numero non può vivere in `Look`,
@@ -2870,16 +2883,30 @@ quel punto**.
   Con la luce bianca il conto sta tutto nello shader e non c'è niente da tenere allineato.
   ⚠️ **Quello che si perde**: con una foschia molto colorata resta una dominante, e là il cursore
   giusto è il bilanciamento del bianco, che è lì accanto.
-- ⚠️ **I due versi sono l'uno l'inverso dell'altro**, quindi il cursore portato a +50 e poi a -50
-  riporta dov'era: togliere il velo è `(c - k) / (1 - k)`, aggiungerlo è `c + k (1 - c)`, con lo
-  stesso `k`. Verso il basso la foschia si **amplifica** invece di essere tolta, che è la lettura
-  simmetrica e non un secondo meccanismo.
+- ⚠️ **I due versi sono l'uno l'inverso dell'altro**: togliere il velo è `(c - k) / (1 - k)`,
+  aggiungerlo è `c + k (1 - c)`, con lo stesso `k`. Verso il basso la foschia si **amplifica**
+  invece di essere tolta, che è la lettura simmetrica e non un secondo meccanismo.
+  - ⚠️ **Dalla `2.60` quella simmetria ha un'eccezione dichiarata**: dove il tetto delle ombre
+    entra in funzione, togliere il velo ne toglie meno di quanto rimetterlo ne rimetta, quindi i
+    due versi non si disfanno più esattamente. Vale su un dettaglio scuro fine, e il prezzo è quello di non
+    chiudere le ombre.
 - ⚠️ **Il suo raggio è il più largo dei tre**, perché il velo è una proprietà di una **regione**:
   una stima che cambiasse in fretta verrebbe scambiata per il disegno, e il conto ne accentuerebbe
   i bordi.
-- ⚠️ **Chiude le ombre dentro una zona velata**, ed è dichiarato: là la sottrazione arriva più in
-  basso del pixel più scuro che c'è. È l'effetto tipico di questo comando, e il fondo corsa è
-  tarato per tenerlo fuori dalla corsa (il conto vive su `HAZE_REACH`).
+- ⚠️⚠️ **NON CHIUDE PIÙ LE OMBRE, DALLA `2.60`, ED È LA SECONDA METÀ DELLO STESSO RISCONTRO**: il
+  velo tolto non supera quello che il pixel stesso porta. ⚠️⚠️ **E LA NOTA DI PRIMA ERA FALSA,
+  SMENTITA DA UN CONTO**: diceva che il fondo corsa teneva quell'effetto *fuori dalla corsa*, e la
+  misura dice il contrario. Dentro una zona velata a 0,62, a cursore pieno, i **64** livelli sotto
+  il quarto di scala uscivano tutti allo stesso valore, cioè ne restava **uno**: il disegno negli
+  scuri spariva del tutto. Col tetto ne restano **40** distinti.
+  - ⚠️ **Il tetto è lo stesso fattore applicato al canale scuro del PIXEL**, e non una costante
+    nuova: dove il velo c'è davvero quel numero vale quanto la stima, quindi il `min` non entra
+    in funzione (misurato: **zero** livelli di scarto su una zona uniforme e sui pixel chiari).
+    Entra solo dove il pixel è più scuro del proprio intorno, cioè su un dettaglio fine che la
+    stima non ha visto.
+  - ⚠️⚠️ **E VALE SOLO NEL VERSO CHE TOGLIE**: aggiungere velo non azzera nessun pixel, quindi non
+    c'è niente da proteggere, e limitarlo sugli scuri toglierebbe al cursore proprio quello che fa
+    da quella parte, cioè alzare le ombre.
 
 ⚠️⚠️ **LA FOSCHIA VIENE PER ULTIMA DENTRO IL MODULO, E NON È UN ORDINE DI COMODO**: chiarezza e
 texture misurano lo **scarto** fra il pixel e il suo intorno, e l'intorno si legge dai pixel di
@@ -2988,6 +3015,10 @@ li porti tutti e cinque e che a riposo non si scrivano. **Non** vede i pixel che
 chiarezza incida, che la texture spiani, che la foschia se ne vada, che la vignettatura sia
 centrata e che la grana somigli a una pellicola si guarda sul telefono, e la voce di collaudo lo
 chiede.
+- ⚠️⚠️ **E LA `2.60` NON PORTA NESSUNA PROVA NUOVA, CHE VA DETTO INVECE DI LASCIARLO CREDERE**: le
+  due correzioni della foschia vivono **tutte e due** in AGSL, e su una tela di memoria quel
+  programma non gira. Quello che il banco fa è compilarlo; i numeri di quel giro vengono da un
+  modello di sessione, scritto e buttato, che è la strada dichiarata per questo genere di conto.
 - ⚠️⚠️ **LA FILA SI MONTA ROVESCIATA NELLE DUE PROVE CHE TOCCANO IL GETTONE, E SENZA QUELLA RIGA
   MENTIVANO**: col nono modulo la fila scorre, quindi in coda la pastiglia cade fuori dalla
   larghezza del banco; il tocco non dà nessun errore e non cambia modulo, e si contavano zero
