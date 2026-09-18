@@ -2323,6 +2323,45 @@ stop, dei 77 livelli sopra il 70% di scala ne restava **uno**, e con la piega ne
   numeri qui sopra vengono da un modello di sessione, scritto e buttato, che è la stessa strada dei
   versi dei cursori.
 
+⚠️⚠️ **E DALLA `2.59` IL CONTRASTO LAVORA SUI MEZZI TONI INVECE CHE SUGLI ESTREMI, ED È IL SUO
+RISCONTRO** (campo libero del giro della `2.55`: *andrebbe un po' migliorato pure il contrasto ...
+mi è sembrato un po' troppo vecchia scuola, e fa diventare tutto un po' troppo grigio in
+negativo*). Le due metà della sua frase erano **due difetti distinti con la stessa radice**, cioè
+una curva che spendeva il proprio effetto dove non doveva: i due estremi.
+- ⚠️⚠️ **IN SU C'ERA UNA `smoothstep` MESCOLATA ALLA DIAGONALE, E QUELLA AGLI ESTREMI HA PENDENZA
+  ZERO**: a fondo corsa, dei 26 livelli sotto il 10% di scala ne restavano **8**, e altrettanti in
+  cima. Cioè il contrasto sembrava forte perché **mangiava** il dettaglio nelle ombre e nei chiari,
+  mentre al perno la pendenza arrivava appena a 1,5. È la definizione operativa di 'vecchia
+  scuola', ed è misurata: oggi quei livelli sono **21** e **22**, e al perno la pendenza è **2**.
+- ⚠️⚠️ **IN GIÙ C'ERA UNA COMPRESSIONE LINEARE VERSO IL PERNO, CHE SPOSTA ANCHE IL NERO E IL
+  BIANCO**: a -100 il nero usciva a 0,30 (livello **76**) e il bianco a 0,70 (livello **178**),
+  quindi l'immagine viveva in 102 livelli su 255. Ecco il grigio, e non era un'impressione: era
+  aritmetica. Adesso il nero resta **0**, il bianco resta **1**, e a comprimersi sono i soli mezzi
+  toni.
+- **La forma nuova è la diagonale più una gobba dispari**, `(t - 0.5)` per `(4t(1-t))` al cubo:
+  quel secondo fattore vale uno al perno e zero ai due estremi **con derivata nulla**, quindi la
+  curva arriva agli estremi tangente alla diagonale e là non tocca niente. Lo stesso pezzo serve
+  tutti e due i versi, col segno del cursore: in su allontana dal perno, in giù ci avvicina.
+- ⚠️ **Al cubo e non al quadrato, ed è misurato**: il cubo concentra la gobba sui mezzi toni, e a
+  parità di pendenza al perno la pendenza minima passa da **0,20 a 0,35**, cioè i quarti di tono si
+  comprimono meno. La monotonia regge fino a `CONTRAST_RISE` **1,53**, e il fondo corsa è 1.
+- ⚠️⚠️ **CHI USAVA IL CONTRASTO A FONDO CORSA LO RITROVA A METÀ, E VA DETTO**: a `k` 0,5 la
+  pendenza al perno vale 1,5, cioè esattamente quella che prima si otteneva a 1. Quindi un valore
+  già scelto (in uno stile salvato, o nei sei stili di casa che ne portano uno) adesso rende di
+  più, ed è quello che ha chiesto.
+- ⚠️⚠️ **E IL CONTO DI 'Auto' HA DOVUTO CAMBIARE, O DAVA IL DOPPIO**: quel comando ricava il
+  cursore dalla **pendenza al perno**, che era `1 + 0,5k` e adesso è `1 + k`, quindi la formula
+  perde il suo `2`. ⚠️ **Il valore che scrive si dimezza e lo stacco resta lo stesso**: la curva è
+  il doppio più ripida.
+- ⚠️⚠️ **I TRE NUMERI CHE `Auto` RICOPIA DALLO SHADER ADESSO HANNO UN PRESIDIO, E PRIMA NO**:
+  vivono dentro `LOOK_AGSL`, che per il compilatore è un testo qualunque, quindi cambiarne uno di
+  là e lasciare la copia in Kotlin non dà **nessun** errore. Il banco adesso quella stringa la
+  legge davvero e confronta. ⚠️ **La nota di prima diceva che da Kotlin non si potevano leggere, ed
+  era falsa**: è una stringa, e leggerla costa una riga.
+- ⚠️ **Il banco non vede la curva**, come per la piega: i numeri di questo blocco vengono da un
+  modello di sessione, scritto e buttato, e quello che il banco misura è la costante condivisa. Che
+  il contrasto sia più moderno e che il negativo non ingrigisca si guarda sul telefono.
+
 ⚠️⚠️ **LA PILA È DI VALORI E NON DI GESTI, e un passo nasce quando il dito LASCIA il cursore**:
 dentro un trascinamento un cursore passa per cento valori, e una pila che li prendesse tutti
 renderebbe 'Annulla' inutilizzabile. Quello che si disfa è un **gesto compiuto**, che è la cosa
@@ -2401,8 +2440,10 @@ sono tornate indietro per quella.
 perché il programma non è mai partito**:
 - **Il contrasto negativo andava dalla parte sbagliata**: il ramo `k < 0` portava un tono da 0,6 a
   0,72, cioè **allontanava** dal perno, quindi il cursore alzava il contrasto in tutti e due i
-  versi. Adesso comprime verso il perno, e non arriva a zero: a -100 resta il 40% della distanza,
-  o l'immagine diventerebbe un rettangolo grigio.
+  versi. La `2.15` lo ha fatto comprimere verso il perno. ⚠️⚠️ **MA QUELLA COMPRESSIONE ERA IL
+  GRIGIO CHE LUI HA SEGNALATO QUARANTA VERSIONI DOPO, e con la `2.59` non c'è più**: teneva il 40%
+  della distanza dal perno **a ogni tono**, cioè spostava anche il nero e il bianco. Chi legge qui
+  quel 40% sappia che è il numero di una curva che non esiste più.
 - **Le maschere di ombre e luci guardavano la luce e non l'occhio**: in luce lineare un grigio
   medio vale 0,22, quindi la maschera delle ombre gli dava 0,61 e il cursore sollevava i mezzi
   toni come fa la luminosità. Adesso la maschera si costruisce sul valore percettivo, che è la
@@ -2451,9 +2492,9 @@ cursori mossi passano da quattro a **sei**.
 - ⚠️⚠️ **IL CONTRASTO VA SOLO IN SU, COME QUELLO DI PHOTOSHOP**: un'immagine più dispersa del
   bersaglio non ha un difetto da correggere, ha un carattere, e spianarla vorrebbe dire che 'Auto'
   toglie qualcosa a chi lo tocca su una fotografia già buona. Il legame fra il cursore e la
-  dispersione è la **pendenza al perno** (`sCurve` mescola la retta con `smoothstep`, che nel
-  mezzo vale 1,5), quindi è un conto chiuso e non una taratura; che sia del primo ordine è
-  dichiarato, e il verso in cui sbaglia è quello timido.
+  dispersione è la **pendenza al perno**, che dalla `2.59` vale `1 + k` (prima `1 + 0,5k`, perché
+  la curva di allora arrivava a 1,5 a fondo corsa), quindi è un conto chiuso e non una taratura;
+  che sia del primo ordine è dichiarato, e il verso in cui sbaglia è quello timido.
 
 ⚠️⚠️ **I TRE COMANDI DELLA STORIA SONO ICONE DALLA `2.15`, ED È IL SUO RISCONTRO** (voce
 `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non testo*). I glifi sono quelli
@@ -2491,8 +2532,9 @@ ancorato.
 
 ⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
 riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
-vera, coi comandi che camminano avanti e indietro; dalla `2.58` `SviluppoTest` guarda i **due gesti
-della `2.58`**, cioè che il confronto tenga la posa fuori dai moduli che la governano (a pixel,
+vera, coi comandi che camminano avanti e indietro; dalla `2.59` `SviluppoTest` guarda anche che i
+**tre numeri che `Auto` ricopia dallo shader** combacino con la stringa del programma, che è il solo
+presidio possibile di una copia fra due linguaggi; dalla `2.58` guarda i **due gesti della `2.58`**, cioè che il confronto tenga la posa fuori dai moduli che la governano (a pixel,
 nella Geometria contro la Luce), che `Look.place` tenga i quattro campi del 'dove' e butti i sei del
 colore, che il tocco lungo su 'Salva' chieda un file nuovo e il tocco normale no, e che il bersaglio
 di quel file sia un nome libero accanto all'originale; tutti e quattro controprovati rimettendo il

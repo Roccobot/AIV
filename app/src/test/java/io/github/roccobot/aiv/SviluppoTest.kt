@@ -3030,6 +3030,33 @@ class SviluppoTest {
     }
 
     /**
+     * **Caso 64: le costanti che 'Auto' ricopia dallo shader dicono ancora il vero.**
+     *
+     * ⚠️⚠️ **È IL SOLO PRESIDIO POSSIBILE DI UNA COPIA FRA DUE LINGUAGGI**: quei tre numeri vivono
+     * dentro `LOOK_AGSL`, che per il compilatore di Kotlin è un testo qualunque, quindi cambiarne
+     * uno di là e lasciare la copia qui **non dà nessun errore**: il conto di 'Auto' lavorerebbe
+     * sul numero di ieri e scriverebbe nei cursori valori che l'immagine non chiede.
+     * ⚠️ **La stringa si legge davvero**, invece di fidarsi: la riga della costante si cerca con la
+     * sua forma, e il numero si confronta col `const val` di [Auto].
+     * ⚠️⚠️ **QUESTO CASO NASCE CON LA `2.59`, DOVE LA COPIA È DIVENTATA TRE**: fino alla `2.58` il
+     * conto del contrasto portava un `2` che veniva dalla pendenza della curva di allora, e la
+     * curva nuova quel due lo ha reso falso. Un numero scritto a mano che dipende da un altro
+     * numero scritto a mano è esattamente quello che questa prova esiste per prendere.
+     */
+    @Test
+    fun `le costanti ricopiate dallo shader combaciano`() {
+        fun nelloShader(nome: String): Float {
+            val riga = Regex("const half $nome = ([-0-9.]+);").find(LOOK_AGSL)
+            assertNotNull("la costante $nome non è più nello shader", riga)
+            return riga!!.groupValues[1].toFloat()
+        }
+
+        assertEquals("POINT_SHIFT", nelloShader("POINT_SHIFT"), Auto.POINT_SHIFT, 1e-6f)
+        assertEquals("WB_REACH", nelloShader("WB_REACH"), Auto.WB_REACH, 1e-6f)
+        assertEquals("CONTRAST_RISE", nelloShader("CONTRAST_RISE"), Auto.CONTRAST_RISE, 1e-6f)
+    }
+
+    /**
      * Il palco col dito premuto: il confronto si accende con un'attesa, quindi il tempo va mosso a
      * mano. Vedi il caso 14 di `LuceTest`.
      */
