@@ -2611,13 +2611,15 @@ class SviluppoTest {
      * gli Effetti. È la stessa trappola del sesto gettone della `2.30`.
      */
     @Test
-    fun `il modulo Effetti porta i suoi due cursori`() {
+    fun `il modulo Effetti porta i suoi tre cursori`() {
         banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
         pronta()
 
         assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
         modulo(R.string.look_effects)
-        assertEquals("gli Effetti devono portare chiarezza e texture", 2, quantiCursori())
+        assertEquals(
+            "gli Effetti devono portare chiarezza, texture e foschia", 3, quantiCursori()
+        )
 
         modulo(R.string.look_light)
         assertEquals("e la Luce, toccata, porta i suoi sei", 6, quantiCursori())
@@ -2657,8 +2659,8 @@ class SviluppoTest {
      * **Caso 57: gli Effetti tolgono il senza perdita, e le loro misure seguono il lato.**
      *
      * ⚠️⚠️ **IL SENZA PERDITA È LA CLAUSOLA CON CUI HA CHIESTO L'EDITOR** (*quelle che non
-     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): chiarezza e
-     * texture riscrivono i pixel come la Luce, quindi un loro valore mosso lo toglie. Scritto al
+     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): i tre cursori
+     * riscrivono i pixel come la Luce, quindi un loro valore mosso lo toglie. Scritto al
      * contrario, una fotografia ammorbidita si salverebbe girando un tag EXIF, cioè non si
      * salverebbe affatto.
      * ⚠️ **E le misure sono frazioni del lato**, come quelle del Dettaglio e per la stessa ragione:
@@ -2671,14 +2673,27 @@ class SviluppoTest {
         assertTrue(Look.NONE.lossless)
         assertFalse(Effects(clarity = 0.01f).idle)
         assertFalse(Effects(texture = -0.01f).idle)
+        assertFalse(Effects(haze = 0.01f).idle)
         assertFalse(Look(effects = Effects(clarity = 0.5f)).lossless)
         assertFalse(Look(effects = Effects(texture = 0.5f)).lossless)
+        assertFalse(Look(effects = Effects(haze = 0.5f)).lossless)
 
         assertEquals(2f * Effects.clarityReach(1000f), Effects.clarityReach(2000f), 1e-4f)
         assertEquals(2f * Effects.textureReach(1000f), Effects.textureReach(2000f), 1e-4f)
+        assertEquals(2f * Effects.hazeReach(1000f), Effects.hazeReach(2000f), 1e-4f)
         assertTrue(
             "la chiarezza deve guardare più lontano della texture",
             Effects.clarityReach(4000f) > Effects.textureReach(4000f)
+        )
+        /*
+         * ⚠️ **La foschia è il più largo dei tre**, e non è una preferenza: il velo è una proprietà
+         * di una regione, quindi la sua stima deve cambiare più piano del disegno. Se un giorno
+         * quel raggio scendesse sotto quello della chiarezza, il conto scambierebbe il velo per il
+         * dettaglio e ne accentuerebbe i bordi.
+         */
+        assertTrue(
+            "il velo si stima più lontano di quanto la chiarezza guardi",
+            Effects.hazeReach(4000f) > Effects.clarityReach(4000f)
         )
     }
 
@@ -2705,6 +2720,22 @@ class SviluppoTest {
         assertTrue(
             "la texture da sola non può chiedere quanto la chiarezza",
             Effects(texture = 0.5f).bleed(4000f) < chiaro.bleed(4000f)
+        )
+        /*
+         * ⚠️⚠️ **E DALLA `2.54` IL PIÙ LARGO DEI TRE È LA FOSCHIA**: il velo si stima su un intorno
+         * più ampio di quello della chiarezza, quindi un bordo tarato sui due cursori di prima
+         * lascerebbe una riga su ogni giunzione appena si tocca quel cursore. Dentro lo stesso
+         * modulo si prende comunque il massimo **fra quelli mossi**, e non la somma.
+         */
+        val velo = Effects(haze = 0.5f)
+        assertTrue(
+            "la foschia deve chiedere più della chiarezza",
+            velo.bleed(4000f) > chiaro.bleed(4000f)
+        )
+        assertEquals(
+            "coi tre insieme il bordo resta quello della foschia",
+            velo.bleed(4000f),
+            Effects(clarity = 0.5f, texture = 0.5f, haze = 0.5f).bleed(4000f)
         )
 
         /*

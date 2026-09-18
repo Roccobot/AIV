@@ -436,6 +436,7 @@
     <string name="look_effects">Athari</string>
     <string name="look_clarity">Uwazi</string>
     <string name="look_texture">Umbile</string>
+    <string name="look_haze">Ukungu</string>
     <string name="look_tone">Mkunjo</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Mkunjo wa toni</string>

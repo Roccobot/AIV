@@ -436,6 +436,7 @@
     <string name="look_effects">ప్రభావాలు</string>
     <string name="look_clarity">స్పష్టత</string>
     <string name="look_texture">ఆకృతి</string>
+    <string name="look_haze">పొగమంచు</string>
     <string name="look_tone">కర్వ్</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">టోన్ కర్వ్</string>

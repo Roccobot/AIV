@@ -420,6 +420,7 @@
     <string name="look_effects">Efek</string>
     <string name="look_clarity">Kejernihan</string>
     <string name="look_texture">Tekstur</string>
+    <string name="look_haze">Kabut</string>
     <string name="look_tone">Kurva</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Kurva nada</string>

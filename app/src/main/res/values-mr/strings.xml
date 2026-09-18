@@ -436,6 +436,7 @@
     <string name="look_effects">प्रभाव</string>
     <string name="look_clarity">स्पष्टता</string>
     <string name="look_texture">पोत</string>
+    <string name="look_haze">धुके</string>
     <string name="look_tone">कर्व्ह</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">टोन कर्व्ह</string>

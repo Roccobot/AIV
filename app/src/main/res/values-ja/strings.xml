@@ -420,6 +420,7 @@
     <string name="look_effects">効果</string>
     <string name="look_clarity">明瞭度</string>
     <string name="look_texture">テクスチャ</string>
+    <string name="look_haze">かすみ</string>
     <string name="look_tone">カーブ</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">トーンカーブ</string>

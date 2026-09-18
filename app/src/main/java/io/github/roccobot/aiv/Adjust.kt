@@ -499,6 +499,11 @@ data class Detail(
  * ⚠️ **Sono frazioni da -1 a +1 e l'interfaccia li mostra da -100 a +100**, come i cursori degli
  * altri moduli: è il linguaggio di Lightroom, che è quello che lui conosce. ⚠️ **E sono bipolari**:
  * il verso negativo ammorbidisce, che è una cosa che si chiede davvero su un ritratto.
+ *
+ * ⚠️⚠️ **DALLA `2.54` I CURSORI SONO TRE, E IL TERZO NON È UN CONTRASTO LOCALE**: [haze] toglie o
+ * aggiunge il **velo atmosferico**, che è un'altra cosa dal disegno. Gli altri due misurano quanto
+ * un pixel stacca dal proprio intorno; questo misura quanta luce bianca l'aria ha aggiunto fra
+ * l'obiettivo e quello che si vede, e la toglie.
  */
 data class Effects(
     /**
@@ -518,11 +523,31 @@ data class Effects(
      * invece di allargarsi in un alone. Metterla vorrebbe dire spegnere il cursore proprio su una
      * corteccia in ombra o su un muro al sole, cioè dove lo si usa.
      */
-    val texture: Float = 0f
+    val texture: Float = 0f,
+    /**
+     * Quanto **velo atmosferico** si toglie, o si aggiunge verso il basso.
+     *
+     * ⚠️⚠️ **LA STIMA DEL VELO È LOCALE E NON GLOBALE, ED È IL CANALE SCURO**: dove c'è foschia
+     * l'aria aggiunge luce bianca a tutti e tre i canali insieme, quindi il **minimo** dei tre non
+     * scende più; dove non ce n'è, quasi ogni pixel ha almeno un canale quasi spento. Mediato
+     * sull'intorno, quel minimo dice quanto velo c'è **in quel punto**, e il cursore dice quanto
+     * toglierne.
+     * - ⚠️⚠️ **LA LUCE ATMOSFERICA SI PRENDE BIANCA, E LA SCELTA È DICHIARATA**: il modello
+     *   completo la stima sull'immagine intera, cioè con un dato che l'anteprima e il file pieno
+     *   dovrebbero condividere; quel dato non può vivere in [Look], perché uno stile se lo
+     *   porterebbe da un'immagine all'altra, e ricalcolato sulla tessera del salvataggio darebbe
+     *   un numero diverso per ogni tessera. Con la luce bianca il conto sta tutto nello shader e
+     *   non c'è niente da tenere allineato. **Quello che si perde** è la foschia molto colorata,
+     *   dove resta una dominante: là c'è il bilanciamento del bianco, che è il cursore per quello.
+     * - ⚠️ **I due versi sono l'uno l'inverso dell'altro**, quindi il cursore portato a +50 e poi
+     *   a -50 riporta dov'era: toglierlo è `(c - k) / (1 - k)`, aggiungerlo è `c + k (1 - c)`, con
+     *   lo stesso `k`.
+     */
+    val haze: Float = 0f
 ) {
 
     /** Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
-    val idle: Boolean get() = abs(clarity) < DEAD && abs(texture) < DEAD
+    val idle: Boolean get() = abs(clarity) < DEAD && abs(texture) < DEAD && abs(haze) < DEAD
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
@@ -531,8 +556,11 @@ data class Effects(
      * ⚠️⚠️ **È LO STESSO CONTO DI [Detail.bleed] E PER LA STESSA RAGIONE**: anche qui il filtro
      * legge i vicini, quindi senza un bordo da buttare via l'ultima colonna di una tessera
      * leggerebbe il bordo ripetuto invece del pixel che sta di là. ⚠️ **Ma il numero è molto più
-     * grande**, perché il raggio della chiarezza è cinquanta volte quello della nitidezza: su un
-     * file da quattromila pixel sono quaranta pixel per lato invece di cinque.
+     * grande**, perché qui il raggio più largo è decine di volte quello della nitidezza: su un
+     * file da quattromila pixel sono decine di pixel per lato invece di cinque.
+     * - ⚠️ **Si prende il raggio del cursore più largo FRA QUELLI MOSSI**, e non la somma: i tre
+     *   filtri girano tutti sulla stessa tessera e leggono i pixel di partenza, quindi il bordo
+     *   che serve è uno solo, quello che arriva più lontano.
      * - ⚠️ **A modulo spento vale zero**, quindi chi non usa questi cursori non paga niente.
      */
     fun bleed(long: Float): Int {
@@ -540,6 +568,7 @@ data class Effects(
         var reach = 0f
         if (abs(clarity) >= DEAD) reach = max(reach, clarityReach(long))
         if (abs(texture) >= DEAD) reach = max(reach, textureReach(long))
+        if (abs(haze) >= DEAD) reach = max(reach, hazeReach(long))
         return ceil(reach).toInt() + 1
     }
 
@@ -572,11 +601,28 @@ data class Effects(
          */
         const val TEXTURE_SPAN = 1f / 500f
 
+        /**
+         * Quanto lontano si guarda per stimare il velo, in frazione del lato lungo.
+         *
+         * ⚠️⚠️ **È IL PIÙ LARGO DEI TRE, E LA RAGIONE È CHE IL VELO NON È UN DETTAGLIO**: la
+         * foschia è una proprietà di una **regione** dell'immagine, quindi la sua stima deve
+         * cambiare piano, o il conto la scambierebbe per il disegno e ne accentuerebbe i bordi.
+         * A quaranta pixel su un file da quattromila la mappa del velo è liscia e segue comunque
+         * il confine fra un primo piano nitido e uno sfondo velato.
+         * ⚠️ **Il tetto è sempre quello**: i campioni sono nove, quindi oltre una certa distanza
+         * non descrivono più il loro intorno. Questo raggio è poco più largo di quello della
+         * chiarezza proprio per restare sotto quel confine.
+         */
+        const val HAZE_SPAN = 1f / 100f
+
         /** Il raggio della chiarezza nello spazio in cui il conto gira: vedi [CLARITY_SPAN]. */
         fun clarityReach(long: Float): Float = CLARITY_SPAN * long
 
         /** Il raggio della texture nello spazio in cui il conto gira: vedi [TEXTURE_SPAN]. */
         fun textureReach(long: Float): Float = TEXTURE_SPAN * long
+
+        /** Il raggio della stima del velo nello spazio del conto: vedi [HAZE_SPAN]. */
+        fun hazeReach(long: Float): Float = HAZE_SPAN * long
     }
 }
 
@@ -1248,6 +1294,9 @@ uniform half clarity;
 uniform half matter;
 uniform float2 wide;
 uniform float2 fine;
+// La foschia (dalla `2.54`), col raggio a cui si stima il velo.
+uniform half haze;
+uniform float2 broad;
 
 // Quanto spostano i due cursori del bilanciamento del bianco, al fondo della corsa. Il numero
 // dice quanto è forte il cursore, e a 0,3 il massimo copre lo scarto fra una luce di casa e la
@@ -1298,6 +1347,18 @@ const half CLARITY_REACH = 0.8;
 // Quanto vale la texture al fondo della corsa. È fra la chiarezza e la nitidezza come lo è il suo
 // raggio: il suo scarto è più piccolo di quello della chiarezza, quindi il fattore è più alto.
 const half MATTER_REACH = 1.1;
+
+// Quanta parte del velo stimato si toglie al fondo della corsa.
+//
+// ⚠️⚠️ **IL NUMERO È UN CONTO E NON UNA TARATURA**: con `k = HAZE_REACH * velo`, un grigio medio
+// in un'area velata a metà (velo 0,5) passa da 0,50 a 0,36, e un'area di foschia piena (velo 0,7)
+// da 0,70 a 0,56. Sopra 0,5 le ombre dentro una zona velata si chiudono sul nero, perché la
+// sottrazione arriva più in basso del pixel più scuro che c'è lì: è l'effetto tipico di questo
+// comando spinto, e questo numero lo tiene fuori dalla corsa.
+//
+// ⚠️ **Il velo che si stima non è mai uno intero**, quindi il denominatore `1 - k` non arriva mai
+// vicino a zero: il caso peggiore è un'area di bianco pieno, dove vale `1 - HAZE_REACH`.
+const half HAZE_REACH = 0.45;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -1490,7 +1551,33 @@ half around(float2 p, float2 step) {
     return sum / weight;
 }
 
-// Il modulo Effetti: il contrasto locale a due raggi, sulla sola luminanza.
+// Quanto velo c'è intorno a `p`: il **canale scuro**, cioè il minimo dei tre canali, mediato
+// sull'intorno con la stessa media binomiale di `around`.
+//
+// ⚠️⚠️ **PERCHÉ IL MINIMO DEI TRE CANALI DICA QUANTO VELO C'È, in una riga**: la foschia è luce
+// bianca che l'aria aggiunge a tutti e tre i canali insieme, quindi alza anche il più basso; un
+// pixel visto senza velo invece ha quasi sempre un canale quasi spento, perché un colore è tale
+// proprio quando i tre canali non sono uguali. Un canale scuro alto vuol dire velo, e quanto è
+// alto dice quanto ce n'è.
+//
+// ⚠️⚠️ **SI PRENDE LA MEDIA DEI MINIMI E NON IL MINIMO DEL BLOCCO**, che è la forma classica: il
+// minimo su un blocco fa una mappa a gradini, e ogni gradino diventa un alone intorno ai contorni
+// forti. La media cambia piano, che è quello che una mappa di velo deve fare.
+half veiled(float2 p, float2 step) {
+    half sum = half(0.0);
+    half weight = half(0.0);
+    for (int j = -1; j <= 1; j++) {
+        for (int i = -1; i <= 1; i++) {
+            half w = half((2.0 - abs(float(i))) * (2.0 - abs(float(j))));
+            half3 s = tap(p + float2(float(i) * step.x, float(j) * step.y));
+            sum += min(min(s.r, s.g), s.b) * w;
+            weight += w;
+        }
+    }
+    return sum / weight;
+}
+
+// Il modulo Effetti: il contrasto locale a due raggi sulla sola luminanza, e la foschia.
 //
 // ⚠️⚠️ **SOMMA LO STESSO SCARTO AI TRE CANALI, E NON È UNA SEMPLIFICAZIONE**: a raggio largo un
 // contrasto locale fatto per canale tinge i due lati di un bordo forte coi complementari, perché
@@ -1517,6 +1604,26 @@ half3 localed(float2 p, half3 c) {
         // ⚠️ **Qui la maschera non c'è**, e il perché vive sul campo `texture` di `Effects`: a
         // questo raggio lo scarto resta dentro il bordo invece di allargarsi in un alone.
         done += half3((base - around(p, fine)) * matter * MATTER_REACH);
+    }
+
+    // ⚠️⚠️ **LA FOSCHIA VIENE PER ULTIMA, E NON È UN ORDINE DI COMODO**: i due cursori qui sopra
+    // misurano lo **scarto** fra il pixel e il suo intorno, e l'intorno si legge dai pixel di
+    // partenza (`around` chiama `image`). Messa prima, la foschia avrebbe cambiato il solo centro:
+    // quello scarto avrebbe misurato lei invece del disegno, e l'immagine si sarebbe riempita di
+    // aloni là dove il velo cambia.
+    if (abs(haze) > half(0.0)) {
+        // Il modello atmosferico, con la luce dell'aria presa bianca: quello che si vede è
+        // l'immagine vera attenuata più il velo, cioè `c = j (1 - k) + k`. Toglierlo vuol dire
+        // invertire quella riga, aggiungerlo vuol dire applicarla.
+        half k = abs(haze) * HAZE_REACH * veiled(p, broad);
+        // ⚠️ **Il ramo è UNIFORME e non divergente**: il velo stimato non è mai negativo, quindi
+        // il segno di `k` è quello del cursore, che è un uniform. Scritto come un `mix` sui due
+        // risultati costerebbe le due formule su ogni pixel per non guadagnare niente.
+        if (haze > half(0.0)) {
+            done = (done - half3(k)) / (half(1.0) - k);
+        } else {
+            done += half3(k) * (half3(1.0) - done);
+        }
     }
 
     return clamp(done, half3(0.0), half3(1.0));
@@ -1619,10 +1726,10 @@ half4 main(float2 p) {
         c = detailed(p, c);
     }
 
-    // 0-bis. Gli Effetti che guardano i vicini (Chiarezza e Texture), subito dopo il Dettaglio e
-    // per la stessa ragione: leggono `image`, cioè i pixel di partenza, quindi devono stare dove
-    // quella lettura vale ancora. E dopo la riduzione del rumore, o la chiarezza rialzerebbe la
-    // grana che il Dettaglio ha appena mediato.
+    // 0-bis. Gli Effetti, che guardano tutti e tre i vicini, subito dopo il Dettaglio e per la
+    // stessa ragione: leggono `image`, cioè i pixel di partenza, quindi devono stare dove quella
+    // lettura vale ancora. E dopo la riduzione del rumore, o la chiarezza rialzerebbe la grana
+    // che il Dettaglio ha appena mediato.
     // ⚠️ La guardia uniforme vale come quella del Dettaglio: a riposo i nove campioni non si
     // chiedono nemmeno.
     if (effectsOn > half(0.5)) {
@@ -1847,6 +1954,7 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
     val grain = Detail.grainReach(span)
     val wide = Effects.clarityReach(span)
     val fine = Effects.textureReach(span)
+    val broad = Effects.hazeReach(span)
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
         /*
@@ -1898,6 +2006,8 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
         setFloatUniform("matter", effects.texture)
         setFloatUniform("wide", wide, wide)
         setFloatUniform("fine", fine, fine)
+        setFloatUniform("haze", effects.haze)
+        setFloatUniform("broad", broad, broad)
     }
 }
 
