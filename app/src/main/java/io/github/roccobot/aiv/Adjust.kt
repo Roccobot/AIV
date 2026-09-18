@@ -1376,8 +1376,8 @@ enum class Quality(override val token: String) : Choice {
  * circa 0,18. Il perno è quello, ed è la ragione per cui alzando il contrasto l'immagine non si
  * scurisce tutta.
  * ⚠️ **E si usa una curva a S invece di una retta**: una retta ripida taglia i due estremi, cioè
- * brucia i bianchi e chiude i neri. La forma qui sotto tende agli estremi senza toccarli mai,
- * quindi alzando il contrasto al massimo non si perde nessun dettaglio.
+ * brucia i bianchi e chiude i neri. La forma di `sCurve` tiene i due estremi **fermi**, quindi
+ * alzando il contrasto al massimo il nero resta nero e il bianco resta bianco.
  *
  * ⚠️⚠️ **OMBRE E LUCI PESANO SU UNA MASCHERA, ed è quello che le distingue dai punti**: la
  * maschera vale uno dove il pixel è scuro (per le ombre) o chiaro (per le luci) e si spegne
@@ -1473,6 +1473,18 @@ const half SHOULDER_SOFT = 1.5;
 // decide quanto è forte il cursore, e a un quarto l'intervallo più stretto che si può chiedere
 // vale comunque metà scala: non esiste un valore dei due cursori che dia un'immagine piatta.
 const half POINT_SHIFT = 0.25;
+
+// Quanto il contrasto alza la pendenza al perno, al fondo della corsa positiva: a uno la pendenza
+// passa da 1 a 2, cioè due toni vicini al grigio medio si allontanano del doppio. Il numero si
+// legge come il contrasto vero, e il tetto è la monotonia: oltre 1,53 la curva tornerebbe
+// indietro in due punti, cioè un tono più chiaro uscirebbe più scuro del suo vicino.
+// ⚠️ **Lo legge anche `Auto`**, che dalla dispersione dei toni ricava il valore del cursore: il
+// numero è ricopiato in `AutoLook.CONTRAST_RISE`, e a presidiare la copia c'è il banco.
+const half CONTRAST_RISE = 1.0;
+
+// Quanto la abbassa al fondo della corsa negativa. Sotto uno per forza: a uno la pendenza al
+// perno varrebbe zero, cioè tutti i mezzi toni diventerebbero lo stesso grigio.
+const half CONTRAST_FALL = 0.8;
 
 // Di quanto il cursore della tonalità sposta una fascia, al fondo della corsa: trenta gradi,
 // cioè un dodicesimo di giro. È la distanza fra due fasce vicine nella metà fitta della ruota,
@@ -1853,22 +1865,37 @@ half speck(float2 p) {
     return half(mix(top, bottom, w.y) * 2.0 - 1.0);
 }
 
-// La curva del contrasto, su un valore in [0, 1] e col perno in mezzo. Per k positivo allontana
-// dal centro senza mai raggiungere gli estremi, per k negativo avvicina al centro.
+// La curva del contrasto, su un valore in [0, 1] e col perno in mezzo: la diagonale più una gobba
+// dispari, che allontana dal perno per k positivo e ci avvicina per k negativo.
+//
+// ⚠️⚠️ **I DUE ESTREMI NON SI MUOVONO E LÀ LA PENDENZA VALE UNO, ED È QUELLO CHE LA DISTINGUE
+// DALLE DUE FORME DELLA `2.14`**, che lui ha bocciate in un colpo solo (campo libero del giro
+// della `2.55`: *mi è sembrato un po' troppo vecchia scuola, e fa diventare tutto un po' troppo
+// grigio in negativo*). Erano due difetti distinti con la stessa radice, cioè una curva che
+// lavorava sugli estremi invece che sui mezzi toni:
+// - **In su c'era una `smoothstep` mescolata alla diagonale**, e quella ha pendenza **zero** agli
+//   estremi: a fondo corsa dei 26 livelli sotto il 10% di scala ne restavano **8**, e altrettanti
+//   in cima. Il contrasto sembrava forte perché mangiava il dettaglio nelle ombre e nei chiari,
+//   mentre al perno la pendenza arrivava solo a 1,5. Adesso i livelli che restano sono **21** e
+//   **22**, e al perno la pendenza è **2**.
+// - **In giù c'era una compressione lineare verso il perno**, che sposta anche il nero e il
+//   bianco: a -100 il nero usciva a 0,30 (livello 76) e il bianco a 0,70 (livello 178), cioè
+//   l'immagine viveva in 102 livelli su 255. Ecco il grigio. Adesso il nero resta **0** e il
+//   bianco **1**, e a comprimersi sono i soli mezzi toni.
+//
+// ⚠️ **La gobba è `(t - 0.5)` per `(4t(1-t))` al cubo**: quel secondo fattore vale uno al perno e
+// zero ai due estremi **con derivata nulla**, quindi la curva ci arriva tangente alla diagonale.
+// Al cubo e non al quadrato perché il cubo concentra la gobba sui mezzi toni: a parità di
+// pendenza al perno la pendenza minima passa da 0,20 a **0,35**, cioè i quarti di tono si
+// comprimono meno.
+// ⚠️ **E si scrive `4t(1-t)` e non `1 - u*u`**, che è lo stesso numero: in `half` la seconda
+// forma cancella le cifre proprio dove il fattore va a zero, e la prima non ha niente da
+// cancellare.
 half sCurve(half x, half k) {
     half t = clamp(x, half(0.0), half(1.0));
-    if (k >= half(0.0)) {
-        half s = t * t * (half(3.0) - half(2.0) * t);
-        return mix(t, s, k);
-    }
-    // ⚠️⚠️ **IL RAMO NEGATIVO ANDAVA DALLA PARTE SBAGLIATA FINO ALLA `2.14`**, e non se ne era
-    // accorto nessuno perché il programma non compilava affatto: la radice che c'era scritta
-    // portava un tono a 0,6 fino a 0,72, cioè **allontanava** dal centro, quindi il cursore del
-    // contrasto alzava il contrasto in tutti e due i versi.
-    // ⚠️ **Il fattore non arriva a zero**: a -100 resta il 40% della distanza dal perno, o
-    // l'immagine diventerebbe un rettangolo grigio, che non è quello che chiede chi abbassa il
-    // contrasto.
-    return half(0.5) + (t - half(0.5)) * (half(1.0) + k * half(0.6));
+    half s = k >= half(0.0) ? k * CONTRAST_RISE : k * CONTRAST_FALL;
+    half bump = half(4.0) * t * (half(1.0) - t);
+    return t + s * (t - half(0.5)) * bump * bump * bump;
 }
 
 // Da RGB a tonalità, saturazione e valore, **senza rami**: la forma classica di Sam Hocevar, che

@@ -184,10 +184,14 @@ object Auto {
      * ⚠️⚠️ **SI MISURA DOVE IL CURSORE AGIRÀ, cioè sull'immagine già esposta e già stirata**: il
      * contrasto è il quarto passo della catena, e una dispersione letta sull'immagine di partenza
      * direbbe quanto era piatta prima che gli altri tre la aprissero, cioè quasi sempre troppo poco.
-     * ⚠️⚠️ **IL LEGAME FRA `k` E LA DISPERSIONE È LA PENDENZA AL PERNO, E IL NUMERO È MISURATO**:
-     * `sCurve` mescola la retta con `smoothstep`, che nel mezzo ha pendenza **1,5**, quindi la
-     * miscela ha pendenza `1 + 0,5k` e i toni vicini al perno si allontanano di tanto. Portare la
-     * dispersione da `s` a [SPREAD] chiede perciò `k = 2 * (SPREAD / s - 1)`. ⚠️ **È
+     * ⚠️⚠️ **IL LEGAME FRA `k` E LA DISPERSIONE È LA PENDENZA AL PERNO, E IL NUMERO SI LEGGE DALLA
+     * CURVA**: `sCurve` posa sulla diagonale una gobba che al perno vale [CONTRAST_RISE] per `k`,
+     * quindi là la pendenza è `1 + k * CONTRAST_RISE` e i toni vicini si allontanano di tanto.
+     * Portare la dispersione da `s` a [SPREAD] chiede perciò `k = (SPREAD / s - 1) / CONTRAST_RISE`.
+     * ⚠️⚠️ **FINO ALLA `2.58` QUEL DIVISORE ERA `0,5` E IL CONTO PORTAVA UN `2`**, perché la curva
+     * di allora arrivava a pendenza 1,5 a fondo corsa: con la curva nuova quel due darebbe il
+     * doppio del contrasto voluto, senza che niente dia errore. ⚠️ **Il valore del cursore si
+     * dimezza e lo stacco resta lo stesso**, perché la curva è il doppio più ripida al perno. ⚠️ **È
      * un'approssimazione del primo ordine e si dichiara**: lontano dal perno la curva è più piatta
      * della sua tangente, quindi il contrasto che ne esce è semmai un po' timido, che è il verso
      * giusto in cui sbagliare per un comando automatico.
@@ -213,7 +217,7 @@ object Auto {
         val media = somma / totale
         val sparso = sqrt(max(quadri / totale - media * media, 0.0)).toFloat()
         if (sparso < TINY) return 0f
-        return (2f * (SPREAD / sparso - 1f)).coerceIn(0f, AUTO_K)
+        return ((SPREAD / sparso - 1f) / CONTRAST_RISE).coerceIn(0f, AUTO_K)
     }
 
     /** Il livello [v] dopo un'esposizione di [gain]: la stessa moltiplicazione, in luce lineare. */
@@ -281,14 +285,27 @@ object Auto {
     /**
      * Di quanto un cursore dei punti sposta il proprio estremo: è `POINT_SHIFT` dello shader.
      *
-     * ⚠️ **È ricopiato e la copia si dichiara**, perché quel valore vive dentro una stringa di
-     * programma e da Kotlin non si può leggere. A tenerli d'accordo è la prova del banco, che
-     * misura il giro completo: `tuned` su un'immagine nota, e i punti che ne escono.
+     * ⚠️⚠️ **LE TRE COSTANTI QUI SOTTO SONO RICOPIATE DA UNA STRINGA DI PROGRAMMA, E LA COPIA HA
+     * UN PRESIDIO**: quei valori vivono dentro `LOOK_AGSL`, che il compilatore di Kotlin tratta
+     * come un testo qualunque, quindi cambiarne uno di là lascerebbe questo conto a lavorare sul
+     * numero di ieri **senza che niente dia errore**. A tenerli d'accordo è il banco, che
+     * `LOOK_AGSL` la legge davvero: cerca la riga della costante e la confronta con la copia.
+     * ⚠️ **La nota di prima diceva che da Kotlin non si potevano leggere, ed era falsa**: è una
+     * stringa, e leggerla costa una riga. Chi ne aggiunge una quarta la metta qui e nella prova.
+     * ⚠️ **Sono `internal` per quel presidio e non perché servano fuori di qui**: una costante che
+     * nessuno può leggere non si può nemmeno confrontare con la sua sorgente.
      */
-    private const val POINT_SHIFT = 0.25f
+    internal const val POINT_SHIFT = 0.25f
 
     /** Quanto arriva il bilanciamento: è `WB_REACH` dello shader, e vale la nota qui sopra. */
-    private const val WB_REACH = 0.3f
+    internal const val WB_REACH = 0.3f
+
+    /**
+     * Di quanto la curva del contrasto alza la pendenza al perno, a fondo corsa: è `CONTRAST_RISE`
+     * dello shader, e vale la nota qui sopra. Lo legge [contrastFor], che dalla dispersione dei
+     * toni ricava il valore del cursore.
+     */
+    internal const val CONTRAST_RISE = 1f
 
     /** Sotto questa distanza fra i due percentili l'immagine si dichiara piatta: vedi [tuned]. */
     private const val FLAT = 0.02f
