@@ -246,7 +246,20 @@ object ImageEdit {
         uri: Uri,
         look: Look,
         quality: Quality,
-        backup: Boolean
+        backup: Boolean,
+        /**
+         * Se il file nuovo va **accanto** all'originale invece di prenderne il posto.
+         *
+         * ⚠️⚠️ **È IL TOCCO LUNGO SU 'SALVA', DALLA `2.58`, ED È SUA RICHIESTA** (campo libero del
+         * giro della `2.55`: *tocco lungo su 'Salva' (in alto a destra) nell'editor: salva un nuovo
+         * file accanto all'originale*). Non apre una strada nuova: è la stessa che questo oggetto
+         * percorre già quando il formato non si sa riscrivere (un HEIC, un AVIF) e quando la
+         * qualità è 'Senza perdita', cioè [Way.COPY] e [lookTarget] con un nome libero.
+         * ⚠️ **Con lui la copia di sicurezza non serve, e si salta da sé**: l'originale non lo tocca
+         * nessuno, quindi la condizione che la chiede (il bersaglio è la sorgente) è falsa per
+         * costruzione. È la stessa nota che [save] porta su [Way.COPY].
+         */
+        beside: Boolean = false
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
@@ -263,7 +276,7 @@ object ImageEdit {
          * [lookTarget].
          */
         if (look.plain && look.geo.idle) {
-            val way = if (canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
+            val way = if (!beside && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
             return@withContext save(
                 context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup
             )
@@ -273,7 +286,7 @@ object ImageEdit {
         }
 
         val kind = lookFormat(source.name, quality)
-        val target = lookTarget(source, dir, kind)
+        val target = lookTarget(source, dir, kind, beside)
         // ⚠️ La copia di sicurezza si fa **solo** quando si sovrascrive, e prima di tutto: è la
         // stessa regola di [save], e la stessa ragione (chi l'ha accesa ha chiesto di non poter
         // perdere l'originale, quindi un fallimento ferma il salvataggio invece di procedere).
@@ -360,12 +373,22 @@ object ImageEdit {
      * ⚠️ **Il confronto è sul FORMATO e non sull'estensione**: `.jpg` e `.jpeg` sono lo stesso
      * formato, e un file che si chiama in un modo non deve cambiare nome solo perché l'altra
      * grafia era più comune.
+     *
+     * ⚠️⚠️ **E [beside] LO DICE DA FUORI, DALLA `2.58`**: è il tocco lungo su 'Salva', che chiede
+     * un file nuovo anche dove il formato coincide. Il nome lo sceglie [FileTree.freeName], che è
+     * la stessa funzione di ogni copia dell'app: cambiare il conto qui vorrebbe dire due modi di
+     * numerare un doppione nella stessa cartella.
+     *
+     * ⚠️ **Non è `internal` per comodità della prova**: è quello che il banco può misurare senza
+     * decodificare niente, cioè che il tocco lungo scriva davvero un file nuovo invece di
+     * riscrivere quello di partenza.
      */
-    private fun lookTarget(
+    internal fun lookTarget(
         source: File,
         dir: File,
-        kind: Bitmap.CompressFormat
-    ): File = if (format(source.name) == kind) source
+        kind: Bitmap.CompressFormat,
+        beside: Boolean = false
+    ): File = if (!beside && format(source.name) == kind) source
     else FileTree.freeName(dir, source.nameWithoutExtension + extensionOf(kind))
 
     /** Il suffisso di un formato, con il punto. */

@@ -68,7 +68,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -176,8 +175,13 @@ fun AdvancedEditorScreen(
     uri: Uri,
     /** Se una scrittura è in corso: i comandi si spengono, o si salverebbe due volte. */
     busy: Boolean,
-    /** Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor di casa. */
-    onSave: (Look) -> Unit,
+    /**
+     * Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor di casa.
+     *
+     * ⚠️ Il secondo argomento è il **tocco lungo**: `true` chiede un file nuovo accanto
+     * all'originale invece di riscriverlo. Vedi [SaveButton].
+     */
+    onSave: (Look, Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -361,12 +365,11 @@ fun AdvancedEditorScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f).heading()
                 )
-                TextButton(
-                    onClick = { onSave(look) },
-                    enabled = origin != null && !busy && !look.idle
-                ) {
-                    Text(stringResource(R.string.editor_save))
-                }
+                SaveButton(
+                    enabled = origin != null && !busy && !look.idle,
+                    onSave = { onSave(look, false) },
+                    onBeside = { onSave(look, true) }
+                )
             }
 
             Box(
@@ -385,7 +388,27 @@ fun AdvancedEditorScreen(
                     LookStage(
                         picture = picture,
                         full = full,
-                        look = if (comparing) Look.NONE else peek?.invoke(look) ?: look,
+                        /*
+                         * ⚠️⚠️ **IL CONFRONTO TOGLIE UN GRUPPO DI CAMPI E NON TUTTI, DALLA `2.58`,
+                         * ED È SUA RICHIESTA** (campo libero del giro della `2.55`): nei due moduli
+                         * che dicono **dove** va un pixel mostra l'originale intero, perché è
+                         * proprio quello che si sta tarando; in tutti gli altri tiene posa, taglio,
+                         * geometria e vista, cioè confronta il **colore** dentro l'inquadratura di
+                         * adesso. Il perché, e che cosa succede a chi aggiunge un campo a [Look],
+                         * vivono su [Look.place].
+                         * ⚠️⚠️ **NEL RITAGLIO QUEL RAMO NON LO RAGGIUNGE NESSUN DITO, E SI DICHIARA
+                         * INVECE DI LASCIARLO CREDERE VIVO**: là il palco fa solo quello, cioè il
+                         * dito serve alle squadrette e il confronto non parte, ed è così da quando
+                         * quel modulo esiste. La riga lo nomina lo stesso perché la sua richiesta
+                         * nomina i due moduli insieme: il giorno che quel dito si liberasse, il
+                         * comportamento è già quello giusto. Oggi si vede nella **Geometria**, dove
+                         * il palco risponde finché lo strumento 'Angoli' è spento.
+                         */
+                        look = when {
+                            !comparing -> peek?.invoke(look) ?: look
+                            MODULES[gaze.module].extra.places -> Look.NONE
+                            else -> look.place
+                        },
                         onCompare = { comparing = it },
                         /*
                          * ⚠️⚠️ **IL MIRATO VALE SOLO NEL MODULO CHE LO SA USARE, E SI GUARDA QUI**: il
@@ -475,6 +498,55 @@ fun AdvancedEditorScreen(
             )
         }
     }
+}
+
+/**
+ * Il comando che scrive, in testata: il tocco riscrive il file, il tocco lungo ne fa uno nuovo.
+ *
+ * ⚠️⚠️ **IL SECONDO GESTO È SUO, DALLA `2.58`** (campo libero del giro della `2.55`: *tocco lungo
+ * su 'Salva' (in alto a destra) nell'editor: salva un nuovo file accanto all'originale*). È il
+ * rovescio della strada di sempre: l'editor riscrive l'immagine dov'è, e chi vuole tenere anche il
+ * prima oggi deve uscire, duplicare il file e rientrare.
+ *
+ * ⚠️⚠️ **NON È UN `TextButton`, E LA RAGIONE È LA STESSA DEI GETTONI DEI MODULI**: quel pezzo di
+ * Material prende il suo `onClick` e non offre un secondo gesto, quindi il tocco lungo andrebbe
+ * messo con un `pointerInput` nel modificatore, cioè in un **secondo nodo** che consuma il tocco
+ * prima che il tasto lo veda. Con `combinedClickable` i gesti sono due e il bersaglio resta uno.
+ *
+ * ⚠️ **L'etichetta del gesto lungo si DICHIARA**, o resta una scorciatoia che esiste solo per chi
+ * l'ha letta qui: è quello che un lettore di schermo annuncia fra le azioni disponibili, ed è la
+ * stessa regola di [PadAction.holdLabel].
+ *
+ * ⚠️ **Il rientro e il corpo sono quelli di un `TextButton`**, perché il tasto è lo stesso di
+ * prima e quello dell'editor di casa non è cambiato: due parole 'Salva' di misura diversa a una
+ * schermata di distanza si vedrebbero.
+ */
+@Composable
+private fun SaveButton(
+    enabled: Boolean,
+    onSave: () -> Unit,
+    onBeside: () -> Unit
+) {
+    val haptics = LocalHapticFeedback.current
+    Text(
+        text = stringResource(R.string.editor_save),
+        style = MaterialTheme.typography.labelLarge,
+        color = if (enabled) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_INK),
+        modifier = Modifier
+            .clip(CircleShape)
+            .combinedClickable(
+                enabled = enabled,
+                role = Role.Button,
+                onLongClickLabel = stringResource(R.string.editor_save_beside),
+                onLongClick = {
+                    haptics.performHapticFeedback(HOLD_BUZZ)
+                    onBeside()
+                },
+                onClick = onSave
+            )
+            .padding(horizontal = TEXT_BUTTON_PAD, vertical = TEXT_BUTTON_PAD / 2)
+    )
 }
 
 /**
@@ -1885,7 +1957,19 @@ private enum class Extra {
      * comune, e per questo resta fuori dalla misura: contarlo vorrebbe dire una scheda che si
      * alza a ogni stile salvato, anche per chi gli stili non li usa.
      */
-    PRESETS
+    PRESETS;
+
+    /**
+     * Se questo modulo dice **dove** va un pixel invece di che colore è.
+     *
+     * ⚠️⚠️ **LO DICHIARA LA TABELLA DEI MODULI E NON UN ELENCO DI NOMI, dalla `2.58`**: è lo
+     * stesso criterio del colore mirato e delle squadrette del ritaglio, e serve al confronto col
+     * prima (vedi [Look.place]). Scritto come un `if` accanto al palco, un modulo nuovo che
+     * spostasse i pixel si ritroverebbe il confronto sbagliato senza che niente dia errore.
+     * ⚠️ **Sono i due che hanno il dito sull'immagine**, e non è una coincidenza: un modulo che
+     * dice dove va un pixel si tara guardando i bordi, quindi i suoi comandi vivono sul palco.
+     */
+    val places: Boolean get() = this == CROP || this == CORNERS
 }
 
 /**

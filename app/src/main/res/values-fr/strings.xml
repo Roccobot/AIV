@@ -494,6 +494,7 @@
     <string name="editor_free">Libre</string>
     <string name="editor_shape_original">Original</string>
     <string name="editor_save">Enregistrer</string>
+    <string name="editor_save_beside">Enregistrer une copie</string>
     <string name="editor_apply">Appliquer</string>
     <string name="editor_crop_back">Recadrage en arrière</string>
     <string name="editor_crop_on">Recadrage en avant</string>

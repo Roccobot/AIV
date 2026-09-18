@@ -462,6 +462,7 @@
     <string name="editor_free">自由</string>
     <string name="editor_shape_original">元の比率</string>
     <string name="editor_save">保存</string>
+    <string name="editor_save_beside">コピーを保存</string>
     <string name="editor_apply">適用</string>
     <string name="editor_crop_back">トリミングを戻す</string>
     <string name="editor_crop_on">トリミングを進める</string>

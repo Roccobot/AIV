@@ -175,6 +175,7 @@
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Landscape</string>
     <string name="editor_save">Save</string>
+    <string name="editor_save_beside">Save a copy</string>
     <string name="editor_apply">Apply</string>
     <!-- The crop module has a history of its own: these undo and redo the
          applied crops, and the third one brings the whole image back. They sit in

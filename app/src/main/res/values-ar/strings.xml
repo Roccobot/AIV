@@ -542,6 +542,7 @@
     <string name="editor_free">حر</string>
     <string name="editor_shape_original">الأصلية</string>
     <string name="editor_save">حفظ</string>
+    <string name="editor_save_beside">حفظ نسخة</string>
     <string name="editor_apply">تطبيق</string>
     <string name="editor_crop_back">تراجع في الاقتصاص</string>
     <string name="editor_crop_on">تقدم في الاقتصاص</string>

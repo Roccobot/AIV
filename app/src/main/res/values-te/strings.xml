@@ -478,6 +478,7 @@
     <string name="editor_free">స్వేచ్ఛ</string>
     <string name="editor_shape_original">అసలు</string>
     <string name="editor_save">భద్రపరచండి</string>
+    <string name="editor_save_beside">కాపీని సేవ్ చేయి</string>
     <string name="editor_apply">వర్తింపజేయి</string>
     <string name="editor_crop_back">క్రాప్‌లో వెనుకకు</string>
     <string name="editor_crop_on">క్రాప్‌లో ముందుకు</string>

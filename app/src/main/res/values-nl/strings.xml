@@ -478,6 +478,7 @@
     <string name="editor_free">Vrij</string>
     <string name="editor_shape_original">Origineel</string>
     <string name="editor_save">Opslaan</string>
+    <string name="editor_save_beside">Kopie opslaan</string>
     <string name="editor_apply">Toepassen</string>
     <string name="editor_crop_back">Uitsnede terug</string>
     <string name="editor_crop_on">Uitsnede vooruit</string>

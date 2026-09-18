@@ -478,6 +478,7 @@
     <string name="editor_free">Frei</string>
     <string name="editor_shape_original">Original</string>
     <string name="editor_save">Speichern</string>
+    <string name="editor_save_beside">Kopie speichern</string>
     <string name="editor_apply">Anwenden</string>
     <string name="editor_crop_back">Zuschnitt zurück</string>
     <string name="editor_crop_on">Zuschnitt vorwärts</string>

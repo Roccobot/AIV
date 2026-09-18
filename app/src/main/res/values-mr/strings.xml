@@ -478,6 +478,7 @@
     <string name="editor_free">मुक्त</string>
     <string name="editor_shape_original">मूळ</string>
     <string name="editor_save">जतन करा</string>
+    <string name="editor_save_beside">प्रत जतन करा</string>
     <string name="editor_apply">लागू करा</string>
     <string name="editor_crop_back">क्रॉपमध्ये मागे</string>
     <string name="editor_crop_on">क्रॉपमध्ये पुढे</string>

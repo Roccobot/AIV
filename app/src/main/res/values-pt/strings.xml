@@ -494,6 +494,7 @@
     <string name="editor_free">Livre</string>
     <string name="editor_shape_original">Original</string>
     <string name="editor_save">Salvar</string>
+    <string name="editor_save_beside">Salvar uma cópia</string>
     <string name="editor_apply">Aplicar</string>
     <string name="editor_crop_back">Corte para trás</string>
     <string name="editor_crop_on">Corte para frente</string>

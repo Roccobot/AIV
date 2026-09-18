@@ -510,6 +510,7 @@
     <string name="editor_free">Вільно</string>
     <string name="editor_shape_original">Вихідні</string>
     <string name="editor_save">Зберегти</string>
+    <string name="editor_save_beside">Зберегти копію</string>
     <string name="editor_apply">Застосувати</string>
     <string name="editor_crop_back">Кадрування назад</string>
     <string name="editor_crop_on">Кадрування вперед</string>

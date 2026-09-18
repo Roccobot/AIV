@@ -478,6 +478,7 @@
     <string name="editor_free">آزاد</string>
     <string name="editor_shape_original">اصل</string>
     <string name="editor_save">محفوظ کریں</string>
+    <string name="editor_save_beside">ایک کاپی محفوظ کریں</string>
     <string name="editor_apply">لاگو کریں</string>
     <string name="editor_crop_back">کراپ میں واپس</string>
     <string name="editor_crop_on">کراپ میں آگے</string>
