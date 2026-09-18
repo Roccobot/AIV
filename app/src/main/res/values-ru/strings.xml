@@ -468,6 +468,7 @@
     <string name="look_effects">Эффекты</string>
     <string name="look_clarity">Четкость</string>
     <string name="look_texture">Текстура</string>
+    <string name="look_haze">Дымка</string>
     <string name="look_tone">Кривая</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тоновая кривая</string>

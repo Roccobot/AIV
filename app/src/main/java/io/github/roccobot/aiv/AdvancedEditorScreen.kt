@@ -2117,16 +2117,16 @@ private val DETAIL_ROWS = listOf(
 )
 
 /**
- * I due cursori degli **Effetti** che la `2.53` porta: chiarezza e texture.
+ * I tre cursori degli **Effetti** che ci sono oggi: chiarezza, texture e foschia.
  *
  * ⚠️⚠️ **IL MODULO NE AVRÀ CINQUE, ED È IL SUO ELENCO** (`d-dopo-editor`, giro della `2.50`:
- * *'Effetti', con 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): questi due sono
- * i primi, e gli altri tre arrivano nei giri dopo. L'ordine è il suo, cioè quello del pannello
- * di Lightroom.
+ * *'Effetti', con 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): la `2.53` ha
+ * portato i primi due e la `2.54` il terzo, e gli ultimi due arrivano nei giri dopo. L'ordine è
+ * il suo, cioè quello del pannello di Lightroom.
  *
  * ⚠️⚠️ **SONO BIPOLARI, E IL VERSO NEGATIVO NON È UN RIEMPITIVO**: verso il basso la chiarezza
- * ammorbidisce i mezzi toni e la texture spiana la pelle, che è quello che quei due cursori
- * fanno da quando esistono. Lo zero è l'immagine come il file la porta.
+ * ammorbidisce i mezzi toni, la texture spiana la pelle e la foschia si **aggiunge** invece di
+ * essere tolta. Lo zero è l'immagine come il file la porta.
  */
 private val EFFECT_ROWS = listOf(
     Dial(
@@ -2138,6 +2138,11 @@ private val EFFECT_ROWS = listOf(
         R.string.look_texture,
         { it.effects.texture },
         { k, v -> k.copy(effects = k.effects.copy(texture = v)) }
+    ),
+    Dial(
+        R.string.look_haze,
+        { it.effects.haze },
+        { k, v -> k.copy(effects = k.effects.copy(haze = v)) }
     )
 )
 

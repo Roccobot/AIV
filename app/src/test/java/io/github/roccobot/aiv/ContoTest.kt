@@ -119,6 +119,27 @@ class ContoTest {
     }
 
     /**
+     * E lo consegna anche con gli Effetti dentro, che dalla `2.54` sono tre cursori.
+     *
+     * ⚠️⚠️ **IL TERZO PORTA UN UNIFORM IN PIÙ, E CHI LO DIMENTICASSE NON AVREBBE NESSUN ERRORE**:
+     * un `setFloatUniform` che non combacia con un nome del programma lancia al primo fotogramma,
+     * e la rete di `lookShader` lo trasforma in un `null`, cioè in 'questo telefono non sa farlo'.
+     * È la stessa forma del difetto della `2.14`, ed è la ragione per cui questa prova compila il
+     * programma **davvero**, senza rete.
+     * ⚠️ **L'uniform dello shader si chiama `matter` e non `texture`**: quella è una funzione di
+     * GLSL, e un nome che le somiglia troppo è un rischio che non vale la pena correre su un
+     * telefono. Se un giorno quella traduzione saltasse, questo caso sarebbe il primo a dirlo.
+     */
+    @Test
+    fun `lookShader consegna il programma con gli Effetti`() {
+        val tocco = Effects(clarity = 0.6f, texture = -0.4f, haze = 0.5f)
+        assertNotNull(
+            "lookShader ha risposto null: un uniform degli Effetti non combacia",
+            lookShader(sorgente(), Look(effects = tocco), SPAN)
+        )
+    }
+
+    /**
      * E lo consegna anche con una curva dentro, che porta un **secondo shader** in ingresso.
      *
      * ⚠️⚠️ **UN `uniform shader` È UNA FORMA CHE QUESTO PROGRAMMA NON AVEVA, E SI CONSEGNA CON
