@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Columnas en las cuadrículas</string>
     <string name="settings_folder_columns_desc">Cuántas columnas muestran la cuadrícula de carpetas y la de imágenes. Más columnas caben más cosas en pantalla y encogen cada celda. Con cuatro, el nombre de la carpeta suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
-    <string name="settings_hand">Posición de los botones flotantes</string>
-    <string name="settings_hand_desc">El lado de la pantalla que aloja los botones de menú superpuestos a ella (\'FAB\').</string>
+    <string name="settings_hand">Posición preferida de los botones</string>
+    <string name="settings_hand_desc">El lado preferido para los botones principales al usar el teléfono con una mano, para diestros y zurdos. Define dónde se colocan el botón de acción flotante (\'FAB\'), algunos botones de navegación y partes de la interfaz del editor.</string>
     <string name="settings_right">Derecha</string>
     <string name="settings_left">Izquierda</string>
     <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>
@@ -457,7 +457,7 @@
     <string name="look_presets">Estilos</string>
     <string name="look_preset_save">Guardar estilo</string>
     <string name="look_preset_name">Nombre del ajuste</string>
-    <string name="look_preset_mine">Tus estilos</string>
+    <string name="look_preset_mine">Estilos guardados</string>
     <string name="look_preset_house">Estilos AIV</string>
     <string name="look_preset_remove">Quitar</string>
     <string name="look_preset_gone">Ajuste eliminado</string>
@@ -565,7 +565,7 @@
     <string name="settings_buttons_after">Mover después</string>
     <string name="look_corners">Esquinas</string>
     <string name="look_preset_add">Añadir al estilo actual</string>
-    <string name="settings_styles">Estilos de edición</string>
+    <string name="settings_styles">Estilos del editor</string>
     <string name="settings_styles_desc">Reordena, renombra o elimina los estilos del editor completo, tanto los de la app como los tuyos.</string>
     <string name="settings_styles_none">Todavía no has guardado ningún estilo.</string>
     <string name="settings_styles_reset">Restaurar</string>

@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Colonnes dans les grilles</string>
     <string name="settings_folder_columns_desc">Combien de colonnes affichent la grille des dossiers et celle des images. Plus de colonnes font tenir plus de choses à l\'écran et rétrécissent chaque case. À quatre, le nom du dossier est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
-    <string name="settings_hand">Position des boutons flottants</string>
-    <string name="settings_hand_desc">Le côté de l\'écran qui accueille les boutons de menu superposés à celui-ci (\'FAB\').</string>
+    <string name="settings_hand">Position préférée des boutons</string>
+    <string name="settings_hand_desc">Le côté préféré pour les boutons principaux lors d\'une utilisation à une main, pour droitiers et gauchers. Il définit la place du bouton d\'action flottant (\'FAB\'), de certains boutons de navigation et de parties de l\'interface de l\'éditeur.</string>
     <string name="settings_right">Droite</string>
     <string name="settings_left">Gauche</string>
     <string name="settings_list_path">Liste de fichiers : copier le chemin du dossier parent</string>
@@ -457,7 +457,7 @@
     <string name="look_presets">Styles</string>
     <string name="look_preset_save">Enregistrer le style</string>
     <string name="look_preset_name">Nom du préréglage</string>
-    <string name="look_preset_mine">Tes styles</string>
+    <string name="look_preset_mine">Styles enregistrés</string>
     <string name="look_preset_house">Styles AIV</string>
     <string name="look_preset_remove">Supprimer</string>
     <string name="look_preset_gone">Préréglage supprimé</string>
@@ -565,7 +565,7 @@
     <string name="settings_buttons_after">Déplacer après</string>
     <string name="look_corners">Coins</string>
     <string name="look_preset_add">Ajouter au style actuel</string>
-    <string name="settings_styles">Styles de retouche</string>
+    <string name="settings_styles">Styles de l\'éditeur</string>
     <string name="settings_styles_desc">Réorganise, renomme ou supprime les styles de l\'éditeur complet, ceux de l\'app comme les tiens.</string>
     <string name="settings_styles_none">Tu n\'as encore enregistré aucun style.</string>
     <string name="settings_styles_reset">Restaurer</string>

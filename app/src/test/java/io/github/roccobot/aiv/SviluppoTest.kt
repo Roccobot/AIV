@@ -2491,13 +2491,123 @@ class SviluppoTest {
 
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
+    /**
+     * **Caso 51: lo specchio della barra bassa, con l'eccezione della coppia del tempo.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (2026-09-14: *l'ordine delle icone della barra bassa
+     * deve essere speculare quando il FAB è a sinistra, con la sola eccezione di
+     * 'Annulla'/'Ripristina', che devono essere sempre il primo a sinistra del secondo*).
+     * ⚠️ **Si misura la funzione pura e non la fila disegnata**, che è il caso 52: qui quello che
+     * può rompersi in silenzio è lo **scambio** della coppia, cioè una riga che senza questa prova
+     * si proverebbe solo contando i pixel di cinque icone.
+     * ⚠️ **La fila corta è il caso vero dei cinque moduli senza 'Auto' e senza 'Mirato'**: lo
+     * scambio deve valere anche quando la coppia apre la fila rovesciata.
+     */
+    @Test
+    fun `la barra bassa si specchia tranne Annulla e Ripristina`() {
+        val piena = listOf(Bar.AIM, Bar.AUTO, Bar.UNDO, Bar.REDO, Bar.ORIGINAL)
+        assertEquals(
+            "col FAB a destra la fila non è quella di sempre",
+            piena,
+            barOrder(piena, mirror = false)
+        )
+        assertEquals(
+            "col FAB a sinistra la fila non si specchia tenendo ferma la coppia del tempo",
+            listOf(Bar.ORIGINAL, Bar.UNDO, Bar.REDO, Bar.AUTO, Bar.AIM),
+            barOrder(piena, mirror = true)
+        )
+        val corta = listOf(Bar.UNDO, Bar.REDO, Bar.ORIGINAL)
+        assertEquals(
+            "senza i due facoltativi lo scambio della coppia non avviene",
+            listOf(Bar.ORIGINAL, Bar.UNDO, Bar.REDO),
+            barOrder(corta, mirror = true)
+        )
+    }
+
+    /**
+     * **Caso 52: col FAB a sinistra la fila disegnata parte da 'Originale'.**
+     *
+     * ⚠️ **Si misura la POSIZIONE e non la sequenza dei nodi**, per la stessa ragione della prova
+     * sull'ordine dei moduli: l'albero li elenca come li compone, quindi una prova che leggesse
+     * quello sarebbe verde anche con una fila disegnata al contrario.
+     * ⚠️ **E la coppia del tempo si guarda qui e non solo nel caso 51**: è la sola cosa che lo
+     * specchio non deve toccare, e il conto puro non dice che la fila la disegni davvero così.
+     */
+    @Test
+    fun `col FAB a sinistra la barra bassa comincia da Originale`() {
+        banco.setContent { Scena(hand = Hand.LEFT) }
+        pronta()
+
+        val originale = dove(R.string.editor_original)
+        val annulla = dove(R.string.editor_undo)
+        val ripristina = dove(R.string.editor_redo)
+        assertTrue("'Originale' non apre la fila specchiata", originale < annulla)
+        assertTrue("'Annulla' non resta prima di 'Ripristina'", annulla < ripristina)
+    }
+
+    /**
+     * **Caso 52b: col FAB a destra la fila resta quella di sempre.**
+     *
+     * ⚠️ **È la controprova del caso 52 e non un doppione**: `setContent` si chiama una volta sola
+     * per prova, quindi le due scene vogliono due prove, e senza questa lo specchio potrebbe
+     * valere in tutti e due i versi senza che niente lo dica.
+     */
+    @Test
+    fun `col FAB a destra la barra bassa finisce con Originale`() {
+        banco.setContent { Scena(hand = Hand.RIGHT) }
+        pronta()
+
+        val annulla = dove(R.string.editor_undo)
+        val ripristina = dove(R.string.editor_redo)
+        val originale = dove(R.string.editor_original)
+        assertTrue("'Annulla' non resta prima di 'Ripristina'", annulla < ripristina)
+        assertTrue("'Originale' non chiude la fila", ripristina < originale)
+    }
+
+    /**
+     * **Caso 53: 'Salva stile' vive sulla barra, nel solo modulo Stili e dal lato opposto.**
+     *
+     * ⚠️⚠️ **È IL SECONDO DEI TRE RITOCCHI** (sua richiesta del 2026-09-14: *'Salva stile' deve
+     * stare in basso a sinistra, allineato all'inizio delle righe degli stili, ma fisso sulla barra
+     * delle icone*): fino alla `2.51` era un tasto scritto in fondo al corpo del modulo, quindi
+     * col FAB a destra stava dalla parte sbagliata e con l'elenco lungo si ritrovava scorrendo.
+     * ⚠️ **La fila dei moduli si monta rovesciata**, come nella prova dell'ordine: con l'ottavo
+     * gettone in coda la fila scorre, e quello che cade fuori dal viewport non si può toccare.
+     */
+    @Test
+    fun `Salva stile compare nel solo modulo Stili e dalla parte del FAB`() {
+        banco.setContent { Scena(mods = MOD_KEYS.reversed(), hand = Hand.RIGHT) }
+        pronta()
+
+        assertEquals(
+            "il comando che salva compare in un modulo che non lo chiede",
+            0,
+            quantiDetti(R.string.look_preset_save)
+        )
+        banco.onNodeWithContentDescription(testo(R.string.look_presets)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "nel modulo Stili il comando che salva non c'è",
+            1,
+            quantiDetti(R.string.look_preset_save)
+        )
+        assertTrue(
+            "col FAB a destra il comando che salva non sta dall'altra parte dei comandi",
+            dove(R.string.look_preset_save) < dove(R.string.editor_undo)
+        )
+    }
+
     @Composable
-    private fun Scena(uri: Uri = quadrato(), mods: List<PadKey> = MOD_KEYS) {
+    private fun Scena(
+        uri: Uri = quadrato(),
+        mods: List<PadKey> = MOD_KEYS,
+        hand: Hand = Hand.RIGHT
+    ) {
         AivTheme(darkTheme = false) {
             // ⚠️ L'ordine dei moduli viaggia di qui anche nell'app: la scheda le impostazioni
             // non le riceve, quindi una prova che lo passasse per parametro misurerebbe una
             // strada che nessuno percorre.
-            CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods)) {
+            CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods, hand = hand)) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     AdvancedEditorScreen(uri = uri, busy = false, onSave = {}, onBack = {})
                 }

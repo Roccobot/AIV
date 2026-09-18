@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Số cột trong lưới</string>
     <string name="settings_folder_columns_desc">Lưới thư mục và lưới ảnh hiển thị bao nhiêu cột. Nhiều cột hơn chứa được nhiều hơn trên màn hình và thu nhỏ từng ô. Ở bốn cột, tên thư mục thường bị cắt ngắn.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>
-    <string name="settings_hand">Vị trí của các nút nổi</string>
-    <string name="settings_hand_desc">Phía của màn hình chứa các nút menu nằm đè lên nó (\'FAB\').</string>
+    <string name="settings_hand">Vị trí ưa thích của các nút</string>
+    <string name="settings_hand_desc">Bên ưa thích cho các nút chính khi dùng một tay, cho người thuận tay phải và tay trái. Nó quyết định vị trí của nút tác vụ nổi (\'FAB\'), một số nút điều hướng và vài phần giao diện trình chỉnh sửa.</string>
     <string name="settings_right">Phải</string>
     <string name="settings_left">Trái</string>
     <string name="settings_list_path">Danh sách tệp: chép cả đường dẫn thư mục</string>
@@ -425,7 +425,7 @@
     <string name="look_presets">Kiểu</string>
     <string name="look_preset_save">Lưu kiểu</string>
     <string name="look_preset_name">Tên cài đặt sẵn</string>
-    <string name="look_preset_mine">Kiểu của bạn</string>
+    <string name="look_preset_mine">Kiểu đã lưu</string>
     <string name="look_preset_house">Kiểu AIV</string>
     <string name="look_preset_remove">Xóa</string>
     <string name="look_preset_gone">Đã xóa cài đặt sẵn</string>
@@ -531,7 +531,7 @@
     <string name="settings_buttons_after">Chuyển xuống sau</string>
     <string name="look_corners">Góc ảnh</string>
     <string name="look_preset_add">Thêm vào kiểu hiện tại</string>
-    <string name="settings_styles">Kiểu chỉnh sửa</string>
+    <string name="settings_styles">Kiểu của trình chỉnh sửa</string>
     <string name="settings_styles_desc">Sắp xếp, đổi tên hoặc xoá các kiểu của trình chỉnh sửa đầy đủ, cả kiểu có sẵn lẫn kiểu của bạn.</string>
     <string name="settings_styles_none">Bạn chưa lưu kiểu nào.</string>
     <string name="settings_styles_reset">Khôi phục</string>

@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
-    <string name="settings_hand">फ़्लोटिंग बटन की स्थिति</string>
-    <string name="settings_hand_desc">स्क्रीन का वह हिस्सा जहाँ उसके ऊपर रखे मेन्यू बटन रहते हैं (\'FAB\')।</string>
+    <string name="settings_hand">बटनों की पसंदीदा स्थिति</string>
+    <string name="settings_hand_desc">एक हाथ से उपयोग करते समय मुख्य बटनों के लिए पसंदीदा दिशा, दाएँ और बाएँ हाथ वालों के लिए। यह फ़्लोटिंग ऐक्शन बटन (\'FAB\'), कुछ नेविगेशन बटन और संपादक के UI के हिस्सों की जगह तय करती है।</string>
     <string name="settings_right">दाएँ</string>
     <string name="settings_left">बाएँ</string>
     <string name="settings_list_path">फ़ाइल सूची: फ़ोल्डर का पथ भी कॉपी करें</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">स्टाइल</string>
     <string name="look_preset_save">स्टाइल सहेजें</string>
     <string name="look_preset_name">प्रीसेट का नाम</string>
-    <string name="look_preset_mine">आपकी स्टाइल</string>
+    <string name="look_preset_mine">सहेजी गई शैलियाँ</string>
     <string name="look_preset_house">AIV स्टाइल</string>
     <string name="look_preset_remove">हटाएं</string>
     <string name="look_preset_gone">प्रीसेट हटाया गया</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">बाद में खिसकाएँ</string>
     <string name="look_corners">कोने</string>
     <string name="look_preset_add">मौजूदा स्टाइल में जोड़ें</string>
-    <string name="settings_styles">संपादन स्टाइल</string>
+    <string name="settings_styles">संपादक की शैलियाँ</string>
     <string name="settings_styles_desc">पूर्ण संपादक की स्टाइल को फिर से क्रमबद्ध करें, नाम बदलें या हटाएँ, चाहे ऐप की हों या आपकी।</string>
     <string name="settings_styles_none">आपने अभी तक कोई स्टाइल सहेजी नहीं है।</string>
     <string name="settings_styles_reset">पुनर्स्थापित करें</string>

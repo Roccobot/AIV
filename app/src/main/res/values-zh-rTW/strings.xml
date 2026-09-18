@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">資料夾格狀檢視與圖片格狀檢視顯示幾欄。欄數越多，畫面上放得越多，每個方塊越小。四欄時資料夾名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
-    <string name="settings_hand">浮動按鈕的位置</string>
-    <string name="settings_hand_desc">選單按鈕疊放在螢幕上的那一側（\'FAB\'）。</string>
+    <string name="settings_hand">按鈕的偏好位置</string>
+    <string name="settings_hand_desc">單手使用時主要按鈕的偏好一側，適合慣用右手和左手的人。它決定浮動操作按鈕（\'FAB\'）、部分導覽按鈕以及編輯器介面部分元素的位置。</string>
     <string name="settings_right">右側</string>
     <string name="settings_left">左側</string>
     <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>
@@ -425,7 +425,7 @@
     <string name="look_presets">風格</string>
     <string name="look_preset_save">儲存風格</string>
     <string name="look_preset_name">預設集名稱</string>
-    <string name="look_preset_mine">我的風格</string>
+    <string name="look_preset_mine">已儲存的樣式</string>
     <string name="look_preset_house">AIV 風格</string>
     <string name="look_preset_remove">刪除</string>
     <string name="look_preset_gone">已刪除預設集</string>
@@ -531,7 +531,7 @@
     <string name="settings_buttons_after">後移</string>
     <string name="look_corners">四角</string>
     <string name="look_preset_add">疊加到目前風格</string>
-    <string name="settings_styles">編輯風格</string>
+    <string name="settings_styles">編輯器樣式</string>
     <string name="settings_styles_desc">重新排序、重新命名或刪除完整編輯器的風格，內建的與你自己的都可以。</string>
     <string name="settings_styles_none">你還沒有儲存任何風格。</string>
     <string name="settings_styles_reset">還原</string>

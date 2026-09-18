@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Kolommen in de rasters</string>
     <string name="settings_folder_columns_desc">Hoeveel kolommen het mappenraster en het afbeeldingsraster tonen. Meer kolommen passen meer op het scherm en maken elke tegel kleiner. Bij vier wordt de mapnaam meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
-    <string name="settings_hand">Positie van de zwevende knoppen</string>
-    <string name="settings_hand_desc">De schermzijde waar de menuknoppen bovenop liggen (\'FAB\').</string>
+    <string name="settings_hand">Voorkeurspositie van de knoppen</string>
+    <string name="settings_hand_desc">De voorkeurszijde voor de hoofdknoppen bij bediening met één hand, voor rechts- en linkshandigen. Ze bepaalt waar de zwevende actieknop (\'FAB\'), enkele navigatieknoppen en delen van de editor-interface komen.</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Bestandslijst: pad van de map kopiëren</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">Stijlen</string>
     <string name="look_preset_save">Stijl opslaan</string>
     <string name="look_preset_name">Presetnaam</string>
-    <string name="look_preset_mine">Jouw stijlen</string>
+    <string name="look_preset_mine">Opgeslagen stijlen</string>
     <string name="look_preset_house">AIV-stijlen</string>
     <string name="look_preset_remove">Verwijderen</string>
     <string name="look_preset_gone">Preset verwijderd</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">Naar achteren</string>
     <string name="look_corners">Hoeken</string>
     <string name="look_preset_add">Aan huidige stijl toevoegen</string>
-    <string name="settings_styles">Bewerkingsstijlen</string>
+    <string name="settings_styles">Editor-stijlen</string>
     <string name="settings_styles_desc">Herschik, hernoem of verwijder de stijlen van de volledige editor, zowel de meegeleverde als die van jou.</string>
     <string name="settings_styles_none">Je hebt nog geen stijl opgeslagen.</string>
     <string name="settings_styles_reset">Herstellen</string>

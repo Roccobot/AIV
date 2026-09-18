@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">أعمدة الشبكات</string>
     <string name="settings_folder_columns_desc">عدد الأعمدة التي تعرضها شبكة المجلدات وشبكة الصور. الأعمدة الأكثر تعرض عناصر أكثر وتصغّر كل مربع. عند أربعة أعمدة يُقتطع اسم المجلد عادة.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
-    <string name="settings_hand">موضع الأزرار العائمة</string>
-    <string name="settings_hand_desc">جهة الشاشة التي تحمل أزرار القوائم الموضوعة فوقها (\'FAB\').</string>
+    <string name="settings_hand">الموضع المفضل للأزرار</string>
+    <string name="settings_hand_desc">الجهة المفضلة للأزرار الرئيسية عند الاستخدام بيد واحدة، لمن يستخدم اليمنى أو اليسرى. تحدد موضع زر الإجراء العائم (\'FAB\') وبعض أزرار التنقل وأجزاء من واجهة المحرر.</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
@@ -505,7 +505,7 @@
     <string name="look_presets">الأنماط</string>
     <string name="look_preset_save">حفظ النمط</string>
     <string name="look_preset_name">اسم الإعداد المسبق</string>
-    <string name="look_preset_mine">أنماطك</string>
+    <string name="look_preset_mine">الأنماط المحفوظة</string>
     <string name="look_preset_house">أنماط AIV</string>
     <string name="look_preset_remove">إزالة</string>
     <string name="look_preset_gone">تمت إزالة الإعداد المسبق</string>
@@ -616,7 +616,7 @@
     <string name="settings_buttons_after">نقل إلى الخلف</string>
     <string name="look_corners">الزوايا</string>
     <string name="look_preset_add">إضافة إلى المظهر الحالي</string>
-    <string name="settings_styles">أنماط التحرير</string>
+    <string name="settings_styles">أنماط المحرر</string>
     <string name="settings_styles_desc">أعد ترتيب أنماط المحرر الكامل أو غيّر أسماءها أو احذفها، سواء المدمجة أو أنماطك.</string>
     <string name="settings_styles_none">لم تحفظ أي نمط بعد.</string>
     <string name="settings_styles_reset">استعادة</string>

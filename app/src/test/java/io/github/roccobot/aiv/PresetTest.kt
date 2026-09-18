@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -243,8 +244,8 @@ class PresetTest {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 PresetBody(
-                    look = Look.NONE,
                     height = 320.dp,
+                    mine = Presets.mine(app),
                     onPick = { p, add ->
                         scelto = p
                         additivo = add
@@ -278,7 +279,7 @@ class PresetTest {
         Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
         banco.setContent {
             AivTheme(darkTheme = false) {
-                PresetBody(look = Look.NONE, height = 320.dp, onPick = { _, _ -> })
+                PresetBody(height = 320.dp, mine = Presets.mine(app), onPick = { _, _ -> })
             }
         }
         /*
@@ -320,6 +321,71 @@ class PresetTest {
             comandiCheTolgono()
         )
     }
+
+    /**
+     * **Caso 9c: senza stili propri l'elenco non porta nessun titolino.**
+     *
+     * ⚠️⚠️ **È IL PRIMO DEI TRE RITOCCHI DELLA `2.52`** (suo, 2026-09-14: *il nome della categoria
+     * ('Stili AIV') a ben vedere non serve: in questo contesto i pixel verticali sono preziosi e si
+     * capisce perfettamente che i primi sono di fabbrica*). Con quel titolo via, il separatore dei
+     * propri da solo annuncerebbe una parte che al primo avvio non esiste, quindi anche lui c'è
+     * **solo se** c'è almeno uno stile salvato.
+     * ⚠️ **Si misurano tutti e due i titoli**: una prova che guardasse il solo 'Stili AIV' sarebbe
+     * verde anche con un separatore che compare sopra il vuoto.
+     */
+    @Test
+    fun `l elenco senza stili propri non porta nessun titolino`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                PresetBody(height = 320.dp, mine = emptyList(), onPick = { _, _ -> })
+            }
+        }
+        assertEquals(
+            "il titolo degli stili dell'app è ancora scritto",
+            0,
+            quantiDetti(R.string.look_preset_house)
+        )
+        assertEquals(
+            "il separatore dei salvati compare senza niente sotto",
+            0,
+            quantiDetti(R.string.look_preset_mine)
+        )
+    }
+
+    /**
+     * **Caso 9d: con uno stile proprio compare il solo separatore dei salvati.**
+     *
+     * ⚠️ **È la controprova del caso 9c**: senza di lei un elenco che non scrivesse **mai** il
+     * separatore resterebbe verde, e i due gruppi si leggerebbero come uno solo.
+     */
+    @Test
+    fun `con uno stile proprio compare il solo separatore dei salvati`() {
+        Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                PresetBody(height = 320.dp, mine = Presets.mine(app), onPick = { _, _ -> })
+            }
+        }
+        banco.onNode(hasScrollAction()).performScrollToNode(hasText(testo(R.string.look_preset_mine)))
+        assertEquals(
+            "il separatore dei salvati non c'è",
+            1,
+            quantiDetti(R.string.look_preset_mine)
+        )
+        assertEquals(
+            "il titolo degli stili dell'app è tornato",
+            0,
+            quantiDetti(R.string.look_preset_house)
+        )
+    }
+
+    /** Quante volte il testo [id] è in scena: il banco non ha un conto pronto. */
+    private fun quantiDetti(id: Int): Int = banco
+        .onAllNodesWithText(testo(id))
+        .fetchSemanticsNodes().size
+
+    /** Il testo di una risorsa, come lo legge l'app. */
+    private fun testo(id: Int): String = app.getString(id)
 
     /** Quanti comandi 'Elimina' sono in scena: il banco non ha un conto pronto. */
     private fun comandiCheTolgono(): Int = banco

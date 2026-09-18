@@ -13,7 +13,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -33,7 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Il corpo del modulo **Stili**: quelli di casa, quelli propri, e il comando che salva.
+ * Il corpo del modulo **Stili**: quelli di casa e quelli propri, in un elenco solo che scorre.
  *
  * ⚠️⚠️ **DALLA `2.50` È UN MODULO E NON PIÙ UN PANNELLO, ED È SUA ISTRUZIONE** (campo libero del
  * giro della `2.40`, punto 2: *il modulo Preset, che può restare senza titolo come gli altri, deve
@@ -59,11 +63,14 @@ import androidx.compose.ui.unit.dp
  * mano che si tocca un predefinito o un altro, l'immagine deve aggiornarsi in tempo reale*): il
  * modulo vive nella scheda, quindi il palco resta in scena e il confronto si fa senza chiudere
  * niente.
+ *
+ * ⚠️⚠️ **E DALLA `2.52` IL COMANDO CHE SALVA NON È PIÙ QUI: VIVE SULLA BARRA DELLE ICONE** (sua
+ * richiesta del 2026-09-14, con schermata: *'Salva stile' deve stare in basso a sinistra,
+ * allineato all'inizio delle righe degli stili, ma fisso sulla barra delle icone*). Quindi il
+ * corpo è l'elenco e basta, e quello che si salva glielo dice il suo chiamante passando [mine].
  */
 @Composable
 fun PresetBody(
-    /** Quello che si ha davanti, cioè il candidato al salvataggio. */
-    look: Look,
     /**
      * Quanto è alta la scheda, cioè l'altezza comune misurata sugli altri moduli.
      *
@@ -71,28 +78,25 @@ fun PresetBody(
      * è l'unico che si adatta invece di contribuire.
      */
     height: Dp,
+    /**
+     * Gli stili salvati, che vivono nella schermata perché il comando che li crea vive sulla barra.
+     *
+     * ⚠️ **Non si rileggono qui dal file**, o dopo un salvataggio l'elenco direbbe il vero solo
+     * riaprendo l'editor: chi scrive e chi mostra sono due pezzi diversi dalla `2.52`, quindi lo
+     * stato vive sopra tutti e due.
+     */
+    mine: List<Preset>,
     /** Applica un preset: `add` vero è il tocco lungo, cioè l'additiva. */
     onPick: (Preset, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     /*
-     * ⚠️ **L'elenco si legge una volta e si riscrive a ogni gesto che lo cambia**: il file lo
-     * scrivono questo corpo e la pagina delle impostazioni, e rileggerlo a ogni ricomposizione
-     * vorrebbe dire aprire un file per ogni fotogramma di un'animazione.
+     * ⚠️ **Quelli di casa si leggono una volta**: li cambia la sola pagina delle impostazioni, che
+     * è un'altra schermata, quindi al ritorno questo corpo nasce da capo. Rileggerli a ogni
+     * ricomposizione vorrebbe dire aprire un file per ogni fotogramma di un'animazione.
      */
-    var house by remember { mutableStateOf(Presets.house(context)) }
-    var mine by remember { mutableStateOf(Presets.mine(context)) }
-    var naming by remember { mutableStateOf(false) }
-
-    /*
-     * ⚠️ **Il comando è spento quando non c'è niente da salvare**, e la domanda se la fa
-     * [Preset.of]: quella funzione tiene i soli cinque moduli di colore, quindi il [Look] che ne
-     * esce è a riposo esattamente quando un preset preso adesso non direbbe niente. Un secondo
-     * conto scritto qui direbbe la stessa cosa con altre parole, e divergerebbe il giorno che i
-     * moduli sono sei.
-     */
-    val worth = !Preset.of("", look).look.idle
+    val house = remember { Presets.house(context) }
 
     Column(modifier = modifier.fillMaxWidth().height(if (height > 0.dp) height else PRESET_FALL)) {
         LazyColumn(
@@ -100,13 +104,14 @@ fun PresetBody(
             verticalArrangement = Arrangement.spacedBy(PRESET_GAP)
         ) {
             /*
-             * ⚠️⚠️ **'STILI AIV' VIENE PRIMA E 'STILI PERSONALI' DOPO, ED È SUA ISTRUZIONE** (nota
-             * sulla voce `preset-salva`: *'Di serie' ... deve restare, ma diventa 'Stili AIV', a
-             * sottolineare che fanno parte dell'app, mentre quelli salvati, in basso, diventeranno
-             * 'Stili personali'*). Fino alla `2.40` i propri stavano in cima, cioè l'elenco si
-             * apriva su un gruppo che al primo avvio è vuoto.
+             * ⚠️⚠️ **IL TITOLO DI CASA NON SI SCRIVE, DALLA `2.52`, ED È SUO RITOCCO** (2026-09-14:
+             * *il nome della categoria ('Stili AIV') a ben vedere non serve: in questo contesto i
+             * pixel verticali sono preziosi e si capisce perfettamente che i primi sono di
+             * fabbrica*). Resta un separatore solo, quello dei propri, e l'ordine dei due gruppi
+             * non cambia: gli stili dell'app sopra, i salvati sotto.
+             * ⚠️ **'Stili AIV' non è terminologia morta**: è come si chiamano quei venti quando se
+             * ne parla, e la pagina delle impostazioni li nomina ancora.
              */
-            item { PresetGroup(stringResource(R.string.look_preset_house)) }
             items(house, key = { "h-" + it.key }) { p ->
                 PresetRow(preset = p, onPick = onPick)
             }
@@ -117,21 +122,43 @@ fun PresetBody(
                 }
             }
         }
-        /*
-         * ⚠️ **Il comando resta FUORI dall'elenco che scorre**, cioè in fondo al corpo e non in
-         * fondo alle righe: con venti stili di casa, dentro la lista si raggiungerebbe scorrendo
-         * fino in fondo ogni volta. ⚠️ **E non costa altezza a nessuno**, perché questo corpo la
-         * sua altezza la riceve invece di dettarla.
-         */
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = { naming = true }, enabled = worth) {
-                Text(stringResource(R.string.look_preset_save))
-            }
-        }
+    }
+}
+
+/**
+ * Il comando che salva quello che si ha davanti come stile nuovo, con la sua finestra del nome.
+ *
+ * ⚠️⚠️ **VIVE SULLA BARRA DELLE ICONE E NON NEL CORPO DEL MODULO, DALLA `2.52`** (sua richiesta:
+ * *in basso a sinistra, allineato all'inizio delle righe degli stili, ma fisso sulla barra delle
+ * icone*): fino alla `2.51` era un tasto scritto in fondo al corpo e allineato a destra.
+ * ⚠️⚠️ **QUINDI DIVENTA UN'ICONA, ED È UNA SCELTA DICHIARATA**: quella barra è tutta di icone
+ * dalla `2.32`, e una scritta in mezzo la farebbe leggere in due modi, che è la ragione per cui
+ * anche il terzo comando della storia è un'icona pur non essendo stato nominato. Il nome resta
+ * come descrizione parlata, cioè quello che un lettore di schermo annuncia e quello che il banco
+ * cerca, come per i gettoni dei moduli e per 'Mirato'.
+ * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32`: se non
+ * dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+ *
+ * ⚠️ **È spento quando non c'è niente da salvare**, e la domanda se la fa [Preset.of]: quella
+ * funzione tiene i soli cinque moduli di colore, quindi il [Look] che ne esce è a riposo
+ * esattamente quando un preset preso adesso non direbbe niente. Un secondo conto scritto qui
+ * direbbe la stessa cosa con altre parole, e divergerebbe il giorno che i moduli sono sei.
+ */
+@Composable
+fun PresetSaveButton(
+    /** Quello che si ha davanti, cioè il candidato al salvataggio. */
+    look: Look,
+    /** Falso mentre l'editor è occupato, come per gli altri comandi della barra. */
+    enabled: Boolean,
+    /** L'elenco nuovo dei propri, che la schermata tiene per il corpo del modulo. */
+    onSaved: (List<Preset>) -> Unit
+) {
+    val context = LocalContext.current
+    var naming by remember { mutableStateOf(false) }
+    val worth = !Preset.of("", look).look.idle
+
+    IconButton(onClick = { naming = true }, enabled = enabled && worth) {
+        Icon(Icons.Filled.BookmarkAdd, stringResource(R.string.look_preset_save))
     }
 
     if (naming) {
@@ -140,7 +167,7 @@ fun PresetBody(
             initial = "",
             onDismiss = { naming = false },
             onSave = { nome ->
-                mine = Presets.save(context, nome, look)
+                onSaved(Presets.save(context, nome, look))
                 naming = false
             }
         )
@@ -150,8 +177,9 @@ fun PresetBody(
 /**
  * Il titolino che divide gli stili dell'app da quelli propri.
  *
- * ⚠️ **C'è anche quando i propri non ci sono**, cioè al primo avvio: senza, i venti di casa si
- * leggerebbero come 'gli stili' e basta, e il comando in fondo non avrebbe niente che lo spieghi.
+ * ⚠️⚠️ **C'È SOLO SE C'È ALMENO UNO STILE SUO, DALLA `2.52`**: da quando il titolo di casa non si
+ * scrive più, un separatore senza niente sotto annuncerebbe una parte che non esiste. Al primo
+ * avvio l'elenco è quello di casa e basta, e non ha bisogno di nessuna riga che lo dica.
  */
 @Composable
 private fun PresetGroup(text: String) {

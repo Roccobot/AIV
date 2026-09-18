@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>
     <string name="settings_folder_columns_desc">ตารางโฟลเดอร์และตารางภาพแสดงกี่คอลัมน์ คอลัมน์มากขึ้นทำให้แสดงได้มากขึ้นบนหน้าจอและแต่ละช่องเล็กลง ที่สี่คอลัมน์ชื่อโฟลเดอร์มักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
-    <string name="settings_hand">ตำแหน่งของปุ่มลอย</string>
-    <string name="settings_hand_desc">ด้านของหน้าจอที่มีปุ่มเมนูวางซ้อนอยู่ (\'FAB\')</string>
+    <string name="settings_hand">ตำแหน่งปุ่มที่ต้องการ</string>
+    <string name="settings_hand_desc">ด้านที่ต้องการสำหรับปุ่มหลักเมื่อใช้มือเดียว ทั้งคนถนัดขวาและถนัดซ้าย กำหนดตำแหน่งของปุ่มการทำงานแบบลอย (\'FAB\') ปุ่มนำทางบางปุ่ม และบางส่วนของหน้าจอตัวแก้ไข</string>
     <string name="settings_right">ขวา</string>
     <string name="settings_left">ซ้าย</string>
     <string name="settings_list_path">รายชื่อไฟล์: คัดลอกเส้นทางโฟลเดอร์ด้วย</string>
@@ -425,7 +425,7 @@
     <string name="look_presets">สไตล์</string>
     <string name="look_preset_save">บันทึกสไตล์</string>
     <string name="look_preset_name">ชื่อพรีเซ็ต</string>
-    <string name="look_preset_mine">สไตล์ของคุณ</string>
+    <string name="look_preset_mine">สไตล์ที่บันทึกไว้</string>
     <string name="look_preset_house">สไตล์ AIV</string>
     <string name="look_preset_remove">ลบ</string>
     <string name="look_preset_gone">ลบพรีเซ็ตแล้ว</string>
@@ -531,7 +531,7 @@
     <string name="settings_buttons_after">ย้ายไปถัดไป</string>
     <string name="look_corners">มุมภาพ</string>
     <string name="look_preset_add">เพิ่มลงในสไตล์ปัจจุบัน</string>
-    <string name="settings_styles">สไตล์การแก้ไข</string>
+    <string name="settings_styles">สไตล์ของตัวแก้ไข</string>
     <string name="settings_styles_desc">จัดลำดับ เปลี่ยนชื่อ หรือลบสไตล์ของตัวแก้ไขแบบเต็ม ทั้งของแอปและของคุณ</string>
     <string name="settings_styles_none">คุณยังไม่ได้บันทึกสไตล์ใด ๆ</string>
     <string name="settings_styles_reset">คืนค่า</string>

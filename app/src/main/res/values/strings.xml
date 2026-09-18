@@ -132,7 +132,7 @@
     <string name="look_presets">Styles</string>
     <string name="look_preset_save">Save style</string>
     <string name="look_preset_name">Style name</string>
-    <string name="look_preset_mine">Your styles</string>
+    <string name="look_preset_mine">Saved styles</string>
     <string name="look_preset_house">AIV styles</string>
     <string name="look_preset_remove">Remove</string>
     <string name="look_preset_gone">Style removed</string>
@@ -213,7 +213,7 @@
     <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once.</string>
     <string name="settings_download_path">Choose the download path</string>
     <string name="settings_rename_download">Renaming and downloads</string>
-    <string name="settings_styles">Editing styles</string>
+    <string name="settings_styles">Editor styles</string>
     <string name="settings_styles_desc">Reorder, rename or remove the styles of the full editor, both the built-in ones and yours.</string>
     <string name="settings_styles_none">You have not saved any style yet.</string>
     <string name="settings_styles_reset">Restore</string>
@@ -341,8 +341,8 @@
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>
-    <string name="settings_hand">Position of the floating buttons</string>
-    <string name="settings_hand_desc">The side of the screen that holds the menu buttons overlaid on it (\'FAB\').</string>
+    <string name="settings_hand">Preferred button position</string>
+    <string name="settings_hand_desc">The preferred side for the main buttons in one-handed use, for right- and left-handers. It sets where the floating action button (\'FAB\'), some navigation buttons and parts of the editor UI go.</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>

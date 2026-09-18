@@ -2386,8 +2386,8 @@ vorrebbe dire due segni per lo stesso gesto a un tocco di distanza, visto che da
 immagine si entra nell'uno o nell'altro editor. ⚠️ **Anche il terzo, che lui non ha nominato**:
 due icone accanto a una scritta sarebbero una fila che si legge in due modi.
 
-⚠️⚠️ **E DAL 2026-09-14 QUELLA BARRA SI SPECCHIA COL LATO DEL FAB, CON UN'ECCEZIONE SUA** (sua
-richiesta, con una schermata: *l'ordine delle icone della barra bassa deve essere speculare
+⚠️⚠️ **E DALLA `2.52` QUELLA BARRA SI SPECCHIA COL LATO DEL FAB, CON UN'ECCEZIONE SUA** (sua
+richiesta del 2026-09-14, con una schermata: *l'ordine delle icone della barra bassa deve essere speculare
 quando il FAB è a sinistra, con la sola eccezione di 'Annulla'/'Ripristina', che devono essere
 sempre il primo a sinistra del secondo*). Il lato lo dà la stessa preferenza che governa il FAB,
 cioè quella che già decide da che parte vanno le pastiglie dell'intestazione e dove cade il menu
@@ -2396,18 +2396,22 @@ ancorato.
   specchio lo rovescerebbe, cioè metterebbe 'Ripristina' sotto il dito che cerca 'Annulla'. Le
   altre icone un ordine che voglia dire qualcosa non ce l'hanno, e per questo si specchiano.
 - ⚠️ **Con loro si specchia anche 'Salva stile'**, che di quella barra fa parte: col FAB a
-  destra è a sinistra, col FAB a sinistra passa dall'altro lato. ⚠️ **È una lettura e non una
-  sua parola**, quindi la voce di collaudo glielo chiede.
+  destra è a sinistra, col FAB a sinistra passa dall'altro lato. ⚠️ **Era una mia lettura e
+  adesso è una sua parola** (2026-09-18: *la tua lettura è corretta*), quindi non si richiede
+  più.
+- ⚠️⚠️ **LO SCAMBIO DELLA COPPIA VIVE IN UNA FUNZIONE PURA, `barOrder`, E NON IN UNA RIGA DENTRO
+  LA FILA**: così il banco lo misura chiamandola, mentre uno specchio scritto a mano nella Row
+  si proverebbe solo contando i pixel di cinque icone. ⚠️ **E lo spazio elastico in mezzo fa
+  tutto l'allineamento**: senza il comando che salva resta lui solo, quindi i comandi si trovano
+  comunque appoggiati al lato giusto, e non serve una seconda condizione.
 - ⚠️⚠️ **E IL TESTO DELLA VOCE DELLE IMPOSTAZIONI È RISCRITTO DA LUI, ALLA LETTERA**:
   `settings_hand` diventa **'Posizione preferita dei pulsanti'** e `settings_hand_desc` *Il lato
   preferito per i tasti principali nell'uso a una mano per destri e mancini. Definisce il
   posizionamento del tasto d'azione fluttuante ('FAB'), di alcuni pulsanti di navigazione e di
   parti di UI dell'editor.* ⚠️ **La ragione è che quella voce governa più del FAB**, e il titolo
   di prima ('Posizione dei tasti flottanti') ne nominava uno solo. ⚠️ **Le chiavi non si
-  toccano**, e le altre ventisette lingue vanno con la versione in cui il testo entra, come il
+  toccano**, e le altre ventisette lingue sono entrate con lui, nella `2.52`, insieme al
   `t-stili-pagina` del giro della `2.50`.
-- ⚠️⚠️ **NON È FATTO**: il via libera per la versione dopo non c'è ancora, ed è suo (*aspettiamo
-  il prossimo weekend*).
 
 ⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
 riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
@@ -3505,22 +3509,34 @@ ha già (§ `SteadyBody`).
   nell'archivio di chi ha già scelto il proprio ordine.
 - ⚠️⚠️ **'Di serie' SI CHIAMA 'STILI AIV', ED È SUO** (stessa istruzione): i venti di casa hanno
   un nome proprio, e 'di serie' diceva com'erano arrivati invece di che cosa sono.
-  - ⚠️⚠️ **MA NELL'ELENCO DEL MODULO QUEL TITOLO NON SI SCRIVE, DAL SUO RITOCCO DEL 2026-09-14**
-    (*il nome della categoria ('Stili AIV') a ben vedere non serve: in questo contesto i pixel
-    verticali sono preziosi e si capisce perfettamente che i primi sono di fabbrica*). A dividere
-    i due gruppi resta un separatore solo, **'Stili salvati'**, e compare **solo se c'è almeno
-    uno stile suo**: senza stili salvati non c'è niente da separare, e un titoletto da solo
+  - ⚠️⚠️ **MA NELL'ELENCO DEL MODULO QUEL TITOLO NON SI SCRIVE, DALLA `2.52`** (suo ritocco del
+    2026-09-14: *il nome della categoria ('Stili AIV') a ben vedere non serve: in questo contesto
+    i pixel verticali sono preziosi e si capisce perfettamente che i primi sono di fabbrica*). A
+    dividere i due gruppi resta un separatore solo, **'Stili salvati'**, e compare **solo se c'è
+    almeno uno stile suo**: senza stili salvati non c'è niente da separare, e un titoletto da solo
     annuncerebbe una parte che non esiste.
+    - ⚠️⚠️ **E QUEL SEPARATORE HA CAMBIATO TESTO, PERCHÉ MI AVEVA DETTO DUE COSE DIVERSE E HA
+      SCELTO** (2026-09-18: *hai ragione sulla dicitura degli stili utente: ti ho detto due cose
+      diverse; scelgo 'Stili salvati'*). Fino alla `2.51` la stringa diceva **'Stili personali'**,
+      che è la parola del giro della `2.50`; adesso `look_preset_mine` dice 'Stili salvati' in
+      tutte e ventotto le lingue. ⚠️ **La chiave non si tocca**, come sempre.
     - ⚠️ **Il nome non diventa terminologia morta**: 'Stili AIV' resta come si chiamano quei
       venti, e la pagina delle impostazioni lui non l'ha nominata, quindi là non si tocca niente.
     - ⚠️ **L'ordine dei due gruppi non cambia**: gli stili dell'app sopra e i propri sotto, che è
       la sua istruzione del giro della `2.50` (*quelli salvati, in basso*).
-  - ⚠️⚠️ **E 'SALVA STILE' VIVE SULLA BARRA DELLE ICONE, IN BASSO A SINISTRA** (stessa
-    richiesta): allineato all'inizio delle righe degli stili, e **fisso**, cioè fuori
+  - ⚠️⚠️ **E 'SALVA STILE' VIVE SULLA BARRA DELLE ICONE, IN BASSO A SINISTRA, DALLA `2.52`**
+    (stessa richiesta): allineato all'inizio delle righe degli stili, e **fisso**, cioè fuori
     dall'elenco che scorre. Un comando che se ne va insieme all'elenco si ritrova risalendo, e
     qui l'elenco cresce con quello che si salva.
-  - ⚠️⚠️ **NESSUNO DEI DUE È FATTO**: sono arrivati in chat il 2026-09-14 con una schermata, e
-    il via libera per la versione dopo non c'è ancora.
+    - ⚠️⚠️ **QUINDI È UN'ICONA E NON PIÙ UNA SCRITTA, ED È UNA SCELTA DICHIARATA**: quella barra
+      è tutta di icone dalla `2.32`, e una parola in mezzo la farebbe leggere in due modi, che è
+      la ragione per cui anche 'Originale' è un'icona pur non essendo stato nominato. Il nome
+      resta la descrizione parlata. ⚠️ **Il glifo è di Material e nasce provvisorio**, come
+      quello di 'Auto' nella `2.32`: la voce di collaudo lo chiede.
+    - ⚠️⚠️ **E GLI STILI SALVATI HANNO DOVUTO TRASLOCARE NELLA SCHERMATA**: chi li crea adesso
+      vive sulla barra e chi li elenca vive nel corpo del modulo, cioè due pezzi diversi, quindi
+      quell'elenco vive sopra tutti e due (in `LookSheet`). Tenuto dentro il corpo, un
+      salvataggio si sarebbe visto solo riaprendo l'editor.
 - ⚠️⚠️ **IL TOCCO AZZERA E RISCRIVE, IL TOCCO LUNGO TOCCA SOLO I MODULI CHE IL PRESET NOMINA, ED
   È LA SUA SPECIFICA ALLA LETTERA** (*tocco sullo stile = modifica assoluta (azzera tutto, poi
   modifica); tocco prolungato = modifica additiva (tocca i valori inclusi, non modifica gli
@@ -3550,8 +3566,8 @@ rimettere i venti di casa. ⚠️ **Il testo dell'avviso è suo alla lettera**, 
 perde invece di chiedere se si è sicuri.
 - ⚠️⚠️ **QUEL NOME È SUO E ARRIVA DAL GIRO DELLA `2.50`**: la `2.50` la chiamava **'Stili di
   modifica'**, che era la mia proposta, e lui l'ha riscritta in **'Stili dell'editor'** nel campo
-  del testo `t-stili-pagina`. ⚠️ **Nel telefono ci arriva con la versione dopo**, insieme alle
-  altre ventotto lingue, che è il modo in cui un testo riscritto entra sempre; chi legge il nome
+  del testo `t-stili-pagina`. ⚠️ **Nel telefono è arrivato con la `2.52`**, insieme alle altre
+  ventotto lingue, che è il modo in cui un testo riscritto entra sempre; chi legge il nome
   vecchio in un commento o in una schermata sappia che è la stessa pagina.
 - ⚠️ **La riga sotto non cambia**, e dice già quello che il nome nuovo dice meglio: *Riordina,
   rinomina e cancella gli stili dell'editor completo.*

@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">گرڈز کے کالم</string>
     <string name="settings_folder_columns_desc">فولڈر گرڈ اور تصویری گرڈ کتنے کالم دکھائیں۔ زیادہ کالم سکرین پر زیادہ چیزیں سماتے ہیں اور ہر خانہ چھوٹا کر دیتے ہیں۔ چار پر فولڈر کا نام عموما کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
-    <string name="settings_hand">تیرتے بٹنوں کی جگہ</string>
-    <string name="settings_hand_desc">اسکرین کا وہ رخ جہاں اس کے اوپر رکھے مینو بٹن رہتے ہیں (\'FAB\')۔</string>
+    <string name="settings_hand">بٹنوں کی ترجیحی جگہ</string>
+    <string name="settings_hand_desc">ایک ہاتھ سے استعمال کرتے وقت بنیادی بٹنوں کے لیے ترجیحی سمت، دائیں اور بائیں ہاتھ والوں کے لیے۔ یہ فلوٹنگ ایکشن بٹن (\'FAB\')، بعض نیویگیشن بٹنوں اور ایڈیٹر کے UI کے حصوں کی جگہ طے کرتی ہے۔</string>
     <string name="settings_right">دائیں</string>
     <string name="settings_left">بائیں</string>
     <string name="settings_list_path">فائل فہرست: فولڈر کا راستہ بھی نقل کریں</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">انداز</string>
     <string name="look_preset_save">انداز محفوظ کریں</string>
     <string name="look_preset_name">پری سیٹ کا نام</string>
-    <string name="look_preset_mine">آپ کے انداز</string>
+    <string name="look_preset_mine">محفوظ کردہ اسٹائل</string>
     <string name="look_preset_house">AIV انداز</string>
     <string name="look_preset_remove">ہٹائیں</string>
     <string name="look_preset_gone">پری سیٹ ہٹا دیا گیا</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">پیچھے منتقل کریں</string>
     <string name="look_corners">کونے</string>
     <string name="look_preset_add">موجودہ انداز میں شامل کریں</string>
-    <string name="settings_styles">ترمیم کے انداز</string>
+    <string name="settings_styles">ایڈیٹر کے اسٹائل</string>
     <string name="settings_styles_desc">مکمل ایڈیٹر کے انداز کو ترتیب دیں، نام بدلیں یا حذف کریں، چاہے ایپ کے ہوں یا آپ کے۔</string>
     <string name="settings_styles_none">آپ نے ابھی تک کوئی انداز محفوظ نہیں کیا۔</string>
     <string name="settings_styles_reset">بحال کریں</string>

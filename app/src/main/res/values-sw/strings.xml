@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Safu kwenye gridi</string>
     <string name="settings_folder_columns_desc">Idadi ya safu zinazoonyeshwa na gridi ya folda na gridi ya picha. Safu nyingi huingiza vitu vingi kwenye skrini na kupunguza ukubwa wa kila kigae. Kwa nne, jina la folda hukatwa mara nyingi.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
-    <string name="settings_hand">Nafasi ya vitufe vinavyoelea</string>
-    <string name="settings_hand_desc">Upande wa skrini unaobeba vitufe vya menyu vilivyowekwa juu yake (\'FAB\').</string>
+    <string name="settings_hand">Nafasi unayopendelea ya vitufe</string>
+    <string name="settings_hand_desc">Upande unaopendelea kwa vitufe vikuu unapotumia kwa mkono mmoja, kwa wanaotumia mkono wa kulia au wa kushoto. Huamua mahali pa kitufe cha kitendo kinachoelea (\'FAB\'), baadhi ya vitufe vya urambazaji na sehemu za kiolesura cha kihariri.</string>
     <string name="settings_right">Kulia</string>
     <string name="settings_left">Kushoto</string>
     <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">Mitindo</string>
     <string name="look_preset_save">Hifadhi mtindo</string>
     <string name="look_preset_name">Jina la mpangilio</string>
-    <string name="look_preset_mine">Mitindo yako</string>
+    <string name="look_preset_mine">Mitindo iliyohifadhiwa</string>
     <string name="look_preset_house">Mitindo ya AIV</string>
     <string name="look_preset_remove">Ondoa</string>
     <string name="look_preset_gone">Mpangilio umeondolewa</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">Sogeza nyuma</string>
     <string name="look_corners">Pembe</string>
     <string name="look_preset_add">Ongeza kwenye mtindo wa sasa</string>
-    <string name="settings_styles">Mitindo ya kuhariri</string>
+    <string name="settings_styles">Mitindo ya kihariri</string>
     <string name="settings_styles_desc">Panga upya, badilisha jina au futa mitindo ya kihariri kamili, ile ya programu na yako.</string>
     <string name="settings_styles_none">Bado hujahifadhi mtindo wowote.</string>
     <string name="settings_styles_reset">Rejesha</string>

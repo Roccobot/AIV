@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Spalten in den Rastern</string>
     <string name="settings_folder_columns_desc">Wie viele Spalten das Ordnerraster und das Bildraster zeigen. Mehr Spalten zeigen mehr auf einmal und verkleinern jede Kachel. Bei vier wird der Ordnername meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
-    <string name="settings_hand">Position der schwebenden Schaltflächen</string>
-    <string name="settings_hand_desc">Die Bildschirmseite, auf der die Menü-Schaltflächen über dem Inhalt liegen (\'FAB\').</string>
+    <string name="settings_hand">Bevorzugte Position der Schaltflächen</string>
+    <string name="settings_hand_desc">Die bevorzugte Seite für die Hauptschaltflächen bei einhändiger Bedienung, für Rechts- und Linkshänder. Sie legt fest, wo die schwebende Aktionsschaltfläche (\'FAB\'), einige Navigationsschaltflächen und Teile der Editor-Oberfläche liegen.</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Dateiliste: Pfad des übergeordneten Ordners kopieren</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">Stile</string>
     <string name="look_preset_save">Stil speichern</string>
     <string name="look_preset_name">Preset-Name</string>
-    <string name="look_preset_mine">Deine Stile</string>
+    <string name="look_preset_mine">Gespeicherte Stile</string>
     <string name="look_preset_house">AIV-Stile</string>
     <string name="look_preset_remove">Entfernen</string>
     <string name="look_preset_gone">Preset entfernt</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">Nach hinten</string>
     <string name="look_corners">Ecken</string>
     <string name="look_preset_add">Zum aktuellen Look hinzufügen</string>
-    <string name="settings_styles">Bearbeitungsstile</string>
+    <string name="settings_styles">Editor-Stile</string>
     <string name="settings_styles_desc">Stile des vollständigen Editors neu anordnen, umbenennen oder entfernen, sowohl die mitgelieferten als auch deine.</string>
     <string name="settings_styles_none">Du hast noch keinen Stil gespeichert.</string>
     <string name="settings_styles_reset">Wiederherstellen</string>
