@@ -246,7 +246,7 @@ Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il
   quadratica lunga un millesimo di unità. Un tracciato riscritto male non dà nessun errore, si
   vede solo guardando, quindi lo strumento dice **dove** manca un raccordo e con che raggio, e il
   raccordo lo fa chi disegna.
-- ⚠️⚠️ **LE ESISTENTI NE HANNO 87, SU QUINDICI DISEGNI SU QUARANTUNO, E SONO QUASI TUTTI SUOI**:
+- ⚠️⚠️ **LE ESISTENTI NE HANNO 99, SU QUINDICI DISEGNI SU QUARANTUNO, E SONO QUASI TUTTI SUOI**:
   quindi 'verifica anche le altre' ha una risposta, ed è che la regola di oggi le esistenti non
   la rispettano. Toccarle è una decisione sua e non mia, per la stessa ragione della `1.33`: un
   disegno approvato non si cambia perché uno strumento lo segnala.
@@ -255,9 +255,16 @@ Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il
     convessi esterni (le 'punte')*). L'affinamento è entrato nel verificatore il 2026-09-18: un
     sottotracciato porta punte solo se è un **contorno** e non un buco, e a dirlo è la profondità
     di contenimento, quindi un'isola dentro un buco torna a contare.
-  - ⚠️⚠️ **I NUMERI DI QUEL BLOCCO SONO DUE E SI LEGGONO INSIEME**: col criterio largo ne conta
-    **138** e con quello stretto **87**. ⚠️ **E il 142 della `2.50` non è più il numero del criterio
-    largo**, perché i disegni sono cambiati nel frattempo: chi confronta guardi prima le due date.
+  - ⚠️⚠️ **ERANO 87 FINO ALLA `2.54`, E LE DODICI IN PIÙ NON SONO DISEGNI CAMBIATI: ERA IL
+    VERIFICATORE CHE NON GUARDAVA IL VERTICE DELLA `M`** (trovato il 2026-09-18 lavorando al
+    glifo di 'Salva stile', § '🧰 Gli strumenti che questo repo si porta dietro'). Un giro che
+    torna esattamente sul proprio punto di partenza ha là uno spigolo come tutti gli altri, e
+    quello non si contava mai: il conto vero delle esistenti è 99, e i quindici disegni sono gli
+    stessi.
+  - ⚠️⚠️ **I NUMERI DI QUEL BLOCCO SONO DUE E SI LEGGONO INSIEME**: col criterio largo ne
+    contava **138** prima di quella correzione, e con quello stretto **99** oggi. ⚠️ **E il 142
+    della `2.50` non è più il numero del criterio largo**, perché i disegni sono cambiati nel
+    frattempo: chi confronta guardi prima le tre date.
   - ⚠️⚠️ **E CON LUI CADE LA FRASE DELLA `2.32` SUI BUCHI**, che diceva il contrario: là un buco
     prendeva gli stessi raccordi *perché i suoi angoli sporgono verso l'inchiostro*. Adesso no,
     ed è la stessa parola che lo dice: una punta è convessa **e** esterna, e l'angolo di un buco
@@ -4480,10 +4487,21 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     tracciati sono scritti a due decimali, e senza quella tolleranza la chiusura diventa una
     rettina che svolta, cioè uno spigolo che non esiste.
   - ⚠️⚠️ **E IL CRITERIO SI È STRETTO UN'ALTRA VOLTA IL 2026-09-18, SU SUA NOTA: SOLO GLI ANGOLI
-    CONVESSI ESTERNI** (`d-spigoli-icone`, giro della `2.50`). Quindi i numeri sono quattro e
+    CONVESSI ESTERNI** (`d-spigoli-icone`, giro della `2.50`). Quindi i numeri sono cinque e
     ognuno misura un criterio diverso: **1.059** con le corde, **259** con le tangenti, **142**
-    alla `2.50` (oggi quello stesso criterio ne conta 138, perché i disegni sono cambiati), e
-    **87** con gli angoli di un buco esclusi. Il perché vive in § '🖌️ Come entra un disegno'.
+    alla `2.50` (lo stesso criterio ne contava 138 il 2026-09-18, perché i disegni sono
+    cambiati), **87** con gli angoli di un buco esclusi, e **99** da quando si guarda anche il
+    vertice della `M`. Il perché vive in § '🖌️ Come entra un disegno'.
+  - ⚠️⚠️ **IL VERTICE DELLA `M` NON SI GUARDAVA MAI, E LA LACUNA È DURATA DALLA `2.50` ALLA
+    `2.54`**: un giro che torna esattamente sul proprio punto di partenza ha là due vertici nello
+    stesso punto, la chiusura è lunga zero, e la guardia che salta i lati troppo corti (quella
+    che esiste per non smussare il residuo di un arrotondamento) lo prendeva sempre. Il lato vero
+    che lo precede è quello che arriva al **penultimo** punto, e adesso la guardia lo legge di
+    là. ⚠️ **L'intenzione c'era già**, e si vede in `versi()`, che per quel vertice aggiusta le
+    due tangenti apposta: mancava solo di non saltarlo.
+  - ⚠️⚠️ **A TROVARLO È STATO UN DISEGNO NUOVO, e non una rilettura del codice**: il glifo di
+    'Salva stile' usciva dal generatore con due punte ancora vive (una per sottotracciato), e il
+    verificatore diceva **zero**. Su `BookmarkAdd` crudo il conto passa da 10 a 12.
   - ⚠️⚠️ **A DIRE SE UN SOTTOTRACCIATO È UN CONTORNO O UN BUCO È LA PROFONDITÀ DI CONTENIMENTO,
     NON IL VERSO DEL GIRO**: pari vuol dire contorno, dispari vuol dire buco, e così un'isola
     dentro un buco torna a portare punte (in casa succede, in `ic_folder_new`). Il verso da solo

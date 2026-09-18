@@ -485,10 +485,30 @@ data class Detail(
  * porta i primi due: sono la **stessa macchina** a due raggi, quindi entrano insieme.
  *
  * ⚠️⚠️ **NON SONO LA NITIDEZZA DEL DETTAGLIO PIÙ FORTE, E LA DIFFERENZA È IL RAGGIO.** Quella
- * lavora a un millesimo del lato, cioè sul disegno di cattura; [texture] lavora cinque volte più
- * lontano e [clarity] cinquanta, cioè sul **volume** di quello che si vede. È la stessa
- * distinzione che c'è fra affilare un contorno e far uscire una nuvola dal cielo, e per questo
- * sono tre cursori e non uno con una corsa più lunga.
+ * lavora a un millesimo del lato, cioè sul disegno di cattura; [texture] lavora su una **banda**
+ * che comincia dove finisce lei e [clarity] cinquanta volte più lontano, cioè sul **volume** di
+ * quello che si vede. È la stessa distinzione che c'è fra affilare un contorno e far uscire una
+ * nuvola dal cielo, e per questo sono tre cursori e non uno con una corsa più lunga.
+ *
+ * ⚠️⚠️ **E FINO ALLA `2.54` IL RAGGIO NON BASTAVA A DISTINGUERLI, ED È IL SUO RISCONTRO** (giro
+ * della `2.54`, voce `eff-texture` accettabile: *Mi sembra praticamente identico a Nitidezza
+ * (modulo Dettagli)*). Aveva ragione, e il conto lo dice: erano lo **stesso** filtro (il pixel
+ * meno la media del suo intorno) a due raggi che distavano un fattore due, quindi il secondo
+ * cursore faceva quello che faceva il primo, un po' più largo.
+ * - **Adesso la texture è una banda e non un passa-alto**: invece del pixel prende la media
+ *   **fine**, cioè quella del raggio di serie della nitidezza ([Detail.SHARP_SPAN]), e le toglie
+ *   la media larga. Quello che è più fine di quel raggio, cioè la **grana del sensore**, è mediato
+ *   via da tutte e due e non entra nel conto: la texture accentua il disegno e non il rumore,
+ *   che è esattamente quello che quel cursore fa in Lightroom.
+ * - ⚠️ **Il raggio interno non è un numero scritto qui**: è quello della nitidezza, quindi la
+ *   banda comincia dove l'altro cursore lavora **per costruzione**. Scritto a mano sarebbe la
+ *   stessa misura in due posti, e il giorno che uno dei due cambia i due cursori tornerebbero a
+ *   sovrapporsi in silenzio.
+ * - ⚠️ **E il raggio esterno si allarga**, da un cinquecentesimo a un trecentesimo: con la banda
+ *   il filtro perde per costruzione la parte più fine, quindi senza allargare l'altro estremo la
+ *   corsa sarebbe rimasta più corta di prima.
+ * - ⚠️ **Il prezzo è dichiarato**: nove campioni in più, cioè diciotto per la sola texture, e si
+ *   pagano solo quando quel cursore è mosso.
  *
  * ⚠️⚠️ **LAVORANO SULLA SOLA LUMINANZA, AL CONTRARIO DELLA NITIDEZZA, E NON È UNA RIFINITURA**: a
  * raggio largo un contrasto locale fatto per canale tinge i due lati di un bordo forte coi
@@ -516,12 +536,15 @@ data class Effects(
      */
     val clarity: Float = 0f,
     /**
-     * Il contrasto locale **fine**, cioè quanto si legge la materia di una superficie.
+     * Il contrasto locale **di banda**, cioè quanto si legge la materia di una superficie.
      *
-     * ⚠️ **Non ha maschera dei toni, e non è una dimenticanza**: il suo raggio è venticinque volte
+     * ⚠️ **Non ha maschera dei toni, e non è una dimenticanza**: il suo raggio è quindici volte
      * più stretto di quello della chiarezza, quindi lo scarto che somma resta dentro il bordo
      * invece di allargarsi in un alone. Metterla vorrebbe dire spegnere il cursore proprio su una
      * corteccia in ombra o su un muro al sole, cioè dove lo si usa.
+     * ⚠️⚠️ **DALLA `2.55` NON PARTE DAL PIXEL MA DALLA MEDIA FINE**, e il perché per esteso vive
+     * in testa a questa classe: così la grana del sensore resta fuori dal conto, ed è quello che
+     * lo distingue dalla nitidezza del Dettaglio.
      */
     val texture: Float = 0f,
     /**
@@ -593,13 +616,17 @@ data class Effects(
         const val CLARITY_SPAN = 1f / 150f
 
         /**
-         * Il raggio della texture, in frazione del lato lungo.
+         * Il raggio **esterno** della banda della texture, in frazione del lato lungo.
          *
          * ⚠️ **Sta in mezzo fra la nitidezza e la chiarezza, e i tre numeri si leggono insieme**:
-         * un millesimo del lato è il disegno di cattura, due millesimi sono la materia, un
-         * centesimo è il volume. Con due raggi vicini due cursori farebbero la stessa cosa.
+         * un millesimo del lato è il disegno di cattura, un trecentesimo è la materia, un
+         * centocinquantesimo è il volume.
+         * ⚠️⚠️ **ERA UN CINQUECENTESIMO FINO ALLA `2.54`, E DA SOLO NON BASTAVA**: con lo stesso
+         * filtro della nitidezza a un raggio doppio i due cursori facevano la stessa cosa, che è
+         * quello che lui ha visto. Adesso quello che li distingue è la **banda** (vedi
+         * [textureFine]), e questo numero si allarga perché la banda taglia da sé la parte fine.
          */
-        const val TEXTURE_SPAN = 1f / 500f
+        const val TEXTURE_SPAN = 1f / 300f
 
         /**
          * Quanto lontano si guarda per stimare il velo, in frazione del lato lungo.
@@ -618,8 +645,19 @@ data class Effects(
         /** Il raggio della chiarezza nello spazio in cui il conto gira: vedi [CLARITY_SPAN]. */
         fun clarityReach(long: Float): Float = CLARITY_SPAN * long
 
-        /** Il raggio della texture nello spazio in cui il conto gira: vedi [TEXTURE_SPAN]. */
+        /** Il raggio esterno della banda della texture nello spazio del conto: vedi [TEXTURE_SPAN]. */
         fun textureReach(long: Float): Float = TEXTURE_SPAN * long
+
+        /**
+         * Il raggio **interno** della banda della texture, cioè quello che taglia via la grana.
+         *
+         * ⚠️⚠️ **È QUELLO DELLA NITIDEZZA E NON UN NUMERO SUO**: la banda comincia dove l'altro
+         * cursore lavora, e questa riga è il modo di dirlo una volta sola. ⚠️ **Si legge il raggio
+         * di SERIE** ([Detail.SHARP_SPAN]) e non quello che il cursore 'Raggio' ha spostato: la
+         * texture deve restare la stessa mentre si tara la nitidezza, o due moduli diversi si
+         * muoverebbero insieme senza che nessuno lo abbia chiesto.
+         */
+        fun textureFine(long: Float): Float = Detail.SHARP_SPAN * long
 
         /** Il raggio della stima del velo nello spazio del conto: vedi [HAZE_SPAN]. */
         fun hazeReach(long: Float): Float = HAZE_SPAN * long
@@ -1294,6 +1332,9 @@ uniform half clarity;
 uniform half matter;
 uniform float2 wide;
 uniform float2 fine;
+// Il raggio INTERNO della banda della texture, cioè quello che taglia via la grana: dalla `2.55`
+// quel cursore non parte dal pixel ma dalla media a questa distanza (vedi `Effects.textureFine`).
+uniform float2 sift;
 // La foschia (dalla `2.54`), col raggio a cui si stima il velo.
 uniform half haze;
 uniform float2 broad;
@@ -1601,9 +1642,15 @@ half3 localed(float2 p, half3 c) {
     }
 
     if (abs(matter) > half(0.0)) {
-        // ⚠️ **Qui la maschera non c'è**, e il perché vive sul campo `texture` di `Effects`: a
-        // questo raggio lo scarto resta dentro il bordo invece di allargarsi in un alone.
-        done += half3((base - around(p, fine)) * matter * MATTER_REACH);
+        // ⚠️⚠️ **QUESTA È UNA BANDA E NON UN PASSA-ALTO, DALLA `2.55`, ED È QUELLO CHE LA
+        // DISTINGUE DALLA NITIDEZZA**: si parte dalla media FINE invece che dal pixel, quindi
+        // quello che è più fine di quel raggio (la grana del sensore) è mediato via da tutti e
+        // due i termini e non entra nel conto. Partendo da `base` questo cursore era la
+        // nitidezza del Dettaglio a un raggio doppio, ed è la cosa che lui ha visto.
+        // ⚠️ **Qui la maschera dei toni non c'è**, e il perché vive sul campo `texture` di
+        // `Effects`: a questo raggio lo scarto resta dentro il bordo invece di allargarsi in un
+        // alone.
+        done += half3((around(p, sift) - around(p, fine)) * matter * MATTER_REACH);
     }
 
     // ⚠️⚠️ **LA FOSCHIA VIENE PER ULTIMA, E NON È UN ORDINE DI COMODO**: i due cursori qui sopra
@@ -1954,6 +2001,7 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
     val grain = Detail.grainReach(span)
     val wide = Effects.clarityReach(span)
     val fine = Effects.textureReach(span)
+    val sift = Effects.textureFine(span)
     val broad = Effects.hazeReach(span)
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
@@ -2006,6 +2054,7 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
         setFloatUniform("matter", effects.texture)
         setFloatUniform("wide", wide, wide)
         setFloatUniform("fine", fine, fine)
+        setFloatUniform("sift", sift, sift)
         setFloatUniform("haze", effects.haze)
         setFloatUniform("broad", broad, broad)
     }
