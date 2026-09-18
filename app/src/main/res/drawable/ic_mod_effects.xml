@@ -1,29 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Il modulo 'Effetti' dell'editor completo.
 
-     DISEGNATO DALL'UTENTE, arrivato il 2026-09-18 come rimodellazione del glifo che il modulo
-     aveva: fino alla 2.61 era `Icons.Filled.Vignette`, che la 2.55 aveva scelto perché nella fila
-     non somigliava a nessuno (il riscontro di allora, voce `eff-glifo`, aveva bocciato `Deblur`
-     perché era lo stesso del Dettaglio). Adesso quel disegno è il suo.
+     DISEGNATO DALL'UTENTE, e questo è il suo secondo disegno: il primo era arrivato il 2026-09-18
+     come rimodellazione di `Icons.Filled.Vignette` (la 2.62), e poche ore dopo ne è arrivata una
+     versione rifatta, che è questa. Fino alla 2.61 il modulo chiamava il glifo di Material.
 
-     CHE COSA DISEGNA: una cornice quadrata stondata col tondo scavato dentro, cioè l'inchiostro
-     sta dove una vignettatura scurisce e il vuoto dove lascia stare. Il cursore che nomina è il
-     quarto del modulo.
+     CHE COSA DISEGNA: una cornice quadrata col tondo scavato dentro, cioè l'inchiostro sta dove una
+     vignettatura scurisce e il vuoto dove lascia stare. Il cursore che nomina è il quarto del
+     modulo.
 
-     LE MISURE: il quadrato va da 2,35 a 21,65 su tutti e due gli assi, con gli angoli raccordati
-     a 1,86; il cerchio ha raggio 8,22 ed è centrato in 12,12, quindi resta a 1,43 dai lati e molto
-     più lontano dagli angoli. I controlli delle cubiche cadono a 0,5523 del raggio (1,03 su 1,86
-     e 4,54 su 8,22), cioè sono archi di cerchio approssimati come li scrive Illustrator.
+     LE MISURE, E LA DIFFERENZA DALLA 2.62: la cornice è un SUPERELLISSE e non un rettangolo
+     stondato, cioè i quattro lati sono leggermente bombati in fuori. Occupa da 2,02 a 22 in
+     orizzontale e da 2,012 a 21,988 in verticale (19,98 per 19,976), dove il disegno di prima
+     stava in 19,3 quadrati esatti; il cerchio ha raggio 8,29 invece di 8,22, sempre centrato in
+     12,12. Il bombo vale 0,268 sui lati orizzontali e 0,27 sui verticali, quindi il disegno è
+     simmetrico entro un centesimo di unità: a essere diversi sono gli strumenti, non la forma. Su
+     240px cambiano 1.734 pixel pieni su 57.600, cioè il 3% della tela.
 
-     LA TELA È 24 CON 2,35 DI MARGINE, un filo più di Material, e non è un difetto: a dichiarare
-     quanto è grande l'icona sono `android:width` e `android:height`, il viewport dice in quante
-     unità è disegnata, e il verificatore quel rapporto lo riporta senza giudicarlo.
+     I DUE LATI ORIZZONTALI SONO ARCHI DI RAGGIO 115 E I VERTICALI SONO CUBICHE, e non è una scelta
+     di chi ha disegnato: è la firma della pulizia che il file ha attraversato (CleanSVG, cioè
+     SVGO), che sostituisce una curva con un arco quando la differenza resta nella sua tolleranza.
+     Il trasporto tiene quello che trova, perché riscrivere un arco come curva vorrebbe dire
+     calcolare dei numeri che nel file di partenza non ci sono.
 
      IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
-     tracciato: zero pixel pieni diversi su 57.600, e i 14 che si vedono cadono tutti sul bordo
-     antialiasato. Quello che cambia è solo la forma della `d`, cioè i numeri incollati separati
-     (`-1.86.83` sono due numeri) e ogni comando scritto per esteso in coordinate assolute. Le
-     regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'.
+     tracciato: zero pixel pieni diversi su 57.600, e l'unico visibile cade sul bordo antialiasato.
+     Quello che cambia è solo la forma della `d`, cioè i numeri incollati separati (`-1.86.83` sono
+     due numeri), ogni comando scritto per esteso in coordinate assolute, e le due `Z` rese
+     esplicite dove il giro torna sul proprio punto di partenza. Le regole di trasporto vivono in
+     `CLAUDE.md`, § 'Come entra un disegno'.
 
      LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che dichiara `evenodd`. Il disegno non
      ne dipende, ed è misurato: i due sottotracciati girano in versi opposti, quindi con `nonZero`
@@ -32,9 +37,8 @@
      disegno vuole e una scelta perché tanto viene uguale dice solo com'è andata.
 
      NON HA UNA PUNTA DA RACCORDARE, e il trattamento a 0,4 della 2.50 qui non ha niente da fare:
-     il quadrato porta già i suoi quattro angoli raccordati a 1,86 e il cerchio è tutto curve.
-     Anche i due vertici delle `M` sono lisci, perché là le tangenti coincidono (`icon-round.py`
-     risponde 0). -->
+     la cornice è fatta di curve e archi dal primo all'ultimo comando, e il cerchio pure
+     (`icon-round.py` risponde 0). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -43,5 +47,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="evenOdd"
-        android:pathData="M 19.79 2.35 H 4.21 C 3.18 2.35 2.35 3.18 2.35 4.21 V 19.79 C 2.35 20.82 3.18 21.65 4.21 21.65 H 19.79 C 20.82 21.65 21.65 20.82 21.65 19.79 V 4.21 C 21.65 3.18 20.82 2.35 19.79 2.35 Z M 12 20.22 C 7.46 20.22 3.78 16.54 3.78 12 S 7.46 3.78 12 3.78 S 20.22 7.46 20.22 12 S 16.54 20.22 12 20.22 Z" />
+        android:pathData="M 21.73 4.15 C 21.73 3.64 21.52 3.16 21.19 2.82 C 20.65 2.29 19.98 2.28 19.86 2.28 A 115 115 0 0 0 4.16 2.28 C 4.04 2.28 3.37 2.29 2.83 2.82 C 2.5 3.16 2.29 3.64 2.29 4.15 C 2.12 6.57 2.02 9.15 2.02 11.86 V 12.14 C 2.02 14.85 2.12 17.43 2.29 19.85 C 2.29 20.36 2.5 20.84 2.83 21.18 C 3.37 21.71 4.04 21.72 4.16 21.72 A 115 115 0 0 0 19.86 21.72 C 19.98 21.72 20.65 21.71 21.19 21.18 C 21.52 20.84 21.73 20.36 21.73 19.85 C 21.9 17.43 22 14.85 22 12.14 V 11.86 C 22 9.15 21.9 6.57 21.73 4.15 Z M 12 20.29 C 7.42 20.29 3.71 16.58 3.71 12 S 7.42 3.71 12 3.71 S 20.29 7.42 20.29 12 S 16.58 20.29 12 20.29 Z" />
 </vector>
