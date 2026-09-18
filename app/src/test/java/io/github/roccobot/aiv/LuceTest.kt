@@ -698,12 +698,15 @@ class LuceTest {
      */
     @Composable
     private fun Scena(onSave: (Look) -> Unit = {}) {
+        // ⚠️ Il secondo argomento è il tocco lungo (un file nuovo accanto): qui si misura il
+        // valore salvato, quindi la prova guarda il primo e lascia stare il gesto.
+        val consegna: (Look, Boolean) -> Unit = { look, _ -> onSave(look) }
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
                 AdvancedEditorScreen(
                     uri = quadrato(),
                     busy = false,
-                    onSave = onSave,
+                    onSave = consegna,
                     onBack = {}
                 )
             }

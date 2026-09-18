@@ -478,6 +478,7 @@
     <string name="editor_free">मुक्त</string>
     <string name="editor_shape_original">मूल</string>
     <string name="editor_save">सहेजें</string>
+    <string name="editor_save_beside">एक प्रति सहेजें</string>
     <string name="editor_apply">लागू करें</string>
     <string name="editor_crop_back">क्रॉप में पीछे</string>
     <string name="editor_crop_on">क्रॉप में आगे</string>

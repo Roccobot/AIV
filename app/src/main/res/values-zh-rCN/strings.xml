@@ -462,6 +462,7 @@
     <string name="editor_free">自由</string>
     <string name="editor_shape_original">原始</string>
     <string name="editor_save">保存</string>
+    <string name="editor_save_beside">保存副本</string>
     <string name="editor_apply">应用</string>
     <string name="editor_crop_back">裁剪后退</string>
     <string name="editor_crop_on">裁剪前进</string>

@@ -510,6 +510,7 @@
     <string name="editor_free">Dowolne</string>
     <string name="editor_shape_original">Oryginalne</string>
     <string name="editor_save">Zapisz</string>
+    <string name="editor_save_beside">Zapisz kopię</string>
     <string name="editor_apply">Zastosuj</string>
     <string name="editor_crop_back">Kadr wstecz</string>
     <string name="editor_crop_on">Kadr dalej</string>

@@ -2028,6 +2028,29 @@ cursore, che è la risposta alla domanda che ci si fa muovendo una manopola.
 - **Il numero accanto al cursore azzera ancora**, ed è l'unica delle quattro superfici che si vede
   da sola, cioè che dice 'sono io il comando'.
 
+⚠️⚠️ **E DALLA `2.58` IL CONFRONTO SULL'IMMAGINE NON TOGLIE PIÙ TUTTO, ED È SUA RICHIESTA** (campo
+libero del giro della `2.55`: *pressione lunga sulla foto nell'editor: se mi trovo nei moduli
+Ritaglio o Geometria il 'Prima' deve mostrare *tutto*; se è attivo un altro modulo il 'Prima' deve
+mostrare tutto *tranne Geometria e Ritaglio**). Chi sta tarando un colore e preme per vedere com'era
+vuole vedere **quel** colore com'era: fino alla `2.57` l'immagine tornava anche alla sua inquadratura
+di partenza, cioè fra il prima e il dopo c'era un movimento che con quel cursore non c'entra.
+- ⚠️ **La divisione è quella dichiarata in testa a `Look`**: i sei campi che passano dallo shader
+  dicono di che **colore** è un pixel, gli altri quattro dicono **dove** va. Il confronto ne toglie
+  un gruppo, e quale dei due lo decide il modulo che si sta guardando (`Look.place`).
+- ⚠️⚠️ **LA VISTA CONFERMATA STA DALLA PARTE DEL 'DOVE', E SENZA DI LEI IL CONFRONTO RIAPRIREBBE UN
+  TAGLIO GIÀ APPLICATO**: quel campo non cambia un pixel del file, ma dice che cosa il palco
+  inquadra. Chi aggiunge un campo a `Look` guardi quella riga: un campo di colore dimenticato là
+  resta applicato nel confronto, cioè smette di essere confrontabile, e nessuno dei due casi dà
+  errore.
+- ⚠️⚠️ **NEL RITAGLIO QUEL RAMO NON LO RAGGIUNGE NESSUN DITO, E SI DICHIARA**: là il palco fa solo
+  quello, cioè il dito serve alle squadrette e il confronto non parte, ed è così da quando quel
+  modulo esiste. La condizione lo nomina lo stesso perché la sua richiesta nomina i due moduli
+  insieme; oggi si vede nella **Geometria**, dove il palco risponde finché lo strumento 'Angoli' è
+  spento.
+- ⚠️ **A dire quali moduli parlano del 'dove' è la tabella dei moduli**, come per il colore mirato e
+  per le squadrette: scritta come un elenco di nomi accanto al palco, un modulo nuovo che spostasse
+  i pixel si ritroverebbe il confronto sbagliato senza che niente lo dica.
+
 ⚠️⚠️ **E L'IMMAGINE SI PUÒ INGRANDIRE, DALLA `2.16`** (campo libero dello stesso giro: *qui capita
 di lavorare sui dettagli, perciò credo sia necessario che si possa zoomare nell'immagine che si sta
 editando*): pinza, panoramica e doppio tocco.
@@ -2329,6 +2352,26 @@ salvataggio: salvare è un gesto che si fa di fretta, ed è la stessa lettura ch
 'Scarica'. ⚠️ **Le prime due sono un JPEG e la terza un altro formato**: 'Senza perdita' scrive
 un PNG **accanto** invece di sovrascrivere, perché il formato cambia.
 
+⚠️⚠️ **E DALLA `2.58` IL TOCCO LUNGO SU 'SALVA' SCRIVE UN FILE NUOVO ACCANTO ALL'ORIGINALE, ED È
+SUA RICHIESTA** (campo libero del giro della `2.55`: *tocco lungo su 'Salva' (in alto a destra)
+nell'editor: salva un nuovo file accanto all'originale*). Fino alla `2.57` l'editor riscriveva
+l'immagine dov'è, e chi voleva tenere anche il prima doveva uscire, duplicare il file e rientrare.
+- ⚠️⚠️ **NON APRE UNA STRADA NUOVA: PERCORRE QUELLA CHE C'ERA GIÀ**, cioè quella di un formato che
+  non si sa riscrivere (un HEIC, un AVIF) e quella di 'Senza perdita'. Quindi il nome lo sceglie
+  `FileTree.freeName`, che è la funzione di ogni copia dell'app, e la notifica dice 'Copia salvata'
+  senza un ramo in più: a deciderla è già il confronto fra il file scritto e quello di partenza.
+- ⚠️ **La copia di sicurezza si salta da sé**, e non con una condizione in più: quella si chiede
+  quando il bersaglio **è** la sorgente, e col file accanto non lo è mai. È la stessa nota che
+  `ImageEdit.save` porta sulla via della copia.
+- ⚠️⚠️ **IL TASTO NON È PIÙ UN `TextButton`, E LA RAGIONE È LA STESSA DEI GETTONI DEI MODULI**: quel
+  pezzo di Material prende il suo `onClick` e non offre un secondo gesto, quindi il tocco lungo
+  andrebbe messo con un `pointerInput` nel modificatore, cioè in un **secondo nodo** che consuma il
+  tocco prima che il tasto lo veda. Con `combinedClickable` i gesti sono due e il bersaglio resta
+  uno. ⚠️ **L'etichetta del gesto si dichiara**, o resta una scorciatoia che esiste solo per chi ha
+  letto queste righe: è quello che un lettore di schermo annuncia.
+- ⚠️ **A immagine intonsa resta spento**, come prima: senza niente da applicare non c'è niente da
+  salvare, né sopra né accanto.
+
 ⚠️⚠️ **E NELLA `2.14` QUEL PROGRAMMA NON COMPILAVA AFFATTO, SU NESSUN TELEFONO** (riscontro del
 giro, voce `luce-cursori` non approvata: *nessuno slider ha avuto effetto sull'immagine*, e
 salvando *'Questo telefono non è riuscito ad applicare le modifiche'*). La causa è una parola:
@@ -2448,7 +2491,12 @@ ancorato.
 
 ⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
 riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
-vera, coi comandi che camminano avanti e indietro; dalla `2.16` guarda anche il **doppio tocco**
+vera, coi comandi che camminano avanti e indietro; dalla `2.58` `SviluppoTest` guarda i **due gesti
+della `2.58`**, cioè che il confronto tenga la posa fuori dai moduli che la governano (a pixel,
+nella Geometria contro la Luce), che `Look.place` tenga i quattro campi del 'dove' e butti i sei del
+colore, che il tocco lungo su 'Salva' chieda un file nuovo e il tocco normale no, e che il bersaglio
+di quel file sia un nome libero accanto all'originale; tutti e quattro controprovati rimettendo il
+difetto uno per uno; dalla `2.16` guarda anche il **doppio tocco**
 sul nome e sulla barra, e l'ingrandimento dell'immagine, che misura a **pixel**; dalla `2.18` il
 conto dell'**ingrandimento a una mano** (il verso, il raddoppio, il tetto) e il gesto sul palco,
 anche lui a pixel; `ContoTest` guarda che il programma dello shader compili e che `lookShader` lo

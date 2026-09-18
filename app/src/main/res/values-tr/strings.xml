@@ -478,6 +478,7 @@
     <string name="editor_free">Serbest</string>
     <string name="editor_shape_original">Orijinal</string>
     <string name="editor_save">Kaydet</string>
+    <string name="editor_save_beside">Bir kopya kaydet</string>
     <string name="editor_apply">Uygula</string>
     <string name="editor_crop_back">Kırpmada geri</string>
     <string name="editor_crop_on">Kırpmada ileri</string>

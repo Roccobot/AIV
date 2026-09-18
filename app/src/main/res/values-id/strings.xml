@@ -462,6 +462,7 @@
     <string name="editor_free">Bebas</string>
     <string name="editor_shape_original">Asli</string>
     <string name="editor_save">Simpan</string>
+    <string name="editor_save_beside">Simpan salinan</string>
     <string name="editor_apply">Terapkan</string>
     <string name="editor_crop_back">Pangkas mundur</string>
     <string name="editor_crop_on">Pangkas maju</string>

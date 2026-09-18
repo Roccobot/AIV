@@ -1189,6 +1189,31 @@ data class Look(
     val square: Boolean
         get() = spin == Spin.STILL && crop.whole
 
+    /**
+     * Il solo **dove**: posa, taglio, geometria e vista, senza niente di quello che tocca i colori.
+     *
+     * ⚠️⚠️ **SERVE AL CONFRONTO COL PRIMA, DALLA `2.58`, ED È SUA RICHIESTA** (campo libero del
+     * giro della `2.55`: *pressione lunga sulla foto nell'editor: se mi trovo nei moduli Ritaglio o
+     * Geometria il 'Prima' deve mostrare tutto; se è attivo un altro modulo il 'Prima' deve
+     * mostrare tutto tranne Geometria e Ritaglio*). Chi sta tarando un colore e preme per vedere
+     * com'era, vuole vedere **quel** colore com'era: con un confronto che toglie tutto, l'immagine
+     * salta anche di inquadratura, e fra le due c'è un movimento che non riguarda quello che si sta
+     * guardando.
+     *
+     * ⚠️ **La divisione è quella che questo file dichiara in testa a [Look]**: i sei campi che
+     * passano dallo shader dicono di che **colore** è un pixel, questi quattro dicono **dove** va.
+     * Il confronto ne toglie uno dei due gruppi, e quale dei due lo decide il modulo che si sta
+     * guardando.
+     *
+     * ⚠️⚠️ **[framing] STA DI QUA, E SENZA DI LUI IL CONFRONTO RIAPRIREBBE UN TAGLIO GIÀ
+     * APPLICATO**: quel campo non cambia un pixel del file, ma dice che cosa il palco inquadra,
+     * quindi azzerandolo l'immagine tornerebbe intera sotto il dito. Chi aggiunge un campo a
+     * [Look] guardi questa riga: un campo di colore dimenticato qui resta applicato nel confronto,
+     * cioè non si vede più che cosa fa.
+     */
+    val place: Look
+        get() = Look(spin = spin, crop = crop, geo = geo, framing = framing)
+
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
     val idle: Boolean
         get() = plain && geo.idle && square

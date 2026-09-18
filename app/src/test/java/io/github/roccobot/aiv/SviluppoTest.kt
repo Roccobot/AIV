@@ -16,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.down
 import androidx.compose.ui.test.moveTo
@@ -2892,11 +2893,162 @@ class SviluppoTest {
         )
     }
 
+    /**
+     * **Caso 60: il confronto col prima toglie un gruppo di campi e non tutti.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA DELLA `2.58`** (campo libero del giro della `2.55`): chi sta
+     * tarando un colore e preme per vedere com'era vuole vedere **quel** colore com'era, non
+     * un'immagine che salta anche di inquadratura.
+     *
+     * ⚠️ **Si misura sulla GEOMETRIA e non sul Ritaglio**, e non è una scorciatoia: là il palco
+     * fa solo quello, cioè il dito serve alle squadrette e il confronto non parte affatto. La
+     * nota sul palco lo dichiara, e quello che si può misurare è il confine fra i due
+     * comportamenti.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `il confronto tiene la posa fuori dai moduli che la governano`() {
+        banco.setContent { Scena(uri = largo()) }
+        pronta()
+        /*
+         * Il Ritaglio è il modulo aperto di fabbrica: di là si mette in posa.
+         * ⚠️ **Il tasto si cerca per TESTO e non per descrizione**: con le etichette accese, che è
+         * il valore di fabbrica, il nome parlato è la parola scritta sotto l'icona e l'icona resta
+         * muta, o un lettore di schermo leggerebbe due volte la stessa voce.
+         */
+        banco.onNodeWithText(testo(R.string.editor_right)).performClick()
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
+        val inLuce = palco.captureToImage().toPixelMap()
+        assertEquals(
+            "in un modulo di colore il 'Prima' doveva tenere la posa, cioè non cambiare niente",
+            0, diversi(inLuce, premuto(palco))
+        )
+
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+        val inGeo = palco.captureToImage().toPixelMap()
+        assertTrue(
+            "nella Geometria il 'Prima' doveva mostrare l'immagine non girata",
+            diversi(inGeo, premuto(palco)) > 0
+        )
+    }
+
+    /**
+     * **Caso 61: quello che il confronto tiene, campo per campo.**
+     *
+     * ⚠️⚠️ **QUI SI MISURA LA COSA CHE PUÒ ROMPERSI IN SILENZIO**: un campo di colore dimenticato
+     * in [Look.place] resta applicato nel confronto, cioè non si vede più che cosa fa quel
+     * cursore; e un campo di posa dimenticato fa saltare l'inquadratura sotto il dito. Nessuno dei
+     * due dà errore, e a nessuno dei due arriva un compilatore.
+     */
+    @Test
+    fun `il confronto tiene il dove e butta il colore`() {
+        val pieno = Look(
+            spin = Spin(1, true),
+            crop = ImageEdit.Crop(0.1f, 0.2f, 0.8f, 0.9f),
+            light = Light(exposure = 0.4f),
+            chroma = Chroma(temp = 0.3f),
+            mix = Mix(List(Mix.COUNT) { Band(hue = 0.1f, sat = -0.2f, lum = 0.3f) }),
+            detail = Detail(sharpen = 0.6f),
+            effects = Effects(haze = 0.5f),
+            tone = Tone(all = Curve(listOf(Knot(0f, 0.2f), Knot(1f, 1f)))),
+            geo = Geometry(straighten = 0.25f),
+            framing = Framing(listOf(ImageEdit.Crop(0f, 0f, 0.5f, 0.5f)), 1)
+        )
+        val resta = pieno.place
+
+        assertEquals("la posa resta", pieno.spin, resta.spin)
+        assertEquals("il taglio resta", pieno.crop, resta.crop)
+        assertEquals("la geometria resta", pieno.geo, resta.geo)
+        assertEquals("e la vista pure, o l'immagine tornerebbe intera", pieno.framing, resta.framing)
+
+        assertTrue("il colore se ne va tutto", resta.plain)
+        assertEquals(Light.NONE, resta.light)
+        assertEquals(Chroma.NONE, resta.chroma)
+        assertEquals(Mix.NONE, resta.mix)
+        assertEquals(Detail.NONE, resta.detail)
+        assertEquals(Effects.NONE, resta.effects)
+        assertEquals(Tone.NONE, resta.tone)
+    }
+
+    /**
+     * **Caso 62: i due gesti del comando che scrive.**
+     *
+     * ⚠️ **È il gesto che un `TextButton` non poteva portare**, ed è la ragione per cui quel tasto
+     * è scritto in casa: qui si misura che i due gesti arrivino a chi salva con la risposta giusta
+     * alla domanda *accanto o sopra*.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `il tocco lungo su Salva chiede un file nuovo`() {
+        val chiesti = mutableListOf<Boolean>()
+        banco.setContent { Scena(onSave = { _, accanto -> chiesti += accanto }) }
+        pronta()
+        // Senza niente da salvare il comando è spento: prima si muove un cursore.
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
+        muovi(0, 0.5f)
+
+        val salva = banco.onNodeWithText(testo(R.string.editor_save))
+        salva.performClick()
+        banco.waitForIdle()
+        assertEquals("il tocco normale doveva riscrivere il file", listOf(false), chiesti)
+
+        salva.performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals(
+            "il tocco lungo doveva chiedere un file nuovo accanto",
+            listOf(false, true), chiesti
+        )
+    }
+
+    /**
+     * **Caso 63: col file nuovo il bersaglio non è quello di partenza.**
+     *
+     * ⚠️ **Il banco può misurare questo e non il file scritto**: quello vuole una decodifica vera e
+     * una scheda grafica. Qui si misura la sola cosa che il tocco lungo cambia, cioè **dove** si
+     * scrive, e il nome lo sceglie la stessa funzione di ogni copia dell'app.
+     */
+    @Test
+    fun `il file nuovo prende un nome libero accanto all'originale`() {
+        val dir = File(app.cacheDir, "accanto").apply { deleteRecursively(); mkdirs() }
+        val source = File(dir, "foto.jpg").apply { writeBytes(ByteArray(8)) }
+        val jpeg = Bitmap.CompressFormat.JPEG
+
+        assertEquals(
+            "col tocco normale si riscrive il file di partenza",
+            source, ImageEdit.lookTarget(source, dir, jpeg)
+        )
+        val nuovo = ImageEdit.lookTarget(source, dir, jpeg, beside = true)
+        assertEquals("col tocco lungo il nome è libero e accanto", "foto (2).jpg", nuovo.name)
+        assertEquals(dir, nuovo.parentFile)
+    }
+
+    /**
+     * Il palco col dito premuto: il confronto si accende con un'attesa, quindi il tempo va mosso a
+     * mano. Vedi il caso 14 di `LuceTest`.
+     */
+    private fun premuto(palco: SemanticsNodeInteraction): PixelMap {
+        palco.performTouchInput { down(center) }
+        banco.mainClock.advanceTimeBy(ATTESA_DITO)
+        banco.waitForIdle()
+        val scatto = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        return scatto
+    }
+
     @Composable
     private fun Scena(
         uri: Uri = quadrato(),
         mods: List<PadKey> = MOD_KEYS,
-        hand: Hand = Hand.RIGHT
+        hand: Hand = Hand.RIGHT,
+        onSave: (Look, Boolean) -> Unit = { _, _ -> }
     ) {
         AivTheme(darkTheme = false) {
             // ⚠️ L'ordine dei moduli viaggia di qui anche nell'app: la scheda le impostazioni
@@ -2904,10 +3056,30 @@ class SviluppoTest {
             // strada che nessuno percorre.
             CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods, hand = hand)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    AdvancedEditorScreen(uri = uri, busy = false, onSave = {}, onBack = {})
+                    AdvancedEditorScreen(uri = uri, busy = false, onSave = onSave, onBack = {})
                 }
             }
         }
+    }
+
+    /**
+     * Un PNG **rettangolare**, per le prove che guardano la posa.
+     *
+     * ⚠️ **Il quadrato non serve qui**: girato di un quarto viene identico, quindi una prova che
+     * misura una rotazione resterebbe verde con qualunque codice.
+     */
+    private fun largo(): Uri {
+        val file = File(app.cacheDir, "largo.png")
+        if (!file.exists()) {
+            val mappa = Bitmap.createBitmap(64, 32, Bitmap.Config.ARGB_8888)
+            for (y in 0 until 32) {
+                for (x in 0 until 64) {
+                    mappa.setPixel(x, y, if (x < 32) Color.WHITE else Color.rgb(90, 90, 90))
+                }
+            }
+            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        return Uri.fromFile(file)
     }
 
     /** Un PNG vero su disco, e il suo indirizzo: senza, i comandi restano spenti. */
@@ -2941,3 +3113,11 @@ class SviluppoTest {
         return Uri.fromFile(file)
     }
 }
+
+/**
+ * Quanto si tiene il dito fermo sul palco perché valga come tocco lungo.
+ *
+ * ⚠️ **Il tempo del banco si muove a mano**, e per lo stesso motivo del caso 14 di `LuceTest`: il
+ * confronto si accende dopo un'attesa, e col clock fermo quell'attesa non scatta da sé.
+ */
+private const val ATTESA_DITO = 1000L

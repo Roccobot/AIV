@@ -510,6 +510,7 @@
     <string name="editor_free">Свободно</string>
     <string name="editor_shape_original">Исходные</string>
     <string name="editor_save">Сохранить</string>
+    <string name="editor_save_beside">Сохранить копию</string>
     <string name="editor_apply">Применить</string>
     <string name="editor_crop_back">Кадрирование назад</string>
     <string name="editor_crop_on">Кадрирование вперёд</string>

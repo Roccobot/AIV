@@ -462,6 +462,7 @@
     <string name="editor_free">Tự do</string>
     <string name="editor_shape_original">Gốc</string>
     <string name="editor_save">Lưu</string>
+    <string name="editor_save_beside">Lưu một bản sao</string>
     <string name="editor_apply">Áp dụng</string>
     <string name="editor_crop_back">Lùi cắt</string>
     <string name="editor_crop_on">Tiến cắt</string>

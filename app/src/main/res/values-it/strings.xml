@@ -143,6 +143,7 @@
     <string name="editor_tall">Verticale</string>
     <string name="editor_wide">Orizzontale</string>
     <string name="editor_save">Salva</string>
+    <string name="editor_save_beside">Salva una copia</string>
     <string name="editor_apply">Applica</string>
     <string name="editor_crop_back">Indietro nel ritaglio</string>
     <string name="editor_crop_on">Avanti nel ritaglio</string>

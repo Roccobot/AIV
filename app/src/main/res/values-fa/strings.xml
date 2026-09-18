@@ -478,6 +478,7 @@
     <string name="editor_free">آزاد</string>
     <string name="editor_shape_original">اصلی</string>
     <string name="editor_save">ذخیره</string>
+    <string name="editor_save_beside">ذخیره یک نسخه</string>
     <string name="editor_apply">اعمال</string>
     <string name="editor_crop_back">بازگشت در برش</string>
     <string name="editor_crop_on">جلو در برش</string>

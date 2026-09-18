@@ -1777,8 +1777,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ **Il formato di uscita lo decide la QUALITÀ e non questa funzione**: 'Senza perdita'
      * scrive un PNG accanto, le altre due riscrivono il file dov'è. Il conto vive in
      * `ImageEdit.saveLook`, che è il posto in cui vivono tutte le domande sui file.
+     *
+     * @param beside il **tocco lungo** su 'Salva', dalla `2.58`: un file nuovo accanto
+     * all'originale invece di riscriverlo. ⚠️ **La notifica non ha un ramo in più**: quale delle
+     * due frasi dire lo decide già il confronto qui sotto, cioè se il file scritto è quello di
+     * partenza, e quel conto vale per tutte e tre le strade che scrivono accanto.
      */
-    fun lookSave(look: Look) {
+    fun lookSave(look: Look, beside: Boolean = false) {
         if (editorBusy) return
         val here = screen as? Screen.FullEditor ?: return
         val context = getApplication<Application>()
@@ -1787,7 +1792,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             val esito = ImageEdit.saveLook(
                 context, here.uri, look,
                 quality = settings?.editorQuality ?: Quality.DEFAULT,
-                backup = settings?.editorBackup ?: true
+                backup = settings?.editorBackup ?: true,
+                beside = beside
             )
             editorBusy = false
             when (esito) {
@@ -3281,7 +3287,7 @@ private fun Stage(
             AdvancedEditorScreen(
                 uri = screen.uri,
                 busy = model.editorBusy,
-                onSave = { look -> model.lookSave(look) },
+                onSave = { look, beside -> model.lookSave(look, beside) },
                 onBack = { model.leaveEditor() }
             )
         }

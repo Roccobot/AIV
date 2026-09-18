@@ -462,6 +462,7 @@
     <string name="editor_free">อิสระ</string>
     <string name="editor_shape_original">ต้นฉบับ</string>
     <string name="editor_save">บันทึก</string>
+    <string name="editor_save_beside">บันทึกสำเนา</string>
     <string name="editor_apply">ใช้</string>
     <string name="editor_crop_back">ย้อนการครอบตัด</string>
     <string name="editor_crop_on">เดินหน้าการครอบตัด</string>
