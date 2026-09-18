@@ -72,7 +72,7 @@ class ContoTest {
         )
         assertNotNull(
             "lookShader ha risposto null: il programma non compila o un uniform non combacia",
-            lookShader(sorgente(), pieno, SPAN)
+            lookShader(sorgente(), pieno, DOVE)
         )
     }
 
@@ -93,7 +93,7 @@ class ContoTest {
             .swap(5) { it.copy(lum = -1f) }
         assertNotNull(
             "lookShader ha risposto null: un array di uniform non combacia",
-            lookShader(sorgente(), Look(mix = fasce), SPAN)
+            lookShader(sorgente(), Look(mix = fasce), DOVE)
         )
     }
 
@@ -114,14 +114,14 @@ class ContoTest {
         )
         assertNotNull(
             "lookShader ha risposto null: un uniform del Dettaglio non combacia",
-            lookShader(sorgente(), Look(detail = fine), SPAN)
+            lookShader(sorgente(), Look(detail = fine), DOVE)
         )
     }
 
     /**
-     * E lo consegna anche con gli Effetti dentro, che dalla `2.54` sono tre cursori.
+     * E lo consegna anche con gli Effetti dentro, che dalla `2.57` sono cinque cursori.
      *
-     * ⚠️⚠️ **IL TERZO PORTA UN UNIFORM IN PIÙ, E CHI LO DIMENTICASSE NON AVREBBE NESSUN ERRORE**:
+     * ⚠️⚠️ **OGNUNO PORTA UN UNIFORM IN PIÙ, E CHI LO DIMENTICASSE NON AVREBBE NESSUN ERRORE**:
      * un `setFloatUniform` che non combacia con un nome del programma lancia al primo fotogramma,
      * e la rete di `lookShader` lo trasforma in un `null`, cioè in 'questo telefono non sa farlo'.
      * È la stessa forma del difetto della `2.14`, ed è la ragione per cui questa prova compila il
@@ -129,13 +129,18 @@ class ContoTest {
      * ⚠️ **L'uniform dello shader si chiama `matter` e non `texture`**: quella è una funzione di
      * GLSL, e un nome che le somiglia troppo è un rischio che non vale la pena correre su un
      * telefono. Se un giorno quella traduzione saltasse, questo caso sarebbe il primo a dirlo.
+     * ⚠️⚠️ **E I DUE DELLA `2.57` NE PORTANO TRE CHE NON DIPENDONO DA UN CURSORE** (`spot`, `frame`
+     * e `filmCell`): li consegna [Framed], quindi un nome che non combacia si vedrebbe qui anche
+     * con la vignettatura e la grana a zero.
      */
     @Test
     fun `lookShader consegna il programma con gli Effetti`() {
-        val tocco = Effects(clarity = 0.6f, texture = -0.4f, haze = 0.5f)
+        val tocco = Effects(
+            clarity = 0.6f, texture = -0.4f, haze = 0.5f, vignette = -0.7f, grain = 0.8f
+        )
         assertNotNull(
             "lookShader ha risposto null: un uniform degli Effetti non combacia",
-            lookShader(sorgente(), Look(effects = tocco), SPAN)
+            lookShader(sorgente(), Look(effects = tocco), DOVE)
         )
     }
 
@@ -153,7 +158,7 @@ class ContoTest {
         val curva = Curve(listOf(Knot(0f, 0.1f), Knot(0.5f, 0.7f), Knot(1f, 1f)))
         assertNotNull(
             "lookShader ha risposto null: la tabella della curva non combacia",
-            lookShader(sorgente(), Look(tone = Tone(all = curva)), SPAN)
+            lookShader(sorgente(), Look(tone = Tone(all = curva)), DOVE)
         )
     }
 
@@ -166,9 +171,10 @@ class ContoTest {
 
     private companion object {
         /**
-         * Il lato lungo che si dichiara al programma: qui conta solo che ci sia, perché il
-         * vicinato del Dettaglio si ricava da lui e non da quanto è grande la sorgente finta.
+         * Il riquadro che si dichiara al programma: qui conta solo che ci sia, perché il vicinato
+         * del Dettaglio e il centro della vignettatura si ricavano da lui e non da quanto è grande
+         * la sorgente finta.
          */
-        const val SPAN = 4000f
+        val DOVE = Framed.whole(4000f, 3000f)
     }
 }

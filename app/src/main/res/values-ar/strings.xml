@@ -501,6 +501,8 @@
     <string name="look_clarity">الوضوح</string>
     <string name="look_texture">النسيج</string>
     <string name="look_haze">إزالة الضباب</string>
+    <string name="look_grain">حبيبات</string>
+    <string name="look_vignette">تظليل الحواف</string>
     <string name="look_tone">منحنى</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">منحنى النغمات</string>

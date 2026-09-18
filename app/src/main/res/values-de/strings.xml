@@ -437,6 +437,8 @@
     <string name="look_clarity">Klarheit</string>
     <string name="look_texture">Struktur</string>
     <string name="look_haze">Dunst</string>
+    <string name="look_grain">Körnung</string>
+    <string name="look_vignette">Vignettierung</string>
     <string name="look_tone">Kurve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tonwertkurve</string>

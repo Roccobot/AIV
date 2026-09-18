@@ -436,6 +436,10 @@ class PresetTest {
  *
  * ⚠️ **Dalla `2.53` sono sei e non cinque**: gli Effetti sono un aspetto come gli altri, quindi un
  * preset se li porta, e senza il loro campo qui la prova non guarderebbe proprio il modulo nuovo.
+ * ⚠️⚠️ **E DALLA `2.57` QUEL MODULO HA CINQUE CURSORI, TUTTI E CINQUE SCRITTI QUI**: un campo nuovo
+ * che si dimenticasse di questa riga non darebbe nessun errore, perché l'andata e ritorno
+ * confronterebbe due valori di riposo. È la stessa forma di prova che mente in verde, e il rimedio
+ * è che qui non ci sia **nessun** campo a zero.
  *
  * ⚠️ **I numeri non sono tondi di proposito**: un arrotondamento nella scrittura del file si
  * vedrebbe su `0,37` e non su `0,5`.
@@ -456,7 +460,9 @@ private val PIENO = Look(
         sharpen = 0.61f, radius = -0.29f, masking = 0.47f,
         noise = 0.33f, noiseColor = 0.18f
     ),
-    effects = Effects(clarity = 0.42f, texture = -0.26f, haze = 0.31f),
+    effects = Effects(
+        clarity = 0.42f, texture = -0.26f, haze = 0.31f, vignette = -0.53f, grain = 0.27f
+    ),
     tone = Tone(
         all = Curve(listOf(Knot(0f, 0.05f), Knot(0.5f, 0.62f), Knot(1f, 0.97f))),
         red = Curve(listOf(Knot(0f, 0f), Knot(0.33f, 0.41f), Knot(1f, 1f))),

@@ -469,6 +469,8 @@
     <string name="look_clarity">Przejrzystość</string>
     <string name="look_texture">Tekstura</string>
     <string name="look_haze">Mgła</string>
+    <string name="look_grain">Ziarno</string>
+    <string name="look_vignette">Winieta</string>
     <string name="look_tone">Krzywa</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Krzywa tonalna</string>

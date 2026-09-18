@@ -437,6 +437,8 @@
     <string name="look_clarity">தெளிவு</string>
     <string name="look_texture">அமைப்பு</string>
     <string name="look_haze">மூடுபனி</string>
+    <string name="look_grain">கிரெயின்</string>
+    <string name="look_vignette">விக்னெட்</string>
     <string name="look_tone">வளைவு</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">தொனி வளைவு</string>

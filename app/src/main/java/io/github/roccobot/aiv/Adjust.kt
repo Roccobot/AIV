@@ -440,10 +440,10 @@ data class Detail(
      *   tessere tornano quelle di prima.
      */
     fun bleed(long: Float): Int {
-        if (idle) return 0
         var reach = 0f
         if (abs(sharpen) >= DEAD) reach = max(reach, sharpReach(long))
         if (abs(noise) >= DEAD || abs(noiseColor) >= DEAD) reach = max(reach, grainReach(long))
+        if (reach <= 0f) return 0
         return ceil(reach).toInt() + 1
     }
 
@@ -524,6 +524,21 @@ data class Detail(
  * aggiunge il **velo atmosferico**, che è un'altra cosa dal disegno. Gli altri due misurano quanto
  * un pixel stacca dal proprio intorno; questo misura quanta luce bianca l'aria ha aggiunto fra
  * l'obiettivo e quello che si vede, e la toglie.
+ *
+ * ⚠️⚠️ **E DALLA `2.57` SONO CINQUE, CIOÈ L'ELENCO CHE HA SCRITTO LUI** (`d-dopo-editor`, giro
+ * della `2.50`): [vignette] e [grain] chiudono il modulo. Sono di un'altra specie ancora, e la
+ * differenza governa quello che costano: i primi tre **leggono i pixel vicini**, quindi pagano
+ * campioni e un bordo sulle tessere del salvataggio; questi due leggono **dove si trova** il pixel,
+ * quindi non costano nessun campione e in cambio pretendono che ogni tessera sappia dov'è
+ * nell'immagine intera. Quel dato è [Framed], e senza di lui i due difetti non si vedrebbero
+ * sull'anteprima, dove la tessera è una sola.
+ *
+ * ⚠️⚠️ **VENGONO PER ULTIMI NELLA CATENA, E I DUE POSTI HANNO DUE RAGIONI DIVERSE**: la
+ * vignettatura sta dopo tutto quello che parla di colore perché è quello che fa un **obiettivo**,
+ * cioè meno luce ai bordi del fotogramma, e messa prima ogni cursore della Luce la rimetterebbe in
+ * discussione (un 'Auto' calcolato su un'immagine già vignettata leggerebbe un istogramma che non è
+ * il suo); la grana sta dopo ancora, perché è la **pellicola**, cioè il supporto su cui l'immagine
+ * è stampata, e messa prima il contrasto e la saturazione la tratterebbero come disegno.
  */
 data class Effects(
     /**
@@ -566,11 +581,49 @@ data class Effects(
      *   a -50 riporta dov'era: toglierlo è `(c - k) / (1 - k)`, aggiungerlo è `c + k (1 - c)`, con
      *   lo stesso `k`.
      */
-    val haze: Float = 0f
+    val haze: Float = 0f,
+    /**
+     * Quanto si scuriscono gli angoli, o si schiariscono verso il basso.
+     *
+     * ⚠️⚠️ **NON GUARDA I PIXEL VICINI MA GUARDA DOVE SI TROVA, E QUESTO È IL SUO PREZZO**: i tre
+     * cursori qui sopra costano campioni e un bordo sulle tessere del salvataggio; questo costa
+     * zero campioni e in cambio pretende che ogni tessera sappia **dov'è nell'immagine
+     * intera**. Senza quel dato ogni tessera si vignetterebbe per conto suo, cioè il file salvato
+     * porterebbe un angolo scuro per ogni giunzione.
+     * - ⚠️ **La distanza si misura sulla mezza diagonale**, quindi vale zero al centro e uno agli
+     *   angoli qualunque sia il formato dell'immagine: su un panorama e su un quadrato lo stesso
+     *   valore del cursore scurisce lo stesso angolo.
+     * - ⚠️ **La corsa parte da metà raggio**, che è quello che fa una vignettatura d'obiettivo:
+     *   il centro resta intatto e l'effetto cresce verso il bordo con una curva morbida, invece
+     *   di essere un tondo scuro che si vede dove comincia.
+     */
+    val vignette: Float = 0f,
+    /**
+     * Quanta **grana** si aggiunge, come quella di una pellicola.
+     *
+     * ⚠️⚠️ **È MONOPOLARE, E NON PER SIMMETRIA CON GLI ALTRI**: 'meno grana' non vuol dire niente
+     * su un'immagine che la grana non ce l'ha, e toglierla è il mestiere della riduzione del
+     * rumore, che vive nel Dettaglio. Qui lo zero è l'immagine come il file la porta.
+     * - ⚠️⚠️ **HA UNA CELLA, E SENZA DI LEI SPARIREBBE GUARDANDO L'IMMAGINE INTERA**: un rumore
+     *   alto un pixel su un file da quattromila si vede solo ingrandendo, e rimpicciolito si
+     *   media via. La cella è una frazione del lato, come ogni altra misura di questo editor,
+     *   quindi l'anteprima mostra la stessa grana del file salvato in proporzione.
+     * - ⚠️⚠️ **E ANCHE LEI VUOLE SAPERE DOVE SI TROVA**: un rumore generato dalla coordinata
+     *   **locale** di una tessera si ripeterebbe identico in ogni tessera, cioè darebbe un
+     *   motivo a scacchi grande quanto una tessera. Nasce dalla coordinata assoluta, come la
+     *   vignettatura.
+     * - ⚠️ **Pesa sui mezzi toni**: una pellicola mostra la grana dove c'è emulsione esposta a
+     *   metà, e quasi niente nel nero chiuso e nel bianco bruciato. Senza quel peso il cursore
+     *   sporcherebbe prima di tutto le ombre, che è l'effetto del rumore digitale e non della
+     *   grana.
+     */
+    val grain: Float = 0f
 ) {
 
     /** Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
-    val idle: Boolean get() = abs(clarity) < DEAD && abs(texture) < DEAD && abs(haze) < DEAD
+    val idle: Boolean
+        get() = abs(clarity) < DEAD && abs(texture) < DEAD && abs(haze) < DEAD &&
+            abs(vignette) < DEAD && abs(grain) < DEAD
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
@@ -585,13 +638,20 @@ data class Effects(
      *   filtri girano tutti sulla stessa tessera e leggono i pixel di partenza, quindi il bordo
      *   che serve è uno solo, quello che arriva più lontano.
      * - ⚠️ **A modulo spento vale zero**, quindi chi non usa questi cursori non paga niente.
+     * - ⚠️⚠️ **VIGNETTATURA E GRANA NON ENTRANO IN QUESTO CONTO, ED È QUELLO CHE LE DISTINGUE**:
+     *   nessuna delle due legge un pixel vicino, quindi non c'è nessun bordo da buttare via. Chi
+     *   usa solo quelle paga le tessere di sempre. Quello che pretendono invece è un altro dato,
+     *   cioè dove la tessera si trova, e quello vive in `AdjustRender`.
      */
     fun bleed(long: Float): Int {
-        if (idle) return 0
         var reach = 0f
         if (abs(clarity) >= DEAD) reach = max(reach, clarityReach(long))
         if (abs(texture) >= DEAD) reach = max(reach, textureReach(long))
         if (abs(haze) >= DEAD) reach = max(reach, hazeReach(long))
+        // ⚠️ **Zero vuol dire zero, e la guardia non è su [idle]**: un modulo mosso con la sola
+        // vignettatura o la sola grana non è a riposo, e nessuna delle due legge un vicino. Scritta
+        // su [idle], quel caso pagherebbe un pixel di bordo per niente.
+        if (reach <= 0f) return 0
         return ceil(reach).toInt() + 1
     }
 
@@ -661,6 +721,32 @@ data class Effects(
 
         /** Il raggio della stima del velo nello spazio del conto: vedi [HAZE_SPAN]. */
         fun hazeReach(long: Float): Float = HAZE_SPAN * long
+
+        /**
+         * Il lato della cella della grana, in frazione del lato lungo.
+         *
+         * ⚠️⚠️ **È UNA FRAZIONE E NON UN NUMERO DI PIXEL, PER LA STESSA RAGIONE DEI RAGGI**: il
+         * conto gira sull'anteprima ridotta a 1600 pixel e sul file pieno, e una cella scritta in
+         * pixel darebbe due grane diverse. Così l'anteprima mostra la stessa grana in proporzione,
+         * che è la sola cosa che si può promettere senza guardare il file.
+         * ⚠️ **Il conto che porta al numero**: su un file da quattromila pixel la cella è di poco
+         * più di tre pixel, cioè il grano di una pellicola scansionata a quella misura. Sotto,
+         * quello che si ottiene è rumore digitale; sopra, un impasto che si vede anche
+         * rimpicciolendo, mentre una grana deve sparire guardando l'immagine intera.
+         */
+        const val GRAIN_CELL = 1f / 1200f
+
+        /**
+         * Il lato della cella della grana nello spazio in cui il conto gira: vedi [GRAIN_CELL].
+         *
+         * ⚠️⚠️ **SOTTO IL PIXEL NON SI SCENDE, E QUEL PAVIMENTO ROMPE LA PROPORZIONE**: una cella
+         * più stretta di un pixel non è una grana più fine, è un rumore che cambia più in fretta di
+         * quanto lo schermo sappia mostrare, cioè uno sfarfallio. Il pavimento entra in funzione
+         * **sotto i 1200 pixel** di lato, quindi mai sull'anteprima dell'editor (1600) né su un
+         * file da fotocamera: là dove entra, la grana si vede un po' più grossa di quella del file
+         * salvato, e va detto invece di prometterla identica.
+         */
+        fun grainCell(long: Float): Float = max(1f, GRAIN_CELL * long)
     }
 }
 
@@ -1338,6 +1424,17 @@ uniform float2 sift;
 // La foschia (dalla `2.54`), col raggio a cui si stima il velo.
 uniform half haze;
 uniform float2 broad;
+uniform half vignette;
+uniform half filmGrain;
+// ⚠️⚠️ **DOVE COMINCIA L'IMMAGINE INTERA, NELLO SPAZIO IN CUI QUESTO CONTO GIRA**: `spot` è il suo
+// angolo in alto a sinistra e `frame` la sua misura. Sull'anteprima è il rettangolo in cui
+// l'immagine è disegnata sullo schermo; nel salvataggio a tessere l'origine è **negativa**, perché
+// lì `p` parte da zero sull'angolo della tessera e l'immagine comincia più indietro. Senza questi
+// due, ogni tessera si vignetterebbe per conto suo e la grana si ripeterebbe a scacchi, e nessuno
+// dei due difetti si vede sull'anteprima, dove la tessera è una sola.
+uniform float2 spot;
+uniform float2 frame;
+uniform float filmCell;
 
 // Quanto spostano i due cursori del bilanciamento del bianco, al fondo della corsa. Il numero
 // dice quanto è forte il cursore, e a 0,3 il massimo copre lo scarto fra una luce di casa e la
@@ -1400,6 +1497,21 @@ const half MATTER_REACH = 1.1;
 // ⚠️ **Il velo che si stima non è mai uno intero**, quindi il denominatore `1 - k` non arriva mai
 // vicino a zero: il caso peggiore è un'area di bianco pieno, dove vale `1 - HAZE_REACH`.
 const half HAZE_REACH = 0.45;
+
+// Quanto la vignettatura scurisce l'angolo al fondo della corsa.
+//
+// ⚠️ **Il conto che lo regge**: a -100 l'angolo tiene il 45% della sua luce, cioè poco più di uno
+// stop, che è quanto perde un obiettivo aperto tutto. Più giù si arriva al tondo scuro che si
+// vede dove comincia, e quello si ottiene comunque spingendo il cursore su un'immagine già scura.
+const half VIGNETTE_REACH = 0.55;
+
+// Quanto la grana muove un pixel di mezzo tono, al fondo della corsa.
+//
+// ⚠️ **Il conto**: a 100 il grano sposta la luminanza di dodici livelli su 255 in un verso e
+// nell'altro, cioè una grana ben visibile al cento per cento e appena percettibile guardando
+// l'immagine intera. Sopra si arriva alla neve di una fotografia ad alto ISO, che è rumore e non
+// grana.
+const half GRAIN_REACH = 0.048;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -1676,6 +1788,46 @@ half3 localed(float2 p, half3 c) {
     return clamp(done, half3(0.0), half3(1.0));
 }
 
+// Quanto un punto è lontano dal centro dell'immagine INTERA, da zero al centro a uno all'angolo.
+//
+// ⚠️⚠️ **SI MISURA SULLA MEZZA DIAGONALE E NON SUL LATO, E LA DIFFERENZA SI VEDE SUI PANORAMI**:
+// dividendo per il lato, su un'immagine allungata lo stesso valore del cursore scurirebbe i due
+// lati corti molto più degli altri due. Con la diagonale l'angolo vale uno su qualunque formato,
+// che è quello che fa una vignettatura d'obiettivo.
+//
+// ⚠️ **`p` vive nello spazio del pezzo che si sta disegnando**, quindi si toglie l'origine
+// dell'immagine intera: è la sola riga che rende il conto uguale sull'anteprima e sul file salvato
+// a pezzi.
+half fromCentre(float2 p) {
+    float2 here = (p - spot) / max(frame, float2(1.0));
+    float2 off = here - float2(0.5);
+    return half(min(length(off) / 0.70710678, 1.0));
+}
+
+// Il rumore della grana: un valore fra -1 e 1 che cambia da cella a cella, interpolato dentro.
+//
+// ⚠️⚠️ **IL SEME È LA COORDINATA ASSOLUTA E NON QUELLA DELLA TESSERA**: con la coordinata locale
+// ogni tessera del salvataggio porterebbe la **stessa** grana, cioè un motivo a scacchi grande
+// quanto una tessera, e sull'anteprima (dove la tessera è una sola) non si vedrebbe.
+//
+// ⚠️ **La cella è interpolata e non a blocchi**: un valore per cella darebbe dei quadretti, e
+// l'interpolazione morbida li scioglie in un grano tondo, che è quello che si vede su una
+// pellicola.
+half speck(float2 p) {
+    float2 here = (p - spot) / max(filmCell, 1.0);
+    float2 cell = floor(here);
+    float2 t = fract(here);
+    float2 w = t * t * (float2(3.0) - 2.0 * t);
+    // Quattro valori casuali agli angoli della cella, dallo stesso hash.
+    float a = fract(sin(dot(cell, float2(12.9898, 78.233))) * 43758.5453);
+    float b = fract(sin(dot(cell + float2(1.0, 0.0), float2(12.9898, 78.233))) * 43758.5453);
+    float c = fract(sin(dot(cell + float2(0.0, 1.0), float2(12.9898, 78.233))) * 43758.5453);
+    float d = fract(sin(dot(cell + float2(1.0, 1.0), float2(12.9898, 78.233))) * 43758.5453);
+    float top = mix(a, b, w.x);
+    float bottom = mix(c, d, w.x);
+    return half(mix(top, bottom, w.y) * 2.0 - 1.0);
+}
+
 // La curva del contrasto, su un valore in [0, 1] e col perno in mezzo. Per k positivo allontana
 // dal centro senza mai raggiungere gli estremi, per k negativo avvicina al centro.
 half sCurve(half x, half k) {
@@ -1914,6 +2066,41 @@ half4 main(float2 p) {
     // esposto a un cursore che qualcuno può aver alzato, mentre qui il grigio è il grigio.
     rgb = mix(rgb, half3(bw), mono);
 
+    // 8. La vignettatura, che viene DOPO tutto quello che parla di colore e non è un giudizio
+    // sull'immagine: è quello che fa un obiettivo, cioè meno luce ai bordi del fotogramma. Messa
+    // prima, ogni cursore della Luce e il contrasto la rimetterebbero in discussione, e un
+    // 'Auto' calcolato su un'immagine già vignettata leggerebbe un istogramma che non è il suo.
+    if (abs(vignette) > half(0.0)) {
+        half r = fromCentre(p);
+        // ⚠️⚠️ **LA CORSA PARTE DA METÀ RAGGIO, E NON DAL CENTRO**: una vignettatura che comincia
+        // a scurire subito si legge come un tondo chiaro appiccicato in mezzo, mentre quella di
+        // un obiettivo lascia intatta la parte centrale e cala verso il bordo. Lo scalino lo
+        // toglie `smoothstep`, che parte e arriva con pendenza zero.
+        half fall = half(smoothstep(0.5, 1.0, float(r)));
+        // Il fattore moltiplica la luce: verso il basso scurisce l'angolo, verso l'alto lo apre.
+        half k = vignette * VIGNETTE_REACH * fall;
+        rgb = k >= half(0.0)
+            ? mix(rgb, half3(1.0), k)
+            : rgb * (half(1.0) + k);
+    }
+
+    // 9. La grana, che viene per ULTIMA perché è la pellicola: tutto quello che c'è sopra
+    // descrive l'immagine, questa descrive il supporto su cui è stampata. Messa prima, il
+    // contrasto e la saturazione la tratterebbero come disegno e la moltiplicherebbero.
+    if (filmGrain > half(0.0)) {
+        // ⚠️⚠️ **PESA SUI MEZZI TONI, E SENZA QUELLA RIGA SAREBBE RUMORE DIGITALE**: una pellicola
+        // mostra il grano dove l'emulsione è esposta a metà, e quasi niente nel nero chiuso e nel
+        // bianco bruciato. Il conto è lo stesso `4t(1-t)` della chiarezza, scritto come uno meno
+        // il quadrato dello scarto dal centro.
+        half tone = luma(rgb);
+        half off = half(2.0) * tone - half(1.0);
+        half mid = half(1.0) - off * off;
+        // ⚠️ **Si somma lo stesso valore ai tre canali**: la grana di una pellicola in bianco e
+        // nero è di densità e non di colore, e un rumore per canale darebbe i puntini colorati
+        // del sensore, cioè proprio quello che la riduzione del rumore esiste per togliere.
+        rgb = rgb + half3(speck(p) * filmGrain * GRAIN_REACH * mid);
+    }
+
     rgb = clamp(rgb, half3(0.0), half3(1.0));
     return half4(rgb * a, a);
 }
@@ -1948,14 +2135,76 @@ private fun toneBitmap(tone: Tone): Bitmap =
     }
 
 /**
- * Il programma compilato con [look] dentro, agganciato all'immagine [image], oppure `null` dove
- * questa strada non esiste. [span] è il lato lungo dell'immagine **nello spazio in cui il conto
- * gira**: i pixel della tessera per il salvataggio, il rettangolo disegnato per l'anteprima.
+ * Dov'è il pezzo che si sta disegnando, dentro l'immagine **intera**, e quanto misura lei.
  *
- * ⚠️⚠️ **[span] NON HA UN VALORE DI SERIE, E NON È UNA DIMENTICANZA**: il modulo Dettaglio ragiona
- * in frazioni del lato, quindi chi chiama deve **dichiarare** quanto misura l'immagine da cui
- * legge. Un valore di serie sarebbe giusto per uno dei due chiamanti e sbagliato per l'altro,
- * senza che niente lo dica: è la stessa forma di presidio del parametro di `Modifier.lowered`.
+ * ⚠️⚠️ **NASCE CON LA `2.57`, E PRIMA ERA UN NUMERO SOLO**: fino alla `2.56` allo shader si
+ * consegnava il lato lungo ([span]), che basta a chi ragiona in frazioni del lato, cioè al
+ * Dettaglio e ai primi tre cursori degli Effetti. La vignettatura e la grana invece chiedono
+ * un'altra cosa: **dove** si trova questo pezzo, perché una vignettatura si misura dal centro
+ * dell'immagine e una grana deve essere continua da una tessera all'altra.
+ *
+ * ⚠️⚠️ **E I DUE DATI STANNO INSIEME PERCHÉ SONO LA STESSA COSA DETTA PER INTERO**: il lato lungo
+ * si **ricava** da qui ([span]), quindi non esiste più un secondo posto in cui scriverlo e non
+ * può divergere dall'origine. Chi disegna un pezzo lo dichiara con [piece], chi disegna tutto con
+ * [whole]: non c'è un valore di serie da dimenticare, che è lo stesso presidio del parametro di
+ * `Modifier.lowered`.
+ */
+// ⚠️ **Anche `copy()` è privato, come il costruttore**: senza quell'annotazione una data class dal
+// costruttore privato lo genera pubblico, e `copy(left = ...)` sarebbe la quarta strada, cioè
+// esattamente quella che le tre funzioni qui sotto esistono per non lasciare aperta.
+@ConsistentCopyVisibility
+internal data class Framed private constructor(
+    /** La larghezza dell'immagine intera, nello spazio in cui il conto gira. */
+    val wide: Float,
+    /** L'altezza dell'immagine intera, nello stesso spazio. */
+    val tall: Float,
+    /** Dove comincia l'immagine intera, in quello spazio: per una tessera è negativo. */
+    val left: Float,
+    /** Dove comincia l'immagine intera, in quello spazio: per una tessera è negativo. */
+    val top: Float
+) {
+    /** Il lato lungo dell'immagine intera: è quello che i raggi in frazione del lato leggono. */
+    val span: Float get() = max(wide, tall)
+
+    companion object {
+        /**
+         * L'immagine intera, che comincia a zero: il file pieno disegnato in un colpo, e le prove.
+         */
+        fun whole(wide: Float, tall: Float) = Framed(wide, tall, 0f, 0f)
+
+        /**
+         * L'immagine intera disegnata dentro un rettangolo dello schermo, cioè il palco
+         * dell'editor: [left] e [top] sono l'angolo di quel rettangolo.
+         */
+        fun shown(left: Float, top: Float, wide: Float, tall: Float) =
+            Framed(wide, tall, left, top)
+
+        /**
+         * Una tessera del salvataggio, dichiarata col **proprio** angolo dentro l'immagine
+         * ([atX], [atY]) e con la misura dell'immagine intera.
+         *
+         * ⚠️⚠️ **IL SEGNO LO METTE QUESTA FUNZIONE E NON IL CHIAMANTE**: dentro una tessera `p`
+         * parte da zero sul suo angolo, quindi l'immagine intera comincia **più indietro**, cioè a
+         * un'origine negativa. Scritta dal chiamante, quella negazione sarebbe una riga da
+         * ricordare e un difetto che non dà nessun errore: la vignettatura cadrebbe fuori centro
+         * di tanto quanto la tessera è lontana dall'angolo.
+         */
+        fun tile(atX: Float, atY: Float, wide: Float, tall: Float) =
+            Framed(wide, tall, -atX, -atY)
+    }
+}
+
+/**
+ * Il programma compilato con [look] dentro, agganciato all'immagine [image], oppure `null` dove
+ * questa strada non esiste. [where] dice quanto misura l'immagine **nello spazio in cui il conto
+ * gira** e dov'è il pezzo che si disegna: i pixel del file per il salvataggio, il rettangolo
+ * disegnato per l'anteprima.
+ *
+ * ⚠️⚠️ **[where] NON HA UN VALORE DI SERIE, E NON È UNA DIMENTICANZA**: il modulo Dettaglio ragiona
+ * in frazioni del lato e la vignettatura in frazioni della diagonale, quindi chi chiama deve
+ * **dichiarare** quanto misura l'immagine da cui legge e dov'è il proprio pezzo. Un valore di
+ * serie sarebbe giusto per uno dei due chiamanti e sbagliato per l'altro, senza che niente lo
+ * dica: è la stessa forma di presidio del parametro di `Modifier.lowered`.
  *
  * ⚠️⚠️ **`null` VUOL DIRE ANDROID 12 O PRIMA**, e chi chiama non ha una seconda strada: l'editor
  * completo non si offre nemmeno, ed è l'istruzione dell'utente. È lo stesso controllo di
@@ -1968,7 +2217,7 @@ private fun toneBitmap(tone: Tone): Bitmap =
  * `setFloatUniform`, che costano niente. Chi volesse tenerlo in una cache guardi prima se il
  * profilo dice che serve.
  */
-internal fun lookShader(image: Shader, look: Look, span: Float): Shader? {
+internal fun lookShader(image: Shader, look: Look, where: Framed): Shader? {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     /*
      * ⚠️⚠️ **UN PROGRAMMA CHE NON COMPILA NON PUÒ FAR CADERE L'APP, e la rete vive qui e non nei
@@ -1980,7 +2229,7 @@ internal fun lookShader(image: Shader, look: Look, span: Float): Shader? {
      * monta la schermata misura la pila dei passi e non i pixel, e senza questa riga cadrebbe
      * sul primo cursore mosso.
      */
-    return runCatching { lightOver(image, look, span) }.getOrNull()
+    return runCatching { lightOver(image, look, where) }.getOrNull()
 }
 
 /**
@@ -1992,17 +2241,19 @@ internal fun lookShader(image: Shader, look: Look, span: Float): Shader? {
  * perché il programma non compila senza il suo uniform.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun lightOver(image: Shader, look: Look, span: Float): Shader {
+private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
     val light = look.light
     val chroma = look.chroma
     val detail = look.detail
     val effects = look.effects
+    val span = where.span
     val sharp = detail.sharpReach(span)
     val grain = Detail.grainReach(span)
     val wide = Effects.clarityReach(span)
     val fine = Effects.textureReach(span)
     val sift = Effects.textureFine(span)
     val broad = Effects.hazeReach(span)
+    val cell = Effects.grainCell(span)
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
         /*
@@ -2057,6 +2308,11 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
         setFloatUniform("sift", sift, sift)
         setFloatUniform("haze", effects.haze)
         setFloatUniform("broad", broad, broad)
+        setFloatUniform("vignette", effects.vignette)
+        setFloatUniform("filmGrain", effects.grain)
+        setFloatUniform("filmCell", cell)
+        setFloatUniform("spot", where.left, where.top)
+        setFloatUniform("frame", where.wide, where.tall)
     }
 }
 

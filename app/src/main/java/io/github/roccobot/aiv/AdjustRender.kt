@@ -104,7 +104,19 @@ internal object AdjustRender {
                         source, box.read.left, box.read.top, box.read.width(), box.read.height()
                     )
                 }.getOrNull() ?: run { out.recycle(); return null }
-                val done = draw(piece, look, box.read.width(), box.read.height(), span)
+                /*
+                 * ⚠️⚠️ **LA TESSERA DICHIARA DOVE SI TROVA, E DALLA `2.57` NON È UN DETTAGLIO**:
+                 * la vignettatura si misura dal centro dell'immagine INTERA e la grana nasce
+                 * dalla coordinata assoluta, quindi una tessera che dichiarasse sé stessa
+                 * porterebbe un angolo scuro per ogni giunzione e la stessa grana ripetuta a
+                 * scacchi. ⚠️ **L'origine è quella del pezzo LETTO** (`box.read`) e non di quello
+                 * tenuto: lo shader gira su quei pixel, bordo di sovrapposizione compreso.
+                 */
+                val dove = Framed.tile(
+                    box.read.left.toFloat(), box.read.top.toFloat(),
+                    w.toFloat(), h.toFloat()
+                )
+                val done = draw(piece, look, box.read.width(), box.read.height(), dove)
                 if (piece !== source) piece.recycle()
                 if (done == null) {
                     out.recycle()
@@ -127,7 +139,7 @@ internal object AdjustRender {
      * tessere sarebbero dodici. Il `finally` copre anche la strada dell'errore, che è quella in
      * cui una perdita non si nota.
      */
-    private fun draw(piece: Bitmap, look: Look, w: Int, h: Int, span: Float): Bitmap? {
+    private fun draw(piece: Bitmap, look: Look, w: Int, h: Int, where: Framed): Bitmap? {
         var reader: ImageReader? = null
         var renderer: HardwareRenderer? = null
         var node: RenderNode? = null
@@ -149,7 +161,7 @@ internal object AdjustRender {
              * stessa riga che l'anteprima mette sul proprio shader.
              */
             image.setFilterMode(BitmapShader.FILTER_MODE_LINEAR)
-            val shader = lookShader(image as ComposeShader, look, span) ?: return null
+            val shader = lookShader(image as ComposeShader, look, where) ?: return null
             val paint = Paint().apply { this.shader = shader }
 
             val canvas = node.beginRecording()
@@ -213,7 +225,7 @@ internal object AdjustRender {
             return false
         }
         probe.eraseColor(android.graphics.Color.WHITE)
-        val done = draw(probe, Look.NONE, PROBE, PROBE, PROBE.toFloat())
+        val done = draw(probe, Look.NONE, PROBE, PROBE, Framed.whole(PROBE.toFloat(), PROBE.toFloat()))
         probe.recycle()
         if (done == null) return false
         val pixel = done.getPixel(PROBE / 2, PROBE / 2)

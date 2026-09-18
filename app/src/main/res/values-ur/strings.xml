@@ -437,6 +437,8 @@
     <string name="look_clarity">وضاحت</string>
     <string name="look_texture">ساخت</string>
     <string name="look_haze">دھند</string>
+    <string name="look_grain">گرین</string>
+    <string name="look_vignette">وینیٹ</string>
     <string name="look_tone">کرو</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">ٹون کرو</string>

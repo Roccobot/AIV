@@ -437,6 +437,8 @@
     <string name="look_clarity">Netlik</string>
     <string name="look_texture">Doku</string>
     <string name="look_haze">Pus</string>
+    <string name="look_grain">Tanecik</string>
+    <string name="look_vignette">Vinyet</string>
     <string name="look_tone">Eğri</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Ton eğrisi</string>
