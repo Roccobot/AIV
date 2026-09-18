@@ -23,6 +23,10 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.mutablePreferencesOf
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -237,6 +241,66 @@ class ProfonditaTest {
             "Con l'ombra l'aria della finestra non è stata scontata: il pannello cade più dentro",
             dentro,
             dalBordo(dove, largo, margine, pannello, aria)
+        )
+    }
+
+    /**
+     * **Caso 6: un archivio vuoto dà esattamente i valori di fabbrica dichiarati.**
+     *
+     * ⚠️⚠️ **PRESIDIA UN VALORE SCRITTO IN DUE POSTI, ED È IL CASO PROATTIVO DELLA REGOLA**: ogni
+     * campo di [Settings] dichiara il proprio valore di fabbrica, e [SettingsStore.read] lo
+     * ripete come ripiego. Cambiarne uno solo dà un'app in un modo al primo avvio e in un altro
+     * dopo il primo salvataggio, che è un difetto che non dà **nessun** errore: il compilatore
+     * vede due costanti valide. Il confronto è sull'**oggetto intero**, quindi copre i campi di
+     * adesso e quelli che verranno.
+     * ⚠️ **Nasce con la `2.61`**, cioè col giro in cui quel valore è cambiato per la seconda
+     * volta in settanta versioni ([Settings.panelDepth]), che è la prova che il caso non è
+     * teorico.
+     */
+    @Test
+    fun `un archivio vuoto da i valori di fabbrica`() {
+        assertEquals(
+            "La lettura e i campi di Settings non dichiarano gli stessi valori di fabbrica",
+            Settings(),
+            SettingsStore.read(emptyPreferences())
+        )
+        assertEquals(
+            "Il valore di fabbrica dell'effetto dietro i pannelli non è quello dichiarato",
+            PanelDepth.BLUR,
+            Settings().panelDepth
+        )
+    }
+
+    /**
+     * **Caso 7: la chiave vecchia continua a dire il suo, e una scelta scritta non si tocca.**
+     *
+     * ⚠️⚠️ **È IL RAMO CHE UN VALORE DI FABBRICA NUOVO PUÒ MANGIARE IN SILENZIO**: chi aveva
+     * **spento** la sfocatura prima della `1.82` ha nell'archivio la chiave vecchia a `false` e
+     * niente altro, quindi il suo 'niente' vive in un `when` che porta al valore di fabbrica per
+     * tutti gli altri. Un ramo perso là rovescerebbe una scelta esplicita da un aggiornamento, e
+     * non lo direbbe nessuno.
+     * ⚠️ **Le due chiavi si scrivono qui col loro nome d'archivio**, perché in [SettingsStore]
+     * sono private: è lo stesso modo di `IndicatoreTest`, e il nome è quello vero, cioè quello
+     * che vive sul telefono di chi aggiorna.
+     */
+    @Test
+    fun `la chiave vecchia e una scelta scritta valgono ancora`() {
+        val veil = booleanPreferencesKey("veil")
+        val depth = stringPreferencesKey("panel-depth")
+        assertEquals(
+            "Chi aveva spento la sfocatura deve tenere il niente",
+            PanelDepth.NONE,
+            SettingsStore.read(mutablePreferencesOf(veil to false)).panelDepth
+        )
+        assertEquals(
+            "Chi l'aveva accesa deve tenere la sfocatura",
+            PanelDepth.BLUR,
+            SettingsStore.read(mutablePreferencesOf(veil to true)).panelDepth
+        )
+        assertEquals(
+            "Una scelta scritta vale più del valore di fabbrica",
+            PanelDepth.SHADOW,
+            SettingsStore.read(mutablePreferencesOf(depth to PanelDepth.SHADOW.token)).panelDepth
         )
     }
 
