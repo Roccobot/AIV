@@ -1533,7 +1533,22 @@ const half MATTER_REACH = 1.1;
 //
 // ⚠️ **Il velo che si stima non è mai uno intero**, quindi il denominatore `1 - k` non arriva mai
 // vicino a zero: il caso peggiore è un'area di bianco pieno, dove vale `1 - HAZE_REACH`.
+//
+// ⚠️⚠️ **E LA CODA DI QUESTA NOTA ERA FALSA FINO ALLA `2.60`**: diceva che questo numero teneva
+// fuori dalla corsa le ombre che si chiudono, e la misura dice il contrario. Dentro una zona
+// velata a 0,62, a cursore pieno, i **64** livelli sotto il quarto di scala uscivano tutti allo
+// stesso valore, cioè ne restava **uno solo**: il disegno negli scuri spariva del tutto. Adesso
+// il tetto qui sotto ne lascia **40** distinti. Chi ritrova quella frase in una nota vecchia
+// sappia che è stata smentita da un conto e non da un'impressione.
 const half HAZE_REACH = 0.45;
+
+// Quanto in fretta un vicino DIVERSO smette di contare nella mappa del velo.
+//
+// ⚠️⚠️ **È PIÙ LARGA DI `NOISE_EDGE` PERCHÉ DISTINGUE UN'ALTRA COSA**: là si separa la grana di un
+// sensore (pochi livelli) da un contorno vero, qui il velo di una regione da quello della regione
+// accanto. A 20 un vicino che dista 47 livelli pesa la metà, e il conto dice che è il punto
+// giusto: da lì in su l'alone sul profilo vale zero livelli, e più in giù ne resta ancora uno.
+const half HAZE_EDGE = 20.0;
 
 // Quanto la vignettatura scurisce l'angolo al fondo della corsa.
 //
@@ -1753,18 +1768,38 @@ half around(float2 p, float2 step) {
 // ⚠️⚠️ **SI PRENDE LA MEDIA DEI MINIMI E NON IL MINIMO DEL BLOCCO**, che è la forma classica: il
 // minimo su un blocco fa una mappa a gradini, e ogni gradino diventa un alone intorno ai contorni
 // forti. La media cambia piano, che è quello che una mappa di velo deve fare.
+//
+// ⚠️⚠️ **MA DALLA `2.60` QUELLA MEDIA SEGUE I BORDI, E LA MISURA DICE PERCHÉ** (riscontro del giro
+// della `2.55`: *Foschia: servirebbero regolazioni più raffinate*). Una media uniforme prende il
+// velo del cielo e lo spalma **dentro** il profilo che ha sotto di sé, quindi là la sottrazione
+// arriva più in basso di quanto spetti a quei pixel: su un profilo di montagna contro un cielo
+// velato a 0,62, la roccia vicino al bordo perdeva **15 livelli** rispetto a quella lontana e
+// finiva sul nero, su quattro righe; e il cielo appena sopra il bordo riceveva una stima
+// sbagliata di **33 livelli**. Con un peso che cade dove il vicino è diverso dal centro, tutti e
+// due gli scarti vanno a **zero**.
+// ⚠️ **E il velo vero non si perde**: sul cielo che sfuma dolcemente, cioè il caso per cui questo
+// cursore esiste, la mappa coincide col canale scuro a meno di **zero** livelli con e senza il
+// peso. Quello che il peso toglie è la sbavatura fra due cose diverse, non la stima.
+// ⚠️ **Il peso è quello della riduzione del rumore, con una soglia sua** ([HAZE_EDGE]): là si
+// distingue la grana di un sensore da un contorno, qui il velo di una regione da un'altra, e le
+// due distanze non sono la stessa.
 half veiled(float2 p, float2 step) {
+    half3 mid = tap(p);
+    half here = min(min(mid.r, mid.g), mid.b);
     half sum = half(0.0);
     half weight = half(0.0);
     for (int j = -1; j <= 1; j++) {
         for (int i = -1; i <= 1; i++) {
-            half w = half((2.0 - abs(float(i))) * (2.0 - abs(float(j))));
             half3 s = tap(p + float2(float(i) * step.x, float(j) * step.y));
-            sum += min(min(s.r, s.g), s.b) * w;
+            half dark = min(min(s.r, s.g), s.b);
+            half far = dark - here;
+            half w = half((2.0 - abs(float(i))) * (2.0 - abs(float(j))))
+                * exp(-far * far * HAZE_EDGE);
+            sum += dark * w;
             weight += w;
         }
     }
-    return sum / weight;
+    return sum / max(weight, half(0.0001));
 }
 
 // Il modulo Effetti: il contrasto locale a due raggi sulla sola luminanza, e la foschia.
@@ -1816,8 +1851,27 @@ half3 localed(float2 p, half3 c) {
         // il segno di `k` è quello del cursore, che è un uniform. Scritto come un `mix` sui due
         // risultati costerebbe le due formule su ogni pixel per non guadagnare niente.
         if (haze > half(0.0)) {
-            done = (done - half3(k)) / (half(1.0) - k);
+            // ⚠️⚠️ **IL VELO TOLTO NON SUPERA QUELLO CHE IL PIXEL PORTA, DALLA `2.60`, E SENZA
+            // QUESTA RIGA LE OMBRE SI CHIUDEVANO TUTTE SULLO STESSO NERO**: la sottrazione azzera
+            // quello che resta sotto `k`, quindi in una zona velata a 0,62 i **64** livelli sotto
+            // il quarto di scala uscivano identici, cioè ne restava **uno**. Col tetto ne restano
+            // **40** distinti.
+            // ⚠️ **Il tetto è lo stesso fattore applicato al canale scuro del PIXEL**, non una
+            // costante nuova: dove il velo c'è davvero quel numero vale quanto la stima, quindi
+            // il `min` non entra in funzione (misurato: **zero** livelli di scarto su una zona
+            // uniforme e sui pixel chiari). Entra solo dove il pixel è più scuro del proprio
+            // intorno, cioè su un dettaglio fine che la stima non ha visto, ed è il posto in cui
+            // il disegno spariva.
+            half own = min(min(c.r, c.g), c.b);
+            half take = min(k, HAZE_REACH * own);
+            done = (done - half3(take)) / (half(1.0) - take);
         } else {
+            // ⚠️⚠️ **QUI IL TETTO NON C'È, ED È UNA SCELTA E NON UNA DIMENTICANZA**: aggiungere
+            // velo non azzera nessun pixel, quindi non c'è niente da proteggere; e limitarlo sugli
+            // scuri toglierebbe al cursore proprio quello che fa da questa parte, cioè alzare le
+            // ombre. ⚠️ **Il prezzo è che i due versi non si disfanno più esattamente dove il
+            // tetto entra in funzione**, e si dichiara: là togliere il velo ne toglie meno di
+            // quanto rimetterlo ne rimetta.
             done += half3(k) * (half3(1.0) - done);
         }
     }
