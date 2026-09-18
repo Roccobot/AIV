@@ -433,6 +433,9 @@
     <string name="look_masking">Maskeren</string>
     <string name="look_noise">Ruis</string>
     <string name="look_noise_color">Kleurruis</string>
+    <string name="look_effects">Effecten</string>
+    <string name="look_clarity">Helderheid</string>
+    <string name="look_texture">Structuur</string>
     <string name="look_tone">Curve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tooncurve</string>

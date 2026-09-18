@@ -40,7 +40,8 @@ import androidx.compose.ui.graphics.Shader as ComposeShader
  *   avevano nessuna cucitura; il modulo Dettaglio guarda i vicini, e senza un bordo il filtro
  *   dell'ultima colonna di una tessera leggerebbe il **bordo ripetuto** invece del pixel che sta
  *   di là, cioè su ogni giunzione comparirebbe una riga. Il conto vive in [tileBox], e quanto
- *   largo debba essere quel bordo lo dice il filtro stesso (`Detail.bleed`).
+ *   largo debba essere quel bordo lo dicono i filtri stessi (`Detail.bleed` e, dalla `2.53`,
+ *   `Effects.bleed`), di cui si prende il più largo.
  * - ⚠️ **Il passo si stringe di quanto il bordo cresce**, o una tessera col bordo supererebbe il
  *   tetto della texture, che è la ragione per cui le tessere esistono.
  *
@@ -76,7 +77,7 @@ internal object AdjustRender {
          * tessere sono più d'una. È anche quello che tiene il risultato uguale all'anteprima.
          */
         val span = maxOf(w, h).toFloat()
-        val bleed = look.detail.bleed(span)
+        val bleed = bleedFor(look, span)
         val step = (TILE - 2 * bleed).coerceAtLeast(1)
 
         val out = try {
@@ -251,6 +252,23 @@ internal object AdjustRender {
      */
     private const val NEAR = 250
 }
+
+/**
+ * Quanto bordo vuole una tessera, su un'immagine il cui lato lungo vale [span].
+ *
+ * ⚠️⚠️ **I MODULI CHE GUARDANO I VICINI SONO DUE DALLA `2.53`, E UNA TESSERA HA UN BORDO SOLO**:
+ * il Dettaglio legge a un raggio e gli Effetti a un altro, quindi si prende il **massimo**.
+ * Sommarli sarebbe spazio buttato, perché i due filtri girano sulla stessa tessera e non uno
+ * sull'uscita dell'altro; prenderne uno solo lascerebbe una riga su ogni giunzione appena l'altro
+ * arriva più lontano.
+ *
+ * ⚠️⚠️ **È UNA FUNZIONE E NON UNA RIGA DENTRO [AdjustRender.apply], PERCHÉ IL BANCO LA POSSA
+ * CHIAMARE**: là dentro disegnare vuole una scheda grafica, quindi una scelta scritta in mezzo al
+ * giro delle tessere si proverebbe solo guardando una fotografia grande da vicino. È lo stesso
+ * criterio di `barOrder` nella `2.52`.
+ */
+internal fun bleedFor(look: Look, span: Float): Int =
+    maxOf(look.detail.bleed(span), look.effects.bleed(span))
 
 /**
  * I tre riquadri di una tessera: da dove si legge, che cosa si tiene, e dove si mette.

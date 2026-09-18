@@ -53,6 +53,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CropFree
+import androidx.compose.material.icons.filled.Deblur
 import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
@@ -2116,6 +2117,31 @@ private val DETAIL_ROWS = listOf(
 )
 
 /**
+ * I due cursori degli **Effetti** che la `2.53` porta: chiarezza e texture.
+ *
+ * ⚠️⚠️ **IL MODULO NE AVRÀ CINQUE, ED È IL SUO ELENCO** (`d-dopo-editor`, giro della `2.50`:
+ * *'Effetti', con 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): questi due sono
+ * i primi, e gli altri tre arrivano nei giri dopo. L'ordine è il suo, cioè quello del pannello
+ * di Lightroom.
+ *
+ * ⚠️⚠️ **SONO BIPOLARI, E IL VERSO NEGATIVO NON È UN RIEMPITIVO**: verso il basso la chiarezza
+ * ammorbidisce i mezzi toni e la texture spiana la pelle, che è quello che quei due cursori
+ * fanno da quando esistono. Lo zero è l'immagine come il file la porta.
+ */
+private val EFFECT_ROWS = listOf(
+    Dial(
+        R.string.look_clarity,
+        { it.effects.clarity },
+        { k, v -> k.copy(effects = k.effects.copy(clarity = v)) }
+    ),
+    Dial(
+        R.string.look_texture,
+        { it.effects.texture },
+        { k, v -> k.copy(effects = k.effects.copy(texture = v)) }
+    )
+)
+
+/**
  * I cinque cursori del **Geometria**, nell'ordine del pannello di Lightroom: raddrizzamento,
  * proporzioni, orizzontale, verticale, distorsione.
  *
@@ -2288,6 +2314,25 @@ private val MODULES = listOf(
         extra = Extra.BANDS
     ),
     /*
+     * ⚠️⚠️ **IL NONO, DALLA `2.53`, E QUI STA PERCHÉ PARLA DEI COLORI COME I TRE QUI SOPRA**: la
+     * Luce dice quanta luce c'è, il Colore di che colore è, l'HSL quale colore, e questo che
+     * carattere ha il disegno fine. Gli Stili restano in coda perché sono il contenitore di tutti
+     * gli altri, e la voce di collaudo gli chiede se quel posto va bene.
+     * ⚠️⚠️ **GUARDA I PIXEL VICINI COME IL DETTAGLIO, e da lì viene quello che costa**: nel
+     * salvataggio le tessere prendono il bordo più largo dei due (vedi `AdjustRender`), e nel
+     * conto i suoi campioni si chiedono solo se un cursore è mosso.
+     * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32` e
+     * quello degli Stili nella `2.50`: se non dice abbastanza, il giro di collaudo lo chiede.
+     */
+    Module(
+        PadKey.MOD_EFFECTS,
+        R.string.look_effects,
+        rows = { EFFECT_ROWS },
+        clear = { it.copy(effects = Effects.NONE) },
+        spent = { !it.effects.idle },
+        icon = { Icons.Filled.Deblur }
+    ),
+    /*
      * ⚠️⚠️ **L'OTTAVO È L'ELENCO DEGLI STILI, DALLA `2.50`, ED È SUA ISTRUZIONE** (campo libero
      * del giro della `2.40`, punto 1: *inserisci i modelli in un modulo a parte*). Fino alla
      * `2.40` gli stili si aprivano da un'icona in fondo alla scheda, cioè da una superficie in
@@ -2310,7 +2355,7 @@ private val MODULES = listOf(
         clear = {
             it.copy(
                 light = Light.NONE, chroma = Chroma.NONE, mix = Mix.NONE,
-                detail = Detail.NONE, tone = Tone.NONE
+                detail = Detail.NONE, effects = Effects.NONE, tone = Tone.NONE
             )
         },
         spent = { false },

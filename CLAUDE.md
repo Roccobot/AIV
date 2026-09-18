@@ -1930,6 +1930,10 @@ fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta s
     - ⚠️ **Tre dei cinque guardano i pixel vicini**, come il Dettaglio, quindi costano il bordo
       delle tessere nel salvataggio (§ '🔍 Il modulo Dettaglio, e le prime due operazioni che
       guardano i vicini'); grana e vignettatura no.
+    - ⚠️⚠️ **E IL PRIMO PEZZO È USCITO CON LA `2.53`**, cioè chiarezza e texture: il modulo vive
+      in § '✨ Il modulo Effetti, e i suoi due primi cursori', e gli altri tre cursori
+      arrivano nei giri dopo. ⚠️ **Un po' alla volta è sua istruzione** (2026-09-18: *procediamo
+      un po' alla volta con le versioni e i test necessari ad ogni giro*).
     - ⚠️ **'Previsto' era vero quando era scritto**, e questa nota esiste per non farlo leggere
       come una promessa mancata: il piano di allora arrivava ai preset, e la domanda che lo
       chiudeva ha aperto la tappa dopo.
@@ -2105,6 +2109,9 @@ vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia error
     questa nota diceva che chi avesse aggiunto un'operazione che guarda i vicini avrebbe dovuto
     dare a ogni tessera un bordo da buttare via dopo. Quel giorno è arrivato col modulo Dettaglio,
     e il come vive in § '🔍 Il modulo Dettaglio, e le prime due operazioni che guardano i vicini'.
+    ⚠️⚠️ **E DALLA `2.53` I MODULI COSÌ SONO DUE, QUINDI IL BORDO È IL MASSIMO DEI DUE**: il conto
+    vive in `AdjustRender.bleedFor`, e il perché in § '✨ Il modulo Effetti, e i suoi due primi
+    cursori'.
   - ⚠️ **E prima di fidarsi si prova** (`AdjustRender.works`): se quel percorso non funziona su
     un telefono, quello che se ne ricava è un'immagine **nera**, e scritta sul file prende il
     posto della fotografia. Un quadrato di colore noto costa un millesimo di secondo e distingue
@@ -2694,6 +2701,85 @@ nitidezza è a zero, che il 'Reset modulo' azzeri **solo** il suo, che le misure
 dell'immagine, e che le tessere leggano il bordo e copino solo il centro. **Non** vede i pixel che
 ne escono: che la nitidezza sia nitida e che il rumore se ne vada si guarda sul telefono, e la voce
 di collaudo lo chiede.
+
+## ✨ Il modulo Effetti, e i suoi due primi cursori
+
+⚠️⚠️ **È IL NONO MODULO DELL'EDITOR COMPLETO, DALLA `2.53`, ED È LA SUA RISPOSTA `effetti` A
+`d-dopo-editor`** (giro della `2.50`, con la sua nota: *'Effetti', con 'Chiarezza', 'Texture',
+'Foschia', `Grana` e `Vignettatura`*). I cursori saranno **cinque**, nell'ordine in cui li ha
+scritti; la `2.53` porta i primi due, e gli altri tre arrivano nei giri dopo, che è la sua
+istruzione dello stesso giorno (*procediamo un po' alla volta con le versioni e i test necessari
+ad ogni giro*).
+
+⚠️⚠️ **CHIAREZZA E TEXTURE NON SONO LA NITIDEZZA PIÙ FORTE, E LA DIFFERENZA È IL RAGGIO**: la
+maschera di contrasto del Dettaglio lavora a un millesimo del lato, cioè sul disegno più fine, e
+serve a togliere la morbidezza dell'obiettivo; questi due lavorano su un intorno **molto più
+largo**, e cambiano quanto un'immagine sembra incisa. Chi li scrivesse come due raggi in più del
+Dettaglio si ritroverebbe un modulo che fa due mestieri.
+- **La chiarezza guarda un centocinquantesimo del lato**, cioè ventisette pixel su un file da
+  quattromila, e la texture un cinquecentesimo, cioè otto. ⚠️ **Oltre non si sale, e la ragione è
+  il numero di campioni**: la media è di **nove** punti, quindi a un raggio più largo quei nove
+  non descrivono più l'intorno e quello che si ottiene è un gradino invece di una sfumatura.
+- ⚠️ **Lavorano sulla sola LUMINANZA**, e il colore del pixel non si tocca: la differenza si
+  somma a tutti e tre i canali insieme, quindi un contorno si accentua senza che intorno nasca
+  un alone colorato, che è il difetto classico di questo comando fatto male.
+- ⚠️⚠️ **LA CHIAREZZA PORTA LA MASCHERA DEI MEZZI TONI E LA TEXTURE NO, ED È QUELLO CHE LE
+  DISTINGUE**: quella maschera vale uno a metà scala e zero agli estremi, quindi la chiarezza
+  lascia stare i neri chiusi e i bianchi, che è il gesto per cui esiste. La texture invece arriva
+  dappertutto, perché il disegno fine sta anche negli scuri.
+
+⚠️⚠️ **SONO BIPOLARI, E IL VERSO NEGATIVO NON È UN RIEMPITIVO**: verso il basso la chiarezza
+ammorbidisce i mezzi toni e la texture spiana la pelle, che è quello che quei due cursori fanno da
+quando esistono. Lo zero è l'immagine come il file la porta.
+
+⚠️⚠️ **SONO LE OPERAZIONI TERZA E QUARTA CHE GUARDANO I PIXEL VICINI, E DA LÌ VIENE TUTTO QUELLO
+CHE COSTANO**: nella catena stanno **subito dopo il Dettaglio** e prima del bilanciamento del
+bianco, perché leggono `image`, cioè i pixel di partenza, quindi devono stare dove quella lettura
+vale ancora; e dopo la riduzione del rumore, o la chiarezza rialzerebbe la grana che il Dettaglio
+ha appena mediato.
+- ⚠️⚠️ **QUINDI IL BORDO DELLE TESSERE È IL MASSIMO DEI DUE MODULI, E NON LA SOMMA**: una tessera
+  ha un bordo solo, e i due filtri girano su di lei e non uno sull'uscita dell'altro. Prendendo
+  quello del solo Dettaglio, con gli Effetti mossi più forte su ogni giunzione comparirebbe una
+  riga. Il conto vive in `AdjustRender.bleedFor`, che è una **funzione** e non una riga dentro il
+  giro delle tessere, perché il banco la possa chiamare: là dentro disegnare vuole una scheda
+  grafica.
+- ⚠️ **A riposo il bordo vale zero**, come prima, quindi chi non usa nessuno dei due paga le
+  tessere di sempre. E la guardia uniforme dello shader salta i nove campioni per pixel.
+
+⚠️⚠️ **L'UNIFORM DELLO SHADER SI CHIAMA `matter` E NON `texture`, ED È PRUDENZA DICHIARATA**:
+`texture` è il nome di una funzione di GLSL, e AGSL le somiglia abbastanza da non volerlo
+scoprire su un telefono. ⚠️ **Il campo di Kotlin invece si chiama `texture`**, come il cursore,
+perché là quel rischio non c'è: il posto in cui un nome vive decide se può dare fastidio.
+
+⚠️⚠️ **UN PRESET SE LI PORTA, QUINDI I MODULI CHE UNO STILE GOVERNA PASSANO DA CINQUE A SEI**:
+chiarezza e texture sono un **aspetto**, cioè una cosa che si porta da un'immagine all'altra, come
+la luce e il colore; i tre che restano fuori sono ancora la posa, il ritaglio e la geometria, che
+dipendono da come è stata scattata quell'immagine. ⚠️ **Il formato non si rompe**, perché ogni
+campo che manca vale il suo valore di riposo: uno stile salvato con la `2.52` si rilegge oggi, e
+uno salvato oggi si rilegge con la `2.52` perdendo quello che là non esiste.
+- ⚠️⚠️ **MA I VENTI DI CASA RESTANO SENZA, E VA DETTO INVECE DI LASCIARLO CREDERE**: i suoi
+  quattordici sono convertiti dai suoi XMP di Lightroom, e chiarezza e texture erano fra le cose
+  che quel travaso aveva scartato perché l'editor non le aveva (§ '🎞️ I preset, venti di casa e
+  quelli che si salvano'). Riportarle vorrebbe dire riaprire i suoi XMP, e la voce di collaudo
+  gli chiede se farlo.
+
+⚠️ **Il gettone vive fra l'HSL e gli Stili, ed è una scelta dichiarata**: parla dei colori come la
+Luce, il Colore e l'HSL, mentre gli Stili sono il contenitore di tutti gli altri e restano in
+coda. ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32` e
+quello degli Stili nella `2.50`: se non dice abbastanza, il giro di collaudo lo chiede e lui manda
+il suo.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
+che il modulo porti i suoi due cursori e nessun altro li abbia, che il 'Reset modulo' azzeri
+**solo** i suoi, che un loro valore tolga il senza perdita, che le misure si scalino col lato
+dell'immagine, e che il bordo delle tessere sia il più largo dei due filtri; `PresetTest` misura
+che uno stile se li porti e che a riposo non si scrivano. **Non** vede i pixel che ne escono: che
+la chiarezza incida e che la texture spiani si guarda sul telefono, e la voce di collaudo lo
+chiede.
+- ⚠️⚠️ **LA FILA SI MONTA ROVESCIATA NELLE DUE PROVE CHE TOCCANO IL GETTONE, E SENZA QUELLA RIGA
+  MENTIVANO**: col nono modulo la fila scorre, quindi in coda la pastiglia cade fuori dalla
+  larghezza del banco; il tocco non dà nessun errore e non cambia modulo, e si contavano zero
+  cursori credendo di guardare gli Effetti. È la stessa trappola del sesto gettone della `2.30`.
 
 ## 📈 Il modulo Curve, e il colore mirato
 
@@ -3433,9 +3519,15 @@ i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce d
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 
-⚠️⚠️ **DALLA `2.39`, ED È L'ULTIMO PEZZO DELL'EDITOR COMPLETO**: un preset è un **aspetto** che si
-porta da un'immagine all'altra, cioè i cinque moduli di colore (Luce, Colore, HSL, Dettaglio,
-Curve) con un nome sopra. Ne arrivano **venti** in casa e se ne salvano quanti se ne vogliono.
+⚠️⚠️ **DALLA `2.39`**: un preset è un **aspetto** che si porta da un'immagine all'altra, cioè i
+moduli di colore con un nome sopra. Ne arrivano **venti** in casa e se ne salvano quanti se ne
+vogliono.
+- ⚠️⚠️ **ERANO CINQUE FINO ALLA `2.52` E DALLA `2.53` SONO SEI**: Luce, Colore, HSL, Dettaglio,
+  Curve e gli **Effetti**, che sono un aspetto come gli altri. Chi legge 'cinque' in una nota
+  vecchia sappia che il sesto è entrato con quel modulo, e che il formato regge nei due versi
+  perché un campo che manca vale il suo valore di riposo.
+- ⚠️⚠️ **E 'L'ULTIMO PEZZO DELL'EDITOR COMPLETO' NON È PIÙ VERO**: lo era quando è stato scritto,
+  e la sua risposta `effetti` a `d-dopo-editor` ha aperto la tappa dopo.
 
 ⚠️⚠️ **QUATTORDICI DEI VENTI SONO SUOI, CONVERTITI DAI SUOI XMP DI LIGHTROOM, E LA CONVERSIONE L'HA
 FATTA LA SESSIONE** (sua istruzione, 2026-09-14: *aggiungi i miei, più uno creato ex novo da te per
@@ -3452,7 +3544,10 @@ in Kotlin come qualunque altra costante.
   rifatto nelle otto fasce dell'HSL invece che nei primari. Hanno un nome diverso dal suo proprio
   perché non sono la stessa cosa.
 - ⚠️ **Che cosa resta fuori si dichiara**, e vale per tutti e quattordici: chiarezza, texture,
-  foschia, grana, vignettatura, sfrangiatura e viraggio diviso non esistono in questo editor.
+  foschia, grana, vignettatura, sfrangiatura e viraggio diviso non esistevano in questo editor.
+  ⚠️⚠️ **DALLA `2.53` LE PRIME DUE ESISTONO, E I VENTI RESTANO LO STESSO SENZA**: riportarle
+  vorrebbe dire riaprire i suoi XMP, e la voce di collaudo gli chiede se farlo. Un preset di casa
+  non si cambia da sé, per la stessa ragione della `1.33`.
 
 ⚠️⚠️ **UN PRESET NON PORTA LA POSA, IL RITAGLIO E LA GEOMETRIA**: quei tre dipendono da **come è
 stata scattata quell'immagine** (da che parte sta il cielo, dove finisce il soggetto, quanto pende

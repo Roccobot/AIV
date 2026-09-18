@@ -433,6 +433,9 @@
     <string name="look_masking">மறைப்பு</string>
     <string name="look_noise">இரைச்சல்</string>
     <string name="look_noise_color">வண்ண இரைச்சல்</string>
+    <string name="look_effects">விளைவுகள்</string>
+    <string name="look_clarity">தெளிவு</string>
+    <string name="look_texture">அமைப்பு</string>
     <string name="look_tone">வளைவு</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">தொனி வளைவு</string>
