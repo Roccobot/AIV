@@ -3035,11 +3035,24 @@ uno salvato oggi si rilegge con la `2.52` perdendo quello che là non esiste.
   casa e quelli che si salvano'). Riportarle vorrebbe dire riaprire i suoi XMP, e la voce di
   collaudo gli chiede se farlo.
 
-⚠️ **Il gettone vive fra l'HSL e gli Stili, ed è una scelta dichiarata**: parla dei colori come la
-Luce, il Colore e l'HSL, mentre gli Stili sono il contenitore di tutti gli altri e restano in
-coda. ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32` e
-quello degli Stili nella `2.50`: se non dice abbastanza, il giro di collaudo lo chiede e lui manda
-il suo.
+⚠️ **Il gettone vive subito dopo il Dettaglio dalla `2.55`, ed è sua istruzione** (riscontro del
+giro della `2.54`: *il nuovo ordine dei moduli dev'essere: Dettagli, Effetti, Geometria, Ritaglio,
+Luce, Colore, HLS, Curve, Stili*). ⚠️ **Nella `2.53` e nella `2.54` stava fra l'HSL e gli Stili**,
+perché parla dei colori come i tre che lo precedevano, e la ragione di oggi è migliore: vive
+accanto all'unico altro modulo che **guarda i pixel vicini**, cioè quello con cui divide il bordo
+delle tessere.
+
+⚠️⚠️ **E DALLA `2.62` IL GLIFO È IL SUO: LA VIGNETTATURA RIDISEGNATA DA LUI** (arrivata il
+2026-09-18, dopo che gliel'avevo mandata come SVG alla fine del giro della `2.55`). È una cornice
+quadrata stondata col tondo scavato, cioè l'inchiostro dove una vignettatura scurisce, e le misure
+vivono in testa a `ic_mod_effects.xml`.
+- ⚠️ **Le note che lo dànno di Material sono superate**, e sono due giri: la `2.53` lo aveva preso
+  da `Icons.Filled.Deblur`, che la `2.55` ha cambiato in `Vignette` perché era lo stesso del
+  Dettaglio (voce `eff-glifo`). Il disegno di oggi è quella vignettatura, rifatta da lui.
+- ⚠️ **Non ha una punta da raccordare**, quindi il trattamento a 0,4 della `2.50` non ha niente da
+  fare: il quadrato porta già i suoi quattro angoli a 1,86 e il cerchio è tutto curve
+  (`icon-round.py` risponde 0). ⚠️ **Il trasporto non cambia un pixel**: zero pieni diversi su
+  57.600, e i 14 visibili cadono sul bordo antialiasato.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
 che il modulo porti i suoi cinque cursori e nessun altro li abbia, che il 'Reset modulo' azzeri

@@ -500,6 +500,16 @@ object Glyphs {
     val ModDetail: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_detail)
 
+    /**
+     * La cornice quadrata col tondo scavato: il modulo 'Effetti'.
+     *
+     * ⚠️ **È il suo disegno dalla `2.62`**, cioè la vignettatura che gli ho mandato come SVG alla
+     * fine del giro della `2.55`, rimodellata da lui: fino alla `2.61` il modulo chiamava
+     * `Icons.Filled.Vignette`. Le misure e lo scarto del trasporto vivono in testa al file.
+     */
+    val ModEffects: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_effects)
+
     /** Il mirino: il tasto 'Mirato', che arma il colore mirato. */
     val Aim: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_aim)

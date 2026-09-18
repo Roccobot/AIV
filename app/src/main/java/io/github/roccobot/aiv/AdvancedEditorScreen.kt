@@ -58,7 +58,6 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Transform
-import androidx.compose.material.icons.filled.Vignette
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -2357,11 +2356,15 @@ private val MODULES = listOf(
      * ⚠️⚠️ **E IL GLIFO NON È PIÙ `Deblur`, DALLA `2.55`, PERCHÉ ERA QUELLO DEL DETTAGLIO**
      * (stesso riscontro, voce `eff-glifo`: *non va bene, perché è lo stesso di 'Dettagli'. Uno dei
      * due deve cambiare*): i due disegni sono la stessa nuvola di punti, e nella fila si toccano.
-     * Adesso è `Vignette`, che in quella fila non somiglia a nessuno.
-     * ⚠️ **Resta di Material e non entra in `res/`**: è disegnato tutto di curve, quindi
-     * l'arrotondamento a 0,4 che lui ha chiesto per ogni disegno nuovo lo lascia a **zero pixel**
-     * di scarto, che è il criterio di `AIV/CLAUDE.md` § '🖌️ Come entra un disegno' applicato alla
-     * lettera (lo stesso caso di `Palette` e `Timeline` nella `2.32`).
+     * Con la `2.55` è diventato `Vignette`, che in quella fila non somiglia a nessuno.
+     * ⚠️⚠️ **E DALLA `2.62` QUELLA VIGNETTATURA È LA SUA, CIOÈ UN DISEGNO DI `res/`**: gliel'ho
+     * mandata come SVG alla fine del giro della `2.55` e lui l'ha rimodellata (2026-09-18), quindi
+     * la nota che lo dava per un glifo di Material è superata. Le misure, lo scarto del trasporto
+     * e la regola di riempimento vivono in testa a `ic_mod_effects.xml`.
+     * ⚠️ **L'argomento di allora non cade, si avvera**: diceva che quel disegno è tutto di curve,
+     * quindi l'arrotondamento a 0,4 lo lascia a **zero pixel** di scarto, e infatti il suo non ha
+     * una punta da raccordare (`icon-round.py` risponde 0). A cambiare non è il trattamento, è chi
+     * ha disegnato, che è il criterio di `AIV/CLAUDE.md` § '🖌️ Come entra un disegno'.
      */
     Module(
         PadKey.MOD_EFFECTS,
@@ -2369,7 +2372,7 @@ private val MODULES = listOf(
         rows = { EFFECT_ROWS },
         clear = { it.copy(effects = Effects.NONE) },
         spent = { !it.effects.idle },
-        icon = { Icons.Filled.Vignette }
+        icon = { Glyphs.ModEffects }
     ),
     /*
      * ⚠️⚠️ **QUESTO NON CAMBIA IL COLORE DI UN PIXEL**: gli altri sei dicono di che colore è un
