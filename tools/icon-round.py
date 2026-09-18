@@ -14,11 +14,21 @@ non da nessun errore e si vede solo guardando, quindi lo strumento dice DOVE man
 con che raggio, e il raccordo lo fa chi disegna. E' lo stesso patto di `icon-check.py`: misura e
 dichiara.
 
-⚠️ **Che cosa e uno spigolo ESTERNO**: un giunto fra due segmenti che svolta **nel verso del
-proprio sottotracciato**, cioe una punta che sporge. Un angolo che rientra e un raccordo interno e
-non si tocca; il giro di un buco e orario dove il pieno e antiorario, quindi i suoi angoli
-sporgenti sono quelli che svoltano al contrario, e la regola vale lo stesso perche il verso si
-misura sottotracciato per sottotracciato.
+⚠️⚠️ **CHE COSA E UNO SPIGOLO ESTERNO, E LE CONDIZIONI SONO DUE**: convesso **e** esterno. Convesso
+vuol dire che il giunto svolta nel verso del proprio sottotracciato, cioe una punta che sporge, e
+un angolo che rientra e un raccordo interno. Esterno vuol dire che quel sottotracciato e un
+contorno del disegno e non un **buco**: la profondita di contenimento dice quale dei due e, e solo
+i sottotracciati a profondita pari portano punte.
+
+⚠️⚠️ **LA SECONDA CONDIZIONE E SUA E ARRIVA DOPO LA PRIMA STESURA** (nota su `d-spigoli-icone`,
+giro della `2.50`: *la regola va affinata: solo gli angoli convessi esterni (le 'punte')*). Fino a
+quel giorno contava anche gli angoli di un buco, perche sporgono verso l'inchiostro: una punta pero
+e convessa **e** esterna, e la seconda meta l'angolo di un buco non ce l'ha. Il conto e sceso da
+138 a 87, e i disegni interessati da venti a quindici.
+
+⚠️ **E il 142 scritto nella `2.50` non e piu il numero del criterio largo**: oggi quello stesso
+criterio ne conta 138, perche i disegni sono cambiati nel frattempo. Chi confronta i due numeri
+confronti prima le due date.
 
 ⚠️⚠️ **IL RAGGIO NON E COSTANTE, LO E QUANTO IL VERTICE ARRETRA**: con 0,4 fisso un angolo di 30
 gradi arretra di 1,15 unita su 24 (il 5% della tela) contro le 0,17 di un angolo retto, e le punte
@@ -138,6 +148,63 @@ def area(ps):
         x2, y2 = ps[(i + 1) % len(ps)]
         s += x1 * y2 - x2 * y1
     return s
+
+
+def dentro(punto, ps):
+    """Se un punto cade dentro il poligono dei vertici, col conto dei raggi."""
+    x, y = punto
+    interno = False
+    for i in range(len(ps)):
+        x1, y1 = ps[i]
+        x2, y2 = ps[(i + 1) % len(ps)]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            interno = not interno
+    return interno
+
+
+def punto_dentro(ps):
+    """Un punto sicuramente interno al poligono: il lato piu lungo, scostato verso l'interno.
+
+    ⚠️ **Non si prende un VERTICE**, che e proprio il posto in cui due giri che si toccano cadono
+    l'uno sul bordo dell'altro, e la un conto dei raggi risponde a caso. Il mezzo di un lato
+    scostato di un millesimo cade dentro, e lontano da ogni altro contorno.
+    """
+    verso = 1.0 if area(ps) > 0 else -1.0
+    lungo, quale = 0.0, 0
+    for i in range(len(ps)):
+        x1, y1 = ps[i]
+        x2, y2 = ps[(i + 1) % len(ps)]
+        d = math.hypot(x2 - x1, y2 - y1)
+        if d > lungo:
+            lungo, quale = d, i
+    if lungo < CORTO:
+        return ps[0]
+    x1, y1 = ps[quale]
+    x2, y2 = ps[(quale + 1) % len(ps)]
+    dx, dy = (x2 - x1) / lungo, (y2 - y1) / lungo
+    # La normale che punta verso l'interno dipende dal verso del giro.
+    nx, ny = -dy * verso, dx * verso
+    passo = min(lungo / 4, 1e-3)
+    return ((x1 + x2) / 2 + nx * passo, (y1 + y2) / 2 + ny * passo)
+
+
+def contorni(sottos):
+    """I sottotracciati che sono un contorno del disegno, cioe non un buco.
+
+    Si conta in quanti altri sottotracciati ognuno e contenuto: profondita pari vuol dire contorno,
+    dispari vuol dire buco, e un'isola dentro un buco torna a essere un contorno.
+    """
+    poligoni = [punti(s) for s in sottos]
+    fuori = []
+    for i, ps in enumerate(poligoni):
+        if len(ps) < 3:
+            continue
+        p = punto_dentro(ps)
+        giri = sum(1 for j, altro in enumerate(poligoni)
+                   if j != i and len(altro) >= 3 and dentro(p, altro))
+        if giri % 2 == 0:
+            fuori.append(sottos[i])
+    return fuori
 
 
 def tangenti_arco(p0, n):
@@ -302,7 +369,9 @@ def lavora(percorso, dettaglio):
         if errore:
             print(f'{percorso.name}: tracciato illeggibile ({errore})')
             continue
-        for sotto in pezzi(assoluti(comandi)):
+        # ⚠️ Il contenimento si guarda DENTRO un `<path>` e non fra path diversi, perche e la
+        # regola di riempimento di quel path a decidere che cosa e un buco.
+        for sotto in contorni(pezzi(assoluti(comandi))):
             vivi.extend(spigoli(sotto, scala))
     if vivi:
         print(f'{percorso.name}: {len(vivi)} punte vive')
