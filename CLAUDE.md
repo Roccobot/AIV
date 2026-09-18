@@ -589,13 +589,51 @@ grande un dialogo esattamente al centro fa allungare la mano.
           della `1.81`, voce `sfoc-ombra`: *mi piace talmente tanto che voglio l'ombreggiatura
           come nuova opzione predefinita di fabbrica*), cioè al primo giro in cui l'ombra è
           esistita. La sfocatura resta una delle tre risposte.
+          - ⚠️⚠️ **MA DALLA `2.61` SI TORNA ALLA SFOCATURA, ED È SUA ISTRUZIONE** (campo libero
+            del giro della `2.55`: *cambio di valore predefinito di fabbrica: l'effetto
+            `sfocatura` dev'essere attivo all'installazione (al posto di `ombra`)*). È la
+            seconda volta che quel valore cambia in settanta versioni, e l'ombra non se ne va:
+            resta una delle tre risposte, come lo era la sfocatura fino a ieri.
+          - ⚠️⚠️ **CHI HA GIÀ L'APP NON SE NE ACCORGE, E IL FATTO SI DICHIARA INVECE DI
+            PROMETTERE IL CONTRARIO**: `SettingsStore.save` riscrive **tutte** le chiavi in un
+            colpo, quindi chi ha mai toccato una qualunque impostazione porta già questa
+            scritta, e un valore di fabbrica si vede solo dove l'archivio tace. Sul telefono di
+            chi ha seguito i giri di collaudo la sfocatura si accende a mano, una volta.
+          - ⚠️⚠️ **E NON SI RIMEDIA CON UNA MIGRAZIONE COME QUELLA DELL'INDICATORE**
+            (§ '🏷️ L'indicatore dell'ultimo media, e la sua migrazione'): là il valore di prima
+            era **assente** e qui è scritto, quindi l'archivio non distingue 'ho scelto l'ombra'
+            da 'avevo l'ombra e ho toccato dell'altro'. Una migrazione rovescerebbe anche una
+            scelta vera, che è la cosa che la nota qui sotto esiste per non fare.
+          - ⚠️⚠️ **E LA DOMANDA CHE HA FATTO INSIEME ALLA RICHIESTA HA UNA RISPOSTA NEL CODICE**
+            (*fammi sapere se si tratta di un effetto che intacca pesantemente le prestazioni su
+            dispositivi non nuovissimi*): la sfocatura **non la dipinge l'app**, è un attributo
+            di finestra (`FLAG_BLUR_BEHIND` più `blurBehindRadius`), quindi da Android 12 la
+            esegue il compositore di sistema ed è il sistema a dire se farla. Dove dice di no
+            non si vede l'effetto e non si perde un fotogramma, e la domanda l'app la fa già
+            (`blurs`, in `Veil.kt`), perché con la sfocatura assente il velo dipinto sarebbe
+            troppo leggero.
+            - ⚠️ **Quando c'è, si paga solo mentre un pannello è aperto**: un menu, un dialogo,
+              una scheda in fondo. Lo scorrimento di una griglia e l'editor completo non ne
+              hanno, quindi i due posti in cui l'app lavora di più non la incontrano mai.
+            - ⚠️⚠️ **QUANTO PESI NON È MISURATO, E SI SCRIVE COSÌ INVECE DI RASSICURARLO**: il
+              *rende tutto visibilmente più lento* della `1.39` è un suo giudizio di allora, su
+              un'app che quaranta versioni dopo l'ha rimessa accesa di fabbrica; il banco non
+              disegna niente e una sfocatura di finestra non si misura senza uno schermo. Se la
+              vede lenta, la risposta è la stessa voce delle impostazioni.
         - ⚠️⚠️ **E I CASI DELLA MIGRAZIONE SONO TRE E NON DUE**: chi aveva **acceso** la
           sfocatura tiene la sfocatura, chi l'aveva spenta tiene il niente, chi non ha mai
-          toccato la voce riceve l'ombra. Con un `else` solo, una scelta esplicita sarebbe
-          cambiata da un aggiornamento.
+          toccato la voce riceve il valore di fabbrica di adesso. Con un `else` solo, una scelta
+          esplicita sarebbe cambiata da un aggiornamento. ⚠️ **Dalla `2.61` il primo e il terzo
+          rispondono lo stesso e non si accorpano**: coincidono per una coincidenza che il giro
+          dopo può far cadere.
         - ⚠️ **Il valore di fabbrica vive in DUE posti**, il campo di `Settings` e la lettura del
           flusso: cambiarne uno solo dà un'app accesa al primo avvio e spenta dopo il primo
           salvataggio, che è un difetto che non dà nessun errore.
+          - ⚠️⚠️ **E DALLA `2.61` LO PRESIDIA IL BANCO, CHE PRIMA NON POTEVA**: la lettura viveva
+            dentro la `map` del flusso, cioè si provava solo con un archivio vero su disco;
+            adesso è una funzione a sé (`SettingsStore.read`) e il caso 6 di `ProfonditaTest`
+            legge un archivio **vuoto** e lo confronta con `Settings()`, cioè con tutti i campi
+            insieme e non col solo effetto. Controprovato rimettendo il difetto: la prova cade.
     - ⚠️ **Spento vuol dire non toccare niente**, che è un'altra cosa dal dipingere un velo
       trasparente: i dialoghi tornano al velo che Android dà loro (`0,6`), i menu a
       non averne. L'unica eccezione è la scheda in fondo, che se lo chiede da sé perché la sua

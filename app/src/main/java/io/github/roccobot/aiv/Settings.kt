@@ -341,19 +341,34 @@ data class Settings(
      * ⚠️⚠️ **ERA UN INTERRUTTORE FINO ALLA `1.80` E DALLA `1.81` È UNA SCELTA A TRE**, su sua
      * istruzione (*facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI insieme)*).
      * Il perché delle tre risposte, e perché due non possono convivere, sta su [PanelDepth].
-     * ⚠️⚠️ **DALLA `1.82` IL VALORE DI FABBRICA È L'OMBRA** (riscontro del giro della `1.81`,
-     * voce `sfoc-ombra`: *mi piace talmente tanto che voglio l'ombreggiatura come nuova opzione
-     * predefinita di fabbrica*). La storia di questo valore in una riga: acceso nella `1.38`,
-     * spento nella `1.39` perché *rende tutto visibilmente più lento*, sfocatura di fabbrica
-     * nella `1.80` dopo quaranta versioni di prova, e ombra dalla `1.82`, cioè al primo giro in
-     * cui l'ombra è esistita.
-     * ⚠️ **La sfocatura non se ne va**: resta una delle tre risposte, e chi la vuole la sceglie.
-     * ⚠️⚠️ **IL VALORE DI FABBRICA STA IN DUE POSTI, e vanno insieme**: qui e nella lettura del
-     * flusso. Cambiarne uno solo lascerebbe l'app in un modo al primo avvio e in un altro dopo
-     * il primo salvataggio delle impostazioni, che è il genere di difetto che non dà nessun
-     * errore.
+     * ⚠️⚠️ **DALLA `2.61` IL VALORE DI FABBRICA È LA SFOCATURA, ED È SUA ISTRUZIONE** (campo
+     * libero del giro della `2.55`: *cambio di valore predefinito di fabbrica: l'effetto
+     * `sfocatura` dev'essere attivo all'installazione (al posto di `ombra`)*). La storia di
+     * questo valore in una riga: acceso nella `1.38`, spento nella `1.39` perché *rende tutto
+     * visibilmente più lento*, sfocatura di fabbrica nella `1.80` dopo quaranta versioni di
+     * prova, ombra dalla `1.82` (voce `sfoc-ombra`: *mi piace talmente tanto che voglio
+     * l'ombreggiatura come nuova opzione predefinita di fabbrica*), e di nuovo sfocatura adesso.
+     * ⚠️ **L'ombra non se ne va**: resta una delle tre risposte, e chi la vuole la sceglie.
+     * ⚠️⚠️ **CHI HA GIÀ L'APP NON SE NE ACCORGE, E IL FATTO SI DICHIARA INVECE DI PROMETTERE IL
+     * CONTRARIO**: [SettingsStore.save] riscrive **tutte** le chiavi in un colpo, quindi chi ha
+     * mai toccato una qualunque impostazione porta già questa scritta, e un valore di fabbrica
+     * si vede solo dove l'archivio tace. Non si rimedia con una migrazione come quella
+     * dell'indicatore ([MarkMigration]): là il valore di prima era **assente** e qui è scritto,
+     * quindi l'archivio non distingue 'ho scelto l'ombra' da 'avevo l'ombra e ho toccato
+     * dell'altro', e una migrazione rovescerebbe anche una scelta vera.
+     * ⚠️⚠️ **IL VALORE DI FABBRICA VIVE IN DUE POSTI, e vanno insieme**: qui e in
+     * [SettingsStore.read]. Cambiarne uno solo lascerebbe l'app in un modo al primo avvio e in
+     * un altro dopo il primo salvataggio delle impostazioni, che è il genere di difetto che non
+     * dà nessun errore: dalla `2.61` a presidiarlo è il banco, che legge un archivio vuoto e
+     * confronta con questo campo.
+     * ⚠️⚠️ **E NON COSTA FOTOGRAMMI DOVE IL TELEFONO NON LA REGGE, che è la domanda che ha fatto
+     * insieme alla richiesta**: la sfocatura non la dipinge l'app, è un attributo di **finestra**
+     * (`FLAG_BLUR_BEHIND` più `blurBehindRadius`), quindi da Android 12 la esegue il compositore
+     * di sistema ed è il sistema a dire se farla, con una risposta che cambia da sola col
+     * risparmio energetico e con l'hardware. Dove dice di no non si vede l'effetto e non si
+     * perde un fotogramma, e la domanda l'app la fa già: `blurs`, in `Veil.kt`.
      */
-    val panelDepth: PanelDepth = PanelDepth.SHADOW,
+    val panelDepth: PanelDepth = PanelDepth.BLUR,
     /**
      * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
      *
@@ -1136,8 +1151,20 @@ object SettingsStore {
     const val ZOOM_MAX_MIN = 2f
     const val ZOOM_MAX_MAX = 200f
 
-    fun flow(context: Context): Flow<Settings> = context.aivStore.data.map { p ->
-        Settings(
+    fun flow(context: Context): Flow<Settings> = context.aivStore.data.map(::read)
+
+    /**
+     * Le preferenze come le legge l'app, coi ripieghi di fabbrica di [Settings].
+     *
+     * ⚠️⚠️ **È UNA FUNZIONE A SÉ DALLA `2.61`, E LA RAGIONE È CHE IL BANCO LA POSSA CHIAMARE**:
+     * dentro la `map` di [flow] quella lettura si prova solo con un archivio vero su disco, cioè
+     * con un file e un contesto, mentre da qui si misura con delle `Preferences` scritte a mano,
+     * come già fa `IndicatoreTest` con [MarkMigration]. Quello che c'era da presidiare lo dice il
+     * KDoc di [Settings.panelDepth]: un valore di fabbrica vive **qui e là**, e cambiarne uno
+     * solo non dà nessun errore.
+     */
+    internal fun read(p: Preferences): Settings {
+        return Settings(
             bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
             bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
             fitGrow = p[FIT_GROW] ?: false,
@@ -1148,19 +1175,22 @@ object SettingsStore {
             /*
              * ⚠️ Il ripiego sulla chiave vecchia gira solo finché quella nuova non è mai stata
              * scritta, e il perché sta su [VEIL].
-             * ⚠️⚠️ **I TRE CASI SONO TRE, DALLA `1.82`, e prima erano due**: con l'ombra come
-             * valore di fabbrica, 'la chiave vecchia non dice niente' e 'la chiave vecchia dice
-             * acceso' smettono di essere la stessa cosa. Chi aveva **acceso** la sfocatura tiene
-             * la sfocatura, chi l'aveva spenta tiene il niente, e chi non ha mai toccato la voce
-             * riceve il valore di fabbrica di adesso. Con un `else` solo, il primo si sarebbe
-             * visto cambiare una scelta esplicita da un aggiornamento.
+             * ⚠️⚠️ **I TRE CASI SONO TRE, DALLA `1.82`, e prima erano due**: chi aveva **acceso**
+             * la sfocatura tiene la sfocatura, chi l'aveva spenta tiene il niente, e chi non ha
+             * mai toccato la voce riceve il valore di fabbrica di adesso. Con un `else` solo, chi
+             * l'aveva spenta si vedrebbe cambiare una scelta esplicita da un aggiornamento.
+             * ⚠️⚠️ **E DALLA `2.61` IL PRIMO E IL TERZO RISPONDONO LO STESSO, MA NON SI
+             * ACCORPANO**: coincidono perché il valore di fabbrica è tornato la sfocatura, cioè
+             * per una coincidenza che il giro dopo può far cadere. Scritti come un ramo solo, il
+             * giorno che quel valore cambia una scelta esplicita se ne andrebbe con lui, senza
+             * che niente dia errore.
              */
             panelDepth = p[PANEL_DEPTH]
-                ?.let { PanelDepth.entries.byToken(it, PanelDepth.SHADOW) }
+                ?.let { PanelDepth.entries.byToken(it, PanelDepth.BLUR) }
                 ?: when (p[VEIL]) {
                     false -> PanelDepth.NONE
                     true -> PanelDepth.BLUR
-                    else -> PanelDepth.SHADOW
+                    else -> PanelDepth.BLUR
                 },
             zoomInMenu = p[ZOOM_IN_MENU] ?: false,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
