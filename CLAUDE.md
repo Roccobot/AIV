@@ -3044,15 +3044,28 @@ delle tessere.
 
 ⚠️⚠️ **E DALLA `2.62` IL GLIFO È IL SUO: LA VIGNETTATURA RIDISEGNATA DA LUI** (arrivata il
 2026-09-18, dopo che gliel'avevo mandata come SVG alla fine del giro della `2.55`). È una cornice
-quadrata stondata col tondo scavato, cioè l'inchiostro dove una vignettatura scurisce, e le misure
-vivono in testa a `ic_mod_effects.xml`.
+quadrata col tondo scavato, cioè l'inchiostro dove una vignettatura scurisce, e le misure vivono in
+testa a `ic_mod_effects.xml`.
 - ⚠️ **Le note che lo dànno di Material sono superate**, e sono due giri: la `2.53` lo aveva preso
   da `Icons.Filled.Deblur`, che la `2.55` ha cambiato in `Vignette` perché era lo stesso del
   Dettaglio (voce `eff-glifo`). Il disegno di oggi è quella vignettatura, rifatta da lui.
 - ⚠️ **Non ha una punta da raccordare**, quindi il trattamento a 0,4 della `2.50` non ha niente da
-  fare: il quadrato porta già i suoi quattro angoli a 1,86 e il cerchio è tutto curve
-  (`icon-round.py` risponde 0). ⚠️ **Il trasporto non cambia un pixel**: zero pieni diversi su
-  57.600, e i 14 visibili cadono sul bordo antialiasato.
+  fare: è fatto di curve e archi dal primo all'ultimo comando (`icon-round.py` risponde 0).
+  ⚠️ **Il trasporto non cambia un pixel**: zero pieni diversi su 57.600, e quel che si vede cade
+  sul bordo antialiasato.
+- ⚠️⚠️ **E DALLA `2.63` È IL SUO SECONDO DISEGNO, ARRIVATO POCHE ORE DOPO IL PRIMO**: la cornice
+  è un **superellisse** invece di un rettangolo stondato, cioè i quattro lati sono leggermente
+  bombati in fuori, e il cerchio dentro è un filo più grande. Su 240px cambiano 1.734 pixel pieni
+  su 57.600, cioè il 3% della tela.
+  - ⚠️⚠️ **I DUE LATI ORIZZONTALI SONO ARCHI DI RAGGIO 115 E I VERTICALI SONO CUBICHE, E NON È UNA
+    SCELTA DI CHI HA DISEGNATO**: è la firma della pulizia che il file ha attraversato (CleanSVG,
+    cioè SVGO), che sostituisce una curva con un arco quando la differenza resta nella sua
+    tolleranza. Il trasporto tiene quello che trova, perché riscrivere un arco come curva vorrebbe
+    dire calcolare dei numeri che nel file di partenza non ci sono.
+  - ⚠️⚠️ **CLEANSVG HA DATO UN AVVISO CHE DICE '0%', ED È UN DIFETTO SUO E NON DEL FILE**: quel
+    ramo scatta sopra lo 0,2% dei pixel e stampa la quota arrotondata all'intero, quindi fra lo
+    0,2% e il 0,49% scrive sempre zero. Il perché per esteso, e la correzione, vivono nel
+    `CLAUDE.md` di `CleanSVG`.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
 che il modulo porti i suoi cinque cursori e nessun altro li abbia, che il 'Reset modulo' azzeri

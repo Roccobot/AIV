@@ -505,7 +505,9 @@ object Glyphs {
      *
      * ⚠️ **È il suo disegno dalla `2.62`**, cioè la vignettatura che gli ho mandato come SVG alla
      * fine del giro della `2.55`, rimodellata da lui: fino alla `2.61` il modulo chiamava
-     * `Icons.Filled.Vignette`. Le misure e lo scarto del trasporto vivono in testa al file.
+     * `Icons.Filled.Vignette`. ⚠️ **E dalla `2.63` è il suo secondo disegno**, arrivato poche ore
+     * dopo il primo: la cornice è un superellisse invece di un rettangolo stondato. Le misure e lo
+     * scarto del trasporto vivono in testa al file.
      */
     val ModEffects: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_effects)
