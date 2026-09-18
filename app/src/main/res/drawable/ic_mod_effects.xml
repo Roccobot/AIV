@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il modulo 'Effetti' dell'editor completo.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-18 come rimodellazione del glifo che il modulo
+     aveva: fino alla 2.61 era `Icons.Filled.Vignette`, che la 2.55 aveva scelto perché nella fila
+     non somigliava a nessuno (il riscontro di allora, voce `eff-glifo`, aveva bocciato `Deblur`
+     perché era lo stesso del Dettaglio). Adesso quel disegno è il suo.
+
+     CHE COSA DISEGNA: una cornice quadrata stondata col tondo scavato dentro, cioè l'inchiostro
+     sta dove una vignettatura scurisce e il vuoto dove lascia stare. Il cursore che nomina è il
+     quarto del modulo.
+
+     LE MISURE: il quadrato va da 2,35 a 21,65 su tutti e due gli assi, con gli angoli raccordati
+     a 1,86; il cerchio ha raggio 8,22 ed è centrato in 12,12, quindi resta a 1,43 dai lati e molto
+     più lontano dagli angoli. I controlli delle cubiche cadono a 0,5523 del raggio (1,03 su 1,86
+     e 4,54 su 8,22), cioè sono archi di cerchio approssimati come li scrive Illustrator.
+
+     LA TELA È 24 CON 2,35 DI MARGINE, un filo più di Material, e non è un difetto: a dichiarare
+     quanto è grande l'icona sono `android:width` e `android:height`, il viewport dice in quante
+     unità è disegnata, e il verificatore quel rapporto lo riporta senza giudicarlo.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero pixel pieni diversi su 57.600, e i 14 che si vedono cadono tutti sul bordo
+     antialiasato. Quello che cambia è solo la forma della `d`, cioè i numeri incollati separati
+     (`-1.86.83` sono due numeri) e ogni comando scritto per esteso in coordinate assolute. Le
+     regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che dichiara `evenodd`. Il disegno non
+     ne dipende, ed è misurato: i due sottotracciati girano in versi opposti, quindi con `nonZero`
+     il tondo resterebbe un buco lo stesso (zero pixel di scarto fra le due regole, ed è la colonna
+     `verso` del verificatore). Si scrive comunque, perché una regola dichiarata dice quello che il
+     disegno vuole e una scelta perché tanto viene uguale dice solo com'è andata.
+
+     NON HA UNA PUNTA DA RACCORDARE, e il trattamento a 0,4 della 2.50 qui non ha niente da fare:
+     il quadrato porta già i suoi quattro angoli raccordati a 1,86 e il cerchio è tutto curve.
+     Anche i due vertici delle `M` sono lisci, perché là le tangenti coincidono (`icon-round.py`
+     risponde 0). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M 19.79 2.35 H 4.21 C 3.18 2.35 2.35 3.18 2.35 4.21 V 19.79 C 2.35 20.82 3.18 21.65 4.21 21.65 H 19.79 C 20.82 21.65 21.65 20.82 21.65 19.79 V 4.21 C 21.65 3.18 20.82 2.35 19.79 2.35 Z M 12 20.22 C 7.46 20.22 3.78 16.54 3.78 12 S 7.46 3.78 12 3.78 S 20.22 7.46 20.22 12 S 16.54 20.22 12 20.22 Z" />
+</vector>
