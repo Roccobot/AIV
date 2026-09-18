@@ -30,7 +30,12 @@
      taglia. Il verso di avvolgimento non conta (zero pixel di scarto fra nonZero e evenOdd),
      e la regola e dichiarata comunque. Contro il disegno di prima cambia il 10,2% della tela.
 
-     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 4 punte esterne, 2
+     pixel pieni diversi su 57.600 (6 visibili), misurati rendendo i due tracciati a
+     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -39,5 +44,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M12.12,12.82L21.8,3.15c-.32,-.67,-1.01,-1.15,-1.8,-1.15h-12c-1.1,0,-2,.9,-2,2v2.97l5.85,5.85c.08,.08,.2,.08,.27,0ZM12.51,15.63c-.29,.29,-.75,.29,-1.04,0l-5.47,-5.47v5.83c0,1.1,.9,2,2,2h12c1.1,0,2,-.9,2,-2V6.14l-9.49,9.49ZM17.6,20H5.41c-.78,0,-1.41,-.63,-1.41,-1.41V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v12.4c0,1.1,.9,2,2,2h12.4c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4Z" />
+        android:pathData="M 12.12 12.82 L 21.6 3.35 Q 21.8 3.15 21.66 2.9 C 21.3 2.37 20.69 2 20 2 L 8 2 C 6.9 2 6 2.9 6 4 L 6 6.8 A 0.4 0.4 0 0 0 6.12 7.09 L 11.85 12.82 C 11.93 12.9 12.05 12.9 12.12 12.82 Z M 12.51 15.63 C 12.22 15.92 11.76 15.92 11.47 15.63 L 6.18 10.34 A 0.1 0.1 0 0 0 6 10.41 L 6 15.99 C 6 17.09 6.9 17.99 8 17.99 L 20 17.99 C 21.1 17.99 22 17.09 22 15.99 L 22 6.39 A 0.1 0.1 0 0 0 21.82 6.32 L 12.51 15.63 Z M 17.6 20 L 5.41 20 C 4.63 20 4 19.37 4 18.59 L 4 6.4 C 4 6.18 3.82 6 3.6 6 C 2.72 6 2 6.72 2 7.6 L 2 20 C 2 21.1 2.9 22 4 22 L 16.4 22 C 17.28 22 18 21.28 18 20.4 L 18 20.4 C 18 20.18 17.82 20 17.6 20 Z" />
 </vector>

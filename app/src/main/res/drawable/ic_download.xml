@@ -15,7 +15,7 @@
      dichiarata dice quello che il disegno vuole mentre una omessa dice solo com'e andata, e
      la coincidenza cade il giorno che qualcuno aggiunge un sottotracciato.
 
-     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"

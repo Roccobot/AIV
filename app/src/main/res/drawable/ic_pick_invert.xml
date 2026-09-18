@@ -19,7 +19,7 @@
      scelta perché tanto viene uguale dice solo com'è andata.
 
      I primi due sottotracciati sono il segno di famiglia, identici a quelli di `ic_pick_all`
-     e `ic_pick_none`. Le regole di trasporto stanno in `CLAUDE.md`,
+     e `ic_pick_none`. Le regole di trasporto vivono in `CLAUDE.md`,
      § 'Come entra un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"

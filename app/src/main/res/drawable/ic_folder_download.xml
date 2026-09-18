@@ -21,7 +21,12 @@
 
      La normalizzazione non cambia un pixel: misurato, zero differenze su 57.600.
 
-     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 1 punte esterne, 0
+     pixel pieni diversi su 57.600 (0 visibili), misurati rendendo i due tracciati a
+     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -30,5 +35,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M20,6h-8l-2,-2h-6c-1.1,0,-1.99,.9,-1.99,2v12c-.01,1.1,.89,2,1.99,2h16c1.1,0,2,-.9,2,-2v-10c0,-1.1,-.9,-2,-2,-2ZM20,18H4v-10h6.99v5.88l-1.38,-1.38c-.2,-.2,-.44,-.3,-.71,-.3s-.51,.1,-.71,.3c-.18,.2,-.27,.44,-.27,.71s.09,.5,.27,.69l3.1,3.1c.2,.2,.43,.3,.7,.3s.5,-.1,.7,-.3l3.1,-3.08c.2,-.18,.3,-.41,.29,-.69c0,-.27,-.1,-.51,-.29,-.71c-.2,-.2,-.43,-.3,-.7,-.31c-.27,0,-.5,.09,-.7,.29l-1.4,1.38v-5.88h7.01v10Z" />
+        android:pathData="M 20 6 L 12 6 L 10.12 4.12 A 0.4 0.4 0 0 0 9.83 4 L 4 4 C 2.9 4 2.01 4.9 2.01 6 L 2.01 18 C 2 19.1 2.9 20 4 20 L 20 20 C 21.1 20 22 19.1 22 18 L 22 8 C 22 6.9 21.1 6 20 6 Z M 20 18 L 4 18 L 4 8 L 10.99 8 L 10.99 13.88 L 9.61 12.5 C 9.41 12.3 9.17 12.2 8.9 12.2 S 8.39 12.3 8.19 12.5 C 8.01 12.7 7.92 12.94 7.92 13.21 S 8.01 13.71 8.19 13.9 L 11.29 17 C 11.49 17.2 11.72 17.3 11.99 17.3 S 12.49 17.2 12.69 17 L 15.79 13.92 C 15.99 13.74 16.09 13.51 16.08 13.23 C 16.08 12.96 15.98 12.72 15.79 12.52 C 15.59 12.32 15.36 12.22 15.09 12.21 C 14.82 12.21 14.59 12.3 14.39 12.5 L 12.99 13.88 L 12.99 8 L 20 8 L 20 18 Z" />
 </vector>

@@ -246,10 +246,20 @@ Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il
   quadratica lunga un millesimo di unità. Un tracciato riscritto male non dà nessun errore, si
   vede solo guardando, quindi lo strumento dice **dove** manca un raccordo e con che raggio, e il
   raccordo lo fa chi disegna.
-- ⚠️⚠️ **LE ESISTENTI NE HANNO 99, SU QUINDICI DISEGNI SU QUARANTUNO, E SONO QUASI TUTTI SUOI**:
-  quindi 'verifica anche le altre' ha una risposta, ed è che la regola di oggi le esistenti non
-  la rispettano. Toccarle è una decisione sua e non mia, per la stessa ragione della `1.33`: un
-  disegno approvato non si cambia perché uno strumento lo segnala.
+- ⚠️⚠️ **LE ESISTENTI NE AVEVANO 99, SU QUINDICI DISEGNI SU QUARANTUNO, E DALLA `2.56` NE RESTANO
+  SOLO QUELLE DEL SUO LOGO** (sua istruzione, 2026-09-18, risposta `alcune` a `d-punte-adesso`:
+  *arrotondale tutte, tranne `ic_tian`: il mio logo personale non si tocca MAI*). Quindi 'verifica
+  anche le altre' ha avuto la sua risposta sei versioni dopo, e l'ha data guardando la tavola del
+  prima e dopo: le punte raccordate sono **89** su quattordici disegni, e le **dieci** che restano
+  vive sono le sue.
+  - ⚠️⚠️ **IL LOGO È FUORI PER REGOLA E NON PER QUESTO GIRO, E LA REGOLA È UNIVERSALE**: vive in
+    `rules/Roccobot.md` § '🧹 Bonifica e ottimizzazione degli asset', perché il suo segno lo può
+    mettere in qualunque progetto. Qui resta il come: `tools/icon-round.py` lo **dichiara** escluso
+    invece di contarne le punte, perché un numero accanto al suo nome si legge come un lavoro da
+    fare.
+  - ⚠️ **La misura di ogni disegno vive in coda al suo commento**, cioè quante punte ha preso e
+    quanti pixel sono cambiati su 57.600: sono gli stessi numeri della tavola che ha guardato, e
+    scritti là non dipendono da una sessione che se li ricordi.
   - ⚠️⚠️ **QUEL NUMERO È DEL CRITERIO STRETTO, CHE È IL SUO: SOLO GLI ANGOLI CONVESSI ESTERNI**
     (sua nota su `d-spigoli-icone`, giro della `2.50`: *la regola va affinata: solo gli angoli
     convessi esterni (le 'punte')*). L'affinamento è entrato nel verificatore il 2026-09-18: un
@@ -272,10 +282,11 @@ Vale per **ogni** disegno che entra in `res/` da qui in poi, suo o di casa, e il
     - ⚠️ **Quanto pesi quella metà è misurato, e non è un dettaglio**: sono **51** punte su 138,
       cioè più di un terzo, e cinque disegni escono dall'elenco per intero. In `ic_download` le
       sette punte erano quelle della freccia **scavata dentro** la cartella.
-  - ⚠️⚠️ **LA DECISIONE SULLE ESISTENTI ASPETTA UNA TAVOLA, ED È LA SUA SCELTA `guardo`**: la
-    domanda offriva di arrotondarle tutte, solo quelle di casa, o nessuna, e lui ha scelto di
-    vedere prima il **prima e il dopo dei venti disegni**. Quindi finché quella tavola non
-    esiste, in `res/` non si tocca niente.
+  - ⚠️⚠️ **LA DECISIONE ERA PASSATA DA UNA TAVOLA, ED ERA LA SUA SCELTA `guardo`**: la domanda
+    del giro della `2.50` offriva di arrotondarle tutte, solo quelle di casa, o nessuna, e lui ha
+    scelto di vedere prima il **prima e il dopo**. Per cinque versioni in `res/` non si è toccato
+    niente, e la tavola è nata col giro della `2.55`: chi legge che la decisione aspetta sappia
+    che è arrivata.
 - ⚠️⚠️ **E LA VERIFICA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUNO AVEVA
   VISTO**: in `ic_mod_detail` i dodici archi portavano i raggi al posto della rotazione e della
   bandierina dell'arco maggiore, quindi quattro tondi su sei venivano disegnati col raggio
@@ -4477,7 +4488,14 @@ e il job le scrive su disco per la durata di una sola esecuzione.
 - **`tools/icon-round.py`**, dalla `2.50`: dice quali spigoli **esterni** di un'icona sono
   ancora vivi, con l'angolo e il raggio che spetta a ognuno. È il presidio della regola
   dell'arrotondamento a 0,4, che vive in § '🖌️ Come entra un disegno'. ⚠️ **Avvisa e non
-  blocca**, perché gli spigoli vivi di oggi vivono in disegni già approvati.
+  blocca**, come le misure di resa di `icon-check.py`: un disegno che arriva da lui può portare
+  uno spigolo vivo che vuole così, e quella è una decisione di chi disegna.
+  - ⚠️⚠️ **DALLA `2.56` RISPONDE ZERO, E IL LOGO NON ENTRA NEL CONTO**: le punte delle esistenti
+    sono state raccordate su sua istruzione, e `ic_tian` è **dichiarato escluso** per la regola
+    universale che vive in `rules/Roccobot.md` § '🧹 Bonifica e ottimizzazione degli asset'.
+    ⚠️ **Da qui in poi un numero diverso da zero riguarda un disegno appena entrato**, che è la
+    cosa che questo strumento serve a vedere: finché le esistenti ne portavano 99, quel conto
+    copriva l'unico caso che conta.
   - ⚠️⚠️ **DUE FALSI POSITIVI L'HANNO COSTRETTO A GUARDARE LE TANGENTI E NON LE CORDE**, e la
     differenza è un fattore quattro: un raccordo già fatto è un arco, e la sua corda svolta di
     metà arco, cioè esattamente quanto basta a farlo sembrare vivo; e le curve **smooth** (`s`,
