@@ -10,7 +10,7 @@
      e le frecce, e girano in versi opposti, quindi è la regola di avvolgimento a bucare il
      riquadro dove passano le frecce. Con la regola pari-dispari il disegno verrebbe uguale
      solo perché le forme non si sovrappongono in altri punti, e uguale per caso non è
-     uguale. Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+     uguale. Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"

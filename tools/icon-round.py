@@ -38,6 +38,12 @@ quasi tutti, il raggio resta 0,4 esatto.
 ⚠️ **Avvisa e non blocca**, come le misure di resa di `icon-check.py`: gli spigoli vivi di oggi
 vivono in disegni gia approvati, e toglierli e una decisione di chi li ha fatti.
 
+⚠️⚠️ **E DALLA `2.56` I DISEGNI SONO RACCORDATI, TRANNE UNO: IL LOGO PERSONALE NON SI TOCCA MAI**
+(sua istruzione, 2026-09-18, risposta `alcune` a `d-punte-adesso`: *arrotondale tutte, tranne
+`ic_tian`: il mio logo personale non si tocca MAI*). Quell'esclusione non e tecnica e non si
+ricava da nessuna misura, quindi vive scritta qui: il verificatore lo **dichiara** escluso invece
+di contarne le punte, perche un numero accanto al suo nome si legge come un lavoro da fare.
+
 Modi:
   icon-round.py                elenca quante punte vive ha ogni disegno di `res/drawable`
   icon-round.py -v [FILE ...]  scrive anche dove sono, con l'angolo e il raggio da usare
@@ -67,6 +73,9 @@ TETTO = RAGGIO * (1 / math.sin(math.radians(45)) - 1)
 DRITTO = 6.0
 # Un segmento piu corto di questo non ha da dove arretrare.
 CORTO = 1e-3
+# ⚠️⚠️ **IL LOGO PERSONALE NON SI TOCCA MAI, ED E UNA SUA REGOLA**: non e un'esclusione tecnica,
+# quindi non si ricava da nessuna misura e resta scritta qui, come in testa al file stesso.
+INTOCCABILI = {'ic_tian.xml'}
 # ⚠️⚠️ **QUANTO LONTANO PUO CADERE UN GIRO DAL PROPRIO PUNTO DI PARTENZA E RESTARE CHIUSO**: i
 # tracciati sono scritti a due decimali, quindi un giro arrotondato torna a un centesimo di unita
 # dal punto della `M` e la chiusura implicita diventa una rettina che svolta. Misurato su
@@ -392,8 +401,12 @@ def main():
     dettaglio = '-v' in argomenti
     nomi = [a for a in argomenti if not a.startswith('-')]
     file = [pathlib.Path(n) for n in nomi] if nomi else sorted(DRAWABLE.glob('*.xml'))
-    totale = sum(lavora(f, dettaglio) for f in file)
-    print(f'{len(file)} disegni, {totale} punte vive')
+    fuori = [f for f in file if f.name in INTOCCABILI]
+    guardati = [f for f in file if f.name not in INTOCCABILI]
+    totale = sum(lavora(f, dettaglio) for f in guardati)
+    print(f'{len(guardati)} disegni, {totale} punte vive')
+    for f in fuori:
+        print(f'{f.name}: escluso per regola, il logo personale non si tocca')
     return 0
 
 

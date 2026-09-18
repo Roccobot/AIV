@@ -14,7 +14,12 @@
      IL RIEMPIMENTO NON-ZERO NON È UN VALORE DI COMODO: il controcampo, cioè l'interno della
      cartella davanti, è un sottotracciato che gira al contrario, e con la regola pari-dispari
      verrebbe uguale solo perché non si sovrappone ad altro. Le regole di trasporto stanno in
-     `CLAUDE.md`, § 'Come entra un disegno'. -->
+     `CLAUDE.md`, § 'Come entra un disegno'.
+
+     PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 1 punte esterne, 0
+     pixel pieni diversi su 57.600 (0 visibili), misurati rendendo i due tracciati a
+     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -23,5 +28,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M19.6,19H3V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v11.4c0,1.1,.9,2,2,2h15.4c.88,0,1.6,-.72,1.6,-1.6c0,-.22,-.18,-.4,-.4,-.4ZM21,4h-7l-2,-2h-5c-1.1,0,-1.99,.9,-2,2v11c0,1.1,.9,2,2,2h14c1.1,0,2,-.9,2,-2V6c0,-1.1,-.9,-2,-2,-2ZM21,15H7V4h4.17l2,2h7.83v9ZM13.01,9.55h-1.37c-.55,0,-.99,.44,-.99,.99s.44,.99,.99,.99h1.37v1.37c0,.55,.44,.99,.99,.99s.99,-.44,.99,-.99v-1.37h1.37c.55,0,.99,-.44,.99,-.99s-.44,-.99,-.99,-.99h-1.37v-1.37c0,-.55,-.44,-.99,-.99,-.99s-.99,.44,-.99,.99v1.37Z" />
+        android:pathData="M 19.6 19 L 3 19 L 3 6.4 C 3 6.18 2.82 6 2.6 6 C 1.72 6 1 6.72 1 7.6 L 1 19 C 1 20.1 1.9 21 3 21 L 18.4 21 C 19.28 21 20 20.28 20 19.4 C 20 19.18 19.82 19 19.6 19 Z M 21 4 L 14 4 L 12.12 2.12 A 0.4 0.4 0 0 0 11.83 2 L 7 2 C 5.9 2 5.01 2.9 5 4 L 5 15 C 5 16.1 5.9 17 7 17 L 21 17 C 22.1 17 23 16.1 23 15 L 23 6 C 23 4.9 22.1 4 21 4 Z M 21 15 L 7 15 L 7 4 L 11.17 4 L 13.17 6 L 21 6 L 21 15 Z M 13.01 9.55 L 11.64 9.55 C 11.09 9.55 10.65 9.99 10.65 10.54 C 10.65 11.09 11.09 11.53 11.64 11.53 L 13.01 11.53 L 13.01 12.9 C 13.01 13.45 13.45 13.89 14 13.89 C 14.55 13.89 14.99 13.45 14.99 12.9 L 14.99 11.53 L 16.36 11.53 C 16.91 11.53 17.35 11.09 17.35 10.54 C 17.35 9.99 16.91 9.55 16.36 9.55 L 14.99 9.55 L 14.99 8.18 C 14.99 7.63 14.55 7.19 14 7.19 C 13.45 7.19 13.01 7.63 13.01 8.18 L 13.01 9.55 Z" />
 </vector>

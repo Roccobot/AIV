@@ -12,7 +12,7 @@
      e urdu quella parte è l'altra. Senza questo attributo il disegno nostro non si
      specchierebbe, perché un vettore non lo fa da sé.
 
-     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
