@@ -449,6 +449,9 @@
     <string name="look_masking">Enmascarar</string>
     <string name="look_noise">Ruido</string>
     <string name="look_noise_color">Ruido de color</string>
+    <string name="look_effects">Efectos</string>
+    <string name="look_clarity">Claridad</string>
+    <string name="look_texture">Textura</string>
     <string name="look_tone">Curva</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva de tonos</string>

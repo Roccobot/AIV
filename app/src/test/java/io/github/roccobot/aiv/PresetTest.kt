@@ -72,6 +72,7 @@ class PresetTest {
         assertEquals("Il Colore non è tornato", PIENO.chroma, letto.look.chroma)
         assertEquals("L'HSL non è tornato", PIENO.mix, letto.look.mix)
         assertEquals("Il Dettaglio non è tornato", PIENO.detail, letto.look.detail)
+        assertEquals("Gli Effetti non sono tornati", PIENO.effects, letto.look.effects)
         assertEquals("Le Curve non sono tornate", PIENO.tone, letto.look.tone)
     }
 
@@ -110,6 +111,7 @@ class PresetTest {
         assertEquals("Applicare ha cambiato la porzione inquadrata", base.framing, dopo.framing)
         assertEquals("Il Colore non è arrivato", PIENO.chroma, dopo.chroma)
         assertEquals("La Luce non è arrivata", PIENO.light, dopo.light)
+        assertEquals("Gli Effetti non sono arrivati", PIENO.effects, dopo.effects)
     }
 
     /**
@@ -423,13 +425,17 @@ class PresetTest {
         assertEquals("Il Colore è entrato da solo", Chroma.NONE, letto.look.chroma)
         assertEquals("L'HSL è entrato da solo", Mix.NONE, letto.look.mix)
         assertEquals("Il Dettaglio è entrato da solo", Detail.NONE, letto.look.detail)
+        assertEquals("Gli Effetti sono entrati da soli", Effects.NONE, letto.look.effects)
         assertEquals("Le Curve sono entrate da sole", Tone.NONE, letto.look.tone)
         assertNotEquals("La Luce non è arrivata", Light.NONE, letto.look.light)
     }
 }
 
 /**
- * Un [Look] coi cinque moduli tutti pieni, e le otto fasce diverse l'una dall'altra.
+ * Un [Look] coi sei moduli di colore tutti pieni, e le otto fasce diverse l'una dall'altra.
+ *
+ * ⚠️ **Dalla `2.53` sono sei e non cinque**: gli Effetti sono un aspetto come gli altri, quindi un
+ * preset se li porta, e senza il loro campo qui la prova non guarderebbe proprio il modulo nuovo.
  *
  * ⚠️ **I numeri non sono tondi di proposito**: un arrotondamento nella scrittura del file si
  * vedrebbe su `0,37` e non su `0,5`.
@@ -450,6 +456,7 @@ private val PIENO = Look(
         sharpen = 0.61f, radius = -0.29f, masking = 0.47f,
         noise = 0.33f, noiseColor = 0.18f
     ),
+    effects = Effects(clarity = 0.42f, texture = -0.26f),
     tone = Tone(
         all = Curve(listOf(Knot(0f, 0.05f), Knot(0.5f, 0.62f), Knot(1f, 0.97f))),
         red = Curve(listOf(Knot(0f, 0f), Knot(0.33f, 0.41f), Knot(1f, 1f))),

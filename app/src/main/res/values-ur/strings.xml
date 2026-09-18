@@ -433,6 +433,9 @@
     <string name="look_masking">ماسکنگ</string>
     <string name="look_noise">شور</string>
     <string name="look_noise_color">رنگ کا شور</string>
+    <string name="look_effects">اثرات</string>
+    <string name="look_clarity">وضاحت</string>
+    <string name="look_texture">ساخت</string>
     <string name="look_tone">کرو</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">ٹون کرو</string>

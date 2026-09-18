@@ -417,6 +417,9 @@
     <string name="look_masking">Mặt nạ</string>
     <string name="look_noise">Nhiễu</string>
     <string name="look_noise_color">Nhiễu màu</string>
+    <string name="look_effects">Hiệu ứng</string>
+    <string name="look_clarity">Độ rõ</string>
+    <string name="look_texture">Kết cấu</string>
     <string name="look_tone">Đường cong</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Đường cong tông màu</string>

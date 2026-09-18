@@ -433,6 +433,9 @@
     <string name="look_masking">Maskeleme</string>
     <string name="look_noise">Parazit</string>
     <string name="look_noise_color">Renk paraziti</string>
+    <string name="look_effects">Efektler</string>
+    <string name="look_clarity">Netlik</string>
+    <string name="look_texture">Doku</string>
     <string name="look_tone">Eğri</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Ton eğrisi</string>

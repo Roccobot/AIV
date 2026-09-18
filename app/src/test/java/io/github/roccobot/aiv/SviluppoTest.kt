@@ -2597,6 +2597,146 @@ class SviluppoTest {
         )
     }
 
+    /**
+     * **Caso 55: il modulo Effetti porta i suoi due cursori, e nessun altro li ha.**
+     *
+     * ⚠️⚠️ **È IL NONO MODULO, DALLA `2.53`, E LA PRIMA COSA CHE PUÒ ROMPERSI IN SILENZIO È IL
+     * LEGAME FRA I DUE ELENCHI**: un modulo vive nella tabella di `AdvancedEditorScreen` e la sua
+     * chiave in `MOD_KEYS`, e chi ne dimenticasse una sparirebbe dalla fila senza che niente dia
+     * errore. Qui si misura dalla parte di chi tocca: il gettone c'è, e aprendolo compaiono i due
+     * cursori che ha chiesto lui.
+     * ⚠️⚠️ **LA FILA SI MONTA ROVESCIATA, E SENZA QUELLA RIGA LA PROVA MENTIVA**: col nono gettone
+     * la fila scorre, quindi in coda la pastiglia cade fuori dalla larghezza del banco; il tocco
+     * non dà nessun errore e non cambia modulo, e si contavano zero cursori credendo di guardare
+     * gli Effetti. È la stessa trappola del sesto gettone della `2.30`.
+     */
+    @Test
+    fun `il modulo Effetti porta i suoi due cursori`() {
+        banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
+        pronta()
+
+        assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
+        modulo(R.string.look_effects)
+        assertEquals("gli Effetti devono portare chiarezza e texture", 2, quantiCursori())
+
+        modulo(R.string.look_light)
+        assertEquals("e la Luce, toccata, porta i suoi sei", 6, quantiCursori())
+    }
+
+    /**
+     * **Caso 56: il 'Reset modulo' degli Effetti azzera i suoi e lascia stare gli altri.**
+     *
+     * ⚠️ Col nono modulo i gettoni sono nove, e un azzeramento che prendesse anche i vicini
+     * porterebbe via il lavoro fatto in una schermata che non si sta guardando. È la stessa
+     * misura del caso 15, su un modulo in più.
+     * ⚠️ **La fila si monta rovesciata**, per la stessa ragione del caso qui sopra: in coda il
+     * gettone non si può toccare.
+     */
+    @Test
+    fun `il tocco lungo sugli Effetti azzera solo gli Effetti`() {
+        banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
+        pronta()
+        modulo(R.string.look_light)
+        muovi(1, 0.5f)
+        assertTrue(valore(1) > 0.2f)
+
+        modulo(R.string.look_effects)
+        muovi(0, 0.6f)
+        assertTrue(valore(0) > 0.2f)
+
+        banco.onNodeWithContentDescription(testo(R.string.look_effects))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("gli Effetti dovevano azzerarsi", 0f, valore(0), 1e-3f)
+
+        modulo(R.string.look_light)
+        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+    }
+
+    /**
+     * **Caso 57: gli Effetti tolgono il senza perdita, e le loro misure seguono il lato.**
+     *
+     * ⚠️⚠️ **IL SENZA PERDITA È LA CLAUSOLA CON CUI HA CHIESTO L'EDITOR** (*quelle che non
+     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): chiarezza e
+     * texture riscrivono i pixel come la Luce, quindi un loro valore mosso lo toglie. Scritto al
+     * contrario, una fotografia ammorbidita si salverebbe girando un tag EXIF, cioè non si
+     * salverebbe affatto.
+     * ⚠️ **E le misure sono frazioni del lato**, come quelle del Dettaglio e per la stessa ragione:
+     * il conto gira sull'anteprima e sul file pieno, e un raggio in pixel peserebbe il doppio da
+     * una parte.
+     */
+    @Test
+    fun `un valore di Effetti toglie il senza perdita`() {
+        assertTrue(Effects.NONE.idle)
+        assertTrue(Look.NONE.lossless)
+        assertFalse(Effects(clarity = 0.01f).idle)
+        assertFalse(Effects(texture = -0.01f).idle)
+        assertFalse(Look(effects = Effects(clarity = 0.5f)).lossless)
+        assertFalse(Look(effects = Effects(texture = 0.5f)).lossless)
+
+        assertEquals(2f * Effects.clarityReach(1000f), Effects.clarityReach(2000f), 1e-4f)
+        assertEquals(2f * Effects.textureReach(1000f), Effects.textureReach(2000f), 1e-4f)
+        assertTrue(
+            "la chiarezza deve guardare più lontano della texture",
+            Effects.clarityReach(4000f) > Effects.textureReach(4000f)
+        )
+    }
+
+    /**
+     * **Caso 58: il bordo delle tessere è il più largo dei due filtri che guardano i vicini.**
+     *
+     * ⚠️⚠️ **DALLA `2.53` I MODULI CHE LEGGONO I PIXEL VICINI SONO DUE, E UNA TESSERA HA UN BORDO
+     * SOLO**: prendendo quello del solo Dettaglio, con gli Effetti mossi più forte l'ultima
+     * colonna di una tessera leggerebbe il bordo ripetuto invece del pixel che sta di là, cioè su
+     * ogni giunzione comparirebbe una riga. E sommarli sarebbe spazio buttato, perché i due filtri
+     * girano sulla stessa tessera e non uno sull'uscita dell'altro.
+     * ⚠️ **A riposo vale zero**, quindi chi non usa nessuno dei due paga le tessere di prima.
+     */
+    @Test
+    fun `il bordo delle tessere copre il filtro più largo`() {
+        assertEquals(0, Effects.NONE.bleed(4000f))
+
+        val chiaro = Effects(clarity = 0.5f)
+        assertTrue(
+            "il bordo deve coprire il raggio della chiarezza",
+            chiaro.bleed(4000f) > Effects.clarityReach(4000f)
+        )
+        // La texture guarda più vicino, quindi da sola chiede un bordo più stretto.
+        assertTrue(
+            "la texture da sola non può chiedere quanto la chiarezza",
+            Effects(texture = 0.5f).bleed(4000f) < chiaro.bleed(4000f)
+        )
+
+        /*
+         * ⚠️⚠️ **QUI SI CHIAMA LA FUNZIONE CHE IL SALVATAGGIO USA, E NON SI RIFÀ IL CONTO**: un
+         * massimo riscritto nella prova sarebbe verde anche col difetto rimesso, perché
+         * misurerebbe se stesso. `bleedFor` vive fuori dall'oggetto proprio per questo.
+         */
+        val fine = Detail(sharpen = 0.5f)
+        assertEquals(
+            "col solo Dettaglio il bordo deve restare il suo",
+            fine.bleed(4000f),
+            bleedFor(Look(detail = fine), 4000f)
+        )
+        assertEquals(
+            "col solo modulo nuovo il bordo deve essere il suo, e non zero",
+            chiaro.bleed(4000f),
+            bleedFor(Look(effects = chiaro), 4000f)
+        )
+        // Coi due insieme si prende il più largo: né quello di uno solo, né la somma.
+        val piccolo = Detail(sharpen = 0.5f, radius = -1f)
+        assertTrue(
+            "la scena deve avere due bordi diversi, o la misura non distingue niente",
+            piccolo.bleed(4000f) < chiaro.bleed(4000f)
+        )
+        assertEquals(
+            "il bordo dei due insieme non è il più largo",
+            chiaro.bleed(4000f),
+            bleedFor(Look(detail = piccolo, effects = chiaro), 4000f)
+        )
+        assertEquals("e a riposo resta zero", 0, bleedFor(Look.NONE, 4000f))
+    }
+
     @Composable
     private fun Scena(
         uri: Uri = quadrato(),

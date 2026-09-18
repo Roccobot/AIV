@@ -912,7 +912,7 @@ val STEP_KEYS = listOf(
 )
 
 /**
- * I sette moduli dell'editor completo, nell'ordine che ha dettato lui.
+ * I moduli dell'editor completo, nell'ordine che ha dettato lui.
  *
  * ⚠️⚠️ **QUESTO ELENCO È UNA PERMUTAZIONE DELLA TABELLA DEI MODULI, E NON UNA SECONDA TABELLA**:
  * qui ci sono le chiavi con cui l'ordine si salva, là (`MODULES`, in `AdvancedEditorScreen.kt`)
@@ -930,6 +930,13 @@ val STEP_KEYS = listOf(
 val MOD_KEYS = listOf(
     PadKey.MOD_DETAIL, PadKey.MOD_TONE, PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
     PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX,
+    /*
+     * ⚠️⚠️ **IL NONO ARRIVA QUI E NON IN CODA, DALLA `2.53`, ED È UNA SCELTA DICHIARATA**: gli
+     * Effetti parlano dei colori come la Luce, il Colore e l'HSL, mentre gli Stili sono il
+     * contenitore che porta tutti gli altri, quindi restano l'ultimo della fila. La voce di
+     * collaudo gli chiede se quel posto va bene.
+     */
+    PadKey.MOD_EFFECTS,
     /*
      * ⚠️⚠️ **L'OTTAVO ARRIVA IN CODA CON LA `2.50`, E SUL SUO SCHERMO SARÀ L'UNICO DA
      * RAGGIUNGERE SCORRENDO** (campo libero del giro della `2.40`: *nel mio caso, con il mio

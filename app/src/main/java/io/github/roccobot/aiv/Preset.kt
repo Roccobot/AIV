@@ -40,7 +40,7 @@ data class Preset(
     /**
      * Se è uno dei venti che l'app porta con sé.
      *
-     * ⚠️ **Serve a due cose**: il gruppo in cui compare ('Stili AIV' o 'Stili personali'), e dove
+     * ⚠️ **Serve a due cose**: il gruppo in cui compare ('Stili AIV' o 'Stili salvati'), e dove
      * l'archivio scrive quello che di lui è cambiato (una rinomina fra le rinomine, una
      * cancellazione fra i cancellati, invece del preset intero).
      */
@@ -63,6 +63,7 @@ data class Preset(
         chroma = look.chroma,
         mix = look.mix,
         detail = look.detail,
+        effects = look.effects,
         tone = look.tone
     )
 
@@ -87,6 +88,7 @@ data class Preset(
         chroma = if (look.chroma.idle) base.chroma else look.chroma,
         mix = if (look.mix.idle) base.mix else look.mix,
         detail = if (look.detail.idle) base.detail else look.detail,
+        effects = if (look.effects.idle) base.effects else look.effects,
         tone = if (look.tone.idle) base.tone else look.tone
     )
 
@@ -97,7 +99,7 @@ data class Preset(
             name = name.trim(),
             look = Look(
                 light = look.light, chroma = look.chroma, mix = look.mix,
-                detail = look.detail, tone = look.tone
+                detail = look.detail, effects = look.effects, tone = look.tone
             )
         )
 
@@ -412,6 +414,10 @@ object Presets {
             num("sharpen", d.sharpen); num("radius", d.radius); num("masking", d.masking)
             num("noise", d.noise); num("noiseColor", d.noiseColor)
         })
+        val e = p.look.effects
+        if (!e.idle) o.put("effects", JSONObject().apply {
+            num("clarity", e.clarity); num("texture", e.texture)
+        })
         if (!p.look.tone.idle) o.put("tone", JSONObject().apply {
             curveOut("all", p.look.tone.all); curveOut("red", p.look.tone.red)
             curveOut("green", p.look.tone.green); curveOut("blue", p.look.tone.blue)
@@ -424,6 +430,7 @@ object Presets {
         val c = o.optJSONObject("chroma")
         val m = o.optJSONArray("mix")
         val d = o.optJSONObject("detail")
+        val e = o.optJSONObject("effects")
         val t = o.optJSONObject("tone")
         return Look(
             light = if (l == null) Light.NONE else Light(
@@ -444,6 +451,9 @@ object Presets {
                 sharpen = d.num("sharpen"), radius = d.num("radius"),
                 masking = d.num("masking"), noise = d.num("noise"),
                 noiseColor = d.num("noiseColor")
+            ),
+            effects = if (e == null) Effects.NONE else Effects(
+                clarity = e.num("clarity"), texture = e.num("texture")
             ),
             tone = if (t == null) Tone.NONE else Tone(
                 all = t.curveIn("all"), red = t.curveIn("red"),
@@ -501,7 +511,7 @@ private fun mix(vararg bands: Pair<Int, Band>): Mix =
 private fun curve(vararg knots: Pair<Float, Float>): Curve =
     Curve(knots.map { Knot(it.first, it.second) })
 
-/** Un preset di casa, con la sua chiave e i suoi cinque moduli facoltativi. */
+/** Un preset di casa, con la sua chiave e i suoi sei moduli facoltativi. */
 private fun house(
     key: String,
     name: String,
@@ -509,10 +519,14 @@ private fun house(
     chroma: Chroma = Chroma.NONE,
     mix: Mix = Mix.NONE,
     detail: Detail = Detail.NONE,
+    effects: Effects = Effects.NONE,
     tone: Tone = Tone.NONE
 ): Preset = Preset(
     name = name,
-    look = Look(light = light, chroma = chroma, mix = mix, detail = detail, tone = tone),
+    look = Look(
+        light = light, chroma = chroma, mix = mix,
+        detail = detail, effects = effects, tone = tone
+    ),
     key = key,
     house = true
 )

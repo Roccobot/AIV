@@ -861,6 +861,14 @@ enum class PadKey(override val token: String) : Choice {
     MOD_DETAIL("mod-detail"),
 
     /**
+     * Il nono modulo, gli **Effetti**, dalla `2.53`.
+     *
+     * ⚠️ **La chiave nasce col modulo e non si tocca più**: chi ha già riordinato la fila se lo
+     * ritrova in coda, e un ordine salvato non cambia significato per un tasto in più.
+     */
+    MOD_EFFECTS("mod-effects"),
+
+    /**
      * L'ottavo modulo, gli **stili**, dalla `2.50`.
      *
      * ⚠️ **È un tasto come gli altri sette**, quindi si riordina e si salva con loro: fino alla
@@ -919,7 +927,8 @@ fun PadKey.label(): Int = when (this) {
     // unica: qui ci sono i nomi dei tasti, là quelli dei moduli, e ricopiarli vorrebbe dire
     // due posti in cui un modulo si chiama.
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
-    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_PRESET -> modName(this)
+    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
+    PadKey.MOD_PRESET -> modName(this)
 }
 
 /**
@@ -955,7 +964,8 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.APPLY -> Glyphs.EditApply
     // ⚠️ Come il nome: il segno di un modulo vive nella sua tabella, e qui si chiede a lei.
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
-    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_PRESET -> modGlyph(this)
+    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
+    PadKey.MOD_PRESET -> modGlyph(this)
 }
 
 /**
