@@ -2626,6 +2626,17 @@ private fun LookSheet(
     val module = gaze.module
     val chosen = MODULES[module]
     /*
+     * ⚠️⚠️ **GLI STILI SALVATI VIVONO QUI E NON NEL CORPO DEL MODULO, DALLA `2.52`**: il comando
+     * che li crea vive sulla barra e l'elenco che li mostra vive nel corpo, cioè due pezzi
+     * diversi, quindi lo stato vive sopra tutti e due. Tenuto di là, un salvataggio non si vedrebbe fino a
+     * quando l'editor non si riapre.
+     * ⚠️ **Si legge una volta**: a scriverlo sono il tasto qui accanto e la pagina delle
+     * impostazioni, che è un'altra schermata, e rileggere il file a ogni ricomposizione vorrebbe
+     * dire aprirlo per ogni fotogramma di un'animazione.
+     */
+    val context = LocalContext.current
+    var mine by remember { mutableStateOf(Presets.mine(context)) }
+    /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
      * rientro di sistema dentro invece che sopra. Le ragioni di ognuna di quelle righe sono
@@ -2746,6 +2757,7 @@ private fun LookSheet(
                     origin = origin,
                     nameWidth = nameWidth,
                     height = comune,
+                    mine = mine,
                     onLive = onLive,
                     onSettled = onSettled,
                     onPeek = onPeek
@@ -2773,122 +2785,230 @@ private fun LookSheet(
              * divisa in due: adesso i cinque comandi sono una cosa sola, e lo spazio a sinistra non
              * resta vuoto per niente.
              */
+            /*
+             * ⚠️⚠️ **DALLA `2.52` QUESTA FILA SI SPECCHIA COL LATO DEL FAB, CON UN'ECCEZIONE SUA**
+             * (sua richiesta del 2026-09-14, con schermata: *l'ordine delle icone della barra bassa
+             * deve essere speculare quando il FAB è a sinistra, con la sola eccezione di
+             * 'Annulla'/'Ripristina', che devono essere sempre il primo a sinistra del secondo*).
+             * Il lato lo dà [fabEdge], cioè la stessa preferenza che governa il FAB, le pastiglie
+             * dell'intestazione e il rientro della notifica.
+             * ⚠️⚠️ **L'ECCEZIONE NON È UN CAPRICCIO: QUEI DUE COMANDI SONO UN VERSO DEL TEMPO**, e
+             * uno specchio lo rovescerebbe, cioè metterebbe 'Ripristina' sotto il dito che cerca
+             * 'Annulla'. Le altre icone un ordine che voglia dire qualcosa non ce l'hanno.
+             * ⚠️ **'Salva stile' sta dalla parte opposta e si specchia con loro**: col FAB a destra
+             * è a sinistra, col FAB a sinistra passa dall'altro lato. ⚠️ **È una lettura, non una
+             * sua parola**, e gliel'ho chiesta: la sua risposta del 2026-09-18 la conferma.
+             */
+            val mirror = fabEdge() == Alignment.Start
+            val salva: @Composable () -> Unit = {
+                /*
+                 * ⚠️ **C'è nel solo modulo che ne parla**, come 'Auto' nei suoi due e 'Mirato' nei
+                 * suoi: la condizione si legge dalla tabella dei moduli e non da un elenco di nomi
+                 * scritto accanto al tasto.
+                 */
+                if (chosen.extra == Extra.PRESETS) {
+                    PresetSaveButton(
+                        look = look,
+                        enabled = ready && !busy,
+                        onSaved = { mine = it }
+                    )
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 /*
-                 * ⚠️⚠️ **IL COLORE MIRATO C'È DOVE IL MODULO HA UN BERSAGLIO DA SCEGLIERE, e non è
-                 * una coincidenza**: quel gesto serve a dire *questo colore qui*, e ha senso solo
-                 * dove esiste qualcosa da puntare, cioè una fascia dell'HSL. Negli altri moduli un
-                 * cursore vale per tutta l'immagine, quindi non c'è niente da mirare.
-                 * ⚠️⚠️ **ED È UN'ICONA E NON PIÙ UNA PASTIGLIA SCRITTA, DALLA `2.32`**: il nome
-                 * resta come descrizione, cioè quello che un lettore di schermo annuncia e quello
-                 * che il banco cerca, ed è lo stesso criterio dei sette gettoni dei moduli.
-                 * ⚠️ **A dire che è acceso è il colore**: un `IconButton` non ha uno stato scelto,
-                 * quindi il glifo passa all'accento quando la modalità è armata.
+                 * ⚠️ **Lo spazio elastico in mezzo fa TUTTO il lavoro dell'allineamento**: senza il
+                 * comando che salva resta lui solo, quindi la fila dei comandi si trova comunque
+                 * appoggiata al lato giusto, e non serve una seconda condizione che scelga come
+                 * disporla.
                  */
-                /*
-                 * ⚠️⚠️ **'APPLICA' NON È PIÙ QUI, DALLA `2.40`, E CON LUI SE NE VANNO I TRE
-                 * COMANDI DEL RITAGLIO**: vivono nel corpo del modulo, tutti e quattro insieme
-                 * (vedi la fila in [ModuleBody]). La ragione è la sua osservazione sul tasto che
-                 * sembrava inutile: una fila di fondo che porta 'Annulla' e 'Ripristina'
-                 * dell'immagine, più un 'Applica' che parla del solo ritaglio, mette nello stesso
-                 * posto due cose che agiscono su due oggetti diversi. Adesso in fondo ci sono i
-                 * comandi dell'immagine e nel modulo quelli del suo ritaglio.
-                 */
-                /*
-                 * ⚠️⚠️ **E DALLA `2.50` QUESTO TASTO SERVE A DUE MODULI, CIOÈ ARMA IL DITO SENZA
-                 * DIRE CHE COSA FARÀ**: nell'HSL sceglie la fascia del colore toccato, nella
-                 * Geometria tira uno dei quattro angoli. Il gesto lo decide la tabella dei moduli,
-                 * che è dove vive già la domanda 'questo modulo prende il dito sull'immagine?'.
-                 * ⚠️ **Il glifo e il nome cambiano con lui**, perché sono la cosa che dice che cosa
-                 * si sta per armare: un mirino su un modulo che di colori non parla direbbe il
-                 * falso.
-                 */
-                val armabile = chosen.extra == Extra.BANDS || chosen.extra == Extra.CORNERS
-                if (armabile) {
-                    IconButton(
-                        onClick = { gaze.aiming = !gaze.aiming },
-                        enabled = ready && !busy
-                    ) {
-                        Icon(
-                            imageVector = if (chosen.extra == Extra.CORNERS) {
-                                Icons.Filled.Transform
-                            } else {
-                                Glyphs.Aim
-                            },
-                            contentDescription = stringResource(
-                                if (chosen.extra == Extra.CORNERS) {
-                                    R.string.look_corners
-                                } else {
-                                    R.string.look_target
-                                }
-                            ),
-                            tint = if (gaze.aiming) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                LocalContentColor.current
-                            }
-                        )
-                    }
-                }
-                /*
-                 * ⚠️⚠️ **'AUTO' SCRIVE NEI CURSORI E BASTA, ED È QUELLO CHE LO RENDE ANNULLABILE**
-                 * (sua richiesta: *dev'essere annullabile*): quello che ne esce è un [Look] come un
-                 * altro, quindi entra nella storia dei passi e 'Annulla' lo disfa. Il conto, e
-                 * perché imita 'Colore automatico' di Photoshop con quattro cursori, vivono in
-                 * [Auto].
-                 * ⚠️ **Legge l'anteprima e non il file**: quello che si misura sono percentili e
-                 * medie, e su una riduzione valgono quanto sull'originale. Leggere il file pieno
-                 * costerebbe una pausa per una cifra che non si muove di un livello.
-                 * ⚠️ **Il glifo è di Material e nasce provvisorio**, come i due della `1.80`: se non
-                 * dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
-                 */
-                /*
-                 * ⚠️⚠️ **GLI STILI NON SONO PIÙ QUI, DALLA `2.50`: SONO L'OTTAVO MODULO** (campo
-                 * libero del giro della `2.40`, punto 1: *inserisci i modelli in un modulo a
-                 * parte*). Fino alla `2.40` un'icona in questa fila apriva un pannello sopra la
-                 * scheda, e la ragione che lo teneva fuori dalla fila dei moduli era l'altezza: un
-                 * elenco che cresce l'avrebbe alzata per tutti. Adesso quel corpo la riceve invece
-                 * di dettarla (vedi [SteadyBody]), e la ragione è caduta.
-                 */
-                /*
-                 * ⚠️⚠️ **'AUTO' COMPARE SOLO DOVE TOCCA QUALCOSA, DALLA `2.50`, ED È SUA
-                 * RICHIESTA** (stesso campo libero, punto 5: *l'icona di 'Auto' deve apparire solo
-                 * se è attivo 'Luce' o 'Colore'*): quel comando scrive nei quattro cursori della
-                 * Luce e nei due del bilanciamento del bianco, quindi altrove cambiava dei numeri
-                 * che non si vedono. La condizione la porta la tabella dei moduli ([Module.auto]),
-                 * come quella del colore mirato.
-                 */
-                val sorgente = origin
-                if (chosen.auto) {
-                    IconButton(
-                        onClick = {
-                            if (sorgente != null) {
-                                onLive { Auto.tuned(it, Auto.probe(sorgente)) }
-                                onSettled()
-                            }
-                        },
-                        enabled = ready && !busy && sorgente != null
-                    ) {
-                        Icon(Glyphs.Auto, stringResource(R.string.look_auto))
-                    }
-                }
-                IconButton(onClick = onUndo, enabled = canUndo && !busy) {
-                    Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))
-                }
-                IconButton(onClick = onRedo, enabled = canRedo && !busy) {
-                    Icon(Glyphs.EditRedo, stringResource(R.string.editor_redo))
-                }
-                IconButton(onClick = onOriginal, enabled = !look.idle && !busy) {
-                    Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
-                }
+                if (mirror) Comandi(
+                    look = look,
+                    chosen = chosen,
+                    gaze = gaze,
+                    origin = origin,
+                    ready = ready,
+                    busy = busy,
+                    canUndo = canUndo,
+                    canRedo = canRedo,
+                    mirror = true,
+                    onLive = onLive,
+                    onSettled = onSettled,
+                    onUndo = onUndo,
+                    onRedo = onRedo,
+                    onOriginal = onOriginal
+                ) else salva()
+                Spacer(modifier = Modifier.weight(1f))
+                if (mirror) salva() else Comandi(
+                    look = look,
+                    chosen = chosen,
+                    gaze = gaze,
+                    origin = origin,
+                    ready = ready,
+                    busy = busy,
+                    canUndo = canUndo,
+                    canRedo = canRedo,
+                    mirror = false,
+                    onLive = onLive,
+                    onSettled = onSettled,
+                    onUndo = onUndo,
+                    onRedo = onRedo,
+                    onOriginal = onOriginal
+                )
             }
         }
     }
 
+}
+
+/** Le icone della barra bassa dell'editor completo, nell'ordine in cui si disegnano col FAB a destra. */
+internal enum class Bar { AIM, AUTO, UNDO, REDO, ORIGINAL }
+
+/**
+ * L'ordine in cui la barra bassa disegna le sue icone, dato il lato del FAB.
+ *
+ * ⚠️⚠️ **LO SPECCHIO SI FERMA DAVANTI ALLA COPPIA DEL TEMPO, ED È LA SUA ECCEZIONE ALLA LETTERA**
+ * (*con la sola eccezione di 'Annulla'/'Ripristina', che devono essere sempre il primo a sinistra
+ * del secondo*): rovesciata, quella coppia metterebbe 'Ripristina' dove il dito cerca 'Annulla'.
+ * Le altre icone si specchiano tutte, perché un ordine che voglia dire qualcosa non ce l'hanno.
+ * ⚠️ **È una funzione pura e non una riga dentro la Row**, quindi il banco la misura chiamandola:
+ * uno specchio scritto a mano nel corpo si proverebbe solo montando la schermata e contando i
+ * pixel di cinque icone.
+ */
+internal fun barOrder(keys: List<Bar>, mirror: Boolean): List<Bar> {
+    if (!mirror) return keys
+    val fila = keys.reversed().toMutableList()
+    val undo = fila.indexOf(Bar.UNDO)
+    val redo = fila.indexOf(Bar.REDO)
+    if (undo >= 0 && redo >= 0 && redo < undo) {
+        fila[redo] = Bar.UNDO
+        fila[undo] = Bar.REDO
+    }
+    return fila
+}
+
+/**
+ * Le icone dei comandi della barra bassa, nell'ordine che [barOrder] detta.
+ *
+ * ⚠️ **Sono un pezzo a sé perché la fila si compone due volte**, una per lato: scritte dentro la
+ * Row con un `if` intorno, le cinque chiamate sarebbero due copie che divergono al primo comando
+ * nuovo.
+ */
+@Composable
+private fun Comandi(
+    look: Look,
+    chosen: Module,
+    gaze: Gaze,
+    origin: Bitmap?,
+    ready: Boolean,
+    busy: Boolean,
+    canUndo: Boolean,
+    canRedo: Boolean,
+    mirror: Boolean,
+    onLive: ((Look) -> Look) -> Unit,
+    onSettled: () -> Unit,
+    onUndo: () -> Unit,
+    onRedo: () -> Unit,
+    onOriginal: () -> Unit
+) {
+    val armabile = chosen.extra == Extra.BANDS || chosen.extra == Extra.CORNERS
+    val chiavi = buildList {
+        if (armabile) add(Bar.AIM)
+        if (chosen.auto) add(Bar.AUTO)
+        add(Bar.UNDO)
+        add(Bar.REDO)
+        add(Bar.ORIGINAL)
+    }
+    val sorgente = origin
+    for (voce in barOrder(chiavi, mirror)) when (voce) {
+        /*
+         * ⚠️⚠️ **IL COLORE MIRATO C'È DOVE IL MODULO HA UN BERSAGLIO DA SCEGLIERE, e non è una
+         * coincidenza**: quel gesto serve a dire *questo colore qui*, e ha senso solo dove esiste
+         * qualcosa da puntare, cioè una fascia dell'HSL. Negli altri moduli un cursore vale per
+         * tutta l'immagine, quindi non c'è niente da mirare.
+         * ⚠️⚠️ **ED È UN'ICONA E NON PIÙ UNA PASTIGLIA SCRITTA, DALLA `2.32`**: il nome resta come
+         * descrizione, cioè quello che un lettore di schermo annuncia e quello che il banco cerca,
+         * ed è lo stesso criterio dei sette gettoni dei moduli.
+         * ⚠️ **A dire che è acceso è il colore**: un `IconButton` non ha uno stato scelto, quindi
+         * il glifo passa all'accento quando la modalità è armata.
+         * ⚠️⚠️ **E DALLA `2.50` QUESTO TASTO SERVE A DUE MODULI, CIOÈ ARMA IL DITO SENZA DIRE CHE
+         * COSA FARÀ**: nell'HSL sceglie la fascia del colore toccato, nella Geometria tira uno dei
+         * quattro angoli. Il gesto lo decide la tabella dei moduli, che è dove vive già la domanda
+         * 'questo modulo prende il dito sull'immagine?'.
+         * ⚠️ **Il glifo e il nome cambiano con lui**, perché sono la cosa che dice che cosa si sta
+         * per armare: un mirino su un modulo che di colori non parla direbbe il falso.
+         */
+        Bar.AIM -> IconButton(
+            onClick = { gaze.aiming = !gaze.aiming },
+            enabled = ready && !busy
+        ) {
+            Icon(
+                imageVector = if (chosen.extra == Extra.CORNERS) {
+                    Icons.Filled.Transform
+                } else {
+                    Glyphs.Aim
+                },
+                contentDescription = stringResource(
+                    if (chosen.extra == Extra.CORNERS) {
+                        R.string.look_corners
+                    } else {
+                        R.string.look_target
+                    }
+                ),
+                tint = if (gaze.aiming) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    LocalContentColor.current
+                }
+            )
+        }
+        /*
+         * ⚠️⚠️ **'AUTO' SCRIVE NEI CURSORI E BASTA, ED È QUELLO CHE LO RENDE ANNULLABILE** (sua
+         * richiesta: *dev'essere annullabile*): quello che ne esce è un [Look] come un altro,
+         * quindi entra nella storia dei passi e 'Annulla' lo disfa. Il conto, e perché imita
+         * 'Colore automatico' di Photoshop con quattro cursori, vivono in [Auto].
+         * ⚠️ **Legge l'anteprima e non il file**: quello che si misura sono percentili e medie, e
+         * su una riduzione valgono quanto sull'originale. Leggere il file pieno costerebbe una
+         * pausa per una cifra che non si muove di un livello.
+         * ⚠️ **Il glifo è di Material e nasce provvisorio**, come i due della `1.80`: se non dice
+         * abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+         * ⚠️⚠️ **E COMPARE SOLO DOVE TOCCA QUALCOSA, DALLA `2.50`, ED È SUA RICHIESTA** (campo
+         * libero del giro della `2.40`, punto 5: *l'icona di 'Auto' deve apparire solo se è attivo
+         * 'Luce' o 'Colore'*): quel comando scrive nei quattro cursori della Luce e nei due del
+         * bilanciamento del bianco, quindi altrove cambiava dei numeri che non si vedono. La
+         * condizione la porta la tabella dei moduli ([Module.auto]), come quella del colore
+         * mirato.
+         */
+        Bar.AUTO -> IconButton(
+            onClick = {
+                if (sorgente != null) {
+                    onLive { Auto.tuned(it, Auto.probe(sorgente)) }
+                    onSettled()
+                }
+            },
+            enabled = ready && !busy && sorgente != null
+        ) {
+            Icon(Glyphs.Auto, stringResource(R.string.look_auto))
+        }
+        /*
+         * ⚠️⚠️ **GLI STILI NON SONO PIÙ UN'ICONA DI QUESTA FILA, DALLA `2.50`: SONO L'OTTAVO
+         * MODULO** (campo libero del giro della `2.40`, punto 1: *inserisci i modelli in un modulo
+         * a parte*). ⚠️ **Ma dalla `2.52` qui torna il comando che SALVA**, che è un'altra cosa: il
+         * modulo è dove si scelgono, questo è dove se ne fa uno nuovo, e vive fuori dall'elenco che
+         * scorre perché un comando che se ne va con le righe si ritrova risalendo.
+         */
+        Bar.UNDO -> IconButton(onClick = onUndo, enabled = canUndo && !busy) {
+            Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))
+        }
+        Bar.REDO -> IconButton(onClick = onRedo, enabled = canRedo && !busy) {
+            Icon(Glyphs.EditRedo, stringResource(R.string.editor_redo))
+        }
+        Bar.ORIGINAL -> IconButton(onClick = onOriginal, enabled = !look.idle && !busy) {
+            Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
+        }
+    }
 }
 
 /**
@@ -2927,6 +3047,13 @@ private fun ModuleBody(
      * stili, che ci scorre dentro (vedi [Extra.PRESETS]).
      */
     height: Dp,
+    /**
+     * Gli stili salvati, per il solo corpo che li elenca.
+     *
+     * ⚠️ **Arrivano dalla schermata e non si leggono qui**, perché dalla `2.52` a crearli è un
+     * comando che vive sulla barra: il perché per esteso è su [PresetBody].
+     */
+    mine: List<Preset>,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit
@@ -2942,8 +3069,8 @@ private fun ModuleBody(
      */
     if (mod.extra == Extra.PRESETS) {
         PresetBody(
-            look = look,
             height = height,
+            mine = mine,
             onPick = { scelto, add ->
                 onLive { if (add) scelto.addTo(it) else scelto.applyTo(it) }
                 onSettled()

@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Стовпці в сітках</string>
     <string name="settings_folder_columns_desc">Скільки стовпців показують сітка тек і сітка зображень. Більше стовпців вміщує більше на екрані та зменшує кожну плитку. При чотирьох назву теки зазвичай обрізає.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
-    <string name="settings_hand">Положення плавучих кнопок</string>
-    <string name="settings_hand_desc">Сторона екрана, на якій поверх нього лежать кнопки меню (\'FAB\').</string>
+    <string name="settings_hand">Бажане розташування кнопок</string>
+    <string name="settings_hand_desc">Бажаний бік для основних кнопок під час керування однією рукою, для правшів і шульг. Він задає розташування плаваючої кнопки дії (\'FAB\'), частини кнопок навігації та елементів інтерфейсу редактора.</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
     <string name="settings_list_path">Список файлів: копіювати шлях теки</string>
@@ -473,7 +473,7 @@
     <string name="look_presets">Стилі</string>
     <string name="look_preset_save">Зберегти стиль</string>
     <string name="look_preset_name">Назва пресета</string>
-    <string name="look_preset_mine">Ваші стилі</string>
+    <string name="look_preset_mine">Збережені стилі</string>
     <string name="look_preset_house">Стилі AIV</string>
     <string name="look_preset_remove">Видалити</string>
     <string name="look_preset_gone">Пресет видалено</string>
@@ -582,7 +582,7 @@
     <string name="settings_buttons_after">Пересунути пізніше</string>
     <string name="look_corners">Кути</string>
     <string name="look_preset_add">Додати до поточного стилю</string>
-    <string name="settings_styles">Стилі обробки</string>
+    <string name="settings_styles">Стилі редактора</string>
     <string name="settings_styles_desc">Змінюйте порядок, перейменовуйте та видаляйте стилі повного редактора: і вбудовані, і власні.</string>
     <string name="settings_styles_none">Ви ще не зберегли жодного стилю.</string>
     <string name="settings_styles_reset">Відновити</string>

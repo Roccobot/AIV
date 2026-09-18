@@ -103,7 +103,7 @@
     <string name="look_presets">Stili</string>
     <string name="look_preset_save">Salva stile</string>
     <string name="look_preset_name">Nome dello stile</string>
-    <string name="look_preset_mine">Stili personali</string>
+    <string name="look_preset_mine">Stili salvati</string>
     <string name="look_preset_house">Stili AIV</string>
     <string name="look_preset_remove">Elimina</string>
     <string name="look_preset_gone">Stile eliminato</string>
@@ -171,7 +171,7 @@
     <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve.</string>
     <string name="settings_download_path">Scegli il percorso di download</string>
     <string name="settings_rename_download">Rinomina e download</string>
-    <string name="settings_styles">Stili di modifica</string>
+    <string name="settings_styles">Stili dell\'editor</string>
     <string name="settings_styles_desc">Riordina, rinomina o elimina gli stili dell\'editor completo, sia quelli dell\'app sia i tuoi.</string>
     <string name="settings_styles_none">Non hai ancora salvato nessuno stile.</string>
     <string name="settings_styles_reset">Ripristina</string>
@@ -270,8 +270,8 @@
     <string name="settings_folder_columns">Colonne delle griglie</string>
     <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>
-    <string name="settings_hand">Posizione dei tasti flottanti</string>
-    <string name="settings_hand_desc">Il lato dello schermo che ospita i tasti-menu in sovrapposizione fissa (\'FAB\').</string>
+    <string name="settings_hand">Posizione preferita dei pulsanti</string>
+    <string name="settings_hand_desc">Il lato preferito per i tasti principali nell\'uso a una mano per destri e mancini. Definisce il posizionamento del tasto d\'azione fluttuante (\'FAB\'), di alcuni pulsanti di navigazione e di parti di UI dell\'editor.</string>
     <string name="settings_right">Destra</string>
     <string name="settings_left">Sinistra</string>
     <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>

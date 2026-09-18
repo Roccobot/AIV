@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">கட்டங்களின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">கோப்புறைக் கட்டமும் படக் கட்டமும் காட்டும் நிரல்களின் எண்ணிக்கை. மேலும் நிரல்கள் திரையில் அதிகம் அடங்கும், ஒவ்வொரு கட்டமும் சிறியதாகும். நான்கில் கோப்புறையின் பெயர் பொதுவாக துண்டிக்கப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
-    <string name="settings_hand">மிதக்கும் பொத்தான்களின் இடம்</string>
-    <string name="settings_hand_desc">மெனு பொத்தான்கள் திரையின் மேல் அமர்ந்திருக்கும் பக்கம் (\'FAB\').</string>
+    <string name="settings_hand">பொத்தான்களின் விருப்ப இடம்</string>
+    <string name="settings_hand_desc">ஒரு கையால் பயன்படுத்தும்போது முதன்மைப் பொத்தான்களுக்கான விருப்பப் பக்கம், வலது கை மற்றும் இடது கை பயனர்களுக்கு. இது மிதக்கும் செயல் பொத்தான் (\'FAB\'), சில வழிசெலுத்தல் பொத்தான்கள் மற்றும் திருத்தியின் UI பகுதிகளின் இடத்தை நிர்ணயிக்கிறது.</string>
     <string name="settings_right">வலது</string>
     <string name="settings_left">இடது</string>
     <string name="settings_list_path">கோப்புப் பட்டியல்: கோப்புறைப் பாதையையும் நகலெடு</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">பாணிகள்</string>
     <string name="look_preset_save">பாணியைச் சேமி</string>
     <string name="look_preset_name">முன்னமைவின் பெயர்</string>
-    <string name="look_preset_mine">உங்கள் பாணிகள்</string>
+    <string name="look_preset_mine">சேமித்த பாணிகள்</string>
     <string name="look_preset_house">AIV பாணிகள்</string>
     <string name="look_preset_remove">அகற்று</string>
     <string name="look_preset_gone">முன்னமைவு அகற்றப்பட்டது</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">பின்னால் நகர்த்து</string>
     <string name="look_corners">மூலைகள்</string>
     <string name="look_preset_add">தற்போதைய பாணியில் சேர்</string>
-    <string name="settings_styles">திருத்தப் பாணிகள்</string>
+    <string name="settings_styles">திருத்தியின் பாணிகள்</string>
     <string name="settings_styles_desc">முழு எடிட்டரின் பாணிகளை மறுவரிசைப்படுத்தவும், பெயர் மாற்றவும் அல்லது நீக்கவும்; செயலியுடையவை மற்றும் உங்களுடையவை.</string>
     <string name="settings_styles_none">நீங்கள் இதுவரை எந்தப் பாணியையும் சேமிக்கவில்லை.</string>
     <string name="settings_styles_reset">மீட்டமை</string>

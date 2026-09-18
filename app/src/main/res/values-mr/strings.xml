@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">जाळ्यांतील स्तंभ</string>
     <string name="settings_folder_columns_desc">संचिकासंच जाळी आणि प्रतिमा जाळी किती स्तंभ दाखवतील. अधिक स्तंभांत पडद्यावर अधिक गोष्टी मावतात आणि प्रत्येक खण लहान होतो. चारवर संचिकासंचाचे नाव बहुधा तुटते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
-    <string name="settings_hand">तरंगत्या बटणांची स्थिती</string>
-    <string name="settings_hand_desc">पडद्याची ती बाजू जिथे त्याच्यावर ठेवलेली मेन्यू बटणे राहतात (\'FAB\').</string>
+    <string name="settings_hand">बटणांची पसंतीची स्थिती</string>
+    <string name="settings_hand_desc">एका हाताने वापरताना मुख्य बटणांसाठी पसंतीची बाजू, उजव्या आणि डाव्या हाताच्या वापरकर्त्यांसाठी. ती फ्लोटिंग अ‍ॅक्शन बटण (\'FAB\'), काही नेव्हिगेशन बटणे आणि संपादकाच्या UI च्या भागांची जागा ठरवते.</string>
     <string name="settings_right">उजवीकडे</string>
     <string name="settings_left">डावीकडे</string>
     <string name="settings_list_path">संचिका यादी: संचिकासंचाचा मार्गही प्रत करा</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">शैली</string>
     <string name="look_preset_save">शैली जतन करा</string>
     <string name="look_preset_name">प्रीसेटचे नाव</string>
-    <string name="look_preset_mine">तुमच्या शैली</string>
+    <string name="look_preset_mine">जतन केलेल्या शैली</string>
     <string name="look_preset_house">AIV शैली</string>
     <string name="look_preset_remove">काढा</string>
     <string name="look_preset_gone">प्रीसेट काढला</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">नंतर हलवा</string>
     <string name="look_corners">कोपरे</string>
     <string name="look_preset_add">सध्याच्या शैलीत जोडा</string>
-    <string name="settings_styles">संपादन शैली</string>
+    <string name="settings_styles">संपादकाच्या शैली</string>
     <string name="settings_styles_desc">पूर्ण संपादकाच्या शैली पुन्हा क्रमवारी लावा, नाव बदला किंवा हटवा, अ‍ॅपच्या आणि तुमच्या दोन्ही.</string>
     <string name="settings_styles_none">तुम्ही अद्याप कोणतीही शैली जतन केलेली नाही.</string>
     <string name="settings_styles_reset">पुनर्संचयित करा</string>

@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Colunas nas grades</string>
     <string name="settings_folder_columns_desc">Quantas colunas a grade de pastas e a de imagens mostram. Mais colunas cabem mais coisas na tela e encolhem cada bloco. Em quatro, o nome da pasta costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
-    <string name="settings_hand">Posição dos botões flutuantes</string>
-    <string name="settings_hand_desc">O lado da tela que abriga os botões de menu sobrepostos a ela (\'FAB\').</string>
+    <string name="settings_hand">Posição preferida dos botões</string>
+    <string name="settings_hand_desc">O lado preferido para os botões principais no uso com uma só mão, para destros e canhotos. Define onde ficam o botão de ação flutuante (\'FAB\'), alguns botões de navegação e partes da interface do editor.</string>
     <string name="settings_right">Direita</string>
     <string name="settings_left">Esquerda</string>
     <string name="settings_list_path">Lista de arquivos: copiar o caminho da pasta</string>
@@ -457,7 +457,7 @@
     <string name="look_presets">Estilos</string>
     <string name="look_preset_save">Guardar estilo</string>
     <string name="look_preset_name">Nome da predefinição</string>
-    <string name="look_preset_mine">Os teus estilos</string>
+    <string name="look_preset_mine">Estilos salvos</string>
     <string name="look_preset_house">Estilos AIV</string>
     <string name="look_preset_remove">Remover</string>
     <string name="look_preset_gone">Predefinição removida</string>
@@ -565,7 +565,7 @@
     <string name="settings_buttons_after">Mover para depois</string>
     <string name="look_corners">Cantos</string>
     <string name="look_preset_add">Adicionar ao estilo atual</string>
-    <string name="settings_styles">Estilos de edição</string>
+    <string name="settings_styles">Estilos do editor</string>
     <string name="settings_styles_desc">Reordena, renomeia ou remove os estilos do editor completo, tanto os da app como os teus.</string>
     <string name="settings_styles_none">Ainda não guardaste nenhum estilo.</string>
     <string name="settings_styles_reset">Restaurar</string>

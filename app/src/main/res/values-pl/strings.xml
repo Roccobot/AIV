@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Kolumny w siatkach</string>
     <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
-    <string name="settings_hand">Położenie przycisków pływających</string>
-    <string name="settings_hand_desc">Strona ekranu, na której leżą nałożone na niego przyciski menu (\'FAB\').</string>
+    <string name="settings_hand">Preferowana pozycja przycisków</string>
+    <string name="settings_hand_desc">Preferowana strona dla głównych przycisków przy obsłudze jedną ręką, dla praworęcznych i leworęcznych. Określa położenie pływającego przycisku akcji (\'FAB\'), części przycisków nawigacji i fragmentów interfejsu edytora.</string>
     <string name="settings_right">Prawa</string>
     <string name="settings_left">Lewa</string>
     <string name="settings_list_path">Lista plików: kopiuj ścieżkę folderu</string>
@@ -473,7 +473,7 @@
     <string name="look_presets">Style</string>
     <string name="look_preset_save">Zapisz styl</string>
     <string name="look_preset_name">Nazwa ustawienia</string>
-    <string name="look_preset_mine">Twoje style</string>
+    <string name="look_preset_mine">Zapisane style</string>
     <string name="look_preset_house">Style AIV</string>
     <string name="look_preset_remove">Usuń</string>
     <string name="look_preset_gone">Usunięto ustawienie</string>
@@ -582,7 +582,7 @@
     <string name="settings_buttons_after">Przesuń później</string>
     <string name="look_corners">Narożniki</string>
     <string name="look_preset_add">Dodaj do bieżącego stylu</string>
-    <string name="settings_styles">Style edycji</string>
+    <string name="settings_styles">Style edytora</string>
     <string name="settings_styles_desc">Zmień kolejność, nazwę lub usuń style pełnego edytora: zarówno wbudowane, jak i własne.</string>
     <string name="settings_styles_none">Nie zapisano jeszcze żadnego stylu.</string>
     <string name="settings_styles_reset">Przywróć</string>

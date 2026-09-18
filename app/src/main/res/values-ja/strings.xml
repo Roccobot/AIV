@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">一覧の列数</string>
     <string name="settings_folder_columns_desc">フォルダ一覧と画像一覧の列数です。列を増やすと一度に多く表示され、各タイルは小さくなります。4 列ではフォルダ名がたいてい途中で切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
-    <string name="settings_hand">フローティングボタンの位置</string>
-    <string name="settings_hand_desc">メニューを開くボタンが画面に重なって置かれる側です（\'FAB\'）。</string>
+    <string name="settings_hand">ボタンの優先位置</string>
+    <string name="settings_hand_desc">片手で使うときにメインのボタンを置く側です。右利きにも左利きにも合わせられます。フローティング操作ボタン（\'FAB\'）や一部のナビゲーションボタン、エディターの UI の一部の位置を決めます。</string>
     <string name="settings_right">右</string>
     <string name="settings_left">左</string>
     <string name="settings_list_path">ファイル一覧: フォルダーのパスもコピー</string>
@@ -425,7 +425,7 @@
     <string name="look_presets">スタイル</string>
     <string name="look_preset_save">スタイルを保存</string>
     <string name="look_preset_name">プリセット名</string>
-    <string name="look_preset_mine">自分のスタイル</string>
+    <string name="look_preset_mine">保存したスタイル</string>
     <string name="look_preset_house">AIV のスタイル</string>
     <string name="look_preset_remove">削除</string>
     <string name="look_preset_gone">プリセットを削除しました</string>
@@ -531,7 +531,7 @@
     <string name="settings_buttons_after">後ろへ移動</string>
     <string name="look_corners">四隅</string>
     <string name="look_preset_add">現在の調整に加える</string>
-    <string name="settings_styles">編集スタイル</string>
+    <string name="settings_styles">エディターのスタイル</string>
     <string name="settings_styles_desc">完全版エディターのスタイルを並べ替え、名前変更、削除できます。内蔵のものも自分のものも対象です。</string>
     <string name="settings_styles_none">まだスタイルを保存していません。</string>
     <string name="settings_styles_reset">元に戻す</string>

@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">ফোল্ডার গ্রিড ও ছবির গ্রিড কতগুলি কলাম দেখাবে। বেশি কলামে পর্দায় বেশি জিনিস আঁটে এবং প্রতিটি ঘর ছোট হয়। চারটিতে ফোল্ডারের নাম সাধারণত কেটে যায়।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
-    <string name="settings_hand">ভাসমান বোতামের অবস্থান</string>
-    <string name="settings_hand_desc">পর্দার যে দিকে মেনু বোতামগুলি তার উপরে বসানো থাকে (\'FAB\')।</string>
+    <string name="settings_hand">বোতামের পছন্দের অবস্থান</string>
+    <string name="settings_hand_desc">এক হাতে ব্যবহারের সময় প্রধান বোতামগুলির পছন্দের দিক, ডানহাতি ও বাঁহাতিদের জন্য। এটি ভাসমান অ্যাকশন বোতাম (\'FAB\'), কিছু নেভিগেশন বোতাম এবং সম্পাদকের UI-এর অংশগুলির অবস্থান ঠিক করে।</string>
     <string name="settings_right">ডানে</string>
     <string name="settings_left">বামে</string>
     <string name="settings_list_path">ফাইল তালিকা: ফোল্ডারের পথও কপি করুন</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">স্টাইল</string>
     <string name="look_preset_save">স্টাইল সংরক্ষণ</string>
     <string name="look_preset_name">প্রিসেটের নাম</string>
-    <string name="look_preset_mine">আপনার স্টাইল</string>
+    <string name="look_preset_mine">সংরক্ষিত স্টাইল</string>
     <string name="look_preset_house">AIV স্টাইল</string>
     <string name="look_preset_remove">সরান</string>
     <string name="look_preset_gone">প্রিসেট সরানো হয়েছে</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">পরে সরান</string>
     <string name="look_corners">কোণ</string>
     <string name="look_preset_add">বর্তমান স্টাইলে যোগ করুন</string>
-    <string name="settings_styles">সম্পাদনার স্টাইল</string>
+    <string name="settings_styles">সম্পাদকের স্টাইল</string>
     <string name="settings_styles_desc">সম্পূর্ণ সম্পাদকের স্টাইল সাজান, নাম বদলান বা মুছুন, অ্যাপের নিজস্ব ও আপনার দুই-ই।</string>
     <string name="settings_styles_none">আপনি এখনও কোনও স্টাইল সংরক্ষণ করেননি।</string>
     <string name="settings_styles_reset">পুনরুদ্ধার</string>

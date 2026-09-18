@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Kolom pada kisi</string>
     <string name="settings_folder_columns_desc">Berapa kolom yang ditampilkan kisi folder dan kisi gambar. Lebih banyak kolom memuat lebih banyak di layar dan mengecilkan setiap petak. Pada empat, nama folder biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
-    <string name="settings_hand">Posisi tombol mengambang</string>
-    <string name="settings_hand_desc">Sisi layar yang menampung tombol menu yang bertumpuk di atasnya (\'FAB\').</string>
+    <string name="settings_hand">Posisi tombol yang disukai</string>
+    <string name="settings_hand_desc">Sisi yang disukai untuk tombol utama saat memakai ponsel dengan satu tangan, bagi yang kidal maupun tidak. Ini menentukan letak tombol aksi mengambang (\'FAB\'), beberapa tombol navigasi, dan bagian antarmuka editor.</string>
     <string name="settings_right">Kanan</string>
     <string name="settings_left">Kiri</string>
     <string name="settings_list_path">Daftar berkas: salin juga jalur foldernya</string>
@@ -425,7 +425,7 @@
     <string name="look_presets">Gaya</string>
     <string name="look_preset_save">Simpan gaya</string>
     <string name="look_preset_name">Nama prasetel</string>
-    <string name="look_preset_mine">Gaya milikmu</string>
+    <string name="look_preset_mine">Gaya tersimpan</string>
     <string name="look_preset_house">Gaya AIV</string>
     <string name="look_preset_remove">Hapus</string>
     <string name="look_preset_gone">Prasetel dihapus</string>
@@ -531,7 +531,7 @@
     <string name="settings_buttons_after">Pindah ke belakang</string>
     <string name="look_corners">Sudut</string>
     <string name="look_preset_add">Tambahkan ke gaya saat ini</string>
-    <string name="settings_styles">Gaya penyuntingan</string>
+    <string name="settings_styles">Gaya editor</string>
     <string name="settings_styles_desc">Ubah urutan, ganti nama, atau hapus gaya editor lengkap, baik bawaan maupun milikmu.</string>
     <string name="settings_styles_none">Kamu belum menyimpan gaya apa pun.</string>
     <string name="settings_styles_reset">Pulihkan</string>

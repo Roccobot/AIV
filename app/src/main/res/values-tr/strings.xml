@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">Izgaralardaki sütunlar</string>
     <string name="settings_folder_columns_desc">Klasör ızgarasının ve resim ızgarasının kaç sütun gösterdiği. Daha çok sütun ekrana daha çok sığdırır ve her karoyu küçültür. Dörtte klasör adı genellikle kısaltılır.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
-    <string name="settings_hand">Kayan düğmelerin konumu</string>
-    <string name="settings_hand_desc">Menü düğmelerinin ekranın üzerine yerleştiği taraf (\'FAB\').</string>
+    <string name="settings_hand">Düğmelerin tercih edilen konumu</string>
+    <string name="settings_hand_desc">Tek elle kullanımda ana düğmeler için tercih edilen taraf; sağ ve sol elini kullananlar için. Kayan işlem düğmesinin (\'FAB\'), bazı gezinme düğmelerinin ve düzenleyici arayüzünün bazı bölümlerinin yerini belirler.</string>
     <string name="settings_right">Sağ</string>
     <string name="settings_left">Sol</string>
     <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">Stiller</string>
     <string name="look_preset_save">Stili kaydet</string>
     <string name="look_preset_name">Hazır ayar adı</string>
-    <string name="look_preset_mine">Senin stillerin</string>
+    <string name="look_preset_mine">Kaydedilen stiller</string>
     <string name="look_preset_house">AIV stilleri</string>
     <string name="look_preset_remove">Kaldır</string>
     <string name="look_preset_gone">Hazır ayar kaldırıldı</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">Arkaya al</string>
     <string name="look_corners">Köşeler</string>
     <string name="look_preset_add">Geçerli stile ekle</string>
-    <string name="settings_styles">Düzenleme stilleri</string>
+    <string name="settings_styles">Düzenleyici stilleri</string>
     <string name="settings_styles_desc">Tam düzenleyicinin stillerini yeniden sırala, adlandır veya sil: hem uygulamanınkileri hem de kendininkileri.</string>
     <string name="settings_styles_none">Henüz hiç stil kaydetmedin.</string>
     <string name="settings_styles_reset">Geri yükle</string>

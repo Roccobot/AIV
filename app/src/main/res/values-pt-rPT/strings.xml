@@ -127,7 +127,8 @@
     <!-- tela -> ecra, e abrigar -> alojar: duas das palavras que ja mudam no resto deste
          ficheiro. A frase foi reescrita na 1.60 e ja nao fala de grelhas, por isso o
          comentario antigo, que era sobre grade -> grelha, deixou de dizer a verdade. -->
-    <string name="settings_hand_desc">O lado do ecrã que aloja os botões de menu sobrepostos a ele (\'FAB\').</string>
+    <string name="settings_hand_desc">O lado preferido para os botões principais na utilização com uma só mão, para destros e esquerdinos. Define onde ficam o botão de ação flutuante (\'FAB\'), alguns botões de navegação e partes da interface do editor.</string>
+    <string name="look_preset_mine">Estilos guardados</string>
     <!-- aplicacao/aplicativo, e Repor/Redefinir: due parole che cambiano fra le due
          varianti come quelle elencate in testa a questo file. -->
     <string name="settings_ui_theme">Tema da aplicação</string>

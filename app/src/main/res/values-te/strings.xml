@@ -120,8 +120,8 @@
     <string name="settings_folder_columns">గడుల్లోని నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">సంచయ గడి, చిత్ర గడి ఎన్ని నిలువు వరుసలు చూపాలి. ఎక్కువ నిలువు వరుసలు తెరపై ఎక్కువ ఇముడ్చుతాయి, ప్రతి గడి చిన్నదవుతుంది. నాలుగు వద్ద సంచయం పేరు సాధారణంగా తెగిపోతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>
-    <string name="settings_hand">తేలియాడే బటన్ల స్థానం</string>
-    <string name="settings_hand_desc">మెను బటన్లు తెరపై పైన ఉంచబడే వైపు (\'FAB\').</string>
+    <string name="settings_hand">బటన్ల ప్రాధాన్య స్థానం</string>
+    <string name="settings_hand_desc">ఒక చేతితో వాడేటప్పుడు ముఖ్య బటన్‌లకు ప్రాధాన్య వైపు, కుడిచేతి మరియు ఎడమచేతి వాడకందారులకు. ఇది తేలియాడే చర్య బటన్ (\'FAB\'), కొన్ని నావిగేషన్ బటన్‌లు మరియు ఎడిటర్ UI భాగాల స్థానాన్ని నిర్ణయిస్తుంది.</string>
     <string name="settings_right">కుడి</string>
     <string name="settings_left">ఎడమ</string>
     <string name="settings_list_path">దస్త్ర జాబితా: సంచయ మార్గాన్ని కూడా కాపీ చెయ్యి</string>
@@ -441,7 +441,7 @@
     <string name="look_presets">శైలులు</string>
     <string name="look_preset_save">శైలిని సేవ్ చేయి</string>
     <string name="look_preset_name">ప్రీసెట్ పేరు</string>
-    <string name="look_preset_mine">మీ శైలులు</string>
+    <string name="look_preset_mine">సేవ్ చేసిన శైలులు</string>
     <string name="look_preset_house">AIV శైలులు</string>
     <string name="look_preset_remove">తొలగించు</string>
     <string name="look_preset_gone">ప్రీసెట్ తొలగించబడింది</string>
@@ -548,7 +548,7 @@
     <string name="settings_buttons_after">వెనక్కి జరుపు</string>
     <string name="look_corners">మూలలు</string>
     <string name="look_preset_add">ప్రస్తుత శైలికి జోడించు</string>
-    <string name="settings_styles">సవరణ శైలులు</string>
+    <string name="settings_styles">ఎడిటర్ శైలులు</string>
     <string name="settings_styles_desc">పూర్తి ఎడిటర్ శైలులను క్రమం మార్చండి, పేరు మార్చండి లేదా తొలగించండి; యాప్‌వి మరియు మీవి రెండూ.</string>
     <string name="settings_styles_none">మీరు ఇంకా ఏ శైలినీ సేవ్ చేయలేదు.</string>
     <string name="settings_styles_reset">పునరుద్ధరించు</string>
