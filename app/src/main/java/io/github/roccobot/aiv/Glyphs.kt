@@ -508,6 +508,17 @@ object Glyphs {
     val Auto: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_auto)
 
+    /**
+     * Il segnalibro col più: il comando 'Salva stile' della barra dell'editor completo.
+     *
+     * ⚠️ **È il glifo di Material ammorbidito**, e non un disegno nuovo: la sua istruzione del
+     * giro della `2.54` dice *Va bene quello di Material, ma con l'arrotondamento*, quindi il
+     * disegno resta `Icons.Filled.BookmarkAdd` e cambia il solo trattamento. Lo scarto misurato
+     * e il perché di ogni raccordo vivono in testa al file.
+     */
+    val PresetSave: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_preset_save)
+
     /*
      * ⚠️⚠️ **`ic_launcher_foreground.xml` NON ENTRA QUI, e non è una dimenticanza**: quello è
      * l'icona dell'app, si disegna con `Image` sopra il proprio fondo colorato e **non è

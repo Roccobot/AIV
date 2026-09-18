@@ -842,7 +842,9 @@ class SviluppoTest {
      */
     @Test
     fun `il modulo curve porta i canali e nessun cursore`() {
-        banco.setContent { Scena() }
+        // ⚠️ Dalla `2.55` le Curve sono penultime, quindi il loro gettone va portato in testa o
+        // cade fuori dalla larghezza del banco: il perché vive su [davanti].
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_TONE)) }
         pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
@@ -2048,7 +2050,8 @@ class SviluppoTest {
      */
     @Test
     fun `nelle curve un punto nasce e si muove nello stesso gesto`() {
-        banco.setContent { Scena() }
+        // ⚠️ Dalla `2.55` il gettone delle Curve si raggiunge solo portandolo in testa: [davanti].
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_TONE)) }
         pronta()
         modulo(R.string.look_tone)
 
@@ -2143,7 +2146,8 @@ class SviluppoTest {
      */
     @Test
     fun `un punto nato in mezzo non trascina il bordo`() {
-        banco.setContent { Scena() }
+        // ⚠️ Come sopra: dalla `2.55` il gettone delle Curve si raggiunge solo portandolo in testa.
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_TONE)) }
         pronta()
         modulo(R.string.look_tone)
 
@@ -2440,6 +2444,21 @@ class SviluppoTest {
         banco.waitForIdle()
     }
 
+    /**
+     * L'ordine dei moduli con [chiave] in testa, e tutti gli altri dietro come sono.
+     *
+     * ⚠️⚠️ **UNA PROVA CHE TOCCA UN GETTONE NON PUÒ DIPENDERE DALL'ORDINE DI FABBRICA, E QUESTA
+     * FUNZIONE NASCE DA QUATTRO PROVE ROSSE**: col nono modulo la fila scorre, quindi quello che
+     * cade fuori dalla larghezza del banco non si può toccare, e il tocco non dà nessun errore
+     * (si contano zero cursori credendo di guardare un altro modulo). Fino alla `2.54` quelle
+     * prove montavano la fila **rovesciata**, che funzionava perché il loro bersaglio era in
+     * coda: con l'ordine nuovo della `2.55` quel rimedio le ha rotte tutte e quattro in un colpo.
+     * ⚠️ **Porta in testa invece di scrivere una fila a mano**, così l'elenco resta [MOD_KEYS] e
+     * quello che la prova misura è ancora il legame fra i due elenchi: un modulo che si
+     * dimenticasse della propria chiave sparirebbe dalla fila e la prova lo direbbe.
+     */
+    private fun davanti(chiave: PadKey): List<PadKey> = MOD_KEYS.sortedBy { it != chiave }
+
     /** Sceglie una fascia toccando la sua pastiglia. */
     private fun fascia(nome: Int) {
         banco.onNodeWithContentDescription(testo(nome)).performClick()
@@ -2605,14 +2624,16 @@ class SviluppoTest {
      * chiave in `MOD_KEYS`, e chi ne dimenticasse una sparirebbe dalla fila senza che niente dia
      * errore. Qui si misura dalla parte di chi tocca: il gettone c'è, e aprendolo compaiono i due
      * cursori che ha chiesto lui.
-     * ⚠️⚠️ **LA FILA SI MONTA ROVESCIATA, E SENZA QUELLA RIGA LA PROVA MENTIVA**: col nono gettone
-     * la fila scorre, quindi in coda la pastiglia cade fuori dalla larghezza del banco; il tocco
-     * non dà nessun errore e non cambia modulo, e si contavano zero cursori credendo di guardare
-     * gli Effetti. È la stessa trappola del sesto gettone della `2.30`.
+     * ⚠️⚠️ **IL GETTONE SI PORTA IN TESTA, E SENZA QUELLA RIGA LA PROVA MENTIVA**: col nono
+     * gettone la fila scorre, quindi in coda la pastiglia cade fuori dalla larghezza del banco; il
+     * tocco non dà nessun errore e non cambia modulo, e si contavano zero cursori credendo di
+     * guardare gli Effetti. È la stessa trappola del sesto gettone della `2.30`. ⚠️ **Fino alla
+     * `2.54` la fila si montava rovesciata**, e con l'ordine nuovo quel rimedio si è rovesciato
+     * addosso alla prova: il perché vive su [davanti].
      */
     @Test
     fun `il modulo Effetti porta i suoi tre cursori`() {
-        banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
         pronta()
 
         assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
@@ -2636,7 +2657,8 @@ class SviluppoTest {
      */
     @Test
     fun `il tocco lungo sugli Effetti azzera solo gli Effetti`() {
-        banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
+        // ⚠️ Il gettone si porta in testa, o cade fuori dalla larghezza del banco: vedi [davanti].
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
         pronta()
         modulo(R.string.look_light)
         muovi(1, 0.5f)
@@ -2694,6 +2716,19 @@ class SviluppoTest {
         assertTrue(
             "il velo si stima più lontano di quanto la chiarezza guardi",
             Effects.hazeReach(4000f) > Effects.clarityReach(4000f)
+        )
+        /*
+         * ⚠️⚠️ **LA TEXTURE È UNA BANDA DALLA `2.55`, E IL SUO RAGGIO INTERNO DEVE RESTARE IL PIÙ
+         * STRETTO DEI DUE**: quel cursore non parte dal pixel ma dalla media a `textureFine`, cioè
+         * dal raggio di serie della nitidezza, e quello che accentua è la differenza fra le due
+         * medie. Scambiati, la banda si rovescerebbe e il cursore farebbe il contrario senza che
+         * niente dia errore: è la forma esatta del difetto che il suo riscontro descriveva
+         * (*praticamente identico a Nitidezza*), cioè un cursore che non si distingue dall'altro.
+         */
+        assertEquals(2f * Effects.textureFine(1000f), Effects.textureFine(2000f), 1e-4f)
+        assertTrue(
+            "il raggio interno della banda deve essere più stretto di quello esterno",
+            Effects.textureFine(4000f) < Effects.textureReach(4000f)
         )
     }
 

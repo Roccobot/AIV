@@ -326,7 +326,13 @@ def spigoli(sotto, scala):
             continue
         # ⚠️ Un tratto piu corto della tolleranza di chiusura non e un lato: e il residuo di un
         # arrotondamento, e raccordarlo vorrebbe dire smussare un difetto di scrittura.
-        prima = ps[i - 1] if i > 0 else ps[-1]
+        # ⚠️⚠️ **MA IL VERTICE DELLA `M` FA ECCEZIONE QUANDO IL GIRO TORNA ESATTAMENTE LÌ, E
+        # SENZA QUESTA RIGA NON SI GUARDAVA MAI** (misurato il 2026-09-18 su `BookmarkAdd`, il
+        # segnalibro col più: dieci punte contate su dodici vere). Il lato che lo precede è la
+        # chiusura, lunga zero, quindi la guardia qui sotto lo saltava sempre; il lato vero è
+        # quello che arriva al penultimo punto, cioè allo stesso punto. I versi `versi()` li
+        # aggiusta già (vedi la nota sul giro doppio): mancava solo di non saltarlo.
+        prima = ps[i - 1] if i > 0 else (ps[-2] if doppio and len(ps) >= 3 else ps[-1])
         dopo = ps[(i + 1) % len(ps)]
         if (math.hypot(ps[i][0] - prima[0], ps[i][1] - prima[1]) < CHIUSA * scala
                 or math.hypot(dopo[0] - ps[i][0], dopo[1] - ps[i][1]) < CHIUSA * scala):

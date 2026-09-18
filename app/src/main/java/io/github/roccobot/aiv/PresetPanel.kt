@@ -13,8 +13,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -136,8 +134,12 @@ fun PresetBody(
  * anche il terzo comando della storia è un'icona pur non essendo stato nominato. Il nome resta
  * come descrizione parlata, cioè quello che un lettore di schermo annuncia e quello che il banco
  * cerca, come per i gettoni dei moduli e per 'Mirato'.
- * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32`: se non
- * dice abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+ * ⚠️⚠️ **IL GLIFO È QUELLO DI MATERIAL AMMORBIDITO, DALLA `2.55`, ED È SUA ISTRUZIONE**
+ * (riscontro del giro della `2.54`, voce `salva-glifo`: *Va bene quello di Material, ma con
+ * l'arrotondamento (pensaci tu)*). Nella `2.52` e nella `2.53` era `Icons.Filled.BookmarkAdd`
+ * crudo, dichiarato provvisorio come quello di 'Auto' nella `2.32`: adesso il disegno è lo
+ * stesso e il trattamento è quello dei nove glifi della `2.32`, quindi vive in `res/`
+ * (`ic_preset_save.xml`, con lo scarto misurato in testa al file).
  *
  * ⚠️ **È spento quando non c'è niente da salvare**, e la domanda se la fa [Preset.of]: quella
  * funzione tiene i soli cinque moduli di colore, quindi il [Look] che ne esce è a riposo
@@ -158,7 +160,7 @@ fun PresetSaveButton(
     val worth = !Preset.of("", look).look.idle
 
     IconButton(onClick = { naming = true }, enabled = enabled && worth) {
-        Icon(Icons.Filled.BookmarkAdd, stringResource(R.string.look_preset_save))
+        Icon(Glyphs.PresetSave, stringResource(R.string.look_preset_save))
     }
 
     if (naming) {

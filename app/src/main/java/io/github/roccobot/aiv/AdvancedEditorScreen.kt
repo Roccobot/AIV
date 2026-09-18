@@ -53,12 +53,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CropFree
-import androidx.compose.material.icons.filled.Deblur
 import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Transform
+import androidx.compose.material.icons.filled.Vignette
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -2218,6 +2218,14 @@ private val MODULES = listOf(
      * fila è l'ordine in cui si lavora, la catena l'ordine in cui il conto gira (il Dettaglio è
      * primo là perché legge i pixel del file, il Ritaglio ultimo perché taglia quello che il
      * resto ha prodotto).
+     * ⚠️⚠️ **E DALLA `2.55` LE CURVE E GLI EFFETTI SI SONO SCAMBIATI LA CASELLA, SU SUA
+     * ISTRUZIONE** (riscontro del giro della `2.54`: *il nuovo ordine dei moduli dev'essere:
+     * Dettagli, Effetti, Geometria, Ritaglio, Luce, Colore, HLS, Curve, Stili*). Quindi la frase
+     * del 2026-09-13 qui sopra resta la fonte di tutto il resto, e di suo cade il solo posto
+     * delle Curve.
+     * ⚠️ **Questo elenco e `MOD_KEYS` si riordinano insieme**, o le note che dicono 'nell'ordine
+     * in cui la fila li disegna' diventerebbero false: là vive il valore di fabbrica
+     * dell'archivio, qui il nome e il glifo di ognuno.
      */
     /*
      * ⚠️⚠️ **QUESTO NELLA CATENA È IL PRIMO E NELLA FILA È DIVENTATO IL PRIMO ANCHE LUI**, ed è
@@ -2234,18 +2242,30 @@ private val MODULES = listOf(
         icon = { Glyphs.ModDetail }
     ),
     /*
-     * ⚠️⚠️ **QUESTO NON HA CURSORI, ED È STATO IL PRIMO COSÌ**: quello che un cursore sa dire è
-     * 'quanto', e una curva dice 'quanto per ogni tono', cioè una cosa che nessuna manopola può
-     * esprimere. Il suo comando è il grafico, e la sua lista di righe è vuota.
+     * ⚠️⚠️ **IL NONO VIVE QUI DALLA `2.55`, SUBITO DOPO IL DETTAGLIO, ED È SUA ISTRUZIONE**
+     * (riscontro del giro della `2.54`: *il nuovo ordine dei moduli dev'essere: Dettagli, Effetti,
+     * Geometria, Ritaglio, Luce, Colore, HLS, Curve, Stili*). Nella `2.53` e nella `2.54` stava
+     * fra l'HSL e gli Stili.
+     * ⚠️ **La ragione di allora è caduta e se ne ricava una migliore**: diceva che parlava dei
+     * colori come i tre che lo precedevano, e adesso vive accanto all'unico altro modulo che
+     * **guarda i pixel vicini**, cioè quello con cui divide il bordo delle tessere del
+     * salvataggio (vedi `AdjustRender.bleedFor`).
+     * ⚠️⚠️ **E IL GLIFO NON È PIÙ `Deblur`, DALLA `2.55`, PERCHÉ ERA QUELLO DEL DETTAGLIO**
+     * (stesso riscontro, voce `eff-glifo`: *non va bene, perché è lo stesso di 'Dettagli'. Uno dei
+     * due deve cambiare*): i due disegni sono la stessa nuvola di punti, e nella fila si toccano.
+     * Adesso è `Vignette`, che in quella fila non somiglia a nessuno.
+     * ⚠️ **Resta di Material e non entra in `res/`**: è disegnato tutto di curve, quindi
+     * l'arrotondamento a 0,4 che lui ha chiesto per ogni disegno nuovo lo lascia a **zero pixel**
+     * di scarto, che è il criterio di `AIV/CLAUDE.md` § '🖌️ Come entra un disegno' applicato alla
+     * lettera (lo stesso caso di `Palette` e `Timeline` nella `2.32`).
      */
     Module(
-        PadKey.MOD_TONE,
-        R.string.look_tone,
-        rows = { emptyList() },
-        clear = { it.copy(tone = Tone.NONE) },
-        spent = { !it.tone.idle },
-        icon = { Icons.Filled.Timeline },
-        extra = Extra.CURVES
+        PadKey.MOD_EFFECTS,
+        R.string.look_effects,
+        rows = { EFFECT_ROWS },
+        clear = { it.copy(effects = Effects.NONE) },
+        spent = { !it.effects.idle },
+        icon = { Icons.Filled.Vignette }
     ),
     /*
      * ⚠️⚠️ **QUESTO NON CAMBIA IL COLORE DI UN PIXEL**: gli altri sei dicono di che colore è un
@@ -2319,23 +2339,21 @@ private val MODULES = listOf(
         extra = Extra.BANDS
     ),
     /*
-     * ⚠️⚠️ **IL NONO, DALLA `2.53`, E QUI STA PERCHÉ PARLA DEI COLORI COME I TRE QUI SOPRA**: la
-     * Luce dice quanta luce c'è, il Colore di che colore è, l'HSL quale colore, e questo che
-     * carattere ha il disegno fine. Gli Stili restano in coda perché sono il contenitore di tutti
-     * gli altri, e la voce di collaudo gli chiede se quel posto va bene.
-     * ⚠️⚠️ **GUARDA I PIXEL VICINI COME IL DETTAGLIO, e da lì viene quello che costa**: nel
-     * salvataggio le tessere prendono il bordo più largo dei due (vedi `AdjustRender`), e nel
-     * conto i suoi campioni si chiedono solo se un cursore è mosso.
-     * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32` e
-     * quello degli Stili nella `2.50`: se non dice abbastanza, il giro di collaudo lo chiede.
+     * ⚠️⚠️ **QUESTO NON HA CURSORI, ED È STATO IL PRIMO COSÌ**: quello che un cursore sa dire è
+     * 'quanto', e una curva dice 'quanto per ogni tono', cioè una cosa che nessuna manopola può
+     * esprimere. Il suo comando è il grafico, e la sua lista di righe è vuota.
+     * ⚠️⚠️ **DALLA `2.55` È PENULTIMO E NON PIÙ SECONDO**, ed è la stessa istruzione che ha
+     * portato gli Effetti al suo posto: i due si sono scambiati la casella. Chi legge una nota
+     * che lo dà per secondo sappia che valeva dalla `2.35` alla `2.54`.
      */
     Module(
-        PadKey.MOD_EFFECTS,
-        R.string.look_effects,
-        rows = { EFFECT_ROWS },
-        clear = { it.copy(effects = Effects.NONE) },
-        spent = { !it.effects.idle },
-        icon = { Icons.Filled.Deblur }
+        PadKey.MOD_TONE,
+        R.string.look_tone,
+        rows = { emptyList() },
+        clear = { it.copy(tone = Tone.NONE) },
+        spent = { !it.tone.idle },
+        icon = { Icons.Filled.Timeline },
+        extra = Extra.CURVES
     ),
     /*
      * ⚠️⚠️ **L'OTTAVO È L'ELENCO DEGLI STILI, DALLA `2.50`, ED È SUA ISTRUZIONE** (campo libero

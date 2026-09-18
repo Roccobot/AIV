@@ -923,20 +923,32 @@ val STEP_KEYS = listOf(
  * *dettagli, curve, geometria, ritaglio (nuovo default attivo all'avvio), luce, contrasto, HSL*),
  * quindi è lo stesso della tabella. Fino alla `2.34` era quello del giro della `2.29`, col Ritaglio
  * davanti e il Dettaglio in fondo.
+ * ⚠️⚠️ **E DALLA `2.55` LE CURVE E GLI EFFETTI SI SONO SCAMBIATI LA CASELLA** (riscontro del giro
+ * della `2.54`: *il nuovo ordine dei moduli dev'essere: Dettagli, Effetti, Geometria, Ritaglio,
+ * Luce, Colore, HLS, Curve, Stili*). Di quella frase del 2026-09-13 cade il solo posto delle
+ * Curve, e il Ritaglio resta il quarto, quindi [LOOK_FIRST] non si muove.
  * ⚠️⚠️ **CHI HA GIÀ RIORDINATO LA FILA TIENE IL SUO ORDINE, e non è un difetto**: questo elenco è
  * il valore di fabbrica, e `padOrderOf` lo usa solo per quello che l'archivio non dice. Una
  * preferenza esplicita non si rovescia con un aggiornamento.
  */
 val MOD_KEYS = listOf(
-    PadKey.MOD_DETAIL, PadKey.MOD_TONE, PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
-    PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX,
+    PadKey.MOD_DETAIL,
     /*
-     * ⚠️⚠️ **IL NONO ARRIVA QUI E NON IN CODA, DALLA `2.53`, ED È UNA SCELTA DICHIARATA**: gli
-     * Effetti parlano dei colori come la Luce, il Colore e l'HSL, mentre gli Stili sono il
-     * contenitore che porta tutti gli altri, quindi restano l'ultimo della fila. La voce di
-     * collaudo gli chiede se quel posto va bene.
+     * ⚠️⚠️ **IL NONO VIVE QUI DALLA `2.55`, ED È LA RISPOSTA ALLA DOMANDA CHE LA `2.53` GLI AVEVA
+     * FATTO**: là era fra l'HSL e gli Stili, per una scelta mia che la voce di collaudo gli
+     * chiedeva di confermare, e lui ha dettato l'ordine intero. Adesso vive accanto all'unico
+     * altro modulo che guarda i pixel vicini, cioè quello con cui divide il bordo delle tessere.
+     * ⚠️ **La sua chiave non cambia**: chi ha già riordinato la fila tiene il suo ordine, e
+     * questo elenco governa il solo valore di fabbrica.
      */
     PadKey.MOD_EFFECTS,
+    PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
+    PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX,
+    /*
+     * ⚠️ **Le Curve sono penultime dalla `2.55`**, e fino alla `2.54` erano seconde: è la stessa
+     * istruzione che ha portato gli Effetti al loro posto, cioè uno scambio e non due traslochi.
+     */
+    PadKey.MOD_TONE,
     /*
      * ⚠️⚠️ **L'OTTAVO ARRIVA IN CODA CON LA `2.50`, E SUL SUO SCHERMO SARÀ L'UNICO DA
      * RAGGIUNGERE SCORRENDO** (campo libero del giro della `2.40`: *nel mio caso, con il mio
