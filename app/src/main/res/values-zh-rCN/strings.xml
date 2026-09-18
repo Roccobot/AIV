@@ -421,6 +421,8 @@
     <string name="look_clarity">清晰度</string>
     <string name="look_texture">纹理</string>
     <string name="look_haze">薄雾</string>
+    <string name="look_grain">颗粒</string>
+    <string name="look_vignette">晕影</string>
     <string name="look_tone">曲线</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">色调曲线</string>

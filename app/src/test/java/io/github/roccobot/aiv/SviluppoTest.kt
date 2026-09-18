@@ -2617,7 +2617,7 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 55: il modulo Effetti porta i suoi due cursori, e nessun altro li ha.**
+     * **Caso 55: il modulo Effetti porta i suoi cinque cursori, e nessun altro li ha.**
      *
      * ⚠️⚠️ **È IL NONO MODULO, DALLA `2.53`, E LA PRIMA COSA CHE PUÒ ROMPERSI IN SILENZIO È IL
      * LEGAME FRA I DUE ELENCHI**: un modulo vive nella tabella di `AdvancedEditorScreen` e la sua
@@ -2632,14 +2632,14 @@ class SviluppoTest {
      * addosso alla prova: il perché vive su [davanti].
      */
     @Test
-    fun `il modulo Effetti porta i suoi tre cursori`() {
+    fun `il modulo Effetti porta i suoi cinque cursori`() {
         banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
         pronta()
 
         assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
         modulo(R.string.look_effects)
         assertEquals(
-            "gli Effetti devono portare chiarezza, texture e foschia", 3, quantiCursori()
+            "gli Effetti devono portare i cinque cursori del suo elenco", 5, quantiCursori()
         )
 
         modulo(R.string.look_light)
@@ -2681,10 +2681,11 @@ class SviluppoTest {
      * **Caso 57: gli Effetti tolgono il senza perdita, e le loro misure seguono il lato.**
      *
      * ⚠️⚠️ **IL SENZA PERDITA È LA CLAUSOLA CON CUI HA CHIESTO L'EDITOR** (*quelle che non
-     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): i tre cursori
-     * riscrivono i pixel come la Luce, quindi un loro valore mosso lo toglie. Scritto al
+     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): tutti e cinque i
+     * cursori riscrivono i pixel come la Luce, quindi un loro valore mosso lo toglie. Scritto al
      * contrario, una fotografia ammorbidita si salverebbe girando un tag EXIF, cioè non si
-     * salverebbe affatto.
+     * salverebbe affatto. ⚠️ **Vale anche per i due della `2.57`**, che non leggono i vicini ma
+     * cambiano comunque ogni pixel che toccano.
      * ⚠️ **E le misure sono frazioni del lato**, come quelle del Dettaglio e per la stessa ragione:
      * il conto gira sull'anteprima e sul file pieno, e un raggio in pixel peserebbe il doppio da
      * una parte.
@@ -2696,9 +2697,13 @@ class SviluppoTest {
         assertFalse(Effects(clarity = 0.01f).idle)
         assertFalse(Effects(texture = -0.01f).idle)
         assertFalse(Effects(haze = 0.01f).idle)
+        assertFalse(Effects(vignette = 0.01f).idle)
+        assertFalse(Effects(grain = 0.01f).idle)
         assertFalse(Look(effects = Effects(clarity = 0.5f)).lossless)
         assertFalse(Look(effects = Effects(texture = 0.5f)).lossless)
         assertFalse(Look(effects = Effects(haze = 0.5f)).lossless)
+        assertFalse(Look(effects = Effects(vignette = 0.5f)).lossless)
+        assertFalse(Look(effects = Effects(grain = 0.5f)).lossless)
 
         assertEquals(2f * Effects.clarityReach(1000f), Effects.clarityReach(2000f), 1e-4f)
         assertEquals(2f * Effects.textureReach(1000f), Effects.textureReach(2000f), 1e-4f)
@@ -2774,6 +2779,29 @@ class SviluppoTest {
         )
 
         /*
+         * ⚠️⚠️ **E I DUE DELLA `2.57` NON ENTRANO NEL CONTO, ED È QUELLO CHE LI DISTINGUE**:
+         * vignettatura e grana non leggono nessun pixel vicino, quindi non c'è niente da buttare
+         * via sul bordo di una tessera. La guardia va scritta sul **raggio** e non su `idle`: un
+         * modulo mosso con la sola vignettatura non è a riposo, e con la guardia sbagliata quel
+         * caso pagherebbe un pixel di bordo per niente, cioè un passo più stretto su ogni tessera.
+         */
+        assertEquals(
+            "la vignettatura da sola non deve chiedere nessun bordo",
+            0,
+            Effects(vignette = -1f).bleed(4000f)
+        )
+        assertEquals(
+            "e nemmeno la grana",
+            0,
+            Effects(grain = 1f).bleed(4000f)
+        )
+        assertEquals(
+            "coi due addosso alla chiarezza il bordo resta quello della chiarezza",
+            chiaro.bleed(4000f),
+            Effects(clarity = 0.5f, vignette = -1f, grain = 1f).bleed(4000f)
+        )
+
+        /*
          * ⚠️⚠️ **QUI SI CHIAMA LA FUNZIONE CHE IL SALVATAGGIO USA, E NON SI RIFÀ IL CONTO**: un
          * massimo riscritto nella prova sarebbe verde anche col difetto rimesso, perché
          * misurerebbe se stesso. `bleedFor` vive fuori dall'oggetto proprio per questo.
@@ -2801,6 +2829,67 @@ class SviluppoTest {
             bleedFor(Look(detail = piccolo, effects = chiaro), 4000f)
         )
         assertEquals("e a riposo resta zero", 0, bleedFor(Look.NONE, 4000f))
+    }
+
+    /**
+     * **Caso 59: una tessera dichiara dove si trova, e il segno lo mette la funzione.**
+     *
+     * ⚠️⚠️ **È LA COSA CHE LA `2.57` PORTA DI ROMPIBILE IN SILENZIO**: vignettatura e grana leggono
+     * **dove** cade un pixel dentro l'immagine intera, e nel salvataggio quel dato arriva da
+     * [Framed]. Un segno rovesciato non dà nessun errore e non si vede sull'anteprima, dove la
+     * tessera è una sola: si vedrebbe **solo** su un file grande, come un centro della vignettatura
+     * spostato del doppio della distanza della tessera dall'angolo.
+     * ⚠️ **Dentro una tessera `p` parte da zero sul suo angolo**, quindi l'immagine intera comincia
+     * più indietro: l'origine è negativa, e a metterla è la funzione invece del chiamante.
+     * ⚠️ **E il lato lungo si RICAVA**, invece di essere un secondo dato: è quello che i raggi in
+     * frazione del lato leggono, e scritto a parte potrebbe non combaciare con la misura accanto.
+     */
+    @Test
+    fun `una tessera dichiara dove si trova dentro l'immagine`() {
+        val tutta = Framed.whole(4000f, 3000f)
+        assertEquals("l'immagine intera comincia a zero", 0f, tutta.left, 1e-4f)
+        assertEquals(0f, tutta.top, 1e-4f)
+        assertEquals("il lato lungo si ricava dalle due misure", 4000f, tutta.span, 1e-4f)
+
+        // Una tessera che comincia a (1200, 800): là l'immagine intera comincia a meno di quello.
+        val pezzo = Framed.tile(1200f, 800f, 4000f, 3000f)
+        assertEquals("l'origine di una tessera è negativa", -1200f, pezzo.left, 1e-4f)
+        assertEquals(-800f, pezzo.top, 1e-4f)
+        assertEquals("e la misura resta quella dell'immagine intera", 4000f, pezzo.wide, 1e-4f)
+        assertEquals(3000f, pezzo.tall, 1e-4f)
+        assertEquals(4000f, pezzo.span, 1e-4f)
+
+        /*
+         * Il palco dichiara il rettangolo in cui l'immagine è disegnata sullo schermo, e là
+         * l'origine è quella vera: il conto che lo shader fa è `(p - origine) / misura`, quindi con
+         * questi due un punto dell'angolo in alto a sinistra cade a zero e uno in fondo a destra a
+         * uno, in tutti e due i casi.
+         */
+        val palco = Framed.shown(40f, 120f, 600f, 400f)
+        assertEquals(40f, palco.left, 1e-4f)
+        assertEquals(120f, palco.top, 1e-4f)
+        assertEquals(600f, palco.span, 1e-4f)
+
+        /*
+         * ⚠️ **La cella della grana è una frazione del lato**, come ogni altra misura di questo
+         * editor: senza, l'anteprima ridotta mostrerebbe una grana di un'altra misura rispetto al
+         * file salvato, cioè quello che si vede non sarebbe quello che si salva.
+         * ⚠️⚠️ **LE DUE MISURE SUPERANO IL PAVIMENTO DI PROPOSITO, E LA PRIMA STESURA NO**:
+         * sotto il pixel quella funzione si ferma, quindi a 2000 contro 4000 il confronto misurava
+         * il pavimento invece della proporzione e la prova era **rossa col codice giusto**. Il
+         * pavimento è il caso qui sotto, e si misura a parte.
+         */
+        assertEquals(
+            2f * Effects.grainCell(4000f), Effects.grainCell(8000f), 1e-4f
+        )
+        assertTrue(
+            "sull'anteprima dell'editor la cella deve stare sopra il pixel",
+            Effects.grainCell(1600f) > 1f
+        )
+        assertEquals(
+            "e sotto il pixel non si scende, o il rumore diventa uno sfarfallio",
+            1f, Effects.grainCell(10f), 1e-4f
+        )
     }
 
     @Composable

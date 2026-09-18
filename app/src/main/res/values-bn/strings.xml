@@ -437,6 +437,8 @@
     <string name="look_clarity">স্বচ্ছতা</string>
     <string name="look_texture">টেক্সচার</string>
     <string name="look_haze">কুয়াশা</string>
+    <string name="look_grain">গ্রেইন</string>
+    <string name="look_vignette">ভিনিয়েট</string>
     <string name="look_tone">কার্ভ</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">টোন কার্ভ</string>

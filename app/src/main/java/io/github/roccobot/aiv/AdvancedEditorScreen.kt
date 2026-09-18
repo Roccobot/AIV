@@ -779,8 +779,8 @@ private fun LookStage(
 
     /**
      * Il pennello che disegna [mappa] **col conto già applicato** dentro il rettangolo
-     * [dove], col filtro lineare o con quello a pixel interi. [lato] è il lato lungo
-     * dell'immagine **intera** come è disegnata adesso.
+     * [dove], col filtro lineare o con quello a pixel interi. [dentro] dice dove finisce
+     * l'immagine **intera** sullo schermo, e quanto misura.
      *
      * ⚠️⚠️ **È UNA FUNZIONE DALLA `2.24` PERCHÉ I RETTANGOLI SONO PIÙ DI UNO**: il palco, la
      * lente del colore mirato, e dalla `2.27` il pezzo letto a risoluzione piena. Scritta più
@@ -788,7 +788,7 @@ private fun LookStage(
      * che una delle due cambia, ed è esattamente il genere di divergenza che l'editor completo
      * esiste per non avere.
      */
-    fun pennello(mappa: Bitmap, dove: RectF, nitido: Boolean, lato: Float): Paint {
+    fun pennello(mappa: Bitmap, dove: RectF, nitido: Boolean, dentro: Framed): Paint {
         val image = BitmapShader(mappa, TileMode.CLAMP, TileMode.CLAMP).apply {
             setLocalMatrix(
                 Matrix().apply {
@@ -816,14 +816,20 @@ private fun LookStage(
             )
         }
         /*
-         * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DELL'IMMAGINE INTERA COME È
-         * DISEGNATA, e non quello della mappa di pixel né quello del pezzo**: il Dettaglio
-         * ragiona in frazioni del lato, e qui il conto gira nello spazio dello schermo. Così
-         * l'ingrandimento ingrandisce anche il risultato del filtro invece di cambiarlo, e un
-         * pezzo disegnato da solo riceve lo stesso raggio del tutto: consegnando la misura del
-         * pezzo, il filtro cambierebbe forza mentre si sposta la panoramica.
+         * ⚠️⚠️ **QUELLO CHE SI CONSEGNA È IL RIQUADRO DELL'IMMAGINE INTERA COME È DISEGNATA, e
+         * non quello della mappa di pixel né quello del pezzo**: il Dettaglio e i primi tre
+         * cursori degli Effetti ragionano in frazioni del lato, la vignettatura e la grana
+         * chiedono anche **dove** cade il punto, e qui il conto gira nello spazio dello schermo.
+         * Così l'ingrandimento ingrandisce anche il risultato del filtro invece di cambiarlo, e
+         * un pezzo disegnato da solo riceve lo stesso raggio e lo stesso centro del tutto:
+         * consegnando la misura del pezzo, il filtro cambierebbe forza mentre si sposta la
+         * panoramica e la vignettatura seguirebbe il dito.
+         * ⚠️ **Con la geometria mossa `p` arriva comunque di qui**: `drawVertices` campiona lo
+         * shader alle coordinate di **texture**, cioè su questo riquadro, e a spostarsi sono i
+         * soli vertici. Quindi questi due cursori lavorano prima della deformazione sul palco
+         * come nel salvataggio, dove la maglia si disegna dopo lo shader.
          */
-        val shader = if (look.plain) null else lookShader(image, look, lato)
+        val shader = if (look.plain) null else lookShader(image, look, dentro)
         return Paint().apply {
             asFrameworkPaint().isFilterBitmap = !nitido
             asFrameworkPaint().shader = shader ?: image
@@ -1207,8 +1213,8 @@ private fun LookStage(
         // ingrandirebbe il conto invece dell'immagine.
         val view = viewport(room, shown, scale, shift, air(), framed)
 
-        /** Il lato lungo dell'immagine intera come è disegnata adesso. */
-        val lato = max(view.width(), view.height())
+        /** Dove finisce l'immagine intera sullo schermo adesso, e quanto misura. */
+        val dentro = Framed.shown(view.left, view.top, view.width(), view.height())
 
         /*
          * ⚠️⚠️ **CON LA GEOMETRIA MOSSA NON SI DISEGNA UN RETTANGOLO MA UNA MAGLIA, DALLA `2.29`**,
@@ -1227,7 +1233,7 @@ private fun LookStage(
          */
         val armato = corners != null
         fun stendi(mappa: Bitmap, dove: RectF, nitido: Boolean) {
-            val paint = pennello(mappa, dove, nitido, lato)
+            val paint = pennello(mappa, dove, nitido, dentro)
             if (look.geo.idle && !armato) {
                 drawIntoCanvas { tela ->
                     tela.drawRect(dove.left, dove.top, dove.right, dove.bottom, paint)
@@ -1286,7 +1292,7 @@ private fun LookStage(
             drawIntoCanvas { tela ->
                 tela.drawRect(
                     dove.left, dove.top, dove.right, dove.bottom,
-                    pennello(fine.pixels, dove, false, lato)
+                    pennello(fine.pixels, dove, false, dentro)
                 )
             }
         }
@@ -2117,16 +2123,19 @@ private val DETAIL_ROWS = listOf(
 )
 
 /**
- * I tre cursori degli **Effetti** che ci sono oggi: chiarezza, texture e foschia.
+ * I cinque cursori degli **Effetti**: chiarezza, texture, foschia, grana e vignettatura.
  *
- * ⚠️⚠️ **IL MODULO NE AVRÀ CINQUE, ED È IL SUO ELENCO** (`d-dopo-editor`, giro della `2.50`:
- * *'Effetti', con 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): la `2.53` ha
- * portato i primi due e la `2.54` il terzo, e gli ultimi due arrivano nei giri dopo. L'ordine è
- * il suo, cioè quello del pannello di Lightroom.
+ * ⚠️⚠️ **L'ELENCO E IL SUO ORDINE SONO SUOI** (`d-dopo-editor`, giro della `2.50`: *'Effetti', con
+ * 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): la `2.53` ha portato i primi due,
+ * la `2.54` il terzo e la `2.57` gli ultimi due, che è il *procediamo un po' alla volta* della sua
+ * istruzione dello stesso giorno.
  *
- * ⚠️⚠️ **SONO BIPOLARI, E IL VERSO NEGATIVO NON È UN RIEMPITIVO**: verso il basso la chiarezza
- * ammorbidisce i mezzi toni, la texture spiana la pelle e la foschia si **aggiunge** invece di
- * essere tolta. Lo zero è l'immagine come il file la porta.
+ * ⚠️⚠️ **QUATTRO SONO BIPOLARI E UNO NO, E NON È UNA DIMENTICANZA**: verso il basso la chiarezza
+ * ammorbidisce i mezzi toni, la texture spiana la pelle, la foschia si **aggiunge** invece di essere
+ * tolta e la vignettatura **apre** l'angolo invece di chiuderlo, che è quello che si fa su una
+ * fotografia già vignettata dall'obiettivo. La grana invece non ha un verso negativo che voglia dire
+ * qualcosa: un grano tolto non esiste, e quello che spiana la grana è la riduzione del rumore del
+ * Dettaglio.
  */
 private val EFFECT_ROWS = listOf(
     Dial(
@@ -2143,6 +2152,17 @@ private val EFFECT_ROWS = listOf(
         R.string.look_haze,
         { it.effects.haze },
         { k, v -> k.copy(effects = k.effects.copy(haze = v)) }
+    ),
+    Dial(
+        R.string.look_grain,
+        { it.effects.grain },
+        { k, v -> k.copy(effects = k.effects.copy(grain = v)) },
+        unipolar = true
+    ),
+    Dial(
+        R.string.look_vignette,
+        { it.effects.vignette },
+        { k, v -> k.copy(effects = k.effects.copy(vignette = v)) }
     )
 )
 

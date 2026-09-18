@@ -127,6 +127,8 @@
     <string name="look_clarity">Clarity</string>
     <string name="look_texture">Texture</string>
     <string name="look_haze">Dehaze</string>
+    <string name="look_grain">Grain</string>
+    <string name="look_vignette">Vignette</string>
     <string name="look_tone">Curve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tone curve</string>

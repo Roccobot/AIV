@@ -421,6 +421,8 @@
     <string name="look_clarity">부분 대비</string>
     <string name="look_texture">질감</string>
     <string name="look_haze">안개</string>
+    <string name="look_grain">그레인</string>
+    <string name="look_vignette">비네팅</string>
     <string name="look_tone">곡선</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">톤 곡선</string>

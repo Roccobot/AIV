@@ -421,6 +421,8 @@
     <string name="look_clarity">ความชัด</string>
     <string name="look_texture">พื้นผิว</string>
     <string name="look_haze">หมอก</string>
+    <string name="look_grain">เกรน</string>
+    <string name="look_vignette">ขอบมืด</string>
     <string name="look_tone">เส้นโค้ง</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">เส้นโค้งโทน</string>

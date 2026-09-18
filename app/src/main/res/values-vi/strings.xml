@@ -421,6 +421,8 @@
     <string name="look_clarity">Độ rõ</string>
     <string name="look_texture">Kết cấu</string>
     <string name="look_haze">Sương mù</string>
+    <string name="look_grain">Hạt</string>
+    <string name="look_vignette">Làm tối viền</string>
     <string name="look_tone">Đường cong</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Đường cong tông màu</string>

@@ -1955,11 +1955,12 @@ fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta s
     - ⚠️ **Tre dei cinque guardano i pixel vicini**, come il Dettaglio, quindi costano il bordo
       delle tessere nel salvataggio (§ '🔍 Il modulo Dettaglio, e le prime due operazioni che
       guardano i vicini'); grana e vignettatura no.
-    - ⚠️⚠️ **E I PRIMI PEZZI SONO USCITI CON LA `2.53` E CON LA `2.54`**, cioè chiarezza e
-      texture prima e la foschia poi: il modulo vive in § '✨ Il modulo Effetti, e i suoi
-      cursori', e gli ultimi due cursori arrivano nei giri dopo. ⚠️ **Un po' alla volta è sua
-      istruzione** (2026-09-18: *procediamo un po' alla volta con le versioni e i test necessari
-      ad ogni giro*).
+    - ⚠️⚠️ **ED È USCITO IN TRE GIRI, DALLA `2.53` ALLA `2.57`**: chiarezza e texture per
+      prime, poi la foschia, e infine grana e vignettatura. Il modulo vive in § '✨ Il modulo
+      Effetti, e i suoi cursori'. ⚠️ **Un po' alla volta è sua istruzione** (2026-09-18:
+      *procediamo un po' alla volta con le versioni e i test necessari ad ogni giro*), e il via
+      libera per gli ultimi due è del giro della `2.55` (*Via libera per Vignettatura e
+      Grana*).
     - ⚠️ **'Previsto' era vero quando era scritto**, e questa nota esiste per non farlo leggere
       come una promessa mancata: il piano di allora arrivava ai preset, e la domanda che lo
       chiudeva ha aperto la tappa dopo.
@@ -2731,10 +2732,11 @@ di collaudo lo chiede.
 
 ⚠️⚠️ **È IL NONO MODULO DELL'EDITOR COMPLETO, DALLA `2.53`, ED È LA SUA RISPOSTA `effetti` A
 `d-dopo-editor`** (giro della `2.50`, con la sua nota: *'Effetti', con 'Chiarezza', 'Texture',
-'Foschia', `Grana` e `Vignettatura`*). I cursori saranno **cinque**, nell'ordine in cui li ha
-scritti; la `2.53` ha portato i primi due e la `2.54` il terzo, e gli ultimi due arrivano nei giri
-dopo, che è la sua istruzione dello stesso giorno (*procediamo un po' alla volta con le versioni e
-i test necessari ad ogni giro*).
+'Foschia', `Grana` e `Vignettatura`*). I cursori sono **cinque**, nell'ordine in cui li ha scritti,
+e sono arrivati in tre giri: la `2.53` ha portato i primi due, la `2.54` il terzo e la `2.57` gli
+ultimi due, che è la sua istruzione dello stesso giorno (*procediamo un po' alla volta con le
+versioni e i test necessari ad ogni giro*) più il via libera del giro della `2.55` (*Via libera per
+Vignettatura e Grana*).
 
 ⚠️⚠️ **CHIAREZZA E TEXTURE NON SONO LA NITIDEZZA PIÙ FORTE, E LA DIFFERENZA È IL RAGGIO**: la
 maschera di contrasto del Dettaglio lavora a un millesimo del lato, cioè sul disegno più fine, e
@@ -2794,6 +2796,52 @@ texture misurano lo **scarto** fra il pixel e il suo intorno, e l'intorno si leg
 partenza. Messa prima, la foschia avrebbe cambiato il solo centro: quello scarto avrebbe misurato
 lei invece del disegno, e l'immagine si sarebbe riempita di aloni dove il velo cambia.
 
+⚠️⚠️ **E GLI ULTIMI DUE SONO DI UN'ALTRA SPECIE: NON LEGGONO I PIXEL VICINI, LEGGONO DOVE SI
+TROVA IL PIXEL.** I primi tre pagano campioni e un bordo sulle tessere del salvataggio; questi due
+costano **zero campioni** e in cambio pretendono un dato che fino alla `2.56` non serviva a nessuno,
+cioè **dov'è questa tessera dentro l'immagine intera**. Quel dato è `Framed`, e lo shader lo
+riceve in due uniform (l'origine dell'immagine e la sua misura).
+- ⚠️⚠️ **SENZA DI LUI I DUE DIFETTI NON SI VEDONO SULL'ANTEPRIMA, E QUESTA È LA COSA DA SAPERE**:
+  là la tessera è **una sola**, quindi l'origine vale zero e tutto torna; nel file salvato invece
+  ogni tessera si vignetterebbe per conto suo (un angolo scuro su ogni giunzione) e porterebbe la
+  stessa grana ripetuta, cioè un motivo a scacchi grande quanto una tessera. È la forma di difetto
+  che arriva **solo** a chi salva un file grande.
+- ⚠️ **Il segno lo mette la funzione e non il chiamante**: dentro una tessera le coordinate partono
+  da zero sul suo angolo, quindi l'immagine intera comincia a un'origine **negativa**. Scritta dal
+  chiamante, quella negazione sarebbe una riga da ricordare e un difetto che non dà nessun errore.
+
+⚠️⚠️ **LA VIGNETTATURA SI MISURA SULLA MEZZA DIAGONALE E PARTE DA METÀ RAGGIO**: sulla diagonale
+perché l'angolo deve valere uno su qualunque formato (dividendo per il lato, su un panorama lo
+stesso valore del cursore scurirebbe i due lati corti molto più degli altri due); da metà raggio
+perché è quello che fa un obiettivo, cioè lascia intatto il centro e cala verso il bordo, mentre una
+vignettatura che comincia a scurire subito si legge come un tondo chiaro appiccicato in mezzo.
+- ⚠️ **È bipolare, e il verso positivo APRE l'angolo invece di chiuderlo**: è il gesto di chi
+  corregge la vignettatura che l'obiettivo ha già messo, e non un riempitivo per simmetria.
+
+⚠️⚠️ **LA GRANA HA UNA CELLA, ED È MONOPOLARE**: un rumore alto un pixel su un file da quattromila
+si vede solo ingrandendo e rimpicciolito si media via, quindi la cella è una frazione del lato come
+ogni altra misura di questo editor. ⚠️ **Verso il basso non c'è niente**: 'meno grana' non vuol dire
+niente su un'immagine che non ce l'ha, e toglierla è il mestiere della riduzione del rumore, che
+vive nel Dettaglio.
+- ⚠️ **Pesa sui mezzi toni**, come la chiarezza e per la stessa ragione: una pellicola mostra il
+  grano dove l'emulsione è esposta a metà, e quasi niente nel nero chiuso e nel bianco bruciato.
+  Senza quel peso il cursore sporcherebbe prima di tutto le ombre, che è l'effetto del rumore
+  digitale e non della grana.
+- ⚠️ **Si somma lo stesso valore ai tre canali**: la grana di una pellicola è di densità e non di
+  colore, e un rumore per canale darebbe i puntini che la riduzione del rumore esiste per togliere.
+- ⚠️⚠️ **SOTTO IL PIXEL LA CELLA NON SCENDE, E QUEL PAVIMENTO ROMPE LA PROPORZIONE**: una cella più
+  stretta di un pixel non è una grana più fine, è uno sfarfallio. Il pavimento entra in funzione
+  sotto i 1200 pixel di lato, quindi **mai** sull'anteprima dell'editor (1600) né su un file da
+  fotocamera, e dove entra la grana si vede un po' più grossa di quella del file salvato: si
+  dichiara invece di prometterla identica.
+
+⚠️⚠️ **VENGONO PER ULTIMI NELLA CATENA, E I DUE POSTI HANNO DUE RAGIONI DIVERSE**: la vignettatura
+sta dopo tutto quello che parla di colore perché è quello che fa un **obiettivo**, e messa prima
+ogni cursore della Luce la rimetterebbe in discussione (un 'Auto' calcolato su un'immagine già
+vignettata leggerebbe un istogramma che non è il suo); la grana sta dopo ancora, perché è la
+**pellicola**, cioè il supporto su cui l'immagine è stampata, e messa prima il contrasto e la
+saturazione la tratterebbero come disegno.
+
 ⚠️⚠️ **SONO LE OPERAZIONI TERZA, QUARTA E QUINTA CHE GUARDANO I PIXEL VICINI, E DA LÌ VIENE TUTTO
 QUELLO CHE COSTANO**: nella catena stanno **subito dopo il Dettaglio** e prima del bilanciamento
 del bianco, perché leggono `image`, cioè i pixel di partenza, quindi devono stare dove quella
@@ -2810,6 +2858,10 @@ Dettaglio ha appena mediato.
     tocca quel cursore.
 - ⚠️ **A riposo il bordo vale zero**, come prima, quindi chi non usa nessuno dei tre paga le
   tessere di sempre. E la guardia uniforme dello shader salta i campioni per pixel.
+- ⚠️⚠️ **E LA GUARDIA SI SCRIVE SUL RAGGIO E NON SU 'MODULO A RIPOSO'**: un modulo mosso con la
+  sola vignettatura o la sola grana **non** è a riposo, e nessuna delle due legge un vicino.
+  Scritta sull'altra condizione, quel caso pagherebbe un pixel di bordo per niente, cioè un passo
+  più stretto su ogni tessera per un filtro che non c'è.
 
 ⚠️⚠️ **L'UNIFORM DELLO SHADER SI CHIAMA `matter` E NON `texture`, ED È PRUDENZA DICHIARATA**:
 `texture` è il nome di una funzione di GLSL, e AGSL le somiglia abbastanza da non volerlo
@@ -2817,7 +2869,7 @@ scoprire su un telefono. ⚠️ **Il campo di Kotlin invece si chiama `texture`*
 perché là quel rischio non c'è: il posto in cui un nome vive decide se può dare fastidio.
 
 ⚠️⚠️ **UN PRESET SE LI PORTA, QUINDI I MODULI CHE UNO STILE GOVERNA PASSANO DA CINQUE A SEI**:
-i tre cursori sono un **aspetto**, cioè una cosa che si porta da un'immagine all'altra, come la
+i cinque cursori sono un **aspetto**, cioè una cosa che si porta da un'immagine all'altra, come la
 luce e il colore; i tre che restano fuori sono ancora la posa, il ritaglio e la geometria, che
 dipendono da come è stata scattata quell'immagine. ⚠️ **Il formato non si rompe**, perché ogni
 campo che manca vale il suo valore di riposo: uno stile salvato con la `2.52` si rilegge oggi, e
@@ -2835,14 +2887,17 @@ quello degli Stili nella `2.50`: se non dice abbastanza, il giro di collaudo lo 
 il suo.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
-che il modulo porti i suoi tre cursori e nessun altro li abbia, che il 'Reset modulo' azzeri
+che il modulo porti i suoi cinque cursori e nessun altro li abbia, che il 'Reset modulo' azzeri
 **solo** i suoi, che un loro valore tolga il senza perdita, che le misure si scalino col lato
 dell'immagine, che la foschia guardi più lontano della chiarezza, e che il bordo delle tessere sia
-il più largo dei filtri mossi; `ContoTest` compila il programma **con gli Effetti dentro**, che è
+il più largo dei filtri mossi **e resti zero coi due che non guardano i vicini**; dalla `2.57` anche
+che una tessera dichiari la propria origine **col segno giusto**, che è la sola cosa di quel giro
+che possa rompersi in silenzio. `ContoTest` compila il programma **con gli Effetti dentro**, che è
 il solo modo di accorgersi di un uniform che non combacia, e `PresetTest` misura che uno stile se
-li porti e che a riposo non si scrivano. **Non** vede i pixel che ne escono: che la chiarezza
-incida, che la texture spiani e che la foschia se ne vada si guarda sul telefono, e la voce di
-collaudo lo chiede.
+li porti tutti e cinque e che a riposo non si scrivano. **Non** vede i pixel che ne escono: che la
+chiarezza incida, che la texture spiani, che la foschia se ne vada, che la vignettatura sia
+centrata e che la grana somigli a una pellicola si guarda sul telefono, e la voce di collaudo lo
+chiede.
 - ⚠️⚠️ **LA FILA SI MONTA ROVESCIATA NELLE DUE PROVE CHE TOCCANO IL GETTONE, E SENZA QUELLA RIGA
   MENTIVANO**: col nono modulo la fila scorre, quindi in coda la pastiglia cade fuori dalla
   larghezza del banco; il tocco non dà nessun errore e non cambia modulo, e si contavano zero
@@ -3612,9 +3667,12 @@ in Kotlin come qualunque altra costante.
   perché non sono la stessa cosa.
 - ⚠️ **Che cosa resta fuori si dichiara**, e vale per tutti e quattordici: chiarezza, texture,
   foschia, grana, vignettatura, sfrangiatura e viraggio diviso non esistevano in questo editor.
-  ⚠️⚠️ **DALLA `2.54` LE PRIME TRE ESISTONO, E I VENTI RESTANO LO STESSO SENZA**: riportarle
-  vorrebbe dire riaprire i suoi XMP, e la voce di collaudo gli chiede se farlo. Un preset di casa
-  non si cambia da sé, per la stessa ragione della `1.33`.
+  ⚠️⚠️ **DALLA `2.57` NE RESTANO FUORI DUE SOLE, E I VENTI RESTANO LO STESSO SENZA**: cinque di
+  quelle sette adesso esistono, e a non esistere sono la sfrangiatura e il viraggio diviso.
+  ⚠️⚠️ **E LA SUA RISPOSTA A `d-preset-xmp` È `lascia`** (giro della `2.55`: *Saranno da rifare ex
+  novo una volta inseriti tutti gli effetti*), quindi non si riaprono i suoi XMP: i venti si
+  rifanno da capo quando il modulo è finito. Un preset di casa non si cambia da sé, per la stessa
+  ragione della `1.33`.
 
 ⚠️⚠️ **UN PRESET NON PORTA LA POSA, IL RITAGLIO E LA GEOMETRIA**: quei tre dipendono da **come è
 stata scattata quell'immagine** (da che parte sta il cielo, dove finisce il soggetto, quanto pende
