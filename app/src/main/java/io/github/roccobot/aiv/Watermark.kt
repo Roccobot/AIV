@@ -101,7 +101,7 @@ object Watermark {
     val SIZE = 1..50
 
     /**
-     * Quanto la filigrana sta lontano dal bordo, in centesimi del lato lungo.
+     * Quanto la filigrana sta lontano dal bordo, in **decimi** di centesimo del lato lungo.
      *
      * ⚠️⚠️ **ERA UNA COSTANTE FINO ALLA `2.70`, E ADESSO LA SCEGLIE LUI** (stessa voce: *mancano
      * la distanza relativa dal bordo e la trasparenza come le avevo chieste*). Il numero di
@@ -109,8 +109,25 @@ object Watermark {
      * l'ha lasciata.
      * ⚠️ **Lo zero è ammesso**: una firma a filo del bordo è una scelta che si fa, e nessun conto
      * si rompe.
+     *
+     * ⚠️⚠️ **DALLA `2.76` IL PASSO È UN DECIMO E NON UNO, ED È SUA RICHIESTA** (punto 1 del campo
+     * libero del giro dalla `2.71` alla `2.74`: *Filigrana / Distanza dal bordo: aggiungi i valori
+     * 0,2 e 0,5*). Quei due numeri non erano scrivibili, perché la corsa andava di unità in unità:
+     * quindi non cambia il confine, cambia la **risoluzione**, e i due valori che ha chiesto sono
+     * il `2` e il `5` di questa scala.
+     * ⚠️ **È lo stesso intervallo di prima**, cioè da zero a venticinque centesimi: il fondo corsa
+     * vale `250` perché il numero è in decimi, e la conversione la fa [AIR_STEP].
      */
-    val AIR = 0..25
+    val AIR = 0..250
+
+    /**
+     * Quanti passi di [AIR] fanno un centesimo.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, PERCHÉ LA LEGGONO IN DUE**: il conto del posto
+     * ([cornerFor]) e il campo delle impostazioni, che scrive `0,2` e deve sapere quanto vale.
+     * Scritta due volte, la firma cadrebbe a una distanza e il numero ne direbbe un'altra.
+     */
+    const val AIR_STEP = 10
 
     /**
      * Quanto la filigrana è opaca, in centesimi.
@@ -129,8 +146,14 @@ object Watermark {
     /** Quanto è larga la firma di fabbrica: è la 'Media' dei quattro gettoni di prima. */
     const val SIZE_DEFAULT = 14
 
-    /** Quanto sta lontana dal bordo di fabbrica: è la costante che il codice aveva fino alla `2.70`. */
-    const val AIR_DEFAULT = 3
+    /**
+     * Quanto sta lontana dal bordo di fabbrica: tre centesimi, cioè la costante che il codice
+     * aveva fino alla `2.70`.
+     *
+     * ⚠️ **Il numero è trenta perché l'unità è il decimo**, dalla `2.76`: la distanza è la stessa
+     * di sempre, e chi non tocca niente non vede spostarsi un pixel.
+     */
+    const val AIR_DEFAULT = 3 * AIR_STEP
 
     /** Quanto è opaca di fabbrica: piena, cioè quello che il file porta e nient'altro. */
     const val ALPHA_DEFAULT = 100
@@ -328,6 +351,8 @@ object Watermark {
      * lascia la stessa distanza proporzionale su un'immagine verticale e su una orizzontale.
      * ⚠️ **Al centro non c'è nessun bordo da cui stare lontani**, quindi l'aria non entra nel
      * conto: è la stessa nota che porta l'anteprima delle impostazioni.
+     * ⚠️ **Il mille è i centesimi per [AIR_STEP]**, cioè la sola riga in cui l'unità dell'aria si
+     * converte: dalla `2.76` quel numero è in decimi di centesimo.
      */
     fun cornerFor(
         plan: Plan,
@@ -336,7 +361,7 @@ object Watermark {
         markWide: Float,
         markHigh: Float
     ): PointF {
-        val air = max(sheetWide, sheetHigh) * plan.air / 100f
+        val air = max(sheetWide, sheetHigh) * plan.air / (100f * AIR_STEP)
         val x = when (plan.spot) {
             Spot.TOP_LEFT, Spot.BOTTOM_LEFT -> air
             Spot.TOP_RIGHT, Spot.BOTTOM_RIGHT -> sheetWide - markWide - air

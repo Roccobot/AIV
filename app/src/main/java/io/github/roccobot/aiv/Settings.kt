@@ -513,10 +513,13 @@ data class Settings(
     val markSize: Int = Watermark.SIZE_DEFAULT,
 
     /**
-     * Quanto la filigrana sta lontana dal bordo, in centesimi del lato lungo.
+     * Quanto la filigrana sta lontana dal bordo, in **decimi** di centesimo del lato lungo.
      *
-     * ⚠️ **Tre di fabbrica**, che è il numero che fino alla `2.70` viveva nel codice come
-     * costante: il valore di fabbrica non cambia quello che un'immagine già firmata otterrebbe.
+     * ⚠️ **Tre centesimi di fabbrica**, che è il numero che fino alla `2.70` viveva nel codice
+     * come costante: il valore di fabbrica non cambia quello che un'immagine già firmata
+     * otterrebbe.
+     * ⚠️⚠️ **L'UNITÀ È IL DECIMO DALLA `2.76`, ED È SUA RICHIESTA**: il perché vive su
+     * [Watermark.AIR], e come si legge quello che era scritto prima su `MARK_AIR_FINE`.
      */
     val markAir: Int = Watermark.AIR_DEFAULT,
 
@@ -1209,7 +1212,24 @@ object SettingsStore {
      * costerebbe un ramo che campa un giro.
      */
     private val MARK_SIZE = intPreferencesKey("mark-size-pct")
-    private val MARK_AIR = intPreferencesKey("mark-air")
+
+    /**
+     * La distanza dal bordo, in **decimi** di centesimo, e la chiave di prima che la traduce.
+     *
+     * ⚠️⚠️ **LA CHIAVE È NUOVA DALLA `2.76` PERCHÉ È CAMBIATA L'UNITÀ, NON LA DOMANDA**: dalla
+     * `2.71` alla `2.75` `mark-air` portava centesimi, quindi un `3` là dentro e un `3` qui
+     * vogliono dire due distanze diverse (tre centesimi contro tre decimi). Tenendo la stessa
+     * chiave, chi aggiorna si ritroverebbe la firma **a filo del bordo** senza aver toccato
+     * niente, e nessun conto darebbe errore.
+     * ⚠️⚠️ **E NON SERVE UNA MIGRAZIONE, AL CONTRARIO DELL'INDICATORE ([MarkMigration])**: là il
+     * ripiego guardava se l'archivio era **vuoto**, cioè una condizione che il primo salvataggio
+     * cambia, e per questo la risposta andava scritta una volta sola. Qui il ripiego guarda una
+     * chiave che nessuno scrive più, quindi dice sempre la stessa cosa.
+     * ⚠️ **Quella vecchia resta scritta e non si scrive più**: una preferenza che nessuno aggiorna
+     * non fa danno, e serve ancora a chi non ha mai salvato da quando questa versione è arrivata.
+     */
+    private val MARK_AIR_FINE = intPreferencesKey("mark-air-tenths")
+    private val MARK_AIR_OLD = intPreferencesKey("mark-air")
     private val MARK_ALPHA = intPreferencesKey("mark-alpha")
     private val SIZE_ON = booleanPreferencesKey("size-on")
     private val SIZE_MODE = stringPreferencesKey("size-mode")
@@ -1338,7 +1358,13 @@ object SettingsStore {
             // del ridimensionamento: un archivio scritto a mano, o da una versione che domani
             // allarga una corsa, darebbe un cursore fuori scala invece di un valore da mostrare.
             markSize = (p[MARK_SIZE] ?: Watermark.SIZE_DEFAULT).coerceIn(Watermark.SIZE),
-            markAir = (p[MARK_AIR] ?: Watermark.AIR_DEFAULT).coerceIn(Watermark.AIR),
+            // ⚠️ Il ripiego traduce i centesimi di prima in decimi: il perché di due chiavi
+            // invece di una migrazione vive su [MARK_AIR_FINE].
+            markAir = (
+                p[MARK_AIR_FINE]
+                    ?: p[MARK_AIR_OLD]?.times(Watermark.AIR_STEP)
+                    ?: Watermark.AIR_DEFAULT
+                ).coerceIn(Watermark.AIR),
             markAlpha = (p[MARK_ALPHA] ?: Watermark.ALPHA_DEFAULT).coerceIn(Watermark.ALPHA),
             sizeOn = p[SIZE_ON] ?: false,
             sizeMode = sizeMode,
@@ -1450,7 +1476,7 @@ object SettingsStore {
             p[MARK_ON] = settings.markOn
             p[MARK_SPOT] = settings.markSpot.token
             p[MARK_SIZE] = settings.markSize
-            p[MARK_AIR] = settings.markAir
+            p[MARK_AIR_FINE] = settings.markAir
             p[MARK_ALPHA] = settings.markAlpha
             p[SIZE_ON] = settings.sizeOn
             p[SIZE_MODE] = settings.sizeMode.token

@@ -4390,6 +4390,54 @@ togliere*). Quindi non c'è un difetto da correggere: c'è una cosa che ha visto
   su un fondo neutro mentre si tarano i quattro numeri, che è il posto in cui quei numeri si
   scelgono.
 
+⚠️⚠️ **LA DISTANZA DAL BORDO SI SCRIVE COL DECIMALE, DALLA `2.76`, ED È SUA RICHIESTA** (punto 1
+del campo libero del giro dalla `2.71` alla `2.74`: *Filigrana / Distanza dal bordo: aggiungi i
+valori 0,2 e 0,5*). Fino alla `2.75` quella corsa contava in **centesimi interi**, quindi sotto
+l'uno per cento non c'era niente: il salto da 0 a 1 su un file da quattromila pixel sono quaranta
+pixel di margine, che è molto più di quanto una firma appoggiata al bordo chieda.
+- ⚠️⚠️ **IL VALORE RESTA UN INTERO, E QUELLO CHE CAMBIA È L'UNITÀ**: adesso conta in **decimi di
+  centesimo** (`AIR` diventa `0..250`, `AIR_STEP` vale dieci), e il decimale vive nel solo campo.
+  Un `Float` nell'archivio avrebbe portato dentro l'arrotondamento binario per un dato che ha
+  duecentocinquantun valori possibili.
+- ⚠️⚠️ **CHI AGGIORNA DALLA `2.75` PORTA LA CHIAVE VECCHIA, E SI LEGGE PER DIECI**: la chiave nuova
+  è `mark-air-tenths`, e `mark-air` resta come **ripiego** in lettura, moltiplicata per il passo.
+  ⚠️ **Non è una migrazione come quella dell'indicatore** (§ '🏷️ L'indicatore dell'ultimo media, e
+  la sua migrazione'), e la differenza è quale domanda si fa: là si guardava se l'archivio fosse
+  **vuoto**, cioè una cosa che cambia appena si salva qualunque altra impostazione; qui si guarda
+  una chiave che **nessuno scrive più**, quindi la risposta non può cambiare sotto i piedi.
+- ⚠️ **Il separatore è quello della lingua del telefono** e non la virgola scritta a mano, perché
+  l'app parla ventotto lingue; **a scrivere** invece valgono uguale il punto e la virgola, che è
+  quello che le due tastiere numeriche di Android offrono a seconda di come sono fatte.
+- ⚠️ **Il numero tondo non porta la coda**: la distanza di fabbrica si legge `3` e non `3,0`.
+
+⚠️⚠️ **E IL POSTO SI SCEGLIE SUL RIQUADRO, DALLA `2.76`, ED È SUA RICHIESTA** (punto 3 dello stesso
+campo libero: *la scelta tra i quattro angoli e il centro dovrebbe essere visuale, con dei
+selettori angolari color accento, poco fuori dal riquadro, per i quattro angoli, più un selettore
+superiore, sempre fuori dal riquadro, per selezionare il centro senza coprirlo*). Fino alla `2.75`
+erano cinque pastiglie scritte sotto l'anteprima, cioè delle **parole** che dicevano dove sarebbe
+andata una cosa che il riquadro accanto mostrava già.
+- ⚠️ **I cinque selettori vivono in una fascia sola intorno al riquadro**: i quattro angoli
+  l'abbracciano da fuori e il quinto sta in mezzo a quella di sopra. Due arie diverse sarebbero
+  due numeri da tenere allineati, e il *senza coprirlo* della sua richiesta è proprio quello che
+  la fascia garantisce.
+- ⚠️⚠️ **QUINDI IL RIQUADRO C'È ANCHE SENZA UN LOGO SCELTO, E LA NOTA DELLA `2.71` È DECADUTA**:
+  diceva che *un riquadro vuoto non direbbe niente*, e valeva finché era la sola anteprima. Adesso
+  è il comando: toglierlo vorrebbe dire non poter scegliere il posto prima di scegliere il file.
+- ⚠️ **I cinque nomi restano**, perché sono quello che un lettore di schermo annuncia e quello che
+  la ricerca delle impostazioni confronta: chi cerca 'centro' cerca questa voce. Nessuna stringa
+  nasce e nessuna resta orfana.
+- ⚠️ **Il bersaglio è più grande del segno**, quarantaquattro punti contro diciotto: una squadretta
+  larga quanto il dito coprirebbe l'angolo dell'immagine che deve mostrare.
+- ⚠️⚠️ **E IL RIQUADRO HA GLI ANGOLI QUASI VIVI, CHE È IL PUNTO 2** (*dev'essere molto meno
+  arrotondata (giusto un paio di pixel*): da dodici punti a **due**. Rappresenta una fotografia, e
+  una fotografia gli angoli stondati non ce li ha; zero avrebbe fatto di lui un rettangolo nudo in
+  una pagina in cui ogni superficie è stondata.
+- ⚠️⚠️ **E LA MISURA AVEVA UN DIFETTO CHE NESSUNO AVEVA VISTO**: il disegno si leggeva in un
+  `produceState` **senza chiave**, quindi scegliendo un altro file dello stesso tipo il riquadro
+  mostrava ancora il logo di prima. Si vedeva solo uscendo e rientrando nella pagina, ed è arrivato
+  fin qui perché fino alla `2.75` quel riquadro nasceva insieme alla prima filigrana. Adesso la
+  chiave è il contatore della pagina, cioè lo stesso che fa rileggere il tipo.
+
 ⚠️ **La pagina delle impostazioni è una sotto-pagina, e la soglia lo pretende**: la domanda è una
 sola (*che logo scrivo sulle immagini che salvo*) e le voci sono molte più del *2-3* della sua
 soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
@@ -4422,9 +4470,20 @@ illeggibile non porti via quello scelto, il tetto degli otto megabyte, che la mi
 frazione scelta del lato lungo (misurata anche girando l'immagine, a pixel), che la firma cada
 nell'angolo scelto e non nell'opposto, che senza un file scelto non si scriva niente, e che una
 filigrana pronta accenda 'Salva' su un'immagine intonsa; dalla `2.75` anche che il **bordo della
-firma non sfumi**, cioè la misura del difetto arrivato a lui. **Non** vede la resa della firma su
-una fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata di
-Android: quelle si guardano sul telefono, e la voce di collaudo le chiede.
+firma non sfumi**, cioè la misura del difetto arrivato a lui; dalla `2.76` che la distanza scritta
+in centesimi **si rilegga in decimi** (coi tre casi: la chiave vecchia sola, l'archivio vuoto, e
+tutte e due le chiavi, dove vince la nuova) e che il numero col decimale si scriva e si rilegga su
+tutta la corsa, col punto come con la virgola. **Non** vede la resa della firma su una fotografia
+vera, né la scelta del file dal selettore di sistema, che è una schermata di Android: quelle si
+guardano sul telefono, e la voce di collaudo le chiede.
+- ⚠️⚠️ **I DUE CASI DELLA `2.76` PRESIDIANO LO STESSO DIFETTO DA DUE PARTI, ED È UN FATTORE
+  DIECI**: un ripiego che non moltiplica dà una firma a un decimo della distanza scelta, e un
+  testo letto senza il passo la dà dieci volte più lontana. Nessuno dei due dà un errore, e tutti
+  e due si vedono solo sul file salvato. Controprovati uno per uno: togliendo il `times` cade il
+  primo, leggendo il campo come un intero cade il secondo.
+- ⚠️ **Le due funzioni del numero sono `internal` per questo**, come `SettingsStore.read`: un
+  conto fra un testo e un numero è Kotlin puro, e misurarlo attraverso il campo vorrebbe dire
+  montare una pagina per verificare un'aritmetica.
 - ⚠️⚠️ **QUELLA PROVA HA UN PIANO SCELTO PERCHÉ L'ANGOLO VENGA FRAZIONARIO, e senza quella cura
   sarebbe verde a vuoto**: il disegno è nero pieno e opaco, quindi un livello **in mezzo** può
   nascere solo dall'interpolazione; ma in alto a sinistra con l'aria a zero l'angolo cade su
