@@ -511,10 +511,8 @@
     <string name="mark_spot_br">右下</string>
     <string name="mark_spot_c">中央</string>
     <string name="settings_mark_size">大きさ</string>
-    <string name="mark_size_s">小</string>
-    <string name="mark_size_m">中</string>
-    <string name="mark_size_l">大</string>
-    <string name="mark_size_xl">特大</string>
+    <string name="settings_mark_air">端からの距離</string>
+    <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">透かしのプレビュー</string>
     <string name="look_resize">サイズ変更</string>
     <string name="look_resize_off">サイズを変更しない</string>

@@ -511,10 +511,8 @@
     <string name="mark_spot_br">ล่างขวา</string>
     <string name="mark_spot_c">ตรงกลาง</string>
     <string name="settings_mark_size">ขนาด</string>
-    <string name="mark_size_s">เล็ก</string>
-    <string name="mark_size_m">กลาง</string>
-    <string name="mark_size_l">ใหญ่</string>
-    <string name="mark_size_xl">ใหญ่มาก</string>
+    <string name="settings_mark_air">ระยะห่างจากขอบ</string>
+    <string name="settings_mark_alpha">ความทึบ</string>
     <string name="settings_mark_preview">ตัวอย่างลายน้ำ</string>
     <string name="look_resize">ปรับขนาด</string>
     <string name="look_resize_off">ไม่ปรับขนาด</string>

@@ -167,26 +167,83 @@ class FiligranaTest {
     }
 
     /**
-     * **Caso 6: la misura è una frazione, e la frazione è quella scelta.**
+     * **Caso 6: la misura è una frazione, e la frazione è il numero scelto.**
      *
      * ⚠️ Con un numero in pixel la stessa scelta darebbe una firma enorme su un file piccolo e
      * invisibile su uno da fotocamera, e nessuno dei due casi dà errore.
+     * ⚠️⚠️ **DALLA `2.71` IL NUMERO LO SCRIVE LUI, quindi la prova gira su tutta la corsa** e non
+     * su quattro gettoni: i due capi e un valore in mezzo dicono che il conto è una proporzione e
+     * non una tabella.
      */
     @Test
     fun `la misura e una frazione del lato`() {
         assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
 
-        for (size in Watermark.Size.entries) {
-            val disegno = Watermark.bitmapFor(app, 1000, Watermark.Plan(SPOT, size))
-            assertNotNull("la filigrana deve disegnarsi a misura ${size.token}", disegno)
+        for (size in listOf(Watermark.SIZE.first, Watermark.SIZE_DEFAULT, Watermark.SIZE.last)) {
+            val disegno = Watermark.bitmapFor(app, 1000, Watermark.Plan(SPOT, size = size))
+            assertNotNull("la filigrana deve disegnarsi a misura $size", disegno)
             val lungo = max(disegno!!.width, disegno.height)
             assertEquals(
-                "la misura ${size.token} deve valere la sua frazione del lato",
-                (1000 * size.share).toInt(),
+                "la misura $size deve valere i suoi centesimi del lato",
+                1000 * size / 100,
                 lungo
             )
             disegno.recycle()
         }
+    }
+
+    /**
+     * **Caso 6b: la distanza dal bordo è quella scelta, e si misura a pixel.**
+     *
+     * ⚠️⚠️ **DALLA `2.71` NON È PIÙ UNA COSTANTE, ED È SUA RICHIESTA** (voce `filigrana` del giro
+     * della `2.70`, punto 5). ⚠️ **Si misura dove la firma NON arriva**: con la distanza a zero
+     * l'angolo è coperto, e con la distanza larga quello stesso pixel resta pulito. Un conto sul
+     * solo inchiostro totale non lo vedrebbe, perché il disegno è lo stesso e cambia solo dov'è.
+     */
+    @Test
+    fun `la distanza dal bordo sposta la firma`() {
+        assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
+        val spot = Watermark.Spot.TOP_LEFT
+
+        val stretto = foglio()
+        assertNotNull(Watermark.stamp(app, stretto, Watermark.Plan(spot, air = 0)))
+        assertTrue("a filo del bordo la firma copre l'angolo", scuro(stretto, 2, 2))
+
+        val largo = foglio()
+        assertNotNull(Watermark.stamp(app, largo, Watermark.Plan(spot, air = Watermark.AIR.last)))
+        assertFalse("con la distanza al massimo quell'angolo resta pulito", scuro(largo, 2, 2))
+        assertTrue(
+            "ma la firma c'è, più dentro",
+            inchiostro(largo) > 0
+        )
+    }
+
+    /**
+     * **Caso 6c: l'opacità smorza la firma, e a fondo corsa non la toglie.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `si` A `d-mark-opacita`**, con la nota *niente metodi di fusione,
+     * solo opacità assoluta*: quindi quello che si misura è **quanto** inchiostro arriva, non
+     * dove. ⚠️ **Il confronto è fra due opacità e non con una soglia**: un numero scritto qui
+     * dipenderebbe dal disegno di prova, mentre 'meno di prima e più di zero' è la proprietà.
+     */
+    @Test
+    fun `l'opacita smorza la firma`() {
+        assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
+
+        val piena = foglio()
+        assertNotNull(Watermark.stamp(app, piena, Watermark.Plan(SPOT, alpha = 100)))
+        val scarsa = foglio()
+        assertNotNull(
+            Watermark.stamp(app, scarsa, Watermark.Plan(SPOT, alpha = Watermark.ALPHA.first))
+        )
+
+        val forte = inchiostro(piena)
+        val debole = inchiostro(scarsa)
+        assertTrue("a piena opacità la firma deve vedersi", forte > 0)
+        assertTrue(
+            "e smorzata deve lasciare meno inchiostro: $forte contro $debole",
+            debole < forte
+        )
     }
 
     /**
@@ -208,7 +265,7 @@ class FiligranaTest {
         val primo = foglio()
         assertNotNull(
             "la firma deve scriversi",
-            Watermark.stamp(app, primo, Watermark.Plan(alto, Watermark.Size.MEDIUM))
+            Watermark.stamp(app, primo, Watermark.Plan(alto))
         )
         assertTrue("in alto a sinistra la firma deve esserci", scuro(primo, vicino, vicino))
         assertFalse("e l'angolo opposto deve restare pulito", scuro(primo, lontano, lontano))
@@ -216,7 +273,7 @@ class FiligranaTest {
         val secondo = foglio()
         assertNotNull(
             "la firma deve scriversi",
-            Watermark.stamp(app, secondo, Watermark.Plan(basso, Watermark.Size.MEDIUM))
+            Watermark.stamp(app, secondo, Watermark.Plan(basso))
         )
         assertTrue("in basso a destra la firma deve esserci", scuro(secondo, lontano, lontano))
         assertFalse("e l'angolo opposto deve restare pulito", scuro(secondo, vicino, vicino))
@@ -233,7 +290,7 @@ class FiligranaTest {
     @Test
     fun `la misura viene dal lato lungo`() {
         assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
-        val piano = Watermark.Plan(SPOT, Watermark.Size.MEDIUM)
+        val piano = Watermark.Plan(SPOT)
 
         val steso = Bitmap.createBitmap(LATO, LATO / 2, Bitmap.Config.ARGB_8888)
             .apply { eraseColor(Color.WHITE) }
@@ -262,7 +319,7 @@ class FiligranaTest {
         val foglio = foglio()
         assertNull(
             "senza un file scelto non c'è niente da stampare",
-            Watermark.stamp(app, foglio, Watermark.Plan(SPOT, Watermark.Size.MEDIUM))
+            Watermark.stamp(app, foglio, Watermark.Plan(SPOT))
         )
         assertFalse("e l'immagine non si tocca", scuro(foglio, LATO - 20, LATO - 20))
     }

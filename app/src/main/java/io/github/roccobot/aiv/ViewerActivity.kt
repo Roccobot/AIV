@@ -433,7 +433,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     private fun markPlan(): Watermark.Plan? {
         val now = settings ?: return null
-        return if (now.markOn) Watermark.Plan(now.markSpot, now.markSize) else null
+        return if (!now.markOn) null else Watermark.Plan(
+            spot = now.markSpot,
+            size = now.markSize,
+            air = now.markAir,
+            alpha = now.markAlpha
+        )
     }
 
     /**

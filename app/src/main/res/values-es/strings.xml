@@ -543,10 +543,8 @@
     <string name="mark_spot_br">Abajo a la derecha</string>
     <string name="mark_spot_c">En el centro</string>
     <string name="settings_mark_size">Tamaño</string>
-    <string name="mark_size_s">Pequeña</string>
-    <string name="mark_size_m">Mediana</string>
-    <string name="mark_size_l">Grande</string>
-    <string name="mark_size_xl">Muy grande</string>
+    <string name="settings_mark_air">Distancia del borde</string>
+    <string name="settings_mark_alpha">Opacidad</string>
     <string name="settings_mark_preview">Vista previa de la marca de agua</string>
     <string name="look_resize">Redimensionar</string>
     <string name="look_resize_off">No redimensionar</string>

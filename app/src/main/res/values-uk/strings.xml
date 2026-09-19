@@ -559,10 +559,8 @@
     <string name="mark_spot_br">Праворуч унизу</string>
     <string name="mark_spot_c">По центру</string>
     <string name="settings_mark_size">Розмір</string>
-    <string name="mark_size_s">Малий</string>
-    <string name="mark_size_m">Середній</string>
-    <string name="mark_size_l">Великий</string>
-    <string name="mark_size_xl">Дуже великий</string>
+    <string name="settings_mark_air">Відступ від краю</string>
+    <string name="settings_mark_alpha">Непрозорість</string>
     <string name="settings_mark_preview">Перегляд водяного знака</string>
     <string name="look_resize">Змінити розмір</string>
     <string name="look_resize_off">Не змінювати розмір</string>

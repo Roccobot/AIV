@@ -559,10 +559,8 @@
     <string name="mark_spot_br">Prawy dolny róg</string>
     <string name="mark_spot_c">Na środku</string>
     <string name="settings_mark_size">Rozmiar</string>
-    <string name="mark_size_s">Mały</string>
-    <string name="mark_size_m">Średni</string>
-    <string name="mark_size_l">Duży</string>
-    <string name="mark_size_xl">Bardzo duży</string>
+    <string name="settings_mark_air">Odległość od krawędzi</string>
+    <string name="settings_mark_alpha">Krycie</string>
     <string name="settings_mark_preview">Podgląd znaku wodnego</string>
     <string name="look_resize">Zmień rozmiar</string>
     <string name="look_resize_off">Nie zmieniaj rozmiaru</string>

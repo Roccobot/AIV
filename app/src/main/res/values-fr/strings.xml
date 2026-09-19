@@ -543,10 +543,8 @@
     <string name="mark_spot_br">En bas à droite</string>
     <string name="mark_spot_c">Au centre</string>
     <string name="settings_mark_size">Taille</string>
-    <string name="mark_size_s">Petit</string>
-    <string name="mark_size_m">Moyen</string>
-    <string name="mark_size_l">Grand</string>
-    <string name="mark_size_xl">Très grand</string>
+    <string name="settings_mark_air">Distance du bord</string>
+    <string name="settings_mark_alpha">Opacité</string>
     <string name="settings_mark_preview">Aperçu du filigrane</string>
     <string name="look_resize">Redimensionner</string>
     <string name="look_resize_off">Ne pas redimensionner</string>

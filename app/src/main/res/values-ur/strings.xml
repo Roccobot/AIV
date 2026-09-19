@@ -527,10 +527,8 @@
     <string name="mark_spot_br">نیچے دائیں</string>
     <string name="mark_spot_c">درمیان میں</string>
     <string name="settings_mark_size">سائز</string>
-    <string name="mark_size_s">چھوٹا</string>
-    <string name="mark_size_m">درمیانہ</string>
-    <string name="mark_size_l">بڑا</string>
-    <string name="mark_size_xl">بہت بڑا</string>
+    <string name="settings_mark_air">کنارے سے فاصلہ</string>
+    <string name="settings_mark_alpha">دھندلاپن</string>
     <string name="settings_mark_preview">واٹرمارک کا پیش منظر</string>
     <string name="look_resize">سائز تبدیل کریں</string>
     <string name="look_resize_off">سائز تبدیل نہ کریں</string>

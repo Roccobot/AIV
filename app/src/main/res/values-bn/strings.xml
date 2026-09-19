@@ -527,10 +527,8 @@
     <string name="mark_spot_br">নিচে ডানদিকে</string>
     <string name="mark_spot_c">মাঝখানে</string>
     <string name="settings_mark_size">আকার</string>
-    <string name="mark_size_s">ছোট</string>
-    <string name="mark_size_m">মাঝারি</string>
-    <string name="mark_size_l">বড়</string>
-    <string name="mark_size_xl">খুব বড়</string>
+    <string name="settings_mark_air">প্রান্ত থেকে দূরত্ব</string>
+    <string name="settings_mark_alpha">অস্বচ্ছতা</string>
     <string name="settings_mark_preview">জলছাপের প্রাকদর্শন</string>
     <string name="look_resize">আকার বদলান</string>
     <string name="look_resize_off">আকার বদলাবেন না</string>
