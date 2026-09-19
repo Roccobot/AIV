@@ -527,10 +527,8 @@
     <string name="mark_spot_br">Sağ alt</string>
     <string name="mark_spot_c">Ortada</string>
     <string name="settings_mark_size">Boyut</string>
-    <string name="mark_size_s">Küçük</string>
-    <string name="mark_size_m">Orta</string>
-    <string name="mark_size_l">Büyük</string>
-    <string name="mark_size_xl">Çok büyük</string>
+    <string name="settings_mark_air">Kenar mesafesi</string>
+    <string name="settings_mark_alpha">Opaklık</string>
     <string name="settings_mark_preview">Filigran önizlemesi</string>
     <string name="look_resize">Yeniden boyutlandır</string>
     <string name="look_resize_off">Yeniden boyutlandırma</string>

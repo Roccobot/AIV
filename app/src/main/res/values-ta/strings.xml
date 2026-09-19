@@ -527,10 +527,8 @@
     <string name="mark_spot_br">கீழ் வலது</string>
     <string name="mark_spot_c">நடுவில்</string>
     <string name="settings_mark_size">அளவு</string>
-    <string name="mark_size_s">சிறியது</string>
-    <string name="mark_size_m">நடுத்தரம்</string>
-    <string name="mark_size_l">பெரியது</string>
-    <string name="mark_size_xl">மிகப் பெரியது</string>
+    <string name="settings_mark_air">விளிம்பிலிருந்து தூரம்</string>
+    <string name="settings_mark_alpha">ஒளிபுகாநிலை</string>
     <string name="settings_mark_preview">நீர்அடையாள முன்னோட்டம்</string>
     <string name="look_resize">அளவு மாற்று</string>
     <string name="look_resize_off">அளவை மாற்ற வேண்டாம்</string>

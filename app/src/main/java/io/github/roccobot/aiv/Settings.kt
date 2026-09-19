@@ -503,12 +503,30 @@ data class Settings(
     val markSpot: Watermark.Spot = Watermark.Spot.BOTTOM_RIGHT,
 
     /**
-     * Quanto è larga la filigrana, in frazione del lato lungo.
+     * Quanto è larga la filigrana, in centesimi del lato lungo.
      *
-     * ⚠️ **Media di fabbrica**, cioè un settimo del lato lungo: si vede senza prendersi
-     * l'immagine, che è quello che una firma deve fare.
+     * ⚠️⚠️ **DALLA `2.71` È UN NUMERO SCRITTO A MANO E NON UNO DI QUATTRO GETTONI**, ed è sua
+     * richiesta: il perché, e perché i centesimi, vivono su [Watermark.SIZE].
+     * ⚠️ **Quattordici di fabbrica**, che è la 'Media' di prima: chi aveva quella scelta ritrova
+     * la stessa firma, e chi non ha mai toccato niente non vede cambiare un pixel.
      */
-    val markSize: Watermark.Size = Watermark.Size.MEDIUM,
+    val markSize: Int = Watermark.SIZE_DEFAULT,
+
+    /**
+     * Quanto la filigrana sta lontana dal bordo, in centesimi del lato lungo.
+     *
+     * ⚠️ **Tre di fabbrica**, che è il numero che fino alla `2.70` viveva nel codice come
+     * costante: il valore di fabbrica non cambia quello che un'immagine già firmata otterrebbe.
+     */
+    val markAir: Int = Watermark.AIR_DEFAULT,
+
+    /**
+     * Quanto la filigrana è opaca, in centesimi.
+     *
+     * ⚠️ **Piena di fabbrica**: quello che si vede è quello che il file porta, e chi la vuole
+     * discreta lo dice qui invece di prepararsi un secondo PNG.
+     */
+    val markAlpha: Int = Watermark.ALPHA_DEFAULT,
 
     /**
      * Se il salvataggio dell'editor completo **ridimensiona** l'immagine.
@@ -1168,7 +1186,21 @@ object SettingsStore {
     private val EDITOR_BACKUP = booleanPreferencesKey("editor-backup")
     private val MARK_ON = booleanPreferencesKey("mark-on")
     private val MARK_SPOT = stringPreferencesKey("mark-spot")
-    private val MARK_SIZE = stringPreferencesKey("mark-size")
+
+    /*
+     * ⚠️⚠️ **LA CHIAVE DELLA MISURA È NUOVA, E NON È UNA DEROGA ALLA REGOLA CHE DICE DI NON
+     * TOCCARLE**: fino alla `2.70` là viveva il **token** di un gettone, cioè una stringa, e
+     * dalla `2.71` vive un numero. Riusando `mark-size` una preferenza scritta ieri si leggerebbe
+     * col tipo sbagliato, e `DataStore` non risponde il valore di fabbrica: **lancia**. Quindi la
+     * domanda non è cambiata, è cambiato quello che la risposta può dire, e la chiave lo dichiara
+     * nel nome.
+     * ⚠️ **Quella vecchia resta scritta e non si legge più**: chi aveva 'Grande' ritrova la
+     * misura di fabbrica, cioè la 'Media'. Sono quattro valori, e leggerli per tradurli
+     * costerebbe un ramo che campa un giro.
+     */
+    private val MARK_SIZE = intPreferencesKey("mark-size-pct")
+    private val MARK_AIR = intPreferencesKey("mark-air")
+    private val MARK_ALPHA = intPreferencesKey("mark-alpha")
     private val SIZE_ON = booleanPreferencesKey("size-on")
     private val SIZE_MODE = stringPreferencesKey("size-mode")
     private val SIZE_VALUE = intPreferencesKey("size-value")
@@ -1292,9 +1324,12 @@ object SettingsStore {
             markSpot = Watermark.Spot.entries.byToken(
                 p[MARK_SPOT], Watermark.Spot.BOTTOM_RIGHT
             ),
-            markSize = Watermark.Size.entries.byToken(
-                p[MARK_SIZE], Watermark.Size.MEDIUM
-            ),
+            // ⚠️ I tre numeri si riportano dentro i loro confini in **lettura**, come il valore
+            // del ridimensionamento: un archivio scritto a mano, o da una versione che domani
+            // allarga una corsa, darebbe un cursore fuori scala invece di un valore da mostrare.
+            markSize = (p[MARK_SIZE] ?: Watermark.SIZE_DEFAULT).coerceIn(Watermark.SIZE),
+            markAir = (p[MARK_AIR] ?: Watermark.AIR_DEFAULT).coerceIn(Watermark.AIR),
+            markAlpha = (p[MARK_ALPHA] ?: Watermark.ALPHA_DEFAULT).coerceIn(Watermark.ALPHA),
             sizeOn = p[SIZE_ON] ?: false,
             sizeMode = sizeMode,
             // ⚠️ Il valore si riporta dentro i confini del **suo** modo, e non di uno solo: fra i
@@ -1404,7 +1439,9 @@ object SettingsStore {
             p[EDITOR_BACKUP] = settings.editorBackup
             p[MARK_ON] = settings.markOn
             p[MARK_SPOT] = settings.markSpot.token
-            p[MARK_SIZE] = settings.markSize.token
+            p[MARK_SIZE] = settings.markSize
+            p[MARK_AIR] = settings.markAir
+            p[MARK_ALPHA] = settings.markAlpha
             p[SIZE_ON] = settings.sizeOn
             p[SIZE_MODE] = settings.sizeMode.token
             p[SIZE_VALUE] = settings.sizeValue

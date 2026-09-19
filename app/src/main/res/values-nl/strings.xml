@@ -527,10 +527,8 @@
     <string name="mark_spot_br">Rechtsonder</string>
     <string name="mark_spot_c">Gecentreerd</string>
     <string name="settings_mark_size">Grootte</string>
-    <string name="mark_size_s">Klein</string>
-    <string name="mark_size_m">Middel</string>
-    <string name="mark_size_l">Groot</string>
-    <string name="mark_size_xl">Zeer groot</string>
+    <string name="settings_mark_air">Randafstand</string>
+    <string name="settings_mark_alpha">Dekking</string>
     <string name="settings_mark_preview">Voorbeeld van het watermerk</string>
     <string name="look_resize">Formaat wijzigen</string>
     <string name="look_resize_off">Formaat niet wijzigen</string>

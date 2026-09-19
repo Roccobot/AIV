@@ -511,10 +511,8 @@
     <string name="mark_spot_br">Dưới bên phải</string>
     <string name="mark_spot_c">Ở giữa</string>
     <string name="settings_mark_size">Kích thước</string>
-    <string name="mark_size_s">Nhỏ</string>
-    <string name="mark_size_m">Vừa</string>
-    <string name="mark_size_l">Lớn</string>
-    <string name="mark_size_xl">Rất lớn</string>
+    <string name="settings_mark_air">Khoảng cách từ mép</string>
+    <string name="settings_mark_alpha">Độ mờ đục</string>
     <string name="settings_mark_preview">Xem trước hình mờ</string>
     <string name="look_resize">Đổi kích thước</string>
     <string name="look_resize_off">Không đổi kích thước</string>

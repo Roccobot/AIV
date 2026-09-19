@@ -527,10 +527,8 @@
     <string name="mark_spot_br">پایین سمت راست</string>
     <string name="mark_spot_c">وسط</string>
     <string name="settings_mark_size">اندازه</string>
-    <string name="mark_size_s">کوچک</string>
-    <string name="mark_size_m">متوسط</string>
-    <string name="mark_size_l">بزرگ</string>
-    <string name="mark_size_xl">خیلی بزرگ</string>
+    <string name="settings_mark_air">فاصله از لبه</string>
+    <string name="settings_mark_alpha">کدری</string>
     <string name="settings_mark_preview">پیش‌نمایش واترمارک</string>
     <string name="look_resize">تغییر اندازه</string>
     <string name="look_resize_off">بدون تغییر اندازه</string>

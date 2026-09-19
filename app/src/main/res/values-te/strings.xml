@@ -527,10 +527,8 @@
     <string name="mark_spot_br">దిగువ కుడి</string>
     <string name="mark_spot_c">మధ్యలో</string>
     <string name="settings_mark_size">పరిమాణం</string>
-    <string name="mark_size_s">చిన్నది</string>
-    <string name="mark_size_m">మధ్యస్థం</string>
-    <string name="mark_size_l">పెద్దది</string>
-    <string name="mark_size_xl">చాలా పెద్దది</string>
+    <string name="settings_mark_air">అంచు నుండి దూరం</string>
+    <string name="settings_mark_alpha">అపారదర్శకత</string>
     <string name="settings_mark_preview">వాటర్‌మార్క్ మునుజూపు</string>
     <string name="look_resize">పరిమాణం మార్చు</string>
     <string name="look_resize_off">పరిమాణం మార్చవద్దు</string>

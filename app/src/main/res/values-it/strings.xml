@@ -189,10 +189,8 @@
     <string name="mark_spot_br">In basso a destra</string>
     <string name="mark_spot_c">Al centro</string>
     <string name="settings_mark_size">Dimensione</string>
-    <string name="mark_size_s">Piccola</string>
-    <string name="mark_size_m">Media</string>
-    <string name="mark_size_l">Grande</string>
-    <string name="mark_size_xl">Molto grande</string>
+    <string name="settings_mark_air">Distanza dal bordo</string>
+    <string name="settings_mark_alpha">Opacità</string>
     <string name="settings_mark_preview">Anteprima della filigrana</string>
     <string name="look_resize">Ridimensiona</string>
     <string name="look_resize_off">Non ridimensionare</string>

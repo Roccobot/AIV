@@ -511,10 +511,8 @@
     <string name="mark_spot_br">오른쪽 아래</string>
     <string name="mark_spot_c">가운데</string>
     <string name="settings_mark_size">크기</string>
-    <string name="mark_size_s">작게</string>
-    <string name="mark_size_m">보통</string>
-    <string name="mark_size_l">크게</string>
-    <string name="mark_size_xl">아주 크게</string>
+    <string name="settings_mark_air">가장자리 여백</string>
+    <string name="settings_mark_alpha">불투명도</string>
     <string name="settings_mark_preview">워터마크 미리보기</string>
     <string name="look_resize">크기 조정</string>
     <string name="look_resize_off">크기 조정 안 함</string>

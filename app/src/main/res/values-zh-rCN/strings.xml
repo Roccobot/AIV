@@ -511,10 +511,8 @@
     <string name="mark_spot_br">右下角</string>
     <string name="mark_spot_c">居中</string>
     <string name="settings_mark_size">大小</string>
-    <string name="mark_size_s">小</string>
-    <string name="mark_size_m">中</string>
-    <string name="mark_size_l">大</string>
-    <string name="mark_size_xl">特大</string>
+    <string name="settings_mark_air">边距</string>
+    <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">水印预览</string>
     <string name="look_resize">调整尺寸</string>
     <string name="look_resize_off">不调整尺寸</string>

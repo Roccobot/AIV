@@ -527,10 +527,8 @@
     <string name="mark_spot_br">Unten rechts</string>
     <string name="mark_spot_c">Mittig</string>
     <string name="settings_mark_size">Größe</string>
-    <string name="mark_size_s">Klein</string>
-    <string name="mark_size_m">Mittel</string>
-    <string name="mark_size_l">Groß</string>
-    <string name="mark_size_xl">Sehr groß</string>
+    <string name="settings_mark_air">Randabstand</string>
+    <string name="settings_mark_alpha">Deckkraft</string>
     <string name="settings_mark_preview">Vorschau des Wasserzeichens</string>
     <string name="look_resize">Größe ändern</string>
     <string name="look_resize_off">Größe nicht ändern</string>

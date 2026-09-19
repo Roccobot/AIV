@@ -511,10 +511,8 @@
     <string name="mark_spot_br">Kanan bawah</string>
     <string name="mark_spot_c">Di tengah</string>
     <string name="settings_mark_size">Ukuran</string>
-    <string name="mark_size_s">Kecil</string>
-    <string name="mark_size_m">Sedang</string>
-    <string name="mark_size_l">Besar</string>
-    <string name="mark_size_xl">Sangat besar</string>
+    <string name="settings_mark_air">Jarak dari tepi</string>
+    <string name="settings_mark_alpha">Opasitas</string>
     <string name="settings_mark_preview">Pratinjau tanda air</string>
     <string name="look_resize">Ubah ukuran</string>
     <string name="look_resize_off">Jangan ubah ukuran</string>

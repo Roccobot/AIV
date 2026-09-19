@@ -775,21 +775,7 @@ private fun ColumnScope.RootPage(
          * ⚠️ **L'ordine va dal contenitore al contenuto**: le cartelle, poi l'immagine aperta, poi
          * quello che l'app dice di lei.
          */
-        /*
-     * ⚠️⚠️ **LA RICERCA LA COPRE APPIATTENDO IL CORPO, come le altre pagine fatte di righe**: là
-     * dentro non c'è nessun elenco che si riordina, quindi le sue voci si filtrano da sé e
-     * `PageOfRows` le compone al posto di questa riga mentre una ricerca è in corso. Senza
-     * quella copertura la filigrana uscirebbe dalla ricerca il giorno stesso in cui è nata.
-     */
-    PageOfRows(
-        label = stringResource(R.string.settings_mark),
-        summary = stringResource(R.string.settings_mark_desc),
-        onOpen = { onOpen(Page.MARK) }
-    ) {
-        MarkPage(settings = settings, onChange = onChange)
-    }
-
-    PageOfRows(
+        PageOfRows(
             label = stringResource(R.string.settings_group_browse),
             // ⚠️ L'ultima voce c'è **solo se esiste**, come la riga che la apre: un riepilogo che
             // nomina le cartelle nascoste dove non ce n'è nessuna manda a cercare una riga che
@@ -1790,6 +1776,25 @@ private fun EditingPage(
         ).joinToString(SUMMARY_JOIN),
         onOpen = { onOpen(Page.SAVING) }
     ) { RenameAndDownload(settings = settings, onChange = onChange) }
+
+    /*
+     * ⚠️⚠️ **LA FILIGRANA VIVE QUI DALLA `2.71`, E FINO ALLA `2.70` STAVA NELLA RADICE** (voce
+     * `filigrana` del giro della `2.70`, punto 1: *'Filigrana' nelle impostazioni deve stare
+     * dentro la sotto-pagina 'Editor e salvataggio'*). La sua domanda è quella di questa pagina,
+     * cioè *che cosa succede quando modifico un'immagine*, e in testa a `MarkSettings.kt` era
+     * **già scritto** che vivesse qui: a stare nella radice, sotto 'Aspetto', era la porta. Cioè
+     * il codice e la nota dicevano due cose diverse, ed è la nota che aveva ragione.
+     * ⚠️ **La ricerca la copre appiattendo il corpo**, come le altre pagine fatte di righe: là
+     * dentro non c'è nessun elenco che si riordina, quindi le sue voci si filtrano da sé e
+     * `PageOfRows` le compone al posto di questa riga mentre una ricerca è in corso.
+     * ⚠️ **Il trasloco non tocca nessuna chiave**, quindi chi aveva già scelto un logo se lo
+     * ritrova: il posto nell'interfaccia e la chiave nell'archivio sono due cose indipendenti.
+     */
+    PageOfRows(
+        label = stringResource(R.string.settings_mark),
+        summary = stringResource(R.string.settings_mark_desc),
+        onOpen = { onOpen(Page.MARK) }
+    ) { MarkPage(settings = settings, onChange = onChange) }
 
 }
 

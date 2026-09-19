@@ -527,10 +527,8 @@
     <string name="mark_spot_br">Chini kulia</string>
     <string name="mark_spot_c">Katikati</string>
     <string name="settings_mark_size">Ukubwa</string>
-    <string name="mark_size_s">Ndogo</string>
-    <string name="mark_size_m">Wastani</string>
-    <string name="mark_size_l">Kubwa</string>
-    <string name="mark_size_xl">Kubwa sana</string>
+    <string name="settings_mark_air">Umbali kutoka ukingoni</string>
+    <string name="settings_mark_alpha">Ukolezi</string>
     <string name="settings_mark_preview">Onyesho la alama ya maji</string>
     <string name="look_resize">Badilisha ukubwa</string>
     <string name="look_resize_off">Usibadilishe ukubwa</string>

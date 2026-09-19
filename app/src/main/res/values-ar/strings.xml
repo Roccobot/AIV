@@ -591,10 +591,8 @@
     <string name="mark_spot_br">أسفل اليمين</string>
     <string name="mark_spot_c">في الوسط</string>
     <string name="settings_mark_size">الحجم</string>
-    <string name="mark_size_s">صغيرة</string>
-    <string name="mark_size_m">متوسطة</string>
-    <string name="mark_size_l">كبيرة</string>
-    <string name="mark_size_xl">كبيرة جدًا</string>
+    <string name="settings_mark_air">المسافة من الحافة</string>
+    <string name="settings_mark_alpha">التعتيم</string>
     <string name="settings_mark_preview">معاينة العلامة المائية</string>
     <string name="look_resize">تغيير الحجم</string>
     <string name="look_resize_off">بدون تغيير الحجم</string>

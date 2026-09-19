@@ -527,10 +527,8 @@
     <string name="mark_spot_br">नीचे दाएँ</string>
     <string name="mark_spot_c">बीच में</string>
     <string name="settings_mark_size">आकार</string>
-    <string name="mark_size_s">छोटा</string>
-    <string name="mark_size_m">मध्यम</string>
-    <string name="mark_size_l">बड़ा</string>
-    <string name="mark_size_xl">बहुत बड़ा</string>
+    <string name="settings_mark_air">किनारे से दूरी</string>
+    <string name="settings_mark_alpha">अपारदर्शिता</string>
     <string name="settings_mark_preview">वॉटरमार्क का पूर्वावलोकन</string>
     <string name="look_resize">आकार बदलें</string>
     <string name="look_resize_off">आकार न बदलें</string>

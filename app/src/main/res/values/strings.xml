@@ -231,10 +231,8 @@
     <string name="mark_spot_br">Bottom right</string>
     <string name="mark_spot_c">Center</string>
     <string name="settings_mark_size">Size</string>
-    <string name="mark_size_s">Small</string>
-    <string name="mark_size_m">Medium</string>
-    <string name="mark_size_l">Large</string>
-    <string name="mark_size_xl">Extra large</string>
+    <string name="settings_mark_air">Edge distance</string>
+    <string name="settings_mark_alpha">Opacity</string>
     <string name="settings_mark_preview">Watermark preview</string>
     <string name="look_resize">Resize</string>
     <string name="look_resize_off">Do not resize</string>

@@ -84,37 +84,74 @@ object Watermark {
     }
 
     /**
-     * Quanto è larga la filigrana, in frazione del **lato lungo** dell'immagine.
+     * I tre numeri della firma, tutti in **centesimi** e tutti scrivibili a mano.
      *
+     * ⚠️⚠️ **DALLA `2.71` SONO NUMERI E NON QUATTRO GETTONI, ED È SUA RICHIESTA** (voce
+     * `filigrana` del giro della `2.70`: *deve dare le stesse impostazioni di Lightroom:
+     * dimensione relativa da inserire a mano, che serve a chi come me vuole riprodurre
+     * esattamente la firma di Lightroom per coerenza di brand identity*). Fino alla `2.70` la
+     * misura era una scelta fra Piccola, Media, Grande ed Enorme, cioè quattro valori su un asse
+     * continuo: chi vuole ritrovare una firma tarata altrove ha bisogno del **numero**, e quattro
+     * gradini non lo sanno dire.
      * ⚠️⚠️ **UNA FRAZIONE E NON PIXEL, ED È LO STESSO CRITERIO DEL DETTAGLIO**: la stessa scelta
      * deve pesare uguale su un file da quattromila pixel e su uno da mille, e un numero in pixel
      * darebbe una firma enorme sul secondo e invisibile sul primo.
      * ⚠️ **Il lato LUNGO e non la larghezza**: su una fotografia verticale la larghezza è il lato
      * corto, quindi la stessa scelta darebbe una firma più piccola solo per averla girata.
      */
-    enum class Size(val share: Float, override val token: String) : Choice {
-        SMALL(0.08f, "small"),
-        MEDIUM(0.14f, "medium"),
-        LARGE(0.22f, "large"),
-        HUGE(0.32f, "huge")
-    }
+    val SIZE = 1..50
 
     /**
-     * Quello che il salvataggio deve sapere: dove va la filigrana e quanto è grande.
+     * Quanto la filigrana sta lontano dal bordo, in centesimi del lato lungo.
+     *
+     * ⚠️⚠️ **ERA UNA COSTANTE FINO ALLA `2.70`, E ADESSO LA SCEGLIE LUI** (stessa voce: *mancano
+     * la distanza relativa dal bordo e la trasparenza come le avevo chieste*). Il numero di
+     * fabbrica è quello che era scritto nel codice, quindi chi non la tocca ritrova la firma dove
+     * l'ha lasciata.
+     * ⚠️ **Lo zero è ammesso**: una firma a filo del bordo è una scelta che si fa, e nessun conto
+     * si rompe.
+     */
+    val AIR = 0..25
+
+    /**
+     * Quanto la filigrana è opaca, in centesimi.
+     *
+     * ⚠️⚠️ **DALLA `2.71`, ED È LA SUA RISPOSTA `si` A `d-mark-opacita`** (giro della `2.70`, con
+     * la sua nota: *confermo: niente metodi di fusione, solo opacità assoluta*). Quindi la
+     * miscelazione resta quella normale, cioè la firma si posa sopra, e questo numero muove il
+     * solo canale alfa.
+     * ⚠️⚠️ **IL FONDO CORSA È CINQUE E NON ZERO, ED È UNA SCELTA DICHIARATA**: una firma a zero è
+     * una riscrittura del file che non lascia un pixel diverso, e il comando che dice 'non
+     * scriverla' esiste già ed è l'interruttore. Sotto il cinque per cento una firma non si vede
+     * comunque, quindi là sotto non c'è niente da chiedere.
+     */
+    val ALPHA = 5..100
+
+    /** Quanto è larga la firma di fabbrica: è la 'Media' dei quattro gettoni di prima. */
+    const val SIZE_DEFAULT = 14
+
+    /** Quanto sta lontana dal bordo di fabbrica: è la costante che il codice aveva fino alla `2.70`. */
+    const val AIR_DEFAULT = 3
+
+    /** Quanto è opaca di fabbrica: piena, cioè quello che il file porta e nient'altro. */
+    const val ALPHA_DEFAULT = 100
+
+    /**
+     * Quello che il salvataggio deve sapere: dove va la firma, quanto è grande, quanto sta
+     * lontana dal bordo e quanto è opaca.
      *
      * ⚠️ **Non porta il file**, che lo sa questo oggetto: chi salva dichiara l'intenzione, e dove
      * vive la copia è una faccenda di archivio.
+     * ⚠️ **I tre numeri viaggiano insieme al posto**, e non si leggono dalle preferenze qui
+     * dentro: così l'anteprima delle impostazioni disegna con **gli stessi** valori del
+     * salvataggio passandoli, invece di una seconda lettura che il giorno dopo diverge.
      */
-    data class Plan(val spot: Spot, val size: Size)
-
-    /**
-     * Quanto la filigrana sta lontano dal bordo, in frazione del lato lungo.
-     *
-     * ⚠️ **Lo legge anche l'anteprima delle impostazioni**, che è la ragione per cui non è
-     * privato: quel riquadro deve mostrare dove la firma cadrà davvero, e un secondo numero
-     * scritto là divergerebbe al primo ritocco.
-     */
-    const val AIR = 0.03f
+    data class Plan(
+        val spot: Spot,
+        val size: Int = SIZE_DEFAULT,
+        val air: Int = AIR_DEFAULT,
+        val alpha: Int = ALPHA_DEFAULT
+    )
 
     /** Dove vive la copia, dentro `filesDir`. */
     private const val DIR = "watermark"
@@ -267,7 +304,7 @@ object Watermark {
      * chiama in quel caso salva l'immagine e basta, invece di fallire.
      */
     fun bitmapFor(context: Context, imageLong: Int, plan: Plan): Bitmap? =
-        artwork(context, max(1, (imageLong * plan.size.share).roundToInt()))
+        artwork(context, max(1, (imageLong * plan.size / 100f).roundToInt()))
 
     /**
      * Il disegno nudo, col lato lungo a [box] pixel, o `null` se non c'è o non si disegna.
@@ -306,7 +343,7 @@ object Watermark {
             return null
         }
         try {
-            val air = long * AIR
+            val air = long * plan.air / 100f
             val x = when (plan.spot) {
                 Spot.TOP_LEFT, Spot.BOTTOM_LEFT -> air
                 Spot.TOP_RIGHT, Spot.BOTTOM_RIGHT -> sheet.width - mark.width - air
@@ -319,7 +356,18 @@ object Watermark {
             }
             // ⚠️ Il filtro serve perché la destinazione non cade su pixel interi: senza, il
             // disegno verrebbe arrotondato e i bordi si scalinerebbero.
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
+            /*
+             * ⚠️⚠️ **L'OPACITÀ VA SUL PAINT E NON SUI PIXEL DELLA FIRMA, DALLA `2.71`**: un
+             * `alpha` del pennello moltiplica il canale alfa che il disegno porta già, quindi un
+             * PNG con le sue trasparenze le tiene tutte e in più si smorza; riscriverne i pixel
+             * uno per uno darebbe lo stesso risultato pagando una passata sul bitmap.
+             * ⚠️ **Resta la miscelazione normale**, cioè la firma si posa sopra: è la sua nota su
+             * `d-mark-opacita` (*niente metodi di fusione, solo opacità assoluta*).
+             */
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                isFilterBitmap = true
+                alpha = (plan.alpha.coerceIn(ALPHA) * 255 / 100f).roundToInt()
+            }
             Canvas(sheet).drawBitmap(
                 mark,
                 Rect(0, 0, mark.width, mark.height),
