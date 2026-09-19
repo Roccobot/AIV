@@ -533,13 +533,14 @@
     <string name="look_resize">அளவு மாற்று</string>
     <string name="look_resize_mode">இதற்கு ஏற்ப</string>
     <string name="resize_long">நீளமான பக்கம்</string>
+    <string name="resize_short">குறுகிய பக்கம்</string>
     <string name="resize_wide">அகலம்</string>
     <string name="resize_tall">உயரம்</string>
     <string name="resize_share">சதவீதம்</string>
     <string name="look_resize_px">பிக்சல்கள்</string>
     <string name="look_resize_pct">சதவீதம்</string>
     <string name="look_resize_range">%1$d முதல் %2$d வரையிலான எண்ணை எழுதுங்கள்.</string>
-    <string name="look_resize_to">%1$d x %2$d இலிருந்து %3$d x %4$d ஆக.</string>
+    <string name="look_resize_now">தற்போதைய அளவு: %1$s</string>
     <string name="look_resize_keep">இந்தப் படம் ஏற்கெனவே சிறியது, எனவே அப்படியே இருக்கும்.</string>
     <string name="look_resize_reset">மீட்டமை</string>
     <string name="look_resize_note">விகிதம் மாறாது; அளவைக் குறைக்க மட்டுமே முடியும்.</string>

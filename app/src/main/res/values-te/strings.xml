@@ -533,13 +533,14 @@
     <string name="look_resize">పరిమాణం మార్చు</string>
     <string name="look_resize_mode">దీనికి సరిపోల్చు</string>
     <string name="resize_long">పొడవైన అంచు</string>
+    <string name="resize_short">పొట్టి అంచు</string>
     <string name="resize_wide">వెడల్పు</string>
     <string name="resize_tall">ఎత్తు</string>
     <string name="resize_share">శాతం</string>
     <string name="look_resize_px">పిక్సెళ్లు</string>
     <string name="look_resize_pct">శాతం</string>
     <string name="look_resize_range">%1$d నుండి %2$d మధ్య ఒక సంఖ్య రాయండి.</string>
-    <string name="look_resize_to">%1$d x %2$d నుండి %3$d x %4$d కు.</string>
+    <string name="look_resize_now">ప్రస్తుత పరిమాణం: %1$s</string>
     <string name="look_resize_keep">ఈ చిత్రం ఇప్పటికే చిన్నది, కాబట్టి అలాగే ఉంటుంది.</string>
     <string name="look_resize_reset">రీసెట్</string>
     <string name="look_resize_note">నిష్పత్తి మారదు; పరిమాణాన్ని తగ్గించడం మాత్రమే సాధ్యం.</string>

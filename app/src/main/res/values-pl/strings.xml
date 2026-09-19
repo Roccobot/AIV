@@ -565,13 +565,14 @@
     <string name="look_resize">Zmień rozmiar</string>
     <string name="look_resize_mode">Dopasuj do</string>
     <string name="resize_long">Dłuższy bok</string>
+    <string name="resize_short">Krótszy bok</string>
     <string name="resize_wide">Szerokość</string>
     <string name="resize_tall">Wysokość</string>
     <string name="resize_share">Procent</string>
     <string name="look_resize_px">Piksele</string>
     <string name="look_resize_pct">Procent</string>
     <string name="look_resize_range">Wpisz liczbę od %1$d do %2$d.</string>
-    <string name="look_resize_to">Z %1$d x %2$d na %3$d x %4$d.</string>
+    <string name="look_resize_now">Bieżący rozmiar: %1$s</string>
     <string name="look_resize_keep">Ten obraz jest już mniejszy, więc pozostaje bez zmian.</string>
     <string name="look_resize_reset">Przywróć domyślne</string>
     <string name="look_resize_note">Proporcje pozostają bez zmian; rozmiar można tylko zmniejszyć.</string>

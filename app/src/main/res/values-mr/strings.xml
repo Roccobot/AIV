@@ -533,13 +533,14 @@
     <string name="look_resize">आकार बदला</string>
     <string name="look_resize_mode">यानुसार</string>
     <string name="resize_long">लांब बाजू</string>
+    <string name="resize_short">लहान बाजू</string>
     <string name="resize_wide">रुंदी</string>
     <string name="resize_tall">उंची</string>
     <string name="resize_share">टक्केवारी</string>
     <string name="look_resize_px">पिक्सेल</string>
     <string name="look_resize_pct">टक्के</string>
     <string name="look_resize_range">%1$d आणि %2$d दरम्यानची संख्या लिहा.</string>
-    <string name="look_resize_to">%1$d x %2$d वरून %3$d x %4$d पर्यंत.</string>
+    <string name="look_resize_now">सध्याचा आकार: %1$s</string>
     <string name="look_resize_keep">ही प्रतिमा आधीच लहान आहे, म्हणून ती तशीच राहते.</string>
     <string name="look_resize_reset">रीसेट</string>
     <string name="look_resize_note">प्रमाण तेच राहते; आकार फक्त लहान करता येतो.</string>

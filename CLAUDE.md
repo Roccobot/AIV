@@ -4534,11 +4534,58 @@ corrente' vuol dire dopo la posa e il ritaglio, che è quello che la finestra gi
 - ⚠️ **Vive sulla riga del titolo**, dove questa app mette un comando di una finestra dalla `1.79`:
   `TitleRow` sceglie da sé fra la pastiglia scritta e l'icona, misurando se il titolo ci sta
   accanto.
-- ⚠️ **Scrive nel campo e non applica**, e senza la misura di partenza non c'è: là non si saprebbe
+- ⚠️ **Scrive nei campi e non applica**, e senza la misura di partenza non c'è: là non si saprebbe
   da dove si riparte.
+- ⚠️⚠️ **MA DALLA `2.77` NON RIPORTA PIÙ A 'LATO LUNGO': RIPORTA AL LIBERO** (voce
+  `resize-ripristina` non approvata: *'Ripristina' deve riportare i valori non all'originale della
+  visualizzazione o dell'immagine in memoria, bensì dell'immagine reale al suo stato corrente*). La
+  misura era già quella giusta, cioè quella dopo la posa e il ritaglio; a cambiare è che con la
+  forma nuova due campi pieni con le misure correnti **sono** il libero, e lasciare acceso un
+  gettone direbbe che una regola governa un ridimensionamento che non c'è.
 - ⚠️⚠️ **LA NOTA DELLA FINESTRA È RISCRITTA DA LUI**, alla lettera: *Le proporzioni restano
   invariate; è possibile solo ridurre le dimensioni.* ⚠️ **In testo regolare**, che è la sua
   precisazione dello stesso momento: la prima stesura rendeva l'enfasi in corsivo.
+
+⚠️⚠️ **E DALLA `2.77` LA FINESTRA È RIDISEGNATA PER INTERO, ED È LA SUA SPECIFICA ALLA LETTERA**
+(stessa voce: *la schermata va ridisegnata e migliorata: sotto 'Ridimensiona' va indicata la
+dimensione di origine (o dello stato attuale, dopo un ritaglio; il ridimensionamento avviene per
+ultimo, DOPO il ritaglio). Es. `Dimensioni attuali: **1800**×**1200** px`, con i grassetti. Di
+default ci devono essere due campi compilabili con il numero dei pixel di destinazione, e nessun
+chip deve essere selezionato ... Se poi si tocca un chip, si disattivano i campi che dipendono dal
+compilabile ... Sotto i campi compilabili, un'anteprima simile a quella di 'Rinomina'*). Fino alla
+`2.76` c'erano quattro gettoni e **un** campo, quindi 'lato lungo 1600' diceva un numero solo e
+l'altra misura si scopriva in una riga di testo.
+- ⚠️⚠️ **I DUE CAMPI SONO LA VERITÀ, E IL GETTONE DICE SOLTANTO QUALE DEI DUE COMANDA**: le
+  proporzioni si mantengono sempre, quindi i due numeri sono uno solo scritto due volte. Il valore
+  del piano si **ricava** (`Resize.valueOf`), e per questo cambiare gettone non muove una cifra,
+  che è la cosa che nella `2.76` costringeva la finestra a inventarsi un numero a ogni cambio di
+  modo. ⚠️ **L'unico travaso resta quello coi per cento**, che sono un'altra unità.
+- ⚠️⚠️ **'Pixel' È IL GETTONE DEL LIBERO E NON SI ACCENDE MAI, ED È UNA LETTURA DICHIARATA**: la
+  sua riga dice *nessun chip deve essere selezionato* proprio nello stato in cui i due campi si
+  scrivono tutti e due, e quello stato è il libero. Un gettone acceso direbbe che una regola c'è
+  mentre non ce n'è nessuna: il gettone resta perché è la porta per **tornarci**, e il riscontro
+  che dà è il campo disattivato che si riaccende.
+- ⚠️⚠️ **QUINDI IL PIANO DI FABBRICA NON FA PIÙ NIENTE** (`Resize.NONE`, il libero con un tetto di
+  ventimila pixel), e fino alla `2.76` era 'Lato lungo 1600': senza quel cambiamento la finestra si
+  aprirebbe al primo giro con un gettone acceso e un numero che nessuno ha scritto, cioè il
+  contrario della sua riga. ⚠️ **Con lui cade la frase che diceva che quello di fabbrica
+  rimpicciolisce quasi ogni fotografia**, in § '🎛️ I due tasti in testata, e i loro due gesti'.
+- ⚠️ **I campi si precompilano col RISULTATO del piano, e con le misure correnti quando il piano
+  non fa niente**: è una regola sola invece di due, e copre insieme il primo giro, il 'Ripristina'
+  e un piano che su quell'immagine non toglie un pixel.
+- ⚠️⚠️ **SENZA LE MISURE RESTA LA SOLA PERCENTUALE**, ed è l'unico modo che non ha bisogno di
+  sapere da dove si parte: là non si possono precompilare i campi né tradurre l'uno nell'altro,
+  cioè manca tutto quello su cui la finestra nuova è costruita. Succede dove il lato lungo non si
+  legge, che è il caso già dichiarato più sotto.
+- ⚠️ **La misura si scrive con una funzione sola** per la riga di partenza e per l'anteprima (i due
+  numeri in grassetto, il segno di moltiplicazione in mezzo, `px` in coda): scritte due volte, la
+  prima a divergere sarebbe quella che nessuno guarda. ⚠️ **Gli spazi intorno al segno sono una
+  lettura dichiarata**: la sua riga dell'anteprima li ha (*in W × H px*) e quella delle dimensioni
+  attuali no, perché là erano fra due asterischi di grassetto.
+- ⚠️ **L'anteprima riusa la stringa di 'Rinomina'** (`rename_preview`), che dice esattamente
+  'Anteprima' in tutte e ventotto le lingue: una parola nuova sarebbe la stessa cosa scritta due
+  volte. ⚠️ **Le stringhe nuove sono due**, 'Lato corto' e la riga delle dimensioni attuali, e
+  `look_resize_to` esce perché non ha più chiamanti.
 
 ⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
 (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento
@@ -4549,14 +4596,16 @@ che vivesse solo là mancherebbe a tutti i telefoni più vecchi. Il comando è *
 le rompe deforma l'immagine, e chi vuole cambiare il rapporto ha il modulo Ritaglio, che toglie
 dei pixel invece di stirarli. ⚠️⚠️ **E NON SI INGRANDISCE MAI**: i pixel che mancano non li inventa
 nessuno, quindi chiedere un lato più lungo di quello che il file ha darebbe un'immagine più pesante
-e non più nitida. Il tetto è **una riga sola** valida per tutti e quattro i modi, e la finestra
-**dice** che su quell'immagine il piano non fa niente invece di lasciar credere il contrario.
+e non più nitida. Il tetto è **una riga sola** valida per tutti i modi, e la finestra **dice** che
+su quell'immagine il piano non fa niente invece di lasciar credere il contrario.
 
-⚠️ **Quattro modi e non uno**: il lato lungo serve quasi sempre, perché vale per le verticali come
-per le orizzontali; la larghezza e l'altezza servono a chi ha un vincolo su una dimensione sola; la
-percentuale a chi non ragiona in pixel. ⚠️ **I confini dipendono dal modo**, e il valore salvato si
-riporta dentro i suoi **in lettura**: chi sceglie 1600 pixel e poi passa alla percentuale lascia
-nell'archivio due chiavi che, lette alla lettera, darebbero un 1600 per cento.
+⚠️ **Sei modi e non uno, dalla `2.77`, e prima erano quattro**: il lato lungo e quello corto
+valgono per le verticali come per le orizzontali; la larghezza e l'altezza servono a chi ha un
+vincolo su una dimensione sola; la percentuale a chi non ragiona in pixel; il libero a chi i pixel
+di destinazione li scrive e basta. L'elenco è il suo alla lettera, e l'ordine dei gettoni è quello
+in cui li ha scritti. ⚠️ **I confini dipendono dal modo**, e il valore salvato si riporta dentro i
+suoi **in lettura**: chi sceglie 1600 pixel e poi passa alla percentuale lascia nell'archivio due
+chiavi che, lette alla lettera, darebbero un 1600 per cento.
 
 ⚠️⚠️ **LA MISURA DI PARTENZA NASCE DA DUE FONTI, E LA RAGIONE È L'EXIF**: `inJustDecodeBounds`
 legge le misure del flusso codificato, che per una fotografia scattata in verticale sono quelle
@@ -4575,15 +4624,20 @@ dall'anteprima già raddrizzata, che è la stessa divisione che il KDoc di `Pixe
 dopo la firma verrebbe rimpicciolita insieme a lei, cioè disegnata a una misura e resa a un'altra.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`RidimensionaTest`, ogni caso controprovato): che
-nessuno dei quattro modi ingrandisca e che la misura identica non conti come lavoro, che ogni modo
+nessun modo ingrandisca e che la misura identica non conti come lavoro, che ogni modo
 governi il proprio lato tenendo le proporzioni, i confini per modo, che la misura di partenza
 prenda il lato lungo dal file e la forma dall'anteprima, che la posa scambi i lati e il ritaglio li
 riduca, che il valore salvato si rilegga dentro i confini del suo modo, che l'immagine
 ridimensionata abbia la misura chiesta e a vuoto non se ne faccia una nuova, che un piano che
 rimpicciolisce accenda 'Salva' su un'immagine intonsa **e uno che non rimpicciolisce no**, e i due
-gesti del tasto. **Non** vede la resa del filtro, cioè che l'immagine rimpicciolita sia nitida, né
-come la finestra si legge sul telefono: quelle si guardano sul telefono, e la voce di collaudo le
-chiede.
+gesti del tasto; dalla `2.77` anche che il **piano di fabbrica non faccia niente**, quale campo
+ogni modo comanda (col verso giusto su una verticale, che è la cosa che si rompe in silenzio), i
+due conti da cui il valore e il campo compagno si ricavano, che nel libero si scrivano tutti e due
+i campi e che un gettone ne chiuda uno, che il gettone del libero **non si accenda mai**, che
+scrivendo in un campo l'altro segua, che 'Ripristina' torni alle misure correnti senza gettone, e
+che la misura entri **dentro** la frase tradotta al posto del suo segnaposto. **Non** vede la resa
+del filtro, cioè che l'immagine rimpicciolita sia nitida, né come la finestra si legge sul
+telefono: quelle si guardano sul telefono, e la voce di collaudo le chiede.
 
 ## 🎛️ I due tasti in testata, e i loro due gesti
 
@@ -4622,7 +4676,11 @@ niente da misurare.
 - ⚠️⚠️ **'FILIGRANA' NON C'È SENZA UN LOGO SCELTO**, ed è il criterio di 'Mostra nascoste'
   (§ '👁️ Mostra nascoste, e perché dura un minuto'): un interruttore che non cambia nessuna
   immagine è un comando che non fa niente. 'Ridimensiona' invece c'è sempre, perché il piano
-  esiste anche spento, e quello di fabbrica rimpicciolisce quasi ogni fotografia.
+  esiste anche spento. ⚠️⚠️ **E LA CODA CHE DICEVA CHE QUELLO DI FABBRICA RIMPICCIOLISCE QUASI
+  OGNI FOTOGRAFIA È DECADUTA CON LA `2.77`**: adesso il piano di fabbrica non fa niente
+  (`Resize.NONE`), quindi chi accende quel tasto senza aver configurato non toglie un pixel,
+  che è la sua specifica letta fino in fondo (*imposti il ridimensionamento dal tasto e poi
+  l'interruttore stabilisce se si applica*).
 
 ⚠️⚠️ **IL TITOLO SI È ACCORCIATO IN 'MODIFICA' NELLO STESSO GIRO, ED È SUO** (campo libero del giro
 della `2.70`: *'Modifica immagine' diventa solo 'Modifica'*). Le due cose si leggono insieme: il

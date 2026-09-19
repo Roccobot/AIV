@@ -533,13 +533,14 @@
     <string name="look_resize">Größe ändern</string>
     <string name="look_resize_mode">Anpassen an</string>
     <string name="resize_long">Längere Seite</string>
+    <string name="resize_short">Kürzere Seite</string>
     <string name="resize_wide">Breite</string>
     <string name="resize_tall">Höhe</string>
     <string name="resize_share">Prozentsatz</string>
     <string name="look_resize_px">Pixel</string>
     <string name="look_resize_pct">Prozent</string>
     <string name="look_resize_range">Gib eine Zahl zwischen %1$d und %2$d ein.</string>
-    <string name="look_resize_to">Von %1$d x %2$d auf %3$d x %4$d.</string>
+    <string name="look_resize_now">Aktuelle Größe: %1$s</string>
     <string name="look_resize_keep">Dieses Bild ist bereits kleiner und bleibt daher unverändert.</string>
     <string name="look_resize_reset">Zurücksetzen</string>
     <string name="look_resize_note">Das Seitenverhältnis bleibt gleich; die Größe kann nur verkleinert werden.</string>

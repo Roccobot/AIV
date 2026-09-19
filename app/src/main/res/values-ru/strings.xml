@@ -565,13 +565,14 @@
     <string name="look_resize">Изменить размер</string>
     <string name="look_resize_mode">Подогнать по</string>
     <string name="resize_long">Длинная сторона</string>
+    <string name="resize_short">Короткая сторона</string>
     <string name="resize_wide">Ширина</string>
     <string name="resize_tall">Высота</string>
     <string name="resize_share">Процент</string>
     <string name="look_resize_px">Пиксели</string>
     <string name="look_resize_pct">Процентов</string>
     <string name="look_resize_range">Введите число от %1$d до %2$d.</string>
-    <string name="look_resize_to">С %1$d x %2$d на %3$d x %4$d.</string>
+    <string name="look_resize_now">Текущий размер: %1$s</string>
     <string name="look_resize_keep">Это изображение уже меньше, поэтому остаётся как есть.</string>
     <string name="look_resize_reset">Сбросить</string>
     <string name="look_resize_note">Пропорции не меняются; размер можно только уменьшить.</string>

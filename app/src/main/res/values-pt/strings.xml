@@ -549,13 +549,14 @@
     <string name="look_resize">Redimensionar</string>
     <string name="look_resize_mode">Ajustar a</string>
     <string name="resize_long">Lado maior</string>
+    <string name="resize_short">Lado menor</string>
     <string name="resize_wide">Largura</string>
     <string name="resize_tall">Altura</string>
     <string name="resize_share">Percentagem</string>
     <string name="look_resize_px">Píxeis</string>
     <string name="look_resize_pct">Por cento</string>
     <string name="look_resize_range">Escreve um número entre %1$d e %2$d.</string>
-    <string name="look_resize_to">De %1$d x %2$d para %3$d x %4$d.</string>
+    <string name="look_resize_now">Tamanho atual: %1$s</string>
     <string name="look_resize_keep">Esta imagem já é mais pequena, por isso fica como está.</string>
     <string name="look_resize_reset">Redefinir</string>
     <string name="look_resize_note">A proporção não muda; o tamanho só pode ser reduzido.</string>

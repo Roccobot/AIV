@@ -491,7 +491,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun resizePlan(): Resize.Plan {
         val now = settings
-        return if (now == null) Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX)
+        return if (now == null) Resize.NONE
         else Resize.Plan(now.sizeMode, now.sizeValue)
     }
 
