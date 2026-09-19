@@ -469,6 +469,9 @@
     <string name="look_haze">Серпанок</string>
     <string name="look_grain">Зернистість</string>
     <string name="look_vignette">Віньєтка</string>
+    <string name="look_grain_size">Розмір</string>
+    <string name="look_grain_lift">Світлі</string>
+    <string name="look_vignette_feather">Розтушовка</string>
     <string name="look_tone">Крива</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тонова крива</string>

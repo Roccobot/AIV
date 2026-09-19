@@ -98,6 +98,9 @@
     <string name="look_haze">Foschia</string>
     <string name="look_grain">Grana</string>
     <string name="look_vignette">Vignettatura</string>
+    <string name="look_grain_size">Dimensione</string>
+    <string name="look_grain_lift">Luci</string>
+    <string name="look_vignette_feather">Sfumatura</string>
     <string name="look_tone">Curve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva tonale</string>

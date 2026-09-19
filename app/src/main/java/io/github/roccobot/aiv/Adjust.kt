@@ -550,9 +550,30 @@ data class Effects(
      *   valore del cursore scurisce lo stesso angolo.
      * - ⚠️ **La corsa parte da metà raggio**, che è quello che fa una vignettatura d'obiettivo:
      *   il centro resta intatto e l'effetto cresce verso il bordo con una curva morbida, invece
-     *   di essere un tondo scuro che si vede dove comincia.
+     *   di essere un tondo scuro che si vede dove comincia. ⚠️ **Da dove parte lo dice
+     *   [vignetteFeather]**, dalla `2.66`: metà raggio è il suo zero.
      */
     val vignette: Float = 0f,
+    /**
+     * Quanto l'alone della vignettatura **si avvicina al centro**.
+     *
+     * ⚠️⚠️ **È UN CURSORE SECONDARIO, DALLA `2.66`, ED È SUA RICHIESTA** (campo libero del giro
+     * chiuso il 2026-09-19: *per `Vignettatura`: 'Sfumatura'. Indica quanto l'alone scuro intorno
+     * si avvicina al centro, e/o l'opacità iniziale ai bordi esterni (credo)*). Le due cose che
+     * nomina sono la stessa vista da due parti, e un numero solo le dice tutte e due: spostando
+     * il punto in cui la rampa comincia, l'alone arriva più dentro **e** copre più area.
+     * - ⚠️⚠️ **LO ZERO È IL CONTO DI OGGI, ED È MISURATO**: a riposo la soglia vale esattamente
+     *   metà raggio, quindi la vignettatura di un'immagine già tarata non si muove di un livello
+     *   (scarto nullo su 1001 raggi). È la stessa proprietà del raggio del Dettaglio, dove lo
+     *   zero è il raggio di serie.
+     * - ⚠️ **Che cosa fanno i due estremi**, misurato su un 4:3 contando l'area toccata: a fondo
+     *   corsa negativa la rampa comincia a `0,9` e l'alone vive nei soli angoli (il 2% del
+     *   fotogramma); a riposo copre il 61%; a fondo corsa positiva comincia a `0,1` e arriva al
+     *   98%, cioè tutto tranne il centro esatto.
+     * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
+     *   finché [vignette] è a zero: è il criterio della maschera di contrasto senza nitidezza.
+     */
+    val vignetteFeather: Float = 0f,
     /**
      * Quanta **grana** si aggiunge, come quella di una pellicola.
      *
@@ -570,14 +591,73 @@ data class Effects(
      * - ⚠️ **Pesa sui mezzi toni**: una pellicola mostra la grana dove c'è emulsione esposta a
      *   metà, e quasi niente nel nero chiuso e nel bianco bruciato. Senza quel peso il cursore
      *   sporcherebbe prima di tutto le ombre, che è l'effetto del rumore digitale e non della
-     *   grana.
+     *   grana. ⚠️ **Dalla `2.66` quel peso scende anche sulle luci**, e quanto lo dice
+     *   [grainLift].
      */
-    val grain: Float = 0f
+    val grain: Float = 0f,
+    /**
+     * Quanto è grossa la cella della grana, rispetto a quella di serie.
+     *
+     * ⚠️⚠️ **È UN CURSORE SECONDARIO, DALLA `2.66`, ED È SUA RICHIESTA** (campo libero del giro
+     * chiuso il 2026-09-19: *per 'Grana': a) 'Dimensione'. L'attuale va benissimo ed è il
+     * default, ma a volte mi piace generare grana un po' più grossa*).
+     * - ⚠️⚠️ **RADDOPPIA E DIMEZZA INVECE DI SOMMARE, COME IL RAGGIO DEL DETTAGLIO**: una misura
+     *   di questo genere si percepisce in rapporti, e il precedente in casa è già scritto su
+     *   [Detail.sharpReach]. Lo zero è [GRAIN_CELL], cioè quella che lui ha approvato.
+     * - ⚠️ **Su un file da quattromila pixel la corsa va da 1,7 a 6,7 pixel**, con 3,3 a riposo:
+     *   sotto si arriva al rumore che si vede solo ingrandendo, sopra all'impasto che resta
+     *   visibile anche rimpicciolendo.
+     * - ⚠️⚠️ **VERSO IL FINE IL PAVIMENTO DI [grainCell] ENTRA ANCHE SULL'ANTEPRIMA, e va detto**:
+     *   a 1600 pixel di lato la cella scende sotto il pixel intorno a `-0,4`, quindi là la grana
+     *   si vede un po' più grossa di quella che il file salvato porterà. Fino alla `2.65` quel
+     *   pavimento non si incontrava mai sopra i 1200 pixel, e questo cursore è la ragione per cui
+     *   adesso si incontra.
+     * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
+     *   finché [grain] è a zero.
+     */
+    val grainSize: Float = 0f,
+    /**
+     * Quanta grana arriva alle **luci**: a riposo quasi niente, a fondo corsa tutta.
+     *
+     * ⚠️⚠️ **IL VALORE DI RIPOSO È QUELLO CHE LUI HA CHIESTO DI FABBRICA, E LA CORSA RIMETTE IL
+     * CONTO DI PRIMA** (campo libero del giro chiuso il 2026-09-19: *b) 'Luci', che è
+     * l'abbreviazione di 'Applica alle luci'. Voglio che di default la grana sia aggiunta solo
+     * alle ombre, e alle luci in misura non proprio zero ma quasi. Questo per evitare che ad aree
+     * uniformi come il cielo sia aggiunta grana inutilmente*). Scritto al rovescio, cioè con lo
+     * zero sul comportamento della `2.65`, il valore di fabbrica avrebbe dovuto essere un numero
+     * diverso da zero, e allora un preset che non nomina questo campo lo rileggerebbe sbagliato.
+     * - ⚠️⚠️ **A FONDO CORSA IL CONTO È ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo
+     *   su 1001 toni), quindi chi vuole la grana di prima ha un posto dove chiederla.
+     * - ⚠️⚠️ **MA CHI HA GIÀ UNO STILE CON LA GRANA MOSSA LA RITROVA DIVERSA, E SI DICHIARA**:
+     *   il peso di fabbrica è cambiato, e un preset salvato con la `2.65` non porta questo campo,
+     *   quindi lo rilegge a riposo. Sulle sue immagini la grana resta dov'era nelle ombre e
+     *   quasi sparisce nei chiari.
+     * - ⚠️ **Quello che la sua richiesta non copre**: un cielo è chiaro **e** uniforme, e questo
+     *   cursore guarda solo quanto è chiaro. Guardare anche l'uniformità vorrebbe dire leggere i
+     *   pixel vicini, cioè un raggio e un bordo sulle tessere del salvataggio, che è il prezzo
+     *   che la foschia paga da sola; qui costa zero campioni ed è la strada che lui ha indicato.
+     * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
+     *   finché [grain] è a zero.
+     */
+    val grainLift: Float = 0f
 ) {
 
-    /** Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
+    /**
+     * Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle].
+     *
+     * ⚠️⚠️ **I TRE CURSORI SECONDARI NON SI CONTANO, ED È IL CRITERIO DEL DETTAGLIO**: [grainSize],
+     * [grainLift] e [vignetteFeather] dicono **come** lavorano i due che li governano, non
+     * *quanto*. Contandoli, un'immagine con la sola 'Sfumatura' mossa si dichiarerebbe da
+     * riscrivere, cioè verrebbe ricompressa per niente.
+     */
     val idle: Boolean
         get() = abs(haze) < DEAD && abs(vignette) < DEAD && abs(grain) < DEAD
+
+    /** Se la grana è spenta, cioè se [grainSize] e [grainLift] non governano niente. */
+    val noGrain: Boolean get() = abs(grain) < DEAD
+
+    /** Se la vignettatura è spenta, cioè se [vignetteFeather] non governa niente. */
+    val noVignette: Boolean get() = abs(vignette) < DEAD
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
@@ -643,16 +723,22 @@ data class Effects(
         const val GRAIN_CELL = 1f / 1200f
 
         /**
-         * Il lato della cella della grana nello spazio in cui il conto gira: vedi [GRAIN_CELL].
+         * Il lato della cella della grana nello spazio in cui il conto gira, dato il lato lungo
+         * [long] e quanto il cursore 'Dimensione' la ingrossa: vedi [GRAIN_CELL].
+         *
+         * ⚠️ **Il cursore raddoppia e dimezza invece di sommare**, come il raggio del Dettaglio:
+         * il perché vive su [Effects.grainSize], insieme alla corsa misurata.
          *
          * ⚠️⚠️ **SOTTO IL PIXEL NON SI SCENDE, E QUEL PAVIMENTO ROMPE LA PROPORZIONE**: una cella
          * più stretta di un pixel non è una grana più fine, è un rumore che cambia più in fretta di
-         * quanto lo schermo sappia mostrare, cioè uno sfarfallio. Il pavimento entra in funzione
-         * **sotto i 1200 pixel** di lato, quindi mai sull'anteprima dell'editor (1600) né su un
-         * file da fotocamera: là dove entra, la grana si vede un po' più grossa di quella del file
-         * salvato, e va detto invece di prometterla identica.
+         * quanto lo schermo sappia mostrare, cioè uno sfarfallio. Là dove entra, la grana si vede
+         * un po' più grossa di quella del file salvato, e va detto invece di prometterla identica.
+         * ⚠️ **Dalla `2.66` si incontra anche sull'anteprima**: a cursore a riposo il pavimento
+         * entra sotto i 1200 pixel di lato, cioè mai in questo editor (1600) né su un file da
+         * fotocamera, ma verso il fine della corsa quella soglia sale.
          */
-        fun grainCell(long: Float): Float = max(1f, GRAIN_CELL * long)
+        fun grainCell(long: Float, size: Float = 0f): Float =
+            max(1f, GRAIN_CELL * long * 2f.pow(size))
     }
 }
 
@@ -1345,7 +1431,11 @@ uniform half effectsOn;
 uniform half haze;
 uniform float2 broad;
 uniform half vignette;
+// Quanto l'alone della vignettatura si avvicina al centro (dalla `2.66`): vedi `VIGNETTE_SOFT`.
+uniform half vignetteFeather;
 uniform half filmGrain;
+// Quanta grana arriva alle luci (dalla `2.66`): a zero quasi niente, a uno tutta.
+uniform half grainLift;
 // ⚠️⚠️ **DOVE COMINCIA L'IMMAGINE INTERA, NELLO SPAZIO IN CUI QUESTO CONTO GIRA**: `spot` è il suo
 // angolo in alto a sinistra e `frame` la sua misura. Sull'anteprima è il rettangolo in cui
 // l'immagine è disegnata sullo schermo; nel salvataggio a tessere l'origine è **negativa**, perché
@@ -1454,6 +1544,15 @@ const half HAZE_TIGHT = 2.1667;
 // vede dove comincia, e quello si ottiene comunque spingendo il cursore su un'immagine già scura.
 const half VIGNETTE_REACH = 0.55;
 
+// Di quanto il cursore 'Sfumatura' sposta il punto in cui la vignettatura comincia (dalla `2.66`).
+//
+// ⚠️ **Il conto che lo regge**, misurato contando l'area toccata su un 4:3: a riposo la rampa
+// parte da metà raggio e copre il 61% del fotogramma, che è il conto della `2.65`; a fondo corsa
+// negativa parte da 0,9 e resta nei soli angoli (il 2%); a fondo corsa positiva parte da 0,1 e
+// arriva al 98%, cioè tutto tranne il centro esatto. Più largo di così la soglia passerebbe zero,
+// e allora il centro si scurirebbe insieme al resto, cioè non sarebbe più una vignettatura.
+const half VIGNETTE_SOFT = 0.4;
+
 // Quanto la grana muove un pixel di mezzo tono, al fondo della corsa.
 //
 // ⚠️ **Il conto**: a 100 il grano sposta la luminanza di dodici livelli su 255 in un verso e
@@ -1461,6 +1560,23 @@ const half VIGNETTE_REACH = 0.55;
 // l'immagine intera. Sopra si arriva alla neve di una fotografia ad alto ISO, che è rumore e non
 // grana.
 const half GRAIN_REACH = 0.048;
+
+// Dove comincia e dove finisce la rampa con cui la grana si ritira dalle luci (dalla `2.66`), e
+// quanta ne resta là in fondo a cursore 'Luci' a riposo.
+//
+// ⚠️⚠️ **I TRE NUMERI SONO MISURATI, E QUELLO CHE CONTA È IL CIELO**: a cursore pieno della grana e
+// 'Luci' a riposo, un pixel si muove di 6,2 livelli su 255 a un quarto di scala e di 9,2 a t=0,25,
+// cioè quanto prima; su un cielo a t=0,82 passa da 7,2 livelli a **0,8**, che è il *non proprio
+// zero ma quasi* della sua richiesta. Il picco del peso si sposta da metà scala a 0,39, cioè nella
+// fascia scura, che è il *solo alle ombre* della stessa riga.
+// ⚠️⚠️ **E A 'Luci' PIENO IL CONTO TORNA ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo
+// su 1001 toni), quindi il comportamento di prima non si perde, si sposta a un capo della corsa.
+// ⚠️ **Perché la rampa comincia sotto metà scala**: con una che partisse da 0,5 il cielo si
+// fermerebbe a 2,9 livelli invece che a 0,8, cioè resterebbe visibile proprio dove lui non la
+// vuole. Il prezzo è che a metà tono la grana tiene l'81% di quanto teneva, ed è dichiarato.
+const half GRAIN_LIFT_LO = 0.35;
+const half GRAIN_LIFT_HI = 0.85;
+const half GRAIN_LIFT_FLOOR = 0.1;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -2072,7 +2188,11 @@ half4 main(float2 p) {
         // a scurire subito si legge come un tondo chiaro appiccicato in mezzo, mentre quella di
         // un obiettivo lascia intatta la parte centrale e cala verso il bordo. Lo scalino lo
         // toglie `smoothstep`, che parte e arriva con pendenza zero.
-        half fall = half(smoothstep(0.5, 1.0, float(r)));
+        // ⚠️⚠️ **E DALLA `2.66` QUEL PUNTO LO SPOSTA IL CURSORE 'Sfumatura'**, che è quanto l'alone
+        // si avvicina al centro: a riposo la soglia vale ancora esattamente metà raggio, quindi
+        // un'immagine già tarata non si muove di un livello.
+        half start = half(0.5) - vignetteFeather * VIGNETTE_SOFT;
+        half fall = half(smoothstep(float(start), 1.0, float(r)));
         // Il fattore moltiplica la luce: verso il basso scurisce l'angolo, verso l'alto lo apre.
         half k = vignette * VIGNETTE_REACH * fall;
         rgb = k >= half(0.0)
@@ -2091,6 +2211,15 @@ half4 main(float2 p) {
         half tone = luma(rgb);
         half off = half(2.0) * tone - half(1.0);
         half mid = half(1.0) - off * off;
+        // ⚠️⚠️ **E DALLA `2.66` SI RITIRA ANCHE DALLE LUCI, QUANTO LO DICE IL CURSORE 'Luci'**
+        // (sua richiesta: *di default la grana sia aggiunta solo alle ombre, e alle luci in misura
+        // non proprio zero ma quasi ... per evitare che ad aree uniformi come il cielo sia
+        // aggiunta grana inutilmente*). L'inviluppo qui sopra tiene fuori il nero chiuso e il
+        // bianco bruciato; questa rampa toglie la fascia in mezzo dove vive un cielo, e a cursore
+        // pieno non toglie niente, cioè rimette il conto della `2.65`.
+        half up = half(smoothstep(float(GRAIN_LIFT_LO), float(GRAIN_LIFT_HI), float(tone)));
+        half keep = mix(GRAIN_LIFT_FLOOR, half(1.0), grainLift);
+        mid = mid * mix(half(1.0), keep, up);
         // ⚠️ **Si somma lo stesso valore ai tre canali**: la grana di una pellicola in bianco e
         // nero è di densità e non di colore, e un rumore per canale darebbe i puntini colorati
         // del sensore, cioè proprio quello che la riduzione del rumore esiste per togliere.
@@ -2246,7 +2375,7 @@ private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
     val sharp = detail.sharpReach(span)
     val grain = Detail.grainReach(span)
     val broad = Effects.hazeReach(span)
-    val cell = Effects.grainCell(span)
+    val cell = Effects.grainCell(span, effects.grainSize)
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
         /*
@@ -2297,7 +2426,9 @@ private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
         setFloatUniform("haze", effects.haze)
         setFloatUniform("broad", broad, broad)
         setFloatUniform("vignette", effects.vignette)
+        setFloatUniform("vignetteFeather", effects.vignetteFeather)
         setFloatUniform("filmGrain", effects.grain)
+        setFloatUniform("grainLift", effects.grainLift)
         setFloatUniform("filmCell", cell)
         setFloatUniform("spot", where.left, where.top)
         setFloatUniform("frame", where.wide, where.tall)

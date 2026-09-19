@@ -437,6 +437,9 @@
     <string name="look_haze">Ukungu</string>
     <string name="look_grain">Chembechembe</string>
     <string name="look_vignette">Vinyeti</string>
+    <string name="look_grain_size">Ukubwa</string>
+    <string name="look_grain_lift">Sehemu angavu</string>
+    <string name="look_vignette_feather">Ulainishaji</string>
     <string name="look_tone">Mkunjo</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Mkunjo wa toni</string>

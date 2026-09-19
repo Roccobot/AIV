@@ -421,6 +421,9 @@
     <string name="look_haze">안개</string>
     <string name="look_grain">그레인</string>
     <string name="look_vignette">비네팅</string>
+    <string name="look_grain_size">크기</string>
+    <string name="look_grain_lift">밝은 부분</string>
+    <string name="look_vignette_feather">페더</string>
     <string name="look_tone">곡선</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">톤 곡선</string>

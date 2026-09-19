@@ -437,6 +437,9 @@
     <string name="look_haze">কুয়াশা</string>
     <string name="look_grain">গ্রেইন</string>
     <string name="look_vignette">ভিনিয়েট</string>
+    <string name="look_grain_size">আকার</string>
+    <string name="look_grain_lift">হাইলাইট</string>
+    <string name="look_vignette_feather">ফেদার</string>
     <string name="look_tone">কার্ভ</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">টোন কার্ভ</string>

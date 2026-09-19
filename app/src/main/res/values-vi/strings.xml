@@ -421,6 +421,9 @@
     <string name="look_haze">Sương mù</string>
     <string name="look_grain">Hạt</string>
     <string name="look_vignette">Làm tối viền</string>
+    <string name="look_grain_size">Kích thước</string>
+    <string name="look_grain_lift">Vùng sáng</string>
+    <string name="look_vignette_feather">Làm mờ viền</string>
     <string name="look_tone">Đường cong</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Đường cong tông màu</string>

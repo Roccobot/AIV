@@ -2002,6 +2002,18 @@ private val NOT_MONO: (Look) -> Boolean = { !it.chroma.mono }
 private val UNSHARP: (Look) -> Boolean = { it.detail.flat }
 
 /**
+ * Le righe che governano la **grana**, cioè 'Dimensione' e 'Luci', e non hanno niente da fare
+ * finché quel cursore è a zero.
+ *
+ * ⚠️ **È il criterio di [UNSHARP] applicato agli Effetti**, dalla `2.66`: un cursore che dice
+ * *come* lavora un altro si spegne quando l'altro non lavora.
+ */
+private val NO_GRAIN: (Look) -> Boolean = { it.effects.noGrain }
+
+/** Come [NO_GRAIN], per la 'Sfumatura' della vignettatura. */
+private val NO_VIGNETTE: (Look) -> Boolean = { it.effects.noVignette }
+
+/**
  * I nomi delle otto fasce, nell'ordine dei centri di [Mix.CENTRES].
  *
  * ⚠️ **I due elenchi si leggono per indice e non si possono disallineare senza che si veda**: la
@@ -2206,7 +2218,7 @@ private val DETAIL_ROWS = listOf(
 )
 
 /**
- * I tre cursori degli **Effetti**: foschia, grana e vignettatura.
+ * I sei cursori degli **Effetti**: foschia, grana coi suoi due comandi, vignettatura col suo.
  *
  * ⚠️⚠️ **L'ELENCO E IL SUO ORDINE SONO SUOI** (`d-dopo-editor`, giro della `2.50`: *'Effetti', con
  * 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): la `2.53` ha portato i primi due,
@@ -2215,13 +2227,33 @@ private val DETAIL_ROWS = listOf(
  *
  * ⚠️⚠️ **E DALLA `2.64` I PRIMI DUE NON CI SONO PIÙ, ED È LA SUA RISPOSTA `via` A
  * `d-eff-restano`** (giro della `2.63`: *Toglili tutti e due*). Il perché, e il difetto misurato
- * che li ha tolti, vivono in testa a [Effects]: qui resta che la fila è di tre.
+ * che li ha tolti, vivono in testa a [Effects].
  *
- * ⚠️⚠️ **DUE SONO BIPOLARI E UNO NO, E NON È UNA DIMENTICANZA**: verso il basso la foschia si
- * **aggiunge** invece di essere tolta e la vignettatura **apre** l'angolo invece di chiuderlo, che
- * è quello che si fa su una fotografia già vignettata dall'obiettivo. La grana invece non ha un
- * verso negativo che voglia dire qualcosa: un grano tolto non esiste, e quello che spiana la grana
- * è la riduzione del rumore del Dettaglio.
+ * ⚠️⚠️ **E DALLA `2.66` I TRE CHE RESTANO PORTANO TRE CURSORI SECONDARI, ED È SUA RICHIESTA**
+ * (campo libero del giro chiuso il 2026-09-19: *Prima di chiudere il modulo Effetti voglio fare
+ * una cosa che ti avevo anticipato, ovvero raffinarli con parametri aggiuntivi. Rimane spazio
+ * verticale per tre slider secondari, uno per effetto, che si dovrà attivare solo se l'effetto
+ * relativo sta modificando l'immagine*).
+ * - ⚠️⚠️ **'UNO PER EFFETTO' E IL SUO ELENCO NON DÀNNO LO STESSO CONTO, E VINCE L'ELENCO**: la
+ *   frase dice uno per effetto, e le tre voci che scrive sotto sono **due** per la grana
+ *   ('Dimensione' e 'Luci') e **una** per la vignettatura ('Sfumatura'), quindi alla foschia non
+ *   ne tocca nessuna. Il numero torna, la ripartizione no, e l'elenco è la parte dettagliata:
+ *   ognuna delle tre porta la sua ragione scritta, mentre 'uno per effetto' è il conto dello
+ *   spazio verticale. La voce di collaudo gli dice questa lettura in chiare lettere.
+ * - ⚠️ **Ognuno vive SOTTO il cursore che lo governa**, cioè si legge come la sua conseguenza: è
+ *   il criterio con cui il 'Filtro BN' è finito sotto l'interruttore del bianco e nero nella
+ *   `2.37`, e non una scelta nuova.
+ * - ⚠️ **Si spengono quando il loro principale è a zero**, che è la seconda metà della sua
+ *   richiesta, e il meccanismo è quello della maschera di contrasto senza nitidezza ([UNSHARP]).
+ *
+ * ⚠️⚠️ **TRE SONO BIPOLARI E DUE NO, E NON È UNA DIMENTICANZA**: verso il basso la foschia si
+ * **aggiunge** invece di essere tolta, la vignettatura **apre** l'angolo invece di chiuderlo (che
+ * è quello che si fa su una fotografia già vignettata dall'obiettivo) e la sua 'Sfumatura' porta
+ * l'alone verso il bordo invece che verso il centro. La grana invece non ha un verso negativo che
+ * voglia dire qualcosa (un grano tolto non esiste, e quello che spiana la grana è la riduzione del
+ * rumore del Dettaglio), e le sue 'Luci' partono da zero perché lo zero è il valore di fabbrica
+ * che lui ha chiesto. ⚠️ **'Dimensione' è bipolare come il raggio del Dettaglio**, perché una
+ * misura di quel genere si dimezza e si raddoppia attorno al valore di serie.
  */
 private val EFFECT_ROWS = listOf(
     Dial(
@@ -2236,9 +2268,28 @@ private val EFFECT_ROWS = listOf(
         unipolar = true
     ),
     Dial(
+        R.string.look_grain_size,
+        { it.effects.grainSize },
+        { k, v -> k.copy(effects = k.effects.copy(grainSize = v)) },
+        off = NO_GRAIN
+    ),
+    Dial(
+        R.string.look_grain_lift,
+        { it.effects.grainLift },
+        { k, v -> k.copy(effects = k.effects.copy(grainLift = v)) },
+        unipolar = true,
+        off = NO_GRAIN
+    ),
+    Dial(
         R.string.look_vignette,
         { it.effects.vignette },
         { k, v -> k.copy(effects = k.effects.copy(vignette = v)) }
+    ),
+    Dial(
+        R.string.look_vignette_feather,
+        { it.effects.vignetteFeather },
+        { k, v -> k.copy(effects = k.effects.copy(vignetteFeather = v)) },
+        off = NO_VIGNETTE
     )
 )
 

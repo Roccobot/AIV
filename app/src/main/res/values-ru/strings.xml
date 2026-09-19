@@ -469,6 +469,9 @@
     <string name="look_haze">Дымка</string>
     <string name="look_grain">Зерно</string>
     <string name="look_vignette">Виньетка</string>
+    <string name="look_grain_size">Размер</string>
+    <string name="look_grain_lift">Света</string>
+    <string name="look_vignette_feather">Растушёвка</string>
     <string name="look_tone">Кривая</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тоновая кривая</string>

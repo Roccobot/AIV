@@ -437,6 +437,9 @@
     <string name="look_haze">धुके</string>
     <string name="look_grain">ग्रेन</string>
     <string name="look_vignette">व्हिनेट</string>
+    <string name="look_grain_size">आकार</string>
+    <string name="look_grain_lift">हायलाइट</string>
+    <string name="look_vignette_feather">फेदर</string>
     <string name="look_tone">कर्व्ह</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">टोन कर्व्ह</string>

@@ -460,7 +460,10 @@ private val PIENO = Look(
         sharpen = 0.61f, radius = -0.29f, masking = 0.47f,
         noise = 0.33f, noiseColor = 0.18f
     ),
-    effects = Effects(haze = 0.31f, vignette = -0.53f, grain = 0.27f),
+    effects = Effects(
+        haze = 0.31f, vignette = -0.53f, vignetteFeather = 0.42f,
+        grain = 0.27f, grainSize = -0.36f, grainLift = 0.58f
+    ),
     tone = Tone(
         all = Curve(listOf(Knot(0f, 0.05f), Knot(0.5f, 0.62f), Knot(1f, 0.97f))),
         red = Curve(listOf(Knot(0f, 0f), Knot(0.33f, 0.41f), Knot(1f, 1f))),
