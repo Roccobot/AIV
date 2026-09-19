@@ -412,6 +412,30 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var settings: Settings? by mutableStateOf(null)
         private set
 
+    /**
+     * Se una **filigrana** è pronta da scrivere: l'interruttore è acceso e un file è stato
+     * scelto.
+     *
+     * ⚠️⚠️ **SERVE AL TASTO 'SALVA' E NON AL SALVATAGGIO, ED È QUESTA LA RAGIONE PER CUI ESISTE**:
+     * chi apre l'editor per firmare un'immagine e basta non tocca niente, quindi senza questo
+     * valore il tasto resterebbe spento e la filigrana non si potrebbe applicare mai da sola. Il
+     * salvataggio invece il file se lo guarda da sé.
+     * ⚠️ **Si aggiorna quando cambiano le impostazioni**, cioè anche tornando dalla pagina in cui
+     * la filigrana si sceglie: quella scrittura passa dallo stesso archivio, e il flusso la porta
+     * qui senza che nessuno debba ricordarsi di chiedere.
+     */
+    var markReady: Boolean by mutableStateOf(false)
+        private set
+
+    /**
+     * Quello che il salvataggio deve sapere della filigrana, o `null` se non se ne scrive
+     * nessuna.
+     */
+    private fun markPlan(): Watermark.Plan? {
+        val now = settings ?: return null
+        return if (now.markOn) Watermark.Plan(now.markSpot, now.markSize) else null
+    }
+
     var recents: List<RecentImage> by mutableStateOf(emptyList())
         private set
 
@@ -573,6 +597,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             SettingsStore.flow(context).collect { fresh ->
                 settings = fresh
+                // ⚠️ Il disco si guarda FUORI dal thread principale, come ogni altra lettura di
+                // file: costa un `isFile`, ma la regola non fa eccezioni per le letture corte.
+                markReady = fresh.markOn &&
+                    withContext(Dispatchers.IO) { Watermark.file(context) != null }
                 // ⚠️ Gli appunti PRIMA della cartella d'avvio, o la seconda coprirebbe
                 // la fotografia che i primi hanno appena aperto.
                 readClipboard()
@@ -1745,7 +1773,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val esito = ImageEdit.save(
                 context, here.uri, turns, mirror, crop, way,
-                backup = settings?.editorBackup ?: true
+                backup = settings?.editorBackup ?: true,
+                mark = markPlan()
             )
             editorBusy = false
             when (esito) {
@@ -1793,6 +1822,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 context, here.uri, look,
                 quality = settings?.editorQuality ?: Quality.DEFAULT,
                 backup = settings?.editorBackup ?: true,
+                mark = markPlan(),
                 beside = beside
             )
             editorBusy = false
@@ -3272,6 +3302,7 @@ private fun Stage(
             EditorScreen(
                 uri = screen.uri,
                 busy = model.editorBusy,
+                marked = model.markReady,
                 onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
                 onBack = { model.leaveEditor() }
             )
@@ -3287,6 +3318,7 @@ private fun Stage(
             AdvancedEditorScreen(
                 uri = screen.uri,
                 busy = model.editorBusy,
+                marked = model.markReady,
                 onSave = { look, beside -> model.lookSave(look, beside) },
                 onBack = { model.leaveEditor() }
             )

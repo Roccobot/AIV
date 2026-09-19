@@ -4233,6 +4233,92 @@ venti di casa (venti, pieni, distinti), l'ordine dell'elenco, e il pannello che 
 aperto col comando che toglie sui soli propri. **Non** vede come un preset cambia un'immagine, che
 è la sola cosa che conta davvero: quella si guarda sul telefono, e la voce di collaudo lo chiede.
 
+## 🔏 La filigrana, e perché il file si copia in casa
+
+⚠️⚠️ **DALLA `2.69`, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta `altro` a `d-filigrana-file`,
+giro della `2.67`: *è configurabile dalle impostazioni, sezione editor. Input PNG o SVG. Si sceglie
+un solo logo o simbolo per volta e vale per tutti gli editing se il suo interruttore è attivo al
+salvataggio. Per cambiare watermark, si rientra nelle impostazioni e si sceglie un altro file. Cosa
+importante: l'utente lo sceglie e l'app lo memorizza in una sua cartella interna, in modo che
+sopravviva anche alla cancellazione dell'originale*). È la prima delle due cose che ha chiesto col
+suo `insieme` a `d-prossimo` (*prima la filigrana, poi il ridimensionamento*).
+
+⚠️⚠️ **NON VIVE IN `Look`, E NON È UN DETTAGLIO DI COMODO**: un `Look` è un **aspetto**, cioè
+quello che uno stile si porta da un'immagine all'altra; una filigrana è una **firma**, vale per
+tutti gli editing e dentro un preset non vorrebbe dire niente. Quindi arriva al salvataggio come un
+argomento a sé, come la copia di sicurezza, e i moduli che uno stile governa restano sei.
+- ⚠️ **Conta come lavoro da salvare**, ed è la riga che rende la funzione usabile: chi apre
+  l'editor per firmare un'immagine e basta non muove nessun cursore, quindi senza quella
+  condizione il tasto 'Salva' resterebbe spento e la firma non arriverebbe mai su un file. Vale
+  nei due editor.
+- ⚠️ **E toglie il senza perdita**, come un cursore di Luce: scrivere dei pixel sopra la
+  fotografia è una riscrittura, e non c'è modo di ottenerla con un tag EXIF.
+
+⚠️⚠️ **IL FILE SI COPIA COM'È E NON SI RASTERIZZA ALL'ADOZIONE, ED È LA RAGIONE PER CUI UN SVG
+SERVE A QUALCOSA**: un vettore disegnato al momento del salvataggio resta nitido su un file da
+venti megapixel, mentre uno ridotto a una misura scelta oggi sarebbe pixel come gli altri. Il PNG
+si copia per il motivo opposto: è già pixel, e ridurlo all'adozione butterebbe via quello che
+porta.
+- ⚠️ **Vive in `filesDir` e non in `cacheDir`**, come le copertine e gli stili: quello che sta
+  nella cache il sistema lo può buttare quando ha bisogno di spazio, e qui la promessa è che il
+  logo resti anche dopo che l'originale è sparito. È la sua clausola, e decide l'archivio.
+- ⚠️⚠️ **UN FILE SOLO PER VOLTA, E LO DICE IL NOME**: la copia si chiama sempre `mark` col suffisso
+  del proprio tipo, quindi sceglierne un altro dello stesso tipo prende il posto del primo da sé.
+  ⚠️ **Quello dell'altro tipo va tolto a mano**, ed è l'unica riga che potrebbe dimenticarsi: senza,
+  resterebbero due filigrane e a decidere quale si usa sarebbe l'ordine di un `enum`, cioè la
+  scelta dell'utente verrebbe ignorata in silenzio. A presidiarla è il caso 3 del banco.
+
+⚠️⚠️ **IL TIPO SI RICONOSCE DAI BYTE E NON DAL NOME, E IL CASO CHE LO PRETENDE È IL JPEG**: chi
+sceglie un file passa dal selettore di sistema, che consegna un indirizzo e un tipo dichiarato da
+chi lo serve, e tutti e due possono mentire. Un JPEG non ha trasparenza, quindi come filigrana
+stamperebbe un **rettangolo pieno** sopra la fotografia, e quel difetto si vede solo sul file già
+salvato.
+- ⚠️ **I tipi si dichiarano anche al selettore**, così il navigatore mostra i soli file che si
+  possono usare invece di lasciar scegliere e rispondere di no dopo: sono due presidi con due
+  scopi, e il controllo vero resta sui byte.
+- ⚠️⚠️ **E IL FILE SI DISEGNA PRIMA DI ADOTTARLO**: un documento valido che non si rende darebbe
+  una filigrana che non compare, cioè un salvataggio che non fa quello che promette. ⚠️ **Il
+  vecchio si cancella solo dopo**, o chi prova un file sbagliato resterebbe senza quello che aveva.
+
+⚠️ **La misura è una frazione del lato LUNGO dell'immagine**, con le stesse due ragioni del
+Dettaglio: una misura in pixel darebbe una firma enorme su un file piccolo e invisibile su uno da
+fotocamera; e il lato **lungo** invece della larghezza, o la stessa scelta peserebbe un quarto su
+una fotografia verticale, che è un difetto che non dà nessun errore. Le misure sono quattro e
+l'aria dal bordo è una sola (`Watermark.AIR`), letta anche dall'anteprima delle impostazioni.
+- ⚠️ **Un PNG piccolo chiesto grande si ingrandisce, e il costo si dichiara**: i pixel che mancano
+  non li inventa nessuno. La via alternativa, cioè fermarsi ai pixel del file, darebbe una firma
+  che cambia misura a seconda dell'immagine: un'impostazione che non fa quello che dice. Chi vuole
+  una firma nitida a ogni misura usa un SVG, ed è la ragione per cui si accettano tutti e due i
+  formati.
+- ⚠️ **Cinque posti e non nove**: i quattro angoli sono dove una firma va a finire da sempre, e il
+  centro è il caso di chi marca un'immagine che verrà condivisa. I mezzi dei lati non aggiungono un
+  gesto che qualcuno faccia, e porterebbero quattro nomi in più in ventotto lingue.
+
+⚠️⚠️ **SI SCRIVE SUL BITMAP RICEVUTO QUANDO SI PUÒ, E LA COPIA È IL RIPIEGO**: chi chiama ha in
+mano l'immagine finita e la sta per comprimere, e una copia a venti megapixel sono ottanta megabyte
+per un logo in un angolo. Nel caso comune non serve, perché quello che esce dal ritaglio, dallo
+shader e dalla maglia della geometria è un bitmap costruito da loro, cioè mutabile. ⚠️ **Se la
+copia non si può fare, la firma salta**: chi chiama scrive l'immagine senza, che è meglio di un
+salvataggio fallito.
+
+⚠️ **La pagina delle impostazioni è una sotto-pagina, e la soglia lo pretende**: la domanda è una
+sola (*che logo scrivo sulle immagini che salvo*) e le voci sono quattro più l'anteprima, cioè
+oltre il *2-3* della sua soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
+dentro 'Editor e salvataggio', che è la pagina della domanda *che cosa succede quando modifico
+un'immagine*.
+- ⚠️ **L'anteprima non è un ornamento**: posizione e misura si vedono sul file salvato, cioè dopo,
+  e provarle vorrebbe dire salvare un'immagine per ogni tentativo. Quel riquadro usa **gli stessi
+  due numeri** del disegno vero, quindi quello che si vede è quello che si avrà.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`FiligranaTest`, ogni caso controprovato): che un
+JPEG non si adotti e un PNG sì **qualunque cosa dica il nome**, che ne resti uno solo, che un file
+illeggibile non porti via quello scelto, il tetto degli otto megabyte, che la misura sia la
+frazione scelta del lato lungo (misurata anche girando l'immagine, a pixel), che la firma cada
+nell'angolo scelto e non nell'opposto, che senza un file scelto non si scriva niente, e che una
+filigrana pronta accenda 'Salva' su un'immagine intonsa. **Non** vede la resa della firma su una
+fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata di Android:
+quelle si guardano sul telefono, e la voce di collaudo le chiede.
+
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 
 ⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL

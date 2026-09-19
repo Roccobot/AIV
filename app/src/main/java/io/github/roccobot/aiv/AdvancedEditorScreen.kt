@@ -175,6 +175,11 @@ fun AdvancedEditorScreen(
     /** Se una scrittura è in corso: i comandi si spengono, o si salverebbe due volte. */
     busy: Boolean,
     /**
+     * Se una **filigrana** è pronta da scrivere: come nell'editor di casa, è quello che rende
+     * 'Salva' toccabile su un'immagine che nessun cursore ha ancora toccato.
+     */
+    marked: Boolean,
+    /**
      * Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor di casa.
      *
      * ⚠️ Il secondo argomento è il **tocco lungo**: `true` chiede un file nuovo accanto
@@ -365,7 +370,9 @@ fun AdvancedEditorScreen(
                     modifier = Modifier.weight(1f).heading()
                 )
                 SaveButton(
-                    enabled = origin != null && !busy && !look.idle,
+                    // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza questa
+                    // condizione una firma da sola non si potrebbe applicare.
+                    enabled = origin != null && !busy && (marked || !look.idle),
                     onSave = { onSave(look, false) },
                     onBeside = { onSave(look, true) }
                 )

@@ -111,6 +111,11 @@ fun EditorScreen(
     /** Se una scrittura è in corso: i comandi si spengono, o si salverebbe due volte. */
     busy: Boolean,
     /**
+     * Se una **filigrana** è pronta da scrivere, cioè se il salvataggio ha qualcosa da fare
+     * anche su un'immagine intonsa: vedi `ViewerViewModel.markReady`.
+     */
+    marked: Boolean,
+    /**
      * Che cosa salvare.
      *
      * ⚠️⚠️ **IL LAVORO LO FA CHI CHIAMA, e non questa schermata**: una scrittura da venti
@@ -324,8 +329,12 @@ fun EditorScreen(
              */
             TextButton(
                 onClick = { onSave(total.spin.turns, total.spin.mirror, total.crop) },
+                // ⚠️⚠️ **UNA FILIGRANA È LAVORO DA SALVARE, DALLA `2.69`**: chi apre l'editor per
+                // firmare un'immagine e basta non tocca la posa e non taglia niente, e senza
+                // questa condizione il tasto resterebbe spento, cioè la firma da sola non si
+                // potrebbe applicare mai.
                 enabled = shown != null && !busy &&
-                    !(total.spin == Spin.STILL && total.crop.whole)
+                    (marked || !(total.spin == Spin.STILL && total.crop.whole))
             ) {
                 Text(stringResource(R.string.editor_save))
             }

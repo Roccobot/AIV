@@ -3324,7 +3324,14 @@ class SviluppoTest {
             // strada che nessuno percorre.
             CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods, hand = hand)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    AdvancedEditorScreen(uri = uri, busy = false, onSave = onSave, onBack = {})
+                    AdvancedEditorScreen(
+                        uri = uri,
+                        busy = false,
+                        // ⚠️ Senza filigrana: il caso che la porta vive in `FiligranaTest`.
+                        marked = false,
+                        onSave = onSave,
+                        onBack = {}
+                    )
                 }
             }
         }

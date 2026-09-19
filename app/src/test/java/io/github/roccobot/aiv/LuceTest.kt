@@ -706,6 +706,10 @@ class LuceTest {
                 AdvancedEditorScreen(
                     uri = quadrato(),
                     busy = false,
+                    // ⚠️ Nessuna filigrana scelta: qui si misura la storia dei passi, e una firma
+                    // pronta accenderebbe 'Salva' anche a immagine intonsa. Il caso suo vive in
+                    // `FiligranaTest`.
+                    marked = false,
                     onSave = consegna,
                     onBack = {}
                 )

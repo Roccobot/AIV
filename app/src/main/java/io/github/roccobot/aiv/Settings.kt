@@ -477,6 +477,38 @@ data class Settings(
      * l'eliminazione non ci passa, quindi la copia resta recuperabile in tutti e due i casi.
      */
     val editorBackup: Boolean = true,
+
+    /**
+     * Se la **filigrana** scelta si scrive sull'immagine quando l'editor salva.
+     *
+     * ⚠️⚠️ **SPENTA DI FABBRICA, ED È LA SUA SPECIFICA** (risposta `altro` a `d-filigrana-file`:
+     * *vale per tutti gli editing se il suo interruttore è attivo al salvataggio*). Un valore di
+     * fabbrica non si sceglie per far vedere una funzione, e qui varrebbe doppio: accesa senza
+     * che nessuno l'abbia chiesta scriverebbe un logo su una fotografia.
+     * ⚠️ **Da sola non fa niente**: senza un file scelto non c'è niente da scrivere, e la pagina
+     * lo dice invece di lasciare un interruttore che promette qualcosa.
+     * ⚠️⚠️ **TOGLIE IL SENZA PERDITA**, ed è la conseguenza che va saputa: girare un JPEG si fa
+     * con un tag EXIF senza toccare i pixel, ma una filigrana i pixel li scrive, quindi con lei
+     * accesa quel file va riscritto. La regola vive su `Look.lossless` e questa è la seconda cosa
+     * che la può spegnere.
+     */
+    val markOn: Boolean = false,
+
+    /**
+     * Dove cade la filigrana sull'immagine.
+     *
+     * ⚠️ **In basso a destra di fabbrica**: è l'angolo in cui una firma sta da sempre, ed è il
+     * più lontano da dove un soggetto di solito cade.
+     */
+    val markSpot: Watermark.Spot = Watermark.Spot.BOTTOM_RIGHT,
+
+    /**
+     * Quanto è larga la filigrana, in frazione del lato lungo.
+     *
+     * ⚠️ **Media di fabbrica**, cioè un settimo del lato lungo: si vede senza prendersi
+     * l'immagine, che è quello che una firma deve fare.
+     */
+    val markSize: Watermark.Size = Watermark.Size.MEDIUM,
     /**
      * Se la fila dei comandi di un'immagine animata mostra il contatore dei fotogrammi.
      *
@@ -1096,6 +1128,9 @@ object SettingsStore {
     private val EDITOR_APP = stringPreferencesKey("editor-app")
     private val EDITOR_QUALITY = stringPreferencesKey("editor-quality")
     private val EDITOR_BACKUP = booleanPreferencesKey("editor-backup")
+    private val MARK_ON = booleanPreferencesKey("mark-on")
+    private val MARK_SPOT = stringPreferencesKey("mark-spot")
+    private val MARK_SIZE = stringPreferencesKey("mark-size")
     private val ANIM_COUNTER = booleanPreferencesKey("anim-counter")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
     private val LIST_TEXT = stringPreferencesKey("list-text")
@@ -1207,6 +1242,13 @@ object SettingsStore {
             editorApp = p[EDITOR_APP] ?: "",
             editorQuality = Quality.entries.byToken(p[EDITOR_QUALITY], Quality.DEFAULT),
             editorBackup = p[EDITOR_BACKUP] ?: true,
+            markOn = p[MARK_ON] ?: false,
+            markSpot = Watermark.Spot.entries.byToken(
+                p[MARK_SPOT], Watermark.Spot.BOTTOM_RIGHT
+            ),
+            markSize = Watermark.Size.entries.byToken(
+                p[MARK_SIZE], Watermark.Size.MEDIUM
+            ),
             animCounter = p[ANIM_COUNTER] ?: true,
             listCount = p[LIST_COUNT] ?: true,
             listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
@@ -1308,6 +1350,9 @@ object SettingsStore {
             p[EDITOR_APP] = settings.editorApp
             p[EDITOR_QUALITY] = settings.editorQuality.token
             p[EDITOR_BACKUP] = settings.editorBackup
+            p[MARK_ON] = settings.markOn
+            p[MARK_SPOT] = settings.markSpot.token
+            p[MARK_SIZE] = settings.markSize.token
             p[ANIM_COUNTER] = settings.animCounter
             p[LIST_COUNT] = settings.listCount
             p[LIST_TEXT] = settings.listText.token
