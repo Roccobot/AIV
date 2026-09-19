@@ -580,4 +580,5 @@
     <string name="settings_styles_loaded">스타일을 가져왔습니다</string>
     <string name="settings_styles_bad">이 파일에는 스타일이 없습니다</string>
     <string name="hint_modules">아이콘을 밀면 모든 편집 모듈에 닿습니다. 모듈 아이콘을 길게 누르면 그 모듈의 조정만 초기화됩니다.</string>
+    <string name="hint_tools">모듈 외에도 아이콘을 한 번 눌러 언제든 켜고 끌 수 있는 기능이 두 가지 있으며, 켜지면 아이콘에 불이 들어옵니다: \'워터마크\'와 \'크기 조정\'입니다. 길게 누르면 각각의 설정이 열립니다. 작업이 끝나면 \'저장\'을 눌러 파일을 덮어씁니다(백업이 켜져 있으면 사본도 남습니다). 길게 누르면 이미지의 새 사본이 같은 폴더에 저장됩니다.</string>
 </resources>

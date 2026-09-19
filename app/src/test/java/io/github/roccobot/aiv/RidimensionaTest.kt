@@ -64,7 +64,10 @@ class RidimensionaTest {
     /** ⚠️ Il mini-onboarding dei moduli consuma il primo tocco: vedi [LuceTest]. */
     @Before
     fun pulito() {
-        runBlocking { Hint.MODULES.remember(app) }
+        runBlocking {
+            Hint.MODULES.remember(app)
+            Hint.EDITOR_TOOLS.remember(app)
+        }
     }
 
     /**

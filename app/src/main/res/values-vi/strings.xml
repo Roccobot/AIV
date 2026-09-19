@@ -580,4 +580,5 @@
     <string name="settings_styles_loaded">Đã nhập kiểu</string>
     <string name="settings_styles_bad">Tệp này không chứa kiểu nào</string>
     <string name="hint_modules">Vuốt các biểu tượng để đến mọi mô-đun chỉnh sửa. Nhấn giữ biểu tượng của một mô-đun để đặt lại riêng các thay đổi của nó.</string>
+    <string name="hint_tools">Ngoài các mô-đun, còn hai chức năng bạn có thể bật hoặc tắt ngay bằng một chạm lên biểu tượng, và biểu tượng sẽ sáng lên: \'Hình mờ\' và \'Đổi kích thước\'. Nhấn giữ sẽ mở phần cài đặt của từng chức năng. Khi xong, chạm \'Lưu\' để ghi đè tệp (kèm bản sao dự phòng, nếu đang bật); nhấn giữ sẽ lưu một bản sao mới của ảnh trong cùng thư mục.</string>
 </resources>

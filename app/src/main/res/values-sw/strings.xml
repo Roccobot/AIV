@@ -597,4 +597,5 @@
     <string name="settings_styles_loaded">Mitindo imeingizwa</string>
     <string name="settings_styles_bad">Faili hii haina mtindo wowote</string>
     <string name="hint_modules">Telezesha aikoni ili kufikia moduli zote za kuhariri. Bonyeza kwa muda mrefu aikoni ya moduli ili kuondoa mabadiliko yake pekee.</string>
+    <string name="hint_tools">Zaidi ya moduli, kuna vitendaji viwili unavyoweza kuwasha au kuzima papo hapo kwa kugusa aikoni, nayo huwaka: \'Alama ya maji\' na \'Badilisha ukubwa\'. Kubonyeza kwa muda mrefu hufungua mipangilio ya kila kimoja. Ukimaliza, gusa \'Hifadhi\' ili kuandika juu ya faili (pamoja na nakala rudufu, ikiwa imewashwa); kubonyeza kwa muda mrefu huhifadhi nakala mpya ya picha katika folda ile ile.</string>
 </resources>

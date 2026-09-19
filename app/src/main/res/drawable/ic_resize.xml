@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il tasto 'Ridimensiona' della testata dell'editor.
+
+     AMMORBIDISCE `Icons.Filled.PhotoSizeSelectLarge` di Material, dalla 2.73, e non cambia
+     nient'altro: è la fotografia con la cornice tratteggiata attorno, cioè 'dammi un'altra
+     misura'. La sua istruzione è del giro della 2.70 (punto 4 del campo libero: *le icone di
+     'Filigrana' e 'Ridimensiona' possono venire da Material ma vanno arrotondate come da regola
+     nuova*), quindi il disegno resta il suo e il trattamento è di casa.
+
+     PERCHÉ ENTRA IN `res/` E `BrandingWatermark` NO, che è la stessa domanda con due risposte:
+     questo ha quarantotto spigoli vivi, quindi il raccordo lo cambia davvero (451 pixel diversi
+     su 57.600, cioè lo 0,78% della tela, misurati rendendo i due tracciati a 240); quello è una
+     cornice già stondata col rettangolino scavato dentro, cioè zero angoli convessi ESTERNI, e
+     l'ammorbidimento lo lascia a **zero** pixel di scarto. La regola che decide vive in
+     `CLAUDE.md`, § 'Come entra un disegno': a zero pixel vince Material, quindi la filigrana
+     chiama `Icons` e questo è un file.
+
+     IL TRATTAMENTO È QUELLO DEI NOVE GLIFI DELLA 2.32: ogni angolo convesso ESTERNO diventa un
+     raccordo, col tetto sull'ARRETRAMENTO dell'angolo retto invece che sul raggio. Qui gli
+     spigoli sono tutti retti (i nove quadratini della cornice tratteggiata, i tre angoli tondi e
+     il rettangolo della fotografia), quindi il raggio resta 0,4 esatto dappertutto.
+
+     I SEI RACCORDI SU UNA CURVA SONO QUADRATICHE E NON ARCHI, ed è il criterio di allora: un
+     arco è tangente ai suoi due lati solo se sono rette. Sono i sei giunti dei tre angoli tondi
+     della cornice, dove il lato dritto incontra il quarto di giro.
+
+     MA IL LORO CONTROLLO NON CADE NEL VERTICE, E QUI IL CRITERIO DELLA 2.32 SI PRECISA: cade dove
+     le due TANGENTI si incrociano, e su due rette quel punto **è** il vertice, quindi la forma
+     di prima è il caso particolare di questa. Col controllo nel vertice la quadratica è tangente
+     alle due corde e non alla curva, e dove la curva è corta e piegata come qui la differenza si
+     vede: i primi due giunti restavano spigoli di 18 gradi. ⚠️ **E il capo del raccordo cade
+     sulla CURVA e non sulla sua tangente**, o il tratto che resta parte da un altro punto.
+     Tutte e due le cose le ha dette `icon-round.py`, che dopo la correzione risponde zero.
+
+     LA MONTAGNETTA DENTRO LA FOTOGRAFIA NON SI TOCCA: è un buco e non un contorno, quindi i suoi
+     angoli sono convessi verso l'inchiostro ma non esterni. È la nota della 2.50 applicata alla
+     lettera, cioè il criterio stretto che lui ha dettato su `d-spigoli-icone`.
+
+     I TRACCIATI COMINCIANO A METÀ DI UN LATO E NON SU UN VERTICE, come in `ic_preset_save.xml`:
+     il punto della `M` era esso stesso una punta, quindi il suo raccordo attraversa la chiusura
+     del giro.
+
+     `fillType` È `nonZero` E IL DISEGNO NON NE DIPENDE: la montagnetta è annidata nel rettangolo
+     della fotografia e i due giri hanno versi opposti, quindi resta un buco con tutte e due le
+     regole (misurato: zero pixel di scarto). Si dichiara lo stesso, perché la regola dichiarata
+     dice quello che il disegno vuole, e con `nonZero` basterebbe un editor che riordina i giri
+     per riempirla senza che nessun compilatore lo dica. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M22,15L22.6,15A0.4,0.4,0,0,1,23,15.4L23,16.6A0.4,0.4,0,0,1,22.6,17L21.4,17A0.4,0.4,0,0,1,21,16.6L21,15.4A0.4,0.4,0,0,1,21.4,15L22,15ZM22,11L22.6,11A0.4,0.4,0,0,1,23,11.4L23,12.6A0.4,0.4,0,0,1,22.6,13L21.4,13A0.4,0.4,0,0,1,21,12.6L21,11.4A0.4,0.4,0,0,1,21.4,11L22,11ZM22,19L21.4,19A0.4,0.4,0,0,0,21,19.4L21,20.6Q21,21.05,21.397,20.949C22.118,20.767,22.767,20.118,22.949,19.397Q23.05,19,22.6,19L22,19ZM14,3L14.6,3A0.4,0.4,0,0,1,15,3.4L15,4.6A0.4,0.4,0,0,1,14.6,5L13.4,5A0.4,0.4,0,0,1,13,4.6L13,3.4A0.4,0.4,0,0,1,13.4,3L14,3ZM22,7L22.6,7A0.4,0.4,0,0,1,23,7.4L23,8.6A0.4,0.4,0,0,1,22.6,9L21.4,9A0.4,0.4,0,0,1,21,8.6L21,7.4A0.4,0.4,0,0,1,21.4,7L22,7ZM21,4L21,4.6A0.4,0.4,0,0,0,21.4,5L22.6,5Q23.05,5,22.949,4.603C22.767,3.882,22.118,3.233,21.397,3.051Q21,2.95,21,3.4L21,4ZM2,7L2.6,7A0.4,0.4,0,0,1,3,7.4L3,8.6A0.4,0.4,0,0,1,2.6,9L1.4,9A0.4,0.4,0,0,1,1,8.6L1,7.4A0.4,0.4,0,0,1,1.4,7L2,7ZM18,3L18.6,3A0.4,0.4,0,0,1,19,3.4L19,4.6A0.4,0.4,0,0,1,18.6,5L17.4,5A0.4,0.4,0,0,1,17,4.6L17,3.4A0.4,0.4,0,0,1,17.4,3L18,3ZM18,19L18.6,19A0.4,0.4,0,0,1,19,19.4L19,20.6A0.4,0.4,0,0,1,18.6,21L17.4,21A0.4,0.4,0,0,1,17,20.6L17,19.4A0.4,0.4,0,0,1,17.4,19L18,19ZM2,5L2.6,5A0.4,0.4,0,0,0,3,4.6L3,3.4Q3,2.95,2.603,3.051C1.882,3.233,1.233,3.882,1.051,4.603Q0.95,5,1.4,5L2,5ZM10,3L10.6,3A0.4,0.4,0,0,1,11,3.4L11,4.6A0.4,0.4,0,0,1,10.6,5L9.4,5A0.4,0.4,0,0,1,9,4.6L9,3.4A0.4,0.4,0,0,1,9.4,3L10,3ZM6,3L6.6,3A0.4,0.4,0,0,1,7,3.4L7,4.6A0.4,0.4,0,0,1,6.6,5L5.4,5A0.4,0.4,0,0,1,5,4.6L5,3.4A0.4,0.4,0,0,1,5.4,3L6,3ZM1,15L1,19C1,20.1,1.9,21,3,21L14.6,21A0.4,0.4,0,0,0,15,20.6L15,11.4A0.4,0.4,0,0,0,14.6,11L1.4,11A0.4,0.4,0,0,0,1,11.4L1,15ZM3,19L5.5,15.79L7.29,17.94L9.79,14.72L13,19L3,19Z" />
+</vector>

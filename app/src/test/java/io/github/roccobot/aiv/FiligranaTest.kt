@@ -71,7 +71,10 @@ class FiligranaTest {
     @Before
     fun pulito() {
         Watermark.forget(app)
-        runBlocking { Hint.MODULES.remember(app) }
+        runBlocking {
+            Hint.MODULES.remember(app)
+            Hint.EDITOR_TOOLS.remember(app)
+        }
     }
 
     /**

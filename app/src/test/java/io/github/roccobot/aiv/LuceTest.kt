@@ -85,7 +85,10 @@ class LuceTest {
      */
     @Before
     fun senzaOnboarding() {
-        runBlocking { Hint.MODULES.remember(ApplicationProvider.getApplicationContext()) }
+        runBlocking {
+            Hint.MODULES.remember(ApplicationProvider.getApplicationContext())
+            Hint.EDITOR_TOOLS.remember(ApplicationProvider.getApplicationContext())
+        }
     }
 
 

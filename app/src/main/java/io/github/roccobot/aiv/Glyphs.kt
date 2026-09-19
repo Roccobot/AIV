@@ -531,6 +531,20 @@ object Glyphs {
     val PresetSave: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_preset_save)
 
+    /**
+     * La fotografia nella cornice tratteggiata: il tasto 'Ridimensiona' in testata all'editor.
+     *
+     * ⚠️ **È il glifo di Material ammorbidito**, e non un disegno nuovo: il punto 4 del campo
+     * libero del giro della `2.70` dice che le due icone della testata possono venire dalla
+     * famiglia *ma vanno arrotondate come da regola nuova*, quindi il disegno resta
+     * `Icons.Filled.PhotoSizeSelectLarge` e cambia il solo trattamento.
+     * ⚠️ **La gemella 'Filigrana' non è entrata**, ed è la stessa regola letta fino in fondo: di
+     * angoli convessi esterni non ne ha, quindi l'arrotondamento la lascerebbe identica. Lo
+     * scarto misurato e il perché di ogni raccordo vivono in testa al file.
+     */
+    val Resize: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_resize)
+
     /*
      * ⚠️⚠️ **`ic_launcher_foreground.xml` NON ENTRA QUI, e non è una dimenticanza**: quello è
      * l'icona dell'app, si disegna con `Image` sopra il proprio fondo colorato e **non è

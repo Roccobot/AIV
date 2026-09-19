@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrandingWatermark
-import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -107,9 +106,14 @@ private fun EditorTool(
  * che la sua specifica della `2.69` descrive (*è configurabile dalle impostazioni, sezione
  * editor*), e chi un logo ce l'ha si ritrova anche la scorciatoia del gesto lungo.
  *
- * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32`: nel giro
- * della `2.72` lui ha già detto che va bene un glifo della famiglia, ma **arrotondato** come i
- * disegni di casa, e quel trasporto in `res/` è un lavoro a sé.
+ * ⚠️⚠️ **IL GLIFO RESTA QUELLO DI MATERIAL, E NON È UNA COSA RIMANDATA: È UNA MISURA** (punto 4
+ * del campo libero del giro della `2.70`: *le icone di 'Filigrana' e 'Ridimensiona' possono
+ * venire da Material ma vanno arrotondate come da regola nuova*). Questa cornice è già stondata e
+ * il rettangolino dentro è un buco, quindi di angoli convessi **esterni** non ne ha nemmeno uno e
+ * l'arrotondamento la lascerebbe a **zero** pixel di scarto. La regola di `AIV/CLAUDE.md`
+ * § '🖌️ Come entra un disegno' dice che a zero pixel vince Material: un file in `res/` sarebbe
+ * una seconda copia dello stesso disegno. Il gemello, 'Ridimensiona', ne aveva quarantotto ed è
+ * entrato.
  */
 @Composable
 fun MarkButton(
@@ -123,7 +127,7 @@ fun MarkButton(
 ) {
     if (!has) return
     EditorTool(
-        icon = Icons.Filled.BrandingWatermark,
+        icon = MARK_GLYPH,
         label = stringResource(R.string.settings_mark),
         on = on,
         enabled = enabled,
@@ -147,6 +151,10 @@ fun MarkButton(
  * ⚠️ **Il piano esiste sempre**, anche spento, quindi accendere non chiede di configurare
  * niente: chi non l'ha mai toccato accende quello di fabbrica, e se su quell'immagine non
  * rimpicciolisce, 'Salva' resta spento e la finestra lo dice.
+ *
+ * ⚠️ **Il glifo è in `res/` dalla `2.73`**, cioè quello di Material **ammorbidito** come ha
+ * chiesto: qui gli spigoli vivi erano quarantotto, quindi il raccordo cambia davvero il disegno.
+ * La misura e il perché di ogni raccordo vivono in testa a `res/drawable/ic_resize.xml`.
  */
 @Composable
 fun ResizeButton(
@@ -157,7 +165,7 @@ fun ResizeButton(
     onSetup: () -> Unit
 ) {
     EditorTool(
-        icon = Icons.Filled.PhotoSizeSelectLarge,
+        icon = Glyphs.Resize,
         label = stringResource(R.string.look_resize),
         on = on,
         enabled = enabled,
@@ -168,3 +176,15 @@ fun ResizeButton(
 
 /** Il bersaglio di un comando in testata, come quello di un `IconButton` di Material. */
 private val TOOL_TOUCH = 48.dp
+
+/**
+ * Il glifo di 'Filigrana', che leggono il tasto **e** il velo che lo insegna.
+ *
+ * ⚠️ **Vive qui e non in [Glyphs], perché quello è il catalogo dei disegni di `res/`** e questo è
+ * di Material: il perché resti di Material è la misura scritta su [MarkButton]. ⚠️ **Ed è una
+ * costante e non due chiamate**, per la ragione di sempre: dalla `2.73` il mini-onboarding della
+ * testata ne disegna una copia in arancione, e due `Icons.Filled` scritte in due file divergono
+ * il giorno che una delle due cambia. Il gemello non ne ha bisogno, perché `Glyphs.Resize` è già
+ * una fonte sola.
+ */
+val MARK_GLYPH: ImageVector get() = Icons.Filled.BrandingWatermark
