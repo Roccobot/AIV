@@ -440,6 +440,19 @@ fun SettingsScreen(
          * pagina è fatta di RIGHE, quindi la radice ne compone il corpo al posto della riga che
          * la apre mentre una ricerca è in corso (vedi [PageOfRows]).
          */
+        /*
+         * ⚠️ **La filigrana è una pagina dentro 'Editor e salvataggio'**, come 'Rinomina e
+         * download' e come gli stili: la famiglia è una sola (*che logo scrivo sulle immagini che
+         * salvo*) e le sue voci sono oltre la soglia del *2-3*.
+         */
+        Page.MARK -> Shell(
+            title = stringResource(R.string.settings_mark),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            MarkPage(settings = settings, onChange = onChange)
+        }
+
         Page.SAVING -> Shell(
             title = stringResource(R.string.settings_rename_download),
             onBack = { back() },
@@ -507,7 +520,7 @@ fun SettingsScreen(
 private enum class Page {
     ROOT,
     FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
-    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES
+    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK
 }
 
 /**
@@ -594,7 +607,7 @@ private val SIGNS = Regex("\\p{Mn}+")
  * degli avvisi): quelli costruiti con [Choices], [SwitchRow] e [PageRow] si filtrano da sé.
  */
 @Composable
-private fun Searchable(vararg texts: String?, content: @Composable () -> Unit) {
+internal fun Searchable(vararg texts: String?, content: @Composable () -> Unit) {
     if (shown(*texts)) content()
 }
 
@@ -762,7 +775,21 @@ private fun ColumnScope.RootPage(
          * ⚠️ **L'ordine va dal contenitore al contenuto**: le cartelle, poi l'immagine aperta, poi
          * quello che l'app dice di lei.
          */
-        PageOfRows(
+        /*
+     * ⚠️⚠️ **LA RICERCA LA COPRE APPIATTENDO IL CORPO, come le altre pagine fatte di righe**: là
+     * dentro non c'è nessun elenco che si riordina, quindi le sue voci si filtrano da sé e
+     * `PageOfRows` le compone al posto di questa riga mentre una ricerca è in corso. Senza
+     * quella copertura la filigrana uscirebbe dalla ricerca il giorno stesso in cui è nata.
+     */
+    PageOfRows(
+        label = stringResource(R.string.settings_mark),
+        summary = stringResource(R.string.settings_mark_desc),
+        onOpen = { onOpen(Page.MARK) }
+    ) {
+        MarkPage(settings = settings, onChange = onChange)
+    }
+
+    PageOfRows(
             label = stringResource(R.string.settings_group_browse),
             // ⚠️ L'ultima voce c'è **solo se esiste**, come la riga che la apre: un riepilogo che
             // nomina le cartelle nascoste dove non ce n'è nessuna manda a cercare una riga che
@@ -2853,7 +2880,7 @@ private data class Columns(val n: Int) : Choice {
  * un numero sarebbe giusto in una lingua e sbagliato nelle altre.
  */
 @Composable
-private fun <T : Choice> Choices(
+internal fun <T : Choice> Choices(
     label: String,
     detail: String?,
     options: List<T>,
@@ -2901,7 +2928,7 @@ private fun <T : Choice> Choices(
  * il bersaglio prende anche il margine e arriva ai 48dp senza scriverli.
  */
 @Composable
-private fun SwitchRow(
+internal fun SwitchRow(
     label: String,
     detail: String?,
     checked: Boolean,

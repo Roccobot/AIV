@@ -636,6 +636,15 @@ data class Effects(
      *   Quindi sul cielo resta un decimo di livello invece di otto, e a metà tono la grana tiene
      *   il 35% invece dell'81%: il conto e la lettura di quel `0,35` vivono sulle tre costanti,
      *   in [Adjust.LOOK_AGSL].
+     * - ⚠️⚠️ **E DALLA `2.68` QUESTO CURSORE A RIPOSO ALZA ANCHE LE OMBRE, PERCHÉ HA CHIESTO UNA
+     *   RIDISTRIBUZIONE E NON UNA RAMPA PIÙ BASSA** (voce `grana-luci-2` accettabile: *anche al
+     *   minimo (0,1) i cieli hanno troppa grana, mentre forse le ombre troppo poca. Cerchiamo di
+     *   raggiungere un cielo quasi immacolato e delle ombre con un 30% in più di grana, il tutto
+     *   senza bordi netti e con toni medi sfumati*). Le ombre non potevano salire senza un termine
+     *   nuovo: là la rampa vale già uno, cioè il massimo che la `2.67` sapeva dare.
+     * - ⚠️ **Il fondo corsa resta il conto della `2.65`**, perché il guadagno delle ombre si ritira
+     *   insieme alla rampa: a cursore pieno i due termini valgono uno e il peso torna `4t(1-t)`.
+     *   Il conto dei due capi vive su `GRAIN_LIFT_SHADE`, in [Adjust.LOOK_AGSL].
      * - ⚠️⚠️ **MA CHI HA GIÀ UNO STILE CON LA GRANA MOSSA LA RITROVA DIVERSA, E SI DICHIARA**:
      *   il peso di fabbrica è cambiato, e un preset salvato con la `2.65` non porta questo campo,
      *   quindi lo rilegge a riposo. Sulle sue immagini la grana resta dov'era nelle ombre e
@@ -1579,28 +1588,52 @@ const half VIGNETTE_SOFT = 0.3;
 // grana.
 const half GRAIN_REACH = 0.048;
 
-// Dove comincia e dove finisce la rampa con cui la grana si ritira dalle luci (dalla `2.66`), e
-// quanta ne resta là in fondo a cursore 'Luci' a riposo.
+// Dove comincia e dove finisce la rampa con cui la grana si ritira dalle luci (dalla `2.66`),
+// quanta ne resta là in fondo a cursore 'Luci' a riposo, e quanto guadagnano le ombre (dalla
+// `2.68`).
 //
-// ⚠️⚠️ **I TRE NUMERI SI RICAVANO DAI SUOI TRE, E NON SONO UNA TARATURA** (riscontro del giro della
-// `2.66`, voce `eff-grana-luci` accettabile: *il 'quasi zero' passa da 0,8 a 0,1. Ovviamente il
-// passaggio da ombre a luci dev'essere graduale; metà scala a 0,35*). I vincoli sono tre e ognuno
-// fissa un numero: il pavimento è quello che dà **0,1 livelli su 255** sul cielo a `t=0,82` con la
-// grana piena (misurato: 0,0997); la soglia bassa cade sul **quarto di scala**, cioè dove finiscono
-// le ombre che devono restare intatte; e quella alta è quella che fa valere **0,35** il peso a metà
-// scala, che è il numero che ha scritto lui (misurato: 0,3500).
-// ⚠️⚠️ **'0,35' È IL PESO E NON I LIVELLI, ED È UNA LETTURA DICHIARATA**: la voce gli diceva che a
-// metà tono la grana teneva l'**81%**, e la sua riga risponde a quella; letto in livelli darebbe
-// 0,35 su 255 a metà scala contro i 9,2 del quarto, cioè un crollo, che è il contrario del
-// *graduale* della stessa frase.
+// ⚠️⚠️ **I QUATTRO NUMERI SI RICAVANO DAI SUOI VINCOLI, E NON SONO UNA TARATURA.** Tre vengono dal
+// giro della `2.66` (voce `eff-grana-luci` accettabile: *il 'quasi zero' passa da 0,8 a 0,1.
+// Ovviamente il passaggio da ombre a luci dev'essere graduale; metà scala a 0,35*) e il quarto dal
+// giro della `2.67` (voce `grana-luci-2` accettabile: *anche al minimo (0,1) i cieli hanno troppa
+// grana, mentre forse le ombre troppo poca. Cerchiamo di raggiungere un cielo quasi immacolato e
+// delle ombre con un 30% in più di grana, il tutto senza bordi netti e con toni medi sfumati*).
+// Ognuno fissa una costante:
+//   - il **pavimento** è quello che dà **0,1 livelli su 255** sul cielo a `t=0,82` con la grana
+//     piena (misurato: 0,0997), cioè il numero che ha dettato lui, e la `2.68` non lo tocca;
+//   - la **soglia bassa** cade sul **quarto di scala**, cioè dove finiscono le ombre;
+//   - il **guadagno delle ombre** è il suo `30% in più`, esatto fino alla soglia bassa;
+//   - la **soglia alta** è quella che porta la grana piena a **mezzo livello su 255 a metà scala**,
+//     cioè sotto la quantizzazione: è la lettura operativa di *cielo quasi immacolato*, perché un
+//     cielo azzurro vive fra metà scala e i tre quarti. ⚠️ **Si arrotonda per DIFETTO**, cioè verso
+//     una rampa più corta: il valore esatto è `0,52360`, e scritto a quattro decimali per eccesso
+//     darebbe `0,5001` livelli, cioè un vincolo mancato per un decimillesimo. A prenderlo è stata
+//     la prova del banco.
+// ⚠️⚠️ **LE OMBRE NON POTEVANO SALIRE SENZA UN TERMINE NUOVO, e questo è il pezzo che cambia**: là
+// la rampa vale **uno**, cioè il peso `4t(1-t)` pieno, che era il massimo che la `2.66` sapeva
+// dare. Quindi il cursore 'Luci' a riposo non abbassa soltanto le luci: **ridistribuisce**, cioè
+// alza le ombre di `GRAIN_LIFT_SHADE` e spegne le luci sul pavimento.
 // ⚠️⚠️ **E A 'Luci' PIENO IL CONTO TORNA ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo
-// su 1001 toni), quindi il comportamento di prima non si perde, si sposta a un capo della corsa.
-// ⚠️ **Il prezzo è dichiarato**: la grana vive nelle ombre e nei toni medio-scuri, quindi a metà
-// scala tiene il 43% di quanto teneva nella `2.66` e a due terzi il 13%. Il picco si sposta da 0,39
-// a **0,31**, che è il *solo alle ombre* portato dove lo ha chiesto.
+// su 1001 toni), perché i due capi si ritirano insieme: il guadagno scende a uno mentre il
+// pavimento sale a uno, e il peso torna `4t(1-t)`.
+// ⚠️⚠️ **IL MASSIMO ASSOLUTO NON CRESCE, SI SPOSTA, ed è la misura che dice che il `30% in più` non
+// è una grana più forte di quanto sia mai stata**: il picco vale **12,4 livelli a `t=0,28`**, contro
+// i **12,2 a metà tono** che la `2.65` dava a fondo corsa del cursore principale. Quello che cambia
+// è dove cade.
+// ⚠️⚠️ **'0,35' È IL PESO E NON I LIVELLI, ED È UNA LETTURA DICHIARATA**: la voce della `2.66` gli
+// diceva che a metà tono la grana teneva l'**81%**, e la sua riga rispondeva a quella; letto in
+// livelli darebbe 0,35 su 255 a metà scala contro i 9,2 del quarto, cioè un crollo, che è il
+// contrario del *graduale* della stessa frase. ⚠️ **Col vincolo della `2.68` quel peso non è più
+// libero**: a metà scala vale `0,041`, perché è il cielo a decidere quel punto.
+// ⚠️ **La rampa resta una sfumatura e non un gradino**, che è il suo *senza bordi netti*: è larga
+// **70 livelli su 255** (erano 105), con `smoothstep`, quindi la pendenza è nulla ai due capi.
+// ⚠️ **Il prezzo è dichiarato**: fra il quarto di scala e metà la grana cala molto più in fretta di
+// prima (a `t=0,45` tiene il 46% di quanto teneva nella `2.67`, a metà scala il 12%). È quello che
+// ha chiesto, e il posto in cui si chiede il contrario è il cursore 'Luci'.
 const half GRAIN_LIFT_LO = 0.25;
-const half GRAIN_LIFT_HI = 0.6614;
+const half GRAIN_LIFT_HI = 0.5235;
 const half GRAIN_LIFT_FLOOR = 0.0138;
+const half GRAIN_LIFT_SHADE = 1.3;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -2244,9 +2277,16 @@ half4 main(float2 p) {
         // aggiunta grana inutilmente*). L'inviluppo qui sopra tiene fuori il nero chiuso e il
         // bianco bruciato; questa rampa toglie la fascia in mezzo dove vive un cielo, e a cursore
         // pieno non toglie niente, cioè rimette il conto della `2.65`.
+        // ⚠️⚠️ **E DALLA `2.68` I CAPI DELLA RAMPA SONO DUE, PERCHÉ IL CURSORE RIDISTRIBUISCE**
+        // (voce `grana-luci-2`: *un cielo quasi immacolato e delle ombre con un 30% in più di
+        // grana*): a riposo le ombre valgono `GRAIN_LIFT_SHADE` e le luci il pavimento, a fondo
+        // corsa tutti e due valgono uno. Il `mix` fra i due capi è quello di prima, e a muoversi è
+        // il capo di sotto: senza di lui le ombre non potevano salire, perché là erano già al
+        // massimo che questo conto sapeva dare.
         half up = half(smoothstep(float(GRAIN_LIFT_LO), float(GRAIN_LIFT_HI), float(tone)));
         half keep = mix(GRAIN_LIFT_FLOOR, half(1.0), grainLift);
-        mid = mid * mix(half(1.0), keep, up);
+        half deep = mix(GRAIN_LIFT_SHADE, half(1.0), grainLift);
+        mid = mid * mix(deep, keep, up);
         // ⚠️ **Si somma lo stesso valore ai tre canali**: la grana di una pellicola in bianco e
         // nero è di densità e non di colore, e un rumore per canale darebbe i puntini colorati
         // del sensore, cioè proprio quello che la riduzione del rumore esiste per togliere.

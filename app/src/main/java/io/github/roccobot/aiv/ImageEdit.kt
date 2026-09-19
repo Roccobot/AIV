@@ -180,12 +180,34 @@ object ImageEdit {
         mirror: Boolean,
         crop: Crop,
         way: Way,
-        backup: Boolean
+        backup: Boolean,
+        /**
+         * La **filigrana** da scrivere sull'immagine, o `null` per non scriverne nessuna.
+         *
+         * ⚠️⚠️ **ARRIVA COME ARGOMENTO E NON SI LEGGE QUI, come la copia di sicurezza**: questo
+         * oggetto risponde a *che cosa succede quando l'editor salva*, e quale interruttore sia
+         * acceso lo sa chi ha le impostazioni in mano. Così il banco può misurarlo passandogli
+         * quello che vuole.
+         * ⚠️⚠️ **CONTA COME LAVORO DA FARE, e senza quella riga la funzione sarebbe zoppa**: chi
+         * apre l'editor per firmare un'immagine e basta non tocca niente, e il salvataggio
+         * risponderebbe che non c'è niente da salvare.
+         */
+        mark: Watermark.Plan? = null,
+        /**
+         * A che misura scrivere, o `null` per lasciare quella dell'immagine.
+         *
+         * ⚠️ **Arriva come argomento come la filigrana, e per la stessa ragione**: quale
+         * interruttore sia acceso lo sa chi ha le impostazioni in mano, e questo oggetto risponde
+         * solo a *che cosa succede quando l'editor salva*.
+         * ⚠️ **Conta come lavoro da fare**: chi apre l'editor per rimpicciolire un'immagine e basta
+         * non tocca la posa e non taglia niente.
+         */
+        resize: Resize.Plan? = null
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
-        if (turns == 0 && !mirror && crop.whole) {
+        if (turns == 0 && !mirror && crop.whole && mark == null && resize == null) {
             return@withContext Result.Failed(R.string.edit_nothing)
         }
 
@@ -212,7 +234,14 @@ object ImageEdit {
         // quattro con lo specchio (2, 4, 5, 7), quindi riflettere un JPEG non costa una
         // ricompressione più di quanto ne costi girarlo. Chi credesse il contrario toglierebbe
         // qualità a un gesto che oggi non ne toglie.
-        if (jpeg && crop.whole) {
+        // ⚠️⚠️ **E UNA FILIGRANA TOGLIE IL SENZA PERDITA, DALLA `2.69`**: girare un JPEG si fa con
+        // un tag EXIF senza toccare un pixel, ma un logo i pixel li scrive, quindi là si passa per
+        // forza dal ridisegno. È la stessa famiglia del ritaglio della riga qui sopra.
+        // ⚠️⚠️ **E UN RIDIMENSIONAMENTO LO TOGLIE PER LA STESSA RAGIONE, DALLA `2.70`**: un tag
+        // EXIF dice come guardare i pixel, non quanti sono, quindi scrivere meno pixel vuol dire
+        // ridisegnare. È la terza voce di questa condizione, e tutte e tre dicono la stessa cosa:
+        // il senza perdita vale finché il file non va riscritto.
+        if (jpeg && crop.whole && mark == null && resize == null) {
             return@withContext turnOnly(context, source, dir, turns, mirror, way)
         }
 
@@ -222,7 +251,7 @@ object ImageEdit {
                 else return@withContext Result.Failed(R.string.edit_no_overwrite)
             Way.COPY -> FileTree.freeName(dir, outputName(source.name))
         }
-        redraw(context, uri, source, target, turns, mirror, crop)
+        redraw(context, uri, source, target, turns, mirror, crop, mark, resize)
     }
 
     /**
@@ -248,6 +277,22 @@ object ImageEdit {
         quality: Quality,
         backup: Boolean,
         /**
+         * La **filigrana**, come in [save]: arriva da chi ha le impostazioni in mano.
+         *
+         * ⚠️ **Non vive in [Look]**, e non è una dimenticanza: un `Look` è un aspetto, cioè una
+         * cosa che uno stile si porta da un'immagine all'altra, e una firma vale per tutti gli
+         * editing. Il perché per esteso vive in testa a [Watermark].
+         */
+        mark: Watermark.Plan? = null,
+        /**
+         * A che misura scrivere, come in [save].
+         *
+         * ⚠️ **Non vive in [Look]** per la stessa ragione della filigrana: un `Look` è un aspetto
+         * che uno stile si porta da un'immagine all'altra, e questo dice come scrivere il file. Il
+         * perché per esteso vive in testa a [Resize].
+         */
+        resize: Resize.Plan? = null,
+        /**
          * Se il file nuovo va **accanto** all'originale invece di prenderne il posto.
          *
          * ⚠️⚠️ **È IL TOCCO LUNGO SU 'SALVA', DALLA `2.58`, ED È SUA RICHIESTA** (campo libero del
@@ -264,7 +309,12 @@ object ImageEdit {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
-        if (look.idle) return@withContext Result.Failed(R.string.edit_nothing)
+        // ⚠️ La filigrana e il ridimensionamento sono lavoro da fare anche a cursori fermi, e per
+        // questo la guardia non guarda soltanto il [Look]: senza, chi apre l'editor per firmare o
+        // per rimpicciolire si vedrebbe rispondere che non c'è niente da salvare.
+        if (look.idle && mark == null && resize == null) {
+            return@withContext Result.Failed(R.string.edit_nothing)
+        }
         /*
          * ⚠️⚠️ **COL SOLO MODULO RITAGLIO SI PASSA DA [save], DALLA `2.31`**: posa e taglio sono
          * quello che quella strada sa fare da sempre, compreso il **senza perdita** di un JPEG
@@ -278,7 +328,8 @@ object ImageEdit {
         if (look.plain && look.geo.idle) {
             val way = if (!beside && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
             return@withContext save(
-                context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup
+                context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup, mark,
+                resize
             )
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
@@ -300,6 +351,8 @@ object ImageEdit {
         var shaded: Bitmap? = null
         var warped: Bitmap? = null
         var done: Bitmap? = null
+        var small: Bitmap? = null
+        var signed: Bitmap? = null
         try {
             full = ImageSource.pixels(context, uri, 0)
                 ?: return@withContext Result.Failed(R.string.edit_too_big)
@@ -327,14 +380,25 @@ object ImageEdit {
             warped = if (look.geo.idle) shaded else Warp.render(shaded, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)
             done = if (look.crop.whole) warped else warped.cutTo(look.crop)
+            // ⚠️ Il ridimensionamento viene prima della firma, e il perché vive nell'altra via
+            // (la filigrana è larga una frazione del lato di quello che si scrive, quindi
+            // disegnarla prima vorrebbe dire ridisegnarla due volte).
+            small = resize?.let { Resize.apply(done, it) }
+            val ridotta = small ?: done
+            // ⚠️ La filigrana è l'ultima cosa che si disegna: è una firma sul risultato, quindi
+            // va sopra lo sviluppo, la geometria e il taglio. Il perché per esteso, e che cosa
+            // succede quando il file non si disegna, vivono in testa a [Watermark].
+            signed = mark?.let { Watermark.stamp(context, ridotta, it) }
+            val finita = signed ?: ridotta
             // ⚠️ La trasparenza va su fondo bianco come nell'altra strada, e con la stessa
             // funzione: il JPEG butta via il canale alfa, e i pixel trasparenti resterebbero
             // col loro colore, che quasi sempre è il nero.
-            val piatta = if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(done) else done
+            val piatta =
+                if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(finita) else finita
             val written = runCatching {
                 temp.outputStream().use { piatta.compress(kind, lookQuality(quality), it) }
             }.getOrDefault(false)
-            if (piatta !== done) piatta.recycle()
+            if (piatta !== finita) piatta.recycle()
             if (!written) {
                 temp.delete()
                 return@withContext Result.Failed(R.string.edit_failed)
@@ -346,6 +410,8 @@ object ImageEdit {
             // ⚠️ Le mappe possono essere la stessa: una passata saltata consegna quella che ha
             // ricevuto, e riciclare due volte lo stesso bitmap è un errore che non si vede finché
             // qualcuno non lo legge dopo.
+            if (signed !== small && signed !== done) signed?.recycle()
+            if (small !== done) small?.recycle()
             if (done !== warped) done?.recycle()
             if (warped !== shaded) warped?.recycle()
             if (shaded !== posed) shaded?.recycle()
@@ -472,12 +538,16 @@ object ImageEdit {
         target: File,
         turns: Int,
         mirror: Boolean,
-        crop: Crop
+        crop: Crop,
+        mark: Watermark.Plan?,
+        resize: Resize.Plan?
     ): Result {
         val temp = File(target.parentFile, target.name + ".part")
         var full: Bitmap? = null
         var turned: Bitmap? = null
         var cut: Bitmap? = null
+        var small: Bitmap? = null
+        var signed: Bitmap? = null
         try {
             // ⚠️ **Il secondo tentativo serve ai formati che il sistema non apre**, AVIF e
             // SVG: senza, un ritaglio su quei file rispondeva 'troppo grande', che è un
@@ -493,6 +563,24 @@ object ImageEdit {
             }
 
             cut = turned.cutTo(crop)
+            /*
+             * ⚠️⚠️ **SI RIDIMENSIONA PRIMA DI FIRMARE, DALLA `2.70`, E L'ORDINE È MISURATO**:
+             * la filigrana è larga una frazione del lato **dell'immagine che si scrive**, quindi
+             * firmando prima e rimpicciolendo dopo la firma resterebbe in proporzione ma
+             * ridisegnata due volte, cioè più sgranata di quella che si vedrebbe nell'anteprima
+             * delle impostazioni. Rimpicciolire prima la fa disegnare una volta sola, alla misura
+             * giusta.
+             */
+            small = resize?.let { Resize.apply(cut, it) }
+            val ridotta = small ?: cut
+            /*
+             * ⚠️⚠️ **LA FILIGRANA È L'ULTIMA COSA CHE SI DISEGNA SULL'IMMAGINE, DALLA `2.69`**:
+             * è una firma sul risultato, quindi va sopra la posa e sopra il taglio. Se non c'è
+             * niente da scrivere (nessun file scelto, o un file che non si disegna) risponde
+             * `null` e si salva l'immagine e basta, invece di fallire per un logo.
+             */
+            signed = mark?.let { Watermark.stamp(context, ridotta, it) }
+            val finita = signed ?: ridotta
 
             val kind = format(target.name) ?: Bitmap.CompressFormat.JPEG
             /*
@@ -510,11 +598,12 @@ object ImageEdit {
              * ⚠️ **Si salta dove non serve**: `flatten` torna la stessa immagine se non ha
              * canale alfa, e per PNG e WebP non la si chiama nemmeno.
              */
-            val piatta = if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(cut) else cut
+            val piatta =
+                if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(finita) else finita
             val written = runCatching {
                 temp.outputStream().use { piatta.compress(kind, QUALITY, it) }
             }.getOrDefault(false)
-            if (piatta !== cut) piatta.recycle()
+            if (piatta !== finita) piatta.recycle()
             if (!written) {
                 temp.delete()
                 return Result.Failed(R.string.edit_failed)
@@ -523,6 +612,11 @@ object ImageEdit {
             temp.delete()
             return Result.Failed(R.string.edit_too_big)
         } finally {
+            // ⚠️ La firma può essere lo STESSO bitmap su cui si è disegnato, quando si è potuto
+            // scrivere sopra: riciclarlo due volte è un errore che non si vede finché qualcuno non
+            // lo legge dopo, ed è la stessa nota che porta la via dell'editor completo.
+            if (signed !== small && signed !== cut) signed?.recycle()
+            if (small !== cut) small?.recycle()
             if (cut !== turned) cut?.recycle()
             if (turned !== full) turned?.recycle()
             full?.recycle()

@@ -412,6 +412,60 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var settings: Settings? by mutableStateOf(null)
         private set
 
+    /**
+     * Se una **filigrana** è pronta da scrivere: l'interruttore è acceso e un file è stato
+     * scelto.
+     *
+     * ⚠️⚠️ **SERVE AL TASTO 'SALVA' E NON AL SALVATAGGIO, ED È QUESTA LA RAGIONE PER CUI ESISTE**:
+     * chi apre l'editor per firmare un'immagine e basta non tocca niente, quindi senza questo
+     * valore il tasto resterebbe spento e la filigrana non si potrebbe applicare mai da sola. Il
+     * salvataggio invece il file se lo guarda da sé.
+     * ⚠️ **Si aggiorna quando cambiano le impostazioni**, cioè anche tornando dalla pagina in cui
+     * la filigrana si sceglie: quella scrittura passa dallo stesso archivio, e il flusso la porta
+     * qui senza che nessuno debba ricordarsi di chiedere.
+     */
+    var markReady: Boolean by mutableStateOf(false)
+        private set
+
+    /**
+     * Quello che il salvataggio deve sapere della filigrana, o `null` se non se ne scrive
+     * nessuna.
+     */
+    private fun markPlan(): Watermark.Plan? {
+        val now = settings ?: return null
+        return if (now.markOn) Watermark.Plan(now.markSpot, now.markSize) else null
+    }
+
+    /**
+     * Il **ridimensionamento** configurato, che esiste anche quando non si applica: l'editor lo
+     * mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     */
+    fun resizePlan(): Resize.Plan {
+        val now = settings
+        return if (now == null) Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX)
+        else Resize.Plan(now.sizeMode, now.sizeValue)
+    }
+
+    /** Se quel piano si applica al salvataggio. */
+    fun resizeOn(): Boolean = settings?.sizeOn ?: false
+
+    /**
+     * Lo scrive e lo accende, o lo spegne con `null`.
+     *
+     * ⚠️⚠️ **SCRIVERLO VUOL DIRE ACCENDERLO, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta
+     * `editor` a `d-resize-dove`: *una volta che premo 'OK' l'interruttore è acceso e salva con
+     * ridimensionamento se non lo spengo*). Chi entra a configurare ha già detto che lo vuole.
+     * ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che
+     * si era scelto resta scritto, e riaccendere non chiede di riscriverlo.
+     */
+    fun setResize(plan: Resize.Plan?) {
+        val now = settings ?: return
+        updateSettings(
+            if (plan == null) now.copy(sizeOn = false)
+            else now.copy(sizeOn = true, sizeMode = plan.mode, sizeValue = plan.value)
+        )
+    }
+
     var recents: List<RecentImage> by mutableStateOf(emptyList())
         private set
 
@@ -573,6 +627,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             SettingsStore.flow(context).collect { fresh ->
                 settings = fresh
+                // ⚠️ Il disco si guarda FUORI dal thread principale, come ogni altra lettura di
+                // file: costa un `isFile`, ma la regola non fa eccezioni per le letture corte.
+                markReady = fresh.markOn &&
+                    withContext(Dispatchers.IO) { Watermark.file(context) != null }
                 // ⚠️ Gli appunti PRIMA della cartella d'avvio, o la seconda coprirebbe
                 // la fotografia che i primi hanno appena aperto.
                 readClipboard()
@@ -1745,7 +1803,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val esito = ImageEdit.save(
                 context, here.uri, turns, mirror, crop, way,
-                backup = settings?.editorBackup ?: true
+                backup = settings?.editorBackup ?: true,
+                mark = markPlan(),
+                resize = if (resizeOn()) resizePlan() else null
             )
             editorBusy = false
             when (esito) {
@@ -1793,6 +1853,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 context, here.uri, look,
                 quality = settings?.editorQuality ?: Quality.DEFAULT,
                 backup = settings?.editorBackup ?: true,
+                mark = markPlan(),
+                resize = if (resizeOn()) resizePlan() else null,
                 beside = beside
             )
             editorBusy = false
@@ -3272,6 +3334,10 @@ private fun Stage(
             EditorScreen(
                 uri = screen.uri,
                 busy = model.editorBusy,
+                marked = model.markReady,
+                resize = model.resizePlan(),
+                resizing = model.resizeOn(),
+                onResize = { model.setResize(it) },
                 onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
                 onBack = { model.leaveEditor() }
             )
@@ -3287,6 +3353,10 @@ private fun Stage(
             AdvancedEditorScreen(
                 uri = screen.uri,
                 busy = model.editorBusy,
+                marked = model.markReady,
+                resize = model.resizePlan(),
+                resizing = model.resizeOn(),
+                onResize = { model.setResize(it) },
                 onSave = { look, beside -> model.lookSave(look, beside) },
                 onBack = { model.leaveEditor() }
             )

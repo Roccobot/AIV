@@ -3103,10 +3103,19 @@ class SviluppoTest {
      * qualcuno le sposti. Che l'immagine venga bene si guarda sul telefono, e la voce di collaudo
      * lo chiede.
      * ⚠️⚠️ **DALLA `2.67` I NUMERI DELLA GRANA SONO I SUOI, E LA PROVA LI RICALCOLA** (voce
-     * `eff-grana-luci`: *il 'quasi zero' passa da 0,8 a 0,1 ... metà scala a 0,35*): a metà scala
-     * il peso deve valere `0,35`, e sul cielo la grana piena deve muovere `0,1` livelli su 255.
+     * `eff-grana-luci`: *il 'quasi zero' passa da 0,8 a 0,1 ... metà scala a 0,35*): sul cielo la
+     * grana piena deve muovere `0,1` livelli su 255.
+     * ⚠️⚠️ **E DALLA `2.68` I VINCOLI SONO ALTRI DUE, PERCHÉ IL CURSORE RIDISTRIBUISCE** (voce
+     * `grana-luci-2`: *un cielo quasi immacolato e delle ombre con un 30% in più di grana*): le
+     * ombre devono prendere esattamente il `30% in più`, e a metà scala la grana piena deve restare
+     * **sotto mezzo livello su 255**, cioè sotto la quantizzazione, che è la lettura operativa di
+     * *quasi immacolato*. ⚠️ **Il `0,35` della `2.67` non si misura più**: con questi due vincoli
+     * quel punto non è libero, e il conto lo dice sulle costanti.
+     * ⚠️⚠️ **E A 'Luci' PIENO IL PESO TORNA `4t(1-t)`, che è la proprietà che il termine nuovo
+     * poteva rompere in silenzio**: i due capi devono ritirarsi insieme, e con uno solo dei due a
+     * uno il conto della `2.65` non torna più.
      * ⚠️ **Non è ricopiare l'implementazione**: la `smoothstep` qui sotto è la definizione
-     * standard, e quello che si confronta sono i due numeri della sua richiesta.
+     * standard, e quello che si confronta sono i numeri della sua richiesta.
      * ⚠️⚠️ **E LA CORSA DELLA VIGNETTATURA HA DUE CONFINI GEOMETRICI**: verso il positivo il pieno
      * deve arrivare **almeno al bordo**, cioè a `0,707` di [fromCentre], che è il suo *poco
      * all'interno del bordo*; verso il negativo deve cadere **fuori** dall'angolo. E il pieno non
@@ -3135,6 +3144,7 @@ class SviluppoTest {
         val lo = nelloShader("GRAIN_LIFT_LO")
         val hi = nelloShader("GRAIN_LIFT_HI")
         val floor = nelloShader("GRAIN_LIFT_FLOOR")
+        val shade = nelloShader("GRAIN_LIFT_SHADE")
         val reach = nelloShader("GRAIN_REACH")
         assertTrue("le ombre restano intatte fino al quarto di scala", lo >= 0.25f)
         assertTrue("e la rampa finisce dopo che è cominciata", hi > lo)
@@ -3146,16 +3156,41 @@ class SviluppoTest {
             return t * t * (3f - 2f * t)
         }
 
-        fun peso(t: Float): Float = 1f - smoothstep(lo, hi, t) * (1f - floor)
+        // L'inviluppo dei mezzi toni, `4t(1-t)`, e il peso che la rampa gli applica.
+        fun inviluppo(t: Float): Float = 1f - (2f * t - 1f) * (2f * t - 1f)
+        fun peso(t: Float, lift: Float): Float {
+            val up = smoothstep(lo, hi, t)
+            val keep = floor + (1f - floor) * lift
+            val deep = shade + (1f - shade) * lift
+            return deep + (keep - deep) * up
+        }
 
-        assertEquals("a metà scala la grana tiene il 35%", 0.35f, peso(0.5f), 0.01f)
+        fun livelli(t: Float, lift: Float): Float = reach * inviluppo(t) * peso(t, lift) * 255f
 
-        val cielo = 0.82f
-        val inviluppo = 1f - (2f * cielo - 1f) * (2f * cielo - 1f)
+        assertEquals("nelle ombre la grana prende il 30% in più", 1.3f, peso(lo, 0f), 0.001f)
+        assertEquals("e lo prende per tutte le ombre", peso(lo, 0f), peso(0.05f, 0f), 1e-6f)
+        assertTrue(
+            "a metà scala il cielo resta sotto mezzo livello su 255",
+            livelli(0.5f, 0f) <= 0.5f
+        )
         assertEquals(
             "sul cielo la grana piena muove un decimo di livello",
-            0.1f, reach * inviluppo * peso(cielo) * 255f, 0.02f
+            0.1f, livelli(0.82f, 0f), 0.02f
         )
+
+        // A 'Luci' pieno i due capi si ritirano insieme e resta l'inviluppo nudo della `2.65`.
+        // ⚠️ Qui si guarda il TESTO del programma e non il conto ricostruito qui sopra: che il
+        // guadagno delle ombre torni a uno è una proprietà di come lo shader lo compone, e un
+        // guadagno scritto come costante (senza passare da `grainLift`) lascerebbe le ombre al 130%
+        // anche a cursore pieno, cioè romperebbe quella promessa senza che nessun conto lo dica.
+        assertTrue(
+            "il guadagno delle ombre deve ritirarsi col cursore, come il pavimento",
+            LOOK_AGSL.contains("mix(GRAIN_LIFT_SHADE, half(1.0), grainLift)")
+        )
+        for (i in 0..100) {
+            val t = i / 100f
+            assertEquals("a 'Luci' pieno il peso torna quello della 2.65", 1f, peso(t, 1f), 1e-5f)
+        }
     }
 
     /**
@@ -3289,7 +3324,19 @@ class SviluppoTest {
             // strada che nessuno percorre.
             CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods, hand = hand)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    AdvancedEditorScreen(uri = uri, busy = false, onSave = onSave, onBack = {})
+                    AdvancedEditorScreen(
+                        uri = uri,
+                        busy = false,
+                        // ⚠️ Senza filigrana: il caso che la porta vive in `FiligranaTest`.
+                        marked = false,
+                        resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
+                        // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
+                        // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
+                        resizing = false,
+                        onResize = {},
+                        onSave = onSave,
+                        onBack = {}
+                    )
                 }
             }
         }

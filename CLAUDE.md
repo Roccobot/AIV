@@ -3080,6 +3080,31 @@ un preset che non nomina quel campo lo rileggerebbe sbagliato.
   - ⚠️ **Sotto la quantizzazione, e va detto**: un decimo di livello su 255 non si vede affatto,
     quindi sul cielo la grana di fatto non c'è. È quello che ha chiesto, e il posto in cui si
     chiede il contrario è il cursore stesso.
+- ⚠️⚠️ **E DALLA `2.68` QUESTO CURSORE A RIPOSO ALZA ANCHE LE OMBRE, PERCHÉ HA CHIESTO UNA
+  RIDISTRIBUZIONE** (riscontro del giro della `2.67`, voce `grana-luci-2` accettabile: *anche al
+  minimo (0,1) i cieli hanno troppa grana, mentre forse le ombre troppo poca. Cerchiamo di
+  raggiungere un cielo quasi immacolato e delle ombre con un 30% in più di grana, il tutto senza
+  bordi netti e con toni medi sfumati*). Quindi i numeri di quel blocco sono **quattro**, e il
+  quarto è il guadagno delle ombre.
+  - ⚠️⚠️ **LE OMBRE NON POTEVANO SALIRE SENZA UN TERMINE NUOVO, ED È IL PEZZO CHE CAMBIA**: là la
+    rampa vale **uno**, cioè il peso pieno, che era il massimo che la `2.66` sapeva dare. Adesso i
+    capi sono due: a riposo le ombre valgono `1,3` e le luci il pavimento, a fondo corsa tutti e
+    due valgono uno, cioè torna esattamente la `2.65`.
+  - ⚠️⚠️ **IL MASSIMO ASSOLUTO NON CRESCE, SI SPOSTA, e questa misura dice che il `30% in più` non
+    è una grana più forte di quanto sia mai stata**: il picco vale **12,4 livelli a `t=0,28`**,
+    contro i **12,2 a metà tono** che la `2.65` dava a fondo corsa del cursore principale.
+  - ⚠️⚠️ **'CIELO QUASI IMMACOLATO' È UNA LETTURA DICHIARATA, E FISSA LA SOGLIA ALTA**: si legge
+    come *sotto la quantizzazione a metà scala*, cioè mezzo livello su 255, perché un cielo azzurro
+    vive fra metà scala e i tre quarti. Il decimo di livello che aveva dettato per `t=0,82` non si
+    tocca: il difetto non era il pavimento, era la fascia prima di lui.
+  - **Che cosa cambia, in livelli su 255 a grana piena**: fino al quarto di scala **+30%** esatto
+    (il quarto passa da 9,2 a 11,9), a `t=0,35` +7%, a `t=0,45` **-54%**, a metà scala da 4,3 a
+    **0,5**, e dai tre quarti in su niente.
+  - ⚠️ **Il suo *senza bordi netti* è la rampa, e resta una sfumatura**: larga **70 livelli su 255**
+    invece di 105, con la stessa `smoothstep`, quindi la pendenza è nulla ai due capi.
+  - ⚠️ **La soglia alta si arrotonda per DIFETTO**, e a dirlo è stata la prova: il valore esatto è
+    `0,52360`, e scritto a quattro decimali per eccesso manca il vincolo per un decimillesimo di
+    livello.
 - **I numeri della `2.66` erano altri tre**: sul cielo si fermava a `0,8` livelli e a metà tono la
   grana teneva l'81% di quanto teneva nella `2.65`. Chi li ritrova in una nota sappia che sono
   quelli del giro prima.
@@ -3131,11 +3156,14 @@ comunque il grafico delle Curve (§ `SteadyBody`).
 **verso** della condizione, che è la cosa che può rompersi in silenzio), che non contino come
 lavoro né come bordo delle tessere, che la cella della grana si scali col lato e col cursore, e che
 i numeri dei due conti restino dentro i loro confini, letti dalla stringa dello shader come i
-tre che `Auto` ricopia. ⚠️⚠️ **E DALLA `2.67` QUELLA PROVA RICALCOLA I SUOI DUE NUMERI**: il peso a
-metà scala deve valere `0,35` e la grana piena sul cielo `0,1` livelli, cioè si presidia la sua
-richiesta e non una costante ricopiata. Controprovata due volte, rimettendo il pavimento della
-`2.66` (cade il peso a metà scala) e stringendo la corsa della vignettatura (cade il confine del
-bordo). **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
+tre che `Auto` ricopia. ⚠️⚠️ **E DALLA `2.67` QUELLA PROVA RICALCOLA I SUOI NUMERI**, cioè presidia
+la sua richiesta e non una costante ricopiata: dalla `2.68` sono **le ombre al 130%**, il **mezzo
+livello a metà scala** e il **decimo di livello sul cielo**, più il fatto che a 'Luci' pieno il peso
+torni quello della `2.65`. ⚠️ **Quest'ultimo si misura sul TESTO dello shader**, perché un guadagno
+scritto come costante lascerebbe le ombre al 130% anche a cursore pieno senza che nessun conto lo
+dica. Controprovata tre volte, rimettendo la rampa della `2.67` (cade il cielo), togliendo il
+guadagno (cadono le ombre) e scrivendolo come costante (cade il testo); e prima, stringendo la corsa
+della vignettatura (cade il confine del bordo). **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
 cielo resti pulito e che l'alone si allarghi si guardano sul telefono, e la voce di collaudo lo
 chiede. ⚠️ **I numeri di questo blocco vengono da un modello di sessione**, scritto e buttato, che è
 la strada dichiarata per questo genere di conto.
@@ -4204,6 +4232,175 @@ di geometria, che applicare due volte dia la stessa immagine, il nome doppio, la
 venti di casa (venti, pieni, distinti), l'ordine dell'elenco, e il pannello che applica restando
 aperto col comando che toglie sui soli propri. **Non** vede come un preset cambia un'immagine, che
 è la sola cosa che conta davvero: quella si guarda sul telefono, e la voce di collaudo lo chiede.
+
+## 🔏 La filigrana, e perché il file si copia in casa
+
+⚠️⚠️ **DALLA `2.69`, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta `altro` a `d-filigrana-file`,
+giro della `2.67`: *è configurabile dalle impostazioni, sezione editor. Input PNG o SVG. Si sceglie
+un solo logo o simbolo per volta e vale per tutti gli editing se il suo interruttore è attivo al
+salvataggio. Per cambiare watermark, si rientra nelle impostazioni e si sceglie un altro file. Cosa
+importante: l'utente lo sceglie e l'app lo memorizza in una sua cartella interna, in modo che
+sopravviva anche alla cancellazione dell'originale*). È la prima delle due cose che ha chiesto col
+suo `insieme` a `d-prossimo` (*prima la filigrana, poi il ridimensionamento*).
+
+⚠️⚠️ **NON VIVE IN `Look`, E NON È UN DETTAGLIO DI COMODO**: un `Look` è un **aspetto**, cioè
+quello che uno stile si porta da un'immagine all'altra; una filigrana è una **firma**, vale per
+tutti gli editing e dentro un preset non vorrebbe dire niente. Quindi arriva al salvataggio come un
+argomento a sé, come la copia di sicurezza, e i moduli che uno stile governa restano sei.
+- ⚠️ **Conta come lavoro da salvare**, ed è la riga che rende la funzione usabile: chi apre
+  l'editor per firmare un'immagine e basta non muove nessun cursore, quindi senza quella
+  condizione il tasto 'Salva' resterebbe spento e la firma non arriverebbe mai su un file. Vale
+  nei due editor.
+- ⚠️ **E toglie il senza perdita**, come un cursore di Luce: scrivere dei pixel sopra la
+  fotografia è una riscrittura, e non c'è modo di ottenerla con un tag EXIF.
+
+⚠️⚠️ **IL FILE SI COPIA COM'È E NON SI RASTERIZZA ALL'ADOZIONE, ED È LA RAGIONE PER CUI UN SVG
+SERVE A QUALCOSA**: un vettore disegnato al momento del salvataggio resta nitido su un file da
+venti megapixel, mentre uno ridotto a una misura scelta oggi sarebbe pixel come gli altri. Il PNG
+si copia per il motivo opposto: è già pixel, e ridurlo all'adozione butterebbe via quello che
+porta.
+- ⚠️ **Vive in `filesDir` e non in `cacheDir`**, come le copertine e gli stili: quello che sta
+  nella cache il sistema lo può buttare quando ha bisogno di spazio, e qui la promessa è che il
+  logo resti anche dopo che l'originale è sparito. È la sua clausola, e decide l'archivio.
+- ⚠️⚠️ **UN FILE SOLO PER VOLTA, E LO DICE IL NOME**: la copia si chiama sempre `mark` col suffisso
+  del proprio tipo, quindi sceglierne un altro dello stesso tipo prende il posto del primo da sé.
+  ⚠️ **Quello dell'altro tipo va tolto a mano**, ed è l'unica riga che potrebbe dimenticarsi: senza,
+  resterebbero due filigrane e a decidere quale si usa sarebbe l'ordine di un `enum`, cioè la
+  scelta dell'utente verrebbe ignorata in silenzio. A presidiarla è il caso 3 del banco.
+
+⚠️⚠️ **IL TIPO SI RICONOSCE DAI BYTE E NON DAL NOME, E IL CASO CHE LO PRETENDE È IL JPEG**: chi
+sceglie un file passa dal selettore di sistema, che consegna un indirizzo e un tipo dichiarato da
+chi lo serve, e tutti e due possono mentire. Un JPEG non ha trasparenza, quindi come filigrana
+stamperebbe un **rettangolo pieno** sopra la fotografia, e quel difetto si vede solo sul file già
+salvato.
+- ⚠️ **I tipi si dichiarano anche al selettore**, così il navigatore mostra i soli file che si
+  possono usare invece di lasciar scegliere e rispondere di no dopo: sono due presidi con due
+  scopi, e il controllo vero resta sui byte.
+- ⚠️⚠️ **E IL FILE SI DISEGNA PRIMA DI ADOTTARLO**: un documento valido che non si rende darebbe
+  una filigrana che non compare, cioè un salvataggio che non fa quello che promette. ⚠️ **Il
+  vecchio si cancella solo dopo**, o chi prova un file sbagliato resterebbe senza quello che aveva.
+
+⚠️ **La misura è una frazione del lato LUNGO dell'immagine**, con le stesse due ragioni del
+Dettaglio: una misura in pixel darebbe una firma enorme su un file piccolo e invisibile su uno da
+fotocamera; e il lato **lungo** invece della larghezza, o la stessa scelta peserebbe un quarto su
+una fotografia verticale, che è un difetto che non dà nessun errore. Le misure sono quattro e
+l'aria dal bordo è una sola (`Watermark.AIR`), letta anche dall'anteprima delle impostazioni.
+- ⚠️ **Un PNG piccolo chiesto grande si ingrandisce, e il costo si dichiara**: i pixel che mancano
+  non li inventa nessuno. La via alternativa, cioè fermarsi ai pixel del file, darebbe una firma
+  che cambia misura a seconda dell'immagine: un'impostazione che non fa quello che dice. Chi vuole
+  una firma nitida a ogni misura usa un SVG, ed è la ragione per cui si accettano tutti e due i
+  formati.
+- ⚠️ **Cinque posti e non nove**: i quattro angoli sono dove una firma va a finire da sempre, e il
+  centro è il caso di chi marca un'immagine che verrà condivisa. I mezzi dei lati non aggiungono un
+  gesto che qualcuno faccia, e porterebbero quattro nomi in più in ventotto lingue.
+
+⚠️⚠️ **SI SCRIVE SUL BITMAP RICEVUTO QUANDO SI PUÒ, E LA COPIA È IL RIPIEGO**: chi chiama ha in
+mano l'immagine finita e la sta per comprimere, e una copia a venti megapixel sono ottanta megabyte
+per un logo in un angolo. Nel caso comune non serve, perché quello che esce dal ritaglio, dallo
+shader e dalla maglia della geometria è un bitmap costruito da loro, cioè mutabile. ⚠️ **Se la
+copia non si può fare, la firma salta**: chi chiama scrive l'immagine senza, che è meglio di un
+salvataggio fallito.
+
+⚠️ **La pagina delle impostazioni è una sotto-pagina, e la soglia lo pretende**: la domanda è una
+sola (*che logo scrivo sulle immagini che salvo*) e le voci sono quattro più l'anteprima, cioè
+oltre il *2-3* della sua soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
+dentro 'Editor e salvataggio', che è la pagina della domanda *che cosa succede quando modifico
+un'immagine*.
+- ⚠️ **L'anteprima non è un ornamento**: posizione e misura si vedono sul file salvato, cioè dopo,
+  e provarle vorrebbe dire salvare un'immagine per ogni tentativo. Quel riquadro usa **gli stessi
+  due numeri** del disegno vero, quindi quello che si vede è quello che si avrà.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`FiligranaTest`, ogni caso controprovato): che un
+JPEG non si adotti e un PNG sì **qualunque cosa dica il nome**, che ne resti uno solo, che un file
+illeggibile non porti via quello scelto, il tetto degli otto megabyte, che la misura sia la
+frazione scelta del lato lungo (misurata anche girando l'immagine, a pixel), che la firma cada
+nell'angolo scelto e non nell'opposto, che senza un file scelto non si scriva niente, e che una
+filigrana pronta accenda 'Salva' su un'immagine intonsa. **Non** vede la resa della firma su una
+fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata di Android:
+quelle si guardano sul telefono, e la voce di collaudo le chiede.
+
+## 📏 Il ridimensionamento, e i due gesti di un tasto solo
+
+⚠️⚠️ **DALLA `2.70`, ED È LA SUA RISPOSTA `editor` A `d-resize-dove`** (giro della `2.67`: *mi
+piacerebbe più nell'editor, fatto in modo che funzioni tipo un parametro del salvataggio (un
+parametro complicato, ovvio, ma tipo 'Salva alle dimensioni...'). Nella pratica, comunque, si
+chiamerà 'Ridimensiona' e sarà costituito da un tasto più un interruttore. Imposti il
+ridimensionamento dal tasto e poi l'interruttore stabilisce se il ridimensionamento si applica al
+salvataggio, come per il watermark. Se si entra nell'opzione per configurarlo, una volta che premo
+'OK' l'interruttore è acceso e salva con ridimensionamento se non lo spengo*). È la seconda delle
+due cose che ha chiesto col suo `insieme` a `d-prossimo` (*prima la filigrana, poi il
+ridimensionamento*), e con lei quella tappa è chiusa.
+
+⚠️⚠️ **NON VIVE IN `Look`, PER LA STESSA RAGIONE DELLA FILIGRANA**: un `Look` è un **aspetto**,
+cioè quello che uno stile si porta da un'immagine all'altra; questo dice **come scrivere il
+file**, e dentro un preset non vorrebbe dire niente. Arriva al salvataggio come un argomento a sé,
+e i moduli che uno stile governa restano sei.
+- ⚠️ **E per la stessa ragione non si vede sul palco**: l'immagine su cui si lavora resta quella,
+  perché ridimensionare non cambia che cosa si vede ma quanti pixel si scrivono.
+- ⚠️ **Toglie il senza perdita**, come un cursore di Luce: scrivere meno pixel è una riscrittura, e
+  non c'è modo di ottenerla con un tag EXIF.
+
+⚠️⚠️ **'UN TASTO PIÙ UN INTERRUTTORE' SU UN BERSAGLIO SOLO, ED È UNA LETTURA DICHIARATA**: la sua
+frase ne descrive due, e in testata non entrano. Il conto, su uno schermo da 360 punti: il tasto
+Indietro ne prende 48, 'Salva' una settantina, l'icona nuova 48, e uno `Switch` di Material altri
+52; al titolo, che è l'unico a cedere, ne resterebbero un centinaio, cioè 'Modifica immagine' a
+`headlineSmall` andrebbe a capo. Quindi i gesti sono due sullo stesso tasto, che è il modo di
+questa app (la regola di `SaveButton` e dei gettoni dei moduli), e l'accento dice se è acceso.
+- **Il tocco apre la finestra**, che è il tasto con cui si imposta; **il tocco lungo spegne**, che
+  è l'interruttore. ⚠️ **Il gesto lungo c'è solo quando è acceso**: spegnere quello che è già
+  spento non è un gesto, e un'etichetta annunciata che non fa niente è peggio della sua assenza.
+- ⚠️ **Ad accendere è 'Applica' della finestra**, che è la sua specifica alla lettera. Quindi la
+  finestra non chiede due volte la stessa cosa: chi entra a configurare ha già detto che lo vuole.
+- ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che si era
+  scelto resta scritto, e riaccendere non chiede di riscriverlo. Per questo le preferenze tengono
+  **tre** campi e non uno.
+- ⚠️ **La voce di collaudo gli dice questa lettura in chiare lettere**, che è la regola del
+  `CLAUDE.md` di root sulle letture dichiarate: se voleva due elementi separati, lo dirà.
+
+⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
+(§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento
+che vivesse solo là mancherebbe a tutti i telefoni più vecchi. Il comando è **un pezzo solo**
+(`ResizeButton`, in `ResizeDialog.kt`) e lo chiamano tutte e due le testate.
+
+⚠️ **Le proporzioni si mantengono sempre, e non è un'opzione che manca**: un ridimensionamento che
+le rompe deforma l'immagine, e chi vuole cambiare il rapporto ha il modulo Ritaglio, che toglie
+dei pixel invece di stirarli. ⚠️⚠️ **E NON SI INGRANDISCE MAI**: i pixel che mancano non li inventa
+nessuno, quindi chiedere un lato più lungo di quello che il file ha darebbe un'immagine più pesante
+e non più nitida. Il tetto è **una riga sola** valida per tutti e quattro i modi, e la finestra
+**dice** che su quell'immagine il piano non fa niente invece di lasciar credere il contrario.
+
+⚠️ **Quattro modi e non uno**: il lato lungo serve quasi sempre, perché vale per le verticali come
+per le orizzontali; la larghezza e l'altezza servono a chi ha un vincolo su una dimensione sola; la
+percentuale a chi non ragiona in pixel. ⚠️ **I confini dipendono dal modo**, e il valore salvato si
+riporta dentro i suoi **in lettura**: chi sceglie 1600 pixel e poi passa alla percentuale lascia
+nell'archivio due chiavi che, lette alla lettera, darebbero un 1600 per cento.
+
+⚠️⚠️ **LA MISURA DI PARTENZA NASCE DA DUE FONTI, E LA RAGIONE È L'EXIF**: `inJustDecodeBounds`
+legge le misure del flusso codificato, che per una fotografia scattata in verticale sono quelle
+orizzontali, perché la rotazione vive in un tag e la applica chi decodifica. Il **lato lungo**
+invece è lo stesso prima e dopo un quarto di giro. Quindi la misura viene da `Pixels` e la forma
+dall'anteprima già raddrizzata, che è la stessa divisione che il KDoc di `Pixels` dichiara.
+- ⚠️ **E la posa e il ritaglio entrano nel conto** (`Resize.frameSize`): il ridimensionamento si
+  applica **dopo** il taglio, quindi chi legge 'da 4000 x 3000' su un'immagine tagliata a metà si
+  ritroverebbe un file grande la metà di quello che gli è stato detto.
+- ⚠️ **Senza quella misura il tasto 'Salva' non si accende per il solo ridimensionamento**: non
+  sapendo se rimpicciolisce, accenderlo prometterebbe una scrittura che potrebbe non fare niente.
+  Succede dove il lato lungo non si legge, cioè un indirizzo remoto o un formato che il
+  decodificatore non riconosce.
+
+⚠️ **Si applica prima della firma**: la filigrana si scrive sull'immagine finita, e ridimensionando
+dopo la firma verrebbe rimpicciolita insieme a lei, cioè disegnata a una misura e resa a un'altra.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`RidimensionaTest`, ogni caso controprovato): che
+nessuno dei quattro modi ingrandisca e che la misura identica non conti come lavoro, che ogni modo
+governi il proprio lato tenendo le proporzioni, i confini per modo, che la misura di partenza
+prenda il lato lungo dal file e la forma dall'anteprima, che la posa scambi i lati e il ritaglio li
+riduca, che il valore salvato si rilegga dentro i confini del suo modo, che l'immagine
+ridimensionata abbia la misura chiesta e a vuoto non se ne faccia una nuova, che un piano che
+rimpicciolisce accenda 'Salva' su un'immagine intonsa **e uno che non rimpicciolisce no**, e i due
+gesti del tasto. **Non** vede la resa del filtro, cioè che l'immagine rimpicciolita sia nitida, né
+come la finestra si legge sul telefono: quelle si guardano sul telefono, e la voce di collaudo le
+chiede.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

@@ -111,6 +111,20 @@ fun EditorScreen(
     /** Se una scrittura è in corso: i comandi si spengono, o si salverebbe due volte. */
     busy: Boolean,
     /**
+     * Se una **filigrana** è pronta da scrivere, cioè se il salvataggio ha qualcosa da fare
+     * anche su un'immagine intonsa: vedi `ViewerViewModel.markReady`.
+     */
+    marked: Boolean,
+    /**
+     * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
+     * spegnere l'interruttore non deve far perdere quello che si era scelto.
+     */
+    resize: Resize.Plan,
+    /** Se quel piano si applica al salvataggio, cioè l'interruttore della `2.70`. */
+    resizing: Boolean,
+    /** `null` spegne; un piano lo scrive **e** accende, come 'Applica' della sua finestra. */
+    onResize: (Resize.Plan?) -> Unit,
+    /**
      * Che cosa salvare.
      *
      * ⚠️⚠️ **IL LAVORO LO FA CHI CHIAMA, e non questa schermata**: una scrittura da venti
@@ -200,6 +214,7 @@ fun EditorScreen(
         origin = withContext(Dispatchers.IO) { preview(context, uri) }
     }
 
+
     // ⚠️ L'anteprima girata si ricalcola SOLO quando cambia il quarto di giro: girare una
     // mappa di pixel da due megapixel a ogni ridisegno vorrebbe dire farlo a ogni dito che
     // si muove sul rettangolo.
@@ -235,6 +250,32 @@ fun EditorScreen(
 
     /** Tutto quello che si è fatto finora, composto in una posa e un rettangolo soli. */
     val total = after(steps.lastOrNull()?.done ?: Done.NOTHING, spin, crop)
+
+    /*
+     * ⚠️ **Le proporzioni vengono da [origin] e non da [base]**: il salvataggio applica il
+     * totale dei passi all'immagine di partenza, quindi la forma da cui partire è quella, e la
+     * posa e il ritaglio li porta [total]. Il perché il lato lungo e la forma si prendano da due
+     * fonti diverse vive su [Resize.frameSize].
+     */
+    val longSide = rememberLongSide(uri)
+    val frame = origin?.let { partenza ->
+        longSide?.let {
+            Resize.frameSize(it, partenza.width, partenza.height, total.spin.turns, total.crop)
+        }
+    }
+    val shrinks = resizing && frame?.let { (w, h) -> resize.sizeFor(w, h) } != null
+    var asking by remember { mutableStateOf(false) }
+    if (asking) {
+        ResizeDialog(
+            initial = resize,
+            size = frame,
+            onDismiss = { asking = false },
+            onApply = {
+                asking = false
+                onResize(it)
+            }
+        )
+    }
 
     /*
      * ⚠️⚠️ **IL RIENTRO DI SISTEMA NON STA PIÙ QUI, dalla 1.42, ed è quello che porta la scheda
@@ -322,10 +363,21 @@ fun EditorScreen(
              * Chi passasse `turns` e `crop` da soli butterebbe via tutto quello che è stato
              * confermato prima, cioè quasi tutto il lavoro.
              */
+            ResizeButton(
+                on = resizing,
+                enabled = !busy,
+                onOpen = { asking = true },
+                onOff = { onResize(null) }
+            )
             TextButton(
                 onClick = { onSave(total.spin.turns, total.spin.mirror, total.crop) },
+                // ⚠️⚠️ **UNA FILIGRANA È LAVORO DA SALVARE, DALLA `2.69`**: chi apre l'editor per
+                // firmare un'immagine e basta non tocca la posa e non taglia niente, e senza
+                // questa condizione il tasto resterebbe spento, cioè la firma da sola non si
+                // potrebbe applicare mai. ⚠️ **E dalla `2.70` anche un ridimensionamento che
+                // rimpicciolisce davvero**, per la stessa ragione e con la stessa forma.
                 enabled = shown != null && !busy &&
-                    !(total.spin == Spin.STILL && total.crop.whole)
+                    (marked || shrinks || !(total.spin == Spin.STILL && total.crop.whole))
             ) {
                 Text(stringResource(R.string.editor_save))
             }
