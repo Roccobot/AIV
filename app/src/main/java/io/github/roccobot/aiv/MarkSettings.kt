@@ -212,23 +212,33 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
         checked = settings.markOn,
         onChange = { onChange(settings.copy(markOn = it)) }
     )
+}
 
-    /*
-     * ⚠️⚠️ **VIENE DOPO L'INTERRUTTORE PERCHÉ NE È LA CONSEGUENZA, DALLA `2.74`**: questa riga
-     * dice se quello che la firma farà si vede **prima**, mentre si modifica l'immagine, quindi
-     * letta sopra sarebbe la settima voce pari di un elenco. È lo stesso criterio per cui il
-     * 'Filtro BN' vive sotto l'interruttore del bianco e nero.
-     * ⚠️ **La subordinazione si LEGGE e non si impone**: l'interruttore resta toccabile con la
-     * firma spenta, e a non avere effetto è un'anteprima di una cosa che non si scrive. Spegnere
-     * una riga che si può accendere darebbe una voce morta senza dire perché, e la ragione vera
-     * la dice la sua spiegazione. È la stessa scelta di 'Scegli il percorso di download'.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_mark_show),
-        detail = stringResource(R.string.settings_mark_show_desc),
-        checked = settings.markShow,
-        onChange = { onChange(settings.copy(markShow = it)) }
-    )
+/**
+ * La stessa pagina, aperta **sopra l'editor** dal tocco lungo sul tasto 'Filigrana'.
+ *
+ * ⚠️⚠️ **DALLA `2.75` QUEL GESTO NON NAVIGA PIÙ, ED È LA SUA RICHIESTA LETTA FINO IN FONDO**
+ * (voce `mark-imposta` accettabile: *quando entro nelle impostazioni della filigrana con il tocco
+ * lungo poi se torno indietro deve tornare direttamente nell'editor aperto, senza rifare il giro
+ * dalle impostazioni alla home e di nuovo all'editor*). Fino alla `2.74` quel gesto **cambiava
+ * schermata**, quindi Indietro risaliva la pila delle impostazioni e usciva nel visualizzatore.
+ * ⚠️⚠️ **E RIPORTARLO ALL'EDITOR NON SAREBBE BASTATO, CHE È LA RAGIONE DELLA SCHEDA**: il lavoro
+ * dell'editor (i cursori, la storia dei passi, l'inquadratura) vive in un `remember` e non in un
+ * `rememberSaveable`, quindi una schermata che esce di scena se lo porta via. Chi fosse tornato
+ * 'nell'editor' l'avrebbe trovato **vuoto**, cioè peggio del giro che si è lamentato di fare. Con
+ * una scheda l'editor non esce mai di scena, e non c'è nessuno stato da conservare.
+ * ⚠️ **Così i due tasti diventano gemelli anche nel gesto lungo**: quello del ridimensionamento
+ * apre la propria finestra sopra l'editor da sempre, e adesso lo fa anche questo.
+ * ⚠️ **Quello che si perde si dichiara**: da qui non si gira nelle altre impostazioni, perché
+ * questa scheda è la sola pagina che il gesto apre. La porta di sempre resta il pannello.
+ *
+ * ⚠️ **Nessuna stringa nuova**: il titolo è quello della voce, cioè 'Filigrana'.
+ */
+@Composable
+fun MarkSheet(settings: Settings, onChange: (Settings) -> Unit, onDismiss: () -> Unit) {
+    Sheet(title = stringResource(R.string.settings_mark), onDismiss = onDismiss) {
+        MarkPage(settings = settings, onChange = onChange)
+    }
 }
 
 /**

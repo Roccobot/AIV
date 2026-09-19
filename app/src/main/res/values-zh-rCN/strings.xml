@@ -504,8 +504,6 @@
     <string name="settings_mark_bad">该文件不能用作水印：请选择 PNG 或 SVG。</string>
     <string name="settings_mark_on">保存时应用</string>
     <string name="settings_mark_on_desc">保存时在图像上写入水印。可以用编辑器的开关按钮（右上角，\'保存\' 之前）随时打开或关闭。在那里打开或关闭，与拨动这个开关完全相同。⚠️ 注意：加了水印后，JPEG 旋转这类无损操作会变成完整重写。</string>
-    <string name="settings_mark_show">在编辑器中显示</string>
-    <string name="settings_mark_show_desc">编辑时把水印画在图像上，位置和不透明度都与保存后一致：看到的就是文件里的样子。只在适应屏幕的缩放下显示，且需要 \'保存时应用\' 已打开。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>

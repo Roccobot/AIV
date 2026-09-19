@@ -520,8 +520,6 @@
     <string name="settings_mark_bad">یہ فائل واٹرمارک کے طور پر استعمال نہیں ہو سکتی: PNG یا SVG منتخب کریں۔</string>
     <string name="settings_mark_on">محفوظ کرتے وقت لاگو کریں</string>
     <string name="settings_mark_on_desc">محفوظ کرتے وقت تصویر پر واٹر مارک لکھتا ہے۔ ایڈیٹر کے آن/آف بٹن سے (اوپر دائیں طرف، \'محفوظ کریں\' سے پہلے) اسے فوراً آن یا آف کیا جا سکتا ہے۔ وہاں سے آن یا آف کرنا بالکل اسی سوئچ کو ہلانے کے برابر ہے۔ ⚠️ نوٹ: واٹر مارک کے ساتھ، JPEG گھمانے جیسے بغیر نقصان والے کام مکمل دوبارہ لکھائی بن جاتے ہیں۔</string>
-    <string name="settings_mark_show">ایڈیٹر میں دکھائیں</string>
-    <string name="settings_mark_show_desc">ترمیم کے دوران تصویر پر واٹر مارک بناتا ہے، اسی جگہ جہاں وہ آئے گا اور اسی شفافیت کے ساتھ: جو نظر آتا ہے وہی فائل میں جائے گا۔ یہ صرف موزوں زوم پر دکھتا ہے، اور تبھی جب \'محفوظ کرتے وقت لاگو کریں\' آن ہو۔</string>
     <string name="settings_mark_where">مقام</string>
     <string name="mark_spot_tl">اوپر بائیں</string>
     <string name="mark_spot_tr">اوپر دائیں</string>

@@ -520,8 +520,6 @@
     <string name="settings_mark_bad">Faili hii haiwezi kutumika kama alama ya maji: chagua PNG au SVG.</string>
     <string name="settings_mark_on">Tumia wakati wa kuhifadhi</string>
     <string name="settings_mark_on_desc">Huweka alama ya maji kwenye picha wakati wa kuhifadhi. Unaweza kuiwasha au kuizima papo hapo kwa kitufe cha kuwasha/kuzima kwenye kihariri (juu kulia, kabla ya \'Hifadhi\'). Kufanya hivyo kutoka hapo ni sawa kabisa na kusogeza swichi hii. ⚠️ Kumbuka: ukiweka alama ya maji, kazi zisizopoteza ubora kama kuzungusha JPEG huwa uandishi upya kamili.</string>
-    <string name="settings_mark_show">Onyesha katika kihariri</string>
-    <string name="settings_mark_show_desc">Huchora alama ya maji kwenye picha unapohariri, pale itakapotua na kwa uwazi wake: unachokiona ndicho faili itakachobeba. Huonekana tu kwenye ukuzaji unaotosha, na tu ikiwa \'Tumia wakati wa kuhifadhi\' imewashwa.</string>
     <string name="settings_mark_where">Nafasi</string>
     <string name="mark_spot_tl">Juu kushoto</string>
     <string name="mark_spot_tr">Juu kulia</string>

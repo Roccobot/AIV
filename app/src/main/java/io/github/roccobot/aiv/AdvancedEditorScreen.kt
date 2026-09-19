@@ -186,13 +186,8 @@ fun AdvancedEditorScreen(
     hasMark: Boolean,
     /** Accende o spegne la filigrana, che è la stessa chiave delle sue impostazioni. */
     onMark: (Boolean) -> Unit,
-    /** Porta alle impostazioni della filigrana, dal tocco lungo su quel tasto. */
+    /** Apre le impostazioni della filigrana, dal tocco lungo su quel tasto. */
     onMarkSetup: () -> Unit,
-    /**
-     * La firma da mostrare **sull'immagine**, o `null` se non se ne mostra nessuna: vedi
-     * `ViewerViewModel.stageMark`.
-     */
-    stageMark: Watermark.Plan?,
     /**
      * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
@@ -551,14 +546,6 @@ fun AdvancedEditorScreen(
                         },
                         onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
                         onCornersEnd = { push() },
-                        /*
-                         * ⚠️⚠️ **L'ANTEPRIMA DELLA FIRMA SI SPEGNE MENTRE SI CONFRONTA COL PRIMA**:
-                         * quel gesto mostra l'immagine com'era, e una firma che resta in scena
-                         * direbbe che l'originale la porta già. È la stessa lettura per cui il
-                         * confronto toglie i cursori invece di lasciarne uno.
-                         */
-                        mark = stageMark.takeIf { !comparing },
-                        markArt = rememberMarkArt(stageMark),
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -790,13 +777,6 @@ private fun LookStage(
     onCorners: (Corners) -> Unit,
     /** Il gesto su un angolo è finito: quello che si è fatto diventa un passo della storia. */
     onCornersEnd: () -> Unit,
-    /**
-     * La firma da mostrare sull'immagine, o `null` se non se ne mostra nessuna: vedi
-     * [markOverlay].
-     */
-    mark: Watermark.Plan?,
-    /** Il suo disegno, che arriva quando il disco risponde: vedi [rememberMarkArt]. */
-    markArt: ImageBitmap?,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -1520,30 +1500,6 @@ private fun LookStage(
                     pennello(fine.pixels, dove, false, dentro)
                 )
             }
-        }
-
-        /*
-         * ⚠️⚠️ **L'ANTEPRIMA DELLA FIRMA, DALLA `2.74`, E SI VEDE SOLO A ZOOM ADATTATO**: è la sua
-         * richiesta alla lettera (punto 5 del campo libero del giro della `2.70`), e la ragione di
-         * merito la regge: ingrandire serve a guardare i pixel da vicino, e una firma disegnata
-         * sopra coprirebbe proprio quello che si sta giudicando; in più, a immagine ingrandita
-         * l'angolo in cui cadrà è quasi sempre fuori dallo schermo, quindi quello che resterebbe
-         * da vedere non direbbe più dove va.
-         * ⚠️⚠️ **CADE DENTRO IL RITAGLIO E NON DENTRO L'IMMAGINE INTERA**: il salvataggio la
-         * scrive dopo il taglio, quindi l'angolo che conta è quello del rettangolo che resta.
-         * `cutout` con un ritaglio intero risponde il riquadro che riceve, quindi il ramo è uno
-         * solo.
-         * ⚠️ **Va prima delle squadrette**: quello che il taglio butta via è velato, e una firma
-         * disegnata sopra si vedrebbe piena anche là.
-         */
-        val firma = mark
-        if (firma != null && markArt != null && scale <= ZOOM_REST) {
-            val dentro = cutout(view, look.crop)
-            markOverlay(
-                Rect(dentro.left, dentro.top, dentro.right, dentro.bottom),
-                markArt,
-                firma
-            )
         }
 
         /*
@@ -2810,23 +2766,20 @@ internal fun modCell(width: Dp, count: Int): Dp {
  */
 private val CROP_CMD_ROW = 32.dp
 
-/**
- * Quanta aria resta **sotto** i quattro comandi del ritaglio, dalla `2.73`.
- *
- * ⚠️⚠️ **È SUA RICHIESTA, ED È IL PUNTO 2 DEL CAMPO LIBERO DEL GIRO DELLA `2.70`** (*i tasti di
- * indietro/avanti/applica/azzera del ritaglio devono stare un pelo più in alto, più lontani dai
- * tasti principali in basso*). Quei quattro comandi sono l'ultimo blocco del corpo, e sotto di
- * loro c'è la barra delle icone dell'editor: due file di tasti a pochi punti di distanza si
- * leggono come una fila sola, ed è esattamente lo scambio che la `2.40` esiste per evitare.
- *
- * ⚠️⚠️ **NON ALZA LA SCHEDA, E NON È UNA SPERANZA: È MISURATO**. Nel Ritaglio lo spazio avanza, e
- * [Breathe] lo distribuisce fra i vani e poi centra il blocco; questo distacco se ne prende una
- * parte, quindi il corpo cresce e l'avanzo cala della stessa misura. Sul banco la barra resta
- * **allo stesso pixel** di prima e in tutti gli altri moduli, cioè il palco non perde niente.
- * ⚠️ **Oltre l'avanzo il conto cambia**: un numero più grande di quello che avanza farebbe del
- * Ritaglio il modulo più alto, e allora la scheda si alzerebbe **in tutti e otto**.
+/*
+ * ⚠️⚠️ **QUI VIVEVA `CROP_CMD_AIR`, L'ARIA SOTTO I QUATTRO COMANDI DEL RITAGLIO, E DALLA `2.75`
+ * NON C'È PIÙ**: erano otto punti nati nella `2.73` su sua richiesta (punto 2 del campo libero
+ * del giro della `2.70`: *i tasti di indietro/avanti/applica/azzera del ritaglio devono stare un
+ * pelo più in alto, più lontani dai tasti principali in basso*), e il giro dopo li ha revocati
+ * (voce `crop-alti` non approvata: *Mi sembrava ci fosse spazio, invece con lo spostamento s'è
+ * ammucchiato tutto. Riporta allo stato precedente*).
+ * ⚠️⚠️ **LA MISURA DI ALLORA ERA GIUSTA E GUARDAVA LA COSA SBAGLIATA**: diceva che il distacco
+ * non alza la scheda, perché [Breathe] gli cede una parte dell'avanzo, ed è vero; quello che
+ * nessun conto poteva dire è che l'avanzo speso là **manca agli altri vani**, cioè che il corpo
+ * si stringe dove i blocchi respirano. Sul banco resta tutto al suo pixel, sul telefono si vede
+ * ammucchiato, ed è la classe di difetti che il banco dichiara di non vedere
+ * (`AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no').
  */
-private val CROP_CMD_AIR = 8.dp
 
 /** Quanto è grande il glifo di un comando del ritaglio: la misura dei glifi di comando dell'app. */
 private val CROP_CMD_ICON = 24.dp
@@ -3673,7 +3626,7 @@ private fun ModuleBody(
          */
         val portata = relativeTo(look.framing.shown, look.crop)
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = CROP_CMD_AIR),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             CropCmd(
@@ -4984,14 +4937,11 @@ private const val ZOOM_TAP = 2f
  */
 private const val ZOOM_MAX = 6f
 
-/**
- * Fin dove l'ingrandimento vale ancora 'adattato', per l'anteprima della filigrana.
- *
- * ⚠️⚠️ **UNA SOGLIA E NON L'UGUAGLIANZA CON UNO**: la pinza e il doppio tocco scrivono un numero
- * in virgola mobile, e un `== 1f` lascerebbe la firma spenta dopo un gesto che è tornato a riposo
- * per un millesimo di troppo. Qui sopra il millesimo l'immagine è ingrandita davvero.
+/*
+ * ⚠️ **QUI VIVEVA `ZOOM_REST`, la soglia dello zoom a riposo, e se n'è andata con l'anteprima
+ * della filigrana sul palco** (`2.75`): serviva a quella sola condizione, e senza il suo
+ * chiamante era codice morto.
  */
-private const val ZOOM_REST = 1.001f
 
 /**
  * Quanto dito serve per raddoppiare l'ingrandimento a una mano.
