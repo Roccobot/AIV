@@ -387,7 +387,7 @@
     <string name="menu_edit">Sửa</string>
     <string name="menu_edit_hold">Chọn ứng dụng</string>
     <string name="editor_internal">Trình sửa đơn giản</string>
-    <string name="editor_title">Sửa hình ảnh</string>
+    <string name="editor_title">Sửa</string>
     <string name="editor_full">Trình sửa đầy đủ</string>
     <string name="look_light">Ánh sáng</string>
     <string name="look_exposure">Phơi sáng</string>
@@ -503,7 +503,7 @@
     <string name="settings_mark_clear">Gỡ bỏ</string>
     <string name="settings_mark_bad">Không thể dùng tệp này làm hình mờ: hãy chọn một tệp PNG hoặc SVG.</string>
     <string name="settings_mark_on">Áp dụng khi lưu</string>
-    <string name="settings_mark_on_desc">Ghi hình mờ lên ảnh mỗi lần trình sửa lưu. Tệp được ghi lại, nên ảnh JPEG đã xoay không còn không mất dữ liệu nữa.</string>
+    <string name="settings_mark_on_desc">Thêm hình mờ vào ảnh khi lưu. Bạn có thể bật hoặc tắt ngay bằng nút bật/tắt của trình chỉnh sửa (góc trên bên phải, trước \'Lưu\'). Làm việc đó ở đó hoàn toàn giống với gạt công tắc này. ⚠️ Lưu ý: khi có hình mờ, các thao tác không mất dữ liệu như xoay JPEG sẽ trở thành ghi lại toàn bộ.</string>
     <string name="settings_mark_where">Vị trí</string>
     <string name="mark_spot_tl">Trên bên trái</string>
     <string name="mark_spot_tr">Trên bên phải</string>
@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">Độ mờ đục</string>
     <string name="settings_mark_preview">Xem trước hình mờ</string>
     <string name="look_resize">Đổi kích thước</string>
-    <string name="look_resize_off">Không đổi kích thước</string>
     <string name="look_resize_mode">Vừa theo</string>
     <string name="resize_long">Cạnh dài</string>
     <string name="resize_wide">Chiều rộng</string>
@@ -526,7 +525,8 @@
     <string name="look_resize_range">Nhập một số từ %1$d đến %2$d.</string>
     <string name="look_resize_to">Từ %1$d x %2$d thành %3$d x %4$d.</string>
     <string name="look_resize_keep">Ảnh này vốn đã nhỏ hơn, nên được giữ nguyên.</string>
-    <string name="look_resize_note">Tỉ lệ luôn được giữ nguyên, và ảnh không bao giờ bị phóng to.</string>
+    <string name="look_resize_reset">Đặt lại</string>
+    <string name="look_resize_note">Tỷ lệ giữ nguyên; chỉ có thể thu nhỏ kích thước.</string>
     <string name="settings_save_rename">Cho phép đổi tên khi lưu</string>
     <string name="settings_save_rename_desc">Theo mặc định, tệp được lưu với tên gốc. Bật tùy chọn này để đặt tên ở mỗi lần tải xuống. Dù đang tắt, hãy nhấn giữ \'Lưu\' để nhập tên mới chỉ lần đó.</string>
     <string name="settings_download_path">Chọn đường dẫn tải về</string>

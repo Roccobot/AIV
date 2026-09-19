@@ -114,14 +114,14 @@ class UscitaFabTest {
         val casa = Screen.Folders(forStart = false)
         val cartella = Screen.Grid(bucket = 1L, name = "prova")
 
-        assertTrue("da casa alle impostazioni il FAB se ne va", casa.senzaFabVerso(Screen.Settings))
+        assertTrue("da casa alle impostazioni il FAB se ne va", casa.senzaFabVerso(Screen.Settings()))
         assertTrue(
             "da una cartella al visualizzatore il FAB se ne va",
             cartella.senzaFabVerso(Screen.Viewer)
         )
         assertFalse(
             "chi arriva non si congeda: è la schermata di destinazione",
-            Screen.Settings.senzaFabVerso(Screen.Settings)
+            Screen.Settings().senzaFabVerso(Screen.Settings())
         )
         assertFalse("da casa a una cartella il FAB resta", casa.senzaFabVerso(cartella))
     }

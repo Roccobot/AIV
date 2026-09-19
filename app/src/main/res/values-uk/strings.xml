@@ -435,7 +435,7 @@
     <string name="menu_edit">Змінити</string>
     <string name="menu_edit_hold">Вибрати застосунок</string>
     <string name="editor_internal">Простий редактор</string>
-    <string name="editor_title">Змінити зображення</string>
+    <string name="editor_title">Змінити</string>
     <string name="editor_full">Повний редактор</string>
     <string name="look_light">Світло</string>
     <string name="look_exposure">Експозиція</string>
@@ -551,7 +551,7 @@
     <string name="settings_mark_clear">Прибрати</string>
     <string name="settings_mark_bad">Цей файл не можна використати як водяний знак: виберіть PNG або SVG.</string>
     <string name="settings_mark_on">Застосовувати під час збереження</string>
-    <string name="settings_mark_on_desc">Наносить водяний знак на зображення щоразу, коли редактор зберігає. Файл перезаписується, тому повернутий JPEG більше не лишається без втрат.</string>
+    <string name="settings_mark_on_desc">Додає водяний знак на зображення під час збереження. Його можна увімкнути або вимкнути одразу кнопкою увімк./вимк. у редакторі (угорі праворуч, перед \'Зберегти\'). Зробити це звідти рівносильно переміщенню цього перемикача. ⚠️ Примітка: із водяним знаком операції без втрат, як-от поворот JPEG, стають повним перезаписом.</string>
     <string name="settings_mark_where">Розташування</string>
     <string name="mark_spot_tl">Ліворуч угорі</string>
     <string name="mark_spot_tr">Праворуч угорі</string>
@@ -563,7 +563,6 @@
     <string name="settings_mark_alpha">Непрозорість</string>
     <string name="settings_mark_preview">Перегляд водяного знака</string>
     <string name="look_resize">Змінити розмір</string>
-    <string name="look_resize_off">Не змінювати розмір</string>
     <string name="look_resize_mode">Підігнати за</string>
     <string name="resize_long">Довша сторона</string>
     <string name="resize_wide">Ширина</string>
@@ -574,7 +573,8 @@
     <string name="look_resize_range">Введіть число від %1$d до %2$d.</string>
     <string name="look_resize_to">З %1$d x %2$d на %3$d x %4$d.</string>
     <string name="look_resize_keep">Це зображення вже менше, тож залишається як є.</string>
-    <string name="look_resize_note">Пропорції завжди зберігаються, і зображення ніколи не збільшується.</string>
+    <string name="look_resize_reset">Скинути</string>
+    <string name="look_resize_note">Пропорції не змінюються; розмір можна лише зменшити.</string>
     <string name="settings_save_rename">Дозволити перейменування під час збереження</string>
     <string name="settings_save_rename_desc">Типово файли зберігаються під початковою назвою. Увімкніть це, щоб задавати назву при кожному завантаженні. Навіть коли вимкнено, натисніть і утримуйте \'Зберегти\', щоб ввести нову назву лише цього разу.</string>
     <string name="settings_download_path">Вибирати теку завантаження</string>

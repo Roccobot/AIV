@@ -387,7 +387,7 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Pilih aplikasi</string>
     <string name="editor_internal">Editor sederhana</string>
-    <string name="editor_title">Edit gambar</string>
+    <string name="editor_title">Edit</string>
     <string name="editor_full">Editor lengkap</string>
     <string name="look_light">Cahaya</string>
     <string name="look_exposure">Eksposur</string>
@@ -503,7 +503,7 @@
     <string name="settings_mark_clear">Hapus</string>
     <string name="settings_mark_bad">Berkas ini tidak bisa dipakai sebagai tanda air: pilih PNG atau SVG.</string>
     <string name="settings_mark_on">Terapkan saat menyimpan</string>
-    <string name="settings_mark_on_desc">Menulis tanda air pada gambar setiap kali editor menyimpan. Berkas ditulis ulang, jadi JPEG yang diputar tidak lagi tanpa kehilangan.</string>
+    <string name="settings_mark_on_desc">Menambahkan tanda air ke gambar saat menyimpan. Kamu bisa menyalakan atau mematikannya seketika lewat tombol on/off di editor (kanan atas, sebelum \'Simpan\'). Melakukannya dari sana sama persis dengan menggeser sakelar ini. ⚠️ Catatan: dengan tanda air, operasi tanpa kehilangan kualitas seperti memutar JPEG menjadi penulisan ulang penuh.</string>
     <string name="settings_mark_where">Posisi</string>
     <string name="mark_spot_tl">Kiri atas</string>
     <string name="mark_spot_tr">Kanan atas</string>
@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">Opasitas</string>
     <string name="settings_mark_preview">Pratinjau tanda air</string>
     <string name="look_resize">Ubah ukuran</string>
-    <string name="look_resize_off">Jangan ubah ukuran</string>
     <string name="look_resize_mode">Sesuaikan dengan</string>
     <string name="resize_long">Sisi terpanjang</string>
     <string name="resize_wide">Lebar</string>
@@ -526,7 +525,8 @@
     <string name="look_resize_range">Tulis angka antara %1$d dan %2$d.</string>
     <string name="look_resize_to">Dari %1$d x %2$d menjadi %3$d x %4$d.</string>
     <string name="look_resize_keep">Gambar ini sudah lebih kecil, jadi tetap seperti apa adanya.</string>
-    <string name="look_resize_note">Rasio aspek selalu dipertahankan, dan gambar tidak pernah diperbesar.</string>
+    <string name="look_resize_reset">Setel ulang</string>
+    <string name="look_resize_note">Rasio tetap sama; ukuran hanya bisa diperkecil.</string>
     <string name="settings_save_rename">Izinkan penggantian nama saat menyimpan</string>
     <string name="settings_save_rename_desc">Secara bawaan, berkas disimpan dengan nama aslinya. Aktifkan ini untuk menentukan nama pada setiap unduhan. Meski nonaktif, sentuh dan tahan \'Simpan\' untuk menulis nama baru hanya sekali itu.</string>
     <string name="settings_download_path">Pilih jalur unduhan</string>

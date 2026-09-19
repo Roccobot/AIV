@@ -387,7 +387,7 @@
     <string name="menu_edit">แก้ไข</string>
     <string name="menu_edit_hold">เลือกแอป</string>
     <string name="editor_internal">ตัวแก้ไขอย่างง่าย</string>
-    <string name="editor_title">แก้ไขรูปภาพ</string>
+    <string name="editor_title">แก้ไข</string>
     <string name="editor_full">ตัวแก้ไขแบบเต็ม</string>
     <string name="look_light">แสง</string>
     <string name="look_exposure">การรับแสง</string>
@@ -503,7 +503,7 @@
     <string name="settings_mark_clear">เอาออก</string>
     <string name="settings_mark_bad">ไฟล์นี้ใช้เป็นลายน้ำไม่ได้ โปรดเลือกไฟล์ PNG หรือ SVG</string>
     <string name="settings_mark_on">ใส่เมื่อบันทึก</string>
-    <string name="settings_mark_on_desc">เขียนลายน้ำลงบนภาพทุกครั้งที่ตัวแก้ไขบันทึก ไฟล์จะถูกเขียนใหม่ ดังนั้นภาพ JPEG ที่หมุนแล้วจะไม่ไร้การสูญเสียอีกต่อไป</string>
+    <string name="settings_mark_on_desc">เพิ่มลายน้ำลงบนภาพเมื่อบันทึก คุณเปิดหรือปิดได้ทันทีด้วยปุ่มเปิด/ปิดในตัวแก้ไข (ขวาบน ก่อน \'บันทึก\') การเปิดหรือปิดจากตรงนั้นเท่ากับการเลื่อนสวิตช์นี้ทุกประการ ⚠️ หมายเหตุ: เมื่อมีลายน้ำ การทำงานแบบไม่สูญเสียคุณภาพ เช่น การหมุน JPEG จะกลายเป็นการเขียนใหม่ทั้งหมด</string>
     <string name="settings_mark_where">ตำแหน่ง</string>
     <string name="mark_spot_tl">บนซ้าย</string>
     <string name="mark_spot_tr">บนขวา</string>
@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">ความทึบ</string>
     <string name="settings_mark_preview">ตัวอย่างลายน้ำ</string>
     <string name="look_resize">ปรับขนาด</string>
-    <string name="look_resize_off">ไม่ปรับขนาด</string>
     <string name="look_resize_mode">ปรับตาม</string>
     <string name="resize_long">ด้านยาว</string>
     <string name="resize_wide">ความกว้าง</string>
@@ -526,7 +525,8 @@
     <string name="look_resize_range">พิมพ์ตัวเลขระหว่าง %1$d ถึง %2$d</string>
     <string name="look_resize_to">จาก %1$d x %2$d เป็น %3$d x %4$d</string>
     <string name="look_resize_keep">ภาพนี้เล็กกว่าอยู่แล้ว จึงคงไว้ตามเดิม</string>
-    <string name="look_resize_note">สัดส่วนจะถูกรักษาไว้เสมอ และภาพจะไม่ถูกขยายให้ใหญ่ขึ้น</string>
+    <string name="look_resize_reset">รีเซ็ต</string>
+    <string name="look_resize_note">อัตราส่วนคงเดิม ปรับได้เฉพาะให้เล็กลงเท่านั้น</string>
     <string name="settings_save_rename">อนุญาตให้เปลี่ยนชื่อเมื่อบันทึก</string>
     <string name="settings_save_rename_desc">โดยปกติไฟล์จะถูกบันทึกด้วยชื่อเดิม เปิดตัวเลือกนี้เพื่อกำหนดชื่อในทุกการดาวน์โหลด แม้ปิดอยู่ก็แตะ \'บันทึก\' ค้างไว้เพื่อพิมพ์ชื่อใหม่เฉพาะครั้งนั้น</string>
     <string name="settings_download_path">เลือกตำแหน่งดาวน์โหลด</string>

@@ -435,7 +435,7 @@
     <string name="menu_edit">Edytuj</string>
     <string name="menu_edit_hold">Wybierz aplikację</string>
     <string name="editor_internal">Prosty edytor</string>
-    <string name="editor_title">Edytuj obraz</string>
+    <string name="editor_title">Edytuj</string>
     <string name="editor_full">Pełny edytor</string>
     <string name="look_light">Światło</string>
     <string name="look_exposure">Ekspozycja</string>
@@ -551,7 +551,7 @@
     <string name="settings_mark_clear">Usuń</string>
     <string name="settings_mark_bad">Tego pliku nie można użyć jako znaku wodnego: wybierz PNG lub SVG.</string>
     <string name="settings_mark_on">Zastosuj przy zapisie</string>
-    <string name="settings_mark_on_desc">Zapisuje znak wodny na obrazie za każdym razem, gdy edytor zapisuje. Plik jest zapisywany od nowa, więc obrócony JPEG nie jest już bezstratny.</string>
+    <string name="settings_mark_on_desc">Dodaje znak wodny do obrazu przy zapisie. Możesz go włączyć lub wyłączyć od razu przyciskiem wł./wył. w edytorze (u góry po prawej, przed \'Zapisz\'). Zrobienie tego stamtąd jest dokładnie tym samym co przestawienie tego przełącznika. ⚠️ Uwaga: ze znakiem wodnym operacje bezstratne, takie jak obrót JPEG, stają się pełnym zapisem od nowa.</string>
     <string name="settings_mark_where">Pozycja</string>
     <string name="mark_spot_tl">Lewy górny róg</string>
     <string name="mark_spot_tr">Prawy górny róg</string>
@@ -563,7 +563,6 @@
     <string name="settings_mark_alpha">Krycie</string>
     <string name="settings_mark_preview">Podgląd znaku wodnego</string>
     <string name="look_resize">Zmień rozmiar</string>
-    <string name="look_resize_off">Nie zmieniaj rozmiaru</string>
     <string name="look_resize_mode">Dopasuj do</string>
     <string name="resize_long">Dłuższy bok</string>
     <string name="resize_wide">Szerokość</string>
@@ -574,7 +573,8 @@
     <string name="look_resize_range">Wpisz liczbę od %1$d do %2$d.</string>
     <string name="look_resize_to">Z %1$d x %2$d na %3$d x %4$d.</string>
     <string name="look_resize_keep">Ten obraz jest już mniejszy, więc pozostaje bez zmian.</string>
-    <string name="look_resize_note">Proporcje są zawsze zachowane, a obraz nigdy nie jest powiększany.</string>
+    <string name="look_resize_reset">Przywróć domyślne</string>
+    <string name="look_resize_note">Proporcje pozostają bez zmian; rozmiar można tylko zmniejszyć.</string>
     <string name="settings_save_rename">Pozwól zmieniać nazwę przy zapisie</string>
     <string name="settings_save_rename_desc">Domyślnie pliki są zapisywane pod pierwotną nazwą. Włącz to, aby ustalać nazwę przy każdym pobraniu. Nawet gdy jest wyłączone, przytrzymaj \'Zapisz\', aby wpisać nową nazwę tylko tym razem.</string>
     <string name="settings_download_path">Wybór ścieżki pobierania</string>

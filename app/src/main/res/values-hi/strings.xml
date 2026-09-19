@@ -403,7 +403,7 @@
     <string name="menu_edit">संपादित करें</string>
     <string name="menu_edit_hold">ऐप चुनें</string>
     <string name="editor_internal">सरल संपादक</string>
-    <string name="editor_title">छवि संपादित करें</string>
+    <string name="editor_title">संपादित करें</string>
     <string name="editor_full">पूर्ण संपादक</string>
     <string name="look_light">प्रकाश</string>
     <string name="look_exposure">एक्सपोज़र</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">हटाएँ</string>
     <string name="settings_mark_bad">यह फ़ाइल वॉटरमार्क के रूप में काम नहीं करती: PNG या SVG चुनें।</string>
     <string name="settings_mark_on">सहेजते समय लागू करें</string>
-    <string name="settings_mark_on_desc">संपादक जब भी सहेजता है, वॉटरमार्क को छवि पर लिखता है। फ़ाइल फिर से लिखी जाती है, इसलिए घुमाई गई JPEG अब बिना हानि नहीं रहती।</string>
+    <string name="settings_mark_on_desc">सहेजते समय छवि पर वॉटरमार्क जोड़ता है। संपादक के चालू/बंद बटन से (ऊपर दाईं ओर, \'सहेजें\' से पहले) इसे तुरंत चालू या बंद किया जा सकता है। वहाँ से चालू या बंद करना इस स्विच को हिलाने के बिल्कुल बराबर है। ⚠️ ध्यान दें: वॉटरमार्क के साथ, JPEG घुमाने जैसे बिना नुकसान वाले काम पूरी तरह फिर से लिखे जाते हैं।</string>
     <string name="settings_mark_where">स्थिति</string>
     <string name="mark_spot_tl">ऊपर बाएँ</string>
     <string name="mark_spot_tr">ऊपर दाएँ</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">अपारदर्शिता</string>
     <string name="settings_mark_preview">वॉटरमार्क का पूर्वावलोकन</string>
     <string name="look_resize">आकार बदलें</string>
-    <string name="look_resize_off">आकार न बदलें</string>
     <string name="look_resize_mode">इसके अनुसार</string>
     <string name="resize_long">लंबी भुजा</string>
     <string name="resize_wide">चौड़ाई</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">%1$d और %2$d के बीच एक संख्या लिखें।</string>
     <string name="look_resize_to">%1$d x %2$d से %3$d x %4$d तक।</string>
     <string name="look_resize_keep">यह छवि पहले से ही छोटी है, इसलिए वैसी ही रहती है।</string>
-    <string name="look_resize_note">अनुपात हमेशा बना रहता है, और कोई छवि कभी बड़ी नहीं की जाती।</string>
+    <string name="look_resize_reset">रीसेट</string>
+    <string name="look_resize_note">अनुपात वही रहता है; आकार केवल घटाया जा सकता है।</string>
     <string name="settings_save_rename">सहेजते समय नाम बदलने दें</string>
     <string name="settings_save_rename_desc">डिफ़ॉल्ट रूप से फ़ाइलें अपने मूल नाम से सहेजी जाती हैं. हर डाउनलोड पर नाम तय करने के लिए इसे चालू करें. बंद होने पर भी \'सहेजें\' को दबाकर रखें और उसी बार के लिए नया नाम लिखें.</string>
     <string name="settings_download_path">डाउनलोड पथ चुनें</string>

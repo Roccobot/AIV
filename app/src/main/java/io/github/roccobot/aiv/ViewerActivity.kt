@@ -154,7 +154,18 @@ enum class Arrival {
 
 /** Quale schermata è davanti. */
 sealed interface Screen {
-    data object Settings : Screen
+    /**
+     * Le impostazioni.
+     *
+     * ⚠️⚠️ **PORTA UNA PAGINA D'ARRIVO DALLA `2.72`, E SERVE AL TOCCO LUNGO SUL TASTO
+     * 'FILIGRANA'** (sua istruzione, riscontro del giro della `2.70`: *Il tap prolungato porta
+     * alle impostazioni della filigrana*). Senza di lei quel gesto aprirebbe la radice, cioè
+     * lascerebbe da fare due tocchi proprio a chi ha usato una scorciatoia.
+     * ⚠️ **È un dato della schermata e non del modello**, come [Folders.forStart]: se ne va
+     * con lei, e nessuno deve ricordarsi di azzerarlo.
+     */
+    data class Settings(val start: SettingsPage? = null) : Screen
+
     data object Viewer : Screen
 
     /**
@@ -269,7 +280,7 @@ private fun Screen.saveKey(): String = when (this) {
     is Screen.Search -> "search:${bucket ?: 0L}"
     Screen.Bin -> "bin"
     Screen.History -> "history"
-    Screen.Settings -> "settings"
+    is Screen.Settings -> "settings"
     Screen.Viewer -> "viewer"
     is Screen.Editor -> "editor"
     is Screen.FullEditor -> "editor-pieno"
@@ -425,6 +436,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * qui senza che nessuno debba ricordarsi di chiedere.
      */
     var markReady: Boolean by mutableStateOf(false)
+        private set
+
+    /**
+     * Se un **logo è stato scelto**, cioè se in casa dell'app c'è un file da scrivere.
+     *
+     * ⚠️⚠️ **È UN'ALTRA DOMANDA DA [markReady], E DALLA `2.72` SERVONO TUTTE E DUE**: quello dice
+     * *si scrive una firma su questa immagine*, questo dice *questa app una firma ce l'ha*. Il
+     * tasto in testata all'editor c'è solo nel secondo caso, perché senza un file non c'è niente
+     * da accendere né da spegnere, ed è lo stesso criterio di 'Mostra nascoste', che compare se e
+     * solo se una cartella è nascosta.
+     */
+    var markHas: Boolean by mutableStateOf(false)
         private set
 
     /**
@@ -634,8 +657,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 settings = fresh
                 // ⚠️ Il disco si guarda FUORI dal thread principale, come ogni altra lettura di
                 // file: costa un `isFile`, ma la regola non fa eccezioni per le letture corte.
-                markReady = fresh.markOn &&
-                    withContext(Dispatchers.IO) { Watermark.file(context) != null }
+                val logo = withContext(Dispatchers.IO) { Watermark.file(context) != null }
+                markHas = logo
+                markReady = fresh.markOn && logo
                 // ⚠️ Gli appunti PRIMA della cartella d'avvio, o la seconda coprirebbe
                 // la fotografia che i primi hanno appena aperto.
                 readClipboard()
@@ -1101,7 +1125,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * quello che ci si aspetta da una schermata iniziale.
      */
     fun leaveStartFolderChoice() {
-        screen = Screen.Settings
+        screen = Screen.Settings()
     }
 
     /**
@@ -1124,7 +1148,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 openAtStart = true
             )
         )
-        screen = Screen.Settings
+        screen = Screen.Settings()
     }
 
     /**
@@ -2480,8 +2504,30 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         stopLoad()
     }
 
-    fun openSettings() {
-        screen = Screen.Settings
+    /**
+     * Le impostazioni, dall'inizio o direttamente su una pagina.
+     *
+     * ⚠️ **La pagina è un argomento e non una seconda funzione**: chi apre le impostazioni da un
+     * menu e chi ci arriva dal tocco lungo su un comando dell'editor stanno andando nello stesso
+     * posto, e due strade vorrebbero dire due modi di sbagliarlo.
+     */
+    fun openSettings(start: SettingsPage? = null) {
+        screen = Screen.Settings(start)
+    }
+
+    /**
+     * Accende o spegne la **filigrana** al salvataggio, cioè lo stesso interruttore che vive
+     * nelle sue impostazioni.
+     *
+     * ⚠️⚠️ **È LA STESSA CHIAVE E NON UNA COPIA DELLA SESSIONE, ED È LA SUA ISTRUZIONE ALLA
+     * LETTERA** (riscontro del giro della `2.70`: *Abilitare o disabilitare la filigrana da lì
+     * equivale esattamente a muovere questo interruttore*). Un valore che valesse per il solo
+     * editor aperto sarebbe una terza cosa da capire, ed è il criterio delle voci che vivono in
+     * due posti (`AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare').
+     */
+    fun setMark(on: Boolean) {
+        val now = settings ?: return
+        updateSettings(now.copy(markOn = on))
     }
 
     /** Out of the settings, back to whichever screen was showing the picture, or home. */
@@ -3042,7 +3088,7 @@ private fun Stage(
     }
 
     when (screen) {
-        Screen.Settings -> {
+        is Screen.Settings -> {
             BackHandler { model.leaveSettings() }
             SettingsScreen(
                 settings = settings,
@@ -3050,7 +3096,8 @@ private fun Stage(
                 onStartFolder = { model.chooseStartFolder() },
                 onResetHints = { model.resetHints() },
                 onChooseEditor = { model.chooseEditor() },
-                onBack = { model.leaveSettings() }
+                onBack = { model.leaveSettings() },
+                start = screen.start
             )
         }
 
@@ -3340,6 +3387,10 @@ private fun Stage(
                 uri = screen.uri,
                 busy = model.editorBusy,
                 marked = model.markReady,
+                marking = settings.markOn,
+                hasMark = model.markHas,
+                onMark = { model.setMark(it) },
+                onMarkSetup = { model.openSettings(SettingsPage.MARK) },
                 resize = model.resizePlan(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
@@ -3359,6 +3410,10 @@ private fun Stage(
                 uri = screen.uri,
                 busy = model.editorBusy,
                 marked = model.markReady,
+                marking = settings.markOn,
+                hasMark = model.markHas,
+                onMark = { model.setMark(it) },
+                onMarkSetup = { model.openSettings(SettingsPage.MARK) },
                 resize = model.resizePlan(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },

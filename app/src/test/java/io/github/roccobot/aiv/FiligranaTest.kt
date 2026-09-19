@@ -12,8 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
@@ -348,17 +352,90 @@ class FiligranaTest {
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsEnabled()
     }
 
+    /**
+     * **Caso 13: il tocco sul tasto 'Filigrana' accende e spegne, il gesto lungo apre le sue
+     * impostazioni.**
+     *
+     * ⚠️⚠️ **È LA SUA ISTRUZIONE ALLA LETTERA** (riscontro del giro della `2.70`: *un'icona
+     * 'Filigrana' in alto a destra ... che si accende o spegne con un tap normale. Il tap
+     * prolungato porta alle impostazioni della filigrana*), e i due gesti scambiati compilano
+     * senza che niente lo dica: il tasto risponderebbe a tutti e due facendo l'una la cosa
+     * dell'altra.
+     * ⚠️ **I due versi dell'interruttore si misurano tutti e due**, o una lambda che scrive `true`
+     * fisso passerebbe: accende e non spegnerebbe mai.
+     */
+    @Test
+    fun `il tocco della filigrana accende e spegne, il gesto lungo apre le impostazioni`() {
+        var scritto: Boolean? = null
+        var aperte = 0
+        val acceso = mutableStateOf(false)
+        banco.setContent {
+            Scena(
+                marked = false,
+                marking = acceso.value,
+                hasMark = true,
+                onMark = { scritto = it },
+                onMarkSetup = { aperte++ }
+            )
+        }
+        pronta()
+
+        banco.onNodeWithContentDescription(testo(R.string.settings_mark)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il tocco non ha acceso la filigrana", true, scritto)
+        assertEquals("Il tocco ha aperto le impostazioni", 0, aperte)
+
+        acceso.value = true
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.settings_mark)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il tocco non ha spento la filigrana", false, scritto)
+
+        banco.onNodeWithContentDescription(testo(R.string.settings_mark))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("Il gesto lungo non ha aperto le impostazioni", 1, aperte)
+        assertEquals("Il gesto lungo ha toccato l'interruttore", false, scritto)
+    }
+
+    /**
+     * **Caso 14: senza un logo scelto il tasto non c'è.**
+     *
+     * ⚠️ **Non c'è niente da accendere né da spegnere**, ed è lo stesso criterio di 'Mostra
+     * nascoste', che compare se e solo se una cartella è nascosta. Il perché vive su `MarkButton`.
+     */
+    @Test
+    fun `senza un logo scelto il tasto non c'e`() {
+        banco.setContent { Scena(marked = false, hasMark = false) }
+        pronta()
+        assertTrue(
+            "Il tasto della filigrana c'è senza un logo scelto",
+            banco.onAllNodesWithContentDescription(testo(R.string.settings_mark))
+                .fetchSemanticsNodes().isEmpty()
+        )
+    }
+
     // ── Gli arnesi ──
 
     /** L'editor completo montato con gli argomenti minimi, come in [LuceTest]. */
     @Composable
-    private fun Scena(marked: Boolean) {
+    private fun Scena(
+        marked: Boolean,
+        marking: Boolean = false,
+        hasMark: Boolean = false,
+        onMark: (Boolean) -> Unit = {},
+        onMarkSetup: () -> Unit = {}
+    ) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
                 AdvancedEditorScreen(
                     uri = quadrato(),
                     busy = false,
                     marked = marked,
+                    marking = marking,
+                    hasMark = hasMark,
+                    onMark = onMark,
+                    onMarkSetup = onMarkSetup,
                     resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                     // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                     // immagine intonsa, e il caso suo vive in `RidimensionaTest`.

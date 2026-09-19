@@ -403,7 +403,7 @@
     <string name="menu_edit">సవరించు</string>
     <string name="menu_edit_hold">యాప్‌ను ఎంచుకోండి</string>
     <string name="editor_internal">సరళ ఎడిటర్</string>
-    <string name="editor_title">చిత్రాన్ని సవరించు</string>
+    <string name="editor_title">సవరించు</string>
     <string name="editor_full">పూర్తి ఎడిటర్</string>
     <string name="look_light">కాంతి</string>
     <string name="look_exposure">ఎక్స్‌పోజర్</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">తీసివేయి</string>
     <string name="settings_mark_bad">ఈ ఫైల్‌ను వాటర్‌మార్క్‌గా వాడలేము: PNG లేదా SVG ఎంచుకోండి.</string>
     <string name="settings_mark_on">సేవ్ చేసేటప్పుడు వర్తింపజేయి</string>
-    <string name="settings_mark_on_desc">ఎడిటర్ సేవ్ చేసిన ప్రతిసారీ వాటర్‌మార్క్‌ను చిత్రంపై రాస్తుంది. ఫైల్ మళ్లీ రాయబడుతుంది, కాబట్టి తిప్పిన JPEG ఇక నష్టరహితంగా ఉండదు.</string>
+    <string name="settings_mark_on_desc">భద్రపరిచేటప్పుడు చిత్రంపై వాటర్‌మార్క్‌ను చేర్చుతుంది. ఎడిటర్‌లోని ఆన్/ఆఫ్ బటన్‌తో (పైన కుడివైపు, \'భద్రపరచండి\' ముందు) దీన్ని వెంటనే ఆన్ లేదా ఆఫ్ చేయవచ్చు. అక్కడి నుండి మార్చడం ఈ స్విచ్‌ను కదిలించడంతో సమానం. ⚠️ గమనిక: వాటర్‌మార్క్‌తో, JPEG తిప్పడం వంటి నష్టం లేని పనులు పూర్తి పునర్లేఖనంగా మారుతాయి.</string>
     <string name="settings_mark_where">స్థానం</string>
     <string name="mark_spot_tl">ఎగువ ఎడమ</string>
     <string name="mark_spot_tr">ఎగువ కుడి</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">అపారదర్శకత</string>
     <string name="settings_mark_preview">వాటర్‌మార్క్ మునుజూపు</string>
     <string name="look_resize">పరిమాణం మార్చు</string>
-    <string name="look_resize_off">పరిమాణం మార్చవద్దు</string>
     <string name="look_resize_mode">దీనికి సరిపోల్చు</string>
     <string name="resize_long">పొడవైన అంచు</string>
     <string name="resize_wide">వెడల్పు</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">%1$d నుండి %2$d మధ్య ఒక సంఖ్య రాయండి.</string>
     <string name="look_resize_to">%1$d x %2$d నుండి %3$d x %4$d కు.</string>
     <string name="look_resize_keep">ఈ చిత్రం ఇప్పటికే చిన్నది, కాబట్టి అలాగే ఉంటుంది.</string>
-    <string name="look_resize_note">నిష్పత్తి ఎప్పుడూ కాపాడబడుతుంది, చిత్రం ఎప్పుడూ పెద్దది చేయబడదు.</string>
+    <string name="look_resize_reset">రీసెట్</string>
+    <string name="look_resize_note">నిష్పత్తి మారదు; పరిమాణాన్ని తగ్గించడం మాత్రమే సాధ్యం.</string>
     <string name="settings_save_rename">సేవ్ చేసేటప్పుడు పేరు మార్చడానికి అనుమతించు</string>
     <string name="settings_save_rename_desc">సాధారణంగా ఫైళ్లు వాటి అసలు పేరుతోనే సేవ్ అవుతాయి. ప్రతి డౌన్‌లోడ్‌కు పేరు నిర్ణయించడానికి దీన్ని ఆన్ చేయండి. ఆఫ్‌లో ఉన్నా \'సేవ్\' నొక్కి పట్టుకుని ఆ ఒకసారికి కొత్త పేరు రాయవచ్చు.</string>
     <string name="settings_download_path">డౌన్‌లోడ్ మార్గాన్ని ఎంచుకో</string>

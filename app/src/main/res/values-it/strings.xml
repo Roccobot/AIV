@@ -64,7 +64,7 @@
     <string name="menu_edit">Modifica</string>
     <string name="menu_edit_hold">Scegli l\'app</string>
     <string name="editor_internal">Editor semplice</string>
-    <string name="editor_title">Modifica immagine</string>
+    <string name="editor_title">Modifica</string>
     <string name="editor_full">Editor completo</string>
     <string name="look_light">Luce</string>
     <string name="look_exposure">Esposizione</string>
@@ -181,7 +181,7 @@
     <string name="settings_mark_clear">Togli</string>
     <string name="settings_mark_bad">Questo file non si può usare come filigrana: scegli un PNG o un SVG.</string>
     <string name="settings_mark_on">Applica al salvataggio</string>
-    <string name="settings_mark_on_desc">Scrive la filigrana sull\'immagine ogni volta che l\'editor salva. Il file viene riscritto, quindi un JPEG girato non resta più senza perdita.</string>
+    <string name="settings_mark_on_desc">Aggiunge la filigrana all\'immagine al salvataggio. Puoi attivarla o disattivarla al volo con l\'apposito tasto on/off dell\'editor (in alto a destra, prima di \'Salva\'). Abilitare o disabilitare la filigrana da lì equivale esattamente a muovere questo interruttore. ⚠️ N.B. con l\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG diventano una riscrittura completa.</string>
     <string name="settings_mark_where">Posizione</string>
     <string name="mark_spot_tl">In alto a sinistra</string>
     <string name="mark_spot_tr">In alto a destra</string>
@@ -193,7 +193,6 @@
     <string name="settings_mark_alpha">Opacità</string>
     <string name="settings_mark_preview">Anteprima della filigrana</string>
     <string name="look_resize">Ridimensiona</string>
-    <string name="look_resize_off">Non ridimensionare</string>
     <string name="look_resize_mode">Adatta a</string>
     <string name="resize_long">Lato lungo</string>
     <string name="resize_wide">Larghezza</string>
@@ -204,7 +203,8 @@
     <string name="look_resize_range">Scrivi un numero fra %1$d e %2$d.</string>
     <string name="look_resize_to">Da %1$d x %2$d a %3$d x %4$d.</string>
     <string name="look_resize_keep">Questa immagine è già più piccola, quindi resta com\'è.</string>
-    <string name="look_resize_note">Le proporzioni restano sempre quelle dell\'originale, e un\'immagine non si ingrandisce mai.</string>
+    <string name="look_resize_reset">Ripristina</string>
+    <string name="look_resize_note">Le proporzioni restano invariate; è possibile solo ridurre le dimensioni.</string>
     <string name="settings_save_rename">Consenti la rinomina al salvataggio</string>
     <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve.</string>
     <string name="settings_download_path">Scegli il percorso di download</string>

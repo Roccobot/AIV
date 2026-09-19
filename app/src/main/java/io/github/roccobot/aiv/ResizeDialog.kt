@@ -1,20 +1,15 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PhotoSizeSelectLarge
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,16 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlin.math.max
 
 /**
  * La finestra di **'Ridimensiona'**: il modo, il valore, e che misura ne viene fuori.
@@ -91,11 +83,49 @@ fun ResizeDialog(
     val plan = if (ok) Resize.Plan(mode, value) else null
     val esito = size?.let { (w, h) -> plan?.sizeFor(w, h) }
 
+    /*
+     * ⚠️⚠️ **'RIPRISTINA' RIPORTA A 'LATO LUNGO' COL LATO LUNGO DELL'IMMAGINE, ED È SUA
+     * RICHIESTA** (2026-09-19, con una schermata: *serve anche un tasto 'Ripristina', che
+     * riporti tutto su 'Lato lungo' con il valore letto dall'immagine allo stato corrente*).
+     * Quel valore è il piano che **non fa niente**, cioè il punto da cui si riparte: chiedere il
+     * lato che l'immagine già ha non la rimpicciolisce (vedi [Resize.Plan.sizeFor]), quindi il
+     * comando riporta la finestra a zero senza aprire un caso a parte.
+     * ⚠️ **'Allo stato corrente' vuol dire dopo la posa e il ritaglio**, che è esattamente quello
+     * che [size] porta: il conto lo fa già [Resize.frameSize] per la riga che dice a che misura
+     * si arriva, e prenderne un secondo sarebbe un numero da tenere allineato.
+     * ⚠️ **Scrive nel campo e non applica**: la finestra si conferma con 'Applica', come ogni
+     * altra cosa che ci si scrive dentro.
+     * ⚠️ **Senza la misura il comando non c'è**: là non si sa da dove si parte, e un tasto che
+     * riporta a un numero che nessuno conosce non ha niente da scrivere.
+     */
+    val base = size?.let { (w, h) -> max(w, h).coerceIn(Resize.range(Resize.Mode.LONG)) }
+    val reset = stringResource(R.string.look_resize_reset)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(null),
         properties = loweredWindow(null),
-        title = { Text(stringResource(R.string.look_resize)) },
+        /*
+         * ⚠️ **Il comando vive sulla riga del titolo**, che è dove questa app mette un comando
+         * di una finestra dalla `1.79` ('Estensione' e 'Percorso' in 'Scarica'): [TitleRow]
+         * decide da sé fra la pastiglia scritta e l'icona, misurando se il titolo ci sta
+         * accanto, quindi non c'è una seconda regola da scrivere qui.
+         */
+        title = {
+            TitleRow(
+                title = stringResource(R.string.look_resize),
+                commands = if (base == null) emptyList() else listOf(
+                    TitleCommand(
+                        text = reset,
+                        glyph = Icons.Filled.SettingsBackupRestore,
+                        onTap = {
+                            mode = Resize.Mode.LONG
+                            text = base.toString()
+                        }
+                    )
+                )
+            )
+        },
         text = {
             // ⚠️ Lo scorrimento serve al tetto della `1.62`, come in ogni altra finestra con un
             // campo: a tastiera aperta il pannello si accorcia invece di essere tagliato.
@@ -196,65 +226,6 @@ fun ResizeDialog(
 }
 
 /**
- * Il comando **'Ridimensiona'** in testata ai due editor: il tocco apre la finestra, il tocco
- * lungo spegne.
- *
- * ⚠️⚠️ **'UN TASTO PIÙ UN INTERRUTTORE' SU UN BERSAGLIO SOLO, ED È UNA LETTURA DICHIARATA**
- * (sua risposta `editor` a `d-resize-dove`): la sua frase ne descrive due, e in testata non
- * entrano. Il conto, su uno schermo da 360 punti: il tasto Indietro ne prende 48, 'Salva' una
- * settantina, questa icona 48, e uno `Switch` di Material altri 52; al titolo, che è l'unico a
- * cedere, ne resterebbero un centinaio, cioè 'Modifica immagine' a `headlineSmall` andrebbe a
- * capo. Quindi i gesti sono due sullo stesso tasto, che è il modo di questa app (è la regola di
- * `SaveButton` e dei gettoni dei moduli), e l'accento dice se è acceso.
- * ⚠️ **Il tocco lungo c'è solo quando è acceso**: spegnere quello che è già spento non è un
- * gesto, e un'etichetta annunciata che non fa niente è peggio della sua assenza.
- * ⚠️ **Ad accendere è 'Applica' della finestra**, che è la sua specifica alla lettera (*una
- * volta che premo 'OK' l'interruttore è acceso e salva con ridimensionamento se non lo spengo*).
- *
- * ⚠️ **Il glifo è di Material e nasce provvisorio**, come quello di 'Auto' nella `2.32` e di
- * 'Salva stile' nella `2.52`: se non dice abbastanza, il giro di collaudo lo chiede e lui manda
- * il suo.
- */
-@Composable
-fun ResizeButton(
-    /** Se il ridimensionamento si applica al salvataggio: l'icona prende l'accento. */
-    on: Boolean,
-    enabled: Boolean,
-    onOpen: () -> Unit,
-    onOff: () -> Unit
-) {
-    val haptics = LocalHapticFeedback.current
-    Box(
-        modifier = Modifier
-            .size(RESIZE_TOUCH)
-            .clip(CircleShape)
-            .combinedClickable(
-                enabled = enabled,
-                role = Role.Button,
-                onLongClickLabel = stringResource(R.string.look_resize_off),
-                onLongClick = if (!on) null else {
-                    {
-                        haptics.performHapticFeedback(HOLD_BUZZ)
-                        onOff()
-                    }
-                },
-                onClick = onOpen
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Filled.PhotoSizeSelectLarge,
-            contentDescription = stringResource(R.string.look_resize),
-            tint = when {
-                !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_INK)
-                on -> MaterialTheme.colorScheme.primary
-                else -> MaterialTheme.colorScheme.onSurfaceVariant
-            }
-        )
-    }
-}
-
-/**
  * Il lato lungo del file aperto, che è la sola misura vera che si legge senza decodificarlo.
  *
  * ⚠️ Vive qui e non nelle due schermate perché lo chiedono tutte e due, e perché è la metà di
@@ -270,9 +241,6 @@ fun rememberLongSide(uri: Uri): Int? {
 
 /** L'aria fra i blocchi della finestra. */
 private val RESIZE_GAP = 10.dp
-
-/** Il bersaglio del comando in testata, come quello di un `IconButton` di Material. */
-private val RESIZE_TOUCH = 48.dp
 
 /**
  * Quante cifre si accettano nel campo.

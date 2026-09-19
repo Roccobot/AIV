@@ -403,7 +403,7 @@
     <string name="menu_edit">Bearbeiten</string>
     <string name="menu_edit_hold">App auswählen</string>
     <string name="editor_internal">Einfacher Editor</string>
-    <string name="editor_title">Bild bearbeiten</string>
+    <string name="editor_title">Bearbeiten</string>
     <string name="editor_full">Vollständiger Editor</string>
     <string name="look_light">Licht</string>
     <string name="look_exposure">Belichtung</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">Entfernen</string>
     <string name="settings_mark_bad">Diese Datei eignet sich nicht als Wasserzeichen: Wähle eine PNG- oder SVG-Datei.</string>
     <string name="settings_mark_on">Beim Speichern anwenden</string>
-    <string name="settings_mark_on_desc">Schreibt das Wasserzeichen bei jedem Speichern des Editors auf das Bild. Die Datei wird neu geschrieben, ein gedrehtes JPEG bleibt also nicht mehr verlustfrei.</string>
+    <string name="settings_mark_on_desc">Fügt das Wasserzeichen beim Speichern in das Bild ein. Du kannst es jederzeit mit der Ein/Aus-Taste im Editor umschalten (oben rechts, vor \'Speichern\'). Das dort zu tun entspricht genau diesem Schalter. ⚠️ Hinweis: Mit Wasserzeichen werden verlustfreie Vorgänge wie das Drehen eines JPEG zu einem vollständigen Neuschreiben.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Oben links</string>
     <string name="mark_spot_tr">Oben rechts</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">Deckkraft</string>
     <string name="settings_mark_preview">Vorschau des Wasserzeichens</string>
     <string name="look_resize">Größe ändern</string>
-    <string name="look_resize_off">Größe nicht ändern</string>
     <string name="look_resize_mode">Anpassen an</string>
     <string name="resize_long">Längere Seite</string>
     <string name="resize_wide">Breite</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">Gib eine Zahl zwischen %1$d und %2$d ein.</string>
     <string name="look_resize_to">Von %1$d x %2$d auf %3$d x %4$d.</string>
     <string name="look_resize_keep">Dieses Bild ist bereits kleiner und bleibt daher unverändert.</string>
-    <string name="look_resize_note">Das Seitenverhältnis bleibt immer erhalten, und ein Bild wird nie vergrößert.</string>
+    <string name="look_resize_reset">Zurücksetzen</string>
+    <string name="look_resize_note">Das Seitenverhältnis bleibt gleich; die Größe kann nur verkleinert werden.</string>
     <string name="settings_save_rename">Umbenennen beim Speichern erlauben</string>
     <string name="settings_save_rename_desc">Standardmäßig werden Dateien unter ihrem ursprünglichen Namen gespeichert. Aktiviere dies, um bei jedem Download einen Namen festzulegen. Auch wenn es aus ist: \'Speichern\' gedrückt halten, um nur dieses eine Mal einen neuen Namen einzugeben.</string>
     <string name="settings_download_path">Speicherort beim Download wählen</string>

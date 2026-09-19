@@ -403,7 +403,7 @@
     <string name="menu_edit">Bewerken</string>
     <string name="menu_edit_hold">App kiezen</string>
     <string name="editor_internal">Eenvoudige editor</string>
-    <string name="editor_title">Afbeelding bewerken</string>
+    <string name="editor_title">Bewerken</string>
     <string name="editor_full">Volledige editor</string>
     <string name="look_light">Licht</string>
     <string name="look_exposure">Belichting</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">Verwijderen</string>
     <string name="settings_mark_bad">Dit bestand kan niet als watermerk worden gebruikt: kies een PNG of een SVG.</string>
     <string name="settings_mark_on">Toepassen bij opslaan</string>
-    <string name="settings_mark_on_desc">Schrijft het watermerk op de afbeelding telkens als de editor opslaat. Het bestand wordt herschreven, dus een gedraaide JPEG blijft niet meer verliesvrij.</string>
+    <string name="settings_mark_on_desc">Zet het watermerk bij het opslaan op de afbeelding. Je kunt het direct aan- of uitzetten met de aan/uit-knop in de editor (rechtsboven, vóór \'Opslaan\'). Dat daar doen is precies hetzelfde als deze schakelaar omzetten. ⚠️ Let op: met een watermerk worden verliesvrije bewerkingen zoals het draaien van een JPEG een volledige herschrijving.</string>
     <string name="settings_mark_where">Positie</string>
     <string name="mark_spot_tl">Linksboven</string>
     <string name="mark_spot_tr">Rechtsboven</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">Dekking</string>
     <string name="settings_mark_preview">Voorbeeld van het watermerk</string>
     <string name="look_resize">Formaat wijzigen</string>
-    <string name="look_resize_off">Formaat niet wijzigen</string>
     <string name="look_resize_mode">Aanpassen aan</string>
     <string name="resize_long">Langste zijde</string>
     <string name="resize_wide">Breedte</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">Typ een getal tussen %1$d en %2$d.</string>
     <string name="look_resize_to">Van %1$d x %2$d naar %3$d x %4$d.</string>
     <string name="look_resize_keep">Deze afbeelding is al kleiner en blijft dus zoals ze is.</string>
-    <string name="look_resize_note">De verhouding blijft altijd behouden, en een afbeelding wordt nooit vergroot.</string>
+    <string name="look_resize_reset">Herstellen</string>
+    <string name="look_resize_note">De verhouding blijft gelijk; het formaat kan alleen kleiner worden.</string>
     <string name="settings_save_rename">Naam wijzigen bij opslaan toestaan</string>
     <string name="settings_save_rename_desc">Standaard worden bestanden onder hun oorspronkelijke naam opgeslagen. Zet dit aan om bij elke download een naam te bepalen. Ook als het uit staat: houd \'Opslaan\' ingedrukt om alleen die keer een nieuwe naam te typen.</string>
     <string name="settings_download_path">Downloadpad kiezen</string>

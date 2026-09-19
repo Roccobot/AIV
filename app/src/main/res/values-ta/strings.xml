@@ -403,7 +403,7 @@
     <string name="menu_edit">திருத்து</string>
     <string name="menu_edit_hold">செயலியைத் தேர்ந்தெடு</string>
     <string name="editor_internal">எளிய திருத்தி</string>
-    <string name="editor_title">படத்தைத் திருத்து</string>
+    <string name="editor_title">திருத்து</string>
     <string name="editor_full">முழு திருத்தி</string>
     <string name="look_light">ஒளி</string>
     <string name="look_exposure">வெளிச்சம்</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">நீக்கு</string>
     <string name="settings_mark_bad">இந்தக் கோப்பை நீர்அடையாளமாகப் பயன்படுத்த முடியாது: PNG அல்லது SVG தேர்வுசெய்க.</string>
     <string name="settings_mark_on">சேமிக்கும்போது இடு</string>
-    <string name="settings_mark_on_desc">திருத்தி சேமிக்கும் ஒவ்வொரு முறையும் நீர்அடையாளத்தைப் படத்தில் எழுதும். கோப்பு மீண்டும் எழுதப்படுவதால், சுழற்றப்பட்ட JPEG இனி இழப்பற்றதாக இருக்காது.</string>
+    <string name="settings_mark_on_desc">சேமிக்கும்போது படத்தில் நீர்க்குறியைச் சேர்க்கும். திருத்தியின் ஆன்/ஆஃப் பொத்தானால் (மேல் வலதுபுறம், \'சேமி\' முன்) அதை உடனே இயக்கலாம் அல்லது நிறுத்தலாம். அங்கிருந்து மாற்றுவது இந்த நிலைமாற்றியை நகர்த்துவதற்குச் சமம். ⚠️ குறிப்பு: நீர்க்குறியுடன், JPEG சுழற்சி போன்ற இழப்பில்லா செயல்கள் முழுமையான மறுஎழுத்தாக மாறும்.</string>
     <string name="settings_mark_where">இடம்</string>
     <string name="mark_spot_tl">மேல் இடது</string>
     <string name="mark_spot_tr">மேல் வலது</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">ஒளிபுகாநிலை</string>
     <string name="settings_mark_preview">நீர்அடையாள முன்னோட்டம்</string>
     <string name="look_resize">அளவு மாற்று</string>
-    <string name="look_resize_off">அளவை மாற்ற வேண்டாம்</string>
     <string name="look_resize_mode">இதற்கு ஏற்ப</string>
     <string name="resize_long">நீளமான பக்கம்</string>
     <string name="resize_wide">அகலம்</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">%1$d முதல் %2$d வரையிலான எண்ணை எழுதுங்கள்.</string>
     <string name="look_resize_to">%1$d x %2$d இலிருந்து %3$d x %4$d ஆக.</string>
     <string name="look_resize_keep">இந்தப் படம் ஏற்கெனவே சிறியது, எனவே அப்படியே இருக்கும்.</string>
-    <string name="look_resize_note">விகிதம் எப்போதும் பாதுகாக்கப்படும், படம் ஒருபோதும் பெரிதாக்கப்படாது.</string>
+    <string name="look_resize_reset">மீட்டமை</string>
+    <string name="look_resize_note">விகிதம் மாறாது; அளவைக் குறைக்க மட்டுமே முடியும்.</string>
     <string name="settings_save_rename">சேமிக்கும்போது பெயர் மாற்ற அனுமதி</string>
     <string name="settings_save_rename_desc">இயல்பாக கோப்புகள் அவற்றின் அசல் பெயரிலேயே சேமிக்கப்படும். ஒவ்வொரு பதிவிறக்கத்திலும் பெயரை நிர்ணயிக்க இதை இயக்கவும். அணைந்திருந்தாலும் \'சேமி\' என்பதை அழுத்திப் பிடித்து அந்த ஒருமுறைக்கு மட்டும் புதிய பெயரை எழுதலாம்.</string>
     <string name="settings_download_path">பதிவிறக்கப் பாதையைத் தேர்வுசெய்</string>

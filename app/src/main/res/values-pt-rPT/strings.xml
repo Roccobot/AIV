@@ -141,4 +141,5 @@
     <string name="settings_last_mark">Marca do último item visto</string>
     <string name="settings_last_mark_frame">Moldura</string>
     <string name="settings_last_mark_corner">Canto</string>
+    <string name="look_resize_reset">Repor</string>
 </resources>
