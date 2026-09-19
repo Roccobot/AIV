@@ -434,8 +434,6 @@
     <string name="look_noise">Ruis</string>
     <string name="look_noise_color">Kleurruis</string>
     <string name="look_effects">Effecten</string>
-    <string name="look_clarity">Helderheid</string>
-    <string name="look_texture">Structuur</string>
     <string name="look_haze">Nevel</string>
     <string name="look_grain">Korrel</string>
     <string name="look_vignette">Vignet</string>

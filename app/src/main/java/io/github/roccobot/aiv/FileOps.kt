@@ -412,7 +412,7 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
  * ⚠️⚠️ **IL CESTINO NON PARLA PIÙ, DALLA `1.60`, e non è una perdita**: quello che è successo
  * lo dice la notifica con 'Annulla' (vedi [Undo]), che porta la stessa frase e in più il modo
  * di tornare indietro. Due messaggi insieme sarebbero **sovrapposti**, perché un avviso di
- * sistema compare in fondo allo schermo esattamente dove sta la notifica.
+ * sistema compare in fondo allo schermo esattamente dov'è la notifica.
  * ⚠️⚠️ **E DALLA `1.83` NON PARLANO PIÙ NEMMENO LA COPIA E LO SPOSTAMENTO, PER LO STESSO
  * MOTIVO** (campo libero del giro della `1.82`, punto B): adesso anche loro offrono di disfare,
  * quindi la loro notizia arriva dalla notifica. ⚠️ **La regola non nomina i tipi ma guarda se
@@ -692,7 +692,7 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  * ⚠️ **La rinomina la apre chi chiama e non questa pastiglia** ([onRename]): è un lavoro sui
  * file, e passa dallo stesso imbuto delle altre operazioni (vedi `FileJobDialogs`). Una
  * pastiglia che si apre da sé una finestra di rinomina diventerebbe il posto in cui cercare
- * quella finestra, che non è dove sta.
+ * quella finestra, che non è il punto in cui vive.
  * ⚠️ **[detectTapGestures] e non [androidx.compose.foundation.combinedClickable]**: adesso
  * che i due gesti fanno la stessa cosa quello basterebbe, ma porterebbe con sé l'onda del
  * tocco su una superficie che è il **titolo** del dialogo, e un titolo che si illumina si

@@ -96,7 +96,7 @@ import kotlin.math.roundToInt
  * azioni della selezione nella griglia e quelle del tocco lungo nel visualizzatore sono le
  * **stesse sei**, e l'utente le ha chieste nella stessa forma. Due copie divergerebbero al
  * primo ritocco, e l'ordine dei tasti è precisamente la cosa che non deve cambiare fra una
- * schermata e l'altra: chi impara dove sta 'sposta' lo impara una volta.
+ * schermata e l'altra: chi impara dov'è 'sposta' lo impara una volta.
  *
  * ⚠️ **L'ordine è quello dell'utente** (richiesta del 2026-08-30: *copia, sposta, elimina /
  * rinomina, condividi, info*) e non uno mio, quindi non si riordina 'per sicurezza': chi
@@ -377,7 +377,7 @@ fun PadArrange(
         var preso by remember { mutableStateOf<PadKey?>(null) }
         var scarto by remember { mutableStateOf(Offset.Zero) }
 
-        /** Dove sta la cella numero [i], in pixel dal vertice del riquadro. */
+        /** Dov'è la cella numero [i], in pixel dal vertice del riquadro. */
         fun posto(i: Int) = Offset((i % columns) * passoX, (i / columns) * passoY)
 
         /*

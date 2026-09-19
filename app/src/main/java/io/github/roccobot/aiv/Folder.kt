@@ -616,7 +616,7 @@ object Folder {
     // ⚠️ L'ordine è quello degli indici usati sotto (0 id, 1 bucket, 2 nome, 3 peso,
     // 4 percorso, 5 nome della cartella, 6 tipo): chi ne aggiunge una la mette IN FONDO.
     // ⚠️ `DATA` è deprecata nell'API e serve lo stesso: è la sola colonna che dice
-    // dove sta il file, ed è la chiave con cui l'indirizzo del selettore si riporta
+    // dov'è il file, ed è la chiave con cui l'indirizzo del selettore si riporta
     // alla riga giusta senza indovinare.
     // ⚠️⚠️ **Le costanti restano quelle di `Images` anche ora che si legge la tabella
     // dei FILE, e non è una svista**: sono `String` condivise, dichiarate identiche in

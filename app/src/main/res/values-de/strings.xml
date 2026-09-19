@@ -434,8 +434,6 @@
     <string name="look_noise">Rauschen</string>
     <string name="look_noise_color">Farbrauschen</string>
     <string name="look_effects">Effekte</string>
-    <string name="look_clarity">Klarheit</string>
-    <string name="look_texture">Struktur</string>
     <string name="look_haze">Dunst</string>
     <string name="look_grain">Körnung</string>
     <string name="look_vignette">Vignettierung</string>

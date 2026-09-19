@@ -416,8 +416,7 @@ object Presets {
         })
         val e = p.look.effects
         if (!e.idle) o.put("effects", JSONObject().apply {
-            num("clarity", e.clarity); num("texture", e.texture); num("haze", e.haze)
-            num("vignette", e.vignette); num("grain", e.grain)
+            num("haze", e.haze); num("vignette", e.vignette); num("grain", e.grain)
         })
         if (!p.look.tone.idle) o.put("tone", JSONObject().apply {
             curveOut("all", p.look.tone.all); curveOut("red", p.look.tone.red)
@@ -454,8 +453,7 @@ object Presets {
                 noiseColor = d.num("noiseColor")
             ),
             effects = if (e == null) Effects.NONE else Effects(
-                clarity = e.num("clarity"), texture = e.num("texture"), haze = e.num("haze"),
-                vignette = e.num("vignette"), grain = e.num("grain")
+                haze = e.num("haze"), vignette = e.num("vignette"), grain = e.num("grain")
             ),
             tone = if (t == null) Tone.NONE else Tone(
                 all = t.curveIn("all"), red = t.curveIn("red"),

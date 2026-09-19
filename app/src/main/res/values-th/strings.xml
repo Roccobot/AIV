@@ -418,8 +418,6 @@
     <string name="look_noise">นอยส์</string>
     <string name="look_noise_color">นอยส์สี</string>
     <string name="look_effects">เอฟเฟกต์</string>
-    <string name="look_clarity">ความชัด</string>
-    <string name="look_texture">พื้นผิว</string>
     <string name="look_haze">หมอก</string>
     <string name="look_grain">เกรน</string>
     <string name="look_vignette">ขอบมืด</string>

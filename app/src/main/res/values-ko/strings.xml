@@ -418,8 +418,6 @@
     <string name="look_noise">노이즈</string>
     <string name="look_noise_color">색상 노이즈</string>
     <string name="look_effects">효과</string>
-    <string name="look_clarity">부분 대비</string>
-    <string name="look_texture">질감</string>
     <string name="look_haze">안개</string>
     <string name="look_grain">그레인</string>
     <string name="look_vignette">비네팅</string>

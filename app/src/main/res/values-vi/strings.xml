@@ -418,8 +418,6 @@
     <string name="look_noise">Nhiễu</string>
     <string name="look_noise_color">Nhiễu màu</string>
     <string name="look_effects">Hiệu ứng</string>
-    <string name="look_clarity">Độ rõ</string>
-    <string name="look_texture">Kết cấu</string>
     <string name="look_haze">Sương mù</string>
     <string name="look_grain">Hạt</string>
     <string name="look_vignette">Làm tối viền</string>

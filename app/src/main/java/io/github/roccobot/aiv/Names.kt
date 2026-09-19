@@ -223,7 +223,7 @@ internal const val NAME_FLOOR = 0.80f
  * corpi diversi.
  * ⚠️ **Il 2% dell'em guadagna circa quanto un gradino di corpo, ed è il conto per cui è quello**:
  * la larghezza media di un carattere sta intorno a mezzo em, quindi togliere il 2% dell'em per
- * carattere stringe la riga del 4% circa, che è dove sta il 5% del corpo. Il doppio comincerebbe
+ * carattere stringe la riga del 4% circa, che è quanto vale il 5% del corpo. Il doppio comincerebbe
  * a far toccare le lettere.
  */
 internal val NAME_TIGHT = (-0.02).em
@@ -286,7 +286,7 @@ val EXT_BOLD = SpanStyle(fontWeight = FontWeight.Black)
 private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOINER)
 
 /**
- * `U+200B ZERO WIDTH SPACE`: invisibile, e **concede** al layout di andare a capo dove sta.
+ * `U+200B ZERO WIDTH SPACE`: invisibile, e **concede** al layout di andare a capo in quel punto.
  *
  * ⚠️⚠️ **IL GIUNTORE DA SOLO NON BASTAVA, ED È IL DIFETTO DELLA `1.59`** (riscontro del giro:
  * *nelle due pillole prima/dopo, si spezza ancora l'estensione. Con il nome
@@ -319,7 +319,7 @@ private const val BREAK_HERE = "\u200B"
 private const val CUT = "... "
 
 /**
- * `U+2060 WORD JOINER`: invisibile, e vieta al layout di andare a capo dove sta.
+ * `U+2060 WORD JOINER`: invisibile, e vieta al layout di andare a capo in quel punto.
  *
  * ⚠️ Scritto per **codepoint** e non incollato, come vuole la regola del repo sui caratteri
  * invisibili: incollato, questo file conterrebbe un carattere che a schermo non si vede e

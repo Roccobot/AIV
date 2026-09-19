@@ -450,8 +450,6 @@
     <string name="look_noise">Bruit</string>
     <string name="look_noise_color">Bruit de couleur</string>
     <string name="look_effects">Effets</string>
-    <string name="look_clarity">Clarté</string>
-    <string name="look_texture">Texture</string>
     <string name="look_haze">Voile</string>
     <string name="look_grain">Grain</string>
     <string name="look_vignette">Vignettage</string>

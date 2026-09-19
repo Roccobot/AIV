@@ -161,7 +161,7 @@ fun BoxScope.HintVeil(
 @Composable
 fun BoxScope.HintSpot(
     text: String,
-    /** Dove sta la cosa da evidenziare, in coordinate della radice. */
+    /** Dov'è la cosa da evidenziare, in coordinate della radice. */
     spot: Rect,
     glyph: ImageVector,
     onDone: () -> Unit
@@ -229,7 +229,7 @@ fun BoxScope.HintSpot(
 @Composable
 fun BoxScope.HintStrip(
     text: String,
-    /** Dove sta la fila da evidenziare, in coordinate della radice. */
+    /** Dov'è la fila da evidenziare, in coordinate della radice. */
     spot: Rect,
     /** I glifi della fila, nell'ordine in cui si vedono. */
     icons: List<ImageVector>,

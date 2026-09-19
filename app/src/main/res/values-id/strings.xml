@@ -418,8 +418,6 @@
     <string name="look_noise">Derau</string>
     <string name="look_noise_color">Derau warna</string>
     <string name="look_effects">Efek</string>
-    <string name="look_clarity">Kejernihan</string>
-    <string name="look_texture">Tekstur</string>
     <string name="look_haze">Kabut</string>
     <string name="look_grain">Butiran</string>
     <string name="look_vignette">Vinyet</string>

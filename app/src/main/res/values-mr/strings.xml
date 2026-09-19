@@ -434,8 +434,6 @@
     <string name="look_noise">नॉइज</string>
     <string name="look_noise_color">रंग नॉइज</string>
     <string name="look_effects">प्रभाव</string>
-    <string name="look_clarity">स्पष्टता</string>
-    <string name="look_texture">पोत</string>
     <string name="look_haze">धुके</string>
     <string name="look_grain">ग्रेन</string>
     <string name="look_vignette">व्हिनेट</string>

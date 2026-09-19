@@ -422,7 +422,7 @@ data class Detail(
      * ⚠️ **Il cursore raddoppia e dimezza invece di sommare**, perché un raggio si percepisce in
      * rapporti: a zero vale [SHARP_SPAN] del lato, che su un file da quattromila pixel sono quattro
      * pixel, cioè il micro-contrasto; al fondo della corsa si va da due a otto, che è il tratto
-     * fra la nitidezza di cattura e la chiarezza.
+     * che separa la nitidezza di cattura dal disegno a media scala.
      */
     fun sharpReach(long: Float): Float = SHARP_SPAN * long * 2f.pow(radius)
 
@@ -467,7 +467,7 @@ data class Detail(
          *
          * ⚠️ **Non dipende da [radius], ed è una scelta**: il raggio governa **come** si accentua
          * il disegno, mentre il rumore vuole sempre lo stesso intorno stretto. Legarli vorrebbe
-         * dire che chi cerca la chiarezza si ritrova un'immagine spianata.
+         * dire che chi allarga la nitidezza si ritrova un'immagine spianata.
          */
         const val GRAIN_SPAN = 1f / 1200f
 
@@ -477,61 +477,37 @@ data class Detail(
 }
 
 /**
- * Il modulo **Effetti**: quanto il disegno a media scala stacca dal suo intorno.
+ * Il modulo **Effetti**: il velo atmosferico, e i due segni che lascia l'apparecchio.
  *
  * ⚠️⚠️ **È IL NONO MODULO, DALLA `2.53`, ED È LA SUA RISPOSTA `effetti` A `d-dopo-editor`** (giro
  * della `2.50`, con la sua nota: *'Effetti', con 'Chiarezza', 'Texture', 'Foschia', `Grana` e
- * `Vignettatura`*). I cursori saranno cinque, nell'ordine in cui li ha scritti, e questa versione
- * porta i primi due: sono la **stessa macchina** a due raggi, quindi entrano insieme.
+ * `Vignettatura`*). I cursori erano cinque, nell'ordine in cui li ha scritti, e dalla `2.64` sono
+ * **tre**: [haze], [vignette] e [grain].
  *
- * ⚠️⚠️ **NON SONO LA NITIDEZZA DEL DETTAGLIO PIÙ FORTE, E LA DIFFERENZA È IL RAGGIO.** Quella
- * lavora a un millesimo del lato, cioè sul disegno di cattura; [texture] lavora su una **banda**
- * che comincia dove finisce lei e [clarity] cinquanta volte più lontano, cioè sul **volume** di
- * quello che si vede. È la stessa distinzione che c'è fra affilare un contorno e far uscire una
- * nuvola dal cielo, e per questo sono tre cursori e non uno con una corsa più lunga.
- *
- * ⚠️⚠️ **E FINO ALLA `2.54` IL RAGGIO NON BASTAVA A DISTINGUERLI, ED È IL SUO RISCONTRO** (giro
- * della `2.54`, voce `eff-texture` accettabile: *Mi sembra praticamente identico a Nitidezza
- * (modulo Dettagli)*). Aveva ragione, e il conto lo dice: erano lo **stesso** filtro (il pixel
- * meno la media del suo intorno) a due raggi che distavano un fattore due, quindi il secondo
- * cursore faceva quello che faceva il primo, un po' più largo.
- * - **Adesso la texture è una banda e non un passa-alto**: invece del pixel prende la media
- *   **fine**, cioè quella del raggio di serie della nitidezza ([Detail.SHARP_SPAN]), e le toglie
- *   la media larga. Quello che è più fine di quel raggio, cioè la **grana del sensore**, è mediato
- *   via da tutte e due e non entra nel conto: la texture accentua il disegno e non il rumore,
- *   che è esattamente quello che quel cursore fa in Lightroom.
- * - ⚠️ **Il raggio interno non è un numero scritto qui**: è quello della nitidezza, quindi la
- *   banda comincia dove l'altro cursore lavora **per costruzione**. Scritto a mano sarebbe la
- *   stessa misura in due posti, e il giorno che uno dei due cambia i due cursori tornerebbero a
- *   sovrapporsi in silenzio.
- * - ⚠️ **E il raggio esterno si allarga**, da un cinquecentesimo a un trecentesimo: con la banda
- *   il filtro perde per costruzione la parte più fine, quindi senza allargare l'altro estremo la
- *   corsa sarebbe rimasta più corta di prima.
- * - ⚠️ **Il prezzo è dichiarato**: nove campioni in più, cioè diciotto per la sola texture, e si
- *   pagano solo quando quel cursore è mosso.
- *
- * ⚠️⚠️ **LAVORANO SULLA SOLA LUMINANZA, AL CONTRARIO DELLA NITIDEZZA, E NON È UNA RIFINITURA**: a
- * raggio largo un contrasto locale fatto per canale tinge i due lati di un bordo forte coi
- * complementari (il classico alone colorato), perché ogni canale si accentua per conto suo. Sommando
- * lo stesso scarto ai tre canali cambia la sola chiarezza e la differenza di colore resta quella
- * del pixel. ⚠️ Alla nitidezza quel difetto non arriva, perché il suo raggio è il pixel accanto.
+ * ⚠️⚠️ **CHIAREZZA E TEXTURE SONO USCITE CON LA `2.64`, ED È LA SUA RISPOSTA `via` A
+ * `d-eff-restano`** (giro della `2.63`: *Toglili tutti e due*). Le due che restano fanno un altro
+ * mestiere, e la distinzione dice perché quella scelta non lascia un buco: il contrasto locale
+ * accentua **il disegno che c'è**, e a quel mestiere risponde già la nitidezza del Dettaglio; la
+ * foschia toglie una cosa che il disegno la **copre**, e le altre due dicono dove il fotogramma si
+ * scurisce e di che grana è fatto.
+ * - ⚠️⚠️ **IL DIFETTO CHE LE HA TOLTE È UN RETICOLO, E LA CAUSA È MISURATA**: quel filtro legge
+ *   **nove campioni radi** a distanza del proprio raggio, cioè campiona invece di mediare, quindi
+ *   quello che è più fine del passo si ripiega e a fondo corsa si vede come una trama. È lo
+ *   stesso meccanismo che a raggio stretto non si vede affatto, ed è la ragione per cui la
+ *   nitidezza del Dettaglio, che lavora a un millesimo del lato, non ha mai avuto quel problema.
+ * - ⚠️ **Il rimedio esisteva e il conto lo dice**: leggere la media da una **riduzione**
+ *   dell'immagine invece che da nove punti riporta quella trama a zero. Non è stato scritto
+ *   perché la risposta è arrivata prima, ed è scritto qui perché chi rimettesse quei due cursori
+ *   riparta di lì invece di rifare la misura.
  *
  * ⚠️ **Sono frazioni da -1 a +1 e l'interfaccia li mostra da -100 a +100**, come i cursori degli
- * altri moduli: è il linguaggio di Lightroom, che è quello che lui conosce. ⚠️ **E sono bipolari**:
- * il verso negativo ammorbidisce, che è una cosa che si chiede davvero su un ritratto.
+ * altri moduli: è il linguaggio di Lightroom, che è quello che lui conosce.
  *
- * ⚠️⚠️ **DALLA `2.54` I CURSORI SONO TRE, E IL TERZO NON È UN CONTRASTO LOCALE**: [haze] toglie o
- * aggiunge il **velo atmosferico**, che è un'altra cosa dal disegno. Gli altri due misurano quanto
- * un pixel stacca dal proprio intorno; questo misura quanta luce bianca l'aria ha aggiunto fra
- * l'obiettivo e quello che si vede, e la toglie.
- *
- * ⚠️⚠️ **E DALLA `2.57` SONO CINQUE, CIOÈ L'ELENCO CHE HA SCRITTO LUI** (`d-dopo-editor`, giro
- * della `2.50`): [vignette] e [grain] chiudono il modulo. Sono di un'altra specie ancora, e la
- * differenza governa quello che costano: i primi tre **leggono i pixel vicini**, quindi pagano
- * campioni e un bordo sulle tessere del salvataggio; questi due leggono **dove si trova** il pixel,
- * quindi non costano nessun campione e in cambio pretendono che ogni tessera sappia dov'è
- * nell'immagine intera. Quel dato è [Framed], e senza di lui i due difetti non si vedrebbero
- * sull'anteprima, dove la tessera è una sola.
+ * ⚠️⚠️ **I TRE SONO DI DUE SPECIE, E LA DIFFERENZA GOVERNA QUELLO CHE COSTANO**: [haze] **legge i
+ * pixel vicini**, quindi paga campioni e un bordo sulle tessere del salvataggio; [vignette] e
+ * [grain] leggono **dove si trova** il pixel, quindi non costano nessun campione e in cambio
+ * pretendono che ogni tessera sappia dov'è nell'immagine intera. Quel dato è [Framed], e senza di
+ * lui i due difetti non si vedrebbero sull'anteprima, dove la tessera è una sola.
  *
  * ⚠️⚠️ **VENGONO PER ULTIMI NELLA CATENA, E I DUE POSTI HANNO DUE RAGIONI DIVERSE**: la
  * vignettatura sta dopo tutto quello che parla di colore perché è quello che fa un **obiettivo**,
@@ -541,27 +517,6 @@ data class Detail(
  * è stampata, e messa prima il contrasto e la saturazione la tratterebbero come disegno.
  */
 data class Effects(
-    /**
-     * Il contrasto locale **largo**, cioè quanto il soggetto stacca dal fondo.
-     *
-     * ⚠️ **Porta la maschera dei mezzi toni**, e senza di lei sarebbe il difetto per cui questo
-     * cursore ha una cattiva fama: a raggio largo un bordo fra un cielo chiaro e una montagna scura
-     * riceve un alone luminoso da una parte e uno scuro dall'altra. La maschera lo spegne dove il
-     * tono è già a un estremo, che è dove l'alone si vede.
-     */
-    val clarity: Float = 0f,
-    /**
-     * Il contrasto locale **di banda**, cioè quanto si legge la materia di una superficie.
-     *
-     * ⚠️ **Non ha maschera dei toni, e non è una dimenticanza**: il suo raggio è quindici volte
-     * più stretto di quello della chiarezza, quindi lo scarto che somma resta dentro il bordo
-     * invece di allargarsi in un alone. Metterla vorrebbe dire spegnere il cursore proprio su una
-     * corteccia in ombra o su un muro al sole, cioè dove lo si usa.
-     * ⚠️⚠️ **DALLA `2.55` NON PARTE DAL PIXEL MA DALLA MEDIA FINE**, e il perché per esteso vive
-     * in testa a questa classe: così la grana del sensore resta fuori dal conto, ed è quello che
-     * lo distingue dalla nitidezza del Dettaglio.
-     */
-    val texture: Float = 0f,
     /**
      * Quanto **velo atmosferico** si toglie, o si aggiunge verso il basso.
      *
@@ -622,8 +577,7 @@ data class Effects(
 
     /** Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
     val idle: Boolean
-        get() = abs(clarity) < DEAD && abs(texture) < DEAD && abs(haze) < DEAD &&
-            abs(vignette) < DEAD && abs(grain) < DEAD
+        get() = abs(haze) < DEAD && abs(vignette) < DEAD && abs(grain) < DEAD
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
@@ -632,21 +586,19 @@ data class Effects(
      * ⚠️⚠️ **È LO STESSO CONTO DI [Detail.bleed] E PER LA STESSA RAGIONE**: anche qui il filtro
      * legge i vicini, quindi senza un bordo da buttare via l'ultima colonna di una tessera
      * leggerebbe il bordo ripetuto invece del pixel che sta di là. ⚠️ **Ma il numero è molto più
-     * grande**, perché qui il raggio più largo è decine di volte quello della nitidezza: su un
+     * grande**, perché il raggio della foschia è decine di volte quello della nitidezza: su un
      * file da quattromila pixel sono decine di pixel per lato invece di cinque.
-     * - ⚠️ **Si prende il raggio del cursore più largo FRA QUELLI MOSSI**, e non la somma: i tre
-     *   filtri girano tutti sulla stessa tessera e leggono i pixel di partenza, quindi il bordo
-     *   che serve è uno solo, quello che arriva più lontano.
      * - ⚠️ **A modulo spento vale zero**, quindi chi non usa questi cursori non paga niente.
      * - ⚠️⚠️ **VIGNETTATURA E GRANA NON ENTRANO IN QUESTO CONTO, ED È QUELLO CHE LE DISTINGUE**:
      *   nessuna delle due legge un pixel vicino, quindi non c'è nessun bordo da buttare via. Chi
      *   usa solo quelle paga le tessere di sempre. Quello che pretendono invece è un altro dato,
      *   cioè dove la tessera si trova, e quello vive in `AdjustRender`.
+     * - ⚠️ **Il conto resta scritto come un massimo su una guardia sola**, e con la `2.64` i
+     *   cursori che leggono i vicini sono uno: chi ne aggiungesse un secondo trova la forma già
+     *   pronta invece di una riga da riscrivere.
      */
     fun bleed(long: Float): Int {
         var reach = 0f
-        if (abs(clarity) >= DEAD) reach = max(reach, clarityReach(long))
-        if (abs(texture) >= DEAD) reach = max(reach, textureReach(long))
         if (abs(haze) >= DEAD) reach = max(reach, hazeReach(long))
         // ⚠️ **Zero vuol dire zero, e la guardia non è su [idle]**: un modulo mosso con la sola
         // vignettatura o la sola grana non è a riposo, e nessuna delle due legge un vicino. Scritta
@@ -661,63 +613,17 @@ data class Effects(
         private const val DEAD = 0.0005f
 
         /**
-         * Il raggio della chiarezza, in frazione del lato lungo.
-         *
-         * ⚠️ **Su un file da quattromila pixel sono ventisei pixel**, cioè il contrasto che
-         * l'occhio legge come volume: sotto quella misura si torna al micro-contrasto, che il
-         * Dettaglio fa già, e sopra si arriva alla tonalità locale, che è un'altra cosa ancora e
-         * si vede come una vignettatura attorno a ogni soggetto.
-         * ⚠️⚠️ **E IL TETTO NON È SOLO PERCETTIVO: LA MEDIA È DI NOVE CAMPIONI**, come quella della
-         * nitidezza, quindi il raggio dice **quanto lontano** cadono e non quanti sono. Oltre una
-         * certa distanza nove punti non descrivono più il loro intorno, e quello che si ottiene è
-         * un gradino invece di una sfocatura. Un raggio più largo vorrebbe dire più campioni, cioè
-         * un costo che si paga su ogni pixel di ogni fotogramma.
-         */
-        const val CLARITY_SPAN = 1f / 150f
-
-        /**
-         * Il raggio **esterno** della banda della texture, in frazione del lato lungo.
-         *
-         * ⚠️ **Sta in mezzo fra la nitidezza e la chiarezza, e i tre numeri si leggono insieme**:
-         * un millesimo del lato è il disegno di cattura, un trecentesimo è la materia, un
-         * centocinquantesimo è il volume.
-         * ⚠️⚠️ **ERA UN CINQUECENTESIMO FINO ALLA `2.54`, E DA SOLO NON BASTAVA**: con lo stesso
-         * filtro della nitidezza a un raggio doppio i due cursori facevano la stessa cosa, che è
-         * quello che lui ha visto. Adesso quello che li distingue è la **banda** (vedi
-         * [textureFine]), e questo numero si allarga perché la banda taglia da sé la parte fine.
-         */
-        const val TEXTURE_SPAN = 1f / 300f
-
-        /**
          * Quanto lontano si guarda per stimare il velo, in frazione del lato lungo.
          *
-         * ⚠️⚠️ **È IL PIÙ LARGO DEI TRE, E LA RAGIONE È CHE IL VELO NON È UN DETTAGLIO**: la
-         * foschia è una proprietà di una **regione** dell'immagine, quindi la sua stima deve
-         * cambiare piano, o il conto la scambierebbe per il disegno e ne accentuerebbe i bordi.
-         * A quaranta pixel su un file da quattromila la mappa del velo è liscia e segue comunque
-         * il confine fra un primo piano nitido e uno sfondo velato.
-         * ⚠️ **Il tetto è sempre quello**: i campioni sono nove, quindi oltre una certa distanza
-         * non descrivono più il loro intorno. Questo raggio è poco più largo di quello della
-         * chiarezza proprio per restare sotto quel confine.
+         * ⚠️⚠️ **È LARGO PERCHÉ IL VELO NON È UN DETTAGLIO**: la foschia è una proprietà di una
+         * **regione** dell'immagine, quindi la sua stima deve cambiare piano, o il conto la
+         * scambierebbe per il disegno e ne accentuerebbe i bordi. A quaranta pixel su un file da
+         * quattromila la mappa del velo è liscia e segue comunque il confine fra un primo piano
+         * nitido e uno sfondo velato.
+         * ⚠️ **E il tetto è il numero di campioni**: sono nove, quindi oltre una certa distanza
+         * non descrivono più il loro intorno.
          */
         const val HAZE_SPAN = 1f / 100f
-
-        /** Il raggio della chiarezza nello spazio in cui il conto gira: vedi [CLARITY_SPAN]. */
-        fun clarityReach(long: Float): Float = CLARITY_SPAN * long
-
-        /** Il raggio esterno della banda della texture nello spazio del conto: vedi [TEXTURE_SPAN]. */
-        fun textureReach(long: Float): Float = TEXTURE_SPAN * long
-
-        /**
-         * Il raggio **interno** della banda della texture, cioè quello che taglia via la grana.
-         *
-         * ⚠️⚠️ **È QUELLO DELLA NITIDEZZA E NON UN NUMERO SUO**: la banda comincia dove l'altro
-         * cursore lavora, e questa riga è il modo di dirlo una volta sola. ⚠️ **Si legge il raggio
-         * di SERIE** ([Detail.SHARP_SPAN]) e non quello che il cursore 'Raggio' ha spostato: la
-         * texture deve restare la stessa mentre si tara la nitidezza, o due moduli diversi si
-         * muoverebbero insieme senza che nessuno lo abbia chiesto.
-         */
-        fun textureFine(long: Float): Float = Detail.SHARP_SPAN * long
 
         /** Il raggio della stima del velo nello spazio del conto: vedi [HAZE_SPAN]. */
         fun hazeReach(long: Float): Float = HAZE_SPAN * long
@@ -1433,19 +1339,8 @@ uniform half noiseColor;
 // Un passo arrotondato darebbe un vicinato storto proprio sulle immagini grandi.
 uniform float2 reach;
 uniform float2 grain;
-// Il modulo Effetti (dalla `2.53`): il contrasto locale a due raggi.
-// ⚠️⚠️ **IL SECONDO NON SI CHIAMA `texture`, E IL NOME È UNA PRUDENZA DICHIARATA**: `texture` è la
-// funzione con cui GLSL legge un campionatore, quindi un uniform con quel nome è un'identificatore
-// che somiglia troppo a una parola del linguaggio. Il cursore nel telefono si chiama 'Texture', e
-// la traduzione da un nome all'altro vive nella tabella dei cursori.
+// Il modulo Effetti (dalla `2.53`).
 uniform half effectsOn;
-uniform half clarity;
-uniform half matter;
-uniform float2 wide;
-uniform float2 fine;
-// Il raggio INTERNO della banda della texture, cioè quello che taglia via la grana: dalla `2.55`
-// quel cursore non parte dal pixel ma dalla media a questa distanza (vedi `Effects.textureFine`).
-uniform float2 sift;
 // La foschia (dalla `2.54`), col raggio a cui si stima il velo.
 uniform half haze;
 uniform float2 broad;
@@ -1512,16 +1407,6 @@ const half MASK_REACH = 0.6;
 // decine (0,3 e oltre): con questo fattore il primo pesa quasi come il centro e il secondo non
 // pesa affatto, quindi si media il rumore senza spianare i bordi.
 const half NOISE_EDGE = 120.0;
-
-// Quanto vale la chiarezza al fondo della corsa, cioè quante volte lo scarto dal proprio intorno
-// si somma alla luminanza. È più bassa di `SHARP_REACH` e non è una prudenza: a raggio largo lo
-// scarto è molte volte quello di un contorno, quindi lo stesso fattore darebbe un'immagine
-// slavata da una parte e impastata dall'altra.
-const half CLARITY_REACH = 0.8;
-
-// Quanto vale la texture al fondo della corsa. È fra la chiarezza e la nitidezza come lo è il suo
-// raggio: il suo scarto è più piccolo di quello della chiarezza, quindi il fattore è più alto.
-const half MATTER_REACH = 1.1;
 
 // Quanta parte del velo stimato si toglie al fondo della corsa.
 //
@@ -1737,27 +1622,8 @@ half3 detailed(float2 p, half3 c) {
     return clamp(done, half3(0.0), half3(1.0));
 }
 
-// La luminanza media dell'intorno di `p`, presa con la media binomiale (pesi 1-2-1 per riga e per
-// colonna) a distanza `step`.
-//
-// ⚠️⚠️ **È LA STESSA MEDIA DELLA NITIDEZZA, SCRITTA UNA VOLTA SOLA**: il modulo Effetti la chiede
-// due volte, a due raggi, e il Dettaglio la vuole per canale. Qui esce la sola luminanza, che è
-// tutto quello che serve a un contrasto locale.
-half around(float2 p, float2 step) {
-    half sum = half(0.0);
-    half weight = half(0.0);
-    for (int j = -1; j <= 1; j++) {
-        for (int i = -1; i <= 1; i++) {
-            half w = half((2.0 - abs(float(i))) * (2.0 - abs(float(j))));
-            sum += luma(tap(p + float2(float(i) * step.x, float(j) * step.y))) * w;
-            weight += w;
-        }
-    }
-    return sum / weight;
-}
-
 // Quanto velo c'è intorno a `p`: il **canale scuro**, cioè il minimo dei tre canali, mediato
-// sull'intorno con la stessa media binomiale di `around`.
+// sull'intorno con una media binomiale (pesi 1-2-1 per riga e per colonna) a distanza `step`.
 //
 // ⚠️⚠️ **PERCHÉ IL MINIMO DEI TRE CANALI DICA QUANTO VELO C'È, in una riga**: la foschia è luce
 // bianca che l'aria aggiunge a tutti e tre i canali insieme, quindi alza anche il più basso; un
@@ -1802,46 +1668,14 @@ half veiled(float2 p, float2 step) {
     return sum / max(weight, half(0.0001));
 }
 
-// Il modulo Effetti: il contrasto locale a due raggi sulla sola luminanza, e la foschia.
+// Il modulo Effetti: la foschia. Vignettatura e grana non passano di qui, perché leggono dove si
+// trova il pixel invece dei suoi vicini, e vivono in fondo alla catena.
 //
-// ⚠️⚠️ **SOMMA LO STESSO SCARTO AI TRE CANALI, E NON È UNA SEMPLIFICAZIONE**: a raggio largo un
-// contrasto locale fatto per canale tinge i due lati di un bordo forte coi complementari, perché
-// ogni canale si accentua per conto suo. Sommando la sola differenza di chiarezza, la differenza
-// di colore di un pixel resta quella che era.
-//
-// ⚠️ **Le due guardie sono separate**, come nel Dettaglio: chi chiede la sola texture non paga i
-// nove campioni della chiarezza.
+// ⚠️ **Il contrasto locale non c'è più dalla `2.64`**, ed è la sua risposta `via` a
+// `d-eff-restano`: il perché, e il difetto misurato che lo ha tolto, vivono in testa a `Effects`.
 half3 localed(float2 p, half3 c) {
     half3 done = c;
-    half base = luma(c);
 
-    if (abs(clarity) > half(0.0)) {
-        // ⚠️⚠️ **LA MASCHERA DEI MEZZI TONI È QUELLO CHE TOGLIE GLI ALONI**: vale uno a metà scala
-        // e zero ai due estremi, quindi il bordo fra un cielo chiaro e una montagna scura non
-        // riceve la riga luminosa che dà cattiva fama a questo cursore. Il conto è `4t(1-t)`,
-        // scritto come uno meno il quadrato dello scarto dal centro.
-        half off = half(2.0) * base - half(1.0);
-        half mid = half(1.0) - off * off;
-        done += half3((base - around(p, wide)) * clarity * CLARITY_REACH * mid);
-    }
-
-    if (abs(matter) > half(0.0)) {
-        // ⚠️⚠️ **QUESTA È UNA BANDA E NON UN PASSA-ALTO, DALLA `2.55`, ED È QUELLO CHE LA
-        // DISTINGUE DALLA NITIDEZZA**: si parte dalla media FINE invece che dal pixel, quindi
-        // quello che è più fine di quel raggio (la grana del sensore) è mediato via da tutti e
-        // due i termini e non entra nel conto. Partendo da `base` questo cursore era la
-        // nitidezza del Dettaglio a un raggio doppio, ed è la cosa che lui ha visto.
-        // ⚠️ **Qui la maschera dei toni non c'è**, e il perché vive sul campo `texture` di
-        // `Effects`: a questo raggio lo scarto resta dentro il bordo invece di allargarsi in un
-        // alone.
-        done += half3((around(p, sift) - around(p, fine)) * matter * MATTER_REACH);
-    }
-
-    // ⚠️⚠️ **LA FOSCHIA VIENE PER ULTIMA, E NON È UN ORDINE DI COMODO**: i due cursori qui sopra
-    // misurano lo **scarto** fra il pixel e il suo intorno, e l'intorno si legge dai pixel di
-    // partenza (`around` chiama `image`). Messa prima, la foschia avrebbe cambiato il solo centro:
-    // quello scarto avrebbe misurato lei invece del disegno, e l'immagine si sarebbe riempita di
-    // aloni là dove il velo cambia.
     if (abs(haze) > half(0.0)) {
         // Il modello atmosferico, con la luce dell'aria presa bianca: quello che si vede è
         // l'immagine vera attenuata più il velo, cioè `c = j (1 - k) + k`. Toglierlo vuol dire
@@ -2031,10 +1865,10 @@ half4 main(float2 p) {
         c = detailed(p, c);
     }
 
-    // 0-bis. Gli Effetti, che guardano tutti e tre i vicini, subito dopo il Dettaglio e per la
-    // stessa ragione: leggono `image`, cioè i pixel di partenza, quindi devono stare dove quella
-    // lettura vale ancora. E dopo la riduzione del rumore, o la chiarezza rialzerebbe la grana
-    // che il Dettaglio ha appena mediato.
+    // 0-bis. Gli Effetti, cioè la foschia, subito dopo il Dettaglio e per la stessa ragione:
+    // legge `image`, cioè i pixel di partenza, quindi deve stare dove quella lettura vale ancora.
+    // E dopo la riduzione del rumore, o la stima del velo leggerebbe la grana che il Dettaglio ha
+    // appena mediato.
     // ⚠️ La guardia uniforme vale come quella del Dettaglio: a riposo i nove campioni non si
     // chiedono nemmeno.
     if (effectsOn > half(0.5)) {
@@ -2196,8 +2030,8 @@ half4 main(float2 p) {
     if (filmGrain > half(0.0)) {
         // ⚠️⚠️ **PESA SUI MEZZI TONI, E SENZA QUELLA RIGA SAREBBE RUMORE DIGITALE**: una pellicola
         // mostra il grano dove l'emulsione è esposta a metà, e quasi niente nel nero chiuso e nel
-        // bianco bruciato. Il conto è lo stesso `4t(1-t)` della chiarezza, scritto come uno meno
-        // il quadrato dello scarto dal centro.
+        // bianco bruciato. Il conto è `4t(1-t)`, scritto come uno meno il quadrato dello scarto
+        // dal centro.
         half tone = luma(rgb);
         half off = half(2.0) * tone - half(1.0);
         half mid = half(1.0) - off * off;
@@ -2355,9 +2189,6 @@ private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
     val span = where.span
     val sharp = detail.sharpReach(span)
     val grain = Detail.grainReach(span)
-    val wide = Effects.clarityReach(span)
-    val fine = Effects.textureReach(span)
-    val sift = Effects.textureFine(span)
     val broad = Effects.hazeReach(span)
     val cell = Effects.grainCell(span)
     return RuntimeShader(LOOK_AGSL).apply {
@@ -2407,11 +2238,6 @@ private fun lightOver(image: Shader, look: Look, where: Framed): Shader {
         setFloatUniform("reach", sharp, sharp)
         setFloatUniform("grain", grain, grain)
         setFloatUniform("effectsOn", if (effects.idle) 0f else 1f)
-        setFloatUniform("clarity", effects.clarity)
-        setFloatUniform("matter", effects.texture)
-        setFloatUniform("wide", wide, wide)
-        setFloatUniform("fine", fine, fine)
-        setFloatUniform("sift", sift, sift)
         setFloatUniform("haze", effects.haze)
         setFloatUniform("broad", broad, broad)
         setFloatUniform("vignette", effects.vignette)

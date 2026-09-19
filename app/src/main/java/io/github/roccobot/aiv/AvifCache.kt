@@ -99,7 +99,7 @@ object AvifCache {
     }
 
     /**
-     * Dove sta la miniatura di [uri] alla misura [box], e `null` se non si può sapere.
+     * Dov'è la miniatura di [uri] alla misura [box], e `null` se non si può sapere.
      *
      * ⚠️ **La chiave è un hash e non il nome del file**: un nome di file può contenere
      * qualunque cosa, barre comprese, e ricavarne un percorso vorrebbe dire ripulirlo, cioè

@@ -434,8 +434,6 @@
     <string name="look_noise">نویز</string>
     <string name="look_noise_color">نویز رنگ</string>
     <string name="look_effects">جلوه‌ها</string>
-    <string name="look_clarity">وضوح</string>
-    <string name="look_texture">بافت</string>
     <string name="look_haze">مه</string>
     <string name="look_grain">دانه‌دانگی</string>
     <string name="look_vignette">وینیت</string>

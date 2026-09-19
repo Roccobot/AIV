@@ -225,7 +225,7 @@ fun EditorScreen(
      * Quante volte l'immagine mostrata è più larga che alta.
      *
      * ⚠️ Si ricava da [shown] e non dal riquadro disegnato, che è lo stesso numero: così i
-     * tasti qui sotto possono fare i loro conti senza sapere niente di dove sta l'immagine
+     * tasti qui sotto possono fare i loro conti senza sapere niente di dov'è l'immagine
      * sullo schermo.
      */
     val aspect = shown?.let { it.width.toFloat() / it.height } ?: 1f
@@ -1774,7 +1774,7 @@ internal fun dragged(
     return Rect(x0, y0, x0 + w, y0 + h)
 }
 
-/** Dove sta l'immagine dentro lo spazio disponibile, a filo e centrata. */
+/** Dov'è l'immagine dentro lo spazio disponibile, a filo e centrata. */
 private fun fitted(picture: ImageBitmap, room: Size): Rect {
     if (room.width <= 0f || room.height <= 0f) return Rect(Offset.Zero, Size(1f, 1f))
     val k = min(room.width / picture.width, room.height / picture.height)

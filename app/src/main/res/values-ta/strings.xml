@@ -434,8 +434,6 @@
     <string name="look_noise">இரைச்சல்</string>
     <string name="look_noise_color">வண்ண இரைச்சல்</string>
     <string name="look_effects">விளைவுகள்</string>
-    <string name="look_clarity">தெளிவு</string>
-    <string name="look_texture">அமைப்பு</string>
     <string name="look_haze">மூடுபனி</string>
     <string name="look_grain">கிரெயின்</string>
     <string name="look_vignette">விக்னெட்</string>

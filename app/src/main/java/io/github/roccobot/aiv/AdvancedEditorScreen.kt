@@ -2206,31 +2206,24 @@ private val DETAIL_ROWS = listOf(
 )
 
 /**
- * I cinque cursori degli **Effetti**: chiarezza, texture, foschia, grana e vignettatura.
+ * I tre cursori degli **Effetti**: foschia, grana e vignettatura.
  *
  * ⚠️⚠️ **L'ELENCO E IL SUO ORDINE SONO SUOI** (`d-dopo-editor`, giro della `2.50`: *'Effetti', con
  * 'Chiarezza', 'Texture', 'Foschia', `Grana` e `Vignettatura`*): la `2.53` ha portato i primi due,
  * la `2.54` il terzo e la `2.57` gli ultimi due, che è il *procediamo un po' alla volta* della sua
  * istruzione dello stesso giorno.
  *
- * ⚠️⚠️ **QUATTRO SONO BIPOLARI E UNO NO, E NON È UNA DIMENTICANZA**: verso il basso la chiarezza
- * ammorbidisce i mezzi toni, la texture spiana la pelle, la foschia si **aggiunge** invece di essere
- * tolta e la vignettatura **apre** l'angolo invece di chiuderlo, che è quello che si fa su una
- * fotografia già vignettata dall'obiettivo. La grana invece non ha un verso negativo che voglia dire
- * qualcosa: un grano tolto non esiste, e quello che spiana la grana è la riduzione del rumore del
- * Dettaglio.
+ * ⚠️⚠️ **E DALLA `2.64` I PRIMI DUE NON CI SONO PIÙ, ED È LA SUA RISPOSTA `via` A
+ * `d-eff-restano`** (giro della `2.63`: *Toglili tutti e due*). Il perché, e il difetto misurato
+ * che li ha tolti, vivono in testa a [Effects]: qui resta che la fila è di tre.
+ *
+ * ⚠️⚠️ **DUE SONO BIPOLARI E UNO NO, E NON È UNA DIMENTICANZA**: verso il basso la foschia si
+ * **aggiunge** invece di essere tolta e la vignettatura **apre** l'angolo invece di chiuderlo, che
+ * è quello che si fa su una fotografia già vignettata dall'obiettivo. La grana invece non ha un
+ * verso negativo che voglia dire qualcosa: un grano tolto non esiste, e quello che spiana la grana
+ * è la riduzione del rumore del Dettaglio.
  */
 private val EFFECT_ROWS = listOf(
-    Dial(
-        R.string.look_clarity,
-        { it.effects.clarity },
-        { k, v -> k.copy(effects = k.effects.copy(clarity = v)) }
-    ),
-    Dial(
-        R.string.look_texture,
-        { it.effects.texture },
-        { k, v -> k.copy(effects = k.effects.copy(texture = v)) }
-    ),
     Dial(
         R.string.look_haze,
         { it.effects.haze },
@@ -2783,7 +2776,7 @@ private fun LookSheet(
     /** Dove si ha lo sguardo: il modulo, la fascia, il canale, e se il mirato è armato. */
     gaze: Gaze,
     /**
-     * Dove sta la fila dei gettoni, in coordinate della radice, dalla `2.50`.
+     * Dov'è la fila dei gettoni, in coordinate della radice, dalla `2.50`.
      *
      * ⚠️ **Serve al mini-onboarding, che vive nella schermata e non qui**: quel velo copre tutto
      * lo schermo, quindi nasce fuori da questa scheda, e il riquadro da illuminare lo sa solo chi

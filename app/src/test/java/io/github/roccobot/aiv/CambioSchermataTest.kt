@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 /**
  * Il banco di prova del **cambio di schermata**: monta la schermata iniziale vera, la fa arrivare
- * con la transizione vera, e guarda dove sta e quanto è grande il FAB a ogni fotogramma.
+ * con la transizione vera, e guarda dov'è e quanto è grande il FAB a ogni fotogramma.
  *
  * ⚠️⚠️ **NASCE DA UN DIFETTO ARRIVATO ALL'UTENTE DUE VOLTE** (giri della `1.71` e della `1.72`:
  * *se torno in home da una cartella arriva di nuovo da in basso a destra ... l'ingrandimento
@@ -57,7 +57,7 @@ import org.robolectric.annotation.Config
  * versione.
  *
  * ⚠️ **Che cosa questa prova NON vede**: come il cambio di schermata si **percepisce**, che
- * dipende dalla resa vera. Vede dove sta il FAB e quanto è grande, che sono misure di struttura.
+ * dipende dalla resa vera. Vede dov'è il FAB e quanto è grande, che sono misure di struttura.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [OmbraArchivio::class])

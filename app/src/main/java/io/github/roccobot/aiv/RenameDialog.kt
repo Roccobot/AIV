@@ -247,7 +247,7 @@ fun RenameDialog(
                  * (`rememberSaveable`). Il valore col cursore no, ed è giusto: dopo una
                  * rotazione l'effetto qui sotto lo rifà con la coda in vista.
                  * ⚠️ **Una casella lunga si porta il cursore dietro**: un campo a riga sola
-                 * scorre fin dove sta il cursore, quindi mettendolo in fondo la coda del nome è
+                 * scorre fin dov'è il cursore, quindi mettendolo in fondo la coda del nome è
                  * quella che si vede. È la seconda metà della richiesta, e viene da sé.
                  */
                 var campo by remember { mutableStateOf(TextFieldValue()) }
@@ -314,7 +314,7 @@ fun RenameDialog(
                  * siano 'Seleziona tutto' e 'Svuota', voglio che 'Rinomina' abbia 'Data', che
                  * inserisce YYYYMMDD esattamente come implementato in 'Scarica'*). I due gesti
                  * sono gli stessi di là, e li fanno le stesse due funzioni: il tocco breve
-                 * infila la data dove sta il cursore, il lungo rifà il nome da capo.
+                 * infila la data dov'è il cursore, il lungo rifà il nome da capo.
                  * ⚠️ **Anche il verso della fila è quello di 'Scarica'**, e non è un caso: le
                  * due finestre portano gli stessi comandi, quindi chi impara una posizione la
                  * ritrova nell'altra.

@@ -466,8 +466,6 @@
     <string name="look_noise">Шум</string>
     <string name="look_noise_color">Цветовой шум</string>
     <string name="look_effects">Эффекты</string>
-    <string name="look_clarity">Четкость</string>
-    <string name="look_texture">Текстура</string>
     <string name="look_haze">Дымка</string>
     <string name="look_grain">Зерно</string>
     <string name="look_vignette">Виньетка</string>

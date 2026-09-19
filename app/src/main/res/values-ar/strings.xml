@@ -498,8 +498,6 @@
     <string name="look_noise">التشويش</string>
     <string name="look_noise_color">تشويش الألوان</string>
     <string name="look_effects">التأثيرات</string>
-    <string name="look_clarity">الوضوح</string>
-    <string name="look_texture">النسيج</string>
     <string name="look_haze">إزالة الضباب</string>
     <string name="look_grain">حبيبات</string>
     <string name="look_vignette">تظليل الحواف</string>
