@@ -3300,52 +3300,21 @@ class SviluppoTest {
         )
     }
 
-    /**
-     * **Caso 66: i comandi del Ritaglio stanno lontani dalla barra, e la scheda non si alza.**
-     *
-     * ⚠️⚠️ **DUE COSE INSIEME, PERCHÉ LA SECONDA È IL PREZZO DELLA PRIMA**: l'aria sotto i quattro
-     * comandi è quella che ha chiesto lui (punto 2 del campo libero del giro della `2.70`), e la
-     * barra che resta **allo stesso pixel** negli altri moduli è la prova che quell'aria se l'è
-     * presa dall'avanzo invece di alzare la scheda. Un distacco più grande dell'avanzo farebbe
-     * del Ritaglio il modulo più alto, e allora il palco si accorcerebbe in tutti e otto.
-     * ⚠️ **La soglia è più bassa della costante di proposito**: qui si presidia che l'aria ci sia,
-     * non il numero di oggi, così un ritocco a quella costante non fa diventare rossa una prova
-     * mentre il comportamento è ancora giusto.
-     * ⚠️ **Controprovata azzerando il distacco**: l'aria misurata passa da 14 pixel a 7, cioè
-     * sotto la soglia, e la prima asserzione cade. Nella scena del banco un punto vale un pixel,
-     * quindi sul telefono quei numeri si moltiplicano per la sua densità.
+    /*
+     * ⚠️⚠️ **QUI VIVEVA IL CASO DEI COMANDI DEL RITAGLIO LONTANI DALLA BARRA, E DALLA `2.75` NON
+     * C'È PIÙ**: presidiava l'aria della `2.73` (punto 2 del campo libero del giro della `2.70`),
+     * e il giro dopo l'ha revocata (voce `crop-alti` non approvata: *Mi sembrava ci fosse spazio,
+     * invece con lo spostamento s'è ammucchiato tutto. Riporta allo stato precedente*).
+     * ⚠️ **La misura del banco diceva il vero e guardava la cosa sbagliata**: l'aria passava da 7
+     * pixel a 14, cioè raddoppiava, e la scheda non si alzava di un pixel. Quello che nessuna
+     * misura poteva vedere è come quel blocco si legge sul telefono, dove lo spazio che `Breathe`
+     * distribuisce è calato della stessa quantità e il resto del corpo si è stretto. È il caso
+     * dichiarato in § '🧪 Quando si scrive una prova, e quando no', cioè quello che dipende dalla
+     * resa vera.
      */
-    @Test
-    fun `i comandi del Ritaglio non toccano la barra`() {
-        banco.setContent { Scena() }
-        banco.waitForIdle()
-
-        val azzera = banco.onNodeWithContentDescription(testo(R.string.editor_crop_clear))
-            .fetchSemanticsNode().boundsInRoot
-        val barra = banco.onNodeWithContentDescription(testo(R.string.editor_undo))
-            .fetchSemanticsNode().boundsInRoot
-        val aria = barra.top - azzera.bottom
-        assertTrue(
-            "fra i comandi del Ritaglio e la barra deve restare dell'aria (%.0f pixel)".format(aria),
-            aria > 10f
-        )
-
-        // La barra sta dove stava: se il Ritaglio fosse diventato il modulo più alto, la
-        // scheda si sarebbe alzata e questa riga la troverebbe più su in ogni modulo.
-        for (nome in listOf(R.string.look_light, R.string.look_detail)) {
-            banco.onNodeWithContentDescription(testo(nome)).performClick()
-            banco.waitForIdle()
-            assertEquals(
-                "la scheda non si alza passando a un altro modulo",
-                barra.top,
-                banco.onNodeWithContentDescription(testo(R.string.editor_undo))
-                    .fetchSemanticsNode().boundsInRoot.top
-            )
-        }
-    }
 
     /**
-     * **Caso 67: la seconda slide arriva dopo la prima, e le sue copie cadono sui tasti veri.**
+     * **Caso 66: la seconda slide arriva dopo la prima, e le sue copie cadono sui tasti veri.**
      *
      * ⚠️⚠️ **LE DUE COSE CHE POSSONO ROMPERSI IN SILENZIO SONO QUESTE.** La prima è l'**ordine**:
      * con la condizione scritta al contrario i due veli sarebbero in scena insieme, cioè un fondo
@@ -3448,10 +3417,6 @@ class SviluppoTest {
                         hasMark = false,
                         onMark = {},
                         onMarkSetup = {},
-                        // ⚠️ Nessuna anteprima sul palco: disegnerebbe un rettangolo scuro
-                        // sull'immagine, e qui i pixel si contano. Il caso suo vive in
-                        // `FiligranaTest`.
-                        stageMark = null,
                         resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                         // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                         // immagine intonsa, e il caso suo vive in `RidimensionaTest`.

@@ -4,32 +4,18 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PixelMap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toPixelMap
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
@@ -51,8 +37,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.roundToInt
-import androidx.compose.ui.graphics.Color as UiColor
 
 /**
  * Il banco di prova della **filigrana**, nata nella `2.69`.
@@ -435,179 +419,46 @@ class FiligranaTest {
     }
 
     /**
-     * **Caso 15: l'anteprima cade dove cadrà la firma, in tutti e cinque i posti.**
+     * **Caso 15: la firma si posa su pixel interi, e il suo bordo non si sfuma.**
      *
-     * ⚠️⚠️ **IL CONFRONTO È CON `stamp` E NON CON UN NUMERO SCRITTO QUI**: quello che l'anteprima
-     * promette è *il file verrà così*, quindi la cosa da misurare è che i due disegni cadano nello
-     * stesso posto e alla stessa misura. Una prova che ricopiasse il conto resterebbe verde il
-     * giorno che uno dei due chiamanti smette di leggere [Watermark.cornerFor], che è esattamente
-     * il difetto peggiore che un'anteprima possa avere.
-     * ⚠️ **La tela NON è quadrata**: là larghezza e lato lungo coincidono, quindi un conto che
-     * leggesse la larghezza passerebbe lo stesso.
+     * ⚠️⚠️ **È IL DIFETTO CHE È ARRIVATO A LUI, E IL BANCO LO PUÒ VEDERE** (punto 4 del campo
+     * libero del giro dalla `2.71` alla `2.74`: *la filigrana è stampata sull'immagine in modo
+     * molto morbido, quasi sfocato*). Il disegno di prova è **nero pieno e opaco**, quindi
+     * stampato su un foglio bianco deve lasciare pixel neri e pixel bianchi e nient'altro: un
+     * livello in mezzo può nascere **solo** dall'interpolazione, cioè da un angolo che non cade su
+     * un pixel intero.
+     * ⚠️⚠️ **IL PIANO È SCELTO PERCHÉ L'ANGOLO VENGA FRAZIONARIO, e senza quella cura la prova
+     * sarebbe verde a vuoto**: su un foglio da 240 la firma vale 34 pixel e l'aria 7,2, quindi in
+     * basso a destra l'angolo cade a `198,8`. In alto a sinistra con l'aria a zero cadrebbe su
+     * `0,0`, cioè su un numero intero, e il difetto non si vedrebbe nemmeno rimettendolo.
+     * ⚠️ **Controprovata rimettendo l'angolo in virgola mobile e il filtro**: i livelli in mezzo
+     * passano da zero a **135**, cioè la cornice interpolata attorno alla firma.
      */
     @Test
-    fun `l'anteprima cade dove cadra la firma`() {
+    fun `la firma si posa su pixel interi`() {
         assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
-        val disegno = Watermark.artwork(app, ANTE)?.asImageBitmap()
-        assertNotNull("la filigrana scelta deve disegnarsi", disegno)
-        val art = disegno!!
-        val piano = mutableStateOf(Watermark.Plan(Watermark.Spot.TOP_LEFT))
-        banco.setContent { Tela(piano.value, art) }
 
-        for (spot in Watermark.Spot.entries) {
-            piano.value = Watermark.Plan(spot)
-            banco.waitForIdle()
-            val mappa = banco.onNodeWithTag(TELA).captureToImage().toPixelMap()
-            val sopra = impronta(mappa)
-            assertNotNull("in $spot l'anteprima deve disegnarsi", sopra)
+        val foglio = foglio()
+        assertNotNull(
+            "la firma deve scriversi",
+            Watermark.stamp(app, foglio, Watermark.Plan(SPOT))
+        )
+        assertTrue("la firma deve lasciare inchiostro", inchiostro(foglio) > 0)
 
-            val carta = carta(mappa.width, mappa.height)
-            assertNotNull("in $spot la firma deve scriversi", Watermark.stamp(app, carta, piano.value))
-            val sotto = impronta(carta)
-            assertNotNull("in $spot la firma deve lasciare inchiostro", sotto)
-
-            assertTrue(
-                "in $spot l'anteprima cade in $sopra e la firma in $sotto",
-                sopra!!.vicino(sotto!!, TOCCO)
-            )
-        }
+        val mezzi = mezzitoni(foglio)
+        assertEquals("il bordo della firma non deve sfumare: $mezzi pixel in mezzo", 0, mezzi)
     }
 
-    /**
-     * **Caso 16: l'anteprima si misura sul riquadro che riceve, e ci resta dentro.**
-     *
-     * ⚠️⚠️ **QUEL RIQUADRO È LA PORZIONE CHE IL RITAGLIO TIENE, E NON L'IMMAGINE INTERA**: la firma
-     * si scrive **dopo** il taglio, quindi il suo angolo è quello del rettangolo tagliato e la sua
-     * misura è il lato lungo di quello. Passando il riquadro dell'immagine intera l'anteprima
-     * verrebbe più grande e in un altro posto, e nessun compilatore lo direbbe.
+    /*
+     * ⚠️⚠️ **QUI VIVEVANO I CINQUE CASI DELL'ANTEPRIMA SUL PALCO, E DALLA `2.75` NON CI SONO PIÙ**:
+     * misuravano la funzione della `2.74` (punto 5 del campo libero del giro della `2.70`), che il
+     * giro dopo ha revocato (voce `mark-palco` non approvata: *In realtà funziona bene, ma mi sono
+     * accorto che non serve, e forse confonde pure. Funzionalità da togliere*).
+     * ⚠️ **Non sono cadute: non hanno più niente da guardare**, perché con loro se ne sono andati
+     * `markOverlay`, `rememberMarkArt` e il parametro del palco. Chi rimettesse quell'anteprima le
+     * ritrova nella storia git, insieme alla tela minima su cui misuravano e al confronto a pixel
+     * con quello che `stamp` scrive.
      */
-    @Test
-    fun `l'anteprima si misura sul riquadro che riceve`() {
-        assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
-        val disegno = Watermark.artwork(app, ANTE)?.asImageBitmap()
-        assertNotNull("la filigrana scelta deve disegnarsi", disegno)
-        val art = disegno!!
-        val piano = Watermark.Plan(SPOT)
-        val quota = Rect(0.125f, 0.125f, 0.625f, 0.625f)
-        banco.setContent { Tela(piano, art, quota) }
-        banco.waitForIdle()
-
-        val mappa = banco.onNodeWithTag(TELA).captureToImage().toPixelMap()
-        val da = Pair(
-            (mappa.width * quota.left).roundToInt(),
-            (mappa.height * quota.top).roundToInt()
-        )
-        val a = Pair(
-            (mappa.width * quota.right).roundToInt(),
-            (mappa.height * quota.bottom).roundToInt()
-        )
-        val sopra = impronta(mappa)
-        assertNotNull("l'anteprima deve disegnarsi", sopra)
-        assertTrue(
-            "l'anteprima esce dal riquadro: $sopra fuori da $da-$a",
-            sopra!!.left >= da.first - TOCCO && sopra.top >= da.second - TOCCO &&
-                sopra.right <= a.first + TOCCO && sopra.bottom <= a.second + TOCCO
-        )
-
-        val carta = carta(a.first - da.first, a.second - da.second)
-        assertNotNull("la firma deve scriversi", Watermark.stamp(app, carta, piano))
-        val sotto = impronta(carta)?.traslata(da.first, da.second)
-        assertNotNull("la firma deve lasciare inchiostro", sotto)
-        assertTrue(
-            "l'anteprima cade in $sopra e la firma in $sotto",
-            sopra.vicino(sotto!!, TOCCO)
-        )
-    }
-
-    /**
-     * **Caso 17: l'opacità del piano arriva all'anteprima.**
-     *
-     * ⚠️ **Si guarda il COLORE di un pixel e non quanti sono**: smorzata, la firma non sparisce,
-     * schiarisce, quindi un conto dei pixel scuri direbbe soltanto che l'inchiostro è meno di
-     * prima. ⚠️ **Il pixel è il centro dell'impronta piena**, cioè un punto che la firma copre di
-     * sicuro in tutti e due i casi.
-     */
-    @Test
-    fun `l'opacita del piano arriva all'anteprima`() {
-        assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
-        val disegno = Watermark.artwork(app, ANTE)?.asImageBitmap()
-        assertNotNull("la filigrana scelta deve disegnarsi", disegno)
-        val art = disegno!!
-        val piano = mutableStateOf(Watermark.Plan(SPOT, alpha = 100))
-        banco.setContent { Tela(piano.value, art) }
-        banco.waitForIdle()
-
-        val piena = banco.onNodeWithTag(TELA).captureToImage().toPixelMap()
-        val centro = impronta(piena)?.centro
-        assertNotNull("a piena opacità l'anteprima deve disegnarsi", centro)
-        val forte = piena[centro!!.first, centro.second].red
-
-        piano.value = Watermark.Plan(SPOT, alpha = Watermark.ALPHA.first)
-        banco.waitForIdle()
-        val debole = banco.onNodeWithTag(TELA).captureToImage().toPixelMap()[
-            centro.first, centro.second
-        ].red
-
-        assertTrue("a piena opacità l'anteprima deve essere scura: $forte", forte < 0.2f)
-        assertTrue(
-            "e smorzata deve schiarire: $forte contro $debole",
-            debole > forte + 0.5f
-        )
-    }
-
-    /**
-     * **Caso 18: senza piano non si legge nessun disegno.**
-     *
-     * ⚠️⚠️ **È LA PORTA DA CUI L'ANTEPRIMA SI SPEGNE, E SONO TRE CASI IN UNO**: l'interruttore
-     * 'Mostra nell'editor' spento, la filigrana che non si applica al salvataggio, e il confronto
-     * col prima tenuto premuto. Tutti e tre arrivano al palco come un piano assente, quindi quello
-     * che si misura è che là non si legga niente dal disco.
-     */
-    @Test
-    fun `senza piano non si legge nessun disegno`() {
-        assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
-        val piano = mutableStateOf<Watermark.Plan?>(null)
-        banco.setContent {
-            val art = rememberMarkArt(piano.value)
-            Box(modifier = Modifier.fillMaxSize().testTag(if (art == null) VUOTA else CARICO))
-        }
-        banco.waitForIdle()
-
-        assertTrue(
-            "senza piano non c'è niente da disegnare",
-            banco.onAllNodesWithTag(CARICO).fetchSemanticsNodes().isEmpty()
-        )
-
-        piano.value = Watermark.Plan(SPOT)
-        banco.waitUntil(ATTESA) {
-            banco.onAllNodesWithTag(CARICO).fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-
-    /**
-     * **Caso 19: il palco dell'editor disegna l'anteprima.**
-     *
-     * ⚠️⚠️ **IL LEGAME FRA LA SCHERMATA E IL PALCO NON LO VEDE NESSUN COMPILATORE**: `stageMark` è
-     * un parametro obbligatorio, quindi chi monta l'editor deve dichiararlo, ma un parametro
-     * dichiarato e mai letto non dà nessun errore e l'anteprima non comparirebbe mai. Qui si
-     * misura la scena vera, contando l'inchiostro con e senza.
-     * ⚠️ **Non cambia nient'altro fra le due misure**, quindi quello che cresce è la firma.
-     */
-    @Test
-    fun `il palco dell'editor disegna l'anteprima`() {
-        assertTrue(runBlocking { Watermark.adopt(app, offri("a.png", png(40))) })
-        val piano = mutableStateOf<Watermark.Plan?>(null)
-        banco.setContent { Scena(marked = false, stageMark = piano.value) }
-        pronta()
-
-        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        val prima = palco.captureToImage().toPixelMap()
-        piano.value = Watermark.Plan(SPOT)
-        banco.waitUntil(ATTESA) { diversi(prima, palco.captureToImage().toPixelMap()) >= FIRMA }
-
-        val dopo = diversi(prima, palco.captureToImage().toPixelMap())
-        assertTrue("il palco non disegna la firma: $dopo pixel cambiati", dopo >= FIRMA)
-    }
 
     // ── Gli arnesi ──
 
@@ -618,8 +469,7 @@ class FiligranaTest {
         marking: Boolean = false,
         hasMark: Boolean = false,
         onMark: (Boolean) -> Unit = {},
-        onMarkSetup: () -> Unit = {},
-        stageMark: Watermark.Plan? = null
+        onMarkSetup: () -> Unit = {}
     ) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -631,7 +481,6 @@ class FiligranaTest {
                     hasMark = hasMark,
                     onMark = onMark,
                     onMarkSetup = onMarkSetup,
-                    stageMark = stageMark,
                     resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                     // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                     // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
@@ -691,55 +540,31 @@ class FiligranaTest {
             "viewBox=\"0 0 40 40\"><rect width=\"40\" height=\"40\" fill=\"#000\"/></svg>"
         ).toByteArray()
 
-    /**
-     * Una tela bianca di misura nota, con l'anteprima disegnata dentro [quota], che è il riquadro
-     * in **frazioni** della tela.
-     *
-     * ⚠️ **È la scena minima con cui si misura il meccanismo**, come fanno `CorniceTest` e la prova
-     * del gradiente: una schermata intera porterebbe dentro la misura anche il suo layout, e i
-     * pixel cambiati non si saprebbe di chi sono.
-     * ⚠️ **La misura si chiede in pixel e non in punti**, perché i pixel sono quello che il
-     * confronto con [Watermark.stamp] legge: il giro da `Dp` e ritorno lo fa la densità del banco.
-     */
-    @Composable
-    private fun Tela(
-        piano: Watermark.Plan?,
-        art: ImageBitmap,
-        quota: Rect = Rect(0f, 0f, 1f, 1f)
-    ) {
-        val densita = LocalDensity.current
-        Box(
-            modifier = Modifier
-                .size(with(densita) { LARGO.toDp() }, with(densita) { ALTO.toDp() })
-                .background(UiColor.White)
-                .testTag(TELA)
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                if (piano == null) return@Canvas
-                markOverlay(
-                    Rect(
-                        size.width * quota.left,
-                        size.height * quota.top,
-                        size.width * quota.right,
-                        size.height * quota.bottom
-                    ),
-                    art,
-                    piano
-                )
-            }
-        }
-    }
-
     /** Un foglio bianco su cui firmare. */
-    private fun foglio(): Bitmap = carta(LATO, LATO)
-
-    /** Un foglio bianco della misura data, per confrontare la firma con quello che si vede. */
-    private fun carta(wide: Int, high: Int): Bitmap =
-        Bitmap.createBitmap(wide, high, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
+    private fun foglio(): Bitmap =
+        Bitmap.createBitmap(LATO, LATO, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
 
     /** Se quel punto porta inchiostro, cioè se la firma è caduta lì. */
     private fun scuro(mappa: Bitmap, x: Int, y: Int): Boolean =
         Color.red(mappa.getPixel(x, y)) < SOGLIA
+
+    /**
+     * Quanti pixel di quel foglio non sono né l'inchiostro né la carta.
+     *
+     * ⚠️ **Le due soglie sono larghe di proposito**: quello che si cerca è un livello **in mezzo**,
+     * e un bordo interpolato ne porta di tutte le gradazioni. Stringerle misurerebbe quanto è
+     * grigio un pixel invece di dire se esiste.
+     */
+    private fun mezzitoni(mappa: Bitmap): Int {
+        var conto = 0
+        for (y in 0 until mappa.height) {
+            for (x in 0 until mappa.width) {
+                val rosso = Color.red(mappa.getPixel(x, y))
+                if (rosso in 20..234) conto++
+            }
+        }
+        return conto
+    }
 
     /** Quanti pixel di quel foglio porta la firma. */
     private fun inchiostro(mappa: Bitmap): Int {
@@ -750,46 +575,6 @@ class FiligranaTest {
             }
         }
         return conto
-    }
-
-    /**
-     * Quanti pixel cambiano fra due catture della stessa scena.
-     *
-     * ⚠️ **Sul palco si contano i DIVERSI e non gli scuri**: là il fondo dell'editor è già scuro
-     * di suo (misurato: nove pixel su dieci sotto la soglia), quindi una firma nera non sposta di
-     * un'unità il conto dell'inchiostro. Quello che si misura è che disegni qualcosa.
-     */
-    private fun diversi(prima: PixelMap, dopo: PixelMap): Int {
-        if (prima.width != dopo.width || prima.height != dopo.height) return -1
-        var conto = 0
-        for (y in 0 until prima.height) {
-            for (x in 0 until prima.width) {
-                if (prima[x, y] != dopo[x, y]) conto++
-            }
-        }
-        return conto
-    }
-
-    /** Il riquadro dei pixel con inchiostro, o `null` se non ce n'è nessuno. */
-    private fun impronta(mappa: Bitmap): Sagoma? {
-        var sagoma: Sagoma? = null
-        for (y in 0 until mappa.height) {
-            for (x in 0 until mappa.width) {
-                if (Color.red(mappa.getPixel(x, y)) < SOGLIA) sagoma = sagoma.piu(x, y)
-            }
-        }
-        return sagoma
-    }
-
-    /** Il riquadro dei pixel con inchiostro, o `null` se non ce n'è nessuno. */
-    private fun impronta(mappa: PixelMap): Sagoma? {
-        var sagoma: Sagoma? = null
-        for (y in 0 until mappa.height) {
-            for (x in 0 until mappa.width) {
-                if (mappa[x, y].red < INK) sagoma = sagoma.piu(x, y)
-            }
-        }
-        return sagoma
     }
 
     private fun testo(id: Int): String = app.getString(id)
@@ -815,70 +600,8 @@ private const val LATO = 240
 /** Sotto questo livello di rosso un pixel porta inchiostro, e non è il bianco del foglio. */
 private const val SOGLIA = 200
 
-/** La stessa soglia per una scena di Compose, dove un canale vale da zero a uno. */
-private const val INK = SOGLIA / 255f
-
 /** Dove cade la firma quando il posto non è quello che si sta misurando. */
 private val SPOT = Watermark.Spot.BOTTOM_RIGHT
 
-/** Quanto si aspetta che l'anteprima arrivi. */
+/** Quanto si aspetta che l'anteprima dell'editor arrivi. */
 private const val ATTESA = 10_000L
-
-/**
- * La tela su cui si misura l'anteprima, in pixel.
- *
- * ⚠️ **Non è quadrata di proposito**: su un quadrato la larghezza e il lato lungo coincidono,
- * quindi un conto che leggesse la larghezza passerebbe lo stesso.
- */
-private const val LARGO = 240
-private const val ALTO = 160
-
-/**
- * A che lato lungo si legge il disegno per le prove dell'anteprima.
- *
- * ⚠️ **Il numero non conta**: [markOverlay] scala quello che riceve prendendo il proprio lato
- * lungo come riferimento, quindi un disegno più grande o più piccolo cade nello stesso posto.
- */
-private const val ANTE = 480
-
-/**
- * Quanti pixel di scarto si concedono fra l'anteprima e la firma.
- *
- * ⚠️ **Due e non zero**: il salvataggio posa il disegno a coordinate frazionarie e l'anteprima a
- * pixel interi, quindi il bordo si sfuma da una parte e non dall'altra. Il difetto che queste
- * prove esistono per prendere è di tutt'altro ordine di grandezza.
- */
-private const val TOCCO = 2
-
-/**
- * Quanti pixel deve cambiare il palco perché si dica che l'anteprima è arrivata.
- *
- * ⚠️ **È un numero piccolo perché il palco del banco lo è**: là lo schermo finto è corto e la
- * scheda si prende quasi tutto, quindi il palco misura una quarantina di pixel di altezza e la
- * firma, che ne vale il 14%, ne copre qualche decina. Il rumore invece è zero, perché fra le due
- * catture non cambia nient'altro.
- */
-private const val FIRMA = 8
-
-/** I due tag delle scene minime. */
-private const val TELA = "tela"
-private const val CARICO = "carico"
-private const val VUOTA = "vuota"
-
-/** Il riquadro in cui un disegno ha lasciato inchiostro. */
-private data class Sagoma(val left: Int, val top: Int, val right: Int, val bottom: Int) {
-
-    /** Il punto in mezzo, che un disegno pieno copre di sicuro. */
-    val centro: Pair<Int, Int> get() = Pair((left + right) / 2, (top + bottom) / 2)
-
-    fun traslata(dx: Int, dy: Int) = Sagoma(left + dx, top + dy, right + dx, bottom + dy)
-
-    fun vicino(altra: Sagoma, tolleranza: Int): Boolean =
-        abs(left - altra.left) <= tolleranza && abs(top - altra.top) <= tolleranza &&
-            abs(right - altra.right) <= tolleranza && abs(bottom - altra.bottom) <= tolleranza
-}
-
-/** Allarga il riquadro fino a comprendere quel punto, o lo fa nascere lì. */
-private fun Sagoma?.piu(x: Int, y: Int): Sagoma =
-    if (this == null) Sagoma(x, y, x, y)
-    else Sagoma(minOf(left, x), minOf(top, y), maxOf(right, x), maxOf(bottom, y))

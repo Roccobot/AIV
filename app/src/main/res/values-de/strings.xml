@@ -520,8 +520,6 @@
     <string name="settings_mark_bad">Diese Datei eignet sich nicht als Wasserzeichen: Wähle eine PNG- oder SVG-Datei.</string>
     <string name="settings_mark_on">Beim Speichern anwenden</string>
     <string name="settings_mark_on_desc">Fügt das Wasserzeichen beim Speichern in das Bild ein. Du kannst es jederzeit mit der Ein/Aus-Taste im Editor umschalten (oben rechts, vor \'Speichern\'). Das dort zu tun entspricht genau diesem Schalter. ⚠️ Hinweis: Mit Wasserzeichen werden verlustfreie Vorgänge wie das Drehen eines JPEG zu einem vollständigen Neuschreiben.</string>
-    <string name="settings_mark_show">Im Editor anzeigen</string>
-    <string name="settings_mark_show_desc">Zeichnet das Wasserzeichen beim Bearbeiten auf das Bild, dort wo es landen wird und mit seiner Deckkraft: was du siehst, ist das, was die Datei tragen wird. Es erscheint nur bei eingepasstem Zoom und nur, wenn \'Beim Speichern anwenden\' an ist.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Oben links</string>
     <string name="mark_spot_tr">Oben rechts</string>

@@ -504,8 +504,6 @@
     <string name="settings_mark_bad">這個檔案不能當作浮水印：請選擇 PNG 或 SVG。</string>
     <string name="settings_mark_on">儲存時套用</string>
     <string name="settings_mark_on_desc">儲存時在影像上寫入浮水印。可以用編輯器的開關按鈕（右上角，\'儲存\' 之前）隨時開啟或關閉。在那裡開啟或關閉，與撥動這個開關完全相同。⚠️ 注意：加上浮水印後，JPEG 旋轉這類無損操作會變成完整重寫。</string>
-    <string name="settings_mark_show">在編輯器中顯示</string>
-    <string name="settings_mark_show_desc">編輯時把浮水印畫在影像上，位置與不透明度都與儲存後一致：看到的就是檔案裡的樣子。只在符合螢幕的縮放下顯示，且需要 \'儲存時套用\' 已開啟。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>

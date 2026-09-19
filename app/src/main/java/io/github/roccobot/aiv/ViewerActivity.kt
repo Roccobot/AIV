@@ -157,14 +157,12 @@ sealed interface Screen {
     /**
      * Le impostazioni.
      *
-     * ⚠️⚠️ **PORTA UNA PAGINA D'ARRIVO DALLA `2.72`, E SERVE AL TOCCO LUNGO SUL TASTO
-     * 'FILIGRANA'** (sua istruzione, riscontro del giro della `2.70`: *Il tap prolungato porta
-     * alle impostazioni della filigrana*). Senza di lei quel gesto aprirebbe la radice, cioè
-     * lascerebbe da fare due tocchi proprio a chi ha usato una scorciatoia.
-     * ⚠️ **È un dato della schermata e non del modello**, come [Folders.forStart]: se ne va
-     * con lei, e nessuno deve ricordarsi di azzerarlo.
+     * ⚠⚠ **PORTAVA UNA PAGINA D'ARRIVO DALLA `2.72` ALLA `2.74`, E DALLA `2.75` NON PIÙ**:
+     * serviva al tocco lungo sul tasto 'Filigrana', che apriva quella pagina **cambiando
+     * schermata**; adesso quel gesto apre una scheda sopra l'editor e non naviga affatto, quindi
+     * quel dato non aveva più chiamanti. Il perché della scheda vive su `MarkSheet`.
      */
-    data class Settings(val start: SettingsPage? = null) : Screen
+    data object Settings : Screen
 
     data object Viewer : Screen
 
@@ -280,7 +278,7 @@ private fun Screen.saveKey(): String = when (this) {
     is Screen.Search -> "search:${bucket ?: 0L}"
     Screen.Bin -> "bin"
     Screen.History -> "history"
-    is Screen.Settings -> "settings"
+    Screen.Settings -> "settings"
     Screen.Viewer -> "viewer"
     is Screen.Editor -> "editor"
     is Screen.FullEditor -> "editor-pieno"
@@ -465,19 +463,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * La firma da mostrare **sull'immagine dell'editor**, o `null` se non se ne mostra nessuna.
+     * Se la pagina della **filigrana** è aperta sopra l'editor, dal tocco lungo su quel tasto.
      *
-     * ⚠️⚠️ **TRE CONDIZIONI E NON UNA, DALLA `2.74`**: un logo scelto, la firma accesa al
-     * salvataggio, e l'interruttore 'Mostra nell'editor'. Le prime due sono quello che il file
-     * porterà: un'anteprima che comparisse senza di loro mostrerebbe una firma che nessuno sta per
-     * scrivere. La terza è la sua richiesta, cioè la via per spegnere quello che si vede tenendo
-     * quello che si scrive.
-     * ⚠️ **È lo stesso piano del salvataggio**, e non una seconda lettura delle preferenze:
-     * l'anteprima e il file devono dire la stessa cosa, e due letture divergono al primo ritocco.
+     * ⚠⚠ **DALLA `2.75` QUEL GESTO NON CAMBIA SCHERMATA, ED È LA SUA RICHIESTA** (voce
+     * `mark-imposta`: *se torno indietro deve tornare direttamente nell'editor aperto*). Il
+     * perché una scheda e non un ritorno, che sarebbe costato il lavoro in corso, vive su
+     * `MarkSheet`.
+     * ⚠️ **Vive nel modello come [editorAsk]**, e per la stessa ragione: la superficie si
+     * disegna sopra il `when` delle schermate, cioè in un ramo che non discende dall'editor.
      */
-    fun stageMark(): Watermark.Plan? {
-        if (!markHas || settings?.markShow != true) return null
-        return markPlan()
+    var markSetup: Boolean by mutableStateOf(false)
+        private set
+
+    /** Il tocco lungo sul tasto 'Filigrana': la sua pagina si apre qui sopra. */
+    fun openMarkSetup() {
+        markSetup = true
+    }
+
+    /** La scheda della filigrana si chiude. */
+    fun closeMarkSetup() {
+        markSetup = false
     }
 
     /**
@@ -1141,7 +1146,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * quello che ci si aspetta da una schermata iniziale.
      */
     fun leaveStartFolderChoice() {
-        screen = Screen.Settings()
+        screen = Screen.Settings
     }
 
     /**
@@ -1164,7 +1169,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 openAtStart = true
             )
         )
-        screen = Screen.Settings()
+        screen = Screen.Settings
     }
 
     /**
@@ -2520,15 +2525,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         stopLoad()
     }
 
-    /**
-     * Le impostazioni, dall'inizio o direttamente su una pagina.
-     *
-     * ⚠️ **La pagina è un argomento e non una seconda funzione**: chi apre le impostazioni da un
-     * menu e chi ci arriva dal tocco lungo su un comando dell'editor stanno andando nello stesso
-     * posto, e due strade vorrebbero dire due modi di sbagliarlo.
-     */
-    fun openSettings(start: SettingsPage? = null) {
-        screen = Screen.Settings(start)
+    /** Le impostazioni, dall'inizio. */
+    fun openSettings() {
+        screen = Screen.Settings
     }
 
     /**
@@ -2808,6 +2807,19 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             chosen = settings.editorApp,
             onPick = { model.editorChosen(it) },
             onDismiss = { model.editorSkip() }
+        )
+    }
+    /*
+     * ⚠⚠ **LA PAGINA DELLA FILIGRANA SI APRE QUI SOPRA, DALLA `2.75`, E STA FUORI DAL `when`
+     * PER LA STESSA RAGIONE DEL SELETTORE**: la chiama il tocco lungo su un tasto dell'editor, e
+     * l'editor non deve uscire di scena. Il perché non sia più una navigazione vive su
+     * [MarkSheet].
+     */
+    if (model.markSetup) {
+        MarkSheet(
+            settings = settings,
+            onChange = { model.updateSettings(it) },
+            onDismiss = { model.closeMarkSetup() }
         )
     }
     val context = LocalContext.current
@@ -3104,7 +3116,7 @@ private fun Stage(
     }
 
     when (screen) {
-        is Screen.Settings -> {
+        Screen.Settings -> {
             BackHandler { model.leaveSettings() }
             SettingsScreen(
                 settings = settings,
@@ -3112,8 +3124,7 @@ private fun Stage(
                 onStartFolder = { model.chooseStartFolder() },
                 onResetHints = { model.resetHints() },
                 onChooseEditor = { model.chooseEditor() },
-                onBack = { model.leaveSettings() },
-                start = screen.start
+                onBack = { model.leaveSettings() }
             )
         }
 
@@ -3406,8 +3417,7 @@ private fun Stage(
                 marking = settings.markOn,
                 hasMark = model.markHas,
                 onMark = { model.setMark(it) },
-                onMarkSetup = { model.openSettings(SettingsPage.MARK) },
-                stageMark = model.stageMark(),
+                onMarkSetup = { model.openMarkSetup() },
                 resize = model.resizePlan(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
@@ -3430,8 +3440,7 @@ private fun Stage(
                 marking = settings.markOn,
                 hasMark = model.markHas,
                 onMark = { model.setMark(it) },
-                onMarkSetup = { model.openSettings(SettingsPage.MARK) },
-                stageMark = model.stageMark(),
+                onMarkSetup = { model.openMarkSetup() },
                 resize = model.resizePlan(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },

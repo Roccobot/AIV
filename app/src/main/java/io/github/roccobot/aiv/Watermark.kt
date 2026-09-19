@@ -6,8 +6,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.RectF
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -310,11 +308,11 @@ object Watermark {
     /**
      * Quanto è lungo il lato lungo della firma su un foglio il cui lato lungo misura [long].
      *
-     * ⚠️⚠️ **È UNA FUNZIONE E NON UNA RIGA DENTRO [stamp], DALLA `2.74`, PERCHÉ ADESSO LA LEGGONO
-     * IN DUE**: il salvataggio e l'anteprima che i due editor disegnano sul palco. Scritta due
-     * volte, la seconda copia direbbe il vero fino al primo ritocco, e da lì in poi l'anteprima
-     * mostrerebbe una firma di una misura e il file ne porterebbe un'altra, senza che niente dia
-     * errore.
+     * ⚠️⚠️ **ERA UNA FUNZIONE PERCHÉ LA LEGGEVANO IN DUE, E DALLA `2.75` IL SECONDO LETTORE NON
+     * C'È PIÙ**: l'anteprima sul palco è uscita con la sua revoca, quindi qui resta il solo
+     * salvataggio. ⚠️ **Non torna dentro [stamp], e la ragione di oggi è un'altra**: un conto con
+     * un nome si legge da sé, mentre quattro righe dentro una funzione che disegna si possono
+     * misurare soltanto contando i pixel di un foglio.
      * ⚠️ **Il lato lungo e non la larghezza**: il perché vive su [SIZE].
      */
     fun sideFor(plan: Plan, long: Float): Float = long * plan.size / 100f
@@ -323,8 +321,9 @@ object Watermark {
      * Dove cade l'angolo in alto a sinistra di una firma larga [markWide] e alta [markHigh], su un
      * foglio di [sheetWide] per [sheetHigh].
      *
-     * ⚠️ **Le misure arrivano come numeri e non come un bitmap**, ed è quello che la rende
-     * condivisa: sul file sono pixel, sul palco sono pixel di schermo, e il conto è lo stesso.
+     * ⚠️ **Le misure arrivano come numeri e non come un bitmap**, cioè il conto si può chiamare
+     * senza avere un'immagine in mano: è la stessa ragione per cui [sideFor] è una funzione, e là
+     * c'è scritto anche il lettore che aveva e che dalla `2.75` non ha più.
      * ⚠️ **L'aria si misura sul lato lungo del FOGLIO**, come la firma: così la stessa scelta
      * lascia la stessa distanza proporzionale su un'immagine verticale e su una orizzontale.
      * ⚠️ **Al centro non c'è nessun bordo da cui stare lontani**, quindi l'aria non entra nel
@@ -388,8 +387,8 @@ object Watermark {
             return null
         }
         try {
-            // ⚠️ Il posto lo dà [cornerFor], che lo dà anche all'anteprima del palco: il perché di
-            // una funzione invece di quattro righe qui dentro vive là.
+            // ⚠️ Il posto lo dà [cornerFor], e il perché di una funzione invece di quattro righe
+            // qui dentro vive là.
             val corner = cornerFor(
                 plan,
                 sheet.width.toFloat(),
@@ -397,10 +396,27 @@ object Watermark {
                 mark.width.toFloat(),
                 mark.height.toFloat()
             )
-            val x = corner.x
-            val y = corner.y
-            // ⚠️ Il filtro serve perché la destinazione non cade su pixel interi: senza, il
-            // disegno verrebbe arrotondato e i bordi si scalinerebbero.
+            /*
+             * ⚠️⚠️ **LA FIRMA SI POSA SU PIXEL INTERI, DALLA `2.75`, E SENZA QUESTO ARRIVAVA
+             * MORBIDA** (sua segnalazione, giro dalla `2.71` alla `2.74`: *la filigrana è
+             * stampata sull'immagine in modo molto morbido, quasi sfocato*). Il disegno è già
+             * reso alla misura giusta, quindi qui la scala è **uno a uno**; ma [cornerFor] dà
+             * un angolo in virgola mobile, e un bitmap posato a `123,7` si campiona
+             * bilinearmente su **ogni** pixel, cioè ognuno diventa la media di quattro vicini.
+             * Arrotondando l'angolo, ogni pixel della firma cade su un pixel del foglio e
+             * arriva com'è.
+             * ⚠️ **Il filtro non serve più e con lui se ne va la causa**: era là perché la
+             * destinazione non cadeva su pixel interi, cioè rimediava a quello che adesso non
+             * succede; tenerlo costerebbe l'interpolazione senza più niente da smussare.
+             * ⚠️ **Mezzo pixel di scarto non si vede e uno sfocato sì**: l'arrotondamento
+             * sposta la firma al massimo di mezzo pixel su una fotografia da quattromila, e
+             * quello che si guadagna è un disegno nitido.
+             * ⚠️ **Quello che resta fuori si dichiara**: un PNG più piccolo della misura chiesta
+             * si ingrandisce e resta morbido, ed è il costo scritto su [renderPng]. Chi vuole
+             * una firma nitida a ogni misura usa un SVG.
+             */
+            val x = corner.x.roundToInt()
+            val y = corner.y.roundToInt()
             /*
              * ⚠️⚠️ **L'OPACITÀ VA SUL PAINT E NON SUI PIXEL DELLA FIRMA, DALLA `2.71`**: un
              * `alpha` del pennello moltiplica il canale alfa che il disegno porta già, quindi un
@@ -409,16 +425,10 @@ object Watermark {
              * ⚠️ **Resta la miscelazione normale**, cioè la firma si posa sopra: è la sua nota su
              * `d-mark-opacita` (*niente metodi di fusione, solo opacità assoluta*).
              */
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                isFilterBitmap = true
+            val paint = Paint().apply {
                 alpha = (plan.alpha.coerceIn(ALPHA) * 255 / 100f).roundToInt()
             }
-            Canvas(sheet).drawBitmap(
-                mark,
-                Rect(0, 0, mark.width, mark.height),
-                RectF(x, y, x + mark.width, y + mark.height),
-                paint
-            )
+            Canvas(sheet).drawBitmap(mark, x.toFloat(), y.toFloat(), paint)
         } finally {
             mark.recycle()
         }

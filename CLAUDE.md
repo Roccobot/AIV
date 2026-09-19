@@ -4034,23 +4034,25 @@ lavora diventa quella tagliata.
   mirato e la maglia della geometria; a cambiare è che lo si ricava da dove deve cadere la porzione
   (`spread`), e che il disegno si ferma al suo confine (`cutout`).
 
-⚠️⚠️ **E DALLA `2.73` I QUATTRO COMANDI DEL RITAGLIO STANNO PIÙ IN ALTO, ED È SUA RICHIESTA**
-(punto 2 del campo libero del giro della `2.70`: *i pulsanti indietro/avanti/applica/azzera del
-ritaglio devono stare un pelo più in alto, più lontani dai tasti principali in basso*). Quei
-quattro sono l'ultimo blocco del corpo e sotto di loro c'è la barra delle icone dell'editor: due
-file di tasti a pochi punti di distanza si leggono come una fila sola.
-- ⚠️⚠️ **NON ALZA LA SCHEDA, E NON È UNA SPERANZA: È MISURATO**. Nel Ritaglio lo spazio avanza e
-  `Breathe` lo distribuisce, quindi il distacco se ne prende una parte e l'avanzo cala della
-  stessa misura: sul banco l'aria fra i comandi e la barra passa da **7 pixel a 14**, e la barra
-  resta allo stesso pixel in tutti gli altri moduli. ⚠️ **Oltre l'avanzo il conto cambia**: un
-  numero più grande farebbe del Ritaglio il modulo più alto, e allora la scheda si alzerebbe in
-  tutti e nove.
+⚠️⚠️ **NELLA `2.73` I QUATTRO COMANDI DEL RITAGLIO ERANO PIÙ IN ALTO, E DALLA `2.75` NON PIÙ: È
+UNA REVOCA SUA** (chiesta col punto 2 del campo libero del giro della `2.70`, *i pulsanti
+indietro/avanti/applica/azzera del ritaglio devono stare un pelo più in alto, più lontani dai
+tasti principali in basso*, e ritirata al giro dopo, voce `crop-alti` non approvata: *Mi sembrava
+ci fosse spazio, invece con lo spostamento s'è ammucchiato tutto. Riporta allo stato precedente*).
+- ⚠️⚠️ **LA MISURA DEL BANCO DICEVA IL VERO E GUARDAVA LA COSA SBAGLIATA**: l'aria fra quei
+  comandi e la barra passava da 7 pixel a 14, cioè raddoppiava, e la scheda non si alzava di un
+  pixel. Quello che nessuna misura poteva vedere è come il blocco si legge sul telefono: `Breathe`
+  distribuisce quello che avanza, quindi il distacco se l'è preso dall'avanzo e il **resto** del
+  corpo si è stretto della stessa quantità. Un numero che cresce da una parte lo toglie da
+  un'altra, e quale delle due si veda è una resa.
+- ⚠️ **Con lei esce anche la prova che la presidiava**, per la stessa ragione: non ha più niente
+  da guardare. Il fatto che regge il tetto resta scritto qui: un distacco più grande dell'avanzo
+  farebbe del Ritaglio il modulo più alto, e allora la scheda si alzerebbe in tutti e nove.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
 i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
-cursore, che tirando una squadretta il palco cambi disegno, e dalla `2.73` che fra i suoi quattro
-comandi e la barra resti dell'aria **senza** che la scheda si alzi; dalla `2.34` anche che la fila dei
+cursore, che tirando una squadretta il palco cambi disegno; dalla `2.34` anche che la fila dei
 moduli **segua l'ordine scelto** portandoli tutti e sette, e che le sei forme stiano su una riga
 sola. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
@@ -4360,56 +4362,56 @@ di ognuno vivono in § '🎛️ I due tasti in testata, e i loro due gesti'.
   stesso criterio di 'Mostra nascoste' (§ '👁️ Mostra nascoste, e perché dura un minuto'), e la
   porta per scegliere un logo resta quella della sua specifica, cioè le impostazioni.
 
-⚠️⚠️ **E DALLA `2.74` SI VEDE SUL PALCO DEI DUE EDITOR, DIETRO UN INTERRUTTORE SUO** (punto 5 del
-campo libero del giro della `2.70`: *un'anteprima della filigrana (se attiva) nella posizione e con
-l'opacità corrette sull'immagine dell'editor, solo a zoom adattato, dietro un interruttore nuovo
-'Mostra nell'editor' nelle impostazioni della filigrana*). Fino alla `2.73` dove la firma sarebbe
-caduta si vedeva **solo** nel riquadro delle impostazioni, cioè su un'immagine finta: quello dice
-la geometria e non come la firma si vede su quella fotografia.
-- ⚠️⚠️ **IL CONTO È QUELLO DEL SALVATAGGIO, CHIAMATO E NON RICOPIATO**: la misura viene da
-  `Watermark.sideFor` e il posto da `Watermark.cornerFor`, che dalla `2.74` sono due funzioni
-  invece di quattro righe dentro `stamp`. Scritte due volte, la seconda copia direbbe il vero fino
-  al primo ritocco, e da lì in poi l'anteprima mostrerebbe la firma in un posto e il file la
-  scriverebbe in un altro, che è il difetto peggiore che un'anteprima possa avere.
-- ⚠️⚠️ **CADE DENTRO IL RITAGLIO E NON DENTRO L'IMMAGINE INTERA**: la firma si scrive **dopo** il
-  taglio, quindi l'angolo che conta è quello del rettangolo che resta, e a darlo è `cutout`, che
-  con un ritaglio intero risponde il riquadro che riceve. Il ramo quindi è uno solo.
-- ⚠️ **Si disegna prima delle squadrette**: quello che il taglio butta via è velato, e una firma
-  posata dopo si vedrebbe piena anche là.
-- ⚠️ **Il confronto col prima la spegne**, come spegne i cursori: il 'Prima' mostra l'immagine
-  com'era, e una firma che l'app aggiunge là non c'era.
-- ⚠️⚠️ **SOLO A ZOOM ADATTATO, ED È LA SUA RICHIESTA CON UNA RAGIONE DI MERITO CHE LA REGGE**:
-  ingrandire serve a guardare i pixel da vicino, e una firma disegnata sopra coprirebbe proprio
-  quello che si sta giudicando; in più, a immagine ingrandita l'angolo in cui cadrà è quasi sempre
-  fuori dallo schermo, quindi quello che resterebbe da vedere non direbbe più dove va. ⚠️ **È una
-  soglia e non un'uguaglianza** (`ZOOM_REST`), perché la scala a riposo esce da un conto in
-  virgola mobile.
-- ⚠️ **Il disegno si legge una volta sola e a una misura fissa, e a rimpicciolirlo è il palco**: i
-  quattro numeri del piano cambiano mentre si trascina un cursore, e un file riletto a ogni
-  cambiamento vorrebbe dire decodificare un SVG sessanta volte al secondo. È la stessa scelta
-  dell'anteprima delle impostazioni, e qui pesa di più, perché il palco ridisegna a ogni fotogramma
-  di panoramica.
-- ⚠️ **C'è nei due editor**, come i due tasti in testata e per la stessa ragione: l'editor completo
-  sotto Android 13 non esiste (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'),
-  quindi un'anteprima che vivesse solo là mancherebbe ai telefoni più vecchi.
-- ⚠️⚠️ **L'INTERRUTTORE NASCE ACCESO, E NON È UN VALORE DI FABBRICA CHE FA VEDERE UNA FUNZIONE**:
-  perché l'anteprima compaia servono **due scelte già fatte**, cioè un logo scelto e la filigrana
-  che si applica al salvataggio, e chi ha appena acceso quella vuole sapere dove cade. Spento di
-  fabbrica, quel riquadro sarebbe una funzione che nessuno trova. ⚠️ **Lo spegne chi vuole
-  l'immagine nuda mentre lavora**, ed è la ragione per cui la voce esiste.
-- ⚠️ **La voce vive SOTTO 'Applica al salvataggio'**, cioè sotto il comando da cui dipende: è il
-  criterio con cui il 'Filtro BN' è finito sotto l'interruttore del bianco e nero nella `2.37`.
+⚠️⚠️ **LA FIRMA SI POSA SU PIXEL INTERI, DALLA `2.75`, E FINO ALLA `2.74` ARRIVAVA MORBIDA** (sua
+segnalazione, punto 4 del campo libero del giro dalla `2.71` alla `2.74`: *la filigrana è stampata
+sull'immagine in modo molto morbido, quasi sfocato*). Il disegno è **già reso** alla misura
+chiesta, quindi la scala è uno a uno e non c'era niente da rimpicciolire: a sfocare era l'angolo in
+**virgola mobile** che `cornerFor` dà, perché un bitmap posato a `123,7` si campiona bilinearmente
+su ogni pixel, cioè ognuno diventa la media di quattro vicini.
+- ⚠️ **Col filtro se ne va la causa**: quel flag era là perché la destinazione non cadeva su pixel
+  interi, cioè rimediava a quello che adesso non succede.
+- ⚠️ **Mezzo pixel di scarto non si vede e uno sfocato sì**: l'arrotondamento sposta la firma al
+  massimo di mezzo pixel su una fotografia da quattromila.
+- ⚠️ **Quello che resta fuori si dichiara**: un PNG più piccolo della misura chiesta si ingrandisce
+  e resta morbido, ed è il costo già scritto sopra. Chi vuole una firma nitida a ogni misura usa un
+  SVG.
+
+⚠️⚠️ **E NELLA `2.74` SI VEDEVA ANCHE SUL PALCO DEI DUE EDITOR, MA DALLA `2.75` NON PIÙ: È UNA
+FUNZIONE PROVATA E REVOCATA** (chiesta col punto 5 del campo libero del giro della `2.70`, *dietro
+un interruttore nuovo 'Mostra nell'editor'*, e tolta al giro dopo, voce `mark-palco` non approvata:
+*In realtà funziona bene, ma mi sono accorto che non serve, e forse confonde pure. Funzionalità da
+togliere*). Quindi non c'è un difetto da correggere: c'è una cosa che ha visto e non vuole.
+- ⚠️ **Con lei se ne vanno tutti i suoi pezzi**, perché nessuno aveva un secondo lettore:
+  l'interruttore 'Mostra nell'editor' con la sua chiave e le sue 28 stringhe, il disegno sul palco,
+  la soglia dello zoom a riposo, il parametro che la schermata passava all'editor e le cinque prove
+  del banco. ⚠️ **La chiave resta scritta negli archivi di chi ha la `2.74`**, e non si pota: una
+  chiave che nessuno legge non fa danno, e cancellarla costerebbe una migrazione.
+- ⚠️ **Il riquadro delle impostazioni resta**, ed è l'anteprima che lui tiene: là la firma si vede
+  su un fondo neutro mentre si tarano i quattro numeri, che è il posto in cui quei numeri si
+  scelgono.
 
 ⚠️ **La pagina delle impostazioni è una sotto-pagina, e la soglia lo pretende**: la domanda è una
 sola (*che logo scrivo sulle immagini che salvo*) e le voci sono molte più del *2-3* della sua
 soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
 dentro 'Editor e salvataggio', che è la pagina della domanda *che cosa succede quando modifico
 un'immagine*.
-- ⚠️⚠️ **E CI SI ARRIVA ANCHE DAL TOCCO LUNGO SUL TASTO, DALLA `2.72`**: `Screen.Settings` porta
-  la pagina d'arrivo, e la pila nasce con la **strada intera** (`SettingsPage`), quindi Indietro
-  risale a 'Editor e salvataggio' e poi alla radice invece di uscire. ⚠️ **La pila si scrive con
-  un effetto e non col valore iniziale**, perché `AivApp` tiene da parte lo stato di ogni
-  schermata: col lambda, la scorciatoia funzionerebbe la prima volta e mai più.
+- ⚠️⚠️ **E DAL TOCCO LUNGO SUL TASTO SI APRE COME UNA SCHEDA SOPRA L'EDITOR, DALLA `2.75`** (voce
+  `mark-imposta` accettabile: *quando entro nelle impostazioni della filigrana con il tocco lungo
+  poi se torno indietro deve tornare direttamente nell'editor aperto, senza rifare il giro dalle
+  impostazioni alla home e di nuovo all'editor*). La lettura è dichiarata e va oltre la sua
+  lettera: dall'editor **non si esce affatto**, quindi non c'è nessun ritorno da governare.
+  - ⚠️⚠️ **FAR TORNARE INDIETRO ALL'EDITOR NON BASTAVA, ED È MISURATO**: il `Look` su cui si sta
+    lavorando è un `remember(uri)` e non un `rememberSaveable`, quindi il `SaveableStateHolder` di
+    `AivApp` non lo tiene da parte; rientrando, l'editor si sarebbe riaperto **vuoto**, cioè
+    peggio del giro che lui ha segnalato.
+  - ⚠️ **È il pezzo che c'era già**, cioè la stessa pagina (`MarkPage`) dentro una `Sheet`: senza
+    una seconda copia da tenere allineata, e la porta delle impostazioni resta dov'è.
+  - ⚠️ **Con lei i due tasti della testata diventano gemelli anche nel gesto lungo**: quello del
+    ridimensionamento apriva già una finestra sopra l'editor.
+  - ⚠️⚠️ **E CADE LA PILA DELLA SCORCIATOIA, CHE NON HA PIÙ CHIAMANTI**: `SettingsPage`, il
+    parametro di `SettingsScreen`, la pagina d'arrivo di `Screen.Settings` e la prova del banco
+    che la misurava. La risalita di un gradino per volta, che è il fatto della `2.09`, resta e
+    resta misurata.
 - ⚠️ **L'anteprima non è un ornamento**: posizione e misura si vedono sul file salvato, cioè dopo,
   e provarle vorrebbe dire salvare un'immagine per ogni tentativo. Quel riquadro usa **gli stessi
   due numeri** del disegno vero, quindi quello che si vede è quello che si avrà.
@@ -4419,18 +4421,15 @@ JPEG non si adotti e un PNG sì **qualunque cosa dica il nome**, che ne resti un
 illeggibile non porti via quello scelto, il tetto degli otto megabyte, che la misura sia la
 frazione scelta del lato lungo (misurata anche girando l'immagine, a pixel), che la firma cada
 nell'angolo scelto e non nell'opposto, che senza un file scelto non si scriva niente, e che una
-filigrana pronta accenda 'Salva' su un'immagine intonsa; dalla `2.74` anche che l'anteprima cada
-**dove cadrà la firma** in tutti e cinque i posti, confrontata a pixel con quella che `stamp`
-scrive, che si misuri sul riquadro che riceve e ci resti dentro, che porti l'opacità del piano,
-che senza piano non si legga nessun disegno, e che il palco dell'editor la disegni davvero (e
-quest'ultima misura anche il **verso** della condizione dello zoom). **Non** vede la resa della
-firma su una fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata
-di Android: quelle si guardano sul telefono, e la voce di collaudo le chiede.
-- ⚠️ **E non vede le due condizioni che spengono l'anteprima nel modello** (`ViewerViewModel`,
-  cioè un logo scelto e l'interruttore acceso): quella funzione vuole il modello vero, e quello che
-  il banco misura è la porta a valle, cioè che senza piano non si disegni niente. Il valore di
-  fabbrica invece è coperto dal caso 6 di `ProfonditaTest`, che confronta un archivio vuoto con
-  `Settings()` per intero.
+filigrana pronta accenda 'Salva' su un'immagine intonsa; dalla `2.75` anche che il **bordo della
+firma non sfumi**, cioè la misura del difetto arrivato a lui. **Non** vede la resa della firma su
+una fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata di
+Android: quelle si guardano sul telefono, e la voce di collaudo le chiede.
+- ⚠️⚠️ **QUELLA PROVA HA UN PIANO SCELTO PERCHÉ L'ANGOLO VENGA FRAZIONARIO, e senza quella cura
+  sarebbe verde a vuoto**: il disegno è nero pieno e opaco, quindi un livello **in mezzo** può
+  nascere solo dall'interpolazione; ma in alto a sinistra con l'aria a zero l'angolo cade su
+  `0,0`, cioè su un numero intero, e il difetto non si vedrebbe nemmeno rimettendolo.
+  Controprovata: i livelli in mezzo passano da zero a **135**.
 
 ## 📏 Il ridimensionamento, e i due gesti di un tasto solo
 
@@ -4591,8 +4590,8 @@ nemmeno uno; il gemello ne aveva **quarantotto**, e il raccordo gli cambia 451 p
   perché dalla `2.73` lo legge anche il velo che insegna i due tasti.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`FiligranaTest` e `RidimensionaTest`, ogni caso
-controprovato): che il tocco accenda e spenga, che il tocco lungo apra la finestra o la pagina
-delle impostazioni, e che senza un logo il tasto della filigrana non si disegni affatto;
+controprovato): che il tocco accenda e spenga, che il tocco lungo apra la finestra o la scheda
+delle impostazioni della filigrana, e che senza un logo quel tasto non si disegni affatto;
 dalla `2.73` `SviluppoTest` misura anche la **seconda slide** dell'onboarding, cioè che arrivi
 dopo la prima e che le sue copie cadano sui tasti veri. **Non**
 vede il tasto sul telefono, cioè se le due icone stiano comode accanto al titolo accorciato:

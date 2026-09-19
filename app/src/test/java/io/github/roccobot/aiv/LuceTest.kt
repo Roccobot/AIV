@@ -717,8 +717,6 @@ class LuceTest {
                     hasMark = false,
                     onMark = {},
                     onMarkSetup = {},
-                    // ⚠️ E nessuna anteprima sul palco, per la stessa ragione.
-                    stageMark = null,
                     resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                     // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                     // immagine intonsa, e il caso suo vive in `RidimensionaTest`.

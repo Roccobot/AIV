@@ -182,8 +182,6 @@
     <string name="settings_mark_bad">Questo file non si può usare come filigrana: scegli un PNG o un SVG.</string>
     <string name="settings_mark_on">Applica al salvataggio</string>
     <string name="settings_mark_on_desc">Aggiunge la filigrana all\'immagine al salvataggio. Puoi attivarla o disattivarla al volo con l\'apposito tasto on/off dell\'editor (in alto a destra, prima di \'Salva\'). Abilitare o disabilitare la filigrana da lì equivale esattamente a muovere questo interruttore. ⚠️ N.B. con l\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG diventano una riscrittura completa.</string>
-    <string name="settings_mark_show">Mostra nell\'editor</string>
-    <string name="settings_mark_show_desc">Disegna la filigrana sull\'immagine mentre la modifichi, dove cadrà e con la sua opacità: quello che vedi è quello che il file porterà. Si vede solo a zoom adattato, e soltanto se \'Applica al salvataggio\' è attivo.</string>
     <string name="settings_mark_where">Posizione</string>
     <string name="mark_spot_tl">In alto a sinistra</string>
     <string name="mark_spot_tr">In alto a destra</string>

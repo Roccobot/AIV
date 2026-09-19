@@ -9,31 +9,17 @@ import androidx.compose.material.icons.filled.BrandingWatermark
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import kotlin.math.max
-import kotlin.math.roundToInt
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * I due comandi del **salvataggio** in testata ai due editor: 'Filigrana' e 'Ridimensiona'.
@@ -188,82 +174,22 @@ fun ResizeButton(
     )
 }
 
-/**
- * Il disegno della filigrana scelta, pronto per il palco, o `null` se non c'è niente da mostrare.
- *
- * ⚠️⚠️ **DALLA `2.74`, ED È SUA RICHIESTA** (punto 5 del campo libero del giro della `2.70`:
- * *un'anteprima della filigrana (se attiva) nella posizione e con l'opacità corrette sull'immagine
- * dell'editor, solo a zoom adattato, dietro un interruttore nuovo 'Mostra nell'editor'*).
- *
- * ⚠️⚠️ **IL DISEGNO SI LEGGE UNA VOLTA SOLA E A UNA MISURA FISSA, E A RIMPICCIOLIRLO È IL PALCO**:
- * i quattro numeri del piano cambiano mentre si trascina un cursore nelle impostazioni, e un file
- * riletto a ogni cambiamento vorrebbe dire decodificare un SVG sessanta volte al secondo. È la
- * stessa scelta dell'anteprima delle impostazioni, e qui vale di più, perché il palco ridisegna a
- * ogni fotogramma di panoramica.
- * ⚠️ **La chiave è 'c'è una firma da mostrare' e non il piano**: quello che si legge dal disco è
- * il disegno nudo, che non dipende da dove cade né da quanto è grande.
+/*
+ * ⚠️⚠️ **QUI VIVEVANO `rememberMarkArt` E `markOverlay`, L'ANTEPRIMA DELLA FIRMA SUL PALCO, E
+ * DALLA `2.75` NON CI SONO PIÙ**: erano nate nella `2.74` su sua richiesta (punto 5 del campo
+ * libero del giro della `2.70`) e il giro dopo le ha revocate (voce `mark-palco` non approvata:
+ * *In realtà funziona bene, ma mi sono accorto che non serve, e forse confonde pure.
+ * Funzionalità da togliere*). Quindi non c'è un difetto da correggere: c'è una funzione provata e
+ * scartata, e con lei se ne va tutto quello che esisteva per lei (l'interruttore 'Mostra
+ * nell'editor', la sua chiave, `ViewerViewModel.stageMark`, la soglia dello zoom a riposo e le
+ * prove del banco).
+ * ⚠️ **Il riquadro delle impostazioni resta**, ed è l'anteprima che lui tiene: là la firma si
+ * vede su un fondo neutro mentre si tarano i quattro numeri, che è il posto in cui quei numeri si
+ * scelgono. Chi volesse rimettere quella sul palco la ritrova nella storia git.
  */
-@Composable
-fun rememberMarkArt(plan: Watermark.Plan?): ImageBitmap? {
-    val context = LocalContext.current
-    val art by produceState<ImageBitmap?>(null, plan != null) {
-        value = if (plan == null) null else withContext(Dispatchers.IO) {
-            Watermark.artwork(context, MARK_ART)?.asImageBitmap()
-        }
-    }
-    return art
-}
-
-/**
- * La firma disegnata dentro [frame], cioè dove cadrà sull'immagine che si salverà.
- *
- * ⚠️⚠️ **IL CONTO È QUELLO DEL SALVATAGGIO, CHIAMATO E NON RICOPIATO**: la misura viene da
- * [Watermark.sideFor] e il posto da [Watermark.cornerFor], che sono le stesse due funzioni che
- * [Watermark.stamp] usa sul file. Riscritte qui, l'anteprima direbbe il vero fino al primo
- * ritocco, e da lì in poi mostrerebbe una firma in un posto e il file la scriverebbe in un altro,
- * che è il difetto peggiore che un'anteprima possa avere.
- * ⚠️ **[frame] è il riquadro dell'immagine FINALE**, cioè della porzione che il ritaglio tiene:
- * la firma si scrive dopo il taglio, quindi il suo angolo è quello del rettangolo tagliato e non
- * quello della fotografia intera.
- * ⚠️ **L'opacità è quella del piano**, cioè la stessa che il pennello del salvataggio mette sul
- * proprio `Paint`.
- */
-fun DrawScope.markOverlay(frame: Rect, art: ImageBitmap, plan: Watermark.Plan) {
-    if (frame.width <= 0f || frame.height <= 0f) return
-    val long = max(art.width, art.height)
-    if (long <= 0) return
-    val side = Watermark.sideFor(plan, max(frame.width, frame.height))
-    val k = side / long
-    val wide = art.width * k
-    val high = art.height * k
-    val corner = Watermark.cornerFor(plan, frame.width, frame.height, wide, high)
-    drawImage(
-        image = art,
-        dstOffset = IntOffset(
-            (frame.left + corner.x).roundToInt(),
-            (frame.top + corner.y).roundToInt()
-        ),
-        // ⚠️ Almeno un pixel per lato: alla misura minima su un palco piccolo il conto cade sotto
-        // l'unità, e un riquadro di lato zero non disegna niente invece di una firma piccola.
-        dstSize = IntSize(wide.roundToInt().coerceAtLeast(1), high.roundToInt().coerceAtLeast(1)),
-        alpha = plan.alpha / 100f,
-        // ⚠️ Il filtro serve perché il disegno arriva a una misura fissa e qui si rimpicciolisce:
-        // senza, i suoi bordi si scalinerebbero.
-        filterQuality = FilterQuality.Medium
-    )
-}
 
 /** Il bersaglio di un comando in testata, come quello di un `IconButton` di Material. */
 private val TOOL_TOUCH = 48.dp
-
-/**
- * A che lato lungo si disegna la filigrana per il palco.
- *
- * ⚠️ **Più larga di quanto servirà**: la firma arriva al massimo a metà del lato lungo del riquadro
- * ([Watermark.SIZE]), e su un telefono quel riquadro non supera il migliaio di pixel, quindi qui
- * c'è margine anche a fondo corsa. Chiederne di più costerebbe memoria per un'anteprima.
- */
-private const val MARK_ART = 768
 
 /**
  * Il glifo di 'Filigrana', che leggono il tasto **e** il velo che lo insegna.

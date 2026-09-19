@@ -46,7 +46,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -168,8 +167,6 @@ fun SettingsScreen(
     /** Apre il selettore dell'app di modifica: la finestra la fa il modello. Vedi `chooseEditor`. */
     onChooseEditor: () -> Unit,
     onBack: () -> Unit,
-    /** La pagina su cui aprirsi, per chi arriva da una scorciatoia invece che dal menu. */
-    start: SettingsPage? = null,
     modifier: Modifier = Modifier
 ) {
     /*
@@ -182,26 +179,12 @@ fun SettingsScreen(
      */
     val stack = rememberSaveable(saver = PAGE_STACK) { mutableStateListOf() }
     /*
-     * ⚠️⚠️ **CHI ARRIVA DA UNA SCORCIATOIA TROVA LA SUA PAGINA GIÀ APERTA, DALLA `2.72`**: la
-     * pila nasce con la **strada intera** e non con la sola pagina d'arrivo, quindi Indietro
-     * risale un gradino per volta come per chi ci è arrivato scorrendo.
-     * ⚠️⚠️ **UN EFFETTO E NON IL VALORE INIZIALE DELLA PILA, E LA RAGIONE È MISURATA**: quella
-     * pila è un `rememberSaveable` e `AivApp` tiene da parte lo stato di ogni schermata
-     * (§ '🔖 Lo scorrimento di una schermata sopravvive alla schermata'), quindi rientrando qui
-     * il valore salvato vince sul lambda e la scorciatoia non farebbe niente dalla seconda volta
-     * in poi.
-     * ⚠️ **Il primo fotogramma è quello della radice**, e non si vede: la schermata arriva dentro
-     * la dissolvenza di 180 ms del cambio di schermata, che parte da opacità zero.
-     * ⚠️ **Costo dichiarato**: ruotando il telefono qui dentro la composizione nasce da capo,
-     * quindi si torna alla pagina da cui si era entrati. È il posto in cui si stava lavorando, e
-     * l'editor che apre questa scorciatoia la rotazione la inibisce.
+     * ⚠⚠ **QUI VIVEVA LA SCORCIATOIA DELLA `2.72`, CHE APRIVA UNA PAGINA DA FUORI, E DALLA
+     * `2.75` NON C'È PIÙ**: il suo unico chiamante era il tocco lungo sul tasto 'Filigrana' in
+     * testata all'editor, che adesso apre la propria pagina in una scheda **sopra** l'editor
+     * invece di navigare (il perché vive su `MarkSheet`). Con lei escono il parametro `start` e
+     * l'enum `SettingsPage`, che senza quel chiamante non aveva più nessuno.
      */
-    LaunchedEffect(Unit) {
-        if (start != null) {
-            stack.clear()
-            stack.addAll(start.road)
-        }
-    }
     val page = stack.lastOrNull() ?: Page.ROOT
     // ⚠️⚠️ **LO SCORRIMENTO DELLA RADICE VIVE QUI E NON DENTRO LA PAGINA**: ogni pagina di
     // [Page] sta in un ramo di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe
@@ -545,22 +528,6 @@ internal enum class Page {
     ROOT,
     FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
     FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK
-}
-
-/**
- * Una pagina che si può aprire **da fuori**, cioè da un comando che non vive qui.
- *
- * ⚠️⚠️ **NE ESISTE UNA SOLA, E NON È UN ELENCO CHE ASPETTA DI CRESCERE**: la scorciatoia nasce
- * con il tocco lungo sul tasto 'Filigrana' in testata all'editor, e un enum pubblico con dentro
- * tutte e quindici le pagine direbbe che da fuori si può aprire qualunque cosa, che è un'altra
- * promessa. [Page] per questo non esce dal modulo.
- * ⚠️ **Porta la strada e non la sola destinazione**: la pila delle impostazioni è profonda due
- * dalla `2.09`, e senza il gradino di mezzo Indietro uscirebbe dalle impostazioni invece di
- * risalire alla pagina che contiene quella voce.
- */
-enum class SettingsPage(internal val road: List<Page>) {
-    /** 'Filigrana', che dalla `2.71` vive dentro 'Editor e salvataggio'. */
-    MARK(listOf(Page.EDITING, Page.MARK))
 }
 
 /**

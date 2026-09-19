@@ -584,8 +584,6 @@
     <string name="settings_mark_bad">لا يصلح هذا الملف كعلامة مائية: اختر ملف PNG أو SVG.</string>
     <string name="settings_mark_on">تطبيق عند الحفظ</string>
     <string name="settings_mark_on_desc">يضيف العلامة المائية إلى الصورة عند الحفظ. يمكنك تشغيلها أو إيقافها فورًا من زر التشغيل/الإيقاف في المحرر (أعلى اليمين، قبل \'حفظ\'). التشغيل أو الإيقاف من هناك يعادل تمامًا تحريك هذا المفتاح. ⚠️ ملاحظة: مع العلامة المائية تتحول العمليات دون فقدان الجودة مثل تدوير JPEG إلى إعادة كتابة كاملة.</string>
-    <string name="settings_mark_show">إظهار في المحرر</string>
-    <string name="settings_mark_show_desc">يرسم العلامة المائية على الصورة أثناء التحرير، في موضعها وبشفافيتها: ما تراه هو ما سيحمله الملف. تظهر فقط عند التكبير الملائم، وفقط إذا كان \'تطبيق عند الحفظ\' مفعّلًا.</string>
     <string name="settings_mark_where">الموضع</string>
     <string name="mark_spot_tl">أعلى اليسار</string>
     <string name="mark_spot_tr">أعلى اليمين</string>
