@@ -171,12 +171,12 @@ class NomiTest {
 }
 
 /**
- * `U+200B`: invisibile, e **concede** al layout di andare a capo dove sta.
+ * `U+200B`: invisibile, e **concede** al layout di andare a capo in quel punto.
  *
  * ⚠️ Scritto per **codepoint** e non incollato, come i suoi gemelli in `Names.kt` e per la stessa
  * ragione: incollato, questo file conterrebbe un carattere che a schermo non si vede.
  */
 private const val APPIGLIO = '\u200B'
 
-/** `U+2060`: invisibile, e **vieta** al layout di andare a capo dove sta. */
+/** `U+2060`: invisibile, e **vieta** al layout di andare a capo in quel punto. */
 private const val GIUNTORE = '\u2060'

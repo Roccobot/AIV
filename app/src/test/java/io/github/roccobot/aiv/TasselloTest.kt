@@ -230,7 +230,7 @@ class TasselloTest {
      * difetto che questa prova esiste per prendere: leggendole come frazioni del pezzo, il punto di
      * mezzo darebbe l'ultimo pixel e il colore preso sarebbe quello di un altro punto della
      * fotografia. Non dà nessun errore, e a occhio non si distingue da una scelta legittima.
-     * ⚠️ **Il colore dice dove sta**, quindi l'asserzione nomina il pixel e non un valore: `0x0402`
+     * ⚠️ **Il colore dice in che punto è**, quindi l'asserzione nomina il pixel e non un valore: `0x0402`
      * è il pixel che cade a quattro colonne e due righe, cioè il centro.
      */
     @Test

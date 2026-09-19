@@ -660,7 +660,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          */
         val uri = if (picking) null else intent.imageUri()
         if (uri == null) {
-            // Partita dalla propria icona: si va dove stanno le immagini, cioè alle cartelle.
+            // Partita dalla propria icona: si va dove sono le immagini, cioè alle cartelle.
             screen = HOME
             atStart = true
             fromIcon = true
@@ -2004,7 +2004,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Dove sta la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
+     * Dov'è la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
      * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `0.84`**: si esce dalla casa ogni volta che
      * si apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
@@ -2214,7 +2214,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * proprietà si inizializzano nell'ordine in cui sono scritte, e `init` sta più in su,
      * quindi da là questo osservatore non esiste ancora ('Variable must be initialized', che
      * è un errore di compilazione e non un difetto in agguato). Registrandosi da sé, il
-     * momento giusto è garantito da dove sta scritto.
+     * momento giusto è garantito dal punto in cui è scritto.
      * ⚠️ **Acceso per tutta la vita del modello e non a schermata**: il modello sopravvive
      * alla rotazione e ai passaggi fra le schermate, mentre un osservatore acceso e spento a
      * ogni passaggio perderebbe proprio le notizie che arrivano mentre si cambia pagina. Chi

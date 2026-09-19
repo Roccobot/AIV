@@ -324,7 +324,7 @@ fun SaveNameDialog(
 }
 
 /**
- * Il testo con la data di oggi infilata dove sta il cursore.
+ * Il testo con la data di oggi infilata dov'è il cursore.
  *
  * ⚠️ **Sostituisce la selezione, se c'è**: è quello che fa qualunque campo di testo quando si
  * scrive con del testo selezionato, e comportarsi diversamente sorprenderebbe.

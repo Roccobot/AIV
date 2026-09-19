@@ -292,7 +292,7 @@ fun ViewerScreen(
     onEdit: (Uri) -> Unit,
     onEditWith: (Uri) -> Unit,
     /**
-     * La barra delle info cambiata al volo dal tocco lungo su 'Info': accesa e dove sta.
+     * La barra delle info cambiata al volo dal tocco lungo su 'Info': accesa e in che punto è.
      *
      * ⚠️ **Due booleani e non le impostazioni intere**, come `binOn` e `factFields`: questa
      * schermata non ne cambia altre, e passare il mutatore completo inviterebbe a farlo.
@@ -3216,7 +3216,7 @@ private suspend fun PointerInputScope.detectViewerGestures(
  * ⚠️⚠️ **IN FONDO CI SONO LE SEI OPERAZIONI SUI FILE, dalla `0.62`** (richiesta
  * dell'utente: *in fondo, come icone, due righe di tre*). Sono lo stesso [ActionPad] della
  * selezione nella griglia, quindi le icone e il loro ordine si decidono in un posto solo:
- * chi impara dove sta 'sposta' lo impara una volta.
+ * chi impara dov'è 'sposta' lo impara una volta.
  * ⚠️⚠️ **E 'Condividi' è uscita dalle voci di testo perché il riquadro la porta**, con la
  * stessa chiamata di prima: due voci identiche nello stesso menu sono un ingombro, e questo
  * menu è tenuto corto apposta.
@@ -3254,7 +3254,7 @@ private fun ImageMenu(
     /*
      * ⚠️⚠️ **LA SUPERFICIE È CONDIVISA COL MENU DELLA SELEZIONE dalla 0.75**: il
      * riquadro, l'ombra e l'animazione che lo fa crescere vivono in [MenuShell], e qui
-     * restano le sole cose di questo menu, cioè dove sta, quanto è stondato e le sue voci.
+     * restano le sole cose di questo menu, cioè dov'è, quanto è stondato e le sue voci.
      * ⚠️ **Il margine sopra e sotto le voci lo mette la superficie**, dalla `1.46`: era
      * `MENU_EDGE`, otto punti scritti qui, mentre il menu della selezione ne aveva altri otto
      * scritti là e i due `DropdownMenu` li avevano da Material. Tre posti per lo stesso

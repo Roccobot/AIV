@@ -434,8 +434,6 @@
     <string name="look_noise">شور</string>
     <string name="look_noise_color">رنگ کا شور</string>
     <string name="look_effects">اثرات</string>
-    <string name="look_clarity">وضاحت</string>
-    <string name="look_texture">ساخت</string>
     <string name="look_haze">دھند</string>
     <string name="look_grain">گرین</string>
     <string name="look_vignette">وینیٹ</string>

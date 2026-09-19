@@ -627,7 +627,7 @@ fun GridScreen(
     }
 
     /**
-     * Dove sta il dito mentre trascina una selezione, e `null` quando non trascina.
+     * Dov'è il dito mentre trascina una selezione, e `null` quando non trascina.
      *
      * ⚠️ Esiste anche per lo SCORRIMENTO AI BORDI: senza un posto in cui leggere la
      * posizione fuori dai richiami del gesto, la griglia non potrebbe scorrere da sola
@@ -693,7 +693,7 @@ fun GridScreen(
     }
 
     /**
-     * Dove sta l'icona dell'intestazione, in coordinate della radice.
+     * Dov'è l'icona dell'intestazione, in coordinate della radice.
      *
      * ⚠️⚠️ **SI MISURA INVECE DI RICALCOLARLA**, perché il velo che la evidenzia deve caderci
      * sopra: la sua posizione dipende dai rientri di sistema, dalla testata, da quanto la fascia è
@@ -2210,7 +2210,7 @@ fun GridScreen(
                      * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
                      * FAB: *il FAB deve vedersi in tutte le cartelle*.
                      * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
-                     * poi il filetto, poi le impostazioni. Chi ha imparato dove sta una voce
+                     * poi il filetto, poi le impostazioni. Chi ha imparato dov'è una voce
                      * la ritrova, che è la ragione per cui questo menu passa dallo stesso
                      * [MenuRow] e non da un elenco scritto a parte.
                      */
@@ -2466,7 +2466,7 @@ fun GridScreen(
                     when (hint) {
                         Hint.BIN_EMPTY -> R.string.bin_empty_hint
                         // ⚠️ Le colonne non si insegnano qui: quel velo vive nella schermata
-                        // delle cartelle, dove sta il FAB che le cambia. Il ramo c'è
+                        // delle cartelle, dov'è il FAB che le cambia. Il ramo c'è
                         // perché [Hint] è un enum e il `when` deve essere completo, e questa
                         // frase non si vedrà mai (vedi `hint`, che la esclude).
                         Hint.COLUMNS -> R.string.columns_hint
@@ -2677,7 +2677,7 @@ private fun LazyGridState.itemIndexAt(at: Offset): Int? =
  *
  * ⚠️⚠️ **IL SEGNO È UN RIQUADRO SOPRA, NON UN BORDO NELLA CATENA DEI MODIFICATORI**, e
  * la differenza è la lezione della `0.34`, dove l'anello non si vedeva: un `Modifier.border`
- * dipende da dove sta nella catena e da come il nodo che disegna l'immagine si comporta col
+ * dipende da dov'è nella catena e da come il nodo che disegna l'immagine si comporta col
  * `drawContent`, cioè da due cose che stanno in due librerie diverse. Due fratelli dentro un
  * `Box` invece si dipingono nell'ordine in cui sono scritti, e su questo non c'è niente da
  * sapere: il secondo sta sopra il primo, sempre.
@@ -3691,7 +3691,7 @@ private fun FabPop(
 /**
  * Il menu del cestino: **sul lato del FAB**, sopra di lui.
  *
- * ⚠️⚠️ **STAVA AL CENTRO FINO ALLA `1.53`, E ADESSO STA DOVE STA QUELLO DELLA SCHERMATA
+ * ⚠️⚠️ **STAVA AL CENTRO FINO ALLA `1.53`, E ADESSO SI APRE DOVE SI APRE QUELLO DELLA SCHERMATA
  * INIZIALE** (riscontro dell'utente, giro della `1.53`, voce `sfocatura-segue`: *i due pannelli
  * che si aprono alla pressione sul FAB hanno due funzionamenti diversi e non capisco perché. Il
  * pannello della schermata home a questo punto è eccellente, e mi va bene che stia sul lato del

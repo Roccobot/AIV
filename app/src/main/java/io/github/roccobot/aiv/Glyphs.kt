@@ -554,7 +554,7 @@ object Glyphs {
     private const val NOTCH = 0.8f
 
     /**
-     * Dove sta il punto di controllo della curva, che NON è dove passa la curva.
+     * Dov'è il punto di controllo della curva, che NON è dove passa la curva.
      *
      * ⚠️⚠️ Una quadratica passa a **metà** fra la corda e il suo punto di controllo, quindi
      * per una rientranza vera di [NOTCH] il controllo va al doppio. Chi mettesse [NOTCH] qui

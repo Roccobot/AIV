@@ -222,7 +222,7 @@ fun FolderScreen(
     onTreeHidden: (Boolean) -> Unit,
     onTreePictures: (Boolean) -> Unit,
     /**
-     * Dove sta la vista 'Cartelle di sistema', e `null` vuol dire in cima.
+     * Dov'è la vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
      * ⚠️⚠️ **VIVE NEL MODELLO e non qui dentro**, ed è la ragione per cui arriva come
      * parametro invece di essere un `remember`: si esce da questa schermata ogni volta che si
@@ -300,7 +300,7 @@ fun FolderScreen(
      * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
      *
      * ⚠️ **Lo stato vive qui e non nel menu**, come `sizing`: un FAB che si apre un
-     * dialogo da sé diventa il posto in cui cercare quel dialogo, che non è dove sta.
+     * dialogo da sé diventa il posto in cui cercare quel dialogo, che non è il punto in cui vive.
      */
     var making by remember { mutableStateOf(false) }
 
@@ -1071,7 +1071,7 @@ private fun Hub(
      *
      * ⚠️ **Il dialogo lo apre chi chiama e non questo composabile**, come per il velo: sono
      * cose della schermata, e un FAB che si apre un dialogo da sé diventa il posto in cui
-     * cercare quel dialogo, che non è dove sta.
+     * cercare quel dialogo, che non è il punto in cui vive.
      */
     onSize: () -> Unit,
     /**

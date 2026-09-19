@@ -434,8 +434,6 @@
     <string name="look_noise">शोर</string>
     <string name="look_noise_color">रंग शोर</string>
     <string name="look_effects">प्रभाव</string>
-    <string name="look_clarity">स्पष्टता</string>
-    <string name="look_texture">बनावट</string>
     <string name="look_haze">धुंध</string>
     <string name="look_grain">ग्रेन</string>
     <string name="look_vignette">विनेट</string>

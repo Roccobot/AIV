@@ -120,7 +120,7 @@ private const val LAUNCHER_ZOOM = 1.5f
 /**
  * La pagina di download dell'app, dove porta il tocco sull'icona.
  *
- * ⚠️ **E non il repository, dalla 1.37**: quello è il posto dove sta il codice, e chi tocca
+ * ⚠️ **E non il repository, dalla 1.37**: quello è il posto dov'è il codice, e chi tocca
  * l'icona dell'app dentro l'app cerca l'app, non i suoi sorgenti. La pagina offre l'apk
  * firmato, il peso, le note di rilascio, e da lì il collegamento al codice c'è comunque.
  */

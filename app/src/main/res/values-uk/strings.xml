@@ -466,8 +466,6 @@
     <string name="look_noise">Шум</string>
     <string name="look_noise_color">Колірний шум</string>
     <string name="look_effects">Ефекти</string>
-    <string name="look_clarity">Чіткість</string>
-    <string name="look_texture">Текстура</string>
     <string name="look_haze">Серпанок</string>
     <string name="look_grain">Зернистість</string>
     <string name="look_vignette">Віньєтка</string>

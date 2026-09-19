@@ -418,8 +418,6 @@
     <string name="look_noise">雜訊</string>
     <string name="look_noise_color">彩色雜訊</string>
     <string name="look_effects">效果</string>
-    <string name="look_clarity">清晰度</string>
-    <string name="look_texture">紋理</string>
     <string name="look_haze">薄霧</string>
     <string name="look_grain">顆粒</string>
     <string name="look_vignette">暈影</string>

@@ -434,8 +434,6 @@
     <string name="look_noise">నాయిస్</string>
     <string name="look_noise_color">రంగు నాయిస్</string>
     <string name="look_effects">ప్రభావాలు</string>
-    <string name="look_clarity">స్పష్టత</string>
-    <string name="look_texture">ఆకృతి</string>
     <string name="look_haze">పొగమంచు</string>
     <string name="look_grain">గ్రెయిన్</string>
     <string name="look_vignette">వినియెట్</string>

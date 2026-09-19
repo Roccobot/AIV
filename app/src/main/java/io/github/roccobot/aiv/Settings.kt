@@ -327,7 +327,7 @@ data class Settings(
     val zoomMax: Float = 40f,
     val scaleMode: ScaleMode = ScaleMode.PHYSICAL,
     /**
-     * Dove sta la barra delle info.
+     * Dov'è la barra delle info.
      *
      * ⚠️ **In alto di serie dalla 1.20** (scelta dell'utente, 2026-09-01): là non finisce
      * sotto il pollice di chi sfoglia, e non litiga con la fila dei comandi delle immagini
@@ -822,7 +822,7 @@ data class Settings(
      * L'ordine dei sei tasti nel riquadro del tocco lungo: visualizzatore e albero.
      *
      * ⚠️ **Di fabbrica è quello che ha dettato lui per la `1.54`**, e i due posti in cui vive
-     * quel riquadro lo condividono: chi impara dove sta 'Sposta' lo sa in tutti e due.
+     * quel riquadro lo condividono: chi impara dov'è 'Sposta' lo sa in tutti e due.
      * ⚠️⚠️ **NEL CESTINO NON SI SCAMBIA PIÙ NIENTE, dalla `1.56`**: fino alla `1.55` là 'Sposta'
      * e 'Copia' si invertivano, per una richiesta della `1.54`. Con un ordine scelto dall'utente
      * quello scambio diventerebbe una **seconda trasformazione sopra la sua scelta**, cioè

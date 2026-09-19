@@ -42,7 +42,7 @@ import java.io.File
 object Bin {
 
     /**
-     * Dove sta il cestino. **Solo il percorso**: non crea niente.
+     * Dov'è il cestino. **Solo il percorso**: non crea niente.
      *
      * ⚠️⚠️ **IL PERCORSO SI CALCOLA UNA VOLTA SOLA, e non è un'ottimizzazione da manuale**:
      * questa funzione la chiama anche `DestinationDialog` **durante la composizione**, per

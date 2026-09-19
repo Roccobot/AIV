@@ -418,8 +418,6 @@
     <string name="look_noise">ノイズ</string>
     <string name="look_noise_color">カラーノイズ</string>
     <string name="look_effects">効果</string>
-    <string name="look_clarity">明瞭度</string>
-    <string name="look_texture">テクスチャ</string>
     <string name="look_haze">かすみ</string>
     <string name="look_grain">粒状感</string>
     <string name="look_vignette">周辺光量</string>

@@ -51,7 +51,7 @@ class AnimatedWebp private constructor(
 ) : Animated {
 
     /**
-     * Un fotogramma dentro il contenitore: dove sta, quanto dura, e come va posato.
+     * Un fotogramma dentro il contenitore: dov'è, quanto dura, e come va posato.
      *
      * @param at dove cominciano i dati compressi dentro [bytes].
      * @param size quanti byte sono.

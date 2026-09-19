@@ -46,7 +46,7 @@ object Avif {
      * Se la libreria nativa c'è.
      *
      * ⚠️ Si tocca una funzione nativa qualunque per **forzare** l'inizializzazione statica,
-     * che è dove sta `System.loadLibrary`: senza, il primo errore arriverebbe più tardi e
+     * cioè dove vive `System.loadLibrary`: senza, il primo errore arriverebbe più tardi e
      * come `NoClassDefFoundError`, che è quello che una classe rotta dà al secondo tentativo
      * e che nessun `catch` sul punto d'uso si aspetta.
      */
@@ -339,7 +339,7 @@ object Avif {
      * ⚠️⚠️ **La lunghezza è il controllo che rende la scansione affidabile**: quattro
      * lettere possono capitare per caso dentro un profilo ICC o un XMP, ma non precedute
      * dai quattro byte che dichiarano esattamente la lunghezza di quella scatola. La
-     * ricerca si ferma comunque prima di `mdat`, dove stanno i byte compressi.
+     * ricerca si ferma comunque prima di `mdat`, dove sono i byte compressi.
      */
     private fun findBox(bytes: ByteArray, name: String, length: Int): Int? {
         val tag = name.toByteArray(Charsets.ISO_8859_1)

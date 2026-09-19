@@ -449,7 +449,7 @@ private fun SpotRow(
  *
  * ⚠️⚠️ **È IL RIQUADRO DELLA SELEZIONE, lo stesso**: [ActionPad] con le stesse icone, lo
  * stesso ordine e le stesse etichette che si vedono nella griglia e nel visualizzatore. Chi
- * ha imparato dove sta 'sposta' lo sa anche qui, e un secondo riquadro scritto per questa
+ * ha imparato dov'è 'sposta' lo sa anche qui, e un secondo riquadro scritto per questa
  * schermata sarebbe divergente al primo ritocco.
  * ⚠️ **Su UN file solo**, mentre nella griglia le stesse voci lavorano su una selezione: la
  * macchina sotto ([FileJob]) prende comunque una lista, quindi qui la lista ha un elemento.

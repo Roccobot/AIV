@@ -119,25 +119,23 @@ class ContoTest {
     }
 
     /**
-     * E lo consegna anche con gli Effetti dentro, che dalla `2.57` sono cinque cursori.
+     * E lo consegna anche con gli Effetti dentro, che dalla `2.64` sono tre cursori.
      *
      * ⚠️⚠️ **OGNUNO PORTA UN UNIFORM IN PIÙ, E CHI LO DIMENTICASSE NON AVREBBE NESSUN ERRORE**:
      * un `setFloatUniform` che non combacia con un nome del programma lancia al primo fotogramma,
      * e la rete di `lookShader` lo trasforma in un `null`, cioè in 'questo telefono non sa farlo'.
      * È la stessa forma del difetto della `2.14`, ed è la ragione per cui questa prova compila il
      * programma **davvero**, senza rete.
-     * ⚠️ **L'uniform dello shader si chiama `matter` e non `texture`**: quella è una funzione di
-     * GLSL, e un nome che le somiglia troppo è un rischio che non vale la pena correre su un
-     * telefono. Se un giorno quella traduzione saltasse, questo caso sarebbe il primo a dirlo.
+     * ⚠️⚠️ **VALE ANCHE PER UN UNIFORM DI TROPPO, ED È IL CASO DELLA `2.64`**: togliendo due
+     * cursori, una riga rimasta nella consegna nominerebbe un nome che il programma non dichiara
+     * più, e il sintomo sarebbe lo stesso. Questo caso è il primo a dirlo.
      * ⚠️⚠️ **E I DUE DELLA `2.57` NE PORTANO TRE CHE NON DIPENDONO DA UN CURSORE** (`spot`, `frame`
      * e `filmCell`): li consegna [Framed], quindi un nome che non combacia si vedrebbe qui anche
      * con la vignettatura e la grana a zero.
      */
     @Test
     fun `lookShader consegna il programma con gli Effetti`() {
-        val tocco = Effects(
-            clarity = 0.6f, texture = -0.4f, haze = 0.5f, vignette = -0.7f, grain = 0.8f
-        )
+        val tocco = Effects(haze = 0.5f, vignette = -0.7f, grain = 0.8f)
         assertNotNull(
             "lookShader ha risposto null: un uniform degli Effetti non combacia",
             lookShader(sorgente(), Look(effects = tocco), DOVE)

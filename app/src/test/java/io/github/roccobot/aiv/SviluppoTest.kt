@@ -2618,13 +2618,14 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 55: il modulo Effetti porta i suoi cinque cursori, e nessun altro li ha.**
+     * **Caso 55: il modulo Effetti porta i suoi tre cursori, e nessun altro li ha.**
      *
      * ⚠️⚠️ **È IL NONO MODULO, DALLA `2.53`, E LA PRIMA COSA CHE PUÒ ROMPERSI IN SILENZIO È IL
      * LEGAME FRA I DUE ELENCHI**: un modulo vive nella tabella di `AdvancedEditorScreen` e la sua
      * chiave in `MOD_KEYS`, e chi ne dimenticasse una sparirebbe dalla fila senza che niente dia
-     * errore. Qui si misura dalla parte di chi tocca: il gettone c'è, e aprendolo compaiono i due
-     * cursori che ha chiesto lui.
+     * errore. Qui si misura dalla parte di chi tocca: il gettone c'è, e aprendolo compaiono i
+     * cursori che ha chiesto lui. ⚠️ **Erano cinque fino alla `2.63`**, e dalla `2.64` sono tre,
+     * che è la sua risposta `via` a `d-eff-restano`.
      * ⚠️⚠️ **IL GETTONE SI PORTA IN TESTA, E SENZA QUELLA RIGA LA PROVA MENTIVA**: col nono
      * gettone la fila scorre, quindi in coda la pastiglia cade fuori dalla larghezza del banco; il
      * tocco non dà nessun errore e non cambia modulo, e si contavano zero cursori credendo di
@@ -2633,14 +2634,14 @@ class SviluppoTest {
      * addosso alla prova: il perché vive su [davanti].
      */
     @Test
-    fun `il modulo Effetti porta i suoi cinque cursori`() {
+    fun `il modulo Effetti porta i suoi tre cursori`() {
         banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
         pronta()
 
         assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
         modulo(R.string.look_effects)
         assertEquals(
-            "gli Effetti devono portare i cinque cursori del suo elenco", 5, quantiCursori()
+            "gli Effetti devono portare i tre cursori del suo elenco", 3, quantiCursori()
         )
 
         modulo(R.string.look_light)
@@ -2682,10 +2683,10 @@ class SviluppoTest {
      * **Caso 57: gli Effetti tolgono il senza perdita, e le loro misure seguono il lato.**
      *
      * ⚠️⚠️ **IL SENZA PERDITA È LA CLAUSOLA CON CUI HA CHIESTO L'EDITOR** (*quelle che non
-     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): tutti e cinque i
+     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): tutti e tre i
      * cursori riscrivono i pixel come la Luce, quindi un loro valore mosso lo toglie. Scritto al
-     * contrario, una fotografia ammorbidita si salverebbe girando un tag EXIF, cioè non si
-     * salverebbe affatto. ⚠️ **Vale anche per i due della `2.57`**, che non leggono i vicini ma
+     * contrario, una fotografia con la foschia tolta si salverebbe girando un tag EXIF, cioè non
+     * si salverebbe affatto. ⚠️ **Vale anche per i due della `2.57`**, che non leggono i vicini ma
      * cambiano comunque ogni pixel che toccano.
      * ⚠️ **E le misure sono frazioni del lato**, come quelle del Dettaglio e per la stessa ragione:
      * il conto gira sull'anteprima e sul file pieno, e un raggio in pixel peserebbe il doppio da
@@ -2695,46 +2696,24 @@ class SviluppoTest {
     fun `un valore di Effetti toglie il senza perdita`() {
         assertTrue(Effects.NONE.idle)
         assertTrue(Look.NONE.lossless)
-        assertFalse(Effects(clarity = 0.01f).idle)
-        assertFalse(Effects(texture = -0.01f).idle)
         assertFalse(Effects(haze = 0.01f).idle)
         assertFalse(Effects(vignette = 0.01f).idle)
         assertFalse(Effects(grain = 0.01f).idle)
-        assertFalse(Look(effects = Effects(clarity = 0.5f)).lossless)
-        assertFalse(Look(effects = Effects(texture = 0.5f)).lossless)
         assertFalse(Look(effects = Effects(haze = 0.5f)).lossless)
         assertFalse(Look(effects = Effects(vignette = 0.5f)).lossless)
         assertFalse(Look(effects = Effects(grain = 0.5f)).lossless)
 
-        assertEquals(2f * Effects.clarityReach(1000f), Effects.clarityReach(2000f), 1e-4f)
-        assertEquals(2f * Effects.textureReach(1000f), Effects.textureReach(2000f), 1e-4f)
         assertEquals(2f * Effects.hazeReach(1000f), Effects.hazeReach(2000f), 1e-4f)
-        assertTrue(
-            "la chiarezza deve guardare più lontano della texture",
-            Effects.clarityReach(4000f) > Effects.textureReach(4000f)
-        )
         /*
-         * ⚠️ **La foschia è il più largo dei tre**, e non è una preferenza: il velo è una proprietà
-         * di una regione, quindi la sua stima deve cambiare più piano del disegno. Se un giorno
-         * quel raggio scendesse sotto quello della chiarezza, il conto scambierebbe il velo per il
-         * dettaglio e ne accentuerebbe i bordi.
+         * ⚠️⚠️ **IL VELO SI STIMA PIÙ LONTANO DI QUANTO IL DETTAGLIO GUARDI, ANCHE AL FONDO DELLA
+         * SUA CORSA**: la foschia è una proprietà di una **regione**, quindi la sua stima deve
+         * cambiare più piano del disegno; scesa sotto quel confine, il conto scambierebbe il velo
+         * per il dettaglio e ne accentuerebbe i bordi. È anche l'invariante da cui dipende il
+         * bordo delle tessere, che è il massimo dei due moduli (caso 58).
          */
         assertTrue(
-            "il velo si stima più lontano di quanto la chiarezza guardi",
-            Effects.hazeReach(4000f) > Effects.clarityReach(4000f)
-        )
-        /*
-         * ⚠️⚠️ **LA TEXTURE È UNA BANDA DALLA `2.55`, E IL SUO RAGGIO INTERNO DEVE RESTARE IL PIÙ
-         * STRETTO DEI DUE**: quel cursore non parte dal pixel ma dalla media a `textureFine`, cioè
-         * dal raggio di serie della nitidezza, e quello che accentua è la differenza fra le due
-         * medie. Scambiati, la banda si rovescerebbe e il cursore farebbe il contrario senza che
-         * niente dia errore: è la forma esatta del difetto che il suo riscontro descriveva
-         * (*praticamente identico a Nitidezza*), cioè un cursore che non si distingue dall'altro.
-         */
-        assertEquals(2f * Effects.textureFine(1000f), Effects.textureFine(2000f), 1e-4f)
-        assertTrue(
-            "il raggio interno della banda deve essere più stretto di quello esterno",
-            Effects.textureFine(4000f) < Effects.textureReach(4000f)
+            "il velo si stima più lontano del raggio massimo della nitidezza",
+            Effects.hazeReach(4000f) > Detail(sharpen = 1f, radius = 1f).sharpReach(4000f)
         )
     }
 
@@ -2752,31 +2731,10 @@ class SviluppoTest {
     fun `il bordo delle tessere copre il filtro più largo`() {
         assertEquals(0, Effects.NONE.bleed(4000f))
 
-        val chiaro = Effects(clarity = 0.5f)
-        assertTrue(
-            "il bordo deve coprire il raggio della chiarezza",
-            chiaro.bleed(4000f) > Effects.clarityReach(4000f)
-        )
-        // La texture guarda più vicino, quindi da sola chiede un bordo più stretto.
-        assertTrue(
-            "la texture da sola non può chiedere quanto la chiarezza",
-            Effects(texture = 0.5f).bleed(4000f) < chiaro.bleed(4000f)
-        )
-        /*
-         * ⚠️⚠️ **E DALLA `2.54` IL PIÙ LARGO DEI TRE È LA FOSCHIA**: il velo si stima su un intorno
-         * più ampio di quello della chiarezza, quindi un bordo tarato sui due cursori di prima
-         * lascerebbe una riga su ogni giunzione appena si tocca quel cursore. Dentro lo stesso
-         * modulo si prende comunque il massimo **fra quelli mossi**, e non la somma.
-         */
         val velo = Effects(haze = 0.5f)
         assertTrue(
-            "la foschia deve chiedere più della chiarezza",
-            velo.bleed(4000f) > chiaro.bleed(4000f)
-        )
-        assertEquals(
-            "coi tre insieme il bordo resta quello della foschia",
-            velo.bleed(4000f),
-            Effects(clarity = 0.5f, texture = 0.5f, haze = 0.5f).bleed(4000f)
+            "il bordo deve coprire il raggio della stima del velo",
+            velo.bleed(4000f) > Effects.hazeReach(4000f)
         )
 
         /*
@@ -2797,9 +2755,9 @@ class SviluppoTest {
             Effects(grain = 1f).bleed(4000f)
         )
         assertEquals(
-            "coi due addosso alla chiarezza il bordo resta quello della chiarezza",
-            chiaro.bleed(4000f),
-            Effects(clarity = 0.5f, vignette = -1f, grain = 1f).bleed(4000f)
+            "coi due addosso alla foschia il bordo resta quello della foschia",
+            velo.bleed(4000f),
+            Effects(haze = 0.5f, vignette = -1f, grain = 1f).bleed(4000f)
         )
 
         /*
@@ -2815,19 +2773,19 @@ class SviluppoTest {
         )
         assertEquals(
             "col solo modulo nuovo il bordo deve essere il suo, e non zero",
-            chiaro.bleed(4000f),
-            bleedFor(Look(effects = chiaro), 4000f)
+            velo.bleed(4000f),
+            bleedFor(Look(effects = velo), 4000f)
         )
         // Coi due insieme si prende il più largo: né quello di uno solo, né la somma.
         val piccolo = Detail(sharpen = 0.5f, radius = -1f)
         assertTrue(
             "la scena deve avere due bordi diversi, o la misura non distingue niente",
-            piccolo.bleed(4000f) < chiaro.bleed(4000f)
+            piccolo.bleed(4000f) < velo.bleed(4000f)
         )
         assertEquals(
             "il bordo dei due insieme non è il più largo",
-            chiaro.bleed(4000f),
-            bleedFor(Look(detail = piccolo, effects = chiaro), 4000f)
+            velo.bleed(4000f),
+            bleedFor(Look(detail = piccolo, effects = velo), 4000f)
         )
         assertEquals("e a riposo resta zero", 0, bleedFor(Look.NONE, 4000f))
     }
