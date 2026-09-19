@@ -340,6 +340,13 @@ questo è lo stesso trattamento applicato ai glifi di Material che l'editor già
   `Palette` e `Timeline` sono disegnati tutti di curve e cerchi, quindi non hanno un solo
   spigolo e l'ammorbidimento li lascia a **zero pixel** di scarto. Là vince Material, e i moduli
   'Colore' e 'Curve' chiamano `Icons` invece di un file.
+  - ⚠️⚠️ **E LA `2.73` HA DIVISO ALLO STESSO MODO I DUE TASTI DELLA TESTATA, SU SUA RICHIESTA**
+    (punto 4 del campo libero del giro della `2.70`: *le icone di 'Filigrana' e 'Ridimensiona'
+    possono venire da Material ma vanno arrotondate come da regola nuova*). `PhotoSizeSelectLarge`
+    ne aveva **quarantotto**, quindi è diventata `ic_resize.xml` (451 pixel su 57.600);
+    `BrandingWatermark` è una cornice già stondata col rettangolino **scavato** dentro, cioè zero
+    angoli convessi esterni e zero pixel, quindi resta dov'è. Chi rifà quel conto si fermi
+    prima: la misura vive in testa a `ic_resize.xml`.
 - ⚠️ **Il tracciato si ricostruisce dal bytecode**, cioè dalla stessa fonte con cui si misura uno
   scarto: si legge dalle chiamate a `PathBuilder` in ordine, si raccorda, e si riscrive in
   coordinate assolute coi comandi per esteso. Gli scarti misurati vivono in testa a ogni file.
@@ -4027,10 +4034,23 @@ lavora diventa quella tagliata.
   mirato e la maglia della geometria; a cambiare è che lo si ricava da dove deve cadere la porzione
   (`spread`), e che il disegno si ferma al suo confine (`cutout`).
 
+⚠️⚠️ **E DALLA `2.73` I QUATTRO COMANDI DEL RITAGLIO STANNO PIÙ IN ALTO, ED È SUA RICHIESTA**
+(punto 2 del campo libero del giro della `2.70`: *i pulsanti indietro/avanti/applica/azzera del
+ritaglio devono stare un pelo più in alto, più lontani dai tasti principali in basso*). Quei
+quattro sono l'ultimo blocco del corpo e sotto di loro c'è la barra delle icone dell'editor: due
+file di tasti a pochi punti di distanza si leggono come una fila sola.
+- ⚠️⚠️ **NON ALZA LA SCHEDA, E NON È UNA SPERANZA: È MISURATO**. Nel Ritaglio lo spazio avanza e
+  `Breathe` lo distribuisce, quindi il distacco se ne prende una parte e l'avanzo cala della
+  stessa misura: sul banco l'aria fra i comandi e la barra passa da **7 pixel a 14**, e la barra
+  resta allo stesso pixel in tutti gli altri moduli. ⚠️ **Oltre l'avanzo il conto cambia**: un
+  numero più grande farebbe del Ritaglio il modulo più alto, e allora la scheda si alzerebbe in
+  tutti e nove.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
 i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
-cursore, e che tirando una squadretta il palco cambi disegno; dalla `2.34` anche che la fila dei
+cursore, che tirando una squadretta il palco cambi disegno, e dalla `2.73` che fra i suoi quattro
+comandi e la barra resti dell'aria **senza** che la scheda si alzi; dalla `2.34` anche che la fila dei
 moduli **segua l'ordine scelto** portandoli tutti e sette, e che le sei forme stiano su una riga
 sola. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
@@ -4230,7 +4250,25 @@ scritto che si scorre e che il tocco lungo azzera un modulo solo. La chiave è `
 - ⚠️⚠️ **IL VELO CONSUMA IL PRIMO TOCCO, E QUESTO ROMPE LE PROVE CHE TOCCANO UN GETTONE**: quattro
   prove del banco sono diventate rosse in un colpo, e non per un difetto. Adesso `@Before` scrive
   la chiave come già vista, che è anche la condizione vera di chi ha già aperto l'editor una
-  volta.
+  volta. ⚠️ **Dalla `2.73` le chiavi da scrivere sono due**, per la stessa ragione.
+- ⚠️⚠️ **E DALLA `2.73` LE SLIDE SONO DUE: LA SECONDA È LA TESTATA**, ed è sua richiesta (punto 3
+  del campo libero del giro della `2.70`, col testo dettato da lui). Evidenzia 'Filigrana',
+  'Ridimensiona' e 'Salva', che portano **due gesti ognuno**, e dice che il tocco accende e il
+  tocco lungo configura. Il velo è `HintSpots`, la chiave `Hint.EDITOR_TOOLS`.
+  - ⚠️⚠️ **LA CHIAVE È SUA E NON UN SECONDO PASSO DELLA PRIMA, E LA RAGIONE È CHI HA GIÀ L'APP**:
+    con una chiave sola, chi aveva aperto l'editor prima della `2.73` avrebbe la prima archiviata
+    e non vedrebbe **mai** la seconda, cioè proprio chi ha seguito i giri di collaudo.
+  - ⚠️ **Vive nell'editor completo e non anche in quello di casa**, dove i due tasti ci sono: lo
+    dice il suo testo dalla prima parola (*Oltre ai moduli*), e là i moduli non esistono.
+  - ⚠️ **Il testo ha un punto fermo dove la sua riga aveva una virgola** (*alle impostazioni di
+    ciascuna, Quando hai finito*): è un refuso di battitura, e la voce di collaudo lo dichiara.
+  - ⚠️⚠️ **OGNI COPIA PORTA IL PROPRIO RIQUADRO MISURATO, E NON UNA CELLA CALCOLATA**: i tre tasti
+    non sono larghi uguali (due icone e una parola) e sono **due o tre** a seconda che un logo sia
+    stato scelto, quindi dividere in parti uguali poserebbe l'arancione accanto ai comandi invece
+    che sopra. È lo stesso criterio del velo della copertina, su tre riquadri invece che su uno.
+  - ⚠️ **I due glifi sono quelli dei tasti veri** (`MARK_GLYPH` e `Glyphs.Resize`): due
+    `Icons.Filled` scritte in due file divergono al primo ritocco, e la copia direbbe un'altra
+    cosa.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`PresetTest`, ogni caso controprovato): l'andata e
 ritorno campo per campo coi cinque moduli pieni, che un preset non porti e non tocchi i tre moduli
@@ -4490,9 +4528,24 @@ di un tasto solo'), e lui ha accorciato il titolo nel giro in cui ha chiesto la 
   testata, perché il titolo dice **che cosa si sta facendo** e non con quale dei due arnesi
   (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola').
 
+⚠️⚠️ **E DALLA `2.73` UNO DEI DUE GLIFI VIVE IN `res/` E L'ALTRO NO, ED È UNA MISURA E NON UNA
+DIMENTICANZA** (punto 4 del campo libero del giro della `2.70`: *le icone di 'Filigrana' e
+'Ridimensiona' possono venire da Material ma vanno arrotondate come da regola nuova*). La regola
+di § '🖌️ Come entra un disegno' dice che a **zero pixel** di scarto vince Material, e
+l'arrotondamento a 0,4 lascia a zero solo chi non ha punte: quella della filigrana è una cornice
+già stondata con un rettangolino **scavato** dentro, cioè di angoli convessi esterni non ne ha
+nemmeno uno; il gemello ne aveva **quarantotto**, e il raccordo gli cambia 451 pixel su 57.600.
+- ⚠️ **Quindi 'Ridimensiona' è `ic_resize.xml` e 'Filigrana' resta `Icons.Filled`**, e chi legge
+  che i due tasti sono gemelli sappia che lo sono nel **pezzo** che li disegna, non nella
+  provenienza del glifo.
+- ⚠️ **Il glifo di Material vive in una costante sola** (`MARK_GLYPH`, in `EditorTools.kt`),
+  perché dalla `2.73` lo legge anche il velo che insegna i due tasti.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`FiligranaTest` e `RidimensionaTest`, ogni caso
 controprovato): che il tocco accenda e spenga, che il tocco lungo apra la finestra o la pagina
-delle impostazioni, e che senza un logo il tasto della filigrana non si disegni affatto. **Non**
+delle impostazioni, e che senza un logo il tasto della filigrana non si disegni affatto;
+dalla `2.73` `SviluppoTest` misura anche la **seconda slide** dell'onboarding, cioè che arrivi
+dopo la prima e che le sue copie cadano sui tasti veri. **Non**
 vede il tasto sul telefono, cioè se le due icone stiano comode accanto al titolo accorciato:
 quello si guarda sul telefono, e la voce di collaudo lo chiede.
 

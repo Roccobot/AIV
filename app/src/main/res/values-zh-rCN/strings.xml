@@ -580,4 +580,5 @@
     <string name="settings_styles_loaded">已导入风格</string>
     <string name="settings_styles_bad">此文件不含任何风格</string>
     <string name="hint_modules">滑动图标即可到达所有编辑模块。长按某个模块的图标，只重置该模块的调整。</string>
+    <string name="hint_tools">除了模块之外，还有两项功能可以随时轻触图标开启或关闭，开启后图标会亮起：\'水印\'和\'调整尺寸\'。长按可以打开各自的设置。完成后轻触\'保存\'覆盖原文件(如果已启用备份，备份也会保留)；长按则会在同一文件夹中保存图片的新副本。</string>
 </resources>

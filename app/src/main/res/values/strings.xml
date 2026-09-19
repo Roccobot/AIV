@@ -370,6 +370,7 @@
     <string name="folder_cover_reset">Default cover restored</string>
     <string name="hint_cover">A tap on the folder icon in the header sets a custom cover image: it can be any picture on your device, not necessarily one inside the folder you are in, and it stays stored in HD even if you delete the original. To go back to the default cover, enter selection mode and tap the icon of the same folder again.</string>
     <string name="hint_modules">Swipe the icons to reach every editing module. Long-press a module icon to reset only its changes.</string>
+    <string name="hint_tools">Besides the modules, there are two functions you can turn on or off at any time with a tap on the icon, which lights up: \'Watermark\' and \'Resize\'. A long press opens the settings of each one. When you are done, tap \'Save\' to overwrite the file (with a backup copy, if it is enabled); a long press saves a new copy of the image in the same folder.</string>
     <string name="folder_renamed">Folder renamed</string>
     <string name="folder_rename_taken">A folder with this name already exists</string>
     <string name="folder_rename_fail">The folder could not be renamed</string>

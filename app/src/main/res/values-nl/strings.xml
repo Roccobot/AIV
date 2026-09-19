@@ -597,4 +597,5 @@
     <string name="settings_styles_loaded">Stijlen geïmporteerd</string>
     <string name="settings_styles_bad">Dit bestand bevat geen enkele stijl</string>
     <string name="hint_modules">Veeg door de pictogrammen om alle bewerkingsmodules te bereiken. Houd het pictogram van een module ingedrukt om alleen die wijzigingen te wissen.</string>
+    <string name="hint_tools">Naast de modules zijn er twee functies die je met één tik op het pictogram meteen aan of uit zet, waarna het oplicht: \'Watermerk\' en \'Formaat wijzigen\'. Met lang drukken open je de instellingen van elk van beide. Als je klaar bent, tik je op \'Opslaan\' om het bestand te overschrijven (met reservekopie, als die aanstaat); lang drukken bewaart een nieuwe kopie van de afbeelding in dezelfde map.</string>
 </resources>

@@ -1651,7 +1651,24 @@ enum class Hint(token: String) {
      * ⚠️ **Indica una FILA e non un pezzo solo**, cioè il quarto genere di velo: da qui
      * `HintStrip`.
      */
-    MODULES("modules-hint-seen");
+    MODULES("modules-hint-seen"),
+
+    /**
+     * I due comandi del salvataggio e il tasto 'Salva', dalla `2.73`: **la seconda slide** del velo
+     * che si apre col primo avvio dell'editor completo.
+     *
+     * ⚠️⚠️ **NASCE CON I DUE TASTI IN TESTATA, ED È SUA RICHIESTA** (punto 3 del campo libero del
+     * giro della `2.70`, col testo dettato da lui): quei due comandi portano **due gesti ognuno**,
+     * e un gesto lungo non si dichiara da sé; 'Salva' ne ha preso un secondo con la `2.58`. Cioè
+     * in testata ci sono sei cose da fare e tre tasti che ne mostrano tre.
+     * ⚠️⚠️ **È UNA CHIAVE A SÉ E NON UN SECONDO PASSO DI [MODULES], E LA RAGIONE È CHI HA GIÀ
+     * L'APP**: con una chiave sola, chi ha aperto l'editor prima della `2.73` avrebbe la prima
+     * archiviata e non vedrebbe mai la seconda. Con due, la slide nuova arriva a tutti, e chi le
+     * vede insieme le legge in fila come voleva lui.
+     * ⚠️ **Viene dopo la prima**, perché la condizione la guarda: due veli in scena insieme
+     * sarebbero due frasi sovrapposte.
+     */
+    EDITOR_TOOLS("editor-tools-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 

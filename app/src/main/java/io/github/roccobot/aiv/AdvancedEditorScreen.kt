@@ -351,6 +351,26 @@ fun AdvancedEditorScreen(
     var strip by remember { mutableStateOf(Rect.Zero) }
 
     /*
+     * ⚠️⚠️ **E DALLA `2.73` LE SLIDE SONO DUE, ED È SUA RICHIESTA** (punto 3 del campo libero del
+     * giro della `2.72`: *serve anche una seconda slide, che evidenzi 'Filigrana', 'Ridimensiona'
+     * e 'Salva'*). Arriva **dopo** la prima, e il suo testo lo dice dalla prima parola (*Oltre ai
+     * moduli*): è la ragione per cui vive qui e non anche nell'editor di casa, dove i due tasti
+     * ci sono ma i moduli no.
+     * ⚠️⚠️ **LA CHIAVE È SUA E NON QUELLA DELLA PRIMA**: chi ha già archiviato [Hint.MODULES] deve
+     * vedere lo stesso questa, perché parla di due tasti che quel giorno non c'erano. Con una
+     * chiave sola sarebbe invisibile proprio a chi ha seguito i giri di collaudo.
+     * ⚠️ **I tre riquadri si MISURANO**, come quello della copertina e per la stessa ragione: in
+     * testata i tasti non sono larghi uguali (due icone e una parola), e sono due o tre a seconda
+     * che un logo sia stato scelto. Un riquadro vuoto vuol dire che quel tasto non c'è.
+     */
+    val toolsHinted by produceState(true) {
+        Hint.EDITOR_TOOLS.flow(context).collect { value = it }
+    }
+    var markSpot by remember { mutableStateOf(Rect.Zero) }
+    var resizeSpot by remember { mutableStateOf(Rect.Zero) }
+    var saveSpot by remember { mutableStateOf(Rect.Zero) }
+
+    /*
      * ⚠️⚠️ **QUANTI PIXEL IL SALVATAGGIO AVRÀ DAVANTI, E NON QUANTI NE HA IL FILE**: il
      * ridimensionamento si applica **dopo** la posa e il ritaglio, quindi la misura che conta è
      * quella dell'immagine finita. Il conto vive in [Resize.frameSize], che prende il lato lungo
@@ -418,28 +438,37 @@ fun AdvancedEditorScreen(
                 // ⚠️ I due comandi del salvataggio, nell'ordine che ha chiesto: 'Filigrana'
                 // prima di 'Ridimensiona'. I gesti sono gli stessi dell'editor di casa, perché
                 // il pezzo è lo stesso: vedi [EditorTool].
-                MarkButton(
-                    has = hasMark,
-                    on = marking,
-                    enabled = !busy,
-                    onToggle = { onMark(!marking) },
-                    onSetup = onMarkSetup
-                )
-                ResizeButton(
-                    on = resizing,
-                    enabled = !busy,
-                    onToggle = { onResize(if (resizing) null else resize) },
-                    onSetup = { asking = true }
-                )
-                SaveButton(
-                    // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza questa
-                    // condizione una firma da sola non si potrebbe applicare. ⚠️ **E dalla `2.70`
-                    // anche un ridimensionamento che rimpicciolisce davvero**: se su questa
-                    // immagine quel piano non toglie un pixel, non c'è niente da scrivere.
-                    enabled = origin != null && !busy && (marked || shrinks || !look.idle),
-                    onSave = { onSave(look, false) },
-                    onBeside = { onSave(look, true) }
-                )
+                // ⚠️ I tre riquadri li misura il velo della `2.73`, e un tasto che non c'è
+                // lascia una misura vuota invece di un posto sbagliato.
+                Box(modifier = Modifier.onGloballyPositioned { markSpot = it.boundsInRoot() }) {
+                    MarkButton(
+                        has = hasMark,
+                        on = marking,
+                        enabled = !busy,
+                        onToggle = { onMark(!marking) },
+                        onSetup = onMarkSetup
+                    )
+                }
+                Box(modifier = Modifier.onGloballyPositioned { resizeSpot = it.boundsInRoot() }) {
+                    ResizeButton(
+                        on = resizing,
+                        enabled = !busy,
+                        onToggle = { onResize(if (resizing) null else resize) },
+                        onSetup = { asking = true }
+                    )
+                }
+                Box(modifier = Modifier.onGloballyPositioned { saveSpot = it.boundsInRoot() }) {
+                    SaveButton(
+                        // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza
+                        // questa condizione una firma da sola non si potrebbe applicare.
+                        // ⚠️ **E dalla `2.70` anche un ridimensionamento che rimpicciolisce
+                        // davvero**: se su questa immagine quel piano non toglie un pixel, non
+                        // c'è niente da scrivere.
+                        enabled = origin != null && !busy && (marked || shrinks || !look.idle),
+                        onSave = { onSave(look, false) },
+                        onBeside = { onSave(look, true) }
+                    )
+                }
             }
 
             Box(
@@ -565,6 +594,39 @@ fun AdvancedEditorScreen(
                 spot = strip,
                 icons = LocalPadLook.current.mods.map { modGlyph(it) },
                 onDone = { scope.launch { Hint.MODULES.remember(context) } }
+            )
+        }
+
+        /*
+         * ⚠️ **Viene DOPO la prima, e la condizione lo dice**: finché [Hint.MODULES] non è
+         * archiviata quel velo è in scena, e due veli sovrapposti sarebbero un fondo doppio con
+         * due frasi. Toccando il primo, la seconda slide arriva al fotogramma dopo.
+         * ⚠️ **Il disegno lo passa il chiamante e non il velo**, perché i tre tasti non sono
+         * della stessa specie: due glifi e una parola. I glifi sono gli stessi dei tasti veri
+         * ([MARK_GLYPH] e [Glyphs.Resize]), o la copia direbbe un'altra cosa.
+         */
+        if (hinted && !toolsHinted && !saveSpot.isEmpty) {
+            val tools = buildList<Pair<Rect, @Composable () -> Unit>> {
+                if (!markSpot.isEmpty) {
+                    add(markSpot to { Icon(MARK_GLYPH, null, tint = HINT_MARK) })
+                }
+                if (!resizeSpot.isEmpty) {
+                    add(resizeSpot to { Icon(Glyphs.Resize, null, tint = HINT_MARK) })
+                }
+                add(
+                    saveSpot to {
+                        Text(
+                            text = stringResource(R.string.editor_save),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = HINT_MARK
+                        )
+                    }
+                )
+            }
+            HintSpots(
+                text = stringResource(R.string.hint_tools),
+                spots = tools,
+                onDone = { scope.launch { Hint.EDITOR_TOOLS.remember(context) } }
             )
         }
     }
@@ -2703,6 +2765,24 @@ internal fun modCell(width: Dp, count: Int): Dp {
  */
 private val CROP_CMD_ROW = 32.dp
 
+/**
+ * Quanta aria resta **sotto** i quattro comandi del ritaglio, dalla `2.73`.
+ *
+ * ⚠️⚠️ **È SUA RICHIESTA, ED È IL PUNTO 2 DEL CAMPO LIBERO DEL GIRO DELLA `2.70`** (*i tasti di
+ * indietro/avanti/applica/azzera del ritaglio devono stare un pelo più in alto, più lontani dai
+ * tasti principali in basso*). Quei quattro comandi sono l'ultimo blocco del corpo, e sotto di
+ * loro c'è la barra delle icone dell'editor: due file di tasti a pochi punti di distanza si
+ * leggono come una fila sola, ed è esattamente lo scambio che la `2.40` esiste per evitare.
+ *
+ * ⚠️⚠️ **NON ALZA LA SCHEDA, E NON È UNA SPERANZA: È MISURATO**. Nel Ritaglio lo spazio avanza, e
+ * [Breathe] lo distribuisce fra i vani e poi centra il blocco; questo distacco se ne prende una
+ * parte, quindi il corpo cresce e l'avanzo cala della stessa misura. Sul banco la barra resta
+ * **allo stesso pixel** di prima e in tutti gli altri moduli, cioè il palco non perde niente.
+ * ⚠️ **Oltre l'avanzo il conto cambia**: un numero più grande di quello che avanza farebbe del
+ * Ritaglio il modulo più alto, e allora la scheda si alzerebbe **in tutti e otto**.
+ */
+private val CROP_CMD_AIR = 8.dp
+
 /** Quanto è grande il glifo di un comando del ritaglio: la misura dei glifi di comando dell'app. */
 private val CROP_CMD_ICON = 24.dp
 
@@ -3548,7 +3628,7 @@ private fun ModuleBody(
          */
         val portata = relativeTo(look.framing.shown, look.crop)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = CROP_CMD_AIR),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             CropCmd(

@@ -580,4 +580,5 @@
     <string name="settings_styles_loaded">Gaya diimpor</string>
     <string name="settings_styles_bad">Berkas ini tidak berisi gaya apa pun</string>
     <string name="hint_modules">Geser ikonnya untuk menjangkau semua modul penyuntingan. Tekan lama ikon modul untuk mengatur ulang perubahannya saja.</string>
+    <string name="hint_tools">Selain modul, ada dua fungsi yang bisa kamu nyalakan atau matikan seketika dengan satu ketukan pada ikonnya, yang lalu menyala: \'Tanda air\' dan \'Ubah ukuran\'. Tekan lama untuk membuka pengaturan masing-masing. Setelah selesai, ketuk \'Simpan\' untuk menimpa berkas (dengan salinan cadangan, jika aktif); tekan lama untuk menyimpan salinan baru gambar di folder yang sama.</string>
 </resources>

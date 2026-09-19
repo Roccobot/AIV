@@ -166,6 +166,41 @@ fun BoxScope.HintSpot(
     glyph: ImageVector,
     onDone: () -> Unit
 ) {
+    HintSpots(
+        text = text,
+        spots = listOf(
+            spot to { Icon(glyph, null, tint = HINT_MARK, modifier = Modifier.fillMaxSize()) }
+        ),
+        onDone = onDone
+    )
+}
+
+/**
+ * Lo stesso velo di [HintSpot] quando le cose da evidenziare sono **più di una**.
+ *
+ * ⚠️⚠️ **NASCE NELLA `2.73` PER I TRE TASTI DELLA TESTATA DELL'EDITOR**, cioè 'Filigrana',
+ * 'Ridimensiona' e 'Salva': quei tre portano due gesti ognuno, e la sua richiesta è una slide che
+ * li nomini insieme. [HintStrip] non serviva, perché quella fila non continua fuori dallo schermo
+ * e il testo starebbe **sopra**, dove in testata non c'è posto.
+ *
+ * ⚠️⚠️ **OGNI COSA PORTA IL PROPRIO RIQUADRO E IL PROPRIO DISEGNO, E NON UNA CELLA CALCOLATA**:
+ * i tre tasti non sono larghi uguali (due icone e una parola), quindi dividere il riquadro che li
+ * comprende in tre parti uguali poserebbe le copie **accanto** alle cose vere. Misurato ognuno, la
+ * copia cade dov'è l'originale per costruzione, che è lo stesso criterio per cui [HintSpot] si fa
+ * passare il riquadro invece di ricalcolarlo.
+ * ⚠️ **Il disegno lo passa chi chiama**, perché non è sempre un glifo: 'Salva' è una parola, e un
+ * velo che accettasse solo `ImageVector` costringerebbe a disegnarla come icona.
+ *
+ * ⚠️ **La frase si posa sotto il riquadro PIÙ BASSO**, o sopra una delle copie: i tre tasti stanno
+ * sulla stessa riga, ma un chiamante che ne indicasse due a altezze diverse coprirebbe il secondo.
+ */
+@Composable
+fun BoxScope.HintSpots(
+    text: String,
+    /** Dove sono le cose da evidenziare, in coordinate della radice, e che cosa disegnarci sopra. */
+    spots: List<Pair<Rect, @Composable () -> Unit>>,
+    onDone: () -> Unit
+) {
     var origine by remember { mutableStateOf(Offset.Zero) }
     Box(
         modifier = Modifier
@@ -179,17 +214,20 @@ fun BoxScope.HintSpot(
             )
     ) {
         with(LocalDensity.current) {
-            Icon(
-                imageVector = glyph,
-                contentDescription = null,
-                tint = HINT_MARK,
-                modifier = Modifier
-                    .offset(
-                        x = (spot.left - origine.x).toDp(),
-                        y = (spot.top - origine.y).toDp()
-                    )
-                    .size(width = spot.width.toDp(), height = spot.height.toDp())
-            )
+            spots.forEach { (dove, disegno) ->
+                Box(
+                    modifier = Modifier
+                        .offset(
+                            x = (dove.left - origine.x).toDp(),
+                            y = (dove.top - origine.y).toDp()
+                        )
+                        .size(width = dove.width.toDp(), height = dove.height.toDp()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    disegno()
+                }
+            }
+            val fondo = spots.maxOf { it.first.bottom }
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
@@ -197,7 +235,7 @@ fun BoxScope.HintSpot(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .offset(y = (spot.bottom - origine.y).toDp() + HINT_GAP)
+                    .offset(y = (fondo - origine.y).toDp() + HINT_GAP)
                     .padding(horizontal = HINT_SIDE)
                     .widthIn(max = HINT_WIDTH)
             )
