@@ -504,6 +504,8 @@
     <string name="settings_mark_bad">Berkas ini tidak bisa dipakai sebagai tanda air: pilih PNG atau SVG.</string>
     <string name="settings_mark_on">Terapkan saat menyimpan</string>
     <string name="settings_mark_on_desc">Menambahkan tanda air ke gambar saat menyimpan. Kamu bisa menyalakan atau mematikannya seketika lewat tombol on/off di editor (kanan atas, sebelum \'Simpan\'). Melakukannya dari sana sama persis dengan menggeser sakelar ini. ⚠️ Catatan: dengan tanda air, operasi tanpa kehilangan kualitas seperti memutar JPEG menjadi penulisan ulang penuh.</string>
+    <string name="settings_mark_show">Tampilkan di editor</string>
+    <string name="settings_mark_show_desc">Menggambar tanda air pada gambar saat kamu mengeditnya, di tempat jatuhnya dan dengan opasitasnya: yang kamu lihat itulah yang akan dibawa berkasnya. Hanya tampil pada zoom pas, dan hanya jika \'Terapkan saat menyimpan\' menyala.</string>
     <string name="settings_mark_where">Posisi</string>
     <string name="mark_spot_tl">Kiri atas</string>
     <string name="mark_spot_tr">Kanan atas</string>

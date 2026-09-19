@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import android.net.Uri
@@ -304,7 +305,51 @@ object Watermark {
      * chiama in quel caso salva l'immagine e basta, invece di fallire.
      */
     fun bitmapFor(context: Context, imageLong: Int, plan: Plan): Bitmap? =
-        artwork(context, max(1, (imageLong * plan.size / 100f).roundToInt()))
+        artwork(context, max(1, sideFor(plan, imageLong.toFloat()).roundToInt()))
+
+    /**
+     * Quanto è lungo il lato lungo della firma su un foglio il cui lato lungo misura [long].
+     *
+     * ⚠️⚠️ **È UNA FUNZIONE E NON UNA RIGA DENTRO [stamp], DALLA `2.74`, PERCHÉ ADESSO LA LEGGONO
+     * IN DUE**: il salvataggio e l'anteprima che i due editor disegnano sul palco. Scritta due
+     * volte, la seconda copia direbbe il vero fino al primo ritocco, e da lì in poi l'anteprima
+     * mostrerebbe una firma di una misura e il file ne porterebbe un'altra, senza che niente dia
+     * errore.
+     * ⚠️ **Il lato lungo e non la larghezza**: il perché vive su [SIZE].
+     */
+    fun sideFor(plan: Plan, long: Float): Float = long * plan.size / 100f
+
+    /**
+     * Dove cade l'angolo in alto a sinistra di una firma larga [markWide] e alta [markHigh], su un
+     * foglio di [sheetWide] per [sheetHigh].
+     *
+     * ⚠️ **Le misure arrivano come numeri e non come un bitmap**, ed è quello che la rende
+     * condivisa: sul file sono pixel, sul palco sono pixel di schermo, e il conto è lo stesso.
+     * ⚠️ **L'aria si misura sul lato lungo del FOGLIO**, come la firma: così la stessa scelta
+     * lascia la stessa distanza proporzionale su un'immagine verticale e su una orizzontale.
+     * ⚠️ **Al centro non c'è nessun bordo da cui stare lontani**, quindi l'aria non entra nel
+     * conto: è la stessa nota che porta l'anteprima delle impostazioni.
+     */
+    fun cornerFor(
+        plan: Plan,
+        sheetWide: Float,
+        sheetHigh: Float,
+        markWide: Float,
+        markHigh: Float
+    ): PointF {
+        val air = max(sheetWide, sheetHigh) * plan.air / 100f
+        val x = when (plan.spot) {
+            Spot.TOP_LEFT, Spot.BOTTOM_LEFT -> air
+            Spot.TOP_RIGHT, Spot.BOTTOM_RIGHT -> sheetWide - markWide - air
+            Spot.CENTRE -> (sheetWide - markWide) / 2f
+        }
+        val y = when (plan.spot) {
+            Spot.TOP_LEFT, Spot.TOP_RIGHT -> air
+            Spot.BOTTOM_LEFT, Spot.BOTTOM_RIGHT -> sheetHigh - markHigh - air
+            Spot.CENTRE -> (sheetHigh - markHigh) / 2f
+        }
+        return PointF(x, y)
+    }
 
     /**
      * Il disegno nudo, col lato lungo a [box] pixel, o `null` se non c'è o non si disegna.
@@ -343,17 +388,17 @@ object Watermark {
             return null
         }
         try {
-            val air = long * plan.air / 100f
-            val x = when (plan.spot) {
-                Spot.TOP_LEFT, Spot.BOTTOM_LEFT -> air
-                Spot.TOP_RIGHT, Spot.BOTTOM_RIGHT -> sheet.width - mark.width - air
-                Spot.CENTRE -> (sheet.width - mark.width) / 2f
-            }
-            val y = when (plan.spot) {
-                Spot.TOP_LEFT, Spot.TOP_RIGHT -> air
-                Spot.BOTTOM_LEFT, Spot.BOTTOM_RIGHT -> sheet.height - mark.height - air
-                Spot.CENTRE -> (sheet.height - mark.height) / 2f
-            }
+            // ⚠️ Il posto lo dà [cornerFor], che lo dà anche all'anteprima del palco: il perché di
+            // una funzione invece di quattro righe qui dentro vive là.
+            val corner = cornerFor(
+                plan,
+                sheet.width.toFloat(),
+                sheet.height.toFloat(),
+                mark.width.toFloat(),
+                mark.height.toFloat()
+            )
+            val x = corner.x
+            val y = corner.y
             // ⚠️ Il filtro serve perché la destinazione non cade su pixel interi: senza, il
             // disegno verrebbe arrotondato e i bordi si scalinerebbero.
             /*

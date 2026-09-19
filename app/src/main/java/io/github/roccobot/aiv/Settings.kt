@@ -529,6 +529,24 @@ data class Settings(
     val markAlpha: Int = Watermark.ALPHA_DEFAULT,
 
     /**
+     * Se la filigrana si vede anche **sull'immagine dell'editor**, mentre la si modifica.
+     *
+     * ⚠️⚠️ **DALLA `2.74`, ED È SUA RICHIESTA** (punto 5 del campo libero del giro della `2.70`:
+     * *un'anteprima della filigrana (se attiva) nella posizione e con l'opacità corrette
+     * sull'immagine dell'editor, solo a zoom adattato, dietro un interruttore nuovo 'Mostra
+     * nell'editor'*). Non cambia un pixel del file: dice **prima** quello che il salvataggio
+     * scriverà, che altrimenti si vede solo dopo aver salvato.
+     * ⚠️⚠️ **ACCESA DI FABBRICA, E LA RAGIONE NON È FAR VEDERE LA FUNZIONE**: senza un logo
+     * scelto e senza [markOn] acceso non compare niente, quindi chi la incontra ha già chiesto
+     * due volte una firma sulle proprie immagini, e questa riga risponde alla domanda che si fa
+     * subito dopo, cioè *dove cadrà*. Spenta di fabbrica sarebbe un'anteprima che non si vede
+     * mai, perché chi la vorrebbe non sa di averla.
+     * ⚠️ **Da sola non fa niente**, come [markSize] e le altre: è la firma accesa a decidere se
+     * c'è qualcosa da mostrare, e la spiegazione della voce lo dice.
+     */
+    val markShow: Boolean = true,
+
+    /**
      * Se il salvataggio dell'editor completo **ridimensiona** l'immagine.
      *
      * ⚠️⚠️ **QUESTI TRE CAMPI NON COMPAIONO NELLA SCHERMATA DELLE IMPOSTAZIONI, E NON È UNA
@@ -1201,6 +1219,7 @@ object SettingsStore {
     private val MARK_SIZE = intPreferencesKey("mark-size-pct")
     private val MARK_AIR = intPreferencesKey("mark-air")
     private val MARK_ALPHA = intPreferencesKey("mark-alpha")
+    private val MARK_SHOW = booleanPreferencesKey("mark-show")
     private val SIZE_ON = booleanPreferencesKey("size-on")
     private val SIZE_MODE = stringPreferencesKey("size-mode")
     private val SIZE_VALUE = intPreferencesKey("size-value")
@@ -1330,6 +1349,7 @@ object SettingsStore {
             markSize = (p[MARK_SIZE] ?: Watermark.SIZE_DEFAULT).coerceIn(Watermark.SIZE),
             markAir = (p[MARK_AIR] ?: Watermark.AIR_DEFAULT).coerceIn(Watermark.AIR),
             markAlpha = (p[MARK_ALPHA] ?: Watermark.ALPHA_DEFAULT).coerceIn(Watermark.ALPHA),
+            markShow = p[MARK_SHOW] ?: true,
             sizeOn = p[SIZE_ON] ?: false,
             sizeMode = sizeMode,
             // ⚠️ Il valore si riporta dentro i confini del **suo** modo, e non di uno solo: fra i
@@ -1442,6 +1462,7 @@ object SettingsStore {
             p[MARK_SIZE] = settings.markSize
             p[MARK_AIR] = settings.markAir
             p[MARK_ALPHA] = settings.markAlpha
+            p[MARK_SHOW] = settings.markShow
             p[SIZE_ON] = settings.sizeOn
             p[SIZE_MODE] = settings.sizeMode.token
             p[SIZE_VALUE] = settings.sizeValue

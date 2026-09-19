@@ -397,6 +397,8 @@ class RidimensionaTest {
                     hasMark = false,
                     onMark = {},
                     onMarkSetup = {},
+                    // ⚠️ E nessuna anteprima sul palco, per la stessa ragione.
+                    stageMark = null,
                     resize = piano,
                     resizing = resizing,
                     onResize = onResize,

@@ -520,6 +520,8 @@
     <string name="settings_mark_bad">यह फ़ाइल वॉटरमार्क के रूप में काम नहीं करती: PNG या SVG चुनें।</string>
     <string name="settings_mark_on">सहेजते समय लागू करें</string>
     <string name="settings_mark_on_desc">सहेजते समय छवि पर वॉटरमार्क जोड़ता है। संपादक के चालू/बंद बटन से (ऊपर दाईं ओर, \'सहेजें\' से पहले) इसे तुरंत चालू या बंद किया जा सकता है। वहाँ से चालू या बंद करना इस स्विच को हिलाने के बिल्कुल बराबर है। ⚠️ ध्यान दें: वॉटरमार्क के साथ, JPEG घुमाने जैसे बिना नुकसान वाले काम पूरी तरह फिर से लिखे जाते हैं।</string>
+    <string name="settings_mark_show">संपादक में दिखाएँ</string>
+    <string name="settings_mark_show_desc">संपादन के दौरान छवि पर वॉटरमार्क बनाता है, वहीं जहाँ वह पड़ेगा और उसी अपारदर्शिता के साथ: जो दिखता है वही फ़ाइल में जाएगा। यह केवल फ़िट ज़ूम पर दिखता है, और तभी जब \'सहेजते समय लागू करें\' चालू हो।</string>
     <string name="settings_mark_where">स्थिति</string>
     <string name="mark_spot_tl">ऊपर बाएँ</string>
     <string name="mark_spot_tr">ऊपर दाएँ</string>

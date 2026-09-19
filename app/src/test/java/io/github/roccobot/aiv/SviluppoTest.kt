@@ -3448,6 +3448,10 @@ class SviluppoTest {
                         hasMark = false,
                         onMark = {},
                         onMarkSetup = {},
+                        // ⚠️ Nessuna anteprima sul palco: disegnerebbe un rettangolo scuro
+                        // sull'immagine, e qui i pixel si contano. Il caso suo vive in
+                        // `FiligranaTest`.
+                        stageMark = null,
                         resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                         // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                         // immagine intonsa, e il caso suo vive in `RidimensionaTest`.

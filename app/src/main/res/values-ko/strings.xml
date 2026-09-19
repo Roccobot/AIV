@@ -504,6 +504,8 @@
     <string name="settings_mark_bad">이 파일은 워터마크로 사용할 수 없습니다. PNG 또는 SVG를 선택하세요.</string>
     <string name="settings_mark_on">저장할 때 적용</string>
     <string name="settings_mark_on_desc">저장할 때 이미지에 워터마크를 넣습니다. 편집기의 켜기/끄기 버튼(오른쪽 위, \'저장\' 앞)으로 바로 켜거나 끔 수 있습니다. 거기서 켜고 끄는 것은 이 스위치를 움직이는 것과 정확히 같습니다. ⚠️ 참고: 워터마크를 넣으면 JPEG 회전처럼 무손실이던 작업도 전체 재작성이 됩니다.</string>
+    <string name="settings_mark_show">편집기에 표시</string>
+    <string name="settings_mark_show_desc">편집하는 동안 이미지에 워터마크를 그립니다. 놓일 자리와 불투명도 그대로여서, 보이는 것이 파일에 들어갑니다. 맞춤 배율일 때만 보이며, \'저장할 때 적용\' 이 켜져 있을 때만 나타납니다.</string>
     <string name="settings_mark_where">위치</string>
     <string name="mark_spot_tl">왼쪽 위</string>
     <string name="mark_spot_tr">오른쪽 위</string>

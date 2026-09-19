@@ -520,6 +520,8 @@
     <string name="settings_mark_bad">Bu dosya filigran olarak kullanılamaz: bir PNG veya SVG seçin.</string>
     <string name="settings_mark_on">Kaydederken uygula</string>
     <string name="settings_mark_on_desc">Kaydederken görüntüye filigranı ekler. Düzenleyicideki aç/kapat düğmesiyle (sağ üstte, \'Kaydet\' düğmesinden önce) anında açıp kapatabilirsin. Oradan açmak ya da kapatmak, bu anahtarı oynatmakla tamamen aynıdır. ⚠️ Not: filigran eklendiğinde JPEG döndürme gibi kayıpsız işlemler tam bir yeniden yazmaya dönüşür.</string>
+    <string name="settings_mark_show">Düzenleyicide göster</string>
+    <string name="settings_mark_show_desc">Düzenlerken filigranı görüntünün üzerine çizer; düşeceği yerde ve kendi saydamlığıyla: gördüğün, dosyanın taşıyacağı şeydir. Yalnızca sığdırılmış yakınlaştırmada ve yalnızca \'Kaydederken uygula\' açıkken görünür.</string>
     <string name="settings_mark_where">Konum</string>
     <string name="mark_spot_tl">Sol üst</string>
     <string name="mark_spot_tr">Sağ üst</string>

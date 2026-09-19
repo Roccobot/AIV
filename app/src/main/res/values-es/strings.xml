@@ -536,6 +536,8 @@
     <string name="settings_mark_bad">Este archivo no sirve como marca de agua: elige un PNG o un SVG.</string>
     <string name="settings_mark_on">Aplicar al guardar</string>
     <string name="settings_mark_on_desc">Añade la marca de agua a la imagen al guardar. Puedes activarla o desactivarla al vuelo con el botón de encendido/apagado del editor (arriba a la derecha, antes de \'Guardar\'). Hacerlo desde ahí equivale exactamente a mover este interruptor. ⚠️ Nota: con la marca de agua, las operaciones sin pérdida como girar un JPEG pasan a ser una reescritura completa.</string>
+    <string name="settings_mark_show">Mostrar en el editor</string>
+    <string name="settings_mark_show_desc">Dibuja la marca de agua sobre la imagen mientras la editas, donde caerá y con su opacidad: lo que ves es lo que llevará el archivo. Solo se ve con el zoom ajustado, y solo si \'Aplicar al guardar\' está activado.</string>
     <string name="settings_mark_where">Posición</string>
     <string name="mark_spot_tl">Arriba a la izquierda</string>
     <string name="mark_spot_tr">Arriba a la derecha</string>

@@ -504,6 +504,8 @@
     <string name="settings_mark_bad">Không thể dùng tệp này làm hình mờ: hãy chọn một tệp PNG hoặc SVG.</string>
     <string name="settings_mark_on">Áp dụng khi lưu</string>
     <string name="settings_mark_on_desc">Thêm hình mờ vào ảnh khi lưu. Bạn có thể bật hoặc tắt ngay bằng nút bật/tắt của trình chỉnh sửa (góc trên bên phải, trước \'Lưu\'). Làm việc đó ở đó hoàn toàn giống với gạt công tắc này. ⚠️ Lưu ý: khi có hình mờ, các thao tác không mất dữ liệu như xoay JPEG sẽ trở thành ghi lại toàn bộ.</string>
+    <string name="settings_mark_show">Hiển thị trong trình chỉnh sửa</string>
+    <string name="settings_mark_show_desc">Vẽ hình mờ lên ảnh trong khi bạn chỉnh sửa, đúng chỗ nó sẽ rơi vào và với độ mờ của nó: thấy sao thì tệp sẽ có vậy. Chỉ hiện ở mức thu phóng vừa khung, và chỉ khi \'Áp dụng khi lưu\' đang bật.</string>
     <string name="settings_mark_where">Vị trí</string>
     <string name="mark_spot_tl">Trên bên trái</string>
     <string name="mark_spot_tr">Trên bên phải</string>
