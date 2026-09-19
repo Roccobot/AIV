@@ -18,6 +18,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
@@ -447,6 +450,77 @@ class FiligranaTest {
 
         val mezzi = mezzitoni(foglio)
         assertEquals("il bordo della firma non deve sfumare: $mezzi pixel in mezzo", 0, mezzi)
+    }
+
+    /**
+     * **Caso 16: la distanza scritta in centesimi si rilegge in decimi.**
+     *
+     * ⚠️⚠️ **È LA SOLA COSA DELLA `2.76` CHE PUÒ ROMPERSI IN SILENZIO**: chi aggiorna dalla `2.75`
+     * porta nell'archivio la chiave vecchia, in centesimi, e senza il ripiego che la moltiplica si
+     * ritroverebbe la firma a un decimo della distanza che aveva scelto. Nessun errore, nessuna
+     * riga rossa: una firma appiccicata al bordo. È lo stesso caso della migrazione
+     * dell'indicatore, che vive in `IndicatoreTest`.
+     * ⚠️ **Le chiavi si scrivono col loro nome d'archivio**, perché in [SettingsStore] sono
+     * private: è il modo di `ProfonditaTest` e del caso 6 di `RidimensionaTest`.
+     * ⚠️ **Il terzo caso dice che la chiave nuova vince**, e non è pedanteria: chi ha salvato una
+     * volta da quando questa versione è arrivata porta tutte e due le chiavi, e leggere la vecchia
+     * per prima rimetterebbe il valore di ieri a ogni avvio.
+     */
+    @Test
+    fun `la distanza vecchia si rilegge in decimi`() {
+        val vecchia = intPreferencesKey("mark-air")
+        val nuova = intPreferencesKey("mark-air-tenths")
+        assertEquals(
+            "Tre centesimi scritti dalla 2.75 devono valere trenta decimi",
+            3 * Watermark.AIR_STEP,
+            SettingsStore.read(mutablePreferencesOf(vecchia to 3)).markAir
+        )
+        assertEquals(
+            "Un archivio vuoto non dà il valore di fabbrica dichiarato",
+            Watermark.AIR_DEFAULT,
+            SettingsStore.read(emptyPreferences()).markAir
+        )
+        assertEquals(
+            "Con tutte e due le chiavi deve vincere quella nuova",
+            5,
+            SettingsStore.read(mutablePreferencesOf(vecchia to 3, nuova to 5)).markAir
+        )
+    }
+
+    /**
+     * **Caso 17: il numero col decimale si scrive e si rilegge, col punto e con la virgola.**
+     *
+     * ⚠️⚠️ **IL DIFETTO CHE PRESIDIA È UN FATTORE DIECI**: la corsa della distanza vive in decimi,
+     * quindi un `0,5` letto come cinque darebbe una firma dieci volte più lontana dal bordo di
+     * quella chiesta, e il campo mostrerebbe comunque `0,5`. Nessun errore, e si vede solo sul
+     * file salvato.
+     * ⚠️ **I due separatori valgono uguale**, ed è la ragione per cui il caso li prova tutti e
+     * due: le tastiere numeriche di Android offrono l'uno o l'altra a seconda della lingua.
+     * ⚠️ **Le due funzioni sono `internal` per questo**, come [SettingsStore.read]: un conto fra
+     * un testo e un numero è Kotlin puro, e misurarlo attraverso il campo vorrebbe dire montare
+     * una pagina per verificare un'aritmetica.
+     */
+    @Test
+    fun `il numero col decimale si scrive e si rilegge`() {
+        val passo = Watermark.AIR_STEP
+        for (v in Watermark.AIR) {
+            assertEquals(
+                "Il valore $v non si rilegge da come è scritto",
+                v,
+                markValue(markText(v, passo), passo)
+            )
+        }
+        assertEquals("Il numero tondo non deve portare la coda", "3", markText(30, passo))
+        assertEquals("Mezzo centesimo si legge dal punto", 5, markValue("0.5", passo))
+        assertEquals("Mezzo centesimo si legge dalla virgola", 5, markValue("0,5", passo))
+        assertEquals("Un intero vale il suo numero di passi", 20, markValue("2", passo))
+        assertEquals("La coda che manca vale zero", 20, markValue("2,", passo))
+        assertNull("Due separatori non sono un numero", markValue("2,5,5", passo))
+        assertEquals(
+            "Con passo uno il decimale non esiste",
+            14,
+            markValue(markText(14, 1), 1)
+        )
     }
 
     /*
