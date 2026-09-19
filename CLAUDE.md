@@ -49,6 +49,27 @@ un artefatto è una sola.
 ⚠️ **Tiene lo STESSO indirizzo a ogni ripubblicazione**: l'utente lo ha fra i preferiti, e
 un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta.
 
+⚠️⚠️ **IL DOCUMENTO SI APRE IN UN BROWSER PRIMA DI PUBBLICARLO, DAL 2026-09-19, E IL PRESIDIO È
+`tools/feedback-check.py`**: quel giorno la sezione del giro della `2.67` è stata composta senza
+il campo `sotto`, la pagina ha letto `undefined.length` e si è **spenta intera**, cioè lui ha
+trovato la sola testata e sotto niente. È il secondo documento muto in due settimane, dopo quello
+del 2026-09-05, e le due cause non hanno niente in comune: la prima era una stringa non chiusa,
+questa un campo assente nei dati.
+- ⚠️⚠️ **NESSUNA RILETTURA DEL CODICE LO POTEVA VEDERE, e questo è il punto**: il programma era
+  valido, il campo mancava dall'altra parte, e il difetto si vede solo **aprendo** la pagina. È
+  la stessa famiglia del blocco totale della `1.70`, ed è la ragione per cui quel giorno è nato
+  il banco di prova dell'app.
+- **Che cosa misura**, e sono due cose di specie diversa: la **forma** dei dati letti dal file
+  (i campi che il disegno legge) e la **resa** in Chromium, cioè che la pagina parta e disegni
+  tanti riquadri quanti ne portano i dati. Senza browser **dichiara** che la seconda metà non è
+  stata provata, che è il patto di `icon-check.py` con le sue misure di resa.
+- ⚠️ **Misura il file da pubblicare e non lo script che lo compone**: quegli script vivono nello
+  scratchpad di una sessione e spariscono con lei, mentre il file HTML è la cosa che arriva a
+  lui.
+- ⚠️ **La pagina adesso regge un campo assente** (un sommario che manca non la spegne più), e il
+  verificatore serve proprio perché reggerlo vuol dire disegnarne uno in meno: senza di lui, un
+  campo dimenticato passerebbe in silenzio.
+
 ⚠️⚠️ **UNA COMPILAZIONE A METÀ NON SI PRENDE IN CARICO, E IL DOCUMENTO NON SI RIPUBBLICA
 MENTRE LUI LO COMPILA** (istruzione del 2026-09-03). Il giro si consegna con **'Invia'** o con
 una riga in chat, e si prende **intero**: spezzarlo in più versioni è una decisione mia, che
@@ -4883,6 +4904,10 @@ e il job le scrive su disco per la durata di una sola esecuzione.
 
 ## 🧰 Gli strumenti che questo repo si porta dietro
 
+- **`tools/feedback-check.py`**, dal 2026-09-19: apre il documento di feedback in Chromium e
+  verifica che parta e disegni quello che i dati portano. ⚠️ **Si lancia PRIMA di pubblicarlo**,
+  e la ragione vive in § '🔗 Il documento vivo del progetto': quel giorno la pagina si è spenta
+  su un campo assente, e lui ha trovato un documento muto.
 - **`tools/i18n-check.py`**, da lanciare dalla radice: confronta tutte le lingue con
   l'inglese (chiavi mancanti, segnaposto, categorie di plurale, caratteri vietati). ⚠️ Deve
   dire **28 lingue, 0 problemi**: un numero più basso vuol dire che una cartella non è stata
