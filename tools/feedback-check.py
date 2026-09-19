@@ -166,16 +166,20 @@ def resa(percorso, quante, domande, promemoria):
 
         # ⚠️ Il riepilogo dichiara il giro, e il numero lo legge dall'occhiello: erano due
         # posti a dirlo, e uno è rimasto indietro senza che nessuno lo guardasse.
+        # ⚠️⚠️ **SI CERCA L'ULTIMA VERSIONE E NON LA FORMULA 'GIRO DELLA X'**, perché un
+        # giro ne copre spesso più di una ('giro dalla 2.71 alla 2.74') e là la formula non
+        # c'è: il verificatore diceva che l'occhiello non dichiarava il giro mentre lo
+        # dichiarava benissimo. Quello che conta è che il riepilogo porti lo stesso numero.
         capo = pg.locator('.occhiello').inner_text()
-        giro = re.search(r'GIRO DELLA ([\d.]+)', capo, re.I)
-        if not giro:
+        versioni = re.findall(r'\d+\.\d+', capo)
+        if not versioni:
             guai.append("l'occhiello non dichiara il giro: %r" % capo)
         else:
             pg.locator('#copia').click()
             pg.wait_for_timeout(300)
             testo = pg.evaluate('navigator.clipboard.readText()')
-            if giro.group(1) not in testo.split('\n')[0]:
-                guai.append('il riepilogo non dichiara il giro %s' % giro.group(1))
+            if versioni[-1] not in testo.split('\n')[0]:
+                guai.append('il riepilogo non dichiara il giro %s' % versioni[-1])
         b.close()
 
     for e in errori:
