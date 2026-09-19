@@ -180,6 +180,15 @@ fun AdvancedEditorScreen(
      */
     marked: Boolean,
     /**
+     * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
+     * spegnere l'interruttore non deve far perdere quello che si era scelto.
+     */
+    resize: Resize.Plan,
+    /** Se quel piano si applica al salvataggio, cioè l'interruttore della `2.70`. */
+    resizing: Boolean,
+    /** `null` spegne; un piano lo scrive **e** accende, come 'Applica' della sua finestra. */
+    onResize: (Resize.Plan?) -> Unit,
+    /**
      * Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor di casa.
      *
      * ⚠️ Il secondo argomento è il **tocco lungo**: `true` chiede un file nuovo accanto
@@ -333,6 +342,35 @@ fun AdvancedEditorScreen(
     val hinted by produceState(true) { Hint.MODULES.flow(context).collect { value = it } }
     var strip by remember { mutableStateOf(Rect.Zero) }
 
+    /*
+     * ⚠️⚠️ **QUANTI PIXEL IL SALVATAGGIO AVRÀ DAVANTI, E NON QUANTI NE HA IL FILE**: il
+     * ridimensionamento si applica **dopo** la posa e il ritaglio, quindi la misura che conta è
+     * quella dell'immagine finita. Il conto vive in [Resize.frameSize], che prende il lato lungo
+     * dal file e le proporzioni dall'anteprima: il perché di quella divisione è scritto là.
+     * ⚠️ **Può mancare**, e allora il ridimensionamento non conta come lavoro da salvare: senza
+     * la misura non si sa se rimpicciolisce, e accendere 'Salva' su un'immagine intonsa
+     * prometterebbe una scrittura che potrebbe non fare niente.
+     */
+    val longSide = rememberLongSide(uri)
+    val frame = origin?.let { base ->
+        longSide?.let {
+            Resize.frameSize(it, base.width, base.height, look.spin.turns, look.crop)
+        }
+    }
+    val shrinks = resizing && frame?.let { (w, h) -> resize.sizeFor(w, h) } != null
+    var asking by remember { mutableStateOf(false) }
+    if (asking) {
+        ResizeDialog(
+            initial = resize,
+            size = frame,
+            onDismiss = { asking = false },
+            onApply = {
+                asking = false
+                onResize(it)
+            }
+        )
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
@@ -369,10 +407,18 @@ fun AdvancedEditorScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f).heading()
                 )
+                ResizeButton(
+                    on = resizing,
+                    enabled = !busy,
+                    onOpen = { asking = true },
+                    onOff = { onResize(null) }
+                )
                 SaveButton(
                     // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza questa
-                    // condizione una firma da sola non si potrebbe applicare.
-                    enabled = origin != null && !busy && (marked || !look.idle),
+                    // condizione una firma da sola non si potrebbe applicare. ⚠️ **E dalla `2.70`
+                    // anche un ridimensionamento che rimpicciolisce davvero**: se su questa
+                    // immagine quel piano non toglie un pixel, non c'è niente da scrivere.
+                    enabled = origin != null && !busy && (marked || shrinks || !look.idle),
                     onSave = { onSave(look, false) },
                     onBeside = { onSave(look, true) }
                 )

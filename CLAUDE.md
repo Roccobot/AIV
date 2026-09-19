@@ -4319,6 +4319,89 @@ filigrana pronta accenda 'Salva' su un'immagine intonsa. **Non** vede la resa de
 fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata di Android:
 quelle si guardano sul telefono, e la voce di collaudo le chiede.
 
+## 📏 Il ridimensionamento, e i due gesti di un tasto solo
+
+⚠️⚠️ **DALLA `2.70`, ED È LA SUA RISPOSTA `editor` A `d-resize-dove`** (giro della `2.67`: *mi
+piacerebbe più nell'editor, fatto in modo che funzioni tipo un parametro del salvataggio (un
+parametro complicato, ovvio, ma tipo 'Salva alle dimensioni...'). Nella pratica, comunque, si
+chiamerà 'Ridimensiona' e sarà costituito da un tasto più un interruttore. Imposti il
+ridimensionamento dal tasto e poi l'interruttore stabilisce se il ridimensionamento si applica al
+salvataggio, come per il watermark. Se si entra nell'opzione per configurarlo, una volta che premo
+'OK' l'interruttore è acceso e salva con ridimensionamento se non lo spengo*). È la seconda delle
+due cose che ha chiesto col suo `insieme` a `d-prossimo` (*prima la filigrana, poi il
+ridimensionamento*), e con lei quella tappa è chiusa.
+
+⚠️⚠️ **NON VIVE IN `Look`, PER LA STESSA RAGIONE DELLA FILIGRANA**: un `Look` è un **aspetto**,
+cioè quello che uno stile si porta da un'immagine all'altra; questo dice **come scrivere il
+file**, e dentro un preset non vorrebbe dire niente. Arriva al salvataggio come un argomento a sé,
+e i moduli che uno stile governa restano sei.
+- ⚠️ **E per la stessa ragione non si vede sul palco**: l'immagine su cui si lavora resta quella,
+  perché ridimensionare non cambia che cosa si vede ma quanti pixel si scrivono.
+- ⚠️ **Toglie il senza perdita**, come un cursore di Luce: scrivere meno pixel è una riscrittura, e
+  non c'è modo di ottenerla con un tag EXIF.
+
+⚠️⚠️ **'UN TASTO PIÙ UN INTERRUTTORE' SU UN BERSAGLIO SOLO, ED È UNA LETTURA DICHIARATA**: la sua
+frase ne descrive due, e in testata non entrano. Il conto, su uno schermo da 360 punti: il tasto
+Indietro ne prende 48, 'Salva' una settantina, l'icona nuova 48, e uno `Switch` di Material altri
+52; al titolo, che è l'unico a cedere, ne resterebbero un centinaio, cioè 'Modifica immagine' a
+`headlineSmall` andrebbe a capo. Quindi i gesti sono due sullo stesso tasto, che è il modo di
+questa app (la regola di `SaveButton` e dei gettoni dei moduli), e l'accento dice se è acceso.
+- **Il tocco apre la finestra**, che è il tasto con cui si imposta; **il tocco lungo spegne**, che
+  è l'interruttore. ⚠️ **Il gesto lungo c'è solo quando è acceso**: spegnere quello che è già
+  spento non è un gesto, e un'etichetta annunciata che non fa niente è peggio della sua assenza.
+- ⚠️ **Ad accendere è 'Applica' della finestra**, che è la sua specifica alla lettera. Quindi la
+  finestra non chiede due volte la stessa cosa: chi entra a configurare ha già detto che lo vuole.
+- ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che si era
+  scelto resta scritto, e riaccendere non chiede di riscriverlo. Per questo le preferenze tengono
+  **tre** campi e non uno.
+- ⚠️ **La voce di collaudo gli dice questa lettura in chiare lettere**, che è la regola del
+  `CLAUDE.md` di root sulle letture dichiarate: se voleva due elementi separati, lo dirà.
+
+⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
+(§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento
+che vivesse solo là mancherebbe a tutti i telefoni più vecchi. Il comando è **un pezzo solo**
+(`ResizeButton`, in `ResizeDialog.kt`) e lo chiamano tutte e due le testate.
+
+⚠️ **Le proporzioni si mantengono sempre, e non è un'opzione che manca**: un ridimensionamento che
+le rompe deforma l'immagine, e chi vuole cambiare il rapporto ha il modulo Ritaglio, che toglie
+dei pixel invece di stirarli. ⚠️⚠️ **E NON SI INGRANDISCE MAI**: i pixel che mancano non li inventa
+nessuno, quindi chiedere un lato più lungo di quello che il file ha darebbe un'immagine più pesante
+e non più nitida. Il tetto è **una riga sola** valida per tutti e quattro i modi, e la finestra
+**dice** che su quell'immagine il piano non fa niente invece di lasciar credere il contrario.
+
+⚠️ **Quattro modi e non uno**: il lato lungo serve quasi sempre, perché vale per le verticali come
+per le orizzontali; la larghezza e l'altezza servono a chi ha un vincolo su una dimensione sola; la
+percentuale a chi non ragiona in pixel. ⚠️ **I confini dipendono dal modo**, e il valore salvato si
+riporta dentro i suoi **in lettura**: chi sceglie 1600 pixel e poi passa alla percentuale lascia
+nell'archivio due chiavi che, lette alla lettera, darebbero un 1600 per cento.
+
+⚠️⚠️ **LA MISURA DI PARTENZA NASCE DA DUE FONTI, E LA RAGIONE È L'EXIF**: `inJustDecodeBounds`
+legge le misure del flusso codificato, che per una fotografia scattata in verticale sono quelle
+orizzontali, perché la rotazione vive in un tag e la applica chi decodifica. Il **lato lungo**
+invece è lo stesso prima e dopo un quarto di giro. Quindi la misura viene da `Pixels` e la forma
+dall'anteprima già raddrizzata, che è la stessa divisione che il KDoc di `Pixels` dichiara.
+- ⚠️ **E la posa e il ritaglio entrano nel conto** (`Resize.frameSize`): il ridimensionamento si
+  applica **dopo** il taglio, quindi chi legge 'da 4000 x 3000' su un'immagine tagliata a metà si
+  ritroverebbe un file grande la metà di quello che gli è stato detto.
+- ⚠️ **Senza quella misura il tasto 'Salva' non si accende per il solo ridimensionamento**: non
+  sapendo se rimpicciolisce, accenderlo prometterebbe una scrittura che potrebbe non fare niente.
+  Succede dove il lato lungo non si legge, cioè un indirizzo remoto o un formato che il
+  decodificatore non riconosce.
+
+⚠️ **Si applica prima della firma**: la filigrana si scrive sull'immagine finita, e ridimensionando
+dopo la firma verrebbe rimpicciolita insieme a lei, cioè disegnata a una misura e resa a un'altra.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`RidimensionaTest`, ogni caso controprovato): che
+nessuno dei quattro modi ingrandisca e che la misura identica non conti come lavoro, che ogni modo
+governi il proprio lato tenendo le proporzioni, i confini per modo, che la misura di partenza
+prenda il lato lungo dal file e la forma dall'anteprima, che la posa scambi i lati e il ritaglio li
+riduca, che il valore salvato si rilegga dentro i confini del suo modo, che l'immagine
+ridimensionata abbia la misura chiesta e a vuoto non se ne faccia una nuova, che un piano che
+rimpicciolisce accenda 'Salva' su un'immagine intonsa **e uno che non rimpicciolisce no**, e i due
+gesti del tasto. **Non** vede la resa del filtro, cioè che l'immagine rimpicciolita sia nitida, né
+come la finestra si legge sul telefono: quelle si guardano sul telefono, e la voce di collaudo le
+chiede.
+
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 
 ⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL

@@ -509,6 +509,44 @@ data class Settings(
      * l'immagine, che è quello che una firma deve fare.
      */
     val markSize: Watermark.Size = Watermark.Size.MEDIUM,
+
+    /**
+     * Se il salvataggio dell'editor completo **ridimensiona** l'immagine.
+     *
+     * ⚠️⚠️ **QUESTI TRE CAMPI NON COMPAIONO NELLA SCHERMATA DELLE IMPOSTAZIONI, E NON È UNA
+     * DIMENTICANZA**: i loro comandi vivono nell'**editor**, ed è la sua risposta `editor` a
+     * `d-resize-dove` (*mi piacerebbe più nell'editor, fatto in modo che funzioni tipo un parametro
+     * del salvataggio*). È la clausola 4 di `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la
+     * deve trovare', la stessa di [folderView].
+     * ⚠️⚠️ **MA VIVONO LO STESSO NELLE PREFERENZE, E LA RAGIONE È IL LAVORO IN SERIE**: chi
+     * rimpicciolisce a milleseicento lo fa su parecchie immagini di fila, e uno stato dentro la
+     * schermata gli farebbe riscrivere la misura a ogni apertura.
+     * ⚠️ **Spento di fabbrica**: un valore di fabbrica non si sceglie per far vedere una funzione,
+     * e qui varrebbe doppio, perché acceso senza che nessuno l'abbia chiesto butterebbe via dei
+     * pixel.
+     * ⚠️ **Da solo non basta a fare un lavoro**: se il piano non rimpicciolisce quell'immagine non
+     * c'è niente da fare, e a dirlo è [Resize.Plan.sizeFor].
+     */
+    val sizeOn: Boolean = false,
+
+    /**
+     * Che cosa governa il valore del ridimensionamento.
+     *
+     * ⚠️ **Il lato lungo di fabbrica**: è l'unico dei quattro che vale uguale per una fotografia
+     * verticale e per una orizzontale, cioè quello che non chiede di guardare l'immagine prima di
+     * scegliere.
+     */
+    val sizeMode: Resize.Mode = Resize.Mode.LONG,
+
+    /**
+     * Quanto vale il ridimensionamento, in pixel o in per cento a seconda di [sizeMode].
+     *
+     * ⚠️⚠️ **UNO SOLO PER TUTTI E QUATTRO I MODI, ED È UNA SCELTA**: con un valore per modo, chi
+     * passa da 'Lato lungo' a 'Percentuale' si ritroverebbe un numero che non ha scritto, e la
+     * finestra dovrebbe spiegare quale sta guardando. Così il numero è quello che si vede, e
+     * cambiando modo la finestra lo riporta dentro i confini del modo nuovo.
+     */
+    val sizeValue: Int = Resize.DEFAULT_PX,
     /**
      * Se la fila dei comandi di un'immagine animata mostra il contatore dei fotogrammi.
      *
@@ -1131,6 +1169,9 @@ object SettingsStore {
     private val MARK_ON = booleanPreferencesKey("mark-on")
     private val MARK_SPOT = stringPreferencesKey("mark-spot")
     private val MARK_SIZE = stringPreferencesKey("mark-size")
+    private val SIZE_ON = booleanPreferencesKey("size-on")
+    private val SIZE_MODE = stringPreferencesKey("size-mode")
+    private val SIZE_VALUE = intPreferencesKey("size-value")
     private val ANIM_COUNTER = booleanPreferencesKey("anim-counter")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
     private val LIST_TEXT = stringPreferencesKey("list-text")
@@ -1199,6 +1240,11 @@ object SettingsStore {
      * solo non dà nessun errore.
      */
     internal fun read(p: Preferences): Settings {
+        // ⚠️ Il modo si legge prima, perché il valore del ridimensionamento ha confini diversi a
+        // seconda di lui: leggerli nello stesso costruttore vorrebbe dire leggere la chiave due
+        // volte, e la seconda lettura potrebbe non essere la stessa il giorno che qualcuno la
+        // tocca.
+        val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], Resize.Mode.LONG)
         return Settings(
             bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
             bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
@@ -1249,6 +1295,12 @@ object SettingsStore {
             markSize = Watermark.Size.entries.byToken(
                 p[MARK_SIZE], Watermark.Size.MEDIUM
             ),
+            sizeOn = p[SIZE_ON] ?: false,
+            sizeMode = sizeMode,
+            // ⚠️ Il valore si riporta dentro i confini del **suo** modo, e non di uno solo: fra i
+            // pixel e la percentuale i limiti non sono gli stessi, quindi un archivio scritto in
+            // un modo e riletto nell'altro darebbe un numero che la finestra non saprebbe mostrare.
+            sizeValue = (p[SIZE_VALUE] ?: Resize.DEFAULT_PX).coerceIn(Resize.range(sizeMode)),
             animCounter = p[ANIM_COUNTER] ?: true,
             listCount = p[LIST_COUNT] ?: true,
             listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
@@ -1353,6 +1405,9 @@ object SettingsStore {
             p[MARK_ON] = settings.markOn
             p[MARK_SPOT] = settings.markSpot.token
             p[MARK_SIZE] = settings.markSize.token
+            p[SIZE_ON] = settings.sizeOn
+            p[SIZE_MODE] = settings.sizeMode.token
+            p[SIZE_VALUE] = settings.sizeValue
             p[ANIM_COUNTER] = settings.animCounter
             p[LIST_COUNT] = settings.listCount
             p[LIST_TEXT] = settings.listText.token

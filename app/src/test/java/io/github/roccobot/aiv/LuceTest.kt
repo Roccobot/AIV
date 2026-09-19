@@ -710,6 +710,11 @@ class LuceTest {
                     // pronta accenderebbe 'Salva' anche a immagine intonsa. Il caso suo vive in
                     // `FiligranaTest`.
                     marked = false,
+                    resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
+                    // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
+                    // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
+                    resizing = false,
+                    onResize = {},
                     onSave = consegna,
                     onBack = {}
                 )

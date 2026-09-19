@@ -302,6 +302,11 @@ class FiligranaTest {
                     uri = quadrato(),
                     busy = false,
                     marked = marked,
+                    resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
+                    // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
+                    // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
+                    resizing = false,
+                    onResize = {},
                     onSave = { _, _ -> },
                     onBack = {}
                 )

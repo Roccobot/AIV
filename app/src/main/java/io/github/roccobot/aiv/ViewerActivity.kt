@@ -436,6 +436,36 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         return if (now.markOn) Watermark.Plan(now.markSpot, now.markSize) else null
     }
 
+    /**
+     * Il **ridimensionamento** configurato, che esiste anche quando non si applica: l'editor lo
+     * mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     */
+    fun resizePlan(): Resize.Plan {
+        val now = settings
+        return if (now == null) Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX)
+        else Resize.Plan(now.sizeMode, now.sizeValue)
+    }
+
+    /** Se quel piano si applica al salvataggio. */
+    fun resizeOn(): Boolean = settings?.sizeOn ?: false
+
+    /**
+     * Lo scrive e lo accende, o lo spegne con `null`.
+     *
+     * ⚠️⚠️ **SCRIVERLO VUOL DIRE ACCENDERLO, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta
+     * `editor` a `d-resize-dove`: *una volta che premo 'OK' l'interruttore è acceso e salva con
+     * ridimensionamento se non lo spengo*). Chi entra a configurare ha già detto che lo vuole.
+     * ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che
+     * si era scelto resta scritto, e riaccendere non chiede di riscriverlo.
+     */
+    fun setResize(plan: Resize.Plan?) {
+        val now = settings ?: return
+        updateSettings(
+            if (plan == null) now.copy(sizeOn = false)
+            else now.copy(sizeOn = true, sizeMode = plan.mode, sizeValue = plan.value)
+        )
+    }
+
     var recents: List<RecentImage> by mutableStateOf(emptyList())
         private set
 
@@ -1774,7 +1804,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             val esito = ImageEdit.save(
                 context, here.uri, turns, mirror, crop, way,
                 backup = settings?.editorBackup ?: true,
-                mark = markPlan()
+                mark = markPlan(),
+                resize = if (resizeOn()) resizePlan() else null
             )
             editorBusy = false
             when (esito) {
@@ -1823,6 +1854,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 quality = settings?.editorQuality ?: Quality.DEFAULT,
                 backup = settings?.editorBackup ?: true,
                 mark = markPlan(),
+                resize = if (resizeOn()) resizePlan() else null,
                 beside = beside
             )
             editorBusy = false
@@ -3303,6 +3335,9 @@ private fun Stage(
                 uri = screen.uri,
                 busy = model.editorBusy,
                 marked = model.markReady,
+                resize = model.resizePlan(),
+                resizing = model.resizeOn(),
+                onResize = { model.setResize(it) },
                 onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
                 onBack = { model.leaveEditor() }
             )
@@ -3319,6 +3354,9 @@ private fun Stage(
                 uri = screen.uri,
                 busy = model.editorBusy,
                 marked = model.markReady,
+                resize = model.resizePlan(),
+                resizing = model.resizeOn(),
+                onResize = { model.setResize(it) },
                 onSave = { look, beside -> model.lookSave(look, beside) },
                 onBack = { model.leaveEditor() }
             )
