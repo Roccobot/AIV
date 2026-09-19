@@ -465,6 +465,22 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * La firma da mostrare **sull'immagine dell'editor**, o `null` se non se ne mostra nessuna.
+     *
+     * ⚠️⚠️ **TRE CONDIZIONI E NON UNA, DALLA `2.74`**: un logo scelto, la firma accesa al
+     * salvataggio, e l'interruttore 'Mostra nell'editor'. Le prime due sono quello che il file
+     * porterà: un'anteprima che comparisse senza di loro mostrerebbe una firma che nessuno sta per
+     * scrivere. La terza è la sua richiesta, cioè la via per spegnere quello che si vede tenendo
+     * quello che si scrive.
+     * ⚠️ **È lo stesso piano del salvataggio**, e non una seconda lettura delle preferenze:
+     * l'anteprima e il file devono dire la stessa cosa, e due letture divergono al primo ritocco.
+     */
+    fun stageMark(): Watermark.Plan? {
+        if (!markHas || settings?.markShow != true) return null
+        return markPlan()
+    }
+
+    /**
      * Il **ridimensionamento** configurato, che esiste anche quando non si applica: l'editor lo
      * mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
      */
@@ -3391,6 +3407,7 @@ private fun Stage(
                 hasMark = model.markHas,
                 onMark = { model.setMark(it) },
                 onMarkSetup = { model.openSettings(SettingsPage.MARK) },
+                stageMark = model.stageMark(),
                 resize = model.resizePlan(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
@@ -3414,6 +3431,7 @@ private fun Stage(
                 hasMark = model.markHas,
                 onMark = { model.setMark(it) },
                 onMarkSetup = { model.openSettings(SettingsPage.MARK) },
+                stageMark = model.stageMark(),
                 resize = model.resizePlan(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },

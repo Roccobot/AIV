@@ -536,6 +536,8 @@
     <string name="settings_mark_bad">Ce fichier ne peut pas servir de filigrane : choisissez un PNG ou un SVG.</string>
     <string name="settings_mark_on">Appliquer à l\'enregistrement</string>
     <string name="settings_mark_on_desc">Ajoute le filigrane à l\'image lors de l\'enregistrement. Tu peux l\'activer ou le désactiver à la volée avec le bouton marche/arrêt de l\'éditeur (en haut à droite, avant \'Enregistrer\'). Le faire depuis là revient exactement à déplacer cet interrupteur. ⚠️ Remarque : avec un filigrane, les opérations sans perte comme la rotation JPEG deviennent une réécriture complète.</string>
+    <string name="settings_mark_show">Afficher dans l\'éditeur</string>
+    <string name="settings_mark_show_desc">Dessine le filigrane sur l\'image pendant que tu la modifies, là où il tombera et avec son opacité : ce que tu vois est ce que le fichier portera. Il apparaît seulement au zoom ajusté, et seulement si \'Appliquer à l\'enregistrement\' est activé.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">En haut à gauche</string>
     <string name="mark_spot_tr">En haut à droite</string>

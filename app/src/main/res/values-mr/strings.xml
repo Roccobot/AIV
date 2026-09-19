@@ -520,6 +520,8 @@
     <string name="settings_mark_bad">ही फाइल वॉटरमार्क म्हणून वापरता येत नाही: PNG किंवा SVG निवडा.</string>
     <string name="settings_mark_on">जतन करताना लागू करा</string>
     <string name="settings_mark_on_desc">जतन करताना प्रतिमेवर वॉटरमार्क जोडते. संपादकातील चालू/बंद बटणाने (वर उजवीकडे, \'जतन करा\' च्या आधी) ते लगेच चालू किंवा बंद करता येते. तिथून चालू किंवा बंद करणे हे हे बटण हलवण्यासारखेच आहे. ⚠️ टीप: वॉटरमार्कमुळे JPEG फिरवण्यासारखी विनाहानी कामे पूर्ण पुनर्लेखन बनतात.</string>
+    <string name="settings_mark_show">संपादकात दाखवा</string>
+    <string name="settings_mark_show_desc">संपादन करताना प्रतिमेवर वॉटरमार्क काढते, ते जिथे पडेल तिथे आणि त्याच अपारदर्शकतेने: जे दिसते तेच फाइलमध्ये जाईल. फक्त बसणाऱ्या झूमवर दिसते, आणि \'जतन करताना लागू करा\' चालू असेल तरच.</string>
     <string name="settings_mark_where">स्थान</string>
     <string name="mark_spot_tl">वर डावीकडे</string>
     <string name="mark_spot_tr">वर उजवीकडे</string>

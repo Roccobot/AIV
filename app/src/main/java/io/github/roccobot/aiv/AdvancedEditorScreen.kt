@@ -93,6 +93,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
@@ -187,6 +188,11 @@ fun AdvancedEditorScreen(
     onMark: (Boolean) -> Unit,
     /** Porta alle impostazioni della filigrana, dal tocco lungo su quel tasto. */
     onMarkSetup: () -> Unit,
+    /**
+     * La firma da mostrare **sull'immagine**, o `null` se non se ne mostra nessuna: vedi
+     * `ViewerViewModel.stageMark`.
+     */
+    stageMark: Watermark.Plan?,
     /**
      * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
@@ -545,6 +551,14 @@ fun AdvancedEditorScreen(
                         },
                         onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
                         onCornersEnd = { push() },
+                        /*
+                         * ⚠️⚠️ **L'ANTEPRIMA DELLA FIRMA SI SPEGNE MENTRE SI CONFRONTA COL PRIMA**:
+                         * quel gesto mostra l'immagine com'era, e una firma che resta in scena
+                         * direbbe che l'originale la porta già. È la stessa lettura per cui il
+                         * confronto toglie i cursori invece di lasciarne uno.
+                         */
+                        mark = stageMark.takeIf { !comparing },
+                        markArt = rememberMarkArt(stageMark),
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -776,6 +790,13 @@ private fun LookStage(
     onCorners: (Corners) -> Unit,
     /** Il gesto su un angolo è finito: quello che si è fatto diventa un passo della storia. */
     onCornersEnd: () -> Unit,
+    /**
+     * La firma da mostrare sull'immagine, o `null` se non se ne mostra nessuna: vedi
+     * [markOverlay].
+     */
+    mark: Watermark.Plan?,
+    /** Il suo disegno, che arriva quando il disco risponde: vedi [rememberMarkArt]. */
+    markArt: ImageBitmap?,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -1499,6 +1520,30 @@ private fun LookStage(
                     pennello(fine.pixels, dove, false, dentro)
                 )
             }
+        }
+
+        /*
+         * ⚠️⚠️ **L'ANTEPRIMA DELLA FIRMA, DALLA `2.74`, E SI VEDE SOLO A ZOOM ADATTATO**: è la sua
+         * richiesta alla lettera (punto 5 del campo libero del giro della `2.70`), e la ragione di
+         * merito la regge: ingrandire serve a guardare i pixel da vicino, e una firma disegnata
+         * sopra coprirebbe proprio quello che si sta giudicando; in più, a immagine ingrandita
+         * l'angolo in cui cadrà è quasi sempre fuori dallo schermo, quindi quello che resterebbe
+         * da vedere non direbbe più dove va.
+         * ⚠️⚠️ **CADE DENTRO IL RITAGLIO E NON DENTRO L'IMMAGINE INTERA**: il salvataggio la
+         * scrive dopo il taglio, quindi l'angolo che conta è quello del rettangolo che resta.
+         * `cutout` con un ritaglio intero risponde il riquadro che riceve, quindi il ramo è uno
+         * solo.
+         * ⚠️ **Va prima delle squadrette**: quello che il taglio butta via è velato, e una firma
+         * disegnata sopra si vedrebbe piena anche là.
+         */
+        val firma = mark
+        if (firma != null && markArt != null && scale <= ZOOM_REST) {
+            val dentro = cutout(view, look.crop)
+            markOverlay(
+                Rect(dentro.left, dentro.top, dentro.right, dentro.bottom),
+                markArt,
+                firma
+            )
         }
 
         /*
@@ -4938,6 +4983,15 @@ private const val ZOOM_TAP = 2f
  * quelli della fotografia.
  */
 private const val ZOOM_MAX = 6f
+
+/**
+ * Fin dove l'ingrandimento vale ancora 'adattato', per l'anteprima della filigrana.
+ *
+ * ⚠️⚠️ **UNA SOGLIA E NON L'UGUAGLIANZA CON UNO**: la pinza e il doppio tocco scrivono un numero
+ * in virgola mobile, e un `== 1f` lascerebbe la firma spenta dopo un gesto che è tornato a riposo
+ * per un millesimo di troppo. Qui sopra il millesimo l'immagine è ingrandita davvero.
+ */
+private const val ZOOM_REST = 1.001f
 
 /**
  * Quanto dito serve per raddoppiare l'ingrandimento a una mano.

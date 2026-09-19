@@ -224,6 +224,8 @@
     <string name="settings_mark_bad">This file cannot be used as a watermark: choose a PNG or an SVG.</string>
     <string name="settings_mark_on">Apply when saving</string>
     <string name="settings_mark_on_desc">Adds the watermark to the image when saving. You can turn it on or off on the fly with the editor\'s on/off button (top right, before \'Save\'). Enabling or disabling the watermark there is exactly the same as moving this switch. ⚠️ Note: with a watermark, lossless operations such as JPEG rotation become a full rewrite.</string>
+    <string name="settings_mark_show">Show in the editor</string>
+    <string name="settings_mark_show_desc">Draws the watermark on the image while you edit it, where it will fall and with its opacity: what you see is what the file will carry. It only shows at fit zoom, and only when \'Apply when saving\' is on.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Top left</string>
     <string name="mark_spot_tr">Top right</string>

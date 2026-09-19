@@ -552,6 +552,8 @@
     <string name="settings_mark_bad">Tego pliku nie można użyć jako znaku wodnego: wybierz PNG lub SVG.</string>
     <string name="settings_mark_on">Zastosuj przy zapisie</string>
     <string name="settings_mark_on_desc">Dodaje znak wodny do obrazu przy zapisie. Możesz go włączyć lub wyłączyć od razu przyciskiem wł./wył. w edytorze (u góry po prawej, przed \'Zapisz\'). Zrobienie tego stamtąd jest dokładnie tym samym co przestawienie tego przełącznika. ⚠️ Uwaga: ze znakiem wodnym operacje bezstratne, takie jak obrót JPEG, stają się pełnym zapisem od nowa.</string>
+    <string name="settings_mark_show">Pokaż w edytorze</string>
+    <string name="settings_mark_show_desc">Rysuje znak wodny na obrazie podczas edycji, w miejscu, w którym się znajdzie, i z jego przezroczystością: to, co widzisz, trafi do pliku. Widać go tylko przy dopasowanym powiększeniu i tylko wtedy, gdy \'Zastosuj przy zapisie\' jest włączone.</string>
     <string name="settings_mark_where">Pozycja</string>
     <string name="mark_spot_tl">Lewy górny róg</string>
     <string name="mark_spot_tr">Prawy górny róg</string>

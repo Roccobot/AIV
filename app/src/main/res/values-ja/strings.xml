@@ -504,6 +504,8 @@
     <string name="settings_mark_bad">このファイルは透かしに使えません。PNG か SVG を選んでください。</string>
     <string name="settings_mark_on">保存時に適用</string>
     <string name="settings_mark_on_desc">保存時に画像へ透かしを書き込みます。エディターのオン/オフボタン（右上、\'保存\' の手前）でその場で切り替えられます。そこで切り替えるのは、このスイッチを動かすのとまったく同じです。⚠️ 注意: 透かしを付けると、JPEG の回転のような劣化なしの操作も完全な書き換えになります。</string>
+    <string name="settings_mark_show">エディターに表示</string>
+    <string name="settings_mark_show_desc">編集中の画像に透かしを描きます。落ちる位置と不透明度はそのままで、見えているものがファイルに入ります。表示されるのは全体表示のときだけで、\'保存時に適用\' がオンのときに限ります。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上</string>
     <string name="mark_spot_tr">右上</string>

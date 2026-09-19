@@ -124,6 +124,11 @@ fun EditorScreen(
     /** Porta alle impostazioni della filigrana, dal tocco lungo su quel tasto. */
     onMarkSetup: () -> Unit,
     /**
+     * La firma da mostrare **sull'immagine**, o `null` se non se ne mostra nessuna: vedi
+     * `ViewerViewModel.stageMark`.
+     */
+    stageMark: Watermark.Plan?,
+    /**
      * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
      */
@@ -435,6 +440,17 @@ fun EditorScreen(
                     picture = picture,
                     frame = frame,
                     crop = crop,
+                    /*
+                     * ⚠️⚠️ **L'ANTEPRIMA DELLA FIRMA C'È ANCHE QUI, E NON È UNA COMODITÀ**:
+                     * l'editor completo sotto Android 13 non esiste, quindi un'anteprima che
+                     * vivesse solo là mancherebbe a tutti i telefoni più vecchi, cioè
+                     * esattamente la ragione per cui i due tasti in testata sono un pezzo solo.
+                     * ⚠️ **Qui l'immagine è sempre adattata**, quindi la condizione dello zoom
+                     * che l'editor completo deve guardare non ha niente da dire: il palco non
+                     * ingrandisce.
+                     */
+                    mark = stageMark,
+                    markArt = rememberMarkArt(stageMark),
                     grip = with(density) { GRIP.toPx() },
                     least = with(density) { LEAST_SIDE.toPx() },
                     arm = with(density) { HANDLE_ARM.toPx() },
@@ -1318,6 +1334,10 @@ private fun CropStage(
     picture: ImageBitmap,
     frame: Rect,
     crop: ImageEdit.Crop,
+    /** La firma da mostrare sull'immagine, o `null` se non se ne mostra nessuna. */
+    mark: Watermark.Plan?,
+    /** Il suo disegno, che arriva quando il disco risponde: vedi [rememberMarkArt]. */
+    markArt: ImageBitmap?,
     grip: Float,
     least: Float,
     arm: Float,
@@ -1369,6 +1389,15 @@ private fun CropStage(
                 dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt())
             )
             val r = cropBox(crop, frame)
+            /*
+             * ⚠️⚠️ **LA FIRMA CADE DENTRO IL RETTANGOLO DEL RITAGLIO E NON DENTRO L'IMMAGINE
+             * INTERA**: il salvataggio la scrive **dopo** il taglio, quindi il suo angolo è
+             * quello del rettangolo che resta. Disegnata sul riquadro intero, un'immagine
+             * ritagliata mostrerebbe la firma in un posto e la porterebbe in un altro.
+             * ⚠️ **Va sotto il velo del ritaglio**, cioè prima: quello che il taglio butta via è
+             * velato, e una firma disegnata sopra si vedrebbe piena anche là.
+             */
+            if (mark != null && markArt != null) markOverlay(r, markArt, mark)
             cropOverlay(frame, r, arm, thick, halo, keep == null)
 
             // ── La lente ──

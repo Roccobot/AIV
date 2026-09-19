@@ -212,6 +212,23 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
         checked = settings.markOn,
         onChange = { onChange(settings.copy(markOn = it)) }
     )
+
+    /*
+     * ⚠️⚠️ **VIENE DOPO L'INTERRUTTORE PERCHÉ NE È LA CONSEGUENZA, DALLA `2.74`**: questa riga
+     * dice se quello che la firma farà si vede **prima**, mentre si modifica l'immagine, quindi
+     * letta sopra sarebbe la settima voce pari di un elenco. È lo stesso criterio per cui il
+     * 'Filtro BN' vive sotto l'interruttore del bianco e nero.
+     * ⚠️ **La subordinazione si LEGGE e non si impone**: l'interruttore resta toccabile con la
+     * firma spenta, e a non avere effetto è un'anteprima di una cosa che non si scrive. Spegnere
+     * una riga che si può accendere darebbe una voce morta senza dire perché, e la ragione vera
+     * la dice la sua spiegazione. È la stessa scelta di 'Scegli il percorso di download'.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_mark_show),
+        detail = stringResource(R.string.settings_mark_show_desc),
+        checked = settings.markShow,
+        onChange = { onChange(settings.copy(markShow = it)) }
+    )
 }
 
 /**

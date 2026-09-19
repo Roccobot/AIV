@@ -4360,9 +4360,49 @@ di ognuno vivono in § '🎛️ I due tasti in testata, e i loro due gesti'.
   stesso criterio di 'Mostra nascoste' (§ '👁️ Mostra nascoste, e perché dura un minuto'), e la
   porta per scegliere un logo resta quella della sua specifica, cioè le impostazioni.
 
+⚠️⚠️ **E DALLA `2.74` SI VEDE SUL PALCO DEI DUE EDITOR, DIETRO UN INTERRUTTORE SUO** (punto 5 del
+campo libero del giro della `2.70`: *un'anteprima della filigrana (se attiva) nella posizione e con
+l'opacità corrette sull'immagine dell'editor, solo a zoom adattato, dietro un interruttore nuovo
+'Mostra nell'editor' nelle impostazioni della filigrana*). Fino alla `2.73` dove la firma sarebbe
+caduta si vedeva **solo** nel riquadro delle impostazioni, cioè su un'immagine finta: quello dice
+la geometria e non come la firma si vede su quella fotografia.
+- ⚠️⚠️ **IL CONTO È QUELLO DEL SALVATAGGIO, CHIAMATO E NON RICOPIATO**: la misura viene da
+  `Watermark.sideFor` e il posto da `Watermark.cornerFor`, che dalla `2.74` sono due funzioni
+  invece di quattro righe dentro `stamp`. Scritte due volte, la seconda copia direbbe il vero fino
+  al primo ritocco, e da lì in poi l'anteprima mostrerebbe la firma in un posto e il file la
+  scriverebbe in un altro, che è il difetto peggiore che un'anteprima possa avere.
+- ⚠️⚠️ **CADE DENTRO IL RITAGLIO E NON DENTRO L'IMMAGINE INTERA**: la firma si scrive **dopo** il
+  taglio, quindi l'angolo che conta è quello del rettangolo che resta, e a darlo è `cutout`, che
+  con un ritaglio intero risponde il riquadro che riceve. Il ramo quindi è uno solo.
+- ⚠️ **Si disegna prima delle squadrette**: quello che il taglio butta via è velato, e una firma
+  posata dopo si vedrebbe piena anche là.
+- ⚠️ **Il confronto col prima la spegne**, come spegne i cursori: il 'Prima' mostra l'immagine
+  com'era, e una firma che l'app aggiunge là non c'era.
+- ⚠️⚠️ **SOLO A ZOOM ADATTATO, ED È LA SUA RICHIESTA CON UNA RAGIONE DI MERITO CHE LA REGGE**:
+  ingrandire serve a guardare i pixel da vicino, e una firma disegnata sopra coprirebbe proprio
+  quello che si sta giudicando; in più, a immagine ingrandita l'angolo in cui cadrà è quasi sempre
+  fuori dallo schermo, quindi quello che resterebbe da vedere non direbbe più dove va. ⚠️ **È una
+  soglia e non un'uguaglianza** (`ZOOM_REST`), perché la scala a riposo esce da un conto in
+  virgola mobile.
+- ⚠️ **Il disegno si legge una volta sola e a una misura fissa, e a rimpicciolirlo è il palco**: i
+  quattro numeri del piano cambiano mentre si trascina un cursore, e un file riletto a ogni
+  cambiamento vorrebbe dire decodificare un SVG sessanta volte al secondo. È la stessa scelta
+  dell'anteprima delle impostazioni, e qui pesa di più, perché il palco ridisegna a ogni fotogramma
+  di panoramica.
+- ⚠️ **C'è nei due editor**, come i due tasti in testata e per la stessa ragione: l'editor completo
+  sotto Android 13 non esiste (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'),
+  quindi un'anteprima che vivesse solo là mancherebbe ai telefoni più vecchi.
+- ⚠️⚠️ **L'INTERRUTTORE NASCE ACCESO, E NON È UN VALORE DI FABBRICA CHE FA VEDERE UNA FUNZIONE**:
+  perché l'anteprima compaia servono **due scelte già fatte**, cioè un logo scelto e la filigrana
+  che si applica al salvataggio, e chi ha appena acceso quella vuole sapere dove cade. Spento di
+  fabbrica, quel riquadro sarebbe una funzione che nessuno trova. ⚠️ **Lo spegne chi vuole
+  l'immagine nuda mentre lavora**, ed è la ragione per cui la voce esiste.
+- ⚠️ **La voce vive SOTTO 'Applica al salvataggio'**, cioè sotto il comando da cui dipende: è il
+  criterio con cui il 'Filtro BN' è finito sotto l'interruttore del bianco e nero nella `2.37`.
+
 ⚠️ **La pagina delle impostazioni è una sotto-pagina, e la soglia lo pretende**: la domanda è una
-sola (*che logo scrivo sulle immagini che salvo*) e le voci sono quattro più l'anteprima, cioè
-oltre il *2-3* della sua soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
+sola (*che logo scrivo sulle immagini che salvo*) e le voci sono molte più del *2-3* della sua
+soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
 dentro 'Editor e salvataggio', che è la pagina della domanda *che cosa succede quando modifico
 un'immagine*.
 - ⚠️⚠️ **E CI SI ARRIVA ANCHE DAL TOCCO LUNGO SUL TASTO, DALLA `2.72`**: `Screen.Settings` porta
@@ -4379,9 +4419,18 @@ JPEG non si adotti e un PNG sì **qualunque cosa dica il nome**, che ne resti un
 illeggibile non porti via quello scelto, il tetto degli otto megabyte, che la misura sia la
 frazione scelta del lato lungo (misurata anche girando l'immagine, a pixel), che la firma cada
 nell'angolo scelto e non nell'opposto, che senza un file scelto non si scriva niente, e che una
-filigrana pronta accenda 'Salva' su un'immagine intonsa. **Non** vede la resa della firma su una
-fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata di Android:
-quelle si guardano sul telefono, e la voce di collaudo le chiede.
+filigrana pronta accenda 'Salva' su un'immagine intonsa; dalla `2.74` anche che l'anteprima cada
+**dove cadrà la firma** in tutti e cinque i posti, confrontata a pixel con quella che `stamp`
+scrive, che si misuri sul riquadro che riceve e ci resti dentro, che porti l'opacità del piano,
+che senza piano non si legga nessun disegno, e che il palco dell'editor la disegni davvero (e
+quest'ultima misura anche il **verso** della condizione dello zoom). **Non** vede la resa della
+firma su una fotografia vera, né la scelta del file dal selettore di sistema, che è una schermata
+di Android: quelle si guardano sul telefono, e la voce di collaudo le chiede.
+- ⚠️ **E non vede le due condizioni che spengono l'anteprima nel modello** (`ViewerViewModel`,
+  cioè un logo scelto e l'interruttore acceso): quella funzione vuole il modello vero, e quello che
+  il banco misura è la porta a valle, cioè che senza piano non si disegni niente. Il valore di
+  fabbrica invece è coperto dal caso 6 di `ProfonditaTest`, che confronta un archivio vuoto con
+  `Settings()` per intero.
 
 ## 📏 Il ridimensionamento, e i due gesti di un tasto solo
 
