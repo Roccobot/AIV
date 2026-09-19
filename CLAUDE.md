@@ -3080,6 +3080,31 @@ un preset che non nomina quel campo lo rileggerebbe sbagliato.
   - ⚠️ **Sotto la quantizzazione, e va detto**: un decimo di livello su 255 non si vede affatto,
     quindi sul cielo la grana di fatto non c'è. È quello che ha chiesto, e il posto in cui si
     chiede il contrario è il cursore stesso.
+- ⚠️⚠️ **E DALLA `2.68` QUESTO CURSORE A RIPOSO ALZA ANCHE LE OMBRE, PERCHÉ HA CHIESTO UNA
+  RIDISTRIBUZIONE** (riscontro del giro della `2.67`, voce `grana-luci-2` accettabile: *anche al
+  minimo (0,1) i cieli hanno troppa grana, mentre forse le ombre troppo poca. Cerchiamo di
+  raggiungere un cielo quasi immacolato e delle ombre con un 30% in più di grana, il tutto senza
+  bordi netti e con toni medi sfumati*). Quindi i numeri di quel blocco sono **quattro**, e il
+  quarto è il guadagno delle ombre.
+  - ⚠️⚠️ **LE OMBRE NON POTEVANO SALIRE SENZA UN TERMINE NUOVO, ED È IL PEZZO CHE CAMBIA**: là la
+    rampa vale **uno**, cioè il peso pieno, che era il massimo che la `2.66` sapeva dare. Adesso i
+    capi sono due: a riposo le ombre valgono `1,3` e le luci il pavimento, a fondo corsa tutti e
+    due valgono uno, cioè torna esattamente la `2.65`.
+  - ⚠️⚠️ **IL MASSIMO ASSOLUTO NON CRESCE, SI SPOSTA, e questa misura dice che il `30% in più` non
+    è una grana più forte di quanto sia mai stata**: il picco vale **12,4 livelli a `t=0,28`**,
+    contro i **12,2 a metà tono** che la `2.65` dava a fondo corsa del cursore principale.
+  - ⚠️⚠️ **'CIELO QUASI IMMACOLATO' È UNA LETTURA DICHIARATA, E FISSA LA SOGLIA ALTA**: si legge
+    come *sotto la quantizzazione a metà scala*, cioè mezzo livello su 255, perché un cielo azzurro
+    vive fra metà scala e i tre quarti. Il decimo di livello che aveva dettato per `t=0,82` non si
+    tocca: il difetto non era il pavimento, era la fascia prima di lui.
+  - **Che cosa cambia, in livelli su 255 a grana piena**: fino al quarto di scala **+30%** esatto
+    (il quarto passa da 9,2 a 11,9), a `t=0,35` +7%, a `t=0,45` **-54%**, a metà scala da 4,3 a
+    **0,5**, e dai tre quarti in su niente.
+  - ⚠️ **Il suo *senza bordi netti* è la rampa, e resta una sfumatura**: larga **70 livelli su 255**
+    invece di 105, con la stessa `smoothstep`, quindi la pendenza è nulla ai due capi.
+  - ⚠️ **La soglia alta si arrotonda per DIFETTO**, e a dirlo è stata la prova: il valore esatto è
+    `0,52360`, e scritto a quattro decimali per eccesso manca il vincolo per un decimillesimo di
+    livello.
 - **I numeri della `2.66` erano altri tre**: sul cielo si fermava a `0,8` livelli e a metà tono la
   grana teneva l'81% di quanto teneva nella `2.65`. Chi li ritrova in una nota sappia che sono
   quelli del giro prima.
@@ -3131,11 +3156,14 @@ comunque il grafico delle Curve (§ `SteadyBody`).
 **verso** della condizione, che è la cosa che può rompersi in silenzio), che non contino come
 lavoro né come bordo delle tessere, che la cella della grana si scali col lato e col cursore, e che
 i numeri dei due conti restino dentro i loro confini, letti dalla stringa dello shader come i
-tre che `Auto` ricopia. ⚠️⚠️ **E DALLA `2.67` QUELLA PROVA RICALCOLA I SUOI DUE NUMERI**: il peso a
-metà scala deve valere `0,35` e la grana piena sul cielo `0,1` livelli, cioè si presidia la sua
-richiesta e non una costante ricopiata. Controprovata due volte, rimettendo il pavimento della
-`2.66` (cade il peso a metà scala) e stringendo la corsa della vignettatura (cade il confine del
-bordo). **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
+tre che `Auto` ricopia. ⚠️⚠️ **E DALLA `2.67` QUELLA PROVA RICALCOLA I SUOI NUMERI**, cioè presidia
+la sua richiesta e non una costante ricopiata: dalla `2.68` sono **le ombre al 130%**, il **mezzo
+livello a metà scala** e il **decimo di livello sul cielo**, più il fatto che a 'Luci' pieno il peso
+torni quello della `2.65`. ⚠️ **Quest'ultimo si misura sul TESTO dello shader**, perché un guadagno
+scritto come costante lascerebbe le ombre al 130% anche a cursore pieno senza che nessun conto lo
+dica. Controprovata tre volte, rimettendo la rampa della `2.67` (cade il cielo), togliendo il
+guadagno (cadono le ombre) e scrivendolo come costante (cade il testo); e prima, stringendo la corsa
+della vignettatura (cade il confine del bordo). **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
 cielo resti pulito e che l'alone si allarghi si guardano sul telefono, e la voce di collaudo lo
 chiede. ⚠️ **I numeri di questo blocco vengono da un modello di sessione**, scritto e buttato, che è
 la strada dichiarata per questo genere di conto.
