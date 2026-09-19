@@ -179,6 +179,14 @@ fun AdvancedEditorScreen(
      * 'Salva' toccabile su un'immagine che nessun cursore ha ancora toccato.
      */
     marked: Boolean,
+    /** Se l'interruttore della filigrana è acceso: il tasto in testata prende l'accento. */
+    marking: Boolean,
+    /** Se un logo è stato scelto: senza, il tasto in testata non c'è. */
+    hasMark: Boolean,
+    /** Accende o spegne la filigrana, che è la stessa chiave delle sue impostazioni. */
+    onMark: (Boolean) -> Unit,
+    /** Porta alle impostazioni della filigrana, dal tocco lungo su quel tasto. */
+    onMarkSetup: () -> Unit,
     /**
      * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
@@ -407,11 +415,21 @@ fun AdvancedEditorScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f).heading()
                 )
+                // ⚠️ I due comandi del salvataggio, nell'ordine che ha chiesto: 'Filigrana'
+                // prima di 'Ridimensiona'. I gesti sono gli stessi dell'editor di casa, perché
+                // il pezzo è lo stesso: vedi [EditorTool].
+                MarkButton(
+                    has = hasMark,
+                    on = marking,
+                    enabled = !busy,
+                    onToggle = { onMark(!marking) },
+                    onSetup = onMarkSetup
+                )
                 ResizeButton(
                     on = resizing,
                     enabled = !busy,
-                    onOpen = { asking = true },
-                    onOff = { onResize(null) }
+                    onToggle = { onResize(if (resizing) null else resize) },
+                    onSetup = { asking = true }
                 )
                 SaveButton(
                     // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza questa

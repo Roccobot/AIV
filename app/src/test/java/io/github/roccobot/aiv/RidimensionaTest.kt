@@ -301,31 +301,78 @@ class RidimensionaTest {
     }
 
     /**
-     * **Caso 10: il tocco apre la finestra, e il tocco lungo spegne solo quando è acceso.**
+     * **Caso 10: il tocco accende e spegne, il tocco lungo apre la finestra.**
      *
-     * ⚠️⚠️ **I DUE GESTI VIVONO SU UN BERSAGLIO SOLO, ED È LA LETTURA DICHIARATA DELLA SUA
-     * SPECIFICA** (*un tasto più un interruttore*): il conto per cui in testata non entrano due
-     * elementi vive su `ResizeButton`. Quello che si misura qui è che ognuno dei due faccia la
-     * sua cosa, e che il tocco lungo **non** ci sia a interruttore spento, cioè che non annunci
-     * un comando che non farebbe niente.
+     * ⚠️⚠️ **I DUE GESTI SONO ROVESCIATI RISPETTO ALLA `2.70`, ED È LA SUA ISTRUZIONE** (riscontro
+     * di quel giro, voce `resize` accettabile: *tocco normale = on/off. Tocco prolungato = imposti
+     * il ridimensionamento*). Prima il tocco apriva la finestra e il gesto lungo spegneva.
+     * ⚠️⚠️ **È LA COSA CHE PUÒ ROMPERSI IN SILENZIO**: due lambda scambiate compilano, e il tasto
+     * continua a rispondere a tutti e due i gesti facendo l'una la cosa dell'altra. Il conto per
+     * cui i due gesti vivono su un bersaglio solo vive su `ResizeButton`.
+     * ⚠️ **I due versi dell'interruttore si misurano tutti e due**: con una sola scena si potrebbe
+     * scrivere `onResize(resize)` fisso, che accende sempre e non spegne mai.
      */
     @Test
-    fun `il tocco apre la finestra e il tocco lungo spegne`() {
-        var spento = false
-        banco.setContent { Scena(resizing = true, onResize = { if (it == null) spento = true }) }
+    fun `il tocco accende e spegne, il tocco lungo apre la finestra`() {
+        var scritto: Resize.Plan? = null
+        var chiamate = 0
+        val acceso = mutableStateOf(false)
+        banco.setContent {
+            Scena(
+                resizing = acceso.value,
+                onResize = { scritto = it; chiamate++ }
+            )
+        }
+        pronta()
+
+        // Spento: il tocco lo accende col piano che c'è.
+        banco.onNodeWithContentDescription(testo(R.string.look_resize)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il tocco non ha acceso il ridimensionamento", 1, chiamate)
+        assertNotNull("Il tocco ha spento invece di accendere", scritto)
+        assertTrue(
+            "La finestra si è aperta col tocco normale",
+            banco.onAllNodesWithText(testo(R.string.look_resize_mode))
+                .fetchSemanticsNodes().isEmpty()
+        )
+
+        // Acceso: lo stesso tocco lo spegne.
+        acceso.value = true
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_resize)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il secondo tocco non ha scritto niente", 2, chiamate)
+        assertNull("Il tocco non ha spento il ridimensionamento", scritto)
+
+        // Il gesto lungo apre la finestra, in tutti e due gli stati.
+        banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.look_resize_mode)).assertExists()
+        assertEquals("Il gesto lungo ha toccato l'interruttore", 2, chiamate)
+    }
+
+    /**
+     * **Caso 11: 'Ripristina' riporta a 'Lato lungo' col lato lungo dell'immagine.**
+     *
+     * ⚠️ **È sua richiesta** (2026-09-19, con una schermata), e quello che si misura è il numero:
+     * il comando scrive nel campo la misura che l'immagine ha **adesso**, cioè quella che il
+     * salvataggio troverebbe davanti, e quel piano non rimpicciolisce.
+     */
+    @Test
+    fun `Ripristina riporta al lato lungo dell'immagine`() {
+        banco.setContent {
+            Scena(resizing = true, piano = Resize.Plan(Resize.Mode.SHARE, 25))
+        }
         pronta()
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
-        assertTrue("Il tocco lungo non ha spento il ridimensionamento", spento)
-        assertTrue(
-            "La finestra si è aperta col tocco lungo",
-            banco.onAllNodesWithText(testo(R.string.look_resize_mode))
-                .fetchSemanticsNodes().isEmpty()
-        )
-        banco.onNodeWithContentDescription(testo(R.string.look_resize)).performClick()
+        banco.onNodeWithText(testo(R.string.look_resize_reset)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.look_resize_mode)).assertExists()
+        // Il campo porta il lato lungo del foglio, che è il piano che non fa niente.
+        banco.onNodeWithText(LATO.toString()).assertExists()
+        banco.onNodeWithText(testo(R.string.look_resize_keep)).assertExists()
     }
 
     /** L'editor completo su un foglio bianco, coi soli argomenti che questo banco muove. */
@@ -341,8 +388,12 @@ class RidimensionaTest {
                     uri = foglio(),
                     busy = false,
                     // ⚠️ Nessuna filigrana: quella accenderebbe 'Salva' da sola, e il caso suo
-                    // vive in `FiligranaTest`.
+                    // vive in `FiligranaTest`, dove vive anche il suo tasto in testata.
                     marked = false,
+                    marking = false,
+                    hasMark = false,
+                    onMark = {},
+                    onMarkSetup = {},
                     resize = piano,
                     resizing = resizing,
                     onResize = onResize,

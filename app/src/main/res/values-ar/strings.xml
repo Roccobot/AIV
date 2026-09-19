@@ -467,7 +467,7 @@
     <string name="menu_edit">تحرير</string>
     <string name="menu_edit_hold">اختيار التطبيق</string>
     <string name="editor_internal">محرر بسيط</string>
-    <string name="editor_title">تحرير الصورة</string>
+    <string name="editor_title">تحرير</string>
     <string name="editor_full">محرر كامل</string>
     <string name="look_light">الإضاءة</string>
     <string name="look_exposure">التعريض</string>
@@ -583,7 +583,7 @@
     <string name="settings_mark_clear">إزالة</string>
     <string name="settings_mark_bad">لا يصلح هذا الملف كعلامة مائية: اختر ملف PNG أو SVG.</string>
     <string name="settings_mark_on">تطبيق عند الحفظ</string>
-    <string name="settings_mark_on_desc">يكتب العلامة المائية على الصورة في كل مرة يحفظ فيها المحرر. تُعاد كتابة الملف، لذا لم تعد صورة JPEG المدارة بلا فقدان.</string>
+    <string name="settings_mark_on_desc">يضيف العلامة المائية إلى الصورة عند الحفظ. يمكنك تشغيلها أو إيقافها فورًا من زر التشغيل/الإيقاف في المحرر (أعلى اليمين، قبل \'حفظ\'). التشغيل أو الإيقاف من هناك يعادل تمامًا تحريك هذا المفتاح. ⚠️ ملاحظة: مع العلامة المائية تتحول العمليات دون فقدان الجودة مثل تدوير JPEG إلى إعادة كتابة كاملة.</string>
     <string name="settings_mark_where">الموضع</string>
     <string name="mark_spot_tl">أعلى اليسار</string>
     <string name="mark_spot_tr">أعلى اليمين</string>
@@ -595,7 +595,6 @@
     <string name="settings_mark_alpha">التعتيم</string>
     <string name="settings_mark_preview">معاينة العلامة المائية</string>
     <string name="look_resize">تغيير الحجم</string>
-    <string name="look_resize_off">بدون تغيير الحجم</string>
     <string name="look_resize_mode">الملاءمة حسب</string>
     <string name="resize_long">الضلع الأطول</string>
     <string name="resize_wide">العرض</string>
@@ -606,7 +605,8 @@
     <string name="look_resize_range">اكتب رقمًا بين %1$d و%2$d.</string>
     <string name="look_resize_to">من %1$d x %2$d إلى %3$d x %4$d.</string>
     <string name="look_resize_keep">هذه الصورة أصغر بالفعل، لذا تبقى كما هي.</string>
-    <string name="look_resize_note">تُحفظ نسبة الأبعاد دائمًا، ولا يتم تكبير أي صورة.</string>
+    <string name="look_resize_reset">إعادة تعيين</string>
+    <string name="look_resize_note">تبقى النسبة كما هي، ولا يمكن سوى تصغير الأبعاد.</string>
     <string name="settings_save_rename">السماح بإعادة التسمية عند الحفظ</string>
     <string name="settings_save_rename_desc">بشكل افتراضي، تُحفظ الملفات بأسمائها الأصلية. شغّل هذا الخيار لتحديد اسم عند كل تنزيل. وحتى مع إيقافه، المس \'حفظ\' مع الاستمرار لكتابة اسم جديد لهذه المرة فقط.</string>
     <string name="settings_download_path">اختيار مسار التنزيل</string>

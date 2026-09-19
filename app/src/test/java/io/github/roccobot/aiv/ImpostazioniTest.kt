@@ -56,7 +56,7 @@ class ImpostazioniTest {
     private fun testo(id: Int) = app.getString(id)
 
     /** Il pannello vero, con gli argomenti minimi: quello che si tocca qui è quello dell'app. */
-    private fun apriIlPannello() {
+    private fun apriIlPannello(start: SettingsPage? = null) {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 SettingsScreen(
@@ -65,11 +65,40 @@ class ImpostazioniTest {
                     onStartFolder = {},
                     onResetHints = {},
                     onChooseEditor = {},
-                    onBack = {}
+                    onBack = {},
+                    start = start
                 )
             }
         }
         banco.waitForIdle()
+    }
+
+    /**
+     * **Una scorciatoia apre la sua pagina, e Indietro risale la strada intera.**
+     *
+     * ⚠️⚠️ **NASCE COL TOCCO LUNGO SUL TASTO 'FILIGRANA' DELL'EDITOR, DALLA `2.72`** (sua
+     * istruzione: *Il tap prolungato porta alle impostazioni della filigrana*). Quello che si
+     * misura è la **strada**: arrivare alla pagina giusta è metà, e senza il gradino di mezzo il
+     * primo Indietro uscirebbe dalle impostazioni invece di riportare alla pagina che quella voce
+     * contiene.
+     * ⚠️ **La pila si scrive con un effetto**, quindi il primo fotogramma è quello della radice:
+     * la prova guarda dopo, cioè quello che l'utente vede.
+     */
+    @Test
+    fun `una scorciatoia apre la sua pagina e Indietro risale`() {
+        apriIlPannello(SettingsPage.MARK)
+        val indietro = testo(R.string.settings_back)
+        // ⚠️ Il titolo si cerca fra le intestazioni: la parola 'Filigrana' compare anche dentro
+        // la pagina, e un confronto sul solo testo troverebbe due nodi.
+        banco.onNode(hasText(testo(R.string.settings_mark)) and isHeading()).assertExists()
+
+        banco.onNodeWithContentDescription(indietro).performClick()
+        banco.waitForIdle()
+        banco.onNode(hasText(testo(R.string.settings_page_editing)) and isHeading()).assertExists()
+
+        banco.onNodeWithContentDescription(indietro).performClick()
+        banco.waitForIdle()
+        banco.onNode(hasText(testo(R.string.settings_title)) and isHeading()).assertExists()
     }
 
     /**

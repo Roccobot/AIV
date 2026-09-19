@@ -2035,6 +2035,12 @@ chi ha già scelto ha finito di pensarci.
 - ⚠️ **La distinzione resta dov'è la scelta**, cioè nel selettore che si apre toccando 'Modifica'
   e nella voce delle impostazioni: là `editor_full` continua a nominare l'editor completo, ed è
   l'unico posto in cui quel nome compare.
+- ⚠️⚠️ **E DALLA `2.72` QUEL TITOLO DICE 'MODIFICA' E BASTA, ED È SUO** (campo libero del giro
+  della `2.70`: *'Modifica immagine' diventa solo 'Modifica'*). La regola non cambia, cambia la
+  lunghezza: i due editor si chiamano ancora allo stesso modo, e a chiedere la parola più corta è
+  stata la testata, che nello stesso giro ha preso due icone (§ '🎛️ I due tasti in testata, e i
+  loro due gesti'). ⚠️ **È il testo di `menu_edit`**, cioè la voce da cui si entra, quindi non
+  nasce nessuna stringa.
 - ⚠️ **Quindi la regola della `1.49` è decaduta** (*questa schermata si chiama Editor e non
   Modifica*): valeva quando l'editor era uno e il titolo poteva dire il nome dell'arnese. Chi
   trova quella nota in un commento vecchio sappia che il criterio di oggi è il rovescio, per il
@@ -4251,6 +4257,9 @@ argomento a sé, come la copia di sicurezza, e i moduli che uno stile governa re
   l'editor per firmare un'immagine e basta non muove nessun cursore, quindi senza quella
   condizione il tasto 'Salva' resterebbe spento e la firma non arriverebbe mai su un file. Vale
   nei due editor.
+- ⚠️ **Il testo di 'Applica al salvataggio' è suo alla lettera dalla `2.72`**, e dice tre cose:
+  che cosa fa, che il tasto in testata è lo stesso interruttore, e che con una firma le operazioni
+  senza perdita diventano una riscrittura.
 - ⚠️ **E toglie il senza perdita**, come un cursore di Luce: scrivere dei pixel sopra la
   fotografia è una riscrittura, e non c'è modo di ottenerla con un tag EXIF.
 
@@ -4301,11 +4310,28 @@ shader e dalla maglia della geometria è un bitmap costruito da loro, cioè muta
 copia non si può fare, la firma salta**: chi chiama scrive l'immagine senza, che è meglio di un
 salvataggio fallito.
 
+⚠️⚠️ **E DALLA `2.72` HA UN TASTO IN TESTATA ALL'EDITOR, ED È SUA ISTRUZIONE** (riscontro del
+giro della `2.70`, voce `filigrana` accettabile: *aggiungi un'icona 'Filigrana' in alto a destra,
+prima di 'Ridimensiona', che si accende o spegne con un tap normale. Il tap prolungato porta alle
+impostazioni della filigrana*). I due gesti, il pezzo condiviso col ridimensionamento e il perché
+di ognuno vivono in § '🎛️ I due tasti in testata, e i loro due gesti'.
+- ⚠️ **Il tocco scrive la STESSA chiave delle impostazioni**, ed è la sua frase alla lettera
+  (*equivale esattamente a muovere questo interruttore*): un valore che valesse per il solo editor
+  aperto sarebbe una terza cosa da capire.
+- ⚠️⚠️ **SENZA UN LOGO SCELTO IL TASTO NON C'È**, perché non ci sarebbe niente da accendere: è lo
+  stesso criterio di 'Mostra nascoste' (§ '👁️ Mostra nascoste, e perché dura un minuto'), e la
+  porta per scegliere un logo resta quella della sua specifica, cioè le impostazioni.
+
 ⚠️ **La pagina delle impostazioni è una sotto-pagina, e la soglia lo pretende**: la domanda è una
 sola (*che logo scrivo sulle immagini che salvo*) e le voci sono quattro più l'anteprima, cioè
 oltre il *2-3* della sua soglia (§ '⚙️ Dove va un'impostazione, e chi la deve trovare'). Vive
 dentro 'Editor e salvataggio', che è la pagina della domanda *che cosa succede quando modifico
 un'immagine*.
+- ⚠️⚠️ **E CI SI ARRIVA ANCHE DAL TOCCO LUNGO SUL TASTO, DALLA `2.72`**: `Screen.Settings` porta
+  la pagina d'arrivo, e la pila nasce con la **strada intera** (`SettingsPage`), quindi Indietro
+  risale a 'Editor e salvataggio' e poi alla radice invece di uscire. ⚠️ **La pila si scrive con
+  un effetto e non col valore iniziale**, perché `AivApp` tiene da parte lo stato di ogni
+  schermata: col lambda, la scorciatoia funzionerebbe la prima volta e mai più.
 - ⚠️ **L'anteprima non è un ornamento**: posizione e misura si vedono sul file salvato, cioè dopo,
   e provarle vorrebbe dire salvare un'immagine per ogni tentativo. Quel riquadro usa **gli stessi
   due numeri** del disegno vero, quindi quello che si vede è quello che si avrà.
@@ -4346,21 +4372,33 @@ Indietro ne prende 48, 'Salva' una settantina, l'icona nuova 48, e uno `Switch` 
 52; al titolo, che è l'unico a cedere, ne resterebbero un centinaio, cioè 'Modifica immagine' a
 `headlineSmall` andrebbe a capo. Quindi i gesti sono due sullo stesso tasto, che è il modo di
 questa app (la regola di `SaveButton` e dei gettoni dei moduli), e l'accento dice se è acceso.
-- **Il tocco apre la finestra**, che è il tasto con cui si imposta; **il tocco lungo spegne**, che
-  è l'interruttore. ⚠️ **Il gesto lungo c'è solo quando è acceso**: spegnere quello che è già
-  spento non è un gesto, e un'etichetta annunciata che non fa niente è peggio della sua assenza.
-- ⚠️ **Ad accendere è 'Applica' della finestra**, che è la sua specifica alla lettera. Quindi la
-  finestra non chiede due volte la stessa cosa: chi entra a configurare ha già detto che lo vuole.
+⚠️⚠️ **E LA LETTURA È PASSATA, PERCHÉ NELLA `2.72` HA CHIESTO UN SECONDO TASTO COSÌ**: la voce
+`resize` è tornata accettabile, il titolo si è accorciato in 'Modifica' per far posto a due icone,
+e i due gesti si sono rovesciati (§ '🎛️ I due tasti in testata, e i loro due gesti').
+- ⚠️ **Ad accendere è anche 'Applica' della finestra**, che è la sua specifica alla lettera.
+  Quindi la finestra non chiede due volte la stessa cosa: chi entra a configurare ha già detto
+  che lo vuole.
 - ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che si era
   scelto resta scritto, e riaccendere non chiede di riscriverlo. Per questo le preferenze tengono
   **tre** campi e non uno.
-- ⚠️ **La voce di collaudo gli dice questa lettura in chiare lettere**, che è la regola del
-  `CLAUDE.md` di root sulle letture dichiarate: se voleva due elementi separati, lo dirà.
+
+⚠️⚠️ **E DALLA `2.72` LA SUA FINESTRA HA 'RIPRISTINA', ED È SUA RICHIESTA** (2026-09-19, con una
+schermata: *riporti tutto su 'Lato lungo' con il valore letto dall'immagine allo stato corrente*).
+Quel valore è il piano che **non fa niente**, cioè il punto da cui si riparte, e 'allo stato
+corrente' vuol dire dopo la posa e il ritaglio, che è quello che la finestra già riceve.
+- ⚠️ **Vive sulla riga del titolo**, dove questa app mette un comando di una finestra dalla `1.79`:
+  `TitleRow` sceglie da sé fra la pastiglia scritta e l'icona, misurando se il titolo ci sta
+  accanto.
+- ⚠️ **Scrive nel campo e non applica**, e senza la misura di partenza non c'è: là non si saprebbe
+  da dove si riparte.
+- ⚠️⚠️ **LA NOTA DELLA FINESTRA È RISCRITTA DA LUI**, alla lettera: *Le proporzioni restano
+  invariate; è possibile solo ridurre le dimensioni.* ⚠️ **In testo regolare**, che è la sua
+  precisazione dello stesso momento: la prima stesura rendeva l'enfasi in corsivo.
 
 ⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
 (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento
 che vivesse solo là mancherebbe a tutti i telefoni più vecchi. Il comando è **un pezzo solo**
-(`ResizeButton`, in `ResizeDialog.kt`) e lo chiamano tutte e due le testate.
+(`ResizeButton`, in `EditorTools.kt`) e lo chiamano tutte e due le testate.
 
 ⚠️ **Le proporzioni si mantengono sempre, e non è un'opzione che manca**: un ridimensionamento che
 le rompe deforma l'immagine, e chi vuole cambiare il rapporto ha il modulo Ritaglio, che toglie
@@ -4401,6 +4439,62 @@ rimpicciolisce accenda 'Salva' su un'immagine intonsa **e uno che non rimpicciol
 gesti del tasto. **Non** vede la resa del filtro, cioè che l'immagine rimpicciolita sia nitida, né
 come la finestra si legge sul telefono: quelle si guardano sul telefono, e la voce di collaudo le
 chiede.
+
+## 🎛️ I due tasti in testata, e i loro due gesti
+
+⚠️⚠️ **DALLA `2.72` LA TESTATA DEI DUE EDITOR PORTA 'FILIGRANA' E 'RIDIMENSIONA', COI MEDESIMI DUE
+GESTI: IL TOCCO ACCENDE E SPEGNE, IL TOCCO LUNGO CONFIGURA** (riscontro del giro della `2.70`,
+voce `resize` accettabile: *Il pulsante deve funzionare come l'altro tasto che ho descritto prima:
+tocco normale = on/off. Tocco prolungato = imposti il ridimensionamento*; e sulla voce `filigrana`:
+*aggiungi un'icona 'Filigrana' in alto a destra, prima di 'Ridimensiona', che si accende o spegne
+con un tap normale. Il tap prolungato porta alle impostazioni della filigrana*). Il gesto corto fa
+la cosa che si fa a ogni salvataggio, quello lungo la cosa che si fa una volta.
+- ⚠️⚠️ **NELLA `2.70` IL RIDIMENSIONAMENTO LI AVEVA ROVESCIATI**, cioè il tocco apriva la finestra
+  e il gesto lungo spegneva. Chi trova quella nota in un commento vecchio sappia che oggi i due
+  tasti rispondono allo stesso modo: due comandi gemelli a mezzo centimetro di distanza, con i
+  gesti scambiati, sarebbero due cose da imparare per un mestiere solo.
+- ⚠️ **L'ordine è il suo**, cioè 'Filigrana' prima di 'Ridimensiona', e 'Salva' resta l'ultimo a
+  destra.
+
+⚠️⚠️ **UN PEZZO SOLO PER TUTTI E DUE (`EditorTool`, in `EditorTools.kt`), E NON È UN RISPARMIO DI
+RIGHE**: due disegni separati divergono al primo ritocco, e chi lo vedrebbe per primo è lui, che li
+ha davanti insieme. È lo stesso criterio per cui il Ritaglio dell'editor completo chiama le
+squadrette di casa. ⚠️ **Con lui `ResizeButton` ha traslocato** e non vive più in
+`ResizeDialog.kt`, dove resta la sola finestra.
+
+⚠️⚠️ **`combinedClickable` E NON `Modifier.toggleable`, E LA DIFFERENZA COSTA UNA RIGA**: quel
+modificatore mette lo stato nella semantica da sé ma non offre il gesto lungo, quindi si prende il
+primo e la semantica si scrive a mano (`toggleableState`). Senza quella riga `Role.Switch` non
+annuncia né 'acceso' né 'spento', cioè il tasto è muto per un lettore di schermo e il banco non ha
+niente da misurare.
+- ⚠️ **L'etichetta del gesto lungo è quella della schermata a cui porta** ('Impostazioni', per la
+  filigrana), e non una stringa nuova: dice dove si va, esiste in tutte e ventotto le lingue, e il
+  conto delle stringhe si fa prima di cominciare (§ '⚙️ Dove va un'impostazione, e chi la deve
+  trovare').
+- ⚠️ **A dire se è acceso è l'accento**, e l'inchiostro attenuato dice che il comando è spento del
+  tutto, cioè che un salvataggio è in corso: un tasto che non porta un tondo non ha un altro modo
+  di dirlo.
+- ⚠️⚠️ **'FILIGRANA' NON C'È SENZA UN LOGO SCELTO**, ed è il criterio di 'Mostra nascoste'
+  (§ '👁️ Mostra nascoste, e perché dura un minuto'): un interruttore che non cambia nessuna
+  immagine è un comando che non fa niente. 'Ridimensiona' invece c'è sempre, perché il piano
+  esiste anche spento, e quello di fabbrica rimpicciolisce quasi ogni fotografia.
+
+⚠️⚠️ **IL TITOLO SI È ACCORCIATO IN 'MODIFICA' NELLO STESSO GIRO, ED È SUO** (campo libero del giro
+della `2.70`: *'Modifica immagine' diventa solo 'Modifica'*). Le due cose si leggono insieme: il
+conto della testata era già al limite con un'icona sola (§ '📏 Il ridimensionamento, e i due gesti
+di un tasto solo'), e lui ha accorciato il titolo nel giro in cui ha chiesto la seconda.
+- ⚠️ **Non è una stringa nuova**: è il testo di `menu_edit`, cioè la voce del menu da cui si entra,
+  copiato lingua per lingua. ⚠️ **La chiave resta `editor_title`**, perché il posto
+  nell'interfaccia e la chiave nell'archivio delle stringhe sono due cose indipendenti.
+- ⚠️ **E la regola della `2.20` non cade**: i due editor si chiamano ancora allo stesso modo in
+  testata, perché il titolo dice **che cosa si sta facendo** e non con quale dei due arnesi
+  (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola').
+
+⚠️ **Che cosa il banco misura e che cosa no** (`FiligranaTest` e `RidimensionaTest`, ogni caso
+controprovato): che il tocco accenda e spenga, che il tocco lungo apra la finestra o la pagina
+delle impostazioni, e che senza un logo il tasto della filigrana non si disegni affatto. **Non**
+vede il tasto sul telefono, cioè se le due icone stiano comode accanto al titolo accorciato:
+quello si guarda sul telefono, e la voce di collaudo lo chiede.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

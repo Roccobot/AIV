@@ -403,7 +403,7 @@
     <string name="menu_edit">ترمیم</string>
     <string name="menu_edit_hold">ایپ منتخب کریں</string>
     <string name="editor_internal">سادہ ایڈیٹر</string>
-    <string name="editor_title">تصویر میں ترمیم</string>
+    <string name="editor_title">ترمیم</string>
     <string name="editor_full">مکمل ایڈیٹر</string>
     <string name="look_light">روشنی</string>
     <string name="look_exposure">ایکسپوژر</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">ہٹائیں</string>
     <string name="settings_mark_bad">یہ فائل واٹرمارک کے طور پر استعمال نہیں ہو سکتی: PNG یا SVG منتخب کریں۔</string>
     <string name="settings_mark_on">محفوظ کرتے وقت لاگو کریں</string>
-    <string name="settings_mark_on_desc">ایڈیٹر جب بھی محفوظ کرتا ہے، واٹرمارک کو تصویر پر لکھتا ہے۔ فائل دوبارہ لکھی جاتی ہے، اس لیے گھمائی گئی JPEG اب بغیر نقصان کے نہیں رہتی۔</string>
+    <string name="settings_mark_on_desc">محفوظ کرتے وقت تصویر پر واٹر مارک لکھتا ہے۔ ایڈیٹر کے آن/آف بٹن سے (اوپر دائیں طرف، \'محفوظ کریں\' سے پہلے) اسے فوراً آن یا آف کیا جا سکتا ہے۔ وہاں سے آن یا آف کرنا بالکل اسی سوئچ کو ہلانے کے برابر ہے۔ ⚠️ نوٹ: واٹر مارک کے ساتھ، JPEG گھمانے جیسے بغیر نقصان والے کام مکمل دوبارہ لکھائی بن جاتے ہیں۔</string>
     <string name="settings_mark_where">مقام</string>
     <string name="mark_spot_tl">اوپر بائیں</string>
     <string name="mark_spot_tr">اوپر دائیں</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">دھندلاپن</string>
     <string name="settings_mark_preview">واٹرمارک کا پیش منظر</string>
     <string name="look_resize">سائز تبدیل کریں</string>
-    <string name="look_resize_off">سائز تبدیل نہ کریں</string>
     <string name="look_resize_mode">اس کے مطابق</string>
     <string name="resize_long">لمبا کنارہ</string>
     <string name="resize_wide">چوڑائی</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">%1$d اور %2$d کے درمیان ایک عدد لکھیں۔</string>
     <string name="look_resize_to">%1$d x %2$d سے %3$d x %4$d تک۔</string>
     <string name="look_resize_keep">یہ تصویر پہلے ہی چھوٹی ہے، اس لیے ویسی ہی رہتی ہے۔</string>
-    <string name="look_resize_note">تناسب ہمیشہ برقرار رہتا ہے، اور کوئی تصویر کبھی بڑی نہیں کی جاتی۔</string>
+    <string name="look_resize_reset">ری سیٹ</string>
+    <string name="look_resize_note">تناسب وہی رہتا ہے؛ سائز صرف چھوٹا کیا جا سکتا ہے۔</string>
     <string name="settings_save_rename">محفوظ کرتے وقت نام بدلنے کی اجازت</string>
     <string name="settings_save_rename_desc">طے شدہ طور پر فائلیں اپنے اصل نام سے محفوظ ہوتی ہیں۔ ہر ڈاؤن لوڈ پر نام مقرر کرنے کے لیے یہ چالو کریں۔ بند ہونے پر بھی \'محفوظ کریں\' دبا کر رکھیں اور صرف اسی بار کے لیے نیا نام لکھیں۔</string>
     <string name="settings_download_path">ڈاؤن لوڈ راستہ چنیں</string>

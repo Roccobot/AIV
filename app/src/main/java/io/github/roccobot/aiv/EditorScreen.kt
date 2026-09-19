@@ -115,6 +115,14 @@ fun EditorScreen(
      * anche su un'immagine intonsa: vedi `ViewerViewModel.markReady`.
      */
     marked: Boolean,
+    /** Se l'interruttore della filigrana è acceso: il tasto in testata prende l'accento. */
+    marking: Boolean,
+    /** Se un logo è stato scelto: senza, il tasto in testata non c'è. */
+    hasMark: Boolean,
+    /** Accende o spegne la filigrana, che è la stessa chiave delle sue impostazioni. */
+    onMark: (Boolean) -> Unit,
+    /** Porta alle impostazioni della filigrana, dal tocco lungo su quel tasto. */
+    onMarkSetup: () -> Unit,
     /**
      * Il **ridimensionamento** configurato, che esiste sempre anche quando non si applica:
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
@@ -363,11 +371,27 @@ fun EditorScreen(
              * Chi passasse `turns` e `crop` da soli butterebbe via tutto quello che è stato
              * confermato prima, cioè quasi tutto il lavoro.
              */
+            /*
+             * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO, NELL'ORDINE CHE HA CHIESTO** (riscontro del
+             * giro della `2.70`: *aggiungi un'icona 'Filigrana' in alto a destra, prima di
+             * 'Ridimensiona'*). Tutti e due rispondono agli stessi due gesti, e il perché vive
+             * su [EditorTool].
+             * ⚠️ **Accendere il ridimensionamento riscrive il piano che c'è**, perché quella
+             * chiamata fa le due cose insieme (vedi `ViewerViewModel.setResize`): senza un piano
+             * da scrivere non ci sarebbe niente da accendere.
+             */
+            MarkButton(
+                has = hasMark,
+                on = marking,
+                enabled = !busy,
+                onToggle = { onMark(!marking) },
+                onSetup = onMarkSetup
+            )
             ResizeButton(
                 on = resizing,
                 enabled = !busy,
-                onOpen = { asking = true },
-                onOff = { onResize(null) }
+                onToggle = { onResize(if (resizing) null else resize) },
+                onSetup = { asking = true }
             )
             TextButton(
                 onClick = { onSave(total.spin.turns, total.spin.mirror, total.crop) },

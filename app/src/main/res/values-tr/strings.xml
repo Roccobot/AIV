@@ -403,7 +403,7 @@
     <string name="menu_edit">Düzenle</string>
     <string name="menu_edit_hold">Uygulamayı seç</string>
     <string name="editor_internal">Basit düzenleyici</string>
-    <string name="editor_title">Görüntüyü düzenle</string>
+    <string name="editor_title">Düzenle</string>
     <string name="editor_full">Tam düzenleyici</string>
     <string name="look_light">Işık</string>
     <string name="look_exposure">Pozlama</string>
@@ -519,7 +519,7 @@
     <string name="settings_mark_clear">Kaldır</string>
     <string name="settings_mark_bad">Bu dosya filigran olarak kullanılamaz: bir PNG veya SVG seçin.</string>
     <string name="settings_mark_on">Kaydederken uygula</string>
-    <string name="settings_mark_on_desc">Düzenleyici her kaydettiğinde filigranı görüntüye yazar. Dosya yeniden yazılır, bu yüzden döndürülmüş bir JPEG artık kayıpsız kalmaz.</string>
+    <string name="settings_mark_on_desc">Kaydederken görüntüye filigranı ekler. Düzenleyicideki aç/kapat düğmesiyle (sağ üstte, \'Kaydet\' düğmesinden önce) anında açıp kapatabilirsin. Oradan açmak ya da kapatmak, bu anahtarı oynatmakla tamamen aynıdır. ⚠️ Not: filigran eklendiğinde JPEG döndürme gibi kayıpsız işlemler tam bir yeniden yazmaya dönüşür.</string>
     <string name="settings_mark_where">Konum</string>
     <string name="mark_spot_tl">Sol üst</string>
     <string name="mark_spot_tr">Sağ üst</string>
@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">Opaklık</string>
     <string name="settings_mark_preview">Filigran önizlemesi</string>
     <string name="look_resize">Yeniden boyutlandır</string>
-    <string name="look_resize_off">Yeniden boyutlandırma</string>
     <string name="look_resize_mode">Şuna göre</string>
     <string name="resize_long">Uzun kenar</string>
     <string name="resize_wide">Genişlik</string>
@@ -542,7 +541,8 @@
     <string name="look_resize_range">%1$d ile %2$d arasında bir sayı yaz.</string>
     <string name="look_resize_to">%1$d x %2$d boyutundan %3$d x %4$d boyutuna.</string>
     <string name="look_resize_keep">Bu görsel zaten daha küçük, bu yüzden olduğu gibi kalır.</string>
-    <string name="look_resize_note">En boy oranı her zaman korunur ve bir görsel asla büyütülmez.</string>
+    <string name="look_resize_reset">Sıfırla</string>
+    <string name="look_resize_note">Oran değişmez; boyut yalnızca küçültülebilir.</string>
     <string name="settings_save_rename">Kaydederken yeniden adlandırmaya izin ver</string>
     <string name="settings_save_rename_desc">Dosyalar varsayılan olarak özgün adlarıyla kaydedilir. Her indirmede bir ad belirlemek için bunu açın. Kapalıyken de \'Kaydet\' düğmesini basılı tutarak yalnızca o seferlik yeni bir ad yazabilirsiniz.</string>
     <string name="settings_download_path">İndirme yolunu seç</string>

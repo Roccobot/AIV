@@ -419,7 +419,7 @@
     <string name="menu_edit">Editar</string>
     <string name="menu_edit_hold">Elegir la aplicación</string>
     <string name="editor_internal">Editor sencillo</string>
-    <string name="editor_title">Editar imagen</string>
+    <string name="editor_title">Editar</string>
     <string name="editor_full">Editor completo</string>
     <string name="look_light">Luz</string>
     <string name="look_exposure">Exposición</string>
@@ -535,7 +535,7 @@
     <string name="settings_mark_clear">Quitar</string>
     <string name="settings_mark_bad">Este archivo no sirve como marca de agua: elige un PNG o un SVG.</string>
     <string name="settings_mark_on">Aplicar al guardar</string>
-    <string name="settings_mark_on_desc">Escribe la marca de agua en la imagen cada vez que el editor guarda. El archivo se reescribe, así que un JPEG girado deja de ser sin pérdida.</string>
+    <string name="settings_mark_on_desc">Añade la marca de agua a la imagen al guardar. Puedes activarla o desactivarla al vuelo con el botón de encendido/apagado del editor (arriba a la derecha, antes de \'Guardar\'). Hacerlo desde ahí equivale exactamente a mover este interruptor. ⚠️ Nota: con la marca de agua, las operaciones sin pérdida como girar un JPEG pasan a ser una reescritura completa.</string>
     <string name="settings_mark_where">Posición</string>
     <string name="mark_spot_tl">Arriba a la izquierda</string>
     <string name="mark_spot_tr">Arriba a la derecha</string>
@@ -547,7 +547,6 @@
     <string name="settings_mark_alpha">Opacidad</string>
     <string name="settings_mark_preview">Vista previa de la marca de agua</string>
     <string name="look_resize">Redimensionar</string>
-    <string name="look_resize_off">No redimensionar</string>
     <string name="look_resize_mode">Ajustar a</string>
     <string name="resize_long">Lado largo</string>
     <string name="resize_wide">Anchura</string>
@@ -558,7 +557,8 @@
     <string name="look_resize_range">Escribe un número entre %1$d y %2$d.</string>
     <string name="look_resize_to">De %1$d x %2$d a %3$d x %4$d.</string>
     <string name="look_resize_keep">Esta imagen ya es más pequeña, así que se queda como está.</string>
-    <string name="look_resize_note">La proporción se mantiene siempre, y una imagen nunca se amplía.</string>
+    <string name="look_resize_reset">Restablecer</string>
+    <string name="look_resize_note">La proporción no cambia; solo se puede reducir el tamaño.</string>
     <string name="settings_save_rename">Permitir renombrar al guardar</string>
     <string name="settings_save_rename_desc">De forma predeterminada, los archivos se guardan con su nombre original. Activa esto para definir un nombre en cada descarga. Incluso desactivado, mantén pulsado \'Guardar\' para escribir un nombre nuevo solo esa vez.</string>
     <string name="settings_download_path">Elegir la ruta de descarga</string>

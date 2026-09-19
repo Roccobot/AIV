@@ -93,7 +93,7 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Choose the app</string>
     <string name="editor_internal">Simple editor</string>
-    <string name="editor_title">Edit image</string>
+    <string name="editor_title">Edit</string>
     <string name="editor_full">Full editor</string>
     <string name="look_light">Light</string>
     <string name="look_exposure">Exposure</string>
@@ -223,7 +223,7 @@
     <string name="settings_mark_clear">Remove</string>
     <string name="settings_mark_bad">This file cannot be used as a watermark: choose a PNG or an SVG.</string>
     <string name="settings_mark_on">Apply when saving</string>
-    <string name="settings_mark_on_desc">Writes the watermark on the image every time the editor saves. The file is rewritten, so a rotated JPEG is no longer lossless.</string>
+    <string name="settings_mark_on_desc">Adds the watermark to the image when saving. You can turn it on or off on the fly with the editor\'s on/off button (top right, before \'Save\'). Enabling or disabling the watermark there is exactly the same as moving this switch. ⚠️ Note: with a watermark, lossless operations such as JPEG rotation become a full rewrite.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Top left</string>
     <string name="mark_spot_tr">Top right</string>
@@ -235,7 +235,6 @@
     <string name="settings_mark_alpha">Opacity</string>
     <string name="settings_mark_preview">Watermark preview</string>
     <string name="look_resize">Resize</string>
-    <string name="look_resize_off">Do not resize</string>
     <string name="look_resize_mode">Fit to</string>
     <string name="resize_long">Long edge</string>
     <string name="resize_wide">Width</string>
@@ -246,7 +245,8 @@
     <string name="look_resize_range">Type a number between %1$d and %2$d.</string>
     <string name="look_resize_to">From %1$d x %2$d to %3$d x %4$d.</string>
     <string name="look_resize_keep">This image is already smaller, so it stays as it is.</string>
-    <string name="look_resize_note">The aspect ratio is always kept, and an image is never enlarged.</string>
+    <string name="look_resize_reset">Reset</string>
+    <string name="look_resize_note">The aspect ratio stays the same; images can only be made smaller.</string>
     <string name="settings_save_rename">Allow renaming when saving</string>
     <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once.</string>
     <string name="settings_download_path">Choose the download path</string>

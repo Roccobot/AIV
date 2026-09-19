@@ -3329,6 +3329,10 @@ class SviluppoTest {
                         busy = false,
                         // ⚠️ Senza filigrana: il caso che la porta vive in `FiligranaTest`.
                         marked = false,
+                        marking = false,
+                        hasMark = false,
+                        onMark = {},
+                        onMarkSetup = {},
                         resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                         // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                         // immagine intonsa, e il caso suo vive in `RidimensionaTest`.

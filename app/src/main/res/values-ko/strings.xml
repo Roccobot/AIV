@@ -387,7 +387,7 @@
     <string name="menu_edit">편집</string>
     <string name="menu_edit_hold">앱 선택</string>
     <string name="editor_internal">간단 편집기</string>
-    <string name="editor_title">이미지 편집</string>
+    <string name="editor_title">편집</string>
     <string name="editor_full">전체 편집기</string>
     <string name="look_light">빛</string>
     <string name="look_exposure">노출</string>
@@ -503,7 +503,7 @@
     <string name="settings_mark_clear">제거</string>
     <string name="settings_mark_bad">이 파일은 워터마크로 사용할 수 없습니다. PNG 또는 SVG를 선택하세요.</string>
     <string name="settings_mark_on">저장할 때 적용</string>
-    <string name="settings_mark_on_desc">편집기가 저장할 때마다 이미지에 워터마크를 새깁니다. 파일을 다시 쓰므로 회전한 JPEG은 더 이상 무손실이 아닙니다.</string>
+    <string name="settings_mark_on_desc">저장할 때 이미지에 워터마크를 넣습니다. 편집기의 켜기/끄기 버튼(오른쪽 위, \'저장\' 앞)으로 바로 켜거나 끔 수 있습니다. 거기서 켜고 끄는 것은 이 스위치를 움직이는 것과 정확히 같습니다. ⚠️ 참고: 워터마크를 넣으면 JPEG 회전처럼 무손실이던 작업도 전체 재작성이 됩니다.</string>
     <string name="settings_mark_where">위치</string>
     <string name="mark_spot_tl">왼쪽 위</string>
     <string name="mark_spot_tr">오른쪽 위</string>
@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">불투명도</string>
     <string name="settings_mark_preview">워터마크 미리보기</string>
     <string name="look_resize">크기 조정</string>
-    <string name="look_resize_off">크기 조정 안 함</string>
     <string name="look_resize_mode">기준</string>
     <string name="resize_long">긴 변</string>
     <string name="resize_wide">너비</string>
@@ -526,7 +525,8 @@
     <string name="look_resize_range">%1$d 에서 %2$d 사이의 숫자를 입력하세요.</string>
     <string name="look_resize_to">%1$d x %2$d 에서 %3$d x %4$d 으로.</string>
     <string name="look_resize_keep">이 이미지는 이미 더 작아서 그대로 유지됩니다.</string>
-    <string name="look_resize_note">비율은 항상 유지되며, 이미지가 확대되는 일은 없습니다.</string>
+    <string name="look_resize_reset">초기화</string>
+    <string name="look_resize_note">비율은 그대로 유지되며, 크기는 줄이는 것만 가능합니다.</string>
     <string name="settings_save_rename">저장할 때 이름 바꾸기 허용</string>
     <string name="settings_save_rename_desc">기본적으로 파일은 원래 이름으로 저장됩니다. 다운로드마다 이름을 정하려면 이 옵션을 켜세요. 꺼져 있어도 \'저장\'을 길게 누르면 그 한 번만 새 이름을 입력할 수 있습니다.</string>
     <string name="settings_download_path">다운로드 경로 선택</string>

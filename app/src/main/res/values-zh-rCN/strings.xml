@@ -387,7 +387,7 @@
     <string name="menu_edit">编辑</string>
     <string name="menu_edit_hold">选择应用</string>
     <string name="editor_internal">简易编辑器</string>
-    <string name="editor_title">编辑图片</string>
+    <string name="editor_title">编辑</string>
     <string name="editor_full">完整编辑器</string>
     <string name="look_light">光线</string>
     <string name="look_exposure">曝光</string>
@@ -503,7 +503,7 @@
     <string name="settings_mark_clear">移除</string>
     <string name="settings_mark_bad">该文件不能用作水印：请选择 PNG 或 SVG。</string>
     <string name="settings_mark_on">保存时应用</string>
-    <string name="settings_mark_on_desc">编辑器每次保存时都会把水印写到图片上。文件会被重写，因此旋转过的 JPEG 不再是无损的。</string>
+    <string name="settings_mark_on_desc">保存时在图像上写入水印。可以用编辑器的开关按钮（右上角，\'保存\' 之前）随时打开或关闭。在那里打开或关闭，与拨动这个开关完全相同。⚠️ 注意：加了水印后，JPEG 旋转这类无损操作会变成完整重写。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>
@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">水印预览</string>
     <string name="look_resize">调整尺寸</string>
-    <string name="look_resize_off">不调整尺寸</string>
     <string name="look_resize_mode">适应</string>
     <string name="resize_long">长边</string>
     <string name="resize_wide">宽度</string>
@@ -526,7 +525,8 @@
     <string name="look_resize_range">请输入 %1$d 到 %2$d 之间的数字。</string>
     <string name="look_resize_to">从 %1$d x %2$d 变为 %3$d x %4$d。</string>
     <string name="look_resize_keep">这张图片已经更小了，因此保持原样。</string>
-    <string name="look_resize_note">比例始终保持不变，图片也绝不会被放大。</string>
+    <string name="look_resize_reset">重置</string>
+    <string name="look_resize_note">比例保持不变，尺寸只能变小。</string>
     <string name="settings_save_rename">允许保存时重命名</string>
     <string name="settings_save_rename_desc">默认情况下，文件按原名保存。开启后可为每次下载指定名称。即使关闭，也可长按 \'保存\' 仅这一次输入新名称。</string>
     <string name="settings_download_path">选择下载路径</string>
