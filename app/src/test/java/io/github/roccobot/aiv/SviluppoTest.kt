@@ -51,6 +51,9 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.hypot
+import kotlin.math.sin
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 
@@ -3012,6 +3015,110 @@ class SviluppoTest {
         assertEquals("POINT_SHIFT", nelloShader("POINT_SHIFT"), Auto.POINT_SHIFT, 1e-6f)
         assertEquals("WB_REACH", nelloShader("WB_REACH"), Auto.WB_REACH, 1e-6f)
         assertEquals("CONTRAST_RISE", nelloShader("CONTRAST_RISE"), Auto.CONTRAST_RISE, 1e-6f)
+    }
+
+    /**
+     * **Caso 65: il kernel della mappa del velo non passa nessuna frequenza intera.**
+     *
+     * ⚠️⚠️ **È IL PRESIDIO DEL RETICOLO DELLA `2.65`, ED È L'UNICO CHE IL BANCO POSSA DARE**: il
+     * conto della foschia vive in AGSL e su una tela di memoria non gira, quindi che l'immagine
+     * venga bene si guarda sul telefono. Quello che si può misurare è il **kernel**, cioè dove
+     * cadono i nove campioni e quanto pesano, e da lì la sua risposta in frequenza, che è la
+     * proprietà da cui il difetto nasceva.
+     * ⚠️⚠️ **IL FATTO CHE MISURA**: nove delta su una **griglia** a passo `s` rispondono
+     * esattamente **1,000** a ogni multiplo di `1/s`, cioè a quei periodi non mediano affatto e
+     * la mappa del velo copia la trama dell'immagine. Con i due anelli nessuna frequenza passa
+     * intera. ⚠️ **La soglia è più bassa del valore misurato di proposito** (0,870): qui si
+     * presidia il fatto che nessuna frequenza passi **intera**, non il numero di oggi, così un
+     * ritocco ai raggi non fa diventare rossa una prova mentre il comportamento è ancora giusto.
+     * ⚠️ **Il kernel si legge dalla stringa dello shader**, come i tre numeri del caso 64: in
+     * Kotlin quelle righe sono un testo qualunque, quindi una direzione cambiata di là non dà
+     * nessun errore.
+     * ⚠️ **Controprovata rimettendo la griglia 3x3 della `2.64`**: la risposta torna a 1,000 e
+     * tutte e tre le asserzioni di questo caso cadono.
+     */
+    @Test
+    fun `il kernel del velo non copia nessuna frequenza`() {
+        val pesi = Regex("const half (HAZE_(?:HUB|WIDE|TIGHT)) = ([-0-9.]+);")
+            .findAll(LOOK_AGSL)
+            .associate { it.groupValues[1] to it.groupValues[2].toDouble() }
+        assertEquals("i tre pesi del kernel sono ancora nello shader", 3, pesi.size)
+
+        // Il corpo di `veiled`: ogni istruzione porta le sue direzioni e il peso che le governa,
+        // e quella senza direzioni è il centro.
+        val corpo = LOOK_AGSL.substringAfter("half veiled(float2 p, float2 step) {")
+            .substringBefore("\n}")
+        val campioni = mutableListOf<Triple<Double, Double, Double>>()
+        for (pezzo in corpo.split(";")) {
+            val quale = Regex("HAZE_(?:HUB|WIDE|TIGHT)").findAll(pezzo).lastOrNull() ?: continue
+            val w = pesi.getValue(quale.value)
+            val dove = Regex("""float2\(\s*(-?[0-9.]+),\s*(-?[0-9.]+)\)""").findAll(pezzo).toList()
+            if (dove.isEmpty()) {
+                campioni += Triple(0.0, 0.0, w)
+            } else {
+                dove.forEach {
+                    campioni += Triple(
+                        it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), w
+                    )
+                }
+            }
+        }
+        assertEquals("i campioni della mappa del velo sono nove", 9, campioni.size)
+
+        val totale = campioni.sumOf { it.third }
+        assertEquals("i pesi sommano a sedici", 16.0, totale, 1e-3)
+        // Senza questo, la stima del velo sarebbe presa di lato e il velo si toglierebbe spostato.
+        assertEquals("il kernel è centrato in orizzontale", 0.0, campioni.sumOf { it.first * it.third }, 1e-3)
+        assertEquals("il kernel è centrato in verticale", 0.0, campioni.sumOf { it.second * it.third }, 1e-3)
+        // Il bordo delle tessere del salvataggio dichiara esattamente questo raggio.
+        assertEquals(
+            "nessun campione va oltre il raggio dichiarato",
+            1.0, campioni.maxOf { hypot(it.first, it.second) }, 1e-4
+        )
+
+        // La risposta del kernel, in cicli per unità di raggio: da un terzo (il velo di una
+        // regione, che deve passare) fino a otto, che è Nyquist su un'anteprima da 1600 pixel.
+        fun risposta(f: Double, ang: Double): Double {
+            var re = 0.0
+            var im = 0.0
+            for ((x, y, w) in campioni) {
+                val fase = -2.0 * Math.PI * (f * cos(ang) * x + f * sin(ang) * y)
+                re += w * cos(fase)
+                im += w * sin(fase)
+            }
+            return hypot(re, im) / totale
+        }
+
+        var peggio = 0.0
+        var dovePeggio = 0.0
+        for (i in 0..240) {
+            val f = 1.0 / 3.0 + (8.0 - 1.0 / 3.0) * i / 240.0
+            for (j in 0..40) {
+                val v = risposta(f, Math.PI / 2 * j / 40.0)
+                if (v > peggio) {
+                    peggio = v
+                    dovePeggio = f
+                }
+            }
+        }
+        assertTrue(
+            "nessuna frequenza deve passare intera: %.3f a %.2f cicli per raggio"
+                .format(peggio, dovePeggio),
+            peggio < 0.95
+        )
+        // I quattro periodi su cui la griglia della `2.64` rispondeva 1,000, lungo un asse.
+        for (perRaggio in listOf(1.0, 2.0, 3.0, 4.0)) {
+            val v = risposta(perRaggio, 0.0)
+            assertTrue(
+                "a %d cicli per raggio la stima copia ancora (%.3f)".format(perRaggio.toInt(), v),
+                v < 0.70
+            )
+        }
+        // E il velo vero deve passare: una regione larga dieci volte il raggio.
+        assertTrue(
+            "il velo di una regione non deve perdersi",
+            risposta(0.1, 0.0) > 0.9
+        )
     }
 
     /**

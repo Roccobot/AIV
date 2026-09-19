@@ -2914,6 +2914,34 @@ quel punto**.
   - ⚠️ **La soglia è sua e non quella del rumore** (`HAZE_EDGE`, 20 contro 120): là si separa la
     grana di un sensore da un contorno, qui il velo di una regione da quello della regione
     accanto, e le due distanze non sono la stessa. Il numero è il primo che azzera l'alone.
+  - ⚠️⚠️ **E DALLA `2.65` I NOVE CAMPIONI CADONO SU DUE ANELLI E NON SU UNA GRIGLIA, PERCHÉ UNA
+    GRIGLIA FA UN PETTINE** (riscontro del giro chiuso il 2026-09-19, voce `eff-foschia` non
+    approvata: *mi sembra che adesso i valori negativi introducano un difetto simile a quello già
+    rilevato per Chiarezza e Texture*, cioè un reticolo). Nove delta su una griglia a passo `s`
+    hanno una risposta in frequenza **periodica**, quindi ai periodi `s`, `s/2`, `s/3` e `s/4` la
+    stima **non media affatto**: misurato, la risposta valeva esattamente **1,000**, cioè la mappa
+    del velo copiava la trama che a quei periodi l'immagine ha. Con gli anelli vale 0,19-0,62.
+    - ⚠️⚠️ **E PERCHÉ SI VEDESSE SOLO IN NEGATIVO LO DICE IL SEGNO, NON IL TETTO DELLA `2.60`**:
+      dove la stima copia il contenuto, quelle frequenze si comportano diversamente dalle altre.
+      Aggiungendo velo tutta la texture si attenua e quelle no, quindi **sporgono** e si leggono
+      come un reticolo; togliendolo tutta la texture si accentua e quelle no, quindi rientrano, e
+      un buco non si nota. Sulla texture di prova il pettine passava da 1,236 (l'originale) a
+      **1,312** aggiungendo, e adesso vale **1,230**, cioè quanto l'originale.
+    - ⚠️⚠️ **CINQUE E TRE SONO COPRIMI, ED È QUELLO CHE ROMPE LA PERIODICITÀ**: con due anelli di
+      quei conti, sfasati e con raggi non in rapporto intero, non esiste nessuna direzione in cui
+      i campioni cadano a passo costante. ⚠️ **Non azzera il massimo fuori banda**, che resta
+      0,870 contro 1,000: quello che cambia è che i picchi residui cadono a frequenze e direzioni
+      sparse invece che su una griglia allineata agli assi, quindi non compongono una trama.
+    - ⚠️⚠️ **LA STRADA SCARTATA È LA RIDUZIONE, ED È MIGLIORE SULLA CARTA**: leggere i campioni da
+      una versione rimpicciolita dell'immagine porta il massimo fuori banda a **0,246**, perché
+      ogni campione è già la media della sua cella. Costa una texture in più nello shader, la sua
+      costruzione a ogni tessera del salvataggio, una griglia da allineare fra le tessere e un
+      bordo più largo; e sulla texture di prova dà **1,229** contro i 1,230 dei due anelli, cioè
+      lo stesso. Chi ci tornasse riparta di lì invece di rifare la misura.
+    - ⚠️⚠️ **E GLI ANELLI NON BASTANO CON PIÙ CAMPIONI, che è la misura che ha chiuso la scelta**:
+      cercando la disposizione migliore, con 17 campioni il massimo fuori banda si ferma a 0,567 e
+      con 25 a 0,550. Cioè triplicare il costo non avvicina alla riduzione, e a parità di nove
+      campioni la differenza fra le due strade non si vede su una texture vera.
 - ⚠️⚠️ **LA LUCE ATMOSFERICA SI PRENDE BIANCA, E LA SCELTA È DICHIARATA PERCHÉ L'ALTRA STRADA NON
   STA IN PIEDI QUI**: il modello completo la stima sull'immagine **intera**, cioè con un numero
   che l'anteprima e il file pieno dovrebbero condividere. Quel numero non può vivere in `Look`,
@@ -3011,6 +3039,13 @@ ha appena mediato.
   delle tessere, perché il banco la possa chiamare: là dentro disegnare vuole una scheda grafica.
   - ⚠️ **La forma resta quella di un massimo anche con un cursore solo**, dalla `2.64`: chi
     aggiungesse un secondo filtro che legge i vicini la trova già scritta.
+  - ⚠️⚠️ **E FINO ALLA `2.64` QUEL BORDO ERA PIÙ STRETTO DEL FILTRO CHE DOVEVA COPRIRE, E NESSUNO
+    LO AVEVA VISTO**: i quattro campioni **diagonali** della griglia stavano a radice di due volte
+    il raggio, cioè il **41%** oltre quello che `hazeReach` promette, quindi su una giunzione, con
+    la foschia mossa, quella fascia leggeva il bordo ripetuto invece del pixel che sta di là. È
+    esattamente la riga che il bordo esiste per non far comparire. ⚠️ **Dalla `2.65` i due
+    coincidono**, perché l'anello largo tocca esattamente il raggio, e a prenderlo è stata la
+    prova nuova e non una rilettura del codice.
 - ⚠️ **A riposo il bordo vale zero**, come prima, quindi chi non usa quel cursore paga le
   tessere di sempre. E la guardia uniforme dello shader salta i campioni per pixel.
 - ⚠️⚠️ **E LA GUARDIA SI SCRIVE SUL RAGGIO E NON SU 'MODULO A RIPOSO'**: un modulo mosso con la
@@ -3077,9 +3112,18 @@ vicini**; dalla `2.57` anche che una tessera dichiari la propria origine **col s
 gli Effetti dentro**, che è il solo modo di accorgersi di un uniform che non combacia, in un verso
 come nell'altro (dalla `2.64` anche di uno di troppo, rimasto nella consegna dopo un cursore
 tolto), e `PresetTest` misura che uno stile se li porti tutti e tre e che a riposo non si
-scrivano. **Non** vede i pixel che ne escono: che la foschia se ne vada, che la vignettatura sia
-centrata e che la grana somigli a una pellicola si guarda sul telefono, e la voce di collaudo lo
-chiede.
+scrivano; dalla `2.65` anche il **kernel della mappa del velo**, letto dalla stringa dello shader
+come i tre numeri che `Auto` ricopia: che i campioni siano nove, che i pesi sommino a sedici, che
+il kernel sia centrato, che nessuno superi il raggio dichiarato al bordo delle tessere, e che
+**nessuna frequenza passi intera**, che è la proprietà da cui il reticolo nasceva. **Non** vede i
+pixel che ne escono: che la foschia se ne vada, che la vignettatura sia centrata e che la grana
+somigli a una pellicola si guarda sul telefono, e la voce di collaudo lo chiede.
+- ⚠️⚠️ **LA CONTROPROVA DEL CASO DEL KERNEL DICE DUE COSE, E LA SECONDA NON ERA PREVISTA**:
+  rimettendo la griglia della `2.64` cade per prima l'asserzione sul **raggio** (radice di due
+  invece di uno, cioè il difetto del bordo delle tessere qui sopra), e sospendendo quella cade
+  l'asserzione del pettine con **1,000**, che è il numero del modello. ⚠️ **La soglia è più bassa
+  del valore misurato di proposito** (0,95 contro 0,870): si presidia il fatto che nessuna
+  frequenza passi intera, non il numero di oggi.
 - ⚠️⚠️ **E LA `2.60` NON PORTA NESSUNA PROVA NUOVA, CHE VA DETTO INVECE DI LASCIARLO CREDERE**: le
   due correzioni della foschia vivono **tutte e due** in AGSL, e su una tela di memoria quel
   programma non gira. Quello che il banco fa è compilarlo; i numeri di quel giro vengono da un
