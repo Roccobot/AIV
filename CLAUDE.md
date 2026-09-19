@@ -5083,9 +5083,14 @@ collaudo: rilascio, documento, riscontro'.
     live', mentre è 'ho guardato nel posto sbagliato'.
   - **Quindi si chiede il FILE**, che è quello che 'il file servito' vuol dire: un `curl` su
     `https://roccobot.github.io/AIV/AIV-<versione>.apk` deve rispondere **200** col peso
-    dell'asset della release, e quello della versione prima **404**, perché il workflow lo
-    sostituisce invece di affiancarlo. Sulla `2.65`: 200 e 7.629.304 byte, contro il 404 della
-    `2.64`.
+    dell'asset della release. Sulla `2.70`: 200 e 7.722.920 byte.
+  - ⚠️⚠️ **MA IL CODICE DA SOLO NON DISTINGUE NIENTE, E IL CRITERIO È IL TIPO DICHIARATO**: la
+    versione prima risponde **200** anche lei, perché Pages serve la propria pagina di ripiego a
+    un percorso che non esiste. Quindi si guarda `Content-Type`, che per l'APK vale
+    `application/vnd.android.package-archive` e per il ripiego `text/html`. Misurato il
+    2026-09-19: la `2.70` è l'APK, la `2.69` e la `2.68` sono la stessa paginetta da 9.379 byte.
+    ⚠️ **Fino alla `2.65` qui era scritto che la versione prima dà 404**, ed era vero allora: un
+    controllo che aspetti quel numero adesso dà per non pubblicata una versione che è live.
 
 ## 🔐 La firma, e dove NON vive
 
