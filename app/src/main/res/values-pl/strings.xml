@@ -469,6 +469,9 @@
     <string name="look_haze">Mgła</string>
     <string name="look_grain">Ziarno</string>
     <string name="look_vignette">Winieta</string>
+    <string name="look_grain_size">Rozmiar</string>
+    <string name="look_grain_lift">Światła</string>
+    <string name="look_vignette_feather">Wtapianie</string>
     <string name="look_tone">Krzywa</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Krzywa tonalna</string>

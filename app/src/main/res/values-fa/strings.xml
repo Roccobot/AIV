@@ -437,6 +437,9 @@
     <string name="look_haze">مه</string>
     <string name="look_grain">دانه‌دانگی</string>
     <string name="look_vignette">وینیت</string>
+    <string name="look_grain_size">اندازه</string>
+    <string name="look_grain_lift">روشنی‌ها</string>
+    <string name="look_vignette_feather">محو لبه</string>
     <string name="look_tone">منحنی</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">منحنی تون</string>

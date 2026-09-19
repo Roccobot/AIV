@@ -2621,14 +2621,14 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 55: il modulo Effetti porta i suoi tre cursori, e nessun altro li ha.**
+     * **Caso 55: il modulo Effetti porta i suoi sei cursori, e nessun altro li ha.**
      *
      * ⚠️⚠️ **È IL NONO MODULO, DALLA `2.53`, E LA PRIMA COSA CHE PUÒ ROMPERSI IN SILENZIO È IL
      * LEGAME FRA I DUE ELENCHI**: un modulo vive nella tabella di `AdvancedEditorScreen` e la sua
      * chiave in `MOD_KEYS`, e chi ne dimenticasse una sparirebbe dalla fila senza che niente dia
      * errore. Qui si misura dalla parte di chi tocca: il gettone c'è, e aprendolo compaiono i
-     * cursori che ha chiesto lui. ⚠️ **Erano cinque fino alla `2.63`**, e dalla `2.64` sono tre,
-     * che è la sua risposta `via` a `d-eff-restano`.
+     * cursori che ha chiesto lui. ⚠️ **Erano cinque fino alla `2.63`, tre dalla `2.64`**, e dalla
+     * `2.66` sono sei, coi tre secondari del suo campo libero.
      * ⚠️⚠️ **IL GETTONE SI PORTA IN TESTA, E SENZA QUELLA RIGA LA PROVA MENTIVA**: col nono
      * gettone la fila scorre, quindi in coda la pastiglia cade fuori dalla larghezza del banco; il
      * tocco non dà nessun errore e non cambia modulo, e si contavano zero cursori credendo di
@@ -2637,18 +2637,94 @@ class SviluppoTest {
      * addosso alla prova: il perché vive su [davanti].
      */
     @Test
-    fun `il modulo Effetti porta i suoi tre cursori`() {
+    fun `il modulo Effetti porta i suoi sei cursori`() {
         banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
         pronta()
 
         assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
         modulo(R.string.look_effects)
         assertEquals(
-            "gli Effetti devono portare i tre cursori del suo elenco", 3, quantiCursori()
+            "gli Effetti devono portare i sei cursori del suo elenco", 6, quantiCursori()
         )
 
         modulo(R.string.look_light)
         assertEquals("e la Luce, toccata, porta i suoi sei", 6, quantiCursori())
+    }
+
+    /**
+     * **Caso 55b: i tre cursori secondari si spengono finché il loro principale è a zero.**
+     *
+     * ⚠️⚠️ **È LA SECONDA METÀ DELLA SUA RICHIESTA, DALLA `2.66`** (campo libero del giro chiuso il
+     * 2026-09-19: *tre slider secondari ... che si dovrà attivare solo se l'effetto relativo sta
+     * modificando l'immagine*), e la cosa che può rompersi in silenzio è il **verso** della
+     * condizione: scritta al contrario, i tre sarebbero accesi proprio quando non governano
+     * niente, e spenti quando servono. Il codice sarebbe valido in tutti e due i casi.
+     * ⚠️ **Le righe sono nell'ordine dell'elenco**: foschia, grana, 'Dimensione', 'Luci',
+     * vignettatura, 'Sfumatura', cioè ognuno sotto il comando da cui dipende.
+     */
+    @Test
+    fun `i cursori secondari degli Effetti si spengono col loro principale`() {
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_EFFECTS)) }
+        pronta()
+        modulo(R.string.look_effects)
+
+        cursore(0).assertIsEnabled()
+        cursore(1).assertIsEnabled()
+        cursore(2).assertIsNotEnabled()
+        cursore(3).assertIsNotEnabled()
+        cursore(4).assertIsEnabled()
+        cursore(5).assertIsNotEnabled()
+
+        // La grana accende i suoi due e lascia spenta la 'Sfumatura' della vignettatura.
+        muovi(1, 0.5f)
+        cursore(2).assertIsEnabled()
+        cursore(3).assertIsEnabled()
+        cursore(5).assertIsNotEnabled()
+
+        // E la vignettatura accende la sua.
+        muovi(4, 0.8f)
+        cursore(5).assertIsEnabled()
+    }
+
+    /**
+     * **Caso 55c: i tre secondari non contano come lavoro, e la cella della grana segue la sua
+     * 'Dimensione'.**
+     *
+     * ⚠️⚠️ **CONTANDOLI, UN'IMMAGINE CON LA SOLA 'Sfumatura' MOSSA SI DICHIAREREBBE DA
+     * RISCRIVERE**, cioè verrebbe ricompressa per un valore che non cambia un pixel. È il criterio
+     * del raggio e della mascheratura del Dettaglio, su un modulo in più.
+     * ⚠️⚠️ **E LA CELLA DELLA GRANA RESTA UNA FRAZIONE DEL LATO**: il cursore la raddoppia e la
+     * dimezza, e le due immagini su cui il conto gira (l'anteprima ridotta e il file pieno) devono
+     * vederla in proporzione, o la grana dell'anteprima non sarebbe quella che si salva.
+     */
+    @Test
+    fun `i secondari degli Effetti non contano come lavoro`() {
+        assertTrue(Effects(grainSize = 1f).idle)
+        assertTrue(Effects(grainLift = 1f).idle)
+        assertTrue(Effects(vignetteFeather = 1f).idle)
+        assertTrue(Look(effects = Effects(vignetteFeather = 1f)).lossless)
+        assertFalse(Effects(grain = 0.01f).idle)
+
+        /*
+         * ⚠️ **E nemmeno un bordo sulle tessere**: nessuno dei tre legge un pixel vicino, quindi
+         * la guardia di `bleed` resta scritta sul solo raggio della foschia.
+         */
+        assertEquals(0, Effects(grain = 1f, grainSize = 1f, grainLift = 1f).bleed(4000f))
+
+        val serie = Effects.grainCell(4000f)
+        assertEquals("a riposo la cella è quella di sempre", serie, Effects.grainCell(4000f, 0f), 1e-4f)
+        assertEquals("a fondo corsa raddoppia", 2f * serie, Effects.grainCell(4000f, 1f), 1e-3f)
+        assertEquals("e nell'altro verso dimezza", serie / 2f, Effects.grainCell(4000f, -1f), 1e-3f)
+        assertEquals(
+            "e resta una frazione del lato",
+            2f * Effects.grainCell(2000f, 0.5f), Effects.grainCell(4000f, 0.5f), 1e-3f
+        )
+        /*
+         * ⚠️⚠️ **SOTTO IL PIXEL IL PAVIMENTO ENTRA IN FUNZIONE, E DALLA `2.66` SI INCONTRA ANCHE
+         * SULL'ANTEPRIMA**: una cella più stretta di un pixel non è una grana più fine, è uno
+         * sfarfallio, quindi là la proporzione si rompe apposta.
+         */
+        assertEquals("il pavimento è il pixel", 1f, Effects.grainCell(800f, -1f), 1e-4f)
     }
 
     /**
@@ -3015,6 +3091,45 @@ class SviluppoTest {
         assertEquals("POINT_SHIFT", nelloShader("POINT_SHIFT"), Auto.POINT_SHIFT, 1e-6f)
         assertEquals("WB_REACH", nelloShader("WB_REACH"), Auto.WB_REACH, 1e-6f)
         assertEquals("CONTRAST_RISE", nelloShader("CONTRAST_RISE"), Auto.CONTRAST_RISE, 1e-6f)
+    }
+
+    /**
+     * **Caso 64b: i due cursori secondari che lavorano nello shader restano dentro i loro
+     * confini.**
+     *
+     * ⚠️⚠️ **IL CONTO VIVE IN AGSL E IL BANCO NON LO ESEGUE, QUINDI QUELLO CHE SI MISURA È LA
+     * FORMA**: i numeri dei due conti nuovi della `2.66` vivono dentro `LOOK_AGSL`, che per il
+     * compilatore di Kotlin è un testo qualunque, e quello che può rompersi in silenzio è che
+     * qualcuno li sposti oltre il punto in cui il conto smette di voler dire quello che dice.
+     * Che l'immagine venga bene si guarda sul telefono, e la voce di collaudo lo chiede.
+     * ⚠️⚠️ **LA SOGLIA DELLA VIGNETTATURA NON PUÒ PASSARE ZERO**: la rampa parte da
+     * `0,5 - Sfumatura * VIGNETTE_SOFT`, quindi con quel numero sopra un mezzo il fondo corsa
+     * porterebbe la soglia sotto zero, cioè il **centro** si scurirebbe insieme al resto e non
+     * sarebbe più una vignettatura. E sopra uno l'altro fondo corsa non toccherebbe più niente.
+     * ⚠️⚠️ **E LA RAMPA DELLA GRANA DEVE COMINCIARE SOTTO METÀ SCALA**: là vive il picco del suo
+     * peso, e una rampa che partisse più in alto lascerebbe il cielo dove lui non lo vuole (col
+     * conto misurato: 2,9 livelli su 255 invece di 0,8). Il pavimento invece non può essere zero,
+     * che è il suo *non proprio zero ma quasi* alla lettera.
+     */
+    @Test
+    fun `i confini dei due conti secondari degli Effetti`() {
+        fun nelloShader(nome: String): Float {
+            val riga = Regex("const half $nome = ([-0-9.]+);").find(LOOK_AGSL)
+            assertNotNull("la costante $nome non è più nello shader", riga)
+            return riga!!.groupValues[1].toFloat()
+        }
+
+        val soft = nelloShader("VIGNETTE_SOFT")
+        assertTrue("la soglia della vignettatura non deve passare zero", soft < 0.5f)
+        assertTrue("e l'altro fondo corsa deve restare dentro il raggio", soft in 0f..0.5f)
+
+        val lo = nelloShader("GRAIN_LIFT_LO")
+        val hi = nelloShader("GRAIN_LIFT_HI")
+        val floor = nelloShader("GRAIN_LIFT_FLOOR")
+        assertTrue("la rampa della grana comincia sotto metà scala", lo < 0.5f)
+        assertTrue("e finisce dopo che è cominciata", hi > lo)
+        assertTrue("e vive dentro la scala dei toni", hi <= 1f && lo >= 0f)
+        assertTrue("alle luci resta un filo di grana, non zero", floor > 0f && floor < 0.5f)
     }
 
     /**

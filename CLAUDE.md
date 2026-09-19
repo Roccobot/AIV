@@ -2866,6 +2866,8 @@ di collaudo lo chiede.
 scritti, arrivati in tre giri (la `2.53` i primi due, la `2.54` il terzo e la `2.57` gli ultimi
 due, che è la sua istruzione dello stesso giorno: *procediamo un po' alla volta con le versioni e
 i test necessari ad ogni giro*), e dalla `2.64` sono **tre**: Foschia, Grana e Vignettatura.
+⚠️⚠️ **E DALLA `2.66` OGNUNO DEI TRE PORTA IL SUO SECONDARIO, QUINDI LA FILA È DI SEI**:
+§ '🎛️ I tre cursori secondari degli Effetti'.
 
 ⚠️⚠️ **CHIAREZZA E TEXTURE SONO USCITE CON LA `2.64`, ED È LA SUA RISPOSTA `via` A
 `d-eff-restano`** (giro della `2.63`: *Toglili tutti e due*). La domanda nasceva dalla sua voce
@@ -3002,6 +3004,84 @@ perché è quello che fa un obiettivo, cioè lascia intatto il centro e cala ver
 vignettatura che comincia a scurire subito si legge come un tondo chiaro appiccicato in mezzo.
 - ⚠️ **È bipolare, e il verso positivo APRE l'angolo invece di chiuderlo**: è il gesto di chi
   corregge la vignettatura che l'obiettivo ha già messo, e non un riempitivo per simmetria.
+- ⚠️⚠️ **E DALLA `2.66` QUEL 'METÀ RAGGIO' LO SPOSTA IL CURSORE 'Sfumatura'**, che è il suo
+  secondario: § '🎛️ I tre cursori secondari degli Effetti'.
+
+## 🎛️ I tre cursori secondari degli Effetti
+
+⚠️⚠️ **DALLA `2.66`, ED È IL SUO CAMPO LIBERO** (giro chiuso il 2026-09-19: *Prima di chiudere il
+modulo Effetti voglio fare una cosa che ti avevo anticipato, ovvero raffinarli con parametri
+aggiuntivi. Rimane spazio verticale per tre slider secondari, uno per effetto, che si dovrà
+attivare solo se l'effetto relativo sta modificando l'immagine*). Il modulo passa da tre cursori a
+**sei**, e ognuno dei tre nuovi vive **sotto** quello che governa, cioè si legge come la sua
+conseguenza: è il criterio con cui il 'Filtro BN' è finito sotto l'interruttore del bianco e nero
+nella `2.37`.
+
+⚠️⚠️ **'UNO PER EFFETTO' E IL SUO ELENCO NON DÀNNO LO STESSO CONTO, E VINCE L'ELENCO**: la frase
+dice uno per effetto, e le tre voci che scrive sotto sono **due** per la grana e **una** per la
+vignettatura, quindi alla foschia non ne tocca nessuna. Il numero torna, la ripartizione no, e
+l'elenco è la parte dettagliata, perché ognuna delle tre porta la sua ragione scritta; 'uno per
+effetto' è il conto dello spazio verticale. ⚠️ **La voce di collaudo gli dice questa lettura in
+chiare lettere**, che è la regola del `CLAUDE.md` di root sulle letture dichiarate.
+
+⚠️ **Si spengono quando il loro principale è a zero**, che è la seconda metà della sua richiesta, e
+il meccanismo è quello della maschera di contrasto senza nitidezza: il campo `off` della tabella dei
+cursori, nato col Dettaglio nella `2.22`. ⚠️ **E non contano in `Effects.idle`**, o un'immagine con
+la sola 'Sfumatura' mossa si dichiarerebbe da riscrivere, cioè verrebbe ricompressa per niente.
+
+⚠️⚠️ **'Luci' HA IL VALORE DI FABBRICA SULLO ZERO, E QUELLO DECIDE COME È SCRITTO** (sua richiesta:
+*'Luci', che è l'abbreviazione di 'Applica alle luci'. Voglio che di default la grana sia aggiunta
+solo alle ombre, e alle luci in misura non proprio zero ma quasi. Questo per evitare che ad aree
+uniformi come il cielo sia aggiunta grana inutilmente*). Scritto al rovescio, cioè con lo zero sul
+comportamento della `2.65`, il valore di fabbrica sarebbe stato un numero diverso da zero, e allora
+un preset che non nomina quel campo lo rileggerebbe sbagliato.
+- ⚠️⚠️ **A FONDO CORSA IL CONTO TORNA ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo su
+  1001 toni), quindi il comportamento di prima non si perde, si sposta a un capo della corsa.
+- ⚠️⚠️ **MA CHI HA UNO STILE CON LA GRANA MOSSA LA RITROVA DIVERSA, E SI DICHIARA**: il peso di
+  fabbrica è cambiato, e un preset salvato con la `2.65` non porta quel campo, quindi lo rilegge a
+  riposo. Sulle sue immagini la grana resta dov'era nelle ombre e quasi sparisce nei chiari.
+- **I numeri sono misurati**: a cursore pieno della grana, su un cielo a `0,82` di scala un pixel
+  passa da **7,2 livelli su 255 a 0,8**, che è il *non proprio zero ma quasi* della sua richiesta,
+  mentre a un quarto di scala non cambia niente; il picco del peso si sposta da metà scala a
+  **0,39**, cioè nella fascia scura, che è il *solo alle ombre* della stessa riga. Il prezzo è che
+  a metà tono la grana tiene l'81% di quanto teneva, ed è dichiarato.
+- ⚠️ **Quello che la sua richiesta non copre**: un cielo è chiaro **e** uniforme, e questo cursore
+  guarda solo quanto è chiaro. Guardare anche l'uniformità vorrebbe dire leggere i pixel vicini,
+  cioè un raggio e un bordo sulle tessere del salvataggio, che è il prezzo che la foschia paga da
+  sola; qui costa zero campioni ed è la strada che lui ha indicato (*Se ci sono soluzioni più
+  'smart', proponi pure, ma penso che funzionerebbe bene*).
+
+⚠️ **'Dimensione' raddoppia e dimezza la cella**, come il raggio del Dettaglio e per la stessa
+ragione: una misura di quel genere si percepisce in rapporti, e lo zero è quella che lui ha
+approvato (*L'attuale va benissimo ed è il default, ma a volte mi piace generare grana un po' più
+grossa*). Su un file da quattromila pixel la corsa va da 1,7 a 6,7 pixel, con 3,3 a riposo.
+- ⚠️⚠️ **VERSO IL FINE IL PAVIMENTO DEL PIXEL ENTRA ANCHE SULL'ANTEPRIMA, e va detto**: a 1600
+  pixel di lato la cella scende sotto il pixel intorno a `-0,4`, quindi là la grana si vede un po'
+  più grossa di quella che il file salvato porterà. Fino alla `2.65` quel pavimento non si
+  incontrava mai sopra i 1200 pixel, e questo cursore è la ragione per cui adesso si incontra.
+
+⚠️ **'Sfumatura' sposta il punto in cui la vignettatura comincia** (*Indica quanto l'alone scuro
+intorno si avvicina al centro, e/o l'opacità iniziale ai bordi esterni (credo)*): le due cose che
+nomina sono la stessa vista da due parti, e un numero solo le dice tutte e due, perché spostando la
+soglia l'alone arriva più dentro **e** copre più area.
+- ⚠️ **Lo zero è il conto di oggi**, misurato: scarto nullo su 1001 raggi, quindi una vignettatura
+  già tarata non si muove di un livello.
+- **Che cosa fanno i due estremi**, misurato contando l'area toccata su un 4:3: a fondo corsa
+  negativa la rampa comincia a `0,9` e l'alone vive nei soli angoli (il 2% del fotogramma); a
+  riposo copre il 61%; a fondo corsa positiva comincia a `0,1` e arriva al 98%, cioè tutto tranne
+  il centro esatto.
+
+⚠️ **La scheda non cresce**: i sei cursori pareggiano quelli della Luce, e l'altezza comune la detta
+comunque il grafico delle Curve (§ `SteadyBody`).
+
+⚠️ **Che cosa il banco misura e che cosa no**: che i tre si spengano col loro principale (col
+**verso** della condizione, che è la cosa che può rompersi in silenzio), che non contino come
+lavoro né come bordo delle tessere, che la cella della grana si scali col lato e col cursore, e che
+i numeri dei due conti nuovi restino dentro i loro confini, letti dalla stringa dello shader come i
+tre che `Auto` ricopia. **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
+cielo resti pulito e che l'alone si allarghi si guardano sul telefono, e la voce di collaudo lo
+chiede. ⚠️ **I numeri di questo blocco vengono da un modello di sessione**, scritto e buttato, che è
+la strada dichiarata per questo genere di conto.
 
 ⚠️⚠️ **LA GRANA HA UNA CELLA, ED È MONOPOLARE**: un rumore alto un pixel su un file da quattromila
 si vede solo ingrandendo e rimpicciolito si media via, quindi la cella è una frazione del lato come
@@ -3011,7 +3091,8 @@ vive nel Dettaglio.
 - ⚠️ **Pesa sui mezzi toni**: una pellicola mostra il grano dove l'emulsione è esposta a metà, e
   quasi niente nel nero chiuso e nel bianco bruciato.
   Senza quel peso il cursore sporcherebbe prima di tutto le ombre, che è l'effetto del rumore
-  digitale e non della grana.
+  digitale e non della grana. ⚠️⚠️ **E DALLA `2.66` QUEL PESO SI RITIRA ANCHE DALLE LUCI**, quanto
+  lo dice il suo cursore secondario: § '🎛️ I tre cursori secondari degli Effetti'.
 - ⚠️ **Si somma lo stesso valore ai tre canali**: la grana di una pellicola è di densità e non di
   colore, e un rumore per canale darebbe i puntini che la riduzione del rumore esiste per togliere.
 - ⚠️⚠️ **SOTTO IL PIXEL LA CELLA NON SCENDE, E QUEL PAVIMENTO ROMPE LA PROPORZIONE**: una cella più
@@ -3059,11 +3140,12 @@ scoprire su un telefono. La prudenza resta scritta perché vale per qualunque no
 posto in cui un nome vive decide se può dare fastidio.
 
 ⚠️⚠️ **UN PRESET SE LI PORTA, QUINDI I MODULI CHE UNO STILE GOVERNA PASSANO DA CINQUE A SEI**:
-i tre cursori sono un **aspetto**, cioè una cosa che si porta da un'immagine all'altra, come la
+i cursori sono un **aspetto**, cioè una cosa che si porta da un'immagine all'altra, come la
 luce e il colore; i tre che restano fuori sono ancora la posa, il ritaglio e la geometria, che
 dipendono da come è stata scattata quell'immagine. ⚠️ **Il formato non si rompe**, perché ogni
 campo che manca vale il suo valore di riposo: uno stile salvato con la `2.52` si rilegge oggi, e
-uno salvato con la `2.63` si rilegge oggi perdendo i due cursori che non esistono più.
+uno salvato con la `2.63` si rilegge oggi perdendo i due cursori che non esistono più. ⚠️ **E i
+tre secondari della `2.66` viaggiano con loro**, con la stessa regola.
 - ⚠️⚠️ **MA I VENTI DI CASA RESTANO SENZA, E VA DETTO INVECE DI LASCIARLO CREDERE**: i suoi
   quattordici sono convertiti dai suoi XMP di Lightroom, e la foschia era fra le cose che quel
   travaso aveva scartato perché l'editor non le aveva (§ '🎞️ I preset, venti di casa e quelli
@@ -3103,7 +3185,7 @@ testa a `ic_mod_effects.xml`.
     `CLAUDE.md` di `CleanSVG`.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
-che il modulo porti i suoi tre cursori e nessun altro li abbia, che il 'Reset modulo' azzeri
+che il modulo porti i suoi cursori e nessun altro li abbia, che il 'Reset modulo' azzeri
 **solo** i suoi, che un loro valore tolga il senza perdita, che le misure si scalino col lato
 dell'immagine, che la stima del velo guardi più lontano del raggio massimo della nitidezza, e che
 il bordo delle tessere sia il più largo dei filtri mossi **e resti zero coi due che non guardano i
@@ -3111,7 +3193,7 @@ vicini**; dalla `2.57` anche che una tessera dichiari la propria origine **col s
 è la sola cosa di quel giro che possa rompersi in silenzio. `ContoTest` compila il programma **con
 gli Effetti dentro**, che è il solo modo di accorgersi di un uniform che non combacia, in un verso
 come nell'altro (dalla `2.64` anche di uno di troppo, rimasto nella consegna dopo un cursore
-tolto), e `PresetTest` misura che uno stile se li porti tutti e tre e che a riposo non si
+tolto), e `PresetTest` misura che uno stile se li porti tutti e che a riposo non si
 scrivano; dalla `2.65` anche il **kernel della mappa del velo**, letto dalla stringa dello shader
 come i tre numeri che `Auto` ricopia: che i campioni siano nove, che i pesi sommino a sedici, che
 il kernel sia centrato, che nessuno superi il raggio dichiarato al bordo delle tessere, e che

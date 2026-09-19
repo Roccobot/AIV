@@ -421,6 +421,9 @@
     <string name="look_haze">Kabut</string>
     <string name="look_grain">Butiran</string>
     <string name="look_vignette">Vinyet</string>
+    <string name="look_grain_size">Ukuran</string>
+    <string name="look_grain_lift">Sorotan</string>
+    <string name="look_vignette_feather">Pelunakan</string>
     <string name="look_tone">Kurva</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Kurva nada</string>

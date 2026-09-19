@@ -453,6 +453,9 @@
     <string name="look_haze">Neblina</string>
     <string name="look_grain">Grano</string>
     <string name="look_vignette">Viñeta</string>
+    <string name="look_grain_size">Tamaño</string>
+    <string name="look_grain_lift">Luces</string>
+    <string name="look_vignette_feather">Desvanecido</string>
     <string name="look_tone">Curva</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva de tonos</string>

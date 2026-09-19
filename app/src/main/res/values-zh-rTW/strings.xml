@@ -421,6 +421,9 @@
     <string name="look_haze">薄霧</string>
     <string name="look_grain">顆粒</string>
     <string name="look_vignette">暈影</string>
+    <string name="look_grain_size">大小</string>
+    <string name="look_grain_lift">高光</string>
+    <string name="look_vignette_feather">羽化</string>
     <string name="look_tone">曲線</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">色調曲線</string>

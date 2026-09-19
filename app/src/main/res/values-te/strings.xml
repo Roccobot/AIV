@@ -437,6 +437,9 @@
     <string name="look_haze">పొగమంచు</string>
     <string name="look_grain">గ్రెయిన్</string>
     <string name="look_vignette">వినియెట్</string>
+    <string name="look_grain_size">పరిమాణం</string>
+    <string name="look_grain_lift">హైలైట్లు</string>
+    <string name="look_vignette_feather">ఫెదర్</string>
     <string name="look_tone">కర్వ్</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">టోన్ కర్వ్</string>

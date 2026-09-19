@@ -437,6 +437,9 @@
     <string name="look_haze">Dunst</string>
     <string name="look_grain">Körnung</string>
     <string name="look_vignette">Vignettierung</string>
+    <string name="look_grain_size">Größe</string>
+    <string name="look_grain_lift">Lichter</string>
+    <string name="look_vignette_feather">Weiche Kante</string>
     <string name="look_tone">Kurve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tonwertkurve</string>

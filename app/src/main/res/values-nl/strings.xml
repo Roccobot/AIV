@@ -437,6 +437,9 @@
     <string name="look_haze">Nevel</string>
     <string name="look_grain">Korrel</string>
     <string name="look_vignette">Vignet</string>
+    <string name="look_grain_size">Grootte</string>
+    <string name="look_grain_lift">Hoge lichten</string>
+    <string name="look_vignette_feather">Doezelaar</string>
     <string name="look_tone">Curve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tooncurve</string>

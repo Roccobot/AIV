@@ -421,6 +421,9 @@
     <string name="look_haze">หมอก</string>
     <string name="look_grain">เกรน</string>
     <string name="look_vignette">ขอบมืด</string>
+    <string name="look_grain_size">ขนาด</string>
+    <string name="look_grain_lift">ไฮไลต์</string>
+    <string name="look_vignette_feather">ขอบฟุ้ง</string>
     <string name="look_tone">เส้นโค้ง</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">เส้นโค้งโทน</string>

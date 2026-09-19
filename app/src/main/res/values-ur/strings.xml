@@ -437,6 +437,9 @@
     <string name="look_haze">دھند</string>
     <string name="look_grain">گرین</string>
     <string name="look_vignette">وینیٹ</string>
+    <string name="look_grain_size">سائز</string>
+    <string name="look_grain_lift">روشن حصے</string>
+    <string name="look_vignette_feather">فیدر</string>
     <string name="look_tone">کرو</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">ٹون کرو</string>
