@@ -2997,15 +2997,17 @@ riceve in due uniform (l'origine dell'immagine e la sua misura).
   da zero sul suo angolo, quindi l'immagine intera comincia a un'origine **negativa**. Scritta dal
   chiamante, quella negazione sarebbe una riga da ricordare e un difetto che non dà nessun errore.
 
-⚠️⚠️ **LA VIGNETTATURA SI MISURA SULLA MEZZA DIAGONALE E PARTE DA METÀ RAGGIO**: sulla diagonale
-perché l'angolo deve valere uno su qualunque formato (dividendo per il lato, su un panorama lo
-stesso valore del cursore scurirebbe i due lati corti molto più degli altri due); da metà raggio
-perché è quello che fa un obiettivo, cioè lascia intatto il centro e cala verso il bordo, mentre una
-vignettatura che comincia a scurire subito si legge come un tondo chiaro appiccicato in mezzo.
+⚠️⚠️ **LA VIGNETTATURA SI MISURA SULLA MEZZA DIAGONALE, E DALLA `2.67` LA RAMPA PARTE DAL CENTRO**:
+sulla diagonale perché l'angolo deve valere uno su qualunque formato (dividendo per il lato, su un
+panorama lo stesso valore del cursore scurirebbe i due lati corti molto più degli altri due); dal
+centro perché è quello che fa un obiettivo, che cala da subito, e perché è la **sfumatura sempre
+massima** che ha chiesto. Lo scalino al centro lo toglie `smoothstep`, che parte con pendenza zero.
 - ⚠️ **È bipolare, e il verso positivo APRE l'angolo invece di chiuderlo**: è il gesto di chi
   corregge la vignettatura che l'obiettivo ha già messo, e non un riempitivo per simmetria.
-- ⚠️⚠️ **E DALLA `2.66` QUEL 'METÀ RAGGIO' LO SPOSTA IL CURSORE 'Sfumatura'**, che è il suo
-  secondario: § '🎛️ I tre cursori secondari degli Effetti'.
+- ⚠️⚠️ **FINO ALLA `2.66` PARTIVA DA METÀ RAGGIO E IL PIENO STAVA SEMPRE SULL'ANGOLO**, e adesso è
+  il contrario: la rampa parte sempre dal centro e a muoversi è il punto del **pieno**, che lo
+  sposta il cursore 'Sfumatura' (§ '🎛️ I tre cursori secondari degli Effetti'). Chi legge che
+  'il centro resta intatto' sappia che era vero fino a quella versione.
 
 ## 🎛️ I tre cursori secondari degli Effetti
 
@@ -3040,11 +3042,26 @@ un preset che non nomina quel campo lo rileggerebbe sbagliato.
 - ⚠️⚠️ **MA CHI HA UNO STILE CON LA GRANA MOSSA LA RITROVA DIVERSA, E SI DICHIARA**: il peso di
   fabbrica è cambiato, e un preset salvato con la `2.65` non porta quel campo, quindi lo rilegge a
   riposo. Sulle sue immagini la grana resta dov'era nelle ombre e quasi sparisce nei chiari.
-- **I numeri sono misurati**: a cursore pieno della grana, su un cielo a `0,82` di scala un pixel
-  passa da **7,2 livelli su 255 a 0,8**, che è il *non proprio zero ma quasi* della sua richiesta,
-  mentre a un quarto di scala non cambia niente; il picco del peso si sposta da metà scala a
-  **0,39**, cioè nella fascia scura, che è il *solo alle ombre* della stessa riga. Il prezzo è che
-  a metà tono la grana tiene l'81% di quanto teneva, ed è dichiarato.
+- ⚠️⚠️ **E DALLA `2.67` I TRE NUMERI SONO SUOI, DETTATI COL TELEFONO IN MANO** (riscontro del giro
+  della `2.66`, voce `eff-grana-luci` accettabile: *il 'quasi zero' passa da 0,8 a 0,1. Ovviamente
+  il passaggio da ombre a luci dev'essere graduale; metà scala a 0,35*). I vincoli sono tre e
+  ognuno fissa una costante: il pavimento è quello che dà **0,1 livelli su 255** sul cielo a
+  `t=0,82`; la soglia bassa cade sul **quarto di scala**, cioè dove finiscono le ombre che restano
+  intatte; e quella alta è quella che fa valere **0,35** il peso a metà scala.
+  - ⚠️⚠️ **'0,35' È IL PESO E NON I LIVELLI, ED È UNA LETTURA DICHIARATA**: la voce della `2.66` gli
+    diceva che a metà tono la grana teneva l'**81%**, e la sua riga risponde a quel numero; letto in
+    livelli darebbe 0,35 su 255 a metà scala contro i 9,2 del quarto, cioè un crollo, che è il
+    contrario del *graduale* della stessa frase. La voce di collaudo gli dice questa lettura in
+    chiare lettere.
+  - **Che cosa cambia, in livelli su 255 a grana piena**: fino al quarto di scala niente, a metà
+    scala si passa da 9,9 a **4,2**, a due terzi da 6,5 a **0,8**, sul cielo da 0,8 a **0,1**. Il
+    picco si sposta da 0,39 a **0,31**, cioè ancora più nelle ombre.
+  - ⚠️ **Sotto la quantizzazione, e va detto**: un decimo di livello su 255 non si vede affatto,
+    quindi sul cielo la grana di fatto non c'è. È quello che ha chiesto, e il posto in cui si
+    chiede il contrario è il cursore stesso.
+- **I numeri della `2.66` erano altri tre**: sul cielo si fermava a `0,8` livelli e a metà tono la
+  grana teneva l'81% di quanto teneva nella `2.65`. Chi li ritrova in una nota sappia che sono
+  quelli del giro prima.
 - ⚠️ **Quello che la sua richiesta non copre**: un cielo è chiaro **e** uniforme, e questo cursore
   guarda solo quanto è chiaro. Guardare anche l'uniformità vorrebbe dire leggere i pixel vicini,
   cioè un raggio e un bordo sulle tessere del salvataggio, che è il prezzo che la foschia paga da
@@ -3060,16 +3077,31 @@ grossa*). Su un file da quattromila pixel la corsa va da 1,7 a 6,7 pixel, con 3,
   più grossa di quella che il file salvato porterà. Fino alla `2.65` quel pavimento non si
   incontrava mai sopra i 1200 pixel, e questo cursore è la ragione per cui adesso si incontra.
 
-⚠️ **'Sfumatura' sposta il punto in cui la vignettatura comincia** (*Indica quanto l'alone scuro
-intorno si avvicina al centro, e/o l'opacità iniziale ai bordi esterni (credo)*): le due cose che
-nomina sono la stessa vista da due parti, e un numero solo le dice tutte e due, perché spostando la
-soglia l'alone arriva più dentro **e** copre più area.
-- ⚠️ **Lo zero è il conto di oggi**, misurato: scarto nullo su 1001 raggi, quindi una vignettatura
-  già tarata non si muove di un livello.
-- **Che cosa fanno i due estremi**, misurato contando l'area toccata su un 4:3: a fondo corsa
-  negativa la rampa comincia a `0,9` e l'alone vive nei soli angoli (il 2% del fotogramma); a
-  riposo copre il 61%; a fondo corsa positiva comincia a `0,1` e arriva al 98%, cioè tutto tranne
-  il centro esatto.
+⚠️⚠️ **'Sfumatura' SPOSTA IL PUNTO IN CUI LA VIGNETTATURA ARRIVA AL PIENO, DALLA `2.67`, E FINO
+ALLA `2.66` SPOSTAVA QUELLO IN CUI COMINCIAVA** (riscontro del giro della `2.66`, voce
+`eff-vign-sfuma` accettabile: *voglio che la sfumatura sia sempre massima. Deve cambiare il punto
+di *inizio*, che in negativo dev'essere lontano (fuori dal fotogramma), mentre in positivo arriva
+poco all'interno del bordo*). La rampa parte sempre dal centro, che è la sfumatura più lunga che il
+fotogramma consenta, e a muoversi è il suo capo esterno.
+- ⚠️⚠️ **'IL PUNTO DI INIZIO' È QUELLO DEL PIENO, E LA LETTURA È DICHIARATA**: guardando
+  dall'esterno, la vignettatura comincia dove l'alone è pieno e sfuma verso il centro. Letto come
+  il capo **interno** la sua frase non sta in piedi, perché in negativo il capo interno fuori dal
+  fotogramma vorrebbe dire nessun alone, e in positivo un alone stretto sul bordo: due estremi che
+  dicono la stessa cosa.
+- **I due estremi sui raggi di `fromCentre`**, dove l'angolo vale `1` e il mezzo di ogni lato
+  `0,707`: a `+100` il pieno cade a **0,70**, cioè appena dentro il bordo; a riposo **sull'angolo**;
+  a `-100` a **1,30**, cioè fuori dal fotogramma, e là l'angolo si ferma all'86%.
+- ⚠️⚠️ **A RIPOSO L'IMMAGINE CAMBIA, E SI DICHIARA INVECE DI PROMETTERE IL CONTRARIO**: con la
+  vignettatura a `-50`, a metà raggio si perdono **35 livelli su 255** invece di zero e a metà di un
+  lato **56** invece di 26; l'angolo resta identico. Cioè l'alone arriva molto più dentro, ed è la
+  conseguenza diretta della sfumatura massima: chi aveva una vignettatura tarata la rivede più
+  diffusa e la ritocca col cursore principale.
+- ⚠️ **Il suo primo punto è assorbito e non rimandato** (*il minimo dev'essere ciò che adesso è
+  -60: sotto è inutile e direi anche dannoso*): il 'dannoso' erano i quattro angoli scuri che la
+  `2.66` lasciava a fondo corsa negativa, e la rampa dal centro toglie la causa invece di spostare
+  il limite. La corsa negativa nuova è corta per costruzione.
+- **I numeri della `2.66` erano questi**: la rampa cominciava a `0,9` in negativo (alone nei soli
+  angoli, il 2% del fotogramma), a metà raggio a riposo (61%) e a `0,1` in positivo (98%).
 
 ⚠️ **La scheda non cresce**: i sei cursori pareggiano quelli della Luce, e l'altezza comune la detta
 comunque il grafico delle Curve (§ `SteadyBody`).
@@ -3077,8 +3109,12 @@ comunque il grafico delle Curve (§ `SteadyBody`).
 ⚠️ **Che cosa il banco misura e che cosa no**: che i tre si spengano col loro principale (col
 **verso** della condizione, che è la cosa che può rompersi in silenzio), che non contino come
 lavoro né come bordo delle tessere, che la cella della grana si scali col lato e col cursore, e che
-i numeri dei due conti nuovi restino dentro i loro confini, letti dalla stringa dello shader come i
-tre che `Auto` ricopia. **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
+i numeri dei due conti restino dentro i loro confini, letti dalla stringa dello shader come i
+tre che `Auto` ricopia. ⚠️⚠️ **E DALLA `2.67` QUELLA PROVA RICALCOLA I SUOI DUE NUMERI**: il peso a
+metà scala deve valere `0,35` e la grana piena sul cielo `0,1` livelli, cioè si presidia la sua
+richiesta e non una costante ricopiata. Controprovata due volte, rimettendo il pavimento della
+`2.66` (cade il peso a metà scala) e stringendo la corsa della vignettatura (cade il confine del
+bordo). **Non** vede i pixel che ne escono: il conto vive in AGSL, quindi che il
 cielo resti pulito e che l'alone si allarghi si guardano sul telefono, e la voce di collaudo lo
 chiede. ⚠️ **I numeri di questo blocco vengono da un modello di sessione**, scritto e buttato, che è
 la strada dichiarata per questo genere di conto.

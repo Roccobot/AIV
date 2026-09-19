@@ -548,28 +548,31 @@ data class Effects(
      * - ⚠️ **La distanza si misura sulla mezza diagonale**, quindi vale zero al centro e uno agli
      *   angoli qualunque sia il formato dell'immagine: su un panorama e su un quadrato lo stesso
      *   valore del cursore scurisce lo stesso angolo.
-     * - ⚠️ **La corsa parte da metà raggio**, che è quello che fa una vignettatura d'obiettivo:
-     *   il centro resta intatto e l'effetto cresce verso il bordo con una curva morbida, invece
-     *   di essere un tondo scuro che si vede dove comincia. ⚠️ **Da dove parte lo dice
-     *   [vignetteFeather]**, dalla `2.66`: metà raggio è il suo zero.
+     * - ⚠️⚠️ **LA RAMPA PARTE DAL CENTRO E CRESCE FINO AL PUNTO IN CUI È PIENA, DALLA `2.67`**: è
+     *   il profilo di un obiettivo vero, che cala da subito, e `smoothstep` gli toglie il gradino
+     *   al centro. ⚠️ **Dove cade il pieno lo dice [vignetteFeather]**: a riposo è l'angolo. Fino
+     *   alla `2.66` la rampa cominciava invece a metà raggio e finiva sempre all'angolo.
      */
     val vignette: Float = 0f,
     /**
-     * Quanto l'alone della vignettatura **si avvicina al centro**.
+     * Dove la vignettatura arriva al **pieno**: fuori dal fotogramma, o appena dentro il bordo.
      *
      * ⚠️⚠️ **È UN CURSORE SECONDARIO, DALLA `2.66`, ED È SUA RICHIESTA** (campo libero del giro
      * chiuso il 2026-09-19: *per `Vignettatura`: 'Sfumatura'. Indica quanto l'alone scuro intorno
-     * si avvicina al centro, e/o l'opacità iniziale ai bordi esterni (credo)*). Le due cose che
-     * nomina sono la stessa vista da due parti, e un numero solo le dice tutte e due: spostando
-     * il punto in cui la rampa comincia, l'alone arriva più dentro **e** copre più area.
-     * - ⚠️⚠️ **LO ZERO È IL CONTO DI OGGI, ED È MISURATO**: a riposo la soglia vale esattamente
-     *   metà raggio, quindi la vignettatura di un'immagine già tarata non si muove di un livello
-     *   (scarto nullo su 1001 raggi). È la stessa proprietà del raggio del Dettaglio, dove lo
-     *   zero è il raggio di serie.
-     * - ⚠️ **Che cosa fanno i due estremi**, misurato su un 4:3 contando l'area toccata: a fondo
-     *   corsa negativa la rampa comincia a `0,9` e l'alone vive nei soli angoli (il 2% del
-     *   fotogramma); a riposo copre il 61%; a fondo corsa positiva comincia a `0,1` e arriva al
-     *   98%, cioè tutto tranne il centro esatto.
+     * si avvicina al centro, e/o l'opacità iniziale ai bordi esterni (credo)*).
+     * - ⚠️⚠️ **MA DALLA `2.67` GOVERNA UN'ALTRA COSA, ED È IL SUO RISCONTRO** (voce
+     *   `eff-vign-sfuma` accettabile: *voglio che la sfumatura sia sempre massima. Deve cambiare
+     *   il punto di inizio, che in negativo dev'essere lontano (fuori dal fotogramma), mentre in
+     *   positivo arriva poco all'interno del bordo*). Fino alla `2.66` spostava il punto in cui
+     *   l'alone **comincia**, tenendo il pieno sull'angolo; adesso la rampa parte sempre dal
+     *   centro, che è la sfumatura più lunga possibile, e a muoversi è il punto del **pieno**.
+     * - ⚠️⚠️ **QUINDI A RIPOSO L'IMMAGINE CAMBIA, E VA DETTO**: a parità di cursore principale
+     *   l'alone è più esteso e arriva più dentro (misurato con la vignettatura a -50: a metà
+     *   raggio si perdono 35 livelli su 255 invece di zero, e a metà di un lato 56 invece di 26).
+     *   L'angolo resta identico. Chi aveva una vignettatura tarata la rivede più diffusa.
+     * - ⚠️ **Che cosa fanno i due estremi**, sui raggi notevoli di [Adjust.LOOK_AGSL]: a `+100` il
+     *   pieno cade a `0,70`, cioè appena dentro il punto di mezzo di ogni lato (`0,707`); a riposo
+     *   sull'angolo; a `-100` a `1,30`, cioè fuori dal fotogramma, e là l'angolo si ferma all'86%.
      * - ⚠️ **Da solo non cambia un pixel**, quindi non entra in [idle] e l'interfaccia lo spegne
      *   finché [vignette] è a zero: è il criterio della maschera di contrasto senza nitidezza.
      */
@@ -628,6 +631,11 @@ data class Effects(
      * diverso da zero, e allora un preset che non nomina questo campo lo rileggerebbe sbagliato.
      * - ⚠️⚠️ **A FONDO CORSA IL CONTO È ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo
      *   su 1001 toni), quindi chi vuole la grana di prima ha un posto dove chiederla.
+     * - ⚠️⚠️ **E DALLA `2.67` LA RAMPA È PIÙ BASSA, PERCHÉ I TRE NUMERI SONO SUOI** (voce
+     *   `eff-grana-luci` accettabile: *il 'quasi zero' passa da 0,8 a 0,1 ... metà scala a 0,35*).
+     *   Quindi sul cielo resta un decimo di livello invece di otto, e a metà tono la grana tiene
+     *   il 35% invece dell'81%: il conto e la lettura di quel `0,35` vivono sulle tre costanti,
+     *   in [Adjust.LOOK_AGSL].
      * - ⚠️⚠️ **MA CHI HA GIÀ UNO STILE CON LA GRANA MOSSA LA RITROVA DIVERSA, E SI DICHIARA**:
      *   il peso di fabbrica è cambiato, e un preset salvato con la `2.65` non porta questo campo,
      *   quindi lo rilegge a riposo. Sulle sue immagini la grana resta dov'era nelle ombre e
@@ -1544,14 +1552,24 @@ const half HAZE_TIGHT = 2.1667;
 // vede dove comincia, e quello si ottiene comunque spingendo il cursore su un'immagine già scura.
 const half VIGNETTE_REACH = 0.55;
 
-// Di quanto il cursore 'Sfumatura' sposta il punto in cui la vignettatura comincia (dalla `2.66`).
+// Di quanto il cursore 'Sfumatura' sposta il punto in cui la vignettatura arriva al PIENO (dalla
+// `2.67`; fino alla `2.66` spostava il punto in cui cominciava).
 //
-// ⚠️ **Il conto che lo regge**, misurato contando l'area toccata su un 4:3: a riposo la rampa
-// parte da metà raggio e copre il 61% del fotogramma, che è il conto della `2.65`; a fondo corsa
-// negativa parte da 0,9 e resta nei soli angoli (il 2%); a fondo corsa positiva parte da 0,1 e
-// arriva al 98%, cioè tutto tranne il centro esatto. Più largo di così la soglia passerebbe zero,
-// e allora il centro si scurirebbe insieme al resto, cioè non sarebbe più una vignettatura.
-const half VIGNETTE_SOFT = 0.4;
+// ⚠️⚠️ **I DUE ESTREMI SONO LA SUA FRASE LETTA SULLA GEOMETRIA DI [fromCentre]** (riscontro del
+// giro della `2.66`, voce `eff-vign-sfuma` accettabile: *voglio che la sfumatura sia sempre
+// massima. Deve cambiare il punto di inizio, che in negativo dev'essere lontano (fuori dal
+// fotogramma), mentre in positivo arriva poco all'interno del bordo*). Là il raggio vale **1**
+// all'angolo e **0,707** a metà di ogni lato, quindi: a `+100` il pieno cade a **0,70**, cioè
+// appena dentro il bordo; a riposo cade **sull'angolo**; a `-100` cade a **1,30**, cioè fuori dal
+// fotogramma, e là il pieno non si raggiunge mai (all'angolo si ferma all'86%).
+// ⚠️⚠️ **E LA RAMPA PARTE DAL CENTRO, CHE È LA 'SFUMATURA SEMPRE MASSIMA'**: più lunga di così non
+// può essere, e con `smoothstep` la pendenza al centro è zero, quindi l'alone cresce piano invece
+// di cominciare con un gradino. È anche il profilo di un obiettivo vero, che cala da subito.
+// ⚠️ **Con lei la corsa negativa si accorcia**, che è il suo primo punto (*il minimo dev'essere ciò
+// che adesso è -60: sotto è inutile e direi anche dannoso*): il 'dannoso' erano i quattro angoli
+// scuri che la `2.66` lasciava a fondo corsa, e la rampa dal centro toglie la causa invece di
+// spostare il limite.
+const half VIGNETTE_SOFT = 0.3;
 
 // Quanto la grana muove un pixel di mezzo tono, al fondo della corsa.
 //
@@ -1564,19 +1582,25 @@ const half GRAIN_REACH = 0.048;
 // Dove comincia e dove finisce la rampa con cui la grana si ritira dalle luci (dalla `2.66`), e
 // quanta ne resta là in fondo a cursore 'Luci' a riposo.
 //
-// ⚠️⚠️ **I TRE NUMERI SONO MISURATI, E QUELLO CHE CONTA È IL CIELO**: a cursore pieno della grana e
-// 'Luci' a riposo, un pixel si muove di 6,2 livelli su 255 a un quarto di scala e di 9,2 a t=0,25,
-// cioè quanto prima; su un cielo a t=0,82 passa da 7,2 livelli a **0,8**, che è il *non proprio
-// zero ma quasi* della sua richiesta. Il picco del peso si sposta da metà scala a 0,39, cioè nella
-// fascia scura, che è il *solo alle ombre* della stessa riga.
+// ⚠️⚠️ **I TRE NUMERI SI RICAVANO DAI SUOI TRE, E NON SONO UNA TARATURA** (riscontro del giro della
+// `2.66`, voce `eff-grana-luci` accettabile: *il 'quasi zero' passa da 0,8 a 0,1. Ovviamente il
+// passaggio da ombre a luci dev'essere graduale; metà scala a 0,35*). I vincoli sono tre e ognuno
+// fissa un numero: il pavimento è quello che dà **0,1 livelli su 255** sul cielo a `t=0,82` con la
+// grana piena (misurato: 0,0997); la soglia bassa cade sul **quarto di scala**, cioè dove finiscono
+// le ombre che devono restare intatte; e quella alta è quella che fa valere **0,35** il peso a metà
+// scala, che è il numero che ha scritto lui (misurato: 0,3500).
+// ⚠️⚠️ **'0,35' È IL PESO E NON I LIVELLI, ED È UNA LETTURA DICHIARATA**: la voce gli diceva che a
+// metà tono la grana teneva l'**81%**, e la sua riga risponde a quella; letto in livelli darebbe
+// 0,35 su 255 a metà scala contro i 9,2 del quarto, cioè un crollo, che è il contrario del
+// *graduale* della stessa frase.
 // ⚠️⚠️ **E A 'Luci' PIENO IL CONTO TORNA ESATTAMENTE QUELLO DELLA `2.65`** (misurato: scarto nullo
 // su 1001 toni), quindi il comportamento di prima non si perde, si sposta a un capo della corsa.
-// ⚠️ **Perché la rampa comincia sotto metà scala**: con una che partisse da 0,5 il cielo si
-// fermerebbe a 2,9 livelli invece che a 0,8, cioè resterebbe visibile proprio dove lui non la
-// vuole. Il prezzo è che a metà tono la grana tiene l'81% di quanto teneva, ed è dichiarato.
-const half GRAIN_LIFT_LO = 0.35;
-const half GRAIN_LIFT_HI = 0.85;
-const half GRAIN_LIFT_FLOOR = 0.1;
+// ⚠️ **Il prezzo è dichiarato**: la grana vive nelle ombre e nei toni medio-scuri, quindi a metà
+// scala tiene il 43% di quanto teneva nella `2.66` e a due terzi il 13%. Il picco si sposta da 0,39
+// a **0,31**, che è il *solo alle ombre* portato dove lo ha chiesto.
+const half GRAIN_LIFT_LO = 0.25;
+const half GRAIN_LIFT_HI = 0.6614;
+const half GRAIN_LIFT_FLOOR = 0.0138;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -2184,15 +2208,18 @@ half4 main(float2 p) {
     // 'Auto' calcolato su un'immagine già vignettata leggerebbe un istogramma che non è il suo.
     if (abs(vignette) > half(0.0)) {
         half r = fromCentre(p);
-        // ⚠️⚠️ **LA CORSA PARTE DA METÀ RAGGIO, E NON DAL CENTRO**: una vignettatura che comincia
-        // a scurire subito si legge come un tondo chiaro appiccicato in mezzo, mentre quella di
-        // un obiettivo lascia intatta la parte centrale e cala verso il bordo. Lo scalino lo
-        // toglie `smoothstep`, che parte e arriva con pendenza zero.
-        // ⚠️⚠️ **E DALLA `2.66` QUEL PUNTO LO SPOSTA IL CURSORE 'Sfumatura'**, che è quanto l'alone
-        // si avvicina al centro: a riposo la soglia vale ancora esattamente metà raggio, quindi
-        // un'immagine già tarata non si muove di un livello.
-        half start = half(0.5) - vignetteFeather * VIGNETTE_SOFT;
-        half fall = half(smoothstep(float(start), 1.0, float(r)));
+        // ⚠️⚠️ **LA RAMPA PARTE DAL CENTRO E FINISCE DOVE L'ALONE È PIENO, DALLA `2.67`**: è la
+        // 'sfumatura sempre massima' che ha chiesto, cioè la transizione più lunga che il
+        // fotogramma consenta. `smoothstep` parte con pendenza zero, quindi il centro non si
+        // scurisce con un gradino, che era la ragione per cui fino alla `2.66` la corsa cominciava
+        // a metà raggio.
+        // ⚠️⚠️ **A MUOVERSI È IL PUNTO DEL PIENO, E LO SPOSTA IL CURSORE 'Sfumatura'**: fuori dal
+        // fotogramma verso il negativo, appena dentro il bordo verso il positivo (vedi
+        // [VIGNETTE_SOFT]). ⚠️ **Quindi a parità di cursore principale l'alone è più esteso di
+        // quello della `2.66`**, e chi aveva una vignettatura tarata la ritrova più diffusa: è la
+        // conseguenza diretta della sfumatura massima, e si dichiara.
+        half end = half(1.0) - vignetteFeather * VIGNETTE_SOFT;
+        half fall = half(smoothstep(0.0, float(end), float(r)));
         // Il fattore moltiplica la luce: verso il basso scurisce l'angolo, verso l'alto lo apre.
         half k = vignette * VIGNETTE_REACH * fall;
         rgb = k >= half(0.0)

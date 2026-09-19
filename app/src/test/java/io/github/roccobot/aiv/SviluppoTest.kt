@@ -3097,19 +3097,21 @@ class SviluppoTest {
      * **Caso 64b: i due cursori secondari che lavorano nello shader restano dentro i loro
      * confini.**
      *
-     * ⚠️⚠️ **IL CONTO VIVE IN AGSL E IL BANCO NON LO ESEGUE, QUINDI QUELLO CHE SI MISURA È LA
-     * FORMA**: i numeri dei due conti nuovi della `2.66` vivono dentro `LOOK_AGSL`, che per il
+     * ⚠️⚠️ **IL CONTO VIVE IN AGSL E IL BANCO NON LO ESEGUE, QUINDI QUELLO CHE SI MISURA SONO I
+     * NUMERI CHE HA DETTATO LUI**: le costanti dei due conti vivono dentro `LOOK_AGSL`, che per il
      * compilatore di Kotlin è un testo qualunque, e quello che può rompersi in silenzio è che
-     * qualcuno li sposti oltre il punto in cui il conto smette di voler dire quello che dice.
-     * Che l'immagine venga bene si guarda sul telefono, e la voce di collaudo lo chiede.
-     * ⚠️⚠️ **LA SOGLIA DELLA VIGNETTATURA NON PUÒ PASSARE ZERO**: la rampa parte da
-     * `0,5 - Sfumatura * VIGNETTE_SOFT`, quindi con quel numero sopra un mezzo il fondo corsa
-     * porterebbe la soglia sotto zero, cioè il **centro** si scurirebbe insieme al resto e non
-     * sarebbe più una vignettatura. E sopra uno l'altro fondo corsa non toccherebbe più niente.
-     * ⚠️⚠️ **E LA RAMPA DELLA GRANA DEVE COMINCIARE SOTTO METÀ SCALA**: là vive il picco del suo
-     * peso, e una rampa che partisse più in alto lascerebbe il cielo dove lui non lo vuole (col
-     * conto misurato: 2,9 livelli su 255 invece di 0,8). Il pavimento invece non può essere zero,
-     * che è il suo *non proprio zero ma quasi* alla lettera.
+     * qualcuno le sposti. Che l'immagine venga bene si guarda sul telefono, e la voce di collaudo
+     * lo chiede.
+     * ⚠️⚠️ **DALLA `2.67` I NUMERI DELLA GRANA SONO I SUOI, E LA PROVA LI RICALCOLA** (voce
+     * `eff-grana-luci`: *il 'quasi zero' passa da 0,8 a 0,1 ... metà scala a 0,35*): a metà scala
+     * il peso deve valere `0,35`, e sul cielo la grana piena deve muovere `0,1` livelli su 255.
+     * ⚠️ **Non è ricopiare l'implementazione**: la `smoothstep` qui sotto è la definizione
+     * standard, e quello che si confronta sono i due numeri della sua richiesta.
+     * ⚠️⚠️ **E LA CORSA DELLA VIGNETTATURA HA DUE CONFINI GEOMETRICI**: verso il positivo il pieno
+     * deve arrivare **almeno al bordo**, cioè a `0,707` di [fromCentre], che è il suo *poco
+     * all'interno del bordo*; verso il negativo deve cadere **fuori** dall'angolo. E il pieno non
+     * può arrivare sotto metà raggio, o l'immagine sarebbe scura dappertutto invece di essere
+     * vignettata.
      */
     @Test
     fun `i confini dei due conti secondari degli Effetti`() {
@@ -3119,17 +3121,41 @@ class SviluppoTest {
             return riga!!.groupValues[1].toFloat()
         }
 
+        // Il raggio di mezzo lato in `fromCentre`, dove l'angolo vale uno.
+        val bordo = 0.5f / 0.70710678f
+
         val soft = nelloShader("VIGNETTE_SOFT")
-        assertTrue("la soglia della vignettatura non deve passare zero", soft < 0.5f)
-        assertTrue("e l'altro fondo corsa deve restare dentro il raggio", soft in 0f..0.5f)
+        assertTrue(
+            "a fondo corsa positiva il pieno deve arrivare almeno al bordo",
+            1f - soft <= bordo
+        )
+        assertTrue("e non deve scendere sotto metà raggio", 1f - soft > 0.5f)
+        assertTrue("a fondo corsa negativa il pieno cade fuori dal fotogramma", 1f + soft > 1f)
 
         val lo = nelloShader("GRAIN_LIFT_LO")
         val hi = nelloShader("GRAIN_LIFT_HI")
         val floor = nelloShader("GRAIN_LIFT_FLOOR")
-        assertTrue("la rampa della grana comincia sotto metà scala", lo < 0.5f)
-        assertTrue("e finisce dopo che è cominciata", hi > lo)
-        assertTrue("e vive dentro la scala dei toni", hi <= 1f && lo >= 0f)
+        val reach = nelloShader("GRAIN_REACH")
+        assertTrue("le ombre restano intatte fino al quarto di scala", lo >= 0.25f)
+        assertTrue("e la rampa finisce dopo che è cominciata", hi > lo)
+        assertTrue("e vive dentro la scala dei toni", hi <= 1f)
         assertTrue("alle luci resta un filo di grana, non zero", floor > 0f && floor < 0.5f)
+
+        fun smoothstep(a: Float, b: Float, x: Float): Float {
+            val t = ((x - a) / (b - a)).coerceIn(0f, 1f)
+            return t * t * (3f - 2f * t)
+        }
+
+        fun peso(t: Float): Float = 1f - smoothstep(lo, hi, t) * (1f - floor)
+
+        assertEquals("a metà scala la grana tiene il 35%", 0.35f, peso(0.5f), 0.01f)
+
+        val cielo = 0.82f
+        val inviluppo = 1f - (2f * cielo - 1f) * (2f * cielo - 1f)
+        assertEquals(
+            "sul cielo la grana piena muove un decimo di livello",
+            0.1f, reach * inviluppo * peso(cielo) * 255f, 0.02f
+        )
     }
 
     /**
