@@ -1435,6 +1435,18 @@ const half HAZE_REACH = 0.45;
 // giusto: da lì in su l'alone sul profilo vale zero livelli, e più in giù ne resta ancora uno.
 const half HAZE_EDGE = 20.0;
 
+// I pesi dei nove campioni della mappa del velo: il centro, i cinque dell'anello largo e i tre
+// di quello stretto. Sommano a 16, come la media binomiale che c'era prima, e i due anelli
+// pesano uguale (6,5 ciascuno), quindi il centro conta meno di una regione intera: la stima del
+// velo deve parlare dell'intorno, non del pixel.
+//
+// ⚠️⚠️ **PERCHÉ NON SONO PIÙ UNA GRIGLIA 3x3, E IL CONTO CHE LO REGGE**: vedi la nota in testa a
+// [veiled]. In breve, nove delta su una griglia a passo `s` hanno una risposta in frequenza
+// **periodica**, quindi a ogni multiplo di `1/s` passa tutto invece di essere mediato.
+const half HAZE_HUB = 3.0;
+const half HAZE_WIDE = 1.3;
+const half HAZE_TIGHT = 2.1667;
+
 // Quanto la vignettatura scurisce l'angolo al fondo della corsa.
 //
 // ⚠️ **Il conto che lo regge**: a -100 l'angolo tiene il 45% della sua luce, cioè poco più di uno
@@ -1622,8 +1634,18 @@ half3 detailed(float2 p, half3 c) {
     return clamp(done, half3(0.0), half3(1.0));
 }
 
+// Un campione della mappa del velo: il canale scuro del punto, e il peso con cui conta. Il peso
+// cade dove il vicino è diverso dal centro (vedi la nota della `2.60` qui sotto), e i due valori
+// tornano insieme perché il chiamante li deve sommare tutti e due.
+half2 veilTap(float2 at, half here) {
+    half3 s = tap(at);
+    half dark = min(min(s.r, s.g), s.b);
+    half far = dark - here;
+    return half2(dark, half(1.0)) * exp(-far * far * HAZE_EDGE);
+}
+
 // Quanto velo c'è intorno a `p`: il **canale scuro**, cioè il minimo dei tre canali, mediato
-// sull'intorno con una media binomiale (pesi 1-2-1 per riga e per colonna) a distanza `step`.
+// sull'intorno con nove campioni su due anelli a distanza `step`.
 //
 // ⚠️⚠️ **PERCHÉ IL MINIMO DEI TRE CANALI DICA QUANTO VELO C'È, in una riga**: la foschia è luce
 // bianca che l'aria aggiunge a tutti e tre i canali insieme, quindi alza anche il più basso; un
@@ -1649,23 +1671,57 @@ half3 detailed(float2 p, half3 c) {
 // ⚠️ **Il peso è quello della riduzione del rumore, con una soglia sua** ([HAZE_EDGE]): là si
 // distingue la grana di un sensore da un contorno, qui il velo di una regione da un'altra, e le
 // due distanze non sono la stessa.
+//
+// ⚠️⚠️ **E DALLA `2.65` I NOVE CAMPIONI CADONO SU DUE ANELLI E NON SU UNA GRIGLIA, PERCHÉ UNA
+// GRIGLIA FA UN PETTINE** (riscontro del giro chiuso il 2026-09-19, voce `eff-foschia`: *mi sembra
+// che adesso i valori negativi introducano un difetto simile a quello già rilevato per Chiarezza e
+// Texture*, cioè un reticolo). Nove delta su una griglia a passo `s` hanno una risposta in
+// frequenza **periodica**: vale uno a ogni multiplo di `1/s`, cioè ai periodi `s`, `s/2`, `s/3`...
+// Là la stima non media affatto, **copia**, quindi la mappa del velo porta intera la trama che a
+// quei periodi l'immagine ha. Misurato: ai periodi 16, 8, 5,33 e 4 pixel la risposta valeva
+// esattamente **1,000**, contro lo 0,19-0,62 di adesso.
+//
+// ⚠️⚠️ **E PERCHÉ SI VEDA SOLO IN NEGATIVO LO DICE IL SEGNO**: dove la stima copia il contenuto,
+// quelle frequenze si comportano diversamente dalle altre. Nel verso che **aggiunge** velo tutta
+// la texture si attenua e quelle no, quindi **sporgono** e si leggono come un reticolo; nel verso
+// che toglie tutta la texture si accentua e quelle no, quindi rientrano, e un buco non si nota.
+// Sulla texture di prova il pettine passava da 1,236 (l'originale) a **1,312** aggiungendo, e
+// adesso vale **1,230**, cioè quanto l'originale.
+//
+// ⚠️⚠️ **CINQUE E TRE SONO COPRIMI, ED È QUELLO CHE ROMPE LA PERIODICITÀ**: con due anelli di
+// quei conti, sfasati, non esiste nessuna direzione in cui i campioni cadano a passo costante, e
+// i due raggi non sono in rapporto intero. ⚠️ **Non azzera il massimo fuori banda**, che resta
+// 0,870 contro 1,000: quello che cambia è che i picchi residui cadono a frequenze e direzioni
+// sparse invece che su una griglia allineata agli assi, quindi non compongono una trama.
+//
+// ⚠️⚠️ **LA STRADA SCARTATA È LA RIDUZIONE, ED È MIGLIORE SULLA CARTA**: leggere i campioni da
+// una versione rimpicciolita dell'immagine porta il massimo fuori banda a **0,246**, perché ogni
+// campione è già la media della sua cella. Costa una texture in più nello shader, la sua
+// costruzione a ogni tessera del salvataggio, una griglia da allineare fra le tessere e un bordo
+// più largo; e sulla texture di prova dà **1,229** contro i 1,230 dei due anelli, cioè lo stesso.
+// Chi ci tornasse riparta di lì invece di rifare la misura.
+//
+// ⚠️⚠️ **E CON LORO SI CHIUDE UN SECONDO DIFETTO CHE NESSUNO AVEVA VISTO: IL FILTRO ARRIVAVA PIÙ
+// LONTANO DI QUANTO IL BORDO DELLE TESSERE DICHIARASSE.** I quattro campioni **diagonali** della
+// griglia stavano a `step` per radice di due, cioè il **41%** oltre il raggio che
+// [Effects.hazeReach] promette a `bleedFor`: su una giunzione, con la foschia mossa, quella fascia
+// leggeva il bordo ripetuto invece del pixel che sta di là, ed è la riga che il bordo esiste per
+// non far comparire. Adesso l'anello largo tocca esattamente `step` e il raggio massimo è **uno**,
+// quindi il bordo dichiarato e quello vero coincidono. ⚠️ **A prenderlo è stata la prova**, non
+// una rilettura: il caso 65 di `SviluppoTest` misura il raggio dei campioni letti dalla stringa.
 half veiled(float2 p, float2 step) {
     half3 mid = tap(p);
     half here = min(min(mid.r, mid.g), mid.b);
-    half sum = half(0.0);
-    half weight = half(0.0);
-    for (int j = -1; j <= 1; j++) {
-        for (int i = -1; i <= 1; i++) {
-            half3 s = tap(p + float2(float(i) * step.x, float(j) * step.y));
-            half dark = min(min(s.r, s.g), s.b);
-            half far = dark - here;
-            half w = half((2.0 - abs(float(i))) * (2.0 - abs(float(j))))
-                * exp(-far * far * HAZE_EDGE);
-            sum += dark * w;
-            weight += w;
-        }
-    }
-    return sum / max(weight, half(0.0001));
+    half2 acc = veilTap(p, here) * HAZE_HUB;
+    acc += (veilTap(p + step * float2( 1.0000,  0.0000), here)
+          + veilTap(p + step * float2( 0.3090,  0.9511), here)
+          + veilTap(p + step * float2(-0.8090,  0.5878), here)
+          + veilTap(p + step * float2(-0.8090, -0.5878), here)
+          + veilTap(p + step * float2( 0.3090, -0.9511), here)) * HAZE_WIDE;
+    acc += (veilTap(p + step * float2( 0.2725,  0.4720), here)
+          + veilTap(p + step * float2(-0.5450,  0.0000), here)
+          + veilTap(p + step * float2( 0.2725, -0.4720), here)) * HAZE_TIGHT;
+    return acc.x / max(acc.y, half(0.0001));
 }
 
 // Il modulo Effetti: la foschia. Vignettatura e grana non passano di qui, perché leggono dove si
