@@ -4738,6 +4738,18 @@ collaudo: rilascio, documento, riscontro'.
 - **Verifica di pubblicazione avvenuta**: un `curl` su <https://roccobot.github.io/AIV/> e il
   nome del file servito (`AIV-1.20.apk` e simili). Il merge su `master` del sito non basta:
   serve che il deploy Pages vada a buon fine.
+  - ⚠️⚠️ **MA QUEL NOME NON È NELL'HTML, E UNA SONDA CHE LO CERCA LÀ RISPONDE SEMPRE VUOTO**: la
+    paginetta chiede l'elenco alle release di GitHub mentre si carica e compone il link con
+    `assets[i].name`, quindi nel testo servito quel nome non compare mai. Misurato il 2026-09-19:
+    un controllo che aspettava `AIV-2.65.apk` dentro la pagina ha atteso venti minuti per niente,
+    mentre il file era già servito. È il falso negativo del `--diff` senza pipe
+    (`roccobot.github.io/CLAUDE.md`): il comando risponde 'niente' e si legge come 'non è ancora
+    live', mentre è 'ho guardato nel posto sbagliato'.
+  - **Quindi si chiede il FILE**, che è quello che 'il file servito' vuol dire: un `curl` su
+    `https://roccobot.github.io/AIV/AIV-<versione>.apk` deve rispondere **200** col peso
+    dell'asset della release, e quello della versione prima **404**, perché il workflow lo
+    sostituisce invece di affiancarlo. Sulla `2.65`: 200 e 7.629.304 byte, contro il 404 della
+    `2.64`.
 
 ## 🔐 La firma, e dove NON vive
 
