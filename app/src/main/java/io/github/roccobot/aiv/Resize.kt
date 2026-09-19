@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.graphics.Bitmap
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -35,30 +36,123 @@ object Resize {
     /**
      * Che cosa governa il valore chiesto.
      *
-     * ⚠️ **Quattro modi e non uno**: 'Lato lungo' è quello che serve quasi sempre (una misura che
-     * vale per le verticali come per le orizzontali), gli altri due lati servono a chi ha un
-     * vincolo su una dimensione sola, e la percentuale a chi non ragiona in pixel.
+     * ⚠️ **Sei modi e non uno**: 'Lato lungo' e 'Lato corto' sono le misure che valgono per le
+     * verticali come per le orizzontali, la larghezza e l'altezza servono a chi ha un vincolo su
+     * una dimensione sola, la percentuale a chi non ragiona in pixel, e il libero a chi i pixel di
+     * destinazione li scrive e basta.
+     * ⚠️⚠️ **DUE SONO NATI CON LA `2.77`, ED È IL SUO ELENCO ALLA LETTERA** (voce
+     * `resize-ripristina`: *I chip devono essere: `Lato lungo`, `Lato corto`, `Larghezza`,
+     * `Altezza`, `Pixel` (libero) e `Percentuale` (campo unico)*), e l'ordine dei gettoni è
+     * quello in cui li ha scritti, cioè quello di dichiarazione.
+     * ⚠️⚠️ **NEL CONTO [FREE] GOVERNA LA LARGHEZZA, E LA LIBERTÀ È DELLA FINESTRA**: là i due
+     * campi si scrivono tutti e due, e quello dell'altezza si traduce nella larghezza
+     * corrispondente prima di arrivare qui. Un piano con due numeri avrebbe voluto una seconda
+     * chiave nell'archivio per un dato che le proporzioni rendono uno solo.
      */
     enum class Mode(override val token: String) : Choice {
         LONG("long"),
+        SHORT("short"),
         WIDE("wide"),
         TALL("tall"),
+        FREE("free"),
         SHARE("share")
     }
 
-    /** I confini del valore, che dipendono dal modo: pixel per i primi tre, per cento per l'altro. */
+    /** Quale dei due lati un modo governa, quando ne governa uno solo. */
+    enum class Side { WIDE, TALL }
+
+    /** I confini del valore, che dipendono dal modo: pixel per i cinque, per cento per l'altro. */
     const val MIN_PX = 16
     const val MAX_PX = 20_000
     const val MIN_SHARE = 1
     const val MAX_SHARE = 99
 
-    /** Il valore di fabbrica dei pixel, e quello della percentuale. */
+    /** Il valore dei pixel da cui si riparte, e quello della percentuale. */
     const val DEFAULT_PX = 1600
     const val DEFAULT_SHARE = 50
+
+    /**
+     * Il piano che **non fa niente**, cioè quello di fabbrica.
+     *
+     * ⚠️⚠️ **DALLA `2.77`, ED È QUELLO CHE RENDE VERA LA SUA RIGA AL PRIMO GIRO** (voce
+     * `resize-ripristina`: *Di default ci devono essere due campi compilabili con il numero dei
+     * pixel di destinazione, e nessun chip deve essere selezionato ... con le misure correnti
+     * precompilate*). Fino alla `2.76` era 'Lato lungo 1600', quindi la finestra si apriva con un
+     * gettone acceso e un numero che nessuno aveva scritto; un tetto di ventimila pixel invece
+     * non rimpicciolisce nessuna fotografia, e la finestra lo mostra come le misure che
+     * l'immagine ha già.
+     * ⚠️ **Vive qui e non in tre posti**: lo leggono il valore di fabbrica delle preferenze (che
+     * sono due campi) e il ripiego del modello finché le impostazioni non sono arrivate.
+     */
+    val NONE = Plan(Mode.FREE, MAX_PX)
 
     /** Quanto un valore può valere, in questo modo. */
     fun range(mode: Mode): IntRange =
         if (mode == Mode.SHARE) MIN_SHARE..MAX_SHARE else MIN_PX..MAX_PX
+
+    /**
+     * Quale dei due campi della finestra comanda in questo modo, o `null` quando non ne comanda
+     * uno solo: nel **libero** si scrivono tutti e due, nella **percentuale** nessuno dei due.
+     *
+     * ⚠️⚠️ **PER IL LATO LUNGO E PER QUELLO CORTO LO DECIDE LA FORMA DELL'IMMAGINE, ed è la sua
+     * frase alla lettera** (*se il lato lungo è la larghezza, quel campo è compilabile e l'altro
+     * (a opacità ridotta/disattivato) si aggiorna automaticamente*). Quindi lo stesso gettone
+     * accende il campo di sopra su una fotografia orizzontale e quello di sotto su una verticale.
+     * ⚠️ **Il quadrato cade sulla larghezza**, e non è una scelta di merito: là i due lati sono lo
+     * stesso numero, quindi quale dei due si scriva non cambia niente.
+     */
+    fun edge(mode: Mode, w: Int, h: Int): Side? = when (mode) {
+        Mode.WIDE -> Side.WIDE
+        Mode.TALL -> Side.TALL
+        Mode.LONG -> if (w >= h) Side.WIDE else Side.TALL
+        Mode.SHORT -> if (w >= h) Side.TALL else Side.WIDE
+        Mode.FREE, Mode.SHARE -> null
+    }
+
+    /**
+     * Il valore che un piano porta, ricavato da quello che c'è scritto nei campi.
+     *
+     * ⚠️⚠️ **I CAMPI SONO LA VERITÀ E IL VALORE SI RICAVA, DALLA `2.77`**: fino alla `2.76` il
+     * numero era uno e il modo diceva come leggerlo, quindi passando da un gettone all'altro la
+     * finestra doveva inventarsi che cosa scrivere. Adesso i due campi portano le misure di
+     * destinazione, che un gettone non cambia, e il valore del piano è la loro lettura secondo la
+     * regola scelta: cambiare gettone non tocca nessun numero.
+     * ⚠️ **Il lato lungo e quello corto si leggono dai campi e non dall'immagine**: le proporzioni
+     * sono tenute, quindi il più grande dei due campi è il lato lungo per costruzione.
+     */
+    fun valueOf(mode: Mode, wide: Int, tall: Int, share: Int): Int = when (mode) {
+        Mode.LONG -> max(wide, tall)
+        Mode.SHORT -> min(wide, tall)
+        Mode.WIDE, Mode.FREE -> wide
+        Mode.TALL -> tall
+        Mode.SHARE -> share
+    }
+
+    /**
+     * Quanto vale l'altro campo, quando in [side] si scrive [value] su un'immagine di [w] per [h].
+     *
+     * ⚠️ **È la stessa aritmetica di [Plan.sizeFor] su un lato solo**, e serve alla finestra per
+     * tenere allineato il campo che non si sta scrivendo: senza, i due numeri direbbero un
+     * rapporto che il salvataggio non rispetterà, perché le proporzioni si mantengono sempre.
+     * ⚠️ **Non scende sotto un pixel**, come il conto vero: un'immagine molto allungata con un
+     * lato portato al minimo darebbe zero sull'altro.
+     */
+    fun mate(side: Side, value: Int, w: Int, h: Int): Int {
+        if (w <= 0 || h <= 0) return 1
+        val out = if (side == Side.WIDE) value.toDouble() * h / w else value.toDouble() * w / h
+        return max(1, out.roundToInt())
+    }
+
+    /**
+     * La percentuale che su un'immagine larga [w] dà una larghezza di [wide].
+     *
+     * ⚠️ **Serve al cambio di gettone**, che è l'unico posto in cui un ridimensionamento passa da
+     * un'unità all'altra: senza, toccando 'Percentuale' la finestra mostrerebbe un numero che con
+     * i due campi non c'entra. ⚠️ **Chi la chiama la riporta nei confini**, perché un'immagine
+     * appena rimpicciolita darebbe un 99,6 per cento che arrotondato esce dalla corsa.
+     */
+    fun shareOf(wide: Int, w: Int): Int =
+        if (w <= 0) DEFAULT_SHARE else (wide * 100.0 / w).roundToInt()
 
     /**
      * A che misura si scrive, e con che regola.
@@ -81,7 +175,8 @@ object Resize {
             if (w <= 0 || h <= 0) return null
             val scala = when (mode) {
                 Mode.LONG -> value.toFloat() / max(w, h)
-                Mode.WIDE -> value.toFloat() / w
+                Mode.SHORT -> value.toFloat() / min(w, h)
+                Mode.WIDE, Mode.FREE -> value.toFloat() / w
                 Mode.TALL -> value.toFloat() / h
                 Mode.SHARE -> value / 100f
             }

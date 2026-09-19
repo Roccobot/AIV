@@ -517,13 +517,14 @@
     <string name="look_resize">Ubah ukuran</string>
     <string name="look_resize_mode">Sesuaikan dengan</string>
     <string name="resize_long">Sisi terpanjang</string>
+    <string name="resize_short">Sisi terpendek</string>
     <string name="resize_wide">Lebar</string>
     <string name="resize_tall">Tinggi</string>
     <string name="resize_share">Persentase</string>
     <string name="look_resize_px">Piksel</string>
     <string name="look_resize_pct">Persen</string>
     <string name="look_resize_range">Tulis angka antara %1$d dan %2$d.</string>
-    <string name="look_resize_to">Dari %1$d x %2$d menjadi %3$d x %4$d.</string>
+    <string name="look_resize_now">Ukuran saat ini: %1$s</string>
     <string name="look_resize_keep">Gambar ini sudah lebih kecil, jadi tetap seperti apa adanya.</string>
     <string name="look_resize_reset">Setel ulang</string>
     <string name="look_resize_note">Rasio tetap sama; ukuran hanya bisa diperkecil.</string>

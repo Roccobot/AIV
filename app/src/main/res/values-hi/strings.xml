@@ -533,13 +533,14 @@
     <string name="look_resize">आकार बदलें</string>
     <string name="look_resize_mode">इसके अनुसार</string>
     <string name="resize_long">लंबी भुजा</string>
+    <string name="resize_short">छोटी भुजा</string>
     <string name="resize_wide">चौड़ाई</string>
     <string name="resize_tall">ऊँचाई</string>
     <string name="resize_share">प्रतिशत</string>
     <string name="look_resize_px">पिक्सेल</string>
     <string name="look_resize_pct">प्रतिशत</string>
     <string name="look_resize_range">%1$d और %2$d के बीच एक संख्या लिखें।</string>
-    <string name="look_resize_to">%1$d x %2$d से %3$d x %4$d तक।</string>
+    <string name="look_resize_now">वर्तमान आकार: %1$s</string>
     <string name="look_resize_keep">यह छवि पहले से ही छोटी है, इसलिए वैसी ही रहती है।</string>
     <string name="look_resize_reset">रीसेट</string>
     <string name="look_resize_note">अनुपात वही रहता है; आकार केवल घटाया जा सकता है।</string>

@@ -533,13 +533,14 @@
     <string name="look_resize">Yeniden boyutlandır</string>
     <string name="look_resize_mode">Şuna göre</string>
     <string name="resize_long">Uzun kenar</string>
+    <string name="resize_short">Kısa kenar</string>
     <string name="resize_wide">Genişlik</string>
     <string name="resize_tall">Yükseklik</string>
     <string name="resize_share">Yüzde</string>
     <string name="look_resize_px">Piksel</string>
     <string name="look_resize_pct">Yüzde</string>
     <string name="look_resize_range">%1$d ile %2$d arasında bir sayı yaz.</string>
-    <string name="look_resize_to">%1$d x %2$d boyutundan %3$d x %4$d boyutuna.</string>
+    <string name="look_resize_now">Geçerli boyut: %1$s</string>
     <string name="look_resize_keep">Bu görsel zaten daha küçük, bu yüzden olduğu gibi kalır.</string>
     <string name="look_resize_reset">Sıfırla</string>
     <string name="look_resize_note">Oran değişmez; boyut yalnızca küçültülebilir.</string>

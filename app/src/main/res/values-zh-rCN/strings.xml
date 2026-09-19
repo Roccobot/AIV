@@ -517,13 +517,14 @@
     <string name="look_resize">调整尺寸</string>
     <string name="look_resize_mode">适应</string>
     <string name="resize_long">长边</string>
+    <string name="resize_short">短边</string>
     <string name="resize_wide">宽度</string>
     <string name="resize_tall">高度</string>
     <string name="resize_share">百分比</string>
     <string name="look_resize_px">像素</string>
     <string name="look_resize_pct">百分比</string>
     <string name="look_resize_range">请输入 %1$d 到 %2$d 之间的数字。</string>
-    <string name="look_resize_to">从 %1$d x %2$d 变为 %3$d x %4$d。</string>
+    <string name="look_resize_now">当前尺寸：%1$s</string>
     <string name="look_resize_keep">这张图片已经更小了，因此保持原样。</string>
     <string name="look_resize_reset">重置</string>
     <string name="look_resize_note">比例保持不变，尺寸只能变小。</string>

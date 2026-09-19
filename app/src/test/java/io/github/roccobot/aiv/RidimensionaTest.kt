@@ -11,6 +11,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -18,6 +23,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.mutablePreferencesOf
@@ -237,8 +243,24 @@ class RidimensionaTest {
         )
         assertEquals(
             "Un archivio vuoto non dà il valore di fabbrica dichiarato",
-            Resize.DEFAULT_PX,
+            Resize.NONE.value,
             Settings().sizeValue
+        )
+        /*
+         * ⚠️⚠️ **E IL PIANO DI FABBRICA NON DEVE FARE NIENTE, DALLA `2.77`**: è quello che rende
+         * vera la sua riga *nessun chip deve essere selezionato ... con le misure correnti
+         * precompilate*, perché la finestra apre nel libero e scrive nei campi le misure che
+         * l'immagine ha già. Con un piano che rimpicciolisce, al primo giro si troverebbe un
+         * gettone acceso e un numero che nessuno ha scritto.
+         */
+        assertEquals(
+            "Il modo di fabbrica non è quello del piano che non fa niente",
+            Resize.NONE.mode,
+            Settings().sizeMode
+        )
+        assertNull(
+            "Il piano di fabbrica rimpicciolisce un'immagine da fotocamera",
+            Resize.Plan(Settings().sizeMode, Settings().sizeValue).sizeFor(6000, 4000)
         )
     }
 
@@ -356,14 +378,17 @@ class RidimensionaTest {
     }
 
     /**
-     * **Caso 11: 'Ripristina' riporta a 'Lato lungo' col lato lungo dell'immagine.**
+     * **Caso 11: 'Ripristina' riporta al libero con le misure che l'immagine ha adesso.**
      *
-     * ⚠️ **È sua richiesta** (2026-09-19, con una schermata), e quello che si misura è il numero:
-     * il comando scrive nel campo la misura che l'immagine ha **adesso**, cioè quella che il
-     * salvataggio troverebbe davanti, e quel piano non rimpicciolisce.
+     * ⚠️ **È sua richiesta** (voce `resize-ripristina`: *'Ripristina' deve riportare i valori ...
+     * dell'immagine reale al suo stato corrente*), e quello che si misura sono le due cose che
+     * quel comando fa: i campi tornano alle misure correnti, cioè al piano che non fa niente, e
+     * il gettone se ne va, perché due campi liberi sono il libero.
+     * ⚠️ **Fino alla `2.76` riportava a 'Lato lungo'**, che con la forma nuova sarebbe una regola
+     * che nessuno ha chiesto.
      */
     @Test
-    fun `Ripristina riporta al lato lungo dell'immagine`() {
+    fun `Ripristina riporta alle misure correnti, senza gettone`() {
         banco.setContent {
             Scena(resizing = true, piano = Resize.Plan(Resize.Mode.SHARE, 25))
         }
@@ -373,10 +398,175 @@ class RidimensionaTest {
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.look_resize_reset)).performClick()
         banco.waitForIdle()
-        // Il campo porta il lato lungo del foglio, che è il piano che non fa niente.
-        banco.onNodeWithText(LATO.toString()).assertExists()
+        // I due campi portano le misure del foglio, che è il piano che non fa niente.
+        assertEquals(
+            "I due campi non sono tornati liberi",
+            2,
+            banco.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size
+        )
+        banco.onAllNodesWithText(LATO.toString())[0].assertExists()
         banco.onNodeWithText(testo(R.string.look_resize_keep)).assertExists()
+        chip(R.string.resize_share).assertIsNotSelected()
+        chip(R.string.look_resize_px).assertIsNotSelected()
     }
+
+    /**
+     * **Caso 12: quale campo comanda, in ognuno dei sei modi.**
+     *
+     * ⚠️⚠️ **È LA COSA CHE PUÒ ROMPERSI IN SILENZIO**: 'Lato lungo' accende il campo della
+     * larghezza su una fotografia orizzontale e quello dell'altezza su una verticale, e scambiati
+     * i due versi la finestra lascerebbe scrivere il lato sbagliato senza dare nessun errore. La
+     * sua riga lo dice alla lettera (*se il lato lungo è la larghezza, quel campo è compilabile*).
+     * ⚠️ **Il libero e la percentuale rispondono `null` per due ragioni diverse**: là si scrivono
+     * tutti e due i campi, qui nessuno dei due, e a distinguerli è la finestra.
+     */
+    @Test
+    fun `il modo dice quale campo comanda`() {
+        assertEquals(Resize.Side.WIDE, Resize.edge(Resize.Mode.LONG, 2000, 1000))
+        assertEquals(Resize.Side.TALL, Resize.edge(Resize.Mode.SHORT, 2000, 1000))
+        assertEquals(
+            "Su una verticale il lato lungo non è l'altezza",
+            Resize.Side.TALL,
+            Resize.edge(Resize.Mode.LONG, 1000, 2000)
+        )
+        assertEquals(
+            "Su una verticale il lato corto non è la larghezza",
+            Resize.Side.WIDE,
+            Resize.edge(Resize.Mode.SHORT, 1000, 2000)
+        )
+        assertEquals(Resize.Side.WIDE, Resize.edge(Resize.Mode.WIDE, 1000, 2000))
+        assertEquals(Resize.Side.TALL, Resize.edge(Resize.Mode.TALL, 2000, 1000))
+        assertNull("Il libero governa un lato solo", Resize.edge(Resize.Mode.FREE, 2000, 1000))
+        assertNull("La percentuale governa un lato", Resize.edge(Resize.Mode.SHARE, 2000, 1000))
+    }
+
+    /**
+     * **Caso 13: il valore del piano si ricava dai due campi, e l'altro campo dalle proporzioni.**
+     *
+     * ⚠️⚠️ **SONO I DUE CONTI SU CUI LA FINESTRA NUOVA SI REGGE**: [Resize.valueOf] è quello che
+     * permette di cambiare gettone senza muovere una cifra, e [Resize.mate] è quello che tiene i
+     * due numeri in proporzione mentre si scrive. Sbagliati, la finestra mostra un
+     * ridimensionamento e il salvataggio ne scrive un altro.
+     * ⚠️ **Il lato lungo si legge dai campi e non dall'immagine**, perché le proporzioni sono
+     * tenute: il più grande dei due è il lato lungo per costruzione.
+     */
+    @Test
+    fun `il valore e il compagno si ricavano`() {
+        assertEquals(800, Resize.valueOf(Resize.Mode.LONG, 800, 600, 50))
+        assertEquals(600, Resize.valueOf(Resize.Mode.SHORT, 800, 600, 50))
+        assertEquals(800, Resize.valueOf(Resize.Mode.WIDE, 800, 600, 50))
+        assertEquals(800, Resize.valueOf(Resize.Mode.FREE, 800, 600, 50))
+        assertEquals(600, Resize.valueOf(Resize.Mode.TALL, 800, 600, 50))
+        assertEquals(50, Resize.valueOf(Resize.Mode.SHARE, 800, 600, 50))
+        assertEquals(
+            "Scrivendo la larghezza l'altezza non ha seguito le proporzioni",
+            500,
+            Resize.mate(Resize.Side.WIDE, 1000, 2000, 1000)
+        )
+        assertEquals(
+            "Scrivendo l'altezza la larghezza non ha seguito le proporzioni",
+            1000,
+            Resize.mate(Resize.Side.TALL, 500, 2000, 1000)
+        )
+        assertEquals(
+            "Su un'immagine molto allungata il compagno è sceso sotto il pixel",
+            1,
+            Resize.mate(Resize.Side.WIDE, Resize.MIN_PX, 4000, 100)
+        )
+        assertEquals("La percentuale non si ricava dalla larghezza", 50, Resize.shareOf(1000, 2000))
+    }
+
+    /**
+     * **Caso 14: i campi scrivibili sono due nel libero e uno con un gettone, e 'Pixel' non si
+     * accende mai.**
+     *
+     * ⚠️⚠️ **IL GETTONE DEL LIBERO CHE NON SI ACCENDE È UNA LETTURA DICHIARATA** (*nessun chip
+     * deve essere selezionato*), quindi è la cosa da presidiare: acceso, direbbe che una regola
+     * governa i due numeri mentre là non ce n'è nessuna. Il perché per esteso vive in testa a
+     * [ResizeDialog].
+     * ⚠️ **Il conto dei campi è la misura di quale è disattivato**: un campo spento perde
+     * l'azione di scrittura, quindi contarli dice, senza guardare i pixel, che il gettone ha
+     * chiuso l'altro.
+     */
+    @Test
+    fun `il libero scrive in due campi e un gettone ne chiude uno`() {
+        banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals(
+            "Nel libero non si scrivono tutti e due i campi",
+            2,
+            banco.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size
+        )
+        chip(R.string.look_resize_px).assertIsNotSelected()
+
+        chip(R.string.resize_long).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "Con un gettone di lato è rimasto più di un campo scrivibile",
+            1,
+            banco.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size
+        )
+        chip(R.string.resize_long).assertIsSelected()
+
+        // ⚠️ Toccando 'Pixel' i due campi tornano scrivibili, e il gettone resta spento: è il
+        // riscontro che quel comando dà, al posto di un tondo che si colora.
+        chip(R.string.look_resize_px).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "Il libero non ha riacceso il campo chiuso",
+            2,
+            banco.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().size
+        )
+        chip(R.string.look_resize_px).assertIsNotSelected()
+        chip(R.string.resize_long).assertIsNotSelected()
+    }
+
+    /**
+     * **Caso 15: scrivendo in un campo l'altro si aggiorna.**
+     *
+     * ⚠️ **Senza, i due numeri direbbero un rapporto che il salvataggio non rispetterà**: le
+     * proporzioni si mantengono sempre, quindi un'altezza rimasta indietro è una promessa falsa
+     * scritta nella finestra. Il conto è misurato dal caso 13; qui si misura che la finestra lo
+     * chiami.
+     */
+    @Test
+    fun `scrivendo in un campo l'altro segue`() {
+        banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        banco.onAllNodes(hasSetTextAction())[0].performTextReplacement("120")
+        banco.waitForIdle()
+        assertEquals(
+            "L'altro campo non ha seguito la larghezza scritta",
+            2,
+            banco.onAllNodesWithText("120").fetchSemanticsNodes().size
+        )
+    }
+
+    /**
+     * **Caso 16: la misura si infila al posto del segnaposto della frase tradotta.**
+     *
+     * ⚠️ **Concatenando in coda, una lingua che scrive la frase al rovescio darebbe una riga
+     * sgrammaticata**: il segnaposto si cerca, e quello che si misura è che la misura finisca
+     * **dentro** e non dopo.
+     */
+    @Test
+    fun `la misura entra al posto del segnaposto`() {
+        assertEquals(
+            "La misura non è finita dove il segnaposto la voleva",
+            "prima 1800 × 1200 px dopo",
+            filled("prima %1\$s dopo", 1800, 1200).text
+        )
+    }
+
+    /** Il gettone di un modo, che porta il suo nome e si può scegliere. */
+    private fun chip(id: Int) =
+        banco.onAllNodesWithText(testo(id)).filterToOne(isSelectable())
 
     /** L'editor completo su un foglio bianco, coi soli argomenti che questo banco muove. */
     @Composable

@@ -533,13 +533,14 @@
     <string name="look_resize">Formaat wijzigen</string>
     <string name="look_resize_mode">Aanpassen aan</string>
     <string name="resize_long">Langste zijde</string>
+    <string name="resize_short">Kortste zijde</string>
     <string name="resize_wide">Breedte</string>
     <string name="resize_tall">Hoogte</string>
     <string name="resize_share">Percentage</string>
     <string name="look_resize_px">Pixels</string>
     <string name="look_resize_pct">Procent</string>
     <string name="look_resize_range">Typ een getal tussen %1$d en %2$d.</string>
-    <string name="look_resize_to">Van %1$d x %2$d naar %3$d x %4$d.</string>
+    <string name="look_resize_now">Huidige grootte: %1$s</string>
     <string name="look_resize_keep">Deze afbeelding is al kleiner en blijft dus zoals ze is.</string>
     <string name="look_resize_reset">Herstellen</string>
     <string name="look_resize_note">De verhouding blijft gelijk; het formaat kan alleen kleiner worden.</string>

@@ -533,13 +533,14 @@
     <string name="look_resize">سائز تبدیل کریں</string>
     <string name="look_resize_mode">اس کے مطابق</string>
     <string name="resize_long">لمبا کنارہ</string>
+    <string name="resize_short">چھوٹا کنارہ</string>
     <string name="resize_wide">چوڑائی</string>
     <string name="resize_tall">اونچائی</string>
     <string name="resize_share">فیصد</string>
     <string name="look_resize_px">پکسل</string>
     <string name="look_resize_pct">فیصد</string>
     <string name="look_resize_range">%1$d اور %2$d کے درمیان ایک عدد لکھیں۔</string>
-    <string name="look_resize_to">%1$d x %2$d سے %3$d x %4$d تک۔</string>
+    <string name="look_resize_now">موجودہ سائز: %1$s</string>
     <string name="look_resize_keep">یہ تصویر پہلے ہی چھوٹی ہے، اس لیے ویسی ہی رہتی ہے۔</string>
     <string name="look_resize_reset">ری سیٹ</string>
     <string name="look_resize_note">تناسب وہی رہتا ہے؛ سائز صرف چھوٹا کیا جا سکتا ہے۔</string>

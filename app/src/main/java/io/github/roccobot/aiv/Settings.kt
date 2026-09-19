@@ -563,21 +563,21 @@ data class Settings(
     /**
      * Che cosa governa il valore del ridimensionamento.
      *
-     * ⚠️ **Il lato lungo di fabbrica**: è l'unico dei quattro che vale uguale per una fotografia
-     * verticale e per una orizzontale, cioè quello che non chiede di guardare l'immagine prima di
-     * scegliere.
+     * ⚠️⚠️ **IL LIBERO DI FABBRICA, DALLA `2.77`, E PRIMA ERA IL LATO LUNGO**: la finestra si
+     * apre senza nessun gettone acceso, che è la sua riga alla lettera, e i due campi portano le
+     * misure che l'immagine ha già. Il perché quel piano non faccia niente vive su [Resize.NONE].
      */
-    val sizeMode: Resize.Mode = Resize.Mode.LONG,
+    val sizeMode: Resize.Mode = Resize.NONE.mode,
 
     /**
      * Quanto vale il ridimensionamento, in pixel o in per cento a seconda di [sizeMode].
      *
-     * ⚠️⚠️ **UNO SOLO PER TUTTI E QUATTRO I MODI, ED È UNA SCELTA**: con un valore per modo, chi
+     * ⚠️⚠️ **UNO SOLO PER TUTTI E SEI I MODI, ED È UNA SCELTA**: con un valore per modo, chi
      * passa da 'Lato lungo' a 'Percentuale' si ritroverebbe un numero che non ha scritto, e la
      * finestra dovrebbe spiegare quale sta guardando. Così il numero è quello che si vede, e
-     * cambiando modo la finestra lo riporta dentro i confini del modo nuovo.
+     * cambiando gettone la finestra lo **ricava** dai due campi, che non si muovono.
      */
-    val sizeValue: Int = Resize.DEFAULT_PX,
+    val sizeValue: Int = Resize.NONE.value,
     /**
      * Se la fila dei comandi di un'immagine animata mostra il contatore dei fotogrammi.
      *
@@ -1306,7 +1306,7 @@ object SettingsStore {
         // seconda di lui: leggerli nello stesso costruttore vorrebbe dire leggere la chiave due
         // volte, e la seconda lettura potrebbe non essere la stessa il giorno che qualcuno la
         // tocca.
-        val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], Resize.Mode.LONG)
+        val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], Resize.NONE.mode)
         return Settings(
             bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
             bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
@@ -1371,7 +1371,7 @@ object SettingsStore {
             // ⚠️ Il valore si riporta dentro i confini del **suo** modo, e non di uno solo: fra i
             // pixel e la percentuale i limiti non sono gli stessi, quindi un archivio scritto in
             // un modo e riletto nell'altro darebbe un numero che la finestra non saprebbe mostrare.
-            sizeValue = (p[SIZE_VALUE] ?: Resize.DEFAULT_PX).coerceIn(Resize.range(sizeMode)),
+            sizeValue = (p[SIZE_VALUE] ?: Resize.NONE.value).coerceIn(Resize.range(sizeMode)),
             animCounter = p[ANIM_COUNTER] ?: true,
             listCount = p[LIST_COUNT] ?: true,
             listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),

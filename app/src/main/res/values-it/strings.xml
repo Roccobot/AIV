@@ -195,13 +195,14 @@
     <string name="look_resize">Ridimensiona</string>
     <string name="look_resize_mode">Adatta a</string>
     <string name="resize_long">Lato lungo</string>
+    <string name="resize_short">Lato corto</string>
     <string name="resize_wide">Larghezza</string>
     <string name="resize_tall">Altezza</string>
     <string name="resize_share">Percentuale</string>
     <string name="look_resize_px">Pixel</string>
     <string name="look_resize_pct">Per cento</string>
     <string name="look_resize_range">Scrivi un numero fra %1$d e %2$d.</string>
-    <string name="look_resize_to">Da %1$d x %2$d a %3$d x %4$d.</string>
+    <string name="look_resize_now">Dimensioni attuali: %1$s</string>
     <string name="look_resize_keep">Questa immagine è già più piccola, quindi resta com\'è.</string>
     <string name="look_resize_reset">Ripristina</string>
     <string name="look_resize_note">Le proporzioni restano invariate; è possibile solo ridurre le dimensioni.</string>

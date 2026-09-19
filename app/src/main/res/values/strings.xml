@@ -237,13 +237,14 @@
     <string name="look_resize">Resize</string>
     <string name="look_resize_mode">Fit to</string>
     <string name="resize_long">Long edge</string>
+    <string name="resize_short">Short edge</string>
     <string name="resize_wide">Width</string>
     <string name="resize_tall">Height</string>
     <string name="resize_share">Percentage</string>
     <string name="look_resize_px">Pixels</string>
     <string name="look_resize_pct">Percent</string>
     <string name="look_resize_range">Type a number between %1$d and %2$d.</string>
-    <string name="look_resize_to">From %1$d x %2$d to %3$d x %4$d.</string>
+    <string name="look_resize_now">Current size: %1$s</string>
     <string name="look_resize_keep">This image is already smaller, so it stays as it is.</string>
     <string name="look_resize_reset">Reset</string>
     <string name="look_resize_note">The aspect ratio stays the same; images can only be made smaller.</string>
