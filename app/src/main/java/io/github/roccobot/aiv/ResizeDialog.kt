@@ -5,8 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -44,7 +43,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
@@ -90,6 +91,11 @@ import androidx.compose.ui.unit.dp
  * sale **sotto il titolo**, la percentuale diventa `%` e va in prima fila (quindi i gettoni stanno
  * in due righe), 'Ripristina' scende in basso a destra, e al suo posto in alto arriva **'Rendi
  * predefinito'**.
+ * ⚠️⚠️ **MA DUE DI QUEI RITOCCHI ERANO RIUSCITI A METÀ, E LA `2.82` LI CHIUDE** (voce
+ * `resize-finestra-2`): le due righe dei gettoni dipendevano dallo spazio invece che dal disegno
+ * (§ [ModeRow]), e la pastiglia del comando nuovo restava larga quanto la frase intera, quindi il
+ * titolo accanto andava a capo in mezzo a una parola (§ `TitleRow`). ⚠️ **Sono lo stesso genere
+ * di difetto**: un conto che dichiara un'intenzione e un disegno che non la applica.
  *
  * ⚠️⚠️ **'RENDI PREDEFINITO' È UNA FUNZIONE NUOVA, E PER ESISTERE HA DOVUTO TOGLIERNE UNA A
  * 'APPLICA'** (sua riga: *fa in modo che le impostazioni di ridimensionamento restino memorizzate
@@ -104,7 +110,6 @@ import androidx.compose.ui.unit.dp
  * ⚠️ **Spento e non assente**: un tasto che compare e sparisce cambiando gettone farebbe ballare
  * la riga del titolo, che è il difetto che la `2.33` ha tolto alla scheda.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ResizeDialog(
     /** Il piano da cui si parte: quello salvato, anche se l'interruttore è spento. */
@@ -439,39 +444,78 @@ fun ResizeDialog(
 }
 
 /**
- * La fila dei sei gettoni.
+ * La fila dei sei gettoni: due righe da tre, nell'ordine in cui lui li ha scritti.
  *
  * ⚠️ **Scritta qui e non con `Choices`**, che è il pezzo delle impostazioni: là il gettone scelto
  * si disegna sempre acceso, e qui quello del libero non si accende mai (il perché vive in testa a
- * [ResizeDialog]). Il resto è lo stesso, [FlowRow] compreso, perché sei nomi non entrano in una
- * riga in nessuna lingua.
+ * [ResizeDialog]).
+ *
+ * ⚠️⚠️ **LE RIGHE SONO DUE PER COSTRUZIONE DALLA `2.82`, E FINO ALLA `2.81` LO DECIDEVA LO
+ * SPAZIO** (voce `resize-finestra-2`: *'%' deve stare sulla prima riga*). Là era una `FlowRow`,
+ * cioè le celle si dimensionavano sul testo e andavano a capo quando lo spazio finiva: sul suo
+ * telefono le prime due chiedono 213 punti e il segno altri 46, contro i 270 che la finestra ha,
+ * quindi mancavano **quattro punti** e il segno scendeva. Un conto che si perde per quattro punti
+ * non si aggiusta allargando qualcosa: si toglie la domanda, e le righe si dichiarano.
+ * - ⚠️⚠️ **LE CELLE HANNO UN PESO MISURATO E NON UGUALE, ED È QUELLO CHE EVITA LE TRONCATURE**:
+ *   con tre colonne uguali una cella vale 85 punti e a 'Larghezza' ne servono 105, cioè si
+ *   leggerebbe 'Larghez...'. Col peso preso dalla larghezza vera del proprio testo, chi ha una
+ *   parola lunga riceve di più, e l'avanzo si distribuisce in proporzione invece di lasciare un
+ *   vuoto in coda alla riga. È la resa che la fila delle forme del Ritaglio ha già.
+ * - ⚠️ **Il corpo scende di un gradino**, per la stessa ragione di quella fila: a `labelMedium`
+ *   la prima riga chiede 251 punti invece di 274, quindi in italiano avanza spazio e nelle
+ *   lingue dai nomi lunghi si tronca più tardi.
+ * - ⚠️ **Dove la somma non ci sta si tronca, e la ripartizione regge lo stesso**: in francese
+ *   quelle due locuzioni sono il doppio delle nostre (*Côté le plus long*), quindi nessuna forma
+ *   le fa entrare intere; quello che conta è che il segno resti dov'è e che la finestra non
+ *   cresca di una riga.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ModeRow(shown: Resize.Mode, onPick: (Resize.Mode) -> Unit) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth().oneOf()
+    val righello = rememberTextMeasurer()
+    val corpo = MaterialTheme.typography.labelMedium
+    val density = LocalDensity.current
+    Column(
+        modifier = Modifier.fillMaxWidth().oneOf(),
+        verticalArrangement = Arrangement.spacedBy(MODE_GAP)
     ) {
-        for (modo in Resize.Mode.entries) {
-            val acceso = modo == shown && modo != Resize.Mode.FREE
-            val nome = stringResource(modeName(modo))
-            /*
-             * ⚠️⚠️ **LA PERCENTUALE SI SCRIVE COL SEGNO, DALLA `2.81`, E IL SUO NOME RESTA NELLA
-             * DESCRIZIONE PARLATA** (voce `resize-finestra`: *'Percentuale' diventa '%'*). Il
-             * segno non si traduce, quindi non nasce nessuna stringa e `resize_share` non resta
-             * orfana: la legge un lettore di schermo, che di un gettone con scritto '%' non
-             * saprebbe dire di che cosa parla.
-             */
-            val scritto = if (modo == Resize.Mode.SHARE) PCT else nome
-            FilterChip(
-                selected = acceso,
-                onClick = { onPick(modo) },
-                label = { Text(scritto) },
-                modifier = Modifier
-                    .picked(acceso)
-                    .semantics { if (scritto != nome) contentDescription = nome }
-            )
+        for (riga in Resize.Mode.entries.chunked(MODE_COLS)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(MODE_GAP)) {
+                for (modo in riga) {
+                    val acceso = modo == shown && modo != Resize.Mode.FREE
+                    val nome = stringResource(modeName(modo))
+                    /*
+                     * ⚠️⚠️ **LA PERCENTUALE SI SCRIVE COL SEGNO, DALLA `2.81`, E IL SUO NOME RESTA
+                     * NELLA DESCRIZIONE PARLATA** (voce `resize-finestra`: *'Percentuale' diventa
+                     * '%'*). Il segno non si traduce, quindi non nasce nessuna stringa e
+                     * `resize_share` non resta orfana: la legge un lettore di schermo, che di un
+                     * gettone con scritto '%' non saprebbe dire di che cosa parla.
+                     */
+                    val scritto = if (modo == Resize.Mode.SHARE) PCT else nome
+                    val cella = with(density) {
+                        righello.measure(
+                            AnnotatedString(scritto),
+                            corpo,
+                            maxLines = 1
+                        ).size.width.toDp()
+                    } + MODE_PAD * 2
+                    FilterChip(
+                        selected = acceso,
+                        onClick = { onPick(modo) },
+                        label = {
+                            Text(
+                                text = scritto,
+                                style = corpo,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        modifier = Modifier
+                            .weight(cella.value)
+                            .picked(acceso)
+                            .semantics { if (scritto != nome) contentDescription = nome }
+                    )
+                }
+            }
         }
     }
 }
@@ -585,6 +629,26 @@ fun rememberLongSide(uri: Uri): Int? {
 
 /** L'aria fra i blocchi della finestra. */
 private val RESIZE_GAP = 10.dp
+
+/** L'aria fra due gettoni, in orizzontale come in verticale. */
+private val MODE_GAP = 8.dp
+
+/**
+ * Quante colonne ha la fila dei modi.
+ *
+ * ⚠️ **È insieme il numero di colonne e la ripartizione in righe**, cioè sei modi in due righe, e
+ * le due cose sono lo stesso elenco: chi ne aggiungesse un settimo si ritroverebbe una terza riga
+ * da una cella, e quello si vede.
+ */
+private const val MODE_COLS = 3
+
+/**
+ * Il riempimento orizzontale di un `FilterChip`, che Material non espone come costante pubblica.
+ *
+ * ⚠️ **Serve al PESO e non al disegno**, quindi una stima sbagliata sposterebbe un po' l'avanzo
+ * fra le celle e nient'altro: il riempimento vero lo mette il chip.
+ */
+private val MODE_PAD = 16.dp
 
 /**
  * Il segno fra le due misure.

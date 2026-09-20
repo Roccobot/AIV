@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -711,16 +712,26 @@ internal fun TitleRow(
                 righello.measure(AnnotatedString(testo), stile, maxLines = 1).size.width.toDp()
             }
         }
-        val aIcone = commands.size > 1 || commands.any { comando ->
+        /*
+         * ⚠️⚠️ **LA LARGHEZZA SI MISURA UNA VOLTA E LA USANO IN DUE, DALLA `2.82`**: il conto che
+         * sceglie fra pastiglia e icona, e la pastiglia stessa quando va a capo. Fino alla `2.81`
+         * questo numero viveva solo nel conto, e il disegno si dimensionava sul proprio contenuto:
+         * cioè il conto prometteva una pastiglia stretta quanto la parola più lunga e ne compariva
+         * una larga quanto la frase intera, che è il difetto arrivato a lui (voce
+         * `resize-finestra-2`: *'Rendi predefinito' deve andare a capo*).
+         */
+        val larghezze = commands.map { comando ->
             // ⚠️ Con più righe la pastiglia si misura sulla parola più lunga, perché è là che
             // il testo può spezzarsi: misurando la frase intera passerebbe sempre all'icona.
             val parola =
                 if (comando.lines > 1) comando.text.split(' ').maxBy { it.length }
                 else comando.text
-            val pastiglia = maxOf(
+            maxOf(
                 TITLE_PILL_MIN,
-                quanto(parola, corpoPastiglia) + TITLE_PILL_SIDE * 2
+                quanto(parola, corpoPastiglia) + TITLE_PILL_SIDE * 2 + TITLE_PILL_SLACK
             )
+        }
+        val aIcone = commands.size > 1 || larghezze.any { pastiglia ->
             quanto(title, corpoTitolo) + TITLE_ROW_GAP + pastiglia > maxWidth
         }
         Row(
@@ -744,7 +755,7 @@ internal fun TitleRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                for (comando in commands) {
+                for ((posto, comando) in commands.withIndex()) {
                     if (aIcone) {
                         TitleIcon(
                             glyph = comando.glyph,
@@ -757,7 +768,22 @@ internal fun TitleRow(
                             text = comando.text,
                             onTap = comando.onTap,
                             enabled = comando.enabled,
-                            lines = comando.lines
+                            lines = comando.lines,
+                            /*
+                             * ⚠️⚠️ **LA LARGHEZZA SI IMPONE SOLO A CHI VA A CAPO, ED È QUELLO CHE
+                             * LO FA ANDARE A CAPO**: un testo si spezza quando non ci sta, e una
+                             * pastiglia che si dimensiona sul contenuto non lo costringe mai. Con
+                             * la misura della parola più lunga la frase non entra su una riga per
+                             * costruzione, e la seconda riga ci sta esatta.
+                             * ⚠️ **A una riga sola non si tocca niente**: là la larghezza del
+                             * contenuto è già quella che il conto misura, e imporla sarebbe lo
+                             * stesso numero scritto due volte.
+                             */
+                            modifier = if (comando.lines > 1) {
+                                Modifier.width(larghezze[posto])
+                            } else {
+                                Modifier
+                            }
                         )
                     }
                 }
@@ -841,6 +867,16 @@ private val TITLE_PILL_PAD = PaddingValues(horizontal = TITLE_PILL_SIDE, vertica
  * rimpicciolisce e il conto di [TitleRow] deve saperlo.
  */
 private val TITLE_PILL_MIN = 58.dp
+
+/**
+ * Il pelo d'aria che la pastiglia a due righe ha in più della parola che la misura.
+ *
+ * ⚠️ **Serve all'arrotondamento e a niente altro**: la misura passa da pixel a punti e torna a
+ * pixel, e una frazione persa in mezzo manderebbe in ellissi proprio la parola su cui la
+ * larghezza è stata presa. Vive dentro il conto, quindi il numero che sceglie la forma e quello
+ * che la disegna restano lo stesso.
+ */
+private val TITLE_PILL_SLACK = 1.dp
 
 /**
  * L'aria che deve restare fra il titolo e la pastiglia perché il testo resti scritto.
