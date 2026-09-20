@@ -704,7 +704,13 @@ internal fun TitleRow(
 ) {
     val righello = rememberTextMeasurer()
     val corpoTitolo = MaterialTheme.typography.headlineSmall
-    val corpoPastiglia = MaterialTheme.typography.labelMedium
+    /*
+     * ⚠️⚠️ **I DUE CORPI SI LEGGONO QUI E NON DENTRO IL GIRO, E NON È UNA COMODITÀ**: il tema si
+     * legge in composizione, e `map` prende una lambda che non lo è, quindi una chiamata a
+     * [titlePillStyle] là dentro non compilerebbe. Letti fuori, il giro sceglie fra due valori.
+     */
+    val corpoUno = titlePillStyle(1)
+    val corpoDue = titlePillStyle(2)
     val density = LocalDensity.current
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val quanto = { testo: String, stile: TextStyle ->
@@ -726,9 +732,17 @@ internal fun TitleRow(
             val parola =
                 if (comando.lines > 1) comando.text.split(' ').maxBy { it.length }
                 else comando.text
+            /*
+             * ⚠️⚠️ **SI MISURA COL CORPO CON CUI [TitlePill] SCRIVE, E DALLA `2.83` NON È PIÙ
+             * LO STESSO PER TUTTI**: a due righe quel corpo scende di un gradino, quindi
+             * misurando qui il corpo pieno la larghezza imposta sarebbe più larga del testo,
+             * cioè si tornerebbe a due numeri per la stessa cosa. Il perché vive su
+             * [titlePillStyle].
+             */
             maxOf(
                 TITLE_PILL_MIN,
-                quanto(parola, corpoPastiglia) + TITLE_PILL_SIDE * 2 + TITLE_PILL_SLACK
+                quanto(parola, if (comando.lines > 1) corpoDue else corpoUno) +
+                    TITLE_PILL_SIDE * 2 + TITLE_PILL_SLACK
             )
         }
         val aIcone = commands.size > 1 || larghezze.any { pastiglia ->
@@ -839,15 +853,54 @@ internal fun TitlePill(
          * è una riga sola: un `FilledTonalButton` ha un'altezza minima sua (40dp) che il corpo
          * del testo non cambia, e il testo dentro sta al centro. Cambiando il corpo si accorcia
          * la **parola**, non la pastiglia, quindi la linea su cui si legge non si muove.
+         * ⚠️ **E dalla `2.83` quel corpo dipende dalle righe**, cioè scende ancora di un gradino
+         * dove il testo va a capo: il perché, e perché lo legge anche il conto, vivono su
+         * [titlePillStyle].
          */
         Text(
             text = text,
-            style = MaterialTheme.typography.labelMedium,
+            style = titlePillStyle(lines),
             maxLines = lines,
             textAlign = TextAlign.Center
         )
     }
 }
+
+/**
+ * Il corpo del testo di una pastiglia del titolo, che dipende da quante righe può prendere.
+ *
+ * ⚠️⚠️ **A DUE RIGHE SCENDE DI UN GRADINO E STRINGE L'INTERLINEA, DALLA `2.83`, ED È LA SUA
+ * NOTA** (riscontro del giro della `2.82`, voce `resize-pastiglia` approvata con una richiesta:
+ * *riduci leggermente la dimensione del carattere di 'Rendi predefinito', e/o riduci leggermente
+ * l'interlinea*). Sono le due metà della sua `e/o`, tutte e due leggere: il corpo passa a
+ * `labelSmall` e l'interlinea a [TITLE_PILL_LEAD].
+ * ⚠️⚠️ **LO LEGGONO IN DUE, IL CONTO E IL DISEGNO, E QUESTO È IL PUNTO**: [TitleRow] misura la
+ * parola più lunga per imporre la larghezza, e un corpo diverso da quello che [TitlePill] scrive
+ * rifarebbe il difetto della `2.81` in un verso o nell'altro, cioè una frase che non entra nella
+ * larghezza promessa, oppure una pastiglia più larga del testo che porta.
+ * ⚠️ **A una riga non si tocca niente**: quel corpo è quello che lui ha approvato nella `1.85`
+ * (*fai il testo lievemente più piccolo*), e le pastiglie di 'Rinomina' e di 'Scarica' non le ha
+ * nominate.
+ */
+@Composable
+private fun titlePillStyle(lines: Int): TextStyle {
+    val base =
+        if (lines > 1) MaterialTheme.typography.labelSmall
+        else MaterialTheme.typography.labelMedium
+    if (lines <= 1 || !base.fontSize.isSpecified) return base
+    return base.copy(lineHeight = base.fontSize * TITLE_PILL_LEAD)
+}
+
+/**
+ * Quanto vale l'interlinea di una pastiglia a due righe, in rapporto al proprio corpo.
+ *
+ * ⚠️⚠️ **È UN RAPPORTO E NON UNA MISURA, PERCHÉ IL CORPO LO DÀ IL TEMA**: scritta in `sp`, questa
+ * riga direbbe il vero finché nessuno tocca la tipografia, e il giorno che quel corpo cambia
+ * l'interlinea resterebbe quella di prima. Il valore di serie di `labelSmall` supera il 145%,
+ * cioè l'aria di un testo che si legge a paragrafi: qui le righe sono due parole, e quell'aria le
+ * faceva leggere come due cose invece che come una.
+ */
+private const val TITLE_PILL_LEAD = 1.27f
 
 /**
  * Il riempimento orizzontale di una pastiglia del titolo, che è anche metà del conto di
