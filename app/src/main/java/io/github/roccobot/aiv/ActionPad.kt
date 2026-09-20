@@ -1159,10 +1159,29 @@ private fun PadButton(
  * - ⚠️ **Vale per TUTTE le file e non per la sola riga di mezzo**: il tasto è uno solo
  *   ([PadButton]), e due corpi diversi sotto due icone identiche si vedrebbero prima nella
  *   scheda della selezione, dove le due file stanno una sopra l'altra.
+ *
+ * ⚠️⚠️ **E DALLA `2.80` LE DUE RIGHE SI STRINGONO E LE LETTERE SI AVVICINANO, ED È IL PUNTO D DEL
+ * SUO CAMPO LIBERO** (giro dalla `2.75` alla `2.77`: *riduci un po' l'interlinea delle etichette
+ * dei tasti 'centra', 'rifletti' e 'ruota', e riduci leggermente spaziatura o corpo del carattere
+ * per far stare l'intera parola 'orizzontale'*). Sono due numeri e rispondono a due metà diverse
+ * della sua frase:
+ * - **[PAD_LABEL_LINE] è l'interlinea**, e `labelSmall` la porta a 16sp su un corpo di 11: a 10sp
+ *   quel valore lascia un'aria che si vede solo dove la parola va a capo, cioè proprio nei tre
+ *   tasti che ha nominato. A 12sp le due righe stanno vicine e nessuna lettera si tocca, perché
+ *   il carattere alto al massimo, coi suoi tratti sopra e sotto, chiede poco più del corpo.
+ * - ⚠️⚠️ **E LA SPAZIATURA VA A ZERO INVECE DI TOGLIERE UN ALTRO MEZZO PUNTO AL CORPO**, che è la
+ *   scelta fra le due vie che lui ha lasciato aperte: `labelSmall` mette mezzo punto fra una
+ *   lettera e l'altra, e su 'orizzontale', che ne ha undici, sono **5,5 punti** di larghezza che
+ *   si recuperano senza rimpicciolire niente. Il corpo era già sceso con la `2.03` e scendere
+ *   ancora si vedrebbe su tutte le file, mentre la spaziatura si vede sulla sola parola lunga.
  */
 @Composable
 private fun padLabel(): TextStyle =
-    MaterialTheme.typography.labelSmall.copy(fontSize = PAD_LABEL_SIZE)
+    MaterialTheme.typography.labelSmall.copy(
+        fontSize = PAD_LABEL_SIZE,
+        lineHeight = PAD_LABEL_LINE,
+        letterSpacing = 0.sp
+    )
 
 /**
  * Lo stesso gesto, con la vibrazione breve del sistema davanti.
@@ -1258,6 +1277,13 @@ private val PAD_LABEL_GAP = 2.dp
 
 /** Il corpo dell'etichetta di un tasto. Il perché di questo numero vive su [padLabel]. */
 private val PAD_LABEL_SIZE = 10.sp
+
+/**
+ * L'interlinea di un'etichetta che va a capo, dalla `2.80`.
+ *
+ * ⚠️ **Poco più del corpo, e non il doppio**: il perché, e la sua richiesta, vivono su [padLabel].
+ */
+private val PAD_LABEL_LINE = 12.sp
 
 /**
  * Il margine laterale del riquadro dentro il menu che lo contiene.

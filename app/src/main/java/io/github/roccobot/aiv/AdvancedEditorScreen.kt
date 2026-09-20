@@ -92,6 +92,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
@@ -2814,6 +2815,26 @@ private val CROP_CMD_ICON = 24.dp
 /** Lo stondamento della cella di un comando del ritaglio, cioè quello dei chip di questa scheda. */
 private val CROP_CMD_ROUND = 8.dp
 
+/**
+ * Quanto distano due comandi del ritaglio, dalla `2.80`.
+ *
+ * ⚠️ **Erano quattro punti, ed è il suo punto `crop-giu`** (*le quattro icone-pulsanti del
+ * ritaglio più distanziate*). Costa **zero** in altezza, perché quella riga si divide una
+ * larghezza che ha già: a stringersi sono le quattro celle, che restano larghe una sessantina di
+ * punti, cioè più di un `IconButton` di Material.
+ */
+private val CROP_CMD_GAP = 12.dp
+
+/**
+ * L'aria sopra la fila delle forme, dalla `2.80`: vedi il suo punto `crop-giu` (*tutto più
+ * distante dai gettoni dei moduli*).
+ */
+private val CROP_TOP_AIR = 8.dp
+
+/** Lo spessore e l'aria del separatore sfumato del Ritaglio: vedi `CropRule`. */
+private val CROP_RULE_THICK = 1.dp
+private val CROP_RULE_AIR = 10.dp
+
 /** La forma scelta nel Ritaglio, cioè l'indice di [Gaze.shape] riportato al suo valore. */
 private fun cropShape(gaze: Gaze): Shape =
     Shape.entries.getOrElse(gaze.shape) { Shape.FREE }
@@ -3566,34 +3587,30 @@ private fun ModuleBody(
                 onSettled()
             },
             /*
+             * ⚠️⚠️ **I DUE VERSI SONO DUE ICONE DENTRO LA FILA DELLE FORME, DALLA `2.80`, ED È IL
+             * SUO PUNTO `crop-giu`** (*'Orizzontale' e 'Verticale' diventano icone a destra di
+             * 'Originale'*). Fino alla `2.79` erano due chip scritti in una riga tutta loro, cioè
+             * una terza riga alta [CHIP_TALL] per una scelta di due stati: adesso vivono accanto
+             * alle due parole, e quella riga se ne va.
+             * ⚠️ **Quello che il tocco fa non cambia di una riga**: il rettangolo si gira e la
+             * scelta si scrive nello sguardo, come prima.
+             */
+            onLay = { one ->
+                if (one != lay) {
+                    onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
+                    gaze.lay = one.ordinal
+                    onSettled()
+                }
+            },
+            /*
              * ⚠️⚠️ **I TRE BLOCCHI NON PORTANO PIÙ UN DISTACCO SCRITTO A MANO, DALLA `2.40`, E
              * NON È UNA SPREMITURA**: l'aria fra le righe di un modulo la dà [Breathe], che dalla
              * `2.35` la distribuisce dove avanza; scritta anche qui si sommava alla sua, e nel
              * Ritaglio, che è il modulo più fitto, era l'unica a esserci. Toglierla lascia posto
              * ai quattro comandi e mette lo spazio dove il pannello lo mette dappertutto.
              */
-            modifier = Modifier
+            modifier = Modifier.padding(top = CROP_TOP_AIR)
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            for (one in Lay.entries) {
-                SheetChip(
-                    text = stringResource(one.label),
-                    selected = one == lay,
-                    enabled = live,
-                    onClick = {
-                        if (one != lay) {
-                            onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
-                            gaze.lay = one.ordinal
-                            onSettled()
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
         ActionPad(
             columns = POSE_KEYS,
             stretch = true,
@@ -3670,7 +3687,7 @@ private fun ModuleBody(
         val portata = relativeTo(look.framing.shown, look.crop)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(CROP_CMD_GAP)
         ) {
             CropCmd(
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
@@ -3723,6 +3740,7 @@ private fun ModuleBody(
                 onSettled()
             }
         }
+        CropRule()
     }
 
     /*
@@ -3988,6 +4006,43 @@ private fun RowScope.CropCmd(
             tint = LocalContentColor.current.copy(alpha = if (enabled) 1f else OFF_INK)
         )
     }
+}
+
+/**
+ * Il separatore sfumato fra i quattro comandi del ritaglio e la barra in basso, dalla `2.80`.
+ *
+ * ⚠️⚠️ **È IL PUNTO D DEL SUO CAMPO LIBERO** (riscontro del giro dalla `2.75` alla `2.77`: *sposta
+ * più su i 4 tasti del controllo del ritaglio, e separali dalla barra in basso usando un
+ * separatore sfumato*). Le due metà sono una cosa sola: questa riga occupa dell'aria in fondo al
+ * corpo, quindi i comandi salgono **perché** qualcosa li separa, e non per un distacco scritto
+ * sopra di loro.
+ *
+ * ⚠️⚠️ **E LA REVOCA DELLA `2.75` NON SI STA RIFACENDO, PERCHÉ IL CONTO È CAMBIATO**: là il
+ * distacco se lo prendeva dall'avanzo che [Breathe] distribuisce, e il resto del corpo si
+ * stringeva della stessa quantità (*s'è ammucchiato tutto*). Qui la riga dei due versi se n'è
+ * andata dentro le forme, cioè si sono liberati [CHIP_TALL] più il suo distacco, e questa riga ne
+ * spende meno.
+ *
+ * ⚠️ **Sfuma ai due capi e non ai bordi della scheda**: una linea piena da bordo a bordo
+ * dividerebbe il pannello in due superfici, mentre quello che lui ha chiesto è uno stacco, cioè
+ * un segno che c'è in mezzo e non si sa dove finisce.
+ */
+@Composable
+private fun CropRule() {
+    val ink = MaterialTheme.colorScheme.outlineVariant
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = CROP_RULE_AIR)
+            .height(CROP_RULE_THICK)
+            .background(
+                Brush.horizontalGradient(
+                    0f to Color.Transparent,
+                    0.5f to ink,
+                    1f to Color.Transparent
+                )
+            )
+    )
 }
 
 @Composable

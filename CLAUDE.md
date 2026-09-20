@@ -3926,6 +3926,26 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
       colonne uguali le due righe si leggono come una griglia e la parola più lunga delle ventotto
       lingue sta comoda per costruzione. Con lei torna il **corpo pieno**, perché il gradino più
       piccolo serviva a non troncare in una riga da sei.
+  - ⚠️⚠️ **E DALLA `2.80` LE DUE RIGHE SONO 'LE PAROLE' E 'I NUMERI', COI DUE VERSI A ICONA
+    ACCANTO ALLE PAROLE, ED È IL SUO PUNTO `crop-giu`** (riscontro del giro dalla `2.75` alla
+    `2.77`, col mockup: *le proporzioni numeriche tutte in una riga*, e *'Orizzontale' e
+    'Verticale' diventano icone a destra di 'Originale'*). Fino alla `2.79` erano due righe da tre
+    celle uguali, quindi i quattro numeri stavano a cavallo delle due, e i due versi vivevano in
+    una **terza** riga scritta a parole.
+    - ⚠️⚠️ **QUELLA TERZA RIGA SE NE VA, ED È LA COSA CHE PAGA IL RESTO DEL GIRO**: il Ritaglio si
+      accorcia di `CHIP_TALL` più il suo distacco, e senza quel guadagno l'aria del punto D
+      farebbe di lui il modulo più alto, cioè alzerebbe la scheda **in tutti e nove**
+      (§ `SteadyBody`).
+    - ⚠️ **I due versi restano di Material**: `CropPortrait` e `CropLandscape` hanno il contorno
+      esterno già stondato e gli spigoli vivi nel solo buco interno, quindi col criterio stretto
+      l'arrotondamento a 0,4 li lascia a **zero pixel** e vince Material (§ '🖌️ Come entra un
+      disegno'). Non nasce nessun file in `res/`.
+    - ⚠️ **Il nome vive nella descrizione parlata**, come nei gettoni dei moduli: è quello che un
+      lettore di schermo annuncia e quello che il banco cerca, e nessuna stringa nasce o resta
+      orfana.
+    - ⚠️ **I quattro numeri si dividono la loro riga in parti uguali**, perché non si traducono
+      mai; le due parole prendono quello che avanza accanto alle due celle dei versi, larghe
+      quanto un bersaglio di Material.
   - ⚠️⚠️ **LE FILE ERANO DIVENTATE DUE CON LA `2.32`, E DALLA `2.34` TORNANO UNA: È LA SUA
     RISPOSTA `una` A `d-crop-righe`** (giro della `2.32`: *rimettile su una fila sola*, con la
     ragione scritta nella scelta: *anche a costo di troncare le due parole: preferisco lo spazio
@@ -4074,12 +4094,37 @@ ci fosse spazio, invece con lo spostamento s'è ammucchiato tutto. Riporta allo 
   da guardare. Il fatto che regge il tetto resta scritto qui: un distacco più grande dell'avanzo
   farebbe del Ritaglio il modulo più alto, e allora la scheda si alzerebbe in tutti e nove.
 
+⚠️⚠️ **E DALLA `2.80` QUEI QUATTRO COMANDI RISALGONO, MA DIETRO UN SEPARATORE SFUMATO: È LA STESSA
+RICHIESTA CON IL PEZZO CHE LE MANCAVA** (punto D del campo libero del giro dalla `2.75` alla
+`2.77`: *sposta più su i 4 tasti del controllo del ritaglio, e separali dalla barra in basso usando
+un separatore sfumato*). Le due metà si leggono insieme: il separatore occupa dell'aria in fondo al
+corpo, quindi i comandi salgono **perché** qualcosa li separa, e non per un distacco scritto sopra
+di loro.
+- ⚠️⚠️ **LA REVOCA DELLA `2.75` NON SI STA RIFACENDO, PERCHÉ IL CONTO È CAMBIATO**: là il distacco
+  se lo prendeva dall'avanzo che `Breathe` distribuisce, e il resto del corpo si stringeva della
+  stessa quantità (*s'è ammucchiato tutto*). Qui la riga dei due versi se n'è andata dentro le
+  forme, quindi l'avanzo c'è davvero, e questo separatore ne spende meno di quanto quella riga
+  liberi.
+- ⚠️ **Sfuma ai due capi e non arriva ai bordi della scheda**: una linea piena da bordo a bordo
+  dividerebbe il pannello in due superfici, mentre quello che ha chiesto è uno stacco.
+- ⚠️ **E i quattro comandi si distanziano fra loro**, che è l'altra metà del punto `crop-giu` (*le
+  quattro icone-pulsanti del ritaglio più distanziate*): costa **zero** in altezza, perché quella
+  riga si divide una larghezza che ha già, e le celle restano più larghe di un `IconButton` di
+  Material. Con lui il blocco delle forme prende un'aria in cima, che è il suo *tutto più distante
+  dai gettoni dei moduli*.
+- ⚠️⚠️ **IL PUNTO D NON HA UNA PROVA DEL BANCO, E VA DETTO**: è la stessa classe di misure che la
+  `2.75` ha dichiarato bugiarde, cioè quelle che vedono un numero crescere da una parte senza
+  vedere che cosa si stringe dall'altra. Come si legge sul telefono si guarda sul telefono, e la
+  voce di collaudo lo chiede.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
 i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
 cursore, che tirando una squadretta il palco cambi disegno; dalla `2.34` anche che la fila dei
-moduli **segua l'ordine scelto** portandoli tutti e sette, e che le sei forme stiano su una riga
-sola. **Non** vede il file salvato, cioè che
+moduli **segua l'ordine scelto** portandoli tutti e sette; dalla `2.80` che le due parole e i due
+versi stiano su una riga e i quattro numeri sull'altra, e che il tocco su un verso a icona lo
+scelga ancora (controprovato rimettendo i numeri a cavallo delle due righe, e spegnendo il legame
+del verso). **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
 - ⚠️⚠️ **E LA PROVA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUN COMPILATORE POTEVA
   VEDERE**: il gesto consumava l'evento **prima** di leggerne il delta, e `positionChange()` risponde

@@ -24,6 +24,8 @@ import androidx.compose.ui.test.up
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -1544,34 +1546,58 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 41: le sei forme del ritaglio vanno su una fila sola.**
+     * **Caso 41: le due parole e i due versi sopra, i quattro numeri sotto.**
      *
-     * ⚠️⚠️ **È LA SUA RISPOSTA `una` A `d-crop-righe`** (giro della `2.32`: *rimettile su una fila
-     * sola*, *anche a costo di troncare le due parole: preferisco lo spazio per l'immagine*): la
-     * `2.32` le aveva divise in due file, e quella riga in più il palco non ce l'ha.
-     * ⚠️ **Si misura il bordo di SOPRA di ognuna**, che è la cosa che distingue una fila da due, e
-     * non la larghezza: quella dipende da quanto il carattere del banco è stretto, che è il caso
-     * dichiarato in `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
+     * ⚠️⚠️ **È IL SUO PUNTO `crop-giu`, DALLA `2.80`** (riscontro del giro dalla `2.75` alla
+     * `2.77`, col mockup: *le proporzioni numeriche tutte in una riga*, e *'Orizzontale' e
+     * 'Verticale' diventano icone a destra di 'Originale'*). Fino alla `2.79` erano due righe da
+     * tre celle uguali, quindi i quattro numeri stavano a cavallo delle due, e i due versi
+     * vivevano in una terza riga scritta a parole.
+     * ⚠️ **Si misura il bordo di SOPRA di ognuna**, che è la cosa che distingue una riga
+     * dall'altra, e non la larghezza: quella dipende da quanto il carattere del banco è stretto,
+     * che è il caso dichiarato in `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
+     * ⚠️⚠️ **E I DUE VERSI SI CERCANO PER DESCRIZIONE PARLATA, che è la cosa che può rompersi in
+     * silenzio**: da icone il nome non si legge più a schermo, quindi senza `contentDescription`
+     * quel comando è muto per un lettore di schermo e invisibile al banco.
+     * ⚠️ Controprovata rimettendo i quattro numeri a cavallo delle due righe: la prima riga ne
+     * conta tre invece di due.
      */
     @Test
-    fun `le sei forme del ritaglio vanno su due righe da tre`() {
+    fun `le forme del ritaglio vanno su due righe, le parole coi versi`() {
         banco.setContent { Scena() }
         pronta()
         modulo(R.string.look_crop)
 
-        val cime = (FORME + listOf(testo(R.string.editor_free), testo(R.string.editor_shape_original)))
-            .map { banco.onNodeWithText(it).fetchSemanticsNode().boundsInRoot.top }
-        assertEquals("le sei forme ci sono tutte", 6, cime.size)
-        /*
-         * ⚠️ **Si raggruppano le cime con una tolleranza**: due celle della stessa riga possono
-         * differire di una frazione di pixel, e un confronto esatto conterebbe sei righe.
-         */
-        val righe = mutableListOf<Float>()
-        for (c in cime) if (righe.none { abs(it - c) < 2f }) righe.add(c)
-        assertEquals("le sei forme vanno su due righe", 2, righe.size)
-        for (riga in righe) {
-            assertEquals("e ogni riga ne porta tre", 3, cime.count { abs(it - riga) < 2f })
+        fun cima(nodo: SemanticsNodeInteraction): Float =
+            nodo.fetchSemanticsNode().boundsInRoot.top
+        val parole = listOf(R.string.editor_free, R.string.editor_shape_original)
+            .map { cima(banco.onNodeWithText(testo(it))) }
+        val numeri = FORME.map { cima(banco.onNodeWithText(it)) }
+        val versi = listOf(R.string.editor_tall, R.string.editor_wide)
+            .map { cima(banco.onNodeWithContentDescription(testo(it))) }
+
+        assertEquals("le due parole vivono sulla stessa riga", parole[0], parole[1], 2f)
+        for (v in versi) {
+            assertEquals("e i due versi vivono lì accanto", parole[0], v, 2f)
         }
+        for (n in numeri) {
+            assertEquals("i quattro numeri vivono su una riga sola", numeri[0], n, 2f)
+        }
+        assertTrue(
+            "e quella riga viene dopo le parole",
+            numeri[0] > parole[0] + 2f
+        )
+
+        /*
+         * ⚠️ **E il tocco su un'icona sceglie ancora il verso**: da parola a icona quello che
+         * cambia è il disegno, e la scelta si legge dalla semantica del chip, che è quella che
+         * un lettore di schermo annuncia. Controprovata spegnendo il legame: la scelta non si
+         * muove.
+         */
+        banco.onNodeWithContentDescription(testo(R.string.editor_wide)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.editor_wide)).assertIsSelected()
+        banco.onNodeWithContentDescription(testo(R.string.editor_tall)).assertIsNotSelected()
     }
 
     /**
