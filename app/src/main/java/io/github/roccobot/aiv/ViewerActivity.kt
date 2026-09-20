@@ -486,14 +486,34 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il **ridimensionamento** configurato, che esiste anche quando non si applica: l'editor lo
-     * mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     * Il ridimensionamento **predefinito**, cioè quello scritto nelle preferenze.
+     *
+     * ⚠️⚠️ **DALLA `2.81` LO SCRIVE SOLO 'Rendi predefinito', ED È UNA SUA FUNZIONE NUOVA**
+     * (voce `resize-finestra`: *'Rendi predefinito' (nuova funzione): fa in modo che le
+     * impostazioni di ridimensionamento restino memorizzate per i salvataggi seguenti*). Fino
+     * alla `2.80` lo scriveva 'Applica', quindi ogni configurazione sopravviveva al riavvio
+     * dell'app senza che nessuno l'avesse chiesto.
      */
-    fun resizePlan(): Resize.Plan {
+    fun resizeSaved(): Resize.Plan {
         val now = settings
         return if (now == null) Resize.NONE
         else Resize.Plan(now.sizeMode, now.sizeValue)
     }
+
+    /**
+     * Il **ridimensionamento** che il salvataggio userà, che esiste anche quando non si applica:
+     * l'editor lo mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     *
+     * ⚠️⚠️ **È QUELLO APPLICATO SE QUALCUNO L'HA APPLICATO, ALTRIMENTI IL PREDEFINITO**: dalla
+     * `2.81` 'Applica' vale per l'app viva e 'Rendi predefinito' vale per sempre, che è la
+     * distinzione su cui la sua richiesta si regge. ⚠️ **E il piano applicato vive nel modello e
+     * non nella schermata**, perché chi rimpicciolisce a una misura lo fa su parecchie immagini
+     * di fila: uno stato dentro l'editor gli farebbe riscrivere la misura a ogni apertura.
+     */
+    fun resizePlan(): Resize.Plan = resizeNow ?: resizeSaved()
+
+    /** Il piano applicato in questa sessione, o `null` finché vale il predefinito. */
+    private var resizeNow: Resize.Plan? by mutableStateOf(null)
 
     /** Se quel piano si applica al salvataggio. */
     fun resizeOn(): Boolean = settings?.sizeOn ?: false
@@ -506,13 +526,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ridimensionamento se non lo spengo*). Chi entra a configurare ha già detto che lo vuole.
      * ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che
      * si era scelto resta scritto, e riaccendere non chiede di riscriverlo.
+     * ⚠️⚠️ **DALLA `2.81` SCRIVE NEL MODELLO E NON NELLE PREFERENZE**: le preferenze tengono il
+     * predefinito, che si scrive col comando apposta (vedi [setResizeDefault]).
      */
     fun setResize(plan: Resize.Plan?) {
         val now = settings ?: return
-        updateSettings(
-            if (plan == null) now.copy(sizeOn = false)
-            else now.copy(sizeOn = true, sizeMode = plan.mode, sizeValue = plan.value)
-        )
+        if (plan != null) resizeNow = plan
+        updateSettings(now.copy(sizeOn = plan != null))
+    }
+
+    /**
+     * Il piano diventa quello **predefinito**, e con lui si salva anche adesso.
+     *
+     * ⚠️ **Accende l'interruttore come 'Applica'**, perché la sua frase lega le due cose (*restino
+     * memorizzate per i salvataggi seguenti (se l'icona 'Ridimensiona' è accesa)*): un predefinito
+     * scritto a interruttore spento non rimpicciolirebbe niente.
+     */
+    fun setResizeDefault(plan: Resize.Plan) {
+        val now = settings ?: return
+        resizeNow = plan
+        updateSettings(now.copy(sizeOn = true, sizeMode = plan.mode, sizeValue = plan.value))
     }
 
     var recents: List<RecentImage> by mutableStateOf(emptyList())
@@ -3446,8 +3479,10 @@ private fun Stage(
                 onMark = { model.setMark(it) },
                 onMarkSetup = { model.openMarkSetup() },
                 resize = model.resizePlan(),
+                saved = model.resizeSaved(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
+                onResizeDefault = { model.setResizeDefault(it) },
                 onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
                 onBack = { model.leaveEditor() }
             )
@@ -3469,8 +3504,10 @@ private fun Stage(
                 onMark = { model.setMark(it) },
                 onMarkSetup = { model.openMarkSetup() },
                 resize = model.resizePlan(),
+                saved = model.resizeSaved(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
+                onResizeDefault = { model.setResizeDefault(it) },
                 onSave = { look, beside -> model.lookSave(look, beside) },
                 onBack = { model.leaveEditor() }
             )

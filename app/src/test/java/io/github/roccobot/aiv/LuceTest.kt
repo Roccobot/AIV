@@ -720,8 +720,10 @@ class LuceTest {
                     resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
                     // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
                     // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
+                    saved = Resize.NONE,
                     resizing = false,
                     onResize = {},
+                    onResizeDefault = {},
                     onSave = consegna,
                     onBack = {}
                 )

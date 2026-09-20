@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">불투명도</string>
     <string name="settings_mark_preview">워터마크 미리보기</string>
     <string name="look_resize">크기 조정</string>
-    <string name="look_resize_mode">기준</string>
     <string name="resize_long">긴 변</string>
     <string name="resize_short">짧은 변</string>
     <string name="resize_wide">너비</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">픽셀</string>
     <string name="look_resize_pct">퍼센트</string>
     <string name="look_resize_range">%1$d 에서 %2$d 사이의 숫자를 입력하세요.</string>
-    <string name="look_resize_now">현재 크기: %1$s</string>
     <string name="look_resize_keep">이 이미지는 이미 더 작아서 그대로 유지됩니다.</string>
     <string name="look_resize_reset">초기화</string>
+    <string name="look_resize_result">결과</string>
+    <string name="look_resize_default">기본값으로 설정</string>
     <string name="look_resize_note">비율은 그대로 유지되며, 크기는 줄이는 것만 가능합니다.</string>
     <string name="settings_save_rename">저장할 때 이름 바꾸기 허용</string>
     <string name="settings_save_rename_desc">기본적으로 파일은 원래 이름으로 저장됩니다. 다운로드마다 이름을 정하려면 이 옵션을 켜세요. 꺼져 있어도 \'저장\'을 길게 누르면 그 한 번만 새 이름을 입력할 수 있습니다.</string>

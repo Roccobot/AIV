@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">अपारदर्शिता</string>
     <string name="settings_mark_preview">वॉटरमार्क का पूर्वावलोकन</string>
     <string name="look_resize">आकार बदलें</string>
-    <string name="look_resize_mode">इसके अनुसार</string>
     <string name="resize_long">लंबी भुजा</string>
     <string name="resize_short">छोटी भुजा</string>
     <string name="resize_wide">चौड़ाई</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">पिक्सेल</string>
     <string name="look_resize_pct">प्रतिशत</string>
     <string name="look_resize_range">%1$d और %2$d के बीच एक संख्या लिखें।</string>
-    <string name="look_resize_now">वर्तमान आकार: %1$s</string>
     <string name="look_resize_keep">यह छवि पहले से ही छोटी है, इसलिए वैसी ही रहती है।</string>
     <string name="look_resize_reset">रीसेट</string>
+    <string name="look_resize_result">परिणाम</string>
+    <string name="look_resize_default">डिफ़ॉल्ट बनाएँ</string>
     <string name="look_resize_note">अनुपात वही रहता है; आकार केवल घटाया जा सकता है।</string>
     <string name="settings_save_rename">सहेजते समय नाम बदलने दें</string>
     <string name="settings_save_rename_desc">डिफ़ॉल्ट रूप से फ़ाइलें अपने मूल नाम से सहेजी जाती हैं. हर डाउनलोड पर नाम तय करने के लिए इसे चालू करें. बंद होने पर भी \'सहेजें\' को दबाकर रखें और उसी बार के लिए नया नाम लिखें.</string>

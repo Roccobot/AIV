@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">Ukolezi</string>
     <string name="settings_mark_preview">Onyesho la alama ya maji</string>
     <string name="look_resize">Badilisha ukubwa</string>
-    <string name="look_resize_mode">Linganisha na</string>
     <string name="resize_long">Upande mrefu</string>
     <string name="resize_short">Upande mfupi</string>
     <string name="resize_wide">Upana</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">Pikseli</string>
     <string name="look_resize_pct">Asilimia</string>
     <string name="look_resize_range">Andika nambari kati ya %1$d na %2$d.</string>
-    <string name="look_resize_now">Ukubwa wa sasa: %1$s</string>
     <string name="look_resize_keep">Picha hii tayari ni ndogo zaidi, kwa hivyo inabaki kama ilivyo.</string>
     <string name="look_resize_reset">Weka upya</string>
+    <string name="look_resize_result">Matokeo</string>
+    <string name="look_resize_default">Weka kama chaguomsingi</string>
     <string name="look_resize_note">Uwiano hubaki vile vile; ukubwa unaweza kupunguzwa tu.</string>
     <string name="settings_save_rename">Ruhusu kubadilisha jina wakati wa kuhifadhi</string>
     <string name="settings_save_rename_desc">Kwa kawaida faili huhifadhiwa kwa jina lake la awali. Washa hii ili kuweka jina kwa kila upakuaji. Hata ikiwa imezimwa, gusa na ubonyeze \'Hifadhi\' ili kuandika jina jipya mara hiyo tu.</string>

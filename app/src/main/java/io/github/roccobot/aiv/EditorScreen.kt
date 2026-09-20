@@ -133,10 +133,17 @@ fun EditorScreen(
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
      */
     resize: Resize.Plan,
+    /**
+     * Il ridimensionamento **predefinito**, che serve alla finestra per sapere se il piano che
+     * ha in mano è già quello: senza, 'Rendi predefinito' resterebbe acceso dopo averlo toccato.
+     */
+    saved: Resize.Plan,
     /** Se quel piano si applica al salvataggio, cioè l'interruttore della `2.70`. */
     resizing: Boolean,
     /** `null` spegne; un piano lo scrive **e** accende, come 'Applica' della sua finestra. */
     onResize: (Resize.Plan?) -> Unit,
+    /** Il piano diventa il predefinito, cioè il comando 'Rendi predefinito' della `2.81`. */
+    onResizeDefault: (Resize.Plan) -> Unit,
     /**
      * Che cosa salvare.
      *
@@ -281,12 +288,14 @@ fun EditorScreen(
     if (asking) {
         ResizeDialog(
             initial = resize,
+            saved = saved,
             size = frame,
             onDismiss = { asking = false },
             onApply = {
                 asking = false
                 onResize(it)
-            }
+            },
+            onDefault = onResizeDefault
         )
     }
 

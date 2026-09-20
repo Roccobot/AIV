@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">کدری</string>
     <string name="settings_mark_preview">پیش‌نمایش واترمارک</string>
     <string name="look_resize">تغییر اندازه</string>
-    <string name="look_resize_mode">متناسب با</string>
     <string name="resize_long">ضلع بلند</string>
     <string name="resize_short">ضلع کوتاه</string>
     <string name="resize_wide">عرض</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">پیکسل</string>
     <string name="look_resize_pct">درصد</string>
     <string name="look_resize_range">عددی بین %1$d و %2$d بنویسید.</string>
-    <string name="look_resize_now">اندازه فعلی: %1$s</string>
     <string name="look_resize_keep">این تصویر از پیش کوچک‌تر است، پس بدون تغییر می‌ماند.</string>
     <string name="look_resize_reset">بازنشانی</string>
+    <string name="look_resize_result">نتیجه</string>
+    <string name="look_resize_default">تنظیم به عنوان پیش‌فرض</string>
     <string name="look_resize_note">نسبت ابعاد تغییر نمی‌کند؛ فقط می‌توان اندازه را کوچک کرد.</string>
     <string name="settings_save_rename">اجازه تغییر نام هنگام ذخیره</string>
     <string name="settings_save_rename_desc">به‌طور پیش‌فرض پرونده‌ها با نام اصلی خود ذخیره می‌شوند. برای تعیین نام در هر بارگیری این را روشن کنید. حتی با خاموش بودن آن، \'ذخیره\' را نگه دارید تا فقط همان بار نامی تازه بنویسید.</string>

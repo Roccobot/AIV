@@ -547,7 +547,6 @@
     <string name="settings_mark_alpha">Opacité</string>
     <string name="settings_mark_preview">Aperçu du filigrane</string>
     <string name="look_resize">Redimensionner</string>
-    <string name="look_resize_mode">Ajuster à</string>
     <string name="resize_long">Côté le plus long</string>
     <string name="resize_short">Côté le plus court</string>
     <string name="resize_wide">Largeur</string>
@@ -556,9 +555,10 @@
     <string name="look_resize_px">Pixels</string>
     <string name="look_resize_pct">Pour cent</string>
     <string name="look_resize_range">Saisis un nombre entre %1$d et %2$d.</string>
-    <string name="look_resize_now">Taille actuelle : %1$s</string>
     <string name="look_resize_keep">Cette image est déjà plus petite, elle reste donc telle quelle.</string>
     <string name="look_resize_reset">Réinitialiser</string>
+    <string name="look_resize_result">Résultat</string>
+    <string name="look_resize_default">Définir par défaut</string>
     <string name="look_resize_note">Les proportions restent inchangées ; la taille peut seulement être réduite.</string>
     <string name="settings_save_rename">Autoriser le renommage à l\'enregistrement</string>
     <string name="settings_save_rename_desc">Par défaut, les fichiers sont enregistrés sous leur nom d\'origine. Activez ceci pour définir un nom à chaque téléchargement. Même désactivé, maintenez \'Enregistrer\' pour saisir un nouveau nom juste cette fois.</string>

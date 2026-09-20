@@ -4687,7 +4687,67 @@ l'altra misura si scopriva in una riga di testo.
 - ⚠️ **L'anteprima riusa la stringa di 'Rinomina'** (`rename_preview`), che dice esattamente
   'Anteprima' in tutte e ventotto le lingue: una parola nuova sarebbe la stessa cosa scritta due
   volte. ⚠️ **Le stringhe nuove sono due**, 'Lato corto' e la riga delle dimensioni attuali, e
-  `look_resize_to` esce perché non ha più chiamanti.
+  `look_resize_to` esce perché non ha più chiamanti. ⚠️⚠️ **TUTTE E DUE QUESTE RIGHE SONO DECADUTE
+  CON LA `2.81`**: l'anteprima si chiama 'Risultato' e ha una stringa sua, e la riga delle
+  dimensioni attuali è diventata il sottotitolo, cioè il solo numero.
+
+⚠️⚠️ **E DALLA `2.81` QUELLA FINESTRA HA UN SECONDO MOCKUP, ED È LA SUA VOCE `resize-finestra`**
+(esito 'quasi': *ECCELLENTE miglioramento. Manca ancora qualche aggiustamento, e ti invio un mockup
+per mostrarti cosa voglio*). Sono sette ritocchi, e quello che li tiene insieme è il conto dello
+spazio: *con tutte queste modifiche applicate ... la finestra diventa MOLTO più compatta e usabile
+(e sarà meno coperta dalla tastiera attiva)*.
+- ⚠️⚠️ **LA MISURA DI PARTENZA È IL SOTTOTITOLO, E LA DICITURA SE NE VA** (*'Dimensioni attuali'
+  non serviva: toglilo, e metti i pixel larghezza × altezza correnti subito sotto il titolo*, e il
+  testo `t-resize-now`). Il posto dice già che cosa è quel numero, quindi la dicitura ripeteva a
+  parole quello che il posto dichiara, e `look_resize_now` non ha più niente da tradurre: esce
+  dalle ventotto lingue.
+  - ⚠️ **E i numeri non sono più in grassetto**, che è il suo mockup: là il grassetto distingueva
+    le cifre dalla dicitura intorno, e senza dicitura distinguerebbe una riga da sé stessa.
+- ⚠️⚠️ **'RENDI PREDEFINITO' È UNA FUNZIONE NUOVA, E QUELLO CHE FA VA DETTO PERCHÉ UNA METÀ C'ERA
+  GIÀ** (*fa in modo che le impostazioni di ridimensionamento restino memorizzate per i salvataggi
+  seguenti*). Fino alla `2.80` 'Applica' scriveva **anche** nelle preferenze, quindi il piano
+  sopravviveva già al riavvio e questo comando non avrebbe avuto niente da fare. Adesso i due si
+  dividono il mestiere: 'Applica' scrive nel **modello**, cioè vale finché l'app è viva, e 'Rendi
+  predefinito' scrive nelle **preferenze** e accende l'interruttore.
+  - ⚠️⚠️ **SI ACCENDE NEI SOLI TRE MODI CHE NON DIPENDONO DALL'IMMAGINE APERTA, ED È LA SUA RIGA**
+    (*è cliccabile solo se sono attivi 'Lato lungo', 'Lato corto' o '%'*). Il perché è scritto in
+    `Resize.portable`: quei tre non guardano come una fotografia è girata, mentre la larghezza,
+    l'altezza e il libero fissano un numero su un lato preciso, cioè direbbero una cosa diversa
+    sulla prossima immagine.
+  - ⚠️⚠️ **IL SUO RISCONTRO È CHE IL TASTO SI SPEGNE, E LA SCELTA È DICHIARATA**: una notifica di
+    casa si aprirebbe **dietro** la finestra e non si vedrebbe, quindi a dire che il piano è
+    arrivato è il confronto col predefinito, che dopo il tocco coincide. Senza, il tasto resterebbe
+    acceso e si toccherebbe due volte.
+  - ⚠️ **È una pastiglia su due righe**, perché quella locuzione su una riga sola non entra
+    accanto al titolo in nessuna delle ventotto lingue: `TitleRow` misura la parola più lunga
+    invece della frase intera.
+- ⚠️⚠️ **'RIPRISTINA' SCENDE IN FONDO A DESTRA** (*Tasto 'Ripristina' spostato in basso: si
+  raggiunge meglio con una mano*), e lascia il posto del titolo al comando che si tocca una volta
+  sola. ⚠️ **Resta la stessa pastiglia** e non diventa un `TextButton` accanto ad 'Applica': là si
+  leggerebbe come un terzo tasto di conferma, mentre scrive nei campi e basta.
+- ⚠️ **La percentuale si scrive col segno e sale nella prima riga** (*'Percentuale' diventa '%' e
+  va nella prima riga dei gettoni: più compatto (bastano due righe) e più elegante*): l'ordine
+  dell'enum diventa quello del mockup, e siccome nell'archivio vive il **token** nessuna scelta
+  già salvata cambia significato. ⚠️ **Il nome per esteso resta nella descrizione parlata**, che è
+  quello che un lettore di schermo annuncia: `resize_share` non resta orfana e nessuna stringa
+  nasce, perché un segno non si traduce.
+- ⚠️ **Col titoletto se ne va anche 'Adatta a'** (`look_resize_mode`): una fila di gettoni sotto un
+  titolo che dice quello che i gettoni dicono già costa una riga di pixel verticali, che è la cosa
+  che questo giro esiste per guadagnare.
+- ⚠️⚠️ **IL SEGNO FRA I CAMPI SI ALLINEA ALLE CIFRE E NON AL CAMPO** (*il segno `×` è allineato
+  meglio in verticale, in modo che sia centrato in verticale rispetto alle cifre*), e il conto vive
+  su `FIELD_TEXT_DROP`: un campo con l'etichetta in alto porta il proprio testo più in basso del
+  suo centro, quindi il segno centrato sul campo si leggeva più alto delle cifre che separa.
+- ⚠️ **'Anteprima' diventa 'Risultato', e tutto è centrato** (*'Anteprima' diventa 'Risultato', ed
+  è più piccolo e centrato ... Le misure finali sono centrate, e forse per coerenza potrebbero
+  avere la stessa resa grafica e gli stessi colori del risultato della rinomina (ma con il testo
+  più grande)*): quindi la stringa di 'Rinomina' non si riusa più e ne nasce una, perché le due
+  parole dicono due cose diverse.
+- ⚠️ **Che cosa il banco misura in più** (`RidimensionaTest`, ogni caso controprovato): che
+  `Resize.portable` risponda ai soli tre modi, che 'Rendi predefinito' si accenda, scriva e si
+  spenga, e che il segno cada **sotto** il centro del campo. ⚠️ **Il verso e non il numero**: una
+  soglia sui punti cadrebbe al primo ritocco della costante. **Non** vede quanto la finestra sia
+  più compatta col telefono in mano, e la voce di collaudo lo chiede.
 
 ⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
 (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento

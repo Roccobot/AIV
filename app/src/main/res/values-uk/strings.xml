@@ -563,7 +563,6 @@
     <string name="settings_mark_alpha">Непрозорість</string>
     <string name="settings_mark_preview">Перегляд водяного знака</string>
     <string name="look_resize">Змінити розмір</string>
-    <string name="look_resize_mode">Підігнати за</string>
     <string name="resize_long">Довша сторона</string>
     <string name="resize_short">Коротша сторона</string>
     <string name="resize_wide">Ширина</string>
@@ -572,9 +571,10 @@
     <string name="look_resize_px">Пікселі</string>
     <string name="look_resize_pct">Відсотків</string>
     <string name="look_resize_range">Введіть число від %1$d до %2$d.</string>
-    <string name="look_resize_now">Поточний розмір: %1$s</string>
     <string name="look_resize_keep">Це зображення вже менше, тож залишається як є.</string>
     <string name="look_resize_reset">Скинути</string>
+    <string name="look_resize_result">Результат</string>
+    <string name="look_resize_default">Зробити типовим</string>
     <string name="look_resize_note">Пропорції не змінюються; розмір можна лише зменшити.</string>
     <string name="settings_save_rename">Дозволити перейменування під час збереження</string>
     <string name="settings_save_rename_desc">Типово файли зберігаються під початковою назвою. Увімкніть це, щоб задавати назву при кожному завантаженні. Навіть коли вимкнено, натисніть і утримуйте \'Зберегти\', щоб ввести нову назву лише цього разу.</string>

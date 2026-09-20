@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">دھندلاپن</string>
     <string name="settings_mark_preview">واٹرمارک کا پیش منظر</string>
     <string name="look_resize">سائز تبدیل کریں</string>
-    <string name="look_resize_mode">اس کے مطابق</string>
     <string name="resize_long">لمبا کنارہ</string>
     <string name="resize_short">چھوٹا کنارہ</string>
     <string name="resize_wide">چوڑائی</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">پکسل</string>
     <string name="look_resize_pct">فیصد</string>
     <string name="look_resize_range">%1$d اور %2$d کے درمیان ایک عدد لکھیں۔</string>
-    <string name="look_resize_now">موجودہ سائز: %1$s</string>
     <string name="look_resize_keep">یہ تصویر پہلے ہی چھوٹی ہے، اس لیے ویسی ہی رہتی ہے۔</string>
     <string name="look_resize_reset">ری سیٹ</string>
+    <string name="look_resize_result">نتیجہ</string>
+    <string name="look_resize_default">طے شدہ بنائیں</string>
     <string name="look_resize_note">تناسب وہی رہتا ہے؛ سائز صرف چھوٹا کیا جا سکتا ہے۔</string>
     <string name="settings_save_rename">محفوظ کرتے وقت نام بدلنے کی اجازت</string>
     <string name="settings_save_rename_desc">طے شدہ طور پر فائلیں اپنے اصل نام سے محفوظ ہوتی ہیں۔ ہر ڈاؤن لوڈ پر نام مقرر کرنے کے لیے یہ چالو کریں۔ بند ہونے پر بھی \'محفوظ کریں\' دبا کر رکھیں اور صرف اسی بار کے لیے نیا نام لکھیں۔</string>

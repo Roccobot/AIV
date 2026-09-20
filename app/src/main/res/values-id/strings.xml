@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">Opasitas</string>
     <string name="settings_mark_preview">Pratinjau tanda air</string>
     <string name="look_resize">Ubah ukuran</string>
-    <string name="look_resize_mode">Sesuaikan dengan</string>
     <string name="resize_long">Sisi terpanjang</string>
     <string name="resize_short">Sisi terpendek</string>
     <string name="resize_wide">Lebar</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">Piksel</string>
     <string name="look_resize_pct">Persen</string>
     <string name="look_resize_range">Tulis angka antara %1$d dan %2$d.</string>
-    <string name="look_resize_now">Ukuran saat ini: %1$s</string>
     <string name="look_resize_keep">Gambar ini sudah lebih kecil, jadi tetap seperti apa adanya.</string>
     <string name="look_resize_reset">Setel ulang</string>
+    <string name="look_resize_result">Hasil</string>
+    <string name="look_resize_default">Jadikan bawaan</string>
     <string name="look_resize_note">Rasio tetap sama; ukuran hanya bisa diperkecil.</string>
     <string name="settings_save_rename">Izinkan penggantian nama saat menyimpan</string>
     <string name="settings_save_rename_desc">Secara bawaan, berkas disimpan dengan nama aslinya. Aktifkan ini untuk menentukan nama pada setiap unduhan. Meski nonaktif, sentuh dan tahan \'Simpan\' untuk menulis nama baru hanya sekali itu.</string>

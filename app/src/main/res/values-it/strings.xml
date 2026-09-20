@@ -193,7 +193,6 @@
     <string name="settings_mark_alpha">Opacità</string>
     <string name="settings_mark_preview">Anteprima della filigrana</string>
     <string name="look_resize">Ridimensiona</string>
-    <string name="look_resize_mode">Adatta a</string>
     <string name="resize_long">Lato lungo</string>
     <string name="resize_short">Lato corto</string>
     <string name="resize_wide">Larghezza</string>
@@ -202,9 +201,10 @@
     <string name="look_resize_px">Pixel</string>
     <string name="look_resize_pct">Per cento</string>
     <string name="look_resize_range">Scrivi un numero fra %1$d e %2$d.</string>
-    <string name="look_resize_now">Dimensioni attuali: %1$s</string>
     <string name="look_resize_keep">Questa immagine è già più piccola, quindi resta com\'è.</string>
     <string name="look_resize_reset">Ripristina</string>
+    <string name="look_resize_result">Risultato</string>
+    <string name="look_resize_default">Rendi predefinito</string>
     <string name="look_resize_note">Le proporzioni restano invariate; è possibile solo ridurre le dimensioni.</string>
     <string name="settings_save_rename">Consenti la rinomina al salvataggio</string>
     <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve.</string>

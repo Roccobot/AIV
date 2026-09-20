@@ -235,7 +235,6 @@
     <string name="settings_mark_alpha">Opacity</string>
     <string name="settings_mark_preview">Watermark preview</string>
     <string name="look_resize">Resize</string>
-    <string name="look_resize_mode">Fit to</string>
     <string name="resize_long">Long edge</string>
     <string name="resize_short">Short edge</string>
     <string name="resize_wide">Width</string>
@@ -244,9 +243,10 @@
     <string name="look_resize_px">Pixels</string>
     <string name="look_resize_pct">Percent</string>
     <string name="look_resize_range">Type a number between %1$d and %2$d.</string>
-    <string name="look_resize_now">Current size: %1$s</string>
     <string name="look_resize_keep">This image is already smaller, so it stays as it is.</string>
     <string name="look_resize_reset">Reset</string>
+    <string name="look_resize_result">Result</string>
+    <string name="look_resize_default">Set as default</string>
     <string name="look_resize_note">The aspect ratio stays the same; images can only be made smaller.</string>
     <string name="settings_save_rename">Allow renaming when saving</string>
     <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once.</string>

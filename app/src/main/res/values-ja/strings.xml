@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">透かしのプレビュー</string>
     <string name="look_resize">サイズ変更</string>
-    <string name="look_resize_mode">基準</string>
     <string name="resize_long">長辺</string>
     <string name="resize_short">短辺</string>
     <string name="resize_wide">幅</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">ピクセル</string>
     <string name="look_resize_pct">パーセント</string>
     <string name="look_resize_range">%1$d から %2$d までの数値を入力してください。</string>
-    <string name="look_resize_now">現在のサイズ: %1$s</string>
     <string name="look_resize_keep">この画像はすでに小さいため、そのまま保存されます。</string>
     <string name="look_resize_reset">リセット</string>
+    <string name="look_resize_result">結果</string>
+    <string name="look_resize_default">既定にする</string>
     <string name="look_resize_note">縦横比は変わりません。サイズは小さくすることだけができます。</string>
     <string name="settings_save_rename">保存時の名前変更を許可</string>
     <string name="settings_save_rename_desc">既定では、ファイルは元の名前で保存されます。ダウンロードごとに名前を決めるにはこれをオンにします。オフのままでも、\'保存\' を長押しすればその一回だけ新しい名前を入力できます。</string>

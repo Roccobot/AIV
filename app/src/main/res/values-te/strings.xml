@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">అపారదర్శకత</string>
     <string name="settings_mark_preview">వాటర్‌మార్క్ మునుజూపు</string>
     <string name="look_resize">పరిమాణం మార్చు</string>
-    <string name="look_resize_mode">దీనికి సరిపోల్చు</string>
     <string name="resize_long">పొడవైన అంచు</string>
     <string name="resize_short">పొట్టి అంచు</string>
     <string name="resize_wide">వెడల్పు</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">పిక్సెళ్లు</string>
     <string name="look_resize_pct">శాతం</string>
     <string name="look_resize_range">%1$d నుండి %2$d మధ్య ఒక సంఖ్య రాయండి.</string>
-    <string name="look_resize_now">ప్రస్తుత పరిమాణం: %1$s</string>
     <string name="look_resize_keep">ఈ చిత్రం ఇప్పటికే చిన్నది, కాబట్టి అలాగే ఉంటుంది.</string>
     <string name="look_resize_reset">రీసెట్</string>
+    <string name="look_resize_result">ఫలితం</string>
+    <string name="look_resize_default">డిఫాల్ట్‌గా సెట్ చేయి</string>
     <string name="look_resize_note">నిష్పత్తి మారదు; పరిమాణాన్ని తగ్గించడం మాత్రమే సాధ్యం.</string>
     <string name="settings_save_rename">సేవ్ చేసేటప్పుడు పేరు మార్చడానికి అనుమతించు</string>
     <string name="settings_save_rename_desc">సాధారణంగా ఫైళ్లు వాటి అసలు పేరుతోనే సేవ్ అవుతాయి. ప్రతి డౌన్‌లోడ్‌కు పేరు నిర్ణయించడానికి దీన్ని ఆన్ చేయండి. ఆఫ్‌లో ఉన్నా \'సేవ్\' నొక్కి పట్టుకుని ఆ ఒకసారికి కొత్త పేరు రాయవచ్చు.</string>

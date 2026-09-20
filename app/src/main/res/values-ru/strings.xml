@@ -563,7 +563,6 @@
     <string name="settings_mark_alpha">Непрозрачность</string>
     <string name="settings_mark_preview">Предпросмотр водяного знака</string>
     <string name="look_resize">Изменить размер</string>
-    <string name="look_resize_mode">Подогнать по</string>
     <string name="resize_long">Длинная сторона</string>
     <string name="resize_short">Короткая сторона</string>
     <string name="resize_wide">Ширина</string>
@@ -572,9 +571,10 @@
     <string name="look_resize_px">Пиксели</string>
     <string name="look_resize_pct">Процентов</string>
     <string name="look_resize_range">Введите число от %1$d до %2$d.</string>
-    <string name="look_resize_now">Текущий размер: %1$s</string>
     <string name="look_resize_keep">Это изображение уже меньше, поэтому остаётся как есть.</string>
     <string name="look_resize_reset">Сбросить</string>
+    <string name="look_resize_result">Результат</string>
+    <string name="look_resize_default">Сделать по умолчанию</string>
     <string name="look_resize_note">Пропорции не меняются; размер можно только уменьшить.</string>
     <string name="settings_save_rename">Разрешить переименование при сохранении</string>
     <string name="settings_save_rename_desc">По умолчанию файлы сохраняются под исходным именем. Включите это, чтобы задавать имя при каждой загрузке. Даже когда выключено, нажмите и удерживайте \'Сохранить\', чтобы ввести новое имя только в этот раз.</string>

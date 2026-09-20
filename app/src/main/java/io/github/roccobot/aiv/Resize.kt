@@ -42,8 +42,13 @@ object Resize {
      * destinazione li scrive e basta.
      * ⚠️⚠️ **DUE SONO NATI CON LA `2.77`, ED È IL SUO ELENCO ALLA LETTERA** (voce
      * `resize-ripristina`: *I chip devono essere: `Lato lungo`, `Lato corto`, `Larghezza`,
-     * `Altezza`, `Pixel` (libero) e `Percentuale` (campo unico)*), e l'ordine dei gettoni è
-     * quello in cui li ha scritti, cioè quello di dichiarazione.
+     * `Altezza`, `Pixel` (libero) e `Percentuale` (campo unico)*).
+     * ⚠️⚠️ **L'ORDINE È QUELLO DEL SUO MOCKUP DELLA `2.81`, E PRIMA ERA QUELLO DELLA SUA FRASE**
+     * (voce `resize-finestra`: *'Percentuale' diventa '%' e va nella prima riga dei gettoni: più
+     * compatto (bastano due righe) e più elegante*). La percentuale era in coda, quindi la fila
+     * veniva di tre righe; con la parola più corta della famiglia in prima fila le due righe si
+     * riempiono da sé. ⚠️ **L'ordine dei gettoni è quello di dichiarazione**, quindi si riordina
+     * qui e non nella finestra, e l'archivio non se ne accorge perché là vive il token.
      * ⚠️⚠️ **NEL CONTO [FREE] GOVERNA LA LARGHEZZA, E LA LIBERTÀ È DELLA FINESTRA**: là i due
      * campi si scrivono tutti e due, e quello dell'altezza si traduce nella larghezza
      * corrispondente prima di arrivare qui. Un piano con due numeri avrebbe voluto una seconda
@@ -52,11 +57,26 @@ object Resize {
     enum class Mode(override val token: String) : Choice {
         LONG("long"),
         SHORT("short"),
+        SHARE("share"),
         WIDE("wide"),
         TALL("tall"),
-        FREE("free"),
-        SHARE("share")
+        FREE("free")
     }
+
+    /**
+     * Se un modo dice la stessa cosa su **qualunque** immagine, cioè se ha senso come
+     * predefinito.
+     *
+     * ⚠️⚠️ **I TRE SONO SUOI, E LA RAGIONE È CHE GLI ALTRI DIPENDONO DALLA FOTOGRAFIA APERTA**
+     * (voce `resize-finestra`: *'Rendi predefinito' è cliccabile solo se sono attivi 'Lato
+     * lungo', 'Lato corto' o '%'*). Il lato lungo, quello corto e la percentuale non guardano
+     * come l'immagine è girata, quindi milleseicento pixel di lato lungo valgono uguale su una
+     * verticale e su un'orizzontale; la larghezza, l'altezza e il libero fissano invece un
+     * numero su un lato preciso, e portato su un'immagine girata dall'altra parte darebbe
+     * un'area molto diversa da quella che si è scelta guardando.
+     */
+    fun portable(mode: Mode): Boolean =
+        mode == Mode.LONG || mode == Mode.SHORT || mode == Mode.SHARE
 
     /** Quale dei due lati un modo governa, quando ne governa uno solo. */
     enum class Side { WIDE, TALL }

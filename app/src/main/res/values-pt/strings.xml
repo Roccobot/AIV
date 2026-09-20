@@ -547,7 +547,6 @@
     <string name="settings_mark_alpha">Opacidade</string>
     <string name="settings_mark_preview">Pré-visualização da marca d\'água</string>
     <string name="look_resize">Redimensionar</string>
-    <string name="look_resize_mode">Ajustar a</string>
     <string name="resize_long">Lado maior</string>
     <string name="resize_short">Lado menor</string>
     <string name="resize_wide">Largura</string>
@@ -556,9 +555,10 @@
     <string name="look_resize_px">Píxeis</string>
     <string name="look_resize_pct">Por cento</string>
     <string name="look_resize_range">Escreve um número entre %1$d e %2$d.</string>
-    <string name="look_resize_now">Tamanho atual: %1$s</string>
     <string name="look_resize_keep">Esta imagem já é mais pequena, por isso fica como está.</string>
     <string name="look_resize_reset">Redefinir</string>
+    <string name="look_resize_result">Resultado</string>
+    <string name="look_resize_default">Definir como padrão</string>
     <string name="look_resize_note">A proporção não muda; o tamanho só pode ser reduzido.</string>
     <string name="settings_save_rename">Permitir renomear ao salvar</string>
     <string name="settings_save_rename_desc">Por padrão, os arquivos são salvos com o nome original. Ative isto para definir um nome em cada download. Mesmo desativado, toque e mantenha \'Salvar\' para digitar um novo nome só naquela vez.</string>

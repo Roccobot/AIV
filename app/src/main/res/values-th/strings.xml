@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">ความทึบ</string>
     <string name="settings_mark_preview">ตัวอย่างลายน้ำ</string>
     <string name="look_resize">ปรับขนาด</string>
-    <string name="look_resize_mode">ปรับตาม</string>
     <string name="resize_long">ด้านยาว</string>
     <string name="resize_short">ด้านสั้น</string>
     <string name="resize_wide">ความกว้าง</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">พิกเซล</string>
     <string name="look_resize_pct">เปอร์เซ็นต์</string>
     <string name="look_resize_range">พิมพ์ตัวเลขระหว่าง %1$d ถึง %2$d</string>
-    <string name="look_resize_now">ขนาดปัจจุบัน: %1$s</string>
     <string name="look_resize_keep">ภาพนี้เล็กกว่าอยู่แล้ว จึงคงไว้ตามเดิม</string>
     <string name="look_resize_reset">รีเซ็ต</string>
+    <string name="look_resize_result">ผลลัพธ์</string>
+    <string name="look_resize_default">ตั้งเป็นค่าเริ่มต้น</string>
     <string name="look_resize_note">อัตราส่วนคงเดิม ปรับได้เฉพาะให้เล็กลงเท่านั้น</string>
     <string name="settings_save_rename">อนุญาตให้เปลี่ยนชื่อเมื่อบันทึก</string>
     <string name="settings_save_rename_desc">โดยปกติไฟล์จะถูกบันทึกด้วยชื่อเดิม เปิดตัวเลือกนี้เพื่อกำหนดชื่อในทุกการดาวน์โหลด แม้ปิดอยู่ก็แตะ \'บันทึก\' ค้างไว้เพื่อพิมพ์ชื่อใหม่เฉพาะครั้งนั้น</string>
