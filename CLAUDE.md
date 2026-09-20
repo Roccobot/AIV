@@ -4749,6 +4749,52 @@ spazio: *con tutte queste modifiche applicate ... la finestra diventa MOLTO più
   soglia sui punti cadrebbe al primo ritocco della costante. **Non** vede quanto la finestra sia
   più compatta col telefono in mano, e la voce di collaudo lo chiede.
 
+⚠️⚠️ **E DUE DI QUEI SETTE RITOCCHI ERANO RIUSCITI A METÀ: LA `2.82` LI CHIUDE, ED È LA SUA VOCE
+`resize-finestra-2`** (*'Rendi predefinito' deve andare a capo: 'Rendi' / 'predefinito'. E
+'Ridimensiona' deve stare interamente senza troncature ... '%' deve stare sulla prima riga*). I
+punti sono tre e le cause due, perché i primi due sono lo stesso difetto visto dai suoi due capi.
+- ⚠️⚠️ **IL CONTO DICHIARAVA UN'INTENZIONE CHE IL DISEGNO NON APPLICAVA**: il campo `lines` dà al
+  testo il **permesso** di prendere due righe, e un testo va a capo solo quando non ci sta; la
+  pastiglia si dimensionava sul proprio contenuto, quindi la frase restava su una riga. Intanto
+  `TitleRow` sceglieva fra pastiglia e icona **misurando la parola più lunga**, cioè contando su
+  un'andata a capo che non c'era: prometteva al titolo uno spazio che la pastiglia si prendeva, e
+  'Ridimensiona' andava a capo in mezzo a una parola.
+  - **Adesso la larghezza si misura una volta e la usano in due**, il conto e il disegno: con la
+    misura della parola più lunga imposta alla pastiglia, la frase non entra su una riga **per
+    costruzione** e la seconda riga ci sta esatta.
+  - ⚠️ **Si impone solo a chi va a capo**: a una riga sola la larghezza del contenuto è già quella
+    che il conto misura, e scriverla sarebbe lo stesso numero due volte.
+- ⚠️⚠️ **E LE DUE RIGHE DEI GETTONI SI DICHIARANO INVECE DI DIPENDERE DALLO SPAZIO**: erano una
+  fila che andava a capo da sé, quindi la ripartizione la decideva quanto le parole misurano nella
+  lingua del telefono. Sul suo, misurato sulla sua schermata, le prime due chiedono **213 punti** e
+  il segno altri **46**, contro i **270** che la finestra ha: mancavano **quattro punti**, e il
+  segno scendeva. Un conto che si perde per quattro punti non si aggiusta allargando qualcosa.
+  - ⚠️ **Le celle hanno un peso MISURATO e non uguale**: con tre colonne uguali una cella vale 85
+    punti e 'Larghezza' ne chiede 105, cioè si leggerebbe troncata. Col peso preso dalla larghezza
+    vera del proprio testo, chi ha una parola lunga riceve di più e l'avanzo si distribuisce in
+    proporzione, che è la resa che la fila delle forme del Ritaglio ha già.
+  - ⚠️ **Il corpo scende di un gradino**, per la stessa ragione di quella fila: a `labelMedium` la
+    prima riga chiede 251 punti invece di 274, quindi in italiano avanza spazio e nelle lingue dai
+    nomi lunghi si tronca più tardi.
+  - ⚠️⚠️ **IN QUALCHE LINGUA SI TRONCA LO STESSO, E VA DETTO**: in francese quelle due locuzioni
+    sono il doppio delle nostre (*Côté le plus long*), quindi nessuna forma le fa entrare intere.
+    Quello che la forma nuova garantisce è che il segno resti dov'è e che la finestra non cresca
+    di una riga.
+- ⚠️ **Che cosa il banco misura in più**: la **ripartizione** dei sei gettoni (i primi tre alla
+  stessa altezza, gli altri tre più sotto) in `RidimensionaTest`, e in `TitoloTest` che una
+  pastiglia a due righe sia più stretta e più alta della stessa a una riga. ⚠️ **Non si misurano
+  le larghezze in punti**: quanto un testo misura sul banco non è quanto misura su un telefono, e
+  una soglia direbbe una cosa che là non vale.
+  - ⚠️⚠️ **LA PROVA DEI GETTONI VUOLE UNA SCENA LARGA, E LA CONTROPROVA HA SMENTITO QUELLO CHE
+    MI ASPETTAVO**: sulla scena di serie del banco la ripartizione viene tre e tre **anche** con
+    la fila che va a capo da sé, quindi rimettendo il difetto la prova restava **verde**, cioè
+    non misurava niente. Con `@Config(qualifiers = "w600dp-h900dp")` le due forme si separano,
+    perché questa dichiara le sue due righe e quella le ricava dallo spazio: là la fila della
+    `2.81` si ripartisce `3 + 2 + 1` e la prova cade.
+  - ⚠️ **Il KDoc di quella prova diceva il contrario prima della misura** (*ci stanno tutti su
+    una riga*), ed è il caso generale di § '🧪 Quando si scrive una prova, e quando no': una
+    controprova serve a smentire, e quando smentisce si riscrive quello che era scritto.
+
 ⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
 (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento
 che vivesse solo là mancherebbe a tutti i telefoni più vecchi. Il comando è **un pezzo solo**

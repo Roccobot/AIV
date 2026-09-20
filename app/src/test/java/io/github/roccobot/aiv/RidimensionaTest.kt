@@ -42,6 +42,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
@@ -660,6 +661,53 @@ class RidimensionaTest {
             "Il segno è centrato sul campo invece che sulle cifre" +
                 " (segno ${segno.center.y}, campo ${campo.center.y})",
             segno.center.y > campo.center.y + 1f
+        )
+    }
+
+    /**
+     * **Caso 20: i sei gettoni stanno tre e tre, e il segno è in prima riga.**
+     *
+     * ⚠️⚠️ **È LA SUA RIGA ALLA LETTERA** (voce `resize-finestra-2`: *'%' deve stare sulla prima
+     * riga*): fino alla `2.81` la fila andava a capo da sé, quindi la ripartizione dipendeva da
+     * quanto le parole misurano nella lingua del telefono, e sul suo il segno scendeva per
+     * quattro punti.
+     * ⚠️⚠️ **SI MISURA LA RIPARTIZIONE E NON LE LARGHEZZE**: quanto un testo misura sul banco non
+     * è quanto misura su un telefono (§ '🧪 Quando si scrive una prova, e quando no'), quindi una
+     * soglia in punti qui direbbe una cosa che sul telefono non vale. Quello che vale sempre è
+     * che i primi tre gettoni siano alla stessa altezza e gli altri tre più sotto.
+     * ⚠️⚠️ **LA SCENA È LARGA, E SENZA QUELLA RIGA LA PROVA ERA VERDE A VUOTO**: sulla scena di
+     * serie la ripartizione viene tre e tre **anche** con la fila che va a capo da sé, quindi
+     * rimettendo il difetto la prova restava verde, cioè non misurava niente. Con una finestra
+     * larga le due forme si separano, perché questa dichiara le sue due righe e quella le
+     * ricava dallo spazio.
+     * ⚠️ **Controprovata rimettendo la `FlowRow` della `2.81`**: là la ripartizione diventa
+     * `3 + 2 + 1` (misurato: le cime valgono 96 e 144 sulle ultime due), e cade l'asserzione
+     * della seconda riga.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `i sei gettoni stanno tre e tre`() {
+        banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        val cime = listOf(
+            R.string.resize_long,
+            R.string.resize_short,
+            R.string.resize_share,
+            R.string.resize_wide,
+            R.string.resize_tall,
+            R.string.look_resize_px
+        ).map { chip(it).fetchSemanticsNode().boundsInRoot.top }
+
+        assertEquals("La prima riga non è una riga sola", cime[0], cime[1], 1f)
+        assertEquals("Il segno non è sulla prima riga", cime[0], cime[2], 1f)
+        assertEquals("La seconda riga non è una riga sola", cime[3], cime[4], 1f)
+        assertEquals("La seconda riga non è una riga sola", cime[3], cime[5], 1f)
+        assertTrue(
+            "Le due righe sono la stessa (${cime[0]} e ${cime[3]})",
+            cime[3] > cime[0] + 1f
         )
     }
 
