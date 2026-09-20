@@ -4795,6 +4795,30 @@ punti sono tre e le cause due, perché i primi due sono lo stesso difetto visto 
     una riga*), ed è il caso generale di § '🧪 Quando si scrive una prova, e quando no': una
     controprova serve a smentire, e quando smentisce si riscrive quello che era scritto.
 
+⚠️⚠️ **E DALLA `2.83` UNA PASTIGLIA A DUE RIGHE SCRIVE PIÙ PICCOLO E PIÙ STRETTA DI RIGA, ED È LA
+SUA NOTA** (riscontro del giro della `2.82`, voce `resize-pastiglia` approvata con una richiesta:
+*riduci leggermente la dimensione del carattere di 'Rendi predefinito', e/o riduci leggermente
+l'interlinea*). La `2.82` le aveva dato la seconda riga, e quella riga arrivava col corpo e
+l'aria di un testo che si legge a paragrafi: qui sono due parole, e quell'aria le faceva leggere
+come due cose invece che come una.
+- ⚠️⚠️ **LO STILE LO DÀ UNA FUNZIONE SOLA, E QUESTA È LA RIGA CHE TIENE IN PIEDI LA `2.82`**
+  (`titlePillStyle`): il conto misura la parola più lunga per imporre la larghezza e il disegno
+  scrive dentro quella larghezza, quindi due corpi diversi rifarebbero il difetto di quel giro in
+  un verso o nell'altro, cioè una frase che non entra nello spazio promesso oppure una pastiglia
+  più larga del testo che porta. È la stessa disciplina della `2.82`, su un dato in più.
+- ⚠️ **L'interlinea è un RAPPORTO e non una misura** (`TITLE_PILL_LEAD`): scritta in `sp` direbbe
+  il vero finché nessuno tocca la tipografia, e il giorno che quel corpo cambia resterebbe quella
+  di prima.
+- ⚠️ **A una riga non si tocca niente**: quel corpo è quello che lui ha approvato nella `1.85`, e
+  le pastiglie di 'Rinomina' e di 'Scarica' non le ha nominate.
+- ⚠️⚠️ **LE DUE ASSERZIONI SONO LE DUE METÀ DELLA SUA `e/o`, E OGNUNA HA LA SUA CONTROPROVA**: la
+  larghezza dice che il corpo è sceso, l'altezza che l'interlinea si è stretta. Rimettendo il
+  corpo pieno la parola lunga passa da più stretta a **65 punti contro 64**, cioè più larga di
+  quella a riga sola; rimettendo l'interlinea di serie due righe valgono **32 contro le 16** di
+  una, cioè il doppio esatto. ⚠️ **La soglia è il doppio e non un numero**: l'interlinea di serie
+  darebbe quel valore esatto, quindi un ritocco a `TITLE_PILL_LEAD` non fa cadere la prova mentre
+  il comportamento è ancora giusto.
+
 ⚠️⚠️ **C'È NEI DUE EDITOR, E NON È UNA COMODITÀ**: l'editor completo sotto Android 13 non esiste
 (§ '🎚️ L'editor completo, e il conto che esiste in una copia sola'), quindi un ridimensionamento
 che vivesse solo là mancherebbe a tutti i telefoni più vecchi. Il comando è **un pezzo solo**

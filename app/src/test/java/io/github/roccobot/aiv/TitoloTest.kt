@@ -140,6 +140,63 @@ class TitoloTest {
     }
 
     /**
+     * **Una pastiglia a due righe scrive più piccolo e più stretto di riga.**
+     *
+     * ⚠️⚠️ **È LA SUA NOTA SUL GIRO DELLA `2.82`** (voce `resize-pastiglia`: *riduci leggermente
+     * la dimensione del carattere di 'Rendi predefinito', e/o riduci leggermente l'interlinea*),
+     * e le due asserzioni sono le sue due metà: la larghezza dice che il corpo è sceso, l'altezza
+     * che l'interlinea si è stretta.
+     * ⚠️⚠️ **SI MISURA UN FATTO E NON UN NUMERO**: l'altezza di due righe deve restare **sotto il
+     * doppio** di una riga sola, che è quello che l'interlinea di serie darebbe esatto. Una
+     * soglia in punti cadrebbe al primo ritocco di [TITLE_PILL_LEAD] mentre il comportamento è
+     * ancora giusto.
+     * ⚠️ **Il confronto è sulla STESSA parola**, non sulla frase: la pastiglia a due righe si
+     * dimensiona sulla parola più lunga, quindi misurandola contro la locuzione intera la
+     * larghezza direbbe solo che una frase è più lunga di una parola.
+     */
+    @Test
+    fun `la pastiglia a due righe scrive piu piccolo e piu stretto`() {
+        val righe = mutableStateOf(1)
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box(modifier = Modifier.width(400.dp)) {
+                    TitleRow(
+                        title = TITOLO,
+                        commands = listOf(
+                            TitleCommand(
+                                text = if (righe.value > 1) LOCUZIONE else PAROLA,
+                                glyph = Glyphs.Extension,
+                                onTap = { },
+                                lines = righe.value
+                            )
+                        )
+                    )
+                }
+            }
+        }
+        banco.waitForIdle()
+        val piena = banco
+            .onNodeWithText(PAROLA, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .size
+
+        righe.value = 2
+        banco.waitForIdle()
+        val spezzato = scritta()
+
+        assertTrue(
+            "Il corpo non è sceso: la parola lunga misura ${spezzato.width}" +
+                " dove a riga sola ne misura ${piena.width}",
+            spezzato.width < piena.width
+        )
+        assertTrue(
+            "L'interlinea è quella di serie: due righe valgono ${spezzato.height}" +
+                " contro le ${piena.height} di una",
+            spezzato.height < 2 * piena.height
+        )
+    }
+
+    /**
      * La misura del **testo** dentro la pastiglia, e non quella del bottone che lo porta.
      *
      * ⚠️⚠️ **CON L'ALBERO FUSO QUESTA PROVA È VERDE A VUOTO, ED È LA CONTROPROVA CHE L'HA DETTO**:
@@ -176,3 +233,11 @@ private const val ALTRO = "Estensione"
  * larghezza direbbe meno.
  */
 private const val LOCUZIONE = "Rendi predefinito"
+
+/**
+ * La parola lunga della locuzione, da sola.
+ *
+ * ⚠️ **È quella su cui la pastiglia a due righe si dimensiona**, quindi è la sola con cui si può
+ * confrontare un corpo con l'altro: la frase intera misurerebbe un'altra cosa.
+ */
+private const val PAROLA = "predefinito"
