@@ -749,14 +749,14 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var picking: Boolean by mutableStateOf(false)
         private set
 
-    fun handleIntent(intent: Intent?) {
+    fun handleIntent(intent: Intent?, fresh: Boolean) {
         intentRead = true
         /*
          * ⚠️ **Si legge PRIMA di guardare l'indirizzo**: un `GET_CONTENT` non ne porta nessuno,
          * quindi finisce nel ramo di sotto insieme all'avvio dall'icona, che è giusto (si parte
          * dalle cartelle). Quello che lo distingue è solo questa bandierina.
          */
-        picking = intent?.action == Intent.ACTION_GET_CONTENT ||
+        val wants = intent?.action == Intent.ACTION_GET_CONTENT ||
             intent?.action == Intent.ACTION_PICK
         /*
          * ⚠️⚠️ **UN `ACTION_PICK` PORTA UN INDIRIZZO, E NON È UN'IMMAGINE DA APRIRE**: chi lo
@@ -766,7 +766,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * che è il difetto che questa riga evita. `GET_CONTENT` invece non porta niente, quindi
          * questa guardia non cambia il caso della `1.89`.
          */
-        val uri = if (picking) null else intent.imageUri()
+        val uri = if (wants) null else intent.imageUri()
+        /*
+         * ⚠️⚠️ **UN INTENTO NUDO CHE ARRIVA A GIRO INIZIATO NON AZZERA NIENTE, DALLA `2.78`, ED È
+         * IL PUNTO A DEL SUO CAMPO LIBERO** (*quando l'editor è aperto, se passo a un'altra app
+         * (senza chiudere AIV), poi torno, mi ritrovo l'editor chiuso e le modifiche in corso
+         * perse*). L'app è `singleTop`, quindi toccando la sua icona mentre è già in cima al
+         * proprio task Android non ricrea niente: consegna un `onNewIntent` con l'intento del
+         * launcher, che non porta nessun indirizzo. Fino alla `2.77` quello cadeva nel ramo di
+         * sotto, cioè riportava a [HOME] e riapriva la cartella d'avvio, buttando via qualunque
+         * schermata in corso.
+         * ⚠️ **La guardia sta PRIMA di [picking]**, e non è un dettaglio d'ordine: quel valore
+         * dice a che cosa serve **questa esecuzione**, e un intento che non chiede niente non lo
+         * deve riscrivere.
+         * ⚠️ **Che cosa resta fuori, e si dichiara**: se il sistema uccide il processo in
+         * secondo piano, il modello muore con lui e l'editor riparte comunque, perché il lavoro
+         * in corso vive nella composizione. Questa correzione copre il caso in cui l'app è
+         * ancora viva, che è quello che succede tornando da un'altra app.
+         */
+        if (!fresh && uri == null && !wants) return
+        picking = wants
         if (uri == null) {
             // Partita dalla propria icona: si va dove sono le immagini, cioè alle cartelle.
             screen = HOME
@@ -2627,7 +2646,7 @@ class ViewerActivity : ComponentActivity() {
          * il modello sopravvive e ha già l'immagine in mano, quindi rileggere l'intento la
          * caricherebbe una seconda volta.
          */
-        if (!model.intentRead) model.handleIntent(intent)
+        if (!model.intentRead) model.handleIntent(intent, fresh = true)
         // ⚠️ Il tema si legge QUI, fuori da `AivApp`, perché deve avvolgerlo: dentro,
         // avrebbe già ereditato la tavolozza sbagliata. Finché le impostazioni non sono
         // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
@@ -2713,10 +2732,18 @@ class ViewerActivity : ComponentActivity() {
      * a new copy of the app. Without this the screen would keep showing the
      * previous picture, which looks exactly like a bug.
      */
+    /**
+     * Un intento nuovo mentre l'app è già aperta: una condivisione da un'altra app, oppure il
+     * ritorno dall'icona del launcher.
+     *
+     * ⚠️⚠️ **`fresh = false` È LA CORREZIONE DELLA `2.78`**: qui l'app sta già facendo qualcosa,
+     * quindi un intento che non porta niente non deve riportare a casa. Il perché per esteso, col
+     * difetto che chiude, vive su [ViewerViewModel.handleIntent].
+     */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        model.handleIntent(intent)
+        model.handleIntent(intent, fresh = false)
     }
 
     /**

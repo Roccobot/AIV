@@ -1766,6 +1766,31 @@ esiste, ma consegnarla vorrebbe dire un comando in più nella scheda dei comandi
 prova, e quando no'**: il banco non ha un selettore di sistema né un'app che riceve, quindi
 quello che si potrebbe misurare qui è il ramo interno e non la funzione. Si prova sul telefono.
 
+⚠️⚠️ **MA UN INTENTO NUDO CHE ARRIVA A GIRO INIZIATO NON AZZERA PIÙ NIENTE, DALLA `2.78`, ED È UN
+DIFETTO CHE GLI È COSTATO DEL LAVORO** (punto A del campo libero del giro dalla `2.75` alla `2.77`:
+*quando l'editor è aperto, se passo a un'altra app (senza chiudere AIV), poi torno, mi ritrovo
+l'editor chiuso e le modifiche in corso perse*). La causa è la stessa funzione che legge gli
+intenti, letta due volte con due significati diversi.
+- ⚠️⚠️ **TOCCARE L'ICONA DEL LAUNCHER CON L'APP GIÀ APERTA CONSEGNA UN `onNewIntent`, E NON UNA
+  CREAZIONE**: è quello che `launchMode="singleTop"` promette, ed è scritto più sopra per un altro
+  caso. Quell'intento è il `MAIN` del launcher, cioè non porta nessun indirizzo, e fino alla `2.77`
+  cadeva nel ramo dell'avvio dall'icona: schermata a casa, cartella d'avvio riaperta, editor
+  chiuso.
+- **La guardia è il PRIMATO della lettura e non la schermata in cui si è**: `handleIntent` riceve
+  `fresh`, che `onCreate` passa vero e `onNewIntent` falso, e un intento non fresco senza indirizzo
+  e senza una richiesta di scelta esce senza toccare niente. Scritta come 'non azzerare se sono
+  nell'editor' sarebbe un elenco di schermate da tenere aggiornato.
+- ⚠️ **Una richiesta di scelta passa lo stesso**, anche a giro iniziato: un `GET_CONTENT` non porta
+  un indirizzo ma chiede qualcosa, e chi lo manda aspetta il selettore. Per questo la guardia
+  guarda tutte e due le cose.
+- ⚠️⚠️ **QUELLO CHE RESTA FUORI SI DICHIARA**: se il sistema uccide il processo in secondo piano,
+  il modello muore con lui e l'editor riparte comunque, perché il lavoro in corso vive nella
+  composizione. La correzione copre il caso in cui l'app è viva, che è quello che succede tornando
+  da un'altra app, e la voce di collaudo glielo dice.
+- ⚠️ **Il banco lo vede perché la decisione è nel modello** (`RitornoTest`, tre casi controprovati
+  togliendo la guardia): `handleIntent` si chiama senza montare niente, e quello che si misura è
+  dove la schermata resta.
+
 ## 💾 Il salvataggio va sempre in Download, e il nome si chiede solo se lo chiedi
 
 ⚠️⚠️ **DALLA `1.77` 'SCARICA' NON APRE PIÙ IL SELETTORE DI SISTEMA: scrive in Download e basta**
@@ -4428,6 +4453,21 @@ andata una cosa che il riquadro accanto mostrava già.
   nasce e nessuna resta orfana.
 - ⚠️ **Il bersaglio è più grande del segno**, quarantaquattro punti contro diciotto: una squadretta
   larga quanto il dito coprirebbe l'angolo dell'immagine che deve mostrare.
+- ⚠️⚠️ **E DALLA `2.78` I CINQUE SEGNI SONO PIÙ GROSSI, A PAGARE È IL RIQUADRO, E IL CENTRO È UN
+  TONDO DA SQUADRETTA** (voce `mark-posto` approvata con una richiesta: *rendi solo i selettori
+  DECISAMENTE più spessi e visibili ... se necessario rimpicciolisci il riquadro di quanto basta a
+  far stare all'esterno dei selettori ben pasciuti e visibili ... Il selettore del centro dev'essere
+  un tondo più o meno delle stesse dimensioni dei selettori di angolo, anche se di forma diversa*).
+  I numeri sono cinque: la fascia passa da 16 a 22 punti, il braccio da 18 a 22, il tratto da 3 a 5
+  (e da 2 a 3 quando non è scelto), il tondo del centro da 10 a 18 di diametro, e l'inchiostro di
+  uno spento dal 35% al 55%.
+  - ⚠️ **A stringersi è il riquadro e non il bersaglio**: la fascia si prende dal rientro
+    dell'anteprima, quindi sono sei punti per lato, e il dito continua ad avere i suoi
+    quarantaquattro.
+  - ⚠️ **Il tondo non arriva a un braccio intero, e il conto dice perché**: vive dentro la fascia,
+    quindi il suo bordo esterno (il raggio più mezzo tratto) deve restare sotto la larghezza della
+    fascia stessa, o tornerebbe a coprire l'immagine, che è proprio quello che la sua richiesta
+    della `2.76` esclude.
 - ⚠️⚠️ **E IL RIQUADRO HA GLI ANGOLI QUASI VIVI, CHE È IL PUNTO 2** (*dev'essere molto meno
   arrotondata (giusto un paio di pixel*): da dodici punti a **due**. Rappresenta una fotografia, e
   una fotografia gli angoli stondati non ce li ha; zero avrebbe fatto di lui un rettangolo nudo in
