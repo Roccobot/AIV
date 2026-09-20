@@ -436,28 +436,15 @@ fun AdvancedEditorScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f).heading()
                 )
-                // ⚠️ I due comandi del salvataggio, nell'ordine che ha chiesto: 'Filigrana'
-                // prima di 'Ridimensiona'. I gesti sono gli stessi dell'editor di casa, perché
-                // il pezzo è lo stesso: vedi [EditorTool].
-                // ⚠️ I tre riquadri li misura il velo della `2.73`, e un tasto che non c'è
-                // lascia una misura vuota invece di un posto sbagliato.
-                Box(modifier = Modifier.onGloballyPositioned { markSpot = it.boundsInRoot() }) {
-                    MarkButton(
-                        has = hasMark,
-                        on = marking,
-                        enabled = !busy,
-                        onToggle = { onMark(!marking) },
-                        onSetup = onMarkSetup
-                    )
-                }
-                Box(modifier = Modifier.onGloballyPositioned { resizeSpot = it.boundsInRoot() }) {
-                    ResizeButton(
-                        on = resizing,
-                        enabled = !busy,
-                        onToggle = { onResize(if (resizing) null else resize) },
-                        onSetup = { asking = true }
-                    )
-                }
+                /*
+                 * ⚠️⚠️ **'Filigrana' E 'Ridimensiona' SONO SCESI NELLA BARRA IN BASSO, DALLA
+                 * `2.79`, ED È SUA RICHIESTA** (punto C del campo libero del giro dalla `2.75`
+                 * alla `2.77`: *sono troppo lontani e poco raggiungibili dal pollice*). In
+                 * testata resta il solo 'Salva', che è il comando che chiude il lavoro invece di
+                 * uno che si tocca mentre lo si fa. Il come vive su [EditorToolBar].
+                 */
+                // ⚠️ I riquadri li misura il velo della `2.73`, e un tasto che non c'è lascia
+                // una misura vuota invece di un posto sbagliato.
                 Box(modifier = Modifier.onGloballyPositioned { saveSpot = it.boundsInRoot() }) {
                     SaveButton(
                         // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza
@@ -561,6 +548,31 @@ fun AdvancedEditorScreen(
                 gaze = gaze,
                 onStrip = { strip = it },
                 /*
+                 * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO ARRIVANO ALLA SCHEDA COME UNO SPAZIO DA
+                 * RIEMPIRE, E NON COME OTTO PARAMETRI**: dalla `2.79` vivono nella barra in
+                 * basso, che è dentro la scheda, ma lo stato che governano (il logo scelto, i
+                 * due interruttori, il piano, la finestra che si apre) vive qui. Passandoli uno
+                 * per uno, questa scheda porterebbe otto argomenti che non guarda mai.
+                 * ⚠️ **Il lato lo decide chi disegna la barra**, cioè la scheda, che quel valore
+                 * ce l'ha già per i propri comandi: arriva di ritorno come argomento dello
+                 * spazio, o sarebbero due letture della stessa preferenza.
+                 */
+                tools = { mirror ->
+                    EditorToolBar(
+                        mirror = mirror,
+                        hasMark = hasMark,
+                        marking = marking,
+                        resizing = resizing,
+                        enabled = !busy,
+                        onMark = { onMark(!marking) },
+                        onMarkSetup = onMarkSetup,
+                        onResize = { onResize(if (resizing) null else resize) },
+                        onResizeSetup = { asking = true },
+                        onMarkSpot = { markSpot = it },
+                        onResizeSpot = { resizeSpot = it }
+                    )
+                },
+                /*
                  * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
                  * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
                  * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
@@ -604,17 +616,24 @@ fun AdvancedEditorScreen(
          * due frasi. Toccando il primo, la seconda slide arriva al fotogramma dopo.
          * ⚠️ **Il disegno lo passa il chiamante e non il velo**, perché i tre tasti non sono
          * della stessa specie: due glifi e una parola. I glifi sono gli stessi dei tasti veri
-         * ([MARK_GLYPH] e [Glyphs.Resize]), o la copia direbbe un'altra cosa.
+         * ([Glyphs.Watermark] e [Glyphs.Resize]), o la copia direbbe un'altra cosa.
          */
-        if (hinted && !toolsHinted && !saveSpot.isEmpty) {
-            val tools = buildList<Pair<Rect, @Composable () -> Unit>> {
-                if (!markSpot.isEmpty) {
-                    add(markSpot to { Icon(MARK_GLYPH, null, tint = HINT_MARK) })
-                }
-                if (!resizeSpot.isEmpty) {
-                    add(resizeSpot to { Icon(Glyphs.Resize, null, tint = HINT_MARK) })
-                }
-                add(
+        /*
+         * ⚠️⚠️ **DALLA `2.79` I GRUPPI SONO DUE, ED È LA SECONDA METÀ DEL PUNTO C**: i due tasti
+         * sono scesi nella barra in basso e 'Salva' è rimasto in testata, quindi la slide
+         * evidenzia due posti lontani e ognuno si porta il proprio paragrafo (*due paragrafi
+         * separati, uno sopra e uno sotto, ciascuno vicino all'oggetto cui fa riferimento*). Da
+         * che parte cada ogni frase lo decide [HintSpots] guardando dov'è il gruppo.
+         * ⚠️ **I due testi sono i suoi, divisi in due**: `hint_tools` perde la frase su 'Salva',
+         * che diventa `hint_save`, e nessuna parola cambia. La sua dettatura della `2.73` era già
+         * fatta di due paragrafi attaccati.
+         * ⚠️ **La condizione guarda anche il riquadro di 'Ridimensiona'**, che è il tasto della
+         * barra che c'è sempre: nel fotogramma prima della misura quel gruppo sarebbe vuoto.
+         */
+        if (hinted && !toolsHinted && !saveSpot.isEmpty && !resizeSpot.isEmpty) {
+            val sopra = HintGroup(
+                text = stringResource(R.string.hint_save),
+                spots = listOf(
                     saveSpot to {
                         Text(
                             text = stringResource(R.string.editor_save),
@@ -623,10 +642,18 @@ fun AdvancedEditorScreen(
                         )
                     }
                 )
-            }
-            HintSpots(
+            )
+            val sotto = HintGroup(
                 text = stringResource(R.string.hint_tools),
-                spots = tools,
+                spots = buildList {
+                    if (!markSpot.isEmpty) {
+                        add(markSpot to { Icon(Glyphs.Watermark, null, tint = HINT_MARK) })
+                    }
+                    add(resizeSpot to { Icon(Glyphs.Resize, null, tint = HINT_MARK) })
+                }
+            )
+            HintSpots(
+                groups = listOf(sopra, sotto),
                 onDone = { scope.launch { Hint.EDITOR_TOOLS.remember(context) } }
             )
         }
@@ -2984,6 +3011,14 @@ private fun LookSheet(
      * misurato invece di ricalcolare la catena dei rientri.
      */
     onStrip: (Rect) -> Unit,
+    /**
+     * I due comandi del salvataggio, che dalla `2.79` vivono nella barra in basso.
+     *
+     * ⚠️ **È uno spazio da riempire e non otto parametri**: quei tasti governano lo stato della
+     * schermata (il logo scelto, i due interruttori, il piano, la finestra che si apre), e la
+     * scheda non ne guarda nessuno. Riceve il lato come argomento perché è lei a saperlo.
+     */
+    tools: @Composable (mirror: Boolean) -> Unit,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit,
@@ -3192,6 +3227,13 @@ private fun LookSheet(
                  * appoggiata al lato giusto, e non serve una seconda condizione che scelga come
                  * disporla.
                  */
+                /*
+                 * ⚠️⚠️ **I DUE TASTI DEL SALVATAGGIO STANNO AL BORDO E 'Salva stile' VERSO IL
+                 * CENTRO, DALLA `2.79`**: quel comando c'è nel solo modulo Stili, quindi messo
+                 * per primo sposterebbe la coppia di quarantotto punti passando da un modulo
+                 * all'altro. Ancorata al bordo, la coppia sta sempre dove il dito la lascia.
+                 */
+                if (!mirror) tools(false)
                 if (mirror) Comandi(
                     look = look,
                     chosen = chosen,
@@ -3225,6 +3267,7 @@ private fun LookSheet(
                     onRedo = onRedo,
                     onOriginal = onOriginal
                 )
+                if (mirror) tools(true)
             }
         }
     }

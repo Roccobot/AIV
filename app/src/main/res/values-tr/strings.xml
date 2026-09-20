@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">Stiller içe aktarıldı</string>
     <string name="settings_styles_bad">Bu dosyada hiç stil yok</string>
     <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
-    <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır. İşin bitince dosyanın üzerine yazmak için \'Kaydet\' düğmesine dokun (etkinse yedek kopyayla birlikte); uzun basış, görüntünün yeni bir kopyasını aynı klasöre kaydeder.</string>
+    <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır.</string>
+    <string name="hint_save">İşin bitince dosyanın üzerine yazmak için \'Kaydet\' düğmesine dokun (etkinse yedek kopyayla birlikte); uzun basış, görüntünün yeni bir kopyasını aynı klasöre kaydeder.</string>
 </resources>

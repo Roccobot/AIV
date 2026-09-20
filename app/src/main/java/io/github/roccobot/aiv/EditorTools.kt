@@ -2,17 +2,21 @@ package io.github.roccobot.aiv
 
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrandingWatermark
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -22,7 +26,13 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 
 /**
- * I due comandi del **salvataggio** in testata ai due editor: 'Filigrana' e 'Ridimensiona'.
+ * I due comandi del **salvataggio** dei due editor: 'Filigrana' e 'Ridimensiona'.
+ *
+ * ⚠️⚠️ **DALLA `2.79` VIVONO NELLA BARRA IN BASSO E NON PIÙ IN TESTATA, ED È SUA RICHIESTA**
+ * (punto C del campo libero del giro dalla `2.75` alla `2.77`: *ci ho ripensato, i tasti
+ * 'Filigrana' e 'Ridimensiona' sono troppo lontani e poco raggiungibili dal pollice: mettili
+ * nella barra delle funzioni in basso, non del tutto a sinistra*). Il pezzo che li disegna non
+ * cambia: cambia dove la schermata lo mette, e il come vive su [EditorToolBar].
  *
  * ⚠️⚠️ **I DUE GESTI SONO QUESTI DALLA `2.72`, ED È LA SUA ISTRUZIONE** (riscontro del giro
  * della `2.70`, voce `resize` accettabile: *Il pulsante deve funzionare come l'altro tasto che
@@ -106,14 +116,14 @@ private fun EditorTool(
  * che la sua specifica della `2.69` descrive (*è configurabile dalle impostazioni, sezione
  * editor*), e chi un logo ce l'ha si ritrova anche la scorciatoia del gesto lungo.
  *
- * ⚠️⚠️ **IL GLIFO RESTA QUELLO DI MATERIAL, E NON È UNA COSA RIMANDATA: È UNA MISURA** (punto 4
- * del campo libero del giro della `2.70`: *le icone di 'Filigrana' e 'Ridimensiona' possono
- * venire da Material ma vanno arrotondate come da regola nuova*). Questa cornice è già stondata e
- * il rettangolino dentro è un buco, quindi di angoli convessi **esterni** non ne ha nemmeno uno e
- * l'arrotondamento la lascerebbe a **zero** pixel di scarto. La regola di `AIV/CLAUDE.md`
- * § '🖌️ Come entra un disegno' dice che a zero pixel vince Material: un file in `res/` sarebbe
- * una seconda copia dello stesso disegno. Il gemello, 'Ridimensiona', ne aveva quarantotto ed è
- * entrato.
+ * ⚠️⚠️ **IL GLIFO È IN `res/` DALLA `2.79`, E FINO ALLA `2.78` ERA DI MATERIAL**: è lo stesso
+ * disegno **specchiato in orizzontale**, cioè col rettangolino nell'angolo in basso a sinistra,
+ * ed è il punto B del suo campo libero (*è ciò che associo istantaneamente al concetto di
+ * filigrana perché di solito la metto lì*). ⚠️ **Quello che cambia è quale metà della regola
+ * vince**: a zero pixel di scarto vince Material, e l'arrotondamento a 0,4 qui non toccava niente
+ * (di angoli convessi esterni non ne ha nemmeno uno, perché il rettangolino è un buco); uno
+ * specchio invece cambia il 18,75% della tela, quindi il disegno diventa un file. La misura vive
+ * in testa a `res/drawable/ic_watermark.xml`.
  */
 @Composable
 fun MarkButton(
@@ -127,7 +137,7 @@ fun MarkButton(
 ) {
     if (!has) return
     EditorTool(
-        icon = MARK_GLYPH,
+        icon = Glyphs.Watermark,
         label = stringResource(R.string.settings_mark),
         on = on,
         enabled = enabled,
@@ -147,6 +157,9 @@ fun MarkButton(
  * di questa app (è la regola di `SaveButton` e dei gettoni dei moduli).
  * ⚠️⚠️ **E DALLA `2.72` IL TITOLO DICE 'MODIFICA' E LE ICONE SONO DUE**: quel conto è la ragione
  * per cui lui ha accorciato il titolo nello stesso giro in cui ha chiesto il secondo tasto.
+ * ⚠️⚠️ **DALLA `2.79` QUEL CONTO NON SERVE PIÙ, E IL TITOLO RESTA CORTO LO STESSO**: i due tasti
+ * sono scesi nella barra in basso, quindi in testata lo spazio è tornato; ma 'Modifica' è una
+ * sua parola e non un rimedio, e non si rovescia un'istruzione perché la sua ragione è caduta.
  *
  * ⚠️ **Il piano esiste sempre**, anche spento, quindi accendere non chiede di configurare
  * niente: chi non l'ha mai toccato accende quello di fabbrica, e se su quell'immagine non
@@ -188,17 +201,95 @@ fun ResizeButton(
  * scelgono. Chi volesse rimettere quella sul palco la ritrova nella storia git.
  */
 
-/** Il bersaglio di un comando in testata, come quello di un `IconButton` di Material. */
+/**
+ * La coppia di comandi appoggiata alla barra in basso, dalla `2.79`.
+ *
+ * ⚠️⚠️ **VIVE NELLA BARRA E NON IN TESTATA PERCHÉ LÀ IL POLLICE NON ARRIVA, ED È SUA RICHIESTA**
+ * (punto C del campo libero del giro dalla `2.75` alla `2.77`, col mockup: *sono troppo lontani e
+ * poco raggiungibili dal pollice: mettili nella barra delle funzioni in basso, non del tutto a
+ * sinistra*). In testata ci sono arrivati con la `2.72` e ci sono rimasti sette versioni.
+ *
+ * ⚠️⚠️ **IL BLOCCO CAMBIA LATO COL FAB, E L'ORDINE DEI DUE SI SPECCHIA CON LUI**: la seconda metà
+ * della sua richiesta dice *con il FAB sul lato opposto, anche 'Filigrana' e 'Ridimensiona'
+ * cambiano posizione e passano a destra, lasciando un po' di spazio dopo per raggiungibilità*.
+ * ⚠️ **Che si specchi anche l'ordine interno è una LETTURA, e si dichiara**: la sua frase sposta
+ * il blocco e non nomina l'ordine, ma questa è la barra della `2.52`, dove *l'ordine delle icone
+ * deve essere speculare* con la sola eccezione della coppia del tempo. Specchiati, 'Filigrana'
+ * resta il più vicino al bordo da cui arriva il pollice, che è la ragione per cui si sono mossi.
+ *
+ * ⚠️⚠️ **E LO SPAZIO DAL BORDO È IL SUO 'NON DEL TUTTO A SINISTRA', MISURATO SUL MOCKUP**: là il
+ * bersaglio del primo tasto comincia a 41 punti dal vetro, e la scheda ne ha già 16 di suoi,
+ * quindi ne restano 25. Il numero scritto è [TOOL_EDGE], cioè [STAGE_SIDE]: è la stessa aria che
+ * il palco lascia ai suoi fianchi, e su uno schermo da 360 punti il tasto comincia a 40.
+ */
+@Composable
+fun EditorToolBar(
+    /** Se il FAB vive a sinistra: il blocco passa a destra e i due tasti si scambiano. */
+    mirror: Boolean,
+    hasMark: Boolean,
+    marking: Boolean,
+    resizing: Boolean,
+    enabled: Boolean,
+    onMark: () -> Unit,
+    onMarkSetup: () -> Unit,
+    onResize: () -> Unit,
+    onResizeSetup: () -> Unit,
+    /**
+     * Dov'è finito il tasto 'Filigrana', in coordinate della radice, o un riquadro **vuoto** se
+     * quel tasto non c'è.
+     *
+     * ⚠️ **Serve al mini-onboarding, che vive nella schermata e non qui**: quel velo copre tutto
+     * lo schermo, quindi nasce fuori dalla scheda, e il riquadro da illuminare lo sa solo chi il
+     * tasto lo disegna. È lo stesso criterio della fila dei moduli e del velo della copertina.
+     */
+    onMarkSpot: (Rect) -> Unit = {},
+    onResizeSpot: (Rect) -> Unit = {}
+) {
+    val filigrana: @Composable () -> Unit = {
+        Box(modifier = Modifier.onGloballyPositioned { onMarkSpot(it.boundsInRoot()) }) {
+            MarkButton(
+                has = hasMark,
+                on = marking,
+                enabled = enabled,
+                onToggle = onMark,
+                onSetup = onMarkSetup
+            )
+        }
+    }
+    val misura: @Composable () -> Unit = {
+        Box(modifier = Modifier.onGloballyPositioned { onResizeSpot(it.boundsInRoot()) }) {
+            ResizeButton(
+                on = resizing,
+                enabled = enabled,
+                onToggle = onResize,
+                onSetup = onResizeSetup
+            )
+        }
+    }
+    Row(
+        modifier = Modifier.padding(
+            if (mirror) PaddingValues(end = TOOL_EDGE) else PaddingValues(start = TOOL_EDGE)
+        ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (mirror) {
+            misura()
+            filigrana()
+        } else {
+            filigrana()
+            misura()
+        }
+    }
+}
+
+/** Il bersaglio di un comando dell'editor, come quello di un `IconButton` di Material. */
 private val TOOL_TOUCH = 48.dp
 
 /**
- * Il glifo di 'Filigrana', che leggono il tasto **e** il velo che lo insegna.
+ * Quanto la coppia rientra dal bordo esterno della barra.
  *
- * ⚠️ **Vive qui e non in [Glyphs], perché quello è il catalogo dei disegni di `res/`** e questo è
- * di Material: il perché resti di Material è la misura scritta su [MarkButton]. ⚠️ **Ed è una
- * costante e non due chiamate**, per la ragione di sempre: dalla `2.73` il mini-onboarding della
- * testata ne disegna una copia in arancione, e due `Icons.Filled` scritte in due file divergono
- * il giorno che una delle due cambia. Il gemello non ne ha bisogno, perché `Glyphs.Resize` è già
- * una fonte sola.
+ * ⚠️ **È il *non del tutto a sinistra* della sua richiesta**, e il conto che lo regge vive su
+ * [EditorToolBar]: sul mockup il primo bersaglio comincia a 41 punti dal vetro, e con i 16 della
+ * scheda questo numero lo porta a 40.
  */
-val MARK_GLYPH: ImageVector get() = Icons.Filled.BrandingWatermark
+private val TOOL_EDGE = STAGE_SIDE

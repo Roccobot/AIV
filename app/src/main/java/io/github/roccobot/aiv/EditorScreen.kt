@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -372,27 +373,12 @@ fun EditorScreen(
              * confermato prima, cioè quasi tutto il lavoro.
              */
             /*
-             * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO, NELL'ORDINE CHE HA CHIESTO** (riscontro del
-             * giro della `2.70`: *aggiungi un'icona 'Filigrana' in alto a destra, prima di
-             * 'Ridimensiona'*). Tutti e due rispondono agli stessi due gesti, e il perché vive
-             * su [EditorTool].
-             * ⚠️ **Accendere il ridimensionamento riscrive il piano che c'è**, perché quella
-             * chiamata fa le due cose insieme (vedi `ViewerViewModel.setResize`): senza un piano
-             * da scrivere non ci sarebbe niente da accendere.
+             * ⚠️⚠️ **'Filigrana' E 'Ridimensiona' SONO SCESI NELLA BARRA IN BASSO, DALLA `2.79`,
+             * ED È SUA RICHIESTA** (punto C del campo libero del giro dalla `2.75` alla `2.77`:
+             * *sono troppo lontani e poco raggiungibili dal pollice*). Qui come nell'editor
+             * completo, perché i due editor si aprono dalla stessa immagine e un comando che
+             * cambia posto fra l'uno e l'altro è un comando da ricercare.
              */
-            MarkButton(
-                has = hasMark,
-                on = marking,
-                enabled = !busy,
-                onToggle = { onMark(!marking) },
-                onSetup = onMarkSetup
-            )
-            ResizeButton(
-                on = resizing,
-                enabled = !busy,
-                onToggle = { onResize(if (resizing) null else resize) },
-                onSetup = { asking = true }
-            )
             TextButton(
                 onClick = { onSave(total.spin.turns, total.spin.mirror, total.crop) },
                 // ⚠️⚠️ **UNA FILIGRANA È LAVORO DA SALVARE, DALLA `2.69`**: chi apre l'editor per
@@ -457,6 +443,25 @@ fun EditorScreen(
             pending = pending,
             applied = steps.isNotEmpty(),
             undone = undone.isNotEmpty(),
+            /*
+             * ⚠️ **I due comandi del salvataggio arrivano alla scheda come uno spazio da
+             * riempire**, per la stessa ragione dell'editor completo: vivono nella barra in
+             * basso, che è dentro la scheda, ma quello che governano (il logo scelto, i due
+             * interruttori, il piano, la finestra che si apre) vive qui.
+             */
+            tools = { mirror ->
+                EditorToolBar(
+                    mirror = mirror,
+                    hasMark = hasMark,
+                    marking = marking,
+                    resizing = resizing,
+                    enabled = !busy,
+                    onMark = { onMark(!marking) },
+                    onMarkSetup = onMarkSetup,
+                    onResize = { onResize(if (resizing) null else resize) },
+                    onResizeSetup = { asking = true }
+                )
+            },
             onShape = { one ->
                 /*
                  * ⚠️⚠️ **LA SELEZIONE TIENE IL POSTO ANCHE AL CAMBIO DI PROPORZIONE, dalla
@@ -690,6 +695,13 @@ private fun EditorSheet(
     applied: Boolean,
     /** Se c'è almeno un passo disfatto che 'Ripristina' può rimettere. */
     undone: Boolean,
+    /**
+     * I due comandi del salvataggio, che dalla `2.79` vivono nella barra in basso.
+     *
+     * ⚠️ **Riceve il lato come argomento** perché è la scheda a saperlo: il blocco cambia lato
+     * col FAB, come ogni altra fila di comandi di questa app.
+     */
+    tools: @Composable (mirror: Boolean) -> Unit,
     onShape: (Shape) -> Unit,
     onLay: (Lay) -> Unit,
     /** Un quarto di giro: `1` in senso orario, `3` antiorario. */
@@ -958,6 +970,23 @@ private fun EditorSheet(
                 actions = listOf(originalKey, undoKey, redoKey, applyKey)
                     .inOrder(LocalPadLook.current.step)
             )
+
+            /*
+             * ⚠️⚠️ **LA BARRA DEI DUE COMANDI DEL SALVATAGGIO, DALLA `2.79`**: là dove l'editor
+             * completo ha la sua fila di icone, qui c'è una riga che porta solo loro, perché la
+             * cronologia di questa scheda vive nella fila qui sopra. Il posto è lo stesso nei
+             * due editor, che è quello che la sua richiesta chiede: il pollice li trova in
+             * fondo, e non in cima.
+             * ⚠️ **Il lato lo dà [fabEdge]**, cioè la stessa preferenza che governa il FAB e la
+             * barra dell'editor completo: una seconda lettura direbbe la stessa cosa fino al
+             * giorno che una delle due cambia.
+             */
+            Row(modifier = Modifier.fillMaxWidth()) {
+                val mirror = fabEdge() == Alignment.Start
+                if (mirror) Spacer(modifier = Modifier.weight(1f))
+                tools(mirror)
+                if (!mirror) Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 }

@@ -632,5 +632,6 @@
     <string name="settings_styles_loaded">Zaimportowano style</string>
     <string name="settings_styles_bad">Ten plik nie zawiera żadnego stylu</string>
     <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
-    <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich. Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
+    <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich.</string>
+    <string name="hint_save">Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
 </resources>

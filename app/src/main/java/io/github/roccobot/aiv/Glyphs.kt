@@ -538,12 +538,28 @@ object Glyphs {
      * libero del giro della `2.70` dice che le due icone della testata possono venire dalla
      * famiglia *ma vanno arrotondate come da regola nuova*, quindi il disegno resta
      * `Icons.Filled.PhotoSizeSelectLarge` e cambia il solo trattamento.
-     * ⚠️ **La gemella 'Filigrana' non è entrata**, ed è la stessa regola letta fino in fondo: di
-     * angoli convessi esterni non ne ha, quindi l'arrotondamento la lascerebbe identica. Lo
-     * scarto misurato e il perché di ogni raccordo vivono in testa al file.
+     * ⚠️ **La gemella 'Filigrana' è entrata due versioni dopo, e per un'altra strada**: di angoli
+     * convessi esterni non ne ha, quindi l'arrotondamento la lasciava identica e Material
+     * vinceva; a farla diventare un file è lo **specchio** della `2.79`, che il disegno lo
+     * cambia davvero. Lo scarto misurato e il perché di ogni raccordo vivono in testa al file.
      */
     val Resize: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_resize)
+
+    /**
+     * La cornice col rettangolino in basso a sinistra: il tasto 'Filigrana' dei due editor.
+     *
+     * ⚠️⚠️ **È `Icons.Filled.BrandingWatermark` SPECCHIATO IN ORIZZONTALE, DALLA `2.79`, ED È SUA
+     * RICHIESTA** (punto B del campo libero del giro dalla `2.75` alla `2.77`: *è ciò che associo
+     * istantaneamente al concetto di filigrana perché di solito la metto lì*). Quindi il disegno
+     * resta di Material e a cambiare è da che parte cade il rettangolino.
+     * ⚠️ **Fino alla `2.78` viveva fuori di qui**, in una costante di `EditorTools.kt`, perché
+     * questo catalogo espone i disegni di `res/` e quello era una chiamata a `Icons`: uno
+     * specchio non è più il disegno di Material, quindi adesso è un file come gli altri. Chi
+     * trova `MARK_GLYPH` in una nota vecchia sappia che è questo.
+     */
+    val Watermark: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_watermark)
 
     /*
      * ⚠️⚠️ **`ic_launcher_foreground.xml` NON ENTRA QUI, e non è una dimenticanza**: quello è

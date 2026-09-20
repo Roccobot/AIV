@@ -581,5 +581,6 @@
     <string name="settings_styles_loaded">已匯入風格</string>
     <string name="settings_styles_bad">此檔案不含任何風格</string>
     <string name="hint_modules">滑動圖示即可到達所有編輯模組。長按某個模組的圖示，只重設該模組的調整。</string>
-    <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。完成後輕觸\'儲存\'覆寫原檔案(若已啟用備份，備份也會保留)；長按則會在同一資料夾中儲存圖片的新副本。</string>
+    <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。</string>
+    <string name="hint_save">完成後輕觸\'儲存\'覆寫原檔案(若已啟用備份，備份也會保留)；長按則會在同一資料夾中儲存圖片的新副本。</string>
 </resources>

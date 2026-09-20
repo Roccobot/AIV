@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">Stile importiert</string>
     <string name="settings_styles_bad">Diese Datei enthält keinen Stil</string>
     <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
-    <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen. Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
+    <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen.</string>
+    <string name="hint_save">Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
 </resources>

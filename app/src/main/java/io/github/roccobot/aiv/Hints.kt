@@ -167,13 +167,33 @@ fun BoxScope.HintSpot(
     onDone: () -> Unit
 ) {
     HintSpots(
-        text = text,
-        spots = listOf(
-            spot to { Icon(glyph, null, tint = HINT_MARK, modifier = Modifier.fillMaxSize()) }
+        groups = listOf(
+            HintGroup(
+                text = text,
+                spots = listOf(
+                    spot to { Icon(glyph, null, tint = HINT_MARK, modifier = Modifier.fillMaxSize()) }
+                )
+            )
         ),
         onDone = onDone
     )
 }
+
+/**
+ * Un gruppo di cose da evidenziare **insieme**, con la frase che le riguarda.
+ *
+ * ⚠️⚠️ **NASCE NELLA `2.79`, QUANDO I TASTI CHE UNA SLIDE SPIEGA SI SONO TROVATI AI DUE CAPI DELLO
+ * SCHERMO** (punto C del suo campo libero: *va rifatto anche il mini-onboarding, con i due tasti
+ * in basso e il tasto 'Salva' in alto evidenziati, e due paragrafi separati, uno sopra e uno
+ * sotto, ciascuno vicino all'oggetto cui fa riferimento*). Fino alla `2.78` il velo scriveva una
+ * frase sola sotto il riquadro più basso, che con due gruppi lontani vorrebbe dire una frase in
+ * mezzo allo schermo, staccata da tutti e due.
+ */
+class HintGroup(
+    val text: String,
+    /** Dove sono le cose da evidenziare, in coordinate della radice, e che cosa disegnarci sopra. */
+    val spots: List<Pair<Rect, @Composable () -> Unit>>
+)
 
 /**
  * Lo stesso velo di [HintSpot] quando le cose da evidenziare sono **più di una**.
@@ -191,21 +211,34 @@ fun BoxScope.HintSpot(
  * ⚠️ **Il disegno lo passa chi chiama**, perché non è sempre un glifo: 'Salva' è una parola, e un
  * velo che accettasse solo `ImageVector` costringerebbe a disegnarla come icona.
  *
- * ⚠️ **La frase si posa sotto il riquadro PIÙ BASSO**, o sopra una delle copie: i tre tasti stanno
- * sulla stessa riga, ma un chiamante che ne indicasse due a altezze diverse coprirebbe il secondo.
+ * ⚠️ **La frase di un gruppo si posa sotto il suo riquadro PIÙ BASSO**, o sopra una delle copie:
+ * i tasti di un gruppo vivono sulla stessa riga, ma un chiamante che ne indicasse due a altezze
+ * diverse coprirebbe il secondo.
+ *
+ * ⚠️⚠️ **DALLA `2.79` I GRUPPI SONO PIÙ D'UNO, E OGNUNO PORTA LA PROPRIA FRASE** (vedi
+ * [HintGroup]): con i tasti ai due capi dello schermo una frase sola resterebbe lontana da metà
+ * di quello che spiega.
+ * ⚠️⚠️ **DA CHE PARTE VA LA FRASE LO DICE UNA REGOLA E NON UN PARAMETRO**: sopra la metà del velo
+ * la frase cade **sotto** il gruppo, sotto la metà cade **sopra**. È la sola disposizione che
+ * tenga la frase dentro lo schermo in tutti e due i casi, e scritta come parametro sarebbe una
+ * cosa che un chiamante può sbagliare. ⚠️ **Per chi chiamava prima non cambia niente**: i veli
+ * della `2.73` e della `1.95` indicano un comando in testata, cioè nella metà di sopra.
  */
 @Composable
 fun BoxScope.HintSpots(
-    text: String,
-    /** Dove sono le cose da evidenziare, in coordinate della radice, e che cosa disegnarci sopra. */
-    spots: List<Pair<Rect, @Composable () -> Unit>>,
+    /** I gruppi da evidenziare, ognuno con la sua frase. */
+    groups: List<HintGroup>,
     onDone: () -> Unit
 ) {
     var origine by remember { mutableStateOf(Offset.Zero) }
+    var altezza by remember { mutableStateOf(0) }
     Box(
         modifier = Modifier
             .matchParentSize()
-            .onGloballyPositioned { origine = it.positionInRoot() }
+            .onGloballyPositioned {
+                origine = it.positionInRoot()
+                altezza = it.size.height
+            }
             .background(HINT_SCRIM)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -214,31 +247,58 @@ fun BoxScope.HintSpots(
             )
     ) {
         with(LocalDensity.current) {
-            spots.forEach { (dove, disegno) ->
-                Box(
-                    modifier = Modifier
-                        .offset(
-                            x = (dove.left - origine.x).toDp(),
-                            y = (dove.top - origine.y).toDp()
-                        )
-                        .size(width = dove.width.toDp(), height = dove.height.toDp()),
-                    contentAlignment = Alignment.Center
-                ) {
-                    disegno()
+            // ⚠️ Un gruppo senza riquadri si salta: il chiamante li misura, e nel fotogramma
+            // prima della misura un gruppo può essere vuoto. Senza questa riga il conto del
+            // riquadro più basso non avrebbe niente da guardare.
+            groups.filter { it.spots.isNotEmpty() }.forEach { gruppo ->
+                gruppo.spots.forEach { (dove, disegno) ->
+                    Box(
+                        modifier = Modifier
+                            .offset(
+                                x = (dove.left - origine.x).toDp(),
+                                y = (dove.top - origine.y).toDp()
+                            )
+                            .size(width = dove.width.toDp(), height = dove.height.toDp()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        disegno()
+                    }
+                }
+                val cima = gruppo.spots.minOf { it.first.top } - origine.y
+                val fondo = gruppo.spots.maxOf { it.first.bottom } - origine.y
+                val frase: @Composable () -> Unit = {
+                    Text(
+                        text = gruppo.text,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = HINT_SIDE).widthIn(max = HINT_WIDTH)
+                    )
+                }
+                if ((cima + fondo) / 2 < altezza / 2f) {
+                    Box(
+                        modifier = Modifier.align(Alignment.TopCenter).offset(y = fondo.toDp() + HINT_GAP)
+                    ) {
+                        frase()
+                    }
+                } else {
+                    /*
+                     * ⚠️ **Sopra il gruppo la frase si appoggia a un riquadro alto fin lì**, e non
+                     * a uno scostamento: quanto sia alta una frase dipende da quanto va a capo,
+                     * cioè da una misura che qui non si ha. Col riquadro, il suo bordo di sotto
+                     * cade a `HINT_GAP` dal gruppo qualunque sia il numero di righe.
+                     */
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .height((cima.toDp() - HINT_GAP).coerceAtLeast(0.dp)),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        frase()
+                    }
                 }
             }
-            val fondo = spots.maxOf { it.first.bottom }
-            Text(
-                text = text,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = (fondo - origine.y).toDp() + HINT_GAP)
-                    .padding(horizontal = HINT_SIDE)
-                    .widthIn(max = HINT_WIDTH)
-            )
         }
     }
 }

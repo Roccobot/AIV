@@ -615,5 +615,6 @@
     <string name="settings_styles_loaded">Styles importés</string>
     <string name="settings_styles_bad">Ce fichier ne contient aucun style</string>
     <string name="hint_modules">Fais défiler les icônes pour atteindre tous les modules de retouche. Appuie longuement sur l\'icône d\'un module pour annuler ses seuls réglages.</string>
-    <string name="hint_tools">En plus des modules, deux fonctions s\'activent et se désactivent à la volée d\'une simple pression sur l\'icône, qui s\'allume : \'Filigrane\' et \'Redimensionner\'. Un appui long ouvre les réglages de chacune. Quand tu as terminé, touche \'Enregistrer\' pour écraser le fichier (avec copie de sauvegarde, si elle est activée) ; un appui long enregistre une nouvelle copie de l\'image dans le même dossier.</string>
+    <string name="hint_tools">En plus des modules, deux fonctions s\'activent et se désactivent à la volée d\'une simple pression sur l\'icône, qui s\'allume : \'Filigrane\' et \'Redimensionner\'. Un appui long ouvre les réglages de chacune.</string>
+    <string name="hint_save">Quand tu as terminé, touche \'Enregistrer\' pour écraser le fichier (avec copie de sauvegarde, si elle est activée) ; un appui long enregistre une nouvelle copie de l\'image dans le même dossier.</string>
 </resources>

@@ -2070,9 +2070,9 @@ chi ha già scelto ha finito di pensarci.
 - ⚠️⚠️ **E DALLA `2.72` QUEL TITOLO DICE 'MODIFICA' E BASTA, ED È SUO** (campo libero del giro
   della `2.70`: *'Modifica immagine' diventa solo 'Modifica'*). La regola non cambia, cambia la
   lunghezza: i due editor si chiamano ancora allo stesso modo, e a chiedere la parola più corta è
-  stata la testata, che nello stesso giro ha preso due icone (§ '🎛️ I due tasti in testata, e i
-  loro due gesti'). ⚠️ **È il testo di `menu_edit`**, cioè la voce da cui si entra, quindi non
-  nasce nessuna stringa.
+  stata la testata, che nello stesso giro ha preso due icone (§ '🎛️ I due tasti del
+  salvataggio, e i loro due gesti'). ⚠️ **È il testo di `menu_edit`**, cioè la voce da cui si
+  entra, quindi non nasce nessuna stringa.
 - ⚠️ **Quindi la regola della `1.49` è decaduta** (*questa schermata si chiama Editor e non
   Modifica*): valeva quando l'editor era uno e il titolo poteva dire il nome dell'arnese. Chi
   trova quella nota in un commento vecchio sappia che il criterio di oggi è il rovescio, per il
@@ -4293,7 +4293,18 @@ scritto che si scorre e che il tocco lungo azzera un modulo solo. La chiave è `
     non sono larghi uguali (due icone e una parola) e sono **due o tre** a seconda che un logo sia
     stato scelto, quindi dividere in parti uguali poserebbe l'arancione accanto ai comandi invece
     che sopra. È lo stesso criterio del velo della copertina, su tre riquadri invece che su uno.
-  - ⚠️ **I due glifi sono quelli dei tasti veri** (`MARK_GLYPH` e `Glyphs.Resize`): due
+  - ⚠️⚠️ **E DALLA `2.79` I PARAGRAFI SONO DUE, UNO PER GRUPPO, ED È LA SECONDA METÀ DEL PUNTO C**
+    (*va rifatto anche il mini-onboarding, con i due tasti in basso e il tasto 'Salva' in alto
+    evidenziati, e due paragrafi separati, uno sopra e uno sotto, ciascuno vicino all'oggetto cui
+    fa riferimento*). I tre tasti adesso vivono in due posti lontani, quindi una frase sola
+    sarebbe lontana da metà di quello che indica: `hint_tools` perde la coda su 'Salva', che
+    diventa `hint_save`, e nessuna parola cambia.
+  - ⚠️⚠️ **DA CHE PARTE CADE UNA FRASE LO DECIDE LA MISURA E NON UNA RIGA SCRITTA FISSA**: un
+    gruppo nella metà di sopra si prende la frase **sotto**, uno nella metà di sotto la prende
+    **sopra**. Scritta fissa da una parte, una delle due coprirebbe i tasti che indica, e la
+    controprova dice di più: quella dei due comandi finisce **fuori dal vetro**, cioè non si
+    vede affatto. A presidiarlo è il caso 66 di `SviluppoTest`, che misura tutti e due i versi.
+  - ⚠️ **I due glifi sono quelli dei tasti veri** (`Glyphs.Watermark` e `Glyphs.Resize`): due
     `Icons.Filled` scritte in due file divergono al primo ritocco, e la copia direbbe un'altra
     cosa.
 
@@ -4375,11 +4386,13 @@ shader e dalla maglia della geometria è un bitmap costruito da loro, cioè muta
 copia non si può fare, la firma salta**: chi chiama scrive l'immagine senza, che è meglio di un
 salvataggio fallito.
 
-⚠️⚠️ **E DALLA `2.72` HA UN TASTO IN TESTATA ALL'EDITOR, ED È SUA ISTRUZIONE** (riscontro del
+⚠️⚠️ **E DALLA `2.72` HA UN TASTO NELL'EDITOR, ED È SUA ISTRUZIONE** (riscontro del
 giro della `2.70`, voce `filigrana` accettabile: *aggiungi un'icona 'Filigrana' in alto a destra,
 prima di 'Ridimensiona', che si accende o spegne con un tap normale. Il tap prolungato porta alle
-impostazioni della filigrana*). I due gesti, il pezzo condiviso col ridimensionamento e il perché
-di ognuno vivono in § '🎛️ I due tasti in testata, e i loro due gesti'.
+impostazioni della filigrana*). ⚠️ **In testata fino alla `2.78`, e dalla `2.79` nella barra in
+basso**, che è il punto C del campo libero del giro dopo. I due gesti, il pezzo condiviso col
+ridimensionamento e il perché di ognuno vivono in § '🎛️ I due tasti del salvataggio, e i loro
+due gesti'.
 - ⚠️ **Il tocco scrive la STESSA chiave delle impostazioni**, ed è la sua frase alla lettera
   (*equivale esattamente a muovere questo interruttore*): un valore che valesse per il solo editor
   aperto sarebbe una terza cosa da capire.
@@ -4559,7 +4572,11 @@ Indietro ne prende 48, 'Salva' una settantina, l'icona nuova 48, e uno `Switch` 
 questa app (la regola di `SaveButton` e dei gettoni dei moduli), e l'accento dice se è acceso.
 ⚠️⚠️ **E LA LETTURA È PASSATA, PERCHÉ NELLA `2.72` HA CHIESTO UN SECONDO TASTO COSÌ**: la voce
 `resize` è tornata accettabile, il titolo si è accorciato in 'Modifica' per far posto a due icone,
-e i due gesti si sono rovesciati (§ '🎛️ I due tasti in testata, e i loro due gesti').
+e i due gesti si sono rovesciati (§ '🎛️ I due tasti del salvataggio, e i loro due gesti').
+⚠️⚠️ **E DALLA `2.79` QUEL CONTO NON GOVERNA PIÙ NIENTE, PERCHÉ I DUE TASTI SONO SCESI NELLA
+BARRA**: la testata torna a portare il solo 'Salva', e lo spazio che quel conto misurava non è più
+stretto. Resta scritto perché dice **perché** i gesti sono due su un bersaglio solo, che è una
+scelta che vale dovunque quel tasto viva.
 - ⚠️ **Ad accendere è anche 'Applica' della finestra**, che è la sua specifica alla lettera.
   Quindi la finestra non chiede due volte la stessa cosa: chi entra a configurare ha già detto
   che lo vuole.
@@ -4609,7 +4626,7 @@ l'altra misura si scopriva in una riga di testo.
   ventimila pixel), e fino alla `2.76` era 'Lato lungo 1600': senza quel cambiamento la finestra si
   aprirebbe al primo giro con un gettone acceso e un numero che nessuno ha scritto, cioè il
   contrario della sua riga. ⚠️ **Con lui cade la frase che diceva che quello di fabbrica
-  rimpicciolisce quasi ogni fotografia**, in § '🎛️ I due tasti in testata, e i loro due gesti'.
+  rimpicciolisce quasi ogni fotografia**, in § '🎛️ I due tasti del salvataggio, e i loro due gesti'.
 - ⚠️ **I campi si precompilano col RISULTATO del piano, e con le misure correnti quando il piano
   non fa niente**: è una regola sola invece di due, e copre insieme il primo giro, il 'Ripristina'
   e un piano che su quell'immagine non toglie un pixel.
@@ -4679,10 +4696,34 @@ che la misura entri **dentro** la frase tradotta al posto del suo segnaposto. **
 del filtro, cioè che l'immagine rimpicciolita sia nitida, né come la finestra si legge sul
 telefono: quelle si guardano sul telefono, e la voce di collaudo le chiede.
 
-## 🎛️ I due tasti in testata, e i loro due gesti
+## 🎛️ I due tasti del salvataggio, e i loro due gesti
 
-⚠️⚠️ **DALLA `2.72` LA TESTATA DEI DUE EDITOR PORTA 'FILIGRANA' E 'RIDIMENSIONA', COI MEDESIMI DUE
-GESTI: IL TOCCO ACCENDE E SPEGNE, IL TOCCO LUNGO CONFIGURA** (riscontro del giro della `2.70`,
+⚠️⚠️ **DALLA `2.79` VIVONO NELLA BARRA IN BASSO E NON PIÙ IN TESTATA, ED È SUA RICHIESTA** (punto C
+del campo libero del giro dalla `2.75` alla `2.77`: *ci ho ripensato, i tasti 'Filigrana' e
+'Ridimensiona' sono troppo lontani e poco raggiungibili dal pollice: mettili nella barra delle
+funzioni in basso, non del tutto a sinistra*). In testata ci sono arrivati con la `2.72` e ci sono
+rimasti sette versioni; quello che cambia è dove la schermata li mette, e il pezzo che li disegna
+resta uno (`EditorToolBar`, in `EditorTools.kt`).
+- ⚠️⚠️ **IL BLOCCO CAMBIA LATO COL FAB, E L'ORDINE DEI DUE SI SPECCHIA CON LUI**: la seconda metà
+  della sua richiesta dice *con il FAB sul lato opposto, anche 'Filigrana' e 'Ridimensiona'
+  cambiano posizione e passano a destra, lasciando un po' di spazio dopo per raggiungibilità*.
+  ⚠️ **Che si specchi anche l'ordine interno è una LETTURA dichiarata**: la sua frase sposta il
+  blocco e non nomina l'ordine, ma questa è la barra della `2.52`, dove *l'ordine delle icone
+  deve essere speculare* con la sola eccezione della coppia del tempo. Specchiati, 'Filigrana'
+  resta il più vicino al bordo da cui il pollice arriva, che è la ragione per cui si sono mossi.
+- ⚠️⚠️ **E LE DUE METÀ DELLO SPECCHIO VIVONO IN DUE FILE, CHE È QUELLO CHE IL BANCO HA DOVUTO
+  SEPARARE**: il **lato** lo decide la schermata, che mette il blocco in testa o in coda alla
+  riga; l'**ordine** interno lo decide la barra. Disfacendone una sola, l'altra tiene in piedi
+  metà del comportamento, quindi le due controprove sono due.
+- ⚠️ **Lo spazio dal bordo è il suo *non del tutto a sinistra*, ed è misurato sul mockup**: là il
+  bersaglio del primo tasto comincia a 41 punti dal vetro, e la scheda ne ha già 16 di suoi. Il
+  numero scritto è `TOOL_EDGE`, cioè `STAGE_SIDE`: la stessa aria che il palco lascia ai fianchi.
+- ⚠️ **'Salva stile' va verso il centro e la coppia resta al bordo**: quel comando c'è nel solo
+  modulo Stili, quindi messo per primo sposterebbe i due tasti di quarantotto punti passando da un
+  modulo all'altro.
+
+⚠️⚠️ **DALLA `2.72` I DUE GESTI SONO QUESTI: IL TOCCO ACCENDE E SPEGNE, IL TOCCO LUNGO CONFIGURA**
+(riscontro del giro della `2.70`,
 voce `resize` accettabile: *Il pulsante deve funzionare come l'altro tasto che ho descritto prima:
 tocco normale = on/off. Tocco prolungato = imposti il ridimensionamento*; e sulla voce `filigrana`:
 *aggiungi un'icona 'Filigrana' in alto a destra, prima di 'Ridimensiona', che si accende o spegne
@@ -4692,8 +4733,9 @@ la cosa che si fa a ogni salvataggio, quello lungo la cosa che si fa una volta.
   e il gesto lungo spegneva. Chi trova quella nota in un commento vecchio sappia che oggi i due
   tasti rispondono allo stesso modo: due comandi gemelli a mezzo centimetro di distanza, con i
   gesti scambiati, sarebbero due cose da imparare per un mestiere solo.
-- ⚠️ **L'ordine è il suo**, cioè 'Filigrana' prima di 'Ridimensiona', e 'Salva' resta l'ultimo a
-  destra.
+- ⚠️ **L'ordine è il suo**, cioè 'Filigrana' prima di 'Ridimensiona'. ⚠️ **'Salva' invece è
+  rimasto in testata**, e non è una dimenticanza: è il comando che chiude il lavoro, mentre quei
+  due si toccano mentre lo si fa, ed è la distinzione su cui la sua richiesta si regge.
 
 ⚠️⚠️ **UN PEZZO SOLO PER TUTTI E DUE (`EditorTool`, in `EditorTools.kt`), E NON È UN RISPARMIO DI
 RIGHE**: due disegni separati divergono al primo ritocco, e chi lo vedrebbe per primo è lui, che li
@@ -4722,10 +4764,13 @@ niente da misurare.
   che è la sua specifica letta fino in fondo (*imposti il ridimensionamento dal tasto e poi
   l'interruttore stabilisce se si applica*).
 
-⚠️⚠️ **IL TITOLO SI È ACCORCIATO IN 'MODIFICA' NELLO STESSO GIRO, ED È SUO** (campo libero del giro
+⚠️⚠️ **IL TITOLO SI È ACCORCIATO IN 'MODIFICA' NELLA `2.72`, ED È SUO** (campo libero del giro
 della `2.70`: *'Modifica immagine' diventa solo 'Modifica'*). Le due cose si leggono insieme: il
 conto della testata era già al limite con un'icona sola (§ '📏 Il ridimensionamento, e i due gesti
 di un tasto solo'), e lui ha accorciato il titolo nel giro in cui ha chiesto la seconda.
+- ⚠️⚠️ **DALLA `2.79` QUEL CONTO NON SERVE PIÙ E IL TITOLO RESTA CORTO LO STESSO**: i due tasti
+  sono scesi nella barra, quindi in testata lo spazio è tornato. Ma 'Modifica' è una sua parola e
+  non un rimedio, e un'istruzione non si rovescia perché la sua ragione è caduta.
 - ⚠️ **Non è una stringa nuova**: è il testo di `menu_edit`, cioè la voce del menu da cui si entra,
   copiato lingua per lingua. ⚠️ **La chiave resta `editor_title`**, perché il posto
   nell'interfaccia e la chiave nell'archivio delle stringhe sono due cose indipendenti.
@@ -4740,17 +4785,30 @@ di § '🖌️ Come entra un disegno' dice che a **zero pixel** di scarto vince 
 l'arrotondamento a 0,4 lascia a zero solo chi non ha punte: quella della filigrana è una cornice
 già stondata con un rettangolino **scavato** dentro, cioè di angoli convessi esterni non ne ha
 nemmeno uno; il gemello ne aveva **quarantotto**, e il raccordo gli cambia 451 pixel su 57.600.
-- ⚠️ **Quindi 'Ridimensiona' è `ic_resize.xml` e 'Filigrana' resta `Icons.Filled`**, e chi legge
+- ⚠️⚠️ **MA DALLA `2.79` ANCHE 'FILIGRANA' VIVE IN `res/`, E A FARLA ENTRARE È UNO SPECCHIO**
+  (punto B del campo libero del giro dalla `2.75` alla `2.77`: *specchia in orizzontale l'icona
+  'Filigrana', in modo che il rettangolino arrotondato cada nell'angolo in basso a sinistra ... è
+  ciò che associo istantaneamente al concetto di filigrana perché di solito la metto lì*). Quindi
+  la regola non è cambiata, è cambiata la misura: l'arrotondamento su quel disegno valeva **zero
+  pixel**, uno specchio ne cambia **10.800 su 57.600**, cioè il 18,75% della tela, e a quel punto
+  Material non lo porta più. Il conto e la trappola del verso di percorrenza vivono in testa a
+  `res/drawable/ic_watermark.xml`.
+- ⚠️ **Quindi dalla `2.73` alla `2.78` 'Ridimensiona' era `ic_resize.xml` e 'Filigrana' restava
+  `Icons.Filled`**, e chi legge
   che i due tasti sono gemelli sappia che lo sono nel **pezzo** che li disegna, non nella
   provenienza del glifo.
-- ⚠️ **Il glifo di Material vive in una costante sola** (`MARK_GLYPH`, in `EditorTools.kt`),
-  perché dalla `2.73` lo legge anche il velo che insegna i due tasti.
+- ⚠️ **E `MARK_GLYPH` non c'è più dalla `2.79`**: era la costante che teneva il glifo di Material
+  in un posto solo, perché lo legge anche il velo che insegna i due tasti, e adesso quel disegno
+  è un file che `Glyphs.Watermark` chiama da `res/`, cioè già una fonte sola.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`FiligranaTest` e `RidimensionaTest`, ogni caso
 controprovato): che il tocco accenda e spenga, che il tocco lungo apra la finestra o la scheda
 delle impostazioni della filigrana, e che senza un logo quel tasto non si disegni affatto;
-dalla `2.73` `SviluppoTest` misura anche la **seconda slide** dell'onboarding, cioè che arrivi
-dopo la prima e che le sue copie cadano sui tasti veri. **Non**
+dalla `2.79` anche che i due tasti stiano **sotto 'Salva'**, cioè nella barra, che rientrino dal
+bordo e che col FAB dall'altra parte il blocco passi a destra scambiandoli, con le quattro
+controprove che quel caso ha imposto; dalla `2.73` `SviluppoTest` misura la **seconda slide**
+dell'onboarding, cioè che arrivi dopo la prima, che le sue copie cadano sui tasti veri e, dalla
+`2.79`, che i suoi due paragrafi cadano uno per verso. **Non**
 vede il tasto sul telefono, cioè se le due icone stiano comode accanto al titolo accorciato:
 quello si guarda sul telefono, e la voce di collaudo lo chiede.
 

@@ -3314,28 +3314,39 @@ class SviluppoTest {
      */
 
     /**
-     * **Caso 66: la seconda slide arriva dopo la prima, e le sue copie cadono sui tasti veri.**
+     * **Caso 66: la seconda slide arriva dopo la prima, e i suoi due paragrafi cadono ognuno
+     * accanto a quello che indicano.**
      *
-     * ⚠️⚠️ **LE DUE COSE CHE POSSONO ROMPERSI IN SILENZIO SONO QUESTE.** La prima è l'**ordine**:
+     * ⚠️⚠️ **LE TRE COSE CHE POSSONO ROMPERSI IN SILENZIO SONO QUESTE.** La prima è l'**ordine**:
      * con la condizione scritta al contrario i due veli sarebbero in scena insieme, cioè un fondo
      * scuro doppio con due frasi sovrapposte, e nessun compilatore lo direbbe. La seconda è
-     * **dove** cadono le copie: `HintSpots` riceve un riquadro misurato per ognuna, e chi le
-     * posasse in celle uguali le metterebbe accanto ai tasti invece che sopra, che a occhio si
-     * vede solo aprendo l'editor la prima volta, cioè una volta per telefono.
+     * **dove** cade una copia: `HintSpots` riceve un riquadro misurato per ognuna, e chi le
+     * posasse in celle uguali le metterebbe accanto ai tasti invece che sopra. La terza è **da che
+     * parte** cade ogni frase, che dalla `2.79` non è più una sola: i gruppi sono due e lontani,
+     * quindi una frase messa dalla parte sbagliata copre il tasto che sta indicando.
+     * ⚠️⚠️ **I DUE VERSI SI MISURANO TUTTI E DUE, ED È QUELLO CHE PRESIDIA LA REGOLA**: `hint_save`
+     * indica un tasto in testata, quindi va **sotto**; `hint_tools` indica i due tasti della barra
+     * in basso, quindi va **sopra**. Con una regola scritta fissa da una parte, uno dei due
+     * paragrafi finirebbe sopra il suo bersaglio, e si vede solo aprendo l'editor la prima volta,
+     * cioè una volta per telefono.
      * ⚠️ **Il centro e non il riquadro**: il tasto vero porta il proprio rientro dentro il nodo,
      * la copia è il solo testo centrato nella stessa scatola, quindi le due misure coincidono nel
      * centro e non nei lati.
-     * ⚠️ **Non vede le due copie dei GLIFI**, che sono disegni senza descrizione parlata: che
+     * ⚠️ **Non vede le copie dei GLIFI**, che sono disegni senza descrizione parlata: che
      * l'arancione cada sull'icona giusta si guarda sul telefono, e la voce di collaudo lo chiede.
+     * ⚠️ **E il tasto della filigrana qui non c'è**, perché la scena non porta nessun logo scelto:
+     * il gruppo di sotto ha il solo 'Ridimensiona', che è il tasto della barra che c'è sempre.
      * ⚠️⚠️ **E SI MISURA SULL'ALBERO NON FUSO, CHE È LA TRAPPOLA DEL BANCO QUI**: il velo porta un
      * `clickable`, quindi è un nodo che **assorbe** la semantica dei figli, e la copia di 'Salva'
      * col suo testo finisce dentro di lui. Sull'albero fuso il secondo nodo trovato è il velo
      * intero, cioè un riquadro grande quanto lo schermo: la prima stesura ne misurava il centro e
      * cadeva con 242 pixel di scarto, su un codice giusto.
-     * ⚠️ **Controprovata due volte**: rovesciando la condizione della sequenza i due veli si
+     * ⚠️ **Controprovata tre volte**: rovesciando la condizione della sequenza i due veli si
      * trovano in scena insieme e la prima asserzione conta una frase invece di nessuna;
-     * dimenticando la colonna del riquadro, cioè posando le copie all'inizio della riga, il
-     * centro della parola si sposta di 251 pixel.
+     * dimenticando la colonna del riquadro, cioè posando le copie all'inizio della riga, il centro
+     * della parola si sposta di 251 pixel; e scrivendo il verso fisso, cioè la frase sempre sotto
+     * il proprio gruppo, `hint_tools` finisce **fuori dal vetro** e cade l'asserzione che la vuole
+     * in scena.
      */
     @Test
     fun `la seconda slide dell'onboarding segue la prima`() {
@@ -3348,18 +3359,20 @@ class SviluppoTest {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
-        val frase = testo(R.string.hint_tools)
+        val sopra = testo(R.string.hint_save)
+        val sotto = testo(R.string.hint_tools)
         banco.onNodeWithText(testo(R.string.hint_modules)).assertExists()
         assertEquals(
             "finché c'è la prima slide, la seconda non è in scena",
             0,
-            banco.onAllNodesWithText(frase, useUnmergedTree = true).fetchSemanticsNodes().size
+            banco.onAllNodesWithText(sotto, useUnmergedTree = true).fetchSemanticsNodes().size
         )
 
         // Archiviata la prima, arriva la seconda: è la strada di chi tocca il primo velo.
         runBlocking { Hint.MODULES.remember(app) }
         banco.waitForIdle()
-        banco.onNodeWithText(frase, useUnmergedTree = true).assertExists()
+        banco.onNodeWithText(sopra, useUnmergedTree = true).assertExists()
+        banco.onNodeWithText(sotto, useUnmergedTree = true).assertExists()
 
         val salva = banco
             .onAllNodesWithText(testo(R.string.editor_save), useUnmergedTree = true)
@@ -3372,13 +3385,26 @@ class SviluppoTest {
             scarto < 2f
         )
 
-        // E la frase cade sotto i tasti, o coprirebbe quello che sta indicando.
-        val sotto = salva.maxOf { it.boundsInRoot.bottom }
+        // Il paragrafo di 'Salva' cade sotto di lui, che vive in cima allo schermo.
         assertTrue(
-            "la frase della slide cade sotto i tasti",
-            banco.onNodeWithText(frase, useUnmergedTree = true)
-                .fetchSemanticsNode().boundsInRoot.top >= sotto
+            "il paragrafo di 'Salva' non cade sotto il tasto",
+            banco.onNodeWithText(sopra, useUnmergedTree = true)
+                .fetchSemanticsNode().boundsInRoot.top >= salva.maxOf { it.boundsInRoot.bottom }
         )
+
+        // E quello dei due comandi cade sopra la barra, o li coprirebbe.
+        val barra = banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .fetchSemanticsNode().boundsInRoot
+        val frase = banco.onNodeWithText(sotto, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        /*
+         * ⚠️⚠️ **'È IN SCENA' SI MISURA PRIMA DI 'DOVE CADE', E SENZA QUELLA RIGA LA PROVA ERA
+         * VERDE A VUOTO**: col verso scritto fisso quella frase finisce **sotto** i tasti, cioè
+         * fuori dal vetro, e un nodo ritagliato via risponde con un riquadro vuoto. Il confronto
+         * da solo lo leggeva come 'sopra la barra', perché uno zero è sopra qualunque cosa.
+         */
+        assertTrue("il paragrafo dei due comandi non è in scena", frase.height > 0f)
+        assertTrue("il paragrafo dei due comandi non cade sopra la barra", frase.bottom <= barra.top)
     }
 
     /**
