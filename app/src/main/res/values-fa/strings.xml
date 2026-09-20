@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">کدری</string>
     <string name="settings_mark_preview">پیش‌نمایش واترمارک</string>
     <string name="look_resize">تغییر اندازه</string>
-    <string name="look_resize_mode">متناسب با</string>
     <string name="resize_long">ضلع بلند</string>
     <string name="resize_short">ضلع کوتاه</string>
     <string name="resize_wide">عرض</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">پیکسل</string>
     <string name="look_resize_pct">درصد</string>
     <string name="look_resize_range">عددی بین %1$d و %2$d بنویسید.</string>
-    <string name="look_resize_now">اندازه فعلی: %1$s</string>
     <string name="look_resize_keep">این تصویر از پیش کوچک‌تر است، پس بدون تغییر می‌ماند.</string>
     <string name="look_resize_reset">بازنشانی</string>
+    <string name="look_resize_result">نتیجه</string>
+    <string name="look_resize_default">تنظیم به عنوان پیش‌فرض</string>
     <string name="look_resize_note">نسبت ابعاد تغییر نمی‌کند؛ فقط می‌توان اندازه را کوچک کرد.</string>
     <string name="settings_save_rename">اجازه تغییر نام هنگام ذخیره</string>
     <string name="settings_save_rename_desc">به‌طور پیش‌فرض پرونده‌ها با نام اصلی خود ذخیره می‌شوند. برای تعیین نام در هر بارگیری این را روشن کنید. حتی با خاموش بودن آن، \'ذخیره\' را نگه دارید تا فقط همان بار نامی تازه بنویسید.</string>
@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">سبک‌ها درون‌ریزی شد</string>
     <string name="settings_styles_bad">این فایل هیچ سبکی ندارد</string>
     <string name="hint_modules">نمادها را بکشید تا به همهٔ بخش‌های ویرایش برسید. نماد یک بخش را نگه دارید تا فقط تغییرات همان بخش صفر شود.</string>
-    <string name="hint_tools">علاوه بر ماژول‌ها، دو قابلیت وجود دارد که با یک ضربه روی نماد، که روشن می‌شود، بی‌درنگ فعال یا غیرفعال می‌شوند: \'واترمارک\' و \'تغییر اندازه\'. با فشار طولانی به تنظیمات هرکدام می‌روی. وقتی کارت تمام شد، برای بازنویسی فایل روی \'ذخیره\' بزن (همراه نسخه پشتیبان، اگر فعال باشد)؛ با فشار طولانی یک نسخه تازه از تصویر در همان پوشه ذخیره می‌شود.</string>
+    <string name="hint_tools">علاوه بر ماژول‌ها، دو قابلیت وجود دارد که با یک ضربه روی نماد، که روشن می‌شود، بی‌درنگ فعال یا غیرفعال می‌شوند: \'واترمارک\' و \'تغییر اندازه\'. با فشار طولانی به تنظیمات هرکدام می‌روی.</string>
+    <string name="hint_save">وقتی کارت تمام شد، برای بازنویسی فایل روی \'ذخیره\' بزن (همراه نسخه پشتیبان، اگر فعال باشد)؛ با فشار طولانی یک نسخه تازه از تصویر در همان پوشه ذخیره می‌شود.</string>
 </resources>

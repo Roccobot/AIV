@@ -235,7 +235,6 @@
     <string name="settings_mark_alpha">Opacity</string>
     <string name="settings_mark_preview">Watermark preview</string>
     <string name="look_resize">Resize</string>
-    <string name="look_resize_mode">Fit to</string>
     <string name="resize_long">Long edge</string>
     <string name="resize_short">Short edge</string>
     <string name="resize_wide">Width</string>
@@ -244,9 +243,10 @@
     <string name="look_resize_px">Pixels</string>
     <string name="look_resize_pct">Percent</string>
     <string name="look_resize_range">Type a number between %1$d and %2$d.</string>
-    <string name="look_resize_now">Current size: %1$s</string>
     <string name="look_resize_keep">This image is already smaller, so it stays as it is.</string>
     <string name="look_resize_reset">Reset</string>
+    <string name="look_resize_result">Result</string>
+    <string name="look_resize_default">Set as default</string>
     <string name="look_resize_note">The aspect ratio stays the same; images can only be made smaller.</string>
     <string name="settings_save_rename">Allow renaming when saving</string>
     <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once.</string>
@@ -371,7 +371,8 @@
     <string name="folder_cover_reset">Default cover restored</string>
     <string name="hint_cover">A tap on the folder icon in the header sets a custom cover image: it can be any picture on your device, not necessarily one inside the folder you are in, and it stays stored in HD even if you delete the original. To go back to the default cover, enter selection mode and tap the icon of the same folder again.</string>
     <string name="hint_modules">Swipe the icons to reach every editing module. Long-press a module icon to reset only its changes.</string>
-    <string name="hint_tools">Besides the modules, there are two functions you can turn on or off at any time with a tap on the icon, which lights up: \'Watermark\' and \'Resize\'. A long press opens the settings of each one. When you are done, tap \'Save\' to overwrite the file (with a backup copy, if it is enabled); a long press saves a new copy of the image in the same folder.</string>
+    <string name="hint_tools">Besides the modules, there are two functions you can turn on or off at any time with a tap on the icon, which lights up: \'Watermark\' and \'Resize\'. A long press opens the settings of each one.</string>
+    <string name="hint_save">When you are done, tap \'Save\' to overwrite the file (with a backup copy, if it is enabled); a long press saves a new copy of the image in the same folder.</string>
     <string name="folder_renamed">Folder renamed</string>
     <string name="folder_rename_taken">A folder with this name already exists</string>
     <string name="folder_rename_fail">The folder could not be renamed</string>

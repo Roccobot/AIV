@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,12 +30,15 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CropLandscape
+import androidx.compose.material.icons.filled.CropPortrait
 import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -66,6 +70,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -128,10 +133,17 @@ fun EditorScreen(
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
      */
     resize: Resize.Plan,
+    /**
+     * Il ridimensionamento **predefinito**, che serve alla finestra per sapere se il piano che
+     * ha in mano è già quello: senza, 'Rendi predefinito' resterebbe acceso dopo averlo toccato.
+     */
+    saved: Resize.Plan,
     /** Se quel piano si applica al salvataggio, cioè l'interruttore della `2.70`. */
     resizing: Boolean,
     /** `null` spegne; un piano lo scrive **e** accende, come 'Applica' della sua finestra. */
     onResize: (Resize.Plan?) -> Unit,
+    /** Il piano diventa il predefinito, cioè il comando 'Rendi predefinito' della `2.81`. */
+    onResizeDefault: (Resize.Plan) -> Unit,
     /**
      * Che cosa salvare.
      *
@@ -276,12 +288,14 @@ fun EditorScreen(
     if (asking) {
         ResizeDialog(
             initial = resize,
+            saved = saved,
             size = frame,
             onDismiss = { asking = false },
             onApply = {
                 asking = false
                 onResize(it)
-            }
+            },
+            onDefault = onResizeDefault
         )
     }
 
@@ -372,27 +386,12 @@ fun EditorScreen(
              * confermato prima, cioè quasi tutto il lavoro.
              */
             /*
-             * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO, NELL'ORDINE CHE HA CHIESTO** (riscontro del
-             * giro della `2.70`: *aggiungi un'icona 'Filigrana' in alto a destra, prima di
-             * 'Ridimensiona'*). Tutti e due rispondono agli stessi due gesti, e il perché vive
-             * su [EditorTool].
-             * ⚠️ **Accendere il ridimensionamento riscrive il piano che c'è**, perché quella
-             * chiamata fa le due cose insieme (vedi `ViewerViewModel.setResize`): senza un piano
-             * da scrivere non ci sarebbe niente da accendere.
+             * ⚠️⚠️ **'Filigrana' E 'Ridimensiona' SONO SCESI NELLA BARRA IN BASSO, DALLA `2.79`,
+             * ED È SUA RICHIESTA** (punto C del campo libero del giro dalla `2.75` alla `2.77`:
+             * *sono troppo lontani e poco raggiungibili dal pollice*). Qui come nell'editor
+             * completo, perché i due editor si aprono dalla stessa immagine e un comando che
+             * cambia posto fra l'uno e l'altro è un comando da ricercare.
              */
-            MarkButton(
-                has = hasMark,
-                on = marking,
-                enabled = !busy,
-                onToggle = { onMark(!marking) },
-                onSetup = onMarkSetup
-            )
-            ResizeButton(
-                on = resizing,
-                enabled = !busy,
-                onToggle = { onResize(if (resizing) null else resize) },
-                onSetup = { asking = true }
-            )
             TextButton(
                 onClick = { onSave(total.spin.turns, total.spin.mirror, total.crop) },
                 // ⚠️⚠️ **UNA FILIGRANA È LAVORO DA SALVARE, DALLA `2.69`**: chi apre l'editor per
@@ -457,6 +456,25 @@ fun EditorScreen(
             pending = pending,
             applied = steps.isNotEmpty(),
             undone = undone.isNotEmpty(),
+            /*
+             * ⚠️ **I due comandi del salvataggio arrivano alla scheda come uno spazio da
+             * riempire**, per la stessa ragione dell'editor completo: vivono nella barra in
+             * basso, che è dentro la scheda, ma quello che governano (il logo scelto, i due
+             * interruttori, il piano, la finestra che si apre) vive qui.
+             */
+            tools = { mirror ->
+                EditorToolBar(
+                    mirror = mirror,
+                    hasMark = hasMark,
+                    marking = marking,
+                    resizing = resizing,
+                    enabled = !busy,
+                    onMark = { onMark(!marking) },
+                    onMarkSetup = onMarkSetup,
+                    onResize = { onResize(if (resizing) null else resize) },
+                    onResizeSetup = { asking = true }
+                )
+            },
             onShape = { one ->
                 /*
                  * ⚠️⚠️ **LA SELEZIONE TIENE IL POSTO ANCHE AL CAMBIO DI PROPORZIONE, dalla
@@ -690,6 +708,13 @@ private fun EditorSheet(
     applied: Boolean,
     /** Se c'è almeno un passo disfatto che 'Ripristina' può rimettere. */
     undone: Boolean,
+    /**
+     * I due comandi del salvataggio, che dalla `2.79` vivono nella barra in basso.
+     *
+     * ⚠️ **Riceve il lato come argomento** perché è la scheda a saperlo: il blocco cambia lato
+     * col FAB, come ogni altra fila di comandi di questa app.
+     */
+    tools: @Composable (mirror: Boolean) -> Unit,
     onShape: (Shape) -> Unit,
     onLay: (Lay) -> Unit,
     /** Un quarto di giro: `1` in senso orario, `3` antiorario. */
@@ -958,6 +983,23 @@ private fun EditorSheet(
                 actions = listOf(originalKey, undoKey, redoKey, applyKey)
                     .inOrder(LocalPadLook.current.step)
             )
+
+            /*
+             * ⚠️⚠️ **LA BARRA DEI DUE COMANDI DEL SALVATAGGIO, DALLA `2.79`**: là dove l'editor
+             * completo ha la sua fila di icone, qui c'è una riga che porta solo loro, perché la
+             * cronologia di questa scheda vive nella fila qui sopra. Il posto è lo stesso nei
+             * due editor, che è quello che la sua richiesta chiede: il pollice li trova in
+             * fondo, e non in cima.
+             * ⚠️ **Il lato lo dà [fabEdge]**, cioè la stessa preferenza che governa il FAB e la
+             * barra dell'editor completo: una seconda lettura direbbe la stessa cosa fino al
+             * giorno che una delle due cambia.
+             */
+            Row(modifier = Modifier.fillMaxWidth()) {
+                val mirror = fabEdge() == Alignment.Start
+                if (mirror) Spacer(modifier = Modifier.weight(1f))
+                tools(mirror)
+                if (!mirror) Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 }
@@ -990,7 +1032,16 @@ internal fun SheetChip(
      * ⚠️ **Ha il valore di serie di sempre**, quindi i chip che non lo nominano non cambiano:
      * lo passa la sola fila dei formati, che con sei celle è l'unica stretta.
      */
-    style: TextStyle = MaterialTheme.typography.labelLarge
+    style: TextStyle = MaterialTheme.typography.labelLarge,
+    /**
+     * Un disegno al posto della parola, dalla `2.80`.
+     *
+     * ⚠️⚠️ **CON LUI [text] DIVENTA LA DESCRIZIONE PARLATA, E NON SPARISCE**: è il criterio dei
+     * sette gettoni dei moduli e dei comandi del ritaglio, cioè il nome vive dove un lettore di
+     * schermo lo trova e dove il banco lo cerca. Lo chiedono i due versi del ritaglio, che dalla
+     * `2.80` sono due icone accanto alle due parole (§ [ShapeRow]).
+     */
+    icon: ImageVector? = null
 ) {
     val scheme = MaterialTheme.colorScheme
     Surface(
@@ -1017,13 +1068,21 @@ internal fun SheetChip(
             modifier = Modifier.fillMaxSize().padding(horizontal = CHIP_PAD),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = text,
-                style = style,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center
-            )
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = text,
+                    modifier = Modifier.size(CHIP_ICON)
+                )
+            } else {
+                Text(
+                    text = text,
+                    style = style,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -1087,7 +1146,18 @@ internal fun ShapeRow(
      * è il chiamante più vecchio e quello in cui lo spazio costa; chi può permettersi il ritorno
      * a capo lo dichiara.
      */
-    wrap: Boolean = false
+    wrap: Boolean = false,
+    /**
+     * Che cosa fa il tocco su uno dei due versi, dalla `2.80`: con `null` quelle due celle non
+     * si disegnano affatto.
+     *
+     * ⚠️⚠️ **LO PASSA IL SOLO EDITOR COMPLETO, E LA RAGIONE È CHE LÀ QUELLA FILA C'ERA GIÀ**:
+     * i due versi vivevano in una riga di chip scritti a parole sotto le forme, e il punto
+     * `crop-giu` del suo riscontro li vuole a icona accanto a 'Originale'. Nell'editor di casa
+     * quella riga è un'altra, in un pannello che si dimensiona sul proprio contenuto, e non la
+     * tocca nessuno: passando `null` questa fila resta quella di sempre.
+     */
+    onLay: ((Lay) -> Unit)? = null
 ) {
     @Composable
     fun chip(one: Shape, cella: Modifier) {
@@ -1106,21 +1176,53 @@ internal fun ShapeRow(
     }
     if (wrap) {
         /*
-         * ⚠️⚠️ **TRE CELLE PER RIGA E NON 'QUELLE CHE CI STANNO', ED È UNA SCELTA MISURATA**: con
-         * un flusso libero le celle si dimensionano sul testo, quindi la riga finirebbe con un
-         * vuoto a destra diverso in ogni lingua, e '1:1' verrebbe largo un terzo di 'Originale'.
-         * Con tre colonne uguali le due righe si leggono come una griglia, e la parola più lunga
-         * delle ventotto lingue sta comoda per costruzione.
-         * ⚠️ **Il peso di [SHAPE_WORD] qui non serve**: serviva a rubare spazio ai numeri per
-         * darlo alle parole in una riga da sei, e con tre celle per riga ce n'è per tutti.
+         * ⚠️⚠️ **LE DUE RIGHE SONO 'LE PAROLE' E 'I NUMERI', DALLA `2.80`, ED È IL SUO PUNTO
+         * `crop-giu`** (riscontro del giro dalla `2.75` alla `2.77`, col mockup: *le proporzioni
+         * numeriche tutte in una riga* e *'Orizzontale' e 'Verticale' diventano icone a destra di
+         * 'Originale'*). Fino alla `2.79` erano due righe da tre celle uguali, quindi i quattro
+         * numeri stavano a cavallo delle due e i due versi vivevano in una terza riga a parole.
+         * ⚠️⚠️ **LE RIGHE RESTANO DUE E LA TERZA SE NE VA, cioè il Ritaglio si ACCORCIA**: è quello
+         * che paga l'aria del punto D dello stesso campo libero, e senza quel conto un modulo più
+         * alto delle Curve alzerebbe la scheda in tutti e nove (§ `SteadyBody`).
+         * ⚠️ **I quattro numeri si dividono la riga in parti uguali**, perché sono quattro stringhe
+         * che non si traducono mai; le due parole prendono quello che avanza accanto alle due
+         * celle dei versi, che sono larghe [LAY_CELL] perché un'icona non ha bisogno di più.
          */
-        FlowRow(
+        Column(
             modifier = modifier.fillMaxWidth().oneOf(),
-            horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP),
-            verticalArrangement = Arrangement.spacedBy(SHAPE_GAP),
-            maxItemsInEachRow = SHAPE_WRAP
+            verticalArrangement = Arrangement.spacedBy(SHAPE_GAP)
         ) {
-            for (one in Shape.entries) chip(one, Modifier.weight(1f))
+            Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
+                for (one in Shape.entries.filter { it.word != null }) {
+                    chip(one, Modifier.weight(1f))
+                }
+                /*
+                 * ⚠️ **L'ordine è quello di [Lay] e non quello della sua frase**: là i due versi
+                 * sono nominati per dire che diventano icone, e girarli sarebbe un secondo
+                 * cambiamento non chiesto su una scelta che lui ha davanti da venti versioni.
+                 */
+                if (onLay != null) {
+                    for (verso in Lay.entries) {
+                        SheetChip(
+                            text = stringResource(verso.label),
+                            icon = if (verso == Lay.TALL) {
+                                Icons.Filled.CropPortrait
+                            } else {
+                                Icons.Filled.CropLandscape
+                            },
+                            selected = verso == lay,
+                            enabled = enabled,
+                            onClick = { onLay(verso) },
+                            modifier = Modifier.width(LAY_CELL)
+                        )
+                    }
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
+                for (one in Shape.entries.filter { it.word == null }) {
+                    chip(one, Modifier.weight(1f))
+                }
+            }
         }
     } else {
         Row(
@@ -1138,12 +1240,15 @@ internal fun ShapeRow(
 private val SHAPE_GAP = 6.dp
 
 /**
- * Quante forme entrano in una riga quando la fila va a capo: vedi il conto in [ShapeRow].
+ * Quanto è larga la cella di un verso del ritaglio, dalla `2.80`: vedi [ShapeRow].
  *
- * ⚠️ **Sei diviso tre fa due righe piene**, e non una riga da quattro con due orfane sotto: le
- * forme sono sei, e un numero che non le divide lascia una riga spaiata.
+ * ⚠️ **È il bersaglio di Material meno l'aria**: una cella che porta un'icona sola non ha niente
+ * da allargare, e i punti che non prende vanno alle due parole che le vivono accanto.
  */
-private const val SHAPE_WRAP = 3
+private val LAY_CELL = 44.dp
+
+/** Quanto è grande un'icona dentro un chip: la misura di Material per un'icona in una riga. */
+private val CHIP_ICON = 18.dp
 
 /**
  * Quanto è più larga la cella di una forma che si dice a parole: vedi il conto in [ShapeRow].

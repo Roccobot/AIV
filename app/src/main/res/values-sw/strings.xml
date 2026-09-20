@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">Ukolezi</string>
     <string name="settings_mark_preview">Onyesho la alama ya maji</string>
     <string name="look_resize">Badilisha ukubwa</string>
-    <string name="look_resize_mode">Linganisha na</string>
     <string name="resize_long">Upande mrefu</string>
     <string name="resize_short">Upande mfupi</string>
     <string name="resize_wide">Upana</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">Pikseli</string>
     <string name="look_resize_pct">Asilimia</string>
     <string name="look_resize_range">Andika nambari kati ya %1$d na %2$d.</string>
-    <string name="look_resize_now">Ukubwa wa sasa: %1$s</string>
     <string name="look_resize_keep">Picha hii tayari ni ndogo zaidi, kwa hivyo inabaki kama ilivyo.</string>
     <string name="look_resize_reset">Weka upya</string>
+    <string name="look_resize_result">Matokeo</string>
+    <string name="look_resize_default">Weka kama chaguomsingi</string>
     <string name="look_resize_note">Uwiano hubaki vile vile; ukubwa unaweza kupunguzwa tu.</string>
     <string name="settings_save_rename">Ruhusu kubadilisha jina wakati wa kuhifadhi</string>
     <string name="settings_save_rename_desc">Kwa kawaida faili huhifadhiwa kwa jina lake la awali. Washa hii ili kuweka jina kwa kila upakuaji. Hata ikiwa imezimwa, gusa na ubonyeze \'Hifadhi\' ili kuandika jina jipya mara hiyo tu.</string>
@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">Mitindo imeingizwa</string>
     <string name="settings_styles_bad">Faili hii haina mtindo wowote</string>
     <string name="hint_modules">Telezesha aikoni ili kufikia moduli zote za kuhariri. Bonyeza kwa muda mrefu aikoni ya moduli ili kuondoa mabadiliko yake pekee.</string>
-    <string name="hint_tools">Zaidi ya moduli, kuna vitendaji viwili unavyoweza kuwasha au kuzima papo hapo kwa kugusa aikoni, nayo huwaka: \'Alama ya maji\' na \'Badilisha ukubwa\'. Kubonyeza kwa muda mrefu hufungua mipangilio ya kila kimoja. Ukimaliza, gusa \'Hifadhi\' ili kuandika juu ya faili (pamoja na nakala rudufu, ikiwa imewashwa); kubonyeza kwa muda mrefu huhifadhi nakala mpya ya picha katika folda ile ile.</string>
+    <string name="hint_tools">Zaidi ya moduli, kuna vitendaji viwili unavyoweza kuwasha au kuzima papo hapo kwa kugusa aikoni, nayo huwaka: \'Alama ya maji\' na \'Badilisha ukubwa\'. Kubonyeza kwa muda mrefu hufungua mipangilio ya kila kimoja.</string>
+    <string name="hint_save">Ukimaliza, gusa \'Hifadhi\' ili kuandika juu ya faili (pamoja na nakala rudufu, ikiwa imewashwa); kubonyeza kwa muda mrefu huhifadhi nakala mpya ya picha katika folda ile ile.</string>
 </resources>

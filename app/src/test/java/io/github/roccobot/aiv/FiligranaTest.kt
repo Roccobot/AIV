@@ -7,8 +7,10 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -16,8 +18,10 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.mutablePreferencesOf
@@ -523,6 +527,80 @@ class FiligranaTest {
         )
     }
 
+    /**
+     * **Caso 18: i due tasti vivono nella barra in basso, rientrati dal bordo, e cambiano lato
+     * col FAB.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (punto C del campo libero del giro dalla `2.75`
+     * alla `2.77`: *i tasti 'Filigrana' e 'Ridimensiona' sono troppo lontani e poco raggiungibili
+     * dal pollice: mettili nella barra delle funzioni in basso, non del tutto a sinistra ... con
+     * il FAB sul lato opposto, anche 'Filigrana' e 'Ridimensiona' cambiano posizione e passano a
+     * destra*). Le tre cose che misura sono le tre che si rompono in silenzio: un trasloco fatto a
+     * metà lascia i tasti dov'erano, un rientro dimenticato li appoggia al bordo della scheda, e
+     * uno specchio scritto al contrario li manda dalla parte da cui il pollice non arriva.
+     * ⚠️ **'In basso' si misura contro 'Salva'**, che in testata è rimasto: senza un secondo nodo
+     * da confrontare, una soglia in pixel direbbe il vero sul solo schermo di quella misura.
+     * ⚠️ **La soglia del rientro è più bassa della costante** (24 punti contro i 40 veri, cioè i
+     * 16 della scheda più [STAGE_SIDE]): si presidia il fatto, che è *non a filo della scheda*, e
+     * non il numero di oggi.
+     * ⚠️ **La scena è UNA e il lato cambia sotto**, come nel caso 10: `setContent` si chiama una
+     * volta sola, e questa è anche la strada vera, cioè chi cambia la preferenza a editor aperto.
+     * ⚠️⚠️ **CONTROPROVATA QUATTRO VOLTE, E LE DUE METÀ DELLO SPECCHIO SONO SEPARATE**: rimettendo
+     * i due tasti in testata cade la prima asserzione; togliendo `TOOL_EDGE` cade quella del
+     * rientro, col bordo misurato che passa da 40 punti a 16; lasciando il blocco in testa alla
+     * riga della barra cade quella del lato, perché il **lato** lo decide la schermata; e
+     * disfando l'ordine interno di `EditorToolBar` cade l'ultima, perché l'**ordine** lo decide
+     * lui. Le due righe vivono in due file, e una prova sola non le avrebbe distinte.
+     */
+    @Test
+    fun `i due tasti vivono nella barra e seguono il lato del FAB`() {
+        val lato = mutableStateOf(Hand.RIGHT)
+        banco.setContent { Scena(marked = false, hasMark = true, hand = lato.value) }
+        pronta()
+
+        val largo = banco.onRoot().fetchSemanticsNode().size.width
+        val aria = with(banco.density) { 24.dp.toPx() }
+        val salva = banco.onNodeWithText(testo(R.string.editor_save))
+            .fetchSemanticsNode().boundsInRoot
+        var firma = tasto(R.string.settings_mark)
+        var misura = tasto(R.string.look_resize)
+
+        assertTrue(
+            "i due tasti non sono sotto 'Salva', cioè non sono scesi nella barra",
+            firma.top > salva.bottom && misura.top > salva.bottom
+        )
+        assertTrue(
+            "col FAB a destra il blocco non è a sinistra",
+            firma.right < largo / 2f
+        )
+        assertTrue(
+            "il blocco è a filo della scheda (%.0f pixel dal bordo)".format(firma.left),
+            firma.left > aria
+        )
+        assertTrue(
+            "col FAB a destra 'Filigrana' non viene prima di 'Ridimensiona'",
+            firma.left < misura.left
+        )
+
+        lato.value = Hand.LEFT
+        banco.waitForIdle()
+        firma = tasto(R.string.settings_mark)
+        misura = tasto(R.string.look_resize)
+
+        assertTrue(
+            "col FAB a sinistra il blocco non è passato a destra",
+            misura.left > largo / 2f
+        )
+        assertTrue(
+            "il blocco è a filo della scheda (%.0f pixel dal bordo)".format(largo - firma.right),
+            largo - firma.right > aria
+        )
+        assertTrue(
+            "specchiati, 'Filigrana' non è il più vicino al bordo",
+            firma.left > misura.left
+        )
+    }
+
     /*
      * ⚠️⚠️ **QUI VIVEVANO I CINQUE CASI DELL'ANTEPRIMA SUL PALCO, E DALLA `2.75` NON CI SONO PIÙ**:
      * misuravano la funzione della `2.74` (punto 5 del campo libero del giro della `2.70`), che il
@@ -542,30 +620,41 @@ class FiligranaTest {
         marked: Boolean,
         marking: Boolean = false,
         hasMark: Boolean = false,
+        // ⚠️ Il lato del FAB viaggia in un `CompositionLocal` anche nell'app: passarlo per
+        // parametro vorrebbe dire misurare una strada che nessuno percorre (vedi [SviluppoTest]).
+        hand: Hand = Hand.RIGHT,
         onMark: (Boolean) -> Unit = {},
         onMarkSetup: () -> Unit = {}
     ) {
         AivTheme(darkTheme = false) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                AdvancedEditorScreen(
-                    uri = quadrato(),
-                    busy = false,
-                    marked = marked,
-                    marking = marking,
-                    hasMark = hasMark,
-                    onMark = onMark,
-                    onMarkSetup = onMarkSetup,
-                    resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
-                    // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
-                    // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
-                    resizing = false,
-                    onResize = {},
-                    onSave = { _, _ -> },
-                    onBack = {}
-                )
+            CompositionLocalProvider(LocalPadLook provides PadLook(hand = hand)) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AdvancedEditorScreen(
+                        uri = quadrato(),
+                        busy = false,
+                        marked = marked,
+                        marking = marking,
+                        hasMark = hasMark,
+                        onMark = onMark,
+                        onMarkSetup = onMarkSetup,
+                        resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),
+                        // ⚠️ Spento: un ridimensionamento che rimpicciolisce accenderebbe 'Salva' a
+                        // immagine intonsa, e il caso suo vive in `RidimensionaTest`.
+                        saved = Resize.NONE,
+                        resizing = false,
+                        onResize = {},
+                        onResizeDefault = {},
+                        onSave = { _, _ -> },
+                        onBack = {}
+                    )
+                }
             }
         }
     }
+
+    /** Dove cade il bersaglio di un comando della barra, in coordinate della radice. */
+    private fun tasto(nome: Int): Rect =
+        banco.onNodeWithContentDescription(testo(nome)).fetchSemanticsNode().boundsInRoot
 
     /** Aspetta che l'anteprima sia decodificata: prima i comandi sono spenti comunque. */
     private fun pronta() {

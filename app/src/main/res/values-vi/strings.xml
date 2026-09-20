@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">Độ mờ đục</string>
     <string name="settings_mark_preview">Xem trước hình mờ</string>
     <string name="look_resize">Đổi kích thước</string>
-    <string name="look_resize_mode">Vừa theo</string>
     <string name="resize_long">Cạnh dài</string>
     <string name="resize_short">Cạnh ngắn</string>
     <string name="resize_wide">Chiều rộng</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">Điểm ảnh</string>
     <string name="look_resize_pct">Phần trăm</string>
     <string name="look_resize_range">Nhập một số từ %1$d đến %2$d.</string>
-    <string name="look_resize_now">Kích thước hiện tại: %1$s</string>
     <string name="look_resize_keep">Ảnh này vốn đã nhỏ hơn, nên được giữ nguyên.</string>
     <string name="look_resize_reset">Đặt lại</string>
+    <string name="look_resize_result">Kết quả</string>
+    <string name="look_resize_default">Đặt làm mặc định</string>
     <string name="look_resize_note">Tỷ lệ giữ nguyên; chỉ có thể thu nhỏ kích thước.</string>
     <string name="settings_save_rename">Cho phép đổi tên khi lưu</string>
     <string name="settings_save_rename_desc">Theo mặc định, tệp được lưu với tên gốc. Bật tùy chọn này để đặt tên ở mỗi lần tải xuống. Dù đang tắt, hãy nhấn giữ \'Lưu\' để nhập tên mới chỉ lần đó.</string>
@@ -581,5 +581,6 @@
     <string name="settings_styles_loaded">Đã nhập kiểu</string>
     <string name="settings_styles_bad">Tệp này không chứa kiểu nào</string>
     <string name="hint_modules">Vuốt các biểu tượng để đến mọi mô-đun chỉnh sửa. Nhấn giữ biểu tượng của một mô-đun để đặt lại riêng các thay đổi của nó.</string>
-    <string name="hint_tools">Ngoài các mô-đun, còn hai chức năng bạn có thể bật hoặc tắt ngay bằng một chạm lên biểu tượng, và biểu tượng sẽ sáng lên: \'Hình mờ\' và \'Đổi kích thước\'. Nhấn giữ sẽ mở phần cài đặt của từng chức năng. Khi xong, chạm \'Lưu\' để ghi đè tệp (kèm bản sao dự phòng, nếu đang bật); nhấn giữ sẽ lưu một bản sao mới của ảnh trong cùng thư mục.</string>
+    <string name="hint_tools">Ngoài các mô-đun, còn hai chức năng bạn có thể bật hoặc tắt ngay bằng một chạm lên biểu tượng, và biểu tượng sẽ sáng lên: \'Hình mờ\' và \'Đổi kích thước\'. Nhấn giữ sẽ mở phần cài đặt của từng chức năng.</string>
+    <string name="hint_save">Khi xong, chạm \'Lưu\' để ghi đè tệp (kèm bản sao dự phòng, nếu đang bật); nhấn giữ sẽ lưu một bản sao mới của ảnh trong cùng thư mục.</string>
 </resources>

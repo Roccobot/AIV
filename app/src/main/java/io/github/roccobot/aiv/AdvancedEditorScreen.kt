@@ -92,6 +92,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
@@ -193,10 +194,17 @@ fun AdvancedEditorScreen(
      * spegnere l'interruttore non deve far perdere quello che si era scelto.
      */
     resize: Resize.Plan,
+    /**
+     * Il ridimensionamento **predefinito**, che serve alla finestra per sapere se il piano che
+     * ha in mano è già quello: senza, 'Rendi predefinito' resterebbe acceso dopo averlo toccato.
+     */
+    saved: Resize.Plan,
     /** Se quel piano si applica al salvataggio, cioè l'interruttore della `2.70`. */
     resizing: Boolean,
     /** `null` spegne; un piano lo scrive **e** accende, come 'Applica' della sua finestra. */
     onResize: (Resize.Plan?) -> Unit,
+    /** Il piano diventa il predefinito, cioè il comando 'Rendi predefinito' della `2.81`. */
+    onResizeDefault: (Resize.Plan) -> Unit,
     /**
      * Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor di casa.
      *
@@ -391,12 +399,14 @@ fun AdvancedEditorScreen(
     if (asking) {
         ResizeDialog(
             initial = resize,
+            saved = saved,
             size = frame,
             onDismiss = { asking = false },
             onApply = {
                 asking = false
                 onResize(it)
-            }
+            },
+            onDefault = onResizeDefault
         )
     }
 
@@ -436,28 +446,15 @@ fun AdvancedEditorScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f).heading()
                 )
-                // ⚠️ I due comandi del salvataggio, nell'ordine che ha chiesto: 'Filigrana'
-                // prima di 'Ridimensiona'. I gesti sono gli stessi dell'editor di casa, perché
-                // il pezzo è lo stesso: vedi [EditorTool].
-                // ⚠️ I tre riquadri li misura il velo della `2.73`, e un tasto che non c'è
-                // lascia una misura vuota invece di un posto sbagliato.
-                Box(modifier = Modifier.onGloballyPositioned { markSpot = it.boundsInRoot() }) {
-                    MarkButton(
-                        has = hasMark,
-                        on = marking,
-                        enabled = !busy,
-                        onToggle = { onMark(!marking) },
-                        onSetup = onMarkSetup
-                    )
-                }
-                Box(modifier = Modifier.onGloballyPositioned { resizeSpot = it.boundsInRoot() }) {
-                    ResizeButton(
-                        on = resizing,
-                        enabled = !busy,
-                        onToggle = { onResize(if (resizing) null else resize) },
-                        onSetup = { asking = true }
-                    )
-                }
+                /*
+                 * ⚠️⚠️ **'Filigrana' E 'Ridimensiona' SONO SCESI NELLA BARRA IN BASSO, DALLA
+                 * `2.79`, ED È SUA RICHIESTA** (punto C del campo libero del giro dalla `2.75`
+                 * alla `2.77`: *sono troppo lontani e poco raggiungibili dal pollice*). In
+                 * testata resta il solo 'Salva', che è il comando che chiude il lavoro invece di
+                 * uno che si tocca mentre lo si fa. Il come vive su [EditorToolBar].
+                 */
+                // ⚠️ I riquadri li misura il velo della `2.73`, e un tasto che non c'è lascia
+                // una misura vuota invece di un posto sbagliato.
                 Box(modifier = Modifier.onGloballyPositioned { saveSpot = it.boundsInRoot() }) {
                     SaveButton(
                         // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza
@@ -561,6 +558,31 @@ fun AdvancedEditorScreen(
                 gaze = gaze,
                 onStrip = { strip = it },
                 /*
+                 * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO ARRIVANO ALLA SCHEDA COME UNO SPAZIO DA
+                 * RIEMPIRE, E NON COME OTTO PARAMETRI**: dalla `2.79` vivono nella barra in
+                 * basso, che è dentro la scheda, ma lo stato che governano (il logo scelto, i
+                 * due interruttori, il piano, la finestra che si apre) vive qui. Passandoli uno
+                 * per uno, questa scheda porterebbe otto argomenti che non guarda mai.
+                 * ⚠️ **Il lato lo decide chi disegna la barra**, cioè la scheda, che quel valore
+                 * ce l'ha già per i propri comandi: arriva di ritorno come argomento dello
+                 * spazio, o sarebbero due letture della stessa preferenza.
+                 */
+                tools = { mirror ->
+                    EditorToolBar(
+                        mirror = mirror,
+                        hasMark = hasMark,
+                        marking = marking,
+                        resizing = resizing,
+                        enabled = !busy,
+                        onMark = { onMark(!marking) },
+                        onMarkSetup = onMarkSetup,
+                        onResize = { onResize(if (resizing) null else resize) },
+                        onResizeSetup = { asking = true },
+                        onMarkSpot = { markSpot = it },
+                        onResizeSpot = { resizeSpot = it }
+                    )
+                },
+                /*
                  * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
                  * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
                  * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
@@ -604,17 +626,24 @@ fun AdvancedEditorScreen(
          * due frasi. Toccando il primo, la seconda slide arriva al fotogramma dopo.
          * ⚠️ **Il disegno lo passa il chiamante e non il velo**, perché i tre tasti non sono
          * della stessa specie: due glifi e una parola. I glifi sono gli stessi dei tasti veri
-         * ([MARK_GLYPH] e [Glyphs.Resize]), o la copia direbbe un'altra cosa.
+         * ([Glyphs.Watermark] e [Glyphs.Resize]), o la copia direbbe un'altra cosa.
          */
-        if (hinted && !toolsHinted && !saveSpot.isEmpty) {
-            val tools = buildList<Pair<Rect, @Composable () -> Unit>> {
-                if (!markSpot.isEmpty) {
-                    add(markSpot to { Icon(MARK_GLYPH, null, tint = HINT_MARK) })
-                }
-                if (!resizeSpot.isEmpty) {
-                    add(resizeSpot to { Icon(Glyphs.Resize, null, tint = HINT_MARK) })
-                }
-                add(
+        /*
+         * ⚠️⚠️ **DALLA `2.79` I GRUPPI SONO DUE, ED È LA SECONDA METÀ DEL PUNTO C**: i due tasti
+         * sono scesi nella barra in basso e 'Salva' è rimasto in testata, quindi la slide
+         * evidenzia due posti lontani e ognuno si porta il proprio paragrafo (*due paragrafi
+         * separati, uno sopra e uno sotto, ciascuno vicino all'oggetto cui fa riferimento*). Da
+         * che parte cada ogni frase lo decide [HintSpots] guardando dov'è il gruppo.
+         * ⚠️ **I due testi sono i suoi, divisi in due**: `hint_tools` perde la frase su 'Salva',
+         * che diventa `hint_save`, e nessuna parola cambia. La sua dettatura della `2.73` era già
+         * fatta di due paragrafi attaccati.
+         * ⚠️ **La condizione guarda anche il riquadro di 'Ridimensiona'**, che è il tasto della
+         * barra che c'è sempre: nel fotogramma prima della misura quel gruppo sarebbe vuoto.
+         */
+        if (hinted && !toolsHinted && !saveSpot.isEmpty && !resizeSpot.isEmpty) {
+            val sopra = HintGroup(
+                text = stringResource(R.string.hint_save),
+                spots = listOf(
                     saveSpot to {
                         Text(
                             text = stringResource(R.string.editor_save),
@@ -623,10 +652,18 @@ fun AdvancedEditorScreen(
                         )
                     }
                 )
-            }
-            HintSpots(
+            )
+            val sotto = HintGroup(
                 text = stringResource(R.string.hint_tools),
-                spots = tools,
+                spots = buildList {
+                    if (!markSpot.isEmpty) {
+                        add(markSpot to { Icon(Glyphs.Watermark, null, tint = HINT_MARK) })
+                    }
+                    add(resizeSpot to { Icon(Glyphs.Resize, null, tint = HINT_MARK) })
+                }
+            )
+            HintSpots(
+                groups = listOf(sopra, sotto),
                 onDone = { scope.launch { Hint.EDITOR_TOOLS.remember(context) } }
             )
         }
@@ -2787,6 +2824,26 @@ private val CROP_CMD_ICON = 24.dp
 /** Lo stondamento della cella di un comando del ritaglio, cioè quello dei chip di questa scheda. */
 private val CROP_CMD_ROUND = 8.dp
 
+/**
+ * Quanto distano due comandi del ritaglio, dalla `2.80`.
+ *
+ * ⚠️ **Erano quattro punti, ed è il suo punto `crop-giu`** (*le quattro icone-pulsanti del
+ * ritaglio più distanziate*). Costa **zero** in altezza, perché quella riga si divide una
+ * larghezza che ha già: a stringersi sono le quattro celle, che restano larghe una sessantina di
+ * punti, cioè più di un `IconButton` di Material.
+ */
+private val CROP_CMD_GAP = 12.dp
+
+/**
+ * L'aria sopra la fila delle forme, dalla `2.80`: vedi il suo punto `crop-giu` (*tutto più
+ * distante dai gettoni dei moduli*).
+ */
+private val CROP_TOP_AIR = 8.dp
+
+/** Lo spessore e l'aria del separatore sfumato del Ritaglio: vedi `CropRule`. */
+private val CROP_RULE_THICK = 1.dp
+private val CROP_RULE_AIR = 10.dp
+
 /** La forma scelta nel Ritaglio, cioè l'indice di [Gaze.shape] riportato al suo valore. */
 private fun cropShape(gaze: Gaze): Shape =
     Shape.entries.getOrElse(gaze.shape) { Shape.FREE }
@@ -2984,6 +3041,14 @@ private fun LookSheet(
      * misurato invece di ricalcolare la catena dei rientri.
      */
     onStrip: (Rect) -> Unit,
+    /**
+     * I due comandi del salvataggio, che dalla `2.79` vivono nella barra in basso.
+     *
+     * ⚠️ **È uno spazio da riempire e non otto parametri**: quei tasti governano lo stato della
+     * schermata (il logo scelto, i due interruttori, il piano, la finestra che si apre), e la
+     * scheda non ne guarda nessuno. Riceve il lato come argomento perché è lei a saperlo.
+     */
+    tools: @Composable (mirror: Boolean) -> Unit,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit,
@@ -3192,6 +3257,13 @@ private fun LookSheet(
                  * appoggiata al lato giusto, e non serve una seconda condizione che scelga come
                  * disporla.
                  */
+                /*
+                 * ⚠️⚠️ **I DUE TASTI DEL SALVATAGGIO STANNO AL BORDO E 'Salva stile' VERSO IL
+                 * CENTRO, DALLA `2.79`**: quel comando c'è nel solo modulo Stili, quindi messo
+                 * per primo sposterebbe la coppia di quarantotto punti passando da un modulo
+                 * all'altro. Ancorata al bordo, la coppia sta sempre dove il dito la lascia.
+                 */
+                if (!mirror) tools(false)
                 if (mirror) Comandi(
                     look = look,
                     chosen = chosen,
@@ -3225,6 +3297,7 @@ private fun LookSheet(
                     onRedo = onRedo,
                     onOriginal = onOriginal
                 )
+                if (mirror) tools(true)
             }
         }
     }
@@ -3523,34 +3596,30 @@ private fun ModuleBody(
                 onSettled()
             },
             /*
+             * ⚠️⚠️ **I DUE VERSI SONO DUE ICONE DENTRO LA FILA DELLE FORME, DALLA `2.80`, ED È IL
+             * SUO PUNTO `crop-giu`** (*'Orizzontale' e 'Verticale' diventano icone a destra di
+             * 'Originale'*). Fino alla `2.79` erano due chip scritti in una riga tutta loro, cioè
+             * una terza riga alta [CHIP_TALL] per una scelta di due stati: adesso vivono accanto
+             * alle due parole, e quella riga se ne va.
+             * ⚠️ **Quello che il tocco fa non cambia di una riga**: il rettangolo si gira e la
+             * scelta si scrive nello sguardo, come prima.
+             */
+            onLay = { one ->
+                if (one != lay) {
+                    onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
+                    gaze.lay = one.ordinal
+                    onSettled()
+                }
+            },
+            /*
              * ⚠️⚠️ **I TRE BLOCCHI NON PORTANO PIÙ UN DISTACCO SCRITTO A MANO, DALLA `2.40`, E
              * NON È UNA SPREMITURA**: l'aria fra le righe di un modulo la dà [Breathe], che dalla
              * `2.35` la distribuisce dove avanza; scritta anche qui si sommava alla sua, e nel
              * Ritaglio, che è il modulo più fitto, era l'unica a esserci. Toglierla lascia posto
              * ai quattro comandi e mette lo spazio dove il pannello lo mette dappertutto.
              */
-            modifier = Modifier
+            modifier = Modifier.padding(top = CROP_TOP_AIR)
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            for (one in Lay.entries) {
-                SheetChip(
-                    text = stringResource(one.label),
-                    selected = one == lay,
-                    enabled = live,
-                    onClick = {
-                        if (one != lay) {
-                            onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
-                            gaze.lay = one.ordinal
-                            onSettled()
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
         ActionPad(
             columns = POSE_KEYS,
             stretch = true,
@@ -3627,7 +3696,7 @@ private fun ModuleBody(
         val portata = relativeTo(look.framing.shown, look.crop)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(CROP_CMD_GAP)
         ) {
             CropCmd(
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
@@ -3680,6 +3749,7 @@ private fun ModuleBody(
                 onSettled()
             }
         }
+        CropRule()
     }
 
     /*
@@ -3945,6 +4015,43 @@ private fun RowScope.CropCmd(
             tint = LocalContentColor.current.copy(alpha = if (enabled) 1f else OFF_INK)
         )
     }
+}
+
+/**
+ * Il separatore sfumato fra i quattro comandi del ritaglio e la barra in basso, dalla `2.80`.
+ *
+ * ⚠️⚠️ **È IL PUNTO D DEL SUO CAMPO LIBERO** (riscontro del giro dalla `2.75` alla `2.77`: *sposta
+ * più su i 4 tasti del controllo del ritaglio, e separali dalla barra in basso usando un
+ * separatore sfumato*). Le due metà sono una cosa sola: questa riga occupa dell'aria in fondo al
+ * corpo, quindi i comandi salgono **perché** qualcosa li separa, e non per un distacco scritto
+ * sopra di loro.
+ *
+ * ⚠️⚠️ **E LA REVOCA DELLA `2.75` NON SI STA RIFACENDO, PERCHÉ IL CONTO È CAMBIATO**: là il
+ * distacco se lo prendeva dall'avanzo che [Breathe] distribuisce, e il resto del corpo si
+ * stringeva della stessa quantità (*s'è ammucchiato tutto*). Qui la riga dei due versi se n'è
+ * andata dentro le forme, cioè si sono liberati [CHIP_TALL] più il suo distacco, e questa riga ne
+ * spende meno.
+ *
+ * ⚠️ **Sfuma ai due capi e non ai bordi della scheda**: una linea piena da bordo a bordo
+ * dividerebbe il pannello in due superfici, mentre quello che lui ha chiesto è uno stacco, cioè
+ * un segno che c'è in mezzo e non si sa dove finisce.
+ */
+@Composable
+private fun CropRule() {
+    val ink = MaterialTheme.colorScheme.outlineVariant
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = CROP_RULE_AIR)
+            .height(CROP_RULE_THICK)
+            .background(
+                Brush.horizontalGradient(
+                    0f to Color.Transparent,
+                    0.5f to ink,
+                    1f to Color.Transparent
+                )
+            )
+    )
 }
 
 @Composable

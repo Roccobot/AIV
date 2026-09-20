@@ -59,8 +59,8 @@ class TitoloTest {
                     TitleRow(
                         title = TITOLO,
                         commands = buildList {
-                            add(TitleCommand(COMANDO, Glyphs.Extension) { })
-                            if (due.value) add(TitleCommand(ALTRO, Glyphs.FolderDownload) { })
+                            add(TitleCommand(COMANDO, Glyphs.Extension, onTap = { }))
+                            if (due.value) add(TitleCommand(ALTRO, Glyphs.FolderDownload, onTap = { }))
                         }
                     )
                 }

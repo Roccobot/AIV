@@ -193,7 +193,6 @@
     <string name="settings_mark_alpha">Opacità</string>
     <string name="settings_mark_preview">Anteprima della filigrana</string>
     <string name="look_resize">Ridimensiona</string>
-    <string name="look_resize_mode">Adatta a</string>
     <string name="resize_long">Lato lungo</string>
     <string name="resize_short">Lato corto</string>
     <string name="resize_wide">Larghezza</string>
@@ -202,9 +201,10 @@
     <string name="look_resize_px">Pixel</string>
     <string name="look_resize_pct">Per cento</string>
     <string name="look_resize_range">Scrivi un numero fra %1$d e %2$d.</string>
-    <string name="look_resize_now">Dimensioni attuali: %1$s</string>
     <string name="look_resize_keep">Questa immagine è già più piccola, quindi resta com\'è.</string>
     <string name="look_resize_reset">Ripristina</string>
+    <string name="look_resize_result">Risultato</string>
+    <string name="look_resize_default">Rendi predefinito</string>
     <string name="look_resize_note">Le proporzioni restano invariate; è possibile solo ridurre le dimensioni.</string>
     <string name="settings_save_rename">Consenti la rinomina al salvataggio</string>
     <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve.</string>
@@ -300,7 +300,8 @@
     <string name="folder_cover_reset">Copertina predefinita ripristinata</string>
     <string name="hint_cover">Con un tocco sulla cartella dell\'intestazione puoi impostare un\'immagine di copertina personalizzata: può essere qualsiasi immagine del tuo dispositivo, non necessariamente contenuta nella cartella in cui ti trovi, e resta memorizzata in HD anche se cancelli l\'originale. Per tornare alla copertina predefinita, entra in modalità selezione e tocca di nuovo l\'icona della stessa cartella.</string>
     <string name="hint_modules">Scorri le icone per avere accesso a tutti i moduli di modifica. Premi a lungo l\'icona di un modulo per azzerare solo le sue modifiche.</string>
-    <string name="hint_tools">Oltre ai moduli, sono presenti due funzioni che puoi attivare o disattivare al volo con un tocco sull\'icona, che si accende: \'Filigrana\' e \'Ridimensiona\'. Con un tocco prolungato, accedi alle impostazioni di ciascuna. Quando hai finito, tocca il tasto \'Salva\' per sovrascrivere il file (con copia di sicurezza, se attivata); con una pressione prolungata salverai una nuova copia dell\'immagine nella stessa cartella.</string>
+    <string name="hint_tools">Oltre ai moduli, sono presenti due funzioni che puoi attivare o disattivare al volo con un tocco sull\'icona, che si accende: \'Filigrana\' e \'Ridimensiona\'. Con un tocco prolungato, accedi alle impostazioni di ciascuna.</string>
+    <string name="hint_save">Quando hai finito, tocca il tasto \'Salva\' per sovrascrivere il file (con copia di sicurezza, se attivata); con una pressione prolungata salverai una nuova copia dell\'immagine nella stessa cartella.</string>
     <string name="folder_renamed">Cartella rinominata</string>
     <string name="folder_rename_taken">Esiste già una cartella con questo nome</string>
     <string name="folder_rename_fail">Non è stato possibile rinominare la cartella</string>

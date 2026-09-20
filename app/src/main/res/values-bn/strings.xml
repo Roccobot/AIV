@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">অস্বচ্ছতা</string>
     <string name="settings_mark_preview">জলছাপের প্রাকদর্শন</string>
     <string name="look_resize">আকার বদলান</string>
-    <string name="look_resize_mode">যার সাপেক্ষে</string>
     <string name="resize_long">লম্বা দিক</string>
     <string name="resize_short">ছোট দিক</string>
     <string name="resize_wide">প্রস্থ</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">পিক্সেল</string>
     <string name="look_resize_pct">শতকরা</string>
     <string name="look_resize_range">%1$d থেকে %2$d এর মধ্যে একটি সংখ্যা লিখুন।</string>
-    <string name="look_resize_now">বর্তমান আকার: %1$s</string>
     <string name="look_resize_keep">এই ছবিটি ইতিমধ্যেই ছোট, তাই এটি অপরিবর্তিত থাকে।</string>
     <string name="look_resize_reset">রিসেট</string>
+    <string name="look_resize_result">ফলাফল</string>
+    <string name="look_resize_default">ডিফল্ট করুন</string>
     <string name="look_resize_note">অনুপাত অপরিবর্তিত থাকে; কেবল আকার ছোট করা যায়।</string>
     <string name="settings_save_rename">সংরক্ষণের সময় নাম পরিবর্তনের অনুমতি দাও</string>
     <string name="settings_save_rename_desc">সাধারণভাবে ফাইল তার আসল নামেই সংরক্ষিত হয়। প্রতিটি ডাউনলোডে নাম ঠিক করতে এটি চালু করো। বন্ধ থাকলেও \'সংরক্ষণ\' চেপে ধরে রাখলে শুধু সেই বারের জন্য নতুন নাম লেখা যায়।</string>
@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">স্টাইল আমদানি হয়েছে</string>
     <string name="settings_styles_bad">এই ফাইলে কোনও স্টাইল নেই</string>
     <string name="hint_modules">সব সম্পাদনা মডিউলে পৌঁছাতে আইকনগুলি সোয়াইপ করুন। কোনও মডিউলের আইকন চেপে ধরে রাখলে শুধু তার পরিবর্তন মুছে যায়।</string>
-    <string name="hint_tools">মডিউলগুলি ছাড়াও দুটি ফাংশন আছে, যেগুলি আইকনে একটি ট্যাপ করে সঙ্গে সঙ্গে চালু বা বন্ধ করা যায়, আর আইকনটি জ্বলে ওঠে: \'জলছাপ\' ও \'আকার বদলান\'। দীর্ঘ চাপে প্রতিটির সেটিংস খোলে। শেষ হলে ফাইলটি প্রতিস্থাপন করতে \'সংরক্ষণ করুন\' চাপুন (ব্যাকআপ কপিসহ, যদি সেটি চালু থাকে); দীর্ঘ চাপে ছবিটির একটি নতুন কপি একই ফোল্ডারে সংরক্ষিত হয়।</string>
+    <string name="hint_tools">মডিউলগুলি ছাড়াও দুটি ফাংশন আছে, যেগুলি আইকনে একটি ট্যাপ করে সঙ্গে সঙ্গে চালু বা বন্ধ করা যায়, আর আইকনটি জ্বলে ওঠে: \'জলছাপ\' ও \'আকার বদলান\'। দীর্ঘ চাপে প্রতিটির সেটিংস খোলে।</string>
+    <string name="hint_save">শেষ হলে ফাইলটি প্রতিস্থাপন করতে \'সংরক্ষণ করুন\' চাপুন (ব্যাকআপ কপিসহ, যদি সেটি চালু থাকে); দীর্ঘ চাপে ছবিটির একটি নতুন কপি একই ফোল্ডারে সংরক্ষিত হয়।</string>
 </resources>

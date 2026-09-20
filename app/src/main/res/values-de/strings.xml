@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">Deckkraft</string>
     <string name="settings_mark_preview">Vorschau des Wasserzeichens</string>
     <string name="look_resize">Größe ändern</string>
-    <string name="look_resize_mode">Anpassen an</string>
     <string name="resize_long">Längere Seite</string>
     <string name="resize_short">Kürzere Seite</string>
     <string name="resize_wide">Breite</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">Pixel</string>
     <string name="look_resize_pct">Prozent</string>
     <string name="look_resize_range">Gib eine Zahl zwischen %1$d und %2$d ein.</string>
-    <string name="look_resize_now">Aktuelle Größe: %1$s</string>
     <string name="look_resize_keep">Dieses Bild ist bereits kleiner und bleibt daher unverändert.</string>
     <string name="look_resize_reset">Zurücksetzen</string>
+    <string name="look_resize_result">Ergebnis</string>
+    <string name="look_resize_default">Als Standard festlegen</string>
     <string name="look_resize_note">Das Seitenverhältnis bleibt gleich; die Größe kann nur verkleinert werden.</string>
     <string name="settings_save_rename">Umbenennen beim Speichern erlauben</string>
     <string name="settings_save_rename_desc">Standardmäßig werden Dateien unter ihrem ursprünglichen Namen gespeichert. Aktiviere dies, um bei jedem Download einen Namen festzulegen. Auch wenn es aus ist: \'Speichern\' gedrückt halten, um nur dieses eine Mal einen neuen Namen einzugeben.</string>
@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">Stile importiert</string>
     <string name="settings_styles_bad">Diese Datei enthält keinen Stil</string>
     <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
-    <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen. Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
+    <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen.</string>
+    <string name="hint_save">Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
 </resources>

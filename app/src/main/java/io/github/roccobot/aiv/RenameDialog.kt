@@ -57,6 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.times
@@ -643,7 +644,27 @@ private fun ExtensionDialog(
 internal class TitleCommand(
     val text: String,
     val glyph: ImageVector,
-    val onTap: () -> Unit
+    val onTap: () -> Unit,
+    /**
+     * Se il comando si può toccare.
+     *
+     * ⚠️ **Nasce con 'Rendi predefinito' nella `2.81`**, che è il primo comando di una riga di
+     * titolo a valere solo in certi casi (*cliccabile solo se sono attivi 'Lato lungo', 'Lato
+     * corto' o '%'*). Spento invece che assente, perché un tasto che compare e sparisce
+     * cambiando gettone farebbe ballare la riga del titolo.
+     */
+    val enabled: Boolean = true,
+    /**
+     * Quante righe il testo della pastiglia può prendere.
+     *
+     * ⚠️⚠️ **DUE È IL CASO DI UNA LOCUZIONE, E SENZA DI LUI LA PASTIGLIA DIVENTEREBBE UN'ICONA**:
+     * il conto di [TitleRow] misura il testo su una riga, quindi 'Rendi predefinito' non ci
+     * starebbe mai accanto a un titolo. Con due righe la pastiglia si misura sulla **parola più
+     * lunga**, e resta scritta come nel suo mockup.
+     * ⚠️ **Non alza la riga**: due righe di `labelMedium` valgono meno dei 40dp di altezza minima
+     * di un `FilledTonalButton`, quindi la pastiglia è alta come sempre.
+     */
+    val lines: Int = 1
 )
 
 /**
@@ -667,7 +688,19 @@ internal class TitleCommand(
  * quando i comandi sono icone, cioè sposterebbe una riga che oggi sta bene.
  */
 @Composable
-internal fun TitleRow(title: String, commands: List<TitleCommand>) {
+internal fun TitleRow(
+    title: String,
+    commands: List<TitleCommand>,
+    /**
+     * La riga sotto il titolo, quando la finestra ne ha una.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON SOTTO, ED È IL SUO MOCKUP DELLA `2.81`** (voce `resize-finestra`:
+     * *metti i pixel larghezza × altezza correnti subito sotto il titolo 'Ridimensiona'*):
+     * scritta nel corpo della finestra si leggerebbe come la prima riga del contenuto, e la
+     * pastiglia si centrerebbe sul solo titolo invece che sul blocco intero.
+     */
+    subtitle: AnnotatedString? = null
+) {
     val righello = rememberTextMeasurer()
     val corpoTitolo = MaterialTheme.typography.headlineSmall
     val corpoPastiglia = MaterialTheme.typography.labelMedium
@@ -679,9 +712,14 @@ internal fun TitleRow(title: String, commands: List<TitleCommand>) {
             }
         }
         val aIcone = commands.size > 1 || commands.any { comando ->
+            // ⚠️ Con più righe la pastiglia si misura sulla parola più lunga, perché è là che
+            // il testo può spezzarsi: misurando la frase intera passerebbe sempre all'icona.
+            val parola =
+                if (comando.lines > 1) comando.text.split(' ').maxBy { it.length }
+                else comando.text
             val pastiglia = maxOf(
                 TITLE_PILL_MIN,
-                quanto(comando.text, corpoPastiglia) + TITLE_PILL_SIDE * 2
+                quanto(parola, corpoPastiglia) + TITLE_PILL_SIDE * 2
             )
             quanto(title, corpoTitolo) + TITLE_ROW_GAP + pastiglia > maxWidth
         }
@@ -692,14 +730,36 @@ internal fun TitleRow(title: String, commands: List<TitleCommand>) {
         ) {
             // ⚠️ Il titolo prende il peso: senza, una parola lunga spingerebbe i comandi oltre
             // il bordo invece di andare a capo lei.
-            Text(text = title, modifier = Modifier.weight(1f))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title)
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 for (comando in commands) {
-                    if (aIcone) TitleIcon(comando.glyph, comando.text, comando.onTap)
-                    else TitlePill(text = comando.text, onTap = comando.onTap)
+                    if (aIcone) {
+                        TitleIcon(
+                            glyph = comando.glyph,
+                            description = comando.text,
+                            onTap = comando.onTap,
+                            enabled = comando.enabled
+                        )
+                    } else {
+                        TitlePill(
+                            text = comando.text,
+                            onTap = comando.onTap,
+                            enabled = comando.enabled,
+                            lines = comando.lines
+                        )
+                    }
                 }
             }
         }
@@ -731,9 +791,17 @@ internal fun TitleRow(title: String, commands: List<TitleCommand>) {
  * comprimerebbe, cioè taglierebbe la parola che lui vuole leggere.
  */
 @Composable
-internal fun TitlePill(text: String, onTap: () -> Unit) {
+internal fun TitlePill(
+    text: String,
+    onTap: () -> Unit,
+    enabled: Boolean = true,
+    lines: Int = 1,
+    modifier: Modifier = Modifier
+) {
     FilledTonalButton(
         onClick = onTap,
+        enabled = enabled,
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
         contentPadding = TITLE_PILL_PAD
     ) {
@@ -746,7 +814,12 @@ internal fun TitlePill(text: String, onTap: () -> Unit) {
          * del testo non cambia, e il testo dentro sta al centro. Cambiando il corpo si accorcia
          * la **parola**, non la pastiglia, quindi la linea su cui si legge non si muove.
          */
-        Text(text = text, style = MaterialTheme.typography.labelMedium)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium,
+            maxLines = lines,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -798,8 +871,13 @@ private val TITLE_ROW_GAP = 8.dp
  * evitava col riempimento verticale a zero. Sotto i 40dp invece il tocco diventa difficile.
  */
 @Composable
-internal fun TitleIcon(glyph: ImageVector, description: String, onTap: () -> Unit) {
-    IconButton(onClick = onTap, modifier = Modifier.size(TITLE_ICON_TAP)) {
+internal fun TitleIcon(
+    glyph: ImageVector,
+    description: String,
+    onTap: () -> Unit,
+    enabled: Boolean = true
+) {
+    IconButton(onClick = onTap, enabled = enabled, modifier = Modifier.size(TITLE_ICON_TAP)) {
         Icon(imageVector = glyph, contentDescription = description)
     }
 }

@@ -563,7 +563,6 @@
     <string name="settings_mark_alpha">Krycie</string>
     <string name="settings_mark_preview">Podgląd znaku wodnego</string>
     <string name="look_resize">Zmień rozmiar</string>
-    <string name="look_resize_mode">Dopasuj do</string>
     <string name="resize_long">Dłuższy bok</string>
     <string name="resize_short">Krótszy bok</string>
     <string name="resize_wide">Szerokość</string>
@@ -572,9 +571,10 @@
     <string name="look_resize_px">Piksele</string>
     <string name="look_resize_pct">Procent</string>
     <string name="look_resize_range">Wpisz liczbę od %1$d do %2$d.</string>
-    <string name="look_resize_now">Bieżący rozmiar: %1$s</string>
     <string name="look_resize_keep">Ten obraz jest już mniejszy, więc pozostaje bez zmian.</string>
     <string name="look_resize_reset">Przywróć domyślne</string>
+    <string name="look_resize_result">Wynik</string>
+    <string name="look_resize_default">Ustaw domyślnie</string>
     <string name="look_resize_note">Proporcje pozostają bez zmian; rozmiar można tylko zmniejszyć.</string>
     <string name="settings_save_rename">Pozwól zmieniać nazwę przy zapisie</string>
     <string name="settings_save_rename_desc">Domyślnie pliki są zapisywane pod pierwotną nazwą. Włącz to, aby ustalać nazwę przy każdym pobraniu. Nawet gdy jest wyłączone, przytrzymaj \'Zapisz\', aby wpisać nową nazwę tylko tym razem.</string>
@@ -632,5 +632,6 @@
     <string name="settings_styles_loaded">Zaimportowano style</string>
     <string name="settings_styles_bad">Ten plik nie zawiera żadnego stylu</string>
     <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
-    <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich. Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
+    <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich.</string>
+    <string name="hint_save">Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
 </resources>

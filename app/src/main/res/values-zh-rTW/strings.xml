@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">浮水印預覽</string>
     <string name="look_resize">調整尺寸</string>
-    <string name="look_resize_mode">符合</string>
     <string name="resize_long">長邊</string>
     <string name="resize_short">短邊</string>
     <string name="resize_wide">寬度</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">像素</string>
     <string name="look_resize_pct">百分比</string>
     <string name="look_resize_range">請輸入 %1$d 到 %2$d 之間的數字。</string>
-    <string name="look_resize_now">目前尺寸：%1$s</string>
     <string name="look_resize_keep">這張圖片已經比較小，因此維持原樣。</string>
     <string name="look_resize_reset">重設</string>
+    <string name="look_resize_result">結果</string>
+    <string name="look_resize_default">設為預設</string>
     <string name="look_resize_note">比例保持不變，尺寸只能變小。</string>
     <string name="settings_save_rename">允許儲存時重新命名</string>
     <string name="settings_save_rename_desc">預設情況下，檔案會以原本的名稱儲存。開啟後可為每次下載指定名稱。即使關閉，也可長按 \'儲存\' 僅那一次輸入新名稱。</string>
@@ -581,5 +581,6 @@
     <string name="settings_styles_loaded">已匯入風格</string>
     <string name="settings_styles_bad">此檔案不含任何風格</string>
     <string name="hint_modules">滑動圖示即可到達所有編輯模組。長按某個模組的圖示，只重設該模組的調整。</string>
-    <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。完成後輕觸\'儲存\'覆寫原檔案(若已啟用備份，備份也會保留)；長按則會在同一資料夾中儲存圖片的新副本。</string>
+    <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。</string>
+    <string name="hint_save">完成後輕觸\'儲存\'覆寫原檔案(若已啟用備份，備份也會保留)；長按則會在同一資料夾中儲存圖片的新副本。</string>
 </resources>

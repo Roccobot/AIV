@@ -515,7 +515,6 @@
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">水印预览</string>
     <string name="look_resize">调整尺寸</string>
-    <string name="look_resize_mode">适应</string>
     <string name="resize_long">长边</string>
     <string name="resize_short">短边</string>
     <string name="resize_wide">宽度</string>
@@ -524,9 +523,10 @@
     <string name="look_resize_px">像素</string>
     <string name="look_resize_pct">百分比</string>
     <string name="look_resize_range">请输入 %1$d 到 %2$d 之间的数字。</string>
-    <string name="look_resize_now">当前尺寸：%1$s</string>
     <string name="look_resize_keep">这张图片已经更小了，因此保持原样。</string>
     <string name="look_resize_reset">重置</string>
+    <string name="look_resize_result">结果</string>
+    <string name="look_resize_default">设为默认</string>
     <string name="look_resize_note">比例保持不变，尺寸只能变小。</string>
     <string name="settings_save_rename">允许保存时重命名</string>
     <string name="settings_save_rename_desc">默认情况下，文件按原名保存。开启后可为每次下载指定名称。即使关闭，也可长按 \'保存\' 仅这一次输入新名称。</string>
@@ -581,5 +581,6 @@
     <string name="settings_styles_loaded">已导入风格</string>
     <string name="settings_styles_bad">此文件不含任何风格</string>
     <string name="hint_modules">滑动图标即可到达所有编辑模块。长按某个模块的图标，只重置该模块的调整。</string>
-    <string name="hint_tools">除了模块之外，还有两项功能可以随时轻触图标开启或关闭，开启后图标会亮起：\'水印\'和\'调整尺寸\'。长按可以打开各自的设置。完成后轻触\'保存\'覆盖原文件(如果已启用备份，备份也会保留)；长按则会在同一文件夹中保存图片的新副本。</string>
+    <string name="hint_tools">除了模块之外，还有两项功能可以随时轻触图标开启或关闭，开启后图标会亮起：\'水印\'和\'调整尺寸\'。长按可以打开各自的设置。</string>
+    <string name="hint_save">完成后轻触\'保存\'覆盖原文件(如果已启用备份，备份也会保留)；长按则会在同一文件夹中保存图片的新副本。</string>
 </resources>

@@ -648,32 +648,61 @@ private val PREVIEW_ROUND = 2.dp
  *
  * ⚠️ **È l'unico numero che lega il riquadro ai selettori**: il rientro dell'anteprima e la piega
  * delle squadrette si ricavano tutti e due da lui, quindi non possono scollarsi.
+ *
+ * ⚠️⚠️ **DALLA `2.78` VALE 22 E NON PIÙ 16, E A PAGARE È IL RIQUADRO** (voce `mark-posto`
+ * approvata con una richiesta: *rendi solo i selettori DECISAMENTE più spessi e visibili ... se
+ * necessario rimpicciolisci il riquadro di quanto basta a far stare all'esterno dei selettori ben
+ * pasciuti*). Segni più grossi vogliono più fascia, e la fascia si prende dal rientro
+ * dell'anteprima: sei punti per lato su un riquadro largo quanto la pagina.
  */
-private val SPOT_RING = 16.dp
+private val SPOT_RING = 22.dp
 
 /** Quanto è grande il bersaglio di un selettore: il dito, non il segno. */
 private val SPOT_TAP = 44.dp
 
-/** Quanto sono lunghi i due bracci di una squadretta, lungo i lati del riquadro. */
-private val SPOT_ARM = 18.dp
+/**
+ * Quanto sono lunghi i due bracci di una squadretta, lungo i lati del riquadro.
+ *
+ * ⚠️ **Dalla `2.78` vale 22 e non più 18**: cresce con la fascia, o una squadretta più spessa
+ * sarebbe anche più tozza.
+ */
+private val SPOT_ARM = 22.dp
 
 /** Quanto la piega di una squadretta sta fuori dall'angolo del riquadro, in diagonale. */
 private val SPOT_OUT = 5.dp
 
-/** Il raggio del tondo che sceglie il centro. */
-private val SPOT_DOT = 5.dp
+/**
+ * Il raggio del tondo che sceglie il centro.
+ *
+ * ⚠️⚠️ **DALLA `2.78` VALE QUANTO UN BRACCIO DI SQUADRETTA, ED È LA SECONDA METÀ DELLA SUA
+ * RICHIESTA** (*il selettore del centro dev'essere un tondo più o meno delle stesse dimensioni dei
+ * selettori di angolo, anche se di forma diversa*): il diametro è 18 contro i 22 di un braccio,
+ * dove prima erano 10. ⚠️ **Non arriva a 22 tondi**, e il conto dice perché: il tondo vive dentro
+ * la fascia, quindi il suo bordo esterno (raggio più mezzo tratto) deve restare sotto
+ * [SPOT_RING]; a 9 più 1,5 arriva a 10,5 su un mezzo anello di 11, cioè sfiora il confine senza
+ * entrare nel riquadro, che è il *senza coprirlo* della richiesta del giro prima.
+ */
+private val SPOT_DOT = 9.dp
 
-/** Lo spessore del segno di un posto scelto, e di uno che non lo è. */
-private val SPOT_THICK_ON = 3.dp
-private val SPOT_THICK_OFF = 2.dp
+/**
+ * Lo spessore del segno di un posto scelto, e di uno che non lo è.
+ *
+ * ⚠️ **Dalla `2.78` sono 5 e 3, e prima erano 3 e 2**: è il *decisamente più spessi* della sua
+ * richiesta, e il rapporto fra i due resta, perché a dire quale è scelto sono lo spessore **e**
+ * l'inchiostro.
+ */
+private val SPOT_THICK_ON = 5.dp
+private val SPOT_THICK_OFF = 3.dp
 
 /**
  * Quanto si spegne il segno di un posto non scelto.
  *
  * ⚠️ **Spento e non di un altro colore**: sono tutti e cinque d'accento, che è la parola della sua
  * richiesta, quindi a dire quale è scelto restano l'inchiostro e lo spessore.
+ * ⚠️ **Dalla `2.78` è più vivo (0,55 invece di 0,35)**, che è la metà *visibili* della sua
+ * richiesta: un segno che non è scelto deve dire lo stesso che si può toccare.
  */
-private const val SPOT_FAINT = 0.35f
+private const val SPOT_FAINT = 0.55f
 
 /** I due tipi che il selettore di sistema mostra: vedi [Watermark.Kind]. */
 private const val PNG_MIME = "image/png"

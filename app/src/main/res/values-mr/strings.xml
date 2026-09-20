@@ -531,7 +531,6 @@
     <string name="settings_mark_alpha">अपारदर्शकता</string>
     <string name="settings_mark_preview">वॉटरमार्कचे पूर्वावलोकन</string>
     <string name="look_resize">आकार बदला</string>
-    <string name="look_resize_mode">यानुसार</string>
     <string name="resize_long">लांब बाजू</string>
     <string name="resize_short">लहान बाजू</string>
     <string name="resize_wide">रुंदी</string>
@@ -540,9 +539,10 @@
     <string name="look_resize_px">पिक्सेल</string>
     <string name="look_resize_pct">टक्के</string>
     <string name="look_resize_range">%1$d आणि %2$d दरम्यानची संख्या लिहा.</string>
-    <string name="look_resize_now">सध्याचा आकार: %1$s</string>
     <string name="look_resize_keep">ही प्रतिमा आधीच लहान आहे, म्हणून ती तशीच राहते.</string>
     <string name="look_resize_reset">रीसेट</string>
+    <string name="look_resize_result">निकाल</string>
+    <string name="look_resize_default">डीफॉल्ट करा</string>
     <string name="look_resize_note">प्रमाण तेच राहते; आकार फक्त लहान करता येतो.</string>
     <string name="settings_save_rename">सेव्ह करताना नाव बदलू द्या</string>
     <string name="settings_save_rename_desc">मूलतः फाइल आपल्या मूळ नावाने सेव्ह होते. प्रत्येक डाउनलोडला नाव ठरवायचे असेल तर हे चालू करा. बंद असतानाही \'सेव्ह\' दाबून धरा आणि त्या वेळेपुरते नवीन नाव लिहा.</string>
@@ -598,5 +598,6 @@
     <string name="settings_styles_loaded">शैली आयात झाल्या</string>
     <string name="settings_styles_bad">या फाइलमध्ये कोणतीही शैली नाही</string>
     <string name="hint_modules">सर्व संपादन मॉड्यूलपर्यंत पोहोचण्यासाठी चिन्हे सरकवा. एखाद्या मॉड्यूलचे चिन्ह दाबून धरल्यास फक्त त्याचे बदल शून्य होतात.</string>
-    <string name="hint_tools">मॉड्यूलशिवाय आणखी दोन सुविधा आहेत, ज्या चिन्हावर एक टॅप करून लगेच चालू किंवा बंद करता येतात आणि चिन्ह उजळते: \'वॉटरमार्क\' आणि \'आकार बदला\'. दीर्घ दाबाने प्रत्येकीची सेटिंग उघडते. काम पूर्ण झाल्यावर फाइलवर लिहिण्यासाठी \'जतन करा\' दाबा (बॅकअप प्रत सुरू असल्यास तिच्यासह); दीर्घ दाबाने प्रतिमेची नवी प्रत त्याच फोल्डरमध्ये जतन होते.</string>
+    <string name="hint_tools">मॉड्यूलशिवाय आणखी दोन सुविधा आहेत, ज्या चिन्हावर एक टॅप करून लगेच चालू किंवा बंद करता येतात आणि चिन्ह उजळते: \'वॉटरमार्क\' आणि \'आकार बदला\'. दीर्घ दाबाने प्रत्येकीची सेटिंग उघडते.</string>
+    <string name="hint_save">काम पूर्ण झाल्यावर फाइलवर लिहिण्यासाठी \'जतन करा\' दाबा (बॅकअप प्रत सुरू असल्यास तिच्यासह); दीर्घ दाबाने प्रतिमेची नवी प्रत त्याच फोल्डरमध्ये जतन होते.</string>
 </resources>

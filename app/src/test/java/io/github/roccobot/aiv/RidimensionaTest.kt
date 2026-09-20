@@ -14,7 +14,9 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -23,6 +25,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -357,7 +360,7 @@ class RidimensionaTest {
         assertNotNull("Il tocco ha spento invece di accendere", scritto)
         assertTrue(
             "La finestra si è aperta col tocco normale",
-            banco.onAllNodesWithText(testo(R.string.look_resize_mode))
+            banco.onAllNodesWithText(testo(R.string.look_resize_note))
                 .fetchSemanticsNodes().isEmpty()
         )
 
@@ -373,7 +376,7 @@ class RidimensionaTest {
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.look_resize_mode)).assertExists()
+        banco.onNodeWithText(testo(R.string.look_resize_note)).assertExists()
         assertEquals("Il gesto lungo ha toccato l'interruttore", 2, chiamate)
     }
 
@@ -396,7 +399,9 @@ class RidimensionaTest {
         banco.onNodeWithContentDescription(testo(R.string.look_resize))
             .performTouchInput { longClick() }
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.look_resize_reset)).performClick()
+        banco.onNodeWithText(testo(R.string.look_resize_reset))
+            .performScrollTo()
+            .performClick()
         banco.waitForIdle()
         // I due campi portano le misure del foglio, che è il piano che non fa niente.
         assertEquals(
@@ -549,31 +554,137 @@ class RidimensionaTest {
     }
 
     /**
-     * **Caso 16: la misura si infila al posto del segnaposto della frase tradotta.**
+     * **Caso 16: la misura di partenza si scrive sotto il titolo, senza dicitura.**
      *
-     * ⚠️ **Concatenando in coda, una lingua che scrive la frase al rovescio darebbe una riga
-     * sgrammaticata**: il segnaposto si cerca, e quello che si misura è che la misura finisca
-     * **dentro** e non dopo.
+     * ⚠️⚠️ **DALLA `2.81` QUELLA RIGA NON PASSA PIÙ DA UNA FRASE TRADOTTA** (testo
+     * `t-resize-now`: *Restano solo le dimensioni effettive, senza `Dimensioni attuali: `*),
+     * quindi la prova che misurava il segnaposto è uscita con la funzione che lo cercava: qui si
+     * misura quello che resta, cioè che la riga sia i soli numeri col segno e l'unità.
      */
     @Test
-    fun `la misura entra al posto del segnaposto`() {
+    fun `la misura di partenza è il solo numero`() {
         assertEquals(
-            "La misura non è finita dove il segnaposto la voleva",
-            "prima 1800 × 1200 px dopo",
-            filled("prima %1\$s dopo", 1800, 1200).text
+            "La riga sotto il titolo non è la sola misura",
+            "1800 × 1200 px",
+            plain(1800, 1200)
         )
     }
 
-    /** Il gettone di un modo, che porta il suo nome e si può scegliere. */
-    private fun chip(id: Int) =
-        banco.onAllNodesWithText(testo(id)).filterToOne(isSelectable())
+    /**
+     * **Caso 17: un modo è portabile solo se dice la stessa cosa su qualunque immagine.**
+     *
+     * ⚠️ **È il conto su cui si spegne 'Rendi predefinito'** (voce `resize-finestra`: *cliccabile
+     * solo se sono attivi 'Lato lungo', 'Lato corto' o '%'*), e si misura da sé perché è Kotlin
+     * puro: un modo in più aggiunto alla famiglia sbagliata darebbe un predefinito che su
+     * un'immagine girata dall'altra parte scrive un file di un'altra misura, senza dare errore.
+     */
+    @Test
+    fun `solo tre modi valgono come predefinito`() {
+        val portabili = Resize.Mode.entries.filter { Resize.portable(it) }.toSet()
+        assertEquals(
+            "I modi che valgono come predefinito non sono i suoi tre",
+            setOf(Resize.Mode.LONG, Resize.Mode.SHORT, Resize.Mode.SHARE),
+            portabili
+        )
+    }
+
+    /**
+     * **Caso 18: 'Rendi predefinito' si accende nei tre modi, scrive, e poi si spegne.**
+     *
+     * ⚠️⚠️ **LO SPEGNIMENTO È IL SOLO RISCONTRO CHE QUEL COMANDO DÀ**, perché una notifica di
+     * casa si aprirebbe **dietro** questa finestra: senza, il tocco non direbbe niente e si
+     * toccherebbe due volte.
+     * ⚠️ **Controprovata togliendo il confronto col predefinito**: il tasto resta acceso dopo il
+     * tocco, cioè la prova cade.
+     */
+    @Test
+    fun `Rendi predefinito si accende, scrive e si spegne`() {
+        var scritto: Resize.Plan? = null
+        val salvato = mutableStateOf(Resize.NONE)
+        banco.setContent {
+            Scena(
+                resizing = true,
+                piano = Resize.Plan(Resize.Mode.LONG, LATO / 2),
+                salvato = salvato.value,
+                onDefault = { scritto = it; salvato.value = it }
+            )
+        }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+
+        // Col libero, che dipende dall'immagine aperta, il comando non c'è da toccare.
+        banco.onNodeWithText(testo(R.string.look_resize_reset))
+            .performScrollTo()
+            .performClick()
+        banco.waitForIdle()
+        comando().assertIsNotEnabled()
+
+        // Con 'Lato lungo' si accende, e il tocco scrive il piano che la finestra ha in mano.
+        // ⚠️ Lo scorrimento serve perché il tocco su 'Ripristina' ha portato il corpo in fondo.
+        chip(R.string.resize_long).performScrollTo().performClick()
+        banco.waitForIdle()
+        comando().assertIsEnabled()
+        comando().performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "Il comando non ha scritto il piano che la finestra aveva in mano",
+            Resize.Mode.LONG,
+            scritto?.mode
+        )
+        comando().assertIsNotEnabled()
+    }
+
+    /**
+     * **Caso 19: il segno fra i due campi cade sulle cifre e non al centro del campo.**
+     *
+     * ⚠️ **È la sua riga alla lettera** (*il segno `×` è allineato meglio in verticale, in modo
+     * che sia centrato in verticale rispetto alle cifre*): un campo con l'etichetta in alto porta
+     * il testo più in basso del proprio centro, quindi un segno centrato sul campo si legge più
+     * alto delle cifre che separa.
+     * ⚠️ **Si misura il verso e non il numero**: che il centro del segno stia **sotto** quello del
+     * campo è il fatto, e una soglia sul numero cadrebbe al primo ritocco di
+     * [FIELD_TEXT_DROP]. Controprovata rimettendo `CenterVertically`: i due centri coincidono.
+     */
+    @Test
+    fun `il segno fra i campi scende sulle cifre`() {
+        banco.setContent { Scena(resizing = true, piano = Resize.NONE) }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_resize))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        val segno = banco.onNodeWithText("×").fetchSemanticsNode().boundsInRoot
+        val campo = banco.onAllNodes(hasSetTextAction())[0].fetchSemanticsNode().boundsInRoot
+        assertTrue(
+            "Il segno è centrato sul campo invece che sulle cifre" +
+                " (segno ${segno.center.y}, campo ${campo.center.y})",
+            segno.center.y > campo.center.y + 1f
+        )
+    }
+
+    /** Il comando 'Rendi predefinito' della riga del titolo. */
+    private fun comando() =
+        banco.onNodeWithText(testo(R.string.look_resize_default))
+
+    /**
+     * Il gettone di un modo, che si può scegliere e porta il suo nome.
+     *
+     * ⚠️ **Il nome può vivere nella descrizione parlata invece che nell'etichetta**: dalla `2.81`
+     * la percentuale si scrive col segno, quindi cercarla per solo testo non la troverebbe.
+     */
+    private fun chip(id: Int) = banco.onNode(
+        isSelectable() and (hasText(testo(id)) or hasContentDescription(testo(id)))
+    )
 
     /** L'editor completo su un foglio bianco, coi soli argomenti che questo banco muove. */
     @Composable
     private fun Scena(
         resizing: Boolean,
         piano: Resize.Plan = Resize.Plan(Resize.Mode.LONG, LATO / 2),
-        onResize: (Resize.Plan?) -> Unit = {}
+        onResize: (Resize.Plan?) -> Unit = {},
+        salvato: Resize.Plan = Resize.NONE,
+        onDefault: (Resize.Plan) -> Unit = {}
     ) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -588,8 +699,10 @@ class RidimensionaTest {
                     onMark = {},
                     onMarkSetup = {},
                     resize = piano,
+                    saved = salvato,
                     resizing = resizing,
                     onResize = onResize,
+                    onResizeDefault = onDefault,
                     onSave = { _, _ -> },
                     onBack = {}
                 )

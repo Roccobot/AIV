@@ -486,14 +486,34 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il **ridimensionamento** configurato, che esiste anche quando non si applica: l'editor lo
-     * mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     * Il ridimensionamento **predefinito**, cioè quello scritto nelle preferenze.
+     *
+     * ⚠️⚠️ **DALLA `2.81` LO SCRIVE SOLO 'Rendi predefinito', ED È UNA SUA FUNZIONE NUOVA**
+     * (voce `resize-finestra`: *'Rendi predefinito' (nuova funzione): fa in modo che le
+     * impostazioni di ridimensionamento restino memorizzate per i salvataggi seguenti*). Fino
+     * alla `2.80` lo scriveva 'Applica', quindi ogni configurazione sopravviveva al riavvio
+     * dell'app senza che nessuno l'avesse chiesto.
      */
-    fun resizePlan(): Resize.Plan {
+    fun resizeSaved(): Resize.Plan {
         val now = settings
         return if (now == null) Resize.NONE
         else Resize.Plan(now.sizeMode, now.sizeValue)
     }
+
+    /**
+     * Il **ridimensionamento** che il salvataggio userà, che esiste anche quando non si applica:
+     * l'editor lo mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     *
+     * ⚠️⚠️ **È QUELLO APPLICATO SE QUALCUNO L'HA APPLICATO, ALTRIMENTI IL PREDEFINITO**: dalla
+     * `2.81` 'Applica' vale per l'app viva e 'Rendi predefinito' vale per sempre, che è la
+     * distinzione su cui la sua richiesta si regge. ⚠️ **E il piano applicato vive nel modello e
+     * non nella schermata**, perché chi rimpicciolisce a una misura lo fa su parecchie immagini
+     * di fila: uno stato dentro l'editor gli farebbe riscrivere la misura a ogni apertura.
+     */
+    fun resizePlan(): Resize.Plan = resizeNow ?: resizeSaved()
+
+    /** Il piano applicato in questa sessione, o `null` finché vale il predefinito. */
+    private var resizeNow: Resize.Plan? by mutableStateOf(null)
 
     /** Se quel piano si applica al salvataggio. */
     fun resizeOn(): Boolean = settings?.sizeOn ?: false
@@ -506,13 +526,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ridimensionamento se non lo spengo*). Chi entra a configurare ha già detto che lo vuole.
      * ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che
      * si era scelto resta scritto, e riaccendere non chiede di riscriverlo.
+     * ⚠️⚠️ **DALLA `2.81` SCRIVE NEL MODELLO E NON NELLE PREFERENZE**: le preferenze tengono il
+     * predefinito, che si scrive col comando apposta (vedi [setResizeDefault]).
      */
     fun setResize(plan: Resize.Plan?) {
         val now = settings ?: return
-        updateSettings(
-            if (plan == null) now.copy(sizeOn = false)
-            else now.copy(sizeOn = true, sizeMode = plan.mode, sizeValue = plan.value)
-        )
+        if (plan != null) resizeNow = plan
+        updateSettings(now.copy(sizeOn = plan != null))
+    }
+
+    /**
+     * Il piano diventa quello **predefinito**, e con lui si salva anche adesso.
+     *
+     * ⚠️ **Accende l'interruttore come 'Applica'**, perché la sua frase lega le due cose (*restino
+     * memorizzate per i salvataggi seguenti (se l'icona 'Ridimensiona' è accesa)*): un predefinito
+     * scritto a interruttore spento non rimpicciolirebbe niente.
+     */
+    fun setResizeDefault(plan: Resize.Plan) {
+        val now = settings ?: return
+        resizeNow = plan
+        updateSettings(now.copy(sizeOn = true, sizeMode = plan.mode, sizeValue = plan.value))
     }
 
     var recents: List<RecentImage> by mutableStateOf(emptyList())
@@ -749,14 +782,14 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var picking: Boolean by mutableStateOf(false)
         private set
 
-    fun handleIntent(intent: Intent?) {
+    fun handleIntent(intent: Intent?, fresh: Boolean) {
         intentRead = true
         /*
          * ⚠️ **Si legge PRIMA di guardare l'indirizzo**: un `GET_CONTENT` non ne porta nessuno,
          * quindi finisce nel ramo di sotto insieme all'avvio dall'icona, che è giusto (si parte
          * dalle cartelle). Quello che lo distingue è solo questa bandierina.
          */
-        picking = intent?.action == Intent.ACTION_GET_CONTENT ||
+        val wants = intent?.action == Intent.ACTION_GET_CONTENT ||
             intent?.action == Intent.ACTION_PICK
         /*
          * ⚠️⚠️ **UN `ACTION_PICK` PORTA UN INDIRIZZO, E NON È UN'IMMAGINE DA APRIRE**: chi lo
@@ -766,7 +799,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * che è il difetto che questa riga evita. `GET_CONTENT` invece non porta niente, quindi
          * questa guardia non cambia il caso della `1.89`.
          */
-        val uri = if (picking) null else intent.imageUri()
+        val uri = if (wants) null else intent.imageUri()
+        /*
+         * ⚠️⚠️ **UN INTENTO NUDO CHE ARRIVA A GIRO INIZIATO NON AZZERA NIENTE, DALLA `2.78`, ED È
+         * IL PUNTO A DEL SUO CAMPO LIBERO** (*quando l'editor è aperto, se passo a un'altra app
+         * (senza chiudere AIV), poi torno, mi ritrovo l'editor chiuso e le modifiche in corso
+         * perse*). L'app è `singleTop`, quindi toccando la sua icona mentre è già in cima al
+         * proprio task Android non ricrea niente: consegna un `onNewIntent` con l'intento del
+         * launcher, che non porta nessun indirizzo. Fino alla `2.77` quello cadeva nel ramo di
+         * sotto, cioè riportava a [HOME] e riapriva la cartella d'avvio, buttando via qualunque
+         * schermata in corso.
+         * ⚠️ **La guardia sta PRIMA di [picking]**, e non è un dettaglio d'ordine: quel valore
+         * dice a che cosa serve **questa esecuzione**, e un intento che non chiede niente non lo
+         * deve riscrivere.
+         * ⚠️ **Che cosa resta fuori, e si dichiara**: se il sistema uccide il processo in
+         * secondo piano, il modello muore con lui e l'editor riparte comunque, perché il lavoro
+         * in corso vive nella composizione. Questa correzione copre il caso in cui l'app è
+         * ancora viva, che è quello che succede tornando da un'altra app.
+         */
+        if (!fresh && uri == null && !wants) return
+        picking = wants
         if (uri == null) {
             // Partita dalla propria icona: si va dove sono le immagini, cioè alle cartelle.
             screen = HOME
@@ -2627,7 +2679,7 @@ class ViewerActivity : ComponentActivity() {
          * il modello sopravvive e ha già l'immagine in mano, quindi rileggere l'intento la
          * caricherebbe una seconda volta.
          */
-        if (!model.intentRead) model.handleIntent(intent)
+        if (!model.intentRead) model.handleIntent(intent, fresh = true)
         // ⚠️ Il tema si legge QUI, fuori da `AivApp`, perché deve avvolgerlo: dentro,
         // avrebbe già ereditato la tavolozza sbagliata. Finché le impostazioni non sono
         // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
@@ -2713,10 +2765,18 @@ class ViewerActivity : ComponentActivity() {
      * a new copy of the app. Without this the screen would keep showing the
      * previous picture, which looks exactly like a bug.
      */
+    /**
+     * Un intento nuovo mentre l'app è già aperta: una condivisione da un'altra app, oppure il
+     * ritorno dall'icona del launcher.
+     *
+     * ⚠️⚠️ **`fresh = false` È LA CORREZIONE DELLA `2.78`**: qui l'app sta già facendo qualcosa,
+     * quindi un intento che non porta niente non deve riportare a casa. Il perché per esteso, col
+     * difetto che chiude, vive su [ViewerViewModel.handleIntent].
+     */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        model.handleIntent(intent)
+        model.handleIntent(intent, fresh = false)
     }
 
     /**
@@ -3419,8 +3479,10 @@ private fun Stage(
                 onMark = { model.setMark(it) },
                 onMarkSetup = { model.openMarkSetup() },
                 resize = model.resizePlan(),
+                saved = model.resizeSaved(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
+                onResizeDefault = { model.setResizeDefault(it) },
                 onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
                 onBack = { model.leaveEditor() }
             )
@@ -3442,8 +3504,10 @@ private fun Stage(
                 onMark = { model.setMark(it) },
                 onMarkSetup = { model.openMarkSetup() },
                 resize = model.resizePlan(),
+                saved = model.resizeSaved(),
                 resizing = model.resizeOn(),
                 onResize = { model.setResize(it) },
+                onResizeDefault = { model.setResizeDefault(it) },
                 onSave = { look, beside -> model.lookSave(look, beside) },
                 onBack = { model.leaveEditor() }
             )
