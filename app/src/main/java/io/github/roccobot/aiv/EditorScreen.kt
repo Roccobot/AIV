@@ -1364,8 +1364,13 @@ internal enum class Shape(
     }
 }
 
-/** Da che parte sta una fotografia. ⚠️ Il quadrato conta come verticale: lo chiede l'utente. */
-private fun startLay(base: Bitmap?): Lay =
+/**
+ * Da che parte sta una fotografia. ⚠️ Il quadrato conta come verticale: lo chiede l'utente.
+ *
+ * ⚠️ **La legge anche l'editor completo, dalla `2.85`**: fino alla `2.84` là il verso partiva
+ * sempre da 'Verticale', cioè la regola valeva in uno solo dei due editor.
+ */
+internal fun startLay(base: Bitmap?): Lay =
     if (base != null && base.width > base.height) Lay.WIDE else Lay.TALL
 
 /**

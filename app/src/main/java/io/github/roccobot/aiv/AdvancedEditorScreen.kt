@@ -270,7 +270,17 @@ fun AdvancedEditorScreen(
     BackHandler { onBack() }
 
     LaunchedEffect(uri) {
-        origin = withContext(Dispatchers.IO) { preview(context, uri) }
+        val letta = withContext(Dispatchers.IO) { preview(context, uri) }
+        /*
+         * ⚠️⚠️ **IL VERSO DEL RITAGLIO LO DECIDE LA FOTOGRAFIA, DALLA `2.85`, ED È LA SUA REGOLA**
+         * (2026-08-31, scritta su [startLay]): fino alla `2.84` qui partiva sempre da 'Verticale',
+         * quindi 'Originale' su una fotografia larga dava una cornice alta, che è la prima delle sue
+         * tre segnalazioni del giro della `2.83`.
+         * ⚠️ **Si decide prima di consegnare l'anteprima**, così non esiste un fotogramma col verso
+         * sbagliato; e **una volta sola**, perché dopo il primo tocco il verso è una sua scelta.
+         */
+        if (letta != null && gaze.lay == LAY_UNSET) gaze.lay = startLay(letta).ordinal
+        origin = letta
     }
 
     /**
@@ -906,8 +916,14 @@ private fun LookStage(
      * non faceva niente che si vedesse proprio nel modulo in cui lo si tocca; adesso le squadrette
      * ripartono ai bordi della porzione e si ritaglia dentro quella, e a tornare indietro sono i
      * tre comandi suoi (vedi [Framing]).
+     * ⚠️⚠️ **MA CON LO STRUMENTO 'ANGOLI' ARMATO NON VALE, DALLA `2.85`**: le quattro maniglie sono
+     * gli angoli dell'immagine **intera**, e inquadrando la porzione si posavano sugli angoli
+     * dell'immagine ingrandita quanto serve a far riempire il palco dalla porzione, cioè fuori
+     * dallo schermo appena il taglio è piccolo. È la seconda delle sue segnalazioni del giro della
+     * `2.83` (*una volta applicato un ritaglio, non sono in grado di modificare la geometria con
+     * Angoli*). Il taglio non si perde: lo dice il riquadro disegnato sopra (vedi [cornerOverlay]).
      */
-    val framed = look.framing.shown
+    val framed = look.framing.shown.takeIf { corners == null }
 
     /**
      * Quanto è larga rispetto all'alta la porzione che si vede: l'immagine intera, o il taglio.
@@ -919,6 +935,22 @@ private fun LookStage(
     val shown =
         if (framed == null) wide
         else wide * (framed.right - framed.left) / (framed.bottom - framed.top)
+
+    /*
+     * ⚠️⚠️ **IL GESTO LEGGE LA POSA E IL TAGLIO DI ADESSO, DALLA `2.85`, E FINO ALLA `2.84` NO**: il
+     * corpo del `pointerInput` qui sotto parte al **primo tocco** sul palco e da lì non riparte più,
+     * quindi [shown], [framed] e [posed] letti là dentro restavano quelli di quel tocco. Dopo
+     * 'Applica' il dito cercava la cornice dentro l'immagine intera mentre le squadrette si
+     * disegnavano ai bordi della porzione, e dopo un quarto di giro nel riquadro dell'immagine
+     * coricata: è la terza delle sue segnalazioni del giro della `2.83`, e metà della seconda.
+     * ⚠️ **È la prudenza di [geoNow], che questi tre valori non avevano**, e il banco ha misurato
+     * perché il difetto sembrava capriccioso: un gesto che nasce **dopo** il cambiamento lo vede
+     * giusto, quindi compariva solo col palco già toccato prima. Dopo 'Applica' era quasi sempre,
+     * perché il primo taglio si fa col dito; dopo una rotazione, solo a volte.
+     */
+    val shownNow by rememberUpdatedState(shown)
+    val framedNow by rememberUpdatedState(framed)
+    val posedNow by rememberUpdatedState(posed)
 
     /** Il pezzo di file letto a risoluzione piena, quando c'è: vedi [SharpPiece]. */
     var sharp by remember(picture) { mutableStateOf<SharpPiece?>(null) }
@@ -1122,7 +1154,7 @@ private fun LookStage(
                     val grown = next / scale
                     val from = centroid - middle
                     scale = next
-                    shift = reined(from + (shift - from) * grown + pan, next, room, shown, air())
+                    shift = reined(from + (shift - from) * grown + pan, next, room, shownNow, air())
                 }
 
                 /**
@@ -1144,7 +1176,7 @@ private fun LookStage(
                  * cambiasse senza l'altro, si tornerebbe a vedere un pixel e a prenderne un altro.
                  */
                 fun colourAt(at: Offset): Int? {
-                    val view = viewport(room, shown, scale, shift, air(), framed)
+                    val view = viewport(room, shownNow, scale, shift, air(), framedNow)
                     val l = view.left
                     val t = view.top
                     val r = view.right
@@ -1169,9 +1201,11 @@ private fun LookStage(
                     val u = ((where.x - l) / (r - l)).coerceIn(0f, 1f)
                     val v = ((where.y - t) / (b - t)).coerceIn(0f, 1f)
                     sharp?.pixel(u, v)?.let { return it }
-                    return posed.getPixel(
-                        (u * (posed.width - 1)).roundToInt(),
-                        (v * (posed.height - 1)).roundToInt()
+                    // ⚠️ L'anteprima di adesso, già in posa: vedi `posedNow`.
+                    val mappa = posedNow
+                    return mappa.getPixel(
+                        (u * (mappa.width - 1)).roundToInt(),
+                        (v * (mappa.height - 1)).roundToInt()
                     )
                 }
 
@@ -1201,7 +1235,10 @@ private fun LookStage(
                      */
                     val taglio = cutNow
                     if (taglio != null) {
-                        val vista = viewport(room, shown, scale, shift, air(), framed)
+                        // ⚠️ Letta una volta per gesto: il riquadro e il rettangolo che si scrive
+                        // alla fine devono parlare della stessa porzione.
+                        val porzione = framedNow
+                        val vista = viewport(room, shownNow, scale, shift, air(), porzione)
                         /*
                          * ⚠️⚠️ **LE SQUADRETTE SI TIRANO DENTRO LA PORZIONE APPLICATA, DALLA
                          * `2.40`**: quello che si vede è il taglio confermato, quindi il riquadro
@@ -1212,9 +1249,9 @@ private fun LookStage(
                          * ⚠️ **Senza niente applicato è un ramo solo**: le due funzioni sono
                          * l'identità, e il riquadro resta quello dell'immagine.
                          */
-                        val dentro = cutout(vista, framed)
+                        val dentro = cutout(vista, porzione)
                         val frame = Rect(dentro.left, dentro.top, dentro.right, dentro.bottom)
-                        var going = cropBox(relativeTo(framed, taglio), frame)
+                        var going = cropBox(relativeTo(porzione, taglio), frame)
                         val presa = grabbed(down.position, going, GRIP.toPx(), keepNow == null)
                         if (presa != Grab.NONE) {
                             down.consume()
@@ -1243,7 +1280,7 @@ private fun LookStage(
                                     keepNow,
                                     LEAST_SIDE.toPx()
                                 )
-                                cutTo(absolute(framed, cropFractions(going, frame)))
+                                cutTo(absolute(porzione, cropFractions(going, frame)))
                             }
                             onCutEnd()
                         }
@@ -1262,7 +1299,7 @@ private fun LookStage(
                      */
                     val angoli = cornerNow
                     if (angoli != null) {
-                        val vista = viewport(room, shown, scale, shift, air(), framed)
+                        val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
                         val piano = Warp.plan(
                             geoNow, vista.centerX(), vista.centerY(),
                             vista.width(), vista.height(), hold = ARMED_FIT
@@ -1393,7 +1430,7 @@ private fun LookStage(
                                         scale = next
                                         shift = reined(
                                             anchor + (fromShift - anchor) * (next / fromScale),
-                                            next, room, shown, air()
+                                            next, room, shownNow, air()
                                         )
                                     }
                                     // Un compagno arrivato mentre il secondo tocco è ancora giù:
@@ -1406,7 +1443,7 @@ private fun LookStage(
                                         val toScale = if (big) ZOOM_TAP else 1f
                                         val toShift =
                                             if (!big) Offset.Zero
-                                            else reined(anchor * (1f - ZOOM_TAP), ZOOM_TAP, room, shown, air())
+                                            else reined(anchor * (1f - ZOOM_TAP), ZOOM_TAP, room, shownNow, air())
                                         /*
                                          * ⚠️⚠️ **CI SI ARRIVA CON UN'ANIMAZIONE, DALLA `2.17`, ED È
                                          * IL SUO RISCONTRO** (giro della `2.16`, voce `luce-zoom`
@@ -1593,7 +1630,14 @@ private fun LookStage(
             )
             cornerOverlay(
                 frame = Rect(0f, 0f, room.width, room.height),
-                keep = tenuto,
+                /*
+                 * ⚠️⚠️ **E DENTRO IL RIQUADRO TENUTO C'È IL TAGLIO, DALLA `2.85`**: armando lo
+                 * strumento si vede l'immagine intera anche con un taglio applicato (vedi [framed]),
+                 * quindi un velo fermo alla copertura direbbe che resterà più di quanto il file
+                 * porterà. Il taglio è [Look.crop] e non quello applicato, perché è lui che il
+                 * salvataggio taglia, e vive in frazioni proprio di questo riquadro.
+                 */
+                keep = cropBox(look.crop, tenuto),
                 spots = cornerSpots(lavoro, view),
                 grip = CORNER_GRIP.toPx(),
                 halo = GRIP_HALO.toPx()
@@ -2848,8 +2892,16 @@ private val CROP_RULE_AIR = 10.dp
 private fun cropShape(gaze: Gaze): Shape =
     Shape.entries.getOrElse(gaze.shape) { Shape.FREE }
 
-/** Da che parte sta la forma scelta: vedi [cropShape]. */
+/**
+ * Da che parte sta la forma scelta: vedi [cropShape].
+ *
+ * ⚠️ **Con il verso ancora da decidere risponde 'Verticale'**, ed è un ripiego che nessuno vede:
+ * succede solo finché l'anteprima non è arrivata, cioè con i gettoni del Ritaglio spenti.
+ */
 private fun cropLay(gaze: Gaze): Lay = Lay.entries.getOrElse(gaze.lay) { Lay.TALL }
+
+/** Il verso del ritaglio quando l'anteprima non è ancora arrivata: vedi [Gaze.lay]. */
+private const val LAY_UNSET = -1
 
 /**
  * Quante volte l'immagine **già posata** è più larga che alta.
@@ -2938,7 +2990,7 @@ private class Gaze(
     band: Int = 0,
     channel: Int = Tone.WHOLE,
     shape: Int = 0,
-    lay: Int = 0
+    lay: Int = LAY_UNSET
 ) {
     var module by mutableIntStateOf(module)
     var band by mutableIntStateOf(band)
@@ -2954,6 +3006,9 @@ private class Gaze(
      * riporterebbe indietro anche la scelta dei gettoni.
      * ⚠️ **Sono indici e non i due enum**, perché questo oggetto si salva alla rotazione come una
      * lista di interi: il valore vero lo ricostruiscono [cropShape] e [cropLay].
+     * ⚠️ **Il verso nasce [LAY_UNSET], dalla `2.85`**: quale sia lo sa solo l'anteprima, che arriva
+     * dopo, e chi la legge lo scrive qui (vedi il caricamento, in [AdvancedEditorScreen]). Salvato
+     * così, dopo una rotazione dello schermo si decide di nuovo; salvato già deciso, resta suo.
      */
     var shape by mutableIntStateOf(shape)
     var lay by mutableIntStateOf(lay)
