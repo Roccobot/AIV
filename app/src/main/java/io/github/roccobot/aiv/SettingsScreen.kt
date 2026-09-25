@@ -1,6 +1,5 @@
 package io.github.roccobot.aiv
 
-import android.text.format.Formatter
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -1070,9 +1069,10 @@ private fun ColumnScope.RootPage(
          * megabyte**: la pagina che si apre non è un elenco, quindi la sua lunghezza non dice
          * niente, mentre la cosa che il comando riguarda una misura ce l'ha. Ed è calcolata, come
          * vuole la regola: una frase fissa qui direbbe due volte quello che il titolo già dice.
-         * ⚠️ **La misura la formatta il SISTEMA** (`Formatter`), che la scrive con l'unità e il
-         * separatore decimale della lingua in corso: una stringa nostra sarebbe una traduzione in
-         * ventotto lingue per dire quello che Android dice già.
+         * ⚠️⚠️ **LA MISURA LA SCRIVE [formatBytes], DALLA `2.87`, ED È LA SUA RISPOSTA `punto` A
+         * `d-pesi-scrittura`**: fino alla `2.86` la formattava il sistema (`Formatter`), con la
+         * virgola della lingua in corso e i multipli da mille, cioè in un modo diverso dal peso di
+         * una selezione. Adesso i pesi dell'app si scrivono in un modo solo.
          * ⚠️ Il caso zero ha la sua frase perché '0 B' si legge come un difetto, non come 'non c'è
          * niente da buttare'.
          */
@@ -1080,7 +1080,7 @@ private fun ColumnScope.RootPage(
         val thumbsWarn = stringResource(R.string.settings_thumbs_warn)
         val thumbsSummary =
             if (thumbBytes <= 0L) stringResource(R.string.settings_thumbs_empty)
-            else Formatter.formatShortFileSize(LocalContext.current, thumbBytes)
+            else formatBytes(thumbBytes)
         PageOfRows(
             label = thumbsLabel,
             summary = thumbsSummary,

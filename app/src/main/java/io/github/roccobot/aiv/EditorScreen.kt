@@ -838,7 +838,8 @@ private fun EditorSheet(
                     SheetChip(
                         text = stringResource(one.label),
                         selected = one == lay,
-                        enabled = live,
+                        // ⚠️ Spenti con 'Originale', dalla `2.87`: vedi [Shape.fromImage].
+                        enabled = live && !shape.fromImage,
                         onClick = { onLay(one) },
                         modifier = Modifier.weight(1f)
                     )
@@ -1211,7 +1212,8 @@ internal fun ShapeRow(
                                 Icons.Filled.CropLandscape
                             },
                             selected = verso == lay,
-                            enabled = enabled,
+                            // ⚠️ Spenti con 'Originale', dalla `2.87`: vedi [Shape.fromImage].
+                            enabled = enabled && !shape.fromImage,
                             onClick = { onLay(verso) },
                             modifier = Modifier.width(LAY_CELL)
                         )
@@ -1304,7 +1306,8 @@ internal enum class Lay(@StringRes val label: Int) {
  * l'orientamento cambia. Qui il verso lo dà [Lay], e la forma resta selezionata mentre gli si
  * gira intorno.
  * ⚠️ **Il valore è larghezza diviso altezza in verticale**, e in orizzontale è il suo
- * reciproco: un numero solo per forma, e l'inversione è una divisione.
+ * reciproco: un numero solo per forma, e l'inversione è una divisione. L'unica eccezione è una
+ * forma [fromImage], il cui valore è il rapporto dell'immagine com'è, e il verso non lo tocca.
  * ⚠️ **`null` è 'libero'**: con un numero anche per quello servirebbe un caso speciale in
  * ogni conto, mentre così il caso speciale è uno solo e sta qui.
  * ⚠️ **Le etichette NON sono risorse quando sono numeri**: '16:9' si scrive uguale in tutte le
@@ -1318,18 +1321,34 @@ internal enum class Lay(@StringRes val label: Int) {
  * ⚠️ **Quindi il rapporto è una funzione e non una costante, per tutte e sei**: un campo
  * `Float?` più un booleano 'questa lo prende dall'immagine' direbbe la stessa cosa in due
  * pezzi, e il conto finirebbe in chi legge invece che qui.
- * ⚠️ **Nel verso naturale dell'immagine 'Originale' vale l'immagine INTERA**, per costruzione:
- * [fit] con un rapporto uguale al frame non trova niente da togliere. Nell'altro verso dà lo
- * stesso rapporto trasposto, che è come si comportano anche le quattro proporzioni.
+ * ⚠️ **Il booleano che c'è dalla `2.87` ([fromImage]) dice un'altra cosa**: non da dove viene il
+ * rapporto, ma se il verso lo gira. E ha due lettori, [value] e i due gettoni del verso, che dal
+ * conto non potrebbero ricavarlo.
+ *
+ * ⚠️⚠️ **E DALLA `2.87` 'ORIGINALE' È L'IMMAGINE INTERA IN QUALUNQUE VERSO, ED È LA SUA RISPOSTA
+ * `intera` A `d-originale-verso`** (giro della `2.85` e della `2.86`, e in chat: *'Originale' che
+ * si adatta anche al verso della rotazione attuale*). Fino alla `2.86` seguiva il verso acceso come
+ * le quattro proporzioni, quindi su un'immagine larga la cornice veniva alta in due casi: toccando
+ * 'Verticale', e girando l'immagine di un quarto, perché il verso resta quello di partenza.
+ * ⚠️ **Adesso ignora i due gettoni del verso** ([fromImage]): prende l'immagine com'è in quel
+ * momento, cioè già posata, e [fit] con un rapporto uguale al frame non trova niente da togliere.
+ * Il verso resta per le quattro proporzioni.
+ * ⚠️ **E mentre è scelta i due gettoni si spengono**, perché con lei non governano niente: un
+ * tocco che non cambia la cornice si leggerebbe come un comando rotto.
  */
 internal enum class Shape(
     private val tall: (Float) -> Float?,
     @StringRes val word: Int?,
     private val up: String?,
-    private val flat: String?
+    private val flat: String?,
+    /**
+     * Se il rapporto lo porta l'immagine com'è, e i due gettoni del verso non c'entrano: vale per
+     * 'Originale' soltanto, dalla `2.87`. Vedi la nota in testa.
+     */
+    val fromImage: Boolean = false
 ) {
     FREE({ null }, R.string.editor_free, null, null),
-    ORIGINAL({ if (it > 0f) min(it, 1f / it) else null }, R.string.editor_shape_original, null, null),
+    ORIGINAL({ it.takeIf { f -> f > 0f } }, R.string.editor_shape_original, null, null, fromImage = true),
     ONE({ 1f }, null, "1:1", "1:1"),
     TWO_THREE({ 2f / 3f }, null, "2:3", "3:2"),
     THREE_FOUR({ 3f / 4f }, null, "3:4", "4:3"),
@@ -1340,7 +1359,7 @@ internal enum class Shape(
      * altezza, e `null` se la forma è libera.
      */
     fun value(lay: Lay, frame: Float): Float? =
-        tall(frame)?.let { if (lay == Lay.TALL) it else 1f / it }
+        tall(frame)?.let { if (fromImage || lay == Lay.TALL) it else 1f / it }
 
     /** Come si scrive in questo verso, e `null` per le due che portano una parola in [word]. */
     fun text(lay: Lay): String? = if (lay == Lay.TALL) up else flat

@@ -1363,26 +1363,35 @@ class SviluppoTest {
      *
      * ⚠️⚠️ **'ORIGINALE' È SUA RICHIESTA** (2026-09-13: *tra i vincoli di proporzione dev'esserci
      * anche 'Originale', ma scelta di default resta 'Libera'*), ed è la sola forma il cui rapporto
-     * non è scritto nel codice: lo porta l'immagine. Quello che può rompersi in silenzio è il verso,
-     * cioè che nel verso naturale dia il rapporto della fotografia invece del suo reciproco: sul
-     * quadrato di prova i due numeri **coincidono**, quindi qui il conto si misura su un'immagine
-     * larga, e la scena misura soltanto che i sei gettoni ci siano.
-     * ⚠️ **Nel suo verso non toglie niente**, ed è la proprietà da cui dipende il senza perdita: un
-     * ritaglio che tagliasse un pixel per un arrotondamento farebbe riscrivere il file a chi ha
-     * soltanto scelto 'Originale'.
+     * non è scritto nel codice: lo porta l'immagine. Quello che può rompersi in silenzio è il verso:
+     * sul quadrato di prova i due numeri **coincidono**, quindi qui il conto si misura su
+     * un'immagine larga, e la scena misura soltanto che i sei gettoni ci siano.
+     * ⚠️⚠️ **DALLA `2.87` 'ORIGINALE' IGNORA IL VERSO, E QUESTA PROVA DICEVA IL CONTRARIO**: è la
+     * sua risposta `intera` a `d-originale-verso`. Fino alla `2.86` si misurava che nell'altro
+     * verso desse il rapporto trasposto, cioè che tagliasse; adesso si misura che non tagli in
+     * nessuno dei due, e che le quattro proporzioni seguano ancora il verso, che è l'altra metà
+     * della stessa risposta.
+     * ⚠️ **Non toglie niente**, ed è la proprietà da cui dipende il senza perdita: un ritaglio che
+     * tagliasse un pixel per un arrotondamento farebbe riscrivere il file a chi ha soltanto scelto
+     * 'Originale'.
      */
     @Test
     fun `il ritaglio porta le sei forme e Originale e l'immagine intera`() {
         val largo = 3f / 2f
-        assertEquals(largo, Shape.ORIGINAL.value(Lay.WIDE, largo)!!, 1e-4f)
-        assertEquals(1f / largo, Shape.ORIGINAL.value(Lay.TALL, largo)!!, 1e-4f)
-        assertTrue(
-            "nel suo verso 'Originale' non taglia niente",
-            Shape.ORIGINAL.fit(largo, Lay.WIDE).whole
-        )
-        assertFalse(
-            "nell'altro verso taglia, come ogni altra forma",
-            Shape.ORIGINAL.fit(largo, Lay.TALL).whole
+        for (verso in Lay.entries) {
+            assertEquals(
+                "in '$verso' 'Originale' doveva dare il rapporto dell'immagine",
+                largo, Shape.ORIGINAL.value(verso, largo)!!, 1e-4f
+            )
+            assertTrue(
+                "in '$verso' 'Originale' non doveva tagliare niente",
+                Shape.ORIGINAL.fit(largo, verso).whole
+            )
+        }
+        assertEquals(2f / 3f, Shape.TWO_THREE.value(Lay.TALL, largo)!!, 1e-4f)
+        assertEquals(
+            "una proporzione doveva seguire ancora il verso",
+            3f / 2f, Shape.TWO_THREE.value(Lay.WIDE, largo)!!, 1e-4f
         )
         assertNull("'Libero' non ha un rapporto da tenere", Shape.FREE.value(Lay.WIDE, largo))
         assertNotNull("le due parole sono 'Libero' e 'Originale'", Shape.ORIGINAL.word)
@@ -2503,6 +2512,62 @@ class SviluppoTest {
             "fuori dal taglio l'immagine doveva essere velata: ${fuori.red} contro ${dentro.red}",
             fuori.red < dentro.red - 0.1f
         )
+    }
+
+    /**
+     * **Caso 72: dopo un quarto di giro 'Originale' è ancora l'immagine intera.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `intera` A `d-originale-verso`**, con la richiesta in chat (*'Originale'
+     * che si adatta anche al verso della rotazione attuale*). Il verso resta quello di partenza
+     * anche dopo una rotazione, quindi fino alla `2.86` 'Originale' su un'immagine larga girata di
+     * un quarto dava il rapporto di prima, cioè una cornice larga dentro un'immagine alta.
+     * ⚠️ **Si guarda quello che il salvataggio riceve**, che è la cosa che conta: la rotazione da
+     * sola accende 'Salva', quindi il tasto acceso non direbbe niente, mentre il rettangolo sì.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il rapporto che segue il verso: il rettangolo salvato
+     * tiene un quarto dell'altezza, cioè taglia tre quarti dell'immagine.
+     */
+    @Test
+    fun `dopo un quarto di giro Originale e ancora l'immagine intera`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(uri = largo(), onSave = { look, _ -> salvato = look }) }
+        pronta()
+        banco.onNodeWithText(testo(R.string.editor_right)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_shape_original)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val look = salvato
+        assertNotNull("il tocco su 'Salva' doveva consegnare il lavoro", look)
+        assertEquals("il quarto di giro doveva arrivare al salvataggio", 1, look!!.spin.turns)
+        assertTrue("'Originale' doveva tenere l'immagine intera: ${look.crop}", look.crop.whole)
+    }
+
+    /**
+     * **Caso 73: con 'Originale' i due versi si spengono, e con una proporzione tornano.**
+     *
+     * ⚠️ **È la seconda metà della stessa risposta** (*'Originale' ignora i due gettoni del verso*):
+     * accesi, un tocco su uno dei due non cambierebbe la cornice, e si leggerebbe come un comando
+     * rotto. **Tornano con una proporzione**, perché il verso resta per le quattro proporzioni.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la condizione dai due gettoni: restano accesi e la prima
+     * asserzione cade.
+     */
+    @Test
+    fun `con Originale i due versi si spengono`() {
+        banco.setContent { Scena(uri = largo()) }
+        pronta()
+        val verticale = banco.onNodeWithContentDescription(testo(R.string.editor_tall))
+        verticale.assertIsEnabled()
+
+        banco.onNodeWithText(testo(R.string.editor_shape_original)).performClick()
+        banco.waitForIdle()
+        verticale.assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.editor_wide)).assertIsNotEnabled()
+
+        banco.onNodeWithText("1:1").performClick()
+        banco.waitForIdle()
+        verticale.assertIsEnabled()
     }
 
     /**

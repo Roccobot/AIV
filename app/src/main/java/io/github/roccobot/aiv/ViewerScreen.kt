@@ -4020,9 +4020,12 @@ private fun DrawScope.drawBackground(size: Size, square: Float, light: Boolean, 
  * userscript settled on after trying the other way. Leaving it implicit is also
  * what lint flags here, and 'implicit' would have meant a comma on an Italian
  * phone and a point on an English one, for the same file.
- * ⚠️ `internal` e non `private` perché la usano DUE schermate: la riga dei dettagli e il
- * riquadro che dice quanto pesa una selezione. Due copie della stessa formattazione
- * divergerebbero al primo ritocco, e il ritocco è già arrivato una volta (i GB).
+ * ⚠️⚠️ **TUTTI I PESI DELL'APP PASSANO DI QUI, DALLA `2.87`, ED È LA SUA RISPOSTA `punto` A
+ * `d-pesi-scrittura`**: fino alla `2.86` la pastiglia del peso di una cartella e le miniature
+ * memorizzate li scriveva il sistema, con la virgola della lingua in corso e i multipli da mille,
+ * quindi lo stesso file da 13 milioni di byte si leggeva '12.40 MB' in un posto e '13 MB' in un
+ * altro. Due copie della stessa formattazione divergerebbero al primo ritocco, e il ritocco è già
+ * arrivato una volta (i GB).
  */
 internal fun formatBytes(value: Long): String = when {
     value < 1024 -> "$value B"

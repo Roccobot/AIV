@@ -247,4 +247,34 @@ class ImpostazioniTest {
         banco.onNode(hasSetTextAction() and hasText(cerca)).assertDoesNotExist()
         banco.onNodeWithText(altrove).assertExists()
     }
+
+    /**
+     * **Il peso delle miniature memorizzate si scrive col punto e a 1024, come ogni altro peso.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `punto` A `d-pesi-scrittura`** (giro della `2.85` e della `2.86`):
+     * fino alla `2.86` questa riga la scriveva il sistema, cioè a mille e col separatore della
+     * lingua, quindi 13 milioni di byte si leggevano '13 MB' qui e '12.40 MB' nel peso di una
+     * selezione.
+     * ⚠️ **Il file è vuoto e lungo 13 milioni di byte**: la misura guarda la lunghezza e non il
+     * contenuto, quindi non serve scriverli. Il numero è quello del testo della domanda, ed è
+     * scelto perché i due modi lo scrivono diverso anche nella lingua del banco.
+     * ⚠️ **La cartella è quella di `AvifCache`, scritta qui per nome**: se un giorno cambia, la
+     * riga risponde con la frase del caso vuoto e la prova cade, invece di passare in silenzio.
+     * ⚠️ **La pastiglia del peso di una cartella non ha una prova**: vuole un MediaStore con dentro
+     * delle immagini, e quello del banco è vuoto. Passa dalla stessa funzione.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo `Formatter.formatShortFileSize`: la misura col punto non
+     * c'è più, e la prova cade.
+     */
+    @Test
+    fun `il peso delle miniature si scrive col punto`() {
+        val cartella = java.io.File(app.cacheDir, "avif-thumbs").apply { mkdirs() }
+        val file = java.io.File(cartella, "prova.webp")
+        java.io.RandomAccessFile(file, "rw").use { it.setLength(13_000_000L) }
+        try {
+            apriIlPannello()
+            banco.onNodeWithText("12.40 MB").performScrollTo().assertExists()
+        } finally {
+            file.delete()
+        }
+    }
 }
