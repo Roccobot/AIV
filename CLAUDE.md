@@ -3851,13 +3851,31 @@ cursore e il grafico delle Curve.
 - ⚠️ **Il palco fa solo quello finché è armato**, come nel Ritaglio e nel colore mirato: pinza,
   panoramica, doppio tocco e confronto restano fermi, perché il dito ha già un mestiere.
 
+⚠️⚠️ **E DALLA `2.85` 'ANGOLI' FUNZIONA ANCHE CON UN TAGLIO APPLICATO, E PRIMA NO** (seconda delle
+sue tre segnalazioni del giro della `2.83`: *una volta applicato un ritaglio, non sono in grado di
+modificare la geometria con Angoli*). Le cause erano due, e il banco le ha separate.
+- ⚠️⚠️ **LA PRIMA È CHE LA VISTA ARMATA INQUADRAVA LA PORZIONE**: le maniglie sono gli angoli
+  dell'immagine **intera**, e con 'Applica' il palco la ingrandisce quanto serve a far riempire lo
+  schermo dalla porzione, quindi con un taglio piccolo le maniglie finivano fuori dallo schermo.
+  Adesso, armato lo strumento, il palco mostra l'immagine intera rimpicciolita, e il taglio torna
+  appena si spegne.
+- ⚠️ **La seconda è il gesto che leggeva il palco del primo tocco**, ed è la causa della terza
+  segnalazione: vive in § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
+- ⚠️ **Il riquadro tenuto dice anche il taglio**, perché con l'immagine intera in scena un velo
+  fermo alla copertura prometterebbe più di quanto il file porterà. Il taglio è `Look.crop`, cioè
+  quello che il salvataggio taglia davvero, e non quello applicato.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che a riposo il conto sia
 l'identità **esatta** e la maglia coincida con la griglia, che l'andata e il ritorno si disfacciano
 a vicenda con tutti e cinque i cursori a fondo corsa, che la copertura non lasci bordi vuoti (con
 la controprova a scala uno dentro la prova stessa), e che il sesto modulo porti i suoi cinque
 cursori e azzeri solo i propri; dalla `2.30` anche che un keystone tenga il **centro** e apra i due
 lati alla pari, che l'immagine deformata non esca dal proprio riquadro (e questa guarda i pixel), e
-il conto su cui la lente si regge. **Non** vede i pixel deformati: che un orizzonte venga dritto e
+il conto su cui la lente si regge; dalla `2.85` anche che con un taglio applicato le maniglie si
+prendano e che il riquadro tenuto dica il taglio (i casi 70 e 71). ⚠️ **Il caso 70 non vede il
+gesto che legge il palco del primo tocco**, e la controprova lo ha detto: quel gesto ignorava il
+taglio per caso, esattamente come adesso fa la vista armata, quindi senza quella correzione la
+prova resta verde. A lei pensano i casi 68 e 69. **Non** vede i pixel deformati: che un orizzonte venga dritto e
 che una facciata si raddrizzi si guardano sul telefono, e la voce di collaudo lo chiede.
 - ⚠️⚠️ **IL SESTO GETTONE ANDAVA RAGGIUNTO SCORRENDO, E SENZA QUELLA RIGA LA PROVA MENTIVA**: fino
   alla `2.30` la fila scorreva in orizzontale, quindi col sesto nome la pastiglia cadeva fuori dalla
@@ -4117,6 +4135,35 @@ di loro.
   vedere che cosa si stringe dall'altra. Come si legge sul telefono si guarda sul telefono, e la
   voce di collaudo lo chiede.
 
+⚠️⚠️ **DALLA `2.85` IL GESTO DEL PALCO LEGGE LA POSA E IL TAGLIO DI ADESSO, E FINO ALLA `2.84` NO**
+(terza delle sue segnalazioni del giro della `2.83`: *scelgo l'area, tasto 'Applica', voglio fare
+un altro ritaglio successivo ... ma la cornice di ritaglio non si muove*). Il corpo del
+`pointerInput` del palco parte al **primo tocco** e da lì non riparte più, e leggeva tre valori
+della composizione (la forma dell'immagine in posa, il taglio applicato e l'anteprima in posa)
+com'erano in quel tocco. Dopo 'Applica' il dito cercava la cornice dentro l'immagine intera mentre
+le squadrette si disegnavano ai bordi della porzione.
+- ⚠️⚠️ **SEMBRAVA CAPRICCIOSO, E IL BANCO HA DETTO PERCHÉ**: un gesto che nasce **dopo** il
+  cambiamento lo vede giusto, quindi il difetto compariva solo col palco già toccato prima. Dopo
+  'Applica' succedeva quasi sempre, perché il primo taglio si fa col dito; e si vedeva di più con
+  un taglio piccolo, come il suo quadrato, perché la cornice del gesto e quella disegnata si
+  allontanavano oltre la presa.
+- ⚠️ **La stessa causa colpiva dopo una rotazione**, che lui non aveva segnalato: il gesto cercava
+  la cornice nel riquadro dell'immagine coricata. E per la stessa via il colore mirato dell'HSL e
+  i limiti dello zoom leggevano la forma di prima. Questi ultimi due sono ragionati e non misurati.
+- ⚠️ **Il rimedio è la prudenza che `geoNow` aveva già**: tre `rememberUpdatedState`, letti dentro
+  il gesto. La chiave del `pointerInput` non si tocca, perché cambiarla annullerebbe il gesto in
+  corso.
+
+⚠️⚠️ **E DALLA `2.85` IL VERSO DI PARTENZA LO DECIDE LA FOTOGRAFIA, COME NELL'EDITOR DI CASA**
+(prima delle tre segnalazioni: *ho toccato 'originale', la foto era 4:3 orizzontale, ma la cornice
+di ritaglio è diventata verticale*). La regola è sua ed è del 2026-08-31, scritta su `startLay`, ma
+la applicava un editor solo: l'editor completo partiva sempre da 'Verticale', quindi 'Originale' su
+una fotografia larga dava per costruzione il rapporto trasposto.
+- ⚠️ **Si decide una volta, quando l'anteprima arriva**, e da lì il verso è una sua scelta: una
+  rotazione non lo cambia, che è la regola di casa.
+- ⚠️ **Scelto a mano 'Verticale', 'Originale' dà ancora il rapporto trasposto**, ed è dichiarato:
+  è come si comportano le quattro proporzioni, in tutti e due gli editor.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
 i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
@@ -4124,7 +4171,11 @@ cursore, che tirando una squadretta il palco cambi disegno; dalla `2.34` anche c
 moduli **segua l'ordine scelto** portandoli tutti e sette; dalla `2.80` che le due parole e i due
 versi stiano su una riga e i quattro numeri sull'altra, e che il tocco su un verso a icona lo
 scelga ancora (controprovato rimettendo i numeri a cavallo delle due righe, e spegnendo il legame
-del verso). **Non** vede il file salvato, cioè che
+del verso); dalla `2.85` che su un'immagine larga il verso parta orizzontale, e che la cornice si
+tiri ancora dopo 'Applica' e dopo una rotazione (i casi 67, 68 e 69, ognuno controprovato togliendo
+la sua correzione). ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
+controprova lo ha imposto: la prima stesura della rotazione girava prima di ogni tocco, e restava
+verde col difetto dentro. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
 - ⚠️⚠️ **E LA PROVA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUN COMPILATORE POTEVA
   VEDERE**: il gesto consumava l'evento **prima** di leggerne il delta, e `positionChange()` risponde

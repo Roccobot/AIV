@@ -2337,6 +2337,201 @@ class SviluppoTest {
     }
 
     /**
+     * **Caso 67: su un'immagine larga il ritaglio parte orizzontale, e 'Originale' non taglia.**
+     *
+     * ⚠️⚠️ **È LA PRIMA DELLE SUE TRE SEGNALAZIONI DEL GIRO DELLA `2.83`** (*ho toccato
+     * 'originale', la foto era 4:3 orizzontale, ma la cornice di ritaglio è diventata verticale*).
+     * La regola c'era già ed è sua (2026-08-31: l'orientamento della selezione lo decide la
+     * fotografia, e il quadrato conta come verticale), ma la applicava il solo editor di casa:
+     * nell'editor completo il verso partiva sempre da 'Verticale', quindi 'Originale' su una
+     * fotografia larga dava per costruzione lo stesso rapporto trasposto.
+     * ⚠️ **Si misurano la causa e l'effetto**: il verso acceso all'apertura, e che dopo
+     * 'Originale' non ci sia niente da salvare, cioè che la cornice copra l'immagine intera.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la decisione del verso: cade la prima asserzione, e tolta
+     * anche lei cade la seconda, perché 'Salva' si accende sul taglio verticale.
+     */
+    @Test
+    fun `su un'immagine larga il ritaglio parte orizzontale`() {
+        banco.setContent { Scena(uri = largo()) }
+        pronta()
+
+        banco.onNodeWithContentDescription(testo(R.string.editor_wide)).assertIsSelected()
+        banco.onNodeWithText(testo(R.string.editor_shape_original)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
+    }
+
+    /**
+     * **Caso 68: dopo 'Applica' la cornice si tira ancora, anche con una forma quadrata.**
+     *
+     * ⚠️⚠️ **È LA TERZA SEGNALAZIONE DELLO STESSO GIRO** (*mi è capitato più volte con un ritaglio
+     * quadrato: scelgo l'area, tasto 'Applica', voglio fare un altro ritaglio successivo ... ma la
+     * cornice di ritaglio non si muove*).
+     * ⚠️ **Il quadrato si sceglie prima del primo taglio**, come ha fatto lui: con la forma scelta
+     * i lati non si prendono, quindi restano da prendere i soli angoli.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo al gesto i valori catturati al primo tocco: la squadretta
+     * disegnata non si prende più.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `dopo applica la cornice si tira ancora`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText("1:1").performClick()
+        banco.waitForIdle()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+
+        tiraAngolo(palco) { w, h -> Offset(w * 0.3f, h * 0.3f) }
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+
+        val applicato = tiraAngolo(palco) { w, h -> Offset(w * 0.3f, h * 0.3f) }
+        assertTrue(
+            "dopo 'Applica' la squadretta d'angolo doveva spostarsi",
+            diversi(applicato, palco.captureToImage().toPixelMap()) > 0
+        )
+    }
+
+    /**
+     * **Caso 69: dopo una rotazione la cornice si tira ancora.**
+     *
+     * ⚠️⚠️ **NON È UNA SUA SEGNALAZIONE, È LA STESSA CAUSA DELLA TERZA LETTA DALL'ALTRA PARTE**: il
+     * gesto leggeva anche la forma dell'immagine messa in posa, quindi dopo un quarto di giro il
+     * dito cercava la cornice nel riquadro dell'immagine coricata. Il quadrato non serve qui,
+     * perché girato viene identico.
+     * ⚠️⚠️ **IL PALCO SI TOCCA PRIMA DI GIRARE, E LA CONTROPROVA LO HA IMPOSTO**: il corpo del
+     * gesto parte al **primo** tocco sul palco, e da lì non riparte più. La prima stesura girava
+     * prima di ogni tocco, quindi il gesto nasceva già con la forma nuova e la prova era verde col
+     * difetto dentro. Il tocco al centro non taglia niente: con la cornice intera la presa è
+     * l'interno, e l'interno non ha spazio per muoversi.
+     * ⚠️⚠️ **CONTROPROVATA** come il caso 68, e cade nello stesso modo.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `dopo una rotazione la cornice si tira ancora`() {
+        banco.setContent { Scena(uri = largo()) }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        palco.performTouchInput { click(center) }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_right)).performClick()
+        banco.waitForIdle()
+
+        val girato = tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 2f) }
+        assertTrue(
+            "dopo un quarto di giro la squadretta d'angolo doveva spostarsi",
+            diversi(girato, palco.captureToImage().toPixelMap()) > 0
+        )
+    }
+
+    /**
+     * **Caso 70: con un taglio applicato lo strumento 'Angoli' prende ancora le maniglie.**
+     *
+     * ⚠️⚠️ **È LA SECONDA SEGNALAZIONE DELLO STESSO GIRO** (*una volta applicato un ritaglio, non
+     * sono in grado di modificare la geometria con Angoli*), e le cause erano due. La prima è
+     * quella del caso 68, cioè il gesto che leggeva il palco com'era all'apertura; la seconda è
+     * che le maniglie si posavano sugli angoli dell'immagine intera **ingrandita** quanto serve a
+     * far riempire il palco dalla porzione, cioè fuori dallo schermo appena il taglio è piccolo.
+     * ⚠️ **La maniglia si cerca dove si vede**, come nel caso 46: una prova che la cercasse a un
+     * conto scritto qui misurerebbe il conto e non quello che trova il dito.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il taglio applicato nella vista armata: le maniglie tornano
+     * fuori dallo schermo e il dito non ne prende nessuna.
+     * ⚠️⚠️ **MA LA PRIMA DELLE DUE CAUSE QUESTA PROVA NON LA VEDE, E LA CONTROPROVA LO HA DETTO**:
+     * rimettendo al gesto i valori catturati resta **verde**, perché il gesto nato prima di
+     * 'Applica' ignora il taglio per caso, esattamente come adesso fa la vista armata. A quella
+     * causa pensano i casi 68 e 69.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `con un taglio applicato gli angoli si tirano ancora`() {
+        banco.setContent { Scena() }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+
+        tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 3f) }
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_corners)).performClick()
+        banco.waitForIdle()
+
+        val armato = tiraAngolo(palco) { w, h -> Offset(w / 3f, h / 3f) }
+        assertTrue(
+            "con un taglio applicato la maniglia d'angolo doveva spostarsi",
+            diversi(armato, palco.captureToImage().toPixelMap()) > 0
+        )
+    }
+
+    /**
+     * **Caso 71: armando 'Angoli' il taglio applicato resta velato.**
+     *
+     * ⚠️⚠️ **È LA CONSEGUENZA DEL CASO 70, NON UNA SUA RICHIESTA**: per prendere le maniglie la vista
+     * di lavoro mostra l'immagine intera anche con un taglio applicato, e un velo fermo alla
+     * copertura direbbe che resterà anche la parte tagliata. Il riquadro tenuto deve dire quello
+     * che il file porterà.
+     * ⚠️ **Si confrontano due punti della stessa immagine bianca, sulla stessa riga**: uno fuori
+     * dal taglio e uno dentro. Col velo fermo alla copertura sono lo stesso bianco. La riga passa
+     * sotto il bordo di sopra del taglio, e i due punti stanno lontani dai tratti del riquadro.
+     * ⚠️⚠️ **CONTROPROVATA** col velo fermo alla copertura: i due punti valgono tutti e due 1,0.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `armando gli angoli il taglio applicato resta velato`() {
+        banco.setContent { Scena() }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+
+        // Via la metà sinistra e un terzo di sopra: quello che resta è in basso a destra.
+        tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 3f) }
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_corners)).performClick()
+        banco.waitForIdle()
+
+        val scatto = palco.captureToImage().toPixelMap()
+        val riga = scatto.height * 7 / 10
+        val fondo = scatto[0, riga]
+        val da = (0 until scatto.width).first { scatto[it, riga] != fondo }
+        val a = (scatto.width - 1 downTo 0).first { scatto[it, riga] != fondo }
+        val fuori = scatto[da + (a - da) / 4, riga]
+        val dentro = scatto[da + (a - da) * 3 / 4, riga]
+        assertTrue(
+            "fuori dal taglio l'immagine doveva essere velata: ${fuori.red} contro ${dentro.red}",
+            fuori.red < dentro.red - 0.1f
+        )
+    }
+
+    /**
+     * Tira l'angolo di sopra a sinistra di quello che il palco disegna fino al punto che [a] ricava
+     * dalla misura del palco, e restituisce lo scatto di **prima**.
+     *
+     * ⚠️ **L'angolo si cerca nei pixel**, come nel caso 46: il primo pixel diverso dal fondo lungo
+     * la riga a un quarto dice dove comincia l'immagine, e la prima riga diversa dal fondo sopra
+     * di lui dice dove comincia la presa. Scritto come un conto, misurerebbe il conto.
+     * ⚠️ **I tre momenti del dito vanno in tre chiamate**, come nel caso 36: scritti in un blocco
+     * solo il movimento e il distacco arrivano insieme, e a valle resta un evento con delta zero.
+     */
+    private fun tiraAngolo(
+        palco: SemanticsNodeInteraction,
+        a: (Float, Float) -> Offset
+    ): PixelMap {
+        val prima = palco.captureToImage().toPixelMap()
+        val (da, _) = bordi(prima)
+        val cima = (0 until prima.height).first { prima[da + 4, it] != prima[0, 0] }
+        palco.performTouchInput { down(Offset(da + 2f, cima + 2f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { moveTo(a(width.toFloat(), height.toFloat())) }
+        banco.waitForIdle()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        return prima
+    }
+
+    /**
      * Quanti punti del contorno del rettangolo di arrivo vengono da **fuori** dell'immagine, cioè
      * quanti pixel resterebbero scoperti: vedi il caso 27.
      */
