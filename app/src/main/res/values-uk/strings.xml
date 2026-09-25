@@ -295,6 +295,12 @@
         <item quantity="many">видалено %1$d елементів</item>
         <item quantity="other">видалено %1$d елементів</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">видалено %1$d елемент, звільнено %2$s</item>
+        <item quantity="few">видалено %1$d елементи, звільнено %2$s</item>
+        <item quantity="many">видалено %1$d елементів, звільнено %2$s</item>
+        <item quantity="other">видалено %1$d елементів, звільнено %2$s</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">з %1$d не вийшло</item>
         <item quantity="few">з %1$d не вийшло</item>

@@ -625,8 +625,8 @@ fun FolderScreen(
              * lo spazio riservato ([BELOW_FAB]) tiene l'ultima cartella sopra di lei; serve
              * quando si scorre, dove l'alternativa era una riga tagliata di netto dal bordo
              * dello schermo.
-             * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta
-             * sopra, quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
+             * ⚠️⚠️ **STA PRIMA DEL FAB E NON DOPO**: in un `Box` l'ultimo figlio si
+             * disegna sopra, quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
              * ⚠️⚠️ **NON RUBA I TOCCHI, e non è una speranza**: Compose fa la prova del tocco
              * solo sui nodi che hanno un modificatore di puntatore, e questo ne ha uno solo di
              * disegno. Senza questo fatto servirebbe un `pointerInput` che lascia passare, che
@@ -645,7 +645,7 @@ fun FolderScreen(
              * FAB c'è sempre, quindi la fascia che lo tiene su un fondo neutro non ha ragione
              * di andarsene. Nella griglia di una cartella se ne va scorrendo, ed è una richiesta
              * sua: là il FAB non c'è.
-             * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta sopra,
+             * ⚠️⚠️ **STA PRIMA DEL FAB E NON DOPO**: in un `Box` l'ultimo figlio si disegna sopra,
              * quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
              */
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
@@ -1093,7 +1093,7 @@ private fun Hub(
 
     Box(modifier = modifier) {
         /*
-         * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la funzione** (1.39):
+         * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la funzione** (1.39):
          * il FAB si stacca in una finestra sua per restare sopra il velo (vedi `lifted` in
          * [TapHoldFab]), e fra finestre dello stesso tipo comanda l'ordine in cui sono state
          * aggiunte, che è quello della composizione. Scritto dopo, il menu coprirebbe il

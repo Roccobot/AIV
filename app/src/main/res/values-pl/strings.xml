@@ -295,6 +295,12 @@
         <item quantity="many">usunięto %1$d elementów</item>
         <item quantity="other">usunięto %1$d elementu</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">usunięto %1$d element, zwolniono %2$s</item>
+        <item quantity="few">usunięto %1$d elementy, zwolniono %2$s</item>
+        <item quantity="many">usunięto %1$d elementów, zwolniono %2$s</item>
+        <item quantity="other">usunięto %1$d elementu, zwolniono %2$s</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d się nie udało</item>
         <item quantity="few">%1$d się nie udały</item>

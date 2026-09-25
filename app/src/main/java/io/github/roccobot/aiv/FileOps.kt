@@ -399,7 +399,12 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
      */
     TRASH(R.plurals.trash_done, gone = true),
 
-    /** L'eliminazione definitiva: dentro il cestino, o svuotandolo. */
+    /**
+     * L'eliminazione definitiva: dentro il cestino, o svuotandolo.
+     *
+     * ⚠️ **Svuotando, la sua frase dice anche lo spazio liberato**, e a sceglierla è il dato e non
+     * un tipo in più: vedi [outcomeText].
+     */
     DELETE(R.plurals.delete_done, gone = true),
 
     /** Il ritorno alla cartella d'origine, da dentro il cestino. */
@@ -436,10 +441,30 @@ fun FileKind.speaks(out: FileTree.Outcome): Boolean =
  * può chiamare soltanto mentre si compone.
  * ⚠️ **Un avviso solo con tutti e due i numeri**: due avvisi di fila si coprono a vicenda,
  * e il secondo si leggerebbe senza il primo.
+ *
+ * ⚠️⚠️ **DALLA `2.86` UN'ELIMINAZIONE DEFINITIVA CHE HA MISURATO LO SPAZIO LO DICE, ED È SUA
+ * RICHIESTA** (2026-09-21: *quando si svuota il cestino, oltre al numero di file eliminati,
+ * l'avviso deve dire anche quanti KB/MB/GB di archivio sono stati liberati*). Oggi lo misura il
+ * solo svuotamento (`Bin.empty`), quindi l'eliminazione di una selezione dice la frase di sempre.
+ * ⚠️ **La frase è una chiave a sé e non un pezzo aggiunto in coda**: in metà delle lingue il
+ * verbo, l'accordo o la particella cambiano con quello che segue, e un pezzo attaccato a una
+ * frase finita non lo sa.
+ * ⚠️ **Lo spazio si scrive con [formatBytes]**, cioè come il peso di una selezione
+ * (`pick_facts`): nel cestino è l'unico peso che si vede, e chi lo guarda prima di svuotare
+ * deve ritrovare lo stesso numero dopo.
+ * ⚠️ **Chiede il tipo e non la sola frase**, perché la scelta dipende da tutti e due: lo spazio
+ * liberato ha senso detto di un'eliminazione, e il giorno che un'altra operazione ne misurasse
+ * uno la frase che dice 'eliminati' non sarebbe la sua.
  */
-fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int): String =
+fun outcomeText(res: Resources, out: FileTree.Outcome, kind: FileKind): String =
     buildString {
-        append(res.getQuantityString(doneRes, out.done, out.done))
+        append(
+            if (kind == FileKind.DELETE && out.freed > 0) {
+                res.getQuantityString(R.plurals.delete_freed, out.done, out.done, formatBytes(out.freed))
+            } else {
+                res.getQuantityString(kind.done, out.done, out.done)
+            }
+        )
         if (out.failed > 0) {
             append(", ")
             append(res.getQuantityString(R.plurals.op_failed, out.failed, out.failed))

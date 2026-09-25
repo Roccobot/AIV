@@ -279,6 +279,10 @@
         <item quantity="one">%1$d संचिका पुसली</item>
         <item quantity="other">%1$d संचिका पुसल्या</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d संचिका पुसली, %2$s जागा मोकळी झाली</item>
+        <item quantity="other">%1$d संचिका पुसल्या, %2$s जागा मोकळी झाली</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d झाली नाही</item>
         <item quantity="other">%1$d झाल्या नाहीत</item>

@@ -353,7 +353,7 @@ fun ViewerScreen(
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
             // allo schermo si coprirebbero a vicenda.
             if (kind.speaks(out)) {
-                Notices.say(outcomeText(res, out, kind.done), NOTICE_LONG_MS)
+                Notices.say(outcomeText(res, out, kind), NOTICE_LONG_MS)
             }
             if (kind.gone && out.done > 0) onFileChanged()
         }

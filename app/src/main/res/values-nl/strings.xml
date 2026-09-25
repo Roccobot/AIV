@@ -279,6 +279,10 @@
         <item quantity="one">%1$d item verwijderd</item>
         <item quantity="other">%1$d items verwijderd</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d item verwijderd, %2$s vrijgemaakt</item>
+        <item quantity="other">%1$d items verwijderd, %2$s vrijgemaakt</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d is niet gelukt</item>
         <item quantity="other">%1$d zijn niet gelukt</item>

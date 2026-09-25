@@ -311,6 +311,14 @@
         <item quantity="many">حُذف %1$d عنصرًا</item>
         <item quantity="other">حُذف %1$d عنصر</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="zero">لم يُحذف أي عنصر</item>
+        <item quantity="one">حُذف عنصر واحد، وتم تحرير %2$s</item>
+        <item quantity="two">حُذف عنصران، وتم تحرير %2$s</item>
+        <item quantity="few">حُذفت %1$d عناصر، وتم تحرير %2$s</item>
+        <item quantity="many">حُذف %1$d عنصرًا، وتم تحرير %2$s</item>
+        <item quantity="other">حُذف %1$d عنصر، وتم تحرير %2$s</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="zero">لم يفشل شيء</item>
         <item quantity="one">واحد لم ينجح</item>

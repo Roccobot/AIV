@@ -86,6 +86,11 @@
         <item quantity="many">%1$d itens eliminados</item>
         <item quantity="other">%1$d itens eliminados</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d item eliminado, %2$s libertados</item>
+        <item quantity="many">%1$d itens eliminados, %2$s libertados</item>
+        <item quantity="other">%1$d itens eliminados, %2$s libertados</item>
+    </plurals>
     <plurals name="delete_desc">
         <item quantity="one">Vai eliminar %1$d item definitivamente: desaparece do telemóvel para sempre.</item>
         <item quantity="many">Vai eliminar %1$d itens definitivamente: desaparecem do telemóvel para sempre.</item>
