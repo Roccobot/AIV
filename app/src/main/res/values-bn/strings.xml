@@ -279,6 +279,10 @@
         <item quantity="one">%1$d ফাইল মুছে গেছে</item>
         <item quantity="other">%1$d ফাইল মুছে গেছে</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d ফাইল মুছে গেছে, %2$s জায়গা খালি হয়েছে</item>
+        <item quantity="other">%1$d ফাইল মুছে গেছে, %2$s জায়গা খালি হয়েছে</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d হয়নি</item>
         <item quantity="other">%1$d হয়নি</item>

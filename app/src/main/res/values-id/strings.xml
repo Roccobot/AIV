@@ -271,6 +271,9 @@
     <plurals name="delete_done">
         <item quantity="other">%1$d item dihapus</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="other">%1$d item dihapus, %2$s dibebaskan</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d tidak berhasil</item>
     </plurals>

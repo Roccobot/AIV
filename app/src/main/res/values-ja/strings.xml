@@ -271,6 +271,9 @@
     <plurals name="delete_done">
         <item quantity="other">%1$d 件削除しました</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="other">%1$d 件削除し、%2$s を解放しました</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d 件は失敗しました</item>
     </plurals>

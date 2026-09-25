@@ -501,6 +501,11 @@
         <item quantity="other">%1$d elementi eliminati</item>
         <item quantity="many">%1$d elementi eliminati</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d elemento eliminato, %2$s liberati</item>
+        <item quantity="other">%1$d elementi eliminati, %2$s liberati</item>
+        <item quantity="many">%1$d elementi eliminati, %2$s liberati</item>
+    </plurals>
     <!-- Una sola per tutte e quattro le operazioni: 'non è passata' andava bene per la
          copia e suonava storto per una cancellazione, e quattro varianti dello stesso
          avviso sono quattro posti in cui una traduzione può restare indietro. -->

@@ -301,6 +301,11 @@ object Bin {
      * ⚠️ **L'archivio si azzera insieme ai file e non prima**: se qualche cancellazione
      * fallisce, le righe di quei file restano, o resterebbero nel cestino senza poter più
      * essere ripristinate.
+     * ⚠️⚠️ **E DALLA `2.86` CONTA ANCHE I BYTE CHE TORNANO LIBERI, ED È SUA RICHIESTA**
+     * (2026-09-21: *quando si svuota il cestino, oltre al numero di file eliminati, l'avviso deve
+     * dire anche quanti KB/MB/GB di archivio sono stati liberati*). Il peso si legge **prima**
+     * della cancellazione, perché dopo il file non c'è più, e si somma **solo** se la
+     * cancellazione riesce: un file rimasto non ha liberato niente.
      */
     suspend fun empty(context: Context): FileTree.Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -309,10 +314,13 @@ object Bin {
                 val files = runCatching { bin.listFiles() }.getOrNull().orEmpty().filter { it.isFile }
                 var done = 0
                 var failed = 0
+                var freed = 0L
                 val left = read(context).toMutableList()
                 for (file in files) {
+                    val peso = runCatching { file.length() }.getOrDefault(0L)
                     if (runCatching { file.delete() }.getOrDefault(false)) {
                         done++
+                        freed += peso
                         touch(context, file)
                         left.removeAll { it.name == file.name }
                     } else {
@@ -320,7 +328,7 @@ object Bin {
                     }
                 }
                 write(context, left)
-                FileTree.Outcome(done, failed)
+                FileTree.Outcome(done, failed, freed = freed)
             }
         }
 

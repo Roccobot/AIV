@@ -271,6 +271,9 @@
     <plurals name="delete_done">
         <item quantity="other">已删除 %1$d 项</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="other">已删除 %1$d 项，释放了 %2$s</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d 项没有成功</item>
     </plurals>

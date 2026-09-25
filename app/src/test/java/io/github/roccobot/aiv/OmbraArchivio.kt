@@ -15,6 +15,12 @@ import org.robolectric.annotation.Implements
  * ⚠️ **Risponde `false`, cioè 'permesso non concesso'**, che è lo stato in cui una macchina
  * senza telefono si trova davvero: la schermata mostra l'invito a concedere l'accesso, e il FAB
  * c'è lo stesso, perché non dipende dal permesso.
+ * ⚠️⚠️ **PRENDE IL POSTO DELL'OMBRA DI ROBOLECTRIC PER `Environment`, E NON LE SI AGGIUNGE**
+ * (misurato il 2026-09-25): chi la dichiara perde le altre implementazioni di quella classe,
+ * quindi `getExternalFilesDir` gira sul metodo di sistema e muore dentro `Environment`. Il
+ * cestino vive in quella cartella, ed è la ragione per cui `CestinoSpazioTest` non la dichiara.
+ * Chi volesse le due cose insieme la faccia estendere `ShadowEnvironment`, sapendo che cambia
+ * l'ambiente di tutte le prove che la usano.
  */
 @Implements(Environment::class)
 class OmbraArchivio {

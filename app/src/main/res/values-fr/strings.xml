@@ -287,6 +287,11 @@
         <item quantity="other">%1$d éléments supprimés</item>
         <item quantity="many">%1$d éléments supprimés</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d élément supprimé, %2$s d\'espace libéré</item>
+        <item quantity="other">%1$d éléments supprimés, %2$s d\'espace libéré</item>
+        <item quantity="many">%1$d éléments supprimés, %2$s d\'espace libéré</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d n\'a pas abouti</item>
         <item quantity="other">%1$d n\'ont pas abouti</item>

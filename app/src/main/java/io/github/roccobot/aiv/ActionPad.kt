@@ -719,6 +719,16 @@ internal object FootStage {
     private val aDestra = mutableStateMapOf<Any, Int>()
     private val aSinistra = mutableStateMapOf<Any, Int>()
 
+    /*
+     * ⚠️⚠️ **E DALLA `2.86` UN FIANCO DICE ANCHE QUANTO È ALTO, ED È SUA SEGNALAZIONE** (2026-09-21:
+     * *l'avviso dal basso deve evitare di coprire il FAB anche nel cestino*). Fino alla `2.85` la
+     * notifica si stringeva solo a terra, cioè con la salita a zero, e nei fotogrammi in cui scende
+     * dietro la scheda che se ne va passava **sopra** il FAB rientrato, larga tutto lo schermo
+     * (misurato sul banco: tre fotogrammi, da 320 a 352 millisecondi). A decidere se una notifica in
+     * salita incontra il FAB è quanto lui sale dal bordo, e quel numero lo sa solo lui.
+     */
+    private val alti = mutableStateMapOf<Any, Int>()
+
     /** Quanti pixel di schermo copre, contati dal bordo di sotto: `0` quando non c'è nessuno. */
     val covers: Int get() = coprono.values.maxOrNull() ?: 0
 
@@ -728,25 +738,35 @@ internal object FootStage {
     /** Quanti pixel occupa in fondo a sinistra, contati dal bordo sinistro della finestra. */
     val left: Int get() = aSinistra.values.maxOrNull() ?: 0
 
+    /** Fin dove arriva in altezza chi occupa un fianco, contato dal bordo di sotto della finestra. */
+    val tall: Int get() = alti.values.maxOrNull() ?: 0
+
     fun cover(chi: Any, px: Int) {
         if (px <= 0) coprono.remove(chi) else coprono[chi] = px
     }
 
     /**
      * Dice che [chi] occupa [px] pixel del fondo dello schermo dal lato dichiarato, invece di una
-     * fascia larga quanto la finestra.
+     * fascia larga quanto la finestra, e che arriva fino a [tall] pixel dal bordo di sotto.
      */
-    fun beside(chi: Any, px: Int, right: Boolean) {
+    fun beside(chi: Any, px: Int, right: Boolean, tall: Int) {
         val qui = if (right) aDestra else aSinistra
         val altrove = if (right) aSinistra else aDestra
         altrove.remove(chi)
-        if (px <= 0) qui.remove(chi) else qui[chi] = px
+        if (px <= 0 || tall <= 0) {
+            qui.remove(chi)
+            alti.remove(chi)
+        } else {
+            qui[chi] = px
+            alti[chi] = tall
+        }
     }
 
     fun off(chi: Any) {
         coprono.remove(chi)
         aDestra.remove(chi)
         aSinistra.remove(chi)
+        alti.remove(chi)
     }
 }
 
@@ -788,13 +808,29 @@ internal object FootStage {
  * il FAB lascia il posto alla scheda), ma 'quasi' non è una regola: durante quel cambio le due
  * dichiarazioni convivono per qualche fotogramma, e senza questa riga la notifica salirebbe **e**
  * si stringerebbe insieme.
+ *
+ * ⚠️⚠️ **MA 'SOPRA' VUOL DIRE SOPRA IL FAB, E DALLA `2.86` LA SOGLIA È LA SUA ALTEZZA E NON LO
+ * ZERO** (segnalazione dell'utente, 2026-09-21: *l'avviso dal basso deve evitare di coprire il FAB
+ * anche nel cestino*). Con una selezione eliminata o scartata la scheda **scende** e la notifica
+ * scende con lei, mentre il FAB è già rientrato: fino alla `2.85` si stringeva solo a terra, quindi
+ * negli ultimi fotogrammi della discesa passava sopra il tasto larga tutto lo schermo (misurato sul
+ * banco: tre fotogrammi, da 320 a 352 millisecondi, col bordo di sotto già dentro la fascia del
+ * FAB). Adesso resta larga finché la salita la tiene sopra quella fascia, e si stringe appena ci
+ * entra.
+ * ⚠️ **La barra si toglie da tutte e due le parti**: la salita conta dal posto a terra, che è già
+ * sopra la barra, e l'altezza del FAB conta dal bordo della finestra.
+ * ⚠️ **È un poco più larga del necessario, di proposito**: la soglia non conosce il margine che la
+ * notifica si porta dentro, quindi si stringe qualche pixel prima di toccare il tasto. Il verso
+ * dell'errore è quello che non copre niente.
+ * ⚠️ **Il cambio di larghezza è uno scatto e non una corsa**, come quello che c'era già a terra: la
+ * notifica si stringe nel fotogramma in cui entra nella fascia, mentre sta ancora scendendo.
  */
 @Composable
 internal fun Modifier.aboveFoot(): Modifier {
     val density = LocalDensity.current
     val barra = WindowInsets.navigationBars.getBottom(density)
     val su = (FootStage.covers - barra).coerceAtLeast(0)
-    val stretta = su == 0
+    val stretta = su == 0 || su < FootStage.tall - barra
     val sinistra = with(density) { (if (stretta) FootStage.left else 0).toDp() }
     val destra = with(density) { (if (stretta) FootStage.right else 0).toDp() }
     return padding(start = sinistra, end = destra).offset { IntOffset(0, -su) }
@@ -1609,10 +1645,10 @@ fun TapHoldFab(
      * Un dialogo di Material è una finestra di **altro tipo**, sempre sopra le finestre dei menu,
      * quindi con un dialogo aperto il FAB resta velato: ed è giusto, perché un modale deve
      * restare modale.
-     * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL TASTINO**, o questo non serve a niente: fra finestre
+     * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL FAB**, o questo non serve a niente: fra finestre
      * dello stesso tipo l'ordine è quello in cui sono state aggiunte, e la composizione decide
      * quell'ordine. I due posti che lo usano hanno il menu scritto sopra.
-     * ⚠️⚠️ **DA STACCATO IL TASTINO È SOLO DA GUARDARE**, e la sua finestra lascia passare le
+     * ⚠️⚠️ **DA STACCATO IL FAB È SOLO DA GUARDARE**, e la sua finestra lascia passare le
      * dita: il perché sta su [untouchable], ed è quello che tiene in piedi la chiusura del menu
      * al tocco, che è del giro della `1.06`.
      */
@@ -1646,7 +1682,7 @@ fun TapHoldFab(
     glyph: @Composable (descrizione: String?) -> Unit
 ) {
     /*
-     * ⚠️⚠️ **IL TASTINO CAMBIA TRE COSE AL TOCCO, DALLA `1.68`, E NESSUNA DELLE TRE È UNA
+     * ⚠️⚠️ **IL FAB CAMBIA TRE COSE AL TOCCO, DALLA `1.68`, E NESSUNA DELLE TRE È UNA
      * QUANTITÀ** (istruzione dell'utente, giro della `1.67`): rimbalza, il suo glifo diventa una
      * ×, e il fondo prende l'accento dell'**altro** tema. Il perché di questo cambio di strada,
      * dopo tre versioni che alzavano un numero senza mai farsi vedere, sta su [RIMBALZO].
@@ -1811,15 +1847,25 @@ fun TapHoldFab(
      * schermata senza FAB la legge questa funzione invece dei suoi chiamanti.
      * ⚠️ **Una chiave per ogni FAB in scena**: durante la dissolvenza fra due schermate ce ne sono
      * due, e con una chiave sola il secondo cancellerebbe la misura del primo.
+     * ⚠️⚠️ **E DALLA `2.86` DICHIARA ANCHE FIN DOVE ARRIVA IN ALTEZZA**, contato dal bordo di sotto
+     * della finestra come la scheda della selezione conta il suo: è quello che dice alla notifica
+     * che sta scendendo **quando** entra nella fascia di questo tasto (il perché su
+     * [Modifier.aboveFoot]).
      */
     val quota = remember { Any() }
-    val larga = LocalWindowInfo.current.containerSize.width
+    val finestra = LocalWindowInfo.current.containerSize
     DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
     val misura = Modifier.onGloballyPositioned {
-        val da = it.positionInWindow().x.roundToInt()
+        val dove = it.positionInWindow()
+        val da = dove.x.roundToInt()
         val fino = da + it.size.width
-        val destra = da + fino > larga
-        FootStage.beside(quota, if (destra) larga - da else fino, destra)
+        val destra = da + fino > finestra.width
+        FootStage.beside(
+            quota,
+            if (destra) finestra.width - da else fino,
+            destra,
+            tall = finestra.height - dove.y.roundToInt()
+        )
     }
 
     if (!lifted) {
@@ -1900,7 +1946,7 @@ fun TapHoldFab(
  * Rende la finestra che ospita questa vista **trasparente al tocco**: le dita ci passano
  * attraverso e arrivano a quello che sta sotto.
  *
- * ⚠️⚠️ **SENZA QUESTA RIGA IL TASTINO STACCATO ROMPEREBBE LA CHIUSURA DEL MENU, dalla 1.06**
+ * ⚠️⚠️ **SENZA QUESTA RIGA IL FAB STACCATO ROMPEREBBE LA CHIUSURA DEL MENU, dalla 1.06**
  * (*tutti i menu di tutti i FAB devono andarsene se si tocca un punto qualsiasi fuori dal
  * popup, incluso il FAB stesso*). Quel tocco oggi lo raccoglie il velo trasparente della
  * schermata, che vive nella finestra dell'app: un FAB in una finestra **più alta** se lo

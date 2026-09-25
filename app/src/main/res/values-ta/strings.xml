@@ -279,6 +279,10 @@
         <item quantity="one">%1$d கோப்பு அழிக்கப்பட்டது</item>
         <item quantity="other">%1$d கோப்புகள் அழிக்கப்பட்டன</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d கோப்பு அழிக்கப்பட்டது, %2$s இடம் விடுவிக்கப்பட்டது</item>
+        <item quantity="other">%1$d கோப்புகள் அழிக்கப்பட்டன, %2$s இடம் விடுவிக்கப்பட்டது</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d நடக்கவில்லை</item>
         <item quantity="other">%1$d நடக்கவில்லை</item>

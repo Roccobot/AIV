@@ -271,6 +271,9 @@
     <plurals name="delete_done">
         <item quantity="other">%1$d mục đã xóa</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="other">%1$d mục đã xóa, đã giải phóng %2$s</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d không thành công</item>
     </plurals>

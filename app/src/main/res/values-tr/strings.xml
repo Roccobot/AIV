@@ -279,6 +279,10 @@
         <item quantity="one">%1$d öge silindi</item>
         <item quantity="other">%1$d öge silindi</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d öge silindi, %2$s alan boşaldı</item>
+        <item quantity="other">%1$d öge silindi, %2$s alan boşaldı</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d tanesi olmadı</item>
         <item quantity="other">%1$d tanesi olmadı</item>

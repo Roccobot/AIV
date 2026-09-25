@@ -389,6 +389,10 @@ documento di feedback, in chat, negli artefatti e nei messaggi di commit.
   sono residui**: quello che ha detto lui si riporta come l'ha detto, e la prima delle due
   (*i tastini su e giù sono scomodi*, in `Reorder.kt`) non parla nemmeno del FAB, ma delle due
   frecce del riordino.
+  - ⚠️⚠️ **E IL 2026-09-25 NE SONO USCITE ALTRE TREDICI, TUTTE IN MAIUSCOLO**, in sei file: la
+    passata del 2026-09-08 cercava la parola minuscola, e i titoli delle note sono scritti in
+    maiuscolo. Chi rifà una bonifica di questo genere cerca **senza distinguere le maiuscole**,
+    o il conto che dà si legge come completo mentre non lo è.
 
 ⚠️⚠️ **'VELO' NON SI USA PARLANDO CON LUI: si dice 'Sfocatura dietro i pannelli', cioè il nome
 della voce nelle impostazioni** (riscontro del 2026-09-04, giro della `1.46`: *io continuo a
@@ -5061,6 +5065,27 @@ perché non basta guardare se l'originale esiste ancora, è su `Bin.Record` e su
   continuare a leggersi, o aggiornando l'app ogni file già nel cestino perde la provenienza, cioè
   non si può più ripristinare.
 
+## 🧮 Svuotare il cestino dice lo spazio liberato
+
+⚠️⚠️ **DALLA `2.86`, ED È SUA RICHIESTA** (2026-09-21: *quando si svuota il cestino, oltre al numero
+di file eliminati, l'avviso deve dire anche quanti KB/MB/GB di archivio sono stati liberati*). Il
+peso di ogni file si legge **prima** della cancellazione, perché dopo il file non c'è più, e si
+somma **solo** se la cancellazione riesce: un file rimasto non ha liberato niente. Il conto viaggia
+nell'esito (`FileTree.Outcome.freed`), e zero vuol dire 'non misurato'.
+- ⚠️⚠️ **È UNA FRASE A SÉ (`delete_freed`) E NON UN PEZZO IN CODA**: in metà delle ventotto lingue
+  il verbo, l'accordo o la particella cambiano con quello che segue, e un pezzo attaccato a una
+  frase finita non lo sa. ⚠️ **L'eliminazione di una selezione dice la frase di sempre**, perché lo
+  spazio lo misura il solo svuotamento: la scelta la fa `outcomeText` dal tipo e dal dato insieme.
+- ⚠️ **Il numero è scritto da `formatBytes`**, cioè come il peso di una selezione: nel cestino è
+  l'unico peso che si vede, e chi lo guarda prima di svuotare deve ritrovare lo stesso numero dopo.
+- ⚠️ **Dove il participio concorderebbe col numero, la frase lo fa concordare con lo spazio**: in
+  francese si legge *d'espace libéré*, perché sotto il 2 il francese vuole il singolare e
+  `formatBytes` scrive sempre dei decimali; nelle lingue slave la forma è impersonale, come quella
+  dell'eliminazione che la precede.
+- **La prova è `CestinoSpazioTest`**, su file veri scritti nella cartella del cestino, e vive in una
+  classe sua per la trappola di `OmbraArchivio` scritta in § '🧰 Gli strumenti che questo repo si
+  porta dietro'. Controprovata togliendo la somma e poi il ramo della frase.
+
 ## ↩️ Disfare una copia o uno spostamento
 
 ⚠️⚠️ **DALLA `1.83` ANCHE LA COPIA E LO SPOSTAMENTO OFFRONO 'Annulla', COME L'ELIMINAZIONE**
@@ -5212,6 +5237,27 @@ finestra, mentre lo spazio di fianco c'è.
   selezione il FAB lascia il posto alla scheda: 'quasi' non è una regola, e durante quel cambio le
   due dichiarazioni convivono per qualche fotogramma. A presidiarlo è il terzo caso di
   `AvvisiTest`, controprovato togliendo la condizione.
+- ⚠️⚠️ **MA 'SOPRA' VUOL DIRE SOPRA IL FAB, E DALLA `2.86` LA NOTIFICA SI STRINGE APPENA ENTRA
+  NELLA SUA FASCIA** (sua segnalazione, 2026-09-21: *l'avviso dal basso (es. selezione scartata o
+  file eliminato) deve evitare di coprire il FAB anche nel cestino*). Dopo un'eliminazione la
+  scheda scende e la notifica scende con lei, mentre il FAB è già rientrato: fino alla `2.85` si
+  stringeva solo a terra, quindi negli ultimi tre fotogrammi della discesa passava sopra il tasto
+  larga tutto lo schermo. Adesso il FAB dichiara anche fin dove arriva in altezza
+  (`FootStage.tall`), e la notifica resta larga solo finché la salita la tiene sopra quella fascia.
+  - ⚠️⚠️ **E IL FAB NON SI NASCONDE PIÙ DOPO INDIETRO**, che è l'altra metà della stessa
+    segnalazione: dalla `1.44` restava fuori scena per tutta la vita della notifica, perché la
+    notifica era larga tutto lo schermo e il tasto avrebbe coperto 'Annulla'. Quella ragione è
+    caduta con la `2.25`, e quello che restava era un comando sparito per tre secondi, che
+    ricompariva mentre la notifica se ne andava.
+  - ⚠️ **Il cambio di larghezza è uno scatto e non una corsa**, come quello che c'era già a
+    terra: la notifica si stringe nel fotogramma in cui entra nella fascia, mentre sta ancora
+    scendendo.
+  - ⚠️ **La soglia è un poco più larga del necessario, di proposito**: non conosce il margine
+    che la notifica si porta dentro, quindi si stringe qualche pixel prima di toccare il tasto.
+  - **La prova è `CestinoAvvisiTest`, e guarda ogni fotogramma della discesa**: a corsa finita la
+    notifica era stretta anche prima della correzione, quindi una prova sulla sola fine sarebbe
+    verde col difetto dentro. Controprovata rimettendo le due righe di prima, una per caso: il FAB
+    non compare più, e la notifica gli passa sopra al fotogramma dei 320 millisecondi.
 
 ⚠️⚠️ **E LA MINIATURA VECCHIA NON SE N'ERA ANDATA: DALLA `2.25` LE VIE CHIUSE SONO TRE, E LA CAUSA
 NON È ACCERTATA** (riscontro del giro della `2.24`, voce `mini-cestino` non approvata: *ancora
@@ -5846,6 +5892,12 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     non copre e che muore con un `ArrayIndexOutOfBoundsException` dentro il metodo di sistema,
     cioè con un errore che si legge come un difetto dell'app. La copre `OmbraArchivio`, uno
     shadow di venti righe.
+    - ⚠️⚠️ **E QUELL'OMBRA PRENDE IL POSTO DI QUELLA DI ROBOLECTRIC PER `Environment`, NON LE SI
+      AGGIUNGE** (misurato il 2026-09-25): chi la dichiara perde le altre implementazioni di
+      quella classe, quindi `getExternalFilesDir` gira sul metodo di sistema e muore dentro
+      `Environment`. Il cestino vive in quella cartella, ed è la ragione per cui
+      `CestinoSpazioTest` non la dichiara. ⚠️ **Il `@Config` di un metodo si somma a quello della
+      classe e non lo toglie**, quindi una prova che la vuole e una che no vivono in due classi.
     - ⚠️⚠️ **NON È UN DETTAGLIO DI COMODO: È LA DIFFERENZA FRA MISURARE E NON MISURARE.** La
       prima stesura di quella prova montava una **miniatura** scritta accanto, e passava anche
       rimettendo il difetto che doveva prendere. Il criterio universale vive in `Roccobot.md`

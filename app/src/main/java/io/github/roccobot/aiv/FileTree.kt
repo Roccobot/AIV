@@ -346,8 +346,18 @@ object FileTree {
      * @property undo i passi per **tornare indietro**, quando l'operazione si può disfare.
      *   Vuoto vuol dire che non si disfa: o perché l'operazione non è reversibile (una
      *   cancellazione definitiva), o perché non ha toccato niente.
+     * @property freed quanti byte di archivio sono tornati liberi, contati sui soli file andati
+     *   via davvero. ⚠️ **Lo misura il solo svuotamento del cestino, dalla `2.86`**, ed è sua
+     *   richiesta (2026-09-21: *quando si svuota il cestino, oltre al numero di file eliminati,
+     *   l'avviso deve dire anche quanti KB/MB/GB di archivio sono stati liberati*). Zero vuol dire
+     *   'non misurato', e allora la frase è quella di sempre (vedi `outcomeText`).
      */
-    data class Outcome(val done: Int, val failed: Int, val undo: List<Undoable> = emptyList())
+    data class Outcome(
+        val done: Int,
+        val failed: Int,
+        val undo: List<Undoable> = emptyList(),
+        val freed: Long = 0
+    )
 
     /**
      * Un file che si può rimettere com'era, e come.

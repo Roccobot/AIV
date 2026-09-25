@@ -287,6 +287,11 @@
         <item quantity="other">%1$d elementos eliminados</item>
         <item quantity="many">%1$d elementos eliminados</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d elemento eliminado, %2$s liberados</item>
+        <item quantity="other">%1$d elementos eliminados, %2$s liberados</item>
+        <item quantity="many">%1$d elementos eliminados, %2$s liberados</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d no ha salido bien</item>
         <item quantity="other">%1$d no han salido bien</item>

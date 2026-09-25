@@ -1069,7 +1069,7 @@ fun GridScreen(
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
             // allo schermo si coprirebbero a vicenda.
             if (kind.speaks(out)) {
-                Notices.say(outcomeText(res, out, kind.done), NOTICE_LONG_MS)
+                Notices.say(outcomeText(res, out, kind), NOTICE_LONG_MS)
             }
             worked = true
             onChanged()
@@ -2136,7 +2136,7 @@ fun GridScreen(
         }
 
         /*
-         * ⚠️⚠️ **IL TASTINO STA DOPO LA SFUMATURA, DALLA `1.83`, E FINO ALLA `1.82` VIVEVA NELLA
+         * ⚠️⚠️ **IL FAB STA DOPO LA SFUMATURA, DALLA `1.83`, E FINO ALLA `1.82` VIVEVA NELLA
          * COLONNA** (riscontro del giro della `1.82`, voce `fab-cartella` approvata con una
          * riserva: *deve stare SOPRA le sfumature*). In un `Box` l'ultimo figlio sta sopra,
          * quindi dentro la colonna il FAB finiva **sotto** le due sfumature, che sono figlie
@@ -2150,7 +2150,7 @@ fun GridScreen(
          * [HintVeil] usa per illuminarlo.
          */
         /*
-         * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
+         * ⚠️⚠️ **IL FAB RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
          * Con una selezione in corso le operazioni stanno nella bottomsheet qui
          * sotto, e il FAB è sparito perché non aveva più niente da fare (vedi
          * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
@@ -2158,16 +2158,23 @@ fun GridScreen(
          * posto dove stare.
          */
         /*
-         * ⚠️⚠️ **E DALLA 1.44 SI FA DA PARTE ANCHE PER LA NOTIFICA**: il gesto Indietro
-         * azzera la selezione, quindi in quell'istante `picking` diventa falso e il
-         * FAB tornerebbe **proprio dove** compare la notifica, che è larga tutto lo
-         * schermo. Coprirebbe il tasto 'Annulla', cioè la sola cosa che quella notifica
-         * ha da offrire.
-         * ⚠️ **Riguarda il solo cestino**, come tutto questo FAB: in una cartella
-         * normale non c'è e la notifica ha il fondo tutto per sé.
+         * ⚠️⚠️ **DALLA 1.44 ALLA `2.85` SI FACEVA DA PARTE ANCHE PER LA NOTIFICA, E DALLA `2.86`
+         * NON PIÙ** (segnalazione dell'utente, 2026-09-21: *l'avviso dal basso (es. selezione
+         * scartata o file eliminato) deve evitare di coprire il FAB anche nel cestino*). La
+         * ragione di allora era buona: il gesto Indietro azzera la selezione, il FAB tornava
+         * proprio dove compare la notifica, e la notifica era larga tutto lo schermo, quindi il
+         * tasto avrebbe coperto 'Annulla'.
+         * ⚠️⚠️ **QUELLA RAGIONE È CADUTA CON LA `2.25`**, quando la notifica ha cominciato a
+         * stringersi accanto al FAB: da lì tenerlo fuori scena per tutta la vita della notifica
+         * voleva dire un comando sparito per tre secondi, che ricompariva mentre la notifica se ne
+         * andava (misurato sul banco: assente dal gesto alla scadenza, e di nuovo in scena con la
+         * notifica ancora in uscita).
+         * ⚠️ **Adesso rientra appena la selezione finisce**, come dopo un'eliminazione, e a
+         * scansarsi è la notifica: il perché, e la soglia che la fa stringere mentre scende, vivono
+         * su [Modifier.aboveFoot].
          */
         /*
-         * ⚠️⚠️ **DALLA `1.82` IL TASTINO C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
+         * ⚠️⚠️ **DALLA `1.82` IL FAB C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
          * giro della `1.81`, campo libero punto B: *il FAB deve vedersi in tutte le cartelle,
          * non solo nella schermata home*). Fino alla `1.81` viveva nel solo cestino, e da
          * dentro una cartella il cestino e le impostazioni si raggiungevano tornando indietro.
@@ -2180,7 +2187,7 @@ fun GridScreen(
          */
         FabPop(
             visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
-                !picking && cleared == null,
+                !picking,
             // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
             // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
             // sé: quello di sistema, il margine della schermata e gli 8dp del FAB.
@@ -2194,7 +2201,7 @@ fun GridScreen(
         ) {
             Box {
                 /*
-                 * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la
+                 * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la
                  * funzione** (1.39): il FAB si stacca in una finestra sua per restare
                  * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
                  * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
@@ -2433,7 +2440,7 @@ fun GridScreen(
          */
 
         /*
-         * ⚠️⚠️ **IL VELO CHE CHIUDEVA IL MENU DEL TASTINO STAVA QUI FINO ALLA `1.69`, E ADESSO
+         * ⚠️⚠️ **IL VELO CHE CHIUDEVA IL MENU DEL FAB STAVA QUI FINO ALLA `1.69`, E ADESSO
          * VIVE IN `AivTheme`** (vedi `MenuGuard` in `Menus.kt`). Il fatto che lo aveva fatto
          * nascere nella `1.06` non è cambiato ed è questo: da Android 12 la finestra di un popup
          * **non è modale al tocco**, quindi un dito fuori dal pannello arriva a tutte e due le

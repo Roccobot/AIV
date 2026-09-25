@@ -279,6 +279,10 @@
         <item quantity="one">%1$d ఫైలు తొలగింది</item>
         <item quantity="other">%1$d ఫైళ్ళు తొలగాయి</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d ఫైలు తొలగింది, %2$s స్థలం ఖాళీ అయింది</item>
+        <item quantity="other">%1$d ఫైళ్ళు తొలగాయి, %2$s స్థలం ఖాళీ అయింది</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d జరగలేదు</item>
         <item quantity="other">%1$d జరగలేదు</item>

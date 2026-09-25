@@ -3298,7 +3298,7 @@ private fun Stage(
                 // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
                 highlight = if (model.gridVisited) model.series?.index else null,
                 /*
-                 * ⚠️⚠️ **I DUE RICHIAMI DEL TASTINO ARRIVANO SOLO QUI, DALLA `1.82`** (campo
+                 * ⚠️⚠️ **I DUE RICHIAMI DEL FAB ARRIVANO SOLO QUI, DALLA `1.82`** (campo
                  * libero del giro della `1.81`, punto B: *il FAB deve vedersi in tutte le
                  * cartelle*): questa è la griglia di una cartella vera, cioè il posto da cui
                  * lui vuole raggiungere il cestino e le impostazioni senza tornare indietro.

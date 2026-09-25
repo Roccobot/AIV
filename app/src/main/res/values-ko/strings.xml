@@ -271,6 +271,9 @@
     <plurals name="delete_done">
         <item quantity="other">%1$d개 삭제했습니다</item>
     </plurals>
+    <plurals name="delete_freed">
+        <item quantity="other">%1$d개를 삭제해 %2$s를 확보했습니다</item>
+    </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d개는 실패했습니다</item>
     </plurals>

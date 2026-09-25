@@ -676,6 +676,13 @@
         <item quantity="one">%1$d item deleted</item>
         <item quantity="other">%1$d items deleted</item>
     </plurals>
+    <!-- The same deletion when the space it gave back is measured, which today only
+         emptying the bin does. The size comes from the same formatter as pick_facts,
+         so it reads like the weight of a selection. -->
+    <plurals name="delete_freed">
+        <item quantity="one">%1$d item deleted, %2$s freed</item>
+        <item quantity="other">%1$d items deleted, %2$s freed</item>
+    </plurals>
     <!-- One for all four operations: 'did not go through' fitted a copy and read oddly
          after a deletion, and four wordings of the same notice are four places where a
          translation can fall behind. -->
