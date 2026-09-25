@@ -129,7 +129,6 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import android.text.format.Formatter
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.FlowRow
@@ -1800,7 +1799,8 @@ fun GridScreen(
                         ) {
                             if (pesa) {
                                 FrontChip(
-                                    text = Formatter.formatShortFileSize(context, facts.bytes),
+                                    // ⚠️ Col punto e a 1024, dalla `2.87`: vedi [formatBytes].
+                                    text = formatBytes(facts.bytes),
                                     tapLabel = stringResource(R.string.pick_all),
                                     onTap = { chosen = tutti.toSet() },
                                     holdLabel = stringResource(R.string.front_unpick),

@@ -3924,9 +3924,9 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
   - ⚠️⚠️ **'ORIGINALE' È UNA FORMA IN PIÙ, ED È SUA RICHIESTA** (2026-09-13: *tra i vincoli di
     proporzione dev'esserci anche 'Originale', ma scelta di default resta 'Libera'*). È la sola
     il cui rapporto **non è scritto nel codice**: lo porta l'immagine, quindi in `Shape` il
-    rapporto di ogni forma è una **funzione** del riquadro invece di una costante. Nel verso
-    naturale dell'immagine non taglia niente per costruzione, che è la proprietà da cui dipende
-    il senza perdita.
+    rapporto di ogni forma è una **funzione** del riquadro invece di una costante. Non taglia
+    niente per costruzione, e dalla `2.87` in qualunque verso (il blocco della `2.87`, più sotto),
+    che è la proprietà da cui dipende il senza perdita.
   - ⚠️⚠️ **E DALLA `2.35` VANNO A CAPO, TRE PER RIGA, ED È IL SUO RISCONTRO** (giro della `2.34`,
     voce `crop-fila` non approvata: *In realtà, come ho scritto in chat, non serve. Anzi, devono
     occupare più spazio*, e in chat *i chip delle proporzioni possono stare anche su 3 righe*).
@@ -4160,8 +4160,24 @@ la applicava un editor solo: l'editor completo partiva sempre da 'Verticale', qu
 una fotografia larga dava per costruzione il rapporto trasposto.
 - ⚠️ **Si decide una volta, quando l'anteprima arriva**, e da lì il verso è una sua scelta: una
   rotazione non lo cambia, che è la regola di casa.
-- ⚠️ **Scelto a mano 'Verticale', 'Originale' dà ancora il rapporto trasposto**, ed è dichiarato:
-  è come si comportano le quattro proporzioni, in tutti e due gli editor.
+- ⚠️ **Scelto a mano 'Verticale', 'Originale' dava ancora il rapporto trasposto**, dichiarato come
+  il comportamento delle quattro proporzioni. Dalla `2.87` non più: il blocco qui sotto.
+
+⚠️⚠️ **E DALLA `2.87` 'ORIGINALE' È L'IMMAGINE INTERA IN QUALUNQUE VERSO, ANCHE DOPO UNA ROTAZIONE,
+ED È LA SUA RISPOSTA `intera` A `d-originale-verso`** (giro della `2.85` e della `2.86`, e in chat:
+*vai avanti con il lavoro su 'Originale' che si adatta anche al verso della rotazione attuale*).
+Fino alla `2.86` seguiva il verso acceso come le quattro proporzioni, quindi su un'immagine larga la
+cornice veniva alta in due casi: toccando 'Verticale', e girando l'immagine di un quarto, perché il
+verso resta quello di partenza.
+- **Adesso prende l'immagine com'è in quel momento**, cioè già posata, e il verso resta per le
+  quattro proporzioni. Il fatto vive in `Shape.fromImage`, uno per i due editor.
+- ⚠️ **I due gettoni del verso si spengono mentre 'Originale' è scelta**, ed è una lettura
+  dichiarata della sua scelta (*'Originale' ignora i due gettoni del verso*): accesi, un tocco non
+  cambierebbe la cornice, e si leggerebbe come un comando rotto. Tornano con una proporzione.
+- ⚠️ **I due editor arrivano allo stesso risultato per due strade**: in quello di casa un quarto di
+  giro rifà il rettangolo sull'aspetto nuovo, in quello completo lo porta con sé. Per questo le prove
+  sono una per editor: `EditorCasaTest`, che nasce qui ed è la prima dell'editor di casa, e i casi
+  72 e 73 di `SviluppoTest`, tutti controprovati.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
@@ -4172,7 +4188,8 @@ versi stiano su una riga e i quattro numeri sull'altra, e che il tocco su un ver
 scelga ancora (controprovato rimettendo i numeri a cavallo delle due righe, e spegnendo il legame
 del verso); dalla `2.85` che su un'immagine larga il verso parta orizzontale, e che la cornice si
 tiri ancora dopo 'Applica' e dopo una rotazione (i casi 67, 68 e 69, ognuno controprovato togliendo
-la sua correzione). ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
+la sua correzione); dalla `2.87` che dopo un quarto di giro 'Originale' tenga l'immagine intera, e
+che i due versi si spengano con lei (i casi 72 e 73). ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
 controprova lo ha imposto: la prima stesura della rotazione girava prima di ogni tocco, e restava
 verde col difetto dentro. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
@@ -5078,6 +5095,12 @@ nell'esito (`FileTree.Outcome.freed`), e zero vuol dire 'non misurato'.
   spazio lo misura il solo svuotamento: la scelta la fa `outcomeText` dal tipo e dal dato insieme.
 - ⚠️ **Il numero è scritto da `formatBytes`**, cioè come il peso di una selezione: nel cestino è
   l'unico peso che si vede, e chi lo guarda prima di svuotare deve ritrovare lo stesso numero dopo.
+  - ⚠️⚠️ **E DALLA `2.87` TUTTI I PESI DELL'APP PASSANO DA LEI, ED È LA SUA RISPOSTA `punto` A
+    `d-pesi-scrittura`**: fino alla `2.86` la pastiglia del peso di una cartella e le miniature
+    memorizzate li scriveva il sistema, con la virgola della lingua in corso e i multipli da mille,
+    quindi lo stesso file da 13 milioni di byte si leggeva '12.40 MB' in un posto e '13 MB' in un
+    altro. La prova è in `ImpostazioniTest`, sulle miniature; la pastiglia non ne ha una, perché
+    vuole un MediaStore con dentro delle immagini.
 - ⚠️ **Dove il participio concorderebbe col numero, la frase lo fa concordare con lo spazio**: in
   francese si legge *d'espace libéré*, perché sotto il 2 il francese vuole il singolare e
   `formatBytes` scrive sempre dei decimali; nelle lingue slave la forma è impersonale, come quella
