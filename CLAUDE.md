@@ -5676,6 +5676,15 @@ collaudo: rilascio, documento, riscontro'.
     2026-09-19: la `2.70` è l'APK, la `2.69` e la `2.68` sono la stessa paginetta da 9.379 byte.
     ⚠️ **Fino alla `2.65` qui era scritto che la versione prima dà 404**, ed era vero allora: un
     controllo che aspetti quel numero adesso dà per non pubblicata una versione che è live.
+  - ⚠️⚠️ **E IL PESO NON DISTINGUE DUE VERSIONI, PERCHÉ LA PRIMA LIBRERIA NATIVA È ALLINEATA A 16
+    KB** (misurato il 2026-09-25 sulla `2.84`, che pesa quanto la `2.81`, la `2.82` e la `2.83`:
+    7.778.976 byte). `classes.dex` è salvato senza compressione, e la voce subito dopo, la prima
+    libreria di `lib/arm64-v8a/`, porta un riempimento che allinea i suoi dati a 16.384 byte:
+    quel riempimento assorbe ogni variazione del dex fino a quella misura, e le voci che seguono
+    non cambiano fra una versione e l'altra.
+    - **A distinguere due build è l'impronta**: lo SHA-256 del file servito deve coincidere col
+      `digest` dell'asset della release, e non con quello della precedente. Il peso resta una
+      prova che il file è arrivato intero, non che è quello nuovo.
 
 ## 🔐 La firma, e dove NON vive
 
