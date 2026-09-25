@@ -16,23 +16,6 @@ documento è perso.
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
 | **Documento di feedback** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
-| **Piano d'azione AIV** | le versioni in cantiere in sequenza, una tappa per giro di collaudo. **Non chiede**: è la vista d'insieme. | <https://claude.ai/code/artifact/ed40ee4b-ce9b-4588-b1c9-5e5b7e773cd3> |
-
-⚠️⚠️ **IL PIANO D'AZIONE È UNO STRUMENTO RICORRENTE dal 2026-09-04, e non un artefatto di
-passaggio** (decisione dell'utente: *lo ufficializziamo come strumento di lavoro ricorrente,
-insieme al brief*). La regola universale, con la divisione dei compiti fra lui e il brief, vive
-in `rules/Roccobot.md` § '🗺️ Il piano e il brief: due strumenti, due domande'; qui
-resta solo il suo indirizzo, che è la cosa che questo file esiste per non far perdere.
-- ⚠️ **Si chiamava con una metafora ferroviaria fino a quel giorno**, e il nome è cambiato su
-  istruzione dell'utente (*lascia stare le metafore*). Chi ne trova il nome vecchio in un
-  messaggio o in un commit sappia che è lo stesso documento, allo stesso indirizzo.
-- ⚠️⚠️ **E A MORIRE NON È SOLO IL NOME DEL DOCUMENTO: È TUTTA LA METAFORA.** Il piano è fatto
-  di **tappe**, e una tappa è il gruppo di lavori che escono in una versione: non si dice
-  'vagone', non si dice 'treno', né in chat né in un commit né in un artefatto. ⚠️ **È
-  scritto perché la prima formulazione non bastava**: diceva che era cambiato il *nome del
-  documento*, quindi la parola per il gruppo di lavori sembrava salva, ed è rientrata in una
-  frase il 2026-09-04 (*> vagone / piano d'azione\**). Un divieto che nomina un solo caso si
-  legge come il permesso per tutti gli altri.
 
 ⚠️⚠️ **IL NOME UFFICIALE È 'DOCUMENTO DI FEEDBACK', e si usa quello** (precisazione
 dell'utente, 2026-09-04: *per me il nome esatto è 'Documento di feedback'. Se lo chiami così
@@ -82,18 +65,30 @@ dice lui'.
 - ⚠️ **È qui e non solo là perché questo file sopravvive alla compattazione**, come la
   regola di registro nel `CLAUDE.md` di root: un file di regole entra in scena quando lo si
   legge, e da un riassunto sparisce.
-- ⚠️⚠️ **QUINDI IL RISVEGLIO AUTOMATICO SU QUESTI DUE DOCUMENTI NON SERVE, E LA SUA ASSENZA NON
+- ⚠️⚠️ **QUINDI IL RISVEGLIO AUTOMATICO SU QUESTO DOCUMENTO NON SERVE, E LA SUA ASSENZA NON
   SI SCRIVE COME UNA MANCANZA** (sua precisazione, 2026-09-08: *in ogni caso è giusto che sia
   così: abbiamo stabilito che sarò sempre io a darti il via libera*). La sottoscrizione è
   rifiutata da mesi con `mint_failed`, e il brief la registrava a ogni giro come un difetto da
   rimediare: anche funzionando sveglierebbe la sessione **a ogni salvataggio**, cioè in mezzo a
   una compilazione. Quello che si scrive è il fatto, cioè che il via libera arriva da lui.
 
-⚠️⚠️ **ERANO DUE FINO AL 2026-09-03, e il secondo era il Changelog AIV** (decisione
-dell'utente: *cancella l'artefatto changelog, ho visto che non mi serve e non l'ho mai
-usato*). Chi ne trova ancora l'indirizzo in un messaggio vecchio, o la pagina in galleria,
-sappia che non si aggiorna più: il perché per esteso, e la domanda che l'aveva fatto nascere e
-che resta valida, vivono in `rules/Roccobot.md`, § '🧾 Il changelog, provato e ritirato'.
+⚠️⚠️ **DAL 2026-09-25 IL DOCUMENTO VIVO È UNO, E PRIMA ERANO DUE.** Il secondo è stato il
+**Changelog AIV** fino al 2026-09-03 (decisione dell'utente: *cancella l'artefatto changelog, ho
+visto che non mi serve e non l'ho mai usato*), e poi il **Piano d'azione AIV**, ufficializzato il
+2026-09-04 e ritirato il 2026-09-25 (*smettiamo di aggiornare il piano d'azione e anzi
+eliminiamolo: esiste già il brief per quello*). Chi ne trova l'indirizzo in un messaggio vecchio
+sappia che il primo non si aggiorna più e il secondo non esiste più: il perché per esteso vive in
+`rules/Roccobot.md`, § '🧾 Il changelog, provato e ritirato' e § '🗺️ Il piano d'azione, provato
+e ritirato'.
+- ⚠️ **L'ordine dei lavori in attesa vive nel brief**, una voce per lavoro col suo posto
+  nell'ordine, e per lui la vista d'insieme è il promemoria del documento di feedback.
+- ⚠️⚠️ **E IL DIVIETO DELLA METAFORA FERROVIARIA RESTA**, perché non era del piano: la sequenza
+  dei lavori non si chiama 'treno' e un gruppo di lavori che esce in una versione non si chiama
+  'vagone', né in chat né in un commit né in un artefatto. ⚠️ **È scritto per esteso perché la
+  prima formulazione non bastava**: diceva che era cambiato il *nome del documento*, quindi la
+  parola per il gruppo di lavori sembrava salva, ed è rientrata in una frase il 2026-09-04
+  (*> vagone / piano d'azione\**). Un divieto che nomina un solo caso si legge come il permesso
+  per tutti gli altri.
 
 ## 🎨 Il design system, che vive fuori dal repository
 
