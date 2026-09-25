@@ -689,6 +689,11 @@ private class SvgThumbnailDecoder(
  * ⚠️⚠️ **SI GUARDANO I BYTE, E SI GUARDANO SENZA CONSUMARLI**: `peek()` dà un secondo
  * lettore sullo stesso buffer, quindi il decodificatore predefinito trova la sorgente intatta
  * quando questo si sfila. Senza, un JPEG resterebbe senza i suoi primi mille byte.
+ * ⚠️⚠️ **MA SOLO QUANDO SI SFILA: UN SÌ CHE IL DISEGNO NON ONORA COSTA LA MINIATURA**, ed è il
+ * difetto trovato il 2026-09-25 su un PNG col manifesto C2PA, che porta un'icona SVG in testa.
+ * Il parser chiude la sorgente anche quando fallisce, e i decodificatori di serie la trovano
+ * chiusa: quindi questa domanda può sbagliare per difetto e mai per eccesso. Il perché per
+ * esteso vive su [Svg.looksLike].
  * ⚠️ **Il tipo dichiarato conta come il contenuto**, ed è la stessa coppia di prove che usa
  * Coil nel suo `SvgDecoder.Factory`: un `content://` può dichiarare `image/svg+xml` senza che
  * i byte comincino col tag, per esempio quando in testa c'è una dichiarazione XML lunga.
