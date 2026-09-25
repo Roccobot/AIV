@@ -115,18 +115,52 @@ object Svg {
      * niente. Costa un filtro su mille byte e copre le due codifiche più diffuse con una
      * sola ricerca. ⚠️ Il carattere è scritto per **codepoint** e non incollato, come vuole la
      * regola del repo sui caratteri invisibili.
-     * ⚠️ **Un falso positivo non fa danni**, ed è la ragione per cui basta cercare il tag:
-     * nel visualizzatore questa domanda si fa **dopo** che `ImageDecoder` ha già fallito,
-     * quindi al peggio si prova a disegnare un SVG che non c'è e si torna all'errore di
-     * prima; nella griglia il decodificatore torna `null` e la richiesta prosegue.
+     * ⚠️⚠️ **UN FALSO POSITIVO NELLA GRIGLIA COSTA LA MINIATURA, e fino alla `2.83` questa nota
+     * diceva il contrario** (*nella griglia il decodificatore torna `null` e la richiesta
+     * prosegue*). Prosegue davvero, letto nel bytecode di Coil 3.6.0: un `null` da `decode`
+     * rimanda al decodificatore successivo, con la **stessa sorgente**. Ma il tentativo SVG
+     * l'ha già **chiusa**, perché `SVGParser.parse` chiude lo stream anche quando fallisce, e
+     * su un `content://` con lo stream si chiude il descrittore del file. Da lì falliscono
+     * tutti e due i decodificatori di serie: il primo prova a riavvolgere il descrittore e lo
+     * trova chiuso, il secondo legge una sorgente da cui non esce più niente. Nel
+     * visualizzatore invece la domanda si fa **dopo** che `ImageDecoder` ha già fallito, e là
+     * un falso positivo resta innocuo: è l'asimmetria per cui un file si apriva e non aveva la
+     * miniatura.
+     * ⚠️⚠️ **QUINDI IL TAG NON BASTA: UN SVG È UN DOCUMENTO XML, E IL SUO PRIMO SEGNO È `<`**,
+     * dopo un eventuale BOM e gli spazi che XML ammette. Il caso vero è del 2026-09-25: un PNG
+     * di ChatGPT porta in testa il manifesto C2PA, e dentro il manifesto un'icona **SVG**
+     * (l'asserzione `c2pa.icon`), col tag al byte 305. Un PNG comincia col byte `0x89`, un
+     * JPEG con `0xFF`, un GIF con `G`: nessun formato a pixel comincia con `<`, quindi la
+     * condizione li esclude tutti senza doverli elencare.
+     * ⚠️ **Il BOM si toglie per firma e non per insieme di caratteri**: letto in ISO-8859-1,
+     * quello di UTF-8 sono tre lettere accentate e quello di UTF-16 due, e un insieme
+     * toglierebbe anche il byte `0xFF` con cui comincia un JPEG.
+     * ⚠️ **La sorgente chiusa resta, ed è una scelta**: un `peek()` nel decodificatore la
+     * terrebbe aperta e intatta, ma porterebbe in memoria il documento intero, che è quello che
+     * `SvgThumbnailDecoder` (in `Thumbs.kt`) esiste per non fare. Con questa condizione non
+     * serve: un falso positivo vuol dire un file che comincia con `<`, cioè un documento di
+     * testo, e nessun decodificatore a pixel lo saprebbe leggere comunque.
      */
     fun looksLike(head: ByteArray): Boolean {
         if (head.isEmpty()) return false
         val letto = if (gzipped(head)) unzip(head) ?: return false else head
         val text = String(letto, 0, minOf(letto.size, SNIFF), Charsets.ISO_8859_1)
             .filter { it != NUL }
-        return text.contains("<svg", ignoreCase = true)
+        val corpo = BOMS.firstOrNull { text.startsWith(it) }?.let { text.substring(it.length) } ?: text
+        val primo = corpo.firstOrNull { it !in XML_SPACE }
+        return primo == '<' && text.contains("<svg", ignoreCase = true)
     }
+
+    /**
+     * I tre BOM che un SVG può portare, letti come li legge [looksLike], cioè in ISO-8859-1
+     * e dopo aver tolto i NUL: UTF-8, UTF-16 little-endian e big-endian.
+     *
+     * ⚠️ Scritti per **codepoint**, per la regola del repo sui caratteri invisibili.
+     */
+    private val BOMS = listOf("\u00EF\u00BB\u00BF", "\u00FF\u00FE", "\u00FE\u00FF")
+
+    /** Gli spazi che XML ammette prima del primo segno, e nessun altro: la produzione `S`. */
+    private val XML_SPACE = setOf(' ', '\t', '\r', '\n')
 
     /**
      * La firma gzip, cioè un `.svgz`.
