@@ -607,4 +607,35 @@
     <string name="hint_modules">Veeg door de pictogrammen om alle bewerkingsmodules te bereiken. Houd het pictogram van een module ingedrukt om alleen die wijzigingen te wissen.</string>
     <string name="hint_tools">Naast de modules zijn er twee functies die je met één tik op het pictogram meteen aan of uit zet, waarna het oplicht: \'Watermerk\' en \'Formaat wijzigen\'. Met lang drukken open je de instellingen van elk van beide.</string>
     <string name="hint_save">Als je klaar bent, tik je op \'Opslaan\' om het bestand te overschrijven (met reservekopie, als die aanstaat); lang drukken bewaart een nieuwe kopie van de afbeelding in dezelfde map.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Exporteren en importeren</string>
+    <string name="backup_desc">Sla de instellingen op in een bestand en zet ze terug wanneer dat nodig is</string>
+    <string name="backup_intro">Het bestand bevat de hieronder aangevinkte onderdelen, en alleen AIV kan het lezen. Bij het importeren bepalen dezelfde vakjes wat er wordt teruggezet: elk onderdeel vervangt het huidige, en de inhoud van de prullenbak wordt toegevoegd aan wat er al in staat. Dat werkt ook tussen verschillende versies van AIV: wat een van beide niet kent, wordt overgeslagen, en instellingen die na de back-up zijn bijgekomen, blijven zoals ze zijn.</string>
+    <string name="backup_area_view">Vormgeving en navigatie</string>
+    <string name="backup_area_covers">Omslagen van mappen</string>
+    <string name="backup_area_hints">Al bekeken tips</string>
+    <string name="backup_lock">Met een wachtwoord beveiligen</string>
+    <string name="backup_lock_desc">Zonder wachtwoord gaat het bestand alleen met AIV open, en iedereen die AIV heeft, kan het importeren. Met een wachtwoord heb je dat ook nodig: als je het vergeet, gaat het bestand niet meer open.</string>
+    <string name="backup_password_title">Wachtwoord van de back-up</string>
+    <string name="backup_password">Wachtwoord</string>
+    <string name="backup_password_again">Herhaal het wachtwoord</string>
+    <string name="backup_password_mismatch">De twee wachtwoorden komen niet overeen.</string>
+    <string name="backup_export">Exporteren</string>
+    <string name="backup_import">Importeren</string>
+    <string name="backup_saved">Back-up opgeslagen.</string>
+    <string name="backup_loaded">Back-up geïmporteerd.</string>
+    <string name="backup_loaded_skipped">Back-up geïmporteerd, behalve de gegevens die deze versie van AIV niet kent.</string>
+    <string name="backup_load_failed">Het importeren is niet gelukt: er is niets veranderd.</string>
+    <string name="backup_load_partial">Het importeren is halverwege gestopt: sommige onderdelen zijn niet overgenomen.</string>
+    <string name="backup_bad">Dit bestand is geen back-up van AIV.</string>
+    <string name="backup_newer">Deze back-up gebruikt een nieuwer formaat dat deze versie van AIV niet kan openen: werk de app bij om hem te importeren.</string>
+    <string name="backup_wrong">Het wachtwoord klopt niet of het bestand is beschadigd.</string>
+    <string name="backup_broken">Het bestand is beschadigd of onvolledig.</string>
+    <string name="backup_exporting">Bezig met exporteren...</string>
+    <string name="backup_importing">Bezig met importeren...</string>
+    <string name="backup_import_from">Back-up van %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Deze onderdelen vervangen de huidige; de inhoud van de prullenbak wordt toegevoegd aan wat er al in staat.</string>
+    <string name="backup_unlock">Deze back-up is beveiligd: voer het wachtwoord in.</string>
+    <string name="backup_none">De back-up bevat geen van de aangevinkte onderdelen.</string>
 </resources>

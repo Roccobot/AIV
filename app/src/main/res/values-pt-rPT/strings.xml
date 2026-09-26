@@ -147,4 +147,20 @@
     <string name="settings_last_mark_frame">Moldura</string>
     <string name="settings_last_mark_corner">Canto</string>
     <string name="look_resize_reset">Repor</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <!-- arquivo -> ficheiro, lixeira -> reciclagem, configuracoes -> definicoes,
+         salvar -> guardar, app -> aplicacao, e la caduta del pronome: le stringhe qui
+         sotto portano almeno una di queste parole, e le altre del blocco restano quelle
+         di values-pt. Restano anche 'senha', che in Portogallo si usa accanto a
+         'palavra-passe', e il gerundio di 'Exportando...', come quello di 'Contando...'. -->
+    <string name="backup_desc">Guarde as definições num ficheiro e restaure-as quando precisar</string>
+    <string name="backup_intro">O ficheiro contém as partes marcadas abaixo, e só o AIV consegue lê-lo. Ao importar, as mesmas caixas escolhem o que trazer de volta: cada parte substitui a atual, e o conteúdo da reciclagem é adicionado ao que já existe. Funciona também entre versões diferentes do AIV: o que uma delas não conhece é ignorado, e as definições que surgiram depois da cópia de segurança ficam como estão.</string>
+    <string name="backup_lock_desc">Sem senha, o ficheiro só abre com o AIV, e qualquer pessoa que tenha o AIV pode importá-lo. Com senha, ela também é necessária: se a esquecer, não será mais possível abri-lo.</string>
+    <string name="backup_saved">Cópia de segurança guardada.</string>
+    <string name="backup_bad">Este ficheiro não é uma cópia de segurança do AIV.</string>
+    <string name="backup_newer">Esta cópia de segurança usa um formato mais recente, que esta versão do AIV não consegue abrir: atualize a aplicação para importá-la.</string>
+    <string name="backup_wrong">Senha incorreta, ou o ficheiro está danificado.</string>
+    <string name="backup_broken">O ficheiro está danificado ou incompleto.</string>
+    <string name="backup_import_ask">Estas partes vão substituir as atuais; o conteúdo da reciclagem é adicionado ao que já existe.</string>
 </resources>

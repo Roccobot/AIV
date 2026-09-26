@@ -643,4 +643,35 @@
     <string name="hint_modules">Пролистайте значки, чтобы добраться до всех модулей обработки. Удерживайте значок модуля, чтобы сбросить только его изменения.</string>
     <string name="hint_tools">Кроме модулей есть две функции, которые можно сразу включить или выключить касанием значка, и он загорается: \'Водяной знак\' и \'Изменить размер\'. Долгое нажатие открывает настройки каждой из них.</string>
     <string name="hint_save">Когда закончишь, коснись \'Сохранить\', чтобы перезаписать файл (с резервной копией, если она включена); долгое нажатие сохранит новую копию изображения в той же папке.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Экспорт и импорт</string>
+    <string name="backup_desc">Сохраните настройки в файл и верните их, когда понадобится</string>
+    <string name="backup_intro">Файл содержит отмеченные ниже части, и прочитать его может только AIV. При импорте те же флажки определяют, что вернуть: каждая часть заменяет текущую, а содержимое корзины добавляется к тому, что в ней уже есть. Это работает и между разными версиями AIV: всё, что одной из них неизвестно, пропускается, а настройки, появившиеся после создания резервной копии, остаются как есть.</string>
+    <string name="backup_area_view">Внешний вид и навигация</string>
+    <string name="backup_area_covers">Обложки папок</string>
+    <string name="backup_area_hints">Просмотренные подсказки</string>
+    <string name="backup_lock">Защитить паролем</string>
+    <string name="backup_lock_desc">Без пароля файл открывается только в AIV, и импортировать его может любой, у кого есть AIV. С паролем понадобится ещё и он: если вы его забудете, файл больше не откроется.</string>
+    <string name="backup_password_title">Пароль резервной копии</string>
+    <string name="backup_password">Пароль</string>
+    <string name="backup_password_again">Повторите пароль</string>
+    <string name="backup_password_mismatch">Пароли не совпадают.</string>
+    <string name="backup_export">Экспорт</string>
+    <string name="backup_import">Импорт</string>
+    <string name="backup_saved">Резервная копия сохранена.</string>
+    <string name="backup_loaded">Резервная копия импортирована.</string>
+    <string name="backup_loaded_skipped">Резервная копия импортирована, кроме записей, неизвестных этой версии AIV.</string>
+    <string name="backup_load_failed">Импортировать не удалось: ничего не изменилось.</string>
+    <string name="backup_load_partial">Импорт прервался на полпути: некоторые части не перенесены.</string>
+    <string name="backup_bad">Этот файл не является резервной копией AIV.</string>
+    <string name="backup_newer">Эта резервная копия сохранена в более новом формате, который текущая версия AIV открыть не может: обновите приложение, чтобы её импортировать.</string>
+    <string name="backup_wrong">Пароль неверный или файл повреждён.</string>
+    <string name="backup_broken">Файл повреждён или неполный.</string>
+    <string name="backup_exporting">Идёт экспорт...</string>
+    <string name="backup_importing">Идёт импорт...</string>
+    <string name="backup_import_from">Резервная копия от %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Эти части заменят текущие; содержимое корзины добавится к тому, что в ней уже есть.</string>
+    <string name="backup_unlock">Эта резервная копия защищена: введите её пароль.</string>
+    <string name="backup_none">В резервной копии нет ни одной из отмеченных частей.</string>
 </resources>

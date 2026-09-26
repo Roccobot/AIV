@@ -607,4 +607,35 @@
     <string name="hint_modules">نمادها را بکشید تا به همهٔ بخش‌های ویرایش برسید. نماد یک بخش را نگه دارید تا فقط تغییرات همان بخش صفر شود.</string>
     <string name="hint_tools">علاوه بر ماژول‌ها، دو قابلیت وجود دارد که با یک ضربه روی نماد، که روشن می‌شود، بی‌درنگ فعال یا غیرفعال می‌شوند: \'واترمارک\' و \'تغییر اندازه\'. با فشار طولانی به تنظیمات هرکدام می‌روی.</string>
     <string name="hint_save">وقتی کارت تمام شد، برای بازنویسی فایل روی \'ذخیره\' بزن (همراه نسخه پشتیبان، اگر فعال باشد)؛ با فشار طولانی یک نسخه تازه از تصویر در همان پوشه ذخیره می‌شود.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">برون‌بری و درون‌ریزی</string>
+    <string name="backup_desc">تنظیمات را در یک فایل ذخیره کنید و هنگام نیاز بازگردانید</string>
+    <string name="backup_intro">این فایل بخش‌های انتخاب‌شدهٔ زیر را در بر دارد و تنها AIV می‌تواند آن را بخواند. هنگام درون‌ریزی، همین کادرها تعیین می‌کنند چه چیزی بازگردانده شود: هر بخش جای بخش کنونی را می‌گیرد، اما محتوای سبد زباله به آنچه در آن هست افزوده می‌شود. این فایل میان دو نسخهٔ متفاوت AIV هم کار می‌کند: آنچه یکی از آن دو نمی‌شناسد نادیده گرفته می‌شود، و تنظیماتی که پس از پشتیبان‌گیری اضافه شده‌اند دست‌نخورده می‌مانند.</string>
+    <string name="backup_area_view">ظاهر و پیمایش</string>
+    <string name="backup_area_covers">جلد پوشه‌ها</string>
+    <string name="backup_area_hints">راهنماهای دیده‌شده</string>
+    <string name="backup_lock">محافظت با گذرواژه</string>
+    <string name="backup_lock_desc">بدون گذرواژه، فایل فقط با AIV باز می‌شود و هر کسی که AIV دارد می‌تواند آن را درون‌ریزی کند. با گذرواژه، برای باز کردن فایل به آن هم نیاز است: اگر آن را فراموش کنید، فایل دیگر باز نمی‌شود.</string>
+    <string name="backup_password_title">گذرواژهٔ پشتیبان</string>
+    <string name="backup_password">گذرواژه</string>
+    <string name="backup_password_again">تکرار گذرواژه</string>
+    <string name="backup_password_mismatch">دو گذرواژه یکسان نیستند.</string>
+    <string name="backup_export">برون‌بری</string>
+    <string name="backup_import">درون‌ریزی</string>
+    <string name="backup_saved">پشتیبان ذخیره شد.</string>
+    <string name="backup_loaded">پشتیبان درون‌ریزی شد.</string>
+    <string name="backup_loaded_skipped">پشتیبان درون‌ریزی شد، به‌جز مواردی که این نسخهٔ AIV نمی‌شناسد.</string>
+    <string name="backup_load_failed">درون‌ریزی انجام نشد: چیزی تغییر نکرد.</string>
+    <string name="backup_load_partial">درون‌ریزی نیمه‌کاره متوقف شد: برخی بخش‌ها وارد نشدند.</string>
+    <string name="backup_bad">این فایل پشتیبان AIV نیست.</string>
+    <string name="backup_newer">این پشتیبان از قالبی تازه‌تر استفاده می‌کند که این نسخهٔ AIV نمی‌تواند آن را باز کند: برای درون‌ریزی آن، برنامه را به‌روز کنید.</string>
+    <string name="backup_wrong">گذرواژه نادرست است، یا فایل آسیب دیده است.</string>
+    <string name="backup_broken">فایل آسیب‌دیده یا ناقص است.</string>
+    <string name="backup_exporting">در حال برون‌بری...</string>
+    <string name="backup_importing">در حال درون‌ریزی...</string>
+    <string name="backup_import_from">پشتیبان ساخته‌شده در %1$s با AIV %2$s</string>
+    <string name="backup_import_ask">این بخش‌ها جای بخش‌های کنونی را خواهند گرفت؛ اما محتوای سبد زباله به آنچه در آن هست افزوده می‌شود.</string>
+    <string name="backup_unlock">این پشتیبان محافظت‌شده است: گذرواژهٔ آن را وارد کنید.</string>
+    <string name="backup_none">پشتیبان هیچ‌یک از بخش‌های انتخاب‌شده را ندارد.</string>
 </resources>

@@ -589,4 +589,35 @@
     <string name="hint_modules">ปัดไอคอนเพื่อเข้าถึงโมดูลแก้ไขทั้งหมด แตะค้างที่ไอคอนของโมดูลเพื่อล้างเฉพาะการปรับของโมดูลนั้น</string>
     <string name="hint_tools">นอกจากโมดูลแล้ว ยังมีสองฟังก์ชันที่เปิดหรือปิดได้ทันทีด้วยการแตะที่ไอคอน ซึ่งจะสว่างขึ้น ได้แก่ \'ลายน้ำ\' และ \'ปรับขนาด\' กดค้างเพื่อเปิดการตั้งค่าของแต่ละอย่าง</string>
     <string name="hint_save">เมื่อเสร็จแล้วให้แตะ \'บันทึก\' เพื่อเขียนทับไฟล์ (พร้อมสำเนาสำรอง หากเปิดใช้งานไว้) การกดค้างจะบันทึกสำเนาใหม่ของภาพไว้ในโฟลเดอร์เดียวกัน</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">ส่งออกและนำเข้า</string>
+    <string name="backup_desc">บันทึกการตั้งค่าลงในไฟล์ และนำกลับมาใช้เมื่อต้องการ</string>
+    <string name="backup_intro">ไฟล์จะเก็บส่วนที่เลือกไว้ด้านล่าง และมีเพียง AIV เท่านั้นที่อ่านได้ เมื่อนำเข้า ช่องเดียวกันนี้จะกำหนดว่าจะนำอะไรกลับมา แต่ละส่วนจะแทนที่ส่วนปัจจุบัน ส่วนเนื้อหาในถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว ใช้ได้แม้ระหว่าง AIV ต่างเวอร์ชัน สิ่งที่เวอร์ชันใดเวอร์ชันหนึ่งไม่รู้จักจะถูกข้ามไป และการตั้งค่าที่เพิ่มเข้ามาหลังสร้างสำเนาสำรองจะคงเดิม</string>
+    <string name="backup_area_view">รูปลักษณ์และการนำทาง</string>
+    <string name="backup_area_covers">ภาพปกของโฟลเดอร์</string>
+    <string name="backup_area_hints">คำแนะนำที่ดูแล้ว</string>
+    <string name="backup_lock">ป้องกันด้วยรหัสผ่าน</string>
+    <string name="backup_lock_desc">หากไม่มีรหัสผ่าน ไฟล์จะเปิดได้ด้วย AIV เท่านั้น และทุกคนที่มี AIV สามารถนำเข้าได้ หากตั้งรหัสผ่าน จะต้องใช้รหัสผ่านนั้นด้วย ถ้าลืม ไฟล์จะเปิดไม่ได้อีกเลย</string>
+    <string name="backup_password_title">รหัสผ่านของสำเนาสำรอง</string>
+    <string name="backup_password">รหัสผ่าน</string>
+    <string name="backup_password_again">ป้อนรหัสผ่านอีกครั้ง</string>
+    <string name="backup_password_mismatch">รหัสผ่านทั้งสองไม่ตรงกัน</string>
+    <string name="backup_export">ส่งออก</string>
+    <string name="backup_import">นำเข้า</string>
+    <string name="backup_saved">บันทึกสำเนาสำรองแล้ว</string>
+    <string name="backup_loaded">นำเข้าสำเนาสำรองแล้ว</string>
+    <string name="backup_loaded_skipped">นำเข้าสำเนาสำรองแล้ว ยกเว้นรายการที่ AIV เวอร์ชันนี้ไม่รู้จัก</string>
+    <string name="backup_load_failed">การนำเข้าไม่สำเร็จ: ไม่มีอะไรเปลี่ยนแปลง</string>
+    <string name="backup_load_partial">การนำเข้าหยุดกลางคัน: บางส่วนไม่ได้ถูกนำเข้า</string>
+    <string name="backup_bad">ไฟล์นี้ไม่ใช่สำเนาสำรองของ AIV</string>
+    <string name="backup_newer">สำเนาสำรองนี้ใช้รูปแบบที่ใหม่กว่า ซึ่ง AIV เวอร์ชันนี้เปิดไม่ได้ โปรดอัปเดตแอปเพื่อนำเข้า</string>
+    <string name="backup_wrong">รหัสผ่านไม่ถูกต้อง หรือไฟล์เสียหาย</string>
+    <string name="backup_broken">ไฟล์เสียหายหรือไม่สมบูรณ์</string>
+    <string name="backup_exporting">กำลังส่งออก...</string>
+    <string name="backup_importing">กำลังนำเข้า...</string>
+    <string name="backup_import_from">สำเนาสำรองเมื่อ %1$s จาก AIV %2$s</string>
+    <string name="backup_import_ask">ส่วนเหล่านี้จะแทนที่ส่วนปัจจุบัน ส่วนเนื้อหาในถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
+    <string name="backup_unlock">สำเนาสำรองนี้ได้รับการป้องกัน: ป้อนรหัสผ่านของไฟล์นี้</string>
+    <string name="backup_none">สำเนาสำรองไม่มีส่วนที่เลือกไว้เลย</string>
 </resources>

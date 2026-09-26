@@ -607,4 +607,35 @@
     <string name="hint_modules">అన్ని సవరణ మాడ్యూళ్లకు చేరుకోవడానికి చిహ్నాలను స్వైప్ చేయండి. ఒక మాడ్యూల్ చిహ్నాన్ని నొక్కి పట్టుకుంటే దాని మార్పులు మాత్రమే రీసెట్ అవుతాయి.</string>
     <string name="hint_tools">మాడ్యూల్స్‌తో పాటు, ఐకాన్‌ను ఒకసారి తాకి వెంటనే ఆన్ లేదా ఆఫ్ చేయగల రెండు ఫీచర్లు ఉన్నాయి, ఆన్ చేసినప్పుడు ఐకాన్ వెలుగుతుంది: \'వాటర్‌మార్క్\' మరియు \'పరిమాణం మార్చు\'. ఎక్కువసేపు నొక్కితే ఒక్కొక్కదాని సెట్టింగ్‌లు తెరుచుకుంటాయి.</string>
     <string name="hint_save">పూర్తయ్యాక ఫైల్‌ను ఓవర్‌రైట్ చేయడానికి \'భద్రపరచండి\' నొక్కండి (బ్యాకప్ ఆన్‌లో ఉంటే దానితో సహా); ఎక్కువసేపు నొక్కితే చిత్రం కొత్త కాపీ అదే ఫోల్డర్‌లో భద్రమవుతుంది.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">ఎగుమతి, దిగుమతి</string>
+    <string name="backup_desc">అమరికలను ఒక ఫైల్‌లో భద్రపరచి, అవసరమైనప్పుడు తిరిగి తెచ్చుకోండి</string>
+    <string name="backup_intro">ఫైల్‌లో కింద ఎంచుకున్న భాగాలు ఉంటాయి, దాన్ని AIV మాత్రమే చదవగలదు. దిగుమతి చేసేటప్పుడు ఏవి తిరిగి తేవాలో ఇవే చెక్‌బాక్స్‌లు నిర్ణయిస్తాయి: ప్రతి భాగం ప్రస్తుత భాగం స్థానంలోకి వస్తుంది, చెత్తబుట్టలోని అంశాలు ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి. ఇది వేర్వేరు AIV వెర్షన్‌ల మధ్య కూడా పనిచేస్తుంది: రెండింటిలో ఒకదానికి తెలియనివి వదిలివేయబడతాయి, బ్యాకప్ తర్వాత వచ్చిన అమరికలు ఉన్నట్టే ఉంటాయి.</string>
+    <string name="backup_area_view">రూపం, నావిగేషన్</string>
+    <string name="backup_area_covers">ఫోల్డర్‌ల కవర్‌లు</string>
+    <string name="backup_area_hints">ఇప్పటికే చూసిన సూచనలు</string>
+    <string name="backup_lock">పాస్‌వర్డ్‌తో రక్షించండి</string>
+    <string name="backup_lock_desc">పాస్‌వర్డ్ లేకుంటే ఫైల్ AIVతో మాత్రమే తెరుచుకుంటుంది, AIV ఉన్న ఎవరైనా దాన్ని దిగుమతి చేయవచ్చు. పాస్‌వర్డ్ పెడితే అది కూడా అవసరం: దాన్ని మరచిపోతే, ఫైల్ ఇక తెరుచుకోదు.</string>
+    <string name="backup_password_title">బ్యాకప్ పాస్‌వర్డ్</string>
+    <string name="backup_password">పాస్‌వర్డ్</string>
+    <string name="backup_password_again">పాస్‌వర్డ్‌ను మళ్లీ రాయండి</string>
+    <string name="backup_password_mismatch">రెండు పాస్‌వర్డ్‌లు సరిపోలడం లేదు.</string>
+    <string name="backup_export">ఎగుమతి</string>
+    <string name="backup_import">దిగుమతి</string>
+    <string name="backup_saved">బ్యాకప్ భద్రపరచబడింది.</string>
+    <string name="backup_loaded">బ్యాకప్ దిగుమతి అయింది.</string>
+    <string name="backup_loaded_skipped">బ్యాకప్ దిగుమతి అయింది, ఈ AIV వెర్షన్‌కు తెలియని ఎంట్రీలు తప్ప.</string>
+    <string name="backup_load_failed">దిగుమతి జరగలేదు: ఏమీ మారలేదు.</string>
+    <string name="backup_load_partial">దిగుమతి మధ్యలోనే ఆగిపోయింది: కొన్ని భాగాలు రాలేదు.</string>
+    <string name="backup_bad">ఈ ఫైల్ AIV బ్యాకప్ కాదు.</string>
+    <string name="backup_newer">ఈ బ్యాకప్ కొత్త ఫార్మాట్‌ను ఉపయోగిస్తుంది, దాన్ని ఈ AIV వెర్షన్ తెరవలేదు: దీన్ని దిగుమతి చేయడానికి యాప్‌ను నవీకరించండి.</string>
+    <string name="backup_wrong">పాస్‌వర్డ్ తప్పు, లేదా ఫైల్ పాడైంది.</string>
+    <string name="backup_broken">ఫైల్ పాడైంది లేదా అసంపూర్ణంగా ఉంది.</string>
+    <string name="backup_exporting">ఎగుమతి చేస్తోంది...</string>
+    <string name="backup_importing">దిగుమతి చేస్తోంది...</string>
+    <string name="backup_import_from">%1$s నాటి బ్యాకప్, AIV %2$s</string>
+    <string name="backup_import_ask">ఈ భాగాలు ప్రస్తుత భాగాల స్థానంలోకి వస్తాయి; చెత్తబుట్టలోని అంశాలు ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
+    <string name="backup_unlock">ఈ బ్యాకప్ రక్షించబడింది: దాని పాస్‌వర్డ్‌ను రాయండి.</string>
+    <string name="backup_none">ఎంచుకున్న భాగాలలో ఏదీ బ్యాకప్‌లో లేదు.</string>
 </resources>

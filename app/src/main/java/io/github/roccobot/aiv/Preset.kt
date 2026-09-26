@@ -298,6 +298,14 @@ object Presets {
         return true
     }
 
+    /**
+     * Se [text] è un archivio che [load] saprebbe leggere, senza scrivere niente.
+     *
+     * ⚠️ **Serve al backup, che prima controlla tutto e poi scrive tutto**: con la sola [load],
+     * un archivio storto si scoprirebbe quando le altre parti sono già state rimesse.
+     */
+    internal fun readable(text: String): Boolean = runCatching { parse(text) }.isSuccess
+
     // ── L'archivio ───────────────────────────────────────────────────────────
 
     /** Quello che il file tiene: i propri, e che cosa è stato fatto a quelli di casa. */

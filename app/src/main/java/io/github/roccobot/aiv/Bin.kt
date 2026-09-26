@@ -493,6 +493,89 @@ object Bin {
         }
 
     /**
+     * Che cosa c'è nel cestino adesso: le righe d'archivio e i file, per il backup.
+     *
+     * ⚠️⚠️ **SI FOTOGRAFA SOTTO IL LOCK E SI COPIA FUORI**: la fotografia costa un elenco di
+     * cartella, mentre la copia di cento fotografie dura, e tenere il lock per tutto quel tempo
+     * fermerebbe un'eliminazione fatta nel frattempo dall'altra parte dell'app. Un file che
+     * sparisce fra le due cose (il cestino svuotato durante l'esportazione) chi copia lo salta.
+     * ⚠️ **Le righe che non trovano il loro file restano fuori**, come in [list]: descrivono
+     * file che non ci sono più, e portarle in un backup vorrebbe dire rimetterle in un altro
+     * cestino dove non descriverebbero niente.
+     */
+    internal suspend fun snapshot(context: Context): Pair<List<Record>, List<File>> =
+        withContext(Dispatchers.IO) {
+            lock.withLock {
+                val files = runCatching { dir(context).listFiles() }.getOrNull().orEmpty()
+                    .filter { it.isFile && !it.name.hasSeparators() }
+                val names = files.map { it.name }.toSet()
+                read(context).filter { it.name in names } to files
+            }
+        }
+
+    /**
+     * Aggiunge al cestino i file di un backup, con le loro righe d'archivio.
+     *
+     * ⚠️⚠️ **SI AGGIUNGE E NON SI SOSTITUISCE, al contrario di ogni altra parte del backup**:
+     * sostituire vorrebbe dire cancellare per sempre quello che c'è nel cestino di adesso, cioè
+     * l'unica operazione che il cestino esiste per non fare. Le preferenze e le copertine si
+     * possono rifare, un file buttato no.
+     * ⚠️ **I doppioni si saltano**, o importare due volte lo stesso backup riempirebbe il cestino
+     * di copie. Una riga è la stessa se ha la stessa origine, lo stesso istante e lo stesso peso;
+     * un file senza riga è lo stesso se ha lo stesso nome e lo stesso peso.
+     * ⚠️ **L'istante resta quello del backup**, ed è una scelta dichiarata: dice quando il file è
+     * stato eliminato, che è vero anche su un altro telefono. Il prezzo è che lo svuotamento
+     * automatico lo conta da allora, quindi un file vecchio può andarsene al primo giro.
+     * ⚠️ **Il nome lo sceglie [FileTree.freeName]**, come a ogni arrivo: due file che si chiamano
+     * uguale convivono, e la riga d'archivio segue il nome nuovo.
+     *
+     * @param incoming i file del backup, già estratti accanto al cestino, con la loro riga se ce
+     *   l'hanno. ⚠️ **Accanto e non in un posto qualunque**: sullo stesso volume uno spostamento
+     *   è una rinomina, mentre da un altro volume sarebbe una seconda copia di tutto.
+     * @return quanti file **non** sono entrati, cioè quelli che lo spostamento non è riuscito a
+     *   portare dentro. ⚠️ **Un doppione non conta**: è già nel cestino, quindi per chi importa è
+     *   arrivato. Zero vuol dire che il cestino porta tutto quello che il backup portava.
+     */
+    internal suspend fun adopt(context: Context, incoming: List<Pair<File, Record?>>): Int =
+        withContext(Dispatchers.IO + NonCancellable) {
+            lock.withLock {
+                val bin = ready(context)
+                val records = read(context).toMutableList()
+                // ⚠️ Una mappa che cresce, e non una fotografia: due righe uguali dentro lo stesso
+                // backup sarebbero entrate tutte e due, perché il confronto guardava soltanto i
+                // file che c'erano prima dell'importazione.
+                val sizes = runCatching { bin.listFiles() }.getOrNull().orEmpty()
+                    .filter { it.isFile }
+                    .associateTo(HashMap()) { it.name to it.length() }
+                var left = 0
+                for ((file, record) in incoming) {
+                    val peso = file.length()
+                    val doppione = if (record != null) {
+                        records.any {
+                            it.origin == record.origin && it.at == record.at && sizes[it.name] == peso
+                        }
+                    } else {
+                        sizes[file.name] == peso
+                    }
+                    if (doppione) {
+                        file.delete()
+                        continue
+                    }
+                    val to = FileTree.freeName(bin, file.name)
+                    if (!FileTree.carry(file, to)) {
+                        left++
+                        continue
+                    }
+                    touch(context, to)
+                    sizes[to.name] = peso
+                    if (record != null) records += Record(to.name, record.at, record.origin, record.kind)
+                }
+                write(context, records)
+                left
+            }
+        }
+
+    /**
      * Le righe di un archivio, saltando quelle rovinate.
      *
      * ⚠️ **Una riga per file, colonne separate da tabulazione**, come gli appunti di

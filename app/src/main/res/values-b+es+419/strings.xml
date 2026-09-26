@@ -36,4 +36,8 @@
     <string name="settings_last_mark">Marca del último elemento visto</string>
     <string name="settings_last_mark_frame">Marco</string>
     <string name="settings_last_mark_corner">Esquina</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_desc">Guarda la configuración en un archivo y recupérala cuando la necesites</string>
+    <string name="backup_intro">El archivo contiene las partes marcadas abajo, y solo AIV puede leerlo. Al importar, las mismas casillas deciden qué se restaura: cada parte sustituye a la actual, y el contenido de la papelera se suma a lo que ya hay. También funciona entre versiones distintas de AIV: lo que una de las dos no conoce se omite, y las configuraciones que aparecieron después de la copia de seguridad se quedan como están.</string>
 </resources>

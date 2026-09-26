@@ -5789,6 +5789,151 @@ viene di quattro voci e un'altra di una, sta bene: le domande non si fanno tutte
 frequenza. ⚠️ **E i conti non si scrivono**, qui come nei commenti del pannello: quante sono le
 sezioni, le famiglie e le voci si contano nel codice.
 
+## 💼 Esporta e importa, e il file che solo AIV sa leggere
+
+⚠️⚠️ **DALLA `2.93`, ED È LA TERZA RICHIESTA DEL CAMPO LIBERO DEL GIRO DELLA `2.91`** (*uno o più
+file di testo (scegli tu se TXT, XML, JSON, YAML, INI, ecc.) ed eventuali file accessori,
+strutturati in modo ottimale e compressi in uno ZIP criptato (leggibile solo da AIV, su richiesta
+anche protetto da password)*, e *deve contenere letteralmente TUTTE le impostazioni dell'app che
+possono essere salvate, ma ogni cosa su richiesta con apposita checkbox*). La pagina è 'Esporta e
+importa', una sotto-pagina che si apre dalla radice delle impostazioni accanto al ripristino degli
+avvisi; il formato vive in `Backup.kt` e la pagina in `BackupSettings.kt`.
+
+⚠️⚠️ **LE PARTI SONO OTTO MACRO-AREE, ED È LA SUA RIGA ALLA LETTERA** (*per non fare un elenco
+troppo lungo di checkbox, si selezionerà per macro-aree*): 'Aspetto e navigazione', 'Comandi e
+indicatori', 'Modifica e backup', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine delle
+cartelle', 'Avvisi già visti' e 'Cestino'. Le prime tre sono le sezioni della schermata delle
+impostazioni e portano il loro titolo, le altre sono quello che l'app ricorda fuori da lì.
+- ⚠️ **Il token di un'area è il formato e non cambia mai**: lo leggono anche i file già salvati, e
+  un'area nuova prende un token nuovo.
+- ⚠️ **'Stili dell'editor' non c'è dove l'editor completo non c'è**, cioè sotto Android 13, per lo
+  stesso criterio della loro pagina.
+- ⚠️ **Il cestino è l'ultima casella e dice quanto pesa**: è la sola parte che può valere un
+  gigabyte, e chi manda un backup su Drive lo deve sapere prima.
+
+⚠️⚠️ **È UNO ZIP DENTRO UN CONTENITORE CIFRATO, E NON UNO ZIP CON LA PASSWORD, ED È UNA SCELTA
+DICHIARATA** (il formato l'ha lasciato scegliere a me): la cifratura classica dello ZIP si rompe in
+pochi minuti, e quella AES di WinZip in `java.util.zip` non c'è, cioè vorrebbe una libreria. Dentro,
+i testi sono JSON e i file accessori (le copertine, il logo, i file del cestino) sono copiati come
+sono.
+- ⚠️ **Il contenitore cifra a segmenti da 64 kB con AES-GCM**, che è la costruzione dei flussi
+  cifrati di Tink e di `age` fatta con le sole classi della piattaforma: su Android un GCM non
+  restituisce un byte finché il tag non è verificato, quindi un cestino da un gigabyte andrebbe
+  letto tutto in memoria.
+- ⚠️⚠️ **L'ultimo segmento si dichiara nel nonce, ed è quello che fa vedere un file tagliato**:
+  troncato proprio fra due segmenti, un file sarebbe fatto di segmenti tutti validi.
+- ⚠️ **L'intestazione, 35 byte in chiaro, entra in ogni segmento come dato autenticato**: cambiarne
+  un byte rompe la lettura invece di cambiarne il significato.
+
+⚠️⚠️ **SENZA PASSWORD È UN SIGILLO E NON UNA PROTEZIONE, E LA PAGINA LO DICE**: la chiave nasce da
+una costante che vive nell'APK, quindi un altro programma non lo apre, ma chiunque abbia AIV lo
+importa. È il *leggibile solo da AIV* della sua richiesta; la protezione vera è la password.
+- ⚠️ **La chiave di una password la fa PBKDF2 con 600.000 iterazioni, scritto a mano**:
+  `SecretKeyFactory` riceve la password come caratteri e decide lei come farli diventare byte, e su
+  Android lo ha già cambiato una volta. Qui i byte sono NFC e poi UTF-8, così la stessa lettera
+  accentata arrivata da due tastiere diverse dà la stessa password, e il banco confronta il conto
+  coi vettori pubblicati.
+- ⚠️ **Le iterazioni stanno nell'intestazione, con un tetto in lettura**: un file fatto apposta con
+  due miliardi di iterazioni terrebbe il telefono a contare per ore.
+- ⚠️⚠️ **Quanto costano su un telefono non è misurato**: la pagina mostra l'attesa, e la voce di
+  collaudo lo chiede.
+- ⚠️ **La password non va mai su disco**: vive nel processo per il tempo del selettore, e il campo è
+  un `remember`. Se il telefono si gira con la finestra aperta, va riscritta.
+
+⚠️⚠️ **DRIVE ARRIVA DAL SELETTORE DI SISTEMA E NON DA UNA LIBRERIA** (*il file deve essere salvato
+localmente o su cartella Drive*): l'esportazione passa da `CreateDocument` e l'importazione da
+`OpenDocument`, che elencano Drive fra gli archivi quando la sua app è installata. Nessun permesso
+di rete e nessun accesso da concedere a Google: il file lo scrive il fornitore che lui sceglie.
+- ⚠️ **L'importazione accetta ogni tipo di file**: un file passato da una chat o da Drive arriva col
+  tipo che ha deciso chi lo serve, e a dire se è un backup ci pensa la sua intestazione.
+
+⚠️⚠️ **LE PREFERENZE SONO UN ELENCO SCRITTO A MANO, E LO TIENE ONESTO UNA PROVA** (`PREF_KEYS`): le
+chiavi vivono in cinque oggetti diversi di `Settings.kt`, e una chiave nuova dimenticata là
+resterebbe fuori da ogni backup senza nessun errore. Il caso 2 di `BackupTest` riempie l'archivio con
+tutti i suoi scrittori e pretende che ogni chiave sia nell'elenco col tipo giusto, oppure in
+`PREF_OUTSIDE`.
+- ⚠️⚠️ **CHI AGGIUNGE UNA PREFERENZA LA SCRIVE ANCHE LÀ, CON LA SUA AREA, E L'AREA NON CAMBIA MAI**,
+  anche se la voce si sposta di pagina: un backup di prima e uno di dopo la metterebbero in due voci
+  diverse, e una versione vecchia la cercherebbe in quella sbagliata.
+- ⚠️ **Cinque chiavi restano fuori, e sono promemoria di questo telefono**: il permesso già chiesto,
+  la cartella di download col suo permesso persistente, l'ultimo indirizzo degli appunti già aperto,
+  e che cosa c'è già nella cartella Download. Su un altro telefono direbbero una cosa falsa, e
+  all'importazione non si toccano.
+- ⚠️ **Le due chiavi vecchie ci sono di proposito** (`veil` e `mark-air`): nessuno le scrive più, ma
+  l'app le legge ancora come ripiego.
+
+⚠️⚠️ **IMPORTANDO, OGNI PARTE PRENDE IL POSTO DI QUELLA DI ADESSO, TRANNE IL CESTINO, CHE SI
+AGGIUNGE**: sostituirlo vorrebbe dire cancellare per sempre dei file, cioè la sola cosa che il cestino
+esiste per non fare. Con lui si aggiunge la cronologia dei ripristini, e un doppione non entra due
+volte.
+- ⚠️⚠️ **PRIMA SI LEGGE TUTTO E POI SI SCRIVE TUTTO**: le voci si mettono da parte in due cartelle
+  d'appoggio e il file si legge fino all'ultimo segmento, quindi un file tagliato o storto si scopre
+  quando non è ancora cambiato niente. Le cartelle d'appoggio si puliscono anche all'avvio dell'app,
+  per un'importazione uccisa a metà.
+- ⚠️ **Le caselle valgono nei due versi, ed è una scelta dichiarata**: esportando dicono che cosa
+  entra nel file, importando che cosa esce dal file. Si importano le parti spuntate che il file
+  porta, e la finestra di conferma le elenca prima.
+- ⚠️ **Dopo un'importazione il modello rilegge quello che non passa dal flusso delle preferenze**,
+  cioè il logo, le tinte e le copertine (`Backups.imported`).
+
+⚠️⚠️ **VALE FRA VERSIONI DIVERSE DI AIV, NEI DUE VERSI, ED È SUA ISTRUZIONE** (arrivata a lavoro
+iniziato: *una versione di AIV più recente di quella che ha generato il backup troverà 'vuote' alcune
+impostazioni nate dopo (resteranno default o ai valori impostati dall'utente). Al contrario, una
+versione di AIV più datata di quella che ha generato il file ignorerà alcune voci di importazione non
+sapendo come trattarle, ma teoricamente potrà importare tutto ciò che è importabile*). Le regole sono
+quattro, e vivono in testa a `Backup`.
+1. **Il formato cresce solo aggiungendo**: una voce, un campo o una chiave non cambiano mai forma né
+   significato, e quello che cambia prende un nome nuovo.
+2. ⚠️⚠️ **Una preferenza che il file non nomina non si tocca**: per ogni area il file elenca tutte le
+   chiavi che conosceva, col valore oppure fra le **assenti**, cioè al valore di fabbrica. Senza
+   l'elenco delle assenti, una chiave nata dopo il backup e una che alla partenza era di fabbrica
+   sarebbero lo stesso silenzio.
+3. **L'unico cancello è la versione del contenitore**, il quinto byte dell'intestazione, e sale solo
+   il giorno che una versione vecchia non potrebbe leggere niente: allora la risposta è 'aggiorna
+   l'app'. Il resoconto non porta un numero di versione, perché con la prima regola non ne ha
+   bisogno.
+4. ⚠️ **Quello che non si sa leggere si salta, si conta, e non cancella niente**: un'area, una voce,
+   una chiave o un tipo sconosciuti si saltano, e un logo o una copertina in un formato nuovo
+   lasciano al suo posto quello che c'era. La notifica finale lo dice (*Backup importato, tranne le
+   voci che questa versione di AIV non conosce.*).
+- ⚠️ **I numeri viaggiano come stringhe, col tipo scritto accanto**: un numero JSON lo tipizza chi
+  legge, e il tipo di una preferenza non si indovina.
+- ⚠️ **Gli archivi del cestino e della cronologia non crescono per colonne**: una colonna in più
+  farebbe scartare le righe a una versione vecchia, quindi un dato nuovo prende una voce sua.
+
+⚠️⚠️ **E QUELLO CHE NESSUNA VERSIONE SCRIVE RESTA UN RIFIUTO**, che è il confine fra 'un'altra
+versione' e 'un file fatto a mano': un nome che esce dalla sua cartella, un nome doppio, una
+struttura che non si legge, un testo oltre il suo tetto, un file del cestino che dice di tornare
+dentro la casa dell'app, e una voce gonfiata apposta. Quattro megabyte di zeri compressi pesano pochi
+kilobyte, e AIV i file li scrive senza comprimerli, quindi quello che esce da una voce non può
+superare quello che è entrato.
+
+⚠️ **L'avanzamento è una riga della pagina e non una finestra, e il lavoro vive col processo**: un
+backup col cestino può durare dei minuti, e uscire dalla pagina o girare il telefono non lo ferma.
+Un'importazione che sta già scrivendo va fino in fondo anche annullandola, perché fermata a metà
+sarebbe un'app fatta di due backup.
+
+⚠️ **Le due finestre della password sono modali vere e la conferma no**, per il criterio di § '👆 Che
+cosa fa il tocco FUORI da una finestra': la conferma non raccoglie niente di scritto, e il tocco fuori
+vale 'Annulla', che è l'esito sicuro.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`BackupTest`, ventidue casi, ognuno controprovato
+rimettendo il suo difetto): che ogni preferenza torni col suo tipo e che ogni chiave dell'archivio
+sia coperta; le caselle; le assenti, le chiavi non nominate e il file di una versione più nuova, con
+una controprova per ognuna delle cinque regole che lo reggono; la sostituzione delle copertine e del
+logo e l'aggiunta al cestino; il contenitore, cioè la password, un byte cambiato, un file tagliato su
+ogni confine, due segmenti scambiati, i vettori di PBKDF2 e la password scritta in due modi; e i tre
+file fatti a mano. **Non** vede il selettore di sistema né Drive, quanto costi la chiave su un
+telefono, né l'app che si ridisegna dopo un'importazione: quelli si guardano sul telefono, e la voce
+di collaudo li chiede.
+- ⚠️⚠️ **UNA TRAPPOLA DEL BANCO, TROVATA RIMETTENDO I DIFETTI**: la JVM rifiuta di cifrare due volte
+  con la stessa chiave e lo stesso nonce, quindi un difetto che congela il contatore fa cadere le
+  prove già mentre scrivono il file, cioè per la ragione sbagliata. Per misurarlo serve un cifrario
+  nuovo per ogni segmento, ed è scritto sul caso 16.
+- ⚠️ **Il nome con la salita, senza il suo controllo, fa cadere l'importazione con un errore di
+  scrittura**: sul banco c'è una seconda difesa, casuale, perché il percorso passa da una cartella
+  d'appoggio che non esiste ancora. Il controllo è quello che dà la risposta giusta.
+
 ## 🇺🇸 L'inglese dell'app è americano
 
 ⚠️⚠️ **DALLA `1.92`, ED È SUA RISPOSTA** (`d-inglese-colore` del giro della `1.91`: **`americano`**,

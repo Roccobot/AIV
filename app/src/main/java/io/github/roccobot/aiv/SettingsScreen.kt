@@ -508,6 +508,24 @@ fun SettingsScreen(
                 )
             }
         }
+
+        /*
+         * ⚠️⚠️ **UNA SOTTO-PAGINA PER DUE RAGIONI, E SI DICHIARANO QUANDO NASCE** (§ '⚙️ Dove va
+         * un'impostazione, e chi la deve trovare'): è un comando che ha bisogno di un paragrafo,
+         * perché chi esporta deve sapere che cosa il file porterà e che una password dimenticata
+         * non si recupera; e le sue caselle sono una famiglia sola (*che cosa porto con me*) ben
+         * oltre il *2-3* della soglia.
+         * ⚠️ **La ricerca la trova dalla riga che la apre**, con le parole di dentro in `extra`:
+         * il corpo non si appiattisce, perché due tasti e una barra d'avanzamento in mezzo ai
+         * risultati di una ricerca sarebbero comandi fuori dal loro contesto.
+         */
+        Page.BACKUP -> Shell(
+            title = stringResource(R.string.backup_title),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            BackupPage()
+        }
     }
 }
 
@@ -526,7 +544,10 @@ fun SettingsScreen(
 internal enum class Page {
     ROOT,
     FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
-    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK
+    // ⚠️ `BACKUP` in coda e non vicino a chi gli somiglia: la pila si salva per ordinali (vedi
+    // [PAGE_STACK]), e una voce infilata in mezzo sposterebbe quelle dopo, cioè una rotazione in
+    // corso di aggiornamento riaprirebbe una pagina diversa.
+    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK, BACKUP
 }
 
 /**
@@ -1092,6 +1113,34 @@ private fun ColumnScope.RootPage(
                 ThumbsCard(head = thumbsLabel, onClear = onClearThumbs)
             }
         }
+    }
+
+    /*
+     * ⚠️⚠️ **LA PORTA DEL BACKUP VIVE QUI, ACCANTO AL RIPRISTINO DEGLI AVVISI, PER LA STESSA
+     * RAGIONE**: non è un'impostazione ma un'azione sulla memoria dell'app, e dentro un gruppo si
+     * leggerebbe come una preferenza di quel tema. Viene prima perché è quella che si cerca: il
+     * ripristino degli avvisi è nato per le prove.
+     * ⚠️ **Lo stacco sopra è quello di un titolo di gruppo**, ventiquattro punti con quelli della
+     * colonna: senza, la riga si leggerebbe come la terza voce di 'Funzionalità avanzate'.
+     * ⚠️ **`extra` porta i comandi di dentro e non i nomi delle parti**: chi cerca 'Cestino' cerca
+     * il cestino, e trovare invece la porta del backup gli darebbe un risultato che non ha chiesto.
+     */
+    val backupLabel = stringResource(R.string.backup_title)
+    val backupDesc = stringResource(R.string.backup_desc)
+    val backupWords = listOf(
+        stringResource(R.string.backup_export),
+        stringResource(R.string.backup_import),
+        stringResource(R.string.backup_lock),
+        stringResource(R.string.backup_password_title)
+    )
+    Searchable(backupLabel, backupDesc, *backupWords.toTypedArray()) {
+        Spacer(Modifier.height(20.dp))
+        PageRow(
+            label = backupLabel,
+            summary = backupDesc,
+            onOpen = { onOpen(Page.BACKUP) },
+            extra = backupWords
+        )
     }
 
     /*
@@ -2962,6 +3011,40 @@ internal fun SwitchRow(
             detail?.let { Detail(it) }
         }
         Switch(checked = checked, onCheckedChange = null)
+    }
+}
+
+/**
+ * Una voce con la casella: la gemella di [SwitchRow] per le scelte che si sommano.
+ *
+ * ⚠️ **Una casella e non un interruttore**, e non è un gusto: un interruttore dice che una cosa è
+ * accesa o spenta da adesso in poi, mentre qui si sceglie che cosa entra in un'operazione che
+ * parte dopo. È la differenza che Material stesso tiene fra i due componenti.
+ * ⚠️ **La riga intera è il bersaglio**, con `Role.Checkbox`, per la stessa ragione scritta su
+ * [SwitchRow]: dentro, la casella non ascolta niente.
+ */
+@Composable
+internal fun CheckRow(
+    label: String,
+    detail: String?,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit
+) {
+    if (!shown(label, detail)) return
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .bordo()
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = onChange)
+            .padding(horizontal = PAGE_SIDE, vertical = ROW_HIGH),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text = label, style = MaterialTheme.typography.titleSmall)
+            detail?.let { Detail(it) }
+        }
+        Checkbox(checked = checked, onCheckedChange = null)
     }
 }
 

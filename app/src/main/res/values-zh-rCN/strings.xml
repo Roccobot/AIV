@@ -589,4 +589,35 @@
     <string name="hint_modules">滑动图标即可到达所有编辑模块。长按某个模块的图标，只重置该模块的调整。</string>
     <string name="hint_tools">除了模块之外，还有两项功能可以随时轻触图标开启或关闭，开启后图标会亮起：\'水印\'和\'调整尺寸\'。长按可以打开各自的设置。</string>
     <string name="hint_save">完成后轻触\'保存\'覆盖原文件(如果已启用备份，备份也会保留)；长按则会在同一文件夹中保存图片的新副本。</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">导出与导入</string>
+    <string name="backup_desc">将设置保存到文件，需要时再恢复</string>
+    <string name="backup_intro">文件包含下方勾选的部分，只有 AIV 能读取。导入时，同样由这些复选框决定恢复哪些内容：每个部分都会替换当前的设置，而回收站的内容会添加到现有内容中。不同版本的 AIV 之间也能使用：其中一方不认识的内容会被跳过，备份之后新增的设置保持不变。</string>
+    <string name="backup_area_view">外观与导航</string>
+    <string name="backup_area_covers">文件夹封面</string>
+    <string name="backup_area_hints">已看过的提示</string>
+    <string name="backup_lock">使用密码保护</string>
+    <string name="backup_lock_desc">没有密码时，文件只能用 AIV 打开，任何装有 AIV 的人都能导入。设置密码后还需要输入密码：如果忘记了，文件将再也无法打开。</string>
+    <string name="backup_password_title">备份密码</string>
+    <string name="backup_password">密码</string>
+    <string name="backup_password_again">再次输入密码</string>
+    <string name="backup_password_mismatch">两次输入的密码不一致。</string>
+    <string name="backup_export">导出</string>
+    <string name="backup_import">导入</string>
+    <string name="backup_saved">备份已保存。</string>
+    <string name="backup_loaded">备份已导入。</string>
+    <string name="backup_loaded_skipped">备份已导入，但此版本的 AIV 不认识的条目已跳过。</string>
+    <string name="backup_load_failed">导入没有成功：没有任何更改。</string>
+    <string name="backup_load_partial">导入中途停止：部分内容没有导入。</string>
+    <string name="backup_bad">此文件不是 AIV 备份。</string>
+    <string name="backup_newer">此备份使用了更新的格式，此版本的 AIV 无法打开：请更新应用后再导入。</string>
+    <string name="backup_wrong">密码不正确，或文件已损坏。</string>
+    <string name="backup_broken">文件已损坏或不完整。</string>
+    <string name="backup_exporting">正在导出...</string>
+    <string name="backup_importing">正在导入...</string>
+    <string name="backup_import_from">%1$s 的备份，AIV %2$s</string>
+    <string name="backup_import_ask">这些部分将替换当前的设置；回收站的内容会添加到现有内容中。</string>
+    <string name="backup_unlock">此备份受密码保护：请输入密码。</string>
+    <string name="backup_none">备份中不包含任何勾选的部分。</string>
 </resources>

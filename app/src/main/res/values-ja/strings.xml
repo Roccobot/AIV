@@ -589,4 +589,35 @@
     <string name="hint_modules">アイコンをスワイプするとすべての編集モジュールに届きます。モジュールのアイコンを長押しすると、そのモジュールの調整だけを戻せます。</string>
     <string name="hint_tools">モジュールのほかに、アイコンを1回タップするだけでいつでもオンとオフを切り替えられる機能が2つあります。オンになるとアイコンが光ります: \'透かし\'と\'サイズ変更\'です。長押しすると、それぞれの設定が開きます。</string>
     <string name="hint_save">終わったら\'保存\'をタップしてファイルを上書きします(バックアップが有効なら控えも残ります)。長押しすると、画像の新しいコピーが同じフォルダに保存されます。</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">書き出しと読み込み</string>
+    <string name="backup_desc">設定をファイルに保存し、必要なときに復元します</string>
+    <string name="backup_intro">ファイルには下でチェックした項目が入り、AIV だけが読み取れます。読み込むときは、同じチェックボックスで戻す項目を選びます。各項目は現在のものと置き換わり、ゴミ箱の中身は今あるものに追加されます。AIV の異なるバージョンの間でも使えます。どちらかのバージョンが認識できないものは飛ばされ、バックアップより後にできた設定はそのまま残ります。</string>
+    <string name="backup_area_view">外観とナビゲーション</string>
+    <string name="backup_area_covers">フォルダーのカバー</string>
+    <string name="backup_area_hints">表示済みのヒント</string>
+    <string name="backup_lock">パスワードで保護</string>
+    <string name="backup_lock_desc">パスワードがなければ、ファイルは AIV でしか開けませんが、AIV を持っている人なら誰でも読み込めます。パスワードを付けると、それも必要になります。忘れると、ファイルは二度と開けなくなります。</string>
+    <string name="backup_password_title">バックアップのパスワード</string>
+    <string name="backup_password">パスワード</string>
+    <string name="backup_password_again">パスワードをもう一度入力</string>
+    <string name="backup_password_mismatch">2つのパスワードが一致しません。</string>
+    <string name="backup_export">書き出す</string>
+    <string name="backup_import">読み込む</string>
+    <string name="backup_saved">バックアップを保存しました。</string>
+    <string name="backup_loaded">バックアップを読み込みました。</string>
+    <string name="backup_loaded_skipped">バックアップを読み込みました。このバージョンの AIV が認識できない項目は飛ばしました。</string>
+    <string name="backup_load_failed">読み込めませんでした。何も変わっていません。</string>
+    <string name="backup_load_partial">読み込みが途中で止まりました。一部の項目は反映されていません。</string>
+    <string name="backup_bad">このファイルは AIV のバックアップではありません。</string>
+    <string name="backup_newer">このバックアップは新しい形式のため、このバージョンの AIV では開けません。読み込むにはアプリを更新してください。</string>
+    <string name="backup_wrong">パスワードが正しくないか、ファイルが破損しています。</string>
+    <string name="backup_broken">ファイルが破損しているか、不完全です。</string>
+    <string name="backup_exporting">書き出し中...</string>
+    <string name="backup_importing">読み込み中...</string>
+    <string name="backup_import_from">%1$s のバックアップ、AIV %2$s</string>
+    <string name="backup_import_ask">これらの項目は現在のものと置き換わります。ゴミ箱の中身は今あるものに追加されます。</string>
+    <string name="backup_unlock">このバックアップは保護されています。パスワードを入力してください。</string>
+    <string name="backup_none">チェックした項目はバックアップに含まれていません。</string>
 </resources>

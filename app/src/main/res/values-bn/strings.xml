@@ -607,4 +607,35 @@
     <string name="hint_modules">সব সম্পাদনা মডিউলে পৌঁছাতে আইকনগুলি সোয়াইপ করুন। কোনও মডিউলের আইকন চেপে ধরে রাখলে শুধু তার পরিবর্তন মুছে যায়।</string>
     <string name="hint_tools">মডিউলগুলি ছাড়াও দুটি ফাংশন আছে, যেগুলি আইকনে একটি ট্যাপ করে সঙ্গে সঙ্গে চালু বা বন্ধ করা যায়, আর আইকনটি জ্বলে ওঠে: \'জলছাপ\' ও \'আকার বদলান\'। দীর্ঘ চাপে প্রতিটির সেটিংস খোলে।</string>
     <string name="hint_save">শেষ হলে ফাইলটি প্রতিস্থাপন করতে \'সংরক্ষণ করুন\' চাপুন (ব্যাকআপ কপিসহ, যদি সেটি চালু থাকে); দীর্ঘ চাপে ছবিটির একটি নতুন কপি একই ফোল্ডারে সংরক্ষিত হয়।</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">রপ্তানি ও আমদানি</string>
+    <string name="backup_desc">সেটিংস একটি ফাইলে সংরক্ষণ করুন এবং দরকার হলে ফিরিয়ে আনুন</string>
+    <string name="backup_intro">ফাইলটিতে নিচে টিক দেওয়া অংশগুলি থাকে, আর শুধু AIV-ই এটি পড়তে পারে। আমদানির সময় একই চেকবক্সগুলি ঠিক করে কী ফিরিয়ে আনা হবে: প্রতিটি অংশ বর্তমান অংশের জায়গা নেয়, আর আবর্জনার বিষয়বস্তু আগে থেকে থাকা বিষয়বস্তুর সঙ্গে যোগ হয়। এটি AIV-এর বিভিন্ন সংস্করণের মধ্যেও কাজ করে: দুটির মধ্যে একটি যা চেনে না তা বাদ দেওয়া হয়, আর ব্যাকআপের পরে যোগ হওয়া সেটিংস যেমন আছে তেমনই থাকে।</string>
+    <string name="backup_area_view">উপস্থিতি ও নেভিগেশন</string>
+    <string name="backup_area_covers">ফোল্ডারের কভার</string>
+    <string name="backup_area_hints">আগে দেখা সংকেত</string>
+    <string name="backup_lock">পাসওয়ার্ড দিয়ে সুরক্ষিত করুন</string>
+    <string name="backup_lock_desc">পাসওয়ার্ড ছাড়া ফাইলটি শুধু AIV দিয়েই খোলে, আর AIV আছে এমন যে কেউ এটি আমদানি করতে পারে। পাসওয়ার্ড দিলে সেটিও লাগবে: ভুলে গেলে ফাইলটি আর খোলা যাবে না।</string>
+    <string name="backup_password_title">ব্যাকআপের পাসওয়ার্ড</string>
+    <string name="backup_password">পাসওয়ার্ড</string>
+    <string name="backup_password_again">আবার পাসওয়ার্ড লিখুন</string>
+    <string name="backup_password_mismatch">দুটি পাসওয়ার্ড মিলছে না।</string>
+    <string name="backup_export">রপ্তানি</string>
+    <string name="backup_import">আমদানি</string>
+    <string name="backup_saved">ব্যাকআপ সংরক্ষিত হয়েছে।</string>
+    <string name="backup_loaded">ব্যাকআপ আমদানি হয়েছে।</string>
+    <string name="backup_loaded_skipped">ব্যাকআপ আমদানি হয়েছে, তবে AIV-এর এই সংস্করণ যেসব এন্ট্রি চেনে না সেগুলি বাদ গেছে।</string>
+    <string name="backup_load_failed">আমদানি হয়নি: কিছুই বদলায়নি।</string>
+    <string name="backup_load_partial">আমদানি মাঝপথে থেমে গেছে: কিছু অংশ আসেনি।</string>
+    <string name="backup_bad">এই ফাইলটি AIV-এর ব্যাকআপ নয়।</string>
+    <string name="backup_newer">এই ব্যাকআপ একটি নতুন বিন্যাস ব্যবহার করে, যা AIV-এর এই সংস্করণ খুলতে পারে না: এটি আমদানি করতে অ্যাপটি আপডেট করুন।</string>
+    <string name="backup_wrong">পাসওয়ার্ড ভুল, অথবা ফাইলটি ক্ষতিগ্রস্ত।</string>
+    <string name="backup_broken">ফাইলটি ক্ষতিগ্রস্ত বা অসম্পূর্ণ।</string>
+    <string name="backup_exporting">রপ্তানি হচ্ছে...</string>
+    <string name="backup_importing">আমদানি হচ্ছে...</string>
+    <string name="backup_import_from">%1$s এর ব্যাকআপ, AIV %2$s</string>
+    <string name="backup_import_ask">এই অংশগুলি বর্তমান অংশগুলির জায়গা নেবে; আবর্জনার বিষয়বস্তু আগে থেকে থাকা বিষয়বস্তুর সঙ্গে যোগ হবে।</string>
+    <string name="backup_unlock">এই ব্যাকআপটি সুরক্ষিত: এর পাসওয়ার্ড লিখুন।</string>
+    <string name="backup_none">ব্যাকআপে টিক দেওয়া অংশগুলির কোনোটিই নেই।</string>
 </resources>

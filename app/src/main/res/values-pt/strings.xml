@@ -625,4 +625,35 @@
     <string name="hint_modules">Desliza os ícones para chegares a todos os módulos de edição. Mantém premido o ícone de um módulo para repor apenas as alterações dele.</string>
     <string name="hint_tools">Além dos módulos, há duas funções que você pode ligar ou desligar na hora com um toque no ícone, que se acende: \'Marca d\'água\' e \'Redimensionar\'. Com um toque longo você acessa as configurações de cada uma.</string>
     <string name="hint_save">Quando terminar, toque em \'Salvar\' para sobrescrever o arquivo (com cópia de segurança, se estiver ativada); um toque longo salva uma nova cópia da imagem na mesma pasta.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Exportar e importar</string>
+    <string name="backup_desc">Salve as configurações em um arquivo e restaure-as quando precisar</string>
+    <string name="backup_intro">O arquivo contém as partes marcadas abaixo, e só o AIV consegue lê-lo. Ao importar, as mesmas caixas escolhem o que trazer de volta: cada parte substitui a atual, e o conteúdo da lixeira é adicionado ao que já existe. Funciona também entre versões diferentes do AIV: o que uma delas não conhece é ignorado, e as configurações que surgiram depois da cópia de segurança ficam como estão.</string>
+    <string name="backup_area_view">Aparência e navegação</string>
+    <string name="backup_area_covers">Capas das pastas</string>
+    <string name="backup_area_hints">Avisos já vistos</string>
+    <string name="backup_lock">Proteger com senha</string>
+    <string name="backup_lock_desc">Sem senha, o arquivo só abre com o AIV, e qualquer pessoa que tenha o AIV pode importá-lo. Com senha, ela também é necessária: se você a esquecer, não será mais possível abri-lo.</string>
+    <string name="backup_password_title">Senha da cópia de segurança</string>
+    <string name="backup_password">Senha</string>
+    <string name="backup_password_again">Repita a senha</string>
+    <string name="backup_password_mismatch">As duas senhas não coincidem.</string>
+    <string name="backup_export">Exportar</string>
+    <string name="backup_import">Importar</string>
+    <string name="backup_saved">Cópia de segurança salva.</string>
+    <string name="backup_loaded">Cópia de segurança importada.</string>
+    <string name="backup_loaded_skipped">Cópia de segurança importada, exceto os itens que esta versão do AIV não conhece.</string>
+    <string name="backup_load_failed">Não foi possível importar: nada foi alterado.</string>
+    <string name="backup_load_partial">A importação parou antes do fim: algumas partes ficaram de fora.</string>
+    <string name="backup_bad">Este arquivo não é uma cópia de segurança do AIV.</string>
+    <string name="backup_newer">Esta cópia de segurança usa um formato mais recente, que esta versão do AIV não consegue abrir: atualize o app para importá-la.</string>
+    <string name="backup_wrong">Senha incorreta, ou o arquivo está danificado.</string>
+    <string name="backup_broken">O arquivo está danificado ou incompleto.</string>
+    <string name="backup_exporting">Exportando...</string>
+    <string name="backup_importing">Importando...</string>
+    <string name="backup_import_from">Cópia de segurança de %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Estas partes vão substituir as atuais; o conteúdo da lixeira é adicionado ao que já existe.</string>
+    <string name="backup_unlock">Esta cópia de segurança está protegida: insira a senha.</string>
+    <string name="backup_none">A cópia de segurança não contém nenhuma das partes marcadas.</string>
 </resources>
