@@ -31,6 +31,13 @@ un artefatto è una sola.
 
 ⚠️ **Tiene lo STESSO indirizzo a ogni ripubblicazione**: l'utente lo ha fra i preferiti, e
 un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta.
+- ⚠️⚠️ **LA PUBBLICAZIONE RISPONDE CON UN LINK CORTO, ED È LO STESSO DOCUMENTO**:
+  <https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq>, a ogni pubblicazione almeno dal 2026-09-25,
+  e l'indirizzo dei suoi preferiti resta valido e serve la versione appena pubblicata. Non va
+  segnalato a lui come un indirizzo nuovo: il 2026-09-26 una frase in chat che lo ricontrollava gli
+  ha fatto pensare a un guasto (*perché ci sono 'sti problemi a pubblicare il documento di feedback
+  tutto d'un tratto?*), mentre le nove pubblicazioni di quei due giorni erano riuscite tutte al
+  primo tentativo.
 
 ⚠️⚠️ **IL DOCUMENTO SI APRE IN UN BROWSER PRIMA DI PUBBLICARLO, DAL 2026-09-19, E IL PRESIDIO È
 `tools/feedback-check.py`**: quel giorno la sezione del giro della `2.67` è stata composta senza
