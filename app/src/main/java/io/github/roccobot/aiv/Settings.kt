@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -1164,6 +1165,27 @@ internal object MarkMigration : DataMigration<Preferences> {
     override suspend fun cleanUp() = Unit
 }
 
+/**
+ * L'archivio così com'è, chiave per chiave: per il backup, che lo porta fuori.
+ *
+ * ⚠️⚠️ **CON [rewritePreferences] SONO LE SOLE DUE PORTE SULL'ARCHIVIO GREZZO, E HANNO UN LETTORE
+ * SOLO**: ogni altro pezzo dell'app legge una chiave sua col suo tipo, mentre un accesso per nome
+ * è il modo di leggere un intero come una stringa, che `DataStore` non perdona (lancia invece di
+ * rispondere il valore di fabbrica). Il backup lo può fare perché la mappa dei tipi la tiene lui
+ * ([PREF_KEYS]), e una prova la confronta con quello che [SettingsStore.save] scrive davvero.
+ */
+internal suspend fun storedPreferences(context: Context): Preferences = context.aivStore.data.first()
+
+/**
+ * Riscrive l'archivio in una transazione sola: per il backup, che lo riporta dentro.
+ *
+ * ⚠️ **Una transazione e non una scrittura per area**: un'importazione che si fermasse a metà
+ * lascerebbe un archivio fatto di due backup, cioè una cosa che nessuno dei due descrive.
+ */
+internal suspend fun rewritePreferences(context: Context, change: (MutablePreferences) -> Unit) {
+    context.aivStore.edit { change(it) }
+}
+
 /** Reads and writes the settings. */
 object SettingsStore {
 
@@ -1622,7 +1644,7 @@ object FolderAsk {
  * visto e non dà fastidio a nessuno: cancellarla vorrebbe dire una migrazione per liberare
  * un booleano.
  */
-enum class Hint(token: String) {
+enum class Hint(internal val token: String) {
     BIN_EMPTY("bin-empty-hint-seen"),
 
     /**

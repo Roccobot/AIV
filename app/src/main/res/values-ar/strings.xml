@@ -679,4 +679,35 @@
     <string name="hint_modules">مرّر الأيقونات للوصول إلى كل وحدات التحرير. اضغط مطولاً على أيقونة وحدة لتصفير تعديلاتها وحدها.</string>
     <string name="hint_tools">إلى جانب الوحدات، هناك وظيفتان يمكنك تشغيلهما أو إيقافهما فورًا بنقرة على الأيقونة التي تضيء: \'علامة مائية\' و\'تغيير الحجم\'. الضغط المطول يفتح إعدادات كل منهما.</string>
     <string name="hint_save">عند الانتهاء، انقر على \'حفظ\' للكتابة فوق الملف (مع نسخة احتياطية، إن كانت مفعّلة)؛ الضغط المطول يحفظ نسخة جديدة من الصورة في المجلد نفسه.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">تصدير واستيراد</string>
+    <string name="backup_desc">احفظ الإعدادات في ملف واستعدها عند الحاجة</string>
+    <string name="backup_intro">يحمل الملف الأجزاء المحددة أدناه، ولا يستطيع قراءته سوى AIV. وعند الاستيراد، تحدد خانات الاختيار نفسها ما سيُستعاد: كل جزء يحل محل الجزء الحالي، أما محتوى سلة المهملات فيُضاف إلى ما فيها. ويصلح الملف أيضًا بين إصدارين مختلفين من AIV: ما لا يعرفه أحدهما يُتخطّى، والإعدادات التي أُضيفت بعد إنشاء النسخة الاحتياطية تبقى كما هي.</string>
+    <string name="backup_area_view">المظهر والتنقّل</string>
+    <string name="backup_area_covers">أغلفة المجلدات</string>
+    <string name="backup_area_hints">التلميحات التي سبق عرضها</string>
+    <string name="backup_lock">الحماية بكلمة مرور</string>
+    <string name="backup_lock_desc">من دون كلمة مرور لا يُفتح الملف إلا في AIV، ويستطيع أي شخص لديه AIV استيراده. ومع كلمة المرور يلزم إدخالها أيضًا: إن نسيتها، فلن يُفتح الملف بعد الآن.</string>
+    <string name="backup_password_title">كلمة مرور النسخة الاحتياطية</string>
+    <string name="backup_password">كلمة المرور</string>
+    <string name="backup_password_again">أعد إدخال كلمة المرور</string>
+    <string name="backup_password_mismatch">كلمتا المرور غير متطابقتين.</string>
+    <string name="backup_export">تصدير</string>
+    <string name="backup_import">استيراد</string>
+    <string name="backup_saved">تم حفظ النسخة الاحتياطية.</string>
+    <string name="backup_loaded">تم استيراد النسخة الاحتياطية.</string>
+    <string name="backup_loaded_skipped">تم استيراد النسخة الاحتياطية، باستثناء البنود التي لا يعرفها هذا الإصدار من AIV.</string>
+    <string name="backup_load_failed">لم ينجح الاستيراد: لم يتغير شيء.</string>
+    <string name="backup_load_partial">توقف الاستيراد في منتصف الطريق: لم تُستورد بعض الأجزاء.</string>
+    <string name="backup_bad">هذا الملف ليس نسخة احتياطية من AIV.</string>
+    <string name="backup_newer">تستخدم هذه النسخة الاحتياطية صيغة أحدث لا يستطيع هذا الإصدار من AIV فتحها: حدّث التطبيق لاستيرادها.</string>
+    <string name="backup_wrong">كلمة المرور غير صحيحة، أو أن الملف تالف.</string>
+    <string name="backup_broken">الملف تالف أو غير مكتمل.</string>
+    <string name="backup_exporting">جارٍ التصدير...</string>
+    <string name="backup_importing">جارٍ الاستيراد...</string>
+    <string name="backup_import_from">نسخة احتياطية أُنشئت في %1$s باستخدام AIV %2$s</string>
+    <string name="backup_import_ask">ستحل هذه الأجزاء محل الأجزاء الحالية؛ أما محتوى سلة المهملات فيُضاف إلى ما فيها.</string>
+    <string name="backup_unlock">هذه النسخة الاحتياطية محمية: اكتب كلمة مرورها.</string>
+    <string name="backup_none">لا تحتوي النسخة الاحتياطية على أي من الأجزاء المحددة.</string>
 </resources>

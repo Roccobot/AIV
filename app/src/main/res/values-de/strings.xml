@@ -607,4 +607,35 @@
     <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
     <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen.</string>
     <string name="hint_save">Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Export und Import</string>
+    <string name="backup_desc">Einstellungen in einer Datei speichern und bei Bedarf wiederherstellen</string>
+    <string name="backup_intro">Die Datei enthält die unten angehakten Bereiche und lässt sich nur mit AIV lesen. Beim Importieren bestimmen dieselben Kästchen, was wiederhergestellt wird: Jeder Bereich ersetzt den aktuellen, und der Inhalt des Papierkorbs kommt zu dem hinzu, was schon darin ist. Das funktioniert auch zwischen verschiedenen Versionen von AIV: Was eine der beiden nicht kennt, wird übersprungen, und Einstellungen, die nach der Sicherung dazugekommen sind, bleiben, wie sie sind.</string>
+    <string name="backup_area_view">Aussehen und Navigation</string>
+    <string name="backup_area_covers">Titelbilder der Ordner</string>
+    <string name="backup_area_hints">Bereits gesehene Hinweise</string>
+    <string name="backup_lock">Mit Passwort schützen</string>
+    <string name="backup_lock_desc">Ohne Passwort lässt sich die Datei nur mit AIV öffnen, und jeder, der AIV hat, kann sie importieren. Mit Passwort ist dieses zusätzlich nötig: Wenn du es vergisst, lässt sich die Datei nicht mehr öffnen.</string>
+    <string name="backup_password_title">Passwort der Sicherung</string>
+    <string name="backup_password">Passwort</string>
+    <string name="backup_password_again">Passwort wiederholen</string>
+    <string name="backup_password_mismatch">Die beiden Passwörter stimmen nicht überein.</string>
+    <string name="backup_export">Exportieren</string>
+    <string name="backup_import">Importieren</string>
+    <string name="backup_saved">Sicherung gespeichert.</string>
+    <string name="backup_loaded">Sicherung importiert.</string>
+    <string name="backup_loaded_skipped">Sicherung importiert, bis auf die Einträge, die diese Version von AIV nicht kennt.</string>
+    <string name="backup_load_failed">Der Import hat nicht geklappt: Es hat sich nichts geändert.</string>
+    <string name="backup_load_partial">Der Import ist auf halbem Weg stehen geblieben: Einige Bereiche wurden nicht übernommen.</string>
+    <string name="backup_bad">Diese Datei ist keine AIV-Sicherung.</string>
+    <string name="backup_newer">Diese Sicherung verwendet ein neueres Format, das diese Version von AIV nicht öffnen kann: Aktualisiere die App, um sie zu importieren.</string>
+    <string name="backup_wrong">Falsches Passwort oder beschädigte Datei.</string>
+    <string name="backup_broken">Die Datei ist beschädigt oder unvollständig.</string>
+    <string name="backup_exporting">Wird exportiert...</string>
+    <string name="backup_importing">Wird importiert...</string>
+    <string name="backup_import_from">Sicherung vom %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Diese Bereiche ersetzen die aktuellen; der Inhalt des Papierkorbs kommt zu dem hinzu, was schon darin ist.</string>
+    <string name="backup_unlock">Diese Sicherung ist geschützt: Gib ihr Passwort ein.</string>
+    <string name="backup_none">Die Sicherung enthält keinen der angehakten Bereiche.</string>
 </resources>

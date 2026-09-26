@@ -56,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -723,6 +724,31 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
         viewModelScope.launch { sweepClipLeftovers(context) }
+        // ⚠️ `drop(1)` salta il valore che il contatore ha già: quello dice quante importazioni
+        // sono andate in porto prima che questo modello nascesse, e quelle il modello le ha già
+        // lette all'avvio.
+        viewModelScope.launch { Backups.imported.drop(1).collect { reloadStored() } }
+        viewModelScope.launch { Backup.sweep(context) }
+    }
+
+    /**
+     * Rilegge quello che un'importazione cambia senza passare dal flusso delle preferenze: il
+     * logo della filigrana, le tinte delle cartelle e le loro copertine.
+     *
+     * ⚠️⚠️ **SENZA DI LEI UN'IMPORTAZIONE SI VEDREBBE A METÀ FINO AL RIAVVIO**: le tre cose si
+     * leggono una volta e poi si aggiornano a mano, dal gesto che le cambia ([tintFolder],
+     * [coverFolder], la pagina della filigrana), e l'importazione non passa da nessuno di quei
+     * gesti. Le preferenze invece arrivano da sé, perché la scrittura passa dallo stesso archivio
+     * che il flusso legge; ma un'importazione che rimette il **solo** logo non cambia nessuna
+     * preferenza, quindi il flusso non emette niente.
+     */
+    private suspend fun reloadStored() {
+        val context = getApplication<Application>()
+        val logo = withContext(Dispatchers.IO) { Watermark.file(context) != null }
+        markHas = logo
+        markReady = settings?.markOn == true && logo
+        folderTints = FolderTints.all(context)
+        folderCovers = FolderCovers.all(context)
     }
 
     /**

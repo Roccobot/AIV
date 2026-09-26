@@ -589,4 +589,35 @@
     <string name="hint_modules">아이콘을 밀면 모든 편집 모듈에 닿습니다. 모듈 아이콘을 길게 누르면 그 모듈의 조정만 초기화됩니다.</string>
     <string name="hint_tools">모듈 외에도 아이콘을 한 번 눌러 언제든 켜고 끌 수 있는 기능이 두 가지 있으며, 켜지면 아이콘에 불이 들어옵니다: \'워터마크\'와 \'크기 조정\'입니다. 길게 누르면 각각의 설정이 열립니다.</string>
     <string name="hint_save">작업이 끝나면 \'저장\'을 눌러 파일을 덮어씁니다(백업이 켜져 있으면 사본도 남습니다). 길게 누르면 이미지의 새 사본이 같은 폴더에 저장됩니다.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">내보내기와 가져오기</string>
+    <string name="backup_desc">설정을 파일로 저장하고 필요할 때 복원합니다</string>
+    <string name="backup_intro">파일에는 아래에서 선택한 항목이 담기며, AIV만 읽을 수 있습니다. 가져올 때는 같은 체크박스로 되돌릴 항목을 고릅니다. 각 항목은 지금의 것을 대체하고, 휴지통의 내용은 이미 있는 것에 더해집니다. 서로 다른 버전의 AIV 사이에서도 쓸 수 있습니다. 어느 한쪽이 모르는 것은 건너뛰고, 백업 이후에 생긴 설정은 그대로 남습니다.</string>
+    <string name="backup_area_view">모양과 탐색</string>
+    <string name="backup_area_covers">폴더 커버</string>
+    <string name="backup_area_hints">이미 본 안내</string>
+    <string name="backup_lock">비밀번호로 보호</string>
+    <string name="backup_lock_desc">비밀번호가 없으면 파일은 AIV로만 열 수 있고, AIV가 있는 사람이면 누구나 가져올 수 있습니다. 비밀번호를 걸면 그것도 필요합니다. 잊어버리면 파일을 다시는 열 수 없습니다.</string>
+    <string name="backup_password_title">백업 비밀번호</string>
+    <string name="backup_password">비밀번호</string>
+    <string name="backup_password_again">비밀번호 다시 입력</string>
+    <string name="backup_password_mismatch">두 비밀번호가 일치하지 않습니다.</string>
+    <string name="backup_export">내보내기</string>
+    <string name="backup_import">가져오기</string>
+    <string name="backup_saved">백업을 저장했습니다.</string>
+    <string name="backup_loaded">백업을 가져왔습니다.</string>
+    <string name="backup_loaded_skipped">백업을 가져왔습니다. 이 버전의 AIV가 모르는 항목은 건너뛰었습니다.</string>
+    <string name="backup_load_failed">가져오지 못했습니다. 바뀐 것은 없습니다.</string>
+    <string name="backup_load_partial">가져오기가 중간에 멈췄습니다. 일부 항목이 들어오지 않았습니다.</string>
+    <string name="backup_bad">이 파일은 AIV 백업이 아닙니다.</string>
+    <string name="backup_newer">이 백업은 이 버전의 AIV가 열 수 없는 새로운 형식입니다. 가져오려면 앱을 업데이트하세요.</string>
+    <string name="backup_wrong">비밀번호가 틀렸거나 파일이 손상되었습니다.</string>
+    <string name="backup_broken">파일이 손상되었거나 불완전합니다.</string>
+    <string name="backup_exporting">내보내는 중...</string>
+    <string name="backup_importing">가져오는 중...</string>
+    <string name="backup_import_from">%1$s 백업, AIV %2$s</string>
+    <string name="backup_import_ask">이 항목들이 지금의 것을 대체합니다. 휴지통의 내용은 이미 있는 것에 더해집니다.</string>
+    <string name="backup_unlock">이 백업은 보호되어 있습니다. 비밀번호를 입력하세요.</string>
+    <string name="backup_none">백업에 선택한 항목이 하나도 없습니다.</string>
 </resources>

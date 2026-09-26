@@ -76,6 +76,34 @@ object History {
     }
 
     /**
+     * Le righe vive, per il backup del cestino.
+     *
+     * ⚠️ **Viaggia col cestino e non da sola**: dice dove è finito un file uscito dal cestino, e
+     * senza il cestino che l'ha prodotta è una lista di percorsi senza una domanda a cui rispondere.
+     */
+    internal suspend fun snapshot(context: Context): List<Row> = withContext(Dispatchers.IO) {
+        lock.withLock { alive(read(context), System.currentTimeMillis()) }
+    }
+
+    /**
+     * Aggiunge le righe di un backup a quelle che ci sono.
+     *
+     * ⚠️ **Si aggiunge come il cestino**, e per la stessa ragione: le righe di adesso raccontano
+     * ripristini veri, e un'importazione non li deve far dimenticare. Una riga identica (stesso
+     * istante, stesso percorso) entra una volta sola, e le scadute se ne vanno come sempre.
+     */
+    internal suspend fun merge(context: Context, rows: List<Row>) {
+        if (rows.isEmpty()) return
+        withContext(Dispatchers.IO + NonCancellable) {
+            lock.withLock {
+                val now = System.currentTimeMillis()
+                val tutte = alive(read(context), now) + alive(rows, now)
+                write(context, tutte.distinctBy { it.at to it.path })
+            }
+        }
+    }
+
+    /**
      * Le righe che non sono scadute.
      *
      * ⚠️ **Pura, come le funzioni di [Bin] che decidono un ordine**: prende righe e

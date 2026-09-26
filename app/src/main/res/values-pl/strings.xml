@@ -643,4 +643,35 @@
     <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
     <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich.</string>
     <string name="hint_save">Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Eksport i import</string>
+    <string name="backup_desc">Zapisz ustawienia w pliku i przywróć je, gdy będą potrzebne</string>
+    <string name="backup_intro">Plik zawiera zaznaczone poniżej części i tylko AIV potrafi go odczytać. Przy importowaniu te same pola wyboru decydują, co zostanie przywrócone: każda część zastępuje obecną, a zawartość kosza zostaje dodana do tego, co już w nim jest. Działa to także między różnymi wersjami AIV: to, czego jedna z nich nie zna, zostaje pominięte, a ustawienia, które pojawiły się po utworzeniu kopii zapasowej, pozostają bez zmian.</string>
+    <string name="backup_area_view">Wygląd i nawigacja</string>
+    <string name="backup_area_covers">Okładki folderów</string>
+    <string name="backup_area_hints">Już wyświetlone wskazówki</string>
+    <string name="backup_lock">Zabezpiecz hasłem</string>
+    <string name="backup_lock_desc">Bez hasła plik otworzy tylko AIV, a każdy, kto ma AIV, może go zaimportować. Z hasłem trzeba je również podać: jeśli je zapomnisz, pliku nie da się już otworzyć.</string>
+    <string name="backup_password_title">Hasło kopii zapasowej</string>
+    <string name="backup_password">Hasło</string>
+    <string name="backup_password_again">Powtórz hasło</string>
+    <string name="backup_password_mismatch">Hasła nie są zgodne.</string>
+    <string name="backup_export">Eksportuj</string>
+    <string name="backup_import">Importuj</string>
+    <string name="backup_saved">Zapisano kopię zapasową.</string>
+    <string name="backup_loaded">Zaimportowano kopię zapasową.</string>
+    <string name="backup_loaded_skipped">Zaimportowano kopię zapasową z wyjątkiem pozycji, których ta wersja AIV nie rozpoznaje.</string>
+    <string name="backup_load_failed">Importowanie się nie udało: nic się nie zmieniło.</string>
+    <string name="backup_load_partial">Importowanie zatrzymało się w połowie: niektóre części nie zostały zaimportowane.</string>
+    <string name="backup_bad">Ten plik nie jest kopią zapasową AIV.</string>
+    <string name="backup_newer">Ta kopia zapasowa używa nowszego formatu, którego ta wersja AIV nie potrafi otworzyć: zaktualizuj aplikację, aby ją zaimportować.</string>
+    <string name="backup_wrong">Nieprawidłowe hasło albo uszkodzony plik.</string>
+    <string name="backup_broken">Plik jest uszkodzony lub niekompletny.</string>
+    <string name="backup_exporting">Eksportowanie...</string>
+    <string name="backup_importing">Importowanie...</string>
+    <string name="backup_import_from">Kopia zapasowa z %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Te części zastąpią obecne; zawartość kosza zostanie dodana do tego, co już w nim jest.</string>
+    <string name="backup_unlock">Ta kopia zapasowa jest chroniona: wpisz jej hasło.</string>
+    <string name="backup_none">Kopia zapasowa nie zawiera żadnej z zaznaczonych części.</string>
 </resources>

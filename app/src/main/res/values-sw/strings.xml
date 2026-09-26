@@ -607,4 +607,35 @@
     <string name="hint_modules">Telezesha aikoni ili kufikia moduli zote za kuhariri. Bonyeza kwa muda mrefu aikoni ya moduli ili kuondoa mabadiliko yake pekee.</string>
     <string name="hint_tools">Zaidi ya moduli, kuna vitendaji viwili unavyoweza kuwasha au kuzima papo hapo kwa kugusa aikoni, nayo huwaka: \'Alama ya maji\' na \'Badilisha ukubwa\'. Kubonyeza kwa muda mrefu hufungua mipangilio ya kila kimoja.</string>
     <string name="hint_save">Ukimaliza, gusa \'Hifadhi\' ili kuandika juu ya faili (pamoja na nakala rudufu, ikiwa imewashwa); kubonyeza kwa muda mrefu huhifadhi nakala mpya ya picha katika folda ile ile.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Hamisha na kuingiza</string>
+    <string name="backup_desc">Hifadhi mipangilio kwenye faili na uirejeshe unapoihitaji</string>
+    <string name="backup_intro">Faili hubeba sehemu zilizochaguliwa hapa chini, na ni AIV pekee inayoweza kuisoma. Unapoingiza, visanduku hivyo hivyo huchagua kitakachorejeshwa: kila sehemu huchukua nafasi ya ile ya sasa, lakini yaliyomo kwenye tapishi huongezwa kwenye yaliyopo tayari. Faili hufanya kazi pia kati ya matoleo mawili tofauti ya AIV: kile ambacho mojawapo halijui hurukwa, na mipangilio iliyoongezwa baada ya nakala rudufu hubaki kama ilivyo.</string>
+    <string name="backup_area_view">Mwonekano na usogezaji</string>
+    <string name="backup_area_covers">Majalada ya folda</string>
+    <string name="backup_area_hints">Vidokezo vilivyoonekana tayari</string>
+    <string name="backup_lock">Linda kwa nenosiri</string>
+    <string name="backup_lock_desc">Bila nenosiri, faili hufunguka kwa AIV pekee, na yeyote aliye na AIV anaweza kuiingiza. Ukiweka nenosiri, litahitajika pia: ukilisahau, faili haitafunguka tena.</string>
+    <string name="backup_password_title">Nenosiri la nakala rudufu</string>
+    <string name="backup_password">Nenosiri</string>
+    <string name="backup_password_again">Rudia nenosiri</string>
+    <string name="backup_password_mismatch">Manenosiri hayo mawili hayalingani.</string>
+    <string name="backup_export">Hamisha</string>
+    <string name="backup_import">Ingiza</string>
+    <string name="backup_saved">Nakala rudufu imehifadhiwa.</string>
+    <string name="backup_loaded">Nakala rudufu imeingizwa.</string>
+    <string name="backup_loaded_skipped">Nakala rudufu imeingizwa, isipokuwa vipengee ambavyo toleo hili la AIV halivijui.</string>
+    <string name="backup_load_failed">Kuingiza hakukufaulu: hakuna kilichobadilika.</string>
+    <string name="backup_load_partial">Kuingiza kulisimama katikati: baadhi ya sehemu hazikuingia.</string>
+    <string name="backup_bad">Faili hii si nakala rudufu ya AIV.</string>
+    <string name="backup_newer">Nakala rudufu hii inatumia muundo mpya zaidi ambao toleo hili la AIV haliwezi kuufungua: sasisha programu ili uiingize.</string>
+    <string name="backup_wrong">Nenosiri si sahihi, au faili imeharibika.</string>
+    <string name="backup_broken">Faili imeharibika au haijakamilika.</string>
+    <string name="backup_exporting">Inahamisha...</string>
+    <string name="backup_importing">Inaingiza...</string>
+    <string name="backup_import_from">Nakala rudufu ya %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Sehemu hizi zitachukua nafasi ya zile za sasa; lakini yaliyomo kwenye tapishi huongezwa kwenye yaliyopo tayari.</string>
+    <string name="backup_unlock">Nakala rudufu hii imelindwa: andika nenosiri lake.</string>
+    <string name="backup_none">Nakala rudufu haina sehemu yoyote kati ya zile zilizochaguliwa.</string>
 </resources>

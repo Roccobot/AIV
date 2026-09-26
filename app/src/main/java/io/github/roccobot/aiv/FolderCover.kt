@@ -188,6 +188,81 @@ object FolderCovers {
     }
 
     /**
+     * I file delle copertine scelte, così come vivono in casa: per il backup, che li porta fuori.
+     *
+     * ⚠️ **I file e non gli indirizzi**: il backup ne copia i byte e il nome, e il nome è
+     * l'archivio (porta la cartella e l'istante), quindi dall'altra parte basta rimetterli.
+     */
+    internal suspend fun files(context: Context): List<File> = withContext(Dispatchers.IO) {
+        home(context)?.listFiles().orEmpty().filter { it.isFile && named(it.name) }
+    }
+
+    /**
+     * Se questo è il nome di una copertina, cioè `<cartella>-<istante>.<suffisso>` con un
+     * suffisso che questo oggetto scrive.
+     *
+     * ⚠️ **Serve al backup, che riceve nomi da un file**: un nome che non si legge non deve
+     * entrare in casa, perché là dentro [owner] lo scarterebbe e resterebbe un file che nessuno
+     * vede e nessuno pota.
+     */
+    internal fun named(name: String): Boolean {
+        val suffisso = name.substringAfterLast('.', "")
+        if (suffisso !in SUFFIXES) return false
+        val stem = name.substringBeforeLast('.')
+        return stem.substringBeforeLast('-', "").toLongOrNull() != null &&
+            stem.substringAfterLast('-', "").toLongOrNull() != null
+    }
+
+    /**
+     * Di quale cartella è la copertina con questo nome, anche se il suffisso non è uno di quelli
+     * che questo oggetto scrive.
+     *
+     * ⚠️ **Serve al backup, per una copertina scritta da una versione più nuova in un formato che
+     * questa non conosce**: non entra, ma la cartella a cui appartiene tiene la copertina che ha qui.
+     */
+    internal fun ownerOf(name: String): Long? = owner(File(name))
+
+    /**
+     * Mette al posto delle copertine di adesso quelle di un backup.
+     *
+     * ⚠️⚠️ **SOSTITUISCE, E L'ORDINE DEI DUE PASSI È QUELLO CHE LO RENDE SICURO**: prima entrano
+     * le nuove e poi escono le vecchie, così una scrittura che fallisce a metà lascia qualche
+     * copertina in più invece di nessuna. A parità di cartella vince la più recente (vedi [all]),
+     * e le nuove sono appena state scritte.
+     * ⚠️ **Il periodo di grazia riparte da adesso**, perché un file copiato nasce con la data di
+     * oggi: una copertina importata su un telefono che quella cartella non ce l'ha ancora ha un
+     * mese per vederla comparire.
+     *
+     * @param keep le cartelle di cui il backup porta una copertina che qui non si sa leggere: le
+     *   loro copertine di adesso restano. ⚠️ Senza valore di serie, perché dimenticarlo cancellerebbe
+     *   proprio quelle.
+     * @return se sono entrate tutte.
+     */
+    internal suspend fun adopt(context: Context, incoming: List<File>, keep: Set<Long>): Boolean =
+        withContext(Dispatchers.IO) {
+            val casa = home(context) ?: return@withContext false
+            val arrivati = HashSet<String>()
+            var tutte = true
+            for (file in incoming) {
+                if (!named(file.name)) continue
+                val dove = File(casa, file.name)
+                val fatto = runCatching {
+                    file.inputStream().use { input -> dove.outputStream().use { input.copyTo(it) } }
+                    true
+                }.getOrDefault(false)
+                if (fatto) arrivati += file.name else tutte = false
+            }
+            // ⚠️ Con una copia fallita escono le sole vecchie che una nuova ha già sostituito: le
+            // altre restano, perché la loro cartella nel backup non ha avuto il suo file.
+            val coperte = arrivati.mapNotNull { owner(File(it)) }.toSet()
+            casa.listFiles().orEmpty()
+                .filter { it.isFile && it.name !in arrivati && owner(it) !in keep }
+                .filter { tutte || owner(it) in coperte }
+                .forEach { runCatching { it.delete() } }
+            tutte
+        }
+
+    /**
      * La cartella delle copertine, creata alla prima scrittura.
      *
      * ⚠️ **Torna `null` invece di lanciare**: `mkdirs` può non riuscire (spazio finito, archivio
@@ -254,6 +329,9 @@ object FolderCovers {
 
     /** Un formato di scrittura col suffisso che gli tocca. */
     private class Squeeze(val format: Bitmap.CompressFormat, val suffix: String)
+
+    /** I suffissi che [squeeze] scrive, cioè quelli di una copertina vera. */
+    private val SUFFIXES = setOf("webp", "png", "jpg")
 }
 
 /**

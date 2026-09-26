@@ -589,4 +589,35 @@
     <string name="hint_modules">Geser ikonnya untuk menjangkau semua modul penyuntingan. Tekan lama ikon modul untuk mengatur ulang perubahannya saja.</string>
     <string name="hint_tools">Selain modul, ada dua fungsi yang bisa kamu nyalakan atau matikan seketika dengan satu ketukan pada ikonnya, yang lalu menyala: \'Tanda air\' dan \'Ubah ukuran\'. Tekan lama untuk membuka pengaturan masing-masing.</string>
     <string name="hint_save">Setelah selesai, ketuk \'Simpan\' untuk menimpa berkas (dengan salinan cadangan, jika aktif); tekan lama untuk menyimpan salinan baru gambar di folder yang sama.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Ekspor dan impor</string>
+    <string name="backup_desc">Simpan pengaturan ke berkas dan kembalikan saat dibutuhkan</string>
+    <string name="backup_intro">Berkas ini memuat bagian yang dicentang di bawah, dan hanya AIV yang bisa membacanya. Saat mengimpor, kotak yang sama menentukan apa yang dikembalikan: setiap bagian menggantikan yang ada sekarang, sedangkan isi tempat sampah ditambahkan ke yang sudah ada di sana. Ini juga berlaku antara versi AIV yang berbeda: apa pun yang tidak dikenali salah satunya akan dilewati, dan pengaturan yang muncul setelah cadangan dibuat tetap seperti semula.</string>
+    <string name="backup_area_view">Tampilan dan navigasi</string>
+    <string name="backup_area_covers">Sampul folder</string>
+    <string name="backup_area_hints">Petunjuk yang sudah dilihat</string>
+    <string name="backup_lock">Lindungi dengan kata sandi</string>
+    <string name="backup_lock_desc">Tanpa kata sandi, berkas hanya bisa dibuka dengan AIV, dan siapa pun yang punya AIV bisa mengimpornya. Dengan kata sandi, kata sandi itu juga diperlukan: jika kamu lupa, berkas tidak bisa dibuka lagi.</string>
+    <string name="backup_password_title">Kata sandi cadangan</string>
+    <string name="backup_password">Kata sandi</string>
+    <string name="backup_password_again">Ulangi kata sandi</string>
+    <string name="backup_password_mismatch">Kedua kata sandi tidak cocok.</string>
+    <string name="backup_export">Ekspor</string>
+    <string name="backup_import">Impor</string>
+    <string name="backup_saved">Cadangan disimpan.</string>
+    <string name="backup_loaded">Cadangan diimpor.</string>
+    <string name="backup_loaded_skipped">Cadangan diimpor, kecuali item yang tidak dikenali versi AIV ini.</string>
+    <string name="backup_load_failed">Impor tidak berhasil: tidak ada yang berubah.</string>
+    <string name="backup_load_partial">Impor terhenti di tengah jalan: beberapa bagian tidak terimpor.</string>
+    <string name="backup_bad">Berkas ini bukan cadangan AIV.</string>
+    <string name="backup_newer">Cadangan ini memakai format yang lebih baru, yang tidak bisa dibuka versi AIV ini: perbarui aplikasi untuk mengimpornya.</string>
+    <string name="backup_wrong">Kata sandi salah, atau berkasnya rusak.</string>
+    <string name="backup_broken">Berkas rusak atau tidak lengkap.</string>
+    <string name="backup_exporting">Mengekspor...</string>
+    <string name="backup_importing">Mengimpor...</string>
+    <string name="backup_import_from">Cadangan dari %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Bagian-bagian ini akan menggantikan yang ada sekarang; isi tempat sampah ditambahkan ke yang sudah ada di sana.</string>
+    <string name="backup_unlock">Cadangan ini dilindungi: masukkan kata sandinya.</string>
+    <string name="backup_none">Cadangan tidak berisi satu pun bagian yang dicentang.</string>
 </resources>

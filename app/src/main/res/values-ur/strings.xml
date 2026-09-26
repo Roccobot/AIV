@@ -607,4 +607,35 @@
     <string name="hint_modules">تمام ایڈیٹنگ ماڈیولز تک پہنچنے کے لیے آئیکنز کو سوائپ کریں۔ کسی ماڈیول کے آئیکن کو دیر تک دبائیں تاکہ صرف اُس کی تبدیلیاں صفر ہوں۔</string>
     <string name="hint_tools">ماڈیولز کے علاوہ دو سہولتیں ہیں جنہیں آئیکن پر ایک ٹیپ سے فوراً آن یا آف کیا جا سکتا ہے اور آئیکن روشن ہو جاتا ہے: \'واٹرمارک\' اور \'سائز تبدیل کریں\'۔ دیر تک دبانے پر ہر ایک کی ترتیبات کھلتی ہیں۔</string>
     <string name="hint_save">کام مکمل ہونے پر فائل کو دوبارہ لکھنے کے لیے \'محفوظ کریں\' دبائیں (بیک اپ کاپی کے ساتھ، اگر وہ فعال ہو)؛ دیر تک دبانے سے تصویر کی نئی کاپی اسی فولڈر میں محفوظ ہو جاتی ہے۔</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">برآمد اور درآمد</string>
+    <string name="backup_desc">ترتیبات کو ایک فائل میں محفوظ کریں اور ضرورت پڑنے پر واپس لائیں</string>
+    <string name="backup_intro">فائل میں نیچے منتخب کیے گئے حصے ہوتے ہیں، اور اسے صرف AIV ہی پڑھ سکتی ہے۔ درآمد کرتے وقت یہی خانے طے کرتے ہیں کہ کیا واپس لایا جائے: ہر حصہ موجودہ حصے کی جگہ لے لیتا ہے، جبکہ ردی کی ٹوکری کا مواد پہلے سے موجود مواد میں شامل ہو جاتا ہے۔ فائل AIV کے دو مختلف ورژنوں کے درمیان بھی کام کرتی ہے: جو چیز ان میں سے ایک نہیں جانتا وہ چھوڑ دی جاتی ہے، اور بیک اپ کے بعد شامل ہونے والی ترتیبات جوں کی توں رہتی ہیں۔</string>
+    <string name="backup_area_view">ظاہری شکل اور نیویگیشن</string>
+    <string name="backup_area_covers">فولڈروں کے سرورق</string>
+    <string name="backup_area_hints">پہلے دیکھے گئے اشارے</string>
+    <string name="backup_lock">پاس ورڈ سے حفاظت کریں</string>
+    <string name="backup_lock_desc">پاس ورڈ کے بغیر فائل صرف AIV سے کھلتی ہے، اور جس کے پاس بھی AIV ہو وہ اسے درآمد کر سکتا ہے۔ پاس ورڈ کے ساتھ وہ بھی درکار ہوتا ہے: اگر آپ اسے بھول جائیں تو فائل پھر نہیں کھل سکے گی۔</string>
+    <string name="backup_password_title">بیک اپ کا پاس ورڈ</string>
+    <string name="backup_password">پاس ورڈ</string>
+    <string name="backup_password_again">پاس ورڈ دوبارہ لکھیں</string>
+    <string name="backup_password_mismatch">دونوں پاس ورڈ ایک جیسے نہیں ہیں۔</string>
+    <string name="backup_export">برآمد کریں</string>
+    <string name="backup_import">درآمد کریں</string>
+    <string name="backup_saved">بیک اپ محفوظ ہو گیا۔</string>
+    <string name="backup_loaded">بیک اپ درآمد ہو گیا۔</string>
+    <string name="backup_loaded_skipped">بیک اپ درآمد ہو گیا، سوائے ان اندراجات کے جنہیں AIV کا یہ ورژن نہیں جانتا۔</string>
+    <string name="backup_load_failed">درآمد کامیاب نہیں ہوئی: کچھ بھی نہیں بدلا۔</string>
+    <string name="backup_load_partial">درآمد بیچ میں ہی رک گئی: کچھ حصے شامل نہیں ہو سکے۔</string>
+    <string name="backup_bad">یہ فائل AIV کا بیک اپ نہیں ہے۔</string>
+    <string name="backup_newer">یہ بیک اپ ایک نئے فارمیٹ میں ہے جسے AIV کا یہ ورژن نہیں کھول سکتا: اسے درآمد کرنے کے لیے ایپ اپ ڈیٹ کریں۔</string>
+    <string name="backup_wrong">پاس ورڈ غلط ہے، یا فائل خراب ہے۔</string>
+    <string name="backup_broken">فائل خراب یا نامکمل ہے۔</string>
+    <string name="backup_exporting">برآمد جاری ہے...</string>
+    <string name="backup_importing">درآمد جاری ہے...</string>
+    <string name="backup_import_from">%1$s کا بیک اپ، AIV %2$s</string>
+    <string name="backup_import_ask">یہ حصے موجودہ حصوں کی جگہ لے لیں گے؛ البتہ ردی کی ٹوکری کا مواد پہلے سے موجود مواد میں شامل ہو جائے گا۔</string>
+    <string name="backup_unlock">یہ بیک اپ پاس ورڈ سے محفوظ ہے: اس کا پاس ورڈ لکھیں۔</string>
+    <string name="backup_none">بیک اپ میں منتخب کیے گئے حصوں میں سے کوئی بھی نہیں ہے۔</string>
 </resources>

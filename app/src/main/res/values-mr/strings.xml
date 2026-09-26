@@ -607,4 +607,35 @@
     <string name="hint_modules">सर्व संपादन मॉड्यूलपर्यंत पोहोचण्यासाठी चिन्हे सरकवा. एखाद्या मॉड्यूलचे चिन्ह दाबून धरल्यास फक्त त्याचे बदल शून्य होतात.</string>
     <string name="hint_tools">मॉड्यूलशिवाय आणखी दोन सुविधा आहेत, ज्या चिन्हावर एक टॅप करून लगेच चालू किंवा बंद करता येतात आणि चिन्ह उजळते: \'वॉटरमार्क\' आणि \'आकार बदला\'. दीर्घ दाबाने प्रत्येकीची सेटिंग उघडते.</string>
     <string name="hint_save">काम पूर्ण झाल्यावर फाइलवर लिहिण्यासाठी \'जतन करा\' दाबा (बॅकअप प्रत सुरू असल्यास तिच्यासह); दीर्घ दाबाने प्रतिमेची नवी प्रत त्याच फोल्डरमध्ये जतन होते.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">निर्यात आणि आयात</string>
+    <string name="backup_desc">सेटिंग्ज एका फाइलमध्ये जतन करा आणि गरज पडेल तेव्हा परत आणा</string>
+    <string name="backup_intro">फाइलमध्ये खाली निवडलेले भाग असतात, आणि ती फक्त AIV वाचू शकते. आयात करताना काय परत आणायचे ते हेच चेकबॉक्स ठरवतात: प्रत्येक भाग सध्याच्या भागाची जागा घेतो, आणि कचरापेटीतील सामग्री आधीपासून असलेल्या सामग्रीत जोडली जाते. हे AIVच्या वेगवेगळ्या आवृत्त्यांमध्येही चालते: दोनपैकी एका आवृत्तीला जे माहीत नाही ते वगळले जाते, आणि बॅकअपनंतर आलेल्या सेटिंग्ज आहेत तशाच राहतात.</string>
+    <string name="backup_area_view">स्वरूप आणि नेव्हिगेशन</string>
+    <string name="backup_area_covers">फोल्डरची मुखपृष्ठे</string>
+    <string name="backup_area_hints">आधी पाहिलेल्या सूचना</string>
+    <string name="backup_lock">पासवर्डने संरक्षित करा</string>
+    <string name="backup_lock_desc">पासवर्डशिवाय फाइल फक्त AIVने उघडते, आणि ज्याच्याकडे AIV आहे असा कोणीही ती आयात करू शकतो. पासवर्ड असल्यास तोही लागतो: तो विसरलात तर फाइल पुन्हा उघडणार नाही.</string>
+    <string name="backup_password_title">बॅकअपचा पासवर्ड</string>
+    <string name="backup_password">पासवर्ड</string>
+    <string name="backup_password_again">पासवर्ड पुन्हा लिहा</string>
+    <string name="backup_password_mismatch">दोन्ही पासवर्ड जुळत नाहीत.</string>
+    <string name="backup_export">निर्यात</string>
+    <string name="backup_import">आयात</string>
+    <string name="backup_saved">बॅकअप जतन झाला.</string>
+    <string name="backup_loaded">बॅकअप आयात झाला.</string>
+    <string name="backup_loaded_skipped">बॅकअप आयात झाला, फक्त AIVच्या या आवृत्तीला माहीत नसलेल्या नोंदी वगळून.</string>
+    <string name="backup_load_failed">आयात झाली नाही: काहीही बदलले नाही.</string>
+    <string name="backup_load_partial">आयात अर्ध्यावरच थांबली: काही भाग आले नाहीत.</string>
+    <string name="backup_bad">ही फाइल AIVचा बॅकअप नाही.</string>
+    <string name="backup_newer">हा बॅकअप नव्या स्वरूपात आहे, जे AIVची ही आवृत्ती उघडू शकत नाही: तो आयात करण्यासाठी ॲप अद्ययावत करा.</string>
+    <string name="backup_wrong">पासवर्ड चुकीचा आहे, किंवा फाइल खराब झाली आहे.</string>
+    <string name="backup_broken">फाइल खराब झाली आहे किंवा अपूर्ण आहे.</string>
+    <string name="backup_exporting">निर्यात होत आहे...</string>
+    <string name="backup_importing">आयात होत आहे...</string>
+    <string name="backup_import_from">%1$s चा बॅकअप, AIV %2$s</string>
+    <string name="backup_import_ask">हे भाग सध्याच्या भागांची जागा घेतील; कचरापेटीतील सामग्री आधीपासून असलेल्या सामग्रीत जोडली जाईल.</string>
+    <string name="backup_unlock">हा बॅकअप संरक्षित आहे: त्याचा पासवर्ड लिहा.</string>
+    <string name="backup_none">बॅकअपमध्ये निवडलेल्या भागांपैकी एकही भाग नाही.</string>
 </resources>

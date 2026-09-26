@@ -625,4 +625,35 @@
     <string name="hint_modules">Desliza los iconos para llegar a todos los módulos de edición. Mantén pulsado el icono de un módulo para restablecer solo sus cambios.</string>
     <string name="hint_tools">Además de los módulos, hay dos funciones que puedes activar o desactivar al momento con un toque en el icono, que se enciende: \'Marca de agua\' y \'Redimensionar\'. Con una pulsación larga accedes a los ajustes de cada una.</string>
     <string name="hint_save">Cuando termines, toca \'Guardar\' para sobrescribir el archivo (con copia de seguridad, si está activada); una pulsación larga guarda una copia nueva de la imagen en la misma carpeta.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Exportar e importar</string>
+    <string name="backup_desc">Guarda los ajustes en un archivo y recupéralos cuando los necesites</string>
+    <string name="backup_intro">El archivo contiene las partes marcadas abajo, y solo AIV puede leerlo. Al importar, las mismas casillas deciden qué se restaura: cada parte sustituye a la actual, y el contenido de la papelera se suma a lo que ya hay. También funciona entre versiones distintas de AIV: lo que una de las dos no conoce se omite, y los ajustes que aparecieron después de la copia de seguridad se quedan como están.</string>
+    <string name="backup_area_view">Apariencia y navegación</string>
+    <string name="backup_area_covers">Portadas de las carpetas</string>
+    <string name="backup_area_hints">Avisos ya vistos</string>
+    <string name="backup_lock">Proteger con contraseña</string>
+    <string name="backup_lock_desc">Sin contraseña, el archivo solo se abre con AIV, y cualquiera que tenga AIV puede importarlo. Con contraseña, también hace falta escribirla: si la olvidas, el archivo ya no se podrá abrir.</string>
+    <string name="backup_password_title">Contraseña de la copia de seguridad</string>
+    <string name="backup_password">Contraseña</string>
+    <string name="backup_password_again">Repite la contraseña</string>
+    <string name="backup_password_mismatch">Las dos contraseñas no coinciden.</string>
+    <string name="backup_export">Exportar</string>
+    <string name="backup_import">Importar</string>
+    <string name="backup_saved">Copia de seguridad guardada.</string>
+    <string name="backup_loaded">Copia de seguridad importada.</string>
+    <string name="backup_loaded_skipped">Copia de seguridad importada, excepto los elementos que esta versión de AIV no reconoce.</string>
+    <string name="backup_load_failed">No se ha podido importar: no ha cambiado nada.</string>
+    <string name="backup_load_partial">La importación se ha quedado a medias: algunas partes no se han importado.</string>
+    <string name="backup_bad">Este archivo no es una copia de seguridad de AIV.</string>
+    <string name="backup_newer">Esta copia de seguridad usa un formato más reciente, que esta versión de AIV no puede abrir: actualiza la app para importarla.</string>
+    <string name="backup_wrong">Contraseña incorrecta o archivo dañado.</string>
+    <string name="backup_broken">El archivo está dañado o incompleto.</string>
+    <string name="backup_exporting">Exportando...</string>
+    <string name="backup_importing">Importando...</string>
+    <string name="backup_import_from">Copia de seguridad del %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Estas partes sustituirán a las actuales; el contenido de la papelera se suma a lo que ya hay.</string>
+    <string name="backup_unlock">Esta copia de seguridad está protegida: escribe su contraseña.</string>
+    <string name="backup_none">La copia de seguridad no contiene ninguna de las partes marcadas.</string>
 </resources>

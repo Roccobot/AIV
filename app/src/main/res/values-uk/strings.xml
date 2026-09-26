@@ -643,4 +643,35 @@
     <string name="hint_modules">Гортайте значки, щоб дістатися до всіх модулів обробки. Утримуйте значок модуля, щоб скинути лише його зміни.</string>
     <string name="hint_tools">Крім модулів, є дві функції, які можна миттєво ввімкнути або вимкнути дотиком до значка, і він засвічується: \'Водяний знак\' і \'Змінити розмір\'. Довге натискання відкриває налаштування кожної з них.</string>
     <string name="hint_save">Коли завершиш, торкнись \'Зберегти\', щоб перезаписати файл (з резервною копією, якщо її ввімкнено); довге натискання збереже нову копію зображення в тій самій теці.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Експорт та імпорт</string>
+    <string name="backup_desc">Збережіть налаштування у файл і поверніть їх, коли знадобиться</string>
+    <string name="backup_intro">Файл містить позначені нижче частини, і прочитати його може лише AIV. Під час імпорту ті самі прапорці визначають, що повернути: кожна частина замінює поточну, а вміст кошика додається до того, що в ньому вже є. Це працює й між різними версіями AIV: усе, що одній із них невідоме, пропускається, а налаштування, які з\'явилися після створення резервної копії, лишаються як є.</string>
+    <string name="backup_area_view">Вигляд і навігація</string>
+    <string name="backup_area_covers">Обкладинки тек</string>
+    <string name="backup_area_hints">Переглянуті підказки</string>
+    <string name="backup_lock">Захистити паролем</string>
+    <string name="backup_lock_desc">Без пароля файл відкривається лише в AIV, та імпортувати його може будь-хто, у кого є AIV. З паролем знадобиться ще й він: якщо ви його забудете, файл більше не відкриється.</string>
+    <string name="backup_password_title">Пароль резервної копії</string>
+    <string name="backup_password">Пароль</string>
+    <string name="backup_password_again">Повторіть пароль</string>
+    <string name="backup_password_mismatch">Паролі не збігаються.</string>
+    <string name="backup_export">Експорт</string>
+    <string name="backup_import">Імпорт</string>
+    <string name="backup_saved">Резервну копію збережено.</string>
+    <string name="backup_loaded">Резервну копію імпортовано.</string>
+    <string name="backup_loaded_skipped">Резервну копію імпортовано, крім записів, невідомих цій версії AIV.</string>
+    <string name="backup_load_failed">Імпортувати не вдалося: нічого не змінилося.</string>
+    <string name="backup_load_partial">Імпорт зупинився на півдорозі: деякі частини не перенесено.</string>
+    <string name="backup_bad">Цей файл не є резервною копією AIV.</string>
+    <string name="backup_newer">Цю резервну копію збережено в новішому форматі, який поточна версія AIV не може відкрити: оновіть застосунок, щоб її імпортувати.</string>
+    <string name="backup_wrong">Пароль неправильний або файл пошкоджений.</string>
+    <string name="backup_broken">Файл пошкоджений або неповний.</string>
+    <string name="backup_exporting">Триває експорт...</string>
+    <string name="backup_importing">Триває імпорт...</string>
+    <string name="backup_import_from">Резервна копія від %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Ці частини замінять поточні; вміст кошика додасться до того, що в ньому вже є.</string>
+    <string name="backup_unlock">Ця резервна копія захищена: введіть її пароль.</string>
+    <string name="backup_none">Резервна копія не містить жодної з позначених частин.</string>
 </resources>

@@ -589,4 +589,35 @@
     <string name="hint_modules">Vuốt các biểu tượng để đến mọi mô-đun chỉnh sửa. Nhấn giữ biểu tượng của một mô-đun để đặt lại riêng các thay đổi của nó.</string>
     <string name="hint_tools">Ngoài các mô-đun, còn hai chức năng bạn có thể bật hoặc tắt ngay bằng một chạm lên biểu tượng, và biểu tượng sẽ sáng lên: \'Hình mờ\' và \'Đổi kích thước\'. Nhấn giữ sẽ mở phần cài đặt của từng chức năng.</string>
     <string name="hint_save">Khi xong, chạm \'Lưu\' để ghi đè tệp (kèm bản sao dự phòng, nếu đang bật); nhấn giữ sẽ lưu một bản sao mới của ảnh trong cùng thư mục.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Xuất và nhập</string>
+    <string name="backup_desc">Lưu cài đặt vào một tệp và khôi phục khi cần</string>
+    <string name="backup_intro">Tệp chứa các phần được đánh dấu bên dưới, và chỉ AIV mới đọc được. Khi nhập, chính các ô đánh dấu này quyết định những gì được khôi phục: mỗi phần sẽ thay thế phần hiện tại, còn nội dung thùng rác được thêm vào những gì đang có. Tệp cũng dùng được giữa hai phiên bản AIV khác nhau: những gì một trong hai phiên bản không biết sẽ được bỏ qua, và các cài đặt được thêm vào sau khi sao lưu vẫn giữ nguyên.</string>
+    <string name="backup_area_view">Giao diện và điều hướng</string>
+    <string name="backup_area_covers">Ảnh bìa thư mục</string>
+    <string name="backup_area_hints">Các gợi ý đã xem</string>
+    <string name="backup_lock">Bảo vệ bằng mật khẩu</string>
+    <string name="backup_lock_desc">Khi không có mật khẩu, tệp chỉ mở được bằng AIV, và bất kỳ ai có AIV đều có thể nhập tệp. Khi có mật khẩu thì cần cả mật khẩu đó: nếu bạn quên, tệp sẽ không mở được nữa.</string>
+    <string name="backup_password_title">Mật khẩu bản sao lưu</string>
+    <string name="backup_password">Mật khẩu</string>
+    <string name="backup_password_again">Nhập lại mật khẩu</string>
+    <string name="backup_password_mismatch">Hai mật khẩu không khớp nhau.</string>
+    <string name="backup_export">Xuất</string>
+    <string name="backup_import">Nhập</string>
+    <string name="backup_saved">Đã lưu bản sao lưu.</string>
+    <string name="backup_loaded">Đã nhập bản sao lưu.</string>
+    <string name="backup_loaded_skipped">Đã nhập bản sao lưu, trừ các mục mà phiên bản AIV này không biết.</string>
+    <string name="backup_load_failed">Nhập không thành công: không có gì thay đổi.</string>
+    <string name="backup_load_partial">Quá trình nhập dừng giữa chừng: một số phần chưa được nhập.</string>
+    <string name="backup_bad">Tệp này không phải là bản sao lưu của AIV.</string>
+    <string name="backup_newer">Bản sao lưu này dùng định dạng mới hơn mà phiên bản AIV này không mở được: hãy cập nhật ứng dụng để nhập.</string>
+    <string name="backup_wrong">Mật khẩu không đúng, hoặc tệp đã bị hỏng.</string>
+    <string name="backup_broken">Tệp bị hỏng hoặc không đầy đủ.</string>
+    <string name="backup_exporting">Đang xuất...</string>
+    <string name="backup_importing">Đang nhập...</string>
+    <string name="backup_import_from">Bản sao lưu tạo lúc %1$s bằng AIV %2$s</string>
+    <string name="backup_import_ask">Các phần này sẽ thay thế các phần hiện tại; còn nội dung thùng rác được thêm vào những gì đang có.</string>
+    <string name="backup_unlock">Bản sao lưu này được bảo vệ: hãy nhập mật khẩu của nó.</string>
+    <string name="backup_none">Bản sao lưu không chứa phần nào trong số các phần đã đánh dấu.</string>
 </resources>

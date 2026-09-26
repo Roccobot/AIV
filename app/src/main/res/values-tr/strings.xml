@@ -607,4 +607,35 @@
     <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
     <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır.</string>
     <string name="hint_save">İşin bitince dosyanın üzerine yazmak için \'Kaydet\' düğmesine dokun (etkinse yedek kopyayla birlikte); uzun basış, görüntünün yeni bir kopyasını aynı klasöre kaydeder.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Dışa ve içe aktarma</string>
+    <string name="backup_desc">Ayarları bir dosyaya kaydet ve gerektiğinde geri yükle</string>
+    <string name="backup_intro">Dosya aşağıda işaretli bölümleri içerir ve onu yalnızca AIV okuyabilir. İçe aktarırken aynı kutular neyin geri yükleneceğini seçer: her bölüm mevcut olanın yerini alır, çöp kutusunun içeriği ise zaten orada olanlara eklenir. Farklı AIV sürümleri arasında da çalışır: ikisinden birinin bilmediği her şey atlanır, yedekten sonra eklenen ayarlar da olduğu gibi kalır.</string>
+    <string name="backup_area_view">Görünüm ve gezinme</string>
+    <string name="backup_area_covers">Klasör kapakları</string>
+    <string name="backup_area_hints">Görülmüş ipuçları</string>
+    <string name="backup_lock">Şifreyle koru</string>
+    <string name="backup_lock_desc">Şifre olmadan dosya yalnızca AIV ile açılır ve AIV yüklü olan herkes onu içe aktarabilir. Şifre koyarsan o da gerekir: unutursan dosya bir daha açılmaz.</string>
+    <string name="backup_password_title">Yedek şifresi</string>
+    <string name="backup_password">Şifre</string>
+    <string name="backup_password_again">Şifreyi tekrar gir</string>
+    <string name="backup_password_mismatch">İki şifre eşleşmiyor.</string>
+    <string name="backup_export">Dışa aktar</string>
+    <string name="backup_import">İçe aktar</string>
+    <string name="backup_saved">Yedek kaydedildi.</string>
+    <string name="backup_loaded">Yedek içe aktarıldı.</string>
+    <string name="backup_loaded_skipped">Yedek içe aktarıldı, bu AIV sürümünün tanımadığı öğeler hariç.</string>
+    <string name="backup_load_failed">İçe aktarılamadı: hiçbir şey değişmedi.</string>
+    <string name="backup_load_partial">İçe aktarma yarıda kaldı: bazı bölümler aktarılmadı.</string>
+    <string name="backup_bad">Bu dosya bir AIV yedeği değil.</string>
+    <string name="backup_newer">Bu yedek, bu AIV sürümünün açamadığı daha yeni bir biçim kullanıyor: içe aktarmak için uygulamayı güncelle.</string>
+    <string name="backup_wrong">Şifre yanlış ya da dosya bozuk.</string>
+    <string name="backup_broken">Dosya bozuk ya da eksik.</string>
+    <string name="backup_exporting">Dışa aktarılıyor...</string>
+    <string name="backup_importing">İçe aktarılıyor...</string>
+    <string name="backup_import_from">%1$s tarihli yedek, AIV %2$s</string>
+    <string name="backup_import_ask">Bu bölümler mevcut olanların yerini alacak; çöp kutusunun içeriği ise zaten orada olanlara eklenecek.</string>
+    <string name="backup_unlock">Bu yedek korumalı: şifresini gir.</string>
+    <string name="backup_none">Yedekte işaretli bölümlerin hiçbiri yok.</string>
 </resources>

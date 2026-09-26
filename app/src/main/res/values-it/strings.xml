@@ -684,4 +684,35 @@
     <string name="settings_buttons_bin">Nel cestino, al posto di \'Rinomina\' troverai \'Ripristina\'.</string>
     <string name="settings_buttons_before">Sposta prima</string>
     <string name="settings_buttons_after">Sposta dopo</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Esporta e importa</string>
+    <string name="backup_desc">Salva le impostazioni in un file e rimettile quando serve</string>
+    <string name="backup_intro">Il file porta le parti spuntate qui sotto, e solo AIV lo sa leggere. Importando, le stesse caselle scelgono che cosa rimettere: ogni parte prende il posto di quella di adesso, e il contenuto del cestino si aggiunge a quello che c\'è. Vale anche fra versioni diverse di AIV: quello che una delle due non conosce si salta, e le impostazioni nate dopo il backup restano come sono.</string>
+    <string name="backup_area_view">Aspetto e navigazione</string>
+    <string name="backup_area_covers">Copertine delle cartelle</string>
+    <string name="backup_area_hints">Avvisi già visti</string>
+    <string name="backup_lock">Proteggi con una password</string>
+    <string name="backup_lock_desc">Senza password il file si apre solo con AIV, e chiunque abbia AIV lo può importare. Con la password serve anche lei: se la dimentichi, il file non si apre più.</string>
+    <string name="backup_password_title">Password del backup</string>
+    <string name="backup_password">Password</string>
+    <string name="backup_password_again">Ripeti la password</string>
+    <string name="backup_password_mismatch">Le due password non coincidono.</string>
+    <string name="backup_export">Esporta</string>
+    <string name="backup_import">Importa</string>
+    <string name="backup_saved">Backup salvato.</string>
+    <string name="backup_loaded">Backup importato.</string>
+    <string name="backup_loaded_skipped">Backup importato, tranne le voci che questa versione di AIV non conosce.</string>
+    <string name="backup_load_failed">L\'importazione non è andata a buon fine: non è cambiato niente.</string>
+    <string name="backup_load_partial">L\'importazione si è fermata a metà: alcune parti non sono entrate.</string>
+    <string name="backup_bad">Questo file non è un backup di AIV.</string>
+    <string name="backup_newer">Questo backup usa un formato più nuovo, che questa versione di AIV non sa aprire: aggiorna l\'app per importarlo.</string>
+    <string name="backup_wrong">Password non corretta, oppure il file è danneggiato.</string>
+    <string name="backup_broken">Il file è danneggiato o incompleto.</string>
+    <string name="backup_exporting">Esportazione in corso...</string>
+    <string name="backup_importing">Importazione in corso...</string>
+    <string name="backup_import_from">Backup del %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Queste parti prenderanno il posto di quelle di adesso; il contenuto del cestino si aggiunge a quello che c\'è.</string>
+    <string name="backup_unlock">Questo backup è protetto: scrivi la sua password.</string>
+    <string name="backup_none">Il backup non contiene nessuna delle parti spuntate.</string>
 </resources>

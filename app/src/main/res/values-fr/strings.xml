@@ -625,4 +625,35 @@
     <string name="hint_modules">Fais défiler les icônes pour atteindre tous les modules de retouche. Appuie longuement sur l\'icône d\'un module pour annuler ses seuls réglages.</string>
     <string name="hint_tools">En plus des modules, deux fonctions s\'activent et se désactivent à la volée d\'une simple pression sur l\'icône, qui s\'allume : \'Filigrane\' et \'Redimensionner\'. Un appui long ouvre les réglages de chacune.</string>
     <string name="hint_save">Quand tu as terminé, touche \'Enregistrer\' pour écraser le fichier (avec copie de sauvegarde, si elle est activée) ; un appui long enregistre une nouvelle copie de l\'image dans le même dossier.</string>
+
+    <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
+    <string name="backup_title">Exporter et importer</string>
+    <string name="backup_desc">Enregistre les réglages dans un fichier et restaure-les au besoin</string>
+    <string name="backup_intro">Le fichier contient les parties cochées ci-dessous, et seul AIV peut le lire. À l\'importation, les mêmes cases déterminent ce qui est restauré : chaque partie remplace l\'actuelle, et le contenu de la corbeille s\'ajoute à ce qui s\'y trouve déjà. Cela fonctionne aussi entre différentes versions d\'AIV : ce que l\'une des deux ne connaît pas est ignoré, et les réglages apparus après la sauvegarde restent tels quels.</string>
+    <string name="backup_area_view">Apparence et navigation</string>
+    <string name="backup_area_covers">Couvertures des dossiers</string>
+    <string name="backup_area_hints">Astuces déjà vues</string>
+    <string name="backup_lock">Protéger par un mot de passe</string>
+    <string name="backup_lock_desc">Sans mot de passe, le fichier ne s\'ouvre qu\'avec AIV, et quiconque a AIV peut l\'importer. Avec un mot de passe, il faut aussi le saisir : si tu l\'oublies, le fichier ne s\'ouvrira plus.</string>
+    <string name="backup_password_title">Mot de passe de la sauvegarde</string>
+    <string name="backup_password">Mot de passe</string>
+    <string name="backup_password_again">Répéter le mot de passe</string>
+    <string name="backup_password_mismatch">Les deux mots de passe ne correspondent pas.</string>
+    <string name="backup_export">Exporter</string>
+    <string name="backup_import">Importer</string>
+    <string name="backup_saved">Sauvegarde enregistrée.</string>
+    <string name="backup_loaded">Sauvegarde importée.</string>
+    <string name="backup_loaded_skipped">Sauvegarde importée, sauf les entrées que cette version d\'AIV ne reconnaît pas.</string>
+    <string name="backup_load_failed">L\'importation n\'a pas abouti : rien n\'a changé.</string>
+    <string name="backup_load_partial">L\'importation s\'est arrêtée à mi-chemin : certaines parties n\'ont pas été importées.</string>
+    <string name="backup_bad">Ce fichier n\'est pas une sauvegarde d\'AIV.</string>
+    <string name="backup_newer">Cette sauvegarde utilise un format plus récent, que cette version d\'AIV ne peut pas ouvrir : mets à jour l\'app pour l\'importer.</string>
+    <string name="backup_wrong">Mot de passe incorrect ou fichier endommagé.</string>
+    <string name="backup_broken">Le fichier est endommagé ou incomplet.</string>
+    <string name="backup_exporting">Exportation en cours...</string>
+    <string name="backup_importing">Importation en cours...</string>
+    <string name="backup_import_from">Sauvegarde du %1$s, AIV %2$s</string>
+    <string name="backup_import_ask">Ces parties remplaceront les actuelles ; le contenu de la corbeille s\'ajoute à ce qui s\'y trouve déjà.</string>
+    <string name="backup_unlock">Cette sauvegarde est protégée : saisis son mot de passe.</string>
+    <string name="backup_none">La sauvegarde ne contient aucune des parties cochées.</string>
 </resources>
