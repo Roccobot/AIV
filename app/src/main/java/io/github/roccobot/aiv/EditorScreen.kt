@@ -80,9 +80,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -1102,7 +1105,7 @@ internal fun SheetChip(
 }
 
 /**
- * Le sei forme del ritaglio e i due versi, in **due righe** in tutti e due gli editor.
+ * Le forme del ritaglio e i due versi, in **due righe** in tutti e due gli editor.
  *
  * ⚠️⚠️ **È UN PEZZO SOLO PERCHÉ I DUE EDITOR MOSTRANO LA STESSA FILA**: dalla `2.31` il modulo
  * Ritaglio dell'editor completo chiama lo stesso ritaglio dell'editor semplice, e dalla `2.32` anche
@@ -1125,11 +1128,29 @@ internal fun SheetChip(
  *   `2.80`, perché là servivano a togliere una terza riga; qui lo spazio c'è, e tre celle uguali
  *   su 360dp ne lasciano 88 per la parola, contro i 76 che chiede la più larga delle ventotto
  *   lingue (il tedesco *Hochformat*, Roboto Medium col corpo pieno).
- * - ⚠️⚠️ **IL CORPO RESTA UN GRADINO SOTTO, ED È MISURATO**: col corpo pieno il 'Libero' russo
- *   chiede 65,7 punti, e la sua cella su 360dp ne lascia 64,7. A `labelMedium` ne chiede 59,6 ed
- *   entra con un margine. Chi alzasse il corpo guardi prima quella parola.
  * - ⚠️ **L'altezza della scheda non cresce**: due punti in meno di prima, perché fra le due righe
  *   c'è [SHAPE_GAP] invece degli otto punti della riga dei versi.
+ *
+ * ⚠️⚠️ **E DALLA `2.89` LE CELLE DELLA PRIMA RIGA SI MISURANO, E FINO ALLA `2.88` 'LIBERO' AVEVA
+ * UN PESO FISSO** (1,35 volte un numero). Col 5:4 le celle sono sei (sua istruzione, § [Shape]), e
+ * con quel peso alla parola sarebbero rimasti 48 punti di testo su uno schermo da 360dp, contro i
+ * 59,6 che chiede il 'Libero' russo. Adesso a 'Libero' spetta la larghezza vera della sua parola
+ * nella lingua del telefono, a ogni numero quella del più largo di loro, e l'avanzo si divide in
+ * proporzione: è la resa della fila dei modi del ridimensionamento (`ModeRow`).
+ * - ⚠️⚠️ **SE LA RIGA NON CI STA, SI STRINGE LA PAROLA E NON I NUMERI** ([shapeCell]): '16:9'
+ *   troncato si legge come un'altra proporzione, mentre una parola con l'ellissi si legge ancora.
+ *   Col solo peso misurato, in una riga troppo corta ogni cella perderebbe la sua parte.
+ * - **I numeri misurati**, Roboto Medium con la spaziatura delle lettere di Material, su una fila
+ *   larga 312 punti (360 meno i due [STAGE_SIDE]) di cui cinque distacchi lasciano 282: in italiano
+ *   la riga ne chiede 237, in russo 260. Col corpo pieno il russo ne chiederebbe 278, cioè quattro
+ *   di margine: per questo il corpo resta un gradino sotto.
+ * - ⚠️ **Il tamil ne chiede 283, e va dichiarato**: il suo 'Libero' vale 83 punti col Noto Sans
+ *   Tamil, quindi là la parola perde un punto e prende l'ellissi. Fino alla `2.88` gliene
+ *   mancavano ventidue. ⚠️ **Il numero vero non è misurato**: Android usa la variante UI di quel
+ *   carattere, che in sessione non c'è.
+ * - ⚠️ **Fino alla `2.88` qui c'era scritto che la cella di 'Libero' lasciava 64,7 punti, ed era
+ *   sbagliato**: era il conto della fila dell'editor completo, larga 328 punti, e su questa ne
+ *   lasciava 60,7. Il russo entrava lo stesso, con un punto di margine invece di cinque.
  *
  * ⚠️ **Chi legge una nota vecchia sappia che la fila unica non c'è più**: dalla `2.34` alla `2.87`
  * l'editor semplice portava le sei forme in una fila sola col corpo ridotto (sua risposta `una` a
@@ -1168,10 +1189,14 @@ internal fun ShapeRow(
         MaterialTheme.typography.labelMedium
     }
 
+    /** Che cosa si legge su un gettone: la sua parola, o il suo numero nel verso acceso. */
+    @Composable
+    fun scritto(one: Shape): String = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty()
+
     @Composable
     fun chip(one: Shape, cella: Modifier) {
         SheetChip(
-            text = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty(),
+            text = scritto(one),
             selected = one == shape,
             enabled = enabled,
             onClick = { onShape(one) },
@@ -1216,14 +1241,25 @@ internal fun ShapeRow(
             }
         } else {
             /*
-             * ⚠️ **Il peso in più va a 'Libero' e non a tutte e cinque**: '16:9' sono quattro
-             * caratteri che non si traducono mai, quindi dividere la riga in parti uguali vorrebbe
-             * dire regalare ai numeri lo spazio che serve alla parola.
+             * ⚠️ **Le celle si misurano, dalla `2.89`**: il perché vive nella nota in testa, la
+             * regola su [shapeCell]. La parola prende quello che i numeri lasciano, quindi la riga
+             * finisce esattamente sul bordo senza che nessuno sommi niente.
+             * ⚠️ **I numeri sono larghi uguali**, cioè quanto il più largo di loro: sono gettoni
+             * dello stesso genere, e '1:1' più stretto di '16:9' romperebbe la griglia della riga.
              */
-            Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
-                chip(Shape.FREE, Modifier.weight(SHAPE_WORD))
-                for (one in Shape.entries.filter { it.numeric }) {
-                    chip(one, Modifier.weight(1f))
+            val righello = rememberTextMeasurer()
+            val density = LocalDensity.current
+            val numeri = Shape.entries.filter { it.numeric }
+            fun serve(testo: String): Dp = with(density) {
+                righello.measure(AnnotatedString(testo), style, maxLines = 1).size.width.toDp()
+            } + CHIP_PAD * 2
+            val parola = serve(scritto(Shape.FREE))
+            val numero = numeri.maxOf { serve(scritto(it)) }
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val cella = shapeCell(parola, numero, numeri.size, maxWidth - SHAPE_GAP * numeri.size)
+                Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
+                    chip(Shape.FREE, Modifier.weight(1f))
+                    for (one in numeri) chip(one, Modifier.width(cella))
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
@@ -1258,10 +1294,29 @@ private val LAY_CELL = 44.dp
 private val CHIP_ICON = 18.dp
 
 /**
- * Quanto è più larga la cella di 'Libero' nella prima riga dell'editor semplice: vedi il conto in
- * [ShapeRow].
+ * Quanto è larga la cella di un numero nella prima riga dell'editor semplice, dalla `2.89`: vedi
+ * [ShapeRow]. La cella di 'Libero' prende quello che resta.
+ *
+ * [word] e [number] sono quanto chiedono le due celle, testo più rientri, e [room] è la riga meno
+ * i distacchi.
+ * - **Se la riga ci sta**, l'avanzo si divide in proporzione a quello che ognuno chiede, come nella
+ *   fila dei modi del ridimensionamento: chi ha una parola lunga riceve di più.
+ * - ⚠️⚠️ **Se non ci sta, i numeri tengono la loro misura e a stringersi è la parola**: '16:9'
+ *   troncato si legge come un'altra proporzione, mentre una parola con l'ellissi si legge ancora.
+ * - ⚠️ **Se non ci stanno nemmeno i numeri**, le celle si dividono la riga in parti uguali: è una
+ *   riga più stretta di quella di qualunque telefono, e là nessuna ripartizione salva il testo.
+ *
+ * ⚠️ **È una funzione a sé per il banco**: là i testi misurano meno che sul telefono, quindi la
+ * regola si prova chiamandola con le misure vere invece di montare la fila.
  */
-private const val SHAPE_WORD = 1.35f
+internal fun shapeCell(word: Dp, number: Dp, numbers: Int, room: Dp): Dp {
+    val need = word + number * numbers
+    return when {
+        need <= room -> number * (room / need)
+        number * numbers < room -> number
+        else -> room / (numbers + 1)
+    }
+}
 
 /** Le misure del chip scritto in casa: quelle di Material, tranne il rientro. */
 private val CHIP_TALL = 32.dp
@@ -1317,8 +1372,8 @@ internal enum class Lay(@StringRes val label: Int) {
 /**
  * Con che forma si ritaglia, **senza** dire da che parte sta.
  *
- * ⚠️⚠️ **QUATTRO PROPORZIONI E NON OTTO, ed è la struttura che la richiesta dell'utente
- * impone**: '2:3' e '3:2' non sono due scelte diverse, sono la stessa forma letta nei due
+ * ⚠️⚠️ **UNA VOCE PER PROPORZIONE E NON UNA PER VERSO, ed è la struttura che la richiesta
+ * dell'utente impone**: '2:3' e '3:2' non sono due scelte diverse, sono la stessa forma letta nei due
  * versi, e chi le tiene separate deve poi tenere d'accordo due elenchi ogni volta che
  * l'orientamento cambia. Qui il verso lo dà [Lay], e la forma resta selezionata mentre gli si
  * gira intorno.
@@ -1335,7 +1390,7 @@ internal enum class Lay(@StringRes val label: Int) {
  * vincoli di proporzione dev'esserci anche 'Originale', ma scelta di default resta 'Libera'*).
  * È la sola forma il cui rapporto **non è un numero scritto qui**: lo porta l'immagine, quindi
  * il valore arriva dal `frame` che si passa a [value] e a [fit].
- * ⚠️ **Quindi il rapporto è una funzione e non una costante, per tutte e sei**: un campo
+ * ⚠️ **Quindi il rapporto è una funzione e non una costante, per tutte le forme**: un campo
  * `Float?` più un booleano 'questa lo prende dall'immagine' direbbe la stessa cosa in due
  * pezzi, e il conto finirebbe in chi legge invece che qui.
  * ⚠️ **Il booleano che c'è dalla `2.87` ([fromImage]) dice un'altra cosa**: non da dove viene il
@@ -1349,17 +1404,23 @@ internal enum class Lay(@StringRes val label: Int) {
  * 'Verticale', e girando l'immagine di un quarto, perché il verso resta quello di partenza.
  * ⚠️ **Adesso ignora i due gettoni del verso** ([fromImage]): prende l'immagine com'è in quel
  * momento, cioè già posata, e [fit] con un rapporto uguale al frame non trova niente da togliere.
- * Il verso resta per le quattro proporzioni.
+ * Il verso resta per le proporzioni scritte qui ([numeric]).
  * ⚠️ **E mentre è scelta i due gettoni si spengono**, perché con lei non governano niente: un
  * tocco che non cambia la cornice si leggerebbe come un comando rotto.
  *
- * ⚠️⚠️ **LE QUATTRO PROPORZIONI SONO IN ORDINE CRESCENTE, DALLA `2.88`, ED È SUA ISTRUZIONE**
- * (campo libero del giro della `2.87`: *Riga 1: Libero, 1:1, 4:3, 3:2, 16:9*, e in chat, alla
- * domanda se valesse per tutti e due gli editor: *Sì, in tutti e due*). Fino alla `2.87` il 3:2
- * veniva prima del 4:3, cioè l'ordine non era né crescente né decrescente.
+ * ⚠️⚠️ **LE PROPORZIONI SONO IN ORDINE CRESCENTE, DALLA `2.88`, ED È SUA ISTRUZIONE** (campo
+ * libero del giro della `2.87`: *Riga 1: Libero, 1:1, 4:3, 3:2, 16:9*, e in chat, alla domanda se
+ * valesse per tutti e due gli editor: *Sì, in tutti e due*). Fino alla `2.87` il 3:2 veniva prima
+ * del 4:3, cioè l'ordine non era né crescente né decrescente.
+ * - ⚠️⚠️ **E DALLA `2.89` C'È ANCHE IL 5:4, FRA 1:1 E 4:3, ED È SUA ISTRUZIONE** (2026-09-26:
+ *   *Metti questi pulsanti proporzione, ordine: 1:1, 5:4, 4:3, 3:2, 16:9*). L'ordine resta
+ *   crescente, perché 1,25 cade fra 1 e 1,33, e vale nei due editor come quello di prima.
  * - ⚠️ **L'ordine di dichiarazione è l'ordine dei gettoni**, nei due editor, e nessun archivio lo
  *   legge: l'editor completo tiene la forma scelta come indice nel solo stato salvato della
  *   schermata (vedi `Gaze`), che vale per la rotazione e per la morte del processo.
+ *   ⚠️ **Una voce nuova in mezzo sposta l'indice di quelle che vengono dopo**, e il solo caso in
+ *   cui si vede è un editor aperto mentre l'app si aggiorna: là il lavoro riparte comunque da
+ *   capo, perché non è salvato, e a cambiare è al più il gettone acceso.
  */
 internal enum class Shape(
     private val tall: (Float) -> Float?,
@@ -1375,13 +1436,14 @@ internal enum class Shape(
     FREE({ null }, R.string.editor_free, null, null),
     ORIGINAL({ it.takeIf { f -> f > 0f } }, R.string.editor_shape_original, null, null, fromImage = true),
     ONE({ 1f }, null, "1:1", "1:1"),
+    FOUR_FIVE({ 4f / 5f }, null, "4:5", "5:4"),
     THREE_FOUR({ 3f / 4f }, null, "3:4", "4:3"),
     TWO_THREE({ 2f / 3f }, null, "2:3", "3:2"),
     NINE_SIXTEEN({ 9f / 16f }, null, "9:16", "16:9");
 
     /**
-     * Se il rapporto è un numero scritto qui, cioè una delle quattro proporzioni: 'Libero' non ne
-     * ha, e 'Originale' lo prende dall'immagine.
+     * Se il rapporto è un numero scritto qui, cioè una delle proporzioni: 'Libero' non ne ha, e
+     * 'Originale' lo prende dall'immagine.
      *
      * ⚠️ **Dice le forme che una rotazione deve rifare nel verso scelto**, dalla `2.88`: le altre
      * due una rotazione le porta con sé senza cambiare niente di quello che dicono (vedi

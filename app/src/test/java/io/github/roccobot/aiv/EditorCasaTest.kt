@@ -23,6 +23,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.up
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -31,8 +32,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+
+/**
+ * Le proporzioni su un'immagine larga, nell'ordine dei gettoni: crescente dalla `2.88`, e col 5:4
+ * fra 1:1 e 4:3 dalla `2.89` (sue istruzioni).
+ */
+private val NUMERI = listOf("1:1", "5:4", "4:3", "3:2", "16:9")
 
 /**
  * Il banco dell'**editor semplice**, dalla `2.87`.
@@ -128,10 +136,12 @@ class EditorCasaTest {
      * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (campo libero del giro della `2.87`, con una
      * schermata: *Riga 1: Libero, 1:1, 4:3, 3:2, 16:9. Riga 2: Originale, Verticale,
      * Orizzontale*), e l'ordine dei numeri vale nei due editor (sua risposta in chat).
+     * ⚠️ **Dalla `2.89` c'è anche il 5:4, fra 1:1 e 4:3** (2026-09-26: *1:1, 5:4, 4:3, 3:2, 16:9*).
      * ⚠️ **L'immagine è larga, quindi i numeri si scrivono in orizzontale**: sono i testi della sua
      * riga.
-     * ⚠️⚠️ **CONTROPROVATA** due volte: con 'Originale' nella prima riga cade la seconda asserzione,
-     * e con l'ordine di prima (3:2 prima di 4:3) cade l'ultima.
+     * ⚠️⚠️ **CONTROPROVATA** tre volte: con 'Originale' nella prima riga cade la seconda asserzione,
+     * con l'ordine di prima (3:2 prima di 4:3) cade l'ultima, e dalla `2.89` cade anche col 5:4
+     * rimesso dopo il 4:3.
      */
     @Test
     fun `le forme vanno su due righe, Libero coi numeri e Originale coi versi`() {
@@ -139,7 +149,7 @@ class EditorCasaTest {
         pronta()
         fun riquadro(t: String) = banco.onNodeWithText(t).fetchSemanticsNode().boundsInRoot
         val libero = riquadro(testo(R.string.editor_free))
-        val numeri = listOf("1:1", "4:3", "3:2", "16:9").map(::riquadro)
+        val numeri = NUMERI.map(::riquadro)
         val originale = riquadro(testo(R.string.editor_shape_original))
         val versi = listOf(R.string.editor_tall, R.string.editor_wide).map { riquadro(testo(it)) }
 
@@ -151,9 +161,82 @@ class EditorCasaTest {
         }
         assertTrue("e quella riga viene dopo", originale.top > libero.top + 2f)
         assertTrue(
-            "i numeri vanno in ordine crescente: 1:1, 4:3, 3:2, 16:9",
+            "i numeri vanno in ordine crescente: ${NUMERI.joinToString()}",
             numeri.zipWithNext().all { (a, b) -> a.left < b.left }
         )
+    }
+
+    /**
+     * **Nella prima riga, se non c'è posto per tutti, si stringe la parola e non i numeri.**
+     *
+     * ⚠️⚠️ **NASCE CON LA `2.89`**: col 5:4 le celle sono sei, e 'Libero' non ha più un peso fisso
+     * ma la larghezza della sua parola (vedi `shapeCell`). La regola si prova qui con le misure
+     * vere, perché sul banco i testi misurano meno che sul telefono: Roboto Medium a `labelMedium`
+     * con la spaziatura delle lettere di Material, più i due rientri del chip, su una riga che tolti
+     * i distacchi ne lascia 282.
+     * - **In italiano la riga ci sta**, e l'avanzo si divide in proporzione.
+     * - **In tamil no**, e a pagare il punto che manca è la parola: '16:9' troncato direbbe un'altra
+     *   proporzione.
+     * ⚠️⚠️ **CONTROPROVATA** dividendo sempre in proporzione: in tamil un numero scende sotto quello
+     * che chiede (37,48 punti contro 37,62), e l'asserzione del tamil cade.
+     */
+    @Test
+    fun `se la riga non ci sta si stringe la parola e non i numeri`() {
+        val stanza = 282.dp
+        val numero = 37.62.dp // '16:9', il più largo dei numeri
+        val italiano = 48.61.dp // 'Libero'
+        val tamil = 94.96.dp // il 'Libero' tamil, col Noto Sans Tamil
+
+        val cella = shapeCell(italiano, numero, 5, stanza)
+        val parola = stanza - cella * 5
+        assertTrue("in italiano un numero non doveva stringersi: $cella", cella >= numero)
+        assertTrue("e la parola nemmeno: $parola", parola >= italiano)
+        assertEquals("l'avanzo si divide in proporzione", cella / numero, parola / italiano, 1e-3f)
+
+        assertEquals(
+            "in tamil un numero doveva tenere la sua misura",
+            numero.value, shapeCell(tamil, numero, 5, stanza).value, 1e-4f
+        )
+        assertTrue("e a stringersi doveva essere la parola", stanza - numero * 5 < tamil)
+
+        assertEquals(
+            "dove non ci stanno nemmeno i numeri le celle si dividono la riga",
+            25f, shapeCell(italiano, numero, 5, 150.dp).value, 1e-4f
+        )
+    }
+
+    /**
+     * **Su uno schermo da 360dp i numeri della prima riga sono larghi uguali, e la riga arriva ai
+     * due rientri.**
+     *
+     * ⚠️ **È la metà della `2.89` che il banco può vedere**: quanto è larga ogni cella dipende dai
+     * testi, che qui misurano meno che sul telefono, mentre che i numeri siano larghi uguali e che
+     * 'Libero' prenda il resto fino al bordo no. ⚠️ **E conferma la larghezza della fila**, cioè il
+     * numero su cui si regge il conto in `ShapeRow`: 360 meno i due rientri.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: con ogni numero largo quanto il proprio testo cade la prima
+     * asserzione (38 pixel contro 47), e con 'Libero' fermo alla misura della sua parola cade
+     * l'ultima (la riga finisce a 328 invece che a 336).
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h720dp")
+    fun `i numeri della prima riga sono larghi uguali e la riga arriva ai rientri`() {
+        banco.setContent { Scena() }
+        pronta()
+        fun riquadro(t: String) = banco.onNodeWithText(t).fetchSemanticsNode().boundsInRoot
+        val libero = riquadro(testo(R.string.editor_free))
+        val numeri = NUMERI.map(::riquadro)
+        val schermo = banco.onRoot().fetchSemanticsNode().boundsInRoot.width
+        for (n in numeri) {
+            assertEquals("i numeri dovevano essere larghi uguali", numeri[0].width, n.width, 1f)
+        }
+        with(banco.density) {
+            assertEquals("lo schermo di prova è largo 360dp", 360.dp.toPx(), schermo, 1f)
+            assertEquals("la riga comincia al rientro di sinistra", STAGE_SIDE.toPx(), libero.left, 1f)
+            assertEquals(
+                "e 'Libero' prende il resto fino al rientro di destra",
+                schermo - STAGE_SIDE.toPx(), numeri.last().right, 1f
+            )
+        }
     }
 
     /**
