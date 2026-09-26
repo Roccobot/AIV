@@ -585,7 +585,7 @@
     <string name="settings_last_mark">చివరిగా చూసిన అంశం గుర్తు</string>
     <string name="settings_last_mark_frame">ఫ్రేమ్</string>
     <string name="settings_last_mark_corner">మూల</string>
-    <string name="settings_last_mark_dot">చుక్క</string>
+    <string name="settings_last_mark_dot">వృత్తం</string>
     <string name="settings_buttons_how">ఒక బటన్‌ను నొక్కి పట్టి లాగి, దాని సొంత ప్యానెల్‌లో దాని స్థానాన్ని మార్చండి.</string>
     <string name="settings_buttons_reset">రీసెట్</string>
     <string name="settings_buttons_reset_ask">బటన్లను డిఫాల్ట్ అమరికకు తిరిగి తీసుకురావాలా?</string>

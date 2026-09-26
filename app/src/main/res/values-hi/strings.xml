@@ -585,7 +585,7 @@
     <string name="settings_last_mark">आखिरी देखे गए आइटम का चिह्न</string>
     <string name="settings_last_mark_frame">फ़्रेम</string>
     <string name="settings_last_mark_corner">कोना</string>
-    <string name="settings_last_mark_dot">बिंदु</string>
+    <string name="settings_last_mark_dot">वृत्त</string>
     <string name="settings_buttons_how">किसी बटन को दबाकर रखें और उसे खींचकर उसके अपने पैनल में उसकी जगह बदलें।</string>
     <string name="settings_buttons_reset">रीसेट</string>
     <string name="settings_buttons_reset_ask">बटनों को डिफ़ॉल्ट क्रम में लौटाना चाहते हैं?</string>

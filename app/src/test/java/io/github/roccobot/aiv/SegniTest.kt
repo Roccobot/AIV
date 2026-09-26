@@ -29,25 +29,26 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * Il **pallino** e il **nastro** dell'ultimo media visualizzato: dove stanno, quanto sono grandi,
+ * Il **tondo** e il **nastro** dell'ultimo media visualizzato: dove stanno, quanto sono grandi,
  * e di che colore.
  *
- * ⚠️⚠️ **IL PALLINO NASCE CON LA `2.92`, E QUESTA PROVA NASCE CON LUI** (punto 2 del campo libero
+ * ⚠️⚠️ **IL TONDO NASCE CON LA `2.92`, E QUESTA PROVA NASCE CON LUI** (punto 2 del campo libero
  * del giro della `2.91`: *un pallino colore accento 50% in basso a sinistra nel quadrato di
  * miniatura dell'elemento*). Le tre cose che si possono rompere in silenzio sono le tre della sua
- * frase: il colore a metà opacità, l'angolo, e la misura, che deve seguire la piastrella perché le
- * colonne le sceglie lui.
+ * frase: il colore alla sua opacità, l'angolo, e la misura, che deve seguire la piastrella perché
+ * le colonne le sceglie lui. ⚠️ **L'opacità è il 60% dalla `2.94`**, e la prova non ne ricopia il
+ * numero: lo legge da [MARK_DOT_ALPHA].
  *
- * ⚠️⚠️ **E IL NASTRO ENTRA QUI PERCHÉ DIVIDE L'ANGOLO COL PALLINO**: fino alla `2.91` si
+ * ⚠️⚠️ **E IL NASTRO ENTRA QUI PERCHÉ DIVIDE L'ANGOLO COL TONDO**: fino alla `2.91` si
  * disegnava in coordinate assolute, cioè sempre in basso a sinistra, mentre la spunta e la durata
  * di un filmato seguono il verso della lingua. Da destra a sinistra restava nell'angolo della
- * durata. La prova lo misura nei due versi, e il pallino ha la stessa regola.
+ * durata. La prova lo misura nei due versi, e il tondo ha la stessa regola.
  *
  * ⚠️ **Misura il meccanismo e non la griglia**, per la ragione scritta in `CorniceTest`: una
  * miniatura vuole un MediaStore con dentro delle immagini, che in Robolectric è vuoto.
  *
- * ⚠️ **Che cosa NON vede**: se il pallino si distingua su una fotografia vera, e quale delle
- * misure sia quella giusta, che è la domanda del documento di feedback.
+ * ⚠️ **Che cosa NON vede**: se il tondo si distingua su una fotografia vera. La misura l'ha scelta
+ * lui guardando le anteprime del documento di feedback (`d-pallino-misura`: `14`).
  */
 @RunWith(AndroidJUnit4::class)
 /* ⚠️ La grafica vera vale per la classe: senza `NATIVE` la cattura torna vuota. */
@@ -58,7 +59,7 @@ class SegniTest {
     val banco = createComposeRule()
 
     /**
-     * **Il pallino è in basso all'inizio della riga**, cioè a sinistra, e da destra a sinistra
+     * **Il tondo è in basso all'inizio della riga**, cioè a sinistra, e da destra a sinistra
      * passa a destra.
      *
      * ⚠️ **Il centro si trova e non si calcola**: è il baricentro dei pixel tinti, quindi la prova
@@ -67,7 +68,7 @@ class SegniTest {
      * ⚠️ **La tolleranza è di un pixel**, e serve all'antialiasing del bordo del disco.
      */
     @Test
-    fun `il pallino vive in basso a sinistra, e da destra a sinistra in basso a destra`() {
+    fun `il tondo vive in basso a sinistra, e da destra a sinistra in basso a destra`() {
         banco.setContent {
             Column {
                 Scena(LATO, SINISTRA) { Modifier.lastDot(PROVA) }
@@ -87,15 +88,15 @@ class SegniTest {
     }
 
     /**
-     * **Il pallino cresce con la piastrella**: a lato doppio il diametro raddoppia.
+     * **Il tondo cresce con la piastrella**: a lato doppio il diametro raddoppia.
      *
      * ⚠️⚠️ **È LA COSA CHE PUÒ TORNARE INDIETRO IN SILENZIO**, come lo spessore della cornice: con
-     * un diametro in punti il pallino si vedrebbe giusto sulle tre colonne di un telefono e
+     * un diametro in punti il tondo si vedrebbe giusto sulle tre colonne di un telefono e
      * diventerebbe un puntino a due. ⚠️ **Il diametro si conta sulla riga del baricentro**, dove la
      * corda è la più lunga.
      */
     @Test
-    fun `il pallino cresce con la piastrella`() {
+    fun `il tondo cresce con la piastrella`() {
         banco.setContent {
             Column {
                 Scena(LATO / 2, STRETTA) { Modifier.lastDot(PROVA) }
@@ -104,18 +105,19 @@ class SegniTest {
         }
         val stretta = diametro(foto(STRETTA))
         val larga = diametro(foto(LARGA))
-        assertTrue("il pallino deve esserci: $stretta", stretta > 0)
+        assertTrue("il tondo deve esserci: $stretta", stretta > 0)
         assertEquals("a lato doppio il diametro raddoppia", stretta * 2.0, larga.toDouble(), 1.5)
     }
 
     /**
-     * **Il pallino porta il colore che riceve, a metà opacità.**
+     * **Il tondo porta il colore che riceve, alla sua opacità.**
      *
      * ⚠️ **Il colore atteso si calcola** dalla tinta passata e da [MARK_DOT_ALPHA], come in
-     * `CorniceTest`: un valore scritto a mano direbbe soltanto come il banco arrotonda.
+     * `CorniceTest`: un valore scritto a mano direbbe soltanto come il banco arrotonda. Per questo
+     * il passaggio dalla metà al 60%, nella `2.94`, non ha toccato il conto.
      */
     @Test
-    fun `il pallino prende il colore che riceve a meta opacita`() {
+    fun `il tondo prende il colore che riceve alla sua opacita`() {
         banco.setContent { Scena(LATO, LARGA) { Modifier.lastDot(PROVA) } }
         val pixel = foto(LARGA)
         val (cx, cy) = baricentro(pixel)
@@ -206,7 +208,7 @@ class SegniTest {
         const val STRETTA = "stretta"
         const val LARGA = "larga"
 
-        /** Il lato della scena: abbastanza da dare al pallino una ventina di pixel. */
+        /** Il lato della scena: abbastanza da dare al tondo una ventina di pixel. */
         val LATO = 160.dp
 
         /** A quanti pixel dai bordi si guardano gli angoli del nastro. */

@@ -2944,7 +2944,7 @@ private fun Thumbnail(
         }
         if (marked && mark == LastMark.DOT) {
             /*
-             * ⚠️⚠️ **IL PALLINO È DELLA `2.92`, ED È SUA RICHIESTA** (punto 2 del campo libero del
+             * ⚠️⚠️ **IL TONDO È DELLA `2.92`, ED È SUA RICHIESTA** (punto 2 del campo libero del
              * giro della `2.91`: *un pallino colore accento 50% in basso a sinistra nel quadrato di
              * miniatura dell'elemento*). Vive nell'angolo del nastro, e per la stessa ragione:
              * diagonalmente opposto alla spunta, e dall'altra parte della durata di un filmato.
@@ -3482,7 +3482,7 @@ internal fun Modifier.lastFrame(shape: Shape, color: Color): Modifier = this
  * (`Alignment.TopEnd`) e la durata di un filmato (`Alignment.BottomEnd`) seguono il verso della
  * lingua. In arabo, in persiano e in urdu il nastro restava quindi nell'angolo in cui la durata
  * arriva, e dallo stesso lato della spunta invece che di fronte, cioè il contrario della ragione
- * per cui è in quell'angolo (vedi la nota nella griglia). È venuto fuori scrivendo il pallino,
+ * per cui è in quell'angolo (vedi la nota nella griglia). È venuto fuori scrivendo il tondo,
  * che nasce nello stesso posto, e `SegniTest` lo misura nei due versi.
  * ⚠️ **Vive fuori dal composable per la ragione di [lastFrame]**: il banco lo monta da solo.
  */
@@ -3504,14 +3504,17 @@ internal fun Modifier.lastCorner(shape: Shape, color: Color): Modifier = this
     }
 
 /**
- * Il pallino che segna l'ultimo media visualizzato, dalla `2.92`: un disco del colore [color] a
+ * Il tondo che segna l'ultimo media visualizzato, dalla `2.92`: un disco del colore [color] a
  * [MARK_DOT_ALPHA], nell'angolo in basso dalla parte dell'inizio della riga.
  *
+ * ⚠️ **Si chiama 'Tondo' dalla `2.94`, ed è una sua riscrittura** (testo `settings_last_mark_dot`
+ * del giro della `2.92`): nella `2.92` e nella `2.93` la voce diceva 'Pallino'. Il nome interno
+ * resta `DOT`, come la chiave nell'archivio.
  * ⚠️⚠️ **LA MISURA È UNA FRAZIONE DEL LATO**, come il cateto del nastro e lo spessore della
  * cornice, e per la stessa ragione: le colonne le sceglie lui, e fra due e cinque il lato della
  * cella quasi si triplica. Il diametro è [MARK_DOT] del lato.
  * ⚠️ **L'aria dai due bordi vale il raggio**, cioè il centro è a un diametro dall'angolo: così
- * il segno si ingrandisce tutto insieme, aria compresa, e resta lo stesso pallino a qualunque
+ * il segno si ingrandisce tutto insieme, aria compresa, e resta lo stesso tondo a qualunque
  * misura. Un'aria fissa lo schiaccerebbe nell'angolo proprio alle misure più grandi.
  * ⚠️ **L'angolo è quello del nastro**, e da destra a sinistra si specchia come lui: vedi
  * [lastCorner].
@@ -3533,22 +3536,26 @@ internal fun Modifier.lastDot(color: Color): Modifier = this
     }
 
 /**
- * Quanto è largo il pallino, in frazione del lato della miniatura: il **14%**, cioè una quindicina
+ * Quanto è largo il tondo, in frazione del lato della miniatura: il **14%**, cioè una quindicina
  * di punti su una cella di un telefono a tre colonne.
  *
- * ⚠️⚠️ **È UNA PROPOSTA E NON ANCORA UN NUMERO SUO**: ha chiesto di scegliere la misura guardando
- * un'anteprima (*fammi scegliere la dimensione con un'anteprima*), e la domanda è nel documento di
- * feedback del giro della `2.92`. Questo è quello di mezzo fra le quattro misure che gli mostra.
+ * ⚠️⚠️ **È IL SUO NUMERO, SCELTO GUARDANDO LE ANTEPRIME**: aveva chiesto di scegliere la misura così
+ * (*fammi scegliere la dimensione con un'anteprima*), e alla domanda `d-pallino-misura` del giro
+ * della `2.92`, che gliene mostrava quattro, ha risposto `14`, cioè quella che la `2.92` portava
+ * già. Nella stessa risposta ha cambiato l'opacità: vedi [MARK_DOT_ALPHA].
  */
 private const val MARK_DOT = 0.14f
 
 /**
- * Quanto è OPACO il pallino: la metà, ed è il suo numero (*un pallino colore accento 50%*).
+ * Quanto è OPACO il tondo: il **60%**, dalla `2.94`, ed è la sua nota sulla stessa domanda
+ * (*medio, ma 60% di opacità*).
  *
+ * ⚠️ **Nella `2.92` e nella `2.93` era la metà**, cioè il numero della sua richiesta (*un pallino
+ * colore accento 50%*): guardando le anteprime lo ha voluto un poco più deciso.
  * ⚠️ **È `internal` per la ragione di [MARK_FRAME_ALPHA]**: il banco ne calcola il colore atteso
  * invece di riscriverlo.
  */
-internal const val MARK_DOT_ALPHA = 0.5f
+internal const val MARK_DOT_ALPHA = 0.6f
 
 /**
  * Quanto si SCHIARISCE una miniatura scelta.

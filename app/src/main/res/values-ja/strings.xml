@@ -567,7 +567,7 @@
     <string name="settings_last_mark">最後に表示した項目の目印</string>
     <string name="settings_last_mark_frame">枠</string>
     <string name="settings_last_mark_corner">角</string>
-    <string name="settings_last_mark_dot">ドット</string>
+    <string name="settings_last_mark_dot">丸</string>
     <string name="settings_buttons_how">ボタンを長押しし、そのままドラッグして、そのパネル内での位置を変えます。</string>
     <string name="settings_buttons_reset">リセット</string>
     <string name="settings_buttons_reset_ask">ボタンを既定の並びに戻しますか？</string>

@@ -585,7 +585,7 @@
     <string name="settings_last_mark">Alama ya kipengee cha mwisho kilichotazamwa</string>
     <string name="settings_last_mark_frame">Fremu</string>
     <string name="settings_last_mark_corner">Pembe</string>
-    <string name="settings_last_mark_dot">Nukta</string>
+    <string name="settings_last_mark_dot">Duara</string>
     <string name="settings_buttons_how">Shikilia kitufe kisha ukiburute ili kubadilisha nafasi yake ndani ya kidirisha chake.</string>
     <string name="settings_buttons_reset">Weka upya</string>
     <string name="settings_buttons_reset_ask">Unataka vitufe virudi kwenye mpangilio wa awali?</string>
