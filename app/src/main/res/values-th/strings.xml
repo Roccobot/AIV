@@ -567,6 +567,7 @@
     <string name="settings_last_mark">เครื่องหมายของรายการที่ดูล่าสุด</string>
     <string name="settings_last_mark_frame">กรอบ</string>
     <string name="settings_last_mark_corner">มุม</string>
+    <string name="settings_last_mark_dot">จุด</string>
     <string name="settings_buttons_how">แตะปุ่มค้างไว้แล้วลากเพื่อเปลี่ยนตำแหน่งของมันภายในแผงของมัน</string>
     <string name="settings_buttons_reset">รีเซ็ต</string>
     <string name="settings_buttons_reset_ask">ต้องการให้ปุ่มกลับไปเป็นการจัดเรียงเริ่มต้นไหม</string>

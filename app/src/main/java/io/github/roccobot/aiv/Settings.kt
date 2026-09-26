@@ -135,12 +135,19 @@ enum class PanelDepth(override val token: String) : Choice {
  * doppia proprio perché i due segni dicono cose diverse.
  * ⚠️ **Quale dei due arriva di fabbrica dipende da quando l'app è stata installata**: il perché e
  * il come vivono su `MarkMigration`.
+ * ⚠️⚠️ **DALLA `2.92` LE RISPOSTE SONO TRE, ED È SUA RICHIESTA** (punto 2 del campo libero del giro
+ * della `2.91`: *nuova scelta: un pallino colore accento 50% in basso a sinistra nel quadrato di
+ * miniatura dell'elemento*). ⚠️ **I valori di fabbrica non cambiano**: il pallino arriva solo a
+ * chi lo sceglie, quindi `MarkMigration` resta com'è, e l'ordine di dichiarazione, che è quello
+ * dei gettoni, lo mette in coda perché è l'ultimo arrivato.
  */
 enum class LastMark(override val token: String) : Choice {
     /** Una cornice intorno alla miniatura, del colore d'accento: il mockup della `2.11`. */
     FRAME("frame"),
     /** Il nastro triangolare nell'angolo in basso a sinistra, cioè il segno dalla `0.58`. */
-    CORNER("corner")
+    CORNER("corner"),
+    /** Un pallino d'accento a metà opacità nello stesso angolo del nastro: la `2.92`. */
+    DOT("dot")
 }
 
 /**

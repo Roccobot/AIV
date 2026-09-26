@@ -287,6 +287,13 @@ jobs:
           rm -rf site/AIV/schermate
           cp -R publish/schermate site/AIV/schermate
 
+          # The picture that goes with the link when someone shares the page
+          # (Open Graph, since the 2.92). The page names it in its meta tags with
+          # an ABSOLUTE address, so it must sit right next to it under this very
+          # name; tools/og-image.py composes it from the page and the light
+          # screenshot, and has to be re-run when either changes.
+          cp publish/anteprima.jpg site/AIV/anteprima.jpg
+
           cd site
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

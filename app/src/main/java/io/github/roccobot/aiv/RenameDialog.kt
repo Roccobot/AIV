@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +47,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
@@ -1068,7 +1066,7 @@ internal fun PreviewLines(lines: List<PreviewLine>) {
         for (line in lines) {
             when (line) {
                 is PreviewLine.Pairing -> PreviewPair(line)
-                PreviewLine.Rule -> Between { PairRule() }
+                PreviewLine.Rule -> Between { FadedRule() }
                 PreviewLine.Skip -> Between { PairSkip() }
             }
         }
@@ -1208,7 +1206,13 @@ private fun PairArrow() {
 
 /**
  * Il posto fra due abbinamenti, alto [BETWEEN], con quello che porta in mezzo: il separatore
- * ([PairRule]) o lo stacco ([PairSkip]).
+ * (`FadedRule`) o lo stacco ([PairSkip]).
+ *
+ * ⚠️⚠️ **DALLA `2.92` IL SEPARATORE È QUELLO DEL RITAGLIO, ED È LA SUA NOTA SU `d-filo-uno`**
+ * (giro della `2.91`: *tutti e due come quello dell'editor*). La `2.91` aveva il filo del suo
+ * mockup, più tenue e pieno nella metà di mezzo (visibile per l'80% della larghezza, pieno nel
+ * 52%, a metà di `outlineVariant`); adesso il disegno è uno per l'app e vive in `Theme.kt`. Il
+ * posto e l'aria invece sono di qui, e non sono cambiati.
  */
 @Composable
 private fun Between(content: @Composable BoxScope.() -> Unit) {
@@ -1216,40 +1220,6 @@ private fun Between(content: @Composable BoxScope.() -> Unit) {
         modifier = Modifier.fillMaxWidth().height(BETWEEN),
         contentAlignment = Alignment.Center,
         content = content
-    )
-}
-
-/**
- * Il separatore fra due abbinamenti, dalla `2.91`: un filo tenue, pieno nella metà di mezzo e
- * sfumato ai due capi.
- *
- * ⚠️⚠️ **È QUELLO CHE HA DISEGNATO LUI, MISURATO** (*il separatore che ho aggiunto per separare
- * meglio le coppie*): nel suo mockup il filo si vede per l'80% della larghezza delle pastiglie ed
- * è pieno nel 52% di mezzo, e le quattro fermate qui sotto sono quei numeri arrotondati.
- * ⚠️⚠️ **NON È `CropRule` DI `AdvancedEditorScreen.kt`, E NON PER DISTRAZIONE**: quello del
- * Ritaglio è pieno in un punto solo e scende in linea retta fino ai bordi, questo ha un tratto
- * pieno largo e due code corte; ed è più tenue, perché a separare le coppie è soprattutto
- * l'aria, e il filo la sottolinea. Se i due devono diventare uno, la decisione è sua.
- * ⚠️ **L'inchiostro è [RULE_INK] di `outlineVariant`**, che è il colore dei separatori di
- * Material e di quello del Ritaglio.
- * ⚠️ **Lo spessore è [BOX_EDGE]**, cioè il filo delle due pastiglie che separa: un numero nuovo
- * per un filo che somiglia a quello sarebbe un secondo modo di dire la stessa cosa.
- */
-@Composable
-private fun PairRule() {
-    val ink = MaterialTheme.colorScheme.outlineVariant.copy(alpha = RULE_INK)
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(BOX_EDGE)
-            .background(
-                Brush.horizontalGradient(
-                    0.10f to Color.Transparent,
-                    0.25f to ink,
-                    0.75f to ink,
-                    0.90f to Color.Transparent
-                )
-            )
     )
 }
 
@@ -1319,15 +1289,6 @@ private const val ARROW_TIP = 20f / 24f
  * posti fra le coppie di un'anteprima avrebbero due misure diverse accanto.
  */
 private val BETWEEN = 32.dp
-
-/**
- * Quanta parte di `outlineVariant` porta il separatore.
- *
- * ⚠️ **Misurata sul suo mockup**: sommato sulle righe che tocca, il filo porta sul fondo della
- * finestra undici livelli di luminanza per dp, e `outlineVariant` a metà su un dp ne porta
- * dodici. Pieno sarebbe il doppio.
- */
-private const val RULE_INK = 0.5f
 
 /**
  * Un comando secondario: piccolo, a destra, e sbiadito quando non serve.

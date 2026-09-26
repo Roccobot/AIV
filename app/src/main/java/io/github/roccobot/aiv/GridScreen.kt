@@ -122,6 +122,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -2931,24 +2932,28 @@ private fun Thumbnail(
              * ⚠️ Resta un riquadro fratello e non un `Modifier.border` nella catena, che è
              * la lezione della `0.34`: due fratelli si dipingono nell'ordine in cui sono
              * scritti, e su questo non c'è niente da sapere.
+             * ⚠️ **Il disegno vive su [lastCorner] dalla `2.92`**, per la stessa ragione della
+             * cornice: il banco lo monta da solo. Con lui il nastro si specchia da destra a
+             * sinistra, dove fino alla `2.91` restava nell'angolo della durata di un filmato.
              */
-            val tint = MaterialTheme.colorScheme.primary
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .clip(shape)
-                    .drawBehind {
-                        val leg = size.minDimension * MARK_LEG
-                        drawPath(
-                            path = Path().apply {
-                                moveTo(0f, size.height)
-                                lineTo(leg, size.height)
-                                lineTo(0f, size.height - leg)
-                                close()
-                            },
-                            color = tint.copy(alpha = MARK_ALPHA)
-                        )
-                    }
+                    .lastCorner(shape, MaterialTheme.colorScheme.primary)
+            )
+        }
+        if (marked && mark == LastMark.DOT) {
+            /*
+             * ⚠️⚠️ **IL PALLINO È DELLA `2.92`, ED È SUA RICHIESTA** (punto 2 del campo libero del
+             * giro della `2.91`: *un pallino colore accento 50% in basso a sinistra nel quadrato di
+             * miniatura dell'elemento*). Vive nell'angolo del nastro, e per la stessa ragione:
+             * diagonalmente opposto alla spunta, e dall'altra parte della durata di un filmato.
+             * ⚠️ **Misura, posto e colore vivono su [lastDot]**, che il banco monta da solo.
+             */
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .lastDot(MaterialTheme.colorScheme.primary)
             )
         }
         /*
@@ -3467,6 +3472,83 @@ internal fun Modifier.lastFrame(shape: Shape, color: Color): Modifier = this
             style = Stroke(width = size.minDimension * MARK_EDGE * 2f)
         )
     }
+
+/**
+ * Il nastro triangolare che segna l'ultimo media visualizzato, nell'angolo in basso dalla parte
+ * dell'inizio della riga.
+ *
+ * ⚠️⚠️ **DA DESTRA A SINISTRA VA IN BASSO A DESTRA, DALLA `2.92`, E FINO ALLA `2.91` NO**: il
+ * triangolo si disegnava in coordinate assolute, cioè sempre in basso a sinistra, mentre la spunta
+ * (`Alignment.TopEnd`) e la durata di un filmato (`Alignment.BottomEnd`) seguono il verso della
+ * lingua. In arabo, in persiano e in urdu il nastro restava quindi nell'angolo in cui la durata
+ * arriva, e dallo stesso lato della spunta invece che di fronte, cioè il contrario della ragione
+ * per cui è in quell'angolo (vedi la nota nella griglia). È venuto fuori scrivendo il pallino,
+ * che nasce nello stesso posto, e `SegniTest` lo misura nei due versi.
+ * ⚠️ **Vive fuori dal composable per la ragione di [lastFrame]**: il banco lo monta da solo.
+ */
+internal fun Modifier.lastCorner(shape: Shape, color: Color): Modifier = this
+    .clip(shape)
+    .drawBehind {
+        val leg = size.minDimension * MARK_LEG
+        val start = if (layoutDirection == LayoutDirection.Ltr) 0f else size.width
+        val toward = if (layoutDirection == LayoutDirection.Ltr) leg else -leg
+        drawPath(
+            path = Path().apply {
+                moveTo(start, size.height)
+                lineTo(start + toward, size.height)
+                lineTo(start, size.height - leg)
+                close()
+            },
+            color = color.copy(alpha = MARK_ALPHA)
+        )
+    }
+
+/**
+ * Il pallino che segna l'ultimo media visualizzato, dalla `2.92`: un disco del colore [color] a
+ * [MARK_DOT_ALPHA], nell'angolo in basso dalla parte dell'inizio della riga.
+ *
+ * ⚠️⚠️ **LA MISURA È UNA FRAZIONE DEL LATO**, come il cateto del nastro e lo spessore della
+ * cornice, e per la stessa ragione: le colonne le sceglie lui, e fra due e cinque il lato della
+ * cella quasi si triplica. Il diametro è [MARK_DOT] del lato.
+ * ⚠️ **L'aria dai due bordi vale il raggio**, cioè il centro è a un diametro dall'angolo: così
+ * il segno si ingrandisce tutto insieme, aria compresa, e resta lo stesso pallino a qualunque
+ * misura. Un'aria fissa lo schiaccerebbe nell'angolo proprio alle misure più grandi.
+ * ⚠️ **L'angolo è quello del nastro**, e da destra a sinistra si specchia come lui: vedi
+ * [lastCorner].
+ * ⚠️ **Non ritaglia niente**: il disco è lontano dall'angolo stondato, quindi non ha niente da
+ * perdere oltre la sagoma.
+ */
+internal fun Modifier.lastDot(color: Color): Modifier = this
+    .drawBehind {
+        val radius = size.minDimension * MARK_DOT / 2f
+        val across = 2f * radius
+        drawCircle(
+            color = color.copy(alpha = MARK_DOT_ALPHA),
+            radius = radius,
+            center = Offset(
+                x = if (layoutDirection == LayoutDirection.Ltr) across else size.width - across,
+                y = size.height - across
+            )
+        )
+    }
+
+/**
+ * Quanto è largo il pallino, in frazione del lato della miniatura: il **14%**, cioè una quindicina
+ * di punti su una cella di un telefono a tre colonne.
+ *
+ * ⚠️⚠️ **È UNA PROPOSTA E NON ANCORA UN NUMERO SUO**: ha chiesto di scegliere la misura guardando
+ * un'anteprima (*fammi scegliere la dimensione con un'anteprima*), e la domanda è nel documento di
+ * feedback del giro della `2.92`. Questo è quello di mezzo fra le quattro misure che gli mostra.
+ */
+private const val MARK_DOT = 0.14f
+
+/**
+ * Quanto è OPACO il pallino: la metà, ed è il suo numero (*un pallino colore accento 50%*).
+ *
+ * ⚠️ **È `internal` per la ragione di [MARK_FRAME_ALPHA]**: il banco ne calcola il colore atteso
+ * invece di riscriverlo.
+ */
+internal const val MARK_DOT_ALPHA = 0.5f
 
 /**
  * Quanto si SCHIARISCE una miniatura scelta.
