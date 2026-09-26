@@ -96,7 +96,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * L'editor di casa: si gira di novanta gradi e si ritaglia, e basta.
+ * L'editor semplice: si gira di novanta gradi e si ritaglia, e basta.
  *
  * ⚠️⚠️ **IL PERIMETRO È DICHIARATO E NON È UNA MANCANZA** (richiesta dell'utente: *AIV non ha
  * come obiettivo di soppiantare un editor completo*): niente filtri, niente luminosità, niente
@@ -812,39 +812,25 @@ private fun EditorSheet(
                 .padding(top = SHEET_TOP),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            /*
+             * ⚠️⚠️ **I DUE VERSI VIVONO DENTRO LA FILA DELLE FORME, DALLA `2.88`**, accanto a
+             * 'Originale' (§ [ShapeRow]): fino alla `2.87` erano una riga di chip tutta loro qui
+             * sotto. **Cambiarli RIBALTA la selezione sul posto** (richiesta dell'utente,
+             * 2026-08-31): da 16:9 si passa a 9:16, e una selezione libera si inverte allo stesso
+             * modo. ⚠️ **Il centro non si muove**, ed è la parte che rende il gesto utile invece che
+             * spaesante: si sta scegliendo *che forma* dare al ritaglio, non *dove* metterlo.
+             * ⚠️ **Gli otto punti sotto sono quelli che la riga dei versi aveva di suo**, cioè
+             * l'aria prima delle due file di tasti.
+             */
             ShapeRow(
                 shape = shape,
                 lay = lay,
                 enabled = live,
                 onShape = onShape,
-                modifier = Modifier.padding(horizontal = STAGE_SIDE)
+                onLay = onLay,
+                rows = ShapeRows.SIMPLE,
+                modifier = Modifier.padding(start = STAGE_SIDE, end = STAGE_SIDE, bottom = 8.dp)
             )
-
-            /*
-             * ⚠️⚠️ **DUE TASTI CHE SI ESCLUDONO, e cambiarli RIBALTA la selezione sul posto**
-             * (richiesta dell'utente, 2026-08-31): da 16:9 si passa a 9:16, e una selezione
-             * libera si inverte allo stesso modo. ⚠️ **Il centro non si muove**, ed è la parte
-             * che rende il gesto utile invece che spaesante: si sta scegliendo *che forma*
-             * dare al ritaglio, non *dove* metterlo.
-             */
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = STAGE_SIDE, vertical = 8.dp)
-                    .oneOf(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                for (one in Lay.entries) {
-                    SheetChip(
-                        text = stringResource(one.label),
-                        selected = one == lay,
-                        // ⚠️ Spenti con 'Originale', dalla `2.87`: vedi [Shape.fromImage].
-                        enabled = live && !shape.fromImage,
-                        onClick = { onLay(one) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
 
             /*
              * ⚠️ **Le frecce circolari e nient'altro** (richiesta dell'utente, 2026-08-31: le
@@ -1019,6 +1005,20 @@ private fun EditorSheet(
  * rientro, che è la cosa per cui è stato riscritto.
  * ⚠️ **L'ellissi resta come rete**: in una lingua che dovesse sforare comunque, la parola si
  * accorcia invece di sbordare fuori dal chip.
+ *
+ * ⚠️⚠️ **E DALLA `2.88` SPENTO SI VEDE SPENTO, E FINO ALLA `2.87` NO** (voce `originale-completo`
+ * del giro della `2.87`, accettabile: *anche se disattivate le icone orizzontale/verticale NON si
+ * spengono e sembrano attive*). Il riscritto aveva perso lo stato spento del disegno: `Surface`
+ * con `enabled = false` smette di rispondere al tocco ma non cambia un colore, quindi il chip
+ * scelto restava pieno e l'altro restava col suo filetto. Con 'Originale' i due versi si spengono
+ * dalla `2.87`, ed è il primo caso in cui un chip spento resta in scena da solo.
+ * ⚠️ **I numeri sono quelli di Material, letti nel bytecode di material3 1.5.0-alpha26**
+ * (`FilterChipTokens`): il testo e l'icona a [CHIP_OFF_INK] del colore del testo, il fondo del
+ * chip scelto e il filetto degli altri a [CHIP_OFF_FILL]. Sono lo stato spento del `FilterChip`,
+ * cioè quello che il componente di partenza avrebbe fatto da sé.
+ * ⚠️ **Vale per tutti i chip del pannello**, e non è un effetto collaterale: si spengono anche
+ * mentre un salvataggio è in corso e prima che l'anteprima arrivi, e in quei momenti erano spenti
+ * davvero senza dirlo.
  */
 @Composable
 internal fun SheetChip(
@@ -1030,8 +1030,9 @@ internal fun SheetChip(
     /**
      * Il corpo della parola, dalla `2.34`.
      *
-     * ⚠️ **Ha il valore di serie di sempre**, quindi i chip che non lo nominano non cambiano:
-     * lo passa la sola fila dei formati, che con sei celle è l'unica stretta.
+     * ⚠️ **Ha il valore di serie di sempre**, quindi i chip che non lo nominano non cambiano: lo
+     * passa la sola fila delle forme, che nell'editor semplice scende di un gradino (il conto vive
+     * su [ShapeRow]).
      */
     style: TextStyle = MaterialTheme.typography.labelLarge,
     /**
@@ -1061,9 +1062,21 @@ internal fun SheetChip(
          */
         modifier = modifier.picked(selected).height(CHIP_TALL),
         shape = RoundedCornerShape(CHIP_ROUND),
-        color = if (selected) scheme.secondaryContainer else Color.Transparent,
-        contentColor = if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
-        border = if (selected) null else BorderStroke(CHIP_EDGE, scheme.outlineVariant)
+        color = when {
+            !selected -> Color.Transparent
+            enabled -> scheme.secondaryContainer
+            else -> scheme.onSurface.copy(alpha = CHIP_OFF_FILL)
+        },
+        contentColor = when {
+            !enabled -> scheme.onSurface.copy(alpha = CHIP_OFF_INK)
+            selected -> scheme.onSecondaryContainer
+            else -> scheme.onSurfaceVariant
+        },
+        border = when {
+            selected -> null
+            enabled -> BorderStroke(CHIP_EDGE, scheme.outlineVariant)
+            else -> BorderStroke(CHIP_EDGE, scheme.onSurface.copy(alpha = CHIP_OFF_FILL))
+        }
     ) {
         Box(
             modifier = Modifier.fillMaxSize().padding(horizontal = CHIP_PAD),
@@ -1089,11 +1102,11 @@ internal fun SheetChip(
 }
 
 /**
- * Le sei forme del ritaglio, in **una fila sola**.
+ * Le sei forme del ritaglio e i due versi, in **due righe** in tutti e due gli editor.
  *
  * ⚠️⚠️ **È UN PEZZO SOLO PERCHÉ I DUE EDITOR MOSTRANO LA STESSA FILA**: dalla `2.31` il modulo
- * Ritaglio dell'editor completo chiama lo stesso ritaglio di casa, e dalla `2.32` anche gli
- * stessi formati. Scritta due volte, la fila divergerebbe al primo ritocco, e a vederlo sarebbe
+ * Ritaglio dell'editor completo chiama lo stesso ritaglio dell'editor semplice, e dalla `2.32` anche
+ * gli stessi formati. Scritta due volte, la fila divergerebbe al primo ritocco, e a vederlo sarebbe
  * lui, che i due editor li apre dalla stessa immagine.
  *
  * ⚠️⚠️ **PRENDONO TUTTA LA LARGHEZZA, ed è una richiesta** (utente, 2026-09-01: *fa' in modo
@@ -1101,37 +1114,35 @@ internal fun SheetChip(
  * ordinato*). Prima la fila scorreva di lato e finiva dove finivano le parole, lasciando un
  * vuoto a destra.
  *
- * ⚠️⚠️ **UNA SOLA DALLA `2.34`, ED È LA SUA RISPOSTA `una` A `d-crop-righe`** (giro della
- * `2.32`: *rimettile su una fila sola*, con la ragione scritta nella scelta: *anche a costo di
- * troncare le due parole: preferisco lo spazio per l'immagine*). La `2.32` le aveva divise in
- * due perché con 'Originale' le parole vere erano diventate due e su 360dp si troncavano; la
- * domanda gli chiedeva se quella riga valesse i 32dp che toglieva al palco, e la risposta è no.
- * ⚠️⚠️ **E NON SI TRONCANO LO STESSO, perché il corpo scende di un gradino**: è l'altra metà
- * del suo riscontro, dal campo libero (*puoi rimpicciolire i testi dei pulsanti proporzione*).
- * Il conto, con la parola più lunga delle ventotto lingue (il polacco *Oryginalne*, dieci
- * caratteri): su uno schermo da 360dp la fila ne ha 312 netti, meno i cinque distacchi da 6dp
- * restano 282; con [SHAPE_WORD] una parola prende **57dp** e un numero 42, e a `labelMedium`
- * quella parola ne chiede una quarantina più i due rientri del chip. Entra, e i quattro numeri
- * stanno larghi.
- * ⚠️ **Il peso in più va alle due parole e non a tutte e sei**: '16:9' sono quattro caratteri
- * che non si traducono mai, quindi dividere la riga in parti uguali vorrebbe dire regalare ai
- * numeri lo spazio che serve alle parole.
- * ⚠️ **Il corpo lo passa questa fila e non [SheetChip]**: gli altri chip della scheda (il verso
- * della selezione) hanno due celle su tutta la larghezza, quindi là non c'è niente da stringere.
+ * ⚠️⚠️ **DALLA `2.88` LE RIGHE DELL'EDITOR SEMPLICE SONO 'LIBERO E I NUMERI' E 'ORIGINALE E I
+ * VERSI', ED È SUA RICHIESTA** (campo libero del giro della `2.87`, con una schermata: *Riga 1:
+ * Libero, 1:1, 4:3, 3:2, 16:9. Riga 2: Originale, Verticale, Orizzontale*). Fino alla `2.87` là
+ * c'era una fila sola da sei celle, dove 'Originale' si troncava già in italiano, e sotto una riga
+ * con i soli due versi: le righe erano già due, e a cambiare è che cosa porta ognuna.
+ * - ⚠️ **'Originale' finisce accanto ai due versi che spegne** (§ [Shape.fromImage]): quando è
+ *   scelta, la riga di sotto dice da sé che il verso non c'entra.
+ * - ⚠️ **I versi restano scritti, come li ha elencati lui**: nell'editor completo sono icone dalla
+ *   `2.80`, perché là servivano a togliere una terza riga; qui lo spazio c'è, e tre celle uguali
+ *   su 360dp ne lasciano 88 per la parola, contro i 76 che chiede la più larga delle ventotto
+ *   lingue (il tedesco *Hochformat*, Roboto Medium col corpo pieno).
+ * - ⚠️⚠️ **IL CORPO RESTA UN GRADINO SOTTO, ED È MISURATO**: col corpo pieno il 'Libero' russo
+ *   chiede 65,7 punti, e la sua cella su 360dp ne lascia 64,7. A `labelMedium` ne chiede 59,6 ed
+ *   entra con un margine. Chi alzasse il corpo guardi prima quella parola.
+ * - ⚠️ **L'altezza della scheda non cresce**: due punti in meno di prima, perché fra le due righe
+ *   c'è [SHAPE_GAP] invece degli otto punti della riga dei versi.
  *
- * ⚠️⚠️ **MA DALLA `2.35` [wrap] ROVESCIA LE DUE RIGHE QUI SOPRA PER CHI HA SPAZIO, ED È IL SUO
- * RISCONTRO** (giro della `2.34`, voce `crop-fila` non approvata: *In realtà, come ho scritto in
- * chat, non serve. Anzi, devono occupare più spazio*, e in chat *i chip delle proporzioni possono
- * stare anche su 3 righe*). La ragione che aveva dettato la fila unica era *preferisco lo spazio
- * per l'immagine*, e **quella ragione è caduta con la `2.33`**: da quando la scheda è alta quanto
- * il modulo più alto, una riga in più nel Ritaglio non toglie un pixel al palco, perché là lo
- * spazio avanza comunque.
- * - ⚠️ **Quindi la fila unica resta dov'è ancora vera**, cioè nell'editor di casa: là la scheda si
- *   dimensiona sul proprio contenuto, e una seconda riga scenderebbe davvero sull'immagine.
- * - ⚠️ **E col ritorno a capo torna il corpo pieno**: la ragione del gradino più piccolo era il
- *   troncamento in una riga da sei celle, e con tre celle per riga quella parola sta comoda in
- *   tutte le ventotto lingue (su 360dp una cella vale un centinaio di punti contro i 57 di prima).
- *   Con lui cade la domanda `d-crop-corpo`, e la sua risposta lo dice: *Non serve*.
+ * ⚠️ **Chi legge una nota vecchia sappia che la fila unica non c'è più**: dalla `2.34` alla `2.87`
+ * l'editor semplice portava le sei forme in una fila sola col corpo ridotto (sua risposta `una` a
+ * `d-crop-righe`, *preferisco lo spazio per l'immagine*), e dalla `2.35` l'editor completo le
+ * mandava a capo perché là lo spazio avanzava.
+ *
+ * ⚠️⚠️ **E NELL'EDITOR COMPLETO LE RIGHE SONO 'LE PAROLE' E 'I NUMERI', DALLA `2.80`, ED È IL SUO
+ * PUNTO `crop-giu`** (riscontro del giro dalla `2.75` alla `2.77`, col mockup: *le proporzioni
+ * numeriche tutte in una riga* e *'Orizzontale' e 'Verticale' diventano icone a destra di
+ * 'Originale'*). Le due parole prendono quello che avanza accanto alle due celle dei versi, che
+ * sono larghe [LAY_CELL] perché un'icona non ha bisogno di più.
+ * - ⚠️ **L'ordine dei versi è quello di [Lay]** in tutti e due gli editor: girarlo sarebbe un
+ *   cambiamento non chiesto su una scelta che lui ha davanti da venti versioni.
  */
 @Composable
 internal fun ShapeRow(
@@ -1139,27 +1150,24 @@ internal fun ShapeRow(
     lay: Lay,
     enabled: Boolean,
     onShape: (Shape) -> Unit,
-    modifier: Modifier = Modifier,
+    /** Che cosa fa il tocco su uno dei due versi. */
+    onLay: (Lay) -> Unit,
     /**
-     * Se le sei forme possono andare a capo, cioè se chi le mostra ha spazio da spendere.
+     * In quale editor vive la fila, cioè quale delle due disposizioni: vedi la nota in testa.
      *
-     * ⚠️ **Non ha un valore di serie 'a capo'**: la fila unica è quella dell'editor di casa, che
-     * è il chiamante più vecchio e quello in cui lo spazio costa; chi può permettersi il ritorno
-     * a capo lo dichiara.
+     * ⚠️ **Non ha un valore di serie**: le due disposizioni hanno corpi e celle diversi, e un
+     * chiamante nuovo che la ereditasse per omissione mostrerebbe la fila dell'altro editor.
      */
-    wrap: Boolean = false,
-    /**
-     * Che cosa fa il tocco su uno dei due versi, dalla `2.80`: con `null` quelle due celle non
-     * si disegnano affatto.
-     *
-     * ⚠️⚠️ **LO PASSA IL SOLO EDITOR COMPLETO, E LA RAGIONE È CHE LÀ QUELLA FILA C'ERA GIÀ**:
-     * i due versi vivevano in una riga di chip scritti a parole sotto le forme, e il punto
-     * `crop-giu` del suo riscontro li vuole a icona accanto a 'Originale'. Nell'editor di casa
-     * quella riga è un'altra, in un pannello che si dimensiona sul proprio contenuto, e non la
-     * tocca nessuno: passando `null` questa fila resta quella di sempre.
-     */
-    onLay: ((Lay) -> Unit)? = null
+    rows: ShapeRows,
+    modifier: Modifier = Modifier
 ) {
+    val full = rows == ShapeRows.FULL
+    val style = if (full) {
+        MaterialTheme.typography.labelLarge
+    } else {
+        MaterialTheme.typography.labelMedium
+    }
+
     @Composable
     fun chip(one: Shape, cella: Modifier) {
         SheetChip(
@@ -1168,77 +1176,74 @@ internal fun ShapeRow(
             enabled = enabled,
             onClick = { onShape(one) },
             modifier = cella,
-            style = if (wrap) {
-                MaterialTheme.typography.labelLarge
-            } else {
-                MaterialTheme.typography.labelMedium
-            }
+            style = style
         )
     }
-    if (wrap) {
-        /*
-         * ⚠️⚠️ **LE DUE RIGHE SONO 'LE PAROLE' E 'I NUMERI', DALLA `2.80`, ED È IL SUO PUNTO
-         * `crop-giu`** (riscontro del giro dalla `2.75` alla `2.77`, col mockup: *le proporzioni
-         * numeriche tutte in una riga* e *'Orizzontale' e 'Verticale' diventano icone a destra di
-         * 'Originale'*). Fino alla `2.79` erano due righe da tre celle uguali, quindi i quattro
-         * numeri stavano a cavallo delle due e i due versi vivevano in una terza riga a parole.
-         * ⚠️⚠️ **LE RIGHE RESTANO DUE E LA TERZA SE NE VA, cioè il Ritaglio si ACCORCIA**: è quello
-         * che paga l'aria del punto D dello stesso campo libero, e senza quel conto un modulo più
-         * alto delle Curve alzerebbe la scheda in tutti e nove (§ `SteadyBody`).
-         * ⚠️ **I quattro numeri si dividono la riga in parti uguali**, perché sono quattro stringhe
-         * che non si traducono mai; le due parole prendono quello che avanza accanto alle due
-         * celle dei versi, che sono larghe [LAY_CELL] perché un'icona non ha bisogno di più.
-         */
-        Column(
-            modifier = modifier.fillMaxWidth().oneOf(),
-            verticalArrangement = Arrangement.spacedBy(SHAPE_GAP)
-        ) {
+
+    @Composable
+    fun verso(one: Lay, cella: Modifier) {
+        SheetChip(
+            text = stringResource(one.label),
+            icon = when {
+                !full -> null
+                one == Lay.TALL -> Icons.Filled.CropPortrait
+                else -> Icons.Filled.CropLandscape
+            },
+            selected = one == lay,
+            // ⚠️ Spenti con 'Originale', dalla `2.87`: vedi [Shape.fromImage].
+            enabled = enabled && !shape.fromImage,
+            onClick = { onLay(one) },
+            modifier = cella,
+            style = style
+        )
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth().oneOf(),
+        verticalArrangement = Arrangement.spacedBy(SHAPE_GAP)
+    ) {
+        if (full) {
             Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
                 for (one in Shape.entries.filter { it.word != null }) {
                     chip(one, Modifier.weight(1f))
                 }
-                /*
-                 * ⚠️ **L'ordine è quello di [Lay] e non quello della sua frase**: là i due versi
-                 * sono nominati per dire che diventano icone, e girarli sarebbe un secondo
-                 * cambiamento non chiesto su una scelta che lui ha davanti da venti versioni.
-                 */
-                if (onLay != null) {
-                    for (verso in Lay.entries) {
-                        SheetChip(
-                            text = stringResource(verso.label),
-                            icon = if (verso == Lay.TALL) {
-                                Icons.Filled.CropPortrait
-                            } else {
-                                Icons.Filled.CropLandscape
-                            },
-                            selected = verso == lay,
-                            // ⚠️ Spenti con 'Originale', dalla `2.87`: vedi [Shape.fromImage].
-                            enabled = enabled && !shape.fromImage,
-                            onClick = { onLay(verso) },
-                            modifier = Modifier.width(LAY_CELL)
-                        )
-                    }
-                }
+                for (one in Lay.entries) verso(one, Modifier.width(LAY_CELL))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
-                for (one in Shape.entries.filter { it.word == null }) {
+                for (one in Shape.entries.filter { it.numeric }) {
                     chip(one, Modifier.weight(1f))
                 }
             }
-        }
-    } else {
-        Row(
-            modifier = modifier.fillMaxWidth().oneOf(),
-            horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)
-        ) {
-            for (one in Shape.entries) {
-                chip(one, Modifier.weight(if (one.word != null) SHAPE_WORD else 1f))
+        } else {
+            /*
+             * ⚠️ **Il peso in più va a 'Libero' e non a tutte e cinque**: '16:9' sono quattro
+             * caratteri che non si traducono mai, quindi dividere la riga in parti uguali vorrebbe
+             * dire regalare ai numeri lo spazio che serve alla parola.
+             */
+            Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
+                chip(Shape.FREE, Modifier.weight(SHAPE_WORD))
+                for (one in Shape.entries.filter { it.numeric }) {
+                    chip(one, Modifier.weight(1f))
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(SHAPE_GAP)) {
+                chip(Shape.ORIGINAL, Modifier.weight(1f))
+                for (one in Lay.entries) verso(one, Modifier.weight(1f))
             }
         }
     }
 }
 
-/** Il distacco fra due forme, uguale nelle due direzioni quando la fila va a capo. */
+/** Le due disposizioni di [ShapeRow], una per editor. */
+internal enum class ShapeRows {
+    /** L'editor semplice, dalla `2.88`: 'Libero' e i numeri sopra, 'Originale' e i versi sotto. */
+    SIMPLE,
+
+    /** L'editor completo, dalla `2.80`: le due parole e i versi a icona sopra, i numeri sotto. */
+    FULL
+}
+
+/** Il distacco fra due forme, uguale fra due celle vicine e fra le due righe. */
 private val SHAPE_GAP = 6.dp
 
 /**
@@ -1253,15 +1258,27 @@ private val LAY_CELL = 44.dp
 private val CHIP_ICON = 18.dp
 
 /**
- * Quanto è più larga la cella di una forma che si dice a parole: vedi il conto in [ShapeRow].
+ * Quanto è più larga la cella di 'Libero' nella prima riga dell'editor semplice: vedi il conto in
+ * [ShapeRow].
  */
 private const val SHAPE_WORD = 1.35f
 
-/** Le misure del chip di casa: quelle di Material, tranne il rientro. */
+/** Le misure del chip scritto in casa: quelle di Material, tranne il rientro. */
 private val CHIP_TALL = 32.dp
 private val CHIP_ROUND = 8.dp
 private val CHIP_EDGE = 1.dp
 private val CHIP_PAD = 6.dp
+
+/**
+ * Le due opacità di un chip spento, dalla `2.88`: vedi [SheetChip].
+ *
+ * ⚠️ **Sono quelle di Material** (`FilterChipTokens.DisabledLabelTextOpacity` e
+ * `FlatDisabledSelectedContainerOpacity`, lette nel bytecode di material3 1.5.0-alpha26): due
+ * numeri scelti qui darebbero un chip spento diverso da tutti gli altri comandi spenti dell'app,
+ * che quei numeri li prendono da Material.
+ */
+private const val CHIP_OFF_INK = 0.38f
+private const val CHIP_OFF_FILL = 0.12f
 
 /**
  * Quante colonne hanno le due file di tasti del pannello: **quattro tutte e due**.
@@ -1335,6 +1352,14 @@ internal enum class Lay(@StringRes val label: Int) {
  * Il verso resta per le quattro proporzioni.
  * ⚠️ **E mentre è scelta i due gettoni si spengono**, perché con lei non governano niente: un
  * tocco che non cambia la cornice si leggerebbe come un comando rotto.
+ *
+ * ⚠️⚠️ **LE QUATTRO PROPORZIONI SONO IN ORDINE CRESCENTE, DALLA `2.88`, ED È SUA ISTRUZIONE**
+ * (campo libero del giro della `2.87`: *Riga 1: Libero, 1:1, 4:3, 3:2, 16:9*, e in chat, alla
+ * domanda se valesse per tutti e due gli editor: *Sì, in tutti e due*). Fino alla `2.87` il 3:2
+ * veniva prima del 4:3, cioè l'ordine non era né crescente né decrescente.
+ * - ⚠️ **L'ordine di dichiarazione è l'ordine dei gettoni**, nei due editor, e nessun archivio lo
+ *   legge: l'editor completo tiene la forma scelta come indice nel solo stato salvato della
+ *   schermata (vedi `Gaze`), che vale per la rotazione e per la morte del processo.
  */
 internal enum class Shape(
     private val tall: (Float) -> Float?,
@@ -1350,9 +1375,19 @@ internal enum class Shape(
     FREE({ null }, R.string.editor_free, null, null),
     ORIGINAL({ it.takeIf { f -> f > 0f } }, R.string.editor_shape_original, null, null, fromImage = true),
     ONE({ 1f }, null, "1:1", "1:1"),
-    TWO_THREE({ 2f / 3f }, null, "2:3", "3:2"),
     THREE_FOUR({ 3f / 4f }, null, "3:4", "4:3"),
+    TWO_THREE({ 2f / 3f }, null, "2:3", "3:2"),
     NINE_SIXTEEN({ 9f / 16f }, null, "9:16", "16:9");
+
+    /**
+     * Se il rapporto è un numero scritto qui, cioè una delle quattro proporzioni: 'Libero' non ne
+     * ha, e 'Originale' lo prende dall'immagine.
+     *
+     * ⚠️ **Dice le forme che una rotazione deve rifare nel verso scelto**, dalla `2.88`: le altre
+     * due una rotazione le porta con sé senza cambiare niente di quello che dicono (vedi
+     * `posedLook`, nell'editor completo).
+     */
+    val numeric: Boolean get() = this != FREE && !fromImage
 
     /**
      * Larghezza diviso altezza in questo verso dentro un'immagine larga [frame] volte la sua
@@ -1502,7 +1537,14 @@ private fun CropStage(
 
             // ── La lente ──
             eyeOf(held, r)?.let { eye ->
-                lens(eye, picture, frame, r, loupe, edge, thick, lensEdge, line)
+                lens(eye, r, loupe, edge, thick, lensEdge, line) {
+                    drawImage(
+                        image = picture,
+                        dstOffset = IntOffset(frame.left.roundToInt(), frame.top.roundToInt()),
+                        dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt()),
+                        filterQuality = FilterQuality.None
+                    )
+                }
             }
         }
     }
@@ -1630,7 +1672,7 @@ private fun DrawScope.bar(
  * *su quale pixel sto rilasciando il rettangolo di selezione*, e quel pixel esiste solo
  * mentre si tira un angolo.
  */
-private fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
+internal fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
     Grab.TOP_LEFT -> r.topLeft
     Grab.TOP_RIGHT -> r.topRight
     Grab.BOTTOM_LEFT -> r.bottomLeft
@@ -1646,6 +1688,13 @@ private fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
 
 /**
  * La lente: un cerchio in alto con dentro [eye] ingrandito [LOUPE_ZOOM] volte.
+ *
+ * ⚠️⚠️ **DALLA `2.88` LA USANO I DUE EDITOR, ED È SUA RICHIESTA** (campo libero del giro della
+ * `2.87`: *voglio nell'editor avanzato la stessa lente d'ingrandimento per il ritaglio che è già
+ * presente nell'editor semplice*). Per questo quello che si vede dentro arriva da [picture], che
+ * disegna nello spazio del palco: qui è l'anteprima, nell'editor completo è l'immagine sviluppata
+ * col suo pennello. Il cerchio, il posto, l'ingrandimento, la mira e l'anello restano scritti una
+ * volta sola, e una seconda lente sarebbe la prima cosa a divergere.
  *
  * ⚠️⚠️ **STA IN ALTO E DALLA PARTE OPPOSTA AL DITO, non attaccata al dito**: una lente che
  * segue il dito è quella che tutti conoscono dalla selezione del testo, ma là sopra il dito c'è
@@ -1675,6 +1724,8 @@ private fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
  * ingrandimento sfocato**: col filtro predefinito i pixel ingranditi sfumano l'uno nell'altro e
  * il bordo del taglio torna a essere indeciso, cioè si ripaga il difetto che la lente doveva
  * togliere. Così invece i pixel diventano quadretti netti e il bordo cade visibilmente fra due.
+ * ⚠️ **La scelta la fa chi disegna dentro**, cioè [picture]: l'editor completo la fa col filtro a
+ * pixel interi del suo pennello, che è lo stesso ragionamento scritto per un'immagine sviluppata.
  * ⚠️ **Ma i pixel sono quelli dell'ANTEPRIMA, non quelli del file**: qui si lavora su una copia
  * campionata a [PREVIEW] sul lato lungo (vedi `preview`), quindi il quadretto che si vede può
  * valere più di un pixel dell'originale. Non è un difetto di questa lente ed è la ragione per
@@ -1693,16 +1744,16 @@ private fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
  * gli arnesi del ritaglio hanno tutti lo stesso peso, che è anche il modo di dire che sono la
  * stessa cosa.
  */
-private fun DrawScope.lens(
+internal fun DrawScope.lens(
     eye: Offset,
-    picture: ImageBitmap,
-    frame: Rect,
     r: Rect,
     side: Float,
     edge: Float,
     thick: Float,
     lensEdge: Float,
-    line: Color
+    line: Color,
+    /** Quello che si vede dentro, disegnato nello spazio del palco: la lente lo ingrandisce. */
+    picture: DrawScope.() -> Unit
 ) {
     val radius = side / 2f
     val centre = Offset(
@@ -1721,12 +1772,7 @@ private fun DrawScope.lens(
             translate(left = centre.x - eye.x * LOUPE_ZOOM, top = centre.y - eye.y * LOUPE_ZOOM)
             scale(scaleX = LOUPE_ZOOM, scaleY = LOUPE_ZOOM, pivot = Offset.Zero)
         }) {
-            drawImage(
-                image = picture,
-                dstOffset = IntOffset(frame.left.roundToInt(), frame.top.roundToInt()),
-                dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt()),
-                filterQuality = FilterQuality.None
-            )
+            picture()
             /*
              * ⚠️⚠️ **LA MIRA DENTRO LA LENTE SI MISURA IN PUNTI E NON IN PIXEL, dalla 1.49**
              * (riscontro dell'utente, 2026-09-04: *il crocino di riferimento nel tondo
@@ -2044,8 +2090,8 @@ internal const val THIRD_PX = 1f
  * in [lens].
  */
 private const val LOUPE_ZOOM = 4f
-private val LOUPE_SIDE = 112.dp
-private val LOUPE_EDGE = 8.dp
+internal val LOUPE_SIDE = 112.dp
+internal val LOUPE_EDGE = 8.dp
 
 /** Il braccio della squadretta d'angolo, e il suo spessore. */
 internal val HANDLE_ARM = 24.dp
@@ -2066,7 +2112,7 @@ internal val GRIP_HALO = 1.dp
  * ⚠️ **Due punti, chiesti dall'utente**, e in punti e non in pixel: il perché sta dentro
  * [lens], accanto al disegno.
  */
-private val LENS_EDGE = 2.dp
+internal val LENS_EDGE = 2.dp
 
 /**
  * Quanto lontano dall'angolo il dito lo prende ancora.
@@ -2114,7 +2160,7 @@ internal val STAGE_SIDE = 24.dp
  * impostazioni dev'essere *lo stesso che si presenta al primo utilizzo dal menu*). Due
  * finestre gemelle sarebbero divergite alla prima voce aggiunta, e la promessa 'lo stesso'
  * sarebbe diventata falsa senza che nessuno se ne accorgesse.
- * ⚠️⚠️ **L'editor di casa sta in CIMA e non in ordine alfabetico fra gli altri**: è l'unico
+ * ⚠️⚠️ **L'editor semplice è in CIMA e non in ordine alfabetico fra gli altri**: è l'unico
  * che c'è sempre, e su un telefono senza nessun editor installato sarebbe l'unica voce
  * dell'elenco. Metterlo in fila lo farebbe cercare.
  * ⚠️ **Chiudere senza scegliere NON ricorda niente**, ed è la differenza fra 'non ho ancora
@@ -2159,7 +2205,7 @@ fun EditorPicker(
                     onClick = { onPick(Editors.INTERNAL) }
                 )
                 /*
-                 * ⚠️⚠️ **IL SECONDO EDITOR DI CASA STA SUBITO SOTTO IL PRIMO, e compare solo
+                 * ⚠️⚠️ **L'EDITOR COMPLETO STA SUBITO SOTTO QUELLO SEMPLICE, e compare solo
                  * dove puo funzionare**: il conto che applica gira sulla scheda grafica con un
                  * programma scritto a mano, che nasce con Android 13. Sotto quella versione la
                  * voce **non si offre affatto**, invece di offrirla e poi dire di no: è
@@ -2252,7 +2298,7 @@ private fun PickRow(label: String, icon: Drawable?, here: Boolean, onClick: () -
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Box(modifier = Modifier.size(PICK_ICON), contentAlignment = Alignment.Center) {
-            // ⚠️ L'editor di casa non ha un'icona di sistema perché non è un'app: prende la
+            // ⚠️ L'editor semplice non ha un'icona di sistema perché non è un'app: prende la
             // **stessa** icona della voce di menu, che è il modo per dire che è la stessa
             // cosa. Dalla 1.29 è quella disegnata dall'utente, e cambiarla qui non era
             // opzionale: due disegni diversi per lo stesso editor lo farebbero sembrare due.

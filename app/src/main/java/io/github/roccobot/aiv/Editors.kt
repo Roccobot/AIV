@@ -9,7 +9,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 
 /**
- * Chi modifica una fotografia: l'editor di casa, o un'app del telefono.
+ * Chi modifica una fotografia: l'editor semplice, o un'app del telefono.
  *
  * ⚠️⚠️ **L'ELENCO SI CHIEDE AL SISTEMA E NON SI SCRIVE**: quali app sappiano modificare
  * un'immagine lo sa `PackageManager`, e ogni elenco scritto a mano sarebbe vecchio il giorno
@@ -28,7 +28,7 @@ import android.net.Uri
  *
  * ⚠️ **La scelta si ricorda come TESTO e non come oggetto**: nelle impostazioni ci va una
  * stringa, e un `ComponentName` si scrive e si rilegge con `flattenToString`. Il valore
- * [INTERNAL] è l'unico che non è un componente, ed è l'editor di casa.
+ * [INTERNAL] è l'unico che non è un componente, ed è l'editor semplice.
  */
 object Editors {
 
@@ -39,7 +39,7 @@ object Editors {
      * Il valore che vuol dire 'l'editor completo dentro AIV'.
      *
      * ⚠️⚠️ **È UN SECONDO VALORE E NON UN INTERRUTTORE ACCANTO AL PRIMO**: la scelta
-     * dell'editor è **una stringa sola** (`Settings.editorApp`), quindi i due editor di casa
+     * dell'editor è **una stringa sola** (`Settings.editorApp`), quindi i due editor dell'app
      * vivono nello stesso elenco delle app installate, che è esattamente come l'utente li vede
      * (*due voci predefinite accanto alle app installate*). Un campo a parte vorrebbe dire due
      * valori da tenere d'accordo, e il giorno che divergono l'app aprirebbe un editor mentre la
@@ -70,7 +70,7 @@ object Editors {
     /**
      * Le app che sanno modificare un'immagine, in ordine alfabetico.
      *
-     * ⚠️ **Senza l'editor di casa**: quello lo mette la schermata, in cima, perché è l'unico
+     * ⚠️ **Senza l'editor semplice**: quello lo mette la schermata, in cima, perché è l'unico
      * che c'è sempre e non dipende da che cosa ha installato l'utente.
      */
     fun installed(context: Context): List<Choice> {
@@ -87,8 +87,8 @@ object Editors {
          *   tanti. Qui non serve a niente: quella categoria conta per la risoluzione
          *   *implicita*, e [open] parte con un **componente esplicito**, dove non è richiesta.
          * ⚠️ **L'elenco vuoto non è un errore visibile**, ed è la ragione per cui il difetto
-         * poteva restare: senza nessuna delle due correzioni il selettore mostra l'editor di
-         * casa e basta, che è esattamente quello che farebbe su un telefono spoglio.
+         * poteva restare: senza nessuna delle due correzioni il selettore mostra l'editor
+         * semplice e basta, che è esattamente quello che farebbe su un telefono spoglio.
          */
         val found = ask(pm, Intent.ACTION_EDIT, MIME)
         val editors = found.toChoices(context, pm, "")

@@ -151,7 +151,7 @@ import kotlin.math.roundToInt
 /**
  * L'editor **completo**: quello che cambia i pixel.
  *
- * ⚠️⚠️ **NON SOSTITUISCE L'EDITOR DI CASA, ED È LA SUA SCELTA** (*due editor separati*): uno
+ * ⚠️⚠️ **NON SOSTITUISCE L'EDITOR SEMPLICE, ED È LA SUA SCELTA** (*due editor separati*): uno
  * mette un'immagine in posa e la ritaglia **senza toccare un pixel**, l'altro la sviluppa. Sono
  * due mestieri, e un editor solo che li facesse tutti e due dovrebbe ricomprimere anche quando
  * gira una fotografia, cioè perdere qualità per un gesto che oggi non ne fa perdere. Chi apre
@@ -177,7 +177,7 @@ fun AdvancedEditorScreen(
     /** Se una scrittura è in corso: i comandi si spengono, o si salverebbe due volte. */
     busy: Boolean,
     /**
-     * Se una **filigrana** è pronta da scrivere: come nell'editor di casa, è quello che rende
+     * Se una **filigrana** è pronta da scrivere: come nell'editor semplice, è quello che rende
      * 'Salva' toccabile su un'immagine che nessun cursore ha ancora toccato.
      */
     marked: Boolean,
@@ -206,7 +206,7 @@ fun AdvancedEditorScreen(
     /** Il piano diventa il predefinito, cioè il comando 'Rendi predefinito' della `2.81`. */
     onResizeDefault: (Resize.Plan) -> Unit,
     /**
-     * Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor di casa.
+     * Che cosa applicare al file vero. Il lavoro lo fa chi chiama, come per l'editor semplice.
      *
      * ⚠️ Il secondo argomento è il **tocco lungo**: `true` chiede un file nuovo accanto
      * all'originale invece di riscriverlo. Vedi [SaveButton].
@@ -217,7 +217,7 @@ fun AdvancedEditorScreen(
 ) {
     val context = LocalContext.current
     /*
-     * ⚠️ **La rotazione è inibita qui come nell'editor di casa, e per la sua stessa ragione**
+     * ⚠️ **La rotazione è inibita qui come nell'editor semplice, e per la sua stessa ragione**
      * (giro della `1.67`, domanda `d-rotazione`: *usare editor di immagini in orizzontale è
      * impensabile*). Qui vale di più: i cursori vivono in una colonna in fondo, e coricati
      * prenderebbero metà schermo.
@@ -373,7 +373,7 @@ fun AdvancedEditorScreen(
      * ⚠️⚠️ **E DALLA `2.73` LE SLIDE SONO DUE, ED È SUA RICHIESTA** (punto 3 del campo libero del
      * giro della `2.72`: *serve anche una seconda slide, che evidenzi 'Filigrana', 'Ridimensiona'
      * e 'Salva'*). Arriva **dopo** la prima, e il suo testo lo dice dalla prima parola (*Oltre ai
-     * moduli*): è la ragione per cui vive qui e non anche nell'editor di casa, dove i due tasti
+     * moduli*): è la ragione per cui vive qui e non anche nell'editor semplice, dove i due tasti
      * ci sono ma i moduli no.
      * ⚠️⚠️ **LA CHIAVE È SUA E NON QUELLA DELLA PRIMA**: chi ha già archiviato [Hint.MODULES] deve
      * vedere lo stesso questa, perché parla di due tasti che quel giorno non c'erano. Con una
@@ -467,7 +467,7 @@ fun AdvancedEditorScreen(
                 // una misura vuota invece di un posto sbagliato.
                 Box(modifier = Modifier.onGloballyPositioned { saveSpot = it.boundsInRoot() }) {
                     SaveButton(
-                        // ⚠️ La filigrana è lavoro da salvare, come nell'editor di casa: senza
+                        // ⚠️ La filigrana è lavoro da salvare, come nell'editor semplice: senza
                         // questa condizione una firma da sola non si potrebbe applicare.
                         // ⚠️ **E dalla `2.70` anche un ridimensionamento che rimpicciolisce
                         // davvero**: se su questa immagine quel piano non toglie un pixel, non
@@ -539,7 +539,10 @@ fun AdvancedEditorScreen(
                          * fondo allo schermo lo dica.
                          */
                         cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
-                        keep = cropShape(gaze).value(cropLay(gaze), posedAspect(origin, look.spin)),
+                        // ⚠️ Dentro la porzione applicata, dalla `2.88`: vedi [frameAspect].
+                        keep = cropShape(gaze).value(
+                            cropLay(gaze), frameAspect(look, posedAspect(origin, look.spin))
+                        ),
                         onCut = { look = look.copy(crop = it) },
                         onCutEnd = { push() },
                         /*
@@ -698,7 +701,7 @@ fun AdvancedEditorScreen(
  * stessa regola di [PadAction.holdLabel].
  *
  * ⚠️ **Il rientro e il corpo sono quelli di un `TextButton`**, perché il tasto è lo stesso di
- * prima e quello dell'editor di casa non è cambiato: due parole 'Salva' di misura diversa a una
+ * prima e quello dell'editor semplice non è cambiato: due parole 'Salva' di misura diversa a una
  * schermata di distanza si vedrebbero.
  */
 @Composable
@@ -878,7 +881,7 @@ private fun LookStage(
      * quarto di giro è una permutazione di pixel, quindi l'anteprima non perde niente.
      * ⚠️ **Costa una copia dell'anteprima a ogni posa nuova**, che è il prezzo dichiarato: la
      * vecchia non si ricicla a mano, perché può essere ancora dentro un disegno in corso (è la
-     * stessa ragione scritta sui passi dell'editor di casa).
+     * stessa ragione scritta sui passi dell'editor semplice).
      */
     val posed = remember(picture, look.spin) {
         picture.spunBy(look.spin.turns, look.spin.mirror)
@@ -898,6 +901,9 @@ private fun LookStage(
      * seconda tela che esisteva per ridisegnarlo senza rifare il conto dello sviluppo.
      * ⚠️ **Chi la volesse rimettere la ritrova nella storia git**, misure comprese: sono
      * `lens`, `aimTint` e le costanti `LENS_*`.
+     * ⚠️⚠️ **LA LENTE CHE C'È DALLA `2.88` È UN'ALTRA COSA**: è quella del ritaglio dell'editor
+     * semplice, che mostra dove passa il taglio mentre si tira un angolo (vedi [held]). Vive in
+     * `EditorScreen.kt` e porta lo stesso nome, `lens`, di quella che viveva qui.
      */
     /** La corsa del doppio tocco, tenuta per poterla fermare appena un dito scende. */
     var ride by remember(picture) { mutableStateOf<Job?>(null) }
@@ -955,6 +961,17 @@ private fun LookStage(
     /** Il pezzo di file letto a risoluzione piena, quando c'è: vedi [SharpPiece]. */
     var sharp by remember(picture) { mutableStateOf<SharpPiece?>(null) }
     /**
+     * Quale presa del Ritaglio tiene il dito, per la lente: vedi [lens].
+     *
+     * ⚠️⚠️ **DALLA `2.88`, ED È SUA RICHIESTA** (campo libero del giro della `2.87`: *voglio
+     * nell'editor avanzato la stessa lente d'ingrandimento per il ritaglio che è già presente
+     * nell'editor semplice*). Lo scrive il gesto e lo legge il disegno, come `held` di `CropStage`
+     * nell'editor semplice: la lente c'è solo mentre si tira un angolo.
+     * ⚠️ **Torna a [Grab.NONE] in un `finally`**, per la ragione misurata su `heldOrTwice`: un
+     * gesto annullato non torna alla riga dopo, e la lente resterebbe in scena senza un dito.
+     */
+    var held by remember { mutableStateOf(Grab.NONE) }
+    /**
      * Quanto è grande il palco, misurato dal layout.
      *
      * ⚠️ **Serve solo alla richiesta del pezzo**: il disegno la misura da sé a ogni fotogramma
@@ -979,7 +996,7 @@ private fun LookStage(
     /*
      * ⚠️⚠️ **COL RITAGLIO IN SCENA L'IMMAGINE TORNA INTERA**: le quattro squadrette si tirano ai
      * bordi di quello che si vede, e con l'immagine ingrandita metà di quei bordi starebbe fuori
-     * dallo schermo. È la stessa scelta dell'editor di casa, dove il palco del ritaglio non
+     * dallo schermo. È la stessa scelta dell'editor semplice, dove il palco del ritaglio non
      * ingrandisce affatto.
      */
     LaunchedEffect(cutting != null) {
@@ -1056,11 +1073,11 @@ private fun LookStage(
      * [dove], col filtro lineare o con quello a pixel interi. [dentro] dice dove finisce
      * l'immagine **intera** sullo schermo, e quanto misura.
      *
-     * ⚠️⚠️ **È UNA FUNZIONE DALLA `2.24` PERCHÉ I RETTANGOLI SONO PIÙ DI UNO**: il palco, la
-     * lente del colore mirato, e dalla `2.27` il pezzo letto a risoluzione piena. Scritta più
-     * volte, la seconda copia mostrerebbe un'immagine sviluppata in un altro modo il giorno
-     * che una delle due cambia, ed è esattamente il genere di divergenza che l'editor completo
-     * esiste per non avere.
+     * ⚠️⚠️ **È UNA FUNZIONE DALLA `2.24` PERCHÉ I RETTANGOLI SONO PIÙ DI UNO**: il palco, dalla
+     * `2.27` il pezzo letto a risoluzione piena, e dalla `2.88` la lente del ritaglio (dalla
+     * `2.24` alla `2.34` c'era quella del colore mirato). Scritta più volte, la seconda copia
+     * mostrerebbe un'immagine sviluppata in un altro modo il giorno che una delle due cambia, ed
+     * è esattamente il genere di divergenza che l'editor completo esiste per non avere.
      */
     fun pennello(mappa: Bitmap, dove: RectF, nitido: Boolean, dentro: Framed): Paint {
         val image = BitmapShader(mappa, TileMode.CLAMP, TileMode.CLAMP).apply {
@@ -1081,8 +1098,8 @@ private fun LookStage(
          * meno punti di quanti ne chiede. ⚠️ **Non basta `isFilterBitmap` del pennello**, che
          * governa il disegno e non i campioni che uno shader chiede a un altro.
          * ⚠️⚠️ **NELLA LENTE INVECE SI VOGLIONO I PIXEL INTERI, ED È IL SUO SCOPO**: là si
-         * guarda **quale** pixel si sta prendendo, e il filtro lineare mescola i vicini
-         * proprio nel punto in cui bisogna distinguerli.
+         * guarda **fra quali** pixel passa il bordo del taglio, e il filtro lineare mescola i
+         * vicini proprio nel punto in cui bisogna distinguerli.
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             image.setFilterMode(
@@ -1111,20 +1128,16 @@ private fun LookStage(
     }
 
     /*
-     * ⚠️⚠️ **LE TELE SONO DUE DALLA `2.32`, E LA SECONDA PORTA LA SOLA LENTE: È QUELLO CHE LA
-     * RENDE VELOCE** (riscontro del giro della `2.31`, voce `geo-lente` non approvata: *continua ad
-     * essere lento*). Un `Canvas` si ridisegna quando cambia uno stato che il suo **disegno** legge,
-     * e fino alla `2.31` il tondo viveva dentro il disegno del palco: ogni pixel di dito invalidava
-     * la tela dell'immagine, cioè faceva rigirare tutto il conto dello sviluppo su tutta
-     * l'anteprima (col Dettaglio acceso sono diciotto campioni per pixel), sessanta volte al
-     * secondo. Adesso quel movimento invalida la **sola** tela di sopra, e il conto gira sull'area
-     * del tondo.
-     * ⚠️ **La seconda tela non prende i tocchi**: non porta nessun `pointerInput`, quindi non entra
-     * nella hit-test e non può rubare niente al palco, che è la trappola scritta in questo
-     * repository su `MenuGuard`.
-     * ⚠️ **Il conto della vista è lo stesso in tutte e due**, cioè `viewport` con gli stessi
-     * argomenti: una seconda catena di misure darebbe un tondo che inquadra un altro pezzo di
-     * immagine appena l'ingrandimento o la panoramica cambiano.
+     * ⚠️⚠️ **LA TELA È UNA SOLA DALLA `2.35`, E DALLA `2.32` ALLA `2.34` ERANO DUE**: la seconda
+     * portava la lente del colore mirato, perché ogni pixel di dito invalidava la tela
+     * dell'immagine e rifaceva il conto dello sviluppo su tutta l'anteprima (riscontro del giro
+     * della `2.31`, voce `geo-lente` non approvata: *continua ad essere lento*). Con quella lente
+     * se n'è andata anche lei.
+     * ⚠️ **La lente del ritaglio della `2.88` non la rimette, e non è una dimenticanza**: mentre si
+     * tira un angolo la tela del palco si ridisegna comunque a ogni fotogramma, perché le
+     * squadrette si muovono, quindi una seconda tela non toglierebbe niente. Chi portasse le
+     * squadrette in una tela a parte può portarci anche la lente, e allora il palco smetterebbe di
+     * ridisegnarsi durante il ritaglio.
      */
     Box(
         modifier = modifier
@@ -1255,32 +1268,37 @@ private fun LookStage(
                         val presa = grabbed(down.position, going, GRIP.toPx(), keepNow == null)
                         if (presa != Grab.NONE) {
                             down.consume()
-                            drag(down.id) { change ->
-                                /*
-                                 * ⚠️⚠️ **IL DELTA SI LEGGE PRIMA DI CONSUMARE, E IL BANCO LO HA
-                                 * TROVATO ALLA PRIMA CORSA**: `positionChange()` risponde **zero**
-                                 * su un evento già consumato, quindi consumando per primo il
-                                 * rettangolo non si muoveva di un pixel. Il codice era valido, il
-                                 * gesto partiva, la presa scattava: nessun compilatore poteva
-                                 * vederlo.
-                                 */
-                                val passo = change.positionChange()
-                                change.consume()
-                                going = dragged(
-                                    going,
-                                    presa,
-                                    passo,
-                                    frame,
+                            held = presa
+                            try {
+                                drag(down.id) { change ->
                                     /*
-                                     * ⚠️ **Il rapporto forzato arriva dai gettoni dei formati**,
-                                     * dalla `2.32`, ed è `null` quando la forma è 'Libero': è lo
-                                     * stesso parametro dell'editor di casa, e la forma la sceglie
-                                     * la scheda.
+                                     * ⚠️⚠️ **IL DELTA SI LEGGE PRIMA DI CONSUMARE, E IL BANCO LO HA
+                                     * TROVATO ALLA PRIMA CORSA**: `positionChange()` risponde
+                                     * **zero** su un evento già consumato, quindi consumando per
+                                     * primo il rettangolo non si muoveva di un pixel. Il codice era
+                                     * valido, il gesto partiva, la presa scattava: nessun
+                                     * compilatore poteva vederlo.
                                      */
-                                    keepNow,
-                                    LEAST_SIDE.toPx()
-                                )
-                                cutTo(absolute(porzione, cropFractions(going, frame)))
+                                    val passo = change.positionChange()
+                                    change.consume()
+                                    going = dragged(
+                                        going,
+                                        presa,
+                                        passo,
+                                        frame,
+                                        /*
+                                         * ⚠️ **Il rapporto forzato arriva dai gettoni dei
+                                         * formati**, dalla `2.32`, ed è `null` quando la forma è
+                                         * 'Libero': è lo stesso parametro dell'editor semplice, e
+                                         * la forma la sceglie la scheda.
+                                         */
+                                        keepNow,
+                                        LEAST_SIDE.toPx()
+                                    )
+                                    cutTo(absolute(porzione, cropFractions(going, frame)))
+                                }
+                            } finally {
+                                held = Grab.NONE
                             }
                             onCutEnd()
                         }
@@ -1577,7 +1595,7 @@ private fun LookStage(
         }
 
         /*
-         * ⚠️⚠️ **LE SQUADRETTE DEL RITAGLIO SONO QUELLE DELL'EDITOR DI CASA, DALLA `2.31`**: il
+         * ⚠️⚠️ **LE SQUADRETTE DEL RITAGLIO SONO QUELLE DELL'EDITOR SEMPLICE, DALLA `2.31`**: il
          * velo in quattro pezzi, i terzi, i quattro angoli e le loro misure vivono in
          * `EditorScreen.kt` (`cropOverlay`), e questo palco le chiama invece di ridisegnarle.
          * Due disegni dello stesso comando divergerebbero al primo ritocco, e chi lo vedrebbe per
@@ -1593,14 +1611,50 @@ private fun LookStage(
              * squadrette si vedrebbero dove il dito non le prende.
              */
             val frame = Rect(visto.left, visto.top, visto.right, visto.bottom)
+            val r = cropBox(relativeTo(framed, taglio), frame)
             cropOverlay(
                 frame,
-                cropBox(relativeTo(framed, taglio), frame),
+                r,
                 HANDLE_ARM.toPx(),
                 HANDLE_THICK.toPx(),
                 GRIP_HALO.toPx(),
                 keep == null
             )
+            /*
+             * ⚠️⚠️ **LA LENTE DEL RITAGLIO È QUELLA DELL'EDITOR SEMPLICE, DALLA `2.88`**: il
+             * cerchio, il posto, l'ingrandimento, la mira e l'anello vivono in `EditorScreen.kt`
+             * ([lens]), e qui cambia soltanto che cosa si vede dentro, cioè l'immagine
+             * **sviluppata** col suo pennello. Con l'anteprima grezza la lente mostrerebbe un'altra
+             * immagine da quella su cui si sta tagliando.
+             * ⚠️ **Il pennello è a pixel interi**, che è la ragione per cui esiste la lente: il
+             * bordo del taglio deve cadere visibilmente fra due quadretti. Il prezzo si dichiara:
+             * il Dettaglio e la Foschia leggono i vicini, e a pixel interi i loro campioni cadono
+             * sul pixel più vicino, quindi dentro la lente quei due moduli si vedono appena diversi
+             * dal palco.
+             * ⚠️ **Vive nella tela del palco e non in una sua**, e non è la strada lenta della
+             * `2.31`: mentre si tira un angolo il palco si ridisegna comunque a ogni fotogramma,
+             * perché le squadrette si muovono, e la lente aggiunge il conto sulla sola area del
+             * cerchio.
+             */
+            eyeOf(held, r)?.let { eye ->
+                lens(
+                    eye, r, LOUPE_SIDE.toPx(), LOUPE_EDGE.toPx(), HANDLE_THICK.toPx(),
+                    LENS_EDGE.toPx(), Color.White
+                ) {
+                    clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                        stendi(posed, view, true)
+                    }
+                    if (fine != null) {
+                        val dove = fine.place(view)
+                        drawIntoCanvas { tela ->
+                            tela.drawRect(
+                                dove.left, dove.top, dove.right, dove.bottom,
+                                pennello(fine.pixels, dove, true, dentro)
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         /*
@@ -2908,7 +2962,7 @@ private const val LAY_UNSET = -1
  *
  * ⚠️⚠️ **SI CONTA SULLA POSA E NON SUL FILE, e senza quella riga le forme verrebbero storte**: un
  * quarto di giro scambia i due lati, quindi dopo una rotazione il 16:9 chiesto dai gettoni sarebbe
- * calcolato sull'aspetto di prima. È la stessa correzione che l'editor di casa fa dentro `onTurn`.
+ * calcolato sull'aspetto di prima. È la stessa correzione che l'editor semplice fa dentro `onTurn`.
  * ⚠️ **Vive qui e non dentro la scheda, dalla `2.32`**: da quando 'Originale' ricava il proprio
  * rapporto dall'immagine, quel numero serve anche al palco (che tiene la forma mentre il dito
  * trascina una squadretta), e un secondo conto scritto là sarebbe il primo a divergere.
@@ -2926,12 +2980,14 @@ private fun posedAspect(src: Bitmap?, spin: Spin): Float {
  * questa riga il rettangolo resterebbe dov'è sullo schermo e si porterebbe via un'altra porzione di
  * fotografia, cioè un difetto che non dà nessun errore e che si vede solo con un ritaglio già
  * fatto.
- * ⚠️ **Lo riscrive [spunRect]**, cioè la stessa funzione dell'editor di casa: il rettangolo e
+ * ⚠️ **Lo riscrive [spunRect]**, cioè la stessa funzione dell'editor semplice: il rettangolo e
  * l'immagine si muovono insieme per costruzione, e non perché due conti scritti a parte dicono la
  * stessa cosa.
- * ⚠️ **Qui la rotazione NON rifà il rettangolo**, al contrario dell'editor di casa, e la differenza
- * è che là esiste una forma scelta (i gettoni dei formati) da rifare sull'aspetto nuovo. Qui il
- * rettangolo è libero, quindi girarlo lo lascia esattamente sulla stessa porzione di immagine.
+ * ⚠️⚠️ **QUESTA FUNZIONE NON RIFÀ NIENTE, E DALLA `2.88` LA SCHEDA PASSA DA [posedLook]**: portare
+ * la cornice con sé è quello che serve a 'Libero', a 'Originale' e a uno specchio, mentre con una
+ * delle quattro proporzioni un quarto di giro la rifà nel verso scelto, come nell'editor semplice.
+ * Fino alla `2.87` qui c'era scritto che la rotazione *non rifà il rettangolo perché il rettangolo è
+ * libero*: era vero fino alla `2.31`, e dalla `2.32` i formati c'erano anche qui.
  */
 internal fun spunLook(look: Look, gesto: Spin): Look = look.copy(
     spin = look.spin.then(gesto),
@@ -2941,6 +2997,69 @@ internal fun spunLook(look: Look, gesto: Spin): Look = look.copy(
     // inquadrare un'altra porzione di fotografia (vedi [Framing.spun]).
     framing = look.framing.spun(gesto)
 )
+
+/**
+ * La posa [gesto] applicata a [look], con la cornice che la segue: vedi [spunLook].
+ *
+ * ⚠️⚠️ **CON UNA DELLE QUATTRO PROPORZIONI UN QUARTO DI GIRO RIFÀ LA CORNICE, DALLA `2.88`, ED È LA
+ * SUA RISPOSTA `casa` A `d-giro-forme`** (giro della `2.87`: *Girando, la cornice si rifà nel verso
+ * scelto, grande e centrata: gettone e cornice dicono sempre la stessa cosa, e i due editor si
+ * comportano uguale*). Fino alla `2.87` la cornice girava con l'immagine: un 16:9 scelto su
+ * un'immagine larga diventava 9:16 (misurato sul banco) mentre il gettone diceva ancora 16:9, e al
+ * primo angolo tirato tornava 16:9 di colpo. È quello che l'editor semplice fa dentro `onTurn`.
+ * ⚠️ **Grande e centrata DENTRO LA PORZIONE che il palco inquadra**: l'editor semplice la rifà
+ * sull'immagine già tagliata dai passi, ed è la stessa cosa (vedi [framedCrop]).
+ * ⚠️ **'Libero' e 'Originale' restano portati con sé**, come diceva la domanda (*Con 'Libero' e con
+ * 'Originale' va già bene così*), e uno specchio non rifà niente nemmeno con una proporzione: lascia
+ * i due lati dove sono, quindi la forma resta quella del gettone.
+ *
+ * [wide] è quante volte l'immagine intera è più larga che alta **dopo** il gesto.
+ */
+internal fun posedLook(look: Look, gesto: Spin, shape: Shape, lay: Lay, wide: Float): Look {
+    val girato = spunLook(look, gesto)
+    if (!shape.numeric || gesto.turns % 2 == 0) return girato
+    return girato.copy(crop = framedCrop(girato, wide) { _, quanto -> shape.fit(quanto, lay) })
+}
+
+/**
+ * Quante volte la porzione che il Ritaglio inquadra è più larga che alta, sapendo quante volte lo è
+ * l'immagine intera già posata ([wide]).
+ *
+ * ⚠️⚠️ **DALLA `2.88` I COMANDI DEL RITAGLIO LAVORANO DENTRO LA PORZIONE, E FINO ALLA `2.87` NO**:
+ * dalla `2.40` le squadrette si tirano dentro il taglio applicato, ma le centrature, il ritocco
+ * della forma e il cambio di verso lavoravano ancora sull'immagine intera. Non è una sua
+ * segnalazione: l'ha trovato il banco, misurando la risposta `casa`. 'Centra in orizzontale'
+ * portava la cornice fuori dalla porzione (il bordo sinistro a 0,45 contro uno della porzione a
+ * 0,50), cioè il file salvato avrebbe portato una striscia che il palco non mostrava; e ritoccare la
+ * forma già scelta la rifaceva grande quanto l'immagine intera, e con un taglio applicato spegneva
+ * 'Salva'.
+ * ⚠️ **Con lei 'Originale' dentro una porzione è la porzione**, cioè quello che si vede, e il
+ * rapporto che il dito tiene è lo stesso: è quello che fa l'editor semplice dopo 'Applica', dove
+ * l'immagine su cui si lavora è già quella tagliata.
+ * ⚠️ **Senza niente applicato è l'aspetto dell'immagine**, e i comandi fanno quello di sempre.
+ */
+internal fun frameAspect(look: Look, wide: Float): Float {
+    val porzione = look.framing.shown ?: return wide
+    val w = porzione.right - porzione.left
+    val h = porzione.bottom - porzione.top
+    return if (w > 0f && h > 0f) wide * w / h else wide
+}
+
+/**
+ * Il rettangolo di [look] dopo [op], che lo riceve **in frazioni della porzione** inquadrata
+ * insieme al rapporto di lei, e lo restituisce nello stesso spazio: vedi [frameAspect].
+ *
+ * ⚠️ **Le due conversioni sono quelle del gesto** ([relativeTo] e [absolute]): il dito e i comandi
+ * della scheda devono parlare della stessa porzione, e un terzo conto sarebbe il primo a divergere.
+ */
+internal fun framedCrop(
+    look: Look,
+    wide: Float,
+    op: (ImageEdit.Crop, Float) -> ImageEdit.Crop
+): ImageEdit.Crop {
+    val porzione = look.framing.shown
+    return absolute(porzione, op(relativeTo(porzione, look.crop), frameAspect(look, wide)))
+}
 
 /**
  * Il modulo aperto di fabbrica, cioè il **Ritaglio** dalla `2.35`.
@@ -2997,8 +3116,8 @@ private class Gaze(
     var channel by mutableIntStateOf(channel)
 
     /**
-     * La forma scelta nel modulo Ritaglio e da che parte sta, cioè i due gettoni dell'editor di
-     * casa, dalla `2.32`.
+     * La forma scelta nel modulo Ritaglio e da che parte sta, cioè i due gettoni dell'editor
+     * semplice, dalla `2.32`.
      *
      * ⚠️⚠️ **VIVONO QUI E NON NEL [Look], ED È LA STESSA RAGIONE DEL MODULO APERTO**: quello che si
      * salva sull'immagine è il **rettangolo**, cioè `crop`; la forma con cui lo si sta tirando è un
@@ -3125,7 +3244,7 @@ private fun LookSheet(
     val context = LocalContext.current
     var mine by remember { mutableStateOf(Presets.mine(context)) }
     /*
-     * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
+     * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR SEMPLICE, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
      * rientro di sistema dentro invece che sopra. Le ragioni di ognuna di quelle righe sono
      * misurate e vivono su `EditorSheet`: qui si ripetono perché le due schede sono la stessa
@@ -3256,7 +3375,7 @@ private fun LookSheet(
              * ⚠️⚠️ **TRE ICONE E NON TRE SCRITTE, DALLA `2.15`, ED È IL SUO RISCONTRO** (giro
              * della `2.14`, voce `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non
              * testo*).
-             * ⚠️⚠️ **E I GLIFI SONO QUELLI CHE L'EDITOR DI CASA USA GIÀ PER GLI STESSI TRE
+             * ⚠️⚠️ **E I GLIFI SONO QUELLI CHE L'EDITOR SEMPLICE USA GIÀ PER GLI STESSI TRE
              * COMANDI**, cioè i suoi: disegnarne altri vorrebbe dire due segni per lo stesso gesto
              * a un tocco di distanza, visto che dalla stessa immagine si entra nell'uno o
              * nell'altro editor.
@@ -3592,7 +3711,7 @@ private fun ModuleBody(
 
     /*
      * ⚠️⚠️ **LA FILA DELLA POSA È DEL SOLO MODULO RITAGLIO, DALLA `2.31`, E I TRE TASTI
-     * SONO QUELLI DELL'EDITOR DI CASA**: stesso pezzo (`ActionPad`), stessi glifi, stesse
+     * SONO QUELLI DELL'EDITOR SEMPLICE**: stesso pezzo (`ActionPad`), stessi glifi, stesse
      * etichette e stesso tocco lungo sul terzo. Disegnarne di nuovi vorrebbe dire due segni
      * per lo stesso gesto a un tocco di distanza, visto che dalla stessa immagine si entra
      * nell'uno o nell'altro editor.
@@ -3600,7 +3719,7 @@ private fun ModuleBody(
      * `formati` A `d-crop-formati`** (giro della `2.31`: *portali, con le centrature*).
      * Fino alla `2.31` il rettangolo era libero e le due centrature non avrebbero avuto
      * niente da centrare: con una forma scelta ce l'hanno, ed è la stessa fila dell'editor
-     * di casa.
+     * semplice.
      * ⚠️ **L'ordine salvato dal riordino non si legge**: quello è l'ordine della fila della
      * selezione, e infilarci dentro questi tasti darebbe una fila che si riordina in un
      * modo che nessuno ha chiesto.
@@ -3609,11 +3728,20 @@ private fun ModuleBody(
         val live = ready && !busy
         val lay = cropLay(gaze)
         fun pose(gesto: Spin) {
-            onLive { spunLook(it, gesto) }
+            // ⚠️ Con una proporzione un quarto di giro rifà la cornice, dalla `2.88`: vedi
+            // [posedLook].
+            onLive { k ->
+                posedLook(k, gesto, cropShape(gaze), lay, posedAspect(origin, k.spin.then(gesto)))
+            }
+            onSettled()
+        }
+        /** Un comando della scheda che lavora dentro la porzione inquadrata: vedi [framedCrop]. */
+        fun inFrame(op: (ImageEdit.Crop, Float) -> ImageEdit.Crop) {
+            onLive { k -> k.copy(crop = framedCrop(k, cropAspect(k), op)) }
             onSettled()
         }
         /*
-         * ⚠️⚠️ **LE FILE SONO QUELLE DELL'EDITOR DI CASA, E DALLA `2.32` SONO LO STESSO
+         * ⚠️⚠️ **LE FILE SONO QUELLE DELL'EDITOR SEMPLICE, E DALLA `2.32` SONO LO STESSO
          * PEZZO**: le forme le disegna `ShapeRow`, che vive di là, e qui resta la sola
          * cosa che cambia fra i due editor, cioè dove si scrive la scelta. Fino alla
          * `2.31` questa fila era ricopiata riga per riga, e con 'Originale' sarebbero
@@ -3624,31 +3752,27 @@ private fun ModuleBody(
             lay = lay,
             enabled = live,
             /*
-             * ⚠️⚠️ **QUI LE FORME VANNO A CAPO, DALLA `2.35`, ED È IL SUO RISCONTRO** (giro
-             * della `2.34`, voce `crop-fila` non approvata: *devono occupare più spazio*).
-             * Vale **solo** in questo editor, e la ragione è la scheda ad altezza fissa
-             * della `2.33`: qui lo spazio che il Ritaglio non usa resterebbe vuoto, di là
-             * una seconda riga scenderebbe sull'immagine. Il conto vive su [ShapeRow].
+             * ⚠️⚠️ **QUI LE FORME VANNO A CAPO DALLA `2.35`, ED È IL SUO RISCONTRO** (giro
+             * della `2.34`, voce `crop-fila` non approvata: *devono occupare più spazio*), e
+             * dalla `2.88` le righe sono due anche nell'editor semplice, con un'altra
+             * disposizione (sua richiesta del giro della `2.87`). Le due vivono su [ShapeRow].
              */
-            wrap = true,
+            rows = ShapeRows.FULL,
             onShape = { one ->
                 /*
                  * ⚠️ **Ritoccare la forma GIÀ scelta rimette il rettangolo intero**, ed è
-                 * la via di fuga dell'editor di casa: senza, una selezione ridotta per
+                 * la via di fuga dell'editor semplice: senza, una selezione ridotta per
                  * sbaglio non avrebbe un modo rapido di tornare grande.
                  */
-                onLive { k ->
-                    val quanto = cropAspect(k)
-                    k.copy(
-                        crop = if (one == cropShape(gaze)) {
-                            one.fit(quanto, lay)
-                        } else {
-                            reshaped(k.crop, quanto, one.value(lay, quanto))
-                        }
-                    )
-                }
+                val prima = cropShape(gaze)
                 gaze.shape = one.ordinal
-                onSettled()
+                inFrame { dentro, quanto ->
+                    if (one == prima) {
+                        one.fit(quanto, lay)
+                    } else {
+                        reshaped(dentro, quanto, one.value(lay, quanto))
+                    }
+                }
             },
             /*
              * ⚠️⚠️ **I DUE VERSI SONO DUE ICONE DENTRO LA FILA DELLE FORME, DALLA `2.80`, ED È IL
@@ -3661,9 +3785,8 @@ private fun ModuleBody(
              */
             onLay = { one ->
                 if (one != lay) {
-                    onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
                     gaze.lay = one.ordinal
-                    onSettled()
+                    inFrame { dentro, quanto -> flipped(dentro, quanto) }
                 }
             },
             /*
@@ -3682,27 +3805,15 @@ private fun ModuleBody(
                 PadAction(
                     PadKey.CENTRE_ACROSS, Glyphs.AlignAcross, R.string.editor_center_across,
                     enabled = live,
-                    onHold = {
-                        onLive { it.copy(crop = centredDown(centredAcross(it.crop))) }
-                        onSettled()
-                    },
+                    onHold = { inFrame { dentro, _ -> centredDown(centredAcross(dentro)) } },
                     holdLabel = R.string.editor_center_both
-                ) {
-                    onLive { it.copy(crop = centredAcross(it.crop)) }
-                    onSettled()
-                },
+                ) { inFrame { dentro, _ -> centredAcross(dentro) } },
                 PadAction(
                     PadKey.CENTRE_DOWN, Glyphs.AlignDown, R.string.editor_center_down,
                     enabled = live,
-                    onHold = {
-                        onLive { it.copy(crop = centredDown(centredAcross(it.crop))) }
-                        onSettled()
-                    },
+                    onHold = { inFrame { dentro, _ -> centredDown(centredAcross(dentro)) } },
                     holdLabel = R.string.editor_center_both
-                ) {
-                    onLive { it.copy(crop = centredDown(it.crop)) }
-                    onSettled()
-                },
+                ) { inFrame { dentro, _ -> centredDown(dentro) } },
                 /*
                  * ⚠️ **Il tocco lungo ha SEMPRE la sua etichetta**, come vuole
                  * [PadAction.onHold]: un gesto che il lettore di schermo non annuncia

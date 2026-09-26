@@ -1455,7 +1455,7 @@ class PadLook(
      *
      * ⚠️ **Viaggia di qui come gli altri quattro ordini**, e non è una scelta di comodo: quella
      * fila vive in una scheda che le impostazioni non attraversa, ed è lo stesso motivo per cui
-     * le due file dell'editor di casa sono qui.
+     * le due file dell'editor semplice sono qui.
      */
     val mods: List<PadKey> = MOD_KEYS,
     /**

@@ -286,7 +286,7 @@ fun ViewerScreen(
      * 'Modifica' dal menu del tocco lungo: la fotografia da aprire in un editor.
      *
      * ⚠️ **Sale al modello e non si risolve qui**, perché la risposta dipende da
-     * un'impostazione (quale app) e può **cambiare schermata** (l'editor di casa). Vedi
+     * un'impostazione (quale app) e può **cambiare schermata** (l'editor semplice). Vedi
      * `ViewerViewModel.edit`.
      */
     onEdit: (Uri) -> Unit,

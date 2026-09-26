@@ -83,7 +83,7 @@ private val MODULI = listOf(
 )
 
 /**
- * I cinque comandi di posa del modulo Ritaglio, che sono quelli dell'editor di casa.
+ * I cinque comandi di posa del modulo Ritaglio, che sono quelli dell'editor semplice.
  *
  * ⚠️ **Erano tre fino alla `2.31`**, e le due centrature sono entrate con i formati: senza una forma
  * scelta non avevano niente da centrare.
@@ -96,8 +96,11 @@ private val POSA = listOf(
     R.string.editor_right
 )
 
-/** Le sei forme del ritaglio: le due che si dicono a parole, e le quattro proporzioni. */
-private val FORME = listOf("1:1", "2:3", "3:4", "9:16")
+/**
+ * Le quattro proporzioni del ritaglio, scritte in verticale e nell'ordine dei gettoni: crescente
+ * dalla `2.88` (sua istruzione del giro della `2.87`).
+ */
+private val FORME = listOf("1:1", "3:4", "2:3", "9:16")
 
 /**
  * I quattro comandi che vivono nel modulo Ritaglio dalla `2.40`, cioè la sua storia.
@@ -1228,7 +1231,7 @@ class SviluppoTest {
      * prevedono la riscrittura del file pixel per pixel devono essere lossless*): una **posa** si
      * scrive in un tag EXIF, quindi l'immagine è cambiata ma il file non si riscrive; un
      * **ritaglio** toglie dei pixel, quindi va riscritto. Confonderle vorrebbe dire ricomprimere
-     * una fotografia per averla girata, che è proprio quello che l'editor di casa non fa dalla
+     * una fotografia per averla girata, che è proprio quello che l'editor semplice non fa dalla
      * `1.03`.
      */
     @Test
@@ -1280,7 +1283,7 @@ class SviluppoTest {
     /**
      * **Caso 35: il modulo Ritaglio porta i tre comandi di posa e nessun cursore.**
      *
-     * ⚠️ **I tre tasti sono quelli dell'editor di casa**, stesse etichette comprese: due segni per
+     * ⚠️ **I tre tasti sono quelli dell'editor semplice**, stesse etichette comprese: due segni per
      * lo stesso gesto a un tocco di distanza sarebbero due cose da imparare, visto che dalla stessa
      * immagine si entra nell'uno o nell'altro editor.
      * ⚠️ **La controprova è nella Luce**, dove quei tasti non ci sono: senza di lei la misura
@@ -2351,7 +2354,7 @@ class SviluppoTest {
      * ⚠️⚠️ **È LA PRIMA DELLE SUE TRE SEGNALAZIONI DEL GIRO DELLA `2.83`** (*ho toccato
      * 'originale', la foto era 4:3 orizzontale, ma la cornice di ritaglio è diventata verticale*).
      * La regola c'era già ed è sua (2026-08-31: l'orientamento della selezione lo decide la
-     * fotografia, e il quadrato conta come verticale), ma la applicava il solo editor di casa:
+     * fotografia, e il quadrato conta come verticale), ma la applicava il solo editor semplice:
      * nell'editor completo il verso partiva sempre da 'Verticale', quindi 'Originale' su una
      * fotografia larga dava per costruzione lo stesso rapporto trasposto.
      * ⚠️ **Si misurano la causa e l'effetto**: il verso acceso all'apertura, e che dopo
@@ -2568,6 +2571,254 @@ class SviluppoTest {
         banco.onNodeWithText("1:1").performClick()
         banco.waitForIdle()
         verticale.assertIsEnabled()
+    }
+
+    /**
+     * **Caso 74: con 'Originale' i due versi spenti si vedono spenti, e con una proporzione tornano
+     * come prima.**
+     *
+     * ⚠️⚠️ **È LA SUA NOTA SULLA VOCE `originale-completo`** (giro della `2.87`, accettabile: *anche
+     * se disattivate le icone orizzontale/verticale NON si spengono e sembrano attive*). Il caso 73
+     * misura la semantica, cioè che il tocco non arrivi, e restava verde: il difetto era nel
+     * **disegno**, perché il chip scritto in casa da spento non cambiava un colore.
+     * ⚠️ **Si guardano i pixel dei due chip**, quello scelto e l'altro, perché i due stati spenti
+     * sono due: il fondo pieno che si attenua e il filetto che si attenua.
+     * ⚠️ **Il chip è lo stesso nei due editor** ([SheetChip]), quindi questa prova copre anche i
+     * versi scritti a parole dell'editor semplice.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo i colori di prima: i due chip restano identici e la prima
+     * asserzione cade.
+     */
+    @Test
+    fun `con Originale i due versi spenti si vedono spenti`() {
+        banco.setContent { Scena(uri = largo()) }
+        pronta()
+        val scelto = banco.onNodeWithContentDescription(testo(R.string.editor_wide))
+        val altro = banco.onNodeWithContentDescription(testo(R.string.editor_tall))
+        val sceltoAcceso = scelto.captureToImage().toPixelMap()
+        val altroAcceso = altro.captureToImage().toPixelMap()
+
+        banco.onNodeWithText(testo(R.string.editor_shape_original)).performClick()
+        banco.waitForIdle()
+        assertTrue(
+            "spento, il verso scelto doveva cambiare disegno",
+            diversi(sceltoAcceso, scelto.captureToImage().toPixelMap()) > 0
+        )
+        assertTrue(
+            "e anche l'altro",
+            diversi(altroAcceso, altro.captureToImage().toPixelMap()) > 0
+        )
+
+        banco.onNodeWithText("1:1").performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "con una proporzione il verso scelto doveva tornare com'era",
+            0,
+            diversi(sceltoAcceso, scelto.captureToImage().toPixelMap())
+        )
+    }
+
+    /**
+     * **Caso 75: girando con una proporzione, la cornice resta nel verso scelto, grande e
+     * centrata.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `casa` A `d-giro-forme`** (giro della `2.87`: *Girando, la cornice si
+     * rifà nel verso scelto, grande e centrata*). Fino alla `2.87` un 16:9 scelto su un'immagine
+     * larga, girato di un quarto, diventava 9:16 mentre il gettone diceva ancora 16:9.
+     * ⚠️ **Si guarda quello che il salvataggio riceve**, come nel caso 72: la cornice in pixel
+     * dell'immagine girata, che è alta 64 e larga 32.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo [spunLook] al posto di [posedLook]: la cornice salvata è
+     * 9:16, cioè il rapporto misura 0,56 invece di 1,78.
+     */
+    @Test
+    fun `girando con una proporzione la cornice resta nel verso scelto`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(uri = largo(), onSave = { look, _ -> salvato = look }) }
+        pronta()
+        banco.onNodeWithText("16:9").performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_right)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val look = salvato
+        assertNotNull("il tocco su 'Salva' doveva consegnare il lavoro", look)
+        val larga = (look!!.crop.right - look.crop.left) * 32f
+        val alta = (look.crop.bottom - look.crop.top) * 64f
+        assertEquals(
+            "girando, la cornice doveva restare 16:9 orizzontale: ${look.crop}",
+            16f / 9f, larga / alta, 0.02f
+        )
+        assertEquals(
+            "grande, cioè larga quanto l'immagine", 1f, look.crop.right - look.crop.left, 1e-3f
+        )
+        assertEquals("e centrata", 0.5f, (look.crop.top + look.crop.bottom) / 2f, 1e-3f)
+    }
+
+    /**
+     * **Caso 76: con un taglio applicato, la cornice girata si rifà dentro la porzione, e 'Libero',
+     * 'Originale' e uno specchio restano portati con sé.**
+     *
+     * ⚠️ **È la seconda metà della risposta `casa`**, letta dove il palco inquadra un taglio:
+     * l'editor semplice la rifà sull'immagine già tagliata dai passi, e qui la stessa cosa vuol dire
+     * dentro la porzione. **Il conto è puro** ([posedLook]), quindi si misura chiamandolo.
+     * ⚠️ **I numeri si ricavano a mano**: un'immagine 64 per 32 tagliata alla metà destra, cioè un
+     * quadrato da 32; girata di un quarto è 32 per 64, e il quadrato diventa la metà di sotto. Un
+     * 16:9 orizzontale largo 32 è alto 18, centrato nella metà di sotto.
+     * ⚠️⚠️ **CONTROPROVATA** facendo lavorare [framedCrop] sull'immagine intera: la cornice esce
+     * dalla porzione, in cima all'immagine girata.
+     */
+    @Test
+    fun `girando con una proporzione la cornice si rifa dentro la porzione`() {
+        val porzione = ImageEdit.Crop(0.5f, 0f, 1f, 1f)
+        val look = Look(crop = porzione, framing = Framing().applied(porzione))
+        val giro = Spin(1, false)
+        val girato = posedLook(look, giro, Shape.NINE_SIXTEEN, Lay.WIDE, 0.5f)
+        val dentro = girato.framing.shown
+        assertNotNull("il taglio applicato doveva girare con l'immagine", dentro)
+        assertEquals(0f, dentro!!.left, 1e-4f)
+        assertEquals(0.5f, dentro.top, 1e-4f)
+        assertEquals(1f, dentro.right, 1e-4f)
+        assertEquals(1f, dentro.bottom, 1e-4f)
+        assertEquals(0f, girato.crop.left, 1e-4f)
+        assertEquals(0.609375f, girato.crop.top, 1e-4f)
+        assertEquals(1f, girato.crop.right, 1e-4f)
+        assertEquals(0.890625f, girato.crop.bottom, 1e-4f)
+
+        assertEquals(
+            "'Libero' resta portato con sé",
+            spunLook(look, giro), posedLook(look, giro, Shape.FREE, Lay.WIDE, 0.5f)
+        )
+        assertEquals(
+            "come 'Originale'",
+            spunLook(look, giro), posedLook(look, giro, Shape.ORIGINAL, Lay.WIDE, 0.5f)
+        )
+        assertEquals(
+            "e uno specchio non rifà niente nemmeno con una proporzione",
+            spunLook(look, Spin.ACROSS),
+            posedLook(look, Spin.ACROSS, Shape.NINE_SIXTEEN, Lay.WIDE, 2f)
+        )
+    }
+
+    /**
+     * **Caso 77: con un taglio applicato 'Centra' centra dentro la porzione.**
+     *
+     * ⚠️⚠️ **NON È UNA SUA SEGNALAZIONE: L'HA TROVATO IL BANCO, MISURANDO LA RISPOSTA `casa`**.
+     * Dalla `2.40` le squadrette si tirano dentro il taglio applicato, e le centrature lavoravano
+     * ancora sull'immagine intera: la cornice finiva fuori dalla porzione, cioè il file avrebbe
+     * portato una striscia che il palco non mostrava.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo le centrature sull'immagine intera: il bordo sinistro della
+     * cornice cade a 0,45 contro uno della porzione a 0,50.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `con un taglio applicato centra dentro la porzione`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { look, _ -> salvato = look }) }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 3f) }
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        tiraAngolo(palco) { w, h -> Offset(w * 0.7f, h * 0.6f) }
+        banco.onNodeWithText(testo(R.string.editor_center_across)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val look = salvato
+        assertNotNull("il tocco su 'Salva' doveva consegnare il lavoro", look)
+        val dentro = look!!.framing.shown
+        assertNotNull("il taglio applicato doveva esserci ancora", dentro)
+        assertTrue(
+            "la cornice doveva restare dentro la porzione: ${look.crop} in $dentro",
+            look.crop.left >= dentro!!.left - 1e-4f && look.crop.right <= dentro.right + 1e-4f
+        )
+        assertEquals(
+            "e centrata sulla porzione, non sull'immagine intera",
+            (dentro.left + dentro.right) / 2f, (look.crop.left + look.crop.right) / 2f, 1e-3f
+        )
+    }
+
+    /**
+     * **Caso 78: con un taglio applicato, ritoccare la forma già scelta la rifà dentro la porzione,
+     * e 'Salva' resta acceso.**
+     *
+     * ⚠️⚠️ **È LA STESSA CAUSA DEL CASO 77, E QUI COSTAVA DI PIÙ**: il ritocco rifaceva la cornice
+     * grande quanto l'immagine intera, quindi con un taglio applicato il lavoro tornava a riposo e
+     * 'Salva' si spegneva, mentre il palco mostrava ancora la porzione.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il ritocco sull'immagine intera: 'Salva' è spento e il tocco
+     * non consegna niente.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `con un taglio applicato il ritocco della forma resta dentro la porzione`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { look, _ -> salvato = look }) }
+        pronta()
+        banco.onNodeWithText("1:1").performClick()
+        banco.waitForIdle()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        tiraAngolo(palco) { w, h -> Offset(w / 2f, h / 2f) }
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithText("1:1").performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_save)).assertIsEnabled().performClick()
+        banco.waitForIdle()
+        val look = salvato
+        assertNotNull("il tocco su 'Salva' doveva consegnare il lavoro", look)
+        val dentro = look!!.framing.shown
+        assertNotNull("il taglio applicato doveva esserci ancora", dentro)
+        assertTrue(
+            "la cornice doveva restare dentro la porzione: ${look.crop} in $dentro",
+            look.crop.left >= dentro!!.left - 1e-4f && look.crop.top >= dentro.top - 1e-4f &&
+                look.crop.right <= dentro.right + 1e-4f && look.crop.bottom <= dentro.bottom + 1e-4f
+        )
+    }
+
+    /**
+     * **Caso 79: tirando un angolo del ritaglio compare la lente, in alto dalla parte opposta al
+     * dito, e al rilascio se ne va.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.87`: *voglio nell'editor avanzato
+     * la stessa lente d'ingrandimento per il ritaglio che è già presente nell'editor semplice*).
+     * ⚠️ **Si confrontano due scatti col dito giù e col dito alzato**: al rilascio la cornice resta
+     * dov'è, quindi l'unica cosa che può cambiare è la lente. Il dito finisce nella metà sinistra,
+     * e la lente deve stare nella metà destra, in alto.
+     * ⚠️ **Che cosa NON vede**: che dentro ci sia l'immagine sviluppata, e ingrandita al punto
+     * giusto. Quello si guarda sul telefono.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la lente dal disegno del palco: i due scatti sono identici.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `tirando un angolo del ritaglio compare la lente`() {
+        banco.setContent { Scena() }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = palco.captureToImage().toPixelMap()
+        val (da, _) = bordi(prima)
+        val cima = (0 until prima.height).first { prima[da + 4, it] != prima[0, 0] }
+        palco.performTouchInput { down(Offset(da + 2f, cima + 2f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { moveTo(Offset(width * 0.35f, height * 0.5f)) }
+        banco.waitForIdle()
+        val tenuto = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        val lasciato = palco.captureToImage().toPixelMap()
+
+        assertTrue(
+            "col dito su un angolo la lente doveva comparire in alto a destra",
+            diversiIn(tenuto, lasciato, 0.5f, 1f, 0f, 0.4f) > 0
+        )
+        assertEquals(
+            "e il resto del palco non doveva cambiare",
+            0,
+            diversiIn(tenuto, lasciato, 0f, 0.5f, 0f, 1f) +
+                diversiIn(tenuto, lasciato, 0.5f, 1f, 0.45f, 1f)
+        )
     }
 
     /**
