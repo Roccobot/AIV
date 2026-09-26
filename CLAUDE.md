@@ -3982,9 +3982,9 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
     - ⚠️ **Il nome vive nella descrizione parlata**, come nei gettoni dei moduli: è quello che un
       lettore di schermo annuncia e quello che il banco cerca, e nessuna stringa nasce o resta
       orfana.
-    - ⚠️ **I quattro numeri si dividono la loro riga in parti uguali**, perché non si traducono
-      mai; le due parole prendono quello che avanza accanto alle due celle dei versi, larghe
-      quanto un bersaglio di Material.
+    - ⚠️ **I numeri si dividono la loro riga in parti uguali**, perché non si traducono mai; le
+      due parole prendono quello che avanza accanto alle due celle dei versi, larghe quanto un
+      bersaglio di Material.
   - ⚠️⚠️ **LE FILE ERANO DIVENTATE DUE CON LA `2.32`, E DALLA `2.34` TORNANO UNA: È LA SUA
     RISPOSTA `una` A `d-crop-righe`** (giro della `2.32`: *rimettile su una fila sola*, con la
     ragione scritta nella scelta: *anche a costo di troncare le due parole: preferisco lo spazio
@@ -4018,15 +4018,41 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
       chiede 76 col corpo pieno.
     - ⚠️⚠️ **IL CORPO RESTA UN GRADINO SOTTO, ED È MISURATO** (Roboto Medium con la spaziatura delle
       lettere di Material): col corpo pieno il 'Libero' russo chiede 65,7 punti e la sua cella ne
-      lascia 64,7, cioè si troncherebbe di un punto. A `labelMedium` ne chiede 59,6.
+      lasciava 60,7, cioè si sarebbe troncato di cinque. A `labelMedium` ne chiede 59,6.
+      - ⚠️ **Fino alla `2.88` qui c'era scritto 64,7, ed era sbagliato**: era il conto della fila
+        dell'editor completo, larga 328 punti, mentre quella dell'editor semplice ne ha 312 (360
+        meno i due `STAGE_SIDE`, misurato dal banco con la `2.89`). Il russo entrava lo stesso,
+        con un punto di margine invece di cinque.
+      - ⚠️⚠️ **E dalla `2.89` quella cella non ha più un peso fisso**: il blocco del 5:4, qui sotto.
     - ⚠️ **La scheda non cresce**: due punti in meno, perché fra le due righe c'è il distacco
       della fila invece degli otto punti della riga dei versi.
-  - ⚠️⚠️ **E LE QUATTRO PROPORZIONI SONO IN ORDINE CRESCENTE, DALLA `2.88`, IN TUTTI E DUE GLI
-    EDITOR** (la stessa riga: *1:1, 4:3, 3:2, 16:9*, e in chat, alla domanda se valesse per
-    tutti e due gli editor: *Sì, in tutti e due*). Fino alla `2.87` il 3:2 veniva prima del 4:3,
-    cioè l'ordine non era né crescente né decrescente. L'ordine dei gettoni è quello di
-    dichiarazione di `Shape`, e nessun archivio lo legge: l'editor completo tiene la forma come
-    indice nel solo stato salvato della schermata.
+  - ⚠️⚠️ **E LE PROPORZIONI SONO IN ORDINE CRESCENTE, DALLA `2.88`, IN TUTTI E DUE GLI EDITOR**
+    (la stessa riga: *1:1, 4:3, 3:2, 16:9*, e in chat, alla domanda se valesse per tutti e due gli
+    editor: *Sì, in tutti e due*). Fino alla `2.87` il 3:2 veniva prima del 4:3, cioè l'ordine non
+    era né crescente né decrescente. L'ordine dei gettoni è quello di dichiarazione di `Shape`, e
+    nessun archivio lo legge: l'editor completo tiene la forma come indice nel solo stato salvato
+    della schermata.
+  - ⚠️⚠️ **E DALLA `2.89` C'È ANCHE IL 5:4, FRA 1:1 E 4:3, IN TUTTI E DUE GLI EDITOR, ED È SUA
+    ISTRUZIONE** (2026-09-26: *Metti questi pulsanti proporzione, ordine: 1:1, 5:4, 4:3, 3:2,
+    16:9*). L'ordine resta crescente, perché 1,25 cade fra 1 e 1,33.
+    - ⚠️ **Una voce nuova in mezzo a `Shape` sposta l'indice di quelle che vengono dopo**, e il
+      solo caso in cui si vede è un editor completo aperto mentre l'app si aggiorna: là il lavoro
+      riparte comunque da capo, perché non è salvato, e a cambiare è al più il gettone acceso.
+    - ⚠️⚠️ **CON LUI LA PRIMA RIGA DELL'EDITOR SEMPLICE HA SEI CELLE, E 'LIBERO' NON HA PIÙ UN PESO
+      FISSO**: con l'1,35 di prima alla parola sarebbero rimasti 48 punti di testo, contro i 59,6
+      del russo. Adesso le celle si misurano: a 'Libero' la larghezza della sua parola nella
+      lingua del telefono, a ogni numero quella del più largo di loro, e l'avanzo in proporzione,
+      come nella fila dei modi del ridimensionamento. Il conto è `shapeCell`, in `EditorScreen.kt`.
+    - ⚠️⚠️ **SE LA RIGA NON CI STA, A STRINGERSI È LA PAROLA E NON I NUMERI**: '16:9' troncato si
+      legge come un'altra proporzione, mentre una parola con l'ellissi si legge ancora. Col solo
+      peso misurato, in una riga troppo corta ogni cella perderebbe la sua parte.
+    - **Le misure**, sui 282 punti che la riga lascia tolti i distacchi: l'italiano ne chiede 237,
+      il russo 260, e col corpo pieno il russo ne chiederebbe 278, cioè quattro di margine. Per
+      questo il corpo resta `labelMedium`.
+    - ⚠️ **Il tamil ne chiede 283, e va dichiarato**: il suo 'Libero' vale 83 punti col Noto Sans
+      Tamil, quindi là la parola perde un punto e prende l'ellissi, dove fino alla `2.88` gliene
+      mancavano ventidue. ⚠️ **Il numero vero non è misurato**: Android usa la variante UI di quel
+      carattere, che in sessione non c'è.
 - ⚠️⚠️ **L'IMMAGINE LASCIA L'ARIA ALLE SQUADRETTE, DALLA `2.32`, ED È IL SUO RISCONTRO** (giro
   della `2.31`, voce `crop-modulo` non approvata: *all'avvio del modulo gli angoli di ritaglio non
   sono del tutto visibili*). Una squadretta si disegna **a cavallo** del bordo del rettangolo,
@@ -4073,7 +4099,7 @@ riscrive `spunRect`, la stessa funzione dell'editor semplice, dentro `spunLook`.
 - ⚠️ **Qui la rotazione NON rifà il rettangolo**, al contrario dell'editor semplice, e la differenza
   è che là esiste una forma scelta da rifare sull'aspetto nuovo. Con un rettangolo libero, girarlo
   lo lascia esattamente sulla stessa porzione di immagine.
-  - ⚠️⚠️ **Con una delle quattro proporzioni non vale più, dalla `2.88`**: le forme ci sono anche
+  - ⚠️⚠️ **Con una delle proporzioni non vale più, dalla `2.88`**: le forme ci sono anche
     qui dalla `2.32`, e la sua risposta `casa` a `d-giro-forme` vuole la cornice rifatta nel verso
     scelto. Il blocco della `2.88` vive più sotto; resta vero per 'Libero'.
 
@@ -4218,7 +4244,7 @@ Fino alla `2.86` seguiva il verso acceso come le quattro proporzioni, quindi su 
 cornice veniva alta in due casi: toccando 'Verticale', e girando l'immagine di un quarto, perché il
 verso resta quello di partenza.
 - **Adesso prende l'immagine com'è in quel momento**, cioè già posata, e il verso resta per le
-  quattro proporzioni. Il fatto vive in `Shape.fromImage`, uno per i due editor.
+  proporzioni. Il fatto vive in `Shape.fromImage`, uno per i due editor.
 - ⚠️ **I due gettoni del verso si spengono mentre 'Originale' è scelta**, ed è una lettura
   dichiarata della sua scelta (*'Originale' ignora i due gettoni del verso*): accesi, un tocco non
   cambierebbe la cornice, e si leggerebbe come un comando rotto. Tornano con una proporzione.
@@ -4233,7 +4259,7 @@ scelto, grande e centrata: gettone e cornice dicono sempre la stessa cosa, e i d
 comportano uguale*). Fino alla `2.87` la cornice girava con l'immagine: un 16:9 scelto su
 un'immagine larga diventava 9:16 (misurato sul banco) mentre il gettone diceva ancora 16:9, e al
 primo angolo tirato tornava 16:9 di colpo. Era il caso gemello di 'Originale', trovato misurando lei.
-- **Il conto è `posedLook`**, che chiama `spunLook` e per le quattro proporzioni rifà la cornice
+- **Il conto è `posedLook`**, che chiama `spunLook` e per le proporzioni rifà la cornice
   come l'editor semplice fa dentro `onTurn`. ⚠️ **'Libero', 'Originale' e uno specchio restano
   portati con sé**, come diceva la domanda (*Con 'Libero' e con 'Originale' va già bene così*): uno
   specchio lascia i due lati dove sono, quindi la forma resta quella del gettone.
@@ -4286,7 +4312,7 @@ due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e 
 i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
 cursore, che tirando una squadretta il palco cambi disegno; dalla `2.34` anche che la fila dei
 moduli **segua l'ordine scelto** portandoli tutti e sette; dalla `2.80` che le due parole e i due
-versi stiano su una riga e i quattro numeri sull'altra, e che il tocco su un verso a icona lo
+versi stiano su una riga e i numeri sull'altra, e che il tocco su un verso a icona lo
 scelga ancora (controprovato rimettendo i numeri a cavallo delle due righe, e spegnendo il legame
 del verso); dalla `2.85` che su un'immagine larga il verso parta orizzontale, e che la cornice si
 tiri ancora dopo 'Applica' e dopo una rotazione (i casi 67, 68 e 69, ognuno controprovato togliendo
@@ -4295,9 +4321,13 @@ che i due versi si spengano con lei (i casi 72 e 73); dalla `2.88` che spenti si
 pixel, caso 74), che girando con 16:9 la cornice resti 16:9 nel verso scelto (caso 75, e il 76 per
 la porzione, col conto puro), che con un taglio applicato 'Centra' e il ritocco della forma restino
 dentro la porzione (casi 77 e 78), e che tirando un angolo compaia la lente (caso 79). Tutti
-controprovati rimettendo il difetto, in tre giri. `EditorCasaTest` misura in più le due righe
-dell'editor semplice con l'ordine dei numeri, e la sua lente, che dalla `2.88` disegna quello che
-le passa chi la chiama. ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
+controprovati rimettendo il difetto, in tre giri; dalla `2.89` il caso 41 guarda anche l'ordine
+dei numeri. `EditorCasaTest` misura in più le due righe dell'editor semplice con l'ordine dei
+numeri, e la sua lente, che dalla `2.88` disegna quello che le passa chi la chiama; dalla `2.89`
+anche la regola delle celle della prima riga, chiamata con le misure vere (in tamil si stringe la
+parola e non i numeri), e che a 360dp i numeri siano larghi uguali e 'Libero' arrivi al rientro di
+destra. Controprovati uno per uno, rimettendo il 5:4 dopo il 4:3, la divisione sempre in
+proporzione, i numeri larghi quanto il proprio testo e 'Libero' fermo alla sua parola. ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
 controprova lo ha imposto: la prima stesura della rotazione girava prima di ogni tocco, e restava
 verde col difetto dentro. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.

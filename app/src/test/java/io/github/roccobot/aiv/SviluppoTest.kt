@@ -97,10 +97,10 @@ private val POSA = listOf(
 )
 
 /**
- * Le quattro proporzioni del ritaglio, scritte in verticale e nell'ordine dei gettoni: crescente
- * dalla `2.88` (sua istruzione del giro della `2.87`).
+ * Le proporzioni del ritaglio, scritte in verticale e nell'ordine dei gettoni: crescente dalla
+ * `2.88` (sua istruzione del giro della `2.87`), e col 5:4 dalla `2.89`.
  */
-private val FORME = listOf("1:1", "3:4", "2:3", "9:16")
+private val FORME = listOf("1:1", "4:5", "3:4", "2:3", "9:16")
 
 /**
  * I quattro comandi che vivono nel modulo Ritaglio dalla `2.40`, cioè la sua storia.
@@ -1362,24 +1362,24 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 37: le sei forme del Ritaglio, e 'Originale' che è l'immagine intera.**
+     * **Caso 37: le forme del Ritaglio, e 'Originale' che è l'immagine intera.**
      *
      * ⚠️⚠️ **'ORIGINALE' È SUA RICHIESTA** (2026-09-13: *tra i vincoli di proporzione dev'esserci
      * anche 'Originale', ma scelta di default resta 'Libera'*), ed è la sola forma il cui rapporto
      * non è scritto nel codice: lo porta l'immagine. Quello che può rompersi in silenzio è il verso:
      * sul quadrato di prova i due numeri **coincidono**, quindi qui il conto si misura su
-     * un'immagine larga, e la scena misura soltanto che i sei gettoni ci siano.
+     * un'immagine larga, e la scena misura soltanto che i gettoni ci siano.
      * ⚠️⚠️ **DALLA `2.87` 'ORIGINALE' IGNORA IL VERSO, E QUESTA PROVA DICEVA IL CONTRARIO**: è la
      * sua risposta `intera` a `d-originale-verso`. Fino alla `2.86` si misurava che nell'altro
      * verso desse il rapporto trasposto, cioè che tagliasse; adesso si misura che non tagli in
-     * nessuno dei due, e che le quattro proporzioni seguano ancora il verso, che è l'altra metà
+     * nessuno dei due, e che le proporzioni seguano ancora il verso, che è l'altra metà
      * della stessa risposta.
      * ⚠️ **Non toglie niente**, ed è la proprietà da cui dipende il senza perdita: un ritaglio che
      * tagliasse un pixel per un arrotondamento farebbe riscrivere il file a chi ha soltanto scelto
      * 'Originale'.
      */
     @Test
-    fun `il ritaglio porta le sei forme e Originale e l'immagine intera`() {
+    fun `il ritaglio porta le forme e Originale e l'immagine intera`() {
         val largo = 3f / 2f
         for (verso in Lay.entries) {
             assertEquals(
@@ -1558,7 +1558,7 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 41: le due parole e i due versi sopra, i quattro numeri sotto.**
+     * **Caso 41: le due parole e i due versi sopra, i numeri sotto e in ordine.**
      *
      * ⚠️⚠️ **È IL SUO PUNTO `crop-giu`, DALLA `2.80`** (riscontro del giro dalla `2.75` alla
      * `2.77`, col mockup: *le proporzioni numeriche tutte in una riga*, e *'Orizzontale' e
@@ -1593,11 +1593,22 @@ class SviluppoTest {
             assertEquals("e i due versi vivono lì accanto", parole[0], v, 2f)
         }
         for (n in numeri) {
-            assertEquals("i quattro numeri vivono su una riga sola", numeri[0], n, 2f)
+            assertEquals("i numeri vivono su una riga sola", numeri[0], n, 2f)
         }
         assertTrue(
             "e quella riga viene dopo le parole",
             numeri[0] > parole[0] + 2f
+        )
+        /*
+         * ⚠️ **E nell'ordine dei gettoni, dalla `2.89`**, cioè crescente col 5:4 fra 1:1 e 4:3 (sua
+         * istruzione): l'ordine è quello di dichiarazione di [Shape], uguale nei due editor, e questa
+         * è la metà di qua della prova che lo misura nell'editor semplice (`EditorCasaTest`).
+         * Controprovata rimettendo il 5:4 dopo il 4:3: cade questa asserzione.
+         */
+        val sinistre = FORME.map { banco.onNodeWithText(it).fetchSemanticsNode().boundsInRoot.left }
+        assertTrue(
+            "i numeri vanno nell'ordine ${FORME.joinToString()}",
+            sinistre.zipWithNext().all { (a, b) -> a < b }
         )
 
         /*
@@ -2552,7 +2563,7 @@ class SviluppoTest {
      *
      * ⚠️ **È la seconda metà della stessa risposta** (*'Originale' ignora i due gettoni del verso*):
      * accesi, un tocco su uno dei due non cambierebbe la cornice, e si leggerebbe come un comando
-     * rotto. **Tornano con una proporzione**, perché il verso resta per le quattro proporzioni.
+     * rotto. **Tornano con una proporzione**, perché il verso resta per le proporzioni.
      * ⚠️⚠️ **CONTROPROVATA** togliendo la condizione dai due gettoni: restano accesi e la prima
      * asserzione cade.
      */

@@ -2985,7 +2985,7 @@ private fun posedAspect(src: Bitmap?, spin: Spin): Float {
  * stessa cosa.
  * ⚠️⚠️ **QUESTA FUNZIONE NON RIFÀ NIENTE, E DALLA `2.88` LA SCHEDA PASSA DA [posedLook]**: portare
  * la cornice con sé è quello che serve a 'Libero', a 'Originale' e a uno specchio, mentre con una
- * delle quattro proporzioni un quarto di giro la rifà nel verso scelto, come nell'editor semplice.
+ * delle proporzioni un quarto di giro la rifà nel verso scelto, come nell'editor semplice.
  * Fino alla `2.87` qui c'era scritto che la rotazione *non rifà il rettangolo perché il rettangolo è
  * libero*: era vero fino alla `2.31`, e dalla `2.32` i formati c'erano anche qui.
  */
@@ -3001,8 +3001,8 @@ internal fun spunLook(look: Look, gesto: Spin): Look = look.copy(
 /**
  * La posa [gesto] applicata a [look], con la cornice che la segue: vedi [spunLook].
  *
- * ⚠️⚠️ **CON UNA DELLE QUATTRO PROPORZIONI UN QUARTO DI GIRO RIFÀ LA CORNICE, DALLA `2.88`, ED È LA
- * SUA RISPOSTA `casa` A `d-giro-forme`** (giro della `2.87`: *Girando, la cornice si rifà nel verso
+ * ⚠️⚠️ **CON UNA PROPORZIONE UN QUARTO DI GIRO RIFÀ LA CORNICE, DALLA `2.88`, ED È LA SUA
+ * RISPOSTA `casa` A `d-giro-forme`** (giro della `2.87`: *Girando, la cornice si rifà nel verso
  * scelto, grande e centrata: gettone e cornice dicono sempre la stessa cosa, e i due editor si
  * comportano uguale*). Fino alla `2.87` la cornice girava con l'immagine: un 16:9 scelto su
  * un'immagine larga diventava 9:16 (misurato sul banco) mentre il gettone diceva ancora 16:9, e al
