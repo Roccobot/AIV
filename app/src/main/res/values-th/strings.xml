@@ -479,6 +479,8 @@
     <string name="editor_center_both">จัดกึ่งกลางแนวนอนและแนวตั้ง</string>
     <string name="editor_done">บันทึกแล้ว</string>
     <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
+    <string name="editor_discard_ask">ทิ้งการเปลี่ยนแปลงไหม</string>
+    <string name="editor_discard">ทิ้ง</string>
     <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>
     <string name="editor_pick_none">ไม่มีแอปอื่นในเครื่องนี้ที่เสนอตัวแก้ไขรูปภาพ</string>
     <string name="editor_pick_send">ผ่านการแชร์</string>

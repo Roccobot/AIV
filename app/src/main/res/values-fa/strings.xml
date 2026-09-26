@@ -496,6 +496,8 @@
     <string name="editor_center_both">وسط‌چین افقی و عمودی</string>
     <string name="editor_done">ذخیره شد</string>
     <string name="editor_done_copy">رونوشت ذخیره شد</string>
+    <string name="editor_discard_ask">از تغییرات صرف‌نظر می‌کنید؟</string>
+    <string name="editor_discard">صرف‌نظر کردن</string>
     <string name="editor_done_lossless">بدون فشرده‌سازی دوباره ذخیره شد</string>
     <string name="editor_pick_none">هیچ برنامهٔ دیگری در این گوشی ویرایش تصویر را برعهده نمی‌گیرد.</string>
     <string name="editor_pick_send">با هم‌رسانی</string>

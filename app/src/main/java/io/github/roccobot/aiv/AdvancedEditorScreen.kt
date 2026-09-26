@@ -58,6 +58,8 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Transform
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -67,6 +69,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -267,7 +270,37 @@ fun AdvancedEditorScreen(
     /** Dove si ha lo sguardo nella scheda, e se il colore mirato è armato: vedi [Gaze]. */
     val gaze = rememberSaveable(uri, saver = Gaze.Saver) { Gaze() }
 
-    BackHandler { onBack() }
+    /*
+     * ⚠️⚠️ **CON DEL LAVORO DI SVILUPPO IN CORSO, INDIETRO CHIEDE PRIMA DI USCIRE, DALLA `2.90`, ED
+     * È SUA RICHIESTA** (campo libero del giro della `2.88`: *se almeno un modulo diverso da
+     * Ritaglio ha delle modifiche attive, alla pressione di 'Indietro' (tasto grafico o 'indietro'
+     * di Android) un avviso deve chiedere: 'Vuoi scartare le modifiche?'*). Le due porte sono una
+     * funzione sola, [leave], così la freccia in testata e il gesto di sistema non possono
+     * rispondere in due modi.
+     * ⚠️ **La domanda la fa la tabella dei moduli** ([developed]), cioè la stessa che accende il
+     * punto d'accento dei gettoni: quello che l'avviso protegge è esattamente quello che la fila
+     * dice toccato. Il Ritaglio resta fuori per sua scelta, e l'editor semplice, che è fatto della
+     * sola posa e del solo ritaglio, per la stessa ragione non chiede mai.
+     * ⚠️ **Durante un salvataggio non chiede**: le modifiche si stanno scrivendo e non si scarta
+     * niente, quindi la domanda direbbe una cosa falsa. Si esce come prima, e il salvataggio finisce
+     * da sé nel modello.
+     * ⚠️ **Mentre l'avviso è in scena, Indietro lo chiude e si resta**: la finestra se lo prende
+     * prima di questa schermata, ed è l'esito sicuro, come il tocco fuori.
+     */
+    var leaving by remember(uri) { mutableStateOf(false) }
+    fun leave() {
+        if (!busy && developed(look)) leaving = true else onBack()
+    }
+    BackHandler { leave() }
+    if (leaving) {
+        DiscardDialog(
+            onDismiss = { leaving = false },
+            onDiscard = {
+                leaving = false
+                onBack()
+            }
+        )
+    }
 
     LaunchedEffect(uri) {
         val letta = withContext(Dispatchers.IO) { preview(context, uri) }
@@ -435,7 +468,8 @@ fun AdvancedEditorScreen(
                     .padding(start = 4.dp, end = STAGE_SIDE - TEXT_BUTTON_PAD),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBack) {
+                // ⚠️ La stessa porta del gesto di sistema, cioè [leave]: vedi la nota su di lei.
+                IconButton(onClick = { leave() }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
                 }
                 /*
@@ -729,6 +763,42 @@ private fun SaveButton(
                 onClick = onSave
             )
             .padding(horizontal = TEXT_BUTTON_PAD, vertical = TEXT_BUTTON_PAD / 2)
+    )
+}
+
+/**
+ * La domanda prima di uscire con del lavoro in corso, dalla `2.90`: vedi la nota su `leave`.
+ *
+ * ⚠️⚠️ **LA DOMANDA È SUA ALLA LETTERA E NON HA UN CORPO** (*un avviso deve chiedere: 'Vuoi scartare
+ * le modifiche?'*): un paragrafo sotto direbbe quello che la domanda dice già, e in fretta si legge
+ * la prima riga sola. È la forma di Material per lo stesso caso, titolo e due tasti.
+ * ⚠️ **Il tasto che scarta ha il colore dell'errore**, come 'Elimina' nella conferma di
+ * un'eliminazione: è quello che non si disfa, e il colore lo dice prima della parola.
+ * ⚠️ **Non è una modale vera**, per il criterio di `AIV/CLAUDE.md` § '👆 Che cosa fa il tocco FUORI
+ * da una finestra': qui non si scrive niente, e il tocco fuori vale 'Annulla', cioè si resta
+ * nell'editor col lavoro intatto.
+ */
+@Composable
+private fun DiscardDialog(
+    onDismiss: () -> Unit,
+    onDiscard: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(onDismiss),
+        properties = loweredWindow(onDismiss),
+        title = { Text(stringResource(R.string.editor_discard_ask)) },
+        confirmButton = {
+            TextButton(
+                onClick = onDiscard,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) { Text(stringResource(R.string.editor_discard)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
     )
 }
 
@@ -2817,6 +2887,20 @@ private val MODULES = listOf(
  * elenchi si coprano lo misura il banco.
  */
 private fun moduleOf(key: PadKey): Module = MODULES.first { it.key == key }
+
+/**
+ * Se uscendo si perderebbe del lavoro di sviluppo: un modulo diverso dal Ritaglio ha toccato
+ * l'immagine. È la condizione dell'avviso della `2.90` (vedi la nota su `leave`).
+ *
+ * ⚠️⚠️ **LA RISPOSTA LA DÀ LA TABELLA E NON UN ELENCO DI CAMPI DI [Look]**: è la stessa domanda del
+ * punto d'accento dei gettoni ([Module.spent]), quindi un modulo nuovo entra qui da sé. Scritta
+ * come `!look.plain || !look.geo.idle`, un modulo che aggiungesse un campo resterebbe fuori
+ * dall'avviso senza che niente lo dica.
+ * ⚠️ **Gli Stili non rispondono mai di sì, ed è giusto**: uno stile applicato lascia i suoi valori
+ * nei moduli che governa, ed è là che l'avviso li trova.
+ */
+internal fun developed(look: Look): Boolean =
+    MODULES.any { it.extra != Extra.CROP && it.spent(look) }
 
 /**
  * Come si chiama un modulo, per chi lo deve nominare fuori dall'editor.

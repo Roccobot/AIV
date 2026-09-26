@@ -479,6 +479,8 @@
     <string name="editor_center_both">Căn giữa theo chiều ngang và dọc</string>
     <string name="editor_done">Đã lưu</string>
     <string name="editor_done_copy">Đã lưu bản sao</string>
+    <string name="editor_discard_ask">Bỏ các thay đổi?</string>
+    <string name="editor_discard">Bỏ</string>
     <string name="editor_done_lossless">Đã lưu mà không nén lại</string>
     <string name="editor_pick_none">Không ứng dụng nào khác trên máy này nhận sửa ảnh.</string>
     <string name="editor_pick_send">Qua chia sẻ</string>

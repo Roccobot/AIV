@@ -157,6 +157,8 @@
     <string name="editor_center_both">Centra in orizzontale e in verticale</string>
     <string name="editor_done">Salvata</string>
     <string name="editor_done_copy">Copia salvata</string>
+    <string name="editor_discard_ask">Vuoi scartare le modifiche?</string>
+    <string name="editor_discard">Scarta</string>
     <string name="editor_done_lossless">Salvata senza ricomprimere</string>
     <string name="edit_no_file">Questo file non sta sul telefono</string>
     <string name="edit_too_big">L\'immagine è troppo grande per questo dispositivo</string>

@@ -7,8 +7,11 @@ import android.graphics.RectF
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
@@ -2833,6 +2836,129 @@ class SviluppoTest {
     }
 
     /**
+     * **Caso 80: l'avviso di uscita riguarda ogni modulo tranne il Ritaglio.**
+     *
+     * ⚠️⚠️ **È LA CONDIZIONE DELLA SUA RICHIESTA** (campo libero del giro della `2.88`: *se almeno un
+     * modulo diverso da Ritaglio ha delle modifiche attive*). Si misura la funzione pura, perché
+     * quello che può rompersi in silenzio è l'elenco: un modulo dimenticato uscirebbe senza
+     * chiedere, e la schermata lo farebbe vedere solo a chi muove proprio quel modulo.
+     * ⚠️ **Sette moduli su sette, uno per valore**, e il Ritaglio nelle sue tre forme: la posa, il
+     * taglio e il taglio applicato. Gli Stili non hanno un valore loro, quindi non c'è un caso da
+     * scrivere.
+     * ⚠️⚠️ **CONTROPROVATA due volte**: togliendo l'esclusione del Ritaglio il caso cade alla posa, e
+     * con lui il caso 82; scrivendo la condizione come `!look.plain`, cioè coi soli campi del
+     * colore, cade la Geometria.
+     */
+    @Test
+    fun `l'avviso di uscita riguarda ogni modulo tranne il Ritaglio`() {
+        val taglio = ImageEdit.Crop(0.1f, 0.1f, 0.9f, 0.9f)
+        val fermi = mapOf(
+            "a riposo" to Look.NONE,
+            "con la sola posa" to Look(spin = Spin(1, false)),
+            "col solo specchio" to Look(spin = Spin(0, true)),
+            "col solo taglio" to Look(crop = taglio),
+            "col taglio applicato" to Look(
+                crop = taglio,
+                framing = Framing(steps = listOf(taglio), at = 1)
+            )
+        )
+        for ((come, look) in fermi) {
+            assertFalse("$come l'uscita non doveva chiedere niente", developed(look))
+        }
+        val mossi = mapOf(
+            "la Luce" to Look(light = Light(exposure = 0.4f)),
+            "il Colore" to Look(chroma = Chroma(saturation = 0.3f)),
+            "il bianco e nero" to Look(chroma = Chroma(mono = true)),
+            "l'HSL" to Look(
+                mix = Mix(List(Mix.COUNT) { if (it == 2) Band(hue = 0.2f) else Band.NONE })
+            ),
+            "il Dettaglio" to Look(detail = Detail(sharpen = 0.4f)),
+            "gli Effetti" to Look(effects = Effects(grain = 0.3f)),
+            "le Curve" to Look(
+                tone = Tone(all = Curve(listOf(Knot(0f, 0f), Knot(0.5f, 0.62f), Knot(1f, 1f))))
+            ),
+            "la Geometria" to Look(geo = Geometry(straighten = 0.3f))
+        )
+        for ((quale, look) in mossi) {
+            assertTrue("con $quale mossa l'uscita doveva chiedere", developed(look))
+            assertTrue(
+                "con $quale mossa e una posa l'uscita doveva chiedere lo stesso",
+                developed(look.copy(spin = Spin(1, false)))
+            )
+        }
+    }
+
+    /**
+     * **Caso 81: con un cursore della Luce mosso, Indietro chiede, e 'Annulla' resta.**
+     *
+     * ⚠️⚠️ **LE PORTE SONO DUE E LA SUA RICHIESTA LE NOMINA TUTTE E DUE** (*tasto grafico o
+     * 'indietro' di Android*): la freccia in testata e il gesto di sistema. Il caso le prova in
+     * fila, e fra le due tocca 'Annulla', che deve lasciare l'editor dov'è.
+     * ⚠️ **'Scarta' esce una volta sola**, e la prova lo conta: un'uscita doppia porterebbe fuori dal
+     * visualizzatore.
+     * ⚠️⚠️ **CONTROPROVATA due volte**: con la freccia che chiama `onBack` direttamente cade la prima
+     * metà, e con `BackHandler { onBack() }` cade la seconda.
+     */
+    @Test
+    fun `con un cursore mosso Indietro chiede prima di uscire`() {
+        var uscite = 0
+        banco.setContent { Scena(mods = davanti(PadKey.MOD_LIGHT), onBack = { uscite += 1 }) }
+        pronta()
+        modulo(R.string.look_light)
+        muovi(0, 0.5f)
+        val domanda = testo(R.string.editor_discard_ask)
+
+        banco.onNodeWithContentDescription(testo(R.string.settings_back)).performClick()
+        banco.waitForIdle()
+        assertEquals("la freccia doveva aprire la domanda", 1, quanti(domanda))
+        assertEquals("e non doveva uscire", 0, uscite)
+
+        banco.onNodeWithText(testo(R.string.cancel)).performClick()
+        banco.waitForIdle()
+        assertEquals("'Annulla' doveva chiudere la domanda", 0, quanti(domanda))
+        assertEquals("e restare nell'editor", 0, uscite)
+
+        indietroDiSistema()
+        assertEquals("il gesto di sistema doveva aprire la stessa domanda", 1, quanti(domanda))
+        assertEquals(0, uscite)
+
+        banco.onNodeWithText(testo(R.string.editor_discard)).performClick()
+        banco.waitForIdle()
+        assertEquals("'Scarta' doveva uscire, una volta", 1, uscite)
+        assertEquals(0, quanti(domanda))
+    }
+
+    /**
+     * **Caso 82: col solo Ritaglio mosso, Indietro esce senza chiedere.**
+     *
+     * ⚠️ **È l'altra metà della stessa condizione**: la posa e il taglio si rifanno in fretta, e
+     * per la sua richiesta l'avviso non li protegge. La rotazione è il gesto del Ritaglio che si
+     * vede meglio, e il modulo è quello aperto di fabbrica.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo l'esclusione del Ritaglio da [developed]: la domanda compare
+     * alla freccia, e il caso cade.
+     */
+    @Test
+    fun `col solo Ritaglio mosso Indietro esce senza chiedere`() {
+        var uscite = 0
+        banco.setContent { Scena(onBack = { uscite += 1 }) }
+        pronta()
+        banco.onNodeWithText(testo(R.string.editor_right)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithContentDescription(testo(R.string.settings_back)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "col solo Ritaglio non doveva chiedere",
+            0,
+            quanti(testo(R.string.editor_discard_ask))
+        )
+        assertEquals("e doveva uscire subito", 1, uscite)
+
+        indietroDiSistema()
+        assertEquals("anche il gesto di sistema doveva uscire subito", 2, uscite)
+    }
+
+    /**
      * Tira l'angolo di sopra a sinistra di quello che il palco disegna fino al punto che [a] ricava
      * dalla misura del palco, e restituisce lo scatto di **prima**.
      *
@@ -3969,13 +4095,33 @@ class SviluppoTest {
         return scatto
     }
 
+    /**
+     * Il gestore di Indietro dell'attività ospite, per premere il tasto di sistema.
+     *
+     * ⚠️ **Si prende dalla composizione**: questa classe monta la scena con `createComposeRule`, che
+     * non consegna l'attività, e passarla a `createAndroidComposeRule` cambierebbe il banco di
+     * tutte le altre prove per servirne una.
+     */
+    private var sistema: OnBackPressedDispatcher? = null
+
+    /** Preme Indietro di sistema, cioè il gesto o il tasto del telefono. */
+    private fun indietroDiSistema() {
+        val gestore = sistema
+        assertNotNull("il gestore di Indietro doveva esserci", gestore)
+        banco.runOnUiThread { gestore!!.onBackPressed() }
+        banco.waitForIdle()
+    }
+
     @Composable
     private fun Scena(
         uri: Uri = quadrato(),
         mods: List<PadKey> = MOD_KEYS,
         hand: Hand = Hand.RIGHT,
-        onSave: (Look, Boolean) -> Unit = { _, _ -> }
+        onSave: (Look, Boolean) -> Unit = { _, _ -> },
+        onBack: () -> Unit = {}
     ) {
+        val ospite = LocalOnBackPressedDispatcherOwner.current
+        SideEffect { sistema = ospite?.onBackPressedDispatcher }
         AivTheme(darkTheme = false) {
             // ⚠️ L'ordine dei moduli viaggia di qui anche nell'app: la scheda le impostazioni
             // non le riceve, quindi una prova che lo passasse per parametro misurerebbe una
@@ -3999,7 +4145,7 @@ class SviluppoTest {
                         onResize = {},
                         onResizeDefault = {},
                         onSave = onSave,
-                        onBack = {}
+                        onBack = onBack
                     )
                 }
             }

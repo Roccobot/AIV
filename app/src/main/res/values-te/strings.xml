@@ -496,6 +496,8 @@
     <string name="editor_center_both">అడ్డంగా మరియు నిలువుగా మధ్యలో</string>
     <string name="editor_done">భద్రపరచబడింది</string>
     <string name="editor_done_copy">నకలు భద్రపరచబడింది</string>
+    <string name="editor_discard_ask">మార్పులను విస్మరించాలా?</string>
+    <string name="editor_discard">విస్మరించు</string>
     <string name="editor_done_lossless">మళ్లీ కుదించకుండానే భద్రపరచబడింది</string>
     <string name="editor_pick_none">ఈ ఫోన్లో బొమ్మలు సవరించడానికి ముందుకొచ్చే మరో యాప్ లేదు.</string>
     <string name="editor_pick_send">షేర్ చేయడం ద్వారా</string>

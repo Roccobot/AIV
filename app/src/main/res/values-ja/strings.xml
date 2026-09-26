@@ -479,6 +479,8 @@
     <string name="editor_center_both">上下左右中央に</string>
     <string name="editor_done">保存しました</string>
     <string name="editor_done_copy">コピーを保存しました</string>
+    <string name="editor_discard_ask">変更を破棄しますか？</string>
+    <string name="editor_discard">破棄</string>
     <string name="editor_done_lossless">再圧縮せずに保存しました</string>
     <string name="editor_pick_none">この端末には画像を編集できる他のアプリがありません。</string>
     <string name="editor_pick_send">共有から</string>

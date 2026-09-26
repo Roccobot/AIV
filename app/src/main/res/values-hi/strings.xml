@@ -496,6 +496,8 @@
     <string name="editor_center_both">क्षैतिज और लंबवत रूप से बीच में</string>
     <string name="editor_done">सहेज लिया</string>
     <string name="editor_done_copy">प्रति सहेज ली</string>
+    <string name="editor_discard_ask">क्या बदलाव छोड़ दें?</string>
+    <string name="editor_discard">छोड़ें</string>
     <string name="editor_done_lossless">दोबारा दबाए बिना सहेज लिया</string>
     <string name="editor_pick_none">इस फ़ोन का कोई और ऐप तस्वीरें संपादित करने की पेशकश नहीं करता।</string>
     <string name="editor_pick_send">साझा करके</string>

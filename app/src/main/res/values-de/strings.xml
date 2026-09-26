@@ -496,6 +496,8 @@
     <string name="editor_center_both">Waagerecht und senkrecht zentrieren</string>
     <string name="editor_done">Gespeichert</string>
     <string name="editor_done_copy">Kopie gespeichert</string>
+    <string name="editor_discard_ask">Änderungen verwerfen?</string>
+    <string name="editor_discard">Verwerfen</string>
     <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>
     <string name="editor_pick_none">Keine andere App auf diesem Telefon bietet an, Bilder zu bearbeiten.</string>
     <string name="editor_pick_send">Per Teilen</string>

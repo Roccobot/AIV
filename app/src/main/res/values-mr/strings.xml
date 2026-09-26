@@ -496,6 +496,8 @@
     <string name="editor_center_both">आडवे आणि उभे मध्यभागी</string>
     <string name="editor_done">जतन झाले</string>
     <string name="editor_done_copy">प्रत जतन झाली</string>
+    <string name="editor_discard_ask">बदल टाकून द्यायचे?</string>
+    <string name="editor_discard">टाकून द्या</string>
     <string name="editor_done_lossless">पुन्हा दाबल्याशिवाय जतन झाले</string>
     <string name="editor_pick_none">या फोनवरचे दुसरे कोणतेही ॲप छायाचित्रे संपादित करण्याची तयारी दाखवत नाही.</string>
     <string name="editor_pick_send">सामायिक करून</string>
