@@ -621,7 +621,7 @@
     <string name="settings_last_mark">Отметка последнего просмотренного элемента</string>
     <string name="settings_last_mark_frame">Рамка</string>
     <string name="settings_last_mark_corner">Угол</string>
-    <string name="settings_last_mark_dot">Точка</string>
+    <string name="settings_last_mark_dot">Круг</string>
     <string name="settings_buttons_how">Нажмите и удерживайте кнопку, затем перетащите её на новое место внутри её панели.</string>
     <string name="settings_buttons_reset">Сбросить</string>
     <string name="settings_buttons_reset_ask">Вернуть кнопки к расположению по умолчанию?</string>

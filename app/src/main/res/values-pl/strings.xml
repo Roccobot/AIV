@@ -621,7 +621,7 @@
     <string name="settings_last_mark">Oznaczenie ostatnio oglądanego elementu</string>
     <string name="settings_last_mark_frame">Ramka</string>
     <string name="settings_last_mark_corner">Róg</string>
-    <string name="settings_last_mark_dot">Kropka</string>
+    <string name="settings_last_mark_dot">Kółko</string>
     <string name="settings_buttons_how">Przytrzymaj przycisk i przeciągnij go, aby zmienić jego miejsce wewnątrz jego panelu.</string>
     <string name="settings_buttons_reset">Przywróć domyślne</string>
     <string name="settings_buttons_reset_ask">Przywrócić przyciski do domyślnego układu?</string>

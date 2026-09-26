@@ -567,7 +567,7 @@
     <string name="settings_last_mark">Dấu của mục đã xem gần nhất</string>
     <string name="settings_last_mark_frame">Khung</string>
     <string name="settings_last_mark_corner">Góc</string>
-    <string name="settings_last_mark_dot">Chấm</string>
+    <string name="settings_last_mark_dot">Hình tròn</string>
     <string name="settings_buttons_how">Nhấn giữ một nút rồi kéo để đổi vị trí của nó trong bảng của chính nó.</string>
     <string name="settings_buttons_reset">Đặt lại</string>
     <string name="settings_buttons_reset_ask">Bạn muốn đưa các nút về cách sắp đặt mặc định?</string>

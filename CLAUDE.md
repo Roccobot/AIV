@@ -6014,18 +6014,28 @@ quella causa: un tratto spesso ha l'area per farsi vedere anche in un colore di 
   all'opacità dichiarata: è il caso generale di una prova che verifica un comportamento invece di
   un'implementazione, scritto in § '🧪 Quando si scrive una prova, e quando no'.
 
-⚠️⚠️ **DALLA `2.92` I SEGNI SONO TRE: C'È IL PALLINO, ED È SUA RICHIESTA** (punto 2 del campo
+⚠️⚠️ **DALLA `2.92` I SEGNI SONO TRE: C'È IL TONDO, ED È SUA RICHIESTA** (punto 2 del campo
 libero del giro della `2.91`: *nuova scelta: un pallino colore accento 50% in basso a sinistra nel
 quadrato di miniatura dell'elemento. Fammi scegliere la dimensione con un'anteprima*). È un disco
-dell'accento a metà opacità nell'angolo del nastro, cioè diagonalmente opposto alla spunta e
-dall'altra parte della durata di un filmato.
-- ⚠️⚠️ **LA MISURA È ANCORA UNA PROPOSTA, E LA SCELTA È SUA**: il diametro vale il 14% del lato
-  (`MARK_DOT`), che è la misura di mezzo fra le quattro che la domanda del giro della `2.92` gli
-  mostra in anteprima. ⚠️ **È una frazione come gli altri due segni**, per la ragione del blocco
-  della `2.12` qui sopra.
+dell'accento nell'angolo del nastro, cioè diagonalmente opposto alla spunta e dall'altra parte
+della durata di un filmato.
+- ⚠️⚠️ **SI CHIAMA 'TONDO' DALLA `2.94`, E 'PALLINO' NON SI USA PARLANDO CON LUI** (sua
+  riscrittura del testo `settings_last_mark_dot` nel giro della `2.92`): nella `2.92` e nella
+  `2.93` la voce diceva 'Pallino'. È il criterio di § '🗣️ Come si chiamano le cose': la cosa si
+  chiama con l'etichetta della sua voce. ⚠️ **Le sue citazioni restano come le ha scritte**, e
+  nel codice restano `DOT`, `lastDot` e `MARK_DOT`, come il token nell'archivio.
+  - ⚠️ **Nelle altre lingue la parola è quella del cerchio e non più quella del punto**: 'Tondo'
+    nomina la forma, quindi l'inglese passa da 'Dot' a 'Circle', il tedesco da 'Punkt' a 'Kreis',
+    il francese da 'Pastille' a 'Rond'. Le due varianti regionali ereditano.
+- ⚠️⚠️ **LA MISURA È LA SUA, SCELTA GUARDANDO LE ANTEPRIME, E L'OPACITÀ È IL 60% DALLA `2.94`**:
+  alla domanda `d-pallino-misura` del giro della `2.92`, che gliene mostrava quattro, ha risposto
+  `14`, cioè il diametro che la `2.92` portava già (`MARK_DOT`), con la nota *medio, ma 60% di
+  opacità*. Fino alla `2.93` il tondo era a metà opacità, il numero della sua richiesta.
+  ⚠️ **La misura è una frazione come gli altri due segni**, per la ragione del blocco della
+  `2.12` qui sopra.
 - ⚠️ **L'aria dai due bordi vale il raggio**, quindi il segno cresce tutto insieme e resta lo
-  stesso pallino a qualunque misura: un'aria fissa lo schiaccerebbe nell'angolo alle misure grandi.
-- ⚠️ **I valori di fabbrica non cambiano**: il pallino arriva solo a chi lo sceglie, e
+  stesso tondo a qualunque misura: un'aria fissa lo schiaccerebbe nell'angolo alle misure grandi.
+- ⚠️ **I valori di fabbrica non cambiano**: il tondo arriva solo a chi lo sceglie, e
   `MarkMigration` resta com'è.
 
 ⚠️⚠️ **E DALLA `2.92` IL NASTRO SI SPECCHIA DA DESTRA A SINISTRA, E FINO ALLA `2.91` NO**: si
@@ -6033,7 +6043,7 @@ disegnava in coordinate assolute, cioè sempre in basso a sinistra, mentre la sp
 (`Alignment.TopEnd`) e la durata di un filmato (`Alignment.BottomEnd`) seguono il verso della
 lingua. In arabo, persiano e urdu il nastro restava quindi nell'angolo della durata, e dallo stesso
 lato della spunta invece che di fronte, cioè il contrario della ragione per cui è in quell'angolo. È venuto
-fuori scrivendo il pallino, che nasce nello stesso posto, e il pallino ha la stessa regola.
+fuori scrivendo il tondo, che nasce nello stesso posto, e il tondo ha la stessa regola.
 - ⚠️ **Nessuno dei due lo aveva visto, e va detto**: lui usa l'app in italiano, e il banco non
   montava il nastro da solo. Adesso lo monta (`lastCorner`).
 
@@ -6050,12 +6060,14 @@ vuole delle immagini vere, e il MediaStore di Robolectric è vuoto.
   **meccanismo** invece della schermata. Vede che lo spessore raddoppia col lato, e che il tratto
   prende il colore che gli si passa all'opacità dichiarata. Controprovata in tutti e due i versi,
   rimettendo prima la misura fissa e poi una costante al posto del colore ricevuto.
-- ⚠️ **E DALLA `2.92` `SegniTest` FA LO STESSO COL PALLINO E COL NASTRO**: il pallino sta
+- ⚠️ **E DALLA `2.92` `SegniTest` FA LO STESSO COL TONDO E COL NASTRO**: il tondo sta
   nell'angolo giusto nei due versi della lingua, cresce con la piastrella e porta il colore
-  ricevuto a metà opacità; il nastro si specchia da destra a sinistra. Quattro controprove, una per
-  difetto (il pallino senza verso, in punti, opaco, e il nastro in coordinate assolute), e ognuna
-  fa cadere la prova giusta. **Non** vede quale misura del pallino sia quella buona, che è la
-  domanda del giro.
+  ricevuto alla sua opacità, che la prova legge da `MARK_DOT_ALPHA`; il nastro si specchia da
+  destra a sinistra. Quattro controprove, una per difetto (il tondo senza verso, in punti, opaco,
+  e il nastro in coordinate assolute), e ognuna fa cadere la prova giusta. ⚠️ **Il passaggio al
+  60% della `2.94` non ha toccato il conto**, ed è la ragione per cui l'opacità si legge invece di
+  ricopiarla. **Non** vede se il tondo si distingua su una fotografia vera: quello si guarda sul
+  telefono.
 
 ## 🧪 Quando si scrive una prova, e quando no
 

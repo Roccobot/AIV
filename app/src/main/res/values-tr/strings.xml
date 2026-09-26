@@ -585,7 +585,7 @@
     <string name="settings_last_mark">Son görüntülenen öğenin işareti</string>
     <string name="settings_last_mark_frame">Çerçeve</string>
     <string name="settings_last_mark_corner">Köşe</string>
-    <string name="settings_last_mark_dot">Nokta</string>
+    <string name="settings_last_mark_dot">Daire</string>
     <string name="settings_buttons_how">Bir düğmeyi basılı tutun ve kendi paneli içindeki yerini değiştirmek için sürükleyin.</string>
     <string name="settings_buttons_reset">Sıfırla</string>
     <string name="settings_buttons_reset_ask">Düğmeleri varsayılan düzene geri almak ister misin?</string>

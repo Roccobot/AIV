@@ -603,7 +603,7 @@
     <string name="settings_last_mark">Repère du dernier élément consulté</string>
     <string name="settings_last_mark_frame">Cadre</string>
     <string name="settings_last_mark_corner">Coin</string>
-    <string name="settings_last_mark_dot">Pastille</string>
+    <string name="settings_last_mark_dot">Rond</string>
     <string name="settings_buttons_how">Appuyez longuement sur un bouton et faites-le glisser pour changer sa place au sein de son panneau.</string>
     <string name="settings_buttons_reset">Réinitialiser</string>
     <string name="settings_buttons_reset_ask">Voulez-vous remettre les boutons dans leur disposition par défaut ?</string>
