@@ -1969,6 +1969,56 @@ difetto da segnalazione dell'utente. Il banco l'ha preso prima che uscisse.
   mancare era un argomento che ha un valore di serie, e quel valore di serie lancia invece di
   avvisare. È la stessa forma del blocco della `1.70`, in piccolo.
 
+## 🔤 L'anteprima della rinomina, coppia per coppia
+
+⚠️⚠️ **DALLA `2.91` È IL SUO MOCKUP, MISURATO SUI SUOI PIXEL** (campo libero del giro della `2.90`,
+con uno scatto 'Prima' e 'Dopo': *La schermata di rinomina (specialmente multiplo) deve essere
+aggiornata. Riproduci la versione a destra ... prendendo in considerazione le distanze, la forma e
+il posizionamento delle frecce e il separatore che ho aggiunto per separare meglio le coppie di nomi
+pre/post rinomina*). Fino alla `2.90` le due pastiglie di un abbinamento stavano a 24dp e due
+abbinamenti a 8, cioè il risultato di un file era più vicino al nome del file dopo che al proprio.
+- **Le misure**: 12dp fra le due pastiglie di un abbinamento, 32dp fra due abbinamenti col
+  separatore a metà, e la punta della freccia a 2dp dalla pastiglia di sotto. Vengono dal suo
+  scatto a 1,625 pixel per dp, che è la scala che il suo 'Prima' dichiara: là i 24dp del codice di
+  allora sono 39 pixel.
+- ⚠️ **La freccia è la stessa di prima e non un disegno nuovo**: il gambo corto del mockup è la
+  stessa icona di 20dp posata più in alto, col gambo tagliato dal bordo di sopra. A zero pixel di
+  scarto vince Material (§ '🖌️ Come entra un disegno'), e si posa dalla **punta**, così un ritocco
+  alla misura non la porta dentro la pastiglia di sotto.
+- ⚠️⚠️ **IL SEPARATORE NON È QUELLO DEL RITAGLIO, E SE DIVENTANO UNO LO DECIDE LUI**: nel mockup il
+  filo si vede per l'80% della larghezza ed è pieno nel 52% di mezzo, mentre quello del Ritaglio
+  (`CropRule`, dalla `2.80`) è pieno in un punto solo e scende in linea retta fino ai bordi. È anche
+  più tenue, metà di `outlineVariant`, perché a separare le coppie è soprattutto l'aria. Il giro
+  della `2.91` glielo chiede.
+
+⚠️⚠️ **IL CONTO È LA SUA SPECIFICA ALLA LETTERA**: con uno, due o tre file si vedono tutti, con un
+separatore fra una coppia e l'altra; con quattro o più, i primi due, lo stacco e l'ultimo. Fino alla
+`2.90` erano i primi tre e l'ultimo, quindi con quattro file si vedevano tutti.
+- **L'ultimo resta perché porta il numero più alto**, che è il solo modo di vedere se le cifre del
+  template bastano.
+- ⚠️ **Lo stacco nasce dove l'indice salta**, cioè c'è solo quando nasconde almeno un nome, e
+  **prende il posto del separatore**: fra la seconda coppia e l'ultima c'è la sola ellissi, alta
+  quanto il posto del separatore, così il passo fra le coppie non cambia.
+- ⚠️ **L'ellissi è `MoreHoriz` alla misura della freccia**, e nessuna stringa nasce: i tre punti
+  occupano le stesse sedici unità della V. ⚠️ **Non ha descrizione, come la freccia**, quindi un
+  lettore di schermo passa dal secondo nome all'ultimo senza dire che ce ne sono altri in mezzo:
+  a dirlo sono i numeri dei due nomi di dopo.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`RinominaAnteprimaTest`, ogni caso controprovato): il
+conto da uno a nove file, chiamando `previewOf`; che fra due coppie ci sia più aria che dentro una,
+e che lo stacco prenda il posto del separatore; e, a pixel, che la freccia nasca dalla pastiglia di
+sopra senza entrarci e non tocchi quella di sotto. **Non** vede come l'anteprima si legge, cioè se il
+filo si veda e se le coppie si distinguano sul telefono, e la voce di collaudo lo chiede.
+- ⚠️ **Le controprove sono sei**, una per ogni difetto che la forma nuova può avere: tre abbinamenti
+  in testa, lo stacco disegnato come un separatore, le distanze di prima, il gambo senza ritaglio,
+  la punta senza aria, e la freccia posata dal lato di sopra. Ognuna fa cadere la prova giusta, e la
+  seconda lascia verdi le distanze, com'è giusto: separatore e stacco hanno lo stesso posto per
+  costruzione.
+- ⚠️ **Il nome della prova delle distanze non porta lettere accentate**, per la ragione scritta in
+  `SalvataggioTest`: su una macchina con codifica di sistema stretta il rapporto non si genera, e
+  il build cade proprio quando una prova cade. La prima stesura aveva *c'è più aria*, e lo ha
+  mostrato la prima controprova.
+
 ## 🔄 Le otto pose dell'editor, e la fila che è diventata di cinque
 
 ⚠️⚠️ **DALLA `2.02` L'EDITOR RIFLETTE, ED È SUA RICHIESTA** (2026-09-09: *riusciamo ad aggiungere
