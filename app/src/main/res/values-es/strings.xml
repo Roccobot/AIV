@@ -513,6 +513,8 @@
     <string name="editor_center_both">Centrar en horizontal y vertical</string>
     <string name="editor_done">Guardada</string>
     <string name="editor_done_copy">Copia guardada</string>
+    <string name="editor_discard_ask">¿Quieres descartar los cambios?</string>
+    <string name="editor_discard">Descartar</string>
     <string name="editor_done_lossless">Guardada sin volver a comprimir</string>
     <string name="editor_pick_none">Ninguna otra app de este teléfono se ofrece a editar imágenes.</string>
     <string name="editor_pick_send">Al compartir</string>

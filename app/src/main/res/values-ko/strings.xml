@@ -479,6 +479,8 @@
     <string name="editor_center_both">가로세로 가운데로</string>
     <string name="editor_done">저장했습니다</string>
     <string name="editor_done_copy">사본을 저장했습니다</string>
+    <string name="editor_discard_ask">변경사항을 버릴까요?</string>
+    <string name="editor_discard">버리기</string>
     <string name="editor_done_lossless">다시 압축하지 않고 저장했습니다</string>
     <string name="editor_pick_none">이 휴대폰에는 사진을 편집하겠다는 다른 앱이 없습니다.</string>
     <string name="editor_pick_send">공유로</string>

@@ -479,6 +479,8 @@
     <string name="editor_center_both">水平和垂直置中</string>
     <string name="editor_done">已儲存</string>
     <string name="editor_done_copy">副本已儲存</string>
+    <string name="editor_discard_ask">要捨棄變更嗎？</string>
+    <string name="editor_discard">捨棄</string>
     <string name="editor_done_lossless">已儲存，未重新壓縮</string>
     <string name="editor_pick_none">這支手機上沒有其他應用願意編輯圖片。</string>
     <string name="editor_pick_send">透過分享</string>

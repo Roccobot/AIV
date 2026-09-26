@@ -479,6 +479,8 @@
     <string name="editor_center_both">Tengahkan mendatar dan tegak</string>
     <string name="editor_done">Tersimpan</string>
     <string name="editor_done_copy">Salinan tersimpan</string>
+    <string name="editor_discard_ask">Buang perubahan?</string>
+    <string name="editor_discard">Buang</string>
     <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>
     <string name="editor_pick_none">Tidak ada aplikasi lain di ponsel ini yang menawarkan pengeditan gambar.</string>
     <string name="editor_pick_send">Lewat berbagi</string>

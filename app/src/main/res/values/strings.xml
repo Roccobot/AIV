@@ -193,6 +193,9 @@
     <string name="editor_done">Saved</string>
     <!-- Said when the copy went next to the original instead of over it. -->
     <string name="editor_done_copy">Copy saved</string>
+    <!-- Asked on Back in the full editor, when a module other than Crop has changed the picture. -->
+    <string name="editor_discard_ask">Discard changes?</string>
+    <string name="editor_discard">Discard</string>
     <!-- Said when the turn only changed the orientation tag, so not one pixel was touched. -->
     <string name="editor_done_lossless">Saved without recompressing</string>
     <string name="edit_no_file">This file is not on the phone</string>

@@ -496,6 +496,8 @@
     <string name="editor_center_both">Horizontaal en verticaal centreren</string>
     <string name="editor_done">Opgeslagen</string>
     <string name="editor_done_copy">Kopie opgeslagen</string>
+    <string name="editor_discard_ask">Wijzigingen weggooien?</string>
+    <string name="editor_discard">Weggooien</string>
     <string name="editor_done_lossless">Opgeslagen zonder opnieuw te comprimeren</string>
     <string name="editor_pick_none">Geen andere app op deze telefoon biedt aan om foto\'s te bewerken.</string>
     <string name="editor_pick_send">Via delen</string>

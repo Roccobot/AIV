@@ -496,6 +496,8 @@
     <string name="editor_center_both">Yatayda ve dikeyde ortala</string>
     <string name="editor_done">Kaydedildi</string>
     <string name="editor_done_copy">Kopya kaydedildi</string>
+    <string name="editor_discard_ask">Değişiklikler silinsin mi?</string>
+    <string name="editor_discard">Sil</string>
     <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>
     <string name="editor_pick_none">Bu telefonda resim düzenlemeyi üstlenen başka bir uygulama yok.</string>
     <string name="editor_pick_send">Paylaşarak</string>

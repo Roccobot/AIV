@@ -496,6 +496,8 @@
     <string name="editor_center_both">افقی اور عمودی طور پر درمیان میں</string>
     <string name="editor_done">محفوظ ہو گیا</string>
     <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
+    <string name="editor_discard_ask">تبدیلیاں رد کریں؟</string>
+    <string name="editor_discard">رد کریں</string>
     <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>
     <string name="editor_pick_none">اس فون کی کوئی اور ایپ تصویریں ترمیم کرنے کی پیشکش نہیں کرتی۔</string>
     <string name="editor_pick_send">شیئر کے ذریعے</string>

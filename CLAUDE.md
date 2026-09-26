@@ -5192,6 +5192,48 @@ dell'onboarding, cioè che arrivi dopo la prima, che le sue copie cadano sui tas
 vede il tasto sul telefono, cioè se le due icone stiano comode accanto al titolo accorciato:
 quello si guarda sul telefono, e la voce di collaudo lo chiede.
 
+## 🚪 Uscire dall'editor completo con del lavoro in corso
+
+⚠️⚠️ **DALLA `2.90` INDIETRO CHIEDE PRIMA DI USCIRE, SE UN MODULO DIVERSO DAL RITAGLIO HA TOCCATO
+L'IMMAGINE, ED È SUA RICHIESTA** (campo libero del giro della `2.88`: *Quando si fanno diverse
+modifiche consecutive è bene preservarle da un'uscita accidentale dall'editor. Quindi, se almeno
+un modulo diverso da Ritaglio ha delle modifiche attive, alla pressione di 'Indietro' (tasto
+grafico o 'indietro' di Android) un avviso deve chiedere: 'Vuoi scartare le modifiche?'*). La
+domanda è sua alla lettera; i due tasti, **'Scarta'** e **'Annulla'**, sono una mia proposta, e il
+primo è l'unico testo nuovo.
+- ⚠️ **Le due porte sono una funzione sola** (`leave`, in `AdvancedEditorScreen.kt`): la freccia
+  in testata e il gesto di sistema non possono rispondere in due modi.
+- ⚠️⚠️ **LA CONDIZIONE LA DÀ LA TABELLA DEI MODULI** (`developed`), cioè la stessa domanda che
+  accende il punto d'accento dei gettoni: un modulo nuovo entra nell'avviso da sé. Scritta come un
+  elenco di campi di `Look`, uno dimenticato uscirebbe senza chiedere e senza che niente lo dica.
+  ⚠️ **Gli Stili non rispondono mai di sì, ed è giusto**: i valori di uno stile vivono nei moduli
+  che governa, ed è là che l'avviso li trova.
+- ⚠️ **L'editor semplice non chiede mai**, ed è la stessa condizione letta fino in fondo: è fatto
+  della sola posa e del solo ritaglio, cioè di quello che nell'editor completo è il modulo
+  Ritaglio.
+- ⚠️ **'Modifiche attive' vuol dire lo stato di adesso**: dopo 'Originale', o dopo aver disfatto
+  tutto con 'Annulla', non c'è niente da scartare e si esce senza domanda. Quello che si perde in
+  quel caso è la sola strada di 'Ripristina', e si dichiara invece di proteggerla.
+- ⚠️ **La filigrana e il ridimensionamento non contano**: non sono moduli, e sono preferenze che
+  uscendo restano dove sono.
+- ⚠️ **Durante un salvataggio non chiede**: le modifiche si stanno scrivendo, e la domanda direbbe
+  una cosa falsa. Dopo un salvataggio riuscito l'editor si chiude da sé, quindi dopo non c'è un
+  caso da coprire.
+- ⚠️ **Non è una modale vera**, per il criterio di § '👆 Che cosa fa il tocco FUORI da una
+  finestra': il tocco fuori e Indietro valgono 'Annulla', cioè si resta col lavoro intatto. Il
+  tasto che scarta ha il colore dell'errore, come 'Elimina' nella conferma di un'eliminazione.
+- ⚠️ **In tre lingue il tasto non dice il verbo più ovvio**: in russo, ucraino e vietnamita quel
+  verbo coincide con la parola di 'Annulla', e due tasti che si leggono uguali in una finestra di
+  due tasti sono un indovinello. Là 'Scarta' dice 'azzera', 'respingi' e 'togli'.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, casi 80, 81 e 82): la condizione
+modulo per modulo, con il Ritaglio nelle sue tre forme; l'avviso dalla freccia e dal gesto di
+sistema con un cursore della Luce mosso, 'Annulla' che resta e 'Scarta' che esce una volta sola; e
+l'uscita diretta col solo Ritaglio. Controprovati rimettendo quattro difetti, uno per volta: senza
+l'esclusione del Ritaglio cadono l'80 e l'82, coi soli campi del colore cade la Geometria dell'80,
+e con una delle due porte che esce subito cade la sua metà dell'81. **Non** vede la finestra sul
+telefono, e la voce di collaudo la chiede.
+
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 
 ⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL

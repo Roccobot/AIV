@@ -530,6 +530,8 @@
     <string name="editor_center_both">По центру горизонтально і вертикально</string>
     <string name="editor_done">Збережено</string>
     <string name="editor_done_copy">Копію збережено</string>
+    <string name="editor_discard_ask">Відхилити зміни?</string>
+    <string name="editor_discard">Відхилити</string>
     <string name="editor_done_lossless">Збережено без перестиснення</string>
     <string name="editor_pick_none">Жоден інший застосунок на цьому телефоні не береться редагувати зображення.</string>
     <string name="editor_pick_send">Через надсилання</string>

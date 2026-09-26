@@ -496,6 +496,8 @@
     <string name="editor_center_both">আনুভূমিক ও উল্লম্বভাবে কেন্দ্রে</string>
     <string name="editor_done">সংরক্ষিত হয়েছে</string>
     <string name="editor_done_copy">অনুলিপি সংরক্ষিত হয়েছে</string>
+    <string name="editor_discard_ask">পরিবর্তনগুলি বাদ দেবেন?</string>
+    <string name="editor_discard">বাদ দিন</string>
     <string name="editor_done_lossless">পুনরায় সংকুচিত না করেই সংরক্ষিত হয়েছে</string>
     <string name="editor_pick_none">এই ফোনের আর কোনো অ্যাপ ছবি সম্পাদনার প্রস্তাব দেয় না।</string>
     <string name="editor_pick_send">শেয়ার করে</string>

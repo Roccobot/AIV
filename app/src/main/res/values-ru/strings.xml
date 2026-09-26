@@ -530,6 +530,8 @@
     <string name="editor_center_both">По центру по горизонтали и вертикали</string>
     <string name="editor_done">Сохранено</string>
     <string name="editor_done_copy">Копия сохранена</string>
+    <string name="editor_discard_ask">Сбросить изменения?</string>
+    <string name="editor_discard">Сбросить</string>
     <string name="editor_done_lossless">Сохранено без пересжатия</string>
     <string name="editor_pick_none">Ни одно другое приложение на этом телефоне не берётся редактировать изображения.</string>
     <string name="editor_pick_send">Через отправку</string>

@@ -513,6 +513,8 @@
     <string name="editor_center_both">Centrer horizontalement et verticalement</string>
     <string name="editor_done">Enregistrée</string>
     <string name="editor_done_copy">Copie enregistrée</string>
+    <string name="editor_discard_ask">Abandonner les modifications ?</string>
+    <string name="editor_discard">Abandonner</string>
     <string name="editor_done_lossless">Enregistrée sans recompression</string>
     <string name="editor_pick_none">Aucune autre app de ce téléphone ne propose de modifier des images.</string>
     <string name="editor_pick_send">Par partage</string>

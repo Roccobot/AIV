@@ -496,6 +496,8 @@
     <string name="editor_center_both">Weka katikati mlalo na wima</string>
     <string name="editor_done">Imehifadhiwa</string>
     <string name="editor_done_copy">Nakala imehifadhiwa</string>
+    <string name="editor_discard_ask">Utupe mabadiliko?</string>
+    <string name="editor_discard">Tupa</string>
     <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>
     <string name="editor_pick_none">Hakuna programu nyingine kwenye simu hii inayojitolea kuhariri picha.</string>
     <string name="editor_pick_send">Kwa kushiriki</string>

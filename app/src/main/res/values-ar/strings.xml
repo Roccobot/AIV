@@ -564,6 +564,8 @@
     <string name="editor_center_both">توسيط أفقي ورأسي</string>
     <string name="editor_done">تم الحفظ</string>
     <string name="editor_done_copy">تم حفظ النسخة</string>
+    <string name="editor_discard_ask">هل تريد تجاهل التغييرات؟</string>
+    <string name="editor_discard">تجاهل</string>
     <string name="editor_done_lossless">تم الحفظ دون إعادة ضغط</string>
     <string name="editor_pick_none">لا يوجد تطبيق آخر على هذا الهاتف يعرض تحرير الصور.</string>
     <string name="editor_pick_send">عبر المشاركة</string>
