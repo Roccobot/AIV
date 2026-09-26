@@ -2,8 +2,11 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -20,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -41,10 +45,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -59,10 +66,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.times
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * Rinominare in blocco: un template col numero dentro, e il primo numero.
@@ -424,9 +433,7 @@ fun RenameDialog(
                         style = MaterialTheme.typography.labelLarge
                     )
                     Spacer(Modifier.height(4.dp))
-                    for (row in previewOf(listed, clean, first, extension)) {
-                        PreviewRow(row)
-                    }
+                    PreviewLines(previewOf(listed, clean, first, extension))
                 }
             }
         },
@@ -975,47 +982,101 @@ internal fun TitleIcon(
 private val TITLE_ICON_TAP = 40.dp
 
 /**
- * Le righe dell'anteprima: i primi tre abbinamenti e **l'ultimo**.
+ * Le righe dell'anteprima: tutti gli abbinamenti fino a tre file, e con di più i primi due, lo
+ * stacco e **l'ultimo**; fra due abbinamenti che si seguono, il separatore.
  *
  * ⚠️ L'ultimo c'è perché porta il numero più alto, che è il solo modo di vedere se le
  * cifre del template bastano: con `##` e centoventi file, la riga finale dice `120` e si
  * capisce al volo che i nomi non si ordineranno come ci si aspetta.
+ * ⚠️⚠️ **DALLA `2.91` IN TESTA SONO DUE E NON TRE, ED È LA SUA SPECIFICA ALLA LETTERA** (campo
+ * libero del giro della `2.90`: *con ≥4 file: [nome1 pre-rinomina] ↓ [nome1 post-rinomina] ...
+ * [nome2 pre-rinomina] ↓ [nome2 post-rinomina] ⋯ [ellissi per indicare uno stacco]
+ * [nomeUltimo pre-rinomina] ↓ [nomeUltimo post-rinomina]*). Fino alla `2.90` erano i primi tre
+ * più l'ultimo, quindi con quattro file si vedevano tutti e lo stacco compariva dal quinto.
+ * ⚠️ **Lo stacco nasce dove l'indice salta**, e non da una condizione scritta a parte: c'è solo
+ * quando nasconde almeno un nome, e con tre file, dove i primi due e l'ultimo sono tutti, non
+ * compare.
  */
-private fun previewOf(
+internal fun previewOf(
     names: List<String>,
     template: String,
     start: Int,
     extension: String?
-): List<Pairing> {
-    if (names.isEmpty()) return emptyList()
-    val rows = ArrayList<Pairing>(5)
-    val head = minOf(names.size, 3)
-    for (at in 0 until head) rows += pairing(names[at], template, start + at, extension)
-    if (names.size > head + 1) rows += Pairing(null, null)
-    if (names.size > head) {
-        rows += pairing(names.last(), template, start + names.lastIndex, extension)
+): List<PreviewLine> {
+    val shown = if (names.size <= PREVIEW_HEAD + 1) names.indices.toList()
+    else (0 until PREVIEW_HEAD) + names.lastIndex
+    val lines = ArrayList<PreviewLine>(2 * shown.size)
+    for ((k, at) in shown.withIndex()) {
+        if (k > 0) lines += if (at > shown[k - 1] + 1) PreviewLine.Skip else PreviewLine.Rule
+        lines += pairing(names[at], template, start + at, extension)
     }
-    return rows
+    return lines
 }
 
+/** Quanti abbinamenti l'anteprima mostra prima dello stacco. */
+private const val PREVIEW_HEAD = 2
+
 /**
- * Un nome di adesso e quello di dopo. Con tutti e due a `null` è la riga dei puntini, cioè
- * il buco fra i primi tre abbinamenti e l'ultimo.
+ * Una riga dell'anteprima: un abbinamento, il separatore fra due abbinamenti, o lo stacco.
+ *
+ * ⚠️ **Separatore e stacco sono righe della sequenza e non un dettaglio del disegno**: dove
+ * cadono è metà della sua specifica, e scritti qui il banco li misura chiamando [previewOf],
+ * senza montare niente.
  */
-private data class Pairing(val before: String?, val after: String?)
+internal sealed interface PreviewLine {
+    /** Un nome di adesso e quello di dopo. */
+    data class Pairing(val before: String, val after: String) : PreviewLine
+
+    /** Il separatore fra due abbinamenti che si seguono. */
+    data object Rule : PreviewLine
+
+    /** Lo stacco: fra i due abbinamenti accanto ci sono dei nomi che l'anteprima non mostra. */
+    data object Skip : PreviewLine
+}
 
 private fun pairing(
     name: String,
     template: String,
     number: Int,
     extension: String?
-): Pairing = Pairing(
+): PreviewLine.Pairing = PreviewLine.Pairing(
     before = name,
     after = renderName(template, number, extension ?: name.substringAfterLast('.', ""))
 )
 
 /**
- * Una riga dell'anteprima: due pastiglie di colore diverso, una **sopra l'altra**.
+ * L'anteprima disegnata: le righe di [previewOf], nell'ordine in cui arrivano.
+ *
+ * ⚠️⚠️ **DALLA `2.91` È IL SUO MOCKUP, MISURATO** (campo libero del giro della `2.90`: *La
+ * schermata di rinomina (specialmente multiplo) deve essere aggiornata. Riproduci la versione a
+ * destra ... prendendo in considerazione le distanze, la forma e il posizionamento delle frecce e
+ * il separatore che ho aggiunto per separare meglio le coppie di nomi pre/post rinomina*). Fino
+ * alla `2.90` le due pastiglie di un abbinamento stavano a 24dp l'una dall'altra e due
+ * abbinamenti a 8, cioè il risultato di un file era più vicino al nome del file dopo che al
+ * proprio. Adesso dentro un abbinamento ci sono [PAIR_GAP] e fra due abbinamenti [BETWEEN].
+ * ⚠️ **Le misure vengono dai suoi pixel, a 1,625 per dp**: è la scala che il suo 'Prima'
+ * dichiara, dove le due pastiglie stanno a 39 pixel, cioè i 24dp che il codice di allora
+ * scriveva.
+ * ⚠️ **Il riempimento di sopra e di sotto è quello di prima**: nel mockup la prima pastiglia e
+ * l'ultima restano dov'erano, quindi l'aria sotto il titolo e quella in fondo non cambiano.
+ * ⚠️ **Separatore e stacco vivono nello stesso posto** ([Between]), ed è quello che tiene
+ * uguale il passo fra le coppie anche dove una non si vede.
+ */
+@Composable
+internal fun PreviewLines(lines: List<PreviewLine>) {
+    Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        for (line in lines) {
+            when (line) {
+                is PreviewLine.Pairing -> PreviewPair(line)
+                PreviewLine.Rule -> Between { PairRule() }
+                PreviewLine.Skip -> Between { PairSkip() }
+            }
+        }
+    }
+}
+
+/**
+ * Un abbinamento dell'anteprima: due pastiglie di colore diverso, una **sopra l'altra**.
  *
  * ⚠️⚠️ **AFFIANCATE ERANO SBAGLIATE, e la ragione è la larghezza dei nomi veri** (riscontro
  * dell'utente, 2026-09-02: *ho spesso a che fare con nomi lunghi, e su una colonna larga
@@ -1039,20 +1100,8 @@ private fun pairing(
  * grassetto dalla 0.82: era l'anteprima l'unica fuori.
  */
 @Composable
-private fun PreviewRow(row: Pairing) {
-    if (row.before == null || row.after == null) {
-        Text(
-            text = "...",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(vertical = 2.dp)
-        )
-        return
-    }
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
+private fun PreviewPair(line: PreviewLine.Pairing) {
+    Column(Modifier.fillMaxWidth()) {
         /*
          * ⚠️⚠️ **LA PASTIGLIA DI ADESSO ERA INVISIBILE SUL TEMA SCURO, E IL CONTRASTO ERA
          * 1,00, cioè lo STESSO COLORE** (riscontro `ext-grassetto`, 2026-09-02: *nel tema scuro
@@ -1084,32 +1133,16 @@ private fun PreviewRow(row: Pairing) {
          * scartata: qui basta sapere che il colore lo decide il tema e non questo dialogo.
          */
         NamePill(
-            text = nameWithExt(row.before),
+            text = nameWithExt(line.before),
             back = MaterialTheme.colorScheme.surfaceContainerLowest,
             front = MaterialTheme.colorScheme.onSurfaceVariant,
             weight = FontWeight.Normal,
             border = BorderStroke(BOX_EDGE, hairline()),
             modifier = Modifier.fillMaxWidth()
         )
-        /*
-         * ⚠️⚠️ **UN'ICONA CENTRATA E NON UNA FRECCIA DI TESTO, dalla 1.34** (mockup
-         * dell'utente, voce `ren-ext`: *una freccia più visibile e centrata, probabilmente
-         * in grigio*). Il carattere `U+2193` a corpo di testo era **una lettera**: sottile
-         * come il testo intorno, allineata a sinistra col rientro di una lettera, e nella
-         * fila di due pastiglie larghe non si vedeva. Un'icona ha un peso suo e sta in mezzo
-         * fra le due, che è dove l'occhio la cerca.
-         * ⚠️ **Non porta descrizione**, come le altre icone decorative: quello che dice lo
-         * dicono le due pastiglie, e un lettore di schermo che annunciasse 'freccia in basso'
-         * fra due nomi di file leggerebbe un'informazione in più che non aggiunge niente.
-         */
-        Icon(
-            imageVector = Icons.Filled.ArrowDownward,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.CenterHorizontally).size(ARROW_SIZE)
-        )
+        PairArrow()
         NamePill(
-            text = nameWithExt(row.after),
+            text = nameWithExt(line.after),
             back = MaterialTheme.colorScheme.secondaryContainer,
             front = MaterialTheme.colorScheme.onSecondaryContainer,
             weight = FontWeight.Medium,
@@ -1120,14 +1153,181 @@ private fun PreviewRow(row: Pairing) {
 }
 
 /**
- * Quanto è grande la freccia fra le due pastiglie dell'anteprima.
+ * La freccia fra le due pastiglie di un abbinamento: nasce da quella di sopra e si ferma poco
+ * sopra quella di sotto.
+ *
+ * ⚠️⚠️ **UN'ICONA CENTRATA E NON UNA FRECCIA DI TESTO, dalla 1.34** (mockup dell'utente, voce
+ * `ren-ext`: *una freccia più visibile e centrata, probabilmente in grigio*). Il carattere
+ * `U+2193` a corpo di testo era **una lettera**: sottile come il testo intorno, allineata a
+ * sinistra col rientro di una lettera, e nella fila di due pastiglie larghe non si vedeva.
+ * Un'icona ha un peso suo e sta in mezzo fra le due, che è dove l'occhio la cerca.
+ * ⚠️ **Non porta descrizione**, come le altre icone decorative: quello che dice lo dicono le
+ * due pastiglie, e un lettore di schermo che annunciasse 'freccia in basso' fra due nomi di
+ * file leggerebbe un'informazione in più che non aggiunge niente.
+ *
+ * ⚠️⚠️ **DALLA `2.91` È PIÙ ALTA DEL SUO POSTO, E IL GAMBO SI TAGLIA SUL BORDO DI SOPRA**: è la
+ * forma del suo mockup (*la forma e il posizionamento delle frecce*). Là la freccia è la stessa
+ * di prima, con la V della stessa misura, e a cambiare è dove cade: il gambo esce dalla
+ * pastiglia di sopra come se le passasse dietro, e la punta si ferma a [TIP_AIR] da quella di
+ * sotto. Misurato sui suoi pixel, questo conto la riporta entro un pixel.
+ * ⚠️ **Si posa dalla PUNTA e non dal lato**: dov'è la punta lo dice la griglia di Material
+ * ([ARROW_TIP]), quindi il conto resta giusto a qualunque [ARROW_SIZE]; posata dal lato, un
+ * ritocco alla misura la porterebbe dentro la pastiglia di sotto.
+ * ⚠️ **Il gambo lo taglia `clipToBounds` e non la pastiglia di sopra**, che è disegnata prima e
+ * quindi non copre niente: senza il ritaglio il gambo entrerebbe nel suo riquadro.
+ * ⚠️ **Non è un disegno nuovo in `res/`**: il gambo corto del suo mockup è la stessa icona con
+ * la parte di sopra tagliata, e a zero pixel di scarto vince Material (`CLAUDE.md`,
+ * § '🖌️ Come entra un disegno').
+ */
+@Composable
+private fun PairArrow() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(PAIR_GAP)
+            .clipToBounds()
+    ) {
+        Icon(
+            imageVector = Icons.Filled.ArrowDownward,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.layout { measurable, constraints ->
+                val side = ARROW_SIZE.roundToPx()
+                val arrow = measurable.measure(Constraints.fixed(side, side))
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    val tip = (side * ARROW_TIP).roundToInt()
+                    arrow.place(
+                        x = (constraints.maxWidth - side) / 2,
+                        y = constraints.maxHeight - TIP_AIR.roundToPx() - tip
+                    )
+                }
+            }
+        )
+    }
+}
+
+/**
+ * Il posto fra due abbinamenti, alto [BETWEEN], con quello che porta in mezzo: il separatore
+ * ([PairRule]) o lo stacco ([PairSkip]).
+ */
+@Composable
+private fun Between(content: @Composable BoxScope.() -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxWidth().height(BETWEEN),
+        contentAlignment = Alignment.Center,
+        content = content
+    )
+}
+
+/**
+ * Il separatore fra due abbinamenti, dalla `2.91`: un filo tenue, pieno nella metà di mezzo e
+ * sfumato ai due capi.
+ *
+ * ⚠️⚠️ **È QUELLO CHE HA DISEGNATO LUI, MISURATO** (*il separatore che ho aggiunto per separare
+ * meglio le coppie*): nel suo mockup il filo si vede per l'80% della larghezza delle pastiglie ed
+ * è pieno nel 52% di mezzo, e le quattro fermate qui sotto sono quei numeri arrotondati.
+ * ⚠️⚠️ **NON È `CropRule` DI `AdvancedEditorScreen.kt`, E NON PER DISTRAZIONE**: quello del
+ * Ritaglio è pieno in un punto solo e scende in linea retta fino ai bordi, questo ha un tratto
+ * pieno largo e due code corte; ed è più tenue, perché a separare le coppie è soprattutto
+ * l'aria, e il filo la sottolinea. Se i due devono diventare uno, la decisione è sua.
+ * ⚠️ **L'inchiostro è [RULE_INK] di `outlineVariant`**, che è il colore dei separatori di
+ * Material e di quello del Ritaglio.
+ * ⚠️ **Lo spessore è [BOX_EDGE]**, cioè il filo delle due pastiglie che separa: un numero nuovo
+ * per un filo che somiglia a quello sarebbe un secondo modo di dire la stessa cosa.
+ */
+@Composable
+private fun PairRule() {
+    val ink = MaterialTheme.colorScheme.outlineVariant.copy(alpha = RULE_INK)
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(BOX_EDGE)
+            .background(
+                Brush.horizontalGradient(
+                    0.10f to Color.Transparent,
+                    0.25f to ink,
+                    0.75f to ink,
+                    0.90f to Color.Transparent
+                )
+            )
+    )
+}
+
+/**
+ * Lo stacco fra il secondo abbinamento e l'ultimo, dalla `2.91`: tre punti al posto del
+ * separatore.
+ *
+ * ⚠️ **Prende il posto del separatore e non se ne aggiunge uno**, ed è la sua specifica: fra il
+ * secondo abbinamento e l'ultimo c'è la sola ellissi (*⋯ [ellissi per indicare uno stacco]*).
+ * ⚠️ **È `MoreHoriz` alla misura della freccia**, e le due cose si tengono: i tre punti occupano
+ * le stesse sedici unità della V, e con la stessa tinta lo stacco si legge come un pezzo
+ * dell'anteprima. Fino alla `2.90` erano tre punti di testo, allineati a sinistra.
+ * ⚠️ **Non porta descrizione**, come la freccia: un lettore di schermo passa dal secondo nome
+ * all'ultimo, e i numeri dei due nomi di dopo dicono già quanti ne mancano.
+ */
+@Composable
+private fun PairSkip() {
+    Icon(
+        imageVector = Icons.Filled.MoreHoriz,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(ARROW_SIZE)
+    )
+}
+
+/**
+ * Quanto è grande la freccia fra le due pastiglie dell'anteprima, e dalla `2.91` anche lo
+ * stacco.
  *
  * ⚠️ **20 e non 24**: è la misura di Material per un'icona **dentro** un testo, e qui la
  * freccia sta fra due righe di nomi. A 24 diventava il pezzo più grosso del dialogo.
  * ⚠️ **Al posto di `ARROW_INDENT`, che era 10dp di rientro**: con la freccia centrata un
  * rientro da sinistra non vuol più dire niente.
+ * ⚠️ **Nella `2.91` la misura non è cambiata**: nel suo mockup la V è larga quanto prima, ed è
+ * il gambo a essere tagliato ([PairArrow]).
  */
 private val ARROW_SIZE = 20.dp
+
+/**
+ * Lo spazio fra le due pastiglie di un abbinamento, cioè il posto della freccia, dalla `2.91`.
+ *
+ * ⚠️ **Misurato sul suo mockup**: venti pixel. Fino alla `2.90` erano i 20 della freccia più
+ * due di aria per parte, cioè 24.
+ */
+private val PAIR_GAP = 12.dp
+
+/**
+ * L'aria fra la punta della freccia e la pastiglia di sotto.
+ *
+ * ⚠️ **Misurata sul suo mockup**: tre pixel. È quella che tiene la punta staccata dal filo
+ * della pastiglia, cioè che la fa leggere come una freccia che indica e non come un pezzo del
+ * riquadro.
+ */
+private val TIP_AIR = 2.dp
+
+/**
+ * Dove cade la punta di `ArrowDownward` nel suo lato: a 20 unità su 24, perché la griglia di
+ * Material lascia quattro unità di margine sotto il disegno.
+ */
+private const val ARROW_TIP = 20f / 24f
+
+/**
+ * Il posto fra due abbinamenti: il separatore o lo stacco stanno in mezzo.
+ *
+ * ⚠️ **Misurato sul suo mockup**: cinquantadue pixel fra le due pastiglie, col filo a metà.
+ * ⚠️ **È uno per le due righe**, cioè lo stacco non ha un'altezza sua: con due numeri, i due
+ * posti fra le coppie di un'anteprima avrebbero due misure diverse accanto.
+ */
+private val BETWEEN = 32.dp
+
+/**
+ * Quanta parte di `outlineVariant` porta il separatore.
+ *
+ * ⚠️ **Misurata sul suo mockup**: sommato sulle righe che tocca, il filo porta sul fondo della
+ * finestra undici livelli di luminanza per dp, e `outlineVariant` a metà su un dp ne porta
+ * dodici. Pieno sarebbe il doppio.
+ */
+private const val RULE_INK = 0.5f
 
 /**
  * Un comando secondario: piccolo, a destra, e sbiadito quando non serve.
@@ -1246,7 +1446,7 @@ private fun NamePill(
              * ⚠️ **Nessun tetto di righe dalla 1.30**, e prima erano due: impilate le
              * pastiglie hanno tutta la larghezza, quindi un nome ci sta quasi sempre in una
              * riga o due, e un tetto taglierebbe proprio i nomi lunghissimi per cui l'utente
-             * ha chiesto questa forma. L'anteprima mostra al massimo cinque abbinamenti: non
+             * ha chiesto questa forma. L'anteprima mostra al massimo tre abbinamenti: non
              * può crescere senza limite.
              */
             /*
