@@ -1,9 +1,12 @@
 package io.github.roccobot.aiv
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -18,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -309,6 +313,42 @@ val BOX_SHAPE = RoundedCornerShape(8.dp)
  * non portano la stessa linea.
  */
 val BOX_EDGE = 1.dp
+
+/**
+ * Il separatore sfumato dell'app: un filo di `outlineVariant` pieno a metà e sfumato in linea
+ * retta fino ai due capi.
+ *
+ * ⚠️⚠️ **È UNO SOLO DALLA `2.92`, ED È LA SUA NOTA SU `d-filo-uno`** (giro della `2.91`, senza
+ * casella: *tutti e due come quello dell'editor*). Fino alla `2.91` erano due: quello del
+ * Ritaglio, nato con la `2.80`, e quello che la `2.91` aveva preso dal suo mockup della rinomina,
+ * più tenue e pieno nella metà di mezzo. La domanda offriva di portare il Ritaglio sul filo della
+ * rinomina o di lasciarli diversi, e lui ha scelto la terza strada, cioè il rovescio della prima:
+ * resta la forma del Ritaglio, e la rinomina la prende.
+ * ⚠️ **Il pezzo è uno e lo chiamano in due** (`CropRule` nell'editor completo e l'anteprima di
+ * `RenameDialog`): due copie dello stesso disegno divergono al primo ritocco. **L'aria intorno
+ * resta del chiamante**, perché le due finestre la vogliono diversa.
+ * ⚠️ **Lo spessore è [BOX_EDGE]**, cioè il filo di un riquadro: un numero nuovo per un filo che
+ * somiglia a quello sarebbe un secondo modo di dire la stessa cosa.
+ * ⚠️ **Sfuma ai due capi e non arriva ai bordi**: una linea piena da bordo a bordo dividerebbe
+ * la superficie in due, mentre quello che serve è uno stacco, cioè un segno che c'è in mezzo e
+ * non si sa dove finisce.
+ */
+@Composable
+fun FadedRule(modifier: Modifier = Modifier) {
+    val ink = MaterialTheme.colorScheme.outlineVariant
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(BOX_EDGE)
+            .background(
+                Brush.horizontalGradient(
+                    0f to Color.Transparent,
+                    0.5f to ink,
+                    1f to Color.Transparent
+                )
+            )
+    )
+}
 
 /**
  * Se questo colore è chiaro, cioè se sopra ci si scrive in scuro.

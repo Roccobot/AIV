@@ -95,7 +95,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
@@ -3022,8 +3021,7 @@ private val CROP_CMD_GAP = 12.dp
  */
 private val CROP_TOP_AIR = 8.dp
 
-/** Lo spessore e l'aria del separatore sfumato del Ritaglio: vedi `CropRule`. */
-private val CROP_RULE_THICK = 1.dp
+/** L'aria del separatore sfumato del Ritaglio, sopra e sotto: vedi `CropRule`. */
 private val CROP_RULE_AIR = 10.dp
 
 /** La forma scelta nel Ritaglio, cioè l'indice di [Gaze.shape] riportato al suo valore. */
@@ -4282,26 +4280,13 @@ private fun RowScope.CropCmd(
  * andata dentro le forme, cioè si sono liberati [CHIP_TALL] più il suo distacco, e questa riga ne
  * spende meno.
  *
- * ⚠️ **Sfuma ai due capi e non ai bordi della scheda**: una linea piena da bordo a bordo
- * dividerebbe il pannello in due superfici, mentre quello che lui ha chiesto è uno stacco, cioè
- * un segno che c'è in mezzo e non si sa dove finisce.
+ * ⚠️⚠️ **DALLA `2.92` IL DISEGNO VIVE IN `FadedRule`, IN `Theme.kt`**, ed è la sua nota su
+ * `d-filo-uno` (*tutti e due come quello dell'editor*): la rinomina ha preso questa forma, quindi
+ * il filo è un pezzo solo e qui resta l'aria, che è del Ritaglio.
  */
 @Composable
 private fun CropRule() {
-    val ink = MaterialTheme.colorScheme.outlineVariant
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = CROP_RULE_AIR)
-            .height(CROP_RULE_THICK)
-            .background(
-                Brush.horizontalGradient(
-                    0f to Color.Transparent,
-                    0.5f to ink,
-                    1f to Color.Transparent
-                )
-            )
-    )
+    FadedRule(Modifier.padding(vertical = CROP_RULE_AIR))
 }
 
 @Composable

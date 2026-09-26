@@ -1985,11 +1985,13 @@ abbinamenti a 8, cioè il risultato di un file era più vicino al nome del file 
   stessa icona di 20dp posata più in alto, col gambo tagliato dal bordo di sopra. A zero pixel di
   scarto vince Material (§ '🖌️ Come entra un disegno'), e si posa dalla **punta**, così un ritocco
   alla misura non la porta dentro la pastiglia di sotto.
-- ⚠️⚠️ **IL SEPARATORE NON È QUELLO DEL RITAGLIO, E SE DIVENTANO UNO LO DECIDE LUI**: nel mockup il
-  filo si vede per l'80% della larghezza ed è pieno nel 52% di mezzo, mentre quello del Ritaglio
-  (`CropRule`, dalla `2.80`) è pieno in un punto solo e scende in linea retta fino ai bordi. È anche
-  più tenue, metà di `outlineVariant`, perché a separare le coppie è soprattutto l'aria. Il giro
-  della `2.91` glielo chiede.
+- ⚠️⚠️ **DALLA `2.92` IL SEPARATORE È QUELLO DEL RITAGLIO, ED È LA SUA NOTA SU `d-filo-uno`**
+  (giro della `2.91`, senza casella: *tutti e due come quello dell'editor*). La `2.91` aveva il filo
+  del suo mockup, visibile per l'80% della larghezza, pieno nel 52% di mezzo e a metà di
+  `outlineVariant`; la domanda offriva di portare il Ritaglio su quel filo (`uno`) o di lasciarli
+  diversi (`due`), e lui ha scelto il rovescio della prima. Adesso il disegno è **uno per l'app**,
+  `FadedRule` in `Theme.kt`, pieno a metà e sfumato in linea retta fino ai capi, e lo chiamano in
+  due. L'aria resta del chiamante, quindi il passo fra le coppie non cambia.
 
 ⚠️⚠️ **IL CONTO È LA SUA SPECIFICA ALLA LETTERA**: con uno, due o tre file si vedono tutti, con un
 separatore fra una coppia e l'altra; con quattro o più, i primi due, lo stacco e l'ultimo. Fino alla
@@ -4248,6 +4250,10 @@ di loro.
   liberi.
 - ⚠️ **Sfuma ai due capi e non arriva ai bordi della scheda**: una linea piena da bordo a bordo
   dividerebbe il pannello in due superfici, mentre quello che ha chiesto è uno stacco.
+  - ⚠️⚠️ **E DALLA `2.92` È IL SEPARATORE DI TUTTA L'APP**: la sua nota su `d-filo-uno` (*tutti e
+    due come quello dell'editor*) ha portato questa forma anche fra le coppie della rinomina, e il
+    disegno vive in `FadedRule`, in `Theme.kt`. Qui resta l'aria (`CROP_RULE_AIR`), che è del
+    Ritaglio.
 - ⚠️ **E i quattro comandi si distanziano fra loro**, che è l'altra metà del punto `crop-giu` (*le
   quattro icone-pulsanti del ritaglio più distanziate*): costa **zero** in altezza, perché quella
   riga si divide una larghezza che ha già, e le celle restano più larghe di un `IconButton` di
@@ -5863,6 +5869,29 @@ quella causa: un tratto spesso ha l'area per farsi vedere anche in un colore di 
   all'opacità dichiarata: è il caso generale di una prova che verifica un comportamento invece di
   un'implementazione, scritto in § '🧪 Quando si scrive una prova, e quando no'.
 
+⚠️⚠️ **DALLA `2.92` I SEGNI SONO TRE: C'È IL PALLINO, ED È SUA RICHIESTA** (punto 2 del campo
+libero del giro della `2.91`: *nuova scelta: un pallino colore accento 50% in basso a sinistra nel
+quadrato di miniatura dell'elemento. Fammi scegliere la dimensione con un'anteprima*). È un disco
+dell'accento a metà opacità nell'angolo del nastro, cioè diagonalmente opposto alla spunta e
+dall'altra parte della durata di un filmato.
+- ⚠️⚠️ **LA MISURA È ANCORA UNA PROPOSTA, E LA SCELTA È SUA**: il diametro vale il 14% del lato
+  (`MARK_DOT`), che è la misura di mezzo fra le quattro che la domanda del giro della `2.92` gli
+  mostra in anteprima. ⚠️ **È una frazione come gli altri due segni**, per la ragione del blocco
+  della `2.12` qui sopra.
+- ⚠️ **L'aria dai due bordi vale il raggio**, quindi il segno cresce tutto insieme e resta lo
+  stesso pallino a qualunque misura: un'aria fissa lo schiaccerebbe nell'angolo alle misure grandi.
+- ⚠️ **I valori di fabbrica non cambiano**: il pallino arriva solo a chi lo sceglie, e
+  `MarkMigration` resta com'è.
+
+⚠️⚠️ **E DALLA `2.92` IL NASTRO SI SPECCHIA DA DESTRA A SINISTRA, E FINO ALLA `2.91` NO**: si
+disegnava in coordinate assolute, cioè sempre in basso a sinistra, mentre la spunta
+(`Alignment.TopEnd`) e la durata di un filmato (`Alignment.BottomEnd`) seguono il verso della
+lingua. In arabo, persiano e urdu il nastro restava quindi nell'angolo della durata, e dallo stesso
+lato della spunta invece che di fronte, cioè il contrario della ragione per cui è in quell'angolo. È venuto
+fuori scrivendo il pallino, che nasce nello stesso posto, e il pallino ha la stessa regola.
+- ⚠️ **Nessuno dei due lo aveva visto, e va detto**: lui usa l'app in italiano, e il banco non
+  montava il nastro da solo. Adesso lo monta (`lastCorner`).
+
 ⚠️ **La voce vive in 'Etichette e pulsanti' perché lo ha chiesto lui**, e la famiglia lo regge per
 il titolo della pagina che la contiene, 'Comandi e indicatori': quella parola ce l'ha già, mentre
 la domanda della famiglia (*come si presentano i comandi che uso*) da sola non basterebbe.
@@ -5876,6 +5905,12 @@ vuole delle immagini vere, e il MediaStore di Robolectric è vuoto.
   **meccanismo** invece della schermata. Vede che lo spessore raddoppia col lato, e che il tratto
   prende il colore che gli si passa all'opacità dichiarata. Controprovata in tutti e due i versi,
   rimettendo prima la misura fissa e poi una costante al posto del colore ricevuto.
+- ⚠️ **E DALLA `2.92` `SegniTest` FA LO STESSO COL PALLINO E COL NASTRO**: il pallino sta
+  nell'angolo giusto nei due versi della lingua, cresce con la piastrella e porta il colore
+  ricevuto a metà opacità; il nastro si specchia da destra a sinistra. Quattro controprove, una per
+  difetto (il pallino senza verso, in punti, opaco, e il nastro in coordinate assolute), e ognuna
+  fa cadere la prova giusta. **Non** vede quale misura del pallino sia quella buona, che è la
+  domanda del giro.
 
 ## 🧪 Quando si scrive una prova, e quando no
 
@@ -5970,6 +6005,36 @@ buona.
 si corregge dove lo si è scritto, e una corsa rossa su `main` è una corsa che qualcuno deve
 guardare. Le due corse automatiche (§ '🧰 Gli strumenti che questo repo si porta dietro') sono
 la rete.
+
+## 🔗 L'anteprima del link della paginetta
+
+⚠️⚠️ **DALLA `2.92` LA PAGINETTA DI DOWNLOAD HA I META TAG DI OPEN GRAPH E L'IMMAGINE CHE LI
+ACCOMPAGNA, ED È SUA RICHIESTA** (punto 1 del campo libero del giro della `2.91`: *il mini-sito di
+AIV necessita di Immagine OpenGraph, Twitter e Telegram*). Telegram, X, WhatsApp e gli altri
+leggono quei campi e mostrano accanto al link l'immagine, il titolo e la frase, dove prima
+arrivava il solo indirizzo.
+- ⚠️ **Vivono nel sorgente di `publish/index.html` e non li scrive lo script**: chi legge quei
+  campi non esegue JavaScript. Gli indirizzi sono **assoluti**, perché un'anteprima si legge fuori
+  dalla pagina.
+- ⚠️⚠️ **DI X C'È SOLO `twitter:card`**: X ripiega su Open Graph per titolo, descrizione e
+  immagine, quindi i suoi campi sarebbero copie; il tipo di scheda invece un ripiego non ce l'ha.
+- ⚠️ **`og:site_name` è 'Roccobot'**, ed è una scelta mia dichiarata: la paginetta vive nel sito
+  di Roccobot, e 'AIV' ripeterebbe il titolo, che comincia con quella parola.
+
+⚠️⚠️ **L'IMMAGINE LA COMPONE `tools/og-image.py`, E NON HA UNA FONTE SUA**: prende dalla pagina
+l'icona, il titolo e l'indirizzo di `og:url`, e da `publish/schermate/` la schermata chiara, cioè
+quella vera. Scrive `publish/anteprima.jpg` (1200 per 630, un JPEG sui 110 KB), e il passo di
+`release.yml` che copia la pagina copia anche lei.
+- ⚠️ **Chi cambia una di quelle quattro cose rilancia lo strumento**, o l'anteprima continua a
+  mostrare la schermata di prima. Nessun controllo lo ricorda, perché l'immagine è un file
+  committato e il rilascio la copia com'è.
+- ⚠️ **I caratteri sono quelli veri o niente**: Roboto arriva da Google Fonts, e se non arriva lo
+  strumento si ferma invece di scrivere un'immagine col carattere di ripiego.
+- ⚠️ **Un JPEG e non un PNG**: con dentro una schermata il PNG pesa più di mezzo megabyte, e
+  WhatsApp scarta le anteprime troppo pesanti.
+- ⚠️ **Come si verifica che è arrivata**: la pagina servita porta `og:image`, e l'indirizzo che
+  nomina risponde 200 con `image/jpeg`. Se un servizio mostra ancora il link nudo, può essere la sua
+  cache, che tiene l'anteprima di un indirizzo già visto.
 
 ## 🚀 Che cosa produce un rilascio
 

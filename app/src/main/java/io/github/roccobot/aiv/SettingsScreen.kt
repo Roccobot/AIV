@@ -1595,7 +1595,7 @@ private fun ControlsPage(
      * tenerli insieme è il titolo della pagina che le contiene, 'Comandi e indicatori', che
      * quella parola ce l'ha già.
      * ⚠️ **Senza spiegazione**, per il criterio di questo file: il titolo dice per intero che
-     * cos'è, e quello che resta da sapere lo dicono i due nomi.
+     * cos'è, e quello che resta da sapere lo dicono i nomi, che dalla `2.92` sono tre.
      */
     Choices(
         label = stringResource(R.string.settings_last_mark),
@@ -1607,6 +1607,7 @@ private fun ControlsPage(
                 when (it) {
                     LastMark.FRAME -> R.string.settings_last_mark_frame
                     LastMark.CORNER -> R.string.settings_last_mark_corner
+                    LastMark.DOT -> R.string.settings_last_mark_dot
                 }
             )
         },

@@ -567,6 +567,7 @@
     <string name="settings_last_mark">Penanda item terakhir yang dilihat</string>
     <string name="settings_last_mark_frame">Bingkai</string>
     <string name="settings_last_mark_corner">Sudut</string>
+    <string name="settings_last_mark_dot">Titik</string>
     <string name="settings_buttons_how">Tekan dan tahan sebuah tombol, lalu seret untuk mengubah tempatnya di dalam panelnya.</string>
     <string name="settings_buttons_reset">Setel ulang</string>
     <string name="settings_buttons_reset_ask">Kembalikan tombol ke susunan bawaan?</string>

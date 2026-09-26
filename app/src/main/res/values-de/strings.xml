@@ -585,6 +585,7 @@
     <string name="settings_last_mark">Markierung des zuletzt angesehenen Elements</string>
     <string name="settings_last_mark_frame">Rahmen</string>
     <string name="settings_last_mark_corner">Ecke</string>
+    <string name="settings_last_mark_dot">Punkt</string>
     <string name="settings_buttons_how">Halte eine Schaltfläche gedrückt und ziehe sie an ihren neuen Platz innerhalb ihres Feldes.</string>
     <string name="settings_buttons_reset">Zurücksetzen</string>
     <string name="settings_buttons_reset_ask">Sollen die Schaltflächen zurück in die Standardanordnung?</string>

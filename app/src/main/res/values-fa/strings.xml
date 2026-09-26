@@ -585,6 +585,7 @@
     <string name="settings_last_mark">نشان آخرین مورد دیده‌شده</string>
     <string name="settings_last_mark_frame">قاب</string>
     <string name="settings_last_mark_corner">گوشه</string>
+    <string name="settings_last_mark_dot">نقطه</string>
     <string name="settings_buttons_how">یک دکمه را نگه دارید و آن را بکشید تا جایش درون پنل خودش عوض شود.</string>
     <string name="settings_buttons_reset">بازنشانی</string>
     <string name="settings_buttons_reset_ask">دکمه‌ها به چیدمان پیش‌فرض برگردند؟</string>

@@ -603,6 +603,7 @@
     <string name="settings_last_mark">Marca del último elemento visto</string>
     <string name="settings_last_mark_frame">Marco</string>
     <string name="settings_last_mark_corner">Esquina</string>
+    <string name="settings_last_mark_dot">Punto</string>
     <string name="settings_buttons_how">Mantén pulsado un botón y arrástralo para cambiar su lugar dentro de su panel.</string>
     <string name="settings_buttons_reset">Restablecer</string>
     <string name="settings_buttons_reset_ask">¿Quieres devolver los botones a su disposición predeterminada?</string>

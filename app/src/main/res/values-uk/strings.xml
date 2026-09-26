@@ -621,6 +621,7 @@
     <string name="settings_last_mark">Позначка останнього переглянутого елемента</string>
     <string name="settings_last_mark_frame">Рамка</string>
     <string name="settings_last_mark_corner">Кут</string>
+    <string name="settings_last_mark_dot">Крапка</string>
     <string name="settings_buttons_how">Натисніть і утримуйте кнопку, потім перетягніть її на нове місце в межах її панелі.</string>
     <string name="settings_buttons_reset">Скинути</string>
     <string name="settings_buttons_reset_ask">Повернути кнопки до типового розташування?</string>
