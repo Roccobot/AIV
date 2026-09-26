@@ -449,7 +449,7 @@ data class Settings(
      * chiede, e da lì in poi non chiede più. Senza la distinzione, o si chiederebbe a ogni
      * modifica o non si chiederebbe mai.
      * ⚠️ **Il valore è un componente appiattito** (`pacchetto/classe`), o `Editors.INTERNAL`
-     * per l'editor di casa. Vedi `Editors`.
+     * per l'editor semplice. Vedi `Editors`.
      */
     val editorApp: String = "",
 

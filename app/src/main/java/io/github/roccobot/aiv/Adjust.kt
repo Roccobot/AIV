@@ -18,7 +18,7 @@ import kotlin.math.sqrt
 
 /*
  * ⚠️⚠️ **A CHE COSA SERVE QUESTO FILE: È IL CONTO DELL'EDITOR COMPLETO, E NE ESISTE UNA COPIA
- * SOLA.** L'editor di casa sa mettere un'immagine in posa e ritagliarla, cioè non tocca un pixel;
+ * SOLA.** L'editor semplice sa mettere un'immagine in posa e ritagliarla, cioè non tocca un pixel;
  * quello che l'utente ha chiesto (*luminosità/contrasto e tonalità/saturazione fatte BENE, curve,
  * raddrizzamento*) cambia invece ogni pixel, e per farlo mentre lui muove un cursore serve che il
  * conto giri sulla **scheda grafica**.
@@ -31,7 +31,7 @@ import kotlin.math.sqrt
  * programma è uno, e il salvataggio lo fa girare fuori schermo (vedi `AdjustRender.kt`).
  * - ⚠️ **Il prezzo è dichiarato**: `RuntimeShader` nasce con Android 13, quindi sotto quella
  *   versione l'editor completo non c'è. È l'istruzione dell'utente dell'11 settembre, e là resta
- *   l'editor di casa, che non perde niente perché lavora sulla posa.
+ *   l'editor semplice, che non perde niente perché lavora sulla posa.
  * - ⚠️ **E il banco non può misurare i pixel che ne escono**: una prova gira senza scheda
  *   grafica. Quello che il banco misura è il modello e la struttura, ed è scritto nelle prove.
  *
@@ -1125,7 +1125,7 @@ data class Tone(
 /**
  * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
  *
- * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor di casa**: là
+ * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor semplice**: là
  * dieci rotazioni si compongono in una posa sola perché le pose sono otto; qui dieci
  * spostamenti di un cursore sono **un** valore di quel cursore. Un elenco di gesti costringerebbe
  * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
@@ -1233,7 +1233,7 @@ data class Look(
      * ⚠️⚠️ **È LA CLAUSOLA DELL'UTENTE, e per questo è una proprietà del modello e non una
      * riga nel salvataggio** (*quelle che non prevedono la riscrittura del file pixel per pixel
      * devono essere lossless*): finché la pila contiene solo posa e ritaglio senza taglio, il
-     * file si può girare cambiando un tag EXIF, che è quello che l'editor di casa fa dalla
+     * file si può girare cambiando un tag EXIF, che è quello che l'editor semplice fa dalla
      * `1.03`. Appena entra un valore di Luce, i pixel vanno riscritti e non c'è modo di
      * evitarlo.
      * ⚠️ **E con la geometria, dalla `2.29`, la risposta è la stessa**: raddrizzare ricampiona,

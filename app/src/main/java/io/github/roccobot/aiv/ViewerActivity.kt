@@ -236,7 +236,7 @@ sealed interface Screen {
     data object History : Screen
 
     /**
-     * L'editor di casa, dalla 1.03: si ritaglia e si gira, e basta.
+     * L'editor semplice, dalla 1.03: si ritaglia e si gira, e basta.
      *
      * ⚠️ **Porta il nome del file oltre all'indirizzo**, per la stessa ragione di [Grid]: il
      * nome serve in testata e serve al dialogo del salvataggio (per dire se il formato si può
@@ -1584,7 +1584,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     private var editorFor: Uri? = null
 
-    /** Se il salvataggio dell'editor di casa è in corso: il tasto deve smettere di rispondere. */
+    /** Se il salvataggio dell'editor semplice è in corso: il tasto deve smettere di rispondere. */
     var editorBusy: Boolean by mutableStateOf(false)
         private set
 
@@ -1672,7 +1672,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         editorFor = null
     }
 
-    /** L'editor di casa: il nome serve alla testata e al dialogo del salvataggio. */
+    /** L'editor semplice: il nome serve alla testata e al dialogo del salvataggio. */
     private fun openEditor(uri: Uri) {
         val context = getApplication<Application>()
         viewModelScope.launch {
@@ -1717,13 +1717,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * solo per l'editor interno o per tutti quelli che supportano 'Modifica'?*). L'interruttore
      * promette che una modifica non fa perdere l'originale, e chi lo accende non sta pensando
      * a **quale** editor riscriverà il file: un'app di fuori lo riscrive esattamente come
-     * quello di casa, e prima della 1.13 era la sola via da cui l'originale se ne andava per
+     * l'editor semplice, e prima della 1.13 era la sola via da cui l'originale se ne andava per
      * sempre.
      * ⚠️⚠️ **SI COPIA PRIMA DI LANCIARE, e l'ordine è tutto**: l'editor esterno può salvare
      * un istante dopo essersi aperto, quindi una copia fatta 'intanto' arriverebbe a
      * fotografare il file già riscritto, cioè salverebbe il nulla credendo di aver salvato
      * qualcosa.
-     * ⚠️ **Una copia che non riesce ferma il giro**, come nell'editor di casa e per la stessa
+     * ⚠️ **Una copia che non riesce ferma il giro**, come nell'editor semplice e per la stessa
      * ragione: aprire lo stesso vorrebbe dire dare a chi si stava proteggendo proprio il
      * rischio da cui si proteggeva, in silenzio.
      * ⚠️ **Se poi l'editor non parte, la copia si ritira**: quel file non è stato toccato da
@@ -1761,7 +1761,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Indietro dall'editor di casa: il visualizzatore, che è il solo posto da cui si apre. */
+    /** Indietro dall'editor semplice: il visualizzatore, che è il solo posto da cui si apre. */
     fun leaveEditor() {
         screen = Screen.Viewer
     }
@@ -1803,8 +1803,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * silenzio era giusto e insieme indistinguibile da una promessa non mantenuta: chi ha
      * acceso l'interruttore va a cercare la copia nel cestino, non la trova, e non ha modo di
      * sapere se manca perché non serviva o perché la protezione non ha funzionato.
-     * ⚠️ **L'avviso esce SOLO qui**, ed è l'unico posto in cui il caso esiste: l'editor di
-     * casa rifiuta un salvataggio che non cambia niente (`edit_nothing`), e la pulizia di un
+     * ⚠️ **L'avviso esce SOLO qui**, ed è l'unico posto in cui il caso esiste: l'editor
+     * semplice rifiuta un salvataggio che non cambia niente (`edit_nothing`), e la pulizia di un
      * SVG si ferma prima di fare la copia quando non c'è niente da togliere.
      */
     private fun backFromOutside() {
@@ -1873,7 +1873,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Salva quello che l'editor di casa ha in mano.
+     * Salva quello che l'editor semplice ha in mano.
      *
      * ⚠️⚠️ **GIRA NELL'AMBITO DEL MODELLO E NON DELLA SCHERMATA, ed è il punto**: il primo
      * atto di un salvataggio riuscito è chiudere l'editor, cioè smontare la composizione che

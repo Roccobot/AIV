@@ -1692,7 +1692,7 @@ private fun EditingPage(
     /*
      * ⚠️⚠️ **VALE PER TUTTI GLI EDITOR DALLA `1.13`, ed è il rovescio di quello che c'era
      * scritto qui** (domanda dell'utente: *vale solo per l'editor interno o per tutti quelli
-     * che supportano 'Modifica'?*). Fino alla `1.12` copriva il solo editor di casa, e la
+     * che supportano 'Modifica'?*). Fino alla `1.12` copriva il solo editor semplice, e la
      * nota di allora spiegava perché un'app di fuori non si potesse coprire: la copia si fa
      * **prima** di lanciarla, quindi si può eccome. Vive sotto la scelta dell'app perché è la
      * stessa faccenda, non perché ne riguardi una sola.

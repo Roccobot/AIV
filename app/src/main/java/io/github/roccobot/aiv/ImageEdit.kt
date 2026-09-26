@@ -61,7 +61,7 @@ data class Spin(val turns: Int, val mirror: Boolean) {
 }
 
 /**
- * Che cosa succede quando l'editor di casa salva: girare, ritagliare, scrivere.
+ * Che cosa succede quando l'editor semplice salva: girare, ritagliare, scrivere.
  *
  * ⚠️⚠️ **LA ROTAZIONE SENZA RITAGLIO NON TOCCA UN PIXEL, e su un JPEG è la differenza fra
  * lossless e no**: un JPEG porta in testa il tag EXIF dell'orientamento, e girare una

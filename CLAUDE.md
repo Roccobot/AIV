@@ -424,6 +424,27 @@ chat.
   occorrenza in `values/` né in `values-it/`), quindi il difetto vive nella **prosa**, che è
   il posto in cui nessun verificatore lo guarda.
 
+⚠️⚠️ **I DUE EDITOR SI CHIAMANO 'EDITOR SEMPLICE' ED 'EDITOR COMPLETO', DAL 2026-09-26, E 'EDITOR DI
+CASA' NON SI USA** (sua nota sulla domanda `d-giro-forme`, giro della `2.87`: *Quello che chiami
+'editor di casa' deve essere 'editor semplice', che è la controparte di 'editor avanzato'*). Sono le
+etichette che si leggono nel telefono, nel selettore che si apre toccando 'Modifica' e nelle
+impostazioni (`editor_internal` ed `editor_full`), quindi è il criterio della voce sul velo qui
+sopra: 'editor di casa' era un nome mio, e non compariva da nessuna parte.
+- ⚠️⚠️ **'EDITOR AVANZATO' NON È IL NOME DELL'ALTRO, E LA DOMANDA GLI È STATA FATTA**: in chat, alla
+  domanda se rinominare 'Editor completo' in 'Editor avanzato' in tutte e ventotto le lingue, la sua
+  risposta è *Resta 'Editor completo'*. Quindi la sua parola era un sinonimo, e la coppia che si
+  scrive è 'semplice' e 'completo'.
+- ⚠️ **La bonifica della prosa è fatta lo stesso giorno**: 62 occorrenze fra i commenti del codice,
+  le prove e questo file, cercate senza distinguere le maiuscole e anche spezzate su due righe, che
+  è la lezione della bonifica del FAB. ⚠️ **Due volevano dire un'altra cosa**, cioè *i due editor di
+  casa* e *il secondo editor di casa*, dove 'di casa' voleva dire 'dell'app': quelle sono diventate
+  *i due editor dell'app* e *l'editor completo*.
+- ⚠️ **Nel codice restano i nomi di sempre**, come per il prefisso `front`: `EditorScreen.kt`,
+  `AdvancedEditorScreen.kt`, `Editors.INTERNAL` ed `EditorCasaTest`. Rinominarli non cambierebbe
+  niente per chi usa l'app, e romperebbe ogni rimando scritto finora. ⚠️ **Le chiavi dei giri
+  restano**, anche quando dicono `casa` (la voce `originale-casa`, la scelta `casa`): sono chiavi e
+  non prosa, e il brief le cita alla lettera.
+
 ## 📍 Che cosa vuol dire 'centrato'
 
 ⚠️⚠️ **CENTRATO IN ORIZZONTALE, E CENTRATO MA IL 15% PIÙ IN BASSO IN VERTICALE**
@@ -2023,8 +2044,8 @@ elenco.
 
 ## 🎚️ L'editor completo, e il conto che esiste in una copia sola
 
-⚠️⚠️ **DALLA `2.14` GLI EDITOR SONO DUE, E IL NUOVO NON SOSTITUISCE QUELLO DI CASA: È LA SUA
-SCELTA** (2026-09-11: *due editor separati*). Quello di casa mette un'immagine in **posa** e la
+⚠️⚠️ **DALLA `2.14` GLI EDITOR SONO DUE, E IL NUOVO NON SOSTITUISCE QUELLO SEMPLICE: È LA SUA
+SCELTA** (2026-09-11: *due editor separati*). Quello semplice mette un'immagine in **posa** e la
 ritaglia senza toccare un pixel, questo la **sviluppa**. Un editor solo che facesse tutti e due i
 mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
@@ -2244,7 +2265,7 @@ e un giro sui pixel in Kotlin per il salvataggio, che lavora sul file pieno. Son
 implementazioni della stessa matematica**, e il giorno che una cambia l'altra mente: l'utente
 vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia errore.
 - ⚠️⚠️ **IL PREZZO È CHE SOTTO ANDROID 13 L'EDITOR COMPLETO NON C'È**, ed è la sua istruzione
-  (2026-09-11): `RuntimeShader` nasce con quella versione, e là resta l'editor di casa, che non
+  (2026-09-11): `RuntimeShader` nasce con quella versione, e là resta l'editor semplice, che non
   perde niente perché lavora sulla posa. Chi lo chiede lo chiede a `advancedEditorAvailable()`,
   uno solo, perché la stessa domanda la fanno il selettore degli editor, il modello e le
   impostazioni.
@@ -2477,7 +2498,7 @@ che l'utente ricorda di aver fatto.
 ⚠️⚠️ **'SENZA PERDITA' È UNA PROPRIETÀ DEL MODELLO E NON UNA RIGA DEL SALVATAGGIO** (`Look.lossless`),
 ed è la clausola dell'utente (*quelle che non prevedono la riscrittura del file pixel per pixel
 devono essere lossless*): finché c'è solo la posa il file si gira cambiando un tag EXIF, come
-l'editor di casa fa dalla `1.03`; appena entra un valore di Luce i pixel vanno riscritti e non
+l'editor semplice fa dalla `1.03`; appena entra un valore di Luce i pixel vanno riscritti e non
 c'è modo di evitarlo. ⚠️ **E dalla `2.31` la posa è un modulo di questo editor**, quindi quella
 distinzione vive qui come là: un ritaglio riscrive, una rotazione no. ⚠️⚠️ **E LA GEOMETRIA È ENTRATA CON LA `2.29`, con la risposta che era già
 scritta qui**: quel modulo **ricampiona** per definizione, quindi un suo cursore mosso toglie il
@@ -2596,7 +2617,7 @@ cursori mossi passano da quattro a **sei**.
 
 ⚠️⚠️ **I TRE COMANDI DELLA STORIA SONO ICONE DALLA `2.15`, ED È IL SUO RISCONTRO** (voce
 `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non testo*). I glifi sono quelli
-che l'**editor di casa** usa già per gli stessi tre comandi, cioè i suoi: disegnarne altri
+che l'**editor semplice** usa già per gli stessi tre comandi, cioè i suoi: disegnarne altri
 vorrebbe dire due segni per lo stesso gesto a un tocco di distanza, visto che dalla stessa
 immagine si entra nell'uno o nell'altro editor. ⚠️ **Anche il terzo, che lui non ha nominato**:
 due icone accanto a una scritta sarebbero una fila che si legge in due modi.
@@ -3911,7 +3932,7 @@ domande che si fanno per prime davanti a una fotografia: che cosa ci sta dentro,
   per ultimo (si taglia quello che il resto ha prodotto) e quello della Geometria dopo lo shader,
   mentre nella fila vengono per primi.
 
-⚠️⚠️ **QUELLO CHE FA È QUELLO CHE FA L'EDITOR DI CASA, E IL CODICE È LO STESSO**: le quattro
+⚠️⚠️ **QUELLO CHE FA È QUELLO CHE FA L'EDITOR SEMPLICE, E IL CODICE È LO STESSO**: le quattro
 squadrette, il velo intorno, i terzi, la presa del dito e il lato minimo vivono in
 `EditorScreen.kt` (`cropOverlay`, `grabbed`, `dragged`, `cropBox`, `cropFractions`), e questo palco
 li **chiama**. Due disegni dello stesso comando divergerebbero al primo ritocco, e chi lo vedrebbe
@@ -3920,7 +3941,7 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
   `formati` A `d-crop-formati`** (giro della `2.31`: *portali, con le centrature*). Fino alla
   `2.31` il rettangolo era libero, e senza una forma scelta le due centrature non avrebbero avuto
   niente da centrare: con lei ce l'hanno, quindi la fila della posa passa da tre tasti a cinque,
-  cioè agli stessi dell'editor di casa.
+  cioè agli stessi dell'editor semplice.
   - ⚠️⚠️ **'ORIGINALE' È UNA FORMA IN PIÙ, ED È SUA RICHIESTA** (2026-09-13: *tra i vincoli di
     proporzione dev'esserci anche 'Originale', ma scelta di default resta 'Libera'*). È la sola
     il cui rapporto **non è scritto nel codice**: lo porta l'immagine, quindi in `Shape` il
@@ -3936,8 +3957,9 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
     toglie un pixel al palco**, perché là lo spazio avanza comunque. Con lei cade la domanda
     `d-crop-corpo`, e la sua risposta lo dice: *Non serve*.
     - ⚠️ **Solo nell'editor completo**: di là la scheda è alta quanto il suo contenuto, quindi la
-      fila resta una e col corpo ridotto. Lo dichiara il parametro `wrap` di `ShapeRow`, che non ha
-      un valore di serie 'a capo'.
+      fila resta una e col corpo ridotto. Lo dichiarava il parametro `wrap` di `ShapeRow`, che non
+      aveva un valore di serie 'a capo'. ⚠️ **Dalla `2.88` la fila unica non c'è più nemmeno di
+      là**, e il parametro è `rows` (il blocco della `2.88`, qui sotto).
     - ⚠️ **Tre celle per riga e non 'quelle che ci stanno'**: con un flusso libero le celle si
       dimensionano sul testo, quindi la riga finirebbe con un vuoto diverso in ogni lingua; con tre
       colonne uguali le due righe si leggono come una griglia e la parola più lunga delle ventotto
@@ -3982,6 +4004,29 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
     - ⚠️ **Il corpo lo passa la fila e non il chip**: gli altri chip della scheda (il verso della
       selezione) hanno due celle su tutta la larghezza, quindi là non c'è niente da stringere. Il
       pezzo resta **uno solo** (`ShapeRow`, in `EditorScreen.kt`) e lo chiamano i due editor.
+  - ⚠️⚠️ **E DALLA `2.88` ANCHE L'EDITOR SEMPLICE HA DUE RIGHE, 'LIBERO E I NUMERI' E 'ORIGINALE E I
+    VERSI', ED È SUA RICHIESTA** (campo libero del giro della `2.87`, con una schermata: *Riga 1:
+    Libero, 1:1, 4:3, 3:2, 16:9. Riga 2: Originale, Verticale, Orizzontale*). Là la fila unica
+    troncava 'Originale' già in italiano (*Origi...*, nella sua schermata), e i due versi vivevano
+    in una riga tutta loro sotto: le righe erano già due, e a cambiare è che cosa porta ognuna.
+    - ⚠️ **Le due disposizioni le dichiara `rows`** (`ShapeRows.SIMPLE` e `ShapeRows.FULL`), che
+      non ha un valore di serie: un chiamante nuovo che la ereditasse per omissione mostrerebbe la
+      fila dell'altro editor.
+    - ⚠️ **I versi restano scritti, come li ha elencati lui**: nell'editor completo sono icone dalla
+      `2.80`, perché là servivano a togliere una terza riga. Qui tre celle uguali su 360dp lasciano
+      88 punti alla parola, e la più larga delle ventotto lingue (il tedesco *Hochformat*) ne
+      chiede 76 col corpo pieno.
+    - ⚠️⚠️ **IL CORPO RESTA UN GRADINO SOTTO, ED È MISURATO** (Roboto Medium con la spaziatura delle
+      lettere di Material): col corpo pieno il 'Libero' russo chiede 65,7 punti e la sua cella ne
+      lascia 64,7, cioè si troncherebbe di un punto. A `labelMedium` ne chiede 59,6.
+    - ⚠️ **La scheda non cresce**: due punti in meno, perché fra le due righe c'è il distacco
+      della fila invece degli otto punti della riga dei versi.
+  - ⚠️⚠️ **E LE QUATTRO PROPORZIONI SONO IN ORDINE CRESCENTE, DALLA `2.88`, IN TUTTI E DUE GLI
+    EDITOR** (la stessa riga: *1:1, 4:3, 3:2, 16:9*, e in chat, alla domanda se valesse per
+    tutti e due gli editor: *Sì, in tutti e due*). Fino alla `2.87` il 3:2 veniva prima del 4:3,
+    cioè l'ordine non era né crescente né decrescente. L'ordine dei gettoni è quello di
+    dichiarazione di `Shape`, e nessun archivio lo legge: l'editor completo tiene la forma come
+    indice nel solo stato salvato della schermata.
 - ⚠️⚠️ **L'IMMAGINE LASCIA L'ARIA ALLE SQUADRETTE, DALLA `2.32`, ED È IL SUO RISCONTRO** (giro
   della `2.31`, voce `crop-modulo` non approvata: *all'avvio del modulo gli angoli di ritaglio non
   sono del tutto visibili*). Una squadretta si disegna **a cavallo** del bordo del rettangolo,
@@ -4014,7 +4059,7 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
 - ⚠️ **Un dito che scende lontano da una presa non fa niente**, e non è una dimenticanza:
   l'alternativa sarebbe spostare il rettangolo dal punto toccato, cioè farlo saltare sotto il dito.
 
-⚠️⚠️ **I TRE COMANDI DI POSA VIVONO QUI, E SONO QUELLI DELL'EDITOR DI CASA**: 'Ruota a sinistra',
+⚠️⚠️ **I TRE COMANDI DI POSA VIVONO QUI, E SONO QUELLI DELL'EDITOR SEMPLICE**: 'Ruota a sinistra',
 'Ruota a destra' e 'Rifletti', col tocco lungo che riflette in verticale, disegnati dallo stesso
 `ActionPad` con gli stessi glifi e le stesse etichette. ⚠️ **Tre e non cinque**: le due centrature
 lavorano sul rettangolo dentro una **forma scelta**, e senza i formati non avrebbero niente da
@@ -4024,15 +4069,18 @@ cinque, e infilarci tre tasti darebbe una fila che si riordina in un modo che ne
 ⚠️⚠️ **UNA POSA PORTA CON SÉ IL RETTANGOLO, E SENZA QUELLA RIGA IL RITAGLIO SI SPOSTEREBBE IN
 SILENZIO**: il rettangolo è in frazioni dell'immagine **già posata**, quindi un quarto di giro che
 non lo riscrivesse lo lascerebbe dov'è sullo schermo, cioè su un'altra porzione di fotografia. Lo
-riscrive `spunRect`, la stessa funzione dell'editor di casa, dentro `spunLook`.
-- ⚠️ **Qui la rotazione NON rifà il rettangolo**, al contrario dell'editor di casa, e la differenza
+riscrive `spunRect`, la stessa funzione dell'editor semplice, dentro `spunLook`.
+- ⚠️ **Qui la rotazione NON rifà il rettangolo**, al contrario dell'editor semplice, e la differenza
   è che là esiste una forma scelta da rifare sull'aspetto nuovo. Con un rettangolo libero, girarlo
   lo lascia esattamente sulla stessa porzione di immagine.
+  - ⚠️⚠️ **Con una delle quattro proporzioni non vale più, dalla `2.88`**: le forme ci sono anche
+    qui dalla `2.32`, e la sua risposta `casa` a `d-giro-forme` vuole la cornice rifatta nel verso
+    scelto. Il blocco della `2.88` vive più sotto; resta vero per 'Libero'.
 
 ⚠️⚠️ **LA POSA RESTA SENZA PERDITA E IL RITAGLIO NO, E LE DUE DOMANDE NON SONO LA STESSA**: una
 posa si scrive in un tag EXIF, quindi l'immagine è cambiata ma il file non si riscrive; un ritaglio
 toglie dei pixel, quindi va riscritto. Confonderle vorrebbe dire ricomprimere una fotografia per
-averla girata, che è proprio quello che l'editor di casa non fa dalla `1.03`.
+averla girata, che è proprio quello che l'editor semplice non fa dalla `1.03`.
 - **Quindi il salvataggio delega**: quando non c'è niente da sviluppare e la geometria è ferma, il
   file passa da `ImageEdit.save`, cioè dalla strada di sempre, posa e ritaglio compresi. La catena
   completa (posa, shader, geometria, taglio) entra in funzione solo quando serve davvero.
@@ -4081,7 +4129,7 @@ lavora diventa quella tagliata.
 - ⚠️⚠️ **QUELLO CHE FA È LA SUA SCELTA FRA DUE LETTURE, E LA DOMANDA GLI È STATA FATTA**: il palco
   passa a inquadrare la porzione tenuta e negli altri moduli si lavora su quella; **rientrando nel
   Ritaglio l'immagine torna intera** con le squadrette dov'erano, quindi il taglio si può allargare
-  o rifare. L'altra lettura, cioè tagliare davvero e ripartire come fa l'editor di casa, è stata
+  o rifare. L'altra lettura, cioè tagliare davvero e ripartire come fa l'editor semplice, è stata
   scartata da lui.
 - ⚠️⚠️ **NON TAGLIA NIENTE, E QUESTO È IL PUNTO**: il rettangolo era già nel modello e il file si
   salva tagliato da sempre. Quello che mancava era **vederlo**, quindi il tasto scrive un valore
@@ -4089,7 +4137,7 @@ lavora diventa quella tagliata.
 - ⚠️ **Quel valore vive nel modello e non nello sguardo**, ed è la ragione per cui 'Annulla' lo
   disfa come ogni altro passo: è l'unico campo di `Look` che non cambia un pixel del file, e per
   questo non entra né in `idle` né in `lossless`.
-- ⚠️ **Il glifo e la parola sono quelli dell'editor di casa**, come i tre comandi della storia: lo
+- ⚠️ **Il glifo e la parola sono quelli dell'editor semplice**, come i tre comandi della storia: lo
   stesso gesto a un tocco di distanza non può avere due segni, e nessuna stringa nuova nasce.
 - ⚠️ **Il conto non tocca nessun altro**: `view` resta il riquadro in cui l'immagine **intera** è
   disegnata, che è quello su cui si reggono il pezzo a risoluzione piena, la lente, il colore
@@ -4153,7 +4201,7 @@ le squadrette si disegnavano ai bordi della porzione.
   il gesto. La chiave del `pointerInput` non si tocca, perché cambiarla annullerebbe il gesto in
   corso.
 
-⚠️⚠️ **E DALLA `2.85` IL VERSO DI PARTENZA LO DECIDE LA FOTOGRAFIA, COME NELL'EDITOR DI CASA**
+⚠️⚠️ **E DALLA `2.85` IL VERSO DI PARTENZA LO DECIDE LA FOTOGRAFIA, COME NELL'EDITOR SEMPLICE**
 (prima delle tre segnalazioni: *ho toccato 'originale', la foto era 4:3 orizzontale, ma la cornice
 di ritaglio è diventata verticale*). La regola è sua ed è del 2026-08-31, scritta su `startLay`, ma
 la applicava un editor solo: l'editor completo partiva sempre da 'Verticale', quindi 'Originale' su
@@ -4174,10 +4222,64 @@ verso resta quello di partenza.
 - ⚠️ **I due gettoni del verso si spengono mentre 'Originale' è scelta**, ed è una lettura
   dichiarata della sua scelta (*'Originale' ignora i due gettoni del verso*): accesi, un tocco non
   cambierebbe la cornice, e si leggerebbe come un comando rotto. Tornano con una proporzione.
-- ⚠️ **I due editor arrivano allo stesso risultato per due strade**: in quello di casa un quarto di
+- ⚠️ **I due editor arrivano allo stesso risultato per due strade**: in quello semplice un quarto di
   giro rifà il rettangolo sull'aspetto nuovo, in quello completo lo porta con sé. Per questo le prove
-  sono una per editor: `EditorCasaTest`, che nasce qui ed è la prima dell'editor di casa, e i casi
+  sono una per editor: `EditorCasaTest`, che nasce qui ed è la prima dell'editor semplice, e i casi
   72 e 73 di `SviluppoTest`, tutti controprovati.
+
+⚠️⚠️ **E DALLA `2.88` CON UNA PROPORZIONE UN QUARTO DI GIRO RIFÀ LA CORNICE NEL VERSO SCELTO, ED È LA
+SUA RISPOSTA `casa` A `d-giro-forme`** (giro della `2.87`: *Girando, la cornice si rifà nel verso
+scelto, grande e centrata: gettone e cornice dicono sempre la stessa cosa, e i due editor si
+comportano uguale*). Fino alla `2.87` la cornice girava con l'immagine: un 16:9 scelto su
+un'immagine larga diventava 9:16 (misurato sul banco) mentre il gettone diceva ancora 16:9, e al
+primo angolo tirato tornava 16:9 di colpo. Era il caso gemello di 'Originale', trovato misurando lei.
+- **Il conto è `posedLook`**, che chiama `spunLook` e per le quattro proporzioni rifà la cornice
+  come l'editor semplice fa dentro `onTurn`. ⚠️ **'Libero', 'Originale' e uno specchio restano
+  portati con sé**, come diceva la domanda (*Con 'Libero' e con 'Originale' va già bene così*): uno
+  specchio lascia i due lati dove sono, quindi la forma resta quella del gettone.
+- ⚠️ **Grande e centrata DENTRO LA PORZIONE che il palco inquadra**: l'editor semplice la rifà
+  sull'immagine già tagliata dai passi, ed è la stessa cosa.
+
+⚠️⚠️ **E DALLA `2.88` TUTTI I COMANDI DEL RITAGLIO LAVORANO DENTRO LA PORZIONE APPLICATA, E FINO ALLA
+`2.87` NO**. Non è una sua segnalazione: l'ha trovato il banco, misurando la risposta `casa`. Dalla
+`2.40` le squadrette si tirano dentro il taglio applicato, ma le centrature, il ritocco della forma e
+il cambio di verso lavoravano ancora sull'immagine intera.
+- ⚠️⚠️ **LE DUE MISURE DICONO CHE IL FILE NON ERA QUELLO CHE SI VEDEVA**: 'Centra in orizzontale'
+  portava la cornice fuori dalla porzione (il bordo sinistro a 0,45 contro uno della porzione a
+  0,50), cioè il file avrebbe portato una striscia che il palco non mostrava; e ritoccare la forma
+  già scelta la rifaceva grande quanto l'immagine intera, quindi con un taglio applicato il lavoro
+  tornava a riposo e 'Salva' si spegneva.
+- **Il pezzo è `framedCrop`**, con le due conversioni del gesto (`relativeTo` e `absolute`): il
+  dito e i comandi parlano della stessa porzione, e un terzo conto sarebbe il primo a divergere.
+- ⚠️⚠️ **CON LUI 'ORIGINALE' DENTRO UNA PORZIONE È LA PORZIONE, E CAMBIA ANCHE IL RAPPORTO CHE IL DITO
+  TIENE**: è quello che fa l'editor semplice dopo 'Applica', dove l'immagine su cui si lavora è già
+  quella tagliata, e senza il secondo pezzo un ritocco di 'Originale' e il primo angolo tirato
+  avrebbero chiesto due rapporti diversi, cioè il caso gemello di prima rifatto.
+
+⚠️⚠️ **E DALLA `2.88` UN CHIP SPENTO SI VEDE SPENTO, NEI DUE EDITOR** (voce `originale-completo` del
+giro della `2.87`, accettabile: *anche se disattivate le icone orizzontale/verticale NON si spengono
+e sembrano attive*). Il chip del pannello è scritto in casa (`SheetChip`), e il riscritto aveva perso
+lo stato spento del disegno: `Surface` con `enabled = false` smette di rispondere ma non cambia un
+colore. Con 'Originale' i due versi si spengono dalla `2.87`, ed è il primo caso in cui un chip
+spento resta in scena da solo.
+- ⚠️ **I numeri sono quelli di Material**, letti nel bytecode di material3 1.5.0-alpha26
+  (`FilterChipTokens`): il testo e l'icona al 38% del colore del testo, il fondo del chip scelto e
+  il filetto degli altri al 12%. ⚠️ **Il caso 73 era verde col difetto dentro**, perché misurava
+  la semantica, e il difetto era nel disegno.
+
+⚠️⚠️ **E DALLA `2.88` L'EDITOR COMPLETO HA LA LENTE DEL RITAGLIO DELL'EDITOR SEMPLICE, ED È SUA
+RICHIESTA** (campo libero del giro della `2.87`: *voglio nell'editor avanzato la stessa lente
+d'ingrandimento per il ritaglio che è già presente nell'editor semplice*). Il cerchio, il posto
+(in alto, dalla parte opposta al dito), l'ingrandimento, la mira e l'anello sono gli stessi, perché
+la funzione è una (`lens`, in `EditorScreen.kt`): cambia soltanto che cosa si vede dentro, cioè
+l'immagine **sviluppata** col suo pennello.
+- ⚠️ **A pixel interi, e il prezzo si dichiara**: il Dettaglio e la Foschia leggono i vicini, e a
+  pixel interi i loro campioni cadono sul pixel più vicino, quindi dentro la lente quei due moduli
+  si vedono appena diversi dal palco.
+- ⚠️ **Non è la lente del colore mirato**, che c'è stata dalla `2.24` alla `2.34` e che lui ha tolto
+  (§ '📈 Il modulo Curve, e il colore mirato'): quella mostrava il pixel che si prende, questa dove
+  passa il taglio. ⚠️ **E vive nella tela del palco**, perché mentre si tira un angolo il palco si
+  ridisegna comunque, e una seconda tela non toglierebbe niente.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
@@ -4189,7 +4291,13 @@ scelga ancora (controprovato rimettendo i numeri a cavallo delle due righe, e sp
 del verso); dalla `2.85` che su un'immagine larga il verso parta orizzontale, e che la cornice si
 tiri ancora dopo 'Applica' e dopo una rotazione (i casi 67, 68 e 69, ognuno controprovato togliendo
 la sua correzione); dalla `2.87` che dopo un quarto di giro 'Originale' tenga l'immagine intera, e
-che i due versi si spengano con lei (i casi 72 e 73). ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
+che i due versi si spengano con lei (i casi 72 e 73); dalla `2.88` che spenti si vedano spenti (a
+pixel, caso 74), che girando con 16:9 la cornice resti 16:9 nel verso scelto (caso 75, e il 76 per
+la porzione, col conto puro), che con un taglio applicato 'Centra' e il ritocco della forma restino
+dentro la porzione (casi 77 e 78), e che tirando un angolo compaia la lente (caso 79). Tutti
+controprovati rimettendo il difetto, in tre giri. `EditorCasaTest` misura in più le due righe
+dell'editor semplice con l'ordine dei numeri, e la sua lente, che dalla `2.88` disegna quello che
+le passa chi la chiama. ⚠️ **Le prove sulla cornice toccano il palco PRIMA del cambiamento**, e la
 controprova lo ha imposto: la prima stesura della rotazione girava prima di ogni tocco, e restava
 verde col difetto dentro. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
@@ -4397,7 +4505,7 @@ scritto che si scorre e che il tocco lungo azzera un modulo solo. La chiave è `
   - ⚠️⚠️ **LA CHIAVE È SUA E NON UN SECONDO PASSO DELLA PRIMA, E LA RAGIONE È CHI HA GIÀ L'APP**:
     con una chiave sola, chi aveva aperto l'editor prima della `2.73` avrebbe la prima archiviata
     e non vedrebbe **mai** la seconda, cioè proprio chi ha seguito i giri di collaudo.
-  - ⚠️ **Vive nell'editor completo e non anche in quello di casa**, dove i due tasti ci sono: lo
+  - ⚠️ **Vive nell'editor completo e non anche in quello semplice**, dove i due tasti ci sono: lo
     dice il suo testo dalla prima parola (*Oltre ai moduli*), e là i moduli non esistono.
   - ⚠️ **Il testo ha un punto fermo dove la sua riga aveva una virgola** (*alle impostazioni di
     ciascuna, Quando hai finito*): è un refuso di battitura, e la voce di collaudo lo dichiara.

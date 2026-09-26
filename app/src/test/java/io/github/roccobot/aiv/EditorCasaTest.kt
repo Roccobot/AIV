@@ -7,13 +7,22 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.down
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.up
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -26,7 +35,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 /**
- * Il banco dell'**editor di casa**, dalla `2.87`.
+ * Il banco dell'**editor semplice**, dalla `2.87`.
  *
  * ⚠️⚠️ **NASCE CON LA RISPOSTA `intera` A `d-originale-verso`**, e prima di lei questo editor non
  * aveva prove sue: le forme del ritaglio le disegna lo stesso pezzo nei due editor (`ShapeRow`),
@@ -113,6 +122,102 @@ class EditorCasaTest {
     }
 
     /**
+     * **Le forme vanno su due righe: 'Libero' coi numeri in ordine crescente, 'Originale' coi due
+     * versi.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (campo libero del giro della `2.87`, con una
+     * schermata: *Riga 1: Libero, 1:1, 4:3, 3:2, 16:9. Riga 2: Originale, Verticale,
+     * Orizzontale*), e l'ordine dei numeri vale nei due editor (sua risposta in chat).
+     * ⚠️ **L'immagine è larga, quindi i numeri si scrivono in orizzontale**: sono i testi della sua
+     * riga.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: con 'Originale' nella prima riga cade la seconda asserzione,
+     * e con l'ordine di prima (3:2 prima di 4:3) cade l'ultima.
+     */
+    @Test
+    fun `le forme vanno su due righe, Libero coi numeri e Originale coi versi`() {
+        banco.setContent { Scena() }
+        pronta()
+        fun riquadro(t: String) = banco.onNodeWithText(t).fetchSemanticsNode().boundsInRoot
+        val libero = riquadro(testo(R.string.editor_free))
+        val numeri = listOf("1:1", "4:3", "3:2", "16:9").map(::riquadro)
+        val originale = riquadro(testo(R.string.editor_shape_original))
+        val versi = listOf(R.string.editor_tall, R.string.editor_wide).map { riquadro(testo(it)) }
+
+        for (n in numeri) {
+            assertEquals("i numeri vivono sulla riga di 'Libero'", libero.top, n.top, 2f)
+        }
+        for (v in versi) {
+            assertEquals("i due versi vivono sulla riga di 'Originale'", originale.top, v.top, 2f)
+        }
+        assertTrue("e quella riga viene dopo", originale.top > libero.top + 2f)
+        assertTrue(
+            "i numeri vanno in ordine crescente: 1:1, 4:3, 3:2, 16:9",
+            numeri.zipWithNext().all { (a, b) -> a.left < b.left }
+        )
+    }
+
+    /**
+     * **Tirando un angolo compare la lente, in alto dalla parte opposta al dito, e al rilascio se ne
+     * va.**
+     *
+     * ⚠️ **Nasce con la `2.88`, e non per un difetto di questo editor**: la lente adesso la usano
+     * tutti e due (sua richiesta del giro della `2.87`), e quello che si vede dentro arriva da chi
+     * la chiama. Qui si presidia che il trasloco non l'abbia persa per strada.
+     * ⚠️ **L'immagine è ROSSA**, perché il bordo si trova nei pixel: su un'immagine bianca si
+     * confonderebbe con le squadrette, che sono bianche anche loro.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la lente dal disegno: i due scatti sono identici.
+     */
+    @Test
+    fun `tirando un angolo compare la lente`() {
+        banco.setContent { Scena(uri = rosso()) }
+        pronta()
+        val radice = banco.onRoot()
+        val prima = radice.captureToImage().toPixelMap()
+        val pieno = androidx.compose.ui.graphics.Color.Red.toArgb()
+        var sx = prima.width
+        var su = prima.height
+        for (y in 0 until prima.height) {
+            for (x in 0 until prima.width) {
+                if (prima[x, y].toArgb() == pieno) {
+                    if (x < sx) sx = x
+                    if (y < su) su = y
+                }
+            }
+        }
+        assertTrue("l'immagine rossa doveva essere in scena", sx < prima.width && su < prima.height)
+        /*
+         * ⚠️⚠️ **IL MOVIMENTO VA IN DUE COLPI, E IL BANCO LO HA IMPOSTO**: questo palco usa
+         * `detectDragGestures`, che fa cominciare il trascinamento **dove il dito ha superato la
+         * soglia**. Con un salto solo quel punto è la destinazione, cioè lontano dall'angolo, e la
+         * presa diventa l'interno. Il primo colpo paga la soglia vicino all'angolo, il secondo tira:
+         * misurato, un primo colpo da 12 pixel non la supera, e uno da 26 sì, restando dentro i
+         * quaranta della presa.
+         */
+        radice.performTouchInput { down(Offset(sx + 2f, su + 2f)) }
+        banco.waitForIdle()
+        radice.performTouchInput { moveTo(Offset(sx + 24f, su + 10f)) }
+        banco.waitForIdle()
+        radice.performTouchInput { moveTo(Offset(width * 0.35f, su + 60f)) }
+        banco.waitForIdle()
+        val tenuto = radice.captureToImage().toPixelMap()
+        radice.performTouchInput { up() }
+        banco.waitForIdle()
+        val lasciato = radice.captureToImage().toPixelMap()
+
+        var destra = 0
+        var sinistra = 0
+        for (y in 0 until minOf(tenuto.height, lasciato.height)) {
+            for (x in 0 until minOf(tenuto.width, lasciato.width)) {
+                if (tenuto[x, y] != lasciato[x, y]) {
+                    if (x >= tenuto.width / 2) destra += 1 else sinistra += 1
+                }
+            }
+        }
+        assertTrue("col dito su un angolo la lente doveva comparire a destra", destra > 0)
+        assertEquals("e a sinistra non doveva cambiare niente", 0, sinistra)
+    }
+
+    /**
      * Aspetta l'anteprima: finché non c'è, i comandi della scheda sono spenti.
      *
      * ⚠️ **Si aspetta un comando ACCESO e non il comando**: il chip c'è anche prima, spento, quindi
@@ -128,12 +233,13 @@ class EditorCasaTest {
 
     @androidx.compose.runtime.Composable
     private fun Scena(
+        uri: Uri = largo(),
         onSave: (Int, Boolean, ImageEdit.Crop) -> Unit = { _, _, _ -> }
     ) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
                 EditorScreen(
-                    uri = largo(),
+                    uri = uri,
                     busy = false,
                     marked = false,
                     marking = false,
@@ -165,6 +271,17 @@ class EditorCasaTest {
         if (!file.exists()) {
             val mappa = Bitmap.createBitmap(64, 32, Bitmap.Config.ARGB_8888)
             mappa.eraseColor(Color.WHITE)
+            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        return Uri.fromFile(file)
+    }
+
+    /** Lo stesso PNG largo, ma rosso pieno: vedi la prova della lente. */
+    private fun rosso(): Uri {
+        val file = File(app.cacheDir, "casa-rosso.png")
+        if (!file.exists()) {
+            val mappa = Bitmap.createBitmap(64, 32, Bitmap.Config.ARGB_8888)
+            mappa.eraseColor(Color.RED)
             file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
         return Uri.fromFile(file)
