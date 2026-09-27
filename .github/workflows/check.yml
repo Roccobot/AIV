@@ -14,9 +14,17 @@ name: Check
 # ⚠️ `cancel-in-progress` is on: two pushes close together have no reason to run
 # the same check twice, and what matters is always the latest state.
 
+#
+# ⚠️ A push that changes only `.md` files does not run it: the bench and the
+# translation check read no Markdown, and the `core-sync` Action of
+# Roccobot/tools commits `AGENTS.md` here every time the shared core changes.
+# The filter is on `push` only: on a pull request a skipped check would leave
+# a required status waiting forever, and those runs are rare anyway.
+
 on:
   push:
     branches: [main]
+    paths-ignore: ['**.md']
   pull_request:
   workflow_dispatch:
 
