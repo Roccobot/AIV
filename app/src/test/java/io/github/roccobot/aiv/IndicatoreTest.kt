@@ -19,6 +19,8 @@ import org.junit.runner.RunWith
  * stravolgere la UI di chi è già utente*) è la sola cosa qui dentro che possa rompersi **in
  * silenzio**, perché nessuno la vede finché non aggiorna l'app su un telefono già usato. Il
  * disegno invece si vede al primo sguardo, e si guarda sul telefono.
+ * ⚠️ **Dalla `2.95` il valore di fabbrica è il tondo** (voce `tondo-opaco`: *dev'essere il
+ * predefinito*), e la clausola dell'angolo resta com'era: vale per chi aggiorna da prima della `2.11`.
  *
  * ⚠️ **Perché il disegno non passa dal banco**: una miniatura vuole una griglia con dentro delle
  * immagini vere, e il MediaStore di Robolectric è vuoto; montarne una finta misurerebbe la finta,
@@ -28,15 +30,21 @@ import org.junit.runner.RunWith
 class IndicatoreTest {
 
     /**
-     * **Chi installa l'app adesso trova la cornice.**
+     * **Chi installa l'app adesso trova il tondo, dalla `2.95`.**
      *
      * ⚠️ L'archivio vuoto è il segno di un'installazione nuova: in questo store vivono anche i
      * promemoria che l'app scrive da sé, quindi chi l'ha già aperta una volta ha una chiave.
+     * ⚠️⚠️ **LE ASSERZIONI SONO DUE E NON SONO UN DOPPIONE**: la prima è la sua nota sulla voce
+     * `tondo-opaco` (*dev'essere il predefinito*), la seconda lega la migrazione al valore di fabbrica
+     * di [Settings], che è l'altro dei tre posti in cui vive. Fino alla `2.94` erano due numeri
+     * scritti a mano, e cambiarne uno solo avrebbe dato un'installazione nuova diversa dal valore
+     * dichiarato, senza nessun errore.
      */
     @Test
-    fun `un archivio vuoto riceve la cornice`() = runTest {
+    fun `un archivio vuoto riceve il tondo`() = runTest {
         val dopo = MarkMigration.migrate(emptyPreferences())
-        assertEquals(LastMark.FRAME.token, dopo[LAST_MARK])
+        assertEquals(LastMark.DOT.token, dopo[LAST_MARK])
+        assertEquals(Settings().lastMark.token, dopo[LAST_MARK])
     }
 
     /**

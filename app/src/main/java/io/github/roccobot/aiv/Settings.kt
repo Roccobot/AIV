@@ -143,6 +143,14 @@ enum class PanelDepth(override val token: String) : Choice {
  * dei gettoni, lo mette in coda perché è l'ultimo arrivato.
  * ⚠️ **La voce si chiama 'Tondo' dalla `2.94`**, ed è una sua riscrittura: fino alla `2.93` diceva
  * 'Pallino'. Il token resta `dot`, perché nell'archivio vive lui e non il nome.
+ * ⚠️⚠️ **E DALLA `2.95` IL TONDO È IL VALORE DI FABBRICA, ED È SUA ISTRUZIONE** (voce `tondo-opaco`
+ * del giro della `2.93` e della `2.94`, approvata con una nota: *dev'essere il predefinito*). Quindi la
+ * frase qui sopra che dice che i valori di fabbrica non cambiano è superata, e l'ordine resta quello:
+ * lui non ha chiesto di spostare il gettone, e l'ordine dei gettoni è una cosa diversa dal valore con
+ * cui si parte.
+ * ⚠️ **Chi ha già l'app tiene il segno che ha**, per la stessa ragione della sfocatura della `2.61`:
+ * dalla `2.11` la migrazione scrive la chiave al primo avvio, quindi l'archivio non distingue 'ho
+ * scelto la cornice' da 'la cornice è arrivata di fabbrica'. Il tondo arriva alle installazioni nuove.
  */
 enum class LastMark(override val token: String) : Choice {
     /** Una cornice intorno alla miniatura, del colore d'accento: il mockup della `2.11`. */
@@ -985,8 +993,12 @@ data class Settings(
      * ottiene da questo numero: lo decide una migrazione dell'archivio, e il perché vive su
      * `MarkMigration`. Questo resta il valore di fabbrica dichiarato, cioè quello che vale se
      * l'archivio non dice niente.
+     * ⚠️⚠️ **E DALLA `2.95` QUEL VALORE È IL TONDO, ED È SUA ISTRUZIONE** (voce `tondo-opaco`: *dev'essere
+     * il predefinito*), quindi la cornice di fabbrica della `2.11` è superata. Il perché vive su
+     * [LastMark], e i posti che lo scrivono sono tre: questo, la lettura del flusso e la migrazione.
+     * Il banco li tiene allineati (`ProfonditaTest` e `IndicatoreTest`).
      */
-    val lastMark: LastMark = LastMark.FRAME,
+    val lastMark: LastMark = LastMark.DOT,
 ) {
     /** I campi da mostrare, nell'ordine scelto e senza quelli spenti. */
     val factRows: List<FactField> get() = factOrder.filterNot { it in factOff }
@@ -1153,6 +1165,11 @@ internal val LAST_MARK = stringPreferencesKey("last-mark")
  * ⚠️ **Il caso limite si dichiara invece di nasconderlo**: un archivio davvero vuoto è
  * indistinguibile da un'installazione nuova, e là la cornice arriva. Sono i telefoni su cui l'app
  * è stata installata e mai aperta.
+ * ⚠️⚠️ **DALLA `2.95` UN'INSTALLAZIONE NUOVA RICEVE IL TONDO E NON PIÙ LA CORNICE**, ed è la sua nota
+ * sulla voce `tondo-opaco` (*dev'essere il predefinito*): il ramo dell'archivio vuoto scrive il valore
+ * di fabbrica di [Settings.lastMark], quindi i due non possono più dire due cose diverse. Il ramo di
+ * chi aggiorna non cambia: la clausola dell'angolo è della `2.11`, e vale per un archivio che la
+ * chiave non l'ha ancora.
  */
 internal object MarkMigration : DataMigration<Preferences> {
     override suspend fun shouldMigrate(currentData: Preferences): Boolean =
@@ -1160,7 +1177,7 @@ internal object MarkMigration : DataMigration<Preferences> {
 
     override suspend fun migrate(currentData: Preferences): Preferences =
         currentData.toMutablePreferences().apply {
-            val quale = if (currentData.asMap().isEmpty()) LastMark.FRAME else LastMark.CORNER
+            val quale = if (currentData.asMap().isEmpty()) Settings().lastMark else LastMark.CORNER
             this[LAST_MARK] = quale.token
         }
 
@@ -1445,7 +1462,7 @@ object SettingsStore {
              * a scrivere la chiave ci pensa `MarkMigration`, che gira prima della prima lettura.
              * Resta perché un ripiego che non c'è è un `null` che nessuno ha previsto.
              */
-            lastMark = LastMark.entries.byToken(p[LAST_MARK], LastMark.FRAME),
+            lastMark = LastMark.entries.byToken(p[LAST_MARK], LastMark.DOT),
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
             // dichiarasse spenti (una versione futura, un file modificato a mano) non deve
             // poter far sparire il nome del file.
@@ -2041,6 +2058,25 @@ object FolderTints {
             ora[a] = quale
             p[TINTS] = ora.map { (dove, indice) -> "$dove=$indice" }.toSet()
         }
+    }
+
+    /**
+     * Le tinte di [qui] con quelle di [arrivo] aggiunte, e dove la cartella è la stessa vince
+     * [arrivo]: per il backup, che le fonde invece di sostituirle.
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`** (*Copertine, colori e stili del file si
+     * aggiungono ai tuoi, e dove si sovrappongono (la stessa cartella, lo stesso nome) vince il
+     * file*). Il formato delle righe è di questo oggetto, ed è la ragione per cui la fusione vive qui e
+     * non nel backup.
+     * ⚠️⚠️ **LE RIGHE PASSANO COME SONO, ANCHE QUELLE CHE NON SI LEGGONO**: di una riga di qui si
+     * guarda solo la cartella, e se ne va soltanto se il file ne porta una per la stessa. Rilette e
+     * riscritte, due righe che l'app non sa leggere sparirebbero con la fusione e non con la
+     * sostituzione, cioè importare cambierebbe una cosa che il file non nomina. Lo ha misurato il
+     * caso 1 di `BackupTest`, che mette nell'insieme una riga storta apposta.
+     */
+    internal fun merged(qui: Set<String>, arrivo: Set<String>): Set<String> {
+        val coperte = read(arrivo).keys
+        return arrivo + qui.filter { riga -> riga.substringBefore('=').toLongOrNull() !in coperte }
     }
 
     /**

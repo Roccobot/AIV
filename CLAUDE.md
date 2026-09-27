@@ -4563,6 +4563,15 @@ perde invece di chiedere se si è sicuri.
   vive dove lo mette lui. ⚠️ **Il formato è quello dell'archivio**, non un secondo: importare è
   leggere lo stesso JSON, quindi un file esportato oggi si rilegge domani con le stesse regole
   di compatibilità (ogni campo che manca vale il suo valore di riposo).
+  - ⚠️⚠️ **DALLA `2.95` IL FILE È `.aivcollection`, ED È SUA** (campo libero del giro della `2.93` e
+    della `2.94`: *File di stile con tutti gli stili (funzionalità futura per il brief): voglio
+    l'estensione `.aivcollection`*). Lui la dava per una funzione futura, e questa pagina la esporta
+    dalla `2.50`: l'estensione è entrata subito. ⚠️ **Lo stile singolo** (*`.aivstyle`*) invece non
+    si esporta ancora, e il giro della `2.95` gli chiede se lo vuole.
+  - ⚠️ **Il tipo dichiarato è quello generico e non più JSON**, o il file uscirebbe
+    `.aivcollection.json`; l'importazione accetta ogni file, e uno esportato prima come `.json` si
+    rilegge lo stesso. Il perché del tipo vive in § '💼 Esporta e importa, e il file che solo AIV sa
+    leggere'.
 - ⚠️ **Un preset di casa cancellato non sparisce dall'app**: i suoi valori vivono nel programma,
   quindi l'archivio ne tiene la chiave fra i **nascosti**. 'Ripristina' porta via quell'elenco
   insieme a tutto il resto, ed è la ragione per cui il comando è uno e non due.
@@ -5806,17 +5815,36 @@ possono essere salvate, ma ogni cosa su richiesta con apposita checkbox*). La pa
 importa', una sotto-pagina che si apre dalla radice delle impostazioni accanto al ripristino degli
 avvisi; il formato vive in `Backup.kt` e la pagina in `BackupSettings.kt`.
 
+⚠️⚠️ **IL FILE SI CHIAMA 'FILE DI IMPOSTAZIONI', E DALLA `2.95` L'ESTENSIONE È `.aivsettings`**
+(campo libero del giro della `2.93` e della `2.94`: *File di backup (lo chiamo sempre, coerentemente
+'file di impostazioni'): voglio l'estensione `.aivsettings`*). Vale nei testi dell'interfaccia, in
+chat, nelle voci del documento di feedback e nei commenti, per il criterio di § '🗣️ Come si chiamano
+le cose'; nel codice restano `Backup` e `backup_*`, come il prefisso `front`.
+- ⚠️ **Il nome proposto è `AIV-settings-<data>.aivsettings`**, ed è una lettura dichiarata della
+  stessa riga: fino alla `2.94` era `AIV-backup-<data>.aivbackup`. Un file col suffisso vecchio si
+  importa lo stesso, perché a dire che cosa è ci pensa la sua intestazione.
+- ⚠️ **Il tipo dichiarato è quello generico**, e deve esserlo: con un tipo vero il fornitore della
+  cartella rimetterebbe il suffisso che quel tipo vuole. Vale anche per gli stili (§ '🎞️ I preset,
+  venti di casa e quelli che si salvano').
+
 ⚠️⚠️ **LE PARTI SONO OTTO MACRO-AREE, ED È LA SUA RIGA ALLA LETTERA** (*per non fare un elenco
 troppo lungo di checkbox, si selezionerà per macro-aree*): 'Aspetto e navigazione', 'Comandi e
-indicatori', 'Modifica e backup', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine delle
-cartelle', 'Avvisi già visti' e 'Cestino'. Le prime tre sono le sezioni della schermata delle
-impostazioni e portano il loro titolo, le altre sono quello che l'app ricorda fuori da lì.
+indicatori', 'Impostazioni dell'editor', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine
+delle cartelle', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le sezioni della schermata
+delle impostazioni, le altre sono quello che l'app ricorda fuori da lì.
+- ⚠️⚠️ **LA TERZA NON PORTA PIÙ IL TITOLO DELLA SUA SEZIONE, DALLA `2.95`, ED È LA SUA NOTA SU
+  `d-backup-aree`** (*`Modifica e backup` → `Impostazioni dell'editor`*): dentro una pagina di backup
+  quel titolo faceva pensare che la casella portasse il backup stesso. La sezione delle impostazioni
+  resta 'Modifica e backup', perché la nota parla della casella.
 - ⚠️ **Il token di un'area è il formato e non cambia mai**: lo leggono anche i file già salvati, e
   un'area nuova prende un token nuovo.
 - ⚠️ **'Stili dell'editor' non c'è dove l'editor completo non c'è**, cioè sotto Android 13, per lo
   stesso criterio della loro pagina.
 - ⚠️ **Il cestino è l'ultima casella e dice quanto pesa**: è la sola parte che può valere un
   gigabyte, e chi manda un backup su Drive lo deve sapere prima.
+- ⚠️⚠️ **E DALLA `2.95` È LA SOLA SPENTA DI FABBRICA, ED È LA SUA RISPOSTA `senza-cestino` A
+  `d-backup-fabbrica`** (*è la sola parte che può pesare molto: la accendi quando serve*). La pagina
+  non si ricorda le caselle, e la sua risposta non lo chiede: rientrando si riparte da qui.
 
 ⚠️⚠️ **È UNO ZIP DENTRO UN CONTENITORE CIFRATO, E NON UNO ZIP CON LA PASSWORD, ED È UNA SCELTA
 DICHIARATA** (il formato l'ha lasciato scegliere a me): la cifratura classica dello ZIP si rompe in
@@ -5853,6 +5881,16 @@ localmente o su cartella Drive*): l'esportazione passa da `CreateDocument` e l'i
 di rete e nessun accesso da concedere a Google: il file lo scrive il fornitore che lui sceglie.
 - ⚠️ **L'importazione accetta ogni tipo di file**: un file passato da una chat o da Drive arriva col
   tipo che ha deciso chi lo serve, e a dire se è un backup ci pensa la sua intestazione.
+- ⚠️⚠️ **DALLA `2.95` UN FILE VUOTO NON SI DÀ PER ESPORTATO, ED È SUA RICHIESTA** (voce
+  `backup-esporta`: *aggiungi una verifica a fine esportazione per assicurarti che il file non risulti
+  di 0 byte*): la scrittura può finire senza nessun errore e lasciare un file vuoto, quando il
+  fornitore della cartella accetta i byte e non li scrive. La notifica è il suo testo alla lettera, e
+  il file vuoto si cancella come quello di un'esportazione andata storta.
+  - ⚠️ **La domanda è doppia, e la seconda evita un allarme falso** (`Backups.landed`): prima il peso
+    che il fornitore dichiara, e se non arriva o dice zero il primo byte letto. Drive carica in rete,
+    e il suo peso può arrivare in ritardo.
+  - ⚠️ **Lo stesso testo vale quando il fornitore rifiuta la scrittura**, cioè una
+    `SecurityException`, perché dice la stessa cosa.
 
 ⚠️⚠️ **LE PREFERENZE SONO UN ELENCO SCRITTO A MANO, E LO TIENE ONESTO UNA PROVA** (`PREF_KEYS`): le
 chiavi vivono in cinque oggetti diversi di `Settings.kt`, e una chiave nuova dimenticata là
@@ -5873,6 +5911,24 @@ tutti i suoi scrittori e pretende che ogni chiave sia nell'elenco col tipo giust
 AGGIUNGE**: sostituirlo vorrebbe dire cancellare per sempre dei file, cioè la sola cosa che il cestino
 esiste per non fare. Con lui si aggiunge la cronologia dei ripristini, e un doppione non entra due
 volte.
+- ⚠️⚠️ **E DALLA `2.95` SI FONDONO ANCHE LE COPERTINE, I COLORI DELLE CARTELLE E GLI STILI, ED È LA
+  SUA RISPOSTA `fonde` A `d-backup-importa`** (*copertine, colori e stili del file si aggiungono ai
+  tuoi, e dove si sovrappongono (la stessa cartella, lo stesso nome) vince il file*). Le preferenze
+  restano una sostituzione, perché ognuna ha un valore solo, e la domanda del giro lo diceva.
+  - **Le copertine**: una di adesso esce solo quando il file ne porta una per la stessa cartella
+    (`FolderCovers.adopt`), quindi un file senza copertine non ne toglie nessuna.
+  - **I colori**: l'elenco delle tinte si fonde cartella per cartella, e lo **stile** con cui il
+    colore si vede resta un valore solo (`PREF_MERGED`, in `Backup.kt`).
+  - **Gli stili** (`Presets.merge`): un salvato col nome già usato prende i valori del file e resta
+    al suo posto, gli altri arrivano in coda. Di quelli di casa l'archivio tiene i soli cambiamenti
+    dalla fabbrica, e si sommano: il nome che il file dà vince, quello che il file non tocca resta, e
+    uno stile nascosto da una delle due parti resta nascosto. Su un telefono nuovo la fusione dà
+    esattamente il file, che è il caso per cui un file di impostazioni esiste.
+  - ⚠️ **L'importazione della pagina degli stili sostituisce ancora**: la sua risposta parla del file
+    di impostazioni, e il giro della `2.95` gli chiede se vuole la stessa cosa anche là.
+  - ⚠️ **Con la fusione è uscito l'elenco delle cartelle da tenere**, che proteggeva le copertine di
+    una cartella di cui il file porta un formato sconosciuto: adesso restano da sé, perché una
+    copertina che non entra non copre la sua cartella.
 - ⚠️⚠️ **PRIMA SI LEGGE TUTTO E POI SI SCRIVE TUTTO**: le voci si mettono da parte in due cartelle
   d'appoggio e il file si legge fino all'ultimo segmento, quindi un file tagliato o storto si scopre
   quando non è ancora cambiato niente. Le cartelle d'appoggio si puliscono anche all'avvio dell'app,
@@ -5901,8 +5957,9 @@ quattro, e vivono in testa a `Backup`.
    bisogno.
 4. ⚠️ **Quello che non si sa leggere si salta, si conta, e non cancella niente**: un'area, una voce,
    una chiave o un tipo sconosciuti si saltano, e un logo o una copertina in un formato nuovo
-   lasciano al suo posto quello che c'era. La notifica finale lo dice (*Backup importato, tranne le
-   voci che questa versione di AIV non conosce.*).
+   lasciano al suo posto quello che c'era. La notifica finale lo dice, e dalla `2.95` il testo è suo
+   (*Importazione completata, salvo alcune impostazioni che provengono da una versione più recente di
+   AIV.*).
 - ⚠️ **I numeri viaggiano come stringhe, col tipo scritto accanto**: un numero JSON lo tipizza chi
   legge, e il tipo di una preferenza non si indovina.
 - ⚠️ **Gli archivi del cestino e della cronologia non crescono per colonne**: una colonna in più
@@ -5924,15 +5981,16 @@ sarebbe un'app fatta di due backup.
 cosa fa il tocco FUORI da una finestra': la conferma non raccoglie niente di scritto, e il tocco fuori
 vale 'Annulla', che è l'esito sicuro.
 
-⚠️ **Che cosa il banco misura e che cosa no** (`BackupTest`, ventidue casi, ognuno controprovato
+⚠️ **Che cosa il banco misura e che cosa no** (`BackupTest`, ventisette casi, ognuno controprovato
 rimettendo il suo difetto): che ogni preferenza torni col suo tipo e che ogni chiave dell'archivio
 sia coperta; le caselle; le assenti, le chiavi non nominate e il file di una versione più nuova, con
-una controprova per ognuna delle cinque regole che lo reggono; la sostituzione delle copertine e del
-logo e l'aggiunta al cestino; il contenitore, cioè la password, un byte cambiato, un file tagliato su
-ogni confine, due segmenti scambiati, i vettori di PBKDF2 e la password scritta in due modi; e i tre
-file fatti a mano. **Non** vede il selettore di sistema né Drive, quanto costi la chiave su un
-telefono, né l'app che si ridisegna dopo un'importazione: quelli si guardano sul telefono, e la voce
-di collaudo li chiede.
+una controprova per ognuna delle cinque regole che lo reggono; la sostituzione del logo e l'aggiunta
+al cestino; il contenitore, cioè la password, un byte cambiato, un file tagliato su ogni confine, due
+segmenti scambiati, i vettori di PBKDF2 e la password scritta in due modi; i tre file fatti a mano;
+e dalla `2.95` la fusione delle copertine, delle tinte e degli stili, il file vuoto e il suffisso.
+**Non** vede il selettore di sistema né Drive, quanto costi la chiave su un telefono, un fornitore che
+perde i byte, né l'app che si ridisegna dopo un'importazione: quelli si guardano sul telefono, e la
+voce di collaudo li chiede.
 - ⚠️⚠️ **UNA TRAPPOLA DEL BANCO, TROVATA RIMETTENDO I DIFETTI**: la JVM rifiuta di cifrare due volte
   con la stessa chiave e lo stesso nonce, quindi un difetto che congela il contatore fa cadere le
   prove già mentre scrivono il file, cioè per la ragione sbagliata. Per misurarlo serve un cifrario
@@ -6042,8 +6100,19 @@ della durata di un filmato.
   `2.12` qui sopra.
 - ⚠️ **L'aria dai due bordi vale il raggio**, quindi il segno cresce tutto insieme e resta lo
   stesso tondo a qualunque misura: un'aria fissa lo schiaccerebbe nell'angolo alle misure grandi.
-- ⚠️ **I valori di fabbrica non cambiano**: il tondo arriva solo a chi lo sceglie, e
-  `MarkMigration` resta com'è.
+- ⚠️⚠️ **E DALLA `2.95` IL TONDO È IL VALORE DI FABBRICA, ED È SUA ISTRUZIONE** (voce `tondo-opaco`
+  del giro della `2.93` e della `2.94`, approvata con una nota: *dev'essere il predefinito*). Fino
+  alla `2.94` qui c'era scritto che i valori di fabbrica non cambiavano, e quella frase è superata.
+  - ⚠️ **Chi ha già l'app tiene il segno che ha**, ed è la stessa ragione della sfocatura della
+    `2.61`: dalla `2.11` `MarkMigration` scrive la chiave al primo avvio, quindi l'archivio non
+    distingue 'ho scelto la cornice' da 'la cornice è arrivata di fabbrica'. Il tondo arriva alle
+    installazioni nuove, e la voce di collaudo glielo dice.
+  - ⚠️ **Il valore vive in tre posti, e il banco li tiene allineati**: il campo di `Settings`, la
+    lettura del flusso e il ramo dell'archivio vuoto di `MarkMigration`, che adesso scrive il campo
+    di `Settings` invece di un secondo nome. Li presidiano il caso 6 di `ProfonditaTest` e il caso 1
+    di `IndicatoreTest`.
+  - ⚠️ **Il gettone resta in coda**: l'ordine dei gettoni è quello di dichiarazione, e lui non ha
+    chiesto di spostarlo.
 
 ⚠️⚠️ **E DALLA `2.92` IL NASTRO SI SPECCHIA DA DESTRA A SINISTRA, E FINO ALLA `2.91` NO**: si
 disegnava in coordinate assolute, cioè sempre in basso a sinistra, mentre la spunta

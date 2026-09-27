@@ -161,7 +161,7 @@ fun StyleSettings(
         TextButton(onClick = { esporta.launch(STYLE_FILE) }) {
             Text(stringResource(R.string.settings_styles_export))
         }
-        TextButton(onClick = { importa.launch(arrayOf(STYLE_MIME)) }) {
+        TextButton(onClick = { importa.launch(arrayOf(STYLE_ANY)) }) {
             Text(stringResource(R.string.settings_styles_import))
         }
     }
@@ -255,13 +255,34 @@ private fun StyleRow(preset: Preset, onRename: () -> Unit, onRemove: () -> Unit)
 private val STYLE_HANDLE_ROOM = HANDLE + 4.dp
 
 /**
- * Che cosa si scrive e che cosa si legge quando gli stili escono dall'app.
+ * Il tipo con cui gli stili escono dall'app.
  *
- * ⚠️ **JSON e non XML**, fra i due che lui ha nominato (*si potrà salvare un XML o JSON*): è già
- * il formato dell'archivio, quindi il file esportato è esattamente quello che vive su disco e non
- * c'è una seconda scrittura da tenere allineata alla prima.
+ * ⚠️ **Il contenuto è JSON e non XML**, fra i due che lui ha nominato (*si potrà salvare un XML o
+ * JSON*): è già il formato dell'archivio, quindi il file esportato è esattamente quello che vive su
+ * disco e non c'è una seconda scrittura da tenere allineata alla prima.
+ * ⚠️⚠️ **MA IL TIPO DICHIARATO NON È PIÙ `application/json`, DALLA `2.95`**: con quel tipo un
+ * fornitore di documenti rimette il suffisso che il tipo vuole, e il file uscirebbe
+ * `.aivcollection.json`. Il tipo generico è l'unico che lascia l'estensione com'è, ed è lo stesso
+ * del file di impostazioni (vedi `Backup.MIME`).
  */
-private const val STYLE_MIME = "application/json"
+private const val STYLE_MIME = "application/octet-stream"
 
-/** Il nome che il selettore propone quando si esporta. */
-private const val STYLE_FILE = "aiv-styles.json"
+/**
+ * Che file il selettore lascia scegliere all'importazione: tutti.
+ *
+ * ⚠️ **Tutti e non il tipo dell'esportazione**, per la stessa ragione del file di impostazioni: un
+ * file con un suffisso che nessuno conosce arriva col tipo generico, e uno esportato prima della
+ * `2.95` arriva come JSON. Filtrando per tipo, uno dei due non si vedrebbe. A dire se il testo è un
+ * archivio di stili ci pensa [Presets.load].
+ */
+private const val STYLE_ANY = "*/*"
+
+/**
+ * Il nome che il selettore propone quando si esporta.
+ *
+ * ⚠️⚠️ **L'ESTENSIONE È `.aivcollection` DALLA `2.95`, ED È SUA** (campo libero del giro della `2.93`
+ * e della `2.94`: *File di stile con tutti gli stili: voglio l'estensione `.aivcollection`*). Lui
+ * la dava per una funzione futura, e questa pagina la esporta già dalla `2.50`: quindi l'estensione
+ * entra adesso, e lo stile singolo, che ancora non si esporta, è una domanda del giro dopo.
+ */
+private const val STYLE_FILE = "aiv-styles.aivcollection"

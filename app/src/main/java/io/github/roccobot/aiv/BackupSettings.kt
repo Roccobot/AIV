@@ -142,6 +142,13 @@ internal object Backups {
      * ⚠️ **Un piano che manca vuol dire un processo ripartito mentre il selettore era aperto**, cioè
      * una password che non c'è più: si cancella il documento invece di scrivere senza la protezione che
      * era stata chiesta.
+     * ⚠️⚠️ **E DALLA `2.95` SI GUARDA CHE IL FILE NON SIA VUOTO, ED È SUA RICHIESTA** (voce
+     * `backup-esporta` del giro della `2.93` e della `2.94`: *aggiungi una verifica a fine esportazione
+     * per assicurarti che il file non risulti di 0 byte*). La scrittura può finire senza nessun errore
+     * e lasciare un file vuoto, quando il fornitore della cartella accetta i byte e poi non li scrive;
+     * la verifica è [landed], e un file vuoto si cancella come quello di un'esportazione andata storta.
+     * ⚠️ **Il suo testo vale anche quando il fornitore rifiuta la scrittura** (`SecurityException`),
+     * perché dice la stessa cosa: la cartella scelta non lascia scrivere.
      */
     fun export(context: Context, uri: Uri?) {
         val piano = plan
@@ -162,6 +169,7 @@ internal object Backups {
                 val out = app.contentResolver.openOutputStream(uri, "w")
                     ?: throw IOException("destinazione")
                 out.use { Backup.write(app, it, piano.areas, piano.password, onBytes = avanza) }
+                if (!landed(app, uri)) throw Empty()
             }
             withContext(NonCancellable) {
                 val errore = esito.exceptionOrNull()
@@ -169,7 +177,14 @@ internal object Backups {
                 step = null
                 // ⚠️ Un annullamento l'ha chiesto chi guarda, e non ha bisogno che glielo si dica.
                 if (errore !is CancellationException) {
-                    say(app, if (errore == null) R.string.backup_saved else R.string.toast_save_failed)
+                    say(
+                        app,
+                        when (errore) {
+                            null -> R.string.backup_saved
+                            is Empty, is SecurityException -> R.string.backup_empty
+                            else -> R.string.toast_save_failed
+                        }
+                    )
                 }
             }
         }
@@ -324,6 +339,26 @@ internal object Backups {
         return input.use { block(it) }
     }
 
+    /** Un'esportazione che è finita senza errori e ha lasciato un file vuoto. */
+    private class Empty : IOException("vuoto")
+
+    /**
+     * Se il documento appena scritto porta davvero qualcosa.
+     *
+     * ⚠️⚠️ **DUE DOMANDE E NON UNA, E LA SECONDA SERVE A NON DARE UN ALLARME FALSO**: il peso che il
+     * fornitore dichiara è la risposta più rapida, ma non tutti lo dichiarano, e uno che carica i byte
+     * in rete (Drive) può dirlo in ritardo. Quando il peso non arriva o dice zero, si prova a leggere il
+     * primo byte: il file è vuoto solo se anche quello non c'è.
+     * ⚠️ **È `internal` per il banco**, che la prova con un file vuoto e con uno pieno: il caso vero è un
+     * fornitore che perde i byte, e quello su una macchina di prova non si costruisce.
+     */
+    internal fun landed(context: Context, uri: Uri): Boolean {
+        if (sizeOf(context, uri) != null) return true
+        return runCatching {
+            context.contentResolver.openInputStream(uri)?.use { it.read() >= 0 } ?: false
+        }.getOrDefault(false)
+    }
+
     /** Quanto pesa il file scelto, se il suo fornitore lo dice: serve alla barra. */
     private fun sizeOf(context: Context, uri: Uri): Long? = runCatching {
         context.contentResolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)?.use { c ->
@@ -352,8 +387,11 @@ internal object Backups {
  * ⚠️⚠️ **LE STESSE CASELLE VALGONO NEI DUE VERSI, ED È UNA SCELTA DICHIARATA**: esportando dicono che
  * cosa entra nel file, importando che cosa esce dal file. Due elenchi separati sarebbero due domande
  * sullo stesso argomento, e la seconda si leggerebbe come un doppione della prima.
- * ⚠️ **Di fabbrica sono accese tutte, cestino compreso**: la sua richiesta dice *tutte*, e il cestino è
- * la sola casella che accanto dice quanto pesa, così chi manda un backup su Drive lo sa prima.
+ * ⚠️⚠️ **DI FABBRICA SONO ACCESE TUTTE TRANNE IL CESTINO, DALLA `2.95`, ED È LA SUA RISPOSTA
+ * `senza-cestino` A `d-backup-fabbrica`** (*è la sola parte che può pesare molto: la accendi quando
+ * serve*). Nella `2.93` c'era anche il cestino, perché la sua richiesta di allora diceva *tutte*.
+ * ⚠️ **La pagina non si ricorda le caselle**, e la sua risposta non lo chiede: uscendo e rientrando si
+ * riparte dal valore di fabbrica. Il cestino resta la sola casella che accanto dice quanto pesa.
  *
  * ⚠️⚠️ **L'AVANZAMENTO È UNA RIGA DELLA PAGINA E NON UNA FINESTRA**: una finestra che si chiude toccando
  * fuori annullerebbe un lavoro lungo con un tocco distratto, e una che non si chiude sarebbe una modale
@@ -366,7 +404,7 @@ internal fun BackupPage() {
     // ⚠️ Gli stili sono dell'editor completo, e dove quello non c'è la loro casella non avrebbe niente
     // da portare: è lo stesso criterio della loro pagina.
     val offered = remember { BackupArea.entries.filter { it != BackupArea.STYLES || advancedEditorAvailable() } }
-    var chosen by rememberSaveable(stateSaver = AREAS) { mutableStateOf(offered.toSet()) }
+    var chosen by rememberSaveable(stateSaver = AREAS) { mutableStateOf(offered.toSet() - BackupArea.BIN) }
     var lock by rememberSaveable { mutableStateOf(false) }
     var asking by remember { mutableStateOf(false) }
     // ⚠️ Si rimisura a ogni importazione riuscita: il cestino è la sola parte che un'importazione fa
@@ -578,13 +616,18 @@ private fun UnlockDialog(wrong: Boolean, onDismiss: () -> Unit, onDone: (String)
  * prima.
  * ⚠️ **Non è una modale vera**: non raccoglie niente di scritto, e il tocco fuori vale 'Annulla', che è
  * l'esito sicuro.
+ * ⚠️⚠️ **LA RIGA DI TESTA È SUA DALLA `2.95`** (testo `backup_import_from`: *Esportazione del [data],
+ * [ora], a capo, Astonishing Image Viewer [versione]*), quindi la data e l'ora sono due argomenti e non
+ * uno: nella `2.93` erano una stringa sola, e la frase non poteva metterle dove le vuole lei. ⚠️ **Le
+ * scrive la lingua del telefono**, e fra le due c'è la virgola della sua riga.
  */
 @Composable
 private fun ConfirmDialog(ready: Backups.Step.Ready, onDismiss: () -> Unit, onDone: () -> Unit) {
     val locale = LocalConfiguration.current.locales[0]
-    val quando = remember(ready, locale) {
-        DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, locale)
-            .format(Date(ready.manifest.created))
+    val (giorno, ora) = remember(ready, locale) {
+        val quando = Date(ready.manifest.created)
+        DateFormat.getDateInstance(DateFormat.LONG, locale).format(quando) to
+            DateFormat.getTimeInstance(DateFormat.SHORT, locale).format(quando)
     }
     val parti = BackupArea.entries.filter { it in ready.areas && it in ready.manifest.areas }
     AlertDialog(
@@ -597,7 +640,7 @@ private fun ConfirmDialog(ready: Backups.Step.Ready, onDismiss: () -> Unit, onDo
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(stringResource(R.string.backup_import_from, quando, ready.manifest.app))
+                Text(stringResource(R.string.backup_import_from, giorno, ora, ready.manifest.app))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     parti.forEach {
                         Text(text = stringResource(it.label), style = MaterialTheme.typography.titleSmall)
