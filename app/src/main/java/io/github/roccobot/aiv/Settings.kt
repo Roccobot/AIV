@@ -916,6 +916,13 @@ data class Settings(
      * ⚠️ **Nascondere non cancella niente**: le foto restano dove sono, e la cartella si
      * rivede dalle impostazioni. Vale la pena dirlo perché una funzione che si chiama
      * 'escludi' accanto a una che cancellerà davvero è il posto giusto per un equivoco.
+     * ⚠️⚠️ **DALLA `2.96` UN PERCORSO È SENZA LA RADICE DEL VOLUME, ED È SUA RICHIESTA**: `DCIM/Temp`
+     * e non `/storage/emulated/0/DCIM/Temp`, così un file di impostazioni lo porta su un altro
+     * telefono. Il perché per esteso, e che cosa ne segue, vivono su `portablePath`, e il confronto
+     * su `coveringOf`: questo campo non si legge mai con `in` o con `startsWith`, perché una voce e
+     * il percorso di una cartella non sono più scritti nella stessa forma.
+     * ⚠️ **La chiave è nuova**, perché è cambiato quello che la risposta dice: il passaggio da una
+     * all'altra lo fa [HiddenMigration].
      */
     val hiddenFolders: Set<String> = emptySet(),
     /**
@@ -1137,7 +1144,7 @@ fun padOrderOf(tokens: List<String>, base: List<PadKey>): List<PadKey> {
  */
 private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(
     name = "aiv-settings",
-    produceMigrations = { listOf(MarkMigration) }
+    produceMigrations = { listOf(MarkMigration, HiddenMigration) }
 )
 
 /**
@@ -1179,6 +1186,47 @@ internal object MarkMigration : DataMigration<Preferences> {
         currentData.toMutablePreferences().apply {
             val quale = if (currentData.asMap().isEmpty()) Settings().lastMark else LastMark.CORNER
             this[LAST_MARK] = quale.token
+        }
+
+    override suspend fun cleanUp() = Unit
+}
+
+/**
+ * L'elenco delle cartelle nascoste, coi percorsi senza la radice del volume. Vedi `portablePath`.
+ *
+ * ⚠️ **Sta a livello di file per la stessa ragione di [LAST_MARK]**: la legge anche [HiddenMigration],
+ * che vive accanto al delegato dello store.
+ */
+internal val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-relative")
+
+/**
+ * L'elenco fino alla `2.95`, coi percorsi interi: si legge una volta sola, e poi non c'è più.
+ *
+ * ⚠️ **Il nome non si riusa mai**, e il file di impostazioni lo sa: uno scritto fino alla `2.95` porta
+ * questa chiave nella voce di 'Aspetto e navigazione', e l'importazione la traduce come fa la
+ * migrazione (vedi `PREF_RETIRED`, in `Backup.kt`).
+ */
+internal val HIDDEN_FOLDERS_ABSOLUTE = stringSetPreferencesKey("hidden-folders")
+
+/**
+ * Chi aggiorna ritrova le sue cartelle nascoste, scritte nella forma nuova.
+ *
+ * ⚠️⚠️ **UNA MIGRAZIONE E NON UN RIPIEGO IN LETTURA, AL CONTRARIO DELLA DISTANZA DELLA FILIGRANA**:
+ * là la chiave vecchia diceva la stessa cosa con un'altra unità, e leggerla per moltiplicarla non
+ * costava niente; qui l'elenco si **scrive** a ogni cartella nascosta o rimostrata, e con due chiavi
+ * vive la prima scrittura le farebbe divergere. La vecchia quindi si traduce una volta e si toglie.
+ * ⚠️ **Le due si uniscono invece di sostituirsi**: un archivio che le portasse tutte e due (non
+ * capita, ma costa una riga non chiederselo) perderebbe una delle due metà.
+ */
+internal object HiddenMigration : DataMigration<Preferences> {
+    override suspend fun shouldMigrate(currentData: Preferences): Boolean =
+        currentData[HIDDEN_FOLDERS_ABSOLUTE] != null
+
+    override suspend fun migrate(currentData: Preferences): Preferences =
+        currentData.toMutablePreferences().apply {
+            val vecchie = currentData[HIDDEN_FOLDERS_ABSOLUTE].orEmpty().map(::portablePath)
+            this[HIDDEN_FOLDERS] = currentData[HIDDEN_FOLDERS].orEmpty() + vecchie
+            remove(HIDDEN_FOLDERS_ABSOLUTE)
         }
 
     override suspend fun cleanUp() = Unit
@@ -1307,7 +1355,6 @@ object SettingsStore {
     private val BIN_KEEP = stringPreferencesKey("bin-keep")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val FOLDER_COLOUR = stringPreferencesKey("folder-colour")
-    private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
     // ⚠️ Due chiavi e non una, perché sono due domande: in che ordine stanno i campi, e
     // quali sono spenti. Una sola stringa coi soli accesi perderebbe la posizione di

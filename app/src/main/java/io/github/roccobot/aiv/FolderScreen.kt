@@ -178,8 +178,16 @@ fun FolderScreen(
     peeking: Boolean = false,
     /** Accende e spegne la vista temporanea. */
     onPeek: (Boolean) -> Unit = {},
-    /** Rimostra una cartella per sempre, cioè la toglie da `Settings.hiddenFolders`. */
-    onUnhide: (String) -> Unit = {},
+    /**
+     * Rimostra per sempre, cioè toglie queste voci da `Settings.hiddenFolders`.
+     *
+     * ⚠️⚠️ **LE VOCI ARRIVANO TUTTE INSIEME, DALLA `2.96`**: una cartella dentro una nascosta è
+     * coperta dalla sua antenata, e rimostrarla vuol dire togliere anche quella voce. Fino alla
+     * `2.95` il dialogo toglieva la sola voce col percorso della cartella, cioè niente, e la cartella
+     * restava nascosta. Due chiamate da una voce ciascuna scriverebbero due volte partendo dallo
+     * stesso elenco, e la seconda rimetterebbe quello che la prima ha tolto.
+     */
+    onUnhide: (Collection<String>) -> Unit = {},
     recents: List<RecentImage>,
     onPick: (Folder.Bucket) -> Unit,
     onOpen: (Uri) -> Unit,
@@ -806,7 +814,7 @@ fun FolderScreen(
      */
     if (listing) {
         Sheet(title = stringResource(R.string.settings_hidden), onDismiss = { listing = false }) {
-            hidden.sorted().forEach { path ->
+            hidden.sorted().forEach { voce ->
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -815,19 +823,23 @@ fun FolderScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         // ⚠️ Il nome davanti e il percorso sotto, come nelle impostazioni: due
                         // cartelle possono chiamarsi uguale, e il percorso è l'unica cosa che le
-                        // distingue.
-                        Text(
-                            text = path.substringAfterLast('/'),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = path,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        // distingue. ⚠️ Dalla `2.96` il percorso parte dalla radice del volume,
+                        // e i due testi li scrivono `hiddenName` e `hiddenShown`.
+                        val nome = hiddenName(voce)
+                        val percorso = hiddenShown(voce)
+                        Text(text = nome, style = MaterialTheme.typography.bodyLarge)
+                        // ⚠️ La radice di un volume ha per nome e per percorso la stessa barra, e
+                        // due righe uguali non dicono niente in più di una.
+                        if (percorso != nome) {
+                            Text(
+                                text = percorso,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                     TextButton(onClick = {
-                        onUnhide(path)
+                        onUnhide(listOf(voce))
                         // ⚠️ L'ultima riga che se ne va chiude il pannello: restare davanti a un
                         // elenco vuoto vorrebbe dire cercare da soli la via d'uscita.
                         if (hidden.size <= 1) listing = false
@@ -848,14 +860,28 @@ fun FolderScreen(
          * cartella in scena può essere nascosta solo durante il minuto. Due stati paralleli
          * direbbero il contrario l'uno dell'altro il giorno che ne cambia uno.
          */
-        val nascosta = bucket.isHidden(hidden)
+        /*
+         * ⚠️⚠️ **LE VOCI CHE LA COPRONO, E NON SOLO QUELLA COL SUO NOME, DALLA `2.96`**: una cartella
+         * dentro una nascosta è in prestito come lei, e fino alla `2.95` 'Mostra' toglieva la sola
+         * voce col percorso della cartella, cioè niente. Adesso toglie tutte quelle che la coprono.
+         * ⚠️ **E il titolo nomina la più in alto**, che è quella che torna davvero: rimostrando
+         * `Camera` dentro una `DCIM` nascosta tornano `DCIM` e tutte le sue sorelle, e una domanda
+         * che dicesse 'Camera' prometterebbe meno di quello che fa.
+         */
+        val coprono = bucket.path?.let { coveringOf(hidden, it) }.orEmpty()
+        val nascosta = coprono.isNotEmpty()
+        // ⚠️ La più in alto è la più corta, perché le voci che coprono una cartella stanno tutte
+        // sulla sua strada; e se è la cartella stessa, il nome resta quello che il telefono le dà.
+        val propria = bucket.path?.let(::portablePath)
+        val alta = coprono.minByOrNull { it.length }
+        val nome = if (alta == null || alta == propria) bucket.name else hiddenName(alta)
         AlertDialog(
             onDismissRequest = { hiding = null },
             modifier = Modifier.lowered { hiding = null },
             title = {
                 Text(stringResource(
                     if (nascosta) R.string.show_folder_title else R.string.hide_folder_title,
-                    bucket.name
+                    nome
                 ))
             },
             // ⚠️ Il testo dice DOVE va a finire, e dirlo qui è metà della funzione: una
@@ -868,7 +894,7 @@ fun FolderScreen(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    if (nascosta) bucket.path?.let(onUnhide) else onHide(bucket)
+                    if (nascosta) onUnhide(coprono) else onHide(bucket)
                     hiding = null
                 }) {
                     // ⚠️ 'Mostra' è la stessa parola del pannello e delle impostazioni, quindi

@@ -367,6 +367,16 @@ fun GridScreen(
      * `ViewerViewModel.covering`.
      */
     onCoverPick: (() -> Unit)? = null,
+    /**
+     * Lascia la cartella dopo che la scelta di una copertina è partita, dalla `2.96`.
+     *
+     * ⚠️⚠️ **SI ESCE ALL'ELENCO INIZIALE, ED È SUA RICHIESTA**: il perché e il caso in cui non si
+     * esce vivono su `ViewerViewModel.coverAway`.
+     * ⚠️ **La prima volta si esce quando il mini-onboarding si chiude**, perché il velo indica
+     * l'icona di questa cartella: uscendo subito non lo vedrebbe nessuno. Le altre volte si esce
+     * col tocco stesso.
+     */
+    onCoverAway: () -> Unit = {},
     /** Toglie la copertina scelta: la voce del menu del FAB. Vedi [coverSet]. */
     onCoverClear: (() -> Unit)? = null,
     /**
@@ -1232,6 +1242,7 @@ fun GridScreen(
      * cattura sarebbe quella del primo giro. Con questo, il tocco chiama sempre quella di adesso.
      */
     val scegliCopertina by rememberUpdatedState(onCoverPick)
+    val viaPerCopertina by rememberUpdatedState(onCoverAway)
     val copiaNome = {
         ImageActions.copyName(context, title)
         Notices.say(nomeCopiato)
@@ -1598,7 +1609,12 @@ fun GridScreen(
                                         haptics.performHapticFeedback(HOLD_BUZZ)
                                         tinge = true
                                     },
-                                    onTap = { scegliCopertina?.invoke() }
+                                    onTap = {
+                                        scegliCopertina?.invoke()
+                                        // ⚠️ La prima volta si resta, per il mini-onboarding:
+                                        // vedi `onCoverAway`.
+                                        if (coverSeen) viaPerCopertina()
+                                    }
                                 )
                             }
                             .frontIconMeasure(
@@ -2545,7 +2561,11 @@ fun GridScreen(
                 text = stringResource(R.string.hint_cover),
                 spot = dovIcona,
                 glyph = Glyphs.FolderAiv,
-                onDone = { scope.launch { Hint.COVER.remember(context) } }
+                // ⚠️ Chiuso il velo, la scelta continua dall'elenco iniziale: vedi `onCoverAway`.
+                onDone = {
+                    scope.launch { Hint.COVER.remember(context) }
+                    onCoverAway()
+                }
             )
         }
     }

@@ -1341,7 +1341,9 @@ private fun FoldersPage(
             // il suo tasto 'Mostra': la copertura sono i percorsi, che entrano fra i testi da
             // confrontare e non costano una stringa, perché sono dati. Guadagno collaterale:
             // una cartella nascosta diventa cercabile per nome, cosa che prima non era.
-            extra = settings.hiddenFolders.sorted()
+            // ⚠️ Sono i testi che la pagina mostra, cioè i percorsi con la barra davanti: la
+            // ricerca confronta quello che si legge.
+            extra = settings.hiddenFolders.map(::hiddenShown).sorted()
         )
     }
 
@@ -2555,7 +2557,11 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
     // ⚠️ Ordinate, e non nell'ordine in cui sono state nascoste: un insieme non ha
     // un ordine proprio, quindi senza questo le righe si rimescolerebbero da sole
     // fra un'apertura e l'altra.
-    settings.hiddenFolders.sorted().forEach { path ->
+    settings.hiddenFolders.sorted().forEach { voce ->
+        // ⚠️ Dalla `2.96` il percorso parte dalla radice del volume, e i due testi li scrivono
+        // `hiddenName` e `hiddenShown`, gli stessi del pannello della schermata iniziale.
+        val nome = hiddenName(voce)
+        val percorso = hiddenShown(voce)
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -2565,19 +2571,22 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
                 // ⚠️ Il nome davanti e il percorso sotto: due cartelle possono
                 // chiamarsi uguale, quindi il percorso è l'unica cosa che le
                 // distingue, ma è anche lungo e illeggibile come titolo.
-                text = path.substringAfterLast('/'),
+                text = nome,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f)
             )
             TextButton(onClick = {
-                onChange(settings.copy(hiddenFolders = settings.hiddenFolders - path))
+                onChange(settings.copy(hiddenFolders = settings.hiddenFolders - voce))
             }) { Text(stringResource(R.string.settings_hidden_show)) }
         }
-        Text(
-            text = path,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        // ⚠️ La radice di un volume ha per nome e per percorso la stessa barra.
+        if (percorso != nome) {
+            Text(
+                text = percorso,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

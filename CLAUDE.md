@@ -1544,9 +1544,19 @@ sua risposta lo ha riempito.
   tocco è una **modalità** e non una finestra: si sfoglia l'app com'è, e il tocco su una
   miniatura vale come scelta. Una finestra che elencasse immagini sarebbe una seconda galleria da
   tenere allineata a quella vera.
-- **Non si esce dalla cartella**, ed è il caso comune: la copertina che si vuole è quasi sempre
-  una delle immagini che si hanno davanti. Per prenderne una di un'altra cartella basta uscire e
-  navigare.
+- ⚠️⚠️ **DALLA `2.96` SI TORNA ALL'ELENCO INIZIALE, ED È SUA RICHIESTA** (campo libero del giro
+  della `2.95`: *quando si tocca l'icona dell'intestazione, la vista deve tornare sulla cartella
+  root (elenco delle cartelle iniziale) per facilitare la selezione da qualsiasi percorso*). Fino
+  alla `2.95` si restava nella cartella, e questa riga lo dava per il caso comune: adesso
+  un'immagine della stessa cartella costa un tocco in più, e tutte le altre qualcuno in meno.
+  - ⚠️ **Si esce solo se la scelta è partita**: il secondo tocco sulla stessa cartella rimette la
+    predefinita, e allora si resta. Lo decide `ViewerViewModel.coverAway`, che guarda `covering`.
+  - ⚠️ **La prima volta si esce quando il mini-onboarding si chiude**, perché il velo indica l'icona
+    di quella cartella: uscendo col tocco stesso non lo vedrebbe nessuno.
+  - ⚠️⚠️ **E LA VISTA 'CARTELLE DI SISTEMA' CONSEGNA, DALLA `2.96`**: è una delle tre viste
+    dell'elenco iniziale, e fino alla `2.95` un tocco su un'immagine là la apriva invece di
+    sceglierla, per la copertina come per un'altra app che chiede un'immagine. Con la scelta che
+    comincia dall'elenco, una vista su tre avrebbe fatto sembrare rotta la modalità.
 - ⚠️ **La modalità vive nel modello e non in una schermata** (`ViewerViewModel.covering`), per la
   stessa ragione del minuto di 'Mostra nascoste': fra l'inizio e la scelta si cambia schermata, e
   uno stato dentro la griglia se ne andrebbe proprio nel momento in cui serve.
@@ -1635,8 +1645,11 @@ cioè l'ultima immagine della cartella.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`CopertinaTest`): vede il gesto sull'icona (che
 convive col tocco lungo del colore senza confondersi), il legame fra la voce del menu e il suo
-interruttore, la fascia dell'invito e la precedenza della scelta sulla predefinita. **Non** vede
-la copia dell'immagine, che decodifica e riscrive un file: quella si prova sul telefono.
+interruttore, la fascia dell'invito e la precedenza della scelta sulla predefinita; dalla `2.96`
+anche il ritorno all'elenco iniziale, cioè col tocco a mini-onboarding visto, alla chiusura del velo
+la prima volta, e nel modello solo se la scelta è partita, ogni caso controprovato. **Non** vede la
+copia dell'immagine, che decodifica e riscrive un file, né la vista 'Cartelle di sistema' che
+consegna, che legge il disco: quelle si provano sul telefono.
 
 ## 👁️ 'Mostra nascoste', e perché dura un minuto
 
@@ -1727,8 +1740,44 @@ dalla schermata iniziale e la lasciava in bella vista appena si copiava un file.
     un'uscita anticipata dal filtro: quell'esclusione non ha niente a che vedere con le nascoste.
     A presidiarlo è il caso 5 di `DestinazioniTest`.
 
+⚠️⚠️ **DALLA `2.96` UNA VOCE È UN PERCORSO SENZA LA RADICE DEL VOLUME, ED È SUA RICHIESTA** (campo
+libero del giro della `2.95`: *i percorsi esclusi dovrebbero essere relativi (se nascondo /DCIM/Temp
+da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo in cui si installa AIV e si
+importano le impostazioni)*). Fino alla `2.95` l'elenco teneva `/storage/emulated/0/DCIM/Temp`, cioè
+un indirizzo di quel telefono: una scheda porta il proprio identificativo, e un profilo di lavoro un
+altro numero.
+- ⚠️⚠️ **QUINDI UNA VOCE VALE SU OGNI VOLUME, E SI DICHIARA**: `DCIM/Temp` nasconde quella cartella
+  sull'archivio del telefono e sulla scheda. È la conseguenza diretta della sua riga, perché
+  l'identificativo di una scheda è proprio la parte del percorso che da un telefono all'altro non
+  torna.
+- ⚠️ **La radice di un volume nasconde solo se stessa**, cioè le immagini che vivono proprio là e
+  non le cartelle dentro; un percorso fuori da un volume resta scritto intero. Il conto vive su
+  `portablePath`, in `Folder.kt`.
+- ⚠️⚠️ **OGNI CONFRONTO PASSA DA `hiddenIn` E `coveringOf`**: una voce e il percorso di una cartella
+  non sono più scritti nella stessa forma, quindi un `in` o uno `startsWith` sull'elenco è un
+  difetto che non dà nessun errore.
+- ⚠️ **La chiave è nuova** (`hidden-relative`), perché la risposta dice un'altra cosa, e chi aggiorna
+  ritrova le sue nascoste tradotte da `HiddenMigration`, che toglie la vecchia. Il perché di una
+  migrazione, e non di un ripiego in lettura come per la distanza della filigrana, vive su di lei.
+- ⚠️ **Il pannello e la pagina delle impostazioni scrivono il percorso con la barra davanti**, come
+  l'ha scritto lui (*/DCIM/Temp*): senza, `DCIM/Temp` si leggerebbe come un nome qualunque.
+- ⚠️ **Nel file di impostazioni le nascoste hanno una casella loro**, e si fondono: § '💼 Esporta e
+  importa, e il file che solo AIV sa leggere'.
+
+⚠️⚠️ **E 'MOSTRA' SU UNA CARTELLA DENTRO UNA NASCOSTA NON FACEVA NIENTE, FINO ALLA `2.95`**: il
+difetto l'ha trovato la `2.96` scrivendo il confronto nuovo, e a lui non era arrivato. Il tocco lungo
+su `Camera` in prestito, dentro una `DCIM` nascosta, proponeva di mostrare `Camera` e toglieva la
+voce col suo percorso, che nell'elenco non c'è: la cartella restava nascosta. Adesso toglie tutte le
+voci che la coprono, e il titolo nomina la più in alto, cioè `DCIM`, che è quella che torna davvero,
+con le sue sorelle.
+- ⚠️ **Le voci arrivano insieme e si tolgono in una scrittura sola**: due scritture partite dallo
+  stesso elenco si rimetterebbero a vicenda quello che l'altra ha tolto.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`NascosteTest`): vede il filtro nei due versi, il
-segno sulla sola cartella in prestito e il testo della voce che cambia con lo stato. **Non** vede
+segno sulla sola cartella in prestito e il testo della voce che cambia con lo stato; dalla `2.96`
+anche il confronto senza la radice del volume (le sue forme, le forme che un volume non sono, il
+separatore e la radice che copre solo se stessa), la migrazione della chiave vecchia e il dialogo
+sulla cartella dentro una nascosta, ogni caso controprovato rimettendo il suo difetto. **Non** vede
 il minuto, che vive nel modello: la scadenza, il suo avviso e la proroga si guardano sul telefono.
 ⚠️ Il filtro delle **destinazioni** invece lo misura `DestinazioniTest`, insieme al cestino: là la
 prova è di sola logica, perché `destinations` è una funzione che si chiama senza montare niente.
@@ -1769,6 +1818,8 @@ il resto (le cartelle, la ricerca, il cestino, le impostazioni) resta quello di 
 non c'è una seconda navigazione da tenere allineata alla prima.
 - **Vale per tutte e tre le griglie e per i recenti**: la ricerca e il cestino mostrano immagini
   come la cartella, e una modalità che funziona in una schermata su tre sembra rotta.
+  - ⚠️ **E dalla `2.96` anche per la vista 'Cartelle di sistema' dell'elenco iniziale**, che fino
+    alla `2.95` apriva l'immagine toccata: il perché vive in § '🖼️ La copertina scelta a mano'.
 - ⚠️ **Indietro annulla**, perché chiudere senza `setResult` vale `RESULT_CANCELED`, che è
   esattamente quello che chi ha chiesto si aspetta.
 
@@ -5827,11 +5878,16 @@ le cose'; nel codice restano `Backup` e `backup_*`, come il prefisso `front`.
   cartella rimetterebbe il suffisso che quel tipo vuole. Vale anche per gli stili (§ '🎞️ I preset,
   venti di casa e quelli che si salvano').
 
-⚠️⚠️ **LE PARTI SONO OTTO MACRO-AREE, ED È LA SUA RIGA ALLA LETTERA** (*per non fare un elenco
-troppo lungo di checkbox, si selezionerà per macro-aree*): 'Aspetto e navigazione', 'Comandi e
-indicatori', 'Impostazioni dell'editor', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine
-delle cartelle', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le sezioni della schermata
-delle impostazioni, le altre sono quello che l'app ricorda fuori da lì.
+⚠️⚠️ **LE PARTI SONO MACRO-AREE, ED È LA SUA RIGA ALLA LETTERA** (*per non fare un elenco troppo
+lungo di checkbox, si selezionerà per macro-aree*): 'Aspetto e navigazione', 'Comandi e indicatori',
+'Impostazioni dell'editor', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine delle cartelle',
+'Cartelle nascoste', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le sezioni della
+schermata delle impostazioni, le altre sono quello che l'app ricorda fuori da lì.
+- ⚠️⚠️ **'CARTELLE NASCOSTE' C'È DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della
+  `2.95`: *ovviamente serve una nuova sezione di esportazione 'Cartelle nascoste'*). Porta
+  l'etichetta della pagina delle impostazioni, e vive accanto alle altre due parti che parlano di
+  cartelle. Fino alla `2.95` l'elenco viaggiava dentro 'Aspetto e navigazione', e un file di allora
+  lo porta ancora là: il blocco sulle versioni, più sotto, dice come si legge.
 - ⚠️⚠️ **LA TERZA NON PORTA PIÙ IL TITOLO DELLA SUA SEZIONE, DALLA `2.95`, ED È LA SUA NOTA SU
   `d-backup-aree`** (*`Modifica e backup` → `Impostazioni dell'editor`*): dentro una pagina di backup
   quel titolo faceva pensare che la casella portasse il backup stesso. La sezione delle impostazioni
@@ -5919,6 +5975,9 @@ volte.
     (`FolderCovers.adopt`), quindi un file senza copertine non ne toglie nessuna.
   - **I colori**: l'elenco delle tinte si fonde cartella per cartella, e lo **stile** con cui il
     colore si vede resta un valore solo (`PREF_MERGED`, in `Backup.kt`).
+  - ⚠️ **Le cartelle nascoste, dalla `2.96`**: le voci del file si sommano a quelle di adesso, e una
+    cartella nascosta qui resta nascosta. È la stessa risposta letta sulla casella nuova, e passa
+    dalla stessa strada delle tinte.
   - **Gli stili** (`Presets.merge`): un salvato col nome già usato prende i valori del file e resta
     al suo posto, gli altri arrivano in coda. Di quelli di casa l'archivio tiene i soli cambiamenti
     dalla fabbrica, e si sommano: il nome che il file dà vince, quello che il file non tocca resta, e
@@ -5960,6 +6019,15 @@ quattro, e vivono in testa a `Backup`.
    lasciano al suo posto quello che c'era. La notifica finale lo dice, e dalla `2.95` il testo è suo
    (*Importazione completata, salvo alcune impostazioni che provengono da una versione più recente di
    AIV.*).
+- ⚠️⚠️ **UNA CHIAVE RITIRATA SI TRADUCE E NON SI CONTA, DALLA `2.96`** (`PREF_RETIRED`, in
+  `Backup.kt`): è la prima regola vista dall'altra parte, cioè una chiave che questa versione non
+  scrive più. Senza, `hidden-folders` di un file della `2.95` si conterebbe fra le saltate, e la
+  notifica direbbe che il file arriva da una versione **più recente** mentre arriva da una più
+  vecchia. Tradotta, i suoi percorsi interi arrivano nella forma nuova e si fondono.
+  - ⚠️ **Da un file della `2.95` le nascoste arrivano spuntando 'Aspetto e navigazione'**, che è la
+    casella che quel file porta per loro, e la finestra di conferma non elenca 'Cartelle nascoste'.
+    ⚠️ **Nel verso opposto una `2.95` salta l'area nuova**, e la sua notifica dice che il file
+    arriva da una versione più recente, che è vero.
 - ⚠️ **I numeri viaggiano come stringhe, col tipo scritto accanto**: un numero JSON lo tipizza chi
   legge, e il tipo di una preferenza non si indovina.
 - ⚠️ **Gli archivi del cestino e della cronologia non crescono per colonne**: una colonna in più
@@ -5981,13 +6049,14 @@ sarebbe un'app fatta di due backup.
 cosa fa il tocco FUORI da una finestra': la conferma non raccoglie niente di scritto, e il tocco fuori
 vale 'Annulla', che è l'esito sicuro.
 
-⚠️ **Che cosa il banco misura e che cosa no** (`BackupTest`, ventisette casi, ognuno controprovato
+⚠️ **Che cosa il banco misura e che cosa no** (`BackupTest`, ventinove casi, ognuno controprovato
 rimettendo il suo difetto): che ogni preferenza torni col suo tipo e che ogni chiave dell'archivio
 sia coperta; le caselle; le assenti, le chiavi non nominate e il file di una versione più nuova, con
 una controprova per ognuna delle cinque regole che lo reggono; la sostituzione del logo e l'aggiunta
 al cestino; il contenitore, cioè la password, un byte cambiato, un file tagliato su ogni confine, due
 segmenti scambiati, i vettori di PBKDF2 e la password scritta in due modi; i tre file fatti a mano;
-e dalla `2.95` la fusione delle copertine, delle tinte e degli stili, il file vuoto e il suffisso.
+dalla `2.95` la fusione delle copertine, delle tinte e degli stili, il file vuoto e il suffisso; e
+dalla `2.96` le nascoste nella loro casella, che si fondono, e la chiave di allora che si traduce.
 **Non** vede il selettore di sistema né Drive, quanto costi la chiave su un telefono, un fornitore che
 perde i byte, né l'app che si ridisegna dopo un'importazione: quelli si guardano sul telefono, e la
 voce di collaudo li chiede.

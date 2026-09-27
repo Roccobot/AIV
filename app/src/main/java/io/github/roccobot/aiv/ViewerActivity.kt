@@ -1336,9 +1336,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * Il tocco sull'icona dell'intestazione: comincia a scegliere la copertina, **oppure** riporta
      * quella predefinita se la scelta era già partita da questa stessa cartella.
      *
-     * ⚠️ **NON si esce dalla cartella**, ed è il caso comune: la copertina che si vuole è quasi
-     * sempre una delle immagini che si hanno davanti. Per prenderne una di un'altra cartella
-     * basta uscire e navigare, che è la seconda metà della sua richiesta.
+     * ⚠️⚠️ **DALLA `2.96` DOPO QUESTO TOCCO SI TORNA ALL'ELENCO INIZIALE, E FINO ALLA `2.95` SI
+     * RESTAVA NELLA CARTELLA**, perché la copertina che si vuole è spesso una delle sue immagini:
+     * lui ha chiesto il contrario, e lo fa [coverAway], che la griglia chiama dopo di questa.
      *
      * ⚠️⚠️ **IL SECONDO TOCCO SULLA STESSA CARTELLA RIPORTA LA PREDEFINITA, DALLA `1.95`, ED È IL
      * SOLO MODO DI TORNARCI** (sua richiesta, giro della `1.94`: *aggiungiamo un gesto ricorsivo:
@@ -1361,6 +1361,25 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         } else {
             covering = Covering(quale.bucket, quale.name)
         }
+    }
+
+    /**
+     * Porta all'elenco iniziale delle cartelle chi ha appena cominciato a scegliere una copertina.
+     *
+     * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.95`: *quando si tocca
+     * l'icona dell'intestazione, la vista deve tornare sulla cartella root (elenco delle cartelle
+     * iniziale) per facilitare la selezione da qualsiasi percorso*). Fino alla `2.95` la scelta
+     * restava nella cartella, perché la copertina che si vuole è spesso una delle sue immagini:
+     * adesso quella si prende rientrandoci dall'elenco, cioè con un tocco in più, e tutte le altre
+     * con qualcuno in meno.
+     * ⚠️ **Si esce SOLO se una scelta è partita**: lo stesso tocco, sulla stessa cartella, la chiude
+     * e rimette la copertina predefinita ([startCover]), e allora si resta dove si è. Chiedere qui
+     * a [covering] dice quale dei due è successo, senza che chi chiama lo debba sapere.
+     * ⚠️ **Lo chiama la griglia, e non [startCover]**: la prima volta la griglia deve mostrare il
+     * mini-onboarding, che indica un'icona della cartella, e si esce quando lui lo chiude.
+     */
+    fun coverAway() {
+        if (covering != null && screen is Screen.Grid) leaveGrid()
     }
 
     /** Lascia perdere la scelta in corso. */
@@ -3240,10 +3259,12 @@ private fun Stage(
                 // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
                 // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
                 // invece di scrivere una chiave vuota che nasconderebbe la radice.
+                // ⚠️ Dalla `2.96` la voce si scrive senza la radice del volume: vedi
+                // `portablePath`.
                 onHide = { bucket ->
                     bucket.path?.let {
                         model.updateSettings(
-                            settings.copy(hiddenFolders = settings.hiddenFolders + it)
+                            settings.copy(hiddenFolders = settings.hiddenFolders + portablePath(it))
                         )
                     }
                 },
@@ -3254,9 +3275,11 @@ private fun Stage(
                 // ⚠️ Rimostrare per sempre scrive la stessa preferenza della pagina 'Cartelle
                 // nascoste' nelle impostazioni: una cosa, una chiave, come la coppia
                 // casa/scorciatoia di ogni altra voce.
-                onUnhide = { path ->
+                // ⚠️ Le voci arrivano tutte insieme e si tolgono in una scrittura sola: il
+                // perché vive sul parametro, in `FolderScreen`.
+                onUnhide = { voci ->
                     model.updateSettings(
-                        settings.copy(hiddenFolders = settings.hiddenFolders - path)
+                        settings.copy(hiddenFolders = settings.hiddenFolders - voci.toSet())
                     )
                 },
                 recents = model.recents,
@@ -3301,7 +3324,12 @@ private fun Stage(
                 binOn = settings.binOn,
                 factFields = settings.factRows,
                 onTreePath = { model.treeTo(it) },
-                onTreeOpen = { items, at -> model.openFromTree(items, at) },
+                // ⚠️⚠️ **DALLA `2.96` ANCHE LA VISTA AD ALBERO CONSEGNA**, cioè sceglie la
+                // copertina o risponde a chi ha chiesto un'immagine: la scelta della copertina
+                // adesso comincia da questa schermata (vedi `coverAway`), e in una delle sue tre
+                // viste il tocco apriva l'immagine invece di sceglierla. Una modalità che
+                // funziona in due viste su tre sembra rotta.
+                onTreeOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
                 forStart = screen.forStart,
                 onBack = { model.leaveStartFolderChoice() },
                 buckets = model.buckets,
@@ -3350,6 +3378,7 @@ private fun Stage(
                  * [ViewerViewModel.covering].
                  */
                 onCoverPick = { model.startCover() },
+                onCoverAway = { model.coverAway() },
                 onCoverClear = { model.clearCover() },
                 coverSet = model.cover != null,
                 // ⚠️ Serve al solo mini onboarding, e vuole **questa** cartella: scegliendo la

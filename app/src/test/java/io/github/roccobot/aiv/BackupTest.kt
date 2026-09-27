@@ -853,6 +853,101 @@ class BackupTest {
         assertTrue(Backup.fileName(0L).endsWith(".aivsettings"))
     }
 
+    // ── Le cartelle nascoste, dalla `2.96` ───────────────────────────────────
+
+    /**
+     * **Caso 28: le cartelle nascoste hanno la loro casella, e si fondono.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA DELLA `2.96`** (*ovviamente serve una nuova sezione di esportazione
+     * 'Cartelle nascoste'*), e la fusione è la sua risposta `fonde` a `d-backup-importa` letta sulla
+     * parte nuova: le nascoste del file si aggiungono a quelle di adesso.
+     * ⚠️ **Le metà sono tre**: un file della sola 'Aspetto e navigazione' non porta le nascoste, uno
+     * della loro casella le somma a quelle che ci sono, e uno senza nascoste non toglie niente.
+     * ⚠️ **Controprovata** tre volte: con l'elenco dentro 'Aspetto e navigazione' cade la prima metà,
+     * senza la fusione cade la seconda, e togliendo la guardia che tiene le assenti di una chiave fusa
+     * cade la terza. ⚠️ **La terza vuole una controprova sua**: senza la fusione la prova si ferma
+     * alla seconda, e quella che cade dopo non si vede.
+     */
+    @Test
+    fun `le cartelle nascoste hanno la loro casella e si fondono`() {
+        runBlocking { rewritePreferences(app) { it[HIDDEN_FOLDERS] = setOf("DCIM/Temp", "Scan") } }
+        val soloAspetto = esporta(setOf(BackupArea.VIEW))
+        val nascoste = esporta(setOf(BackupArea.HIDDEN))
+        runBlocking {
+            rewritePreferences(app) {
+                it.clear()
+                it[HIDDEN_FOLDERS] = setOf("Musica")
+            }
+        }
+
+        importa(soloAspetto, BackupArea.entries.toSet())
+        assertEquals(
+            "'Aspetto e navigazione' non porta le nascoste",
+            setOf("Musica"),
+            archivio()["hidden-relative"]
+        )
+
+        assertEquals(setOf(BackupArea.HIDDEN), importa(nascoste, setOf(BackupArea.HIDDEN)).applied)
+        assertEquals(setOf("Musica", "DCIM/Temp", "Scan"), archivio()["hidden-relative"])
+
+        runBlocking { rewritePreferences(app) { it.clear() } }
+        val senza = esporta(setOf(BackupArea.HIDDEN))
+        runBlocking { rewritePreferences(app) { it[HIDDEN_FOLDERS] = setOf("Musica") } }
+        importa(senza, setOf(BackupArea.HIDDEN))
+        assertEquals(
+            "un file senza nascoste non toglie quelle di adesso",
+            setOf("Musica"),
+            archivio()["hidden-relative"]
+        )
+    }
+
+    /**
+     * **Caso 29: un file di allora porta le nascoste con la chiave vecchia, e arrivano nella forma
+     * nuova.**
+     *
+     * ⚠️⚠️ **È IL FILE CHE LUI HA GIÀ IN MANO**: la `2.95` è uscita col file di impostazioni, e le sue
+     * nascoste viaggiavano dentro 'Aspetto e navigazione' coi percorsi interi. Senza la traduzione
+     * quella chiave si conterebbe fra le saltate, e la notifica direbbe che il file arriva da una
+     * versione **più recente**, cioè il contrario del vero.
+     * ⚠️ **Si fondono come quelle della casella nuova**, perché diventano la stessa chiave.
+     * ⚠️ **Una ritirata non è anche una chiave di adesso**, o dei due valori non si saprebbe quale
+     * vale; e la chiave che la prende deve esserlo.
+     * ⚠️ **Controprovata** togliendo la traduzione: il resoconto dice di aver saltato qualcosa, e le
+     * nascoste del file non arrivano.
+     */
+    @Test
+    fun `un file di allora porta le nascoste con la chiave vecchia e si traducono`() {
+        val file = sigilla { zip ->
+            testo(zip, "manifest.json", resoconto("view"))
+            testo(
+                zip, "prefs/view.json",
+                preferenze(
+                    chiave("fit-grow", "boolean", true),
+                    chiave(
+                        "hidden-folders", "set",
+                        JSONArray(listOf("/storage/emulated/0/DCIM/Temp", "/storage/1234-5678/Scan"))
+                    )
+                )
+            )
+        }
+        runBlocking { rewritePreferences(app) { it[HIDDEN_FOLDERS] = setOf("Musica") } }
+
+        val esito = importa(file, setOf(BackupArea.VIEW))
+
+        assertEquals(setOf(BackupArea.VIEW), esito.applied)
+        assertFalse("un file di una versione vecchia non salta niente", esito.skipped)
+        assertEquals(true, archivio()["fit-grow"])
+        assertEquals(setOf("Musica", "DCIM/Temp", "Scan"), archivio()["hidden-relative"])
+        assertTrue(
+            "la chiave vecchia non torna nell'archivio",
+            runBlocking { storedPreferences(app) }.asMap().keys.none { it.name == "hidden-folders" }
+        )
+        PREF_RETIRED.forEach { (nome, ritirata) ->
+            assertTrue("'$nome' è ritirata e non può essere di adesso", PREF_KEYS.none { it.name == nome })
+            assertTrue("la chiave che prende '$nome' è di adesso", ritirata.into in PREF_KEYS)
+        }
+    }
+
     // ── Gli attrezzi ─────────────────────────────────────────────────────────
 
     /**
