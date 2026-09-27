@@ -6701,7 +6701,9 @@ e il job le scrive su disco per la durata di una sola esecuzione.
       rimettendo il difetto che doveva prendere. Il criterio universale vive in `Roccobot.md`
       § '🧪 Test e verifiche'.
   - ⚠️⚠️ **DAL 2026-09-05 GIRA DA SÉ, E IN DUE POSTI**: è un passo di `check.yml` a ogni push su
-    `main` e a ogni PR, ed è il **cancello** di `release.yml`, dove una prova rossa ferma il
+    `main` e a ogni PR (dal 2026-09-27 non su un push che cambia soltanto file `.md`: il banco
+    non ne legge, e l'Action `core-sync` di `tools` vi committa `AGENTS.md` a ogni modifica del
+    nucleo), ed è il **cancello** di `release.yml`, dove una prova rossa ferma il
     rilascio prima ancora che si tocchino la chiave di firma e il build. I due non sono un
     doppione: il cancello rifiuta di pubblicare una versione rotta, il controllo dice che è
     rotta **prima** che qualcuno provi a pubblicarla.
