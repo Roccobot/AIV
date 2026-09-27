@@ -6536,7 +6536,7 @@ collaudo: rilascio, documento, riscontro'.
     (`SITE_CONTENTS_TOKEN`) e committava APK e pagina nella sua cartella `AIV/`. Adesso la
     pubblica `pages.yml`, e l'indirizzo resta `roccobot.github.io/AIV/`: un repository di
     progetto che si chiama come la cartella vince su di lei (misurato su RatioLab).
-  - ⚠️⚠️ **L'APK NON STA SUL SITO, E NON SI PERDE NIENTE**: il pulsante di download punta
+  - ⚠️⚠️ **L'APK NON È SUL SITO, E NON SI PERDE NIENTE**: il pulsante di download punta
     all'asset dell'ultima release (`browser_download_url`, in `publish/index.html`), e nome, peso
     e data li chiede all'API mentre la pagina si carica. La copia dell'APK nel sito la leggeva
     solo la sonda che controllava se era arrivata. Quindi un rilascio non richiede nessun deploy,
