@@ -173,6 +173,7 @@
     <string name="folder_no_images">Le dossier ne contient aucune image.</string>
     <string name="folder_no_videos">Le dossier ne contient aucune vidéo.</string>
     <string name="cancel">Annuler</string>
+    <string name="yes">Oui</string>
     <string name="hide_folder_title">Masquer \'%1$s\' ?</string>
     <string name="hide_folder_desc">Le dossier n\'est plus listé en vue grille ni en vue liste. C\'est seulement un réglage d\'affichage : aucun fichier ne sera supprimé.</string>
     <string name="show_folder_title">Réafficher \'%1$s\' ?</string>
@@ -360,11 +361,15 @@
     <string name="settings_ext_edit_desc">Ajoute le bouton \'Extension\' aux fenêtres de nom de fichier. Choisis ci-dessous dans lesquelles. ⚠️ Changer une extension n\'est pas une conversion de format (c\'est le rôle d\'\'Exporter et convertir\') et demande de la prudence, car certains fichiers peuvent devenir illisibles et disparaître des applis de galerie.</string>
     <string name="settings_gpu_thumbs">Garder les miniatures en mémoire graphique</string>
     <string name="settings_gpu_thumbs_desc">Crée le cache des vignettes dans la mémoire de la puce graphique, ce qui laisse la mémoire normale libre. Ça peut rendre la galerie plus vive, ne rien changer, ou la ralentir dans certains cas, presque toujours sur les appareils anciens. Si tu as des problèmes de performance, active-le et vois si ça aide : on ne peut pas le savoir d\'avance, avec toutes les combinaisons matériel et logiciel d\'Android.</string>
-    <string name="settings_thumbs">Supprimer les miniatures enregistrées</string>
+    <string name="settings_thumbs">Gérer les miniatures enregistrées</string>
     <string name="settings_thumbs_empty">Aucune miniature enregistrée</string>
-    <string name="settings_thumbs_warn">Touchez le bouton pour vider le cache des miniatures. Les aperçus des images et des vidéos seront supprimés et régénérés automatiquement à l\'ouverture de chaque dossier (cela peut prendre une minute ou plus dans les dossiers contenant beaucoup de grandes images).</string>
-    <string name="settings_thumbs_do">Vider le cache\ndes miniatures</string>
+    <string name="settings_thumbs_do">Vider le cache des miniatures</string>
+    <string name="settings_thumbs_ask">Voulez-vous vraiment vider le cache ? Les aperçus des images et des vidéos seront supprimés et régénérés automatiquement à l\'ouverture de chaque dossier (cela peut prendre une minute ou plus dans les dossiers contenant beaucoup de grandes images).</string>
     <string name="settings_thumbs_done">Cache des miniatures vidé</string>
+    <string name="settings_thumbs_gen">Générer les miniatures</string>
+    <string name="settings_thumbs_gen_ask">La création des aperçus accélère la navigation et allège la charge ultérieure du CPU/GPU, mais elle demande un temps initial qui dépend du nombre et de la taille des images de votre collection. Voulez-vous continuer ?</string>
+    <string name="settings_thumbs_gen_title">Génération des miniatures</string>
+    <string name="settings_thumbs_gen_done">Miniatures générées avec succès.</string>
     <string name="settings_hidden_none">Aucun dossier caché</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d dossier</item>

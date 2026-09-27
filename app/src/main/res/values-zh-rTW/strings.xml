@@ -173,6 +173,7 @@
     <string name="folder_no_images">資料夾中沒有影像。</string>
     <string name="folder_no_videos">資料夾中沒有影片。</string>
     <string name="cancel">取消</string>
+    <string name="yes">是</string>
     <string name="hide_folder_title">隱藏 \'%1$s\' 嗎?</string>
     <string name="hide_folder_desc">該資料夾不會出現在格狀檢視與清單檢視中。這只是顯示設定，不會刪除任何檔案。</string>
     <string name="show_folder_title">重新顯示 \'%1$s\' 嗎?</string>
@@ -330,11 +331,15 @@
     <string name="settings_ext_edit_desc">在檔名視窗中加入 \'延伸檔名\' 按鈕。在下方選擇要出現在哪些視窗。⚠️ 修改副檔名不等於格式轉換（那是 \'匯出並轉換\' 的事），要謹慎使用，因為有些檔案會變得無法讀取，並從相簿應用程式中消失。</string>
     <string name="settings_gpu_thumbs">把縮圖放在圖形記憶體裡</string>
     <string name="settings_gpu_thumbs_desc">在圖形晶片的記憶體裡建縮圖快取，讓普通記憶體保持空閒。它可能讓圖庫更流暢，也可能毫無差別，某些情況下還會變慢，那幾乎都是較舊的裝置。如果遇到效能問題，就開啟看看有沒有改善：事先無法得知，因為 Android 裝置的硬體與軟體組合太多。</string>
-    <string name="settings_thumbs">刪除已儲存的縮圖</string>
+    <string name="settings_thumbs">管理已儲存的縮圖</string>
     <string name="settings_thumbs_empty">沒有已儲存的縮圖</string>
-    <string name="settings_thumbs_warn">輕觸按鈕以清除縮圖快取。圖片與影片的預覽會被刪除，並在開啟每個資料夾時自動重新產生（在大圖很多的資料夾中，這可能需要一分鐘或更久）。</string>
-    <string name="settings_thumbs_do">清除縮圖\n快取</string>
+    <string name="settings_thumbs_do">清除縮圖快取</string>
+    <string name="settings_thumbs_ask">確定要清除快取嗎？圖片與影片的預覽會被刪除，並在開啟每個資料夾時自動重新產生（在大圖很多的資料夾中，這可能需要一分鐘或更久）。</string>
     <string name="settings_thumbs_done">已清除縮圖快取</string>
+    <string name="settings_thumbs_gen">產生縮圖</string>
+    <string name="settings_thumbs_gen_ask">產生預覽可以加快瀏覽速度，並減輕之後 CPU/GPU 的負擔，但一開始需要一段時間，長短取決於你收藏中圖片的數量與大小。要繼續嗎？</string>
+    <string name="settings_thumbs_gen_title">正在產生縮圖</string>
+    <string name="settings_thumbs_gen_done">已成功產生縮圖。</string>
     <string name="settings_hidden_none">沒有隱藏的資料夾</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 個資料夾</item>

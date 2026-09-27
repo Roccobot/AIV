@@ -173,6 +173,7 @@
     <string name="folder_no_images">فولڈر میں کوئی تصویر نہیں ہے۔</string>
     <string name="folder_no_videos">فولڈر میں کوئی ویڈیو نہیں۔</string>
     <string name="cancel">منسوخ</string>
+    <string name="yes">ہاں</string>
     <string name="hide_folder_title">\'%1$s\' چھپائیں؟</string>
     <string name="hide_folder_desc">فولڈر گرڈ اور فہرست ویو میں نہیں دکھایا جائے گا۔ یہ صرف دکھانے کی ترتیب ہے: کوئی فائل حذف نہیں ہوگی۔</string>
     <string name="show_folder_title">\'%1$s\' دوبارہ دکھائیں؟</string>
@@ -345,11 +346,15 @@
     <string name="settings_ext_edit_desc">فائل کے ناموں کی ونڈوز میں \'لاحقہ\' بٹن شامل کرتا ہے۔ نیچے چنو کہ کن میں دکھے۔ ⚠️ لاحقہ بدلنا فارمیٹ کی تبدیلی نہیں ہے (اس کے لیے \'برآمد اور تبدیل\' ہے) اور احتیاط چاہتا ہے، کیونکہ کچھ فائلیں ناقابلِ مطالعہ ہو کر گیلری ایپس میں دکھنا بند ہو سکتی ہیں۔</string>
     <string name="settings_gpu_thumbs">تھمب نیلز کو گرافکس میموری میں رکھیں</string>
     <string name="settings_gpu_thumbs_desc">تھمب نیل کی کیش گرافکس چپ کی یادداشت میں بناتا ہے، تاکہ عام یادداشت خالی رہے۔ گیلری زیادہ تیز لگ سکتی ہے، کوئی فرق نہ پڑے، یا کچھ صورتوں میں سست ہو جائے، جو تقریباً ہمیشہ پرانے آلات ہوتے ہیں۔ کارکردگی کا مسئلہ ہو تو آن کر کے دیکھیں: پہلے سے جاننا ممکن نہیں، کیونکہ اینڈروئیڈ میں ہارڈ ویئر اور سافٹ ویئر کے مجموعے بہت ہیں۔</string>
-    <string name="settings_thumbs">محفوظ تھمب نیلز حذف کریں</string>
+    <string name="settings_thumbs">محفوظ تھمب نیلز کا انتظام کریں</string>
     <string name="settings_thumbs_empty">کوئی محفوظ تھمب نیل نہیں</string>
-    <string name="settings_thumbs_warn">تھمب نیل کیش خالی کرنے کے لیے بٹن پر ٹیپ کریں۔ تصاویر اور ویڈیوز کے پیش مناظر حذف ہو جائیں گے اور ہر فولڈر کھولنے پر خود بخود دوبارہ بن جائیں گے (بہت سی بڑی تصاویر والے فولڈرز میں اس میں ایک منٹ یا اس سے زیادہ لگ سکتا ہے)۔</string>
-    <string name="settings_thumbs_do">تھمب نیل کیش\nخالی کریں</string>
+    <string name="settings_thumbs_do">تھمب نیل کیش خالی کریں</string>
+    <string name="settings_thumbs_ask">کیا آپ واقعی کیش خالی کرنا چاہتے ہیں؟ تصاویر اور ویڈیوز کے پیش مناظر حذف ہو جائیں گے اور ہر فولڈر کھولنے پر خود بخود دوبارہ بن جائیں گے (بہت سی بڑی تصاویر والے فولڈرز میں اس میں ایک منٹ یا اس سے زیادہ لگ سکتا ہے)۔</string>
     <string name="settings_thumbs_done">تھمب نیل کیش خالی ہو گیا</string>
+    <string name="settings_thumbs_gen">تھمب نیلز بنائیں</string>
+    <string name="settings_thumbs_gen_ask">پیش مناظر بنانے سے براؤزنگ تیز ہوتی ہے اور بعد میں CPU/GPU پر بوجھ کم ہوتا ہے، لیکن شروع میں وقت لگتا ہے جو آپ کے مجموعے کی تصاویر کی تعداد اور سائز پر منحصر ہے۔ کیا آپ جاری رکھنا چاہتے ہیں؟</string>
+    <string name="settings_thumbs_gen_title">تھمب نیلز بن رہے ہیں</string>
+    <string name="settings_thumbs_gen_done">تھمب نیلز کامیابی سے بن گئے۔</string>
     <string name="settings_hidden_none">کوئی پوشیدہ فولڈر نہیں</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d فولڈر</item>

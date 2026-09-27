@@ -173,6 +173,7 @@
     <string name="folder_no_images">В папке нет изображений.</string>
     <string name="folder_no_videos">В папке нет видео.</string>
     <string name="cancel">Отмена</string>
+    <string name="yes">Да</string>
     <string name="hide_folder_title">Скрыть \'%1$s\'?</string>
     <string name="hide_folder_desc">Папка не будет отображаться в виде сетки и списка. Это только настройка отображения: ни один файл не будет удалён.</string>
     <string name="show_folder_title">Снова показать \'%1$s\'?</string>
@@ -375,11 +376,15 @@
     <string name="settings_ext_edit_desc">Добавляет кнопку \'Расширение\' в окна с именами файлов. Ниже выбери, в какие. ⚠️ Смена расширения не преобразует формат (для этого есть \'Экспортировать и преобразовать\') и требует осторожности: некоторые файлы станут нечитаемыми и пропадут из приложений галереи.</string>
     <string name="settings_gpu_thumbs">Хранить миниатюры в графической памяти</string>
     <string name="settings_gpu_thumbs_desc">Создаёт кэш миниатюр в памяти графического чипа, оставляя обычную память свободной. Галерея может стать отзывчивее, может не измениться, а иногда, почти всегда на старых устройствах, замедлиться. Если есть проблемы с быстродействием, включите и посмотрите, помогает ли: заранее не узнать, столько у Android сочетаний железа и прошивки.</string>
-    <string name="settings_thumbs">Удалить сохранённые эскизы</string>
+    <string name="settings_thumbs">Управление сохранёнными эскизами</string>
     <string name="settings_thumbs_empty">Сохранённых эскизов нет</string>
-    <string name="settings_thumbs_warn">Нажмите кнопку, чтобы очистить кэш эскизов. Предпросмотры изображений и видео будут удалены и создадутся заново автоматически при открытии каждой папки (в папках с большим числом крупных изображений это может занять минуту или больше).</string>
-    <string name="settings_thumbs_do">Очистить кэш\nэскизов</string>
+    <string name="settings_thumbs_do">Очистить кэш эскизов</string>
+    <string name="settings_thumbs_ask">Точно очистить кэш? Предпросмотры изображений и видео будут удалены и создадутся заново автоматически при открытии каждой папки (в папках с большим числом крупных изображений это может занять минуту или больше).</string>
     <string name="settings_thumbs_done">Кэш эскизов очищен</string>
+    <string name="settings_thumbs_gen">Создать эскизы</string>
+    <string name="settings_thumbs_gen_ask">Создание предпросмотров ускоряет просмотр и снижает последующую нагрузку на CPU/GPU, но сначала требует времени, которое зависит от числа и размера изображений в вашей коллекции. Продолжить?</string>
+    <string name="settings_thumbs_gen_title">Создание эскизов</string>
+    <string name="settings_thumbs_gen_done">Эскизы успешно созданы.</string>
     <string name="settings_hidden_none">Скрытых папок нет</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d папка</item>

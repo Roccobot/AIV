@@ -173,6 +173,7 @@
     <string name="folder_no_images">फ़ोल्डर में कोई छवि नहीं है।</string>
     <string name="folder_no_videos">फ़ोल्डर में कोई वीडियो नहीं है।</string>
     <string name="cancel">रद्द करें</string>
+    <string name="yes">हाँ</string>
     <string name="hide_folder_title">\'%1$s\' छिपाएँ?</string>
     <string name="hide_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में नहीं दिखेगा। यह केवल दिखाने की सेटिंग है: कोई फ़ाइल नहीं मिटेगी।</string>
     <string name="show_folder_title">\'%1$s\' फिर दिखाएँ?</string>
@@ -345,11 +346,15 @@
     <string name="settings_ext_edit_desc">फ़ाइल नाम की विंडो में \'एक्सटेंशन\' बटन जोड़ता है. नीचे चुनो कि किनमें दिखे. ⚠️ एक्सटेंशन बदलना फ़ॉर्मैट बदलना नहीं है (उसके लिए \'निर्यात करें और बदलें\' है) और सावधानी चाहता है, क्योंकि कुछ फ़ाइलें अपठनीय हो सकती हैं और गैलरी ऐप में दिखना बंद कर सकती हैं.</string>
     <string name="settings_gpu_thumbs">थंबनेल ग्राफ़िक्स मेमोरी में रखें</string>
     <string name="settings_gpu_thumbs_desc">थंबनेल की कैश ग्राफ़िक्स चिप की मेमोरी में बनाता है, ताकि सामान्य मेमोरी खाली रहे। गैलरी तेज़ लग सकती है, कोई बदलाव न हो, या कुछ मामलों में सुस्त हो जाए, जो लगभग हमेशा पुराने डिवाइस होते हैं। प्रदर्शन की दिक्कत हो तो इसे चालू करके देखें: पहले से जानना मुमकिन नहीं, क्योंकि एंड्रॉइड में हार्डवेयर और सॉफ़्टवेयर के संयोजन बहुत हैं।</string>
-    <string name="settings_thumbs">सहेजे गए थंबनेल हटाएं</string>
+    <string name="settings_thumbs">सहेजे गए थंबनेल प्रबंधित करें</string>
     <string name="settings_thumbs_empty">कोई सहेजा गया थंबनेल नहीं</string>
-    <string name="settings_thumbs_warn">थंबनेल कैश खाली करने के लिए बटन दबाएं। छवियों और वीडियो के प्रीव्यू हट जाएंगे और हर फ़ोल्डर खोलने पर अपने आप फिर बन जाएंगे (बहुत सी बड़ी छवियों वाले फ़ोल्डर में इसमें एक मिनट या उससे ज़्यादा लग सकता है)।</string>
-    <string name="settings_thumbs_do">थंबनेल कैश\nखाली करें</string>
+    <string name="settings_thumbs_do">थंबनेल कैश खाली करें</string>
+    <string name="settings_thumbs_ask">क्या आप सचमुच कैश खाली करना चाहते हैं? छवियों और वीडियो के प्रीव्यू हट जाएंगे और हर फ़ोल्डर खोलने पर अपने आप फिर बन जाएंगे (बहुत सी बड़ी छवियों वाले फ़ोल्डर में इसमें एक मिनट या उससे ज़्यादा लग सकता है)।</string>
     <string name="settings_thumbs_done">थंबनेल कैश खाली हो गया</string>
+    <string name="settings_thumbs_gen">थंबनेल बनाएं</string>
+    <string name="settings_thumbs_gen_ask">प्रीव्यू बनाने से ब्राउज़िंग तेज़ होती है और बाद में CPU/GPU पर भार कम होता है, लेकिन शुरू में समय लगता है, जो आपके संग्रह की छवियों की संख्या और आकार पर निर्भर करता है। क्या आप जारी रखना चाहते हैं?</string>
+    <string name="settings_thumbs_gen_title">थंबनेल बन रहे हैं</string>
+    <string name="settings_thumbs_gen_done">थंबनेल सफलतापूर्वक बन गए।</string>
     <string name="settings_hidden_none">कोई छिपा फ़ोल्डर नहीं</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d फ़ोल्डर</item>

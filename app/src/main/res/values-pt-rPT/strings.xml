@@ -171,4 +171,10 @@
     <string name="backup_none">O ficheiro não contém valores válidos para as definições selecionadas.</string>
     <string name="backup_exporting">A exportar...</string>
     <string name="backup_importing">A importar...</string>
+
+    <!-- Miniature memorizzate, dalla 2.97: a cache e gerir, come nel resto del file -->
+    <string name="settings_thumbs">Gerir as miniaturas armazenadas</string>
+    <string name="settings_thumbs_do">Limpar a cache de miniaturas</string>
+    <string name="settings_thumbs_ask">Quer mesmo limpar a cache? As pré-visualizações das imagens e dos vídeos serão eliminadas e regeneradas automaticamente ao abrir cada pasta (pode demorar um minuto ou mais nas pastas com muitas imagens grandes).</string>
+    <string name="settings_thumbs_done">Cache de miniaturas limpa</string>
 </resources>

@@ -1545,8 +1545,9 @@ sua risposta lo ha riempito.
   miniatura vale come scelta. Una finestra che elencasse immagini sarebbe una seconda galleria da
   tenere allineata a quella vera.
 - ⚠️⚠️ **DALLA `2.96` SI TORNA ALL'ELENCO INIZIALE, ED È SUA RICHIESTA** (campo libero del giro
-  della `2.95`: *quando si tocca l'icona dell'intestazione, la vista deve tornare sulla cartella
-  root (elenco delle cartelle iniziale) per facilitare la selezione da qualsiasi percorso*). Fino
+  della `2.93` e della `2.94`: *quando si tocca l'icona dell'intestazione, la vista deve tornare
+  sulla cartella root (elenco delle cartelle iniziale) per facilitare la selezione da qualsiasi
+  percorso*). Fino
   alla `2.95` si restava nella cartella, e questa riga lo dava per il caso comune: adesso
   un'immagine della stessa cartella costa un tocco in più, e tutte le altre qualcuno in meno.
   - ⚠️ **Si esce solo se la scelta è partita**: il secondo tocco sulla stessa cartella rimette la
@@ -1741,9 +1742,9 @@ dalla schermata iniziale e la lasciava in bella vista appena si copiava un file.
     A presidiarlo è il caso 5 di `DestinazioniTest`.
 
 ⚠️⚠️ **DALLA `2.96` UNA VOCE È UN PERCORSO SENZA LA RADICE DEL VOLUME, ED È SUA RICHIESTA** (campo
-libero del giro della `2.95`: *i percorsi esclusi dovrebbero essere relativi (se nascondo /DCIM/Temp
-da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo in cui si installa AIV e si
-importano le impostazioni)*). Fino alla `2.95` l'elenco teneva `/storage/emulated/0/DCIM/Temp`, cioè
+libero del giro della `2.93` e della `2.94`: *i percorsi esclusi dovrebbero essere relativi (se
+nascondo /DCIM/Temp da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo in cui
+si installa AIV e si importano le impostazioni)*). Fino alla `2.95` l'elenco teneva `/storage/emulated/0/DCIM/Temp`, cioè
 un indirizzo di quel telefono: una scheda porta il proprio identificativo, e un profilo di lavoro un
 altro numero.
 - ⚠️⚠️ **QUINDI UNA VOCE VALE SU OGNI VOLUME, E SI DICHIARA**: `DCIM/Temp` nasconde quella cartella
@@ -4618,7 +4619,7 @@ perde invece di chiedere se si è sicuri.
     della `2.94`: *File di stile con tutti gli stili (funzionalità futura per il brief): voglio
     l'estensione `.aivcollection`*). Lui la dava per una funzione futura, e questa pagina la esporta
     dalla `2.50`: l'estensione è entrata subito. ⚠️ **Lo stile singolo** (*`.aivstyle`*) invece non
-    si esporta ancora, e il giro della `2.95` gli chiede se lo vuole.
+    si esporta ancora, e il giro della `2.98`, che porta anche la `2.95`, gli chiede se lo vuole.
   - ⚠️ **Il tipo dichiarato è quello generico e non più JSON**, o il file uscirebbe
     `.aivcollection.json`; l'importazione accetta ogni file, e uno esportato prima come `.json` si
     rilegge lo stesso. Il perché del tipo vive in § '💼 Esporta e importa, e il file che solo AIV sa
@@ -5690,7 +5691,8 @@ nasce con la `1.54`.
   delicate*: da lì è nata 'Adattamento e zoom').
 - Perché la **famiglia** ha superato la soglia.
 - ⚠️ Perché è un **comando che ha bisogno di un paragrafo**, e non è un'impostazione affatto:
-  da lì nasce 'Elimina le miniature memorizzate', chiesta così dall'utente (*un > che ti porta
+  da lì nasce 'Elimina le miniature memorizzate' (il nome fino alla `2.96`), chiesta così
+  dall'utente (*un > che ti porta
   ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un pulsante*). ⚠️ **Non è il
   secondo modo travestito**, ed è la distinzione che tiene chiuso l'elenco di che cosa è
   delicato: lui stesso ha detto che *non è un'operazione con risvolti potenzialmente dannosi*,
@@ -5700,6 +5702,10 @@ nasce con la `1.54`.
   - **Il paletto che lo tiene stretto**: il paragrafo dev'essere **necessario**, cioè spiegare
     che cosa succede dopo che si è toccato. Una spiegazione che il titolo già dà non lo rende
     necessario, e allora la voce resta nella pagina piatta come tutte le altre.
+  - ⚠️⚠️ **DALLA `2.97` QUELLA PAGINA SI CHIAMA 'GESTISCI LE MINIATURE MEMORIZZATE', PORTA DUE
+    COMANDI, E I PARAGRAFI VIVONO NELLE LORO CONFERME**: è la sua specifica, e il perché per esteso
+    vive in § '🗃️ Le miniature memorizzate: svuotarle e generarle'. Il modo resta questo, perché i
+    due paragrafi si leggono comunque prima di un comando.
 - ⚠️⚠️ **E DALLA `2.09` CE N'È UN QUINTO, CHE È UNA SUA SCELTA E NON UN CRITERIO NUOVO**
   (`d-imp-strada` del giro della `2.07`: **`livelli`**): la famiglia **ne contiene già
   un'altra**. Nella pagina piatta la riga che apriva la pagina interna e le sue voci sorelle si
@@ -5856,6 +5862,96 @@ viene di quattro voci e un'altra di una, sta bene: le domande non si fanno tutte
 frequenza. ⚠️ **E i conti non si scrivono**, qui come nei commenti del pannello: quante sono le
 sezioni, le famiglie e le voci si contano nel codice.
 
+## 🗃️ Le miniature memorizzate: svuotarle e generarle
+
+⚠️⚠️ **DALLA `2.97` LA PAGINA SI CHIAMA 'GESTISCI LE MINIATURE MEMORIZZATE' E PORTA DUE COMANDI, ED
+È LA SUA SPECIFICA ALLA LETTERA** (sesta richiesta del campo libero del giro della `2.93` e della
+`2.94`: *il tasto esistente diventa 'Svuota la cache delle miniature' senza introduzione. Al tocco,
+sarà richiesta conferma ... In aggiunta, voglio un nuovo pulsante 'Genera miniature' che genera le
+miniature di TUTTE le miniature delle cartelle visibili, di fatto generando una cache dell'intera
+collezione*). Il paragrafo che fino alla `2.96` stava sopra l'unico tasto vive nella conferma di
+'Svuota', riscritto da lui, e 'Genera' porta il suo.
+- ⚠️ **Le due conferme portano il solo testo, coi tasti 'Sì' e 'Annulla'**, e 'Sì' è la sua parola.
+  Nel paragrafo di 'Genera' c'è 'immagini' dove lui aveva scritto 'foto', per il criterio di
+  § '🗣️ Come si chiamano le cose'. Il perché di ogni pezzo vive su `ThumbsCard`.
+- ⚠️ **'Genera' non c'è sotto Android 10** (`Thumbs.warmable`): là le due strade che lasciano una
+  miniatura su disco non esistono, quindi il giro non lascerebbe niente.
+
+⚠️⚠️ **'SVUOTA' SVUOTA QUELLO CHE È DELL'APP, E LE MINIATURE DEL SISTEMA RESTANO**: la memoria di
+Coil e le miniature degli AVIF, che vivono in `AvifCache`, cioè in `cacheDir`. Quelle che il
+MediaStore tiene per ogni riga le fa e le tiene il provider di sistema, e nessuna chiamata dell'app
+le toglie. ⚠️ **La copertina scelta a mano non si tocca**, perché vive in `filesDir`
+(§ '🖼️ La copertina scelta a mano').
+
+⚠️⚠️ **'GENERA' LASCIA UNA MINIATURA CHE RESTA SOLO DOVE ESISTE UNA CACHE SU DISCO, E I POSTI SONO
+DUE**, letti nel sorgente AOSP del `MediaProvider` (ramo `main`): la miniatura che il sistema genera
+con `loadThumbnail` e salva nella cartella `.thumbnails` del volume, un JPEG per riga che le volte
+dopo si riapre; e quella di un AVIF in `AvifCache`. Tutto il resto passa dalla decodifica normale di
+Coil, che qui non ha una cache su disco, quindi decodificarlo per la generazione vorrebbe dire un
+lavoro lungo il cui frutto si butta appena finito.
+- ⚠️⚠️ **QUINDI IL CARICATORE DELLA GENERAZIONE SI FERMA DOVE QUELLO VERO DECODIFICHEREBBE**
+  (`Thumbs.warmer`): i fetcher sono gli stessi e nello stesso ordine, perché li costruisce una
+  funzione sola; al posto dei decodificatori c'è `NoDecodeFactory`, che chiude il file senza
+  leggerlo, e la memoria di Coil è spenta, perché quello che si genera non si guarda.
+- ⚠️⚠️ **PER CERTI FILE NON RESTA NIENTE, E SI DICHIARA**: le immagini con la trasparenza, i BMP, gli
+  SVG, e quelle la cui miniatura di sistema è troppo piccola, che `tooSmall` rifiuta. Per loro la
+  generazione è rapida, perché non le apre, e la griglia le decodifica la prima volta che le mostra.
+  - ⚠️⚠️ **L'ULTIMO CASO NASCE DALL'EXIF, E NON SI VEDE DA FUORI**: nel sorgente,
+    `createImageThumbnail` prende la miniatura incorporata **prima** di decodificare il file, e senza
+    nessuna soglia di misura. Una fotografia che ne porta una piccola riceve quindi una miniatura
+    piccola, e la griglia la rifiuta.
+  - ⚠️ **La domanda di una cache su disco fatta in casa vive nel giro della `2.98`**: coprirebbe
+    anche questi file, e costa spazio. ⚠️ **Quanto, è una stima e non una misura**: circa 300 MB
+    ogni 10.000 miniature, alla misura della griglia (`Thumbs.PX`).
+- ⚠️ **La riga del riepilogo misura i soli AVIF**, cioè l'unica cache su disco dell'app: dopo una
+  generazione può dire ancora che non c'è nessuna miniatura memorizzata, perché quelle del sistema
+  non sono sue.
+
+⚠️⚠️ **LE CARTELLE VISIBILI SONO QUELLE DELL'ELENCO INIZIALE** (`Folder.everything`), cioè senza le
+nascoste e senza il minuto di prestito di 'Mostra nascoste': il prestito serve a entrare in una
+cartella, e una generazione che dura dei minuti lo supererebbe comunque. L'elenco va dalla più
+recente, così una generazione fermata a metà ha già fatto quello che si apre per primo.
+
+⚠️⚠️ **IL LAVORO VIVE COL PROCESSO E NON CON LA PAGINA, COME IL BACKUP** (`Warmup`): su una collezione
+grande dura dei minuti, e una rotazione non deve ripartire da capo. ⚠️ **Con l'app in secondo piano
+continua**, e la risposta `aperta` a `d-cestino-chiusa` non lo vieta: quella riguarda lo svuotamento
+automatico del cestino, cioè un lavoro che parte da solo, e questo lo fa partire lui.
+- **La pagina è sua alla lettera**: il titolo, il numero X/Y, la barra e 'Annulla', e alla fine la
+  notifica 'Miniature generate correttamente.' ⚠️ **Mentre si contano le immagini la barra non ha un
+  valore**, e la riga del numero resta vuota senza sparire, o la barra e il tasto salterebbero.
+- ⚠️ **Indietro vale 'Annulla', e 'Annulla' toglie la pagina subito**: le miniature già chieste
+  finiscono il loro giro, e un loro aggiornamento non la fa ricomparire, perché ogni generazione porta
+  il proprio numero. ⚠️ **Quello che è fatto resta**, perché annullare vuol dire smettere e non
+  disfare, e la frase finale non si dice.
+- ⚠️ **Un file che non si legge conta come fatto** (`warmAll`): una collezione vera ne ha sempre
+  qualcuno, e fermarsi al primo vorrebbe dire non arrivare mai in fondo.
+- ⚠️ **Un indirizzo appena riscritto si salta**, e non per prudenza generica: passando di lì il
+  fetcher di sistema consumerebbe il segno, e la griglia tornerebbe alla miniatura vecchia che il
+  segno esiste per evitare (§ '📢 Il canale degli avvisi, e la superficie unica').
+- ⚠️ **Le corsie sono due**, perché la miniatura di un AVIF si fa leggendo il file intero in memoria.
+  ⚠️ **Quanto dura una generazione non è misurato**, e la voce di collaudo lo chiede.
+- ⚠️ **Senza il permesso l'elenco è vuoto e la frase dice che è andata bene**: senza il permesso
+  l'app non mostra nessuna cartella, quindi quel tasto non lo raggiunge nessuno che non l'abbia già
+  concesso.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`GeneraMiniatureTest` e `GeneraMiniatureCorsaTest`,
+più un caso di `ImpostazioniTest`, ognuno controprovato rimettendo il suo difetto): che la
+generazione salti un indirizzo riscritto e non decodifichi niente, che ogni file passi una volta sola
+e che un errore conti come fatto, che un annullamento non conti la voce che interrompe e non ne faccia
+partire altre, che i due tasti chiedano prima di fare, la pagina col conto e la barra, Indietro che
+vale 'Annulla', la pagina che compare al tocco e se ne va dicendo com'è andata, 'Annulla' che la
+toglie in silenzio, e la ricerca che trova il tasto nuovo. **Non** vede una generazione su una
+collezione vera, perché il MediaStore del banco è vuoto, né le miniature del provider: quelle si
+guardano sul telefono, e la voce di collaudo le chiede.
+- ⚠️⚠️ **LA SECONDA CLASSE ESISTE PER L'OMBRA**: `Warmup` chiede l'elenco a `Folder.everything`, che
+  sul banco muore senza `OmbraArchivio`, e quell'ombra non vive nella classe accanto per la trappola
+  scritta in § '🧰 Gli strumenti che questo repo si porta dietro'.
+- ⚠️ **Una controprova non vale, e si dichiara**: la pagina che compare nell'istante del tocco.
+  Spostando la sua prima scrittura dentro il lavoro, l'esito dipende da quale dei due fili arriva
+  prima, cioè la prova sarebbe rossa a volte.
+- ⚠️⚠️ **E UNA FINESTRA DI COMPOSE SI CHIUDE CON INDIETRO PASSANDO DAL SUO DISPATCHER**: il banco la
+  raggiunge con `ShadowDialog.getLatestDialog()`, e la prova le manda il gesto sul filo principale.
+
 ## 💼 Esporta e importa, e il file che solo AIV sa leggere
 
 ⚠️⚠️ **DALLA `2.93`, ED È LA TERZA RICHIESTA DEL CAMPO LIBERO DEL GIRO DELLA `2.91`** (*uno o più
@@ -5884,7 +5980,8 @@ lungo di checkbox, si selezionerà per macro-aree*): 'Aspetto e navigazione', 'C
 'Cartelle nascoste', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le sezioni della
 schermata delle impostazioni, le altre sono quello che l'app ricorda fuori da lì.
 - ⚠️⚠️ **'CARTELLE NASCOSTE' C'È DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della
-  `2.95`: *ovviamente serve una nuova sezione di esportazione 'Cartelle nascoste'*). Porta
+  `2.93` e della `2.94`: *ovviamente serve una nuova sezione di esportazione 'Cartelle nascoste'*).
+  Porta
   l'etichetta della pagina delle impostazioni, e vive accanto alle altre due parti che parlano di
   cartelle. Fino alla `2.95` l'elenco viaggiava dentro 'Aspetto e navigazione', e un file di allora
   lo porta ancora là: il blocco sulle versioni, più sotto, dice come si legge.
@@ -5984,7 +6081,7 @@ volte.
     uno stile nascosto da una delle due parti resta nascosto. Su un telefono nuovo la fusione dà
     esattamente il file, che è il caso per cui un file di impostazioni esiste.
   - ⚠️ **L'importazione della pagina degli stili sostituisce ancora**: la sua risposta parla del file
-    di impostazioni, e il giro della `2.95` gli chiede se vuole la stessa cosa anche là.
+    di impostazioni, e il giro della `2.98` gli chiede se vuole la stessa cosa anche là.
   - ⚠️ **Con la fusione è uscito l'elenco delle cartelle da tenere**, che proteggeva le copertine di
     una cartella di cui il file porta un formato sconosciuto: adesso restano da sé, perché una
     copertina che non entra non copre la sua cartella.

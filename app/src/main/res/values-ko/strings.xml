@@ -173,6 +173,7 @@
     <string name="folder_no_images">폴더에 이미지가 없습니다.</string>
     <string name="folder_no_videos">폴더에 동영상이 없습니다.</string>
     <string name="cancel">취소</string>
+    <string name="yes">예</string>
     <string name="hide_folder_title">\'%1$s\'을(를) 숨길까요?</string>
     <string name="hide_folder_desc">그리드 보기와 목록 보기에 폴더가 표시되지 않습니다. 표시 설정일 뿐이며 파일은 삭제되지 않습니다.</string>
     <string name="show_folder_title">\'%1$s\'을(를) 다시 표시할까요?</string>
@@ -330,11 +331,15 @@
     <string name="settings_ext_edit_desc">파일 이름 창에 \'확장자\' 버튼을 추가합니다. 어느 창에 나타낼지는 아래에서 고르세요. ⚠️ 확장자를 바꾸는 것은 형식 변환이 아니며(그것은 \'내보내기 및 변환\'가 합니다) 조심해서 써야 합니다. 일부 파일은 읽을 수 없게 되어 갤러리 앱에서 사라집니다.</string>
     <string name="settings_gpu_thumbs">미리보기를 그래픽 메모리에 보관</string>
     <string name="settings_gpu_thumbs_desc">썸네일 캐시를 그래픽 칩의 메모리에 만들어, 일반 메모리를 비워 둡니다. 갤러리가 더 부드러워질 수도, 아무 차이가 없을 수도, 경우에 따라 느려질 수도 있습니다. 느려지는 것은 대개 오래된 기기입니다. 성능 문제가 있으면 켜서 나아지는지 확인해 보십시오. Android 기기의 하드웨어와 소프트웨어 조합이 많아 미리 알 수는 없습니다.</string>
-    <string name="settings_thumbs">저장된 축소판 삭제</string>
+    <string name="settings_thumbs">저장된 축소판 관리</string>
     <string name="settings_thumbs_empty">저장된 축소판 없음</string>
-    <string name="settings_thumbs_warn">버튼을 눌러 축소판 캐시를 비우세요. 이미지와 동영상 미리보기가 삭제되고 각 폴더를 열 때 자동으로 다시 만들어집니다 (큰 이미지가 많은 폴더에서는 1분 이상 걸릴 수 있습니다).</string>
-    <string name="settings_thumbs_do">축소판 캐시\n비우기</string>
+    <string name="settings_thumbs_do">축소판 캐시 비우기</string>
+    <string name="settings_thumbs_ask">정말 캐시를 비우시겠습니까? 이미지와 동영상 미리보기가 삭제되고 각 폴더를 열 때 자동으로 다시 만들어집니다 (큰 이미지가 많은 폴더에서는 1분 이상 걸릴 수 있습니다).</string>
     <string name="settings_thumbs_done">축소판 캐시를 비웠습니다</string>
+    <string name="settings_thumbs_gen">축소판 생성</string>
+    <string name="settings_thumbs_gen_ask">미리보기를 만들면 탐색이 빨라지고 이후 CPU/GPU 부담이 줄어들지만, 처음에 컬렉션에 있는 이미지의 수와 크기에 따라 시간이 걸립니다. 계속하시겠습니까?</string>
+    <string name="settings_thumbs_gen_title">축소판 생성 중</string>
+    <string name="settings_thumbs_gen_done">축소판을 생성했습니다.</string>
     <string name="settings_hidden_none">숨긴 폴더가 없습니다</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">폴더 %1$d개</item>

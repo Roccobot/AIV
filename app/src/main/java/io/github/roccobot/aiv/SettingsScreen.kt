@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -111,8 +114,9 @@ import kotlinx.coroutines.withContext
  * impostazioni delicate*); perché la **famiglia** ha superato la soglia dell'utente
  * (*fino a 2-3 opzioni correlate basta una sotto-sezione; più di 2-3 si va con la
  * sotto-pagina*), che è il modo con cui nasce 'Opzioni di visualizzazione'; oppure perché è un
- * **comando che ha bisogno di un paragrafo**, che è il quarto e nasce con 'Elimina le
- * miniature memorizzate'.
+ * **comando che ha bisogno di un paragrafo**, che è il quarto e nasce con la pagina delle
+ * miniature memorizzate (dalla `2.97` quel paragrafo vive nelle sue due conferme: vedi
+ * [Page.THUMBS]).
  * - ⚠️ **Una riga sola che non è né un elenco né delicata, in una sotto-pagina costerebbe un
  *   tocco senza guadagnare niente**, ed è la clausola che vale più delle altre.
  * - ⚠️ **La soglia si conta sulla FAMIGLIA e non sulla sezione**: sotto 'Aspetto' vivono il
@@ -246,11 +250,16 @@ fun SettingsScreen(
      * scritture, e quelle vanno su un thread di I/O.
      * ⚠️ [emptied] non è un contatore di cortesia: è la sola cosa che dice a [remember] di
      * rifare la misura dopo uno svuotamento, e senza di lui la riga continuerebbe a dire i
-     * megabyte di prima finché non si esce dalle impostazioni.
+     * megabyte di prima finché non si esce dalle impostazioni. ⚠️ **Dalla `2.97` la chiave è
+     * doppia**: anche 'Genera miniature' scrive in quella cartella, e [Warmup.finished] è il suo
+     * contatore gemello.
+     * ⚠️⚠️ **LA GENERAZIONE PARTE DA QUI E NON DAL MODELLO**, per la stessa ragione dello
+     * svuotamento: il lavoro vive in [Warmup], che è un oggetto di processo, e l'unico dato che
+     * gli serve sono le cartelle nascoste, che la schermata ha già in mano.
      */
     val context = LocalContext.current
     var emptied by remember { mutableIntStateOf(0) }
-    val thumbBytes = remember(emptied) { AvifCache.bytes(context) }
+    val thumbBytes = remember(emptied, Warmup.finished) { AvifCache.bytes(context) }
     val clearThumbs: () -> Unit = {
         scope.launch {
             withContext(Dispatchers.IO) { AvifCache.clear(context) }
@@ -258,6 +267,7 @@ fun SettingsScreen(
             emptied++
         }
     }
+    val generateThumbs: () -> Unit = { Warmup.start(context, settings.hiddenFolders) }
 
     when (page) {
         Page.ROOT -> Shell(
@@ -292,6 +302,7 @@ fun SettingsScreen(
                         onChooseEditor = onChooseEditor,
                         thumbBytes = thumbBytes,
                         onClearThumbs = clearThumbs,
+                        onGenerateThumbs = generateThumbs,
                         onOpen = { open(it) }
                     )
                 }
@@ -468,7 +479,7 @@ fun SettingsScreen(
         }
 
         /*
-         * ⚠️⚠️ **UNA SOTTO-PAGINA PER UN'AZIONE SOLA, ed è un quarto modo di diventarlo**
+         * ⚠️⚠️ **UNA SOTTO-PAGINA PER DUE COMANDI, ed è un quarto modo di diventarlo**
          * (richiesta dell'utente, 2026-09-04: *un 'Elimina le miniature memorizzate' con un >
          * che ti porta ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un
          * pulsante*). I tre modi scritti in `AIV/CLAUDE.md` sono l'elenco che cresce, la voce
@@ -477,6 +488,12 @@ fun SettingsScreen(
          * non è una famiglia. È un **comando che ha bisogno di un paragrafo**, e un paragrafo
          * di quattro righe in una riga della pagina piatta la farebbe alta il doppio delle
          * altre per una cosa che si fa una volta l'anno.
+         * ⚠️⚠️ **DALLA `2.97` SI CHIAMA 'GESTISCI LE MINIATURE MEMORIZZATE', PORTA DUE TASTI, E IL
+         * PARAGRAFO VIVE NELLE LORO CONFERME, ED È LA SUA SPECIFICA** (*il tasto esistente diventa
+         * 'Svuota la cache delle miniature' senza introduzione. Al tocco, sarà richiesta conferma
+         * ... In aggiunta, voglio un nuovo pulsante 'Genera miniature'*). Resta una sotto-pagina
+         * perché è lui a chiamarla così (*anche come titolo della sotto-pagina delle
+         * impostazioni*), e perché i due paragrafi si leggono comunque prima di un comando.
          * ⚠️ **Non porta `lowered()`**, e non è una dimenticanza: il 15% più in basso è la
          * definizione di 'centrato' per quello che **si apre in mezzo** allo schermo, cioè
          * dialoghi, pannelli e menu, che hanno una finestra propria e un centro da spostare.
@@ -502,6 +519,7 @@ fun SettingsScreen(
                 ThumbsCard(
                     head = null,
                     onClear = clearThumbs,
+                    onGenerate = generateThumbs,
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
                         .heightIn(min = room)
@@ -527,6 +545,10 @@ fun SettingsScreen(
             BackupPage()
         }
     }
+
+    // ⚠️ Fuori dal `when` e non dentro la pagina delle miniature: la generazione si chiede anche
+    // dalla pagina piatta mentre si cerca, e la sua pagina deve comparire da tutte e due.
+    Warmup.run?.let { WarmupPage(it, onCancel = { Warmup.cancel() }) }
 }
 
 /**
@@ -729,6 +751,7 @@ private fun ColumnScope.RootPage(
     /** Quanto occupano le miniature tenute su disco: è il riepilogo della riga che le svuota. */
     thumbBytes: Long,
     onClearThumbs: () -> Unit,
+    onGenerateThumbs: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
     Section(stringResource(R.string.settings_group_look)) {
@@ -1098,7 +1121,8 @@ private fun ColumnScope.RootPage(
          * niente da buttare'.
          */
         val thumbsLabel = stringResource(R.string.settings_thumbs)
-        val thumbsWarn = stringResource(R.string.settings_thumbs_warn)
+        val thumbsClear = stringResource(R.string.settings_thumbs_do)
+        val thumbsMake = stringResource(R.string.settings_thumbs_gen)
         val thumbsSummary =
             if (thumbBytes <= 0L) stringResource(R.string.settings_thumbs_empty)
             else formatBytes(thumbBytes)
@@ -1108,9 +1132,12 @@ private fun ColumnScope.RootPage(
             onOpen = { onOpen(Page.THUMBS) }
         ) {
             // ⚠️ `Searchable` perché il corpo è scritto a mano: le righe di serie si filtrano da
-            // sé, un paragrafo con un tasto no, e resterebbe in scena a ogni ricerca.
-            Searchable(thumbsLabel, thumbsWarn) {
-                ThumbsCard(head = thumbsLabel, onClear = onClearThumbs)
+            // sé, due tasti no, e resterebbero in scena a ogni ricerca. ⚠️ Dalla `2.97` i testi
+            // da confrontare sono i due comandi, perché l'introduzione non c'è più: i due
+            // paragrafi vivono nelle conferme, e una parola che sta solo là farebbe comparire
+            // due tasti che non la portano.
+            Searchable(thumbsLabel, thumbsClear, thumbsMake) {
+                ThumbsCard(head = thumbsLabel, onClear = onClearThumbs, onGenerate = onGenerateThumbs)
             }
         }
     }
@@ -2182,26 +2209,52 @@ private fun PageOfRows(
 }
 
 /**
- * L'avviso sulle miniature memorizzate e il pulsante che le butta.
+ * I due comandi delle miniature memorizzate, 'Svuota la cache delle miniature' e 'Genera miniature',
+ * con le loro conferme.
  *
  * ⚠️⚠️ **UN COMPONENTE SOLO PER I DUE POSTI IN CUI COMPARE**: la sotto-pagina e, mentre si
  * cerca, la pagina piatta che la appiattisce ([PageOfRows]). Scriverlo due volte vorrebbe dire
- * un avviso che si aggiorna in un posto e non nell'altro, che è il difetto che la copertura
+ * due tasti che si aggiornano in un posto e non nell'altro, che è il difetto che la copertura
  * della ricerca doveva togliere.
  * ⚠️ [head] è il titolo, e c'è **solo** nella pagina piatta: nella sotto-pagina lo dice già la
  * testata, e ripeterlo direbbe la stessa cosa due volte a mezzo centimetro di distanza.
- * ⚠️ **Il testo dell'avviso è dell'utente**, con una parola cambiata: dove lui aveva scritto
- * 'foto grandi' qui c'è 'immagini grandi', perché questa app apre anche tavole, scansioni e
- * schermate, e la regola di non chiamarle fotografie è sua (`AIV/CLAUDE.md`, § '🗣️ Come si
- * chiamano le cose').
- * ⚠️ **Il tasto avvisa con la notifica di casa**: quello che è successo si vede in un'altra schermata,
- * e un comando che non dà segno di aver fatto qualcosa si preme due volte. È la stessa scelta,
- * e la stessa ragione, di 'Ripristina gli avvisi'.
+ *
+ * ⚠️⚠️ **DALLA `2.97` I TASTI SONO DUE E L'INTRODUZIONE NON C'È PIÙ, ED È LA SUA SPECIFICA**
+ * (*il tasto esistente diventa 'Svuota la cache delle miniature' senza introduzione. Al tocco, sarà
+ * richiesta conferma ... In aggiunta, voglio un nuovo pulsante 'Genera miniature'*). Il paragrafo
+ * di prima vive nella conferma di 'Svuota', riscritto da lui, e 'Genera' porta il suo.
+ * - ⚠️ **L'ordine è il suo**: prima il tasto che c'era, poi quello nuovo.
+ * - ⚠️ **Le conferme portano il solo testo**, senza titolo: la domanda è già dentro il testo, e un
+ *   titolo ripeterebbe il nome del tasto appena toccato.
+ * - ⚠️ **I loro tasti sono 'Sì' e 'Annulla'**, e 'Sì' è la sua parola (*Se si tocca 'Sì'*): la coppia
+ *   è la stessa nelle due finestre, perché sono due domande della stessa pagina. ⚠️ **Il 'Sì' ha il
+ *   colore di sempre e non quello dell'errore**: svuotare non ha *risvolti potenzialmente dannosi*,
+ *   parole sue del 2026-09-04, e le miniature si rifanno da sé.
+ * - ⚠️ **Non sono modali vere**, per il criterio di `AIV/CLAUDE.md` § '👆 Che cosa fa il tocco FUORI da
+ *   una finestra': il tocco fuori vale 'Annulla', cioè l'esito sicuro.
+ * - ⚠️ **Nel paragrafo di 'Genera' c'è 'immagini' dove lui aveva scritto 'foto'**, per la sua regola
+ *   di § '🗣️ Come si chiamano le cose': questa app apre anche tavole, scansioni e schermate.
+ * - ⚠️ **'Genera' non c'è sotto Android 10** ([Thumbs.warmable]): là nessuna miniatura resta su
+ *   disco, quindi il giro non lascerebbe niente.
+ * - ⚠️ **I due tasti sono larghi uguali**: `IntrinsicSize.Max` li misura sul più largo, e due tasti
+ *   uno sotto l'altro di due larghezze diverse si leggerebbero come due comandi di peso diverso.
+ *
+ * ⚠️ **'Svuota' avvisa con la notifica di casa**: quello che è successo si vede in un'altra
+ * schermata, e un comando che non dà segno di aver fatto qualcosa si preme due volte. È la stessa
+ * scelta, e la stessa ragione, di 'Ripristina gli avvisi'. **'Genera' lo dice alla fine**, dalla
+ * sua pagina ([Warmup]).
+ * ⚠️ **È `internal` per il banco**, che la monta coi due comandi finti: montata dentro la
+ * schermata, 'Sì' su 'Genera' farebbe partire una generazione vera.
  */
 @Composable
-private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+internal fun ThumbsCard(
+    head: String?,
+    onClear: () -> Unit,
+    onGenerate: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val done = stringResource(R.string.settings_thumbs_done)
+    var asking by remember { mutableStateOf<ThumbsAsk?>(null) }
     Column(
         modifier = modifier.fillMaxWidth().padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -2211,29 +2264,69 @@ private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = 
         verticalArrangement = Arrangement.spacedBy(THUMBS_GAP, Alignment.CenterVertically)
     ) {
         if (head != null) Text(text = head, style = MaterialTheme.typography.titleSmall)
-        Text(
-            text = stringResource(R.string.settings_thumbs_warn),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
-        Button(
-            onClick = {
-                onClear()
-                Notices.say(done)
-            },
-            contentPadding = THUMBS_PAD
+        Column(
+            modifier = Modifier.width(IntrinsicSize.Max),
+            verticalArrangement = Arrangement.spacedBy(THUMBS_SPLIT)
         ) {
-            Text(
-                text = stringResource(R.string.settings_thumbs_do),
-                textAlign = TextAlign.Center
-            )
+            ThumbsButton(stringResource(R.string.settings_thumbs_do)) { asking = ThumbsAsk.CLEAR }
+            if (Thumbs.warmable) {
+                ThumbsButton(stringResource(R.string.settings_thumbs_gen)) { asking = ThumbsAsk.GENERATE }
+            }
         }
+    }
+    asking?.let { chiesto ->
+        val chiudi = { asking = null }
+        AlertDialog(
+            onDismissRequest = chiudi,
+            modifier = Modifier.lowered(chiudi),
+            properties = loweredWindow(chiudi),
+            text = { Text(stringResource(chiesto.question)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        asking = null
+                        when (chiesto) {
+                            ThumbsAsk.CLEAR -> {
+                                onClear()
+                                Notices.say(done)
+                            }
+                            ThumbsAsk.GENERATE -> onGenerate()
+                        }
+                    }
+                ) { Text(stringResource(R.string.yes)) }
+            },
+            dismissButton = {
+                TextButton(onClick = chiudi) { Text(stringResource(R.string.cancel)) }
+            }
+        )
     }
 }
 
-/** L'aria fra l'avviso e il pulsante che lo esegue: abbastanza perché non si tocchino. */
+/** Uno dei due tasti delle miniature: la stessa aria, e il testo centrato se va a capo. */
+@Composable
+private fun ThumbsButton(label: String, onClick: () -> Unit) {
+    Button(onClick = onClick, contentPadding = THUMBS_PAD, modifier = Modifier.fillMaxWidth()) {
+        Text(text = label, textAlign = TextAlign.Center)
+    }
+}
+
+/** Quale delle due conferme è in scena, con la sua domanda. */
+private enum class ThumbsAsk(@StringRes val question: Int) {
+    CLEAR(R.string.settings_thumbs_ask),
+    GENERATE(R.string.settings_thumbs_gen_ask)
+}
+
+/**
+ * L'aria fra il titolo e i due tasti, che c'è solo nella pagina piatta: abbastanza perché il titolo
+ * non si legga come l'etichetta del primo tasto.
+ */
 private val THUMBS_GAP = 28.dp
+
+/**
+ * L'aria fra i due tasti: meno di quella dal titolo, perché sono una coppia, e abbastanza perché un
+ * dito non prenda l'altro.
+ */
+private val THUMBS_SPLIT = 12.dp
 
 /**
  * Quanto è larga l'aria dentro il pulsante che svuota le miniature.
@@ -2264,6 +2357,11 @@ private val THUMBS_GAP = 28.dp
  * ⚠️ **Restano `start`/`end` e non `horizontal`**: `PaddingValues` non ha una forma che prenda i
  * fianchi insieme e i due lati orizzontali separati, e sono `start`/`end` perché in una lingua
  * che si scrive da destra i fianchi si scambiano.
+ * ⚠️⚠️ **DALLA `2.97` LE ETICHETTE SONO DUE E DOVE C'È POSTO VANNO SU UNA RIGA SOLA, E LA MISURA
+ * REGGE LO STESSO**: la scentratura nasce dalla prima riga e dall'ultima, che con una riga sola
+ * sono la stessa, e in italiano nessuna delle due etichette porta discendenti. Il numero resta
+ * quello misurato sulle due righe di allora, e la voce di collaudo chiede se su una riga si legge
+ * ancora in mezzo.
  */
 private val THUMBS_PAD =
     PaddingValues(start = 28.dp, top = 16.dp, end = 28.dp, bottom = 20.dp)

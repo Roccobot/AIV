@@ -49,4 +49,7 @@
     <string name="backup_unlock">El archivo de configuración está protegido: escribe la contraseña.</string>
     <string name="backup_none">El archivo no contiene valores válidos para la configuración seleccionada.</string>
     <string name="backup_bad">El archivo seleccionado no tiene el formato de configuración de AIV.</string>
+
+    <!-- Miniature memorizzate, dalla 2.97: video senza accento, come sopra -->
+    <string name="settings_thumbs_ask">¿De verdad quieres vaciar la caché? Las vistas previas de las imágenes y de los videos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (esto puede tardar un minuto o más en las carpetas con muchas imágenes grandes).</string>
 </resources>

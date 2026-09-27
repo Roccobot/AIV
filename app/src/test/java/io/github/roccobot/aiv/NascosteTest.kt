@@ -263,9 +263,9 @@ class NascosteTest {
     /**
      * **La radice del volume se ne va, e il resto del percorso resta.**
      *
-     * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.95`: *se nascondo /DCIM/Temp da un
-     * dispositivo, dovrebbe essere nascosto anche su un altro dispositivo*): quello che cambia da un
-     * telefono all'altro è la radice, cioè il numero dell'utente e l'identificativo di una scheda.
+     * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`: *se nascondo
+     * /DCIM/Temp da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo*): quello
+     * che cambia da un telefono all'altro è la radice, cioè il numero dell'utente e l'identificativo di una scheda.
      * ⚠️ **Le forme che NON sono un volume restano intere**, ed è la metà che tiene onesta l'altra:
      * `emulated` senza il numero, un nome che comincia come `sdcard` e un percorso fuori da
      * `/storage`. Una radice riconosciuta troppo larga toglierebbe un pezzo che da un telefono

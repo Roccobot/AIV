@@ -173,6 +173,7 @@
     <string name="folder_no_images">У теці немає зображень.</string>
     <string name="folder_no_videos">У теці немає відео.</string>
     <string name="cancel">Скасувати</string>
+    <string name="yes">Так</string>
     <string name="hide_folder_title">Сховати \'%1$s\'?</string>
     <string name="hide_folder_desc">Тека не відображатиметься у вигляді сітки та списку. Це лише налаштування відображення: жоден файл не буде видалено.</string>
     <string name="show_folder_title">Знову показати \'%1$s\'?</string>
@@ -375,11 +376,15 @@
     <string name="settings_ext_edit_desc">Додає кнопку \'Розширення\' до вікон з іменами файлів. Нижче вибери, до яких. ⚠️ Зміна розширення не перетворює формат (для цього є \'Експортувати й перетворити\') і потребує обачності: деякі файли стануть нечитабельними і зникнуть із застосунків галереї.</string>
     <string name="settings_gpu_thumbs">Тримати мініатюри у графічній пам\'яті</string>
     <string name="settings_gpu_thumbs_desc">Створює кеш мініатюр у пам\'яті графічного чипа, залишаючи звичайну пам\'ять вільною. Галерея може стати швидшою, може не змінитися, а іноді, майже завжди на старих пристроях, сповільнитися. Якщо є проблеми зі швидкодією, увімкніть і подивіться, чи допомагає: заздалегідь не дізнатися, стільки в Android поєднань заліза та прошивки.</string>
-    <string name="settings_thumbs">Видалити збережені ескізи</string>
+    <string name="settings_thumbs">Керування збереженими ескізами</string>
     <string name="settings_thumbs_empty">Збережених ескізів немає</string>
-    <string name="settings_thumbs_warn">Натисніть кнопку, щоб очистити кеш ескізів. Попередні перегляди зображень і відео буде видалено, і вони створяться знову автоматично під час відкривання кожної теки (у теках із великою кількістю великих зображень це може тривати хвилину або більше).</string>
-    <string name="settings_thumbs_do">Очистити кеш\nескізів</string>
+    <string name="settings_thumbs_do">Очистити кеш ескізів</string>
+    <string name="settings_thumbs_ask">Справді очистити кеш? Попередні перегляди зображень і відео буде видалено, і вони створяться знову автоматично під час відкривання кожної теки (у теках із великою кількістю великих зображень це може тривати хвилину або більше).</string>
     <string name="settings_thumbs_done">Кеш ескізів очищено</string>
+    <string name="settings_thumbs_gen">Створити ескізи</string>
+    <string name="settings_thumbs_gen_ask">Створення попередніх переглядів пришвидшує перегляд і зменшує подальше навантаження на CPU/GPU, але спочатку потребує часу, що залежить від кількості й розміру зображень у вашій колекції. Продовжити?</string>
+    <string name="settings_thumbs_gen_title">Створення ескізів</string>
+    <string name="settings_thumbs_gen_done">Ескізи успішно створено.</string>
     <string name="settings_hidden_none">Немає прихованих тек</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d тека</item>

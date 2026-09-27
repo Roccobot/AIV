@@ -317,11 +317,15 @@
     <string name="settings_ext_edit_desc">Adds an \'Extension\' button to the file name windows. Pick below which ones it appears in. ⚠️ Changing an extension is not a format conversion (that is what \'Export and convert\' is for) and needs care, because some files may become unreadable and stop showing up in gallery apps.</string>
     <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
     <string name="settings_gpu_thumbs_desc">Builds the thumbnail cache in the graphics chip\'s memory. It can make the gallery feel snappier, make no difference, or sometimes slow things down on older devices. Turn it on and see whether it helps: every device is its own case, given how many hardware and software combinations Android has.</string>
-    <string name="settings_thumbs">Delete stored thumbnails</string>
+    <string name="settings_thumbs">Manage stored thumbnails</string>
     <string name="settings_thumbs_empty">No stored thumbnails</string>
-    <string name="settings_thumbs_warn">Tap the button to clear the thumbnail cache. Image and video previews will be deleted and regenerated automatically when you open each folder (this may take a minute or more in folders with many large images).</string>
-    <string name="settings_thumbs_do">Clear thumbnail\ncache</string>
+    <string name="settings_thumbs_do">Clear the thumbnail cache</string>
+    <string name="settings_thumbs_ask">Do you really want to clear the cache? Image and video previews will be deleted and regenerated automatically when you open each folder (this may take a minute or more in folders with many large images).</string>
     <string name="settings_thumbs_done">Thumbnail cache cleared</string>
+    <string name="settings_thumbs_gen">Generate thumbnails</string>
+    <string name="settings_thumbs_gen_ask">Creating the previews speeds up browsing and lightens the later load on the CPU/GPU, but it takes some initial time that depends on the number and size of the images in your collection. Do you want to continue?</string>
+    <string name="settings_thumbs_gen_title">Generating thumbnails</string>
+    <string name="settings_thumbs_gen_done">Thumbnails generated successfully.</string>
 
     <string name="settings_background">Viewer background</string>
     <string name="settings_bg_checker">Checkerboard</string>
@@ -519,6 +523,7 @@
     <string name="folder_no_images">The folder contains no images.</string>
     <string name="folder_no_videos">The folder holds no videos.</string>
     <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
 
     <string name="hide_folder_title">Hide \'%1$s\'?</string>
     <string name="hide_folder_desc">The folder will not be listed in grid or list view. It is only a display setting: no file will be deleted.</string>
