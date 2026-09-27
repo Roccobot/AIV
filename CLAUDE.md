@@ -5889,6 +5889,9 @@ con `loadThumbnail` e salva nella cartella `.thumbnails` del volume, un JPEG per
 dopo si riapre; e quella di un AVIF in `AvifCache`. Tutto il resto passa dalla decodifica normale di
 Coil, che qui non ha una cache su disco, quindi decodificarlo per la generazione vorrebbe dire un
 lavoro lungo il cui frutto si butta appena finito.
+- ⚠️ **Dalla `2.98` in `AvifCache` c'è anche il fotogramma che AIV sceglie per un video** la cui
+  miniatura di sistema è nera o manca, e la generazione lo prepara come il resto: § '🎬 La miniatura
+  di un video, quando il sistema la dà nera o non la dà'.
 - ⚠️⚠️ **QUINDI IL CARICATORE DELLA GENERAZIONE SI FERMA DOVE QUELLO VERO DECODIFICHEREBBE**
   (`Thumbs.warmer`): i fetcher sono gli stessi e nello stesso ordine, perché li costruisce una
   funzione sola; al posto dei decodificatori c'è `NoDecodeFactory`, che chiude il file senza
@@ -5903,9 +5906,9 @@ lavoro lungo il cui frutto si butta appena finito.
   - ⚠️ **La domanda di una cache su disco fatta in casa vive nel giro della `2.98`**: coprirebbe
     anche questi file, e costa spazio. ⚠️ **Quanto, è una stima e non una misura**: circa 300 MB
     ogni 10.000 miniature, alla misura della griglia (`Thumbs.PX`).
-- ⚠️ **La riga del riepilogo misura i soli AVIF**, cioè l'unica cache su disco dell'app: dopo una
-  generazione può dire ancora che non c'è nessuna miniatura memorizzata, perché quelle del sistema
-  non sono sue.
+- ⚠️ **La riga del riepilogo misura la sola cache su disco dell'app**, cioè gli AVIF e dalla `2.98`
+  i fotogrammi dei video: dopo una generazione può dire ancora che non c'è nessuna miniatura
+  memorizzata, perché quelle del sistema non sono sue.
 
 ⚠️⚠️ **LE CARTELLE VISIBILI SONO QUELLE DELL'ELENCO INIZIALE** (`Folder.everything`), cioè senza le
 nascoste e senza il minuto di prestito di 'Mostra nascoste': il prestito serve a entrare in una
@@ -5951,6 +5954,80 @@ guardano sul telefono, e la voce di collaudo le chiede.
   prima, cioè la prova sarebbe rossa a volte.
 - ⚠️⚠️ **E UNA FINESTRA DI COMPOSE SI CHIUDE CON INDIETRO PASSANDO DAL SUO DISPATCHER**: il banco la
   raggiunge con `ShadowDialog.getLatestDialog()`, e la prova le manda il gesto sul filo principale.
+
+## 🎬 La miniatura di un video, quando il sistema la dà nera o non la dà
+
+⚠️⚠️ **DALLA `2.98` AIV SCEGLIE DA SÉ IL FOTOGRAMMA, ED È SUA RICHIESTA** (campo libero del giro della
+`2.93` e della `2.94`, poi in chat il 2026-09-27: *la miniatura in effetti c'è ed è nera*, e *sì,
+voglio che rimedi se manca o se è nera*). Fino alla `2.97` la miniatura di un video era quella del
+sistema e basta, e per cinque o sei suoi video lunghi era nera.
+
+⚠️⚠️ **IL FOTOGRAMMA CHE SCEGLIE IL SISTEMA DIPENDE DALLA VERSIONE DI ANDROID, E NON È IL PRIMO**:
+letto nel sorgente AOSP di `ThumbnailUtils.createVideoThumbnail`, che il `MediaProvider` chiama per
+ogni video.
+- **Fino ad Android 16 nella versione di lancio**: la copertina incorporata nel file, se c'è, e
+  altrimenti il fotogramma chiave più vicino alla metà del video.
+- **Dal primo aggiornamento trimestrale di Android 16 (QPR1)**: il fotogramma che il decodificatore
+  considera rappresentativo, che per un MP4 è il più pesante fra i primi venti fotogrammi chiave
+  (`SampleTable.findThumbnailSample`, letto nel mirror di LineageOS di `frameworks/av`), e per un MP4
+  frammentato quello a un quarto della durata.
+- ⚠️ **Quindi un solo fotogramma nero in apertura non basta**: un fotogramma nero pesa poco, e la
+  regola lo scarta. Serve un tratto nero che copra tutti e venti i fotogrammi chiave, ed è il caso
+  dei suoi video.
+
+⚠️⚠️ **SI RIMEDIA AL RISULTATO E NON ALLA REGOLA** (`ClipFrames`): la regola è del telefono e cambia
+con lui, mentre riconoscere una miniatura che non mostra niente vale su qualunque versione.
+- **Nero vuol dire** che al più l'1% dei punti di una griglia di 32 per 32 ha il canale più acceso
+  sopra 32 su 255. Si contano i punti e non si fa la media, perché un titolo bianco su nero ha una
+  media bassissima e un contenuto vero; e conta il canale più acceso e non la luminanza, perché un blu
+  pieno a 200 varrebbe 22.
+- **Il fotogramma si cerca a metà, a un quarto, a tre quarti e a un decimo**, vince il primo che non
+  è nero, e se sono neri tutti vince il più chiaro. La metà per prima perché è la scelta che il
+  sistema ha fatto per anni, e il punto più lontano da un'apertura e da una chiusura in nero.
+- ⚠️ **Un fotogramma chiave e non quello esatto** (`OPTION_CLOSEST_SYNC`), come fa il sistema: uno
+  esatto vorrebbe la decodifica di tutti quelli fra lui e la chiave precedente.
+
+⚠️⚠️ **È UN COMPONENTE DELLA CATENA E NON UN RIPIEGO SCRITTO DENTRO IL SISTEMA** (`ClipFrameFetcher`,
+subito dopo quello di sistema): il fetcher di sistema rifiuta la miniatura nera di un video e passa la
+mano, che è la stessa uscita della miniatura troppo piccola. Una miniatura che manca arriva allo
+stesso punto da sé.
+- ⚠️ **Vale anche sotto Android 10**, dove il fetcher di sistema non esiste: là la miniatura di un
+  video mancava sempre, e dalla `2.98` c'è.
+  - ⚠️⚠️ **E PER ARRIVARCI SERVIVA UNA CORREZIONE IN `AvifCache`, TROVATA SCRIVENDO QUESTA**: il suo
+    formato era `WEBP_LOSSY` senza condizione, che nasce con Android 11, e sotto quella versione
+    l'oggetto intero non si inizializzava. Adesso sceglie come `ImageEdit` e `FolderCover`.
+    ⚠️ **Lo stesso difetto resta nell'elenco dei formati di 'Converti/Esporta'** (`Convert.Target`),
+    ed è fuori da questa versione: nessuno dei due ha un telefono sotto la 13, e il banco gira su
+    una piattaforma sola, quindi né il collaudo né le prove lo potevano vedere.
+- ⚠️ **Il fotogramma scelto si tiene su disco, in `AvifCache`**, con la data del file nella chiave:
+  scegliere vuol dire aprire il contenitore e decodificare fino a quattro fotogrammi, e la seconda
+  volta non serve. La pagina 'Gestisci le miniature memorizzate' lo misura e lo svuota insieme al
+  resto, e 'Genera miniature' lo prepara.
+- ⚠️ **Si paga una volta per video, e solo per quelli con la miniatura di sistema nera o mancante**:
+  per gli altri il costo in più è la lettura di mille punti di una bitmap già in mano.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`MiniaturaVideoTest`, otto casi, ognuno controprovato
+rimettendo il suo difetto): il riconoscimento del nero su bitmap scritte a mano, l'ordine dei momenti,
+la scelta del fotogramma coi fotogrammi finti dell'ombra di `MediaMetadataRetriever`, e la catena
+intera, dove la miniatura nera la dà il vero `ThumbnailUtils` della piattaforma finta: la miniatura
+nera passa la mano, e il fotogramma scelto torna dal disco. **Non** vede quale fotogramma scelga il
+telefono vero, né quanto costi aprire un video vero: quelli si guardano sul telefono.
+
+⚠️⚠️ **E UN VIDEO CHE RICOMINCIAVA DOPO MEZZO SECONDO NON ERA DELL'APP, FINORA** (campo libero dello
+stesso giro: *quasi tutti i video mp4: tocco 'Play', il video parte, ma ricomincia daccapo dopo mezzo
+secondo*). Il 2026-09-27 è sparito col solo riavvio del telefono, e nel codice non c'è nessuna strada
+che riporti il lettore a zero. La sua risposta è di tornarci solo se si ripresenta, e allora
+raccoglierà tutte le informazioni che può.
+- **Le cause escluse, perché non si rifacciano**: il lettore non viene ricreato (il ramo del `when` e
+  la schermata sono stabili, e `Screen.Viewer` è un oggetto solo); nessuna riga lo riporta a zero
+  tranne la barra sotto il dito (letto nel bytecode di material3 1.5.0-alpha26: `onValueChange` parte
+  solo da un gesto); media3-ui-compose 1.11.0 non chiama `seekTo` da sé e aggancia la superficie una
+  volta sola; ExoPlayer 1.11.0 disegna il primo fotogramma anche a video fermo (`mayRenderStartOfStream`
+  è vero per il periodo in riproduzione); e l'osservatore del MediaStore, nel visualizzatore, segna
+  soltanto la griglia da ricaricare.
+- **Se ricapita, le domande che distinguono le cause**: se il tempo sotto la barra torna a 0:00, se
+  ricomincia una volta sola o di continuo, che cosa si vede prima di toccare Play, se succede anche
+  con 'Riproduzione diretta dei video' accesa, e la versione di Android del telefono.
 
 ## 💼 Esporta e importa, e il file che solo AIV sa leggere
 
