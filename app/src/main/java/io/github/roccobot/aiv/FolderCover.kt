@@ -214,31 +214,29 @@ object FolderCovers {
     }
 
     /**
-     * Di quale cartella è la copertina con questo nome, anche se il suffisso non è uno di quelli
-     * che questo oggetto scrive.
+     * Aggiunge alle copertine di adesso quelle di un backup: per le cartelle che il backup porta
+     * vince la sua, le altre restano come sono.
      *
-     * ⚠️ **Serve al backup, per una copertina scritta da una versione più nuova in un formato che
-     * questa non conosce**: non entra, ma la cartella a cui appartiene tiene la copertina che ha qui.
-     */
-    internal fun ownerOf(name: String): Long? = owner(File(name))
-
-    /**
-     * Mette al posto delle copertine di adesso quelle di un backup.
-     *
-     * ⚠️⚠️ **SOSTITUISCE, E L'ORDINE DEI DUE PASSI È QUELLO CHE LO RENDE SICURO**: prima entrano
-     * le nuove e poi escono le vecchie, così una scrittura che fallisce a metà lascia qualche
+     * ⚠️⚠️ **DALLA `2.95` FONDE, E FINO ALLA `2.94` SOSTITUIVA**: è la sua risposta `fonde` a
+     * `d-backup-importa` (*Copertine, colori e stili del file si aggiungono ai tuoi, e dove si
+     * sovrappongono (la stessa cartella, lo stesso nome) vince il file*). Quindi una copertina di
+     * adesso esce solo quando il backup ne ha portata una per la stessa cartella, e un backup senza
+     * copertine non ne toglie nessuna.
+     * ⚠️ **L'ordine dei due passi resta quello che lo rende sicuro**: prima entrano le nuove e poi
+     * escono le vecchie delle loro cartelle, così una scrittura che fallisce a metà lascia qualche
      * copertina in più invece di nessuna. A parità di cartella vince la più recente (vedi [all]),
      * e le nuove sono appena state scritte.
      * ⚠️ **Il periodo di grazia riparte da adesso**, perché un file copiato nasce con la data di
      * oggi: una copertina importata su un telefono che quella cartella non ce l'ha ancora ha un
      * mese per vederla comparire.
+     * ⚠️ **Fino alla `2.94` qui c'era un elenco di cartelle da tenere**, cioè quelle di cui il backup
+     * porta una copertina in un formato che questa versione non conosce: con la sostituzione le loro
+     * copertine se ne sarebbero andate. Con la fusione restano da sé, perché una copertina che non
+     * entra non copre la sua cartella, e l'elenco è uscito insieme a chi lo compilava.
      *
-     * @param keep le cartelle di cui il backup porta una copertina che qui non si sa leggere: le
-     *   loro copertine di adesso restano. ⚠️ Senza valore di serie, perché dimenticarlo cancellerebbe
-     *   proprio quelle.
      * @return se sono entrate tutte.
      */
-    internal suspend fun adopt(context: Context, incoming: List<File>, keep: Set<Long>): Boolean =
+    internal suspend fun adopt(context: Context, incoming: List<File>): Boolean =
         withContext(Dispatchers.IO) {
             val casa = home(context) ?: return@withContext false
             val arrivati = HashSet<String>()
@@ -252,12 +250,11 @@ object FolderCovers {
                 }.getOrDefault(false)
                 if (fatto) arrivati += file.name else tutte = false
             }
-            // ⚠️ Con una copia fallita escono le sole vecchie che una nuova ha già sostituito: le
-            // altre restano, perché la loro cartella nel backup non ha avuto il suo file.
+            // ⚠️ Escono le sole vecchie che una nuova ha già sostituito: le cartelle che il backup non
+            // porta tengono la loro, e con una copia fallita anche quella cartella tiene la sua.
             val coperte = arrivati.mapNotNull { owner(File(it)) }.toSet()
             casa.listFiles().orEmpty()
-                .filter { it.isFile && it.name !in arrivati && owner(it) !in keep }
-                .filter { tutte || owner(it) in coperte }
+                .filter { it.isFile && it.name !in arrivati && owner(it) in coperte }
                 .forEach { runCatching { it.delete() } }
             tutte
         }

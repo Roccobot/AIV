@@ -49,8 +49,13 @@ import javax.crypto.spec.SecretKeySpec
  * ⚠️⚠️ **SONO MACRO-AREE, ED È LA SUA RIGA ALLA LETTERA** (terza richiesta del campo libero del
  * giro della `2.91`: *per non fare un elenco troppo lungo di checkbox, si selezionerà per
  * macro-aree*). Le prime tre sono le sezioni della schermata delle impostazioni, cioè i posti in
- * cui quelle preferenze si toccano, e portano il loro titolo; le altre sono le cose che l'app
- * ricorda fuori da quella schermata.
+ * cui quelle preferenze si toccano; le altre sono le cose che l'app ricorda fuori da quella
+ * schermata.
+ * ⚠️⚠️ **LA TERZA NON PORTA PIÙ IL TITOLO DELLA SUA SEZIONE, DALLA `2.95`, ED È LA SUA NOTA SU
+ * `d-backup-aree`** (*`Modifica e backup` → `Impostazioni dell'editor`*): dentro una pagina di backup
+ * quel titolo faceva pensare che la casella portasse il backup stesso. ⚠️ **La sezione delle
+ * impostazioni resta com'è**, perché la nota parla della casella: a cambiare è l'etichetta di qui, e
+ * il token no.
  * ⚠️ **Il token è il formato e l'etichetta è la pagina**, e vivono nella stessa riga perché
  * l'elenco delle aree è uno: un'area nuova scritta in due tabelle comparirebbe nel file e non fra
  * le caselle, o il contrario. Il token non si traduce e non cambia mai, perché lo leggono anche i
@@ -62,7 +67,7 @@ import javax.crypto.spec.SecretKeySpec
 internal enum class BackupArea(val token: String, @StringRes val label: Int) {
     VIEW("view", R.string.backup_area_view),
     BUTTONS("buttons", R.string.settings_group_input),
-    EDITOR("editor", R.string.settings_group_files),
+    EDITOR("editor", R.string.backup_area_editor),
     STYLES("styles", R.string.settings_styles),
     TINTS("tints", R.string.settings_colour),
     COVERS("covers", R.string.backup_area_covers),
@@ -173,6 +178,25 @@ internal val PREF_OUTSIDE: Set<String> = setOf(
 internal val PREF_AREAS: Set<BackupArea> = PREF_KEYS.map { it.area }.toSet()
 
 /**
+ * Le preferenze che all'importazione si **fondono** con quelle di adesso invece di prenderne il posto,
+ * e come.
+ *
+ * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`** (giro della `2.93` e della `2.94`: *Copertine,
+ * colori e stili del file si aggiungono ai tuoi, e dove si sovrappongono (la stessa cartella, lo stesso
+ * nome) vince il file*). Delle tre parti, i colori sono la sola fatta di preferenze, e di quelle una
+ * sola si fonde: l'elenco delle tinte, cartella per cartella. Lo **stile** con cui il colore si vede
+ * (`folder-colour`) invece è un valore solo, e la domanda del giro lo diceva (*le impostazioni no,
+ * perché ognuna ha un valore solo*).
+ * ⚠️ **Una chiave che si fonde non torna mai al valore di fabbrica**: un file che la dichiara assente
+ * dice che là non c'era niente da aggiungere, e fondere niente lascia quello che c'è.
+ * ⚠️ **Sono tutte insiemi di stringhe**, e il banco lo controlla: la fusione riceve i due insiemi, e una
+ * chiave d'altro tipo qui dentro sarebbe un valore letto col tipo sbagliato.
+ */
+internal val PREF_MERGED: Map<String, (Set<String>, Set<String>) -> Set<String>> = mapOf(
+    "folder-tints" to FolderTints::merged
+)
+
+/**
  * Il backup delle impostazioni: un file che solo AIV sa leggere, e che porta quello che l'app
  * ricorda, un'area per volta.
  *
@@ -210,6 +234,11 @@ internal val PREF_AREAS: Set<BackupArea> = PREF_KEYS.map { it.area }.toSet()
  * ⚠️ **Ogni area prende il posto di quella di adesso, tranne il cestino e la cronologia dei
  * ripristini**, che si aggiungono: sostituirli vorrebbe dire cancellare per sempre dei file, cioè
  * l'unica cosa che il cestino esiste per non fare.
+ * ⚠️⚠️ **E DALLA `2.95` SI FONDONO ANCHE LE COPERTINE, I COLORI DELLE CARTELLE E GLI STILI SALVATI, ED
+ * È LA SUA RISPOSTA `fonde` A `d-backup-importa`**: quello del file si aggiunge a quello che c'è, e
+ * dove si sovrappongono (la stessa cartella, lo stesso nome) vince il file. Le preferenze restano una
+ * sostituzione, perché ognuna ha un valore solo; l'unica che si fonde è l'elenco delle tinte, e il
+ * perché vive su [PREF_MERGED].
  *
  * ⚠️⚠️ **VALE FRA VERSIONI DIVERSE DI AIV, NEI DUE VERSI, ED È SUA RICHIESTA** (2026-09-26, a
  * lavoro iniziato: *una versione di AIV più recente di quella che ha generato il backup troverà
@@ -326,12 +355,28 @@ internal object Backup {
      */
     class Outcome(val wanted: Set<BackupArea>, val applied: Set<BackupArea>, val skipped: Boolean)
 
-    /** Il tipo del file per il selettore di sistema: un formato suo, che nessun'altra app apre. */
+    /**
+     * Il tipo del file per il selettore di sistema: un formato suo, che nessun'altra app apre.
+     *
+     * ⚠️⚠️ **È QUESTO TIPO CHE LASCIA IN PACE L'ESTENSIONE**: un fornitore di documenti ritocca il
+     * suffisso quando non va d'accordo col tipo dichiarato, e l'unico tipo col quale un suffisso che
+     * nessuno conosce resta com'è è questo. Con un tipo vero il file uscirebbe `.aivsettings.json`.
+     */
     const val MIME = "application/octet-stream"
 
-    /** Il nome proposto per un backup scritto oggi. */
+    /**
+     * Il nome proposto per un file di impostazioni scritto oggi.
+     *
+     * ⚠️⚠️ **L'ESTENSIONE È `.aivsettings` DALLA `2.95`, ED È SUA** (campo libero del giro della `2.93`
+     * e della `2.94`: *File di backup (lo chiamo sempre, coerentemente 'file di impostazioni'): voglio
+     * l'estensione `.aivsettings`*). Fino alla `2.94` era `.aivbackup`, e un file con quel suffisso si
+     * importa lo stesso: a dire che cosa è ci pensa la sua intestazione, non il nome.
+     * ⚠️ **Il nome dice 'settings' e non più 'backup'**, ed è una lettura dichiarata della stessa riga
+     * (*coerentemente 'file di impostazioni'*): il nome non si traduce, quindi è in inglese come il resto
+     * di quello che l'app scrive su disco.
+     */
     fun fileName(now: Long): String =
-        "AIV-backup-${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date(now))}.aivbackup"
+        "AIV-settings-${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date(now))}.aivsettings"
 
     // ── Scrittura ────────────────────────────────────────────────────────────
 
@@ -613,7 +658,8 @@ internal object Backup {
      * backup.
      * ⚠️ **Un'area che il resoconto nomina e il file non porta non si tocca**, e resta fra quelle
      * attese: il riscontro dice 'a metà' invece di tacere. Le copertine sono l'eccezione, perché
-     * non hanno una voce che ne dica la presenza: un backup senza copertine dice che non ce n'erano.
+     * non hanno una voce che ne dica la presenza: un backup senza copertine dice che non ce n'erano,
+     * e dalla `2.95` fondere niente lascia quelle che ci sono.
      *
      * @param chosen le caselle spuntate. ⚠️ Si importano quelle che sono anche nel resoconto.
      * @param onBytes quanti byte del file sono già stati letti, per l'avanzamento.
@@ -667,9 +713,6 @@ internal object Backup {
         val prefs = HashMap<BackupArea, Prefs>()
         var styles: String? = null
         val covers = ArrayList<File>()
-
-        /** Le cartelle di cui il file porta una copertina in un formato che qui non si conosce. */
-        val coversKept = HashSet<Long>()
         var logo: File? = null
 
         /** Se il file porta un logo in un formato che qui non si conosce. */
@@ -732,9 +775,9 @@ internal object Backup {
                         found.covers += stage(zip, File(stageHome(context), name), COVER_MAX, meter)
                     } else {
                         // ⚠️ Un formato di copertina che questa versione non conosce: si salta, e la
-                        // copertina che quella cartella ha qui resta dov'è.
+                        // copertina che quella cartella ha qui resta dov'è, perché le copertine si
+                        // fondono e questa non copre la sua cartella.
                         found.skipped++
-                        FolderCovers.ownerOf(file)?.let { found.coversKept += it }
                     }
                 }
                 name.startsWith(MARK_DIR) -> if (BackupArea.EDITOR in want) {
@@ -794,18 +837,18 @@ internal object Backup {
      * che l'app rilegge da sé appena cambiano, e un'app che si ridisegna con le impostazioni nuove
      * deve trovare già al loro posto le copertine e il logo di cui parlano.
      * ⚠️ **Un'area che non riesce non ferma le altre**, e manca dal risultato.
+     * ⚠️⚠️ **GLI STILI, LE COPERTINE E LE TINTE SI FONDONO DALLA `2.95`**, ed è la sua risposta `fonde`
+     * a `d-backup-importa`: le tre strade sono [Presets.merge], [FolderCovers.adopt] e [PREF_MERGED].
      */
     private suspend fun apply(context: Context, found: Found): Set<BackupArea> {
         val done = HashSet<BackupArea>()
         found.styles?.let { text ->
-            if (runCatching { Presets.load(context, text) }.getOrDefault(false)) {
+            if (runCatching { Presets.merge(context, text) }.getOrDefault(false)) {
                 done += BackupArea.STYLES
             }
         }
         if (BackupArea.COVERS in found.wanted) {
-            val entrate = runCatching {
-                FolderCovers.adopt(context, found.covers, keep = found.coversKept)
-            }.getOrDefault(false)
+            val entrate = runCatching { FolderCovers.adopt(context, found.covers) }.getOrDefault(false)
             if (entrate) done += BackupArea.COVERS
         }
         // ⚠️ Il logo va con le preferenze dell'editor, e solo se quelle ci sono: rimesse senza di
@@ -836,8 +879,10 @@ internal object Backup {
                     // ⚠️⚠️ Si tolgono le sole chiavi che il file dichiara assenti, e non tutte quelle
                     // dell'area: una chiave che il file non nomina è nata dopo il backup, e resta
                     // com'è (è la sua richiesta sulle versioni, in testa a questo oggetto).
+                    // ⚠️ Una chiave che si fonde non si toglie e non si sostituisce: il perché vive
+                    // su [PREF_MERGED].
                     for (letto in found.prefs.values) {
-                        letto.absent.forEach { remove(p, it) }
+                        letto.absent.forEach { if (it.name !in PREF_MERGED) remove(p, it) }
                         letto.values.forEach { (key, value) -> put(p, key, value) }
                     }
                     // ⚠️ Un indicatore mancante lo deciderebbe la migrazione al prossimo avvio, e
@@ -862,6 +907,11 @@ internal object Backup {
 
     @Suppress("UNCHECKED_CAST")
     private fun put(p: MutablePreferences, key: PrefKey, value: Any) {
+        PREF_MERGED[key.name]?.let { fondi ->
+            val k = stringSetPreferencesKey(key.name)
+            p[k] = fondi(p[k].orEmpty(), value as Set<String>)
+            return
+        }
         when (key.type) {
             PrefType.BOOLEAN -> p[booleanPreferencesKey(key.name)] = value as Boolean
             PrefType.INT -> p[intPreferencesKey(key.name)] = value as Int

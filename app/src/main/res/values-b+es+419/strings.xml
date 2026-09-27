@@ -38,6 +38,15 @@
     <string name="settings_last_mark_corner">Esquina</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
-    <string name="backup_desc">Guarda la configuración en un archivo y recupérala cuando la necesites</string>
-    <string name="backup_intro">El archivo contiene las partes marcadas abajo, y solo AIV puede leerlo. Al importar, las mismas casillas deciden qué se restaura: cada parte sustituye a la actual, y el contenido de la papelera se suma a lo que ya hay. También funciona entre versiones distintas de AIV: lo que una de las dos no conoce se omite, y las configuraciones que aparecieron después de la copia de seguridad se quedan como están.</string>
+    <string name="backup_desc">Guarda la configuración en un archivo que podrás importar en cualquier momento, también con futuras versiones de Astonishing Image Viewer.</string>
+    <string name="backup_intro">El archivo incluye la configuración de abajo, y solo AIV puede leerlo. El contenido de la papelera se suma al que ya haya en el momento de importar.</string>
+    <string name="backup_area_editor">Configuración del editor</string>
+    <string name="backup_empty">El archivo de configuración no se ha exportado: comprueba que tienes permiso de escritura en la carpeta de destino.</string>
+    <string name="backup_loaded">Configuración importada correctamente.</string>
+    <string name="backup_loaded_skipped">Importación completada, salvo algunas configuraciones que proceden de una versión más reciente de AIV.</string>
+    <string name="backup_newer">Este archivo de configuración tiene un formato más reciente, que esta versión de AIV no puede abrir. Actualiza la app para importarlo.</string>
+    <string name="backup_import_ask">Esta configuración sustituirá a la actual. Los archivos de la papelera se sumarán a los que ya hay.</string>
+    <string name="backup_unlock">El archivo de configuración está protegido: escribe la contraseña.</string>
+    <string name="backup_none">El archivo no contiene valores válidos para la configuración seleccionada.</string>
+    <string name="backup_bad">El archivo seleccionado no tiene el formato de configuración de AIV.</string>
 </resources>

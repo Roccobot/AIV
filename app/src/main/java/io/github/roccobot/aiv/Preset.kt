@@ -299,6 +299,45 @@ object Presets {
     }
 
     /**
+     * Aggiunge a quello che c'è un archivio esportato, e dice se ci è riuscito: per il file di
+     * impostazioni.
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`** (giro della `2.93` e della `2.94`:
+     * *Copertine, colori e stili del file si aggiungono ai tuoi, e dove si sovrappongono (la stessa
+     * cartella, lo stesso nome) vince il file*). La risposta parla del file di impostazioni, quindi
+     * l'importazione della pagina degli stili resta [load], che sostituisce: il giro dopo gli chiede
+     * se la vuole uguale.
+     * - **Gli stili salvati**: uno che ha lo stesso nome di uno dei suoi ne prende i valori e resta al
+     *   suo posto, e gli altri si aggiungono in coda nell'ordine del file. Il nome si confronta senza
+     *   le maiuscole, come in [save].
+     * - ⚠️⚠️ **Di quelli di casa l'archivio tiene solo quello che è cambiato dalla fabbrica** (un nome,
+     *   un nascosto, un ordine), quindi fondere vuol dire aggiungere ai cambiamenti di qui quelli del
+     *   file, e dove tutti e due hanno cambiato la stessa cosa vince il file. Un nome o un ordine che il
+     *   file non scrive vuol dire che là nessuno li ha toccati, e non è una scelta da far valere sopra
+     *   una di qui; uno stile nascosto da una delle due parti resta nascosto.
+     * - ⚠️ **Su un telefono nuovo è la stessa cosa di [load]**: qui non c'è niente da tenere, e quello
+     *   che resta sono i cambiamenti del file. È il caso per cui un file di impostazioni esiste.
+     * ⚠️ **Un testo che non si legge non tocca niente**, come in [load]; e a differenza di [load]
+     * dice anche se la scrittura non è riuscita, perché il backup conta le aree che sono entrate.
+     */
+    fun merge(context: Context, text: String): Boolean {
+        val arrivo = runCatching { parse(text) }.getOrNull() ?: return false
+        val qui = read(context)
+        val mine = qui.mine.toMutableList()
+        arrivo.mine.forEach { p ->
+            val dove = mine.indexOfFirst { it.name.equals(p.name, ignoreCase = true) }
+            if (dove >= 0) mine[dove] = p else mine.add(p)
+        }
+        val fuso = Book(
+            mine = mine,
+            names = qui.names + arrivo.names,
+            gone = (qui.gone + arrivo.gone).distinct(),
+            house = arrivo.house.ifEmpty { qui.house }
+        )
+        return write(context, fuso) === fuso
+    }
+
+    /**
      * Se [text] è un archivio che [load] saprebbe leggere, senza scrivere niente.
      *
      * ⚠️ **Serve al backup, che prima controlla tutto e poi scrive tutto**: con la sola [load],

@@ -276,12 +276,13 @@ class BackupTest {
      * un valore che non si legge, una chiave di un'altra area, un logo e una copertina in un
      * formato nuovo.
      * ⚠️⚠️ **E QUELLO CHE NON SI SA LEGGERE NON CANCELLA NIENTE**: il logo di adesso resta, e resta
-     * la copertina della cartella di cui il file porta un formato sconosciuto. La copertina di
-     * un'altra cartella invece se ne va, perché le copertine si sostituiscono.
+     * la copertina della cartella di cui il file porta un formato sconosciuto. ⚠️ **Dalla `2.95`
+     * resta anche quella di un'altra cartella**, perché le copertine si fondono (sua risposta
+     * `fonde` a `d-backup-importa`); fino alla `2.94` se ne andava.
      * ⚠️ **Le controprove sono cinque**, una per regola: un'area sconosciuta che rifiuta il file,
      * il campo `version` guardato, una chiave sconosciuta che rifiuta il file, un logo sconosciuto
-     * che cancella quello di adesso, e le copertine sostituite senza guardare le cartelle tenute.
-     * Ognuna fa cadere la prova.
+     * che cancella quello di adesso, e le copertine sostituite invece che fuse. Ognuna fa cadere la
+     * prova.
      */
     @Test
     fun `un file di una versione piu nuova si importa per quello che si conosce`() {
@@ -316,7 +317,7 @@ class BackupTest {
         }
         val logo = Watermark.file(app)!!.readBytes()
         copertina("123-100.webp", "tenuta")
-        copertina("999-100.webp", "sostituita")
+        copertina("999-100.webp", "di un'altra cartella")
 
         val esito = importa(file, BackupArea.entries.toSet())
 
@@ -333,7 +334,7 @@ class BackupTest {
         assertEquals(true, dopo["mark-on"])
         assertArrayEquals("il logo di adesso resta", logo, Watermark.file(app)?.readBytes())
         val copertine = runBlocking { FolderCovers.files(app) }.map { it.name }.toSet()
-        assertEquals("resta la sola copertina tenuta", setOf("123-100.webp"), copertine)
+        assertEquals("restano tutte e due", setOf("123-100.webp", "999-100.webp"), copertine)
     }
 
     /**
@@ -387,14 +388,19 @@ class BackupTest {
     }
 
     /**
-     * **Caso 9: le copertine del file prendono il posto di quelle di adesso.**
+     * **Caso 9: le copertine del file si aggiungono a quelle di adesso, e per la stessa cartella
+     * vince la sua.**
      *
-     * All'arrivo ci sono una copertina di un'altra cartella e una più vecchia della stessa: se ne
-     * vanno tutte e due, e resta quella del file, coi suoi byte.
-     * ⚠️ **Controprovata** senza la potatura delle vecchie: restano tutte e tre, e la prova cade.
+     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`, DALLA `2.95`**: all'arrivo ci sono una
+     * copertina di un'altra cartella e una più vecchia della stessa. La prima resta, la seconda se ne
+     * va, e della cartella del file resta la sua copertina, coi suoi byte. Fino alla `2.94` se ne
+     * andavano tutte e due.
+     * ⚠️ **Controprovata due volte**: rimettendo la sostituzione se ne va anche la copertina
+     * dell'altra cartella, e senza la potatura delle vecchie resta quella più vecchia. Tutte e due
+     * fanno cadere la prova.
      */
     @Test
-    fun `le copertine prendono il posto di quelle di adesso`() {
+    fun `le copertine del file si aggiungono a quelle di adesso`() {
         copertina("1-100.webp", "della partenza")
         val file = esporta(setOf(BackupArea.COVERS))
         runBlocking { FolderCovers.files(app) }.forEach { it.delete() }
@@ -404,9 +410,11 @@ class BackupTest {
         val esito = importa(file, setOf(BackupArea.COVERS))
 
         assertEquals(setOf(BackupArea.COVERS), esito.applied)
-        val dopo = runBlocking { FolderCovers.files(app) }
-        assertEquals(listOf("1-100.webp"), dopo.map { it.name })
-        assertEquals("della partenza", dopo.single().readText())
+        val dopo = runBlocking { FolderCovers.files(app) }.associate { it.name to it.readText() }
+        assertEquals(
+            mapOf("1-100.webp" to "della partenza", "2-200.webp" to "di un'altra cartella"),
+            dopo
+        )
     }
 
     /**
@@ -715,6 +723,134 @@ class BackupTest {
         }
 
         assertEquals(Backup.Reason.BAD, rifiuto(file))
+    }
+
+    // ── Le fusioni della 2.95 e il file vuoto ───────────────────────────────
+
+    /**
+     * **Caso 23: i colori delle cartelle si fondono, e lo stile con cui si vedono no.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`, E LA DOMANDA DEL GIRO TRACCIAVA IL CONFINE**
+     * (*le impostazioni no, perché ognuna ha un valore solo*): l'elenco delle tinte si fonde cartella
+     * per cartella, e dove la cartella è la stessa vince il file; lo stile del colore è un valore solo,
+     * e viene dal file com'è.
+     * ⚠️ **La seconda metà è un file senza tinte**, che le dichiara assenti: fondere niente lascia
+     * quelle che ci sono. Con la sostituzione tornerebbero di fabbrica, cioè sparirebbero.
+     * ⚠️ **Controprovata due volte**: scrivendo le tinte del file al posto di quelle di adesso cade la
+     * prima metà, e togliendo le tinte dichiarate assenti cade la seconda.
+     */
+    @Test
+    fun `i colori delle cartelle si fondono`() {
+        runBlocking {
+            FolderTints.set(app, 2L, 5)
+            FolderTints.set(app, 7L, 1)
+            rewritePreferences(app) { it[stringPreferencesKey("folder-colour")] = FolderColour.FRAME.token }
+        }
+        val file = esporta(setOf(BackupArea.TINTS))
+        runBlocking {
+            rewritePreferences(app) { it.clear() }
+            FolderTints.set(app, 1L, 3)
+            FolderTints.set(app, 2L, 4)
+        }
+
+        assertEquals(setOf(BackupArea.TINTS), importa(file, setOf(BackupArea.TINTS)).applied)
+
+        assertEquals(mapOf(1L to 3, 2L to 5, 7L to 1), runBlocking { FolderTints.all(app) })
+        assertEquals("lo stile del colore viene dal file", FolderColour.FRAME.token, archivio()["folder-colour"])
+
+        runBlocking { rewritePreferences(app) { it.clear() } }
+        val senzaTinte = esporta(setOf(BackupArea.TINTS))
+        runBlocking { FolderTints.set(app, 9L, 2) }
+
+        importa(senzaTinte, setOf(BackupArea.TINTS))
+
+        assertEquals("un file senza tinte non toglie quelle di adesso", mapOf(9L to 2), runBlocking { FolderTints.all(app) })
+    }
+
+    /**
+     * **Caso 24: gli stili del file si aggiungono ai tuoi, e con lo stesso nome vince il file.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `fonde` A `d-backup-importa`**: uno stile salvato col nome già usato
+     * prende i valori del file e resta al suo posto, e quelli nuovi arrivano in coda. Di quelli di casa
+     * l'archivio tiene i soli cambiamenti dalla fabbrica, e si sommano: il nome che il file dà vince su
+     * quello di qui, quello che il file non tocca resta, e uno stile nascosto da una delle due parti
+     * resta nascosto.
+     * ⚠️ **Il caso 8 misura l'altra faccia**: su un telefono vuoto la fusione dà esattamente il file.
+     * ⚠️ **Controprovata due volte**: rimettendo la sostituzione se ne va lo stile che c'era solo qui,
+     * e prendendo come nascosti solo quelli del file ricompare quello nascosto qui. Tutte e due fanno
+     * cadere la prova.
+     */
+    @Test
+    fun `gli stili del file si aggiungono ai tuoi`() {
+        val casa = Presets.house(app)
+        Presets.save(app, "B", Look(light = Light(exposure = 0.5f)))
+        Presets.save(app, "C", Look(light = Light(exposure = 0.25f)))
+        Presets.rename(app, casa[0], "Primo del file")
+        Presets.remove(app, casa[2])
+        val file = esporta(setOf(BackupArea.STYLES))
+        Presets.reset(app)
+        Presets.save(app, "A", Look(light = Light(exposure = -0.5f)))
+        Presets.save(app, "b", Look(light = Light(exposure = -0.25f)))
+        Presets.rename(app, casa[0], "Primo di qui")
+        Presets.rename(app, casa[1], "Secondo di qui")
+        Presets.remove(app, casa[3])
+
+        assertEquals(setOf(BackupArea.STYLES), importa(file, setOf(BackupArea.STYLES)).applied)
+
+        val mine = Presets.mine(app)
+        assertEquals(listOf("A", "B", "C"), mine.map { it.name })
+        assertEquals("con lo stesso nome vince il file", 0.5f, mine[1].look.light.exposure)
+        val nomi = Presets.house(app).associate { it.key to it.name }
+        assertEquals("il nome del file vince", "Primo del file", nomi[casa[0].key])
+        assertEquals("il nome di qui resta", "Secondo di qui", nomi[casa[1].key])
+        assertFalse("nascosto nel file", casa[2].key in nomi)
+        assertFalse("nascosto qui", casa[3].key in nomi)
+    }
+
+    /**
+     * **Caso 25: una chiave che si fonde è un insieme di stringhe dell'elenco.**
+     *
+     * ⚠️ **La fusione riceve due insiemi**, quindi una chiave d'altro tipo in [PREF_MERGED] sarebbe un
+     * valore letto col tipo sbagliato, e una che non è in [PREF_KEYS] non arriverebbe mai.
+     * ⚠️ **Controprovata** mettendo fra quelle che si fondono una chiave di testo: la prova cade.
+     */
+    @Test
+    fun `una chiave che si fonde e un insieme dell'elenco`() {
+        assertTrue(PREF_MERGED.isNotEmpty())
+        PREF_MERGED.keys.forEach { nome ->
+            assertEquals(nome, PrefType.SET, PREF_KEYS.singleOrNull { it.name == nome }?.type)
+        }
+    }
+
+    /**
+     * **Caso 26: un file di impostazioni vuoto si riconosce, e uno pieno no.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA SULLA VOCE `backup-esporta`** (*una verifica a fine esportazione per
+     * assicurarti che il file non risulti di 0 byte*). Il caso vero è un fornitore che accetta i byte
+     * e non li scrive, e sul banco non si costruisce; quello che si misura è la domanda che la pagina
+     * fa al file appena scritto, cioè [Backups.landed].
+     * ⚠️ **Controprovata** rispondendo sempre di sì: il file vuoto passa, e la prova cade.
+     */
+    @Test
+    fun `un file di impostazioni vuoto si riconosce`() {
+        val vuoto = File(app.cacheDir, "vuoto.aivsettings").also { it.writeBytes(ByteArray(0)) }
+        val pieno = File(app.cacheDir, "pieno.aivsettings").also { it.writeBytes(esporta(setOf(BackupArea.VIEW))) }
+
+        assertFalse("un file vuoto non è arrivato", Backups.landed(app, Uri.fromFile(vuoto)))
+        assertTrue("un file pieno è arrivato", Backups.landed(app, Uri.fromFile(pieno)))
+        assertFalse("un file che non c'è non è arrivato", Backups.landed(app, Uri.fromFile(File(app.cacheDir, "manca"))))
+    }
+
+    /**
+     * **Caso 27: il file di impostazioni si chiama `.aivsettings`.**
+     *
+     * ⚠️ **È la sua riga alla lettera** (*voglio l'estensione `.aivsettings`*), e il nome lo propone il
+     * selettore: un suffisso sbagliato non dà nessun errore, si vede solo fra i propri file.
+     * ⚠️ **Controprovata** rimettendo il suffisso della `2.94`: la prova cade.
+     */
+    @Test
+    fun `il file di impostazioni si chiama aivsettings`() {
+        assertTrue(Backup.fileName(0L).endsWith(".aivsettings"))
     }
 
     // ── Gli attrezzi ─────────────────────────────────────────────────────────
