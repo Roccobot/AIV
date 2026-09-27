@@ -1,9 +1,14 @@
-# CLAUDE.md: regole del progetto AIV
+# Rules.md: regole del progetto AIV
 
 > **Cos'è questo file.** Le regole **specifiche** di `Roccobot/AIV`, l'app Android
 > 'Astonishing Image Viewer'. Tutto quello che vale per ogni progetto vive nelle regole
 > universali, `rules/Roccobot.md` di `Roccobot/tools`, e qui non si duplica: qui c'è solo
 > ciò che di questo repository non si ricava altrove.
+> Vale per **tutti gli agenti**: il nucleo, cioè ogni regola in una riga, vive in `AGENTS.md`,
+> e questo file ne dà il perché. Claude Code lo carica da sé, perché `CLAUDE.md` lo importa; gli
+> altri agenti lo leggono quando il lavoro tocca una sua sezione.
+> ⚠️ **Fino al 2026-09-27 questo testo era il `CLAUDE.md` del repo**: una nota che nomina il
+> `CLAUDE.md` di AIV per una di queste sezioni parla di questo file.
 
 ⚠️ **Nasce il 2026-09-01, dopo 111 versioni**, e la ragione è precisa: fino a quel giorno
 l'**indirizzo del documento vivo** del progetto era solo nel brief di consegna, che è
