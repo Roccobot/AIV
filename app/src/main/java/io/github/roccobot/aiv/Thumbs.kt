@@ -94,7 +94,9 @@ object Thumbs {
      * ⚠️⚠️ **GENERARE VUOL DIRE LASCIARE QUALCOSA CHE RESTA, E SU DISCO RESTANO DUE COSE SOLE**:
      * la miniatura che il sistema tiene per ogni riga del MediaStore (`loadThumbnail` la genera e
      * la salva nella cartella `.thumbnails` del provider, letto nel sorgente AOSP di
-     * `MediaProvider`) e quella di un AVIF in [AvifCache]. Tutto il resto passa dalla decodifica
+     * `MediaProvider`) e quella di un AVIF in [AvifCache]. ⚠️ **Dalla `2.98` là dentro c'è anche
+     * il fotogramma che AIV sceglie per un video la cui miniatura di sistema è nera o manca** (vedi
+     * [ClipFrames]), quindi la generazione lascia su disco anche quello. Tutto il resto passa dalla decodifica
      * normale di Coil, che qui non ha una cache su disco: decodificarlo per la generazione vorrebbe
      * dire un lavoro lungo il cui frutto si butta appena finito.
      * ⚠️⚠️ **QUINDI QUESTO CARICATORE SI FERMA DOVE QUELLO VERO DECODIFICHEREBBE**: i due fetcher
@@ -126,6 +128,12 @@ object Thumbs {
     private fun build(context: PlatformContext, warming: Boolean): ImageLoader = ImageLoader.Builder(context)
         .components {
             add(SystemThumbnailFactory())
+            // ⚠️⚠️ **SUBITO DOPO IL SISTEMA, DALLA `2.98`, IL RIPIEGO DEI VIDEO**: quando la
+            // miniatura di un filmato manca o è nera il primo si tira indietro, e questo sceglie
+            // un fotogramma più avanti (vedi [ClipFrames]). ⚠️ **Prima dell'AVIF e non dopo**,
+            // perché quello per sapere se un file è un AVIF ne legge la testa: su un video sarebbe
+            // una lettura buttata, e questo lo riconosce dall'indirizzo senza aprire niente.
+            add(ClipFrameFactory())
             // ⚠️⚠️ **IL SECONDO SERVE PERCHÉ IL PRIMO SU UN AVIF NON HA NIENTE DA DARE**:
             // `loadThumbnail` e `createImageThumbnail` chiedono al telefono, e il telefono su
             // questi file si rifiuta (vedi [Avif]). Da lì la richiesta proseguirebbe verso la
@@ -437,9 +445,10 @@ private class SystemThumbnailFetcher(
          * richiesta prosegue nella decodifica normale, che apre il file vero. Il perché per
          * esteso, e perché non si cura la causa ma si chiude la via, vivono su [Thumbs.stale].
          * ⚠️⚠️ **I FILMATI NO, e non è una dimenticanza**: di un `mp4` la decodifica normale di
-         * Coil non sa che farsene, quindi tirarsi indietro là vorrebbe dire **nessuna**
-         * miniatura invece di una vecchia. Un filmato riscritto è un caso che questa app non
-         * produce: l'editor lavora sulle immagini.
+         * Coil non sa che farsene, quindi fino alla `2.97` tirarsi indietro là voleva dire
+         * **nessuna** miniatura invece di una vecchia. Dalla `2.98` la richiesta arriverebbe al
+         * ripiego dei video ([ClipFrames]), che la rifà dal file, ma resta un caso che questa app
+         * non produce: l'editor lavora sulle immagini.
          */
         if (!Videos.isVideo(uri) && Thumbs.rewritten(uri)) return@withContext null
 
@@ -515,8 +524,8 @@ private class SystemThumbnailFetcher(
                     "content" -> options.context.contentResolver.loadThumbnail(uri, wanted, signal)
                     // ⚠️⚠️ **Qui invece le due funzioni sono DIVERSE**, e sbagliarle non dà
                     // una miniatura brutta: `createImageThumbnail` su un filmato va in errore, e
-                    // la richiesta finirebbe nella decodifica normale, che di un `mp4` non
-                    // sa che farsene. Il ramo `file://` è quello delle cartelle che il
+                    // dalla `2.98` la richiesta finirebbe nel ripiego dei video, cioè in un
+                    // lavoro in più per ogni tessera. Il ramo `file://` è quello delle cartelle che il
                     // MediaStore non conosce, dove non c'è nessuna tabella a dire il tipo:
                     // lo dice l'estensione, come in `Folder.fromDisk`.
                     "file" -> uri.path?.let {
@@ -560,6 +569,16 @@ private class SystemThumbnailFetcher(
             if (!Videos.isVideo(uri) && tooSmall(options.context, uri, bitmap, wanted)) {
                 return@withContext null
             }
+
+            /*
+             * ⚠️⚠️ **LA MINIATURA NERA DI UN VIDEO SI RIFIUTA, DALLA `2.98`**, ed è la stessa
+             * uscita della riga qui sopra: `null` passa la mano, e il componente successivo è il
+             * ripiego dei video ([ClipFrameFactory]), che sceglie un fotogramma più avanti. Il
+             * perché il sistema la dia nera, e che cosa conta come nera, vivono su [ClipFrames].
+             * ⚠️ **Il caso di una miniatura che MANCA non ha bisogno di una riga**: arriva già al
+             * ripiego dall'uscita di `loadThumbnail` qui sopra.
+             */
+            if (Videos.isVideo(uri) && ClipFrames.isBlack(bitmap)) return@withContext null
 
             ImageFetchResult(
                 image = bitmap.inGraphics(options).asImage(),
@@ -623,6 +642,62 @@ private class SystemThumbnailFactory : Fetcher.Factory<Uri> {
             "content", "file" -> SystemThumbnailFetcher(data, options)
             else -> null
         }
+    }
+}
+
+/**
+ * La miniatura di un video scelta da AIV, quando quella del sistema è nera o manca, dalla `2.98`.
+ *
+ * ⚠️⚠️ **ARRIVA QUI SOLO QUELLO CHE IL SISTEMA HA RIFIUTATO**: il fetcher di sistema viene prima, e
+ * si tira indietro quando la miniatura di un filmato non c'è o è nera. Quale fotogramma si scelga, e
+ * perché, vive su [ClipFrames].
+ * ⚠️ **Prima il disco**, come in [AvifThumbnailFetcher] e per la stessa ragione: scegliere un
+ * fotogramma vuol dire aprire il contenitore e decodificarne fino a quattro, e la seconda volta non
+ * serve. Il fotogramma scelto si tiene in [AvifCache], con la data del file nella chiave.
+ * ⚠️ **Vale anche sotto Android 10**, dove il fetcher di sistema non esiste: là la miniatura di un
+ * video mancava sempre, e `MediaMetadataRetriever` c'è da ben prima.
+ * ⚠️ **Se non si trova niente passa la mano**, e la richiesta finisce come finiva fino alla `2.97`:
+ * senza miniatura.
+ */
+private class ClipFrameFetcher(
+    private val data: Uri,
+    private val options: Options,
+) : Fetcher {
+
+    override suspend fun fetch(): FetchResult? = withContext(Dispatchers.IO) {
+        val uri = data.toAndroidUri()
+        val wanted = Size(
+            options.size.width.pxOrElse { FALLBACK_PX },
+            options.size.height.pxOrElse { FALLBACK_PX }
+        )
+        val box = maxOf(wanted.width, wanted.height)
+        val bitmap = AvifCache.read(options.context, uri, box) ?: run {
+            val job = coroutineContext[Job]
+            val scelto = ClipFrames.pick(options.context, uri, wanted) { job?.isActive != false }
+                ?: return@withContext null
+            coroutineContext.ensureActive()
+            AvifCache.write(options.context, uri, box, scelto)
+            scelto
+        }
+        ImageFetchResult(
+            image = bitmap.inGraphics(options).asImage(),
+            isSampled = true,
+            dataSource = DataSource.DISK
+        )
+    }
+}
+
+/**
+ * Chi decide se il ripiego dei video serve: per un filmato sempre, e per il resto mai.
+ *
+ * ⚠️ **Lo dice l'indirizzo e non i byte** ([Videos.isVideo]), quindi `create` non tocca il disco,
+ * che è il patto di una fabbrica: la domanda si fa durante la composizione.
+ */
+private class ClipFrameFactory : Fetcher.Factory<Uri> {
+    override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
+        val scheme = data.scheme?.lowercase()
+        if (scheme != "content" && scheme != "file") return null
+        return if (Videos.isVideo(data.toAndroidUri())) ClipFrameFetcher(data, options) else null
     }
 }
 

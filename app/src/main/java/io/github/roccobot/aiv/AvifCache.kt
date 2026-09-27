@@ -4,10 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import java.io.File
 
 /**
- * Le miniature degli AVIF, tenute **su disco**.
+ * Le miniature degli AVIF, tenute **su disco**, e dalla `2.98` anche i fotogrammi dei video.
  *
  * ⚠️⚠️ **ESISTE PERCHÉ RIENTRARE IN UNA CARTELLA LE RIFACEVA TUTTE** (riscontro dell'utente,
  * 2026-09-02: *con i miei file grossi anche uno Snapdragon molto potente impiega un paio di
@@ -16,13 +17,24 @@ import java.io.File
  * e rientrare: quella si svuota quando l'app perde le sue pagine, e allora i 24 megapixel si
  * decodificano di nuovo.
  *
- * ⚠️⚠️ **E VALE SOLO PER GLI AVIF, che è la sua richiesta alla lettera** (*eventualmente si
+ * ⚠️⚠️ **E VALEVA SOLO PER GLI AVIF, che è la sua richiesta alla lettera** (*eventualmente si
  * può fare una cache 'potenziata' solo per questo formato?*), e non è una restrizione
  * arbitraria: per ogni altro formato la miniatura la fa il **sistema**, che ne ha una già
  * pronta o sa farsela leggendo poche decine di kilobyte. Là copiare su disco sarebbe spazio
  * speso per niente, ed è la ragione per cui `Thumbs` dichiara `diskCache(null)`. Qui invece
  * il costo non è leggere il file, è **decodificarlo**: un AVIF non porta dentro nessuna
  * miniatura, quindi per un riquadro da 512 pixel bisogna ricostruire l'immagine intera.
+ *
+ * ⚠️⚠️ **E DALLA `2.98` TIENE ANCHE IL FOTOGRAMMA CHE AIV SCEGLIE PER UN VIDEO**, quando la
+ * miniatura del sistema è nera o manca (vedi `ClipFrames`), ed è la stessa ragione detta con altre
+ * parole: il costo non è leggere il file ma aprire il contenitore e decodificarne fino a quattro
+ * fotogrammi. Il nome resta quello di prima, perché qui si tiene quello che AIV fa da sé, e la
+ * pagina 'Gestisci le miniature memorizzate' ne misura e ne svuota il contenuto intero: i suoi
+ * testi parlano già di immagini e di video.
+ * ⚠️ **Un indirizzo di video e uno di immagine non si incontrano**, quindi i due non hanno bisogno
+ * di due cartelle: la chiave è l'indirizzo con la data e la misura.
+ * ⚠️ **Il tetto di [KEEP] vale per tutti e due insieme**, e va detto: chi ha più AVIF di così vede
+ * potati anche i fotogrammi dei video, che al giro dopo si rifanno.
  *
  * ⚠️⚠️ **NON È LA CACHE SU DISCO DI COIL, e non lo sarebbe potuta essere**: quella conserva i
  * **byte sorgente**, quindi con lei l'AVIF da 25 MB verrebbe copiato in una cartella di cache
@@ -145,5 +157,21 @@ object AvifCache {
     private const val HEX = 16
     private const val QUALITY = 88
     private const val KEEP = 400
-    private val FORMAT = Bitmap.CompressFormat.WEBP_LOSSY
+
+    /**
+     * Il formato in cui si scrive una miniatura.
+     *
+     * ⚠️⚠️ **`WEBP_LOSSY` NASCE CON ANDROID 11, E FINO ALLA `2.97` QUI ERA SCRITTO SENZA
+     * CONDIZIONE**: sotto quella versione la costante non esiste, e leggerla fa fallire
+     * l'inizializzazione dell'oggetto intero, cioè ogni sua funzione. Trovato scrivendo il ripiego
+     * dei video, che da Android 9 in su passa di qui. Sotto Android 11 il gemello è `WEBP`, che con
+     * una qualità sotto 100 comprime con perdita: è la stessa scelta di `ImageEdit` e di
+     * `FolderCover`.
+     */
+    private val FORMAT = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        Bitmap.CompressFormat.WEBP_LOSSY
+    } else {
+        @Suppress("DEPRECATION")
+        Bitmap.CompressFormat.WEBP
+    }
 }
