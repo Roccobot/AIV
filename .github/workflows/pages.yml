@@ -1,0 +1,60 @@
+name: Pages
+
+# The download page, served at roccobot.github.io/AIV/ by THIS repository since
+# 2026-09-27. Until then `release.yml` cloned the website repository at every tag
+# and committed the page into its `AIV/` folder, with a fine-grained PAT that
+# could write there. A project site needs neither the clone nor the PAT, and the
+# address does not change: a project repository called `AIV` takes `/AIV/`
+# ahead of a folder with the same name in the website (measured on RatioLab).
+#
+# ⚠️⚠️ THE APK IS NOT PART OF THE SITE, AND NOTHING IS LOST: the download button
+# points at the asset of the latest release (`browser_download_url`, in
+# `publish/index.html`), and the page asks the GitHub API for name, size and date
+# while it loads. So a release needs no deploy, and the site changes only when
+# `publish/` does. The copy of the APK in the website was read by nobody but the
+# probe that checked it had arrived.
+#
+# ⚠️ On `main` and never on a tag: the `github-pages` environment lets only the
+# default branch deploy, so a run started by a tag would be refused. Watching
+# `publish/` alone is what keeps a code push from redeploying an unchanged page.
+on:
+  push:
+    branches: [main]
+    paths: ['publish/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Two deploys never race: the second one waits, and the site ends up as the
+# latest `publish/`. Cancelling would risk stopping a deploy halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out the sources
+        uses: actions/checkout@v5
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # The folder as it is: page, screenshots and the Open Graph picture, which
+      # are exactly the three things the old step copied.
+      - name: Upload the page
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: publish
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
