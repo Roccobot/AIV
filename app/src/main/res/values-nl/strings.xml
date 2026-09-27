@@ -173,6 +173,7 @@
     <string name="folder_no_images">De map bevat geen afbeeldingen.</string>
     <string name="folder_no_videos">De map bevat geen video\'s.</string>
     <string name="cancel">Annuleren</string>
+    <string name="yes">Ja</string>
     <string name="hide_folder_title">\'%1$s\' verbergen?</string>
     <string name="hide_folder_desc">De map wordt niet meer getoond in de raster- en lijstweergave. Het is alleen een weergave-instelling: er wordt geen bestand verwijderd.</string>
     <string name="show_folder_title">\'%1$s\' weer tonen?</string>
@@ -345,11 +346,15 @@
     <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters met bestandsnamen. Kies hieronder in welke. ⚠️ Een extensie wijzigen is geen formaatomzetting (daarvoor is \'Exporteren en omzetten\') en vraagt om voorzichtigheid, want sommige bestanden worden onleesbaar en verdwijnen uit galerij-apps.</string>
     <string name="settings_gpu_thumbs">Miniaturen in het grafisch geheugen houden</string>
     <string name="settings_gpu_thumbs_desc">Bouwt de miniatuurcache in het geheugen van de grafische chip, zodat het gewone geheugen vrij blijft. Het kan de galerij vlotter maken, niets veranderen of hem in sommige gevallen vertragen, bijna altijd op oudere toestellen. Heb je prestatieproblemen, zet het aan en kijk of het helpt: vooraf weet je het niet, met alle hardware- en softwarecombinaties die Android heeft.</string>
-    <string name="settings_thumbs">Opgeslagen miniaturen verwijderen</string>
+    <string name="settings_thumbs">Opgeslagen miniaturen beheren</string>
     <string name="settings_thumbs_empty">Geen opgeslagen miniaturen</string>
-    <string name="settings_thumbs_warn">Tik op de knop om de cache van de miniaturen te wissen. De voorbeelden van afbeeldingen en video\'s worden verwijderd en automatisch opnieuw gemaakt wanneer je elke map opent (in mappen met veel grote afbeeldingen kan dit een minuut of langer duren).</string>
-    <string name="settings_thumbs_do">Cache van de\nminiaturen wissen</string>
+    <string name="settings_thumbs_do">Cache van de miniaturen wissen</string>
+    <string name="settings_thumbs_ask">Wil je de cache echt wissen? De voorbeelden van afbeeldingen en video\'s worden verwijderd en automatisch opnieuw gemaakt wanneer je elke map opent (in mappen met veel grote afbeeldingen kan dit een minuut of langer duren).</string>
     <string name="settings_thumbs_done">Cache van de miniaturen gewist</string>
+    <string name="settings_thumbs_gen">Miniaturen maken</string>
+    <string name="settings_thumbs_gen_ask">Het maken van de voorbeelden versnelt het bladeren en verlicht later de belasting van de CPU/GPU, maar vraagt in het begin tijd, afhankelijk van het aantal en de grootte van de afbeeldingen in je verzameling. Wil je doorgaan?</string>
+    <string name="settings_thumbs_gen_title">Miniaturen worden gemaakt</string>
+    <string name="settings_thumbs_gen_done">Miniaturen met succes gemaakt.</string>
     <string name="settings_hidden_none">Geen verborgen mappen</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d map</item>

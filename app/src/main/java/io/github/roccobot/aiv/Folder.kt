@@ -269,11 +269,7 @@ object Folder {
                             pictures = if (clip) 0 else 1,
                             clips = if (clip) 1 else 0,
                             cover = idAt?.let { uriOf(c.getLong(it), clip) },
-                            // La cartella che contiene la riga: il percorso del file
-                            // meno il nome del file.
-                            path = pathAt?.let { c.getString(it) }
-                                ?.substringBeforeLast('/')
-                                ?.takeIf { it.isNotBlank() }
+                            path = folderOf(pathAt?.let { c.getString(it) })
                         )
                     } else if (clip) {
                         seen.copy(clips = seen.clips + 1)
@@ -289,6 +285,66 @@ object Folder {
         val ordine = Collator.getInstance()
         found.values.sortedWith(compareBy(ordine) { it.name })
     }
+
+    /**
+     * Tutte le immagini e tutti i video delle cartelle che l'elenco iniziale mostra, dalla più
+     * recente.
+     *
+     * ⚠️⚠️ **NASCE CON LA `2.97` PER 'GENERA MINIATURE', ED È LA SUA SPECIFICA** (campo libero del
+     * giro della `2.93` e della `2.94`: *un nuovo pulsante 'Genera miniature' che genera le
+     * miniature di TUTTE le miniature delle cartelle visibili, di fatto generando una cache
+     * dell'intera collezione*).
+     * 'Visibili' vuol dire quelle dell'elenco iniziale: una cartella nascosta resta fuori, e il
+     * minuto di 'Mostra nascoste' non conta, perché è un prestito e non una scelta.
+     * ⚠️ **Una query sola, come [buckets]**, con lo stesso filtro e lo stesso ordine: chiedere
+     * cartella per cartella vorrebbe dire una interrogazione per ogni cartella del telefono.
+     * ⚠️ **Il confronto con le nascoste si fa una volta per cartella** e non per riga: le righe di
+     * una cartella sono tante, e la risposta è la stessa per tutte.
+     * ⚠️ **Una riga senza percorso entra**, come in `Bucket.isHidden`: senza la colonna non c'è
+     * niente da confrontare, e una miniatura in più costa meno di una cartella visibile lasciata
+     * fuori.
+     * ⚠️ **Dalla più recente**, perché sono le immagini che si aprono per prime: se la generazione
+     * si ferma a metà, quello che è fatto è quello che serve di più.
+     */
+    suspend fun everything(context: Context, hidden: Set<String>): List<Uri> =
+        withContext(Dispatchers.IO) {
+            if (!granted(context)) return@withContext emptyList()
+            val found = mutableListOf<Uri>()
+            runCatching {
+                context.contentResolver.query(
+                    TABLE,
+                    COLUMNS,
+                    MEDIA,
+                    null,
+                    "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
+                )?.use { c ->
+                    // ⚠️ Le colonne si risolvono una volta, per la ragione scritta in [buckets].
+                    val idAt = c.column(MediaStore.Images.Media._ID) ?: return@use
+                    @Suppress("DEPRECATION")
+                    val pathAt = c.column(MediaStore.Images.Media.DATA)
+                    val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                    val esclusa = HashMap<String?, Boolean>()
+                    while (c.moveToNext()) {
+                        val cartella = folderOf(pathAt?.let { c.getString(it) })
+                        val fuori = esclusa.getOrPut(cartella) {
+                            cartella != null && hiddenIn(hidden, cartella)
+                        }
+                        if (!fuori) found.add(uriOf(c.getLong(idAt), c.isClip(kindAt)))
+                    }
+                }
+            }
+            found
+        }
+
+    /**
+     * La cartella che contiene il file in [file], cioè il suo percorso meno il nome.
+     *
+     * ⚠️ **Una funzione sola per [buckets] e per [everything]**: è la stessa domanda (*in che
+     * cartella sta questa riga?*), e due modi di rispondere darebbero due elenchi di nascoste che
+     * non coincidono.
+     */
+    private fun folderOf(file: String?): String? =
+        file?.substringBeforeLast('/')?.takeIf { it.isNotBlank() }
 
     /**
      * La cartella intera, posizionata sulla prima foto dell'ordine di base, cioè la più
@@ -1085,9 +1141,10 @@ private val VOLUME_ROOT = Regex(
 /**
  * Il percorso di una cartella come lo scrive l'elenco delle nascoste: senza la radice del volume.
  *
- * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.95`: *i percorsi esclusi
- * dovrebbero essere relativi (se nascondo /DCIM/Temp da un dispositivo, dovrebbe essere nascosto
- * anche su un altro dispositivo in cui si installa AIV e si importano le impostazioni)*). Fino alla
+ * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`: *i
+ * percorsi esclusi dovrebbero essere relativi (se nascondo /DCIM/Temp da un dispositivo, dovrebbe
+ * essere nascosto anche su un altro dispositivo in cui si installa AIV e si importano le
+ * impostazioni)*). Fino alla
  * `2.95` l'elenco teneva il percorso intero, e `/storage/emulated/0/DCIM/Temp` è un indirizzo di
  * questo telefono: una scheda porta il proprio identificativo, e un altro utente dello stesso
  * telefono ha un altro numero.

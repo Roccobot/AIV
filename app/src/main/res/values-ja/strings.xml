@@ -173,6 +173,7 @@
     <string name="folder_no_images">フォルダーに画像はありません。</string>
     <string name="folder_no_videos">フォルダーに動画はありません。</string>
     <string name="cancel">キャンセル</string>
+    <string name="yes">はい</string>
     <string name="hide_folder_title">\'%1$s\' を隠しますか?</string>
     <string name="hide_folder_desc">グリッド表示とリスト表示にフォルダが出なくなります。表示の設定だけで、ファイルは削除されません。</string>
     <string name="show_folder_title">\'%1$s\' をまた表示しますか?</string>
@@ -330,11 +331,15 @@
     <string name="settings_ext_edit_desc">ファイル名のウィンドウに \'拡張子\' ボタンを追加します。どのウィンドウに出すかは下で選びます。⚠️ 拡張子を変えても形式の変換にはなりません（それには \'書き出して変換\' があります）。慎重に使ってください。読めなくなり、ギャラリーアプリに出てこなくなるファイルがあります。</string>
     <string name="settings_gpu_thumbs">サムネイルをグラフィックメモリーに置く</string>
     <string name="settings_gpu_thumbs_desc">サムネイルのキャッシュをグラフィックチップのメモリに作り、通常のメモリを空けておきます。ギャラリーの反応がよくなることも、何も変わらないことも、場合によっては遅くなることもあります。ほとんどは古い端末です。動作が重いときはオンにして試してください。Android 端末のハードウェアとソフトウェアの組み合わせは多く、事前には分かりません。</string>
-    <string name="settings_thumbs">保存されたサムネイルを削除</string>
+    <string name="settings_thumbs">保存されたサムネイルの管理</string>
     <string name="settings_thumbs_empty">保存されたサムネイルはありません</string>
-    <string name="settings_thumbs_warn">ボタンをタップしてサムネイルのキャッシュを消去します。画像と動画のプレビューは削除され、各フォルダーを開いたときに自動で再生成されます（大きな画像が多いフォルダーでは1分以上かかることがあります）。</string>
-    <string name="settings_thumbs_do">サムネイルの\nキャッシュを消去</string>
+    <string name="settings_thumbs_do">サムネイルのキャッシュを消去</string>
+    <string name="settings_thumbs_ask">キャッシュを本当に消去しますか？画像と動画のプレビューは削除され、各フォルダーを開いたときに自動で再生成されます（大きな画像が多いフォルダーでは1分以上かかることがあります）。</string>
     <string name="settings_thumbs_done">サムネイルのキャッシュを消去しました</string>
+    <string name="settings_thumbs_gen">サムネイルを生成</string>
+    <string name="settings_thumbs_gen_ask">プレビューを作成すると閲覧が速くなり、その後のCPU/GPUの負荷も軽くなりますが、最初にコレクション内の画像の数と大きさに応じた時間がかかります。続行しますか？</string>
+    <string name="settings_thumbs_gen_title">サムネイルの生成</string>
+    <string name="settings_thumbs_gen_done">サムネイルを生成しました。</string>
     <string name="settings_hidden_none">非表示のフォルダーはありません</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 件のフォルダー</item>

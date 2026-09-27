@@ -173,6 +173,7 @@
     <string name="folder_no_images">Der Ordner enthält keine Bilder.</string>
     <string name="folder_no_videos">Der Ordner enthält keine Videos.</string>
     <string name="cancel">Abbrechen</string>
+    <string name="yes">Ja</string>
     <string name="hide_folder_title">\'%1$s\' ausblenden?</string>
     <string name="hide_folder_desc">Der Ordner wird in der Raster- und Listenansicht nicht mehr aufgeführt. Das ist nur eine Anzeigeeinstellung: es wird keine Datei gelöscht.</string>
     <string name="show_folder_title">\'%1$s\' wieder anzeigen?</string>
@@ -345,11 +346,15 @@
     <string name="settings_ext_edit_desc">Fügt den Fenstern für Dateinamen die Schaltfläche \'Endung\' hinzu. Wähle unten, in welchen. ⚠️ Eine Endung zu ändern ist keine Formatumwandlung (dafür gibt es \'Exportieren und umwandeln\') und will mit Bedacht benutzt werden, denn manche Dateien werden unlesbar und tauchen in Galerie-Apps nicht mehr auf.</string>
     <string name="settings_gpu_thumbs">Miniaturen im Grafikspeicher halten</string>
     <string name="settings_gpu_thumbs_desc">Legt den Miniaturbild-Zwischenspeicher im Speicher des Grafikchips ab und hält den normalen Speicher frei. Das kann die Galerie flotter machen, nichts ändern oder sie in manchen Fällen bremsen, fast immer auf älteren Geräten. Bei Leistungsproblemen schalte es ein und sieh, ob es hilft: vorher weiß man es nicht, so viele Hardware- und Software-Kombinationen gibt es unter Android.</string>
-    <string name="settings_thumbs">Gespeicherte Miniaturbilder löschen</string>
+    <string name="settings_thumbs">Gespeicherte Miniaturbilder verwalten</string>
     <string name="settings_thumbs_empty">Keine gespeicherten Miniaturbilder</string>
-    <string name="settings_thumbs_warn">Tippe auf die Schaltfläche, um den Cache der Miniaturbilder zu leeren. Die Vorschauen von Bildern und Videos werden gelöscht und beim Öffnen jedes Ordners automatisch neu erstellt (in Ordnern mit vielen großen Bildern kann das eine Minute oder länger dauern).</string>
-    <string name="settings_thumbs_do">Cache der\nMiniaturbilder leeren</string>
+    <string name="settings_thumbs_do">Cache der Miniaturbilder leeren</string>
+    <string name="settings_thumbs_ask">Möchtest du den Cache wirklich leeren? Die Vorschauen von Bildern und Videos werden gelöscht und beim Öffnen jedes Ordners automatisch neu erstellt (in Ordnern mit vielen großen Bildern kann das eine Minute oder länger dauern).</string>
     <string name="settings_thumbs_done">Cache der Miniaturbilder geleert</string>
+    <string name="settings_thumbs_gen">Miniaturbilder erstellen</string>
+    <string name="settings_thumbs_gen_ask">Das Erstellen der Vorschauen beschleunigt das Durchsuchen und entlastet später CPU/GPU, braucht aber anfangs Zeit, die von Anzahl und Größe der Bilder in deiner Sammlung abhängt. Möchtest du fortfahren?</string>
+    <string name="settings_thumbs_gen_title">Miniaturbilder werden erstellt</string>
+    <string name="settings_thumbs_gen_done">Miniaturbilder erfolgreich erstellt.</string>
     <string name="settings_hidden_none">Keine versteckten Ordner</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d Ordner</item>

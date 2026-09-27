@@ -173,6 +173,7 @@
     <string name="folder_no_images">Thư mục không có hình ảnh nào.</string>
     <string name="folder_no_videos">Thư mục không có video.</string>
     <string name="cancel">Hủy</string>
+    <string name="yes">Có</string>
     <string name="hide_folder_title">Ẩn \'%1$s\'?</string>
     <string name="hide_folder_desc">Thư mục sẽ không được liệt kê ở dạng lưới và danh sách. Đây chỉ là một tùy chọn hiển thị: sẽ không có tệp nào bị xóa.</string>
     <string name="show_folder_title">Hiện lại \'%1$s\'?</string>
@@ -330,11 +331,15 @@
     <string name="settings_ext_edit_desc">Thêm nút \'Phần mở rộng\' vào các cửa sổ tên tệp. Chọn bên dưới nút xuất hiện ở đâu. ⚠️ Đổi phần mở rộng không phải là chuyển đổi định dạng (việc đó có \'Xuất và chuyển đổi\') và cần thận trọng, vì một số tệp có thể không đọc được và biến mất khỏi ứng dụng thư viện.</string>
     <string name="settings_gpu_thumbs">Giữ ảnh thu nhỏ trong bộ nhớ đồ họa</string>
     <string name="settings_gpu_thumbs_desc">Tạo bộ đệm ảnh thu nhỏ trong bộ nhớ của chip đồ họa, để trống bộ nhớ thông thường. Có thể khiến thư viện mượt hơn, có thể không thay đổi gì, hoặc trong một số trường hợp, hầu như luôn là máy cũ, làm chậm đi. Nếu gặp vấn đề hiệu năng, hãy bật và xem có khá hơn không: không thể biết trước, vì Android có quá nhiều tổ hợp phần cứng và phần mềm.</string>
-    <string name="settings_thumbs">Xóa ảnh thu nhỏ đã lưu</string>
+    <string name="settings_thumbs">Quản lý ảnh thu nhỏ đã lưu</string>
     <string name="settings_thumbs_empty">Không có ảnh thu nhỏ nào được lưu</string>
-    <string name="settings_thumbs_warn">Nhấn vào nút để xóa bộ đệm ảnh thu nhỏ. Bản xem trước của hình ảnh và video sẽ bị xóa và được tạo lại tự động khi bạn mở từng thư mục (trong các thư mục có nhiều hình ảnh lớn, việc này có thể mất một phút hoặc hơn).</string>
-    <string name="settings_thumbs_do">Xóa bộ đệm\nảnh thu nhỏ</string>
+    <string name="settings_thumbs_do">Xóa bộ đệm ảnh thu nhỏ</string>
+    <string name="settings_thumbs_ask">Bạn có chắc muốn xóa bộ đệm? Bản xem trước của hình ảnh và video sẽ bị xóa và được tạo lại tự động khi bạn mở từng thư mục (trong các thư mục có nhiều hình ảnh lớn, việc này có thể mất một phút hoặc hơn).</string>
     <string name="settings_thumbs_done">Đã xóa bộ đệm ảnh thu nhỏ</string>
+    <string name="settings_thumbs_gen">Tạo ảnh thu nhỏ</string>
+    <string name="settings_thumbs_gen_ask">Việc tạo bản xem trước giúp duyệt nhanh hơn và giảm tải cho CPU/GPU về sau, nhưng cần một khoảng thời gian ban đầu tùy thuộc vào số lượng và kích thước hình ảnh trong bộ sưu tập của bạn. Bạn có muốn tiếp tục không?</string>
+    <string name="settings_thumbs_gen_title">Đang tạo ảnh thu nhỏ</string>
+    <string name="settings_thumbs_gen_done">Đã tạo ảnh thu nhỏ thành công.</string>
     <string name="settings_hidden_none">Không có thư mục bị ẩn</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d thư mục</item>

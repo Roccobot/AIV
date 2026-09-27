@@ -249,6 +249,27 @@ class ImpostazioniTest {
     }
 
     /**
+     * **Cercando 'Genera' compare il suo tasto, che vive in una sotto-pagina.**
+     *
+     * ⚠️⚠️ **DALLA `2.97` LA PAGINA DELLE MINIATURE NON HA PIÙ UN'INTRODUZIONE**, quindi i testi che
+     * la ricerca confronta sono il suo titolo e i due comandi: il secondo è nato con lei, e nessuna
+     * riga della pagina piatta porta quella parola.
+     * ⚠️ **Controprovata togliendo il secondo comando dai testi di `Searchable`**: la parola non
+     * trova più niente, e la prova cade.
+     */
+    @Test
+    fun `la ricerca trova il tasto che genera le miniature`() {
+        apriIlPannello()
+        val tasto = testo(R.string.settings_thumbs_gen)
+
+        banco.onNodeWithText(tasto).assertDoesNotExist()
+        banco.onNode(hasSetTextAction()).performTextInput(tasto.substringBefore(' '))
+        banco.waitForIdle()
+
+        banco.onNodeWithText(tasto).assertExists()
+    }
+
+    /**
      * **Il peso delle miniature memorizzate si scrive col punto e a 1024, come ogni altro peso.**
      *
      * ⚠️⚠️ **È LA SUA RISPOSTA `punto` A `d-pesi-scrittura`** (giro della `2.85` e della `2.86`):

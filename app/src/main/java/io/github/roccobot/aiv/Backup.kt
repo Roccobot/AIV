@@ -64,8 +64,8 @@ import javax.crypto.spec.SecretKeySpec
  * quanto le immagini che contiene, e la sola che all'importazione si aggiunge invece di prendere
  * il posto di quello che c'è.
  * ⚠️⚠️ **LE CARTELLE NASCOSTE HANNO UN'AREA SUA DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del
- * giro della `2.95`: *ovviamente serve una nuova sezione di esportazione 'Cartelle nascoste'*). Vive
- * accanto alle altre due parti che parlano di cartelle, e porta l'etichetta della sua pagina nelle
+ * giro della `2.93` e della `2.94`: *ovviamente serve una nuova sezione di esportazione 'Cartelle
+ * nascoste'*). Vive accanto alle altre due parti che parlano di cartelle, e porta l'etichetta della sua pagina nelle
  * impostazioni. Fino alla `2.95` l'elenco viaggiava dentro 'Aspetto e navigazione', e un file di
  * allora lo porta ancora là: il perché vive su [PREF_RETIRED].
  */

@@ -173,6 +173,7 @@
     <string name="folder_no_images">این پوشه تصویری ندارد.</string>
     <string name="folder_no_videos">پوشه ویدیویی ندارد.</string>
     <string name="cancel">لغو</string>
+    <string name="yes">بله</string>
     <string name="hide_folder_title">پنهان کردن \'%1$s\'؟</string>
     <string name="hide_folder_desc">پوشه در نمای شبکه‌ای و فهرستی فهرست نمی‌شود. این فقط یک تنظیم نمایش است: هیچ فایلی حذف نمی‌شود.</string>
     <string name="show_folder_title">نمایش دوبارهٔ \'%1$s\'؟</string>
@@ -345,11 +346,15 @@
     <string name="settings_ext_edit_desc">دکمهٔ \'پسوند\' را به پنجره‌های نام فایل می‌افزاید. پایین‌تر انتخاب کن در کدام‌ها دیده شود. ⚠️ تغییر پسوند تبدیل قالب نیست (برای آن \'برون‌بری و تبدیل\' هست) و باید با احتیاط به کار برود، چون برخی فایل‌ها ناخوانا می‌شوند و دیگر در برنامه‌های گالری دیده نمی‌شوند.</string>
     <string name="settings_gpu_thumbs">نگه‌داشتن بندانگشتی‌ها در حافظه گرافیکی</string>
     <string name="settings_gpu_thumbs_desc">نهانگاه ریزنقش‌ها را در حافظهٔ تراشهٔ گرافیکی می‌سازد تا حافظهٔ معمولی آزاد بماند. می‌تواند گالری را چابک‌تر کند، بی‌تأثیر باشد، یا در برخی موارد کند کند، که بیشتر دستگاه‌های قدیمی‌اند. اگر مشکل کارایی دارید روشنش کنید و ببینید بهتر می‌شود یا نه: از پیش نمی‌توان دانست، چون ترکیب‌های سخت‌افزار و نرم‌افزار اندروید بسیار زیادند.</string>
-    <string name="settings_thumbs">حذف بندانگشتی‌های ذخیره‌شده</string>
+    <string name="settings_thumbs">مدیریت بندانگشتی‌های ذخیره‌شده</string>
     <string name="settings_thumbs_empty">بندانگشتی ذخیره‌شده‌ای نیست</string>
-    <string name="settings_thumbs_warn">برای خالی کردن حافظهٔ بندانگشتی‌ها روی دکمه ضربه بزنید. پیش‌نمایش تصویرها و ویدیوها حذف می‌شود و هنگام باز کردن هر پوشه به‌طور خودکار دوباره ساخته می‌شود (این کار در پوشه‌هایی با تصویرهای بزرگ زیاد ممکن است یک دقیقه یا بیشتر طول بکشد).</string>
-    <string name="settings_thumbs_do">خالی کردن حافظهٔ\nبندانگشتی‌ها</string>
+    <string name="settings_thumbs_do">خالی کردن حافظهٔ بندانگشتی‌ها</string>
+    <string name="settings_thumbs_ask">واقعاً می‌خواهید حافظهٔ موقت را خالی کنید؟ پیش‌نمایش تصویرها و ویدیوها حذف می‌شود و هنگام باز کردن هر پوشه به‌طور خودکار دوباره ساخته می‌شود (این کار در پوشه‌هایی با تصویرهای بزرگ زیاد ممکن است یک دقیقه یا بیشتر طول بکشد).</string>
     <string name="settings_thumbs_done">حافظهٔ بندانگشتی‌ها خالی شد</string>
+    <string name="settings_thumbs_gen">ساختن بندانگشتی‌ها</string>
+    <string name="settings_thumbs_gen_ask">ساختن پیش‌نمایش‌ها مرور را سریع‌تر می‌کند و بار بعدی روی CPU/GPU را کم می‌کند، اما در آغاز زمانی می‌برد که به تعداد و اندازهٔ تصویرهای مجموعهٔ شما بستگی دارد. می‌خواهید ادامه دهید؟</string>
+    <string name="settings_thumbs_gen_title">در حال ساختن بندانگشتی‌ها</string>
+    <string name="settings_thumbs_gen_done">بندانگشتی‌ها با موفقیت ساخته شدند.</string>
     <string name="settings_hidden_none">هیچ پوشه پنهانی نیست</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d پوشه</item>

@@ -374,6 +374,7 @@
     <string name="folder_no_images">La cartella non contiene immagini.</string>
     <string name="folder_no_videos">La cartella non contiene video.</string>
     <string name="cancel">Annulla</string>
+    <string name="yes">Sì</string>
 
     <string name="hide_folder_title">Vuoi nascondere \'%1$s\'?</string>
     <string name="hide_folder_desc">La cartella non sarà elencata in vista griglia e lista. È solo un\'impostazione di visualizzazione: nessun file sarà eliminato.</string>
@@ -591,11 +592,15 @@
     <string name="settings_ext_edit_desc">Aggiunge il pulsante \'Estensione\' alle finestre di dialogo dei nomi di file. Scegli qui sotto per quali moduli abilitarlo. ⚠️ Il cambio di estensione non equivale a una conversione di formato (per quello c\'è \'Esporta/Converti\') e va usato con cautela, perché alcuni file potrebbero diventare illeggibili e non essere più visualizzati dalle app galleria.</string>
     <string name="settings_gpu_thumbs">Salva le miniature nella memoria grafica</string>
     <string name="settings_gpu_thumbs_desc">Memorizza le miniature nella memoria del chip grafico. Può migliorare la reattività della galleria, essere ininfluente, o talvolta causare rallentamenti su dispositivi datati. Prova ad attivarla e verifica se ci sono miglioramenti; ogni caso è a sé, vista la quantità di combinazioni hardware/software dei dispositivi Android.</string>
-    <string name="settings_thumbs">Elimina le miniature memorizzate</string>
+    <string name="settings_thumbs">Gestisci le miniature memorizzate</string>
     <string name="settings_thumbs_empty">Nessuna miniatura memorizzata</string>
-    <string name="settings_thumbs_warn">Tocca il pulsante per svuotare la cache delle miniature. Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (potrebbe richiedere un minuto o più nelle cartelle con molte immagini grandi).</string>
-    <string name="settings_thumbs_do">Svuota cache\ndelle miniature</string>
+    <string name="settings_thumbs_do">Svuota la cache delle miniature</string>
+    <string name="settings_thumbs_ask">Vuoi davvero svuotare la cache? Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (potrebbe richiedere un minuto o più nelle cartelle con molte immagini grandi).</string>
     <string name="settings_thumbs_done">Cache delle miniature svuotata</string>
+    <string name="settings_thumbs_gen">Genera miniature</string>
+    <string name="settings_thumbs_gen_ask">La creazione delle anteprime velocizza la navigazione e snellisce il carico successivo su CPU/GPU, ma richiede un tempo iniziale che dipende dal numero e dalle dimensioni delle immagini nella tua collezione. Vuoi continuare?</string>
+    <string name="settings_thumbs_gen_title">Generazione delle miniature</string>
+    <string name="settings_thumbs_gen_done">Miniature generate correttamente.</string>
     <string name="settings_hidden_none">Nessuna cartella nascosta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d cartella</item>

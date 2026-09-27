@@ -173,6 +173,7 @@
     <string name="folder_no_images">โฟลเดอร์นี้ไม่มีรูปภาพ</string>
     <string name="folder_no_videos">โฟลเดอร์ไม่มีวิดีโอ</string>
     <string name="cancel">ยกเลิก</string>
+    <string name="yes">ใช่</string>
     <string name="hide_folder_title">ซ่อน \'%1$s\' ไหม</string>
     <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในมุมมองตารางและมุมมองรายการ นี่เป็นเพียงการตั้งค่าการแสดงผล จะไม่มีไฟล์ใดถูกลบ</string>
     <string name="show_folder_title">แสดง \'%1$s\' อีกครั้งไหม</string>
@@ -330,11 +331,15 @@
     <string name="settings_ext_edit_desc">เพิ่มปุ่ม \'นามสกุล\' ในหน้าต่างชื่อไฟล์ เลือกด้านล่างว่าจะให้ปรากฏที่ไหน ⚠️ การเปลี่ยนนามสกุลไม่ใช่การแปลงรูปแบบ (สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\') และต้องใช้อย่างระวัง เพราะบางไฟล์อาจอ่านไม่ได้และหายไปจากแอปแกลเลอรี</string>
     <string name="settings_gpu_thumbs">เก็บภาพย่อไว้ในหน่วยความจำกราฟิก</string>
     <string name="settings_gpu_thumbs_desc">สร้างแคชของรูปย่อไว้ในหน่วยความจำของชิปกราฟิก เพื่อเว้นหน่วยความจำหลักไว้ว่าง อาจทำให้แกลเลอรีลื่นขึ้น อาจไม่ต่างอะไร หรือในบางกรณี ซึ่งเกือบทุกครั้งเป็นเครื่องรุ่นเก่า อาจทำให้ช้าลง ถ้ามีปัญหาเรื่องความเร็ว ให้เปิดแล้วดูว่าดีขึ้นไหม เพราะรู้ล่วงหน้าไม่ได้ ด้วยจำนวนฮาร์ดแวร์และซอฟต์แวร์ของเครื่อง Android ที่มีมากมาย</string>
-    <string name="settings_thumbs">ลบภาพย่อที่เก็บไว้</string>
+    <string name="settings_thumbs">จัดการภาพย่อที่เก็บไว้</string>
     <string name="settings_thumbs_empty">ไม่มีภาพย่อที่เก็บไว้</string>
-    <string name="settings_thumbs_warn">แตะปุ่มเพื่อล้างแคชภาพย่อ ภาพตัวอย่างของรูปภาพและวิดีโอจะถูกลบและจะถูกสร้างขึ้นใหม่อัตโนมัติเมื่อเปิดแต่ละโฟลเดอร์ (ในโฟลเดอร์ที่มีรูปภาพขนาดใหญ่จำนวนมาก อาจใช้เวลาหนึ่งนาทีหรือมากกว่า)</string>
-    <string name="settings_thumbs_do">ล้างแคช\nภาพย่อ</string>
+    <string name="settings_thumbs_do">ล้างแคชภาพย่อ</string>
+    <string name="settings_thumbs_ask">ต้องการล้างแคชจริงหรือไม่ ภาพตัวอย่างของรูปภาพและวิดีโอจะถูกลบและจะถูกสร้างขึ้นใหม่อัตโนมัติเมื่อเปิดแต่ละโฟลเดอร์ (ในโฟลเดอร์ที่มีรูปภาพขนาดใหญ่จำนวนมาก อาจใช้เวลาหนึ่งนาทีหรือมากกว่า)</string>
     <string name="settings_thumbs_done">ล้างแคชภาพย่อแล้ว</string>
+    <string name="settings_thumbs_gen">สร้างภาพย่อ</string>
+    <string name="settings_thumbs_gen_ask">การสร้างภาพตัวอย่างช่วยให้เรียกดูได้เร็วขึ้นและลดภาระของ CPU/GPU ในภายหลัง แต่ต้องใช้เวลาในช่วงแรกซึ่งขึ้นอยู่กับจำนวนและขนาดของรูปภาพในคอลเลกชันของคุณ ต้องการดำเนินการต่อหรือไม่</string>
+    <string name="settings_thumbs_gen_title">กำลังสร้างภาพย่อ</string>
+    <string name="settings_thumbs_gen_done">สร้างภาพย่อเรียบร้อยแล้ว</string>
     <string name="settings_hidden_none">ไม่มีโฟลเดอร์ที่ซ่อนไว้</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d โฟลเดอร์</item>

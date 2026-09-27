@@ -173,6 +173,7 @@
     <string name="folder_no_images">Folder nie zawiera obrazów.</string>
     <string name="folder_no_videos">Folder nie zawiera filmów.</string>
     <string name="cancel">Anuluj</string>
+    <string name="yes">Tak</string>
     <string name="hide_folder_title">Ukryć \'%1$s\'?</string>
     <string name="hide_folder_desc">Folder nie będzie widoczny w widoku siatki ani listy. To tylko ustawienie wyświetlania: żaden plik nie zostanie usunięty.</string>
     <string name="show_folder_title">Pokazać znowu \'%1$s\'?</string>
@@ -375,11 +376,15 @@
     <string name="settings_ext_edit_desc">Dodaje przycisk \'Rozszerzenie\' do okien z nazwami plików. Poniżej wybierz, w których. ⚠️ Zmiana rozszerzenia to nie konwersja formatu (od tego jest \'Eksportuj i konwertuj\') i wymaga ostrożności, bo część plików może stać się nieczytelna i zniknąć z aplikacji galerii.</string>
     <string name="settings_gpu_thumbs">Trzymaj miniatury w pamięci graficznej</string>
     <string name="settings_gpu_thumbs_desc">Tworzy pamięć miniatur w pamięci układu graficznego, więc zwykła pamięć zostaje wolna. Może przyspieszyć galerię, nie zmienić nic albo w niektórych przypadkach ją zwolnić, niemal zawsze na starszych urządzeniach. Gdy masz problemy z wydajnością, włącz to i sprawdź, czy pomaga: z góry nie da się tego wiedzieć, bo Android ma bardzo wiele połączeń sprzętu i oprogramowania.</string>
-    <string name="settings_thumbs">Usuń zapisane miniatury</string>
+    <string name="settings_thumbs">Zarządzaj zapisanymi miniaturami</string>
     <string name="settings_thumbs_empty">Brak zapisanych miniatur</string>
-    <string name="settings_thumbs_warn">Dotknij przycisku, aby opróżnić pamięć podręczną miniatur. Podglądy obrazów i filmów zostaną usunięte i utworzone ponownie automatycznie przy otwarciu każdego folderu (w folderach z wieloma dużymi obrazami może to potrwać minutę lub dłużej).</string>
-    <string name="settings_thumbs_do">Opróżnij pamięć\npodręczną miniatur</string>
+    <string name="settings_thumbs_do">Opróżnij pamięć podręczną miniatur</string>
+    <string name="settings_thumbs_ask">Czy na pewno chcesz opróżnić pamięć podręczną? Podglądy obrazów i filmów zostaną usunięte i utworzone ponownie automatycznie przy otwarciu każdego folderu (w folderach z wieloma dużymi obrazami może to potrwać minutę lub dłużej).</string>
     <string name="settings_thumbs_done">Pamięć podręczna miniatur opróżniona</string>
+    <string name="settings_thumbs_gen">Utwórz miniatury</string>
+    <string name="settings_thumbs_gen_ask">Tworzenie podglądów przyspiesza przeglądanie i odciąża później CPU/GPU, ale na początku zajmuje czas zależny od liczby i rozmiaru obrazów w Twojej kolekcji. Czy chcesz kontynuować?</string>
+    <string name="settings_thumbs_gen_title">Tworzenie miniatur</string>
+    <string name="settings_thumbs_gen_done">Miniatury utworzone pomyślnie.</string>
     <string name="settings_hidden_none">Brak ukrytych folderów</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d folder</item>

@@ -173,6 +173,7 @@
     <string name="folder_no_images">A pasta não contém imagens.</string>
     <string name="folder_no_videos">A pasta não contém vídeos.</string>
     <string name="cancel">Cancelar</string>
+    <string name="yes">Sim</string>
     <string name="hide_folder_title">Ocultar \'%1$s\'?</string>
     <string name="hide_folder_desc">A pasta não será listada na visualização em grade nem em lista. É apenas uma configuração de exibição: nenhum arquivo será excluído.</string>
     <string name="show_folder_title">Mostrar \'%1$s\' de novo?</string>
@@ -360,11 +361,15 @@
     <string name="settings_ext_edit_desc">Adiciona o botão \'Extensão\' às janelas de nomes de ficheiro. Escolhe abaixo em quais aparece. ⚠️ Mudar a extensão não é converter o formato (para isso existe \'Exportar e converter\') e exige cuidado, porque alguns ficheiros podem ficar ilegíveis e deixar de aparecer nas apps de galeria.</string>
     <string name="settings_gpu_thumbs">Manter as miniaturas na memória gráfica</string>
     <string name="settings_gpu_thumbs_desc">Cria o cache das miniaturas na memória do chip gráfico, deixando livre a memória comum. Pode deixar a galeria mais rápida, não mudar nada ou, em alguns casos, quase sempre em aparelhos antigos, deixá-la lenta. Se tiver problemas de desempenho, ative e veja se melhora: não há como saber antes, com todas as combinações de hardware e software que o Android tem.</string>
-    <string name="settings_thumbs">Excluir as miniaturas armazenadas</string>
+    <string name="settings_thumbs">Gerenciar as miniaturas armazenadas</string>
     <string name="settings_thumbs_empty">Nenhuma miniatura armazenada</string>
-    <string name="settings_thumbs_warn">Toque no botão para limpar o cache de miniaturas. As pré-visualizações das imagens e dos vídeos serão excluídas e regeneradas automaticamente ao abrir cada pasta (isso pode levar um minuto ou mais nas pastas com muitas imagens grandes).</string>
-    <string name="settings_thumbs_do">Limpar o cache\nde miniaturas</string>
+    <string name="settings_thumbs_do">Limpar o cache de miniaturas</string>
+    <string name="settings_thumbs_ask">Deseja mesmo limpar o cache? As pré-visualizações das imagens e dos vídeos serão excluídas e regeneradas automaticamente ao abrir cada pasta (isso pode levar um minuto ou mais nas pastas com muitas imagens grandes).</string>
     <string name="settings_thumbs_done">Cache de miniaturas limpo</string>
+    <string name="settings_thumbs_gen">Gerar miniaturas</string>
+    <string name="settings_thumbs_gen_ask">Criar as pré-visualizações agiliza a navegação e alivia a carga posterior na CPU/GPU, mas exige um tempo inicial que depende do número e do tamanho das imagens da sua coleção. Deseja continuar?</string>
+    <string name="settings_thumbs_gen_title">Geração de miniaturas</string>
+    <string name="settings_thumbs_gen_done">Miniaturas geradas com sucesso.</string>
     <string name="settings_hidden_none">Nenhuma pasta oculta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d pasta</item>

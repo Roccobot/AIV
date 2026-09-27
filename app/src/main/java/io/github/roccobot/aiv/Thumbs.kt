@@ -86,7 +86,44 @@ object Thumbs {
      * spazio speso per niente. Oggi Coil non lo farebbe comunque (scrive su disco solo
      * il caricatore di rete), ma un domani basterebbe un componente nuovo.
      */
-    fun loader(context: PlatformContext): ImageLoader = ImageLoader.Builder(context)
+    fun loader(context: PlatformContext): ImageLoader = build(context, warming = false)
+
+    /**
+     * Il caricatore con cui 'Genera miniature' prepara la collezione, dalla `2.97`.
+     *
+     * ⚠️⚠️ **GENERARE VUOL DIRE LASCIARE QUALCOSA CHE RESTA, E SU DISCO RESTANO DUE COSE SOLE**:
+     * la miniatura che il sistema tiene per ogni riga del MediaStore (`loadThumbnail` la genera e
+     * la salva nella cartella `.thumbnails` del provider, letto nel sorgente AOSP di
+     * `MediaProvider`) e quella di un AVIF in [AvifCache]. Tutto il resto passa dalla decodifica
+     * normale di Coil, che qui non ha una cache su disco: decodificarlo per la generazione vorrebbe
+     * dire un lavoro lungo il cui frutto si butta appena finito.
+     * ⚠️⚠️ **QUINDI QUESTO CARICATORE SI FERMA DOVE QUELLO VERO DECODIFICHEREBBE**: i due fetcher
+     * sono gli stessi, e al posto dei decodificatori c'è [NoDecodeFactory], che chiude il file
+     * senza leggerlo. I file che passano di là sono quelli con la trasparenza, i BMP, gli SVG e
+     * quelli la cui miniatura di sistema è troppo piccola (vedi `tooSmall`): per loro la
+     * generazione non lascia niente, e la griglia li decodifica la prima volta che li mostra.
+     * ⚠️ **Niente cache in memoria**, perché quello che si genera non si guarda: tenerlo in caldo
+     * vorrebbe dire togliere spazio alle miniature della griglia e alla fotografia grande, che
+     * vivono nella stessa memoria (vedi [loader]).
+     * ⚠️ **Si costruisce per una generazione e si spegne alla fine** (`shutdown`): non condivide
+     * niente col caricatore della griglia, quindi una generazione in corso non gli toglie posto.
+     */
+    internal fun warmer(context: PlatformContext): ImageLoader = build(context, warming = true)
+
+    /**
+     * Se sul telefono c'è qualcosa da generare: le due strade che lasciano una miniatura su disco
+     * esistono da Android 10, e sotto la griglia decodifica sempre da sé.
+     */
+    val warmable: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
+    /**
+     * I due caricatori, che differiscono soltanto dove la generazione si ferma.
+     *
+     * ⚠️ **Una funzione sola per tutti e due**, perché i due fetcher devono essere gli stessi e
+     * nello stesso ordine: la generazione serve a preparare quello che la griglia chiederà, e un
+     * elenco scritto due volte divergerebbe al primo componente nuovo.
+     */
+    private fun build(context: PlatformContext, warming: Boolean): ImageLoader = ImageLoader.Builder(context)
         .components {
             add(SystemThumbnailFactory())
             // ⚠️⚠️ **IL SECONDO SERVE PERCHÉ IL PRIMO SU UN AVIF NON HA NIENTE DA DARE**:
@@ -106,8 +143,11 @@ object Thumbs {
             // che è esattamente il caso di un SVG. ⚠️ Fra i due elenchi non c'è ordine da
             // rispettare, perché Coil li tiene separati: conta solo che sia dichiarato qui,
             // e quindi prima del decodificatore predefinito che di un SVG non sa niente.
-            add(SvgThumbnailFactory())
+            // ⚠️ **Nella generazione al suo posto c'è quello che non decodifica**, e viene
+            // prima di tutti i decodificatori di serie per la stessa ragione.
+            add(if (warming) NoDecodeFactory() else SvgThumbnailFactory())
         }
+        .apply { if (warming) memoryCache(null) }
         .diskCache(null)
         .build()
 
@@ -278,6 +318,33 @@ object Thumbs {
      */
     @Synchronized
     fun rewritten(uri: AndroidUri): Boolean = stale.remove(uri.toString())
+
+    /**
+     * Se l'indirizzo è segnato come riscritto, **senza consumare il segno**.
+     *
+     * ⚠️ **Serve alla generazione**, che non deve togliere a una griglia il giro che le spetta: il
+     * segno esiste perché la prossima miniatura mostrata di quel file venga dal file vero (vedi
+     * [stale]), e la generazione la sua non la mostra a nessuno.
+     */
+    @Synchronized
+    fun isStale(uri: AndroidUri): Boolean = uri.toString() in stale
+
+    /**
+     * Prepara la miniatura di [uri] dove resta, cioè nella cache del sistema o in quella degli AVIF.
+     *
+     * ⚠️⚠️ **LA RICHIESTA È QUELLA DELLA GRIGLIA**, costruita da [request]: la stessa misura, cioè la
+     * stessa miniatura che la griglia chiederà dopo. Le differenze sono due e dichiarate: il
+     * caricatore è [warmer], e la memoria grafica è spenta, perché il risultato non si disegna.
+     * ⚠️⚠️ **UN INDIRIZZO APPENA RISCRITTO SI SALTA** ([isStale]): passando di qui il fetcher di
+     * sistema consumerebbe il segno, e la griglia tornerebbe a chiedere la miniatura vecchia che il
+     * segno esiste per evitare. Salta la sola generazione di quel file, e la griglia lo sistema da sé.
+     * ⚠️ **Un file che non si legge non ferma niente**: [ImageLoader.execute] non lancia, risponde
+     * con un errore, e l'errore di un file qui non interessa a nessuno.
+     */
+    internal suspend fun warm(context: Context, uri: AndroidUri, loader: ImageLoader) {
+        if (isStale(uri)) return
+        loader.execute(request(context, uri).newBuilder().allowHardware(false).build())
+    }
 
     /**
      * Butta **tutto** quello che Coil tiene in memoria, e le chiavi che lo indirizzavano.
@@ -714,6 +781,35 @@ private class SvgThumbnailFactory : Decoder.Factory {
         result.source.source().peek().read(head, Svg.SNIFF.toLong())
         Svg.looksLike(head.readByteArray())
     }.getOrDefault(false)
+}
+
+/**
+ * Il decodificatore della generazione, che non decodifica niente: vedi [Thumbs.warmer].
+ *
+ * ⚠️⚠️ **ARRIVA QUI QUELLO CHE LA GRIGLIA DECODIFICHEREBBE DA SÉ, E PER LA GENERAZIONE SAREBBE
+ * LAVORO BUTTATO**: i due fetcher lasciano su disco la miniatura del sistema e quella di un AVIF,
+ * mentre tutto quello che scende fin qui (la trasparenza, i BMP, gli SVG, le miniature di sistema
+ * troppo piccole) diventerebbe una bitmap che questo caricatore non tiene da nessuna parte. Il file
+ * l'ha già aperto il fetcher di Coil, e di lui non si legge un byte.
+ * ⚠️ **La sorgente la chiude Coil a decodifica finita**, letto nel bytecode di `EngineInterceptor`:
+ * la passa a `closeQuietly` qualunque cosa il decodificatore risponda, quindi qui non si chiude
+ * niente.
+ * ⚠️⚠️ **SI RISPONDE CON UN SEGNAPOSTO E NON CON `null`**, perché `null` vuol dire 'passo la mano':
+ * nello stesso bytecode un risultato nullo fa chiedere al registro il decodificatore successivo,
+ * cioè proprio la decodifica che questo pezzo esiste per saltare. Un pixel costa quattro byte, e
+ * non finisce in nessuna cache, perché questo caricatore in memoria non tiene niente.
+ * ⚠️ **Sta prima dei decodificatori di serie per la stessa ragione di [SvgThumbnailFactory]**: il
+ * registro di Coil parte dai componenti dichiarati e accoda i suoi.
+ */
+private class NoDecodeFactory : Decoder.Factory {
+    override fun create(result: SourceFetchResult, options: Options, imageLoader: ImageLoader): Decoder =
+        object : Decoder {
+            override suspend fun decode(): DecodeResult = DecodeResult(
+                image = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888).asImage(),
+                // Campionata perché lo è: non è l'immagine, è niente al suo posto.
+                isSampled = true
+            )
+        }
 }
 
 /**

@@ -47,8 +47,9 @@ import kotlin.math.max
  *
  * ⚠️⚠️ **VIVE IN `filesDir` E NON IN `cacheDir`, E LA DIFFERENZA È LA PROMESSA**: quello che sta
  * nella cache il sistema lo può buttare quando ha bisogno di spazio, e la copertina scelta
- * sparirebbe da sola. È lo stesso motivo per cui 'Elimina le miniature memorizzate' non la
- * tocca: quel comando svuota la cache di Coil, che è un'altra cosa.
+ * sparirebbe da sola. È lo stesso motivo per cui 'Svuota la cache delle miniature' non la
+ * tocca: quel comando svuota la memoria di Coil e le miniature di [AvifCache], che vivono in
+ * `cacheDir`, cioè due altre cose.
  *
  * ⚠️ **La chiave è il `BUCKET_ID` come per [FolderTints]**, e vale la stessa nota: due cartelle
  * si possono chiamare uguale in due posti diversi, e una rinomina non deve portare via la

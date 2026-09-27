@@ -1366,9 +1366,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Porta all'elenco iniziale delle cartelle chi ha appena cominciato a scegliere una copertina.
      *
-     * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.95`: *quando si tocca
-     * l'icona dell'intestazione, la vista deve tornare sulla cartella root (elenco delle cartelle
-     * iniziale) per facilitare la selezione da qualsiasi percorso*). Fino alla `2.95` la scelta
+     * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`:
+     * *quando si tocca l'icona dell'intestazione, la vista deve tornare sulla cartella root (elenco
+     * delle cartelle iniziale) per facilitare la selezione da qualsiasi percorso*). Fino alla `2.95` la scelta
      * restava nella cartella, perché la copertina che si vuole è spesso una delle sue immagini:
      * adesso quella si prende rientrandoci dall'elenco, cioè con un tocco in più, e tutte le altre
      * con qualcuno in meno.

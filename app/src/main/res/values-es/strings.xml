@@ -173,6 +173,7 @@
     <string name="folder_no_images">La carpeta no contiene imágenes.</string>
     <string name="folder_no_videos">La carpeta no contiene vídeos.</string>
     <string name="cancel">Cancelar</string>
+    <string name="yes">Sí</string>
     <string name="hide_folder_title">¿Ocultar \'%1$s\'?</string>
     <string name="hide_folder_desc">La carpeta no aparecerá en la vista de cuadrícula ni de lista. Es solo un ajuste de visualización: no se eliminará ningún archivo.</string>
     <string name="show_folder_title">¿Volver a mostrar \'%1$s\'?</string>
@@ -360,11 +361,15 @@
     <string name="settings_ext_edit_desc">Añade el botón \'Extensión\' a las ventanas de nombres de archivo. Elige abajo en cuáles aparece. ⚠️ Cambiar la extensión no es una conversión de formato (para eso está \'Exportar y convertir\') y hay que usarlo con cuidado, porque algunos archivos pueden volverse ilegibles y dejar de verse en las apps de galería.</string>
     <string name="settings_gpu_thumbs">Guardar las miniaturas en la memoria gráfica</string>
     <string name="settings_gpu_thumbs_desc">Crea la caché de miniaturas en la memoria del chip gráfico, dejando libre la memoria normal. Puede hacer la galería más ágil, no cambiar nada o, en algunos casos, casi siempre en dispositivos antiguos, ralentizarla. Si tienes problemas de rendimiento, actívala y comprueba si mejora: no se sabe por adelantado, con todas las combinaciones de hardware y software que hay en Android.</string>
-    <string name="settings_thumbs">Eliminar las miniaturas almacenadas</string>
+    <string name="settings_thumbs">Gestionar las miniaturas almacenadas</string>
     <string name="settings_thumbs_empty">No hay miniaturas almacenadas</string>
-    <string name="settings_thumbs_warn">Toca el botón para vaciar la caché de miniaturas. Las vistas previas de las imágenes y de los vídeos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (esto puede tardar un minuto o más en las carpetas con muchas imágenes grandes).</string>
-    <string name="settings_thumbs_do">Vaciar la caché\nde miniaturas</string>
+    <string name="settings_thumbs_do">Vaciar la caché de miniaturas</string>
+    <string name="settings_thumbs_ask">¿De verdad quieres vaciar la caché? Las vistas previas de las imágenes y de los vídeos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (esto puede tardar un minuto o más en las carpetas con muchas imágenes grandes).</string>
     <string name="settings_thumbs_done">Caché de miniaturas vaciada</string>
+    <string name="settings_thumbs_gen">Generar miniaturas</string>
+    <string name="settings_thumbs_gen_ask">Crear las vistas previas agiliza la navegación y aligera la carga posterior de la CPU/GPU, pero requiere un tiempo inicial que depende del número y del tamaño de las imágenes de tu colección. ¿Quieres continuar?</string>
+    <string name="settings_thumbs_gen_title">Generación de miniaturas</string>
+    <string name="settings_thumbs_gen_done">Miniaturas generadas correctamente.</string>
     <string name="settings_hidden_none">Ninguna carpeta oculta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d carpeta</item>

@@ -173,6 +173,7 @@
     <string name="folder_no_images">لا يحتوي المجلد على صور.</string>
     <string name="folder_no_videos">لا يحتوي المجلد على مقاطع فيديو.</string>
     <string name="cancel">إلغاء</string>
+    <string name="yes">نعم</string>
     <string name="hide_folder_title">إخفاء \'%1$s\'؟</string>
     <string name="hide_folder_desc">لن يظهر المجلد في عرض الشبكة ولا في عرض القائمة. هذا إعداد عرض فقط: لن يُحذف أي ملف.</string>
     <string name="show_folder_title">إظهار \'%1$s\' مرة أخرى؟</string>
@@ -405,11 +406,15 @@
     <string name="settings_ext_edit_desc">يضيف زر \'الامتداد\' إلى نوافذ أسماء الملفات. اختر أدناه أين يظهر. ⚠️ تغيير الامتداد ليس تحويلاً للصيغة (لذلك يوجد \'تصدير وتحويل\') ويحتاج إلى حذر، لأن بعض الملفات قد تصبح غير قابلة للقراءة ولا تظهر في تطبيقات المعرض.</string>
     <string name="settings_gpu_thumbs">الاحتفاظ بالصور المصغرة في ذاكرة الرسوميات</string>
     <string name="settings_gpu_thumbs_desc">يبني مخزن المصغرات في ذاكرة رقاقة الرسوم، فتبقى الذاكرة العادية فارغة. قد يجعل المعرض أسرع، وقد لا يغيّر شيئًا، وقد يُبطئه في بعض الحالات، وهي غالبًا الأجهزة القديمة. إن واجهت مشكلة في الأداء فشغّله وانظر إن تحسّن: لا يمكن معرفة ذلك مسبقًا، فتوليفات العتاد والبرمجيات في أندرويد كثيرة.</string>
-    <string name="settings_thumbs">حذف المصغّرات المحفوظة</string>
+    <string name="settings_thumbs">إدارة المصغّرات المحفوظة</string>
     <string name="settings_thumbs_empty">لا توجد مصغّرات محفوظة</string>
-    <string name="settings_thumbs_warn">اضغط على الزر لإفراغ ذاكرة المصغّرات. ستُحذف معاينات الصور ومقاطع الفيديو وسيُعاد إنشاؤها تلقائيًا عند فتح كل مجلد (قد يستغرق ذلك دقيقة أو أكثر في المجلدات التي تحتوي على صور كبيرة كثيرة).</string>
-    <string name="settings_thumbs_do">إفراغ ذاكرة\nالمصغّرات</string>
+    <string name="settings_thumbs_do">إفراغ ذاكرة المصغّرات</string>
+    <string name="settings_thumbs_ask">هل تريد حقًا إفراغ الذاكرة المؤقتة؟ ستُحذف معاينات الصور ومقاطع الفيديو وسيُعاد إنشاؤها تلقائيًا عند فتح كل مجلد (قد يستغرق ذلك دقيقة أو أكثر في المجلدات التي تحتوي على صور كبيرة كثيرة).</string>
     <string name="settings_thumbs_done">تم إفراغ ذاكرة المصغّرات</string>
+    <string name="settings_thumbs_gen">إنشاء المصغّرات</string>
+    <string name="settings_thumbs_gen_ask">يُسرّع إنشاء المعاينات التصفّح ويخفّف الحمل اللاحق على المعالج ووحدة الرسوميات (CPU/GPU)، لكنه يحتاج إلى وقت في البداية يعتمد على عدد الصور في مجموعتك وأحجامها. هل تريد المتابعة؟</string>
+    <string name="settings_thumbs_gen_title">جارٍ إنشاء المصغّرات</string>
+    <string name="settings_thumbs_gen_done">تم إنشاء المصغّرات بنجاح.</string>
     <string name="settings_hidden_none">لا توجد مجلدات مخفية</string>
     <plurals name="settings_hidden_count">
         <item quantity="zero">لا مجلدات</item>

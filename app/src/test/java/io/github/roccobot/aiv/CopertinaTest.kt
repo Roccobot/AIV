@@ -221,9 +221,9 @@ class CopertinaTest {
     /**
      * **Con il mini-onboarding già visto, il tocco sull'icona porta all'elenco iniziale.**
      *
-     * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.95`: *quando si tocca l'icona
-     * dell'intestazione, la vista deve tornare sulla cartella root (elenco delle cartelle iniziale)
-     * per facilitare la selezione da qualsiasi percorso*). Qui si misura che la griglia lo chieda;
+     * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`: *quando si
+     * tocca l'icona dell'intestazione, la vista deve tornare sulla cartella root (elenco delle
+     * cartelle iniziale) per facilitare la selezione da qualsiasi percorso*). Qui si misura che la griglia lo chieda;
      * che il modello ci porti davvero lo misura il caso del modello, più sotto.
      * ⚠️ **Controprovata** togliendo la chiamata dal tocco: la griglia non chiede di uscire, e la
      * prova cade.
