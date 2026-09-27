@@ -6528,8 +6528,19 @@ collaudo: rilascio, documento, riscontro'.
   il suo numero.
 - **Come si pubblica**: il workflow `release.yml` ha due vie, e la seconda esiste apposta per
   una sessione. Un `workflow_dispatch` con l'ingresso `publish` acceso taglia il tag dal
-  `versionName`, costruisce l'APK firmato, crea la release, e **copia APK e paginetta sotto
-  `roccobot.github.io/AIV/`**. Senza `publish` costruisce e si ferma, che è la **corsa a vuoto**.
+  `versionName`, costruisce l'APK firmato e crea la release. Senza `publish` costruisce e si
+  ferma, che è la **corsa a vuoto**.
+  - ⚠️⚠️ **DAL 2026-09-27 IL RILASCIO NON SCRIVE PIÙ NEL SITO, E LA PAGINETTA LA SERVE QUESTO
+    REPOSITORY** (scelta dell'utente: Pages pubblicato da Actions). Fino a quel giorno un passo di
+    `release.yml` clonava `Roccobot/roccobot.github.io` con un token fine-grained
+    (`SITE_CONTENTS_TOKEN`) e committava APK e pagina nella sua cartella `AIV/`. Adesso la
+    pubblica `pages.yml`, e l'indirizzo resta `roccobot.github.io/AIV/`: un repository di
+    progetto che si chiama come la cartella vince su di lei (misurato su RatioLab).
+  - ⚠️⚠️ **L'APK NON STA SUL SITO, E NON SI PERDE NIENTE**: il pulsante di download punta
+    all'asset dell'ultima release (`browser_download_url`, in `publish/index.html`), e nome, peso
+    e data li chiede all'API mentre la pagina si carica. La copia dell'APK nel sito la leggeva
+    solo la sonda che controllava se era arrivata. Quindi un rilascio non richiede nessun deploy,
+    e il sito si ripubblica solo quando cambia `publish/`.
   - ⚠️ **Quella corsa NON si chiama 'il banco di prova', e fino alla `1.73` qui era scritto
     così**: dalla `1.73` quel nome è di un'altra cosa, cioè le prove che aprono l'app finta
     (§ '🧰 Gli strumenti che questo repo si porta dietro'). Due cose con lo stesso nome, in un
@@ -6542,34 +6553,22 @@ collaudo: rilascio, documento, riscontro'.
   - ⚠️ **I controlli a costo zero restano davanti al cancello**: un tag che non coincide col
     `versionName`, o un `publish` da un branch che non è quello principale, falliscono in un
     secondo, e non ha senso spendere due minuti di prove per scoprirlo dopo.
-- **Verifica di pubblicazione avvenuta**: un `curl` su <https://roccobot.github.io/AIV/> e il
-  nome del file servito (`AIV-1.20.apk` e simili). Il merge su `master` del sito non basta:
-  serve che il deploy Pages vada a buon fine.
-  - ⚠️⚠️ **MA QUEL NOME NON È NELL'HTML, E UNA SONDA CHE LO CERCA LÀ RISPONDE SEMPRE VUOTO**: la
-    paginetta chiede l'elenco alle release di GitHub mentre si carica e compone il link con
-    `assets[i].name`, quindi nel testo servito quel nome non compare mai. Misurato il 2026-09-19:
-    un controllo che aspettava `AIV-2.65.apk` dentro la pagina ha atteso venti minuti per niente,
-    mentre il file era già servito. È il falso negativo del `--diff` senza pipe
-    (`roccobot.github.io/CLAUDE.md`): il comando risponde 'niente' e si legge come 'non è ancora
-    live', mentre è 'ho guardato nel posto sbagliato'.
-  - **Quindi si chiede il FILE**, che è quello che 'il file servito' vuol dire: un `curl` su
-    `https://roccobot.github.io/AIV/AIV-<versione>.apk` deve rispondere **200** col peso
-    dell'asset della release. Sulla `2.70`: 200 e 7.722.920 byte.
-  - ⚠️⚠️ **MA IL CODICE DA SOLO NON DISTINGUE NIENTE, E IL CRITERIO È IL TIPO DICHIARATO**: la
-    versione prima risponde **200** anche lei, perché Pages serve la propria pagina di ripiego a
-    un percorso che non esiste. Quindi si guarda `Content-Type`, che per l'APK vale
-    `application/vnd.android.package-archive` e per il ripiego `text/html`. Misurato il
-    2026-09-19: la `2.70` è l'APK, la `2.69` e la `2.68` sono la stessa paginetta da 9.379 byte.
-    ⚠️ **Fino alla `2.65` qui era scritto che la versione prima dà 404**, ed era vero allora: un
-    controllo che aspetti quel numero adesso dà per non pubblicata una versione che è live.
-  - ⚠️⚠️ **E IL PESO NON DISTINGUE DUE VERSIONI, PERCHÉ LA PRIMA LIBRERIA NATIVA È ALLINEATA A 16
+- **Verifica di pubblicazione avvenuta**: la release col suo tag e l'APK allegato
+  (`get_release_by_tag`), perché è da lì che la paginetta prende il download. Il sito non va
+  controllato a ogni rilascio, perché un rilascio non lo cambia; va controllato quando cambia
+  `publish/`, e allora fa fede la corsa di `pages.yml`.
+  - ⚠️ **La sonda di prima è superata, e si tiene quello che aveva insegnato**: fino al
+    2026-09-27 si chiedeva il file `https://roccobot.github.io/AIV/AIV-<versione>.apk`, guardando
+    `Content-Type` e non il solo codice, perché Pages risponde 200 anche a un percorso che non
+    esiste servendo la propria pagina di ripiego. Oggi quel file non esiste per nessuna versione.
+  - ⚠️⚠️ **IL PESO NON DISTINGUE DUE VERSIONI, PERCHÉ LA PRIMA LIBRERIA NATIVA È ALLINEATA A 16
     KB** (misurato il 2026-09-25 sulla `2.84`, che pesa quanto la `2.81`, la `2.82` e la `2.83`:
     7.778.976 byte). `classes.dex` è salvato senza compressione, e la voce subito dopo, la prima
     libreria di `lib/arm64-v8a/`, porta un riempimento che allinea i suoi dati a 16.384 byte:
     quel riempimento assorbe ogni variazione del dex fino a quella misura, e le voci che seguono
     non cambiano fra una versione e l'altra.
-    - **A distinguere due build è l'impronta**: lo SHA-256 del file servito deve coincidere col
-      `digest` dell'asset della release, e non con quello della precedente. Il peso resta una
+    - **A distinguere due build è l'impronta**: il `digest` dell'asset della release, che non
+      deve coincidere con quello della precedente. Il peso resta una
       prova che il file è arrivato intero, non che è quello nuovo.
 
 ## 🔐 La firma, e dove NON vive

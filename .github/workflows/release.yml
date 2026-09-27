@@ -31,13 +31,15 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publish for real: cut the tag from versionName, make the release, update the website'
+        description: 'Publish for real: cut the tag from versionName and make the release'
         type: boolean
         default: false
 
-# The automatic token is scoped to THIS repository and cannot be widened, which
-# is exactly why the website step needs a separate fine-grained PAT. Here the
-# token only has to attach the APK to a release of this repo.
+# The automatic token is scoped to THIS repository, and since 2026-09-27 that is
+# all a release needs: it attaches the APK to a release of this repo. The step
+# that committed the APK and its page into the website repository, with a
+# separate fine-grained PAT, is gone; the page is served by this repository
+# (`pages.yml`), and its download button reads the release published here.
 permissions:
   contents: write
 
@@ -134,7 +136,7 @@ jobs:
 
       # An absent keystore is a warning and not a failure: a dispatch run is
       # allowed to prove that the build works before any secret exists. The
-      # publish step refuses an unsigned APK on its own, further down.
+      # release step refuses an unsigned APK on its own, further down.
       - name: Restore the keystore
         id: keystore
         env:
@@ -169,7 +171,7 @@ jobs:
           echo "name=${name}" >> "$GITHUB_OUTPUT"
           echo "path=${RUNNER_TEMP}/out/${name}" >> "$GITHUB_OUTPUT"
           # No `size` output any more: its only reader was the __SIZE__ sed of
-          # the publish step, and since the 1.36 the page asks the GitHub API
+          # the old website step, and since the 1.36 the page asks the GitHub API
           # for the asset size instead. The log line below keeps the figure
           # where a human looks for it.
           echo "Produced ${name} ($(du -h "$src" | cut -f1)), from $(basename "$src")"
@@ -197,9 +199,9 @@ jobs:
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
 
-      # The release asset is what keeps OLD versions reachable. The website only
-      # ever carries the latest APK (see the publish step), so without this every
-      # previous build would become unreachable the moment a new tag lands.
+      # The release asset is the ONLY place the APK lives, and it is also what
+      # keeps old versions reachable: the download page points at the asset of
+      # the latest release, and the releases page keeps every version for free.
       - name: Attach the APK to a GitHub release
         if: github.ref_type == 'tag' || inputs.publish
         env:
@@ -208,7 +210,7 @@ jobs:
           SIGNED: ${{ steps.keystore.outputs.signed }}
         run: |
           set -euo pipefail
-          # ⚠️ The same guard the website step has, and it was MISSING here: on a
+          # ⚠️ The same guard the old website step had, and it was MISSING here: on a
           # tag pushed while the secrets were absent, an unsigned APK went
           # straight onto a release, where Android refuses to install it. The
           # hole was only reachable by hand before; now that a dispatch can
@@ -233,78 +235,3 @@ jobs:
               --title "AIV ${{ steps.ver.outputs.version }}" \
               --generate-notes
           fi
-
-      - name: Copy the APK and its page under roccobot.github.io/AIV/
-        if: github.ref_type == 'tag' || inputs.publish
-        env:
-          SITE_TOKEN: ${{ secrets.SITE_CONTENTS_TOKEN }}
-          VERSION: ${{ steps.ver.outputs.version }}
-          APK_NAME: ${{ steps.apk.outputs.name }}
-          APK_PATH: ${{ steps.apk.outputs.path }}
-          SIGNED: ${{ steps.keystore.outputs.signed }}
-        run: |
-          set -euo pipefail
-          if [ -z "${SITE_TOKEN}" ]; then
-            echo "No SITE_CONTENTS_TOKEN secret: nothing can be written to the website repo." >&2
-            exit 1
-          fi
-          if [ "${SIGNED}" != "true" ]; then
-            echo "Refusing to publish an unsigned APK: Android will not install it." >&2
-            exit 1
-          fi
-
-          git clone --depth 1 \
-            "https://x-access-token:${SITE_TOKEN}@github.com/Roccobot/roccobot.github.io.git" site
-          mkdir -p site/AIV
-          # Only the latest APK stays on the website, and the reason is the PAGE
-          # rather than the size: it offers one download, and a folder filling up
-          # with old builds would need the page to list and rank them. The
-          # archive is the releases page, which keeps every version for free.
-          # (Size is no longer the argument it looked like: the minified release
-          # apk is 6696189 bytes in the 1.36 against the 64 MB of the debug
-          # build, and the figure carries its version because it ages at every
-          # release. Measure the SERVED file and not the run artefact: that one
-          # is a zip of the apk and reads about half, because an apk holds
-          # uncompressed entries the outer zip squeezes.)
-          rm -f site/AIV/*.apk
-          cp "${APK_PATH}" "site/AIV/${APK_NAME}"
-
-          # A plain copy, and no substitution: the page used to carry five
-          # placeholders (__VERSION__, __APK__, __SIZE__, __DATE__, __YEAR__)
-          # filled in here with sed, so it went stale between two tags whenever
-          # a release did not touch it. Since the 1.36 it asks the GitHub API
-          # for all five at load time. Whoever puts a placeholder back in the
-          # page has to put the sed back here too, AND the `size` output the
-          # step above no longer produces.
-          cp publish/index.html site/AIV/index.html
-
-          # The page shows two REAL screenshots of the app (light and dark), and
-          # they live next to it. Mirror the whole folder rather than copying
-          # named files: an added screenshot then needs no change here, and a
-          # deleted one does not linger on the website. Wiping first is safe
-          # because nothing else writes into that folder, and cp -R keeps this
-          # portable (no rsync dependency on the runner).
-          rm -rf site/AIV/schermate
-          cp -R publish/schermate site/AIV/schermate
-
-          # The picture that goes with the link when someone shares the page
-          # (Open Graph, since the 2.92). The page names it in its meta tags with
-          # an ABSOLUTE address, so it must sit right next to it under this very
-          # name; tools/og-image.py composes it from the page and the light
-          # screenshot, and has to be re-run when either changes.
-          cp publish/anteprima.jpg site/AIV/anteprima.jpg
-
-          cd site
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add AIV
-          if git diff --cached --quiet; then
-            echo "Nothing changed on the website: no commit."
-            exit 0
-          fi
-          git commit -m "AIV ${VERSION}: APK e pagina di download"
-          # The admin editor of 'I Grandi di Arda' commits to master through its
-          # Worker, so master can move while this job runs. A rebase and one
-          # retry cover that race; a second failure is a real problem worth
-          # seeing in the log.
-          git push || { git pull --rebase && git push; }
