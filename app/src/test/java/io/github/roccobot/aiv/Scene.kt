@@ -32,7 +32,8 @@ internal fun Casa(
     hidden: Set<String> = emptySet(),
     /** Se le nascoste sono in scena col minuto in corso. */
     peeking: Boolean = false,
-    onUnhide: (String) -> Unit = {}
+    /** Riceve le voci che 'Mostra' toglie: dalla `2.96` sono tutte quelle che coprono la cartella. */
+    onUnhide: (Collection<String>) -> Unit = {}
 ) {
     FolderScreen(
         view = FolderView.GRID,

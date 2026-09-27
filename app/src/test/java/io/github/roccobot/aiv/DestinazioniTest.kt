@@ -22,6 +22,12 @@ class DestinazioniTest {
 
     private val cestino = "/storage/emulated/0/Android/media/io.github.roccobot.aiv/bin"
 
+    /**
+     * La voce che nasconde `/storage/emulated/0/Privato`, scritta come la salva l'app: senza la
+     * radice del volume, dalla `2.96`.
+     */
+    private val voce = "Privato"
+
     private fun cartella(nome: String, path: String?) =
         Folder.Bucket(id = nome.hashCode().toLong(), name = nome, pictures = 3, clips = 0, cover = null, path = path)
 
@@ -84,6 +90,10 @@ class DestinazioniTest {
      * ricompariva appena si toccava 'Copia'.
      * ⚠️ **Il ramo intero**, come per il cestino: chi esclude un percorso esclude quello che sta
      * sotto, e il confronto è sul separatore.
+     * ⚠️⚠️ **Dalla `2.96` la voce si scrive senza la radice del volume**, cioè nella forma che l'app
+     * salva (§ '👁️ Mostra nascoste' del `CLAUDE.md`). Fino alla `2.95` qui c'era il percorso intero,
+     * e con il confronto nuovo una voce scritta così non copre più niente: la prova lo ha detto
+     * cadendo. Nell'archivio una voce intera non c'è più, perché la migrazione la traduce.
      */
     @Test
     fun `una cartella nascosta non e una destinazione`() {
@@ -98,7 +108,7 @@ class DestinazioniTest {
         )
         assertEquals(
             listOf("Privatissimo", "Camera"),
-            destinations(elenco, cestino, setOf(nascosta), peeking = false).map { it.name }
+            destinations(elenco, cestino, setOf(voce), peeking = false).map { it.name }
         )
     }
 
@@ -123,7 +133,7 @@ class DestinazioniTest {
         )
         assertEquals(
             listOf("Privato", "Dentro", "Camera"),
-            destinations(elenco, cestino, setOf(nascosta), peeking = true).map { it.name }
+            destinations(elenco, cestino, setOf(voce), peeking = true).map { it.name }
         )
     }
 

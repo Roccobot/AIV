@@ -1,10 +1,14 @@
 package io.github.roccobot.aiv
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -15,6 +19,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -211,6 +216,95 @@ class CopertinaTest {
         )
     }
 
+    // ── Dalla cartella all'elenco iniziale, dalla `2.96` ─────────────────────
+
+    /**
+     * **Con il mini-onboarding già visto, il tocco sull'icona porta all'elenco iniziale.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.95`: *quando si tocca l'icona
+     * dell'intestazione, la vista deve tornare sulla cartella root (elenco delle cartelle iniziale)
+     * per facilitare la selezione da qualsiasi percorso*). Qui si misura che la griglia lo chieda;
+     * che il modello ci porti davvero lo misura il caso del modello, più sotto.
+     * ⚠️ **Controprovata** togliendo la chiamata dal tocco: la griglia non chiede di uscire, e la
+     * prova cade.
+     */
+    @Test
+    fun `col mini-onboarding gia visto il tocco sull'icona porta all'elenco`() {
+        runBlocking { Hint.COVER.remember(app) }
+        var chiesto = 0
+        var via = 0
+        banco.setContent { Scena(onCoverPick = { chiesto++ }, onCoverAway = { via++ }) }
+        banco.waitForIdle()
+
+        banco.onNodeWithContentDescription(app.getString(R.string.folder_cover)).performClick()
+        banco.waitForIdle()
+
+        assertEquals("Il tocco sull'icona non ha cominciato la scelta", 1, chiesto)
+        assertEquals("Il tocco sull'icona non porta all'elenco iniziale", 1, via)
+    }
+
+    /**
+     * **La prima volta si esce quando il mini-onboarding si chiude, e non prima.**
+     *
+     * ⚠️⚠️ **IL VELO INDICA L'ICONA DI QUESTA CARTELLA**, quindi uscendo col tocco stesso il
+     * mini-onboarding comparirebbe su una schermata che non c'è più, cioè non lo vedrebbe nessuno.
+     * Le due metà sono le due cose che possono andare storte: uscire subito, e non uscire affatto.
+     * ⚠️ **La scena accende `coverHere` quando la scelta parte**, che è quello che fa il modello: col
+     * velo in scena fin dall'inizio, il primo tocco lo chiuderebbe invece di arrivare all'icona.
+     * ⚠️ **Controprovata due volte**: uscendo sempre col tocco cade la prima metà, e senza l'uscita
+     * alla chiusura del velo cade la seconda.
+     */
+    @Test
+    fun `la prima volta si esce quando il mini-onboarding si chiude`() {
+        runBlocking { Hint.COVER.forget(app) }
+        var qui by mutableStateOf(false)
+        var via = 0
+        banco.setContent {
+            Scena(onCoverPick = { qui = true }, onCoverAway = { via++ }, coverHere = qui)
+        }
+        banco.waitForIdle()
+
+        banco.onNodeWithContentDescription(app.getString(R.string.folder_cover)).performClick()
+        banco.waitForIdle()
+
+        val velo = app.getString(R.string.hint_cover)
+        assertTrue(
+            "Il mini-onboarding della copertina non è comparso",
+            banco.onAllNodesWithText(velo).fetchSemanticsNodes().isNotEmpty()
+        )
+        assertEquals("Si esce prima che lui abbia letto il mini-onboarding", 0, via)
+
+        banco.onNodeWithText(velo).performClick()
+        banco.waitForIdle()
+
+        assertEquals("Chiuso il mini-onboarding non si torna all'elenco iniziale", 1, via)
+    }
+
+    /**
+     * **Il modello porta all'elenco iniziale solo se una scelta è partita.**
+     *
+     * ⚠️⚠️ **IL SECONDO TOCCO SULLA STESSA CARTELLA NON PARTE, RIMETTE LA COPERTINA PREDEFINITA**
+     * (dalla `1.95`), e allora si resta nella cartella: uscire dopo aver tolto una copertina
+     * sarebbe un salto che nessuno ha chiesto. È la ragione per cui `coverAway` guarda `covering`.
+     * ⚠️ **Controprovata** togliendo quella condizione: il secondo tocco porta fuori, e la prova
+     * cade.
+     */
+    @Test
+    fun `il modello esce solo se una scelta e partita`() {
+        val model = ViewerViewModel(ApplicationProvider.getApplicationContext<Application>())
+        model.openGrid(7L, CARTELLA)
+        model.startCover()
+        model.coverAway()
+        assertEquals("La scelta partita non porta all'elenco iniziale", Screen.Folders(forStart = false), model.screen)
+        assertEquals("La scelta è partita per un'altra cartella", 7L, model.covering?.bucket)
+
+        model.openGrid(7L, CARTELLA)
+        model.startCover()
+        model.coverAway()
+        assertNull("Il secondo tocco sulla stessa cartella non chiude la scelta", model.covering)
+        assertEquals("Tolta la copertina, si è usciti dalla cartella", Screen.Grid(7L, CARTELLA), model.screen)
+    }
+
     /** Apre il menu del FAB, che è l'unico modo per arrivare alla voce. */
     private fun apriIlMenu() {
         banco.onNodeWithContentDescription(app.getString(R.string.pick_actions)).performClick()
@@ -223,7 +317,9 @@ class CopertinaTest {
     private fun Scena(
         onCoverPick: () -> Unit = {},
         onCoverClear: () -> Unit = {},
-        coverSet: Boolean = false
+        coverSet: Boolean = false,
+        onCoverAway: () -> Unit = {},
+        coverHere: Boolean = false
     ) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -242,8 +338,10 @@ class CopertinaTest {
                     onBin = {},
                     onSettings = {},
                     onCoverPick = onCoverPick,
+                    onCoverAway = onCoverAway,
                     onCoverClear = onCoverClear,
-                    coverSet = coverSet
+                    coverSet = coverSet,
+                    coverHere = coverHere
                 )
             }
         }

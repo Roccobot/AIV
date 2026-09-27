@@ -63,6 +63,11 @@ import javax.crypto.spec.SecretKeySpec
  * ⚠️ **L'ordine è quello delle caselle**, e il cestino viene per ultimo: è la sola parte che pesa
  * quanto le immagini che contiene, e la sola che all'importazione si aggiunge invece di prendere
  * il posto di quello che c'è.
+ * ⚠️⚠️ **LE CARTELLE NASCOSTE HANNO UN'AREA SUA DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del
+ * giro della `2.95`: *ovviamente serve una nuova sezione di esportazione 'Cartelle nascoste'*). Vive
+ * accanto alle altre due parti che parlano di cartelle, e porta l'etichetta della sua pagina nelle
+ * impostazioni. Fino alla `2.95` l'elenco viaggiava dentro 'Aspetto e navigazione', e un file di
+ * allora lo porta ancora là: il perché vive su [PREF_RETIRED].
  */
 internal enum class BackupArea(val token: String, @StringRes val label: Int) {
     VIEW("view", R.string.backup_area_view),
@@ -71,6 +76,7 @@ internal enum class BackupArea(val token: String, @StringRes val label: Int) {
     STYLES("styles", R.string.settings_styles),
     TINTS("tints", R.string.settings_colour),
     COVERS("covers", R.string.backup_area_covers),
+    HIDDEN("hidden", R.string.settings_hidden),
     HINTS("hints", R.string.backup_area_hints),
     BIN("bin", R.string.bin_title),
 }
@@ -135,7 +141,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.VIEW, PrefType.FLOAT, "zoom-max")
     area(BackupArea.VIEW, PrefType.LONG, "start-folder")
     area(BackupArea.VIEW, PrefType.INT, "folder-columns")
-    area(BackupArea.VIEW, PrefType.SET, "hidden-folders", "fact-off")
+    area(BackupArea.VIEW, PrefType.SET, "fact-off")
     area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels")
     area(
         BackupArea.BUTTONS, PrefType.STRING,
@@ -156,8 +162,47 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     )
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
+    area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative")
     Hint.entries.forEach { add(PrefKey(it.token, PrefType.BOOLEAN, BackupArea.HINTS)) }
 }
+
+/**
+ * Una preferenza che le versioni di prima scrivevano e questa non scrive più, e come si traduce.
+ *
+ * @property area dove la portano i file di allora. ⚠️ Non cambia mai, per la stessa ragione di
+ *   quella di [PrefKey].
+ * @property into la chiave di adesso che la prende.
+ * @property convert come un valore di allora diventa uno di adesso.
+ */
+internal class RetiredKey(
+    val area: BackupArea,
+    val type: PrefType,
+    val into: PrefKey,
+    val convert: (Any) -> Any
+)
+
+/**
+ * Le preferenze ritirate, cioè quelle che un file di un'altra versione può ancora portare.
+ *
+ * ⚠️⚠️ **SENZA DI LORO UN FILE PIÙ VECCHIO SI LEGGEREBBE COME UNO PIÙ NUOVO**: una chiave che questa
+ * versione non conosce viene contata fra quelle saltate, e la notifica finale direbbe che il file
+ * arriva da una versione più recente di AIV mentre arriva da una più vecchia. Con la traduzione il
+ * valore entra, e non si conta niente.
+ * ⚠️⚠️ **L'ELENCO DELLE NASCOSTE DI ALLORA VIVE DENTRO 'ASPETTO E NAVIGAZIONE', E SI DICHIARA**: è la
+ * sola casella che un file della `2.95` porta per lui, perché l'area 'Cartelle nascoste' ancora non
+ * c'era. Quindi da un file di allora le nascoste arrivano spuntando quella, e la finestra di conferma
+ * non elenca 'Cartelle nascoste' fra le parti del file.
+ * ⚠️ **Una ritirata assente non si traduce**: la sua chiave di adesso si fonde, e fondere niente
+ * lascia quello che c'è (vedi [PREF_MERGED]).
+ */
+internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
+    "hidden-folders" to RetiredKey(
+        area = BackupArea.VIEW,
+        type = PrefType.SET,
+        into = PREF_KEYS.first { it.name == "hidden-relative" },
+        convert = { vecchie -> (vecchie as Set<*>).map { portablePath(it.toString()) }.toSet() }
+    )
+)
 
 /**
  * Le preferenze che un backup **non** porta, e il perché di ognuna.
@@ -191,9 +236,14 @@ internal val PREF_AREAS: Set<BackupArea> = PREF_KEYS.map { it.area }.toSet()
  * dice che là non c'era niente da aggiungere, e fondere niente lascia quello che c'è.
  * ⚠️ **Sono tutte insiemi di stringhe**, e il banco lo controlla: la fusione riceve i due insiemi, e una
  * chiave d'altro tipo qui dentro sarebbe un valore letto col tipo sbagliato.
+ * ⚠️⚠️ **DALLA `2.96` SI FONDE ANCHE L'ELENCO DELLE CARTELLE NASCOSTE**, ed è la stessa risposta letta
+ * sulla parte nuova: le nascoste del file si aggiungono alle tue, e una cartella nascosta qui resta
+ * nascosta. Due elenchi di percorsi si fondono sommandoli, perché una voce non ha niente da far
+ * vincere.
  */
 internal val PREF_MERGED: Map<String, (Set<String>, Set<String>) -> Set<String>> = mapOf(
-    "folder-tints" to FolderTints::merged
+    "folder-tints" to FolderTints::merged,
+    "hidden-relative" to { adesso, file -> adesso + file }
 )
 
 /**
@@ -237,8 +287,8 @@ internal val PREF_MERGED: Map<String, (Set<String>, Set<String>) -> Set<String>>
  * ⚠️⚠️ **E DALLA `2.95` SI FONDONO ANCHE LE COPERTINE, I COLORI DELLE CARTELLE E GLI STILI SALVATI, ED
  * È LA SUA RISPOSTA `fonde` A `d-backup-importa`**: quello del file si aggiunge a quello che c'è, e
  * dove si sovrappongono (la stessa cartella, lo stesso nome) vince il file. Le preferenze restano una
- * sostituzione, perché ognuna ha un valore solo; l'unica che si fonde è l'elenco delle tinte, e il
- * perché vive su [PREF_MERGED].
+ * sostituzione, perché ognuna ha un valore solo; si fondono l'elenco delle tinte e, dalla `2.96`,
+ * quello delle cartelle nascoste, e il perché vive su [PREF_MERGED].
  *
  * ⚠️⚠️ **VALE FRA VERSIONI DIVERSE DI AIV, NEI DUE VERSI, ED È SUA RICHIESTA** (2026-09-26, a
  * lavoro iniziato: *una versione di AIV più recente di quella che ha generato il backup troverà
@@ -934,6 +984,8 @@ internal object Backup {
      * al valore di fabbrica, e saltarla non perde niente.
      * ⚠️ **Un nome che compare due volte, nei due elenchi o nello stesso, resta un rifiuto**: nessuna
      * versione lo scrive, e dei due valori non si saprebbe quale vale.
+     * ⚠️ **Una chiave ritirata si traduce e non si conta** (vedi [PREF_RETIRED]): viene da una versione
+     * più vecchia, e contarla farebbe dire alla notifica il contrario.
      */
     private fun readPrefs(text: String, area: BackupArea): Prefs {
         val o = json(text)
@@ -951,7 +1003,14 @@ internal object Backup {
                 ?.takeIf { k.optString("type") == it.type.token }
                 ?.let { decode(it.type, k.opt("value")) }
             if (known == null || value == null) {
-                skipped++
+                val retired = PREF_RETIRED[name]
+                    ?.takeIf { it.area == area && k.optString("type") == it.type.token }
+                val old = retired?.let { decode(it.type, k.opt("value")) }
+                if (retired != null && old != null) {
+                    values += retired.into to retired.convert(old)
+                } else {
+                    skipped++
+                }
                 continue
             }
             values += known to value

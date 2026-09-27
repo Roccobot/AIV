@@ -165,7 +165,8 @@ object Folder {
      * Una cartella di immagini.
      *
      * ⚠️ **`path` è il percorso della cartella sul disco**, e serve a una cosa sola:
-     * l'esclusione (`Settings.hiddenFolders`). Non costa una colonna in più, perché il
+     * l'esclusione (`Settings.hiddenFolders`, che dalla `2.96` lo tiene senza la radice del
+     * volume: vedi `portablePath`). Non costa una colonna in più, perché il
      * percorso della riga si legge già per ricostruire il nome quando manca; qui se ne
      * tiene la parte fino all'ultima barra. ⚠️ Può essere `null`: un provider che non
      * serve la colonna `DATA` esiste, e in quel caso quella cartella non si può nascondere
@@ -563,7 +564,7 @@ object Folder {
                     val dir = pathAt?.let { c.getString(it) }
                         ?.substringBeforeLast('/')
                         ?.takeIf { it.isNotBlank() }
-                    if (dir != null && hidden.any { dir == it || dir.startsWith("$it/") }) continue
+                    if (dir != null && hiddenIn(hidden, dir)) continue
                     found += uriOf(c.getLong(idAt), c.isClip(kindAt))
                 }
             }
@@ -1065,22 +1066,118 @@ object Folder {
 }
 
 /**
- * Se questa cartella è fra quelle che l'utente ha escluso.
+ * La radice di un volume in testa a un percorso, cioè la parte che cambia da un telefono all'altro.
+ *
+ * ⚠️ **Le forme sono quelle con cui Android nomina un volume**: l'archivio primario col numero
+ * dell'utente (`/storage/emulated/0`, e `10` per un profilo di lavoro), i suoi due nomi storici
+ * (`/sdcard`, `/mnt/sdcard`) e quello di `/storage/self`, e una scheda o una chiavetta col suo
+ * identificativo (`/storage/1234-5678`). ⚠️ **`emulated` e `self` da soli non sono un volume**, e
+ * il controllo in avanti lo dice: senza, `/storage/emulated/legacy` si leggerebbe come un volume
+ * che si chiama `emulated`.
+ * ⚠️ **Deve finire su una barra o sul percorso**, o `/sdcardx` si leggerebbe come `/sdcard`
+ * seguito da una `x`.
+ */
+private val VOLUME_ROOT = Regex(
+    "^(?:/storage/emulated/\\d+|/storage/self/primary|/sdcard|/mnt/sdcard|" +
+        "/storage/(?!emulated(?:/|$)|self(?:/|$))[^/]+)(?=/|$)"
+)
+
+/**
+ * Il percorso di una cartella come lo scrive l'elenco delle nascoste: senza la radice del volume.
+ *
+ * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.95`: *i percorsi esclusi
+ * dovrebbero essere relativi (se nascondo /DCIM/Temp da un dispositivo, dovrebbe essere nascosto
+ * anche su un altro dispositivo in cui si installa AIV e si importano le impostazioni)*). Fino alla
+ * `2.95` l'elenco teneva il percorso intero, e `/storage/emulated/0/DCIM/Temp` è un indirizzo di
+ * questo telefono: una scheda porta il proprio identificativo, e un altro utente dello stesso
+ * telefono ha un altro numero.
+ * ⚠️⚠️ **QUINDI UNA VOCE VALE SU OGNI VOLUME, E SI DICHIARA**: `DCIM/Temp` nasconde quella cartella
+ * sull'archivio del telefono e sulla scheda. È la conseguenza diretta della sua riga, perché
+ * l'identificativo di una scheda è la parte del percorso che da un telefono all'altro non torna.
+ * ⚠️ **La radice di un volume diventa la stringa vuota**, e nasconde solo se stessa (vedi [covers]):
+ * nascosta la radice, le immagini che vivono proprio là spariscono, e le cartelle dentro no.
+ * ⚠️ **Un percorso senza una radice riconosciuta resta intero**, cioè comincia con la barra: un
+ * luogo che non è un volume non ha niente da portare su un altro telefono. ⚠️ **Il confronto non
+ * lo tratta a parte**, perché le voci e le cartelle passano tutte da qui prima di confrontarsi:
+ * una voce scritta intera si trova davanti un percorso scritto intero, e una scritta senza radice
+ * uno senza radice.
+ */
+internal fun portablePath(path: String): String {
+    val root = VOLUME_ROOT.find(path) ?: return path
+    return path.substring(root.range.last + 1).trim('/')
+}
+
+/**
+ * Se la voce [entry] copre la cartella [own], scritte tutte e due nella forma di [portablePath].
  *
  * ⚠️⚠️ **IL CONFRONTO È SUL SEPARATORE, e senza di lui la funzione nasconderebbe cose che
  * nessuno ha escluso**: con un `startsWith` nudo, escludere `.../Foo` toglierebbe anche
  * `.../Foo2` e `.../Foobar`, che sono cartelle diverse con un nome che comincia uguale.
  * Chiedendo la barra dopo, si nasconde `Foo` e tutto quello che sta **dentro** `Foo`, che
  * è quello che vuol dire escludere un percorso.
+ * ⚠️ **La voce vuota copre solo se stessa**: è la radice di un volume, e con la barra dopo
+ * coprirebbe ogni percorso fuori da un volume, che comincia proprio con la barra.
+ */
+private fun covers(entry: String, own: String): Boolean =
+    own == entry || (entry.isNotEmpty() && own.startsWith("$entry/"))
+
+/**
+ * Le voci dell'elenco delle nascoste che coprono la cartella in [path], un percorso intero.
+ *
+ * ⚠️ **Sono tutte e non una**, ed è quello che serve a rimostrare una cartella (vedi il dialogo in
+ * `FolderScreen`): una cartella dentro una nascosta è coperta da lei, e togliere la sola voce col
+ * suo nome non la farebbe tornare.
+ */
+internal fun coveringOf(hidden: Set<String>, path: String): List<String> {
+    if (hidden.isEmpty()) return emptyList()
+    val own = portablePath(path)
+    return hidden.filter { covers(it, own) }
+}
+
+/** Se la cartella in [path], un percorso intero, è fra quelle che l'utente ha escluso. */
+internal fun hiddenIn(hidden: Set<String>, path: String): Boolean {
+    if (hidden.isEmpty()) return false
+    val own = portablePath(path)
+    return hidden.any { covers(it, own) }
+}
+
+/**
+ * Se la cartella in [path] è proprio una voce dell'elenco, e non soltanto coperta da una.
+ *
+ * ⚠️ **Serve al segno della vista 'Cartelle di sistema'**, che dalla `0.84` segna le cartelle che
+ * l'utente ha nascosto e non quelle che ci stanno dentro: entrando in una cartella nascosta ogni
+ * riga porterebbe lo stesso segno, e il segno non direbbe più niente.
+ */
+internal fun listedIn(hidden: Set<String>, path: String): Boolean = portablePath(path) in hidden
+
+/**
+ * Il nome di una voce dell'elenco delle nascoste, per il pannello e per la pagina delle impostazioni.
+ *
+ * ⚠️ **La radice di un volume non ha un nome**, e si scrive con la barra, che è come si scrive
+ * la radice.
+ */
+internal fun hiddenName(entry: String): String = entry.substringAfterLast('/').ifEmpty { "/" }
+
+/**
+ * Il percorso di una voce come lo si legge: con la barra davanti, come lo ha scritto lui.
+ *
+ * ⚠️ **La barra davanti è quella della sua riga** (*se nascondo /DCIM/Temp*), e dice che il
+ * percorso parte dalla radice: senza, `DCIM/Temp` si leggerebbe come un nome qualunque.
+ */
+internal fun hiddenShown(entry: String): String = if (entry.startsWith('/')) entry else "/$entry"
+
+/**
+ * Se questa cartella è fra quelle che l'utente ha escluso.
+ *
  * ⚠️ **Una cartella senza percorso non si nasconde mai**: il provider può non servire la
  * colonna, e allora non c'è niente da confrontare. Meglio mostrarne una di troppo che
  * nasconderne una a caso.
  * ⚠️⚠️ **VIVE QUI DALLA `2.02`, E PRIMA ERA PRIVATA IN `FolderScreen.kt`**: adesso la leggono
  * in due, perché una cartella esclusa non compare nemmeno fra le destinazioni di una copia
  * (vedi `destinations`). Una seconda copia del confronto avrebbe potuto divergere proprio sul
- * separatore, che è la parte difficile.
+ * separatore, che è la parte difficile, e dalla `2.96` anche sulla radice del volume.
  */
 internal fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
     val own = path ?: return false
-    return hidden.any { own == it || own.startsWith("$it/") }
+    return hiddenIn(hidden, own)
 }

@@ -361,7 +361,9 @@ private fun Spots(
         items(items = spots, key = { it.path }) { spot ->
             SpotRow(
                 spot = spot,
-                marked = spot.folder && spot.path in hidden,
+                // ⚠️ Una voce dell'elenco e non una cartella coperta da lei: il perché vive su
+                // `listedIn`, che dalla `2.96` confronta anche senza la radice del volume.
+                marked = spot.folder && listedIn(hidden, spot.path),
                 // ⚠️⚠️ **IL TOCCO LUNGO SOLO SUI MEDIA, ed è la richiesta alla lettera**:
                 // *copia, sposta, elimina e rinomina restano possibili solo su immagini e
                 // video*. Su una cartella o su un documento il gesto non fa niente, e non
