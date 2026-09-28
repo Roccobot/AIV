@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">書き出しと読み込み</string>
     <string name="backup_desc">設定をファイルに保存します。このファイルは、Astonishing Image Viewer の今後のバージョンでも、いつでも読み込めます。</string>
-    <string name="backup_intro">このファイルには下の設定が含まれ、AIV でしか読めません。ゴミ箱の中身は、読み込むときにすでにあるものに追加されます。</string>
+    <string name="backup_intro">このファイルには下の設定が含まれ、AIV でしか読めません。読み込むとき、スタイル、色、カバー、非表示のフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_area_view">外観とナビゲーション</string>
     <string name="backup_area_editor">エディターの設定</string>
     <string name="backup_area_covers">フォルダーのカバー</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">書き出し中...</string>
     <string name="backup_importing">読み込み中...</string>
     <string name="backup_import_from">%1$s %2$s に書き出し\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">これらの設定で現在の設定が置き換わります。ゴミ箱のファイルは、すでにあるファイルに追加されます。</string>
+    <string name="backup_import_ask">これらの設定で現在の設定が置き換わります。ただしスタイル、色、カバー、非表示のフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_unlock">設定ファイルは保護されています。パスワードを入力してください。</string>
     <string name="backup_none">選択した設定について、ファイルに有効な値がありません。</string>
 </resources>

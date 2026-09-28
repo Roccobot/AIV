@@ -1122,45 +1122,52 @@ object Folder {
 }
 
 /**
- * La radice di un volume in testa a un percorso, cioè la parte che cambia da un telefono all'altro.
+ * La radice dell'archivio PRIMARIO in testa a un percorso, cioè la parte che cambia da un telefono
+ * all'altro.
  *
- * ⚠️ **Le forme sono quelle con cui Android nomina un volume**: l'archivio primario col numero
- * dell'utente (`/storage/emulated/0`, e `10` per un profilo di lavoro), i suoi due nomi storici
- * (`/sdcard`, `/mnt/sdcard`) e quello di `/storage/self`, e una scheda o una chiavetta col suo
- * identificativo (`/storage/1234-5678`). ⚠️ **`emulated` e `self` da soli non sono un volume**, e
- * il controllo in avanti lo dice: senza, `/storage/emulated/legacy` si leggerebbe come un volume
- * che si chiama `emulated`.
- * ⚠️ **Deve finire su una barra o sul percorso**, o `/sdcardx` si leggerebbe come `/sdcard`
- * seguito da una `x`.
+ * ⚠️ **Le forme sono quelle con cui Android nomina l'archivio del telefono**: col numero dell'utente
+ * (`/storage/emulated/0`, e `10` per un profilo di lavoro), coi suoi due nomi storici (`/sdcard`,
+ * `/mnt/sdcard`) e con quello di `/storage/self`. ⚠️ **`emulated` e `self` da soli non sono un
+ * volume**: senza il numero, `/storage/emulated/legacy` si leggerebbe come l'archivio primario.
+ * ⚠️ **Deve finire su una barra o sul percorso**, o `/sdcardx` si leggerebbe come `/sdcard` seguito
+ * da una `x`.
  */
-private val VOLUME_ROOT = Regex(
-    "^(?:/storage/emulated/\\d+|/storage/self/primary|/sdcard|/mnt/sdcard|" +
-        "/storage/(?!emulated(?:/|$)|self(?:/|$))[^/]+)(?=/|$)"
+private val PRIMARY_ROOT = Regex(
+    "^(?:/storage/emulated/\\d+|/storage/self/primary|/sdcard|/mnt/sdcard)(?=/|$)"
 )
 
 /**
- * Il percorso di una cartella come lo scrive l'elenco delle nascoste: senza la radice del volume.
+ * La radice di un volume RIMOVIBILE, una scheda o una chiavetta, scritta intera: `/storage/1234-5678`.
  *
- * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`: *i
- * percorsi esclusi dovrebbero essere relativi (se nascondo /DCIM/Temp da un dispositivo, dovrebbe
- * essere nascosto anche su un altro dispositivo in cui si installa AIV e si importano le
- * impostazioni)*). Fino alla
- * `2.95` l'elenco teneva il percorso intero, e `/storage/emulated/0/DCIM/Temp` è un indirizzo di
- * questo telefono: una scheda porta il proprio identificativo, e un altro utente dello stesso
- * telefono ha un altro numero.
- * ⚠️⚠️ **QUINDI UNA VOCE VALE SU OGNI VOLUME, E SI DICHIARA**: `DCIM/Temp` nasconde quella cartella
- * sull'archivio del telefono e sulla scheda. È la conseguenza diretta della sua riga, perché
- * l'identificativo di una scheda è la parte del percorso che da un telefono all'altro non torna.
- * ⚠️ **La radice di un volume diventa la stringa vuota**, e nasconde solo se stessa (vedi [covers]):
- * nascosta la radice, le immagini che vivono proprio là spariscono, e le cartelle dentro no.
- * ⚠️ **Un percorso senza una radice riconosciuta resta intero**, cioè comincia con la barra: un
- * luogo che non è un volume non ha niente da portare su un altro telefono. ⚠️ **Il confronto non
- * lo tratta a parte**, perché le voci e le cartelle passano tutte da qui prima di confrontarsi:
- * una voce scritta intera si trova davanti un percorso scritto intero, e una scritta senza radice
- * uno senza radice.
+ * ⚠️ Esclude i due nomi che [PRIMARY_ROOT] tratta, `emulated` e `self`, che non sono un volume a sé.
+ */
+private val REMOVABLE_ROOT = Regex("^/storage/(?!emulated(?:/|$)|self(?:/|$))[^/]+$")
+
+/**
+ * Il percorso di una cartella come lo scrive l'elenco delle nascoste.
+ *
+ * ⚠️⚠️ **SULL'ARCHIVIO DEL TELEFONO SENZA LA RADICE, SU UNA SCHEDA INTERO, DALLA `2.99`**, ed è la sua
+ * nota sulla voce `nascoste-percorsi` del giro della `2.98`: *preferirei che si nascondesse solo la
+ * cartella nel percorso specifico, ma allo stesso tempo che quel percorso specifico fosse
+ * riconducibile al corrispettivo di qualsiasi dispositivo*. Dalla `2.96` alla `2.98` la radice si
+ * toglieva da ogni volume, quindi `DCIM/Temp` nascondeva quella cartella sul telefono **e** su ogni
+ * scheda; la richiesta di allora era la sua riga del giro della `2.93` e della `2.94` (*se nascondo
+ * /DCIM/Temp da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo*).
+ * - **L'archivio del telefono perde la radice**, perché è la parte che da un telefono all'altro cambia
+ *   (il numero dell'utente, i nomi storici): `DCIM/Temp` vuol dire quella cartella sul telefono, su
+ *   qualunque telefono. ⚠️ **Le voci scritte dalla `2.96` in poi hanno già questa forma**, quindi non
+ *   serve una migrazione: una voce nata da una scheda in quei tre giorni adesso vale per il telefono.
+ * - ⚠️⚠️ **UNA SCHEDA TIENE IL PERCORSO INTERO, E NON È UN RIPIEGO**: il suo identificativo è quello
+ *   della scheda e non del telefono, e Android la monta sempre sotto `/storage/<identificativo>`.
+ *   Quindi `/storage/1234-5678/DCIM` vuol dire quella cartella su quella scheda, anche messa in un
+ *   altro telefono, cioè proprio *il corrispettivo di qualsiasi dispositivo*.
+ * ⚠️ **La radice dell'archivio diventa la stringa vuota**, e una radice nasconde solo se stessa (vedi
+ * [covers]): nascosta, spariscono le immagini che vivono proprio là, e le cartelle dentro no.
+ * ⚠️ **Un percorso fuori da un volume resta intero**, come una scheda: non ha niente da portare su un
+ * altro telefono.
  */
 internal fun portablePath(path: String): String {
-    val root = VOLUME_ROOT.find(path) ?: return path
+    val root = PRIMARY_ROOT.find(path) ?: return path.trimEnd('/').ifEmpty { path }
     return path.substring(root.range.last + 1).trim('/')
 }
 
@@ -1172,11 +1179,12 @@ internal fun portablePath(path: String): String {
  * `.../Foo2` e `.../Foobar`, che sono cartelle diverse con un nome che comincia uguale.
  * Chiedendo la barra dopo, si nasconde `Foo` e tutto quello che sta **dentro** `Foo`, che
  * è quello che vuol dire escludere un percorso.
- * ⚠️ **La voce vuota copre solo se stessa**: è la radice di un volume, e con la barra dopo
- * coprirebbe ogni percorso fuori da un volume, che comincia proprio con la barra.
+ * ⚠️ **La radice di un volume copre solo se stessa**, quella del telefono (la voce vuota) come quella
+ * di una scheda: la voce vuota, con la barra dopo, coprirebbe ogni percorso fuori dall'archivio, che
+ * comincia proprio con la barra, e la radice di una scheda coprirebbe la scheda intera.
  */
 private fun covers(entry: String, own: String): Boolean =
-    own == entry || (entry.isNotEmpty() && own.startsWith("$entry/"))
+    own == entry || (entry.isNotEmpty() && !REMOVABLE_ROOT.matches(entry) && own.startsWith("$entry/"))
 
 /**
  * Le voci dell'elenco delle nascoste che coprono la cartella in [path], un percorso intero.

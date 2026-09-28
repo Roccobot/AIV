@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">निर्यात और आयात</string>
     <string name="backup_desc">सेटिंग्स को एक ऐसी फ़ाइल में सहेजें जिसे आप कभी भी आयात कर सकते हैं, Astonishing Image Viewer के आने वाले संस्करणों में भी।</string>
-    <string name="backup_intro">फ़ाइल में नीचे दी गई सेटिंग्स होती हैं, और इसे सिर्फ़ AIV पढ़ सकता है। आयात के समय कूड़ेदान की सामग्री उसमें पहले से मौजूद सामग्री में जुड़ जाती है।</string>
+    <string name="backup_intro">फ़ाइल में नीचे दी गई सेटिंग्स होती हैं, और इसे सिर्फ़ AIV पढ़ सकता है। आयात के समय स्टाइल, रंग, कवर, छिपे फ़ोल्डर और कूड़ेदान पहले से मौजूद चीज़ों में जुड़ जाते हैं।</string>
     <string name="backup_area_view">रूप और नेविगेशन</string>
     <string name="backup_area_editor">एडिटर की सेटिंग्स</string>
     <string name="backup_area_covers">फ़ोल्डरों के कवर</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">निर्यात हो रहा है...</string>
     <string name="backup_importing">आयात हो रहा है...</string>
     <string name="backup_import_from">%1$s, %2$s को निर्यात\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">ये सेटिंग्स मौजूदा सेटिंग्स की जगह ले लेंगी। कूड़ेदान की फ़ाइलें पहले से मौजूद फ़ाइलों में जुड़ जाएँगी।</string>
+    <string name="backup_import_ask">ये सेटिंग्स मौजूदा सेटिंग्स की जगह ले लेंगी, सिवाय स्टाइल, रंग, कवर, छिपे फ़ोल्डर और कूड़ेदान के, जो पहले से मौजूद चीज़ों में जुड़ जाएँगे।</string>
     <string name="backup_unlock">सेटिंग्स फ़ाइल सुरक्षित है: पासवर्ड लिखें।</string>
     <string name="backup_none">फ़ाइल में चुनी गई सेटिंग्स के लिए कोई मान्य मान नहीं है।</string>
 </resources>

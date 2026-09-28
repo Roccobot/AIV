@@ -13,7 +13,9 @@ import coil3.SingletonImageLoader
 import coil3.memory.MemoryCache
 import android.net.Uri as AndroidUri
 import coil3.Uri
+import coil3.Extras
 import coil3.asImage
+import coil3.getExtra
 import coil3.decode.DataSource
 import coil3.decode.DecodeResult
 import coil3.decode.Decoder
@@ -91,19 +93,16 @@ object Thumbs {
     /**
      * Il caricatore con cui 'Genera miniature' prepara la collezione, dalla `2.97`.
      *
-     * ⚠️⚠️ **GENERARE VUOL DIRE LASCIARE QUALCOSA CHE RESTA, E SU DISCO RESTANO DUE COSE SOLE**:
-     * la miniatura che il sistema tiene per ogni riga del MediaStore (`loadThumbnail` la genera e
-     * la salva nella cartella `.thumbnails` del provider, letto nel sorgente AOSP di
-     * `MediaProvider`) e quella di un AVIF in [AvifCache]. ⚠️ **Dalla `2.98` là dentro c'è anche
-     * il fotogramma che AIV sceglie per un video la cui miniatura di sistema è nera o manca** (vedi
-     * [ClipFrames]), quindi la generazione lascia su disco anche quello. Tutto il resto passa dalla decodifica
-     * normale di Coil, che qui non ha una cache su disco: decodificarlo per la generazione vorrebbe
-     * dire un lavoro lungo il cui frutto si butta appena finito.
-     * ⚠️⚠️ **QUINDI QUESTO CARICATORE SI FERMA DOVE QUELLO VERO DECODIFICHEREBBE**: i due fetcher
-     * sono gli stessi, e al posto dei decodificatori c'è [NoDecodeFactory], che chiude il file
-     * senza leggerlo. I file che passano di là sono quelli con la trasparenza, i BMP, gli SVG e
-     * quelli la cui miniatura di sistema è troppo piccola (vedi `tooSmall`): per loro la
-     * generazione non lascia niente, e la griglia li decodifica la prima volta che li mostra.
+     * ⚠️⚠️ **GENERARE VUOL DIRE LASCIARE QUALCOSA CHE RESTA, E DALLA `2.99` RESTA TUTTO**: la miniatura
+     * che il sistema tiene per ogni riga del MediaStore (`loadThumbnail` la genera e la salva nella
+     * cartella `.thumbnails` del provider, letto nel sorgente AOSP di `MediaProvider`), e in
+     * [AvifCache] quella di un AVIF, il fotogramma che AIV sceglie per un video (vedi [ClipFrames]) e
+     * ogni miniatura che passa dalla decodifica normale, cioè i file con la trasparenza, i BMP, gli
+     * SVG e quelli la cui miniatura di sistema è troppo piccola (vedi `tooSmall`). Il perché
+     * dell'ultima vive su [KeepingDecoderFactory].
+     * ⚠️ **Fino alla `2.98` qui c'era un decodificatore che non decodificava**, perché l'ultima classe
+     * non restava da nessuna parte e decodificarla era lavoro buttato. Con la risposta `disco` a
+     * `d-mini-disco` quel lavoro resta, quindi i due caricatori decodificano allo stesso modo.
      * ⚠️ **Niente cache in memoria**, perché quello che si genera non si guarda: tenerlo in caldo
      * vorrebbe dire togliere spazio alle miniature della griglia e alla fotografia grande, che
      * vivono nella stessa memoria (vedi [loader]).
@@ -113,15 +112,9 @@ object Thumbs {
     internal fun warmer(context: PlatformContext): ImageLoader = build(context, warming = true)
 
     /**
-     * Se sul telefono c'è qualcosa da generare: le due strade che lasciano una miniatura su disco
-     * esistono da Android 10, e sotto la griglia decodifica sempre da sé.
-     */
-    val warmable: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-
-    /**
-     * I due caricatori, che differiscono soltanto dove la generazione si ferma.
+     * I due caricatori, che differiscono soltanto per la cache in memoria.
      *
-     * ⚠️ **Una funzione sola per tutti e due**, perché i due fetcher devono essere gli stessi e
+     * ⚠️ **Una funzione sola per tutti e due**, perché i componenti devono essere gli stessi e
      * nello stesso ordine: la generazione serve a preparare quello che la griglia chiederà, e un
      * elenco scritto due volte divergerebbe al primo componente nuovo.
      */
@@ -134,6 +127,12 @@ object Thumbs {
             // perché quello per sapere se un file è un AVIF ne legge la testa: su un video sarebbe
             // una lettura buttata, e questo lo riconosce dall'indirizzo senza aprire niente.
             add(ClipFrameFactory())
+            // ⚠️⚠️ **POI IL DISCO, DALLA `2.99`**: qui si ritrova quello che la decodifica normale ha
+            // già fatto una volta (vedi [KeepingDecoderFactory]), e quello che fa l'AVIF qui sotto.
+            // ⚠️ **Dopo il sistema e non prima**, perché per sapere dov'è il file serve una domanda
+            // al MediaStore: la maggior parte delle miniature la dà il sistema, e là quella domanda
+            // sarebbe spesa per niente.
+            add(DiskThumbnailFactory())
             // ⚠️⚠️ **IL SECONDO SERVE PERCHÉ IL PRIMO SU UN AVIF NON HA NIENTE DA DARE**:
             // `loadThumbnail` e `createImageThumbnail` chiedono al telefono, e il telefono su
             // questi file si rifiuta (vedi [Avif]). Da lì la richiesta proseguirebbe verso la
@@ -144,16 +143,18 @@ object Thumbs {
             // indietro da sé tornando `null`. Invertirli vorrebbe dire decodificare in casa
             // anche i formati per cui il telefono ha già la miniatura pronta.
             add(AvifThumbnailFactory())
-            // ⚠️⚠️ **IL TERZO È UN `Decoder` E NON UN `Fetcher`, e la differenza dice a che
-            // punto della catena entra**: i due sopra prendono la richiesta **prima** che il
+            // ⚠️⚠️ **E PRIMA DI TUTTI I DECODIFICATORI QUELLO CHE TIENE SU DISCO, DALLA `2.99`**: non
+            // decodifica niente da sé, chiede al registro il decodificatore che verrebbe dopo di
+            // lui e ne salva il risultato. Il perché vive su [KeepingDecoderFactory].
+            add(KeepingDecoderFactory())
+            // ⚠️⚠️ **QUELLO DEGLI SVG È UN `Decoder` E NON UN `Fetcher`, e la differenza dice a
+            // che punto della catena entra**: i fetcher sopra prendono la richiesta **prima** che il
             // file venga letto, perché la miniatura può arrivare da un'altra parte; questo
             // entra **dopo**, quando i byte ci sono già e resta solo da capirci un'immagine,
             // che è esattamente il caso di un SVG. ⚠️ Fra i due elenchi non c'è ordine da
             // rispettare, perché Coil li tiene separati: conta solo che sia dichiarato qui,
             // e quindi prima del decodificatore predefinito che di un SVG non sa niente.
-            // ⚠️ **Nella generazione al suo posto c'è quello che non decodifica**, e viene
-            // prima di tutti i decodificatori di serie per la stessa ragione.
-            add(if (warming) NoDecodeFactory() else SvgThumbnailFactory())
+            add(SvgThumbnailFactory())
         }
         .apply { if (warming) memoryCache(null) }
         .diskCache(null)
@@ -211,7 +212,21 @@ object Thumbs {
      * per due strade, e nessuno dei due scelto: la stessa impostazione, letta qui, li rende uno.
      */
     fun request(context: Context, uri: AndroidUri): ImageRequest =
-        ImageRequest.Builder(context).data(uri).size(PX).allowHardware(inGpu).build()
+        ImageRequest.Builder(context).data(uri).size(PX).allowHardware(inGpu)
+            .apply { extras.set(KEPT, uri) }
+            .build()
+
+    /**
+     * L'indirizzo di una miniatura, portato dalla richiesta fino a chi la tiene su disco.
+     *
+     * ⚠️⚠️ **UN DECODIFICATORE NON SA DA QUALE FILE VENGONO I SUOI BYTE**, e la cache su disco ha
+     * bisogno dell'indirizzo come chiave: gli extra di una richiesta arrivano fino alle [Options],
+     * quindi sono la strada che Coil stesso offre. ⚠️ **Non entra nella chiave della cache in
+     * memoria**, perché gli extra ne restano fuori finché non li si dichiara.
+     * ⚠️ **Lo mette [request] e nessun altro**, ed è anche il cancello: una richiesta che non lo
+     * porta, cioè una che non chiede una miniatura, non legge e non scrive niente su disco.
+     */
+    internal val KEPT = Extras.Key<AndroidUri?>(null)
 
     /**
      * Le chiavi di cache delle miniature già viste, per indirizzo.
@@ -702,6 +717,112 @@ private class ClipFrameFactory : Fetcher.Factory<Uri> {
 }
 
 /**
+ * La miniatura già fatta una volta, ritrovata su disco, dalla `2.99`.
+ *
+ * ⚠️⚠️ **È LA RISPOSTA `disco` A `d-mini-disco`** (giro della `2.98`): quello che il sistema non
+ * tiene (i file con la trasparenza, i BMP, gli SVG, e quelli la cui miniatura di sistema è troppo
+ * piccola) passava dalla decodifica normale di Coil e si buttava, quindi a ogni apertura
+ * dell'app si decodificava di nuovo. Adesso lo tiene [KeepingDecoderFactory], e lo ritrova questo.
+ * ⚠️ **Legge anche le miniature degli AVIF**, che fino alla `2.98` le leggeva il loro fetcher: la
+ * cartella è la stessa, e un lettore solo è una domanda sola al MediaStore per richiesta.
+ * ⚠️ **I filmati no**: il loro fotogramma lo cerca e lo ritrova [ClipFrameFetcher], che viene
+ * prima, e arrivare qui vorrebbe dire una domanda in più per un file che non ha niente su disco.
+ * ⚠️ **Se non trova niente passa la mano**, come vuole il contratto di `Fetcher`.
+ */
+private class DiskThumbnailFetcher(
+    private val data: Uri,
+    private val options: Options,
+) : Fetcher {
+
+    override suspend fun fetch(): FetchResult? = withContext(Dispatchers.IO) {
+        val pronta = AvifCache.read(options.context, data.toAndroidUri(), boxOf(options))
+            ?: return@withContext null
+        ImageFetchResult(
+            image = pronta.inGraphics(options).asImage(),
+            isSampled = true,
+            dataSource = DataSource.DISK
+        )
+    }
+}
+
+/**
+ * Chi decide se il lettore del disco serve: per una miniatura chiesta da [Thumbs.request] che non
+ * sia un filmato, e per il resto mai.
+ *
+ * ⚠️ **Lo dice la richiesta e non i byte**, quindi `create` non tocca il disco, che è il patto di
+ * una fabbrica.
+ */
+private class DiskThumbnailFactory : Fetcher.Factory<Uri> {
+    override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
+        if (options.getExtra(Thumbs.KEPT) == null) return null
+        val scheme = data.scheme?.lowercase()
+        if (scheme != "content" && scheme != "file") return null
+        return if (Videos.isVideo(data.toAndroidUri())) null else DiskThumbnailFetcher(data, options)
+    }
+}
+
+/**
+ * Il decodificatore che tiene su disco quello che la decodifica normale ha fatto, dalla `2.99`.
+ *
+ * ⚠️⚠️ **NON DECODIFICA NIENTE DA SÉ**: chiede al registro il decodificatore che verrebbe dopo di
+ * lui (`newDecoder` con l'indice successivo al suo), lo fa lavorare e ne salva il risultato in
+ * [AvifCache]. Così la cache vale per tutto quello che arriva alla decodifica, cioè per le classi
+ * di file che il sistema non serve, e per nessun'altra: una miniatura che il sistema ha già in
+ * mano non passa di qui, e non occupa spazio due volte.
+ * ⚠️⚠️ **UN `Decoder` E NON UN INTERCETTORE, ed è la sola strada che dice CHI ha fatto la
+ * miniatura**: un intercettore vede ogni risultato, e da fuori una miniatura del sistema, una di un
+ * AVIF e una decodificata sono tutte e tre `DataSource.DISK`. Qui arriva soltanto la terza.
+ * ⚠️ **L'indirizzo arriva dagli extra** ([Thumbs.KEPT]), perché un decodificatore riceve i byte e
+ * non sa da quale file vengono. Senza quell'extra si tira indietro, quindi una richiesta che non
+ * chiede una miniatura non scrive niente su disco.
+ * ⚠️ **Se il suo posto nel registro non si trova si tira indietro**: cercare dal primo vorrebbe dire
+ * ritrovare se stesso, cioè chiamarsi all'infinito.
+ */
+private class KeepingDecoderFactory : Decoder.Factory {
+    override fun create(result: SourceFetchResult, options: Options, imageLoader: ImageLoader): Decoder? {
+        val uri = options.getExtra(Thumbs.KEPT) ?: return null
+        val registry = imageLoader.components
+        val me = registry.decoderFactories.indexOf(this)
+        if (me < 0) return null
+        val next = registry.newDecoder(result, options, imageLoader, me + 1)?.first ?: return null
+        return KeepingDecoder(next, uri, options)
+    }
+}
+
+private class KeepingDecoder(
+    private val next: Decoder,
+    private val uri: AndroidUri,
+    private val options: Options,
+) : Decoder {
+
+    override suspend fun decode(): DecodeResult? {
+        val result = next.decode() ?: return null
+        val image = result.image as? coil3.BitmapImage ?: return result
+        withContext(Dispatchers.IO) {
+            // ⚠️ **Una bitmap in memoria grafica si copia prima di comprimerla**: i suoi pixel non
+            // sono leggibili da qui, e `compress` su di lei dipende dalla versione di Android.
+            val bitmap = image.bitmap.let {
+                if (it.config == Bitmap.Config.HARDWARE) it.copy(Bitmap.Config.ARGB_8888, false) else it
+            } ?: return@withContext
+            AvifCache.write(options.context, uri, boxOf(options), bitmap)
+        }
+        return result
+    }
+}
+
+/**
+ * Il lato con cui una miniatura si ritrova su disco, uguale per chi scrive e per chi legge.
+ *
+ * ⚠️ **Una funzione sola per chi scrive e per chi legge** (il lettore del disco, il decodificatore
+ * che tiene e l'AVIF): la chiave del disco porta questo numero, e due conti diversi farebbero
+ * scrivere una miniatura che nessuno ritrova.
+ */
+private fun boxOf(options: Options): Int = maxOf(
+    options.size.width.pxOrElse { FALLBACK_PX },
+    options.size.height.pxOrElse { FALLBACK_PX }
+)
+
+/**
  * La miniatura di un AVIF, fatta da libavif invece che dal telefono, e tenuta su disco.
  *
  * ⚠️ **Costa quanto aprire l'immagine intera la PRIMA volta**, e va detto invece di lasciarlo
@@ -727,22 +848,11 @@ private class AvifThumbnailFetcher(
     override suspend fun fetch(): FetchResult? = withContext(Dispatchers.IO) {
         if (!Avif.ready) return@withContext null
         val uri = data.toAndroidUri()
-        val box = maxOf(
-            options.size.width.pxOrElse { FALLBACK_PX },
-            options.size.height.pxOrElse { FALLBACK_PX }
-        )
+        val box = boxOf(options)
 
-        // ⚠️⚠️ **PRIMA IL DISCO, e questa è tutta la correzione**: sta prima di aprire il
-        // file, perché aprirlo vorrebbe dire portare in memoria venticinque megabyte per poi
-        // scoprire che la miniatura c'era già.
-        AvifCache.read(options.context, uri, box)?.let { pronta ->
-            return@withContext ImageFetchResult(
-                image = pronta.inGraphics(options).asImage(),
-                isSampled = true,
-                dataSource = DataSource.DISK
-            )
-        }
-
+        // ⚠️ **Il disco l'ha già guardato [DiskThumbnailFetcher]**, che viene prima nella catena:
+        // arrivare qui vuol dire che la miniatura non c'era. Fino alla `2.98` la lettura viveva in
+        // questo punto, e dalla `2.99` il lettore è uno solo per tutto quello che sta su disco.
         /*
          * ⚠️ **Si legge il file INTERO e non a pezzi**, perché libavif vuole tutto il flusso
          * in un buffer diretto: non esiste un modo di decodificare un AVIF leggendone solo la
@@ -856,35 +966,6 @@ private class SvgThumbnailFactory : Decoder.Factory {
         result.source.source().peek().read(head, Svg.SNIFF.toLong())
         Svg.looksLike(head.readByteArray())
     }.getOrDefault(false)
-}
-
-/**
- * Il decodificatore della generazione, che non decodifica niente: vedi [Thumbs.warmer].
- *
- * ⚠️⚠️ **ARRIVA QUI QUELLO CHE LA GRIGLIA DECODIFICHEREBBE DA SÉ, E PER LA GENERAZIONE SAREBBE
- * LAVORO BUTTATO**: i due fetcher lasciano su disco la miniatura del sistema e quella di un AVIF,
- * mentre tutto quello che scende fin qui (la trasparenza, i BMP, gli SVG, le miniature di sistema
- * troppo piccole) diventerebbe una bitmap che questo caricatore non tiene da nessuna parte. Il file
- * l'ha già aperto il fetcher di Coil, e di lui non si legge un byte.
- * ⚠️ **La sorgente la chiude Coil a decodifica finita**, letto nel bytecode di `EngineInterceptor`:
- * la passa a `closeQuietly` qualunque cosa il decodificatore risponda, quindi qui non si chiude
- * niente.
- * ⚠️⚠️ **SI RISPONDE CON UN SEGNAPOSTO E NON CON `null`**, perché `null` vuol dire 'passo la mano':
- * nello stesso bytecode un risultato nullo fa chiedere al registro il decodificatore successivo,
- * cioè proprio la decodifica che questo pezzo esiste per saltare. Un pixel costa quattro byte, e
- * non finisce in nessuna cache, perché questo caricatore in memoria non tiene niente.
- * ⚠️ **Sta prima dei decodificatori di serie per la stessa ragione di [SvgThumbnailFactory]**: il
- * registro di Coil parte dai componenti dichiarati e accoda i suoi.
- */
-private class NoDecodeFactory : Decoder.Factory {
-    override fun create(result: SourceFetchResult, options: Options, imageLoader: ImageLoader): Decoder =
-        object : Decoder {
-            override suspend fun decode(): DecodeResult = DecodeResult(
-                image = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888).asImage(),
-                // Campionata perché lo è: non è l'immagine, è niente al suo posto.
-                isSampled = true
-            )
-        }
 }
 
 /**

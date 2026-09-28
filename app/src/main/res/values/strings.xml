@@ -809,7 +809,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Export and import</string>
     <string name="backup_desc">Save the settings to a file you can import at any time, even with future versions of Astonishing Image Viewer.</string>
-    <string name="backup_intro">The file includes the settings below, and only AIV can read it. The contents of the bin are added to what is already there at the time of the import.</string>
+    <string name="backup_intro">The file includes the settings below, and only AIV can read it. When it is imported, styles, colors, covers, hidden folders and the bin are added to what is already there.</string>
     <string name="backup_area_view">Appearance and navigation</string>
     <string name="backup_area_editor">Editor settings</string>
     <string name="backup_area_covers">Folder covers</string>
@@ -835,7 +835,7 @@
     <string name="backup_exporting">Exporting...</string>
     <string name="backup_importing">Importing...</string>
     <string name="backup_import_from">Exported on %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">These settings will replace the current ones. The files in the bin will be added to those already there.</string>
+    <string name="backup_import_ask">These settings will replace the current ones, except styles, colors, covers, hidden folders and the bin, which will be added to those already there.</string>
     <string name="backup_unlock">The settings file is protected: enter the password.</string>
     <string name="backup_none">The file contains no valid values for the selected settings.</string>
 </resources>

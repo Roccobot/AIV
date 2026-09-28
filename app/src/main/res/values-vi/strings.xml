@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Xuất và nhập</string>
     <string name="backup_desc">Lưu cài đặt vào một tệp mà bạn có thể nhập bất cứ lúc nào, kể cả với các phiên bản sau này của Astonishing Image Viewer.</string>
-    <string name="backup_intro">Tệp chứa các cài đặt bên dưới, và chỉ AIV đọc được. Nội dung thùng rác được thêm vào những gì đã có trong đó lúc nhập.</string>
+    <string name="backup_intro">Tệp chứa các cài đặt bên dưới, và chỉ AIV đọc được. Khi nhập, kiểu, màu, ảnh bìa, thư mục ẩn và thùng rác được thêm vào những gì đã có.</string>
     <string name="backup_area_view">Giao diện và điều hướng</string>
     <string name="backup_area_editor">Cài đặt trình chỉnh sửa</string>
     <string name="backup_area_covers">Ảnh bìa thư mục</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">Đang xuất...</string>
     <string name="backup_importing">Đang nhập...</string>
     <string name="backup_import_from">Xuất lúc %2$s ngày %1$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Các cài đặt này sẽ thay thế cài đặt hiện tại. Các tệp trong thùng rác sẽ được thêm vào những tệp đã có.</string>
+    <string name="backup_import_ask">Các cài đặt này sẽ thay thế cài đặt hiện tại, trừ kiểu, màu, ảnh bìa, thư mục ẩn và thùng rác, những thứ này sẽ được thêm vào những gì đã có.</string>
     <string name="backup_unlock">Tệp cài đặt được bảo vệ: hãy nhập mật khẩu.</string>
     <string name="backup_none">Tệp không chứa giá trị hợp lệ nào cho các cài đặt đã chọn.</string>
 </resources>

@@ -265,7 +265,11 @@ class NascosteTest {
      *
      * ⚠️⚠️ **È LA SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`: *se nascondo
      * /DCIM/Temp da un dispositivo, dovrebbe essere nascosto anche su un altro dispositivo*): quello
-     * che cambia da un telefono all'altro è la radice, cioè il numero dell'utente e l'identificativo di una scheda.
+     * che cambia da un telefono all'altro è la radice dell'archivio del telefono, cioè il numero
+     * dell'utente e i nomi storici.
+     * ⚠️⚠️ **UNA SCHEDA RESTA INTERA DALLA `2.99`**, ed è la sua nota sulla voce `nascoste-percorsi`
+     * (*preferirei che si nascondesse solo la cartella nel percorso specifico*): l'identificativo è
+     * della scheda e non del telefono, quindi il percorso intero la ritrova su ogni telefono.
      * ⚠️ **Le forme che NON sono un volume restano intere**, ed è la metà che tiene onesta l'altra:
      * `emulated` senza il numero, un nome che comincia come `sdcard` e un percorso fuori da
      * `/storage`. Una radice riconosciuta troppo larga toglierebbe un pezzo che da un telefono
@@ -280,7 +284,8 @@ class NascosteTest {
         assertEquals("DCIM/Temp", portablePath("/sdcard/DCIM/Temp"))
         assertEquals("DCIM", portablePath("/mnt/sdcard/DCIM"))
         assertEquals("Pictures", portablePath("/storage/self/primary/Pictures"))
-        assertEquals("una scheda", "Scan", portablePath("/storage/1234-5678/Scan"))
+        assertEquals("una scheda resta intera", "/storage/1234-5678/Scan", portablePath("/storage/1234-5678/Scan"))
+        assertEquals("la radice di una scheda", "/storage/1234-5678", portablePath("/storage/1234-5678/"))
         assertEquals("la radice del volume", "", portablePath("/storage/emulated/0"))
         assertEquals(
             "emulated senza il numero non è un volume",
@@ -292,11 +297,13 @@ class NascosteTest {
     }
 
     /**
-     * **Una voce nasconde la cartella e quello che ha dentro, su ogni volume, e niente di più.**
+     * **Una voce nasconde la cartella del suo volume e quello che ha dentro, e niente di più.**
      *
-     * ⚠️⚠️ **SU OGNI VOLUME È LA CONSEGUENZA DICHIARATA DELLA SUA RICHIESTA**: `DCIM/Temp` nasconde
-     * quella cartella sull'archivio del telefono e sulla scheda, perché l'identificativo della scheda
-     * è proprio la parte che non si porta su un altro telefono.
+     * ⚠️⚠️ **DALLA `2.99` UNA VOCE VALE SUL SUO VOLUME SOLO**, ed è la sua nota sulla voce
+     * `nascoste-percorsi` del giro della `2.98`: `DCIM/Temp` nasconde quella cartella sul telefono e
+     * non sulla scheda, e `/storage/1234-5678/DCIM/Temp` quella della scheda e non del telefono. Dalla
+     * `2.96` alla `2.98` la prima nascondeva tutte e due, e questa prova lo diceva.
+     * ⚠️ **La radice di una scheda copre solo se stessa**, come quella del telefono.
      * ⚠️ **Il separatore resta il confine**, come dalla `0.84`: `Temp2` è un'altra cartella, e il
      * genitore di una cartella nascosta non è nascosto.
      * ⚠️ **La radice copre solo se stessa**: con la barra dopo, la voce vuota coprirebbe ogni
@@ -306,10 +313,19 @@ class NascosteTest {
      * fuori da un volume, e togliendo la barra dal confronto cade quella del separatore.
      */
     @Test
-    fun `una voce nasconde la cartella e quello che ha dentro su ogni volume`() {
+    fun `una voce nasconde la cartella del suo volume e quello che ha dentro`() {
         val voce = setOf("DCIM/Temp")
         assertTrue(hiddenIn(voce, "/storage/emulated/0/DCIM/Temp"))
-        assertTrue("sulla scheda", hiddenIn(voce, "/storage/1234-5678/DCIM/Temp"))
+        assertFalse("non sulla scheda", hiddenIn(voce, "/storage/1234-5678/DCIM/Temp"))
+        val scheda = setOf(portablePath("/storage/1234-5678/DCIM/Temp"))
+        assertTrue("sulla scheda", hiddenIn(scheda, "/storage/1234-5678/DCIM/Temp/Vecchie"))
+        assertFalse("la voce della scheda non vale sul telefono", hiddenIn(scheda, "/storage/emulated/0/DCIM/Temp"))
+        assertFalse("su un'altra scheda", hiddenIn(scheda, "/storage/ABCD-EF01/DCIM/Temp"))
+        assertTrue("la radice di una scheda", hiddenIn(setOf("/storage/1234-5678"), "/storage/1234-5678"))
+        assertFalse(
+            "la radice di una scheda copre solo se stessa",
+            hiddenIn(setOf("/storage/1234-5678"), "/storage/1234-5678/DCIM")
+        )
         assertTrue("dentro", hiddenIn(voce, "/storage/emulated/0/DCIM/Temp/Vecchie"))
         assertFalse("il separatore", hiddenIn(voce, "/storage/emulated/0/DCIM/Temp2"))
         assertFalse("il genitore", hiddenIn(voce, "/storage/emulated/0/DCIM"))
@@ -378,7 +394,7 @@ class NascosteTest {
 
         val dopo = HiddenMigration.migrate(prima)
 
-        assertEquals(setOf("Musica", "DCIM/Temp", "Scan", "/data/x"), dopo[HIDDEN_FOLDERS])
+        assertEquals(setOf("Musica", "DCIM/Temp", "/storage/1234-5678/Scan", "/data/x"), dopo[HIDDEN_FOLDERS])
         assertNull("la chiave vecchia se ne va", dopo[HIDDEN_FOLDERS_ABSOLUTE])
         assertFalse("tradotta, non gira una seconda volta", HiddenMigration.shouldMigrate(dopo))
         assertFalse("su un archivio senza la chiave vecchia non gira", HiddenMigration.shouldMigrate(emptyPreferences()))

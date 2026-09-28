@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * una cache dell'intera collezione*, e *appare una pagina semplice con numero X/Y (X foto su Y
  * totali), una barra di progresso, un titolo 'Generazione delle miniature' e un tasto 'Annulla'; è
  * aggiornata man mano che si procede e alla fine del procedimento un avviso dirà 'Miniature generate
- * correttamente.'*). Che cosa resta su disco, e perché per alcuni file non resta niente, vive su
+ * correttamente.'*). Che cosa resta su disco, e perché dalla `2.99` resta tutto, vive su
  * [Thumbs.warmer].
  *
  * ⚠️⚠️ **VIVE COL PROCESSO E NON CON LA PAGINA, COME IL BACKUP** ([Backups]): su una collezione

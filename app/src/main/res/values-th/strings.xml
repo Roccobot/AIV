@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">ส่งออกและนำเข้า</string>
     <string name="backup_desc">บันทึกการตั้งค่าลงในไฟล์ที่คุณนำเข้าได้ทุกเมื่อ แม้กับ Astonishing Image Viewer เวอร์ชันต่อไปในอนาคต</string>
-    <string name="backup_intro">ไฟล์นี้มีการตั้งค่าด้านล่าง และมีเพียง AIV ที่อ่านได้ เนื้อหาในถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้วตอนนำเข้า</string>
+    <string name="backup_intro">ไฟล์นี้มีการตั้งค่าด้านล่าง และมีเพียง AIV ที่อ่านได้ ตอนนำเข้า สไตล์ สี ภาพปก โฟลเดอร์ที่ซ่อน และถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
     <string name="backup_area_view">รูปลักษณ์และการนำทาง</string>
     <string name="backup_area_editor">การตั้งค่าตัวแก้ไข</string>
     <string name="backup_area_covers">ภาพปกของโฟลเดอร์</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">กำลังส่งออก...</string>
     <string name="backup_importing">กำลังนำเข้า...</string>
     <string name="backup_import_from">ส่งออกเมื่อ %1$s %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">การตั้งค่าเหล่านี้จะแทนที่การตั้งค่าปัจจุบัน ไฟล์ในถังขยะจะถูกเพิ่มเข้าไปในไฟล์ที่มีอยู่แล้ว</string>
+    <string name="backup_import_ask">การตั้งค่าเหล่านี้จะแทนที่การตั้งค่าปัจจุบัน ยกเว้นสไตล์ สี ภาพปก โฟลเดอร์ที่ซ่อน และถังขยะ ซึ่งจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
     <string name="backup_unlock">ไฟล์การตั้งค่าได้รับการป้องกัน: ป้อนรหัสผ่าน</string>
     <string name="backup_none">ไฟล์ไม่มีค่าที่ใช้ได้สำหรับการตั้งค่าที่เลือก</string>
 </resources>

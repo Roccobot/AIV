@@ -634,7 +634,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exporter et importer</string>
     <string name="backup_desc">Enregistre les réglages dans un fichier que tu pourras importer à tout moment, même avec les futures versions d\'Astonishing Image Viewer.</string>
-    <string name="backup_intro">Le fichier contient les réglages ci-dessous, et seul AIV sait le lire. Le contenu de la corbeille s\'ajoute à celui qui s\'y trouve déjà au moment de l\'importation.</string>
+    <string name="backup_intro">Le fichier contient les réglages ci-dessous, et seul AIV sait le lire. À l\'importation, les styles, les couleurs, les couvertures, les dossiers masqués et la corbeille s\'ajoutent à ce qui s\'y trouve déjà.</string>
     <string name="backup_area_view">Apparence et navigation</string>
     <string name="backup_area_editor">Réglages de l\'éditeur</string>
     <string name="backup_area_covers">Couvertures des dossiers</string>
@@ -660,7 +660,7 @@
     <string name="backup_exporting">Exportation...</string>
     <string name="backup_importing">Importation...</string>
     <string name="backup_import_from">Exportation du %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Ces réglages remplaceront les actuels. Les fichiers de la corbeille s\'ajouteront à ceux qui s\'y trouvent déjà.</string>
+    <string name="backup_import_ask">Ces réglages remplaceront les actuels, sauf les styles, les couleurs, les couvertures, les dossiers masqués et la corbeille, qui s\'ajouteront à ce qui s\'y trouve déjà.</string>
     <string name="backup_unlock">Le fichier de réglages est protégé : saisis le mot de passe.</string>
     <string name="backup_none">Le fichier ne contient aucune valeur valide pour les réglages sélectionnés.</string>
 </resources>

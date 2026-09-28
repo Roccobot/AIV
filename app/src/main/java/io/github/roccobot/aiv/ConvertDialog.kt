@@ -161,7 +161,7 @@ fun ConvertDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.oneOf()
                 ) {
-                    Convert.Target.entries.forEach { option ->
+                    Convert.Target.entries.filter { it.offered }.forEach { option ->
                         FilterChip(
                             selected = option == target,
                             onClick = { target = option },

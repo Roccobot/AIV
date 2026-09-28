@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">匯出與匯入</string>
     <string name="backup_desc">將設定儲存到檔案中，可隨時匯入，包括在 Astonishing Image Viewer 的未來版本中。</string>
-    <string name="backup_intro">檔案包含下方的設定，只有 AIV 能讀取。匯入時，回收筒的內容會加入已有的內容中。</string>
+    <string name="backup_intro">檔案包含下方的設定，只有 AIV 能讀取。匯入時，樣式、顏色、封面、隱藏的資料夾和回收筒會加入已有的內容中。</string>
     <string name="backup_area_view">外觀與導覽</string>
     <string name="backup_area_editor">編輯器設定</string>
     <string name="backup_area_covers">資料夾封面</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">正在匯出...</string>
     <string name="backup_importing">正在匯入...</string>
     <string name="backup_import_from">匯出於 %1$s %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">這些設定將取代目前的設定。回收筒中的檔案將加入已有的檔案中。</string>
+    <string name="backup_import_ask">這些設定將取代目前的設定，但樣式、顏色、封面、隱藏的資料夾和回收筒除外，它們將加入已有的內容中。</string>
     <string name="backup_unlock">設定檔受保護：請輸入密碼。</string>
     <string name="backup_none">檔案中沒有所選設定的有效數值。</string>
 </resources>

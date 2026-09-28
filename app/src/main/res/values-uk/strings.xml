@@ -652,7 +652,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Експорт та імпорт</string>
     <string name="backup_desc">Збережіть налаштування у файл, який можна імпортувати будь-коли, навіть у майбутніх версіях Astonishing Image Viewer.</string>
-    <string name="backup_intro">Файл містить налаштування нижче, і прочитати його може лише AIV. Вміст кошика додається до того, що вже є в ньому на момент імпорту.</string>
+    <string name="backup_intro">Файл містить налаштування нижче, і прочитати його може лише AIV. Під час імпорту стилі, кольори, обкладинки, приховані папки й кошик додаються до того, що вже є.</string>
     <string name="backup_area_view">Вигляд і навігація</string>
     <string name="backup_area_editor">Налаштування редактора</string>
     <string name="backup_area_covers">Обкладинки тек</string>
@@ -678,7 +678,7 @@
     <string name="backup_exporting">Експорт...</string>
     <string name="backup_importing">Імпорт...</string>
     <string name="backup_import_from">Експорт від %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Ці налаштування замінять поточні. Файли з кошика додадуться до тих, що в ньому вже є.</string>
+    <string name="backup_import_ask">Ці налаштування замінять поточні, крім стилів, кольорів, обкладинок, прихованих папок і кошика: вони додадуться до того, що вже є.</string>
     <string name="backup_unlock">Файл налаштувань захищено: введіть пароль.</string>
     <string name="backup_none">У файлі немає допустимих значень для вибраних налаштувань.</string>
 </resources>

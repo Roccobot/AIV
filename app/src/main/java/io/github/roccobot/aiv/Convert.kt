@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import androidx.annotation.StringRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -35,23 +36,70 @@ object Convert {
      * ⚠️ **`quality` è l'unico parametro che l'API accetta**, e sul senza perdita non conta
      * niente: la voce lo dichiara con [lossy] invece di lasciare in scena un cursore che non
      * fa nulla.
+     *
+     * ⚠️⚠️ **IL FORMATO NON È PIÙ UN CAMPO DELLA VOCE, DALLA `2.99`, E FINO ALLA `2.98` L'APP
+     * CADEVA SU ANDROID 9 E 10 APRENDO QUESTA FINESTRA** (segnalazione dell'utente, 2026-09-28:
+     * *offre due formati WebP che esistono solo da Android 11, mentre l'app si installa da
+     * Android 9*). Un campo si legge quando l'elenco si costruisce, cioè alla prima voce toccata, e
+     * `WEBP_LOSSY` e `WEBP_LOSSLESS` sotto Android 11 non esistono: leggerli fa fallire
+     * l'inizializzazione dell'elenco intero, JPEG compreso. Adesso lo dice [format], che guarda la
+     * versione prima di nominarli. È lo stesso difetto che la `2.98` ha trovato in `AvifCache`.
      */
     enum class Target(
-        val format: Bitmap.CompressFormat,
         val extension: String,
         val mime: String,
         val lossy: Boolean,
         @param:StringRes val label: Int
     ) {
-        JPEG(Bitmap.CompressFormat.JPEG, "jpg", "image/jpeg", true, R.string.convert_jpeg),
-        PNG(Bitmap.CompressFormat.PNG, "png", "image/png", false, R.string.convert_png),
-        WEBP_LOSSY(
-            Bitmap.CompressFormat.WEBP_LOSSY, "webp", "image/webp", true, R.string.convert_webp
-        ),
-        WEBP_LOSSLESS(
-            Bitmap.CompressFormat.WEBP_LOSSLESS, "webp", "image/webp", false,
-            R.string.convert_webp_lossless
-        );
+        JPEG("jpg", "image/jpeg", true, R.string.convert_jpeg),
+        PNG("png", "image/png", false, R.string.convert_png),
+        WEBP_LOSSY("webp", "image/webp", true, R.string.convert_webp),
+        WEBP_LOSSLESS("webp", "image/webp", false, R.string.convert_webp_lossless);
+
+        /**
+         * Il formato con cui Android scrive questa voce.
+         *
+         * ⚠️ **Sotto Android 11 le due WebP sono la stessa costante, `WEBP`**, che sceglie con la
+         * qualità: sotto 100 comprime con perdita, a 100 senza (vedi [qualityFor]). È la scelta di
+         * `ImageEdit`, di `FolderCover` e di `AvifCache`.
+         */
+        val format: Bitmap.CompressFormat
+            get() = when (this) {
+                JPEG -> Bitmap.CompressFormat.JPEG
+                PNG -> Bitmap.CompressFormat.PNG
+                WEBP_LOSSY -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    Bitmap.CompressFormat.WEBP_LOSSY
+                } else {
+                    @Suppress("DEPRECATION") Bitmap.CompressFormat.WEBP
+                }
+                WEBP_LOSSLESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    Bitmap.CompressFormat.WEBP_LOSSLESS
+                } else {
+                    @Suppress("DEPRECATION") Bitmap.CompressFormat.WEBP
+                }
+            }
+
+        /**
+         * La qualità da passare a `compress`, da quella che la finestra ha in mano.
+         *
+         * ⚠️ **Il senza perdita sotto Android 11 vuole 100**: con `WEBP` è la qualità a dire se si
+         * perde, e il cursore sul senza perdita non c'è, quindi il valore che la finestra passa
+         * non ha niente a che vedere con questa voce.
+         */
+        fun qualityFor(quality: Int): Int = if (this == WEBP_LOSSLESS) 100 else quality.coerceIn(1, 100)
+
+        /**
+         * Se il telefono sa scrivere questa voce.
+         *
+         * ⚠️⚠️ **LA WEBP SENZA PERDITA NON C'È SU ANDROID 9**: là `WEBP` a qualità 100 comprime
+         * ancora con perdita, e il senza perdita a quella qualità nasce con Android 10 (lo dichiara
+         * la documentazione di `CompressFormat.WEBP`, dalla versione Q). Offrirla vorrebbe dire
+         * scrivere un file che dice di non perdere niente e perde. ⚠️ **Il banco la misura su
+         * Android 9 e 10 veri** (`ConvertiTest`), che è anche il solo posto in cui si vede il
+         * difetto della `2.98`.
+         */
+        val offered: Boolean
+            get() = this != WEBP_LOSSLESS || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
         /**
          * ⚠️⚠️ **IL JPEG NON HA LA TRASPARENZA, e va detto PRIMA e non dopo**: convertendo
@@ -132,7 +180,7 @@ object Convert {
         val flat = if (target.keepsAlpha) scaled else flatten(scaled)
         val done = runCatching {
             context.contentResolver.openOutputStream(destination)?.use { out ->
-                flat.compress(target.format, quality.coerceIn(1, 100), out)
+                flat.compress(target.format, target.qualityFor(quality), out)
             } ?: false
         }.getOrDefault(false)
         if (flat !== scaled) flat.recycle()

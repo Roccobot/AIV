@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -399,7 +400,7 @@ internal object Backups {
  * da una finestra'). Come riga, si esce dalla pagina e il lavoro continua.
  */
 @Composable
-internal fun BackupPage() {
+internal fun ColumnScope.BackupPage() {
     val context = LocalContext.current
     // ⚠️ Gli stili sono dell'editor completo, e dove quello non c'è la loro casella non avrebbe niente
     // da portare: è lo stesso criterio della loro pagina.
@@ -437,31 +438,46 @@ internal fun BackupPage() {
         }
     }
 
-    Detail(stringResource(R.string.backup_intro))
-    offered.forEach { area ->
-        CheckRow(
-            label = stringResource(area.label),
-            detail = if (area == BackupArea.BIN && binBytes > 0L) formatBytes(binBytes) else null,
-            checked = area in chosen,
-            onChange = { acceso -> chosen = if (acceso) chosen + area else chosen - area }
+    /*
+     * ⚠️⚠️ **LE VOCI SCORRONO E I DUE TASTI NO, DALLA `2.99`, ED È SUA RICHIESTA** (nota sulla voce
+     * `backup-caselle` del giro della `2.98`: *fa' sì che se proprio è necessario scorrere loro restino
+     * sempre posizionati in fondo in un elemento fisso*). Fino alla `2.98` la pagina scorreva tutta,
+     * quindi su un telefono basso i tasti erano sotto il bordo. Adesso il guscio non scorre
+     * (`scrolls = false`) e scorre la sola colonna delle voci, che prende quello che resta.
+     * ⚠️ **Le voci sono più strette** ([CheckRow] con `tight`), che è l'altra metà della stessa nota
+     * (*restringi LEGGERMENTE l'interlinea*): sul telefono più diffuso la pagina intera ci sta senza
+     * scorrere, e il resto lo garantisce la fila fissa.
+     */
+    Column(
+        modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Detail(stringResource(R.string.backup_intro))
+        offered.forEach { area ->
+            CheckRow(
+                label = stringResource(area.label),
+                detail = if (area == BackupArea.BIN && binBytes > 0L) formatBytes(binBytes) else null,
+                checked = area in chosen,
+                onChange = { acceso -> chosen = if (acceso) chosen + area else chosen - area },
+                tight = true
+            )
+        }
+        SwitchRow(
+            label = stringResource(R.string.backup_lock),
+            detail = stringResource(R.string.backup_lock_desc),
+            checked = lock,
+            onChange = { lock = it }
         )
     }
-    SwitchRow(
-        label = stringResource(R.string.backup_lock),
-        detail = stringResource(R.string.backup_lock_desc),
-        checked = lock,
-        onChange = { lock = it }
-    )
 
+    /*
+     * ⚠️ **'Importa' a sinistra ed 'Esporta' a destra, dalla `2.99`**, ed è la stessa nota (*scambia la
+     * posizione di `Esporta` e `Importa`*).
+     */
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Button(
-            onClick = { if (lock) asking = true else avvia(null) },
-            enabled = busy == null && scelte.isNotEmpty(),
-            modifier = Modifier.weight(1f)
-        ) { Text(stringResource(R.string.backup_export)) }
         Button(
             onClick = {
                 val aperto = runCatching { importa.launch(arrayOf(ANY_FILE)) }
@@ -470,6 +486,11 @@ internal fun BackupPage() {
             enabled = busy == null && scelte.isNotEmpty(),
             modifier = Modifier.weight(1f)
         ) { Text(stringResource(R.string.backup_import)) }
+        Button(
+            onClick = { if (lock) asking = true else avvia(null) },
+            enabled = busy == null && scelte.isNotEmpty(),
+            modifier = Modifier.weight(1f)
+        ) { Text(stringResource(R.string.backup_export)) }
     }
 
     if (busy != null) {

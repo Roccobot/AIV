@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">निर्यात आणि आयात</string>
     <string name="backup_desc">सेटिंग्ज अशा फाइलमध्ये जतन करा जी तुम्ही कधीही आयात करू शकता, Astonishing Image Viewer च्या पुढील आवृत्त्यांमध्येसुद्धा.</string>
-    <string name="backup_intro">फाइलमध्ये खालील सेटिंग्ज असतात, आणि ती फक्त AIV वाचू शकते. आयातीच्या वेळी कचरापेटीतील सामग्री आधीपासून असलेल्या सामग्रीत जोडली जाते.</string>
+    <string name="backup_intro">फाइलमध्ये खालील सेटिंग्ज असतात, आणि ती फक्त AIV वाचू शकते. आयातीच्या वेळी शैली, रंग, मुखपृष्ठे, लपवलेले फोल्डर आणि कचरापेटी आधीपासून असलेल्यांत जोडले जातात.</string>
     <string name="backup_area_view">स्वरूप आणि नेव्हिगेशन</string>
     <string name="backup_area_editor">एडिटरच्या सेटिंग्ज</string>
     <string name="backup_area_covers">फोल्डरची मुखपृष्ठे</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">निर्यात होत आहे...</string>
     <string name="backup_importing">आयात होत आहे...</string>
     <string name="backup_import_from">%1$s, %2$s रोजी निर्यात\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">या सेटिंग्ज सध्याच्या सेटिंग्जची जागा घेतील. कचरापेटीतील फाइल आधीपासून असलेल्या फाइलमध्ये जोडल्या जातील.</string>
+    <string name="backup_import_ask">या सेटिंग्ज सध्याच्या सेटिंग्जची जागा घेतील, फक्त शैली, रंग, मुखपृष्ठे, लपवलेले फोल्डर आणि कचरापेटी सोडून, जे आधीपासून असलेल्यांत जोडले जातील.</string>
     <string name="backup_unlock">सेटिंग्ज फाइल संरक्षित आहे: पासवर्ड लिहा.</string>
     <string name="backup_none">निवडलेल्या सेटिंग्जसाठी फाइलमध्ये कोणतीही वैध मूल्ये नाहीत.</string>
 </resources>

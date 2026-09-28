@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Hamisha na kuingiza</string>
     <string name="backup_desc">Hifadhi mipangilio kwenye faili ambayo unaweza kuiingiza wakati wowote, hata kwa matoleo yajayo ya Astonishing Image Viewer.</string>
-    <string name="backup_intro">Faili hii ina mipangilio iliyo hapa chini, na ni AIV pekee inayoweza kuisoma. Yaliyomo kwenye tapishi huongezwa kwenye yaliyopo tayari wakati wa kuingiza.</string>
+    <string name="backup_intro">Faili hii ina mipangilio iliyo hapa chini, na ni AIV pekee inayoweza kuisoma. Wakati wa kuingiza, mitindo, rangi, majalada, folda zilizofichwa na tapishi huongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_area_view">Mwonekano na usogezaji</string>
     <string name="backup_area_editor">Mipangilio ya kihariri</string>
     <string name="backup_area_covers">Majalada ya folda</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Inahamisha...</string>
     <string name="backup_importing">Inaingiza...</string>
     <string name="backup_import_from">Imehamishwa tarehe %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Mipangilio hii itachukua nafasi ya ile ya sasa. Faili za tapishi zitaongezwa kwenye zile zilizopo tayari.</string>
+    <string name="backup_import_ask">Mipangilio hii itachukua nafasi ya ile ya sasa, isipokuwa mitindo, rangi, majalada, folda zilizofichwa na tapishi, ambavyo vitaongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_unlock">Faili ya mipangilio imelindwa: andika nenosiri.</string>
     <string name="backup_none">Faili haina thamani halali za mipangilio iliyochaguliwa.</string>
 </resources>
