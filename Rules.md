@@ -234,6 +234,7 @@ sessione dopo è perso.
 | **file di impostazioni** (il file dell'esportazione, parola sua) | | `Backup`, `backup_*` |
 | **tondo** (il terzo segno dell'ultimo media) | 'pallino' | `DOT`, `lastDot`, `MARK_DOT` |
 | **stili** ('Salva stile', 'Stili AIV', 'Stili salvati') | 'preset' | la parola `preset` del codice |
+| **modalità griglia o lista**, e 'modalità griglia e lista' (le due viste dell'elenco iniziale nominate insieme; sua istruzione del 2026-09-28, per la cacofonia 'vista'/'lista') | 'vista griglia o lista', 'viste griglia e lista' | |
 
 - ⚠️ **Le sfumature in fondo allo schermo sono un'altra cosa dal gradiente**: se in una frase ci
   sono tutte e due, quella dell'intestazione si nomina per esteso.
