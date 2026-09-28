@@ -693,7 +693,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Esporta e importa</string>
     <string name="backup_desc">Salva le impostazioni in un file che potrai importare in qualsiasi momento, anche con le future versioni di Astonishing Image Viewer.</string>
-    <string name="backup_intro">Il file include le impostazioni qui sotto, e solo AIV lo sa leggere. Il contenuto del cestino si aggiunge a quello già presente al momento dell\'importazione.</string>
+    <string name="backup_intro">Il file include le impostazioni qui sotto, e solo AIV lo sa leggere. All\'importazione, stili, colori, copertine, cartelle nascoste e cestino si aggiungono a quelli già presenti.</string>
     <string name="backup_area_view">Aspetto e navigazione</string>
     <string name="backup_area_editor">Impostazioni dell\'editor</string>
     <string name="backup_area_covers">Copertine delle cartelle</string>
@@ -719,7 +719,7 @@
     <string name="backup_exporting">Esportazione...</string>
     <string name="backup_importing">Importazione...</string>
     <string name="backup_import_from">Esportazione del %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Queste impostazioni sostituiranno le attuali. I file del cestino si aggiungeranno a quelli già presenti.</string>
+    <string name="backup_import_ask">Queste impostazioni sostituiranno le attuali, tranne stili, colori, copertine, cartelle nascoste e cestino, che si aggiungeranno a quelli già presenti.</string>
     <string name="backup_unlock">Il file di impostazioni è protetto: inserisci la password.</string>
     <string name="backup_none">Il file non contiene valori validi per le impostazioni selezionate.</string>
 </resources>

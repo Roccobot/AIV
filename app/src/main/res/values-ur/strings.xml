@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">برآمد اور درآمد</string>
     <string name="backup_desc">ترتیبات کو ایک ایسی فائل میں محفوظ کریں جسے آپ کسی بھی وقت درآمد کر سکتے ہیں، Astonishing Image Viewer کے آئندہ ورژنز میں بھی۔</string>
-    <string name="backup_intro">فائل میں نیچے دی گئی ترتیبات شامل ہیں، اور اسے صرف AIV پڑھ سکتا ہے۔ درآمد کے وقت ردی کی ٹوکری کا مواد پہلے سے موجود مواد میں شامل ہو جاتا ہے۔</string>
+    <string name="backup_intro">فائل میں نیچے دی گئی ترتیبات شامل ہیں، اور اسے صرف AIV پڑھ سکتا ہے۔ درآمد کے وقت اسٹائل، رنگ، سرورق، چھپے فولڈر اور ردی کی ٹوکری پہلے سے موجود چیزوں میں شامل ہو جاتے ہیں۔</string>
     <string name="backup_area_view">ظاہری شکل اور نیویگیشن</string>
     <string name="backup_area_editor">ایڈیٹر کی ترتیبات</string>
     <string name="backup_area_covers">فولڈروں کے سرورق</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">برآمد جاری ہے...</string>
     <string name="backup_importing">درآمد جاری ہے...</string>
     <string name="backup_import_from">%1$s، %2$s کو برآمد\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">یہ ترتیبات موجودہ ترتیبات کی جگہ لے لیں گی۔ ردی کی ٹوکری کی فائلیں پہلے سے موجود فائلوں میں شامل ہو جائیں گی۔</string>
+    <string name="backup_import_ask">یہ ترتیبات موجودہ ترتیبات کی جگہ لے لیں گی، سوائے اسٹائل، رنگ، سرورق، چھپے فولڈر اور ردی کی ٹوکری کے، جو پہلے سے موجود چیزوں میں شامل ہو جائیں گے۔</string>
     <string name="backup_unlock">ترتیبات کی فائل محفوظ ہے: پاس ورڈ درج کریں۔</string>
     <string name="backup_none">فائل میں منتخب ترتیبات کے لیے کوئی درست قدر نہیں ہے۔</string>
 </resources>

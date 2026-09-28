@@ -634,7 +634,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>
     <string name="backup_desc">Guarda los ajustes en un archivo que podrás importar en cualquier momento, también con futuras versiones de Astonishing Image Viewer.</string>
-    <string name="backup_intro">El archivo incluye los ajustes de abajo, y solo AIV puede leerlo. El contenido de la papelera se suma al que ya haya en el momento de importar.</string>
+    <string name="backup_intro">El archivo incluye los ajustes de abajo, y solo AIV puede leerlo. Al importarlo, los estilos, los colores, las portadas, las carpetas ocultas y la papelera se suman a lo que ya hay.</string>
     <string name="backup_area_view">Apariencia y navegación</string>
     <string name="backup_area_editor">Ajustes del editor</string>
     <string name="backup_area_covers">Portadas de las carpetas</string>
@@ -660,7 +660,7 @@
     <string name="backup_exporting">Exportando...</string>
     <string name="backup_importing">Importando...</string>
     <string name="backup_import_from">Exportación del %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Estos ajustes sustituirán a los actuales. Los archivos de la papelera se sumarán a los que ya hay.</string>
+    <string name="backup_import_ask">Estos ajustes sustituirán a los actuales, salvo los estilos, los colores, las portadas, las carpetas ocultas y la papelera, que se sumarán a lo que ya hay.</string>
     <string name="backup_unlock">El archivo de ajustes está protegido: escribe la contraseña.</string>
     <string name="backup_none">El archivo no contiene valores válidos para los ajustes seleccionados.</string>
 </resources>

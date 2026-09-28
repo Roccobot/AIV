@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">ఎగుమతి, దిగుమతి</string>
     <string name="backup_desc">అమరికలను ఒక ఫైల్‌లో భద్రపరచండి; దాన్ని మీరు ఎప్పుడైనా దిగుమతి చేయవచ్చు, Astonishing Image Viewer భవిష్యత్ వెర్షన్‌లలో కూడా.</string>
-    <string name="backup_intro">ఫైల్‌లో కింది అమరికలు ఉంటాయి, దాన్ని AIV మాత్రమే చదవగలదు. దిగుమతి సమయంలో చెత్తబుట్టలోని అంశాలు ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
+    <string name="backup_intro">ఫైల్‌లో కింది అమరికలు ఉంటాయి, దాన్ని AIV మాత్రమే చదవగలదు. దిగుమతి సమయంలో శైలులు, రంగులు, ముఖచిత్రాలు, దాచిన ఫోల్డర్‌లు, చెత్తబుట్ట ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_area_view">రూపం, నావిగేషన్</string>
     <string name="backup_area_editor">ఎడిటర్ అమరికలు</string>
     <string name="backup_area_covers">ఫోల్డర్‌ల కవర్‌లు</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">ఎగుమతి చేస్తోంది...</string>
     <string name="backup_importing">దిగుమతి చేస్తోంది...</string>
     <string name="backup_import_from">%1$s, %2$sన ఎగుమతి\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">ఈ అమరికలు ప్రస్తుత అమరికల స్థానంలోకి వస్తాయి. చెత్తబుట్టలోని ఫైల్‌లు ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
+    <string name="backup_import_ask">ఈ అమరికలు ప్రస్తుత అమరికల స్థానంలోకి వస్తాయి, శైలులు, రంగులు, ముఖచిత్రాలు, దాచిన ఫోల్డర్‌లు, చెత్తబుట్ట తప్ప: అవి ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_unlock">అమరికల ఫైల్ రక్షించబడింది: పాస్‌వర్డ్‌ను నమోదు చేయండి.</string>
     <string name="backup_none">ఎంచుకున్న అమరికలకు చెల్లుబాటు అయ్యే విలువలు ఫైల్‌లో లేవు.</string>
 </resources>

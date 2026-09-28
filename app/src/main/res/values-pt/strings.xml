@@ -634,7 +634,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>
     <string name="backup_desc">Salve as configurações em um arquivo que você poderá importar a qualquer momento, inclusive com versões futuras do Astonishing Image Viewer.</string>
-    <string name="backup_intro">O arquivo inclui as configurações abaixo, e só o AIV consegue lê-lo. O conteúdo da lixeira é adicionado ao que já existe nela no momento da importação.</string>
+    <string name="backup_intro">O arquivo inclui as configurações abaixo, e só o AIV consegue lê-lo. Na importação, os estilos, as cores, as capas, as pastas ocultas e a lixeira são adicionados ao que já existe.</string>
     <string name="backup_area_view">Aparência e navegação</string>
     <string name="backup_area_editor">Configurações do editor</string>
     <string name="backup_area_covers">Capas das pastas</string>
@@ -660,7 +660,7 @@
     <string name="backup_exporting">Exportando...</string>
     <string name="backup_importing">Importando...</string>
     <string name="backup_import_from">Exportação de %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Estas configurações vão substituir as atuais. Os arquivos da lixeira serão adicionados aos que já existem.</string>
+    <string name="backup_import_ask">Estas configurações vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas ocultas e a lixeira, que serão adicionados ao que já existe.</string>
     <string name="backup_unlock">O arquivo de configurações está protegido: insira a senha.</string>
     <string name="backup_none">O arquivo não contém valores válidos para as configurações selecionadas.</string>
 </resources>

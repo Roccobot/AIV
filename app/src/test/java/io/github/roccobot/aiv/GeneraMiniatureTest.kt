@@ -16,6 +16,7 @@ import androidx.core.net.toUri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import coil3.request.ErrorResult
+import coil3.toBitmap
 import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import kotlinx.coroutines.CompletableDeferred
@@ -43,8 +44,9 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `AIV/CLAUDE.md`
  * § '🧪 Quando si scrive una prova, e quando no': la generazione passa da tre cose che nessun
- * compilatore guarda, cioè un caricatore che deve **non** decodificare, un segno che deve **non**
- * consumare, e un lavoro su più corsie che deve fare ogni file una volta sola.
+ * compilatore guarda, cioè un caricatore che deve lasciare su disco quello che decodifica (dalla
+ * `2.99`; fino alla `2.98` doveva **non** decodificare), un segno che deve **non** consumare, e un
+ * lavoro su più corsie che deve fare ogni file una volta sola.
  *
  * ⚠️⚠️ **CHE COSA MISURA E CHE COSA NO.** Misura il caricatore della generazione su un file vero,
  * le corsie con un lavoro finto, le due conferme con due comandi finti, e la pagina di
@@ -53,8 +55,8 @@ import java.util.concurrent.ConcurrentHashMap
  * il banco non ha un provider che la faccia. Il giro vuoto dall'inizio alla fine vive in
  * `GeneraMiniatureCorsaTest`, che ha bisogno di un'ombra che qui non serve.
  *
- * ⚠️ **La grafica è quella vera** (`NATIVE`), perché il caso del caricatore decodifica un PNG per
- * davvero: senza, la decodifica di confronto non avrebbe una misura da dare.
+ * ⚠️ **La grafica è quella vera** (`NATIVE`), perché i casi del disco decodificano un PNG e
+ * comprimono una miniatura per davvero: senza, non ci sarebbe una misura da dare.
  */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -107,36 +109,85 @@ class GeneraMiniatureTest {
     }
 
     /**
-     * **Il caricatore della generazione si ferma dove quello della griglia decodificherebbe.**
+     * **Quello che passa dalla decodifica normale resta su disco, dalla `2.99`.**
      *
      * ⚠️⚠️ **UN PNG CON L'ALFA È IL CASO GIUSTO, perché non passa dal sistema**: la sua miniatura la
-     * fa la decodifica normale, e per la generazione sarebbe lavoro buttato (il perché vive su
-     * [Thumbs.warmer]). Al posto dell'immagine arriva il segnaposto da un pixel.
-     * ⚠️ **La prima metà è la condizione della prova**: la stessa richiesta, col caricatore della
-     * griglia, dà la miniatura vera, quindi il pixel solo non viene da un file che non si legge.
-     * ⚠️ **Controprovata rimettendo il decodificatore della griglia nel caricatore della
-     * generazione**: la miniatura esce alta [Thumbs.PX] anche là, e la prova cade.
+     * fa la decodifica normale, che fino alla `2.98` si buttava. Adesso la tiene
+     * `KeepingDecoderFactory`, ed è la risposta `disco` a `d-mini-disco`.
+     * ⚠️ **Con tutti e due i caricatori**, perché la griglia e la generazione devono lasciare la
+     * stessa cosa: fino alla `2.98` la generazione non decodificava affatto, e questa prova diceva
+     * il contrario di oggi (*il caricatore della generazione non decodifica niente*).
+     * ⚠️ **Controprovata togliendo il decodificatore che tiene**: il disco resta vuoto e la prova
+     * cade.
      */
     @Test
-    fun `il caricatore della generazione non decodifica niente`() = runBlocking {
-        val file = File(app.filesDir, "genera-alfa.png").apply { writeBytes(pngConAlfa()) }
-        val richiesta = Thumbs.request(app, file.toUri()).newBuilder().allowHardware(false).build()
+    fun `quello che passa dalla decodifica resta su disco`() = runBlocking {
+        for ((nome, caricatore) in listOf("griglia" to Thumbs.loader(app), "generazione" to Thumbs.warmer(app))) {
+            val file = File(app.filesDir, "genera-disco-$nome.png").apply { writeBytes(pngConAlfa()) }
+            val uri = file.toUri()
+            val richiesta = Thumbs.request(app, uri).newBuilder().allowHardware(false).build()
+            val esito = try {
+                caricatore.execute(richiesta)
+            } finally {
+                caricatore.shutdown()
+            }
+            assertTrue("$nome: il file doveva decodificarsi: ${(esito as? ErrorResult)?.throwable}", esito is SuccessResult)
+            val tenuta = AvifCache.read(app, uri, Thumbs.PX)
+            assertTrue("$nome: la miniatura decodificata non è rimasta su disco", tenuta != null)
+            assertEquals(Thumbs.PX, tenuta!!.height)
+        }
+    }
 
-        val vera = Thumbs.loader(app).execute(richiesta)
-        assertTrue("il file doveva decodificarsi: ${(vera as? ErrorResult)?.throwable}", vera is SuccessResult)
-        assertEquals(Thumbs.PX, (vera as SuccessResult).image.height)
-
+    /**
+     * **Una richiesta che non chiede una miniatura non scrive niente su disco.**
+     *
+     * ⚠️ **È il cancello di `Thumbs.KEPT`**: senza, un'immagine chiesta a un'altra misura, o quella
+     * grande, finirebbe nella cartella delle miniature.
+     * ⚠️ **Controprovata facendo scrivere il decodificatore anche senza l'indirizzo** (con quello
+     * dei dati della richiesta): la cartella si riempie e la prova cade.
+     */
+    @Test
+    fun `senza la chiave della miniatura il disco non si tocca`() = runBlocking {
+        val file = File(app.filesDir, "genera-senza-chiave.png").apply { writeBytes(pngConAlfa()) }
+        val uri = file.toUri()
+        val richiesta = coil3.request.ImageRequest.Builder(app).data(uri).size(Thumbs.PX)
+            .allowHardware(false).build()
         val caricatore = Thumbs.warmer(app)
-        val generata = try {
+        val esito = try {
             caricatore.execute(richiesta)
         } finally {
             caricatore.shutdown()
         }
-        assertTrue(
-            "la catena della generazione si è fermata: ${(generata as? ErrorResult)?.throwable}",
-            generata is SuccessResult
-        )
-        assertEquals(1, (generata as SuccessResult).image.width)
+        assertTrue("il file doveva decodificarsi", esito is SuccessResult)
+        assertTrue("una richiesta senza la chiave ha scritto su disco", AvifCache.read(app, uri, Thumbs.PX) == null)
+    }
+
+    /**
+     * **La miniatura tenuta su disco si ritrova senza decodificare.**
+     *
+     * ⚠️ **Il disco porta un quadrato blu e il file è un punto rosso su fondo trasparente**, quindi
+     * un blu che torna viene per forza dal disco: decodificando, il centro sarebbe rosso.
+     * ⚠️ **Il caricatore è quello della generazione**, che non ha una cache in memoria: un colpo in
+     * memoria non si distinguerebbe da uno su disco.
+     * ⚠️ **Controprovata togliendo `DiskThumbnailFactory` dalla catena**: torna la decodifica, e
+     * il pixel non è più blu.
+     */
+    @Test
+    fun `la miniatura su disco si ritrova senza decodificare`() = runBlocking {
+        val file = File(app.filesDir, "genera-ritrova.png").apply { writeBytes(pngConAlfa()) }
+        val uri = file.toUri()
+        val blu = Bitmap.createBitmap(Thumbs.PX, Thumbs.PX, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.BLUE) }
+        AvifCache.write(app, uri, Thumbs.PX, blu)
+        val caricatore = Thumbs.warmer(app)
+        val esito = try {
+            caricatore.execute(Thumbs.request(app, uri).newBuilder().allowHardware(false).build())
+        } finally {
+            caricatore.shutdown()
+        }
+        assertTrue("la miniatura doveva arrivare: ${(esito as? ErrorResult)?.throwable}", esito is SuccessResult)
+        val immagine = (esito as SuccessResult).image.toBitmap()
+        val centro = immagine.getPixel(immagine.width / 2, immagine.height / 2)
+        assertTrue("il centro doveva essere blu, era #${Integer.toHexString(centro)}", Color.blue(centro) > 200 && Color.red(centro) < 50)
     }
 
     /**

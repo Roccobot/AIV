@@ -842,8 +842,10 @@ class BackupTest {
     }
 
     /**
-     * **Caso 27: il file di impostazioni si chiama `.aivsettings`.**
+     * **Caso 27: il file di impostazioni si chiama `AIV_<data>.aivsettings`.**
      *
+     * ⚠️ **Il nome è suo dalla `2.99`** (nota su `impostazioni-file`: *il modello diventa
+     * `AIV_20260927.aivsettings`*).
      * ⚠️ **È la sua riga alla lettera** (*voglio l'estensione `.aivsettings`*), e il nome lo propone il
      * selettore: un suffisso sbagliato non dà nessun errore, si vede solo fra i propri file.
      * ⚠️ **Controprovata** rimettendo il suffisso della `2.94`: la prova cade.
@@ -851,6 +853,12 @@ class BackupTest {
     @Test
     fun `il file di impostazioni si chiama aivsettings`() {
         assertTrue(Backup.fileName(0L).endsWith(".aivsettings"))
+        // ⚠️ Mezzogiorno UTC, così la data non cambia col fuso della macchina che lancia la prova.
+        assertEquals(
+            "il nome della 2.99, senza la parola dell'estensione ripetuta",
+            "AIV_20260927.aivsettings",
+            Backup.fileName(1790510400000L)
+        )
     }
 
     // ── Le cartelle nascoste, dalla `2.96` ───────────────────────────────────
@@ -937,7 +945,7 @@ class BackupTest {
         assertEquals(setOf(BackupArea.VIEW), esito.applied)
         assertFalse("un file di una versione vecchia non salta niente", esito.skipped)
         assertEquals(true, archivio()["fit-grow"])
-        assertEquals(setOf("Musica", "DCIM/Temp", "Scan"), archivio()["hidden-relative"])
+        assertEquals(setOf("Musica", "DCIM/Temp", "/storage/1234-5678/Scan"), archivio()["hidden-relative"])
         assertTrue(
             "la chiave vecchia non torna nell'archivio",
             runBlocking { storedPreferences(app) }.asMap().keys.none { it.name == "hidden-folders" }

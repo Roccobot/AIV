@@ -54,6 +54,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
@@ -244,11 +245,13 @@ fun SettingsScreen(
      * contesto basta a leggerla e a svuotarla, e mettere un campo nel modello vorrebbe dire
      * tenerlo d'accordo con un disco che si svuota anche da solo (Android può farlo quando lo
      * spazio finisce).
-     * ⚠️ **La misura è sincrona, lo svuotamento no**: leggere è un `stat` per file sotto un
-     * tetto di poche centinaia, e il valore serve **prima** del primo fotogramma o la riga
-     * mostrerebbe un riepilogo falso per un istante; cancellare invece sono altrettante
-     * scritture, e quelle vanno su un thread di I/O.
-     * ⚠️ [emptied] non è un contatore di cortesia: è la sola cosa che dice a [remember] di
+     * ⚠️⚠️ **LA MISURA VA SU UN THREAD DI I/O DALLA `2.99`, E FINO ALLA `2.98` ERA SINCRONA**: la
+     * cartella aveva un tetto di poche centinaia di file, e dalla risposta `disco` a
+     * `d-mini-disco` ne può tenere decine di migliaia, cioè altrettante `stat` sul thread che
+     * disegna. ⚠️ **Il primo valore è l'ultima misura di questo processo** ([AvifCache.known]), e
+     * finché non ce n'è nessuna la riga non dice niente: un 'nessuna miniatura' per un istante
+     * sarebbe un riepilogo falso. Anche lo svuotamento va su un thread di I/O.
+     * ⚠️ [emptied] non è un contatore di cortesia: è la sola cosa che dice a [produceState] di
      * rifare la misura dopo uno svuotamento, e senza di lui la riga continuerebbe a dire i
      * megabyte di prima finché non si esce dalle impostazioni. ⚠️ **Dalla `2.97` la chiave è
      * doppia**: anche 'Genera miniature' scrive in quella cartella, e [Warmup.finished] è il suo
@@ -259,7 +262,9 @@ fun SettingsScreen(
      */
     val context = LocalContext.current
     var emptied by remember { mutableIntStateOf(0) }
-    val thumbBytes = remember(emptied, Warmup.finished) { AvifCache.bytes(context) }
+    val thumbBytes by produceState(AvifCache.known, emptied, Warmup.finished) {
+        value = withContext(Dispatchers.IO) { AvifCache.bytes(context) }
+    }
     val clearThumbs: () -> Unit = {
         scope.launch {
             withContext(Dispatchers.IO) { AvifCache.clear(context) }
@@ -540,7 +545,8 @@ fun SettingsScreen(
         Page.BACKUP -> Shell(
             title = stringResource(R.string.backup_title),
             onBack = { back() },
-            modifier = modifier
+            modifier = modifier,
+            scrolls = false
         ) {
             BackupPage()
         }
@@ -1124,8 +1130,11 @@ private fun ColumnScope.RootPage(
         val thumbsClear = stringResource(R.string.settings_thumbs_do)
         val thumbsMake = stringResource(R.string.settings_thumbs_gen)
         val thumbsSummary =
-            if (thumbBytes <= 0L) stringResource(R.string.settings_thumbs_empty)
-            else formatBytes(thumbBytes)
+            when {
+                thumbBytes < 0L -> ""
+                thumbBytes == 0L -> stringResource(R.string.settings_thumbs_empty)
+                else -> formatBytes(thumbBytes)
+            }
         PageOfRows(
             label = thumbsLabel,
             summary = thumbsSummary,
@@ -2234,8 +2243,9 @@ private fun PageOfRows(
  *   una finestra': il tocco fuori vale 'Annulla', cioè l'esito sicuro.
  * - ⚠️ **Nel paragrafo di 'Genera' c'è 'immagini' dove lui aveva scritto 'foto'**, per la sua regola
  *   di § '🗣️ Come si chiamano le cose': questa app apre anche tavole, scansioni e schermate.
- * - ⚠️ **'Genera' non c'è sotto Android 10** ([Thumbs.warmable]): là nessuna miniatura resta su
- *   disco, quindi il giro non lascerebbe niente.
+ * - ⚠️ **'Genera' c'è su ogni versione di Android dalla `2.99`**: fino alla `2.98` mancava sotto
+ *   Android 10, dove nessuna miniatura restava su disco. Adesso là tutto passa dalla decodifica, e la
+ *   decodifica si tiene (vedi `KeepingDecoderFactory`, in `Thumbs.kt`).
  * - ⚠️ **I due tasti sono larghi uguali**: `IntrinsicSize.Max` li misura sul più largo, e due tasti
  *   uno sotto l'altro di due larghezze diverse si leggerebbero come due comandi di peso diverso.
  *
@@ -2269,9 +2279,7 @@ internal fun ThumbsCard(
             verticalArrangement = Arrangement.spacedBy(THUMBS_SPLIT)
         ) {
             ThumbsButton(stringResource(R.string.settings_thumbs_do)) { asking = ThumbsAsk.CLEAR }
-            if (Thumbs.warmable) {
-                ThumbsButton(stringResource(R.string.settings_thumbs_gen)) { asking = ThumbsAsk.GENERATE }
-            }
+            ThumbsButton(stringResource(R.string.settings_thumbs_gen)) { asking = ThumbsAsk.GENERATE }
         }
     }
     asking?.let { chiesto ->
@@ -2406,6 +2414,15 @@ internal val PAGE_SIDE = 20.dp
  * ritaglio sbagliato, non come un bersaglio.
  */
 private val ROW_HIGH = 12.dp
+
+/**
+ * L'aria di una riga stretta, dalla `2.99`: la nota di `backup-caselle` (*restringi LEGGERMENTE
+ * l'interlinea delle voci*).
+ *
+ * ⚠️ **Quattro punti in meno e non di più**: la riga resta sopra i 44 punti, cioè un bersaglio che
+ * il dito prende, e su nove voci sono trentasei punti guadagnati.
+ */
+private val ROW_TIGHT = 10.dp
 
 /**
  * Allarga chi lo porta fino ai fianchi dello schermo, oltre il rientro della pagina.
@@ -3135,7 +3152,14 @@ internal fun CheckRow(
     label: String,
     detail: String?,
     checked: Boolean,
-    onChange: (Boolean) -> Unit
+    onChange: (Boolean) -> Unit,
+    /**
+     * Se la riga porta meno aria sopra e sotto: [ROW_TIGHT] invece di [ROW_HIGH].
+     *
+     * ⚠️ La chiede la pagina 'Esporta e importa' dalla `2.99`, perché i suoi due tasti si vedano
+     * senza scorrere (vedi `BackupPage`).
+     */
+    tight: Boolean = false
 ) {
     if (!shown(label, detail)) return
     Row(
@@ -3143,7 +3167,7 @@ internal fun CheckRow(
             .fillMaxWidth()
             .bordo()
             .toggleable(value = checked, role = Role.Checkbox, onValueChange = onChange)
-            .padding(horizontal = PAGE_SIDE, vertical = ROW_HIGH),
+            .padding(horizontal = PAGE_SIDE, vertical = if (tight) ROW_TIGHT else ROW_HIGH),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {

@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Ekspor dan impor</string>
     <string name="backup_desc">Simpan pengaturan ke berkas yang bisa kamu impor kapan saja, bahkan dengan versi Astonishing Image Viewer mendatang.</string>
-    <string name="backup_intro">Berkas ini berisi pengaturan di bawah, dan hanya AIV yang bisa membacanya. Isi tempat sampah ditambahkan ke yang sudah ada di sana saat impor.</string>
+    <string name="backup_intro">Berkas ini berisi pengaturan di bawah, dan hanya AIV yang bisa membacanya. Saat impor, gaya, warna, sampul, folder tersembunyi, dan tempat sampah ditambahkan ke yang sudah ada.</string>
     <string name="backup_area_view">Tampilan dan navigasi</string>
     <string name="backup_area_editor">Pengaturan editor</string>
     <string name="backup_area_covers">Sampul folder</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">Mengekspor...</string>
     <string name="backup_importing">Mengimpor...</string>
     <string name="backup_import_from">Diekspor pada %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Pengaturan ini akan menggantikan yang sekarang. Berkas di tempat sampah akan ditambahkan ke yang sudah ada.</string>
+    <string name="backup_import_ask">Pengaturan ini akan menggantikan yang sekarang, kecuali gaya, warna, sampul, folder tersembunyi, dan tempat sampah, yang akan ditambahkan ke yang sudah ada.</string>
     <string name="backup_unlock">Berkas pengaturan dilindungi: masukkan kata sandi.</string>
     <string name="backup_none">Berkas tidak berisi nilai yang valid untuk pengaturan yang dipilih.</string>
 </resources>

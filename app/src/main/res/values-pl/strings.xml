@@ -652,7 +652,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Eksport i import</string>
     <string name="backup_desc">Zapisz ustawienia w pliku, który możesz zaimportować w dowolnym momencie, także w przyszłych wersjach Astonishing Image Viewer.</string>
-    <string name="backup_intro">Plik zawiera poniższe ustawienia i odczyta go tylko AIV. Zawartość kosza zostanie dodana do tego, co już w nim jest w chwili importu.</string>
+    <string name="backup_intro">Plik zawiera poniższe ustawienia i odczyta go tylko AIV. Przy imporcie style, kolory, okładki, ukryte foldery i kosz zostaną dodane do tego, co już jest.</string>
     <string name="backup_area_view">Wygląd i nawigacja</string>
     <string name="backup_area_editor">Ustawienia edytora</string>
     <string name="backup_area_covers">Okładki folderów</string>
@@ -678,7 +678,7 @@
     <string name="backup_exporting">Eksportowanie...</string>
     <string name="backup_importing">Importowanie...</string>
     <string name="backup_import_from">Eksport z %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Te ustawienia zastąpią obecne. Pliki z kosza zostaną dodane do tych, które już tam są.</string>
+    <string name="backup_import_ask">Te ustawienia zastąpią obecne, z wyjątkiem stylów, kolorów, okładek, ukrytych folderów i kosza, które zostaną dodane do tego, co już jest.</string>
     <string name="backup_unlock">Plik ustawień jest chroniony: wpisz hasło.</string>
     <string name="backup_none">Plik nie zawiera prawidłowych wartości dla wybranych ustawień.</string>
 </resources>

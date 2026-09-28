@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exporteren en importeren</string>
     <string name="backup_desc">Sla de instellingen op in een bestand dat je op elk moment kunt importeren, ook met toekomstige versies van Astonishing Image Viewer.</string>
-    <string name="backup_intro">Het bestand bevat de instellingen hieronder, en alleen AIV kan het lezen. De inhoud van de prullenbak wordt bij het importeren toegevoegd aan wat er al in staat.</string>
+    <string name="backup_intro">Het bestand bevat de instellingen hieronder, en alleen AIV kan het lezen. Bij het importeren worden stijlen, kleuren, omslagen, verborgen mappen en de prullenbak toegevoegd aan wat er al is.</string>
     <string name="backup_area_view">Vormgeving en navigatie</string>
     <string name="backup_area_editor">Instellingen van de editor</string>
     <string name="backup_area_covers">Omslagen van mappen</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Exporteren...</string>
     <string name="backup_importing">Importeren...</string>
     <string name="backup_import_from">Geëxporteerd op %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Deze instellingen vervangen de huidige. De bestanden in de prullenbak worden toegevoegd aan de bestanden die er al in staan.</string>
+    <string name="backup_import_ask">Deze instellingen vervangen de huidige, behalve stijlen, kleuren, omslagen, verborgen mappen en de prullenbak, die worden toegevoegd aan wat er al is.</string>
     <string name="backup_unlock">Het instellingenbestand is beveiligd: voer het wachtwoord in.</string>
     <string name="backup_none">Het bestand bevat geen geldige waarden voor de geselecteerde instellingen.</string>
 </resources>

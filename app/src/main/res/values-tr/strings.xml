@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Dışa ve içe aktarma</string>
     <string name="backup_desc">Ayarları istediğin zaman içe aktarabileceğin bir dosyaya kaydet, Astonishing Image Viewer\'in gelecek sürümleriyle bile.</string>
-    <string name="backup_intro">Dosya aşağıdaki ayarları içerir ve onu yalnızca AIV okuyabilir. Çöp kutusunun içeriği, içe aktarma sırasında zaten orada olanlara eklenir.</string>
+    <string name="backup_intro">Dosya aşağıdaki ayarları içerir ve onu yalnızca AIV okuyabilir. İçe aktarma sırasında stiller, renkler, kapaklar, gizli klasörler ve çöp kutusu zaten olanlara eklenir.</string>
     <string name="backup_area_view">Görünüm ve gezinme</string>
     <string name="backup_area_editor">Düzenleyici ayarları</string>
     <string name="backup_area_covers">Klasör kapakları</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Dışa aktarılıyor...</string>
     <string name="backup_importing">İçe aktarılıyor...</string>
     <string name="backup_import_from">%1$s, %2$s tarihinde dışa aktarıldı\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Bu ayarlar mevcut olanların yerini alacak. Çöp kutusundaki dosyalar zaten orada olanlara eklenecek.</string>
+    <string name="backup_import_ask">Bu ayarlar mevcut olanların yerini alacak; stiller, renkler, kapaklar, gizli klasörler ve çöp kutusu hariç, bunlar zaten olanlara eklenecek.</string>
     <string name="backup_unlock">Ayar dosyası korumalı: şifreyi gir.</string>
     <string name="backup_none">Dosya, seçili ayarlar için geçerli bir değer içermiyor.</string>
 </resources>

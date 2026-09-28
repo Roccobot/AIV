@@ -1756,6 +1756,17 @@ altro numero.
   sull'archivio del telefono e sulla scheda. È la conseguenza diretta della sua riga, perché
   l'identificativo di una scheda è proprio la parte del percorso che da un telefono all'altro non
   torna.
+  - ⚠️⚠️ **MA DALLA `2.99` UNA SCHEDA RESTA INTERA, ED È LA SUA NOTA** (voce `nascoste-percorsi`
+    del giro della `2.98`: *preferirei che si nascondesse solo la cartella nel percorso specifico,
+    ma allo stesso tempo che quel percorso specifico fosse riconducibile al corrispettivo di
+    qualsiasi dispositivo*). Quindi la radice si toglie al solo archivio del telefono, che su ogni
+    telefono è lo stesso posto con un altro nome (`/storage/emulated/0`, `/sdcard`, un profilo di
+    lavoro); una scheda tiene `/storage/<id>/...`, e il suo identificativo la ritrova su qualunque
+    telefono in cui la si infili. `DCIM/Temp` nasconde quella del telefono e non più quella della
+    scheda.
+  - ⚠️ **Le voci della `2.96` non si migrano**: quelle del telefono avevano già la forma di oggi,
+    e quelle di una scheda erano scritte senza la radice, cioè adesso valgono per il telefono.
+    Chi aveva nascosto una cartella della scheda la ritrova sul telefono, e la rinasconde.
 - ⚠️ **La radice di un volume nasconde solo se stessa**, cioè le immagini che vivono proprio là e
   non le cartelle dentro; un percorso fuori da un volume resta scritto intero. Il conto vive su
   `portablePath`, in `Folder.kt`.
@@ -5879,41 +5890,53 @@ collezione*). Il paragrafo che fino alla `2.96` stava sopra l'unico tasto vive n
 - ⚠️ **Le due conferme portano il solo testo, coi tasti 'Sì' e 'Annulla'**, e 'Sì' è la sua parola.
   Nel paragrafo di 'Genera' c'è 'immagini' dove lui aveva scritto 'foto', per il criterio di
   § '🗣️ Come si chiamano le cose'. Il perché di ogni pezzo vive su `ThumbsCard`.
-- ⚠️ **'Genera' non c'è sotto Android 10** (`Thumbs.warmable`): là le due strade che lasciano una
-  miniatura su disco non esistono, quindi il giro non lascerebbe niente.
+- ⚠️ **'Genera' c'è su ogni versione di Android dalla `2.99`**: fino alla `2.98` mancava sotto Android
+  10, dove nessuna miniatura restava su disco. Adesso là tutto passa dalla decodifica, e la
+  decodifica si tiene (il blocco della `2.99`, più sotto).
 
 ⚠️⚠️ **'SVUOTA' SVUOTA QUELLO CHE È DELL'APP, E LE MINIATURE DEL SISTEMA RESTANO**: la memoria di
-Coil e le miniature degli AVIF, che vivono in `AvifCache`, cioè in `cacheDir`. Quelle che il
+Coil e le miniature che vivono in `AvifCache`, cioè in `cacheDir`. Quelle che il
 MediaStore tiene per ogni riga le fa e le tiene il provider di sistema, e nessuna chiamata dell'app
 le toglie. ⚠️ **La copertina scelta a mano non si tocca**, perché vive in `filesDir`
 (§ '🖼️ La copertina scelta a mano').
 
-⚠️⚠️ **'GENERA' LASCIA UNA MINIATURA CHE RESTA SOLO DOVE ESISTE UNA CACHE SU DISCO, E I POSTI SONO
-DUE**, letti nel sorgente AOSP del `MediaProvider` (ramo `main`): la miniatura che il sistema genera
-con `loadThumbnail` e salva nella cartella `.thumbnails` del volume, un JPEG per riga che le volte
-dopo si riapre; e quella di un AVIF in `AvifCache`. Tutto il resto passa dalla decodifica normale di
-Coil, che qui non ha una cache su disco, quindi decodificarlo per la generazione vorrebbe dire un
-lavoro lungo il cui frutto si butta appena finito.
-- ⚠️ **Dalla `2.98` in `AvifCache` c'è anche il fotogramma che AIV sceglie per un video** la cui
-  miniatura di sistema è nera o manca, e la generazione lo prepara come il resto: § '🎬 La miniatura
-  di un video, quando il sistema la dà nera o non la dà'.
-- ⚠️⚠️ **QUINDI IL CARICATORE DELLA GENERAZIONE SI FERMA DOVE QUELLO VERO DECODIFICHEREBBE**
-  (`Thumbs.warmer`): i fetcher sono gli stessi e nello stesso ordine, perché li costruisce una
-  funzione sola; al posto dei decodificatori c'è `NoDecodeFactory`, che chiude il file senza
-  leggerlo, e la memoria di Coil è spenta, perché quello che si genera non si guarda.
-- ⚠️⚠️ **PER CERTI FILE NON RESTA NIENTE, E SI DICHIARA**: le immagini con la trasparenza, i BMP, gli
-  SVG, e quelle la cui miniatura di sistema è troppo piccola, che `tooSmall` rifiuta. Per loro la
-  generazione è rapida, perché non le apre, e la griglia le decodifica la prima volta che le mostra.
-  - ⚠️⚠️ **L'ULTIMO CASO NASCE DALL'EXIF, E NON SI VEDE DA FUORI**: nel sorgente,
+⚠️⚠️ **DALLA `2.99` OGNI MINIATURA RESTA SU DISCO, ED È LA SUA RISPOSTA `disco` A `d-mini-disco`**
+(giro della `2.98`). I posti sono due, letti nel sorgente AOSP del `MediaProvider` (ramo `main`) per
+il primo: la miniatura che il sistema genera con `loadThumbnail` e salva nella cartella `.thumbnails`
+del volume, un JPEG per riga che le volte dopo si riapre; e `AvifCache`, che tiene quella di un AVIF,
+il fotogramma che AIV sceglie per un video (§ '🎬 La miniatura di un video, quando il sistema la dà
+nera o non la dà') e, dalla `2.99`, ogni miniatura che passa dalla decodifica normale di Coil.
+- ⚠️⚠️ **FINO ALLA `2.98` QUELL'ULTIMA CLASSE SI BUTTAVA, E LA GENERAZIONE NON LA TOCCAVA**: le
+  immagini con la trasparenza, i BMP, gli SVG, e quelle la cui miniatura di sistema è troppo piccola,
+  che `tooSmall` rifiuta. Il sistema per loro non tiene niente, quindi si decodificavano a ogni
+  apertura dell'app, e la generazione le saltava con un decodificatore che non decodificava
+  (`NoDecodeFactory`, uscito con la `2.99`).
+  - ⚠️ **L'ultimo caso nasce dall'EXIF, e non si vede da fuori**: nel sorgente,
     `createImageThumbnail` prende la miniatura incorporata **prima** di decodificare il file, e senza
     nessuna soglia di misura. Una fotografia che ne porta una piccola riceve quindi una miniatura
     piccola, e la griglia la rifiuta.
-  - ⚠️ **La domanda di una cache su disco fatta in casa vive nel giro della `2.98`**: coprirebbe
-    anche questi file, e costa spazio. ⚠️ **Quanto, è una stima e non una misura**: circa 300 MB
-    ogni 10.000 miniature, alla misura della griglia (`Thumbs.PX`).
-- ⚠️ **La riga del riepilogo misura la sola cache su disco dell'app**, cioè gli AVIF e dalla `2.98`
-  i fotogrammi dei video: dopo una generazione può dire ancora che non c'è nessuna miniatura
-  memorizzata, perché quelle del sistema non sono sue.
+- ⚠️⚠️ **A SCRIVERE È UN DECODIFICATORE E NON UN INTERCETTORE** (`KeepingDecoderFactory`, in
+  `Thumbs.kt`): chiede al registro di Coil il decodificatore che verrebbe dopo di lui e ne salva il
+  risultato. Un intercettore vede ogni risultato, e da fuori una miniatura del sistema, una di un AVIF
+  e una decodificata dicono tutte e tre `DataSource.DISK`; qui arriva soltanto la terza, quindi una
+  miniatura che il sistema tiene già non occupa spazio due volte.
+- ⚠️ **A leggere è un fetcher solo** (`DiskThumbnailFactory`), dopo quello di sistema e prima
+  dell'AVIF: per sapere dov'è il file serve una domanda al MediaStore, e la maggior parte delle
+  miniature la dà il sistema, dove quella domanda sarebbe spesa per niente.
+- ⚠️ **Tutti e due si aprono solo per una richiesta di `Thumbs.request`**, che porta l'indirizzo negli
+  extra (`Thumbs.KEPT`): un decodificatore riceve i byte e non sa da quale file vengono, e una
+  richiesta che non chiede una miniatura non deve scrivere niente nella cartella delle miniature.
+- ⚠️⚠️ **IL TETTO DELLA CARTELLA SALE DA 400 A 30.000 FILE**, cioè una collezione intera, e la
+  potatura gira una volta ogni cento scritture, perché elencare trentamila file costerebbe più della
+  miniatura appena scritta. ⚠️ **Quanto pesa è una stima e non una misura**, la stessa della domanda:
+  circa 300 MB ogni 10.000 miniature, alla misura della griglia (`Thumbs.PX`). La cartella vive in
+  `cacheDir`, quindi Android la può svuotare quando lo spazio finisce.
+- ⚠️ **I due caricatori decodificano allo stesso modo**, e il solo che la generazione ha di diverso è
+  la memoria di Coil spenta, perché quello che si genera non si guarda (`Thumbs.warmer`).
+- ⚠️ **La riga del riepilogo misura la sola cache su disco dell'app**: quelle del sistema non sono
+  sue. ⚠️ **Dalla `2.99` si misura su un thread di I/O**, perché i file possono essere decine di
+  migliaia, e il primo valore è l'ultima misura del processo (`AvifCache.known`): senza, la riga
+  direbbe 'nessuna miniatura' per un istante.
 
 ⚠️⚠️ **LE CARTELLE VISIBILI SONO QUELLE DELL'ELENCO INIZIALE** (`Folder.everything`), cioè senza le
 nascoste e senza il minuto di prestito di 'Mostra nascoste': il prestito serve a entrare in una
@@ -6001,9 +6024,11 @@ stesso punto da sé.
   - ⚠️⚠️ **E PER ARRIVARCI SERVIVA UNA CORREZIONE IN `AvifCache`, TROVATA SCRIVENDO QUESTA**: il suo
     formato era `WEBP_LOSSY` senza condizione, che nasce con Android 11, e sotto quella versione
     l'oggetto intero non si inizializzava. Adesso sceglie come `ImageEdit` e `FolderCover`.
-    ⚠️ **Lo stesso difetto resta nell'elenco dei formati di 'Converti/Esporta'** (`Convert.Target`),
-    ed è fuori da questa versione: nessuno dei due ha un telefono sotto la 13, e il banco gira su
-    una piattaforma sola, quindi né il collaudo né le prove lo potevano vedere.
+    ⚠️ **Lo stesso difetto viveva nell'elenco dei formati di 'Converti/Esporta'** (`Convert.Target`),
+    e sui telefoni con Android 9 e 10 chiudeva l'app aprendo quella finestra: l'ha corretto la
+    `2.99`, su sua segnalazione, e la prova (`ConvertiTest`) gira sulle piattaforme vere di Android
+    9, 10 e 11. ⚠️ **Su Android 9 la WebP senza perdita non si offre**: là `WEBP` a qualità 100
+    comprime ancora con perdita.
 - ⚠️ **Il fotogramma scelto si tiene su disco, in `AvifCache`**, con la data del file nella chiave:
   scegliere vuol dire aprire il contenitore e decodificare fino a quattro fotogrammi, e la seconda
   volta non serve. La pagina 'Gestisci le miniature memorizzate' lo misura e lo svuota insieme al
@@ -6049,9 +6074,11 @@ avvisi; il formato vive in `Backup.kt` e la pagina in `BackupSettings.kt`.
 'file di impostazioni'): voglio l'estensione `.aivsettings`*). Vale nei testi dell'interfaccia, in
 chat, nelle voci del documento di feedback e nei commenti, per il criterio di § '🗣️ Come si chiamano
 le cose'; nel codice restano `Backup` e `backup_*`, come il prefisso `front`.
-- ⚠️ **Il nome proposto è `AIV-settings-<data>.aivsettings`**, ed è una lettura dichiarata della
-  stessa riga: fino alla `2.94` era `AIV-backup-<data>.aivbackup`. Un file col suffisso vecchio si
-  importa lo stesso, perché a dire che cosa è ci pensa la sua intestazione.
+- ⚠️ **Il nome proposto è `AIV_<AAAAMMGG>.aivsettings` dalla `2.99`, ed è sua istruzione** (voce
+  `impostazioni-file` del giro della `2.98`: *Non avevo visto la ripetizione di aivsettings tra
+  nome ed estensione. → il modello diventa `AIV_20260927.aivsettings`*). Fino alla `2.98` era
+  `AIV-settings-<data>.aivsettings`, e fino alla `2.94` `AIV-backup-<data>.aivbackup`. Un file col
+  suffisso vecchio si importa lo stesso, perché a dire che cosa è ci pensa la sua intestazione.
 - ⚠️ **Il tipo dichiarato è quello generico**, e deve esserlo: con un tipo vero il fornitore della
   cartella rimetterebbe il suffisso che quel tipo vuole. Vale anche per gli stili (§ '🎞️ I preset,
   venti di casa e quelli che si salvano').
@@ -6162,8 +6189,9 @@ volte.
     dalla fabbrica, e si sommano: il nome che il file dà vince, quello che il file non tocca resta, e
     uno stile nascosto da una delle due parti resta nascosto. Su un telefono nuovo la fusione dà
     esattamente il file, che è il caso per cui un file di impostazioni esiste.
-  - ⚠️ **L'importazione della pagina degli stili sostituisce ancora**: la sua risposta parla del file
-    di impostazioni, e il giro della `2.98` gli chiede se vuole la stessa cosa anche là.
+  - ⚠️ **L'importazione della pagina degli stili sostituisce**, ed è la sua risposta `sostituisce` a
+    `d-stili-importa` (giro della `2.98`): là si importa una raccolta di stili, e chi la sceglie
+    vuole quella.
   - ⚠️ **Con la fusione è uscito l'elenco delle cartelle da tenere**, che proteggeva le copertine di
     una cartella di cui il file porta un formato sconosciuto: adesso restano da sé, perché una
     copertina che non entra non copre la sua cartella.
@@ -6218,6 +6246,21 @@ struttura che non si legge, un testo oltre il suo tetto, un file del cestino che
 dentro la casa dell'app, e una voce gonfiata apposta. Quattro megabyte di zeri compressi pesano pochi
 kilobyte, e AIV i file li scrive senza comprimerli, quindi quello che esce da una voce non può
 superare quello che è entrato.
+
+⚠️⚠️ **DALLA `2.99` 'IMPORTA' ED 'ESPORTA' SONO UNA RIGA FISSA IN FONDO, ED È LA SUA NOTA** (voce
+`backup-caselle` del giro della `2.98`: *Restringi **LEGGERMENTE** l'interlinea delle voci in modo che
+(per il form factor più diffuso) i tasti `Importa` ed `Esporta` appaiano senza dover scorrere. In più:
+scambia la posizione di `Esporta` e `Importa` e fa' sì che se proprio è necessario scorrere loro
+restino sempre posizionati in fondo in un elemento fisso*). Quindi le caselle scorrono dentro la
+pagina e i due tasti no, e 'Importa' è a sinistra.
+- ⚠️ **L'interlinea stretta vale per le sole caselle di questa pagina** (`CheckRow` col parametro
+  `tight`): le righe delle altre pagine non le ha nominate.
+- ⚠️ **Il 'form factor più diffuso' non è misurato**, e va detto: sul banco la pagina non dice quanto
+  è alto un telefono vero, e la voce di collaudo lo chiede.
+
+⚠️ **I due testi della pagina dicono che cosa si fonde, dalla `2.99`**, ed è la sua risposta `si` a
+`d-backup-testi`: l'introduzione e la conferma dell'importazione nominano stili, colori, copertine,
+cartelle nascoste e cestino, cioè le cinque parti che si aggiungono invece di sostituire.
 
 ⚠️ **L'avanzamento è una riga della pagina e non una finestra, e il lavoro vive col processo**: un
 backup col cestino può durare dei minuti, e uscire dalla pagina o girare il telefono non lo ferma.

@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">রপ্তানি ও আমদানি</string>
     <string name="backup_desc">সেটিংস এমন একটি ফাইলে সংরক্ষণ করুন, যা আপনি যেকোনো সময় আমদানি করতে পারবেন, এমনকি Astonishing Image Viewer-এর ভবিষ্যৎ সংস্করণেও।</string>
-    <string name="backup_intro">ফাইলটিতে নিচের সেটিংসগুলো থাকে, এবং শুধু AIV এটি পড়তে পারে। আমদানির সময় আবর্জনার বিষয়বস্তু সেখানে আগে থেকে থাকা বিষয়বস্তুর সঙ্গে যোগ হয়।</string>
+    <string name="backup_intro">ফাইলটিতে নিচের সেটিংসগুলো থাকে, এবং শুধু AIV এটি পড়তে পারে। আমদানির সময় স্টাইল, রং, প্রচ্ছদ, লুকানো ফোল্ডার আর আবর্জনা আগে থেকে থাকা জিনিসের সঙ্গে যোগ হয়।</string>
     <string name="backup_area_view">উপস্থিতি ও নেভিগেশন</string>
     <string name="backup_area_editor">এডিটরের সেটিংস</string>
     <string name="backup_area_covers">ফোল্ডারের কভার</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">রপ্তানি হচ্ছে...</string>
     <string name="backup_importing">আমদানি হচ্ছে...</string>
     <string name="backup_import_from">%1$s, %2$s-এ রপ্তানি\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">এই সেটিংস বর্তমান সেটিংসের জায়গা নেবে। আবর্জনার ফাইলগুলো আগে থেকে থাকা ফাইলের সঙ্গে যোগ হবে।</string>
+    <string name="backup_import_ask">এই সেটিংস বর্তমান সেটিংসের জায়গা নেবে, শুধু স্টাইল, রং, প্রচ্ছদ, লুকানো ফোল্ডার আর আবর্জনা ছাড়া, যেগুলো আগে থেকে থাকা জিনিসের সঙ্গে যোগ হবে।</string>
     <string name="backup_unlock">সেটিংস ফাইলটি সুরক্ষিত: পাসওয়ার্ড লিখুন।</string>
     <string name="backup_none">নির্বাচিত সেটিংসের জন্য ফাইলটিতে কোনো বৈধ মান নেই।</string>
 </resources>

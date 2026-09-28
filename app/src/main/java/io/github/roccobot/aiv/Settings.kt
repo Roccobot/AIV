@@ -916,9 +916,9 @@ data class Settings(
      * ⚠️ **Nascondere non cancella niente**: le foto restano dove sono, e la cartella si
      * rivede dalle impostazioni. Vale la pena dirlo perché una funzione che si chiama
      * 'escludi' accanto a una che cancellerà davvero è il posto giusto per un equivoco.
-     * ⚠️⚠️ **DALLA `2.96` UN PERCORSO È SENZA LA RADICE DEL VOLUME, ED È SUA RICHIESTA**: `DCIM/Temp`
+     * ⚠️⚠️ **DALLA `2.96` UN PERCORSO DEL TELEFONO È SENZA LA RADICE, ED È SUA RICHIESTA**: `DCIM/Temp`
      * e non `/storage/emulated/0/DCIM/Temp`, così un file di impostazioni lo porta su un altro
-     * telefono. Il perché per esteso, e che cosa ne segue, vivono su `portablePath`, e il confronto
+     * telefono. Dalla `2.99` una scheda resta intera, perché il suo identificativo la ritrova. Il perché per esteso, e che cosa ne segue, vivono su `portablePath`, e il confronto
      * su `coveringOf`: questo campo non si legge mai con `in` o con `startsWith`, perché una voce e
      * il percorso di una cartella non sono più scritti nella stessa forma.
      * ⚠️ **La chiave è nuova**, perché è cambiato quello che la risposta dice: il passaggio da una

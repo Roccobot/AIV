@@ -421,12 +421,13 @@ internal object Backup {
      * e della `2.94`: *File di backup (lo chiamo sempre, coerentemente 'file di impostazioni'): voglio
      * l'estensione `.aivsettings`*). Fino alla `2.94` era `.aivbackup`, e un file con quel suffisso si
      * importa lo stesso: a dire che cosa è ci pensa la sua intestazione, non il nome.
-     * ⚠️ **Il nome dice 'settings' e non più 'backup'**, ed è una lettura dichiarata della stessa riga
-     * (*coerentemente 'file di impostazioni'*): il nome non si traduce, quindi è in inglese come il resto
-     * di quello che l'app scrive su disco.
+     * ⚠️⚠️ **DALLA `2.99` IL NOME È `AIV_20260927.aivsettings`, ED È SUO** (nota sulla voce
+     * `impostazioni-file` del giro della `2.98`: *Non avevo visto la ripetizione di aivsettings tra
+     * nome ed estensione*): dalla `2.95` alla `2.98` era `AIV-settings-<data>.aivsettings`, cioè la
+     * parola dell'estensione scritta due volte.
      */
     fun fileName(now: Long): String =
-        "AIV-settings-${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date(now))}.aivsettings"
+        "AIV_${SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(Date(now))}.aivsettings"
 
     // ── Scrittura ────────────────────────────────────────────────────────────
 

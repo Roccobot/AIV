@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Export und Import</string>
     <string name="backup_desc">Speichere die Einstellungen in einer Datei, die du jederzeit importieren kannst, auch mit künftigen Versionen von Astonishing Image Viewer.</string>
-    <string name="backup_intro">Die Datei enthält die Einstellungen unten, und nur AIV kann sie lesen. Der Inhalt des Papierkorbs kommt zu dem hinzu, was beim Import schon darin ist.</string>
+    <string name="backup_intro">Die Datei enthält die Einstellungen unten, und nur AIV kann sie lesen. Beim Import kommen Stile, Farben, Titelbilder, ausgeblendete Ordner und der Papierkorb zu dem hinzu, was schon da ist.</string>
     <string name="backup_area_view">Aussehen und Navigation</string>
     <string name="backup_area_editor">Einstellungen des Editors</string>
     <string name="backup_area_covers">Titelbilder der Ordner</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Wird exportiert...</string>
     <string name="backup_importing">Wird importiert...</string>
     <string name="backup_import_from">Exportiert am %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Diese Einstellungen ersetzen die aktuellen. Die Dateien des Papierkorbs kommen zu den bereits vorhandenen hinzu.</string>
+    <string name="backup_import_ask">Diese Einstellungen ersetzen die aktuellen, außer Stilen, Farben, Titelbildern, ausgeblendeten Ordnern und dem Papierkorb, die zu dem hinzukommen, was schon da ist.</string>
     <string name="backup_unlock">Die Einstellungsdatei ist geschützt: Gib das Passwort ein.</string>
     <string name="backup_none">Die Datei enthält keine gültigen Werte für die ausgewählten Einstellungen.</string>
 </resources>

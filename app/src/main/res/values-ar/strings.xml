@@ -688,7 +688,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">تصدير واستيراد</string>
     <string name="backup_desc">احفظ الإعدادات في ملف يمكنك استيراده في أي وقت، حتى مع الإصدارات المستقبلية من Astonishing Image Viewer.</string>
-    <string name="backup_intro">يتضمن الملف الإعدادات أدناه، ولا يقرؤه إلا AIV. يُضاف محتوى سلة المهملات إلى ما هو موجود فيها وقت الاستيراد.</string>
+    <string name="backup_intro">يتضمن الملف الإعدادات أدناه، ولا يقرؤه إلا AIV. عند الاستيراد، تُضاف الأنماط والألوان والأغلفة والمجلدات المخفية وسلة المهملات إلى ما هو موجود من قبل.</string>
     <string name="backup_area_view">المظهر والتنقّل</string>
     <string name="backup_area_editor">إعدادات المحرر</string>
     <string name="backup_area_covers">أغلفة المجلدات</string>
@@ -714,7 +714,7 @@
     <string name="backup_exporting">جارٍ التصدير...</string>
     <string name="backup_importing">جارٍ الاستيراد...</string>
     <string name="backup_import_from">تصدير بتاريخ %1$s، %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">ستحل هذه الإعدادات محل الإعدادات الحالية. وستُضاف ملفات سلة المهملات إلى الملفات الموجودة فيها.</string>
+    <string name="backup_import_ask">ستحل هذه الإعدادات محل الإعدادات الحالية، باستثناء الأنماط والألوان والأغلفة والمجلدات المخفية وسلة المهملات، فهي ستُضاف إلى ما هو موجود من قبل.</string>
     <string name="backup_unlock">ملف الإعدادات محمي: أدخل كلمة المرور.</string>
     <string name="backup_none">لا يحتوي الملف على قيم صالحة للإعدادات المحددة.</string>
 </resources>
