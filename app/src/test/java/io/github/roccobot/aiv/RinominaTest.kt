@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config
  * Il banco di prova della **finestra di rinomina in blocco**.
  *
  * ⚠️⚠️ **NASCE CON LA RISPOSTA A `d-data-blocco`, E LA PROVA TORNA CON LA CORREZIONE**
- * (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'): fino alla `1.79` il tocco lungo
+ * (`Rules.md`, § '🧪 Quando si scrive una prova, e quando no'): fino alla `1.79` il tocco lungo
  * su 'Data' rifaceva il template con la sola data, cioè un nome uguale per tutti i file, e
  * 'Rinomina' restava **spento** finché non si aggiungeva un cancelletto a mano. Era una domanda
  * aperta e lui l'ha chiusa (*con più file, scrivi AAAAMMDD più uno spazio seguito da un numero

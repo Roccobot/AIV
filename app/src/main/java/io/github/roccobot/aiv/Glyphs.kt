@@ -470,7 +470,7 @@ object Glyphs {
      * chiamano `Icons` invece di un file.
      * ⚠️ **Il tracciato è ricostruito dal bytecode di `material-icons`** e non copiato da un
      * elenco: il criterio, e il perché quella sia la sola fonte attendibile, vivono in
-     * `CLAUDE.md`, § 'Come entra un disegno'.
+     * `Rules.md`, § 'Come entra un disegno'.
      */
 
     /** Le forbici del ritaglio: il primo modulo dell'editor completo. */

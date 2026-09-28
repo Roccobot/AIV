@@ -59,7 +59,7 @@ import kotlinx.coroutines.withContext
 /**
  * La pagina **'Filigrana'**: il file, dove cade, come è fatta, e se si applica al salvataggio.
  *
- * ⚠️⚠️ **È UNA SOTTO-PAGINA PERCHÉ LA FAMIGLIA HA SUPERATO LA SOGLIA** (`CLAUDE.md`, § '⚙️ Dove va
+ * ⚠️⚠️ **È UNA SOTTO-PAGINA PERCHÉ LA FAMIGLIA HA SUPERATO LA SOGLIA** (`Rules.md`, § '⚙️ Dove va
  * un'impostazione, e chi la deve trovare'): la domanda è una sola, *che logo scrivo sulle immagini
  * che salvo*, e le voci sono sei più l'anteprima, cioè oltre il *2-3* della soglia dell'utente.
  * ⚠️⚠️ **E DALLA `2.71` VIVE DAVVERO DENTRO 'Editor e salvataggio', CHE PRIMA ERA SOLO SCRITTO**

@@ -41,7 +41,7 @@ import kotlin.random.Random
 /**
  * Il banco di prova del **backup**, nato nella `2.93` con la funzione.
  *
- * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `AIV/CLAUDE.md`
+ * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no': un'importazione riscrive le preferenze, le
  * copertine, il logo e il cestino, e quasi tutto quello che può andare storto va storto in
  * silenzio. Un numero che torna di un altro tipo, una chiave dimenticata dall'elenco, una

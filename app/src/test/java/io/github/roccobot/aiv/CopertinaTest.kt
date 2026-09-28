@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
  * Il banco di prova della **copertina scelta a mano**, nata nella `1.94`.
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO, per la metà proattiva della regola**
- * (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'): il gesto che la accende vive su
+ * (`Rules.md`, § '🧪 Quando si scrive una prova, e quando no'): il gesto che la accende vive su
  * un nodo che porta **già** un altro gesto (il tocco lungo che sceglie il colore), cioè uno dei
  * casi in cui il codice può essere valido e non fare niente. Un `onTap` che non arriva non dà
  * nessun errore né al build né a schermo.

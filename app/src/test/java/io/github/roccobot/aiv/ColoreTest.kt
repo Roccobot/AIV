@@ -28,7 +28,7 @@ import org.robolectric.annotation.GraphicsMode
  * ⚠️⚠️ **GUARDA I PIXEL PERCHÉ NESSUNA MISURA DI STRUTTURA POTEVA VEDERLO**: gli stili di
  * [FolderColour] non aggiungono un nodo che si possa cercare per nome, aggiungono del colore
  * dentro un riquadro che c'era già. È la classe di difetti che il banco ha imparato a vedere
- * nella `1.85` (`AIV/CLAUDE.md`, § 'Quando si scrive una prova, e quando no').
+ * nella `1.85` (`Rules.md`, § 'Quando si scrive una prova, e quando no').
  * ⚠️ **Che cosa NON vede**: se quel colore si **distingue** dalla copertina che ha sotto, che
  * dipende dall'immagine e dall'occhio. Vede che c'è, e che senza stile non c'è.
  */

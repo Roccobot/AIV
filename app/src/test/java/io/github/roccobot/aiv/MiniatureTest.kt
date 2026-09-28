@@ -23,7 +23,7 @@ import java.io.File
  *
  * ⚠️⚠️ **NASCE DA UNA VOCE TORNATA INDIETRO DUE VOLTE** (riscontro del giro della `2.24`, voce
  * `mini-cestino` non approvata: *ancora sbagliata, solo nella miniatura (griglia). Era così
- * anche prima*), ed è il caso della regola scritta in `AIV/CLAUDE.md` § '🧪 Quando si scrive
+ * anche prima*), ed è il caso della regola scritta in `Rules.md` § '🧪 Quando si scrive
  * una prova, e quando no': un difetto che è arrivato a lui torna indietro con la prova che lo
  * avrebbe fermato.
  *

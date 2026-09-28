@@ -10,7 +10,7 @@
      dodici spigoli vivi, quindi il raccordo lo cambia davvero (35 pixel diversi su 57.600, cioè
      lo 0,06% della tela, misurati rendendo i due tracciati a 240); quello è disegnato tutto di
      curve, e l'ammorbidimento lo lascerebbe a zero pixel di scarto. La regola che decide vive in
-     `CLAUDE.md`, § 'Come entra un disegno': a zero pixel vince Material.
+     `Rules.md`, § 'Come entra un disegno': a zero pixel vince Material.
 
      IL TRATTAMENTO È QUELLO DEI NOVE GLIFI DELLA 2.32: ogni angolo convesso ESTERNO diventa un
      raccordo, col tetto sull'ARRETRAMENTO dell'angolo retto invece che sul raggio. Gli angoli del

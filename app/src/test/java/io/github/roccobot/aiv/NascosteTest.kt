@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
  * Il banco di prova di **'Mostra nascoste'**, la funzione nuova della `1.92`.
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è la metà proattiva della regola
- * (`AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'): la voce **cambia quello che
+ * (`Rules.md` § '🧪 Quando si scrive una prova, e quando no'): la voce **cambia quello che
  * la schermata mostra**, cioè tocca il filtro dell'elenco, e un filtro che smettesse di filtrare
  * farebbe comparire per sempre cartelle che l'utente ha nascosto apposta. Il codice può essere
  * valido e sbagliare verso.
@@ -160,7 +160,7 @@ class NascosteTest {
      *
      * ⚠️⚠️ **È IL DIFETTO CHE HA TROVATO LUI** (2026-09-08: *la pressione lunga su una cartella
      * nascosta deve proporre il contrario, ovvero di renderla di nuovo visibile*), quindi la
-     * correzione porta la sua prova, come prescrive `AIV/CLAUDE.md` § '🧪 Quando si scrive una
+     * correzione porta la sua prova, come prescrive `Rules.md` § '🧪 Quando si scrive una
      * prova, e quando no'. Il codice era valido e il comando non faceva niente: nascondere una
      * cartella già nascosta.
      * ⚠️ **Si guarda il TITOLO e non il tasto**: il tasto del ripristino riusa la stringa del

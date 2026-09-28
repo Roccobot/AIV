@@ -8,7 +8,7 @@ import org.junit.Test
  *
  * ⚠️⚠️ **QUESTA PROVA ESISTE PERCHÉ LA FUNZIONE CANCELLA FILE PER SEMPRE**: è l'unica parte
  * dell'app che elimina qualcosa senza che nessuno tocchi niente in quel momento, quindi un
- * difetto qui non si vede e non si può disfare. Il criterio universale sta in `AIV/CLAUDE.md`
+ * difetto qui non si vede e non si può disfare. Il criterio universale sta in `Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no': una modifica che può fare danni porta la sua
  * prova anche senza un difetto alle spalle.
  *

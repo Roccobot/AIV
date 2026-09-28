@@ -18,12 +18,12 @@
      li disegnava di tratto, li calcolava una funzione apposta, trattino per trattino.
 
      LA REGOLA DI RIEMPIMENTO È QUELLA DELL'INTERA FAMIGLIA, e il perché sta su
-     `ic_folder_pair`. Le regole di trasporto vivono in `CLAUDE.md`,
+     `ic_folder_pair`. Le regole di trasporto vivono in `Rules.md`,
      § 'Come entra un disegno'.
 
      PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 17 punte esterne, 18
      pixel pieni diversi su 57.600 (58 visibili), misurati rendendo i due tracciati a
-     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     240. Il perché, e perché il logo resta fuori, vivono in `Rules.md`, § 'Come entra
      un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"

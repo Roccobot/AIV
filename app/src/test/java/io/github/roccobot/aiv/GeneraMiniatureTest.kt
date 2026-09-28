@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * 'Genera miniature' e le sue due conferme, dalla `2.97`.
  *
- * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `AIV/CLAUDE.md`
+ * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no': la generazione passa da tre cose che nessun
  * compilatore guarda, cioè un caricatore che deve lasciare su disco quello che decodifica (dalla
  * `2.99`; fino alla `2.98` doveva **non** decodificare), un segno che deve **non** consumare, e un

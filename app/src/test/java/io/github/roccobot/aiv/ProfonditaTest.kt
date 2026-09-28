@@ -41,7 +41,7 @@ import org.junit.runner.RunWith
  * insieme* (sua istruzione, 2026-09-07).
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO, ED È IL CASO PROATTIVO DELLA REGOLA**
- * (`AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'): una modifica che tocca la
+ * (`Rules.md` § '🧪 Quando si scrive una prova, e quando no'): una modifica che tocca la
  * gerarchia dei tocchi porta la sua prova anche senza un difetto alle spalle, e qui ce ne sono
  * due dei tre casi che quella regola elenca. Il menu con l'ombra **misura** e ci posa dentro
  * qualcosa (l'aria intorno al pannello), e quell'aria deve decidere che cosa fa il tocco.

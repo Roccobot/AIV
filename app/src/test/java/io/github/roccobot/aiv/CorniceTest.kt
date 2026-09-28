@@ -26,7 +26,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * La **cornice** dell'ultimo media visualizzato: quanto è spessa e di che colore.
  *
- * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA, ED È LA REGOLA** (`AIV/CLAUDE.md`, § '🧪 Quando si
+ * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA, ED È LA REGOLA** (`Rules.md`, § '🧪 Quando si
  * scrive una prova, e quando no'): nel giro della `2.11` la voce `ind-ultimo` è tornata indietro
  * perché il tratto era troppo sottile e troppo poco vivido. Quanto si veda è percezione e il
  * banco non la sa guardare, ma le due cose che la correzione ha cambiato sono fatti: che lo

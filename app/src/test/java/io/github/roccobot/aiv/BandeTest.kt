@@ -25,7 +25,7 @@ import org.robolectric.annotation.GraphicsMode
  * Il banco che guarda i **pixel** del gradiente dell'intestazione: dentro c'è il rumore che gli
  * toglie le bande.
  *
- * ⚠️⚠️ **NASCE DA UNA SUA SEGNALAZIONE, ED È LA REGOLA** (`AIV/CLAUDE.md`, § '🧪 Quando si scrive
+ * ⚠️⚠️ **NASCE DA UNA SUA SEGNALAZIONE, ED È LA REGOLA** (`Rules.md`, § '🧪 Quando si scrive
  * una prova, e quando no'): nel giro della `2.03` ha scritto *vedo ancora del banding*, cioè la
  * seconda volta sullo stesso difetto dopo la `1.95`. Una correzione che esce senza una misura è
  * una correzione che può tornare indietro un'altra volta.

@@ -1233,7 +1233,7 @@ fun GridScreen(
      * ⚠️ **Il tema dell'app, letto QUI perché serve in fase di disegno**: l'inchiostro dell'icona
      * dell'intestazione lo sceglie una `graphicsLayer`, che gira fuori dalla composizione e un
      * `CompositionLocal` non lo può leggere. È il tema di AIV e non quello di sistema, che è la
-     * distinzione di `AIV/CLAUDE.md`, § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'.
+     * distinzione di `Rules.md`, § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'.
      */
     val chiaro = LocalAivLight.current
     /*
@@ -1566,7 +1566,7 @@ fun GridScreen(
                      * ⚠️⚠️ **L'ICONA RESTA PARLANTE, e adesso dice il gesto che le è rimasto**:
                      * con la descrizione a `null` sarebbe un disegno muto con un'azione sopra,
                      * cioè una funzione per chi la sa e non per chi la cerca.
-                     * ⚠️ **Chi ascolta viene PRIMA di chi misura** (regola in `AIV/CLAUDE.md`,
+                     * ⚠️ **Chi ascolta viene PRIMA di chi misura** (regola in `Rules.md`,
                      * § '👆 Che cosa fa il tocco FUORI da una finestra'): qui i due riquadri
                      * coincidono, ma l'ordine è quello per cui un nodo di tocco non finisce mai
                      * dietro un confine di layout.

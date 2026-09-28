@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config
 /**
  * Il banco della **selezione dal FAB**, nato con la `1.87`.
  *
- * ⚠️⚠️ **ESISTE PER LA METÀ PROATTIVA DELLA REGOLA** (`AIV/CLAUDE.md`, § 'Quando si scrive una
+ * ⚠️⚠️ **ESISTE PER LA METÀ PROATTIVA DELLA REGOLA** (`Rules.md`, § 'Quando si scrive una
  * prova, e quando no'): la scorciatoia vive su un tasto che si stacca in una finestra sua e
  * sparisce a metà gesto, e il suo difetto tipico non dà nessun errore. Un gesto che non arriva
  * al suo tasto compila, si tocca, e semplicemente non fa niente.

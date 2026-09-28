@@ -505,7 +505,7 @@ internal enum class ExtWhere { RENAME, DOWNLOAD }
  *
  * ⚠️⚠️ **SI PORTA DIETRO LE PROPRIE FINESTRE, E QUELLO È IL PUNTO**: chi lo chiama ottiene un
  * tasto che funziona, non due righe da ricordare in fondo alla funzione. È lo stesso criterio
- * per cui `lowered()` porta il velo (`AIV/CLAUDE.md`, § '📍 Che cosa vuol dire 'centrato''): un
+ * per cui `lowered()` porta il velo (`Rules.md`, § '📍 Che cosa vuol dire 'centrato''): un
  * avviso o un pannellino dimenticati non danno nessun errore, danno un tasto che non fa niente.
  * ⚠️ **L'ordine nella composizione non decide chi sta sopra**: le due finestre nascono quando si
  * tocca il comando, cioè quando il dialogo che le apre è già in scena, quindi arrivano dopo di
@@ -1174,7 +1174,7 @@ private fun PreviewPair(line: PreviewLine.Pairing) {
  * ⚠️ **Il gambo lo taglia `clipToBounds` e non la pastiglia di sopra**, che è disegnata prima e
  * quindi non copre niente: senza il ritaglio il gambo entrerebbe nel suo riquadro.
  * ⚠️ **Non è un disegno nuovo in `res/`**: il gambo corto del suo mockup è la stessa icona con
- * la parte di sopra tagliata, e a zero pixel di scarto vince Material (`CLAUDE.md`,
+ * la parte di sopra tagliata, e a zero pixel di scarto vince Material (`Rules.md`,
  * § '🖌️ Come entra un disegno').
  */
 @Composable

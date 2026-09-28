@@ -149,12 +149,12 @@ private val TONE_NAMES_TEST = listOf(
  *
  * ⚠️⚠️ **NON SI CHIAMA `ColoreTest` PERCHÉ QUEL NOME È GIÀ PRESO, e da un'altra cosa**: là vive
  * il colore di una **cartella**, cioè la tinta della sua intestazione. Qui si sviluppa
- * un'immagine, che è il verbo con cui `AIV/CLAUDE.md` distingue i due editor, e due prove
+ * un'immagine, che è il verbo con cui `Rules.md` distingue i due editor, e due prove
  * omonime in un repository che ne parla in ogni giro sono due cose che prima o poi qualcuno
  * scambia.
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di
- * `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': col secondo modulo i cursori
+ * `Rules.md` § '🧪 Quando si scrive una prova, e quando no': col secondo modulo i cursori
  * **non si vedono più tutti insieme**, quindi un gettone che non cambiasse l'elenco, o un 'Reset
  * modulo' che azzerasse anche l'altro, sarebbero difetti che il compilatore non vede e che si
  * scoprono solo muovendo un cursore e guardando sparire il lavoro fatto altrove.
@@ -1570,7 +1570,7 @@ class SviluppoTest {
      * vivevano in una terza riga scritta a parole.
      * ⚠️ **Si misura il bordo di SOPRA di ognuna**, che è la cosa che distingue una riga
      * dall'altra, e non la larghezza: quella dipende da quanto il carattere del banco è stretto,
-     * che è il caso dichiarato in `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
+     * che è il caso dichiarato in `Rules.md` § '🧪 Quando si scrive una prova, e quando no'.
      * ⚠️⚠️ **E I DUE VERSI SI CERCANO PER DESCRIZIONE PARLATA, che è la cosa che può rompersi in
      * silenzio**: da icone il nome non si legge più a schermo, quindi senza `contentDescription`
      * quel comando è muto per un lettore di schermo e invisibile al banco.

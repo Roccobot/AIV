@@ -49,7 +49,7 @@ import java.io.File
 /**
  * Il banco di prova del **ridimensionamento al salvataggio**, nato nella `2.70`.
  *
- * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `AIV/CLAUDE.md`
+ * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no': qui si decide **quanti pixel** finiscono in un
  * file dell'utente, e ognuna delle cose che possono andare storte va storta in silenzio. Un piano
  * che ingrandisce dà un file più pesante e non più nitido; un conto che guarda il lato sbagliato

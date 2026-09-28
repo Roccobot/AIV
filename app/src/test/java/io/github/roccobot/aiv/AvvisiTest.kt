@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
  * Il canale con cui l'app dice com'è andata, e la riga che ne esce.
  *
  * ⚠️⚠️ **NASCE COL LAVORO E NON DOPO UN DIFETTO** (sua risposta `casa` a `d-avvisi`), e la
- * ragione è quella di `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': questo
+ * ragione è quella di `Rules.md` § '🧪 Quando si scrive una prova, e quando no': questo
  * canale è **uno per tutta l'app**, quindi un suo difetto non si vede in una schermata sola, e
  * quello che sostituisce (diciassette avvisi di sistema) funzionava.
  * ⚠️⚠️ **E DUE DI QUESTI CASI SONO CORSE, cioè la classe di difetto che non si riproduce
@@ -256,7 +256,7 @@ class AvvisiTest {
      * DETTO LA CONTROPROVA.** La prima stesura guardava `onNodeWithText`, cioè la frase, che dentro
      * la sua superficie finisce ben prima del bordo: col rientro tolto a mano il caso del FAB a
      * destra **restava verde**, perché là fra la fine del testo e il tasto c'è lo spazio della
-     * superficie vuota. È il caso generale scritto in `AIV/CLAUDE.md` § '🧪 Quando si scrive una
+     * superficie vuota. È il caso generale scritto in `Rules.md` § '🧪 Quando si scrive una
      * prova, e quando no': una prova che non si vede fallire col difetto rimesso non misura niente.
      * ⚠️ **Controprovata** togliendo il rientro da `aboveFoot()`: la notifica resta larga quanto lo
      * schermo e prende il FAB sotto di sé, in tutti e due i casi.

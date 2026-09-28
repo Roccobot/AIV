@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 /**
  * Il banco di prova della **larghezza** del menu ancorato al FAB.
  *
- * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA, ED È LA REGOLA** (`AIV/CLAUDE.md` § '🧪 Quando si
+ * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA, ED È LA REGOLA** (`Rules.md` § '🧪 Quando si
  * scrive una prova, e quando no': *un difetto che è arrivato a lui torna indietro con la prova
  * che lo avrebbe fermato, nella stessa versione della correzione*). La voce è `menu-bordo` del
  * giro della `1.89`: *bisogna far sì che con l'ombra attiva il pannello sia più largo di due

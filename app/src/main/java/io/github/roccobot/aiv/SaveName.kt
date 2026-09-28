@@ -73,7 +73,7 @@ import java.time.format.DateTimeFormatter
  * ⚠️⚠️ **È UNA MODALE VERA, E LE DUE RIGHE VANNO INSIEME** (`Modifier.lowered(null)` e
  * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il solo
  * caso in cui l'app non si chiude toccando fuori. Il criterio e il difetto che l'ha fatto
- * scrivere due volte vivono in `AIV/CLAUDE.md`, § '👆 Che cosa fa il tocco FUORI da una
+ * scrivere due volte vivono in `Rules.md`, § '👆 Che cosa fa il tocco FUORI da una
  * finestra'.
  *
  * @param full il nome intero che il file avrebbe, suffisso compreso.

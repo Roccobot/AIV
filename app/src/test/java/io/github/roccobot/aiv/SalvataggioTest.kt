@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config
 /**
  * Il banco di prova della **finestra del nome**, nata con la tappa del salvataggio in Download.
  *
- * ⚠️⚠️ **ESISTE PER LA METÀ PROATTIVA DELLA REGOLA** (`CLAUDE.md`, § '🧪 Quando si scrive una
+ * ⚠️⚠️ **ESISTE PER LA METÀ PROATTIVA DELLA REGOLA** (`Rules.md`, § '🧪 Quando si scrive una
  * prova, e quando no'): una superficie che si **apre sopra** un'altra e deve decidere che cosa
  * fa il tocco fuori è uno dei tre casi che vogliono la prova anche senza un difetto alle
  * spalle. [SaveNameDialog] è quello, e in più promette una cosa che si può misurare: che il
@@ -97,7 +97,7 @@ class SalvataggioTest {
      * **I comandi sul nome ci sono, e 'Estensione' NO finché l'impostazione è spenta.**
      *
      * ⚠️⚠️ **QUESTO DIFETTO È ARRIVATO A LUI, e la prova torna con la correzione, nella stessa
-     * versione** (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'): la voce
+     * versione** (`Rules.md`, § '🧪 Quando si scrive una prova, e quando no'): la voce
      * `scarica-download` del giro della `1.77` non è stata approvata perché la finestra portava
      * la sola 'Data', mentre *esattamente come in 'Rinomina', devono esserci i tasti 'Seleziona
      * tutto' e 'Svuota'*.
@@ -168,7 +168,7 @@ class SalvataggioTest {
      * ⚠️⚠️ **È LA VOCE `save-quando` DELLA `1.83`, CIOÈ UNA CHE NON AVEVA APPROVATO** (giro della
      * `1.82`: *qualunque sia lo stato di 'Consenti la rinomina al salvataggio', la pressione lunga
      * su 'Scarica' rende sempre disponibili sia 'Destinazione' che 'Estensione'*), quindi torna
-     * qui con la prova che l'avrebbe fermata, come prescrive `AIV/CLAUDE.md` § '🧪 Quando si
+     * qui con la prova che l'avrebbe fermata, come prescrive `Rules.md` § '🧪 Quando si
      * scrive una prova, e quando no'.
      * ⚠️ **Le due icone si cercano per DESCRIZIONE e non per testo**: una pastiglia porta il suo
      * nome come testo, un'icona come descrizione parlata, e cercare nel posto sbagliato darebbe

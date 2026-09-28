@@ -18,7 +18,7 @@ import org.junit.runner.RunWith
  *
  * ⚠️⚠️ **NASCE COL DIFETTO CHE È ARRIVATO A LUI DUE VOLTE** (riscontro del giro della `1.80`,
  * punto C: *accade ancora che le estensioni dei file siano spezzate*, e prima nel giro della
- * `1.59` sulle pastiglie della rinomina), come prescrive `AIV/CLAUDE.md` § '🧪 Quando si scrive
+ * `1.59` sulle pastiglie della rinomina), come prescrive `Rules.md` § '🧪 Quando si scrive
  * una prova, e quando no'. La `1.59` aveva corretto **una** delle due vie che compongono un
  * nome, e nell'altra il difetto è rimasto vivo per ventidue versioni.
  *

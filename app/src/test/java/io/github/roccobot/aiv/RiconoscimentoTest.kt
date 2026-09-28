@@ -27,7 +27,7 @@ import java.util.zip.GZIPOutputStream
  * miniatura. Porta in testa il manifesto C2PA (il blocco `caBX`), e dentro il manifesto un'icona
  * SVG, col tag al byte 305: [Svg.looksLike] cercava il tag nei primi mille byte e rispondeva di
  * sì. Il perché quel sì costasse la miniatura vive sulla funzione. È il caso della regola scritta
- * in `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': un difetto che è arrivato a
+ * in `Rules.md` § '🧪 Quando si scrive una prova, e quando no': un difetto che è arrivato a
  * lui torna indietro con la prova che lo avrebbe fermato.
  *
  * ⚠️ **Il PNG si costruisce qui e non si prende dal file vero**: quello è un'immagine sua, e al

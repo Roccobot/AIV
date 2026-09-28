@@ -34,7 +34,7 @@ import java.io.File
  *
  * ⚠️⚠️ **NASCE DA UN DIFETTO ARRIVATO A LUI** (campo libero del giro della `2.93` e della `2.94`,
  * e in chat il 2026-09-27: *la miniatura in effetti c'è ed è nera*), quindi torna indietro con la
- * prova che lo avrebbe fermato, come vuole `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e
+ * prova che lo avrebbe fermato, come vuole `Rules.md` § '🧪 Quando si scrive una prova, e
  * quando no'.
  *
  * ⚠️⚠️ **CHE COSA MISURA E CHE COSA NO.** Misura il riconoscimento del nero su bitmap scritte a

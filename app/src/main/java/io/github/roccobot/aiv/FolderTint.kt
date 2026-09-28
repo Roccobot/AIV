@@ -138,7 +138,7 @@ val FRONT_TINTS: List<FrontTint> = listOf(
  * ⚠️⚠️ **IL TEMA È QUELLO DELL'APP E NON QUELLO DI SISTEMA**, cioè [LocalAivLight] e non la
  * configurazione: AIV ha una voce sua in 'Aspetto', quindi con 'Chiaro' scelto qui dentro su un
  * telefono in tema scuro i due valori divergono. È il difetto che gli è già arrivato due volte
- * (`AIV/CLAUDE.md` § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'), e questa funzione
+ * (`Rules.md` § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'), e questa funzione
  * è composabile proprio per non poterlo rifare.
  */
 @Composable
@@ -151,7 +151,7 @@ fun frontTintOf(index: Int?): Color? {
  * La finestra che fa scegliere la tinta di questa cartella.
  *
  * ⚠️ **Non è una modale vera**: non raccoglie nessun input scritto, quindi il tocco fuori la
- * chiude, che è il criterio di `AIV/CLAUDE.md` § '👆 Che cosa fa il tocco FUORI da una finestra'.
+ * chiude, che è il criterio di `Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'.
  * ⚠️ **Il tocco sceglie e chiude**, senza un tasto di conferma: la scelta è di un colore fra
  * sedici e si vede subito dietro la finestra, quindi una conferma sarebbe un tocco in più per
  * dire una cosa che l'occhio ha già detto.

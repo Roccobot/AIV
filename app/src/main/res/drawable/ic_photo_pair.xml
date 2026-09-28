@@ -34,11 +34,11 @@
      decimale esatto rendono 9 pixel diversi su 230.400 con scarto 8, perché il
      disegnatore somma in virgola mobile a 32 bit e il risultato non cade sullo stesso
      numero. Un gruppo di sola traslazione è un elemento pieno di `VectorDrawable`, non un
-     ripiego: il criterio completo vive in `CLAUDE.md`, § 'Come entra un disegno'.
+     ripiego: il criterio completo vive in `Rules.md`, § 'Come entra un disegno'.
 
      PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 4 punte esterne, 2
      pixel pieni diversi su 57.600 (13 visibili), misurati rendendo i due tracciati a
-     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     240. Il perché, e perché il logo resta fuori, vivono in `Rules.md`, § 'Come entra
      un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="25dp"

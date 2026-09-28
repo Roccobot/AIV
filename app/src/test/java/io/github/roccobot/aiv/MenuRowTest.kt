@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
  * PORTARE.** Fino alla `1.80` [MenuRow] installava il gesto in due modi opposti
  * (`combinedClickable` con un tocco lungo, `clickable` senza), e il censimento della UI del
  * 2026-09-05 lo ha segnalato come incoerenza interna. Unificarlo tocca la **gerarchia dei
- * tocchi**, ed è uno dei tre casi in cui `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e
+ * tocchi**, ed è uno dei tre casi in cui `Rules.md` § '🧪 Quando si scrive una prova, e
  * quando no' chiede la prova anche senza un difetto alle spalle: là un codice valido può non
  * fare niente, e non lo vede nessun compilatore.
  *
