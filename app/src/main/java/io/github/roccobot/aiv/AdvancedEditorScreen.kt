@@ -4399,7 +4399,8 @@ private fun ModuleChip(
      * Il glifo da scrivere al posto del nome, o `null` per il gettone scritto.
      *
      * ⚠️⚠️ **I DUE ASPETTI SONO DUE FILE DIVERSE E NON UNA PREFERENZA**: i moduli sono sette e coi
-     * nomi non entrano nella larghezza (§ '🎚️ L'editor completo'), i canali delle Curve sono
+     * nomi non entrano nella larghezza (`docs/Editor.md` § '✂️ Il modulo Ritaglio, e la fila che è
+     * diventata di icone'), i canali delle Curve sono
      * quattro e i loro nomi sono una lettera o poco più, quindi là un'icona direbbe meno della
      * parola. ⚠️ **Il nome non si perde nemmeno col glifo**: resta il `contentDescription`, cioè
      * quello che un lettore di schermo legge e quello che il banco cerca.

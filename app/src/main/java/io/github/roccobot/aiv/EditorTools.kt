@@ -110,7 +110,7 @@ private fun EditorTool(
  * ⚠️⚠️ **SENZA UN LOGO SCELTO IL TASTO NON C'È, E IL PRECEDENTE È 'MOSTRA NASCOSTE'**: senza un
  * file adottato non c'è niente da accendere né da spegnere, e un interruttore che non cambia
  * nessuna immagine è un comando che non fa niente. È lo stesso criterio per cui quella voce del
- * menu compare **se e solo se** una cartella è nascosta (`AIV/CLAUDE.md` § '👁️ Mostra nascoste, e
+ * menu compare **se e solo se** una cartella è nascosta (`docs/Folders.md` § '👁️ Mostra nascoste, e
  * perché dura un minuto').
  * ⚠️ **Quindi la porta per sceglierlo resta quella di sempre**, cioè le impostazioni: è la strada
  * che la sua specifica della `2.69` descrive (*è configurabile dalle impostazioni, sezione

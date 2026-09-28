@@ -1,0 +1,363 @@
+# Folders.md: le funzioni delle cartelle di AIV
+
+> **Cos'è questo file.** Le specifiche delle funzioni che riguardano le cartelle e le griglie di
+> AIV: che cosa fa ognuna, le decisioni dell'utente su di lei e le sue trappole. Non si carica da
+> solo: si legge per intero prima di toccare una di queste funzioni. Le regole del repo vivono in
+> `Rules.md`, e un rimando a una sua sezione porta il nome del file.
+
+## 🖼️ Intestazione delle cartelle, e le due schermate che la portano
+
+**Com'è fatto.** L'intestazione vive nella schermata iniziale e in ogni cartella, e quello che
+condividono vive in `Front.kt`: la frazione di schermo, la fascia che si chiude, lo scorrimento che
+la chiude prima che l'elenco si muova, le sfumature in fondo. I numeri li ha dettati lui, e sono una
+decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
+
+- **Il nome della cartella è `titleLarge`**, più piccolo di `headlineSmall` della testata: con lo
+  stesso corpo la traslazione non avrebbe niente da raccontare. I nomi lunghi vanno a capo
+  (`FRONT_TITLE_LINES`), che è il modo in cui lascia spazio ai nomi lunghi. L'icona è a
+  `FRONT_INK`, 0,3.
+- **La traslazione del titolo è la parallasse della fascia**: la fascia posa il contenuto centrato
+  in quel che resta, quindi chiudendosi lo alza verso la testata. Le due copie del nome si
+  scambiano con opacità complementari, senza un punto della corsa in cui il nome si legga meno che
+  agli estremi.
+  - ⚠️ **Il nome è due volte nell'albero semantico**, e nessuna delle due copie si può togliere; chi
+    vuole chiudere quel buco usa l'`alpha` semantico.
+- **Quando è aperta** (sue risposte): mentre la griglia carica è aperta; tornando dal
+  visualizzatore resta com'era. Le regge una regola sola: con la griglia scorsa la fascia non è
+  aperta. Col dito è vero per costruzione, e la regola è scritta per il salto programmato
+  all'immagine da cui si torna, che non passa dallo scorrimento annidato.
+- ⚠️⚠️ **Durante una selezione la fascia non si chiude** (sua richiesta): la chiusura automatica
+  faceva scorrere la griglia sotto un dito appoggiato, e il gesto da/a della selezione prendeva
+  altre miniature. Si chiude in un modo solo, scorrendo. La ragione per cui si chiudeva (il conto
+  dei selezionati in testata) è caduta, perché il conto vive sotto il titolo.
+- ⚠️⚠️ **Il conto sotto il titolo dice 'elementi' e non 'immagini'** (ci sono anche i video),
+  centrato, più piccolo e meno opaco (sua specifica); con una selezione dice 'N elementi
+  selezionati' (`pick_count`).
+  - ⚠️⚠️ **`folders_count` non si riscrive**: la schermata iniziale conta con lei le sole immagini
+    (`bucket.pictures`, accanto a `folders_clips` per i video), e là 'immagini' è giusto. La
+    griglia usa una chiave sua, `items_count`, perché i due scopi sono diversi e un ritocco a uno
+    cambierebbe l'altro in silenzio.
+- ⚠️ **L'icona si rimpicciolisce misurandola, e cede lo spazio**: scalata con `graphicsLayer`, il
+  titolo sotto non salirebbe. **Sbiadisce dall'istante in cui comincia a stringersi**, con una
+  rampa lineare (una curva che parte con pendenza zero nasconderebbe l'inizio della dissolvenza,
+  che è quello che ha chiesto di vedere); la soglia si ricava dalla misura, cioè è l'apertura a
+  cui lo spazio concesso all'icona vale il suo lato massimo.
+- ⚠️ **Né il cestino né la ricerca hanno l'intestazione, ed è una scelta non rivista**: la ragione
+  del cestino (un FAB che non poteva perdere la sfumatura) è decaduta quando il FAB ha preso a
+  passare sopra le sfumature; nella ricerca la testata porta un campo di testo.
+- **Le sfumature in fondo**: nelle cartelle ce n'è una sola, e se ne va scorrendo (sue richieste);
+  nella schermata iniziale restano le due, e il valore di serie di `GroundFade` porta la coda. Là
+  la coda è più in alto da quando la griglia arriva al vetro (`FOOT_SOLID`, `FOOT_REACH`).
+
+**La variante 10** (sua risposta a `d-frontespizio`).
+- **Si compone di quattro interruttori** sotto 'Intestazione delle cartelle', in 'Aspetto':
+  `frontWash` (il gradiente), `frontSerif` (il titolo graziato), `frontFacts` (le pastiglie del
+  peso e dei video) e `frontPickAll` ('Seleziona tutto'). Di fabbrica tre accesi e `frontSerif`
+  spento: è la sua risposta `tre` a `d-front-serif`, e non si tocca.
+- ⚠️ **Il gradiente si accorcia per costruzione**: è dipinto dietro il blocco che si stringe, senza
+  una seconda altezza calcolata a parte.
+- **Il gradiente parte da `WASH_PEAK` (oggi 25%) e finisce prima della griglia**, e sbiadisce
+  scorrendo (sue richieste); la storia dei suoi valori vive sulla costante. 'Titolo graziato'
+  cambia solo il carattere.
+- ⚠️⚠️ **La tinta vive sul blocco che contiene testata più fascia**, per la trappola di
+  `drawBehind` (`Rules.md` § '🖍️ Due trappole del disegno in Compose'): su un nodo dopo la
+  testata, il titolo in testata le spariva sotto. La prova guarda i pixel su una scena minima.
+- **L'icona col gradiente**: in negativo sul tema chiaro (`FRONT_NEG_INK`, piena, perché una
+  sagoma più trasparente sul gradiente si spegne), bianca al 20% sul tema scuro (`FRONT_DARK_INK`,
+  sue misure). Il tema è quello dell'app (`LocalAivLight`, `Rules.md` § '🌗 Il tema scelto DENTRO
+  l'app non è quello di sistema'), letto prima del `graphicsLayer`, dove non si è più in
+  composizione.
+- ⚠️⚠️ **Il gradiente arriva fin sotto la barra di sistema con una fascia piena** (sua richiesta),
+  del colore della cartella, e si spegne scorrendo con la sfumatura. Una fascia piena e non un
+  rettangolo più alto: allungando il gradiente il suo massimo salirebbe sopra la barra, e la rampa
+  che lui ha tarato cambierebbe.
+  - ⚠️ **La fascia legge `WASH_PEAK` e non una copia**, quindi la barra prende sempre il colore da
+    cui la sfumatura parte. Le icone della barra non si toccano: chi alza `WASH_PEAK` guarda anche
+    quelle.
+- **Il dithering**: il gradiente si posa a mano (`Brush.applyTo` più `drawIntoCanvas`, con
+  `isDither`), su un rettangolo più largo dello schermo, col pennello costruito sulla misura vera.
+  Non è bastato (sua segnalazione, per una ragione che non si conosce), e il rumore è diventato uno
+  shader per pixel con un livello di rumore triangolare (`Dither.kt`).
+  - ⚠️⚠️ **Sotto Android 13 la rampa col rumore è precalcolata e stesa come maschera di sola
+    opacità** (`rampMask`, una tessera larga 128), ed è la sua risposta `copri` a
+    `d-dither-vecchi`: uno shader scritto a mano vuole `RuntimeShader`. Il colore lo mette il
+    paint, e il rumore sull'opacità si taglia la dose da sé (`GRAIN_STEPS`). ⚠️ **Nessuno dei due ha
+    un telefono sotto la 13 per guardarla**: quel ramo lo presidia il banco.
+  - ⚠️ **`BandeTest` guarda la tessera e non il disegno**: nel disegno entra un rumore di Skia che
+    non si distingue dal nostro, e la prima stesura restava verde col rumore azzerato. Il secondo
+    caso misura che la maschera si tinga col colore del paint.
+- **Le pastiglie dei dati costano una query** (`Folder.weigh`) e compaiono solo se il dato esiste;
+  le quattro hanno lo stesso vestito neutro, e la terza conta le immagini (sua risposta `immagini`
+  a `d-front-altro`). Il tocco lungo sul peso entra in selezione con tutto, quello sui video coi
+  soli video (sue richieste); 'Seleziona tutto' dice 'Deseleziona' dopo il primo tocco.
+- ⚠️ **Quando la fila va a capo si allinea al lato del FAB** (`fabEdge`, sua richiesta), così la
+  riga che va a capo è sotto il pollice. Vale solo a capo, perché con le pastiglie su una riga la
+  fila si dimensiona sul contenuto (lo ha misurato il banco). ⚠️ **Caso limite da guardare sul
+  telefono**: su uno schermo molto stretto o coi caratteri grandi 'Seleziona tutto' può non
+  vedersi, perché la fascia la ritaglia, ed è la ragione per cui la prova che lo misurava è stata tolta.
+
+**I quattro gesti** (suoi): il tocco sul nome lo copia, il tocco lungo rinomina la cartella; il
+tocco sull'icona sceglie la copertina (§ '🖼️ La copertina scelta a mano'), il tocco lungo sceglie
+il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
+- ⚠️ **Il gesto che apriva il gestore file di sistema non c'è più**, e con lui è stato tolto il codice
+  che lo serviva (`Folder.openInFiles` e le sue stringhe).
+- ⚠️⚠️ **La rinomina è la stessa finestra del file singolo** (sua istruzione): `RenameDialog` col
+  parametro `folder`, che vuole il nome intero nel campo, nessun comando sotto, e un'estensione
+  eventuale dentro il campo.
+- ⚠️⚠️ **Rinominare cambia il `BUCKET_ID`**, che è il CRC del percorso: la griglia si riapre sulla
+  cartella nuova, o mostrerebbe una cartella vuota senza errori, e copertina e tinta viaggiano con
+  lei. Il disco si rinomina con `File.renameTo` e il MediaStore si aggiorna con
+  `MediaScannerConnection`, o la cartella nuova resterebbe invisibile fino al giro
+  dell'indicizzatore di sistema.
+- ⚠️ **I gesti vivono sul nome grande, non sulla copia in testata**, che a fascia aperta è
+  trasparente ma raggiungibile.
+
+**Le sedici tinte.**
+- ⚠️⚠️ **Ogni tinta è una coppia, una per tema** (sua richiesta), con un contrasto minimo dal
+  fondo; nel selettore i tondi sono tagliati in due (sopra il chiaro, sotto lo scuro) in tutti e due
+  i temi. La scelta resta un indice, e a cambiare col tema è come quel colore si scrive.
+- ⚠️⚠️ **Le sedici coprono la ruota a passo uniforme in OkLCh** (sua istruzione: c'erano troppi
+  verdi), non in HSL, che addensa i verdi e dirada i blu. I bersagli di luminosità sono misurati
+  sulla tavolozza che aveva approvato, così cambia la distribuzione e non il carattere. Il
+  grigio-blu non c'è più, e le cartelle già tinte hanno cambiato colore: non si evita rinumerando.
+  Criterio, fondi e conti vivono in `FolderTint.kt`.
+- ⚠️ **Una cartella cancellata non si rincorre** (sua istruzione): l'archivio delle tinte non si
+  pota, e il perché vive su `FolderTints`.
+
+## 📐 Le griglie arrivano al vetro, anche in basso
+
+- ⚠️⚠️ **Il rientro di sotto vive nel `contentPadding` della lista e non sul contenitore** (sua
+  richiesta): `safeDrawingPadding()` sul contenitore toglie lo spazio prima che la griglia disegni,
+  e sotto la barra gestuale non arriverebbe niente. Le miniature scorrono sotto la barra, e l'ultima
+  riga resta raggiungibile. La misura la dà `bottomInset()`, in `Front.kt`.
+  - ⚠️ **Anche il margine verticale della schermata si scompone**, o la griglia si ferma sopra il
+    vetro.
+- **La sfumatura in fondo arriva al vetro**, e tiene la barra gestuale su un fondo neutro.
+- ⚠️ **Il FAB della griglia vive in una finestra sua** e i rientri se li mette da sé; quello della
+  schermata iniziale porta `safeDrawingPadding()`.
+- ⚠️ **Nessuna prova del banco**: là i rientri valgono zero. Si guarda sul telefono, con la
+  navigazione gestuale e con quella a tre tasti.
+
+## ⏫ Il salto in cima e in fondo, sul glifo del FAB
+
+- ⚠️⚠️ **In cima e in fondo porta il FAB, e il suo glifo diventa un chevron** (sua scelta fra due
+  mockup animati): niente tasti in più, niente seconda finestra, e il FAB non sparisce mai. Cambia
+  il disegno dentro un tasto che c'era già, con lo stesso incrocio di zoom e dissolvenza della `×`
+  a menu aperto.
+  - **Il tasto è uno, e il verso lo decide lo scorrimento**: verso il fondo diventa 'Vai alla
+    fine', verso l'alto 'Vai all'inizio'. ⚠️ Quello che si perde è dichiarato: i due versi non sono
+    disponibili insieme.
+  - ⚠️⚠️ **A tasto armato il tocco salta e non apre il menu**; l'armamento finisce un secondo dopo
+    l'ultimo pixel scorso.
+  - **I cinque numeri sono del mockup che ha approvato**, e vivono in `Jump.kt`.
+  - ⚠️ **Il crossfade dei due glifi usa un esponente sotto uno (0,8)**: con due opacità lineari, a
+    metà corsa i glifi sono al 9% e il tasto resta vuoto.
+- ⚠️⚠️ **Dove il FAB non c'è, il comando non c'è**: nelle impostazioni è la sua risposta (le voci le
+  trova con la ricerca e le sotto-pagine), in 'Cartelle di sistema' e nella vista ad albero è la
+  conseguenza.
+- ⚠️⚠️ **Il `nestedScroll` del gesto va prima di `frontScroll`**: scritto dopo, al glifo arrivava
+  zero finché la fascia aveva spazio da chiudere (misurato con una spia dentro il nodo).
+- ⚠️⚠️ **Il salto passa dallo scorrimento annidato come un dito**, e così l'intestazione si riapre
+  in cima, che è la sua richiesta: succede perché è quello che succede già col dito.
+  - ⚠️ **I segni**: `scrollBy` conta positivo verso il fondo, il puntatore positivo verso il basso.
+    Lo presidia il banco, perché un segno di troppo non lo vede nessun compilatore.
+  - ⚠️ **La distanza è una stima e serve solo alla durata**: una lista pigra non sa quanto è alto
+    quello che non ha composto, e la corsa si ferma al bordo lo stesso.
+- ⚠️ **Scartata la guardia del mockup che escludeva la corsa dal conto del gesto**: due controprove
+  l'hanno smentita (`glide` muove la lista dentro `state.scroll {}`, che non risale la catena dei
+  modificatori, e una corsa verso l'inizio muove la lista nel verso che il chevron già indica).
+- **`SaltiTest`** vede il passaggio dallo scorrimento annidato nei due versi, il verso che segue il
+  dito, e che nella schermata vera il FAB annunci il salto solo a tasto armato; non vede la resa.
+  Le due trappole del banco trovate qui vivono in `Rules.md` § '🧪 Quando si scrive una prova, e
+  quando no'. ⚠️ **Il FAB non compare in una griglia montata senza destinazioni** (`FabPop`): una
+  prova che lo guarda le passa almeno una destinazione.
+
+## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
+
+- ⚠️⚠️ **La posizione di scorrimento sopravvive alla schermata** (sua richiesta), con un
+  `SaveableStateHolder` in `AivApp`: `rememberLazyGridState` è un `rememberSaveable`. Scartato un
+  archivio scritto a mano, che avrebbe coperto la sola griglia.
+  - ⚠️ **La chiave (`Screen.saveKey`) è una stringa**, perché finisce in un `Bundle`, e porta solo
+    l'identità: non il nome di una cartella, perché una cartella rinominata è la stessa.
+  - ⚠️ **Cresce di una voce per schermata visitata e non si pota**: un indice e uno scarto costano
+    meno di un limite col suo sfratto.
+- ⚠️⚠️ **L'apertura della fascia vive nello stesso `rememberSaveable`, come frazione e non in
+  pixel**: la fascia è una funzione della posizione di scorrimento, e le due cose tornano insieme
+  per costruzione (sua segnalazione: la fascia ripartiva aperta a lista scorsa). In pixel, dopo una
+  rotazione direbbe un'altra apertura. La nota che voleva riaprirla alla rotazione è superata.
+  - ⚠️ **Nella griglia di una cartella l'invariante resta scritto come regola** (con la lista scorsa
+    la fascia si chiude), perché il salto all'immagine scorre senza scorrimento annidato.
+  - **La prova è `RientroTest`**, che misura dove comincia la prima cartella prima di uscire e dopo
+    il rientro.
+- ⚠️⚠️ **Il salto all'immagine da cui si torna si fa solo se nel visualizzatore si è sfogliato fino
+  a un'altra immagine**, e si ricorda quale immagine è già stata servita (un indice), non una
+  bandierina: con lo stato che sopravvive, una bandierina non si azzererebbe più e il salto non si
+  farebbe mai.
+
+## 🎨 Dove si vede il colore di una cartella, fuori dall'intestazione
+
+- ⚠️⚠️ **Gli stili sono quattro, scelti da lui fra i mockup** (`d-colore-come`): **filetto** (una
+  riga sotto la copertina), **cornice**, **nome** (il titolo nel suo colore) e **alone** (una
+  sfumatura dal bordo di sopra). I numeri sono del mockup, e il filetto è di quattro punti perché
+  sotto quella misura le sedici tinte non si distinguono. ⚠️ **L'angolo piegato è stato visto e
+  scartato.**
+- ⚠️⚠️ **Di fabbrica c'è 'Nome'**, sua risposta dopo averli provati. Nell'elenco viene subito dopo
+  'Nessuno' (sua istruzione): l'ordine dei chip è quello dell'enum, e nell'archivio vive il token,
+  quindi riordinare non cambia le scelte salvate. La voce di collaudo porta comunque il passo
+  passo, perché senza una cartella con un colore suo non si vede niente.
+- **Vale per copertine ed elenco**, con le stesse misure; nella vista 'Cartelle di sistema' non c'è
+  niente da tingere, perché una tinta è appesa al `BUCKET_ID` del MediaStore.
+- ⚠️⚠️ **La finestra delle destinazioni tinge** (sua risposta `tinta` a `d-dest-tinta`): chi sceglie
+  dove mettere un file cerca la cartella che riconosce dal colore. Tinte e copertine si caricano
+  dentro la finestra, nello stesso `produceState` delle cartelle.
+- **La voce vive in 'Aspetto'**, e la gemella nel dialogo delle opzioni della schermata iniziale (la
+  scorciatoia del tocco lungo sul FAB): una preferenza, una chiave, un valore di fabbrica.
+- ⚠️⚠️ **Il tocco lungo sul FAB in una cartella seleziona tutto, e non ha un rovescio** (sua
+  richiesta): appena c'è una selezione il FAB lascia il posto alla scheda, quindi un secondo gesto
+  non arriva a nessuno. Il rovescio sono il tasto 'Tutti' col suo tocco lungo e la pastiglia
+  dell'intestazione. L'ha misurato la prova, fallita alla prima corsa con *the node is no longer in
+  the tree*.
+
+## 🖼️ La copertina scelta a mano
+
+- ⚠️⚠️ **L'immagine scelta si copia in casa dell'app, ridotta a mille pixel di lato**, ed è la sua
+  condizione: la copertina deve restare anche se l'originale sparisce. Tenerne l'indirizzo sarebbe
+  costato una riga, e la cartella tornerebbe alla predefinita appena l'originale si sposta. Una
+  copertina si vede al massimo a cinquecento pixel.
+  - ⚠️ **Il file è l'archivio**: nessuna preferenza da tenere allineata, e il nome porta l'istante,
+    che tiene onesta la cache di Coil. Il perché vive in testa a `FolderCover.kt`.
+- ⚠️⚠️ **Il gesto è il tocco sull'icona dell'intestazione** (sua risposta `d-copertina-come`), e
+  l'immagine si sceglie dentro AIV da qualunque cartella: quello che parte è una modalità, non una
+  finestra, che sarebbe una seconda galleria da tenere allineata.
+  - ⚠️⚠️ **Al tocco si torna all'elenco iniziale** (sua richiesta), solo se la scelta è partita: lo
+    decide `ViewerViewModel.coverAway`, che guarda `covering`. La prima volta si esce quando il
+    mini-onboarding si chiude, o il velo che indica l'icona non si vedrebbe.
+  - ⚠️ **La modalità vive nel modello** (`ViewerViewModel.covering`), perché fra l'inizio e la
+    scelta si cambia schermata. Vale per le tre griglie, i recenti e la vista 'Cartelle di
+    sistema', che consegna: una modalità che funziona in una vista su tre sembra rotta.
+- ⚠️⚠️ **La copertina scelta si vede anche nella finestra delle destinazioni**, e non si vedeva: il
+  parametro `covers` delle due viste aveva un valore di serie vuoto, e la finestra lo ereditava.
+  Adesso non ha un valore di serie, e chi apre una vista di cartelle dichiara che copertine porta:
+  il presidio è il compilatore, che al primo build ha preso un chiamante. Le copertine si caricano
+  nel `produceState` della finestra. ⚠️ Il banco non poteva vederlo: il MediaStore di Robolectric
+  è vuoto.
+- ⚠️ **A dire che la scelta è in corso è la fascia `CoverInvite` in fondo**, accanto alla notifica
+  di casa e sopra la transizione fra schermate, perché la scelta comincia in una cartella e può
+  finire in un'altra. Non è una notifica: dice che cosa sta succedendo, e resta finché la modalità è
+  viva. Il suo tasto annulla.
+- ⚠️⚠️ **Lo stesso tocco sulla stessa cartella rimette la predefinita**, cioè l'ultima immagine (sua
+  richiesta): il gesto è uno, e fa e disfa. **Su un'altra cartella sposta la scelta là**, ed è la
+  ragione per cui la modalità porta il bucket da cui è partita.
+- ⚠️ **La voce del menu del FAB esiste ma è spenta** (`COVER_MENU_ROW`, in `FolderCover.kt`), col
+  nome 'Copertina predefinita' (sua istruzione: spegnerla senza eliminarla); la prova misura il
+  legame con l'interruttore. Nel menu non c'è una voce che sceglie: a scegliere è il tocco
+  sull'icona.
+- **Il primo tocco porta un mini-onboarding col testo suo**, una volta sola (`Hint.COVER`). Il
+  riquadro illuminato arriva da `onGloballyPositioned`, perché l'icona vive in una fascia che si
+  stringe a ogni pixel di scorrimento.
+- ⚠️⚠️ **Una rinomina fatta in AIV porta con sé copertina e tinta** (`FolderCovers.move`,
+  `FolderTints.move`); una fatta da fuori no, perché il `BUCKET_ID` è il CRC del percorso, e per
+  questo c'è la potatura.
+  - ⚠️⚠️ **La potatura ha trenta giorni di grazia** (`FolderCovers.sweep`): una scheda SD smontata o
+    un volume non ancora indicizzato fanno arrivare corto l'elenco del MediaStore. Un elenco vuoto
+    non cancella niente (è il caso del permesso non concesso), e conta la data del file, che la
+    potatura aggiorna per le cartelle vive.
+- **`CopertinaTest`** vede il gesto (che convive col tocco lungo del colore), il legame fra la voce
+  del menu e il suo interruttore, la fascia, la precedenza sulla predefinita e il ritorno all'elenco
+  iniziale; non vede la copia dell'immagine né la vista 'Cartelle di sistema', che legge il disco.
+
+## 👁️ 'Mostra nascoste', e perché dura un minuto
+
+- ⚠️⚠️ **La specifica è sua, alla lettera**: nel menu del FAB della schermata iniziale 'Mostra
+  nascoste' rende visibili le cartelle nascoste per un minuto; alla scadenza tornano nascoste con
+  la notifica 'Cartelle di nuovo nascoste.', il cui 'Annulla' proroga di un altro minuto; in scena
+  la voce diventa 'Nascondi cartelle' con un altro glifo; le cartelle in prestito hanno il 70% di
+  opacità e il segno `∅` d'accento in alto a destra; il tocco lungo sulla voce apre un pannello con
+  le nascoste, ripristinabili come nella pagina 'Cartelle nascoste'.
+- ⚠️⚠️ **Il minuto vive nel modello** (`ViewerViewModel.peek`): le nascoste si mostrano per
+  entrarci, quindi fra l'accensione e la scadenza si cambia schermata. Non si salva. La notifica è
+  quella di casa, e spegnere a mano non notifica.
+- ⚠️ **La voce c'è se e solo se una cartella è nascosta**: senza, accenderebbe un minuto in cui non
+  compare niente.
+- ⚠️⚠️ **Il tocco lungo su una cartella in prestito propone 'Mostra'** (sua segnalazione): il verso
+  lo decide il fatto, perché una cartella in scena può essere nascosta solo durante il prestito, e
+  non un secondo stato. I testi di 'Nascondi' portano il nome fra apici e dicono 'un'impostazione
+  di visualizzazione' (sue frasi).
+- ⚠️ **Il pannello riusa le due stringhe della pagina delle impostazioni**, e non aggiunge uno
+  scorrimento: `Sheet` scorre già, e due scorrimenti verticali annidati sono un errore che Compose
+  segnala.
+- ⚠️ **I due glifi sono suoi, una cartella con l'occhio aperto e sbarrato**, non l'occhio di
+  Material, che dice 'vedi' senza dire di che cosa. L'angolo che lui non era riuscito ad
+  arrotondare prende il raggio degli altri angoli dello stesso disegno.
+- ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione).
+- ⚠️⚠️ **Una cartella nascosta non è una destinazione** (sua istruzione): il filtro è
+  `Folder.Bucket.isHidden`, in `Folder.kt`, uno per le due schermate che fanno la domanda.
+  - ⚠️⚠️ **Durante il minuto di prestito anche le destinazioni la mostrano** (suo riscontro): il
+    prestito si accende per entrare in una cartella nascosta, e copiarci dentro è quello che si
+    vuole fare mentre dura. Arriva con `LocalPeek`, che non è statico perché cambia due volte per
+    prestito; l'elenco si fotografa all'apertura, e il cestino resta fuori (caso 5 di
+    `DestinazioniTest`).
+- ⚠️⚠️ **Una voce è un percorso senza la radice dell'archivio del telefono** (sua richiesta: una
+  voce deve valere anche su un altro telefono, dopo un'importazione). `DCIM/Temp` vale su ogni
+  telefono, con qualunque nome l'archivio porti (`/storage/emulated/0`, `/sdcard`, un profilo di
+  lavoro).
+  - ⚠️⚠️ **Una scheda resta intera, dalla `2.99`** (sua nota su `nascoste-percorsi`: si nasconde
+    solo la cartella di quel percorso, riconducibile al suo corrispettivo su qualunque telefono):
+    una scheda tiene `/storage/<id>/...`, e il suo identificativo la ritrova in qualunque telefono
+    in cui la si infili. `DCIM/Temp` non nasconde più quella della scheda.
+  - ⚠️ **Le voci della `2.96` non si migrano**: quelle di una scheda erano scritte senza la radice,
+    e adesso valgono per il telefono. Chi aveva nascosto una cartella della scheda la ritrova sul
+    telefono, e la rinasconde.
+  - ⚠️ **La radice di un volume nasconde solo se stessa**, cioè le immagini che vivono proprio là;
+    un percorso fuori da un volume resta intero. Il conto vive su `portablePath`, in `Folder.kt`.
+  - ⚠️⚠️ **Ogni confronto passa da `hiddenIn` e `coveringOf`**: una voce e il percorso di una
+    cartella non sono scritti nella stessa forma, quindi un `in` o uno `startsWith` sull'elenco è
+    un difetto che non dà errore.
+  - ⚠️ **La chiave è nuova** (`hidden-relative`), e `HiddenMigration` traduce e toglie la vecchia.
+  - Il pannello e la pagina delle impostazioni scrivono il percorso con la barra davanti, come l'ha
+    scritto lui.
+  - Nel file di impostazioni le nascoste hanno una casella loro, e si fondono (`docs/Files.md`
+    § '💼 Esporta e importa, e il file che solo AIV sa leggere').
+- ⚠️ **'Mostra' su una cartella dentro una nascosta toglie tutte le voci che la coprono**, in una
+  scrittura sola (due scritture partite dallo stesso elenco si rimetterebbero a vicenda quello che
+  l'altra ha tolto), e il titolo nomina la più in alto, che è quella che torna davvero.
+- **`NascosteTest`** vede il filtro nei due versi, il segno, il testo, i confronti (le forme della
+  radice, la scheda che resta intera, le forme che un volume non sono), la migrazione e il dialogo;
+  non vede il minuto, e scadenza, avviso e proroga si guardano sul telefono. Il filtro delle
+  destinazioni lo misura `DestinazioniTest`, con una prova di sola logica.
+
+## 🏷️ L'indicatore dell'ultimo media, e la sua migrazione
+
+- ⚠️⚠️ **I segni sono tre e si sceglie**: **Cornice**, **Angolo** (il nastro nell'angolo) e
+  **Tondo** (sue richieste). Di fabbrica il tondo (sua istruzione); il suo gettone resta in coda,
+  perché l'ordine è quello di dichiarazione.
+- ⚠️⚠️ **La cornice era stata scartata perché una cornice intorno a una miniatura è il gesto
+  universale della selezione, e l'argomento regge ancora**: la scelta è doppia proprio perché i
+  segni dicono cose diverse. La nota in `GridScreen` non si corregge.
+- ⚠️⚠️ **Chi aggiorna tiene il segno che ha** (sua clausola, per non stravolgere la UI di chi è già
+  utente): `MarkMigration` decide una volta sola e scrive la chiave. Leggere 'archivio vuoto' a ogni
+  lettura cambierebbe risposta appena si salva un'altra impostazione. 'Già utente' vuol dire
+  archivio non vuoto (ci vivono anche i promemoria che l'app scrive da sé); un archivio davvero
+  vuoto, cioè un'app installata e mai aperta, riceve il valore di fabbrica.
+  - ⚠️ **Il valore di fabbrica vive in tre posti** (il campo di `Settings`, la lettura del flusso e
+    il ramo vuoto di `MarkMigration`, che scrive il campo di `Settings`), tenuti allineati dal caso 6
+    di `ProfonditaTest` e dal caso 1 di `IndicatoreTest`. Il tondo arriva alle sole installazioni
+    nuove, e la voce di collaudo lo dice.
+- **La cornice**: spessa il 5% del lato (una frazione e non dp, perché la piastrella cambia misura
+  con le colonne), opaca all'80%, nel colore d'accento che le passa il chiamante (sue misure). Il
+  tratto si disegna doppio dentro un ritaglio della sagoma, perché un tratto è centrato sul
+  contorno. ⚠️ **L'arancione è stato provato e scartato**: resta il colore dei soli
+  mini-onboarding, e nastro e cornice, che non si vedono mai insieme, portano lo stesso accento.
+- **Il tondo**: un disco d'accento nell'angolo del nastro, diagonalmente opposto alla spunta;
+  diametro 14 come frazione (sua risposta, guardando le anteprime) e opacità 60% (`MARK_DOT_ALPHA`,
+  sua nota); l'aria dai due bordi vale il raggio, così cresce tutto insieme. Nelle altre lingue la
+  parola è quella del cerchio (Circle, Kreis, Rond).
+- ⚠️⚠️ **Nastro e tondo si specchiano da destra a sinistra**: disegnati in coordinate assolute, in
+  arabo, persiano e urdu il nastro cadeva nell'angolo della durata di un filmato e dallo stesso lato
+  della spunta. `lastCorner` lo monta il banco.
+- ⚠️ **La voce vive in 'Etichette e pulsanti'** (sua richiesta), e la regge il titolo della pagina,
+  'Comandi e indicatori'.
+- **Le prove**: `IndicatoreTest` misura la migrazione, la sola cosa che può rompersi in silenzio;
+  `CorniceTest` il tratto, che prende il colore ricevuto e segue il lato; `SegniTest` l'angolo nei
+  due versi della lingua, la crescita, l'opacità letta dalla costante e lo specchio. Non vedono il
+  segno in una griglia vera, perché il MediaStore del banco è vuoto.

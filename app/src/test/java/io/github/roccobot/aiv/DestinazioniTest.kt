@@ -91,7 +91,7 @@ class DestinazioniTest {
      * ⚠️ **Il ramo intero**, come per il cestino: chi esclude un percorso esclude quello che sta
      * sotto, e il confronto è sul separatore.
      * ⚠️⚠️ **Dalla `2.96` la voce si scrive senza la radice del volume**, cioè nella forma che l'app
-     * salva (§ '👁️ Mostra nascoste' del `CLAUDE.md`). Fino alla `2.95` qui c'era il percorso intero,
+     * salva (`docs/Folders.md`, § '👁️ Mostra nascoste'). Fino alla `2.95` qui c'era il percorso intero,
      * e con il confronto nuovo una voce scritta così non copre più niente: la prova lo ha detto
      * cadendo. Nell'archivio una voce intera non c'è più, perché la migrazione la traduce.
      */

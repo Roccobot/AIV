@@ -225,6 +225,11 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   release, quindi un rilascio non cambia il sito (`Rules.md` § '🚀 Che cosa produce un rilascio').
 - **Ramo principale `main`**; una sessione vincolata a un branch `claude/*` apre la PR e la mergia
   subito, squash (`Rules.md` § '🌿 Branch').
+- ⚠️ **Le specifiche delle funzioni vivono in tre file che non si caricano da soli**:
+  `docs/Folders.md` (intestazione, griglie, copertina, nascoste, indicatore), `docs/Files.md`
+  (selettore, salvataggio, rinomina, miniature, esporta e importa) e `docs/Editor.md` (pose,
+  moduli, stili, filigrana, ridimensionamento). Prima di toccare una di quelle funzioni si legge il
+  suo file per intero (`Rules.md` § '📚 Dove vivono le specifiche delle funzioni').
 - **Il documento di feedback** (nome ufficiale, da usare nei testi scritti da noi) vive in
   <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> e tiene lo stesso
   indirizzo a ogni ripubblicazione. ⚠️ La pubblicazione risponde col link corto
@@ -269,11 +274,10 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **Come si chiamano le cose**: una funzione si chiama con l'etichetta della sua voce nelle
   impostazioni, e una prova non ovvia si scrive passo passo. Quindi 'intestazione' ('frontespizio'
   è morto, il codice resta `front`), 'gradiente', 'FAB' e non 'tastino', 'Sfocatura dietro i
-  pannelli' e non 'velo', 'immagine' e non 'fotografia', 'editor semplice' ed 'editor completo'
-  (`Rules.md` § '🗣️ Come si chiamano le cose'); 'predefinita' e non 'automatica' (`Rules.md`
-  § '🖼️ La copertina scelta a mano'); 'file di impostazioni' (`Rules.md` § '💼 Esporta e importa, e
-  il file che solo AIV sa leggere'); 'tondo' e non 'pallino' (`Rules.md` § '🏷️ L'indicatore
-  dell'ultimo media, e la sua migrazione').
+  pannelli' e non 'velo', 'immagine' e non 'fotografia', 'editor semplice' ed 'editor completo',
+  copertina 'predefinita' e non 'automatica', 'file di impostazioni', 'tondo' e non 'pallino',
+  'stili' e non 'preset'; ogni peso si scrive con `formatBytes` (`Rules.md` § '🗣️ Come si chiamano
+  le cose').
 - **'Centrato' vuol dire** centrato in orizzontale e il 15% più in basso in verticale, con
   `Modifier.lowered`. Modale vera solo una finestra che raccoglie un input scritto, e allora porta
   **insieme** `Modifier.lowered(null)` e `properties = loweredWindow(null)`: senza la seconda non è
@@ -293,12 +297,11 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   (`Rules.md` § '🎨 Il design system, che vive fuori dal repository').
 - **Un'impostazione nuova** va con la famiglia della stessa domanda, tocca cinque punti e la
   ricerca nello stesso giro, e il conto delle stringhe va nella proposta; spostare una voce non
-  tocca la sua chiave (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'). La sua
-  chiave entra anche in `PREF_KEYS`, con un'area che non cambia mai (`Rules.md` § '💼 Esporta e
-  importa, e il file che solo AIV sa leggere').
+  tocca la sua chiave, e la chiave entra anche in `PREF_KEYS`, con un'area che non cambia mai
+  (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare').
 - **Le lingue sono 28**, e l'inglese si scrive americano; le chiavi delle stringhe non si
   rinominano (`Rules.md` § '🇺🇸 L'inglese dell'app è americano').
-- **Che cosa si concorda**: valgono i casi del nucleo universale. In più le scelte che il file
-  attribuisce all'utente (valori di fabbrica, nomi, ordini, gesti, le maschere escluse, il cestino
-  che lavora solo ad app in primo piano) non si rovesciano senza chiederglielo, e la lettura dubbia
-  di una sua richiesta si dichiara nella voce di collaudo.
+- **Che cosa si concorda**: valgono i casi del nucleo universale. In più le scelte che `Rules.md` e
+  i tre `docs/` attribuiscono all'utente (valori di fabbrica, nomi, ordini, gesti, le maschere
+  escluse, il cestino che lavora solo ad app in primo piano) non si rovesciano senza
+  chiederglielo, e la lettura dubbia di una sua richiesta si dichiara nella voce di collaudo.
