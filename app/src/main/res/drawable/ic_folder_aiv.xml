@@ -10,7 +10,7 @@
      (`M20,6h-8l-2,-2h-6c...`, la stessa sagoma), ma dentro ci sono il sole e la montagna, che
      Material non mette in nessun glifo di cartella. E un composito, quindi entra come disegno.
 
-     La regola di trasporto sta in `CLAUDE.md`, § 'Come entra un disegno': numeri separati
+     La regola di trasporto sta in `Rules.md`, § 'Come entra un disegno': numeri separati
      (33 coppie erano incollate nel file di partenza), comandi impliciti scritti per esteso,
      `fillType` dichiarato. Nessun valore e cambiato.
 
@@ -20,7 +20,7 @@
 
      PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 1 punte esterne, 0
      pixel pieni diversi su 57.600 (0 visibili), misurati rendendo i due tracciati a
-     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     240. Il perché, e perché il logo resta fuori, vivono in `Rules.md`, § 'Come entra
      un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"

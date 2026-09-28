@@ -28,7 +28,7 @@ import org.robolectric.annotation.Config
  * dichiarazioni **non si vedono**. Un ruolo mancante, un'intestazione che non c'è, un bersaglio
  * alto la metà del dovuto non cambiano un solo pixel dello schermo, quindi non li avrebbe presi
  * nemmeno un giro di collaudo col telefono in mano: sono difetti di **struttura**, cioè
- * esattamente quello che il banco vede (`AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e
+ * esattamente quello che il banco vede (`Rules.md` § '🧪 Quando si scrive una prova, e
  * quando no').
  *
  * ⚠️ **Che cosa NON prova**: che TalkBack pronunci una frase sensata, che è la resa vera e

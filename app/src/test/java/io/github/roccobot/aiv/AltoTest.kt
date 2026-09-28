@@ -10,7 +10,7 @@ import org.junit.Test
  * ⚠️⚠️ **NASCE COL DIFETTO CHE È ARRIVATO A LUI** (riscontro del giro della `1.82`, voce
  * `rinomina-ferma` non approvata: *secondo terzo carattere inserito o cancellato la finestra si
  * sposta da troppo in basso a molto in alto, e poi ogni 3/4 caratteri c'è un flash della stessa
- * finestra in posizione molto più ribassata*), come prescrive `AIV/CLAUDE.md` § '🧪 Quando si
+ * finestra in posizione molto più ribassata*), come prescrive `Rules.md` § '🧪 Quando si
  * scrive una prova, e quando no'.
  * ⚠️⚠️ **PROVA LA FUNZIONE E NON LA SCHERMATA, E LA RAGIONE È MISURATA**: quello che deve reggere
  * è che il pannello non si sposti **mentre la finestra cambia**, e in Robolectric

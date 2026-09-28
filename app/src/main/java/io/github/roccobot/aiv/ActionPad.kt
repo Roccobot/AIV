@@ -1187,7 +1187,7 @@ private fun PadButton(
  * - ⚠️⚠️ **IL BANCO NON POTEVA VEDERLO, ed è la ragione per cui il numero viene dai suoi
  *   pixel**: con la grafica di Robolectric la stessa parola a 11sp entra in 64dp, perché là
  *   il carattere è più stretto di quello del telefono. È il caso dichiarato in
- *   `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no', cioè quello che dipende
+ *   `Rules.md` § '🧪 Quando si scrive una prova, e quando no', cioè quello che dipende
  *   dall'apparecchio: una prova che lo misurasse sarebbe verde con e senza la correzione.
  * - **Perché 10sp e non 10,5**: a 10,5 la stessa parola viene 73dp, cioè tre punti di
  *   margine, e con un carattere di sistema un po' più largo si torna a tagliare. A 10sp ne
@@ -1393,7 +1393,7 @@ private const val VIA_MS = 100
  * [PAD_ICON] è la misura di un glifo di comando, e questa sta un gradino sotto.
  * ⚠️⚠️ **È `Icons.Default.Close` E NON UN DISEGNO NUOVO**: la regola di casa dice che un file che
  * arriva si misura contro quello che Compose già porta e a zero scarto vince Material
- * (`CLAUDE.md`, § '🖌️ Come entra un disegno'). Qui non è arrivato nessun file: lui ha chiesto
+ * (`Rules.md`, § '🖌️ Come entra un disegno'). Qui non è arrivato nessun file: lui ha chiesto
  * *il simbolo ×*, che è esattamente quel glifo, e disegnarlo a mano vorrebbe dire tenere in
  * `res/` una seconda copia di una croce.
  * ⚠️ **Lo zoom è una FRAZIONE e non una misura**: il glifo dell'app non è quadrato (nella

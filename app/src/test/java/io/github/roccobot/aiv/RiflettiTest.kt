@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
  * Il banco di prova della **riflessione**: la posa, il rettangolo e l'orientamento EXIF.
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di
- * `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': qui il codice può essere
+ * `Rules.md` § '🧪 Quando si scrive una prova, e quando no': qui il codice può essere
  * valido e sbagliato in silenzio, perché uno specchio davanti a una rotazione la **rovescia**
  * (`M ∘ R(k) = R(-k) ∘ M`). Chi scrivesse una somma al posto della sottrazione otterrebbe
  * un'immagine girata dalla parte opposta **solo** quando c'è già una rotazione: a immagine

@@ -48,7 +48,7 @@ import androidx.core.view.WindowInsetsCompat
  * sta qui e la riga si scrive a ogni chiamata: `AlertDialog` centra la sua superficie dentro
  * la propria finestra, e nessuna proprietà del dialogo sposta quel centro. Quello che si può
  * fare è avere **un** modificatore, che è quello che si è fatto: chi apre un dialogo nuovo lo
- * aggiunge, e il valore non è mai scritto due volte. La regola sta anche in `CLAUDE.md`,
+ * aggiunge, e il valore non è mai scritto due volte. La regola sta anche in `Rules.md`,
  * perché un modificatore da ricordare senza una regola scritta prima o poi si dimentica.
  *
  * ⚠️⚠️ **UNA FINESTRA IN CUI SI SCRIVE NON È CENTRATA AFFATTO: È IN ALTO, DALLA `1.83`**
@@ -134,7 +134,7 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
  * l'intenzione e non la applicava, perché `AlertDialog` senza `properties` prende quelle di
  * serie, dove `dismissOnClickOutside` è acceso. Quindi Rinomina, Estensione, Indirizzo e Nuova
  * cartella si chiudevano toccando **sotto** il pannello, e un nome scritto a metà si perdeva.
- * ⚠️ **Si scrive lo stesso argomento delle due chiamate**, e la regola sta in `CLAUDE.md`: un
+ * ⚠️ **Si scrive lo stesso argomento delle due chiamate**, e la regola sta in `Rules.md`: un
  * dialogo nuovo che scrive `lowered(null)` e dimentica questa riga torna a non essere modale, e
  * non dà nessun errore.
  */
@@ -161,7 +161,7 @@ fun loweredWindow(onOutside: (() -> Unit)?) =
  *
  * ⚠️⚠️ **E UNA FINESTRA COSÌ NON CHIAMA `WindowVeil()`: È L'ESENZIONE DICHIARATA ALLA REGOLA
  * GENERALE** (*chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano*,
- * `CLAUDE.md`). La ragione è che il velo dice 'mi apro **sopra** qualcosa', e qui non si vede
+ * `Rules.md`). La ragione è che il velo dice 'mi apro **sopra** qualcosa', e qui non si vede
  * più niente sotto: la superficie copre lo schermo intero ed è opaca, oppure **è** essa stessa
  * un velo. Fino alla `1.80` l'assenza non era scritta da nessuna parte, cioè si leggeva come una
  * dimenticanza invece che come una scelta, ed è la forma di difetto per cui la regola esiste.

@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
  * Il banco di prova del **pannello delle impostazioni su due livelli**, dalla `2.09`.
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di
- * `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': la strada B (sua risposta
+ * `Rules.md` § '🧪 Quando si scrive una prova, e quando no': la strada B (sua risposta
  * `livelli` a `d-imp-strada`) tocca due cose che un compilatore non guarda, cioè **dove porta
  * Indietro** e **che cosa trova la ricerca**. In tutti e due i casi il codice può essere valido
  * e la funzione non esserci.

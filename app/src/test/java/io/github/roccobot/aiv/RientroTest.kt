@@ -28,7 +28,7 @@ import org.robolectric.annotation.Config
 /**
  * Il banco di prova del **rientro nella schermata iniziale**: quello che si lascia si ritrova.
  *
- * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA FINO IN FONDO, ED È LA REGOLA** (`AIV/CLAUDE.md`
+ * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA FINO IN FONDO, ED È LA REGOLA** (`Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no': *un difetto che è arrivato a lui torna indietro
  * con la prova che lo avrebbe fermato, nella stessa versione della correzione*). La voce è
  * `scorri-torna` del giro della `1.91`, accettabile: *al ritorno in home ritorno al punto giusto

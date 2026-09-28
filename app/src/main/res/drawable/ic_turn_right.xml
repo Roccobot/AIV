@@ -8,11 +8,11 @@
      un'ora resta un'ora anche in arabo, e le versioni `AutoMirrored` di quelle frecce girano
      dalla parte sbagliata. Il disegno nostro non ha quel problema, perché non lo fa da sé.
 
-     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'.
+     Le regole di trasporto vivono in `Rules.md`, § 'Come entra un disegno'.
 
      PUNTE RACCORDATE A 0,4 CON LA 2.56, su sua istruzione: 12 punte esterne, 10
      pixel pieni diversi su 57.600 (43 visibili), misurati rendendo i due tracciati a
-     240. Il perché, e perché il logo resta fuori, vivono in `CLAUDE.md`, § 'Come entra
+     240. Il perché, e perché il logo resta fuori, vivono in `Rules.md`, § 'Come entra
      un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"

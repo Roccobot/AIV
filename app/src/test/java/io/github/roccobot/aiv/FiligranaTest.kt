@@ -48,7 +48,7 @@ import kotlin.math.max
 /**
  * Il banco di prova della **filigrana**, nata nella `2.69`.
  *
- * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `AIV/CLAUDE.md`
+ * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di `Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no': qui si **riscrive un file dell'utente**, e ogni
  * cosa che può andare storta va storta in silenzio. Un tipo riconosciuto dal nome invece che dai
  * byte stampa un rettangolo opaco sopra una fotografia; un file vecchio che non se ne va lascia in

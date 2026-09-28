@@ -42,7 +42,7 @@ import org.robolectric.annotation.GraphicsMode
  * Il banco di prova del **intestazione di una cartella**, nato con lui nella `1.76`.
  *
  * ⚠️⚠️ **ESISTE PER LA METÀ PROATTIVA DELLA REGOLA, non per un difetto arrivato a lui**
- * (`CLAUDE.md`, § 'Quando si scrive una prova, e quando no'): un modificatore che **misura** e
+ * (`Rules.md`, § 'Quando si scrive una prova, e quando no'): un modificatore che **misura** e
  * ci posa dentro qualcosa è uno dei tre casi che la vogliono comunque, perché il codice può
  * essere valido e non fare niente. [FrontBand] è esattamente quello: misura il figlio
  * all'altezza piena, si dichiara alta quel che resta e ce lo posa in fondo.
@@ -162,7 +162,7 @@ class IntestazioneTest {
      * **Cominciare una selezione non chiude l'intestazione.**
      *
      * ⚠️⚠️ **QUESTO DIFETTO È ARRIVATO A LUI, e la prova torna con la correzione, nella stessa
-     * versione** (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'). La `1.76`
+     * versione** (`Rules.md`, § '🧪 Quando si scrive una prova, e quando no'). La `1.76`
      * chiudeva la fascia appena la selezione cominciava, e la sua segnalazione dice il danno
      * meglio di qualunque riformulazione: *appena si tocca a lungo per iniziare a selezionare, lo
      * spostamento delle miniature in alto fa già selezionare più elementi a causa dello

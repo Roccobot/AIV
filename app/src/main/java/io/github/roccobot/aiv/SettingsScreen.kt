@@ -107,7 +107,7 @@ import kotlinx.coroutines.withContext
  *   dichiarato tale, cioè descrive com'era prima di questo riordino, e un tempo passato non
  *   invecchia. Quello che invecchia è il conto di com'è **adesso**.
  *
- * ⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN QUATTRO MODI, e la regola completa vive in `AIV/CLAUDE.md`**,
+ * ⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN QUATTRO MODI, e la regola completa vive in `Rules.md`**,
  * § '⚙️ Dove va un'impostazione, e chi la deve trovare': perché la voce è un **elenco** che
  * cresce e porta comandi propri riga per riga (le cartelle nascoste e i dati di Info erano da
  * sole più di metà dell'altezza della schermata); perché le voci sono **delicate** e il tocco
@@ -329,7 +329,7 @@ fun SettingsScreen(
          * ⚠️⚠️ **LE CINQUE PAGINE DEL PRIMO LIVELLO, DALLA `2.09`, E OGNUNA NE CONTIENE UN'ALTRA**
          * (sua risposta `livelli` a `d-imp-strada`, giro della `2.07`): sono le famiglie che
          * prima vivevano distese nella pagina piatta, e la loro ragione non è la lunghezza ma
-         * quella scritta in `AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve
+         * quella scritta in `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve
          * trovare'. Il titolo di ognuna dice la **domanda** a cui le voci di dentro rispondono.
          * ⚠️ **Il corpo lo scrive una funzione a sé**, e non è una divisione di comodo: lo stesso
          * corpo lo compone la radice quando una ricerca è in corso (vedi [PageOfRows]), quindi
@@ -487,7 +487,7 @@ fun SettingsScreen(
          * ⚠️⚠️ **UNA SOTTO-PAGINA PER DUE COMANDI, ed è un quarto modo di diventarlo**
          * (richiesta dell'utente, 2026-09-04: *un 'Elimina le miniature memorizzate' con un >
          * che ti porta ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un
-         * pulsante*). I tre modi scritti in `AIV/CLAUDE.md` sono l'elenco che cresce, la voce
+         * pulsante*). I tre modi scritti in `Rules.md` sono l'elenco che cresce, la voce
          * delicata e la famiglia oltre la soglia, e questa non è nessuno dei tre: non è
          * delicata (*non è un'operazione con risvolti potenzialmente dannosi*, parole sue) e
          * non è una famiglia. È un **comando che ha bisogno di un paragrafo**, e un paragrafo
@@ -743,7 +743,7 @@ private val SEARCH_PILL = 28.dp
  * voci che nessuna famiglia raccoglie. ⚠️ **Il guadagno non è la lunghezza**, che non è mai
  * stata il suo metro: è che scorrendo si leggono domande invece di opzioni.
  * ⚠️⚠️ **DOVE VA UNA VOCE NUOVA LO DICE UNA REGOLA, e non questo elenco**: sta in
- * `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare', e la cosa da leggere
+ * `Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare', e la cosa da leggere
  * prima di aggiungere una riga è quella. Qui accanto a ogni sezione c'è il **perché** di
  * quella sezione, che è l'altra metà.
  */
@@ -1263,7 +1263,7 @@ private fun FoldersPage(
      * ⚠️⚠️ **UNA VOCE SOLA E NON QUATTRO, e il criterio è quello del pannello**: rispondono
      * tutte alla stessa domanda (*che cosa c'è nell'intestazione di una cartella*), quindi sono
      * una famiglia; quattro righe con quattro titoli sarebbero quattro domande che nessuno si fa
-     * separatamente. Il perché per esteso vive in `AIV/CLAUDE.md`, § '⚙️ Dove va
+     * separatamente. Il perché per esteso vive in `Rules.md`, § '⚙️ Dove va
      * un'impostazione, e chi la deve trovare'.
      * ⚠️⚠️ **VIVEVA IN 'Aspetto' FINO ALLA `2.08`, E DALLA `2.09` STA CON LE CARTELLE**: è uno
      * degli otto traslochi approvati in blocco, e la ragione è che la sua domanda nomina una
@@ -2239,7 +2239,7 @@ private fun PageOfRows(
  *   è la stessa nelle due finestre, perché sono due domande della stessa pagina. ⚠️ **Il 'Sì' ha il
  *   colore di sempre e non quello dell'errore**: svuotare non ha *risvolti potenzialmente dannosi*,
  *   parole sue del 2026-09-04, e le miniature si rifanno da sé.
- * - ⚠️ **Non sono modali vere**, per il criterio di `AIV/CLAUDE.md` § '👆 Che cosa fa il tocco FUORI da
+ * - ⚠️ **Non sono modali vere**, per il criterio di `Rules.md` § '👆 Che cosa fa il tocco FUORI da
  *   una finestra': il tocco fuori vale 'Annulla', cioè l'esito sicuro.
  * - ⚠️ **Nel paragrafo di 'Genera' c'è 'immagini' dove lui aveva scritto 'foto'**, per la sua regola
  *   di § '🗣️ Come si chiamano le cose': questa app apre anche tavole, scansioni e schermate.
@@ -2757,7 +2757,7 @@ private fun FactFields(
              * ⚠️⚠️ **LA RIGA INTERA È IL COMANDO ANCHE QUI, dalla `1.81`, e prima era la sola
              * CASELLA** (censimento della UI del 2026-09-05): era l'unica riga del pannello a
              * non seguire la regola scritta due volte, nel KDoc di `SwitchRow` e in
-             * `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
+             * `Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
              * ⚠️ **Il conflitto col trascinamento non regge come giustificazione**, ed era
              * l'unica difesa possibile: la manopola è un fratello disegnato **dopo** la riga
              * dentro lo stesso `Box`, quindi vince lei il collaudo del tocco, e la riga porta

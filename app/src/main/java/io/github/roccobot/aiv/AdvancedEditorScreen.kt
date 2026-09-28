@@ -773,7 +773,7 @@ private fun SaveButton(
  * la prima riga sola. È la forma di Material per lo stesso caso, titolo e due tasti.
  * ⚠️ **Il tasto che scarta ha il colore dell'errore**, come 'Elimina' nella conferma di
  * un'eliminazione: è quello che non si disfa, e il colore lo dice prima della parola.
- * ⚠️ **Non è una modale vera**, per il criterio di `AIV/CLAUDE.md` § '👆 Che cosa fa il tocco FUORI
+ * ⚠️ **Non è una modale vera**, per il criterio di `Rules.md` § '👆 Che cosa fa il tocco FUORI
  * da una finestra': qui non si scrive niente, e il tocco fuori vale 'Annulla', cioè si resta
  * nell'editor col lavoro intatto.
  */
@@ -2746,7 +2746,7 @@ private val MODULES = listOf(
      * ⚠️ **L'argomento di allora non cade, si avvera**: diceva che quel disegno è tutto di curve,
      * quindi l'arrotondamento a 0,4 lo lascia a **zero pixel** di scarto, e infatti il suo non ha
      * una punta da raccordare (`icon-round.py` risponde 0). A cambiare non è il trattamento, è chi
-     * ha disegnato, che è il criterio di `AIV/CLAUDE.md` § '🖌️ Come entra un disegno'.
+     * ha disegnato, che è il criterio di `Rules.md` § '🖌️ Come entra un disegno'.
      */
     Module(
         PadKey.MOD_EFFECTS,
@@ -2996,7 +2996,7 @@ private val CROP_CMD_ROW = 32.dp
  * nessun conto poteva dire è che l'avanzo speso là **manca agli altri vani**, cioè che il corpo
  * si stringe dove i blocchi respirano. Sul banco resta tutto al suo pixel, sul telefono si vede
  * ammucchiato, ed è la classe di difetti che il banco dichiara di non vedere
- * (`AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no').
+ * (`Rules.md` § '🧪 Quando si scrive una prova, e quando no').
  */
 
 /** Quanto è grande il glifo di un comando del ritaglio: la misura dei glifi di comando dell'app. */

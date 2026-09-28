@@ -565,7 +565,7 @@ data class Settings(
      * ⚠️⚠️ **QUESTI TRE CAMPI NON COMPAIONO NELLA SCHERMATA DELLE IMPOSTAZIONI, E NON È UNA
      * DIMENTICANZA**: i loro comandi vivono nell'**editor**, ed è la sua risposta `editor` a
      * `d-resize-dove` (*mi piacerebbe più nell'editor, fatto in modo che funzioni tipo un parametro
-     * del salvataggio*). È la clausola 4 di `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la
+     * del salvataggio*). È la clausola 4 di `Rules.md` § '⚙️ Dove va un'impostazione, e chi la
      * deve trovare', la stessa di [folderView].
      * ⚠️⚠️ **MA VIVONO LO STESSO NELLE PREFERENZE, E LA RAGIONE È IL LAVORO IN SERIE**: chi
      * rimpicciolisce a milleseicento lo fa su parecchie immagini di fila, e uno stato dentro la
@@ -806,7 +806,7 @@ data class Settings(
      * ⚠️⚠️ **LA CHIAVE RESTA `ext-edit` DI PROPOSITO**, anche se il campo si è rinominato: era
      * esattamente questa scelta, cioè 'estensione in Rinomina', quindi chi l'aveva accesa se la
      * ritrova accesa dopo l'aggiornamento. Una chiave nuova si scrive quando la domanda cambia
-     * verso (`AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'), e qui la
+     * verso (`Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'), e qui la
      * domanda di questo campo è la stessa: si è solo aggiunta la sua gemella.
      */
     val extRename: Boolean = false,
@@ -880,7 +880,7 @@ data class Settings(
      * anche in vista di Play*). Questa è la deroga per chi la chiede, non il verso nuovo.
      * ⚠️ **Sta accanto a [saveRename] perché risponde alla stessa domanda**, *che cosa scrive
      * l'app su disco, e con che nome*: sono due voci della stessa famiglia, e la soglia della
-     * sotto-pagina si conta sulla famiglia (vedi `AIV/CLAUDE.md`, § '⚙️ Dove va
+     * sotto-pagina si conta sulla famiglia (vedi `Rules.md`, § '⚙️ Dove va
      * un'impostazione, e chi la deve trovare').
      */
     val downloadPath: Boolean = false,
@@ -1484,7 +1484,7 @@ object SettingsStore {
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
             // ⚠️ I quattro valori di fabbrica sono scritti anche qui e non solo sui campi: il
-            // perché è in `AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve
+            // perché è in `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve
             // trovare' (un'app accesa al primo avvio e spenta dopo il primo salvataggio).
             frontWash = p[FRONT_WASH] ?: true,
             frontSerif = p[FRONT_SERIF] ?: false,
@@ -1873,7 +1873,7 @@ object Recents {
  *
  * ⚠️⚠️ **NON STA IN [Settings] DI PROPOSITO, E NON È UNA SVISTA**: quella classe è la fotografia
  * di quello che si tocca nel pannello, e ogni suo campo ha una riga in una schermata (vedi
- * `AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'). Questo è un **dato**
+ * `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'). Questo è un **dato**
  * che l'app si ricorda perché lui ha scelto una cartella, non una preferenza da spuntare: metterlo
  * là dentro vorrebbe dire un campo che il pannello non mostra e che nessuna delle cinque regole
  * saprebbe dove collocare. La stessa strada la fanno già i veli ([Hint]) e gli indirizzi recenti.

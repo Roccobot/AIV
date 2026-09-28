@@ -15,7 +15,7 @@ import org.junit.runner.RunWith
  *
  * ⚠️⚠️ **NASCE DAI DIFETTI CHE SONO ARRIVATI A LUI** (tappa 'La rotazione, e il visualizzatore
  * che non si azzera più': *ruotando si chiude la finestra aperta e con lei quello che stavi
- * scrivendo, e la selezione della griglia si scioglie*), come prescrive `AIV/CLAUDE.md`
+ * scrivendo, e la selezione della griglia si scioglie*), come prescrive `Rules.md`
  * § '🧪 Quando si scrive una prova, e quando no'.
  *
  * ⚠️⚠️ **PROVA I SALVATORI E NON LA ROTAZIONE, e la ragione è che il difetto vive là**: girare il
@@ -151,7 +151,7 @@ class RotazioneTest {
      *
      * ⚠️⚠️ **È IL DIFETTO CHE È ARRIVATO A LUI DUE VOLTE** (voce `zoom-rotazione`, non approvata
      * nel giro della `1.80` e in quello della `1.81`: *è come prima*), quindi torna qui con la
-     * prova, come prescrive `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
+     * prova, come prescrive `Rules.md` § '🧪 Quando si scrive una prova, e quando no'.
      * ⚠️ **I due riposi sono diversi di proposito**: ruotando la vista cambia forma, quindi la
      * scala che mostrava l'immagine intera prima non la mostra intera dopo. Se la prova usasse lo
      * stesso riposo, passerebbe anche conservando la scala, cioè col difetto rimesso.

@@ -28,7 +28,7 @@
      Quello che cambia è solo la forma della `d`, cioè i numeri incollati separati (`-1.86.83` sono
      due numeri), ogni comando scritto per esteso in coordinate assolute, e le due `Z` rese
      esplicite dove il giro torna sul proprio punto di partenza. Le regole di trasporto vivono in
-     `CLAUDE.md`, § 'Come entra un disegno'.
+     `Rules.md`, § 'Come entra un disegno'.
 
      LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che dichiara `evenodd`. Il disegno non
      ne dipende, ed è misurato: i due sottotracciati girano in versi opposti, quindi con `nonZero`

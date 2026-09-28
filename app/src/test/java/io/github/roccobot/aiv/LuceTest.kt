@@ -53,7 +53,7 @@ import org.junit.Before
  * Il banco dell'**editor completo**: il modulo Luce e la pila dei passi.
  *
  * ⚠️⚠️ **NASCE CON LA FUNZIONE E NON DOPO UN DIFETTO**, ed è il caso proattivo di
- * `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': qui c'è una superficie che
+ * `Rules.md` § '🧪 Quando si scrive una prova, e quando no': qui c'è una superficie che
  * **misura** un gesto continuo e ne ricava un passo discreto, e un passo che porta il valore
  * sbagliato non dà nessun errore. L'utente muove un cursore, vede l'immagine cambiare, e
  * 'Annulla' resta spento: il codice è valido, compila, e la storia non si scrive.

@@ -1531,7 +1531,7 @@ private fun ViewOptions(
  * ⚠️⚠️ **LA STESSA VOCE DEL PANNELLO, DALLA `1.87`, ED È SUA RICHIESTA** (*la stessa opzione
  * dev'essere disponibile insieme alle colonne e alle dimensioni della griglia dal menu a
  * pressione lunga sul FAB principale*): il pannello è la casa e questa è la scorciatoia, cioè
- * la coppia che `AIV/CLAUDE.md` descrive in § '⚙️ Dove va un'impostazione, e chi la deve
+ * la coppia che `Rules.md` descrive in § '⚙️ Dove va un'impostazione, e chi la deve
  * trovare'. Preferenza una, chiave una, valore di fabbrica uno.
  * ⚠️⚠️ **VIVE IN TUTTE E DUE LE VISTE, e non viola la regola delle opzioni della sola vista
  * scelta**: quella dice che nel dialogo si vedono le voci che agiscono su quello che si sta

@@ -75,7 +75,7 @@ private fun EditorTool(
                 // ⚠️ L'etichetta del gesto lungo è quella della schermata a cui porta, e non una
                 // stringa nuova: 'Impostazioni' esiste in tutte e ventotto le lingue e dice
                 // esattamente dove si va. Il conto delle stringhe si fa prima di cominciare, che è
-                // la regola di `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
+                // la regola di `Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
                 onLongClickLabel = stringResource(R.string.settings_title),
                 onLongClick = {
                     haptics.performHapticFeedback(HOLD_BUZZ)

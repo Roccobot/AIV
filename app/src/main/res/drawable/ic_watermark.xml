@@ -8,7 +8,7 @@
      metto lì*). Il disegno resta il suo, cioè la cornice col rettangolino scavato dentro:
      quello che cambia è da che parte cade il rettangolino.
 
-     PERCHÉ ADESSO ENTRA IN `res/` MENTRE FINO ALLA 2.78 NO: è la regola di `CLAUDE.md`,
+     PERCHÉ ADESSO ENTRA IN `res/` MENTRE FINO ALLA 2.78 NO: è la regola di `Rules.md`,
      § 'Come entra un disegno', letta nei due versi. Finora vinceva Material perché il
      trattamento di casa (l'arrotondamento a 0,4) lo lasciava a ZERO pixel di scarto, e a zero
      pixel una copia in `res/` sarebbe stata una seconda copia dello stesso disegno; uno

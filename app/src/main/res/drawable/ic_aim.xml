@@ -5,7 +5,7 @@
      gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
      dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
      la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
-     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+     il criterio vive in `Rules.md`, § 'Come entra un disegno'.
 
      LO SCARTO CONTRO IL GLIFO DI MATERIAL è 56 pixel su 57.600 (0,10% della tela),
      misurato rendendo i due a 240px. Il disegno cade nello stesso riquadro.

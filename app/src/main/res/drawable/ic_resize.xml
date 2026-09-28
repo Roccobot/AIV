@@ -12,7 +12,7 @@
      su 57.600, cioè lo 0,78% della tela, misurati rendendo i due tracciati a 240); quello è una
      cornice già stondata col rettangolino scavato dentro, cioè zero angoli convessi ESTERNI, e
      l'ammorbidimento lo lascia a **zero** pixel di scarto. La regola che decide vive in
-     `CLAUDE.md`, § 'Come entra un disegno': a zero pixel vince Material, quindi la filigrana
+     `Rules.md`, § 'Come entra un disegno': a zero pixel vince Material, quindi la filigrana
      chiama `Icons` e questo è un file.
 
      IL TRATTAMENTO È QUELLO DEI NOVE GLIFI DELLA 2.32: ogni angolo convesso ESTERNO diventa un

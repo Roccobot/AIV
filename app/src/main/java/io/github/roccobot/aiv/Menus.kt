@@ -965,7 +965,7 @@ class MenuState internal constructor() {
      * ⚠️ **Il difetto che ne veniva è misurato sul banco** (`CambioSchermataTest`): per sei
      * fotogrammi dopo l'arrivo di una schermata questo stato diceva 'menu in scena', quindi il
      * FAB si staccava in una finestra sua e il cancello dei tocchi entrava in scena. Il perché
-     * si vedesse proprio tornando da una cartella sta in `AIV/CLAUDE.md`, § '🎬 Le animazioni
+     * si vedesse proprio tornando da una cartella sta in `Rules.md`, § '🎬 Le animazioni
      * dentro una schermata che arriva'.
      */
     private val visto by derivedStateOf { wanted || show.value > 0f }

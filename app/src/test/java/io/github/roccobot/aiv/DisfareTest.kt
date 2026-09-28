@@ -17,7 +17,7 @@ import java.io.File
  *
  * ⚠️⚠️ **NASCE COL LAVORO E NON DOPO UN DIFETTO** (campo libero del giro della `1.82`, punto B:
  * *aggiungi degli 'Annulla' temporizzati (avvisi in basso) anche per le operazioni di copia e
- * spostamento*), e la ragione è quella che `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e
+ * spostamento*), e la ragione è quella che `Rules.md` § '🧪 Quando si scrive una prova, e
  * quando no' dà per il cestino: questa funzione **cancella file** e ne **sposta** altri, quindi
  * un difetto qui non si vede e non si può disfare a sua volta.
  * ⚠️ **Gira con Robolectric per il solo `Context`**: `FileTree.revert` avvisa il MediaStore dei

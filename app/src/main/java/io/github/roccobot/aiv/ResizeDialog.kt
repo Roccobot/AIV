@@ -76,7 +76,7 @@ import androidx.compose.ui.unit.dp
  *
  * ⚠️ **È una modale vera**, quindi porta tutte e due le righe (`Modifier.lowered(null)` e
  * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il criterio
- * di `AIV/CLAUDE.md` § '👆 Che cosa fa il tocco FUORI da una finestra'.
+ * di `Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'.
  *
  * ⚠️⚠️ **'APPLICA' ACCENDE L'INTERRUTTORE, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta `editor`
  * a `d-resize-dove`: *una volta che premo 'OK' l'interruttore è acceso e salva con

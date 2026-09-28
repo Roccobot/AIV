@@ -2635,7 +2635,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * LETTERA** (riscontro del giro della `2.70`: *Abilitare o disabilitare la filigrana da lì
      * equivale esattamente a muovere questo interruttore*). Un valore che valesse per il solo
      * editor aperto sarebbe una terza cosa da capire, ed è il criterio delle voci che vivono in
-     * due posti (`AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare').
+     * due posti (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare').
      */
     fun setMark(on: Boolean) {
         val now = settings ?: return

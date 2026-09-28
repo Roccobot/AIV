@@ -6,7 +6,7 @@
 
      NON È UN GLIFO DI MATERIAL, ed è la ragione per cui entra qui: la famiglia ha frecce e
      chevron, questo è un chevron a spessore variabile con le punte tonde, cioè il suo disegno.
-     Il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+     Il criterio vive in `Rules.md`, § 'Come entra un disegno'.
 
      IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
      tracciato: zero pixel diversi su 57.600. Quello che cambia è solo la forma della `d`, cioè i

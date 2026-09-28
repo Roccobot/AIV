@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
  * si costruisce con un bitmap scritto a mano, senza nessun file da aprire.
  *
  * ⚠️ **Ogni caso è controprovato rimettendo il difetto**, come prescrive
- * `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': togliendo la guardia
+ * `Rules.md` § '🧪 Quando si scrive una prova, e quando no': togliendo la guardia
  * dell'ingrandimento il caso 1 passa a `Read`, togliendo il tetto il caso 5 chiede un pezzo da
  * cinque milioni e mezzo di pixel, ricavando l'area dalle misure dell'anteprima invece che da
  * quelle del file il caso 3 la trova nell'angolo sbagliato, scambiando i due assi in [place] il
