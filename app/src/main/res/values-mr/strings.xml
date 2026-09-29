@@ -645,4 +645,9 @@
     <string name="backup_import_ask">या सेटिंग्ज सध्याच्या सेटिंग्जची जागा घेतील, फक्त शैली, रंग, मुखपृष्ठे, लपवलेले फोल्डर आणि कचरापेटी सोडून, जे आधीपासून असलेल्यांत जोडले जातील.</string>
     <string name="backup_unlock">सेटिंग्ज फाइल संरक्षित आहे: पासवर्ड लिहा.</string>
     <string name="backup_none">निवडलेल्या सेटिंग्जसाठी फाइलमध्ये कोणतीही वैध मूल्ये नाहीत.</string>
+    <string name="look_liquify">द्रवीकरण</string>
+    <string name="look_deform">विकृत करा</string>
+    <string name="look_rebuild">पुनर्रचना</string>
+    <string name="look_brush_size">ब्रशचा आकार</string>
+    <string name="look_brush_strength">ब्रशची ताकद</string>
 </resources>

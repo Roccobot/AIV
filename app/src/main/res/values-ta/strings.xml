@@ -645,4 +645,9 @@
     <string name="backup_import_ask">இந்த அமைப்புகள் தற்போதைய அமைப்புகளுக்குப் பதிலாக வரும். பாணிகள், நிறங்கள், அட்டைகள், மறைக்கப்பட்ட கோப்புறைகள், குப்பைத் தொட்டி மட்டும் ஏற்கெனவே உள்ளவற்றுடன் சேர்க்கப்படும்.</string>
     <string name="backup_unlock">அமைப்புகள் கோப்பு பாதுகாக்கப்பட்டுள்ளது: கடவுச்சொல்லை உள்ளிடவும்.</string>
     <string name="backup_none">தேர்ந்தெடுத்த அமைப்புகளுக்கான சரியான மதிப்புகள் எதுவும் கோப்பில் இல்லை.</string>
+    <string name="look_liquify">திரவமாக்கு</string>
+    <string name="look_deform">உருமாற்று</string>
+    <string name="look_rebuild">மீட்டமை</string>
+    <string name="look_brush_size">தூரிகை அளவு</string>
+    <string name="look_brush_strength">தூரிகை வலிமை</string>
 </resources>

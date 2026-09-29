@@ -645,4 +645,9 @@
     <string name="backup_import_ask">یہ ترتیبات موجودہ ترتیبات کی جگہ لے لیں گی، سوائے اسٹائل، رنگ، سرورق، چھپے فولڈر اور ردی کی ٹوکری کے، جو پہلے سے موجود چیزوں میں شامل ہو جائیں گے۔</string>
     <string name="backup_unlock">ترتیبات کی فائل محفوظ ہے: پاس ورڈ درج کریں۔</string>
     <string name="backup_none">فائل میں منتخب ترتیبات کے لیے کوئی درست قدر نہیں ہے۔</string>
+    <string name="look_liquify">مائع بنائیں</string>
+    <string name="look_deform">بگاڑیں</string>
+    <string name="look_rebuild">دوبارہ بنائیں</string>
+    <string name="look_brush_size">برش کا سائز</string>
+    <string name="look_brush_strength">برش کی طاقت</string>
 </resources>

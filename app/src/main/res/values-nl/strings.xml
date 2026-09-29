@@ -645,4 +645,9 @@
     <string name="backup_import_ask">Deze instellingen vervangen de huidige, behalve stijlen, kleuren, omslagen, verborgen mappen en de prullenbak, die worden toegevoegd aan wat er al is.</string>
     <string name="backup_unlock">Het instellingenbestand is beveiligd: voer het wachtwoord in.</string>
     <string name="backup_none">Het bestand bevat geen geldige waarden voor de geselecteerde instellingen.</string>
+    <string name="look_liquify">Uitvloeien</string>
+    <string name="look_deform">Vervormen</string>
+    <string name="look_rebuild">Reconstrueren</string>
+    <string name="look_brush_size">Penseelgrootte</string>
+    <string name="look_brush_strength">Penseelsterkte</string>
 </resources>

@@ -681,4 +681,9 @@
     <string name="backup_import_ask">Ці налаштування замінять поточні, крім стилів, кольорів, обкладинок, прихованих папок і кошика: вони додадуться до того, що вже є.</string>
     <string name="backup_unlock">Файл налаштувань захищено: введіть пароль.</string>
     <string name="backup_none">У файлі немає допустимих значень для вибраних налаштувань.</string>
+    <string name="look_liquify">Пластика</string>
+    <string name="look_deform">Деформація</string>
+    <string name="look_rebuild">Відновлення</string>
+    <string name="look_brush_size">Розмір пензля</string>
+    <string name="look_brush_strength">Сила пензля</string>
 </resources>

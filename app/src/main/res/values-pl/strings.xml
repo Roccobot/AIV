@@ -681,4 +681,9 @@
     <string name="backup_import_ask">Te ustawienia zastąpią obecne, z wyjątkiem stylów, kolorów, okładek, ukrytych folderów i kosza, które zostaną dodane do tego, co już jest.</string>
     <string name="backup_unlock">Plik ustawień jest chroniony: wpisz hasło.</string>
     <string name="backup_none">Plik nie zawiera prawidłowych wartości dla wybranych ustawień.</string>
+    <string name="look_liquify">Skraplanie</string>
+    <string name="look_deform">Deformuj</string>
+    <string name="look_rebuild">Rekonstruuj</string>
+    <string name="look_brush_size">Rozmiar pędzla</string>
+    <string name="look_brush_strength">Siła pędzla</string>
 </resources>

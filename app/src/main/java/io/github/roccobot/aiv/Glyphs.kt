@@ -481,6 +481,10 @@ object Glyphs {
     val ModGeometry: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_geometry)
 
+    /** La maglia piegata dello strumento 'Fluidifica'. */
+    val Liquify: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_liquify)
+
     /** Il sole coi raggi: il modulo 'Luce'. */
     val ModLight: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_light)

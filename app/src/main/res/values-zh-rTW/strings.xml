@@ -627,4 +627,9 @@
     <string name="backup_import_ask">這些設定將取代目前的設定，但樣式、顏色、封面、隱藏的資料夾和回收筒除外，它們將加入已有的內容中。</string>
     <string name="backup_unlock">設定檔受保護：請輸入密碼。</string>
     <string name="backup_none">檔案中沒有所選設定的有效數值。</string>
+    <string name="look_liquify">液化</string>
+    <string name="look_deform">變形</string>
+    <string name="look_rebuild">重建</string>
+    <string name="look_brush_size">筆刷大小</string>
+    <string name="look_brush_strength">筆刷強度</string>
 </resources>

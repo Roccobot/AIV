@@ -627,4 +627,9 @@
     <string name="backup_import_ask">Các cài đặt này sẽ thay thế cài đặt hiện tại, trừ kiểu, màu, ảnh bìa, thư mục ẩn và thùng rác, những thứ này sẽ được thêm vào những gì đã có.</string>
     <string name="backup_unlock">Tệp cài đặt được bảo vệ: hãy nhập mật khẩu.</string>
     <string name="backup_none">Tệp không chứa giá trị hợp lệ nào cho các cài đặt đã chọn.</string>
+    <string name="look_liquify">Hóa lỏng</string>
+    <string name="look_deform">Biến dạng</string>
+    <string name="look_rebuild">Khôi phục</string>
+    <string name="look_brush_size">Kích thước cọ</string>
+    <string name="look_brush_strength">Độ mạnh của cọ</string>
 </resources>

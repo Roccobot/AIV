@@ -67,6 +67,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -589,6 +590,14 @@ fun AdvancedEditorScreen(
                         },
                         onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
                         onCornersEnd = { push() },
+                        liquifying = {
+                            gaze.liquifying && MODULES[gaze.module].extra == Extra.CORNERS
+                        },
+                        rebuild = { gaze.rebuilding },
+                        brushRadius = { gaze.brushRadius },
+                        brushStrength = { gaze.brushStrength },
+                        onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
+                        onLiquifyEnd = { push() },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -896,6 +905,12 @@ private fun LookStage(
     onCorners: (Corners) -> Unit,
     /** Il gesto su un angolo è finito: quello che si è fatto diventa un passo della storia. */
     onCornersEnd: () -> Unit,
+    liquifying: () -> Boolean,
+    rebuild: () -> Boolean,
+    brushRadius: () -> Float,
+    brushStrength: () -> Float,
+    onLiquify: (Liquify) -> Unit,
+    onLiquifyEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -917,6 +932,8 @@ private fun LookStage(
     /** Gli angoli di adesso e dove scriverli, per chi li legge dentro un gesto: vedi [geoNow]. */
     val cornerNow by rememberUpdatedState(corners)
     val cornerTo by rememberUpdatedState(onCorners)
+    val liquifyNow by rememberUpdatedState(look.geo.liquify)
+    val liquifyTo by rememberUpdatedState(onLiquify)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
 
     /**
@@ -1275,9 +1292,13 @@ private fun LookStage(
                      */
                     val geo = geoNow
                     val where = if (geo.idle) at else {
-                        val p = Warp
-                            .plan(geo, view.centerX(), view.centerY(), view.width(), view.height())
-                            .back(at.x, at.y)
+                        val plan = Warp.plan(
+                            geo, view.centerX(), view.centerY(), view.width(), view.height()
+                        )
+                        val p = Warp.back(
+                            plan, RectF(view.left, view.top, view.right, view.bottom),
+                            geo.liquify, at.x, at.y
+                        )
                         Offset(p[0], p[1])
                     }
                     val u = ((where.x - l) / (r - l)).coerceIn(0f, 1f)
@@ -1370,6 +1391,39 @@ private fun LookStage(
                                 held = Grab.NONE
                             }
                             onCutEnd()
+                        }
+                        return@awaitEachGesture
+                    }
+                    if (liquifying()) {
+                        val esito = settled(down, viewConfiguration.touchSlop)
+                        if (esito == Settled.MULTI) {
+                            transformed(::pinch)
+                            resting++
+                            return@awaitEachGesture
+                        }
+                        if (esito == Settled.MOVED) {
+                            var mesh = liquifyNow
+                            var prima = down.position
+                            drag(down.id) { change ->
+                                val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
+                                val ora = change.position
+                                val passo = ora - prima
+                                prima = ora
+                                if (vista.width() > 0f && vista.height() > 0f) {
+                                    mesh = mesh.stroke(
+                                        x = ((ora.x - vista.left) / vista.width()).coerceIn(0f, 1f),
+                                        y = ((ora.y - vista.top) / vista.height()).coerceIn(0f, 1f),
+                                        moveX = passo.x / vista.width(),
+                                        moveY = passo.y / vista.height(),
+                                        radius = brushRadius(),
+                                        strength = brushStrength(),
+                                        rebuild = rebuild()
+                                    )
+                                    liquifyTo(mesh)
+                                }
+                                change.consume()
+                            }
+                            onLiquifyEnd()
                         }
                         return@awaitEachGesture
                     }
@@ -1623,7 +1677,9 @@ private fun LookStage(
             )
             clipRect(dove.left, dove.top, dove.right, dove.bottom) {
                 drawIntoCanvas { tela ->
-                    Warp.draw(tela.nativeCanvas, dove, piano, paint.asFrameworkPaint())
+                    Warp.draw(
+                        tela.nativeCanvas, dove, piano, paint.asFrameworkPaint(), look.geo.liquify
+                    )
                 }
             }
         }
@@ -3223,6 +3279,10 @@ private class Gaze(
      * chiesto.
      */
     var aiming by mutableStateOf(false)
+    var liquifying by mutableStateOf(false)
+    var rebuilding by mutableStateOf(false)
+    var brushRadius by mutableFloatStateOf(0.10f)
+    var brushStrength by mutableFloatStateOf(0.50f)
 
     companion object {
         /**
@@ -3561,7 +3621,7 @@ private fun LookSheet(
 }
 
 /** Le icone della barra bassa dell'editor completo, nell'ordine in cui si disegnano col FAB a destra. */
-internal enum class Bar { AIM, AUTO, UNDO, REDO, ORIGINAL }
+internal enum class Bar { AIM, LIQUIFY, AUTO, UNDO, REDO, ORIGINAL }
 
 /**
  * L'ordine in cui la barra bassa disegna le sue icone, dato il lato del FAB.
@@ -3613,6 +3673,7 @@ private fun Comandi(
     val armabile = chosen.extra == Extra.BANDS || chosen.extra == Extra.CORNERS
     val chiavi = buildList {
         if (armabile) add(Bar.AIM)
+        if (chosen.extra == Extra.CORNERS) add(Bar.LIQUIFY)
         if (chosen.auto) add(Bar.AUTO)
         add(Bar.UNDO)
         add(Bar.REDO)
@@ -3638,7 +3699,10 @@ private fun Comandi(
          * per armare: un mirino su un modulo che di colori non parla direbbe il falso.
          */
         Bar.AIM -> IconButton(
-            onClick = { gaze.aiming = !gaze.aiming },
+            onClick = {
+                gaze.liquifying = false
+                gaze.aiming = !gaze.aiming
+            },
             enabled = ready && !busy
         ) {
             Icon(
@@ -3659,6 +3723,20 @@ private fun Comandi(
                 } else {
                     LocalContentColor.current
                 }
+            )
+        }
+        Bar.LIQUIFY -> IconButton(
+            onClick = {
+                gaze.aiming = false
+                gaze.liquifying = !gaze.liquifying
+            },
+            enabled = ready && !busy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+        ) {
+            Icon(
+                Glyphs.Liquify,
+                stringResource(R.string.look_liquify),
+                tint = if (gaze.liquifying) MaterialTheme.colorScheme.primary
+                else LocalContentColor.current
             )
         }
         /*
@@ -3791,6 +3869,48 @@ private fun ModuleBody(
     /** Quante volte l'immagine **già posata** è più larga che alta: vedi [posedAspect]. */
     fun cropAspect(k: Look): Float = posedAspect(origin, k.spin)
 
+    if (mod.extra == Extra.CORNERS && gaze.liquifying) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FilterChip(
+                selected = !gaze.rebuilding,
+                onClick = { gaze.rebuilding = false },
+                label = { Text(stringResource(R.string.look_deform)) },
+                modifier = Modifier.weight(1f)
+            )
+            FilterChip(
+                selected = gaze.rebuilding,
+                onClick = { gaze.rebuilding = true },
+                label = { Text(stringResource(R.string.look_rebuild)) },
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(
+                onClick = {
+                    onLive { it.copy(geo = it.geo.copy(liquify = Liquify.NONE)) }
+                    onSettled()
+                },
+                enabled = ready && !busy && !look.geo.liquify.idle,
+                modifier = Modifier.weight(1f)
+            ) { Text(stringResource(R.string.editor_crop_clear)) }
+        }
+        Text(stringResource(R.string.look_brush_size), style = MaterialTheme.typography.labelMedium)
+        Slider(
+            value = gaze.brushRadius,
+            onValueChange = { gaze.brushRadius = it },
+            valueRange = Liquify.MIN_RADIUS..Liquify.MAX_RADIUS,
+            enabled = ready && !busy
+        )
+        Text(stringResource(R.string.look_brush_strength), style = MaterialTheme.typography.labelMedium)
+        Slider(
+            value = gaze.brushStrength,
+            onValueChange = { gaze.brushStrength = it },
+            valueRange = 0.05f..1f,
+            enabled = ready && !busy
+        )
+        return
+    }
     /*
      * ⚠️⚠️ **LA FILA DELLA POSA È DEL SOLO MODULO RITAGLIO, DALLA `2.31`, E I TRE TASTI
      * SONO QUELLI DELL'EDITOR SEMPLICE**: stesso pezzo (`ActionPad`), stessi glifi, stesse
@@ -5320,4 +5440,3 @@ private const val ZOOM_RIDE = 220
  * ⚠️ **Il perché esista vive su [fitted]**, insieme al difetto che ha corretto.
  */
 private val CROP_AIR = HANDLE_THICK + GRIP_HALO
-

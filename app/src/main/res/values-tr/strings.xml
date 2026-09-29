@@ -645,4 +645,9 @@
     <string name="backup_import_ask">Bu ayarlar mevcut olanların yerini alacak; stiller, renkler, kapaklar, gizli klasörler ve çöp kutusu hariç, bunlar zaten olanlara eklenecek.</string>
     <string name="backup_unlock">Ayar dosyası korumalı: şifreyi gir.</string>
     <string name="backup_none">Dosya, seçili ayarlar için geçerli bir değer içermiyor.</string>
+    <string name="look_liquify">Sıvılaştır</string>
+    <string name="look_deform">Deforme et</string>
+    <string name="look_rebuild">Yeniden oluştur</string>
+    <string name="look_brush_size">Fırça boyutu</string>
+    <string name="look_brush_strength">Fırça gücü</string>
 </resources>

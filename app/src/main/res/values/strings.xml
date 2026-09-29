@@ -838,4 +838,9 @@
     <string name="backup_import_ask">These settings will replace the current ones, except styles, colors, covers, hidden folders and the bin, which will be added to those already there.</string>
     <string name="backup_unlock">The settings file is protected: enter the password.</string>
     <string name="backup_none">The file contains no valid values for the selected settings.</string>
+    <string name="look_liquify">Liquify</string>
+    <string name="look_deform">Deform</string>
+    <string name="look_rebuild">Reconstruct</string>
+    <string name="look_brush_size">Brush size</string>
+    <string name="look_brush_strength">Brush strength</string>
 </resources>

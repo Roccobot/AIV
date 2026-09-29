@@ -4112,6 +4112,34 @@ class SviluppoTest {
         banco.waitForIdle()
     }
 
+    /** Fluidifica è una schermata interna della Geometria e una pennellata entra nella storia. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp")
+    fun `Fluidifica apre i suoi comandi e una pennellata si annulla`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithContentDescription(testo(R.string.look_liquify)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.look_deform)).assertExists()
+        banco.onNodeWithText(testo(R.string.look_rebuild)).assertExists()
+        banco.onNodeWithText(testo(R.string.look_brush_size)).assertExists()
+        banco.onNodeWithText(testo(R.string.look_brush_strength)).assertExists()
+
+        val undo = banco.onNodeWithContentDescription(testo(R.string.editor_undo))
+        undo.assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.look_compare)).performTouchInput {
+            down(center)
+            moveBy(Offset(60f, 20f))
+            moveBy(Offset(40f, 10f))
+            up()
+        }
+        banco.waitForIdle()
+        undo.assertIsEnabled()
+    }
+
     @Composable
     private fun Scena(
         uri: Uri = quadrato(),

@@ -663,4 +663,9 @@
     <string name="backup_import_ask">Estas configurações vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas ocultas e a lixeira, que serão adicionados ao que já existe.</string>
     <string name="backup_unlock">O arquivo de configurações está protegido: insira a senha.</string>
     <string name="backup_none">O arquivo não contém valores válidos para as configurações selecionadas.</string>
+    <string name="look_liquify">Dissolver</string>
+    <string name="look_deform">Deformar</string>
+    <string name="look_rebuild">Reconstruir</string>
+    <string name="look_brush_size">Tamanho do pincel</string>
+    <string name="look_brush_strength">Força do pincel</string>
 </resources>

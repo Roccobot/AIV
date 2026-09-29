@@ -717,4 +717,9 @@
     <string name="backup_import_ask">ستحل هذه الإعدادات محل الإعدادات الحالية، باستثناء الأنماط والألوان والأغلفة والمجلدات المخفية وسلة المهملات، فهي ستُضاف إلى ما هو موجود من قبل.</string>
     <string name="backup_unlock">ملف الإعدادات محمي: أدخل كلمة المرور.</string>
     <string name="backup_none">لا يحتوي الملف على قيم صالحة للإعدادات المحددة.</string>
+    <string name="look_liquify">تسييل</string>
+    <string name="look_deform">تشويه</string>
+    <string name="look_rebuild">إعادة بناء</string>
+    <string name="look_brush_size">حجم الفرشاة</string>
+    <string name="look_brush_strength">قوة الفرشاة</string>
 </resources>

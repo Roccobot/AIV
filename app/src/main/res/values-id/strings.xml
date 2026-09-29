@@ -627,4 +627,9 @@
     <string name="backup_import_ask">Pengaturan ini akan menggantikan yang sekarang, kecuali gaya, warna, sampul, folder tersembunyi, dan tempat sampah, yang akan ditambahkan ke yang sudah ada.</string>
     <string name="backup_unlock">Berkas pengaturan dilindungi: masukkan kata sandi.</string>
     <string name="backup_none">Berkas tidak berisi nilai yang valid untuk pengaturan yang dipilih.</string>
+    <string name="look_liquify">Likuefaksi</string>
+    <string name="look_deform">Deformasi</string>
+    <string name="look_rebuild">Rekonstruksi</string>
+    <string name="look_brush_size">Ukuran kuas</string>
+    <string name="look_brush_strength">Kekuatan kuas</string>
 </resources>

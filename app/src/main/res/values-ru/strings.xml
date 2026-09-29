@@ -681,4 +681,9 @@
     <string name="backup_import_ask">Эти настройки заменят текущие, кроме стилей, цветов, обложек, скрытых папок и корзины: они добавятся к тому, что уже есть.</string>
     <string name="backup_unlock">Файл настроек защищён: введите пароль.</string>
     <string name="backup_none">В файле нет допустимых значений для выбранных настроек.</string>
+    <string name="look_liquify">Пластика</string>
+    <string name="look_deform">Деформация</string>
+    <string name="look_rebuild">Восстановление</string>
+    <string name="look_brush_size">Размер кисти</string>
+    <string name="look_brush_strength">Сила кисти</string>
 </resources>

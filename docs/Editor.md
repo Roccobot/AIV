@@ -34,6 +34,23 @@
 
 ## 🎚️ L'editor completo: i moduli, i gesti e la storia
 
+### Fluidifica dentro Geometria
+
+- **Fluidifica fa parte del modulo Geometria**, accanto ad 'Angoli': non aggiunge un decimo
+  modulo e non entra negli stili.
+- È disponibile da Android 13, come l'editor completo. Il suo tasto apre il proprio corpo di
+  comandi senza cambiare modulo.
+- **Un dito dipinge sulla maglia; due dita ingrandiscono e spostano liberamente l'immagine.** Una
+  pennellata completa è un solo passo della storia generale, quindi 'Annulla' e 'Ripristina'
+  lavorano come nel resto dell'editor.
+- **Deforma** spinge i vertici nella direzione del dito. **Ricostruisci** li riporta verso la
+  posizione di partenza. I due cursori regolano dimensione e forza del pennello; il diametro
+  minimo è circa un trentesimo del lato lungo.
+- La maglia ha **128 celle per lato**, cioè 16.641 vertici. Gli scarti sono normalizzati sulla
+  misura dell'immagine: anteprima e file pieno leggono lo stesso valore, senza due conti.
+- Il bordo resta fermo, così una pennellata non scopre il fondo. Restano esclusi 'Congela', che
+  sarebbe una maschera, gli strumenti che riconoscono i volti, 'Vortice', 'Contrai' ed 'Espandi'.
+
 - ⚠️⚠️ **I moduli sono nove**: Dettaglio, Effetti, Geometria, Ritaglio, Luce, Colore, HSL, Curve,
   Stili. **Le maschere no, in modo assoluto** (sua risposta `d-preset-manca`): è una porta chiusa,
   non una tappa rimandata. L'ordine della fila vive in § '✂️ Il modulo Ritaglio, e la fila che è

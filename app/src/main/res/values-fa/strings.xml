@@ -645,4 +645,9 @@
     <string name="backup_import_ask">این تنظیمات جای تنظیمات کنونی را خواهند گرفت، جز سبک‌ها، رنگ‌ها، جلدها، پوشه‌های پنهان و سبد زباله، که به آنچه از پیش هست افزوده می‌شوند.</string>
     <string name="backup_unlock">فایل تنظیمات محافظت‌شده است: گذرواژه را وارد کنید.</string>
     <string name="backup_none">فایل هیچ مقدار معتبری برای تنظیمات انتخاب‌شده ندارد.</string>
+    <string name="look_liquify">مایع‌سازی</string>
+    <string name="look_deform">تغییر شکل</string>
+    <string name="look_rebuild">بازسازی</string>
+    <string name="look_brush_size">اندازه قلم‌مو</string>
+    <string name="look_brush_strength">قدرت قلم‌مو</string>
 </resources>
