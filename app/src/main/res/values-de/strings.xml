@@ -645,4 +645,9 @@
     <string name="backup_import_ask">Diese Einstellungen ersetzen die aktuellen, außer Stilen, Farben, Titelbildern, ausgeblendeten Ordnern und dem Papierkorb, die zu dem hinzukommen, was schon da ist.</string>
     <string name="backup_unlock">Die Einstellungsdatei ist geschützt: Gib das Passwort ein.</string>
     <string name="backup_none">Die Datei enthält keine gültigen Werte für die ausgewählten Einstellungen.</string>
+    <string name="look_liquify">Verflüssigen</string>
+    <string name="look_deform">Verformen</string>
+    <string name="look_rebuild">Rekonstruieren</string>
+    <string name="look_brush_size">Pinselgröße</string>
+    <string name="look_brush_strength">Pinselstärke</string>
 </resources>

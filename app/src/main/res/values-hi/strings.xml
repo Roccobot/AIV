@@ -645,4 +645,9 @@
     <string name="backup_import_ask">ये सेटिंग्स मौजूदा सेटिंग्स की जगह ले लेंगी, सिवाय स्टाइल, रंग, कवर, छिपे फ़ोल्डर और कूड़ेदान के, जो पहले से मौजूद चीज़ों में जुड़ जाएँगे।</string>
     <string name="backup_unlock">सेटिंग्स फ़ाइल सुरक्षित है: पासवर्ड लिखें।</string>
     <string name="backup_none">फ़ाइल में चुनी गई सेटिंग्स के लिए कोई मान्य मान नहीं है।</string>
+    <string name="look_liquify">द्रवीकरण</string>
+    <string name="look_deform">विकृत करें</string>
+    <string name="look_rebuild">पुनर्निर्माण</string>
+    <string name="look_brush_size">ब्रश का आकार</string>
+    <string name="look_brush_strength">ब्रश की क्षमता</string>
 </resources>

@@ -70,18 +70,80 @@ data class Geometry(
     val vertical: Float = 0f,
     val distortion: Float = 0f,
     /** Lo strumento 'Angoli': vedi [Corners]. */
-    val corners: Corners = Corners.NONE
+    val corners: Corners = Corners.NONE,
+    /** Lo strumento 'Fluidifica': gli scarti della maglia in coordinate normalizzate. */
+    val liquify: Liquify = Liquify.NONE
 ) {
 
     /** Se questo modulo non sposta un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
     val idle: Boolean
         get() = abs(straighten) < DEAD && abs(aspect) < DEAD && abs(horizontal) < DEAD &&
-            abs(vertical) < DEAD && abs(distortion) < DEAD && corners.idle
+            abs(vertical) < DEAD && abs(distortion) < DEAD && corners.idle && liquify.idle
 
     companion object {
         val NONE = Geometry()
 
         private const val DEAD = 0.0005f
+    }
+}
+
+/**
+ * La deformazione libera di 'Fluidifica'. Ogni vertice conserva uno scarto normalizzato, così la
+ * stessa maglia vale per l'anteprima e per il file pieno. Il bordo resta fermo: una pennellata non
+ * può scoprire il fondo dell'immagine.
+ */
+class Liquify private constructor(private val shifts: FloatArray) {
+    val idle: Boolean get() = shifts.isEmpty()
+
+    fun dx(i: Int, j: Int): Float = if (idle) 0f else shifts[index(i, j)]
+    fun dy(i: Int, j: Int): Float = if (idle) 0f else shifts[index(i, j) + 1]
+
+    /** Applica un tratto del pennello; tutte le misure sono frazioni della misura dell'immagine. */
+    fun stroke(
+        x: Float,
+        y: Float,
+        moveX: Float,
+        moveY: Float,
+        radius: Float,
+        strength: Float,
+        rebuild: Boolean
+    ): Liquify {
+        val out = if (idle) FloatArray(POINTS * POINTS * 2) else shifts.copyOf()
+        val safeRadius = radius.coerceIn(MIN_RADIUS, MAX_RADIUS)
+        val safeStrength = strength.coerceIn(0f, 1f)
+        for (j in 1 until CELLS) {
+            val gy = j.toFloat() / CELLS
+            for (i in 1 until CELLS) {
+                val gx = i.toFloat() / CELLS
+                val distance = sqrt((gx - x) * (gx - x) + (gy - y) * (gy - y))
+                if (distance >= safeRadius) continue
+                val weight = (1f - distance / safeRadius).let { it * it } * safeStrength
+                val at = index(i, j)
+                if (rebuild) {
+                    out[at] *= 1f - weight
+                    out[at + 1] *= 1f - weight
+                } else {
+                    out[at] = (out[at] + moveX * weight).coerceIn(-MAX_SHIFT, MAX_SHIFT)
+                    out[at + 1] = (out[at + 1] + moveY * weight).coerceIn(-MAX_SHIFT, MAX_SHIFT)
+                }
+            }
+        }
+        return if (out.all { abs(it) < DEAD }) NONE else Liquify(out)
+    }
+
+    override fun equals(other: Any?): Boolean = other is Liquify && shifts.contentEquals(other.shifts)
+    override fun hashCode(): Int = shifts.contentHashCode()
+
+    private fun index(i: Int, j: Int): Int = (j * POINTS + i) * 2
+
+    companion object {
+        const val CELLS = 128
+        const val POINTS = CELLS + 1
+        const val MIN_RADIUS = 1f / 30f
+        const val MAX_RADIUS = 0.25f
+        private const val MAX_SHIFT = 0.35f
+        private const val DEAD = 0.00001f
+        val NONE = Liquify(FloatArray(0))
     }
 }
 
@@ -805,6 +867,10 @@ internal object Warp {
         return out
     }
 
+    /** Gli indici non dipendono né dall'immagine né dalla pennellata. */
+    private val geometryOrder by lazy { indices(CELLS) }
+    private val liquifyOrder by lazy { indices(Liquify.CELLS) }
+
     /**
      * Disegna dentro [dest] quello che [paint] sa dipingere, deformato da [plan].
      *
@@ -818,10 +884,26 @@ internal object Warp {
      * pennello che dipinge [dest] con l'immagine intera, quindi la griglia non deformata è già
      * l'elenco dei punti da cui leggere, e non serve una seconda conversione.
      */
-    fun draw(canvas: Canvas, dest: RectF, plan: WarpPlan, paint: Paint, cells: Int = CELLS) {
+    fun draw(
+        canvas: Canvas,
+        dest: RectF,
+        plan: WarpPlan,
+        paint: Paint,
+        liquify: Liquify = Liquify.NONE
+    ) {
+        val cells = if (liquify.idle) CELLS else Liquify.CELLS
         val verts = points(plan, dest, cells)
+        if (!liquify.idle) {
+            var at = 0
+            for (j in 0..cells) {
+                for (i in 0..cells) {
+                    verts[at++] += liquify.dx(i, j) * dest.width()
+                    verts[at++] += liquify.dy(i, j) * dest.height()
+                }
+            }
+        }
         val texs = grid(dest, cells)
-        val order = indices(cells)
+        val order = if (liquify.idle) geometryOrder else liquifyOrder
         canvas.drawVertices(
             Canvas.VertexMode.TRIANGLES,
             verts.size,
@@ -835,6 +917,53 @@ internal object Warp {
             0,
             order.size,
             paint
+        )
+    }
+
+    /** Il punto della texture che cade sotto ([x], [y]) nella maglia di Fluidifica. */
+    fun back(plan: WarpPlan, dest: RectF, liquify: Liquify, x: Float, y: Float): FloatArray {
+        if (liquify.idle) return plan.back(x, y)
+        val cells = Liquify.CELLS
+        val verts = points(plan, dest, cells)
+        var at = 0
+        for (j in 0..cells) for (i in 0..cells) {
+            verts[at++] += liquify.dx(i, j) * dest.width()
+            verts[at++] += liquify.dy(i, j) * dest.height()
+        }
+        val tex = grid(dest, cells)
+        val row = cells + 1
+        for (j in 0 until cells) for (i in 0 until cells) {
+            val a = j * row + i
+            val b = a + 1
+            val c = a + row
+            val d = c + 1
+            inside(verts, tex, a, b, c, x, y)?.let { return it }
+            inside(verts, tex, b, d, c, x, y)?.let { return it }
+        }
+        return plan.back(x, y)
+    }
+
+    private fun inside(
+        verts: FloatArray,
+        tex: FloatArray,
+        ia: Int,
+        ib: Int,
+        ic: Int,
+        x: Float,
+        y: Float
+    ): FloatArray? {
+        val ax = verts[ia * 2]; val ay = verts[ia * 2 + 1]
+        val bx = verts[ib * 2]; val by = verts[ib * 2 + 1]
+        val cx = verts[ic * 2]; val cy = verts[ic * 2 + 1]
+        val den = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
+        if (abs(den) < 1e-6f) return null
+        val wa = ((by - cy) * (x - cx) + (cx - bx) * (y - cy)) / den
+        val wb = ((cy - ay) * (x - cx) + (ax - cx) * (y - cy)) / den
+        val wc = 1f - wa - wb
+        if (wa < -1e-4f || wb < -1e-4f || wc < -1e-4f) return null
+        return floatArrayOf(
+            wa * tex[ia * 2] + wb * tex[ib * 2] + wc * tex[ic * 2],
+            wa * tex[ia * 2 + 1] + wb * tex[ib * 2 + 1] + wc * tex[ic * 2 + 1]
         )
     }
 
@@ -873,7 +1002,7 @@ internal object Warp {
             shader = BitmapShader(source, TileMode.CLAMP, TileMode.CLAMP)
         }
         return try {
-            draw(Canvas(out), dest, plan, paint)
+            draw(Canvas(out), dest, plan, paint, geo.liquify)
             out
         } catch (e: RuntimeException) {
             out.recycle()

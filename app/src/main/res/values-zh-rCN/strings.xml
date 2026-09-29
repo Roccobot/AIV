@@ -627,4 +627,9 @@
     <string name="backup_import_ask">这些设置将替换当前的设置，但样式、颜色、封面、隐藏的文件夹和回收站除外，它们将添加到已有的内容中。</string>
     <string name="backup_unlock">设置文件受保护：请输入密码。</string>
     <string name="backup_none">文件中没有所选设置的有效值。</string>
+    <string name="look_liquify">液化</string>
+    <string name="look_deform">变形</string>
+    <string name="look_rebuild">重建</string>
+    <string name="look_brush_size">画笔大小</string>
+    <string name="look_brush_strength">画笔强度</string>
 </resources>

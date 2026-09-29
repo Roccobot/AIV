@@ -663,4 +663,9 @@
     <string name="backup_import_ask">Ces réglages remplaceront les actuels, sauf les styles, les couleurs, les couvertures, les dossiers masqués et la corbeille, qui s\'ajouteront à ce qui s\'y trouve déjà.</string>
     <string name="backup_unlock">Le fichier de réglages est protégé : saisis le mot de passe.</string>
     <string name="backup_none">Le fichier ne contient aucune valeur valide pour les réglages sélectionnés.</string>
+    <string name="look_liquify">Fluidité</string>
+    <string name="look_deform">Déformer</string>
+    <string name="look_rebuild">Reconstruire</string>
+    <string name="look_brush_size">Taille du pinceau</string>
+    <string name="look_brush_strength">Intensité du pinceau</string>
 </resources>

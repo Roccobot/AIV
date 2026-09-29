@@ -722,4 +722,9 @@
     <string name="backup_import_ask">Queste impostazioni sostituiranno le attuali, tranne stili, colori, copertine, cartelle nascoste e cestino, che si aggiungeranno a quelli già presenti.</string>
     <string name="backup_unlock">Il file di impostazioni è protetto: inserisci la password.</string>
     <string name="backup_none">Il file non contiene valori validi per le impostazioni selezionate.</string>
+    <string name="look_liquify">Fluidifica</string>
+    <string name="look_deform">Deforma</string>
+    <string name="look_rebuild">Ricostruisci</string>
+    <string name="look_brush_size">Dimensione pennello</string>
+    <string name="look_brush_strength">Forza pennello</string>
 </resources>

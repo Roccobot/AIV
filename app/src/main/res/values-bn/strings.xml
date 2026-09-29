@@ -645,4 +645,9 @@
     <string name="backup_import_ask">এই সেটিংস বর্তমান সেটিংসের জায়গা নেবে, শুধু স্টাইল, রং, প্রচ্ছদ, লুকানো ফোল্ডার আর আবর্জনা ছাড়া, যেগুলো আগে থেকে থাকা জিনিসের সঙ্গে যোগ হবে।</string>
     <string name="backup_unlock">সেটিংস ফাইলটি সুরক্ষিত: পাসওয়ার্ড লিখুন।</string>
     <string name="backup_none">নির্বাচিত সেটিংসের জন্য ফাইলটিতে কোনো বৈধ মান নেই।</string>
+    <string name="look_liquify">তরলীকরণ</string>
+    <string name="look_deform">বিকৃত করুন</string>
+    <string name="look_rebuild">পুনর্গঠন</string>
+    <string name="look_brush_size">ব্রাশের আকার</string>
+    <string name="look_brush_strength">ব্রাশের শক্তি</string>
 </resources>

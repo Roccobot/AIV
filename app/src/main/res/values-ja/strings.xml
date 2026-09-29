@@ -627,4 +627,9 @@
     <string name="backup_import_ask">これらの設定で現在の設定が置き換わります。ただしスタイル、色、カバー、非表示のフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_unlock">設定ファイルは保護されています。パスワードを入力してください。</string>
     <string name="backup_none">選択した設定について、ファイルに有効な値がありません。</string>
+    <string name="look_liquify">ゆがみ</string>
+    <string name="look_deform">変形</string>
+    <string name="look_rebuild">再構築</string>
+    <string name="look_brush_size">ブラシサイズ</string>
+    <string name="look_brush_strength">ブラシの強さ</string>
 </resources>

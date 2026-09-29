@@ -645,4 +645,9 @@
     <string name="backup_import_ask">Mipangilio hii itachukua nafasi ya ile ya sasa, isipokuwa mitindo, rangi, majalada, folda zilizofichwa na tapishi, ambavyo vitaongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_unlock">Faili ya mipangilio imelindwa: andika nenosiri.</string>
     <string name="backup_none">Faili haina thamani halali za mipangilio iliyochaguliwa.</string>
+    <string name="look_liquify">Yeyusha</string>
+    <string name="look_deform">Geuza</string>
+    <string name="look_rebuild">Jenga upya</string>
+    <string name="look_brush_size">Ukubwa wa brashi</string>
+    <string name="look_brush_strength">Nguvu ya brashi</string>
 </resources>

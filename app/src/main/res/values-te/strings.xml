@@ -645,4 +645,9 @@
     <string name="backup_import_ask">ఈ అమరికలు ప్రస్తుత అమరికల స్థానంలోకి వస్తాయి, శైలులు, రంగులు, ముఖచిత్రాలు, దాచిన ఫోల్డర్‌లు, చెత్తబుట్ట తప్ప: అవి ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_unlock">అమరికల ఫైల్ రక్షించబడింది: పాస్‌వర్డ్‌ను నమోదు చేయండి.</string>
     <string name="backup_none">ఎంచుకున్న అమరికలకు చెల్లుబాటు అయ్యే విలువలు ఫైల్‌లో లేవు.</string>
+    <string name="look_liquify">ద్రవీకరణ</string>
+    <string name="look_deform">వక్రీకరించు</string>
+    <string name="look_rebuild">పునర్నిర్మించు</string>
+    <string name="look_brush_size">బ్రష్ పరిమాణం</string>
+    <string name="look_brush_strength">బ్రష్ బలం</string>
 </resources>

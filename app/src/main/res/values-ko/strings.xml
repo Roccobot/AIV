@@ -627,4 +627,9 @@
     <string name="backup_import_ask">이 설정이 지금의 설정을 대체합니다. 다만 스타일, 색상, 표지, 숨긴 폴더와 휴지통은 이미 있는 것에 더해집니다.</string>
     <string name="backup_unlock">설정 파일이 보호되어 있습니다. 비밀번호를 입력하세요.</string>
     <string name="backup_none">선택한 설정에 대한 유효한 값이 파일에 없습니다.</string>
+    <string name="look_liquify">픽셀 유동화</string>
+    <string name="look_deform">변형</string>
+    <string name="look_rebuild">재구성</string>
+    <string name="look_brush_size">브러시 크기</string>
+    <string name="look_brush_strength">브러시 강도</string>
 </resources>
