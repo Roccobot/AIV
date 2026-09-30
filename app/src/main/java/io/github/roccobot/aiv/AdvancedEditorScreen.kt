@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -595,6 +596,7 @@ fun AdvancedEditorScreen(
                         },
                         rebuild = { gaze.rebuilding },
                         brushRadius = { gaze.brushRadius },
+                        brushSizing = { gaze.brushSizing && gaze.liquifying },
                         brushStrength = { gaze.brushStrength },
                         onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
                         onLiquifyEnd = { push() },
@@ -908,6 +910,7 @@ private fun LookStage(
     liquifying: () -> Boolean,
     rebuild: () -> Boolean,
     brushRadius: () -> Float,
+    brushSizing: () -> Boolean,
     brushStrength: () -> Float,
     onLiquify: (Liquify) -> Unit,
     onLiquifyEnd: () -> Unit,
@@ -935,6 +938,9 @@ private fun LookStage(
     val liquifyNow by rememberUpdatedState(look.geo.liquify)
     val liquifyTo by rememberUpdatedState(onLiquify)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
+    val metrics = LocalContext.current.resources.displayMetrics
+    val brushCmPx = (metrics.xdpi.takeIf { it > 0f } ?: metrics.densityDpi.toFloat()) / 2.54f
+    val brushAccent = MaterialTheme.colorScheme.primary
 
     /**
      * L'aria da lasciare intorno all'immagine: quanta ne chiedono le squadrette del ritaglio.
@@ -1057,6 +1063,9 @@ private fun LookStage(
      * gesto annullato non torna alla riga dopo, e la lente resterebbe in scena senza un dito.
      */
     var held by remember { mutableStateOf(Grab.NONE) }
+    var brushAt by remember(picture) { mutableStateOf<Offset?>(null) }
+    var brushTouching by remember(picture) { mutableStateOf(false) }
+    var brushHide by remember(picture) { mutableStateOf<Job?>(null) }
     /**
      * Quanto è grande il palco, misurato dal layout.
      *
@@ -1395,35 +1404,50 @@ private fun LookStage(
                         return@awaitEachGesture
                     }
                     if (liquifying()) {
-                        val esito = settled(down, viewConfiguration.touchSlop)
-                        if (esito == Settled.MULTI) {
-                            transformed(::pinch)
-                            resting++
-                            return@awaitEachGesture
-                        }
-                        if (esito == Settled.MOVED) {
-                            var mesh = liquifyNow
-                            var prima = down.position
-                            drag(down.id) { change ->
-                                val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
-                                val ora = change.position
-                                val passo = ora - prima
-                                prima = ora
-                                if (vista.width() > 0f && vista.height() > 0f) {
-                                    mesh = mesh.stroke(
-                                        x = ((ora.x - vista.left) / vista.width()).coerceIn(0f, 1f),
-                                        y = ((ora.y - vista.top) / vista.height()).coerceIn(0f, 1f),
-                                        moveX = passo.x / vista.width(),
-                                        moveY = passo.y / vista.height(),
-                                        radius = brushRadius(),
-                                        strength = brushStrength(),
-                                        rebuild = rebuild()
-                                    )
-                                    liquifyTo(mesh)
-                                }
-                                change.consume()
+                        brushHide?.cancel()
+                        brushAt = down.position
+                        brushTouching = true
+                        try {
+                            val esito = settled(down, viewConfiguration.touchSlop) { brushAt = it }
+                            if (esito == Settled.MULTI) {
+                                brushAt = null
+                                transformed(::pinch)
+                                resting++
+                                return@awaitEachGesture
                             }
-                            onLiquifyEnd()
+                            if (esito == Settled.MOVED) {
+                                var mesh = liquifyNow
+                                var prima = down.position
+                                drag(down.id) { change ->
+                                    val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
+                                    val ora = change.position
+                                    val passo = ora - prima
+                                    prima = ora
+                                    brushAt = ora
+                                    if (vista.width() > 0f && vista.height() > 0f) {
+                                        mesh = mesh.stroke(
+                                            x = (ora.x - vista.left) / vista.width(),
+                                            y = (ora.y - vista.top) / vista.height(),
+                                            moveX = passo.x / vista.width(),
+                                            moveY = passo.y / vista.height(),
+                                            radius = brushRadius(),
+                                            strength = brushStrength(),
+                                            rebuild = rebuild(),
+                                            aspect = vista.width() / vista.height(),
+                                            geometry = geoNow
+                                        )
+                                        liquifyTo(mesh)
+                                    }
+                                    change.consume()
+                                }
+                                onLiquifyEnd()
+                            }
+                        } finally {
+                            brushTouching = false
+                            brushHide = scope.launch {
+                                delay(1_000)
+                                brushAt = null
+                            }
                         }
                         return@awaitEachGesture
                     }
@@ -1719,6 +1743,21 @@ private fun LookStage(
             }
         }
 
+        fun DrawScope.pictureForLens() {
+            clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                stendi(posed, view, true)
+            }
+            if (fine != null) {
+                val dove = fine.place(view)
+                drawIntoCanvas { tela ->
+                    tela.drawRect(
+                        dove.left, dove.top, dove.right, dove.bottom,
+                        pennello(fine.pixels, dove, true, dentro)
+                    )
+                }
+            }
+        }
+
         /*
          * ⚠️⚠️ **LE SQUADRETTE DEL RITAGLIO SONO QUELLE DELL'EDITOR SEMPLICE, DALLA `2.31`**: il
          * velo in quattro pezzi, i terzi, i quattro angoli e le loro misure vivono in
@@ -1766,18 +1805,48 @@ private fun LookStage(
                     eye, r, LOUPE_SIDE.toPx(), LOUPE_EDGE.toPx(), HANDLE_THICK.toPx(),
                     LENS_EDGE.toPx(), Color.White
                 ) {
-                    clipRect(visto.left, visto.top, visto.right, visto.bottom) {
-                        stendi(posed, view, true)
-                    }
-                    if (fine != null) {
-                        val dove = fine.place(view)
-                        drawIntoCanvas { tela ->
-                            tela.drawRect(
-                                dove.left, dove.top, dove.right, dove.bottom,
-                                pennello(fine.pixels, dove, true, dentro)
-                            )
-                        }
-                    }
+                    pictureForLens()
+                }
+            }
+        }
+
+        if (liquifying()) {
+            val radius = brushRadius() * max(view.width(), view.height())
+            val touching = brushAt
+            val visibleLeft = max(0f, visto.left)
+            val visibleTop = max(0f, visto.top)
+            val visibleRight = min(room.width, visto.right)
+            val visibleBottom = min(room.height, visto.bottom)
+            val preview = if (brushSizing() && visibleRight > visibleLeft && visibleBottom > visibleTop) {
+                val margin = 12.dp.toPx()
+                Offset(
+                    if (visibleRight - visibleLeft >= 2f * (radius + margin)) {
+                        visibleRight - radius - margin
+                    } else (visibleLeft + visibleRight) / 2f,
+                    if (visibleBottom - visibleTop >= 2f * (radius + margin)) {
+                        visibleBottom - radius - margin
+                    } else (visibleTop + visibleBottom) / 2f
+                )
+            } else null
+            (preview ?: touching)?.let { centre ->
+                clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                    drawCircle(
+                        Color.Black.copy(alpha = 0.75f), radius, centre,
+                        style = Stroke(width = 10.dp.toPx())
+                    )
+                    drawCircle(
+                        brushAccent, radius, centre,
+                        style = Stroke(width = 6.dp.toPx())
+                    )
+                }
+            }
+            if (brushTouching && touching != null && radius * 2f < brushCmPx) {
+                lens(
+                    touching, null, LOUPE_SIDE.toPx(), LOUPE_EDGE.toPx(),
+                    HANDLE_THICK.toPx(), LENS_EDGE.toPx(), brushAccent,
+                    farthestCorner = true
+                ) {
+                    pictureForLens()
                 }
             }
         }
@@ -1941,13 +2010,15 @@ private enum class Settled { UP, MOVED, MULTI }
  */
 private suspend fun AwaitPointerEventScope.settled(
     down: PointerInputChange,
-    slop: Float
+    slop: Float,
+    onPosition: (Offset) -> Unit = {}
 ): Settled {
     var travel = Offset.Zero
     while (true) {
         val event = awaitPointerEvent()
         if (event.changes.count { it.pressed } > 1) return Settled.MULTI
         val mine = event.changes.firstOrNull { it.id == down.id } ?: return Settled.UP
+        onPosition(mine.position)
         if (!mine.pressed) return Settled.UP
         travel += mine.positionChange()
         if (travel.getDistance() > slop) return Settled.MOVED
@@ -3282,6 +3353,7 @@ private class Gaze(
     var liquifying by mutableStateOf(false)
     var rebuilding by mutableStateOf(false)
     var brushRadius by mutableFloatStateOf(0.10f)
+    var brushSizing by mutableStateOf(false)
     var brushStrength by mutableFloatStateOf(0.50f)
 
     companion object {
@@ -3870,6 +3942,9 @@ private fun ModuleBody(
     fun cropAspect(k: Look): Float = posedAspect(origin, k.spin)
 
     if (mod.extra == Extra.CORNERS && gaze.liquifying) {
+        DisposableEffect(gaze) {
+            onDispose { gaze.brushSizing = false }
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -3877,14 +3952,26 @@ private fun ModuleBody(
             FilterChip(
                 selected = !gaze.rebuilding,
                 onClick = { gaze.rebuilding = false },
-                label = { Text(stringResource(R.string.look_deform)) },
-                modifier = Modifier.weight(1f)
+                label = {
+                    Text(
+                        stringResource(R.string.look_deform),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                modifier = Modifier.weight(1.1f)
             )
             FilterChip(
                 selected = gaze.rebuilding,
                 onClick = { gaze.rebuilding = true },
-                label = { Text(stringResource(R.string.look_rebuild)) },
-                modifier = Modifier.weight(1f)
+                label = {
+                    Text(
+                        stringResource(R.string.look_rebuild),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                modifier = Modifier.weight(1.45f)
             )
             TextButton(
                 onClick = {
@@ -3892,13 +3979,18 @@ private fun ModuleBody(
                     onSettled()
                 },
                 enabled = ready && !busy && !look.geo.liquify.idle,
-                modifier = Modifier.weight(1f)
-            ) { Text(stringResource(R.string.editor_crop_clear)) }
+                modifier = Modifier.weight(0.65f),
+                contentPadding = PaddingValues(horizontal = 4.dp)
+            ) { Text(stringResource(R.string.editor_original)) }
         }
         Text(stringResource(R.string.look_brush_size), style = MaterialTheme.typography.labelMedium)
         Slider(
             value = gaze.brushRadius,
-            onValueChange = { gaze.brushRadius = it },
+            onValueChange = {
+                gaze.brushSizing = true
+                gaze.brushRadius = it
+            },
+            onValueChangeFinished = { gaze.brushSizing = false },
             valueRange = Liquify.MIN_RADIUS..Liquify.MAX_RADIUS,
             enabled = ready && !busy
         )

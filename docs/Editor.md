@@ -45,7 +45,20 @@
   lavorano come nel resto dell'editor.
 - **Deforma** spinge i vertici nella direzione del dito. **Ricostruisci** li riporta verso la
   posizione di partenza. I due cursori regolano dimensione e forza del pennello; il diametro
-  minimo è circa un trentesimo del lato lungo.
+  minimo è circa un trentesimo del lato lungo (il raggio è un sessantesimo).
+- **I comandi sono 'Deforma', 'Ricostruisci' e 'Azzera'** (correzione dell'utente del
+  2026-09-29): i primi due hanno il testo centrato, 'Ricostruisci' ha più spazio e 'Azzera'
+  azzera soltanto la maglia di Fluidifica.
+- **Il pennello è un cerchio anche sulle immagini non quadrate**. Il contorno vuoto ha un
+  bordo spesso nel colore d'accento e un alone scuro per risaltare su ogni immagine. Mentre si
+  regola la dimensione compare in basso a destra sulla parte visibile del canvas; durante una
+  pennellata compare al contatto, segue il dito e sparisce un secondo dopo il rilascio. La
+  richiesta precedente di lasciarlo fermo è revocata dalla correzione esplicita dell'utente.
+- **Con un diametro visibile inferiore a 1 cm compare la lente**, soltanto finché il dito è
+  appoggiato. Ingrandisce il punto toccato e si sposta nell'angolo del canvas più lontano dal
+  dito. La misura usa `DisplayMetrics.xdpi`, cioè i DPI fisici dichiarati da Android; la
+  precisione dipende dal dato del dispositivo, e il rapporto di densità è già incluso nelle
+  coordinate fisiche del canvas. La lente del ritaglio mantiene il suo posto in alto.
 - La maglia ha **128 celle per lato**, cioè 16.641 vertici. Gli scarti sono normalizzati sulla
   misura dell'immagine: anteprima e file pieno leggono lo stesso valore, senza due conti.
 - Il bordo resta fermo, così una pennellata non scopre il fondo. Restano esclusi 'Congela', che

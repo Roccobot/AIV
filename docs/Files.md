@@ -301,6 +301,10 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
   indicatori', 'Impostazioni dell'editor', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine
   delle cartelle', 'Cartelle nascoste', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le
   sezioni della schermata delle impostazioni, le altre quello che l'app ricorda fuori da lì.
+  - **'Impostazioni dell'editor' comprende anche il file originale della filigrana**: PNG o
+    SVG, copiato senza conversione e ripristinato insieme a posizione, dimensione, distanza e
+    opacità. L'SVG si disegna alla misura necessaria, quindi non c'è una seconda copia PNG da
+    includere. La richiesta del 2026-09-29 è verificata dai due giri PNG e SVG in `BackupTest`.
   - ⚠️ **La terza non porta il titolo della sua sezione** (sua nota su `d-backup-aree`): dentro una
     pagina di backup 'Modifica e backup' faceva pensare che la casella portasse il backup stesso.
   - ⚠️ **Il token di un'area è il formato, e non cambia mai**: lo leggono anche i file già salvati,

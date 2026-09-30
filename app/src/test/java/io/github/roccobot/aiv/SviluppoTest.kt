@@ -4127,6 +4127,8 @@ class SviluppoTest {
         banco.onNodeWithText(testo(R.string.look_rebuild)).assertExists()
         banco.onNodeWithText(testo(R.string.look_brush_size)).assertExists()
         banco.onNodeWithText(testo(R.string.look_brush_strength)).assertExists()
+        banco.onNodeWithText(testo(R.string.editor_original)).assertExists()
+        banco.onNodeWithText(testo(R.string.editor_crop_clear)).assertDoesNotExist()
 
         val undo = banco.onNodeWithContentDescription(testo(R.string.editor_undo))
         undo.assertIsNotEnabled()
@@ -4138,6 +4140,125 @@ class SviluppoTest {
         }
         banco.waitForIdle()
         undo.assertIsEnabled()
+    }
+
+    /** Real text layout on a narrow phone, including the space taken by chip padding. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w360dp-h800dp")
+    fun `Fluidifica centra Deforma e tiene i tre comandi su una riga`() {
+        apriFluidifica()
+        for (id in listOf(R.string.look_deform, R.string.look_rebuild, R.string.editor_original)) {
+            val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+            banco.onNodeWithText(testo(id), useUnmergedTree = true)
+                .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            val layout = layouts.single()
+            assertEquals("${testo(id)} must fit on one line", 1, layout.lineCount)
+            if (id == R.string.look_deform) {
+                assertEquals("Deforma must be centred inside its chip", layout.size.width / 2f,
+                    (layout.getLineLeft(0) + layout.getLineRight(0)) / 2f, 1f)
+            }
+        }
+        val deform = banco.onNodeWithText(testo(R.string.look_deform)).fetchSemanticsNode().boundsInRoot
+        val rebuild = banco.onNodeWithText(testo(R.string.look_rebuild)).fetchSemanticsNode().boundsInRoot
+        assertTrue("Ricostruisci must have more space", rebuild.width > deform.width)
+    }
+
+    /** The visible footprint follows contact, then disappears one second after release. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp")
+    fun `Fluidifica mostra il pennello durante il tocco e per un secondo dopo`() {
+        apriFluidifica()
+        muovi(0, Liquify.MAX_RADIUS)
+        val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val before = stage.captureToImage().toPixelMap()
+        banco.mainClock.autoAdvance = false
+        stage.performTouchInput { down(center) }
+        banco.mainClock.advanceTimeBy(32)
+        banco.waitForIdle()
+        val held = stage.captureToImage().toPixelMap()
+        assertTrue("contact must show the empty brush ring", differenti(before, held) > 0)
+        stage.performTouchInput { moveTo(center + Offset(40f, 20f)) }
+        stage.performTouchInput { moveTo(center + Offset(80f, 40f)) }
+        banco.mainClock.advanceTimeBy(32)
+        banco.waitForIdle()
+        val moved = stage.captureToImage().toPixelMap()
+        assertTrue("the ring must follow the finger", differenti(held, moved) > 0)
+        stage.performTouchInput { up() }
+        banco.mainClock.advanceTimeBy(800)
+        banco.waitForIdle()
+        assertTrue("the ring must remain briefly after release", differenti(before, stage.captureToImage().toPixelMap()) > 0)
+        banco.mainClock.advanceTimeBy(300)
+        banco.waitForIdle()
+        assertEquals("the ring must disappear after one second", 0, differenti(before, stage.captureToImage().toPixelMap()))
+    }
+
+    /** The loupe is visible only for a physically small brush, in the farthest corner. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp")
+    fun `Fluidifica ingrandisce il pennello piccolo lontano dal dito`() {
+        apriFluidifica()
+        val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        muovi(0, Liquify.MIN_RADIUS)
+        val before = stage.captureToImage().toPixelMap()
+        stage.performTouchInput { down(Offset(width * 0.35f, height * 0.35f)) }
+        banco.waitForIdle()
+        val small = stage.captureToImage().toPixelMap()
+        assertTrue("a small brush must show the loupe at bottom right", differenti(before, small, farCorner = true) > 0)
+        stage.performTouchInput { moveTo(Offset(width * 0.6f, height * 0.6f)) }
+        stage.performTouchInput { moveTo(Offset(width * 0.65f, height * 0.65f)) }
+        banco.waitForIdle()
+        val following = stage.captureToImage().toPixelMap()
+        assertEquals("the loupe must leave bottom right when the finger approaches", 0, differenti(before, following, farCorner = true))
+        var topLeft = 0
+        for (y in 0 until before.height / 4) {
+            for (x in 0 until before.width / 4) {
+                if (before[x, y] != following[x, y]) topLeft++
+            }
+        }
+        assertTrue("the loupe must move to top left", topLeft > 0)
+        stage.performTouchInput { up() }
+        banco.mainClock.advanceTimeBy(1_100)
+        muovi(0, Liquify.MAX_RADIUS)
+        val largeBefore = stage.captureToImage().toPixelMap()
+        stage.performTouchInput { down(Offset(width * 0.35f, height * 0.35f)) }
+        banco.waitForIdle()
+        assertEquals("a large brush must not show the loupe", 0, differenti(largeBefore, stage.captureToImage().toPixelMap(), farCorner = true))
+        stage.performTouchInput { up() }
+    }
+
+    /** Changing size previews the footprint on the image, without painting it. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp")
+    fun `Fluidifica mostra la dimensione in basso a destra mentre regolo il cursore`() {
+        apriFluidifica()
+        val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val before = stage.captureToImage().toPixelMap()
+        cursore(0).performTouchInput { down(Offset(width * 0.3f, height / 2f)) }
+        cursore(0).performTouchInput { moveTo(Offset(width * 0.35f, height / 2f)) }
+        banco.waitForIdle()
+        assertTrue("the size preview must appear at bottom right", differenti(before, stage.captureToImage().toPixelMap(), farCorner = true) > 0)
+        cursore(0).performTouchInput { up() }
+        banco.waitForIdle()
+        assertEquals("finishing the size gesture must hide its preview", 0, differenti(before, stage.captureToImage().toPixelMap()))
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
+    }
+
+    private fun apriFluidifica() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_liquify)).performClick()
+        banco.waitForIdle()
+    }
+
+    private fun differenti(a: PixelMap, b: PixelMap, farCorner: Boolean = false): Int {
+        var changed = 0
+        for (y in (if (farCorner) a.height * 3 / 4 else 0) until a.height) {
+            for (x in (if (farCorner) a.width * 3 / 4 else 0) until a.width) {
+                if (a[x, y] != b[x, y]) changed++
+            }
+        }
+        return changed
     }
 
     @Composable

@@ -106,16 +106,30 @@ class Liquify private constructor(private val shifts: FloatArray) {
         moveY: Float,
         radius: Float,
         strength: Float,
-        rebuild: Boolean
+        rebuild: Boolean,
+        aspect: Float = 1f,
+        geometry: Geometry = Geometry.NONE
     ): Liquify {
         val out = if (idle) FloatArray(POINTS * POINTS * 2) else shifts.copyOf()
         val safeRadius = radius.coerceIn(MIN_RADIUS, MAX_RADIUS)
         val safeStrength = strength.coerceIn(0f, 1f)
+        val safeAspect = aspect.coerceAtLeast(0.001f)
+        val unitX = min(1f, safeAspect)
+        val unitY = min(1f, 1f / safeAspect)
+        // The brush hits the displayed vertices, after Geometria and earlier strokes.
+        // A long side of two gives Warp the same isotropic units as the real viewport.
+        val base = geometry.copy(liquify = NONE)
+        val plan = if (base.idle) null else Warp.plan(base, unitX, unitY, 2f * unitX, 2f * unitY)
         for (j in 1 until CELLS) {
             val gy = j.toFloat() / CELLS
             for (i in 1 until CELLS) {
                 val gx = i.toFloat() / CELLS
-                val distance = sqrt((gx - x) * (gx - x) + (gy - y) * (gy - y))
+                val point = plan?.map(2f * gx * unitX, 2f * gy * unitY)
+                val shownX = (point?.get(0)?.div(2f) ?: (gx * unitX)) + dx(i, j) * unitX
+                val shownY = (point?.get(1)?.div(2f) ?: (gy * unitY)) + dy(i, j) * unitY
+                val dx = shownX - x * unitX
+                val dy = shownY - y * unitY
+                val distance = sqrt(dx * dx + dy * dy)
                 if (distance >= safeRadius) continue
                 val weight = (1f - distance / safeRadius).let { it * it } * safeStrength
                 val at = index(i, j)
@@ -139,7 +153,7 @@ class Liquify private constructor(private val shifts: FloatArray) {
     companion object {
         const val CELLS = 128
         const val POINTS = CELLS + 1
-        const val MIN_RADIUS = 1f / 30f
+        const val MIN_RADIUS = 1f / 60f
         const val MAX_RADIUS = 0.25f
         private const val MAX_SHIFT = 0.35f
         private const val DEAD = 0.00001f

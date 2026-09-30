@@ -441,6 +441,37 @@ class BackupTest {
         assertNull("un backup senza logo toglie quello di adesso", Watermark.file(app))
     }
 
+    /** The editor backup carries the SVG bytes and the same rendering parameters. */
+    @Test
+    fun `il logo SVG torna con posizione dimensione distanza e opacita`() {
+        val svg = """<svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><rect width="40" height="20" fill="#008080"/></svg>""".toByteArray()
+        runBlocking {
+            assertTrue(Watermark.adopt(app, offri("logo.svg", svg)))
+            SettingsStore.save(app, Settings(
+                markOn = true,
+                markSpot = Watermark.Spot.TOP_LEFT,
+                markSize = 23, markAir = 5, markAlpha = 47
+            ))
+        }
+        val exported = esporta(setOf(BackupArea.EDITOR))
+        runBlocking {
+            assertTrue(Watermark.adopt(app, offri("other.png", png())))
+            SettingsStore.save(app, Settings())
+        }
+
+        assertEquals(setOf(BackupArea.EDITOR), importa(exported, setOf(BackupArea.EDITOR)).applied)
+        val file = Watermark.file(app)!!
+        assertEquals(Watermark.Kind.SVG, Watermark.kindOf(file))
+        assertArrayEquals(svg, file.readBytes())
+        val restored = runBlocking { SettingsStore.flow(app).first() }
+        assertTrue(restored.markOn)
+        assertEquals(Watermark.Spot.TOP_LEFT, restored.markSpot)
+        assertEquals(23, restored.markSize)
+        assertEquals(5, restored.markAir)
+        assertEquals(47, restored.markAlpha)
+        assertNotNull("the restored SVG must still render", Watermark.artwork(app, 128))
+    }
+
     /**
      * **Caso 11: il cestino si aggiunge, e un doppione non entra due volte.**
      *

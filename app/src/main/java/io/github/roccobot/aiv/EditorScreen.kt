@@ -1808,19 +1808,22 @@ internal fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
  */
 internal fun DrawScope.lens(
     eye: Offset,
-    r: Rect,
+    r: Rect?,
     side: Float,
     edge: Float,
     thick: Float,
     lensEdge: Float,
     line: Color,
+    farthestCorner: Boolean = false,
     /** Quello che si vede dentro, disegnato nello spazio del palco: la lente lo ingrandisce. */
     picture: DrawScope.() -> Unit
 ) {
     val radius = side / 2f
     val centre = Offset(
         x = if (eye.x < size.width / 2f) size.width - edge - radius else edge + radius,
-        y = edge + radius
+        y = if (farthestCorner && eye.y < size.height / 2f) {
+            size.height - edge - radius
+        } else edge + radius
     )
     val glass = Path().apply { addOval(Rect(center = centre, radius = radius)) }
     clipPath(glass) {
@@ -1850,12 +1853,14 @@ internal fun DrawScope.lens(
              * sta dentro la trasformazione che ingrandisce, quindi uno spessore scritto per
              * intero verrebbe reso quattro volte più grosso di quello chiesto.
              */
-            drawRect(
-                color = line.copy(alpha = 0.9f),
-                topLeft = r.topLeft,
-                size = r.size,
-                style = Stroke(width = lensEdge / LOUPE_ZOOM)
-            )
+            if (r != null) {
+                drawRect(
+                    color = line.copy(alpha = 0.9f),
+                    topLeft = r.topLeft,
+                    size = r.size,
+                    style = Stroke(width = lensEdge / LOUPE_ZOOM)
+                )
+            }
         }
     }
     drawCircle(color = line, radius = radius, center = centre, style = Stroke(width = thick))
