@@ -64,6 +64,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +73,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -624,6 +626,7 @@ fun AdvancedEditorScreen(
                  * ce l'ha già per i propri comandi: arriva di ritorno come argomento dello
                  * spazio, o sarebbero due letture della stessa preferenza.
                  */
+                toolCount = if (hasMark) 2 else 1,
                 tools = { mirror ->
                     EditorToolBar(
                         mirror = mirror,
@@ -1831,12 +1834,10 @@ private fun LookStage(
             (preview ?: touching)?.let { centre ->
                 clipRect(visto.left, visto.top, visto.right, visto.bottom) {
                     drawCircle(
-                        Color.Black.copy(alpha = 0.75f), radius, centre,
-                        style = Stroke(width = 10.dp.toPx())
-                    )
-                    drawCircle(
-                        brushAccent, radius, centre,
-                        style = Stroke(width = 6.dp.toPx())
+                        if (preview != null) brushAccent else Color.Black.copy(alpha = 0.6f),
+                        radius, centre,
+                        // Sono pixel del canvas: una densità maggiore non ispessisce il contorno.
+                        style = Stroke(width = 2f)
                     )
                 }
             }
@@ -3436,6 +3437,7 @@ private fun LookSheet(
      * schermata (il logo scelto, i due interruttori, il piano, la finestra che si apre), e la
      * scheda non ne guarda nessuno. Riceve il lato come argomento perché è lei a saperlo.
      */
+    toolCount: Int,
     tools: @Composable (mirror: Boolean) -> Unit,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
@@ -3635,57 +3637,71 @@ private fun LookSheet(
                     )
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                /*
-                 * ⚠️ **Lo spazio elastico in mezzo fa TUTTO il lavoro dell'allineamento**: senza il
-                 * comando che salva resta lui solo, quindi la fila dei comandi si trova comunque
-                 * appoggiata al lato giusto, e non serve una seconda condizione che scelga come
-                 * disporla.
-                 */
-                /*
-                 * ⚠️⚠️ **I DUE TASTI DEL SALVATAGGIO STANNO AL BORDO E 'Salva stile' VERSO IL
-                 * CENTRO, DALLA `2.79`**: quel comando c'è nel solo modulo Stili, quindi messo
-                 * per primo sposterebbe la coppia di quarantotto punti passando da un modulo
-                 * all'altro. Ancorata al bordo, la coppia sta sempre dove il dito la lascia.
-                 */
-                if (!mirror) tools(false)
-                if (mirror) Comandi(
-                    look = look,
-                    chosen = chosen,
-                    gaze = gaze,
-                    origin = origin,
-                    ready = ready,
-                    busy = busy,
-                    canUndo = canUndo,
-                    canRedo = canRedo,
-                    mirror = true,
-                    onLive = onLive,
-                    onSettled = onSettled,
-                    onUndo = onUndo,
-                    onRedo = onRedo,
-                    onOriginal = onOriginal
-                ) else salva()
-                Spacer(modifier = Modifier.weight(1f))
-                if (mirror) salva() else Comandi(
-                    look = look,
-                    chosen = chosen,
-                    gaze = gaze,
-                    origin = origin,
-                    ready = ready,
-                    busy = busy,
-                    canUndo = canUndo,
-                    canRedo = canRedo,
-                    mirror = false,
-                    onLive = onLive,
-                    onSettled = onSettled,
-                    onUndo = onUndo,
-                    onRedo = onRedo,
-                    onOriginal = onOriginal
-                )
-                if (mirror) tools(true)
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                // La fila completa di Geometria si riduce solo quando non entra. Il conteggio
+                // comprende soltanto i tasti presenti, così senza logo resta alla misura normale.
+                val width = if (chosen.extra == Extra.CORNERS) {
+                    ((maxWidth - TOOL_EDGE) / (toolCount + chosen.barKeys().size))
+                        .coerceAtMost(TOOL_TOUCH)
+                } else TOOL_TOUCH
+                CompositionLocalProvider(
+                    LocalEditorToolWidth provides width,
+                    LocalMinimumInteractiveComponentSize provides
+                        if (width < TOOL_TOUCH) 0.dp else LocalMinimumInteractiveComponentSize.current
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        /*
+                         * ⚠️ **Lo spazio elastico in mezzo fa TUTTO il lavoro dell'allineamento**: senza il
+                         * comando che salva resta lui solo, quindi la fila dei comandi si trova comunque
+                         * appoggiata al lato giusto, e non serve una seconda condizione che scelga come
+                         * disporla.
+                         */
+                        /*
+                         * ⚠️⚠️ **I DUE TASTI DEL SALVATAGGIO STANNO AL BORDO E 'Salva stile' VERSO IL
+                         * CENTRO, DALLA `2.79`**: quel comando c'è nel solo modulo Stili, quindi messo
+                         * per primo sposterebbe la coppia di quarantotto punti passando da un modulo
+                         * all'altro. Ancorata al bordo, la coppia sta sempre dove il dito la lascia.
+                         */
+                        if (!mirror) tools(false)
+                        if (mirror) Comandi(
+                            look = look,
+                            chosen = chosen,
+                            gaze = gaze,
+                            origin = origin,
+                            ready = ready,
+                            busy = busy,
+                            canUndo = canUndo,
+                            canRedo = canRedo,
+                            mirror = true,
+                            onLive = onLive,
+                            onSettled = onSettled,
+                            onUndo = onUndo,
+                            onRedo = onRedo,
+                            onOriginal = onOriginal
+                        ) else salva()
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (mirror) salva() else Comandi(
+                            look = look,
+                            chosen = chosen,
+                            gaze = gaze,
+                            origin = origin,
+                            ready = ready,
+                            busy = busy,
+                            canUndo = canUndo,
+                            canRedo = canRedo,
+                            mirror = false,
+                            onLive = onLive,
+                            onSettled = onSettled,
+                            onUndo = onUndo,
+                            onRedo = onRedo,
+                            onOriginal = onOriginal
+                        )
+                        if (mirror) tools(true)
+                    }
+                }
             }
         }
     }
@@ -3718,6 +3734,16 @@ internal fun barOrder(keys: List<Bar>, mirror: Boolean): List<Bar> {
     return fila
 }
 
+/** Un solo elenco governa sia l'ordine sia lo spazio necessario alla barra. */
+private fun Module.barKeys(): List<Bar> = buildList {
+    if (extra == Extra.BANDS || extra == Extra.CORNERS) add(Bar.AIM)
+    if (extra == Extra.CORNERS) add(Bar.LIQUIFY)
+    if (auto) add(Bar.AUTO)
+    add(Bar.UNDO)
+    add(Bar.REDO)
+    add(Bar.ORIGINAL)
+}
+
 /**
  * Le icone dei comandi della barra bassa, nell'ordine che [barOrder] detta.
  *
@@ -3742,15 +3768,10 @@ private fun Comandi(
     onRedo: () -> Unit,
     onOriginal: () -> Unit
 ) {
-    val armabile = chosen.extra == Extra.BANDS || chosen.extra == Extra.CORNERS
-    val chiavi = buildList {
-        if (armabile) add(Bar.AIM)
-        if (chosen.extra == Extra.CORNERS) add(Bar.LIQUIFY)
-        if (chosen.auto) add(Bar.AUTO)
-        add(Bar.UNDO)
-        add(Bar.REDO)
-        add(Bar.ORIGINAL)
-    }
+    val chiavi = chosen.barKeys()
+    val width = LocalEditorToolWidth.current
+    val button = if (width < TOOL_TOUCH) Modifier.width(width) else Modifier
+    val glyph = Modifier.size(width / 2)
     val sorgente = origin
     for (voce in barOrder(chiavi, mirror)) when (voce) {
         /*
@@ -3771,6 +3792,7 @@ private fun Comandi(
          * per armare: un mirino su un modulo che di colori non parla direbbe il falso.
          */
         Bar.AIM -> IconButton(
+            modifier = button,
             onClick = {
                 gaze.liquifying = false
                 gaze.aiming = !gaze.aiming
@@ -3778,6 +3800,7 @@ private fun Comandi(
             enabled = ready && !busy
         ) {
             Icon(
+                modifier = glyph,
                 imageVector = if (chosen.extra == Extra.CORNERS) {
                     Icons.Filled.Transform
                 } else {
@@ -3798,6 +3821,7 @@ private fun Comandi(
             )
         }
         Bar.LIQUIFY -> IconButton(
+            modifier = button,
             onClick = {
                 gaze.aiming = false
                 gaze.liquifying = !gaze.liquifying
@@ -3807,6 +3831,7 @@ private fun Comandi(
             Icon(
                 Glyphs.Liquify,
                 stringResource(R.string.look_liquify),
+                modifier = glyph,
                 tint = if (gaze.liquifying) MaterialTheme.colorScheme.primary
                 else LocalContentColor.current
             )
@@ -3829,6 +3854,7 @@ private fun Comandi(
          * mirato.
          */
         Bar.AUTO -> IconButton(
+            modifier = button,
             onClick = {
                 if (sorgente != null) {
                     onLive { Auto.tuned(it, Auto.probe(sorgente)) }
@@ -3837,7 +3863,7 @@ private fun Comandi(
             },
             enabled = ready && !busy && sorgente != null
         ) {
-            Icon(Glyphs.Auto, stringResource(R.string.look_auto))
+            Icon(Glyphs.Auto, stringResource(R.string.look_auto), modifier = glyph)
         }
         /*
          * ⚠️⚠️ **GLI STILI NON SONO PIÙ UN'ICONA DI QUESTA FILA, DALLA `2.50`: SONO L'OTTAVO
@@ -3846,14 +3872,14 @@ private fun Comandi(
          * modulo è dove si scelgono, questo è dove se ne fa uno nuovo, e vive fuori dall'elenco che
          * scorre perché un comando che se ne va con le righe si ritrova risalendo.
          */
-        Bar.UNDO -> IconButton(onClick = onUndo, enabled = canUndo && !busy) {
-            Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))
+        Bar.UNDO -> IconButton(modifier = button, onClick = onUndo, enabled = canUndo && !busy) {
+            Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo), modifier = glyph)
         }
-        Bar.REDO -> IconButton(onClick = onRedo, enabled = canRedo && !busy) {
-            Icon(Glyphs.EditRedo, stringResource(R.string.editor_redo))
+        Bar.REDO -> IconButton(modifier = button, onClick = onRedo, enabled = canRedo && !busy) {
+            Icon(Glyphs.EditRedo, stringResource(R.string.editor_redo), modifier = glyph)
         }
-        Bar.ORIGINAL -> IconButton(onClick = onOriginal, enabled = !look.idle && !busy) {
-            Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
+        Bar.ORIGINAL -> IconButton(modifier = button, onClick = onOriginal, enabled = !look.idle && !busy) {
+            Icon(Glyphs.EditReset, stringResource(R.string.editor_original), modifier = glyph)
         }
     }
 }

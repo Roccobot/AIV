@@ -4112,6 +4112,73 @@ class SviluppoTest {
         banco.waitForIdle()
     }
 
+    /** La barra completa entra anche su un telefono stretto, con entrambi i lati del FAB. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w360dp-h800dp")
+    fun `Geometria compatta tutte le icone col FAB a destra`() {
+        verificaBarraGeometria(Hand.RIGHT, compact = true)
+    }
+
+    @Test
+    @Config(sdk = [33], qualifiers = "w360dp-h800dp")
+    fun `Geometria compatta tutte le icone col FAB a sinistra`() {
+        verificaBarraGeometria(Hand.LEFT, compact = true)
+    }
+
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp")
+    fun `Geometria conserva le dimensioni quando la barra entra`() {
+        verificaBarraGeometria(Hand.RIGHT, compact = false)
+    }
+
+    @Test
+    @Config(sdk = [33], qualifiers = "w360dp-h800dp")
+    fun `Geometria non rimpicciolisce una barra senza filigrana che entra`() {
+        verificaBarraGeometria(Hand.RIGHT, compact = false, hasMark = false)
+    }
+
+    private fun verificaBarraGeometria(hand: Hand, compact: Boolean, hasMark: Boolean = true) {
+        banco.setContent { Scena(hand = hand, hasMark = hasMark) }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+        val tools = buildList {
+            if (hasMark) add(R.string.settings_mark)
+            add(R.string.look_resize)
+        }
+        val commands = listOf(R.string.look_corners, R.string.look_liquify,
+            R.string.editor_undo, R.string.editor_redo, R.string.editor_original)
+        val order = if (hand == Hand.RIGHT) tools + commands else
+            listOf(R.string.editor_original, R.string.editor_undo, R.string.editor_redo,
+                R.string.look_liquify, R.string.look_corners) + tools.reversed()
+        val screen = app.resources.configuration.screenWidthDp.toFloat()
+        val cells = order.map { id ->
+            banco.onNodeWithContentDescription(testo(id)).getUnclippedBoundsInRoot()
+        }
+        for ((index, cell) in cells.withIndex()) {
+            assertTrue("il comando ${testo(order[index])} esce dalla scheda: $cell",
+                cell.left.value >= 16f - 0.5f && cell.right.value <= screen - 16f + 0.5f)
+            assertEquals("i comandi devono occupare una sola fila", (cells.first().top + cells.first().bottom).value / 2f,
+                (cell.top + cell.bottom).value / 2f, 0.5f)
+            assertTrue("il comando non deve perdere altezza", (cell.bottom - cell.top).value >= 40f - 0.5f)
+            assertTrue("un comando non può essere schiacciato", (cell.right - cell.left).value >= 40f)
+            if (compact) assertTrue("la barra deve ridurre anche lo spazio del comando",
+                (cell.right - cell.left).value < 48f)
+            else assertEquals("la barra che entra non deve cambiare",
+                if (order[index] in tools) 48f else 40f, (cell.right - cell.left).value, 0.5f)
+            if (index > 0) assertTrue("i comandi si sovrappongono o cambiano ordine",
+                cells[index - 1].right.value <= cell.left.value + 0.5f)
+            val glyph = banco.onNodeWithContentDescription(testo(order[index]), useUnmergedTree = true)
+                .getUnclippedBoundsInRoot()
+            if (compact) assertTrue("anche il disegno dell'icona deve essere più piccolo",
+                (glyph.right - glyph.left).value < 24f)
+            else assertEquals("il disegno normale resta da 24 dp", 24f, (glyph.right - glyph.left).value, 0.5f)
+        }
+        // Anche un tocco fisico deve raggiungere Fluidifica nella fila compatta.
+        banco.onNodeWithContentDescription(testo(R.string.look_liquify)).performTouchInput { click(center) }
+        banco.onNodeWithText(testo(R.string.look_deform)).assertExists()
+    }
+
     /** Fluidifica è una schermata interna della Geometria e una pennellata entra nella storia. */
     @Test
     @Config(sdk = [33], qualifiers = "w600dp-h900dp")
@@ -4243,6 +4310,73 @@ class SviluppoTest {
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
     }
 
+    /** Si misurano i pixel renderizzati a densità doppia, senza confondere px e dp. */
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp-xhdpi")
+    fun `Fluidifica disegna il bordo del tocco nero al sessanta per cento e da due pixel`() {
+        apriFluidifica()
+        muovi(0, Liquify.MAX_RADIUS)
+        val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val before = stage.captureToImage().toPixelMap()
+        banco.mainClock.autoAdvance = false
+        stage.performTouchInput { down(center) }
+        banco.mainClock.advanceTimeBy(32)
+        banco.waitForIdle()
+        verificaBordo(before, stage.captureToImage().toPixelMap(),
+            androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f))
+        stage.performTouchInput { up() }
+        banco.mainClock.advanceTimeBy(800)
+        banco.waitForIdle()
+        verificaBordo(before, stage.captureToImage().toPixelMap(),
+            androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f))
+    }
+
+    @Test
+    @Config(sdk = [33], qualifiers = "w600dp-h900dp-xhdpi")
+    fun `Fluidifica conserva l'accento con un bordo di anteprima da due pixel`() {
+        apriFluidifica()
+        val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val before = stage.captureToImage().toPixelMap()
+        cursore(0).performTouchInput { down(Offset(width * 0.6f, height / 2f)) }
+        cursore(0).performTouchInput { moveTo(Offset(width * 0.65f, height / 2f)) }
+        banco.waitForIdle()
+        verificaBordo(before, stage.captureToImage().toPixelMap(), brushInk)
+        cursore(0).performTouchInput { up() }
+    }
+
+    private var brushInk = androidx.compose.ui.graphics.Color.Unspecified
+
+    private fun verificaBordo(before: PixelMap, after: PixelMap, ink: androidx.compose.ui.graphics.Color) {
+        val changed = mutableListOf<Pair<Int, Int>>()
+        for (y in 0 until before.height) for (x in 0 until before.width) {
+            if (before[x, y] != after[x, y]) changed += x to y
+        }
+        assertTrue("il cerchio deve essere visibile", changed.isNotEmpty())
+        val y = (changed.minOf { it.second } + changed.maxOf { it.second }) / 2
+        val xs = (0 until before.width).filter { before[it, y] != after[it, y] }
+        val runs = mutableListOf<MutableList<Int>>()
+        for (x in xs) {
+            if (runs.isEmpty() || runs.last().last() != x - 1) runs += mutableListOf(x)
+            else runs.last() += x
+        }
+        assertEquals("il cerchio deve essere vuoto, con due bordi nella sezione centrale", 2, runs.size)
+        val red = 1f - ink.alpha + ink.red * ink.alpha
+        val green = 1f - ink.alpha + ink.green * ink.alpha
+        val blue = 1f - ink.alpha + ink.blue * ink.alpha
+        for (run in runs) {
+            val darkest = run.minBy { after[it, y].red }
+            assertEquals("colore/opacità del bordo rosso", red, after[darkest, y].red, 0.025f)
+            assertEquals("colore/opacità del bordo verde", green, after[darkest, y].green, 0.025f)
+            assertEquals("colore/opacità del bordo blu", blue, after[darkest, y].blue, 0.025f)
+            // L'antialias distribuisce il bordo su più pixel: si somma la copertura effettiva.
+            val coverage = run.sumOf { x ->
+                assertEquals("la prova misura il bordo sull'immagine bianca", 1f, before[x, y].red, 0.01f)
+                ((1f - after[x, y].red) / (1f - red)).toDouble()
+            }
+            assertEquals("il bordo deve essere di due pixel fisici, senza alone", 2.0, coverage, 0.2)
+        }
+    }
+
     private fun apriFluidifica() {
         banco.setContent { Scena() }
         pronta()
@@ -4266,12 +4400,15 @@ class SviluppoTest {
         uri: Uri = quadrato(),
         mods: List<PadKey> = MOD_KEYS,
         hand: Hand = Hand.RIGHT,
+        hasMark: Boolean = false,
         onSave: (Look, Boolean) -> Unit = { _, _ -> },
         onBack: () -> Unit = {}
     ) {
         val ospite = LocalOnBackPressedDispatcherOwner.current
         SideEffect { sistema = ospite?.onBackPressedDispatcher }
         AivTheme(darkTheme = false) {
+            val primary = androidx.compose.material3.MaterialTheme.colorScheme.primary
+            SideEffect { brushInk = primary }
             // ⚠️ L'ordine dei moduli viaggia di qui anche nell'app: la scheda le impostazioni
             // non le riceve, quindi una prova che lo passasse per parametro misurerebbe una
             // strada che nessuno percorre.
@@ -4280,10 +4417,10 @@ class SviluppoTest {
                     AdvancedEditorScreen(
                         uri = uri,
                         busy = false,
-                        // ⚠️ Senza filigrana: il caso che la porta vive in `FiligranaTest`.
+                        // La barra completa si prova anche con un logo disponibile.
                         marked = false,
                         marking = false,
-                        hasMark = false,
+                        hasMark = hasMark,
                         onMark = {},
                         onMarkSetup = {},
                         resize = Resize.Plan(Resize.Mode.LONG, Resize.DEFAULT_PX),

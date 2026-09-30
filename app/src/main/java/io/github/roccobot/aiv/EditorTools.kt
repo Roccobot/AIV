@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,7 +68,7 @@ private fun EditorTool(
     val haptics = LocalHapticFeedback.current
     Box(
         modifier = Modifier
-            .size(TOOL_TOUCH)
+            .size(width = LocalEditorToolWidth.current, height = TOOL_TOUCH)
             .clip(CircleShape)
             .combinedClickable(
                 enabled = enabled,
@@ -94,6 +95,7 @@ private fun EditorTool(
     ) {
         Icon(
             imageVector = icon,
+            modifier = Modifier.size(LocalEditorToolWidth.current / 2),
             contentDescription = label,
             tint = when {
                 !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = OFF_INK)
@@ -283,7 +285,10 @@ fun EditorToolBar(
 }
 
 /** Il bersaglio di un comando dell'editor, come quello di un `IconButton` di Material. */
-private val TOOL_TOUCH = 48.dp
+internal val TOOL_TOUCH = 48.dp
+
+/** Larghezza condivisa dai comandi nella sola barra che richiede la misura compatta. */
+internal val LocalEditorToolWidth = staticCompositionLocalOf { TOOL_TOUCH }
 
 /**
  * Quanto la coppia rientra dal bordo esterno della barra.
@@ -292,4 +297,4 @@ private val TOOL_TOUCH = 48.dp
  * [EditorToolBar]: sul mockup il primo bersaglio comincia a 41 punti dal vetro, e con i 16 della
  * scheda questo numero lo porta a 40.
  */
-private val TOOL_EDGE = STAGE_SIDE
+internal val TOOL_EDGE = STAGE_SIDE
