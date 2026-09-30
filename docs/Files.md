@@ -3,7 +3,7 @@
 > **Cos'è questo file.** Le specifiche delle funzioni che riguardano i file, le miniature e le
 > impostazioni salvate: che cosa fa ognuna, le decisioni dell'utente su di lei e le sue trappole.
 > Non si carica da solo: si legge per intero prima di toccare una di queste funzioni. Le regole del
-> repo vivono in `Rules.md`, e un rimando a una sua sezione porta il nome del file.
+> repo vivono in `Rules.md`, e un rimando a una sua sezione indica il nome del file.
 
 ## 📤 AIV come selettore: quando un'altra app chiede un'immagine
 
@@ -18,7 +18,7 @@
   - ⚠️ **Quindi `ACTION_PICK` è la sola via servibile**, ed è quella di chi chiede un'immagine
     dalla galleria. Il filtro dichiara `vnd.android.cursor.dir/*` e i due tipi diretti, perché i
     chiamanti si dividono fra i due modi.
-  - ⚠️⚠️ **Un `ACTION_PICK` porta la sorgente in cui scegliere, non un'immagine da aprire**: lo
+  - ⚠️⚠️ **Un `ACTION_PICK` indica la sorgente in cui scegliere, non un'immagine da aprire**: lo
     distingue una guardia in `handleIntent`, o l'app si aprirebbe sul visualizzatore.
   - ⚠️ **Comparire anche fra gli archivi vuole un `DocumentsProvider`**, che è un lavoro a sé.
 - ⚠️⚠️ **Non è una schermata nuova**: l'app si apre com'è, e il tocco su una miniatura consegna il
@@ -111,7 +111,7 @@
   - ⚠️⚠️ **Il separatore è `FadedRule`, in `Theme.kt`, uno per l'app** (sua nota su `d-filo-uno`:
     come quello del Ritaglio), pieno a metà e sfumato fino ai capi; l'aria la mette il chiamante.
 - ⚠️⚠️ **Il conto è la sua specifica**: con uno, due o tre file si vedono tutti; con quattro o più i
-  primi due, lo stacco e l'ultimo, che porta il numero più alto, cioè il solo modo di vedere se le
+  primi due, lo stacco e l'ultimo, che ha il numero più alto, cioè il solo modo di vedere se le
   cifre del template bastano.
   - ⚠️ **Lo stacco c'è solo se nasconde almeno un nome, e prende il posto del separatore**, quindi
     il passo fra le coppie non cambia. È `MoreHoriz` alla misura della freccia, e come lei non ha
@@ -201,7 +201,7 @@
   - ⚠️ **A leggere è un fetcher solo** (`DiskThumbnailFactory`), dopo quello di sistema e prima
     dell'AVIF: la domanda al MediaStore per sapere dov'è il file sarebbe spesa per niente sulle
     miniature che dà il sistema.
-  - ⚠️ **Tutti e due si aprono solo per una richiesta di `Thumbs.request`**, che porta l'indirizzo
+  - ⚠️ **Tutti e due si aprono solo per una richiesta di `Thumbs.request`**, che specifica l'indirizzo
     negli extra (`Thumbs.KEPT`): un decodificatore riceve i byte e non sa da che file vengono, e una
     richiesta che non chiede una miniatura non scrive nella loro cartella.
   - ⚠️⚠️ **Il tetto della cartella è di 30.000 file**, cioè una collezione intera, e la potatura gira
@@ -222,7 +222,7 @@
   - **La pagina è sua alla lettera**: il titolo, il numero X/Y, la barra, 'Annulla', e alla fine la
     notifica 'Miniature generate correttamente.' Mentre si contano le immagini la barra non ha un
     valore, e la riga del numero resta vuota senza sparire.
-  - ⚠️ **Indietro vale 'Annulla', e 'Annulla' toglie la pagina subito**: ogni generazione porta il
+  - ⚠️ **Indietro vale 'Annulla', e 'Annulla' toglie la pagina subito**: ogni generazione ha il
     proprio numero, quindi un aggiornamento tardo non la fa ricomparire. Quello che è fatto resta, e
     la frase finale non si dice.
   - ⚠️ **Un file illeggibile conta come fatto**, o non si arriverebbe mai in fondo; **un indirizzo
@@ -305,8 +305,8 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
     SVG, copiato senza conversione e ripristinato insieme a posizione, dimensione, distanza e
     opacità. L'SVG si disegna alla misura necessaria, quindi non c'è una seconda copia PNG da
     includere. La richiesta del 2026-09-29 è verificata dai due giri PNG e SVG in `BackupTest`.
-  - ⚠️ **La terza non porta il titolo della sua sezione** (sua nota su `d-backup-aree`): dentro una
-    pagina di backup 'Modifica e backup' faceva pensare che la casella portasse il backup stesso.
+  - ⚠️ **La terza non ripete il titolo della sua sezione** (sua nota su `d-backup-aree`): dentro una
+    pagina di backup 'Modifica e backup' faceva pensare che la casella contenesse il backup stesso.
   - ⚠️ **Il token di un'area è il formato, e non cambia mai**: lo leggono anche i file già salvati,
     e un'area nuova prende un token nuovo.
   - ⚠️ **'Stili dell'editor' non c'è sotto Android 13**, dove l'editor completo non c'è.
@@ -351,7 +351,7 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
 - ⚠️⚠️ **Importando, le preferenze sostituiscono, e il cestino si aggiunge**, con la cronologia e
   senza doppioni: sostituirlo vorrebbe dire cancellare per sempre dei file.
   - ⚠️⚠️ **Copertine, tinte, cartelle nascoste e stili si fondono, e sul conflitto vince il file**
-    (sua risposta `fonde` a `d-backup-importa`): una copertina esce solo se il file ne porta una per
+    (sua risposta `fonde` a `d-backup-importa`): una copertina esce solo se il file ne contiene una per
     la stessa cartella (`FolderCovers.adopt`); tinte e nascoste si fondono voce per voce
     (`PREF_MERGED`), e lo stile con cui il colore si vede resta un valore solo; uno stile salvato
     col nome già usato prende i valori del file, e degli stili di casa si sommano i soli cambiamenti
@@ -365,7 +365,7 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
   si legge fino all'ultimo segmento, quindi un file tagliato si scopre quando non è cambiato niente.
   Le cartelle d'appoggio si puliscono anche all'avvio, per un'importazione uccisa a metà.
   - ⚠️ **Le caselle valgono nei due versi** (scelta dichiarata), e la conferma elenca le parti che il
-    file porta. Dopo un'importazione `Backups.imported` rilegge logo, tinte e copertine.
+    file contiene. Dopo un'importazione `Backups.imported` rilegge logo, tinte e copertine.
 - ⚠️⚠️ **Vale fra versioni diverse di AIV, nei due versi** (sua istruzione). Le quattro regole vivono
   in testa a `Backup`:
   1. il formato cresce solo aggiungendo: quello che cambia prende un nome nuovo;

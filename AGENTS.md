@@ -1,7 +1,7 @@
 # AGENTS.md: le regole di `Roccobot/AIV`
 
 > **Cos'è questo file.** Quello che ogni agente legge all'avvio in questo repo: Codex, Cursor e
-> Antigravity lo leggono da sé, Claude Code lo importa da `CLAUDE.md`. Porta due blocchi: il
+> Antigravity lo leggono da sé, Claude Code lo importa da `CLAUDE.md`. Contiene due blocchi: il
 > **nucleo universale**, copiato da `rules/Core.md` di `Roccobot/tools` e da modificare solo là,
 > e il **nucleo del repo**, cioè le sue regole in una riga col rimando a `Rules.md`, che ne dà il
 > testo completo e il perché.
@@ -282,7 +282,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   'stili' e non 'preset'; ogni peso si scrive con `formatBytes` (`Rules.md` § '🗣️ Come si chiamano
   le cose').
 - **'Centrato' vuol dire** centrato in orizzontale e il 15% più in basso in verticale, con
-  `Modifier.lowered`. Modale vera solo una finestra che raccoglie un input scritto, e allora porta
+  `Modifier.lowered`. Modale vera solo una finestra che raccoglie un input scritto, e allora usa
   **insieme** `Modifier.lowered(null)` e `properties = loweredWindow(null)`: senza la seconda non è
   modale e non dà errore (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra').
 - ⚠️ **Un nodo che copre lo schermo esiste solo quando serve**: la `1.70` si avviava senza

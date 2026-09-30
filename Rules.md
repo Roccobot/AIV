@@ -35,7 +35,7 @@ sessione dopo è perso.
   system, i disegni, il vocabolario, le regole di interfaccia trasversali, gli invarianti
   dell'editor completo, il cestino, gli avvisi, le impostazioni, le prove, gli strumenti, il
   rilascio e la firma.
-- Un rimando a una sezione di un altro file porta il suo nome (`docs/Editor.md` § '...'); dentro
+- Un rimando a una sezione di un altro file indica il suo nome (`docs/Editor.md` § '...'); dentro
   lo stesso file basta il titolo.
 
 ## 🔗 Il documento vivo del progetto
@@ -62,7 +62,7 @@ sessione dopo è perso.
   assente).
   - **Misura due cose di specie diversa**: la forma dei dati letti dal file (i campi che il disegno
     legge) e la resa in Chromium, cioè che la pagina parta e disegni tanti riquadri quanti ne
-    portano i dati. Senza browser dichiara che la resa non è provata.
+    contengono i dati. Senza browser dichiara che la resa non è provata.
   - ⚠️ **Si misura il file HTML da pubblicare e non lo script che lo compone**: gli script vivono
     nello scratchpad e spariscono con la sessione.
   - ⚠️ **La pagina regge un campo assente disegnando un riquadro in meno**, ed è per questo che il
@@ -102,7 +102,7 @@ sessione dopo è perso.
   dell'app (cartelle, griglia, visualizzatore, impostazioni) dal sorgente Compose, e il suo
   `README.md` dichiara quello che è finto; `assets/aiv-mark.svg` è la A di AIV senza la
   piastrella, e la sostituzione con la versione nuova è un lavoro del design system, non fatto;
-  `assets/icons/` porta nove glifi che nell'app non ci sono.
+  `assets/icons/` contiene nove glifi che nell'app non ci sono.
 - ⚠️⚠️ **Le frasi della paginetta di download vivono in un documento `.dc.html`** di Claude Design,
   fuori dai progetti di design system, che lo strumento non raggiunge: serve che lui lo mandi in
   chat o lo semini nello spazio di lavoro.
@@ -187,7 +187,7 @@ sessione dopo è perso.
     buco torna a contare. La frase vecchia 'un buco prende gli stessi raccordi' è decaduta.
   - ⚠️ **Quanto si vede**: su un angolo retto il raccordo arretra il vertice di 0,166 unità su 24,
     mezzo pixel a tre volte. È correttezza formale, non un effetto visibile.
-  - ⚠️ **La verifica ha trovato un difetto vero**: in `ic_mod_detail` gli archi portavano i raggi
+  - ⚠️ **La verifica ha trovato un difetto vero**: in `ic_mod_detail` gli archi avevano i raggi
     al posto della rotazione e della bandierina, e quattro tondi su sei venivano col raggio
     sbagliato. Da lì `icon-check.py` rifiuta una bandierina di arco che non sia `0` o `1`.
 - ⚠️⚠️ **Un disegno può nascere qui**: la sessione ammorbidisce i glifi di Material col trattamento
@@ -291,7 +291,7 @@ sessione dopo è perso.
 - ⚠️ **Un dialogo a tutto schermo non si sposta** (`DestinationDialog`): non ha un centro da
   spostare.
 - ⚠️ **Le 'Info dettagliate sul file' sono una scheda in fondo, e non una superficie centrata**:
-  non portano `lowered()`, e il velo se lo chiedono da sé.
+  non usano `lowered()`, e il velo se lo chiedono da sé.
 
 ## 🌫️ Sfocatura dietro i pannelli e bordo
 
@@ -407,7 +407,7 @@ sessione dopo è perso.
   - ⚠️ **Il banco non lo vede**: una prova gira in una configurazione sola. Si guarda sul telefono,
     coi due temi.
 - ⚠️⚠️ **L'icona in testata e il FAB sono incrociati di proposito** (sua specifica): l'icona segue
-  il tema in vigore, il FAB porta l'accento dell'altro tema, e a menu aperto quello del tema in
+  il tema in vigore, il FAB mostra l'accento dell'altro tema, e a menu aperto quello del tema in
   vigore. Un FAB che 'non segue il tema' non si corregge.
 
 ## 🎬 Le animazioni dentro una schermata che arriva
@@ -444,7 +444,7 @@ sessione dopo è perso.
 - ⚠️⚠️ **`drawBehind` disegna dietro il contenuto del proprio nodo, non dietro i fratelli che il
   genitore ha già disegnato**: una tinta che deve stare dietro a più nodi vive sul blocco che li
   contiene. Il caso è il titolo in testata che spariva sotto il gradiente dell'intestazione
-  (`docs/Folders.md` § '🖼️ Intestazione delle cartelle, e le due schermate che la portano').
+  (`docs/Folders.md` § '🖼️ Intestazione delle cartelle, e le due schermate che la mostrano').
 - ⚠️⚠️ **Un gradiente a pochi livelli su un'altezza grande fa bande per aritmetica**, non per i
   colori scelti: ogni gradino di colore è alto decine di pixel. Il dithering del `Paint` non è
   bastato, per una ragione che non si conosce, e `Modifier.background(brush)` non dà accesso al
@@ -566,7 +566,7 @@ sessione dopo è perso.
     cui entra la voce che fa scattare la soglia, e nello stesso giro si copre la ricerca, o la
     famiglia esce dalla ricerca.
 - ⚠️⚠️ **Sotto-pagina si diventa in cinque modi, e ognuno si dichiara quando la pagina nasce**:
-  1. la voce è un **elenco** che cresce e porta comandi propri riga per riga;
+  1. la voce è un **elenco** che cresce e include comandi propri riga per riga;
   2. le voci sono **delicate**, e il tocco in più è una protezione;
   3. la famiglia ha superato la **soglia**;
   4. è un **comando che ha bisogno di un paragrafo necessario**, cioè che spiega che cosa succede
@@ -648,7 +648,7 @@ sessione dopo è perso.
 - ⚠️⚠️ **Il paletto di AIV sulla regola del nucleo** (un difetto arrivato all'utente torna con la
   prova che lo avrebbe fermato): vale per i difetti che il banco può vedere, cioè di struttura; per
   gli altri la correzione va da sola, e la voce di collaudo lo dice. La prova si scrive **nella
-  stessa versione** della correzione, non più avanti: il giro dopo porta altre cose.
+  stessa versione** della correzione, non più avanti: il giro dopo introduce altre modifiche.
 - ⚠️⚠️ **La prima cosa che una prova nuova misura è una correzione già uscita, ragionata e non
   misurata**, che si riconosce da 'adesso dovrebbe' nella sua voce di collaudo. Il precedente: una
   `SizeTransform` tolta per correggere l'arrivo del FAB, che misurata dopo non cambiava niente.
@@ -657,7 +657,7 @@ sessione dopo è perso.
   - ⚠️ **Una condizione necessaria sembra una causa**: tolto l'impedimento (una `SurfaceView` che
     non si lascia traslare), il filmato non si muoveva lo stesso, perché nessuno lo traslava. Si
     chiede che cosa fa muovere la cosa, oltre a che cosa glielo impedisce.
-- ⚠️⚠️ **Porta la sua prova anche senza un difetto alle spalle una modifica alla gerarchia dei
+- ⚠️⚠️ **Richiede una prova anche senza un difetto alle spalle una modifica alla gerarchia dei
   tocchi**: un nodo che copre lo schermo, un modificatore che misura e posa (la scatola gonfiata di
   `lowered`), una superficie che si apre sopra un'altra. In tutti e tre il codice può essere valido
   e non fare niente.
@@ -679,7 +679,7 @@ sessione dopo è perso.
 - ⚠️ **Una prova di impaginazione sceglie la scena perché la forma giusta e quella sbagliata diano
   risultati diversi**: sulla scena di serie la fila dei gettoni del ridimensionamento veniva giusta
   anche col difetto, e serve `@Config(qualifiers = "w600dp-h900dp")`.
-- ⚠️ **Il nome di una prova non porta lettere accentate**: su una macchina con codifica di sistema
+- ⚠️ **Il nome di una prova non contiene lettere accentate**: su una macchina con codifica di sistema
   stretta il rapporto non si genera, e il build cade proprio quando una prova cade.
 - ⚠️⚠️ **Le trappole dell'iniezione dei gesti**, e ognuna ha dato una prova verde a vuoto o rossa
   col codice giusto:
@@ -715,7 +715,7 @@ sessione dopo è perso.
   - ⚠️ **Chi cambia una di quelle quattro cose rilancia lo strumento**: nessun controllo lo ricorda.
   - ⚠️ **I caratteri sono quelli veri** (Roboto da Google Fonts), o lo strumento si ferma invece di
     scrivere un'immagine col carattere di ripiego.
-- **Verifica**: la pagina servita porta `og:image`, e quell'indirizzo risponde 200 con
+- **Verifica**: la pagina servita contiene `og:image`, e quell'indirizzo risponde 200 con
   `image/jpeg`. Un link nudo in un servizio può essere la sua cache.
 
 ## 🚀 Che cosa produce un rilascio
@@ -774,7 +774,7 @@ il job le scrive su disco per la durata di una sola esecuzione.
 - **`tools/i18n-check.py`**, dalla radice: confronta tutte le lingue con l'inglese (chiavi
   mancanti, segnaposto, categorie di plurale, caratteri vietati) e deve dire **28 lingue, 0
   problemi**: un numero più basso vuol dire che una cartella non è stata vista. Le varianti
-  regionali (`values-b+es+419`, `values-pt-rPT`) portano solo le differenze, e il verificatore lo
+  regionali (`values-b+es+419`, `values-pt-rPT`) contengono solo le differenze, e il verificatore lo
   sa.
 - **`tools/icon-check.py`**, dalla radice: legge ogni `res/drawable/*.xml`, col criterio di
   § '🖌️ Come entra un disegno'.

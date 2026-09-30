@@ -76,7 +76,7 @@
   `editor_title`. La regola vecchia 'si chiama Editor e non Modifica' è decaduta.
 
 **La Luce e i cursori.**
-- ⚠️⚠️ **La Luce porta i sei cursori del pannello base di Lightroom, nel suo ordine**: esposizione,
+- ⚠️⚠️ **La Luce include i sei cursori del pannello base di Lightroom, nel suo ordine**: esposizione,
   contrasto, luci, ombre, bianchi, neri. Scartata la luminosità (sua critica): un passo additivo
   che a fondo corsa dava un rettangolo pieno. I punti di bianco e di nero muovono gli estremi al
   massimo di un quarto, quindi non possono appiattire l'immagine.
@@ -85,7 +85,7 @@
   nessuno ha chiesto. Il passo aspetta di sapere se i tocchi erano due; il trascinamento no.
   - ⚠️⚠️ **`setProgress` si tiene**: senza, il cursore è muto per un lettore di schermo e invisibile
     al banco, che i cursori li muove da lì.
-  - ⚠️ **I cursori sono una tabella**, non blocchi copiati: ognuno porta tre gesti, e un cursore
+  - ⚠️ **I cursori sono una tabella**, non blocchi copiati: ognuno prevede tre gesti, e un cursore
     nuovo li prende per costruzione.
 - ⚠️⚠️ **I gesti sono suoi**: il doppio tocco su nome, cursore o numero azzera; il tocco lungo sul
   nome mostra l'immagine senza quel solo cursore (sul nome e non sulla barra, dove il dito è già
@@ -115,7 +115,7 @@
     due gesti è c'è solo quello che il dito fa dopo. Si raddoppia a ogni `ZOOM_PULL` (l'ingrandimento
     si percepisce in rapporti), il punto fermo è quello toccato, e un compagno che arriva apre la
     pinza.
-  - ⚠️ **Si scala il rettangolo e non la tela**: il pennello porta uno shader con la sua matrice.
+  - ⚠️ **Si scala il rettangolo e non la tela**: il pennello usa uno shader con la sua matrice.
 - ⚠️⚠️ **Fermandosi, la finestra inquadrata si rilegge dal file a piena risoluzione** (sua risposta
   `pieno`) e si dipinge sopra l'anteprima, ancorata all'immagine: su una riduzione a 1600 pixel la
   grana del sensore è già mediata, e il Dettaglio si giudicherebbe su un'immagine senza rumore.
@@ -131,7 +131,7 @@
     un punto); non vede il pezzo letto, che vuole un file vero.
 
 **Il Colore.**
-- ⚠️⚠️ **Il Colore porta temperatura, tinta, saturazione, vividezza e l'interruttore del bianco e
+- ⚠️⚠️ **Il Colore include temperatura, tinta, saturazione, vividezza e l'interruttore del bianco e
   nero.** La vividezza pesa sull'inverso di quanto un colore è già saturo (il cursore dei ritratti).
   Il bilanciamento tiene ferma la luminanza, o la tinta sarebbe un secondo cursore di esposizione.
   Il bianco e nero è un interruttore e non la saturazione a -100: viene dopo nel conto, e spegne
@@ -170,7 +170,7 @@
   `CONTRAST_RISE` 1,53, fondo corsa 1. Scartate la `smoothstep`, che mangiava ombre e luci, e la
   compressione lineare verso il perno, che spostava il nero e il bianco e ingrigiva.
   - ⚠️ **Un valore già scelto rende di più**, in uno stile salvato come nei sei stili di casa che ne
-    portano uno.
+    hanno uno.
   - ⚠️⚠️ **'Auto' ricava il contrasto dalla pendenza al perno**, che vale `1 + k`, e i tre numeri che
     ricopia dallo shader li presidia il banco leggendo `LOOK_AGSL` (`SviluppoTest`).
 - ⚠️⚠️ **'Auto' imita 'Colore automatico' di Photoshop e sistema anche la luce media** (sua richiesta,
@@ -185,7 +185,7 @@
 
 **La storia, il salvataggio, la barra.**
 - ⚠️⚠️ **La storia è di valori, un passo al rilascio del dito**, preso dallo stato vivo: il valore
-  catturato da `onValueChangeFinished` portava quello di prima, perché Compose chiama le due
+  catturato da `onValueChangeFinished` conteneva quello di prima, perché Compose chiama le due
   funzioni senza ricomporre in mezzo, e 'Annulla' restava spento una volta su dieci. È una lista
   con un indice, non due pile.
 - ⚠️ **I tre comandi della storia sono icone**, gli stessi glifi dell'editor semplice (sua
@@ -262,7 +262,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️ **Raggio e mascheratura non cambiano un pixel senza nitidezza**: `Detail.idle` non li conta, o
   l'immagine si riscriverebbe per niente, e l'interfaccia li spegne col campo `off` della tabella
   dei cursori, che vale per tutti i moduli.
-- ⚠️ **Il raggio è bipolare**, perché un raggio zero non esiste; un cursore monopolare non porta il
+- ⚠️ **Il raggio è bipolare**, perché un raggio zero non esiste; un cursore monopolare non mostra il
   segno né la tacca dello zero.
 - ⚠️⚠️ **Il Dettaglio è il primo della catena**, e lavora sui valori del file e non in luce lineare:
   parla del file, e il contrasto dopo di lui moltiplicherebbe la grana che deve togliere.
@@ -283,7 +283,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 
 ## ✨ Il modulo Effetti, e i suoi cursori
 
-- ⚠️⚠️ **Il modulo porta Foschia, Grana e Vignettatura** (sua risposta `effetti` a
+- ⚠️⚠️ **Il modulo include Foschia, Grana e Vignettatura** (sua risposta `effetti` a
   `d-dopo-editor`), ognuno col suo secondario (§ '🎛️ I tre cursori secondari degli Effetti').
 - ⚠️⚠️ **Chiarezza e Texture sono state tolte** (sua risposta `via` a `d-eff-restano`): facevano un
   reticolo, perché nove campioni radi campionano invece di mediare. Il rimedio, una media letta da
@@ -303,7 +303,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     vivere in `Look` e darebbe una cucitura su ogni tessera. Con una foschia colorata resta una
     dominante, e si usa il bilanciamento.
   - **I due versi**: togliere è `(c - k) / (1 - k)`, aggiungere `c + k (1 - c)`. ⚠️⚠️ **Togliere non
-    supera il velo che il pixel stesso porta** (tetto col canale scuro del pixel, nel solo verso che
+    supera il velo presente nel pixel stesso** (tetto col canale scuro del pixel, nel solo verso che
     toglie), o le ombre dentro una zona velata si chiudevano sul nero; la nota vecchia che dava quel
     difetto 'fuori dalla corsa' era falsa.
   - ⚠️⚠️ **La Foschia ha il raggio più largo e legge i pixel di partenza**, quindi sta subito dopo il
@@ -323,7 +323,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️ **Vignettatura e grana sono gli ultimi della catena, in quest'ordine**: l'obiettivo e poi la
   pellicola.
 - ⚠️ **I nomi degli uniform si scelgono con cura**: `texture` è una funzione di GLSL.
-- ⚠️⚠️ **Uno stile porta anche gli Effetti**, quindi i moduli che uno stile governa sono sei; ma i
+- ⚠️⚠️ **Uno stile include anche gli Effetti**, quindi i moduli che uno stile governa sono sei; ma i
   venti di casa restano senza (sua risposta `lascia`: si rifanno da capo a modulo finito).
 - **Il gettone vive subito dopo il Dettaglio** (suo ordine), l'altro modulo che guarda i vicini.
 - ⚠️ **Il glifo è suo** (`ic_mod_effects.xml`, una superellisse col tondo scavato), e non ha punte da
@@ -339,7 +339,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 ## 🎛️ I tre cursori secondari degli Effetti
 
 - ⚠️⚠️ **Ogni principale degli Effetti ha il suo secondario sotto di sé** (sua richiesta), e il
-  modulo ne porta sei. **Vince il suo elenco sulla frase 'uno per effetto'**: la grana ne ha due
+  modulo ne include sei. **Vince il suo elenco sulla frase 'uno per effetto'**: la grana ne ha due
   (**Luci**, **Dimensione**), la vignettatura uno (**Sfumatura**), la foschia nessuno. La lettura è
   dichiarata nella voce di collaudo.
 - ⚠️ **Un secondario si spegne col suo principale a zero** (campo `off`), e non conta in
@@ -378,7 +378,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     filtro lineare**, o la curva si vede a gradini.
 - ⚠️⚠️ **La spline è monotona (Fritsch-Carlson)**: una cubica naturale oltrepassa fra due punti
   vicini e inverte i toni. Su punti allineati è la retta, quindi `Curve.idle` guarda i punti; la
-  prova porta un tratto piatto, che è il caso che distingue le due matematiche.
+  prova include un tratto piatto, che è il caso che distingue le due matematiche.
 - ⚠️ **Le curve si compongono come `all(canale(v))`**, in Kotlin, che è la convenzione di ogni
   editor; al contrario una curva di canale cambierebbe posto toccando quella di tutti i toni.
 - ⚠️ **Nella catena viene fra il contrasto e l'HSL**: dopo la curva a S predefinita, e prima di chi
@@ -485,7 +485,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   (`EditorScreen.kt`: `cropOverlay`, `grabbed`, `dragged`, `cropBox`, `cropFractions`), che questo
   palco chiama: due disegni dello stesso comando divergerebbero.
 - ⚠️⚠️ **Formati e centrature come nell'editor semplice** (sua risposta `formati`); di fabbrica
-  'Libera'. **'Originale' è una forma il cui rapporto lo porta l'immagine** (sua richiesta).
+  'Libera'. **'Originale' è una forma il cui rapporto è quello dell'immagine** (sua richiesta).
 - **Le due disposizioni** le dichiara `rows` (`ShapeRows.SIMPLE`, `ShapeRows.FULL`), senza valore di
   serie:
   - **editor completo**: una riga con 'Libero', 'Originale' e i due versi a icona (`CropPortrait`,
@@ -533,7 +533,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   risposta `intera`; `Shape.fromImage`, uno per i due editor), e i due gettoni del verso si
   spengono con lei: è una lettura dichiarata, perché accesi non cambierebbero niente.
 - ⚠️⚠️ **Tutti i comandi lavorano dentro la porzione applicata** (`framedCrop`, `relativeTo`,
-  `absolute`): lo ha trovato il banco, e il file avrebbe portato una striscia che il palco non
+  `absolute`): lo ha trovato il banco, e il file avrebbe incluso una striscia che il palco non
   mostrava. 'Originale' dentro una porzione è la porzione.
 - ⚠️ **Un chip spento si vede spento nei due editor** (`SheetChip`, coi numeri di Material: 38% per
   testo e icona, 12% per fondo e filetto).
@@ -550,14 +550,14 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 
 - ⚠️⚠️ **Uno stile è un aspetto con un nome**, che si porta da un'immagine all'altra: governa Luce,
-  Colore, HSL, Dettaglio, Curve ed Effetti, e non porta posa, ritaglio e geometria, che dipendono da
+  Colore, HSL, Dettaglio, Curve ed Effetti, e non include posa, ritaglio e geometria, che dipendono da
   come è stata scattata quell'immagine.
 - ⚠️⚠️ **Gli stili di casa sono venti**: quattordici suoi, convertiti dai suoi XMP di Lightroom
   dalla sessione (sua istruzione; nell'APK non c'è un lettore XMP, entrano i valori già tradotti), e
   sei della sessione, cioè quattro mestieri che i suoi non toccavano e due riscritture dichiarate,
   con un nome diverso dal suo. Cinque dei suoi XMP non avevano niente da travasare (taratura dei
   primari, color grading a tre zone, maschere).
-  - ⚠️ **Restano fuori** sfrangiatura, viraggio diviso, chiarezza e texture. I venti non portano gli
+  - ⚠️ **Restano fuori** sfrangiatura, viraggio diviso, chiarezza e texture. I venti non includono gli
     Effetti, e si rifanno da capo a modulo finito (sua risposta `lascia` a `d-preset-xmp`): uno stile
     di casa non si cambia da sé.
   - **I nomi dei venti sono suoi** (fra gli altri 'Roccobot', 'Rosso -', 'Rosso - -', i tre col
@@ -591,10 +591,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   L'importazione di questa pagina sostituisce (`docs/Files.md` § '💼 Esporta e importa, e il file
   che solo AIV sa leggere'). **`.aivstyle`, lo stile singolo, non c'è ancora**: è una domanda del
   giro.
-- ⚠️⚠️ **Il primo avvio dell'editor completo porta due mini-onboarding coi testi suoi**: la fila dei
+- ⚠️⚠️ **Il primo avvio dell'editor completo mostra due mini-onboarding coi testi suoi**: la fila dei
   moduli (`Hint.MODULES`, lo scorrimento e il tocco lungo che azzera un modulo) e i tre tasti dai due
   gesti (`Hint.EDITOR_TOOLS`, con una chiave sua perché chi ha già l'app la veda).
-  - ⚠️ **Ogni copia illuminata porta il suo riquadro misurato**, perché i tasti non sono larghi
+  - ⚠️ **Ogni copia illuminata ha il suo riquadro misurato**, perché i tasti non sono larghi
     uguali e sono due o tre; **i paragrafi sono due, e da che parte cade ciascuno lo decide la
     misura**, o uno coprirebbe i tasti che indica (caso 66 di `SviluppoTest`). I glifi sono quelli
     dei tasti veri.
@@ -633,7 +633,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   in decimi di centesimo (`AIR` 0..250, `AIR_STEP` 10), con la chiave `mark-air-tenths` e
   `mark-air` come ripiego in lettura moltiplicato per il passo. Non è una migrazione: nessuno scrive
   più quella chiave. Il separatore è quello della lingua, a scrivere valgono punto e virgola, e un
-  numero tondo non porta la coda.
+  numero tondo non mostra la coda.
 - ⚠️⚠️ **Il posto si sceglie sul riquadro** (sua richiesta), con cinque selettori d'accento in una
   fascia intorno, che non coprono l'immagine; il riquadro c'è anche senza logo, perché è il comando.
   I cinque nomi restano per il lettore di schermo e per la ricerca; il bersaglio è di 44 punti.
@@ -719,7 +719,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   istruzione non si rovescia perché la sua ragione è caduta.
 - ⚠️⚠️ **I glifi**: `ic_resize.xml` (quarantotto punte raccordate) e `ic_watermark.xml`, specchiato su
   sua richiesta perché il rettangolino cada in basso a sinistra, dove lui mette la firma. Con lo
-  specchio Material non lo porta più, e la trappola del verso di percorrenza vive in testa al file.
+  specchio Material non lo contiene più, e la trappola del verso di percorrenza vive in testa al file.
 - **Il banco** misura i gesti, il posto nella barra, lo specchio con le sue quattro controprove, e
   le copie dell'onboarding.
 

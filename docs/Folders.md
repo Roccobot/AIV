@@ -3,9 +3,9 @@
 > **Cos'è questo file.** Le specifiche delle funzioni che riguardano le cartelle e le griglie di
 > AIV: che cosa fa ognuna, le decisioni dell'utente su di lei e le sue trappole. Non si carica da
 > solo: si legge per intero prima di toccare una di queste funzioni. Le regole del repo vivono in
-> `Rules.md`, e un rimando a una sua sezione porta il nome del file.
+> `Rules.md`, e un rimando a una sua sezione indica il nome del file.
 
-## 🖼️ Intestazione delle cartelle, e le due schermate che la portano
+## 🖼️ Intestazione delle cartelle, e le due schermate che la mostrano
 
 **Com'è fatto.** L'intestazione vive nella schermata iniziale e in ogni cartella, e quello che
 condividono vive in `Front.kt`: la frazione di schermo, la fascia che si chiude, lo scorrimento che
@@ -44,9 +44,9 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
   cui lo spazio concesso all'icona vale il suo lato massimo.
 - ⚠️ **Né il cestino né la ricerca hanno l'intestazione, ed è una scelta non rivista**: la ragione
   del cestino (un FAB che non poteva perdere la sfumatura) è decaduta quando il FAB ha preso a
-  passare sopra le sfumature; nella ricerca la testata porta un campo di testo.
+  passare sopra le sfumature; nella ricerca la testata contiene un campo di testo.
 - **Le sfumature in fondo**: nelle cartelle ce n'è una sola, e se ne va scorrendo (sue richieste);
-  nella schermata iniziale restano le due, e il valore di serie di `GroundFade` porta la coda. Là
+  nella schermata iniziale restano le due, e il valore di serie di `GroundFade` include la coda. Là
   la coda è più in alto da quando la griglia arriva al vetro (`FOOT_SOLID`, `FOOT_REACH`).
 
 **La variante 10** (sua risposta a `d-frontespizio`).
@@ -134,7 +134,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
     vetro.
 - **La sfumatura in fondo arriva al vetro**, e tiene la barra gestuale su un fondo neutro.
 - ⚠️ **Il FAB della griglia vive in una finestra sua** e i rientri se li mette da sé; quello della
-  schermata iniziale porta `safeDrawingPadding()`.
+  schermata iniziale usa `safeDrawingPadding()`.
 - ⚠️ **Nessuna prova del banco**: là i rientri valgono zero. Si guarda sul telefono, con la
   navigazione gestuale e con quella a tre tasti.
 
@@ -177,7 +177,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
 - ⚠️⚠️ **La posizione di scorrimento sopravvive alla schermata** (sua richiesta), con un
   `SaveableStateHolder` in `AivApp`: `rememberLazyGridState` è un `rememberSaveable`. Scartato un
   archivio scritto a mano, che avrebbe coperto la sola griglia.
-  - ⚠️ **La chiave (`Screen.saveKey`) è una stringa**, perché finisce in un `Bundle`, e porta solo
+  - ⚠️ **La chiave (`Screen.saveKey`) è una stringa**, perché finisce in un `Bundle`, e contiene solo
     l'identità: non il nome di una cartella, perché una cartella rinominata è la stessa.
   - ⚠️ **Cresce di una voce per schermata visitata e non si pota**: un indice e uno scarto costano
     meno di un limite col suo sfratto.
@@ -203,7 +203,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   scartato.**
 - ⚠️⚠️ **Di fabbrica c'è 'Nome'**, sua risposta dopo averli provati. Nell'elenco viene subito dopo
   'Nessuno' (sua istruzione): l'ordine dei chip è quello dell'enum, e nell'archivio vive il token,
-  quindi riordinare non cambia le scelte salvate. La voce di collaudo porta comunque il passo
+  quindi riordinare non cambia le scelte salvate. La voce di collaudo include comunque il passo
   passo, perché senza una cartella con un colore suo non si vede niente.
 - **Vale per copertine ed elenco**, con le stesse misure; nella vista 'Cartelle di sistema' non c'è
   niente da tingere, perché una tinta è appesa al `BUCKET_ID` del MediaStore.
@@ -224,7 +224,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   condizione: la copertina deve restare anche se l'originale sparisce. Tenerne l'indirizzo sarebbe
   costato una riga, e la cartella tornerebbe alla predefinita appena l'originale si sposta. Una
   copertina si vede al massimo a cinquecento pixel.
-  - ⚠️ **Il file è l'archivio**: nessuna preferenza da tenere allineata, e il nome porta l'istante,
+  - ⚠️ **Il file è l'archivio**: nessuna preferenza da tenere allineata, e il nome indica l'istante,
     che tiene onesta la cache di Coil. Il perché vive in testa a `FolderCover.kt`.
 - ⚠️⚠️ **Il gesto è il tocco sull'icona dell'intestazione** (sua risposta `d-copertina-come`), e
   l'immagine si sceglie dentro AIV da qualunque cartella: quello che parte è una modalità, non una
@@ -237,7 +237,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
     sistema', che consegna: una modalità che funziona in una vista su tre sembra rotta.
 - ⚠️⚠️ **La copertina scelta si vede anche nella finestra delle destinazioni**, e non si vedeva: il
   parametro `covers` delle due viste aveva un valore di serie vuoto, e la finestra lo ereditava.
-  Adesso non ha un valore di serie, e chi apre una vista di cartelle dichiara che copertine porta:
+  Adesso non ha un valore di serie, e chi apre una vista di cartelle dichiara quali copertine mostra:
   il presidio è il compilatore, che al primo build ha preso un chiamante. Le copertine si caricano
   nel `produceState` della finestra. ⚠️ Il banco non poteva vederlo: il MediaStore di Robolectric
   è vuoto.
@@ -247,12 +247,12 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   viva. Il suo tasto annulla.
 - ⚠️⚠️ **Lo stesso tocco sulla stessa cartella rimette la predefinita**, cioè l'ultima immagine (sua
   richiesta): il gesto è uno, e fa e disfa. **Su un'altra cartella sposta la scelta là**, ed è la
-  ragione per cui la modalità porta il bucket da cui è partita.
+  ragione per cui la modalità conserva il bucket da cui è partita.
 - ⚠️ **La voce del menu del FAB esiste ma è spenta** (`COVER_MENU_ROW`, in `FolderCover.kt`), col
   nome 'Copertina predefinita' (sua istruzione: spegnerla senza eliminarla); la prova misura il
   legame con l'interruttore. Nel menu non c'è una voce che sceglie: a scegliere è il tocco
   sull'icona.
-- **Il primo tocco porta un mini-onboarding col testo suo**, una volta sola (`Hint.COVER`). Il
+- **Il primo tocco mostra un mini-onboarding col testo suo**, una volta sola (`Hint.COVER`). Il
   riquadro illuminato arriva da `onGloballyPositioned`, perché l'icona vive in una fascia che si
   stringe a ogni pixel di scorrimento.
 - ⚠️⚠️ **Una rinomina fatta in AIV porta con sé copertina e tinta** (`FolderCovers.move`,
@@ -281,7 +281,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   compare niente.
 - ⚠️⚠️ **Il tocco lungo su una cartella in prestito propone 'Mostra'** (sua segnalazione): il verso
   lo decide il fatto, perché una cartella in scena può essere nascosta solo durante il prestito, e
-  non un secondo stato. I testi di 'Nascondi' portano il nome fra apici e dicono 'un'impostazione
+  non un secondo stato. I testi di 'Nascondi' includono il nome fra apici e dicono 'un'impostazione
   di visualizzazione' (sue frasi).
 - ⚠️ **Il pannello riusa le due stringhe della pagina delle impostazioni**, e non aggiunge uno
   scorrimento: `Sheet` scorre già, e due scorrimenti verticali annidati sono un errore che Compose
@@ -347,7 +347,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   con le colonne), opaca all'80%, nel colore d'accento che le passa il chiamante (sue misure). Il
   tratto si disegna doppio dentro un ritaglio della sagoma, perché un tratto è centrato sul
   contorno. ⚠️ **L'arancione è stato provato e scartato**: resta il colore dei soli
-  mini-onboarding, e nastro e cornice, che non si vedono mai insieme, portano lo stesso accento.
+  mini-onboarding, e nastro e cornice, che non si vedono mai insieme, usano lo stesso accento.
 - **Il tondo**: un disco d'accento nell'angolo del nastro, diagonalmente opposto alla spunta;
   diametro 14 come frazione (sua risposta, guardando le anteprime) e opacità 60% (`MARK_DOT_ALPHA`,
   sua nota); l'aria dai due bordi vale il raggio, così cresce tutto insieme. Nelle altre lingue la
