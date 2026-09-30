@@ -9,6 +9,26 @@ Per ogni voce rispondi **OK**, **Da correggere** o **Non provato**, aggiungendo 
 quando serve. Puoi inviarmi le risposte numerate direttamente in chat, in un giro solo.
 Filigrana e Fluidifica sono già approvati e non richiedono un altro collaudo.
 
+Le verifiche automatiche della 3.13 sono superate: 447 prove e controllo delle traduzioni.
+Le prove sul tuo telefono restano tutte `Non provato` fino al tuo riscontro. Codex aggiorna
+stato, commento e azione successiva dopo la consegna del giro completo; conserva le voci
+aperte nella release successiva e i riscontri conclusi nell'archivio qui sotto.
+
+| Voce | Stato | Commento dell'utente | Azione successiva |
+|---|---|---|---|
+| 3.13-01 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-02 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-03 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-04 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-05 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-06 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-07 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-08 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-09 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-10 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-11 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-12 | Non provato | | Attendere il collaudo sul telefono. |
+
 ## 1. Aggiornamento e pagina delle impostazioni
 
 Installa l'aggiornamento senza cancellare i dati. Apri `Impostazioni`, `Cartelle`,
@@ -125,3 +145,10 @@ Telefono e versione Android: ...
 10. ...
 11. ...
 12. ...
+
+## Riscontri conclusi
+
+| Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
+|---|---|---|---|---|
+| Filigrana | 3.03 | OK | Il 2026-09-30 l'utente conferma che funziona come previsto. | Chiusa. |
+| Fluidifica | 3.03 | OK | Il 2026-09-30 l'utente dichiara lo strumento ufficialmente completato. | Chiusa. |

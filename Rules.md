@@ -46,6 +46,10 @@ sessione dopo è perso.
   `docs/Feedback.md`, con prove numerate e risposte in chat. Una bozza che richiede una sessione Claude
   autenticata non basta come consegna. Il documento Claude conserva il suo indirizzo e le sue
   voci aperte.
+  Ogni voce ha passi, risultato atteso, stato, commento e azione successiva. Codex aggiorna
+  il documento solo dopo il giro completo consegnato dall'utente, conserva le voci aperte
+  fra release e archivia i riscontri conclusi. Le prove automatiche superate restano distinte
+  dai collaudi manuali ancora da eseguire.
 
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
