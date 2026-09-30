@@ -1836,8 +1836,8 @@ private fun LookStage(
                     drawCircle(
                         if (preview != null) brushAccent else Color.Black.copy(alpha = 0.6f),
                         radius, centre,
-                        // Sono pixel del canvas: una densità maggiore non ispessisce il contorno.
-                        style = Stroke(width = 2f)
+                        // Sizing keeps the previous accent stroke; contact stays subtle in physical pixels.
+                        style = Stroke(width = if (preview != null) 6.dp.toPx() else 2f)
                     )
                 }
             }

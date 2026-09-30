@@ -4324,6 +4324,12 @@ class SviluppoTest {
         banco.waitForIdle()
         verificaBordo(before, stage.captureToImage().toPixelMap(),
             androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f))
+        stage.performTouchInput { moveTo(center + Offset(40f, 20f)) }
+        stage.performTouchInput { moveTo(center + Offset(80f, 40f)) }
+        banco.mainClock.advanceTimeBy(32)
+        banco.waitForIdle()
+        verificaBordo(before, stage.captureToImage().toPixelMap(),
+            androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f))
         stage.performTouchInput { up() }
         banco.mainClock.advanceTimeBy(800)
         banco.waitForIdle()
@@ -4333,20 +4339,32 @@ class SviluppoTest {
 
     @Test
     @Config(sdk = [33], qualifiers = "w600dp-h900dp-xhdpi")
-    fun `Fluidifica conserva l'accento con un bordo di anteprima da due pixel`() {
+    fun `Fluidifica mostra la dimensione con un bordo spesso di solo accento`() {
         apriFluidifica()
         val stage = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val before = stage.captureToImage().toPixelMap()
         cursore(0).performTouchInput { down(Offset(width * 0.6f, height / 2f)) }
         cursore(0).performTouchInput { moveTo(Offset(width * 0.65f, height / 2f)) }
         banco.waitForIdle()
-        verificaBordo(before, stage.captureToImage().toPixelMap(), brushInk)
+        // The previous accent stroke was 6 dp: at xhdpi its coverage is 12 physical pixels.
+        verificaBordo(before, stage.captureToImage().toPixelMap(), brushInk, width = 12.0)
+        cursore(0).performTouchInput { moveTo(Offset(width * 0.45f, height / 2f)) }
+        banco.waitForIdle()
+        verificaBordo(before, stage.captureToImage().toPixelMap(), brushInk, width = 12.0)
         cursore(0).performTouchInput { up() }
+        banco.waitForIdle()
+        assertEquals("l'anteprima scompare al rilascio dello slider", 0,
+            differenti(before, stage.captureToImage().toPixelMap()))
     }
 
     private var brushInk = androidx.compose.ui.graphics.Color.Unspecified
 
-    private fun verificaBordo(before: PixelMap, after: PixelMap, ink: androidx.compose.ui.graphics.Color) {
+    private fun verificaBordo(
+        before: PixelMap,
+        after: PixelMap,
+        ink: androidx.compose.ui.graphics.Color,
+        width: Double = 2.0
+    ) {
         val changed = mutableListOf<Pair<Int, Int>>()
         for (y in 0 until before.height) for (x in 0 until before.width) {
             if (before[x, y] != after[x, y]) changed += x to y
@@ -4373,7 +4391,7 @@ class SviluppoTest {
                 assertEquals("la prova misura il bordo sull'immagine bianca", 1f, before[x, y].red, 0.01f)
                 ((1f - after[x, y].red) / (1f - red)).toDouble()
             }
-            assertEquals("il bordo deve essere di due pixel fisici, senza alone", 2.0, coverage, 0.2)
+            assertEquals("spessore del solo bordo, senza altri contorni", width, coverage, 0.2)
         }
     }
 

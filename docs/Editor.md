@@ -49,13 +49,14 @@
 - **I comandi sono 'Deforma', 'Ricostruisci' e 'Azzera'** (correzione dell'utente del
   2026-09-29): i primi due hanno il testo centrato, 'Ricostruisci' ha più spazio e 'Azzera'
   azzera soltanto la maglia di Fluidifica.
-- **Il pennello è un cerchio anche sulle immagini non quadrate**. Dalla `3.02`, il contorno
-  vuoto ha un bordo di **2 pixel**: colore accento nell'anteprima della dimensione, nero al
-  **60% di opacità** durante il tocco (ritocco esplicito dell'utente), senza alone. Sono pixel
-  fisici del canvas, non dp. Mentre si regola la dimensione compare in basso a destra sulla
-  parte visibile del canvas; durante una pennellata compare al contatto, segue il dito e
-  sparisce un secondo dopo il rilascio, mantenendo il bordo nero nel secondo di attesa. La
-  richiesta precedente di lasciarlo fermo è revocata dalla correzione esplicita dell'utente.
+- **Il pennello è un cerchio anche sulle immagini non quadrate**. Dalla `3.03`, mentre si
+  regola la dimensione il cerchio vuoto ha il tratto spesso precedente di **6 dp**, nel solo
+  colore accento, senza contorni neri né alone (richiesta esplicita dell'utente). Compare in
+  basso a destra sulla parte visibile del canvas. Durante una pennellata resta il bordo
+  sottile della `3.02`: **2 pixel fisici** del canvas, non dp, nero al **60% di opacità**,
+  senza alone. Compare al contatto, segue il dito e sparisce un secondo dopo il rilascio,
+  mantenendo il bordo nero nel secondo di attesa. La richiesta precedente di lasciarlo fermo
+  è revocata dalla correzione esplicita dell'utente.
 - **Con un diametro visibile inferiore a 1 cm compare la lente**, soltanto finché il dito è
   appoggiato. Ingrandisce il punto toccato e si sposta nell'angolo del canvas più lontano dal
   dito. La misura usa `DisplayMetrics.xdpi`, cioè i DPI fisici dichiarati da Android; la
