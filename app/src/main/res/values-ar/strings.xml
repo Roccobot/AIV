@@ -688,7 +688,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">تصدير واستيراد</string>
     <string name="backup_desc">احفظ الإعدادات في ملف يمكنك استيراده في أي وقت، حتى مع الإصدارات المستقبلية من Astonishing Image Viewer.</string>
-    <string name="backup_intro">يتضمن الملف الإعدادات أدناه، ولا يقرؤه إلا AIV. عند الاستيراد، تُضاف الأنماط والألوان والأغلفة والمجلدات المخفية وسلة المهملات إلى ما هو موجود من قبل.</string>
+    <string name="backup_intro">يتضمن الملف الإعدادات أدناه، ولا يقرؤه إلا AIV. عند الاستيراد، تُضاف الأنماط والألوان والأغلفة والمجلدات المضمّنة والمستبعدة وسلة المهملات إلى ما هو موجود من قبل.</string>
     <string name="backup_area_view">المظهر والتنقّل</string>
     <string name="backup_area_editor">إعدادات المحرر</string>
     <string name="backup_area_covers">أغلفة المجلدات</string>
@@ -714,7 +714,7 @@
     <string name="backup_exporting">جارٍ التصدير...</string>
     <string name="backup_importing">جارٍ الاستيراد...</string>
     <string name="backup_import_from">تصدير بتاريخ %1$s، %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">ستحل هذه الإعدادات محل الإعدادات الحالية، باستثناء الأنماط والألوان والأغلفة والمجلدات المخفية وسلة المهملات، فهي ستُضاف إلى ما هو موجود من قبل.</string>
+    <string name="backup_import_ask">ستحل هذه الإعدادات محل الإعدادات الحالية، باستثناء الأنماط والألوان والأغلفة والمجلدات المضمّنة والمستبعدة وسلة المهملات، فهي ستُضاف إلى ما هو موجود من قبل.</string>
     <string name="backup_unlock">ملف الإعدادات محمي: أدخل كلمة المرور.</string>
     <string name="backup_none">لا يحتوي الملف على قيم صالحة للإعدادات المحددة.</string>
     <string name="look_liquify">تسييل</string>
@@ -722,4 +722,28 @@
     <string name="look_rebuild">إعادة بناء</string>
     <string name="look_brush_size">حجم الفرشاة</string>
     <string name="look_brush_strength">قوة الفرشاة</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">المجلدات المضمّنة/المستبعدة</string>
+    <string name="folder_mode_included">وضع التضمين</string>
+    <string name="folder_mode_excluded">وضع الاستبعاد</string>
+    <string name="folder_authorized">المجلدات المسموح بها</string>
+    <string name="folder_authorized_mark">مسموح به</string>
+    <string name="folder_included_none">لا توجد مجلدات مسموح بها.</string>
+    <string name="folder_authorize">السماح بالمجلد</string>
+    <string name="folder_authorize_title">إضافة إلى المجلدات المعروضة</string>
+    <string name="folder_remove">إلغاء السماح</string>
+    <string name="folder_remove_desc">هل تريد إزالة هذا المجلد من القائمة المسموح بها؟ سيختفي محتواه من وضعي الشبكة والقائمة.</string>
+    <string name="folder_only_this">هذا المجلد فقط</string>
+    <string name="folder_hide_choices">ما المجلدات التي تريد إخفاءها؟</string>
+    <string name="folder_only_named">%1$s فقط</string>
+    <string name="folder_with_child">%1$s ومجلده الفرعي</string>
+    <string name="folder_with_children">%1$s ومجلداته الفرعية</string>
+    <string name="folder_only_children">المجلدات الفرعية لـ %1$s فقط</string>
+    <string name="folder_siblings">تطبيق على جميع المجلدات في المستوى نفسه</string>
+    <string name="folder_authorize_desc">هل تريد إضافة هذا المجلد إلى القائمة المسموح بها؟ سيظهر محتواه في وضعي الشبكة والقائمة.</string>
+    <string name="folder_authorize_empty">ملاحظة: لا يحتوي هذا المجلد على عناصر قابلة للعرض. سيظهر في وضع الشبكة أو القائمة عندما يحتوي على صورة أو فيديو.</string>
+    <string name="folder_selection_desc">يعرض وضع التضمين المجلدات المسموح بها فقط؛ ويعرض وضع الاستبعاد جميع المجلدات إلا المخفية يدويا. في وضع الاستبعاد، اضغط مطولا على مجلد في وضع الشبكة أو القائمة لإخفائه. في وضع التضمين، افتح مجلدات النظام واضغط مطولا على مجلد للسماح به. ينطبق ذلك على الشبكة والقائمة فقط؛ تعرض مجلدات النظام كل شيء دائما. تظهر المجلدات المسموح بها عندما تحتوي على صورة أو فيديو.</string>
+    <string name="folder_siblings_desc">هل تريد إخفاء جميع المجلدات الفرعية لـ %1$s؟ ستكون المجلدات الجديدة داخل %1$s مرئية في البداية.</string>
+    <string name="folder_authorize_question">هل تريد إضافة هذا المجلد إلى القائمة المسموح بها؟</string>
 </resources>

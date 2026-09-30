@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exporteren en importeren</string>
     <string name="backup_desc">Sla de instellingen op in een bestand dat je op elk moment kunt importeren, ook met toekomstige versies van Astonishing Image Viewer.</string>
-    <string name="backup_intro">Het bestand bevat de instellingen hieronder, en alleen AIV kan het lezen. Bij het importeren worden stijlen, kleuren, omslagen, verborgen mappen en de prullenbak toegevoegd aan wat er al is.</string>
+    <string name="backup_intro">Het bestand bevat de instellingen hieronder, en alleen AIV kan het lezen. Bij het importeren worden stijlen, kleuren, omslagen, inbegrepen en uitgesloten mappen en de prullenbak toegevoegd aan wat er al is.</string>
     <string name="backup_area_view">Vormgeving en navigatie</string>
     <string name="backup_area_editor">Instellingen van de editor</string>
     <string name="backup_area_covers">Omslagen van mappen</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Exporteren...</string>
     <string name="backup_importing">Importeren...</string>
     <string name="backup_import_from">Geëxporteerd op %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Deze instellingen vervangen de huidige, behalve stijlen, kleuren, omslagen, verborgen mappen en de prullenbak, die worden toegevoegd aan wat er al is.</string>
+    <string name="backup_import_ask">Deze instellingen vervangen de huidige, behalve stijlen, kleuren, omslagen, inbegrepen en uitgesloten mappen en de prullenbak, die worden toegevoegd aan wat er al is.</string>
     <string name="backup_unlock">Het instellingenbestand is beveiligd: voer het wachtwoord in.</string>
     <string name="backup_none">Het bestand bevat geen geldige waarden voor de geselecteerde instellingen.</string>
     <string name="look_liquify">Uitvloeien</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">Reconstrueren</string>
     <string name="look_brush_size">Penseelgrootte</string>
     <string name="look_brush_strength">Penseelsterkte</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Inbegrepen/uitgesloten mappen</string>
+    <string name="folder_mode_included">Inclusiemodus</string>
+    <string name="folder_mode_excluded">Uitsluitingsmodus</string>
+    <string name="folder_authorized">Toegestane mappen</string>
+    <string name="folder_authorized_mark">toegestaan</string>
+    <string name="folder_included_none">Geen toegestane mappen.</string>
+    <string name="folder_authorize">Map toestaan</string>
+    <string name="folder_authorize_title">Toevoegen aan weergegeven mappen</string>
+    <string name="folder_remove">Toestemming intrekken</string>
+    <string name="folder_remove_desc">Deze map uit de lijst met toegestane mappen verwijderen? De inhoud verdwijnt uit de raster- en lijstmodus.</string>
+    <string name="folder_only_this">Alleen deze map</string>
+    <string name="folder_hide_choices">Welke mappen wil je verbergen?</string>
+    <string name="folder_only_named">Alleen %1$s</string>
+    <string name="folder_with_child">%1$s en de submap</string>
+    <string name="folder_with_children">%1$s en de submappen</string>
+    <string name="folder_only_children">Alleen de submappen van %1$s</string>
+    <string name="folder_siblings">Toepassen op alle mappen op hetzelfde niveau</string>
+    <string name="folder_authorize_desc">Deze map aan de lijst met toegestane mappen toevoegen? De inhoud wordt in de raster- en lijstmodus weergegeven.</string>
+    <string name="folder_authorize_empty">Let op: deze map bevat geen weergeefbare items. Hij verschijnt in de raster- of lijstmodus zodra hij een afbeelding of video bevat.</string>
+    <string name="folder_selection_desc">De inclusiemodus toont alleen toegestane mappen; de uitsluitingsmodus toont alle mappen behalve handmatig verborgen mappen. Houd in de uitsluitingsmodus een map ingedrukt in de raster- of lijstmodus om hem te verbergen. Open in de inclusiemodus Systeemmappen en houd een map ingedrukt om hem toe te staan. Dit geldt alleen voor raster en lijst; Systeemmappen toont altijd alles. Toegestane mappen verschijnen zodra ze een afbeelding of video bevatten.</string>
+    <string name="folder_siblings_desc">Alle submappen van %1$s verbergen? Nieuwe mappen in %1$s zijn aanvankelijk zichtbaar.</string>
+    <string name="folder_authorize_question">Deze map aan de lijst met toegestane mappen toevoegen?</string>
 </resources>

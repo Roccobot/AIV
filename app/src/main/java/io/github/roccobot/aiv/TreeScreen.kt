@@ -91,6 +91,8 @@ fun TreeList(
     path: String?,
     /** I percorsi che l'utente ha nascosto, per segnarli. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
+    selection: FolderSelection = FolderSelection(hidden = hidden),
+    onSelectionChange: (FolderSelection) -> Unit = {},
     /** Se eliminare vuol dire mandare nel cestino. Vedi `Settings.binOn`. */
     binOn: Boolean,
     /** Se si vedono anche i file che cominciano per punto. Vedi `Settings.treeHidden`. */
@@ -119,6 +121,8 @@ fun TreeList(
 
     /** La riga su cui è aperto il riquadro delle azioni, e `null` quando non è aperto. */
     var acting by remember { mutableStateOf<Tree.Spot?>(null) }
+    var folderActing by remember { mutableStateOf<String?>(null) }
+    folderActing?.let { SystemFolderDialog(it, selection, onSelectionChange) { folderActing = null } }
     val menu = rememberMenuState()
     // ⚠️ Salvabile dalla `1.81`, come nelle altre due schermate che chiamano `FileJobDialogs`:
     // ruotando, la finestra aperta si chiudeva e con lei quello che si stava scrivendo. Che cosa
@@ -221,7 +225,9 @@ fun TreeList(
                         modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
                     )
                 }
-                else -> Spots(spots!!, scroll, hidden, onPath, onOpen) { acting = it; menu.open() }
+                else -> Spots(spots!!, scroll, selection, onPath, onOpen) {
+                    if (it.folder) folderActing = it.path else { acting = it; menu.open() }
+                }
             }
         }
     }
@@ -346,7 +352,7 @@ private fun Spots(
      * contenitore della schermata, e uno stato ricordato qui dentro non lo raggiungerebbe.
      */
     scroll: LazyListState,
-    hidden: Set<String>,
+    selection: FolderSelection,
     onPath: (String?) -> Unit,
     onOpen: (List<Uri>, Int) -> Unit,
     onHold: (Tree.Spot) -> Unit
@@ -363,13 +369,10 @@ private fun Spots(
                 spot = spot,
                 // ⚠️ Una voce dell'elenco e non una cartella coperta da lei: il perché vive su
                 // `listedIn`, che dalla `2.96` confronta anche senza la radice del volume.
-                marked = spot.folder && listedIn(hidden, spot.path),
-                // ⚠️⚠️ **IL TOCCO LUNGO SOLO SUI MEDIA, ed è la richiesta alla lettera**:
-                // *copia, sposta, elimina e rinomina restano possibili solo su immagini e
-                // video*. Su una cartella o su un documento il gesto non fa niente, e non
-                // c'è nessun riquadro che si apre con le voci spente: un menu di sei azioni
-                // tutte grigie è peggio di nessun menu.
-                onHold = if (spot.media) ({ onHold(spot) }) else null,
+                marked = spot.folder && listedIn(if (selection.mode == FolderMode.INCLUDED) selection.included else selection.excluded, spot.path),
+                authorized = selection.mode == FolderMode.INCLUDED,
+                // Folder holds configure visibility; media holds keep the file operations.
+                onHold = if (spot.media || spot.folder) ({ onHold(spot) }) else null,
                 onClick = {
                     when {
                         spot.folder -> onPath(spot.path)
@@ -389,6 +392,7 @@ private fun Spots(
 private fun SpotRow(
     spot: Tree.Spot,
     marked: Boolean,
+    authorized: Boolean,
     onHold: (() -> Unit)?,
     onClick: () -> Unit
 ) {
@@ -438,7 +442,7 @@ private fun SpotRow(
         // o si chiederà perché quella cartella non compare nella griglia.
         if (marked) {
             Text(
-                text = stringResource(R.string.tree_hidden),
+                text = stringResource(if (authorized) R.string.folder_authorized_mark else R.string.tree_hidden),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

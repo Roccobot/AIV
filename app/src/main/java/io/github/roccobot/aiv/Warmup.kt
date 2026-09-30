@@ -106,13 +106,14 @@ internal object Warmup {
      *
      * @param hidden le cartelle nascoste, come le scrive [Settings.hiddenFolders].
      */
-    fun start(context: Context, hidden: Set<String>) {
+    fun start(context: Context, hidden: Set<String>,
+        selection: FolderSelection = FolderSelection(hidden = hidden)) {
         val app = context.applicationContext
         synchronized(lock) {
             if (run != null) return
             val mio = ++gen
             run = Run(0, null)
-            job = scope.launch { work(app, hidden, mio) }
+            job = scope.launch { work(app, hidden, mio, selection) }
         }
     }
 
@@ -131,10 +132,10 @@ internal object Warmup {
         }
     }
 
-    private suspend fun work(app: Context, hidden: Set<String>, mio: Int) {
+    private suspend fun work(app: Context, hidden: Set<String>, mio: Int, selection: FolderSelection) {
         val caricatore = Thumbs.warmer(app)
         val esito = runCatching {
-            val elenco = Folder.everything(app, hidden)
+            val elenco = Folder.everything(app, hidden, selection)
             post(mio, 0, elenco.size)
             warmAll(elenco, WARM_LANES, work = { Thumbs.warm(app, it, caricatore) }) { fatti ->
                 post(mio, fatti, elenco.size)

@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">ส่งออกและนำเข้า</string>
     <string name="backup_desc">บันทึกการตั้งค่าลงในไฟล์ที่คุณนำเข้าได้ทุกเมื่อ แม้กับ Astonishing Image Viewer เวอร์ชันต่อไปในอนาคต</string>
-    <string name="backup_intro">ไฟล์นี้มีการตั้งค่าด้านล่าง และมีเพียง AIV ที่อ่านได้ ตอนนำเข้า สไตล์ สี ภาพปก โฟลเดอร์ที่ซ่อน และถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
+    <string name="backup_intro">ไฟล์นี้มีการตั้งค่าด้านล่าง และมีเพียง AIV ที่อ่านได้ ตอนนำเข้า สไตล์ สี ภาพปก โฟลเดอร์ที่รวมและยกเว้น และถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
     <string name="backup_area_view">รูปลักษณ์และการนำทาง</string>
     <string name="backup_area_editor">การตั้งค่าตัวแก้ไข</string>
     <string name="backup_area_covers">ภาพปกของโฟลเดอร์</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">กำลังส่งออก...</string>
     <string name="backup_importing">กำลังนำเข้า...</string>
     <string name="backup_import_from">ส่งออกเมื่อ %1$s %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">การตั้งค่าเหล่านี้จะแทนที่การตั้งค่าปัจจุบัน ยกเว้นสไตล์ สี ภาพปก โฟลเดอร์ที่ซ่อน และถังขยะ ซึ่งจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
+    <string name="backup_import_ask">การตั้งค่าเหล่านี้จะแทนที่การตั้งค่าปัจจุบัน ยกเว้นสไตล์ สี ภาพปก โฟลเดอร์ที่รวมและยกเว้น และถังขยะ ซึ่งจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
     <string name="backup_unlock">ไฟล์การตั้งค่าได้รับการป้องกัน: ป้อนรหัสผ่าน</string>
     <string name="backup_none">ไฟล์ไม่มีค่าที่ใช้ได้สำหรับการตั้งค่าที่เลือก</string>
     <string name="look_liquify">ปรับรูปทรง</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">สร้างใหม่</string>
     <string name="look_brush_size">ขนาดแปรง</string>
     <string name="look_brush_strength">ความแรงแปรง</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">โฟลเดอร์ที่รวม/ยกเว้น</string>
+    <string name="folder_mode_included">โหมดรวม</string>
+    <string name="folder_mode_excluded">โหมดยกเว้น</string>
+    <string name="folder_authorized">โฟลเดอร์ที่อนุญาต</string>
+    <string name="folder_authorized_mark">อนุญาตแล้ว</string>
+    <string name="folder_included_none">ไม่มีโฟลเดอร์ที่อนุญาต</string>
+    <string name="folder_authorize">อนุญาตโฟลเดอร์</string>
+    <string name="folder_authorize_title">เพิ่มในโฟลเดอร์ที่แสดง</string>
+    <string name="folder_remove">ถอนการอนุญาต</string>
+    <string name="folder_remove_desc">นำโฟลเดอร์นี้ออกจากรายการที่อนุญาตหรือไม่? เนื้อหาจะหายไปจากโหมดตารางและรายการ</string>
+    <string name="folder_only_this">เฉพาะโฟลเดอร์นี้</string>
+    <string name="folder_hide_choices">ต้องการซ่อนโฟลเดอร์ใด?</string>
+    <string name="folder_only_named">เฉพาะ %1$s</string>
+    <string name="folder_with_child">%1$s และโฟลเดอร์ย่อยของมัน</string>
+    <string name="folder_with_children">%1$s และโฟลเดอร์ย่อยทั้งหมด</string>
+    <string name="folder_only_children">เฉพาะโฟลเดอร์ย่อยของ %1$s</string>
+    <string name="folder_siblings">ใช้กับทุกโฟลเดอร์ในระดับเดียวกัน</string>
+    <string name="folder_authorize_desc">เพิ่มโฟลเดอร์นี้ในรายการที่อนุญาตหรือไม่? เนื้อหาจะแสดงในโหมดตารางและรายการ</string>
+    <string name="folder_authorize_empty">หมายเหตุ: โฟลเดอร์นี้ยังไม่มีรายการที่แสดงได้ โฟลเดอร์จะปรากฏในโหมดตารางหรือรายการเมื่อมีภาพหรือวิดีโออย่างน้อยหนึ่งรายการ</string>
+    <string name="folder_selection_desc">โหมดรวมแสดงเฉพาะโฟลเดอร์ที่อนุญาต โหมดยกเว้นแสดงทั้งหมดนอกจากที่ซ่อนไว้ด้วยตนเอง ในโหมดยกเว้น ให้กดโฟลเดอร์ค้างในโหมดตารางหรือรายการเพื่อซ่อน ในโหมดรวม ให้เปิดโฟลเดอร์ระบบแล้วกดโฟลเดอร์ค้างเพื่ออนุญาต การตั้งค่านี้มีผลเฉพาะตารางและรายการ โฟลเดอร์ระบบแสดงทุกอย่างเสมอ โฟลเดอร์ที่อนุญาตจะปรากฏเมื่อมีภาพหรือวิดีโอ</string>
+    <string name="folder_siblings_desc">ซ่อนโฟลเดอร์ย่อยทั้งหมดของ %1$s หรือไม่? โฟลเดอร์ใหม่ภายใน %1$s จะปรากฏในตอนแรก</string>
+    <string name="folder_authorize_question">เพิ่มโฟลเดอร์นี้ในรายการที่อนุญาตหรือไม่?</string>
 </resources>

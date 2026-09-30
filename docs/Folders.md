@@ -266,6 +266,46 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   del menu e il suo interruttore, la fascia, la precedenza sulla predefinita e il ritorno all'elenco
   iniziale; non vede la copia dell'immagine né la vista 'Cartelle di sistema', che legge il disco.
 
+## 🗂️ Cartelle incluse/escluse
+
+- La pagina 'Cartelle incluse/escluse' vive nelle impostazioni delle Cartelle ed è sempre
+  raggiungibile, anche con gli elenchi vuoti. I gettoni sono 'Modalità incluse' e 'Modalità
+  escluse'; la seconda resta predefinita e conserva tutte le esclusioni precedenti.
+- Le due liste sono indipendenti. In modalità incluse sono visibili soltanto le cartelle
+  autorizzate che contengono immagini o video, senza autorizzare automaticamente i discendenti.
+  Camera, Screenshots e Movies sono preautorizzate se presenti, anche sulla scheda SD. Al primo
+  elenco letto col permesso, si considerano i bucket con quei nomi e i percorsi convenzionali
+  (anche `DCIM/Screenshots`), comprese directory vuote. Il promemoria `included-initialized`
+  impedisce di aggiungerle di nuovo dopo una rimozione; non viaggia nel file di impostazioni.
+  Senza contenuto non producono una cartella nelle modalità griglia e lista.
+- La vista 'Cartelle di sistema' conserva la navigazione del disco e i suoi filtri specifici,
+  indipendentemente dalle due liste. La pressione lunga su una cartella apre 'Autorizza
+  cartella' in modalità incluse e 'Nascondi' in modalità escluse; una voce già presente propone
+  di rimuovere l'autorizzazione o 'Mostra'. Le righe segnano 'autorizzata' o 'nascosta'.
+- 'Autorizza cartella' apre 'Aggiungi alle cartelle visualizzate'. Una cartella senza media si
+  può autorizzare, con l'avviso enfatizzato che apparirà quando conterrà un'immagine o un video.
+  L'elenco nelle impostazioni permette di rimuovere ogni autorizzazione.
+- 'Nascondi' in modalità griglia e lista mantiene l'esclusione ricorsiva. La conferma offre
+  'Applica a tutte le cartelle allo stesso livello' quando il genitore contiene almeno un'altra
+  directory non nascosta: si contano anche le directory vuote sul disco. Una seconda conferma
+  dice che nasconde le sottocartelle attuali e che quelle nuove saranno inizialmente visibili.
+  Le sottocartelle sono voci separate, rimostrabili una per una.
+- 'Nascondi' dalla vista di sistema apre 'Quali cartelle vuoi nascondere?': con almeno due figli,
+  '<X> e le sue sottocartelle', 'Solo le sottocartelle di <X>', 'Solo <X>'; con un figlio,
+  'Solo <X>' e '<X> e la sua sottocartella'; senza figli, conferma della sola cartella.
+  'Solo <X>' nasconde soltanto il contenuto diretto, lasciando visibili i discendenti attuali e
+  futuri. La pagina delle impostazioni indica 'Solo questa cartella' su queste esclusioni.
+- Il confronto comune è `FolderSelection`: nascoste ricorsive in `hidden-relative`, esclusioni
+  esatte in `hidden-only`, autorizzate in `included-relative`, modalità in `folder-mode`.
+  I percorsi usano `portablePath`, conservando l'identità della scheda SD.
+- Destinazioni, ricerca e generazione delle miniature rispettano la selezione. 'Sfoglia tutte
+  le cartelle...' conserva l'accesso al disco, anche scegliendo la destinazione dalla vista di
+  sistema: in modalità incluse l'elenco filtrato viene prima della navigazione completa. In modalità incluse 'Mostra nascoste' manca e
+  l'eventuale prestito si spegne al cambio di modalità.
+- `CartelleIncluseTest`, `CartelleDialoghiTest`, `CartelleMediaTest` e `BackupTest` misurano filtro, percorsi, figli
+  futuri, directory vuote, destinazioni, conferme e importazione. L'indicizzazione reale del
+  MediaStore e la resa dei testi richiedono il collaudo sul telefono.
+
 ## 👁️ 'Mostra nascoste', e perché dura un minuto
 
 - ⚠️⚠️ **La specifica è sua, alla lettera**: nel menu del FAB della schermata iniziale 'Mostra
@@ -310,7 +350,7 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
     telefono, e la rinasconde.
   - ⚠️ **La radice di un volume nasconde solo se stessa**, cioè le immagini che vivono proprio là;
     un percorso fuori da un volume resta intero. Il conto vive su `portablePath`, in `Folder.kt`.
-  - ⚠️⚠️ **Ogni confronto passa da `hiddenIn` e `coveringOf`**: una voce e il percorso di una
+  - ⚠️⚠️ **I confronti ricorsivi passano da `hiddenIn` e `coveringOf`, quelli completi da `FolderSelection`**: una voce e il percorso di una
     cartella non sono scritti nella stessa forma, quindi un `in` o uno `startsWith` sull'elenco è
     un difetto che non dà errore.
   - ⚠️ **La chiave è nuova** (`hidden-relative`), e `HiddenMigration` traduce e toglie la vecchia.

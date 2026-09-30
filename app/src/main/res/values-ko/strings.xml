@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">내보내기와 가져오기</string>
     <string name="backup_desc">설정을 파일로 저장합니다. 이 파일은 Astonishing Image Viewer의 이후 버전에서도 언제든지 가져올 수 있습니다.</string>
-    <string name="backup_intro">파일에는 아래 설정이 들어 있으며, AIV만 읽을 수 있습니다. 가져올 때 스타일, 색상, 표지, 숨긴 폴더와 휴지통은 이미 있는 것에 더해집니다.</string>
+    <string name="backup_intro">파일에는 아래 설정이 들어 있으며, AIV만 읽을 수 있습니다. 가져올 때 스타일, 색상, 표지, 포함 및 제외 폴더와 휴지통은 이미 있는 것에 더해집니다.</string>
     <string name="backup_area_view">모양과 탐색</string>
     <string name="backup_area_editor">편집기 설정</string>
     <string name="backup_area_covers">폴더 커버</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">내보내는 중...</string>
     <string name="backup_importing">가져오는 중...</string>
     <string name="backup_import_from">%1$s %2$s에 내보냄\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">이 설정이 지금의 설정을 대체합니다. 다만 스타일, 색상, 표지, 숨긴 폴더와 휴지통은 이미 있는 것에 더해집니다.</string>
+    <string name="backup_import_ask">이 설정이 지금의 설정을 대체합니다. 다만 스타일, 색상, 표지, 포함 및 제외 폴더와 휴지통은 이미 있는 것에 더해집니다.</string>
     <string name="backup_unlock">설정 파일이 보호되어 있습니다. 비밀번호를 입력하세요.</string>
     <string name="backup_none">선택한 설정에 대한 유효한 값이 파일에 없습니다.</string>
     <string name="look_liquify">픽셀 유동화</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">재구성</string>
     <string name="look_brush_size">브러시 크기</string>
     <string name="look_brush_strength">브러시 강도</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">포함/제외 폴더</string>
+    <string name="folder_mode_included">포함 모드</string>
+    <string name="folder_mode_excluded">제외 모드</string>
+    <string name="folder_authorized">허용된 폴더</string>
+    <string name="folder_authorized_mark">허용됨</string>
+    <string name="folder_included_none">허용된 폴더가 없습니다.</string>
+    <string name="folder_authorize">폴더 허용</string>
+    <string name="folder_authorize_title">표시할 폴더에 추가</string>
+    <string name="folder_remove">허용 취소</string>
+    <string name="folder_remove_desc">이 폴더를 허용 목록에서 제거할까요? 그리드 및 목록 모드에서 내용이 사라집니다.</string>
+    <string name="folder_only_this">이 폴더만</string>
+    <string name="folder_hide_choices">어떤 폴더를 숨길까요?</string>
+    <string name="folder_only_named">%1$s만</string>
+    <string name="folder_with_child">%1$s 및 하위 폴더 하나</string>
+    <string name="folder_with_children">%1$s 및 모든 하위 폴더</string>
+    <string name="folder_only_children">%1$s의 하위 폴더만</string>
+    <string name="folder_siblings">같은 수준의 모든 폴더에 적용</string>
+    <string name="folder_authorize_desc">이 폴더를 허용 목록에 추가할까요? 내용이 그리드 및 목록 모드에 표시됩니다.</string>
+    <string name="folder_authorize_empty">참고: 이 폴더에는 표시할 항목이 없습니다. 이미지나 동영상이 하나 이상 있으면 그리드 또는 목록 모드에 표시됩니다.</string>
+    <string name="folder_selection_desc">포함 모드는 허용된 폴더만 표시하고 제외 모드는 수동으로 숨긴 폴더 외에 모두 표시합니다. 제외 모드에서는 그리드나 목록에서 폴더를 길게 눌러 숨기세요. 포함 모드에서는 시스템 폴더를 열고 폴더를 길게 눌러 허용하세요. 이 설정은 그리드와 목록에만 적용되며 시스템 폴더는 항상 모두 표시합니다. 허용된 폴더는 이미지나 동영상이 있으면 표시됩니다.</string>
+    <string name="folder_siblings_desc">%1$s의 모든 하위 폴더를 숨길까요? %1$s 안에 새로 만든 폴더는 처음에는 표시됩니다.</string>
+    <string name="folder_authorize_question">이 폴더를 허용 목록에 추가할까요?</string>
 </resources>

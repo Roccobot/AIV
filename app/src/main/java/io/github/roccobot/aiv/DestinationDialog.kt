@@ -98,10 +98,12 @@ fun DestinationDialog(
      * ricordare**: la scorciatoia mostra 'la normale vista già attiva', e per chi naviga le
      * cartelle di sistema quella **è** l'albero. Così la richiesta si applica a tutte e tre le
      * viste con una riga sola.
+     * Included mode first shows authorized destinations even from the system view:
+     * browsing every directory remains an explicit choice through Browse.
      * ⚠️ **Salvabile**: girando il telefono a metà scelta si tornava in cima, che è il difetto
      * del punto I visto da un'altra parte.
      */
-    var sfoglia by rememberSaveable { mutableStateOf(look.view == FolderView.TREE) }
+    var sfoglia by rememberSaveable { mutableStateOf(look.view == FolderView.TREE && look.folderMode == FolderMode.EXCLUDED) }
     if (!sfoglia) {
         FolderShortcut(
             action = action,
@@ -299,7 +301,9 @@ data class DestLook(
     /** Se nella lista si legge il conto. Vedi `Settings.listCount`. */
     val listCount: Boolean = true,
     /** Il corpo del testo della lista. Vedi `Settings.listText`. */
-    val listText: TextSize = TextSize.NORMAL
+    val listText: TextSize = TextSize.NORMAL,
+    /** Included mode requires the filtered shortcut until Browse is explicitly chosen. */
+    val folderMode: FolderMode = FolderMode.EXCLUDED
 )
 
 /**
@@ -410,17 +414,21 @@ private fun FolderShortcut(
         // l'elenco è una fotografia presa all'apertura, e né le esclusioni né il colore
         // cambiano mentre si sceglie dove mettere un file.
         val preferenze = SettingsStore.flow(context).first()
+        val buckets = Folder.buckets(context)
         value = DestData(
             folders = destinations(
-                buckets = Folder.buckets(context),
+                buckets = buckets,
                 bin = Bin.dir(context).absolutePath,
                 hidden = preferenze.hiddenFolders,
-                peeking = prestito
+                peeking = prestito,
+                selection = preferenze.folderSelection
             ),
             covers = FolderCovers.all(context),
             tints = FolderTints.all(context),
             colour = preferenze.folderColour,
-            peeked = if (prestito) preferenze.hiddenFolders else emptySet()
+            peeked = if (prestito && preferenze.folderMode == FolderMode.EXCLUDED)
+                buckets.filter { it.path?.let(preferenze.folderSelection::hidden) == true }
+                    .mapNotNull { it.path?.let(::portablePath) }.toSet() else emptySet()
         )
     }
 
@@ -568,12 +576,13 @@ internal fun destinations(
     buckets: List<Folder.Bucket>,
     bin: String,
     hidden: Set<String>,
-    peeking: Boolean
+    peeking: Boolean,
+    selection: FolderSelection = FolderSelection(hidden = hidden)
 ): List<Folder.Bucket> =
     buckets.filter { bucket ->
         val path = bucket.path
         path != null && path != bin && !path.startsWith("$bin/") &&
-            (peeking || !bucket.isHidden(hidden))
+            selection.visible(path, peeking)
     }
 
 /**

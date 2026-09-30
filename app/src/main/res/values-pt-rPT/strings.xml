@@ -155,13 +155,13 @@
          di values-pt. Restano anche 'senha', che in Portogallo si usa accanto a
          'palavra-passe', e il gerundio di 'Exportando...', come quello di 'Contando...'. -->
     <string name="backup_desc">Guarde as definições num ficheiro que poderá importar a qualquer momento, inclusive com versões futuras do Astonishing Image Viewer.</string>
-    <string name="backup_intro">O ficheiro inclui as definições abaixo, e só o AIV consegue lê-lo. Na importação, os estilos, as cores, as capas, as pastas ocultas e a reciclagem são adicionados ao que já existe.</string>
+    <string name="backup_intro">O ficheiro inclui as definições abaixo, e só o AIV consegue lê-lo. Na importação, os estilos, as cores, as capas, as pastas incluídas e excluídas e a reciclagem são adicionados ao que já existe.</string>
     <string name="backup_lock_desc">Sem senha, o ficheiro só abre com o AIV, e qualquer pessoa que tenha o AIV pode importá-lo.</string>
     <string name="backup_bad">O ficheiro selecionado não está no formato de definições do AIV.</string>
     <string name="backup_newer">Este ficheiro de definições tem um formato mais recente, que esta versão do AIV não consegue abrir. Atualize a aplicação para importá-lo.</string>
     <string name="backup_wrong">Erro: a senha está incorreta, ou o ficheiro está danificado.</string>
     <string name="backup_broken">O ficheiro está danificado ou incompleto.</string>
-    <string name="backup_import_ask">Estas definições vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas ocultas e a reciclagem, que serão adicionados ao que já existe.</string>
+    <string name="backup_import_ask">Estas definições vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas incluídas e excluídas e a reciclagem, que serão adicionados ao que já existe.</string>
     <string name="backup_area_editor">Definições do editor</string>
     <string name="backup_empty">O ficheiro de definições não foi exportado: verifique se tem permissão de escrita na pasta de destino.</string>
     <string name="backup_loaded">Definições importadas com sucesso.</string>

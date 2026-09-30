@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Hamisha na kuingiza</string>
     <string name="backup_desc">Hifadhi mipangilio kwenye faili ambayo unaweza kuiingiza wakati wowote, hata kwa matoleo yajayo ya Astonishing Image Viewer.</string>
-    <string name="backup_intro">Faili hii ina mipangilio iliyo hapa chini, na ni AIV pekee inayoweza kuisoma. Wakati wa kuingiza, mitindo, rangi, majalada, folda zilizofichwa na tapishi huongezwa kwenye yaliyopo tayari.</string>
+    <string name="backup_intro">Faili hii ina mipangilio iliyo hapa chini, na ni AIV pekee inayoweza kuisoma. Wakati wa kuingiza, mitindo, rangi, majalada, folda zilizojumuishwa na zilizotengwa na tapishi huongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_area_view">Mwonekano na usogezaji</string>
     <string name="backup_area_editor">Mipangilio ya kihariri</string>
     <string name="backup_area_covers">Majalada ya folda</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Inahamisha...</string>
     <string name="backup_importing">Inaingiza...</string>
     <string name="backup_import_from">Imehamishwa tarehe %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Mipangilio hii itachukua nafasi ya ile ya sasa, isipokuwa mitindo, rangi, majalada, folda zilizofichwa na tapishi, ambavyo vitaongezwa kwenye yaliyopo tayari.</string>
+    <string name="backup_import_ask">Mipangilio hii itachukua nafasi ya ile ya sasa, isipokuwa mitindo, rangi, majalada, folda zilizojumuishwa na zilizotengwa na tapishi, ambavyo vitaongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_unlock">Faili ya mipangilio imelindwa: andika nenosiri.</string>
     <string name="backup_none">Faili haina thamani halali za mipangilio iliyochaguliwa.</string>
     <string name="look_liquify">Yeyusha</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">Jenga upya</string>
     <string name="look_brush_size">Ukubwa wa brashi</string>
     <string name="look_brush_strength">Nguvu ya brashi</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Folda zilizojumuishwa/zilizotengwa</string>
+    <string name="folder_mode_included">Hali ya kujumuisha</string>
+    <string name="folder_mode_excluded">Hali ya kutenga</string>
+    <string name="folder_authorized">Folda zilizoruhusiwa</string>
+    <string name="folder_authorized_mark">imeruhusiwa</string>
+    <string name="folder_included_none">Hakuna folda zilizoruhusiwa.</string>
+    <string name="folder_authorize">Ruhusu folda</string>
+    <string name="folder_authorize_title">Ongeza kwenye folda zinazoonyeshwa</string>
+    <string name="folder_remove">Ondoa ruhusa</string>
+    <string name="folder_remove_desc">Uondoe folda hii kwenye orodha iliyoruhusiwa? Maudhui yake yatatoweka katika hali za gridi na orodha.</string>
+    <string name="folder_only_this">Folda hii pekee</string>
+    <string name="folder_hide_choices">Unataka kuficha folda zipi?</string>
+    <string name="folder_only_named">%1$s pekee</string>
+    <string name="folder_with_child">%1$s na folda yake ndogo</string>
+    <string name="folder_with_children">%1$s na folda zake ndogo</string>
+    <string name="folder_only_children">Folda ndogo za %1$s pekee</string>
+    <string name="folder_siblings">Tumia kwa folda zote kwenye kiwango sawa</string>
+    <string name="folder_authorize_desc">Uongeze folda hii kwenye orodha iliyoruhusiwa? Maudhui yake yataonyeshwa katika hali za gridi na orodha.</string>
+    <string name="folder_authorize_empty">Kumbuka: folda hii haina vipengee vinavyoweza kuonyeshwa. Itaonekana katika hali ya gridi au orodha ikiwa ina picha au video.</string>
+    <string name="folder_selection_desc">Hali ya kujumuisha inaonyesha folda zilizoruhusiwa pekee; hali ya kutenga inaonyesha zote isipokuwa zilizofichwa kwa mkono. Katika hali ya kutenga, bonyeza na ushikilie folda katika gridi au orodha ili kuificha. Katika hali ya kujumuisha, fungua Folda za mfumo na ushikilie folda ili kuiruhusu. Hii inahusu gridi na orodha pekee; folda za mfumo huonyesha kila kitu. Folda zilizoruhusiwa huonekana ikiwa zina picha au video.</string>
+    <string name="folder_siblings_desc">Ufiche folda zote ndogo za %1$s? Folda mpya ndani ya %1$s zitaonekana mwanzoni.</string>
+    <string name="folder_authorize_question">Uongeze folda hii kwenye orodha iliyoruhusiwa?</string>
 </resources>

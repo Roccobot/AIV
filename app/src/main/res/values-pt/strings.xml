@@ -634,7 +634,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>
     <string name="backup_desc">Salve as configurações em um arquivo que você poderá importar a qualquer momento, inclusive com versões futuras do Astonishing Image Viewer.</string>
-    <string name="backup_intro">O arquivo inclui as configurações abaixo, e só o AIV consegue lê-lo. Na importação, os estilos, as cores, as capas, as pastas ocultas e a lixeira são adicionados ao que já existe.</string>
+    <string name="backup_intro">O arquivo inclui as configurações abaixo, e só o AIV consegue lê-lo. Na importação, os estilos, as cores, as capas, as pastas incluídas e excluídas e a lixeira são adicionados ao que já existe.</string>
     <string name="backup_area_view">Aparência e navegação</string>
     <string name="backup_area_editor">Configurações do editor</string>
     <string name="backup_area_covers">Capas das pastas</string>
@@ -660,7 +660,7 @@
     <string name="backup_exporting">Exportando...</string>
     <string name="backup_importing">Importando...</string>
     <string name="backup_import_from">Exportação de %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Estas configurações vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas ocultas e a lixeira, que serão adicionados ao que já existe.</string>
+    <string name="backup_import_ask">Estas configurações vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas incluídas e excluídas e a lixeira, que serão adicionados ao que já existe.</string>
     <string name="backup_unlock">O arquivo de configurações está protegido: insira a senha.</string>
     <string name="backup_none">O arquivo não contém valores válidos para as configurações selecionadas.</string>
     <string name="look_liquify">Dissolver</string>
@@ -668,4 +668,28 @@
     <string name="look_rebuild">Reconstruir</string>
     <string name="look_brush_size">Tamanho do pincel</string>
     <string name="look_brush_strength">Força do pincel</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Pastas incluídas/excluídas</string>
+    <string name="folder_mode_included">Modo incluídas</string>
+    <string name="folder_mode_excluded">Modo excluídas</string>
+    <string name="folder_authorized">Pastas autorizadas</string>
+    <string name="folder_authorized_mark">autorizada</string>
+    <string name="folder_included_none">Nenhuma pasta autorizada.</string>
+    <string name="folder_authorize">Autorizar pasta</string>
+    <string name="folder_authorize_title">Adicionar às pastas exibidas</string>
+    <string name="folder_remove">Remover autorização</string>
+    <string name="folder_remove_desc">Remover esta pasta da lista de autorizadas? Seu conteúdo desaparecerá dos modos grade e lista.</string>
+    <string name="folder_only_this">Somente esta pasta</string>
+    <string name="folder_hide_choices">Quais pastas você quer ocultar?</string>
+    <string name="folder_only_named">Somente %1$s</string>
+    <string name="folder_with_child">%1$s e sua subpasta</string>
+    <string name="folder_with_children">%1$s e suas subpastas</string>
+    <string name="folder_only_children">Somente as subpastas de %1$s</string>
+    <string name="folder_siblings">Aplicar a todas as pastas do mesmo nível</string>
+    <string name="folder_authorize_desc">Adicionar esta pasta à lista de autorizadas? Seu conteúdo será exibido nos modos grade e lista.</string>
+    <string name="folder_authorize_empty">Nota: esta pasta não contém itens que possam ser exibidos. Ela aparecerá no modo grade ou lista quando contiver uma imagem ou um vídeo.</string>
+    <string name="folder_selection_desc">O modo incluídas mostra apenas pastas autorizadas; o modo excluídas mostra todas, exceto as ocultadas manualmente. No modo excluídas, pressione e segure uma pasta no modo grade ou lista para ocultá-la. No modo incluídas, abra Pastas do sistema e pressione e segure uma pasta para autorizá-la. Isso afeta apenas grade e lista; as pastas do sistema mostram tudo. Pastas autorizadas aparecem quando contêm uma imagem ou um vídeo.</string>
+    <string name="folder_siblings_desc">Ocultar todas as subpastas de %1$s? Novas pastas dentro de %1$s ficarão inicialmente visíveis.</string>
+    <string name="folder_authorize_question">Adicionar esta pasta à lista de autorizadas?</string>
 </resources>

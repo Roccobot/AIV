@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Ekspor dan impor</string>
     <string name="backup_desc">Simpan pengaturan ke berkas yang bisa kamu impor kapan saja, bahkan dengan versi Astonishing Image Viewer mendatang.</string>
-    <string name="backup_intro">Berkas ini berisi pengaturan di bawah, dan hanya AIV yang bisa membacanya. Saat impor, gaya, warna, sampul, folder tersembunyi, dan tempat sampah ditambahkan ke yang sudah ada.</string>
+    <string name="backup_intro">Berkas ini berisi pengaturan di bawah, dan hanya AIV yang bisa membacanya. Saat impor, gaya, warna, sampul, folder disertakan dan dikecualikan, dan tempat sampah ditambahkan ke yang sudah ada.</string>
     <string name="backup_area_view">Tampilan dan navigasi</string>
     <string name="backup_area_editor">Pengaturan editor</string>
     <string name="backup_area_covers">Sampul folder</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">Mengekspor...</string>
     <string name="backup_importing">Mengimpor...</string>
     <string name="backup_import_from">Diekspor pada %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Pengaturan ini akan menggantikan yang sekarang, kecuali gaya, warna, sampul, folder tersembunyi, dan tempat sampah, yang akan ditambahkan ke yang sudah ada.</string>
+    <string name="backup_import_ask">Pengaturan ini akan menggantikan yang sekarang, kecuali gaya, warna, sampul, folder disertakan dan dikecualikan, dan tempat sampah, yang akan ditambahkan ke yang sudah ada.</string>
     <string name="backup_unlock">Berkas pengaturan dilindungi: masukkan kata sandi.</string>
     <string name="backup_none">Berkas tidak berisi nilai yang valid untuk pengaturan yang dipilih.</string>
     <string name="look_liquify">Likuefaksi</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">Rekonstruksi</string>
     <string name="look_brush_size">Ukuran kuas</string>
     <string name="look_brush_strength">Kekuatan kuas</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Folder disertakan/dikecualikan</string>
+    <string name="folder_mode_included">Mode disertakan</string>
+    <string name="folder_mode_excluded">Mode dikecualikan</string>
+    <string name="folder_authorized">Folder yang diizinkan</string>
+    <string name="folder_authorized_mark">diizinkan</string>
+    <string name="folder_included_none">Tidak ada folder yang diizinkan.</string>
+    <string name="folder_authorize">Izinkan folder</string>
+    <string name="folder_authorize_title">Tambahkan ke folder yang ditampilkan</string>
+    <string name="folder_remove">Cabut izin</string>
+    <string name="folder_remove_desc">Hapus folder ini dari daftar yang diizinkan? Isinya akan hilang dari mode kisi dan daftar.</string>
+    <string name="folder_only_this">Hanya folder ini</string>
+    <string name="folder_hide_choices">Folder mana yang ingin disembunyikan?</string>
+    <string name="folder_only_named">Hanya %1$s</string>
+    <string name="folder_with_child">%1$s dan subfoldernya</string>
+    <string name="folder_with_children">%1$s dan semua subfoldernya</string>
+    <string name="folder_only_children">Hanya subfolder %1$s</string>
+    <string name="folder_siblings">Terapkan ke semua folder pada tingkat yang sama</string>
+    <string name="folder_authorize_desc">Tambahkan folder ini ke daftar yang diizinkan? Isinya akan ditampilkan dalam mode kisi dan daftar.</string>
+    <string name="folder_authorize_empty">Catatan: folder ini belum berisi item yang dapat ditampilkan. Folder akan muncul dalam mode kisi atau daftar setelah berisi gambar atau video.</string>
+    <string name="folder_selection_desc">Mode disertakan hanya menampilkan folder yang diizinkan; mode dikecualikan menampilkan semua kecuali yang disembunyikan secara manual. Dalam mode dikecualikan, tekan lama folder dalam mode kisi atau daftar untuk menyembunyikannya. Dalam mode disertakan, buka Folder sistem dan tekan lama folder untuk mengizinkannya. Ini hanya berlaku untuk kisi dan daftar; Folder sistem selalu menampilkan semuanya. Folder yang diizinkan muncul jika berisi gambar atau video.</string>
+    <string name="folder_siblings_desc">Sembunyikan semua subfolder %1$s? Folder baru di dalam %1$s awalnya akan terlihat.</string>
+    <string name="folder_authorize_question">Tambahkan folder ini ke daftar yang diizinkan?</string>
 </resources>

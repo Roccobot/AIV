@@ -652,7 +652,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Экспорт и импорт</string>
     <string name="backup_desc">Сохраните настройки в файл, который можно импортировать в любой момент, даже в будущих версиях Astonishing Image Viewer.</string>
-    <string name="backup_intro">Файл содержит настройки ниже, и прочитать его может только AIV. При импорте стили, цвета, обложки, скрытые папки и корзина добавляются к тому, что уже есть.</string>
+    <string name="backup_intro">Файл содержит настройки ниже, и прочитать его может только AIV. При импорте стили, цвета, обложки, включённые и исключённые папки и корзина добавляются к тому, что уже есть.</string>
     <string name="backup_area_view">Внешний вид и навигация</string>
     <string name="backup_area_editor">Настройки редактора</string>
     <string name="backup_area_covers">Обложки папок</string>
@@ -678,7 +678,7 @@
     <string name="backup_exporting">Экспорт...</string>
     <string name="backup_importing">Импорт...</string>
     <string name="backup_import_from">Экспорт от %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Эти настройки заменят текущие, кроме стилей, цветов, обложек, скрытых папок и корзины: они добавятся к тому, что уже есть.</string>
+    <string name="backup_import_ask">Эти настройки заменят текущие, кроме стилей, цветов, обложек, включённых и исключённых папок и корзины: они добавятся к тому, что уже есть.</string>
     <string name="backup_unlock">Файл настроек защищён: введите пароль.</string>
     <string name="backup_none">В файле нет допустимых значений для выбранных настроек.</string>
     <string name="look_liquify">Пластика</string>
@@ -686,4 +686,28 @@
     <string name="look_rebuild">Восстановление</string>
     <string name="look_brush_size">Размер кисти</string>
     <string name="look_brush_strength">Сила кисти</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Включённые/исключённые папки</string>
+    <string name="folder_mode_included">Режим включения</string>
+    <string name="folder_mode_excluded">Режим исключения</string>
+    <string name="folder_authorized">Разрешённые папки</string>
+    <string name="folder_authorized_mark">разрешена</string>
+    <string name="folder_included_none">Нет разрешённых папок.</string>
+    <string name="folder_authorize">Разрешить папку</string>
+    <string name="folder_authorize_title">Добавить к отображаемым папкам</string>
+    <string name="folder_remove">Отменить разрешение</string>
+    <string name="folder_remove_desc">Удалить эту папку из списка разрешённых? Её содержимое исчезнет из режимов сетки и списка.</string>
+    <string name="folder_only_this">Только эта папка</string>
+    <string name="folder_hide_choices">Какие папки скрыть?</string>
+    <string name="folder_only_named">Только %1$s</string>
+    <string name="folder_with_child">%1$s и её подпапка</string>
+    <string name="folder_with_children">%1$s и её подпапки</string>
+    <string name="folder_only_children">Только подпапки %1$s</string>
+    <string name="folder_siblings">Применить ко всем папкам на том же уровне</string>
+    <string name="folder_authorize_desc">Добавить эту папку в список разрешённых? Её содержимое будет показано в режимах сетки и списка.</string>
+    <string name="folder_authorize_empty">Примечание: в этой папке нет отображаемых элементов. Она появится в режиме сетки или списка, когда в ней будет изображение или видео.</string>
+    <string name="folder_selection_desc">Режим включения показывает только разрешённые папки; режим исключения все, кроме скрытых вручную. В режиме исключения удерживайте папку в режиме сетки или списка, чтобы скрыть её. В режиме включения откройте Системные папки и удерживайте папку, чтобы разрешить её. Это касается только сетки и списка; системные папки всегда показывают всё. Разрешённые папки появляются, когда содержат изображение или видео.</string>
+    <string name="folder_siblings_desc">Скрыть все подпапки %1$s? Новые папки внутри %1$s сначала будут видны.</string>
+    <string name="folder_authorize_question">Добавить эту папку в список разрешённых?</string>
 </resources>

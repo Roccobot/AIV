@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Xuất và nhập</string>
     <string name="backup_desc">Lưu cài đặt vào một tệp mà bạn có thể nhập bất cứ lúc nào, kể cả với các phiên bản sau này của Astonishing Image Viewer.</string>
-    <string name="backup_intro">Tệp chứa các cài đặt bên dưới, và chỉ AIV đọc được. Khi nhập, kiểu, màu, ảnh bìa, thư mục ẩn và thùng rác được thêm vào những gì đã có.</string>
+    <string name="backup_intro">Tệp chứa các cài đặt bên dưới, và chỉ AIV đọc được. Khi nhập, kiểu, màu, ảnh bìa, thư mục được bao gồm và loại trừ và thùng rác được thêm vào những gì đã có.</string>
     <string name="backup_area_view">Giao diện và điều hướng</string>
     <string name="backup_area_editor">Cài đặt trình chỉnh sửa</string>
     <string name="backup_area_covers">Ảnh bìa thư mục</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">Đang xuất...</string>
     <string name="backup_importing">Đang nhập...</string>
     <string name="backup_import_from">Xuất lúc %2$s ngày %1$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Các cài đặt này sẽ thay thế cài đặt hiện tại, trừ kiểu, màu, ảnh bìa, thư mục ẩn và thùng rác, những thứ này sẽ được thêm vào những gì đã có.</string>
+    <string name="backup_import_ask">Các cài đặt này sẽ thay thế cài đặt hiện tại, trừ kiểu, màu, ảnh bìa, thư mục được bao gồm và loại trừ và thùng rác, những thứ này sẽ được thêm vào những gì đã có.</string>
     <string name="backup_unlock">Tệp cài đặt được bảo vệ: hãy nhập mật khẩu.</string>
     <string name="backup_none">Tệp không chứa giá trị hợp lệ nào cho các cài đặt đã chọn.</string>
     <string name="look_liquify">Hóa lỏng</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">Khôi phục</string>
     <string name="look_brush_size">Kích thước cọ</string>
     <string name="look_brush_strength">Độ mạnh của cọ</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Thư mục được bao gồm/loại trừ</string>
+    <string name="folder_mode_included">Chế độ bao gồm</string>
+    <string name="folder_mode_excluded">Chế độ loại trừ</string>
+    <string name="folder_authorized">Thư mục được cho phép</string>
+    <string name="folder_authorized_mark">được cho phép</string>
+    <string name="folder_included_none">Không có thư mục được cho phép.</string>
+    <string name="folder_authorize">Cho phép thư mục</string>
+    <string name="folder_authorize_title">Thêm vào thư mục hiển thị</string>
+    <string name="folder_remove">Hủy quyền cho phép</string>
+    <string name="folder_remove_desc">Xóa thư mục này khỏi danh sách được cho phép? Nội dung sẽ biến mất khỏi chế độ lưới và danh sách.</string>
+    <string name="folder_only_this">Chỉ thư mục này</string>
+    <string name="folder_hide_choices">Bạn muốn ẩn thư mục nào?</string>
+    <string name="folder_only_named">Chỉ %1$s</string>
+    <string name="folder_with_child">%1$s và thư mục con của nó</string>
+    <string name="folder_with_children">%1$s và các thư mục con của nó</string>
+    <string name="folder_only_children">Chỉ các thư mục con của %1$s</string>
+    <string name="folder_siblings">Áp dụng cho mọi thư mục cùng cấp</string>
+    <string name="folder_authorize_desc">Thêm thư mục này vào danh sách được cho phép? Nội dung sẽ hiển thị trong chế độ lưới và danh sách.</string>
+    <string name="folder_authorize_empty">Lưu ý: thư mục này chưa có mục có thể hiển thị. Nó sẽ xuất hiện trong chế độ lưới hoặc danh sách khi có ít nhất một ảnh hoặc video.</string>
+    <string name="folder_selection_desc">Chế độ bao gồm chỉ hiển thị thư mục được cho phép; chế độ loại trừ hiển thị tất cả trừ thư mục bị ẩn thủ công. Trong chế độ loại trừ, nhấn giữ thư mục trong chế độ lưới hoặc danh sách để ẩn. Trong chế độ bao gồm, mở Thư mục hệ thống và nhấn giữ thư mục để cho phép. Chỉ áp dụng cho lưới và danh sách; Thư mục hệ thống luôn hiển thị tất cả. Thư mục được cho phép chỉ xuất hiện khi chứa ảnh hoặc video.</string>
+    <string name="folder_siblings_desc">Ẩn tất cả thư mục con của %1$s? Thư mục mới bên trong %1$s ban đầu sẽ hiển thị.</string>
+    <string name="folder_authorize_question">Thêm thư mục này vào danh sách được cho phép?</string>
 </resources>

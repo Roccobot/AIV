@@ -76,7 +76,7 @@ internal enum class BackupArea(val token: String, @StringRes val label: Int) {
     STYLES("styles", R.string.settings_styles),
     TINTS("tints", R.string.settings_colour),
     COVERS("covers", R.string.backup_area_covers),
-    HIDDEN("hidden", R.string.settings_hidden),
+    HIDDEN("hidden", R.string.folder_selection),
     HINTS("hints", R.string.backup_area_hints),
     BIN("bin", R.string.bin_title),
 }
@@ -162,7 +162,8 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     )
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
-    area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative")
+    area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative", "hidden-only", "included-relative")
+    area(BackupArea.HIDDEN, PrefType.STRING, "folder-mode")
     Hint.entries.forEach { add(PrefKey(it.token, PrefType.BOOLEAN, BackupArea.HINTS)) }
 }
 
@@ -212,11 +213,13 @@ internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
  * chiesto, `download-tree` è una cartella che vale col permesso persistente di questo telefono e
  * senza di lui non si apre, `clipboard-done` e `clipboard-when` dicono quale indirizzo degli
  * appunti è già stato aperto qui, `download-seen` che cosa c'è nella cartella Download di qui.
- * ⚠️ **All'importazione non si toccano**, per la stessa ragione: sono di questo telefono anche
- * dopo.
+ * `included-initialized` records that this phone already seeded its factory folder list;
+ * importing a modern folder list sets it so removed factory entries never reappear.
+ * The other phone reminders are untouched by import; only the initialization flag is set
+ * when a modern included list arrives.
  */
 internal val PREF_OUTSIDE: Set<String> = setOf(
-    "all-files-asked", "download-tree", "clipboard-done", "clipboard-when", "download-seen"
+    "all-files-asked", "download-tree", "clipboard-done", "clipboard-when", "download-seen", "included-initialized"
 )
 
 /** Le aree fatte di preferenze, cioè quelle che hanno una voce `prefs/<area>.json`. */
@@ -243,7 +246,9 @@ internal val PREF_AREAS: Set<BackupArea> = PREF_KEYS.map { it.area }.toSet()
  */
 internal val PREF_MERGED: Map<String, (Set<String>, Set<String>) -> Set<String>> = mapOf(
     "folder-tints" to FolderTints::merged,
-    "hidden-relative" to { adesso, file -> adesso + file }
+    "hidden-relative" to { adesso, file -> adesso + file },
+    "hidden-only" to { adesso, file -> adesso + file },
+    "included-relative" to { adesso, file -> adesso + file }
 )
 
 /**
@@ -932,9 +937,18 @@ internal object Backup {
                     // com'è (è la sua richiesta sulle versioni, in testa a questo oggetto).
                     // ⚠️ Una chiave che si fonde non si toglie e non si sostituisce: il perché vive
                     // su [PREF_MERGED].
-                    for (letto in found.prefs.values) {
+                    for ((area, letto) in found.prefs) {
+                        val legacyFolders = area == BackupArea.HIDDEN ||
+                            (area == BackupArea.VIEW && (letto.values.any { it.first.name == "hidden-relative" } ||
+                                letto.absent.any { it.name == "hidden-relative" }))
+                        if (legacyFolders && letto.values.none { it.first.name == "folder-mode" } &&
+                            letto.absent.none { it.name == "folder-mode" }) {
+                            p[FOLDER_MODE] = FolderMode.EXCLUDED.token
+                        }
                         letto.absent.forEach { if (it.name !in PREF_MERGED) remove(p, it) }
                         letto.values.forEach { (key, value) -> put(p, key, value) }
+                        if (area == BackupArea.HIDDEN && (letto.values.any { it.first.name == "included-relative" } ||
+                            letto.absent.any { it.name == "included-relative" })) p[INCLUDED_INITIALIZED] = true
                     }
                     // ⚠️ Un indicatore mancante lo deciderebbe la migrazione al prossimo avvio, e
                     // su un archivio pieno direbbe 'angolo': scriverlo adesso fa dire la stessa cosa
@@ -1022,6 +1036,9 @@ internal object Backup {
                 val name = list.opt(i) as? String ?: throw Failure(Reason.BAD)
                 if (name.isEmpty() || !names.add(name)) throw Failure(Reason.BAD)
                 PREF_KEYS.firstOrNull { it.name == name && it.area == area }?.let { absent += it }
+                // An empty legacy hidden list still identifies the previous excluded mode.
+                PREF_RETIRED[name]?.takeIf { it.area == area && it.into.name == "hidden-relative" }
+                    ?.let { absent += it.into }
             }
         }
         return Prefs(values, absent, skipped)

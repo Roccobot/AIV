@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">ఎగుమతి, దిగుమతి</string>
     <string name="backup_desc">అమరికలను ఒక ఫైల్‌లో భద్రపరచండి; దాన్ని మీరు ఎప్పుడైనా దిగుమతి చేయవచ్చు, Astonishing Image Viewer భవిష్యత్ వెర్షన్‌లలో కూడా.</string>
-    <string name="backup_intro">ఫైల్‌లో కింది అమరికలు ఉంటాయి, దాన్ని AIV మాత్రమే చదవగలదు. దిగుమతి సమయంలో శైలులు, రంగులు, ముఖచిత్రాలు, దాచిన ఫోల్డర్‌లు, చెత్తబుట్ట ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
+    <string name="backup_intro">ఫైల్‌లో కింది అమరికలు ఉంటాయి, దాన్ని AIV మాత్రమే చదవగలదు. దిగుమతి సమయంలో శైలులు, రంగులు, ముఖచిత్రాలు, చేర్చిన మరియు మినహాయించిన ఫోల్డర్‌లు, చెత్తబుట్ట ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_area_view">రూపం, నావిగేషన్</string>
     <string name="backup_area_editor">ఎడిటర్ అమరికలు</string>
     <string name="backup_area_covers">ఫోల్డర్‌ల కవర్‌లు</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">ఎగుమతి చేస్తోంది...</string>
     <string name="backup_importing">దిగుమతి చేస్తోంది...</string>
     <string name="backup_import_from">%1$s, %2$sన ఎగుమతి\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">ఈ అమరికలు ప్రస్తుత అమరికల స్థానంలోకి వస్తాయి, శైలులు, రంగులు, ముఖచిత్రాలు, దాచిన ఫోల్డర్‌లు, చెత్తబుట్ట తప్ప: అవి ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
+    <string name="backup_import_ask">ఈ అమరికలు ప్రస్తుత అమరికల స్థానంలోకి వస్తాయి, శైలులు, రంగులు, ముఖచిత్రాలు, చేర్చిన మరియు మినహాయించిన ఫోల్డర్‌లు, చెత్తబుట్ట తప్ప: అవి ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_unlock">అమరికల ఫైల్ రక్షించబడింది: పాస్‌వర్డ్‌ను నమోదు చేయండి.</string>
     <string name="backup_none">ఎంచుకున్న అమరికలకు చెల్లుబాటు అయ్యే విలువలు ఫైల్‌లో లేవు.</string>
     <string name="look_liquify">ద్రవీకరణ</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">పునర్నిర్మించు</string>
     <string name="look_brush_size">బ్రష్ పరిమాణం</string>
     <string name="look_brush_strength">బ్రష్ బలం</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">చేర్చిన/మినహాయించిన ఫోల్డర్లు</string>
+    <string name="folder_mode_included">చేర్చే మోడ్</string>
+    <string name="folder_mode_excluded">మినహాయించే మోడ్</string>
+    <string name="folder_authorized">అనుమతించిన ఫోల్డర్లు</string>
+    <string name="folder_authorized_mark">అనుమతించబడింది</string>
+    <string name="folder_included_none">అనుమతించిన ఫోల్డర్లు లేవు.</string>
+    <string name="folder_authorize">ఫోల్డర్‌ను అనుమతించు</string>
+    <string name="folder_authorize_title">కనిపించే ఫోల్డర్లకు జోడించు</string>
+    <string name="folder_remove">అనుమతిని తీసివేయి</string>
+    <string name="folder_remove_desc">ఈ ఫోల్డర్‌ను అనుమతించిన జాబితా నుండి తీసివేయాలా? దీని కంటెంట్ గ్రిడ్ మరియు జాబితా మోడ్‌ల నుండి అదృశ్యమవుతుంది.</string>
+    <string name="folder_only_this">ఈ ఫోల్డర్ మాత్రమే</string>
+    <string name="folder_hide_choices">ఏ ఫోల్డర్లను దాచాలనుకుంటున్నారు?</string>
+    <string name="folder_only_named">%1$s మాత్రమే</string>
+    <string name="folder_with_child">%1$s మరియు దాని ఉపఫోల్డర్</string>
+    <string name="folder_with_children">%1$s మరియు దాని ఉపఫోల్డర్లు</string>
+    <string name="folder_only_children">%1$s యొక్క ఉపఫోల్డర్లు మాత్రమే</string>
+    <string name="folder_siblings">అదే స్థాయిలోని అన్ని ఫోల్డర్లకు వర్తింపజేయి</string>
+    <string name="folder_authorize_desc">ఈ ఫోల్డర్‌ను అనుమతించిన జాబితాకు జోడించాలా? దీని కంటెంట్ గ్రిడ్ మరియు జాబితా మోడ్‌లలో కనిపిస్తుంది.</string>
+    <string name="folder_authorize_empty">గమనిక: ఈ ఫోల్డర్‌లో చూపించగల అంశాలు లేవు. కనీసం ఒక చిత్రం లేదా వీడియో ఉంటే గ్రిడ్ లేదా జాబితా మోడ్‌లో కనిపిస్తుంది.</string>
+    <string name="folder_selection_desc">చేర్చే మోడ్ అనుమతించిన ఫోల్డర్లను మాత్రమే చూపిస్తుంది; మినహాయించే మోడ్ చేతితో దాచినవి తప్ప అన్నింటినీ చూపిస్తుంది. మినహాయించే మోడ్‌లో గ్రిడ్ లేదా జాబితాలో ఫోల్డర్‌ను నొక్కి పట్టుకుని దాచండి. చేర్చే మోడ్‌లో సిస్టమ్ ఫోల్డర్లను తెరిచి ఫోల్డర్‌ను నొక్కి పట్టుకుని అనుమతించండి. ఇది గ్రిడ్ మరియు జాబితాకు మాత్రమే వర్తిస్తుంది; సిస్టమ్ ఫోల్డర్లు ఎల్లప్పుడూ అన్నింటినీ చూపిస్తాయి. అనుమతించిన ఫోల్డర్‌లో చిత్రం లేదా వీడియో ఉంటే కనిపిస్తుంది.</string>
+    <string name="folder_siblings_desc">%1$s యొక్క అన్ని ఉపఫోల్డర్లను దాచాలా? %1$s లో కొత్త ఫోల్డర్లు మొదట కనిపిస్తాయి.</string>
+    <string name="folder_authorize_question">ఈ ఫోల్డర్‌ను అనుమతించిన జాబితాకు జోడించాలా?</string>
 </resources>

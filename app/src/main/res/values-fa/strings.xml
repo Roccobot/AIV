@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">برون‌بری و درون‌ریزی</string>
     <string name="backup_desc">تنظیمات را در فایلی ذخیره کنید که هر زمان بخواهید می‌توانید درون‌ریزی‌اش کنید، حتی با نسخه‌های آیندهٔ Astonishing Image Viewer.</string>
-    <string name="backup_intro">این فایل تنظیمات زیر را در بر دارد و فقط AIV می‌تواند آن را بخواند. هنگام درون‌ریزی، سبک‌ها، رنگ‌ها، جلدها، پوشه‌های پنهان و سبد زباله به آنچه از پیش هست افزوده می‌شوند.</string>
+    <string name="backup_intro">این فایل تنظیمات زیر را در بر دارد و فقط AIV می‌تواند آن را بخواند. هنگام درون‌ریزی، سبک‌ها، رنگ‌ها، جلدها، پوشه‌های مشمول و مستثنا و سبد زباله به آنچه از پیش هست افزوده می‌شوند.</string>
     <string name="backup_area_view">ظاهر و پیمایش</string>
     <string name="backup_area_editor">تنظیمات ویرایشگر</string>
     <string name="backup_area_covers">جلد پوشه‌ها</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">در حال برون‌بری...</string>
     <string name="backup_importing">در حال درون‌ریزی...</string>
     <string name="backup_import_from">برون‌بری در %1$s، %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">این تنظیمات جای تنظیمات کنونی را خواهند گرفت، جز سبک‌ها، رنگ‌ها، جلدها، پوشه‌های پنهان و سبد زباله، که به آنچه از پیش هست افزوده می‌شوند.</string>
+    <string name="backup_import_ask">این تنظیمات جای تنظیمات کنونی را خواهند گرفت، جز سبک‌ها، رنگ‌ها، جلدها، پوشه‌های مشمول و مستثنا و سبد زباله، که به آنچه از پیش هست افزوده می‌شوند.</string>
     <string name="backup_unlock">فایل تنظیمات محافظت‌شده است: گذرواژه را وارد کنید.</string>
     <string name="backup_none">فایل هیچ مقدار معتبری برای تنظیمات انتخاب‌شده ندارد.</string>
     <string name="look_liquify">مایع‌سازی</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">بازسازی</string>
     <string name="look_brush_size">اندازه قلم‌مو</string>
     <string name="look_brush_strength">قدرت قلم‌مو</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">پوشه‌های مشمول/مستثنا</string>
+    <string name="folder_mode_included">حالت مشمول</string>
+    <string name="folder_mode_excluded">حالت مستثنا</string>
+    <string name="folder_authorized">پوشه‌های مجاز</string>
+    <string name="folder_authorized_mark">مجاز</string>
+    <string name="folder_included_none">پوشهٔ مجازی وجود ندارد.</string>
+    <string name="folder_authorize">مجاز کردن پوشه</string>
+    <string name="folder_authorize_title">افزودن به پوشه‌های نمایش‌داده‌شده</string>
+    <string name="folder_remove">لغو مجوز</string>
+    <string name="folder_remove_desc">این پوشه از فهرست مجاز حذف شود؟ محتوای آن از حالت‌های شبکه و فهرست ناپدید می‌شود.</string>
+    <string name="folder_only_this">فقط این پوشه</string>
+    <string name="folder_hide_choices">کدام پوشه‌ها پنهان شوند؟</string>
+    <string name="folder_only_named">فقط %1$s</string>
+    <string name="folder_with_child">%1$s و زیرپوشهٔ آن</string>
+    <string name="folder_with_children">%1$s و زیرپوشه‌های آن</string>
+    <string name="folder_only_children">فقط زیرپوشه‌های %1$s</string>
+    <string name="folder_siblings">اعمال به همهٔ پوشه‌های هم‌سطح</string>
+    <string name="folder_authorize_desc">این پوشه به فهرست مجاز افزوده شود؟ محتوای آن در حالت‌های شبکه و فهرست نمایش داده می‌شود.</string>
+    <string name="folder_authorize_empty">توجه: این پوشه مورد قابل نمایشی ندارد. وقتی حاوی تصویر یا ویدیو باشد در حالت شبکه یا فهرست ظاهر می‌شود.</string>
+    <string name="folder_selection_desc">حالت مشمول فقط پوشه‌های مجاز را نشان می‌دهد؛ حالت مستثنا همه را به‌جز پوشه‌های پنهان‌شدهٔ دستی نشان می‌دهد. در حالت مستثنا، پوشه را در حالت شبکه یا فهرست نگه دارید تا پنهان شود. در حالت مشمول، پوشه‌های سیستم را باز کنید و پوشه را نگه دارید تا مجاز شود. این تنظیم فقط بر شبکه و فهرست اثر دارد؛ پوشه‌های سیستم همیشه همه‌چیز را نشان می‌دهند. پوشه‌های مجاز وقتی تصویر یا ویدیو داشته باشند ظاهر می‌شوند.</string>
+    <string name="folder_siblings_desc">همهٔ زیرپوشه‌های %1$s پنهان شوند؟ پوشه‌های جدید داخل %1$s در ابتدا نمایان خواهند بود.</string>
+    <string name="folder_authorize_question">این پوشه به فهرست مجاز افزوده شود؟</string>
 </resources>

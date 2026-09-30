@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">書き出しと読み込み</string>
     <string name="backup_desc">設定をファイルに保存します。このファイルは、Astonishing Image Viewer の今後のバージョンでも、いつでも読み込めます。</string>
-    <string name="backup_intro">このファイルには下の設定が含まれ、AIV でしか読めません。読み込むとき、スタイル、色、カバー、非表示のフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
+    <string name="backup_intro">このファイルには下の設定が含まれ、AIV でしか読めません。読み込むとき、スタイル、色、カバー、含めるフォルダと除外するフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_area_view">外観とナビゲーション</string>
     <string name="backup_area_editor">エディターの設定</string>
     <string name="backup_area_covers">フォルダーのカバー</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">書き出し中...</string>
     <string name="backup_importing">読み込み中...</string>
     <string name="backup_import_from">%1$s %2$s に書き出し\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">これらの設定で現在の設定が置き換わります。ただしスタイル、色、カバー、非表示のフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
+    <string name="backup_import_ask">これらの設定で現在の設定が置き換わります。ただしスタイル、色、カバー、含めるフォルダと除外するフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_unlock">設定ファイルは保護されています。パスワードを入力してください。</string>
     <string name="backup_none">選択した設定について、ファイルに有効な値がありません。</string>
     <string name="look_liquify">ゆがみ</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">再構築</string>
     <string name="look_brush_size">ブラシサイズ</string>
     <string name="look_brush_strength">ブラシの強さ</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">含める/除外するフォルダ</string>
+    <string name="folder_mode_included">含めるモード</string>
+    <string name="folder_mode_excluded">除外モード</string>
+    <string name="folder_authorized">許可済みフォルダ</string>
+    <string name="folder_authorized_mark">許可済み</string>
+    <string name="folder_included_none">許可済みフォルダはありません。</string>
+    <string name="folder_authorize">フォルダを許可</string>
+    <string name="folder_authorize_title">表示するフォルダに追加</string>
+    <string name="folder_remove">許可を取り消す</string>
+    <string name="folder_remove_desc">このフォルダを許可リストから削除しますか？内容はグリッドとリストのモードに表示されなくなります。</string>
+    <string name="folder_only_this">このフォルダのみ</string>
+    <string name="folder_hide_choices">どのフォルダを非表示にしますか？</string>
+    <string name="folder_only_named">%1$s のみ</string>
+    <string name="folder_with_child">%1$s とそのサブフォルダ</string>
+    <string name="folder_with_children">%1$s とそのサブフォルダすべて</string>
+    <string name="folder_only_children">%1$s のサブフォルダのみ</string>
+    <string name="folder_siblings">同じ階層のすべてのフォルダに適用</string>
+    <string name="folder_authorize_desc">このフォルダを許可リストに追加しますか？内容はグリッドとリストのモードで表示されます。</string>
+    <string name="folder_authorize_empty">注：このフォルダには表示可能な項目がありません。画像または動画が入ると、グリッドまたはリストのモードに表示されます。</string>
+    <string name="folder_selection_desc">含めるモードは許可済みフォルダのみを表示し、除外モードは手動で非表示にしたフォルダ以外を表示します。除外モードでは、グリッドまたはリストでフォルダを長押しすると非表示にできます。含めるモードでは、システムフォルダを開いてフォルダを長押しすると許可できます。この設定はグリッドとリストのみが対象です。システムフォルダは常にすべてを表示します。許可済みフォルダは画像または動画がある場合に表示されます。</string>
+    <string name="folder_siblings_desc">%1$s のサブフォルダをすべて非表示にしますか？%1$s 内に新しく作成されたフォルダは最初は表示されます。</string>
+    <string name="folder_authorize_question">このフォルダを許可リストに追加しますか？</string>
 </resources>

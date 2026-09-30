@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Dışa ve içe aktarma</string>
     <string name="backup_desc">Ayarları istediğin zaman içe aktarabileceğin bir dosyaya kaydet, Astonishing Image Viewer\'in gelecek sürümleriyle bile.</string>
-    <string name="backup_intro">Dosya aşağıdaki ayarları içerir ve onu yalnızca AIV okuyabilir. İçe aktarma sırasında stiller, renkler, kapaklar, gizli klasörler ve çöp kutusu zaten olanlara eklenir.</string>
+    <string name="backup_intro">Dosya aşağıdaki ayarları içerir ve onu yalnızca AIV okuyabilir. İçe aktarma sırasında stiller, renkler, kapaklar, dahil edilen ve hariç tutulan klasörler ve çöp kutusu zaten olanlara eklenir.</string>
     <string name="backup_area_view">Görünüm ve gezinme</string>
     <string name="backup_area_editor">Düzenleyici ayarları</string>
     <string name="backup_area_covers">Klasör kapakları</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Dışa aktarılıyor...</string>
     <string name="backup_importing">İçe aktarılıyor...</string>
     <string name="backup_import_from">%1$s, %2$s tarihinde dışa aktarıldı\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Bu ayarlar mevcut olanların yerini alacak; stiller, renkler, kapaklar, gizli klasörler ve çöp kutusu hariç, bunlar zaten olanlara eklenecek.</string>
+    <string name="backup_import_ask">Bu ayarlar mevcut olanların yerini alacak; stiller, renkler, kapaklar, dahil edilen ve hariç tutulan klasörler ve çöp kutusu hariç, bunlar zaten olanlara eklenecek.</string>
     <string name="backup_unlock">Ayar dosyası korumalı: şifreyi gir.</string>
     <string name="backup_none">Dosya, seçili ayarlar için geçerli bir değer içermiyor.</string>
     <string name="look_liquify">Sıvılaştır</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">Yeniden oluştur</string>
     <string name="look_brush_size">Fırça boyutu</string>
     <string name="look_brush_strength">Fırça gücü</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Dahil edilen/hariç tutulan klasörler</string>
+    <string name="folder_mode_included">Dahil etme modu</string>
+    <string name="folder_mode_excluded">Hariç tutma modu</string>
+    <string name="folder_authorized">İzin verilen klasörler</string>
+    <string name="folder_authorized_mark">izin verildi</string>
+    <string name="folder_included_none">İzin verilen klasör yok.</string>
+    <string name="folder_authorize">Klasöre izin ver</string>
+    <string name="folder_authorize_title">Gösterilen klasörlere ekle</string>
+    <string name="folder_remove">İzni kaldır</string>
+    <string name="folder_remove_desc">Bu klasör izin verilenler listesinden kaldırılsın mı? İçeriği ızgara ve liste modlarından kaybolacaktır.</string>
+    <string name="folder_only_this">Yalnızca bu klasör</string>
+    <string name="folder_hide_choices">Hangi klasörleri gizlemek istiyorsun?</string>
+    <string name="folder_only_named">Yalnızca %1$s</string>
+    <string name="folder_with_child">%1$s ve alt klasörü</string>
+    <string name="folder_with_children">%1$s ve alt klasörleri</string>
+    <string name="folder_only_children">Yalnızca %1$s alt klasörleri</string>
+    <string name="folder_siblings">Aynı düzeydeki tüm klasörlere uygula</string>
+    <string name="folder_authorize_desc">Bu klasör izin verilenler listesine eklensin mi? İçeriği ızgara ve liste modlarında gösterilecektir.</string>
+    <string name="folder_authorize_empty">Not: Bu klasörde gösterilebilir öğe yok. En az bir resim veya video içerdiğinde ızgara veya liste modunda görünecektir.</string>
+    <string name="folder_selection_desc">Dahil etme modu yalnızca izin verilen klasörleri; hariç tutma modu elle gizlenenler dışında tüm klasörleri gösterir. Hariç tutma modunda, gizlemek için ızgara veya listede bir klasöre uzun bas. Dahil etme modunda Sistem klasörlerini aç ve izin vermek için bir klasöre uzun bas. Bu yalnızca ızgara ve listeyi etkiler; sistem klasörleri her şeyi gösterir. İzin verilen klasörler bir resim veya video içerdiğinde görünür.</string>
+    <string name="folder_siblings_desc">%1$s alt klasörlerinin tümü gizlensin mi? %1$s içindeki yeni klasörler başlangıçta görünür olacaktır.</string>
+    <string name="folder_authorize_question">Bu klasör izin verilenler listesine eklensin mi?</string>
 </resources>

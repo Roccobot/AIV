@@ -272,7 +272,7 @@ fun SettingsScreen(
             emptied++
         }
     }
-    val generateThumbs: () -> Unit = { Warmup.start(context, settings.hiddenFolders) }
+    val generateThumbs: () -> Unit = { Warmup.start(context, settings.hiddenFolders, settings.folderSelection) }
 
     when (page) {
         Page.ROOT -> Shell(
@@ -429,7 +429,7 @@ fun SettingsScreen(
         }
 
         Page.HIDDEN -> Shell(
-            title = stringResource(R.string.settings_hidden),
+            title = stringResource(R.string.folder_selection),
             onBack = { back() },
             modifier = modifier
         ) {
@@ -840,9 +840,7 @@ private fun ColumnScope.RootPage(
                 add(stringResource(R.string.settings_front))
                 add(stringResource(R.string.settings_colour))
                 add(stringResource(R.string.view_options))
-                if (settings.hiddenFolders.isNotEmpty()) {
-                    add(stringResource(R.string.settings_hidden))
-                }
+                add(stringResource(R.string.folder_selection))
             }.joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.FOLDERS) }
         ) { FoldersPage(settings = settings, onChange = onChange, onOpen = onOpen) }
@@ -1353,35 +1351,16 @@ private fun FoldersPage(
         onOpen = { onOpen(Page.VIEWS) }
     ) { ViewOptionsPage(settings = settings, onChange = onChange) }
 
-    /*
-     * ⚠️⚠️ **L'ELENCO DELLE NASCOSTE È METÀ DELLA FUNZIONE, non un di più**: si nasconde con
-     * un tocco lungo, cioè da un'altra schermata e senza lasciare traccia, quindi se non ci
-     * fosse un posto in cui rivedere che cosa si è nascosto l'unico modo di riavere una
-     * cartella sarebbe indovinare che esiste quest'impostazione. Una funzione che toglie
-     * qualcosa deve dire dove l'ha messa.
-     * ⚠️ Compare **solo quando c'è qualcosa**, e la sotto-pagina non ha cambiato la scelta:
-     * una riga sempre presente e quasi sempre vuota è rumore in una schermata che si scorre.
-     * La pagina invece la stringa vuota la sa dire, perché ci si può restare dentro dopo aver
-     * rimostrato l'ultima.
-     */
-    if (settings.hiddenFolders.isNotEmpty()) {
-        PageRow(
-            label = stringResource(R.string.settings_hidden),
-            summary = pluralStringResource(
-                R.plurals.settings_hidden_count,
-                settings.hiddenFolders.size,
-                settings.hiddenFolders.size
-            ),
-            onOpen = { onOpen(Page.HIDDEN) },
-            // ⚠️ Anche questa pagina è un ELENCO e non si appiattisce, perché ogni riga porta
-            // il suo tasto 'Mostra': la copertura sono i percorsi, che entrano fra i testi da
-            // confrontare e non costano una stringa, perché sono dati. Guadagno collaterale:
-            // una cartella nascosta diventa cercabile per nome, cosa che prima non era.
-            // ⚠️ Sono i testi che la pagina mostra, cioè i percorsi con la barra davanti: la
-            // ricerca confronta quello che si legge.
-            extra = settings.hiddenFolders.map(::hiddenShown).sorted()
-        )
-    }
+    // The mode selector must stay reachable even when both lists are empty.
+    PageRow(
+        label = stringResource(R.string.folder_selection),
+        summary = stringResource(if (settings.folderMode == FolderMode.INCLUDED)
+            R.string.folder_mode_included else R.string.folder_mode_excluded),
+        onOpen = { onOpen(Page.HIDDEN) },
+        extra = listOf(stringResource(R.string.folder_selection_desc),
+            stringResource(R.string.folder_mode_included), stringResource(R.string.folder_mode_excluded)) +
+            (settings.includedFolders + settings.folderSelection.excluded).map(::hiddenShown).sorted()
+    )
 
 }
 
@@ -2648,59 +2627,37 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
     )
 }
 
-/**
- * Le cartelle nascoste, una per riga, con il comando per rimostrarle.
- *
- * ⚠️ La pagina resta in piedi anche quando l'elenco si vuota, e per questo esiste
- * `settings_hidden_none`: si arriva qui con tre cartelle, si rimostrano tutte e tre, e una
- * pagina che si svuotasse in silenzio sembrerebbe rotta. La riga che porta qui invece
- * sparisce, ma la si rivede solo tornando indietro.
- */
+/** The two independent lists share a page with the display mode selector. */
 @Composable
 private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
-    Detail(stringResource(R.string.settings_hidden_desc))
-
-    if (settings.hiddenFolders.isEmpty()) {
-        Text(
-            text = stringResource(R.string.settings_hidden_none),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-        return
-    }
-
-    // ⚠️ Ordinate, e non nell'ordine in cui sono state nascoste: un insieme non ha
-    // un ordine proprio, quindi senza questo le righe si rimescolerebbero da sole
-    // fra un'apertura e l'altra.
-    settings.hiddenFolders.sorted().forEach { voce ->
-        // ⚠️ Dalla `2.96` il percorso parte dalla radice del volume, e i due testi li scrivono
-        // `hiddenName` e `hiddenShown`, gli stessi del pannello della schermata iniziale.
-        val nome = hiddenName(voce)
-        val percorso = hiddenShown(voce)
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                // ⚠️ Il nome davanti e il percorso sotto: due cartelle possono
-                // chiamarsi uguale, quindi il percorso è l'unica cosa che le
-                // distingue, ma è anche lungo e illeggibile come titolo.
-                text = nome,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
+    Detail(stringResource(R.string.folder_selection_desc))
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+        FolderMode.entries.forEach { mode ->
+            FilterChip(
+                selected = settings.folderMode == mode,
+                onClick = { onChange(settings.copy(folderMode = mode)) },
+                label = { Text(stringResource(if (mode == FolderMode.INCLUDED)
+                    R.string.folder_mode_included else R.string.folder_mode_excluded)) }
             )
-            TextButton(onClick = {
-                onChange(settings.copy(hiddenFolders = settings.hiddenFolders - voce))
-            }) { Text(stringResource(R.string.settings_hidden_show)) }
         }
-        // ⚠️ La radice di un volume ha per nome e per percorso la stessa barra.
-        if (percorso != nome) {
-            Text(
-                text = percorso,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+    }
+    val included = settings.folderMode == FolderMode.INCLUDED
+    val entries = if (included) settings.includedFolders else settings.folderSelection.excluded
+    Text(stringResource(if (included) R.string.folder_authorized else R.string.settings_hidden),
+        style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
+    if (entries.isEmpty()) Detail(stringResource(if (included) R.string.folder_included_none else R.string.settings_hidden_none))
+    entries.sorted().forEach { entry ->
+        Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(hiddenName(entry), style = MaterialTheme.typography.bodyLarge)
+                Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
+                if (!included && entry in settings.hiddenExactFolders && entry !in settings.hiddenFolders)
+                    Text(stringResource(R.string.folder_only_this), style = MaterialTheme.typography.labelSmall)
+            }
+            TextButton(onClick = {
+                onChange(if (included) settings.copy(includedFolders = settings.includedFolders - entry)
+                    else settings.withFolders(settings.folderSelection.remove(listOf(entry))))
+            }) { Text(stringResource(if (included) R.string.folder_remove else R.string.settings_hidden_show)) }
         }
     }
 }

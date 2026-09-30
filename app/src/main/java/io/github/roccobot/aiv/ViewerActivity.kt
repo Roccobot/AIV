@@ -709,7 +709,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         viewModelScope.launch {
             SettingsStore.flow(context).collect { fresh ->
-                settings = fresh
+                applySettings(fresh)
                 // ⚠️ Il disco si guarda FUORI dal thread principale, come ogni altra lettura di
                 // file: costa un `isFile`, ma la regola non fa eccezioni per le letture corte.
                 val logo = withContext(Dispatchers.IO) { Watermark.file(context) != null }
@@ -2065,7 +2065,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val entro = (screen as? Screen.Search)?.bucket
         searching = viewModelScope.launch {
             delay(SEARCH_PAUSE_MS)
-            listed = Folder.byName(context, text, hidden, entro).atSequenceStart()
+            listed = Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
             // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista
             // indicherebbe una posizione della lista di prima.
             gridVisited = false
@@ -2105,7 +2105,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 val entro = here.bucket
                 searching?.cancel()
                 searching = viewModelScope.launch {
-                    listed = Folder.byName(context, text, hidden, entro).atSequenceStart()
+                    listed = Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
                 }
             }
             // ⚠️ Il cestino si rilegge dal disco e non dal MediaStore, che là non guarda:
@@ -2185,6 +2185,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         bucketsJob?.cancel()
         bucketsJob = viewModelScope.launch {
             val letti = if (granted) Folder.buckets(context) else emptyList()
+            if (granted && storedPreferences(context)[INCLUDED_INITIALIZED] != true) {
+                val defaults = withContext(Dispatchers.IO) {
+                    defaultIncludedFolders(Tree.roots(context).map { it.file }, letti)
+                }
+                SettingsStore.initializeIncluded(context, defaults)
+            }
             buckets = letti
             /*
              * ⚠️⚠️ **QUI SI POTANO LE COPERTINE ORFANE, E QUESTO È L'UNICO MOMENTO IN CUI SI PUÒ**
@@ -2510,7 +2516,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             val fresh = when (from) {
                 is Screen.Grid -> Folder.newestIn(context, from.bucket)
                 is Screen.Search ->
-                    Folder.byName(context, query, settings?.hiddenFolders.orEmpty(), from.bucket)
+                    Folder.byName(context, query, settings?.hiddenFolders.orEmpty(), from.bucket, settings?.folderSelection ?: FolderSelection())
                 Screen.Bin -> binLookup(context)
                 else -> null
             }
@@ -2647,8 +2653,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         screen = if (state is ViewerState.Ready) Screen.Viewer else HOME
     }
 
-    fun updateSettings(next: Settings) {
+    private fun applySettings(next: Settings) {
+        if (next.folderMode == FolderMode.INCLUDED && peeking) peek(false)
         settings = next
+    }
+
+    fun updateSettings(next: Settings) {
+        applySettings(next)
         viewModelScope.launch { SettingsStore.save(getApplication(), next) }
     }
 
@@ -2775,7 +2786,7 @@ class ViewerActivity : ComponentActivity() {
                 // dalla `1.81` quella entra dalla vista normale dell'app, e il perché per
                 // esteso sta su [LocalDestLook].
                 val dove = model.settings?.let {
-                    DestLook(it.folderView, it.folderColumns, it.folderCount, it.listCount, it.listText)
+                    DestLook(it.folderView, it.folderColumns, it.folderCount, it.listCount, it.listText, it.folderMode)
                 } ?: DestLook()
                 // ⚠️ E accanto a loro il minuto di 'Mostra nascoste', dalla `2.03`: la finestra
                 // delle destinazioni deve sapere se è acceso, e il perché per esteso, con la
@@ -3256,6 +3267,8 @@ private fun Stage(
                 tints = model.folderTints,
                 covers = model.folderCovers,
                 hidden = settings.hiddenFolders,
+                selection = settings.folderSelection,
+                onSelectionChange = { model.updateSettings(settings.withFolders(it)) },
                 // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
                 // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
                 // invece di scrivere una chiave vuota che nasconderebbe la radice.
@@ -3279,7 +3292,7 @@ private fun Stage(
                 // perché vive sul parametro, in `FolderScreen`.
                 onUnhide = { voci ->
                     model.updateSettings(
-                        settings.copy(hiddenFolders = settings.hiddenFolders - voci.toSet())
+                        settings.withFolders(settings.folderSelection.remove(voci))
                     )
                 },
                 recents = model.recents,

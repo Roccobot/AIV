@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">导出与导入</string>
     <string name="backup_desc">将设置保存到文件中，可随时导入，包括在 Astonishing Image Viewer 的未来版本中。</string>
-    <string name="backup_intro">文件包含下方的设置，只有 AIV 能读取。导入时，样式、颜色、封面、隐藏的文件夹和回收站会添加到已有的内容中。</string>
+    <string name="backup_intro">文件包含下方的设置，只有 AIV 能读取。导入时，样式、颜色、封面、包含和排除的文件夹和回收站会添加到已有的内容中。</string>
     <string name="backup_area_view">外观与导航</string>
     <string name="backup_area_editor">编辑器设置</string>
     <string name="backup_area_covers">文件夹封面</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">正在导出...</string>
     <string name="backup_importing">正在导入...</string>
     <string name="backup_import_from">导出于 %1$s %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">这些设置将替换当前的设置，但样式、颜色、封面、隐藏的文件夹和回收站除外，它们将添加到已有的内容中。</string>
+    <string name="backup_import_ask">这些设置将替换当前的设置，但样式、颜色、封面、包含和排除的文件夹和回收站除外，它们将添加到已有的内容中。</string>
     <string name="backup_unlock">设置文件受保护：请输入密码。</string>
     <string name="backup_none">文件中没有所选设置的有效值。</string>
     <string name="look_liquify">液化</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">重建</string>
     <string name="look_brush_size">画笔大小</string>
     <string name="look_brush_strength">画笔强度</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">包含/排除的文件夹</string>
+    <string name="folder_mode_included">包含模式</string>
+    <string name="folder_mode_excluded">排除模式</string>
+    <string name="folder_authorized">已授权的文件夹</string>
+    <string name="folder_authorized_mark">已授权</string>
+    <string name="folder_included_none">没有已授权的文件夹。</string>
+    <string name="folder_authorize">授权文件夹</string>
+    <string name="folder_authorize_title">添加到显示的文件夹</string>
+    <string name="folder_remove">移除授权</string>
+    <string name="folder_remove_desc">要将此文件夹从授权列表中移除吗？其内容将不再显示在网格和列表模式中。</string>
+    <string name="folder_only_this">仅此文件夹</string>
+    <string name="folder_hide_choices">要隐藏哪些文件夹？</string>
+    <string name="folder_only_named">仅 %1$s</string>
+    <string name="folder_with_child">%1$s 及其子文件夹</string>
+    <string name="folder_with_children">%1$s 及其所有子文件夹</string>
+    <string name="folder_only_children">仅 %1$s 的子文件夹</string>
+    <string name="folder_siblings">应用到同一级别的所有文件夹</string>
+    <string name="folder_authorize_desc">要将此文件夹添加到授权列表吗？其内容将显示在网格和列表模式中。</string>
+    <string name="folder_authorize_empty">注意：此文件夹目前没有可显示的项目。包含至少一张图片或一个视频后，它就会出现在网格或列表模式中。</string>
+    <string name="folder_selection_desc">包含模式仅显示已授权的文件夹；排除模式显示所有文件夹，但手动隐藏的除外。在排除模式下，长按网格或列表中的文件夹可将其隐藏。在包含模式下，打开系统文件夹并长按要授权的文件夹。此设置仅影响网格和列表；系统文件夹始终显示全部内容。已授权的文件夹只有在包含图片或视频时才会显示。</string>
+    <string name="folder_siblings_desc">要隐藏 %1$s 的所有子文件夹吗？%1$s 中新建的文件夹最初会显示。</string>
+    <string name="folder_authorize_question">要将此文件夹添加到授权列表吗？</string>
 </resources>

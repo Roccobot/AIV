@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">রপ্তানি ও আমদানি</string>
     <string name="backup_desc">সেটিংস এমন একটি ফাইলে সংরক্ষণ করুন, যা আপনি যেকোনো সময় আমদানি করতে পারবেন, এমনকি Astonishing Image Viewer-এর ভবিষ্যৎ সংস্করণেও।</string>
-    <string name="backup_intro">ফাইলটিতে নিচের সেটিংসগুলো থাকে, এবং শুধু AIV এটি পড়তে পারে। আমদানির সময় স্টাইল, রং, প্রচ্ছদ, লুকানো ফোল্ডার আর আবর্জনা আগে থেকে থাকা জিনিসের সঙ্গে যোগ হয়।</string>
+    <string name="backup_intro">ফাইলটিতে নিচের সেটিংসগুলো থাকে, এবং শুধু AIV এটি পড়তে পারে। আমদানির সময় স্টাইল, রং, প্রচ্ছদ, অন্তর্ভুক্ত ও বাদ দেওয়া ফোল্ডার আর আবর্জনা আগে থেকে থাকা জিনিসের সঙ্গে যোগ হয়।</string>
     <string name="backup_area_view">উপস্থিতি ও নেভিগেশন</string>
     <string name="backup_area_editor">এডিটরের সেটিংস</string>
     <string name="backup_area_covers">ফোল্ডারের কভার</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">রপ্তানি হচ্ছে...</string>
     <string name="backup_importing">আমদানি হচ্ছে...</string>
     <string name="backup_import_from">%1$s, %2$s-এ রপ্তানি\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">এই সেটিংস বর্তমান সেটিংসের জায়গা নেবে, শুধু স্টাইল, রং, প্রচ্ছদ, লুকানো ফোল্ডার আর আবর্জনা ছাড়া, যেগুলো আগে থেকে থাকা জিনিসের সঙ্গে যোগ হবে।</string>
+    <string name="backup_import_ask">এই সেটিংস বর্তমান সেটিংসের জায়গা নেবে, শুধু স্টাইল, রং, প্রচ্ছদ, অন্তর্ভুক্ত ও বাদ দেওয়া ফোল্ডার আর আবর্জনা ছাড়া, যেগুলো আগে থেকে থাকা জিনিসের সঙ্গে যোগ হবে।</string>
     <string name="backup_unlock">সেটিংস ফাইলটি সুরক্ষিত: পাসওয়ার্ড লিখুন।</string>
     <string name="backup_none">নির্বাচিত সেটিংসের জন্য ফাইলটিতে কোনো বৈধ মান নেই।</string>
     <string name="look_liquify">তরলীকরণ</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">পুনর্গঠন</string>
     <string name="look_brush_size">ব্রাশের আকার</string>
     <string name="look_brush_strength">ব্রাশের শক্তি</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">অন্তর্ভুক্ত/বাদ দেওয়া ফোল্ডার</string>
+    <string name="folder_mode_included">অন্তর্ভুক্তি মোড</string>
+    <string name="folder_mode_excluded">বর্জন মোড</string>
+    <string name="folder_authorized">অনুমোদিত ফোল্ডার</string>
+    <string name="folder_authorized_mark">অনুমোদিত</string>
+    <string name="folder_included_none">কোনো অনুমোদিত ফোল্ডার নেই।</string>
+    <string name="folder_authorize">ফোল্ডার অনুমোদন করুন</string>
+    <string name="folder_authorize_title">প্রদর্শিত ফোল্ডারে যোগ করুন</string>
+    <string name="folder_remove">অনুমোদন সরান</string>
+    <string name="folder_remove_desc">এই ফোল্ডারটি অনুমোদিত তালিকা থেকে সরাবেন? এর বিষয়বস্তু গ্রিড ও তালিকা মোড থেকে অদৃশ্য হবে।</string>
+    <string name="folder_only_this">শুধু এই ফোল্ডার</string>
+    <string name="folder_hide_choices">কোন ফোল্ডারগুলি লুকাতে চান?</string>
+    <string name="folder_only_named">শুধু %1$s</string>
+    <string name="folder_with_child">%1$s ও তার সাবফোল্ডার</string>
+    <string name="folder_with_children">%1$s ও তার সাবফোল্ডারগুলি</string>
+    <string name="folder_only_children">শুধু %1$s-এর সাবফোল্ডারগুলি</string>
+    <string name="folder_siblings">একই স্তরের সব ফোল্ডারে প্রয়োগ করুন</string>
+    <string name="folder_authorize_desc">এই ফোল্ডারটি অনুমোদিত তালিকায় যোগ করবেন? এর বিষয়বস্তু গ্রিড ও তালিকা মোডে দেখা যাবে।</string>
+    <string name="folder_authorize_empty">মনে রাখুন: এই ফোল্ডারে দেখানোর মতো কিছু নেই। অন্তত একটি ছবি বা ভিডিও থাকলে এটি গ্রিড বা তালিকা মোডে দেখা যাবে।</string>
+    <string name="folder_selection_desc">অন্তর্ভুক্তি মোড শুধু অনুমোদিত ফোল্ডার দেখায়; বর্জন মোড হাতে লুকানো ফোল্ডার ছাড়া সব দেখায়। বর্জন মোডে গ্রিড বা তালিকায় একটি ফোল্ডার চেপে ধরে লুকান। অন্তর্ভুক্তি মোডে সিস্টেম ফোল্ডার খুলে একটি ফোল্ডার চেপে ধরে অনুমোদন করুন। এটি শুধু গ্রিড ও তালিকায় প্রযোজ্য; সিস্টেম ফোল্ডার সব সময় সব দেখায়। অনুমোদিত ফোল্ডারে ছবি বা ভিডিও থাকলে তা দেখা যায়।</string>
+    <string name="folder_siblings_desc">%1$s-এর সব সাবফোল্ডার লুকাবেন? %1$s-এর নতুন ফোল্ডারগুলি প্রথমে দেখা যাবে।</string>
+    <string name="folder_authorize_question">এই ফোল্ডারটি অনুমোদিত তালিকায় যোগ করবেন?</string>
 </resources>

@@ -598,7 +598,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">匯出與匯入</string>
     <string name="backup_desc">將設定儲存到檔案中，可隨時匯入，包括在 Astonishing Image Viewer 的未來版本中。</string>
-    <string name="backup_intro">檔案包含下方的設定，只有 AIV 能讀取。匯入時，樣式、顏色、封面、隱藏的資料夾和回收筒會加入已有的內容中。</string>
+    <string name="backup_intro">檔案包含下方的設定，只有 AIV 能讀取。匯入時，樣式、顏色、封面、包含和排除的資料夾和回收筒會加入已有的內容中。</string>
     <string name="backup_area_view">外觀與導覽</string>
     <string name="backup_area_editor">編輯器設定</string>
     <string name="backup_area_covers">資料夾封面</string>
@@ -624,7 +624,7 @@
     <string name="backup_exporting">正在匯出...</string>
     <string name="backup_importing">正在匯入...</string>
     <string name="backup_import_from">匯出於 %1$s %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">這些設定將取代目前的設定，但樣式、顏色、封面、隱藏的資料夾和回收筒除外，它們將加入已有的內容中。</string>
+    <string name="backup_import_ask">這些設定將取代目前的設定，但樣式、顏色、封面、包含和排除的資料夾和回收筒除外，它們將加入已有的內容中。</string>
     <string name="backup_unlock">設定檔受保護：請輸入密碼。</string>
     <string name="backup_none">檔案中沒有所選設定的有效數值。</string>
     <string name="look_liquify">液化</string>
@@ -632,4 +632,28 @@
     <string name="look_rebuild">重建</string>
     <string name="look_brush_size">筆刷大小</string>
     <string name="look_brush_strength">筆刷強度</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">包含/排除的資料夾</string>
+    <string name="folder_mode_included">包含模式</string>
+    <string name="folder_mode_excluded">排除模式</string>
+    <string name="folder_authorized">已授權的資料夾</string>
+    <string name="folder_authorized_mark">已授權</string>
+    <string name="folder_included_none">沒有已授權的資料夾。</string>
+    <string name="folder_authorize">授權資料夾</string>
+    <string name="folder_authorize_title">加入顯示的資料夾</string>
+    <string name="folder_remove">移除授權</string>
+    <string name="folder_remove_desc">要將此資料夾從授權清單中移除嗎？其內容將不再顯示於網格和清單模式中。</string>
+    <string name="folder_only_this">僅此資料夾</string>
+    <string name="folder_hide_choices">要隱藏哪些資料夾？</string>
+    <string name="folder_only_named">僅 %1$s</string>
+    <string name="folder_with_child">%1$s 及其子資料夾</string>
+    <string name="folder_with_children">%1$s 及其所有子資料夾</string>
+    <string name="folder_only_children">僅 %1$s 的子資料夾</string>
+    <string name="folder_siblings">套用到同一層級的所有資料夾</string>
+    <string name="folder_authorize_desc">要將此資料夾加入授權清單嗎？其內容將顯示於網格和清單模式中。</string>
+    <string name="folder_authorize_empty">注意：此資料夾目前沒有可顯示的項目。包含至少一張圖片或一個影片後，它就會出現在網格或清單模式中。</string>
+    <string name="folder_selection_desc">包含模式僅顯示已授權的資料夾；排除模式顯示所有資料夾，但手動隱藏的除外。在排除模式下，長按網格或清單中的資料夾可將其隱藏。在包含模式下，開啟系統資料夾並長按要授權的資料夾。此設定僅影響網格和清單；系統資料夾始終顯示全部內容。已授權的資料夾只有在包含圖片或影片時才會顯示。</string>
+    <string name="folder_siblings_desc">要隱藏 %1$s 的所有子資料夾嗎？%1$s 中新建的資料夾最初會顯示。</string>
+    <string name="folder_authorize_question">要將此資料夾加入授權清單嗎？</string>
 </resources>

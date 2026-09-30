@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">निर्यात आणि आयात</string>
     <string name="backup_desc">सेटिंग्ज अशा फाइलमध्ये जतन करा जी तुम्ही कधीही आयात करू शकता, Astonishing Image Viewer च्या पुढील आवृत्त्यांमध्येसुद्धा.</string>
-    <string name="backup_intro">फाइलमध्ये खालील सेटिंग्ज असतात, आणि ती फक्त AIV वाचू शकते. आयातीच्या वेळी शैली, रंग, मुखपृष्ठे, लपवलेले फोल्डर आणि कचरापेटी आधीपासून असलेल्यांत जोडले जातात.</string>
+    <string name="backup_intro">फाइलमध्ये खालील सेटिंग्ज असतात, आणि ती फक्त AIV वाचू शकते. आयातीच्या वेळी शैली, रंग, मुखपृष्ठे, समाविष्ट आणि वगळलेले फोल्डर आणि कचरापेटी आधीपासून असलेल्यांत जोडले जातात.</string>
     <string name="backup_area_view">स्वरूप आणि नेव्हिगेशन</string>
     <string name="backup_area_editor">एडिटरच्या सेटिंग्ज</string>
     <string name="backup_area_covers">फोल्डरची मुखपृष्ठे</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">निर्यात होत आहे...</string>
     <string name="backup_importing">आयात होत आहे...</string>
     <string name="backup_import_from">%1$s, %2$s रोजी निर्यात\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">या सेटिंग्ज सध्याच्या सेटिंग्जची जागा घेतील, फक्त शैली, रंग, मुखपृष्ठे, लपवलेले फोल्डर आणि कचरापेटी सोडून, जे आधीपासून असलेल्यांत जोडले जातील.</string>
+    <string name="backup_import_ask">या सेटिंग्ज सध्याच्या सेटिंग्जची जागा घेतील, फक्त शैली, रंग, मुखपृष्ठे, समाविष्ट आणि वगळलेले फोल्डर आणि कचरापेटी सोडून, जे आधीपासून असलेल्यांत जोडले जातील.</string>
     <string name="backup_unlock">सेटिंग्ज फाइल संरक्षित आहे: पासवर्ड लिहा.</string>
     <string name="backup_none">निवडलेल्या सेटिंग्जसाठी फाइलमध्ये कोणतीही वैध मूल्ये नाहीत.</string>
     <string name="look_liquify">द्रवीकरण</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">पुनर्रचना</string>
     <string name="look_brush_size">ब्रशचा आकार</string>
     <string name="look_brush_strength">ब्रशची ताकद</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">समाविष्ट/वगळलेले फोल्डर</string>
+    <string name="folder_mode_included">समावेश मोड</string>
+    <string name="folder_mode_excluded">वगळण्याचा मोड</string>
+    <string name="folder_authorized">परवानगी दिलेले फोल्डर</string>
+    <string name="folder_authorized_mark">परवानगी दिलेली</string>
+    <string name="folder_included_none">परवानगी दिलेले फोल्डर नाहीत.</string>
+    <string name="folder_authorize">फोल्डरला परवानगी द्या</string>
+    <string name="folder_authorize_title">दाखवलेल्या फोल्डरमध्ये जोडा</string>
+    <string name="folder_remove">परवानगी काढा</string>
+    <string name="folder_remove_desc">हा फोल्डर परवानगीच्या यादीतून काढायचा? त्यातील सामग्री ग्रिड आणि यादी मोडमधून अदृश्य होईल.</string>
+    <string name="folder_only_this">फक्त हा फोल्डर</string>
+    <string name="folder_hide_choices">कोणते फोल्डर लपवायचे?</string>
+    <string name="folder_only_named">फक्त %1$s</string>
+    <string name="folder_with_child">%1$s आणि त्याचा उपफोल्डर</string>
+    <string name="folder_with_children">%1$s आणि त्याचे उपफोल्डर</string>
+    <string name="folder_only_children">फक्त %1$s चे उपफोल्डर</string>
+    <string name="folder_siblings">समान पातळीवरील सर्व फोल्डरवर लागू करा</string>
+    <string name="folder_authorize_desc">हा फोल्डर परवानगीच्या यादीत जोडायचा? त्यातील सामग्री ग्रिड आणि यादी मोडमध्ये दिसेल.</string>
+    <string name="folder_authorize_empty">टीप: या फोल्डरमध्ये दाखवता येतील असे घटक नाहीत. किमान एक प्रतिमा किंवा व्हिडिओ आल्यावर तो ग्रिड किंवा यादी मोडमध्ये दिसेल.</string>
+    <string name="folder_selection_desc">समावेश मोड फक्त परवानगी दिलेले फोल्डर दाखवतो; वगळण्याचा मोड हाताने लपवलेले सोडून सर्व दाखवतो. वगळण्याच्या मोडमध्ये ग्रिड किंवा यादीतील फोल्डर दाबून ठेवा म्हणजे तो लपेल. समावेश मोडमध्ये सिस्टम फोल्डर उघडा आणि परवानगी देण्यासाठी फोल्डर दाबून ठेवा. याचा परिणाम फक्त ग्रिड आणि यादीवर होतो; सिस्टम फोल्डर नेहमी सर्व दाखवतात. परवानगी दिलेले फोल्डर प्रतिमा किंवा व्हिडिओ असल्यावर दिसतात.</string>
+    <string name="folder_siblings_desc">%1$s चे सर्व उपफोल्डर लपवायचे? %1$s मधील नवीन फोल्डर सुरुवातीला दिसतील.</string>
+    <string name="folder_authorize_question">हा फोल्डर परवानगीच्या यादीत जोडायचा?</string>
 </resources>

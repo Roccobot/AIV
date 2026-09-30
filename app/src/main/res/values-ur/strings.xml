@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">برآمد اور درآمد</string>
     <string name="backup_desc">ترتیبات کو ایک ایسی فائل میں محفوظ کریں جسے آپ کسی بھی وقت درآمد کر سکتے ہیں، Astonishing Image Viewer کے آئندہ ورژنز میں بھی۔</string>
-    <string name="backup_intro">فائل میں نیچے دی گئی ترتیبات شامل ہیں، اور اسے صرف AIV پڑھ سکتا ہے۔ درآمد کے وقت اسٹائل، رنگ، سرورق، چھپے فولڈر اور ردی کی ٹوکری پہلے سے موجود چیزوں میں شامل ہو جاتے ہیں۔</string>
+    <string name="backup_intro">فائل میں نیچے دی گئی ترتیبات شامل ہیں، اور اسے صرف AIV پڑھ سکتا ہے۔ درآمد کے وقت اسٹائل، رنگ، سرورق، شامل اور خارج فولڈر اور ردی کی ٹوکری پہلے سے موجود چیزوں میں شامل ہو جاتے ہیں۔</string>
     <string name="backup_area_view">ظاہری شکل اور نیویگیشن</string>
     <string name="backup_area_editor">ایڈیٹر کی ترتیبات</string>
     <string name="backup_area_covers">فولڈروں کے سرورق</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">برآمد جاری ہے...</string>
     <string name="backup_importing">درآمد جاری ہے...</string>
     <string name="backup_import_from">%1$s، %2$s کو برآمد\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">یہ ترتیبات موجودہ ترتیبات کی جگہ لے لیں گی، سوائے اسٹائل، رنگ، سرورق، چھپے فولڈر اور ردی کی ٹوکری کے، جو پہلے سے موجود چیزوں میں شامل ہو جائیں گے۔</string>
+    <string name="backup_import_ask">یہ ترتیبات موجودہ ترتیبات کی جگہ لے لیں گی، سوائے اسٹائل، رنگ، سرورق، شامل اور خارج فولڈر اور ردی کی ٹوکری کے، جو پہلے سے موجود چیزوں میں شامل ہو جائیں گے۔</string>
     <string name="backup_unlock">ترتیبات کی فائل محفوظ ہے: پاس ورڈ درج کریں۔</string>
     <string name="backup_none">فائل میں منتخب ترتیبات کے لیے کوئی درست قدر نہیں ہے۔</string>
     <string name="look_liquify">مائع بنائیں</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">دوبارہ بنائیں</string>
     <string name="look_brush_size">برش کا سائز</string>
     <string name="look_brush_strength">برش کی طاقت</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">شامل/خارج فولڈرز</string>
+    <string name="folder_mode_included">شامل کرنے کا موڈ</string>
+    <string name="folder_mode_excluded">خارج کرنے کا موڈ</string>
+    <string name="folder_authorized">اجازت یافتہ فولڈرز</string>
+    <string name="folder_authorized_mark">اجازت یافتہ</string>
+    <string name="folder_included_none">کوئی اجازت یافتہ فولڈر نہیں۔</string>
+    <string name="folder_authorize">فولڈر کی اجازت دیں</string>
+    <string name="folder_authorize_title">دکھائے جانے والے فولڈرز میں شامل کریں</string>
+    <string name="folder_remove">اجازت ہٹائیں</string>
+    <string name="folder_remove_desc">کیا اس فولڈر کو اجازت یافتہ فہرست سے ہٹانا ہے؟ اس کا مواد گرڈ اور فہرست موڈ سے غائب ہو جائے گا۔</string>
+    <string name="folder_only_this">صرف یہ فولڈر</string>
+    <string name="folder_hide_choices">کون سے فولڈرز چھپانا چاہتے ہیں؟</string>
+    <string name="folder_only_named">صرف %1$s</string>
+    <string name="folder_with_child">%1$s اور اس کا ذیلی فولڈر</string>
+    <string name="folder_with_children">%1$s اور اس کے ذیلی فولڈرز</string>
+    <string name="folder_only_children">صرف %1$s کے ذیلی فولڈرز</string>
+    <string name="folder_siblings">اسی سطح کے تمام فولڈرز پر لاگو کریں</string>
+    <string name="folder_authorize_desc">کیا اس فولڈر کو اجازت یافتہ فہرست میں شامل کرنا ہے؟ اس کا مواد گرڈ اور فہرست موڈ میں دکھایا جائے گا۔</string>
+    <string name="folder_authorize_empty">نوٹ: اس فولڈر میں دکھانے کے قابل آئٹمز نہیں ہیں۔ کم از کم ایک تصویر یا ویڈیو آنے پر یہ گرڈ یا فہرست موڈ میں نظر آئے گا۔</string>
+    <string name="folder_selection_desc">شامل کرنے کا موڈ صرف اجازت یافتہ فولڈرز دکھاتا ہے؛ خارج کرنے کا موڈ دستی طور پر چھپائے گئے فولڈرز کے سوا سب دکھاتا ہے۔ خارج کرنے کے موڈ میں گرڈ یا فہرست میں فولڈر کو دیر تک دبائیں تاکہ وہ چھپ جائے۔ شامل کرنے کے موڈ میں سسٹم فولڈرز کھولیں اور اجازت دینے کے لیے فولڈر کو دیر تک دبائیں۔ یہ صرف گرڈ اور فہرست پر اثر کرتا ہے؛ سسٹم فولڈرز ہمیشہ سب کچھ دکھاتے ہیں۔ اجازت یافتہ فولڈر تصویر یا ویڈیو ہونے پر ظاہر ہوتا ہے۔</string>
+    <string name="folder_siblings_desc">کیا %1$s کے تمام ذیلی فولڈرز چھپانے ہیں؟ %1$s میں نئے فولڈرز ابتدا میں نظر آئیں گے۔</string>
+    <string name="folder_authorize_question">کیا اس فولڈر کو اجازت یافتہ فہرست میں شامل کرنا ہے؟</string>
 </resources>

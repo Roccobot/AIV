@@ -30,6 +30,7 @@ internal fun Casa(
     buckets: List<Folder.Bucket> = emptyList(),
     /** I percorsi nascosti, per le prove di 'Mostra nascoste'. */
     hidden: Set<String> = emptySet(),
+    selection: FolderSelection = FolderSelection(hidden = hidden),
     /** Se le nascoste sono in scena col minuto in corso. */
     peeking: Boolean = false,
     /** Riceve le voci che 'Mostra' toglie: dalla `2.96` sono tutte quelle che coprono la cartella. */
@@ -42,6 +43,7 @@ internal fun Casa(
         colour = FolderColour.NONE,
         tints = emptyMap(),
         hidden = hidden,
+        selection = selection,
         onHide = {},
         peeking = peeking,
         onPeek = {},

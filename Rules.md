@@ -40,6 +40,13 @@ sessione dopo è perso.
 
 ## 🔗 Il documento vivo del progetto
 
+- **Codex, dopo ogni release, consegna direttamente in chat i passi di collaudo**, con il
+  percorso dei comandi e il risultato atteso, oppure prepara un proprio documento di feedback
+  funzionante (istruzione dell'utente del 2026-09-30). Il suo documento vive in
+  `docs/Feedback.md`, con prove numerate e risposte in chat. Una bozza che richiede una sessione Claude
+  autenticata non basta come consegna. Il documento Claude conserva il suo indirizzo e le sue
+  voci aperte.
+
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
 | **Documento di feedback** | le voci da provare della versione appena uscita, coi tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |

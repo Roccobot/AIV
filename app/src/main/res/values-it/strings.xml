@@ -377,9 +377,9 @@
     <string name="yes">Sì</string>
 
     <string name="hide_folder_title">Vuoi nascondere \'%1$s\'?</string>
-    <string name="hide_folder_desc">La cartella non sarà elencata in vista griglia e lista. È solo un\'impostazione di visualizzazione: nessun file sarà eliminato.</string>
+    <string name="hide_folder_desc">La cartella non sarà elencata in modalità griglia e lista. È solo un\'impostazione di visualizzazione: nessun file sarà eliminato.</string>
     <string name="show_folder_title">Vuoi mostrare di nuovo \'%1$s\'?</string>
-    <string name="show_folder_desc">La cartella tornerà ad essere visibile normalmente tra le cartelle in vista griglia e lista.</string>
+    <string name="show_folder_desc">La cartella tornerà ad essere visibile normalmente tra le cartelle in modalità griglia e lista.</string>
     <string name="hide_folder_do">Nascondi</string>
     <string name="settings_hidden">Cartelle nascoste</string>
     <string name="settings_hidden_desc">Si nasconde una cartella tenendola premuta nell\'elenco. Queste non compaiono più, ma sul telefono sono intatte.</string>
@@ -693,7 +693,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Esporta e importa</string>
     <string name="backup_desc">Salva le impostazioni in un file che potrai importare in qualsiasi momento, anche con le future versioni di Astonishing Image Viewer.</string>
-    <string name="backup_intro">Il file include le impostazioni qui sotto, e solo AIV lo sa leggere. All\'importazione, stili, colori, copertine, cartelle nascoste e cestino si aggiungono a quelli già presenti.</string>
+    <string name="backup_intro">Il file include le impostazioni qui sotto, e solo AIV lo sa leggere. All\'importazione, stili, colori, copertine, cartelle incluse ed escluse e cestino si aggiungono a quelli già presenti.</string>
     <string name="backup_area_view">Aspetto e navigazione</string>
     <string name="backup_area_editor">Impostazioni dell\'editor</string>
     <string name="backup_area_covers">Copertine delle cartelle</string>
@@ -719,7 +719,7 @@
     <string name="backup_exporting">Esportazione...</string>
     <string name="backup_importing">Importazione...</string>
     <string name="backup_import_from">Esportazione del %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Queste impostazioni sostituiranno le attuali, tranne stili, colori, copertine, cartelle nascoste e cestino, che si aggiungeranno a quelli già presenti.</string>
+    <string name="backup_import_ask">Queste impostazioni sostituiranno le attuali, tranne stili, colori, copertine, cartelle incluse ed escluse e cestino, che si aggiungeranno a quelli già presenti.</string>
     <string name="backup_unlock">Il file di impostazioni è protetto: inserisci la password.</string>
     <string name="backup_none">Il file non contiene valori validi per le impostazioni selezionate.</string>
     <string name="look_liquify">Fluidifica</string>
@@ -727,4 +727,28 @@
     <string name="look_rebuild">Ricostruisci</string>
     <string name="look_brush_size">Dimensione pennello</string>
     <string name="look_brush_strength">Forza pennello</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Cartelle incluse/escluse</string>
+    <string name="folder_mode_included">Modalità incluse</string>
+    <string name="folder_mode_excluded">Modalità escluse</string>
+    <string name="folder_authorized">Cartelle autorizzate</string>
+    <string name="folder_authorized_mark">autorizzata</string>
+    <string name="folder_included_none">Nessuna cartella autorizzata.</string>
+    <string name="folder_authorize">Autorizza cartella</string>
+    <string name="folder_authorize_title">Aggiungi alle cartelle visualizzate</string>
+    <string name="folder_remove">Rimuovi autorizzazione</string>
+    <string name="folder_remove_desc">Vuoi rimuovere questa cartella dalla lista delle autorizzate? Il suo contenuto sparirà dalle modalità griglia e lista.</string>
+    <string name="folder_only_this">Solo questa cartella</string>
+    <string name="folder_hide_choices">Quali cartelle vuoi nascondere?</string>
+    <string name="folder_only_named">Solo %1$s</string>
+    <string name="folder_with_child">%1$s e la sua sottocartella</string>
+    <string name="folder_with_children">%1$s e le sue sottocartelle</string>
+    <string name="folder_only_children">Solo le sottocartelle di %1$s</string>
+    <string name="folder_siblings">Applica a tutte le cartelle allo stesso livello</string>
+    <string name="folder_authorize_desc">Vuoi aggiungere questa cartella alla lista delle autorizzate? Il suo contenuto sarà mostrato nelle modalità griglia e lista.</string>
+    <string name="folder_authorize_empty">N.B. la cartella al momento non contiene elementi visualizzabili: sarà visibile in modalità griglia o lista quando conterrà almeno un\'immagine o un video.</string>
+    <string name="folder_selection_desc">\'Modalità incluse\' mostra solo le cartelle autorizzate; \'Modalità escluse\' mostra tutte le cartelle tranne quelle nascoste a mano. In \'Modalità escluse\', tieni premuto su una cartella in modalità griglia o lista per nasconderla. In \'Modalità incluse\', passa alla vista \'Cartelle di sistema\' e premi a lungo su una cartella che vuoi includere. N.B. L\'opzione riguarda solo le modalità griglia e lista; la vista cartelle di sistema mostra sempre tutto. Le cartelle autorizzate appaiono solo se contengono almeno un\'immagine o un video.</string>
+    <string name="folder_siblings_desc">Vuoi davvero nascondere tutte le sottocartelle della cartella %1$s? Eventuali nuove cartelle dentro %1$s saranno inizialmente visibili.</string>
+    <string name="folder_authorize_question">Vuoi aggiungere questa cartella alla lista delle autorizzate?</string>
 </resources>

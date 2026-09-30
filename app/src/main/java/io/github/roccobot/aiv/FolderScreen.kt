@@ -167,6 +167,8 @@ fun FolderScreen(
     covers: Map<Long, Uri> = emptyMap(),
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
+    selection: FolderSelection = FolderSelection(hidden = hidden),
+    onSelectionChange: (FolderSelection) -> Unit = {},
     onHide: (Folder.Bucket) -> Unit,
     /**
      * Se le nascoste sono in scena adesso, per il minuto di 'Mostra nascoste'. Vedi
@@ -297,6 +299,7 @@ fun FolderScreen(
      * finita, è il modo di far credere che l'app abbia perso delle foto.
      */
     var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
+    var siblings by remember { mutableStateOf<String?>(null) }
 
     /** Se il pannello delle cartelle nascoste è aperto: lo apre il tocco lungo sulla voce. */
     var listing by remember { mutableStateOf(false) }
@@ -350,7 +353,7 @@ fun FolderScreen(
     // è esattamente 'guarda anche quelle', e toglierle qui per rimetterle dopo vorrebbe dire due
     // elenchi. Quali fossero nascoste si sa lo stesso, perché [hidden] arriva comunque: è quello
     // che serve al segno del vuoto e all'inchiostro ridotto.
-    val folders = buckets?.filterNot { !peeking && it.isHidden(hidden) }
+    val folders = buckets?.filter { selection.visible(it.path, peeking) }
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
     // la prima porta l'intestazione e il FAB, la seconda la freccia Indietro.
@@ -362,7 +365,9 @@ fun FolderScreen(
      * ⚠️ **Si ricava e non si tiene**: è l'insieme delle nascoste quando la vista temporanea è
      * accesa e niente quando è spenta, cioè un dato derivato da due che ci sono già.
      */
-    val prestate = if (peeking) hidden else emptySet()
+    val prestate = if (peeking && selection.mode == FolderMode.EXCLUDED)
+        buckets.orEmpty().filter { it.path?.let(selection::hidden) == true }
+            .mapNotNull { it.path?.let(::portablePath) }.toSet() else emptySet()
 
     /*
      * ⚠️⚠️ **IL RIENTRO DI SOTTO NON STA PIÙ QUI, DALLA `1.90`** (sua richiesta: *non si può
@@ -588,6 +593,8 @@ fun FolderScreen(
                     TreeList(
                         path = treePath,
                         hidden = hidden,
+                        selection = selection,
+                        onSelectionChange = onSelectionChange,
                         binOn = binOn,
                         showHidden = treeHidden,
                         onlyPictures = treePictures,
@@ -676,7 +683,7 @@ fun FolderScreen(
                 onSettings = onSettings,
                 onSearch = onSearch,
                 onBin = onBin,
-                hiddenCount = hidden.size,
+                hiddenCount = if (selection.mode == FolderMode.EXCLUDED) selection.excluded.size else 0,
                 peeking = peeking,
                 onPeek = onPeek,
                 onPeekList = { listing = true },
@@ -814,7 +821,7 @@ fun FolderScreen(
      */
     if (listing) {
         Sheet(title = stringResource(R.string.settings_hidden), onDismiss = { listing = false }) {
-            hidden.sorted().forEach { voce ->
+            selection.excluded.sorted().forEach { voce ->
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -842,14 +849,27 @@ fun FolderScreen(
                         onUnhide(listOf(voce))
                         // ⚠️ L'ultima riga che se ne va chiude il pannello: restare davanti a un
                         // elenco vuoto vorrebbe dire cercare da soli la via d'uscita.
-                        if (hidden.size <= 1) listing = false
+                        if (selection.excluded.size <= 1) listing = false
                     }) { Text(stringResource(R.string.settings_hidden_show)) }
                 }
             }
         }
     }
 
+    siblings?.let { path ->
+        SiblingFoldersDialog(path, selection, onSelectionChange) { siblings = null }
+    }
+
     hiding?.let { bucket ->
+        if (selection.mode == FolderMode.INCLUDED) {
+            AuthorizeFolderDialog(
+                path = bucket.path ?: return@let,
+                selection = selection,
+                onChange = onSelectionChange,
+                onDismiss = { hiding = null }
+            )
+            return@let
+        }
         /*
          * ⚠️⚠️ **IL TOCCO LUNGO SU UNA CARTELLA IN PRESTITO PROPONE IL CONTRARIO, DALLA
          * `1.93`** (sua segnalazione: *la pressione lunga su una cartella nascosta deve
@@ -868,7 +888,7 @@ fun FolderScreen(
          * `Camera` dentro una `DCIM` nascosta tornano `DCIM` e tutte le sue sorelle, e una domanda
          * che dicesse 'Camera' prometterebbe meno di quello che fa.
          */
-        val coprono = bucket.path?.let { coveringOf(hidden, it) }.orEmpty()
+        val coprono = bucket.path?.let { selection.covering(it) }.orEmpty()
         val nascosta = coprono.isNotEmpty()
         // ⚠️ La più in alto è la più corta, perché le voci che coprono una cartella stanno tutte
         // sulla sua strada; e se è la cartella stessa, il nome resta quello che il telefono le dà.
@@ -888,9 +908,22 @@ fun FolderScreen(
             // cartella che sparisce senza che si sappia come riaverla è indistinguibile
             // da una cartella persa.
             text = {
-                Text(stringResource(
-                    if (nascosta) R.string.show_folder_desc else R.string.hide_folder_desc
-                ))
+                Column {
+                    Text(stringResource(
+                        if (nascosta) R.string.show_folder_desc else R.string.hide_folder_desc
+                    ))
+                    val path = bucket.path
+                    var peers by remember(path, selection) { mutableStateOf<List<java.io.File>>(emptyList()) }
+                    LaunchedEffect(path, selection) {
+                        if (path != null) peers = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            siblingFolders(path, selection)
+                        }
+                    }
+                    if (!nascosta && peers.isNotEmpty()) TextButton(onClick = {
+                        siblings = path
+                        hiding = null
+                    }) { Text(stringResource(R.string.folder_siblings)) }
+                }
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -1709,7 +1742,8 @@ internal fun Covers(
      * I percorsi delle cartelle in scena **in prestito**, cioè col minuto di 'Mostra nascoste'.
      *
      * ⚠️ **Un insieme e non un booleano per cella**: chi chiama ha già l'elenco delle nascoste, e
-     * il conto di quali lo siano lo fa [isHidden], che è lo stesso pezzo che le filtra. Un insieme
+     * la selezione comune calcola quali bucket sono realmente in prestito. Qui il confronto
+     * è esatto: un'esclusione della sola cartella non deve segnare i discendenti. Un insieme
      * vuoto vuol dire che nessuna è in prestito.
      * ⚠️⚠️ **NON HA UN VALORE DI SERIE, DALLA `2.03`, PER LA STESSA RAGIONE DI [covers]**: fino
      * alla `2.02` la finestra delle destinazioni ereditava `emptySet()` senza scriverlo, quindi
@@ -1788,7 +1822,7 @@ internal fun Covers(
             FolderCard(
                 bucket = bucket,
                 counted = counted,
-                peeked = bucket.isHidden(peeked),
+                peeked = bucket.path?.let { listedIn(peeked, it) } == true,
                 nameStyle = nameStyle,
                 colour = colour,
                 cover = bucket.coverIn(covers),
@@ -1847,7 +1881,7 @@ internal fun Rows(
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->
             val tinta = frontTintOf(tints[bucket.id])
-            val prestata = bucket.isHidden(peeked)
+            val prestata = bucket.path?.let { listedIn(peeked, it) } == true
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -385,7 +385,7 @@
     <string name="settings_thumbs_gen_ask">Tworzenie podglądów przyspiesza przeglądanie i odciąża później CPU/GPU, ale na początku zajmuje czas zależny od liczby i rozmiaru obrazów w Twojej kolekcji. Czy chcesz kontynuować?</string>
     <string name="settings_thumbs_gen_title">Tworzenie miniatur</string>
     <string name="settings_thumbs_gen_done">Miniatury utworzone pomyślnie.</string>
-    <string name="settings_hidden_none">Brak ukrytych folderów</string>
+    <string name="settings_hidden_none">Brak uwzględnionych i wykluczonych folderów</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d folder</item>
         <item quantity="few">%1$d foldery</item>
@@ -652,7 +652,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Eksport i import</string>
     <string name="backup_desc">Zapisz ustawienia w pliku, który możesz zaimportować w dowolnym momencie, także w przyszłych wersjach Astonishing Image Viewer.</string>
-    <string name="backup_intro">Plik zawiera poniższe ustawienia i odczyta go tylko AIV. Przy imporcie style, kolory, okładki, ukryte foldery i kosz zostaną dodane do tego, co już jest.</string>
+    <string name="backup_intro">Plik zawiera poniższe ustawienia i odczyta go tylko AIV. Przy imporcie style, kolory, okładki, uwzględnione i wykluczone foldery i kosz zostaną dodane do tego, co już jest.</string>
     <string name="backup_area_view">Wygląd i nawigacja</string>
     <string name="backup_area_editor">Ustawienia edytora</string>
     <string name="backup_area_covers">Okładki folderów</string>
@@ -678,7 +678,7 @@
     <string name="backup_exporting">Eksportowanie...</string>
     <string name="backup_importing">Importowanie...</string>
     <string name="backup_import_from">Eksport z %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Te ustawienia zastąpią obecne, z wyjątkiem stylów, kolorów, okładek, ukrytych folderów i kosza, które zostaną dodane do tego, co już jest.</string>
+    <string name="backup_import_ask">Te ustawienia zastąpią obecne, z wyjątkiem stylów, kolorów, okładek, uwzględnionych i wykluczonych folderów i kosza, które zostaną dodane do tego, co już jest.</string>
     <string name="backup_unlock">Plik ustawień jest chroniony: wpisz hasło.</string>
     <string name="backup_none">Plik nie zawiera prawidłowych wartości dla wybranych ustawień.</string>
     <string name="look_liquify">Skraplanie</string>
@@ -686,4 +686,28 @@
     <string name="look_rebuild">Rekonstruuj</string>
     <string name="look_brush_size">Rozmiar pędzla</string>
     <string name="look_brush_strength">Siła pędzla</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Foldery uwzględnione/wykluczone</string>
+    <string name="folder_mode_included">Tryb uwzględniania</string>
+    <string name="folder_mode_excluded">Tryb wykluczania</string>
+    <string name="folder_authorized">Dozwolone foldery</string>
+    <string name="folder_authorized_mark">dozwolony</string>
+    <string name="folder_included_none">Brak dozwolonych folderów.</string>
+    <string name="folder_authorize">Zezwól na folder</string>
+    <string name="folder_authorize_title">Dodaj do wyświetlanych folderów</string>
+    <string name="folder_remove">Cofnij zezwolenie</string>
+    <string name="folder_remove_desc">Usunąć ten folder z listy dozwolonych? Jego zawartość zniknie z trybów siatki i listy.</string>
+    <string name="folder_only_this">Tylko ten folder</string>
+    <string name="folder_hide_choices">Które foldery chcesz ukryć?</string>
+    <string name="folder_only_named">Tylko %1$s</string>
+    <string name="folder_with_child">%1$s i jego podfolder</string>
+    <string name="folder_with_children">%1$s i jego podfoldery</string>
+    <string name="folder_only_children">Tylko podfoldery %1$s</string>
+    <string name="folder_siblings">Zastosuj do wszystkich folderów na tym samym poziomie</string>
+    <string name="folder_authorize_desc">Dodać ten folder do listy dozwolonych? Jego zawartość będzie widoczna w trybach siatki i listy.</string>
+    <string name="folder_authorize_empty">Uwaga: ten folder nie ma elementów do wyświetlenia. Pojawi się w trybie siatki lub listy, gdy będzie zawierać obraz lub film.</string>
+    <string name="folder_selection_desc">Tryb uwzględniania pokazuje tylko dozwolone foldery; tryb wykluczania wszystkie poza ukrytymi ręcznie. W trybie wykluczania przytrzymaj folder w trybie siatki lub listy, aby go ukryć. W trybie uwzględniania otwórz Foldery systemowe i przytrzymaj folder, aby go dopuścić. Dotyczy to tylko siatki i listy; foldery systemowe zawsze pokazują wszystko. Dozwolone foldery pojawiają się, gdy zawierają obraz lub film.</string>
+    <string name="folder_siblings_desc">Ukryć wszystkie podfoldery %1$s? Nowe foldery w %1$s będą początkowo widoczne.</string>
+    <string name="folder_authorize_question">Dodać ten folder do listy dozwolonych?</string>
 </resources>

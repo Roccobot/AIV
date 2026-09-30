@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">निर्यात और आयात</string>
     <string name="backup_desc">सेटिंग्स को एक ऐसी फ़ाइल में सहेजें जिसे आप कभी भी आयात कर सकते हैं, Astonishing Image Viewer के आने वाले संस्करणों में भी।</string>
-    <string name="backup_intro">फ़ाइल में नीचे दी गई सेटिंग्स होती हैं, और इसे सिर्फ़ AIV पढ़ सकता है। आयात के समय स्टाइल, रंग, कवर, छिपे फ़ोल्डर और कूड़ेदान पहले से मौजूद चीज़ों में जुड़ जाते हैं।</string>
+    <string name="backup_intro">फ़ाइल में नीचे दी गई सेटिंग्स होती हैं, और इसे सिर्फ़ AIV पढ़ सकता है। आयात के समय स्टाइल, रंग, कवर, शामिल और बाहर किए गए फ़ोल्डर और कूड़ेदान पहले से मौजूद चीज़ों में जुड़ जाते हैं।</string>
     <string name="backup_area_view">रूप और नेविगेशन</string>
     <string name="backup_area_editor">एडिटर की सेटिंग्स</string>
     <string name="backup_area_covers">फ़ोल्डरों के कवर</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">निर्यात हो रहा है...</string>
     <string name="backup_importing">आयात हो रहा है...</string>
     <string name="backup_import_from">%1$s, %2$s को निर्यात\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">ये सेटिंग्स मौजूदा सेटिंग्स की जगह ले लेंगी, सिवाय स्टाइल, रंग, कवर, छिपे फ़ोल्डर और कूड़ेदान के, जो पहले से मौजूद चीज़ों में जुड़ जाएँगे।</string>
+    <string name="backup_import_ask">ये सेटिंग्स मौजूदा सेटिंग्स की जगह ले लेंगी, सिवाय स्टाइल, रंग, कवर, शामिल और बाहर किए गए फ़ोल्डर और कूड़ेदान के, जो पहले से मौजूद चीज़ों में जुड़ जाएँगे।</string>
     <string name="backup_unlock">सेटिंग्स फ़ाइल सुरक्षित है: पासवर्ड लिखें।</string>
     <string name="backup_none">फ़ाइल में चुनी गई सेटिंग्स के लिए कोई मान्य मान नहीं है।</string>
     <string name="look_liquify">द्रवीकरण</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">पुनर्निर्माण</string>
     <string name="look_brush_size">ब्रश का आकार</string>
     <string name="look_brush_strength">ब्रश की क्षमता</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">शामिल/बाहर किए गए फ़ोल्डर</string>
+    <string name="folder_mode_included">शामिल मोड</string>
+    <string name="folder_mode_excluded">बहिष्करण मोड</string>
+    <string name="folder_authorized">अनुमत फ़ोल्डर</string>
+    <string name="folder_authorized_mark">अनुमत</string>
+    <string name="folder_included_none">कोई अनुमत फ़ोल्डर नहीं।</string>
+    <string name="folder_authorize">फ़ोल्डर को अनुमति दें</string>
+    <string name="folder_authorize_title">दिखाए जाने वाले फ़ोल्डर में जोड़ें</string>
+    <string name="folder_remove">अनुमति हटाएँ</string>
+    <string name="folder_remove_desc">इस फ़ोल्डर को अनुमत सूची से हटाएँ? इसकी सामग्री ग्रिड और सूची मोड से गायब हो जाएगी।</string>
+    <string name="folder_only_this">केवल यह फ़ोल्डर</string>
+    <string name="folder_hide_choices">कौन से फ़ोल्डर छिपाना चाहते हैं?</string>
+    <string name="folder_only_named">केवल %1$s</string>
+    <string name="folder_with_child">%1$s और उसका सबफ़ोल्डर</string>
+    <string name="folder_with_children">%1$s और उसके सबफ़ोल्डर</string>
+    <string name="folder_only_children">केवल %1$s के सबफ़ोल्डर</string>
+    <string name="folder_siblings">समान स्तर के सभी फ़ोल्डर पर लागू करें</string>
+    <string name="folder_authorize_desc">इस फ़ोल्डर को अनुमत सूची में जोड़ें? इसकी सामग्री ग्रिड और सूची मोड में दिखाई जाएगी।</string>
+    <string name="folder_authorize_empty">नोट: इस फ़ोल्डर में दिखाने योग्य आइटम नहीं हैं। कम से कम एक चित्र या वीडियो होने पर यह ग्रिड या सूची मोड में दिखाई देगा।</string>
+    <string name="folder_selection_desc">शामिल मोड केवल अनुमत फ़ोल्डर दिखाता है; बहिष्करण मोड हाथ से छिपाए गए फ़ोल्डर को छोड़कर सभी दिखाता है। बहिष्करण मोड में ग्रिड या सूची में फ़ोल्डर को दबाकर रखें ताकि वह छिप जाए। शामिल मोड में सिस्टम फ़ोल्डर खोलें और अनुमति देने के लिए फ़ोल्डर को दबाकर रखें। यह केवल ग्रिड और सूची को प्रभावित करता है; सिस्टम फ़ोल्डर हमेशा सब कुछ दिखाते हैं। अनुमत फ़ोल्डर चित्र या वीडियो होने पर दिखाई देते हैं।</string>
+    <string name="folder_siblings_desc">%1$s के सभी सबफ़ोल्डर छिपाएँ? %1$s के अंदर नए फ़ोल्डर शुरू में दिखाई देंगे।</string>
+    <string name="folder_authorize_question">इस फ़ोल्डर को अनुमत सूची में जोड़ें?</string>
 </resources>

@@ -994,6 +994,70 @@ class BackupTest {
      *
      * ⚠️ **La cartella d'avvio c'è**, perché senza la sua chiave non si scrive affatto.
      */
+    @Test
+    fun `le cartelle preautorizzate si inizializzano una volta e il backup non le rigenera`() {
+        runBlocking {
+            SettingsStore.initializeIncluded(app, setOf("DCIM/Camera"))
+            val initial = SettingsStore.read(storedPreferences(app))
+            assertEquals(setOf("DCIM/Camera"), initial.includedFolders)
+            SettingsStore.save(app, initial.copy(includedFolders = emptySet()))
+            SettingsStore.initializeIncluded(app, setOf("DCIM/Camera", "Movies"))
+            assertTrue(SettingsStore.read(storedPreferences(app)).includedFolders.isEmpty())
+        }
+        val file = esporta(setOf(BackupArea.HIDDEN))
+        runBlocking { rewritePreferences(app) { it.clear() } }
+        importa(file, setOf(BackupArea.HIDDEN))
+        runBlocking {
+            SettingsStore.initializeIncluded(app, setOf("DCIM/Camera"))
+            assertTrue(SettingsStore.read(storedPreferences(app)).includedFolders.isEmpty())
+        }
+    }
+
+    @Test
+    fun `cartelle importate fondono entrambe le liste e sostituiscono la modalita`() {
+        runBlocking { SettingsStore.save(app, Settings(folderMode = FolderMode.INCLUDED,
+            includedFolders = setOf("Camera"), hiddenFolders = setOf("Private"), hiddenExactFolders = setOf("Parent"))) }
+        val file = esporta(setOf(BackupArea.HIDDEN))
+        runBlocking { SettingsStore.save(app, Settings(folderMode = FolderMode.EXCLUDED,
+            includedFolders = setOf("Movies"), hiddenFolders = setOf("Other"), hiddenExactFolders = setOf("Only"))) }
+        importa(file, setOf(BackupArea.HIDDEN))
+        val restored = SettingsStore.read(runBlocking { storedPreferences(app) })
+        assertEquals(FolderMode.INCLUDED, restored.folderMode)
+        assertEquals(setOf("Camera", "Movies"), restored.includedFolders)
+        assertEquals(setOf("Private", "Other"), restored.hiddenFolders)
+        assertEquals(setOf("Parent", "Only"), restored.hiddenExactFolders)
+    }
+
+    @Test
+    fun `un vecchio file senza esclusioni ripristina escluse dalla vecchia area`() {
+        val old = sigilla { zip ->
+            testo(zip, "manifest.json", resoconto("view"))
+            testo(zip, "prefs/view.json", preferenze(assenti = listOf("hidden-folders")))
+        }
+        runBlocking { SettingsStore.save(app, Settings(folderMode = FolderMode.INCLUDED, includedFolders = setOf("Camera"))) }
+        importa(old, setOf(BackupArea.VIEW))
+        val restored = SettingsStore.read(runBlocking { storedPreferences(app) })
+        assertEquals(FolderMode.EXCLUDED, restored.folderMode)
+        assertEquals(setOf("Camera"), restored.includedFolders)
+    }
+
+    @Test
+    fun `un file precedente alle incluse ripristina escluse soltanto importando la sua area`() {
+        val old = sigilla { zip ->
+            testo(zip, "manifest.json", resoconto("hidden"))
+            testo(zip, "prefs/hidden.json", preferenze(
+                chiave("hidden-relative", "set", JSONArray(listOf("Private")))))
+        }
+        runBlocking { SettingsStore.save(app, Settings(folderMode = FolderMode.INCLUDED, includedFolders = setOf("Camera"))) }
+        importa(old, emptySet())
+        assertEquals(FolderMode.INCLUDED, SettingsStore.read(runBlocking { storedPreferences(app) }).folderMode)
+        importa(old, setOf(BackupArea.HIDDEN))
+        val restored = SettingsStore.read(runBlocking { storedPreferences(app) })
+        assertEquals(FolderMode.EXCLUDED, restored.folderMode)
+        assertEquals(setOf("Camera"), restored.includedFolders)
+        assertTrue(restored.hiddenFolders.contains("Private"))
+    }
+
     private suspend fun scriviTutto() {
         SettingsStore.save(app, Settings(startFolder = 42L))
         SettingsStore.clipboardOpened(app, "https://esempio.it/a.jpg", 1L)

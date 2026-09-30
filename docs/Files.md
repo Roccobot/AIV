@@ -299,7 +299,7 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
     § '🎞️ I preset, venti di casa e quelli che si salvano').
 - ⚠️⚠️ **Le parti sono macro-aree, ed è la sua riga**: 'Aspetto e navigazione', 'Comandi e
   indicatori', 'Impostazioni dell'editor', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine
-  delle cartelle', 'Cartelle nascoste', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le
+  delle cartelle', 'Cartelle incluse/escluse', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le
   sezioni della schermata delle impostazioni, le altre quello che l'app ricorda fuori da lì.
   - **'Impostazioni dell'editor' comprende anche il file originale della filigrana**: PNG o
     SVG, copiato senza conversione e ripristinato insieme a posizione, dimensione, distanza e
@@ -343,11 +343,16 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
   `BackupTest`**: ogni chiave dell'archivio deve essere là col tipo giusto, o in `PREF_OUTSIDE`. La
   regola per chi aggiunge una preferenza vive in `Rules.md` § '⚙️ Dove va un'impostazione, e chi la
   deve trovare'.
-  - ⚠️ **Cinque chiavi restano fuori, perché sono promemoria di quel telefono**: il permesso già
+  - ⚠️ **Le chiavi dei promemoria di quel telefono restano fuori**: il permesso già
     chiesto, la cartella di download col suo permesso persistente, l'ultimo indirizzo degli appunti
-    già aperto, e che cosa c'è già nella cartella Download.
+    già aperto, che cosa c'è già nella cartella Download, e l'inizializzazione delle autorizzazioni predefinite.
   - ⚠️ **Le due chiavi vecchie ci sono di proposito** (`veil` e `mark-air`): nessuno le scrive più,
     ma l'app le legge ancora come ripiego.
+- **'Cartelle incluse/escluse' conserva il token storico `hidden`** e contiene entrambe le liste,
+  le esclusioni della sola cartella e la modalità corrente. Le liste si fondono, la modalità
+  del file sostituisce quella del telefono. Un file precedente alle incluse ripristina la modalità
+  escluse solo quando si importa l'area che contiene le cartelle. La chiave storica
+  `hidden-relative` conserva le esclusioni ricorsive; i campi nuovi sono aggiunte al formato.
 - ⚠️⚠️ **Importando, le preferenze sostituiscono, e il cestino si aggiunge**, con la cronologia e
   senza doppioni: sostituirlo vorrebbe dire cancellare per sempre dei file.
   - ⚠️⚠️ **Copertine, tinte, cartelle nascoste e stili si fondono, e sul conflitto vince il file**

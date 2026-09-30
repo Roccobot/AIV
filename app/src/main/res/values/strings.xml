@@ -809,7 +809,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Export and import</string>
     <string name="backup_desc">Save the settings to a file you can import at any time, even with future versions of Astonishing Image Viewer.</string>
-    <string name="backup_intro">The file includes the settings below, and only AIV can read it. When it is imported, styles, colors, covers, hidden folders and the bin are added to what is already there.</string>
+    <string name="backup_intro">The file includes the settings below, and only AIV can read it. When it is imported, styles, colors, covers, included and excluded folders and the bin are added to what is already there.</string>
     <string name="backup_area_view">Appearance and navigation</string>
     <string name="backup_area_editor">Editor settings</string>
     <string name="backup_area_covers">Folder covers</string>
@@ -835,7 +835,7 @@
     <string name="backup_exporting">Exporting...</string>
     <string name="backup_importing">Importing...</string>
     <string name="backup_import_from">Exported on %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">These settings will replace the current ones, except styles, colors, covers, hidden folders and the bin, which will be added to those already there.</string>
+    <string name="backup_import_ask">These settings will replace the current ones, except styles, colors, covers, included and excluded folders and the bin, which will be added to those already there.</string>
     <string name="backup_unlock">The settings file is protected: enter the password.</string>
     <string name="backup_none">The file contains no valid values for the selected settings.</string>
     <string name="look_liquify">Liquify</string>
@@ -843,4 +843,28 @@
     <string name="look_rebuild">Reconstruct</string>
     <string name="look_brush_size">Brush size</string>
     <string name="look_brush_strength">Brush strength</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Included/excluded folders</string>
+    <string name="folder_mode_included">Included mode</string>
+    <string name="folder_mode_excluded">Excluded mode</string>
+    <string name="folder_authorized">Authorized folders</string>
+    <string name="folder_authorized_mark">authorized</string>
+    <string name="folder_included_none">No authorized folders.</string>
+    <string name="folder_authorize">Authorize folder</string>
+    <string name="folder_authorize_title">Add to displayed folders</string>
+    <string name="folder_remove">Remove authorization</string>
+    <string name="folder_remove_desc">Remove this folder from the authorized list? Its content will disappear from grid and list modes.</string>
+    <string name="folder_only_this">Only this folder</string>
+    <string name="folder_hide_choices">Which folders do you want to hide?</string>
+    <string name="folder_only_named">Only %1$s</string>
+    <string name="folder_with_child">%1$s and its subfolder</string>
+    <string name="folder_with_children">%1$s and its subfolders</string>
+    <string name="folder_only_children">Only the subfolders of %1$s</string>
+    <string name="folder_siblings">Apply to all folders at the same level</string>
+    <string name="folder_authorize_desc">Add this folder to the authorized list? Its content will be displayed in grid and list modes.</string>
+    <string name="folder_authorize_empty">Note: this folder currently has no displayable items. It will appear in grid or list mode when it contains at least one image or video.</string>
+    <string name="folder_selection_desc">Included mode shows only authorized folders. Excluded mode shows all folders except those hidden manually. In Excluded mode, press and hold a folder in grid or list mode to hide it. In Included mode, switch to System folders and press and hold a folder to authorize it. These settings affect grid and list modes only; System folders always shows everything. Authorized folders appear only when they contain an image or video.</string>
+    <string name="folder_siblings_desc">Hide all subfolders of %1$s? New folders inside %1$s will initially be visible.</string>
+    <string name="folder_authorize_question">Add this folder to the authorized list?</string>
 </resources>

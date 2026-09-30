@@ -616,7 +616,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Export und Import</string>
     <string name="backup_desc">Speichere die Einstellungen in einer Datei, die du jederzeit importieren kannst, auch mit künftigen Versionen von Astonishing Image Viewer.</string>
-    <string name="backup_intro">Die Datei enthält die Einstellungen unten, und nur AIV kann sie lesen. Beim Import kommen Stile, Farben, Titelbilder, ausgeblendete Ordner und der Papierkorb zu dem hinzu, was schon da ist.</string>
+    <string name="backup_intro">Die Datei enthält die Einstellungen unten, und nur AIV kann sie lesen. Beim Import kommen Stile, Farben, Titelbilder, einbezogene und ausgeschlossene Ordner und der Papierkorb zu dem hinzu, was schon da ist.</string>
     <string name="backup_area_view">Aussehen und Navigation</string>
     <string name="backup_area_editor">Einstellungen des Editors</string>
     <string name="backup_area_covers">Titelbilder der Ordner</string>
@@ -642,7 +642,7 @@
     <string name="backup_exporting">Wird exportiert...</string>
     <string name="backup_importing">Wird importiert...</string>
     <string name="backup_import_from">Exportiert am %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Diese Einstellungen ersetzen die aktuellen, außer Stilen, Farben, Titelbildern, ausgeblendeten Ordnern und dem Papierkorb, die zu dem hinzukommen, was schon da ist.</string>
+    <string name="backup_import_ask">Diese Einstellungen ersetzen die aktuellen, außer Stilen, Farben, Titelbildern, einbezogenen und ausgeschlossenen Ordnern und dem Papierkorb, die zu dem hinzukommen, was schon da ist.</string>
     <string name="backup_unlock">Die Einstellungsdatei ist geschützt: Gib das Passwort ein.</string>
     <string name="backup_none">Die Datei enthält keine gültigen Werte für die ausgewählten Einstellungen.</string>
     <string name="look_liquify">Verflüssigen</string>
@@ -650,4 +650,28 @@
     <string name="look_rebuild">Rekonstruieren</string>
     <string name="look_brush_size">Pinselgröße</string>
     <string name="look_brush_strength">Pinselstärke</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Einbezogene/ausgeschlossene Ordner</string>
+    <string name="folder_mode_included">Einschlussmodus</string>
+    <string name="folder_mode_excluded">Ausschlussmodus</string>
+    <string name="folder_authorized">Zugelassene Ordner</string>
+    <string name="folder_authorized_mark">zugelassen</string>
+    <string name="folder_included_none">Keine zugelassenen Ordner.</string>
+    <string name="folder_authorize">Ordner zulassen</string>
+    <string name="folder_authorize_title">Zu angezeigten Ordnern hinzufügen</string>
+    <string name="folder_remove">Zulassung entfernen</string>
+    <string name="folder_remove_desc">Diesen Ordner aus der Liste der zugelassenen Ordner entfernen? Sein Inhalt verschwindet aus dem Raster- und Listenmodus.</string>
+    <string name="folder_only_this">Nur dieser Ordner</string>
+    <string name="folder_hide_choices">Welche Ordner möchtest du ausblenden?</string>
+    <string name="folder_only_named">Nur %1$s</string>
+    <string name="folder_with_child">%1$s und sein Unterordner</string>
+    <string name="folder_with_children">%1$s und seine Unterordner</string>
+    <string name="folder_only_children">Nur die Unterordner von %1$s</string>
+    <string name="folder_siblings">Auf alle Ordner derselben Ebene anwenden</string>
+    <string name="folder_authorize_desc">Diesen Ordner zur Liste der zugelassenen Ordner hinzufügen? Sein Inhalt wird im Raster- und Listenmodus angezeigt.</string>
+    <string name="folder_authorize_empty">Hinweis: Dieser Ordner enthält keine anzeigbaren Elemente. Er erscheint im Raster- oder Listenmodus, sobald er ein Bild oder Video enthält.</string>
+    <string name="folder_selection_desc">Der Einschlussmodus zeigt nur zugelassene Ordner; der Ausschlussmodus alle außer manuell ausgeblendeten. Im Ausschlussmodus hältst du einen Ordner im Raster- oder Listenmodus gedrückt, um ihn auszublenden. Im Einschlussmodus öffnest du die Systemordner und hältst einen Ordner gedrückt, um ihn zuzulassen. Dies gilt nur für Raster und Liste; die Systemordner zeigen immer alles. Zugelassene Ordner erscheinen erst mit einem Bild oder Video.</string>
+    <string name="folder_siblings_desc">Alle Unterordner von %1$s ausblenden? Neue Ordner in %1$s sind zunächst sichtbar.</string>
+    <string name="folder_authorize_question">Diesen Ordner zur Liste der zugelassenen Ordner hinzufügen?</string>
 </resources>

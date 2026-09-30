@@ -306,7 +306,8 @@ object Folder {
      * ⚠️ **Dalla più recente**, perché sono le immagini che si aprono per prime: se la generazione
      * si ferma a metà, quello che è fatto è quello che serve di più.
      */
-    suspend fun everything(context: Context, hidden: Set<String>): List<Uri> =
+    suspend fun everything(context: Context, hidden: Set<String>,
+        selection: FolderSelection = FolderSelection(hidden = hidden)): List<Uri> =
         withContext(Dispatchers.IO) {
             if (!granted(context)) return@withContext emptyList()
             val found = mutableListOf<Uri>()
@@ -327,7 +328,7 @@ object Folder {
                     while (c.moveToNext()) {
                         val cartella = folderOf(pathAt?.let { c.getString(it) })
                         val fuori = esclusa.getOrPut(cartella) {
-                            cartella != null && hiddenIn(hidden, cartella)
+                            !selection.visible(cartella)
                         }
                         if (!fuori) found.add(uriOf(c.getLong(idAt), c.isClip(kindAt)))
                     }
@@ -577,7 +578,8 @@ object Folder {
         context: Context,
         text: String,
         hidden: Set<String>,
-        bucket: Long? = null
+        bucket: Long? = null,
+        selection: FolderSelection = FolderSelection(hidden = hidden)
     ): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val needle = text.trim()
@@ -620,7 +622,7 @@ object Folder {
                     val dir = pathAt?.let { c.getString(it) }
                         ?.substringBeforeLast('/')
                         ?.takeIf { it.isNotBlank() }
-                    if (dir != null && hiddenIn(hidden, dir)) continue
+                    if (!selection.visible(dir)) continue
                     found += uriOf(c.getLong(idAt), c.isClip(kindAt))
                 }
             }

@@ -634,7 +634,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>
     <string name="backup_desc">Guarda los ajustes en un archivo que podrás importar en cualquier momento, también con futuras versiones de Astonishing Image Viewer.</string>
-    <string name="backup_intro">El archivo incluye los ajustes de abajo, y solo AIV puede leerlo. Al importarlo, los estilos, los colores, las portadas, las carpetas ocultas y la papelera se suman a lo que ya hay.</string>
+    <string name="backup_intro">El archivo incluye los ajustes de abajo, y solo AIV puede leerlo. Al importarlo, los estilos, los colores, las portadas, las carpetas incluidas y excluidas y la papelera se suman a lo que ya hay.</string>
     <string name="backup_area_view">Apariencia y navegación</string>
     <string name="backup_area_editor">Ajustes del editor</string>
     <string name="backup_area_covers">Portadas de las carpetas</string>
@@ -660,7 +660,7 @@
     <string name="backup_exporting">Exportando...</string>
     <string name="backup_importing">Importando...</string>
     <string name="backup_import_from">Exportación del %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Estos ajustes sustituirán a los actuales, salvo los estilos, los colores, las portadas, las carpetas ocultas y la papelera, que se sumarán a lo que ya hay.</string>
+    <string name="backup_import_ask">Estos ajustes sustituirán a los actuales, salvo los estilos, los colores, las portadas, las carpetas incluidas y excluidas y la papelera, que se sumarán a lo que ya hay.</string>
     <string name="backup_unlock">El archivo de ajustes está protegido: escribe la contraseña.</string>
     <string name="backup_none">El archivo no contiene valores válidos para los ajustes seleccionados.</string>
     <string name="look_liquify">Licuar</string>
@@ -668,4 +668,28 @@
     <string name="look_rebuild">Reconstruir</string>
     <string name="look_brush_size">Tamaño del pincel</string>
     <string name="look_brush_strength">Intensidad del pincel</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Carpetas incluidas/excluidas</string>
+    <string name="folder_mode_included">Modo incluidas</string>
+    <string name="folder_mode_excluded">Modo excluidas</string>
+    <string name="folder_authorized">Carpetas autorizadas</string>
+    <string name="folder_authorized_mark">autorizada</string>
+    <string name="folder_included_none">No hay carpetas autorizadas.</string>
+    <string name="folder_authorize">Autorizar carpeta</string>
+    <string name="folder_authorize_title">Añadir a las carpetas mostradas</string>
+    <string name="folder_remove">Quitar autorización</string>
+    <string name="folder_remove_desc">¿Quieres quitar esta carpeta de la lista de autorizadas? Su contenido desaparecerá de los modos cuadrícula y lista.</string>
+    <string name="folder_only_this">Solo esta carpeta</string>
+    <string name="folder_hide_choices">¿Qué carpetas quieres ocultar?</string>
+    <string name="folder_only_named">Solo %1$s</string>
+    <string name="folder_with_child">%1$s y su subcarpeta</string>
+    <string name="folder_with_children">%1$s y sus subcarpetas</string>
+    <string name="folder_only_children">Solo las subcarpetas de %1$s</string>
+    <string name="folder_siblings">Aplicar a todas las carpetas del mismo nivel</string>
+    <string name="folder_authorize_desc">¿Quieres añadir esta carpeta a la lista de autorizadas? Su contenido se mostrará en los modos cuadrícula y lista.</string>
+    <string name="folder_authorize_empty">Nota: esta carpeta no contiene elementos que se puedan mostrar. Aparecerá en modo cuadrícula o lista cuando contenga una imagen o un video.</string>
+    <string name="folder_selection_desc">El modo incluidas muestra solo las carpetas autorizadas; el modo excluidas muestra todas salvo las ocultadas manualmente. En modo excluidas, mantén pulsada una carpeta en modo cuadrícula o lista para ocultarla. En modo incluidas, abre Carpetas del sistema y mantén pulsada una carpeta para autorizarla. Solo afecta a cuadrícula y lista; las carpetas del sistema siempre se muestran todas. Las autorizadas aparecen cuando contienen una imagen o un video.</string>
+    <string name="folder_siblings_desc">¿Quieres ocultar todas las subcarpetas de %1$s? Las nuevas carpetas dentro de %1$s serán visibles inicialmente.</string>
+    <string name="folder_authorize_question">¿Quieres añadir esta carpeta a la lista de autorizadas?</string>
 </resources>

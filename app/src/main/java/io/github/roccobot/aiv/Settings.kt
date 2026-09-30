@@ -925,6 +925,12 @@ data class Settings(
      * all'altra lo fa [HiddenMigration].
      */
     val hiddenFolders: Set<String> = emptySet(),
+    /** Only this directory is excluded; newly created descendants stay visible. */
+    val hiddenExactFolders: Set<String> = emptySet(),
+    /** Existing behavior stays the default, including for users upgrading. */
+    val folderMode: FolderMode = FolderMode.EXCLUDED,
+    /** Camera, Screenshots and Movies are authorized by default when present. */
+    val includedFolders: Set<String> = DEFAULT_INCLUDED_FOLDERS,
     /**
      * L'ordine dei campi delle informazioni sul file. Vedi [FactField].
      *
@@ -1198,6 +1204,10 @@ internal object MarkMigration : DataMigration<Preferences> {
  * che vive accanto al delegato dello store.
  */
 internal val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-relative")
+internal val HIDDEN_EXACT_FOLDERS = stringSetPreferencesKey("hidden-only")
+internal val INCLUDED_FOLDERS = stringSetPreferencesKey("included-relative")
+internal val FOLDER_MODE = stringPreferencesKey("folder-mode")
+internal val INCLUDED_INITIALIZED = booleanPreferencesKey("included-initialized")
 
 /**
  * L'elenco fino alla `2.95`, coi percorsi interi: si legge una volta sola, e poi non c'è più.
@@ -1255,6 +1265,17 @@ internal suspend fun rewritePreferences(context: Context, change: (MutablePrefer
 
 /** Reads and writes the settings. */
 object SettingsStore {
+
+    /** Permission must be available before deciding which factory folders exist. */
+    internal suspend fun initializeIncluded(context: Context, defaults: Set<String>) {
+        context.aivStore.edit { p ->
+            if (p[INCLUDED_INITIALIZED] != true) {
+                val previous = p[INCLUDED_FOLDERS]
+                if (previous == null || previous == DEFAULT_INCLUDED_FOLDERS) p[INCLUDED_FOLDERS] = defaults
+                p[INCLUDED_INITIALIZED] = true
+            }
+        }
+    }
 
     private val BG_TYPE = stringPreferencesKey("bg-type")
     private val BG_THEME = stringPreferencesKey("bg-theme")
@@ -1497,6 +1518,9 @@ object SettingsStore {
             downloadPath = p[DOWNLOAD_PATH] ?: false,
             binKeep = BinKeep.entries.byToken(p[BIN_KEEP], BinKeep.NEVER),
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
+            hiddenExactFolders = p[HIDDEN_EXACT_FOLDERS] ?: emptySet(),
+            includedFolders = p[INCLUDED_FOLDERS] ?: DEFAULT_INCLUDED_FOLDERS,
+            folderMode = FolderMode.entries.firstOrNull { it.token == p[FOLDER_MODE] } ?: FolderMode.EXCLUDED,
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             menuOrder = padOrderOf((p[MENU_ORDER] ?: "").split(','), MENU_KEYS),
             pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
@@ -1605,6 +1629,9 @@ object SettingsStore {
             p[DOWNLOAD_PATH] = settings.downloadPath
             p[BIN_KEEP] = settings.binKeep.token
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
+            p[HIDDEN_EXACT_FOLDERS] = settings.hiddenExactFolders
+            p[INCLUDED_FOLDERS] = settings.includedFolders
+            p[FOLDER_MODE] = settings.folderMode.token
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[MENU_ORDER] = settings.menuOrder.joinToString(",") { it.token }
             p[PICK_ORDER] = settings.pickOrder.joinToString(",") { it.token }

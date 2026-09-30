@@ -634,7 +634,7 @@
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exporter et importer</string>
     <string name="backup_desc">Enregistre les réglages dans un fichier que tu pourras importer à tout moment, même avec les futures versions d\'Astonishing Image Viewer.</string>
-    <string name="backup_intro">Le fichier contient les réglages ci-dessous, et seul AIV sait le lire. À l\'importation, les styles, les couleurs, les couvertures, les dossiers masqués et la corbeille s\'ajoutent à ce qui s\'y trouve déjà.</string>
+    <string name="backup_intro">Le fichier contient les réglages ci-dessous, et seul AIV sait le lire. À l\'importation, les styles, les couleurs, les couvertures, les dossiers inclus et exclus et la corbeille s\'ajoutent à ce qui s\'y trouve déjà.</string>
     <string name="backup_area_view">Apparence et navigation</string>
     <string name="backup_area_editor">Réglages de l\'éditeur</string>
     <string name="backup_area_covers">Couvertures des dossiers</string>
@@ -660,7 +660,7 @@
     <string name="backup_exporting">Exportation...</string>
     <string name="backup_importing">Importation...</string>
     <string name="backup_import_from">Exportation du %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
-    <string name="backup_import_ask">Ces réglages remplaceront les actuels, sauf les styles, les couleurs, les couvertures, les dossiers masqués et la corbeille, qui s\'ajouteront à ce qui s\'y trouve déjà.</string>
+    <string name="backup_import_ask">Ces réglages remplaceront les actuels, sauf les styles, les couleurs, les couvertures, les dossiers inclus et exclus et la corbeille, qui s\'ajouteront à ce qui s\'y trouve déjà.</string>
     <string name="backup_unlock">Le fichier de réglages est protégé : saisis le mot de passe.</string>
     <string name="backup_none">Le fichier ne contient aucune valeur valide pour les réglages sélectionnés.</string>
     <string name="look_liquify">Fluidité</string>
@@ -668,4 +668,28 @@
     <string name="look_rebuild">Reconstruire</string>
     <string name="look_brush_size">Taille du pinceau</string>
     <string name="look_brush_strength">Intensité du pinceau</string>
+
+    <!-- Folder inclusion and exclusion modes. -->
+    <string name="folder_selection">Dossiers inclus/exclus</string>
+    <string name="folder_mode_included">Mode inclus</string>
+    <string name="folder_mode_excluded">Mode exclus</string>
+    <string name="folder_authorized">Dossiers autorisés</string>
+    <string name="folder_authorized_mark">autorisé</string>
+    <string name="folder_included_none">Aucun dossier autorisé.</string>
+    <string name="folder_authorize">Autoriser le dossier</string>
+    <string name="folder_authorize_title">Ajouter aux dossiers affichés</string>
+    <string name="folder_remove">Retirer l\'autorisation</string>
+    <string name="folder_remove_desc">Retirer ce dossier de la liste des dossiers autorisés ? Son contenu disparaîtra des modes grille et liste.</string>
+    <string name="folder_only_this">Ce dossier uniquement</string>
+    <string name="folder_hide_choices">Quels dossiers voulez-vous masquer ?</string>
+    <string name="folder_only_named">%1$s uniquement</string>
+    <string name="folder_with_child">%1$s et son sous-dossier</string>
+    <string name="folder_with_children">%1$s et ses sous-dossiers</string>
+    <string name="folder_only_children">Les sous-dossiers de %1$s uniquement</string>
+    <string name="folder_siblings">Appliquer à tous les dossiers du même niveau</string>
+    <string name="folder_authorize_desc">Ajouter ce dossier à la liste des dossiers autorisés ? Son contenu sera affiché dans les modes grille et liste.</string>
+    <string name="folder_authorize_empty">N.B. : ce dossier ne contient aucun élément affichable. Il apparaîtra en mode grille ou liste lorsqu\'il contiendra une image ou une vidéo.</string>
+    <string name="folder_selection_desc">Le mode inclus affiche uniquement les dossiers autorisés ; le mode exclus affiche tous les dossiers sauf ceux masqués manuellement. En mode exclus, maintenez un dossier appuyé en mode grille ou liste pour le masquer. En mode inclus, ouvrez les dossiers système et maintenez un dossier appuyé pour l\'autoriser. Seuls les modes grille et liste sont concernés ; les dossiers système restent tous visibles. Un dossier autorisé apparaît s\'il contient une image ou une vidéo.</string>
+    <string name="folder_siblings_desc">Masquer tous les sous-dossiers de %1$s ? Les nouveaux dossiers dans %1$s seront initialement visibles.</string>
+    <string name="folder_authorize_question">Ajouter ce dossier à la liste des dossiers autorisés ?</string>
 </resources>
