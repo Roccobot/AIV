@@ -659,7 +659,7 @@ fun AdvancedEditorScreen(
                         style = MaterialTheme.typography.bodySmall)
                 }
                 /*
-                 * ⚠️⚠️ **L'AVVISO DI AREA TROPPO GRANDE STA SOPRA LA BOTTOMSHEET, non dentro**
+                 * ⚠️⚠️ **L'AVVISO DI AREA TROPPO GRANDE VIVE SOPRA LA BOTTOMSHEET, non dentro**
                  * (nota serale del giro 3.24, 2026-10-01: deve comparire come toast sopra la
                  * scheda, non al posto del suggerimento nel corpo). Stesso disegno del
                  * promemoria di selezione, appoggiato al bordo basso del palco.

@@ -621,17 +621,17 @@ fun FolderScreen(
                  * l'elenco lungo mascherava il difetto). Stesso criterio di `GridScreen`.
                  */
                 view == FolderView.GRID ->
-                    Box(Modifier = Modifier.fillMaxWidth().weight(1f)) {
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         Covers(
                             folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
-                            onPick, coverScroll
+                            onPick, coverScroll, modifier = Modifier.fillMaxSize()
                         ) { hiding = it }
                     }
                 else ->
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         Rows(
                             folders!!, prestate, listCount, listText, colour, tints, covers, onPick,
-                            rowScroll
+                            rowScroll, modifier = Modifier.fillMaxSize()
                         ) {
                             hiding = it
                         }
