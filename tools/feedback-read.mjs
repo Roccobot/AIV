@@ -35,7 +35,7 @@ try {
   const repo='Roccobot/AIV',requestId=randomUUID();
   // The private key exists only in this process, never in a workflow or repository.
   const {publicKey,privateKey}=generateKeyPairSync('rsa',{modulusLength:3072});
-  const input={request_id:requestId,public_key:Buffer.from(publicKey.export({format:'pem',type:'spki'})).toString('base64'),version,verify_only:verifyOnly,requested_at:new Date().toISOString()};
+  const input={request_id:requestId,public_key:Buffer.from(publicKey.export({format:'pem',type:'spki'})).toString('base64'),version,verify_only:String(verifyOnly),requested_at:new Date().toISOString()};
   await gh(['workflow','run','feedback-read.yml','--repo',repo,'--ref','main','--json'],JSON.stringify(input));
   const deadline=Date.now()+10*60*1000;
   let run;

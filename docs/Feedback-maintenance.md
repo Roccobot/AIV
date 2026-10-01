@@ -196,6 +196,10 @@ rimosso dopo il recupero o scade dopo un giorno. Nessuna chiave Supabase passa a
 
 Il workflow ammette solo richieste avviate dal proprietario GitHub e non ha trigger su
 push, salvataggio o Invio. L'accesso GitHub è necessario: non è una lettura pubblica.
+Negli ambienti con rete limitata, il download degli artefatti GitHub richiede anche
+`*.blob.core.windows.net`: GitHub usa più server Azure per gli allegati. Aggiungi il
+dominio alla configurazione senza rimuovere quelli esistenti e verifica il download
+con `--verify-only` prima di dichiarare pronto il collegamento.
 Se una piattaforma non può eseguire il comando, lo dichiara; JSON/riepilogo manuali
 restano disponibili come alternativa. Registra nel brief la revisione presa in carico
 (`cloudRevision`) e il lavoro risultante, senza contenuti o allegati personali.
