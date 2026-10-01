@@ -42,7 +42,8 @@ jobs:
           /tmp/aiv-cloud-tests/bin/python tools/feedback-cloud-check.py
   deploy:
     needs: check
-    if: github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_ACCOUNT_ID != '' && vars.FEEDBACK_GITHUB_CLIENT_ID != '')
+    # Keep legacy R2 deployment off until the selected Supabase backend is integrated.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
