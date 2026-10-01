@@ -114,6 +114,12 @@
   window.feedbackRemote = {
     load,save,hasUpdates,snapshot,
     account: signedIn => {login.hidden = signedIn; logout.hidden = !signedIn;},
-    failed: error => {if (error.status === 401) {login.hidden = false;logout.hidden = true;}}
+    failed: error => {
+      if (error.status === 401) {
+        login.hidden = false;
+        logout.hidden = true;
+        description.textContent = 'Accedi con GitHub per compilare il documento e importare il JSON. I campi saranno disponibili dopo il recupero della bozza cloud.';
+      }
+    }
   };
 })();

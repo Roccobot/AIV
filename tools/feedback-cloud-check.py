@@ -45,12 +45,28 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     first.once('dialog',lambda dialog:dialog.accept())
     first.locator('#reset').click()
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
+    legacy=Path(temporary)/'legacy.json'
+    legacy.write_text(json.dumps({'schema':1,'project':'AIV','version':'3.24','installed':'3.24',
+                                 'device':'Telefono precedente','notes':'','entries':{},'decisions':{},'extra':{'images':[]}}))
+    with first.expect_file_chooser() as chooser:
+        first.locator('.file-button').click()
+    chooser.value.set_files(str(legacy))
+    expect(first.locator('#device')).to_have_value('Telefono precedente')
+    expect(first.locator('#tablet')).to_have_value('')
+    expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
+    first.locator('#device').fill('Telefono di prova, Android 13')
+    first.locator('#tablet').fill('Tablet di prova, Android 15', timeout=2000)
     first.locator('.rich-editor').first.fill('Da telefono')
     save(first)
+    first.locator('#send').click()
+    assert 'Telefono: Telefono di prova, Android 13' in first.locator('#summary').input_value()
+    assert 'Tablet: Tablet di prova, Android 15' in first.locator('#summary').input_value()
     assert first.evaluate('localStorage.length')==0
     assert first.evaluate('indexedDB.databases().then(values=>values.length)')==0
     second_context=context()
     second=page(second_context)
+    expect(second.locator('#device')).to_have_value('Telefono di prova, Android 13')
+    expect(second.locator('#tablet')).to_have_value('Tablet di prova, Android 15')
     expect(second.locator('.rich-editor').first).to_have_text('Da telefono')
     expect(second.locator('#saved')).to_contain_text('ripristinate dal cloud')
     second.locator('.rich-editor').first.fill('Da tablet')
@@ -91,6 +107,8 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     output=Path(temporary)/'cloud.json'
     pending.value.save_as(str(output))
     exported=json.loads(output.read_text())
+    assert exported['device']=='Telefono di prova, Android 13'
+    assert exported['tablet']=='Tablet di prova, Android 15'
     attached=exported['entries']['3.13-01']['images']
     assert [file['name'] for file in attached]==['disegno originale.svg','fonti originali.zip']
     assert base64.b64decode(attached[0]['data'].split(',')[1])==svg
@@ -112,6 +130,10 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     anonymous.goto(origin+'/feedback.html')
     expect(anonymous.get_by_role('link',name='Accedi con GitHub')).to_be_visible()
     expect(anonymous.locator('#save')).to_be_disabled()
+    expect(anonymous.locator('#saved')).to_contain_text('Accedi con GitHub')
+    assert anonymous.locator('button[data-status]').first.evaluate('element => getComputedStyle(element).cursor') == 'default'
+    assert anonymous.locator('.file-button').evaluate('element => getComputedStyle(element).opacity') == '0.55'
+    assert anonymous.locator('.file-button').evaluate('element => getComputedStyle(element).cursor') == 'default'
     assert anonymous.evaluate('indexedDB.databases().then(values=>values.length)')==0
     anonymous_context.close()
     assert not errors,errors

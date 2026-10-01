@@ -94,7 +94,15 @@ button[data-status="Non approvato"][aria-pressed="true"] {
 }
 button:disabled {
   opacity: 0.55;
-  cursor: wait;
+  cursor: default;
+}
+.file-button:has(input:disabled),
+.attachment:has(input:disabled) {
+  opacity: 0.55;
+  cursor: default;
+}
+.file-button input:disabled {
+  cursor: default;
 }
 .dashboard {
   position: sticky;

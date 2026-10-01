@@ -37,6 +37,7 @@ function validDraft(draft) {
   if (!draft || draft.schema !== 1 || draft.project !== 'AIV' || typeof draft.version !== 'string' || !draft.entries || !draft.decisions || !draft.extra) return false;
   if (Array.isArray(draft.entries) || Array.isArray(draft.decisions)) return false;
   for (const field of ['version','installed','device','notes']) if (typeof draft[field] !== 'string' || draft[field].length > 100000) return false;
+  if (draft.tablet !== undefined && (typeof draft.tablet !== 'string' || draft.tablet.length > 100000)) return false;
   for (const entry of Object.values(draft.entries)) {
     if (!entry || !['','Tutto OK','Accettabile','Non approvato'].includes(entry.status) || typeof entry.comment !== 'string' || entry.comment.length > 100000 || !Array.isArray(entry.images) || entry.images.length > 30) return false;
   }

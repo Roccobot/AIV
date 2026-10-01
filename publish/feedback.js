@@ -11,6 +11,7 @@ const blank = () => ({
   version: spec.version,
   installed: spec.version,
   device: "",
+  tablet: "",
   notes: "",
   extra: { images: [] },
   entries: {},
@@ -78,6 +79,11 @@ function validate(raw) {
     if (typeof raw[key] !== "string" || raw[key].length > 100000)
       throw Error("Campo non valido: " + key);
     clean[key] = raw[key];
+  }
+  if (raw.tablet !== undefined) {
+    if (typeof raw.tablet !== "string" || raw.tablet.length > 100000)
+      throw Error("Campo non valido: tablet");
+    clean.tablet = raw.tablet;
   }
   for (const key of ["updated", "completed"]) {
     if (
@@ -213,7 +219,7 @@ function hydrate() {
     for (const b of card.querySelectorAll(".decision-options button"))
       b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
   }
-  for (const key of ["device", "installed", "notes"])
+  for (const key of ["device", "tablet", "installed", "notes"])
     document.querySelector("#" + key).value = draft[key];
   drawAttachments(document.querySelector(".extra"));
   window.feedbackFormatting?.refresh();
@@ -307,7 +313,8 @@ function summary() {
   const lines = [
     `Feedback AIV ${spec.version}`,
     `Versione installata: ${draft.installed || "Non indicata"}`,
-    `Dispositivo: ${draft.device || "Non indicato"}`,
+    `Telefono: ${draft.device || "Non indicato"}`,
+    `Tablet: ${draft.tablet || "Non indicato"}`,
     "",
   ];
   for (const item of spec.items) {
@@ -500,7 +507,7 @@ for (const card of document.querySelectorAll(".test, .extra")) {
     attachFiles(card, Array.from(event.dataTransfer.files));
   });
 }
-for (const key of ["device", "installed", "notes"])
+for (const key of ["device", "tablet", "installed", "notes"])
   document.querySelector("#" + key).addEventListener("input", (event) => {
     draft[key] = event.target.value;
     changed();
@@ -669,9 +676,11 @@ controls(true);
     }
   } catch (error) {
     remote?.failed(error);
-    saved.textContent =
-      (remote ? "Cloud non disponibile. " : "Memoria non disponibile o dati non leggibili. Esporta il JSON prima di chiudere. ") + error.message;
-    saved.classList.add("error");
+    const needsLogin = remote && error.status === 401;
+    saved.textContent = needsLogin
+      ? "Accedi con GitHub per compilare il documento e importare il JSON."
+      : (remote ? "Cloud non disponibile. " : "Memoria non disponibile o dati non leggibili. Esporta il JSON prima di chiudere. ") + error.message;
+    saved.classList.toggle("error", !needsLogin);
   } finally {
     loaded = remote ? remoteReady : true;
     hydrate();
