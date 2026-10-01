@@ -54,8 +54,30 @@ def check(path):
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_text('Tutto OK')
+            expect(first).to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_text('Non provato')
+            expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
+            first.locator('.comment').fill('Risposta senza esito')
+            expect(first).to_have_class(re.compile(r'\bhas-response\b'))
+            first.locator('.comment').fill('')
+            expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
+            for field in page.locator('textarea,input:not([type="file"])').all():
+                assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
+                assert field.evaluate('(el)=>parseFloat(getComputedStyle(el).fontSize)') >= 18
+            for href in ['tablet.html', 'settings.html']:
+                link = page.locator('nav a[href="'+href+'"]')
+                with page.expect_popup() as popup:
+                    link.click()
+                proposal = popup.value
+                proposal.wait_for_load_state()
+                assert proposal.locator('link[rel="icon"][type="image/svg+xml"]').get_attribute('href') == 'assets/feedback-favicon.svg?v=2'
+                assert proposal.evaluate('window.opener === null')
+                proposal.close()
+            for link in page.locator('a').all():
+                assert link.get_attribute('target') == '_blank'
+                assert 'noopener' in link.get_attribute('rel')
+
             first.locator('[data-status="Accettabile"]').click()
             first.locator('.comment').fill('Commento di verifica: <script>test</script>')
             page.locator('#notes').fill('Osservazioni libere di verifica')
@@ -64,15 +86,53 @@ def check(path):
             image = Path(temporary) / 'feedback.png'
             # An original, complete PNG is attached without image transformations.
             image.write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP9sAAAAASUVORK5CYII='))
+            attachment_only = page.locator('.test').nth(1)
+            attachment_only.locator('.images').set_input_files(str(image))
+            expect(attachment_only.locator('.image-list img')).to_have_count(1)
+            expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
+            attachment_only.locator('.image-list button').click()
+            expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
+            indication_only = page.locator('.decision').nth(1)
+            indication_only.locator('textarea').fill('Solo commento')
+            expect(indication_only).to_have_class(re.compile(r'\bhas-response\b'))
+            indication_only.locator('textarea').fill('')
+            expect(indication_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.images').set_input_files(str(image))
             expect(first.locator('.image-list img')).to_have_count(1)
+            # SVG stays an image resource: scripts and external resources cannot execute.
+            svg = Path(temporary) / 'original.svg'
+            svg_bytes = b'<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><script>parent.svgExecuted=true</script><image href="https://example.invalid/forbidden.png"/><rect width="32" height="32" fill="#43B59E"/></svg>'
+            svg.write_bytes(svg_bytes)
+            external = []
+            page.on('request', lambda request: external.append(request.url) if 'example.invalid' in request.url else None)
+            first.locator('.images').set_input_files(str(svg))
+            expect(first.locator('.image-list img')).to_have_count(2)
+            transfer = page.evaluate_handle('''text => {
+                const transfer = new DataTransfer();
+                transfer.items.add(new File([text], 'dropped.svg', {type:'application/octet-stream'}));
+                return transfer;
+            }''', svg_bytes.decode())
+            first.dispatch_event('dragenter', {'dataTransfer': transfer})
+            expect(first).to_have_class(re.compile(r'\bdrop-active\b'))
+            first.dispatch_event('drop', {'dataTransfer': transfer})
+            expect(first.locator('.image-list img')).to_have_count(3)
+            expect(first).not_to_have_class(re.compile(r'\bdrop-active\b'))
+            assert page.evaluate('window.svgExecuted === undefined')
+            assert not external, 'SVG fetched an external resource.'
+            page.wait_for_function("Array.from(document.querySelectorAll('.test:first-child .image-list img')).every(image => image.complete && image.naturalWidth > 0)")
+            bad_svg = Path(temporary) / 'invalid.svg'
+            bad_svg.write_text('<html>not an SVG</html>')
+            first.locator('.images').set_input_files(str(bad_svg))
+            expect(page.locator('#action-message')).to_contain_text('SVG non è valido')
+            expect(first.locator('.image-list img')).to_have_count(3)
+
             page.locator('#save').click()
             expect(page.locator('#saved')).to_contain_text('Salvato in questo browser')
             page.reload()
             expect(page.locator('#save')).to_be_enabled()
             expect(first.locator('.item-state')).to_have_text('Accettabile')
             expect(first.locator('.comment')).to_have_value('Commento di verifica: <script>test</script>')
-            expect(first.locator('.image-list img')).to_have_count(1)
+            expect(first.locator('.image-list img')).to_have_count(3)
             expect(page.locator('#notes')).to_have_value('Osservazioni libere di verifica')
             with page.expect_download() as pending:
                 page.locator('#export').click()
@@ -81,6 +141,12 @@ def check(path):
             exported = json.loads(export.read_text())
             encoded = exported['entries'][data['items'][0]['id']]['images'][0]['data'].split(',')[1]
             assert base64.b64decode(encoded) == image.read_bytes(), 'Immagine modificata.'
+            for attached in exported['entries'][data['items'][0]['id']]['images'][1:]:
+                assert attached['type'] == 'image/svg+xml'
+                assert base64.b64decode(attached['data'].split(',')[1]) == svg_bytes, 'SVG originale modificato.'
+            expect(first).to_have_class(re.compile(r'\bhas-response\b'))
+            expect(page.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
+
             second_context = browser.new_context(permissions=['clipboard-read', 'clipboard-write'])
             second = second_context.new_page()
             second.on('pageerror', lambda e: errors.append(str(e)))
@@ -89,7 +155,7 @@ def check(path):
             second.locator('#import').set_input_files(str(export))
             expect(second.locator('#action-message')).to_contain_text('JSON importato')
             expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
-            expect(second.locator('.test').first.locator('.image-list img')).to_have_count(1)
+            expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.reload()
             expect(second.locator('#save')).to_be_enabled()
             expect(second.locator('.test').first.locator('.comment')).to_have_value('Commento di verifica: <script>test</script>')
@@ -114,7 +180,15 @@ def check(path):
                 second.set_viewport_size({'width': width, 'height': 900})
                 assert second.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Scorrimento orizzontale a {width}px.'
             second.emulate_media(color_scheme='dark')
+            second.locator('.test').first.locator('.comment').fill('Solo commento')
+            expect(second.locator('.test').first).to_have_class(re.compile(r'\bhas-response\b'))
+            second.locator('.decision').first.locator('textarea').fill('Solo indicazione')
+            expect(second.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
+            for field in second.locator('textarea,input:not([type="file"])').all():
+                assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
+
             second.screenshot(path='/tmp/aiv-feedback-dark.png', full_page=False)
+            assert second.locator('.test').first.evaluate('(el)=>getComputedStyle(el).backgroundColor') != second.locator('.test').nth(1).evaluate('(el)=>getComputedStyle(el).backgroundColor')
             page.set_viewport_size({'width': 1100, 'height': 900})
             page.screenshot(path='/tmp/aiv-feedback-light.png', full_page=False)
             # A previous release's saved draft must survive the cumulative document update.
@@ -150,14 +224,14 @@ def check(path):
             expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
             expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
             expect(migration.locator('#installed')).to_have_value('3.14')
-            expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(1)
+            expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
             for item in data['items']:
                 if item['version'] == data['version']:
                     expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_text('Non provato')
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
-        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini, JSON, clipboard e larghezze verificati.')
+        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini e SVG originali, trascinamento, nuove schede, campi, evidenze, JSON, clipboard e larghezze verificati.')
     finally:
         server.shutdown()
         server.server_close()

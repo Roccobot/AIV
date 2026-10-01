@@ -255,7 +255,7 @@ footer {
   margin: 5px 8px 5px 0;
 }
 #summary {
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.5;
 }
 .error {
@@ -320,5 +320,38 @@ footer {
   }
   #reset {
     color: #ffb5b5;
+  }
+}
+
+/* Responses stand out without changing the cards' dimensions. */
+.card.has-response {
+  background: #e6f6ef;
+  border-color: #16866c;
+  box-shadow: inset 0 0 0 1px #16866c;
+}
+textarea,
+input:not([type="file"]) {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.attachment {
+  border: 2px dashed #718c7e;
+  border-radius: 10px;
+  padding: 14px;
+}
+.drop-active .attachment {
+  border-color: #0b6b5b;
+  background: #ccefe3;
+}
+@media (prefers-color-scheme: dark) {
+  .card.has-response {
+    background: #203f35;
+    border-color: #43b59e;
+    box-shadow: inset 0 0 0 1px #43b59e;
+  }
+  .drop-active .attachment {
+    border-color: #43b59e;
+    background: #285347;
   }
 }

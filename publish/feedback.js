@@ -3,7 +3,7 @@ const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
 const outcomes = ["Tutto OK", "Accettabile", "Non approvato"];
 const maxImage = 8 * 1024 * 1024,
   maxTotal = 20 * 1024 * 1024;
-const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"];
 const blank = () => ({
   schema: 1,
   project: "AIV",
@@ -144,6 +144,14 @@ function validate(raw) {
   return clean;
 }
 function refreshCounts() {
+  for (const card of document.querySelectorAll(".test")) {
+    const value = entry(card.dataset.id);
+    card.classList.toggle("has-response", Boolean(value.status || value.comment.trim() || value.images.length));
+  }
+  for (const card of document.querySelectorAll(".decision")) {
+    const value = decision(card.dataset.id);
+    card.classList.toggle("has-response", Boolean(value.choice || value.comment.trim()));
+  }
   const counters = Object.fromEntries(outcomes.map((o) => [o, 0]));
   let done = 0;
   for (const item of spec.items) {
@@ -306,6 +314,8 @@ for (const question of spec.decisions) {
   if (question.link) {
     const a = el("a", "Apri la proposta");
     a.href = question.link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
     card.append(a);
   }
   const options = el("div", undefined, "decision-options");
@@ -338,6 +348,59 @@ for (const question of spec.decisions) {
   card.append(label);
   document.querySelector("#decision-list").append(card);
 }
+// File picker and drag-and-drop share validation and preserve the original bytes.
+async function attachFiles(card, files) {
+  const input = card.querySelector(".images");
+  if (!loaded || input.disabled || !files.length) return;
+  const initialDraft = draft, initialEntry = entry(card.dataset.id);
+  input.disabled = true;
+  try {
+    const usedBefore = Object.values(draft.entries).reduce((sum, e) =>
+      sum + e.images.reduce((size, image) => size + image.size, 0), 0);
+    if (usedBefore + files.reduce((sum, file) => sum + file.size, 0) > maxTotal ||
+        initialEntry.images.length + files.length > 30)
+      throw Error("Massimo 30 immagini per voce e 20 MB complessivi.");
+    const additions = await Promise.all(files.map(async (file) => {
+      const type = /\.svg$/i.test(file.name) && (!file.type || file.type === "application/octet-stream")
+        ? "image/svg+xml" : file.type;
+      if (!allowedMime.includes(type) || file.size < 1 || file.size > maxImage)
+        throw Error("Usa PNG, JPG, WebP, GIF o SVG fino a 8 MB ciascuno e 20 MB complessivi.");
+      if (type === "image/svg+xml") {
+        const document = new DOMParser().parseFromString(await file.text(), "image/svg+xml");
+        if (document.querySelector("parsererror") || document.documentElement.localName !== "svg" ||
+            document.documentElement.namespaceURI !== "http://www.w3.org/2000/svg")
+          throw Error("Il file SVG non è valido.");
+      }
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({name: file.name, type, size: file.size,
+          data: "data:" + type + ";base64," + reader.result.split(",")[1]});
+        reader.onerror = () => reject(Error("Impossibile leggere l'immagine."));
+        reader.readAsDataURL(file);
+      });
+    }));
+    if (draft !== initialDraft || entry(card.dataset.id) !== initialEntry)
+      throw Error("Le risposte sono state sostituite: allega nuovamente le immagini.");
+    const used = Object.values(draft.entries).reduce((sum, e) =>
+      sum + e.images.reduce((size, image) => size + image.size, 0), 0);
+    if (used + additions.reduce((sum, image) => sum + image.size, 0) > maxTotal ||
+        initialEntry.images.length + additions.length > 30)
+      throw Error("Massimo 30 immagini per voce e 20 MB complessivi.");
+    initialEntry.images.push(...additions);
+    drawImages(card);
+    changed();
+    report("Immagini aggiunte intere.");
+  } catch (error) {
+    report(error.message, true);
+  } finally {
+    input.disabled = false;
+    input.value = "";
+  }
+}
+// Keep file drops outside a response from replacing the document in this tab.
+for (const name of ["dragover", "drop"]) document.addEventListener(name, (event) => {
+  if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
+});
 for (const card of document.querySelectorAll(".test")) {
   for (const b of card.querySelectorAll(".outcome"))
     b.addEventListener("click", () => {
@@ -356,58 +419,34 @@ for (const card of document.querySelectorAll(".test")) {
     entry(card.dataset.id).comment = event.target.value;
     changed();
   });
-  card.querySelector(".images").addEventListener("change", async (event) => {
-    const files = Array.from(event.target.files),
-      epoch = revision;
-    event.target.disabled = true;
-    try {
-      const used = Object.values(draft.entries).reduce(
-        (sum, e) => sum + e.images.reduce((a, i) => a + i.size, 0),
-        0,
-      );
-      if (
-        files.some(
-          (f) =>
-            !allowedMime.includes(f.type) || f.size < 1 || f.size > maxImage,
-        ) ||
-        used + files.reduce((s, f) => s + f.size, 0) > maxTotal ||
-        entry(card.dataset.id).images.length + files.length > 30
-      )
-        throw Error(
-          "Usa PNG, JPG, WebP o GIF fino a 8 MB ciascuno e 20 MB complessivi.",
-        );
-      const additions = await Promise.all(
-        files.map(
-          (file) =>
-            new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () =>
-                resolve({
-                  name: file.name,
-                  type: file.type,
-                  size: file.size,
-                  data: reader.result,
-                });
-              reader.onerror = () =>
-                reject(Error("Impossibile leggere l'immagine."));
-              reader.readAsDataURL(file);
-            }),
-        ),
-      );
-      if (epoch !== revision)
-        throw Error(
-          "Le risposte sono cambiate durante il caricamento: allega nuovamente le immagini.",
-        );
-      entry(card.dataset.id).images.push(...additions);
-      drawImages(card);
-      changed();
-      report("Immagini aggiunte intere.");
-    } catch (error) {
-      report(error.message, true);
-    } finally {
-      event.target.disabled = false;
-      event.target.value = "";
+  const input = card.querySelector(".images");
+  input.addEventListener("change", () => {
+    attachFiles(card, Array.from(input.files));
+  });
+  let dragDepth = 0;
+  card.addEventListener("dragenter", (event) => {
+    if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+    event.preventDefault();
+    dragDepth++;
+    card.classList.add("drop-active");
+  });
+  card.addEventListener("dragover", (event) => {
+    if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  });
+  card.addEventListener("dragleave", () => {
+    if (--dragDepth <= 0) {
+      dragDepth = 0;
+      card.classList.remove("drop-active");
     }
+  });
+  card.addEventListener("drop", (event) => {
+    if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+    event.preventDefault();
+    dragDepth = 0;
+    card.classList.remove("drop-active");
+    attachFiles(card, Array.from(event.dataTransfer.files));
   });
 }
 for (const key of ["device", "installed", "notes"])

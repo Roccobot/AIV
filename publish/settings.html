@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIV: proposta per le impostazioni</title>
+<link rel="icon" href="assets/feedback-favicon.png?v=2" type="image/png" sizes="32x32">
+<link rel="icon" href="assets/feedback-favicon.svg?v=2" type="image/svg+xml">
+<link rel="stylesheet" href="feedback.css?v=3"><link rel="stylesheet" href="settings.css">
+</head><body><header class="intro"><p class="eyebrow">AIV · proposta di Codex</p>
+<nav><a href="feedback.html#decisions" target="_blank" rel="noopener noreferrer">Lascia il feedback</a>
+<a href="tablet.html" target="_blank" rel="noopener noreferrer">Mockup da tablet</a>
+<a href="./" target="_blank" rel="noopener noreferrer">Scarica AIV</a></nav></header>
+<main><h1>Proposta di riordino delle impostazioni</h1>
+<p>Confronto con AIV 3.13, letto il 1 ottobre 2026. Questa è una proposta da concordare; la release 3.14 corregge miniature e PSD e conserva la disposizione delle impostazioni. Puoi scegliere nel <a href="https://roccobot.github.io/AIV/feedback.html" target="_blank" rel="noopener noreferrer">documento di feedback</a>. La regola applicata è in <a href="https://github.com/Roccobot/AIV/blob/main/Rules.md" target="_blank" rel="noopener noreferrer">Rules.md</a>, sezione &#x27;Dove va un&#x27;impostazione, e chi la deve trovare&#x27;.</p>
+<h2>Prima e dopo</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Tabella di confronto"><table><thead><tr><th scope="col">Voce</th><th scope="col">Prima</th><th scope="col">Proposta</th><th scope="col">Perché</th></tr></thead><tbody>
+<tr><td>Lista file: copia il percorso della cartella contenitore</td><td>Comandi e indicatori, nella pagina iniziale</td><td>Cartelle &gt; Opzioni di visualizzazione &gt; Lista</td><td>Descrive il comportamento della lista dei file, accanto alle altre sue opzioni.</td></tr>
+<tr><td>Rinomina e download</td><td>Modifica e backup &gt; Editor e salvataggio &gt; Rinomina e download</td><td>Modifica e protezione dei file &gt; Rinomina e download</td><td>Rinomina e download si usano anche senza aprire l&#x27;editor; la pagina rimane autonoma.</td></tr>
+<tr><td>Gestisci le miniature memorizzate</td><td>Funzionalità avanzate</td><td>Gestione dell&#x27;app</td><td>È manutenzione, come esportazione/importazione e ripristino degli avvisi.</td></tr>
+<tr><td>Esporta e importa; Ripristina gli avvisi</td><td>Azioni in fondo alla pagina</td><td>Gestione dell&#x27;app</td><td>Tre operazioni correlate raccolte sotto un titolo, senza aggiungere una pagina.</td></tr>
+<tr><td>Modifica e backup</td><td>Titolo di sezione</td><td>Modifica e protezione dei file</td><td>La sezione comprende editor, rinomina, download e protezione degli originali.</td></tr>
+</tbody></table></div>
+<h2>Pagina iniziale attuale</h2>
+<ul><li><strong>Aspetto</strong>: Tema dell&#x27;app; Effetto dietro menu e pannelli; Cartelle; Visualizzatore; Informazioni.</li><li><strong>Navigazione</strong>: Sfoglia solo le immagini; Sfoglia le immagini verso destra dalla meno recente.</li><li><strong>Comandi e indicatori</strong>: Etichette e pulsanti; Lista file: copia il percorso della cartella contenitore.</li><li><strong>Modifica e backup</strong>: Editor e salvataggio; Attiva il cestino; Pulizia automatica del cestino.</li><li><strong>All&#x27;avvio</strong>: Leggi il contenuto degli appunti all&#x27;avvio; Apri una cartella all&#x27;avvio.</li><li><strong>Funzionalità avanzate</strong>: Salva le miniature nella memoria grafica; Gestisci le miniature memorizzate.</li><li><strong>Azioni finali</strong>: Esporta e importa; Ripristina gli avvisi.</li></ul>
+<h2>Pagina iniziale proposta</h2>
+<ul><li><strong>Aspetto</strong>: Tema dell&#x27;app; Effetto dietro menu e pannelli; Cartelle; Visualizzatore; Informazioni.</li><li><strong>Navigazione</strong>: Sfoglia solo le immagini; Sfoglia le immagini verso destra dalla meno recente.</li><li><strong>Comandi e indicatori</strong>: Etichette e pulsanti.</li><li><strong>Modifica e protezione dei file</strong>: Editor e salvataggio; Rinomina e download; Attiva il cestino; Pulizia automatica del cestino.</li><li><strong>All&#x27;avvio</strong>: Leggi il contenuto degli appunti all&#x27;avvio; Apri una cartella all&#x27;avvio.</li><li><strong>Funzionalità avanzate</strong>: Salva le miniature nella memoria grafica.</li><li><strong>Gestione dell&#x27;app</strong>: Gestisci le miniature memorizzate; Esporta e importa; Ripristina gli avvisi.</li></ul>
+<h2>Sottopagine, con la proposta applicata</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Tabella di confronto"><table><thead><tr><th scope="col">Pagina</th><th scope="col">Contenuto</th></tr></thead><tbody>
+<tr><td>Cartelle</td><td>Intestazione delle cartelle; Colore delle cartelle; Opzioni di visualizzazione; Cartelle incluse/escluse.</td></tr>
+<tr><td>Cartelle &gt; Opzioni di visualizzazione</td><td>Griglia: colonne, contatore sotto le cartelle, nome del file. Lista: contatore, dimensione del testo, copia del percorso della cartella contenitore. Cartelle di sistema: file nascosti, solo cartelle con immagini/video.</td></tr>
+<tr><td>Cartelle &gt; Cartelle incluse/escluse</td><td>Modalità, liste indipendenti e comandi di aggiunta/rimozione.</td></tr>
+<tr><td>Visualizzatore</td><td>Sfondo; Tema dello sfondo; Adattamento e zoom; Riproduci i video direttamente.</td></tr>
+<tr><td>Visualizzatore &gt; Adattamento e zoom</td><td>Ingrandisci le immagini piccole; Zoom massimo; Rendering dei pixel; Zoom nel menu del visualizzatore.</td></tr>
+<tr><td>Informazioni</td><td>Barra delle info e posizione; Contatore dei fotogrammi; Info sul file singolo; Dimensioni dei file selezionati.</td></tr>
+<tr><td>Informazioni &gt; Info sul file singolo</td><td>Elenco dei campi riordinabile.</td></tr>
+<tr><td>Etichette e pulsanti</td><td>Posizione preferita dei pulsanti; Etichette sotto le icone; Indicatore dell&#x27;ultimo media visualizzato; Ordine dei pulsanti.</td></tr>
+<tr><td>Etichette e pulsanti &gt; Ordine dei pulsanti</td><td>Gruppi di pulsanti riordinabili.</td></tr>
+<tr><td>Editor e salvataggio</td><td>Editor immagini; Copia di sicurezza prima di sovrascrivere; Formato e qualità; Stili dell&#x27;editor; Filigrana.</td></tr>
+<tr><td>Editor e salvataggio &gt; Stili dell&#x27;editor</td><td>Lista degli stili e relativi comandi.</td></tr>
+<tr><td>Editor e salvataggio &gt; Filigrana</td><td>Scelta della filigrana e impostazioni.</td></tr>
+<tr><td>Rinomina e download</td><td>Consenti la rinomina al salvataggio; Scegli il percorso di download; Consenti la modifica dell&#x27;estensione, con scelte indipendenti Scarica/Rinomina.</td></tr>
+<tr><td>Gestisci le miniature memorizzate</td><td>Stato e pulizia della cache.</td></tr>
+<tr><td>Esporta e importa</td><td>Aree del backup, esportazione e importazione.</td></tr>
+</tbody></table></div>
+<p>Le tre voci di Navigazione/Comandi che rimangono direttamente accessibili sono brevi; aggiungere una sottopagina per una sola voce aumenterebbe i tocchi senza aiutare la ricerca. Il gruppo sulla protezione comprende quattro elementi, ma non costituisce una nuova famiglia: è una sezione con due pagine autonome e due comandi collegati al cestino. Le liste riordinabili, le cartelle e i backup conservano pagine proprie. La profondità massima rimane due livelli. L&#x27;indicatore dell&#x27;ultimo media resta in Etichette e pulsanti, come hai chiesto.</p>
+<h2>Prima di applicare la proposta</h2>
+<ul><li>Nuove stringhe: <strong>2 titoli</strong>, <code>Modifica e protezione dei file</code> e <code>Gestione dell&#x27;app</code>. Equivalenti inglesi: <code>Editing and file protection</code> e <code>App management</code>. Serviranno <strong>54 testi</strong> nei 27 cataloghi completi; i due cataloghi regionali manterranno i loro normali ripieghi. Le traduzioni andranno controllate prima della release.</li><li>Conservare tutte le chiavi, i valori scelti, i valori iniziali e le aree di backup.</li><li>Aggiornare i rimandi e la ricerca delle impostazioni: titoli e contenuto delle pagine devono continuare a trovare rinomina, download, percorso, miniature, avvisi e cartelle.</li><li>Verificare navigazione avanti/indietro, ripristino della pagina dopo rotazione e importazione di un backup precedente. Gli ordinali delle pagine esistenti devono rimanere stabili.</li><li>Verificare temi, testo ingrandito e riordino dei pulsanti su telefono. Il layout da tablet è una proposta distinta, consultabile nei <a href="https://roccobot.github.io/AIV/tablet.html" target="_blank" rel="noopener noreferrer">mockup</a>.</li></ul></main><footer>Fonte: <a href="https://github.com/Roccobot/AIV/blob/main/docs/Settings-proposal.md" target="_blank" rel="noopener noreferrer">Proposta delle impostazioni su GitHub</a>.</footer></body></html>

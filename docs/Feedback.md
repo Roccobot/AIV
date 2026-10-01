@@ -10,7 +10,7 @@ sono approvati e archiviati. Le prove sul telefono sono tutte **Non provato**.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
-Puoi aggiungere commenti e immagini. Il salvataggio avviene nel browser corrente:
+Puoi aggiungere commenti e immagini (PNG, JPG, WebP, GIF e SVG), anche trascinandole sulla voce. Le voci con un esito, un commento o un allegato sono evidenziate; le decisioni con una scelta o un commento sono evidenziate allo stesso modo. I contatori continuano a misurare soltanto gli esiti. Il salvataggio avviene nel browser corrente:
 esporta il JSON per trasferire le risposte. `Invia` prepara il riepilogo, che devi copiare
 in chat; non invia automaticamente nulla. Codex aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
 senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
@@ -171,7 +171,7 @@ non devono essere cancellati. I file normali e i nomi come `esempio.psd.png` dev
 
 ## 15. Documento di feedback interattivo
 
-Scegli un esito, scrivi un commento e allega un'immagine. Attendi l'indicazione di salvataggio,
+Scegli un esito, scrivi un commento e allega un'immagine. Prova anche un SVG e trascina più immagini sulla voce: devono apparire le anteprime. I campi devono avere testo più grande e senza grassetto; le voci con un esito, un commento o un allegato devono essere evidenziate, anche dopo il ricaricamento. Le decisioni si evidenziano dopo una scelta o un commento. Apri le proposte: devono comparire in nuove schede, con la stessa favicon del documento. Attendi l'indicazione di salvataggio,
 ricarica la pagina e controlla che tutto rimanga. Esporta il JSON e importalo in un altro browser:
 devono tornare esiti, commenti e immagini. Premi Invia, poi copia il riepilogo e controlla che
 comprenda versione, risposte e osservazioni libere. Il riepilogo dice quali voci hanno immagini;

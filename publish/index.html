@@ -48,33 +48,9 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="L'icona di AIV accanto al titolo Astonishing Image Viewer, e la griglia delle immagini dell'app.">
 <meta name="twitter:card" content="summary_large_image">
-<!--
-  IL GLIFO NUDO DELL'APP, IN #43B59E (richiesta dell'utente, giro della 1.46:
-  'imposta il glifo nudo dell'app come favicon in colore #43B59E, che dovrebbe
-  andare bene per entrambi i temi del browser').
-
-  ⚠️ IL DISEGNO NON È RIFATTO QUI: i due tracciati sono quelli di
-  app/src/main/res/drawable/ic_aiv_mark.xml, che a sua volta li prende byte per
-  byte dall'icona approvata. Cambia il formato, non la geometria, e questo è il
-  solo posto della pagina in cui c'è del disegno.
-
-  ⚠️ LA TELA È 70x60 E NON UN QUADRATO, perché quella è l'area
-  dell'inchiostro: 70 x 60 unità, misurate rendendo il disegno in Chromium (i
-  limiti veri escono 0..70 e 0..60, cioè zero margine). Un quadrato vorrebbe
-  dire aggiungere aria a una parte sola, e il browser il riquadro se lo fa da sé
-  rispettando le proporzioni. È PIÙ LARGO CHE ALTO, e chi lo riusa deve saperlo.
-
-  ⚠️ UN SOLO COLORE PER I DUE TEMI, come ha chiesto: un SVG può portarsi dentro
-  la sua media query e cambiare tinta col tema del browser, e qui NON lo fa
-  apposta. Se un giorno non risaltasse abbastanza sullo scuro, l'alternativa che
-  ha già nominato è #4FD9BE.
-
-  ⚠️ È INCORPORATO E NON UN FILE, e la ragione è il rilascio: il passo 13 del
-  workflow copia questa pagina, la cartella delle schermate e dalla 2.92
-  l'anteprima del link, e nient'altro. Un favicon.svg accanto resterebbe qui, e
-  sul sito la pagina chiederebbe un file che non c'è.
--->
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2070%2060'%3E%3Cg%20fill='%2343B59E'%20transform='translate(-19,-19)'%3E%3Cpath%20d='M30,19a10,10%200%201,0%200,20a10,10%200%201,0%200,-20z'/%3E%3Cpath%20fill-rule='evenodd'%20d='M58.1311,27.1833L88.1311,71.1833A5,5%200%200%201%2084,79L24,79A5,5%200%200%201%2019.8689,71.1833L49.8689,27.1833A5,5%200%200%201%2058.1311,27.1833ZM56.0424,49.5583L68.0424,66.5583A2.5,2.5%200%200%201%2066,70.5L42,70.5A2.5,2.5%200%200%201%2039.9576,66.5583L51.9576,49.5583A2.5,2.5%200%200%201%2056.0424,49.5583Z'/%3E%3C/g%3E%3C/svg%3E">
+<!-- Shared favicon for the AIV download page and supporting documents. -->
+<link rel="icon" href="assets/feedback-favicon.png?v=2" type="image/png" sizes="32x32">
+<link rel="icon" href="assets/feedback-favicon.svg?v=2" type="image/svg+xml">
 <!--
   QUESTA PAGINA È LA SORGENTE, e quella che si legge sul sito è la sua COPIA:
   il workflow di rilascio di Roccobot/AIV la copia in
@@ -120,6 +96,7 @@
   il peso dell'apk, ma la regola non si allenta per questo: vale sempre.
 -->
 <style>
+  @font-face{font-family:Roboto;src:url("assets/Roboto.ttf") format("truetype");font-weight:100 900;font-display:swap}
   /* ── I token del design system, copiati da tokens/colors.css ── */
   :root{
     /* ⚠️⚠️ `color-scheme` STA ANCHE QUI, e non basta il `<meta>` in testa: quello
@@ -276,6 +253,7 @@
   .fatto .titolo{font-size:var(--titolo-corpo); line-height:var(--titolo-interlinea); font-weight:500}
   .fatto .corpo{font-size:14px; line-height:1.5; color:var(--text-muted)}
 
+  footer > nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:20px;font-size:15px}
   footer{max-width:960px; width:100%; margin:56px auto 0; padding:0 24px 32px}
   .piede-riga{
     /* ⚠️ `nowrap`: firma a sinistra e tasti a destra sulla STESSA riga, come ha
@@ -413,7 +391,7 @@
       <h1>Astonishing Image Viewer</h1>
       <p class="claim" id="claim"></p>
       <div class="blocco-scarica">
-        <a class="scarica" id="scarica" href="https://github.com/Roccobot/AIV/releases/latest" download>
+        <a class="scarica" id="scarica" href="https://github.com/Roccobot/AIV/releases/latest" download target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M12 3.5v11.2M12 15.6l4.4-4.4M12 15.6L7.6 11.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
             <path d="M4.4 18.8h15.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
@@ -510,6 +488,7 @@
 </main>
 
 <footer>
+  <nav aria-label="Documenti AIV"><a href="feedback.html" target="_blank" rel="noopener noreferrer">Feedback</a> <a href="tablet.html" target="_blank" rel="noopener noreferrer">Mockup tablet</a> <a href="settings.html" target="_blank" rel="noopener noreferrer">Proposta impostazioni</a></nav>
   <div class="piede-riga">
     <div class="firma">
       <svg viewBox="0 0 1024 1024" width="22" height="22" aria-hidden="true">
@@ -527,7 +506,7 @@
            preambolo è un nodo solo che si nasconde, quindi non esiste una stesura corta che
            possa divergere da quella lunga, e il dizionario dei testi resta fuori. Lo spazio
            fra le due parti sta dentro l'elemento nascosto perché è parte del preambolo. -->
-      <span><span class="firma-lunga">made with love by </span><a href="https://roccobot.me">Roccobot</a></span>
+      <span><span class="firma-lunga">made with love by </span><a href="https://roccobot.me" target="_blank" rel="noopener noreferrer">Roccobot</a></span>
     </div>
     <!-- ⚠️ IL TEMA STA A SINISTRA DELLA LINGUA, e non viceversa: il tasto della
          lingua è all'estrema destra da quando esiste la pagina, e chi la conosce

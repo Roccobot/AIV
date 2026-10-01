@@ -1,0 +1,36 @@
+main {
+  max-width: 1120px;
+  padding-top: 0;
+}
+.table-scroll {
+  overflow-x: auto;
+  margin: 24px 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 16px;
+}
+th,
+td {
+  min-width: 150px;
+  padding: 14px;
+  border: 1px solid #91a697;
+  vertical-align: top;
+}
+th {
+  background: #e6f4ed;
+}
+li {
+  margin: 12px 0;
+}
+@media (prefers-color-scheme: dark) {
+  th {
+    background: #203f35;
+  }
+  th,
+  td {
+    border-color: #43564c;
+  }
+}
