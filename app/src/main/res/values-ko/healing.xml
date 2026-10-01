@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">수정/제거</string>
+    <string name="look_heal_clear">선택 지우기</string>
+    <string name="look_heal_hint">작은 결함 위에 칠한 다음 적용을 누르세요. 두 손가락으로 확대하거나 이동하세요.</string>
+    <string name="look_heal_working">수정 중...</string>
+    <string name="look_heal_failed">이 영역을 수정할 수 없습니다. 더 작은 영역을 선택하세요.</string>
+    <string name="look_heal_pending">저장하기 전에 선택을 적용하거나 지우세요.</string>
+</resources>

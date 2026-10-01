@@ -325,7 +325,7 @@ object ImageEdit {
          * riscrivere il file esce accanto, che è quello che questa funzione fa da sé con
          * [lookTarget].
          */
-        if (look.plain && look.geo.idle) {
+        if (look.plain && look.geo.idle && look.healing.idle) {
             val way = if (!beside && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
             return@withContext save(
                 context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup, mark,
@@ -356,6 +356,8 @@ object ImageEdit {
         try {
             full = ImageSource.pixels(context, uri, 0)
                 ?: return@withContext Result.Failed(R.string.edit_too_big)
+            val healed = Healing.render(full, look.healing)
+            if (healed !== full) { full.recycle(); full = healed }
             /*
              * ⚠️⚠️ **LA POSA VIENE PER PRIMA E IL TAGLIO PER ULTIMO, DALLA `2.31`, E I DUE POSTI
              * SONO LA SPECIFICA**: mettere in posa è una permutazione di pixel, quindi il Dettaglio

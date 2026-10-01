@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Düzelt/Kaldır</string>
+    <string name="look_heal_clear">Seçimi temizle</string>
+    <string name="look_heal_hint">Küçük bir kusurun üzerini boya, ardından Uygula düğmesine dokun. Yakınlaştırmak veya kaydırmak için iki parmağını kullan.</string>
+    <string name="look_heal_working">Düzeltiliyor...</string>
+    <string name="look_heal_failed">Bu alan düzeltilemiyor. Daha küçük bir alan seç.</string>
+    <string name="look_heal_pending">Kaydetmeden önce seçimi uygula veya temizle.</string>
+</resources>

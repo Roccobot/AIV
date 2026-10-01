@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">సరిచేయండి/తొలగించండి</string>
+    <string name="look_heal_clear">ఎంపికను చెరపండి</string>
+    <string name="look_heal_hint">చిన్న లోపంపై గీయండి, ఆపై వర్తింపజేయండి నొక్కండి. జూమ్ లేదా కదలిక కోసం రెండు వేళ్లను వాడండి.</string>
+    <string name="look_heal_working">సరిచేస్తోంది...</string>
+    <string name="look_heal_failed">ఈ ప్రాంతాన్ని సరిచేయలేము. చిన్న ప్రాంతాన్ని ఎంచుకోండి.</string>
+    <string name="look_heal_pending">సేవ్ చేసే ముందు ఎంపికను వర్తింపజేయండి లేదా చెరపండి.</string>
+</resources>

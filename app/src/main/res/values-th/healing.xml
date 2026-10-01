@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">แก้ไข/ลบ</string>
+    <string name="look_heal_clear">ล้างส่วนที่เลือก</string>
+    <string name="look_heal_hint">ระบายบนจุดบกพร่องเล็ก ๆ แล้วแตะ ใช้ ใช้สองนิ้วเพื่อซูมหรือเลื่อน</string>
+    <string name="look_heal_working">กำลังแก้ไข...</string>
+    <string name="look_heal_failed">แก้ไขบริเวณนี้ไม่ได้ ลองเลือกบริเวณที่เล็กลง</string>
+    <string name="look_heal_pending">ใช้หรือล้างส่วนที่เลือกก่อนบันทึก</string>
+</resources>

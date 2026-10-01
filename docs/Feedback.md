@@ -1,10 +1,10 @@
 # Feedback AIV
 
-Versione **3.14**: miniature dei PNG ed esclusione dei PSD.
+Versione **3.24**: Correggi/Rimuovi nel modulo Dettaglio.
 [Apri il documento interattivo](https://roccobot.github.io/AIV/feedback.html) oppure
-[scarica AIV 3.14](https://github.com/Roccobot/AIV/releases/download/v3.14/AIV-3.14.apk).
+[scarica AIV 3.24](https://github.com/Roccobot/AIV/releases/download/v3.24/AIV-3.24.apk).
 
-Questo è il documento di Codex. Conserva le 12 prove ancora aperte della 3.13;
+Questo è il documento di Codex. Conserva tutte le prove ancora aperte dalla 3.13, comprese quelle della 3.14;
 le altre voci del documento Claude mantengono il loro stato. Filigrana e Fluidifica
 sono approvati e archiviati. Le prove sul telefono sono tutte **Non provato**.
 
@@ -12,12 +12,13 @@ Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
 Puoi aggiungere commenti e immagini. Il salvataggio avviene nel browser corrente:
 esporta il JSON per trasferire le risposte. `Invia` prepara il riepilogo, che devi copiare
-in chat; non invia automaticamente nulla. Codex aggiorna questo documento solo dopo
-il tuo giro completo, mantenendo gli aperti e archiviando i conclusi.
+in chat; non invia automaticamente nulla. Codex aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
+senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
 
-Le verifiche automatiche della 3.14 sono superate: 454 prove, zero fallimenti,
-controllo delle 28 traduzioni e compilazione. La riscrittura di un PNG con la stessa data
-è verificata sul banco; il rendering completo dell'editor richiede la prova sul telefono.
+Le verifiche automatiche della 3.24 sono superate: 472 prove, zero fallimenti,
+controllo delle 28 traduzioni e compilazione. Il correttore è verificato su fondo uniforme,
+linee interrotte, trama ripetuta, trasparenza, file PNG salvato e gesti dell'editor.
+Qualità su immagini reali, tempi e compatibilità dei formati richiedono il collaudo sul telefono.
 Le proposte per impostazioni e tablet sono documenti da valutare, non cambiamenti
 alla disposizione Android in questa release.
 
@@ -38,6 +39,14 @@ alla disposizione Android in questa release.
 | 3.14-01 | Non provato | | Attendere il collaudo. |
 | 3.14-02 | Non provato | | Attendere il collaudo. |
 | 3.14-03 | Non provato | | Attendere il collaudo. |
+| 3.24-01 | Non provato | | Attendere il collaudo. |
+| 3.24-02 | Non provato | | Attendere il collaudo. |
+| 3.24-03 | Non provato | | Attendere il collaudo. |
+| 3.24-04 | Non provato | | Attendere il collaudo. |
+| 3.24-05 | Non provato | | Attendere il collaudo. |
+| 3.24-06 | Non provato | | Attendere il collaudo. |
+| 3.24-07 | Non provato | | Attendere il collaudo. |
+| 3.24-08 | Non provato | | Attendere il collaudo. |
 
 ## 1. Aggiornamento e pagina delle impostazioni
 
@@ -168,6 +177,74 @@ devono tornare esiti, commenti e immagini. Premi Invia, poi copia il riepilogo e
 comprenda versione, risposte e osservazioni libere. Il riepilogo dice quali voci hanno immagini;
 per consegnarle usa il JSON o allegale alla chat. Prova anche il secondo clic per cancellare un
 esito e la leggibilità su telefono. Azzera tutto richiede conferma e riguarda il browser corrente.
+
+## 16. Correggi/Rimuovi: accesso e selezione
+
+Apri una copia di prova nell'editor completo, modulo Dettaglio, e tocca la nuova icona
+nella barra inferiore. Deve essere riconoscibile come Correggi/Rimuovi. Dipingi con un
+solo dito: compare la selezione nel colore primario al 50%, senza correggere subito.
+Ripassa sullo stesso punto: il verde non deve diventare più scuro. Prova un tocco singolo
+per selezionare una macchia. Cancella selezione deve togliere il verde senza alterare
+l'immagine, senza aggiungere un passo nella storia e senza far cambiare misura all'immagine.
+
+## 17. Dimensione del pennello, lentino e gesti
+
+Muovi lo slider: l'anteprima deve essere un cerchio spesso nel colore d'accento, senza
+contorni neri. Mentre dipingi il contorno deve essere sottile. Con un pennello piccolo
+entra il lentino di Fluidifica, nell'angolo più lontano dal dito, con il punto selezionato
+visibile anche nella lente. Ingrandisci e sposta con due dita: il gesto non deve dipingere.
+Ripeti nei due temi, con testo ingrandito e con il FAB sui due lati.
+
+## 18. Applica, Annulla e Ripristina
+
+Dipingi un difetto: prima di Applica l'immagine deve restare intatta e Salva deve essere
+spento. Premi Applica e attendi: la selezione scompare e la correzione diventa un solo
+passo di Annulla. Annulla deve ripristinare i pixel precedenti; Ripristina deve riportare
+la correzione. Applica un secondo intervento vicino al primo e ripeti Annulla/Ripristina.
+Originale e il tocco lungo sul gettone Dettaglio devono togliere le correzioni.
+
+## 19. Macchie, linee interrotte e trame
+
+Prova piccoli difetti su un fondo uniforme, un'imperfezione che interrompe una linea,
+e un elemento estraneo su una trama ripetuta. Seleziona tutto il difetto con un piccolo
+margine e premi Applica. Valuta raccordo, continuità della linea, ripetizioni innaturali
+e dettagli visibili dopo aver ingrandito. Il calcolo usa i pixel circostanti: una forma
+senza indizi rimasti non può essere ricostruita con certezza. Per i casi non riusciti
+allega originale e risultato, indicando l'area dipinta.
+
+## 20. Zoom, posa, geometria e cambio di modulo
+
+Seleziona e correggi dopo uno zoom, poi dopo un quarto di giro o un riflesso. Prova
+anche con Geometria e Fluidifica già applicati: deve cambiare proprio la zona dipinta.
+Passa a un altro modulo con una selezione ancora verde: Salva resta spento e l'avviso
+ricorda di applicarla o cancellarla. Tornando a Dettaglio ritrovi la selezione. Il cambio
+di modulo non applica correzioni. Indietro deve chiedere se scartare anche la sola selezione.
+
+## 21. File salvato, trasparenza e correzioni successive
+
+Correggi un PNG e salva una copia. Apri il file a schermo intero e ingrandisci: deve
+contenere lo stesso intervento, senza verde, alla risoluzione prevista dal salvataggio.
+Ripeti sovrascrivendo una copia di prova e controlla la miniatura. Su un PNG trasparente
+l'alfa deve rimanere invariata. Prova anche JPG e un formato con conversione in salvataggio
+se ne usi uno. Le aree esterne alla selezione devono rimanere intatte prima degli altri
+filtri e della compressione. Applica poi nitidezza, colore e uno stile: la correzione rimane.
+
+## 22. Uso offline, selezioni grandi e tempi
+
+Attiva la modalità aereo e ripeti una piccola correzione: deve funzionare senza rete,
+account o download. Indica dispositivo, risoluzione e tempo indicativo di Applica.
+Una selezione troppo grande deve produrre un avviso, conservando selezione e immagine:
+cancellala e riprova con aree più piccole. Verifica che durante il calcolo non si possano
+avviare altri interventi o salvare un risultato incompleto. Nessun fallimento deve
+applicare una correzione parziale.
+
+## 23. Feedback cumulativo e riscontri precedenti
+
+Le prove della 3.13 e della 3.14 e le tre decisioni sulle impostazioni, i tablet e il PNG
+restano aperte. Ricarica il documento nello stesso browser: eventuali esiti, commenti e
+immagini già salvati devono restare sulle rispettive voci. Le prove della 3.24 iniziano
+Non provato. Un JSON esportato dalla 3.14 deve continuare a importare i riscontri vecchi.
+Invia il giro completo quando puoi; nessuna voce senza risposta viene considerata approvata.
 
 ## Decisioni da concordare
 

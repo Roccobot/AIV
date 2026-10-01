@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Popraw/Usuń</string>
+    <string name="look_heal_clear">Wyczyść zaznaczenie</string>
+    <string name="look_heal_hint">Zamaluj drobną wadę i dotknij Zastosuj. Powiększaj lub przesuwaj dwoma palcami.</string>
+    <string name="look_heal_working">Poprawianie...</string>
+    <string name="look_heal_failed">Nie można poprawić tego obszaru. Zaznacz mniejszy obszar.</string>
+    <string name="look_heal_pending">Zastosuj lub wyczyść zaznaczenie przed zapisaniem.</string>
+</resources>

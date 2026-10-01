@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">सुधारें/हटाएं</string>
+    <string name="look_heal_clear">चयन मिटाएं</string>
+    <string name="look_heal_hint">छोटे दोष पर रंग लगाएं, फिर लागू करें पर टैप करें। ज़ूम या खिसकाने के लिए दो उंगलियां इस्तेमाल करें।</string>
+    <string name="look_heal_working">सुधार हो रहा है...</string>
+    <string name="look_heal_failed">इस क्षेत्र को सुधारा नहीं जा सकता। छोटा क्षेत्र चुनें।</string>
+    <string name="look_heal_pending">सहेजने से पहले चयन लागू करें या मिटाएं।</string>
+</resources>

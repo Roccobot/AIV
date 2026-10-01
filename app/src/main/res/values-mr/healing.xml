@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">दुरुस्त करा/काढा</string>
+    <string name="look_heal_clear">निवड मिटवा</string>
+    <string name="look_heal_hint">लहान दोषावर रंगवा, नंतर लागू करा वर टॅप करा. झूम किंवा हलवण्यासाठी दोन बोटे वापरा.</string>
+    <string name="look_heal_working">दुरुस्ती सुरू आहे...</string>
+    <string name="look_heal_failed">हा भाग दुरुस्त करता येत नाही. लहान भाग निवडा.</string>
+    <string name="look_heal_pending">जतन करण्यापूर्वी निवड लागू करा किंवा मिटवा.</string>
+</resources>

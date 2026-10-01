@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Correggi/Rimuovi</string>
+    <string name="look_heal_clear">Cancella selezione</string>
+    <string name="look_heal_hint">Dipingi su un piccolo difetto, poi tocca Applica. Usa due dita per ingrandire o spostare.</string>
+    <string name="look_heal_working">Correzione in corso...</string>
+    <string name="look_heal_failed">Impossibile correggere questa area. Prova una selezione più piccola.</string>
+    <string name="look_heal_pending">Applica o cancella la selezione prima di salvare.</string>
+</resources>

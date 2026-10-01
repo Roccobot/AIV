@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Rekebisha/Ondoa</string>
+    <string name="look_heal_clear">Futa uteuzi</string>
+    <string name="look_heal_hint">Paka kwenye kasoro ndogo, kisha gusa Tekeleza. Tumia vidole viwili kukuza au kusogeza.</string>
+    <string name="look_heal_working">Inarekebisha...</string>
+    <string name="look_heal_failed">Haiwezekani kurekebisha eneo hili. Jaribu kuchagua eneo dogo zaidi.</string>
+    <string name="look_heal_pending">Tekeleza au futa uteuzi kabla ya kuhifadhi.</string>
+</resources>

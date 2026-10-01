@@ -112,6 +112,7 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
@@ -142,6 +143,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -272,6 +275,7 @@ fun AdvancedEditorScreen(
 
     /** Dove si ha lo sguardo nella scheda, e se il colore mirato è armato: vedi [Gaze]. */
     val gaze = rememberSaveable(uri, saver = Gaze.Saver) { Gaze() }
+    val busy = busy || gaze.healingBusy
 
     /*
      * ⚠️⚠️ **CON DEL LAVORO DI SVILUPPO IN CORSO, INDIETRO CHIEDE PRIMA DI USCIRE, DALLA `2.90`, ED
@@ -292,7 +296,8 @@ fun AdvancedEditorScreen(
      */
     var leaving by remember(uri) { mutableStateOf(false) }
     fun leave() {
-        if (!busy && developed(look)) leaving = true else onBack()
+        if (gaze.healingBusy) return
+        if (!busy && (developed(look) || !gaze.selection.idle)) leaving = true else onBack()
     }
     BackHandler { leave() }
     if (leaving) {
@@ -402,6 +407,33 @@ fun AdvancedEditorScreen(
      * dopo, e partendo dal contrario il velo lampeggerebbe a ogni apertura.
      */
     val scope = rememberCoroutineScope()
+    fun applyHealing() {
+        if (busy || gaze.healingBusy || gaze.selection.idle) return
+        val originalLook = look
+        val selection = gaze.selection
+        val retainedBytes = history.flatMap { it.healing.patches }.distinct().sumOf { it.bytes.toLong() }
+        gaze.healingBusy = true
+        gaze.healingFailed = false
+        scope.launch {
+            try {
+                val patch = Healing.prepare(context, uri, full, originalLook.healing, selection)
+                ensureActive()
+                if (patch != null && retainedBytes + patch.bytes <= Healing.MAX_HISTORY_BYTES) {
+                    look = originalLook.copy(healing = Healing.Plan(originalLook.healing.patches + patch))
+                    push()
+                    gaze.selection = Healing.Selection.NONE
+                    gaze.healingFailed = false
+                } else gaze.healingFailed = true
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                gaze.healingFailed = true
+            } finally {
+                gaze.healingBusy = false
+            }
+        }
+    }
+
     val hinted by produceState(true) { Hint.MODULES.flow(context).collect { value = it } }
     var strip by remember { mutableStateOf(Rect.Zero) }
 
@@ -509,7 +541,7 @@ fun AdvancedEditorScreen(
                         // ⚠️ **E dalla `2.70` anche un ridimensionamento che rimpicciolisce
                         // davvero**: se su questa immagine quel piano non toglie un pixel, non
                         // c'è niente da scrivere.
-                        enabled = origin != null && !busy && (marked || shrinks || !look.idle),
+                        enabled = origin != null && !busy && gaze.selection.idle && (marked || shrinks || !look.idle),
                         onSave = { onSave(look, false) },
                         onBeside = { onSave(look, true) }
                     )
@@ -602,12 +634,34 @@ fun AdvancedEditorScreen(
                         brushStrength = { gaze.brushStrength },
                         onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
                         onLiquifyEnd = { push() },
+                        healing = { gaze.healing && !busy && MODULES[gaze.module].extra == Extra.HEALING },
+                        selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
+                        healingRadius = { gaze.healingRadius },
+                        healingSizing = { gaze.healingSizing },
+                        onHealPaint = { polygon ->
+                            if (!gaze.healingBusy) {
+                                if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
+                                    gaze.selection = gaze.selection.add(polygon)
+                                    gaze.healingFailed = false
+                                } else gaze.healingFailed = true
+                            }
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
+                }
+                // A draft hint overlays the stage so painting never changes its dimensions.
+                if (!gaze.selection.idle) {
+                    Text(stringResource(R.string.look_heal_pending),
+                        modifier = Modifier.align(Alignment.TopCenter)
+                            .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodySmall)
                 }
             }
 
             LookSheet(
+                onHealApply = { applyHealing() },
                 look = look,
                 busy = busy,
                 ready = origin != null,
@@ -665,6 +719,8 @@ fun AdvancedEditorScreen(
                     }
                 },
                 onOriginal = {
+                    gaze.selection = Healing.Selection.NONE
+                    gaze.healingFailed = false
                     look = Look.NONE
                     push()
                 }
@@ -917,6 +973,11 @@ private fun LookStage(
     brushStrength: () -> Float,
     onLiquify: (Liquify) -> Unit,
     onLiquifyEnd: () -> Unit,
+    healing: () -> Boolean,
+    selection: Healing.Selection?,
+    healingRadius: () -> Float,
+    healingSizing: () -> Boolean,
+    onHealPaint: (List<Offset>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -940,6 +1001,9 @@ private fun LookStage(
     val cornerTo by rememberUpdatedState(onCorners)
     val liquifyNow by rememberUpdatedState(look.geo.liquify)
     val liquifyTo by rememberUpdatedState(onLiquify)
+    val spinNow by rememberUpdatedState(look.spin)
+    val healTo by rememberUpdatedState(onHealPaint)
+    val healingNow by rememberUpdatedState(healing)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
     val metrics = LocalContext.current.resources.displayMetrics
     val brushCmPx = (metrics.xdpi.takeIf { it > 0f } ?: metrics.densityDpi.toFloat()) / 2.54f
@@ -978,8 +1042,12 @@ private fun LookStage(
      * vecchia non si ricicla a mano, perché può essere ancora dentro un disegno in corso (è la
      * stessa ragione scritta sui passi dell'editor semplice).
      */
-    val posed = remember(picture, look.spin) {
-        picture.spunBy(look.spin.turns, look.spin.mirror)
+    val posed = remember(picture, look.spin, look.healing) {
+        Healing.render(picture, look.healing).spunBy(look.spin.turns, look.spin.mirror)
+    }
+    val selectionMask = remember(picture, selection, look.spin, brushAccent) {
+        selection?.let { Healing.overlay(it, picture.width, picture.height, brushAccent.toArgb()) }
+            ?.spunBy(look.spin.turns, look.spin.mirror)
     }
     var scale by remember(picture) { mutableFloatStateOf(1f) }
     var shift by remember(picture) { mutableStateOf(Offset.Zero) }
@@ -1122,7 +1190,7 @@ private fun LookStage(
      * letture di stato non diventano dipendenze di nessuno. È la ragione per cui le chiavi sono
      * [resting] e [stage] e non i due valori che al conto servono davvero.
      */
-    LaunchedEffect(picture, full, stage, resting, look.geo.idle, look.square) {
+    LaunchedEffect(picture, full, stage, resting, look.geo.idle, look.square, look.healing) {
         val source = full
         if (source == null || stage.width <= 0f || stage.height <= 0f) {
             sharp = null
@@ -1152,8 +1220,11 @@ private fun LookStage(
         }
         // Lo stesso pezzo che si ha già in mano: un gesto può finire dove era cominciato, e
         // rileggerlo costerebbe una decodifica per niente.
-        if (sharp?.area == ask.area) return@LaunchedEffect
-        val pixels = source.tile(ask.area, ask.sample) ?: return@LaunchedEffect
+        // Applied patches can change while the viewport remains still.
+        val tile = source.tile(ask.area, ask.sample) ?: return@LaunchedEffect
+        val pixels = Healing.render(tile, look.healing, RectF(
+            ask.area.left.toFloat()/source.width, ask.area.top.toFloat()/source.height,
+            ask.area.right.toFloat()/source.width, ask.area.bottom.toFloat()/source.height))
         sharp = SharpPiece(
             pixels = pixels,
             area = ask.area,
@@ -1403,6 +1474,56 @@ private fun LookStage(
                                 held = Grab.NONE
                             }
                             onCutEnd()
+                        }
+                        return@awaitEachGesture
+                    }
+                    if (healingNow()) {
+                        brushHide?.cancel()
+                        brushAt = down.position
+                        brushTouching = true
+                        try {
+                            val outcome = settled(down, viewConfiguration.touchSlop) { brushAt = it }
+                            if (outcome == Settled.MULTI) {
+                                brushAt = null
+                                transformed(::pinch)
+                                resting++
+                                return@awaitEachGesture
+                            }
+                            var previous = down.position
+                            fun paintAt(point: Offset) {
+                                val view = viewport(room, shownNow, scale, shift, air(), framedNow)
+                                val visible = cutout(view, framedNow)
+                                if (!visible.contains(point.x, point.y) || view.width() <= 0 || view.height() <= 0) return
+                                val radius = healingRadius() * max(view.width(), view.height())
+                                val plan = Warp.plan(geoNow, view.centerX(), view.centerY(), view.width(), view.height())
+                                val polygon = (0 until 16).map { n ->
+                                    val angle = n * 2.0 * kotlin.math.PI / 16
+                                    val x = point.x + radius * kotlin.math.cos(angle).toFloat()
+                                    val y = point.y + radius * kotlin.math.sin(angle).toFloat()
+                                    val mapped = if (geoNow.idle) floatArrayOf(x,y)
+                                        else Warp.back(plan, view, geoNow.liquify, x,y)
+                                    Healing.unpose(Offset((mapped[0]-view.left)/view.width(),
+                                        (mapped[1]-view.top)/view.height()), spinNow)
+                                }
+                                healTo(polygon)
+                            }
+                            fun strokeTo(point: Offset) {
+                                val view = viewport(room, shownNow, scale, shift, air(), framedNow)
+                                val step = (healingRadius()*max(view.width(),view.height())/3f).coerceAtLeast(.25f)
+                                val count = kotlin.math.ceil((point-previous).getDistance()/step).toInt().coerceIn(1,Healing.MAX_POLYGONS)
+                                for (n in 1..count) paintAt(lerp(previous,point,n.toFloat()/count))
+                                previous = point
+                                brushAt = point
+                            }
+                            paintAt(down.position)
+                            strokeTo(brushAt ?: down.position)
+                            if (outcome == Settled.MOVED) drag(down.id) { change ->
+                                strokeTo(change.position)
+                                change.consume()
+                            }
+                        } finally {
+                            brushTouching = false
+                            brushHide = scope.launch { delay(1_000); brushAt = null }
                         }
                         return@awaitEachGesture
                     }
@@ -1746,6 +1867,27 @@ private fun LookStage(
             }
         }
 
+        fun DrawScope.paintSelection() {
+            val mask = selectionMask ?: return
+            val shader = BitmapShader(mask, TileMode.CLAMP, TileMode.CLAMP)
+            shader.setLocalMatrix(Matrix().apply {
+                setScale(view.width()/mask.width, view.height()/mask.height)
+                postTranslate(view.left,view.top)
+            })
+            val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG).apply {
+                this.shader = shader; alpha = 128
+            }
+            clipRect(visto.left,visto.top,visto.right,visto.bottom) {
+                drawIntoCanvas { canvas ->
+                    if (look.geo.idle) canvas.nativeCanvas.drawRect(view,paint)
+                    else Warp.draw(canvas.nativeCanvas,view,
+                        Warp.plan(look.geo,view.centerX(),view.centerY(),view.width(),view.height()),
+                        paint,look.geo.liquify)
+                }
+            }
+        }
+        paintSelection()
+
         fun DrawScope.pictureForLens() {
             clipRect(visto.left, visto.top, visto.right, visto.bottom) {
                 stendi(posed, view, true)
@@ -1759,6 +1901,7 @@ private fun LookStage(
                     )
                 }
             }
+            paintSelection()
         }
 
         /*
@@ -1813,14 +1956,14 @@ private fun LookStage(
             }
         }
 
-        if (liquifying()) {
-            val radius = brushRadius() * max(view.width(), view.height())
+        if (liquifying() || healing()) {
+            val radius = (if (healing()) healingRadius() else brushRadius()) * max(view.width(), view.height())
             val touching = brushAt
             val visibleLeft = max(0f, visto.left)
             val visibleTop = max(0f, visto.top)
             val visibleRight = min(room.width, visto.right)
             val visibleBottom = min(room.height, visto.bottom)
-            val preview = if (brushSizing() && visibleRight > visibleLeft && visibleBottom > visibleTop) {
+            val preview = if ((if (healing()) healingSizing() else brushSizing()) && visibleRight > visibleLeft && visibleBottom > visibleTop) {
                 val margin = 12.dp.toPx()
                 Offset(
                     if (visibleRight - visibleLeft >= 2f * (radius + margin)) {
@@ -2422,7 +2565,8 @@ private enum class Extra {
      * comune, e per questo resta fuori dalla misura: contarlo vorrebbe dire una scheda che si
      * alza a ogni stile salvato, anche per chi gli stili non li usa.
      */
-    PRESETS;
+    PRESETS,
+    HEALING;
 
     /**
      * Se questo modulo dice **dove** va un pixel invece di che colore è.
@@ -2850,9 +2994,10 @@ private val MODULES = listOf(
         PadKey.MOD_DETAIL,
         R.string.look_detail,
         rows = { DETAIL_ROWS },
-        clear = { it.copy(detail = Detail.NONE) },
-        spent = { !it.detail.idle },
-        icon = { Glyphs.ModDetail }
+        clear = { it.copy(detail = Detail.NONE, healing = Healing.Plan.NONE) },
+        spent = { !it.detail.idle || !it.healing.idle },
+        icon = { Glyphs.ModDetail },
+        extra = Extra.HEALING
     ),
     /*
      * ⚠️⚠️ **IL NONO VIVE QUI DALLA `2.55`, SUBITO DOPO IL DETTAGLIO, ED È SUA ISTRUZIONE**
@@ -3353,6 +3498,13 @@ private class Gaze(
     var aiming by mutableStateOf(false)
     var liquifying by mutableStateOf(false)
     var rebuilding by mutableStateOf(false)
+    var healing by mutableStateOf(false)
+    var healingRadius by mutableFloatStateOf(Healing.START_RADIUS)
+    var healingSizing by mutableStateOf(false)
+    var selection by mutableStateOf(Healing.Selection.NONE)
+    var healingBusy by mutableStateOf(false)
+    var healingFailed by mutableStateOf(false)
+
     var brushRadius by mutableFloatStateOf(0.10f)
     var brushSizing by mutableStateOf(false)
     var brushStrength by mutableFloatStateOf(0.50f)
@@ -3406,6 +3558,7 @@ private fun toneInk(channel: Int): Color = when (channel) {
  */
 @Composable
 private fun LookSheet(
+    onHealApply: () -> Unit,
     look: Look,
     busy: Boolean,
     ready: Boolean,
@@ -3541,6 +3694,10 @@ private fun LookSheet(
                             enabled = ready && !busy,
                             onTap = { gaze.module = i },
                             onHold = {
+                                if (mod.extra == Extra.HEALING) {
+                                    gaze.selection = Healing.Selection.NONE
+                                    gaze.healingFailed = false
+                                }
                                 onLive(mod.clear)
                                 onSettled()
                             },
@@ -3572,6 +3729,7 @@ private fun LookSheet(
                 measured = { MODULES[it].extra != Extra.PRESETS }
             ) { indice, comune ->
                 ModuleBody(
+                    onHealApply = onHealApply,
                     module = indice,
                     look = look,
                     gaze = gaze,
@@ -3709,7 +3867,7 @@ private fun LookSheet(
 }
 
 /** Le icone della barra bassa dell'editor completo, nell'ordine in cui si disegnano col FAB a destra. */
-internal enum class Bar { AIM, LIQUIFY, AUTO, UNDO, REDO, ORIGINAL }
+internal enum class Bar { AIM, LIQUIFY, HEAL, AUTO, UNDO, REDO, ORIGINAL }
 
 /**
  * L'ordine in cui la barra bassa disegna le sue icone, dato il lato del FAB.
@@ -3738,6 +3896,7 @@ internal fun barOrder(keys: List<Bar>, mirror: Boolean): List<Bar> {
 private fun Module.barKeys(): List<Bar> = buildList {
     if (extra == Extra.BANDS || extra == Extra.CORNERS) add(Bar.AIM)
     if (extra == Extra.CORNERS) add(Bar.LIQUIFY)
+    if (extra == Extra.HEALING) add(Bar.HEAL)
     if (auto) add(Bar.AUTO)
     add(Bar.UNDO)
     add(Bar.REDO)
@@ -3819,6 +3978,14 @@ private fun Comandi(
                     LocalContentColor.current
                 }
             )
+        }
+        Bar.HEAL -> IconButton(
+            modifier = button,
+            onClick = { gaze.healing = !gaze.healing },
+            enabled = ready && !busy
+        ) {
+            Icon(Glyphs.Heal, stringResource(R.string.look_heal), modifier = glyph,
+                tint = if (gaze.healing) MaterialTheme.colorScheme.primary else LocalContentColor.current)
         }
         Bar.LIQUIFY -> IconButton(
             modifier = button,
@@ -3904,6 +4071,7 @@ private fun Comandi(
  */
 @Composable
 private fun ModuleBody(
+    onHealApply: () -> Unit,
     module: Int,
     look: Look,
     gaze: Gaze,
@@ -3967,6 +4135,27 @@ private fun ModuleBody(
     /** Quante volte l'immagine **già posata** è più larga che alta: vedi [posedAspect]. */
     fun cropAspect(k: Look): Float = posedAspect(origin, k.spin)
 
+    if (mod.extra == Extra.HEALING && (gaze.healing || !gaze.selection.idle)) {
+        DisposableEffect(gaze) { onDispose { gaze.healingSizing = false } }
+        Text(stringResource(R.string.look_heal), style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(if (gaze.healingBusy) R.string.look_heal_working
+            else if (gaze.healingFailed) R.string.look_heal_failed else R.string.look_heal_hint),
+            style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.look_brush_size), style = MaterialTheme.typography.labelMedium)
+        Slider(value = gaze.healingRadius, onValueChange = {
+            gaze.healingSizing = true; gaze.healingRadius = it
+        }, onValueChangeFinished = { gaze.healingSizing = false },
+            valueRange = Healing.MIN_RADIUS..Healing.MAX_RADIUS, enabled = ready && !busy)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            TextButton(onClick = {
+                gaze.selection = Healing.Selection.NONE; gaze.healingFailed = false
+            }, enabled = !busy && !gaze.selection.idle) { Text(stringResource(R.string.look_heal_clear)) }
+            TextButton(onClick = onHealApply, enabled = ready && !busy && !gaze.selection.idle) {
+                Text(stringResource(R.string.editor_apply))
+            }
+        }
+        return
+    }
     if (mod.extra == Extra.CORNERS && gaze.liquifying) {
         DisposableEffect(gaze) {
             onDispose { gaze.brushSizing = false }

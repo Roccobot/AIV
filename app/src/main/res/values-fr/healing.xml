@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Corriger/Supprimer</string>
+    <string name="look_heal_clear">Effacer la sélection</string>
+    <string name="look_heal_hint">Peignez un petit défaut, puis touchez Appliquer. Utilisez deux doigts pour zoomer ou déplacer.</string>
+    <string name="look_heal_working">Correction en cours...</string>
+    <string name="look_heal_failed">Impossible de corriger cette zone. Essayez une sélection plus petite.</string>
+    <string name="look_heal_pending">Appliquez ou effacez la sélection avant de sauvegarder.</string>
+</resources>

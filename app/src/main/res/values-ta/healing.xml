@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">திருத்து/அகற்று</string>
+    <string name="look_heal_clear">தேர்வை அழி</string>
+    <string name="look_heal_hint">சிறிய குறைபாட்டின் மேல் வரையவும், பிறகு பயன்படுத்து என்பதைத் தட்டவும். பெரிதாக்க அல்லது நகர்த்த இரண்டு விரல்களைப் பயன்படுத்தவும்.</string>
+    <string name="look_heal_working">திருத்தப்படுகிறது...</string>
+    <string name="look_heal_failed">இந்தப் பகுதியைத் திருத்த முடியவில்லை. சிறிய பகுதியைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="look_heal_pending">சேமிப்பதற்கு முன் தேர்வைப் பயன்படுத்தவும் அல்லது அழிக்கவும்.</string>
+</resources>

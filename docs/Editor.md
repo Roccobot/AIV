@@ -282,6 +282,34 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️ **Il banco non vede i pixel che ne escono**: misura il riposo, lo spegnimento, il reset, la
   scala col lato e le tessere.
 
+### Correggi/Rimuovi dentro Dettaglio
+
+- Richiesta del 2026-10-01: icona disegnata nella barra inferiore, come Fluidifica.
+  Il tasto entra nella modalità; un dito dipinge una selezione nel colore primario al 50%,
+  con il lentino di Fluidifica per i pennelli piccoli. Due dita ingrandiscono o spostano
+  senza dipingere. Lo slider mostra un cerchio spesso d'accento; durante il contatto il
+  contorno è sottile. Le passate sovrapposte non aumentano l'opacità della selezione.
+- **Solo Applica cambia i pixel**. Cancella selezione toglie soltanto il verde. Ogni
+  applicazione è un passo normale di Annulla/Ripristina. Originale e il reset del modulo
+  tolgono le correzioni; Indietro protegge anche una selezione ancora da applicare.
+  Salva aspetta che la selezione sia applicata o cancellata, anche passando a un altro modulo.
+- Il calcolo è interamente offline, senza AI, librerie aggiunte, modelli o servizi:
+  `Inpaint.kt` cerca piccoli campioni integri nell'intorno, dà priorità alla continuità
+  dei bordi e raccorda i colori al contorno. Non ricava dettagli certi dove manca ogni
+  indizio. I piccoli difetti e le forme ripetute sono il primo impiego; la resa su
+  immagini reali rimane da collaudare.
+- I campioni provengono dalla sorgente originale, con le correzioni precedenti già
+  applicate, prima di posa, sviluppo e geometria. Le selezioni seguono le coordinate
+  originali anche dopo zoom, posa e deformazione. Le patch conservano i pixel calcolati
+  a piena risoluzione: anteprima, tasselli e salvataggio riusano quel risultato.
+  I pixel esterni alla selezione e l'alfa si conservano; gli stili escludono le patch.
+- Il lavoro locale ha limiti espliciti: 16.384 pixel selezionati per applicazione,
+  262.144 pixel nel rettangolo di lavoro con il suo contorno, 16 MiB di patch conservate
+  nella storia. Una selezione troppo grande o senza campioni integri lascia immagine
+  e selezione intatte, mostrando un avviso. Si lavora su piccoli difetti uno alla volta.
+  Quando il formato permette la lettura per regioni si decodifica soltanto il pezzo;
+  negli altri formati si usa la decodifica dell'immagine prevista dal salvataggio.
+
 ## ✨ Il modulo Effetti, e i suoi cursori
 
 - ⚠️⚠️ **Il modulo include Foschia, Grana e Vignettatura** (sua risposta `effetti` a

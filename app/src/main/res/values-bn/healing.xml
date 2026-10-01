@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">সংশোধন/সরান</string>
+    <string name="look_heal_clear">নির্বাচন মুছুন</string>
+    <string name="look_heal_hint">ছোট ত্রুটির ওপর আঁকুন, তারপর প্রয়োগ করুন চাপুন। জুম বা সরাতে দুই আঙুল ব্যবহার করুন।</string>
+    <string name="look_heal_working">সংশোধন হচ্ছে...</string>
+    <string name="look_heal_failed">এই অংশ সংশোধন করা যায়নি। আরও ছোট অংশ নির্বাচন করুন।</string>
+    <string name="look_heal_pending">সংরক্ষণের আগে নির্বাচন প্রয়োগ করুন বা মুছুন।</string>
+</resources>

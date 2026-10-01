@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Виправити/Видалити</string>
+    <string name="look_heal_clear">Очистити виділення</string>
+    <string name="look_heal_hint">Зафарбуйте невеликий дефект і натисніть Застосувати. Масштабуйте або пересувайте двома пальцями.</string>
+    <string name="look_heal_working">Виправлення...</string>
+    <string name="look_heal_failed">Не вдалося виправити цю область. Виділіть меншу область.</string>
+    <string name="look_heal_pending">Застосуйте або очистьте виділення перед збереженням.</string>
+</resources>

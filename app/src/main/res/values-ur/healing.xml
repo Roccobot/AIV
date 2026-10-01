@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">درست کریں/ہٹائیں</string>
+    <string name="look_heal_clear">انتخاب مٹائیں</string>
+    <string name="look_heal_hint">چھوٹے نقص پر رنگ کریں، پھر لاگو کریں کو چھوئیں۔ زوم یا حرکت کے لیے دو انگلیاں استعمال کریں۔</string>
+    <string name="look_heal_working">درست کیا جا رہا ہے...</string>
+    <string name="look_heal_failed">اس حصے کو درست نہیں کیا جا سکا۔ چھوٹا حصہ منتخب کریں۔</string>
+    <string name="look_heal_pending">محفوظ کرنے سے پہلے انتخاب لاگو کریں یا مٹائیں۔</string>
+</resources>

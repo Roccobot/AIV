@@ -117,6 +117,44 @@ def check(path):
             second.screenshot(path='/tmp/aiv-feedback-dark.png', full_page=False)
             page.set_viewport_size({'width': 1100, 'height': 900})
             page.screenshot(path='/tmp/aiv-feedback-light.png', full_page=False)
+            # A previous release's saved draft must survive the cumulative document update.
+            legacy = json.loads(export.read_text())
+            legacy['version'] = legacy['installed'] = '3.14'
+            legacy['entries'] = {key: value for key, value in legacy['entries'].items()
+                                 if key.startswith(('3.13-', '3.14-'))}
+            legacy['entries']['3.14-03'] = {'status': 'Tutto OK', 'comment': 'Riscontro precedente conservato', 'images': []}
+            legacy['decisions']['d-settings-order']['comment'] = 'Decisione precedente conservata'
+            migration_context = browser.new_context()
+            migration = migration_context.new_page()
+            migration.on('pageerror', lambda e: errors.append(str(e)))
+            migration.goto(url)
+            expect(migration.locator('#save')).to_be_enabled()
+            migration.evaluate("""async draft => {
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('aiv-feedback', 1);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                await new Promise((resolve, reject) => {
+                    const transaction = db.transaction('drafts', 'readwrite');
+                    transaction.objectStore('drafts').put(draft, 'current');
+                    transaction.oncomplete = resolve;
+                    transaction.onerror = () => reject(transaction.error);
+                });
+                db.close();
+            }""", legacy)
+            migration.reload()
+            expect(migration.locator('#save')).to_be_enabled()
+            expect(migration.locator('[data-id="3.13-01"] .item-state')).to_have_text('Accettabile')
+            expect(migration.locator('[data-id="3.14-03"] .comment')).to_have_value('Riscontro precedente conservato')
+            expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
+            expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
+            expect(migration.locator('#installed')).to_have_value('3.14')
+            expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(1)
+            for item in data['items']:
+                if item['version'] == data['version']:
+                    expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_text('Non provato')
+            migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
         print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini, JSON, clipboard e larghezze verificati.')

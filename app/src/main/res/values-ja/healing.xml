@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">修復/除去</string>
+    <string name="look_heal_clear">選択範囲を消去</string>
+    <string name="look_heal_hint">小さな傷を塗り、適用をタップします。2本の指で拡大や移動ができます。</string>
+    <string name="look_heal_working">修復中...</string>
+    <string name="look_heal_failed">この範囲は修復できません。選択範囲を小さくしてください。</string>
+    <string name="look_heal_pending">保存する前に選択範囲を適用または消去してください。</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">تصحيح/إزالة</string>
+    <string name="look_heal_clear">مسح التحديد</string>
+    <string name="look_heal_hint">لوّن عيبًا صغيرًا ثم اضغط على تطبيق. استخدم إصبعين للتكبير أو التحريك.</string>
+    <string name="look_heal_working">جارٍ التصحيح...</string>
+    <string name="look_heal_failed">تعذر تصحيح هذه المنطقة. جرّب تحديدًا أصغر.</string>
+    <string name="look_heal_pending">طبّق التحديد أو امسحه قبل الحفظ.</string>
+</resources>

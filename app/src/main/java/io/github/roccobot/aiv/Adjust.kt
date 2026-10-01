@@ -1181,7 +1181,8 @@ data class Look(
      * RITAGLIO**: adesso vale anche là, che è la sua richiesta, e il perché di ogni pezzo vive
      * su [Framing].
      */
-    val framing: Framing = Framing.NONE
+    val framing: Framing = Framing.NONE,
+    val healing: Healing.Plan = Healing.Plan.NONE
 ) {
 
     /**
@@ -1225,7 +1226,7 @@ data class Look(
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
     val idle: Boolean
-        get() = plain && geo.idle && square
+        get() = plain && geo.idle && square && healing.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -1246,7 +1247,7 @@ data class Look(
      * ⚠️ **Un taglio invece riscrive**, e non è una scelta: un ritaglio a blocchi lascerebbe il
      * bordo al multiplo di otto più vicino, cioè non taglierebbe dove l'utente ha chiesto.
      */
-    val lossless: Boolean get() = plain && geo.idle && crop.whole
+    val lossless: Boolean get() = plain && geo.idle && crop.whole && healing.idle
 
     companion object {
         val NONE = Look()

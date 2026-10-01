@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Heal/Remove</string>
+    <string name="look_heal_clear">Clear selection</string>
+    <string name="look_heal_hint">Paint over a small defect, then tap Apply. Use two fingers to zoom or pan.</string>
+    <string name="look_heal_working">Healing...</string>
+    <string name="look_heal_failed">Cannot heal this area. Try a smaller selection.</string>
+    <string name="look_heal_pending">Apply or clear the selection before saving.</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">اصلاح/حذف</string>
+    <string name="look_heal_clear">پاک کردن انتخاب</string>
+    <string name="look_heal_hint">روی نقصی کوچک بکشید و سپس اعمال را لمس کنید. با دو انگشت بزرگ‌نمایی یا جابه‌جا کنید.</string>
+    <string name="look_heal_working">در حال اصلاح...</string>
+    <string name="look_heal_failed">اصلاح این ناحیه ممکن نیست. ناحیه کوچک‌تری انتخاب کنید.</string>
+    <string name="look_heal_pending">پیش از ذخیره، انتخاب را اعمال یا پاک کنید.</string>
+</resources>

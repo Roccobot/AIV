@@ -157,7 +157,10 @@ def read(path):
     multilingua*).
     """
     strings, plurals, fissi = {}, {}, set()
-    for el in ET.parse(path).getroot():
+    # Android merges strings from every resource XML in the same configuration.
+    elements = [el for name in sorted(os.listdir(os.path.dirname(path))) if name.endswith('.xml')
+                for el in ET.parse(os.path.join(os.path.dirname(path), name)).getroot()]
+    for el in elements:
         if el.tag == 'string':
             strings[el.get('name')] = el.text or ''
             if el.get('translatable') == 'false':

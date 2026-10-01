@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Perbaiki/Hapus</string>
+    <string name="look_heal_clear">Hapus seleksi</string>
+    <string name="look_heal_hint">Sapukan pada cacat kecil, lalu ketuk Terapkan. Gunakan dua jari untuk memperbesar atau menggeser.</string>
+    <string name="look_heal_working">Memperbaiki...</string>
+    <string name="look_heal_failed">Area ini tidak dapat diperbaiki. Coba seleksi yang lebih kecil.</string>
+    <string name="look_heal_pending">Terapkan atau hapus seleksi sebelum menyimpan.</string>
+</resources>

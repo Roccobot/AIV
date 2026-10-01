@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Sửa/Xóa</string>
+    <string name="look_heal_clear">Xóa vùng chọn</string>
+    <string name="look_heal_hint">Tô lên một lỗi nhỏ, rồi chạm Áp dụng. Dùng hai ngón tay để thu phóng hoặc di chuyển.</string>
+    <string name="look_heal_working">Đang sửa...</string>
+    <string name="look_heal_failed">Không thể sửa vùng này. Hãy chọn vùng nhỏ hơn.</string>
+    <string name="look_heal_pending">Áp dụng hoặc xóa vùng chọn trước khi lưu.</string>
+</resources>

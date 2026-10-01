@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">Corrigeren/Verwijderen</string>
+    <string name="look_heal_clear">Selectie wissen</string>
+    <string name="look_heal_hint">Schilder over een klein defect en tik op Toepassen. Zoom of verschuif met twee vingers.</string>
+    <string name="look_heal_working">Bezig met corrigeren...</string>
+    <string name="look_heal_failed">Dit gebied kan niet worden gecorrigeerd. Probeer een kleinere selectie.</string>
+    <string name="look_heal_pending">Pas de selectie toe of wis deze voordat je opslaat.</string>
+</resources>

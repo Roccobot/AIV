@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_heal">修复/移除</string>
+    <string name="look_heal_clear">清除选区</string>
+    <string name="look_heal_hint">涂抹小瑕疵，然后点按应用。用双指缩放或移动。</string>
+    <string name="look_heal_working">正在修复...</string>
+    <string name="look_heal_failed">无法修复此区域。请尝试更小的选区。</string>
+    <string name="look_heal_pending">保存前请应用或清除选区。</string>
+</resources>
