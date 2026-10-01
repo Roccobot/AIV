@@ -2161,7 +2161,7 @@ internal const val THIRD_PX = 1f
  * ⚠️ Lo spessore dell'anello **non** è qui: è quello delle squadrette d'angolo, e il perché sta
  * in [lens].
  */
-private const val LOUPE_ZOOM = 4f
+internal const val LOUPE_ZOOM = 4f
 internal val LOUPE_SIDE = 112.dp
 internal val LOUPE_EDGE = 8.dp
 
