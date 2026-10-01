@@ -1,19 +1,22 @@
 # Feedback AIV
 
 Versione **3.24**: Correggi/Rimuovi nel modulo Dettaglio.
-[Apri il documento interattivo](https://roccobot.github.io/AIV/feedback.html) oppure
+[Apri il documento interattivo](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html) oppure
 [scarica AIV 3.24](https://github.com/Roccobot/AIV/releases/download/v3.24/AIV-3.24.apk).
 
-Questo è il documento dell'agente. Conserva tutte le prove ancora aperte dalla 3.13, comprese quelle della 3.14;
+Questo è il documento condiviso da tutti gli agenti e le piattaforme.
+La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo. Conserva tutte le prove ancora aperte dalla 3.13, comprese quelle della 3.14;
 le altre voci del documento Claude mantengono il loro stato. Filigrana e Fluidifica
-sono approvati e archiviati. Le prove sul telefono sono tutte **Non provato**.
+sono approvati e archiviati. Gli esiti qui riportati si aggiornano dopo la consegna del giro completo;
+le risposte nella bozza privata non sono pubblicate automaticamente.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
 Nei commenti delle verifiche, delle decisioni e delle osservazioni puoi usare Grassetto, Corsivo e Link, oppure Cmd+B/I/K (Ctrl+B/I/K sulle altre tastiere). I campi mostrano direttamente la formattazione, con più righe disponibili e altezza regolabile. Il testo viene conservato come Markdown; i link aprono nuove schede.
 
-Puoi aggiungere commenti e allegati (PNG, JPG, WebP, GIF, SVG e ZIP), anche trascinandoli sulla voce. Gli stessi allegati sono disponibili in Qualsiasi altra cosa; gli ZIP restano interi e possono essere scaricati. Le voci con un esito, un commento o un allegato sono evidenziate: verde per Tutto OK, ambra per Accettabile, rosso per Non approvato. Commenti e allegati senza esito hanno evidenza neutra; le decisioni con una scelta o un commento sono evidenziate allo stesso modo. I contatori continuano a misurare soltanto gli esiti. Il salvataggio avviene nel browser corrente:
-esporta il JSON per trasferire le risposte. `Invia` prepara il riepilogo, che devi copiare
+Puoi aggiungere commenti e allegati (PNG, JPG, WebP, GIF, SVG e ZIP), anche trascinandoli sulla voce. Gli stessi allegati sono disponibili in Qualsiasi altra cosa; gli ZIP restano interi e possono essere scaricati. Le voci con un esito, un commento o un allegato sono evidenziate: verde per Tutto OK, ambra per Accettabile, rosso per Non approvato. Commenti e allegati senza esito hanno evidenza neutra; le decisioni con una scelta o un commento sono evidenziate allo stesso modo. I contatori continuano a misurare soltanto gli esiti. Il salvataggio avviene nel cloud privato: accedi con GitHub per continuare da un altro dispositivo.
+Attendi **Salvato nel cloud**; esporta il JSON per conservarne una copia con gli allegati.
+I campi Telefono e Tablet mantengono separati modello e versione Android. `Invia` prepara il riepilogo, che devi copiare
 in chat; non invia automaticamente nulla. L'agente aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
 senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
 

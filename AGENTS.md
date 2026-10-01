@@ -233,18 +233,18 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   (selettore, salvataggio, rinomina, miniature, esporta e importa) e `docs/Editor.md` (pose,
   moduli, stili, filigrana, ridimensionamento). Prima di toccare una di quelle funzioni si legge il
   suo file per intero (`Rules.md` § '📚 Dove vivono le specifiche delle funzioni').
-- **Il documento di feedback** (nome ufficiale, da usare nei testi scritti da noi) vive in
-  <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> e tiene lo stesso
-  indirizzo a ogni ripubblicazione. ⚠️ La pubblicazione risponde col link corto
-  <https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq>, che è lo stesso documento: non si segnala
-  come un indirizzo nuovo (`Rules.md` § '🔗 Il documento vivo del progetto').
-- ⚠️ **Prima di pubblicarlo si lancia `tools/feedback-check.py`**, che lo apre in Chromium: due
-  documenti muti sono già arrivati all'utente. Mentre lui compila non si ripubblica, e le voci nuove
-  aspettano in una bozza; il risveglio automatico non serve, perché il via libera lo dà lui
-  (`Rules.md` § '🔗 Il documento vivo del progetto').
-- **Il documento vivo è uno solo dal 2026-09-25**: il changelog e il piano d'azione sono ritirati, e
-  l'ordine dei lavori vive nel brief. La sequenza dei lavori non si chiama 'treno' né un gruppo
-  'vagone', da nessuna parte (`Rules.md` § '🔗 Il documento vivo del progetto').
+- **Il documento di feedback condiviso da tutti gli agenti** vive in
+  <https://aiv-feedback.roccobot-b90.workers.dev/feedback.html>. Prima di aggiornarlo leggi
+  `docs/Feedback-maintenance.md`: fonti, identificatori stabili, cloud, formato dei dati,
+  verifiche e pubblicazione (`Rules.md` § '🔗 Il documento vivo del progetto').
+- **Prima di pubblicarlo esegui `tools/feedback-check.py publish/feedback.html`**; per cloud
+  e salvataggio anche le suite Node/PostgreSQL e `tools/feedback-cloud-check.py`. Il workflow
+  `Feedback cloud` deve concludere check e deploy. Mentre l'utente compila si prepara una
+  bozza, salvo sua richiesta esplicita di aggiornamento; si prende in carico il giro intero.
+- **Il documento vivo è uno solo**: l'artefatto Claude precedente è un riferimento storico,
+  GitHub Pages conserva la vecchia bozza locale; non creare copie per agente. Changelog e
+  piano d'azione sono ritirati, l'ordine dei lavori vive nel brief (`Rules.md` § '🔗 Il
+  documento vivo del progetto').
 - **Versione SlimVer, con la fonte unica in `versionName` di `app/build.gradle.kts`**: il tag lo
   ricava il workflow. ⚠️ Il `versionCode` va fatto salire a ogni versione pubblicata, e nessun
   controllo lo verifica (`Rules.md` § '🚀 Che cosa produce un rilascio').

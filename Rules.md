@@ -40,65 +40,37 @@ sessione dopo è perso.
 
 ## 🔗 Il documento vivo del progetto
 
-- **Codex, dopo ogni release, consegna direttamente in chat i passi di collaudo**, con il
-  percorso dei comandi e il risultato atteso, oppure prepara un proprio documento di feedback
-  funzionante (istruzione dell'utente del 2026-09-30). Il suo documento vive in
-  `docs/Feedback.md`, con prove numerate e risposte in chat. Una bozza che richiede una sessione Claude
-  autenticata non basta come consegna. Il documento Claude conserva il suo indirizzo e le sue
-  voci aperte.
-  Ogni voce ha passi, risultato atteso, stato, commento e azione successiva. Codex aggiorna
-  il documento solo dopo il giro completo consegnato dall'utente, conserva le voci aperte
-  fra release e archivia i riscontri conclusi. Le prove automatiche superate restano distinte
-  dai collaudi manuali ancora da eseguire.
+- Il **documento di feedback è condiviso da tutte le piattaforme e tutti gli agenti**.
+  Indirizzo stabile: <https://aiv-feedback.roccobot-b90.workers.dev/feedback.html>.
+  Titolo `Feedback AIV`; i testi visibili usano `l'agente`, senza attribuzione esclusiva.
+  Il proprietario ha confermato il funzionamento completo il 1 ottobre 2026.
+- **Prima di prenderlo in carico o aggiornarlo leggi `docs/Feedback-maintenance.md`**:
+  è la guida comune per fonti, convenzioni, schema JSON, salvataggio, sicurezza, errori,
+  prove e pubblicazione. La configurazione tecnica vive in `cloud/feedback/README.md`.
+- `docs/Feedback.md` è la fonte delle prove e degli identificatori; il generatore è
+  `tools/feedback-build.py`. Si modifica la fonte, si rigenera `publish/feedback.html`,
+  si controlla `--check` e si esegue `tools/feedback-check.py publish/feedback.html`.
+  Per il cloud servono anche prove Node/PostgreSQL e due sessioni browser; verificare
+  check e deploy del workflow `Feedback cloud`, senza dichiarare attiva una bozza locale.
+- Cloudflare Workers Free serve pagina/accesso GitHub; Supabase Free conserva bozze e
+  allegati privati. Credenziali soltanto lato server. `Invia` prepara il riepilogo per
+  la chat: salvare nel cloud non consegna il giro all'agente e non autorizza a leggere
+  il database personale. Gli agenti elaborano il JSON/riepilogo ricevuto dal proprietario.
+- Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
+  soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
+  l'approvazione del documento non approva automaticamente le feature Android.
+- **Dopo ogni release si consegnano i passi di collaudo e il risultato atteso**, in chat
+  o nel documento funzionante. Una bozza che richiede accesso a una piattaforma diversa
+  non basta. Non creare un secondo documento per l'agente che prende in carico il lavoro.
+- **Durante la compilazione si prepara una bozza senza ripubblicare**, salvo richiesta
+  esplicita dell'utente. Nessun risveglio automatico è necessario: il giro si prende
+  intero solo quando viene consegnato. La regola completa vive in `Roccobot.md`
+  § '⏸️ Il giro si prende INTERO, e solo quando lo dice lui'.
+- La [copia GitHub Pages](https://roccobot.github.io/AIV/feedback.html) conserva il vecchio
+  salvataggio locale per compatibilità e trasferimento; non è il servizio sincronizzato.
+  Il precedente [artefatto Claude](https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq)
+  rimane un riferimento storico per le sue voci ancora aperte, senza chiuderle implicitamente.
 
-
-- **Il documento interattivo di Codex** vive all'indirizzo stabile
-  <https://roccobot.github.io/AIV/feedback.html>, pubblicato da `publish/feedback.html`.
-  `docs/Feedback.md` è la fonte delle prove e dei loro identificatori; si aggiorna quello,
-  poi si esegue `python3 tools/feedback-build.py` e si verifica l'allineamento con `--check`.
-  `tools/feedback-check.py publish/feedback.html` verifica anche salvataggio nel browser,
-  immagini originali, esportazione/importazione JSON e riepilogo copiabile.
-  Le risposte rimangono nel browser; `Invia` prepara il riepilogo da consegnare in chat,
-  senza inviare dati a un servizio. I tre esiti sono Tutto OK, Accettabile e Non approvato;
-  una scelta vuota indica Non provato. Le decisioni sulle proposte non entrano nei contatori.
-  Gli identificatori rimangono stabili fra release per conservare le risposte aperte.
-
-| documento | a che cosa serve | indirizzo |
-|---|---|---|
-| **Documento di feedback** | le voci da provare della versione appena uscita, coi tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
-
-- ⚠️⚠️ **Il nome ufficiale è 'documento di feedback'** (sua precisazione), e nei testi scritti da
-  noi (chat, commit, artefatti) si usa quello. **Feedback AIV** è il titolo in testa al documento;
-  **documento di lavoro**, **foglio condiviso** e **foglio di collaudo** sono sinonimi che lui
-  alterna, e a lui non si correggono.
-  - ⚠️ **'Collaudo' resta il nome della procedura**: la regola universale è `Roccobot.md`
-    § '🔁 Il giro del collaudo: rilascio, documento, riscontro', e quel titolo non si cambia.
-- ⚠️ **Tiene lo stesso indirizzo a ogni ripubblicazione**: è fra i suoi preferiti.
-  - ⚠️⚠️ **La pubblicazione risponde col link corto
-    <https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq>, ed è lo stesso documento**: non si
-    segnala come un indirizzo nuovo. Una frase in chat che lo ricontrollava gli ha fatto pensare a
-    un guasto, con tutte le pubblicazioni riuscite al primo tentativo.
-- ⚠️⚠️ **Prima di pubblicarlo lo si apre in un browser, e il presidio è
-  `tools/feedback-check.py`**: nessuna rilettura del codice vede un campo che manca nei dati,
-  perché il programma è valido e il difetto si vede solo aprendo la pagina. Due documenti muti sono
-  già arrivati a lui, con due cause senza niente in comune (una stringa non chiusa, un campo
-  assente).
-  - **Misura due cose di specie diversa**: la forma dei dati letti dal file (i campi che il disegno
-    legge) e la resa in Chromium, cioè che la pagina parta e disegni tanti riquadri quanti ne
-    contengono i dati. Senza browser dichiara che la resa non è provata.
-  - ⚠️ **Si misura il file HTML da pubblicare e non lo script che lo compone**: gli script vivono
-    nello scratchpad e spariscono con la sessione.
-  - ⚠️ **La pagina regge un campo assente disegnando un riquadro in meno**, ed è per questo che il
-    verificatore serve: senza, un campo dimenticato passa in silenzio.
-- ⚠️⚠️ **Una compilazione a metà non si prende in carico, e il documento non si ripubblica mentre
-  lui lo compila** (sua istruzione). Il giro si consegna con 'Invia' o con una riga in chat e si
-  prende intero; spezzarlo in più versioni è una decisione della sessione, dopo la consegna, e nel
-  frattempo le voci nuove e le correzioni vivono in una bozza. La pagina che si ripubblica da sé
-  sul suo input resta. La regola per esteso vive in `Roccobot.md` § '⏸️ Il giro si prende INTERO,
-  e solo quando lo dice lui'.
-  - ⚠️ **Il risveglio automatico su questo documento non serve, e la sua assenza non si scrive come
-    una mancanza**: la sottoscrizione è rifiutata (`mint_failed`), ma il via libera lo dà lui, e un
-    risveglio a ogni salvataggio cadrebbe in mezzo a una compilazione.
 - ⚠️⚠️ **Il documento vivo è uno solo**: il Changelog AIV non si aggiorna più e il Piano d'azione
   AIV non esiste più (decisioni sue). Chi ne trova l'indirizzo in un messaggio vecchio lo sappia; il
   perché vive in `Roccobot.md` § '🧾 Il changelog, provato e ritirato' e § '🗺️ Il piano d'azione,
