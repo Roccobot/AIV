@@ -28,7 +28,7 @@ export class SupabaseStore {
     if (allowed.includes('missing') && response.status === 404) return null;
     const error = Error(`Archivio Supabase non disponibile (HTTP ${response.status}).`);
     error.status = response.status;
-    error.code = /^[A-Z0-9_]+$/.test(code) ? code : '';
+    error.code = /^([A-Z][A-Za-z0-9_]{0,80}|[0-9]{5})$/.test(code) ? code : '';
     throw error;
   }
   path(key) {
