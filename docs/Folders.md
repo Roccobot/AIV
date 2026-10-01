@@ -159,6 +159,10 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   zero finché la fascia aveva spazio da chiudere (misurato con una spia dentro il nodo).
 - ⚠️⚠️ **Il salto passa dallo scorrimento annidato come un dito**, e così l'intestazione si riapre
   in cima, che è la sua richiesta: succede perché è quello che succede già col dito.
+- ⚠️⚠️ **Griglia ed elenco della home riempiono l'altezza rimanente, dalla `3.25`** (giro 3.24,
+  voce `3.13-02`): in Modalità incluse le cartelle sono poche; senza `weight`/`fillMaxSize` il
+  vano restava alto quanto il contenuto e il trascinamento sul vuoto non riapriva
+  l'intestazione. In Modalità escluse l'elenco lungo mascherava il difetto.
   - ⚠️ **I segni**: `scrollBy` conta positivo verso il fondo, il puntatore positivo verso il basso.
     Lo presidia il banco, perché un segno di troppo non lo vede nessun compilatore.
   - ⚠️ **La distanza è una stima e serve solo alla durata**: una lista pigra non sa quanto è alto

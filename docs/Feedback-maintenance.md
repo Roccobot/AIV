@@ -177,6 +177,11 @@ nel brief il passaggio mancante, senza creare un secondo documento o un nuovo in
 2. **La richiesta esplicita in chat autorizza la presa in carico**, per esempio
    `Leggi l'ultimo giro di feedback`. Solo allora l'agente esegue il recupero.
    Nessun monitoraggio automatico di salvataggi o invii, nessuna lettura preventiva.
+3. ⚠️⚠️ **Subito dopo il recupero, e prima di qualsiasi lavoro prodotto**, si travasa
+   **tutto** nel brief privato `Roccobot/tools/.memo/LATEST.md` (esiti, commenti,
+   decisioni con chiave, note del campo libero, ordine di lavoro). Solo dopo si
+   tocca il codice. Regola universale: `rules/Roccobot.md` § '📋 Prima cosa: tutto
+   nel brief, prima del lavoro prodotto'. Allegati e JSON restano fuori dal repo.
 
 Per recuperare, con GitHub CLI autenticato come proprietario e Node 24, dalla radice AIV:
 

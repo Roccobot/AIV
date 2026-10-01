@@ -658,6 +658,27 @@ fun AdvancedEditorScreen(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodySmall)
                 }
+                /*
+                 * ⚠️⚠️ **L'AVVISO DI AREA TROPPO GRANDE STA SOPRA LA BOTTOMSHEET, non dentro**
+                 * (nota serale del giro 3.24, 2026-10-01: deve comparire come toast sopra la
+                 * scheda, non al posto del suggerimento nel corpo). Stesso disegno del
+                 * promemoria di selezione, appoggiato al bordo basso del palco.
+                 */
+                if (gaze.healingFailed) {
+                    Text(
+                        stringResource(R.string.look_heal_failed),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
 
             LookSheet(
@@ -4138,9 +4159,12 @@ private fun ModuleBody(
     if (mod.extra == Extra.HEALING && (gaze.healing || !gaze.selection.idle)) {
         DisposableEffect(gaze) { onDispose { gaze.healingSizing = false } }
         Text(stringResource(R.string.look_heal), style = MaterialTheme.typography.titleSmall)
-        Text(stringResource(if (gaze.healingBusy) R.string.look_heal_working
-            else if (gaze.healingFailed) R.string.look_heal_failed else R.string.look_heal_hint),
-            style = MaterialTheme.typography.bodySmall)
+        Text(
+            stringResource(
+                if (gaze.healingBusy) R.string.look_heal_working else R.string.look_heal_hint
+            ),
+            style = MaterialTheme.typography.bodySmall
+        )
         Text(stringResource(R.string.look_brush_size), style = MaterialTheme.typography.labelMedium)
         Slider(value = gaze.healingRadius, onValueChange = {
             gaze.healingSizing = true; gaze.healingRadius = it

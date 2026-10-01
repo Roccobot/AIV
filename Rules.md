@@ -57,6 +57,10 @@ sessione dopo è perso.
   senza avviare nulla. Il proprietario può modificarlo e inviarlo di nuovo; la presa in
   carico avviene solo dopo il suo via esplicito in chat. Il recupero cifrato è descritto
   nella guida comune: non leggere bozze non inviate né monitorare automaticamente il cloud.
+- ⚠️⚠️ **Dopo il recupero, prima del lavoro prodotto**: travasare tutto nel brief
+  `Roccobot/tools/.memo/LATEST.md`, poi toccare il codice (`Roccobot.md`
+  § '📋 Prima cosa: tutto nel brief, prima del lavoro prodotto'; guida
+  `docs/Feedback-maintenance.md`).
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.

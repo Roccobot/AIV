@@ -303,10 +303,11 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   originali anche dopo zoom, posa e deformazione. Le patch conservano i pixel calcolati
   a piena risoluzione: anteprima, tasselli e salvataggio riusano quel risultato.
   I pixel esterni alla selezione e l'alfa si conservano; gli stili escludono le patch.
-- Il lavoro locale ha limiti espliciti: 16.384 pixel selezionati per applicazione,
-  262.144 pixel nel rettangolo di lavoro con il suo contorno, 16 MiB di patch conservate
+- Il lavoro locale ha limiti espliciti: 24.576 pixel selezionati per applicazione,
+  393.216 pixel nel rettangolo di lavoro con il suo contorno, 16 MiB di patch conservate
   nella storia. Una selezione troppo grande o senza campioni integri lascia immagine
-  e selezione intatte, mostrando un avviso. Si lavora su piccoli difetti uno alla volta.
+  e selezione intatte; l'avviso compare **sopra la bottomsheet** come toast sul palco, non
+  nel corpo della scheda. Si lavora su piccoli difetti uno alla volta.
   Quando il formato permette la lettura per regioni si decodifica soltanto il pezzo;
   negli altri formati si usa la decodifica dell'immagine prevista dal salvataggio.
 

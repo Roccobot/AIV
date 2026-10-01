@@ -27,8 +27,8 @@ object Healing {
     const val MAX_RADIUS = 0.06f
     const val START_RADIUS = 0.006f
     const val MAX_POLYGONS = 4096
-    const val MAX_SELECTION = 16_384
-    const val MAX_WORK = 262_144
+    const val MAX_SELECTION = 24_576
+    const val MAX_WORK = 393_216
     const val MAX_HISTORY_BYTES = 16 * 1024 * 1024
 
     data class Plan(

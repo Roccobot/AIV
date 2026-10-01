@@ -613,17 +613,29 @@ fun FolderScreen(
                     modifier = Modifier.padding(top = 24.dp)
                 )
 
+                /*
+                 * ⚠️⚠️ **IL VANO SCORREVOLE RIEMPIE L'ALTEZZA, DALLA `3.25`** (giro 3.24,
+                 * voce `3.13-02`): in Modalità incluse le cartelle sono poche; senza
+                 * `weight` griglia ed elenco restavano alti quanto il contenuto, e il
+                 * trascinamento sul vuoto non riapriva l'intestazione (in Modalità escluse
+                 * l'elenco lungo mascherava il difetto). Stesso criterio di `GridScreen`.
+                 */
                 view == FolderView.GRID ->
-                    Covers(
-                        folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
-                        onPick, coverScroll
-                    ) { hiding = it }
-                else -> Rows(
-                    folders!!, prestate, listCount, listText, colour, tints, covers, onPick,
-                    rowScroll
-                ) {
-                    hiding = it
-                }
+                    Box(Modifier = Modifier.fillMaxWidth().weight(1f)) {
+                        Covers(
+                            folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
+                            onPick, coverScroll
+                        ) { hiding = it }
+                    }
+                else ->
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                        Rows(
+                            folders!!, prestate, listCount, listText, colour, tints, covers, onPick,
+                            rowScroll
+                        ) {
+                            hiding = it
+                        }
+                    }
             }
         }
 
@@ -1785,6 +1797,12 @@ internal fun Covers(
      * lambda a questo parametro.
      */
     state: LazyGridState = rememberLazyGridState(),
+    /**
+     * Di serie `fillMaxWidth`. La home passa `fillMaxSize` dentro un vano con `weight(1f)`
+     * (voce `3.13-02`): senza, con poche cartelle i trascinamenti sul vuoto non riaprono
+     * l'intestazione.
+     */
+    modifier: Modifier = Modifier.fillMaxWidth(),
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyVerticalGrid(
@@ -1810,7 +1828,7 @@ internal fun Covers(
         // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
         // l'ultima riga fuori da sotto la barra gestuale vive qui.
         contentPadding = PaddingValues(bottom = BELOW_FAB + bottomInset()),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         items(
             items = folders,
@@ -1869,6 +1887,8 @@ internal fun Rows(
     onPick: (Folder.Bucket) -> Unit,
     /** Lo scorrimento dell'elenco: vedi il gemello di [Covers]. */
     state: LazyListState = rememberLazyListState(),
+    /** Vedi il gemello di [Covers]: di serie `fillMaxWidth`, in home `fillMaxSize`. */
+    modifier: Modifier = Modifier.fillMaxWidth(),
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyColumn(
@@ -1877,7 +1897,7 @@ internal fun Rows(
         // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
         // l'ultima riga fuori da sotto la barra gestuale vive qui.
         contentPadding = PaddingValues(bottom = BELOW_FAB + bottomInset()),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->
             val tinta = frontTintOf(tints[bucket.id])

@@ -199,6 +199,9 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 
 - **Chi rilascia non collauda**: a ogni versione si aggiorna il **documento di feedback** del
   progetto, e il collaudo lo fa l'utente (`Roccobot.md` § '🔁 Il giro del collaudo').
+- **Dopo un giro importato/letto**: prima si travasa tutto nel brief
+  (`Roccobot/tools/.memo/LATEST.md`), poi il lavoro prodotto
+  (`Roccobot.md` § '📋 Prima cosa: tutto nel brief, prima del lavoro prodotto').
 - Il giro si prende **intero, solo quando lo dice lui**, e il documento non si ripubblica mentre
   lo compila (`Roccobot.md` § '⏸️ Il giro si prende INTERO, e solo quando lo dice lui').
 - Una domanda che è già nel documento non si ripete in chat.
