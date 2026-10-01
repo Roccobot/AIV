@@ -193,6 +193,15 @@ def main():
     percorso = sys.argv[1]
     testo = open(percorso, encoding='utf-8').read()
 
+    if 'data-feedback="codex"' in testo:
+        import importlib.util
+        from pathlib import Path
+        module_spec = importlib.util.spec_from_file_location('codex_feedback_check', Path(__file__).with_name('feedback-interactive-check.py'))
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        module.check(percorso)
+        return
+
     dati = {}
     for nome in ('SEZIONI', 'DOMANDE', 'TESTI', 'APERTO'):
         try:

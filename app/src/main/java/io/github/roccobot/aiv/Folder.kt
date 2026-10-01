@@ -719,7 +719,7 @@ object Folder {
      */
     private val MEDIA = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN " +
         "(${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, " +
-        "${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+        "${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) AND ${MediaFiles.selection}"
 
     /** Quel filtro più una condizione propria, che è il caso normale. */
     private fun media(and: String): String = "$MEDIA AND ($and)"

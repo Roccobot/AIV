@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AIV: proposte per tablet</title>
+    <link rel="stylesheet" href="tablet.css" />
+    <script src="tablet.js" defer></script>
+  </head>
+  <body>
+    <header class="workbench">
+      <p class="eyebrow">AIV · proposta di Codex</p>
+      <h1>Più spazio per vedere e lavorare</h1>
+      <p>
+        Mockup interattivi, da concordare prima di modificare l'app. Il
+        contenuto è dimostrativo: puoi cambiare schermata, orientamento, tema e
+        modulo dell'editor.
+      </p>
+      <nav>
+        <a href="feedback.html">Lascia il feedback</a
+        ><a
+          href="https://github.com/Roccobot/AIV/blob/main/docs/Settings-proposal.md"
+          >Riordino delle impostazioni</a
+        ><a href="./">Scarica AIV</a>
+      </nav>
+      <div class="choices">
+        <label
+          >Schermata
+          <select id="route"></select></label
+        ><label
+          >Formato
+          <select id="size">
+            <option value="landscape">Orizzontale, 1.024 × 768</option>
+            <option value="portrait">Verticale, 800 × 1.280</option>
+            <option value="split">Finestra ridotta, 600 × 900</option>
+          </select></label
+        ><label
+          >Tema
+          <select id="theme">
+            <option value="light">Chiaro</option>
+            <option value="dark">Scuro</option>
+          </select></label
+        ><label
+          >Pulsanti
+          <select id="hand">
+            <option value="right">A destra</option>
+            <option value="left">A sinistra</option>
+          </select></label
+        ><label
+          >Testo
+          <select id="text">
+            <option value="normal">Normale</option>
+            <option value="large">Ingrandito</option>
+          </select></label
+        ><label
+          >Stato
+          <select id="state">
+            <option value="ready">Con contenuti</option>
+            <option value="empty">Vuoto</option>
+            <option value="loading">Caricamento</option>
+            <option value="denied">Accesso da autorizzare</option>
+            <option value="error">Errore</option>
+          </select></label
+        >
+      </div>
+    </header>
+    <main>
+      <section class="rationale">
+        <h2 id="layout-title"></h2>
+        <p id="why"></p>
+        <p id="limits"></p>
+      </section>
+      <div class="viewport">
+        <div id="tablet" class="tablet" aria-label="Anteprima dell'interfaccia">
+          <header id="app-bar"></header>
+          <div id="content"></div>
+          <footer id="app-footer"></footer>
+        </div>
+      </div>
+      <section class="workbench">
+        <h2>Cosa valutare</h2>
+        <p>
+          Apri tutte le schermate, prova verticale e finestra ridotta, aumenta
+          il testo e alterna i temi. Nell'editor cambia modulo e prova il
+          confronto. La preferenza dei pulsanti sposta i pannelli; l'ordine
+          temporale di annulla/ripeti resta fisso.
+        </p>
+        <p>
+          La dimensione scelta descrive il progetto, mentre nel browser stretto
+          l'anteprima scorre orizzontalmente. Roboto è caricato dal file locale.
+          Colori e nomi derivano dall'app; queste sono proposte web, non misure
+          dell'interfaccia Android.
+        </p>
+        <p>
+          Filigrana e Fluidifica sono già approvati. Le loro schermate sono
+          illustrate solo per studiare l'uso dello spazio sul tablet.
+        </p>
+        <a href="feedback.html#decisions"
+          >Valuta la proposta nel documento di feedback</a
+        >
+      </section>
+    </main>
+  </body>
+</html>

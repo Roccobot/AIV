@@ -368,7 +368,9 @@ object Bin {
             if (kept.size != all.size) write(context, kept)
             kept
         }
-        ordered(files.keys.toList(), records).mapNotNull { files[it]?.toUri() }
+        ordered(files.keys.toList(), records)
+            .filterNot { MediaFiles.ignored(it) }
+            .mapNotNull { files[it]?.toUri() }
     }
 
     /**

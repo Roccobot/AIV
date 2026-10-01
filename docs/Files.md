@@ -173,6 +173,28 @@
 - **La prova è `MiniatureTest`**, quattro casi, ognuno controprovato. Non vede la miniatura del
   provider, e il callback del MediaScanner sul banco non arriva.
 
+## PNG riscritti e PSD esclusi
+
+Dalla 3.14:
+
+- `Thumbs.forget` elimina anche la miniatura su disco dell'indirizzo, prima di controllare
+  se la cache in memoria esiste. Il file può essere riscritto mantenendo la stessa data:
+  senza questa invalidazione `AvifCache` restituisce i pixel precedenti. La cancellazione
+  riguarda il solo indirizzo e il lato `Thumbs.PX`; le miniature degli altri file rimangono.
+  `FileTree.scan` continua a invalidare sia l'indirizzo del provider sia quello del file.
+- `SavedPngThumbnailTest` verifica i pixel dopo una riscrittura a data invariata e conserva
+  la cache di un altro PNG. Entrambe le prove sono state viste fallire con il codice precedente.
+  Il rendering GPU dell'editor completo non è disponibile sul banco JVM: resta il collaudo
+  del salvataggio sul telefono, distinto dalla prova della cache.
+- I PSD sono ignorati anche quando il MediaStore li classifica come immagini: la selezione
+  comune esclude estensione, percorso e tipi Photoshop; griglie, ricerca, conteggi, peso e
+  miniature usano quella selezione. I campi sconosciuti non fanno sparire i media validi.
+  Cartelle di sistema, cestino e cronologia escludono l'estensione senza distinzione fra
+  maiuscole e minuscole. Le cartelle chiamate `.psd` e i nomi `esempio.psd.png` rimangono validi.
+- L'esclusione dal cestino e dalla cronologia riguarda la visualizzazione: file e registri
+  di backup rimangono intatti. `IgnoredPsdTest` e `IgnoredPsdBinTest` coprono questi contratti;
+  le cinque prove sono state viste fallire prima della rispettiva correzione.
+
 ## 🗃️ Le miniature memorizzate: svuotarle e generarle
 
 - ⚠️⚠️ **La pagina 'Gestisci le miniature memorizzate' ha due comandi, 'Svuota' e 'Genera'**, ed è

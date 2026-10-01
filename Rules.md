@@ -51,6 +51,18 @@ sessione dopo è perso.
   fra release e archivia i riscontri conclusi. Le prove automatiche superate restano distinte
   dai collaudi manuali ancora da eseguire.
 
+
+- **Il documento interattivo di Codex** vive all'indirizzo stabile
+  <https://roccobot.github.io/AIV/feedback.html>, pubblicato da `publish/feedback.html`.
+  `docs/Feedback.md` è la fonte delle prove e dei loro identificatori; si aggiorna quello,
+  poi si esegue `python3 tools/feedback-build.py` e si verifica l'allineamento con `--check`.
+  `tools/feedback-check.py publish/feedback.html` verifica anche salvataggio nel browser,
+  immagini originali, esportazione/importazione JSON e riepilogo copiabile.
+  Le risposte rimangono nel browser; `Invia` prepara il riepilogo da consegnare in chat,
+  senza inviare dati a un servizio. I tre esiti sono Tutto OK, Accettabile e Non approvato;
+  una scelta vuota indica Non provato. Le decisioni sulle proposte non entrano nei contatori.
+  Gli identificatori rimangono stabili fra release per conservare le risposte aperte.
+
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
 | **Documento di feedback** | le voci da provare della versione appena uscita, coi tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |

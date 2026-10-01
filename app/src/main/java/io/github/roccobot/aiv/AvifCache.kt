@@ -96,6 +96,15 @@ object AvifCache {
     }
 
     /**
+     * Invalidates the on-disk thumbnail after a rewrite, including unchanged timestamps.
+     * All thumbnail requests use [Thumbs.PX]; unrelated cached files stay available.
+     * Called from the file-operation I/O paths together with memory invalidation.
+     */
+    fun forget(context: Context, uri: Uri) {
+        runCatching { fileFor(context, uri, Thumbs.PX)?.delete() }
+    }
+
+    /**
      * Quanto occupano le miniature tenute qui, in byte, e zero quando non ce n'è nessuna.
      *
      * ⚠️⚠️ **È LA MISURA CHE LE IMPOSTAZIONI MOSTRANO, ed è quella su DISCO e non in

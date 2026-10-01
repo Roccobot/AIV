@@ -119,6 +119,7 @@ object Tree {
         val kids = runCatching { dir.listFiles() }.getOrNull().orEmpty()
         kids.asSequence()
             .filter { hidden || !it.name.startsWith('.') }
+            .filter { it.isDirectory || !MediaFiles.ignored(it.name) }
             .map { spot(it) }
             .filter { !onlyPictures || !it.folder || leadsToMedia(it.file, hidden, DIG) }
             .sortedWith(

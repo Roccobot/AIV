@@ -322,6 +322,7 @@ object Thumbs {
     @Synchronized
     fun forget(context: Context, uri: AndroidUri) {
         val at = uri.toString()
+        AvifCache.forget(context, uri)
         stale += at
         while (stale.size > KEYS) stale.remove(stale.first())
         val cache = SingletonImageLoader.get(context).memoryCache ?: return

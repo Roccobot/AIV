@@ -1,33 +1,43 @@
 # Feedback AIV
 
-Versione **3.13**, Cartelle incluse/escluse. Questo è il documento di feedback di Codex;
-le altre voci del documento Claude conservano il loro stato.
+Versione **3.14**: miniature dei PNG ed esclusione dei PSD.
+[Apri il documento interattivo](https://roccobot.github.io/AIV/feedback.html) oppure
+[scarica AIV 3.14](https://github.com/Roccobot/AIV/releases/download/v3.14/AIV-3.14.apk).
 
-[Scarica AIV 3.13](https://github.com/Roccobot/AIV/releases/download/v3.13/AIV-3.13.apk)
+Questo è il documento di Codex. Conserva le 12 prove ancora aperte della 3.13;
+le altre voci del documento Claude mantengono il loro stato. Filigrana e Fluidifica
+sono approvati e archiviati. Le prove sul telefono sono tutte **Non provato**.
 
-Per ogni voce rispondi **OK**, **Da correggere** o **Non provato**, aggiungendo un commento
-quando serve. Puoi inviarmi le risposte numerate direttamente in chat, in un giro solo.
-Filigrana e Fluidifica sono già approvati e non richiedono un altro collaudo.
+Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
+nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
+Puoi aggiungere commenti e immagini. Il salvataggio avviene nel browser corrente:
+esporta il JSON per trasferire le risposte. `Invia` prepara il riepilogo, che devi copiare
+in chat; non invia automaticamente nulla. Codex aggiorna questo documento solo dopo
+il tuo giro completo, mantenendo gli aperti e archiviando i conclusi.
 
-Le verifiche automatiche della 3.13 sono superate: 447 prove e controllo delle traduzioni.
-Le prove sul tuo telefono restano tutte `Non provato` fino al tuo riscontro. Codex aggiorna
-stato, commento e azione successiva dopo la consegna del giro completo; conserva le voci
-aperte nella release successiva e i riscontri conclusi nell'archivio qui sotto.
+Le verifiche automatiche della 3.14 sono superate: 454 prove, zero fallimenti,
+controllo delle 28 traduzioni e compilazione. La riscrittura di un PNG con la stessa data
+è verificata sul banco; il rendering completo dell'editor richiede la prova sul telefono.
+Le proposte per impostazioni e tablet sono documenti da valutare, non cambiamenti
+alla disposizione Android in questa release.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 3.13-01 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-02 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-03 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-04 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-05 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-06 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-07 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-08 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-09 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-10 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-11 | Non provato | | Attendere il collaudo sul telefono. |
-| 3.13-12 | Non provato | | Attendere il collaudo sul telefono. |
+| 3.13-01 | Non provato | | Attendere il collaudo. |
+| 3.13-02 | Non provato | | Attendere il collaudo. |
+| 3.13-03 | Non provato | | Attendere il collaudo. |
+| 3.13-04 | Non provato | | Attendere il collaudo. |
+| 3.13-05 | Non provato | | Attendere il collaudo. |
+| 3.13-06 | Non provato | | Attendere il collaudo. |
+| 3.13-07 | Non provato | | Attendere il collaudo. |
+| 3.13-08 | Non provato | | Attendere il collaudo. |
+| 3.13-09 | Non provato | | Attendere il collaudo. |
+| 3.13-10 | Non provato | | Attendere il collaudo. |
+| 3.13-11 | Non provato | | Attendere il collaudo. |
+| 3.13-12 | Non provato | | Attendere il collaudo. |
+| 3.14-01 | Non provato | | Attendere il collaudo. |
+| 3.14-02 | Non provato | | Attendere il collaudo. |
+| 3.14-03 | Non provato | | Attendere il collaudo. |
 
 ## 1. Aggiornamento e pagina delle impostazioni
 
@@ -128,23 +138,48 @@ ingrandito: tutti i comandi devono essere leggibili, scorrere se necessario e ch
 correttamente con `Annulla` o toccando fuori. Segnala anche comportamenti inattesi fuori da
 queste prove, indicando il gesto e il risultato atteso.
 
-## Risposta
+## 13. PNG modificati e miniature aggiornate
 
-Versione installata: ...
-Telefono e versione Android: ...
+Apri un PNG nell'editor completo e applica una modifica molto riconoscibile, per esempio
+una forte variazione di colore. Salva una copia, poi ritorna alla griglia: la miniatura della
+copia deve distinguersi dall'originale. Aprila a schermo intero: deve contenere la modifica.
+Ripeti sovrascrivendo un PNG di prova, torna alla cartella e riavvia l'app: la miniatura deve
+mostrare il risultato nuovo anche dopo il riavvio. Se il PNG contiene trasparenza, verifica
+che sia conservata. Prova anche un JPG di confronto.
 
-1. ...
-2. ...
-3. ...
-4. ...
-5. ...
-6. ...
-7. ...
-8. ...
-9. ...
-10. ...
-11. ...
-12. ...
+Se qualcosa non torna, indica se il file a schermo intero mostra la modifica oppure l'originale,
+se hai salvato una copia o sovrascritto, il formato e la qualità scelti. Questa distinzione
+permette di separare un problema della miniatura da uno del salvataggio.
+
+## 14. PSD ignorati nelle raccolte
+
+Prepara una cartella con un JPG, un PNG, un video e un PSD, anche con estensione `.PSD`.
+Dopo l'indicizzazione controlla griglia, lista, ricerca e Cartelle di sistema: i PSD non devono
+apparire né produrre miniature. Una cartella contenente soltanto PSD non deve risultare
+una cartella di media. Conteggi e peso devono riguardare soltanto i media supportati.
+I PSD già nel cestino o nella cronologia dei ripristini non devono apparire; i file sul disco
+non devono essere cancellati. I file normali e i nomi come `esempio.psd.png` devono rimanere.
+
+## 15. Documento di feedback interattivo
+
+Scegli un esito, scrivi un commento e allega un'immagine. Attendi l'indicazione di salvataggio,
+ricarica la pagina e controlla che tutto rimanga. Esporta il JSON e importalo in un altro browser:
+devono tornare esiti, commenti e immagini. Premi Invia, poi copia il riepilogo e controlla che
+comprenda versione, risposte e osservazioni libere. Il riepilogo dice quali voci hanno immagini;
+per consegnarle usa il JSON o allegale alla chat. Prova anche il secondo clic per cancellare un
+esito e la leggibilità su telefono. Azzera tutto richiede conferma e riguarda il browser corrente.
+
+## Decisioni da concordare
+
+- **Impostazioni**: [confronto prima/dopo](Settings-proposal.md). Applica la proposta,
+  rivedila con le tue indicazioni oppure conserva la struttura attuale.
+- **Tablet**: [mockup interattivi](https://roccobot.github.io/AIV/tablet.html).
+  Approva la direzione, chiedi modifiche specifiche oppure rinvia.
+- **Diagnosi PNG**: se già verificato, a schermo intero il PNG modificato mostra le modifiche
+  o l'originale? Se non lo hai verificato puoi lasciare la domanda aperta.
+
+Queste scelte sono separate dagli esiti delle prove. Gli stili restano in attesa del tuo
+via libera; sfogliatore Web e Play Store restano sospesi.
 
 ## Riscontri conclusi
 

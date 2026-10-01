@@ -71,7 +71,7 @@ object History {
             val all = read(context)
             val kept = alive(all, System.currentTimeMillis())
             if (kept.size != all.size) write(context, kept)
-            grouped(kept)
+            grouped(kept.filterNot { MediaFiles.ignored(it.path) })
         }
     }
 
