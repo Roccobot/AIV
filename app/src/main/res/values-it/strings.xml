@@ -585,7 +585,7 @@
     <string name="settings_group_browse">Cartelle</string>
     <string name="settings_group_start">Avvio</string>
     <string name="settings_group_advanced">Funzionalità avanzate</string>
-    <string name="settings_group_manage">Gestione dell'app</string>
+    <string name="settings_group_manage">Gestione dell\'app</string>
     <string name="settings_page_info">Informazioni</string>
     <string name="settings_page_controls">Etichette e pulsanti</string>
     <string name="settings_page_editing">Editor e salvataggio</string>

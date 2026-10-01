@@ -353,7 +353,7 @@
     <string name="settings_group_files">Modification et protection des fichiers</string>
     <string name="settings_group_browse">Dossiers</string>
     <string name="settings_group_start">Démarrage</string>
-    <string name="settings_group_manage">Gestion de l'application</string>
+    <string name="settings_group_manage">Gestion de l\'application</string>
     <string name="settings_group_advanced">Fonctions avancées</string>
     <string name="settings_page_info">Informations</string>
     <string name="settings_page_controls">Libellés et boutons</string>
