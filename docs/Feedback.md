@@ -1,14 +1,15 @@
 # Feedback AIV
 
-Versione **3.24**: Correggi/Rimuovi nel modulo Dettaglio.
+Versione **3.30**: giro cumulativo delle correzioni e dei ritocchi dalla **3.25** alla **3.30**.
 [Apri il documento interattivo](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html) oppure
-[scarica AIV 3.24](https://github.com/Roccobot/AIV/releases/download/v3.24/AIV-3.24.apk).
+[scarica AIV 3.30](https://github.com/Roccobot/AIV/releases/download/v3.30/AIV-3.30.apk).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
-La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo. Conserva tutte le prove ancora aperte dalla 3.13, comprese quelle della 3.14;
-le altre voci del documento Claude mantengono il loro stato. Filigrana e Fluidifica
-sono approvati e archiviati. Gli esiti qui riportati si aggiornano dopo la consegna del giro completo;
-le risposte nella bozza privata non sono pubblicate automaticamente.
+La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
+Il giro precedente (fino alla 3.24) è stato consegnato e travasato il 1 ottobre 2026: le prove
+concluse stanno in archivio. Qui restano solo le verifiche del prodotto attuale (3.25-3.30).
+Filigrana e Fluidifica restano approvati. Gli esiti si aggiornano dopo la consegna del giro
+completo; le risposte nella bozza privata non sono pubblicate automaticamente.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -21,247 +22,152 @@ quando vuoi la presa in carico, chiedi in chat di leggere l'ultimo feedback. Il 
 manuale resta disponibile come copia o alternativa. L'agente aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
 senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
 
-Le verifiche automatiche della 3.24 sono superate: 472 prove, zero fallimenti,
-controllo delle 28 traduzioni e compilazione. Il correttore è verificato su fondo uniforme,
-linee interrotte, trama ripetuta, trasparenza, file PNG salvato e gesti dell'editor.
-Qualità su immagini reali, tempi e compatibilità dei formati richiedono il collaudo sul telefono.
-Le proposte per impostazioni e tablet sono documenti da valutare, non cambiamenti
-alla disposizione Android in questa release.
+Le verifiche automatiche della 3.30 sono superate: 474 prove, zero fallimenti,
+controllo delle 28 traduzioni e compilazione. Il layout tablet nativo Android **non è ancora
+in questa build**: i mockup restano la guida approvata; sul telefono verifica solo le voci sotto.
+Le decisioni del giro 3.24 (impostazioni, tablet, PNG) sono già chiuse: le trovi ancora nella
+sezione Decisioni per consultazione; non serve ripeterle se la bozza cloud le conserva.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 3.13-01 | Non provato | | Attendere il collaudo. |
-| 3.13-02 | Non provato | | Attendere il collaudo. |
-| 3.13-03 | Non provato | | Attendere il collaudo. |
-| 3.13-04 | Non provato | | Attendere il collaudo. |
-| 3.13-05 | Non provato | | Attendere il collaudo. |
-| 3.13-06 | Non provato | | Attendere il collaudo. |
-| 3.13-07 | Non provato | | Attendere il collaudo. |
-| 3.13-08 | Non provato | | Attendere il collaudo. |
-| 3.13-09 | Non provato | | Attendere il collaudo. |
-| 3.13-10 | Non provato | | Attendere il collaudo. |
-| 3.13-11 | Non provato | | Attendere il collaudo. |
-| 3.13-12 | Non provato | | Attendere il collaudo. |
-| 3.14-01 | Non provato | | Attendere il collaudo. |
-| 3.14-02 | Non provato | | Attendere il collaudo. |
-| 3.14-03 | Non provato | | Attendere il collaudo. |
-| 3.24-01 | Non provato | | Attendere il collaudo. |
-| 3.24-02 | Non provato | | Attendere il collaudo. |
-| 3.24-03 | Non provato | | Attendere il collaudo. |
-| 3.24-04 | Non provato | | Attendere il collaudo. |
-| 3.24-05 | Non provato | | Attendere il collaudo. |
-| 3.24-06 | Non provato | | Attendere il collaudo. |
-| 3.24-07 | Non provato | | Attendere il collaudo. |
-| 3.24-08 | Non provato | | Attendere il collaudo. |
+| 3.25-01 | Non provato | | Attendere il collaudo. |
+| 3.25-02 | Non provato | | Attendere il collaudo. |
+| 3.25-03 | Non provato | | Attendere il collaudo. |
+| 3.26-01 | Non provato | | Attendere il collaudo. |
+| 3.26-02 | Non provato | | Attendere il collaudo. |
+| 3.26-03 | Non provato | | Attendere il collaudo. |
+| 3.26-04 | Non provato | | Attendere il collaudo. |
+| 3.26-05 | Non provato | | Attendere il collaudo. |
+| 3.26-06 | Non provato | | Attendere il collaudo. |
+| 3.26-07 | Non provato | | Attendere il collaudo. |
+| 3.27-01 | Non provato | | Attendere il collaudo. |
+| 3.27-02 | Non provato | | Attendere il collaudo. |
+| 3.27-03 | Non provato | | Attendere il collaudo. |
+| 3.30-01 | Non provato | | Attendere il collaudo. |
+| 3.30-02 | Non provato | | Attendere il collaudo. |
 
-## 1. Aggiornamento e pagina delle impostazioni
+## 1. Intestazione in Modalità incluse
 
-Installa l'aggiornamento senza cancellare i dati. Apri `Impostazioni`, `Cartelle`,
-`Cartelle incluse/escluse`. Deve essere selezionata `Modalità escluse`; le cartelle che avevi
-nascosto devono essere ancora nell'elenco. Cerca nelle impostazioni `incluse`, `escluse` e
-il nome di una cartella in elenco: la pagina deve essere raggiungibile dalla ricerca.
+Installa AIV 3.30 senza cancellare i dati. Apri la home in `Modalità incluse` (poche cartelle).
+Scorri verso il basso finché l'intestazione si chiude, poi trascina verso l'alto anche sullo
+spazio vuoto sotto l'elenco: l'intestazione deve riaprirsi. Ripeti in griglia e in lista.
+In `Modalità escluse` l'elenco lungo deve continuare a comportarsi come prima.
 
-## 2. Modalità incluse e valori iniziali
+## 2. Avviso area troppo grande sopra la bottomsheet
 
-Seleziona `Modalità incluse`. La lista iniziale deve autorizzare Camera, Screenshots e Movies
-se presenti; controlla anche Screenshots in DCIM, se il tuo telefono la usa. Le modalità
-griglia e lista devono mostrare soltanto cartelle autorizzate con almeno un'immagine o video.
-Il FAB deve essere privo di `Mostra nascoste`. `Cartelle di sistema` deve continuare a mostrare
-le cartelle del disco, con i filtri di sistema che hai scelto. Cerca un'immagine che esiste
-soltanto in una cartella non autorizzata: deve rimanere fuori dai risultati.
+Apri una copia di prova nell'editor completo, modulo Dettaglio, strumento Correggi/Rimuovi.
+Dipingi una selezione molto ampia e premi Applica: deve comparire l'avviso che l'area è
+troppo grande. L'avviso deve stare **sopra** la bottomsheet (toast sul palco), non solo
+dentro il corpo della scheda. Selezione e immagine devono restare intatte.
 
-## 3. Autorizzazione di una cartella con immagini
+## 3. Aree un po' più ampie accettate
 
-In `Cartelle di sistema`, tieni premuta una cartella non autorizzata e scegli `Autorizza
-cartella`. Deve aprirsi `Aggiungi alle cartelle visualizzate`, con la spiegazione delle modalità
-griglia e lista. Conferma: la riga deve segnare `autorizzata`, la cartella deve apparire nei due
-elenchi e nelle impostazioni.
+Con Correggi/Rimuovi, ripeti con aree medie (più grandi di una macchia piccola, ma non
+enorme): Applica deve accettarle quando restano sotto il nuovo limite. Solo le selezioni
+davvero eccessive devono produrre l'avviso. Indica in commento se il limite ti sembra
+ancora stretto o troppo largo.
 
-## 4. Autorizzazione di una cartella vuota
+## 4. Nascosta: cartella e sottocartelle in elenco e albero
 
-Ripeti su una cartella vuota. Deve esserci l'avviso enfatizzato che sarà visibile quando
-conterrà almeno un'immagine o video. Conferma: deve comparire nella lista delle autorizzate
-ma non nelle modalità griglia e lista. Aggiungici un'immagine; dopo l'indicizzazione e
-l'aggiornamento dell'elenco deve apparire anche lì.
+In `Modalità escluse`, da Cartelle di sistema nascondi una cartella X **con le sue
+sottocartelle**. Apri Impostazioni, Cartelle, Cartelle incluse/escluse: i figli presenti
+devono comparire nell'elenco. In Cartelle di sistema le righe nascoste devono portare la
+dicitura `nascosta`. Controlla anche dopo un riavvio dell'app.
 
-## 5. Rimozione e indipendenza delle liste
+## 5. Scheda Nascondi: Annulla, azione e tasti pieni
 
-Rimuovi un'autorizzazione dalla pagina `Cartelle incluse/escluse`: la cartella deve sparire
-dalle modalità griglia e lista. Passa a `Modalità escluse`: deve tornare visibile se non è
-anche nell'elenco delle escluse. Alterna le modalità e riavvia l'app: liste e modalità scelta
-devono restare salvate. Una cartella preautorizzata che hai rimosso deve restare rimossa.
+Apri di nuovo `Quali cartelle vuoi nascondere?` su una cartella con almeno due figli.
+`Annulla` deve stare a sinistra; l'azione principale a destra. Le scelte intermedie
+(`Solo X`, `Solo le sottocartelle`, `X e le sue sottocartelle`) devono essere tasti pieni
+a larghezza utile, allineati a sinistra, non semplici righe di testo. Chiudi con Annulla
+senza applicare se stai solo controllando la disposizione.
 
-## 6. Esclusione normale e prestito
+## 6. Gettoni Modalità incluse / escluse
 
-In `Modalità escluse`, tieni premuta una cartella in modalità griglia o lista e conferma
-`Nascondi`. Deve sparire, insieme alle eventuali sottocartelle. Nel FAB, `Mostra nascoste` deve
-farla tornare temporaneamente, con il segno e l'opacità ridotta; `Mostra` deve rimostrarla
-permanentemente. Se passi a `Modalità incluse` durante il prestito, questo deve terminare.
+In Impostazioni, Cartelle, Cartelle incluse/escluse: i gettoni devono leggere
+`Modalità incluse` e `Modalità escluse` **in grassetto semibold**, senza apici o virgolette
+attorno al nome. Alterna i due gettoni: elenchi e testi devono seguire la modalità scelta.
 
-## 7. Tutte le cartelle allo stesso livello
+## 7. Applica a tutte e testo sulle nuove cartelle
 
-Prepara un genitore X con almeno due sottocartelle, di cui una può essere vuota. Premi a lungo
-su una sottocartella visibile in modalità griglia o lista. Deve esserci `Applica a tutte le
-cartelle allo stesso livello`, con la seconda conferma che nomina X e avvisa che le nuove
-cartelle saranno inizialmente visibili. Conferma: le sottocartelle attuali devono essere voci
-separate nella lista delle escluse. Rimuovine una: deve tornare soltanto quella. Crea una nuova
-sottocartella di X con un'immagine: deve essere visibile dopo l'indicizzazione.
+In `Modalità escluse`, tieni premuta una sottocartella in griglia o lista quando il genitore
+ha almeno un'altra directory. Deve esserci `Applica a tutte le cartelle allo stesso livello`
+come tasto tonale a tutta larghezza, allineato a sinistra col testo principale. Nella seconda
+conferma il testo deve parlare di **nuove cartelle create** dentro il genitore (non la sola
+parola inglese create). Conferma o Annulla a scelta; se confermi, verifica che le sorelle
+diventino voci separate nell'elenco delle nascoste.
 
-## 8. Nascondi dalla vista di sistema
+## 8. Promemoria selezione pendente tappabile
 
-In `Modalità escluse`, apri `Cartelle di sistema` e premi a lungo su X, poi `Nascondi`:
+Nell'editor, con Correggi/Rimuovi, lascia una selezione verde senza Applica. Passa a un altro
+modulo o tenta Salva: deve comparire il promemoria di applicare o cancellare la selezione.
+Tocca il toast/snackbar: deve riportarti a Correggi/Rimuovi con la selezione ancora lì.
+Cancella o Applica per chiudere la prova.
 
-- Senza sottocartelle: conferma della sola X; una sottocartella creata dopo deve essere visibile.
-- Con una sottocartella: `Quali cartelle vuoi nascondere?`, con `Solo X` e `X e la sua sottocartella`.
-- Con almeno due: stesso titolo, con `X e le sue sottocartelle`, `Solo le sottocartelle di X`, `Solo X`.
+## 9. Lentino: pennello dentro il cerchio
 
-Prova i tre esiti su cartelle preparate apposta. `Solo X` deve lasciare visibili tutti i figli,
-anche quelli creati dopo; la lista delle escluse deve indicare `Solo questa cartella`.
-`Solo le sottocartelle di X` deve registrare i figli attuali separatamente e lasciare X visibile.
-L'esclusione di X con le sottocartelle deve coprire tutto il ramo.
+Con Correggi/Rimuovi scegli un pennello piccolo così compare il lentino. Mentre dipingi,
+il cerchio del pennello ingrandito nella lente non deve mai uscire dal tondo del lentino.
+Prova anche pennelli un po' più grandi al confine in cui il lentino è ancora attivo.
 
-## 9. Prestito di un'esclusione della sola cartella
+## 10. Autorizza e Nascondi come tasti pieni in fondo
 
-Nascondi `Solo X`, lasciando visibile un suo figlio con immagini. Accendi `Mostra nascoste`:
-X deve avere il segno e l'opacità ridotta, il figlio deve conservare l'aspetto normale.
+In Cartelle di sistema, in Modalità incluse tieni premuta una cartella non ancora autorizzata:
+nella bottomsheet `Autorizza cartella` deve essere un tasto pieno (tonale) nel piè di pagina
+della scheda, non solo una riga di menu. In Modalità escluse ripeti con `Nascondi`: stesso
+trattamento di tasto pieno in fondo. Annulla deve restare raggiungibile.
 
-## 10. Copia, sposta e navigazione completa
+## 11. Selezione multipla in Cartelle di sistema
 
-In `Modalità incluse`, seleziona un'immagine e scegli `Copia` o `Sposta`: le destinazioni
-ordinarie devono contenere soltanto le cartelle autorizzate. `Sfoglia tutte le cartelle...`
-deve permettere di raggiungere anche le altre. Ripeti in `Modalità escluse`: le cartelle
-nascoste devono mancare, salvo durante il prestito. Il cestino deve restare escluso.
+Apri Cartelle di sistema. Tieni premuto su un'immagine o un video: deve aprirsi la stessa
+scheda di selezione della griglia (PickSheet), non il vecchio riquadro su un solo file.
+Seleziona almeno due media; il FAB della casa deve sparire mentre la scheda è aperta.
+Indietro oppure `Nessuno` devono azzerare la selezione. Cambia cartella: la selezione
+deve perdersi.
 
-## 11. Esporta e importa
+## 12. Aggiungi cartella in Impostazioni
 
-Prepara almeno un'autorizzazione, un'esclusione ricorsiva e un'esclusione `Solo questa cartella`.
-Esporta il file di impostazioni con `Cartelle incluse/escluse` selezionato. Cambia modalità e
-aggiungi voci diverse alle due liste, poi importa il file: la modalità deve tornare quella
-esportata; le liste devono contenere sia le voci del telefono sia quelle del file, senza doppioni.
-Le esclusioni della sola cartella devono conservare il loro significato.
+In Modalità incluse apri Impostazioni, Cartelle, Cartelle incluse/escluse. Deve esserci
+`Aggiungi cartella`. Toccalo: si apre l'albero delle destinazioni; scegli una cartella e
+autorizza. Deve comparire nell'elenco delle autorizzate. Se era vuota, resta in elenco ma
+non in griglia/lista finché non ha media. Rimuovila dall'elenco per chiudere pulito se
+era solo di prova.
 
-Se hai un file salvato con AIV 3.03 o precedente, importa la sua area delle cartelle mentre
-sei in `Modalità incluse`: deve selezionare `Modalità escluse` e aggiungere le vecchie nascoste,
-conservando le autorizzazioni del telefono. Le cartelle preautorizzate rimosse non devono
-ricomparire dopo un'importazione o un riavvio.
+## 13. Ordine delle impostazioni
 
-## 12. Scheda SD, leggibilità e riscontro libero
+Apri Impostazioni. Verifica: la copia del percorso della lista file sta sotto Cartelle,
+Opzioni di visualizzazione, Lista. `Rinomina e download` sta in `Modifica e protezione
+dei file` (non più solo sotto Editor). In fondo esiste la sezione `Gestione dell'app` con
+miniature memorizzate, Esporta/importa e Ripristina gli avvisi. Cerca `rinomina`,
+`percorso` e `miniature`: le voci devono restare raggiungibili.
 
-Se usi una scheda SD, verifica che autorizzare o escludere una cartella sulla scheda non
-modifichi l'omonima nella memoria interna. Prova la pagina e i popup nei due temi e con testo
-ingrandito: tutti i comandi devono essere leggibili, scorrere se necessario e chiudersi
-correttamente con `Annulla` o toccando fuori. Segnala anche comportamenti inattesi fuori da
-queste prove, indicando il gesto e il risultato atteso.
+## 14. Qualità Correggi/Rimuovi su vestiti e pattern
 
-## 13. PNG modificati e miniature aggiornate
+Su foto reali, correggi piccoli difetti su tessuti, orli di vestiti, linee spezzate e
+pattern ripetuti. Valuta raccordo, continuità dell'orlo e assenza di macchie o ripetizioni
+innaturali dopo aver ingrandito. Il calcolo è migliorato (raggio adattivo, area campione
+più ampia, isofote/struttura). Non può inventare dettagli dove mancano indizi: per i casi
+deboli allega originale e risultato. Questa è la prova critica del giro.
 
-Apri un PNG nell'editor completo e applica una modifica molto riconoscibile, per esempio
-una forte variazione di colore. Salva una copia, poi ritorna alla griglia: la miniatura della
-copia deve distinguersi dall'originale. Aprila a schermo intero: deve contenere la modifica.
-Ripeti sovrascrivendo un PNG di prova, torna alla cartella e riavvia l'app: la miniatura deve
-mostrare il risultato nuovo anche dopo il riavvio. Se il PNG contiene trasparenza, verifica
-che sia conservata. Prova anche un JPG di confronto.
+## 15. Layout tablet ancora assente in questa build
 
-Se qualcosa non torna, indica se il file a schermo intero mostra la modifica oppure l'originale,
-se hai salvato una copia o sovrascritto, il formato e la qualità scelti. Questa distinzione
-permette di separare un problema della miniatura da uno del salvataggio.
-
-## 14. PSD ignorati nelle raccolte
-
-Prepara una cartella con un JPG, un PNG, un video e un PSD, anche con estensione `.PSD`.
-Dopo l'indicizzazione controlla griglia, lista, ricerca e Cartelle di sistema: i PSD non devono
-apparire né produrre miniature. Una cartella contenente soltanto PSD non deve risultare
-una cartella di media. Conteggi e peso devono riguardare soltanto i media supportati.
-I PSD già nel cestino o nella cronologia dei ripristini non devono apparire; i file sul disco
-non devono essere cancellati. I file normali e i nomi come `esempio.psd.png` devono rimanere.
-
-## 15. Documento di feedback interattivo
-
-Scegli un esito, scrivi un commento e allega un'immagine. Prova anche un SVG e trascina più immagini sulla voce: devono apparire le anteprime. Allega un ZIP sia alla voce sia a Qualsiasi altra cosa; prova anche gli SVG nelle osservazioni libere. Ricarica ed esporta/importa il JSON: tutti gli allegati devono rimanere. Scarica un ZIP e verifica che sia identico a quello allegato. Importa JSON deve avere Sfoglia accanto al titolo e la stessa altezza degli altri pulsanti. Prova Annulla nella conferma di Azzera tutto: le risposte devono rimanere. Seleziona una parola nel commento e usa Grassetto, Corsivo e Link, anche tramite Cmd+B/I/K: il campo deve mostrare direttamente la formattazione, senza anteprime duplicate; i link devono aprire nuove schede. Ripeti nelle decisioni e in Qualsiasi altra cosa; salva e ricarica, poi esporta/importa il JSON e copia il riepilogo: deve essere conservato il Markdown. Un secondo comando di grassetto o corsivo sulla stessa selezione deve togliere la formattazione. Ogni verifica mostra Verifica X/Y, con X in grassetto. I pulsanti sopra Salva portano al riquadro precedente/successivo; il salto al primo vuoto considera verifiche e decisioni, dall'alto. Commenti o allegati contano come compilazione, senza approvazione automatica; le osservazioni libere sono opzionali. Il salto scompare quando tutte le verifiche e decisioni sono compilate. I campi devono avere più righe, altezza regolabile e testo a peso normale salvo le parole formattate; le voci con un esito, un commento o un allegato devono essere evidenziate, anche dopo il ricaricamento. Cambia fra i tre esiti: il colore deve seguire verde, ambra o rosso; togliendo l'esito, con un commento o allegato rimasto, deve diventare neutro. Le decisioni si evidenziano dopo una scelta o un commento. Apri le proposte: devono comparire in nuove schede, con la stessa favicon del documento. Attendi l'indicazione di salvataggio,
-ricarica la pagina e controlla che tutto rimanga. Esporta il JSON e importalo in un altro browser:
-devono tornare esiti, commenti e immagini. Premi Invia, poi copia il riepilogo e controlla che
-comprenda versione, risposte e osservazioni libere. Il riepilogo dice quali voci hanno immagini;
-per consegnarle usa il JSON o allegale alla chat. Prova anche il secondo clic per cancellare un
-esito e la leggibilità su telefono. Azzera tutto richiede conferma e riguarda il browser corrente.
-
-Quando il servizio cloud sarà attivato, esporta il JSON dalla scheda GitHub già compilata e importalo all'indirizzo cloud dopo l'accesso GitHub. Attendi Salvato nel cloud, poi apri lo stesso indirizzo su un altro dispositivo: devono tornare testo formattato, esiti e allegati originali. Riprendi a compilare sul secondo dispositivo e torna al primo senza modifiche locali: deve aggiornarsi. Prova modifiche contemporanee alla stessa voce: un conflitto deve conservare la bozza più recente sul server e il testo locale, senza sovrascrivere. Se manca la connessione, deve comparire Non salvato e il JSON deve permettere di conservare le modifiche. Il giro continua a essere consegnato in chat, tramite riepilogo e JSON.
-
-## 16. Correggi/Rimuovi: accesso e selezione
-
-Apri una copia di prova nell'editor completo, modulo Dettaglio, e tocca la nuova icona
-nella barra inferiore. Deve essere riconoscibile come Correggi/Rimuovi. Dipingi con un
-solo dito: compare la selezione nel colore primario al 50%, senza correggere subito.
-Ripassa sullo stesso punto: il verde non deve diventare più scuro. Prova un tocco singolo
-per selezionare una macchia. Cancella selezione deve togliere il verde senza alterare
-l'immagine, senza aggiungere un passo nella storia e senza far cambiare misura all'immagine.
-
-## 17. Dimensione del pennello, lentino e gesti
-
-Muovi lo slider: l'anteprima deve essere un cerchio spesso nel colore d'accento, senza
-contorni neri. Mentre dipingi il contorno deve essere sottile. Con un pennello piccolo
-entra il lentino di Fluidifica, nell'angolo più lontano dal dito, con il punto selezionato
-visibile anche nella lente. Ingrandisci e sposta con due dita: il gesto non deve dipingere.
-Ripeti nei due temi, con testo ingrandito e con il FAB sui due lati.
-
-## 18. Applica, Annulla e Ripristina
-
-Dipingi un difetto: prima di Applica l'immagine deve restare intatta e Salva deve essere
-spento. Premi Applica e attendi: la selezione scompare e la correzione diventa un solo
-passo di Annulla. Annulla deve ripristinare i pixel precedenti; Ripristina deve riportare
-la correzione. Applica un secondo intervento vicino al primo e ripeti Annulla/Ripristina.
-Originale e il tocco lungo sul gettone Dettaglio devono togliere le correzioni.
-
-## 19. Macchie, linee interrotte e trame
-
-Prova piccoli difetti su un fondo uniforme, un'imperfezione che interrompe una linea,
-e un elemento estraneo su una trama ripetuta. Seleziona tutto il difetto con un piccolo
-margine e premi Applica. Valuta raccordo, continuità della linea, ripetizioni innaturali
-e dettagli visibili dopo aver ingrandito. Il calcolo usa i pixel circostanti: una forma
-senza indizi rimasti non può essere ricostruita con certezza. Per i casi non riusciti
-allega originale e risultato, indicando l'area dipinta.
-
-## 20. Zoom, posa, geometria e cambio di modulo
-
-Seleziona e correggi dopo uno zoom, poi dopo un quarto di giro o un riflesso. Prova
-anche con Geometria e Fluidifica già applicati: deve cambiare proprio la zona dipinta.
-Passa a un altro modulo con una selezione ancora verde: Salva resta spento e l'avviso
-ricorda di applicarla o cancellarla. Tornando a Dettaglio ritrovi la selezione. Il cambio
-di modulo non applica correzioni. Indietro deve chiedere se scartare anche la sola selezione.
-
-## 21. File salvato, trasparenza e correzioni successive
-
-Correggi un PNG e salva una copia. Apri il file a schermo intero e ingrandisci: deve
-contenere lo stesso intervento, senza verde, alla risoluzione prevista dal salvataggio.
-Ripeti sovrascrivendo una copia di prova e controlla la miniatura. Su un PNG trasparente
-l'alfa deve rimanere invariata. Prova anche JPG e un formato con conversione in salvataggio
-se ne usi uno. Le aree esterne alla selezione devono rimanere intatte prima degli altri
-filtri e della compressione. Applica poi nitidezza, colore e uno stile: la correzione rimane.
-
-## 22. Uso offline, selezioni grandi e tempi
-
-Attiva la modalità aereo e ripeti una piccola correzione: deve funzionare senza rete,
-account o download. Indica dispositivo, risoluzione e tempo indicativo di Applica.
-Una selezione troppo grande deve produrre un avviso, conservando selezione e immagine:
-cancellala e riprova con aree più piccole. Verifica che durante il calcolo non si possano
-avviare altri interventi o salvare un risultato incompleto. Nessun fallimento deve
-applicare una correzione parziale.
-
-## 23. Feedback cumulativo e riscontri precedenti
-
-Le prove della 3.13 e della 3.14 e le tre decisioni sulle impostazioni, i tablet e il PNG
-restano aperte. Ricarica il documento nello stesso browser: eventuali esiti, commenti e
-immagini già salvati devono restare sulle rispettive voci. Le prove della 3.24 iniziano
-Non provato. Un JSON esportato dalla 3.14 deve continuare a importare i riscontri vecchi.
-Invia il giro completo quando puoi; nessuna voce senza risposta viene considerata approvata.
+Questa 3.30 **non** include ancora il layout tablet nativo Android. Sul telefono le voci
+sopra bastano. Se hai un tablet a disposizione, nota soltanto che l'app resta con il layout
+telefono (mockup approvati: [tablet](https://roccobot.github.io/AIV/tablet.html)); non
+aspettarti la doppia colonna cartelle/contenuto. Segnala in commento se vuoi dare priorità
+all'implementazione nativa nel prossimo giro.
 
 ## Decisioni da concordare
 
-- **Impostazioni**: [confronto prima/dopo](Settings-proposal.md). Applica la proposta,
-  rivedila con le tue indicazioni oppure conserva la struttura attuale.
+Le tre decisioni del giro 3.24 sono già chiuse e applicate dove previsto. Restano nel
+documento interattivo con gli stessi identificatori, così la bozza cloud e i JSON vecchi
+continuano a importarsi. Non è obbligatorio rispondervi di nuovo.
+
+- **Impostazioni**: [confronto prima/dopo](Settings-proposal.md). Decisione 3.24: Applica
+  la proposta (applicata dalla 3.27). Verifica pratica: voce 3.27-03.
 - **Tablet**: [mockup interattivi](https://roccobot.github.io/AIV/tablet.html).
-  Approva la direzione, chiedi modifiche specifiche oppure rinvia.
-- **Diagnosi PNG**: se già verificato, a schermo intero il PNG modificato mostra le modifiche
-  o l'originale? Se non lo hai verificato puoi lasciare la domanda aperta.
+  Decisione 3.24: Approvo la direzione. Implementazione nativa ancora da fare (voce 3.30-02).
+- **Diagnosi PNG**: Decisione 3.24: Le modifiche si vedono. Non richiedere di nuovo.
 
 Queste scelte sono separate dagli esiti delle prove. Gli stili restano in attesa del tuo
 via libera; sfogliatore Web e Play Store restano sospesi.
@@ -272,3 +178,13 @@ via libera; sfogliatore Web e Play Store restano sospesi.
 |---|---|---|---|---|
 | Filigrana | 3.03 | OK | Il 2026-09-30 l'utente conferma che funziona come previsto. | Chiusa. |
 | Fluidifica | 3.03 | OK | Il 2026-09-30 l'utente dichiara lo strumento ufficialmente completato. | Chiusa. |
+| Giro cartelle 3.13 (prove 01, 03-07, 09-12) | 3.24 | OK / ritocchi | Giro 3.24: Tutto OK; ritocchi UI confluiti in 3.25-3.27. | Archiviata; ritocchi in questo giro. |
+| PNG / PSD / documento (3.14) | 3.24 | OK | Giro 3.24. | Archiviata. |
+| Correggi/Rimuovi base (3.24-01, 03, 06-08) | 3.24 | OK | Giro 3.24. | Archiviata; qualità in 3.30-01. |
+| Header Modalità incluse (3.13-02) | 3.24 | Non approvato | Fix in 3.25. | Ricollegata a 3.25-01. |
+| Nascondi figli in elenco (3.13-08) | 3.24 | Non approvato | Fix in 3.26. | Ricollegata a 3.26-01/02. |
+| Qualità Correggi/Rimuovi (3.24-04) | 3.24 | Non approvato | Migliorata in 3.29/3.30. | Ricollegata a 3.30-01. |
+| Lentino pennello (3.24-02) | 3.24 | Accettabile | Ritocco zoom in 3.26. | Ricollegata a 3.26-06. |
+| d-settings-order | 3.24 | Applica la proposta | Applicata in 3.27. | Chiusa. |
+| d-tablet-layout | 3.24 | Approvo la direzione | Mockup ok; nativo da fare. | Chiusa come direzione. |
+| d-png-fullscreen | 3.24 | Le modifiche si vedono | Diagnosi chiusa. | Chiusa. |
