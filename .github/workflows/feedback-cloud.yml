@@ -66,8 +66,9 @@ jobs:
           FEEDBACK_SUPABASE_SECRET_KEY: ${{ secrets.FEEDBACK_SUPABASE_SECRET_KEY }}
           WRANGLER_SEND_METRICS: 'false'
         run: |
+          set -euo pipefail
           for field in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID FEEDBACK_GITHUB_CLIENT_ID FEEDBACK_GITHUB_CLIENT_SECRET FEEDBACK_SUPABASE_SECRET_KEY; do
-            if [ -z "${!field}" ]; then echo "Configura il campo riservato o la variabile $field nelle impostazioni del repository."; exit 1; fi
+            if [ -z "${!field}" ]; then echo "::error title=Configurazione incompleta::Configura il campo riservato o la variabile $field nelle impostazioni del repository."; exit 1; fi
           done
           node cloud/feedback/github-preflight.mjs
           node cloud/feedback/supabase-preflight.mjs

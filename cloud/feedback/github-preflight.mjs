@@ -7,5 +7,8 @@ const response=await fetch('https://api.github.com/applications/'+encodeURICompo
   body:JSON.stringify({access_token:'aiv-feedback-configuration-check-not-a-real-token'}),
   redirect:'error',signal:AbortSignal.timeout(15000)
 });
-if (response.status!==404) throw Error('Verifica delle credenziali dell\'app GitHub non riuscita (HTTP '+response.status+'). Controlla che Client ID e Client secret provengano dall\'app registrata su GitHub.');
+if (response.status!==404) {
+  console.error('::error title=Credenziali GitHub::Verifica dell\'app GitHub non riuscita (HTTP '+response.status+'). Controlla che Client ID e Client secret provengano dall\'app registrata su GitHub.');
+  process.exit(1);
+}
 console.log('Credenziali dell\'app GitHub verificate senza accedere ai repository o al feedback.');

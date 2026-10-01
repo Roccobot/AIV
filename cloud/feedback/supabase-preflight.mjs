@@ -32,6 +32,6 @@ try {
 } catch(error) {
   const status=Number.isInteger(error.status) ? ` HTTP ${error.status}` : '';
   const code=error.code && /^[A-Z0-9_]+$/.test(error.code) ? ` ${error.code}` : '';
-  console.error('Verifica Supabase non riuscita.'+status+code+' Controlla chiave server, esecuzione SQL e disponibilità del progetto.');
+  console.error('::error title=Archivio Supabase::Verifica Supabase non riuscita.'+status+code+' Controlla chiave server, esecuzione SQL e disponibilità del progetto.');
   process.exitCode=1;
 }
