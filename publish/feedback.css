@@ -475,10 +475,18 @@ body[data-feedback] footer {
   margin: 8px 0;
 }
 .format-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   min-height: 44px;
-  padding: 6px 10px;
-  font-size: 14px;
-  font-weight: 400;
+  padding: 10px;
+}
+.format-toolbar svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
 }
 textarea[hidden] {
   display: none;

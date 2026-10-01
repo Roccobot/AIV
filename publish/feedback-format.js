@@ -1,6 +1,21 @@
 "use strict";
 (() => {
   const editors = [];
+  const iconPaths = {
+    bold: "M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v16h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 11H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z",
+    italic: "M10 4v3h2.21l-3.42 10H6v3h8v-3h-2.21l3.42-10H18V4z",
+    link: "M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z",
+  };
+  function formatIcon(kind) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", iconPaths[kind]);
+    svg.append(path);
+    return svg;
+  }
   function node(tag, text, className) {
     const element = document.createElement(tag);
     if (text !== undefined) element.textContent = text;
@@ -211,7 +226,9 @@
     const editor = {area, box, range: null, lastMarkdown: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["link", "Link", "K"]]) {
-      const button = node("button", title);
+      const button = node("button");
+      button.setAttribute("aria-label", title);
+      button.append(formatIcon(kind));
       button.type = "button";
       button.dataset.format = kind;
       button.title = title + " (⌘" + key + " / Ctrl+" + key + ")";
