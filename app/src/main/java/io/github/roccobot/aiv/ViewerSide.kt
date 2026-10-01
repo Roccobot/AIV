@@ -33,10 +33,10 @@ import androidx.compose.ui.unit.dp
  *
  * ⚠️⚠️ **NASCE CON LA `3.31`**: il mockup (`publish/tablet.html`, rotta `viewer`) mette
  * l'immagine al centro e le informazioni a lato, richiudibili. Sul telefono resta la
- * bottomsheet di [FactsDialog]; qui la stessa lettura di [factsOf] / [FileFacts] sta in
+ * bottomsheet di [FactsDialog]; qui la stessa lettura di [factsOf] / [FileFacts] vive in
  * colonna, senza coprire il media.
  * ⚠️ **Chiuso di serie sotto i 1.024 dp** ([Adaptive.sideDefaultOpen]): la soglia e il
- * perché stanno là. ⚠️ **Il lato segue [Hand]**: destri tengono il pannello a sinistra
+ * perché vivono là. ⚠️ **Il lato segue [Hand]**: destri tengono il pannello a sinistra
  * (come il mockup senza classe `left`), mancini a destra (classe `left`, order 2).
  * ⚠️ **Lo scorrimento vive QUI e non dentro [FileFacts]**: è la stessa regola della
  * bottomsheet (vedi KDoc di [FileFacts]): due scorrimenti annidati fanno crash.

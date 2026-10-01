@@ -339,8 +339,8 @@ fun ViewerScreen(
     var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /*
-     * Layout tablet del Visualizzatore (3.31): da 600 dp il pannello info può stare a
-     * lato; sotto i 1.024 nasce chiuso, da 1.024 in su aperto come nel mockup.
+     * Layout tablet del Visualizzatore (3.31): da 600 dp il pannello info può andare a
+     * lato del media; sotto i 1.024 nasce chiuso, da 1.024 in su aperto come nel mockup.
      * ⚠️ `rememberSaveable(sideDefaultOpen)` riparte al cambio di fascia, così ruotando
      * da orizzontale a verticale il pannello si richiude di serie senza tenersi aperto
      * "perché lo era prima".
@@ -853,7 +853,7 @@ fun ViewerScreen(
     val appChiara = LocalAivLight.current
 
     /*
-     * ⚠️⚠️ **DA 600 dp IL MEDIA E IL PANNELLO INFO STANNO IN RIGA** (3.31): il mockup
+     * ⚠️⚠️ **DA 600 dp IL MEDIA E IL PANNELLO INFO SONO IN RIGA** (3.31): il mockup
      * mette le informazioni a lato e le richiude sotto i 1.024. Sotto i 600 la riga ha
      * un solo figlio a peso pieno, uguale al Box di prima: il layout telefono non cambia.
      * ⚠️ **Il lato segue [Settings.hand]**: destri -> pannello a sinistra (mockup senza
