@@ -23,7 +23,12 @@ let draft = blank(),
   revision = 0,
   loaded = false,
   saveQueue = Promise.resolve(),
-  saveTimer = null;
+  saveTimer = null,
+  persistedRevision = 0,
+  pendingSaves = 0,
+  remoteReady = false,
+  syncing = false;
+const remote = window.feedbackRemote;
 const saved = document.querySelector("#saved"),
   message = document.querySelector("#action-message");
 function el(tag, text, cls) {
@@ -245,8 +250,10 @@ function save() {
   clearTimeout(saveTimer);
   saveTimer = null;
   if (!loaded) return Promise.resolve(false);
+  if (remote && !remoteReady) return Promise.resolve(false);
+  pendingSaves++;
   const current = revision,
-    snapshot = structuredClone(draft);
+    snapshot = remote ? remote.snapshot(draft) : structuredClone(draft);
   snapshot.updated = new Date().toISOString();
   snapshot.version = spec.version;
   saved.textContent = "Salvataggio in corso...";
@@ -254,7 +261,7 @@ function save() {
   saveQueue = saveQueue
     .catch(() => {})
     .then(
-      () =>
+      () => remote ? remote.save(snapshot) :
         new Promise((resolve, reject) => {
           if (!db) {
             reject(Error("Memoria del browser non disponibile."));
@@ -267,21 +274,24 @@ function save() {
             reject(transaction.error ?? Error("Salvataggio interrotto."));
         }),
     )
-    .then(() => {
+    .then((result) => {
+      if (result?.updated) snapshot.updated = result.updated;
+      persistedRevision = current;
       if (current === revision) {
         draft.updated = snapshot.updated;
         saved.textContent =
-          "Salvato in questo browser: " +
+          (remote ? "Salvato nel cloud: " : "Salvato in questo browser: ") +
           new Date(snapshot.updated).toLocaleString("it-IT");
       }
       return true;
     })
     .catch((error) => {
+      remote?.failed(error);
       saved.textContent =
         "Non salvato: esporta il JSON prima di chiudere. " + error.message;
       saved.classList.add("error");
       return false;
-    });
+    }).finally(() => { pendingSaves--; });
   return saveQueue;
 }
 function changed() {
@@ -595,7 +605,7 @@ document.querySelector("#import").addEventListener("change", async (event) => {
 document.querySelector("#reset").addEventListener("click", async () => {
   if (
     !confirm(
-      "Cancellare tutte le risposte e tutti gli allegati salvati in questo browser? Esporta il JSON per conservarle.",
+      remote ? "Azzera la bozza cloud, rimuovendo risposte e allegati da tutti i dispositivi? Esporta il JSON per conservarli." : "Cancellare tutte le risposte e tutti gli allegati salvati in questo browser? Esporta il JSON per conservarle.",
     )
   )
     return;
@@ -623,41 +633,90 @@ function controls(disabled) {
 controls(true);
 (async () => {
   try {
-    db = await new Promise((resolve, reject) => {
-      const request = indexedDB.open("aiv-feedback", 1);
-      request.onupgradeneeded = () =>
-        request.result.createObjectStore("drafts");
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-      request.onblocked = () =>
-        reject(Error("Chiudi le altre schede del documento."));
-    });
-    db.onversionchange = () => {
-      db.close();
-      db = null;
-      saved.textContent = "Memoria chiusa da un'altra scheda: esporta il JSON.";
-    };
-    const existing = await new Promise((resolve, reject) => {
-      const request = db
-        .transaction("drafts")
-        .objectStore("drafts")
-        .get("current");
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-    if (existing) draft = validate(existing);
-    saved.textContent = draft.updated
-      ? "Risposte ripristinate dal browser."
-      : "Nessuna risposta salvata: puoi iniziare.";
+    if (remote) {
+      const existing = await remote.load(validate);
+      if (existing) draft = existing;
+      remoteReady = true;
+      remote.account(true);
+      saved.textContent = existing ? "Risposte ripristinate dal cloud." : "Nessuna risposta nel cloud: puoi iniziare.";
+    } else {
+      db = await new Promise((resolve, reject) => {
+        const request = indexedDB.open("aiv-feedback", 1);
+        request.onupgradeneeded = () =>
+          request.result.createObjectStore("drafts");
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+        request.onblocked = () =>
+          reject(Error("Chiudi le altre schede del documento."));
+      });
+      db.onversionchange = () => {
+        db.close();
+        db = null;
+        saved.textContent = "Memoria chiusa da un'altra scheda: esporta il JSON.";
+      };
+      const existing = await new Promise((resolve, reject) => {
+        const request = db
+          .transaction("drafts")
+          .objectStore("drafts")
+          .get("current");
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      if (existing) draft = validate(existing);
+      saved.textContent = draft.updated
+        ? "Risposte ripristinate dal browser."
+        : "Nessuna risposta salvata: puoi iniziare.";
+    }
   } catch (error) {
+    remote?.failed(error);
     saved.textContent =
-      "Memoria non disponibile o dati non leggibili. Esporta il JSON prima di chiudere. " +
-      error.message;
+      (remote ? "Cloud non disponibile. " : "Memoria non disponibile o dati non leggibili. Esporta il JSON prima di chiudere. ") + error.message;
     saved.classList.add("error");
   } finally {
-    loaded = true;
+    loaded = remote ? remoteReady : true;
     hydrate();
-    controls(false);
+    controls(!loaded);
     refreshNavigation();
   }
 })();
+
+window.feedbackHasUnsaved = () => revision !== persistedRevision;
+window.feedbackSaveForLogout = async () => await save() && revision === persistedRevision;
+async function refreshRemote() {
+  if (!remote || !remoteReady || syncing || pendingSaves || revision !== persistedRevision || document.hidden) return;
+  const observed = revision;
+  syncing = true;
+  let locked = false;
+  try {
+    if (!await remote.hasUpdates() || observed !== revision || pendingSaves) return;
+    controls(true);
+    locked = true;
+    const existing = await remote.load(validate);
+    draft = existing || blank();
+    revision++;
+    persistedRevision = revision;
+    hydrate();
+    document.querySelector("#summary").value = "";
+    saved.textContent = "Risposte aggiornate dal cloud.";
+    saved.classList.remove("error");
+  } catch (error) {
+    remote.failed(error);
+    saved.textContent = "Sincronizzazione non riuscita. " + error.message;
+    saved.classList.add("error");
+  } finally {
+    if (locked) { controls(false); refreshNavigation(); }
+    syncing = false;
+  }
+}
+if (remote) {
+  setInterval(refreshRemote,15000);
+  window.addEventListener("focus",refreshRemote);
+  window.addEventListener("online",() => {
+    if (remoteReady && revision !== persistedRevision && !pendingSaves) save();
+    else refreshRemote();
+  });
+  document.addEventListener("visibilitychange",() => { if (!document.hidden) refreshRemote(); });
+  window.addEventListener("beforeunload",event => {
+    if (revision !== persistedRevision) { event.preventDefault(); event.returnValue = ""; }
+  });
+}

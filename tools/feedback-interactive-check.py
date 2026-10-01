@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and exercise the actual Codex feedback page, including persistence and import."""
+"""Validate and exercise the actual agent feedback page, including persistence and import."""
 import base64
 import colorsys
 import functools

@@ -14,3 +14,7 @@ captures/
 .kotlin/
 # Il bytecode che Python scrive accanto agli script di `tools/` quando uno importa l'altro.
 __pycache__/
+# Tooling and local secrets of the private feedback service.
+cloud/feedback/node_modules/
+cloud/feedback/.wrangler/
+cloud/feedback/.dev.vars*

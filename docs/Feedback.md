@@ -4,7 +4,7 @@ Versione **3.24**: Correggi/Rimuovi nel modulo Dettaglio.
 [Apri il documento interattivo](https://roccobot.github.io/AIV/feedback.html) oppure
 [scarica AIV 3.24](https://github.com/Roccobot/AIV/releases/download/v3.24/AIV-3.24.apk).
 
-Questo è il documento di Codex. Conserva tutte le prove ancora aperte dalla 3.13, comprese quelle della 3.14;
+Questo è il documento dell'agente. Conserva tutte le prove ancora aperte dalla 3.13, comprese quelle della 3.14;
 le altre voci del documento Claude mantengono il loro stato. Filigrana e Fluidifica
 sono approvati e archiviati. Le prove sul telefono sono tutte **Non provato**.
 
@@ -14,7 +14,7 @@ Nei commenti delle verifiche, delle decisioni e delle osservazioni puoi usare Gr
 
 Puoi aggiungere commenti e allegati (PNG, JPG, WebP, GIF, SVG e ZIP), anche trascinandoli sulla voce. Gli stessi allegati sono disponibili in Qualsiasi altra cosa; gli ZIP restano interi e possono essere scaricati. Le voci con un esito, un commento o un allegato sono evidenziate: verde per Tutto OK, ambra per Accettabile, rosso per Non approvato. Commenti e allegati senza esito hanno evidenza neutra; le decisioni con una scelta o un commento sono evidenziate allo stesso modo. I contatori continuano a misurare soltanto gli esiti. Il salvataggio avviene nel browser corrente:
 esporta il JSON per trasferire le risposte. `Invia` prepara il riepilogo, che devi copiare
-in chat; non invia automaticamente nulla. Codex aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
+in chat; non invia automaticamente nulla. L'agente aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
 senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
 
 Le verifiche automatiche della 3.24 sono superate: 472 prove, zero fallimenti,
@@ -179,6 +179,8 @@ devono tornare esiti, commenti e immagini. Premi Invia, poi copia il riepilogo e
 comprenda versione, risposte e osservazioni libere. Il riepilogo dice quali voci hanno immagini;
 per consegnarle usa il JSON o allegale alla chat. Prova anche il secondo clic per cancellare un
 esito e la leggibilità su telefono. Azzera tutto richiede conferma e riguarda il browser corrente.
+
+Quando il servizio cloud sarà attivato, esporta il JSON dalla scheda GitHub già compilata e importalo all'indirizzo cloud dopo l'accesso GitHub. Attendi Salvato nel cloud, poi apri lo stesso indirizzo su un altro dispositivo: devono tornare testo formattato, esiti e allegati originali. Riprendi a compilare sul secondo dispositivo e torna al primo senza modifiche locali: deve aggiornarsi. Prova modifiche contemporanee alla stessa voce: un conflitto deve conservare la bozza più recente sul server e il testo locale, senza sovrascrivere. Se manca la connessione, deve comparire Non salvato e il JSON deve permettere di conservare le modifiche. Il giro continua a essere consegnato in chat, tramite riepilogo e JSON.
 
 ## 16. Correggi/Rimuovi: accesso e selezione
 

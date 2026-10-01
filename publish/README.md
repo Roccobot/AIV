@@ -36,3 +36,14 @@ i comandi flottanti percorrono i riquadri e trovano il primo senza risposte, esc
 le osservazioni libere opzionali. Non modificare gli stati del
 collaudo senza il giro completo consegnato dall'utente. L'aggiornamento del sito non crea
 una release Android: l'APK e la sua versione sono indipendenti.
+
+Il servizio privato è in [cloud/feedback](../cloud/feedback/README.md), con accesso GitHub
+riservato al proprietario e salvataggio in R2. Il Worker serve la stessa cartella `publish/`
+insieme all'API, per avere pagina e cookie di accesso sulla stessa origine anche su Safari.
+`feedback-cloud-config.js` è neutro su GitHub e sostituito dal Worker con la configurazione
+pubblica del servizio; `feedback-cloud.js` gestisce risposte, allegati e sincronizzazione.
+La pagina GitHub mantiene la bozza locale per esportarla e importarla all'indirizzo cloud:
+non cancellarla e non attivare un reindirizzamento prima che il trasferimento sia confermato.
+La distribuzione è pronta nel workflow `Feedback cloud`, ma richiede i quattro campi
+riservati/pubblici indicati nella guida. Finché manca la configurazione del proprietario,
+nessun salvataggio remoto viene dichiarato attivo.
