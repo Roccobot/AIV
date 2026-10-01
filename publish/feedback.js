@@ -190,6 +190,7 @@ function refreshCounts() {
   document.querySelector("#progress").value = done;
   document.querySelector("#answered").textContent =
     `Risposte: ${done} su ${spec.items.length}.`;
+  refreshNavigation();
 }
 function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
@@ -493,6 +494,57 @@ for (const key of ["device", "installed", "notes"])
     draft[key] = event.target.value;
     changed();
   });
+// Anchor the next card below the actual sticky dashboard, including wrapped mobile text.
+const responseCards = Array.from(document.querySelectorAll(".test, .decision, .extra"));
+const previousCard = document.querySelector("#previous-card");
+const nextCard = document.querySelector("#next-card");
+const firstEmpty = document.querySelector("#first-empty");
+function navigationOffset() {
+  return document.querySelector(".dashboard").getBoundingClientRect().height + 12;
+}
+function currentCardIndex() {
+  const offset = navigationOffset();
+  let index = -1;
+  for (let i = 0; i < responseCards.length; i++) {
+    if (responseCards[i].getBoundingClientRect().top <= offset + 2) index = i;
+    else break;
+  }
+  // A section heading between cards belongs to the upcoming visible card.
+  if (index >= 0 && index < responseCards.length - 1 &&
+      responseCards[index].getBoundingClientRect().bottom < offset) index++;
+  return index;
+}
+function firstEmptyCard() {
+  return responseCards.find(card => !card.classList.contains("extra") && !card.classList.contains("has-response"));
+}
+function refreshNavigation() {
+  const index = currentCardIndex();
+  previousCard.disabled = !loaded || index <= 0;
+  nextCard.disabled = !loaded || index >= responseCards.length - 1;
+  const empty = firstEmptyCard();
+  firstEmpty.hidden = !empty || responseCards[index] === empty;
+  firstEmpty.disabled = !loaded;
+  document.documentElement.style.setProperty("--feedback-scroll-offset", navigationOffset() + "px");
+}
+function goToCard(card) {
+  if (!card) return;
+  window.scrollTo({top: window.scrollY + card.getBoundingClientRect().top - navigationOffset(), behavior: "instant"});
+  document.querySelector("#navigation-position").textContent =
+    card.querySelector(".check-position")?.textContent || card.querySelector("h3,h2").textContent;
+  refreshNavigation();
+}
+previousCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() - 1]));
+nextCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() + 1]));
+firstEmpty.addEventListener("click", () => goToCard(firstEmptyCard()));
+let navigationFrame = null;
+window.addEventListener("scroll", () => {
+  if (navigationFrame !== null) return;
+  navigationFrame = requestAnimationFrame(() => {
+    navigationFrame = null;
+    refreshNavigation();
+  });
+}, {passive: true});
+new ResizeObserver(refreshNavigation).observe(document.querySelector(".dashboard"));
 for (const id of ["save", "floating-save"])
   document.querySelector("#" + id).addEventListener("click", save);
 document.querySelector("#copy").addEventListener("click", copy);
@@ -604,5 +656,6 @@ controls(true);
     loaded = true;
     hydrate();
     controls(false);
+    refreshNavigation();
   }
 })();

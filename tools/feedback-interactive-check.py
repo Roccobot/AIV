@@ -48,6 +48,73 @@ def check(path):
             browser = pw.chromium.launch(executable_path=browser, args=['--no-sandbox'])
             context = browser.new_context(permissions=['clipboard-read', 'clipboard-write'])
             page = context.new_page()
+            navigation_context = browser.new_context(locale='it-IT', viewport={'width':390,'height':844}, is_mobile=True, has_touch=True)
+            navigation = navigation_context.new_page()
+            navigation.on('pageerror', lambda e: errors.append(str(e)))
+            navigation.goto(url)
+            expect(navigation.locator('#save')).to_be_enabled()
+            numbered = navigation.locator('.test .check-position')
+            assert numbered.count() == len(data['items'])
+            for index, counter in enumerate(numbered.all(), 1):
+                expect(counter).to_have_text(f'Verifica {index}/{len(data["items"])}')
+                expect(counter.locator('strong')).to_have_text(str(index))
+                assert counter.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
+                assert int(counter.locator('strong').evaluate('(el)=>getComputedStyle(el).fontWeight')) >= 700
+            def aligned(card):
+                box = card.bounding_box()
+                dashboard = navigation.locator('.dashboard').bounding_box()
+                assert abs(box['y'] - dashboard['height'] - 12) < 3, 'Card hidden beneath the sticky dashboard.'
+            for width in [320,390,800,1280]:
+                navigation.set_viewport_size({'width':width,'height':900})
+                navigation.evaluate('window.scrollTo(0,0)')
+                expect(navigation.locator('#previous-card')).to_be_disabled()
+                navigation.locator('#next-card').tap()
+                aligned(navigation.locator('.test').nth(0))
+                navigation.locator('#next-card').tap()
+                aligned(navigation.locator('.test').nth(1))
+                navigation.locator('#previous-card').tap()
+                aligned(navigation.locator('.test').nth(0))
+                navigation.locator('#next-card').tap()
+                expect(navigation.locator('#first-empty')).to_be_visible()
+                navigation.locator('#first-empty').tap()
+                aligned(navigation.locator('.test').nth(0))
+                expect(navigation.locator('#first-empty')).to_be_hidden()
+                save_box = navigation.locator('#floating-save').bounding_box()
+                for ident in ['previous-card','next-card']:
+                    box = navigation.locator('#'+ident).bounding_box()
+                    assert box['y']+box['height'] < save_box['y']
+                    assert box['width'] >= 48 and box['height'] >= 48
+            navigation.evaluate('''() => {
+                const previous = document.querySelector('#tests .test:last-child').getBoundingClientRect();
+                const next = document.querySelector('.decision').getBoundingClientRect();
+                const offset = document.querySelector('.dashboard').getBoundingClientRect().height + 12;
+                window.scrollTo(0, window.scrollY + (previous.bottom + next.top)/2 - offset);
+            }''')
+            navigation.locator('#previous-card').tap()
+            aligned(navigation.locator('.test').last)
+            navigation.locator('.test').nth(0).locator('.comment').fill('Solo commento')
+            navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
+            navigation.locator('.test').nth(3).locator('.comment').fill('Più in basso')
+            navigation.locator('#next-card').tap()
+            navigation.locator('#first-empty').tap()
+            aligned(navigation.locator('.test').nth(2))
+            # Fill through normal input handlers; navigation must update without a reload.
+            for field in navigation.locator('.test .comment,.decision textarea').all():
+                field.fill('Risposta di verifica')
+            expect(navigation.locator('#first-empty')).to_be_hidden()
+            navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
+            navigation.locator('.test').nth(1).locator('.comment').fill('')
+            navigation.locator('#next-card').tap()
+            expect(navigation.locator('#first-empty')).to_be_visible()
+            navigation.locator('#first-empty').tap()
+            aligned(navigation.locator('.test').nth(1))
+            last = navigation.locator('.extra')
+            last.scroll_into_view_if_needed()
+            navigation.evaluate('window.scrollTo(0, document.body.scrollHeight)')
+            expect(navigation.locator('#next-card')).to_be_disabled()
+            navigation.locator('#previous-card').tap()
+            aligned(navigation.locator('.decision').last)
+            navigation_context.close()
             page.on('pageerror', lambda e: errors.append(str(e)))
             page.goto(url)
             expect(page.locator('#save')).to_be_enabled()
@@ -328,7 +395,7 @@ def check(path):
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
-        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini, SVG e ZIP originali nei riquadri e nelle osservazioni, trascinamento, download, nuove schede, campi, allineamento, conferma, colori degli esiti, evidenze, JSON, clipboard e larghezze verificati.')
+        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini, SVG e ZIP originali nei riquadri e nelle osservazioni, trascinamento, download, nuove schede, campi, allineamento, numerazione e navigazione mobile, conferma, colori degli esiti, evidenze, JSON, clipboard e larghezze verificati.')
     finally:
         server.shutdown()
         server.server_close()
