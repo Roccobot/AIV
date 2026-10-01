@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate and exercise the actual Codex feedback page, including persistence and import."""
 import base64
+import colorsys
 import functools
 import http.server
 import json
@@ -9,6 +10,7 @@ import re
 import shutil
 import tempfile
 import threading
+import zipfile
 
 
 def check(path):
@@ -51,6 +53,20 @@ def check(path):
             expect(page.locator('#save')).to_be_enabled()
             assert page.locator('.test').count() == len(data['items'])
             assert page.locator('.decision').count() == len(data['decisions'])
+            import_button = page.locator('.file-button')
+            for width in [320, 390, 800, 1280]:
+                page.set_viewport_size({'width': width, 'height': 900})
+                import_box = import_button.bounding_box()
+                for button in page.locator('.actions button').all():
+                    assert abs(button.bounding_box()['height'] - import_box['height']) < 1, 'Importa JSON height differs from its peers.'
+                title_right = import_button.evaluate('''label => {
+                    const range = document.createRange();
+                    range.selectNode(label.firstChild);
+                    return range.getBoundingClientRect().right;
+                }''')
+                browse = import_button.locator('.browse-label').bounding_box()
+                assert browse['x'] > title_right, 'Sfoglia is not beside the title.'
+                assert abs(browse['y'] + browse['height']/2 - import_box['y'] - import_box['height']/2) < 1
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_text('Tutto OK')
@@ -62,6 +78,29 @@ def check(path):
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.comment').fill('')
             expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
+            for theme in ['light', 'dark']:
+                page.emulate_media(color_scheme=theme)
+                first.locator('.comment').fill('Solo commento, senza approvazione')
+                neutral = first.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+                backgrounds = []
+                for status in ['Tutto OK', 'Accettabile', 'Non approvato']:
+                    button = first.locator('[data-status="'+status+'"]')
+                    button.click()
+                    border = first.evaluate('(el)=>getComputedStyle(el).borderTopColor')
+                    selected = button.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+                    def hue(rgb):
+                        values = [int(value)/255 for value in re.findall(r'\d+', rgb)[:3]]
+                        return colorsys.rgb_to_hsv(*values)[0]
+                    difference = abs(hue(border)-hue(selected))
+                    assert min(difference, 1-difference) < 0.07, 'The card color does not match its outcome.'
+                    background = first.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+                    assert background != neutral
+                    backgrounds.append(background)
+                    button.click()
+                    assert first.evaluate('(el)=>getComputedStyle(el).backgroundColor') == neutral
+                assert len(set(backgrounds)) == 3, 'The three outcomes use the same card color.'
+                first.locator('.comment').fill('')
+            page.emulate_media(color_scheme='light')
             for field in page.locator('textarea,input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
                 assert field.evaluate('(el)=>parseFloat(getComputedStyle(el).fontSize)') >= 18
@@ -125,7 +164,33 @@ def check(path):
             first.locator('.images').set_input_files(str(bad_svg))
             expect(page.locator('#action-message')).to_contain_text('SVG non è valido')
             expect(first.locator('.image-list img')).to_have_count(3)
-
+            archive = Path(temporary) / 'sources.zip'
+            with zipfile.ZipFile(archive, 'w') as zipped:
+                zipped.writestr('original.svg', svg_bytes)
+                zipped.writestr('original.png', image.read_bytes())
+            first.locator('.images').set_input_files(str(archive))
+            expect(first.locator('.zip-download')).to_have_count(1)
+            notes_card = page.locator('.extra')
+            notes_card.locator('.images').set_input_files(str(image))
+            expect(notes_card.locator('img')).to_have_count(1)
+            notes_card.dispatch_event('drop', {'dataTransfer': transfer})
+            expect(notes_card.locator('img')).to_have_count(2)
+            notes_card.locator('.images').set_input_files({'name': 'notes.zip', 'mimeType': 'application/x-zip-compressed', 'buffer': archive.read_bytes()})
+            expect(notes_card.locator('.zip-download')).to_have_count(1)
+            zip_transfer = page.evaluate_handle('''bytes => {
+                const transfer = new DataTransfer();
+                transfer.items.add(new File([new Uint8Array(bytes)], 'dropped.zip', {type:''}));
+                return transfer;
+            }''', list(archive.read_bytes()))
+            first.dispatch_event('drop', {'dataTransfer': zip_transfer})
+            expect(first.locator('.zip-download')).to_have_count(2)
+            notes_card.dispatch_event('drop', {'dataTransfer': zip_transfer})
+            expect(notes_card.locator('.zip-download')).to_have_count(2)
+            bad_zip = Path(temporary) / 'invalid.zip'
+            bad_zip.write_bytes(b'this is not a zip')
+            notes_card.locator('.images').set_input_files(str(bad_zip))
+            expect(page.locator('#action-message')).to_contain_text('ZIP non è riconosciuto')
+            expect(notes_card.locator('.zip-download')).to_have_count(2)
             page.locator('#save').click()
             expect(page.locator('#saved')).to_contain_text('Salvato in questo browser')
             page.reload()
@@ -141,9 +206,15 @@ def check(path):
             exported = json.loads(export.read_text())
             encoded = exported['entries'][data['items'][0]['id']]['images'][0]['data'].split(',')[1]
             assert base64.b64decode(encoded) == image.read_bytes(), 'Immagine modificata.'
-            for attached in exported['entries'][data['items'][0]['id']]['images'][1:]:
+            for attached in exported['entries'][data['items'][0]['id']]['images'][1:3]:
                 assert attached['type'] == 'image/svg+xml'
                 assert base64.b64decode(attached['data'].split(',')[1]) == svg_bytes, 'SVG originale modificato.'
+            for attached in exported['entries'][data['items'][0]['id']]['images'][3:]:
+                assert attached['type'] == 'application/zip'
+                assert base64.b64decode(attached['data'].split(',')[1]) == archive.read_bytes()
+            assert len(exported['extra']['images']) == 4
+            for attached, original in zip(exported['extra']['images'], [image.read_bytes(), svg_bytes, archive.read_bytes(), archive.read_bytes()]):
+                assert base64.b64decode(attached['data'].split(',')[1]) == original, 'Allegato delle osservazioni modificato.'
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
             expect(page.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
 
@@ -152,12 +223,22 @@ def check(path):
             second.on('pageerror', lambda e: errors.append(str(e)))
             second.goto(url)
             expect(second.locator('#save')).to_be_enabled()
-            second.locator('#import').set_input_files(str(export))
+            with second.expect_file_chooser() as chooser:
+                second.locator('.file-button').click()
+            chooser.value.set_files(str(export))
             expect(second.locator('#action-message')).to_contain_text('JSON importato')
             expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.reload()
             expect(second.locator('#save')).to_be_enabled()
+            expect(second.locator('.extra img')).to_have_count(2)
+            expect(second.locator('.extra .zip-download')).to_have_count(2)
+            expect(second.locator('.test').first.locator('.zip-download')).to_have_count(2)
+            with second.expect_download() as pending_zip:
+                second.locator('.extra .zip-download').first.click()
+            zip_copy = Path(temporary) / 'downloaded.zip'
+            pending_zip.value.save_as(str(zip_copy))
+            assert zip_copy.read_bytes() == archive.read_bytes(), 'ZIP scaricato modificato.'
             expect(second.locator('.test').first.locator('.comment')).to_have_value('Commento di verifica: <script>test</script>')
             bad = Path(temporary) / 'invalid.json'
             invalid = json.loads(export.read_text())
@@ -171,11 +252,22 @@ def check(path):
             second.locator('#copy').click()
             expect(second.locator('#action-message')).to_contain_text('Riepilogo copiato')
             clipboard = second.evaluate('navigator.clipboard.readText()')
-            assert 'Osservazioni libere di verifica' in clipboard and 'feedback.png' in clipboard
+            assert all(name in clipboard for name in ['Osservazioni libere di verifica', 'feedback.png', 'notes.zip', 'sources.zip', 'dropped.zip'])
+            confirmations = []
+            def cancel_reset(dialog):
+                confirmations.append((dialog.type, dialog.message))
+                dialog.dismiss()
+            second.once('dialog', cancel_reset)
+            second.locator('#reset').click()
+            assert confirmations and confirmations[0][0] == 'confirm'
+            assert 'Cancellare tutte le risposte' in confirmations[0][1]
+            expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
+            expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.on('dialog', lambda dialog: dialog.accept())
             second.locator('#reset').click()
             expect(second.locator('.test').first.locator('.item-state')).to_have_text('Non provato')
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(0)
+            expect(second.locator('.extra .image-list figure')).to_have_count(0)
             for width in [320, 390, 800, 1280]:
                 second.set_viewport_size({'width': width, 'height': 900})
                 assert second.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Scorrimento orizzontale a {width}px.'
@@ -194,6 +286,11 @@ def check(path):
             # A previous release's saved draft must survive the cumulative document update.
             legacy = json.loads(export.read_text())
             legacy['version'] = legacy['installed'] = '3.14'
+            legacy.pop('extra', None)
+            # Earlier drafts contain images only and have no optional extra attachments.
+            for value in legacy['entries'].values():
+                value['images'] = [file for file in value['images'] if file['type'].startswith('image/')]
+
             legacy['entries'] = {key: value for key, value in legacy['entries'].items()
                                  if key.startswith(('3.13-', '3.14-'))}
             legacy['entries']['3.14-03'] = {'status': 'Tutto OK', 'comment': 'Riscontro precedente conservato', 'images': []}
@@ -231,7 +328,7 @@ def check(path):
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
-        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini e SVG originali, trascinamento, nuove schede, campi, evidenze, JSON, clipboard e larghezze verificati.')
+        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini, SVG e ZIP originali nei riquadri e nelle osservazioni, trascinamento, download, nuove schede, campi, allineamento, conferma, colori degli esiti, evidenze, JSON, clipboard e larghezze verificati.')
     finally:
         server.shutdown()
         server.server_close()

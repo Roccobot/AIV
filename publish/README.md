@@ -25,6 +25,9 @@ python3 tools/settings-build.py --check
 python3 tools/feedback-check.py publish/feedback.html
 ```
 
-Le risposte conservano gli identificatori fra aggiornamenti. Non modificare gli stati del
+Le risposte conservano gli identificatori fra aggiornamenti. Gli allegati PNG/JPG/WebP/GIF,
+SVG e ZIP sono conservati interi nel browser e nel JSON, sia nelle voci sia nelle osservazioni
+libere; selettore e trascinamento usano gli stessi limiti (8 MB per file, 20 MB complessivi).
+Il JSON rimane unico, anche in presenza di allegati. Non modificare gli stati del
 collaudo senza il giro completo consegnato dall'utente. L'aggiornamento del sito non crea
 una release Android: l'APK e la sua versione sono indipendenti.

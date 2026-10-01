@@ -1,9 +1,10 @@
 "use strict";
 const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
 const outcomes = ["Tutto OK", "Accettabile", "Non approvato"];
-const maxImage = 8 * 1024 * 1024,
+const maxFile = 8 * 1024 * 1024,
   maxTotal = 20 * 1024 * 1024;
-const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"];
+const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "application/zip"];
+// Preserve the historical images key in JSON drafts; it also holds ZIP files.
 const blank = () => ({
   schema: 1,
   project: "AIV",
@@ -11,6 +12,7 @@ const blank = () => ({
   installed: spec.version,
   device: "",
   notes: "",
+  extra: { images: [] },
   entries: {},
   decisions: {},
   updated: null,
@@ -35,6 +37,13 @@ function entry(id) {
     draft.entries[id] ??
     (draft.entries[id] = { status: "", comment: "", images: [] })
   );
+}
+function attachmentEntry(card) {
+  return card.classList.contains("extra") ? draft.extra : entry(card.dataset.id);
+}
+function usedAttachmentBytes() {
+  return [draft.extra, ...Object.values(draft.entries)].reduce((sum, value) =>
+    sum + value.images.reduce((bytes, file) => bytes + file.size, 0), 0);
 }
 function decision(id) {
   return (
@@ -79,6 +88,39 @@ function validate(raw) {
     Object.keys(raw.decisions).length > 100
   )
     throw Error("Troppe voci.");
+  function cleanAttachments(images) {
+    return images.map((img) => {
+      if (
+        !img ||
+        typeof img.name !== "string" ||
+        img.name.length > 500 ||
+        !allowedMime.includes(img.type) ||
+        typeof img.data !== "string" ||
+        !img.data.startsWith("data:" + img.type + ";base64,") ||
+        !Number.isInteger(img.size) ||
+        img.size < 1 ||
+        img.size > maxFile
+      )
+        throw Error("Allegato non valido.");
+      const encoded = img.data.split(",")[1];
+      if (
+        !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) ||
+        encoded.length % 4 !== 0 ||
+        encoded.length > Math.ceil(maxFile / 3) * 4
+      )
+        throw Error("Dati allegato non validi.");
+      const bytes = atob(encoded).length;
+      if (bytes !== img.size) throw Error("Dimensione allegato non valida.");
+      total += bytes;
+      if (total > maxTotal) throw Error("Gli allegati superano 20 MB.");
+      return { name: img.name, type: img.type, size: img.size, data: img.data };
+    });
+  }
+  if (raw.extra !== undefined) {
+    if (!raw.extra || !Array.isArray(raw.extra.images) || raw.extra.images.length > 30)
+      throw Error("Allegati delle osservazioni non validi.");
+    clean.extra = { images: cleanAttachments(raw.extra.images) };
+  }
   for (const [id, value] of Object.entries(raw.entries)) {
     if (
       !/^\d+\.\d+-\d+$/.test(id) ||
@@ -95,32 +137,7 @@ function validate(raw) {
       ] ?? value.status;
     if (status !== "" && !outcomes.includes(status))
       throw Error("Esito non valido.");
-    const images = value.images.map((img) => {
-      if (
-        !img ||
-        typeof img.name !== "string" ||
-        img.name.length > 500 ||
-        !allowedMime.includes(img.type) ||
-        typeof img.data !== "string" ||
-        !img.data.startsWith("data:" + img.type + ";base64,") ||
-        !Number.isInteger(img.size) ||
-        img.size < 1 ||
-        img.size > maxImage
-      )
-        throw Error("Immagine non valida.");
-      const encoded = img.data.split(",")[1];
-      if (
-        !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) ||
-        encoded.length % 4 !== 0 ||
-        encoded.length > Math.ceil(maxImage / 3) * 4
-      )
-        throw Error("Dati immagine non validi.");
-      const bytes = atob(encoded).length;
-      if (bytes !== img.size) throw Error("Dimensione immagine non valida.");
-      total += bytes;
-      if (total > maxTotal) throw Error("Le immagini superano 20 MB.");
-      return { name: img.name, type: img.type, size: img.size, data: img.data };
-    });
+    const images = cleanAttachments(value.images);
     clean.entries[id] = { status, comment: value.comment, images };
   }
   for (const [id, value] of Object.entries(raw.decisions)) {
@@ -144,8 +161,10 @@ function validate(raw) {
   return clean;
 }
 function refreshCounts() {
+  document.querySelector(".extra").classList.toggle("has-response", Boolean(draft.notes.trim() || draft.extra.images.length));
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
+    card.dataset.outcome = value.status;
     card.classList.toggle("has-response", Boolean(value.status || value.comment.trim() || value.images.length));
   }
   for (const card of document.querySelectorAll(".decision")) {
@@ -180,7 +199,7 @@ function hydrate() {
       value.status || "Non provato";
     for (const b of card.querySelectorAll(".outcome"))
       b.setAttribute("aria-pressed", String(b.dataset.status === value.status));
-    drawImages(card);
+    drawAttachments(card);
   }
   for (const card of document.querySelectorAll(".decision")) {
     const value = decision(card.dataset.id);
@@ -190,22 +209,30 @@ function hydrate() {
   }
   for (const key of ["device", "installed", "notes"])
     document.querySelector("#" + key).value = draft[key];
+  drawAttachments(document.querySelector(".extra"));
   refreshCounts();
 }
-function drawImages(card) {
+function drawAttachments(card) {
   const list = card.querySelector(".image-list");
   list.replaceChildren();
-  entry(card.dataset.id).images.forEach((img, index) => {
-    const figure = el("figure"),
-      image = el("img");
-    image.src = img.data;
-    image.alt = img.name;
-    figure.append(image, el("figcaption", img.name));
-    const remove = el("button", "Rimuovi immagine");
+  attachmentEntry(card).images.forEach((img, index) => {
+    const figure = el("figure");
+    if (img.type === "application/zip") {
+      const download = el("a", "Scarica ZIP", "zip-download");
+      download.href = img.data;
+      download.download = img.name;
+      figure.append(el("span", "ZIP", "file-kind"), el("figcaption", img.name), download);
+    } else {
+      const image = el("img");
+      image.src = img.data;
+      image.alt = img.name;
+      figure.append(image, el("figcaption", img.name));
+    }
+    const remove = el("button", "Rimuovi allegato");
     remove.type = "button";
     remove.addEventListener("click", () => {
-      entry(card.dataset.id).images.splice(index, 1);
-      drawImages(card);
+      attachmentEntry(card).images.splice(index, 1);
+      drawAttachments(card);
       changed();
     });
     figure.append(remove);
@@ -277,7 +304,7 @@ function summary() {
     if (value.comment) lines.push(value.comment);
     if (value.images.length)
       lines.push(
-        `Immagini: ${value.images.map((i) => i.name).join(", ")} (consegnare con JSON o allegati)`,
+        `Allegati: ${value.images.map((i) => i.name).join(", ")} (consegnare con JSON o allegati)`,
       );
     lines.push("");
   }
@@ -292,6 +319,8 @@ function summary() {
     "Qualsiasi altra cosa",
     draft.notes || "Nessuna osservazione.",
   );
+  if (draft.extra.images.length)
+    lines.push("Allegati alle osservazioni: " + draft.extra.images.map((file) => file.name).join(", ") + " (consegnare con JSON o allegati)");
   return lines.join("\n");
 }
 async function copy() {
@@ -299,7 +328,7 @@ async function copy() {
   document.querySelector("#summary").value = text;
   try {
     await navigator.clipboard.writeText(text);
-    report("Riepilogo copiato. Incollalo in chat con le eventuali immagini.");
+    report("Riepilogo copiato. Incollalo in chat con le eventuali allegati.");
   } catch {
     const area = document.querySelector("#summary");
     area.focus();
@@ -352,44 +381,52 @@ for (const question of spec.decisions) {
 async function attachFiles(card, files) {
   const input = card.querySelector(".images");
   if (!loaded || input.disabled || !files.length) return;
-  const initialDraft = draft, initialEntry = entry(card.dataset.id);
+  const initialDraft = draft, initialEntry = attachmentEntry(card);
   input.disabled = true;
   try {
-    const usedBefore = Object.values(draft.entries).reduce((sum, e) =>
-      sum + e.images.reduce((size, image) => size + image.size, 0), 0);
+    const usedBefore = usedAttachmentBytes();
     if (usedBefore + files.reduce((sum, file) => sum + file.size, 0) > maxTotal ||
         initialEntry.images.length + files.length > 30)
-      throw Error("Massimo 30 immagini per voce e 20 MB complessivi.");
+      throw Error("Massimo 30 allegati per riquadro e 20 MB complessivi.");
     const additions = await Promise.all(files.map(async (file) => {
-      const type = /\.svg$/i.test(file.name) && (!file.type || file.type === "application/octet-stream")
-        ? "image/svg+xml" : file.type;
-      if (!allowedMime.includes(type) || file.size < 1 || file.size > maxImage)
-        throw Error("Usa PNG, JPG, WebP, GIF o SVG fino a 8 MB ciascuno e 20 MB complessivi.");
+      let type = file.type;
+      if (!type || type === "application/octet-stream") {
+        if (/\.svg$/i.test(file.name)) type = "image/svg+xml";
+        if (/\.zip$/i.test(file.name)) type = "application/zip";
+      }
+      if (type === "application/x-zip-compressed") type = "application/zip";
+      if (!allowedMime.includes(type) || file.size < 1 || file.size > maxFile)
+        throw Error("Usa PNG, JPG, WebP, GIF, SVG o ZIP fino a 8 MB ciascuno e 20 MB complessivi.");
       if (type === "image/svg+xml") {
         const document = new DOMParser().parseFromString(await file.text(), "image/svg+xml");
         if (document.querySelector("parsererror") || document.documentElement.localName !== "svg" ||
             document.documentElement.namespaceURI !== "http://www.w3.org/2000/svg")
           throw Error("Il file SVG non è valido.");
       }
+      if (type === "application/zip") {
+        const signature = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+        if (signature.length !== 4 || signature[0] !== 80 || signature[1] !== 75 ||
+            ![[3, 4], [5, 6], [7, 8]].some(([a, b]) => signature[2] === a && signature[3] === b))
+          throw Error("Il file ZIP non è riconosciuto.");
+      }
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve({name: file.name, type, size: file.size,
           data: "data:" + type + ";base64," + reader.result.split(",")[1]});
-        reader.onerror = () => reject(Error("Impossibile leggere l'immagine."));
+        reader.onerror = () => reject(Error("Impossibile leggere il file."));
         reader.readAsDataURL(file);
       });
     }));
-    if (draft !== initialDraft || entry(card.dataset.id) !== initialEntry)
-      throw Error("Le risposte sono state sostituite: allega nuovamente le immagini.");
-    const used = Object.values(draft.entries).reduce((sum, e) =>
-      sum + e.images.reduce((size, image) => size + image.size, 0), 0);
+    if (draft !== initialDraft || attachmentEntry(card) !== initialEntry)
+      throw Error("Le risposte sono state sostituite: allega nuovamente i file.");
+    const used = usedAttachmentBytes();
     if (used + additions.reduce((sum, image) => sum + image.size, 0) > maxTotal ||
         initialEntry.images.length + additions.length > 30)
-      throw Error("Massimo 30 immagini per voce e 20 MB complessivi.");
+      throw Error("Massimo 30 allegati per riquadro e 20 MB complessivi.");
     initialEntry.images.push(...additions);
-    drawImages(card);
+    drawAttachments(card);
     changed();
-    report("Immagini aggiunte intere.");
+    report("Allegati aggiunti interi.");
   } catch (error) {
     report(error.message, true);
   } finally {
@@ -419,6 +456,8 @@ for (const card of document.querySelectorAll(".test")) {
     entry(card.dataset.id).comment = event.target.value;
     changed();
   });
+}
+for (const card of document.querySelectorAll(".test, .extra")) {
   const input = card.querySelector(".images");
   input.addEventListener("change", () => {
     attachFiles(card, Array.from(input.files));
@@ -480,7 +519,7 @@ document.querySelector("#export").addEventListener("click", () => {
   a.download = `AIV-feedback-${spec.version}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  report("JSON esportato, con risposte e immagini.");
+  report("JSON esportato, con risposte e allegati.");
 });
 document.querySelector("#import").addEventListener("change", async (event) => {
   const file = event.target.files[0];
@@ -503,7 +542,7 @@ document.querySelector("#import").addEventListener("change", async (event) => {
 document.querySelector("#reset").addEventListener("click", async () => {
   if (
     !confirm(
-      "Cancellare tutte le risposte e immagini salvate in questo browser? Esporta il JSON per conservarle.",
+      "Cancellare tutte le risposte e tutti gli allegati salvati in questo browser? Esporta il JSON per conservarle.",
     )
   )
     return;
