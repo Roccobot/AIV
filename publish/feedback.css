@@ -467,3 +467,38 @@ input:not([type="file"]) {
 body[data-feedback] footer {
   padding-bottom: calc(260px + env(safe-area-inset-bottom));
 }
+
+.format-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+.format-toolbar button {
+  min-height: 44px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 400;
+}
+.markdown-preview {
+  border: 1px solid #91a697;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.preview-caption {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.formatted-content {
+  font-size: 18px;
+  font-weight: 400;
+  white-space: pre-wrap;
+}
+@media (prefers-color-scheme: dark) {
+  .markdown-preview {
+    border-color: #718c7e;
+  }
+}

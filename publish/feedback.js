@@ -205,12 +205,13 @@ function hydrate() {
   for (const card of document.querySelectorAll(".decision")) {
     const value = decision(card.dataset.id);
     card.querySelector("textarea").value = value.comment;
-    for (const b of card.querySelectorAll("button"))
+    for (const b of card.querySelectorAll(".decision-options button"))
       b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
   }
   for (const key of ["device", "installed", "notes"])
     document.querySelector("#" + key).value = draft[key];
   drawAttachments(document.querySelector(".extra"));
+  window.feedbackFormatting?.refresh();
   refreshCounts();
 }
 function drawAttachments(card) {
@@ -329,7 +330,7 @@ async function copy() {
   document.querySelector("#summary").value = text;
   try {
     await navigator.clipboard.writeText(text);
-    report("Riepilogo copiato. Incollalo in chat con le eventuali allegati.");
+    report("Riepilogo copiato. Incollalo in chat con gli eventuali allegati.");
   } catch {
     const area = document.querySelector("#summary");
     area.focus();
