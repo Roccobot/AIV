@@ -157,6 +157,7 @@
     <string name="folders_permission">Mendaftar folder memerlukan akses ke semua berkas. Izin yang sama memungkinkanmu menelusuri sebuah folder, dan diberikan dari halaman sistem.</string>
     <string name="folders_grant">Beri akses</string>
     <string name="folders_none">Tidak ada folder yang berisi apa pun untuk ditampilkan.</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">Lainnya</string>
     <string name="hub_view_list">Tampilan daftar</string>
     <string name="hub_view_grid">Tampilan kisi</string>

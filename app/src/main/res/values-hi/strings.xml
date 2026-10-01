@@ -157,6 +157,7 @@
     <string name="folders_permission">फ़ोल्डरों की सूची के लिए सभी फ़ाइलों तक पहुँच चाहिए। यह वही अनुमति है जो फ़ोल्डर पलटने देती है, और यह सिस्टम के पन्ने से दी जाती है।</string>
     <string name="folders_grant">पहुँच दें</string>
     <string name="folders_none">किसी फ़ोल्डर में दिखाने को कुछ नहीं है।</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">और</string>
     <string name="hub_view_list">सूची दृश्य</string>
     <string name="hub_view_grid">ग्रिड दृश्य</string>

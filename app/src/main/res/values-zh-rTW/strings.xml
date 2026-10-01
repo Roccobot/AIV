@@ -157,6 +157,7 @@
     <string name="folders_permission">列出資料夾需要存取所有檔案的權限。這與翻看資料夾用的是同一個權限,在系統頁面裡授予。</string>
     <string name="folders_grant">授予存取權</string>
     <string name="folders_none">沒有資料夾含有可顯示的內容。</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">更多</string>
     <string name="hub_view_list">清單檢視</string>
     <string name="hub_view_grid">格狀檢視</string>

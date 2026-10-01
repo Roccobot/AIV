@@ -157,6 +157,7 @@
     <string name="folders_permission">Việc liệt kê thư mục cần quyền truy cập mọi tệp. Đó cũng chính là quyền cho phép bạn xem một thư mục, và được cấp từ một trang của hệ thống.</string>
     <string name="folders_grant">Cấp quyền</string>
     <string name="folders_none">Không có thư mục nào chứa gì để hiển thị.</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">Thêm</string>
     <string name="hub_view_list">Dạng danh sách</string>
     <string name="hub_view_grid">Dạng lưới</string>

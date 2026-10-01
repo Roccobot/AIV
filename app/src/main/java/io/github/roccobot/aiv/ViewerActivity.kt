@@ -46,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -3259,95 +3260,127 @@ private fun Stage(
              */
             val climbing = settings.folderView == FolderView.TREE && model.treeClimbing
             BackHandler(enabled = climbing) { model.treeUp() }
-            FolderScreen(
-                view = settings.folderView,
-                columns = settings.folderColumns,
-                counted = settings.folderCount,
-                colour = settings.folderColour,
-                tints = model.folderTints,
-                covers = model.folderCovers,
-                hidden = settings.hiddenFolders,
-                selection = settings.folderSelection,
-                onSelectionChange = { model.updateSettings(settings.withFolders(it)) },
-                // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
-                // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
-                // invece di scrivere una chiave vuota che nasconderebbe la radice.
-                // ⚠️ Dalla `2.96` la voce si scrive senza la radice del volume: vedi
-                // `portablePath`.
-                onHide = { bucket ->
-                    bucket.path?.let {
-                        model.updateSettings(
-                            settings.copy(hiddenFolders = settings.hiddenFolders + portablePath(it))
+            val widthDp = LocalConfiguration.current.screenWidthDp
+            /*
+             * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.32`** (mockup `folders` / `grid`):
+             * elenco a lato e contenuto a destra. Fuori dalla scelta d'avvio e fuori dalla
+             * vista ad albero, che ha una navigazione propria (mockup `system`).
+             */
+            val dualFolders = Adaptive.sideAvailable(widthDp) &&
+                !screen.forStart &&
+                settings.folderView != FolderView.TREE
+            if (dualFolders) {
+                FoldersTabletSplit(
+                    panelOnStart = settings.hand == Hand.RIGHT,
+                    rail = {
+                        FolderRail(
+                            buckets = model.buckets,
+                            selected = null,
+                            selection = settings.folderSelection,
+                            peeking = model.peeking,
+                            colour = settings.folderColour,
+                            tints = model.folderTints,
+                            onPick = { model.folderPicked(it, false) },
+                            onRead = { model.readBuckets(it) },
+                            onSearch = { model.openSearch() },
+                            onBin = { model.openBin() },
+                            onSettings = { model.openSettings() },
+                            width = Adaptive.sideWidth(widthDp)
                         )
-                    }
-                },
-                // ⚠️ La vista temporanea delle nascoste vive nel modello e non qui: il perché
-                // (ci si entra dentro, e la schermata nel frattempo se ne va) vive su `peeking`.
-                peeking = model.peeking,
-                onPeek = { model.peek(it) },
-                // ⚠️ Rimostrare per sempre scrive la stessa preferenza della pagina 'Cartelle
-                // nascoste' nelle impostazioni: una cosa, una chiave, come la coppia
-                // casa/scorciatoia di ogni altra voce.
-                // ⚠️ Le voci arrivano tutte insieme e si tolgono in una scrittura sola: il
-                // perché vive sul parametro, in `FolderScreen`.
-                onUnhide = { voci ->
-                    model.updateSettings(
-                        settings.withFolders(settings.folderSelection.remove(voci))
-                    )
-                },
-                recents = model.recents,
-                onPick = { model.folderPicked(it, screen.forStart) },
-                // ⚠️ Anche i recenti consegnano, in modalità scelta: sono immagini come quelle
-                // della griglia, e chi apre un selettore spesso vuole proprio l'ultima aperta.
-                // ⚠️ E in modalità copertina l'immagine toccata diventa la copertina, come in
-                // ogni altra griglia: dai recenti si sceglie l'ultima aperta, che è spesso
-                // proprio quella che si vuole mettere davanti a una cartella.
-                onOpen = { quale ->
-                    when {
-                        model.covering != null -> model.coverPicked(quale)
-                        model.picking -> onPicked(quale)
-                        else -> model.open(quale)
-                    }
-                },
-                onOpenPage = { model.openPage(it) },
-                onView = { model.updateSettings(settings.copy(folderView = it)) },
-                onForget = { model.forgetRecents() },
-                onSettings = { model.openSettings() },
-                onSearch = { model.openSearch() },
-                onBin = { model.openBin() },
-                // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
-                // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
-                // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
-                // come ogni altra voce.
-                onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
-                // ⚠️ Come le colonne: la scorciatoia scrive la stessa preferenza del pannello,
-                // che è la prima clausola della coppia casa/scorciatoia.
-                onColour = { model.updateSettings(settings.copy(folderColour = it)) },
-                // Le opzioni delle altre due viste, dallo stesso popup: passano da
-                // `updateSettings` come le colonne, per la stessa ragione.
-                listCount = settings.listCount,
-                listText = settings.listText,
-                treeHidden = settings.treeHidden,
-                treePictures = settings.treePictures,
-                onListCount = { model.updateSettings(settings.copy(listCount = it)) },
-                onListText = { model.updateSettings(settings.copy(listText = it)) },
-                onTreeHidden = { model.updateSettings(settings.copy(treeHidden = it)) },
-                onTreePictures = { model.updateSettings(settings.copy(treePictures = it)) },
-                treePath = model.treePath,
-                binOn = settings.binOn,
-                factFields = settings.factRows,
-                onTreePath = { model.treeTo(it) },
-                // ⚠️⚠️ **DALLA `2.96` ANCHE LA VISTA AD ALBERO CONSEGNA**, cioè sceglie la
-                // copertina o risponde a chi ha chiesto un'immagine: la scelta della copertina
-                // adesso comincia da questa schermata (vedi `coverAway`), e in una delle sue tre
-                // viste il tocco apriva l'immagine invece di sceglierla. Una modalità che
-                // funziona in due viste su tre sembra rotta.
-                onTreeOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
-                forStart = screen.forStart,
-                onBack = { model.leaveStartFolderChoice() },
-                buckets = model.buckets,
-                onRead = { model.readBuckets(it) }
-            )
+                    },
+                    detail = { FoldersTabletHint() }
+                )
+            } else {
+                FolderScreen(
+                    view = settings.folderView,
+                    columns = settings.folderColumns,
+                    counted = settings.folderCount,
+                    colour = settings.folderColour,
+                    tints = model.folderTints,
+                    covers = model.folderCovers,
+                    hidden = settings.hiddenFolders,
+                    selection = settings.folderSelection,
+                    onSelectionChange = { model.updateSettings(settings.withFolders(it)) },
+                    // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
+                    // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
+                    // invece di scrivere una chiave vuota che nasconderebbe la radice.
+                    // ⚠️ Dalla `2.96` la voce si scrive senza la radice del volume: vedi
+                    // `portablePath`.
+                    onHide = { bucket ->
+                        bucket.path?.let {
+                            model.updateSettings(
+                                settings.copy(hiddenFolders = settings.hiddenFolders + portablePath(it))
+                            )
+                        }
+                    },
+                    // ⚠️ La vista temporanea delle nascoste vive nel modello e non qui: il perché
+                    // (ci si entra dentro, e la schermata nel frattempo se ne va) vive su `peeking`.
+                    peeking = model.peeking,
+                    onPeek = { model.peek(it) },
+                    // ⚠️ Rimostrare per sempre scrive la stessa preferenza della pagina 'Cartelle
+                    // nascoste' nelle impostazioni: una cosa, una chiave, come la coppia
+                    // casa/scorciatoia di ogni altra voce.
+                    // ⚠️ Le voci arrivano tutte insieme e si tolgono in una scrittura sola: il
+                    // perché vive sul parametro, in `FolderScreen`.
+                    onUnhide = { voci ->
+                        model.updateSettings(
+                            settings.withFolders(settings.folderSelection.remove(voci))
+                        )
+                    },
+                    recents = model.recents,
+                    onPick = { model.folderPicked(it, screen.forStart) },
+                    // ⚠️ Anche i recenti consegnano, in modalità scelta: sono immagini come quelle
+                    // della griglia, e chi apre un selettore spesso vuole proprio l'ultima aperta.
+                    // ⚠️ E in modalità copertina l'immagine toccata diventa la copertina, come in
+                    // ogni altra griglia: dai recenti si sceglie l'ultima aperta, che è spesso
+                    // proprio quella che si vuole mettere davanti a una cartella.
+                    onOpen = { quale ->
+                        when {
+                            model.covering != null -> model.coverPicked(quale)
+                            model.picking -> onPicked(quale)
+                            else -> model.open(quale)
+                        }
+                    },
+                    onOpenPage = { model.openPage(it) },
+                    onView = { model.updateSettings(settings.copy(folderView = it)) },
+                    onForget = { model.forgetRecents() },
+                    onSettings = { model.openSettings() },
+                    onSearch = { model.openSearch() },
+                    onBin = { model.openBin() },
+                    // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
+                    // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
+                    // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
+                    // come ogni altra voce.
+                    onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
+                    // ⚠️ Come le colonne: la scorciatoia scrive la stessa preferenza del pannello,
+                    // che è la prima clausola della coppia casa/scorciatoia.
+                    onColour = { model.updateSettings(settings.copy(folderColour = it)) },
+                    // Le opzioni delle altre due viste, dallo stesso popup: passano da
+                    // `updateSettings` come le colonne, per la stessa ragione.
+                    listCount = settings.listCount,
+                    listText = settings.listText,
+                    treeHidden = settings.treeHidden,
+                    treePictures = settings.treePictures,
+                    onListCount = { model.updateSettings(settings.copy(listCount = it)) },
+                    onListText = { model.updateSettings(settings.copy(listText = it)) },
+                    onTreeHidden = { model.updateSettings(settings.copy(treeHidden = it)) },
+                    onTreePictures = { model.updateSettings(settings.copy(treePictures = it)) },
+                    treePath = model.treePath,
+                    binOn = settings.binOn,
+                    factFields = settings.factRows,
+                    onTreePath = { model.treeTo(it) },
+                    // ⚠️⚠️ **DALLA `2.96` ANCHE LA VISTA AD ALBERO CONSEGNA**, cioè sceglie la
+                    // copertina o risponde a chi ha chiesto un'immagine: la scelta della copertina
+                    // adesso comincia da questa schermata (vedi `coverAway`), e in una delle sue tre
+                    // viste il tocco apriva l'immagine invece di sceglierla. Una modalità che
+                    // funziona in due viste su tre sembra rotta.
+                    onTreeOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
+                    forStart = screen.forStart,
+                    onBack = { model.leaveStartFolderChoice() },
+                    buckets = model.buckets,
+                    onRead = { model.readBuckets(it) }
+                )
+            }
         }
 
         is Screen.Grid -> {
@@ -3357,6 +3390,124 @@ private fun Stage(
             // aspetta e il messaggio che spiega, e collassarle darebbe una rotellina
             // che non finisce mai.
             val lookup = model.folder
+            val widthDp = LocalConfiguration.current.screenWidthDp
+            val dualGrid = Adaptive.sideAvailable(widthDp) &&
+                settings.folderView != FolderView.TREE
+            if (dualGrid) {
+                FoldersTabletSplit(
+                    panelOnStart = settings.hand == Hand.RIGHT,
+                    rail = {
+                        FolderRail(
+                            buckets = model.buckets,
+                            selected = screen.bucket,
+                            selection = settings.folderSelection,
+                            peeking = model.peeking,
+                            colour = settings.folderColour,
+                            tints = model.folderTints,
+                            onPick = { model.folderPicked(it, false) },
+                            onRead = { model.readBuckets(it) },
+                            onSearch = { model.openSearch() },
+                            onBin = { model.openBin() },
+                            onSettings = { model.openSettings() },
+                            width = Adaptive.sideWidth(widthDp)
+                        )
+                    },
+                    detail = {
+                GridScreen(
+                    title = screen.name,
+                    items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
+                    // ⚠️ L'indice si legge dalla serie VIVA e non da una copia: è quello
+                    // della foto mostrata per ultima nel visualizzatore, che la strisciata
+                    // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
+                    highlight = if (model.gridVisited) model.series?.index else null,
+                    /*
+                     * ⚠️⚠️ **I DUE RICHIAMI DEL FAB ARRIVANO SOLO QUI, DALLA `1.82`** (campo
+                     * libero del giro della `1.81`, punto B: *il FAB deve vedersi in tutte le
+                     * cartelle*): questa è la griglia di una cartella vera, cioè il posto da cui
+                     * lui vuole raggiungere il cestino e le impostazioni senza tornare indietro.
+                     * ⚠️ **La ricerca e il cestino non li ricevono**: la prima è un elenco di
+                     * risultati e non una cartella, il secondo porta già il suo menu.
+                     */
+                    onBin = { model.openBin() },
+                    onSettings = { model.openSettings() },
+                    /*
+                     * ⚠️⚠️ **'Cerca' DENTRO LA CARTELLA, DALLA `1.83`** (risposta a `d-fab-voci` del
+                     * giro della `1.82`: *cerca*, con la nota *in quel caso, 'Cerca' è limitato alla
+                     * cartella corrente*). Il bucket e il nome viaggiano insieme perché la ricerca
+                     * ristretta è un'altra schermata da quella globale: vedi [Screen.Search].
+                     * ⚠️ **Arriva al solo ramo della cartella**, come i due richiami qui sopra: nella
+                     * ricerca sarebbe una ricerca dentro una ricerca, e nel cestino non c'è nessun
+                     * bucket da cui partire.
+                     */
+                    onSearchHere = { model.openSearch(screen.bucket, screen.name) },
+                    /*
+                     * ⚠️⚠️ **ANCHE QUESTI DUE ARRIVANO AL SOLO RAMO DELLA CARTELLA**: l'intestazione
+                     * con la sua icona esiste qui e non nella ricerca né nel cestino, e una
+                     * copertina è di una cartella. Il perché per esteso vive su
+                     * [ViewerViewModel.covering].
+                     */
+                    onCoverPick = { model.startCover() },
+                    onCoverAway = { model.coverAway() },
+                    onCoverClear = { model.clearCover() },
+                    coverSet = model.cover != null,
+                    // ⚠️ Serve al solo mini onboarding, e vuole **questa** cartella: scegliendo la
+                    // copertina di un'altra si naviga, e un velo che comparisse là indicherebbe
+                    // l'icona sbagliata.
+                    coverHere = model.covering?.bucket == screen.bucket,
+                    // ⚠️ Anche la rinomina è del solo ramo della cartella, e per la stessa ragione:
+                    // il gesto vive sul nome dell'intestazione, che qui c'è e altrove no.
+                    onFolderRename = { model.renameFolder(it) },
+                    /*
+                     * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**:
+                     * l'intestazione esiste nella griglia di una **cartella** e non nelle altre due
+                     * (nel cestino il FAB c'è sempre, nella ricerca la testata porta un campo di
+                     * testo), quindi passarli anche là sarebbe dare valori a una fascia che non si
+                     * disegna.
+                     */
+                    frontWash = settings.frontWash,
+                    frontSerif = settings.frontSerif,
+                    frontFacts = settings.frontFacts,
+                    frontPickAll = settings.frontPickAll,
+                    /*
+                     * ⚠️ **La tinta di questa cartella non viene dalle impostazioni**: è un dato
+                     * della cartella, e il perché vive su [ViewerViewModel.tint].
+                     */
+                    frontTint = model.tint,
+                    onFrontTint = { model.tintFolder(it) },
+                    facts = model.facts,
+                    onOpen = { quale ->
+                        // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                        if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
+                    },
+                    onBack = { model.leaveGrid() },
+                    onChanged = { model.reloadGrid() },
+                    columns = settings.folderColumns,
+                    factFields = settings.factRows,
+                    binOn = settings.binOn,
+                    listPath = settings.listPath,
+                    pickWeight = settings.pickWeight,
+                    filter = model.gridFilter,
+                    /*
+                     * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
+                     * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
+                     * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
+                     * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
+                     * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
+                     * il gesto vibrava e chiamava una funzione che non fa niente, che è
+                     * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
+                     * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
+                     * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
+                     * nello stesso giro parlando dei pannelli.
+                     */
+                    onSearch = { model.openSearch() },
+                    onFilter = { model.sift(it) },
+                    gridNames = settings.gridNames,
+                    lastMark = settings.lastMark,
+                    onBusy = { model.gridBusy = it }
+                )
+                    }
+                )
+            } else {
             GridScreen(
                 title = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
@@ -3449,6 +3600,7 @@ private fun Stage(
                 lastMark = settings.lastMark,
                 onBusy = { model.gridBusy = it }
             )
+            }
         }
 
         is Screen.Search -> {

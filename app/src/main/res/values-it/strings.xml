@@ -357,6 +357,7 @@
     <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
     <string name="folders_grant">Concedi l\'accesso</string>
     <string name="folders_none">Nessuna cartella contiene niente da mostrare.</string>
+    <string name="folders_tablet_pick">Scegli una cartella dall\'elenco.</string>
     <!-- ── Il FAB quadrato in basso a destra ── -->
     <string name="hub_open">Altro</string>
     <string name="hub_view_list">Visualizzazione lista</string>

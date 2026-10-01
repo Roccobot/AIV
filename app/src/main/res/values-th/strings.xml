@@ -157,6 +157,7 @@
     <string name="folders_permission">การแสดงรายการโฟลเดอร์ต้องเข้าถึงไฟล์ทั้งหมด เป็นสิทธิ์เดียวกับที่ทำให้ดูโฟลเดอร์ได้ และให้จากหน้าของระบบ</string>
     <string name="folders_grant">ให้สิทธิ์เข้าถึง</string>
     <string name="folders_none">ไม่มีโฟลเดอร์ใดมีอะไรให้แสดง</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">เพิ่มเติม</string>
     <string name="hub_view_list">มุมมองรายการ</string>
     <string name="hub_view_grid">มุมมองตาราง</string>

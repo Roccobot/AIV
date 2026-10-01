@@ -157,6 +157,7 @@
     <string name="folders_permission">Wypisanie folderów wymaga dostępu do wszystkich plików. To ta sama zgoda, która pozwala przeglądać folder, i udziela się jej na stronie systemu.</string>
     <string name="folders_grant">Udziel dostępu</string>
     <string name="folders_none">Żaden folder nie zawiera niczego do pokazania.</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">Więcej</string>
     <string name="hub_view_list">Widok listy</string>
     <string name="hub_view_grid">Widok siatki</string>

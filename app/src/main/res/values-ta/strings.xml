@@ -157,6 +157,7 @@
     <string name="folders_permission">கோப்புறைகளைப் பட்டியலிட அனைத்துக் கோப்புகளுக்கும் அணுகல் தேவை. ஒரு கோப்புறையைப் பார்க்க அனுமதிக்கும் அதே அனுமதி இது, அமைப்பின் ஒரு பக்கத்திலிருந்து வழங்கப்படுகிறது.</string>
     <string name="folders_grant">அணுகல் வழங்கு</string>
     <string name="folders_none">எந்தக் கோப்புறையிலும் காட்ட எதுவும் இல்லை.</string>
+    <string name="folders_tablet_pick">Choose a folder from the list.</string>
     <string name="hub_open">மேலும்</string>
     <string name="hub_view_list">பட்டியல் காட்சி</string>
     <string name="hub_view_grid">கட்டக் காட்சி</string>
