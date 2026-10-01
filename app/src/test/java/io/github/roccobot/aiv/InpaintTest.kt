@@ -141,6 +141,34 @@ class InpaintTest {
         for (i in result.indices) assertEquals(if (mask[i]) white else source[i], result[i])
     }
 
+
+    @Test fun `a hem-like vertical edge survives removing a spot on it`() {
+        val w = 96
+        // Soft field + a dark vertical hem at x=48..49; defect is a "button" on the hem.
+        val source = IntArray(w * w) { i ->
+            val x = i % w
+            val y = i / w
+            when {
+                x in 48..49 -> black
+                else -> 0xffd0d0d0.toInt()
+            }
+        }
+        val mask = BooleanArray(source.size)
+        for (y in 44..52) {
+            for (x in 46..51) {
+                mask[y * w + x] = true
+                source[y * w + x] = defect
+            }
+        }
+        val result = Inpaint.repair(source, w, w, mask)!!
+        // Hem should continue through the hole (dark), and not bleed far into the soft field.
+        for (y in 44..52) {
+            assertTrue("Hem broken at y=$y", (result[y * w + 48] and 255) < 100)
+            assertTrue("Field eaten at y=$y", (result[y * w + 42] and 255) > 160)
+        }
+        for (i in result.indices) if (!mask[i]) assertEquals(source[i], result[i])
+    }
+
     @Test fun `a defect at the image corner is corrected without changing the edge alpha`() {
         val width = 48
         val source = IntArray(width * width) { white }

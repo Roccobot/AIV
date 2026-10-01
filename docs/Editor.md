@@ -294,10 +294,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   tolgono le correzioni; Indietro protegge anche una selezione ancora da applicare.
   Salva aspetta che la selezione sia applicata o cancellata, anche passando a un altro modulo.
 - Il calcolo è interamente offline, senza AI, librerie aggiunte, modelli o servizi:
-  `Inpaint.kt` cerca piccoli campioni integri nell'intorno, dà priorità alla continuità
+  `Inpaint.kt` cerca campioni integri nell'intorno, dà priorità alla continuità
   dei bordi e raccorda i colori al contorno. Non ricava dettagli certi dove manca ogni
   indizio. I piccoli difetti e le forme ripetute sono il primo impiego; la resa su
   immagini reali rimane da collaudare.
+- ⚠️⚠️ **Dalla `3.29` (`3.24-04`)**: raggio del tassello adattivo alla dimensione del buco,
+  area campione piu ampia intorno alla selezione, peso maggiore alle isofote e confronto
+  di struttura sul donatore, per preservare meglio orli, linee e pattern.
 - I campioni provengono dalla sorgente originale, con le correzioni precedenti già
   applicate, prima di posa, sviluppo e geometria. Le selezioni seguono le coordinate
   originali anche dopo zoom, posa e deformazione. Le patch conservano i pixel calcolati

@@ -570,7 +570,7 @@ private fun treePickActions(
         },
         PadAction(PadKey.NONE, Glyphs.PickNone, R.string.pick_none) {
             onChosen(emptySet())
-        }
+        },
         PadAction(PadKey.INVERT, Glyphs.PickInvert, R.string.pick_invert) {
             onChosen(mediaInFolder.toSet() - chosen)
         }

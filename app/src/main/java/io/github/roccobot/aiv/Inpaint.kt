@@ -10,6 +10,9 @@ import kotlin.math.sqrt
  * The fill front favours the continuation of visible edges (Criminisi-style priority).
  * Donors must be completely outside the original selection: generated pixels are never
  * mistaken for new evidence. All reads are from the supplied local image crop.
+ *
+ * Dalla `3.29` (`3.24-04`): raggio adattivo, peso isofota maggiore e confronto di struttura
+ * sul donatore, per preservare meglio orli, linee e pattern.
  */
 internal object Inpaint {
     fun repair(
@@ -25,7 +28,34 @@ internal object Inpaint {
         val holes = mask.indices.filter { mask[it] }.toIntArray()
         if (holes.isEmpty()) return pixels.copyOf()
         if (holes.size == pixels.size) return null
-        val radius = min(4, (min(width, height) - 3) / 2)
+        /*
+         * ⚠️⚠️ **Raggio adattivo dalla `3.29`** (giro 3.24, `3.24-04`): un tassello fisso da 4
+         * pixel ricostruiva male trame e linee. Con buchi piu grandi si pedina un pezzo piu
+         * ampio di contesto, entro un tetto che resta compatibile col tempo di calcolo.
+         */
+        val holeSpan =
+            run {
+                var minX = width
+                var maxX = -1
+                var minY = height
+                var maxY = -1
+                for (index in holes) {
+                    val x = index % width
+                    val y = index / width
+                    if (x < minX) minX = x
+                    if (x > maxX) maxX = x
+                    if (y < minY) minY = y
+                    if (y > maxY) maxY = y
+                }
+                max(maxX - minX + 1, maxY - minY + 1)
+            }
+        val wanted = when {
+            holeSpan >= 48 -> 7
+            holeSpan >= 24 -> 6
+            holeSpan >= 12 -> 5
+            else -> 4
+        }
+        val radius = min(wanted, (min(width, height) - 3) / 2)
         if (radius < 1) return null
         val missing = mask.copyOf()
         val filled = pixels.copyOf()
@@ -100,7 +130,8 @@ internal object Inpaint {
                 val nx = unknown(x + 1, y) - unknown(x - 1, y)
                 val ny = unknown(x, y + 1) - unknown(x, y - 1)
                 val norm = sqrt(nx * nx + ny * ny).coerceAtLeast(1f)
-                val priority = (sum / samples) * (0.01f + abs(-gy * nx + gx * ny) / norm)
+                // ⚠️ Peso isofota alzato (`3.29`): continua meglio orli e linee spezzate.
+                val priority = (sum / samples) * (0.02f + abs(-gy * nx + gx * ny) / norm)
                 if (priority > bestPriority) {
                     bestPriority = priority
                     target = index
@@ -133,6 +164,10 @@ internal object Inpaint {
             var donor = -1
             var error = Double.POSITIVE_INFINITY
 
+            fun greyOf(argb: Int): Float =
+                ((argb ushr 16 and 255) * 0.2126f + (argb ushr 8 and 255) * 0.7152f +
+                    (argb and 255) * 0.0722f) / 255f
+
             fun consider(candidate: Int) {
                 var cost = 0.0
                 for (k in offsets.indices) {
@@ -143,6 +178,27 @@ internal object Inpaint {
                     val db = (a and 255) - (b and 255)
                     cost += (dr * dr + dg * dg + db * db) * weights[k]
                     if (cost > error) return
+                }
+                /*
+                 * ⚠️⚠️ **Termine di struttura dalla `3.29`** (`3.24-04`): oltre al colore,
+                 * confronta il gradiente locale del pezzo noto. Senza, un bottone su un orlo
+                 * poteva essere riempito con pezzi di tessuto che spezzavano la piega.
+                 */
+                if (tx in 1 until width - 1 && ty in 1 until height - 1 &&
+                    candidate % width in 1 until width - 1 && candidate / width in 1 until height - 1
+                ) {
+                    fun localGx(base: Int, from: IntArray): Float =
+                        (greyOf(from[base + 1]) - greyOf(from[base - 1])) * 0.5f
+                    fun localGy(base: Int, from: IntArray): Float =
+                        (greyOf(from[base + width]) - greyOf(from[base - width])) * 0.5f
+                    // Confronta solo dove entrambi i lati del target sono noti.
+                    if (!missing[target - 1] && !missing[target + 1] &&
+                        !missing[target - width] && !missing[target + width]
+                    ) {
+                        val dgx = localGx(target, filled) - localGx(candidate, pixels)
+                        val dgy = localGy(target, filled) - localGy(candidate, pixels)
+                        cost += (dgx * dgx + dgy * dgy) * 1800.0
+                    }
                 }
                 // Only break otherwise equal matches by distance; texture/structure
                 // must dominate the preference for a nearby source patch.

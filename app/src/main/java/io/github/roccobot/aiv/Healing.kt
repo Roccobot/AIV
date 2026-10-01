@@ -204,7 +204,9 @@ object Healing {
                 val right = ceil(points.maxOf { it.x } * width).toInt().coerceIn(0, width)
                 val bottom = ceil(points.maxOf { it.y } * height).toInt().coerceIn(0, height)
                 if (right <= left || bottom <= top || (right - left).toLong() * (bottom - top) > MAX_WORK) return@withContext null
-                val padding = max(16, min(96, max(right - left, bottom - top)))
+                // ⚠️⚠️ **Area campione piu ampia dalla `3.29`** (`3.24-04`): piu contesto
+                // intorno al buco per trame e linee che continuano fuori dalla selezione.
+                val padding = max(24, min(144, max(right - left, bottom - top) * 3 / 2))
                 val area = Rect(max(0, left - padding), max(0, top - padding), min(width, right + padding), min(height, bottom + padding))
                 if (area.width().toLong() * area.height() > MAX_WORK) return@withContext null
                 job.ensureActive()
