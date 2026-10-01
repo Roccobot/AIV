@@ -299,6 +299,10 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   'Solo <X>' e '<X> e la sua sottocartella'; senza figli, conferma della sola cartella.
   'Solo <X>' nasconde soltanto il contenuto diretto, lasciando visibili i discendenti attuali e
   futuri. La pagina delle impostazioni indica 'Solo questa cartella' su queste esclusioni.
+- ⚠️⚠️ **Dalla `3.26`, nascondendo X con le sue sottocartelle si registrano anche i figli
+  presenti** (giro 3.24, `3.13-08`): compaiono in elenco e portano la dicitura 'nascosta' nella
+  vista di sistema. La scheda tiene Annulla a sinistra e l'azione principale a destra; le scelte
+  intermedie sono tasti pieni allineati a sinistra.
 - Il confronto comune è `FolderSelection`: nascoste ricorsive in `hidden-relative`, esclusioni
   esatte in `hidden-only`, autorizzate in `included-relative`, modalità in `folder-mode`.
   I percorsi usano `portablePath`, conservando l'identità della scheda SD.

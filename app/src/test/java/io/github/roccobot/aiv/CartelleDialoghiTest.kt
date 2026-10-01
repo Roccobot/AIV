@@ -116,4 +116,24 @@ class CartelleDialoghiTest {
             assertEquals(before.hidden, selected!!.hidden)
         } finally { parent.deleteRecursively() }
     }
+
+    @Test fun `nascondere padre e unica sottocartella li registra entrambi in elenco`() {
+        val parent = Files.createTempDirectory("aiv-parent").toFile()
+        try {
+            val child = File(parent, "Child").apply { mkdir() }
+            var selected: FolderSelection? = null
+            scene.setContent { AivTheme(darkTheme = false) {
+                SystemFolderDialog(parent.path, FolderSelection(), { selected = it }, {})
+            } }
+            scene.waitForIdle()
+            scene.onNodeWithText("Hide").performClick()
+            scene.onNodeWithText("${parent.name} and its subfolder").performClick()
+            val got = selected!!
+            assertFalse(got.visible(parent.path))
+            assertFalse(got.visible(child.path))
+            assertTrue(got.excluded.contains(portablePath(parent.path)))
+            assertTrue(got.excluded.contains(portablePath(child.path)))
+        } finally { parent.deleteRecursively() }
+    }
+
 }

@@ -526,7 +526,7 @@
     <string name="yes">Yes</string>
 
     <string name="hide_folder_title">Hide \'%1$s\'?</string>
-    <string name="hide_folder_desc">The folder will not be listed in grid or list view. It is only a display setting: no file will be deleted.</string>
+    <string name="hide_folder_desc">The folder will no longer be shown in grid or list view. It is only a display setting: no file will be deleted.</string>
     <string name="show_folder_title">Show \'%1$s\' again?</string>
     <string name="show_folder_desc">The folder will be listed normally again among the folders in grid and list view.</string>
     <string name="hide_folder_do">Hide</string>
@@ -865,6 +865,6 @@
     <string name="folder_authorize_desc">Add this folder to the authorized list? Its content will be displayed in grid and list modes.</string>
     <string name="folder_authorize_empty">Note: this folder currently has no displayable items. It will appear in grid or list mode when it contains at least one image or video.</string>
     <string name="folder_selection_desc">Included mode shows only authorized folders. Excluded mode shows all folders except those hidden manually. In Excluded mode, press and hold a folder in grid or list mode to hide it. In Included mode, switch to System folders and press and hold a folder to authorize it. These settings affect grid and list modes only; System folders always shows everything. Authorized folders appear only when they contain an image or video.</string>
-    <string name="folder_siblings_desc">Hide all subfolders of %1$s? New folders inside %1$s will initially be visible.</string>
+    <string name="folder_siblings_desc">Hide all subfolders of %1$s? New folders created inside %1$s will initially be visible.</string>
     <string name="folder_authorize_question">Add this folder to the authorized list?</string>
 </resources>

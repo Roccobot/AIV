@@ -931,10 +931,15 @@ fun FolderScreen(
                             siblingFolders(path, selection)
                         }
                     }
-                    if (!nascosta && peers.isNotEmpty()) TextButton(onClick = {
-                        siblings = path
-                        hiding = null
-                    }) { Text(stringResource(R.string.folder_siblings)) }
+                    // ⚠️ **Tasto pieno allineato a sinistra** (giro 3.24, `3.13-08` /
+                    // `3.13-07`): non un testo "nel vuoto", e allineato al paragrafo sopra.
+                    if (!nascosta && peers.isNotEmpty()) FilledTonalButton(
+                        onClick = {
+                            siblings = path
+                            hiding = null
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.folder_siblings)) }
                 }
             },
             confirmButton = {

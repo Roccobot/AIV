@@ -1815,6 +1815,11 @@ internal fun DrawScope.lens(
     lensEdge: Float,
     line: Color,
     farthestCorner: Boolean = false,
+    /**
+     * Quante volte si ingrandisce. Di serie [LOUPE_ZOOM]; Correggi/Fluidifica possono
+     * abbassarlo così il pennello ingrandito resta dentro la lente (giro 3.24, `3.24-02`).
+     */
+    zoom: Float = LOUPE_ZOOM,
     /** Quello che si vede dentro, disegnato nello spazio del palco: la lente lo ingrandisce. */
     picture: DrawScope.() -> Unit
 ) {
@@ -1834,8 +1839,8 @@ internal fun DrawScope.lens(
         )
         withTransform({
             // Il punto mirato finisce al centro della lente: p -> centre + (p - eye) * zoom.
-            translate(left = centre.x - eye.x * LOUPE_ZOOM, top = centre.y - eye.y * LOUPE_ZOOM)
-            scale(scaleX = LOUPE_ZOOM, scaleY = LOUPE_ZOOM, pivot = Offset.Zero)
+            translate(left = centre.x - eye.x * zoom, top = centre.y - eye.y * zoom)
+            scale(scaleX = zoom, scaleY = zoom, pivot = Offset.Zero)
         }) {
             picture()
             /*
@@ -1849,7 +1854,7 @@ internal fun DrawScope.lens(
              * ⚠️ **Il bordo del ritaglio fuori dalla lente NON cambia**, e resta [EDGE_PX]:
              * là il filo copre l'immagine che si sta guardando e deve coprirne il meno
              * possibile, mentre qui galleggia su un ingrandimento dove lo spazio c'è.
-             * ⚠️ **La divisione per [LOUPE_ZOOM] resta**, e non è di troppo: questo disegno
+             * ⚠️ **La divisione per [zoom] resta**, e non è di troppo: questo disegno
              * sta dentro la trasformazione che ingrandisce, quindi uno spessore scritto per
              * intero verrebbe reso quattro volte più grosso di quello chiesto.
              */
@@ -1858,7 +1863,7 @@ internal fun DrawScope.lens(
                     color = line.copy(alpha = 0.9f),
                     topLeft = r.topLeft,
                     size = r.size,
-                    style = Stroke(width = lensEdge / LOUPE_ZOOM)
+                    style = Stroke(width = lensEdge / zoom)
                 )
             }
         }

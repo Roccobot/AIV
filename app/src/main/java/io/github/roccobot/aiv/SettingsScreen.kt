@@ -74,6 +74,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
@@ -2636,8 +2637,16 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
             FilterChip(
                 selected = settings.folderMode == mode,
                 onClick = { onChange(settings.copy(folderMode = mode)) },
-                label = { Text(stringResource(if (mode == FolderMode.INCLUDED)
-                    R.string.folder_mode_included else R.string.folder_mode_excluded)) }
+                label = {
+                    Text(
+                        stringResource(
+                            if (mode == FolderMode.INCLUDED) R.string.folder_mode_included
+                            else R.string.folder_mode_excluded
+                        ),
+                        // ⚠️ **Grassetto al posto degli apici** (giro 3.24, `3.13-01`).
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             )
         }
     }

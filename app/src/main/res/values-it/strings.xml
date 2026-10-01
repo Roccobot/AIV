@@ -377,7 +377,7 @@
     <string name="yes">Sì</string>
 
     <string name="hide_folder_title">Vuoi nascondere \'%1$s\'?</string>
-    <string name="hide_folder_desc">La cartella non sarà elencata in modalità griglia e lista. È solo un\'impostazione di visualizzazione: nessun file sarà eliminato.</string>
+    <string name="hide_folder_desc">La cartella non sarà più mostrata in modalità griglia e lista. È solo un\'impostazione di visualizzazione: nessun file sarà eliminato.</string>
     <string name="show_folder_title">Vuoi mostrare di nuovo \'%1$s\'?</string>
     <string name="show_folder_desc">La cartella tornerà ad essere visibile normalmente tra le cartelle in modalità griglia e lista.</string>
     <string name="hide_folder_do">Nascondi</string>
@@ -748,7 +748,7 @@
     <string name="folder_siblings">Applica a tutte le cartelle allo stesso livello</string>
     <string name="folder_authorize_desc">Vuoi aggiungere questa cartella alla lista delle autorizzate? Il suo contenuto sarà mostrato nelle modalità griglia e lista.</string>
     <string name="folder_authorize_empty">N.B. la cartella al momento non contiene elementi visualizzabili: sarà visibile in modalità griglia o lista quando conterrà almeno un\'immagine o un video.</string>
-    <string name="folder_selection_desc">\'Modalità incluse\' mostra solo le cartelle autorizzate; \'Modalità escluse\' mostra tutte le cartelle tranne quelle nascoste a mano. In \'Modalità escluse\', tieni premuto su una cartella in modalità griglia o lista per nasconderla. In \'Modalità incluse\', passa alla vista \'Cartelle di sistema\' e premi a lungo su una cartella che vuoi includere. N.B. L\'opzione riguarda solo le modalità griglia e lista; la vista cartelle di sistema mostra sempre tutto. Le cartelle autorizzate appaiono solo se contengono almeno un\'immagine o un video.</string>
-    <string name="folder_siblings_desc">Vuoi davvero nascondere tutte le sottocartelle della cartella %1$s? Eventuali nuove cartelle dentro %1$s saranno inizialmente visibili.</string>
+    <string name="folder_selection_desc">Modalità incluse mostra solo le cartelle autorizzate; Modalità escluse mostra tutte le cartelle tranne quelle nascoste a mano. In Modalità escluse, tieni premuto su una cartella in modalità griglia o lista per nasconderla. In Modalità incluse, passa alla vista \'Cartelle di sistema\' e premi a lungo su una cartella che vuoi includere. N.B. L\'opzione riguarda solo le modalità griglia e lista; la vista cartelle di sistema mostra sempre tutto. Le cartelle autorizzate appaiono solo se contengono almeno un\'immagine o un video.</string>
+    <string name="folder_siblings_desc">Vuoi davvero nascondere tutte le sottocartelle della cartella %1$s? Eventuali nuove cartelle create dentro %1$s saranno inizialmente visibili.</string>
     <string name="folder_authorize_question">Vuoi aggiungere questa cartella alla lista delle autorizzate?</string>
 </resources>

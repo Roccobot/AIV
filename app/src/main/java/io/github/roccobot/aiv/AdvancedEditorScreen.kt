@@ -651,12 +651,26 @@ fun AdvancedEditorScreen(
                 }
                 // A draft hint overlays the stage so painting never changes its dimensions.
                 if (!gaze.selection.idle) {
-                    Text(stringResource(R.string.look_heal_pending),
-                        modifier = Modifier.align(Alignment.TopCenter)
-                            .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp))
+                    Text(
+                        stringResource(R.string.look_heal_pending),
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .clickable {
+                                // ⚠️ **Tappabile: porta a Correggi/Rimuovi** (giro 3.24, `3.24-05`).
+                                val i = MODULES.indexOfFirst { it.extra == Extra.HEALING }
+                                if (i >= 0) {
+                                    gaze.module = i
+                                    gaze.healing = true
+                                }
+                            }
+                            .background(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                RoundedCornerShape(8.dp)
+                            )
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                         color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodySmall)
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 /*
                  * ⚠️⚠️ **L'AVVISO DI AREA TROPPO GRANDE VIVE SOPRA LA BOTTOMSHEET, non dentro**
@@ -2006,10 +2020,18 @@ private fun LookStage(
                 }
             }
             if (brushTouching && touching != null && radius * 2f < brushCmPx) {
+                val loupeSide = LOUPE_SIDE.toPx()
+                /*
+                 * ⚠️ **Lo zoom scende se il pennello ingrandito uscirebbe dalla lente**
+                 * (giro 3.24, `3.24-02`): il diametro del pennello in lente è
+                 * `2 * radius * zoom` e non deve superare il diametro della lente.
+                 */
+                val fitZoom = (loupeSide / (2f * radius.coerceAtLeast(1f))).coerceAtMost(LOUPE_ZOOM)
                 lens(
-                    touching, null, LOUPE_SIDE.toPx(), LOUPE_EDGE.toPx(),
+                    touching, null, loupeSide, LOUPE_EDGE.toPx(),
                     HANDLE_THICK.toPx(), LENS_EDGE.toPx(), brushAccent,
-                    farthestCorner = true
+                    farthestCorner = true,
+                    zoom = fitZoom.coerceAtLeast(1f)
                 ) {
                     pictureForLens()
                 }

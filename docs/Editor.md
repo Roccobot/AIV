@@ -307,7 +307,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   393.216 pixel nel rettangolo di lavoro con il suo contorno, 16 MiB di patch conservate
   nella storia. Una selezione troppo grande o senza campioni integri lascia immagine
   e selezione intatte; l'avviso compare **sopra la bottomsheet** come toast sul palco, non
-  nel corpo della scheda (dalla `3.25`). Si lavora su piccoli difetti uno alla volta.
+  nel corpo della scheda (dalla `3.25`). Il promemoria di selezione pendente è tappabile e apre Correggi/Rimuovi (dalla `3.26`). Il lentino di pennello riduce lo zoom se il cerchio ingrandito uscirebbe dal tondo. Si lavora su piccoli difetti uno alla volta.
   Quando il formato permette la lettura per regioni si decodifica soltanto il pezzo;
   negli altri formati si usa la decodifica dell'immagine prevista dal salvataggio.
 

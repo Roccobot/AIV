@@ -367,9 +367,16 @@ private fun Spots(
         items(items = spots, key = { it.path }) { spot ->
             SpotRow(
                 spot = spot,
-                // ⚠️ Una voce dell'elenco e non una cartella coperta da lei: il perché vive su
-                // `listedIn`, che dalla `2.96` confronta anche senza la radice del volume.
-                marked = spot.folder && listedIn(if (selection.mode == FolderMode.INCLUDED) selection.included else selection.excluded, spot.path),
+                /*
+                 * ⚠️ **In modalità escluse conta anche una cartella solo coperta dal padre**
+                 * (giro 3.24, `3.13-08`): senza, la sottocartella nascosta col ramo non
+                 * mostrava la dicitura a destra. In modalità incluse resta l'autorizzazione
+                 * esatta sulla voce.
+                 */
+                marked = spot.folder && when (selection.mode) {
+                    FolderMode.INCLUDED -> listedIn(selection.included, spot.path)
+                    FolderMode.EXCLUDED -> selection.hidden(spot.path)
+                },
                 authorized = selection.mode == FolderMode.INCLUDED,
                 // Folder holds configure visibility; media holds keep the file operations.
                 onHold = if (spot.media || spot.folder) ({ onHold(spot) }) else null,
