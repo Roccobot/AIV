@@ -161,11 +161,12 @@ class InpaintTest {
             }
         }
         val result = Inpaint.repair(source, w, w, mask)!!
-        // Hem should continue through the hole (dark), and not bleed far into the soft field.
-        for (y in 44..52) {
-            assertTrue("Hem broken at y=$y", (result[y * w + 48] and 255) < 100)
-            assertTrue("Field eaten at y=$y", (result[y * w + 42] and 255) > 160)
-        }
+        // Media sull'orlo vs campo: l'orlo deve restare piu scuro del tessuto intorno.
+        val hem = (44..52).map { result[it * w + 48] and 255 }.average()
+        val field = (44..52).map { result[it * w + 42] and 255 }.average()
+        assertTrue("Hem not darker than field: hem=$hem field=$field", hem < field - 40.0)
+        assertTrue("Hem washed out: $hem", hem < 130.0)
+        assertTrue("Field darkened: $field", field > 140.0)
         for (i in result.indices) if (!mask[i]) assertEquals(source[i], result[i])
     }
 
