@@ -106,7 +106,8 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     save(second)
     assert len(put_files)==2, put_files
     wire=second.evaluate('fetch("/api/feedback").then(response=>response.json())')
-    assert all('data' not in file and len(file['storageKey'])==64 for file in wire['entries']['3.13-01']['images'])
+    first_id=second.evaluate('() => document.querySelector(".test").dataset.id')
+    assert all('data' not in file and len(file['storageKey'])==64 for file in wire['entries'][first_id]['images'])
     third_context=context()
     third=page(third_context)
     expect(third.locator('.rich-editor').first).to_have_text('Ultima versione sul tablet')
@@ -119,7 +120,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     exported=json.loads(output.read_text())
     assert exported['device']=='Telefono di prova, Android 13'
     assert exported['tablet']=='Tablet di prova, Android 15'
-    attached=exported['entries']['3.13-01']['images']
+    attached=exported['entries'][first_id]['images']
     assert [file['name'] for file in attached]==['disegno originale.svg','fonti originali.zip']
     assert base64.b64decode(attached[0]['data'].split(',')[1])==svg
     assert base64.b64decode(attached[1]['data'].split(',')[1])==archive.getvalue()

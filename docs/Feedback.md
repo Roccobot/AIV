@@ -7,7 +7,7 @@ Versione **3.30**: giro cumulativo delle correzioni e dei ritocchi dalla **3.25*
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Il giro precedente (fino alla 3.24) è stato consegnato e travasato il 1 ottobre 2026: le prove
-concluse stanno in archivio. Qui restano solo le verifiche del prodotto attuale (3.25-3.30).
+concluse sono in archivio. Qui restano solo le verifiche del prodotto attuale (3.25-3.30).
 Filigrana e Fluidifica restano approvati. Gli esiti si aggiornano dopo la consegna del giro
 completo; le risposte nella bozza privata non sono pubblicate automaticamente.
 
@@ -135,8 +135,8 @@ era solo di prova.
 
 ## 13. Ordine delle impostazioni
 
-Apri Impostazioni. Verifica: la copia del percorso della lista file sta sotto Cartelle,
-Opzioni di visualizzazione, Lista. `Rinomina e download` sta in `Modifica e protezione
+Apri Impostazioni. Verifica: la copia del percorso della lista file vive sotto Cartelle,
+Opzioni di visualizzazione, Lista. `Rinomina e download` vive in `Modifica e protezione
 dei file` (non più solo sotto Editor). In fondo esiste la sezione `Gestione dell'app` con
 miniature memorizzate, Esporta/importa e Ripristina gli avvisi. Cerca `rinomina`,
 `percorso` e `miniature`: le voci devono restare raggiungibili.

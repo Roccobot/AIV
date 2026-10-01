@@ -574,8 +574,14 @@ def check(path):
             for value in legacy['entries'].values():
                 value['images'] = [file for file in value['images'] if file['type'].startswith('image/')]
 
+            # Keep the first current-card answer so migration still shows Accettabile + images;
+            # orphaned 3.13/3.14 keys must not crash when those cards are no longer in the doc.
+            first_id = data['items'][0]['id']
+            kept = legacy['entries'].get(first_id)
             legacy['entries'] = {key: value for key, value in legacy['entries'].items()
                                  if key.startswith(('3.13-', '3.14-'))}
+            if kept is not None:
+                legacy['entries'][first_id] = kept
             legacy['entries']['3.14-03'] = {'status': 'Tutto OK', 'comment': 'Riscontro precedente conservato', 'images': []}
             legacy['decisions']['d-settings-order']['comment'] = 'Decisione precedente conservata'
             migration_context = browser.new_context()
@@ -599,13 +605,15 @@ def check(path):
             }""", legacy)
             migration.reload()
             expect(migration.locator('#save')).to_be_enabled()
-            expect(migration.locator('[data-id="3.13-01"] .item-state')).to_have_text('Accettabile')
-            expect(migration.locator('[data-id="3.14-03"] .comment')).to_have_value('Riscontro precedente conservato')
+            expect(migration.locator(f'[data-id="{first_id}"] .item-state')).to_have_text('Accettabile')
+            expect(migration.locator('[data-id="3.14-03"]')).to_have_count(0)
             expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
             expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
             expect(migration.locator('#installed')).to_have_value('3.14')
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
             for item in data['items']:
+                if item['id'] == first_id:
+                    continue
                 if item['version'] == data['version']:
                     expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_text('Non provato')
             migration_context.close()
