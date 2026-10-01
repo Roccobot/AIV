@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -69,6 +70,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
@@ -276,11 +278,31 @@ fun SettingsScreen(
     }
     val generateThumbs: () -> Unit = { Warmup.start(context, settings.hiddenFolders, settings.folderSelection) }
 
+    /*
+     * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.33`** (mockup `settings`): indice a lato e
+     * pagina scelta nello spazio principale. Sul telefono la pila a pieno schermo non cambia.
+     * ⚠️ **Salto dall'indice**: svuota la pila e apre la pagina (o resta in radice). Così da
+     * tablet si cambia sezione senza risalire i gradini; Indietro dentro la pagina continua
+     * a usare la pila come sul telefono.
+     */
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    val dual = Adaptive.sideAvailable(widthDp)
+    fun jump(target: Page) {
+        if (query.isNotBlank()) {
+            query = ""
+            scope.launch { rootScroll.scrollTo(0) }
+        }
+        stack.clear()
+        if (target != Page.ROOT) stack.add(target)
+    }
+
+    @Composable
+    fun Pages(chrome: Modifier) {
     when (page) {
         Page.ROOT -> Shell(
             title = stringResource(R.string.settings_title),
             onBack = onBack,
-            modifier = modifier,
+            modifier = chrome,
             scroll = rootScroll,
             version = true
         ) {
@@ -340,7 +362,7 @@ fun SettingsScreen(
         Page.FOLDERS -> Shell(
             title = stringResource(R.string.settings_group_browse),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             FoldersPage(settings = settings, onChange = onChange, onOpen = { open(it) })
         }
@@ -348,7 +370,7 @@ fun SettingsScreen(
         Page.VIEWER -> Shell(
             title = stringResource(R.string.settings_group_viewer),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             ViewerPage(settings = settings, onChange = onChange, onOpen = { open(it) })
         }
@@ -356,7 +378,7 @@ fun SettingsScreen(
         Page.INFO -> Shell(
             title = stringResource(R.string.settings_page_info),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             InfoPage(settings = settings, onChange = onChange, onOpen = { open(it) })
         }
@@ -364,7 +386,7 @@ fun SettingsScreen(
         Page.CONTROLS -> Shell(
             title = stringResource(R.string.settings_page_controls),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             ControlsPage(settings = settings, onChange = onChange, onOpen = { open(it) })
         }
@@ -372,7 +394,7 @@ fun SettingsScreen(
         Page.EDITING -> Shell(
             title = stringResource(R.string.settings_page_editing),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             EditingPage(
                 settings = settings,
@@ -393,7 +415,7 @@ fun SettingsScreen(
             Shell(
                 title = stringResource(R.string.settings_facts),
                 onBack = { back() },
-                modifier = modifier,
+                modifier = chrome,
                 scroll = scroll
             ) {
                 Detail(stringResource(R.string.settings_facts_desc))
@@ -414,7 +436,7 @@ fun SettingsScreen(
             Shell(
                 title = stringResource(R.string.settings_styles),
                 onBack = { back() },
-                modifier = modifier,
+                modifier = chrome,
                 scroll = scroll
             ) {
                 Detail(stringResource(R.string.settings_styles_desc))
@@ -425,7 +447,7 @@ fun SettingsScreen(
         Page.BUTTONS -> Shell(
             title = stringResource(R.string.settings_buttons),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             ButtonOrders(settings = settings, onChange = onChange)
         }
@@ -433,7 +455,7 @@ fun SettingsScreen(
         Page.HIDDEN -> Shell(
             title = stringResource(R.string.folder_selection),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             HiddenFolders(settings = settings, onChange = onChange)
         }
@@ -441,7 +463,7 @@ fun SettingsScreen(
         Page.ZOOM -> Shell(
             title = stringResource(R.string.settings_zoom_page),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             ZoomAndFit(settings = settings, onChange = onChange)
         }
@@ -449,7 +471,7 @@ fun SettingsScreen(
         Page.VIEWS -> Shell(
             title = stringResource(R.string.view_options),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             ViewOptionsPage(settings = settings, onChange = onChange)
         }
@@ -472,7 +494,7 @@ fun SettingsScreen(
         Page.MARK -> Shell(
             title = stringResource(R.string.settings_mark),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             MarkPage(settings = settings, onChange = onChange)
         }
@@ -480,7 +502,7 @@ fun SettingsScreen(
         Page.SAVING -> Shell(
             title = stringResource(R.string.settings_rename_download),
             onBack = { back() },
-            modifier = modifier
+            modifier = chrome
         ) {
             RenameAndDownload(settings = settings, onChange = onChange)
         }
@@ -509,7 +531,7 @@ fun SettingsScreen(
         Page.THUMBS -> Shell(
             title = stringResource(R.string.settings_thumbs),
             onBack = { back() },
-            modifier = modifier,
+            modifier = chrome,
             scrolls = false
         ) {
             /*
@@ -547,11 +569,29 @@ fun SettingsScreen(
         Page.BACKUP -> Shell(
             title = stringResource(R.string.backup_title),
             onBack = { back() },
-            modifier = modifier,
+            modifier = chrome,
             scrolls = false
         ) {
             BackupPage()
         }
+    }
+    } // Pages
+
+    if (dual) {
+        SettingsTabletSplit(
+            panelOnStart = settings.hand == Hand.RIGHT,
+            rail = {
+                SettingsIndexRail(
+                    selected = page,
+                    onPick = { jump(it) },
+                    width = Adaptive.sideWidth(widthDp)
+                )
+            },
+            detail = { Pages(Modifier.fillMaxSize()) },
+            modifier = modifier
+        )
+    } else {
+        Pages(modifier)
     }
 
     // ⚠️ Fuori dal `when` e non dentro la pagina delle miniature: la generazione si chiede anche

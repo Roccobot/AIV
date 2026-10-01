@@ -5,7 +5,8 @@ Proposte dell'agente del 1 ottobre 2026; decisione `d-tablet-layout`: Approvo la
 Nella `3.27` le schermate Android non cambiavano ancora. Dalla `3.31` il Visualizzatore
 porta il pannello informazioni a lato (soglie 600 / 800 / 1024 dp del mockup; chiuso di
 serie sotto i 1.024). Dalla `3.32` Cartelle è a due colonne da 600 dp (elenco a lato,
-contenuto a destra; esclusa la vista ad albero). Impostazioni restano da fare.
+contenuto a destra; esclusa la vista ad albero). Dalla `3.33` Impostazioni sono
+indice e pagina affiancati da 600 dp.
 I colori derivano da `Theme.kt`; il font è Roboto, distribuito con la propria licenza.
 Sono composizioni web dimostrative, non schermate Android misurate né una nuova identità grafica.
 
