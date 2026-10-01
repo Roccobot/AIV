@@ -2,6 +2,11 @@
   "name": "aiv-feedback-cloud",
   "private": true,
   "type": "module",
-  "scripts": {"test": "node worker-test.mjs"},
-  "devDependencies": {"wrangler": "4.45.0"}
+  "scripts": {
+    "test": "node worker-test.mjs && node supabase-sql-test.mjs && node supabase-test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
+    "wrangler": "4.45.0"
+  }
 }

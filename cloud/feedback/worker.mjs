@@ -1,4 +1,5 @@
 // Private single-owner feedback storage; GitHub OAuth requests only the public profile.
+import {SupabaseStore} from './supabase-store.mjs';
 const MAX_FILE = 8 * 1024 * 1024, MAX_TOTAL = 20 * 1024 * 1024;
 const SESSION = '__Host-aiv-session', STATE = '__Host-aiv-state';
 const json = (body, status = 200, extra = {}) => new Response(JSON.stringify(body), {status, headers: {'Content-Type':'application/json', 'Cache-Control':'no-store', ...extra}});
@@ -46,10 +47,12 @@ function validDraft(draft) {
 }
 async function handle(request, env) {
   const url = new URL(request.url), path = url.pathname;
-  const ready = env.SESSION_SECRET && env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.OWNER_ID && env.FEEDBACK;
+  const ready = env.SESSION_SECRET && env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.OWNER_ID
+    && (env.FEEDBACK || env.SUPABASE_URL && env.SUPABASE_SECRET_KEY);
   if (path === '/feedback-cloud-config.js') return new Response('window.feedbackCloudConfig = '+JSON.stringify({endpoint:'/api/feedback',files:'/api/files/',login:'/auth/login',logout:'/auth/logout'})+';', {headers:{'Content-Type':'application/javascript','Cache-Control':'no-store'}});
   if (!path.startsWith('/auth/') && !path.startsWith('/api/')) return env.ASSETS.fetch(request);
   if (!ready) return json({error:'Servizio cloud non configurato.'},503);
+  const store = env.FEEDBACK || new SupabaseStore(env);
   if (path === '/auth/login' && request.method === 'GET') {
     const state = await sign(env,{kind:'state',nonce:crypto.randomUUID(),exp:Date.now()/1000+600});
     const destination = new URL('https://github.com/login/oauth/authorize');
@@ -77,7 +80,7 @@ async function handle(request, env) {
   if (path === '/auth/logout' && request.method === 'POST') return new Response(null,{status:204,headers:{'Set-Cookie':cookie(SESSION,'',0),'Cache-Control':'no-store'}});
   if (path === '/api/feedback') {
     if (['GET','HEAD'].includes(request.method)) {
-      const object = await env.FEEDBACK.get(root(env)+'current.json');
+      const object = await store.get(root(env)+'current.json');
       if (!object) return json({draft:null},200,{ETag:'"empty"'});
       const headers = {'Content-Type':'application/json','Cache-Control':'no-store',ETag:object.httpEtag};
       return new Response(request.method === 'HEAD' ? null : object.body,{headers});
@@ -92,13 +95,13 @@ async function handle(request, env) {
       if (!validDraft(draft)) return json({error:'Documento non valido.'},400);
       // A draft references only fully uploaded immutable files belonging to this owner.
       for (const file of draftFiles(draft)) {
-        const stored = await env.FEEDBACK.head(root(env)+'files/'+file.storageKey);
+        const stored = await store.head(root(env)+'files/'+file.storageKey);
         if (!stored || stored.size !== file.size) return json({error:'Allegato non ancora salvato.'},400);
       }
       const match = request.headers.get('If-Match');
       if (!match) return json({error:'Versione del documento obbligatoria.'},428);
       draft.updated = new Date().toISOString();
-      const object = await env.FEEDBACK.put(root(env)+'current.json',JSON.stringify(draft),{onlyIf:match === '"empty"' ? {etagDoesNotMatch:'*'} : {etagMatches:match.replace(/^"|"$/g,'')},httpMetadata:{contentType:'application/json'}});
+      const object = await store.put(root(env)+'current.json',JSON.stringify(draft),{onlyIf:match === '"empty"' ? {etagDoesNotMatch:'*'} : {etagMatches:match.replace(/^"|"$/g,'')},httpMetadata:{contentType:'application/json'}});
       if (!object) return json({error:'Il documento è stato modificato su un altro dispositivo. Esporta il JSON prima di ricaricare.'},412);
       return json({updated:draft.updated},200,{ETag:object.httpEtag});
     }
@@ -107,7 +110,7 @@ async function handle(request, env) {
   const fileKey = path.startsWith('/api/files/') ? path.slice('/api/files/'.length) : '';
   if (storageKey(fileKey)) {
     if (request.method === 'GET') {
-      const object = await env.FEEDBACK.get(root(env)+'files/'+fileKey);
+      const object = await store.get(root(env)+'files/'+fileKey);
       return object ? new Response(object.body,{headers:{'Content-Type':'application/octet-stream','Content-Disposition':'attachment','Cache-Control':'private, max-age=86400','X-Content-Type-Options':'nosniff'}}) : json({error:'Allegato non trovato.'},404);
     }
     if (request.method === 'PUT') {
@@ -116,7 +119,7 @@ async function handle(request, env) {
       if (!bytes.byteLength || bytes.byteLength > MAX_FILE) return json({error:'Dimensione allegato non valida.'},413);
       const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte => byte.toString(16).padStart(2,'0')).join('');
       if (digest !== fileKey) return json({error:'Allegato incompleto o non valido.'},400);
-      await env.FEEDBACK.put(root(env)+'files/'+fileKey,bytes,{onlyIf:{etagDoesNotMatch:'*'},httpMetadata:{contentType:'application/octet-stream'}});
+      await store.put(root(env)+'files/'+fileKey,bytes,{onlyIf:{etagDoesNotMatch:'*'},httpMetadata:{contentType:'application/octet-stream'}});
       return new Response(null,{status:204,headers:{'Cache-Control':'no-store'}});
     }
   }

@@ -1,4 +1,4 @@
-"""Exercise the real Worker and its local R2 binding with isolated browser sessions.
+"""Exercise the real Worker and its local Supabase/PostgreSQL service with isolated browser sessions.
 
 Start Wrangler with the development-only secret documented in cloud/feedback/README.md.
 This check is restricted to localhost and never uses a production login or storage.
@@ -41,7 +41,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(page.locator('#saved')).to_contain_text('Salvato nel cloud')
     first_context=context()
     first=page(first_context)
-    # A new test run starts with the current R2 draft, then explicitly resets its test namespace.
+    # A new test run starts with the current draft, then explicitly resets its test namespace.
     first.once('dialog',lambda dialog:dialog.accept())
     first.locator('#reset').click()
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
@@ -66,7 +66,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(first.locator('#saved')).to_contain_text('altro dispositivo')
     expect(first.locator('.rich-editor').first).to_have_text('Modifica contemporanea')
     first_context.close()
-    # Files go to R2 once; metadata saves do not re-upload them.
+    # Files go to storage once; metadata saves do not re-upload them.
     put_files=[]
     second.on('request',lambda request:put_files.append(request.url) if request.method=='PUT' and '/api/files/' in request.url else None)
     archive=io.BytesIO()
@@ -116,4 +116,4 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     anonymous_context.close()
     assert not errors,errors
     browser.close()
-print('Cloud locale: due dispositivi isolati, sincronizzazione, R2 reale, conflitto senza sovrascrittura, SVG/ZIP originali, caricamento unico, JSON, assenza di memoria locale, accesso riservato ed errore di rete verificati.')
+print('Cloud locale: due dispositivi isolati, sincronizzazione, Supabase locale e PostgreSQL reale, conflitto senza sovrascrittura, SVG/ZIP originali, caricamento unico, JSON, assenza di memoria locale, accesso riservato ed errore di rete verificati.')

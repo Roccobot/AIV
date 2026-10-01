@@ -22,28 +22,32 @@ jobs:
       - name: Prepara gli strumenti bloccati dal lockfile
         run: npm ci --prefix cloud/feedback
       - name: Verifica accesso e archivio privato
-        run: node cloud/feedback/worker-test.mjs
+        run: |
+          node cloud/feedback/worker-test.mjs
+          node cloud/feedback/supabase-sql-test.mjs
+          node cloud/feedback/supabase-test.mjs
       - name: Prepara il browser di prova
         run: |
           python3 -m venv /tmp/aiv-cloud-tests
           /tmp/aiv-cloud-tests/bin/pip install playwright==1.55.0
           /tmp/aiv-cloud-tests/bin/python -m playwright install --with-deps chromium
-      - name: Verifica due dispositivi sul Worker locale con R2
+      - name: Verifica due dispositivi sul Worker locale con Supabase e PostgreSQL
         env:
           WRANGLER_SEND_METRICS: 'false'
         run: |
-          cloud/feedback/node_modules/.bin/wrangler dev --config cloud/feedback/wrangler.toml --local --port 8787 --persist-to /tmp/aiv-feedback-r2 --var GITHUB_CLIENT_ID:local-test-id --var GITHUB_CLIENT_SECRET:local-test-secret --var SESSION_SECRET:development-test-secret > /tmp/aiv-feedback-local.log 2>&1 &
+          node cloud/feedback/supabase-test-server.mjs 8790 > /tmp/aiv-feedback-postgres.log 2>&1 &
+          postgres_pid=$!
+          cloud/feedback/node_modules/.bin/wrangler dev --config cloud/feedback/wrangler.toml --local --port 8787 --var SUPABASE_URL:http://127.0.0.1:8790 --var SUPABASE_SECRET_KEY:development-supabase-test-key --var GITHUB_CLIENT_ID:local-test-id --var GITHUB_CLIENT_SECRET:local-test-secret --var SESSION_SECRET:development-test-secret > /tmp/aiv-feedback-local.log 2>&1 &
           feedback_pid=$!
-          trap 'kill "$feedback_pid" 2>/dev/null || true' EXIT
+          trap 'kill "$feedback_pid" "$postgres_pid" 2>/dev/null || true' EXIT
           for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:8787/feedback-cloud-config.js > /dev/null; then break; fi
+            if curl --fail --silent http://127.0.0.1:8790/storage/v1/bucket/aiv-feedback -H 'apikey: development-supabase-test-key' > /dev/null && curl --fail --silent http://127.0.0.1:8787/feedback-cloud-config.js > /dev/null; then break; fi
             sleep 1
           done
           /tmp/aiv-cloud-tests/bin/python tools/feedback-cloud-check.py
   deploy:
     needs: check
-    # Keep legacy R2 deployment off until the selected Supabase backend is integrated.
-    if: ${{ false }}
+    if: github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_ACCOUNT_ID != '' && vars.FEEDBACK_GITHUB_CLIENT_ID != '')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -59,11 +63,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           FEEDBACK_GITHUB_CLIENT_ID: ${{ vars.FEEDBACK_GITHUB_CLIENT_ID }}
           FEEDBACK_GITHUB_CLIENT_SECRET: ${{ secrets.FEEDBACK_GITHUB_CLIENT_SECRET }}
+          FEEDBACK_SUPABASE_SECRET_KEY: ${{ secrets.FEEDBACK_SUPABASE_SECRET_KEY }}
           WRANGLER_SEND_METRICS: 'false'
         run: |
-          for field in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID FEEDBACK_GITHUB_CLIENT_ID FEEDBACK_GITHUB_CLIENT_SECRET; do
+          for field in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID FEEDBACK_GITHUB_CLIENT_ID FEEDBACK_GITHUB_CLIENT_SECRET FEEDBACK_SUPABASE_SECRET_KEY; do
             if [ -z "${!field}" ]; then echo "Configura il campo riservato o la variabile $field nelle impostazioni del repository."; exit 1; fi
           done
+          node cloud/feedback/github-preflight.mjs
+          node cloud/feedback/supabase-preflight.mjs
           cloud/feedback/node_modules/.bin/wrangler deploy --config cloud/feedback/wrangler.toml
           cloud/feedback/node_modules/.bin/wrangler secret list --config cloud/feedback/wrangler.toml --format json > /tmp/aiv-feedback-secret-names.json
           node cloud/feedback/deploy-secrets.mjs /tmp/aiv-feedback-secret-names.json | cloud/feedback/node_modules/.bin/wrangler secret bulk --config cloud/feedback/wrangler.toml

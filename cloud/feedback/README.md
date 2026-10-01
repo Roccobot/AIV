@@ -5,11 +5,11 @@ Free** per pagina e accesso GitHub. R2 non va attivato. Cloudflare è un servizi
 già usato per il Worker delle regole; questo servizio è separato e non modifica `rules-proxy`.
 Il codice vive su GitHub, che non conserva le risposte private.
 
-**Preparazione in corso:** lo script SQL Supabase è disponibile e verificato localmente.
-L'adattamento del servizio da R2 a Supabase e del workflow di distribuzione non è ancora
-completo. Non eseguire il workflow cloud attuale né configurare un bucket R2: il codice
-precedente usa ancora quel servizio. La pagina pubblica continua a salvare nel browser
-finché configurazione, distribuzione e migrazione non sono concluse.
+Il servizio usa il database PostgreSQL e il bucket privato Supabase: nessun binding R2.
+Prima di distribuire, il workflow verifica SQL, privilegi, due sessioni del browser,
+credenziali dell'app GitHub e salvataggio/conflitti/allegati sul progetto Supabase reale.
+La pagina GitHub conserva la bozza locale finché il proprietario non la trasferisce nel
+cloud e ne conferma il recupero su un secondo dispositivo.
 
 Supabase richiede un dominio personalizzato a pagamento per servire HTML dalle funzioni:
 vedi [limiti delle funzioni](https://supabase.com/docs/guides/functions/limits) e
@@ -44,8 +44,34 @@ I valori segreti vanno inseriti nei campi riservati, mai in chat o nel repositor
    Lo script crea la bozza corrente, la storia delle revisioni e il salvataggio atomico;
    configura anche il bucket privato. Si può rieseguire senza cancellare le risposte.
    Solo il ruolo server `service_role` ha accesso: nessuna chiave va nella pagina pubblica.
-4. I passaggi successivi di accesso GitHub e distribuzione verranno completati dopo
-   l'adattamento del servizio. Non usare la procedura R2 della versione precedente.
+4. Registra su GitHub una OAuth App chiamata `AIV Feedback`, senza permessi sui repository.
+   Sullo stesso account di `rules-proxy`, homepage prevista
+   `https://aiv-feedback.roccobot-b90.workers.dev/feedback.html` e indirizzo di ritorno
+   `https://aiv-feedback.roccobot-b90.workers.dev/auth/callback`. Verifica il sottodominio
+   Workers dell'account; se diverso, usa quello in entrambi gli indirizzi.
+5. Crea un token Cloudflare limitato a quell'account con Workers Scripts: Edit e
+   Account Settings: Read. Il piano Workers Free non richiede l'attivazione R2.
+6. In [Actions di AIV](https://github.com/Roccobot/AIV/settings/secrets/actions) configura:
+
+   | Tipo | Nome | Contenuto |
+   |---|---|---|
+   | Secret | `CLOUDFLARE_API_TOKEN` | Token Cloudflare limitato all'account |
+   | Secret | `FEEDBACK_GITHUB_CLIENT_SECRET` | Client secret dell'app GitHub |
+   | Secret | `FEEDBACK_SUPABASE_SECRET_KEY` | Secret key Supabase, con prefisso sb_secret_ |
+   | Variable | `CLOUDFLARE_ACCOUNT_ID` | ID pubblico dell'account Cloudflare |
+   | Variable | `FEEDBACK_GITHUB_CLIENT_ID` | Client ID pubblico dell'app GitHub |
+
+   La chiave Supabase rimane sul Worker. Il solo URL pubblico del progetto vive in
+   `wrangler.toml`; non occorre una chiave pubblicabile nel browser.
+7. Esegui [Feedback cloud](https://github.com/Roccobot/AIV/actions/workflows/feedback-cloud.yml).
+   I controlli sul progetto reale usano il proprietario sintetico 0, separato dall'ID
+   GitHub 10722164: non leggono né alterano il feedback del proprietario. Conservano poche
+   revisioni sintetiche, eliminando il file di prova appena verificato. Il workflow genera
+   la chiave di sessione al primo deploy e la conserva nei successivi. Il riepilogo mostra
+   l'indirizzo effettivo, verificando pagina disponibile e lettura anonima negata.
+8. Esporta il JSON dalla vecchia pagina GitHub, accedi al nuovo indirizzo e importalo.
+   Attendi `Salvato nel cloud`, poi apri lo stesso indirizzo sul secondo dispositivo e
+   controlla risposte e allegati. Solo dopo questa verifica la migrazione è conclusa.
 
 La pausa di Supabase non equivale a cancellazione. La
 [guida attuale al recupero](https://github.com/supabase/supabase/blob/master/apps/docs/content/troubleshooting/restore-project-after-90-days-pause.mdx)
@@ -71,6 +97,10 @@ precedenti, ma non costituiscono una copia indipendente dal progetto.
   conferma riguarda la bozza su tutti i dispositivi. Gli oggetti originali scollegati restano
   privati nel bucket: non vengono cancellati in modo concorrente a un altro salvataggio.
   Lo spazio fisico può quindi superare i 20 MB della bozza; va monitorato nel servizio attivo.
+- Ogni salvataggio mantiene una revisione del testo e dei riferimenti agli allegati nel
+  database. Lo spazio di revisione si aggiunge alla bozza corrente; non viene cancellato
+  automaticamente. Il recupero delle revisioni si effettua dal database, non dall'editor.
+  Le revisioni nello stesso progetto non sostituiscono un backup indipendente.
 - Nessuna misurazione di latenza o prova di accesso su un servizio pubblico è dichiarata
   finché il proprietario non ha configurato i campi necessari e il deploy è verificato.
 
@@ -80,11 +110,17 @@ Dalla radice AIV, Node 24 e Python con Playwright/Chromium:
 
 ```sh
 npm ci --prefix cloud/feedback
-node cloud/feedback/worker-test.mjs
-cloud/feedback/node_modules/.bin/wrangler dev --config cloud/feedback/wrangler.toml --local --port 8787 --persist-to /tmp/aiv-feedback-r2 --var GITHUB_CLIENT_ID:local-test-id --var GITHUB_CLIENT_SECRET:local-test-secret --var SESSION_SECRET:development-test-secret
+npm --prefix cloud/feedback test
+node cloud/feedback/supabase-test-server.mjs 8790
 ```
 
-In un secondo terminale:
+In un secondo terminale, dalla radice AIV:
+
+```sh
+cloud/feedback/node_modules/.bin/wrangler dev --config cloud/feedback/wrangler.toml --local --port 8787 --var SUPABASE_URL:http://127.0.0.1:8790 --var SUPABASE_SECRET_KEY:development-supabase-test-key --var GITHUB_CLIENT_ID:local-test-id --var GITHUB_CLIENT_SECRET:local-test-secret --var SESSION_SECRET:development-test-secret
+```
+
+In un terzo terminale:
 
 ```sh
 python3 tools/feedback-cloud-check.py
@@ -92,5 +128,5 @@ python3 tools/feedback-check.py publish/feedback.html
 ```
 
 Il controllo cloud accetta solo localhost, firma una sessione di prova con la chiave
-fittizia della riga sopra e usa R2 locale reale. Non avvia OAuth di produzione e non tocca
+fittizia della riga sopra e usa il servizio HTTP locale con PostgreSQL reale e archivio di file fittizio. Non avvia OAuth di produzione e non tocca
 risposte del proprietario. Non configurare mai la chiave di prova su un servizio pubblico.
