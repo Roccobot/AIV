@@ -23,7 +23,7 @@ export class SupabaseStore {
       const error = await response.json();
       code = error.code || error.error || '';
       if (allowed.includes('missing') && (response.status === 404 || ['NoSuchKey','NotFound'].includes(code) || error.statusCode === '404')) return null;
-      if (allowed.includes('duplicate') && (response.status === 409 || code === 'Duplicate')) return null;
+      if (allowed.includes('duplicate') && (response.status === 409 || ['Duplicate','KeyAlreadyExists'].includes(code))) return null;
     } catch { /* Never expose an upstream error body or request headers. */ }
     if (allowed.includes('missing') && response.status === 404) return null;
     const error = Error(`Archivio Supabase non disponibile (HTTP ${response.status}).`);

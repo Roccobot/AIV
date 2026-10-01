@@ -40,7 +40,7 @@ export async function testServer(port = 0) {
         const key=decodeURIComponent(match[2]);
         if (request.method === 'POST' && !match[1]) {
           if (request.headers['x-upsert'] !== 'false') return reply({error:'Upsert prohibited'},400);
-          if (files.has(key)) return reply({code:'Duplicate'},409);
+          if (files.has(key)) return reply({code:'KeyAlreadyExists'},400);
           files.set(key,bytes);return reply({Key:key});
         }
         if (!files.has(key)) return reply({code:'NoSuchKey',statusCode:'404'},400);
