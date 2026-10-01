@@ -1,8 +1,21 @@
 # Salvataggio cloud del documento di feedback
 
-Pagina e API sono nello stesso Worker Cloudflare; R2 conserva la bozza privata e gli
-allegati originali. Cloudflare è un servizio statunitense, già usato per il Worker delle
-regole; questo servizio è separato e non modifica `rules-proxy`.
+La soluzione scelta usa **Supabase Free** per database e allegati e **Cloudflare Workers
+Free** per pagina e accesso GitHub. R2 non va attivato. Cloudflare è un servizio statunitense,
+già usato per il Worker delle regole; questo servizio è separato e non modifica `rules-proxy`.
+Il codice vive su GitHub, che non conserva le risposte private.
+
+**Preparazione in corso:** lo script SQL Supabase è disponibile e verificato localmente.
+L'adattamento del servizio da R2 a Supabase e del workflow di distribuzione non è ancora
+completo. Non eseguire il workflow cloud attuale né configurare un bucket R2: il codice
+precedente usa ancora quel servizio. La pagina pubblica continua a salvare nel browser
+finché configurazione, distribuzione e migrazione non sono concluse.
+
+Supabase richiede un dominio personalizzato a pagamento per servire HTML dalle funzioni:
+vedi [limiti delle funzioni](https://supabase.com/docs/guides/functions/limits) e
+[domini personalizzati](https://supabase.com/docs/guides/platform/custom-domains).
+Il Worker gratuito permette pagina e API sulla stessa origine, con cookie riservati al
+server e senza problemi di cookie tra siti su Safari. Supabase rimane l'archivio dei dati.
 
 L'accesso GitHub ammette soltanto l'ID pubblico `10722164` (Roccobot). Non chiede accesso ai
 repository: serve solo a riconoscere il proprietario. Il cookie di sessione è Secure,
@@ -15,41 +28,31 @@ la vecchia bozza locale per la migrazione; esportarla da lì e importarla sul Wo
 Il JSON di esportazione conserva il formato originale con allegati completi. Non trasferire
 mai feedback personali o allegati nei commit del repository pubblico.
 
-## Attivazione sull'account del proprietario
+## Preparazione del progetto Supabase
 
 La sessione che ha preparato il codice non ha credenziali Cloudflare; il servizio non è
 ancora distribuito. Anche la lettura dei nomi dei secret GitHub è negata all'integrazione.
 I valori segreti vanno inseriti nei campi riservati, mai in chat o nel repository.
 
-1. Nella [dashboard Cloudflare](https://dash.cloudflare.com/), abilita R2 e crea il bucket
-   privato `aiv-feedback`. Non attivare l'accesso pubblico. Controlla il piano e le condizioni
-   di R2: l'eventuale attivazione della fatturazione è una scelta del proprietario.
-2. Registra una [OAuth App GitHub](https://github.com/settings/applications/new) chiamata
-   `AIV Feedback`. Sullo stesso account Cloudflare di `rules-proxy`, l'indirizzo previsto è
-   `https://aiv-feedback.roccobot-b90.workers.dev/feedback.html` e il callback è
-   `https://aiv-feedback.roccobot-b90.workers.dev/auth/callback`. Verifica il sottodominio
-   Workers dell'account; se è diverso, usa quello nei due indirizzi. La callback è obbligatoria.
-3. Crea un token API Cloudflare limitato a quell'account, con Workers Scripts: Edit,
-   Workers R2 Storage: Edit e Account Settings: Read. Non serve un token globale.
-4. In [Settings, Secrets and variables, Actions di AIV](https://github.com/Roccobot/AIV/settings/secrets/actions)
-   configura i quattro campi:
+1. Crea un progetto sul piano Free, nella regione europea scelta. Mantieni la Data API
+   attiva, disattiva l'esposizione automatica delle nuove tabelle e attiva RLS automatico.
+   RLS limita l'accesso alle righe; lo script applica anche privilegi espliciti.
+2. In Storage crea il bucket privato `aiv-feedback`. Il collegamento dei repository GitHub
+   al progetto Supabase non è necessario.
+3. Apri [supabase-setup.sql](supabase-setup.sql), copia tutto il contenuto e incollalo in
+   SQL Editor, New query. Premi Run e verifica che l'esecuzione sia riuscita.
+   Lo script crea la bozza corrente, la storia delle revisioni e il salvataggio atomico;
+   configura anche il bucket privato. Si può rieseguire senza cancellare le risposte.
+   Solo il ruolo server `service_role` ha accesso: nessuna chiave va nella pagina pubblica.
+4. I passaggi successivi di accesso GitHub e distribuzione verranno completati dopo
+   l'adattamento del servizio. Non usare la procedura R2 della versione precedente.
 
-   | Tipo | Nome | Contenuto |
-   |---|---|---|
-   | Secret | `CLOUDFLARE_API_TOKEN` | Token API Cloudflare |
-   | Secret | `FEEDBACK_GITHUB_CLIENT_SECRET` | Client secret della OAuth App |
-   | Variable | `CLOUDFLARE_ACCOUNT_ID` | ID pubblico dell'account Cloudflare |
-   | Variable | `FEEDBACK_GITHUB_CLIENT_ID` | Client ID pubblico della OAuth App |
-
-5. Esegui il workflow [Feedback cloud](https://github.com/Roccobot/AIV/actions/workflows/feedback-cloud.yml).
-   Verifica prima Worker, R2 e due sessioni isolate del browser in locale, poi distribuisce
-   il servizio. La chiave di sessione viene generata al primo deploy e conservata nei secret
-   del Worker nei deploy successivi. Il riepilogo dell'Action restituisce l'indirizzo effettivo.
-   Gli aggiornamenti successivi di pagina o servizio si distribuiscono automaticamente,
-   dopo le prove, quando le due variabili dell'account sono configurate.
-6. Apri l'indirizzo restituito, accedi con Roccobot, importa il JSON esportato dal sito GitHub
-   e attendi `Salvato nel cloud`. Apri lo stesso indirizzo su un altro dispositivo e accedi:
-   devono tornare risposte e allegati. Solo dopo questa conferma il trasferimento è concluso.
+La pausa di Supabase non equivale a cancellazione. La
+[guida attuale al recupero](https://github.com/supabase/supabase/blob/master/apps/docs/content/troubleshooting/restore-project-after-90-days-pause.mdx)
+indica che oltre un anno di pausa serve scaricare database e oggetti Storage e migrarli in
+un nuovo progetto. Una cancellazione elimina anche i backup. Non è una garanzia di
+conservazione illimitata. Le revisioni nello stesso database aiutano a recuperare modifiche
+precedenti, ma non costituiscono una copia indipendente dal progetto.
 
 ## Comportamento
 
@@ -67,9 +70,9 @@ I valori segreti vanno inseriti nei campi riservati, mai in chat o nel repositor
 - Stessi limiti: 8 MB per file, 20 MB di allegati nella bozza, 30 file per riquadro. Reset con
   conferma riguarda la bozza su tutti i dispositivi. Gli oggetti originali scollegati restano
   privati nel bucket: non vengono cancellati in modo concorrente a un altro salvataggio.
-  Lo spazio fisico può quindi superare i 20 MB della bozza; monitoralo nell'account R2.
+  Lo spazio fisico può quindi superare i 20 MB della bozza; va monitorato nel servizio attivo.
 - Nessuna misurazione di latenza o prova di accesso su un servizio pubblico è dichiarata
-  finché il proprietario non ha configurato i quattro campi e il deploy è verificato.
+  finché il proprietario non ha configurato i campi necessari e il deploy è verificato.
 
 ## Verifica locale riproducibile
 
