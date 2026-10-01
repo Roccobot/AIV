@@ -30,9 +30,11 @@ mai feedback personali o allegati nei commit del repository pubblico.
 
 ## Preparazione del progetto Supabase
 
-La sessione che ha preparato il codice non ha credenziali Cloudflare; il servizio non è
-ancora distribuito. Anche la lettura dei nomi dei secret GitHub è negata all'integrazione.
-I valori segreti vanno inseriti nei campi riservati, mai in chat o nel repository.
+Il servizio è pubblicato su
+[Documento di feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
+Il workflow verifica l'archivio remoto e l'accesso anonimo negato prima di confermare la
+pubblicazione. L'accesso personale e il trasferimento delle risposte si collaudano seguendo
+il punto 8. I valori segreti vanno inseriti nei campi riservati, mai in chat o nel repository.
 
 1. Crea un progetto sul piano Free, nella regione europea scelta. Mantieni la Data API
    attiva, disattiva l'esposizione automatica delle nuove tabelle e attiva RLS automatico.
