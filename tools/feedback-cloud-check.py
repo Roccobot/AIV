@@ -9,6 +9,7 @@ import hmac
 import io
 import json
 from pathlib import Path
+import re
 import shutil
 import sys
 import tempfile
@@ -59,8 +60,8 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     first.locator('.rich-editor').first.fill('Da telefono')
     save(first)
     first.locator('#send').click()
-    assert 'Telefono: Telefono di prova, Android 13' in first.locator('#summary').input_value()
-    assert 'Tablet: Tablet di prova, Android 15' in first.locator('#summary').input_value()
+    expect(first.locator('#summary')).to_have_value(re.compile('Telefono: Telefono di prova, Android 13'))
+    expect(first.locator('#summary')).to_have_value(re.compile('Tablet: Tablet di prova, Android 15'))
     assert first.evaluate('localStorage.length')==0
     assert first.evaluate('indexedDB.databases().then(values=>values.length)')==0
     second_context=context()
