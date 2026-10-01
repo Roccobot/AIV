@@ -130,6 +130,9 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     third.locator('#save').click()
     expect(third.locator('#saved')).to_contain_text('Non salvato')
     expect(third.locator('.extra .rich-editor')).to_have_text('Modifica senza connessione')
+    third.locator('#send').click()
+    expect(third.locator('#action-message')).to_contain_text('Invio non confermato')
+    assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.completed)') is None
     third.unroute('**/api/feedback')
     third.evaluate('window.dispatchEvent(new Event("online"))')
     expect(third.locator('#saved')).to_contain_text('Salvato nel cloud')

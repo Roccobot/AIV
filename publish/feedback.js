@@ -569,10 +569,15 @@ document.querySelector("#copy").addEventListener("click", copy);
 document.querySelector("#send").addEventListener("click", async () => {
   draft.completed = new Date().toISOString();
   revision++;
-  await save();
+  if (!await save()) {
+    report("Invio non confermato: le ultime modifiche non sono ancora disponibili all'agente. Riprova quando il salvataggio cloud funziona.", true);
+    return;
+  }
   document.querySelector("#summary").value = summary();
   report(
-    "Riepilogo pronto. Copialo e invialo in chat: nulla è stato spedito automaticamente.",
+    remote
+      ? "Giro reso leggibile all'agente. Puoi modificarlo e inviarlo di nuovo; l'agente lo leggerà solo dopo il tuo via in chat."
+      : "Riepilogo pronto. Per renderlo leggibile dal cloud, importa il JSON nel documento cloud e premi Invia.",
   );
   document
     .querySelector("#summary")

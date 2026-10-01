@@ -53,9 +53,10 @@ sessione dopo è perso.
   Per il cloud servono anche prove Node/PostgreSQL e due sessioni browser; verificare
   check e deploy del workflow `Feedback cloud`, senza dichiarare attiva una bozza locale.
 - Cloudflare Workers Free serve pagina/accesso GitHub; Supabase Free conserva bozze e
-  allegati privati. Credenziali soltanto lato server. `Invia` prepara il riepilogo per
-  la chat: salvare nel cloud non consegna il giro all'agente e non autorizza a leggere
-  il database personale. Gli agenti elaborano il JSON/riepilogo ricevuto dal proprietario.
+  allegati privati. Credenziali soltanto lato server. `Invia` rende leggibile il giro
+  senza avviare nulla. Il proprietario può modificarlo e inviarlo di nuovo; la presa in
+  carico avviene solo dopo il suo via esplicito in chat. Il recupero cifrato è descritto
+  nella guida comune: non leggere bozze non inviate né monitorare automaticamente il cloud.
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.

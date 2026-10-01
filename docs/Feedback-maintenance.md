@@ -3,7 +3,8 @@
 Questa guida vale per qualsiasi agente e piattaforma di sviluppo. Il documento condiviso
 è [Feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
 Il proprietario ha confermato il funzionamento completo il 1 ottobre 2026.
-Gli agenti mantengono lo stesso codice e indirizzo; ricevono il giro completo in chat.
+Gli agenti mantengono lo stesso codice e indirizzo; recuperano il giro completo soltanto
+dopo il via esplicito del proprietario in chat.
 Non occorre una sessione Claude autenticata per aggiornare questo documento.
 
 ## Prima di prendere in carico il lavoro
@@ -99,8 +100,9 @@ e le risposte già esistenti. Non resettare la bozza per facilitare un aggiornam
 
 Le risposte personali e gli allegati non entrano nei commit pubblici, nei log o nel brief.
 L'accesso cloud è riservato al proprietario GitHub, ID `10722164`; gli agenti ricevono il
-JSON o il riepilogo consegnato in chat. Essere manutentore non autorizza a leggere il suo
-database privato. `Invia` prepara il riepilogo; il salvataggio cloud non consegna il giro.
+giro reso leggibile con Invio e richiesto esplicitamente in chat. Essere manutentore non autorizza a leggere il suo
+database privato. `Invia` rende leggibile una copia del giro, senza avviare lettura o lavorazione.
+Il salvataggio della bozza da solo non rende leggibili le nuove modifiche.
 
 ## Servizio e gestione degli errori
 
@@ -165,3 +167,46 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
 Un agente privo di credenziali cloud può aggiornare il repository e usare il workflow
 già configurato. Se non può pubblicare, lascia una modifica concreta e verificata e indica
 nel brief il passaggio mancante, senza creare un secondo documento o un nuovo indirizzo.
+
+## Invio e presa in carico: due fasi
+
+1. **Invia rende leggibile il giro**, solo dopo un salvataggio riuscito. Non esegue
+   workflow di lettura, non avvisa un agente e non avvia lavori. Il proprietario può
+   modificare, salvare e inviare di nuovo liberamente. Il nuovo invio sostituisce
+   la versione proposta; le modifiche non ancora inviate restano nella bozza.
+2. **La richiesta esplicita in chat autorizza la presa in carico**, per esempio
+   `Leggi l'ultimo giro di feedback`. Solo allora l'agente esegue il recupero.
+   Nessun monitoraggio automatico di salvataggi o invii, nessuna lettura preventiva.
+
+Per recuperare, con GitHub CLI autenticato come proprietario e Node 24, dalla radice AIV:
+
+```sh
+node tools/feedback-read.mjs --version 3.24 --output /tmp/aiv-feedback-3.24.json
+```
+
+Ometti `--version` per l'ultimo giro inviato di qualsiasi versione. Lo strumento avvia
+soltanto su comando il workflow `Leggi feedback inviato`, con chiave pubblica temporanea.
+Il server recupera dalla storia l'ultima copia inviata entro la data di avvio della
+richiesta: nuovi invii mentre il workflow gira non cambiano il giro preso in carico.
+Il contenuto e gli originali vengono cifrati con AES-256-GCM; la chiave viene protetta
+con RSA-OAEP. Nei log e negli artefatti GitHub non compare feedback in chiaro. La chiave
+privata rimane in memoria nella sessione dell'agente. Il risultato decifrato viene scritto
+fuori dal repository, con permessi privati; non commetterlo. L'artefatto cifrato viene
+rimosso dopo il recupero o scade dopo un giorno. Nessuna chiave Supabase passa all'agente.
+
+Il workflow ammette solo richieste avviate dal proprietario GitHub e non ha trigger su
+push, salvataggio o Invio. L'accesso GitHub è necessario: non è una lettura pubblica.
+Se una piattaforma non può eseguire il comando, lo dichiara; JSON/riepilogo manuali
+restano disponibili come alternativa. Registra nel brief la revisione presa in carico
+(`cloudRevision`) e il lavoro risultante, senza contenuti o allegati personali.
+
+Per verificare il collegamento senza leggere feedback personali:
+
+```sh
+node tools/feedback-read.mjs --verify-only --output /tmp/aiv-feedback-transfer-test.json
+```
+
+La prova usa un proprietario sintetico con zero iniziale, dati e SVG fittizi. Verifica
+Supabase, selezione della copia inviata, cifratura, artefatto e decifratura, senza aprire
+il giro reale. La suite `feedback-transfer-test.mjs` verifica anche modifiche non inviate,
+invii successivi, filtro temporale, originali, chiave errata e manomissioni.

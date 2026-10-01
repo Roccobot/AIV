@@ -26,6 +26,7 @@ jobs:
           node cloud/feedback/worker-test.mjs
           node cloud/feedback/supabase-sql-test.mjs
           node cloud/feedback/supabase-test.mjs
+          node cloud/feedback/feedback-transfer-test.mjs
       - name: Prepara il browser di prova
         run: |
           python3 -m venv /tmp/aiv-cloud-tests

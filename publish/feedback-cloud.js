@@ -87,8 +87,8 @@
     return revisionTag(await request(config.endpoint,{method:'HEAD'})) !== etag;
   }
   document.querySelector('#persistence-info').textContent = 'Le risposte e gli allegati si salvano nel cloud privato: puoi continuare da un altro dispositivo accedendo con GitHub. Gli allegati restano originali, massimo 8 MB ciascuno e 20 MB totali. Attendi la conferma prima di chiudere; se manca la connessione, esporta il JSON per conservare le modifiche.';
-  document.querySelector('#send-info').textContent = 'Invia prepara il riepilogo da consegnare in chat. Il salvataggio cloud conserva la bozza; non invia automaticamente il giro di feedback all\'agente.';
-  document.querySelector('#delivery-info').textContent = 'Invia il giro completo anche se alcune prove restano Non provato. Consegna il riepilogo e il JSON all\'agente in chat: il salvataggio della bozza nel cloud non equivale alla consegna.';
+  document.querySelector('#send-info').textContent = 'Invia rende leggibile il giro all\'agente, senza avviare nulla. Puoi continuare a modificare e inviare di nuovo. L\'agente recupererà l\'ultima versione inviata solo dopo il tuo via in chat.';
+  document.querySelector('#delivery-info').textContent = 'Premi Invia anche se alcune prove restano Non provato. Quando vuoi che l\'agente prenda in carico il giro, chiedigli in chat di leggere l\'ultimo feedback. Esportare il JSON è facoltativo: serve per conservarne una copia.';
   const notice = document.createElement('section');
   notice.className = 'card cloud-account';
   const description = document.createElement('p');

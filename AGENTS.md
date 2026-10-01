@@ -236,7 +236,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **Il documento di feedback condiviso da tutti gli agenti** vive in
   <https://aiv-feedback.roccobot-b90.workers.dev/feedback.html>. Prima di aggiornarlo leggi
   `docs/Feedback-maintenance.md`: fonti, identificatori stabili, cloud, formato dei dati,
-  verifiche e pubblicazione (`Rules.md` § '🔗 Il documento vivo del progetto').
+  verifiche e pubblicazione. Invio rende leggibile il giro, il via in chat autorizza
+  il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').
 - **Prima di pubblicarlo esegui `tools/feedback-check.py publish/feedback.html`**; per cloud
   e salvataggio anche le suite Node/PostgreSQL e `tools/feedback-cloud-check.py`. Il workflow
   `Feedback cloud` deve concludere check e deploy. Mentre l'utente compila si prepara una

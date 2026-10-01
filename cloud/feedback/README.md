@@ -94,7 +94,11 @@ precedenti, ma non costituiscono una copia indipendente dal progetto.
 - Connessione necessaria per salvare. Un errore o una sessione scaduta non vengono indicati
   come salvataggio riuscito. Esporta il JSON per conservare le modifiche prima di chiudere.
 - Il salvataggio cloud conserva la bozza, senza consegnare automaticamente il giro all'agente.
-  `Invia` prepara il riepilogo da mandare in chat; il JSON consegna anche gli originali.
+  `Invia` rende leggibile il giro, senza avviare letture o lavori. Dopo il via in chat,
+  l'agente lo recupera con `tools/feedback-read.mjs`, tramite workflow manuale e trasferimento
+  cifrato. Il proprietario può modificare e inviare di nuovo fino alla presa in carico;
+  il JSON manuale rimane una copia facoltativa. Vedi la
+  [guida comune](../../docs/Feedback-maintenance.md#invio-e-presa-in-carico-due-fasi).
 - Stessi limiti: 8 MB per file, 20 MB di allegati nella bozza, 30 file per riquadro. Reset con
   conferma riguarda la bozza su tutti i dispositivi. Gli oggetti originali scollegati restano
   privati nel bucket: non vengono cancellati in modo concorrente a un altro salvataggio.

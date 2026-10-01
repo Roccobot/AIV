@@ -16,8 +16,9 @@ Nei commenti delle verifiche, delle decisioni e delle osservazioni puoi usare Gr
 
 Puoi aggiungere commenti e allegati (PNG, JPG, WebP, GIF, SVG e ZIP), anche trascinandoli sulla voce. Gli stessi allegati sono disponibili in Qualsiasi altra cosa; gli ZIP restano interi e possono essere scaricati. Le voci con un esito, un commento o un allegato sono evidenziate: verde per Tutto OK, ambra per Accettabile, rosso per Non approvato. Commenti e allegati senza esito hanno evidenza neutra; le decisioni con una scelta o un commento sono evidenziate allo stesso modo. I contatori continuano a misurare soltanto gli esiti. Il salvataggio avviene nel cloud privato: accedi con GitHub per continuare da un altro dispositivo.
 Attendi **Salvato nel cloud**; esporta il JSON per conservarne una copia con gli allegati.
-I campi Telefono e Tablet mantengono separati modello e versione Android. `Invia` prepara il riepilogo, che devi copiare
-in chat; non invia automaticamente nulla. L'agente aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
+I campi Telefono e Tablet mantengono separati modello e versione Android. `Invia` rende leggibile il giro senza avviare lavori. Puoi modificarlo e inviare di nuovo;
+quando vuoi la presa in carico, chiedi in chat di leggere l'ultimo feedback. Il JSON
+manuale resta disponibile come copia o alternativa. L'agente aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
 senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
 
 Le verifiche automatiche della 3.24 sono superate: 472 prove, zero fallimenti,

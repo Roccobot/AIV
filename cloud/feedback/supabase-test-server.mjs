@@ -23,6 +23,13 @@ export async function testServer(port = 0) {
         const owner = (url.searchParams.get('owner_id') || '').replace(/^eq\./,'');
         return reply((await db.query('select draft,revision from public.aiv_feedback_drafts where owner_id=$1',[owner])).rows);
       }
+      if (url.pathname === '/rest/v1/aiv_feedback_history') {
+        const owner=(url.searchParams.get('owner_id') || '').replace(/^eq\./,'');
+        const version=(url.searchParams.get('draft->>version') || '').replace(/^eq\./,'');
+        const cutoff=(url.searchParams.get('saved_at') || '').replace(/^lte\./,'');
+        if (url.searchParams.get('draft->>completed')!=='not.is.null') return reply({error:'Submitted only'},400);
+        return reply((await db.query("select draft,revision from public.aiv_feedback_history where owner_id=$1 and draft->>'completed' is not null and ($2='' or draft->>'version'=$2) and ($3='' or saved_at<=nullif($3,'')::timestamptz) order by saved_at desc limit 1",[owner,version,cutoff])).rows);
+      }
       const chunks=[];
       for await (const chunk of request) chunks.push(chunk);
       const bytes=Buffer.concat(chunks);
