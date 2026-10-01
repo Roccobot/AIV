@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">Kitazamaji</string>
     <string name="settings_group_clips">Usogezaji</string>
     <string name="settings_group_input">Vidhibiti na viashiria</string>
-    <string name="settings_group_files">Kuhariri na nakala rudufu</string>
+    <string name="settings_group_files">Kuhariri na ulinzi wa faili</string>
     <string name="settings_group_browse">Folda</string>
     <string name="settings_group_start">Kuanza</string>
+    <string name="settings_group_manage">Usimamizi wa programu</string>
     <string name="settings_group_advanced">Vipengele vya juu</string>
     <string name="settings_page_info">Taarifa</string>
     <string name="settings_page_controls">Lebo na vitufe</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">Folda zilizoruhusiwa</string>
     <string name="folder_authorized_mark">imeruhusiwa</string>
     <string name="folder_included_none">Hakuna folda zilizoruhusiwa.</string>
+    <string name="folder_add">Ongeza folda</string>
     <string name="folder_authorize">Ruhusu folda</string>
     <string name="folder_authorize_title">Ongeza kwenye folda zinazoonyeshwa</string>
     <string name="folder_remove">Ondoa ruhusa</string>

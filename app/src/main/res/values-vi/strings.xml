@@ -320,9 +320,10 @@
     <string name="settings_group_viewer">Trình xem</string>
     <string name="settings_group_clips">Điều hướng</string>
     <string name="settings_group_input">Điều khiển và chỉ báo</string>
-    <string name="settings_group_files">Chỉnh sửa và sao lưu</string>
+    <string name="settings_group_files">Chỉnh sửa và bảo vệ tệp</string>
     <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
+    <string name="settings_group_manage">Quản lý ứng dụng</string>
     <string name="settings_group_advanced">Tính năng nâng cao</string>
     <string name="settings_page_info">Thông tin</string>
     <string name="settings_page_controls">Nhãn và nút</string>
@@ -640,6 +641,7 @@
     <string name="folder_authorized">Thư mục được cho phép</string>
     <string name="folder_authorized_mark">được cho phép</string>
     <string name="folder_included_none">Không có thư mục được cho phép.</string>
+    <string name="folder_add">Thêm thư mục</string>
     <string name="folder_authorize">Cho phép thư mục</string>
     <string name="folder_authorize_title">Thêm vào thư mục hiển thị</string>
     <string name="folder_remove">Hủy quyền cho phép</string>

@@ -320,9 +320,10 @@
     <string name="settings_group_viewer">ตัวแสดงภาพ</string>
     <string name="settings_group_clips">การนำทาง</string>
     <string name="settings_group_input">การควบคุมและตัวบ่งชี้</string>
-    <string name="settings_group_files">การแก้ไขและสำเนาสำรอง</string>
+    <string name="settings_group_files">การแก้ไขและการปกป้องไฟล์</string>
     <string name="settings_group_browse">โฟลเดอร์</string>
     <string name="settings_group_start">การเริ่มต้น</string>
+    <string name="settings_group_manage">การจัดการแอป</string>
     <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
     <string name="settings_page_info">ข้อมูล</string>
     <string name="settings_page_controls">ป้ายกำกับและปุ่ม</string>
@@ -640,6 +641,7 @@
     <string name="folder_authorized">โฟลเดอร์ที่อนุญาต</string>
     <string name="folder_authorized_mark">อนุญาตแล้ว</string>
     <string name="folder_included_none">ไม่มีโฟลเดอร์ที่อนุญาต</string>
+    <string name="folder_add">เพิ่มโฟลเดอร์</string>
     <string name="folder_authorize">อนุญาตโฟลเดอร์</string>
     <string name="folder_authorize_title">เพิ่มในโฟลเดอร์ที่แสดง</string>
     <string name="folder_remove">ถอนการอนุญาต</string>

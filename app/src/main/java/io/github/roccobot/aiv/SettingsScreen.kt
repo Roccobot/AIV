@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -939,15 +940,6 @@ private fun ColumnScope.RootPage(
             onOpen = { onOpen(Page.CONTROLS) }
         ) { ControlsPage(settings = settings, onChange = onChange, onOpen = onOpen) }
 
-        SwitchRow(
-            label = stringResource(R.string.settings_list_path),
-            // ⚠️ Anche qui la spiegazione arriva dopo l'etichetta, e per la stessa ragione: il
-            // titolo dice che cosa si copia, non DOVE finisce nella lista, e 'in cima' è
-            // esattamente il dettaglio che decide se l'interruttore serve.
-            detail = stringResource(R.string.settings_list_path_desc),
-            checked = settings.listPath,
-            onChange = { onChange(settings.copy(listPath = it)) }
-        )
     }
 
     /*
@@ -985,7 +977,9 @@ private fun ColumnScope.RootPage(
             summary = listOf(
                 stringResource(R.string.settings_editor),
                 stringResource(R.string.settings_editor_backup),
-                stringResource(R.string.settings_rename_download)
+                stringResource(R.string.settings_quality),
+                stringResource(R.string.settings_styles),
+                stringResource(R.string.settings_mark)
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.EDITING) }
         ) {
@@ -997,9 +991,21 @@ private fun ColumnScope.RootPage(
             )
         }
 
-        // ⚠️ Dopo la porta dell'editor, e non è un ordine casuale: là dentro si parla di una
-        // modifica e di un salvataggio, qui di una cancellazione, e il cestino è la rete che le
-        // raccoglie tutte e due.
+        /*
+         * ⚠️⚠️ **PORTA AUTONOMA DALLA `3.27`** (`d-settings-order`): rinomina e download si usano
+         * anche senza aprire l'editor, quindi non vivono più dentro 'Editor e salvataggio'.
+         */
+        PageOfRows(
+            label = stringResource(R.string.settings_rename_download),
+            summary = listOf(
+                stringResource(R.string.settings_save_rename),
+                stringResource(R.string.settings_download_path),
+                stringResource(R.string.settings_ext_edit)
+            ).joinToString(SUMMARY_JOIN),
+            onOpen = { onOpen(Page.SAVING) }
+        ) { RenameAndDownload(settings = settings, onChange = onChange) }
+
+        // ⚠️ Dopo editor e rinomina: qui di una cancellazione, e il cestino è la rete.
         SwitchRow(
             label = stringResource(R.string.settings_bin),
             detail = stringResource(R.string.settings_bin_desc),
@@ -1100,11 +1106,9 @@ private fun ColumnScope.RootPage(
          * ⚠️⚠️ **VIVE QUI E NON FRA LE IMPOSTAZIONI DELLA GRIGLIA, e la domanda lo decide**: chi
          * cerca questa voce non si chiede 'come vedo le cartelle', si chiede 'come faccio a
          * rendere l'app più leggera'. È una funzione che tocca il modo in cui il telefono tiene la
-         * memoria, e come l'altra riga di questo gruppo può fare danni: il perché misurato sta su
-         * [Settings.gpuThumbs].
-         * ⚠️ **Il gruppo adesso ha due voci e non una**, e la nota qui sopra non è più da leggere
-         * come 'un gruppo per una riga sola': quella dichiarava perché il gruppo fosse nato con una
-         * voce, e la seconda gli dà la famiglia che allora non aveva.
+         * memoria, e può fare danni: il perché misurato sta su [Settings.gpuThumbs].
+         * ⚠️⚠️ **DALLA `3.27` È DI NUOVO UNA VOCE SOLA** (`d-settings-order`): gestisci le
+         * miniature è scesa in 'Gestione dell'app' con esportazione e ripristino avvisi.
          */
         SwitchRow(
             label = stringResource(R.string.settings_gpu_thumbs),
@@ -1112,19 +1116,15 @@ private fun ColumnScope.RootPage(
             checked = settings.gpuThumbs,
             onChange = { onChange(settings.copy(gpuThumbs = it)) }
         )
+    }
 
-        /*
-         * ⚠️⚠️ **IL RIEPILOGO È LA MISURA, e per una volta 'quanto c'è dentro' non sono righe ma
-         * megabyte**: la pagina che si apre non è un elenco, quindi la sua lunghezza non dice
-         * niente, mentre la cosa che il comando riguarda una misura ce l'ha. Ed è calcolata, come
-         * vuole la regola: una frase fissa qui direbbe due volte quello che il titolo già dice.
-         * ⚠️⚠️ **LA MISURA LA SCRIVE [formatBytes], DALLA `2.87`, ED È LA SUA RISPOSTA `punto` A
-         * `d-pesi-scrittura`**: fino alla `2.86` la formattava il sistema (`Formatter`), con la
-         * virgola della lingua in corso e i multipli da mille, cioè in un modo diverso dal peso di
-         * una selezione. Adesso i pesi dell'app si scrivono in un modo solo.
-         * ⚠️ Il caso zero ha la sua frase perché '0 B' si legge come un difetto, non come 'non c'è
-         * niente da buttare'.
-         */
+    /*
+     * ⚠️⚠️ **SEZIONE NUOVA NELLA `3.27`** (`d-settings-order`, Applica la proposta): manutenzione
+     * dell'app (miniature memorizzate, esportazione/importazione, ripristino avvisi), distinta
+     * dalle funzionalità avanzate che possono fare danni.
+     */
+    Section(stringResource(R.string.settings_group_manage)) {
+
         val thumbsLabel = stringResource(R.string.settings_thumbs)
         val thumbsClear = stringResource(R.string.settings_thumbs_do)
         val thumbsMake = stringResource(R.string.settings_thumbs_gen)
@@ -1139,80 +1139,49 @@ private fun ColumnScope.RootPage(
             summary = thumbsSummary,
             onOpen = { onOpen(Page.THUMBS) }
         ) {
-            // ⚠️ `Searchable` perché il corpo è scritto a mano: le righe di serie si filtrano da
-            // sé, due tasti no, e resterebbero in scena a ogni ricerca. ⚠️ Dalla `2.97` i testi
-            // da confrontare sono i due comandi, perché l'introduzione non c'è più: i due
-            // paragrafi vivono nelle conferme, e una parola che sta solo là farebbe comparire
-            // due tasti che non la portano.
             Searchable(thumbsLabel, thumbsClear, thumbsMake) {
                 ThumbsCard(head = thumbsLabel, onClear = onClearThumbs, onGenerate = onGenerateThumbs)
             }
         }
-    }
 
-    /*
-     * ⚠️⚠️ **LA PORTA DEL BACKUP VIVE QUI, ACCANTO AL RIPRISTINO DEGLI AVVISI, PER LA STESSA
-     * RAGIONE**: non è un'impostazione ma un'azione sulla memoria dell'app, e dentro un gruppo si
-     * leggerebbe come una preferenza di quel tema. Viene prima perché è quella che si cerca: il
-     * ripristino degli avvisi è nato per le prove.
-     * ⚠️ **Lo stacco sopra è quello di un titolo di gruppo**, ventiquattro punti con quelli della
-     * colonna: senza, la riga si leggerebbe come la terza voce di 'Funzionalità avanzate'.
-     * ⚠️ **`extra` porta i comandi di dentro e non i nomi delle parti**: chi cerca 'Cestino' cerca
-     * il cestino, e trovare invece la porta del backup gli darebbe un risultato che non ha chiesto.
-     */
-    val backupLabel = stringResource(R.string.backup_title)
-    val backupDesc = stringResource(R.string.backup_desc)
-    val backupWords = listOf(
-        stringResource(R.string.backup_export),
-        stringResource(R.string.backup_import),
-        stringResource(R.string.backup_lock),
-        stringResource(R.string.backup_password_title)
-    )
-    Searchable(backupLabel, backupDesc, *backupWords.toTypedArray()) {
-        Spacer(Modifier.height(20.dp))
-        PageRow(
-            label = backupLabel,
-            summary = backupDesc,
-            onOpen = { onOpen(Page.BACKUP) },
-            extra = backupWords
+        val backupLabel = stringResource(R.string.backup_title)
+        val backupDesc = stringResource(R.string.backup_desc)
+        val backupWords = listOf(
+            stringResource(R.string.backup_export),
+            stringResource(R.string.backup_import),
+            stringResource(R.string.backup_lock),
+            stringResource(R.string.backup_password_title)
         )
-    }
+        Searchable(backupLabel, backupDesc, *backupWords.toTypedArray()) {
+            PageRow(
+                label = backupLabel,
+                summary = backupDesc,
+                onOpen = { onOpen(Page.BACKUP) },
+                extra = backupWords
+            )
+        }
 
-    /*
-     * ⚠️⚠️ **STA FUORI DAI GRUPPI, in fondo, e non è una dimenticanza**: non è
-     * un'impostazione, è un'**azione** sulla memoria dell'app, e non risponde a nessuna
-     * delle domande che i gruppi fanno. Metterla dentro uno di loro direbbe che è
-     * una preferenza di quel tema; darle un gruppo suo vorrebbe dire un titolo per una riga
-     * sola, cioè una parola in più che non aiuta a trovarla. In fondo è il posto dove le
-     * azioni di ripristino stanno in ogni schermata di impostazioni, ed è dove si guarda.
-     * ⚠️ Chiesta *per motivi di test*, ma resta utile: i veli si mostrano una volta e mai
-     * più, quindi senza questa l'unica via per rivederli era cancellare i dati dell'app,
-     * che si porta via anche le impostazioni.
-     */
-    val resetLabel = stringResource(R.string.settings_reset_hints)
-    val resetDesc = stringResource(R.string.settings_reset_hints_desc)
-    Searchable(resetLabel, resetDesc) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+        val resetLabel = stringResource(R.string.settings_reset_hints)
+        val resetDesc = stringResource(R.string.settings_reset_hints_desc)
+        Searchable(resetLabel, resetDesc) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(text = resetLabel, style = MaterialTheme.typography.titleSmall)
-                Detail(resetDesc)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(text = resetLabel, style = MaterialTheme.typography.titleSmall)
+                    Detail(resetDesc)
+                }
+                val done = stringResource(R.string.settings_reset_hints_done)
+                TextButton(onClick = {
+                    onResetHints()
+                    Notices.say(done)
+                }) { Text(stringResource(R.string.settings_reset_hints_do)) }
             }
-            val context = LocalContext.current
-            val done = stringResource(R.string.settings_reset_hints_done)
-            TextButton(onClick = {
-                onResetHints()
-                // ⚠️ L'avviso serve perché l'effetto non si vede QUI: i veli tornano in
-                // un'altra schermata, e un tasto che non dà segno di aver fatto qualcosa si
-                // preme due volte.
-                Notices.say(done)
-            }) { Text(stringResource(R.string.settings_reset_hints_do)) }
         }
     }
 
@@ -1841,16 +1810,6 @@ private fun EditingPage(
             )
         )
     }
-
-    PageOfRows(
-        label = stringResource(R.string.settings_rename_download),
-        summary = listOf(
-            stringResource(R.string.settings_save_rename),
-            stringResource(R.string.settings_download_path),
-            stringResource(R.string.settings_ext_edit)
-        ).joinToString(SUMMARY_JOIN),
-        onOpen = { onOpen(Page.SAVING) }
-    ) { RenameAndDownload(settings = settings, onChange = onChange) }
 
     /*
      * ⚠️⚠️ **LA FILIGRANA VIVE QUI DALLA `2.71`, E FINO ALLA `2.70` STAVA NELLA RADICE** (voce
@@ -2514,6 +2473,18 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
             nameOf = { stringResource(it.label()) },
             onSelect = { onChange(settings.copy(listText = it)) }
         )
+
+        /*
+         * ⚠️⚠️ **QUI DALLA `3.27`, e prima sotto 'Comandi e indicatori'** (`d-settings-order`,
+         * Applica la proposta): descrive il comportamento della lista dei file, accanto alle
+         * altre sue opzioni.
+         */
+        SwitchRow(
+            label = stringResource(R.string.settings_list_path),
+            detail = stringResource(R.string.settings_list_path_desc),
+            checked = settings.listPath,
+            onChange = { onChange(settings.copy(listPath = it)) }
+        )
     }
 
     // ⚠️ 'Cartelle di sistema' e non 'Cartelle': il secondo è il nome corto della vista nel
@@ -2667,6 +2638,46 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
                 onChange(if (included) settings.copy(includedFolders = settings.includedFolders - entry)
                     else settings.withFolders(settings.folderSelection.remove(listOf(entry))))
             }) { Text(stringResource(if (included) R.string.folder_remove else R.string.settings_hidden_show)) }
+        }
+    }
+    /*
+     * ⚠️⚠️ **'Aggiungi cartella' in modalità incluse** (giro 3.24, resto di `3.13-03`):
+     * autorizza una cartella senza passare da Cartelle di sistema. Usa lo stesso dialogo
+     * destinazione dell'app, che già conosce scorciatoie e albero.
+     */
+    if (included) {
+        var picking by remember { mutableStateOf(false) }
+        FilledTonalButton(
+            onClick = { picking = true },
+            modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.folder_add))
+        }
+        if (picking) {
+            // ⚠️ Albero subito (vista TREE + modalità escluse finta): in modalità incluse
+            // il dialogo partrebbe dalle scorciatoie già autorizzate, cioè l'elenco che
+            // si sta proprio cercando di allungare. 'Sfoglia' resta comunque raggiungibile
+            // da chi parte dalle scorciatoie in altri flussi.
+            CompositionLocalProvider(
+                LocalDestLook provides DestLook(
+                    view = FolderView.TREE,
+                    folderMode = FolderMode.EXCLUDED
+                )
+            ) {
+                DestinationDialog(
+                    action = R.string.folder_authorize,
+                    onDismiss = { picking = false },
+                    onPick = { dir ->
+                        onChange(
+                            settings.copy(
+                                includedFolders = settings.includedFolders +
+                                    portablePath(dir.absolutePath)
+                            )
+                        )
+                        picking = false
+                    }
+                )
+            }
         }
     }
 }

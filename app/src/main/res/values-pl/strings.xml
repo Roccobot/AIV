@@ -365,9 +365,10 @@
     <string name="settings_group_viewer">Podgląd</string>
     <string name="settings_group_clips">Nawigacja</string>
     <string name="settings_group_input">Sterowanie i wskaźniki</string>
-    <string name="settings_group_files">Edycja i kopia zapasowa</string>
+    <string name="settings_group_files">Edycja i ochrona plików</string>
     <string name="settings_group_browse">Foldery</string>
     <string name="settings_group_start">Uruchamianie</string>
+    <string name="settings_group_manage">Zarządzanie aplikacją</string>
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
     <string name="settings_page_info">Informacje</string>
     <string name="settings_page_controls">Etykiety i przyciski</string>
@@ -694,6 +695,7 @@
     <string name="folder_authorized">Dozwolone foldery</string>
     <string name="folder_authorized_mark">dozwolony</string>
     <string name="folder_included_none">Brak dozwolonych folderów.</string>
+    <string name="folder_add">Dodaj folder</string>
     <string name="folder_authorize">Zezwól na folder</string>
     <string name="folder_authorize_title">Dodaj do wyświetlanych folderów</string>
     <string name="folder_remove">Cofnij zezwolenie</string>

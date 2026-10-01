@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">प्रदर्शक</string>
     <string name="settings_group_clips">नेव्हिगेशन</string>
     <string name="settings_group_input">नियंत्रणे आणि निर्देशक</string>
-    <string name="settings_group_files">संपादन आणि बॅकअप</string>
+    <string name="settings_group_files">संपादन आणि फाइल संरक्षण</string>
     <string name="settings_group_browse">फोल्डर</string>
     <string name="settings_group_start">सुरुवात</string>
+    <string name="settings_group_manage">अॅप व्यवस्थापन</string>
     <string name="settings_group_advanced">प्रगत सुविधा</string>
     <string name="settings_page_info">माहिती</string>
     <string name="settings_page_controls">लेबल आणि बटणे</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">परवानगी दिलेले फोल्डर</string>
     <string name="folder_authorized_mark">परवानगी दिलेली</string>
     <string name="folder_included_none">परवानगी दिलेले फोल्डर नाहीत.</string>
+    <string name="folder_add">फोल्डर जोडा</string>
     <string name="folder_authorize">फोल्डरला परवानगी द्या</string>
     <string name="folder_authorize_title">दाखवलेल्या फोल्डरमध्ये जोडा</string>
     <string name="folder_remove">परवानगी काढा</string>

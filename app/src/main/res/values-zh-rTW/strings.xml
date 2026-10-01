@@ -320,9 +320,10 @@
     <string name="settings_group_viewer">檢視器</string>
     <string name="settings_group_clips">導覽</string>
     <string name="settings_group_input">操作與指示</string>
-    <string name="settings_group_files">編輯與備份</string>
+    <string name="settings_group_files">編輯與檔案保護</string>
     <string name="settings_group_browse">資料夾</string>
     <string name="settings_group_start">啟動</string>
+    <string name="settings_group_manage">應用程式管理</string>
     <string name="settings_group_advanced">進階功能</string>
     <string name="settings_page_info">資訊</string>
     <string name="settings_page_controls">標籤與按鈕</string>
@@ -640,6 +641,7 @@
     <string name="folder_authorized">已授權的資料夾</string>
     <string name="folder_authorized_mark">已授權</string>
     <string name="folder_included_none">沒有已授權的資料夾。</string>
+    <string name="folder_add">新增資料夾</string>
     <string name="folder_authorize">授權資料夾</string>
     <string name="folder_authorize_title">加入顯示的資料夾</string>
     <string name="folder_remove">移除授權</string>

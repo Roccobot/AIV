@@ -350,9 +350,10 @@
     <string name="settings_group_viewer">Visor</string>
     <string name="settings_group_clips">Navegación</string>
     <string name="settings_group_input">Controles e indicadores</string>
-    <string name="settings_group_files">Edición y copia de seguridad</string>
+    <string name="settings_group_files">Edición y protección de archivos</string>
     <string name="settings_group_browse">Carpetas</string>
     <string name="settings_group_start">Inicio</string>
+    <string name="settings_group_manage">Gestión de la app</string>
     <string name="settings_group_advanced">Funciones avanzadas</string>
     <string name="settings_page_info">Información</string>
     <string name="settings_page_controls">Etiquetas y botones</string>
@@ -676,6 +677,7 @@
     <string name="folder_authorized">Carpetas autorizadas</string>
     <string name="folder_authorized_mark">autorizada</string>
     <string name="folder_included_none">No hay carpetas autorizadas.</string>
+    <string name="folder_add">Añadir carpeta</string>
     <string name="folder_authorize">Autorizar carpeta</string>
     <string name="folder_authorize_title">Añadir a las carpetas mostradas</string>
     <string name="folder_remove">Quitar autorización</string>

@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">نمایشگر</string>
     <string name="settings_group_clips">پیمایش</string>
     <string name="settings_group_input">کنترل‌ها و نشانگرها</string>
-    <string name="settings_group_files">ویرایش و پشتیبان‌گیری</string>
+    <string name="settings_group_files">ویرایش و محافظت از پرونده</string>
     <string name="settings_group_browse">پوشه‌ها</string>
     <string name="settings_group_start">راه‌اندازی</string>
+    <string name="settings_group_manage">مدیریت برنامه</string>
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
     <string name="settings_page_info">اطلاعات</string>
     <string name="settings_page_controls">برچسب‌ها و دکمه‌ها</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">پوشه‌های مجاز</string>
     <string name="folder_authorized_mark">مجاز</string>
     <string name="folder_included_none">پوشهٔ مجازی وجود ندارد.</string>
+    <string name="folder_add">افزودن پوشه</string>
     <string name="folder_authorize">مجاز کردن پوشه</string>
     <string name="folder_authorize_title">افزودن به پوشه‌های نمایش‌داده‌شده</string>
     <string name="folder_remove">لغو مجوز</string>

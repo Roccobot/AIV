@@ -320,9 +320,10 @@
     <string name="settings_group_viewer">보기</string>
     <string name="settings_group_clips">탐색</string>
     <string name="settings_group_input">조작과 표시</string>
-    <string name="settings_group_files">편집과 백업</string>
+    <string name="settings_group_files">편집 및 파일 보호</string>
     <string name="settings_group_browse">폴더</string>
     <string name="settings_group_start">시작</string>
+    <string name="settings_group_manage">앱 관리</string>
     <string name="settings_group_advanced">고급 기능</string>
     <string name="settings_page_info">정보</string>
     <string name="settings_page_controls">라벨과 버튼</string>
@@ -640,6 +641,7 @@
     <string name="folder_authorized">허용된 폴더</string>
     <string name="folder_authorized_mark">허용됨</string>
     <string name="folder_included_none">허용된 폴더가 없습니다.</string>
+    <string name="folder_add">폴더 추가</string>
     <string name="folder_authorize">폴더 허용</string>
     <string name="folder_authorize_title">표시할 폴더에 추가</string>
     <string name="folder_remove">허용 취소</string>

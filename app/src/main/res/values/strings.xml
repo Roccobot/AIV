@@ -304,10 +304,11 @@
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_clips">Navigation</string>
     <string name="settings_group_input">Controls and indicators</string>
-    <string name="settings_group_files">Editing and backup</string>
+    <string name="settings_group_files">Editing and file protection</string>
     <string name="settings_group_browse">Folders</string>
     <string name="settings_group_start">Startup</string>
     <string name="settings_group_advanced">Advanced features</string>
+    <string name="settings_group_manage">App management</string>
 
     <!-- The pages a settings family lives in, where no section title already names it. -->
     <string name="settings_page_info">Information</string>
@@ -851,6 +852,7 @@
     <string name="folder_authorized">Authorized folders</string>
     <string name="folder_authorized_mark">authorized</string>
     <string name="folder_included_none">No authorized folders.</string>
+    <string name="folder_add">Add folder</string>
     <string name="folder_authorize">Authorize folder</string>
     <string name="folder_authorize_title">Add to displayed folders</string>
     <string name="folder_remove">Remove authorization</string>

@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">প্রদর্শক</string>
     <string name="settings_group_clips">নেভিগেশন</string>
     <string name="settings_group_input">নিয়ন্ত্রণ ও নির্দেশক</string>
-    <string name="settings_group_files">সম্পাদনা ও ব্যাকআপ</string>
+    <string name="settings_group_files">সম্পাদনা ও ফাইল সুরক্ষা</string>
     <string name="settings_group_browse">ফোল্ডার</string>
     <string name="settings_group_start">সূচনা</string>
+    <string name="settings_group_manage">অ্যাপ ব্যবস্থাপনা</string>
     <string name="settings_group_advanced">উন্নত সুবিধা</string>
     <string name="settings_page_info">তথ্য</string>
     <string name="settings_page_controls">লেবেল ও বোতাম</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">অনুমোদিত ফোল্ডার</string>
     <string name="folder_authorized_mark">অনুমোদিত</string>
     <string name="folder_included_none">কোনো অনুমোদিত ফোল্ডার নেই।</string>
+    <string name="folder_add">ফোল্ডার যোগ করুন</string>
     <string name="folder_authorize">ফোল্ডার অনুমোদন করুন</string>
     <string name="folder_authorize_title">প্রদর্শিত ফোল্ডারে যোগ করুন</string>
     <string name="folder_remove">অনুমোদন সরান</string>

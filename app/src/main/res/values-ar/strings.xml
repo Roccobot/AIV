@@ -395,9 +395,10 @@
     <string name="settings_group_viewer">العارض</string>
     <string name="settings_group_clips">التنقّل</string>
     <string name="settings_group_input">التحكم والمؤشرات</string>
-    <string name="settings_group_files">التحرير والنسخ الاحتياطي</string>
+    <string name="settings_group_files">التحرير وحماية الملفات</string>
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
+    <string name="settings_group_manage">إدارة التطبيق</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
     <string name="settings_page_info">المعلومات</string>
     <string name="settings_page_controls">التسميات والأزرار</string>
@@ -730,6 +731,7 @@
     <string name="folder_authorized">المجلدات المسموح بها</string>
     <string name="folder_authorized_mark">مسموح به</string>
     <string name="folder_included_none">لا توجد مجلدات مسموح بها.</string>
+    <string name="folder_add">إضافة مجلد</string>
     <string name="folder_authorize">السماح بالمجلد</string>
     <string name="folder_authorize_title">إضافة إلى المجلدات المعروضة</string>
     <string name="folder_remove">إلغاء السماح</string>

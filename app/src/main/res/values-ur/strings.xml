@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">ناظر</string>
     <string name="settings_group_clips">نیویگیشن</string>
     <string name="settings_group_input">کنٹرول اور اشارے</string>
-    <string name="settings_group_files">ترمیم اور بیک اپ</string>
+    <string name="settings_group_files">ترمیم اور فائل تحفظ</string>
     <string name="settings_group_browse">فولڈرز</string>
     <string name="settings_group_start">آغاز</string>
+    <string name="settings_group_manage">ایپ کا انتظام</string>
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
     <string name="settings_page_info">معلومات</string>
     <string name="settings_page_controls">لیبلز اور بٹن</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">اجازت یافتہ فولڈرز</string>
     <string name="folder_authorized_mark">اجازت یافتہ</string>
     <string name="folder_included_none">کوئی اجازت یافتہ فولڈر نہیں۔</string>
+    <string name="folder_add">فولڈر شامل کریں</string>
     <string name="folder_authorize">فولڈر کی اجازت دیں</string>
     <string name="folder_authorize_title">دکھائے جانے والے فولڈرز میں شامل کریں</string>
     <string name="folder_remove">اجازت ہٹائیں</string>

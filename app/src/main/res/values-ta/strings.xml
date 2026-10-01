@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">காட்சியாளர்</string>
     <string name="settings_group_clips">வழிசெலுத்தல்</string>
     <string name="settings_group_input">கட்டுப்பாடுகளும் காட்டிகளும்</string>
-    <string name="settings_group_files">திருத்தமும் காப்புநகலும்</string>
+    <string name="settings_group_files">திருத்தமும் கோப்புப் பாதுகாப்பும்</string>
     <string name="settings_group_browse">கோப்புறைகள்</string>
     <string name="settings_group_start">தொடக்கம்</string>
+    <string name="settings_group_manage">பயன்பாட்டு மேலாண்மை</string>
     <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
     <string name="settings_page_info">தகவல்</string>
     <string name="settings_page_controls">லேபிள்கள் மற்றும் பொத்தான்கள்</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">அனுமதிக்கப்பட்ட கோப்புறைகள்</string>
     <string name="folder_authorized_mark">அனுமதிக்கப்பட்டது</string>
     <string name="folder_included_none">அனுமதிக்கப்பட்ட கோப்புறைகள் இல்லை.</string>
+    <string name="folder_add">கோப்புறையைச் சேர்</string>
     <string name="folder_authorize">கோப்புறையை அனுமதி</string>
     <string name="folder_authorize_title">காட்டப்படும் கோப்புறைகளில் சேர்</string>
     <string name="folder_remove">அனுமதியை நீக்கு</string>

@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">प्रदर्शक</string>
     <string name="settings_group_clips">नेविगेशन</string>
     <string name="settings_group_input">नियंत्रण और संकेतक</string>
-    <string name="settings_group_files">संपादन और बैकअप</string>
+    <string name="settings_group_files">संपादन और फ़ाइल सुरक्षा</string>
     <string name="settings_group_browse">फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
+    <string name="settings_group_manage">ऐप प्रबंधन</string>
     <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
     <string name="settings_page_info">जानकारी</string>
     <string name="settings_page_controls">लेबल और बटन</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">अनुमत फ़ोल्डर</string>
     <string name="folder_authorized_mark">अनुमत</string>
     <string name="folder_included_none">कोई अनुमत फ़ोल्डर नहीं।</string>
+    <string name="folder_add">फ़ोल्डर जोड़ें</string>
     <string name="folder_authorize">फ़ोल्डर को अनुमति दें</string>
     <string name="folder_authorize_title">दिखाए जाने वाले फ़ोल्डर में जोड़ें</string>
     <string name="folder_remove">अनुमति हटाएँ</string>

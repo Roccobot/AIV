@@ -350,9 +350,10 @@
     <string name="settings_group_viewer">Visualizador</string>
     <string name="settings_group_clips">Navegação</string>
     <string name="settings_group_input">Controles e indicadores</string>
-    <string name="settings_group_files">Edição e cópia de segurança</string>
+    <string name="settings_group_files">Edição e proteção de ficheiros</string>
     <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
+    <string name="settings_group_manage">Gestão da aplicação</string>
     <string name="settings_group_advanced">Recursos avançados</string>
     <string name="settings_page_info">Informações</string>
     <string name="settings_page_controls">Rótulos e botões</string>
@@ -676,6 +677,7 @@
     <string name="folder_authorized">Pastas autorizadas</string>
     <string name="folder_authorized_mark">autorizada</string>
     <string name="folder_included_none">Nenhuma pasta autorizada.</string>
+    <string name="folder_add">Adicionar pasta</string>
     <string name="folder_authorize">Autorizar pasta</string>
     <string name="folder_authorize_title">Adicionar às pastas exibidas</string>
     <string name="folder_remove">Remover autorização</string>

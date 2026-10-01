@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">వీక్షకం</string>
     <string name="settings_group_clips">నావిగేషన్</string>
     <string name="settings_group_input">నియంత్రణలు, సూచికలు</string>
-    <string name="settings_group_files">సవరణ, బ్యాకప్</string>
+    <string name="settings_group_files">సవరణ మరియు ఫైల్ రక్షణ</string>
     <string name="settings_group_browse">ఫోల్డర్‌లు</string>
     <string name="settings_group_start">ప్రారంభం</string>
+    <string name="settings_group_manage">యాప్ నిర్వహణ</string>
     <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
     <string name="settings_page_info">సమాచారం</string>
     <string name="settings_page_controls">లేబుల్‌లు మరియు బటన్‌లు</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">అనుమతించిన ఫోల్డర్లు</string>
     <string name="folder_authorized_mark">అనుమతించబడింది</string>
     <string name="folder_included_none">అనుమతించిన ఫోల్డర్లు లేవు.</string>
+    <string name="folder_add">ఫోల్డర్ జోడించు</string>
     <string name="folder_authorize">ఫోల్డర్‌ను అనుమతించు</string>
     <string name="folder_authorize_title">కనిపించే ఫోల్డర్లకు జోడించు</string>
     <string name="folder_remove">అనుమతిని తీసివేయి</string>

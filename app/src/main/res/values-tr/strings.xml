@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">Görüntüleyici</string>
     <string name="settings_group_clips">Gezinme</string>
     <string name="settings_group_input">Denetimler ve göstergeler</string>
-    <string name="settings_group_files">Düzenleme ve yedek</string>
+    <string name="settings_group_files">Düzenleme ve dosya koruması</string>
     <string name="settings_group_browse">Klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
+    <string name="settings_group_manage">Uygulama yönetimi</string>
     <string name="settings_group_advanced">Gelişmiş özellikler</string>
     <string name="settings_page_info">Bilgiler</string>
     <string name="settings_page_controls">Etiketler ve düğmeler</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">İzin verilen klasörler</string>
     <string name="folder_authorized_mark">izin verildi</string>
     <string name="folder_included_none">İzin verilen klasör yok.</string>
+    <string name="folder_add">Klasör ekle</string>
     <string name="folder_authorize">Klasöre izin ver</string>
     <string name="folder_authorize_title">Gösterilen klasörlere ekle</string>
     <string name="folder_remove">İzni kaldır</string>

@@ -1,7 +1,8 @@
 # Proposta di riordino delle impostazioni
 
-Confronto con AIV 3.13, letto il 1 ottobre 2026. Questa è una proposta da concordare;
-la release 3.14 corregge miniature e PSD e conserva la disposizione delle impostazioni.
+Confronto con AIV 3.13, letto il 1 ottobre 2026.
+**Applicata nella `3.27`** (decisione `d-settings-order`: Applica la proposta).
+La release 3.14 correggeva miniature e PSD e conservava la disposizione delle impostazioni.
 Puoi scegliere nel [documento di feedback](https://roccobot.github.io/AIV/feedback.html).
 La regola applicata è in [Rules.md](../Rules.md), sezione 'Dove va un'impostazione, e chi la deve trovare'.
 

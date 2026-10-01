@@ -286,9 +286,15 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   indipendentemente dalle due liste. La pressione lunga su una cartella apre 'Autorizza
   cartella' in modalità incluse e 'Nascondi' in modalità escluse; una voce già presente propone
   di rimuovere l'autorizzazione o 'Mostra'. Le righe segnano 'autorizzata' o 'nascosta'.
+- ⚠️⚠️ **Dalla `3.27`, il tocco lungo su un media entra in selezione multipla** (giro 3.24,
+  campo libero): stessa scheda della griglia/lista ([PickSheet]), non più il riquadro centrato
+  su un solo file. Indietro o 'Nessuno' azzerano; cambiando cartella la selezione si perde.
+  Il FAB della casa si nasconde mentre la scheda è aperta.
 - 'Autorizza cartella' apre 'Aggiungi alle cartelle visualizzate'. Una cartella senza media si
   può autorizzare, con l'avviso enfatizzato che apparirà quando conterrà un'immagine o un video.
   L'elenco nelle impostazioni permette di rimuovere ogni autorizzazione.
+- ⚠️⚠️ **Dalla `3.27`, in modalità incluse Impostazioni → Cartelle ha 'Aggiungi cartella'**
+  (resto di `3.13-03`): apre l'albero destinazione e autorizza la cartella scelta.
 - 'Nascondi' in modalità griglia e lista mantiene l'esclusione ricorsiva. La conferma offre
   'Applica a tutte le cartelle allo stesso livello' quando il genitore contiene almeno un'altra
   directory non nascosta: si contano anche le directory vuote sul disco. Una seconda conferma

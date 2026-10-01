@@ -320,9 +320,10 @@
     <string name="settings_group_viewer">ビューア</string>
     <string name="settings_group_clips">ナビゲーション</string>
     <string name="settings_group_input">操作と表示</string>
-    <string name="settings_group_files">編集とバックアップ</string>
+    <string name="settings_group_files">編集とファイル保護</string>
     <string name="settings_group_browse">フォルダー</string>
     <string name="settings_group_start">起動</string>
+    <string name="settings_group_manage">アプリの管理</string>
     <string name="settings_group_advanced">詳細機能</string>
     <string name="settings_page_info">情報</string>
     <string name="settings_page_controls">ラベルとボタン</string>
@@ -640,6 +641,7 @@
     <string name="folder_authorized">許可済みフォルダ</string>
     <string name="folder_authorized_mark">許可済み</string>
     <string name="folder_included_none">許可済みフォルダはありません。</string>
+    <string name="folder_add">フォルダを追加</string>
     <string name="folder_authorize">フォルダを許可</string>
     <string name="folder_authorize_title">表示するフォルダに追加</string>
     <string name="folder_remove">許可を取り消す</string>

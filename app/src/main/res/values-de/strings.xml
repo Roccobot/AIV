@@ -335,9 +335,10 @@
     <string name="settings_group_viewer">Betrachter</string>
     <string name="settings_group_clips">Navigation</string>
     <string name="settings_group_input">Bedienung und Anzeigen</string>
-    <string name="settings_group_files">Bearbeiten und Sicherung</string>
+    <string name="settings_group_files">Bearbeiten und Dateischutz</string>
     <string name="settings_group_browse">Ordner</string>
     <string name="settings_group_start">Start</string>
+    <string name="settings_group_manage">App-Verwaltung</string>
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
     <string name="settings_page_info">Informationen</string>
     <string name="settings_page_controls">Beschriftungen und Schaltflächen</string>
@@ -658,6 +659,7 @@
     <string name="folder_authorized">Zugelassene Ordner</string>
     <string name="folder_authorized_mark">zugelassen</string>
     <string name="folder_included_none">Keine zugelassenen Ordner.</string>
+    <string name="folder_add">Ordner hinzufügen</string>
     <string name="folder_authorize">Ordner zulassen</string>
     <string name="folder_authorize_title">Zu angezeigten Ordnern hinzufügen</string>
     <string name="folder_remove">Zulassung entfernen</string>

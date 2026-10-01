@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.MimeTypeMap
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlayArrow
@@ -37,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -103,6 +106,11 @@ fun TreeList(
     factFields: List<FactField>,
     onPath: (String?) -> Unit,
     onOpen: (List<Uri>, Int) -> Unit,
+    /**
+     * Dice alla casa se la selezione tiene impegnato il FAB, come [GridScreen.onBusy].
+     * Senza, il FAB resterebbe sopra [PickSheet] e ruberebbe i tocchi della scheda.
+     */
+    onBusy: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -119,23 +127,34 @@ fun TreeList(
      */
     var tick by remember { mutableIntStateOf(0) }
 
-    /** La riga su cui è aperto il riquadro delle azioni, e `null` quando non è aperto. */
-    var acting by remember { mutableStateOf<Tree.Spot?>(null) }
+    /**
+     * Selezione multipla come in griglia/lista (giro 3.24, campo libero): il tocco lungo su un
+     * media entra in selezione invece di aprire [ActionPad] su un solo file.
+     * ⚠️ **Chiave `here`**: cambiando cartella la selezione si azzera, come uscendo da una
+     * cartella in griglia. Senza, resterebbero URI di file che non si vedono più.
+     */
+    var chosen by rememberSaveable(path, stateSaver = UriSetSaver) {
+        mutableStateOf(emptySet())
+    }
+    val picking = chosen.isNotEmpty()
+    LaunchedEffect(picking) { onBusy(picking) }
+    DisposableEffect(Unit) { onDispose { onBusy(false) } }
+    BackHandler(enabled = picking) { chosen = emptySet() }
+
     var folderActing by remember { mutableStateOf<String?>(null) }
     folderActing?.let { SystemFolderDialog(it, selection, onSelectionChange) { folderActing = null } }
-    val menu = rememberMenuState()
     // ⚠️ Salvabile dalla `1.81`, come nelle altre due schermate che chiamano `FileJobDialogs`:
     // ruotando, la finestra aperta si chiudeva e con lei quello che si stava scrivendo. Che cosa
     // si salva e che cosa no sta su `FileJobSaver`.
     var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /**
-     * ⚠️ **Chiude il riquadro PRIMA di lanciare**, come nella griglia: il lavoro vive
-     * nell'ambito della schermata e sopravvive al riquadro che si chiude, mentre un riquadro
-     * lasciato aperto sopra un'operazione in corso invita a toccarla due volte.
+     * ⚠️ **Svuota la selezione PRIMA di lanciare**, come nella griglia: il lavoro vive
+     * nell'ambito della schermata e sopravvive alla scheda che si chiude, mentre una selezione
+     * lasciata aperta sopra un'operazione in corso invita a toccarla due volte.
      */
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
-        acting = null
+        chosen = emptySet()
         scope.launch {
             val out = work()
             // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
@@ -166,6 +185,15 @@ fun TreeList(
      */
     val scroll = rememberLazyListState()
 
+    /**
+     * Elenco della cartella corrente. Vive qui (non dentro la colonna) perché [PickSheet]
+     * e 'Tutti' devono vederlo anche fuori dal ramo che disegna le righe.
+     */
+    var spots by remember(here) { mutableStateOf<List<Tree.Spot>?>(null) }
+    LaunchedEffect(here, tick, showHidden, onlyPictures) {
+        spots = if (here == null) null else Tree.list(File(here), showHidden, onlyPictures)
+    }
+
     // ⚠️ **A tutta ALTEZZA e non solo a tutta larghezza**, dal 2026-08-31: serve al `weight`
     // del riquadro che centra 'la cartella è vuota' (vedi più sotto). Le due liste non
     // cambiano di una virgola, perché una `LazyColumn` senza peso prendeva già tutto lo
@@ -179,21 +207,6 @@ fun TreeList(
             val dir = remember(here) { File(here) }
             val up = remember(dir, roots) { Tree.parent(dir, roots) }
             PathBar(dir, up, roots, onPath)
-            /*
-             * ⚠️⚠️ **DUE CHIAVI CON DUE EFFETTI DIVERSI, e il `remember` ne ha una sola**:
-             * cambiando cartella l'elenco si **azzera** (`remember(here)`), o per un istante si
-             * vedrebbero le righe della cartella di prima sotto il nome della nuova; rileggendo
-             * dopo un'operazione **non** si azzera, o la lista lampeggerebbe vuota per il tempo
-             * di una lettura di directory.
-             * ⚠️ Era un `produceState` nella `0.84`, e quello ricorda **senza chiavi**: il valore
-             * sopravviveva al cambio di cartella, cioè proprio il caso che qui si vuole azzerare.
-             */
-            var spots by remember(here) { mutableStateOf<List<Tree.Spot>?>(null) }
-            // ⚠️ Le due opzioni sono CHIAVI dell'effetto: cambiandole la cartella si rilegge,
-            // che è l'unico modo perché il filtro si veda senza uscire e rientrare.
-            LaunchedEffect(here, tick, showHidden, onlyPictures) {
-                spots = Tree.list(File(here), showHidden, onlyPictures)
-            }
             when {
                 spots == null -> Unit
                 /*
@@ -225,26 +238,40 @@ fun TreeList(
                         modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
                     )
                 }
-                else -> Spots(spots!!, scroll, selection, onPath, onOpen) {
-                    if (it.folder) folderActing = it.path else { acting = it; menu.open() }
-                }
+                else -> Spots(
+                    spots = spots!!,
+                    scroll = scroll,
+                    selection = selection,
+                    chosen = chosen,
+                    picking = picking,
+                    onPath = onPath,
+                    onOpen = onOpen,
+                    onToggle = { uri -> chosen = chosen.toggleUri(uri) },
+                    onHoldMedia = { uri ->
+                        chosen = if (picking) chosen.toggleUri(uri) else setOf(uri)
+                    },
+                    onHoldFolder = { folderActing = it }
+                )
             }
         }
-    }
 
-    /*
-     * ⚠️⚠️ **`acting` NON SI AZZERA ALLA CHIUSURA, dalla `1.46`, e non è una perdita**: chi
-     * chiude un menu deve lasciarlo in scena per la durata dell'uscita, quindi la presenza la
-     * decide `menu.visible` e questo campo resta a dire **su che cosa** era aperto. Azzerandolo
-     * si tornerebbe al menu che sparisce di colpo, che è il difetto che l'uscita rimuove.
-     * ⚠️ Il costo è nullo: a menu chiuso la superficie non compone niente.
-     */
-    acting?.let { spot ->
-        SpotActions(
-            spot = spot,
-            binOn = binOn,
-            menu = menu,
-            onJob = { job = it; menu.close() }
+        /*
+         * ⚠️⚠️ **STESSA SCHEDA DELLA GRIGLIA**, non più [ActionPad] al centro su un file solo
+         * (giro 3.24, campo libero sulle cartelle di sistema): selezione multipla e azioni
+         * uguali a griglia/lista.
+         */
+        val mediaHere = remember(spots) {
+            spots.orEmpty().filter { it.media }.map { Uri.fromFile(it.file) }
+        }
+        PickSheet(
+            visible = picking,
+            actions = treePickActions(
+                chosen = chosen,
+                binOn = binOn,
+                mediaInFolder = mediaHere,
+                onChosen = { chosen = it },
+                onJob = { job = it }
+            )
         )
     }
     FileJobDialogs(job = job, fields = factFields, onClose = { job = null }, onRun = perform)
@@ -353,9 +380,13 @@ private fun Spots(
      */
     scroll: LazyListState,
     selection: FolderSelection,
+    chosen: Set<Uri>,
+    picking: Boolean,
     onPath: (String?) -> Unit,
     onOpen: (List<Uri>, Int) -> Unit,
-    onHold: (Tree.Spot) -> Unit
+    onToggle: (Uri) -> Unit,
+    onHoldMedia: (Uri) -> Unit,
+    onHoldFolder: (String) -> Unit
 ) {
     val context = LocalContext.current
     // ⚠️ Si ricava una volta per elenco e non a ogni tocco: la posizione di un file dentro i
@@ -365,6 +396,7 @@ private fun Spots(
 
     LazyColumn(state = scroll, contentPadding = PaddingValues(bottom = BELOW_FAB)) {
         items(items = spots, key = { it.path }) { spot ->
+            val uri = if (spot.media) Uri.fromFile(spot.file) else null
             SpotRow(
                 spot = spot,
                 /*
@@ -378,11 +410,16 @@ private fun Spots(
                     FolderMode.EXCLUDED -> selection.hidden(spot.path)
                 },
                 authorized = selection.mode == FolderMode.INCLUDED,
-                // Folder holds configure visibility; media holds keep the file operations.
-                onHold = if (spot.media || spot.folder) ({ onHold(spot) }) else null,
+                selected = uri != null && uri in chosen,
+                onHold = when {
+                    spot.folder -> ({ onHoldFolder(spot.path) })
+                    spot.media && uri != null -> ({ onHoldMedia(uri) })
+                    else -> null
+                },
                 onClick = {
                     when {
                         spot.folder -> onPath(spot.path)
+                        picking && uri != null -> onToggle(uri)
                         spot.media -> {
                             val at = reels.indexOfFirst { it.path == spot.path }
                             if (at >= 0) onOpen(addresses, at)
@@ -400,6 +437,7 @@ private fun SpotRow(
     spot: Tree.Spot,
     marked: Boolean,
     authorized: Boolean,
+    selected: Boolean,
     onHold: (() -> Unit)?,
     onClick: () -> Unit
 ) {
@@ -417,6 +455,12 @@ private fun SpotRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(
+                if (selected) Modifier.background(
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    RoundedCornerShape(8.dp)
+                ) else Modifier
+            )
             .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = hold)
             .padding(vertical = ROW_PAD, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -458,66 +502,84 @@ private fun SpotRow(
 }
 
 /**
- * Le sei azioni su un file toccato a lungo nella vista ad albero.
+ * Azioni della selezione multipla in Cartelle di sistema: stessa scheda e stesso ordine
+ * della griglia ([PickSheet]), su una lista di URI `file://`.
  *
- * ⚠️⚠️ **È IL RIQUADRO DELLA SELEZIONE, lo stesso**: [ActionPad] con le stesse icone, lo
- * stesso ordine e le stesse etichette che si vedono nella griglia e nel visualizzatore. Chi
- * ha imparato dov'è 'sposta' lo sa anche qui, e un secondo riquadro scritto per questa
- * schermata sarebbe divergente al primo ritocco.
- * ⚠️ **Su UN file solo**, mentre nella griglia le stesse voci lavorano su una selezione: la
- * macchina sotto ([FileJob]) prende comunque una lista, quindi qui la lista ha un elemento.
- * Una selezione multipla in questa vista si può aggiungere quando servirà, e passerà da qui.
- * ⚠️ **Al centro dello schermo**, come il menu del visualizzatore e non come quello della
- * griglia (che è sopra il suo FAB): qui non c'è nessun FAB da cui il riquadro
- * possa nascere, perché il gesto parte da una riga qualunque dell'elenco.
+ * ⚠️⚠️ **Sostituisce il riquadro centrato su UN file** (giro 3.24, campo libero): il tocco
+ * lungo entra in selezione come in griglia/lista, e le azioni lavorano su tutti i scelti.
  */
 @Composable
-private fun SpotActions(
-    spot: Tree.Spot,
+private fun treePickActions(
+    chosen: Set<Uri>,
     binOn: Boolean,
-    /** Lo stato del menu, che vive nella schermata: vedi la nota accanto ad `acting`. */
-    menu: MenuState,
+    mediaInFolder: List<Uri>,
+    onChosen: (Set<Uri>) -> Unit,
     onJob: (FileJob) -> Unit
-) {
+): List<PadAction> {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val one = remember(spot.path) { listOf(Uri.fromFile(spot.file)) }
-    MenuShell(state = menu, position = MenuInWindow) {
-        ActionPad(
-            actions = listOf(
-                PadAction(
-                    key = PadKey.COPY,
-                    icon = Glyphs.FolderPair,
-                    label = R.string.menu_copy_here,
-                    // ⚠️ Il tocco lungo duplica dove sei, come in griglia dalla `0.79`:
-                    // copiare chiede dove, duplicare no.
-                    onHold = { onJob(FileJob.Duplicate(one)) },
-                    holdLabel = R.string.pick_duplicate
-                ) { onJob(FileJob.Transfer(one, move = false)) },
-                PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
-                    onJob(FileJob.Transfer(one, move = true))
-                },
-                PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
-                    menu.close()
-                    scope.launch { ImageActions.shareMany(context, one) }
-                },
-                PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
-                    onJob(FileJob.Rename(one))
-                },
-                PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete) {
-                    // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
-                    // la conferma: vedi [FileJob.Delete].
-                    onJob(FileJob.Delete(one, forGood = !binOn))
-                },
-                PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
-                    onJob(FileJob.Facts(one))
-                }
-                // ⚠️ Lo stesso ordine del riquadro del visualizzatore, e non uno suo: sono lo
-                // stesso riquadro in due schermate, e dalla `1.56` lo dice una lista sola.
-            ).inOrder(LocalPadLook.current.menu)
-        )
-    }
+    val res = LocalResources.current
+    val list = remember(chosen) { chosen.toList() }
+    return listOf(
+        PadAction(
+            key = PadKey.COPY,
+            icon = Glyphs.FolderPair,
+            label = R.string.menu_copy_here,
+            onHold = { onJob(FileJob.Duplicate(list)) },
+            holdLabel = R.string.pick_duplicate
+        ) { onJob(FileJob.Transfer(list, move = false)) },
+        PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
+            onJob(FileJob.Transfer(list, move = true))
+        },
+        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
+            val now = list
+            scope.launch { ImageActions.shareMany(context, now) }
+        },
+        PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
+            onJob(FileJob.Rename(list))
+        },
+        PadAction(
+            key = PadKey.DELETE,
+            icon = Glyphs.PickDelete,
+            label = R.string.pick_delete,
+            onHold = if (!binOn) null else {
+                { onJob(FileJob.Delete(list, forGood = true)) }
+            },
+            holdLabel = if (!binOn) null else R.string.pick_forever
+        ) {
+            onJob(FileJob.Delete(list, forGood = !binOn))
+        },
+        PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
+            onJob(FileJob.Facts(list))
+        },
+        PadAction(PadKey.LIST, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+            val now = list
+            scope.launch {
+                ImageActions.copyNames(context, now, null)
+                Notices.say(res.getString(R.string.pick_list_done))
+            }
+        },
+        PadAction(
+            key = PadKey.ALL,
+            icon = Glyphs.PickAll,
+            label = R.string.pick_all_short,
+            onHold = { onChosen(emptySet()) },
+            holdLabel = R.string.pick_none
+        ) {
+            onChosen(mediaInFolder.toSet())
+        },
+        PadAction(PadKey.NONE, Glyphs.PickNone, R.string.pick_none) {
+            onChosen(emptySet())
+        }
+        PadAction(PadKey.INVERT, Glyphs.PickInvert, R.string.pick_invert) {
+            onChosen(mediaInFolder.toSet() - chosen)
+        }
+    ).inOrder(LocalPadLook.current.pick)
 }
+
+/** Aggiunge o toglie un URI dalla selezione, come in griglia. */
+private fun Set<Uri>.toggleUri(uri: Uri): Set<Uri> =
+    if (uri in this) this - uri else this + uri
 
 /**
  * Il quadratino di sinistra: la miniatura se è un'immagine o un filmato, il simbolo se no.

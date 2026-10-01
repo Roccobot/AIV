@@ -306,6 +306,8 @@ fun FolderScreen(
 
     /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul FAB. */
     var sizing by remember { mutableStateOf(false) }
+    /** Selezione multipla in Cartelle di sistema: nasconde il FAB sotto [PickSheet]. */
+    var treeBusy by remember { mutableStateOf(false) }
 
     /**
      * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
@@ -600,7 +602,8 @@ fun FolderScreen(
                         onlyPictures = treePictures,
                         factFields = factFields,
                         onPath = onTreePath,
-                        onOpen = onTreeOpen
+                        onOpen = onTreeOpen,
+                        onBusy = { treeBusy = it }
                     )
 
                 folders == null -> CircularProgressIndicator(
@@ -642,7 +645,9 @@ fun FolderScreen(
         // ⚠️ Il FAB manca quando si sta scegliendo la cartella dell'avvio: là dentro
         // ci sono le impostazioni, da cui si è arrivati, e un giro chiuso non serve a
         // nessuno.
-        if (home) {
+        // ⚠️ E manca durante la selezione in Cartelle di sistema: [PickSheet] prende il
+        // suo posto, come il FAB di selezione in griglia.
+        if (home && !treeBusy) {
             /*
              * ⚠️⚠️ **LA SFUMATURA CHE INGHIOTTE QUELLO CHE STA SOTTO, dalla 0.77** (richiesta
              * dell'utente: *dalla coordinata Y in cui comincia il FAB, una piccola

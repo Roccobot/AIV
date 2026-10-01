@@ -365,9 +365,10 @@
     <string name="settings_group_viewer">Перегляд</string>
     <string name="settings_group_clips">Навігація</string>
     <string name="settings_group_input">Керування та індикатори</string>
-    <string name="settings_group_files">Редагування та резервна копія</string>
+    <string name="settings_group_files">Редагування та захист файлів</string>
     <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
+    <string name="settings_group_manage">Керування застосунком</string>
     <string name="settings_group_advanced">Розширені функції</string>
     <string name="settings_page_info">Інформація</string>
     <string name="settings_page_controls">Підписи та кнопки</string>
@@ -694,6 +695,7 @@
     <string name="folder_authorized">Дозволені папки</string>
     <string name="folder_authorized_mark">дозволена</string>
     <string name="folder_included_none">Немає дозволених папок.</string>
+    <string name="folder_add">Додати теку</string>
     <string name="folder_authorize">Дозволити папку</string>
     <string name="folder_authorize_title">Додати до відображуваних папок</string>
     <string name="folder_remove">Скасувати дозвіл</string>

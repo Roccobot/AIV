@@ -320,9 +320,10 @@
     <string name="settings_group_viewer">查看器</string>
     <string name="settings_group_clips">导航</string>
     <string name="settings_group_input">操作与指示</string>
-    <string name="settings_group_files">编辑与备份</string>
+    <string name="settings_group_files">编辑与文件保护</string>
     <string name="settings_group_browse">文件夹</string>
     <string name="settings_group_start">启动</string>
+    <string name="settings_group_manage">应用管理</string>
     <string name="settings_group_advanced">高级功能</string>
     <string name="settings_page_info">信息</string>
     <string name="settings_page_controls">标签与按钮</string>
@@ -640,6 +641,7 @@
     <string name="folder_authorized">已授权的文件夹</string>
     <string name="folder_authorized_mark">已授权</string>
     <string name="folder_included_none">没有已授权的文件夹。</string>
+    <string name="folder_add">添加文件夹</string>
     <string name="folder_authorize">授权文件夹</string>
     <string name="folder_authorize_title">添加到显示的文件夹</string>
     <string name="folder_remove">移除授权</string>
