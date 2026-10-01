@@ -13,7 +13,9 @@ Gli asset condivisi vivono in `assets/`: favicon SVG e PNG, Roboto e relativa li
 La favicon comune è `assets/feedback-favicon.svg`, in `#43B59E`; il nome conserva il link
 consegnato all'utente. Il PNG trasparente è l'alternativa per i browser meno recenti.
 CSS e JavaScript portano il nome della pagina a cui appartengono. `feedback-format.js`
-gestisce selezione, scorciatoie e anteprima Markdown dei commenti senza interpretare HTML.
+gestisce gli editor visivi dei commenti, selezione e scorciatoie. I campi mostrano la
+formattazione direttamente, mentre salvataggi ed esportazioni conservano Markdown.
+I commenti esistenti sono ripristinati senza interpretare HTML e gli incolli inseriscono testo semplice.
 Le schermate dell'app vivono in `schermate/`; `anteprima.jpg` è l'immagine dei link condivisi.
 
 Dalla radice del repository:

@@ -618,6 +618,7 @@ document.addEventListener("visibilitychange", () => {
 function controls(disabled) {
   for (const control of document.querySelectorAll("button,input,textarea"))
     control.disabled = disabled;
+  window.feedbackFormatting?.setDisabled(disabled);
 }
 controls(true);
 (async () => {

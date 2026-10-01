@@ -480,25 +480,51 @@ body[data-feedback] footer {
   font-size: 14px;
   font-weight: 400;
 }
-.markdown-preview {
+textarea[hidden] {
+  display: none;
+}
+.rich-editor {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 200px;
+  height: 200px;
+  resize: vertical;
+  overflow: auto;
   border: 1px solid #91a697;
   border-radius: 8px;
-  padding: 12px;
-  margin-top: 10px;
-  overflow-wrap: anywhere;
-}
-.preview-caption {
-  margin: 0 0 6px;
-  font-size: 12px;
-  font-weight: 400;
-}
-.formatted-content {
+  padding: 10px;
+  font: inherit;
   font-size: 18px;
   font-weight: 400;
+  line-height: 1.5;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #fffefc;
+  color: #173b2c;
+}
+.extra .rich-editor {
+  min-height: 254px;
+  height: 254px;
+}
+.rich-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #65756d;
+  pointer-events: none;
+}
+.rich-editor:focus-visible {
+  outline: 3px solid #13896f;
+  outline-offset: 3px;
+}
+.rich-editor[aria-disabled="true"] {
+  opacity: 0.55;
 }
 @media (prefers-color-scheme: dark) {
-  .markdown-preview {
+  .rich-editor {
+    background: #1e2523;
+    color: #e3eee8;
     border-color: #718c7e;
+  }
+  .rich-editor:empty::before {
+    color: #b6c8bd;
   }
 }

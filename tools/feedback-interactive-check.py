@@ -92,18 +92,18 @@ def check(path):
             }''')
             navigation.locator('#previous-card').tap()
             aligned(navigation.locator('.test').last)
-            navigation.locator('.test').nth(0).locator('.comment').fill('Solo commento')
+            navigation.locator('.test').nth(0).locator('.rich-editor').fill('Solo commento')
             navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
-            navigation.locator('.test').nth(3).locator('.comment').fill('Più in basso')
+            navigation.locator('.test').nth(3).locator('.rich-editor').fill('Più in basso')
             navigation.locator('#next-card').tap()
             navigation.locator('#first-empty').tap()
             aligned(navigation.locator('.test').nth(2))
             # Fill through normal input handlers; navigation must update without a reload.
-            for field in navigation.locator('.test .comment,.decision textarea').all():
+            for field in navigation.locator('.test .rich-editor,.decision .rich-editor').all():
                 field.fill('Risposta di verifica')
             expect(navigation.locator('#first-empty')).to_be_hidden()
             navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
-            navigation.locator('.test').nth(1).locator('.comment').fill('')
+            navigation.locator('.test').nth(1).locator('.rich-editor').fill('')
             navigation.locator('#next-card').tap()
             expect(navigation.locator('#first-empty')).to_be_visible()
             navigation.locator('#first-empty').tap()
@@ -120,39 +120,63 @@ def check(path):
             formatting.on('pageerror', lambda e: errors.append(str(e)))
             formatting.goto(url)
             expect(formatting.locator('#save')).to_be_enabled()
-            field = formatting.locator('.test').first.locator('.comment')
+            card = formatting.locator('.test').first
+            field = card.locator('.rich-editor')
+            stored = card.locator('.comment')
+            def fill_plain(field, text):
+                # Clear first so a new scenario does not inherit the previous selection's style.
+                field.fill('')
+                field.fill(text)
             def select(field, start, end):
-                field.evaluate('(area, range)=>{area.focus();area.setSelectionRange(...range)}', [start,end])
-            field.fill('prima abc dopo')
+                field.evaluate("""(box, offsets) => {
+                    box.focus();
+                    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+                    const points = [];
+                    let offset = 0, node;
+                    while ((node = walker.nextNode())) {
+                        for (const [index, target] of offsets.entries()) {
+                            if (!points[index] && target <= offset + node.length)
+                                points[index] = [node, target - offset];
+                        }
+                        offset += node.length;
+                    }
+                    const range = document.createRange();
+                    range.setStart(...points[0]); range.setEnd(...points[1]);
+                    getSelection().removeAllRanges(); getSelection().addRange(range);
+                }""", [start,end])
+            expect(formatting.locator('.markdown-preview,.preview-caption')).to_have_count(0)
+            expect(stored).to_be_hidden()
+            fill_plain(field, 'prima abc dopo')
             select(field,6,9)
             field.press('Meta+b')
-            expect(field).to_have_value('prima **abc** dopo')
-            expect(formatting.locator('.test').first.locator('.markdown-preview strong')).to_have_text('abc')
+            expect(stored).to_have_value('prima **abc** dopo')
+            expect(field.locator('b,strong')).to_have_text('abc')
             field.press('Meta+i')
-            expect(field).to_have_value('prima ***abc*** dopo')
-            expect(formatting.locator('.test').first.locator('.markdown-preview strong em')).to_have_text('abc')
+            expect(stored).to_have_value('prima ***abc*** dopo')
+            expect(field.locator('i,em')).to_have_text('abc')
             field.press('Meta+i')
-            expect(field).to_have_value('prima **abc** dopo')
+            expect(stored).to_have_value('prima **abc** dopo')
             field.press('Meta+b')
-            expect(field).to_have_value('prima abc dopo')
-            field.fill('abc')
+            expect(stored).to_have_value('prima abc dopo')
+            fill_plain(field, 'abc')
             select(field,0,3)
-            formatting.locator('.test').first.locator('[data-format="bold"]').click()
-            expect(field).to_have_value('**abc**')
+            card.locator('[data-format="bold"]').click()
+            expect(stored).to_have_value('**abc**')
             field.press('Control+z')
-            expect(field).to_have_value('abc')
+            expect(stored).to_have_value('abc')
             select(field,0,3)
             field.press('Control+b')
-            expect(field).to_have_value('**abc**')
-            select(field,2,5)
+            expect(stored).to_have_value('**abc**')
             field.press('Control+b')
-            expect(field).to_have_value('abc')
+            expect(stored).to_have_value('abc')
             select(field,0,3)
             destination = url.rsplit('/',1)[0]+'/tablet.html'
             formatting.once('dialog',lambda dialog:dialog.accept(destination))
             field.press('Meta+k')
-            expect(field).to_have_value('[abc]('+destination+')')
-            link = formatting.locator('.test').first.locator('.markdown-preview a')
+            expected_comment = '[abc]('+destination+')'
+            expect(stored).to_have_value(expected_comment)
+            link = field.locator('a')
+            expect(link).to_have_text('abc')
             assert link.get_attribute('target')=='_blank' and 'noopener' in link.get_attribute('rel')
             with formatting.expect_popup() as pending:
                 link.click()
@@ -161,51 +185,49 @@ def check(path):
             assert linked.url==destination
             assert linked.evaluate('window.opener === null')
             linked.close()
-            field.fill('abc')
+            fill_plain(field, 'abc')
             select(field,0,3)
             formatting.once('dialog',lambda dialog:dialog.dismiss())
             field.press('Control+k')
-            expect(field).to_have_value('abc')
-            select(field,0,3)
+            expect(stored).to_have_value('abc')
             formatting.once('dialog',lambda dialog:dialog.accept('javascript:alert(1)'))
             field.press('Control+k')
-            expect(field).to_have_value('abc')
+            expect(stored).to_have_value('abc')
             expect(formatting.locator('#action-message')).to_contain_text('http:// o https:// valido')
-            field.fill('**<img src=x onerror="window.injected=true">** [pericoloso](javascript:alert(1))')
-            preview = formatting.locator('.test').first.locator('.markdown-preview')
-            expect(preview.locator('img,script,a')).to_have_count(0)
+            # Literal typed text stays literal; imported Markdown restores visual formatting.
+            literal = '**<img src=x onerror="window.injected=true">** [pericoloso](javascript:alert(1))'
+            fill_plain(field, literal)
+            expect(field.locator('img,script,a,b,strong')).to_have_count(0)
             assert formatting.evaluate('window.injected === undefined')
-            field.fill('abc')
+            fill_plain(field, 'abc')
             select(field,0,3)
             formatting.once('dialog',lambda dialog:dialog.accept(destination))
-            formatting.locator('.test').first.locator('[data-format="link"]').click()
-            expected_comment = '[abc]('+destination+')'
-            expect(field).to_have_value(expected_comment)
-            decision_field = formatting.locator('.decision').first.locator('textarea')
-            decision_field.fill('scelta')
+            card.locator('[data-format="link"]').click()
+            expect(stored).to_have_value(expected_comment)
+            decision_card = formatting.locator('.decision').first
+            decision_field = decision_card.locator('.rich-editor')
+            fill_plain(decision_field, 'scelta')
             select(decision_field,0,6)
             decision_field.press('Control+i')
-            expect(decision_field).to_have_value('*scelta*')
-            expect(formatting.locator('.decision').first.locator('.markdown-preview em')).to_have_text('scelta')
-            notes_field = formatting.locator('#notes')
-            notes_field.fill('note')
+            expect(decision_card.locator('textarea')).to_have_value('*scelta*')
+            expect(decision_field.locator('i,em')).to_have_text('scelta')
+            notes_field = formatting.locator('.extra .rich-editor')
+            fill_plain(notes_field, 'note')
             select(notes_field,0,4)
             formatting.locator('.extra [data-format="bold"]').click()
-            expect(notes_field).to_have_value('**note**')
-            select(notes_field,2,6)
+            expect(formatting.locator('#notes')).to_have_value('**note**')
             formatting.locator('.extra [data-format="bold"]').click()
-            expect(notes_field).to_have_value('note')
-            select(notes_field,0,4)
+            expect(formatting.locator('#notes')).to_have_value('note')
             formatting.locator('.extra [data-format="italic"]').click()
-            expect(notes_field).to_have_value('*note*')
-            formatting.locator('#save').click()
+            expect(formatting.locator('#notes')).to_have_value('*note*')
+            formatting.locator('#floating-save').click()
             expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
             formatting.reload()
             expect(formatting.locator('#save')).to_be_enabled()
-            expect(field).to_have_value(expected_comment)
-            expect(formatting.locator('.test').first.locator('.markdown-preview a')).to_have_text('abc')
-            expect(formatting.locator('.decision').first.locator('.markdown-preview em')).to_have_text('scelta')
-            expect(formatting.locator('.extra .markdown-preview em')).to_have_text('note')
+            expect(stored).to_have_value(expected_comment)
+            expect(field.locator('a')).to_have_text('abc')
+            expect(decision_field.locator('em')).to_have_text('scelta')
+            expect(notes_field.locator('em')).to_have_text('note')
             formatting.locator('#copy').click()
             expect(formatting.locator('#action-message')).to_contain_text('Riepilogo copiato')
             formatted_summary = formatting.evaluate('navigator.clipboard.readText()')
@@ -218,12 +240,96 @@ def check(path):
             assert formatted_data['entries'][data['items'][0]['id']]['comment']==expected_comment
             assert formatted_data['decisions'][data['decisions'][0]['id']]['comment']=='*scelta*'
             assert formatted_data['notes']=='*note*'
+            # Old drafts containing formatted text, literal Markdown characters and line breaks.
+            restored='**grassetto** e *corsivo*\n[link]('+destination+')\nPercorso C:\\foto, \\*letterale\\* <img src=x>'
+            formatted_data['entries'][data['items'][0]['id']]['comment']=restored
+            formatted_export.write_text(json.dumps(formatted_data))
             formatting.locator('#import').set_input_files(str(formatted_export))
             expect(formatting.locator('#action-message')).to_contain_text('JSON importato')
-            expect(formatting.locator('.extra .markdown-preview em')).to_have_text('note')
+            expect(stored).to_have_value(restored)
+            expect(field.locator('strong')).to_have_text('grassetto')
+            expect(field.locator('em')).to_have_text('corsivo')
+            expect(field.locator('a')).to_have_text('link')
+            expect(field.locator('img')).to_have_count(0)
+            expect(field).to_contain_text('*letterale* <img src=x>')
+            expect(notes_field.locator('em')).to_have_text('note')
+            # Editing after import, Enter, undo/redo and safe paste remain in the same visible field.
+            fill_plain(field, 'riga uno')
+            field.press('End')
+            field.press('Enter')
+            field.press('Space')
+            field.press('Backspace')
+            field.press('x')
+            expect(stored).to_have_value('riga uno\nx')
+            field.press('Control+z')
+            field.press('Control+Shift+z')
+            expect(stored).to_have_value('riga uno\nx')
+            fill_plain(field, 'riga')
+            field.press('End')
+            field.press('Shift+Enter')
+            expect(stored).to_have_value('riga\n')
+            field.press('Shift+Enter')
+            expect(stored).to_have_value('riga\n\n')
+            field.press('x')
+            expect(stored).to_have_value('riga\n\nx')
+            fill_plain(field, 'prima')
+            field.press('End')
+            field.press('Enter')
+            field.press('Enter')
+            field.press('Enter')
+            field.press('x')
+            expect(stored).to_have_value('prima\n\n\nx')
+            formatting.locator('#save').click()
+            expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
+            formatting.reload()
+            expect(stored).to_have_value('prima\n\n\nx')
+            expect(field).to_have_text('prima\n\n\nx')
+            fill_plain(field, 'abc')
+            select(field,3,3)
+            card.locator('[data-format="bold"]').click()
+            field.press('x')
+            expect(stored).to_have_value('abc**x**')
+            card.locator('[data-format="bold"]').click()
+            field.press('y')
+            expect(stored).to_have_value('abc**x**y')
+            fill_plain(field, 'abc ')
+            select(field,4,4)
+            formatting.once('dialog',lambda dialog:dialog.accept(destination))
+            field.press('Meta+k')
+            expect(stored).to_have_value('abc [testo del link]('+destination+')')
+            expect(field.locator('a')).to_have_text('testo del link')
+            fill_plain(field, 'inizio ')
+            field.press('End')
+            field.evaluate("""box => {
+                const clipboard = new DataTransfer();
+                clipboard.setData('text/plain', 'testo <img src=x> *semplice*');
+                clipboard.setData('text/html', '<img src=x onerror="window.injected=true"><b>testo</b>');
+                box.dispatchEvent(new ClipboardEvent('paste', {bubbles:true, cancelable:true, clipboardData:clipboard}));
+            }""")
+            expect(field).to_have_text('inizio testo <img src=x> *semplice*')
+            expect(field.locator('img,b,strong')).to_have_count(0)
+            formatting.locator('#save').click()
+            expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
+            formatting.reload()
+            expect(field).to_have_text('inizio testo <img src=x> *semplice*')
             for width in [320,390,800,1280]:
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                for editor in formatting.locator('.rich-editor').all():
+                    assert editor.bounding_box()['height'] >= 200
+                    assert editor.evaluate('(el)=>getComputedStyle(el).resize') == 'vertical'
+            touch_context = browser.new_context(is_mobile=True,has_touch=True,viewport={'width':390,'height':844})
+            touch = touch_context.new_page()
+            touch.on('pageerror', lambda e: errors.append(str(e)))
+            touch.goto(url)
+            expect(touch.locator('#save')).to_be_enabled()
+            touch_field = touch.locator('.rich-editor').first
+            touch_field.fill('mobile')
+            select(touch_field,0,6)
+            touch.locator('.test').first.locator('[data-format="bold"]').tap()
+            expect(touch.locator('.comment').first).to_have_value('**mobile**')
+            expect(touch_field.locator('b,strong')).to_have_text('mobile')
+            touch_context.close()
             formatting_context.close()
             page.on('pageerror', lambda e: errors.append(str(e)))
             page.goto(url)
@@ -251,13 +357,13 @@ def check(path):
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_text('Non provato')
             expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
-            first.locator('.comment').fill('Risposta senza esito')
+            first.locator('.rich-editor').fill('Risposta senza esito')
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
-            first.locator('.comment').fill('')
+            first.locator('.rich-editor').fill('')
             expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
             for theme in ['light', 'dark']:
                 page.emulate_media(color_scheme=theme)
-                first.locator('.comment').fill('Solo commento, senza approvazione')
+                first.locator('.rich-editor').fill('Solo commento, senza approvazione')
                 neutral = first.evaluate('(el)=>getComputedStyle(el).backgroundColor')
                 backgrounds = []
                 for status in ['Tutto OK', 'Accettabile', 'Non approvato']:
@@ -276,9 +382,9 @@ def check(path):
                     button.click()
                     assert first.evaluate('(el)=>getComputedStyle(el).backgroundColor') == neutral
                 assert len(set(backgrounds)) == 3, 'The three outcomes use the same card color.'
-                first.locator('.comment').fill('')
+                first.locator('.rich-editor').fill('')
             page.emulate_media(color_scheme='light')
-            for field in page.locator('textarea,input:not([type="file"])').all():
+            for field in page.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
                 assert field.evaluate('(el)=>parseFloat(getComputedStyle(el).fontSize)') >= 18
             for href in ['tablet.html', 'settings.html']:
@@ -295,8 +401,8 @@ def check(path):
                 assert 'noopener' in link.get_attribute('rel')
 
             first.locator('[data-status="Accettabile"]').click()
-            first.locator('.comment').fill('Commento di verifica: <script>test</script>')
-            page.locator('#notes').fill('Osservazioni libere di verifica')
+            first.locator('.rich-editor').fill('Commento di verifica: <script>test</script>')
+            page.locator('.extra .rich-editor').fill('Osservazioni libere di verifica')
             page.locator('#device').fill('Dispositivo di verifica')
             page.locator('.decision').first.locator('button').first.click()
             image = Path(temporary) / 'feedback.png'
@@ -309,9 +415,9 @@ def check(path):
             attachment_only.locator('.image-list button').click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             indication_only = page.locator('.decision').nth(1)
-            indication_only.locator('textarea').fill('Solo commento')
+            indication_only.locator('.rich-editor').fill('Solo commento')
             expect(indication_only).to_have_class(re.compile(r'\bhas-response\b'))
-            indication_only.locator('textarea').fill('')
+            indication_only.locator('.rich-editor').fill('')
             expect(indication_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.images').set_input_files(str(image))
             expect(first.locator('.image-list img')).to_have_count(1)
@@ -449,11 +555,11 @@ def check(path):
                 second.set_viewport_size({'width': width, 'height': 900})
                 assert second.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Scorrimento orizzontale a {width}px.'
             second.emulate_media(color_scheme='dark')
-            second.locator('.test').first.locator('.comment').fill('Solo commento')
+            second.locator('.test').first.locator('.rich-editor').fill('Solo commento')
             expect(second.locator('.test').first).to_have_class(re.compile(r'\bhas-response\b'))
-            second.locator('.decision').first.locator('textarea').fill('Solo indicazione')
+            second.locator('.decision').first.locator('.rich-editor').fill('Solo indicazione')
             expect(second.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
-            for field in second.locator('textarea,input:not([type="file"])').all():
+            for field in second.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
 
             second.screenshot(path='/tmp/aiv-feedback-dark.png', full_page=False)
