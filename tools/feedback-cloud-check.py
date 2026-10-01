@@ -29,6 +29,14 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     errors=[]
     def context():
         ctx = browser.new_context(permissions=['clipboard-read','clipboard-write'])
+        # Emulate the weak ETags produced by edge compression; HEAD can stay strong.
+        def compressed(route):
+            response=route.fetch()
+            headers=dict(response.headers)
+            if route.request.method in ['GET','PUT'] and headers.get('etag'):
+                headers['etag']='W/'+headers['etag']
+            route.fulfill(response=response,headers=headers)
+        ctx.route('**/api/feedback',compressed)
         ctx.add_cookies([{'name':'__Host-aiv-session','value':session,'url':'https://'+urlparse(origin).hostname+'/','secure':True,'httpOnly':True,'sameSite':'Lax'}])
         return ctx
     def page(ctx):
@@ -59,6 +67,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     first.locator('#tablet').fill('Tablet di prova, Android 15', timeout=2000)
     first.locator('.rich-editor').first.fill('Da telefono')
     save(first)
+    assert first.evaluate('window.feedbackRemote.hasUpdates()') is False
     first.locator('#send').click()
     expect(first.locator('#summary')).to_have_value(re.compile('Telefono: Telefono di prova, Android 13'))
     expect(first.locator('#summary')).to_have_value(re.compile('Tablet: Tablet di prova, Android 15'))
@@ -80,7 +89,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     second.locator('.rich-editor').first.fill('Ultima versione sul tablet')
     save(second)
     first.locator('#save').click()
-    expect(first.locator('#saved')).to_contain_text('altro dispositivo')
+    expect(first.locator('#saved')).to_contain_text('versione salvata nel cloud è cambiata')
     expect(first.locator('.rich-editor').first).to_have_text('Modifica contemporanea')
     first_context.close()
     # Files go to storage once; metadata saves do not re-upload them.

@@ -11,6 +11,8 @@
     extra:{images:(draft.extra?.images || []).map(file=>({...file}))}
   });
   let etag = null;
+  // Compare the saved revision, independent of HTTP compression at the edge.
+  const revisionTag = response => response.headers.get('ETag')?.replace(/^W\//,'') || null;
   async function request(path, options = {}) {
     const response = await fetch(path,{credentials:'same-origin',cache:'no-store',...options});
     if (!response.ok) {
@@ -38,7 +40,7 @@
   }
   async function load(validate = value => value) {
     const response = await request(config.endpoint);
-    const loadedEtag = response.headers.get('ETag');
+    const loadedEtag = revisionTag(response);
     const draft = await response.json();
     if (draft.draft === null) { etag = loadedEtag; return null; }
     await parallel(files(draft),async file => {
@@ -76,13 +78,13 @@
       delete file.data;
     });
     const response = await request(config.endpoint,{method:'PUT',headers:{'Content-Type':'application/json','If-Match':etag},body:JSON.stringify(wire)});
-    etag = response.headers.get('ETag');
+    etag = revisionTag(response);
     const active = new Set(files(snapshot).map(file=>file.data));
     for (const data of uploads.keys()) if (!active.has(data)) uploads.delete(data);
     return response.json();
   }
   async function hasUpdates() {
-    return (await request(config.endpoint,{method:'HEAD'})).headers.get('ETag') !== etag;
+    return revisionTag(await request(config.endpoint,{method:'HEAD'})) !== etag;
   }
   document.querySelector('#persistence-info').textContent = 'Le risposte e gli allegati si salvano nel cloud privato: puoi continuare da un altro dispositivo accedendo con GitHub. Gli allegati restano originali, massimo 8 MB ciascuno e 20 MB totali. Attendi la conferma prima di chiudere; se manca la connessione, esporta il JSON per conservare le modifiche.';
   document.querySelector('#send-info').textContent = 'Invia prepara il riepilogo da consegnare in chat. Il salvataggio cloud conserva la bozza; non invia automaticamente il giro di feedback all\'agente.';

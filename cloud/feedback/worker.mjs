@@ -101,9 +101,11 @@ async function handle(request, env) {
       }
       const match = request.headers.get('If-Match');
       if (!match) return json({error:'Versione del documento obbligatoria.'},428);
+      // Compression may weaken an HTTP ETag without changing the database revision.
+      const revisionTag = match.replace(/^W\//,'');
       draft.updated = new Date().toISOString();
-      const object = await store.put(root(env)+'current.json',JSON.stringify(draft),{onlyIf:match === '"empty"' ? {etagDoesNotMatch:'*'} : {etagMatches:match.replace(/^"|"$/g,'')},httpMetadata:{contentType:'application/json'}});
-      if (!object) return json({error:'Il documento è stato modificato su un altro dispositivo. Esporta il JSON prima di ricaricare.'},412);
+      const object = await store.put(root(env)+'current.json',JSON.stringify(draft),{onlyIf:revisionTag === '"empty"' ? {etagDoesNotMatch:'*'} : {etagMatches:revisionTag.replace(/^"|"$/g,'')},httpMetadata:{contentType:'application/json'}});
+      if (!object) return json({error:'La versione salvata nel cloud è cambiata. Esporta il JSON prima di ricaricare.'},412);
       return json({updated:draft.updated},200,{ETag:object.httpEtag});
     }
     return json({error:'Metodo non consentito.'},405);

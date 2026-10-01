@@ -17,14 +17,16 @@ try {
   const initial=await worker.fetch(request('/api/feedback'),env);
   assert.deepEqual(await initial.json(),{draft:null});
   assert.equal(initial.headers.get('ETag'),'"empty"');
-  const created=await put('"empty"');assert.equal(created.status,200);
+  const created=await put('W/"empty"');assert.equal(created.status,200);
   const firstTag=created.headers.get('ETag');
-  const concurrent=await Promise.all([put(firstTag,{...draft,notes:'Dal telefono'}),put(firstTag,{...draft,notes:'Dal computer'})]);
+  assert.equal((await put('W/"empty"')).status,412);
+  const concurrent=await Promise.all([put('W/'+firstTag,{...draft,notes:'Dal telefono'}),put(firstTag,{...draft,notes:'Dal computer'})]);
   assert.deepEqual(concurrent.map(result=>result.status).sort(),[200,412]);
   let latest=await worker.fetch(request('/api/feedback'),env);
   assert.equal((await latest.json()).notes,concurrent[0].status===200 ? 'Dal telefono' : 'Dal computer');
   const currentTag=latest.headers.get('ETag');
   assert.equal((await put(firstTag)).status,412);
+  assert.equal((await put('W/'+firstTag)).status,412);
   const files=[{name:'originale.svg',type:'image/svg+xml',bytes:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><text>Originale</text></svg>')},
     {name:'originale.zip',type:'application/zip',bytes:Buffer.from([80,75,5,6,...Array(18).fill(0)])}];
   for(const file of files) {
