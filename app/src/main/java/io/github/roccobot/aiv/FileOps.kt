@@ -637,7 +637,7 @@ private fun FactsDialog(
  * (vedi [Sheet]): chi rimettesse un `verticalScroll` qui rimetterebbe il crash.
  */
 @Composable
-private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
+internal fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         for (field in fields) {
             // ⚠️ Il nome NON è più una riga di questo elenco: dalla `0.69` sta nella testata
@@ -728,7 +728,7 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  * un istante dopo.
  */
 @Composable
-private fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Modifier) {
+internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Modifier) {
     val style = MaterialTheme.typography.titleSmall
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current

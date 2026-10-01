@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -107,6 +108,7 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
@@ -335,6 +337,19 @@ fun ViewerScreen(
      * si salva e che cosa no sta su [FileJobSaver].
      */
     var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
+
+    /*
+     * Layout tablet del Visualizzatore (3.31): da 600 dp il pannello info può stare a
+     * lato; sotto i 1.024 nasce chiuso, da 1.024 in su aperto come nel mockup.
+     * ⚠️ `rememberSaveable(sideDefaultOpen)` riparte al cambio di fascia, così ruotando
+     * da orizzontale a verticale il pannello si richiude di serie senza tenersi aperto
+     * "perché lo era prima".
+     */
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    val sideAvailable = Adaptive.sideAvailable(widthDp)
+    val sideDefaultOpen = Adaptive.sideDefaultOpen(widthDp)
+    var sideOpen by rememberSaveable(sideDefaultOpen) { mutableStateOf(sideDefaultOpen) }
+    val sideAvailableNow = rememberUpdatedState(sideAvailable)
 
     /**
      * Il giro di un'operazione: si parte, si dice com'è andata, e se la fotografia non c'è
@@ -723,7 +738,18 @@ fun ViewerScreen(
 
     val ops = remember(source, saver, onEdit, onEditWith, settings.saveRename) {
         MenuOps(
-            job = { job = it },
+            job = { asked ->
+                /*
+                 * ⚠️⚠️ **SUL TABLET LE INFO VANNO A LATO, non in bottomsheet** (3.31,
+                 * mockup `viewer`): sotto i 600 dp resta [FileJob.Facts] / [FactsDialog];
+                 * da 600 in su si apre [ViewerFactsSide] e non si sovrappone al media.
+                 */
+                if (asked is FileJob.Facts && sideAvailableNow.value) {
+                    sideOpen = true
+                } else {
+                    job = asked
+                }
+            },
             share = { picture ->
                 scope.launch {
                     if (!ImageActions.share(context, picture, source)) {
@@ -826,9 +852,28 @@ fun ViewerScreen(
      */
     val appChiara = LocalAivLight.current
 
+    /*
+     * ⚠️⚠️ **DA 600 dp IL MEDIA E IL PANNELLO INFO STANNO IN RIGA** (3.31): il mockup
+     * mette le informazioni a lato e le richiude sotto i 1.024. Sotto i 600 la riga ha
+     * un solo figlio a peso pieno, uguale al Box di prima: il layout telefono non cambia.
+     * ⚠️ **Il lato segue [Settings.hand]**: destri -> pannello a sinistra (mockup senza
+     * `left`); mancini -> pannello a destra (classe `left`, `order: 2`).
+     */
+    val panelOnStart = settings.hand == Hand.RIGHT
+    Row(modifier = modifier.fillMaxSize()) {
+        if (sideAvailable && sideOpen && panelOnStart) {
+            ViewerFactsSide(
+                uri = source,
+                fields = settings.factRows,
+                width = Adaptive.sideWidth(widthDp),
+                onClose = { sideOpen = false },
+                onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
+            )
+        }
     Box(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
             .drawBehind {
                 drawBackground(size, checkerPx, lightGreys, settings.bgType)
                 /*
@@ -948,7 +993,7 @@ fun ViewerScreen(
             )
         }
 
-        AnimatedVisibility(
+        androidx.compose.animation.AnimatedVisibility(
             visibleState = barState,
             // Entra ed esce sfumando e basta: le due predefinite cambiano anche la
             // misura, e una riga che si apre a soffietto in fondo allo schermo sposta il
@@ -1063,6 +1108,16 @@ fun ViewerScreen(
                 millis = SAVE_SEEN_MS,
                 onGone = { doppione = null }
             ) { ancora() }
+        }
+    }
+        if (sideAvailable && sideOpen && !panelOnStart) {
+            ViewerFactsSide(
+                uri = source,
+                fields = settings.factRows,
+                width = Adaptive.sideWidth(widthDp),
+                onClose = { sideOpen = false },
+                onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
+            )
         }
     }
 
@@ -1831,7 +1886,7 @@ private fun BoxScope.ClipKeys(
         )
     }
 
-    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+    androidx.compose.animation.AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
         Box(
             modifier = Modifier
                 .size(CLIP_KEY)
@@ -1851,7 +1906,7 @@ private fun BoxScope.ClipKeys(
         }
     }
 
-    AnimatedVisibility(
+    androidx.compose.animation.AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
         exit = fadeOut(),
