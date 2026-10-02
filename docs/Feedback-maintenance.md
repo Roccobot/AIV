@@ -47,7 +47,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Nome ufficiale: **documento di feedback** (DF). Titolo: **Feedback AIV**.
   Intestazione: `AIV · giro della X.XX`, terminata alla versione, senza nome dell'agente.
 - ⚠️ **Separazione UX DF / collaudo app**: miglioramenti di interfaccia del DF (striscia,
-  Altro, overlay, shell, formattazione, Salva-only mobile, casella versione, PP, …) vivono
+  Altro, overlay, shell, formattazione, Salva-only mobile, casella versione, PP, ...) vivono
   in codice, in questa guida e nel brief. **Non** vanno elencati come prove di collaudo
   del prodotto Android nel documento.
 - Sigle: **DF** = documento di feedback; **PP** = **Prossimi passi**.
@@ -83,7 +83,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   salvataggio cloud. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
-  interfaccia (paragrafi, pulsanti, toast, voci, …), l'agente può redigere la proposta e
+  interfaccia (paragrafi, pulsanti, toast, voci, ...), l'agente può redigere la proposta e
   far uscire la versione; il DF deve elencare **ogni** nuova stringa ITA una per una in
   una sezione intitolata esattamente **Etichette testuali**, in basso **prima** delle
   sezioni conclusive/archivio (`Riscontri conclusi`) e del PP. Ogni sotto-card mostra il

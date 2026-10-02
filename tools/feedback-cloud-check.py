@@ -20,6 +20,21 @@ from playwright.sync_api import sync_playwright, expect
 
 origin = sys.argv[1].rstrip('/') if len(sys.argv)>1 else 'http://127.0.0.1:8787'
 assert urlparse(origin).hostname in ['127.0.0.1','localhost'], 'Usare solo il Worker di sviluppo locale.'
+
+def open_delivery(page):
+    overlay = page.locator('#delivery-overlay')
+    if overlay.is_visible():
+        return
+    btn = page.locator('#open-delivery')
+    if btn.count() and btn.is_visible():
+        btn.click()
+    else:
+        fab = page.locator('#floating-save')
+        fab.dispatch_event('pointerdown', {'button': 0})
+        page.wait_for_timeout(500)
+        fab.dispatch_event('pointerup', {'button': 0})
+    expect(overlay).to_be_visible()
+
 def encoded(value):
     return base64.urlsafe_b64encode(value).rstrip(b'=').decode()
 body = encoded(json.dumps({'kind':'session','owner':10722164,'exp':time.time()+3600}).encode())
@@ -53,17 +68,19 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         # Visible Altro free-text (desktop rail, bottom card, or open mobile menu).
         return target.locator('#notes-editor, #notes-mobile-editor').locator('visible=true').first
     def save(page):
-        page.locator('#save').click()
+        page.locator('#floating-save').click()
         expect(page.locator('#saved')).to_contain_text('Salvato nel cloud')
     first_context=context()
     first=page(first_context)
     # A new test run starts with the current draft, then explicitly resets its test namespace.
     first.once('dialog',lambda dialog:dialog.accept())
+    open_delivery(first)
     first.locator('#reset').click()
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
     legacy=Path(temporary)/'legacy.json'
     legacy.write_text(json.dumps({'schema':1,'project':'AIV','version':'3.24','installed':'3.24',
                                  'device':'Telefono precedente','notes':'','entries':{},'decisions':{},'extra':{'images':[]}}))
+    open_delivery(first)
     with first.expect_file_chooser() as chooser:
         first.locator('.file-button').click()
     chooser.value.set_files(str(legacy))
@@ -75,6 +92,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     comment_editor(first).fill('Da telefono')
     save(first)
     assert first.evaluate('window.feedbackRemote.hasUpdates()') is False
+    open_delivery(first)
     first.locator('#send').click()
     expect(first.locator('#summary')).to_have_value(re.compile('Telefono: Telefono di prova, Android 13'))
     expect(first.locator('#summary')).to_have_value(re.compile('Tablet: Tablet di prova, Android 15'))
@@ -95,7 +113,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     first.evaluate('clearTimeout(saveTimer)')
     comment_editor(second).fill('Ultima versione sul tablet')
     save(second)
-    first.locator('#save').click()
+    first.locator('#floating-save').click()
     expect(first.locator('#saved')).to_contain_text('versione salvata nel cloud è cambiata')
     expect(comment_editor(first)).to_have_text('Modifica contemporanea')
     first_context.close()
@@ -120,6 +138,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(comment_editor(third)).to_have_text('Ultima versione sul tablet')
     expect(third.locator('.test').first.locator('img')).to_have_count(1)
     expect(third.locator('.test').first.locator('.zip-download')).to_have_count(1)
+    open_delivery(third)
     with third.expect_download() as pending:
         third.locator('#export').click()
     output=Path(temporary)/'cloud.json'
@@ -135,9 +154,10 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     # Failure remains visible; it must not pretend to be a successful cloud save.
     third.route('**/api/feedback',lambda route:route.abort() if route.request.method=='PUT' else route.continue_())
     altro_editor(third).fill('Modifica senza connessione')
-    third.locator('#save').click()
+    third.locator('#floating-save').click()
     expect(third.locator('#saved')).to_contain_text('Non salvato')
     expect(altro_editor(third)).to_have_text('Modifica senza connessione')
+    open_delivery(third)
     third.locator('#send').click()
     expect(third.locator('#action-message')).to_contain_text('Invio non confermato')
     assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.completed)') is None
