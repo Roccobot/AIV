@@ -745,7 +745,7 @@ document.addEventListener("keydown", (event) => {
     setAltroOverlayOpen(false);
 });
 
-// --- Consegna e copie overlay (desktop: Altro button; mobile: long-press Salva) ---
+// --- Consegna e copie overlay (Altro button or long-press Salva) ---
 const deliveryOverlay = document.querySelector("#delivery-overlay");
 const deliveryOverlayClose = document.querySelector("#delivery-overlay-close");
 const openDeliveryBtn = document.querySelector("#open-delivery");
@@ -875,8 +875,11 @@ function refreshNavigation() {
     firstEmpty.title = "Primo riquadro non compilato";
     firstEmpty.setAttribute("aria-label", "Primo riquadro non compilato");
     if (diskFab) {
-      diskFab.title = "Salva le risposte";
-      diskFab.setAttribute("aria-label", "Salva le risposte");
+      diskFab.title = "Salva · tieni premuto per Consegna e copie";
+      diskFab.setAttribute(
+        "aria-label",
+        "Salva le risposte. Tieni premuto per aprire Consegna e copie",
+      );
     }
   }
   firstEmpty.disabled = !loaded;
@@ -943,7 +946,7 @@ function clearFloatingSaveLongPress() {
   floatingSaveLongTimer = null;
 }
 floatingSave.addEventListener("pointerdown", (event) => {
-  if (!isMobileUi() || (event.button != null && event.button !== 0)) return;
+  if (event.button != null && event.button !== 0) return;
   floatingSaveLongPress = false;
   clearFloatingSaveLongPress();
   floatingSaveLongTimer = setTimeout(() => {

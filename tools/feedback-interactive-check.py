@@ -406,6 +406,13 @@ def check(path):
                 assert abs(browse['y'] + browse['height']/2 - import_box['y'] - import_box['height']/2) < 1
             page.locator('#delivery-overlay-close').click()
             expect(page.locator('#delivery-overlay')).to_be_hidden()
+            # Desktop: long-press Save opens the same delivery overlay as mobile.
+            page.locator('#floating-save').dispatch_event('pointerdown', {'button': 0})
+            page.wait_for_timeout(500)
+            page.locator('#floating-save').dispatch_event('pointerup', {'button': 0})
+            expect(page.locator('#delivery-overlay')).to_be_visible()
+            page.locator('#delivery-overlay-close').click()
+            expect(page.locator('#delivery-overlay')).to_be_hidden()
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_text('Tutto OK')
