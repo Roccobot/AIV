@@ -169,7 +169,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     anonymous_context=browser.new_context()
     anonymous=anonymous_context.new_page()
     anonymous.goto(origin+'/feedback.html')
-    expect(anonymous.get_by_role('link',name='Accedi con GitHub')).to_be_visible()
+    expect(anonymous.get_by_role('link',name='Accedi')).to_be_visible()
     expect(anonymous.locator('#save')).to_be_disabled()
     expect(anonymous.locator('#saved')).to_contain_text('Accedi con GitHub')
     assert anonymous.locator('button[data-status]').first.evaluate('element => getComputedStyle(element).cursor') == 'default'
