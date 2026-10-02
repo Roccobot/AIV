@@ -243,11 +243,11 @@ h1 {
   overflow-wrap: anywhere;
   font-size: 14px;
 }
-/* Match the requested chip polish on the DPR≈2 display used for review. */
+/* At DPR≈2, center the whole block on the capital V in “Feedback AIV”. */
 @media (min-resolution: 1.9dppx) and (max-resolution: 2.1dppx),
   (-webkit-min-device-pixel-ratio: 1.9) and (-webkit-max-device-pixel-ratio: 2.1) {
   .cloud-account {
-    transform: translateY(18px);
+    transform: translateY(9.5px);
   }
   .cloud-account-user {
     transform: translate(-3px, 2px);
