@@ -40,8 +40,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -54,6 +56,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
@@ -128,12 +131,6 @@ fun FolderRail(
         modifier = modifier
             .width(width)
             .fillMaxHeight()
-            // ⚠️⚠️ **INSET SUPERIORE DALLA `3.40`** (`3.39-03`): Cerca finiva sotto l'orologio
-            // di sistema in verticale e in orizzontale. Solo Top+Horizontal: il basso resta
-            // gestito dalla riga Cestino/Impostazioni e dalla gesture bar del content.
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
-            )
             .background(MaterialTheme.colorScheme.surface)
     ) {
         RailSearch(
@@ -141,6 +138,14 @@ fun FolderRail(
             onSearch = onSearch,
             modifier = Modifier
                 .fillMaxWidth()
+                // ⚠️⚠️ **INSET SOLO SU CERCA, DALLA `3.41`** (`3.40-01`): nella `3.40` l'inset
+                // orizzontale stava su tutta la colonna, e Cestino/Impostazioni risultavano
+                // spostati verso il bordo interno. L'orologio di sistema copre solo la cima.
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                    )
+                )
                 // ⚠️ Aria dal bordo, come nel mockup: non attaccata alla cornice.
                 .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 8.dp)
         )
@@ -149,13 +154,31 @@ fun FolderRail(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                // ⚠️ L'elenco segue lo stesso inset orizzontale di Cerca (ritaglio del bordo).
+                // La riga in basso no: si centra sulla colonna intera.
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                )
         ) {
             val density = LocalDensity.current
             val areaPx = with(density) { maxHeight.toPx() }
             // Stima dell'altezza del blocco (maniglia + elenco): serve a limitare il lift.
             val blockCapPx = areaPx
             val maxLift = (areaPx - 48f).coerceAtLeast(0f)
-            val lift = liftPx.coerceIn(0f, maxLift)
+            /*
+             * ⚠️⚠️ **LO STATO DEL LIFT SI LEGGE A OGNI DELTA, DALLA `3.41`** (`3.40-01`).
+             * Nella `3.40` il gesto chiudeva il `Float` arrivato alla composizione: ogni
+             * delta partiva da quel valore e non dal precedente, quindi la lista traballava
+             * sul posto. Qui il valore è uno stato, come quando viveva dentro il rail (`3.39`),
+             * e il modello resta la memoria fra una schermata e l'altra.
+             */
+            var lift by remember { mutableFloatStateOf(liftPx) }
+            val maxLiftNow = rememberUpdatedState(maxLift)
+            val onLiftNow = rememberUpdatedState(onLift)
+            LaunchedEffect(liftPx) {
+                if (lift != liftPx) lift = liftPx
+            }
+            val shown = lift.coerceIn(0f, maxLift)
             LaunchedEffect(maxLift, liftPx) {
                 if (liftPx > maxLift) onLift(maxLift)
             }
@@ -164,7 +187,7 @@ fun FolderRail(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .offset { IntOffset(0, -lift.roundToInt()) }
+                    .offset { IntOffset(0, -shown.roundToInt()) }
                     .heightIn(max = with(density) { blockCapPx.toDp() })
             ) {
                 /*
@@ -189,10 +212,12 @@ fun FolderRail(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                         modifier = Modifier
                             .size(20.dp)
-                            .pointerInput(maxLift) {
+                            .pointerInput(Unit) {
                                 detectVerticalDragGestures { _, dragAmount ->
                                     // ⚠️ dragAmount > 0 = dito verso il basso = abbassa il blocco.
-                                    onLift((liftPx - dragAmount).coerceIn(0f, maxLift))
+                                    val next = (lift - dragAmount).coerceIn(0f, maxLiftNow.value)
+                                    lift = next
+                                    onLiftNow.value(next)
                                 }
                             }
                     )
@@ -273,9 +298,11 @@ fun FolderRail(
          * cancellazione sulla lista). Due colonne, icona sopra e testo sotto.
          */
         /*
-         * ⚠️⚠️ **CENTRATI DAVVERO DALLA `3.40`** (`3.39-03`): con SpaceEvenly + weight le
-         * etichette di lunghezze diverse (Cestino / Impostazioni) sembravano spostate a
-         * destra. Due colonne uguali, ciascuna a tutta larghezza e contenuto centrato.
+         * ⚠️⚠️ **CENTRATI SULLA COLONNA INTERA, DALLA `3.41`** (`3.40-01`): le due colonne
+         * uguali della `3.40` stavano dentro l'inset orizzontale, quindi il centro del
+         * contenuto non era il centro della colonna. Qui la riga è larga quanto il rail.
+         * Il testo è centrato: senza `TextAlign.Center` un'etichetta lunga resta a sinistra
+         * del suo riquadro e la coppia sembra spostata.
          */
         Row(
             modifier = Modifier
@@ -403,8 +430,10 @@ private fun RailAction(
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = tint,
+            textAlign = TextAlign.Center,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

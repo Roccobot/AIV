@@ -110,7 +110,7 @@ internal fun SettingsTabletSplit(
  * L'ordine dell'indice tablet: radice, poi le famiglie come nel mockup.
  *
  * ⚠️ **ROOT per prima**: è la "Pagina iniziale" del mockup. Le altre seguono il percorso
- * contenitore -> contenuto (cartelle, visualizzatore, info, comandi, modifica, gestione).
+ * contenitore -> contenuto (cartelle, visualizzatore, info, pulsanti, file, cestino, avvio).
  */
 internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.ROOT,
@@ -118,9 +118,8 @@ internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.FOLDERS, Page.VIEWS, Page.HIDDEN,
     Page.VIEWER, Page.ZOOM,
     Page.INFO, Page.FACTS,
-    Page.NAV,
     Page.CONTROLS, Page.BUTTONS,
-    Page.EDITING, Page.STYLES, Page.MARK, Page.SAVING,
+    Page.EDITING, Page.STYLES, Page.MARK, Page.SAVING, Page.BIN,
     Page.START,
     Page.THUMBS, Page.BACKUP
 )
@@ -132,7 +131,9 @@ internal val Page.titleRes: Int
         Page.FOLDERS -> R.string.settings_group_browse
         Page.VIEWER -> R.string.settings_group_viewer
         Page.INFO -> R.string.settings_page_info
-        Page.NAV -> R.string.settings_group_clips
+        // ⚠️ Non è nell'indice: una pila vecchia può ancora nominarla, e il titolo è quello
+        // della pagina che adesso contiene quelle voci.
+        Page.NAV -> R.string.settings_group_viewer
         Page.CONTROLS -> R.string.settings_page_controls
         Page.EDITING -> R.string.settings_page_editing
         Page.FACTS -> R.string.settings_facts
@@ -146,4 +147,5 @@ internal val Page.titleRes: Int
         Page.MARK -> R.string.settings_mark
         Page.BACKUP -> R.string.backup_title
         Page.START -> R.string.settings_group_start
+        Page.BIN -> R.string.bin_title
     }

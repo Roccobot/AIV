@@ -587,12 +587,14 @@ fun SettingsScreen(
             LookPage(settings = settings, onChange = onChange)
         }
 
+        // ⚠️ Pila salvata prima della `3.41`: Navigazione non è più una pagina. Le due voci
+        // stanno nel Visualizzatore, e l'ordinale di NAV non si riusa per un'altra pagina.
         Page.NAV -> Shell(
-            title = stringResource(R.string.settings_group_clips),
+            title = stringResource(R.string.settings_group_viewer),
             onBack = { back() },
             modifier = chrome
         ) {
-            NavPage(settings = settings, onChange = onChange)
+            ViewerPage(settings = settings, onChange = onChange, onOpen = { open(it) })
         }
 
         Page.START -> Shell(
@@ -605,6 +607,14 @@ fun SettingsScreen(
                 onChange = onChange,
                 onStartFolder = onStartFolder
             )
+        }
+
+        Page.BIN -> Shell(
+            title = stringResource(R.string.bin_title),
+            onBack = { back() },
+            modifier = chrome
+        ) {
+            BinPage(settings = settings, onChange = onChange)
         }
     }
     } // Pages
@@ -653,7 +663,11 @@ internal enum class Page {
     FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK, BACKUP,
     // ⚠️⚠️ **TRE SOTTO-PAGINE NUOVE DALLA `3.40`** (`3.27-03`): in coda, stessi ordinali di prima
     // fino a BACKUP. LOOK = tema e profondità pannelli; NAV = scorrimento; START = avvio.
-    LOOK, NAV, START
+    // ⚠️ **NAV RESTA NELL'ENUM DALLA `3.41`** anche se non si apre più: toglierlo sposterebbe
+    // l'ordinale di START. Una pila salvata su NAV si mostra come il Visualizzatore.
+    LOOK, NAV, START,
+    // ⚠️ **BIN in coda**: le due voci del cestino, ultima sotto-pagina di Gestione dei file.
+    BIN
 }
 
 /**
@@ -887,7 +901,9 @@ private fun ColumnScope.RootPage(
                 stringResource(R.string.settings_background),
                 stringResource(R.string.settings_bg_theme),
                 stringResource(R.string.settings_zoom_page),
-                stringResource(R.string.settings_clip_autoplay)
+                stringResource(R.string.settings_clip_autoplay),
+                stringResource(R.string.settings_images_only),
+                stringResource(R.string.settings_reverse_order)
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.VIEWER) }
         ) { ViewerPage(settings = settings, onChange = onChange, onOpen = onOpen) }
@@ -902,62 +918,11 @@ private fun ColumnScope.RootPage(
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.INFO) }
         ) { InfoPage(settings = settings, onChange = onChange, onOpen = onOpen) }
-    }
-
-    /*
-     * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, E NASCE PER SCIOGLIERE UN RIPIEGO CHE IL CODICE
-     * CONFESSAVA**: lo sfoglio delle sole immagini stava fra le cartelle con la scusa scritta
-     * accanto (*parla del visualizzatore, che non ha un gruppo suo in questa schermata*), e
-     * quella frase era **falsa** da quando esiste il gruppo del visualizzatore qui sopra.
-     * Nessun referto l'aveva vista, e una collocazione che ha bisogno di giustificarsi è una
-     * famiglia che non esiste ancora.
-     * ⚠️⚠️ **IL TITOLO È UNA PAROLA SOLA DALLA 1.48, E PRIMA NE NOMINAVA DUE** ('Video e
-     * scorrimento', riscritto dall'utente nel giro della `1.46`). Il titolo vecchio elencava
-     * quello che c'è dentro; questo dice **che cosa si viene a fare qui**, cioè decidere come
-     * ci si muove fra un'immagine e l'altra, ed è la domanda che tiene insieme le voci rimaste:
-     * che cosa si salta, e da che parte si va.
-     * ⚠️⚠️ **LA TERZA SE N'È ANDATA NELLA `2.09`**, ed è uno degli otto traslochi che lui ha
-     * approvato in blocco: la riproduzione diretta dice che cosa fa un video **quando lo apro**,
-     * cioè risponde a una domanda sul visualizzatore e non su come ci si arriva.
-     * ⚠️ **Un titolo che elenca non è vietato**, e in questa schermata ce ne sono ancora: la
-     * regola dice che una sezione a nessuna domanda risponde, dice dove si è, quindi un titolo
-     * vale l'altro finché lo dice bene.
-     */
-    Section(stringResource(R.string.settings_group_clips)) {
-        /*
-         * ⚠️⚠️ **SOTTO-PAGINA DALLA `3.40`** (`3.27-03`): le due voci di scorrimento restano
-         * la stessa famiglia, dietro una porta, come Etichette e pulsanti qui sotto.
-         */
-        PageOfRows(
-            label = stringResource(R.string.settings_group_clips),
-            summary = listOf(
-                stringResource(R.string.settings_images_only),
-                stringResource(R.string.settings_reverse_order)
-            ).joinToString(SUMMARY_JOIN),
-            onOpen = { onOpen(Page.NAV) }
-        ) { NavPage(settings = settings, onChange = onChange) }
-    }
-
-    /*
-     * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, e che i comandi fossero una famiglia lo diceva già il
-     * codice**: la testata della selezione stava *accanto alle altre voci della selezione,
-     * come il lato dominante e il percorso in testa alla lista*. Quello che mancava era il
-     * titolo, e la nota di allora diceva anche perché (*una voce sola non fa un gruppo, e due
-     * mezze voci in fondo alla pagina sarebbero più difficili da trovare*).
-     * ⚠️ **La mano NON sta sotto 'Aspetto'**: non è come l'app è vestita, e sotto quel titolo
-     * nessuno la cerca.
-     * ⚠️ **Il titolo dice 'indicatori' e non più 'selezione' dalla 1.48** (riscritto
-     * dall'utente nel giro della `1.46`): nomina due famiglie vicine, e dalla `2.09` si vede a
-     * occhio nudo, perché una delle due è una porta e l'altra una riga.
-     */
-    Section(stringResource(R.string.settings_group_input)) {
 
         /*
-         * ⚠️⚠️ **LA FAMIGLIA DEI COMANDI SCENDE DI UN LIVELLO NELLA `2.09`**: il lato del FAB, le
-         * etichette e l'ordine dei pulsanti rispondono tutti a *come si presentano i comandi che
-         * uso*, e la loro pagina ne contiene già un'altra, cioè i quattro riquadri da trascinare.
-         * ⚠️ **La sezione resta e nomina due famiglie**, come faceva prima: qui sotto è rimasta la
-         * riga degli indicatori, che risponde a un'altra domanda.
+         * ⚠️⚠️ **ULTIMA SOTTO-PAGINA DI ASPETTO, DALLA `3.41`** (`3.40-04`): si chiamava
+         * 'Etichette e pulsanti' e stava sotto 'Comandi e indicatori'. Quella sezione non
+         * c'è più. Il titolo nuovo è 'Pulsanti e indicatori'.
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_controls),
@@ -968,7 +933,6 @@ private fun ColumnScope.RootPage(
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.CONTROLS) }
         ) { ControlsPage(settings = settings, onChange = onChange, onOpen = onOpen) }
-
     }
 
     /*
@@ -982,9 +946,9 @@ private fun ColumnScope.RootPage(
      * salvataggio, e le due voci del cestino. La domanda della sezione resta quella di allora,
      * *come non si perde un file*, e il legame fra le due metà non è supposto: lo dice la
      * stringa pubblicata della copia di sicurezza, che finisce proprio nel cestino.
-     * ⚠️ **Il cestino NON è sceso con le altre**, ed è la soglia a dirlo: le sue voci sono due,
-     * cioè dentro il *2-3* dell'utente, e un cancello sul cestino allontanerebbe la risposta a
-     * 'come recupero un file cancellato'.
+     * ⚠️⚠️ **DALLA `3.41` LE DUE VOCI DEL CESTINO STANNO DIETRO UNA PORTA** (`3.40-04`),
+     * ultima di questo gruppo: la soglia del *2-3* le lasciava in chiaro, e lui ha chiesto
+     * il contrario. Il titolo della sezione, da questo giro, è 'Gestione dei file'.
      * ⚠️ **L'ordine interno segue il percorso di un file**: con che cosa si modifica e come si
      * salva, e poi che cosa succede se si cancella.
      * ⚠️⚠️ **IL TITOLO NON NOMINA PIÙ IL CESTINO DALLA 1.48** ('Modifica e cestino', riscritto
@@ -996,10 +960,8 @@ private fun ColumnScope.RootPage(
     Section(stringResource(R.string.settings_group_files)) {
 
         /*
-         * ⚠️⚠️ **L'EDITOR E IL SALVATAGGIO SCENDONO DI UN LIVELLO NELLA `2.09`, E IL CESTINO NO**:
-         * quelle tre voci dicono *con che cosa si modifica un file e con che nome si salva*, e la
-         * terza era già una pagina; le due che restano qui sotto dicono *che cosa succede a un file
-         * che si cancella*, e sono due, cioè dentro la soglia.
+         * ⚠️⚠️ **L'EDITOR E IL SALVATAGGIO SCENDONO DI UN LIVELLO NELLA `2.09`**. Il cestino,
+         * dalla `3.41`, è la porta in fondo a questa sezione e non più due righe in chiaro.
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_editing),
@@ -1034,46 +996,19 @@ private fun ColumnScope.RootPage(
             onOpen = { onOpen(Page.SAVING) }
         ) { RenameAndDownload(settings = settings, onChange = onChange) }
 
-        // ⚠️ Dopo editor e rinomina: qui di una cancellazione, e il cestino è la rete.
-        SwitchRow(
-            label = stringResource(R.string.settings_bin),
-            detail = stringResource(R.string.settings_bin_desc),
-            checked = settings.binOn,
-            onChange = { onChange(settings.copy(binOn = it)) }
-        )
-
         /*
-         * ⚠️⚠️ **SUBITO SOTTO 'ATTIVA IL CESTINO' E NON DIETRO UN TOCCO, e la scelta va motivata
-         * perché il piano diceva il contrario**: là era prevista una sotto-pagina, con la ragione
-         * che questa voce *cambia il metro con cui un file è protetto*, cioè uno dei due soli casi
-         * per cui una voce è delicata. Ma la soglia non si conta sulla voce, si conta sulla
-         * **famiglia**: alla domanda 'che cosa succede a un file che cancello' rispondono il
-         * cestino e questa, cioè due voci, che rientrano nella soglia dell'utente per una
-         * sotto-sezione. Mandare una famiglia intera dietro un tocco per proteggerne una riga
-         * costerebbe un tocco anche all'altra.
-         * ⚠️ **La protezione resta e viene da altre due parti**: il valore di fabbrica è 'Mai',
-         * quindi non cancella niente finché non lo si accende, e sotto il titolo c'è il paragrafo
-         * che dice che cosa succede.
-         * ⚠️ **E la ricerca la trova**: [Choices] passa da `shown`, che confronta anche i nomi delle
-         * pastiglie, quindi 'Un mese' e 'Mai' portano qui come il titolo.
+         * ⚠️⚠️ **SOTTO-PAGINA CESTINO, ULTIMA DI QUESTO GRUPPO, DALLA `3.41`** (`3.40-04`).
+         * Le due voci che stavano qui in chiaro (attiva il cestino, e per quanto si tiene)
+         * rispondono a una domanda sola e lui le vuole dietro una porta.
          */
-        Choices(
-            label = stringResource(R.string.settings_bin_sweep),
-            detail = stringResource(R.string.settings_bin_sweep_desc),
-            options = BinKeep.entries,
-            selected = settings.binKeep,
-            nameOf = {
-                stringResource(
-                    when (it) {
-                        BinKeep.NEVER -> R.string.bin_sweep_never
-                        BinKeep.WEEK -> R.string.bin_sweep_week
-                        BinKeep.MONTH -> R.string.bin_sweep_month
-                        BinKeep.QUARTER -> R.string.bin_sweep_quarter
-                    }
-                )
-            },
-            onSelect = { onChange(settings.copy(binKeep = it)) }
-        )
+        PageOfRows(
+            label = stringResource(R.string.bin_title),
+            summary = listOf(
+                stringResource(R.string.settings_bin),
+                stringResource(R.string.settings_bin_sweep)
+            ).joinToString(SUMMARY_JOIN),
+            onOpen = { onOpen(Page.BIN) }
+        ) { BinPage(settings = settings, onChange = onChange) }
     }
 
     Section(stringResource(R.string.settings_group_start)) {
@@ -1129,15 +1064,12 @@ private fun ColumnScope.RootPage(
             checked = settings.gpuThumbs,
             onChange = { onChange(settings.copy(gpuThumbs = it)) }
         )
-    }
 
-    /*
-     * ⚠️⚠️ **SEZIONE NUOVA NELLA `3.27`** (`d-settings-order`, Applica la proposta): manutenzione
-     * dell'app (miniature memorizzate, esportazione/importazione, ripristino avvisi), distinta
-     * dalle funzionalità avanzate che possono fare danni.
-     */
-    Section(stringResource(R.string.settings_group_manage)) {
-
+        /*
+         * ⚠️⚠️ **STESSA SEZIONE DALLA `3.41`** (`3.40-04`): 'Funzionalità avanzate' e
+         * 'Gestione dell'app' si fondono, nello stesso ordine relativo, sotto 'Avanzate'.
+         * Prima la memoria grafica, poi miniature, esportazione e avvisi.
+         */
         val thumbsLabel = stringResource(R.string.settings_thumbs)
         val thumbsClear = stringResource(R.string.settings_thumbs_do)
         val thumbsMake = stringResource(R.string.settings_thumbs_gen)
@@ -1275,30 +1207,6 @@ private fun LookPage(
             )
         },
         onSelect = { onChange(settings.copy(panelDepth = it)) }
-    )
-}
-
-/**
- * Scorrimento fra i media: sole immagini e verso della sequenza.
- *
- * ⚠️⚠️ **NASCE CON LA `3.40`** (`3.27-03`).
- */
-@Composable
-private fun NavPage(
-    settings: Settings,
-    onChange: (Settings) -> Unit
-) {
-    SwitchRow(
-        label = stringResource(R.string.settings_images_only),
-        detail = stringResource(R.string.settings_images_only_desc),
-        checked = settings.imagesOnly,
-        onChange = { onChange(settings.copy(imagesOnly = it)) }
-    )
-    SwitchRow(
-        label = stringResource(R.string.settings_reverse_order),
-        detail = stringResource(R.string.settings_reverse_order_desc),
-        checked = settings.reverseSequence,
-        onChange = { onChange(settings.copy(reverseSequence = it)) }
     )
 }
 
@@ -1568,6 +1476,22 @@ private fun ViewerPage(
         onChange = { onChange(settings.copy(clipAutoplay = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **QUI DALLA `3.41`, E NON PIÙ IN UNA PAGINA 'NAVIGAZIONE'** (`3.40-04`): le due
+     * voci non sono né una sezione né una sotto-pagina. Restano nello stesso ordine.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_images_only),
+        detail = stringResource(R.string.settings_images_only_desc),
+        checked = settings.imagesOnly,
+        onChange = { onChange(settings.copy(imagesOnly = it)) }
+    )
+    SwitchRow(
+        label = stringResource(R.string.settings_reverse_order),
+        detail = stringResource(R.string.settings_reverse_order_desc),
+        checked = settings.reverseSequence,
+        onChange = { onChange(settings.copy(reverseSequence = it)) }
+    )
 }
 
 /**
@@ -1702,6 +1626,42 @@ private fun InfoPage(
         onChange = { onChange(settings.copy(pickWeight = it)) }
     )
 
+}
+
+/**
+ * Le due voci del cestino: se è acceso, e per quanto si tengono i file.
+ *
+ * ⚠️⚠️ **NASCE CON LA `3.41`** (`3.40-04`): ultima sotto-pagina di 'Gestione dei file'.
+ * Prima stavano in chiaro nella sezione, sotto editor e rinomina.
+ */
+@Composable
+private fun BinPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit
+) {
+    SwitchRow(
+        label = stringResource(R.string.settings_bin),
+        detail = stringResource(R.string.settings_bin_desc),
+        checked = settings.binOn,
+        onChange = { onChange(settings.copy(binOn = it)) }
+    )
+    Choices(
+        label = stringResource(R.string.settings_bin_sweep),
+        detail = stringResource(R.string.settings_bin_sweep_desc),
+        options = BinKeep.entries,
+        selected = settings.binKeep,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    BinKeep.NEVER -> R.string.bin_sweep_never
+                    BinKeep.WEEK -> R.string.bin_sweep_week
+                    BinKeep.MONTH -> R.string.bin_sweep_month
+                    BinKeep.QUARTER -> R.string.bin_sweep_quarter
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(binKeep = it)) }
+    )
 }
 
 /**

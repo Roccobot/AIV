@@ -584,15 +584,13 @@
 
     <string name="settings_group_look">Aspetto</string>
     <string name="settings_group_viewer">Visualizzatore</string>
-    <string name="settings_group_clips">Navigazione</string>
     <string name="settings_group_input">Comandi e indicatori</string>
-    <string name="settings_group_files">Modifica e protezione dei file</string>
+    <string name="settings_group_files">Gestione dei file</string>
     <string name="settings_group_browse">Cartelle</string>
     <string name="settings_group_start">Avvio</string>
-    <string name="settings_group_advanced">Funzionalità avanzate</string>
-    <string name="settings_group_manage">Gestione dell\'app</string>
+    <string name="settings_group_advanced">Avanzate</string>
     <string name="settings_page_info">Informazioni</string>
-    <string name="settings_page_controls">Etichette e pulsanti</string>
+    <string name="settings_page_controls">Pulsanti e indicatori</string>
     <string name="settings_page_editing">Editor e salvataggio</string>
     <string name="settings_page_look">Tema e pannelli</string>
     <string name="settings_ext_edit">Consenti la modifica dell\'estensione</string>

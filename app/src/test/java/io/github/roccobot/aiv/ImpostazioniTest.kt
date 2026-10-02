@@ -298,4 +298,79 @@ class ImpostazioniTest {
             file.delete()
         }
     }
+
+    /**
+     * **Le due voci di Navigazione stanno nel Visualizzatore, e la pagina non c'è più.**
+     *
+     * ⚠️⚠️ **È LA PRIMA RICHIESTA DI `3.40-04`**: Navigazione non è né una sezione né una
+     * sotto-pagina. Controprova: rimettendo la porta, la voce si vede già nella radice.
+     */
+    @Test
+    fun `lo scorrimento sta nel visualizzatore`() {
+        apriIlPannello()
+        val sola = testo(R.string.settings_images_only)
+        val verso = testo(R.string.settings_reverse_order)
+        val pagina = testo(R.string.settings_group_viewer)
+
+        banco.onNodeWithText(sola).assertDoesNotExist()
+        banco.onNodeWithText(pagina, substring = false).performScrollTo().performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithText(sola).assertExists()
+        banco.onNodeWithText(verso).assertExists()
+    }
+
+    /**
+     * **'Comandi e indicatori' non è una sezione, e 'Pulsanti e indicatori' si apre da Aspetto.**
+     */
+    @Test
+    fun `pulsanti e indicatori si aprono dalla radice`() {
+        apriIlPannello()
+        val vecchia = testo(R.string.settings_group_input)
+        val porta = testo(R.string.settings_page_controls)
+        val mano = testo(R.string.settings_hand)
+
+        banco.onNode(hasText(vecchia) and isHeading()).assertDoesNotExist()
+        banco.onNodeWithText(mano).assertDoesNotExist()
+        banco.onNodeWithText(porta, substring = false).performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(mano).assertExists()
+    }
+
+    /**
+     * **Le due voci del cestino stanno nella sotto-pagina Cestino, non nella radice.**
+     */
+    @Test
+    fun `il cestino e una sotto-pagina`() {
+        apriIlPannello()
+        val attiva = testo(R.string.settings_bin)
+        val tiene = testo(R.string.settings_bin_sweep)
+        val porta = testo(R.string.bin_title)
+        val sezione = testo(R.string.settings_group_files)
+
+        banco.onNode(hasText(sezione) and isHeading()).performScrollTo().assertExists()
+        banco.onNodeWithText(attiva).assertDoesNotExist()
+        banco.onNodeWithText(porta, substring = false).performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(attiva).assertExists()
+        banco.onNodeWithText(tiene).assertExists()
+    }
+
+    /**
+     * **Memoria grafica, miniature ed esportazione stanno nella stessa sezione Avanzate.**
+     *
+     * ⚠️ L'ordine relativo delle due sezioni fuse: prima la voce che stava in 'Funzionalità
+     * avanzate', poi quelle di 'Gestione dell'app'.
+     */
+    @Test
+    fun `avanzate riunisce le due sezioni di prima`() {
+        apriIlPannello()
+        val sezione = testo(R.string.settings_group_advanced)
+        val memoria = testo(R.string.settings_gpu_thumbs)
+        val miniature = testo(R.string.settings_thumbs)
+
+        banco.onNode(hasText(sezione) and isHeading()).performScrollTo().assertExists()
+        banco.onNodeWithText(memoria).assertExists()
+        banco.onNodeWithText(miniature, substring = false).assertExists()
+    }
 }
