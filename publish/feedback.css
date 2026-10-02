@@ -895,6 +895,17 @@ main > .feedback-columns {
     height: 40vh;
     max-height: 50vh;
   }
+  /* Fill the desktop Altro toolbar with two equal-width actions. */
+  #extra-section .altro-tools {
+    flex-wrap: nowrap;
+  }
+  #extra-section .altro-tools > .attach-plus,
+  #extra-section .altro-tools > .open-delivery {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    justify-content: center;
+  }
   .feedback-columns > .next-steps {
     grid-column: 2;
   }
