@@ -944,19 +944,20 @@ main > .feedback-columns {
   accent-color: var(--accent);
 }
 
-/* Live check: side-by-side starts crowding below 640px (overlap at 620px); stack the title first. */
+/* Keep the GitHub chip on the title row at every viewport width. */
 @media (max-width: 640px) {
   .intro-title-row {
-    display: block;
+    flex-wrap: nowrap;
+    gap: 8px;
   }
   .intro-title {
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
   }
   .cloud-account {
     width: fit-content;
     max-width: 100%;
-    margin: 12px auto 0 0;
-    align-self: flex-start;
+    margin: 0 0 0 auto;
     justify-content: flex-start;
     padding: 4px 8px;
     gap: 8px;
