@@ -723,6 +723,7 @@
 
     <!-- ── The bin ── -->
     <string name="bin_title">Bin</string>
+    <string name="bin_tablet_pick">Open a file to see its details.</string>
     <string name="bin_none">The bin is empty.</string>
     <string name="bin_restore">Restore</string>
     <string name="bin_empty">Empty the bin</string>

@@ -79,5 +79,25 @@ object Adaptive {
     fun editorToolsWidth(widthDp: Int): Dp =
         if (editorBeside(widthDp)) 320.dp else 0.dp
 
+
+    /**
+     * Larghezza massima delle finestre centrate (rinomina, download, conversione, salva),
+     * allineata al mockup (`.dialog-preview` 520).
+     *
+     * ⚠️ **Vale su ogni larghezza**: sotto i 520 dp non stringe niente; da tablet in su
+     * evita finestre a tutta fascia.
+     */
+    val dialogMaxWidth: Dp = 520.dp
+
+    /**
+     * Larghezza massima del dialogo Copia/sposta su tablet, più ampia delle finestre
+     * a campo singolo perché porta un elenco (mockup ~800).
+     *
+     * ⚠️ **`null` sul telefono**: niente tetto, la finestra resta a tutto schermo.
+     */
+    fun destinationMaxWidth(widthDp: Int): Dp? =
+        if (sideAvailable(widthDp)) 800.dp else null
+
     enum class Band { PHONE, NARROW, MEDIUM, WIDE }
 }
+

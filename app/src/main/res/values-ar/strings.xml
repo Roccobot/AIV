@@ -348,6 +348,7 @@
         <item quantity="other">أنت على وشك حذف %1$d عنصر نهائيا: ستزول من الهاتف إلى الأبد.</item>
     </plurals>
     <string name="bin_title">سلة المهملات</string>
+    <string name="bin_tablet_pick">افتح ملفًا لعرض تفاصيله.</string>
     <string name="bin_none">سلة المهملات فارغة.</string>
     <string name="bin_restore">استعادة</string>
     <string name="bin_empty">إفراغ سلة المهملات</string>

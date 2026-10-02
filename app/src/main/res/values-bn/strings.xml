@@ -304,6 +304,7 @@
         <item quantity="other">আপনি %1$d ফাইল চিরতরে মুছতে চলেছেন: এগুলো ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
     </plurals>
     <string name="bin_title">আবর্জনা</string>
+    <string name="bin_tablet_pick">বিস্তারিত দেখতে একটি ফাইল খুলুন।</string>
     <string name="bin_none">আবর্জনা খালি।</string>
     <string name="bin_restore">ফিরিয়ে আনুন</string>
     <string name="bin_empty">আবর্জনা খালি করুন</string>

@@ -315,6 +315,7 @@
         <item quantity="other">Vas a eliminar definitivamente %1$d elementos: desaparecen del teléfono para siempre.</item>
     </plurals>
     <string name="bin_title">Papelera</string>
+    <string name="bin_tablet_pick">Abre un archivo para ver sus detalles.</string>
     <string name="bin_none">La papelera está vacía.</string>
     <string name="bin_restore">Restaurar</string>
     <string name="bin_empty">Vaciar la papelera</string>

@@ -293,6 +293,7 @@
         <item quantity="other">Bạn sắp xóa vĩnh viễn %1$d mục: chúng sẽ mất khỏi điện thoại mãi mãi.</item>
     </plurals>
     <string name="bin_title">Thùng rác</string>
+    <string name="bin_tablet_pick">Mở một tệp để xem chi tiết.</string>
     <string name="bin_none">Thùng rác trống.</string>
     <string name="bin_restore">Phục hồi</string>
     <string name="bin_empty">Dọn thùng rác</string>

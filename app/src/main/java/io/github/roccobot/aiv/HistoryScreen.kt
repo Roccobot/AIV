@@ -1,6 +1,19 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -61,6 +74,9 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         value = History.batches(context)
     }
 
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    val dual = Adaptive.sideAvailable(widthDp)
+
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
         // ⚠️ Il rientro è quello delle impostazioni, [PAGE_SIDE], e vale anche per la freccia: la
         // testata e la lista devono cominciare sulla stessa colonna, o la pagina si legge
@@ -94,11 +110,50 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(horizontal = PAGE_SIDE)
             )
 
+            /*
+             * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.35`** (mockup `history`): gruppi per data
+             * a lato e percorsi nello spazio principale. Telefono invariato (lista unica).
+             */
+            dual -> {
+                var chosen by remember(groups) { mutableStateOf(groups.first().at) }
+                val batch = groups.firstOrNull { it.at == chosen } ?: groups.first()
+                FoldersTabletSplit(
+                    panelOnStart = LocalPadLook.current.hand == Hand.RIGHT,
+                    modifier = Modifier.weight(1f),
+                    rail = {
+                        HistoryDateRail(
+                            groups = groups,
+                            selected = chosen,
+                            onPick = { chosen = it },
+                            width = Adaptive.sideWidth(widthDp),
+                            modifier = Modifier.fillMaxHeight()
+                        )
+                    },
+                    detail = {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = PAGE_SIDE, end = PAGE_SIDE, bottom = 24.dp
+                            )
+                        ) {
+                            item(key = "nota") {
+                                Detail(
+                                    text = stringResource(R.string.history_note, History.DAYS),
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                            }
+                            item(key = "q${batch.at}") { Moment(batch.at) }
+                            items(items = batch.paths, key = { "${batch.at}\t$it" }) { Line(it) }
+                        }
+                    }
+                )
+            }
+
             else -> LazyColumn(
                 contentPadding = PaddingValues(start = PAGE_SIDE, end = PAGE_SIDE, bottom = 24.dp)
             ) {
                 /*
-                 * ⚠️ **La regola dei sette giorni si dice, e sta DENTRO la lista**: chi apre
+                 * ⚠️ **La regola dei sette giorni si dice, e vive DENTRO la lista**: chi apre
                  * questa schermata e non trova il ripristino di due settimane fa deve poter
                  * capire perché senza chiederlo a nessuno. Dentro la lista e non sopra perché
                  * è una nota e non una testata: scorre via col resto.
@@ -115,7 +170,7 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                  * ⚠️⚠️ **UN GRUPPO PER OPERAZIONE, col filetto in mezzo** (richiesta
                  * dell'utente: *tutti i file rimessi a posto dalla stessa operazione di
                  * ripristino vanno di seguito, poi un separatore se c'è altro dopo*). Il
-                 * filetto sta **fra** i gruppi e non sotto ognuno: sotto l'ultimo sarebbe una
+                 * filetto vive **fra** i gruppi e non sotto ognuno: sotto l'ultimo sarebbe una
                  * riga che promette qualcosa che non c'è.
                  * ⚠️ **Le chiavi portano l'istante del gruppo**, che è unico per costruzione
                  * (i gruppi nascono raggruppando su quello) e distingue lo stesso percorso
@@ -131,6 +186,48 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * L'indice dei giorni/operazioni a colonna, per la cronologia tablet.
+ */
+@Composable
+private fun HistoryDateRail(
+    groups: List<History.Batch>,
+    selected: Long,
+    onPick: (Long) -> Unit,
+    width: Dp,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .width(width)
+            .background(MaterialTheme.colorScheme.surface)
+            .verticalScroll(rememberScrollState())
+    ) {
+        for (batch in groups) {
+            val chosen = batch.at == selected
+            Text(
+                text = moment(batch.at),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (chosen) {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (chosen) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surface
+                    )
+                    .clickable { onPick(batch.at) }
+                    .padding(horizontal = 12.dp, vertical = 12.dp)
+            )
         }
     }
 }

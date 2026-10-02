@@ -64,4 +64,11 @@ class AdaptiveTest {
         assertEquals(320, Adaptive.editorToolsWidth(1024).value.toInt())
         assertEquals(0, Adaptive.editorToolsWidth(800).value.toInt())
     }
+
+    @Test
+    fun `dialoghi centrati al massimo 520 come il mockup`() {
+        assertEquals(520, Adaptive.dialogMaxWidth.value.toInt())
+        assertEquals(800, Adaptive.destinationMaxWidth(1024)!!.value.toInt())
+        assertEquals(null, Adaptive.destinationMaxWidth(360))
+    }
 }

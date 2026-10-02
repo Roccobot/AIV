@@ -304,6 +304,7 @@
         <item quantity="other">तुम्ही %1$d संचिका कायमच्या पुसणार आहात: त्या फोनवरून कायमच्या जातील.</item>
     </plurals>
     <string name="bin_title">कचरापेटी</string>
+    <string name="bin_tablet_pick">तपशील पाहण्यासाठी फाइल उघडा.</string>
     <string name="bin_none">कचरापेटी रिकामी आहे.</string>
     <string name="bin_restore">पुन्हा आणा</string>
     <string name="bin_empty">कचरापेटी रिकामी करा</string>

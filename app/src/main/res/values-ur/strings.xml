@@ -304,6 +304,7 @@
         <item quantity="other">آپ %1$d فائلیں ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائیں گی۔</item>
     </plurals>
     <string name="bin_title">ردی کی ٹوکری</string>
+    <string name="bin_tablet_pick">تفصیلات دیکھنے کے لیے ایک فائل کھولیں۔</string>
     <string name="bin_none">ردی کی ٹوکری خالی ہے۔</string>
     <string name="bin_restore">بحال کریں</string>
     <string name="bin_empty">ردی کی ٹوکری خالی کریں</string>

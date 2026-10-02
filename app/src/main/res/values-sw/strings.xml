@@ -304,6 +304,7 @@
         <item quantity="other">Unakaribia kufuta vipengele %1$d kabisa: vinaondoka kwenye simu milele.</item>
     </plurals>
     <string name="bin_title">Tapishi</string>
+    <string name="bin_tablet_pick">Fungua faili ili uone maelezo.</string>
     <string name="bin_none">Tapishi ni tupu.</string>
     <string name="bin_restore">Rudisha</string>
     <string name="bin_empty">Mwaga tapishi</string>

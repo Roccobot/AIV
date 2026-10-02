@@ -304,6 +304,7 @@
         <item quantity="other">%1$d ögeyi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
     </plurals>
     <string name="bin_title">Çöp kutusu</string>
+    <string name="bin_tablet_pick">Ayrıntıları görmek için bir dosya aç.</string>
     <string name="bin_none">Çöp kutusu boş.</string>
     <string name="bin_restore">Geri al</string>
     <string name="bin_empty">Çöp kutusunu boşalt</string>

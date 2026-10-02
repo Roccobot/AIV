@@ -539,6 +539,7 @@
     </plurals>
 
     <string name="bin_title">Cestino</string>
+    <string name="bin_tablet_pick">Apri un file per vederne i dettagli.</string>
     <string name="bin_none">Il cestino è vuoto.</string>
     <string name="bin_restore">Ripristina</string>
     <string name="bin_empty">Svuota il cestino</string>

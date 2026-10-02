@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -52,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
@@ -238,20 +241,87 @@ fun TreeList(
                         modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
                     )
                 }
-                else -> Spots(
-                    spots = spots!!,
-                    scroll = scroll,
-                    selection = selection,
-                    chosen = chosen,
-                    picking = picking,
-                    onPath = onPath,
-                    onOpen = onOpen,
-                    onToggle = { uri -> chosen = chosen.toggleUri(uri) },
-                    onHoldMedia = { uri ->
-                        chosen = if (picking) chosen.toggleUri(uri) else setOf(uri)
-                    },
-                    onHoldFolder = { folderActing = it }
-                )
+                else -> {
+                    /*
+                     * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.35`** (mockup `system`): cartelle
+                     * a lato e file nello spazio principale. Telefono invariato (elenco unico).
+                     */
+                    val widthDp = LocalConfiguration.current.screenWidthDp
+                    val dual = Adaptive.sideAvailable(widthDp)
+                    val all = spots!!
+                    if (dual) {
+                        val folders = all.filter { it.folder }
+                        val files = all.filter { !it.folder }
+                        val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
+                        @Composable
+                        fun TreeFiles() {
+                            Spots(
+                                spots = files.ifEmpty { all },
+                                scroll = scroll,
+                                selection = selection,
+                                chosen = chosen,
+                                picking = picking,
+                                onPath = onPath,
+                                onOpen = onOpen,
+                                onToggle = { uri -> chosen = chosen.toggleUri(uri) },
+                                onHoldMedia = { uri ->
+                                    chosen = if (picking) chosen.toggleUri(uri) else setOf(uri)
+                                },
+                                onHoldFolder = { folderActing = it },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        if (folders.isEmpty()) {
+                            TreeFiles()
+                        } else {
+                            FoldersTabletSplit(
+                                panelOnStart = panelOnStart,
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                rail = {
+                                    LazyColumn(
+                                        modifier = Modifier
+                                            .width(Adaptive.sideWidth(widthDp))
+                                            .fillMaxHeight()
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        contentPadding = PaddingValues(bottom = BELOW_FAB)
+                                    ) {
+                                        items(items = folders, key = { it.path }) { spot ->
+                                            SpotRow(
+                                                spot = spot,
+                                                marked = when (selection.mode) {
+                                                    FolderMode.INCLUDED ->
+                                                        listedIn(selection.included, spot.path)
+                                                    FolderMode.EXCLUDED ->
+                                                        selection.hidden(spot.path)
+                                                },
+                                                authorized = selection.mode == FolderMode.INCLUDED,
+                                                selected = false,
+                                                onHold = { folderActing = spot.path },
+                                                onClick = { onPath(spot.path) }
+                                            )
+                                        }
+                                    }
+                                },
+                                detail = { TreeFiles() }
+                            )
+                        }
+                    } else {
+                        Spots(
+                            spots = all,
+                            scroll = scroll,
+                            selection = selection,
+                            chosen = chosen,
+                            picking = picking,
+                            onPath = onPath,
+                            onOpen = onOpen,
+                            onToggle = { uri -> chosen = chosen.toggleUri(uri) },
+                            onHoldMedia = { uri ->
+                                chosen = if (picking) chosen.toggleUri(uri) else setOf(uri)
+                            },
+                            onHoldFolder = { folderActing = it }
+                        )
+                    }
+                }
             }
         }
 
@@ -386,7 +456,8 @@ private fun Spots(
     onOpen: (List<Uri>, Int) -> Unit,
     onToggle: (Uri) -> Unit,
     onHoldMedia: (Uri) -> Unit,
-    onHoldFolder: (String) -> Unit
+    onHoldFolder: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     // ⚠️ Si ricava una volta per elenco e non a ogni tocco: la posizione di un file dentro i
@@ -394,7 +465,11 @@ private fun Spots(
     val reels = remember(spots) { spots.filter { it.media } }
     val addresses = remember(reels) { reels.map { Uri.fromFile(it.file) } }
 
-    LazyColumn(state = scroll, contentPadding = PaddingValues(bottom = BELOW_FAB)) {
+    LazyColumn(
+        modifier = modifier,
+        state = scroll,
+        contentPadding = PaddingValues(bottom = BELOW_FAB)
+    ) {
         items(items = spots, key = { it.path }) { spot ->
             val uri = if (spot.media) Uri.fromFile(spot.file) else null
             SpotRow(

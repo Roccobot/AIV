@@ -315,6 +315,7 @@
         <item quantity="other">Você vai excluir %1$d itens definitivamente: eles somem do telefone para sempre.</item>
     </plurals>
     <string name="bin_title">Lixeira</string>
+    <string name="bin_tablet_pick">Abre um ficheiro para ver os detalhes.</string>
     <string name="bin_none">A lixeira está vazia.</string>
     <string name="bin_restore">Restaurar</string>
     <string name="bin_empty">Esvaziar a lixeira</string>

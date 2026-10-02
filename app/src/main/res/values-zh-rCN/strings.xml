@@ -293,6 +293,7 @@
         <item quantity="other">即将彻底删除 %1$d 项：将从手机上永久消失。</item>
     </plurals>
     <string name="bin_title">回收站</string>
+    <string name="bin_tablet_pick">打开文件以查看详细信息。</string>
     <string name="bin_none">回收站是空的。</string>
     <string name="bin_restore">还原</string>
     <string name="bin_empty">清空回收站</string>

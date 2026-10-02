@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -115,8 +116,14 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
      * avvolge tutto il pannello, tratto compreso.
      */
     val aria = Air()
+    /*
+     * ⚠️⚠️ **LARGHEZZA CONTENUTA DALLA `3.35`**, mockup `.dialog-preview` (520 dp): su tablet
+     * una finestra a tutta fascia si legge come una pagina, non come un dialogo. Il tetto è
+     * innocuo sul telefono (la fascia è già più stretta).
+     */
     return veiled() then OutsideElement(onOutside, aria) then
-        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then DIALOG_EDGE
+        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then DIALOG_EDGE then
+        Modifier.widthIn(max = Adaptive.dialogMaxWidth)
 }
 
 /**

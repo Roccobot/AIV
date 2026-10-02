@@ -293,6 +293,7 @@
         <item quantity="other">%1$d개를 완전히 삭제합니다. 기기에서 영영 사라집니다.</item>
     </plurals>
     <string name="bin_title">휴지통</string>
+    <string name="bin_tablet_pick">세부정보를 보려면 파일을 여세요.</string>
     <string name="bin_none">휴지통이 비어 있습니다.</string>
     <string name="bin_restore">되돌리기</string>
     <string name="bin_empty">휴지통 비우기</string>

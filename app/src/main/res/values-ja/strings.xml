@@ -293,6 +293,7 @@
         <item quantity="other">%1$d 件を完全に削除します。端末から永久になくなります。</item>
     </plurals>
     <string name="bin_title">ゴミ箱</string>
+    <string name="bin_tablet_pick">詳細を見るにはファイルを開いてください。</string>
     <string name="bin_none">ゴミ箱は空です。</string>
     <string name="bin_restore">元に戻す</string>
     <string name="bin_empty">ゴミ箱を空にする</string>

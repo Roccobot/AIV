@@ -3676,46 +3676,75 @@ private fun Stage(
         Screen.Bin -> {
             BackHandler { model.leaveGrid() }
             // ⚠️ La stessa `GridScreen` di una cartella, con `bin` acceso: quello che cambia
-            // sta là dentro (elimina definitiva, ripristina al posto di rinomina, e il
+            // vive là dentro (elimina definitiva, ripristina al posto di rinomina, e il
             // FAB anche senza selezione). Il cestino si naviga come una cartella
             // qualunque, che era la richiesta.
             val lookup = model.folder
-            GridScreen(
-                title = stringResource(R.string.bin_title),
-                items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
-                highlight = if (model.gridVisited) model.series?.index else null,
-                onOpen = { quale ->
-                    // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
-                    if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
-                },
-                onBack = { model.leaveGrid() },
-                onChanged = { model.reloadGrid() },
-                columns = settings.folderColumns,
-                factFields = settings.factRows,
-                binOn = settings.binOn,
-                listPath = settings.listPath,
-                pickWeight = settings.pickWeight,
-                filter = model.gridFilter,
-                /*
-                 * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
-                 * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
-                 * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
-                 * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
-                 * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
-                 * il gesto vibrava e chiamava una funzione che non fa niente, che è
-                 * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
-                 * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
-                 * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
-                 * nello stesso giro parlando dei pannelli.
-                 */
-                onSearch = { model.openSearch() },
-                onFilter = { model.sift(it) },
-                gridNames = settings.gridNames,
-                lastMark = settings.lastMark,
-                bin = true,
-                onHistory = { model.openHistory() },
-                onBusy = { model.gridBusy = it }
-            )
+            val widthDp = LocalConfiguration.current.screenWidthDp
+            val dualBin = Adaptive.sideAvailable(widthDp)
+            val listed = lookup?.seriesOrNull?.items
+            val highlight = if (model.gridVisited) model.series?.index else null
+            val detailUri = listed?.let { list ->
+                highlight?.takeIf { it in list.indices }?.let { list[it] }
+            }
+            @Composable
+            fun BinGrid() {
+                GridScreen(
+                    title = stringResource(R.string.bin_title),
+                    items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
+                    highlight = highlight,
+                    onOpen = { quale ->
+                        // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                        if (!consegna(listed, quale)) model.openFromGrid(quale)
+                    },
+                    onBack = { model.leaveGrid() },
+                    onChanged = { model.reloadGrid() },
+                    columns = settings.folderColumns,
+                    factFields = settings.factRows,
+                    binOn = settings.binOn,
+                    listPath = settings.listPath,
+                    pickWeight = settings.pickWeight,
+                    filter = model.gridFilter,
+                    /*
+                     * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
+                     * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
+                     * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
+                     * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
+                     * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
+                     * il gesto vibrava e chiamava una funzione che non fa niente, che è
+                     * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
+                     * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
+                     * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
+                     * nello stesso giro parlando dei pannelli.
+                     */
+                    onSearch = { model.openSearch() },
+                    onFilter = { model.sift(it) },
+                    gridNames = settings.gridNames,
+                    lastMark = settings.lastMark,
+                    bin = true,
+                    onHistory = { model.openHistory() },
+                    onBusy = { model.gridBusy = it }
+                )
+            }
+            /*
+             * ⚠️⚠️ **DETTAGLI A LATO DA 600 dp, DALLA `3.35`** (mockup `bin`): anteprime nello
+             * spazio principale e fatti del file evidenziato nella colonna. Telefono invariato.
+             */
+            if (dualBin) {
+                FoldersTabletSplit(
+                    panelOnStart = settings.hand == Hand.RIGHT,
+                    rail = {
+                        BinDetailSide(
+                            uri = detailUri,
+                            fields = settings.factRows,
+                            width = Adaptive.sideWidth(widthDp)
+                        )
+                    },
+                    detail = { BinGrid() }
+                )
+            } else {
+                BinGrid()
+            }
         }
 
         Screen.History -> {

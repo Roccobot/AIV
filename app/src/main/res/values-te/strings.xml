@@ -304,6 +304,7 @@
         <item quantity="other">%1$d ఫైళ్ళను శాశ్వతంగా తొలగించబోతున్నారు: అవి ఫోను నుంచి ఎప్పటికీ పోతాయి.</item>
     </plurals>
     <string name="bin_title">చెత్తబుట్ట</string>
+    <string name="bin_tablet_pick">వివరాలు చూడటానికి ఒక ఫైల్ తెరవండి.</string>
     <string name="bin_none">చెత్తబుట్ట ఖాళీగా ఉంది.</string>
     <string name="bin_restore">తిరిగి తెచ్చు</string>
     <string name="bin_empty">చెత్తబుట్ట ఖాళీ చేయి</string>

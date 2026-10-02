@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -155,6 +157,14 @@ fun DestinationDialog(
         return true
     }
 
+    // ⚠️⚠️ **LARGHEZZA CONTENUTA SUL TABLET, DALLA `3.35`**: su telefono resta a tutto
+    // schermo come prima (servono spazio e SafeArea); da 600 dp il foglio non supera
+    // [Adaptive.destinationMaxWidth], centrato, come `.dialog-preview` nel mockup
+    // Copia/sposta. I dialoghi corti (rinomina, scarica, converti) usano invece
+    // [Centred] → [Adaptive.dialogMaxWidth].
+    val destMaxW = Adaptive.destinationMaxWidth(
+        LocalConfiguration.current.screenWidthDp
+    )
     Dialog(
         onDismissRequest = onDismiss,
         // ⚠️⚠️ **LE DUE RIGHE VIVONO IN [fullWindow], DALLA `1.81`**: qui dentro c'è un elenco da
@@ -165,8 +175,16 @@ fun DestinationDialog(
     ) {
         BackHandler { if (!up()) onDismiss() }
 
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+        Box(
+            modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (destMaxW != null) Modifier.widthIn(max = destMaxW) else Modifier)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -264,6 +282,7 @@ fun DestinationDialog(
                         Text(stringResource(action, dir.name))
                     }
                 }
+            }
             }
         }
 
