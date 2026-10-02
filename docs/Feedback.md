@@ -95,6 +95,6 @@ sono riproposte.
 
 ## Prossimi passi
 
-- **3.40 prodotto su main** (`d6a9575` + icona `dbc0f50`): rail, lati editor, HEIC, sotto-pagine Impostazioni, ultimo inpaint (limiti nel brief). **Niente Release/APK** finché non la chiede Rocco; niente prove `3.40-xx` prima della Release.
+- **3.40 prodotto su main** (`862b2c6` + icona `dbc0f50`): rail, lati editor, HEIC, sotto-pagine Impostazioni, ultimo inpaint (limiti nel brief). **Niente Release/APK** finché non la chiede Rocco; niente prove `3.40-xx` prima della Release.
 - **Dopo Release 3.40**: nuove prove DF `3.40-xx` + archiviare residui 3.39 OK.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
