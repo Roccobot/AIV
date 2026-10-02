@@ -151,12 +151,12 @@
       }
     }
   };
-  // DF-only account-chip treatment: preserve the V-align transform while keeping
-  // the username and compact logout action on one baseline.
+  // Keep the account chip optically centered with the title row at every density.
   const chipStyle = document.createElement('style');
   chipStyle.textContent = `
     .cloud-account {
-      align-items: baseline;
+      align-items: center;
+      transform: none;
       gap: 8px;
       padding: 6px 12px;
       border-radius: 999px;
