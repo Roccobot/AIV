@@ -229,16 +229,28 @@ h1 {
   height: 24px;
   flex: 0 0 24px;
 }
+/* The source mark is black; keep it legible like the username in dark themes. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .cloud-account-logo {
+    filter: brightness(0) invert(1);
+  }
+}
+[data-theme="dark"] .cloud-account-logo {
+  filter: brightness(0) invert(1);
+}
 .cloud-account-user {
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: 14px;
 }
-/* On DPR≈2 displays, align only the connected username with the chip text. */
+/* Match the requested chip polish on the DPR≈2 display used for review. */
 @media (min-resolution: 1.9dppx) and (max-resolution: 2.1dppx),
   (-webkit-min-device-pixel-ratio: 1.9) and (-webkit-max-device-pixel-ratio: 2.1) {
+  .cloud-account {
+    transform: translateY(18px);
+  }
   .cloud-account-user {
-    transform: translateY(2px);
+    transform: translate(-3px, 2px);
   }
 }
 .cloud-account p {
