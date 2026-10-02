@@ -114,20 +114,25 @@ internal fun SettingsTabletSplit(
  */
 internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.ROOT,
+    Page.LOOK,
     Page.FOLDERS, Page.VIEWS, Page.HIDDEN,
     Page.VIEWER, Page.ZOOM,
     Page.INFO, Page.FACTS,
+    Page.NAV,
     Page.CONTROLS, Page.BUTTONS,
     Page.EDITING, Page.STYLES, Page.MARK, Page.SAVING,
+    Page.START,
     Page.THUMBS, Page.BACKUP
 )
 
 internal val Page.titleRes: Int
     get() = when (this) {
         Page.ROOT -> R.string.settings_title
+        Page.LOOK -> R.string.settings_page_look
         Page.FOLDERS -> R.string.settings_group_browse
         Page.VIEWER -> R.string.settings_group_viewer
         Page.INFO -> R.string.settings_page_info
+        Page.NAV -> R.string.settings_group_clips
         Page.CONTROLS -> R.string.settings_page_controls
         Page.EDITING -> R.string.settings_page_editing
         Page.FACTS -> R.string.settings_facts
@@ -140,4 +145,5 @@ internal val Page.titleRes: Int
         Page.STYLES -> R.string.settings_styles
         Page.MARK -> R.string.settings_mark
         Page.BACKUP -> R.string.backup_title
+        Page.START -> R.string.settings_group_start
     }

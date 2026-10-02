@@ -437,7 +437,13 @@ fun EditorScreen(
         // ⚠️ **Larghezza dalla finestra, già letta sopra per il blocco orientamento**
         // (giro 3.37 note B / fix 3.39 `3.38-01`).
         val beside = Adaptive.editorBeside(widthDp)
-        val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
+        /*
+             * ⚠️⚠️ **LATI INVERTITI DALLA `3.40`** (`3.39-01`): di default (FAB a destra,
+             * mano destra) i comandi stanno a **destra** e il canvas a sinistra; col FAB a
+             * sinistra i lati si scambiano. Prima era l'opposto (`hand == RIGHT` => pannello
+             * a start).
+             */
+            val panelOnStart = LocalPadLook.current.hand == Hand.LEFT
         val toolsWidth = Adaptive.editorToolsWidth(widthDp)
 
         @Composable

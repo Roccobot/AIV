@@ -360,7 +360,7 @@
     <string name="folders_tablet_pick">Tocca una cartella per iniziare.</string>
     <string name="folders_rail_search">Cerca nelle cartelle</string>
     <string name="folders_rail_search_in">Cerca in %1$s</string>
-    <string name="folders_rail_move">Sposta elenco cartelle</string>
+    <string name="folders_rail_move">Sposta la lista delle cartelle</string>
     <!-- ── Il FAB quadrato in basso a destra ── -->
     <string name="hub_open">Altro</string>
     <string name="hub_view_list">Visualizzazione lista</string>
@@ -594,6 +594,7 @@
     <string name="settings_page_info">Informazioni</string>
     <string name="settings_page_controls">Etichette e pulsanti</string>
     <string name="settings_page_editing">Editor e salvataggio</string>
+    <string name="settings_page_look">Tema e pannelli</string>
     <string name="settings_ext_edit">Consenti la modifica dell\'estensione</string>
     <string name="settings_ext_edit_desc">Aggiunge il pulsante \'Estensione\' alle finestre di dialogo dei nomi di file. Scegli qui sotto per quali moduli abilitarlo. ⚠️ Il cambio di estensione non equivale a una conversione di formato (per quello c\'è \'Esporta/Converti\') e va usato con cautela, perché alcuni file potrebbero diventare illeggibili e non essere più visualizzati dalle app galleria.</string>
     <string name="settings_gpu_thumbs">Salva le miniature nella memoria grafica</string>

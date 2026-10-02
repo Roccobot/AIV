@@ -314,6 +314,7 @@
     <string name="settings_page_info">Information</string>
     <string name="settings_page_controls">Labels and buttons</string>
     <string name="settings_page_editing">Editor and saving</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Allow editing the extension</string>
     <string name="settings_ext_edit_desc">Adds an \'Extension\' button to the file name windows. Pick below which ones it appears in. ⚠️ Changing an extension is not a format conversion (that is what \'Export and convert\' is for) and needs care, because some files may become unreadable and stop showing up in gallery apps.</string>
     <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
@@ -473,7 +474,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <!-- ── The little square button, bottom right of the folders screen ── -->
     <!-- It is the app's whole menu now that the opening screen is gone, so it has to
          say so rather than name one of the things behind it. -->

@@ -578,6 +578,34 @@ fun SettingsScreen(
         ) {
             BackupPage()
         }
+
+        Page.LOOK -> Shell(
+            title = stringResource(R.string.settings_page_look),
+            onBack = { back() },
+            modifier = chrome
+        ) {
+            LookPage(settings = settings, onChange = onChange)
+        }
+
+        Page.NAV -> Shell(
+            title = stringResource(R.string.settings_group_clips),
+            onBack = { back() },
+            modifier = chrome
+        ) {
+            NavPage(settings = settings, onChange = onChange)
+        }
+
+        Page.START -> Shell(
+            title = stringResource(R.string.settings_group_start),
+            onBack = { back() },
+            modifier = chrome
+        ) {
+            StartPage(
+                settings = settings,
+                onChange = onChange,
+                onStartFolder = onStartFolder
+            )
+        }
     }
     } // Pages
 
@@ -594,6 +622,7 @@ fun SettingsScreen(
             detail = { Pages(Modifier.fillMaxSize()) },
             modifier = modifier
         )
+
     } else {
         Pages(modifier)
     }
@@ -621,7 +650,10 @@ internal enum class Page {
     // ⚠️ `BACKUP` in coda e non vicino a chi gli somiglia: la pila si salva per ordinali (vedi
     // [PAGE_STACK]), e una voce infilata in mezzo sposterebbe quelle dopo, cioè una rotazione in
     // corso di aggiornamento riaprirebbe una pagina diversa.
-    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK, BACKUP
+    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK, BACKUP,
+    // ⚠️⚠️ **TRE SOTTO-PAGINE NUOVE DALLA `3.40`** (`3.27-03`): in coda, stessi ordinali di prima
+    // fino a BACKUP. LOOK = tema e profondità pannelli; NAV = scorrimento; START = avvio.
+    LOOK, NAV, START
 }
 
 /**
@@ -808,61 +840,19 @@ private fun ColumnScope.RootPage(
 ) {
     Section(stringResource(R.string.settings_group_look)) {
 
-        // ⚠️ Il tema dell'APP sta per primo e prima di quello dello sfondo, che gli somiglia
-        // ma risponde a un'altra domanda (vedi `UiTheme`): messo dopo, si leggerebbe come
-        // una variante di quello, e sono due assi indipendenti.
-        Choices(
-            label = stringResource(R.string.settings_ui_theme),
-            detail = stringResource(R.string.settings_ui_theme_desc),
-            options = UiTheme.entries,
-            selected = settings.uiTheme,
-            nameOf = {
-                stringResource(
-                    when (it) {
-                        UiTheme.SYSTEM -> R.string.settings_system
-                        // ⚠️ Stringhe PROPRIE e non quelle della tinta del fondo, che
-                        // sono al femminile perché dicono 'tinta chiara': qui il nome è
-                        // 'tema', e riusarle darebbe 'Tema: Chiara'.
-                        UiTheme.LIGHT -> R.string.settings_theme_light
-                        UiTheme.DARK -> R.string.settings_theme_dark
-                    }
-                )
-            },
-            onSelect = { onChange(settings.copy(uiTheme = it)) }
-        )
-
         /*
-         * ⚠️⚠️ **SUBITO DOPO IL TEMA DALLA `2.09`, E PRIMA ERA ULTIMA DEL GRUPPO**: in mezzo c'era
-         * la coppia dello sfondo (che cosa c'è dietro un'immagine, e di che tinta), che con la
-         * strada B è scesa nella pagina del visualizzatore. Quella coppia rispondeva a una domanda
-         * sull'immagine aperta; questa parla di quello che c'è dietro le **finestre**, cioè
-         * dell'app, ed è per questo che è rimasta accanto al tema.
-         * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui la voce esiste: chi
-         * sceglie deve sapere che cosa sta comprando, o leggerà la lentezza come un difetto
-         * dell'app.
-         * ⚠️⚠️ **ERA UN INTERRUTTORE FINO ALLA `1.80`, e dalla `1.81` sono tre gettoni** (istruzione
-         * dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI
-         * insieme)*). ⚠️ **Tre gettoni e non due interruttori, ed è la richiesta alla lettera**: con
-         * due, 'mai insieme' sarebbe una regola da far rispettare a mano, e ci sarebbe uno stato in
-         * cui sono accesi entrambi. Qui quello stato non esiste. Il perché tecnico, che è più forte
-         * del gusto, sta su [PanelDepth].
+         * ⚠️⚠️ **TEMA E PANNELLI SCENDONO DI UN LIVELLO DALLA `3.40`** (`3.27-03`): restano
+         * la stessa famiglia 'Aspetto', ma dietro una porta come Cartelle/Visualizzatore,
+         * così la radice non ammucchia gettoni accanto alle porte.
          */
-        Choices(
-            label = stringResource(R.string.settings_depth),
-            detail = stringResource(R.string.settings_depth_desc),
-            options = PanelDepth.entries,
-            selected = settings.panelDepth,
-            nameOf = {
-                stringResource(
-                    when (it) {
-                        PanelDepth.BLUR -> R.string.settings_depth_blur
-                        PanelDepth.SHADOW -> R.string.settings_depth_shadow
-                        PanelDepth.NONE -> R.string.settings_depth_none
-                    }
-                )
-            },
-            onSelect = { onChange(settings.copy(panelDepth = it)) }
-        )
+        PageOfRows(
+            label = stringResource(R.string.settings_page_look),
+            summary = listOf(
+                stringResource(R.string.settings_ui_theme),
+                stringResource(R.string.settings_depth)
+            ).joinToString(SUMMARY_JOIN),
+            onOpen = { onOpen(Page.LOOK) }
+        ) { LookPage(settings = settings, onChange = onChange) }
 
         /*
          * ⚠️⚠️ **TRE PORTE AL POSTO DI DICIOTTO RIGHE, DALLA `2.09`, ED È LA SUA RISPOSTA**
@@ -934,23 +924,18 @@ private fun ColumnScope.RootPage(
      * vale l'altro finché lo dice bene.
      */
     Section(stringResource(R.string.settings_group_clips)) {
-
-        SwitchRow(
-            label = stringResource(R.string.settings_images_only),
-            detail = stringResource(R.string.settings_images_only_desc),
-            checked = settings.imagesOnly,
-            onChange = { onChange(settings.copy(imagesOnly = it)) }
-        )
-
-        // ⚠️ Una voce sola non prende un titolo suo, e va nella famiglia la cui domanda le sta
-        // più vicina: il verso dello scorrimento sta coi video perché è l'altra cosa che il
-        // gesto di sfogliare decide.
-        SwitchRow(
-            label = stringResource(R.string.settings_reverse_order),
-            detail = stringResource(R.string.settings_reverse_order_desc),
-            checked = settings.reverseSequence,
-            onChange = { onChange(settings.copy(reverseSequence = it)) }
-        )
+        /*
+         * ⚠️⚠️ **SOTTO-PAGINA DALLA `3.40`** (`3.27-03`): le due voci di scorrimento restano
+         * la stessa famiglia, dietro una porta, come Etichette e pulsanti qui sotto.
+         */
+        PageOfRows(
+            label = stringResource(R.string.settings_group_clips),
+            summary = listOf(
+                stringResource(R.string.settings_images_only),
+                stringResource(R.string.settings_reverse_order)
+            ).joinToString(SUMMARY_JOIN),
+            onOpen = { onOpen(Page.NAV) }
+        ) { NavPage(settings = settings, onChange = onChange) }
     }
 
     /*
@@ -1092,38 +1077,22 @@ private fun ColumnScope.RootPage(
     }
 
     Section(stringResource(R.string.settings_group_start)) {
-
-        SwitchRow(
-            label = stringResource(R.string.settings_clipboard),
-            detail = stringResource(R.string.settings_clipboard_desc),
-            checked = settings.clipboardStart,
-            onChange = { onChange(settings.copy(clipboardStart = it)) }
-        )
-
-        // ⚠️ L'interruttore e la riga della cartella si mostrano e si nascondono INSIEME, e per
-        // questo la ricerca li tratta come un blocco solo: la riga sotto non ha un titolo suo, e
-        // rimasta sola direbbe un nome di cartella senza dire di che cosa parla.
-        val startLabel = stringResource(R.string.settings_start_folder)
-        val startDesc = stringResource(R.string.settings_start_folder_desc)
-        Searchable(startLabel, startDesc) {
-            SwitchRow(
-                label = startLabel,
-                detail = startDesc,
-                checked = settings.openAtStart,
-                // ⚠️ Acceso senza una cartella scelta porta ALL'ELENCO invece di accendersi
-                // e non fare niente: un interruttore che dipende da un'altra voce e non lo
-                // dice è il modo classico di far sembrare rotta un'impostazione.
-                onChange = {
-                    if (it && settings.startFolder == null) onStartFolder()
-                    else onChange(settings.copy(openAtStart = it))
-                }
-            )
-            ValueAndPick(
-                value = settings.startFolderName.ifBlank {
-                    stringResource(R.string.settings_start_folder_none)
-                },
-                pick = stringResource(R.string.settings_start_folder_pick),
-                onPick = onStartFolder
+        /*
+         * ⚠️⚠️ **SOTTO-PAGINA DALLA `3.40`** (`3.27-03`): appunti e cartella d'avvio dietro
+         * una porta, stessa famiglia di prima.
+         */
+        PageOfRows(
+            label = stringResource(R.string.settings_group_start),
+            summary = listOf(
+                stringResource(R.string.settings_clipboard),
+                stringResource(R.string.settings_start_folder)
+            ).joinToString(SUMMARY_JOIN),
+            onOpen = { onOpen(Page.START) }
+        ) {
+            StartPage(
+                settings = settings,
+                onChange = onChange,
+                onStartFolder = onStartFolder
             )
         }
     }
@@ -1249,6 +1218,133 @@ private fun ColumnScope.RootPage(
     Identity(iconSize = 72.dp, modifier = Modifier.fillMaxWidth())
 
     Spacer(Modifier.height(24.dp))
+}
+
+/**
+ * Tema dell'app e profondità dietro menu/pannelli.
+ *
+ * ⚠️⚠️ **NASCE CON LA `3.40`** (`3.27-03`): prima vivevano distese sotto Aspetto nella radice.
+ */
+@Composable
+private fun LookPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit
+) {
+    // ⚠️ Il tema dell'APP sta per primo e prima di quello dello sfondo, che gli somiglia
+    // ma risponde a un'altra domanda (vedi `UiTheme`): messo dopo, si leggerebbe come
+    // una variante di quello, e sono due assi indipendenti.
+    Choices(
+        label = stringResource(R.string.settings_ui_theme),
+        detail = stringResource(R.string.settings_ui_theme_desc),
+        options = UiTheme.entries,
+        selected = settings.uiTheme,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    UiTheme.SYSTEM -> R.string.settings_system
+                    // ⚠️ Stringhe PROPRIE e non quelle della tinta del fondo, che
+                    // sono al femminile perché dicono 'tinta chiara': qui il nome è
+                    // 'tema', e riusarle darebbe 'Tema: Chiara'.
+                    UiTheme.LIGHT -> R.string.settings_theme_light
+                    UiTheme.DARK -> R.string.settings_theme_dark
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(uiTheme = it)) }
+    )
+
+    /*
+     * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui la voce esiste: chi
+     * sceglie deve sapere che cosa sta comprando, o leggerà la lentezza come un difetto
+     * dell'app.
+     * ⚠️ **Tre gettoni e non due interruttori** (dalla `1.81`): 'mai insieme' è una regola
+     * strutturale, vedi [PanelDepth].
+     */
+    Choices(
+        label = stringResource(R.string.settings_depth),
+        detail = stringResource(R.string.settings_depth_desc),
+        options = PanelDepth.entries,
+        selected = settings.panelDepth,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    PanelDepth.BLUR -> R.string.settings_depth_blur
+                    PanelDepth.SHADOW -> R.string.settings_depth_shadow
+                    PanelDepth.NONE -> R.string.settings_depth_none
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(panelDepth = it)) }
+    )
+}
+
+/**
+ * Scorrimento fra i media: sole immagini e verso della sequenza.
+ *
+ * ⚠️⚠️ **NASCE CON LA `3.40`** (`3.27-03`).
+ */
+@Composable
+private fun NavPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit
+) {
+    SwitchRow(
+        label = stringResource(R.string.settings_images_only),
+        detail = stringResource(R.string.settings_images_only_desc),
+        checked = settings.imagesOnly,
+        onChange = { onChange(settings.copy(imagesOnly = it)) }
+    )
+    SwitchRow(
+        label = stringResource(R.string.settings_reverse_order),
+        detail = stringResource(R.string.settings_reverse_order_desc),
+        checked = settings.reverseSequence,
+        onChange = { onChange(settings.copy(reverseSequence = it)) }
+    )
+}
+
+/**
+ * Cosa fare all'avvio: appunti e cartella iniziale.
+ *
+ * ⚠️⚠️ **NASCE CON LA `3.40`** (`3.27-03`).
+ */
+@Composable
+private fun StartPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    onStartFolder: () -> Unit
+) {
+    SwitchRow(
+        label = stringResource(R.string.settings_clipboard),
+        detail = stringResource(R.string.settings_clipboard_desc),
+        checked = settings.clipboardStart,
+        onChange = { onChange(settings.copy(clipboardStart = it)) }
+    )
+    // ⚠️ L'interruttore e la riga della cartella si mostrano e si nascondono INSIEME, e per
+    // questo la ricerca li tratta come un blocco solo: la riga sotto non ha un titolo suo, e
+    // rimasta sola direbbe un nome di cartella senza dire di che cosa parla.
+    val startLabel = stringResource(R.string.settings_start_folder)
+    val startDesc = stringResource(R.string.settings_start_folder_desc)
+    Searchable(startLabel, startDesc) {
+        SwitchRow(
+            label = startLabel,
+            detail = startDesc,
+            checked = settings.openAtStart,
+            // ⚠️ Acceso senza una cartella scelta porta ALL'ELENCO invece di accendersi
+            // e non fare niente: un interruttore che dipende da un'altra voce e non lo
+            // dice è il modo classico di far sembrare rotta un'impostazione.
+            onChange = {
+                if (it && settings.startFolder == null) onStartFolder()
+                else onChange(settings.copy(openAtStart = it))
+            }
+        )
+        ValueAndPick(
+            value = settings.startFolderName.ifBlank {
+                stringResource(R.string.settings_start_folder_none)
+            },
+            pick = stringResource(R.string.settings_start_folder_pick),
+            onPick = onStartFolder
+        )
+    }
 }
 
 /**

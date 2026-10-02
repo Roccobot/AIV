@@ -10,17 +10,23 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
@@ -34,10 +40,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -88,25 +94,46 @@ fun FolderRail(
     onBin: () -> Unit,
     onSettings: () -> Unit,
     width: Dp,
+    /**
+     * Quanto si alza il blocco elenco dal fondo, in pixel.
+     *
+     * ⚠️⚠️ **VIVE FUORI, DALLA `3.40`** (`3.39-03`): le tre case tablet (cartelle / griglia /
+     * ricerca) ricreano ciascuna un [FolderRail], e un `remember` locale azzerava il lift al
+     * tap su una cartella. Il modello lo tiene, così la posizione sopravvive al cambio di
+     * schermata.
+     */
+    liftPx: Float,
+    onLift: (Float) -> Unit,
+    /** Indice del primo elemento visibile nell'elenco cartelle (persistito nel modello). */
+    listIndex: Int,
+    /** Offset in pixel del primo elemento visibile. */
+    listOffset: Int,
+    onListScroll: (index: Int, offset: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState(listIndex, listOffset)
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collect { (index, offset) -> onListScroll(index, offset) }
+    }
+
     val context = LocalContext.current
     var granted by remember { mutableStateOf(Folder.granted(context)) }
     LaunchedEffect(granted) { onRead(granted) }
 
     val folders = buckets?.filter { selection.visible(it.path, peeking) }
 
-    /*
-     * ⚠️ **Quanto si alza il blocco elenco dal fondo dell'area libera**: 0 = appoggiato
-     * in basso (default del mockup, pollice a tiro); il massimo è lo spazio libero sopra
-     * al blocco. La maniglia a sei puntini lo muove solo se c'è aria.
-     */
-    var liftPx by remember { mutableFloatStateOf(0f) }
-
     Column(
         modifier = modifier
             .width(width)
             .fillMaxHeight()
+            // ⚠️⚠️ **INSET SUPERIORE DALLA `3.40`** (`3.39-03`): Cerca finiva sotto l'orologio
+            // di sistema in verticale e in orizzontale. Solo Top+Horizontal: il basso resta
+            // gestito dalla riga Cestino/Impostazioni e dalla gesture bar del content.
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+            )
             .background(MaterialTheme.colorScheme.surface)
     ) {
         RailSearch(
@@ -115,7 +142,7 @@ fun FolderRail(
             modifier = Modifier
                 .fillMaxWidth()
                 // ⚠️ Aria dal bordo, come nel mockup: non attaccata alla cornice.
-                .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 8.dp)
+                .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 8.dp)
         )
 
         BoxWithConstraints(
@@ -128,13 +155,16 @@ fun FolderRail(
             // Stima dell'altezza del blocco (maniglia + elenco): serve a limitare il lift.
             val blockCapPx = areaPx
             val maxLift = (areaPx - 48f).coerceAtLeast(0f)
-            if (liftPx > maxLift) liftPx = maxLift
+            val lift = liftPx.coerceIn(0f, maxLift)
+            LaunchedEffect(maxLift, liftPx) {
+                if (liftPx > maxLift) onLift(maxLift)
+            }
 
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .offset { IntOffset(0, -liftPx.roundToInt()) }
+                    .offset { IntOffset(0, -lift.roundToInt()) }
                     .heightIn(max = with(density) { blockCapPx.toDp() })
             ) {
                 /*
@@ -147,16 +177,22 @@ fun FolderRail(
                         .padding(end = 4.dp),
                     contentAlignment = Alignment.CenterEnd
                 ) {
+                    /*
+                     * ⚠️⚠️ **MANIGLIA PIU DISCRETA DALLA `3.40`** (`3.39-03`): troppo
+                     * contrastata sul fondo scuro del rail. Icona più piccola e tinta al
+                     * 38% dell'onSurfaceVariant, così resta trovabile al tocco senza
+                     * competere con Cerca e con l'elenco.
+                     */
                     Icon(
                         imageVector = Icons.Default.DragIndicator,
                         contentDescription = stringResource(R.string.folders_rail_move),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(20.dp)
                             .pointerInput(maxLift) {
                                 detectVerticalDragGestures { _, dragAmount ->
                                     // ⚠️ dragAmount > 0 = dito verso il basso = abbassa il blocco.
-                                    liftPx = (liftPx - dragAmount).coerceIn(0f, maxLift)
+                                    onLift((liftPx - dragAmount).coerceIn(0f, maxLift))
                                 }
                             }
                     )
@@ -181,6 +217,7 @@ fun FolderRail(
                         modifier = Modifier.padding(16.dp)
                     )
                     else -> LazyColumn(
+                        state = listState,
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
@@ -235,11 +272,15 @@ fun FolderRail(
          * (`3.38-03`): non più icone in testata accanto a Cerca (sembravano azioni di
          * cancellazione sulla lista). Due colonne, icona sopra e testo sotto.
          */
+        /*
+         * ⚠️⚠️ **CENTRATI DAVVERO DALLA `3.40`** (`3.39-03`): con SpaceEvenly + weight le
+         * etichette di lunghezze diverse (Cestino / Impostazioni) sembravano spostate a
+         * destra. Due colonne uguali, ciascuna a tutta larghezza e contenuto centrato.
+         */
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+                .padding(horizontal = 4.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             RailAction(
@@ -351,6 +392,7 @@ private fun RailAction(
     val tint = MaterialTheme.colorScheme.onSurface
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .clickable(role = Role.Button, onClick = onClick)
             .padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

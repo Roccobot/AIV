@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">更多</string>
     <string name="hub_view_list">列表视图</string>
     <string name="hub_view_grid">网格视图</string>
@@ -333,6 +333,7 @@
     <string name="settings_page_info">信息</string>
     <string name="settings_page_controls">标签与按钮</string>
     <string name="settings_page_editing">编辑器与保存</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">允许修改扩展名</string>
     <string name="settings_ext_edit_desc">在文件名窗口中添加 \'扩展名\' 按钮。在下面选择出现在哪些窗口。⚠️ 修改扩展名不等于格式转换（那是 \'导出并转换\' 的事），要谨慎使用，因为有些文件会变得无法读取，并从相册应用中消失。</string>
     <string name="settings_gpu_thumbs">把缩略图放在图形内存里</string>

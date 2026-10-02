@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Więcej</string>
     <string name="hub_view_list">Widok listy</string>
     <string name="hub_view_grid">Widok siatki</string>
@@ -378,6 +378,7 @@
     <string name="settings_page_info">Informacje</string>
     <string name="settings_page_controls">Etykiety i przyciski</string>
     <string name="settings_page_editing">Edytor i zapisywanie</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Pozwól zmieniać rozszerzenie</string>
     <string name="settings_ext_edit_desc">Dodaje przycisk \'Rozszerzenie\' do okien z nazwami plików. Poniżej wybierz, w których. ⚠️ Zmiana rozszerzenia to nie konwersja formatu (od tego jest \'Eksportuj i konwertuj\') i wymaga ostrożności, bo część plików może stać się nieczytelna i zniknąć z aplikacji galerii.</string>
     <string name="settings_gpu_thumbs">Trzymaj miniatury w pamięci graficznej</string>

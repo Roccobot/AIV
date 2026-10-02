@@ -1,6 +1,7 @@
 # Feedback AIV
 
-Versione **3.39**: collaudo consegnato e travasato il 2 ottobre 2026 (~23:25 Europe/Rome).
+Versione **3.39** (Release pubblicata). Prodotto **3.40** su `main` (298, niente Release ancora): rail, editor, HEIC, impostazioni, inpaint.
+Collaudo 3.39 consegnato e travasato il 2 ottobre 2026 (~23:25 Europe/Rome).
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
 La Release 3.39 resta pubblicata: [v3.39](https://github.com/Roccobot/AIV/releases/tag/v3.39), con l'APK
 [AIV-3.39.apk](https://github.com/Roccobot/AIV/releases/download/v3.39/AIV-3.39.apk).
@@ -94,6 +95,6 @@ sono riproposte.
 
 ## Prossimi passi
 
-- **3.40 (entra, ordine Rocco)**: (1) correzioni collaudo `3.39-03` rail + `3.39-01` lati editor + etichetta maniglia `Sposta la lista delle cartelle`; (2) flash colori HEIC in sfoglio (esempio tools `.memo/files/aiv-heic-color-flash-example.heic`); (3) più sotto-pagine Impostazioni `3.27-03`; (4) ultimo tentativo inpaint `3.38-11` / `3.24-04` / `3.30-01` (non insistire oltre; se corto, limiti nel brief).
-- **Accorpato / già chiuso nel collaudo**: FAB `3.39-02`, empty `3.39-04`, riprove `3.13-02` / `3.13-08`, flicker (parte di `3.39-01`).
+- **3.40 prodotto su main** (`d6a9575` + icona `dbc0f50`): rail, lati editor, HEIC, sotto-pagine Impostazioni, ultimo inpaint (limiti nel brief). **Niente Release/APK** finché non la chiede Rocco; niente prove `3.40-xx` prima della Release.
+- **Dopo Release 3.40**: nuove prove DF `3.40-xx` + archiviare residui 3.39 OK.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.

@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Ещё</string>
     <string name="hub_view_list">Вид списком</string>
     <string name="hub_view_grid">Вид сеткой</string>
@@ -378,6 +378,7 @@
     <string name="settings_page_info">Информация</string>
     <string name="settings_page_controls">Подписи и кнопки</string>
     <string name="settings_page_editing">Редактор и сохранение</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Разрешить изменение расширения</string>
     <string name="settings_ext_edit_desc">Добавляет кнопку \'Расширение\' в окна с именами файлов. Ниже выбери, в какие. ⚠️ Смена расширения не преобразует формат (для этого есть \'Экспортировать и преобразовать\') и требует осторожности: некоторые файлы станут нечитаемыми и пропадут из приложений галереи.</string>
     <string name="settings_gpu_thumbs">Хранить миниатюры в графической памяти</string>

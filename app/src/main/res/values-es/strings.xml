@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Más</string>
     <string name="hub_view_list">Vista de lista</string>
     <string name="hub_view_grid">Vista de cuadrícula</string>
@@ -363,6 +363,7 @@
     <string name="settings_page_info">Información</string>
     <string name="settings_page_controls">Etiquetas y botones</string>
     <string name="settings_page_editing">Editor y guardado</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Permitir cambiar la extensión</string>
     <string name="settings_ext_edit_desc">Añade el botón \'Extensión\' a las ventanas de nombres de archivo. Elige abajo en cuáles aparece. ⚠️ Cambiar la extensión no es una conversión de formato (para eso está \'Exportar y convertir\') y hay que usarlo con cuidado, porque algunos archivos pueden volverse ilegibles y dejar de verse en las apps de galería.</string>
     <string name="settings_gpu_thumbs">Guardar las miniaturas en la memoria gráfica</string>

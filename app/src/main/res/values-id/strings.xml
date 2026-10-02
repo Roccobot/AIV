@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Lainnya</string>
     <string name="hub_view_list">Tampilan daftar</string>
     <string name="hub_view_grid">Tampilan kisi</string>
@@ -333,6 +333,7 @@
     <string name="settings_page_info">Informasi</string>
     <string name="settings_page_controls">Label dan tombol</string>
     <string name="settings_page_editing">Editor dan penyimpanan</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Izinkan mengubah ekstensi</string>
     <string name="settings_ext_edit_desc">Menambahkan tombol \'Ekstensi\' ke jendela nama berkas. Pilih di bawah untuk yang mana. ⚠️ Mengubah ekstensi bukan konversi format (untuk itu ada \'Ekspor dan konversi\') dan perlu kehati-hatian, karena sebagian berkas bisa jadi tak terbaca dan hilang dari aplikasi galeri.</string>
     <string name="settings_gpu_thumbs">Simpan gambar mini di memori grafis</string>

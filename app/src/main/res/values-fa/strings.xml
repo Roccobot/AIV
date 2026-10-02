@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">بیشتر</string>
     <string name="hub_view_list">نمای فهرستی</string>
     <string name="hub_view_grid">نمای شبکه‌ای</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">اطلاعات</string>
     <string name="settings_page_controls">برچسب‌ها و دکمه‌ها</string>
     <string name="settings_page_editing">ویرایشگر و ذخیره</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">اجازه تغییر پسوند</string>
     <string name="settings_ext_edit_desc">دکمهٔ \'پسوند\' را به پنجره‌های نام فایل می‌افزاید. پایین‌تر انتخاب کن در کدام‌ها دیده شود. ⚠️ تغییر پسوند تبدیل قالب نیست (برای آن \'برون‌بری و تبدیل\' هست) و باید با احتیاط به کار برود، چون برخی فایل‌ها ناخوانا می‌شوند و دیگر در برنامه‌های گالری دیده نمی‌شوند.</string>
     <string name="settings_gpu_thumbs">نگه‌داشتن بندانگشتی‌ها در حافظه گرافیکی</string>

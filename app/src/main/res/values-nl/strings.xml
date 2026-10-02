@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Meer</string>
     <string name="hub_view_list">Lijstweergave</string>
     <string name="hub_view_grid">Rasterweergave</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">Informatie</string>
     <string name="settings_page_controls">Labels en knoppen</string>
     <string name="settings_page_editing">Editor en opslaan</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Extensie wijzigen toestaan</string>
     <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters met bestandsnamen. Kies hieronder in welke. ⚠️ Een extensie wijzigen is geen formaatomzetting (daarvoor is \'Exporteren en omzetten\') en vraagt om voorzichtigheid, want sommige bestanden worden onleesbaar en verdwijnen uit galerij-apps.</string>
     <string name="settings_gpu_thumbs">Miniaturen in het grafisch geheugen houden</string>

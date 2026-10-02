@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">เพิ่มเติม</string>
     <string name="hub_view_list">มุมมองรายการ</string>
     <string name="hub_view_grid">มุมมองตาราง</string>
@@ -333,6 +333,7 @@
     <string name="settings_page_info">ข้อมูล</string>
     <string name="settings_page_controls">ป้ายกำกับและปุ่ม</string>
     <string name="settings_page_editing">โปรแกรมแก้ไขและการบันทึก</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">อนุญาตให้แก้ไขนามสกุล</string>
     <string name="settings_ext_edit_desc">เพิ่มปุ่ม \'นามสกุล\' ในหน้าต่างชื่อไฟล์ เลือกด้านล่างว่าจะให้ปรากฏที่ไหน ⚠️ การเปลี่ยนนามสกุลไม่ใช่การแปลงรูปแบบ (สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\') และต้องใช้อย่างระวัง เพราะบางไฟล์อาจอ่านไม่ได้และหายไปจากแอปแกลเลอรี</string>
     <string name="settings_gpu_thumbs">เก็บภาพย่อไว้ในหน่วยความจำกราฟิก</string>

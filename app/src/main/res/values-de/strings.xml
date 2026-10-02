@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Mehr</string>
     <string name="hub_view_list">Listenansicht</string>
     <string name="hub_view_grid">Rasteransicht</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">Informationen</string>
     <string name="settings_page_controls">Beschriftungen und Schaltflächen</string>
     <string name="settings_page_editing">Editor und Speichern</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Ändern der Endung erlauben</string>
     <string name="settings_ext_edit_desc">Fügt den Fenstern für Dateinamen die Schaltfläche \'Endung\' hinzu. Wähle unten, in welchen. ⚠️ Eine Endung zu ändern ist keine Formatumwandlung (dafür gibt es \'Exportieren und umwandeln\') und will mit Bedacht benutzt werden, denn manche Dateien werden unlesbar und tauchen in Galerie-Apps nicht mehr auf.</string>
     <string name="settings_gpu_thumbs">Miniaturen im Grafikspeicher halten</string>

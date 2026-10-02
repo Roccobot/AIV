@@ -13,6 +13,9 @@ import kotlin.math.sqrt
  *
  * Dalla `3.29`/`3.37` (`3.24-04`/`3.30-01`): raggio adattivo, peso isofota e struttura
  * sul donatore ancora alzati, per preservare meglio orli, linee e pattern.
+ * Dalla `3.40` (`3.38-11`): ultimo giro euristico senza AI: raggio un po' più generoso,
+ * termine di struttura sul patch noto (non solo al centro) e blending di Poisson un filo
+ * più lungo sui bordi (senza bilanciare la luminanza nel SSD: lava gli orli scuri).
  */
 internal object Inpaint {
     fun repair(
@@ -50,9 +53,10 @@ internal object Inpaint {
                 max(maxX - minX + 1, maxY - minY + 1)
             }
         val wanted = when {
-            holeSpan >= 48 -> 8
-            holeSpan >= 24 -> 7
-            holeSpan >= 12 -> 6
+            holeSpan >= 64 -> 9
+            holeSpan >= 40 -> 8
+            holeSpan >= 20 -> 7
+            holeSpan >= 10 -> 6
             else -> 5
         }
         val radius = min(wanted, (min(width, height) - 3) / 2)
@@ -131,7 +135,7 @@ internal object Inpaint {
                 val ny = unknown(x, y + 1) - unknown(x, y - 1)
                 val norm = sqrt(nx * nx + ny * ny).coerceAtLeast(1f)
                 // ⚠️ Peso isofota alzato (`3.29`): continua meglio orli e linee spezzate.
-                val priority = (sum / samples) * (0.015f + abs(-gy * nx + gx * ny) / norm * 1.15f)
+                val priority = (sum / samples) * (0.012f + abs(-gy * nx + gx * ny) / norm * 1.25f)
                 if (priority > bestPriority) {
                     bestPriority = priority
                     target = index
@@ -180,25 +184,44 @@ internal object Inpaint {
                     if (cost > error) return
                 }
                 /*
-                 * ⚠️⚠️ **Termine di struttura dalla `3.29`** (`3.24-04`): oltre al colore,
-                 * confronta il gradiente locale del pezzo noto. Senza, un bottone su un orlo
-                 * poteva essere riempito con pezzi di tessuto che spezzavano la piega.
+                 * ⚠️⚠️ **Termine di struttura dalla `3.29`, rinforzato in `3.40`**: oltre al
+                 * centro, confronta il gradiente su fino a quattro campioni noti del patch.
+                 * Senza, un orlo poteva essere riempito con pezzi di tessuto che spezzavano
+                 * la piega. ⚠️ Il bilanciamento di luminanza sul SSD e stato ritirato: su un
+                 * orlo scuro su campo chiaro lavava il bordo (banco `hem-like`).
                  */
-                if (tx in 1 until width - 1 && ty in 1 until height - 1 &&
-                    candidate % width in 1 until width - 1 && candidate / width in 1 until height - 1
-                ) {
-                    fun localGx(base: Int, from: IntArray): Float =
-                        (greyOf(from[base + 1]) - greyOf(from[base - 1])) * 0.5f
-                    fun localGy(base: Int, from: IntArray): Float =
-                        (greyOf(from[base + width]) - greyOf(from[base - width])) * 0.5f
-                    // Confronta solo dove entrambi i lati del target sono noti.
-                    if (!missing[target - 1] && !missing[target + 1] &&
-                        !missing[target - width] && !missing[target + width]
-                    ) {
-                        val dgx = localGx(target, filled) - localGx(candidate, pixels)
-                        val dgy = localGy(target, filled) - localGy(candidate, pixels)
-                        cost += (dgx * dgx + dgy * dgy) * 2800.0
+                fun localGx(base: Int, from: IntArray): Float =
+                    (greyOf(from[base + 1]) - greyOf(from[base - 1])) * 0.5f
+                fun localGy(base: Int, from: IntArray): Float =
+                    (greyOf(from[base + width]) - greyOf(from[base - width])) * 0.5f
+                fun structureAt(tBase: Int, cBase: Int): Double {
+                    val cx = cBase % width
+                    val cy = cBase / width
+                    if (tBase % width !in 1 until width - 1 || tBase / width !in 1 until height - 1) {
+                        return 0.0
                     }
+                    if (cx !in 1 until width - 1 || cy !in 1 until height - 1) return 0.0
+                    if (missing[tBase - 1] || missing[tBase + 1] ||
+                        missing[tBase - width] || missing[tBase + width]
+                    ) {
+                        return 0.0
+                    }
+                    val dgx = localGx(tBase, filled) - localGx(cBase, pixels)
+                    val dgy = localGy(tBase, filled) - localGy(cBase, pixels)
+                    return (dgx * dgx + dgy * dgy) * 3200.0
+                }
+                cost += structureAt(target, candidate)
+                if (tx > radius && !missing[target - 1]) {
+                    cost += structureAt(target - 1, candidate - 1) * 0.35
+                }
+                if (tx + radius < width - 1 && !missing[target + 1]) {
+                    cost += structureAt(target + 1, candidate + 1) * 0.35
+                }
+                if (ty > radius && !missing[target - width]) {
+                    cost += structureAt(target - width, candidate - width) * 0.35
+                }
+                if (ty + radius < height - 1 && !missing[target + width]) {
+                    cost += structureAt(target + width, candidate + width) * 0.35
                 }
                 // Only break otherwise equal matches by distance; texture/structure
                 // must dominate the preference for a nearby source patch.
@@ -245,10 +268,12 @@ internal object Inpaint {
         }
         // A small screening term keeps donor texture while the fixed outside boundary
         // reconciles its lighting. No pixel outside the original selection is written.
-        val screen = 0.25f
+        // ⚠️ `3.40`: screening un filo più basso lascia piu trama del donatore; iterazioni
+        // extra chiudono meglio i gradienti sui bordi senza AI.
+        val screen = 0.20f
         for (channel in 0..2) {
             val levels = FloatArray(pixels.size) { value(it, channel).toFloat() }
-            for (iteration in 0 until 100) {
+            for (iteration in 0 until 140) {
                 checkpoint()
                 var largest = 0f
                 for (index in holes) {
@@ -277,7 +302,7 @@ internal object Inpaint {
                     largest = max(largest, abs(next - levels[index]))
                     levels[index] = next
                 }
-                if (largest < 0.025f && iteration > 10) break
+                if (largest < 0.018f && iteration > 14) break
             }
             for (index in holes) {
                 val shift = 16 - channel * 8

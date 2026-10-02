@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">మరిన్ని</string>
     <string name="hub_view_list">జాబితా రూపం</string>
     <string name="hub_view_grid">గడి రూపం</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">సమాచారం</string>
     <string name="settings_page_controls">లేబుల్‌లు మరియు బటన్‌లు</string>
     <string name="settings_page_editing">ఎడిటర్ మరియు సేవ్</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">పొడిగింపును మార్చడానికి అనుమతించు</string>
     <string name="settings_ext_edit_desc">ఫైల్ పేరు విండోలకు \'పొడిగింపు\' బటన్‌ను జోడిస్తుంది. ఏ విండోలలో కనిపించాలో కింద ఎంచుకో. ⚠️ పొడిగింపు మార్చడం ఫార్మాట్ మార్పిడి కాదు (దానికి \'ఎగుమతి చేసి మార్చు\' ఉంది), జాగ్రత్తగా వాడాలి: కొన్ని ఫైళ్లు చదవలేనివిగా మారి గ్యాలరీ యాప్‌లలో కనిపించకపోవచ్చు.</string>
     <string name="settings_gpu_thumbs">సూక్ష్మచిత్రాలను గ్రాఫిక్స్ మెమరీలో ఉంచు</string>

@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">المزيد</string>
     <string name="hub_view_list">عرض كقائمة</string>
     <string name="hub_view_grid">عرض كشبكة</string>
@@ -408,6 +408,7 @@
     <string name="settings_page_info">المعلومات</string>
     <string name="settings_page_controls">التسميات والأزرار</string>
     <string name="settings_page_editing">المحرر والحفظ</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">السماح بتعديل الامتداد</string>
     <string name="settings_ext_edit_desc">يضيف زر \'الامتداد\' إلى نوافذ أسماء الملفات. اختر أدناه أين يظهر. ⚠️ تغيير الامتداد ليس تحويلاً للصيغة (لذلك يوجد \'تصدير وتحويل\') ويحتاج إلى حذر، لأن بعض الملفات قد تصبح غير قابلة للقراءة ولا تظهر في تطبيقات المعرض.</string>
     <string name="settings_gpu_thumbs">الاحتفاظ بالصور المصغرة في ذاكرة الرسوميات</string>

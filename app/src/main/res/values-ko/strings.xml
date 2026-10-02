@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">더 보기</string>
     <string name="hub_view_list">목록 보기</string>
     <string name="hub_view_grid">격자 보기</string>
@@ -333,6 +333,7 @@
     <string name="settings_page_info">정보</string>
     <string name="settings_page_controls">라벨과 버튼</string>
     <string name="settings_page_editing">편집기와 저장</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">확장자 변경 허용</string>
     <string name="settings_ext_edit_desc">파일 이름 창에 \'확장자\' 버튼을 추가합니다. 어느 창에 나타낼지는 아래에서 고르세요. ⚠️ 확장자를 바꾸는 것은 형식 변환이 아니며(그것은 \'내보내기 및 변환\'가 합니다) 조심해서 써야 합니다. 일부 파일은 읽을 수 없게 되어 갤러리 앱에서 사라집니다.</string>
     <string name="settings_gpu_thumbs">미리보기를 그래픽 메모리에 보관</string>

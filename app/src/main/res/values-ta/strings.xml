@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">மேலும்</string>
     <string name="hub_view_list">பட்டியல் காட்சி</string>
     <string name="hub_view_grid">கட்டக் காட்சி</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">தகவல்</string>
     <string name="settings_page_controls">லேபிள்கள் மற்றும் பொத்தான்கள்</string>
     <string name="settings_page_editing">திருத்தி மற்றும் சேமிப்பு</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">நீட்டிப்பை மாற்ற அனுமதி</string>
     <string name="settings_ext_edit_desc">கோப்புப் பெயர் சாளரங்களில் \'நீட்டிப்பு\' பொத்தானைச் சேர்க்கும். எவற்றில் தோன்ற வேண்டும் என்பதைக் கீழே தேர்ந்தெடு. ⚠️ நீட்டிப்பை மாற்றுவது வடிவ மாற்றம் அல்ல (அதற்கு \'ஏற்றுமதி செய்து மாற்று\' உள்ளது), எச்சரிக்கை தேவை: சில கோப்புகள் படிக்க முடியாமல் போய் தொகுப்பு செயலிகளில் தெரியாமல் போகலாம்.</string>
     <string name="settings_gpu_thumbs">சிறுபடங்களை வரைகலை நினைவகத்தில் வைக்கவும்</string>

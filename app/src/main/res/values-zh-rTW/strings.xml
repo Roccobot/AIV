@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">更多</string>
     <string name="hub_view_list">清單檢視</string>
     <string name="hub_view_grid">格狀檢視</string>
@@ -333,6 +333,7 @@
     <string name="settings_page_info">資訊</string>
     <string name="settings_page_controls">標籤與按鈕</string>
     <string name="settings_page_editing">編輯器與儲存</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">允許修改副檔名</string>
     <string name="settings_ext_edit_desc">在檔名視窗中加入 \'延伸檔名\' 按鈕。在下方選擇要出現在哪些視窗。⚠️ 修改副檔名不等於格式轉換（那是 \'匯出並轉換\' 的事），要謹慎使用，因為有些檔案會變得無法讀取，並從相簿應用程式中消失。</string>
     <string name="settings_gpu_thumbs">把縮圖放在圖形記憶體裡</string>

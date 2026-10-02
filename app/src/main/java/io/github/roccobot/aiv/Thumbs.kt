@@ -523,6 +523,16 @@ private class SystemThumbnailFetcher(
          */
         if (isBmp(options.context, uri)) return@withContext null
 
+        /*
+         * ⚠️⚠️ **HEIC/HEIF NON SI CHIEDONO AL SISTEMA, DALLA `3.40`** (flash colori in
+         * sfoglio): la miniatura MediaStore spesso ignora o appiattisce il profilo ICC
+         * (`colr`/`prof`), mentre `ImageDecoder` sulla foto intera lo applica. All'apertura
+         * e a fine animazione di pagina i neutri saltavano al vivido. Tirarsi indietro manda
+         * la richiesta alla decodifica Coil (stesso percorso colore della foto piena), e
+         * [KeepingDecoderFactory] tiene il risultato su disco dalla prima volta.
+         */
+        if (isHeic(options.context, uri)) return@withContext null
+
         // ⚠️⚠️ L'ANNULLAMENTO È VERO, ed è metà della fluidità: scorrendo in fretta Coil
         // annulla le richieste dei riquadri usciti dallo schermo, e senza questo aggancio
         // il sistema continuerebbe a generare miniature che nessuno guarderà più,
@@ -1126,6 +1136,24 @@ private fun isBmp(context: Context, uri: AndroidUri): Boolean {
         if (mime != null) return mime == "image/bmp"
     }
     return uri.lastPathSegment?.lowercase()?.endsWith(".bmp") == true
+}
+
+/**
+ * HEIC/HEIF: stesso riconoscimento di [isBmp], per MIME o estensione.
+ *
+ * ⚠️ **Il MIME puo mancare** su `file://` e su certi provider: l'estensione copre quel caso.
+ * HEIF e HEIC condividono il contenitore; entrambi passano da [ImageDecoder] con ICC.
+ */
+private fun isHeic(context: Context, uri: AndroidUri): Boolean {
+    if (uri.scheme?.lowercase() == "content") {
+        val mime = runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
+        if (mime != null) {
+            return mime == "image/heic" || mime == "image/heif" || mime == "image/heic-sequence" ||
+                mime == "image/heif-sequence"
+        }
+    }
+    val name = uri.lastPathSegment?.lowercase() ?: return false
+    return name.endsWith(".heic") || name.endsWith(".heif")
 }
 
 /** Quanto si legge in testa a un file per sapere se dichiara l'alfa. Vedi [declaresAlpha]. */

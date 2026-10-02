@@ -39,6 +39,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -569,6 +571,15 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     var peeking: Boolean by mutableStateOf(false)
         private set
+
+    /*
+     * ⚠️⚠️ **LIFT E SCORRIMENTO DEL RAIL TABLET, DALLA `3.40`** (`3.39-03`): le tre
+     * schermate a due colonne ricreano ciascuna il rail, e senza stato nel modello la
+     * posizione (maniglia + elenco) tornava a zero a ogni tap su una cartella.
+     */
+    var folderRailLift by mutableFloatStateOf(0f)
+    var folderRailIndex by mutableIntStateOf(0)
+    var folderRailOffset by mutableIntStateOf(0)
 
     /** Il conto alla rovescia del minuto: si annulla e si rifà a ogni proroga. */
     private var peekJob: Job? = null
@@ -3286,7 +3297,15 @@ private fun Stage(
                             onSearch = { model.openSearch() },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp)
+                            width = Adaptive.sideWidth(widthDp),
+                            liftPx = model.folderRailLift,
+                            onLift = { model.folderRailLift = it },
+                            listIndex = model.folderRailIndex,
+                            listOffset = model.folderRailOffset,
+                            onListScroll = { i, o ->
+                                model.folderRailIndex = i
+                                model.folderRailOffset = o
+                            },
                         )
                     },
                     detail = { FoldersTabletHint() }
@@ -3413,7 +3432,15 @@ private fun Stage(
                             },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp)
+                            width = Adaptive.sideWidth(widthDp),
+                            liftPx = model.folderRailLift,
+                            onLift = { model.folderRailLift = it },
+                            listIndex = model.folderRailIndex,
+                            listOffset = model.folderRailOffset,
+                            onListScroll = { i, o ->
+                                model.folderRailIndex = i
+                                model.folderRailOffset = o
+                            },
                         )
                     },
                     detail = {
@@ -3670,7 +3697,15 @@ private fun Stage(
                             },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp)
+                            width = Adaptive.sideWidth(widthDp),
+                            liftPx = model.folderRailLift,
+                            onLift = { model.folderRailLift = it },
+                            listIndex = model.folderRailIndex,
+                            listOffset = model.folderRailOffset,
+                            onListScroll = { i, o ->
+                                model.folderRailIndex = i
+                                model.folderRailOffset = o
+                            },
                         )
                     },
                     detail = { SearchGrid() }

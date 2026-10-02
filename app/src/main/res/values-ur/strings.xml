@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">مزید</string>
     <string name="hub_view_list">فہرست کا منظر</string>
     <string name="hub_view_grid">گرڈ کا منظر</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">معلومات</string>
     <string name="settings_page_controls">لیبلز اور بٹن</string>
     <string name="settings_page_editing">ایڈیٹر اور محفوظ کرنا</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">توسیع بدلنے کی اجازت</string>
     <string name="settings_ext_edit_desc">فائل کے ناموں کی ونڈوز میں \'لاحقہ\' بٹن شامل کرتا ہے۔ نیچے چنو کہ کن میں دکھے۔ ⚠️ لاحقہ بدلنا فارمیٹ کی تبدیلی نہیں ہے (اس کے لیے \'برآمد اور تبدیل\' ہے) اور احتیاط چاہتا ہے، کیونکہ کچھ فائلیں ناقابلِ مطالعہ ہو کر گیلری ایپس میں دکھنا بند ہو سکتی ہیں۔</string>
     <string name="settings_gpu_thumbs">تھمب نیلز کو گرافکس میموری میں رکھیں</string>

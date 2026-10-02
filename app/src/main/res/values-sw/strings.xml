@@ -160,7 +160,7 @@
     <string name="folders_tablet_pick">Tap a folder to get started.</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
-    <string name="folders_rail_move">Move folder list</string>
+    <string name="folders_rail_move">Move the folder list</string>
     <string name="hub_open">Zaidi</string>
     <string name="hub_view_list">Mwonekano wa orodha</string>
     <string name="hub_view_grid">Mwonekano wa gridi</string>
@@ -348,6 +348,7 @@
     <string name="settings_page_info">Taarifa</string>
     <string name="settings_page_controls">Lebo na vitufe</string>
     <string name="settings_page_editing">Kihariri na kuhifadhi</string>
+    <string name="settings_page_look">Theme and panels</string>
     <string name="settings_ext_edit">Ruhusu kubadilisha kiendelezi</string>
     <string name="settings_ext_edit_desc">Huongeza kitufe \'Kiendelezi\' kwenye madirisha ya majina ya faili. Chagua hapa chini yapi. ⚠️ Kubadilisha kiendelezi si kubadilisha muundo (kwa hilo kuna \'Hamisha na kubadilisha\') na kunahitaji uangalifu, kwa sababu baadhi ya faili zinaweza kutosomeka na kutoonekana tena kwenye programu za matunzio.</string>
     <string name="settings_gpu_thumbs">Weka vijipicha kwenye kumbukumbu ya michoro</string>
