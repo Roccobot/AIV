@@ -3,8 +3,8 @@
 Versione **3.38**: correzioni dal collaudo **3.37** (tablet, Impostazioni, documento di
 feedback, residui).
 [Apri il documento interattivo](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
-La Release 3.38 non è pubblicata finché non chiedi `publish`. L'ultima Release pubblica resta
-[v3.36](https://github.com/Roccobot/AIV/releases/tag/v3.36) se non ne è uscita un'altra.
+La Release 3.38 è pubblicata: [v3.38](https://github.com/Roccobot/AIV/releases/tag/v3.38), con l'APK
+[AIV-3.38.apk](https://github.com/Roccobot/AIV/releases/download/v3.38/AIV-3.38.apk).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
@@ -117,3 +117,10 @@ in archivio sotto.
 | UX documento mobile (note A 3.30) | 3.38 | Da collaudare | Era differita per errore; implementata. | 3.38-10. |
 | Apici Impostazioni globali | 3.38 | Da collaudare | Solo Cartelle in 3.37; sweep completo. | 3.38-07. |
 | Tablet editor / FAB / rail / cestino | 3.38 | Da collaudare | Note B e 3.31/3.35 del 3.37. | 3.38-01..06. |
+
+## Prossimi passi
+
+- **3.27-03 — più sotto-pagine Impostazioni**: differito.
+- **Avvisi mostra/nascondi (3.13-08)**: ricontrollare il layout.
+- **Qualità Correggi/Rimuovi (inpaint)**: riprovare se le linee restano deboli; altrimenti mantenere il limite euristico noto.
+- **Collaudo AIV 3.38**: completare le 11 prove su telefono e tablet.

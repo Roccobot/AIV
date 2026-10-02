@@ -76,6 +76,18 @@ for match in re.finditer(r'^## (\d+)\. ([^\n]+)\n(.*?)(?=^## |\Z)', md, re.M | r
                       paragraphs=paragraphs))
 # Decisioni 3.24 chiuse: fuori dal flusso da rispondere (archivio HTML). JSON vecchio resta valido.
 data = dict(project='AIV', version=version, items=items, decisions=[])
+next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
+if not next_match:
+    raise SystemExit('docs/Feedback.md deve contenere la sezione Prossimi passi')
+next_steps = []
+for line in next_match[1].splitlines():
+    if line.startswith('- '):
+        next_steps.append(line[2:].strip())
+if not next_steps:
+    raise SystemExit('la sezione Prossimi passi deve contenere almeno una voce')
+next_steps_html = '<section class=\"card next-steps\"><h2>Prossimi passi</h2><ul>'
+next_steps_html += ''.join('<li>' + inline_md(step) + '</li>' for step in next_steps)
+next_steps_html += '</ul></section>'
 esc = html.escape
 cards = []
 for index, item in enumerate(items, 1):
@@ -93,6 +105,7 @@ page = (tpl
     .replace('__TOTAL__', str(len(items)))
     .replace('__VERSION__', version)
     .replace('__CARDS__', '\n'.join(cards))
+    .replace('__NEXT_STEPS__', next_steps_html)
     .replace('__DATA__', json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')))
 output = ROOT / 'publish/feedback.html'
 if '--check' in sys.argv:
