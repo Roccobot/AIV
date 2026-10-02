@@ -157,7 +157,10 @@
     <string name="folders_permission">Для списка папок нужен доступ ко всем файлам. Это то же разрешение, которое позволяет листать папку, и оно даётся на системной странице.</string>
     <string name="folders_grant">Дать доступ</string>
     <string name="folders_none">Ни в одной папке нет ничего для показа.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">Ещё</string>
     <string name="hub_view_list">Вид списком</string>
     <string name="hub_view_grid">Вид сеткой</string>

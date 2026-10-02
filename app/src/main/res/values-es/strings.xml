@@ -157,7 +157,10 @@
     <string name="folders_permission">Para listar las carpetas hace falta acceso a todos los archivos. Es el mismo permiso que deja pasar por una carpeta, y se concede desde una página del sistema.</string>
     <string name="folders_grant">Conceder acceso</string>
     <string name="folders_none">Ninguna carpeta contiene nada que mostrar.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">Más</string>
     <string name="hub_view_list">Vista de lista</string>
     <string name="hub_view_grid">Vista de cuadrícula</string>

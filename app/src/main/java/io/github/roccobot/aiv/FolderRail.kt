@@ -1,42 +1,59 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /**
  * L'elenco delle cartelle a colonna, per il layout tablet.
@@ -50,11 +67,17 @@ import androidx.compose.ui.unit.dp
  * impostazioni, come nel mockup.
  * ⚠️ **La vista ad albero resta fuori** (si decide nel chiamante): la sua navigazione è
  * un percorso a sé, e il mockup le dà una rotta propria (`system`).
+ * ⚠️⚠️ **RIDISEGNATA NELLA `3.39`** (collaudo `3.38-03`, mockup
+ * `aiv-338-mockup-tablet.png`): niente intestazione Cartelle; in cima solo Cerca con
+ * placeholder dinamico; Cestino e Impostazioni in basso con etichetta; elenco di
+ * default in basso, con maniglia per alzarlo/abbassarlo quando c'è spazio.
  */
 @Composable
 fun FolderRail(
     buckets: List<Folder.Bucket>?,
     selected: Long?,
+    /** Nome della cartella scelta, per il placeholder "Cerca in *X*". Null = globale. */
+    selectedName: String? = null,
     selection: FolderSelection,
     peeking: Boolean,
     colour: FolderColour,
@@ -73,116 +96,274 @@ fun FolderRail(
 
     val folders = buckets?.filter { selection.visible(it.path, peeking) }
 
+    /*
+     * ⚠️ **Quanto si alza il blocco elenco dal fondo dell'area libera**: 0 = appoggiato
+     * in basso (default del mockup, pollice a tiro); il massimo è lo spazio libero sopra
+     * al blocco. La maniglia a sei puntini lo muove solo se c'è aria.
+     */
+    var liftPx by remember { mutableFloatStateOf(0f) }
+
     Column(
         modifier = modifier
             .width(width)
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        /*
-         * ⚠️ **Icona multi-cartella al posto del titolo** (giro 3.37, `3.31-01` B):
-         * 'Cartelle' andava a capo e cambiava lunghezza per lingua. Più aria fra i tasti.
-         */
-        Row(
+        RailSearch(
+            folderName = selectedName?.takeIf { selected != null },
+            onSearch = onSearch,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 12.dp, end = 8.dp, top = 12.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                // ⚠️ Aria dal bordo, come nel mockup: non attaccata alla cornice.
+                .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 8.dp)
+        )
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
         ) {
-            Icon(
-                imageVector = Icons.Default.Folder,
-                contentDescription = stringResource(R.string.folders_title),
-                tint = MaterialTheme.colorScheme.primary,
+            val density = LocalDensity.current
+            val areaPx = with(density) { maxHeight.toPx() }
+            // Stima dell'altezza del blocco (maniglia + elenco): serve a limitare il lift.
+            val blockCapPx = areaPx
+            val maxLift = (areaPx - 48f).coerceAtLeast(0f)
+            if (liftPx > maxLift) liftPx = maxLift
+
+            Column(
                 modifier = Modifier
-                    .padding(start = 4.dp, end = 8.dp)
-                    .size(28.dp)
-            )
-            Box(Modifier.weight(1f))
-            IconButton(onClick = onSearch) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(R.string.hub_search),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            IconButton(onClick = onBin) {
-                Icon(
-                    imageVector = Glyphs.Bin,
-                    contentDescription = stringResource(R.string.bin_title),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            IconButton(onClick = onSettings) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.hub_settings),
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-        HorizontalDivider()
-        when {
-            !granted -> Text(
-                text = stringResource(R.string.folders_permission),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(16.dp)
-            )
-            folders == null -> Box(
-                modifier = Modifier.fillMaxWidth().padding(24.dp),
-                contentAlignment = Alignment.Center
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .offset { IntOffset(0, -liftPx.roundToInt()) }
+                    .heightIn(max = with(density) { blockCapPx.toDp() })
             ) {
-                CircularProgressIndicator(Modifier.size(28.dp))
-            }
-            folders.isEmpty() -> Text(
-                text = stringResource(R.string.folders_none),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(16.dp)
-            )
-            else -> LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(folders, key = { it.id }) { bucket ->
-                    val chosen = bucket.id == selected
-                    val tinta = frontTintOf(tints[bucket.id])
-                    Row(
+                /*
+                 * ⚠️ **Maniglia a destra sopra l'elenco** (mockup): sei puntini, trascinabile
+                 * in verticale. ContentDescription sul tocco: altrimenti è decorazione muta.
+                 */
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 4.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DragIndicator,
+                        contentDescription = stringResource(R.string.folders_rail_move),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .pointerInput(maxLift) {
+                                detectVerticalDragGestures { _, dragAmount ->
+                                    // ⚠️ dragAmount > 0 = dito verso il basso = abbassa il blocco.
+                                    liftPx = (liftPx - dragAmount).coerceIn(0f, maxLift)
+                                }
+                            }
+                    )
+                }
+                when {
+                    !granted -> Text(
+                        text = stringResource(R.string.folders_permission),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    folders == null -> Box(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(Modifier.size(28.dp))
+                    }
+                    folders.isEmpty() -> Text(
+                        text = stringResource(R.string.folders_none),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    else -> LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(
-                                if (chosen) MaterialTheme.colorScheme.primaryContainer
-                                else MaterialTheme.colorScheme.surface
-                            )
-                            .clickable { onPick(bucket) }
-                            .padding(horizontal = 12.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Folder,
-                            contentDescription = null,
-                            tint = when {
-                                colour == FolderColour.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
-                                tinta != null -> tinta
-                                else -> MaterialTheme.colorScheme.primary
-                            },
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = bucket.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (chosen) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
-                        )
+                        items(folders, key = { it.id }) { bucket ->
+                            val chosen = bucket.id == selected
+                            val tinta = frontTintOf(tints[bucket.id])
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        if (chosen) MaterialTheme.colorScheme.primaryContainer
+                                        else MaterialTheme.colorScheme.surface
+                                    )
+                                    .clickable { onPick(bucket) }
+                                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Folder,
+                                    contentDescription = null,
+                                    tint = when {
+                                        colour == FolderColour.NONE ->
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        tinta != null -> tinta
+                                        else -> MaterialTheme.colorScheme.primary
+                                    },
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Text(
+                                    text = bucket.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (chosen) {
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    },
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+
+        /*
+         * ⚠️⚠️ **Cestino e Impostazioni IN BASSO CON ETICHETTA, DALLA `3.39`**
+         * (`3.38-03`): non più icone in testata accanto a Cerca (sembravano azioni di
+         * cancellazione sulla lista). Due colonne, icona sopra e testo sotto.
+         */
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RailAction(
+                icon = { tint ->
+                    Icon(
+                        imageVector = Glyphs.Bin,
+                        contentDescription = null,
+                        tint = tint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                label = stringResource(R.string.bin_title),
+                onClick = onBin,
+                modifier = Modifier.weight(1f)
+            )
+            RailAction(
+                icon = { tint ->
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = null,
+                        tint = tint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                label = stringResource(R.string.hub_settings),
+                onClick = onSettings,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/**
+ * Cerca in cima al rail: lente a sinistra + campo contornato (mockup).
+ *
+ * ⚠️ **Il campo è un tocco che apre la ricerca**, non un filtro locale sulle cartelle:
+ * il placeholder dice "Cerca nelle cartelle" / "Cerca in *X*", cioè immagini, e la
+ * schermata [Screen.Search] è già quella strada.
+ * ⚠️ **Il testo del campo è centrato in verticale sul tondo della lente**: la `Row`
+ * allinea al centro, e la lente Material ha il cerchio sulla metà superiore del glifo
+ * ma l'allineamento centrale della riga è quello che il mockup chiede sul campo.
+ */
+@Composable
+private fun RailSearch(
+    folderName: String?,
+    onSearch: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val placeholder = if (folderName == null) {
+        buildAnnotatedString { append(stringResource(R.string.folders_rail_search)) }
+    } else {
+        /*
+         * ⚠️ **Grassetto solo sul nome**: il template porta un `%1$s`, si spezza sul
+         * segnaposto sostituito con un carattere sentinella, e il nome va in mezzo
+         * in grassetto. Così le lingue che mettono il nome altrove restano corrette.
+         */
+        val marker = "\u0001"
+        val raw = stringResource(R.string.folders_rail_search_in, marker)
+        val parts = raw.split(marker, limit = 2)
+        buildAnnotatedString {
+            append(parts[0])
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(folderName) }
+            if (parts.size > 1) append(parts[1])
+        }
+    }
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = stringResource(R.string.hub_search),
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(28.dp)
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(36.dp)
+                .border(
+                    width = 1.5.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(18.dp)
+                )
+                .clickable(role = Role.Button, onClick = onSearch)
+                .padding(horizontal = 12.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = placeholder,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/** Un'azione in basso nel rail: icona + etichetta, non un'icona nuda. */
+@Composable
+private fun RailAction(
+    icon: @Composable (tint: androidx.compose.ui.graphics.Color) -> Unit,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tint = MaterialTheme.colorScheme.onSurface
+    Column(
+        modifier = modifier
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        icon(tint)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = tint,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -191,11 +372,11 @@ fun FolderRail(
  *
  * ⚠️ Solo sul tablet, quando la casa è a due colonne e non si è ancora toccata una
  * cartella. Sul telefono questa situazione non esiste: si apre la griglia subito.
+ * ⚠️⚠️ **DALLA `3.39` È LA STESSA IDENTITÀ DELLA HOME TELEFONO** (`3.38-04`, mockup):
+ * logo + titolo + firma con link, più in basso "Tocca una cartella per iniziare".
  */
 @Composable
 fun FoldersTabletHint(modifier: Modifier = Modifier) {
-    // ⚠️ **Stesso senso dell'intestazione mobile** (giro 3.37, `3.31-01` A): non uno
-    // spazio vuoto. Titolo + invito a scegliere una cartella, centrati.
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -204,23 +385,12 @@ fun FoldersTabletHint(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Default.Folder,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(64.dp)
-        )
-        Text(
-            text = stringResource(R.string.folders_title),
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 16.dp)
-        )
+        Identity(iconSize = HEADER_ICON)
+        Spacer(Modifier.height(48.dp))
         Text(
             text = stringResource(R.string.folders_tablet_pick),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

@@ -234,9 +234,22 @@ fun AdvancedEditorScreen(
      * (giro della `1.67`, domanda `d-rotazione`: *usare editor di immagini in orizzontale è
      * impensabile*). Qui vale di più: i cursori vivono in una colonna in fondo, e coricati
      * prenderebbero metà schermo.
+     * ⚠️⚠️ **ECCEZIONE TABLET LARGO DALLA `3.39`**: da 1.024 dp gli strumenti stanno a lato,
+     * quindi l'orizzontale è previsto e il blocco non si applica (fix `3.38-01`).
      */
     val activity = remember(context) { Knobs.activityOf(context) }
-    DisposableEffect(activity) {
+    /*
+     * ⚠️⚠️ **SU TABLET LARGO (≥1024) NON SI BLOCCA PIÙ IL VERTICALE, DALLA `3.39`**
+     * (residuo collaudo `3.38-01`): vedi lo stesso blocco nell'editor semplice. Con
+     * gli strumenti a lato l'orizzontale è previsto; forzare `PORTRAIT` faceva
+     * sfarfallare il layout. Sotto 1.024 resta il blocco della `1.69`.
+     */
+    val widthDp = with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.width.toDp()
+    }.value.toInt()
+    val lockPortrait = !Adaptive.editorBeside(widthDp)
+    DisposableEffect(activity, lockPortrait) {
+        if (!lockPortrait) return@DisposableEffect onDispose { }
         val prima = activity?.requestedOrientation
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         onDispose {
@@ -566,12 +579,8 @@ fun AdvancedEditorScreen(
              * ⚠️⚠️ **STRUMENTI A LATO DA 1.024 dp, DALLA `3.34`** (mockup editor): sotto quella
              * soglia la scheda resta in basso, come sul telefono e come l'editor semplice.
              */
-            // ⚠️ **Larghezza dalla finestra, non da Configuration** (giro 3.37 note B):
-            // in orizzontale ≥1024 Configuration poteva oscillare e far sfarfallare
-            // il layout beside (apri/chiudi strumenti a lato).
-            val widthDp = with(LocalDensity.current) {
-                LocalWindowInfo.current.containerSize.width.toDp()
-            }.value.toInt()
+            // ⚠️ **Larghezza dalla finestra, già letta sopra per il blocco orientamento**
+            // (giro 3.37 note B / fix 3.39 `3.38-01`).
             val beside = Adaptive.editorBeside(widthDp)
             val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
             val toolsWidth = Adaptive.editorToolsWidth(widthDp)

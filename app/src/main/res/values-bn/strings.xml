@@ -157,7 +157,10 @@
     <string name="folders_permission">ফোল্ডারের তালিকা করতে সব ফাইলে প্রবেশাধিকার দরকার। এটি সেই একই অনুমতি যা একটি ফোল্ডার দেখতে দেয়, আর সিস্টেমের একটি পাতা থেকে দেওয়া হয়।</string>
     <string name="folders_grant">প্রবেশাধিকার দিন</string>
     <string name="folders_none">কোনো ফোল্ডারে দেখানোর মতো কিছু নেই।</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">আরও</string>
     <string name="hub_view_list">তালিকা দৃশ্য</string>
     <string name="hub_view_grid">গ্রিড দৃশ্য</string>

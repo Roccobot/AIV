@@ -157,7 +157,10 @@
     <string name="folders_permission">فهرست کردن پوشه‌ها به دسترسی به همه فایل‌ها نیاز دارد. همان اجازه‌ای است که مرور یک پوشه را ممکن می‌کند، و از صفحه‌ای در سیستم داده می‌شود.</string>
     <string name="folders_grant">دادن دسترسی</string>
     <string name="folders_none">هیچ پوشه‌ای چیزی برای نمایش ندارد.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">بیشتر</string>
     <string name="hub_view_list">نمای فهرستی</string>
     <string name="hub_view_grid">نمای شبکه‌ای</string>

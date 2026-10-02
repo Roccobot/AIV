@@ -157,7 +157,10 @@
     <string name="folders_permission">Voor het opsommen van de mappen is toegang tot alle bestanden nodig. Het is dezelfde toestemming die je een map laat doorbladeren, en ze wordt gegeven op een systeempagina.</string>
     <string name="folders_grant">Toegang geven</string>
     <string name="folders_none">Geen enkele map bevat iets om te tonen.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">Meer</string>
     <string name="hub_view_list">Lijstweergave</string>
     <string name="hub_view_grid">Rasterweergave</string>

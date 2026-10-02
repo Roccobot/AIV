@@ -157,7 +157,10 @@
     <string name="folders_permission">సంచయాలను జాబితా చేయడానికి అన్ని ఫైళ్ళపై అనుమతి కావాలి. ఒక సంచయాన్ని చూడనిచ్చే అదే అనుమతి ఇది, వ్యవస్థలోని ఒక పేజీ నుంచి ఇవ్వబడుతుంది.</string>
     <string name="folders_grant">అనుమతి ఇవ్వు</string>
     <string name="folders_none">ఏ సంచయంలోనూ చూపడానికి ఏమీ లేదు.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">మరిన్ని</string>
     <string name="hub_view_list">జాబితా రూపం</string>
     <string name="hub_view_grid">గడి రూపం</string>

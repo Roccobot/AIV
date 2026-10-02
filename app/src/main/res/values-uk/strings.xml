@@ -157,7 +157,10 @@
     <string name="folders_permission">Для списку тек потрібен доступ до всіх файлів. Це той самий дозвіл, який дає гортати теку, і він надається на сторінці системи.</string>
     <string name="folders_grant">Надати доступ</string>
     <string name="folders_none">У жодній теці немає нічого для показу.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">Ще</string>
     <string name="hub_view_list">Вигляд списком</string>
     <string name="hub_view_grid">Вигляд сіткою</string>

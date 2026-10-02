@@ -157,7 +157,10 @@
     <string name="folders_permission">فولڈر گنوانے کے لیے تمام فائلوں تک رسائی درکار ہے۔ یہ وہی اجازت ہے جو کسی فولڈر کو دیکھنے دیتی ہے، اور نظام کے ایک صفحے سے دی جاتی ہے۔</string>
     <string name="folders_grant">رسائی دیں</string>
     <string name="folders_none">کسی فولڈر میں دکھانے کو کچھ نہیں ہے۔</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">مزید</string>
     <string name="hub_view_list">فہرست کا منظر</string>
     <string name="hub_view_grid">گرڈ کا منظر</string>

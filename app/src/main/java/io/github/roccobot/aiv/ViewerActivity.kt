@@ -3276,6 +3276,7 @@ private fun Stage(
                         FolderRail(
                             buckets = model.buckets,
                             selected = null,
+                            selectedName = null,
                             selection = settings.folderSelection,
                             peeking = model.peeking,
                             colour = settings.folderColour,
@@ -3400,13 +3401,16 @@ private fun Stage(
                         FolderRail(
                             buckets = model.buckets,
                             selected = screen.bucket,
+                            selectedName = screen.name,
                             selection = settings.folderSelection,
                             peeking = model.peeking,
                             colour = settings.folderColour,
                             tints = model.folderTints,
                             onPick = { model.folderPicked(it, false) },
                             onRead = { model.readBuckets(it) },
-                            onSearch = { model.openSearch() },
+                            onSearch = {
+                                model.openSearch(screen.bucket, screen.name)
+                            },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
                             width = Adaptive.sideWidth(widthDp)
@@ -3654,13 +3658,16 @@ private fun Stage(
                         FolderRail(
                             buckets = model.buckets,
                             selected = screen.bucket,
+                            selectedName = screen.name,
                             selection = settings.folderSelection,
                             peeking = model.peeking,
                             colour = settings.folderColour,
                             tints = model.folderTints,
                             onPick = { model.folderPicked(it, false) },
                             onRead = { model.readBuckets(it) },
-                            onSearch = { model.openSearch() },
+                            onSearch = {
+                                model.openSearch(screen.bucket, screen.name)
+                            },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
                             width = Adaptive.sideWidth(widthDp)

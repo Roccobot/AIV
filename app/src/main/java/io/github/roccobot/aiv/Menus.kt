@@ -878,6 +878,14 @@ fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
 internal val MENU_INSET = GRID_PAD_X * 3
 
 /**
+ * Frazione massima della larghezza finestra per i menu del FAB sul tablet (≥600 dp).
+ *
+ * ⚠️ **0.35 e non 0.45, dalla `3.39`** (residuo `3.38-02`): il 45 del giro 3.37 era
+ * troppo largo; senza tetto stretto in verticale il menu arrivava ~70%.
+ */
+internal const val MENU_TABLET_WIDTH = 0.35f
+
+/**
  * La larghezza minima del pannello di un menu ancorato, sopra una griglia di [columns] colonne.
  *
  * ⚠️⚠️ **DUE CELLE PIÙ LO SPAZIO CHE LE SEPARA, PIÙ DUE MARGINI DI GRIGLIA, ED È SUO** (voce
@@ -904,9 +912,14 @@ fun menuFloor(columns: Int, gap: Dp): Dp {
     val cell = (usable - gap * (columns - 1)) / columns
     val floor = cell * 2 + gap + GRID_PAD_X * 2
     val insetCap = window - MENU_INSET * 2
-    // ⚠️ **Su tablet max ~45%** (giro 3.37 note B / `tablet2.jpg`): non a tutta fascia.
+    // ⚠️ **Su tablet max ~35%** (collaudo `3.38-02`: 45 era troppo; in verticale
+    // senza tetto stretto arrivava ~70%). Stesso tetto in orizzontale e in verticale.
     val cap =
-        if (window.value >= Adaptive.PHONE_MAX) minOf(insetCap, window * 0.45f) else insetCap
+        if (window.value >= Adaptive.PHONE_MAX) {
+            minOf(insetCap, window * MENU_TABLET_WIDTH)
+        } else {
+            insetCap
+        }
     return minOf(floor, cap)
 }
 

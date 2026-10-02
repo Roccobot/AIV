@@ -157,7 +157,10 @@
     <string name="folders_permission">سرد المجلدات يحتاج الوصول إلى كل الملفات. وهو الإذن نفسه الذي يتيح تصفح مجلد، ويُمنح من صفحة في النظام.</string>
     <string name="folders_grant">منح الوصول</string>
     <string name="folders_none">لا يوجد مجلد يحتوي شيئًا لعرضه.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">المزيد</string>
     <string name="hub_view_list">عرض كقائمة</string>
     <string name="hub_view_grid">عرض كشبكة</string>

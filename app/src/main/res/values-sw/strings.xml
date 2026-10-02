@@ -157,7 +157,10 @@
     <string name="folders_permission">Kuorodhesha folda kunahitaji ufikiaji wa faili zote. Ni ruhusa ile ile inayokuwezesha kupitia folda, na hutolewa kwenye ukurasa wa mfumo.</string>
     <string name="folders_grant">Toa ufikiaji</string>
     <string name="folders_none">Hakuna folda yenye kitu cha kuonyesha.</string>
-    <string name="folders_tablet_pick">Choose a folder from the list.</string>
+    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_rail_search">Search in folders</string>
+    <string name="folders_rail_search_in">Search in %1$s</string>
+    <string name="folders_rail_move">Move folder list</string>
     <string name="hub_open">Zaidi</string>
     <string name="hub_view_list">Mwonekano wa orodha</string>
     <string name="hub_view_grid">Mwonekano wa gridi</string>
