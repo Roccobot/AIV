@@ -151,4 +151,63 @@
       }
     }
   };
+  // DF-only account-chip treatment: preserve the V-align transform while keeping
+  // the username and compact logout action on one baseline.
+  const chipStyle = document.createElement('style');
+  chipStyle.textContent = `
+    .cloud-account {
+      align-items: baseline;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+    .cloud-account-logo {
+      align-self: center;
+      width: 20px;
+      height: 20px;
+      flex-basis: 20px;
+    }
+    .cloud-account-user,
+    .cloud-account p {
+      line-height: 1.2;
+    }
+    .cloud-account-user {
+      transform: none;
+    }
+    .cloud-account-action {
+      flex: 0 0 auto;
+      min-width: 0;
+      min-height: 0;
+      padding: 4px 9px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--accent-on);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .cloud-account-action:hover {
+      background: var(--accent-focus);
+      color: var(--accent-on);
+    }
+    @media (max-width: 640px) {
+      .cloud-account {
+        padding: 4px 8px;
+        gap: 8px;
+      }
+      .cloud-account-logo {
+        width: 18px;
+        height: 18px;
+        flex-basis: 18px;
+      }
+      .cloud-account-user {
+        font-size: 13px;
+      }
+      .cloud-account-action {
+        padding: 3px 8px;
+      }
+    }
+  `;
+  document.head.append(chipStyle);
 })();
