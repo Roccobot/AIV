@@ -1286,6 +1286,15 @@ main > .feedback-columns {
 }
 
 
+
+/* Logged-out: only the filled Accedi control — no outer chip shell. */
+.cloud-account:not(.is-connected) {
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
 /* On narrow screens, keep the logged-out chip to the Accedi control. */
 @media (max-width: 640px) {
   .cloud-account:not(.is-connected) p {
