@@ -944,7 +944,7 @@ main > .feedback-columns {
   accent-color: var(--accent);
 }
 
-/* Live check: side-by-side starts crowding below 640px (overlap at 620px). */
+/* Live check: side-by-side starts crowding below 640px (overlap at 620px); stack the title first. */
 @media (max-width: 640px) {
   .intro-title-row {
     display: block;
@@ -953,9 +953,28 @@ main > .feedback-columns {
     width: 100%;
   }
   .cloud-account {
-    width: 100%;
-    max-width: none;
+    width: fit-content;
+    max-width: 100%;
     margin: 12px 0 0;
+    padding: 4px 8px;
+    gap: 8px;
+    transform: none;
+  }
+  .cloud-account-logo {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+  }
+  .cloud-account-user {
+    font-size: 13px;
+    transform: none;
+  }
+  .cloud-account-action {
+    flex-basis: 56px;
+    min-width: 56px;
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 14px;
   }
   .cloud-account p {
     flex-basis: auto;
