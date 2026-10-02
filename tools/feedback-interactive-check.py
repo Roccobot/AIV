@@ -423,6 +423,14 @@ def check(path):
                 browse = import_button.locator('.browse-label').bounding_box()
                 assert browse['x'] > title_right, 'Sfoglia is not beside the title.'
                 assert abs(browse['y'] + browse['height']/2 - import_box['y'] - import_box['height']/2) < 1
+                actions_box = page.locator('#delivery-section .actions').bounding_box()
+                previous_bottom = None
+                for control in page.locator('#delivery-section .actions > button, #delivery-section .actions > .file-button').all():
+                    control_box = control.bounding_box()
+                    assert abs(control_box['width'] - actions_box['width']) < 2, (width, control_box, actions_box)
+                    if previous_bottom is not None:
+                        assert control_box['y'] >= previous_bottom - 1, (width, control_box, previous_bottom)
+                    previous_bottom = control_box['y'] + control_box['height']
             page.locator('#delivery-overlay-close').click()
             expect(page.locator('#delivery-overlay')).to_be_hidden()
             # Desktop: long-press Save opens the same delivery overlay as mobile.

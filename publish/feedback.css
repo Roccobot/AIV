@@ -1262,6 +1262,26 @@ main > .feedback-columns {
   flex-direction: column;
   gap: 10px;
 }
+/* One full-width control per row; Importa keeps Sfoglia on the right of its row. */
+.delivery-overlay-body .actions {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+.delivery-overlay-body .actions > button,
+.delivery-overlay-body .actions > .file-button {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+.delivery-overlay-body .actions > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.delivery-overlay-body .actions > .file-button {
+  justify-content: space-between;
+}
 .open-delivery {
   display: inline-flex;
   align-items: center;
