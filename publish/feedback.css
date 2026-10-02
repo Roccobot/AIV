@@ -746,8 +746,10 @@ textarea[hidden] {
   .dash-row {
     max-width: 832px;
   }
-  /* Bottom Altro keeps attachments; free-text is the left rail */
-  #extra-section > label:first-of-type {
+  /* Bottom Altro keeps attachments; free-text is the left rail.
+     format.js wraps the label in .formatted-field, so hide that node. */
+  #extra-section > label:first-of-type,
+  #extra-section > .formatted-field:has(#notes) {
     display: none;
   }
 }
@@ -768,7 +770,8 @@ textarea[hidden] {
   .count-chip-bad { color: #ffb5b5; }
 }
 @media (max-width: 720px) {
-  #extra-section > label:first-of-type {
+  #extra-section > label:first-of-type,
+  #extra-section > .formatted-field:has(#notes) {
     display: none;
   }
 }

@@ -46,9 +46,12 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(result.locator('#save')).to_be_enabled()
         return result
 
-    def notes_editor(target):
-        # Prefer the visible Altro surface (desktop rail, bottom card, or open mobile menu).
-        return target.locator('.rich-editor').locator('visible=true').first
+    def comment_editor(target):
+        # First test-card comment (historical `.rich-editor`.first before Altro mirrors).
+        return target.locator('.test').first.locator('.rich-editor')
+    def altro_editor(target):
+        # Visible Altro free-text (desktop rail, bottom card, or open mobile menu).
+        return target.locator('#notes-desktop-editor, #notes-editor, #notes-mobile-editor').locator('visible=true').first
     def save(page):
         page.locator('#save').click()
         expect(page.locator('#saved')).to_contain_text('Salvato nel cloud')
@@ -69,7 +72,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
     first.locator('#device').fill('Telefono di prova, Android 13')
     first.locator('#tablet').fill('Tablet di prova, Android 15', timeout=2000)
-    notes_editor(first).fill('Da telefono')
+    comment_editor(first).fill('Da telefono')
     save(first)
     assert first.evaluate('window.feedbackRemote.hasUpdates()') is False
     first.locator('#send').click()
@@ -81,20 +84,20 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     second=page(second_context)
     expect(second.locator('#device')).to_have_value('Telefono di prova, Android 13')
     expect(second.locator('#tablet')).to_have_value('Tablet di prova, Android 15')
-    expect(notes_editor(second)).to_have_text('Da telefono')
+    expect(comment_editor(second)).to_have_text('Da telefono')
     expect(second.locator('#saved')).to_contain_text('ripristinate dal cloud')
-    notes_editor(second).fill('Da tablet')
+    comment_editor(second).fill('Da tablet')
     save(second)
     first.evaluate('window.dispatchEvent(new Event("focus"))')
-    expect(notes_editor(first)).to_have_text('Da tablet')
+    expect(comment_editor(first)).to_have_text('Da tablet')
     # Both editors share a revision. A stale write must preserve both the newer cloud draft and local text.
-    notes_editor(first).fill('Modifica contemporanea')
+    comment_editor(first).fill('Modifica contemporanea')
     first.evaluate('clearTimeout(saveTimer)')
-    notes_editor(second).fill('Ultima versione sul tablet')
+    comment_editor(second).fill('Ultima versione sul tablet')
     save(second)
     first.locator('#save').click()
     expect(first.locator('#saved')).to_contain_text('versione salvata nel cloud è cambiata')
-    expect(notes_editor(first)).to_have_text('Modifica contemporanea')
+    expect(comment_editor(first)).to_have_text('Modifica contemporanea')
     first_context.close()
     # Files go to storage once; metadata saves do not re-upload them.
     put_files=[]
@@ -106,7 +109,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     second.locator('.test').first.locator('.images').set_input_files([{'name':'disegno originale.svg','mimeType':'image/svg+xml','buffer':svg},{'name':'fonti originali.zip','mimeType':'application/zip','buffer':archive.getvalue()}])
     save(second)
     assert len(put_files)==2, put_files
-    second.locator('.extra .rich-editor').fill('**Testo letterale**')
+    altro_editor(second).fill('**Testo letterale**')
     save(second)
     assert len(put_files)==2, put_files
     wire=second.evaluate('fetch("/api/feedback").then(response=>response.json())')
@@ -114,7 +117,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     assert all('data' not in file and len(file['storageKey'])==64 for file in wire['entries'][first_id]['images'])
     third_context=context()
     third=page(third_context)
-    expect(notes_editor(third)).to_have_text('Ultima versione sul tablet')
+    expect(comment_editor(third)).to_have_text('Ultima versione sul tablet')
     expect(third.locator('.test').first.locator('img')).to_have_count(1)
     expect(third.locator('.test').first.locator('.zip-download')).to_have_count(1)
     with third.expect_download() as pending:
@@ -131,10 +134,10 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     assert third.evaluate('indexedDB.databases().then(values=>values.length)')==0
     # Failure remains visible; it must not pretend to be a successful cloud save.
     third.route('**/api/feedback',lambda route:route.abort() if route.request.method=='PUT' else route.continue_())
-    third.locator('.extra .rich-editor').fill('Modifica senza connessione')
+    altro_editor(third).fill('Modifica senza connessione')
     third.locator('#save').click()
     expect(third.locator('#saved')).to_contain_text('Non salvato')
-    expect(third.locator('.extra .rich-editor')).to_have_text('Modifica senza connessione')
+    expect(altro_editor(third)).to_have_text('Modifica senza connessione')
     third.locator('#send').click()
     expect(third.locator('#action-message')).to_contain_text('Invio non confermato')
     assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.completed)') is None
