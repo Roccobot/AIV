@@ -274,6 +274,7 @@
     });
     box.addEventListener("input", () => { links(editor); sync(editor); });
     box.addEventListener("paste", event => {
+      if (window.feedbackPasteImage?.(event, box)) return;
       event.preventDefault();
       // Plain-text paste prevents foreign HTML, styles and active elements entering the editor.
       document.execCommand("insertText", false, event.clipboardData.getData("text/plain"));

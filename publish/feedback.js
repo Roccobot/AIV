@@ -554,6 +554,78 @@ async function attachFiles(card, files) {
     input.value = "";
   }
 }
+async function decodeClipboardImage(source) {
+  if (typeof createImageBitmap === "function") {
+    try {
+      return await createImageBitmap(source);
+    } catch {
+      // The Image fallback handles clipboard formats unsupported by createImageBitmap.
+    }
+  }
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(source);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(Error("Impossibile leggere l'immagine dagli appunti."));
+    };
+    image.src = url;
+  });
+}
+async function clipboardImageAsPng(event) {
+  const data = event.clipboardData;
+  if (!data) return null;
+  const item = Array.from(data.items || []).find(candidate =>
+    candidate.kind === "file" && /^image\//i.test(candidate.type));
+  const source = item?.getAsFile?.() ||
+    Array.from(data.files || []).find(file => /^image\//i.test(file.type));
+  if (!source) return null;
+  const image = await decodeClipboardImage(source);
+  const width = image.width || image.naturalWidth;
+  const height = image.height || image.naturalHeight;
+  if (!width || !height) throw Error("L'immagine dagli appunti non ha dimensioni valide.");
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw Error("Impossibile convertire l'immagine in PNG.");
+  context.drawImage(image, 0, 0);
+  image.close?.();
+  const png = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  if (!png) throw Error("Impossibile convertire l'immagine in PNG.");
+  return new File([png], "clipboard.png", {type: "image/png", lastModified: Date.now()});
+}
+function attachmentCardForPaste(target) {
+  const card = target.closest?.(".test, .extra");
+  if (card) return card;
+  if (target.id === "notes-mobile-editor" || target.id === "notes-mobile" ||
+      target.closest?.("#altro-overlay"))
+    return document.querySelector(".extra");
+  return null;
+}
+window.feedbackPasteImage = (event, target) => {
+  const card = attachmentCardForPaste(target);
+  const data = event.clipboardData;
+  const hasImage = data && (Array.from(data.items || []).some(item =>
+    item.kind === "file" && /^image\//i.test(item.type)) ||
+    Array.from(data.files || []).some(file => /^image\//i.test(file.type)));
+  if (!card || !hasImage) return false;
+  event.preventDefault();
+  clipboardImageAsPng(event)
+    .then(file => attachFiles(card, [file]))
+    .catch(error => report(error.message, true));
+  return true;
+};
+document.addEventListener("paste", event => {
+  const target = event.target;
+  if (target.closest?.(".rich-editor")) return;
+  if (target.matches?.("textarea:not([readonly])"))
+    window.feedbackPasteImage(event, target);
+});
 // Keep file drops outside a response from replacing the document in this tab.
 for (const name of ["dragover", "drop"]) document.addEventListener(name, (event) => {
   if (Array.from(event.dataTransfer.types).includes("Files")) event.preventDefault();
