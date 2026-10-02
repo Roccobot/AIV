@@ -828,13 +828,21 @@ main > .feedback-columns {
     --df-shell: 1350px;
   }
   .intro,
-  .dashboard,
-  main > .cloud-account,
   .feedback-columns,
   footer {
     max-width: var(--df-shell);
     margin-left: auto;
     margin-right: auto;
+  }
+  /* The two utility shells align with the columns' content and intro copy. */
+  .dashboard,
+  main > .cloud-account {
+    width: calc(100% - 48px);
+    max-width: calc(var(--df-shell) - 48px);
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #d4ded7;
+    border-radius: 16px;
   }
   .intro,
   footer {
@@ -843,7 +851,6 @@ main > .feedback-columns {
   }
   /* Count strip fills the shell (no leftover 832px band). */
   .dashboard {
-    width: 100%;
     box-sizing: border-box;
   }
   .dashboard > div,
@@ -856,8 +863,6 @@ main > .feedback-columns {
   }
   /* Accedi/Salvataggio card: same outer width as columns + count strip. */
   main > .cloud-account {
-    width: 100%;
-    max-width: var(--df-shell);
     margin-top: 0;
     margin-bottom: 18px;
     box-sizing: border-box;
