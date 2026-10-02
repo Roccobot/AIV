@@ -10,7 +10,7 @@ Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Il giro **3.39** è stato consegnato due volte e travasato (ultimo invio 3 ottobre 2026, ~00:34 Europe/Rome, `cloudRevision` `c93be007-541d-44ae-863c-0d603935203a`).
 Le prove OK del 3.39 sono in archivio sotto. Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Sul documento 3.39 Rocco ha già scritto un residuo sul rail e sull'inpaint: le prove qui sotto chiedono di rifarlo sull'APK **3.40**.
+Il giro **3.40** è stato consegnato e travasato il 3 ottobre 2026 (~01:07 Europe/Rome). Le prove sotto restano il testo del collaudo; gli esiti sono nella tabella.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -26,11 +26,11 @@ Le verifiche automatiche della 3.40 sono superate: 486 prove, zero fallimenti, c
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 3.40-01 | Non provato | Sul DF 3.39: Cerca OK, maniglia OK; drag lista rotto; tasti non centrati. | Collaudare l'APK 3.40. |
-| 3.40-02 | Non provato | Sul DF 3.39 la nota sui lati è stata tolta (esito OK, commento vuoto). | Confermare i lati sull'APK 3.40. |
-| 3.40-03 | Non provato | | Collaudare il flash HEIC. |
-| 3.40-04 | Non provato | `3.27-03`: 'Era già stato deciso per la 3.40'. | Collaudare LOOK / NAV / START. |
-| 3.40-05 | Non provato | `3.38-11`: ancora uguale; propone un timbro clone, oppure lasciare stare. | Giudicare l'ultimo tentativo euristico. |
+| 3.40-01 | Non approvato | Ricerca e maniglia OK. Lista non torna giù al tocco, ma non si sposta (traballa). Due icone in basso non centrate. | Rail in 3.41. |
+| 3.40-02 | Tutto OK | | Chiusa. |
+| 3.40-03 | Tutto OK | | Chiusa. |
+| 3.40-04 | Accettabile | Riordino: Navigazione sciolta; Pulsanti e indicatori; Cestino; Gestione dei file; Avanzate. | Struttura Impostazioni in 3.41. |
+| 3.40-05 | Tutto OK | Per ora resta così. | Filone inpaint chiuso, niente timbro clone. |
 
 ## 1. Rail tablet: Cerca, maniglia, lista, tasti
 
@@ -101,7 +101,7 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 ## Prossimi passi
 
-- **Aperto (detto sul DF 3.39, non chiuso)**: rail, trascinamento lista rotto e Cestino/Impostazioni non centrati. Cerca e maniglia segnati OK. Correzione dopo questo collaudo, non in 3.40.
-- **Da decidere**: inpaint ancora uguale (`3.38-11`); Rocco propone un riferimento tipo timbro clone, oppure lasciare il filone. Limiti euristici già nel brief. Niente altro tentativo finché non sceglie.
-- **Collaudo**: le cinque prove di questa pagina sull'APK 3.40.
+- **3.41 (entra)**: rail `3.40-01`, il trascinamento della lista traballa e non la sposta; Cestino e Impostazioni non centrati. Cerca e maniglia OK.
+- **3.41 (entra)**: riordino Impostazioni da `3.40-04` (Navigazione dentro Visualizzatore; sparisce Comandi e indicatori; Pulsanti e indicatori ultima di Aspetto; sotto-pagina Cestino; Gestione dei file; fusione in Avanzate).
+- **Chiuso in questo giro**: lati editor `3.40-02`; HEIC `3.40-03`; inpaint `3.40-05` (per ora resta così, niente timbro clone).
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
