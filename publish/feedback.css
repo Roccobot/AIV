@@ -933,6 +933,11 @@ main > .feedback-columns {
   .dashboard {
     box-sizing: border-box;
   }
+  /* A docked strip meets the viewport edge; keep only its lower corners rounded. */
+  .dashboard.is-docked {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
   .dashboard > div,
   .dashboard > p,
   .dashboard > progress,

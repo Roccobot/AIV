@@ -827,6 +827,12 @@ const responseCards = Array.from(document.querySelectorAll(".test, .decision, .e
 const previousCard = document.querySelector("#previous-card");
 const nextCard = document.querySelector("#next-card");
 const firstEmpty = document.querySelector("#first-empty");
+const dashboard = document.querySelector(".dashboard");
+function refreshDashboardDocked() {
+  // Sticky positioning is not exposed as a CSS state. The viewport edge is the
+  // reliable boundary between the normal floating strip and its docked state.
+  dashboard.classList.toggle("is-docked", dashboard.getBoundingClientRect().top <= 0);
+}
 function navigationOffset() {
   return document.querySelector(".dashboard").getBoundingClientRect().height + 12;
 }
@@ -846,6 +852,7 @@ function firstEmptyCard() {
   return responseCards.find(card => !card.classList.contains("extra") && !card.classList.contains("has-response"));
 }
 function refreshNavigation() {
+  refreshDashboardDocked();
   const index = currentCardIndex();
   previousCard.disabled = !loaded || index <= 0;
   nextCard.disabled = !loaded || index >= responseCards.length - 1;
