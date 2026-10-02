@@ -77,6 +77,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -2068,10 +2069,57 @@ private fun ValueAndPick(value: String, pick: String, onPick: () -> Unit) {
  * ⚠️ **Il `modifier` c'è perché serve a un chiamante**: la riga di un file ripristinato le
  * passa un peso. Un valore di serie non cambia niente per gli altri.
  */
+/**
+ * Copia delle Impostazioni: apici → grassetto, `ATTENZIONE` → **Attenzione**.
+ *
+ * ⚠️ Giro 3.25-3.30 / 3.37 (`3.26-03`, `3.37-03`): vale in **tutte** le sezioni e
+ * sotto-pagine, non solo Cartelle. `'FAB'` resta tra apici (eccezione esplicita).
+ * Le elisioni italiane (`l'app`, `un'immagine`) non sono coppie di apici tipografici.
+ */
+internal fun emphasizeSettingsCopy(raw: String): AnnotatedString = buildAnnotatedString {
+    var i = 0
+    while (i < raw.length) {
+        if (raw.startsWith("ATTENZIONE", i)) {
+            val from = length
+            append("Attenzione")
+            addStyle(SpanStyle(fontWeight = FontWeight.SemiBold), from, length)
+            i += "ATTENZIONE".length
+            continue
+        }
+        if (raw[i] == '\'') {
+            val before = if (i > 0) raw[i - 1] else ' '
+            // Elisione: lettera subito prima (l'app, un'immagine, dell'editor).
+            if (before.isLetter()) {
+                append('\'')
+                i++
+                continue
+            }
+            val close = raw.indexOf('\'', i + 1)
+            if (close > i + 1) {
+                val term = raw.substring(i + 1, close)
+                if (term == "FAB") {
+                    append("'FAB'")
+                    i = close + 1
+                    continue
+                }
+                if (term.length in 1..48 && '\n' !in term) {
+                    val from = length
+                    append(term)
+                    addStyle(SpanStyle(fontWeight = FontWeight.SemiBold), from, length)
+                    i = close + 1
+                    continue
+                }
+            }
+        }
+        append(raw[i])
+        i++
+    }
+}
+
 @Composable
 internal fun Detail(text: String, modifier: Modifier = Modifier) {
     Text(
-        text = text,
+        text = emphasizeSettingsCopy(text),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
@@ -2133,13 +2181,7 @@ private fun PageRow(
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(text = label, style = MaterialTheme.typography.titleSmall)
-            summary?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            summary?.let { Detail(it) }
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

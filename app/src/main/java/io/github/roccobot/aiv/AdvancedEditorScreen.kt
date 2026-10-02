@@ -125,6 +125,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -565,7 +566,12 @@ fun AdvancedEditorScreen(
              * ⚠️⚠️ **STRUMENTI A LATO DA 1.024 dp, DALLA `3.34`** (mockup editor): sotto quella
              * soglia la scheda resta in basso, come sul telefono e come l'editor semplice.
              */
-            val widthDp = LocalConfiguration.current.screenWidthDp
+            // ⚠️ **Larghezza dalla finestra, non da Configuration** (giro 3.37 note B):
+            // in orizzontale ≥1024 Configuration poteva oscillare e far sfarfallare
+            // il layout beside (apri/chiudi strumenti a lato).
+            val widthDp = with(LocalDensity.current) {
+                LocalWindowInfo.current.containerSize.width.toDp()
+            }.value.toInt()
             val beside = Adaptive.editorBeside(widthDp)
             val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
             val toolsWidth = Adaptive.editorToolsWidth(widthDp)
@@ -2210,7 +2216,8 @@ private fun LookStage(
                 }
             }
             // ⚠️ **Soglia più bassa** (giro 3.25-3.30, `3.26-06`): il lentino sparisce prima.
-            if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.72f) {
+            // ⚠️ Soglia ancora più bassa (giro 3.37, `3.37-08`).
+if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                 val loupeSide = LOUPE_SIDE.toPx()
                 /*
                  * ⚠️ **Lo zoom scende se il pennello ingrandito uscirebbe dalla lente**

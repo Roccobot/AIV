@@ -902,7 +902,12 @@ fun menuFloor(columns: Int, gap: Dp): Dp {
     val usable = window - sides.calculateStartPadding(dir) - sides.calculateEndPadding(dir) -
         GRID_PAD_X * 2
     val cell = (usable - gap * (columns - 1)) / columns
-    return minOf(cell * 2 + gap + GRID_PAD_X * 2, window - MENU_INSET * 2)
+    val floor = cell * 2 + gap + GRID_PAD_X * 2
+    val insetCap = window - MENU_INSET * 2
+    // ⚠️ **Su tablet max ~45%** (giro 3.37 note B / `tablet2.jpg`): non a tutta fascia.
+    val cap =
+        if (window.value >= Adaptive.PHONE_MAX) minOf(insetCap, window * 0.45f) else insetCap
+    return minOf(floor, cap)
 }
 
 /**

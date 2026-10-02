@@ -79,18 +79,26 @@ fun FolderRail(
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.surface)
     ) {
+        /*
+         * ⚠️ **Icona multi-cartella al posto del titolo** (giro 3.37, `3.31-01` B):
+         * 'Cartelle' andava a capo e cambiava lunghezza per lingua. Più aria fra i tasti.
+         */
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(start = 12.dp, end = 8.dp, top = 12.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = stringResource(R.string.folders_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
+            Icon(
+                imageVector = Icons.Default.Folder,
+                contentDescription = stringResource(R.string.folders_title),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(start = 4.dp, end = 8.dp)
+                    .size(28.dp)
             )
+            Box(Modifier.weight(1f))
             IconButton(onClick = onSearch) {
                 Icon(
                     imageVector = Icons.Default.Search,
@@ -186,16 +194,33 @@ fun FolderRail(
  */
 @Composable
 fun FoldersTabletHint(modifier: Modifier = Modifier) {
-    Box(
+    // ⚠️ **Stesso senso dell'intestazione mobile** (giro 3.37, `3.31-01` A): non uno
+    // spazio vuoto. Titolo + invito a scegliere una cartella, centrati.
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
+            .background(MaterialTheme.colorScheme.background)
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Icon(
+            imageVector = Icons.Default.Folder,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(64.dp)
+        )
+        Text(
+            text = stringResource(R.string.folders_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 16.dp)
+        )
         Text(
             text = stringResource(R.string.folders_tablet_pick),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 8.dp)
         )
     }
 }

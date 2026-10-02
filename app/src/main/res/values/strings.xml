@@ -859,7 +859,7 @@
     <string name="folder_authorize_title">Add to displayed folders</string>
     <string name="folder_list_remove_title">Really remove this folder from the list?</string>
     <string name="folder_list_remove_do">Remove</string>
-    <string name="folder_already_listed">Already in the list</string>
+    <string name="folder_already_listed">already included</string>
     <string name="folder_remove">Remove authorization</string>
     <string name="folder_remove_desc">Remove this folder from the authorized list? Its content will disappear from grid and list modes.</string>
     <string name="folder_only_this">Only this folder</string>

@@ -123,6 +123,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -2018,8 +2019,8 @@ fun GridScreen(
             LazyVerticalGrid(
                     columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
                     state = state,
-                    horizontalArrangement = Arrangement.spacedBy(GAP),
-                    verticalArrangement = Arrangement.spacedBy(GAP),
+                    horizontalArrangement = Arrangement.spacedBy(gridGap()),
+                    verticalArrangement = Arrangement.spacedBy(gridGap()),
                     // ⚠️ Il fondo cresce **con la selezione**, cioè quando il FAB
                     // compare: senza, la fotografia in basso a destra resterebbe coperta
                     // proprio mentre la si deve poter toccare. Fuori dalla selezione il
@@ -3365,6 +3366,14 @@ internal fun spread(scelte: Int, finestra: WindowInfo): Int {
 
 /** Il distacco fra le miniature: c'è, ma non deve leggersi come una cornice. */
 private val GAP = 3.dp
+
+/** Aria fra le miniature: più larga sul tablet (giro 3.37, `3.31-01` C). */
+@Composable
+private fun gridGap(): Dp {
+    val w = LocalWindowInfo.current.containerSize.width
+    val dp = with(LocalDensity.current) { w.toDp() }
+    return if (dp.value >= Adaptive.PHONE_MAX) 8.dp else GAP
+}
 
 /**
  * Quante righe può prendere il nome sotto una miniatura: **due**, come chiesto.

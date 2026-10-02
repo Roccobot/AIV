@@ -80,6 +80,7 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -416,7 +417,10 @@ fun EditorScreen(
          * ⚠️⚠️ **STRUMENTI A LATO DA 1.024 dp, DALLA `3.34`** (mockup editor/simple): sotto
          * quella soglia la scheda resta in basso, come sul telefono.
          */
-        val widthDp = LocalConfiguration.current.screenWidthDp
+        // ⚠️ **Larghezza dalla finestra, non da Configuration** (giro 3.37 note B).
+        val widthDp = with(LocalDensity.current) {
+            LocalWindowInfo.current.containerSize.width.toDp()
+        }.value.toInt()
         val beside = Adaptive.editorBeside(widthDp)
         val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
         val toolsWidth = Adaptive.editorToolsWidth(widthDp)

@@ -3681,7 +3681,6 @@ private fun Stage(
             // qualunque, che era la richiesta.
             val lookup = model.folder
             val widthDp = LocalConfiguration.current.screenWidthDp
-            val dualBin = Adaptive.sideAvailable(widthDp)
             val listed = lookup?.seriesOrNull?.items
             val highlight = if (model.gridVisited) model.series?.index else null
             val detailUri = listed?.let { list ->
@@ -3727,24 +3726,10 @@ private fun Stage(
                 )
             }
             /*
-             * ⚠️⚠️ **DETTAGLI A LATO DA 600 dp, DALLA `3.35`** (mockup `bin`): anteprime nello
-             * spazio principale e fatti del file evidenziato nella colonna. Telefono invariato.
+             * ⚠️⚠️ **DALLA `3.38` NIENTE DETTAGLI A LATO** (giro 3.37, `3.35-01`): la griglia
+             * del cestino occupa tutta la larghezza; i dettagli a lato non servivano.
              */
-            if (dualBin) {
-                FoldersTabletSplit(
-                    panelOnStart = settings.hand == Hand.RIGHT,
-                    rail = {
-                        BinDetailSide(
-                            uri = detailUri,
-                            fields = settings.factRows,
-                            width = Adaptive.sideWidth(widthDp)
-                        )
-                    },
-                    detail = { BinGrid() }
-                )
-            } else {
-                BinGrid()
-            }
+            BinGrid()
         }
 
         Screen.History -> {

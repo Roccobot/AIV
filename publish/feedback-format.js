@@ -2,11 +2,19 @@
 (() => {
   const editors = [];
   const iconPaths = {
-    bold: "M6.5 4h5.2c2.4 0 4.3 1.9 4.3 4.2 0 1.5-.8 2.8-2 3.5 1.5.7 2.5 2.1 2.5 3.8 0 2.5-2 4.5-4.6 4.5H6.5V4zm2.6 2.3v4.2h2.5c1.2 0 2-.8 2-1.9s-.8-2.3-2.1-2.3H9.1zm0 6.5v4.6h2.9c1.3 0 2.3-1 2.3-2.3s-1-2.3-2.3-2.3H9.1z",
+    // Italic / link keep Material-style paths; bold uses a letter mark (requested redesign).
     italic: "M10 4v3h2.21l-3.42 10H6v3h8v-3h-2.21l3.42-10H18V4z",
     link: "M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z",
+    code: "M8.7 16.7 3.9 12l4.8-4.7L7.3 5.9 1.2 12l6.1 6.1 1.4-1.4zm6.6 0 1.4 1.4L22.8 12l-6.1-6.1-1.4 1.4 4.8 4.7-4.8 4.7z",
   };
   function formatIcon(kind) {
+    if (kind === "bold") {
+      const mark = document.createElement("span");
+      mark.className = "format-letter";
+      mark.textContent = "B";
+      mark.setAttribute("aria-hidden", "true");
+      return mark;
+    }
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
     svg.setAttribute("aria-hidden", "true");
@@ -30,7 +38,7 @@
       return null;
     }
   }
-  // Parse only inline emphasis and web links; user text never becomes HTML.
+  // Parse inline emphasis, code, and web links; user text never becomes HTML.
   function inline(text, parent, depth = 0) {
     if (depth > 12) {
       parent.append(document.createTextNode(text));
@@ -42,10 +50,19 @@
       plain = "";
     };
     for (let index = 0; index < text.length;) {
-      if (text[index] === "\\" && /[\\*\[\]]/.test(text[index + 1] || "")) {
+      if (text[index] === "\\" && /[\\*`\[\]_]/.test(text[index + 1] || "")) {
         plain += text[index + 1];
         index += 2;
         continue;
+      }
+      if (text[index] === "`") {
+        const close = text.indexOf("`", index + 1);
+        if (close > index) {
+          flush();
+          parent.append(node("code", text.slice(index + 1, close)));
+          index = close + 1;
+          continue;
+        }
       }
       const link = /^\[((?:\\.|[^\]\\])+)\]\((https?:\/\/[^\s)]+)\)/.exec(text.slice(index));
       const address = link && webAddress(link[2]);
@@ -55,13 +72,13 @@
         anchor.href = address;
         anchor.target = "_blank";
         anchor.rel = "noopener noreferrer";
-        inline(link[1], anchor, depth + 1);
+        inline(link[1].replace(/\\([\\*`\[\]_])/g, "$1"), anchor, depth + 1);
         parent.append(anchor);
         index += link[0].length;
         continue;
       }
       let matched = false;
-      for (const marker of ["***", "**", "*"]) {
+      for (const marker of ["***", "**", "*", "_"]) {
         if (!text.startsWith(marker, index)) continue;
         let end = index + marker.length;
         while (end < text.length) {
@@ -72,7 +89,7 @@
         if (end >= text.length) continue;
         if (end <= index + marker.length) continue;
         flush();
-        const emphasis = node(marker === "*" ? "em" : "strong");
+        const emphasis = node(marker === "*" || marker === "_" ? "em" : "strong");
         if (marker === "***") {
           const italic = node("em");
           inline(text.slice(index + 3, end), italic, depth + 1);
@@ -87,6 +104,7 @@
     }
     flush();
   }
+
   function markdown(root) {
     const runs = [];
     const add = (text, style) => {
@@ -110,6 +128,10 @@
       }
       const block = ["DIV", "P"].includes(tag);
       if (block && element.previousSibling) add("\n", {});
+      if (tag === "CODE") {
+        add("`" + element.textContent + "`", style);
+        return;
+      }
       const next = {
         bold: element.style.fontWeight ? /^(bold|[6-9]00)$/.test(element.style.fontWeight) : style.bold || ["B", "STRONG"].includes(tag),
         italic: element.style.fontStyle ? element.style.fontStyle === "italic" : style.italic || ["I", "EM"].includes(tag),
@@ -124,7 +146,7 @@
       for (const child of root.childNodes) visit(child, {});
     }
     return runs.map(run => {
-      let text = run.text.replace(/[\\*\[\]]/g, "\\$&");
+      let text = run.text.replace(/[\\*`\[\]_]/g, "\\$&");
       const marker = (run.bold ? "**" : "") + (run.italic ? "*" : "");
       if (marker) text = text.replace(/^(\s*)([\s\S]*?\S)(\s*)$/, (_, before, body, after) => before + marker + body + marker + after);
       if (run.href) text = "[" + text + "](" + run.href.replace(/\(/g, "%28").replace(/\)/g, "%29") + ")";
@@ -195,6 +217,10 @@
       }
       document.execCommand("createLink", false, address);
       links(editor);
+    } else if (kind === "code") {
+      const selected = range.toString() || "codice";
+      if (!range.collapsed) document.execCommand("delete", false);
+      document.execCommand("insertText", false, "`" + selected + "`");
     } else document.execCommand(kind === "bold" ? "bold" : "italic", false);
     sync(editor);
   }
@@ -225,7 +251,7 @@
     wrapper.append(toolbar, area, box);
     const editor = {area, box, range: null, lastMarkdown: null};
     editors.push(editor);
-    for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["link", "Link", "K"]]) {
+    for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {
       const button = node("button");
       button.setAttribute("aria-label", title);
       button.append(formatIcon(kind));
@@ -269,7 +295,7 @@
       }
     });
     box.addEventListener("keydown", event => {
-      const kind = {b: "bold", i: "italic", k: "link"}[event.key.toLowerCase()];
+      const kind = {b: "bold", i: "italic", m: "code", k: "link"}[event.key.toLowerCase()];
       if (kind && (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey) {
         event.preventDefault();
         edit(editor, kind);

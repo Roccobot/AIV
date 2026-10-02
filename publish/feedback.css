@@ -544,3 +544,231 @@ textarea[hidden] {
     color: #b6c8bd;
   }
 }
+
+/* --- Feedback UX 3.38: strip, hamburger, Altro, editing-mobile --- */
+.dash-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 832px;
+  margin: 0 auto;
+}
+.dash-row #counts {
+  flex: 1;
+  min-width: 0;
+}
+.menu-toggle {
+  display: none;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #0b6b5b;
+  color: #fff;
+  border-color: #0b6b5b;
+}
+.count-filled {
+  font-weight: 700;
+  margin-right: 4px;
+}
+.count-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.count-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+.count-chip-ok { color: #0b6b5b; }
+.count-chip-warn { color: #745713; }
+.count-chip-bad { color: #a23737; }
+
+.format-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1em;
+  height: 1.1em;
+  font: 700 15px/1 Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+}
+.format-toolbar button[data-format="bold"] .format-letter {
+  transform: translateY(-0.5px);
+}
+.rich-editor code,
+.card.test p code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  background: #e8f2ed;
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+}
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #0b1f1888;
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+}
+.mobile-menu[hidden] {
+  display: none !important;
+}
+.mobile-menu-panel {
+  flex: 1;
+  background: #fcfbf8;
+  color: #1b2d25;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  overflow: auto;
+}
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.mobile-menu-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.menu-close {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.menu-account {
+  margin-bottom: 16px;
+}
+.menu-account a,
+.menu-account button {
+  display: inline-flex;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+.menu-altro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.menu-altro h3 {
+  margin: 0 0 8px;
+}
+.menu-altro textarea {
+  flex: 1;
+  min-height: 50vh;
+  font-size: 18px;
+}
+
+.desktop-altro {
+  display: none;
+}
+
+/* Mobile strip + hamburger; hide bottom Altro body (attachments stay) when menu covers notes */
+@media (max-width: 720px) {
+  .menu-toggle {
+    display: inline-flex;
+  }
+  .dashboard {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .dash-row #counts {
+    font-size: 13px;
+    gap: 6px 10px;
+  }
+  .count-filled {
+    flex-basis: 100%;
+  }
+  body.editing-mobile .floating-controls button:not(#floating-save) {
+    display: none;
+  }
+  body.editing-mobile .floating-controls {
+    /* Salva alone, still reachable above the keyboard */
+    bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Desktop: floating Altro on the left; hide duplicate free-text in bottom section */
+@media (min-width: 1100px) {
+  body {
+    --altro-rail: 280px;
+  }
+  .desktop-altro {
+    display: block;
+    position: fixed;
+    top: 96px;
+    left: 16px;
+    width: var(--altro-rail);
+    max-height: calc(100vh - 120px);
+    overflow: auto;
+    background: #fffefc;
+    border: 1px solid #d4ded7;
+    border-radius: 16px;
+    padding: 16px;
+    z-index: 2;
+    box-shadow: 0 4px 16px #153c2412;
+  }
+  .desktop-altro h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+  }
+  .desktop-altro textarea {
+    min-height: 360px;
+    font-size: 16px;
+  }
+  .intro,
+  main,
+  footer,
+  .dashboard > div,
+  .dashboard > p,
+  .dashboard > progress,
+  .dash-row {
+    margin-left: calc(var(--altro-rail) + 32px);
+  }
+  .dash-row {
+    max-width: 832px;
+  }
+  /* Bottom Altro keeps attachments; free-text is the left rail */
+  #extra-section > label:first-of-type {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .mobile-menu-panel,
+  .desktop-altro {
+    background: #1e2523;
+    color: #e3eee8;
+    border-color: #43564c;
+  }
+  .rich-editor code,
+  .card.test p code {
+    background: #285347;
+  }
+  .count-chip-ok { color: #4fd9be; }
+  .count-chip-warn { color: #e6c35c; }
+  .count-chip-bad { color: #ffb5b5; }
+}
+@media (max-width: 720px) {
+  #extra-section > label:first-of-type {
+    display: none;
+  }
+}

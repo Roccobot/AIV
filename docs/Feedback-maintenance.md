@@ -183,6 +183,16 @@ nel brief il passaggio mancante, senza creare un secondo documento o un nuovo in
    tocca il codice. Regola universale: `rules/Roccobot.md` § '📋 Prima cosa: tutto
    nel brief, prima del lavoro prodotto'. Allegati e JSON restano fuori dal repo.
 
+4. ⚠️⚠️ **Prima di chiudere l'elaborazione del giro: audit obbligatorio contro
+   l'export precedente** (`rules/Roccobot.md` § '🔍 Audit obbligatorio').
+   **Documento di feedback = sorgente del lavoro aperto; brief = piano d'azione
+   documentato + backlog (non archivio/changelog); solo il fatto esce da entrambi.** Si rilegge il JSON del
+   giro **prima** (o l'allegato rimesso in chat) e si verifica che ogni Non
+   approvato / Accettabile / nota del campo libero / decisione operativa sia
+   *fatta con prova*, *nel brief e/o ancora nel documento*, oppure *cancellata
+   esplicitamente*. Mai far sparire una richiesta. Differito resta in sospeso;
+   parziale ≠ completo. Il nuovo documento non azzera quei debiti.
+
 Per recuperare, con GitHub CLI autenticato come proprietario e Node 24, dalla radice AIV:
 
 ```sh

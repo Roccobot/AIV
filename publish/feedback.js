@@ -171,8 +171,30 @@ function validate(raw) {
   }
   return clean;
 }
+function countIcon(kind) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("class", "count-icon count-" + kind);
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  // Material-like: check / alert / cancel (no emoji).
+  path.setAttribute("d", {
+    ok: "M9.2 16.6 4.8 12.2l1.4-1.4 3 3 8-8 1.4 1.4z",
+    warn: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
+    bad: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm3.5 13.1-1.4 1.4L12 13.4l-2.1 2.1-1.4-1.4L10.6 12 8.5 9.9l1.4-1.4L12 10.6l2.1-2.1 1.4 1.4L13.4 12l2.1 2.1z",
+  }[kind]);
+  svg.append(path);
+  return svg;
+}
+function countChip(kind, label, value) {
+  const chip = el("span", undefined, "count-chip count-chip-" + kind);
+  chip.append(countIcon(kind), el("span", String(value)));
+  chip.title = label + ": " + value;
+  chip.setAttribute("aria-label", label + ": " + value);
+  return chip;
+}
 function refreshCounts() {
-  document.querySelector(".extra").classList.toggle("has-response", Boolean(draft.notes.trim() || draft.extra.images.length));
+  document.querySelector(".extra")?.classList.toggle("has-response", Boolean(draft.notes.trim() || draft.extra.images.length));
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
     card.dataset.outcome = value.status;
@@ -192,12 +214,13 @@ function refreshCounts() {
     }
   }
   const counts = document.querySelector("#counts");
+  const filled = el("span", `Compilate: ${done}/${spec.items.length}`, "count-filled");
   counts.replaceChildren(
-    el("span", `${done}/${spec.items.length} con risposta`),
+    filled,
+    countChip("ok", "Tutto OK", counters["Tutto OK"]),
+    countChip("warn", "Accettabile", counters["Accettabile"]),
+    countChip("bad", "Non approvato", counters["Non approvato"]),
   );
-  for (const [status, count] of Object.entries(counters))
-    counts.append(el("span", `${status}: ${count}`));
-  counts.append(el("span", `Non provato: ${spec.items.length - done}`));
   document.querySelector("#progress").value = done;
   document.querySelector("#answered").textContent =
     `Risposte: ${done} su ${spec.items.length}.`;
@@ -205,14 +228,16 @@ function refreshCounts() {
 }
 
 function alignDocumentVersion() {
-  // ⚠️ **Nuovo rilascio del documento: svuota i campi liberi** (giro 3.25-3.30, note A).
-  // Modello telefono/tablet restano. Le risposte alle prove con ID ancora presenti restano.
+  // ⚠️ **Nuovo rilascio del documento: svuota i campi liberi** (giro 3.25-3.30 / 3.37 note A).
+  // Telefono/tablet restano. Prove con ID ancora presenti restano.
+  // Decisioni non più in spec.decisions non si ripropongono in UI (lista vuota = chiuse).
   if (draft.version === spec.version) return;
   draft.notes = "";
   draft.extra = { images: [] };
   draft.completed = null;
   draft.version = spec.version;
   if (!draft.installed) draft.installed = spec.version;
+  syncAltroFields();
 }
 function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
@@ -232,9 +257,12 @@ function hydrate() {
   }
   for (const key of ["device", "tablet", "installed", "notes"])
     document.querySelector("#" + key).value = draft[key];
+  syncAltroFields();
   drawAttachments(document.querySelector(".extra"));
   window.feedbackFormatting?.refresh();
   refreshCounts();
+  const dec = document.querySelector("#decisions");
+  if (dec) dec.hidden = !(spec.decisions && spec.decisions.length);
 }
 function drawAttachments(card) {
   const list = card.querySelector(".image-list");
@@ -299,6 +327,7 @@ function save() {
         saved.textContent =
           (remote ? "Salvato nel cloud: " : "Salvato in questo browser: ") +
           new Date(snapshot.updated).toLocaleString("it-IT");
+        window.feedbackHoldEditingAfterSave?.();
       }
       return true;
     })
@@ -346,7 +375,7 @@ function summary() {
   }
   lines.push(
     "",
-    "Qualsiasi altra cosa",
+    "Altro",
     draft.notes || "Nessuna osservazione.",
   );
   if (draft.extra.images.length)
@@ -518,11 +547,110 @@ for (const card of document.querySelectorAll(".test, .extra")) {
     attachFiles(card, Array.from(event.dataTransfer.files));
   });
 }
-for (const key of ["device", "tablet", "installed", "notes"])
+for (const key of ["device", "tablet", "installed"])
   document.querySelector("#" + key).addEventListener("input", (event) => {
     draft[key] = event.target.value;
     changed();
   });
+
+let altroSyncing = false;
+function syncAltroFields(source) {
+  if (altroSyncing) return;
+  altroSyncing = true;
+  const value = draft.notes || "";
+  for (const id of ["notes", "notes-mobile", "notes-desktop"]) {
+    const node = document.querySelector("#" + id);
+    if (!node || node === source) continue;
+    if (node.value !== value) node.value = value;
+  }
+  // Keep rich-editor mirrors in sync when format.js has wrapped #notes.
+  window.feedbackFormatting?.refresh?.();
+  altroSyncing = false;
+}
+function onAltroInput(event) {
+  draft.notes = event.target.value;
+  syncAltroFields(event.target);
+  changed();
+}
+for (const id of ["notes", "notes-mobile", "notes-desktop"]) {
+  const node = document.querySelector("#" + id);
+  if (node) node.addEventListener("input", onAltroInput);
+}
+
+// --- Mobile menu (hamburger): GitHub login + fullscreen Altro ---
+const menu = document.querySelector("#mobile-menu");
+const menuToggle = document.querySelector("#menu-toggle");
+const menuClose = document.querySelector("#menu-close");
+function setMenuOpen(open) {
+  if (!menu || !menuToggle) return;
+  menu.hidden = !open;
+  menuToggle.setAttribute("aria-expanded", String(open));
+  document.body.classList.toggle("menu-open", open);
+  if (open) {
+    syncAltroFields();
+    document.querySelector("#notes-mobile")?.focus();
+  }
+}
+menuToggle?.addEventListener("click", () => setMenuOpen(menu.hidden));
+menuClose?.addEventListener("click", () => setMenuOpen(false));
+menu?.addEventListener("click", (event) => {
+  if (event.target === menu) setMenuOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && menu && !menu.hidden) setMenuOpen(false);
+});
+
+// --- Mobile editing: only Salva while a text field is focused ---
+const isMobileUi = () => window.matchMedia("(max-width: 720px)").matches;
+let editingHoldTimer = null;
+function setEditingMobile(on) {
+  if (!isMobileUi()) {
+    document.body.classList.remove("editing-mobile");
+    return;
+  }
+  document.body.classList.toggle("editing-mobile", on);
+}
+function holdEditingAfterSave() {
+  clearTimeout(editingHoldTimer);
+  setEditingMobile(true);
+  editingHoldTimer = setTimeout(() => {
+    const active = document.activeElement;
+    const still =
+      active &&
+      (active.matches("textarea, input:not([type=file]), .rich-editor") ||
+        active.closest?.(".rich-editor"));
+    if (!still) setEditingMobile(false);
+  }, 5000);
+}
+document.addEventListener(
+  "focusin",
+  (event) => {
+    const t = event.target;
+    if (!t) return;
+    if (
+      t.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
+      t.closest?.(".rich-editor")
+    )
+      setEditingMobile(true);
+  },
+  true,
+);
+document.addEventListener(
+  "focusout",
+  () => {
+    clearTimeout(editingHoldTimer);
+    editingHoldTimer = setTimeout(() => {
+      const active = document.activeElement;
+      const still =
+        active &&
+        (active.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
+          active.closest?.(".rich-editor"));
+      if (!still) setEditingMobile(false);
+    }, 0);
+  },
+  true,
+);
+window.feedbackHoldEditingAfterSave = holdEditingAfterSave;
 // Anchor the next card below the actual sticky dashboard, including wrapped mobile text.
 const responseCards = Array.from(document.querySelectorAll(".test, .decision, .extra"));
 const previousCard = document.querySelector("#previous-card");

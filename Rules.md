@@ -61,6 +61,11 @@ sessione dopo è perso.
   `Roccobot/tools/.memo/LATEST.md`, poi toccare il codice (`Roccobot.md`
   § '📋 Prima cosa: tutto nel brief, prima del lavoro prodotto'; guida
   `docs/Feedback-maintenance.md`).
+- ⚠️⚠️ **Prima di chiudere il giro: audit contro l'export precedente** — documento
+  di feedback = **sorgente** del lavoro aperto; brief = **piano d'azione + backlog**
+  (non archivio/changelog); solo il fatto esce da entrambi. Niente richieste perse;
+  differimenti in sospeso finché fatti o cancellati; parziale ≠ completo
+  (`Roccobot.md` § '🔍 Audit obbligatorio'; `docs/Feedback-maintenance.md`).
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.

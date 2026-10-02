@@ -241,6 +241,10 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   `docs/Feedback-maintenance.md`: fonti, identificatori stabili, cloud, formato dei dati,
   verifiche e pubblicazione. Invio rende leggibile il giro, il via in chat autorizza
   il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').
+- **Dopo ogni giro elaborato: audit obbligatorio** contro l'export precedente.
+  Feedback doc = sorgente del lavoro aperto; brief = piano d'azione + backlog
+  (non archivio/changelog); solo il fatto esce da entrambi (`Roccobot.md`
+  § '🔍 Audit obbligatorio'; `docs/Feedback-maintenance.md`). Niente richieste perse.
 - **Prima di pubblicarlo esegui `tools/feedback-check.py publish/feedback.html`**; per cloud
   e salvataggio anche le suite Node/PostgreSQL e `tools/feedback-cloud-check.py`. Il workflow
   `Feedback cloud` deve concludere check e deploy. Mentre l'utente compila si prepara una

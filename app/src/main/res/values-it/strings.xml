@@ -743,7 +743,7 @@
     <string name="folder_authorize_title">Aggiungi alle cartelle visualizzate</string>
     <string name="folder_list_remove_title">Vuoi davvero rimuovere la cartella dalla lista?</string>
     <string name="folder_list_remove_do">Rimuovi</string>
-    <string name="folder_already_listed">Già in lista</string>
+    <string name="folder_already_listed">già inclusa</string>
     <string name="folder_remove">Rimuovi autorizzazione</string>
     <string name="folder_remove_desc">Vuoi rimuovere questa cartella dalla lista delle autorizzate? Il suo contenuto sparirà dalle modalità griglia e lista.</string>
     <string name="folder_only_this">Solo questa cartella</string>
