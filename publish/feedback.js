@@ -9,7 +9,7 @@ const blank = () => ({
   schema: 1,
   project: "AIV",
   version: spec.version,
-  installed: spec.version,
+  installed: "",
   device: "",
   tablet: "",
   notes: "",
@@ -231,12 +231,13 @@ function alignDocumentVersion() {
   // ⚠️ **Nuovo rilascio del documento: svuota i campi liberi** (giro 3.25-3.30 / 3.37 note A).
   // Telefono/tablet restano. Prove con ID ancora presenti restano.
   // Decisioni non più in spec.decisions non si ripropongono in UI (lista vuota = chiuse).
+  // La conferma «ho installato questa versione» si azzera: va rifatta sul nuovo giro.
   if (draft.version === spec.version) return;
   draft.notes = "";
   draft.extra = { images: [] };
   draft.completed = null;
   draft.version = spec.version;
-  if (!draft.installed) draft.installed = spec.version;
+  draft.installed = "";
   syncAltroFields();
 }
 function hydrate() {
@@ -255,8 +256,9 @@ function hydrate() {
     for (const b of card.querySelectorAll(".decision-options button"))
       b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
   }
-  for (const key of ["device", "tablet", "installed", "notes"])
+  for (const key of ["device", "tablet", "notes"])
     document.querySelector("#" + key).value = draft[key];
+  syncInstalledConfirm();
   syncAltroFields();
   drawAttachments(document.querySelector(".extra"));
   window.feedbackFormatting?.refresh();
@@ -352,7 +354,9 @@ function changed() {
 function summary() {
   const lines = [
     `Feedback AIV ${spec.version}`,
-    `Versione installata: ${draft.installed || "Non indicata"}`,
+    draft.installed === spec.version
+      ? `Versione installata: ${spec.version} (confermata)`
+      : `Versione installata: non confermata`,
     `Telefono: ${draft.device || "Non indicato"}`,
     `Tablet: ${draft.tablet || "Non indicato"}`,
     "",
@@ -547,18 +551,29 @@ for (const card of document.querySelectorAll(".test, .extra")) {
     attachFiles(card, Array.from(event.dataTransfer.files));
   });
 }
-for (const key of ["device", "tablet", "installed"])
+for (const key of ["device", "tablet"])
   document.querySelector("#" + key).addEventListener("input", (event) => {
     draft[key] = event.target.value;
     changed();
   });
+
+function syncInstalledConfirm() {
+  const box = document.querySelector("#installed-confirm");
+  const giro = document.querySelector("#giro-version");
+  if (giro) giro.textContent = spec.version;
+  if (box) box.checked = draft.installed === spec.version;
+}
+document.querySelector("#installed-confirm")?.addEventListener("change", (event) => {
+  draft.installed = event.target.checked ? spec.version : "";
+  changed();
+});
 
 let altroSyncing = false;
 function syncAltroFields(source) {
   if (altroSyncing) return;
   altroSyncing = true;
   const value = draft.notes || "";
-  for (const id of ["notes", "notes-mobile", "notes-desktop"]) {
+  for (const id of ["notes", "notes-mobile"]) {
     const node = document.querySelector("#" + id);
     if (!node || node === source) continue;
     if (node.value !== value) node.value = value;
@@ -572,10 +587,19 @@ function onAltroInput(event) {
   syncAltroFields(event.target);
   changed();
 }
-for (const id of ["notes", "notes-mobile", "notes-desktop"]) {
+for (const id of ["notes", "notes-mobile"]) {
   const node = document.querySelector("#" + id);
   if (node) node.addEventListener("input", onAltroInput);
 }
+
+document.querySelector("#jump-altro")?.addEventListener("click", () => {
+  const target = document.querySelector("#extra-section");
+  if (!target) return;
+  setMenuOpen(false);
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  const editor = document.querySelector("#notes-editor") || document.querySelector("#notes");
+  editor?.focus?.();
+});
 
 // --- Mobile menu (hamburger): GitHub login + fullscreen Altro ---
 const menu = document.querySelector("#mobile-menu");

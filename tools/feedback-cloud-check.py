@@ -51,7 +51,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         return target.locator('.test').first.locator('.rich-editor')
     def altro_editor(target):
         # Visible Altro free-text (desktop rail, bottom card, or open mobile menu).
-        return target.locator('#notes-desktop-editor, #notes-editor, #notes-mobile-editor').locator('visible=true').first
+        return target.locator('#notes-editor, #notes-mobile-editor').locator('visible=true').first
     def save(page):
         page.locator('#save').click()
         expect(page.locator('#saved')).to_contain_text('Salvato nel cloud')

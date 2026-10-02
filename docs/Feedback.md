@@ -15,7 +15,7 @@ Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
 Nei commenti puoi usare Grassetto, Corsivo, Codice inline (`` ` `` / ⌘M) e Link, oppure
 Cmd+B/I/M/K. Su mobile: striscia Compilate in alto, menu hamburger (login GitHub + Altro),
-e in editing solo Salva. Su desktop: Altro flottante a sinistra.
+e in editing solo Salva. Su desktop: Altro in colonna laterale (sempre pronta, con formattazione e allegati). Su mobile: Altro prima di Prossimi passi, con salto rapido dalla striscia.
 
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano.
 `Invia` rende leggibile il giro senza avviare lavori.
@@ -90,10 +90,13 @@ in 3.37. Finché è attivo, il pennello ingrandito resta dentro il tondo.
 ## 10. Documento di feedback: UX mobile e Altro
 
 Apri questo documento sul telefono: striscia fissa in alto con Compilate n/N e conteggi
-semaforo (icone, non emoji); hamburger a destra apre login GitHub + Altro a tutto schermo.
+semaforo (icone, non emoji); hamburger a destra apre login GitHub + Altro a tutto schermo;
+il tasto **Altro** nella striscia salta al riquadro in fondo (prima di Prossimi passi).
 Mentre scrivi in un campo, resta visibile solo Salva (gli altri controlli tornano al blur
-o ~5 s dopo un salvataggio). Su desktop: Altro flottante a sinistra. I link nelle prove
-sono cliccabili, non markdown letterale.
+o ~5 s dopo un salvataggio). Su desktop: Altro è una **colonna laterale** sempre pronta
+(formattazione e allegati +/trascina), non un riquadro flottante staccato. I link nelle prove
+sono cliccabili, non markdown letterale. La versione AIV del giro è fissa: conferma con la
+casella «Sì, ho installato questa versione».
 
 ## 11. Qualità Correggi/Rimuovi (riprova)
 

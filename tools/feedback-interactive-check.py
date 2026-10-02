@@ -609,7 +609,8 @@ def check(path):
             expect(migration.locator('[data-id="3.14-03"]')).to_have_count(0)
             expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
             expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
-            expect(migration.locator('#installed')).to_have_value('3.14')
+            expect(migration.locator('#installed-confirm')).not_to_be_checked()
+            expect(migration.locator('#giro-version')).to_have_text(data['version'])
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
             for item in data['items']:
                 if item['id'] == first_id:

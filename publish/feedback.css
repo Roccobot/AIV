@@ -677,11 +677,136 @@ textarea[hidden] {
   font-size: 18px;
 }
 
-.desktop-altro {
-  display: none;
+/* Altro: real side column on desktop; in-flow before PP on mobile */
+.feedback-columns {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 24px 28px;
+}
+/* Undo main's horizontal padding for the columns wrapper; keep vertical via sections */
+main {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+main > .feedback-columns {
+  padding-top: 0;
+}
+.feedback-primary > section:not(.card) {
+  max-width: none;
+}
+.feedback-primary > section > h2,
+.feedback-primary > section > p,
+.feedback-primary > section > #tests,
+.feedback-primary > section > #decision-list {
+  max-width: 832px;
 }
 
-/* Mobile strip + hamburger; hide bottom Altro body (attachments stay) when menu covers notes */
+#extra-section.altro-ready,
+#extra-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#extra-section .altro-notes-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.altro-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.attach-plus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0;
+  position: relative;
+  min-height: 48px;
+  padding: 8px 14px;
+}
+.attach-plus input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.attach-plus-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #0b6b5b;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.attach-plus-text {
+  font-size: 14px;
+}
+.drop-active.attach-plus,
+.drop-active .attach-plus {
+  border-color: #0b6b5b;
+  background: #ccefe3;
+}
+
+.installed-confirm {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid #d4ded7;
+  border-radius: 10px;
+  background: #f4faf7;
+}
+.installed-giro {
+  margin: 0 0 8px;
+}
+.installed-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.installed-check input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: #0b6b5b;
+}
+
+.jump-altro {
+  display: none;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fffefc;
+  color: #0b6b5b;
+  border-color: #0b6b5b;
+  font-weight: 700;
+}
+
+/* Mobile strip + hamburger; Altro stays in-flow before PP */
+@media (max-width: 1099px) {
+  .jump-altro {
+    display: inline-flex;
+  }
+}
 @media (max-width: 720px) {
   .menu-toggle {
     display: inline-flex;
@@ -701,62 +826,64 @@ textarea[hidden] {
     display: none;
   }
   body.editing-mobile .floating-controls {
-    /* Salva alone, still reachable above the keyboard */
     bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+  .feedback-columns {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px 20px;
+  }
+  .feedback-primary {
+    order: 1;
+  }
+  #extra-section {
+    order: 2;
+  }
+  .feedback-columns > .next-steps {
+    order: 3;
   }
 }
 
-/* Desktop: floating Altro on the left; hide duplicate free-text in bottom section */
+/* Desktop: Altro as real sticky side column (left), always ready */
 @media (min-width: 1100px) {
   body {
-    --altro-rail: 280px;
+    --altro-rail: minmax(260px, 300px);
   }
-  .desktop-altro {
-    display: block;
-    position: fixed;
-    top: 96px;
-    left: 16px;
-    width: var(--altro-rail);
-    max-height: calc(100vh - 120px);
+  .feedback-columns {
+    display: grid;
+    grid-template-columns: var(--altro-rail) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    max-width: 1200px;
+    padding: 0 24px 28px;
+  }
+  #extra-section {
+    grid-column: 1;
+    grid-row: 1;
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    max-height: calc(100vh - 104px);
     overflow: auto;
-    background: #fffefc;
-    border: 1px solid #d4ded7;
-    border-radius: 16px;
-    padding: 16px;
-    z-index: 2;
-    box-shadow: 0 4px 16px #153c2412;
+    margin: 0;
+    z-index: 1;
   }
-  .desktop-altro h2 {
-    margin: 0 0 8px;
-    font-size: 18px;
+  .feedback-primary {
+    grid-column: 2;
+    min-width: 0;
   }
-  .desktop-altro textarea {
-    min-height: 360px;
-    font-size: 16px;
+  #extra-section .rich-editor {
+    min-height: 280px;
+    height: 40vh;
+    max-height: 50vh;
   }
-  .intro,
-  main,
-  footer,
-  .dashboard > div,
-  .dashboard > p,
-  .dashboard > progress,
-  .dash-row {
-    margin-left: calc(var(--altro-rail) + 32px);
-  }
-  .dash-row {
-    max-width: 832px;
-  }
-  /* Bottom Altro keeps attachments; free-text is the left rail.
-     format.js wraps the label in .formatted-field, so hide that node. */
-  #extra-section > label:first-of-type,
-  #extra-section > .formatted-field:has(#notes) {
-    display: none;
+  .feedback-columns > .next-steps {
+    grid-column: 2;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  .mobile-menu-panel,
-  .desktop-altro {
+  .mobile-menu-panel {
     background: #1e2523;
     color: #e3eee8;
     border-color: #43564c;
@@ -768,10 +895,22 @@ textarea[hidden] {
   .count-chip-ok { color: #4fd9be; }
   .count-chip-warn { color: #e6c35c; }
   .count-chip-bad { color: #ffb5b5; }
-}
-@media (max-width: 720px) {
-  #extra-section > label:first-of-type,
-  #extra-section > .formatted-field:has(#notes) {
-    display: none;
+  .installed-confirm {
+    background: #1e2523;
+    border-color: #43564c;
+  }
+  .attach-plus-mark {
+    background: #43b59e;
+    color: #0b1f18;
+  }
+  .drop-active.attach-plus,
+  .drop-active .attach-plus {
+    border-color: #43b59e;
+    background: #285347;
+  }
+  .jump-altro {
+    background: #1e2523;
+    color: #4fd9be;
+    border-color: #4fd9be;
   }
 }

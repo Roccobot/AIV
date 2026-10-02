@@ -46,7 +46,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 
 - Nome ufficiale: **documento di feedback** (DF). Titolo: **Feedback AIV**.
   Intestazione: `AIV · giro della X.XX`, terminata alla versione, senza nome dell'agente.
-- Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi**: un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief.
+- Sigle: **DF** = documento di feedback; **PP** = **Prossimi passi**.
+- Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief.
 - Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
   Gli eventuali riferimenti all'autore nei testi visibili usano `l'agente`.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
@@ -67,7 +68,13 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   Il testo normale non è grassetto; incolli di testo semplice, nessun HTML interpretato.
 - Navigazione flottante: riquadro precedente, successivo, primo non compilato quando
   esiste, salvataggio con dischetto. Commento o allegato contano come compilazione.
-- Allegati mediante selettore e trascinamento nelle verifiche e in `Qualsiasi altra cosa`:
+- **Altro**: su desktop è una colonna laterale reale (preferibilmente a sinistra), sticky,
+  sempre pronta, con toolbar di formattazione e allegati (`+` e trascinamento). Su mobile
+  resta in fondo **prima** del PP, con controllo di salto rapido nella striscia. Non usare
+  un riquadro `position: fixed` staccato dal flusso.
+- La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
+  con la casella «Sì, ho installato questa versione» (`installed` = versione del giro o vuoto).
+- Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
 - Collegamenti esterni in nuova scheda con `noopener noreferrer`. Tutte le pagine AIV
@@ -82,7 +89,7 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 
 | Campo | Significato |
 |---|---|
-| `version`, `installed` | Versione del documento e dell'app installata |
+| `version`, `installed` | Versione del documento; `installed` vale la stessa stringa solo se Rocco ha spuntato «Sì, ho installato questa versione», altrimenti stringa vuota (non è più un campo libero) |
 | `device` | Specifiche del telefono; chiave storica conservata |
 | `tablet` | Specifiche del tablet; assente nei vecchi JSON, ripristinata come testo vuoto |
 | `entries` | Risposte per ID: `status`, `comment`, `images` |
