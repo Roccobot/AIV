@@ -82,6 +82,19 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   overlay (chiudi con ×), sullo stesso campo `notes` del riquadro in fondo e con lo stesso
   salvataggio cloud. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
+- ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
+  interfaccia (paragrafi, pulsanti, toast, voci, …), l'agente può redigere la proposta e
+  far uscire la versione; il DF deve elencare **ogni** nuova stringa ITA una per una in
+  una sezione intitolata esattamente **Etichette testuali**, in basso **prima** delle
+  sezioni conclusive/archivio (`Riscontri conclusi`) e del PP. Ogni sotto-card mostra il
+  testo ITA proposto per intero e un campo libero: ciò che l'utente scrive sostituisce la
+  proposta al prossimo rilascio utile; campo vuoto = approvato. Non è una sezione di prove
+  (niente esiti, fuori dai contatori). Assente o vuota → sezione nascosta.
+- ⚠️ **Consegna e copie**: non resta una card sempre visibile nel flusso. Si apre come
+  overlay popup. Desktop: pulsante nella riga strumenti di Altro, a destra dell'allegato.
+  Mobile: pressione prolungata sul FAB Salva (dischetto) apre lo stesso popup; tocco breve
+  resta Salva. Si chiude con ×, tap fuori, Escape, o a fine interazione utile (Invia, Copia,
+  Esporta, Importa, Azzera); dopo Salva resta aperto per poter Inviare.
 - La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
   con la casella 'Sì, ho installato questa versione' (`installed` = versione del giro o vuoto).
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
@@ -104,6 +117,7 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `tablet` | Specifiche del tablet; assente nei vecchi JSON, ripristinata come testo vuoto |
 | `entries` | Risposte per ID: `status`, `comment`, `images` |
 | `decisions` | Decisioni per ID: `choice`, `comment` |
+| `labels` | Etichette testuali per ID: `revision` (campo libero; assente nei JSON vecchi → `{}`) |
 | `notes`, `extra.images` | Osservazioni libere e relativi allegati |
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
 

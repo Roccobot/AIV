@@ -927,3 +927,163 @@ main > .feedback-columns {
     background: #285347;
   }
 }
+
+/* --- Etichette testuali --- */
+#labels .label-card {
+  margin-top: 12px;
+}
+.label-proposal {
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d4ded7;
+  background: #f4faf7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* --- Consegna e copie overlay --- */
+.delivery-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 22;
+  background: #0b1f1888;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.delivery-overlay[hidden] {
+  display: none !important;
+}
+.delivery-overlay-panel {
+  width: min(560px, 100%);
+  max-height: min(90vh, 900px);
+  overflow: auto;
+  background: #fcfbf8;
+  color: #1b2d25;
+  border: 1px solid #d4ded7;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 40px #0b1f1833;
+}
+.delivery-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 8px;
+  position: sticky;
+  top: 0;
+  background: #fcfbf8;
+  z-index: 1;
+}
+.delivery-overlay-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.delivery-overlay-close {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.delivery-overlay-close:hover {
+  background: #e8f2ed;
+}
+.delivery-overlay-body {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.open-delivery {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 14px;
+  border: 1px solid #d4ded7;
+  border-radius: 12px;
+  background: #fff;
+  color: #0b6b5b;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.open-delivery:hover {
+  border-color: #0b6b5b;
+  background: #e8f2ed;
+}
+.open-delivery-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #0b6b5b;
+  color: #fff;
+}
+.open-delivery-text {
+  font-size: 14px;
+}
+
+/* Mobile: Consegna opens via long-press Salva; hide Altro-row opener */
+@media (max-width: 720px) {
+  #open-delivery {
+    display: none;
+  }
+  .delivery-overlay {
+    align-items: stretch;
+    padding: 0;
+  }
+  .delivery-overlay-panel {
+    width: 100%;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .label-proposal {
+    background: #1e2523;
+    border-color: #43564c;
+  }
+  .delivery-overlay-panel,
+  .delivery-overlay-header {
+    background: #1e2523;
+    color: #e3eee8;
+    border-color: #43564c;
+  }
+  .delivery-overlay-close:hover {
+    background: #285347;
+  }
+  .open-delivery {
+    background: #1e2523;
+    border-color: #43564c;
+    color: #43b59e;
+  }
+  .open-delivery:hover {
+    background: #285347;
+    border-color: #43b59e;
+  }
+  .open-delivery-mark {
+    background: #43b59e;
+    color: #0b1f18;
+  }
+}

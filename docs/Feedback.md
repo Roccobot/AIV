@@ -14,9 +14,11 @@ Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
 Nei commenti: Grassetto, Corsivo, Codice inline (`` ` `` / ⌘M) e Link (Cmd+B/I/M/K).
 Su mobile: striscia con i soli chip semaforo centrati; in editing solo Salva; Altro prima
-di Prossimi passi (tieni premuto il FAB ⇥ per il pannello). Su desktop: Altro in colonna
-laterale. I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi
-si azzerano. `Invia` rende leggibile il giro senza avviare lavori.
+di Prossimi passi (tieni premuto il FAB ⇥ per il pannello); tieni premuto Salva (dischetto)
+per **Consegna e copie**. Su desktop: Altro in colonna laterale, con pulsante Consegna a
+destra dell'allegato. **Etichette testuali** (se presenti) stanno prima dell'archivio.
+I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano.
+`Invia` rende leggibile il giro senza avviare lavori.
 
 Le verifiche automatiche della 3.38 sono superate: 486 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono e sul tablet resta tuo.
 

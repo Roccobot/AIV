@@ -42,6 +42,12 @@ function validDraft(draft) {
     if (!entry || !['','Tutto OK','Accettabile','Non approvato'].includes(entry.status) || typeof entry.comment !== 'string' || entry.comment.length > 100000 || !Array.isArray(entry.images) || entry.images.length > 30) return false;
   }
   for (const entry of Object.values(draft.decisions)) if (!entry || typeof entry.choice !== 'string' || typeof entry.comment !== 'string' || entry.comment.length > 100000) return false;
+  if (draft.labels !== undefined) {
+    if (!draft.labels || typeof draft.labels !== 'object' || Array.isArray(draft.labels) || Object.keys(draft.labels).length > 200) return false;
+    for (const [id, entry] of Object.entries(draft.labels)) {
+      if (!/^e-[A-Za-z0-9._-]+$/.test(id) || !entry || typeof entry.revision !== 'string' || entry.revision.length > 100000) return false;
+    }
+  }
   if (!Array.isArray(draft.extra.images) || draft.extra.images.length > 30) return false;
   const files = draftFiles(draft);
   return files.every(file => file && storageKey(file.storageKey) && typeof file.name === 'string' && file.name.length <= 1000 && ['image/png','image/jpeg','image/webp','image/gif','image/svg+xml','application/zip'].includes(file.type) && Number.isInteger(file.size) && file.size > 0 && file.size <= MAX_FILE && !('data' in file)) && files.reduce((sum,file) => sum+file.size,0) <= MAX_TOTAL;

@@ -13,6 +13,24 @@ import threading
 import zipfile
 
 
+def open_delivery(page):
+    """Show Consegna e copie overlay so #save/#export/… are actionable."""
+    overlay = page.locator('#delivery-overlay')
+    if overlay.is_visible():
+        return
+    btn = page.locator('#open-delivery')
+    if btn.count() and btn.is_visible():
+        btn.click()
+    else:
+        # Mobile: long-press floating Salva
+        fab = page.locator('#floating-save')
+        fab.dispatch_event('pointerdown', {'button': 0})
+        page.wait_for_timeout(500)
+        fab.dispatch_event('pointerup', {'button': 0})
+    expect = __import__('playwright.sync_api', fromlist=['expect']).expect
+    expect(overlay).to_be_visible()
+
+
 def check(path):
     text = Path(path).read_text()
     match = re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', text, re.S)
@@ -26,6 +44,10 @@ def check(path):
         assert isinstance(item['paragraphs'], list) and all(isinstance(p, str) and p.strip() for p in item['paragraphs']), 'Passi mancanti.'
         assert item['id'] not in ids, 'Identificatore duplicato.'
         ids.add(item['id'])
+    assert isinstance(data.get('labels', []), list), 'labels deve essere una lista.'
+    for label in data.get('labels', []):
+        assert all(label.get(k) for k in ['id', 'title', 'proposal']), 'Etichetta incompleta.'
+        assert label['id'].startswith('e-'), 'id etichetta deve iniziare con e-.'
     for question in data['decisions']:
         assert all(question.get(k) for k in ['id', 'title', 'text', 'options']), 'Decisione incompleta.'
         assert len(set(question['options'])) == len(question['options']), 'Scelte duplicate.'
@@ -83,8 +105,10 @@ def check(path):
                     expect(navigation.locator('#first-empty')).to_be_visible()
                     expect(navigation.locator('#menu-toggle')).to_have_count(0)
                     expect(navigation.locator('#jump-altro')).to_have_count(0)
+                    expect(navigation.locator('#open-delivery')).to_be_hidden()
                 else:
                     expect(navigation.locator('#first-empty')).to_be_hidden()
+                    expect(navigation.locator('#open-delivery')).to_be_visible()
                 save_box = navigation.locator('#floating-save').bounding_box()
                 for ident in ['previous-card','next-card']:
                     box = navigation.locator('#'+ident).bounding_box()
@@ -247,6 +271,7 @@ def check(path):
             if decision_field:
                 expect(decision_field.locator('em')).to_have_text('scelta')
             expect(notes_field.locator('em')).to_have_text('note')
+            open_delivery(formatting)
             formatting.locator('#copy').click()
             expect(formatting.locator('#action-message')).to_contain_text('Riepilogo copiato')
             formatted_summary = formatting.evaluate('navigator.clipboard.readText()')
@@ -255,6 +280,7 @@ def check(path):
                 expected_bits.append('*scelta*')
             assert all(value in formatted_summary for value in expected_bits)
             with formatting.expect_download() as pending:
+                open_delivery(formatting)
                 formatting.locator('#export').click()
             formatted_export=Path(temporary)/'formatted.json'
             pending.value.save_as(str(formatted_export))
@@ -267,6 +293,7 @@ def check(path):
             restored='**grassetto** e *corsivo*\n[link]('+destination+')\nPercorso C:\\foto, \\*letterale\\* <img src=x>'
             formatted_data['entries'][data['items'][0]['id']]['comment']=restored
             formatted_export.write_text(json.dumps(formatted_data))
+            open_delivery(formatting)
             formatting.locator('#import').set_input_files(str(formatted_export))
             expect(formatting.locator('#action-message')).to_contain_text('JSON importato')
             expect(stored).to_have_value(restored)
@@ -302,7 +329,7 @@ def check(path):
             field.press('Enter')
             field.press('x')
             expect(stored).to_have_value('prima\n\n\nx')
-            formatting.locator('#save').click()
+            formatting.locator('#floating-save').click()
             expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
             formatting.reload()
             expect(stored).to_have_value('prima\n\n\nx')
@@ -331,7 +358,7 @@ def check(path):
             }""")
             expect(field).to_have_text('inizio testo <img src=x> *semplice*')
             expect(field.locator('img,b,strong')).to_have_count(0)
-            formatting.locator('#save').click()
+            formatting.locator('#floating-save').click()
             expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
             formatting.reload()
             expect(field).to_have_text('inizio testo <img src=x> *semplice*')
@@ -362,6 +389,7 @@ def check(path):
             expect(page.locator('#save')).to_be_enabled()
             assert page.locator('.test').count() == len(data['items'])
             assert page.locator('.decision').count() == len(data['decisions'])
+            open_delivery(page)
             import_button = page.locator('.file-button')
             for width in [320, 390, 800, 1280]:
                 page.set_viewport_size({'width': width, 'height': 900})
@@ -376,6 +404,8 @@ def check(path):
                 browse = import_button.locator('.browse-label').bounding_box()
                 assert browse['x'] > title_right, 'Sfoglia is not beside the title.'
                 assert abs(browse['y'] + browse['height']/2 - import_box['y'] - import_box['height']/2) < 1
+            page.locator('#delivery-overlay-close').click()
+            expect(page.locator('#delivery-overlay')).to_be_hidden()
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_text('Tutto OK')
@@ -502,7 +532,7 @@ def check(path):
             notes_card.locator('.images').set_input_files(str(bad_zip))
             expect(page.locator('#action-message')).to_contain_text('ZIP non è riconosciuto')
             expect(notes_card.locator('.zip-download')).to_have_count(2)
-            page.locator('#save').click()
+            page.locator('#floating-save').click()
             expect(page.locator('#saved')).to_contain_text('Salvato in questo browser')
             page.reload()
             expect(page.locator('#save')).to_be_enabled()
@@ -511,6 +541,7 @@ def check(path):
             expect(first.locator('.image-list img')).to_have_count(3)
             expect(page.locator('#notes')).to_have_value('Osservazioni libere di verifica')
             with page.expect_download() as pending:
+                open_delivery(page)
                 page.locator('#export').click()
             export = Path(temporary) / 'export.json'
             pending.value.save_as(str(export))
@@ -535,6 +566,7 @@ def check(path):
             second.on('pageerror', lambda e: errors.append(str(e)))
             second.goto(url)
             expect(second.locator('#save')).to_be_enabled()
+            open_delivery(second)
             with second.expect_file_chooser() as chooser:
                 second.locator('.file-button').click()
             chooser.value.set_files(str(export))
@@ -556,11 +588,14 @@ def check(path):
             invalid = json.loads(export.read_text())
             invalid['entries'][data['items'][0]['id']]['status'] = 'Esito inventato'
             bad.write_text(json.dumps(invalid))
+            open_delivery(second)
             second.locator('#import').set_input_files(str(bad))
             expect(second.locator('#action-message')).to_contain_text('Importazione annullata')
             expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
+            open_delivery(second)
             second.locator('#send').click()
             expect(second.locator('#summary')).to_have_value(re.compile('^Feedback AIV '+re.escape(data['version'])))
+            open_delivery(second)
             second.locator('#copy').click()
             expect(second.locator('#action-message')).to_contain_text('Riepilogo copiato')
             clipboard = second.evaluate('navigator.clipboard.readText()')
@@ -570,12 +605,14 @@ def check(path):
                 confirmations.append((dialog.type, dialog.message))
                 dialog.dismiss()
             second.once('dialog', cancel_reset)
+            open_delivery(second)
             second.locator('#reset').click()
             assert confirmations and confirmations[0][0] == 'confirm'
             assert 'Cancellare tutte le risposte' in confirmations[0][1]
             expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.on('dialog', lambda dialog: dialog.accept())
+            open_delivery(second)
             second.locator('#reset').click()
             expect(second.locator('.test').first.locator('.item-state')).to_have_text('Non provato')
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(0)

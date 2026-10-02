@@ -1,5 +1,6 @@
 "use strict";
 const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
+if (!Array.isArray(spec.labels)) spec.labels = [];
 const outcomes = ["Tutto OK", "Accettabile", "Non approvato"];
 const maxFile = 8 * 1024 * 1024,
   maxTotal = 20 * 1024 * 1024;
@@ -16,6 +17,7 @@ const blank = () => ({
   extra: { images: [] },
   entries: {},
   decisions: {},
+  labels: {},
   updated: null,
   completed: null,
 });
@@ -56,6 +58,9 @@ function decision(id) {
     draft.decisions[id] ?? (draft.decisions[id] = { choice: "", comment: "" })
   );
 }
+function labelEntry(id) {
+  return draft.labels[id] ?? (draft.labels[id] = { revision: "" });
+}
 function report(text, error = false) {
   message.textContent = text;
   message.classList.toggle("error", error);
@@ -70,7 +75,9 @@ function validate(raw) {
     Array.isArray(raw.entries) ||
     !raw.decisions ||
     typeof raw.decisions !== "object" ||
-    Array.isArray(raw.decisions)
+    Array.isArray(raw.decisions) ||
+    (raw.labels !== undefined &&
+      (typeof raw.labels !== "object" || Array.isArray(raw.labels)))
   )
     throw Error("Formato JSON non riconosciuto.");
   const clean = blank();
@@ -96,7 +103,8 @@ function validate(raw) {
   }
   if (
     Object.keys(raw.entries).length > 500 ||
-    Object.keys(raw.decisions).length > 100
+    Object.keys(raw.decisions).length > 100 ||
+    Object.keys(raw.labels || {}).length > 200
   )
     throw Error("Troppe voci.");
   function cleanAttachments(images) {
@@ -169,6 +177,16 @@ function validate(raw) {
       throw Error("Scelta non valida.");
     clean.decisions[id] = { choice: value.choice, comment: value.comment };
   }
+  for (const [id, value] of Object.entries(raw.labels || {})) {
+    if (
+      !/^e-[A-Za-z0-9._-]+$/.test(id) ||
+      !value ||
+      typeof value.revision !== "string" ||
+      value.revision.length > 100000
+    )
+      throw Error("Etichetta non valida.");
+    clean.labels[id] = { revision: value.revision };
+  }
   return clean;
 }
 function countIcon(kind) {
@@ -203,6 +221,10 @@ function refreshCounts() {
   for (const card of document.querySelectorAll(".decision")) {
     const value = decision(card.dataset.id);
     card.classList.toggle("has-response", Boolean(value.choice || value.comment.trim()));
+  }
+  for (const card of document.querySelectorAll(".label-card")) {
+    const value = labelEntry(card.dataset.id);
+    card.classList.toggle("has-response", Boolean(value.revision.trim()));
   }
   const counters = Object.fromEntries(outcomes.map((o) => [o, 0]));
   let done = 0;
@@ -256,6 +278,10 @@ function hydrate() {
     for (const b of card.querySelectorAll(".decision-options button"))
       b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
   }
+  for (const card of document.querySelectorAll(".label-card")) {
+    const value = labelEntry(card.dataset.id);
+    card.querySelector("textarea").value = value.revision;
+  }
   for (const key of ["device", "tablet", "notes"])
     document.querySelector("#" + key).value = draft[key];
   syncInstalledConfirm();
@@ -265,6 +291,8 @@ function hydrate() {
   refreshCounts();
   const dec = document.querySelector("#decisions");
   if (dec) dec.hidden = !(spec.decisions && spec.decisions.length);
+  const lab = document.querySelector("#labels");
+  if (lab) lab.hidden = !(spec.labels && spec.labels.length);
 }
 function drawAttachments(card) {
   const list = card.querySelector(".image-list");
@@ -377,6 +405,16 @@ function summary() {
     lines.push(`${question.id}: ${value.choice || "Da decidere"}`);
     if (value.comment) lines.push(value.comment);
   }
+  if (spec.labels && spec.labels.length) {
+    lines.push("", "Etichette testuali");
+    for (const item of spec.labels) {
+      const value = labelEntry(item.id);
+      const revised = value.revision.trim();
+      lines.push(`${item.id}: ${revised || "(approvata)"}`);
+      if (revised && revised !== item.proposal.trim())
+        lines.push("Proposta era: " + item.proposal);
+    }
+  }
   lines.push(
     "",
     "Altro",
@@ -439,6 +477,25 @@ for (const question of spec.decisions) {
   label.append(comment);
   card.append(label);
   document.querySelector("#decision-list").append(card);
+}
+for (const item of spec.labels || []) {
+  const card = el("article", undefined, "card label-card");
+  card.dataset.id = item.id;
+  card.append(el("p", item.id, "eyebrow"), el("h3", item.title));
+  const proposal = el("pre", item.proposal, "label-proposal");
+  proposal.setAttribute("tabindex", "0");
+  card.append(proposal);
+  const label = el("label", "Versione rivista (vuoto = approvo la proposta)"),
+    field = el("textarea");
+  field.rows = 3;
+  field.placeholder = "Lascia vuoto per approvare, oppure scrivi la versione definitiva";
+  field.addEventListener("input", () => {
+    labelEntry(item.id).revision = field.value;
+    changed();
+  });
+  label.append(field);
+  card.append(label);
+  document.querySelector("#label-list").append(card);
 }
 // File picker and drag-and-drop share validation and preserve the original bytes.
 async function attachFiles(card, files) {
@@ -616,6 +673,32 @@ document.addEventListener("keydown", (event) => {
     setAltroOverlayOpen(false);
 });
 
+// --- Consegna e copie overlay (desktop: Altro button; mobile: long-press Salva) ---
+const deliveryOverlay = document.querySelector("#delivery-overlay");
+const deliveryOverlayClose = document.querySelector("#delivery-overlay-close");
+const openDeliveryBtn = document.querySelector("#open-delivery");
+function setDeliveryOverlayOpen(open) {
+  if (!deliveryOverlay) return;
+  deliveryOverlay.hidden = !open;
+  document.body.classList.toggle("delivery-overlay-open", open);
+  if (open) {
+    const first = document.querySelector("#send") || document.querySelector("#save");
+    first?.focus?.();
+  }
+}
+function closeDeliveryAfterAction() {
+  setDeliveryOverlayOpen(false);
+}
+openDeliveryBtn?.addEventListener("click", () => setDeliveryOverlayOpen(true));
+deliveryOverlayClose?.addEventListener("click", () => setDeliveryOverlayOpen(false));
+deliveryOverlay?.addEventListener("click", (event) => {
+  if (event.target === deliveryOverlay) setDeliveryOverlayOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && deliveryOverlay && !deliveryOverlay.hidden)
+    setDeliveryOverlayOpen(false);
+});
+
 // --- Mobile editing: only Salva while a text field is focused ---
 const isMobileUi = () => window.matchMedia("(max-width: 720px)").matches;
 let editingHoldTimer = null;
@@ -696,6 +779,7 @@ function refreshNavigation() {
   nextCard.disabled = !loaded || index >= responseCards.length - 1;
   const empty = firstEmptyCard();
   // On mobile keep ⇥ visible so long-press can open Altro even when nothing is empty.
+  const diskFab = document.querySelector("#floating-save");
   if (isMobileUi()) {
     firstEmpty.hidden = false;
     firstEmpty.title = empty
@@ -707,10 +791,21 @@ function refreshNavigation() {
         ? "Primo riquadro non compilato. Tieni premuto per aprire Altro"
         : "Tieni premuto per aprire Altro",
     );
+    if (diskFab) {
+      diskFab.title = "Salva · tieni premuto per Consegna e copie";
+      diskFab.setAttribute(
+        "aria-label",
+        "Salva le risposte. Tieni premuto per aprire Consegna e copie",
+      );
+    }
   } else {
     firstEmpty.hidden = !empty || responseCards[index] === empty;
     firstEmpty.title = "Primo riquadro non compilato";
     firstEmpty.setAttribute("aria-label", "Primo riquadro non compilato");
+    if (diskFab) {
+      diskFab.title = "Salva le risposte";
+      diskFab.setAttribute("aria-label", "Salva le risposte");
+    }
   }
   firstEmpty.disabled = !loaded;
   document.documentElement.style.setProperty("--feedback-scroll-offset", navigationOffset() + "px");
@@ -765,9 +860,41 @@ window.addEventListener("scroll", () => {
   });
 }, {passive: true});
 new ResizeObserver(refreshNavigation).observe(document.querySelector(".dashboard"));
-for (const id of ["save", "floating-save"])
-  document.querySelector("#" + id).addEventListener("click", save);
-document.querySelector("#copy").addEventListener("click", copy);
+document.querySelector("#save").addEventListener("click", () => {
+  save();
+});
+const floatingSave = document.querySelector("#floating-save");
+let floatingSaveLongPress = false;
+let floatingSaveLongTimer = null;
+function clearFloatingSaveLongPress() {
+  clearTimeout(floatingSaveLongTimer);
+  floatingSaveLongTimer = null;
+}
+floatingSave.addEventListener("pointerdown", (event) => {
+  if (!isMobileUi() || (event.button != null && event.button !== 0)) return;
+  floatingSaveLongPress = false;
+  clearFloatingSaveLongPress();
+  floatingSaveLongTimer = setTimeout(() => {
+    floatingSaveLongPress = true;
+    setDeliveryOverlayOpen(true);
+  }, 450);
+});
+floatingSave.addEventListener("pointerup", clearFloatingSaveLongPress);
+floatingSave.addEventListener("pointercancel", clearFloatingSaveLongPress);
+floatingSave.addEventListener("pointerleave", clearFloatingSaveLongPress);
+floatingSave.addEventListener("click", (event) => {
+  if (floatingSaveLongPress) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    floatingSaveLongPress = false;
+    return;
+  }
+  save();
+});
+document.querySelector("#copy").addEventListener("click", async () => {
+  await copy();
+  closeDeliveryAfterAction();
+});
 document.querySelector("#send").addEventListener("click", async () => {
   draft.completed = new Date().toISOString();
   revision++;
@@ -781,9 +908,7 @@ document.querySelector("#send").addEventListener("click", async () => {
       ? "Giro reso leggibile all'agente. Puoi modificarlo e inviarlo di nuovo; l'agente lo leggerà solo dopo il tuo via in chat."
       : "Riepilogo pronto. Per renderlo leggibile dal cloud, importa il JSON nel documento cloud e premi Invia.",
   );
-  document
-    .querySelector("#summary")
-    .scrollIntoView({ behavior: "smooth", block: "center" });
+  closeDeliveryAfterAction();
 });
 document.querySelector("#export").addEventListener("click", () => {
   const blob = new Blob(
@@ -797,6 +922,7 @@ document.querySelector("#export").addEventListener("click", () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   report("JSON esportato, con risposte e allegati.");
+  closeDeliveryAfterAction();
 });
 document.querySelector("#import").addEventListener("change", async (event) => {
   const file = event.target.files[0];
@@ -810,6 +936,7 @@ document.querySelector("#import").addEventListener("change", async (event) => {
     await save();
     report("JSON importato. Le risposte sono state ripristinate.");
     document.querySelector("#summary").value = "";
+    closeDeliveryAfterAction();
   } catch (error) {
     report("Importazione annullata: " + error.message, true);
   } finally {
@@ -829,6 +956,7 @@ document.querySelector("#reset").addEventListener("click", async () => {
   document.querySelector("#summary").value = "";
   await save();
   report("Risposte del browser azzerate.");
+  closeDeliveryAfterAction();
 });
 document.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {

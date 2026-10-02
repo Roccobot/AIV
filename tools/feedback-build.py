@@ -75,7 +75,21 @@ for match in re.finditer(r'^## (\d+)\. ([^\n]+)\n(.*?)(?=^## |\Z)', md, re.M | r
     items.append(dict(id=identifier, version=identifier.rsplit('-', 1)[0], title=match[2],
                       paragraphs=paragraphs))
 # Decisioni 3.24 chiuse: fuori dal flusso da rispondere (archivio HTML). JSON vecchio resta valido.
-data = dict(project='AIV', version=version, items=items, decisions=[])
+# Etichette testuali: sezione opzionale; ogni ### id[ · titolo] + corpo = proposta ITA.
+labels = []
+labels_match = re.search(r'^## Etichette testuali\n(.*?)(?=^## |\Z)', md, re.M | re.S)
+if labels_match:
+    for lm in re.finditer(r'^### ([^\n]+)\n(.*?)(?=^### |\Z)', labels_match[1], re.M | re.S):
+        head = lm[1].strip()
+        if ' · ' in head:
+            lid, ltitle = head.split(' · ', 1)
+        else:
+            lid, ltitle = head, head
+        proposal = lm[2].strip()
+        if not proposal:
+            raise SystemExit(f'Etichetta {lid}: manca il testo ITA proposto')
+        labels.append(dict(id=lid.strip(), title=ltitle.strip(), proposal=proposal))
+data = dict(project='AIV', version=version, items=items, decisions=[], labels=labels)
 next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if not next_match:
     raise SystemExit('docs/Feedback.md deve contenere la sezione Prossimi passi')
@@ -111,7 +125,7 @@ output = ROOT / 'publish/feedback.html'
 if '--check' in sys.argv:
     if not output.exists() or output.read_text() != page:
         sys.exit('Il documento HTML non corrisponde a docs/Feedback.md: esegui tools/feedback-build.py.')
-    print(f'Documento HTML allineato alle {len(items)} prove e alla versione {version}')
+    print(f'Documento HTML allineato alle {len(items)} prove, {len(labels)} etichette e alla versione {version}')
 else:
     output.write_text(page)
     print('Creato ' + str(output))
