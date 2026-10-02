@@ -124,10 +124,12 @@ def check(path):
             }''')
             navigation.locator('#previous-card').tap()
             aligned(navigation.locator('.test').last)
+            # Serve almeno 4 prove: riempi 0 e ultima, marca 1, lascia 2 vuota (buco per ⇥).
+            assert len(data['items']) >= 4, 'Servono almeno 4 prove aperte per il controllo di navigazione.'
             navigation.locator('.test').nth(0).locator('.rich-editor').fill('Solo commento')
             navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
-            navigation.locator('.test').nth(3).locator('.rich-editor').fill('Più in basso')
-            navigation.locator('#next-card').tap()
+            navigation.locator('.test').nth(len(data['items']) - 1).locator('.rich-editor').fill('Più in basso')
+            # Sull'ultima prova #next-card è disabilitato: si salta al buco con ⇥.
             navigation.locator('#first-empty').tap()
             aligned(navigation.locator('.test').nth(2))
             # Fill through normal input handlers; navigation must update without a reload.

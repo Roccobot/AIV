@@ -1,17 +1,18 @@
 # Feedback AIV
 
-Versione **3.39**: collaudo del trio tablet (sfarfallio editor, FAB ~35%, rail + empty
-state) e riprove storiche `3.13-02` / `3.13-08`.
+Versione **3.39**: collaudo consegnato e travasato il 2 ottobre 2026 (~23:25 Europe/Rome).
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
-La Release 3.39 è pubblicata: [v3.39](https://github.com/Roccobot/AIV/releases/tag/v3.39), con l'APK
+La Release 3.39 resta pubblicata: [v3.39](https://github.com/Roccobot/AIV/releases/tag/v3.39), con l'APK
 [AIV-3.39.apk](https://github.com/Roccobot/AIV/releases/download/v3.39/AIV-3.39.apk).
-Commit su `main`: `b3600a5` (SlimVer 3.39 / versionCode 297).
+Commit prodotto su `main`: `b3600a5` (SlimVer 3.39 / versionCode 297).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Il giro **3.38** è stato consegnato e travasato il 2 ottobre 2026 (~18:34 Europe/Rome).
-Le prove OK del 3.38 sono in archivio sotto. Le decisioni 3.24 restano chiuse e **non** sono
-riproposte. Filigrana e Fluidifica restano approvati.
+Il giro **3.39** è stato consegnato e travasato. Le prove OK del 3.39 (e le riprove 3.13)
+sono in archivio sotto; restano aperte le Non approvato e i residui del collaudo.
+Le decisioni 3.24 restano chiuse e **non** sono riproposte. Questa è **manutenzione** del
+documento post-collaudo, non una nuova versione di collaudo 3.40 (niente prove `3.40-xx`
+finché non c'è Release 3.40).
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -23,93 +24,61 @@ destra dell'allegato. **Etichette testuali** (se presenti) stanno prima dell'arc
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 3.39 sono superate: 486 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono e sul tablet resta tuo.
+Le verifiche automatiche della 3.39 sono superate: 486 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono e sul tablet del 3.39 è stato consegnato.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 3.39-01 | Non provato | | Attendere il collaudo. |
-| 3.39-02 | Non provato | | Attendere il collaudo. |
-| 3.39-03 | Non provato | | Attendere il collaudo. |
-| 3.39-04 | Non provato | | Attendere il collaudo. |
-| 3.13-02 | Non provato | | Riprova storica; attendere il collaudo. |
-| 3.13-08 | Non provato | | Riprova storica; attendere il collaudo. |
+| 3.39-03 | Non approvato | Cerca sotto orologio; maniglia troppo visibile; posizione lista resettata al tap; Cestino/Impostazioni non centrati. | Ritocchi rail in 3.40. |
+| 3.39-01 | Tutto OK + residuo | Flicker risolto. Invertire lati: comandi a destra, canvas a sinistra (default); opposto col FAB a sinistra. | Layout editor in 3.40. |
+| 3.27-03 | Accettabile | Crea ancora più sotto-pagine per tenere tutto più in ordine. | Entra in 3.40 (era differito). |
+| 3.38-11 | Non approvato | Nessun miglioramento visto (continuità con 3.24-04 / 3.30-01 / 3.37-09). | Ultimo tentativo serio, poi documentare i limiti. |
 
-## 1. Editor tablet in orizzontale (≥1024)
+## 1. Rail tablet: ritocchi collaudo
 
-Su tablet in **orizzontale** (larghezza ≥ 1024 dp): apri un'immagine e l'editor completo.
-Lo schermo **non** deve sfarfallare né restare inutilizzabile. Con gli strumenti a lato
-(`editorBeside`) **non** deve forzare il blocco in verticale. Ripeti aprendo anche l'editor
-semplice. In verticale il comportamento precedente resta. Residuo 3.38: lo sfarfallio era
-ancora presente; qui si verifica il fix.
+Su tablet (≥ 600), con AIV 3.39 installata: la colonna laterale segue già il mockup di base
+(niente Cartelle in alto; Cerca; Cestino e Impostazioni in basso con etichetta; elenco in
+basso con maniglia). Residui del collaudo 3.39 da correggere:
 
-## 2. Menu FAB: larghezza su tablet
+- **Cerca** non deve finire sotto l'orologio di sistema, né in orizzontale né in verticale
+  (rispettare inset / safe area).
+- La **maniglia** per spostare la lista cartelle deve essere più trasparente (meno evidente).
+- Lo spostamento verticale della lista funziona, ma la posizione **non** deve resettarsi quando
+  si tocca una cartella: resta dove l'hai messa.
+- I due tasti **Cestino** e **Impostazioni** devono risultare **centrati** (oggi un po' troppo
+  a destra).
 
-Apri il menu del FAB sulla home cartelle (o in una cartella) su tablet, in orizzontale e
-in verticale. Il pannello deve occupare **sempre circa il 35%** della larghezza (il 45%
-era troppo; in verticale in 3.38 arrivava circa al 70%).
+Allegato collaudo: `tab.png` (privato); copia brief `.memo/files/aiv-339-rail-tab.png`.
 
-## 3. Rail tablet: redesign per mockup
+## 2. Editor tablet: lati invertiti
 
-Su tablet (≥ 600), la colonna laterale deve seguire il mockup del collaudo 3.38:
-niente testo né icona **Cartelle**; in cima solo **Cerca**, distanziata dal bordo, con
-placeholder dinamico ('Cerca nelle cartelle' / 'Cerca in *X*' con il nome cartella in
-grassetto); il campo è centrato in verticale sul **tondo** della lente; Cestino e
-Impostazioni in basso con etichetta testuale; elenco cartelle di default verso il basso,
-con maniglia per spostarlo su/giù se c'è spazio.
+Su tablet in **orizzontale** (larghezza ≥ 1024 dp): lo sfarfallio del collaudo 3.38 è
+**risolto** (3.39-01 Tutto OK). Resta un residuo di layout: di default i comandi/pulsanti
+stanno a **destra** e l'anteprima/canvas a **sinistra**; con il FAB a sinistra i lati si
+invertono (comandi a sinistra, canvas a destra). Ripeti con editor completo e semplice.
 
-## 4. Senza cartella scelta: empty state mockup
+## 3. Più sotto-pagine Impostazioni
 
-Su tablet, senza cartella di avvio e senza aver ancora toccato una cartella: lo spazio
-principale mostra il contenuto del mockup (stessa formattazione e stessi link della
-versione telefono), più in basso, un po' distanziato, il testo **Tocca una cartella per
-iniziare**.
+Apri Impostazioni: devono esserci **ancora più sotto-pagine** rispetto a oggi, così le voci
+restano ordinate e non ammassate. Residuo `3.27-03` Accettabile (differito da 3.27; ora in
+piano 3.40 per ordine di Rocco).
 
-## 5. Intestazione in Modalità incluse (riprova)
+## 4. Qualità Correggi/Rimuovi (ultimo tentativo)
 
-Installa AIV 3.39 senza cancellare i dati. Apri la home in `Modalità incluse` (poche cartelle).
-Scorri verso il basso finché l'intestazione si chiude, poi trascina verso l'alto anche sullo
-spazio vuoto sotto l'elenco: l'intestazione deve riaprirsi. Ripeti in griglia e in lista.
-In `Modalità escluse` l'elenco lungo deve continuare a comportarsi come prima.
-
-## 6. Nascosta: elenco, dicitura e avvisi (riprova)
-
-In `Modalità escluse`, da Cartelle di sistema nascondi una cartella X **con la sua unica
-sottocartella**. Apri Impostazioni, Cartelle, Cartelle incluse/escluse: padre e figlia devono
-comparire nell'elenco. In Cartelle di sistema le righe nascoste devono portare la dicitura
-`nascosta`. Controlla anche dopo un riavvio dell'app.
-
-Apri di nuovo gli avvisi di nascondere/mostrare (anche in Modalità incluse, se applicabile):
-`Annulla` a sinistra, azione principale a destra; se c'è una terza azione (es. 'Applica a
-tutte le cartelle allo stesso livello'), allineata a sinistra e chiaramente tappabile.
-Niente controlli che fluttuano in mezzo al nulla.
-
-## Etichette testuali
-
-### e-folders-tablet-pick · Empty state tablet
-Tocca una cartella per iniziare.
-
-### e-folders-rail-search · Cerca rail (senza cartella)
-Cerca nelle cartelle
-
-### e-folders-rail-search-in · Cerca rail (in cartella)
-Cerca in %1$s
-
-### e-folders-rail-move · Maniglia elenco cartelle
-Sposta elenco cartelle
+Su un orlo o una linea (vedi screenshot storici su `3.30-01`): valuta se resta più continuo.
+Allega prima/dopo se ancora debole. Residuo collaudo 3.38/3.39: nessun miglioramento visto.
+**Ultimo tentativo serio** in 3.40; oltre serve riconoscimento di pattern / AI. Se resta corto,
+documentare i limiti euristici nel brief e chiudere il filone.
 
 ## Decisioni da concordare
 
 Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse (impostazioni =
-Applica la proposta; tablet = Approvo la direzione; PNG = Le modifiche si vedono) e sono
-in archivio sotto.
+Applica la proposta; tablet = Approvo la direzione; PNG = Le modifiche si vedono) e **non**
+sono riproposte.
 
 ## Riscontri conclusi
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Filigrana | 3.03 | OK | 2026-09-30 | Chiusa. |
-| Fluidifica | 3.03 | OK | 2026-09-30 | Chiusa. |
-| Decisioni 3.24 | 3.24 | Chiuse | Riconfermate; non riproposte. | Chiuse. |
 | Prove 3.37 OK senza residuo | 3.37 | OK | 3.37-01..07 (con residui assorbiti). | Archiviata. |
 | UX documento (note A 3.30 + chat) | 3.38 | In codice | Striscia, Altro, overlay, shell: non è prova di collaudo app. | Manutenzione DF. |
 | Griglia tablet più aria | 3.38-05 | OK | Tutto OK. | Archiviata. |
@@ -117,10 +86,14 @@ in archivio sotto.
 | Apici → grassetto Impostazioni | 3.38-07 | OK | Tutto OK; chiude residuo 3.26-03 / 3.37-03. | Archiviata. |
 | Indicatore già inclusa | 3.38-08 | OK | Tutto OK. | Archiviata. |
 | Lentino soglia più bassa | 3.38-09 | OK | Tutto OK; chiude 3.37-08. | Archiviata. |
+| Editor tablet flicker | 3.39-01 | OK | Problema risolto (resta invertire i lati, prova aperta sopra). | Flicker chiuso. |
+| Menu FAB ~35% | 3.39-02 | OK | Tutto OK. | Archiviata. |
+| Empty state mockup | 3.39-04 | OK | Tutto OK. | Archiviata. |
+| Intestazione Modalità incluse | 3.13-02 | OK | Riprova OK in 3.39. | Archiviata. |
+| Nascosta elenco/dicitura/avvisi | 3.13-08 | OK | Riprova OK in 3.39. | Archiviata. |
 
 ## Prossimi passi
 
-- **3.40 (candidato)**: flash colori HEIC in sfoglio (neutro → vivido a fine animazione); indagare decode/color profile; esempio in tools `.memo/files/aiv-heic-color-flash-example.heic` (originale `IMG_20261002_204315.HEIC`).
-- **Differito**: inpaint `3.38-11` / `3.24-04` / `3.30-01` / `3.37-09`; più sotto-pagine Impostazioni `3.27-03`.
-- **Da decidere**: quanto insistire sull'inpaint rispetto ad accettare il limite euristico.
+- **3.40 (entra, ordine Rocco)**: (1) correzioni collaudo `3.39-03` rail + `3.39-01` lati editor + etichetta maniglia `Sposta la lista delle cartelle`; (2) flash colori HEIC in sfoglio (esempio tools `.memo/files/aiv-heic-color-flash-example.heic`); (3) più sotto-pagine Impostazioni `3.27-03`; (4) ultimo tentativo inpaint `3.38-11` / `3.24-04` / `3.30-01` (non insistire oltre; se corto, limiti nel brief).
+- **Accorpato / già chiuso nel collaudo**: FAB `3.39-02`, empty `3.39-04`, riprove `3.13-02` / `3.13-08`, flicker (parte di `3.39-01`).
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
