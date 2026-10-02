@@ -54,4 +54,14 @@ class AdaptiveTest {
         assertFalse(Adaptive.sideDefaultOpen(840))
         assertEquals(Adaptive.Band.MEDIUM, Adaptive.band(840))
     }
+
+    @Test
+    fun `editor strumenti a lato solo da 1024`() {
+        assertFalse(Adaptive.editorBeside(600))
+        assertFalse(Adaptive.editorBeside(800))
+        assertFalse(Adaptive.editorBeside(1023))
+        assertTrue(Adaptive.editorBeside(1024))
+        assertEquals(320, Adaptive.editorToolsWidth(1024).value.toInt())
+        assertEquals(0, Adaptive.editorToolsWidth(800).value.toInt())
+    }
 }

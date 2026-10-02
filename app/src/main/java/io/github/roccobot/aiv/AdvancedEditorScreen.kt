@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -122,6 +124,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -548,6 +551,244 @@ fun AdvancedEditorScreen(
                 }
             }
 
+            /*
+             * ⚠️⚠️ **STRUMENTI A LATO DA 1.024 dp, DALLA `3.34`** (mockup editor): sotto quella
+             * soglia la scheda resta in basso, come sul telefono e come l'editor semplice.
+             */
+            val widthDp = LocalConfiguration.current.screenWidthDp
+            val beside = Adaptive.editorBeside(widthDp)
+            val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
+            val toolsWidth = Adaptive.editorToolsWidth(widthDp)
+
+            @Composable
+            fun Sheet() {
+            LookSheet(
+                beside = beside,
+                panelOnStart = panelOnStart,
+                toolsWidth = toolsWidth,
+                onHealApply = { applyHealing() },
+                look = look,
+                busy = busy,
+                ready = origin != null,
+                canUndo = at > 0,
+                canRedo = at < history.size - 1,
+                origin = origin,
+                gaze = gaze,
+                onStrip = { strip = it },
+                /*
+                 * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO ARRIVANO ALLA SCHEDA COME UNO SPAZIO DA
+                 * RIEMPIRE, E NON COME OTTO PARAMETRI**: dalla `2.79` vivono nella barra in
+                 * basso, che è dentro la scheda, ma lo stato che governano (il logo scelto, i
+                 * due interruttori, il piano, la finestra che si apre) vive qui. Passandoli uno
+                 * per uno, questa scheda porterebbe otto argomenti che non guarda mai.
+                 * ⚠️ **Il lato lo decide chi disegna la barra**, cioè la scheda, che quel valore
+                 * ce l'ha già per i propri comandi: arriva di ritorno come argomento dello
+                 * spazio, o sarebbero due letture della stessa preferenza.
+                 */
+                toolCount = if (hasMark) 2 else 1,
+                tools = { mirror ->
+                    EditorToolBar(
+                        mirror = mirror,
+                        hasMark = hasMark,
+                        marking = marking,
+                        resizing = resizing,
+                        enabled = !busy,
+                        onMark = { onMark(!marking) },
+                        onMarkSetup = onMarkSetup,
+                        onResize = { onResize(if (resizing) null else resize) },
+                        onResizeSetup = { asking = true },
+                        onMarkSpot = { markSpot = it },
+                        onResizeSpot = { resizeSpot = it }
+                    )
+                },
+                /*
+                 * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
+                 * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
+                 * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
+                 * cui `push` legge [look] invece di riceverlo, e la ragione per esteso vive su
+                 * [Dial.set].
+                 */
+                onLive = { cambia -> look = cambia(look) },
+                onSettled = { push() },
+                onPeek = { senza -> peek = senza },
+                onUndo = {
+                    if (at > 0) {
+                        at -= 1
+                        look = history[at]
+                    }
+                },
+                onRedo = {
+                    if (at < history.size - 1) {
+                        at += 1
+                        look = history[at]
+                    }
+                },
+                onOriginal = {
+                    gaze.selection = Healing.Selection.NONE
+                    gaze.healingFailed = false
+                    look = Look.NONE
+                    push()
+                }
+            )
+            }
+
+            if (beside) {
+                Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    if (panelOnStart) {
+                        Sheet()
+                    }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(stageBack())
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
+                contentAlignment = Alignment.Center
+            ) {
+                val picture = origin
+                if (picture == null) {
+                    CircularProgressIndicator()
+                } else {
+                    LookStage(
+                        picture = picture,
+                        full = full,
+                        /*
+                         * ⚠️⚠️ **IL CONFRONTO TOGLIE UN GRUPPO DI CAMPI E NON TUTTI, DALLA `2.58`,
+                         * ED È SUA RICHIESTA** (campo libero del giro della `2.55`): nei due moduli
+                         * che dicono **dove** va un pixel mostra l'originale intero, perché è
+                         * proprio quello che si sta tarando; in tutti gli altri tiene posa, taglio,
+                         * geometria e vista, cioè confronta il **colore** dentro l'inquadratura di
+                         * adesso. Il perché, e che cosa succede a chi aggiunge un campo a [Look],
+                         * vivono su [Look.place].
+                         * ⚠️⚠️ **NEL RITAGLIO QUEL RAMO NON LO RAGGIUNGE NESSUN DITO, E SI DICHIARA
+                         * INVECE DI LASCIARLO CREDERE VIVO**: là il palco fa solo quello, cioè il
+                         * dito serve alle squadrette e il confronto non parte, ed è così da quando
+                         * quel modulo esiste. La riga lo nomina lo stesso perché la sua richiesta
+                         * nomina i due moduli insieme: il giorno che quel dito si liberasse, il
+                         * comportamento è già quello giusto. Oggi si vede nella **Geometria**, dove
+                         * il palco risponde finché lo strumento 'Angoli' è spento.
+                         */
+                        look = when {
+                            !comparing -> peek?.invoke(look) ?: look
+                            MODULES[gaze.module].extra.places -> Look.NONE
+                            else -> look.place
+                        },
+                        onCompare = { comparing = it },
+                        /*
+                         * ⚠️⚠️ **IL MIRATO VALE SOLO NEL MODULO CHE LO SA USARE, E SI GUARDA QUI**: il
+                         * tasto che lo arma compare in quello solo, ma passando a un altro modulo
+                         * resterebbe armato e il palco smetterebbe di rispondere a pinza e doppio
+                         * tocco senza che nessuno veda più il tasto per spegnerlo. Chiedendolo alla
+                         * tabella dei moduli, quel caso non esiste.
+                         * ⚠️⚠️ **ED È UNA DOMANDA SOLA DALLA `2.32`, PERCHÉ I MODI SONO TORNATI UNO**:
+                         * fino alla `2.31` la stessa riga diceva anche **che gesto** fosse, perché le
+                         * Curve trascinavano e l'HSL sceglieva e basta. Con le Curve fuori (sua
+                         * risposta `via` a `d-mirato-curve`) resta un comportamento solo, e un enum a
+                         * tre stati dichiarerebbe una possibilità che non esiste più.
+                         */
+                        aiming = { gaze.aiming && MODULES[gaze.module].extra == Extra.BANDS },
+                        onAimStart = { aimStart(it) },
+                        onAimEnd = { push() },
+                        /*
+                         * ⚠️ **Il ritaglio si accende dalla stessa tabella del mirato**, e per la
+                         * stessa ragione: quelle squadrette vivono sul palco, quindi passando a un
+                         * altro modulo resterebbero in scena a prendere il dito senza che niente in
+                         * fondo allo schermo lo dica.
+                         */
+                        cutting = look.crop.takeIf { MODULES[gaze.module].extra == Extra.CROP },
+                        // ⚠️ Dentro la porzione applicata, dalla `2.88`: vedi [frameAspect].
+                        keep = cropShape(gaze).value(
+                            cropLay(gaze), frameAspect(look, posedAspect(origin, look.spin))
+                        ),
+                        onCut = { look = look.copy(crop = it) },
+                        onCutEnd = { push() },
+                        /*
+                         * ⚠️⚠️ **LO STRUMENTO 'ANGOLI' SI ARMA COME IL COLORE MIRATO, DALLA `2.50`**:
+                         * è lo stesso tasto e lo stesso stato, e a dire quale dei due gesti sia è la
+                         * tabella dei moduli. Passando a un altro modulo il valore torna nullo, cioè
+                         * le maniglie se ne vanno insieme al tasto che le spegne.
+                         */
+                        corners = look.geo.corners.takeIf {
+                            gaze.aiming && MODULES[gaze.module].extra == Extra.CORNERS
+                        },
+                        onCorners = { look = look.copy(geo = look.geo.copy(corners = it)) },
+                        onCornersEnd = { push() },
+                        liquifying = {
+                            gaze.liquifying && MODULES[gaze.module].extra == Extra.CORNERS
+                        },
+                        rebuild = { gaze.rebuilding },
+                        brushRadius = { gaze.brushRadius },
+                        brushSizing = { gaze.brushSizing && gaze.liquifying },
+                        brushStrength = { gaze.brushStrength },
+                        onLiquify = { look = look.copy(geo = look.geo.copy(liquify = it)) },
+                        onLiquifyEnd = { push() },
+                        healing = { gaze.healing && !busy && MODULES[gaze.module].extra == Extra.HEALING },
+                        selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
+                        healingRadius = { gaze.healingRadius },
+                        healingSizing = { gaze.healingSizing },
+                        onHealPaint = { polygon ->
+                            if (!gaze.healingBusy) {
+                                if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
+                                    gaze.selection = gaze.selection.add(polygon)
+                                    gaze.healingFailed = false
+                                } else gaze.healingFailed = true
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                // A draft hint overlays the stage so painting never changes its dimensions.
+                if (!gaze.selection.idle) {
+                    Text(
+                        stringResource(R.string.look_heal_pending),
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .clickable {
+                                // ⚠️ **Tappabile: porta a Correggi/Rimuovi** (giro 3.24, `3.24-05`).
+                                val i = MODULES.indexOfFirst { it.extra == Extra.HEALING }
+                                if (i >= 0) {
+                                    gaze.module = i
+                                    gaze.healing = true
+                                }
+                            }
+                            .background(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                /*
+                 * ⚠️⚠️ **L'AVVISO DI AREA TROPPO GRANDE VIVE SOPRA LA BOTTOMSHEET, non dentro**
+                 * (nota serale del giro 3.24, 2026-10-01: deve comparire come toast sopra la
+                 * scheda, non al posto del suggerimento nel corpo). Stesso disegno del
+                 * promemoria di selezione, appoggiato al bordo basso del palco.
+                 */
+                if (gaze.healingFailed) {
+                    Text(
+                        stringResource(R.string.look_heal_failed),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+                    if (!panelOnStart) {
+                        Sheet()
+                    }
+                }
+            } else {
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -695,71 +936,8 @@ fun AdvancedEditorScreen(
                 }
             }
 
-            LookSheet(
-                onHealApply = { applyHealing() },
-                look = look,
-                busy = busy,
-                ready = origin != null,
-                canUndo = at > 0,
-                canRedo = at < history.size - 1,
-                origin = origin,
-                gaze = gaze,
-                onStrip = { strip = it },
-                /*
-                 * ⚠️⚠️ **I DUE COMANDI DEL SALVATAGGIO ARRIVANO ALLA SCHEDA COME UNO SPAZIO DA
-                 * RIEMPIRE, E NON COME OTTO PARAMETRI**: dalla `2.79` vivono nella barra in
-                 * basso, che è dentro la scheda, ma lo stato che governano (il logo scelto, i
-                 * due interruttori, il piano, la finestra che si apre) vive qui. Passandoli uno
-                 * per uno, questa scheda porterebbe otto argomenti che non guarda mai.
-                 * ⚠️ **Il lato lo decide chi disegna la barra**, cioè la scheda, che quel valore
-                 * ce l'ha già per i propri comandi: arriva di ritorno come argomento dello
-                 * spazio, o sarebbero due letture della stessa preferenza.
-                 */
-                toolCount = if (hasMark) 2 else 1,
-                tools = { mirror ->
-                    EditorToolBar(
-                        mirror = mirror,
-                        hasMark = hasMark,
-                        marking = marking,
-                        resizing = resizing,
-                        enabled = !busy,
-                        onMark = { onMark(!marking) },
-                        onMarkSetup = onMarkSetup,
-                        onResize = { onResize(if (resizing) null else resize) },
-                        onResizeSetup = { asking = true },
-                        onMarkSpot = { markSpot = it },
-                        onResizeSpot = { resizeSpot = it }
-                    )
-                },
-                /*
-                 * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
-                 * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
-                 * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
-                 * cui `push` legge [look] invece di riceverlo, e la ragione per esteso vive su
-                 * [Dial.set].
-                 */
-                onLive = { cambia -> look = cambia(look) },
-                onSettled = { push() },
-                onPeek = { senza -> peek = senza },
-                onUndo = {
-                    if (at > 0) {
-                        at -= 1
-                        look = history[at]
-                    }
-                },
-                onRedo = {
-                    if (at < history.size - 1) {
-                        at += 1
-                        look = history[at]
-                    }
-                },
-                onOriginal = {
-                    gaze.selection = Healing.Selection.NONE
-                    gaze.healingFailed = false
-                    look = Look.NONE
-                    push()
-                }
-            )
+                Sheet()
+            }
         }
 
         if (!hinted && strip != Rect.Zero) {
@@ -3601,6 +3779,11 @@ private fun toneInk(channel: Int): Color = when (channel) {
  */
 @Composable
 private fun LookSheet(
+    /** Se la scheda è a lato del canvas (tablet largo). Vedi [Adaptive.editorBeside]. */
+    beside: Boolean = false,
+    /** Se a lato, scheda a inizio riga (destri) o in fondo (mancini). */
+    panelOnStart: Boolean = true,
+    toolsWidth: Dp = 320.dp,
     onHealApply: () -> Unit,
     look: Look,
     busy: Boolean,
@@ -3661,21 +3844,26 @@ private fun LookSheet(
      * rientro di sistema dentro invece che sopra. Le ragioni di ognuna di quelle righe sono
      * misurate e vivono su `EditorSheet`: qui si ripetono perché le due schede sono la stessa
      * superficie, e una scritta a modo suo si vedrebbe al primo passaggio fra i due editor.
+     * ⚠️ **Da 1.024 dp la scheda passa a lato** ([editorSheetChrome]), come l'editor semplice.
      */
+    val chrome = editorSheetChrome(beside, panelOnStart, toolsWidth)
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(stageBack())
-            .edgedTop(PANEL_ROUND),
-        shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
+        modifier = chrome.modifier,
+        shape = chrome.shape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .then(if (beside) Modifier.fillMaxHeight().verticalScroll(rememberScrollState()) else Modifier)
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                        if (beside) {
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Top +
+                                WindowInsetsSides.Bottom
+                        } else {
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                        }
                     )
                 )
                 .padding(start = 16.dp, end = 16.dp, top = SHEET_TOP, bottom = 10.dp)

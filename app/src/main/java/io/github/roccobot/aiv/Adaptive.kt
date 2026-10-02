@@ -64,5 +64,20 @@ object Adaptive {
         Band.WIDE -> 280.dp
     }
 
+
+    /**
+     * Se l'editor porta gli strumenti a lato del canvas.
+     *
+     * ⚠️ **Solo da 1.024 dp in su**, come nel mockup: in verticale (800) e nella finestra
+     * ridotta (600) gli strumenti restano sotto il canvas (`.portrait .tools` / `.split .tools`).
+     */
+    fun editorBeside(widthDp: Int): Boolean = widthDp >= SIDE_OPEN_MIN
+
+    /**
+     * Larghezza della colonna strumenti dell'editor, allineata al mockup (`.tools` 320).
+     */
+    fun editorToolsWidth(widthDp: Int): Dp =
+        if (editorBeside(widthDp)) 320.dp else 0.dp
+
     enum class Band { PHONE, NARROW, MEDIUM, WIDE }
 }

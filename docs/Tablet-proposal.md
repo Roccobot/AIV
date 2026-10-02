@@ -6,7 +6,8 @@ Nella `3.27` le schermate Android non cambiavano ancora. Dalla `3.31` il Visuali
 porta il pannello informazioni a lato (soglie 600 / 800 / 1024 dp del mockup; chiuso di
 serie sotto i 1.024). Dalla `3.32` Cartelle è a due colonne da 600 dp (elenco a lato,
 contenuto a destra; esclusa la vista ad albero). Dalla `3.33` Impostazioni sono
-indice e pagina affiancati da 600 dp.
+indice e pagina affiancati da 600 dp. Dalla `3.34` Ricerca riusa elenco+risultati da 600 dp;
+editor semplice e completo portano gli strumenti a lato da 1.024 dp (sotto restano in basso).
 I colori derivano da `Theme.kt`; il font è Roboto, distribuito con la propria licenza.
 Sono composizioni web dimostrative, non schermate Android misurate né una nuova identità grafica.
 

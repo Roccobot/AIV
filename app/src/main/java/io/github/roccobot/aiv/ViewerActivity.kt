@@ -3608,34 +3608,69 @@ private fun Stage(
             // ⚠️ La stessa `GridScreen` della cartella, con due parametri in più: vedi la
             // nota su `query` là dentro per il perché non è una schermata a sé.
             val lookup = model.folder
-            GridScreen(
-                title = "",
-                // ⚠️ Il nome della cartella in cui si cerca, e `null` per la ricerca di tutta la
-                // galleria: lo scrive il campo al posto del suo invito, che è il modo di dire
-                // dove si sta cercando senza una stringa nuova in ventotto lingue.
-                searchIn = screen.name,
-                items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
-                highlight = if (model.gridVisited) model.series?.index else null,
-                onOpen = { quale ->
-                    // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
-                    if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
-                },
-                onBack = { model.leaveGrid() },
-                onChanged = { model.reloadGrid() },
-                columns = settings.folderColumns,
-                query = model.query,
-                onQuery = { model.search(it) },
-                onSearch = { model.openSearch() },
-                factFields = settings.factRows,
-                binOn = settings.binOn,
-                listPath = settings.listPath,
-                pickWeight = settings.pickWeight,
-                filter = model.gridFilter,
-                onFilter = { model.sift(it) },
-                gridNames = settings.gridNames,
-                lastMark = settings.lastMark,
-                onBusy = { model.gridBusy = it }
-            )
+            val widthDp = LocalConfiguration.current.screenWidthDp
+            /*
+             * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.34`** (mockup `search`): elenco cartelle
+             * a lato e risultati nello spazio principale, come Cartelle/Griglia. Fuori dalla
+             * vista ad albero. Telefono invariato.
+             */
+            val dualSearch = Adaptive.sideAvailable(widthDp) &&
+                settings.folderView != FolderView.TREE
+            @Composable
+            fun SearchGrid() {
+                GridScreen(
+                    title = "",
+                    // ⚠️ Il nome della cartella in cui si cerca, e `null` per la ricerca di tutta la
+                    // galleria: lo scrive il campo al posto del suo invito, che è il modo di dire
+                    // dove si sta cercando senza una stringa nuova in ventotto lingue.
+                    searchIn = screen.name,
+                    items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
+                    highlight = if (model.gridVisited) model.series?.index else null,
+                    onOpen = { quale ->
+                        // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                        if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
+                    },
+                    onBack = { model.leaveGrid() },
+                    onChanged = { model.reloadGrid() },
+                    columns = settings.folderColumns,
+                    query = model.query,
+                    onQuery = { model.search(it) },
+                    onSearch = { model.openSearch() },
+                    factFields = settings.factRows,
+                    binOn = settings.binOn,
+                    listPath = settings.listPath,
+                    pickWeight = settings.pickWeight,
+                    filter = model.gridFilter,
+                    onFilter = { model.sift(it) },
+                    gridNames = settings.gridNames,
+                    lastMark = settings.lastMark,
+                    onBusy = { model.gridBusy = it }
+                )
+            }
+            if (dualSearch) {
+                FoldersTabletSplit(
+                    panelOnStart = settings.hand == Hand.RIGHT,
+                    rail = {
+                        FolderRail(
+                            buckets = model.buckets,
+                            selected = screen.bucket,
+                            selection = settings.folderSelection,
+                            peeking = model.peeking,
+                            colour = settings.folderColour,
+                            tints = model.folderTints,
+                            onPick = { model.folderPicked(it, false) },
+                            onRead = { model.readBuckets(it) },
+                            onSearch = { model.openSearch() },
+                            onBin = { model.openBin() },
+                            onSettings = { model.openSettings() },
+                            width = Adaptive.sideWidth(widthDp)
+                        )
+                    },
+                    detail = { SearchGrid() }
+                )
+            } else {
+                SearchGrid()
+            }
         }
 
         Screen.Bin -> {

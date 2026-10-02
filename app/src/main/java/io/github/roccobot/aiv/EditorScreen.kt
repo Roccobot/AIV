@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -77,6 +78,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -409,49 +411,21 @@ fun EditorScreen(
             }
         }
 
-        BoxWithConstraints(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                /*
-                 * ⚠️⚠️ **IL GRIGIO STA QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
-                 * conta**: dipinge la fascia **intera** fra la testata e la scheda, mentre
-                 * l'immagine resta dentro il rientro di sistema e i suoi margini. Messo dopo,
-                 * il grigio si fermerebbe dove finisce l'immagine e resterebbe una cornice del
-                 * colore della pagina, cioè si vedrebbero tre fondi invece di uno.
-                 * Il perché di questo colore, e le misure, stanno su [stageBack].
-                 */
-                .background(stageBack())
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
-                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
-            contentAlignment = Alignment.Center
-        ) {
-            val picture = shown
-            if (picture == null) {
-                CircularProgressIndicator()
-            } else {
-                val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
-                val frame = remember(picture, room) { fitted(picture, room) }
-                val density = LocalDensity.current
-                CropStage(
-                    picture = picture,
-                    frame = frame,
-                    crop = crop,
-                    grip = with(density) { GRIP.toPx() },
-                    least = with(density) { LEAST_SIDE.toPx() },
-                    arm = with(density) { HANDLE_ARM.toPx() },
-                    thick = with(density) { HANDLE_THICK.toPx() },
-                    halo = with(density) { GRIP_HALO.toPx() },
-                    lensEdge = with(density) { LENS_EDGE.toPx() },
-                    loupe = with(density) { LOUPE_SIDE.toPx() },
-                    edge = with(density) { LOUPE_EDGE.toPx() },
-                    onCrop = { crop = it },
-                    keep = shape.value(lay, aspect)
-                )
-            }
-        }
+        /*
+         * ⚠️⚠️ **STRUMENTI A LATO DA 1.024 dp, DALLA `3.34`** (mockup editor/simple): sotto
+         * quella soglia la scheda resta in basso, come sul telefono.
+         */
+        val widthDp = LocalConfiguration.current.screenWidthDp
+        val beside = Adaptive.editorBeside(widthDp)
+        val panelOnStart = LocalPadLook.current.hand == Hand.RIGHT
+        val toolsWidth = Adaptive.editorToolsWidth(widthDp)
 
+        @Composable
+        fun Sheet() {
         EditorSheet(
+            beside = beside,
+            panelOnStart = panelOnStart,
+            toolsWidth = toolsWidth,
             shape = shape,
             lay = lay,
             busy = busy,
@@ -558,6 +532,104 @@ fun EditorScreen(
                 undone = emptyList()
             }
         )
+        }
+
+        if (beside) {
+            Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                if (panelOnStart) {
+                    Sheet()
+                }
+        BoxWithConstraints(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                /*
+                 * ⚠️⚠️ **IL GRIGIO STA QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
+                 * conta**: dipinge la fascia **intera** fra la testata e la scheda, mentre
+                 * l'immagine resta dentro il rientro di sistema e i suoi margini. Messo dopo,
+                 * il grigio si fermerebbe dove finisce l'immagine e resterebbe una cornice del
+                 * colore della pagina, cioè si vedrebbero tre fondi invece di uno.
+                 * Il perché di questo colore, e le misure, stanno su [stageBack].
+                 */
+                .background(stageBack())
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
+            contentAlignment = Alignment.Center
+        ) {
+            val picture = shown
+            if (picture == null) {
+                CircularProgressIndicator()
+            } else {
+                val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
+                val frame = remember(picture, room) { fitted(picture, room) }
+                val density = LocalDensity.current
+                CropStage(
+                    picture = picture,
+                    frame = frame,
+                    crop = crop,
+                    grip = with(density) { GRIP.toPx() },
+                    least = with(density) { LEAST_SIDE.toPx() },
+                    arm = with(density) { HANDLE_ARM.toPx() },
+                    thick = with(density) { HANDLE_THICK.toPx() },
+                    halo = with(density) { GRIP_HALO.toPx() },
+                    lensEdge = with(density) { LENS_EDGE.toPx() },
+                    loupe = with(density) { LOUPE_SIDE.toPx() },
+                    edge = with(density) { LOUPE_EDGE.toPx() },
+                    onCrop = { crop = it },
+                    keep = shape.value(lay, aspect)
+                )
+            }
+        }
+
+                if (!panelOnStart) {
+                    Sheet()
+                }
+            }
+        } else {
+        BoxWithConstraints(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                /*
+                 * ⚠️⚠️ **IL GRIGIO STA QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
+                 * conta**: dipinge la fascia **intera** fra la testata e la scheda, mentre
+                 * l'immagine resta dentro il rientro di sistema e i suoi margini. Messo dopo,
+                 * il grigio si fermerebbe dove finisce l'immagine e resterebbe una cornice del
+                 * colore della pagina, cioè si vedrebbero tre fondi invece di uno.
+                 * Il perché di questo colore, e le misure, stanno su [stageBack].
+                 */
+                .background(stageBack())
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
+            contentAlignment = Alignment.Center
+        ) {
+            val picture = shown
+            if (picture == null) {
+                CircularProgressIndicator()
+            } else {
+                val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
+                val frame = remember(picture, room) { fitted(picture, room) }
+                val density = LocalDensity.current
+                CropStage(
+                    picture = picture,
+                    frame = frame,
+                    crop = crop,
+                    grip = with(density) { GRIP.toPx() },
+                    least = with(density) { LEAST_SIDE.toPx() },
+                    arm = with(density) { HANDLE_ARM.toPx() },
+                    thick = with(density) { HANDLE_THICK.toPx() },
+                    halo = with(density) { GRIP_HALO.toPx() },
+                    lensEdge = with(density) { LENS_EDGE.toPx() },
+                    loupe = with(density) { LOUPE_SIDE.toPx() },
+                    edge = with(density) { LOUPE_EDGE.toPx() },
+                    onCrop = { crop = it },
+                    keep = shape.value(lay, aspect)
+                )
+            }
+        }
+
+            Sheet()
+        }
     }
 }
 
@@ -698,8 +770,59 @@ internal fun reshaped(crop: ImageEdit.Crop, frame: Float, want: Float?): ImageEd
  * soprattutto direbbe che sono sette cose dello stesso genere. Sopra si **trasforma**, sotto
  * si **conferma o si torna indietro**: il filetto in mezzo è quella differenza.
  */
+
+/**
+ * Come si veste la scheda dell'editor: in basso sul telefono, a lato da 1.024 dp.
+ *
+ * ⚠️⚠️ **NASCE CON LA `3.34`**: il mockup tiene gli strumenti a fianco del canvas solo nel
+ * formato orizzontale largo; in verticale e nella finestra ridotta restano sotto
+ * ([Adaptive.editorBeside]).
+ * ⚠️ **Il lato segue [Hand]** come Cartelle e Visualizzatore: destri -> scheda a inizio riga.
+ */
+internal data class EditorSheetChrome(val modifier: Modifier, val shape: RoundedCornerShape)
+
+@Composable
+internal fun editorSheetChrome(
+    beside: Boolean,
+    panelOnStart: Boolean,
+    toolsWidth: Dp
+): EditorSheetChrome {
+    if (!beside) {
+        return EditorSheetChrome(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(stageBack())
+                .edgedTop(PANEL_ROUND),
+            shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND)
+        )
+    }
+    val shape = if (panelOnStart) {
+        RoundedCornerShape(topEnd = PANEL_ROUND, bottomEnd = PANEL_ROUND)
+    } else {
+        RoundedCornerShape(topStart = PANEL_ROUND, bottomStart = PANEL_ROUND)
+    }
+    return EditorSheetChrome(
+        modifier = Modifier
+            .width(toolsWidth)
+            .fillMaxHeight()
+            .background(stageBack())
+            .edged(PANEL_ROUND),
+        shape = shape
+    )
+}
+
 @Composable
 private fun EditorSheet(
+    /**
+     * Se la scheda è a lato del canvas (tablet largo), invece che sotto.
+     *
+     * ⚠️ **Telefono e finestre sotto i 1.024 restano `false`**: vedi [Adaptive.editorBeside].
+     */
+    beside: Boolean = false,
+    /** Se a lato, la scheda è all'inizio della riga (destri) o alla fine (mancini). */
+    panelOnStart: Boolean = true,
+    /** Larghezza della colonna quando [beside] è acceso; ignorata altrimenti. */
+    toolsWidth: Dp = 320.dp,
     shape: Shape,
     lay: Lay,
     busy: Boolean,
@@ -734,6 +857,7 @@ private fun EditorSheet(
     onOriginal: () -> Unit
 ) {
     val live = ready && !busy
+    val chrome = editorSheetChrome(beside, panelOnStart, toolsWidth)
     Surface(
         /*
          * ⚠️⚠️ **IL GRIGIO DEL PALCO PASSA SOTTO QUESTA SCHEDA, dalla 1.53** (riscontro
@@ -766,11 +890,8 @@ private fun EditorSheet(
          * fondo del palco qui sopra **non** la copre, ed è l'ordine a garantirlo: quel
          * rettangolo è grande quanto la scheda, mentre la riga sta un filo più su.
          */
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(stageBack())
-            .edgedTop(PANEL_ROUND),
-        shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
+        modifier = chrome.modifier,
+        shape = chrome.shape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         /*
          * ⚠️⚠️ **NIENTE OMBRA DALLA 1.40, come le altre due schede appoggiate in basso**
@@ -795,9 +916,15 @@ private fun EditorSheet(
              */
             modifier = Modifier
                 .fillMaxWidth()
+                .then(if (beside) Modifier.fillMaxHeight().verticalScroll(rememberScrollState()) else Modifier)
                 .windowInsetsPadding(
                     WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                        if (beside) {
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Top +
+                                WindowInsetsSides.Bottom
+                        } else {
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                        }
                     )
                 )
                 /*
