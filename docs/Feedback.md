@@ -92,7 +92,7 @@ in archivio sotto.
 ## Prossimi passi
 
 - **3.39: entra** (confermato): fix flicker editor `3.38-01` (critico); FAB sempre ~35% `3.38-02`; redesign rail+empty state mockup `3.38-03`+`04` (un filone).
-- **Prossima release (3.39 se c'è tempo, altrimenti 3.40)**: flash colori HEIC in sfoglio (neutro → vivido a fine animazione); indagare decode/color profile; esempio HEIC in attesa di ri-allegato.
+- **Prossima release (3.39 se c'è tempo, altrimenti 3.40)**: flash colori HEIC in sfoglio (neutro → vivido a fine animazione); indagare decode/color profile; esempio `.memo/files/aiv-heic-color-flash-example.heic` (tools; originale IMG_20261002_204315.HEIC).
 - **Differito**: inpaint `3.38-11`; più sotto-pagine `3.27-03`.
 - **Da reinserire come prove nel DF dopo Release 3.39** (non collaudati nel giro 3.38; non sono lavoro prodotto 3.39 ora): `3.13-02` header Modalità incluse; `3.13-08` lista sistema + avvisi.
 - **Da decidere**: quanto insistire sull'inpaint rispetto ad accettare il limite euristico.
