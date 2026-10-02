@@ -1,4 +1,38 @@
 "use strict";
+/* Tema DF: al carico segue il sistema; T (senza modificatori, fuori dai campi)
+   scambia chiaro↔scuro solo per la sessione. Nessun localStorage/cookie; il
+   refresh torna al sistema. */
+(function initFeedbackTheme() {
+  let override = null;
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  function effective() {
+    return override || (mq.matches ? "dark" : "light");
+  }
+  function apply() {
+    document.documentElement.setAttribute("data-theme", effective());
+  }
+  function onSystemChange() {
+    if (override === null) apply();
+  }
+  if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
+  else if (mq.addListener) mq.addListener(onSystemChange);
+  apply();
+  document.addEventListener("keydown", (event) => {
+    if (event.key.toLowerCase() !== "t") return;
+    if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (target) {
+      const tag = target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (target.isContentEditable) return;
+      const host = target.closest("[contenteditable]");
+      if (host && host.isContentEditable) return;
+    }
+    event.preventDefault();
+    override = effective() === "dark" ? "light" : "dark";
+    apply();
+  });
+})();
 const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
 if (!Array.isArray(spec.labels)) spec.labels = [];
 const outcomes = ["Tutto OK", "Accettabile", "Non approvato"];
