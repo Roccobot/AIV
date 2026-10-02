@@ -944,19 +944,27 @@ main > .feedback-columns {
   accent-color: var(--accent);
 }
 
-/* Mobile: strip = centered chips only; Altro in-flow before PP; long-press ⇥ for overlay */
-@media (max-width: 720px) {
+/* Live check: side-by-side starts crowding below 640px (overlap at 620px). */
+@media (max-width: 640px) {
   .intro-title-row {
     display: block;
   }
+  .intro-title {
+    width: 100%;
+  }
   .cloud-account {
-    max-width: 100%;
-    margin-top: 12px;
+    width: 100%;
+    max-width: none;
+    margin: 12px 0 0;
   }
   .cloud-account p {
     flex-basis: auto;
     white-space: normal;
   }
+}
+
+/* Mobile: strip = centered chips only; Altro in-flow before PP; long-press ⇥ for overlay */
+@media (max-width: 720px) {
   .dashboard {
     padding-top: 8px;
     padding-bottom: 8px;
