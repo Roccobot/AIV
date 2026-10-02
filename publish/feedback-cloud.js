@@ -90,15 +90,19 @@
   document.querySelector('#send-info').textContent = 'Invia rende leggibile il giro all\'agente, senza avviare nulla. Puoi continuare a modificare e inviare di nuovo. L\'agente recupererà l\'ultima versione inviata solo dopo il tuo via in chat.';
   document.querySelector('#delivery-info').textContent = 'Premi Invia anche se alcune prove restano Non provato. Quando vuoi che l\'agente prenda in carico il giro, chiedigli in chat di leggere l\'ultimo feedback. Esportare il JSON è facoltativo: serve per conservarne una copia.';
   const notice = document.createElement('section');
-  notice.className = 'card cloud-account';
+  notice.className = 'cloud-account';
   const description = document.createElement('p');
-  description.textContent = 'Salvataggio cloud privato. Accedi con il tuo account GitHub per continuare da qualsiasi dispositivo. Per trasferire le risposte già compilate sul sito GitHub, esporta lì il JSON e importalo qui.';
+  const signedOutText = 'Collegati con GitHub per il salvataggio cloud';
+  const signedInText = 'Collegato a GitHub per il salvataggio su cloud.';
+  description.textContent = signedOutText;
   const login = document.createElement('a');
   login.href = config.login;
-  login.textContent = 'Accedi con GitHub';
-  login.hidden = true;
+  login.className = 'cloud-account-action';
+  login.textContent = 'Accedi';
+  login.hidden = false;
   const logout = document.createElement('button');
   logout.type = 'button';
+  logout.className = 'cloud-account-action';
   logout.textContent = 'Esci';
   logout.hidden = true;
   logout.addEventListener('click',async () => {
@@ -109,8 +113,9 @@
     } catch (error) { report(error.message,true); }
   });
   notice.append(description,login,logout);
-  document.querySelector('main').prepend(notice);
+  document.querySelector('.intro-title-row').append(notice);
   const syncAccount = signedIn => {
+    description.textContent = signedIn ? signedInText : signedOutText;
     login.hidden = signedIn;
     logout.hidden = !signedIn;
   };
@@ -124,7 +129,7 @@
       if (error.status === 401) {
         syncAccount(false);
         logout.hidden = true;
-        description.textContent = 'Accedi con GitHub per compilare il documento e importare il JSON. I campi saranno disponibili dopo il recupero della bozza cloud.';
+        description.textContent = signedOutText;
       }
     }
   };

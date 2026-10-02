@@ -28,6 +28,56 @@ h1 {
   line-height: 1.08;
   margin: 10px 0 24px;
 }
+/* Compact GitHub connection chip shares the title row on desktop. */
+.intro-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.intro-title {
+  min-width: 0;
+}
+.cloud-account {
+  display: flex;
+  align-items: center;
+  flex: 0 0 430px;
+  width: 430px;
+  max-width: 100%;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #86b5a5;
+  border-radius: 10px;
+  background: #f4faf7;
+  color: #1b2d25;
+}
+.cloud-account p {
+  flex: 1 1 330px;
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.cloud-account-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 68px;
+  min-width: 68px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-color: #0b6b5b;
+  border-radius: 8px;
+  color: #0b6b5b;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cloud-account-action:hover {
+  background: #dff3eb;
+}
 h2 {
   font-size: 26px;
   line-height: 1.25;
@@ -771,6 +821,18 @@ main > .feedback-columns {
 
 /* Mobile: strip = centered chips only; Altro in-flow before PP; long-press ⇥ for overlay */
 @media (max-width: 720px) {
+  .intro-title-row {
+    display: block;
+  }
+  .cloud-account {
+    width: 100%;
+    flex-basis: auto;
+    margin-top: 12px;
+  }
+  .cloud-account p {
+    flex-basis: auto;
+    white-space: normal;
+  }
   .dashboard {
     padding-top: 8px;
     padding-bottom: 8px;
@@ -883,7 +945,7 @@ main > .feedback-columns {
     align-self: start;
     max-height: calc(100vh - 104px);
     overflow: auto;
-    margin: 0;
+    margin: 18px 0;
     z-index: 1;
   }
   .feedback-primary {
@@ -912,6 +974,11 @@ main > .feedback-columns {
 }
 
 @media (prefers-color-scheme: dark) {
+  .cloud-account {
+    background: #1e2523;
+    border-color: #43b59e;
+    color: #e3eee8;
+  }
   .altro-overlay-panel {
     background: #1e2523;
     color: #e3eee8;
