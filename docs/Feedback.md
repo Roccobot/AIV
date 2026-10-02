@@ -96,7 +96,7 @@ Mentre scrivi in un campo, resta visibile solo Salva (gli altri controlli tornan
 o ~5 s dopo un salvataggio). Su desktop: Altro è una **colonna laterale** sempre pronta
 (formattazione e allegati +/trascina), non un riquadro flottante staccato. I link nelle prove
 sono cliccabili, non markdown letterale. La versione AIV del giro è fissa: conferma con la
-casella «Sì, ho installato questa versione».
+casella 'Sì, ho installato questa versione'.
 
 ## 11. Qualità Correggi/Rimuovi (riprova)
 

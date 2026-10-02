@@ -73,7 +73,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   resta in fondo **prima** del PP, con controllo di salto rapido nella striscia. Non usare
   un riquadro `position: fixed` staccato dal flusso.
 - La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
-  con la casella «Sì, ho installato questa versione» (`installed` = versione del giro o vuoto).
+  con la casella 'Sì, ho installato questa versione' (`installed` = versione del giro o vuoto).
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
@@ -89,7 +89,7 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 
 | Campo | Significato |
 |---|---|
-| `version`, `installed` | Versione del documento; `installed` vale la stessa stringa solo se Rocco ha spuntato «Sì, ho installato questa versione», altrimenti stringa vuota (non è più un campo libero) |
+| `version`, `installed` | Versione del documento; `installed` vale la stessa stringa solo se Rocco ha spuntato 'Sì, ho installato questa versione', altrimenti stringa vuota (non è più un campo libero) |
 | `device` | Specifiche del telefono; chiave storica conservata |
 | `tablet` | Specifiche del tablet; assente nei vecchi JSON, ripristinata come testo vuoto |
 | `entries` | Risposte per ID: `status`, `comment`, `images` |
@@ -147,7 +147,8 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
 ## Aggiornare e pubblicare
 
 1. Registra obiettivo e stato nel brief prima di un intervento su più passi.
-2. Prima di pubblicare o aggiornare il DF per `X.XX`, verifica che esista la GitHub Release pubblicata della
+2. ⚠️ **Gate Release APK**: vale quando il DF introduce o aggiorna prove di collaudo per una **nuova versione app**. Un ritocco **solo UX/documentale** del DF (layout, Altro, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK.
+   Prima di pubblicare o aggiornare il DF per un collaudo `X.XX`, verifica che esista la GitHub Release pubblicata della
    stessa versione, non una bozza, col tag `vX.XX`. Il numero nella pagina, il collegamento all'APK o un tag senza
    release non sono prove sufficienti. Se la release manca, prepara soltanto una bozza locale.
 3. Aggiorna le fonti corrette e conserva tutte le risposte aperte. Se il proprietario sta

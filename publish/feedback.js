@@ -231,7 +231,7 @@ function alignDocumentVersion() {
   // ⚠️ **Nuovo rilascio del documento: svuota i campi liberi** (giro 3.25-3.30 / 3.37 note A).
   // Telefono/tablet restano. Prove con ID ancora presenti restano.
   // Decisioni non più in spec.decisions non si ripropongono in UI (lista vuota = chiuse).
-  // La conferma «ho installato questa versione» si azzera: va rifatta sul nuovo giro.
+  // La conferma 'ho installato questa versione' si azzera: va rifatta sul nuovo giro.
   if (draft.version === spec.version) return;
   draft.notes = "";
   draft.extra = { images: [] };
