@@ -544,12 +544,12 @@ fun EditorScreen(
                 .weight(1f)
                 .fillMaxHeight()
                 /*
-                 * ⚠️⚠️ **IL GRIGIO STA QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
+                 * ⚠️⚠️ **IL GRIGIO È QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
                  * conta**: dipinge la fascia **intera** fra la testata e la scheda, mentre
                  * l'immagine resta dentro il rientro di sistema e i suoi margini. Messo dopo,
                  * il grigio si fermerebbe dove finisce l'immagine e resterebbe una cornice del
                  * colore della pagina, cioè si vedrebbero tre fondi invece di uno.
-                 * Il perché di questo colore, e le misure, stanno su [stageBack].
+                 * Il perché di questo colore, e le misure, vivono su [stageBack].
                  */
                 .background(stageBack())
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
@@ -591,12 +591,12 @@ fun EditorScreen(
                 .weight(1f)
                 .fillMaxWidth()
                 /*
-                 * ⚠️⚠️ **IL GRIGIO STA QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
+                 * ⚠️⚠️ **IL GRIGIO È QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
                  * conta**: dipinge la fascia **intera** fra la testata e la scheda, mentre
                  * l'immagine resta dentro il rientro di sistema e i suoi margini. Messo dopo,
                  * il grigio si fermerebbe dove finisce l'immagine e resterebbe una cornice del
                  * colore della pagina, cioè si vedrebbero tre fondi invece di uno.
-                 * Il perché di questo colore, e le misure, stanno su [stageBack].
+                 * Il perché di questo colore, e le misure, vivono su [stageBack].
                  */
                 .background(stageBack())
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
