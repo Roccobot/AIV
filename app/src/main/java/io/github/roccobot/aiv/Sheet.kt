@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -134,6 +136,13 @@ fun Sheet(
     var visibile by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visibile = true }
     val chiudi: () -> Unit = { visibile = false }
+    /*
+     * ⚠️⚠️ **LARGHEZZA CONTENUTA SUL TABLET, DALLA `3.36`** (mockup `help` / `.dialog-preview`):
+     * su telefono la scheda resta a tutta fascia; da 600 dp non supera [Adaptive.sheetMaxWidth],
+     * centrata in basso. Guida, Filigrana e Informazioni diventano finestre scorrevoli invece
+     * di pagine a tutta larghezza.
+     */
+    val sheetMax = Adaptive.sheetMaxWidth(LocalConfiguration.current.screenWidthDp)
 
     Dialog(
         onDismissRequest = chiudi,
@@ -248,6 +257,9 @@ fun Sheet(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .then(
+                        if (sheetMax != null) Modifier.widthIn(max = sheetMax) else Modifier
+                    )
                     /*
                      * ⚠️⚠️ **LA DISTANZA È L'ALTEZZA DELLA SCHEDA STESSA, letta qui dentro**:
                      * `size` è la misura di questo strato, quindi la scheda parte esattamente

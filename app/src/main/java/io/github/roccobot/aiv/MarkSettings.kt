@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -162,59 +163,89 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
      * diceva 'il riquadro c'è solo quando c'è una filigrana' è decaduta**: senza un logo scelto il
      * riquadro resta vuoto, ma porta comunque i cinque selettori, cioè dice qualcosa. Il perché
      * per esteso vive su [MarkSpot].
+     * ⚠️⚠️ **DALLA `3.36` ANTEPRIMA A LATO DA 1.024 dp** (mockup `resize` / Dimensioni e
+     * filigrana): sul tablet largo i parametri sono accanto al riquadro; sotto e sul telefono
+     * restano in colonna. Hand come altrove.
      */
-    MarkSpot(
-        plan = settings.markPlan(),
-        giro = giro,
-        onSpot = { onChange(settings.copy(markSpot = it)) }
-    )
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    val beside = Adaptive.previewBeside(widthDp)
+    val previewOnStart = LocalPadLook.current.hand == Hand.RIGHT
 
-    /*
-     * ⚠️⚠️ **I TRE NUMERI SONO TRE CHIAMATE ALLO STESSO PEZZO, E NON TRE BLOCCHI COPIATI**: ognuno
-     * porta un campo, un cursore e la loro sincronia, e scritti riga per riga sarebbero nove
-     * occasioni di sbagliarne una. È lo stesso criterio per cui i sei cursori della Luce sono una
-     * tabella.
-     */
-    MarkNumber(
-        label = stringResource(R.string.settings_mark_size),
-        value = settings.markSize,
-        range = Watermark.SIZE,
-        onChange = { onChange(settings.copy(markSize = it)) }
-    )
+    @Composable
+    fun Spot() {
+        MarkSpot(
+            plan = settings.markPlan(),
+            giro = giro,
+            onSpot = { onChange(settings.copy(markSpot = it)) }
+        )
+    }
 
-    /*
-     * ⚠️⚠️ **LA DISTANZA DAL BORDO SI SCRIVE COL DECIMALE, DALLA `2.76`, ED È SUA RICHIESTA**
-     * (punto 1 del campo libero del giro dalla `2.71` alla `2.74`: *Filigrana / Distanza dal bordo:
-     * aggiungi i valori 0,2 e 0,5*). A viaggiare è sempre un intero, perché il valore è in **decimi
-     * di centesimo** ([Watermark.AIR_STEP]): quello che cambia è come si legge e come si scrive.
-     */
-    MarkNumber(
-        label = stringResource(R.string.settings_mark_air),
-        value = settings.markAir,
-        range = Watermark.AIR,
-        step = Watermark.AIR_STEP,
-        onChange = { onChange(settings.copy(markAir = it)) }
-    )
+    @Composable
+    fun Params() {
+        /*
+         * ⚠️⚠️ **I TRE NUMERI SONO TRE CHIAMATE ALLO STESSO PEZZO, E NON TRE BLOCCHI COPIATI**:
+         * ognuno porta un campo, un cursore e la loro sincronia, e scritti riga per riga
+         * sarebbero nove occasioni di sbagliarne una. È lo stesso criterio per cui i sei
+         * cursori della Luce sono una tabella.
+         */
+        MarkNumber(
+            label = stringResource(R.string.settings_mark_size),
+            value = settings.markSize,
+            range = Watermark.SIZE,
+            onChange = { onChange(settings.copy(markSize = it)) }
+        )
+        /*
+         * ⚠️⚠️ **LA DISTANZA DAL BORDO SI SCRIVE COL DECIMALE, DALLA `2.76`, ED È SUA RICHIESTA**
+         * (punto 1 del campo libero del giro dalla `2.71` alla `2.74`: *Filigrana / Distanza dal
+         * bordo: aggiungi i valori 0,2 e 0,5*). A viaggiare è sempre un intero, perché il valore
+         * è in **decimi di centesimo** ([Watermark.AIR_STEP]): quello che cambia è come si legge
+         * e come si scrive.
+         */
+        MarkNumber(
+            label = stringResource(R.string.settings_mark_air),
+            value = settings.markAir,
+            range = Watermark.AIR,
+            step = Watermark.AIR_STEP,
+            onChange = { onChange(settings.copy(markAir = it)) }
+        )
+        MarkNumber(
+            label = stringResource(R.string.settings_mark_alpha),
+            value = settings.markAlpha,
+            range = Watermark.ALPHA,
+            onChange = { onChange(settings.copy(markAlpha = it)) }
+        )
+        /*
+         * ⚠️⚠️ **L'INTERRUTTORE CHIUDE LA PAGINA DALLA `2.71`, E FINO ALLA `2.70` LA APRIVA**:
+         * è la sua richiesta (*'Posizione' sopra 'Applica al salvataggio'*), e la
+         * ragione che la regge è che le righe sopra descrivono **com'è fatta** la firma, mentre
+         * questa dice se scriverla. Messa in testa, si leggeva come la prima di sei voci pari.
+         */
+        SwitchRow(
+            label = stringResource(R.string.settings_mark_on),
+            detail = stringResource(R.string.settings_mark_on_desc),
+            checked = settings.markOn,
+            onChange = { onChange(settings.copy(markOn = it)) }
+        )
+    }
 
-    MarkNumber(
-        label = stringResource(R.string.settings_mark_alpha),
-        value = settings.markAlpha,
-        range = Watermark.ALPHA,
-        onChange = { onChange(settings.copy(markAlpha = it)) }
-    )
-
-    /*
-     * ⚠️⚠️ **L'INTERRUTTORE CHIUDE LA PAGINA DALLA `2.71`, E FINO ALLA `2.70` LA APRIVA**: è la
-     * sua richiesta (*'Posizione' deve stare sopra 'Applica al salvataggio'*), e la ragione che la
-     * regge è che le righe sopra descrivono **com'è fatta** la firma, mentre questa
-     * dice se scriverla. Messa in testa, si leggeva come la prima di sei voci pari.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_mark_on),
-        detail = stringResource(R.string.settings_mark_on_desc),
-        checked = settings.markOn,
-        onChange = { onChange(settings.copy(markOn = it)) }
-    )
+    if (beside) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            if (previewOnStart) {
+                Column(modifier = Modifier.weight(1f)) { Spot() }
+                Column(modifier = Modifier.weight(1f)) { Params() }
+            } else {
+                Column(modifier = Modifier.weight(1f)) { Params() }
+                Column(modifier = Modifier.weight(1f)) { Spot() }
+            }
+        }
+    } else {
+        Spot()
+        Params()
+    }
 }
 
 /**

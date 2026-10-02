@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.DialogProperties
@@ -71,7 +72,20 @@ import androidx.core.view.WindowInsetsCompat
  * ⚠️ **Chi aprisse una modale senza campo di testo la troverebbe in alto**, e allora la domanda
  * da farsi è perché sia una modale: il criterio dice che non lo è.
  */
-fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
+fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier =
+    lowered(onOutside = onOutside, maxWidth = Adaptive.dialogMaxWidth)
+
+/**
+ * Come [lowered], con larghezza massima scelta dal chiamante (Ridimensiona a due colonne).
+ *
+ * ⚠️ **Due firme e non un default sul secondo parametro**: `lowered { ... }` deve restare
+ * la forma corta per [onOutside]; un `maxWidth` posizionale dopo avrebbe preso la lambda
+ * trailing, e cinque finestre in casa si sarebbero rotte in silenzio.
+ */
+fun Modifier.lowered(
+    onOutside: (() -> Unit)?,
+    maxWidth: Dp
+): Modifier {
     /*
      * ⚠️⚠️ **QUESTO MODIFICATORE FA UNA SECONDA COSA DALLA 1.38, E STA QUI PER UNA RAGIONE
      * PRECISA**: ogni superficie che si apre sopra la schermata vuole anche il **velo e la
@@ -117,13 +131,14 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
      */
     val aria = Air()
     /*
-     * ⚠️⚠️ **LARGHEZZA CONTENUTA DALLA `3.35`**, mockup `.dialog-preview` (520 dp): su tablet
-     * una finestra a tutta fascia si legge come una pagina, non come un dialogo. Il tetto è
-     * innocuo sul telefono (la fascia è già più stretta).
+     * ⚠️⚠️ **LARGHEZZA CONTENUTA DALLA `3.35`**, mockup `.dialog-preview` (520 dp di serie):
+     * su tablet una finestra a tutta fascia si legge come una pagina, non come un dialogo.
+     * Il tetto è innocuo sul telefono. Dalla `3.36` [maxWidth] puo salire (es. Ridimensiona
+     * a due colonne usa [Adaptive.dialogBesideMaxWidth]).
      */
     return veiled() then OutsideElement(onOutside, aria) then
         LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then DIALOG_EDGE then
-        Modifier.widthIn(max = Adaptive.dialogMaxWidth)
+        Modifier.widthIn(max = maxWidth)
 }
 
 /**

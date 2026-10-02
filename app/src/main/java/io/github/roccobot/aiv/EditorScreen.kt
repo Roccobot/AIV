@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
@@ -2393,8 +2394,17 @@ fun EditorPicker(
         properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.editor_pick)) },
         text = {
+            /*
+             * ⚠️⚠️ **FINESTRA SCORREVOLE CONTENUTA, DALLA `3.36`** (mockup `help` / scelta
+             * editor): [Modifier.lowered] limita la larghezza; qui un tetto sull'altezza fa
+             * scorrere spiegazione e elenco insieme invece di tagliare i tasti fuori schermo.
+             * Telefono: il tetto è più alto dello schermo tipico, quindi non cambia niente.
+             */
+            val pickMaxH = (LocalConfiguration.current.screenHeightDp * 0.75f).dp
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .heightIn(max = pickMaxH)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 PickRow(

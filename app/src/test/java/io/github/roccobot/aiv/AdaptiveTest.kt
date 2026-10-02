@@ -71,4 +71,15 @@ class AdaptiveTest {
         assertEquals(800, Adaptive.destinationMaxWidth(1024)!!.value.toInt())
         assertEquals(null, Adaptive.destinationMaxWidth(360))
     }
+
+    @Test
+    fun `anteprima Dimensioni e filigrana a lato solo da 1024`() {
+        assertFalse(Adaptive.previewBeside(600))
+        assertFalse(Adaptive.previewBeside(800))
+        assertFalse(Adaptive.previewBeside(1023))
+        assertTrue(Adaptive.previewBeside(1024))
+        assertEquals(720, Adaptive.dialogBesideMaxWidth.value.toInt())
+        assertEquals(720, Adaptive.sheetMaxWidth(1024)!!.value.toInt())
+        assertEquals(null, Adaptive.sheetMaxWidth(360))
+    }
 }

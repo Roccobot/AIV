@@ -98,6 +98,28 @@ object Adaptive {
     fun destinationMaxWidth(widthDp: Int): Dp? =
         if (sideAvailable(widthDp)) 800.dp else null
 
+    /**
+     * Se Dimensioni e filigrana mettono l'anteprima a lato dei parametri.
+     *
+     * ⚠️ **Solo da 1.024 dp**, come l'editor: in verticale e nella finestra ridotta
+     * restano uno sotto l'altro (mockup `.portrait` / `.split`).
+     */
+    fun previewBeside(widthDp: Int): Boolean = widthDp >= SIDE_OPEN_MIN
+
+    /**
+     * Larghezza massima di una finestra con anteprima a lato (Ridimensiona),
+     * piu ampia di [dialogMaxWidth] perche porta due colonne.
+     */
+    val dialogBesideMaxWidth: Dp = 720.dp
+
+    /**
+     * Larghezza massima di una bottomsheet sul tablet (Guida, Filigrana, Informazioni).
+     *
+     * ⚠️ **`null` sul telefono**: la scheda resta a tutta fascia come prima.
+     */
+    fun sheetMaxWidth(widthDp: Int): Dp? =
+        if (sideAvailable(widthDp)) 720.dp else null
+
     enum class Band { PHONE, NARROW, MEDIUM, WIDE }
 }
 

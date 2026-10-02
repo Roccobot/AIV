@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -270,9 +271,19 @@ fun ResizeDialog(
         runCatching { chi.requestFocus() }
     }
 
+    /*
+     * ⚠️⚠️ **ANTEPRIMA A LATO DA 1.024 dp, DALLA `3.36`** (mockup `resize`): parametri e
+     * risultato affiancati; sotto quella soglia restano in colonna come sul telefono. La
+     * finestra si allarga a [Adaptive.dialogBesideMaxWidth] solo in quel caso.
+     */
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    val beside = Adaptive.previewBeside(widthDp)
+    val dialogW = if (beside) Adaptive.dialogBesideMaxWidth else Adaptive.dialogMaxWidth
+    val previewOnStart = LocalPadLook.current.hand == Hand.RIGHT
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(null),
+        modifier = Modifier.lowered(null, maxWidth = dialogW),
         properties = loweredWindow(null),
         /*
          * ⚠️ **Il comando vive sulla riga del titolo**, che è dove questa app mette un comando
@@ -311,10 +322,8 @@ fun ResizeDialog(
         text = {
             // ⚠️ Lo scorrimento serve al tetto della `1.62`, come in ogni altra finestra con un
             // campo: a tastiera aperta il pannello si accorcia invece di essere tagliato.
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(RESIZE_GAP)
-            ) {
+            @Composable
+            fun Fields() {
                 ModeRow(shown = shown, onPick = pick)
                 if (shown == Resize.Mode.SHARE) {
                     OutlinedTextField(
@@ -398,6 +407,10 @@ fun ResizeDialog(
                         )
                     }
                 }
+            }
+
+            @Composable
+            fun Result() {
                 when {
                     plan == null -> Hint(
                         stringResource(R.string.look_resize_range, range.first, range.last)
@@ -406,6 +419,10 @@ fun ResizeDialog(
                     esito == null -> Hint(stringResource(R.string.look_resize_keep))
                     else -> Outcome(esito.first, esito.second)
                 }
+            }
+
+            @Composable
+            fun Foot() {
                 Text(
                     text = stringResource(R.string.look_resize_note),
                     style = MaterialTheme.typography.bodySmall,
@@ -428,6 +445,50 @@ fun ResizeDialog(
                             modifier = Modifier.align(Alignment.CenterEnd)
                         )
                     }
+                }
+            }
+
+            if (beside) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    val fieldsMod = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                    val resultMod = Modifier.weight(1f)
+                    @Composable
+                    fun Params() {
+                        Column(
+                            modifier = fieldsMod,
+                            verticalArrangement = Arrangement.spacedBy(RESIZE_GAP)
+                        ) {
+                            Fields()
+                            Foot()
+                        }
+                    }
+                    @Composable
+                    fun Side() {
+                        Column(
+                            modifier = resultMod,
+                            verticalArrangement = Arrangement.spacedBy(RESIZE_GAP)
+                        ) { Result() }
+                    }
+                    if (previewOnStart) {
+                        Side()
+                        Params()
+                    } else {
+                        Params()
+                        Side()
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(RESIZE_GAP)
+                ) {
+                    Fields()
+                    Result()
+                    Foot()
                 }
             }
         },
