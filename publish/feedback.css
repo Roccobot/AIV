@@ -196,26 +196,42 @@ h1 {
   line-height: 1.08;
   margin: 10px 0 24px;
 }
-/* Compact GitHub connection chip shares the title row and sizes to its content. */
+/* Title + chip: chip sits on the h1 row (center of the capital V), not the eyebrow. */
 .intro-title-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 24px;
+  row-gap: 0;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: nowrap;
+  margin-bottom: 24px;
 }
 .intro-title {
+  display: contents;
+}
+.intro-title-row > .eyebrow,
+.intro-title > .eyebrow {
+  grid-column: 1;
+  grid-row: 1;
+}
+.intro-title-row h1 {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 10px 0 0;
   min-width: 0;
 }
 .cloud-account {
+  grid-column: 2;
+  grid-row: 2;
   display: inline-flex;
   align-items: center;
   align-self: center;
+  justify-self: end;
   flex: 0 1 auto;
   width: fit-content;
   max-width: 100%;
   gap: 8px;
-  margin: 0 0 0 auto;
+  margin: 0;
   padding: 6px 12px;
   border: 1px solid var(--border-chip);
   border-radius: 999px;
@@ -961,17 +977,11 @@ main > .feedback-columns {
 /* Keep the GitHub chip on the title row at every viewport width. */
 @media (max-width: 640px) {
   .intro-title-row {
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
-  .intro-title {
-    flex: 1 1 auto;
-    width: auto;
+    column-gap: 8px;
   }
   .cloud-account {
     width: fit-content;
     max-width: 100%;
-    margin: 0 0 0 auto;
     justify-content: flex-start;
     padding: 4px 8px;
     gap: 6px;
