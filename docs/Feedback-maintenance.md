@@ -69,9 +69,12 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Navigazione flottante: riquadro precedente, successivo, primo non compilato quando
   esiste, salvataggio con dischetto. Commento o allegato contano come compilazione.
 - **Altro**: su desktop è una colonna laterale reale (preferibilmente a sinistra), sticky,
-  sempre pronta, con toolbar di formattazione e allegati (`+` e trascinamento). Su mobile
-  resta in fondo **prima** del PP, con controllo di salto rapido nella striscia. Non usare
-  un riquadro `position: fixed` staccato dal flusso.
+  sempre pronta, con toolbar di formattazione e allegati (`+` e trascinamento); la colonna
+  è circa il 50% più larga del primo taglio laterale. Su desktop la striscia conteggi,
+  la card Accedi/Salvataggio cloud e i paragrafi intro condividono la stessa larghezza
+  totale di (colonne prove + Altro), senza fascia a tutta viewport. Su mobile resta in
+  fondo **prima** del PP, con controllo di salto rapido nella striscia. Non usare un
+  riquadro `position: fixed` staccato dal flusso.
 - La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
   con la casella 'Sì, ho installato questa versione' (`installed` = versione del giro o vuoto).
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
