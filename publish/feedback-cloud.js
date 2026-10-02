@@ -156,13 +156,17 @@
   chipStyle.textContent = `
     .cloud-account {
       align-items: center;
+      align-self: center;
       transform: none;
       gap: 8px;
       padding: 6px 12px;
       border-radius: 999px;
     }
     .cloud-account-logo {
+      display: block;
       align-self: center;
+      margin: 0;
+      vertical-align: middle;
       width: 20px;
       height: 20px;
       flex-basis: 20px;
@@ -175,6 +179,10 @@
       transform: none;
     }
     .cloud-account-action {
+      display: inline-flex;
+      align-self: center;
+      align-items: center;
+      justify-content: center;
       flex: 0 0 auto;
       min-width: 0;
       min-height: 0;
