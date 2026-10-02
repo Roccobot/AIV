@@ -51,7 +51,7 @@ deve occupare tutta la larghezza: al massimo circa **il 45%**. Confronta col cas
 ## 3. Rail Cartelle: icona e spazio
 
 Su tablet (≥ 600): nella colonna cartelle, in alto a sinistra non deve andare a capo la
-parola «Cartelle» — c'è un'**icona** cartella al suo posto, con più aria verso i tasti
+parola 'Cartelle' ,  c'è un'**icona** cartella al suo posto, con più aria verso i tasti
 cerca/cestino/impostazioni.
 
 ## 4. Senza cartella scelta: contenuto centrato
@@ -80,7 +80,7 @@ apici**. L'eccezione **'FAB'** resta tra apici. Eventuali `ATTENZIONE` diventano
 ## 8. Indicatore già inclusa
 
 In Modalità incluse → Aggiungi cartella: le cartelle già in lista mostrano **`già inclusa`**
-(tutto minuscolo), non «Già in lista», e non si possono ri-aggiungere.
+(tutto minuscolo), non 'Già in lista', e non si possono ri-aggiungere.
 
 ## 9. Lentino: soglia ancora più bassa
 
