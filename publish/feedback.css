@@ -66,6 +66,13 @@ h1 {
   overflow-wrap: anywhere;
   font-size: 14px;
 }
+/* On DPR≈2 displays, align only the connected username with the chip text. */
+@media (min-resolution: 1.9dppx) and (max-resolution: 2.1dppx),
+  (-webkit-min-device-pixel-ratio: 1.9) and (-webkit-max-device-pixel-ratio: 2.1) {
+  .cloud-account-user {
+    transform: translateY(2px);
+  }
+}
 .cloud-account p {
   flex: 0 1 auto;
   min-width: 0;
