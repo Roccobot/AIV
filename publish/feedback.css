@@ -1049,6 +1049,32 @@ main > .feedback-columns {
   body.editing-mobile .floating-controls {
     bottom: calc(10px + env(safe-area-inset-bottom));
   }
+  /* In-frame formatting: the system selection bar (Taglia/Copia/Incolla)
+     anchors above the caret and covered the toolbar on the top edge. */
+  .formatted-field {
+    position: relative;
+  }
+  .formatted-field > .format-toolbar {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    z-index: 1;
+    margin: 0;
+    flex-wrap: nowrap;
+    gap: 4px;
+    max-width: calc(100% - 16px);
+    pointer-events: none;
+  }
+  .formatted-field > .format-toolbar button {
+    pointer-events: auto;
+    background: var(--surface);
+    box-shadow: 0 1px 2px #00000026;
+  }
+  .formatted-field > .rich-editor {
+    margin-top: 6px;
+    /* Room so the last lines stay clear of the controls in the corner. */
+    padding-bottom: 60px;
+  }
   .feedback-columns {
     display: flex;
     flex-direction: column;

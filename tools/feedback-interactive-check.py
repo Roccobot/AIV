@@ -373,6 +373,23 @@ def check(path):
                         continue  # editors in the hidden Altro overlay
                     assert box['height'] >= 200
                     assert editor.evaluate('(el)=>getComputedStyle(el).resize') == 'vertical'
+                    # Narrow: controls sit in the text frame's bottom-right, clear of
+                    # the system selection bar. Wider: they stay in a row above the field.
+                    place = editor.evaluate('''(el) => {
+                        const bar = el.parentElement.querySelector('.format-toolbar');
+                        const eb = el.getBoundingClientRect();
+                        const tb = bar.getBoundingClientRect();
+                        return {
+                            inside: tb.left >= eb.left - 1 && tb.right <= eb.right + 1 && tb.top >= eb.top + 40 && tb.bottom <= eb.bottom + 1,
+                            above: tb.bottom <= eb.top + 1,
+                            insetRight: eb.right - tb.right,
+                            insetBottom: eb.bottom - tb.bottom,
+                        };
+                    }''')
+                    if width <= 720:
+                        assert place['inside'] and place['insetRight'] < 24 and place['insetBottom'] < 24, (width, place)
+                    else:
+                        assert place['above'], (width, place)
             touch_context = browser.new_context(is_mobile=True,has_touch=True,viewport={'width':390,'height':844})
             touch = touch_context.new_page()
             touch.on('pageerror', lambda e: errors.append(str(e)))

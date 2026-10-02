@@ -70,6 +70,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Editor con formattazione visibile, senza anteprima duplicata; icone grassetto, corsivo,
   link con nomi accessibili e suggerimenti. Cmd/Ctrl+B, I, K; Cmd/Ctrl+S salva.
   Il testo normale non è grassetto; incolli di testo semplice, nessun HTML interpretato.
+  Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
+  dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
+  che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.
 - Navigazione flottante: riquadro precedente, successivo, primo non compilato quando
   esiste, salvataggio con dischetto. Commento o allegato contano come compilazione.
 - **Altro**: su desktop è una colonna laterale reale (preferibilmente a sinistra), sticky,
