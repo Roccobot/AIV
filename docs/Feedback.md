@@ -120,7 +120,7 @@ in archivio sotto.
 
 ## Prossimi passi
 
-- **3.27-03 — più sotto-pagine Impostazioni**: differito.
+- **3.27-03: più sotto-pagine Impostazioni**: differito.
 - **Avvisi mostra/nascondi (3.13-08)**: ricontrollare il layout.
 - **Qualità Correggi/Rimuovi (inpaint)**: riprovare se le linee restano deboli; altrimenti mantenere il limite euristico noto.
 - **Collaudo AIV 3.38**: completare le 11 prove su telefono e tablet.
