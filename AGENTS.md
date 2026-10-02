@@ -241,6 +241,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   `docs/Feedback-maintenance.md`: fonti, identificatori stabili, cloud, formato dei dati,
   verifiche e pubblicazione. Invio rende leggibile il giro, il via in chat autorizza
   il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').
+- **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni documento di feedback con la sezione esatta `Prossimi passi`, in forma breve e schematica.
+- **Il documento di feedback si pubblica o aggiorna solo dopo la GitHub Release della stessa versione**: verificare il tag `vX.XX`; numero e link all'APK non bastano.
 - **Dopo ogni giro elaborato: audit obbligatorio** contro l'export precedente.
   Feedback doc = sorgente del lavoro aperto; brief = piano d'azione + backlog
   (non archivio/changelog); solo il fatto esce da entrambi (`Roccobot.md`

@@ -69,6 +69,7 @@ sessione dopo è perso.
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.
+- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release della stessa versione**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale.
 - **Dopo ogni release si consegnano i passi di collaudo e il risultato atteso**, in chat
   o nel documento funzionante. Una bozza che richiede accesso a una piattaforma diversa
   non basta. Non creare un secondo documento per l'agente che prende in carico il lavoro.
@@ -81,6 +82,7 @@ sessione dopo è perso.
   Il precedente [artefatto Claude](https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq)
   rimane un riferimento storico per le sue voci ancora aperte, senza chiuderle implicitamente.
 
+- **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni DF con la sezione intitolata esattamente **Prossimi passi**, in forma breve e schematica.
 - ⚠️⚠️ **Il documento vivo è uno solo**: il Changelog AIV non si aggiorna più e il Piano d'azione
   AIV non esiste più (decisioni sue). Chi ne trova l'indirizzo in un messaggio vecchio lo sappia; il
   perché vive in `Roccobot.md` § '🧾 Il changelog, provato e ritirato' e § '🗺️ Il piano d'azione,
@@ -726,7 +728,8 @@ sessione dopo è perso.
 ## 🚀 Che cosa produce un rilascio
 
 **Due cose, e vanno insieme**: il numero di **versione** e le voci nuove nel **documento di
-feedback**. La regola completa vive in `rules/Roccobot.md`, § '🔁 Il giro del collaudo: rilascio,
+feedback**. Il documento, però, si pubblica o aggiorna soltanto dopo che la GitHub Release della
+stessa versione esiste. La regola completa vive in `rules/Roccobot.md`, § '🔁 Il giro del collaudo: rilascio,
 documento, riscontro'.
 
 - **Versione in SlimVer** (`x.xx`), con la fonte unica in `versionName` di `app/build.gradle.kts`:

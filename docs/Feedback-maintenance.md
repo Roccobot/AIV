@@ -44,8 +44,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 
 ## Convenzioni di contenuto e interfaccia
 
-- Nome ufficiale: **documento di feedback**. Titolo: **Feedback AIV**.
+- Nome ufficiale: **documento di feedback** (DF). Titolo: **Feedback AIV**.
   Intestazione: `AIV · giro della X.XX`, terminata alla versione, senza nome dell'agente.
+- Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi**: un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief.
+- Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
   Gli eventuali riferimenti all'autore nei testi visibili usano `l'agente`.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
   atteso. Mantieni le prove aperte fra release; archivia soltanto quelle concluse dal
@@ -138,9 +140,12 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
 ## Aggiornare e pubblicare
 
 1. Registra obiettivo e stato nel brief prima di un intervento su più passi.
-2. Aggiorna le fonti corrette e conserva tutte le risposte aperte. Se il proprietario sta
+2. Prima di pubblicare o aggiornare il DF per `X.XX`, verifica che esista la GitHub Release della
+   stessa versione, col tag `vX.XX`. Il numero nella pagina, il collegamento all'APK o un tag senza
+   release non sono prove sufficienti. Se la release manca, prepara soltanto una bozza locale.
+3. Aggiorna le fonti corrette e conserva tutte le risposte aperte. Se il proprietario sta
    compilando, prepara una bozza senza ripubblicarla, salvo sua richiesta esplicita.
-3. Rigenera e verifica dalla radice AIV:
+4. Rigenera e verifica dalla radice AIV:
 
    ```sh
    python3 tools/feedback-build.py
@@ -148,20 +153,20 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
    python3 tools/feedback-check.py publish/feedback.html
    ```
 
-4. Se cambi cloud, protocollo o salvataggio, esegui anche `npm --prefix cloud/feedback test`
+5. Se cambi cloud, protocollo o salvataggio, esegui anche `npm --prefix cloud/feedback test`
    e la prova con due sessioni browser `tools/feedback-cloud-check.py`, avviando i servizi
    locali come descritto nella guida cloud. Usa esclusivamente chiavi e dati fittizi.
    Il controllo remoto usa il proprietario sintetico `0`, mai la bozza personale.
-5. Un difetto segnalato richiede la prova che lo riproduce prima del fix. Mantieni le
+6. Un difetto segnalato richiede la prova che lo riproduce prima del fix. Mantieni le
    verifiche di concorrenza, intestazioni W/, originali e recupero dopo errori.
-6. Se cambi gli asset, aggiorna il parametro di versione dei relativi script/CSS nel
+7. Se cambi gli asset, aggiorna il parametro di versione dei relativi script/CSS nel
    generatore per evitare una pagina nuova con codice vecchio. Non forzare ricariche.
-7. Esegui i controlli del diff e del messaggio con `refcheck.py`, poi commit e push su `main`
+8. Esegui i controlli del diff e del messaggio con `refcheck.py`, poi commit e push su `main`
    secondo le regole del repository, incluso il footer `Agent` della piattaforma effettiva.
-8. Attendi `Feedback cloud`: check e deploy devono riuscire. Controlla l'indirizzo nel
+9. Attendi `Feedback cloud`: check e deploy devono riuscire. Controlla l'indirizzo nel
    riepilogo, pagina pubblica disponibile e API anonima 401. Se cambia `publish/`, verifica
    anche `Pages`. Una modifica delle sole istruzioni agli agenti non richiede un nuovo APK.
-9. Comunica risultato, verifiche e collaudo da fare; aggiorna il brief con il residuo.
+10. Comunica a Rocco in chat il piano scelto per la release successiva e il riepilogo `Prossimi passi` del DF, poi comunica risultato, verifiche e collaudo da fare; aggiorna il brief con il residuo.
    Non chiudere il collaudo dell'app sulla sola riuscita del documento.
 
 Un agente privo di credenziali cloud può aggiornare il repository e usare il workflow
