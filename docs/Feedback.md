@@ -50,7 +50,7 @@ era troppo; in verticale oggi arriva circa al 70%). In orizzontale il collaudo 3
 
 Su tablet (≥ 600), ridisegna la colonna laterale come nel mockup del collaudo 3.38:
 niente testo né icona **Cartelle**; in cima solo **Cerca**, distanziata dal bordo, con
-placeholder dinamico («Cerca nelle cartelle» / «Cerca in *X*» con il nome cartella in
+placeholder dinamico ('Cerca nelle cartelle' / 'Cerca in *X*' con il nome cartella in
 grassetto); il campo è centrato in verticale sul **tondo** della lente; Cestino e
 Impostazioni in basso con etichetta testuale; elenco cartelle di default verso il basso,
 con maniglia per spostarlo su/giù se c'è spazio.
@@ -91,6 +91,6 @@ in archivio sotto.
 
 ## Prossimi passi
 
-- **3.39 — entra**: fix flicker editor `3.38-01` (critico); FAB sempre ~35% `3.38-02`; redesign rail+empty state mockup `3.38-03`+`04` (un filone); bug header Modalità incluse `3.13-02`.
+- **3.39: entra**: fix flicker editor `3.38-01` (critico); FAB sempre ~35% `3.38-02`; redesign rail+empty state mockup `3.38-03`+`04` (un filone); bug header Modalità incluse `3.13-02`.
 - **Accorpato / differito**: avvisi+lista sistema `3.13-08` → 3.40 o dopo rail; inpaint `3.38-11` tentativo mirato se leva facile, altrimenti defer + limiti noti; più sotto-pagine `3.27-03` differito.
 - **Da decidere**: quanto insistire sull'inpaint rispetto ad accettare il limite euristico.
