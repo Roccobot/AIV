@@ -1264,3 +1264,10 @@ main > .feedback-columns {
     display: none;
   }
 }
+
+/* On narrow screens, the connected chip keeps only the GitHub mark and Esci. */
+@media (max-width: 640px) {
+  .cloud-account.is-connected .cloud-account-user {
+    display: none;
+  }
+}
