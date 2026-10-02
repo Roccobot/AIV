@@ -6,9 +6,9 @@ Nella `3.27` le schermate Android non cambiavano ancora. Dalla `3.31` il Visuali
 porta il pannello informazioni a lato (soglie 600 / 800 / 1024 dp del mockup; chiuso di
 serie sotto i 1.024). Dalla `3.32` Cartelle è a due colonne da 600 dp (elenco a lato,
 contenuto a destra; esclusa la vista ad albero). Dalla `3.33` Impostazioni sono
-indice e pagina affiancati da 600 dp. Dalla `3.34` Ricerca riusa elenco+risultati da 600 dp;
+indice e pagina affiancati da 600 dp. Dalla `3.34` Ricerca riusa elenco e risultati da 600 dp;
 editor semplice e completo portano gli strumenti a lato da 1.024 dp (sotto restano in basso).
-Dalla `3.35` Cestino ha dettagli a lato da 600 dp; Cronologia gruppi+percorsi; Cartelle di
+Dalla `3.35` Cestino ha dettagli a lato da 600 dp; Cronologia gruppi e percorsi; Cartelle di
 sistema cartelle a lato e file a destra; dialoghi rinomina/converti/salva a 520 dp e
 Copia/sposta a 800 dp su tablet. Dalla `3.36` Dimensioni e filigrana mettono anteprima
 accanto ai parametri da 1.024 dp; Guida/scelta editor e bottomsheet sono finestre

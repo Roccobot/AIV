@@ -45,6 +45,10 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         result.goto(origin+'/feedback.html')
         expect(result.locator('#save')).to_be_enabled()
         return result
+
+    def notes_editor(target):
+        # Prefer the visible Altro surface (desktop rail, bottom card, or open mobile menu).
+        return target.locator('.rich-editor').locator('visible=true').first
     def save(page):
         page.locator('#save').click()
         expect(page.locator('#saved')).to_contain_text('Salvato nel cloud')
@@ -65,7 +69,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
     first.locator('#device').fill('Telefono di prova, Android 13')
     first.locator('#tablet').fill('Tablet di prova, Android 15', timeout=2000)
-    first.locator('.rich-editor').first.fill('Da telefono')
+    notes_editor(first).fill('Da telefono')
     save(first)
     assert first.evaluate('window.feedbackRemote.hasUpdates()') is False
     first.locator('#send').click()
@@ -77,20 +81,20 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     second=page(second_context)
     expect(second.locator('#device')).to_have_value('Telefono di prova, Android 13')
     expect(second.locator('#tablet')).to_have_value('Tablet di prova, Android 15')
-    expect(second.locator('.rich-editor').first).to_have_text('Da telefono')
+    expect(notes_editor(second)).to_have_text('Da telefono')
     expect(second.locator('#saved')).to_contain_text('ripristinate dal cloud')
-    second.locator('.rich-editor').first.fill('Da tablet')
+    notes_editor(second).fill('Da tablet')
     save(second)
     first.evaluate('window.dispatchEvent(new Event("focus"))')
-    expect(first.locator('.rich-editor').first).to_have_text('Da tablet')
+    expect(notes_editor(first)).to_have_text('Da tablet')
     # Both editors share a revision. A stale write must preserve both the newer cloud draft and local text.
-    first.locator('.rich-editor').first.fill('Modifica contemporanea')
+    notes_editor(first).fill('Modifica contemporanea')
     first.evaluate('clearTimeout(saveTimer)')
-    second.locator('.rich-editor').first.fill('Ultima versione sul tablet')
+    notes_editor(second).fill('Ultima versione sul tablet')
     save(second)
     first.locator('#save').click()
     expect(first.locator('#saved')).to_contain_text('versione salvata nel cloud è cambiata')
-    expect(first.locator('.rich-editor').first).to_have_text('Modifica contemporanea')
+    expect(notes_editor(first)).to_have_text('Modifica contemporanea')
     first_context.close()
     # Files go to storage once; metadata saves do not re-upload them.
     put_files=[]
@@ -110,7 +114,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     assert all('data' not in file and len(file['storageKey'])==64 for file in wire['entries'][first_id]['images'])
     third_context=context()
     third=page(third_context)
-    expect(third.locator('.rich-editor').first).to_have_text('Ultima versione sul tablet')
+    expect(notes_editor(third)).to_have_text('Ultima versione sul tablet')
     expect(third.locator('.test').first.locator('img')).to_have_count(1)
     expect(third.locator('.test').first.locator('.zip-download')).to_have_count(1)
     with third.expect_download() as pending:
