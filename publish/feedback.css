@@ -639,7 +639,7 @@ textarea[hidden] {
   justify-content: center;
   width: 1.1em;
   height: 1.1em;
-  font: 700 15px/1 Georgia, "Times New Roman", serif;
+  font: 700 15px/1 Arial, Helvetica, Roboto, sans-serif;
   letter-spacing: 0;
 }
 .format-toolbar button[data-format="bold"] .format-letter {
