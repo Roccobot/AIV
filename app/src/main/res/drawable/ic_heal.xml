@@ -1,14 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Correggi/Rimuovi': cerotto adesivo a striscia.
+
+     Ali adesive sinistra/destra (capsula), pad centrale delimitato da due cuciture
+     verticali, quattro fori di cucitura circolari a X sul pad. Proporzioni compatte
+     (~1,48), scelte da Rocco sul ritocco della proposta Graphē (2026-10-02).
+
+     Estremità a capsula: nessuno spigolo esterno vivo. I fori sono interni
+     (profondità dispari). icon-round.py: 0 punte vive. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="24" android:viewportHeight="24">
-    <!-- Rounded repair patch, diagonal seam and circular stitching. -->
-    <path android:fillColor="#FF000000" android:fillType="evenOdd"
-        android:pathData="M6.1,2.4 C4.05,2.4 2.4,4.05 2.4,6.1 L2.4,17.9 C2.4,19.95 4.05,21.6 6.1,21.6 L17.9,21.6 C19.95,21.6 21.6,19.95 21.6,17.9 L21.6,6.1 C21.6,4.05 19.95,2.4 17.9,2.4 Z
-        M6.9,15.9 C6.5,16.3 6.5,16.9 6.9,17.3 C7.3,17.7 7.9,17.7 8.3,17.3 L17.3,8.3 C17.7,7.9 17.7,7.3 17.3,6.9 C16.9,6.5 16.3,6.5 15.9,6.9 Z
-        M6.1,6.1 A1.2,1.2 0,1 0,8.5,6.1 A1.2,1.2 0,1 0,6.1,6.1 Z
-        M10.1,6.1 A1.2,1.2 0,1 0,12.5,6.1 A1.2,1.2 0,1 0,10.1,6.1 Z
-        M6.1,10.1 A1.2,1.2 0,1 0,8.5,10.1 A1.2,1.2 0,1 0,6.1,10.1 Z
-        M15.5,17.9 A1.2,1.2 0,1 0,17.9,17.9 A1.2,1.2 0,1 0,15.5,17.9 Z
-        M11.5,17.9 A1.2,1.2 0,1 0,13.9,17.9 A1.2,1.2 0,1 0,11.5,17.9 Z
-        M15.5,13.9 A1.2,1.2 0,1 0,17.9,13.9 A1.2,1.2 0,1 0,15.5,13.9 Z" />
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M 9.20,6.20 L 14.80,6.20 A 5.80,5.80 0 0 1 14.80,17.80 L 9.20,17.80 A 5.80,5.80 0 0 1 9.20,6.20 Z M 8.90,7.35 L 9.10,7.35 A 0.30,0.30 0 0 1 9.40,7.65 L 9.40,16.35 A 0.30,0.30 0 0 1 9.10,16.65 L 8.90,16.65 A 0.30,0.30 0 0 1 8.60,16.35 L 8.60,7.65 A 0.30,0.30 0 0 1 8.90,7.35 Z M 14.90,7.35 L 15.10,7.35 A 0.30,0.30 0 0 1 15.40,7.65 L 15.40,16.35 A 0.30,0.30 0 0 1 15.10,16.65 L 14.90,16.65 A 0.30,0.30 0 0 1 14.60,16.35 L 14.60,7.65 A 0.30,0.30 0 0 1 14.90,7.35 Z M 9.97,10.55 A 0.58,0.58 0 1 0 11.13,10.55 A 0.58,0.58 0 1 0 9.97,10.55 Z M 12.87,10.55 A 0.58,0.58 0 1 0 14.03,10.55 A 0.58,0.58 0 1 0 12.87,10.55 Z M 9.97,13.45 A 0.58,0.58 0 1 0 11.13,13.45 A 0.58,0.58 0 1 0 9.97,13.45 Z M 12.87,13.45 A 0.58,0.58 0 1 0 14.03,13.45 A 0.58,0.58 0 1 0 12.87,13.45 Z" />
 </vector>

@@ -481,7 +481,7 @@ object Glyphs {
     val ModGeometry: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_geometry)
 
-    /** A rounded patch with a repair seam: local healing. */
+    /** Adhesive strip bandage: local healing (Correggi/Rimuovi). */
     val Heal: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_heal)
 
