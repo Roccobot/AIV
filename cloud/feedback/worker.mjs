@@ -23,9 +23,12 @@ async function verified(env, value) {
     return data.exp > Date.now()/1000 ? data : null;
   } catch { return null; }
 }
-async function authorized(request, env) {
+async function sessionData(request, env) {
   const data = await verified(env,cookies(request)[SESSION]);
-  return data?.kind === 'session' && String(data.owner) === String(env.OWNER_ID);
+  return data?.kind === 'session' && String(data.owner) === String(env.OWNER_ID) ? data : null;
+}
+async function authorized(request, env) {
+  return Boolean(await sessionData(request,env));
 }
 const root = env => `feedback/v1/${env.OWNER_ID}/`;
 const redirect = (location, setCookie) => new Response(null,{status:302,headers:{Location:location,'Set-Cookie':setCookie,'Cache-Control':'no-store'}});
@@ -56,7 +59,7 @@ async function handle(request, env) {
   const url = new URL(request.url), path = url.pathname;
   const ready = env.SESSION_SECRET && env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.OWNER_ID
     && (env.FEEDBACK || env.SUPABASE_URL && env.SUPABASE_SECRET_KEY);
-  if (path === '/feedback-cloud-config.js') return new Response('window.feedbackCloudConfig = '+JSON.stringify({endpoint:'/api/feedback',files:'/api/files/',login:'/auth/login',logout:'/auth/logout'})+';', {headers:{'Content-Type':'application/javascript','Cache-Control':'no-store'}});
+  if (path === '/feedback-cloud-config.js') return new Response('window.feedbackCloudConfig = '+JSON.stringify({endpoint:'/api/feedback',files:'/api/files/',login:'/auth/login',logout:'/auth/logout',account:'/auth/me'})+';', {headers:{'Content-Type':'application/javascript','Cache-Control':'no-store'}});
   if (!path.startsWith('/auth/') && !path.startsWith('/api/')) return env.ASSETS.fetch(request);
   if (!ready) return json({error:'Servizio cloud non configurato.'},503);
   const store = env.FEEDBACK || new SupabaseStore(env);
@@ -77,10 +80,15 @@ async function handle(request, env) {
     if (!profileResponse.ok) return json({error:'Identità GitHub non verificabile.'},502);
     const profile = await profileResponse.json();
     if (String(profile.id) !== String(env.OWNER_ID)) return json({error:'Questo documento è riservato al proprietario.'},403);
-    const session = await sign(env,{kind:'session',owner:profile.id,exp:Date.now()/1000+7*86400});
+    if (typeof profile.login !== 'string' || !/^[A-Za-z0-9-]{1,39}$/.test(profile.login)) return json({error:'Nome utente GitHub non verificabile.'},502);
+    const session = await sign(env,{kind:'session',owner:profile.id,username:profile.login,exp:Date.now()/1000+7*86400});
     const response = redirect('/feedback.html',cookie(SESSION,session,7*86400));
     response.headers.append('Set-Cookie',cookie(STATE,'',0));
     return response;
+  }
+  if (path === '/auth/me' && request.method === 'GET') {
+    const session = await sessionData(request,env);
+    return json({authenticated:Boolean(session),username:session?.username || null});
   }
   if (!await authorized(request,env)) return json({error:'Accedi con GitHub per usare il salvataggio cloud.'},401);
   if (!['GET','HEAD'].includes(request.method) && request.headers.get('Origin') !== url.origin) return json({error:'Origine non autorizzata.'},403);

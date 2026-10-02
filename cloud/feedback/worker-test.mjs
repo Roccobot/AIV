@@ -18,9 +18,10 @@ const origin='https://feedback.example';
 const request=(path,options={})=>new Request(origin+path,options);
 const realFetch=globalThis.fetch;
 let profileId=10722164;
+let profileLogin='Roccobot';
 globalThis.fetch=async url=> {
   if (url==='https://github.com/login/oauth/access_token') return Response.json({access_token:'test-token'});
-  if (url==='https://api.github.com/user') return Response.json({id:profileId});
+  if (url==='https://api.github.com/user') return Response.json({id:profileId,login:profileLogin});
   throw Error('Unexpected external request');
 };
 try {
@@ -42,6 +43,8 @@ try {
   assert(signedCookie.includes('HttpOnly') && signedCookie.includes('Secure') && signedCookie.includes('SameSite=Lax'));
   const sessionCookie=signedCookie.split(';')[0];
   const authenticated=(path,options={})=>request(path,{...options,headers:{Cookie:sessionCookie,Origin:origin,...options.headers}});
+  assert.deepEqual(await (await worker.fetch(authenticated('/auth/me'),env)).json(),{authenticated:true,username:'Roccobot'});
+  assert.deepEqual(await (await worker.fetch(request('/auth/me'),env)).json(),{authenticated:false,username:null});
   assert.equal((await worker.fetch(request('/api/feedback',{headers:{Cookie:sessionCookie+'tampered'}}),env)).status,401);
   const realNow=Date.now;
   try {

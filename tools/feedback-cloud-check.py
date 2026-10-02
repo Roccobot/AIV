@@ -37,7 +37,7 @@ def open_delivery(page):
 
 def encoded(value):
     return base64.urlsafe_b64encode(value).rstrip(b'=').decode()
-body = encoded(json.dumps({'kind':'session','owner':10722164,'exp':time.time()+3600}).encode())
+body = encoded(json.dumps({'kind':'session','owner':10722164,'username':'Roccobot','exp':time.time()+3600}).encode())
 session = body+'.'+encoded(hmac.new(b'development-test-secret',body.encode(),hashlib.sha256).digest())
 with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     browser = pw.chromium.launch(executable_path=shutil.which('chromium'),args=['--no-sandbox'])
@@ -59,6 +59,10 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         result.on('pageerror',lambda error:errors.append(str(error)))
         result.goto(origin+'/feedback.html')
         expect(result.locator('#save')).to_be_enabled()
+        expect(result.locator('.cloud-account-logo')).to_be_visible()
+        expect(result.locator('.cloud-account-user')).to_have_text('Roccobot')
+        expect(result.locator('.cloud-account')).not_to_contain_text('Accedi')
+        expect(result.locator('.cloud-account')).to_contain_text('Esci')
         return result
 
     def comment_editor(target):
@@ -170,6 +174,9 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     anonymous=anonymous_context.new_page()
     anonymous.goto(origin+'/feedback.html')
     expect(anonymous.get_by_role('link',name='Accedi')).to_be_visible()
+    expect(anonymous.locator('.cloud-account p')).to_have_text('Collegati con GitHub per il salvataggio cloud')
+    expect(anonymous.locator('.cloud-account-logo')).to_be_hidden()
+    expect(anonymous.locator('.cloud-account-user')).to_be_hidden()
     expect(anonymous.locator('#save')).to_be_disabled()
     expect(anonymous.locator('#saved')).to_contain_text('Accedi con GitHub')
     assert anonymous.locator('button[data-status]').first.evaluate('element => getComputedStyle(element).cursor') == 'default'

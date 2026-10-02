@@ -28,7 +28,7 @@ h1 {
   line-height: 1.08;
   margin: 10px 0 24px;
 }
-/* Compact GitHub connection chip shares the title row on desktop. */
+/* Compact GitHub connection chip shares the title row and sizes to its content. */
 .intro-title-row {
   display: flex;
   align-items: center;
@@ -42,19 +42,32 @@ h1 {
 .cloud-account {
   display: flex;
   align-items: center;
-  flex: 0 0 430px;
-  width: 430px;
+  flex: 0 1 auto;
+  width: fit-content;
   max-width: 100%;
   gap: 10px;
-  margin: 0;
+  margin: 0 0 0 auto;
   padding: 8px 10px;
   border: 1px solid #86b5a5;
   border-radius: 10px;
   background: #f4faf7;
   color: #1b2d25;
 }
+.cloud-account [hidden] {
+  display: none;
+}
+.cloud-account-logo {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+.cloud-account-user {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
 .cloud-account p {
-  flex: 1 1 330px;
+  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
   font-size: 13px;
@@ -825,8 +838,7 @@ main > .feedback-columns {
     display: block;
   }
   .cloud-account {
-    width: 100%;
-    flex-basis: auto;
+    max-width: 100%;
     margin-top: 12px;
   }
   .cloud-account p {
@@ -896,9 +908,8 @@ main > .feedback-columns {
     margin-left: auto;
     margin-right: auto;
   }
-  /* The two utility shells align with the columns' content and intro copy. */
-  .dashboard,
-  main > .cloud-account {
+  /* The count strip aligns with the columns' content and intro copy. */
+  .dashboard {
     width: calc(100% - 48px);
     max-width: calc(var(--df-shell) - 48px);
     margin-left: auto;
@@ -922,12 +933,6 @@ main > .feedback-columns {
     max-width: none;
     margin-left: 0;
     margin-right: 0;
-  }
-  /* Accedi/Salvataggio card: same outer width as columns + count strip. */
-  main > .cloud-account {
-    margin-top: 0;
-    margin-bottom: 18px;
-    box-sizing: border-box;
   }
   .feedback-columns {
     display: grid;

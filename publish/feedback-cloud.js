@@ -91,15 +91,22 @@
   document.querySelector('#delivery-info').textContent = 'Premi Invia anche se alcune prove restano Non provato. Quando vuoi che l\'agente prenda in carico il giro, chiedigli in chat di leggere l\'ultimo feedback. Esportare il JSON è facoltativo: serve per conservarne una copia.';
   const notice = document.createElement('section');
   notice.className = 'cloud-account';
+  notice.setAttribute('aria-label','Account GitHub');
+  const logo = document.createElement('img');
+  logo.className = 'cloud-account-logo';
+  logo.src = 'assets/github-mark.svg';
+  logo.alt = 'GitHub';
+  logo.hidden = true;
+  const username = document.createElement('strong');
+  username.className = 'cloud-account-user';
+  username.hidden = true;
   const description = document.createElement('p');
   const signedOutText = 'Collegati con GitHub per il salvataggio cloud';
-  const signedInText = 'Collegato a GitHub per il salvataggio su cloud.';
   description.textContent = signedOutText;
   const login = document.createElement('a');
   login.href = config.login;
   login.className = 'cloud-account-action';
   login.textContent = 'Accedi';
-  login.hidden = false;
   const logout = document.createElement('button');
   logout.type = 'button';
   logout.className = 'cloud-account-action';
@@ -112,13 +119,26 @@
       location.reload();
     } catch (error) { report(error.message,true); }
   });
-  notice.append(description,login,logout);
+  notice.append(logo,username,description,login,logout);
   document.querySelector('.intro-title-row').append(notice);
-  const syncAccount = signedIn => {
-    description.textContent = signedIn ? signedInText : signedOutText;
-    login.hidden = signedIn;
-    logout.hidden = !signedIn;
+  let accountUsername = '';
+  const syncAccount = (signedIn, name) => {
+    if (typeof name === 'string' && name.trim()) accountUsername = name.trim();
+    if (!signedIn) accountUsername = '';
+    const connected = Boolean(signedIn && accountUsername);
+    notice.classList.toggle('is-connected',connected);
+    logo.hidden = !connected;
+    username.hidden = !connected;
+    username.textContent = accountUsername;
+    description.textContent = connected ? '' : signedOutText;
+    login.textContent = connected ? '' : 'Accedi';
+    description.hidden = connected;
+    login.hidden = connected;
+    logout.hidden = !connected;
   };
+  request(config.account || '/auth/me').then(response => response.json()).then(account => {
+    syncAccount(account.authenticated === true,account.username);
+  }).catch(() => { /* The document load reports cloud errors separately. */ });
   login.addEventListener('click',event => {
     if (window.feedbackHasUnsaved?.() && !confirm('Le modifiche non sono salvate. Esporta il JSON prima di accedere di nuovo. Continuare?')) event.preventDefault();
   });
@@ -128,8 +148,6 @@
     failed: error => {
       if (error.status === 401) {
         syncAccount(false);
-        logout.hidden = true;
-        description.textContent = signedOutText;
       }
     }
   };
