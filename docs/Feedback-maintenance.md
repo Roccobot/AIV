@@ -140,8 +140,8 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
 ## Aggiornare e pubblicare
 
 1. Registra obiettivo e stato nel brief prima di un intervento su più passi.
-2. Prima di pubblicare o aggiornare il DF per `X.XX`, verifica che esista la GitHub Release della
-   stessa versione, col tag `vX.XX`. Il numero nella pagina, il collegamento all'APK o un tag senza
+2. Prima di pubblicare o aggiornare il DF per `X.XX`, verifica che esista la GitHub Release pubblicata della
+   stessa versione, non una bozza, col tag `vX.XX`. Il numero nella pagina, il collegamento all'APK o un tag senza
    release non sono prove sufficienti. Se la release manca, prepara soltanto una bozza locale.
 3. Aggiorna le fonti corrette e conserva tutte le risposte aperte. Se il proprietario sta
    compilando, prepara una bozza senza ripubblicarla, salvo sua richiesta esplicita.

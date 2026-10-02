@@ -69,7 +69,7 @@ sessione dopo è perso.
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.
-- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release della stessa versione**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale.
+- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release pubblicata della stessa versione**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale.
 - **Dopo ogni release si consegnano i passi di collaudo e il risultato atteso**, in chat
   o nel documento funzionante. Una bozza che richiede accesso a una piattaforma diversa
   non basta. Non creare un secondo documento per l'agente che prende in carico il lavoro.
