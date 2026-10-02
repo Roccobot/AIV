@@ -646,6 +646,9 @@
     <string name="folder_add">เพิ่มโฟลเดอร์</string>
     <string name="folder_authorize">อนุญาตโฟลเดอร์</string>
     <string name="folder_authorize_title">เพิ่มในโฟลเดอร์ที่แสดง</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">ถอนการอนุญาต</string>
     <string name="folder_remove_desc">นำโฟลเดอร์นี้ออกจากรายการที่อนุญาตหรือไม่? เนื้อหาจะหายไปจากโหมดตารางและรายการ</string>
     <string name="folder_only_this">เฉพาะโฟลเดอร์นี้</string>

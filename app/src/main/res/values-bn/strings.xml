@@ -664,6 +664,9 @@
     <string name="folder_add">ফোল্ডার যোগ করুন</string>
     <string name="folder_authorize">ফোল্ডার অনুমোদন করুন</string>
     <string name="folder_authorize_title">প্রদর্শিত ফোল্ডারে যোগ করুন</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">অনুমোদন সরান</string>
     <string name="folder_remove_desc">এই ফোল্ডারটি অনুমোদিত তালিকা থেকে সরাবেন? এর বিষয়বস্তু গ্রিড ও তালিকা মোড থেকে অদৃশ্য হবে।</string>
     <string name="folder_only_this">শুধু এই ফোল্ডার</string>

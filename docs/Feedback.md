@@ -1,13 +1,16 @@
 # Feedback AIV
 
-Versione **3.30**: giro cumulativo delle correzioni e dei ritocchi dalla **3.25** alla **3.30**.
+Versione **3.37**: giro di verifica del layout tablet nativo (**3.31-3.36**) e delle
+correzioni dal collaudo **3.25-3.30**.
 [Apri il documento interattivo](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html) oppure
-[scarica AIV 3.30](https://github.com/Roccobot/AIV/releases/download/v3.30/AIV-3.30.apk).
+APK: la Release 3.37 non è ancora pubblicata (niente `publish` in questo giro). Collauda
+con la build di tip `main` oppure attendi la Release. L'ultima Release pubblica resta
+[v3.36](https://github.com/Roccobot/AIV/releases/tag/v3.36).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Il giro precedente (fino alla 3.24) è stato consegnato e travasato il 1 ottobre 2026: le prove
-concluse sono in archivio. Qui restano solo le verifiche del prodotto attuale (3.25-3.30).
+Il giro **3.25-3.30** è stato consegnato e travasato il 2 ottobre 2026: le prove concluse senza
+residuo sono in archivio. Qui restano le verifiche delle correzioni e il collaudo tablet.
 Filigrana e Fluidifica restano approvati. Gli esiti si aggiornano dopo la consegna del giro
 completo; le risposte nella bozza privata non sono pubblicate automaticamente.
 
@@ -22,140 +25,113 @@ quando vuoi la presa in carico, chiedi in chat di leggere l'ultimo feedback. Il 
 manuale resta disponibile come copia o alternativa. L'agente aggiorna gli esiti dopo il tuo giro completo. Le nuove release aggiungono prove
 senza togliere quelle aperte; gli identificatori mantengono le risposte già salvate.
 
-Le verifiche automatiche della 3.30 sono superate: 474 prove, zero fallimenti,
-controllo delle 28 traduzioni e compilazione. Il layout tablet nativo Android **non è ancora
-in questa build**: i mockup restano la guida approvata; sul telefono verifica solo le voci sotto.
-Le decisioni del giro 3.24 (impostazioni, tablet, PNG) sono già chiuse: le trovi ancora nella
-sezione Decisioni per consultazione; non serve ripeterle se la bozza cloud le conserva.
+Le verifiche automatiche della 3.37 sono superate: 482 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono e sul tablet resta tuo.
+Le decisioni del giro 3.24 restano chiuse nella sezione Decisioni.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 3.25-01 | Non provato | | Attendere il collaudo. |
-| 3.25-02 | Non provato | | Attendere il collaudo. |
-| 3.25-03 | Non provato | | Attendere il collaudo. |
-| 3.26-01 | Non provato | | Attendere il collaudo. |
-| 3.26-02 | Non provato | | Attendere il collaudo. |
-| 3.26-03 | Non provato | | Attendere il collaudo. |
-| 3.26-04 | Non provato | | Attendere il collaudo. |
-| 3.26-05 | Non provato | | Attendere il collaudo. |
-| 3.26-06 | Non provato | | Attendere il collaudo. |
-| 3.26-07 | Non provato | | Attendere il collaudo. |
-| 3.27-01 | Non provato | | Attendere il collaudo. |
-| 3.27-02 | Non provato | | Attendere il collaudo. |
-| 3.27-03 | Non provato | | Attendere il collaudo. |
-| 3.30-01 | Non provato | | Attendere il collaudo. |
-| 3.30-02 | Non provato | | Attendere il collaudo. |
+| 3.37-01 | Non provato | | Attendere il collaudo. |
+| 3.37-02 | Non provato | | Attendere il collaudo. |
+| 3.37-03 | Non provato | | Attendere il collaudo. |
+| 3.37-04 | Non provato | | Attendere il collaudo. |
+| 3.37-05 | Non provato | | Attendere il collaudo. |
+| 3.37-06 | Non provato | | Attendere il collaudo. |
+| 3.37-07 | Non provato | | Attendere il collaudo. |
+| 3.37-08 | Non provato | | Attendere il collaudo. |
+| 3.37-09 | Non provato | | Attendere il collaudo. |
+| 3.31-01 | Non provato | | Attendere il collaudo. |
+| 3.32-01 | Non provato | | Attendere il collaudo. |
+| 3.33-01 | Non provato | | Attendere il collaudo. |
+| 3.34-01 | Non provato | | Attendere il collaudo. |
+| 3.35-01 | Non provato | | Attendere il collaudo. |
+| 3.36-01 | Non provato | | Attendere il collaudo. |
 
-## 1. Intestazione in Modalità incluse
+## 1. Intestazione in Modalità incluse (riprova)
 
-Installa AIV 3.30 senza cancellare i dati. Apri la home in `Modalità incluse` (poche cartelle).
+Installa AIV 3.37 senza cancellare i dati. Apri la home in `Modalità incluse` (poche cartelle).
 Scorri verso il basso finché l'intestazione si chiude, poi trascina verso l'alto anche sullo
 spazio vuoto sotto l'elenco: l'intestazione deve riaprirsi. Ripeti in griglia e in lista.
 In `Modalità escluse` l'elenco lungo deve continuare a comportarsi come prima.
 
-## 2. Avviso area troppo grande sopra la bottomsheet
+## 2. Nascosta: sottocartella in elenco e dicitura
 
-Apri una copia di prova nell'editor completo, modulo Dettaglio, strumento Correggi/Rimuovi.
-Dipingi una selezione molto ampia e premi Applica: deve comparire l'avviso che l'area è
-troppo grande. L'avviso deve stare **sopra** la bottomsheet (toast sul palco), non solo
-dentro il corpo della scheda. Selezione e immagine devono restare intatte.
+In `Modalità escluse`, da Cartelle di sistema nascondi una cartella X **con la sua unica
+sottocartella**. Apri Impostazioni, Cartelle, Cartelle incluse/escluse: padre e figlia devono
+comparire nell'elenco. In Cartelle di sistema le righe nascoste devono portare la dicitura
+`nascosta`. Controlla anche dopo un riavvio dell'app.
 
-## 3. Aree un po' più ampie accettate
+## 3. Gettoni modalità e grassetto nei testi
 
-Con Correggi/Rimuovi, ripeti con aree medie (più grandi di una macchia piccola, ma non
-enorme): Applica deve accettarle quando restano sotto il nuovo limite. Solo le selezioni
-davvero eccessive devono produrre l'avviso. Indica in commento se il limite ti sembra
-ancora stretto o troppo largo.
+In Impostazioni, Cartelle, Cartelle incluse/escluse: i gettoni devono essere gettoni **normali**
+(stesso font degli altri gettoni dell'app), senza grassetto forzato. Nel paragrafo descrittivo
+sopra, **Modalità incluse** e **Modalità escluse** devono apparire in grassetto, non tra apici.
 
-## 4. Nascosta: cartella e sottocartelle in elenco e albero
+## 4. Lista cartelle: ×, conferma e nome a capo
 
-In `Modalità escluse`, da Cartelle di sistema nascondi una cartella X **con le sue
-sottocartelle**. Apri Impostazioni, Cartelle, Cartelle incluse/escluse: i figli presenti
-devono comparire nell'elenco. In Cartelle di sistema le righe nascoste devono portare la
-dicitura `nascosta`. Controlla anche dopo un riavvio dell'app.
+Nella stessa pagina, ogni riga (incluse o escluse) deve mostrare una **×** a destra al posto di
+'Rimuovi' / 'Rimuovi autorizzazione'. Toccala: deve chiedere 'Vuoi davvero rimuovere la cartella
+dalla lista?'. Il nome della cartella ha più spazio; se è camelCase senza spazi (es. VideoDownloader)
+può spezzarsi su minuscola→maiuscola; se non sta in due righe, ellissi in fondo.
 
-## 5. Scheda Nascondi: Annulla, azione e tasti pieni
+## 5. Selezione multipla: un solo rettangolo arrotondato
 
-Apri di nuovo `Quali cartelle vuoi nascondere?` su una cartella con almeno due figli.
-`Annulla` deve stare a sinistra; l'azione principale a destra. Le scelte intermedie
-(`Solo X`, `Solo le sottocartelle`, `X e le sue sottocartelle`) devono essere tasti pieni
-a larghezza utile, allineati a sinistra, non semplici righe di testo. Chiudi con Annulla
-senza applicare se stai solo controllando la disposizione.
+In Cartelle di sistema, seleziona almeno tre file consecutivi. La evidenziazione deve avere gli
+angoli arrotondati **solo** sul primo e sull'ultimo della serie consecutiva, come un unico
+rettangolo continuo (niente 'ondine' intermedie).
 
-## 6. Gettoni Modalità incluse / escluse
+## 6. Aggiungi cartella: già in lista
 
-In Impostazioni, Cartelle, Cartelle incluse/escluse: i gettoni devono leggere
-`Modalità incluse` e `Modalità escluse` **in grassetto semibold**, senza apici o virgolette
-attorno al nome. Alterna i due gettoni: elenchi e testi devono seguire la modalità scelta.
+In Modalità incluse, Impostazioni → Cartelle → Aggiungi cartella. Nello sfoglio, le cartelle già
+autorizzate devono mostrare un indicatore 'Già in lista' e non devono poter essere ri-aggiunte.
 
-## 7. Applica a tutte e testo sulle nuove cartelle
+## 7. Avviso area troppo grande: sparisce
 
-In `Modalità escluse`, tieni premuta una sottocartella in griglia o lista quando il genitore
-ha almeno un'altra directory. Deve esserci `Applica a tutte le cartelle allo stesso livello`
-come tasto tonale a tutta larghezza, allineato a sinistra col testo principale. Nella seconda
-conferma il testo deve parlare di **nuove cartelle create** dentro il genitore (non la sola
-parola inglese create). Conferma o Annulla a scelta; se confermi, verifica che le sorelle
-diventino voci separate nell'elenco delle nascoste.
+Con Correggi/Rimuovi, forza l'avviso di area troppo grande. L'avviso deve sparire se lo tocchi,
+se tocchi altro, oppure dopo al massimo **10 secondi**.
 
-## 8. Promemoria selezione pendente tappabile
+## 8. Lentino: soglia e pennello dentro il cerchio
 
-Nell'editor, con Correggi/Rimuovi, lascia una selezione verde senza Applica. Passa a un altro
-modulo o tenta Salva: deve comparire il promemoria di applicare o cancellare la selezione.
-Tocca il toast/snackbar: deve riportarti a Correggi/Rimuovi con la selezione ancora lì.
-Cancella o Applica per chiudere la prova.
+Con Correggi/Rimuovi, aumenta la dimensione del pennello: il lentino deve sparire **prima** di
+quanto faceva in 3.30. Finché è attivo, il pennello ingrandito non deve uscire dal tondo del
+lentino.
 
-## 9. Lentino: pennello dentro il cerchio
+## 9. Qualità Correggi/Rimuovi su orli e linee
 
-Con Correggi/Rimuovi scegli un pennello piccolo così compare il lentino. Mentre dipingi,
-il cerchio del pennello ingrandito nella lente non deve mai uscire dal tondo del lentino.
-Prova anche pennelli un po' più grandi al confine in cui il lentino è ancora attivo.
+Su foto o illustrazioni reali, rimuovi un piccolo difetto **a ridosso di una linea o di un orlo**
+(come negli screenshot del giro 3.30). Valuta se l'orlo resta continuo e se non compaiono macchie.
+Allega prima/dopo nei casi deboli. Limiti noti: senza indizi il calcolo non inventa dettagli.
 
-## 10. Autorizza e Nascondi come tasti pieni in fondo
+## 10. Visualizzatore tablet (3.31)
 
-In Cartelle di sistema, in Modalità incluse tieni premuta una cartella non ancora autorizzata:
-nella bottomsheet `Autorizza cartella` deve essere un tasto pieno (tonale) nel piè di pagina
-della scheda, non solo una riga di menu. In Modalità escluse ripeti con `Nascondi`: stesso
-trattamento di tasto pieno in fondo. Annulla deve restare raggiungibile.
+Su un tablet (o emulatore largo ≥ 600 dp): apri un'immagine. Da 600 dp il layout deve seguire il
+mockup (info a lato da 1024). Sotto 1024 l'info non deve rubare lo spazio principale. Confronta
+con [tablet](https://roccobot.github.io/AIV/tablet.html).
 
-## 11. Selezione multipla in Cartelle di sistema
+## 11. Cartelle tablet a due colonne (3.32)
 
-Apri Cartelle di sistema. Tieni premuto su un'immagine o un video: deve aprirsi la stessa
-scheda di selezione della griglia (PickSheet), non il vecchio riquadro su un solo file.
-Seleziona almeno due media; il FAB della casa deve sparire mentre la scheda è aperta.
-Indietro oppure `Nessuno` devono azzerare la selezione. Cambia cartella: la selezione
-deve perdersi.
+Larghezza ≥ 600: home cartelle a due colonne come da mockup. Griglia/lista/albero restano
+usabili; il FAB e l'intestazione non devono spezzarsi.
 
-## 12. Aggiungi cartella in Impostazioni
+## 12. Impostazioni tablet (3.33)
 
-In Modalità incluse apri Impostazioni, Cartelle, Cartelle incluse/escluse. Deve esserci
-`Aggiungi cartella`. Toccalo: si apre l'albero delle destinazioni; scegli una cartella e
-autorizza. Deve comparire nell'elenco delle autorizzate. Se era vuota, resta in elenco ma
-non in griglia/lista finché non ha media. Rimuovila dall'elenco per chiudere pulito se
-era solo di prova.
+≥ 600: indice e pagina impostazioni sul tablet (indice a lato da 800/1024 secondo le soglie).
+Naviga almeno tre sotto-pagine; Indietro e ricerca devono restare coerenti.
 
-## 13. Ordine delle impostazioni
+## 13. Ricerca e editor strumenti a lato (3.34)
 
-Apri Impostazioni. Verifica: la copia del percorso della lista file vive sotto Cartelle,
-Opzioni di visualizzazione, Lista. `Rinomina e download` vive in `Modifica e protezione
-dei file` (non più solo sotto Editor). In fondo esiste la sezione `Gestione dell'app` con
-miniature memorizzate, Esporta/importa e Ripristina gli avvisi. Cerca `rinomina`,
-`percorso` e `miniature`: le voci devono restare raggiungibili.
+≥ 600: ricerca duale e, nell'editor completo, strumenti a lato da 1024. Verifica che i moduli
+restino raggiungibili e che il palco non risulti schiacciato.
 
-## 14. Qualità Correggi/Rimuovi su vestiti e pattern
+## 14. Cestino, Cronologia, TREE e dialoghi (3.35)
 
-Su foto reali, correggi piccoli difetti su tessuti, orli di vestiti, linee spezzate e
-pattern ripetuti. Valuta raccordo, continuità dell'orlo e assenza di macchie o ripetizioni
-innaturali dopo aver ingrandito. Il calcolo è migliorato (raggio adattivo, area campione
-più ampia, isofote/struttura). Non può inventare dettagli dove mancano indizi: per i casi
-deboli allega originale e risultato. Questa è la prova critica del giro.
+≥ 600: Cestino (gallery + dettagli a lato), Cronologia (gruppi data), TREE (cartelle a lato),
+dialoghi centrati ~520 dp e Copia/sposta più larghi da 600. Controlla che non torni il layout
+telefono 'stirato'.
 
-## 15. Layout tablet ancora assente in questa build
+## 15. Dimensioni/filigrana e schede Guida (3.36)
 
-Questa 3.30 **non** include ancora il layout tablet nativo Android. Sul telefono le voci
-sopra bastano. Se hai un tablet a disposizione, nota soltanto che l'app resta con il layout
-telefono (mockup approvati: [tablet](https://roccobot.github.io/AIV/tablet.html)); non
-aspettarti la doppia colonna cartelle/contenuto. Segnala in commento se vuoi dare priorità
-all'implementazione nativa nel prossimo giro.
+Da 1024: Dimensioni e filigrana a lato. Guida e scelta editor come sheet più larghe e
+scorrevoli. Su telefono il comportamento precedente deve restare intatto.
 
 ## Decisioni da concordare
 
@@ -164,9 +140,9 @@ documento interattivo con gli stessi identificatori, così la bozza cloud e i JS
 continuano a importarsi. Non è obbligatorio rispondervi di nuovo.
 
 - **Impostazioni**: [confronto prima/dopo](Settings-proposal.md). Decisione 3.24: Applica
-  la proposta (applicata dalla 3.27). Verifica pratica: voce 3.27-03.
+  la proposta (applicata dalla 3.27).
 - **Tablet**: [mockup interattivi](https://roccobot.github.io/AIV/tablet.html).
-  Decisione 3.24: Approvo la direzione. Implementazione nativa ancora da fare (voce 3.30-02).
+  Decisione 3.24: Approvo la direzione. Implementazione nativa 3.31-3.36 da collaudare sopra.
 - **Diagnosi PNG**: Decisione 3.24: Le modifiche si vedono. Non richiedere di nuovo.
 
 Queste scelte sono separate dagli esiti delle prove. Gli stili restano in attesa del tuo
@@ -178,13 +154,16 @@ via libera; sfogliatore Web e Play Store restano sospesi.
 |---|---|---|---|---|
 | Filigrana | 3.03 | OK | Il 2026-09-30 l'utente conferma che funziona come previsto. | Chiusa. |
 | Fluidifica | 3.03 | OK | Il 2026-09-30 l'utente dichiara lo strumento ufficialmente completato. | Chiusa. |
-| Giro cartelle 3.13 (prove 01, 03-07, 09-12) | 3.24 | OK / ritocchi | Giro 3.24: Tutto OK; ritocchi UI confluiti in 3.25-3.27. | Archiviata; ritocchi in questo giro. |
-| PNG / PSD / documento (3.14) | 3.24 | OK | Giro 3.24. | Archiviata. |
-| Correggi/Rimuovi base (3.24-01, 03, 06-08) | 3.24 | OK | Giro 3.24. | Archiviata; qualità in 3.30-01. |
-| Header Modalità incluse (3.13-02) | 3.24 | Non approvato | Fix in 3.25. | Ricollegata a 3.25-01. |
-| Nascondi figli in elenco (3.13-08) | 3.24 | Non approvato | Fix in 3.26. | Ricollegata a 3.26-01/02. |
-| Qualità Correggi/Rimuovi (3.24-04) | 3.24 | Non approvato | Migliorata in 3.29/3.30. | Ricollegata a 3.30-01. |
-| Lentino pennello (3.24-02) | 3.24 | Accettabile | Ritocco zoom in 3.26. | Ricollegata a 3.26-06. |
-| d-settings-order | 3.24 | Applica la proposta | Applicata in 3.27. | Chiusa. |
-| d-tablet-layout | 3.24 | Approvo la direzione | Mockup ok; nativo da fare. | Chiusa come direzione. |
-| d-png-fullscreen | 3.24 | Le modifiche si vedono | Diagnosi chiusa. | Chiusa. |
+| Giro cartelle / PNG / PSD / Correggi base (3.13-3.24 OK) | 3.24 | OK | Giro 3.24. | Archiviata. |
+| d-settings-order / d-tablet-layout / d-png-fullscreen | 3.24 | Chiuse | Scelte confermate anche nel giro 3.25-3.30. | Chiuse. |
+| Prove 3.25-3.30 OK senza residuo | 3.30 | OK | Giro 2 ottobre 2026. | Archiviata. |
+| Header Modalità incluse (3.13-02 / 3.25-01) | 3.30 | Non approvato | Riprovato; fix in 3.37. | Ricollegata a 3.37-01. |
+| Nascondi figli (3.13-08 / 3.26) | 3.30 | Non approvato | Riprovato; fix/verifica in 3.37. | Ricollegata a 3.37-02. |
+| Gettoni/grassetto (3.26-03) | 3.30 | Non approvato | Corretto in 3.37. | Ricollegata a 3.37-03. |
+| Lista × / camelCase (campo libero B) | 3.30 | Richiesta | Fatto in 3.37. | Ricollegata a 3.37-04. |
+| Selezione arrotondamenti (3.27-01) | 3.30 | OK+ritocco | Fatto in 3.37. | Ricollegata a 3.37-05. |
+| Già in lista (3.27-02) | 3.30 | OK+ritocco | Fatto in 3.37. | Ricollegata a 3.37-06. |
+| Toast 10 s (3.25-02) | 3.30 | Accettabile | Fatto in 3.37. | Ricollegata a 3.37-07. |
+| Lentino soglia (3.26-06) | 3.30 | Accettabile | Ritocco in 3.37. | Ricollegata a 3.37-08. |
+| Qualità Correggi/Rimuovi (3.24-04 / 3.30-01) | 3.30 | Non approvato | Ulteriore ritocco in 3.37. | Ricollegata a 3.37-09. |
+| Layout tablet assente (3.30-02) | 3.30 | OK | Nativo 3.31-3.36. | Ricollegata a 3.31-3.36. |

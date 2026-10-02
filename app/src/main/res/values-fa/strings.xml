@@ -664,6 +664,9 @@
     <string name="folder_add">افزودن پوشه</string>
     <string name="folder_authorize">مجاز کردن پوشه</string>
     <string name="folder_authorize_title">افزودن به پوشه‌های نمایش‌داده‌شده</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">لغو مجوز</string>
     <string name="folder_remove_desc">این پوشه از فهرست مجاز حذف شود؟ محتوای آن از حالت‌های شبکه و فهرست ناپدید می‌شود.</string>
     <string name="folder_only_this">فقط این پوشه</string>

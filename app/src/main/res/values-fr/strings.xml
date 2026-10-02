@@ -682,6 +682,9 @@
     <string name="folder_add">Ajouter un dossier</string>
     <string name="folder_authorize">Autoriser le dossier</string>
     <string name="folder_authorize_title">Ajouter aux dossiers affichés</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Retirer l\'autorisation</string>
     <string name="folder_remove_desc">Retirer ce dossier de la liste des dossiers autorisés ? Son contenu disparaîtra des modes grille et liste.</string>
     <string name="folder_only_this">Ce dossier uniquement</string>

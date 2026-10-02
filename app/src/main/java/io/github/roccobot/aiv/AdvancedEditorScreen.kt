@@ -281,6 +281,16 @@ fun AdvancedEditorScreen(
     val busy = busy || gaze.healingBusy
 
     /*
+     * ⚠️ **L'avviso area troppo grande sparisce al tocco altrove o dopo 10 s**
+     * (giro 3.25-3.30, `3.25-02`).
+     */
+    LaunchedEffect(gaze.healingFailed) {
+        if (!gaze.healingFailed) return@LaunchedEffect
+        kotlinx.coroutines.delay(10_000)
+        gaze.healingFailed = false
+    }
+
+    /*
      * ⚠️⚠️ **CON DEL LAVORO DI SVILUPPO IN CORSO, INDIETRO CHIEDE PRIMA DI USCIRE, DALLA `2.90`, ED
      * È SUA RICHIESTA** (campo libero del giro della `2.88`: *se almeno un modulo diverso da
      * Ritaglio ha delle modifiche attive, alla pressione di 'Indietro' (tasto grafico o 'indietro'
@@ -777,6 +787,7 @@ fun AdvancedEditorScreen(
                                 MaterialTheme.colorScheme.surfaceContainer,
                                 RoundedCornerShape(8.dp)
                             )
+                            .clickable { gaze.healingFailed = false }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodySmall
@@ -929,6 +940,7 @@ fun AdvancedEditorScreen(
                                 MaterialTheme.colorScheme.surfaceContainer,
                                 RoundedCornerShape(8.dp)
                             )
+                            .clickable { gaze.healingFailed = false }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodySmall
@@ -2197,7 +2209,8 @@ private fun LookStage(
                     )
                 }
             }
-            if (brushTouching && touching != null && radius * 2f < brushCmPx) {
+            // ⚠️ **Soglia più bassa** (giro 3.25-3.30, `3.26-06`): il lentino sparisce prima.
+            if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.72f) {
                 val loupeSide = LOUPE_SIDE.toPx()
                 /*
                  * ⚠️ **Lo zoom scende se il pennello ingrandito uscirebbe dalla lente**

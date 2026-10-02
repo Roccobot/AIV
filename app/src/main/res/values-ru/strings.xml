@@ -700,6 +700,9 @@
     <string name="folder_add">Добавить папку</string>
     <string name="folder_authorize">Разрешить папку</string>
     <string name="folder_authorize_title">Добавить к отображаемым папкам</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Отменить разрешение</string>
     <string name="folder_remove_desc">Удалить эту папку из списка разрешённых? Её содержимое исчезнет из режимов сетки и списка.</string>
     <string name="folder_only_this">Только эта папка</string>

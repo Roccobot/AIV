@@ -736,6 +736,9 @@
     <string name="folder_add">إضافة مجلد</string>
     <string name="folder_authorize">السماح بالمجلد</string>
     <string name="folder_authorize_title">إضافة إلى المجلدات المعروضة</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">إلغاء السماح</string>
     <string name="folder_remove_desc">هل تريد إزالة هذا المجلد من القائمة المسموح بها؟ سيختفي محتواه من وضعي الشبكة والقائمة.</string>
     <string name="folder_only_this">هذا المجلد فقط</string>

@@ -664,6 +664,9 @@
     <string name="folder_add">Map toevoegen</string>
     <string name="folder_authorize">Map toestaan</string>
     <string name="folder_authorize_title">Toevoegen aan weergegeven mappen</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Toestemming intrekken</string>
     <string name="folder_remove_desc">Deze map uit de lijst met toegestane mappen verwijderen? De inhoud verdwijnt uit de raster- en lijstmodus.</string>
     <string name="folder_only_this">Alleen deze map</string>

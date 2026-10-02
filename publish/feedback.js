@@ -203,6 +203,17 @@ function refreshCounts() {
     `Risposte: ${done} su ${spec.items.length}.`;
   refreshNavigation();
 }
+
+function alignDocumentVersion() {
+  // ⚠️ **Nuovo rilascio del documento: svuota i campi liberi** (giro 3.25-3.30, note A).
+  // Modello telefono/tablet restano. Le risposte alle prove con ID ancora presenti restano.
+  if (draft.version === spec.version) return;
+  draft.notes = "";
+  draft.extra = { images: [] };
+  draft.completed = null;
+  draft.version = spec.version;
+  if (!draft.installed) draft.installed = spec.version;
+}
 function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
@@ -688,6 +699,7 @@ controls(true);
     saved.classList.toggle("error", !needsLogin);
   } finally {
     loaded = remote ? remoteReady : true;
+    alignDocumentVersion();
     hydrate();
     controls(!loaded);
     refreshNavigation();
@@ -707,6 +719,7 @@ async function refreshRemote() {
     locked = true;
     const existing = await remote.load(validate);
     draft = existing || blank();
+    alignDocumentVersion();
     revision++;
     persistedRevision = revision;
     hydrate();

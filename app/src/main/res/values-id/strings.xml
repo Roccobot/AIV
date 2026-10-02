@@ -646,6 +646,9 @@
     <string name="folder_add">Tambah folder</string>
     <string name="folder_authorize">Izinkan folder</string>
     <string name="folder_authorize_title">Tambahkan ke folder yang ditampilkan</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Cabut izin</string>
     <string name="folder_remove_desc">Hapus folder ini dari daftar yang diizinkan? Isinya akan hilang dari mode kisi dan daftar.</string>
     <string name="folder_only_this">Hanya folder ini</string>

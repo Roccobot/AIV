@@ -435,9 +435,9 @@ private fun smoothstep(t: Float): Float {
  * `ScrollingLogic.performScroll` chiama `dispatchPreScroll` prima di consumare, e l'avvio del
  * trascinamento dipende dal **tipo di puntatore** (`canDrag`) e non dal fatto che ci sia spazio
  * da scorrere. Senza questo fatto avrei dovuto gonfiare l'elenco con spazio finto in fondo.
- * ⚠️ E si riapre dall'altra parte con `onPostScroll`: quello arriva solo quando l'elenco è già in
- * cima e ha avanzato del movimento, che è esattamente la condizione in cui l'intestazione deve
- * tornare.
+ * ⚠️ E si riapre col trascinamento verso il basso in `onPreScroll` quando [inCima] è vero
+ * (dalla `3.37`, voce `3.13-02`): così funziona anche con poche cartelle, dove il LazyGrid
+ * non emette un `onPostScroll` utile. `onPostScroll` resta come ripiego a metà gesto.
  *
  * @param quanto quanti pixel di intestazione ci sono in tutto.
  * @param chiuso quanti ne sono già stati chiusi.
@@ -446,13 +446,29 @@ private fun smoothstep(t: Float): Float {
 fun frontScroll(
     quanto: Float,
     chiuso: () -> Float,
-    chiudi: (Float) -> Unit
+    chiudi: (Float) -> Unit,
+    /**
+     * Se la lista è in cima. Serve a riaprire l'intestazione in `onPreScroll` anche
+     * quando il contenuto non riempie il vano (Modalità incluse, poche cartelle):
+     * in quel caso il LazyGrid non emette un `onPostScroll` utile al trascinamento
+     * verso il basso (giro 3.25-3.30, voce `3.13-02`).
+     */
+    inCima: () -> Boolean = { true }
 ): NestedScrollConnection = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        if (available.y >= 0f) return Offset.Zero
-        val take = (-available.y).coerceAtMost(quanto - chiuso())
-        chiudi(chiuso() + take)
-        return Offset(0f, -take)
+        if (available.y < 0f) {
+            val take = (-available.y).coerceAtMost(quanto - chiuso())
+            chiudi(chiuso() + take)
+            return Offset(0f, -take)
+        }
+        // ⚠️ **Riapri PRIMA che la lista consumi**, ma solo in cima: altrimenti una
+        // lista a metà percorso riaprirebbe la fascia mentre si scende verso l'inizio.
+        if (available.y > 0f && inCima() && chiuso() > 0f) {
+            val give = available.y.coerceAtMost(chiuso())
+            chiudi(chiuso() - give)
+            return Offset(0f, give)
+        }
+        return Offset.Zero
     }
 
     override fun onPostScroll(
@@ -460,7 +476,9 @@ fun frontScroll(
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        if (available.y <= 0f) return Offset.Zero
+        // Ripiego: se onPreScroll non ha visto il gesto (lista non in cima al tocco,
+        // poi arrivata in cima a metà gesto), recupera il residuo.
+        if (available.y <= 0f || !inCima()) return Offset.Zero
         val give = available.y.coerceAtMost(chiuso())
         chiudi(chiuso() - give)
         return Offset(0f, give)

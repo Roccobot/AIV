@@ -664,6 +664,9 @@
     <string name="folder_add">கோப்புறையைச் சேர்</string>
     <string name="folder_authorize">கோப்புறையை அனுமதி</string>
     <string name="folder_authorize_title">காட்டப்படும் கோப்புறைகளில் சேர்</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">அனுமதியை நீக்கு</string>
     <string name="folder_remove_desc">இந்தக் கோப்புறையை அனுமதிப் பட்டியலிலிருந்து நீக்கவா? அதன் உள்ளடக்கம் கட்டம் மற்றும் பட்டியல் பயன்முறைகளிலிருந்து மறையும்.</string>
     <string name="folder_only_this">இந்தக் கோப்புறை மட்டும்</string>

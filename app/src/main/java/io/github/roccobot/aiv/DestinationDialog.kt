@@ -90,7 +90,9 @@ import java.io.File
 fun DestinationDialog(
     @StringRes action: Int,
     onDismiss: () -> Unit,
-    onPick: (File) -> Unit
+    onPick: (File) -> Unit,
+    /** Percorsi già in lista (autorizzate/escluse): indicatore e niente ri-aggiunta (`3.27-02`). */
+    alreadyListed: Set<String> = emptySet()
 ) {
     val context = LocalContext.current
     val look = LocalDestLook.current
@@ -246,6 +248,7 @@ fun DestinationDialog(
                         contentPadding = PaddingValues(vertical = 4.dp)
                     ) {
                         items(items = listed, key = { it.absolutePath }) { dir ->
+                            val inList = portablePath(dir.absolutePath) in alreadyListed
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -260,7 +263,20 @@ fun DestinationDialog(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(24.dp)
                                 )
-                                Text(text = dir.name, style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = camelBreak(dir.name),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.weight(1f),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                if (inList) {
+                                    Text(
+                                        text = stringResource(R.string.folder_already_listed),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
@@ -272,14 +288,18 @@ fun DestinationDialog(
                 // in fondo a un ramo. Le due cose sono gesti diversi apposta, e il tasto
                 // dice quale cartella prenderebbe.
                 here?.let { dir ->
+                    val inList = portablePath(dir.absolutePath) in alreadyListed
                     Button(
                         onClick = { onPick(dir) },
-                        enabled = !Bin.holds(context, dir),
+                        enabled = !Bin.holds(context, dir) && !inList,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        Text(stringResource(action, dir.name))
+                        Text(
+                            if (inList) stringResource(R.string.folder_already_listed)
+                            else stringResource(action, dir.name)
+                        )
                     }
                 }
             }

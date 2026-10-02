@@ -700,6 +700,9 @@
     <string name="folder_add">Додати теку</string>
     <string name="folder_authorize">Дозволити папку</string>
     <string name="folder_authorize_title">Додати до відображуваних папок</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Скасувати дозвіл</string>
     <string name="folder_remove_desc">Видалити цю папку зі списку дозволених? Її вміст зникне з режимів сітки та списку.</string>
     <string name="folder_only_this">Лише ця папка</string>

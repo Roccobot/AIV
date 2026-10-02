@@ -664,6 +664,9 @@
     <string name="folder_add">فولڈر شامل کریں</string>
     <string name="folder_authorize">فولڈر کی اجازت دیں</string>
     <string name="folder_authorize_title">دکھائے جانے والے فولڈرز میں شامل کریں</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">اجازت ہٹائیں</string>
     <string name="folder_remove_desc">کیا اس فولڈر کو اجازت یافتہ فہرست سے ہٹانا ہے؟ اس کا مواد گرڈ اور فہرست موڈ سے غائب ہو جائے گا۔</string>
     <string name="folder_only_this">صرف یہ فولڈر</string>

@@ -472,6 +472,17 @@ private fun Spots(
     ) {
         items(items = spots, key = { it.path }) { spot ->
             val uri = if (spot.media) Uri.fromFile(spot.file) else null
+            val selected = uri != null && uri in chosen
+            val index = spots.indexOf(spot)
+            fun mediaSelected(at: Int): Boolean {
+                if (at !in spots.indices) return false
+                val u = spots[at].takeIf { it.media }?.file?.let(Uri::fromFile) ?: return false
+                return u in chosen
+            }
+            // ⚠️ **Solo primo e ultimo del blocco** (giro 3.25-3.30, `3.27-01`): la
+            // selezione consecutiva deve leggere come un unico rettangolo arrotondato.
+            val roundTop = selected && !mediaSelected(index - 1)
+            val roundBottom = selected && !mediaSelected(index + 1)
             SpotRow(
                 spot = spot,
                 /*
@@ -485,7 +496,9 @@ private fun Spots(
                     FolderMode.EXCLUDED -> selection.hidden(spot.path)
                 },
                 authorized = selection.mode == FolderMode.INCLUDED,
-                selected = uri != null && uri in chosen,
+                selected = selected,
+                roundTop = roundTop,
+                roundBottom = roundBottom,
                 onHold = when {
                     spot.folder -> ({ onHoldFolder(spot.path) })
                     spot.media && uri != null -> ({ onHoldMedia(uri) })
@@ -513,6 +526,9 @@ private fun SpotRow(
     marked: Boolean,
     authorized: Boolean,
     selected: Boolean,
+    /** Angoli della selezione: solo primo/ultimo del blocco consecutivo (`3.27-01`). */
+    roundTop: Boolean = true,
+    roundBottom: Boolean = true,
     onHold: (() -> Unit)?,
     onClick: () -> Unit
 ) {
@@ -533,7 +549,12 @@ private fun SpotRow(
             .then(
                 if (selected) Modifier.background(
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                    RoundedCornerShape(8.dp)
+                    RoundedCornerShape(
+                        topStart = if (roundTop) 8.dp else 0.dp,
+                        topEnd = if (roundTop) 8.dp else 0.dp,
+                        bottomStart = if (roundBottom) 8.dp else 0.dp,
+                        bottomEnd = if (roundBottom) 8.dp else 0.dp
+                    )
                 ) else Modifier
             )
             .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = hold)

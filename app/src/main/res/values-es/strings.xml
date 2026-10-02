@@ -682,6 +682,9 @@
     <string name="folder_add">Añadir carpeta</string>
     <string name="folder_authorize">Autorizar carpeta</string>
     <string name="folder_authorize_title">Añadir a las carpetas mostradas</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Quitar autorización</string>
     <string name="folder_remove_desc">¿Quieres quitar esta carpeta de la lista de autorizadas? Su contenido desaparecerá de los modos cuadrícula y lista.</string>
     <string name="folder_only_this">Solo esta carpeta</string>

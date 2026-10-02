@@ -163,6 +163,8 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
   voce `3.13-02`): in Modalità incluse le cartelle sono poche; senza `weight`/`fillMaxSize` il
   vano restava alto quanto il contenuto e il trascinamento sul vuoto non riapriva
   l'intestazione. In Modalità escluse l'elenco lungo mascherava il difetto.
+  Dalla `3.37` la riapertura avviene in `onPreScroll` quando la lista è in cima (`inCima`),
+  perché con poche cartelle il LazyGrid non emetteva un `onPostScroll` utile.
   - ⚠️ **I segni**: `scrollBy` conta positivo verso il fondo, il puntatore positivo verso il basso.
     Lo presidia il banco, perché un segno di troppo non lo vede nessun compilatore.
   - ⚠️ **La distanza è una stima e serve solo alla durata**: una lista pigra non sa quanto è alto

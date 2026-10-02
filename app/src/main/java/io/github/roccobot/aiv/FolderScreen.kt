@@ -472,24 +472,30 @@ fun FolderScreen(
          * consumare, e l'avvio del trascinamento dipende dal **tipo di puntatore**
          * (`canDrag`) e non dal fatto che ci sia spazio da scorrere. Senza questo fatto
          * avrei dovuto gonfiare l'elenco con spazio finto in fondo.
-         * ⚠️ E si riapre dall'altra parte con `onPostScroll`: quello arriva solo quando
-         * l'elenco è già in cima e ha avanzato del movimento, che è esattamente la
-         * condizione in cui l'intestazione deve tornare.
+         * ⚠️ Si riapre in cima via [frontScroll] (`inCima`), anche con poche cartelle.
          */
         /**
          * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
-         * funziona anche con DUE cartelle**: il fatto per esteso, con la lettura del sorgente
-         * di Compose che lo regge, sta su [frontScroll], in `Front.kt`. Dalla `1.76` quella
-         * funzione la legge anche la griglia di una cartella.
+         * funziona anche con DUE cartelle**: il fatto per esteso sta su [frontScroll].
          */
-        val paging = remember(headerPx) {
+        val paging = remember(headerPx, view) {
             frontScroll(
                 quanto = headerPx,
                 chiuso = shut,
                 // ⚠️ I pixel che arrivano dallo scorrimento tornano frazione qui, che è il solo
                 // posto in cui si scrive: l'altezza della fascia è il denominatore, e a zero
                 // (la veste 'scegli la cartella', dove l'intestazione non c'è) non si divide.
-                chiudi = { quanti -> shutFrac = if (headerPx > 0f) quanti / headerPx else 0f }
+                chiudi = { quanti -> shutFrac = if (headerPx > 0f) quanti / headerPx else 0f },
+                // ⚠️ **In cima alla griglia o all'elenco** (voce `3.13-02`): senza, con poche
+                // cartelle il trascinamento verso il basso non riapriva l'intestazione.
+                inCima = {
+                    if (view == FolderView.GRID)
+                        coverScroll.firstVisibleItemIndex == 0 &&
+                            coverScroll.firstVisibleItemScrollOffset == 0
+                    else
+                        rowScroll.firstVisibleItemIndex == 0 &&
+                            rowScroll.firstVisibleItemScrollOffset == 0
+                }
             )
         }
 
@@ -943,7 +949,8 @@ fun FolderScreen(
                             siblings = path
                             hiding = null
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        // ⚠️ **Leggero spazio dal testo sopra** (giro 3.25-3.30, `3.26-04`).
+                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
                     ) { Text(stringResource(R.string.folder_siblings)) }
                 }
             },

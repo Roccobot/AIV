@@ -77,7 +77,10 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
@@ -2642,20 +2645,20 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
 /** The two independent lists share a page with the display mode selector. */
 @Composable
 private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
-    Detail(stringResource(R.string.folder_selection_desc))
+    FolderSelectionDetail()
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
         FolderMode.entries.forEach { mode ->
             FilterChip(
                 selected = settings.folderMode == mode,
                 onClick = { onChange(settings.copy(folderMode = mode)) },
                 label = {
+                    // ⚠️ **Gettone normale, stesso font degli altri** (giro 3.25-3.30,
+                    // `3.26-03`): il grassetto sta nel paragrafo descrittivo, non qui.
                     Text(
                         stringResource(
                             if (mode == FolderMode.INCLUDED) R.string.folder_mode_included
                             else R.string.folder_mode_excluded
-                        ),
-                        // ⚠️ **Grassetto al posto degli apici** (giro 3.24, `3.13-01`).
-                        fontWeight = FontWeight.SemiBold
+                        )
                     )
                 }
             )
@@ -2666,19 +2669,51 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
     Text(stringResource(if (included) R.string.folder_authorized else R.string.settings_hidden),
         style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
     if (entries.isEmpty()) Detail(stringResource(if (included) R.string.folder_included_none else R.string.settings_hidden_none))
+    var removing by remember { mutableStateOf<String?>(null) }
     entries.sorted().forEach { entry ->
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(hiddenName(entry), style = MaterialTheme.typography.bodyLarge)
+                // ⚠️ **× a destra e nome più largo**; spezza camelCase e ellissi a 2 righe
+                // (giro 3.25-3.30, note B del campo libero).
+                Text(
+                    camelBreak(hiddenName(entry)),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
                 if (!included && entry in settings.hiddenExactFolders && entry !in settings.hiddenFolders)
                     Text(stringResource(R.string.folder_only_this), style = MaterialTheme.typography.labelSmall)
             }
-            TextButton(onClick = {
-                onChange(if (included) settings.copy(includedFolders = settings.includedFolders - entry)
-                    else settings.withFolders(settings.folderSelection.remove(listOf(entry))))
-            }) { Text(stringResource(if (included) R.string.folder_remove else R.string.settings_hidden_show)) }
+            IconButton(onClick = { removing = entry }) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(
+                        if (included) R.string.folder_remove else R.string.settings_hidden_show
+                    )
+                )
+            }
         }
+    }
+    removing?.let { entry ->
+        AlertDialog(
+            onDismissRequest = { removing = null },
+            title = { Text(stringResource(R.string.folder_list_remove_title)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onChange(
+                        if (included) settings.copy(includedFolders = settings.includedFolders - entry)
+                        else settings.withFolders(settings.folderSelection.remove(listOf(entry)))
+                    )
+                    removing = null
+                }) { Text(stringResource(R.string.folder_list_remove_do)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { removing = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
     /*
      * ⚠️⚠️ **'Aggiungi cartella' in modalità incluse** (giro 3.24, resto di `3.13-03`):
@@ -2708,18 +2743,47 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
                     action = R.string.folder_authorize,
                     onDismiss = { picking = false },
                     onPick = { dir ->
-                        onChange(
-                            settings.copy(
-                                includedFolders = settings.includedFolders +
-                                    portablePath(dir.absolutePath)
-                            )
-                        )
+                        val path = portablePath(dir.absolutePath)
+                        // ⚠️ **Non ri-aggiungere** se già in lista (`3.27-02`).
+                        if (path !in settings.includedFolders) {
+                            onChange(settings.copy(includedFolders = settings.includedFolders + path))
+                        }
                         picking = false
-                    }
+                    },
+                    alreadyListed = settings.includedFolders
                 )
             }
         }
     }
+}
+
+/**
+ * Descrizione della pagina cartelle con i nomi delle modalità in grassetto
+ * (giro 3.25-3.30, `3.26-03` / `3.13-01`): non tra apici e non nei gettoni.
+ */
+@Composable
+private fun FolderSelectionDetail() {
+    val included = stringResource(R.string.folder_mode_included)
+    val excluded = stringResource(R.string.folder_mode_excluded)
+    val raw = stringResource(R.string.folder_selection_desc)
+    val annotated = buildAnnotatedString {
+        append(raw)
+        for (term in listOf(included, excluded)) {
+            var from = 0
+            while (true) {
+                val at = raw.indexOf(term, from)
+                if (at < 0) break
+                addStyle(SpanStyle(fontWeight = FontWeight.SemiBold), at, at + term.length)
+                from = at + term.length
+            }
+        }
+    }
+    Text(
+        annotated,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
 }
 
 /**

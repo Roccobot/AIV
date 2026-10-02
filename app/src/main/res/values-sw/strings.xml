@@ -664,6 +664,9 @@
     <string name="folder_add">Ongeza folda</string>
     <string name="folder_authorize">Ruhusu folda</string>
     <string name="folder_authorize_title">Ongeza kwenye folda zinazoonyeshwa</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Ondoa ruhusa</string>
     <string name="folder_remove_desc">Uondoe folda hii kwenye orodha iliyoruhusiwa? Maudhui yake yatatoweka katika hali za gridi na orodha.</string>
     <string name="folder_only_this">Folda hii pekee</string>

@@ -646,6 +646,9 @@
     <string name="folder_add">Thêm thư mục</string>
     <string name="folder_authorize">Cho phép thư mục</string>
     <string name="folder_authorize_title">Thêm vào thư mục hiển thị</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Hủy quyền cho phép</string>
     <string name="folder_remove_desc">Xóa thư mục này khỏi danh sách được cho phép? Nội dung sẽ biến mất khỏi chế độ lưới và danh sách.</string>
     <string name="folder_only_this">Chỉ thư mục này</string>

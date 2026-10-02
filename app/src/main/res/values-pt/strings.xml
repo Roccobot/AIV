@@ -682,6 +682,9 @@
     <string name="folder_add">Adicionar pasta</string>
     <string name="folder_authorize">Autorizar pasta</string>
     <string name="folder_authorize_title">Adicionar às pastas exibidas</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Remover autorização</string>
     <string name="folder_remove_desc">Remover esta pasta da lista de autorizadas? Seu conteúdo desaparecerá dos modos grade e lista.</string>
     <string name="folder_only_this">Somente esta pasta</string>

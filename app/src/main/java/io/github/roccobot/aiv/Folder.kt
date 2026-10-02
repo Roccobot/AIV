@@ -1248,3 +1248,14 @@ internal fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
     val own = path ?: return false
     return hiddenIn(hidden, own)
 }
+
+/** Break opportunity before each uppercase letter that follows a lowercase one. */
+internal fun camelBreak(name: String): String =
+    buildString(name.length + 4) {
+        for (i in name.indices) {
+            val c = name[i]
+            if (i > 0 && name[i - 1].isLowerCase() && c.isUpperCase()) append('\u200B')
+            append(c)
+        }
+    }
+

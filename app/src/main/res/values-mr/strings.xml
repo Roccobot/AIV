@@ -664,6 +664,9 @@
     <string name="folder_add">फोल्डर जोडा</string>
     <string name="folder_authorize">फोल्डरला परवानगी द्या</string>
     <string name="folder_authorize_title">दाखवलेल्या फोल्डरमध्ये जोडा</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">परवानगी काढा</string>
     <string name="folder_remove_desc">हा फोल्डर परवानगीच्या यादीतून काढायचा? त्यातील सामग्री ग्रिड आणि यादी मोडमधून अदृश्य होईल.</string>
     <string name="folder_only_this">फक्त हा फोल्डर</string>

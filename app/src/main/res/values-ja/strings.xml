@@ -646,6 +646,9 @@
     <string name="folder_add">フォルダを追加</string>
     <string name="folder_authorize">フォルダを許可</string>
     <string name="folder_authorize_title">表示するフォルダに追加</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">許可を取り消す</string>
     <string name="folder_remove_desc">このフォルダを許可リストから削除しますか？内容はグリッドとリストのモードに表示されなくなります。</string>
     <string name="folder_only_this">このフォルダのみ</string>

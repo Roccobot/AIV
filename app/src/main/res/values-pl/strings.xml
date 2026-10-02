@@ -700,6 +700,9 @@
     <string name="folder_add">Dodaj folder</string>
     <string name="folder_authorize">Zezwól na folder</string>
     <string name="folder_authorize_title">Dodaj do wyświetlanych folderów</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Cofnij zezwolenie</string>
     <string name="folder_remove_desc">Usunąć ten folder z listy dozwolonych? Jego zawartość zniknie z trybów siatki i listy.</string>
     <string name="folder_only_this">Tylko ten folder</string>

@@ -664,6 +664,9 @@
     <string name="folder_add">Ordner hinzufügen</string>
     <string name="folder_authorize">Ordner zulassen</string>
     <string name="folder_authorize_title">Zu angezeigten Ordnern hinzufügen</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">Zulassung entfernen</string>
     <string name="folder_remove_desc">Diesen Ordner aus der Liste der zugelassenen Ordner entfernen? Sein Inhalt verschwindet aus dem Raster- und Listenmodus.</string>
     <string name="folder_only_this">Nur dieser Ordner</string>

@@ -1161,7 +1161,14 @@ fun GridScreen(
     var shut by remember(headerPx) { mutableFloatStateOf(0f) }
     val aperto = remember(headerPx) { { frontOpen(headerPx, shut) } }
     val paging = remember(headerPx) {
-        frontScroll(quanto = headerPx, chiuso = { shut }, chiudi = { shut = it })
+        frontScroll(
+            quanto = headerPx,
+            chiuso = { shut },
+            chiudi = { shut = it },
+            inCima = {
+                state.firstVisibleItemIndex == 0 && state.firstVisibleItemScrollOffset == 0
+            }
+        )
     }
 
     /*

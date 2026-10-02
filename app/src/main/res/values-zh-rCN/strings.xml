@@ -646,6 +646,9 @@
     <string name="folder_add">添加文件夹</string>
     <string name="folder_authorize">授权文件夹</string>
     <string name="folder_authorize_title">添加到显示的文件夹</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">移除授权</string>
     <string name="folder_remove_desc">要将此文件夹从授权列表中移除吗？其内容将不再显示在网格和列表模式中。</string>
     <string name="folder_only_this">仅此文件夹</string>

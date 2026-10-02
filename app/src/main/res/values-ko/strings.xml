@@ -646,6 +646,9 @@
     <string name="folder_add">폴더 추가</string>
     <string name="folder_authorize">폴더 허용</string>
     <string name="folder_authorize_title">표시할 폴더에 추가</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">허용 취소</string>
     <string name="folder_remove_desc">이 폴더를 허용 목록에서 제거할까요? 그리드 및 목록 모드에서 내용이 사라집니다.</string>
     <string name="folder_only_this">이 폴더만</string>

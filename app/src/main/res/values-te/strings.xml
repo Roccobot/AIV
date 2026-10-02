@@ -664,6 +664,9 @@
     <string name="folder_add">ఫోల్డర్ జోడించు</string>
     <string name="folder_authorize">ఫోల్డర్‌ను అనుమతించు</string>
     <string name="folder_authorize_title">కనిపించే ఫోల్డర్లకు జోడించు</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">అనుమతిని తీసివేయి</string>
     <string name="folder_remove_desc">ఈ ఫోల్డర్‌ను అనుమతించిన జాబితా నుండి తీసివేయాలా? దీని కంటెంట్ గ్రిడ్ మరియు జాబితా మోడ్‌ల నుండి అదృశ్యమవుతుంది.</string>
     <string name="folder_only_this">ఈ ఫోల్డర్ మాత్రమే</string>

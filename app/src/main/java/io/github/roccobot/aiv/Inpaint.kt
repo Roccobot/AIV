@@ -11,8 +11,8 @@ import kotlin.math.sqrt
  * Donors must be completely outside the original selection: generated pixels are never
  * mistaken for new evidence. All reads are from the supplied local image crop.
  *
- * Dalla `3.29` (`3.24-04`): raggio adattivo, peso isofota maggiore e confronto di struttura
- * sul donatore, per preservare meglio orli, linee e pattern.
+ * Dalla `3.29`/`3.37` (`3.24-04`/`3.30-01`): raggio adattivo, peso isofota e struttura
+ * sul donatore ancora alzati, per preservare meglio orli, linee e pattern.
  */
 internal object Inpaint {
     fun repair(
@@ -50,10 +50,10 @@ internal object Inpaint {
                 max(maxX - minX + 1, maxY - minY + 1)
             }
         val wanted = when {
-            holeSpan >= 48 -> 7
-            holeSpan >= 24 -> 6
-            holeSpan >= 12 -> 5
-            else -> 4
+            holeSpan >= 48 -> 8
+            holeSpan >= 24 -> 7
+            holeSpan >= 12 -> 6
+            else -> 5
         }
         val radius = min(wanted, (min(width, height) - 3) / 2)
         if (radius < 1) return null
@@ -131,7 +131,7 @@ internal object Inpaint {
                 val ny = unknown(x, y + 1) - unknown(x, y - 1)
                 val norm = sqrt(nx * nx + ny * ny).coerceAtLeast(1f)
                 // ⚠️ Peso isofota alzato (`3.29`): continua meglio orli e linee spezzate.
-                val priority = (sum / samples) * (0.02f + abs(-gy * nx + gx * ny) / norm)
+                val priority = (sum / samples) * (0.015f + abs(-gy * nx + gx * ny) / norm * 1.15f)
                 if (priority > bestPriority) {
                     bestPriority = priority
                     target = index
@@ -197,7 +197,7 @@ internal object Inpaint {
                     ) {
                         val dgx = localGx(target, filled) - localGx(candidate, pixels)
                         val dgy = localGy(target, filled) - localGy(candidate, pixels)
-                        cost += (dgx * dgx + dgy * dgy) * 1800.0
+                        cost += (dgx * dgx + dgy * dgy) * 2800.0
                     }
                 }
                 // Only break otherwise equal matches by distance; texture/structure

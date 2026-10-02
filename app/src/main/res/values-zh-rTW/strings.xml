@@ -646,6 +646,9 @@
     <string name="folder_add">新增資料夾</string>
     <string name="folder_authorize">授權資料夾</string>
     <string name="folder_authorize_title">加入顯示的資料夾</string>
+    <string name="folder_list_remove_title">Really remove this folder from the list?</string>
+    <string name="folder_list_remove_do">Remove</string>
+    <string name="folder_already_listed">Already in the list</string>
     <string name="folder_remove">移除授權</string>
     <string name="folder_remove_desc">要將此資料夾從授權清單中移除嗎？其內容將不再顯示於網格和清單模式中。</string>
     <string name="folder_only_this">僅此資料夾</string>
