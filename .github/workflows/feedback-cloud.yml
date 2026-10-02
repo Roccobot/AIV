@@ -14,6 +14,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Applica allineamento chip GitHub DF a DPR 2
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("publish/feedback.css")
+          css = p.read_text()
+          css = css.replace("transform: translateY(9.5px);", "transform: translateY(10.5px);")
+          marker = "/* Mobile: strip = centered chips only; Altro in-flow before PP; long-press ⇥ for overlay */"
+          override = """/* At narrow DPR≈2, the wrapped title's capital V is on the second line. */
+          @media (max-width: 500px) and (min-resolution: 1.9dppx) and (max-resolution: 2.1dppx),
+            (max-width: 500px) and (-webkit-min-device-pixel-ratio: 1.9) and (-webkit-max-device-pixel-ratio: 2.1) {
+            .cloud-account {
+              transform: translateY(39.5px);
+            }
+          }
+
+          """
+          if "translateY(39.5px)" not in css:
+              css = css.replace(marker, override + marker)
+          p.write_text(css)
+          PY
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -52,6 +73,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Applica allineamento chip GitHub DF a DPR 2
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("publish/feedback.css")
+          css = p.read_text()
+          css = css.replace("transform: translateY(9.5px);", "transform: translateY(10.5px);")
+          marker = "/* Mobile: strip = centered chips only; Altro in-flow before PP; long-press ⇥ for overlay */"
+          override = """/* At narrow DPR≈2, the wrapped title's capital V is on the second line. */
+          @media (max-width: 500px) and (min-resolution: 1.9dppx) and (max-resolution: 2.1dppx),
+            (max-width: 500px) and (-webkit-min-device-pixel-ratio: 1.9) and (-webkit-max-device-pixel-ratio: 2.1) {
+            .cloud-account {
+              transform: translateY(39.5px);
+            }
+          }
+
+          """
+          if "translateY(39.5px)" not in css:
+              css = css.replace(marker, override + marker)
+          p.write_text(css)
+          PY
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
