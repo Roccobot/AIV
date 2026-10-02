@@ -545,7 +545,7 @@ textarea[hidden] {
   }
 }
 
-/* --- Feedback UX 3.38: strip, hamburger, Altro, editing-mobile --- */
+/* --- Feedback UX 3.38: strip, Altro overlay, editing-mobile --- */
 .dash-row {
   display: flex;
   align-items: center;
@@ -556,20 +556,6 @@ textarea[hidden] {
 .dash-row #counts {
   flex: 1;
   min-width: 0;
-}
-.menu-toggle {
-  display: none;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  min-height: 44px;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: #0b6b5b;
-  color: #fff;
-  border-color: #0b6b5b;
 }
 .count-filled {
   font-weight: 700;
@@ -582,10 +568,16 @@ textarea[hidden] {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+.count-chip > span {
+  min-width: 1.25ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
 .count-icon {
   width: 16px;
   height: 16px;
   fill: currentColor;
+  flex-shrink: 0;
 }
 .count-chip-ok { color: #0b6b5b; }
 .count-chip-warn { color: #745713; }
@@ -612,7 +604,8 @@ textarea[hidden] {
   padding: 0.05em 0.35em;
 }
 
-.mobile-menu {
+/* Mobile Altro overlay (long-press on floating ⇥); same notes field as bottom Altro */
+.altro-overlay {
   position: fixed;
   inset: 0;
   z-index: 20;
@@ -621,10 +614,10 @@ textarea[hidden] {
   justify-content: stretch;
   align-items: stretch;
 }
-.mobile-menu[hidden] {
+.altro-overlay[hidden] {
   display: none !important;
 }
-.mobile-menu-panel {
+.altro-overlay-panel {
   flex: 1;
   background: #fcfbf8;
   color: #1b2d25;
@@ -634,18 +627,18 @@ textarea[hidden] {
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
 }
-.mobile-menu-header {
+.altro-overlay-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
 }
-.mobile-menu-header h2 {
+.altro-overlay-header h2 {
   margin: 0;
   font-size: 22px;
 }
-.menu-close {
+.altro-overlay-close {
   width: 44px;
   height: 44px;
   min-height: 44px;
@@ -654,24 +647,13 @@ textarea[hidden] {
   align-items: center;
   justify-content: center;
 }
-.menu-account {
-  margin-bottom: 16px;
-}
-.menu-account a,
-.menu-account button {
-  display: inline-flex;
-  margin-right: 8px;
-  margin-top: 8px;
-}
-.menu-altro {
+.altro-overlay-body {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-.menu-altro h3 {
-  margin: 0 0 8px;
-}
-.menu-altro textarea {
+.altro-overlay-body textarea,
+.altro-overlay-body .rich-editor {
   flex: 1;
   min-height: 50vh;
   font-size: 18px;
@@ -787,40 +769,34 @@ main > .feedback-columns {
   accent-color: #0b6b5b;
 }
 
-.jump-altro {
-  display: none;
-  flex-shrink: 0;
-  min-height: 44px;
-  padding: 0 12px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: #fffefc;
-  color: #0b6b5b;
-  border-color: #0b6b5b;
-  font-weight: 700;
-}
-
-/* Mobile strip + hamburger; Altro stays in-flow before PP */
-@media (max-width: 1099px) {
-  .jump-altro {
-    display: inline-flex;
-  }
-}
+/* Mobile: strip = centered chips only; Altro in-flow before PP; long-press ⇥ for overlay */
 @media (max-width: 720px) {
-  .menu-toggle {
-    display: inline-flex;
-  }
   .dashboard {
     padding-top: 8px;
     padding-bottom: 8px;
   }
+  .dash-row {
+    max-width: none;
+    justify-content: center;
+  }
   .dash-row #counts {
-    font-size: 13px;
-    gap: 6px 10px;
+    flex: 0 1 auto;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 22px 32px;
+    font-size: 14px;
   }
   .count-filled {
-    flex-basis: 100%;
+    display: none;
+  }
+  .count-chip {
+    gap: 6px;
+    min-width: 3.5rem;
+    justify-content: center;
+  }
+  .count-chip > span {
+    min-width: 2ch;
   }
   body.editing-mobile .floating-controls button:not(#floating-save) {
     display: none;
@@ -920,7 +896,7 @@ main > .feedback-columns {
 }
 
 @media (prefers-color-scheme: dark) {
-  .mobile-menu-panel {
+  .altro-overlay-panel {
     background: #1e2523;
     color: #e3eee8;
     border-color: #43564c;
@@ -944,10 +920,5 @@ main > .feedback-columns {
   .drop-active .attach-plus {
     border-color: #43b59e;
     background: #285347;
-  }
-  .jump-altro {
-    background: #1e2523;
-    color: #4fd9be;
-    border-color: #4fd9be;
   }
 }

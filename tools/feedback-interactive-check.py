@@ -78,7 +78,13 @@ def check(path):
                 expect(navigation.locator('#first-empty')).to_be_visible()
                 navigation.locator('#first-empty').tap()
                 aligned(navigation.locator('.test').nth(0))
-                expect(navigation.locator('#first-empty')).to_be_hidden()
+                # Mobile keeps ⇥ visible for long-press Altro; desktop hides when on the empty card.
+                if width <= 720:
+                    expect(navigation.locator('#first-empty')).to_be_visible()
+                    expect(navigation.locator('#menu-toggle')).to_have_count(0)
+                    expect(navigation.locator('#jump-altro')).to_have_count(0)
+                else:
+                    expect(navigation.locator('#first-empty')).to_be_hidden()
                 save_box = navigation.locator('#floating-save').bounding_box()
                 for ident in ['previous-card','next-card']:
                     box = navigation.locator('#'+ident).bounding_box()
@@ -86,7 +92,9 @@ def check(path):
                     assert box['width'] >= 48 and box['height'] >= 48
             navigation.evaluate('''() => {
                 const previous = document.querySelector('#tests .test:last-child').getBoundingClientRect();
-                const next = document.querySelector('.decision').getBoundingClientRect();
+                // Prefer a following in-flow primary card; .extra is a side column on desktop.
+                const nextNode = document.querySelector('.decision') || document.querySelector('.feedback-primary .archive');
+                const next = nextNode.getBoundingClientRect();
                 const offset = document.querySelector('.dashboard').getBoundingClientRect().height + 12;
                 window.scrollTo(0, window.scrollY + (previous.bottom + next.top)/2 - offset);
             }''')
@@ -101,7 +109,11 @@ def check(path):
             # Fill through normal input handlers; navigation must update without a reload.
             for field in navigation.locator('.test .rich-editor,.decision .rich-editor').all():
                 field.fill('Risposta di verifica')
-            expect(navigation.locator('#first-empty')).to_be_hidden()
+            # Desktop hides ⇥ when nothing is empty; mobile keeps it for long-press Altro.
+            if navigation.viewport_size['width'] <= 720:
+                expect(navigation.locator('#first-empty')).to_be_visible()
+            else:
+                expect(navigation.locator('#first-empty')).to_be_hidden()
             navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
             navigation.locator('.test').nth(1).locator('.rich-editor').fill('')
             navigation.locator('#next-card').tap()
@@ -113,7 +125,12 @@ def check(path):
             navigation.evaluate('window.scrollTo(0, document.body.scrollHeight)')
             expect(navigation.locator('#next-card')).to_be_disabled()
             navigation.locator('#previous-card').tap()
-            aligned(navigation.locator('.decision').last)
+            # With decisions: previous from the bottom lands on the last decision.
+            # Without: responseCards end at .extra, so previous lands on the last test.
+            if navigation.locator('.decision').count():
+                aligned(navigation.locator('.decision').last)
+            else:
+                aligned(navigation.locator('.test').last)
             navigation_context.close()
             formatting_context = browser.new_context(permissions=['clipboard-read','clipboard-write'])
             formatting = formatting_context.new_page()
@@ -205,12 +222,13 @@ def check(path):
             card.locator('[data-format="link"]').click()
             expect(stored).to_have_value(expected_comment)
             decision_card = formatting.locator('.decision').first
-            decision_field = decision_card.locator('.rich-editor')
-            fill_plain(decision_field, 'scelta')
-            select(decision_field,0,6)
-            decision_field.press('Control+i')
-            expect(decision_card.locator('textarea')).to_have_value('*scelta*')
-            expect(decision_field.locator('i,em')).to_have_text('scelta')
+            decision_field = decision_card.locator('.rich-editor') if formatting.locator('.decision').count() else None
+            if decision_field:
+                fill_plain(decision_field, 'scelta')
+                select(decision_field,0,6)
+                decision_field.press('Control+i')
+                expect(decision_card.locator('textarea')).to_have_value('*scelta*')
+                expect(decision_field.locator('i,em')).to_have_text('scelta')
             notes_field = formatting.locator('.extra .rich-editor')
             fill_plain(notes_field, 'note')
             select(notes_field,0,4)
@@ -226,19 +244,24 @@ def check(path):
             expect(formatting.locator('#save')).to_be_enabled()
             expect(stored).to_have_value(expected_comment)
             expect(field.locator('a')).to_have_text('abc')
-            expect(decision_field.locator('em')).to_have_text('scelta')
+            if decision_field:
+                expect(decision_field.locator('em')).to_have_text('scelta')
             expect(notes_field.locator('em')).to_have_text('note')
             formatting.locator('#copy').click()
             expect(formatting.locator('#action-message')).to_contain_text('Riepilogo copiato')
             formatted_summary = formatting.evaluate('navigator.clipboard.readText()')
-            assert all(value in formatted_summary for value in [expected_comment,'*scelta*','*note*'])
+            expected_bits = [expected_comment, '*note*']
+            if decision_field:
+                expected_bits.append('*scelta*')
+            assert all(value in formatted_summary for value in expected_bits)
             with formatting.expect_download() as pending:
                 formatting.locator('#export').click()
             formatted_export=Path(temporary)/'formatted.json'
             pending.value.save_as(str(formatted_export))
             formatted_data=json.loads(formatted_export.read_text())
             assert formatted_data['entries'][data['items'][0]['id']]['comment']==expected_comment
-            assert formatted_data['decisions'][data['decisions'][0]['id']]['comment']=='*scelta*'
+            if data['decisions']:
+                assert formatted_data['decisions'][data['decisions'][0]['id']]['comment']=='*scelta*'
             assert formatted_data['notes']=='*note*'
             # Old drafts containing formatted text, literal Markdown characters and line breaks.
             restored='**grassetto** e *corsivo*\n[link]('+destination+')\nPercorso C:\\foto, \\*letterale\\* <img src=x>'
@@ -316,14 +339,17 @@ def check(path):
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 for editor in formatting.locator('.rich-editor').all():
-                    assert editor.bounding_box()['height'] >= 200
+                    box = editor.bounding_box()
+                    if box is None:
+                        continue  # editors in the hidden Altro overlay
+                    assert box['height'] >= 200
                     assert editor.evaluate('(el)=>getComputedStyle(el).resize') == 'vertical'
             touch_context = browser.new_context(is_mobile=True,has_touch=True,viewport={'width':390,'height':844})
             touch = touch_context.new_page()
             touch.on('pageerror', lambda e: errors.append(str(e)))
             touch.goto(url)
             expect(touch.locator('#save')).to_be_enabled()
-            touch_field = touch.locator('.rich-editor').first
+            touch_field = touch.locator('.test .rich-editor').first
             touch_field.fill('mobile')
             select(touch_field,0,6)
             touch.locator('.test').first.locator('[data-format="bold"]').tap()
@@ -404,7 +430,8 @@ def check(path):
             first.locator('.rich-editor').fill('Commento di verifica: <script>test</script>')
             page.locator('.extra .rich-editor').fill('Osservazioni libere di verifica')
             page.locator('#device').fill('Dispositivo di verifica')
-            page.locator('.decision').first.locator('button').first.click()
+            if page.locator('.decision').count():
+                page.locator('.decision').first.locator('button').first.click()
             image = Path(temporary) / 'feedback.png'
             # An original, complete PNG is attached without image transformations.
             image.write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP9sAAAAASUVORK5CYII='))
@@ -414,11 +441,12 @@ def check(path):
             expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
             attachment_only.locator('.image-list button').click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
-            indication_only = page.locator('.decision').nth(1)
-            indication_only.locator('.rich-editor').fill('Solo commento')
-            expect(indication_only).to_have_class(re.compile(r'\bhas-response\b'))
-            indication_only.locator('.rich-editor').fill('')
-            expect(indication_only).not_to_have_class(re.compile(r'\bhas-response\b'))
+            if page.locator('.decision').count() > 1:
+                indication_only = page.locator('.decision').nth(1)
+                indication_only.locator('.rich-editor').fill('Solo commento')
+                expect(indication_only).to_have_class(re.compile(r'\bhas-response\b'))
+                indication_only.locator('.rich-editor').fill('')
+                expect(indication_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.images').set_input_files(str(image))
             expect(first.locator('.image-list img')).to_have_count(1)
             # SVG stays an image resource: scripts and external resources cannot execute.
@@ -499,7 +527,8 @@ def check(path):
             for attached, original in zip(exported['extra']['images'], [image.read_bytes(), svg_bytes, archive.read_bytes(), archive.read_bytes()]):
                 assert base64.b64decode(attached['data'].split(',')[1]) == original, 'Allegato delle osservazioni modificato.'
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
-            expect(page.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
+            if page.locator('.decision').count():
+                expect(page.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
 
             second_context = browser.new_context(permissions=['clipboard-read', 'clipboard-write'])
             second = second_context.new_page()
@@ -557,8 +586,9 @@ def check(path):
             second.emulate_media(color_scheme='dark')
             second.locator('.test').first.locator('.rich-editor').fill('Solo commento')
             expect(second.locator('.test').first).to_have_class(re.compile(r'\bhas-response\b'))
-            second.locator('.decision').first.locator('.rich-editor').fill('Solo indicazione')
-            expect(second.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
+            if second.locator('.decision').count():
+                second.locator('.decision').first.locator('.rich-editor').fill('Solo indicazione')
+                expect(second.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
             for field in second.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
 
@@ -583,7 +613,11 @@ def check(path):
             if kept is not None:
                 legacy['entries'][first_id] = kept
             legacy['entries']['3.14-03'] = {'status': 'Tutto OK', 'comment': 'Riscontro precedente conservato', 'images': []}
-            legacy['decisions']['d-settings-order']['comment'] = 'Decisione precedente conservata'
+            legacy.setdefault('decisions', {})
+            legacy['decisions']['d-settings-order'] = {
+                'choice': 'Applica la proposta',
+                'comment': 'Decisione precedente conservata',
+            }
             migration_context = browser.new_context()
             migration = migration_context.new_page()
             migration.on('pageerror', lambda e: errors.append(str(e)))
@@ -607,8 +641,9 @@ def check(path):
             expect(migration.locator('#save')).to_be_enabled()
             expect(migration.locator(f'[data-id="{first_id}"] .item-state')).to_have_text('Accettabile')
             expect(migration.locator('[data-id="3.14-03"]')).to_have_count(0)
-            expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
-            expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
+            if migration.locator('.decision').count():
+                expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
+                expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
             expect(migration.locator('#giro-version')).to_have_text(data['version'])
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)

@@ -1,7 +1,6 @@
 # Feedback AIV
 
-Versione **3.38**: correzioni dal collaudo **3.37** (tablet, Impostazioni, documento di
-feedback, residui).
+Versione **3.38**: correzioni dal collaudo **3.37** (tablet, Impostazioni, residui).
 [Apri il documento interattivo](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
 La Release 3.38 è pubblicata: [v3.38](https://github.com/Roccobot/AIV/releases/tag/v3.38), con l'APK
 [AIV-3.38.apk](https://github.com/Roccobot/AIV/releases/download/v3.38/AIV-3.38.apk).
@@ -13,12 +12,11 @@ chiuse e **non** sono riproposte. Filigrana e Fluidifica restano approvati.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
-Nei commenti puoi usare Grassetto, Corsivo, Codice inline (`` ` `` / ⌘M) e Link, oppure
-Cmd+B/I/M/K. Su mobile: striscia Compilate in alto, menu hamburger (login GitHub + Altro),
-e in editing solo Salva. Su desktop: Altro in colonna laterale (sempre pronta, con formattazione e allegati). Su mobile: Altro prima di Prossimi passi, con salto rapido dalla striscia.
-
-I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano.
-`Invia` rende leggibile il giro senza avviare lavori.
+Nei commenti: Grassetto, Corsivo, Codice inline (`` ` `` / ⌘M) e Link (Cmd+B/I/M/K).
+Su mobile: striscia con i soli chip semaforo centrati; in editing solo Salva; Altro prima
+di Prossimi passi (tieni premuto il FAB ⇥ per il pannello). Su desktop: Altro in colonna
+laterale. I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi
+si azzerano. `Invia` rende leggibile il giro senza avviare lavori.
 
 Le verifiche automatiche della 3.38 sono superate: 486 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono e sul tablet resta tuo.
 
@@ -33,7 +31,6 @@ Le verifiche automatiche della 3.38 sono superate: 486 prove, zero fallimenti, c
 | 3.38-07 | Non provato | | Attendere il collaudo. |
 | 3.38-08 | Non provato | | Attendere il collaudo. |
 | 3.38-09 | Non provato | | Attendere il collaudo. |
-| 3.38-10 | Non provato | | Attendere il collaudo. |
 | 3.38-11 | Non provato | | Attendere il collaudo. |
 
 ## 1. Editor tablet in orizzontale (≥1024)
@@ -87,18 +84,7 @@ In Modalità incluse → Aggiungi cartella: le cartelle già in lista mostrano *
 Con Correggi/Rimuovi, aumenta il pennello: il lentino sparisce **prima** di quanto faceva
 in 3.37. Finché è attivo, il pennello ingrandito resta dentro il tondo.
 
-## 10. Documento di feedback: UX mobile e Altro
-
-Apri questo documento sul telefono: striscia fissa in alto con Compilate n/N e conteggi
-semaforo (icone, non emoji); hamburger a destra apre login GitHub + Altro a tutto schermo;
-il tasto **Altro** nella striscia salta al riquadro in fondo (prima di Prossimi passi).
-Mentre scrivi in un campo, resta visibile solo Salva (gli altri controlli tornano al blur
-o ~5 s dopo un salvataggio). Su desktop: Altro è una **colonna laterale** sempre pronta
-(formattazione e allegati +/trascina), non un riquadro flottante staccato. I link nelle prove
-sono cliccabili, non markdown letterale. La versione AIV del giro è fissa: conferma con la
-casella 'Sì, ho installato questa versione'.
-
-## 11. Qualità Correggi/Rimuovi (riprova)
+## 10. Qualità Correggi/Rimuovi (riprova)
 
 Su un orlo o una linea: valuta se resta più continuo che in 3.37. Allega prima/dopo se
 ancora debole. Limiti noti: senza indizi il calcolo non inventa dettagli.
@@ -117,7 +103,7 @@ in archivio sotto.
 | Fluidifica | 3.03 | OK | 2026-09-30 | Chiusa. |
 | Decisioni 3.24 | 3.24 | Chiuse | Riconfermate; non riproposte. | Chiuse. |
 | Prove 3.37 OK senza residuo | 3.37 | OK | 3.37-01..07 (con residui sotto). | Archiviata dove OK. |
-| UX documento mobile (note A 3.30) | 3.38 | Da collaudare | Era differita per errore; implementata. | 3.38-10. |
+| UX documento (note A 3.30 + chat) | 3.38 | In codice | Striscia, Altro, overlay, shell: non è prova di collaudo app. | Manutenzione DF. |
 | Apici Impostazioni globali | 3.38 | Da collaudare | Solo Cartelle in 3.37; sweep completo. | 3.38-07. |
 | Tablet editor / FAB / rail / cestino | 3.38 | Da collaudare | Note B e 3.31/3.35 del 3.37. | 3.38-01..06. |
 
@@ -126,4 +112,4 @@ in archivio sotto.
 - **3.27-03: più sotto-pagine Impostazioni**: differito.
 - **Avvisi mostra/nascondi (3.13-08)**: ricontrollare il layout.
 - **Qualità Correggi/Rimuovi (inpaint)**: riprovare se le linee restano deboli; altrimenti mantenere il limite euristico noto.
-- **Collaudo AIV 3.38**: completare le 11 prove su telefono e tablet.
+- **Collaudo AIV 3.38**: completare le 10 prove app su telefono e tablet.

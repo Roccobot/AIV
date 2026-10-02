@@ -110,33 +110,9 @@
   });
   notice.append(description,login,logout);
   document.querySelector('main').prepend(notice);
-  // Mirror account controls into the mobile hamburger menu (giro 3.30 note A).
-  const menuAccount = document.querySelector('#menu-account');
-  let menuLogin = null, menuLogout = null;
-  if (menuAccount) {
-    menuAccount.replaceChildren();
-    const menuDesc = document.createElement('p');
-    menuDesc.textContent = 'Account GitHub per il salvataggio cloud.';
-    menuLogin = login.cloneNode(true);
-    menuLogin.removeAttribute('hidden');
-    menuLogout = logout.cloneNode(true);
-    menuAccount.append(menuDesc, menuLogin, menuLogout);
-    menuLogin.addEventListener('click', event => {
-      if (window.feedbackHasUnsaved?.() && !confirm('Le modifiche non sono salvate. Esporta il JSON prima di accedere di nuovo. Continuare?')) event.preventDefault();
-    });
-    menuLogout.addEventListener('click', async () => {
-      try {
-        if (!await window.feedbackSaveForLogout?.()) return;
-        await request(config.logout,{method:'POST'});
-        location.reload();
-      } catch (error) { report(error.message,true); }
-    });
-  }
   const syncAccount = signedIn => {
     login.hidden = signedIn;
     logout.hidden = !signedIn;
-    if (menuLogin) menuLogin.hidden = signedIn;
-    if (menuLogout) menuLogout.hidden = !signedIn;
   };
   login.addEventListener('click',event => {
     if (window.feedbackHasUnsaved?.() && !confirm('Le modifiche non sono salvate. Esporta il JSON prima di accedere di nuovo. Continuare?')) event.preventDefault();
@@ -148,7 +124,6 @@
       if (error.status === 401) {
         syncAccount(false);
         logout.hidden = true;
-        if (menuLogout) menuLogout.hidden = true;
         description.textContent = 'Accedi con GitHub per compilare il documento e importare il JSON. I campi saranno disponibili dopo il recupero della bozza cloud.';
       }
     }

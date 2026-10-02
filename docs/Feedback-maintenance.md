@@ -46,6 +46,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 
 - Nome ufficiale: **documento di feedback** (DF). Titolo: **Feedback AIV**.
   Intestazione: `AIV · giro della X.XX`, terminata alla versione, senza nome dell'agente.
+- ⚠️ **Separazione UX DF / collaudo app**: miglioramenti di interfaccia del DF (striscia,
+  Altro, overlay, shell, formattazione, Salva-only mobile, casella versione, PP, …) vivono
+  in codice, in questa guida e nel brief. **Non** vanno elencati come prove di collaudo
+  del prodotto Android nel documento.
 - Sigle: **DF** = documento di feedback; **PP** = **Prossimi passi**.
 - Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief.
 - Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
@@ -73,8 +77,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   è circa il 50% più larga del primo taglio laterale. Su desktop la striscia conteggi,
   la card Accedi/Salvataggio cloud e i paragrafi intro condividono la stessa larghezza
   totale di (colonne prove + Altro), senza fascia a tutta viewport. Su mobile resta in
-  fondo **prima** del PP, con controllo di salto rapido nella striscia. Non usare un
-  riquadro `position: fixed` staccato dal flusso.
+  fondo **prima** del PP; la striscia sticky mostra solo i chip semaforo centrati (niente
+  hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ apre Altro a pannello
+  overlay (chiudi con ×), sullo stesso campo `notes` del riquadro in fondo e con lo stesso
+  salvataggio cloud. Non usare un riquadro `position: fixed` staccato dal flusso come unica
+  sede di Altro.
 - La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
   con la casella 'Sì, ho installato questa versione' (`installed` = versione del giro o vuoto).
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:

@@ -592,36 +592,28 @@ for (const id of ["notes", "notes-mobile"]) {
   if (node) node.addEventListener("input", onAltroInput);
 }
 
-document.querySelector("#jump-altro")?.addEventListener("click", () => {
-  const target = document.querySelector("#extra-section");
-  if (!target) return;
-  setMenuOpen(false);
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
-  const editor = document.querySelector("#notes-editor") || document.querySelector("#notes");
-  editor?.focus?.();
-});
-
-// --- Mobile menu (hamburger): GitHub login + fullscreen Altro ---
-const menu = document.querySelector("#mobile-menu");
-const menuToggle = document.querySelector("#menu-toggle");
-const menuClose = document.querySelector("#menu-close");
-function setMenuOpen(open) {
-  if (!menu || !menuToggle) return;
-  menu.hidden = !open;
-  menuToggle.setAttribute("aria-expanded", String(open));
-  document.body.classList.toggle("menu-open", open);
+// --- Mobile Altro overlay (long-press floating ⇥); same draft.notes as bottom Altro ---
+const altroOverlay = document.querySelector("#altro-overlay");
+const altroOverlayClose = document.querySelector("#altro-overlay-close");
+function setAltroOverlayOpen(open) {
+  if (!altroOverlay) return;
+  altroOverlay.hidden = !open;
+  document.body.classList.toggle("altro-overlay-open", open);
   if (open) {
     syncAltroFields();
-    document.querySelector("#notes-mobile")?.focus();
+    const editor =
+      document.querySelector("#notes-mobile-editor") ||
+      document.querySelector("#notes-mobile");
+    editor?.focus?.();
   }
 }
-menuToggle?.addEventListener("click", () => setMenuOpen(menu.hidden));
-menuClose?.addEventListener("click", () => setMenuOpen(false));
-menu?.addEventListener("click", (event) => {
-  if (event.target === menu) setMenuOpen(false);
+altroOverlayClose?.addEventListener("click", () => setAltroOverlayOpen(false));
+altroOverlay?.addEventListener("click", (event) => {
+  if (event.target === altroOverlay) setAltroOverlayOpen(false);
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && menu && !menu.hidden) setMenuOpen(false);
+  if (event.key === "Escape" && altroOverlay && !altroOverlay.hidden)
+    setAltroOverlayOpen(false);
 });
 
 // --- Mobile editing: only Salva while a text field is focused ---
@@ -703,7 +695,23 @@ function refreshNavigation() {
   previousCard.disabled = !loaded || index <= 0;
   nextCard.disabled = !loaded || index >= responseCards.length - 1;
   const empty = firstEmptyCard();
-  firstEmpty.hidden = !empty || responseCards[index] === empty;
+  // On mobile keep ⇥ visible so long-press can open Altro even when nothing is empty.
+  if (isMobileUi()) {
+    firstEmpty.hidden = false;
+    firstEmpty.title = empty
+      ? "Primo riquadro non compilato · tieni premuto per Altro"
+      : "Tieni premuto per Altro";
+    firstEmpty.setAttribute(
+      "aria-label",
+      empty
+        ? "Primo riquadro non compilato. Tieni premuto per aprire Altro"
+        : "Tieni premuto per aprire Altro",
+    );
+  } else {
+    firstEmpty.hidden = !empty || responseCards[index] === empty;
+    firstEmpty.title = "Primo riquadro non compilato";
+    firstEmpty.setAttribute("aria-label", "Primo riquadro non compilato");
+  }
   firstEmpty.disabled = !loaded;
   document.documentElement.style.setProperty("--feedback-scroll-offset", navigationOffset() + "px");
 }
@@ -716,7 +724,38 @@ function goToCard(card) {
 }
 previousCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() - 1]));
 nextCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() + 1]));
-firstEmpty.addEventListener("click", () => goToCard(firstEmptyCard()));
+let firstEmptyLongPress = false;
+let firstEmptyLongTimer = null;
+function clearFirstEmptyLongPress() {
+  clearTimeout(firstEmptyLongTimer);
+  firstEmptyLongTimer = null;
+}
+firstEmpty.addEventListener("pointerdown", (event) => {
+  if (!isMobileUi() || event.button != null && event.button !== 0) return;
+  firstEmptyLongPress = false;
+  clearFirstEmptyLongPress();
+  firstEmptyLongTimer = setTimeout(() => {
+    firstEmptyLongPress = true;
+    setAltroOverlayOpen(true);
+  }, 450);
+});
+firstEmpty.addEventListener("pointerup", clearFirstEmptyLongPress);
+firstEmpty.addEventListener("pointercancel", clearFirstEmptyLongPress);
+firstEmpty.addEventListener("pointerleave", clearFirstEmptyLongPress);
+firstEmpty.addEventListener("click", (event) => {
+  if (firstEmptyLongPress) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    firstEmptyLongPress = false;
+    return;
+  }
+  const empty = firstEmptyCard();
+  if (empty) goToCard(empty);
+  else if (isMobileUi()) {
+    const target = document.querySelector("#extra-section");
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
 let navigationFrame = null;
 window.addEventListener("scroll", () => {
   if (navigationFrame !== null) return;
