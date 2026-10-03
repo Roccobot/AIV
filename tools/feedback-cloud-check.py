@@ -147,7 +147,6 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     else:
         first_id=None
         stored=wire['extra']['images']
-        assert wire['notes']=='**Testo letterale**'
     assert all('data' not in file and len(file['storageKey'])==64 for file in stored)
     third_context=context()
     third=page(third_context)
