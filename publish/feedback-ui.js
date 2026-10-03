@@ -153,19 +153,27 @@ function hydrate() {
   const lab = document.querySelector("#labels");
   if (lab) lab.hidden = !(spec.labels && spec.labels.length);
 }
+// The object URLs each attachment list shows, released when the list is drawn again: an
+// unreleased URL keeps its file in memory for as long as the page is open.
+const shownUrls = new WeakMap();
 function drawAttachments(card) {
   const list = card.querySelector(".image-list");
+  for (const url of shownUrls.get(list) || []) URL.revokeObjectURL(url);
+  const urls = [];
+  shownUrls.set(list, urls);
   list.replaceChildren();
   attachmentEntry(card).images.forEach((img, index) => {
     const figure = el("figure");
+    const url = URL.createObjectURL(img.blob);
+    urls.push(url);
     if (img.type === "application/zip") {
       const download = el("a", "Scarica ZIP", "zip-download");
-      download.href = img.data;
+      download.href = url;
       download.download = img.name;
       figure.append(el("span", "ZIP", "file-kind"), el("figcaption", img.name), download);
     } else {
       const image = el("img");
-      image.src = img.data;
+      image.src = url;
       image.alt = img.name;
       figure.append(image, el("figcaption", img.name));
     }
@@ -217,7 +225,7 @@ async function copy() {
     await copyText(summary());
     report("Riepilogo copiato. Incollalo in chat con gli eventuali allegati.");
   } catch {
-    report("Il browser non ha permesso la copia negli appunti: esporta il JSON.", true);
+    report("Il browser non ha permesso la copia negli appunti: esporta le risposte.", true);
   }
 }
 function copyLabelId(id) {
@@ -298,13 +306,14 @@ async function attachFiles(card, files) {
             ![[3, 4], [5, 6], [7, 8]].some(([a, b]) => signature[2] === a && signature[3] === b))
           throw Error("Il file ZIP non è riconosciuto.");
       }
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({name: file.name, type, size: file.size,
-          data: "data:" + type + ";base64," + reader.result.split(",")[1]});
-        reader.onerror = () => reject(Error("Impossibile leggere il file."));
-        reader.readAsDataURL(file);
-      });
+      // A copy of the bytes: a picked File can stop being readable if it changes on disk.
+      let bytes;
+      try {
+        bytes = await file.arrayBuffer();
+      } catch {
+        throw Error("Impossibile leggere il file.");
+      }
+      return {name: file.name, type, size: file.size, blob: new Blob([bytes], {type})};
     }));
     if (draft !== initialDraft || attachmentEntry(card) !== initialEntry)
       throw Error("Le risposte sono state sostituite: allega nuovamente i file.");
@@ -536,33 +545,77 @@ async function send() {
   report(
     remote
       ? "Giro reso leggibile all'agente. Puoi modificarlo e inviarlo di nuovo; l'agente lo leggerà solo dopo il tuo via in chat."
-      : "Risposte pronte. Per renderle leggibili dal cloud, importa il JSON nel documento cloud e premi Invia.",
+      : "Risposte pronte. Per renderle leggibili dal cloud, esportale, importale nel documento cloud e premi Invia.",
   );
 }
-function exportJson() {
-  const blob = new Blob(
-      [JSON.stringify({ ...draft, version: spec.version }, null, 2)],
-      { type: "application/json" },
-    ),
-    url = URL.createObjectURL(blob),
-    a = el("a");
-  a.href = url;
-  a.download = `AIV-feedback-${spec.version}.json`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  report("JSON esportato, con risposte e allegati.");
+// The export is a ZIP: feedback.json with the answers, and the attachments next to it with
+// short names, the test's position on two digits plus a letter (01a.png, 01b.jpg, 02a.webp),
+// and 00 for Altro (00a.png). feedback.json keeps each original name next to the short one.
+// Answers to tests no longer on the page use their identifier (3.40-02a.png).
+const extensions = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp",
+  "image/gif": "gif", "image/svg+xml": "svg", "application/zip": "zip" };
+function letters(index) {
+  let name = "";
+  for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26))
+    name = String.fromCharCode(97 + ((n - 1) % 26)) + name;
+  return name;
 }
-async function importJson(input) {
+async function exportZip() {
+  try {
+    const files = [];
+    const position = new Map(spec.items.map((item, index) => [item.id, String(index + 1).padStart(2, "0")]));
+    const describe = (images, prefix) => images.map((file, index) => {
+      const name = prefix + letters(index) + "." + extensions[file.type];
+      files.push({ name, blob: file.blob });
+      return { name: file.name, type: file.type, size: file.size, file: name };
+    });
+    const data = {
+      ...draft,
+      version: spec.version,
+      entries: Object.fromEntries(Object.entries(draft.entries).map(([id, value]) =>
+        [id, { ...value, images: describe(value.images, position.get(id) || id) }])),
+      extra: { images: describe(draft.extra.images, "00") },
+    };
+    const json = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const zip = await feedbackZip.write([{ name: "feedback.json", blob: json }, ...files]);
+    const url = URL.createObjectURL(zip), a = el("a");
+    a.href = url;
+    a.download = `AIV-feedback-${spec.version}.zip`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    report("Esportato lo ZIP, con risposte e allegati.");
+  } catch (error) {
+    report("Esportazione non riuscita: " + error.message, true);
+  }
+}
+// Import takes the ZIP of the export, or a JSON exported before 2026-10-03 with base64 inside.
+async function importFile(input) {
   const file = input.files[0];
   if (!file) return;
   try {
-    if (file.size > 35 * 1024 * 1024) throw Error("Il JSON supera 35 MB.");
-    const imported = validate(JSON.parse(await file.text()));
-    draft = imported;
+    if (file.size > 35 * 1024 * 1024) throw Error("Il file supera 35 MB.");
+    const head = new Uint8Array(await file.slice(0, 2).arrayBuffer());
+    let raw;
+    if (head[0] === 0x50 && head[1] === 0x4b) {
+      const files = await feedbackZip.read(file);
+      const json = files.get("feedback.json");
+      if (!json) throw Error("Nello ZIP manca feedback.json.");
+      raw = JSON.parse(new TextDecoder().decode(json));
+      const attach = (images) => Array.isArray(images) ? images.map((img) => {
+        if (!img || typeof img.file !== "string") return img;
+        const bytes = files.get(img.file);
+        if (!bytes) throw Error("Nello ZIP manca " + img.file + ".");
+        const { file: _, ...rest } = img;
+        return { ...rest, blob: new Blob([bytes], { type: String(img.type) }) };
+      }) : images;
+      for (const value of Object.values(raw?.entries || {})) if (value) value.images = attach(value.images);
+      if (raw?.extra) raw.extra.images = attach(raw.extra.images);
+    } else raw = JSON.parse(await file.text());
+    draft = validate(raw);
     revision++;
     hydrate();
     await save();
-    report("JSON importato. Le risposte sono state ripristinate.");
+    report("Risposte importate e ripristinate.");
   } catch (error) {
     report("Importazione annullata: " + error.message, true);
   } finally {
@@ -572,7 +625,7 @@ async function importJson(input) {
 async function reset() {
   if (
     !confirm(
-      remote ? "Azzera la bozza cloud, rimuovendo risposte e allegati da tutti i dispositivi? Esporta il JSON per conservarli." : "Cancellare tutte le risposte e tutti gli allegati salvati in questo browser? Esporta il JSON per conservarle.",
+      remote ? "Azzera la bozza cloud, rimuovendo risposte e allegati da tutti i dispositivi? Esporta le risposte per conservarli." : "Cancellare tutte le risposte e tutti gli allegati salvati in questo browser? Esporta le risposte per conservarle.",
     )
   )
     return;
@@ -582,12 +635,12 @@ async function reset() {
   await save();
   report(remote ? "Bozza cloud azzerata." : "Risposte del browser azzerate.");
 }
-const commands = { reset, copy, export: exportJson, save, send };
+const commands = { reset, copy, export: exportZip, save, send };
 for (const row of [pageCommands, overlayCommands]) {
   for (const button of row.querySelectorAll("button[data-command]"))
     button.addEventListener("click", () => commands[button.dataset.command]());
   const picker = row.querySelector('[data-command="import"] input');
-  picker.addEventListener("change", () => importJson(picker));
+  picker.addEventListener("change", () => importFile(picker));
 }
 // The page's only keyboard handler: Ctrl/Cmd+S saves, Escape closes the Altro overlay, and
 // T switches the theme outside the fields. The format shortcuts belong to each editor.

@@ -30,14 +30,6 @@
       while (next < values.length) await callback(values[next++]);
     }));
   }
-  async function dataURL(bytes, type) {
-    return new Promise((resolve,reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(Error('Allegato non leggibile.'));
-      reader.readAsDataURL(new Blob([bytes],{type}));
-    });
-  }
   async function load(validate = value => value) {
     const response = await request(config.endpoint);
     const loadedEtag = revisionTag(response);
@@ -49,8 +41,9 @@
       const bytes = await response.arrayBuffer();
       const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte => byte.toString(16).padStart(2,'0')).join('');
       if (digest !== file.storageKey || bytes.byteLength !== file.size) throw Error('Allegato cloud incompleto.');
-      file.data = await dataURL(bytes,file.type);
-      uploads.set(file.data,Promise.resolve(file.storageKey));
+      // The original bytes as a file; the page never turns them into text.
+      file.blob = new Blob([bytes],{type:file.type});
+      uploads.set(file.blob,Promise.resolve(file.storageKey));
       delete file.storageKey;
     });
     const clean = validate(draft);
@@ -58,28 +51,29 @@
     return clean;
   }
   async function upload(file) {
-    if (!uploads.has(file.data)) {
+    // Uploads are keyed by the file object: the same attachment is sent once.
+    if (!uploads.has(file.blob)) {
       const pending = (async () => {
-        const bytes = await (await fetch(file.data)).arrayBuffer();
+        const bytes = await file.blob.arrayBuffer();
         const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte => byte.toString(16).padStart(2,'0')).join('');
         await request(config.files+digest,{method:'PUT',headers:{'Content-Type':'application/octet-stream'},body:bytes});
         return digest;
       })();
-      uploads.set(file.data,pending);
-      pending.catch(() => uploads.delete(file.data));
+      uploads.set(file.blob,pending);
+      pending.catch(() => uploads.delete(file.blob));
     }
-    return uploads.get(file.data);
+    return uploads.get(file.blob);
   }
   async function save(snapshot) {
     if (!etag) throw Error('Carica prima il documento cloud.');
     const wire = window.feedbackRemote.snapshot(snapshot);
     await parallel(files(wire),async file => {
       file.storageKey = await upload(file);
-      delete file.data;
+      delete file.blob;
     });
     const response = await request(config.endpoint,{method:'PUT',headers:{'Content-Type':'application/json','If-Match':etag},body:JSON.stringify(wire)});
     etag = revisionTag(response);
-    const active = new Set(files(snapshot).map(file=>file.data));
+    const active = new Set(files(snapshot).map(file=>file.blob));
     for (const data of uploads.keys()) if (!active.has(data)) uploads.delete(data);
     return response.json();
   }
@@ -133,7 +127,7 @@
     syncAccount(account.authenticated === true,account.username);
   }).catch(() => { /* The document load reports cloud errors separately. */ });
   login.addEventListener('click',event => {
-    if (window.feedbackHasUnsaved?.() && !confirm('Le modifiche non sono salvate. Esporta il JSON prima di accedere di nuovo. Continuare?')) event.preventDefault();
+    if (window.feedbackHasUnsaved?.() && !confirm('Le modifiche non sono salvate. Esporta le risposte prima di accedere di nuovo. Continuare?')) event.preventDefault();
   });
   window.feedbackRemote = {
     load,save,hasUpdates,snapshot,

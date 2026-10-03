@@ -25,6 +25,7 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | [Feedback.md](Feedback.md) | Prove, identificatori, passi e risultati attesi |
 | [feedback-build.py](../tools/feedback-build.py) | Generatore, struttura della pagina e dati incorporati |
 | [feedback.html](../publish/feedback.html) | Documento generato da pubblicare, mai unica fonte di una modifica |
+| [feedback-zip.js](../publish/feedback-zip.js) | Scrittura e lettura dello ZIP di `Esporta` e `Importa`, senza librerie |
 | [feedback-data.js](../publish/feedback-data.js) | Dati della pagina, bozza, validazione JSON, riepilogo, coda dei salvataggi |
 | [feedback-ui.js](../publish/feedback-ui.js) | Tema, messaggi, contatori, riquadri e allegati, Altro, i sei comandi di consegna |
 | [feedback-nav.js](../publish/feedback-nav.js) | Striscia, spostamento fra i riquadri, pulsanti flottanti e pressione lunga |
@@ -33,7 +34,7 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | [feedback.css](../publish/feedback.css) | Aspetto, esiti, evidenze e adattamento dello schermo |
 | [feedback-cloud.js](../publish/feedback-cloud.js) | Bozza remota, originali, versioni e accesso lato pagina |
 | [feedback-cloud-config.js](../publish/feedback-cloud-config.js) | Configurazione neutra per la pagina aperta fuori dal Worker (file locale, verifiche), sostituita dal Worker sul cloud |
-| [worker.mjs](../cloud/feedback/worker.mjs) | Pagina, accesso GitHub, API private e controllo delle scritture |
+| [worker.mjs](../cloud/feedback/worker.mjs) | Pagina, accesso GitHub, API private, controllo delle scritture e `Content-Security-Policy` della pagina |
 | [supabase-store.mjs](../cloud/feedback/supabase-store.mjs) | Database e Storage Supabase, soltanto lato server |
 | [supabase-setup.sql](../cloud/feedback/supabase-setup.sql) | Tabelle, revisioni, privilegi e bucket privato |
 | [feedback-cloud.yml](../.github/workflows/feedback-cloud.yml) | Verifiche e distribuzione del servizio cloud |
@@ -123,7 +124,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   1. la riga divisa **esattamente a metà**: a sinistra il `+` tratteggiato degli allegati, a
      destra i quattro tasti di formattazione, che si dividono la metà in parti uguali;
   2. i sei comandi di consegna come **icone con tooltip**, ognuno largo 1/6 della riga, in
-     quest'ordine: `Azzera tutto`, `Copia il riepilogo`, `Esporta JSON`, `Importa JSON`,
+     quest'ordine: `Azzera tutto`, `Copia il riepilogo`, `Esporta`, `Importa`,
      `Salva`, `Invia`. `Copia il riepilogo` copia negli appunti e basta: il testo non compare
      in nessun campo.
   ⚠️ **L'overlay `Consegna e copie` non c'è più dal 2026-10-03**, e con lui la pressione lunga
@@ -144,7 +145,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   usano la stessa favicon `assets/feedback-favicon.svg`, colore `#43B59E`, e alternativa PNG.
 - `Azzera tutto` richiede conferma e riguarda la bozza su tutti i dispositivi.
   Un comando disabilitato non indica un caricamento: cursore normale e aspetto coerente,
-  anche per il selettore di `Importa JSON`.
+  anche per il selettore di `Importa`.
 
 ## Dati, privacy e compatibilità
 
@@ -162,7 +163,18 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
 
 `images` è il nome storico anche per gli ZIP: non cambiarlo senza migrazione.
-L'esportazione JSON include gli allegati completi come data URL e i nomi originali.
+**Gli allegati sono file veri**, mai testo: nella pagina e nella bozza del browser un
+allegato è `{name, type, size, blob}`, con i byte originali (dal 2026-10-03; prima erano testo
+base64, un terzo più pesante e tenuto per intero nella memoria della pagina).
+
+**`Esporta` scrive uno ZIP senza compressione** (`feedback-zip.js`, senza librerie):
+`feedback.json` con le risposte, e accanto gli allegati coi nomi corti scelti
+dall'utente, cioè la posizione della prova su due cifre più una lettera (`01a.png`, `01b.jpg`,
+`02a.webp`), `00` per Altro (`00a.png`), e l'identificativo per le risposte a prove non più in
+pagina (`3.40-02a.png`). Ogni allegato in `feedback.json` è `{name, type, size, file}`:
+`name` è il nome originale, `file` quello nello ZIP. **`Importa` accetta lo ZIP** (anche
+ricompresso da un altro programma) **e i JSON esportati prima del 2026-10-03**, con gli
+allegati in base64 (`data`), che il controllo di validità trasforma in file veri.
 Sul cloud il JSON contiene riferimenti SHA-256 `storageKey`; gli originali rimangono nel
 bucket privato. Il caricamento verifica dimensione e hash prima di ricostruire il JSON
 completo. Il servizio carica al massimo tre allegati in parallelo e riusa quelli già presenti.
@@ -170,6 +182,11 @@ completo. Il servizio carica al massimo tre allegati in parallelo e riusa quelli
 Una nuova proprietà deve essere mantenuta da validazione, copia della bozza, recupero,
 importazione/esportazione, riepilogo e validazione server. Verifica sempre i vecchi JSON
 e le risposte già esistenti. Non resettare la bozza per facilitare un aggiornamento.
+
+La pagina servita dal Worker ha una `Content-Security-Policy` (dal 2026-10-03): solo i suoi
+script, stili, caratteri e API, e immagini solo da sé o dagli allegati in memoria (`blob:`).
+Chi aggiunge una risorsa esterna o uno stile in linea allarga la regola nel Worker, o il browser
+la blocca; il controllo cloud fallisce se il browser segnala un blocco.
 
 Le risposte personali e gli allegati non entrano nei commit pubblici, nei log o nel brief.
 L'accesso cloud è riservato al proprietario GitHub, ID `10722164`; gli agenti ricevono il

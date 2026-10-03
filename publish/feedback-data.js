@@ -12,7 +12,9 @@ const outcomes = spec.outcomes.map((outcome) => outcome.label);
 const maxFile = 8 * 1024 * 1024,
   maxTotal = 20 * 1024 * 1024;
 const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "application/zip"];
-// Preserve the historical images key in JSON drafts; it also holds ZIP files.
+// Preserve the historical images key in JSON drafts; it also holds ZIP files. In the page
+// and in the browser's own store an attachment is {name, type, size, blob}: the original
+// bytes as a file, never as text.
 // `decisions` stays in schema 1: the page no longer asks any, but old drafts carry them,
 // the Worker requires the key, and an import must give them back unchanged.
 const blank = () => ({
@@ -125,25 +127,31 @@ function validate(raw) {
         typeof img.name !== "string" ||
         img.name.length > 500 ||
         !allowedMime.includes(img.type) ||
-        typeof img.data !== "string" ||
-        !img.data.startsWith("data:" + img.type + ";base64,") ||
         !Number.isInteger(img.size) ||
         img.size < 1 ||
         img.size > maxFile
       )
         throw Error("Allegato non valido.");
-      const encoded = img.data.split(",")[1];
-      if (
-        !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) ||
-        encoded.length % 4 !== 0 ||
-        encoded.length > Math.ceil(maxFile / 3) * 4
-      )
-        throw Error("Dati allegato non validi.");
-      const bytes = atob(encoded).length;
-      if (bytes !== img.size) throw Error("Dimensione allegato non valida.");
-      total += bytes;
+      let blob;
+      if (img.blob instanceof Blob) blob = img.blob;
+      else if (typeof img.data === "string" && img.data.startsWith("data:" + img.type + ";base64,")) {
+        // Drafts and JSON exports made before 2026-10-03 carry each file as base64 text.
+        const encoded = img.data.split(",")[1];
+        if (
+          !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) ||
+          encoded.length % 4 !== 0 ||
+          encoded.length > Math.ceil(maxFile / 3) * 4
+        )
+          throw Error("Dati allegato non validi.");
+        const binary = atob(encoded), bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        blob = new Blob([bytes], { type: img.type });
+      } else throw Error("Allegato non valido.");
+      if (blob.size !== img.size) throw Error("Dimensione allegato non valida.");
+      total += blob.size;
       if (total > maxTotal) throw Error("Gli allegati superano 20 MB.");
-      return { name: img.name, type: img.type, size: img.size, data: img.data };
+      if (blob.type !== img.type) blob = new Blob([blob], { type: img.type });
+      return { name: img.name, type: img.type, size: img.size, blob };
     });
   }
   if (raw.extra !== undefined) {
@@ -249,7 +257,7 @@ function save() {
     .catch((error) => {
       remote?.failed(error);
       saved.textContent =
-        "Non salvato: esporta il JSON prima di chiudere. " + error.message;
+        "Non salvato: esporta le risposte prima di chiudere. " + error.message;
       saved.classList.add("error");
       return false;
     }).finally(() => { pendingSaves--; });
@@ -271,7 +279,7 @@ function summary() {
     if (value.comment) lines.push(value.comment);
     if (value.images.length)
       lines.push(
-        `Allegati: ${value.images.map((i) => i.name).join(", ")} (consegnare con JSON o allegati)`,
+        `Allegati: ${value.images.map((i) => i.name).join(", ")} (nello ZIP esportato)`,
       );
     lines.push("");
   }
@@ -293,6 +301,6 @@ function summary() {
     draft.notes || "Nessuna osservazione.",
   );
   if (draft.extra.images.length)
-    lines.push("Allegati alle osservazioni: " + draft.extra.images.map((file) => file.name).join(", ") + " (consegnare con JSON o allegati)");
+    lines.push("Allegati alle osservazioni: " + draft.extra.images.map((file) => file.name).join(", ") + " (nello ZIP esportato)");
   return lines.join("\n");
 }

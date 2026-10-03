@@ -20,7 +20,7 @@ Su mobile: striscia con i soli chip semaforo centrati; in editing solo Salva; Al
 di Prossimi passi (tieni premuto il FAB ⇥ o Salva, il dischetto, per il pannello). Su
 desktop: Altro in colonna laterale. Sotto il campo di Altro ci sono allegati e
 formattazione, e sotto ancora i sei comandi: Azzera tutto, Copia il riepilogo (negli
-appunti), Esporta JSON, Importa JSON, Salva, Invia. **Etichette testuali** (se presenti) stanno prima dell'archivio.
+appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **Etichette testuali** (se presenti) stanno prima dell'archivio.
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano.
 `Invia` rende leggibile il giro senza avviare lavori.
 

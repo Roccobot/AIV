@@ -43,7 +43,11 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     def page(ctx):
         result=ctx.new_page()
         result.on('pageerror',lambda error:errors.append(str(error)))
-        result.goto(origin+'/feedback')
+        # The Content-Security-Policy must not block anything the page uses.
+        result.on('console',lambda message:errors.append(message.text) if 'Content Security Policy' in message.text else None)
+        response=result.goto(origin+'/feedback')
+        policy=response.headers.get('content-security-policy','')
+        assert "script-src 'self'" in policy and "img-src 'self' blob:" in policy, 'Content-Security-Policy mancante: '+policy
         expect(result.locator('#save')).to_be_enabled()
         expect(result.locator('.cloud-account-logo')).to_be_visible()
         expect(result.locator('.cloud-account-user')).to_have_text('Roccobot')
@@ -144,15 +148,17 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(third.locator('#extra-section .zip-download')).to_have_count(1)
     with third.expect_download() as pending:
         third.locator('#export').click()
-    output=Path(temporary)/'cloud.json'
+    output=Path(temporary)/'cloud.zip'
     pending.value.save_as(str(output))
-    exported=json.loads(output.read_text())
-    assert exported['device']=='Telefono di prova, Android 13'
-    assert exported['tablet']=='Tablet di prova, Android 15'
-    attached=exported['entries'][first_id]['images'] if using_proof else exported['extra']['images']
-    assert [file['name'] for file in attached]==['disegno originale.svg','fonti originali.zip']
-    assert base64.b64decode(attached[0]['data'].split(',')[1])==svg
-    assert base64.b64decode(attached[1]['data'].split(',')[1])==archive.getvalue()
+    with zipfile.ZipFile(output) as container:
+        assert container.testzip() is None
+        exported=json.loads(container.read('feedback.json'))
+        assert exported['device']=='Telefono di prova, Android 13'
+        assert exported['tablet']=='Tablet di prova, Android 15'
+        attached=exported['entries'][first_id]['images'] if using_proof else exported['extra']['images']
+        assert [file['name'] for file in attached]==['disegno originale.svg','fonti originali.zip']
+        assert container.read(attached[0]['file'])==svg
+        assert container.read(attached[1]['file'])==archive.getvalue()
     assert third.evaluate('indexedDB.databases().then(values=>values.length)')==0
     # Failure remains visible; it must not pretend to be a successful cloud save.
     third.route('**/api/feedback',lambda route:route.abort() if route.request.method=='PUT' else route.continue_())
