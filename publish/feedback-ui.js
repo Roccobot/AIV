@@ -1,4 +1,8 @@
 "use strict";
+/* Feedback document, interface. Second of the four page scripts (see feedback-data.js).
+   Theme, messages, counters, cards and attachments, the Altro fields and overlay, and the
+   six Consegna commands. Uses the data and save() from feedback-data.js; refreshCounts()
+   calls refreshNavigation() from feedback-nav.js at run time. */
 /* DF theme: on load it follows the system; T (no modifiers, outside the fields)
    switches light and dark for this session only. Nothing is stored, so a reload
    goes back to the system theme. */
@@ -33,84 +37,16 @@
     apply();
   });
 })();
-const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
-if (!Array.isArray(spec.labels)) spec.labels = [];
-const outcomes = ["Tutto OK", "Accettabile", "Non approvato"];
-const maxFile = 8 * 1024 * 1024,
-  maxTotal = 20 * 1024 * 1024;
-const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "application/zip"];
-// Preserve the historical images key in JSON drafts; it also holds ZIP files.
-// `decisions` stays in schema 1: the page no longer asks any, but old drafts carry them,
-// the Worker requires the key, and an import must give them back unchanged.
-const blank = () => ({
-  schema: 1,
-  project: "AIV",
-  version: spec.version,
-  installed: "",
-  device: "",
-  tablet: "",
-  notes: "",
-  extra: { images: [] },
-  entries: {},
-  decisions: {},
-  labels: {},
-  updated: null,
-  completed: null,
-});
-let draft = blank(),
-  db = null,
-  revision = 0,
-  loaded = false,
-  saveQueue = Promise.resolve(),
-  saveTimer = null,
-  persistedRevision = 0,
-  pendingSaves = 0,
-  remoteReady = false,
-  syncing = false;
-const remote = window.feedbackRemote;
-const saved = document.querySelector("#saved"),
-  message = document.querySelector("#action-message");
+// Messages of the commands, in the strip under the save status.
+const message = document.querySelector("#action-message");
 function el(tag, text, cls) {
   const e = document.createElement(tag);
   if (text !== undefined) e.textContent = text;
   if (cls) e.className = cls;
   return e;
 }
-function entry(id) {
-  return (
-    draft.entries[id] ??
-    (draft.entries[id] = { status: "", comment: "", images: [] })
-  );
-}
 function attachmentEntry(card) {
   return card.classList.contains("extra") ? draft.extra : entry(card.dataset.id);
-}
-function usedAttachmentBytes() {
-  return [draft.extra, ...Object.values(draft.entries)].reduce((sum, value) =>
-    sum + value.images.reduce((bytes, file) => bytes + file.size, 0), 0);
-}
-function labelEntry(id) {
-  return draft.labels[id] ?? (draft.labels[id] = { revision: "" });
-}
-// Empty revision keeps the proposal. A cleared field is stored as a one-character sentinel.
-const LABEL_CLEARED = "\u0001";
-function labelById(id) {
-  return (spec.labels || []).find((item) => item.id === id);
-}
-function labelShown(item) {
-  const revision = labelEntry(item.id).revision;
-  if (revision === LABEL_CLEARED) return "";
-  if (revision === "") return item.proposal;
-  return revision;
-}
-function labelDirty(item) {
-  return labelShown(item) !== item.proposal;
-}
-function writeLabel(item, text) {
-  const value = labelEntry(item.id);
-  if (text === item.proposal) value.revision = "";
-  else if (text === "") value.revision = LABEL_CLEARED;
-  else value.revision = text;
 }
 function strokeIcon(paths) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -144,123 +80,6 @@ function labelA11yIcon() {
 function report(text, error = false) {
   message.textContent = text;
   message.classList.toggle("error", error);
-}
-function validate(raw) {
-  if (
-    !raw ||
-    raw.schema !== 1 ||
-    raw.project !== "AIV" ||
-    !raw.entries ||
-    typeof raw.entries !== "object" ||
-    Array.isArray(raw.entries) ||
-    !raw.decisions ||
-    typeof raw.decisions !== "object" ||
-    Array.isArray(raw.decisions) ||
-    (raw.labels !== undefined &&
-      (typeof raw.labels !== "object" || Array.isArray(raw.labels)))
-  )
-    throw Error("Formato JSON non riconosciuto.");
-  const clean = blank();
-  let total = 0;
-  for (const key of ["version", "installed", "device", "notes"]) {
-    if (typeof raw[key] !== "string" || raw[key].length > 100000)
-      throw Error("Campo non valido: " + key);
-    clean[key] = raw[key];
-  }
-  if (raw.tablet !== undefined) {
-    if (typeof raw.tablet !== "string" || raw.tablet.length > 100000)
-      throw Error("Campo non valido: tablet");
-    clean.tablet = raw.tablet;
-  }
-  for (const key of ["updated", "completed"]) {
-    if (
-      raw[key] !== undefined &&
-      raw[key] !== null &&
-      (typeof raw[key] !== "string" || !Number.isFinite(Date.parse(raw[key])))
-    )
-      throw Error("Data non valida.");
-    clean[key] = raw[key] ?? null;
-  }
-  if (
-    Object.keys(raw.entries).length > 500 ||
-    Object.keys(raw.decisions).length > 100 ||
-    Object.keys(raw.labels || {}).length > 200
-  )
-    throw Error("Troppe voci.");
-  function cleanAttachments(images) {
-    return images.map((img) => {
-      if (
-        !img ||
-        typeof img.name !== "string" ||
-        img.name.length > 500 ||
-        !allowedMime.includes(img.type) ||
-        typeof img.data !== "string" ||
-        !img.data.startsWith("data:" + img.type + ";base64,") ||
-        !Number.isInteger(img.size) ||
-        img.size < 1 ||
-        img.size > maxFile
-      )
-        throw Error("Allegato non valido.");
-      const encoded = img.data.split(",")[1];
-      if (
-        !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) ||
-        encoded.length % 4 !== 0 ||
-        encoded.length > Math.ceil(maxFile / 3) * 4
-      )
-        throw Error("Dati allegato non validi.");
-      const bytes = atob(encoded).length;
-      if (bytes !== img.size) throw Error("Dimensione allegato non valida.");
-      total += bytes;
-      if (total > maxTotal) throw Error("Gli allegati superano 20 MB.");
-      return { name: img.name, type: img.type, size: img.size, data: img.data };
-    });
-  }
-  if (raw.extra !== undefined) {
-    if (!raw.extra || !Array.isArray(raw.extra.images) || raw.extra.images.length > 30)
-      throw Error("Allegati delle osservazioni non validi.");
-    clean.extra = { images: cleanAttachments(raw.extra.images) };
-  }
-  for (const [id, value] of Object.entries(raw.entries)) {
-    if (
-      !/^\d+\.\d+-\d+$/.test(id) ||
-      !value ||
-      typeof value.comment !== "string" ||
-      value.comment.length > 100000 ||
-      !Array.isArray(value.images) ||
-      value.images.length > 30
-    )
-      throw Error("Risposta non valida.");
-    const status =
-      { OK: "Tutto OK", "Da correggere": "Non approvato", "Non provato": "" }[
-        value.status
-      ] ?? value.status;
-    if (status !== "" && !outcomes.includes(status))
-      throw Error("Esito non valido.");
-    const images = cleanAttachments(value.images);
-    clean.entries[id] = { status, comment: value.comment, images };
-  }
-  for (const [id, value] of Object.entries(raw.decisions)) {
-    if (
-      !/^d-[a-z0-9-]+$/.test(id) ||
-      !value ||
-      typeof value.choice !== "string" ||
-      typeof value.comment !== "string" ||
-      value.comment.length > 100000
-    )
-      throw Error("Decisione non valida.");
-    clean.decisions[id] = { choice: value.choice, comment: value.comment };
-  }
-  for (const [id, value] of Object.entries(raw.labels || {})) {
-    if (
-      !/^e-[A-Za-z0-9._-]+$/.test(id) ||
-      !value ||
-      typeof value.revision !== "string" ||
-      value.revision.length > 100000
-    )
-      throw Error("Etichetta non valida.");
-    clean.labels[id] = { revision: value.revision };
-  }
-  return clean;
 }
 function countIcon(kind) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -323,18 +142,6 @@ function refreshCounts() {
   refreshNavigation();
 }
 
-function alignDocumentVersion() {
-  // A new release of the document clears the free fields (rounds 3.25-3.30, 3.37 note A).
-  // Phone and tablet stay, and so do answers to tests whose identifier is still listed.
-  // The 'I installed this version' confirmation resets: it belongs to the new round.
-  if (draft.version === spec.version) return;
-  draft.notes = "";
-  draft.extra = { images: [] };
-  draft.completed = null;
-  draft.version = spec.version;
-  draft.installed = "";
-  syncAltroFields();
-}
 function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
@@ -385,55 +192,6 @@ function drawAttachments(card) {
     list.append(figure);
   });
 }
-function save() {
-  clearTimeout(saveTimer);
-  saveTimer = null;
-  if (!loaded) return Promise.resolve(false);
-  if (remote && !remoteReady) return Promise.resolve(false);
-  pendingSaves++;
-  const current = revision,
-    snapshot = remote ? remote.snapshot(draft) : structuredClone(draft);
-  snapshot.updated = new Date().toISOString();
-  snapshot.version = spec.version;
-  saved.textContent = "Salvataggio in corso...";
-  saved.classList.remove("error");
-  saveQueue = saveQueue
-    .catch(() => {})
-    .then(
-      () => remote ? remote.save(snapshot) :
-        new Promise((resolve, reject) => {
-          if (!db) {
-            reject(Error("Memoria del browser non disponibile."));
-            return;
-          }
-          const transaction = db.transaction("drafts", "readwrite");
-          transaction.objectStore("drafts").put(snapshot, "current");
-          transaction.oncomplete = () => resolve();
-          transaction.onerror = transaction.onabort = () =>
-            reject(transaction.error ?? Error("Salvataggio interrotto."));
-        }),
-    )
-    .then((result) => {
-      if (result?.updated) snapshot.updated = result.updated;
-      persistedRevision = current;
-      if (current === revision) {
-        draft.updated = snapshot.updated;
-        saved.textContent =
-          (remote ? "Salvato nel cloud: " : "Salvato in questo browser: ") +
-          new Date(snapshot.updated).toLocaleString("it-IT");
-        window.feedbackHoldEditingAfterSave?.();
-      }
-      return true;
-    })
-    .catch((error) => {
-      remote?.failed(error);
-      saved.textContent =
-        "Non salvato: esporta il JSON prima di chiudere. " + error.message;
-      saved.classList.add("error");
-      return false;
-    }).finally(() => { pendingSaves--; });
-  return saveQueue;
-}
 function changed() {
   revision++;
   draft.completed = null;
@@ -441,47 +199,6 @@ function changed() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, 350);
   saved.textContent = "Modifiche da salvare...";
-}
-function summary() {
-  const lines = [
-    `Feedback AIV ${spec.version}`,
-    draft.installed === spec.version
-      ? `Versione installata: ${spec.version} (confermata)`
-      : `Versione installata: non confermata`,
-    `Telefono: ${draft.device || "Non indicato"}`,
-    `Tablet: ${draft.tablet || "Non indicato"}`,
-    "",
-  ];
-  for (const item of spec.items) {
-    const value = entry(item.id);
-    lines.push(`${item.id} - ${item.title}: ${value.status || "Non provato"}`);
-    if (value.comment) lines.push(value.comment);
-    if (value.images.length)
-      lines.push(
-        `Allegati: ${value.images.map((i) => i.name).join(", ")} (consegnare con JSON o allegati)`,
-      );
-    lines.push("");
-  }
-  if (spec.labels && spec.labels.length) {
-    lines.push("", "Etichette testuali");
-    for (const item of spec.labels) {
-      const text = labelShown(item);
-      if (text.trim() === item.proposal.trim())
-        lines.push(`${item.id}: (approvata)`);
-      else {
-        lines.push(`${item.id}: ${text.trim()}`);
-        lines.push("Proposta era: " + item.proposal);
-      }
-    }
-  }
-  lines.push(
-    "",
-    "Altro",
-    draft.notes || "Nessuna osservazione.",
-  );
-  if (draft.extra.images.length)
-    lines.push("Allegati alle osservazioni: " + draft.extra.images.map((file) => file.name).join(", ") + " (consegnare con JSON o allegati)");
-  return lines.join("\n");
 }
 // Copy a text to the clipboard, with the selection fallback for browsers that refuse the API.
 async function copyText(text) {
@@ -825,186 +542,6 @@ for (const node of overlayCommands.querySelectorAll("[id]")) node.removeAttribut
 // Under the panel, not in its body: feedback-format.js rewraps the body around the field.
 document.querySelector(".altro-overlay-panel").append(overlayCommands);
 
-// --- Mobile editing: only Salva while a text field is focused ---
-const isMobileUi = () => window.matchMedia("(max-width: 720px)").matches;
-let editingHoldTimer = null;
-function setEditingMobile(on) {
-  if (!isMobileUi()) {
-    document.body.classList.remove("editing-mobile");
-    return;
-  }
-  document.body.classList.toggle("editing-mobile", on);
-}
-function holdEditingAfterSave() {
-  clearTimeout(editingHoldTimer);
-  setEditingMobile(true);
-  editingHoldTimer = setTimeout(() => {
-    const active = document.activeElement;
-    const still =
-      active &&
-      (active.matches("textarea, input:not([type=file]), .rich-editor") ||
-        active.closest?.(".rich-editor"));
-    if (!still) setEditingMobile(false);
-  }, 5000);
-}
-document.addEventListener(
-  "focusin",
-  (event) => {
-    const t = event.target;
-    if (!t) return;
-    if (
-      t.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
-      t.closest?.(".rich-editor")
-    )
-      setEditingMobile(true);
-  },
-  true,
-);
-document.addEventListener(
-  "focusout",
-  () => {
-    clearTimeout(editingHoldTimer);
-    editingHoldTimer = setTimeout(() => {
-      const active = document.activeElement;
-      const still =
-        active &&
-        (active.matches?.("textarea:not([readonly]), input:not([type=file]):not([readonly]), .rich-editor") ||
-          active.closest?.(".rich-editor"));
-      if (!still) setEditingMobile(false);
-    }, 0);
-  },
-  true,
-);
-window.feedbackHoldEditingAfterSave = holdEditingAfterSave;
-// Anchor the next card below the actual sticky dashboard, including wrapped mobile text.
-const responseCards = Array.from(document.querySelectorAll(".test, .extra"));
-const previousCard = document.querySelector("#previous-card");
-const nextCard = document.querySelector("#next-card");
-const firstEmpty = document.querySelector("#first-empty");
-const dashboard = document.querySelector(".dashboard");
-function refreshDashboardDocked() {
-  // Sticky positioning is not exposed as a CSS state. The viewport edge is the
-  // reliable boundary between the normal floating strip and its docked state.
-  dashboard.classList.toggle("is-docked", dashboard.getBoundingClientRect().top <= 0);
-}
-function navigationOffset() {
-  return document.querySelector(".dashboard").getBoundingClientRect().height + 12;
-}
-function currentCardIndex() {
-  const cards = responseCards;
-  const offset = navigationOffset();
-  const tops = cards.map((card) => card.getBoundingClientRect().top);
-  let index = -1;
-  for (let i = 0; i < cards.length; i++) {
-    if (tops[i] <= offset + 2) index = i;
-    else break;
-  }
-  // A section heading between cards belongs to the upcoming visible card.
-  if (index >= 0 && index < cards.length - 1 &&
-      cards[index].getBoundingClientRect().bottom < offset) index++;
-  // Sticky Altro sits beside the proofs. If a proof is actually at the
-  // offset, that proof is current. Altro stays current only past the proofs.
-  if (index >= 0 && cards[index].classList.contains("extra")) {
-    let proof = -1;
-    let best = -Infinity;
-    for (let i = 0; i < index; i++) {
-      if (cards[i].classList.contains("extra")) continue;
-      if (tops[i] <= offset + 2 && tops[i] > best) {
-        best = tops[i];
-        proof = i;
-      }
-    }
-    if (proof >= 0 && tops[proof] > offset - 80) index = proof;
-  }
-  return index;
-}
-function firstEmptyCard() {
-  return responseCards.find(card => !card.classList.contains("extra") && !card.classList.contains("has-response"));
-}
-function refreshNavigation() {
-  refreshDashboardDocked();
-  const index = currentCardIndex();
-  previousCard.disabled = !loaded || index <= 0;
-  nextCard.disabled = !loaded || index >= responseCards.length - 1;
-  const empty = firstEmptyCard();
-  // On mobile ⇥ stays visible, so a long press opens Altro even when nothing is empty.
-  const mobile = isMobileUi();
-  const floatingSave = document.querySelector("#floating-save");
-  if (mobile) {
-    firstEmpty.hidden = false;
-    firstEmpty.title = empty
-      ? "Primo riquadro non compilato · tieni premuto per Altro"
-      : "Tieni premuto per Altro";
-    firstEmpty.setAttribute(
-      "aria-label",
-      empty
-        ? "Primo riquadro non compilato. Tieni premuto per aprire Altro"
-        : "Tieni premuto per aprire Altro",
-    );
-  } else {
-    firstEmpty.hidden = !empty || responseCards[index] === empty;
-    firstEmpty.title = "Primo riquadro non compilato";
-    firstEmpty.setAttribute("aria-label", "Primo riquadro non compilato");
-  }
-  floatingSave.title = mobile ? "Salva · tieni premuto per Altro" : "Salva le risposte";
-  floatingSave.setAttribute(
-    "aria-label",
-    mobile ? "Salva le risposte. Tieni premuto per aprire Altro" : "Salva le risposte",
-  );
-  firstEmpty.disabled = !loaded;
-  document.documentElement.style.setProperty("--feedback-scroll-offset", navigationOffset() + "px");
-}
-function goToCard(card) {
-  if (!card) return;
-  window.scrollTo({top: window.scrollY + card.getBoundingClientRect().top - navigationOffset(), behavior: "instant"});
-  document.querySelector("#navigation-position").textContent =
-    card.querySelector(".check-position")?.textContent || card.querySelector("h3,h2").textContent;
-  refreshNavigation();
-}
-previousCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() - 1]));
-nextCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() + 1]));
-// On mobile a long press opens the Altro overlay; a short tap keeps the button's own action.
-function onTapOrHold(button, tap) {
-  let held = false, timer = null;
-  const clear = () => { clearTimeout(timer); timer = null; };
-  button.addEventListener("pointerdown", (event) => {
-    if (!isMobileUi() || event.button != null && event.button !== 0) return;
-    held = false;
-    clear();
-    timer = setTimeout(() => {
-      held = true;
-      setAltroOverlayOpen(true);
-    }, 450);
-  });
-  for (const name of ["pointerup", "pointercancel", "pointerleave"]) button.addEventListener(name, clear);
-  button.addEventListener("click", (event) => {
-    if (held) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      held = false;
-      return;
-    }
-    tap();
-  });
-}
-onTapOrHold(firstEmpty, () => {
-  const empty = firstEmptyCard();
-  if (empty) goToCard(empty);
-  else if (isMobileUi()) {
-    const target = document.querySelector("#extra-section");
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-});
-let navigationFrame = null;
-window.addEventListener("scroll", () => {
-  if (navigationFrame !== null) return;
-  navigationFrame = requestAnimationFrame(() => {
-    navigationFrame = null;
-    refreshNavigation();
-  });
-}, {passive: true});
-new ResizeObserver(refreshNavigation).observe(document.querySelector(".dashboard"));
-onTapOrHold(document.querySelector("#floating-save"), save);
 async function send() {
   draft.completed = new Date().toISOString();
   revision++;
@@ -1081,97 +618,4 @@ function controls(disabled) {
   for (const control of document.querySelectorAll("button,input,textarea"))
     control.disabled = disabled;
   window.feedbackFormatting?.setDisabled(disabled);
-}
-controls(true);
-(async () => {
-  try {
-    if (remote) {
-      const existing = await remote.load(validate);
-      if (existing) draft = existing;
-      remoteReady = true;
-      remote.account(true);
-      saved.textContent = existing ? "Risposte ripristinate dal cloud." : "Nessuna risposta nel cloud: puoi iniziare.";
-    } else {
-      db = await new Promise((resolve, reject) => {
-        const request = indexedDB.open("aiv-feedback", 1);
-        request.onupgradeneeded = () =>
-          request.result.createObjectStore("drafts");
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-        request.onblocked = () =>
-          reject(Error("Chiudi le altre schede del documento."));
-      });
-      db.onversionchange = () => {
-        db.close();
-        db = null;
-        saved.textContent = "Memoria chiusa da un'altra scheda: esporta il JSON.";
-      };
-      const existing = await new Promise((resolve, reject) => {
-        const request = db
-          .transaction("drafts")
-          .objectStore("drafts")
-          .get("current");
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
-      if (existing) draft = validate(existing);
-      saved.textContent = draft.updated
-        ? "Risposte ripristinate dal browser."
-        : "Nessuna risposta salvata: puoi iniziare.";
-    }
-  } catch (error) {
-    remote?.failed(error);
-    const needsLogin = remote && error.status === 401;
-    saved.textContent = needsLogin
-      ? "Accedi con GitHub per compilare il documento e importare il JSON."
-      : (remote ? "Cloud non disponibile. " : "Memoria non disponibile o dati non leggibili. Esporta il JSON prima di chiudere. ") + error.message;
-    saved.classList.toggle("error", !needsLogin);
-  } finally {
-    loaded = remote ? remoteReady : true;
-    alignDocumentVersion();
-    hydrate();
-    controls(!loaded);
-    refreshNavigation();
-  }
-})();
-
-window.feedbackHasUnsaved = () => revision !== persistedRevision;
-window.feedbackSaveForLogout = async () => await save() && revision === persistedRevision;
-async function refreshRemote() {
-  if (!remote || !remoteReady || syncing || pendingSaves || revision !== persistedRevision || document.hidden) return;
-  const observed = revision;
-  syncing = true;
-  let locked = false;
-  try {
-    if (!await remote.hasUpdates() || observed !== revision || pendingSaves) return;
-    controls(true);
-    locked = true;
-    const existing = await remote.load(validate);
-    draft = existing || blank();
-    alignDocumentVersion();
-    revision++;
-    persistedRevision = revision;
-    hydrate();
-    saved.textContent = "Risposte aggiornate dal cloud.";
-    saved.classList.remove("error");
-  } catch (error) {
-    remote.failed(error);
-    saved.textContent = "Sincronizzazione non riuscita. " + error.message;
-    saved.classList.add("error");
-  } finally {
-    if (locked) { controls(false); refreshNavigation(); }
-    syncing = false;
-  }
-}
-if (remote) {
-  setInterval(refreshRemote,15000);
-  window.addEventListener("focus",refreshRemote);
-  window.addEventListener("online",() => {
-    if (remoteReady && revision !== persistedRevision && !pendingSaves) save();
-    else refreshRemote();
-  });
-  document.addEventListener("visibilitychange",() => { if (!document.hidden) refreshRemote(); });
-  window.addEventListener("beforeunload",event => {
-    if (revision !== persistedRevision) { event.preventDefault(); event.returnValue = ""; }
-  });
 }
