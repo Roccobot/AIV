@@ -37,7 +37,7 @@ le osservazioni libere opzionali. Non modificare gli stati del
 collaudo senza il giro completo consegnato dall'utente. L'aggiornamento del sito non crea
 una release Android: l'APK e la sua versione sono indipendenti.
 
-Il documento principale è [Feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html),
+Il documento principale è [Feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback),
 condiviso da tutti gli agenti. La [guida di manutenzione](../docs/Feedback-maintenance.md)
 descrive convenzioni, fonti, dati, prove e procedura di aggiornamento.
 

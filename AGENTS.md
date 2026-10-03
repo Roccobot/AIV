@@ -237,7 +237,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   moduli, stili, filigrana, ridimensionamento). Prima di toccare una di quelle funzioni si legge il
   suo file per intero (`Rules.md` § '📚 Dove vivono le specifiche delle funzioni').
 - **Il documento di feedback condiviso da tutti gli agenti** vive in
-  <https://aiv-feedback.roccobot-b90.workers.dev/feedback.html>. Prima di aggiornarlo leggi
+  <https://aiv-feedback.roccobot-b90.workers.dev/feedback>. Prima di aggiornarlo leggi
   `docs/Feedback-maintenance.md`: fonti, identificatori stabili, cloud, formato dei dati,
   verifiche e pubblicazione. Invio rende leggibile il giro, il via in chat autorizza
   il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').

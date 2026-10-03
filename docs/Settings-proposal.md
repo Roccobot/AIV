@@ -3,7 +3,7 @@
 Confronto con AIV 3.13, letto il 1 ottobre 2026.
 **Applicata nella `3.27`** (decisione `d-settings-order`: Applica la proposta).
 La release 3.14 correggeva miniature e PSD e conservava la disposizione delle impostazioni.
-Puoi scegliere nel [documento di feedback](https://roccobot.github.io/AIV/feedback.html).
+Puoi scegliere nel [documento di feedback](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 La regola applicata è in [Rules.md](../Rules.md), sezione 'Dove va un'impostazione, e chi la deve trovare'.
 
 ## Prima e dopo

@@ -82,7 +82,7 @@ async function handle(request, env) {
     if (String(profile.id) !== String(env.OWNER_ID)) return json({error:'Questo documento è riservato al proprietario.'},403);
     if (typeof profile.login !== 'string' || !/^[A-Za-z0-9-]{1,39}$/.test(profile.login)) return json({error:'Nome utente GitHub non verificabile.'},502);
     const session = await sign(env,{kind:'session',owner:profile.id,username:profile.login,exp:Date.now()/1000+7*86400});
-    const response = redirect('/feedback.html',cookie(SESSION,session,7*86400));
+    const response = redirect('/feedback',cookie(SESSION,session,7*86400));
     response.headers.append('Set-Cookie',cookie(STATE,'',0));
     return response;
   }

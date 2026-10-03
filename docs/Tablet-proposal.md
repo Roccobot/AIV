@@ -48,6 +48,6 @@ La selezione di cartella, pagina e modulo sopravvive ai cambi di orientamento e 
 - La larghezza del pannello dell'editor e l'altezza dei controlli in verticale.
 - Il riordino delle impostazioni: proposta distinta in [Settings-proposal.md](Settings-proposal.md).
 
-Usa la sezione Decisioni del [feedback](https://roccobot.github.io/AIV/feedback.html).
+Usa la sezione Decisioni del [feedback](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 Le operazioni sono dimostrative; shader, riproduzione video e file non vengono eseguiti nel browser.
 Filigrana e Fluidifica restano funzioni già approvate: qui si valuta soltanto la disposizione.

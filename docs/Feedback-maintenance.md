@@ -1,7 +1,7 @@
 # Manutenzione del documento di feedback AIV
 
 Questa guida vale per qualsiasi agente e piattaforma di sviluppo. Il documento condiviso
-è [Feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
+è [Feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 Il proprietario ha confermato il funzionamento completo il 1 ottobre 2026.
 Gli agenti mantengono lo stesso codice e indirizzo; recuperano il giro completo soltanto
 dopo il via esplicito del proprietario in chat.

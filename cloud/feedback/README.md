@@ -31,7 +31,7 @@ mai feedback personali o allegati nei commit del repository pubblico.
 ## Preparazione del progetto Supabase
 
 Il servizio è pubblicato su
-[Documento di feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
+[Documento di feedback AIV](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 Il workflow verifica l'archivio remoto e l'accesso anonimo negato prima di confermare la
 pubblicazione. L'accesso personale e il trasferimento delle risposte si collaudano seguendo
 il punto 8. I valori segreti vanno inseriti nei campi riservati, mai in chat o nel repository.
@@ -48,7 +48,7 @@ il punto 8. I valori segreti vanno inseriti nei campi riservati, mai in chat o n
    Solo il ruolo server `service_role` ha accesso: nessuna chiave va nella pagina pubblica.
 4. Registra su GitHub una OAuth App chiamata `AIV Feedback`, senza permessi sui repository.
    Sullo stesso account di `rules-proxy`, homepage prevista
-   `https://aiv-feedback.roccobot-b90.workers.dev/feedback.html` e indirizzo di ritorno
+   `https://aiv-feedback.roccobot-b90.workers.dev/feedback` e indirizzo di ritorno
    `https://aiv-feedback.roccobot-b90.workers.dev/auth/callback`. Verifica il sottodominio
    Workers dell'account; se diverso, usa quello in entrambi gli indirizzi.
 5. Crea un token Cloudflare limitato a quell'account con Workers Scripts: Edit e

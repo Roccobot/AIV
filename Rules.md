@@ -41,7 +41,7 @@ sessione dopo è perso.
 ## 🔗 Il documento vivo del progetto
 
 - Il **documento di feedback è condiviso da tutte le piattaforme e tutti gli agenti**.
-  Indirizzo stabile: <https://aiv-feedback.roccobot-b90.workers.dev/feedback.html>.
+  Indirizzo stabile: <https://aiv-feedback.roccobot-b90.workers.dev/feedback>.
   Titolo `Feedback AIV`; i testi visibili usano `l'agente`, senza attribuzione esclusiva.
   Il proprietario ha confermato il funzionamento completo il 1 ottobre 2026.
 - **Prima di prenderlo in carico o aggiornarlo leggi `docs/Feedback-maintenance.md`**:

@@ -57,7 +57,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     def page(ctx):
         result=ctx.new_page()
         result.on('pageerror',lambda error:errors.append(str(error)))
-        result.goto(origin+'/feedback.html')
+        result.goto(origin+'/feedback')
         expect(result.locator('#save')).to_be_enabled()
         expect(result.locator('.cloud-account-logo')).to_be_visible()
         expect(result.locator('.cloud-account-user')).to_have_text('Roccobot')
@@ -188,7 +188,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     second_context.close()
     anonymous_context=browser.new_context()
     anonymous=anonymous_context.new_page()
-    anonymous.goto(origin+'/feedback.html')
+    anonymous.goto(origin+'/feedback')
     expect(anonymous.get_by_role('link',name='Accedi')).to_be_visible()
     expect(anonymous.locator('.cloud-account p')).to_have_text('Collegati con GitHub per il salvataggio cloud')
     expect(anonymous.locator('.cloud-account-logo')).to_be_hidden()
