@@ -1,7 +1,7 @@
 "use strict";
-/* Tema DF: al carico segue il sistema; T (senza modificatori, fuori dai campi)
-   scambia chiaro↔scuro solo per la sessione. Nessun localStorage/cookie; il
-   refresh torna al sistema. */
+/* DF theme: on load it follows the system; T (no modifiers, outside the fields)
+   switches light and dark for this session only. Nothing is stored, so a reload
+   goes back to the system theme. */
 (function initFeedbackTheme() {
   let override = null;
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -40,6 +40,8 @@ const maxFile = 8 * 1024 * 1024,
   maxTotal = 20 * 1024 * 1024;
 const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "application/zip"];
 // Preserve the historical images key in JSON drafts; it also holds ZIP files.
+// `decisions` stays in schema 1: the page no longer asks any, but old drafts carry them,
+// the Worker requires the key, and an import must give them back unchanged.
 const blank = () => ({
   schema: 1,
   project: "AIV",
@@ -86,11 +88,6 @@ function attachmentEntry(card) {
 function usedAttachmentBytes() {
   return [draft.extra, ...Object.values(draft.entries)].reduce((sum, value) =>
     sum + value.images.reduce((bytes, file) => bytes + file.size, 0), 0);
-}
-function decision(id) {
-  return (
-    draft.decisions[id] ?? (draft.decisions[id] = { choice: "", comment: "" })
-  );
 }
 function labelEntry(id) {
   return draft.labels[id] ?? (draft.labels[id] = { revision: "" });
@@ -251,13 +248,6 @@ function validate(raw) {
       value.comment.length > 100000
     )
       throw Error("Decisione non valida.");
-    const question = spec.decisions.find((q) => q.id === id);
-    if (
-      question &&
-      value.choice !== "" &&
-      !question.options.includes(value.choice)
-    )
-      throw Error("Scelta non valida.");
     clean.decisions[id] = { choice: value.choice, comment: value.comment };
   }
   for (const [id, value] of Object.entries(raw.labels || {})) {
@@ -301,10 +291,6 @@ function refreshCounts() {
     card.dataset.outcome = value.status;
     card.classList.toggle("has-response", Boolean(value.status || value.comment.trim() || value.images.length));
   }
-  for (const card of document.querySelectorAll(".decision")) {
-    const value = decision(card.dataset.id);
-    card.classList.toggle("has-response", Boolean(value.choice || value.comment.trim()));
-  }
   for (const card of document.querySelectorAll(".label-card")) {
     const item = labelById(card.dataset.id);
     const dirty = item ? labelDirty(item) : false;
@@ -338,10 +324,9 @@ function refreshCounts() {
 }
 
 function alignDocumentVersion() {
-  // ⚠️ **Nuovo rilascio del documento: svuota i campi liberi** (giro 3.25-3.30 / 3.37 note A).
-  // Telefono/tablet restano. Prove con ID ancora presenti restano.
-  // Decisioni non più in spec.decisions non si ripropongono in UI (lista vuota = chiuse).
-  // La conferma 'ho installato questa versione' si azzera: va rifatta sul nuovo giro.
+  // A new release of the document clears the free fields (rounds 3.25-3.30, 3.37 note A).
+  // Phone and tablet stay, and so do answers to tests whose identifier is still listed.
+  // The 'I installed this version' confirmation resets: it belongs to the new round.
   if (draft.version === spec.version) return;
   draft.notes = "";
   draft.extra = { images: [] };
@@ -358,12 +343,6 @@ function hydrate() {
       b.setAttribute("aria-pressed", String(b.dataset.status === value.status));
     drawAttachments(card);
   }
-  for (const card of document.querySelectorAll(".decision")) {
-    const value = decision(card.dataset.id);
-    card.querySelector("textarea").value = value.comment;
-    for (const b of card.querySelectorAll(".decision-options button"))
-      b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
-  }
   for (const card of document.querySelectorAll(".label-card")) {
     const item = labelById(card.dataset.id);
     if (!item) continue;
@@ -376,8 +355,6 @@ function hydrate() {
   drawAttachments(document.querySelector(".extra"));
   window.feedbackFormatting?.refresh();
   refreshCounts();
-  const dec = document.querySelector("#decisions");
-  if (dec) dec.hidden = !(spec.decisions && spec.decisions.length);
   const lab = document.querySelector("#labels");
   if (lab) lab.hidden = !(spec.labels && spec.labels.length);
 }
@@ -486,12 +463,6 @@ function summary() {
       );
     lines.push("");
   }
-  lines.push("Decisioni");
-  for (const question of spec.decisions) {
-    const value = decision(question.id);
-    lines.push(`${question.id}: ${value.choice || "Da decidere"}`);
-    if (value.comment) lines.push(value.comment);
-  }
   if (spec.labels && spec.labels.length) {
     lines.push("", "Etichette testuali");
     for (const item of spec.labels) {
@@ -525,47 +496,6 @@ async function copy() {
     area.select();
     report("Copia il testo selezionato e incollalo in chat.");
   }
-}
-for (const question of spec.decisions) {
-  const card = el("article", undefined, "card decision");
-  card.dataset.id = question.id;
-  card.append(el("h3", question.title), el("p", question.text));
-  if (question.link) {
-    const a = el("a", "Apri la proposta");
-    a.href = question.link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    card.append(a);
-  }
-  const options = el("div", undefined, "decision-options");
-  for (const choice of question.options) {
-    const b = el("button", choice);
-    b.type = "button";
-    b.dataset.choice = choice;
-    b.setAttribute("aria-pressed", "false");
-    b.addEventListener("click", () => {
-      const value = decision(question.id);
-      value.choice = value.choice === choice ? "" : choice;
-      for (const peer of options.querySelectorAll("button"))
-        peer.setAttribute(
-          "aria-pressed",
-          String(peer.dataset.choice === value.choice),
-        );
-      changed();
-    });
-    options.append(b);
-  }
-  card.append(options);
-  const label = el("label", "Indicazioni sulla proposta"),
-    comment = el("textarea");
-  comment.rows = 3;
-  comment.addEventListener("input", () => {
-    decision(question.id).comment = comment.value;
-    changed();
-  });
-  label.append(comment);
-  card.append(label);
-  document.querySelector("#decision-list").append(card);
 }
 async function copyLabelId(id) {
   const text = String(id || "").toLowerCase();
@@ -865,7 +795,7 @@ for (const id of ["notes", "notes-mobile"]) {
   if (node) node.addEventListener("input", onAltroInput);
 }
 
-// --- Mobile Altro overlay (long-press floating ⇥); same draft.notes as bottom Altro ---
+// --- Mobile Altro overlay (long press on the floating ⇥); same draft.notes as the page Altro ---
 const altroOverlay = document.querySelector("#altro-overlay");
 function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
@@ -890,7 +820,7 @@ document.addEventListener("keydown", (event) => {
     setAltroOverlayOpen(false);
 });
 
-// --- Consegna e copie overlay (Altro button or long-press Salva) ---
+// --- Consegna overlay (Altro button, or long press on Salva) ---
 const deliveryOverlay = document.querySelector("#delivery-overlay");
 const openDeliveryBtn = document.querySelector("#open-delivery");
 function setDeliveryOverlayOpen(open) {
@@ -981,7 +911,7 @@ document.addEventListener(
 );
 window.feedbackHoldEditingAfterSave = holdEditingAfterSave;
 // Anchor the next card below the actual sticky dashboard, including wrapped mobile text.
-const responseCards = Array.from(document.querySelectorAll(".test, .decision, .extra"));
+const responseCards = Array.from(document.querySelectorAll(".test, .extra"));
 const previousCard = document.querySelector("#previous-card");
 const nextCard = document.querySelector("#next-card");
 const firstEmpty = document.querySelector("#first-empty");
@@ -1211,7 +1141,7 @@ document.querySelector("#reset").addEventListener("click", async () => {
   hydrate();
   document.querySelector("#summary").value = "";
   await save();
-  report("Risposte del browser azzerate.");
+  report(remote ? "Bozza cloud azzerata." : "Risposte del browser azzerate.");
   closeDeliveryAfterAction();
 });
 document.addEventListener("keydown", (event) => {

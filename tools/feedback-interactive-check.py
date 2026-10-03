@@ -98,9 +98,7 @@ def check(path):
     for label in data.get('labels', []):
         assert all(label.get(k) for k in ['id', 'title', 'proposal']), 'Etichetta incompleta.'
         assert label['id'].startswith('e-'), 'id etichetta deve iniziare con e-.'
-    for question in data['decisions']:
-        assert all(question.get(k) for k in ['id', 'title', 'text', 'options']), 'Decisione incompleta.'
-        assert len(set(question['options'])) == len(question['options']), 'Scelte duplicate.'
+    assert 'decisions' not in data, 'La pagina non pone più decisioni.'
     if not data['items']:
         check_without_tests(path)
         return
@@ -173,8 +171,8 @@ def check(path):
                     assert box['width'] >= 48 and box['height'] >= 48
             navigation.evaluate('''() => {
                 const previous = document.querySelector('#tests .test:last-child').getBoundingClientRect();
-                // Prefer a following in-flow primary card; .extra is a side column on desktop.
-                const nextNode = document.querySelector('.decision') || document.querySelector('.feedback-primary .archive');
+                // The next in-flow primary card; .extra is a side column on desktop.
+                const nextNode = document.querySelector('.feedback-primary .archive');
                 const next = nextNode.getBoundingClientRect();
                 const offset = document.querySelector('.dashboard').getBoundingClientRect().height + 12;
                 window.scrollTo(0, window.scrollY + (previous.bottom + next.top)/2 - offset);
@@ -192,7 +190,7 @@ def check(path):
                 navigation.locator('#first-empty').tap()
                 aligned(navigation.locator('.test').nth(2))
             # Fill through normal input handlers; navigation must update without a reload.
-            for field in navigation.locator('.test .rich-editor,.decision .rich-editor').all():
+            for field in navigation.locator('.test .rich-editor').all():
                 field.fill('Risposta di verifica')
             # Desktop hides ⇥ when nothing is empty; mobile keeps it for long-press Altro.
             if navigation.viewport_size['width'] <= 720:
@@ -212,12 +210,8 @@ def check(path):
             navigation.evaluate('window.scrollTo(0, document.body.scrollHeight)')
             expect(navigation.locator('#next-card')).to_be_disabled()
             navigation.locator('#previous-card').tap()
-            # With decisions: previous from the bottom lands on the last decision.
-            # Without: responseCards end at .extra, so previous lands on the last test.
-            if navigation.locator('.decision').count():
-                aligned(navigation.locator('.decision').last)
-            else:
-                aligned(navigation.locator('.test').last)
+            # responseCards end at .extra, so previous from the bottom lands on the last test.
+            aligned(navigation.locator('.test').last)
             navigation_context.close()
             formatting_context = browser.new_context(permissions=['clipboard-read','clipboard-write'])
             formatting = formatting_context.new_page()
@@ -308,14 +302,6 @@ def check(path):
             formatting.once('dialog',lambda dialog:dialog.accept(destination))
             card.locator('[data-format="link"]').click()
             expect(stored).to_have_value(expected_comment)
-            decision_card = formatting.locator('.decision').first
-            decision_field = decision_card.locator('.rich-editor') if formatting.locator('.decision').count() else None
-            if decision_field:
-                fill_plain(decision_field, 'scelta')
-                select(decision_field,0,6)
-                decision_field.press('Control+i')
-                expect(decision_card.locator('textarea')).to_have_value('*scelta*')
-                expect(decision_field.locator('i,em')).to_have_text('scelta')
             notes_field = formatting.locator('.extra .rich-editor')
             fill_plain(notes_field, 'note')
             select(notes_field,0,4)
@@ -331,16 +317,12 @@ def check(path):
             expect(formatting.locator('#save')).to_be_enabled()
             expect(stored).to_have_value(expected_comment)
             expect(field.locator('a')).to_have_text('abc')
-            if decision_field:
-                expect(decision_field.locator('em')).to_have_text('scelta')
             expect(notes_field.locator('em')).to_have_text('note')
             open_delivery(formatting)
             formatting.locator('#copy').click()
             expect(formatting.locator('#action-message')).to_contain_text('Riepilogo copiato')
             formatted_summary = formatting.evaluate('navigator.clipboard.readText()')
             expected_bits = [expected_comment, '*note*']
-            if decision_field:
-                expected_bits.append('*scelta*')
             assert all(value in formatted_summary for value in expected_bits)
             with formatting.expect_download() as pending:
                 open_delivery(formatting)
@@ -349,8 +331,6 @@ def check(path):
             pending.value.save_as(str(formatted_export))
             formatted_data=json.loads(formatted_export.read_text())
             assert formatted_data['entries'][data['items'][0]['id']]['comment']==expected_comment
-            if data['decisions']:
-                assert formatted_data['decisions'][data['decisions'][0]['id']]['comment']=='*scelta*'
             assert formatted_data['notes']=='*note*'
             # Old drafts containing formatted text, literal Markdown characters and line breaks.
             restored='**grassetto** e *corsivo*\n[link]('+destination+')\nPercorso C:\\foto, \\*letterale\\* <img src=x>'
@@ -500,7 +480,7 @@ def check(path):
             page.goto(url)
             expect(page.locator('#save')).to_be_enabled()
             assert page.locator('.test').count() == len(data['items'])
-            assert page.locator('.decision').count() == len(data['decisions'])
+            assert page.locator('.decision, #decisions').count() == 0
             open_delivery(page)
             assert page.locator('#delivery-info').count() == 0
             assert page.locator('.browse-label').count() == 0
@@ -599,8 +579,6 @@ def check(path):
             first.locator('.rich-editor').fill('Commento di verifica: <script>test</script>')
             page.locator('.extra .rich-editor').fill('Osservazioni libere di verifica')
             page.locator('#device').fill('Dispositivo di verifica')
-            if page.locator('.decision').count():
-                page.locator('.decision').first.locator('button').first.click()
             image = Path(temporary) / 'feedback.png'
             # An original, complete PNG is attached without image transformations.
             image.write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP9sAAAAASUVORK5CYII='))
@@ -618,12 +596,6 @@ def check(path):
             if page.locator('.test').count() == 1:
                 first.locator('[data-status="Accettabile"]').click()
                 first.locator('.rich-editor').fill('Commento di verifica: <script>test</script>')
-            if page.locator('.decision').count() > 1:
-                indication_only = page.locator('.decision').nth(1)
-                indication_only.locator('.rich-editor').fill('Solo commento')
-                expect(indication_only).to_have_class(re.compile(r'\bhas-response\b'))
-                indication_only.locator('.rich-editor').fill('')
-                expect(indication_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.images').set_input_files(str(image))
             expect(first.locator('.image-list img')).to_have_count(1)
             # SVG stays an image resource: scripts and external resources cannot execute.
@@ -705,8 +677,6 @@ def check(path):
             for attached, original in zip(exported['extra']['images'], [image.read_bytes(), svg_bytes, archive.read_bytes(), archive.read_bytes()]):
                 assert base64.b64decode(attached['data'].split(',')[1]) == original, 'Allegato delle osservazioni modificato.'
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
-            if page.locator('.decision').count():
-                expect(page.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
 
             second_context = browser.new_context(permissions=['clipboard-read', 'clipboard-write'])
             second = second_context.new_page()
@@ -770,9 +740,6 @@ def check(path):
             second.emulate_media(color_scheme='dark')
             second.locator('.test').first.locator('.rich-editor').fill('Solo commento')
             expect(second.locator('.test').first).to_have_class(re.compile(r'\bhas-response\b'))
-            if second.locator('.decision').count():
-                second.locator('.decision').first.locator('.rich-editor').fill('Solo indicazione')
-                expect(second.locator('.decision').first).to_have_class(re.compile(r'\bhas-response\b'))
             for field in second.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
 
@@ -832,9 +799,24 @@ def check(path):
             expect(migration.locator('#save')).to_be_enabled()
             expect(migration.locator(f'[data-id="{first_id}"] .item-state')).to_have_count(0)
             expect(migration.locator('[data-id="3.14-03"]')).to_have_count(0)
-            if migration.locator('.decision').count():
-                expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
-                expect(migration.locator('.decision').first.locator('button[aria-pressed="true"]')).to_have_text(legacy['decisions']['d-settings-order']['choice'])
+            # The page asks no decisions, but an old draft's answers survive a save through the page.
+            migration.keyboard.press('Control+s')
+            expect(migration.locator('#saved')).to_contain_text('Salvato in questo browser')
+            kept_decisions = migration.evaluate("""async () => {
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('aiv-feedback', 1);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                const draft = await new Promise((resolve, reject) => {
+                    const request = db.transaction('drafts').objectStore('drafts').get('current');
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                db.close();
+                return draft.decisions;
+            }""")
+            assert kept_decisions == legacy['decisions'], 'Decisioni della bozza precedente perse.'
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
             expect(migration.locator('#giro-version')).to_have_text(data['version'])
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
@@ -846,7 +828,7 @@ def check(path):
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
-        print(f'{len(data["items"])} prove, {len(data["decisions"])} decisioni: forma, browser, salvataggio, immagini, SVG e ZIP originali nei riquadri e nelle osservazioni, trascinamento, download, nuove schede, campi, allineamento, numerazione e navigazione mobile, formattazione e scorciatoie, conferma, colori degli esiti, evidenze, JSON, clipboard e larghezze verificati.')
+        print(f'{len(data["items"])} prove: forma, browser, salvataggio, immagini, SVG e ZIP originali nei riquadri e nelle osservazioni, trascinamento, download, nuove schede, campi, allineamento, numerazione e navigazione mobile, formattazione e scorciatoie, conferma, colori degli esiti, evidenze, JSON, clipboard e larghezze verificati.')
     finally:
         server.shutdown()
         server.server_close()

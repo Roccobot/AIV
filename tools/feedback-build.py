@@ -85,8 +85,8 @@ for match in re.finditer(r'^## (\d+)\. ([^\n]+)\n(.*?)(?=^## |\Z)', md, re.M | r
             paragraphs.append(flat)
     items.append(dict(id=identifier, version=identifier.rsplit('-', 1)[0], title=match[2],
                       paragraphs=paragraphs))
-# Decisioni 3.24 chiuse: fuori dal flusso da rispondere (archivio HTML). JSON vecchio resta valido.
-# Etichette testuali: sezione opzionale; ogni ### id[ · titolo] + corpo = proposta ITA.
+# Optional "Etichette testuali" section: each `### id[ · title]` heading plus its body is the
+# proposed Italian text. The page asks no decisions any more; old drafts keep theirs (feedback.js).
 labels = []
 labels_match = re.search(r'^## Etichette testuali\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if labels_match:
@@ -106,7 +106,7 @@ if labels_match:
         if a11y:
             entry['a11y'] = True
         labels.append(entry)
-data = dict(project='AIV', version=version, items=items, decisions=[], labels=labels)
+data = dict(project='AIV', version=version, items=items, labels=labels)
 next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if not next_match:
     raise SystemExit('docs/Feedback.md deve contenere la sezione Prossimi passi')
@@ -151,9 +151,7 @@ for index, item in enumerate(items, 1):
     cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment" aria-label="Allega file o trascinali qui"><span class="attachment-plus" aria-hidden="true">+</span><input class="images" aria-label="Allega file o trascinali qui" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div></article>')
 
 tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
-count = re.search(r'superate: (\d+) prove', md).group(1)
 page = (tpl
-    .replace('__COUNT__', count)
     .replace('__TOTAL__', str(len(items)))
     .replace('__VERSION__', version)
     .replace('__CARDS__', '\n'.join(cards))
