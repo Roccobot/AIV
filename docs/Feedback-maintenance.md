@@ -50,14 +50,17 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   L'interfaccia del DF (striscia, Altro, overlay, shell, formattazione, Salva-only mobile,
   casella versione, PP, ...) si discute e si concorda **in chat**, e vive in codice, in questa
   guida e nel brief. **Non** compare nel documento: né come prova di collaudo, né come riga
-  di `Riscontri conclusi`.
+  di `Aggiornamenti recenti`.
 - ⚠️⚠️ **L'introduzione tiene due righe sullo stato del giro e la voce `Scarica AIV`**, e
   nient'altro. Un link a un documento esterno (per esempio una proposta di interfaccia) va
   in testa, subito dopo `Scarica AIV`, **finché serve**: chiusa la decisione che lo riguarda,
   si toglie.
-- ⚠️⚠️ **`Riscontri conclusi` è un riepilogo degli ultimi due giri circa, non un changelog**:
+- ⚠️⚠️ **`Aggiornamenti recenti` è un riepilogo degli ultimi due giri circa, non un changelog**:
+  (si chiamava `Riscontri conclusi` fino al 2026-10-03, rinominata da Rocco)
   le righe dei giri più vecchi si tolgono quando entra un giro nuovo. La storia completa vive
-  in git.
+  in git. La sezione della pagina la genera `tools/feedback-build.py` dalla tabella
+  `Aggiornamenti recenti` di `Feedback.md` (una frase per giro, il più recente prima): si
+  aggiorna la tabella, mai il modello `tools/feedback-page.html.in`.
 - Sigle: **DF** = documento di feedback; **PP** = **Prossimi passi**.
 - Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief. È una sorta di **mini-brief** per Rocco.
 - Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
@@ -97,7 +100,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   interfaccia (paragrafi, pulsanti, toast, voci, ...), l'agente può redigere la proposta e
   far uscire la versione; il DF deve elencare **ogni** nuova stringa ITA una per una in
   una sezione intitolata esattamente **Etichette testuali**, in basso **prima** delle
-  sezioni conclusive/archivio (`Riscontri conclusi`) e del PP. Ogni sotto-card mostra il
+  sezioni conclusive/archivio (`Aggiornamenti recenti`) e del PP. Ogni sotto-card mostra il
   testo ITA proposto per intero e un campo libero: ciò che l'utente scrive sostituisce la
   proposta al prossimo rilascio utile; campo vuoto = approvato. Non è una sezione di prove
   (niente esiti, fuori dai contatori). Assente o vuota → sezione nascosta.
