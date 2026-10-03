@@ -31,6 +31,56 @@ def open_delivery(page):
     expect(overlay).to_be_visible()
 
 
+SYNTHETIC_TEST = '''
+| 0.00-01 | prova di sintesi del controllo |
+
+## 1. Prova di sintesi
+
+Scheda generata dal controllo e mai pubblicata: serve a esercitare la pagina quando il giro non ha prove aperte.
+'''
+
+
+def check_without_tests(path):
+    """A round with every test closed publishes a page with no cards, and the exercise below
+    needs at least one: it used to time out waiting for `.test`, so the check failed on a
+    correct page. Two steps instead. The real page must start clean and draw no card; then
+    the same generator and template build a throwaway copy with one synthetic test, served
+    next to the real assets, and the whole exercise runs on it."""
+    from playwright.sync_api import sync_playwright, expect
+    browser = shutil.which('chromium') or shutil.which('google-chrome')
+    if not browser:
+        raise AssertionError('Chromium non disponibile: resa non verificata.')
+    folder = Path(path).resolve().parent
+    root = Path(__file__).resolve().parents[1]
+    errors = []
+    with sync_playwright() as pw:
+        engine = pw.chromium.launch(executable_path=browser, args=['--no-sandbox'])
+        page = engine.new_page()
+        page.on('pageerror', lambda e: errors.append(str(e)))
+        page.goto(Path(path).resolve().as_uri())
+        expect(page.locator('#save')).to_be_enabled()
+        assert page.locator('.test').count() == 0, 'Schede di prova disegnate senza prove nei dati.'
+        for width in [320, 390, 800, 1280]:
+            page.set_viewport_size({'width': width, 'height': 900})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Scorrimento orizzontale a {width}px.'
+        engine.close()
+    assert not errors, 'Errori nella pagina senza prove: ' + str(errors)
+    print('Pagina senza prove: parte senza errori e non disegna schede.')
+    with tempfile.TemporaryDirectory() as temporary:
+        stage = Path(temporary)
+        for entry in folder.iterdir():
+            if entry.name != Path(path).name:
+                (stage / entry.name).symlink_to(entry)
+        source = stage / 'Feedback.md'
+        source.write_text((root / 'docs/Feedback.md').read_text() + SYNTHETIC_TEST)
+        page_copy = stage / Path(path).name
+        import subprocess
+        import sys
+        subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'),
+                        '--source', str(source), '--output', str(page_copy)], check=True, stdout=subprocess.DEVNULL)
+        check(str(page_copy))
+
+
 def check(path):
     text = Path(path).read_text()
     match = re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', text, re.S)
@@ -51,6 +101,9 @@ def check(path):
     for question in data['decisions']:
         assert all(question.get(k) for k in ['id', 'title', 'text', 'options']), 'Decisione incompleta.'
         assert len(set(question['options'])) == len(question['options']), 'Scelte duplicate.'
+    if not data['items']:
+        check_without_tests(path)
+        return
     browser = shutil.which('chromium') or shutil.which('google-chrome')
     if not browser:
         raise AssertionError('Chromium non disponibile: resa non verificata.')
@@ -525,8 +578,12 @@ def check(path):
             for field in page.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
                 assert field.evaluate('(el)=>parseFloat(getComputedStyle(el).fontSize)') >= 18
+            # The intro lost its links to the two mockups with b25e7fa: they are checked
+            # only where the page still carries them.
             for href in ['tablet.html', 'settings.html']:
                 link = page.locator('nav a[href="'+href+'"]')
+                if not link.count():
+                    continue
                 with page.expect_popup() as popup:
                     link.click()
                 proposal = popup.value
