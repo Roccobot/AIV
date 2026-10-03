@@ -163,6 +163,12 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
 
 `images` è il nome storico anche per gli ZIP: non cambiarlo senza migrazione.
+**Al cambio di giro la bozza si alleggerisce** (dal 2026-10-03, scelta dell'utente): restano
+telefono, tablet, le risposte alle prove ancora in pagina, le etichette ancora aperte e le
+decisioni; escono `Altro` coi suoi allegati, la conferma della versione installata, e le risposte
+alle prove chiuse coi loro allegati. Prima si accumulavano: un JSON del 3.42 conteneva 76 risposte
+dal giro 3.13 in poi, e importato sembrava vuoto. L'importazione dice quante risposte riguardano
+prove non più in pagina.
 **Gli allegati sono file veri**, mai testo: nella pagina e nella bozza del browser un
 allegato è `{name, type, size, blob}`, con i byte originali (dal 2026-10-03; prima erano testo
 base64, un terzo più pesante e tenuto per intero nella memoria della pagina).

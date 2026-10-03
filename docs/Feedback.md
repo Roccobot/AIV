@@ -21,7 +21,7 @@ di Prossimi passi (tieni premuto il FAB ⇥ o Salva, il dischetto, per il pannel
 desktop: Altro in colonna laterale. Sotto il campo di Altro ci sono allegati e
 formattazione, e sotto ancora i sei comandi: Azzera tutto, Copia il riepilogo (negli
 appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **Etichette testuali** (se presenti) stanno prima dell'archivio.
-I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano.
+I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
 Le verifiche automatiche della 3.42 sono superate: 495 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo del rail è chiuso (Tutto OK).
