@@ -186,6 +186,10 @@ def check(path):
                 # A button that cannot act is not shown: at the first card there is no 'previous'.
                 expect(navigation.locator('#previous-card')).to_be_hidden()
                 assert pill.evaluate('(el)=>getComputedStyle(el).borderRadius') == '28px'
+                # The fill is 80% opaque, the glyphs are not faded with it.
+                fill = pill.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+                assert re.search(r'(?:/|,)\s*0?\.8\)$', fill), fill
+                assert navigation.locator('#floating-save').evaluate('(el)=>getComputedStyle(el).opacity') == '1'
                 # The pill is anchored at the bottom and holds the save button last.
                 assert abs((pill_box['y']+pill_box['height']) - (save_box['y']+save_box['height']) - 4) < 1
                 # The footer is gone.
