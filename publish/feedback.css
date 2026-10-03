@@ -1161,10 +1161,10 @@ main > .feedback-columns {
     padding: 0 8px;
     font-size: 12px;
   }
-  /* Connected only: 1 CSS px left on the mark. Right inset is 7px, not 8. */
+  /* Connected only: both insets are 6px, not 7. */
   .cloud-account.is-connected {
-    padding-left: 7px;
-    padding-right: 7px;
+    padding-left: 6px;
+    padding-right: 6px;
   }
   .cloud-account p {
     flex-basis: auto;
