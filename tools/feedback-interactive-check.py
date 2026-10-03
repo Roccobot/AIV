@@ -190,6 +190,9 @@ def check(path):
                 fill = pill.evaluate('(el)=>getComputedStyle(el).backgroundColor')
                 assert re.search(r'(?:/|,)\s*0?\.8\)$', fill), fill
                 assert navigation.locator('#floating-save').evaluate('(el)=>getComputedStyle(el).opacity') == '1'
+                # Under the fill the page is blurred, like frosted glass (the user's request).
+                frost = pill.evaluate('(el)=>getComputedStyle(el).backdropFilter')
+                assert 'blur(' in frost and 'saturate(' in frost, frost
                 # The pill is anchored at the bottom and holds the save button last.
                 assert abs((pill_box['y']+pill_box['height']) - (save_box['y']+save_box['height']) - 4) < 1
                 # The footer is gone.

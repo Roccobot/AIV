@@ -99,7 +99,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   con dall'alto primo non compilato, riquadro precedente, successivo e salvataggio col dischetto
   (richiesta dell'utente, 2026-10-03). Mostra solo i tasti che in quel momento possono agire,
   si allunga e si accorcia con loro, e con un tasto solo è un tondo. Il fondo è opaco all'80%
-  (sua scelta), le icone no. Commento o allegato
+  (sua scelta), le icone no, e sotto il fondo la pagina è sfocata come un vetro satinato
+  (`backdrop-filter`, sua richiesta); dove il browser non la supporta resta il solo fondo. Commento o allegato
   contano come compilazione.
 - ⚠️ **Il DF non ha un footer dal 2026-10-03** (*non serve a nulla*): lo spazio sotto l'ultima
   card, che la tiene libera dalla pillola, è del contenuto stesso (`main`).

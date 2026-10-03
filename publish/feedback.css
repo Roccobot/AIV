@@ -430,6 +430,10 @@ textarea {
   border-radius: 28px;
   /* The fill at 80% (the user's choice): the page shows through, the glyphs stay solid. */
   background: color-mix(in srgb, var(--accent) 80%, transparent);
+  /* Frosted glass under the fill (the user's request): the page behind is blurred, not readable.
+     Where the browser lacks it, the 80% fill alone stays. */
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
   box-shadow: var(--shadow-fab);
   z-index: 3;
 }
