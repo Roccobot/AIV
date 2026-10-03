@@ -67,5 +67,4 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 - **Concluso**: rail `3.42-01` (Tutto OK).
 - **Concluso**: riordino Impostazioni `3.41-02` (Tutto OK).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`; inpaint `3.40-05` (resta così, niente timbro clone).
-- **Progettato, in attesa del via, non in questa build**: misure relative (rem/em).
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
