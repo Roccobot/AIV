@@ -186,9 +186,9 @@ def check(path):
                 # A button that cannot act is not shown: at the first card there is no 'previous'.
                 expect(navigation.locator('#previous-card')).to_be_hidden()
                 assert pill.evaluate('(el)=>getComputedStyle(el).borderRadius') == '28px'
-                # The fill is 80% opaque, the glyphs are not faded with it.
+                # The fill is 40% opaque, the glyphs are not faded with it.
                 fill = pill.evaluate('(el)=>getComputedStyle(el).backgroundColor')
-                assert re.search(r'(?:/|,)\s*0?\.8\)$', fill), fill
+                assert re.search(r'(?:/|,)\s*0?\.4\)$', fill), fill
                 assert navigation.locator('#floating-save').evaluate('(el)=>getComputedStyle(el).opacity') == '1'
                 # Under the fill the page is blurred, like frosted glass (the user's request).
                 frost = pill.evaluate('(el)=>getComputedStyle(el).backdropFilter')
