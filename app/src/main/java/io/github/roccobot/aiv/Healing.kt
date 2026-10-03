@@ -244,19 +244,26 @@ object Healing {
                 if (mask.count { it } !in 1..MAX_SELECTION) return@withContext null
                 val pixels = IntArray(mask.size)
                 corrected.getPixels(pixels, 0, area.width(), 0, 0, area.width(), area.height())
+                // ⚠️ Since `3.53` the edge fades outwards, so the patch grows by the same band.
+                val edge = Inpaint.feather(max(right - left, bottom - top))
                 val healed =
-                    Inpaint.repair(pixels, area.width(), area.height(), mask) { job.ensureActive() }
+                    Inpaint.repair(pixels, area.width(), area.height(), mask, edge) { job.ensureActive() }
                         ?: return@withContext null
-                val patchPixels = IntArray((right - left) * (bottom - top))
-                for (y in top until bottom) {
+                val patchLeft = max(area.left, left - edge)
+                val patchTop = max(area.top, top - edge)
+                val patchRight = min(area.right, right + edge)
+                val patchBottom = min(area.bottom, bottom + edge)
+                val patchWidth = patchRight - patchLeft
+                val patchPixels = IntArray(patchWidth * (patchBottom - patchTop))
+                for (y in patchTop until patchBottom) {
                     healed.copyInto(
                         patchPixels,
-                        (y - top) * (right - left),
-                        (y - area.top) * area.width() + left - area.left,
-                        (y - area.top) * area.width() + right - area.left,
+                        (y - patchTop) * patchWidth,
+                        (y - area.top) * area.width() + patchLeft - area.left,
+                        (y - area.top) * area.width() + patchRight - area.left,
                     )
                 }
-                Patch(left, top, right - left, bottom - top, width, height, patchPixels)
+                Patch(patchLeft, patchTop, patchWidth, patchBottom - patchTop, width, height, patchPixels)
             } finally {
                 if (corrected !== crop) corrected?.recycle()
                 if (crop !== whole) crop?.recycle()

@@ -270,4 +270,36 @@ class InpaintTest {
         assertNotNull(result)
         for (i in result!!.indices) assertEquals(if (mask[i]) white else source[i], result[i])
     }
+    // Since `3.53`: the corrected area fades into the image instead of ending on a sharp edge
+    // (the user's verdict on 3.52-01). The band right outside the selection mixes rebuilt and
+    // original pixels, more of the first near the selection; past the band nothing changes.
+    @Test fun `the edge of a correction fades into the image`() {
+        val w = 200
+
+        fun grain(x: Int, y: Int): Int {
+            var h = x * 374761393 + y * 668265263
+            h = (h xor (h ushr 13)) * 1274126177
+            return ((h xor (h ushr 16)) and 31) - 16
+        }
+        val source =
+            IntArray(w * w) { i ->
+                val v = (90 + i % w / 3 + grain(i % w, i / w)).coerceIn(0, 255)
+                (0xff shl 24) or (v shl 16) or (v shl 8) or v
+            }
+        val radius = 30
+        fun reach(i: Int) = Math.hypot((i % w - 100).toDouble(), (i / w - 100).toDouble())
+        val mask = BooleanArray(source.size) { reach(it) <= radius }
+        val edge = Inpaint.feather(2 * radius + 1)
+        val result = Inpaint.repair(source, w, w, mask, edge)!!
+
+        fun changed(from: Double, to: Double): Double {
+            val ring = source.indices.filter { reach(it) > from && reach(it) <= to }
+            return ring.sumOf { abs((result[it] and 255) - (source[it] and 255)) }.toDouble() / ring.size
+        }
+        val near = changed(radius.toDouble(), radius + 2.0)
+        val outer = changed(radius + edge - 2.0, radius + edge - 0.5)
+        assertTrue("No fade next to the selection: $near", near > 2.0)
+        assertTrue("The fade does not decrease: near $near, outer $outer", near > outer)
+        for (i in result.indices) if (reach(i) > radius + edge + 1.5) assertEquals(source[i], result[i])
+    }
 }

@@ -307,8 +307,15 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     ricostruiti senza difetti visibili; il calcolo precedente spezzava le fughe dei mattoni e
     l'orizzonte, e il suo raccordo dei colori lasciava puntini scuri e trattini chiari lungo i
     bordi netti.
-  - ⚠️ **Limite noto**: una trama morbida come le nuvole diventa cielo liscio, con un bordo
-    appena visibile.
+  - ⚠️ **Limite noto**: una trama morbida come le nuvole diventa cielo liscio.
+- ⚠️⚠️ **Dalla `3.53` il bordo della correzione è sfumato verso l'esterno** (suo riscontro sul
+  `3.52-01`: *l'area della correzione ha bordi troppo nitidi. Se fosse sfumata funzionerebbe*).
+  La selezione si allarga di una fascia pari a un decimo della sua misura, fra 3 e 24 pixel; la
+  fascia viene ricostruita insieme al buco e poi miscelata coi pixel originali, dal tutto
+  ricostruito sul bordo della selezione al niente sul bordo esterno, lungo una curva morbida.
+  Dentro la selezione resta tutto ricostruito, così il difetto non riaffiora; oltre la fascia
+  nessun pixel cambia. Misurato sul cielo con le nuvole: l'arco che chiudeva la correzione
+  sparisce, e mattoni, erba e diagonale restano uguali.
   - ⚠️ **Scartati durante la prova**: ingrandire i pixel invece della mappa (il buco diventa una
     media piatta) e partire col tassello adattivo di 5-9 px su una scala di 35 px (una gobba
     sulla diagonale, conservata da tutte le scale successive).
