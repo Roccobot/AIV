@@ -243,7 +243,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').
 - **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni documento di feedback con la sezione esatta `Prossimi passi`, in forma breve e schematica.
 - **Il documento di feedback si pubblica o aggiorna solo dopo la GitHub Release pubblicata, con l'APK, della stessa versione**: verificare il tag `vX.XX`; numero e link all'APK non bastano. Eccezione: ritocco solo UX/documentale del DF → Feedback cloud/Pages senza nuova Release APK (`docs/Feedback-maintenance.md`).
-- **Forma del DF** (`docs/Feedback-maintenance.md`): solo feedback sull'app, la sua UI si gestisce in chat; intro di due righe più `Scarica AIV`; `Riscontri conclusi` copre un paio di giri; un'etichetta esce dopo la prima conferma; Etichette testuali e Consegna a overlay come da guida.
+- **Forma del DF** (`docs/Feedback-maintenance.md`): solo feedback sull'app, la sua UI si gestisce in chat; intro di due righe più `Scarica AIV`; `Aggiornamenti recenti` copre un paio di giri; un'etichetta esce dopo la prima conferma; Etichette testuali e Consegna a overlay come da guida.
 - **Dopo ogni giro elaborato: audit obbligatorio** contro l'export precedente.
   Feedback doc = sorgente del lavoro aperto; brief = piano d'azione + backlog
   (non archivio); una richiesta esce dal DF se fatta o nel brief (`Roccobot.md`

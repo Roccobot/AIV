@@ -119,6 +119,27 @@ if not next_steps:
 next_steps_html = '<section class=\"card next-steps\"><h2>Prossimi passi</h2><ul>'
 next_steps_html += ''.join('<li>' + inline_md(step) + '</li>' for step in next_steps)
 next_steps_html += '</ul></section>'
+# The "Aggiornamenti recenti" card is built from the table in docs/Feedback.md, so the closed
+# results live in one place. One sentence per round, newest first, e.g.
+# "Giro 3.42: rail tablet 3.42-01 OK."; an empty table leaves the card out.
+concluded = []
+concluded_match = re.search(r'^## Aggiornamenti recenti\n(.*?)(?=^## |\Z)', md, re.M | re.S)
+if concluded_match:
+    for line in concluded_match[1].splitlines():
+        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        if len(cells) < 3 or not re.fullmatch(r'\d+\.\d+-\d+', cells[1]):
+            continue
+        concluded.append((cells[1], cells[0], cells[2]))
+rounds = {}
+for identifier, feature, status in concluded:
+    rounds.setdefault(identifier.rsplit('-', 1)[0], []).append(
+        (feature[:1].lower() + feature[1:]) + ' ' + identifier + ' ' + status)
+concluded_html = ''
+if rounds:
+    ordered = sorted(rounds, key=lambda v: tuple(int(x) for x in v.split('.')), reverse=True)
+    sentence = ' '.join('Giro ' + v + ': ' + ', '.join(rounds[v]) + '.' for v in ordered)
+    concluded_html = ('<section class="card archive"><h2>Aggiornamenti recenti</h2><p>'
+                      + inline_md(sentence) + '</p></section>')
 esc = html.escape
 cards = []
 for index, item in enumerate(items, 1):
@@ -137,6 +158,7 @@ page = (tpl
     .replace('__VERSION__', version)
     .replace('__CARDS__', '\n'.join(cards))
     .replace('__NEXT_STEPS__', next_steps_html)
+    .replace('__CONCLUDED__', concluded_html)
     .replace('__DATA__', json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')))
 output = option('--output', ROOT / 'publish/feedback.html')
 if '--check' in sys.argv:

@@ -40,7 +40,7 @@ Non sono prove. Non rimetterle tra le etichette aperte del DF.
 
 Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non** sono riproposte.
 
-## Riscontri conclusi
+## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|

@@ -91,7 +91,7 @@ sessione dopo è perso.
   - il corpo contiene solo feedback sull'app, e l'interfaccia del DF si gestisce in chat;
   - l'introduzione tiene due righe sullo stato del giro e `Scarica AIV`; un link a un documento
     esterno va subito dopo, finché serve, poi si toglie;
-  - `Riscontri conclusi` riepiloga un paio di giri e non è un changelog: il resto si toglie;
+  - `Aggiornamenti recenti` riepiloga un paio di giri e non è un changelog: il resto si toglie;
   - un'etichetta di testo esce dopo la prima conferma: è risolta, o torna nel brief.
 - ⚠️⚠️ **Il documento vivo è uno solo**: il Changelog AIV non si aggiorna più e il Piano d'azione
   AIV non esiste più (decisioni sue). Chi ne trova l'indirizzo in un messaggio vecchio lo sappia; il
