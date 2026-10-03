@@ -615,7 +615,13 @@ async function importFile(input) {
     revision++;
     hydrate();
     await save();
-    report("Risposte importate e ripristinate.");
+    // An answer shows only inside its test's card: say how many have no card on this page,
+    // or an import of a closed round looks like it did nothing.
+    const listed = new Set(spec.items.map((item) => item.id));
+    const answers = Object.keys(draft.entries), closed = answers.filter((id) => !listed.has(id)).length;
+    report(!closed ? "Risposte importate e ripristinate."
+      : closed === answers.length ? `Risposte importate (${answers.length}), tutte di prove chiuse: la pagina non le mostra.`
+      : `Risposte importate (${answers.length}); ${closed} sono di prove chiuse e la pagina non le mostra.`);
   } catch (error) {
     report("Importazione annullata: " + error.message, true);
   } finally {

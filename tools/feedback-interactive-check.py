@@ -748,9 +748,12 @@ def check(path):
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             # A JSON exported before 2026-10-03, with the files inside as base64, still imports.
             old_json = Path(temporary) / 'old.json'
-            old_json.write_text(json.dumps(to_legacy(exported, exported_files)))
+            old_draft = to_legacy(exported, exported_files)
+            old_draft['entries']['3.13-01'] = {'status': 'Tutto OK', 'comment': 'Prova chiusa', 'images': []}
+            old_json.write_text(json.dumps(old_draft))
             second.locator('#import').set_input_files(str(old_json))
-            expect(second.locator('#action-message')).to_contain_text('Risposte importate')
+            # The import says how many answers belong to tests no longer on the page.
+            expect(second.locator('#action-message')).to_contain_text('1 sono di prove chiuse')
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.locator('#send').click()
             expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
@@ -812,6 +815,7 @@ def check(path):
             if kept is not None:
                 legacy['entries'][first_id] = kept
             legacy['entries']['3.14-03'] = {'status': 'Tutto OK', 'comment': 'Riscontro precedente conservato', 'images': []}
+            legacy.setdefault('labels', {})['e-chiusa'] = {'revision': 'Etichetta di un giro chiuso'}
             legacy.setdefault('decisions', {})
             legacy['decisions']['d-settings-order'] = {
                 'choice': 'Applica la proposta',
@@ -859,9 +863,14 @@ def check(path):
                 const files = Object.values(draft.entries).flatMap((value) => value.images);
                 const sizes = await Promise.all(files.map((file) =>
                     file.blob instanceof Blob && !('data' in file) ? file.blob.size : -1));
-                return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size)};
+                return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size),
+                        entries: Object.keys(draft.entries), labels: Object.keys(draft.labels)};
             }""")
             assert kept_decisions['decisions'] == legacy['decisions'], 'Decisioni della bozza precedente perse.'
+            # A new round drops the answers and label revisions of tests no longer on the page.
+            listed_ids = {item['id'] for item in data['items']}
+            assert kept_decisions['entries'] and set(kept_decisions['entries']) <= listed_ids, 'Risposte di prove chiuse rimaste: ' + str(kept_decisions['entries'])
+            assert 'e-chiusa' not in kept_decisions['labels'], 'Etichetta di un giro chiuso rimasta.'
             assert kept_decisions['sizes'] and kept_decisions['sizes'] == kept_decisions['expected'], 'Allegati salvati come testo: ' + str(kept_decisions)
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
             expect(migration.locator('#giro-version')).to_have_text(data['version'])

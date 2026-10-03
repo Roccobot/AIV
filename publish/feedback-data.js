@@ -206,7 +206,14 @@ function alignDocumentVersion() {
   // A new release of the document clears the free fields (rounds 3.25-3.30, 3.37 note A).
   // Phone and tablet stay, and so do answers to tests whose identifier is still listed.
   // The 'I installed this version' confirmation resets: it belongs to the new round.
+  // Answers to tests no longer listed go, with their attachments, and so do label revisions
+  // no longer listed (2026-10-03): their round was delivered and read, and kept they made
+  // every export carry every round since 3.13. Decisions stay: old drafts keep them as they are.
   if (draft.version === spec.version) return;
+  const listed = new Set(spec.items.map((item) => item.id));
+  for (const id of Object.keys(draft.entries)) if (!listed.has(id)) delete draft.entries[id];
+  const open = new Set(spec.labels.map((item) => item.id));
+  for (const id of Object.keys(draft.labels)) if (!open.has(id)) delete draft.labels[id];
   draft.notes = "";
   draft.extra = { images: [] };
   draft.completed = null;
