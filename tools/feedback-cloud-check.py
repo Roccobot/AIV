@@ -53,6 +53,12 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(result.locator('.cloud-account-user')).to_have_text('Roccobot')
         expect(result.locator('.cloud-account')).not_to_contain_text('Accedi')
         expect(result.locator('.cloud-account')).to_contain_text('Esci')
+        # Desktop, connected: the mark 7px from the outline all round, Esci 6px all round.
+        gaps=result.locator('.cloud-account').evaluate('''(chip)=>{
+          const c=chip.getBoundingClientRect(),g=chip.querySelector('.cloud-account-logo').getBoundingClientRect(),
+            b=chip.querySelector('button.cloud-account-action').getBoundingClientRect();
+          return [g.left-c.left-1,g.top-c.top-1,c.bottom-1-g.bottom,b.top-c.top-1,c.bottom-1-b.bottom,c.right-1-b.right];}''')
+        assert [round(value,2) for value in gaps]==[7,7,7,6,6,6], gaps
         # Mobile, connected: Esci 4px from the border above and below, 4.5px on the right
         # (the user's optical centring of the inner pill).
         size=result.viewport_size
