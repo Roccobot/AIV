@@ -48,12 +48,97 @@ internal object Inpaint {
     /** [blocked] is the hole plus the nearly transparent pixels, whose colour is no evidence. */
     private class Level(val width: Int, val height: Int, val image: FloatArray, val hole: BooleanArray, val blocked: BooleanArray)
 
+    /**
+     * Width in pixels of the feathered edge for a selection [span] pixels wide.
+     * ⚠️ Since `3.53` (the user's verdict on `3.52-01`: the corrected area had edges too sharp,
+     * and would work if they faded): a tenth of the selection, between 3 and 24 pixels.
+     */
+    fun feather(span: Int): Int = (span / 10).coerceIn(3, 24)
+
+    /**
+     * Repairs [mask] and fades the result into the untouched image over [feather] pixels
+     * outside it. The band is rebuilt with the hole, then mixed with the original from all
+     * reconstruction at the selection to none at the outer edge, along a smoothstep: inside the
+     * selection nothing of the defect comes back. With [feather] 0 the edge stays sharp.
+     */
     fun repair(
         pixels: IntArray,
         width: Int,
         height: Int,
         mask: BooleanArray,
+        feather: Int = 0,
         checkpoint: () -> Unit = {},
+    ): IntArray? {
+        require(feather >= 0)
+        if (feather == 0) return fill(pixels, width, height, mask, checkpoint)
+        val distance = distanceFrom(mask, width, height)
+        val grown = BooleanArray(mask.size) { mask[it] || distance[it] <= feather }
+        // A band that leaves no donor falls back to the sharp edge rather than to nothing.
+        val healed = fill(pixels, width, height, grown, checkpoint) ?: return fill(pixels, width, height, mask, checkpoint)
+        val result = pixels.copyOf()
+        for (index in result.indices) {
+            if (!grown[index]) continue
+            if (mask[index]) {
+                result[index] = healed[index]
+                continue
+            }
+            val t = 1f - distance[index] / (feather + 1f)
+            val weight = t * t * (3f - 2f * t)
+            var mixed = pixels[index] and 0xff000000.toInt()
+            for (shift in intArrayOf(16, 8, 0)) {
+                val a = pixels[index] ushr shift and 255
+                val b = healed[index] ushr shift and 255
+                mixed = mixed or (((a + (b - a) * weight) + 0.5f).toInt().coerceIn(0, 255) shl shift)
+            }
+            result[index] = mixed
+        }
+        return result
+    }
+
+    /** Euclidean-like distance (chamfer 1 and square root of 2) from the nearest selected pixel. */
+    private fun distanceFrom(
+        mask: BooleanArray,
+        width: Int,
+        height: Int,
+    ): FloatArray {
+        val far = Float.MAX_VALUE / 4
+        val diagonal = sqrt(2f)
+        val distance = FloatArray(mask.size) { if (mask[it]) 0f else far }
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val i = y * width + x
+                var d = distance[i]
+                if (x > 0) d = min(d, distance[i - 1] + 1f)
+                if (y > 0) {
+                    d = min(d, distance[i - width] + 1f)
+                    if (x > 0) d = min(d, distance[i - width - 1] + diagonal)
+                    if (x < width - 1) d = min(d, distance[i - width + 1] + diagonal)
+                }
+                distance[i] = d
+            }
+        }
+        for (y in height - 1 downTo 0) {
+            for (x in width - 1 downTo 0) {
+                val i = y * width + x
+                var d = distance[i]
+                if (x < width - 1) d = min(d, distance[i + 1] + 1f)
+                if (y < height - 1) {
+                    d = min(d, distance[i + width] + 1f)
+                    if (x < width - 1) d = min(d, distance[i + width + 1] + diagonal)
+                    if (x > 0) d = min(d, distance[i + width - 1] + diagonal)
+                }
+                distance[i] = d
+            }
+        }
+        return distance
+    }
+
+    private fun fill(
+        pixels: IntArray,
+        width: Int,
+        height: Int,
+        mask: BooleanArray,
+        checkpoint: () -> Unit,
     ): IntArray? {
         require(width > 0 && height > 0 && width.toLong() * height == pixels.size.toLong())
         require(mask.size == pixels.size)
