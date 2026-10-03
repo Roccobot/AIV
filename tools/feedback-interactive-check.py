@@ -509,7 +509,20 @@ def check(path):
             page.evaluate("document.querySelector('#action-message').textContent = ''")
             page.locator('#altro-overlay [data-command="copy"]').click()
             expect(page.locator('#action-message')).to_have_text(re.compile('Riepilogo copiato|appunti'))
-            page.locator('#altro-overlay-close').click()
+            # One keyboard handler: Escape closes Altro, T switches the theme outside the fields only.
+            page.keyboard.press('Escape')
+            expect(page.locator('#altro-overlay')).to_be_hidden()
+            page.locator('h1').click()
+            theme = page.evaluate("document.documentElement.dataset.theme")
+            page.keyboard.press('t')
+            assert page.evaluate("document.documentElement.dataset.theme") != theme, 'T non cambia il tema.'
+            page.keyboard.press('t')
+            assert page.evaluate("document.documentElement.dataset.theme") == theme
+            page.locator('#device').focus()
+            page.keyboard.press('t')
+            assert page.evaluate("document.documentElement.dataset.theme") == theme, 'T cambia il tema mentre si scrive.'
+            expect(page.locator('#device')).to_have_value(re.compile('t$'))
+            page.locator('#device').fill('')
             page.set_viewport_size({'width': 1280, 'height': 900})
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()

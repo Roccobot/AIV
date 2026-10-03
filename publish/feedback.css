@@ -248,11 +248,11 @@ button[aria-pressed="true"] {
   color: var(--accent-on);
   border-color: var(--accent);
 }
-button[data-status="Accettabile"][aria-pressed="true"] {
+button[data-kind="warn"][aria-pressed="true"] {
   background: var(--warn);
   border-color: var(--warn);
 }
-button[data-status="Non approvato"][aria-pressed="true"] {
+button[data-kind="bad"][aria-pressed="true"] {
   background: var(--bad);
   border-color: var(--bad);
 }
@@ -548,17 +548,17 @@ footer {
 }
 
 /* Only an explicit outcome carries its semantic color. */
-.card.has-response[data-outcome="Tutto OK"] {
+.card.has-response[data-outcome-kind="ok"] {
   background: var(--surface-ok);
   border-color: var(--accent);
   box-shadow: inset 0 0 0 1px var(--accent);
 }
-.card.has-response[data-outcome="Accettabile"] {
+.card.has-response[data-outcome-kind="warn"] {
   background: var(--surface-warn);
   border-color: var(--warn);
   box-shadow: inset 0 0 0 1px var(--warn);
 }
-.card.has-response[data-outcome="Non approvato"] {
+.card.has-response[data-outcome-kind="bad"] {
   background: var(--surface-bad);
   border-color: var(--bad);
   box-shadow: inset 0 0 0 1px var(--bad);

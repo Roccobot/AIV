@@ -8,6 +8,10 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+# The project and the three outcomes are written here only: the page reads them from the
+# embedded data, and the CSS colours an outcome through its kind, never through its label.
+PROJECT = 'AIV'
+OUTCOMES = [('Tutto OK', 'ok'), ('Accettabile', 'warn'), ('Non approvato', 'bad')]
 
 
 def option(name, default):
@@ -107,7 +111,8 @@ if labels_match:
         if a11y:
             entry['a11y'] = True
         labels.append(entry)
-data = dict(project='AIV', version=version, items=items, labels=labels)
+data = dict(project=PROJECT, version=version, items=items, labels=labels,
+            outcomes=[dict(label=label, kind=kind) for label, kind in OUTCOMES])
 next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if not next_match:
     raise SystemExit('docs/Feedback.md deve contenere la sezione Prossimi passi')
@@ -147,8 +152,8 @@ for index, item in enumerate(items, 1):
     cards.append(f'<article class="card test" id="{item["id"]}" data-id="{item["id"]}"><p class="check-position">Verifica <strong>{index}</strong>/{len(items)}</p><p class="eyebrow">{item["id"]} · AIV {item["version"]}</p><h3>{esc(item["title"])}</h3>')
     cards.extend('<p>' + inline_md(p) + '</p>' for p in item['paragraphs'])
     cards.append('<fieldset><legend>Esito della prova</legend>')
-    for status in ['Tutto OK', 'Accettabile', 'Non approvato']:
-        cards.append(f'<button type="button" class="outcome" data-status="{status}" aria-pressed="false">{status}</button>')
+    for status, kind in OUTCOMES:
+        cards.append(f'<button type="button" class="outcome" data-status="{status}" data-kind="{kind}" aria-pressed="false">{status}</button>')
     cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment" aria-label="Allega file o trascinali qui"><span class="attachment-plus" aria-hidden="true">+</span><input class="images" aria-label="Allega file o trascinali qui" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div></article>')
 
 tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
