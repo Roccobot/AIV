@@ -871,15 +871,31 @@ function navigationOffset() {
   return document.querySelector(".dashboard").getBoundingClientRect().height + 12;
 }
 function currentCardIndex() {
+  const cards = responseCards;
   const offset = navigationOffset();
+  const tops = cards.map((card) => card.getBoundingClientRect().top);
   let index = -1;
-  for (let i = 0; i < responseCards.length; i++) {
-    if (responseCards[i].getBoundingClientRect().top <= offset + 2) index = i;
+  for (let i = 0; i < cards.length; i++) {
+    if (tops[i] <= offset + 2) index = i;
     else break;
   }
   // A section heading between cards belongs to the upcoming visible card.
-  if (index >= 0 && index < responseCards.length - 1 &&
-      responseCards[index].getBoundingClientRect().bottom < offset) index++;
+  if (index >= 0 && index < cards.length - 1 &&
+      cards[index].getBoundingClientRect().bottom < offset) index++;
+  // Sticky Altro sits beside the proofs. If a proof is actually at the
+  // offset, that proof is current. Altro stays current only past the proofs.
+  if (index >= 0 && cards[index].classList.contains("extra")) {
+    let proof = -1;
+    let best = -Infinity;
+    for (let i = 0; i < index; i++) {
+      if (cards[i].classList.contains("extra")) continue;
+      if (tops[i] <= offset + 2 && tops[i] > best) {
+        best = tops[i];
+        proof = i;
+      }
+    }
+    if (proof >= 0 && tops[proof] > offset - 80) index = proof;
+  }
   return index;
 }
 function firstEmptyCard() {
