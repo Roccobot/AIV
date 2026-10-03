@@ -46,12 +46,20 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 
 - Nome ufficiale: **documento di feedback** (DF). Titolo: **Feedback AIV**.
   Intestazione: `AIV · giro della X.XX`, terminata alla versione, senza nome dell'agente.
-- ⚠️ **Separazione UX DF / collaudo app**: miglioramenti di interfaccia del DF (striscia,
-  Altro, overlay, shell, formattazione, Salva-only mobile, casella versione, PP, ...) vivono
-  in codice, in questa guida e nel brief. **Non** vanno elencati come prove di collaudo
-  del prodotto Android nel documento.
+- ⚠️⚠️ **Il corpo del DF contiene solo feedback sull'app** (norma di Rocco, 2026-10-03).
+  L'interfaccia del DF (striscia, Altro, overlay, shell, formattazione, Salva-only mobile,
+  casella versione, PP, ...) si discute e si concorda **in chat**, e vive in codice, in questa
+  guida e nel brief. **Non** compare nel documento: né come prova di collaudo, né come riga
+  di `Riscontri conclusi`.
+- ⚠️⚠️ **L'introduzione tiene due righe sullo stato del giro e la voce `Scarica AIV`**, e
+  nient'altro. Un link a un documento esterno (per esempio una proposta di interfaccia) va
+  in testa, subito dopo `Scarica AIV`, **finché serve**: chiusa la decisione che lo riguarda,
+  si toglie.
+- ⚠️⚠️ **`Riscontri conclusi` è un riepilogo degli ultimi due giri circa, non un changelog**:
+  le righe dei giri più vecchi si tolgono quando entra un giro nuovo. La storia completa vive
+  in git.
 - Sigle: **DF** = documento di feedback; **PP** = **Prossimi passi**.
-- Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief.
+- Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief. È una sorta di **mini-brief** per Rocco.
 - Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
   Gli eventuali riferimenti all'autore nei testi visibili usano `l'agente`.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
@@ -93,6 +101,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   testo ITA proposto per intero e un campo libero: ciò che l'utente scrive sostituisce la
   proposta al prossimo rilascio utile; campo vuoto = approvato. Non è una sezione di prove
   (niente esiti, fuori dai contatori). Assente o vuota → sezione nascosta.
+  ⚠️⚠️ **Dopo la prima conferma un'etichetta esce dal DF**: è risolta (campo vuoto, o testo
+  dell'utente applicato), oppure, se servono chiarimenti o modifiche, torna nel brief. Non
+  resta in pagina per un secondo giro.
 - ⚠️ **Consegna e copie**: non resta una card sempre visibile nel flusso. Si apre come
   overlay popup. Desktop: pulsante nella riga strumenti di Altro, a destra dell'allegato.
   Mobile: pressione prolungata sul FAB Salva (dischetto) apre lo stesso popup; tocco breve
@@ -175,7 +186,7 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
 ## Aggiornare e pubblicare
 
 1. Registra obiettivo e stato nel brief prima di un intervento su più passi.
-2. ⚠️ **Gate Release APK**: vale quando il DF introduce o aggiorna prove di collaudo per una **nuova versione app**. Un ritocco **solo UX/documentale** del DF (layout, Altro, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK.
+2. ⚠️ **Gate Release APK**: il DF di collaudo di una versione esce **dopo** la GitHub Release pubblicata **con l'APK allegato**. Vale quando il DF introduce o aggiorna prove di collaudo per una **nuova versione app**. Un ritocco **solo UX/documentale** del DF (layout, Altro, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK.
    Prima di pubblicare o aggiornare il DF per un collaudo `X.XX`, verifica che esista la GitHub Release pubblicata della
    stessa versione, non una bozza, col tag `vX.XX`. Il numero nella pagina, il collegamento all'APK o un tag senza
    release non sono prove sufficienti. Se la release manca, prepara soltanto una bozza locale.
@@ -232,7 +243,8 @@ nel brief il passaggio mancante, senza creare un secondo documento o un nuovo in
 4. ⚠️⚠️ **Prima di chiudere l'elaborazione del giro: audit obbligatorio contro
    l'export precedente** (`rules/Roccobot.md` § '🔍 Audit obbligatorio').
    **Documento di feedback = sorgente del lavoro aperto; brief = piano d'azione
-   documentato + backlog (non archivio/changelog); solo il fatto esce da entrambi.** Si rilegge il JSON del
+   documentato + backlog (non archivio/changelog). Una richiesta esce dal DF solo se è
+   fatta nel prodotto o scritta nel brief; dal brief esce solo quando è fatta.** Si rilegge il JSON del
    giro **prima** (o l'allegato rimesso in chat) e si verifica che ogni Non
    approvato / Accettabile / nota del campo libero / decisione operativa sia
    *fatta con prova*, *nel brief e/o ancora nel documento*, oppure *cancellata

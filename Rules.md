@@ -63,13 +63,14 @@ sessione dopo è perso.
   `docs/Feedback-maintenance.md`).
 - ⚠️⚠️ **Prima di chiudere il giro: audit contro l'export precedente**: documento
   di feedback = **sorgente** del lavoro aperto; brief = **piano d'azione + backlog**
-  (non archivio/changelog); solo il fatto esce da entrambi. Niente richieste perse;
+  (non archivio/changelog). Una richiesta esce dal DF solo se è fatta nel prodotto o scritta
+  nel brief, e dal brief solo quando è fatta. Niente richieste perse;
   differimenti in sospeso finché fatti o cancellati; parziale ≠ completo
   (`Roccobot.md` § '🔍 Audit obbligatorio'; `docs/Feedback-maintenance.md`).
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.
-- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release pubblicata della stessa versione**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale. ⚠️ **Eccezione**: un ritocco **solo UX/documentale** del DF (layout, Altro, Consegna overlay, Etichette testuali, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK (`docs/Feedback-maintenance.md`).
+- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release pubblicata della stessa versione, con l'APK allegato**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale. ⚠️ **Eccezione**: un ritocco **solo UX/documentale** del DF (layout, Altro, Consegna overlay, Etichette testuali, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK (`docs/Feedback-maintenance.md`).
 - ⚠️ **Etichette testuali** e **Consegna e copie** (overlay): regole operative in `docs/Feedback-maintenance.md` § Convenzioni.
 - **Dopo ogni release si consegnano i passi di collaudo e il risultato atteso**, in chat
   o nel documento funzionante. Una bozza che richiede accesso a una piattaforma diversa
@@ -84,7 +85,14 @@ sessione dopo è perso.
   bozza locale è recuperabile dalla storia git, se mai servisse. Il precedente [artefatto Claude](https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq)
   rimane un riferimento storico per le sue voci ancora aperte, senza chiuderle implicitamente.
 
-- **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni DF con la sezione intitolata esattamente **Prossimi passi**, in forma breve e schematica.
+- **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni DF con la sezione intitolata esattamente **Prossimi passi**, in forma breve e schematica: una sorta di mini-brief.
+- ⚠️⚠️ **Le norme sulla forma del DF** (sue, 2026-10-03), per esteso in `docs/Feedback-maintenance.md`
+  § 'Convenzioni di contenuto e interfaccia':
+  - il corpo contiene solo feedback sull'app, e l'interfaccia del DF si gestisce in chat;
+  - l'introduzione tiene due righe sullo stato del giro e `Scarica AIV`; un link a un documento
+    esterno va subito dopo, finché serve, poi si toglie;
+  - `Riscontri conclusi` riepiloga un paio di giri e non è un changelog: il resto si toglie;
+  - un'etichetta di testo esce dopo la prima conferma: è risolta, o torna nel brief.
 - ⚠️⚠️ **Il documento vivo è uno solo**: il Changelog AIV non si aggiorna più e il Piano d'azione
   AIV non esiste più (decisioni sue). Chi ne trova l'indirizzo in un messaggio vecchio lo sappia; il
   perché vive in `Roccobot.md` § '🧾 Il changelog, provato e ritirato' e § '🗺️ Il piano d'azione,
