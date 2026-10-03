@@ -184,4 +184,90 @@ class InpaintTest {
         assertEquals(white, result[0])
         for (i in result.indices) if (!mask[i]) assertEquals(source[i], result[i])
     }
+    // Since `3.52`: a hole several bricks wide is rebuilt with joints that line up. Measured on
+    // this wall: the pyramid puts mortar and brick in the right place on every hole pixel, the
+    // greedy fill alone on 93% of them (scattered mortar fragments, visible at a glance).
+    @Test fun `brick joints continue through a hole several bricks wide`() {
+        val w = 320
+
+        fun grain(x: Int, y: Int): Int {
+            var h = x * 374761393 + y * 668265263
+            h = (h xor (h ushr 13)) * 1274126177
+            return ((h xor (h ushr 16)) and 31) - 16
+        }
+        val expected =
+            IntArray(w * w) { i ->
+                val x = i % w
+                val y = i / w
+                val row = y / 18
+                val mortar = y % 18 < 3 || (x + if (row % 2 == 0) 0 else 20) % 40 < 3
+                val n = grain(x / 2, y / 2)
+                if (mortar) {
+                    (0xff shl 24) or ((190 + n / 3) shl 16) or ((185 + n / 3) shl 8) or (175 + n / 3)
+                } else {
+                    (0xff shl 24) or ((140 + n) shl 16) or ((62 + n / 2) shl 8) or (45 + n / 3)
+                }
+            }
+        val source = expected.copyOf()
+        val mask = BooleanArray(source.size) { (it % w - 160) * (it % w - 160) + (it / w - 160) * (it / w - 160) <= 45 * 45 }
+        for (i in source.indices) if (mask[i]) source[i] = defect
+        val result = Inpaint.repair(source, w, w, mask)!!
+        // Green tells mortar (above 170) from brick (below 80) whatever the grain.
+        val wrong = mask.indices.count { mask[it] && ((result[it] ushr 8 and 255) > 120) != ((expected[it] ushr 8 and 255) > 120) }
+        assertTrue("Joints misplaced on $wrong of ${mask.count { it }} pixels", wrong * 100 < mask.count { it })
+        for (i in result.indices) if (!mask[i]) assertEquals(source[i], result[i])
+    }
+
+    // Since `3.52`: a sharp horizon across the hole stays straight and clean. The old Poisson
+    // blend, guided by donors from different places, left dark dots and light dashes on it
+    // (measured: off by up to 348 on this scene, against 0 now).
+    @Test fun `a sharp horizon stays free of dark dots and light dashes`() {
+        val w = 200
+        val sky = 0xff9cc4ea.toInt()
+        val ground = 0xff5a5040.toInt()
+        val source = IntArray(w * w) { if (it / w < 100) sky else ground }
+        val mask = BooleanArray(source.size) { (it % w - 100) * (it % w - 100) + (it / w - 100) * (it / w - 100) <= 20 * 20 }
+        for (i in source.indices) if (mask[i]) source[i] = defect
+        val result = Inpaint.repair(source, w, w, mask)!!
+        for (i in result.indices) {
+            if (!mask[i]) continue
+            val want = if (i / w < 100) sky else ground
+            val off = abs((result[i] ushr 16 and 255) - (want ushr 16 and 255)) +
+                abs((result[i] ushr 8 and 255) - (want ushr 8 and 255)) + abs((result[i] and 255) - (want and 255))
+            assertTrue("Spot at ${i % w},${i / w}: off by $off", off < 12)
+        }
+    }
+
+    // Since `3.52`: a hole far wider than the old limit is filled with real texture in bounded
+    // time; the finest levels only copy along the upsampled field when the search would cost too much.
+    @Test fun `a hole wider than the old limit is filled and keeps its surroundings`() {
+        val w = 640
+        val source = IntArray(w * w) { i -> if ((i % w / 6 + i / w / 6) % 2 == 0) black else white }
+        val expected = source.copyOf()
+        val mask = BooleanArray(source.size) { (it % w - 320) * (it % w - 320) + (it / w - 320) * (it / w - 320) <= 250 * 250 }
+        for (i in source.indices) if (mask[i]) source[i] = defect
+        val started = System.nanoTime()
+        val result = Inpaint.repair(source, w, w, mask)!!
+        println("Large repair: ${mask.count { it }} selected pixels, ${(System.nanoTime() - started) / 1_000_000} ms on the build host")
+        for (i in result.indices) if (!mask[i]) assertEquals(source[i], result[i])
+        val magenta = mask.indices.count { mask[it] && result[it] == defect }
+        assertEquals(0, magenta)
+        val error =
+            mask.indices
+                .filter { mask[it] }
+                .sumOf { abs((result[it] and 255) - (expected[it] and 255)) }
+                .toDouble() / mask.count { it }
+        assertTrue("Checker mismatch: $error", error < 40)
+    }
+    // Since `3.52`: a hole half as wide as the crop left no donor on the smallest level, and the
+    // whole repair gave up (found by HealingTest on the bench). The start moves one scale up.
+    @Test fun `a hole half as wide as the crop is still filled`() {
+        val w = 400
+        val source = IntArray(w * w) { white }
+        val mask = BooleanArray(source.size) { it % w in 100 until 300 && it / w in 100 until 300 }
+        for (i in source.indices) if (mask[i]) source[i] = defect
+        val result = Inpaint.repair(source, w, w, mask)
+        assertNotNull(result)
+        for (i in result!!.indices) assertEquals(if (mask[i]) white else source[i], result[i])
+    }
 }
