@@ -448,32 +448,36 @@ def check(path):
             assert page.locator('.test').count() == len(data['items'])
             assert page.locator('.decision').count() == len(data['decisions'])
             open_delivery(page)
+            assert page.locator('#delivery-info').count() == 0
+            assert page.locator('.browse-label').count() == 0
             import_button = page.locator('.file-button')
+            expected = ['Azzera tutto', 'Salva', 'Copia il riepilogo', 'Invia', 'Importa JSON', 'Esporta JSON']
             for width in [320, 390, 800, 1280]:
                 page.set_viewport_size({'width': width, 'height': 900})
-                import_box = import_button.bounding_box()
-                for button in page.locator('.actions button').all():
-                    assert abs(button.bounding_box()['height'] - import_box['height']) < 1, 'Importa JSON height differs from its peers.'
+                controls = page.locator('#delivery-section .actions > button, #delivery-section .actions > .file-button')
+                assert controls.count() == 6
+                boxes = []
+                for index, control in enumerate(controls.all()):
+                    box = control.bounding_box()
+                    boxes.append(box)
+                    assert control.inner_text().strip() == expected[index], (width, index, control.inner_text())
                 title_box = import_button.evaluate('''label => {
                     const range = document.createRange();
                     range.selectNode(label.firstChild);
                     const text = range.getBoundingClientRect();
                     const row = label.getBoundingClientRect();
-                    return {right: text.right, mid: (text.left + text.right) / 2, rowMid: (row.left + row.right) / 2};
+                    return {mid: (text.left + text.right) / 2, rowMid: (row.left + row.right) / 2};
                 }''')
-                title_right = title_box['right']
                 assert abs(title_box['mid'] - title_box['rowMid']) < 2, (width, title_box)
-                browse = import_button.locator('.browse-label').bounding_box()
-                assert browse['x'] > title_right, 'Sfoglia is not beside the title.'
-                assert abs(browse['y'] + browse['height']/2 - import_box['y'] - import_box['height']/2) < 1
-                actions_box = page.locator('#delivery-section .actions').bounding_box()
-                previous_bottom = None
-                for control in page.locator('#delivery-section .actions > button, #delivery-section .actions > .file-button').all():
-                    control_box = control.bounding_box()
-                    assert abs(control_box['width'] - actions_box['width']) < 2, (width, control_box, actions_box)
-                    if previous_bottom is not None:
-                        assert control_box['y'] >= previous_bottom - 1, (width, control_box, previous_bottom)
-                    previous_bottom = control_box['y'] + control_box['height']
+                for row in range(3):
+                    left, right = boxes[row * 2], boxes[row * 2 + 1]
+                    assert abs(left['y'] - right['y']) < 2, (width, row, left, right)
+                    assert abs(left['height'] - right['height']) < 2, (width, row)
+                    assert abs(left['width'] - right['width']) < 2, (width, row, left['width'], right['width'])
+                    assert right['x'] > left['x'] + left['width'] * 0.5
+                    if row:
+                        previous = boxes[(row - 1) * 2]
+                        assert left['y'] >= previous['y'] + previous['height'] - 1, (width, row)
             page.locator('#delivery-overlay-close').click()
             expect(page.locator('#delivery-overlay')).to_be_hidden()
             # Desktop: long-press Save opens the same delivery overlay as mobile.

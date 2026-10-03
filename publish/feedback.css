@@ -521,15 +521,6 @@ textarea {
   margin: 0;
   position: relative;
 }
-.browse-label {
-  display: inline-flex;
-  align-items: center;
-  height: 26px;
-  padding: 0 8px;
-  border: 1px solid currentColor;
-  border-radius: 5px;
-  font-size: 14px;
-}
 .file-button input {
   position: absolute;
   inset: 0;
@@ -1018,6 +1009,11 @@ main > .feedback-columns {
     padding: 0 8px;
     font-size: 12px;
   }
+  /* Connected only: 1 CSS px left on the mark, 1 CSS px right on Esci. */
+  .cloud-account.is-connected {
+    padding-left: 7px;
+    padding-right: 9px;
+  }
   .cloud-account p {
     flex-basis: auto;
     white-space: normal;
@@ -1272,32 +1268,26 @@ main > .feedback-columns {
   flex-direction: column;
   gap: 10px;
 }
-/* One full-width control per row; Importa keeps Sfoglia on the right of its row. */
+/* Two equal buttons per row, every viewport. Labels may wrap. */
 .delivery-overlay-body .actions {
-  flex-direction: column;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   align-items: stretch;
 }
 .delivery-overlay-body .actions > button,
 .delivery-overlay-body .actions > .file-button {
-  width: 100%;
+  width: auto;
   max-width: none;
+  min-width: 0;
   box-sizing: border-box;
-}
-.delivery-overlay-body .actions > button {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.delivery-overlay-body .actions > .file-button {
-  justify-content: center;
-}
-/* Sfoglia stays on the right; the label centers on the full row. */
-.delivery-overlay-body .actions > .file-button .browse-label {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  text-align: center;
+  white-space: normal;
+  height: auto;
+  min-height: 48px;
 }
 .open-delivery {
   display: inline-flex;
