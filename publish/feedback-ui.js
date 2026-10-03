@@ -6,7 +6,7 @@
 /* DF theme: on load it follows the system; T (no modifiers, outside the fields)
    switches light and dark for this session only. Nothing is stored, so a reload
    goes back to the system theme. */
-(function initFeedbackTheme() {
+const toggleTheme = (function initFeedbackTheme() {
   let override = null;
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   function effective() {
@@ -21,21 +21,10 @@
   if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
   else if (mq.addListener) mq.addListener(onSystemChange);
   apply();
-  document.addEventListener("keydown", (event) => {
-    if (event.key.toLowerCase() !== "t") return;
-    if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
-    const target = event.target instanceof Element ? event.target : null;
-    if (target) {
-      const tag = target.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-      if (target.isContentEditable) return;
-      const host = target.closest("[contenteditable]");
-      if (host && host.isContentEditable) return;
-    }
-    event.preventDefault();
+  return function toggleTheme() {
     override = effective() === "dark" ? "light" : "dark";
     apply();
-  });
+  };
 })();
 // Messages of the commands, in the strip under the save status.
 const message = document.querySelector("#action-message");
@@ -108,6 +97,7 @@ function refreshCounts() {
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
     card.dataset.outcome = value.status;
+    card.dataset.outcomeKind = spec.outcomes.find((outcome) => outcome.label === value.status)?.kind || "";
     card.classList.toggle("has-response", Boolean(value.status || value.comment.trim() || value.images.length));
   }
   for (const card of document.querySelectorAll(".label-card")) {
@@ -132,9 +122,7 @@ function refreshCounts() {
   ratio.setAttribute("aria-label", `Riscontri: ${done} su ${spec.items.length}`);
   counts.replaceChildren(
     ratio,
-    countChip("ok", "Tutto OK", counters["Tutto OK"]),
-    countChip("warn", "Accettabile", counters["Accettabile"]),
-    countChip("bad", "Non approvato", counters["Non approvato"]),
+    ...spec.outcomes.map((outcome) => countChip(outcome.kind, outcome.label, counters[outcome.label])),
   );
   document.querySelector("#progress").value = done;
   document.querySelector("#answered").textContent =
@@ -529,10 +517,6 @@ document.querySelectorAll(".altro-overlay-close").forEach((button) => {
 altroOverlay?.addEventListener("click", (event) => {
   if (event.target === altroOverlay) setAltroOverlayOpen(false);
 });
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && altroOverlay && !altroOverlay.hidden)
-    setAltroOverlayOpen(false);
-});
 
 // --- Consegna commands: one row under Altro, copied into the mobile Altro overlay ---
 // The page row keeps the ids (#save, #copy...); the copy is found through data-command.
@@ -605,10 +589,23 @@ for (const row of [pageCommands, overlayCommands]) {
   const picker = row.querySelector('[data-command="import"] input');
   picker.addEventListener("change", () => importJson(picker));
 }
+// The page's only keyboard handler: Ctrl/Cmd+S saves, Escape closes the Altro overlay, and
+// T switches the theme outside the fields. The format shortcuts belong to each editor.
+function typing(target) {
+  if (!(target instanceof Element)) return false;
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return true;
+  return Boolean(target.closest("[contenteditable]")?.isContentEditable);
+}
 document.addEventListener("keydown", (event) => {
+  const modified = event.ctrlKey || event.metaKey || event.altKey || event.shiftKey;
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
     event.preventDefault();
     save();
+  } else if (event.key === "Escape" && altroOverlay && !altroOverlay.hidden) {
+    setAltroOverlayOpen(false);
+  } else if (event.key.toLowerCase() === "t" && !modified && !typing(event.target)) {
+    event.preventDefault();
+    toggleTheme();
   }
 });
 document.addEventListener("visibilitychange", () => {

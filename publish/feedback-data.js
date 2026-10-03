@@ -7,7 +7,8 @@
    syncAltroFields() from feedback-ui.js. */
 const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
 if (!Array.isArray(spec.labels)) spec.labels = [];
-const outcomes = ["Tutto OK", "Accettabile", "Non approvato"];
+// The outcome labels and the project come from the embedded data (feedback-build.py).
+const outcomes = spec.outcomes.map((outcome) => outcome.label);
 const maxFile = 8 * 1024 * 1024,
   maxTotal = 20 * 1024 * 1024;
 const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml", "application/zip"];
@@ -16,7 +17,7 @@ const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "imag
 // the Worker requires the key, and an import must give them back unchanged.
 const blank = () => ({
   schema: 1,
-  project: "AIV",
+  project: spec.project,
   version: spec.version,
   installed: "",
   device: "",
@@ -79,7 +80,7 @@ function validate(raw) {
   if (
     !raw ||
     raw.schema !== 1 ||
-    raw.project !== "AIV" ||
+    raw.project !== spec.project ||
     !raw.entries ||
     typeof raw.entries !== "object" ||
     Array.isArray(raw.entries) ||
@@ -161,6 +162,7 @@ function validate(raw) {
     )
       throw Error("Risposta non valida.");
     const status =
+      // Labels of drafts older than the current outcomes, kept so those drafts still import.
       { OK: "Tutto OK", "Da correggere": "Non approvato", "Non provato": "" }[
         value.status
       ] ?? value.status;
