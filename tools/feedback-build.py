@@ -7,7 +7,18 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-md = (ROOT / 'docs/Feedback.md').read_text()
+
+
+def option(name, default):
+    """`--source FILE` and `--output FILE` let `feedback-interactive-check.py` build a
+    throwaway page from a synthetic source with the real generator and template, so a
+    document with no open tests can still be exercised without a second copy of the markup."""
+    if name in sys.argv:
+        return Path(sys.argv[sys.argv.index(name) + 1])
+    return default
+
+
+md = option('--source', ROOT / 'docs/Feedback.md').read_text()
 version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text()).group(1)
 identifiers = re.findall(r'^\| (\d+\.\d+-\d+) \|', md, re.M)
 items = []
@@ -127,7 +138,7 @@ page = (tpl
     .replace('__CARDS__', '\n'.join(cards))
     .replace('__NEXT_STEPS__', next_steps_html)
     .replace('__DATA__', json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')))
-output = ROOT / 'publish/feedback.html'
+output = option('--output', ROOT / 'publish/feedback.html')
 if '--check' in sys.argv:
     if not output.exists() or output.read_text() != page:
         sys.exit('Il documento HTML non corrisponde a docs/Feedback.md: esegui tools/feedback-build.py.')

@@ -189,6 +189,11 @@ conservazione illimitata né considerare un dump SQL una copia degli allegati St
    python3 tools/feedback-check.py publish/feedback.html
    ```
 
+   Con un giro senza prove aperte il controllo verifica che la pagina parta senza errori e
+   senza schede, poi genera una copia temporanea con una prova di sintesi (lo stesso
+   generatore, con `--source` e `--output`) e la esercita per intero: la copia non tocca
+   `publish/`.
+
 5. Se cambi cloud, protocollo o salvataggio, esegui anche `npm --prefix cloud/feedback test`
    e la prova con due sessioni browser `tools/feedback-cloud-check.py`, avviando i servizi
    locali come descritto nella guida cloud. Usa esclusivamente chiavi e dati fittizi.
