@@ -1208,13 +1208,14 @@ main > .feedback-columns {
 .delivery-overlay {
   position: fixed;
   inset: 0;
-  z-index: 22;
+  z-index: 40;
   background: var(--scrim);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  overscroll-behavior: none;
 }
 .delivery-overlay[hidden] {
   display: none !important;
@@ -1223,6 +1224,8 @@ main > .feedback-columns {
   width: min(560px, 100%);
   max-height: min(90vh, 900px);
   overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   background: var(--bg);
   color: var(--ink);
   border: 1px solid var(--border);
@@ -1232,10 +1235,9 @@ main > .feedback-columns {
   box-shadow: var(--shadow-modal);
 }
 .delivery-overlay-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   padding: 14px 16px 8px;
   position: sticky;
   top: 0;
@@ -1243,10 +1245,20 @@ main > .feedback-columns {
   z-index: 1;
 }
 .delivery-overlay-header h2 {
+  grid-column: 1 / -1;
+  grid-row: 1;
   margin: 0;
   font-size: 22px;
+  text-align: center;
+  /* Clicks pass through so the close control stays usable if the title is wide. */
+  pointer-events: none;
 }
 .delivery-overlay-close {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  position: relative;
+  z-index: 2;
   width: 44px;
   height: 44px;
   min-height: 44px;
@@ -1258,6 +1270,7 @@ main > .feedback-columns {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
 }
 .delivery-overlay-close:hover {
   background: var(--surface-code);
@@ -1321,21 +1334,53 @@ main > .feedback-columns {
   font-size: 14px;
 }
 
-/* Mobile: Consegna opens via long-press Salva; hide Altro-row opener */
+/* While Consegna is open, the page behind must not scroll. */
+html.delivery-overlay-open,
+body.delivery-overlay-open {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Mobile: Consegna opens via long-press Salva; hide Altro-row opener.
+   The panel fills the dynamic viewport, including the home-indicator strip. */
 @media (max-width: 720px) {
   #open-delivery {
     display: none;
   }
   .delivery-overlay {
+    position: fixed;
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: none;
+    margin: 0;
     align-items: stretch;
+    justify-content: stretch;
     padding: 0;
+    z-index: 40;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: pan-y;
   }
   .delivery-overlay-panel {
     width: 100%;
+    max-width: none;
     max-height: none;
     height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
     border-radius: 0;
     border: none;
+    box-sizing: border-box;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
 }
 

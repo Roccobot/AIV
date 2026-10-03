@@ -786,6 +786,7 @@ const openDeliveryBtn = document.querySelector("#open-delivery");
 function setDeliveryOverlayOpen(open) {
   if (!deliveryOverlay) return;
   deliveryOverlay.hidden = !open;
+  document.documentElement.classList.toggle("delivery-overlay-open", open);
   document.body.classList.toggle("delivery-overlay-open", open);
   if (open) {
     const first = document.querySelector("#send") || document.querySelector("#save");
@@ -800,6 +801,17 @@ deliveryOverlayClose?.addEventListener("click", () => setDeliveryOverlayOpen(fal
 deliveryOverlay?.addEventListener("click", (event) => {
   if (event.target === deliveryOverlay) setDeliveryOverlayOpen(false);
 });
+// A drag on the scrim, or on any strip the panel does not cover, must not scroll the page.
+document.addEventListener(
+  "touchmove",
+  (event) => {
+    if (!document.body.classList.contains("delivery-overlay-open")) return;
+    const panel = deliveryOverlay?.querySelector(".delivery-overlay-panel");
+    if (panel && panel.contains(event.target)) return;
+    event.preventDefault();
+  },
+  { passive: false },
+);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && deliveryOverlay && !deliveryOverlay.hidden)
     setDeliveryOverlayOpen(false);
