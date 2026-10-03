@@ -27,8 +27,11 @@ object Healing {
     const val MAX_RADIUS = 0.06f
     const val START_RADIUS = 0.006f
     const val MAX_POLYGONS = 4096
-    const val MAX_SELECTION = 24_576
-    const val MAX_WORK = 393_216
+    // ⚠️ Since `3.52` the pyramid in [Inpaint] keeps a large hole affordable: the brush at its
+    // largest on a 12 MP photo was refused under the old 24,576 px cap. The work area bounds
+    // the memory of one Apply (estimated peak near 90 MB, not measured on a phone).
+    const val MAX_SELECTION = 196_608
+    const val MAX_WORK = 1_048_576
     const val MAX_HISTORY_BYTES = 16 * 1024 * 1024
 
     data class Plan(
@@ -204,10 +207,15 @@ object Healing {
                 val right = ceil(points.maxOf { it.x } * width).toInt().coerceIn(0, width)
                 val bottom = ceil(points.maxOf { it.y } * height).toInt().coerceIn(0, height)
                 if (right <= left || bottom <= top || (right - left).toLong() * (bottom - top) > MAX_WORK) return@withContext null
-                // ⚠️⚠️ **Area campione più ampia dalla `3.29`, ritoccata in `3.40`**: più contesto
-                // intorno al buco per trame e linee che continuano fuori dalla selezione.
-                val padding = max(32, min(176, max(right - left, bottom - top) * 7 / 4))
-                val area = Rect(max(0, left - padding), max(0, top - padding), min(width, right + padding), min(height, bottom + padding))
+                // ⚠️⚠️ **Search area doubled in `3.52`** (the user's request: more evidence even
+                // around a small defect). When the margin does not fit the work area it narrows
+                // instead of refusing the selection.
+                var padding = max(64, min(352, max(right - left, bottom - top) * 7 / 2))
+                var area = Rect(max(0, left - padding), max(0, top - padding), min(width, right + padding), min(height, bottom + padding))
+                while (padding > 0 && area.width().toLong() * area.height() > MAX_WORK) {
+                    padding = padding * 3 / 4
+                    area = Rect(max(0, left - padding), max(0, top - padding), min(width, right + padding), min(height, bottom + padding))
+                }
                 if (area.width().toLong() * area.height() > MAX_WORK) return@withContext null
                 job.ensureActive()
                 crop = source?.tile(area, 1) ?: whole?.let { Bitmap.createBitmap(it, area.left, area.top, area.width(), area.height()) }

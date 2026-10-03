@@ -107,12 +107,28 @@ class HealingTest {
 
     @Test fun `too large a selection keeps the source untouched`() =
         runBlocking {
-            val source = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.RED) }
+            // 540 x 540 selected pixels: above MAX_SELECTION, below MAX_WORK.
+            val source = Bitmap.createBitmap(600, 600, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.RED) }
             val file = File(app.filesDir, "healing-too-large.png")
             file.outputStream().use { source.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            val selection = Healing.Selection().add(listOf(Offset(.1f, .1f), Offset(.9f, .1f), Offset(.9f, .9f), Offset(.1f, .9f)))
+            val selection = Healing.Selection().add(listOf(Offset(.05f, .05f), Offset(.95f, .05f), Offset(.95f, .95f), Offset(.05f, .95f)))
             assertNull(Healing.prepare(app, file.toUri(), null, Healing.Plan.NONE, selection))
-            assertEquals(Color.RED, ImageSource.pixels(app, file.toUri(), 0)!!.getPixel(150, 150))
+            assertEquals(Color.RED, ImageSource.pixels(app, file.toUri(), 0)!!.getPixel(300, 300))
+        }
+
+    // Since `3.52`: 40,000 selected pixels were refused under the old 24,576 cap, so the brush at
+    // its largest did nothing on a high-resolution photo.
+    @Test fun `a selection above the old cap is applied`() =
+        runBlocking {
+            val source = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.LTGRAY) }
+            for (y in 100 until 300) for (x in 100 until 300) source.setPixel(x, y, Color.MAGENTA)
+            val file = File(app.filesDir, "healing-above-old-cap.png")
+            file.outputStream().use { source.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            val selection = Healing.Selection().add(listOf(Offset(.25f, .25f), Offset(.75f, .25f), Offset(.75f, .75f), Offset(.25f, .75f)))
+            val patch = Healing.prepare(app, file.toUri(), null, Healing.Plan.NONE, selection)
+            assertNotNull(patch)
+            val healed = Healing.render(source, Healing.Plan(listOf(patch!!)))
+            assertEquals(Color.LTGRAY, healed.getPixel(200, 200))
         }
 
     @Test fun `styles exclude image patches and preserve patches already on the target`() {

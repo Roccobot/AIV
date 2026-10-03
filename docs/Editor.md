@@ -294,21 +294,35 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   tolgono le correzioni; Indietro protegge anche una selezione ancora da applicare.
   Salva aspetta che la selezione sia applicata o cancellata, anche passando a un altro modulo.
 - Il calcolo è interamente offline, senza AI, librerie aggiunte, modelli o servizi:
-  `Inpaint.kt` cerca campioni integri nell'intorno, dà priorità alla continuità
-  dei bordi e raccorda i colori al contorno. Non ricava dettagli certi dove manca ogni
-  indizio. I piccoli difetti e le forme ripetute sono il primo impiego; la resa su
-  immagini reali rimane da collaudare.
-- ⚠️⚠️ **Dalla `3.29` (`3.24-04`)**: raggio del tassello adattivo alla dimensione del buco,
-  area campione piu ampia intorno alla selezione, peso maggiore alle isofote e confronto
-  di struttura sul donatore, per preservare meglio orli, linee e pattern.
+  `Inpaint.kt` cerca campioni integri nell'intorno e non ricava dettagli certi dove manca
+  ogni indizio.
+- ⚠️⚠️ **Dalla `3.52` il calcolo lavora su più scale** (richiesta del 2026-10-03: aree un
+  po' più grandi, e più contesto anche per i difetti piccoli). Parte dall'immagine
+  rimpicciolita, dove il buco è largo pochi tasselli e un tassello di 7x7 vede la struttura
+  intorno; là lo riempie il calcolo delle versioni precedenti, che copia pezzi interi dal
+  bordo verso l'interno. A ogni scala più grande ingrandisce la mappa dei pezzi scelti,
+  ricompone il buco con i pixel veri di quella scala e la affina con una ricerca casuale
+  (PatchMatch) su tutta l'area di lavoro, che è il doppio di prima intorno alla selezione.
+  - Misurato su quattro scene sintetiche con buchi da 40 a 220 px: diagonale, mattoni ed erba
+    ricostruiti senza difetti visibili; il calcolo precedente spezzava le fughe dei mattoni e
+    l'orizzonte, e il suo raccordo dei colori lasciava puntini scuri e trattini chiari lungo i
+    bordi netti.
+  - ⚠️ **Limite noto**: una trama morbida come le nuvole diventa cielo liscio, con un bordo
+    appena visibile.
+  - ⚠️ **Scartati durante la prova**: ingrandire i pixel invece della mappa (il buco diventa una
+    media piatta) e partire col tassello adattivo di 5-9 px su una scala di 35 px (una gobba
+    sulla diagonale, conservata da tutte le scale successive).
 - I campioni provengono dalla sorgente originale, con le correzioni precedenti già
   applicate, prima di posa, sviluppo e geometria. Le selezioni seguono le coordinate
   originali anche dopo zoom, posa e deformazione. Le patch conservano i pixel calcolati
   a piena risoluzione: anteprima, tasselli e salvataggio riusano quel risultato.
   I pixel esterni alla selezione e l'alfa si conservano; gli stili escludono le patch.
-- Il lavoro locale ha limiti espliciti: 24.576 pixel selezionati per applicazione,
-  393.216 pixel nel rettangolo di lavoro con il suo contorno, 16 MiB di patch conservate
-  nella storia. Una selezione troppo grande o senza campioni integri lascia immagine
+- Il lavoro locale ha limiti espliciti: 196.608 pixel selezionati per applicazione,
+  1.048.576 pixel nel rettangolo di lavoro con il suo contorno, 16 MiB di patch conservate
+  nella storia. Fino alla `3.42` erano 24.576 e 393.216, e su una foto da 12 MP il pennello
+  al massimo era rifiutato. Quando il contorno doppio non entra nel rettangolo si restringe,
+  e sopra 120.000 tasselli una scala ricompone senza cercare di nuovo, per tenere il tempo
+  limitato. Una selezione troppo grande o senza campioni integri lascia immagine
   e selezione intatte; l'avviso compare **sopra la bottomsheet** come toast sul palco, non
   nel corpo della scheda (dalla `3.25`); dalla `3.37` sparisce al tocco o dopo 10 s. Il promemoria di selezione pendente è tappabile e apre Correggi/Rimuovi (dalla `3.26`). Il lentino di pennello riduce lo zoom se il cerchio ingrandito uscirebbe dal tondo e, dalla `3.37`, sparisce a una soglia più bassa. Si lavora su piccoli difetti uno alla volta.
   Quando il formato permette la lettura per regioni si decodifica soltanto il pezzo;
