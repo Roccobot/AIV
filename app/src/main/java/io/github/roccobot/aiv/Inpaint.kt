@@ -88,7 +88,13 @@ internal object Inpaint {
             val h = level.height
             val valid = validCentres(level.blocked, w, h)
             val validList = valid.indices.filter { valid[it] }.toIntArray()
-            if (validList.isEmpty()) return null
+            // ⚠️ A hole that fills most of the crop leaves no whole patch outside it on a small
+            // level: the start moves one scale up instead of giving up (found by the bench, a
+            // 200 px square in a 400 px image).
+            if (validList.isEmpty()) {
+                if (field == null && depth > 0) continue
+                return null
+            }
             val image = level.image.copyOf()
             val target = BooleanArray(w * h)
             for (index in level.hole.indices) {
@@ -107,7 +113,11 @@ internal object Inpaint {
             val previous = field
             val coarse = finer
             if (previous == null || coarse == null) {
-                val seeded = seed(toInts(image, pixels.size == w * h, pixels), w, h, level.hole, checkpoint) ?: return null
+                val seeded = seed(toInts(image, pixels.size == w * h, pixels), w, h, level.hole, checkpoint)
+                if (seeded == null) {
+                    if (depth > 0) continue
+                    return null
+                }
                 for (index in level.hole.indices) if (level.hole[index]) setPixel(image, index, seeded[index])
                 for (p in targets) next[p] = validList[random.nextInt(validList.size)]
             } else {

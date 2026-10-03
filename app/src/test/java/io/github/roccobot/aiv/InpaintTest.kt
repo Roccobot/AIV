@@ -259,4 +259,15 @@ class InpaintTest {
                 .toDouble() / mask.count { it }
         assertTrue("Checker mismatch: $error", error < 40)
     }
+    // Since `3.52`: a hole half as wide as the crop left no donor on the smallest level, and the
+    // whole repair gave up (found by HealingTest on the bench). The start moves one scale up.
+    @Test fun `a hole half as wide as the crop is still filled`() {
+        val w = 400
+        val source = IntArray(w * w) { white }
+        val mask = BooleanArray(source.size) { it % w in 100 until 300 && it / w in 100 until 300 }
+        for (i in source.indices) if (mask[i]) source[i] = defect
+        val result = Inpaint.repair(source, w, w, mask)
+        assertNotNull(result)
+        for (i in result!!.indices) assertEquals(if (mask[i]) white else source[i], result[i])
+    }
 }
