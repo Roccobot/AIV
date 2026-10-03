@@ -896,14 +896,44 @@ textarea[hidden] {
   margin: 0;
   font-size: 22px;
 }
-.altro-overlay-close {
+/* Bare ×: same 24px glyph as before, no chip. Hit target stays 44px. */
+.altro-overlay-close,
+.delivery-overlay-close {
   width: 44px;
   height: 44px;
+  min-width: 44px;
   min-height: 44px;
   padding: 0;
-  display: flex;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+}
+button.altro-overlay-close:hover,
+button.delivery-overlay-close:hover {
+  background: transparent;
+  border: none;
+}
+.altro-overlay-close svg,
+.delivery-overlay-close svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  display: block;
+}
+/* Second copy, bottom-right, for the thumb. Same glyph, no box. */
+.altro-overlay-close-thumb,
+.delivery-overlay-close-thumb {
+  position: absolute;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 5;
 }
 .altro-overlay-body {
   flex: 1;
@@ -1271,7 +1301,8 @@ main > .feedback-columns {
 .delivery-overlay-panel {
   width: min(560px, 100%);
   max-height: min(90vh, 900px);
-  overflow: auto;
+  position: relative;
+  overflow: hidden;
   overscroll-behavior: contain;
   touch-action: pan-y;
   background: var(--bg);
@@ -1301,33 +1332,23 @@ main > .feedback-columns {
   /* Clicks pass through so the close control stays usable if the title is wide. */
   pointer-events: none;
 }
-.delivery-overlay-close {
+.delivery-overlay-header .delivery-overlay-close {
   grid-column: 3;
   grid-row: 1;
   justify-self: end;
   position: relative;
   z-index: 2;
-  width: 44px;
-  height: 44px;
-  min-height: 44px;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   pointer-events: auto;
 }
-.delivery-overlay-close:hover {
-  background: var(--surface-code);
-}
 .delivery-overlay-body {
-  padding: 0 16px 16px;
+  padding: 0 16px calc(68px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 /* Two equal buttons per row, every viewport. Labels may wrap. */
 .delivery-overlay-body .actions {

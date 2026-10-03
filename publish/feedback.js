@@ -828,7 +828,6 @@ for (const id of ["notes", "notes-mobile"]) {
 
 // --- Mobile Altro overlay (long-press floating ⇥); same draft.notes as bottom Altro ---
 const altroOverlay = document.querySelector("#altro-overlay");
-const altroOverlayClose = document.querySelector("#altro-overlay-close");
 function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
   altroOverlay.hidden = !open;
@@ -841,7 +840,9 @@ function setAltroOverlayOpen(open) {
     editor?.focus?.();
   }
 }
-altroOverlayClose?.addEventListener("click", () => setAltroOverlayOpen(false));
+document.querySelectorAll(".altro-overlay-close").forEach((button) => {
+  button.addEventListener("click", () => setAltroOverlayOpen(false));
+});
 altroOverlay?.addEventListener("click", (event) => {
   if (event.target === altroOverlay) setAltroOverlayOpen(false);
 });
@@ -852,7 +853,6 @@ document.addEventListener("keydown", (event) => {
 
 // --- Consegna e copie overlay (Altro button or long-press Salva) ---
 const deliveryOverlay = document.querySelector("#delivery-overlay");
-const deliveryOverlayClose = document.querySelector("#delivery-overlay-close");
 const openDeliveryBtn = document.querySelector("#open-delivery");
 function setDeliveryOverlayOpen(open) {
   if (!deliveryOverlay) return;
@@ -868,7 +868,9 @@ function closeDeliveryAfterAction() {
   setDeliveryOverlayOpen(false);
 }
 openDeliveryBtn?.addEventListener("click", () => setDeliveryOverlayOpen(true));
-deliveryOverlayClose?.addEventListener("click", () => setDeliveryOverlayOpen(false));
+document.querySelectorAll(".delivery-overlay-close").forEach((button) => {
+  button.addEventListener("click", () => setDeliveryOverlayOpen(false));
+});
 deliveryOverlay?.addEventListener("click", (event) => {
   if (event.target === deliveryOverlay) setDeliveryOverlayOpen(false);
 });
