@@ -98,8 +98,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Navigazione flottante: **una pillola verticale** color accento, ancorata in basso a destra,
   con dall'alto primo non compilato, riquadro precedente, successivo e salvataggio col dischetto
   (richiesta dell'utente, 2026-10-03). Mostra solo i tasti che in quel momento possono agire,
-  si allunga e si accorcia con loro, e con un tasto solo è un tondo. Il fondo è opaco al 25%
-  (sua scelta, con la sfocatura), le icone no, e sotto il fondo la pagina è sfocata come un
+  si allunga e si accorcia con loro, e con un tasto solo è un tondo. Il fondo è opaco al 25% nel tema scuro e al 70% nel chiaro,
+  dove le icone bianche ne hanno bisogno per il contrasto 3:1 (sue scelte, con la sfocatura), le icone no, e sotto il fondo la pagina è sfocata come un
   vetro satinato (`backdrop-filter`, sua richiesta); dove il browser non la supporta resta il
   solo fondo. Commento o allegato
   contano come compilazione.
