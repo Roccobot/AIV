@@ -7,6 +7,23 @@
     link: "M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z",
     code: "M8.7 16.7 3.9 12l4.8-4.7L7.3 5.9 1.2 12l6.1 6.1 1.4-1.4zm6.6 0 1.4 1.4L22.8 12l-6.1-6.1-1.4 1.4 4.8 4.7-4.8 4.7z",
   };
+  function resetIcon() {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    // Small circular arrow. Drawn here; not taken from an external reset file.
+    path.setAttribute("d", "M20 12a8 8 0 1 1-2.2-5.5M20 4.5V9h-4.5");
+    path.setAttribute("fill", "none");
+    svg.append(path);
+    return svg;
+  }
   function formatIcon(kind) {
     if (kind === "bold") {
       const mark = document.createElement("span");
@@ -248,7 +265,17 @@
     area.hidden = true;
     area.setAttribute("aria-hidden", "true");
     area.tabIndex = -1;
-    wrapper.append(toolbar, area, box);
+    if (area.classList.contains("label-revision")) {
+      const reset = node("button");
+      reset.type = "button";
+      reset.className = "label-reset";
+      reset.setAttribute("aria-label", "Ripristina la proposta originale");
+      reset.append(resetIcon());
+      reset.addEventListener("pointerdown", event => event.preventDefault());
+      reset.addEventListener("click", () => window.feedbackRestoreLabel?.(area));
+      toolbar.append(reset);
+    }
+    wrapper.append(area, box, toolbar);
     const editor = {area, box, range: null, lastMarkdown: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {

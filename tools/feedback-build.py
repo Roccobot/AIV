@@ -85,10 +85,16 @@ if labels_match:
             lid, ltitle = head.split(' · ', 1)
         else:
             lid, ltitle = head, head
-        proposal = lm[2].strip()
+        raw = lm[2]
+        notes = ' '.join(re.findall(r'<!--(.*?)-->', raw, re.S))
+        a11y = bool(re.search(r'contentdescription|talkback|screen reader|non visibile|solo lettore|\baria\b', notes + ' ' + head, re.I))
+        proposal = re.sub(r'<!--.*?-->', '', raw, flags=re.S).strip()
         if not proposal:
             raise SystemExit(f'Etichetta {lid}: manca il testo ITA proposto')
-        labels.append(dict(id=lid.strip(), title=ltitle.strip(), proposal=proposal))
+        entry = dict(id=lid.strip(), title=ltitle.strip(), proposal=proposal)
+        if a11y:
+            entry['a11y'] = True
+        labels.append(entry)
 data = dict(project='AIV', version=version, items=items, decisions=[], labels=labels)
 next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if not next_match:
@@ -110,7 +116,7 @@ for index, item in enumerate(items, 1):
     cards.append('<fieldset><legend>Esito della prova</legend>')
     for status in ['Tutto OK', 'Accettabile', 'Non approvato']:
         cards.append(f'<button type="button" class="outcome" data-status="{status}" aria-pressed="false">{status}</button>')
-    cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment">Allega file o trascinali qui<input class="images" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div><p class="item-state">Non provato</p></article>')
+    cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment" aria-label="Allega file o trascinali qui"><span class="attachment-plus" aria-hidden="true">+</span><input class="images" aria-label="Allega file o trascinali qui" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div><p class="item-state">Non provato</p></article>')
 
 tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
 count = re.search(r'superate: (\d+) prove', md).group(1)

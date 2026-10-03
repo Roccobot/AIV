@@ -95,6 +95,55 @@ function decision(id) {
 function labelEntry(id) {
   return draft.labels[id] ?? (draft.labels[id] = { revision: "" });
 }
+// Empty revision keeps the proposal. A cleared field is stored as a one-character sentinel.
+const LABEL_CLEARED = "\u0001";
+function labelById(id) {
+  return (spec.labels || []).find((item) => item.id === id);
+}
+function labelShown(item) {
+  const revision = labelEntry(item.id).revision;
+  if (revision === LABEL_CLEARED) return "";
+  if (revision === "") return item.proposal;
+  return revision;
+}
+function labelDirty(item) {
+  return labelShown(item) !== item.proposal;
+}
+function writeLabel(item, text) {
+  const value = labelEntry(item.id);
+  if (text === item.proposal) value.revision = "";
+  else if (text === "") value.revision = LABEL_CLEARED;
+  else value.revision = text;
+}
+function strokeIcon(paths) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  for (const d of paths) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    svg.append(path);
+  }
+  return svg;
+}
+function labelA11yIcon() {
+  const svg = strokeIcon([
+    "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+    "M12 8.2a1.15 1.15 0 1 0 0-2.3 1.15 1.15 0 0 0 0 2.3z",
+    "M8.2 11.2h7.6",
+    "M12 11.2v3.1",
+    "M12 14.3 9.6 18.4",
+    "M12 14.3l2.4 4.1",
+  ]);
+  svg.setAttribute("class", "label-a11y");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Solo lettore di schermo");
+  return svg;
+}
 function report(text, error = false) {
   message.textContent = text;
   message.classList.toggle("error", error);
@@ -257,8 +306,11 @@ function refreshCounts() {
     card.classList.toggle("has-response", Boolean(value.choice || value.comment.trim()));
   }
   for (const card of document.querySelectorAll(".label-card")) {
-    const value = labelEntry(card.dataset.id);
-    card.classList.toggle("has-response", Boolean(value.revision.trim()));
+    const item = labelById(card.dataset.id);
+    const dirty = item ? labelDirty(item) : false;
+    card.classList.toggle("has-response", dirty);
+    const dot = card.querySelector(".label-modified");
+    if (dot) dot.hidden = !dirty;
   }
   const counters = Object.fromEntries(outcomes.map((o) => [o, 0]));
   let done = 0;
@@ -270,9 +322,11 @@ function refreshCounts() {
     }
   }
   const counts = document.querySelector("#counts");
-  const filled = el("span", `Compilate: ${done}/${spec.items.length}`, "count-filled");
+  const ratio = el("span", `${done}/${spec.items.length}`, "count-ratio");
+  ratio.id = "count-answered";
+  ratio.setAttribute("aria-label", `Riscontri: ${done} su ${spec.items.length}`);
   counts.replaceChildren(
-    filled,
+    ratio,
     countChip("ok", "Tutto OK", counters["Tutto OK"]),
     countChip("warn", "Accettabile", counters["Accettabile"]),
     countChip("bad", "Non approvato", counters["Non approvato"]),
@@ -313,8 +367,9 @@ function hydrate() {
       b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
   }
   for (const card of document.querySelectorAll(".label-card")) {
-    const value = labelEntry(card.dataset.id);
-    card.querySelector("textarea").value = value.revision;
+    const item = labelById(card.dataset.id);
+    if (!item) continue;
+    card.querySelector("textarea").value = labelShown(item);
   }
   for (const key of ["device", "tablet", "notes"])
     document.querySelector("#" + key).value = draft[key];
@@ -442,11 +497,13 @@ function summary() {
   if (spec.labels && spec.labels.length) {
     lines.push("", "Etichette testuali");
     for (const item of spec.labels) {
-      const value = labelEntry(item.id);
-      const revised = value.revision.trim();
-      lines.push(`${item.id}: ${revised || "(approvata)"}`);
-      if (revised && revised !== item.proposal.trim())
+      const text = labelShown(item);
+      if (text.trim() === item.proposal.trim())
+        lines.push(`${item.id}: (approvata)`);
+      else {
+        lines.push(`${item.id}: ${text.trim()}`);
         lines.push("Proposta era: " + item.proposal);
+      }
     }
   }
   lines.push(
@@ -515,22 +572,36 @@ for (const question of spec.decisions) {
 for (const item of spec.labels || []) {
   const card = el("article", undefined, "card label-card");
   card.dataset.id = item.id;
-  card.append(el("p", item.id, "eyebrow"), el("h3", item.title));
-  const proposal = el("pre", item.proposal, "label-proposal");
-  proposal.setAttribute("tabindex", "0");
-  card.append(proposal);
-  const label = el("label", "Versione rivista (vuoto = approvo la proposta)"),
-    field = el("textarea");
+  const title = el("h3", item.title);
+  const dot = el("span", undefined, "label-modified");
+  dot.hidden = true;
+  dot.setAttribute("aria-label", "modificato");
+  title.append(dot);
+  card.append(el("p", item.id, "eyebrow"), title);
+  if (item.a11y) card.append(labelA11yIcon());
+  const label = el("label", item.title, "sr-only");
+  const field = el("textarea");
+  field.className = "label-revision";
   field.rows = 3;
-  field.placeholder = "Lascia vuoto per approvare, oppure scrivi la versione definitiva";
+  field.value = item.proposal;
   field.addEventListener("input", () => {
-    labelEntry(item.id).revision = field.value;
+    writeLabel(item, field.value);
     changed();
   });
   label.append(field);
   card.append(label);
   document.querySelector("#label-list").append(card);
 }
+window.feedbackRestoreLabel = (area) => {
+  const card = area.closest(".label-card");
+  const item = card && labelById(card.dataset.id);
+  if (!item) return;
+  if (!window.confirm("Vuoi tornare alla mia proposta originale?")) return;
+  writeLabel(item, item.proposal);
+  area.value = item.proposal;
+  window.feedbackFormatting?.refresh();
+  changed();
+};
 // File picker and drag-and-drop share validation and preserve the original bytes.
 async function attachFiles(card, files) {
   const input = card.querySelector(".images");

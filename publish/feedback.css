@@ -640,6 +640,32 @@ input:not([type="file"]) {
   border-radius: 10px;
   padding: 14px;
 }
+.attachment:not(.attach-plus) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  position: relative;
+  cursor: pointer;
+  font-weight: 400;
+}
+.attachment:not(.attach-plus) input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.attachment-plus {
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+}
 .drop-active .attachment {
   border-color: var(--accent);
   background: var(--surface-drop);
@@ -688,7 +714,10 @@ body[data-feedback] footer {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin: 8px 0;
+  width: max-content;
+  max-width: 100%;
+  /* Outside the field, anchored to the bottom-right of the field block. */
+  margin: 8px 0 0 auto;
 }
 .format-toolbar button {
   display: inline-flex;
@@ -703,6 +732,9 @@ body[data-feedback] footer {
   width: 24px;
   height: 24px;
   fill: currentColor;
+}
+.format-toolbar .label-reset svg {
+  fill: none;
 }
 /* Pressed state must beat the in-frame surface fill, or the icon stays
    accent-on (near-black in dark, white in light) on the field background. */
@@ -765,8 +797,10 @@ textarea[hidden] {
   flex: 1;
   min-width: 0;
 }
-.count-filled {
+.count-ratio {
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  align-self: center;
   margin-right: 4px;
 }
 .count-chip {
@@ -795,10 +829,16 @@ textarea[hidden] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.1em;
-  height: 1.1em;
-  font: 700 15px/1 Arial, Helvetica, Roboto, sans-serif;
+  /* Same 24px box as the italic icon. The I glyph is untouched. */
+  width: 24px;
+  height: 24px;
+  font-family: Arial, Helvetica, Roboto, sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1;
   letter-spacing: 0;
+  -webkit-text-stroke: 0.6px currentColor;
+  paint-order: stroke fill;
 }
 .format-toolbar button[data-format="bold"] .format-letter {
   transform: translateY(-0.5px);
@@ -914,6 +954,7 @@ main > .feedback-columns {
 .attach-plus {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
   margin: 0;
@@ -1038,9 +1079,6 @@ main > .feedback-columns {
     gap: 22px 32px;
     font-size: 14px;
   }
-  .count-filled {
-    display: none;
-  }
   .count-chip {
     gap: 6px;
     min-width: 3.5rem;
@@ -1054,32 +1092,6 @@ main > .feedback-columns {
   }
   body.editing-mobile .floating-controls {
     bottom: calc(10px + env(safe-area-inset-bottom));
-  }
-  /* In-frame formatting: the system selection bar (Taglia/Copia/Incolla)
-     anchors above the caret and covered the toolbar on the top edge. */
-  .formatted-field {
-    position: relative;
-  }
-  .formatted-field > .format-toolbar {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    z-index: 1;
-    margin: 0;
-    flex-wrap: nowrap;
-    gap: 4px;
-    max-width: calc(100% - 16px);
-    pointer-events: none;
-  }
-  .formatted-field > .format-toolbar button {
-    pointer-events: auto;
-    background: var(--surface);
-    box-shadow: 0 1px 2px #00000026;
-  }
-  .formatted-field > .rich-editor {
-    margin-top: 6px;
-    /* Room so the last lines stay clear of the controls in the corner. */
-    padding-bottom: 60px;
   }
   .feedback-columns {
     display: flex;
@@ -1189,7 +1201,33 @@ main > .feedback-columns {
 
 /* --- Etichette testuali --- */
 #labels .label-card {
+  position: relative;
   margin-top: 12px;
+}
+.label-card h3 .label-modified {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: #e36a00;
+  vertical-align: 2px;
+}
+.label-card h3 .label-modified[hidden] {
+  display: none !important;
+}
+/* Top-right of the card border, same color as that border. Not inside the field. */
+.label-a11y {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 22px;
+  height: 22px;
+  color: var(--border);
+  pointer-events: none;
+}
+.label-card:has(.label-a11y) .eyebrow {
+  padding-right: 28px;
 }
 .label-proposal {
   margin: 0 0 10px;

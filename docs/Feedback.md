@@ -61,6 +61,7 @@ Gestione dei file
 Avanzate
 
 ### e-folders-rail-move · Maniglia elenco cartelle
+<!-- non visibile: contentDescription, solo lettore di schermo -->
 Sposta la lista delle cartelle
 
 ## Decisioni da concordare
