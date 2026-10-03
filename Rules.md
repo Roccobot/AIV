@@ -734,6 +734,11 @@ sessione dopo è perso.
     scrivere un'immagine col carattere di ripiego.
 - **Verifica**: la pagina servita contiene `og:image`, e quell'indirizzo risponde 200 con
   `image/jpeg`. Un link nudo in un servizio può essere la sua cache.
+- ⚠️⚠️ **La favicon della paginetta è il glifo nudo dell'app in `#43B59E`, incorporato nella
+  pagina** (sua richiesta del giro della 1.46). Non è la favicon del documento di feedback (il
+  blocco note col glifo, `assets/feedback-favicon.*`), che vale per il DF e le sue pagine di
+  supporto: il 2026-10-02 erano state unificate, e lui l'ha segnalato il 2026-10-03. La presidia
+  `PaginettaTest`, che confronta i tracciati con `ic_aiv_mark.xml`.
 
 ## 🚀 Che cosa produce un rilascio
 
