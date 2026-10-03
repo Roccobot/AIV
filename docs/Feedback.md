@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **3.52**: collaudo di Correggi/Rimuovi su più scale (aree più grandi, più contesto).
+Versione **3.53**: collaudo del bordo sfumato di Correggi/Rimuovi.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 3.52 è pubblicata: [v3.52](https://github.com/Roccobot/AIV/releases/tag/v3.52), con l'APK
-[AIV-3.52.apk](https://github.com/Roccobot/AIV/releases/download/v3.52/AIV-3.52.apk).
-Commit prodotto su `main`: `9819ed9` (SlimVer 3.52 / versionCode 301).
+La Release 3.53 è pubblicata: [v3.53](https://github.com/Roccobot/AIV/releases/tag/v3.53), con l'APK
+[AIV-3.53.apk](https://github.com/Roccobot/AIV/releases/download/v3.53/AIV-3.53.apk).
+Commit prodotto su `main`: `15640bb` (SlimVer 3.53 / versionCode 302).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor e HEIC restano chiusi. L'inpaint `3.40-05` era chiuso così com'era: la 3.52 lo riapre su tua richiesta del 3 ottobre (aree più grandi, più contesto), sempre senza timbro clone.
+Lati editor e HEIC restano chiusi. Giro **3.52**: `3.52-02` OK; `3.52-01` Non approvato per il bordo troppo netto, che la 3.53 sfuma (`3.53-01`).
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,26 +22,17 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 3.52 sono superate: banco di prova completo, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono resta tuo.
+Le verifiche automatiche della 3.53 sono superate: banco di prova completo, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono resta tuo.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 3.52-01 | Non provato | | Attendere il collaudo. |
-| 3.52-02 | Non provato | | Attendere il collaudo. |
+| 3.53-01 | Non provato | | Attendere il collaudo. |
 
-## 1. Correggi/Rimuovi: aree grandi su una foto vera
+## 1. Correggi/Rimuovi: il bordo sfuma nell'immagine
 
-Con AIV **3.52**, apri una **foto del telefono ad alta risoluzione** (12 MP o più) nell'**editor completo**, modulo **Dettaglio**, e tocca **Correggi/Rimuovi**.
+Con AIV **3.53**, ripeti la prova della 3.52: apri una **foto del telefono ad alta risoluzione** nell'**editor completo**, modulo **Dettaglio**, tocca **Correggi/Rimuovi**, dipingi sopra un oggetto da togliere e tocca **Applica**.
 
-Porta **Dimensione pennello** al massimo e dipingi sopra un oggetto da togliere (un cartello, una persona lontana, una macchia grande), poi tocca **Applica**. Fino alla 3.42 qui compariva l'avviso di selezione troppo grande: adesso la correzione deve avvenire.
-
-Guarda se il riempimento continua le linee e le trame intorno e se l'attesa ti sembra accettabile. Se puoi, allega il prima e il dopo. Limite noto: una trama morbida come le nuvole può diventare cielo liscio.
-
-## 2. Correggi/Rimuovi: bordi netti e trame regolari
-
-Sempre in **Correggi/Rimuovi**, con un pennello piccolo o medio, togli un difetto che sta **sopra un bordo netto** (un orizzonte, lo spigolo di un muro) e uno sopra una **trama regolare** (mattoni, piastrelle, una griglia).
-
-Lungo il bordo non devono comparire puntini scuri né trattini chiari, e le fughe della trama devono restare allineate. Rifai anche la tua prova della diagonale: deve restare pulita come prima.
+Il bordo dell'area corretta non deve più vedersi come una linea: per qualche pixel fuori dalla selezione la ricostruzione si mescola all'immagine, e dentro la selezione il difetto non riaffiora. Prova sia col pennello piccolo sia al massimo; se puoi, allega il prima e il dopo.
 
 ## Decisioni da concordare
 
@@ -51,11 +42,13 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Riordino Impostazioni | 3.41-02 | OK | Tutto OK. | Archiviata. |
+| Correggi/Rimuovi: bordi netti e trame | 3.52-02 | OK | Tutto OK. | Archiviata. |
+| Correggi/Rimuovi: aree grandi | 3.52-01 | Non approvato | Bordo troppo netto, da sfumare. | Sostituita da 3.53-01. |
 | Rail tablet | 3.42-01 | OK | Tutto OK. | Archiviata. |
 
 ## Prossimi passi
 
-- **In collaudo**: Correggi/Rimuovi su più scale, `3.52-01` e `3.52-02`.
+- **In collaudo**: bordo sfumato di Correggi/Rimuovi, `3.53-01`.
+- **Concluso**: bordi netti e trame regolari `3.52-02` (Tutto OK).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.

@@ -95,8 +95,13 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.
-- Navigazione flottante: riquadro precedente, successivo, primo non compilato quando
-  esiste, salvataggio con dischetto. Commento o allegato contano come compilazione.
+- Navigazione flottante: **una pillola verticale** color accento, ancorata in basso a destra,
+  con dall'alto primo non compilato, riquadro precedente, successivo e salvataggio col dischetto
+  (richiesta dell'utente, 2026-10-03). Mostra solo i tasti che in quel momento possono agire,
+  si allunga e si accorcia con loro, e con un tasto solo è un tondo. Commento o allegato
+  contano come compilazione.
+- ⚠️ **Il DF non ha un footer dal 2026-10-03** (*non serve a nulla*): lo spazio sotto l'ultima
+  card, che la tiene libera dalla pillola, è del contenuto stesso (`main`).
 - **Altro**: su desktop è una colonna laterale reale (preferibilmente a sinistra), sticky,
   sempre pronta, con toolbar di formattazione e allegati (`+` e trascinamento); la colonna
   è circa il 50% più larga del primo taglio laterale. Su desktop la striscia conteggi,

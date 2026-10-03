@@ -172,10 +172,24 @@ def check(path):
                     expect(navigation.locator('#first-empty')).to_be_hidden()
                 expect(navigation.locator('#extra-section .altro-commands')).to_be_visible()
                 save_box = navigation.locator('#floating-save').bounding_box()
-                for ident in ['previous-card','next-card']:
-                    box = navigation.locator('#'+ident).bounding_box()
-                    assert box['y']+box['height'] < save_box['y']
+                pill = navigation.locator('.floating-controls')
+                pill_box = pill.bounding_box()
+                for ident in ['first-empty','previous-card','next-card']:
+                    button = navigation.locator('#'+ident)
+                    if not button.is_visible():
+                        continue
+                    box = button.bounding_box()
+                    assert box['y']+box['height'] <= save_box['y']+0.5
                     assert box['width'] >= 48 and box['height'] >= 48
+                    # Every visible button lives inside the one pill.
+                    assert box['x'] >= pill_box['x'] and box['x']+box['width'] <= pill_box['x']+pill_box['width']+0.5
+                # A button that cannot act is not shown: at the first card there is no 'previous'.
+                expect(navigation.locator('#previous-card')).to_be_hidden()
+                assert pill.evaluate('(el)=>getComputedStyle(el).borderRadius') == '28px'
+                # The pill is anchored at the bottom and holds the save button last.
+                assert abs((pill_box['y']+pill_box['height']) - (save_box['y']+save_box['height']) - 4) < 1
+                # The footer is gone.
+                expect(navigation.locator('footer')).to_have_count(0)
             navigation.evaluate('''() => {
                 const previous = document.querySelector('#tests .test:last-child').getBoundingClientRect();
                 // The next in-flow primary card; .extra is a side column on desktop.
@@ -550,6 +564,13 @@ def check(path):
             assert page.evaluate("document.documentElement.dataset.theme") == theme, 'T cambia il tema mentre si scrive.'
             expect(page.locator('#device')).to_have_value(re.compile('t$'))
             page.locator('#device').fill('')
+            # Writing on mobile leaves only Salva: the pill becomes a circle.
+            page.set_viewport_size({'width': 390, 'height': 800})
+            page.locator('#device').focus()
+            expect(page.locator('#previous-card')).to_be_hidden()
+            pill = page.locator('.floating-controls').bounding_box()
+            assert abs(pill['width'] - pill['height']) < 1 and abs(pill['width'] - 56) < 1, pill
+            page.locator('h1').click()
             page.set_viewport_size({'width': 1280, 'height': 900})
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()

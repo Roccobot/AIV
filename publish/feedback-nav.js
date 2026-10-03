@@ -103,6 +103,9 @@ function refreshNavigation() {
   const index = currentCardIndex();
   previousCard.disabled = !loaded || index <= 0;
   nextCard.disabled = !loaded || index >= responseCards.length - 1;
+  // A button that cannot act leaves the pill, which shortens with it.
+  previousCard.hidden = previousCard.disabled;
+  nextCard.hidden = nextCard.disabled;
   const empty = firstEmptyCard();
   // On mobile ⇥ stays visible, so a long press opens Altro even when nothing is empty.
   const mobile = isMobileUi();
