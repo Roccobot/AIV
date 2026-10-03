@@ -13,6 +13,6 @@ for (let attempt=0;attempt<12;attempt++) {
   await new Promise(resolve=>setTimeout(resolve,2500));
 }
 if (status !== 401) throw Error('Il servizio deve rifiutare la lettura senza accesso, con stato 401.');
-const page = await fetch(origin+'/feedback.html');
+const page = await fetch(origin+'/feedback');
 if (!page.ok || !(await page.text()).includes('data-feedback="agent"')) throw Error('Documento non disponibile all\'indirizzo cloud.');
-process.stdout.write(origin+'/feedback.html');
+process.stdout.write(origin+'/feedback');

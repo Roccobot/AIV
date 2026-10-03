@@ -26,7 +26,7 @@ globalThis.fetch=async url=> {
 };
 try {
   assert.equal((await worker.fetch(request('/api/feedback'),env)).status,401);
-  assert.equal((await worker.fetch(request('/feedback.html'),env)).status,200);
+  assert.equal((await worker.fetch(request('/feedback'),env)).status,200);
   const config=await (await worker.fetch(request('/feedback-cloud-config.js'),env)).text();
   assert(!config.includes('test-secret') && config.includes('/api/feedback'));
   assert.equal((await worker.fetch(request('/api/feedback'),{...env,SESSION_SECRET:null})).status,503);

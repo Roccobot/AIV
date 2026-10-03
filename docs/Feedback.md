@@ -1,7 +1,7 @@
 # Feedback AIV
 
 Versione **3.42**: collaudo chiuso (rail Tutto OK).
-[il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback.html).
+[il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 La Release 3.42 è pubblicata: [v3.42](https://github.com/Roccobot/AIV/releases/tag/v3.42), con l'APK
 [AIV-3.42.apk](https://github.com/Roccobot/AIV/releases/download/v3.42/AIV-3.42.apk).
 Commit prodotto su `main`: `3d3b661` (SlimVer 3.42 / versionCode 300).
