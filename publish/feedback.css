@@ -814,14 +814,18 @@ button.altro-overlay-close:hover {
   display: flex;
   flex-direction: column;
 }
-/* The commands follow right under the field instead of being pushed to the bottom of the
-   panel, and the field is a little shorter than on the page: with the user's tall keyboard
-   only about 358px stay visible. feedback-format.js moves the editor out of the body, so the
-   rule names the panel. */
+/* With the user's tall keyboard about 358px stay visible: the field takes all of it down to
+   the formatting row, which ends just above the keyboard, and only the six commands go
+   below it (the user's choice). feedback-format.js moves the editor out of the body, so the
+   rule names the panel. The focus ring is off here: the field is the whole overlay. */
 .altro-overlay-panel textarea,
 .altro-overlay-panel .rich-editor {
-  height: 170px;
-  min-height: 170px;
+  height: 250px;
+  min-height: 250px;
+}
+.altro-overlay-panel textarea:focus-visible,
+.altro-overlay-panel .rich-editor:focus-visible {
+  outline: none;
 }
 
 /* Altro: real side column on desktop; in-flow before PP on mobile */
@@ -1028,6 +1032,15 @@ main > .feedback-columns {
   .cloud-account.is-connected {
     padding-left: 5px;
     padding-right: 4px;
+  }
+  /* The service line (login, cloud, sync) stays discreet: smaller, lighter, centred. An
+     error keeps full strength. */
+  #saved {
+    font-size: 12px;
+    text-align: center;
+  }
+  #saved:not(.error) {
+    opacity: 0.7;
   }
   /* Connected, only the GitHub mark and Esci. */
   .cloud-account.is-connected .cloud-account-user {

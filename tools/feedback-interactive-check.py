@@ -558,8 +558,8 @@ def check(path):
                 page.locator('#altro-overlay-close').click()
                 expect(page.locator('#altro-overlay')).to_be_hidden()
             # Measured on the user's phone with its tall keyboard: only about 358px stay visible
-            # above it. The title is small and centred, and the overlay down to its command row
-            # fits in those 358px whatever the window height (the user's request).
+            # above it. The title is small and centred, the field fills them down to the
+            # formatting row, and only the six commands go below (the user's choice).
             page.set_viewport_size({'width': 412, 'height': 800})
             hold(fab)
             title = page.locator('#altro-overlay-title')
@@ -567,10 +567,18 @@ def check(path):
             title_box = title.evaluate('(el)=>{const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return {x:b.x,width:b.width}}')
             panel_box = page.locator('.altro-overlay-panel').bounding_box()
             assert abs(title_box['x']+title_box['width']/2 - (panel_box['x']+panel_box['width']/2)) < 1, (title_box, panel_box)
+            format_box = page.locator('.altro-overlay-panel .format-actions').bounding_box()
+            assert 340 < format_box['y']+format_box['height'] <= 358, format_box
             commands_box = page.locator('#altro-overlay .altro-commands').bounding_box()
-            assert commands_box['y']+commands_box['height'] <= 358, commands_box
+            assert commands_box['y'] >= 358, commands_box
+            # No focus ring around the field in the overlay.
+            page.locator('#notes-mobile-editor').focus()
+            assert page.locator('#notes-mobile-editor').evaluate('(el)=>getComputedStyle(el).outlineStyle') == 'none'
             page.locator('#altro-overlay-close').click()
             page.set_viewport_size({'width': 390, 'height': 900})
+            # The service line is discreet on mobile: 12px, centred, at 70%.
+            saved_style = page.locator('#saved').evaluate('(el)=>{const c=getComputedStyle(el);return [c.fontSize,c.textAlign,c.opacity]}')
+            assert saved_style == ['12px', 'center', '0.7'], saved_style
             # Android paints no tap rectangle over what the finger touches.
             assert page.evaluate("getComputedStyle(document.documentElement).webkitTapHighlightColor") == 'rgba(0, 0, 0, 0)'
             # The overlay's copy of the commands is wired: its Copia reports, from an empty message.
