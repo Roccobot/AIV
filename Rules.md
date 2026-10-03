@@ -78,9 +78,10 @@ sessione dopo è perso.
   esplicita dell'utente. Nessun risveglio automatico è necessario: il giro si prende
   intero solo quando viene consegnato. La regola completa vive in `Roccobot.md`
   § '⏸️ Il giro si prende INTERO, e solo quando lo dice lui'.
-- La [copia GitHub Pages](https://roccobot.github.io/AIV/feedback.html) conserva il vecchio
-  salvataggio locale per compatibilità e trasferimento; non è il servizio sincronizzato.
-  Il precedente [artefatto Claude](https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq)
+- ⚠️ **La copia su GitHub Pages non c'è più dal 2026-10-03** (sua decisione: *è talmente vecchio
+  che possiamo liberarcene senza problemi*): `pages.yml` lascia fuori dal sito la pagina del
+  documento e i suoi script, che restano in `publish/` perché il Worker serve quella stessa cartella. La vecchia
+  bozza locale è recuperabile dalla storia git, se mai servisse. Il precedente [artefatto Claude](https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq)
   rimane un riferimento storico per le sue voci ancora aperte, senza chiuderle implicitamente.
 
 - **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni DF con la sezione intitolata esattamente **Prossimi passi**, in forma breve e schematica.

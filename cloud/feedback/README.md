@@ -23,8 +23,9 @@ HttpOnly, SameSite=Lax, scade dopo sette giorni. Token e secret rimangono sul se
 nessuna credenziale di GitHub o Cloudflare entra nei file pubblicati o nella memoria
 persistente del browser. Le scritture richiedono l'origine corretta e una versione ETag.
 
-Il documento sul Worker usa il cloud come unica memoria persistente. Il sito GitHub conserva
-la vecchia bozza locale per la migrazione; esportarla da lì e importarla sul Worker.
+Il documento sul Worker usa il cloud come unica memoria persistente. La copia su GitHub Pages
+non è più pubblicata dal 2026-10-03: una vecchia bozza locale, se mai servisse, si recupera
+aprendo in locale la pagina presa dalla storia git, esportando il JSON e importandolo sul Worker.
 Il JSON di esportazione conserva il formato originale con allegati completi. Non trasferire
 mai feedback personali o allegati nei commit del repository pubblico.
 
