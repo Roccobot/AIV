@@ -2,7 +2,11 @@
 (() => {
   const editors = [];
   const iconPaths = {
-    // Italic / link keep Material-style paths; bold uses a letter mark (requested redesign).
+    // Bold: the Arial Bold "B" the button used to set in text (22px, 0.6px stroke), as a
+    // path in the 24px box, so it no longer depends on the fonts installed. Glyph from
+    // Liberation Sans Bold, metric-compatible with Arial; its ink matched the text version.
+    bold: "M18.945 14.182Q18.945 16.244 17.398 17.372Q15.851 18.5 13.101 18.5H5.528V3.364H12.457Q15.228 3.364 16.651 4.326Q18.075 5.287 18.075 7.167Q18.075 8.456 17.36 9.342Q16.646 10.229 15.185 10.54Q17.022 10.755 17.983 11.695Q18.945 12.635 18.945 14.182ZM14.884 7.597Q14.884 6.576 14.234 6.146Q13.584 5.717 12.306 5.717H8.697V9.466H12.328Q13.67 9.466 14.277 8.999Q14.884 8.531 14.884 7.597ZM15.765 13.935Q15.765 11.808 12.714 11.808H8.697V16.147H12.833Q14.358 16.147 15.062 15.594Q15.765 15.041 15.765 13.935Z",
+    // Italic, link and code keep Material-style paths.
     italic: "M10 4v3h2.21l-3.42 10H6v3h8v-3h-2.21l3.42-10H18V4z",
     link: "M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z",
     code: "M8.7 16.7 3.9 12l4.8-4.7L7.3 5.9 1.2 12l6.1 6.1 1.4-1.4zm6.6 0 1.4 1.4L22.8 12l-6.1-6.1-1.4 1.4 4.8 4.7-4.8 4.7z",
@@ -25,19 +29,19 @@
     return svg;
   }
   function formatIcon(kind) {
-    if (kind === "bold") {
-      const mark = document.createElement("span");
-      mark.className = "format-letter";
-      mark.textContent = "B";
-      mark.setAttribute("aria-hidden", "true");
-      return mark;
-    }
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
     svg.setAttribute("aria-hidden", "true");
     svg.setAttribute("focusable", "false");
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", iconPaths[kind]);
+    if (kind === "bold") {
+      // The letter was never shrunk with the other icons: it keeps its size in a 22px slot.
+      svg.setAttribute("class", "format-bold");
+      path.setAttribute("stroke", "currentColor");
+      path.setAttribute("stroke-width", "0.6");
+      path.setAttribute("paint-order", "stroke fill");
+    }
     svg.append(path);
     return svg;
   }
@@ -300,7 +304,7 @@
     if (area.id === "notes" || area.id === "notes-mobile") {
       const attach = document.getElementById(area.id === "notes" ? "altro-attach" : "altro-overlay-attach");
       if (attach) {
-        const cluster = node("div", undefined, "altro-format-cluster");
+        const cluster = node("div", undefined, "altro-format-cluster altro-halves");
         toolbar.replaceWith(cluster);
         cluster.append(attach, toolbar);
       }

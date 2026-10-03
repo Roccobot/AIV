@@ -91,9 +91,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   la card Accedi/Salvataggio cloud e i paragrafi intro condividono la stessa larghezza
   totale di (colonne prove + Altro), senza fascia a tutta viewport. Su mobile resta in
   fondo **prima** del PP; la striscia sticky mostra solo i chip semaforo centrati (niente
-  hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ apre Altro a pannello
-  overlay (chiudi con ×), sullo stesso campo `notes` del riquadro in fondo e con lo stesso
-  salvataggio cloud. Non usare un riquadro `position: fixed` staccato dal flusso come unica
+  hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ **o** su Salva
+  (dischetto) apre Altro a pannello overlay (chiudi con ×), sullo stesso campo `notes` del
+  riquadro in fondo e con lo stesso salvataggio cloud; il tocco breve resta l'azione del FAB.
+  Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
   interfaccia (paragrafi, pulsanti, toast, voci, ...), l'agente può redigere la proposta e
@@ -106,11 +107,23 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   ⚠️⚠️ **Dopo la prima conferma un'etichetta esce dal DF**: è risolta (campo vuoto, o testo
   dell'utente applicato), oppure, se servono chiarimenti o modifiche, torna nel brief. Non
   resta in pagina per un secondo giro.
-- ⚠️ **Consegna e copie**: non resta una card sempre visibile nel flusso. Si apre come
-  overlay popup. Desktop: pulsante nella riga strumenti di Altro, a destra dell'allegato.
-  Mobile: pressione prolungata sul FAB Salva (dischetto) apre lo stesso popup; tocco breve
-  resta Salva. Si chiude con ×, tap fuori, Escape, o a fine interazione utile (Invia, Copia,
-  Esporta, Importa, Azzera); dopo Salva resta aperto per poter Inviare.
+- ⚠️ **Sotto il campo di Altro, due righe** (istruzione dell'utente, 2026-10-03), uguali nella
+  colonna della pagina e nel pannello mobile:
+  1. la riga divisa **esattamente a metà**: a sinistra il `+` tratteggiato degli allegati, a
+     destra i quattro tasti di formattazione, che si dividono la metà in parti uguali;
+  2. i sei comandi di consegna come **icone con tooltip**, ognuno largo 1/6 della riga, in
+     quest'ordine: `Azzera tutto`, `Copia il riepilogo`, `Esporta JSON`, `Importa JSON`,
+     `Salva`, `Invia`. `Copia il riepilogo` copia negli appunti e basta: il testo non compare
+     in nessun campo.
+  ⚠️ **L'overlay `Consegna e copie` non c'è più dal 2026-10-03**, e con lui la pressione lunga
+  su Salva che lo apriva su desktop. I messaggi dei comandi compaiono nella striscia in alto,
+  sotto lo stato del salvataggio (`#action-message`). Gli identificativi `#save`, `#copy`...
+  sono sui pulsanti della pagina; la copia nel pannello mobile li riconosce da `data-command`.
+- La **B** del grassetto è un tracciato SVG, non testo: ricavata dalla B di Arial Bold
+  (Liberation Sans Bold, con le stesse misure), alla stessa dimensione e allo stesso tratto
+  della lettera di prima, perché la sua resa non dipenda dai caratteri installati.
+- Da scollegati, l'accesso è una pillola sola `Accedi con GitHub`, ancorata a destra della
+  riga del titolo.
 - La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
   con la casella 'Sì, ho installato questa versione' (`installed` = versione del giro o vuoto).
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:

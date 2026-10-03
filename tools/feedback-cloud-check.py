@@ -21,20 +21,6 @@ from playwright.sync_api import sync_playwright, expect
 origin = sys.argv[1].rstrip('/') if len(sys.argv)>1 else 'http://127.0.0.1:8787'
 assert urlparse(origin).hostname in ['127.0.0.1','localhost'], 'Usare solo il Worker di sviluppo locale.'
 
-def open_delivery(page):
-    overlay = page.locator('#delivery-overlay')
-    if overlay.is_visible():
-        return
-    btn = page.locator('#open-delivery')
-    if btn.count() and btn.is_visible():
-        btn.click()
-    else:
-        fab = page.locator('#floating-save')
-        fab.dispatch_event('pointerdown', {'button': 0})
-        page.wait_for_timeout(500)
-        fab.dispatch_event('pointerup', {'button': 0})
-    expect(overlay).to_be_visible()
-
 def encoded(value):
     return base64.urlsafe_b64encode(value).rstrip(b'=').decode()
 body = encoded(json.dumps({'kind':'session','owner':10722164,'username':'Roccobot','exp':time.time()+3600}).encode())
@@ -82,15 +68,13 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     first=page(first_context)
     # A new test run starts with the current draft, then explicitly resets its test namespace.
     first.once('dialog',lambda dialog:dialog.accept())
-    open_delivery(first)
     first.locator('#reset').click()
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
     legacy=Path(temporary)/'legacy.json'
     legacy.write_text(json.dumps({'schema':1,'project':'AIV','version':'3.24','installed':'3.24',
                                  'device':'Telefono precedente','notes':'','entries':{},'decisions':{},'extra':{'images':[]}}))
-    open_delivery(first)
     with first.expect_file_chooser() as chooser:
-        first.locator('.file-button').click()
+        first.locator('#extra-section .file-button').click()
     chooser.value.set_files(str(legacy))
     expect(first.locator('#device')).to_have_value('Telefono precedente')
     expect(first.locator('#tablet')).to_have_value('')
@@ -101,10 +85,10 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     comment_editor(first).fill('Da telefono')
     save(first)
     assert first.evaluate('window.feedbackRemote.hasUpdates()') is False
-    open_delivery(first)
     first.locator('#send').click()
-    expect(first.locator('#summary')).to_have_value(re.compile('Telefono: Telefono di prova, Android 13'))
-    expect(first.locator('#summary')).to_have_value(re.compile('Tablet: Tablet di prova, Android 15'))
+    expect(first.locator('#action-message')).to_contain_text('Giro reso leggibile')
+    sent = first.evaluate('summary()')
+    assert 'Telefono: Telefono di prova, Android 13' in sent and 'Tablet: Tablet di prova, Android 15' in sent
     assert first.evaluate('localStorage.length')==0
     assert first.evaluate('indexedDB.databases().then(values=>values.length)')==0
     second_context=context()
@@ -158,7 +142,6 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(altro_editor(third)).to_have_text('**Testo letterale**')
         expect(third.locator('#extra-section img')).to_have_count(1)
         expect(third.locator('#extra-section .zip-download')).to_have_count(1)
-    open_delivery(third)
     with third.expect_download() as pending:
         third.locator('#export').click()
     output=Path(temporary)/'cloud.json'
@@ -177,7 +160,6 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     third.locator('#floating-save').click()
     expect(third.locator('#saved')).to_contain_text('Non salvato')
     expect(altro_editor(third)).to_have_text('Modifica senza connessione')
-    open_delivery(third)
     third.locator('#send').click()
     expect(third.locator('#action-message')).to_contain_text('Invio non confermato')
     assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.completed)') is None
@@ -190,7 +172,8 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     anonymous=anonymous_context.new_page()
     anonymous.goto(origin+'/feedback')
     expect(anonymous.get_by_role('link',name='Accedi')).to_be_visible()
-    expect(anonymous.locator('.cloud-account p')).to_have_text('Collegati con GitHub per il salvataggio cloud')
+    expect(anonymous.locator('.cloud-account a.cloud-account-action')).to_have_text('Accedi con GitHub')
+    assert anonymous.locator('.cloud-account p').count() == 0
     expect(anonymous.locator('.cloud-account-logo')).to_be_hidden()
     expect(anonymous.locator('.cloud-account-user')).to_be_hidden()
     expect(anonymous.locator('#save')).to_be_disabled()
@@ -198,8 +181,8 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     outcomes = anonymous.locator('button[data-status]')
     if outcomes.count():
         assert outcomes.first.evaluate('element => getComputedStyle(element).cursor') == 'default'
-    assert anonymous.locator('.file-button').evaluate('element => getComputedStyle(element).opacity') == '0.55'
-    assert anonymous.locator('.file-button').evaluate('element => getComputedStyle(element).cursor') == 'default'
+    assert anonymous.locator('#extra-section .file-button').evaluate('element => getComputedStyle(element).opacity') == '0.55'
+    assert anonymous.locator('#extra-section .file-button').evaluate('element => getComputedStyle(element).cursor') == 'default'
     assert anonymous.evaluate('indexedDB.databases().then(values=>values.length)')==0
     anonymous_context.close()
     assert not errors,errors

@@ -13,24 +13,6 @@ import threading
 import zipfile
 
 
-def open_delivery(page):
-    """Show Consegna e copie overlay so #save/#export/… are actionable."""
-    overlay = page.locator('#delivery-overlay')
-    if overlay.is_visible():
-        return
-    btn = page.locator('#open-delivery')
-    if btn.count() and btn.is_visible():
-        btn.click()
-    else:
-        # Mobile: long-press floating Salva
-        fab = page.locator('#floating-save')
-        fab.dispatch_event('pointerdown', {'button': 0})
-        page.wait_for_timeout(500)
-        fab.dispatch_event('pointerup', {'button': 0})
-    expect = __import__('playwright.sync_api', fromlist=['expect']).expect
-    expect(overlay).to_be_visible()
-
-
 SYNTHETIC_TEST = '''
 | 0.00-01 | prova di sintesi del controllo |
 
@@ -160,10 +142,9 @@ def check(path):
                     expect(navigation.locator('#first-empty')).to_be_visible()
                     expect(navigation.locator('#menu-toggle')).to_have_count(0)
                     expect(navigation.locator('#jump-altro')).to_have_count(0)
-                    expect(navigation.locator('#open-delivery')).to_be_hidden()
                 else:
                     expect(navigation.locator('#first-empty')).to_be_hidden()
-                    expect(navigation.locator('#open-delivery')).to_be_visible()
+                expect(navigation.locator('#extra-section .altro-commands')).to_be_visible()
                 save_box = navigation.locator('#floating-save').bounding_box()
                 for ident in ['previous-card','next-card']:
                     box = navigation.locator('#'+ident).bounding_box()
@@ -318,14 +299,12 @@ def check(path):
             expect(stored).to_have_value(expected_comment)
             expect(field.locator('a')).to_have_text('abc')
             expect(notes_field.locator('em')).to_have_text('note')
-            open_delivery(formatting)
             formatting.locator('#copy').click()
             expect(formatting.locator('#action-message')).to_contain_text('Riepilogo copiato')
             formatted_summary = formatting.evaluate('navigator.clipboard.readText()')
             expected_bits = [expected_comment, '*note*']
             assert all(value in formatted_summary for value in expected_bits)
             with formatting.expect_download() as pending:
-                open_delivery(formatting)
                 formatting.locator('#export').click()
             formatted_export=Path(temporary)/'formatted.json'
             pending.value.save_as(str(formatted_export))
@@ -336,7 +315,6 @@ def check(path):
             restored='**grassetto** e *corsivo*\n[link]('+destination+')\nPercorso C:\\foto, \\*letterale\\* <img src=x>'
             formatted_data['entries'][data['items'][0]['id']]['comment']=restored
             formatted_export.write_text(json.dumps(formatted_data))
-            open_delivery(formatting)
             formatting.locator('#import').set_input_files(str(formatted_export))
             expect(formatting.locator('#action-message')).to_contain_text('JSON importato')
             expect(stored).to_have_value(restored)
@@ -481,46 +459,58 @@ def check(path):
             expect(page.locator('#save')).to_be_enabled()
             assert page.locator('.test').count() == len(data['items'])
             assert page.locator('.decision, #decisions').count() == 0
-            open_delivery(page)
-            assert page.locator('#delivery-info').count() == 0
+            # Consegna lives in the Altro row: no overlay, no opener, no summary field.
+            assert page.locator('#delivery-overlay, #open-delivery, #summary').count() == 0
             assert page.locator('.browse-label').count() == 0
-            import_button = page.locator('.file-button')
-            expected = ['Azzera tutto', 'Salva', 'Copia il riepilogo', 'Invia', 'Importa JSON', 'Esporta JSON']
+            expected = ['Azzera tutto', 'Copia il riepilogo', 'Esporta JSON', 'Importa JSON', 'Salva', 'Invia']
+            near = lambda a, b: abs(a - b) < 1
             for width in [320, 390, 800, 1280]:
                 page.set_viewport_size({'width': width, 'height': 900})
-                controls = page.locator('#delivery-section .actions > button, #delivery-section .actions > .file-button')
-                assert controls.count() == 6
-                boxes = []
-                for index, control in enumerate(controls.all()):
-                    box = control.bounding_box()
-                    boxes.append(box)
-                    assert control.inner_text().strip() == expected[index], (width, index, control.inner_text())
-                title_box = import_button.evaluate('''label => {
-                    const range = document.createRange();
-                    range.selectNode(label.firstChild);
-                    const text = range.getBoundingClientRect();
-                    const row = label.getBoundingClientRect();
-                    return {mid: (text.left + text.right) / 2, rowMid: (row.left + row.right) / 2};
-                }''')
-                assert abs(title_box['mid'] - title_box['rowMid']) < 2, (width, title_box)
-                for row in range(3):
-                    left, right = boxes[row * 2], boxes[row * 2 + 1]
-                    assert abs(left['y'] - right['y']) < 2, (width, row, left, right)
-                    assert abs(left['height'] - right['height']) < 2, (width, row)
-                    assert abs(left['width'] - right['width']) < 2, (width, row, left['width'], right['width'])
-                    assert right['x'] > left['x'] + left['width'] * 0.5
-                    if row:
-                        previous = boxes[(row - 1) * 2]
-                        assert left['y'] >= previous['y'] + previous['height'] - 1, (width, row)
-            page.locator('#delivery-overlay-close').click()
-            expect(page.locator('#delivery-overlay')).to_be_hidden()
-            # Desktop: long-press Save opens the same delivery overlay as mobile.
-            page.locator('#floating-save').dispatch_event('pointerdown', {'button': 0})
-            page.wait_for_timeout(500)
-            page.locator('#floating-save').dispatch_event('pointerup', {'button': 0})
-            expect(page.locator('#delivery-overlay')).to_be_visible()
-            page.locator('#delivery-overlay-close').click()
-            expect(page.locator('#delivery-overlay')).to_be_hidden()
+                row = page.locator('#extra-section .altro-commands')
+                controls = row.locator(':scope > .command')
+                assert [c.get_attribute('title') for c in controls.all()] == expected, width
+                row_box = row.bounding_box()
+                boxes = [c.bounding_box() for c in controls.all()]
+                # Six equal buttons fill the row, on one line.
+                assert near(boxes[0]['x'], row_box['x']) and near(boxes[-1]['x'] + boxes[-1]['width'], row_box['x'] + row_box['width']), width
+                assert all(near(b['width'], boxes[0]['width']) and near(b['y'], boxes[0]['y']) for b in boxes), width
+                # The format row splits exactly in half: attach left, the four format buttons right.
+                halves = page.locator('#extra-section .altro-halves')
+                cluster_box = halves.bounding_box()
+                attach = halves.locator('.altro-attach').bounding_box()
+                tools = halves.locator('.format-toolbar').bounding_box()
+                assert near(attach['width'], tools['width']) and near(attach['x'], cluster_box['x']), (width, attach, tools)
+                assert near(tools['x'] + tools['width'], cluster_box['x'] + cluster_box['width']), width
+                formats = [b.bounding_box() for b in halves.locator('.format-toolbar button').all()]
+                assert len(formats) == 4 and all(near(b['width'], formats[0]['width']) for b in formats), width
+                assert near(formats[-1]['x'] + formats[-1]['width'], tools['x'] + tools['width']), width
+                assert near(cluster_box['width'], row_box['width']), width
+            fab = page.locator('#floating-save')
+            def hold(button):
+                button.dispatch_event('pointerdown', {'button': 0})
+                page.wait_for_timeout(600)
+                button.dispatch_event('pointerup', {'button': 0})
+                button.dispatch_event('click')
+            # Desktop: a long press on Salva only saves; the Consegna overlay is gone.
+            page.set_viewport_size({'width': 1280, 'height': 900})
+            hold(fab)
+            expect(page.locator('#altro-overlay')).to_be_hidden()
+            # Mobile: a long press on Salva or on the arrow opens Altro, with the six commands.
+            page.set_viewport_size({'width': 390, 'height': 900})
+            for button in [fab, page.locator('#first-empty')]:
+                hold(button)
+                expect(page.locator('#altro-overlay')).to_be_visible()
+                expect(page.locator('#altro-overlay .altro-commands > .command')).to_have_count(6)
+                assert page.locator('#altro-overlay [id="save"], #altro-overlay [id="import"]').count() == 0
+                page.locator('#altro-overlay-close').click()
+                expect(page.locator('#altro-overlay')).to_be_hidden()
+            # The overlay's copy of the commands is wired: its Copia reports, from an empty message.
+            hold(fab)
+            page.evaluate("document.querySelector('#action-message').textContent = ''")
+            page.locator('#altro-overlay [data-command="copy"]').click()
+            expect(page.locator('#action-message')).to_have_text(re.compile('Riepilogo copiato|appunti'))
+            page.locator('#altro-overlay-close').click()
+            page.set_viewport_size({'width': 1280, 'height': 900})
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()
             expect(first.locator('.item-state')).to_have_count(0)
@@ -660,7 +650,6 @@ def check(path):
             expect(first.locator('.image-list img')).to_have_count(3)
             expect(page.locator('#notes')).to_have_value('Osservazioni libere di verifica')
             with page.expect_download() as pending:
-                open_delivery(page)
                 page.locator('#export').click()
             export = Path(temporary) / 'export.json'
             pending.value.save_as(str(export))
@@ -683,9 +672,8 @@ def check(path):
             second.on('pageerror', lambda e: errors.append(str(e)))
             second.goto(url)
             expect(second.locator('#save')).to_be_enabled()
-            open_delivery(second)
             with second.expect_file_chooser() as chooser:
-                second.locator('.file-button').click()
+                second.locator('#extra-section .file-button').click()
             chooser.value.set_files(str(export))
             expect(second.locator('#action-message')).to_contain_text('JSON importato')
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
@@ -705,14 +693,12 @@ def check(path):
             invalid = json.loads(export.read_text())
             invalid['entries'][data['items'][0]['id']]['status'] = 'Esito inventato'
             bad.write_text(json.dumps(invalid))
-            open_delivery(second)
             second.locator('#import').set_input_files(str(bad))
             expect(second.locator('#action-message')).to_contain_text('Importazione annullata')
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
-            open_delivery(second)
             second.locator('#send').click()
-            expect(second.locator('#summary')).to_have_value(re.compile('^Feedback AIV '+re.escape(data['version'])))
-            open_delivery(second)
+            expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
+            assert second.evaluate('summary()').startswith('Feedback AIV '+data['version'])
             second.locator('#copy').click()
             expect(second.locator('#action-message')).to_contain_text('Riepilogo copiato')
             clipboard = second.evaluate('navigator.clipboard.readText()')
@@ -722,14 +708,12 @@ def check(path):
                 confirmations.append((dialog.type, dialog.message))
                 dialog.dismiss()
             second.once('dialog', cancel_reset)
-            open_delivery(second)
             second.locator('#reset').click()
             assert confirmations and confirmations[0][0] == 'confirm'
             assert 'Cancellare tutte le risposte' in confirmations[0][1]
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.on('dialog', lambda dialog: dialog.accept())
-            open_delivery(second)
             second.locator('#reset').click()
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(0)

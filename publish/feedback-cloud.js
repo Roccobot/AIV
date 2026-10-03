@@ -97,13 +97,11 @@
   const username = document.createElement('strong');
   username.className = 'cloud-account-user';
   username.hidden = true;
-  const description = document.createElement('p');
-  const signedOutText = 'Collegati con GitHub per il salvataggio cloud';
-  description.textContent = signedOutText;
+  // Signed out, the chip is a single pill on the right of the title row.
   const login = document.createElement('a');
   login.href = config.login;
   login.className = 'cloud-account-action';
-  login.textContent = 'Accedi';
+  login.textContent = 'Accedi con GitHub';
   const logout = document.createElement('button');
   logout.type = 'button';
   logout.className = 'cloud-account-action';
@@ -116,7 +114,7 @@
       location.reload();
     } catch (error) { report(error.message,true); }
   });
-  notice.append(logo,username,description,login,logout);
+  notice.append(logo,username,login,logout);
   document.querySelector('.intro-title-row').append(notice);
   let accountUsername = '';
   const syncAccount = (signedIn, name) => {
@@ -127,9 +125,7 @@
     logo.hidden = !connected;
     username.hidden = !connected;
     username.textContent = accountUsername;
-    description.textContent = connected ? '' : signedOutText;
-    login.textContent = connected ? '' : 'Accedi';
-    description.hidden = connected;
+    login.textContent = connected ? '' : 'Accedi con GitHub';
     login.hidden = connected;
     logout.hidden = !connected;
   };

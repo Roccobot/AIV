@@ -70,8 +70,8 @@ sessione dopo è perso.
 - Le prove ancora aperte restano fra release, con identificatori stabili; si archiviano
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.
-- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release pubblicata della stessa versione, con l'APK allegato**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale. ⚠️ **Eccezione**: un ritocco **solo UX/documentale** del DF (layout, Altro, Consegna overlay, Etichette testuali, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK (`docs/Feedback-maintenance.md`).
-- ⚠️ **Etichette testuali** e **Consegna e copie** (overlay): regole operative in `docs/Feedback-maintenance.md` § Convenzioni.
+- **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release pubblicata della stessa versione, con l'APK allegato**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale. ⚠️ **Eccezione**: un ritocco **solo UX/documentale** del DF (layout, Altro e i suoi comandi, Etichette testuali, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK (`docs/Feedback-maintenance.md`).
+- ⚠️ **Etichette testuali** e **i comandi di consegna sotto Altro** (l'overlay `Consegna e copie` non c'è più dal 2026-10-03): regole operative in `docs/Feedback-maintenance.md` § Convenzioni.
 - **Dopo ogni release si consegnano i passi di collaudo e il risultato atteso**, in chat
   o nel documento funzionante. Una bozza che richiede accesso a una piattaforma diversa
   non basta. Non creare un secondo documento per l'agente che prende in carico il lavoro.
