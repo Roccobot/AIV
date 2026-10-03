@@ -304,6 +304,18 @@
         toolbar.replaceWith(cluster);
         cluster.append(attach, toolbar);
       }
+    } else {
+      // Proof cards: label.attachment follows this field (or sits on the card).
+      // Not #altro-attach, and not decision or label cards (they have no such label).
+      const sibling = wrapper.nextElementSibling;
+      const card = wrapper.closest("article.test");
+      const onCard = card ? card.querySelector(":scope > label.attachment") : null;
+      const attach = sibling && sibling.matches("label.attachment") ? sibling : onCard;
+      if (attach && attach.id !== "altro-attach" && !attach.classList.contains("altro-attach")) {
+        const cluster = node("div", undefined, "altro-format-cluster");
+        toolbar.replaceWith(cluster);
+        cluster.append(attach, toolbar);
+      }
     }
     box.addEventListener("beforeinput", event => {
       // Both Enter variants use blocks, avoiding a browser-only terminal newline placeholder.
