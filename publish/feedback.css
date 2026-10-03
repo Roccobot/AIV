@@ -501,10 +501,6 @@ textarea {
   padding: 6px 10px;
   font-size: 14px;
 }
-.item-state {
-  font-size: 14px;
-  color: var(--muted);
-}
 .actions {
   display: flex;
   gap: 10px;

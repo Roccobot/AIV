@@ -116,7 +116,7 @@ for index, item in enumerate(items, 1):
     cards.append('<fieldset><legend>Esito della prova</legend>')
     for status in ['Tutto OK', 'Accettabile', 'Non approvato']:
         cards.append(f'<button type="button" class="outcome" data-status="{status}" aria-pressed="false">{status}</button>')
-    cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment" aria-label="Allega file o trascinali qui"><span class="attachment-plus" aria-hidden="true">+</span><input class="images" aria-label="Allega file o trascinali qui" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div><p class="item-state">Non provato</p></article>')
+    cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment" aria-label="Allega file o trascinali qui"><span class="attachment-plus" aria-hidden="true">+</span><input class="images" aria-label="Allega file o trascinali qui" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div></article>')
 
 tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
 count = re.search(r'superate: (\d+) prove', md).group(1)

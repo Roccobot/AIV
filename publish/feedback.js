@@ -354,8 +354,6 @@ function hydrate() {
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
     card.querySelector(".comment").value = value.comment;
-    card.querySelector(".item-state").textContent =
-      value.status || "Non provato";
     for (const b of card.querySelectorAll(".outcome"))
       b.setAttribute("aria-pressed", String(b.dataset.status === value.status));
     drawAttachments(card);
@@ -752,8 +750,6 @@ for (const card of document.querySelectorAll(".test")) {
           "aria-pressed",
           String(peer.dataset.status === value.status),
         );
-      card.querySelector(".item-state").textContent =
-        value.status || "Non provato";
       changed();
     });
   card.querySelector(".comment").addEventListener("input", (event) => {

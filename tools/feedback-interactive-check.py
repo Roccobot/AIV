@@ -485,10 +485,10 @@ def check(path):
             expect(page.locator('#delivery-overlay')).to_be_hidden()
             first = page.locator('.test').first
             first.locator('[data-status="Tutto OK"]').click()
-            expect(first.locator('.item-state')).to_have_text('Tutto OK')
+            expect(first.locator('.item-state')).to_have_count(0)
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('[data-status="Tutto OK"]').click()
-            expect(first.locator('.item-state')).to_have_text('Non provato')
+            expect(first.locator('.item-state')).to_have_count(0)
             expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.rich-editor').fill('Risposta senza esito')
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
@@ -613,7 +613,7 @@ def check(path):
             expect(page.locator('#saved')).to_contain_text('Salvato in questo browser')
             page.reload()
             expect(page.locator('#save')).to_be_enabled()
-            expect(first.locator('.item-state')).to_have_text('Accettabile')
+            expect(first.locator('.item-state')).to_have_count(0)
             expect(first.locator('.comment')).to_have_value('Commento di verifica: <script>test</script>')
             expect(first.locator('.image-list img')).to_have_count(3)
             expect(page.locator('#notes')).to_have_value('Osservazioni libere di verifica')
@@ -648,7 +648,7 @@ def check(path):
                 second.locator('.file-button').click()
             chooser.value.set_files(str(export))
             expect(second.locator('#action-message')).to_contain_text('JSON importato')
-            expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
+            expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.reload()
             expect(second.locator('#save')).to_be_enabled()
@@ -668,7 +668,7 @@ def check(path):
             open_delivery(second)
             second.locator('#import').set_input_files(str(bad))
             expect(second.locator('#action-message')).to_contain_text('Importazione annullata')
-            expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
+            expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             open_delivery(second)
             second.locator('#send').click()
             expect(second.locator('#summary')).to_have_value(re.compile('^Feedback AIV '+re.escape(data['version'])))
@@ -686,12 +686,12 @@ def check(path):
             second.locator('#reset').click()
             assert confirmations and confirmations[0][0] == 'confirm'
             assert 'Cancellare tutte le risposte' in confirmations[0][1]
-            expect(second.locator('.test').first.locator('.item-state')).to_have_text('Accettabile')
+            expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.on('dialog', lambda dialog: dialog.accept())
             open_delivery(second)
             second.locator('#reset').click()
-            expect(second.locator('.test').first.locator('.item-state')).to_have_text('Non provato')
+            expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(0)
             expect(second.locator('.extra .image-list figure')).to_have_count(0)
             for width in [320, 390, 800, 1280]:
@@ -753,7 +753,7 @@ def check(path):
             }""", legacy)
             migration.reload()
             expect(migration.locator('#save')).to_be_enabled()
-            expect(migration.locator(f'[data-id="{first_id}"] .item-state')).to_have_text('Accettabile')
+            expect(migration.locator(f'[data-id="{first_id}"] .item-state')).to_have_count(0)
             expect(migration.locator('[data-id="3.14-03"]')).to_have_count(0)
             if migration.locator('.decision').count():
                 expect(migration.locator('.decision').first.locator('textarea')).to_have_value('Decisione precedente conservata')
@@ -765,7 +765,7 @@ def check(path):
                 if item['id'] == first_id:
                     continue
                 if item['version'] == data['version']:
-                    expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_text('Non provato')
+                    expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_count(0)
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
