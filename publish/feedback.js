@@ -567,6 +567,30 @@ for (const question of spec.decisions) {
   card.append(label);
   document.querySelector("#decision-list").append(card);
 }
+async function copyLabelId(id) {
+  const text = String(id || "").toLowerCase();
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.setAttribute("aria-hidden", "true");
+    area.tabIndex = -1;
+    area.style.position = "fixed";
+    area.style.top = "0";
+    area.style.left = "0";
+    area.style.opacity = "0";
+    document.body.append(area);
+    area.focus();
+    area.select();
+    try {
+      document.execCommand("copy");
+    } finally {
+      area.remove();
+    }
+  }
+}
 for (const item of spec.labels || []) {
   const card = el("article", undefined, "card label-card");
   card.dataset.id = item.id;
@@ -575,7 +599,12 @@ for (const item of spec.labels || []) {
   dot.hidden = true;
   dot.setAttribute("aria-label", "modificato");
   title.append(dot);
-  card.append(el("p", item.id, "eyebrow"), title);
+  const idCopy = el("button", String(item.id).toLowerCase(), "label-id");
+  idCopy.type = "button";
+  idCopy.addEventListener("click", () => {
+    copyLabelId(item.id);
+  });
+  card.append(idCopy, title);
   if (item.a11y) card.append(labelA11yIcon());
   const label = el("label", item.title, "sr-only");
   const field = el("textarea");
