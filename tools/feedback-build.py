@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the static feedback document from the canonical Markdown and app version."""
 from pathlib import Path
+import hashlib
 import html
 import json
 import re
@@ -86,7 +87,7 @@ for match in re.finditer(r'^## (\d+)\. ([^\n]+)\n(.*?)(?=^## |\Z)', md, re.M | r
     items.append(dict(id=identifier, version=identifier.rsplit('-', 1)[0], title=match[2],
                       paragraphs=paragraphs))
 # Optional "Etichette testuali" section: each `### id[ · title]` heading plus its body is the
-# proposed Italian text. The page asks no decisions any more; old drafts keep theirs (feedback.js).
+# proposed Italian text. The page asks no decisions any more; old drafts keep theirs (feedback-data.js).
 labels = []
 labels_match = re.search(r'^## Etichette testuali\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if labels_match:
@@ -158,6 +159,18 @@ page = (tpl
     .replace('__NEXT_STEPS__', next_steps_html)
     .replace('__CONCLUDED__', concluded_html)
     .replace('__DATA__', json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')))
+# Each local file the page loads carries `?v=` plus the start of its own SHA-256, so a
+# browser fetches it again exactly when it changes; nobody bumps a number by hand.
+def versioned(match):
+    path = ROOT / 'publish' / match[1]
+    if not path.is_file():
+        raise SystemExit(f'Il modello carica {match[1]}, che non esiste in publish/.')
+    return match[1] + '?v=' + hashlib.sha256(path.read_bytes()).hexdigest()[:10]
+
+
+page = re.sub(r'([\w./-]+)\?v=__HASH__', versioned, page)
+if '__HASH__' in page:
+    raise SystemExit('Un segnaposto __HASH__ del modello non è stato sostituito.')
 output = option('--output', ROOT / 'publish/feedback.html')
 if '--check' in sys.argv:
     if not output.exists() or output.read_text() != page:

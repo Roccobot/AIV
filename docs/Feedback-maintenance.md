@@ -25,7 +25,10 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | [Feedback.md](Feedback.md) | Prove, identificatori, passi e risultati attesi |
 | [feedback-build.py](../tools/feedback-build.py) | Generatore, struttura della pagina e dati incorporati |
 | [feedback.html](../publish/feedback.html) | Documento generato da pubblicare, mai unica fonte di una modifica |
-| [feedback.js](../publish/feedback.js) | Risposte, validazione JSON, importazione/esportazione, riepilogo, navigazione |
+| [feedback-data.js](../publish/feedback-data.js) | Dati della pagina, bozza, validazione JSON, riepilogo, coda dei salvataggi |
+| [feedback-ui.js](../publish/feedback-ui.js) | Tema, messaggi, contatori, riquadri e allegati, Altro, i sei comandi di consegna |
+| [feedback-nav.js](../publish/feedback-nav.js) | Striscia, spostamento fra i riquadri, pulsanti flottanti e pressione lunga |
+| [feedback-start.js](../publish/feedback-start.js) | Avvio: caricamento della bozza e allineamento con gli altri dispositivi |
 | [feedback-format.js](../publish/feedback-format.js) | Editor visivo, Markdown, icone e scorciatoie |
 | [feedback.css](../publish/feedback.css) | Aspetto, esiti, evidenze e adattamento dello schermo |
 | [feedback-cloud.js](../publish/feedback-cloud.js) | Bozza remota, originali, versioni e accesso lato pagina |
@@ -34,7 +37,15 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | [supabase-store.mjs](../cloud/feedback/supabase-store.mjs) | Database e Storage Supabase, soltanto lato server |
 | [supabase-setup.sql](../cloud/feedback/supabase-setup.sql) | Tabelle, revisioni, privilegi e bucket privato |
 | [feedback-cloud.yml](../.github/workflows/feedback-cloud.yml) | Verifiche e distribuzione del servizio cloud |
-| [pages.yml](../.github/workflows/pages.yml) | Copia pubblica GitHub Pages |
+| [pages.yml](../.github/workflows/pages.yml) | Paginetta di download su GitHub Pages; il DF ne è escluso |
+
+- I quattro script della pagina (`feedback-data.js`, `feedback-ui.js`, `feedback-nav.js`,
+  `feedback-start.js`) sono script classici che condividono le variabili globali, caricati
+  in quest'ordine; durante il caricamento nessuno chiama le funzioni di un file successivo,
+  e l'avvio vive nell'ultimo. Ognuno lo dichiara nell'intestazione. Moduli ES scartati: lo
+  stato condiviso andrebbe riscritto, e non si caricano da una pagina aperta come file.
+- Le versioni dei file nei link (`?v=`) le calcola `feedback-build.py` dal contenuto di
+  ogni file: dopo una modifica a CSS o JS si rigenera la pagina, e `--check` lo ricorda.
 
 La versione delle prove si ricava da `versionName` in `app/build.gradle.kts`.
 Una modifica al documento non produce una nuova versione Android.
