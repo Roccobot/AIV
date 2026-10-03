@@ -428,7 +428,8 @@ textarea {
   gap: 0;
   padding: 4px;
   border-radius: 28px;
-  background: var(--accent);
+  /* The fill at 80% (the user's choice): the page shows through, the glyphs stay solid. */
+  background: color-mix(in srgb, var(--accent) 80%, transparent);
   box-shadow: var(--shadow-fab);
   z-index: 3;
 }
