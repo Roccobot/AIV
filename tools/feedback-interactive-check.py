@@ -393,6 +393,42 @@ def check(path):
                         assert place['inside'] and place['insetRight'] < 24 and place['insetBottom'] < 24, (width, place)
                     else:
                         assert place['above'], (width, place)
+                if width in (390, 1280):
+                    pressed = formatting.evaluate('''() => {
+                      const root = document.documentElement;
+                      const previous = root.getAttribute('data-theme');
+                      const bold = document.querySelector('article.test [data-format="bold"]');
+                      const italic = document.querySelector('article.test [data-format="italic"]');
+                      bold.setAttribute('aria-pressed', 'true');
+                      italic.setAttribute('aria-pressed', 'true');
+                      const lum = (c) => {
+                        const parts = c.match(/[\\d.]+/g).slice(0, 3).map(Number);
+                        const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+                        const [r, g, b] = parts.map(f);
+                        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                      };
+                      const ratio = (a, b) => {
+                        const hi = Math.max(lum(a), lum(b));
+                        const lo = Math.min(lum(a), lum(b));
+                        return (hi + 0.05) / (lo + 0.05);
+                      };
+                      const out = {};
+                      for (const theme of ['light', 'dark']) {
+                        root.setAttribute('data-theme', theme);
+                        const bcs = getComputedStyle(bold);
+                        const ics = getComputedStyle(italic);
+                        out[theme] = {
+                          bold: ratio(bcs.color, bcs.backgroundColor),
+                          italic: ratio(ics.color, ics.backgroundColor),
+                        };
+                      }
+                      if (previous) root.setAttribute('data-theme', previous);
+                      bold.removeAttribute('aria-pressed');
+                      italic.removeAttribute('aria-pressed');
+                      return out;
+                    }''')
+                    for theme, ratios in pressed.items():
+                        assert ratios['bold'] >= 4.5 and ratios['italic'] >= 4.5, (width, theme, ratios)
             touch_context = browser.new_context(is_mobile=True,has_touch=True,viewport={'width':390,'height':844})
             touch = touch_context.new_page()
             touch.on('pageerror', lambda e: errors.append(str(e)))
@@ -418,11 +454,15 @@ def check(path):
                 import_box = import_button.bounding_box()
                 for button in page.locator('.actions button').all():
                     assert abs(button.bounding_box()['height'] - import_box['height']) < 1, 'Importa JSON height differs from its peers.'
-                title_right = import_button.evaluate('''label => {
+                title_box = import_button.evaluate('''label => {
                     const range = document.createRange();
                     range.selectNode(label.firstChild);
-                    return range.getBoundingClientRect().right;
+                    const text = range.getBoundingClientRect();
+                    const row = label.getBoundingClientRect();
+                    return {right: text.right, mid: (text.left + text.right) / 2, rowMid: (row.left + row.right) / 2};
                 }''')
+                title_right = title_box['right']
+                assert abs(title_box['mid'] - title_box['rowMid']) < 2, (width, title_box)
                 browse = import_button.locator('.browse-label').bounding_box()
                 assert browse['x'] > title_right, 'Sfoglia is not beside the title.'
                 assert abs(browse['y'] + browse['height']/2 - import_box['y'] - import_box['height']/2) < 1

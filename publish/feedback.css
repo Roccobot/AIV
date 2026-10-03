@@ -713,6 +713,16 @@ body[data-feedback] footer {
   height: 24px;
   fill: currentColor;
 }
+/* Pressed state must beat the in-frame surface fill, or the icon stays
+   accent-on (near-black in dark, white in light) on the field background. */
+.formatted-field > .format-toolbar button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-on);
+  border-color: var(--accent);
+}
+.formatted-field > .format-toolbar button[aria-pressed="true"] svg {
+  fill: currentColor;
+}
 textarea[hidden] {
   display: none;
 }
@@ -1280,7 +1290,14 @@ main > .feedback-columns {
   justify-content: center;
 }
 .delivery-overlay-body .actions > .file-button {
-  justify-content: space-between;
+  justify-content: center;
+}
+/* Sfoglia stays on the right; the label centers on the full row. */
+.delivery-overlay-body .actions > .file-button .browse-label {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .open-delivery {
   display: inline-flex;
