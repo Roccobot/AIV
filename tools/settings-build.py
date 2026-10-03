@@ -71,7 +71,7 @@ page = '''<!doctype html>
 <link rel="icon" href="assets/feedback-favicon.svg?v=2" type="image/svg+xml">
 <link rel="stylesheet" href="feedback.css?v=3"><link rel="stylesheet" href="settings.css">
 </head><body><header class="intro"><p class="eyebrow">AIV · proposta dell'agente</p>
-<nav><a href="feedback.html#decisions" target="_blank" rel="noopener noreferrer">Lascia il feedback</a>
+<nav><a href="https://aiv-feedback.roccobot-b90.workers.dev/feedback#decisions" target="_blank" rel="noopener noreferrer">Lascia il feedback</a>
 <a href="tablet.html" target="_blank" rel="noopener noreferrer">Mockup da tablet</a>
 <a href="./" target="_blank" rel="noopener noreferrer">Scarica AIV</a></nav></header>
 <main>__BODY__</main><footer>Fonte: <a href="https://github.com/Roccobot/AIV/blob/main/docs/Settings-proposal.md" target="_blank" rel="noopener noreferrer">Proposta delle impostazioni su GitHub</a>.</footer></body></html>

@@ -1,11 +1,14 @@
 # Pagine AIV
 
-Questa cartella è pubblicata integralmente da `.github/workflows/pages.yml`.
+Questa cartella è pubblicata da `.github/workflows/pages.yml`, che lascia fuori i file del
+documento di feedback (`feedback.html`, i suoi script `feedback*.js`, e questo README): quelli
+li serve solo il Worker privato, che usa la stessa cartella come asset. `feedback.css` e le
+favicon restano, perché le usano anche le altre pagine.
 
 | Pagina | Scopo | Fonte |
 |---|---|---|
 | [index.html](index.html) | Presentazione e download dell'APK | Pagina scritta direttamente |
-| [feedback.html](feedback.html) | Prove condivise; risposte e allegati sul cloud privato | [docs/Feedback.md](../docs/Feedback.md), generatore `tools/feedback-build.py` |
+| [feedback.html](feedback.html) (solo sul Worker) | Prove condivise; risposte e allegati sul cloud privato | [docs/Feedback.md](../docs/Feedback.md), generatore `tools/feedback-build.py` |
 | [tablet.html](tablet.html) | Mockup interattivi da valutare | [docs/Tablet-proposal.md](../docs/Tablet-proposal.md), pagina scritta direttamente |
 | [settings.html](settings.html) | Proposta di riordino delle impostazioni | [docs/Settings-proposal.md](../docs/Settings-proposal.md), generatore `tools/settings-build.py` |
 
@@ -44,9 +47,9 @@ descrive convenzioni, fonti, dati, prove e procedura di aggiornamento.
 Il servizio privato è in [cloud/feedback](../cloud/feedback/README.md), con accesso GitHub
 riservato al proprietario e salvataggio in Supabase Free. Il Worker Cloudflare Free serve
 la stessa cartella `publish/` insieme all'API, per mantenere pagina e cookie sulla stessa
-origine. `feedback-cloud-config.js` è neutro su GitHub e sostituito dal Worker con la
-configurazione pubblica; `feedback-cloud.js` gestisce risposte, allegati e sincronizzazione.
-La copia GitHub Pages mantiene il salvataggio locale per recuperare e trasferire vecchie
-bozze. Non sincronizza i dispositivi e non deve rendere inaccessibili le risposte locali.
+origine. `feedback-cloud-config.js` è neutro fuori dal Worker (file locale, verifiche) e il Worker lo
+sostituisce con la configurazione pubblica; `feedback-cloud.js` gestisce risposte, allegati e
+sincronizzazione. La copia su GitHub Pages non è più pubblicata dal 2026-10-03: una vecchia
+bozza locale si recupera, se serve, dalla storia git.
 Il workflow `Feedback cloud` verifica e distribuisce il servizio già configurato;
 la guida tecnica descrive i cinque campi riservati/pubblici Actions e la verifica remota.

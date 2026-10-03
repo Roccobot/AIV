@@ -29,7 +29,7 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | [feedback-format.js](../publish/feedback-format.js) | Editor visivo, Markdown, icone e scorciatoie |
 | [feedback.css](../publish/feedback.css) | Aspetto, esiti, evidenze e adattamento dello schermo |
 | [feedback-cloud.js](../publish/feedback-cloud.js) | Bozza remota, originali, versioni e accesso lato pagina |
-| [feedback-cloud-config.js](../publish/feedback-cloud-config.js) | Configurazione neutra su GitHub, sostituita dal Worker sul cloud |
+| [feedback-cloud-config.js](../publish/feedback-cloud-config.js) | Configurazione neutra per la pagina aperta fuori dal Worker (file locale, verifiche), sostituita dal Worker sul cloud |
 | [worker.mjs](../cloud/feedback/worker.mjs) | Pagina, accesso GitHub, API private e controllo delle scritture |
 | [supabase-store.mjs](../cloud/feedback/supabase-store.mjs) | Database e Storage Supabase, soltanto lato server |
 | [supabase-setup.sql](../cloud/feedback/supabase-setup.sql) | Tabelle, revisioni, privilegi e bucket privato |
@@ -147,10 +147,11 @@ PostgreSQL e bucket privato `aiv-feedback`. GitHub conserva il codice. R2 non è
 Credenziali e token rimangono sul server; la guida cloud descrive i cinque campi Actions,
 OAuth, SQL e configurazione. Non chiedere segreti in chat e non metterli nella pagina.
 
-La pagina cloud non usa IndexedDB o localStorage come memoria persistente. La copia
-[GitHub Pages](https://roccobot.github.io/AIV/feedback.html) mantiene il vecchio salvataggio
-locale per compatibilità: può esportare la bozza da importare sul cloud, ma non sincronizza
-i dispositivi. Non introdurre reindirizzamenti che rendano inaccessibili le vecchie risposte.
+La pagina cloud non usa IndexedDB o localStorage come memoria persistente. La copia su
+GitHub Pages, che conservava il vecchio salvataggio locale, non è più pubblicata dal
+2026-10-03 (decisione del proprietario): `pages.yml` esclude dal sito la pagina del documento
+e i suoi script, che restano in `publish/` perché il Worker serve quella cartella come asset. Se una vecchia
+bozza servisse, la pagina si recupera dalla storia git e si apre in locale.
 
 Il salvataggio usa una revisione UUID e un confronto atomico in PostgreSQL. Cloudflare
 può trasformare `"revisione"` in `W/"revisione"` durante la compressione: client e server

@@ -48,12 +48,23 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      # The folder as it is: page, screenshots and the Open Graph picture, which
-      # are exactly the three things the old step copied.
+      # ⚠️ The feedback document is NOT part of the site since 2026-10-03: its only
+      # address is the private Worker (`cloud/feedback/`), which serves the same
+      # `publish/` folder as assets, so its files have to stay there and are left
+      # out here. The Pages copy kept an old local draft; the owner declared it
+      # disposable, and git history keeps it if it is ever needed. Only the page and
+      # its scripts are removed: `feedback.css` and the `feedback-favicon.*` icons
+      # are shared by the download page and the two mockups, so they stay.
+      - name: Leave the feedback document out
+        run: |
+          cp -r publish site
+          rm -f site/feedback.html site/feedback*.js site/README.md
+          find site -type f | sort
+
       - name: Upload the page
         uses: actions/upload-pages-artifact@v4
         with:
-          path: publish
+          path: site
 
       - name: Deploy
         id: deployment

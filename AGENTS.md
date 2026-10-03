@@ -253,7 +253,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   `Feedback cloud` deve concludere check e deploy. Mentre l'utente compila si prepara una
   bozza, salvo sua richiesta esplicita di aggiornamento; si prende in carico il giro intero.
 - **Il documento vivo è uno solo**: l'artefatto Claude precedente è un riferimento storico,
-  GitHub Pages conserva la vecchia bozza locale; non creare copie per agente. Changelog e
+  la copia su GitHub Pages non c'è più dal 2026-10-03; non creare copie per agente. Changelog e
   piano d'azione sono ritirati, l'ordine dei lavori vive nel brief (`Rules.md` § '🔗 Il
   documento vivo del progetto').
 - **Versione SlimVer, con la fonte unica in `versionName` di `app/build.gradle.kts`**: il tag lo
