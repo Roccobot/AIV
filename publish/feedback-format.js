@@ -296,6 +296,15 @@
       button.addEventListener("click", () => edit(editor, kind));
       toolbar.append(button);
     }
+    // Altro only: compact attach sits immediately left of this field's format toolbar.
+    if (area.id === "notes" || area.id === "notes-mobile") {
+      const attach = document.getElementById(area.id === "notes" ? "altro-attach" : "altro-overlay-attach");
+      if (attach) {
+        const cluster = node("div", undefined, "altro-format-cluster");
+        toolbar.replaceWith(cluster);
+        cluster.append(attach, toolbar);
+      }
+    }
     box.addEventListener("beforeinput", event => {
       // Both Enter variants use blocks, avoiding a browser-only terminal newline placeholder.
       if (event.inputType === "insertLineBreak") {

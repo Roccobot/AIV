@@ -603,11 +603,16 @@ window.feedbackRestoreLabel = (area) => {
   changed();
 };
 // File picker and drag-and-drop share validation and preserve the original bytes.
+function imageInputs(card) {
+  if (!card.classList.contains("extra")) return [card.querySelector(".images")].filter(Boolean);
+  return Array.from(document.querySelectorAll("#altro-attach .images, #altro-overlay-attach .images"));
+}
 async function attachFiles(card, files) {
-  const input = card.querySelector(".images");
-  if (!loaded || input.disabled || !files.length) return;
+  const inputs = imageInputs(card);
+  const input = inputs[0];
+  if (!loaded || !input || inputs.some(item => item.disabled) || !files.length) return;
   const initialDraft = draft, initialEntry = attachmentEntry(card);
-  input.disabled = true;
+  inputs.forEach(item => { item.disabled = true; });
   try {
     const usedBefore = usedAttachmentBytes();
     if (usedBefore + files.reduce((sum, file) => sum + file.size, 0) > maxTotal ||
@@ -655,8 +660,10 @@ async function attachFiles(card, files) {
   } catch (error) {
     report(error.message, true);
   } finally {
-    input.disabled = false;
-    input.value = "";
+    inputs.forEach(item => {
+      item.disabled = false;
+      item.value = "";
+    });
   }
 }
 async function decodeClipboardImage(source) {
@@ -783,6 +790,13 @@ for (const card of document.querySelectorAll(".test, .extra")) {
     dragDepth = 0;
     card.classList.remove("drop-active");
     attachFiles(card, Array.from(event.dataTransfer.files));
+  });
+}
+const altroOverlayImages = document.querySelector("#altro-overlay-attach .images");
+if (altroOverlayImages) {
+  altroOverlayImages.addEventListener("change", () => {
+    const card = document.querySelector(".extra");
+    if (card) attachFiles(card, Array.from(altroOverlayImages.files));
   });
 }
 for (const key of ["device", "tablet"])
