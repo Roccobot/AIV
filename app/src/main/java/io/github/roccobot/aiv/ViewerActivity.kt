@@ -3293,6 +3293,23 @@ private fun Stage(
                             colour = settings.folderColour,
                             tints = model.folderTints,
                             onPick = { model.folderPicked(it, false) },
+                            onHide = { bucket ->
+                                bucket.path?.let {
+                                    model.updateSettings(
+                                        settings.copy(
+                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
+                                        )
+                                    )
+                                }
+                            },
+                            onUnhide = { voci ->
+                                model.updateSettings(
+                                    settings.withFolders(settings.folderSelection.remove(voci))
+                                )
+                            },
+                            onSelectionChange = {
+                                model.updateSettings(settings.withFolders(it))
+                            },
                             onRead = { model.readBuckets(it) },
                             onSearch = { model.openSearch() },
                             onBin = { model.openBin() },
@@ -3426,6 +3443,23 @@ private fun Stage(
                             colour = settings.folderColour,
                             tints = model.folderTints,
                             onPick = { model.folderPicked(it, false) },
+                            onHide = { bucket ->
+                                bucket.path?.let {
+                                    model.updateSettings(
+                                        settings.copy(
+                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
+                                        )
+                                    )
+                                }
+                            },
+                            onUnhide = { voci ->
+                                model.updateSettings(
+                                    settings.withFolders(settings.folderSelection.remove(voci))
+                                )
+                            },
+                            onSelectionChange = {
+                                model.updateSettings(settings.withFolders(it))
+                            },
                             onRead = { model.readBuckets(it) },
                             onSearch = {
                                 model.openSearch(screen.bucket, screen.name)
@@ -3691,6 +3725,23 @@ private fun Stage(
                             colour = settings.folderColour,
                             tints = model.folderTints,
                             onPick = { model.folderPicked(it, false) },
+                            onHide = { bucket ->
+                                bucket.path?.let {
+                                    model.updateSettings(
+                                        settings.copy(
+                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
+                                        )
+                                    )
+                                }
+                            },
+                            onUnhide = { voci ->
+                                model.updateSettings(
+                                    settings.withFolders(settings.folderSelection.remove(voci))
+                                )
+                            },
+                            onSelectionChange = {
+                                model.updateSettings(settings.withFolders(it))
+                            },
                             onRead = { model.readBuckets(it) },
                             onSearch = {
                                 model.openSearch(screen.bucket, screen.name)

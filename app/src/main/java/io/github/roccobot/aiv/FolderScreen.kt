@@ -299,7 +299,6 @@ fun FolderScreen(
      * finita, è il modo di far credere che l'app abbia perso delle foto.
      */
     var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
-    var siblings by remember { mutableStateOf<String?>(null) }
 
     /** Se il pannello delle cartelle nascoste è aperto: lo apre il tocco lungo sulla voce. */
     var listing by remember { mutableStateOf(false) }
@@ -879,99 +878,14 @@ fun FolderScreen(
         }
     }
 
-    siblings?.let { path ->
-        SiblingFoldersDialog(path, selection, onSelectionChange) { siblings = null }
-    }
-
     hiding?.let { bucket ->
-        if (selection.mode == FolderMode.INCLUDED) {
-            AuthorizeFolderDialog(
-                path = bucket.path ?: return@let,
-                selection = selection,
-                onChange = onSelectionChange,
-                onDismiss = { hiding = null }
-            )
-            return@let
-        }
-        /*
-         * ⚠️⚠️ **IL TOCCO LUNGO SU UNA CARTELLA IN PRESTITO PROPONE IL CONTRARIO, DALLA
-         * `1.93`** (sua segnalazione: *la pressione lunga su una cartella nascosta deve
-         * proporre il contrario, ovvero di renderla di nuovo visibile*). Con 'Mostra nascoste'
-         * acceso una cartella nascosta è in scena, e fino alla `1.92` il gesto le offriva di
-         * nascondersi una seconda volta, cioè un comando che non faceva niente.
-         * ⚠️ **Il verso lo decide il FATTO e non un secondo stato**: il gesto è uno, e una
-         * cartella in scena può essere nascosta solo durante il minuto. Due stati paralleli
-         * direbbero il contrario l'uno dell'altro il giorno che ne cambia uno.
-         */
-        /*
-         * ⚠️⚠️ **LE VOCI CHE LA COPRONO, E NON SOLO QUELLA COL SUO NOME, DALLA `2.96`**: una cartella
-         * dentro una nascosta è in prestito come lei, e fino alla `2.95` 'Mostra' toglieva la sola
-         * voce col percorso della cartella, cioè niente. Adesso toglie tutte quelle che la coprono.
-         * ⚠️ **E il titolo nomina la più in alto**, che è quella che torna davvero: rimostrando
-         * `Camera` dentro una `DCIM` nascosta tornano `DCIM` e tutte le sue sorelle, e una domanda
-         * che dicesse 'Camera' prometterebbe meno di quello che fa.
-         */
-        val coprono = bucket.path?.let { selection.covering(it) }.orEmpty()
-        val nascosta = coprono.isNotEmpty()
-        // ⚠️ La più in alto è la più corta, perché le voci che coprono una cartella stanno tutte
-        // sulla sua strada; e se è la cartella stessa, il nome resta quello che il telefono le dà.
-        val propria = bucket.path?.let(::portablePath)
-        val alta = coprono.minByOrNull { it.length }
-        val nome = if (alta == null || alta == propria) bucket.name else hiddenName(alta)
-        AlertDialog(
-            onDismissRequest = { hiding = null },
-            modifier = Modifier.lowered { hiding = null },
-            title = {
-                Text(stringResource(
-                    if (nascosta) R.string.show_folder_title else R.string.hide_folder_title,
-                    nome
-                ))
-            },
-            // ⚠️ Il testo dice DOVE va a finire, e dirlo qui è metà della funzione: una
-            // cartella che sparisce senza che si sappia come riaverla è indistinguibile
-            // da una cartella persa.
-            text = {
-                Column {
-                    Text(stringResource(
-                        if (nascosta) R.string.show_folder_desc else R.string.hide_folder_desc
-                    ))
-                    val path = bucket.path
-                    var peers by remember(path, selection) { mutableStateOf<List<java.io.File>>(emptyList()) }
-                    LaunchedEffect(path, selection) {
-                        if (path != null) peers = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                            siblingFolders(path, selection)
-                        }
-                    }
-                    // ⚠️ **Tasto pieno allineato a sinistra** (giro 3.24, `3.13-08` /
-                    // `3.13-07`): non un testo "nel vuoto", e allineato al paragrafo sopra.
-                    if (!nascosta && peers.isNotEmpty()) FilledTonalButton(
-                        onClick = {
-                            siblings = path
-                            hiding = null
-                        },
-                        // ⚠️ **Leggero spazio dal testo sopra** (giro 3.25-3.30, `3.26-04`).
-                        modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
-                    ) { Text(stringResource(R.string.folder_siblings)) }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (nascosta) onUnhide(coprono) else onHide(bucket)
-                    hiding = null
-                }) {
-                    // ⚠️ 'Mostra' è la stessa parola del pannello e delle impostazioni, quindi
-                    // si riusa la sua stringa: un sinonimo nuovo qui sarebbe una terza parola
-                    // per lo stesso comando.
-                    Text(stringResource(
-                        if (nascosta) R.string.settings_hidden_show else R.string.hide_folder_do
-                    ))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { hiding = null }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
+        FolderHoldDialog(
+            bucket = bucket,
+            selection = selection,
+            onHide = onHide,
+            onUnhide = onUnhide,
+            onSelectionChange = onSelectionChange,
+            onDismiss = { hiding = null },
         )
     }
 }

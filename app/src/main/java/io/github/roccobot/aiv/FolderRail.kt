@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -80,7 +84,9 @@ import kotlin.math.roundToInt
  * `aiv-338-mockup-tablet.png`): niente intestazione Cartelle; in cima solo Cerca con
  * placeholder dinamico; Cestino e Impostazioni in basso con etichetta; elenco di
  * default in basso, con maniglia per alzarlo/abbassarlo quando c'è spazio.
+ * ⚠️⚠️ **DALLA `3.42` CERCA STA SOPRA CESTINO E IMPOSTAZIONI** (`3.41-01`), non in cima.
  */
+
 @Composable
 fun FolderRail(
     buckets: List<Folder.Bucket>?,
@@ -92,6 +98,15 @@ fun FolderRail(
     colour: FolderColour,
     tints: Map<Long, Int>,
     onPick: (Folder.Bucket) -> Unit,
+    /**
+     * Nasconde, come il conferma del tocco lungo sul telefono.
+     * Il gesto apre [FolderHoldDialog]: non chiama questo da solo.
+     */
+    onHide: (Folder.Bucket) -> Unit,
+    /** Rimostra le voci che coprono la cartella. Vedi [FolderScreen]. */
+    onUnhide: (Collection<String>) -> Unit,
+    /** Modalità incluse e sorelle: la stessa scrittura delle impostazioni. */
+    onSelectionChange: (FolderSelection) -> Unit,
     onRead: (Boolean) -> Unit,
     onSearch: () -> Unit,
     onBin: () -> Unit,
@@ -126,6 +141,9 @@ fun FolderRail(
     LaunchedEffect(granted) { onRead(granted) }
 
     val folders = buckets?.filter { selection.visible(it.path, peeking) }
+    val dragSpace = remember { RailDragSpace() }
+    var holding by remember { mutableStateOf<Folder.Bucket?>(null) }
+
 
     Column(
         modifier = modifier
@@ -133,31 +151,20 @@ fun FolderRail(
             .fillMaxHeight()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        RailSearch(
-            folderName = selectedName?.takeIf { selected != null },
-            onSearch = onSearch,
-            modifier = Modifier
-                .fillMaxWidth()
-                // ⚠️⚠️ **INSET SOLO SU CERCA, DALLA `3.41`** (`3.40-01`): nella `3.40` l'inset
-                // orizzontale stava su tutta la colonna, e Cestino/Impostazioni risultavano
-                // spostati verso il bordo interno. L'orologio di sistema copre solo la cima.
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
-                    )
-                )
-                // ⚠️ Aria dal bordo, come nel mockup: non attaccata alla cornice.
-                .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 8.dp)
-        )
-
         BoxWithConstraints(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                // ⚠️ L'elenco segue lo stesso inset orizzontale di Cerca (ritaglio del bordo).
-                // La riga in basso no: si centra sulla colonna intera.
+                // ⚠️ Spazio fermo: il dito si misura qui, non sul blocco che si sposta.
+                .onGloballyPositioned { dragSpace.parent = it }
+                // ⚠️⚠️ **L'OROLOGIO COPRE LA CIMA, DALLA `3.42`**: Cerca è scesa sopra
+                // Cestino e Impostazioni, quindi l'inset alto sta sull'elenco, non sul campo.
+                // L'inset orizzontale resta solo qui e su Cerca: la riga in basso è centrata
+                // sulla colonna intera (`3.41`).
                 .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                    )
                 )
         ) {
             val density = LocalDensity.current
@@ -166,17 +173,21 @@ fun FolderRail(
             val blockCapPx = areaPx
             val maxLift = (areaPx - 48f).coerceAtLeast(0f)
             /*
-             * ⚠️⚠️ **LO STATO DEL LIFT SI LEGGE A OGNI DELTA, DALLA `3.41`** (`3.40-01`).
-             * Nella `3.40` il gesto chiudeva il `Float` arrivato alla composizione: ogni
-             * delta partiva da quel valore e non dal precedente, quindi la lista traballava
-             * sul posto. Qui il valore è uno stato, come quando viveva dentro il rail (`3.39`),
-             * e il modello resta la memoria fra una schermata e l'altra.
+             * ⚠️⚠️ **IL LIFT SEGUE IL DITO NELLO SPAZIO FERMO, DALLA `3.42`** (`3.41-01`).
+             * La `3.41` accumulava il delta locale, e non bastava: quel delta è calcolato
+             * nelle coordinate del nodo che `offset` sposta. A ogni evento il dito e il
+             * nodo si sono mossi insieme, quindi il delta contiene anche lo spostamento
+             * già applicato e la lista torna indietro. L'ancora è la posizione del dito
+             * nel riquadro che non si muove, e il lift è la distanza da lì.
+             * ⚠️ **Mentre il dito è giù il modello non riscrive il lift**: `onLift`
+             * ricompone il chiamante, e l'effetto che riallinea `liftPx` rimetteva il
+             * valore del frame prima. Il disegno usa solo lo stato locale.
              */
             var lift by remember { mutableFloatStateOf(liftPx) }
             val maxLiftNow = rememberUpdatedState(maxLift)
             val onLiftNow = rememberUpdatedState(onLift)
             LaunchedEffect(liftPx) {
-                if (lift != liftPx) lift = liftPx
+                if (!dragSpace.dragging && lift != liftPx) lift = liftPx
             }
             val shown = lift.coerceIn(0f, maxLift)
             LaunchedEffect(maxLift, liftPx) {
@@ -212,13 +223,43 @@ fun FolderRail(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                         modifier = Modifier
                             .size(20.dp)
+                            .onGloballyPositioned { dragSpace.handle = it }
                             .pointerInput(Unit) {
-                                detectVerticalDragGestures { _, dragAmount ->
-                                    // ⚠️ dragAmount > 0 = dito verso il basso = abbassa il blocco.
-                                    val next = (lift - dragAmount).coerceIn(0f, maxLiftNow.value)
-                                    lift = next
-                                    onLiftNow.value(next)
-                                }
+                                detectVerticalDragGestures(
+                                    onDragStart = {
+                                        dragSpace.dragging = true
+                                        dragSpace.anchored = false
+                                    },
+                                    onDragEnd = {
+                                        dragSpace.dragging = false
+                                        onLiftNow.value(lift)
+                                    },
+                                    onDragCancel = {
+                                        dragSpace.dragging = false
+                                        onLiftNow.value(lift)
+                                    },
+                                    onVerticalDrag = { change, dragAmount ->
+                                        val y = dragSpace.fingerY(change.position) ?: return@detectVerticalDragGestures
+                                        if (!dragSpace.anchored) {
+                                            // L'oltre-soglia è l'unico delta locale affidabile:
+                                            // il nodo non si è ancora mosso. L'ancora sta su
+                                            // quel punto, e da lì si usa solo lo spazio fermo.
+                                            dragSpace.anchorY = y - dragAmount
+                                            dragSpace.anchorLift = lift
+                                            dragSpace.anchored = true
+                                        }
+                                        val next = railLiftForFinger(
+                                            dragSpace.anchorLift,
+                                            dragSpace.anchorY,
+                                            y,
+                                            maxLiftNow.value,
+                                        )
+                                        if (next != lift) {
+                                            lift = next
+                                            onLiftNow.value(next)
+                                        }
+                                    },
+                                )
                             }
                     )
                 }
@@ -257,7 +298,11 @@ fun FolderRail(
                                         if (chosen) MaterialTheme.colorScheme.primaryContainer
                                         else MaterialTheme.colorScheme.surface
                                     )
-                                    .clickable { onPick(bucket) }
+                                    .combinedClickable(
+                                        role = Role.Button,
+                                        onClick = { onPick(bucket) },
+                                        onLongClick = withHaptics { holding = bucket },
+                                    )
                                     .padding(horizontal = 12.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -291,6 +336,20 @@ fun FolderRail(
                 }
             }
         }
+
+        RailSearch(
+            folderName = selectedName?.takeIf { selected != null },
+            onSearch = onSearch,
+            modifier = Modifier
+                .fillMaxWidth()
+                // ⚠️ Inset orizzontale come quando il campo stava in cima: il disegno
+                // non cambia, cambia solo il posto. Niente inset alto: l'orologio non
+                // è qui, e un inset alto aprirebbe un vuoto sopra Cestino.
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                )
+                .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 8.dp)
+        )
 
         /*
          * ⚠️⚠️ **Cestino e Impostazioni IN BASSO CON ETICHETTA, DALLA `3.39`**
@@ -338,10 +397,54 @@ fun FolderRail(
             )
         }
     }
+    holding?.let { bucket ->
+        FolderHoldDialog(
+            bucket = bucket,
+            selection = selection,
+            onHide = onHide,
+            onUnhide = onUnhide,
+            onSelectionChange = onSelectionChange,
+            onDismiss = { holding = null },
+        )
+    }
 }
 
 /**
- * Cerca in cima al rail: lente a sinistra + campo contornato (mockup).
+ * Quanto alzare il blocco perché il dito, nello spazio fermo, sia andato da
+ * [anchorY] a [fingerY].
+ *
+ * ⚠️ **Non si sommano i delta locali.** Se il nodo si è spostato di D e il dito
+ * di F, il delta locale vale F - D: riapplicarlo sposta di F - D e al giro dopo
+ * di D - (F - D), cioè oscilla. Qui F è [fingerY] - [anchorY], misurati entrambi
+ * nel riquadro che non si muove.
+ * ⚠️ Dito verso l'alto: [fingerY] cala e il lift cresce (il blocco sale).
+ */
+internal fun railLiftForFinger(
+    anchorLift: Float,
+    anchorY: Float,
+    fingerY: Float,
+    maxLift: Float,
+): Float = (anchorLift - (fingerY - anchorY)).coerceIn(0f, maxLift.coerceAtLeast(0f))
+
+/** Coordinate del riquadro fermo e della maniglia, senza stato di composizione. */
+private class RailDragSpace {
+    var parent: LayoutCoordinates? = null
+    var handle: LayoutCoordinates? = null
+    var dragging: Boolean = false
+    var anchored: Boolean = false
+    var anchorY: Float = 0f
+    var anchorLift: Float = 0f
+
+    fun fingerY(local: Offset): Float? {
+        val parent = parent ?: return null
+        val handle = handle ?: return null
+        if (!parent.isAttached || !handle.isAttached) return null
+        return parent.localPositionOf(handle, local).y
+    }
+}
+
+/**
+ * Cerca sopra Cestino e Impostazioni: lente a sinistra + campo contornato (mockup).
  *
  * ⚠️ **Il campo è un tocco che apre la ricerca**, non un filtro locale sulle cartelle:
  * il placeholder dice "Cerca nelle cartelle" / "Cerca in *X*", cioè immagini, e la

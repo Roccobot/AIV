@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -169,3 +170,88 @@ internal fun SiblingFoldersDialog(path: String, selection: FolderSelection,
         }, enabled = children != null) { Text(stringResource(R.string.hide_folder_do)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } })
 }
+
+/**
+ * Il tocco lungo su una cartella della casa: chiede, non nasconde subito.
+ *
+ * ⚠️⚠️ **È LO STESSO DIALOGO DEL TELEFONO E DEL RAIL TABLET, DALLA `3.42`**
+ * (`3.41-01`): prima viveva solo dentro [FolderScreen], e il rail non aveva il
+ * gesto. Le voci restano quelle (nascondi, mostra, sorelle, autorizza in modalità
+ * incluse). Il tocco lungo apre questo, il conferma esegue.
+ * ⚠️ **Le sorelle stanno qui dentro e non in un secondo stato del chiamante**:
+ * aprirle chiude la domanda e lascia solo il loro dialogo, come prima.
+ */
+@Composable
+internal fun FolderHoldDialog(
+    bucket: Folder.Bucket,
+    selection: FolderSelection,
+    onHide: (Folder.Bucket) -> Unit,
+    onUnhide: (Collection<String>) -> Unit,
+    onSelectionChange: (FolderSelection) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var siblings by remember { mutableStateOf<String?>(null) }
+    siblings?.let { path ->
+        SiblingFoldersDialog(path, selection, onSelectionChange, onDismiss)
+        return
+    }
+    if (selection.mode == FolderMode.INCLUDED) {
+        val path = bucket.path ?: return
+        AuthorizeFolderDialog(path, selection, onSelectionChange, onDismiss)
+        return
+    }
+    /*
+     * ⚠️⚠️ **IL TOCCO LUNGO SU UNA CARTELLA IN PRESTITO PROPONE IL CONTRARIO, DALLA
+     * `1.93`**. Con 'Mostra nascoste' acceso una cartella nascosta è in scena, e il
+     * gesto offre di rimostrarla, non di nasconderla un'altra volta.
+     * ⚠️⚠️ **LE VOCI CHE LA COPRONO, DALLA `2.96`**: una cartella dentro una nascosta
+     * è coperta dall'antenata. Si tolgono tutte, e il titolo nomina la più in alto.
+     */
+    val coprono = bucket.path?.let { selection.covering(it) }.orEmpty()
+    val nascosta = coprono.isNotEmpty()
+    val propria = bucket.path?.let(::portablePath)
+    val alta = coprono.minByOrNull { it.length }
+    val nome = if (alta == null || alta == propria) bucket.name else hiddenName(alta)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(onDismiss),
+        title = {
+            Text(stringResource(
+                if (nascosta) R.string.show_folder_title else R.string.hide_folder_title,
+                nome
+            ))
+        },
+        text = {
+            Column {
+                Text(stringResource(
+                    if (nascosta) R.string.show_folder_desc else R.string.hide_folder_desc
+                ))
+                val path = bucket.path
+                var peers by remember(path, selection) { mutableStateOf<List<File>>(emptyList()) }
+                LaunchedEffect(path, selection) {
+                    if (path != null) peers = withContext(Dispatchers.IO) {
+                        siblingFolders(path, selection)
+                    }
+                }
+                if (!nascosta && peers.isNotEmpty()) FilledTonalButton(
+                    onClick = { siblings = path },
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+                ) { Text(stringResource(R.string.folder_siblings)) }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                if (nascosta) onUnhide(coprono) else onHide(bucket)
+                onDismiss()
+            }) {
+                Text(stringResource(
+                    if (nascosta) R.string.settings_hidden_show else R.string.hide_folder_do
+                ))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
+}
+
