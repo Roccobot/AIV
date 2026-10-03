@@ -92,11 +92,15 @@ def check(path):
                 expect(navigation.locator('#previous-card')).to_be_disabled()
                 navigation.locator('#next-card').tap()
                 aligned(navigation.locator('.test').nth(0))
-                navigation.locator('#next-card').tap()
-                aligned(navigation.locator('.test').nth(1))
-                navigation.locator('#previous-card').tap()
-                aligned(navigation.locator('.test').nth(0))
-                navigation.locator('#next-card').tap()
+                if navigation.locator('.test').count() > 1:
+                    navigation.locator('#next-card').tap()
+                    aligned(navigation.locator('.test').nth(1))
+                    navigation.locator('#previous-card').tap()
+                    aligned(navigation.locator('.test').nth(0))
+                    navigation.locator('#next-card').tap()
+                else:
+                    # Una prova sola: Avanti arriva ad Altro, così ⇥ resta visibile anche su desktop.
+                    navigation.locator('#next-card').tap()
                 expect(navigation.locator('#first-empty')).to_be_visible()
                 navigation.locator('#first-empty').tap()
                 aligned(navigation.locator('.test').nth(0))
@@ -126,9 +130,10 @@ def check(path):
             aligned(navigation.locator('.test').last)
             # Con 4 o più prove: 0 e l'ultima compilate, la 1 con esito, buco all'indice 2.
             # Con 2 o 3 prove non c'è quel buco: l'esito sulla 1 resta, e lo si toglie più sotto.
-            assert len(data['items']) >= 2, 'Servono almeno 2 prove aperte per il controllo di navigazione.'
+            # Con una prova sola esito e commento sono sulla stessa carta.
+            outcome = 1 if len(data['items']) >= 2 else 0
             navigation.locator('.test').nth(0).locator('.rich-editor').fill('Solo commento')
-            navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
+            navigation.locator('.test').nth(outcome).locator('[data-status="Non approvato"]').click()
             if len(data['items']) >= 4:
                 navigation.locator('.test').nth(len(data['items']) - 1).locator('.rich-editor').fill('Più in basso')
                 navigation.locator('#first-empty').tap()
@@ -141,14 +146,14 @@ def check(path):
                 expect(navigation.locator('#first-empty')).to_be_visible()
             else:
                 expect(navigation.locator('#first-empty')).to_be_hidden()
-            navigation.locator('.test').nth(1).locator('[data-status="Non approvato"]').click()
-            navigation.locator('.test').nth(1).locator('.rich-editor').fill('')
+            navigation.locator('.test').nth(outcome).locator('[data-status="Non approvato"]').click()
+            navigation.locator('.test').nth(outcome).locator('.rich-editor').fill('')
             # Con poche prove si è già sulla carta vuota: ⇥ è nascosto e Avanti è fermo.
             if navigation.locator('#next-card').is_enabled():
                 navigation.locator('#next-card').tap()
             if navigation.locator('#first-empty').is_visible():
                 navigation.locator('#first-empty').tap()
-            aligned(navigation.locator('.test').nth(1))
+            aligned(navigation.locator('.test').nth(outcome))
             last = navigation.locator('.extra')
             last.scroll_into_view_if_needed()
             navigation.evaluate('window.scrollTo(0, document.body.scrollHeight)')
@@ -542,12 +547,20 @@ def check(path):
             image = Path(temporary) / 'feedback.png'
             # An original, complete PNG is attached without image transformations.
             image.write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP9sAAAAASUVORK5CYII='))
-            attachment_only = page.locator('.test').nth(1)
+            if page.locator('.test').count() > 1:
+                attachment_only = page.locator('.test').nth(1)
+            else:
+                attachment_only = first
+                attachment_only.locator('[data-status="Accettabile"]').click()
+                attachment_only.locator('.rich-editor').fill('')
             attachment_only.locator('.images').set_input_files(str(image))
             expect(attachment_only.locator('.image-list img')).to_have_count(1)
             expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
             attachment_only.locator('.image-list button').click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
+            if page.locator('.test').count() == 1:
+                first.locator('[data-status="Accettabile"]').click()
+                first.locator('.rich-editor').fill('Commento di verifica: <script>test</script>')
             if page.locator('.decision').count() > 1:
                 indication_only = page.locator('.decision').nth(1)
                 indication_only.locator('.rich-editor').fill('Solo commento')
@@ -707,7 +720,14 @@ def check(path):
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
 
             second.screenshot(path='/tmp/aiv-feedback-dark.png', full_page=False)
-            assert second.locator('.test').first.evaluate('(el)=>getComputedStyle(el).backgroundColor') != second.locator('.test').nth(1).evaluate('(el)=>getComputedStyle(el).backgroundColor')
+            filled = second.locator('.test').first
+            filled_bg = filled.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+            if second.locator('.test').count() > 1:
+                assert filled_bg != second.locator('.test').nth(1).evaluate('(el)=>getComputedStyle(el).backgroundColor')
+            else:
+                filled.locator('.rich-editor').fill('')
+                assert filled_bg != filled.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+                filled.locator('.rich-editor').fill('Solo commento')
             page.set_viewport_size({'width': 1100, 'height': 900})
             page.screenshot(path='/tmp/aiv-feedback-light.png', full_page=False)
             # A previous release's saved draft must survive the cumulative document update.
