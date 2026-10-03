@@ -428,8 +428,9 @@ textarea {
   gap: 0;
   padding: 4px;
   border-radius: 28px;
-  /* The fill at 80% (the user's choice): the page shows through, the glyphs stay solid. */
-  background: color-mix(in srgb, var(--accent) 80%, transparent);
+  /* The fill at 40% (the user's choice, once the frosted glass was in): the blurred page
+     shows through, the glyphs stay solid. */
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
   /* Frosted glass under the fill (the user's request): the page behind is blurred, not readable.
      Where the browser lacks it, the 80% fill alone stays. */
   -webkit-backdrop-filter: blur(12px) saturate(160%);
@@ -996,10 +997,11 @@ main > .feedback-columns {
     max-height: 20px;
     padding: 0 8px;
   }
-  /* Connected only: 2 CSS px left on the mark. Right inset is 6px, not 7. */
+  /* Connected only: 2 CSS px left on the mark. Right inset 4.5px (the user's optical
+     centring): Esci sits 4px from the border above and below, 4.5px on the right. */
   .cloud-account.is-connected {
     padding-left: 5px;
-    padding-right: 6px;
+    padding-right: 4.5px;
   }
   /* Connected, only the GitHub mark and Esci. */
   .cloud-account.is-connected .cloud-account-user {

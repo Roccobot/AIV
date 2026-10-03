@@ -53,6 +53,15 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(result.locator('.cloud-account-user')).to_have_text('Roccobot')
         expect(result.locator('.cloud-account')).not_to_contain_text('Accedi')
         expect(result.locator('.cloud-account')).to_contain_text('Esci')
+        # Mobile, connected: Esci 4px from the border above and below, 4.5px on the right
+        # (the user's optical centring of the inner pill).
+        size=result.viewport_size
+        result.set_viewport_size({'width':390,'height':800})
+        insets=result.locator('.cloud-account').evaluate('''(chip)=>{
+          const c=chip.getBoundingClientRect(),b=chip.querySelector('button.cloud-account-action').getBoundingClientRect();
+          return [b.top-c.top-1,c.bottom-1-b.bottom,c.right-1-b.right];}''')
+        assert [round(value,2) for value in insets]==[4,4,4.5], insets
+        result.set_viewport_size(size)
         return result
 
     def comment_editor(target):
