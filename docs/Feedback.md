@@ -1,17 +1,15 @@
 # Feedback AIV
 
-Versione **3.42**: collaudo chiuso (rail Tutto OK).
+Versione **3.52**: collaudo di Correggi/Rimuovi su più scale (aree più grandi, più contesto).
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 3.42 è pubblicata: [v3.42](https://github.com/Roccobot/AIV/releases/tag/v3.42), con l'APK
-[AIV-3.42.apk](https://github.com/Roccobot/AIV/releases/download/v3.42/AIV-3.42.apk).
-Commit prodotto su `main`: `3d3b661` (SlimVer 3.42 / versionCode 300).
+La Release 3.52 è pubblicata: [v3.52](https://github.com/Roccobot/AIV/releases/tag/v3.52), con l'APK
+[AIV-3.52.apk](https://github.com/Roccobot/AIV/releases/download/v3.52/AIV-3.52.apk).
+Commit prodotto su `main`: `9819ed9` (SlimVer 3.52 / versionCode 301).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Il giro **3.40** è stato consegnato e travasato il 3 ottobre 2026 (~01:07 Europe/Rome).
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor, HEIC e inpaint restano chiusi: l'inpaint resta com'è, niente timbro clone.
-Giro **3.42**: rail `3.42-01` OK. Giro **3.41**: riordino Impostazioni `3.41-02` OK.
+Lati editor e HEIC restano chiusi. L'inpaint `3.40-05` era chiuso così com'era: la 3.52 lo riapre su tua richiesta del 3 ottobre (aree più grandi, più contesto), sempre senza timbro clone.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -24,18 +22,26 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 3.42 sono superate: 495 prove, zero fallimenti, controllo delle 28 traduzioni e compilazione. Il collaudo del rail è chiuso (Tutto OK).
+Le verifiche automatiche della 3.52 sono superate: banco di prova completo, controllo delle 28 traduzioni e compilazione. Il collaudo sul telefono resta tuo.
 
-## Etichette testuali
+| Voce | Stato | Commento dell'utente | Azione successiva |
+|---|---|---|---|
+| 3.52-01 | Non provato | | Attendere il collaudo. |
+| 3.52-02 | Non provato | | Attendere il collaudo. |
 
-Nessuna etichetta aperta in questo giro. Queste quattro sono già nel prodotto e **non** vanno rilistate:
+## 1. Correggi/Rimuovi: aree grandi su una foto vera
 
-- `e-settings-page-controls`: Sotto-pagina pulsanti: Pulsanti e indicatori. Riordino Impostazioni 3.41-02 Tutto OK.
-- `e-settings-group-files`: Sezione file: Gestione dei file. Riordino Impostazioni 3.41-02 Tutto OK.
-- `e-settings-group-advanced`: Sezione avanzate: Avanzate. Riordino Impostazioni 3.41-02 Tutto OK.
-- `e-folders-rail-move`: Maniglia elenco cartelle, solo lettore di schermo (contentDescription): Sposta la lista delle cartelle. Già nel prodotto.
+Con AIV **3.52**, apri una **foto del telefono ad alta risoluzione** (12 MP o più) nell'**editor completo**, modulo **Dettaglio**, e tocca **Correggi/Rimuovi**.
 
-Non sono prove. Non rimetterle tra le etichette aperte del DF.
+Porta **Dimensione pennello** al massimo e dipingi sopra un oggetto da togliere (un cartello, una persona lontana, una macchia grande), poi tocca **Applica**. Fino alla 3.42 qui compariva l'avviso di selezione troppo grande: adesso la correzione deve avvenire.
+
+Guarda se il riempimento continua le linee e le trame intorno e se l'attesa ti sembra accettabile. Se puoi, allega il prima e il dopo. Limite noto: una trama morbida come le nuvole può diventare cielo liscio.
+
+## 2. Correggi/Rimuovi: bordi netti e trame regolari
+
+Sempre in **Correggi/Rimuovi**, con un pennello piccolo o medio, togli un difetto che sta **sopra un bordo netto** (un orizzonte, lo spigolo di un muro) e uno sopra una **trama regolare** (mattoni, piastrelle, una griglia).
+
+Lungo il bordo non devono comparire puntini scuri né trattini chiari, e le fughe della trama devono restare allineate. Rifai anche la tua prova della diagonale: deve restare pulita come prima.
 
 ## Decisioni da concordare
 
@@ -50,7 +56,6 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 ## Prossimi passi
 
-- **Concluso**: rail `3.42-01` (Tutto OK).
-- **Concluso**: riordino Impostazioni `3.41-02` (Tutto OK).
-- **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`; inpaint `3.40-05` (resta così, niente timbro clone).
+- **In collaudo**: Correggi/Rimuovi su più scale, `3.52-01` e `3.52-02`.
+- **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
