@@ -438,7 +438,6 @@ function changed() {
   revision++;
   draft.completed = null;
   refreshCounts();
-  document.querySelector("#summary").value = "";
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, 350);
   saved.textContent = "Modifiche da salvare...";
@@ -484,21 +483,8 @@ function summary() {
     lines.push("Allegati alle osservazioni: " + draft.extra.images.map((file) => file.name).join(", ") + " (consegnare con JSON o allegati)");
   return lines.join("\n");
 }
-async function copy() {
-  const text = summary();
-  document.querySelector("#summary").value = text;
-  try {
-    await navigator.clipboard.writeText(text);
-    report("Riepilogo copiato. Incollalo in chat con gli eventuali allegati.");
-  } catch {
-    const area = document.querySelector("#summary");
-    area.focus();
-    area.select();
-    report("Copia il testo selezionato e incollalo in chat.");
-  }
-}
-async function copyLabelId(id) {
-  const text = String(id || "").toLowerCase();
+// Copy a text to the clipboard, with the selection fallback for browsers that refuse the API.
+async function copyText(text) {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -515,11 +501,22 @@ async function copyLabelId(id) {
     area.focus();
     area.select();
     try {
-      document.execCommand("copy");
+      if (!document.execCommand("copy")) throw Error("Copia non riuscita.");
     } finally {
       area.remove();
     }
   }
+}
+async function copy() {
+  try {
+    await copyText(summary());
+    report("Riepilogo copiato. Incollalo in chat con gli eventuali allegati.");
+  } catch {
+    report("Il browser non ha permesso la copia negli appunti: esporta il JSON.", true);
+  }
+}
+function copyLabelId(id) {
+  copyText(String(id || "").toLowerCase()).catch(() => {});
 }
 for (const item of spec.labels || []) {
   const card = el("article", undefined, "card label-card");
@@ -820,44 +817,13 @@ document.addEventListener("keydown", (event) => {
     setAltroOverlayOpen(false);
 });
 
-// --- Consegna overlay (Altro button, or long press on Salva) ---
-const deliveryOverlay = document.querySelector("#delivery-overlay");
-const openDeliveryBtn = document.querySelector("#open-delivery");
-function setDeliveryOverlayOpen(open) {
-  if (!deliveryOverlay) return;
-  deliveryOverlay.hidden = !open;
-  document.documentElement.classList.toggle("delivery-overlay-open", open);
-  document.body.classList.toggle("delivery-overlay-open", open);
-  if (open) {
-    const first = document.querySelector("#send") || document.querySelector("#save");
-    first?.focus?.();
-  }
-}
-function closeDeliveryAfterAction() {
-  setDeliveryOverlayOpen(false);
-}
-openDeliveryBtn?.addEventListener("click", () => setDeliveryOverlayOpen(true));
-document.querySelectorAll(".delivery-overlay-close").forEach((button) => {
-  button.addEventListener("click", () => setDeliveryOverlayOpen(false));
-});
-deliveryOverlay?.addEventListener("click", (event) => {
-  if (event.target === deliveryOverlay) setDeliveryOverlayOpen(false);
-});
-// A drag on the scrim, or on any strip the panel does not cover, must not scroll the page.
-document.addEventListener(
-  "touchmove",
-  (event) => {
-    if (!document.body.classList.contains("delivery-overlay-open")) return;
-    const panel = deliveryOverlay?.querySelector(".delivery-overlay-panel");
-    if (panel && panel.contains(event.target)) return;
-    event.preventDefault();
-  },
-  { passive: false },
-);
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && deliveryOverlay && !deliveryOverlay.hidden)
-    setDeliveryOverlayOpen(false);
-});
+// --- Consegna commands: one row under Altro, copied into the mobile Altro overlay ---
+// The page row keeps the ids (#save, #copy...); the copy is found through data-command.
+const pageCommands = document.querySelector("#extra-section .altro-commands");
+const overlayCommands = pageCommands.cloneNode(true);
+for (const node of overlayCommands.querySelectorAll("[id]")) node.removeAttribute("id");
+// Under the panel, not in its body: feedback-format.js rewraps the body around the field.
+document.querySelector(".altro-overlay-panel").append(overlayCommands);
 
 // --- Mobile editing: only Salva while a text field is focused ---
 const isMobileUi = () => window.matchMedia("(max-width: 720px)").matches;
@@ -961,9 +927,10 @@ function refreshNavigation() {
   previousCard.disabled = !loaded || index <= 0;
   nextCard.disabled = !loaded || index >= responseCards.length - 1;
   const empty = firstEmptyCard();
-  // On mobile keep ⇥ visible so long-press can open Altro even when nothing is empty.
-  const diskFab = document.querySelector("#floating-save");
-  if (isMobileUi()) {
+  // On mobile ⇥ stays visible, so a long press opens Altro even when nothing is empty.
+  const mobile = isMobileUi();
+  const floatingSave = document.querySelector("#floating-save");
+  if (mobile) {
     firstEmpty.hidden = false;
     firstEmpty.title = empty
       ? "Primo riquadro non compilato · tieni premuto per Altro"
@@ -974,25 +941,16 @@ function refreshNavigation() {
         ? "Primo riquadro non compilato. Tieni premuto per aprire Altro"
         : "Tieni premuto per aprire Altro",
     );
-    if (diskFab) {
-      diskFab.title = "Salva · tieni premuto per Consegna e copie";
-      diskFab.setAttribute(
-        "aria-label",
-        "Salva le risposte. Tieni premuto per aprire Consegna e copie",
-      );
-    }
   } else {
     firstEmpty.hidden = !empty || responseCards[index] === empty;
     firstEmpty.title = "Primo riquadro non compilato";
     firstEmpty.setAttribute("aria-label", "Primo riquadro non compilato");
-    if (diskFab) {
-      diskFab.title = "Salva · tieni premuto per Consegna e copie";
-      diskFab.setAttribute(
-        "aria-label",
-        "Salva le risposte. Tieni premuto per aprire Consegna e copie",
-      );
-    }
   }
+  floatingSave.title = mobile ? "Salva · tieni premuto per Altro" : "Salva le risposte";
+  floatingSave.setAttribute(
+    "aria-label",
+    mobile ? "Salva le risposte. Tieni premuto per aprire Altro" : "Salva le risposte",
+  );
   firstEmpty.disabled = !loaded;
   document.documentElement.style.setProperty("--feedback-scroll-offset", navigationOffset() + "px");
 }
@@ -1005,31 +963,31 @@ function goToCard(card) {
 }
 previousCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() - 1]));
 nextCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() + 1]));
-let firstEmptyLongPress = false;
-let firstEmptyLongTimer = null;
-function clearFirstEmptyLongPress() {
-  clearTimeout(firstEmptyLongTimer);
-  firstEmptyLongTimer = null;
+// On mobile a long press opens the Altro overlay; a short tap keeps the button's own action.
+function onTapOrHold(button, tap) {
+  let held = false, timer = null;
+  const clear = () => { clearTimeout(timer); timer = null; };
+  button.addEventListener("pointerdown", (event) => {
+    if (!isMobileUi() || event.button != null && event.button !== 0) return;
+    held = false;
+    clear();
+    timer = setTimeout(() => {
+      held = true;
+      setAltroOverlayOpen(true);
+    }, 450);
+  });
+  for (const name of ["pointerup", "pointercancel", "pointerleave"]) button.addEventListener(name, clear);
+  button.addEventListener("click", (event) => {
+    if (held) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      held = false;
+      return;
+    }
+    tap();
+  });
 }
-firstEmpty.addEventListener("pointerdown", (event) => {
-  if (!isMobileUi() || event.button != null && event.button !== 0) return;
-  firstEmptyLongPress = false;
-  clearFirstEmptyLongPress();
-  firstEmptyLongTimer = setTimeout(() => {
-    firstEmptyLongPress = true;
-    setAltroOverlayOpen(true);
-  }, 450);
-});
-firstEmpty.addEventListener("pointerup", clearFirstEmptyLongPress);
-firstEmpty.addEventListener("pointercancel", clearFirstEmptyLongPress);
-firstEmpty.addEventListener("pointerleave", clearFirstEmptyLongPress);
-firstEmpty.addEventListener("click", (event) => {
-  if (firstEmptyLongPress) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    firstEmptyLongPress = false;
-    return;
-  }
+onTapOrHold(firstEmpty, () => {
   const empty = firstEmptyCard();
   if (empty) goToCard(empty);
   else if (isMobileUi()) {
@@ -1046,57 +1004,21 @@ window.addEventListener("scroll", () => {
   });
 }, {passive: true});
 new ResizeObserver(refreshNavigation).observe(document.querySelector(".dashboard"));
-document.querySelector("#save").addEventListener("click", () => {
-  save();
-});
-const floatingSave = document.querySelector("#floating-save");
-let floatingSaveLongPress = false;
-let floatingSaveLongTimer = null;
-function clearFloatingSaveLongPress() {
-  clearTimeout(floatingSaveLongTimer);
-  floatingSaveLongTimer = null;
-}
-floatingSave.addEventListener("pointerdown", (event) => {
-  if (event.button != null && event.button !== 0) return;
-  floatingSaveLongPress = false;
-  clearFloatingSaveLongPress();
-  floatingSaveLongTimer = setTimeout(() => {
-    floatingSaveLongPress = true;
-    setDeliveryOverlayOpen(true);
-  }, 450);
-});
-floatingSave.addEventListener("pointerup", clearFloatingSaveLongPress);
-floatingSave.addEventListener("pointercancel", clearFloatingSaveLongPress);
-floatingSave.addEventListener("pointerleave", clearFloatingSaveLongPress);
-floatingSave.addEventListener("click", (event) => {
-  if (floatingSaveLongPress) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    floatingSaveLongPress = false;
-    return;
-  }
-  save();
-});
-document.querySelector("#copy").addEventListener("click", async () => {
-  await copy();
-  closeDeliveryAfterAction();
-});
-document.querySelector("#send").addEventListener("click", async () => {
+onTapOrHold(document.querySelector("#floating-save"), save);
+async function send() {
   draft.completed = new Date().toISOString();
   revision++;
   if (!await save()) {
     report("Invio non confermato: le ultime modifiche non sono ancora disponibili all'agente. Riprova quando il salvataggio cloud funziona.", true);
     return;
   }
-  document.querySelector("#summary").value = summary();
   report(
     remote
       ? "Giro reso leggibile all'agente. Puoi modificarlo e inviarlo di nuovo; l'agente lo leggerà solo dopo il tuo via in chat."
-      : "Riepilogo pronto. Per renderlo leggibile dal cloud, importa il JSON nel documento cloud e premi Invia.",
+      : "Risposte pronte. Per renderle leggibili dal cloud, importa il JSON nel documento cloud e premi Invia.",
   );
-  closeDeliveryAfterAction();
-});
-document.querySelector("#export").addEventListener("click", () => {
+}
+function exportJson() {
   const blob = new Blob(
       [JSON.stringify({ ...draft, version: spec.version }, null, 2)],
       { type: "application/json" },
@@ -1108,10 +1030,9 @@ document.querySelector("#export").addEventListener("click", () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   report("JSON esportato, con risposte e allegati.");
-  closeDeliveryAfterAction();
-});
-document.querySelector("#import").addEventListener("change", async (event) => {
-  const file = event.target.files[0];
+}
+async function importJson(input) {
+  const file = input.files[0];
   if (!file) return;
   try {
     if (file.size > 35 * 1024 * 1024) throw Error("Il JSON supera 35 MB.");
@@ -1121,15 +1042,13 @@ document.querySelector("#import").addEventListener("change", async (event) => {
     hydrate();
     await save();
     report("JSON importato. Le risposte sono state ripristinate.");
-    document.querySelector("#summary").value = "";
-    closeDeliveryAfterAction();
   } catch (error) {
     report("Importazione annullata: " + error.message, true);
   } finally {
-    event.target.value = "";
+    input.value = "";
   }
-});
-document.querySelector("#reset").addEventListener("click", async () => {
+}
+async function reset() {
   if (
     !confirm(
       remote ? "Azzera la bozza cloud, rimuovendo risposte e allegati da tutti i dispositivi? Esporta il JSON per conservarli." : "Cancellare tutte le risposte e tutti gli allegati salvati in questo browser? Esporta il JSON per conservarle.",
@@ -1139,11 +1058,16 @@ document.querySelector("#reset").addEventListener("click", async () => {
   draft = blank();
   revision++;
   hydrate();
-  document.querySelector("#summary").value = "";
   await save();
   report(remote ? "Bozza cloud azzerata." : "Risposte del browser azzerate.");
-  closeDeliveryAfterAction();
-});
+}
+const commands = { reset, copy, export: exportJson, save, send };
+for (const row of [pageCommands, overlayCommands]) {
+  for (const button of row.querySelectorAll("button[data-command]"))
+    button.addEventListener("click", () => commands[button.dataset.command]());
+  const picker = row.querySelector('[data-command="import"] input');
+  picker.addEventListener("change", () => importJson(picker));
+}
 document.addEventListener("keydown", (event) => {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
     event.preventDefault();
@@ -1228,7 +1152,6 @@ async function refreshRemote() {
     revision++;
     persistedRevision = revision;
     hydrate();
-    document.querySelector("#summary").value = "";
     saved.textContent = "Risposte aggiornate dal cloud.";
     saved.classList.remove("error");
   } catch (error) {

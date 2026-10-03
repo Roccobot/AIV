@@ -45,7 +45,6 @@
   --shadow-fab: 0 4px 12px light-dark(#0003, #0006);
   --shadow-modal: 0 12px 40px light-dark(#0b1f1833, #0008);
   --scrim: light-dark(#0b1f1888, #00000099);
-  --open-delivery-bg: light-dark(#fff, #1e2523);
 }
 [data-theme="light"] {
   color-scheme: light;
@@ -159,14 +158,6 @@ h1 {
   font-size: 14px;
   line-height: 1;
   font-weight: 700;
-}
-.cloud-account p {
-  flex: 0 1 auto;
-  min-width: 0;
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.2;
-  white-space: nowrap;
 }
 a.cloud-account-action,
 button.cloud-account-action {
@@ -398,12 +389,6 @@ textarea {
   padding: 6px 10px;
   font-size: 14px;
 }
-.actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
 .file-button {
   display: inline-flex;
   align-items: center;
@@ -427,7 +412,7 @@ textarea {
   outline: 3px solid var(--accent-focus);
   outline-offset: 3px;
 }
-#reset {
+.command[data-command="reset"] {
   border-color: var(--bad);
   color: var(--bad-text);
 }
@@ -480,10 +465,6 @@ textarea {
 footer {
   padding-bottom: 90px;
   font-size: 14px;
-}
-#summary {
-  font-size: 18px;
-  line-height: 1.5;
 }
 /* .dashboard p sets the muted color with a stronger selector. */
 .error,
@@ -708,23 +689,9 @@ body[data-feedback] footer {
 .count-chip-warn { color: var(--chip-warn); }
 .count-chip-bad { color: var(--chip-bad); }
 
-.format-letter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* Same 24px box as the italic icon. The I glyph is untouched. */
-  width: 24px;
-  height: 24px;
-  font-family: Arial, Helvetica, Roboto, sans-serif;
-  font-weight: 900;
-  font-size: 22px;
-  line-height: 1;
-  letter-spacing: 0;
-  -webkit-text-stroke: 0.6px currentColor;
-  paint-order: stroke fill;
-}
-.format-toolbar button[data-format="bold"] .format-letter {
-  transform: translateY(-0.5px);
+/* The bold B keeps its size where the other icons shrink to the 22px slot. */
+.format-toolbar svg.format-bold {
+  flex-shrink: 0;
 }
 .rich-editor code,
 .card.test p code {
@@ -767,8 +734,7 @@ body[data-feedback] footer {
   font-size: 22px;
 }
 /* Bare ×: same 24px glyph as before, no chip. Hit target stays 44px. */
-.altro-overlay-close,
-.delivery-overlay-close {
+.altro-overlay-close {
   width: 44px;
   height: 44px;
   min-width: 44px;
@@ -785,21 +751,18 @@ body[data-feedback] footer {
   justify-content: center;
   flex: 0 0 auto;
 }
-button.altro-overlay-close:hover,
-button.delivery-overlay-close:hover {
+button.altro-overlay-close:hover {
   background: transparent;
   border: none;
 }
-.altro-overlay-close svg,
-.delivery-overlay-close svg {
+.altro-overlay-close svg {
   width: 24px;
   height: 24px;
   flex: 0 0 24px;
   display: block;
 }
 /* Second copy, bottom-right, for the thumb. Same glyph, no box. */
-.altro-overlay-close-thumb,
-.delivery-overlay-close-thumb {
+.altro-overlay-close-thumb {
   position: absolute;
   right: 16px;
   bottom: calc(16px + env(safe-area-inset-bottom));
@@ -853,18 +816,13 @@ main > .feedback-columns {
    The overlay heading has its own rule and is not this card. */
 #extra-section > h2 {
   margin-bottom: 0;
+  color: var(--muted);
 }
 #extra-section .altro-notes-label {
   display: flex;
   flex-direction: column;
   gap: 4px;
   margin-top: 0;
-}
-.altro-tools {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 /* Dashed + fills the row left of the format tools (page Altro and overlay). */
 .altro-format-cluster {
@@ -921,6 +879,48 @@ main > .feedback-columns {
 .drop-active .altro-format-cluster > .attachment {
   border-color: var(--accent);
   background: var(--surface-drop);
+}
+
+/* Altro: the attach button and the four format buttons split the row exactly in half. */
+.altro-halves {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.altro-halves > .format-toolbar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: auto;
+}
+.altro-halves > .format-toolbar button {
+  width: auto;
+}
+/* The six Consegna commands, as icons, each a sixth of the row under the format row. */
+.altro-commands {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.altro-commands > .command {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+}
+.altro-commands svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.altro-overlay-panel > .altro-commands {
+  margin-top: 8px;
+}
+#action-message:empty {
+  display: none;
 }
 
 .installed-confirm {
@@ -984,12 +984,7 @@ main > .feedback-columns {
     padding-left: 5px;
     padding-right: 6px;
   }
-  .cloud-account p {
-    flex-basis: auto;
-    white-space: normal;
-  }
-  /* Logged out, only Accedi stays; connected, only the GitHub mark and Esci. */
-  .cloud-account:not(.is-connected) p,
+  /* Connected, only the GitHub mark and Esci. */
   .cloud-account.is-connected .cloud-account-user {
     display: none;
   }
@@ -1063,14 +1058,6 @@ main > .feedback-columns {
     height: 40vh;
     max-height: 50vh;
   }
-  /* Attach lives on the format row. Consegna keeps its own button size. */
-  #extra-section .altro-tools {
-    flex-wrap: nowrap;
-  }
-  #extra-section .altro-tools > .open-delivery {
-    flex: 0 0 auto;
-    width: auto;
-  }
   .feedback-columns > .next-steps {
     grid-column: 2;
   }
@@ -1141,163 +1128,9 @@ main > .feedback-columns {
   padding-right: 28px;
   max-width: calc(100% - 28px);
 }
-/* --- Consegna e copie overlay --- */
-.delivery-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  background: var(--scrim);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
-  overscroll-behavior: none;
-}
-.delivery-overlay-panel {
-  width: min(560px, 100%);
-  max-height: min(90vh, 900px);
-  position: relative;
-  overflow: hidden;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-  background: var(--bg);
-  color: var(--ink);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-modal);
-}
-.delivery-overlay-header {
-  display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-  padding: 14px 16px 8px;
-  position: sticky;
-  top: 0;
-  background: var(--bg);
-  z-index: 1;
-  flex: 0 0 auto;
-}
-.delivery-overlay-header h2 {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  margin: 0;
-  font-size: 22px;
-  text-align: center;
-  /* Clicks pass through so the close control stays usable if the title is wide. */
-  pointer-events: none;
-}
-.delivery-overlay-header .delivery-overlay-close {
-  grid-column: 3;
-  grid-row: 1;
-  justify-self: end;
-  position: relative;
-  z-index: 2;
-  pointer-events: auto;
-}
-.delivery-overlay-body {
-  /* 44px thumb + 16px corner inset + 16px gap, so the last button row stays above the ×. */
-  padding: 0 16px calc(76px + env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-}
-/* Summary stays under the title. Preferred height is rows=10 (292px, was 346px at rows=12).
-   It may shrink on a short screen so the actions stay pinned above the thumb ×. */
-.delivery-overlay-body > label {
-  margin-top: 0;
-  flex: 0 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-.delivery-overlay-body #summary {
-  flex: 1 1 auto;
-  height: 292px;
-  max-height: 292px;
-  min-height: 140px;
-  overflow: auto;
-}
-.delivery-overlay-body > #action-message {
-  margin-top: auto;
-  margin-bottom: 0;
-  flex: 0 0 auto;
-}
-.delivery-overlay-body > #action-message:empty {
-  height: 0;
-  overflow: hidden;
-}
-/* Two equal buttons per row, every viewport. Labels may wrap. */
-.delivery-overlay-body .actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  align-items: stretch;
-  flex: 0 0 auto;
-}
-.delivery-overlay-body .actions > button,
-.delivery-overlay-body .actions > .file-button {
-  width: auto;
-  max-width: none;
-  min-width: 0;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  white-space: normal;
-  height: auto;
-  min-height: 48px;
-}
-.open-delivery {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 8px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--open-delivery-bg);
-  color: var(--link);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-}
-.open-delivery:hover {
-  border-color: var(--accent);
-  background: var(--surface-code);
-}
-.open-delivery-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-on);
-}
-.open-delivery-text {
-  font-size: 14px;
-}
-
-/* While Consegna is open, the page behind must not scroll. */
-html.delivery-overlay-open,
-body.delivery-overlay-open {
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
 /* Mobile: the strip shows only the centered counts; Altro flows before Prossimi passi and
-   opens as an overlay on a long press of the arrow. Consegna opens on a long press of Salva,
-   so the opener in the Altro row is hidden, and its panel fills the dynamic viewport,
-   home-indicator strip included. This block comes last so it overrides the base rules. */
+   opens as an overlay on a long press of ⇥ or of Salva. This block comes last so it
+   overrides the base rules. */
 @media (max-width: 720px) {
   .dashboard {
     padding-top: 8px;
@@ -1343,34 +1176,4 @@ body.delivery-overlay-open {
   .feedback-columns > .next-steps {
     order: 3;
   }
-  #open-delivery,
-  #extra-section .altro-tools {
-    display: none;
-  }
-  .delivery-overlay {
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    min-height: 100vh;
-    min-height: 100dvh;
-    max-height: none;
-    margin: 0;
-    align-items: stretch;
-    justify-content: stretch;
-    padding: 0;
-    overflow: hidden;
-    touch-action: pan-y;
-  }
-  .delivery-overlay-panel {
-    width: 100%;
-    max-width: none;
-    max-height: none;
-    height: 100%;
-    min-height: 0;
-    flex: 1 1 auto;
-    border-radius: 0;
-    border: none;
-  }
 }
-
-
