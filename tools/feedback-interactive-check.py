@@ -186,13 +186,13 @@ def check(path):
                 # A button that cannot act is not shown: at the first card there is no 'previous'.
                 expect(navigation.locator('#previous-card')).to_be_hidden()
                 assert pill.evaluate('(el)=>getComputedStyle(el).borderRadius') == '28px'
-                # The fill is 40% opaque, the glyphs are not faded with it.
+                # The fill is 25% opaque, the glyphs are not faded with it.
                 fill = pill.evaluate('(el)=>getComputedStyle(el).backgroundColor')
-                assert re.search(r'(?:/|,)\s*0?\.4\)$', fill), fill
+                assert re.search(r'(?:/|,)\s*0?\.25\)$', fill), fill
                 assert navigation.locator('#floating-save').evaluate('(el)=>getComputedStyle(el).opacity') == '1'
                 # Under the fill the page is blurred, like frosted glass (the user's request).
                 frost = pill.evaluate('(el)=>getComputedStyle(el).backdropFilter')
-                assert 'blur(' in frost and 'saturate(' in frost, frost
+                assert 'blur(8px)' in frost and 'saturate(' in frost, frost
                 # The pill is anchored at the bottom and holds the save button last.
                 assert abs((pill_box['y']+pill_box['height']) - (save_box['y']+save_box['height']) - 4) < 1
                 # The footer is gone.
@@ -552,6 +552,22 @@ def check(path):
                 assert page.locator('#altro-overlay [id="save"], #altro-overlay [id="import"]').count() == 0
                 page.locator('#altro-overlay-close').click()
                 expect(page.locator('#altro-overlay')).to_be_hidden()
+            # Measured on the user's phone with its tall keyboard: only about 358px stay visible
+            # above it. The title is small and centred, and the overlay down to its command row
+            # fits in those 358px whatever the window height (the user's request).
+            page.set_viewport_size({'width': 412, 'height': 800})
+            hold(fab)
+            title = page.locator('#altro-overlay-title')
+            assert title.evaluate('(el)=>getComputedStyle(el).fontSize') == '18px'
+            title_box = title.evaluate('(el)=>{const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return {x:b.x,width:b.width}}')
+            panel_box = page.locator('.altro-overlay-panel').bounding_box()
+            assert abs(title_box['x']+title_box['width']/2 - (panel_box['x']+panel_box['width']/2)) < 1, (title_box, panel_box)
+            commands_box = page.locator('#altro-overlay .altro-commands').bounding_box()
+            assert commands_box['y']+commands_box['height'] <= 358, commands_box
+            page.locator('#altro-overlay-close').click()
+            page.set_viewport_size({'width': 390, 'height': 900})
+            # Android paints no tap rectangle over what the finger touches.
+            assert page.evaluate("getComputedStyle(document.documentElement).webkitTapHighlightColor") == 'rgba(0, 0, 0, 0)'
             # The overlay's copy of the commands is wired: its Copia reports, from an empty message.
             hold(fab)
             page.evaluate("document.querySelector('#action-message').textContent = ''")

@@ -98,7 +98,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Navigazione flottante: **una pillola verticale** color accento, ancorata in basso a destra,
   con dall'alto primo non compilato, riquadro precedente, successivo e salvataggio col dischetto
   (richiesta dell'utente, 2026-10-03). Mostra solo i tasti che in quel momento possono agire,
-  si allunga e si accorcia con loro, e con un tasto solo è un tondo. Il fondo è opaco al 40%
+  si allunga e si accorcia con loro, e con un tasto solo è un tondo. Il fondo è opaco al 25%
   (sua scelta, con la sfocatura), le icone no, e sotto il fondo la pagina è sfocata come un
   vetro satinato (`backdrop-filter`, sua richiesta); dove il browser non la supporta resta il
   solo fondo. Commento o allegato
@@ -114,6 +114,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ **o** su Salva
   (dischetto) apre Altro a pannello overlay (chiudi con ×), sullo stesso campo `notes` del
   riquadro in fondo e con lo stesso salvataggio cloud; il tocco breve resta l'azione del FAB.
+  Nell'overlay il titolo è piccolo e centrato, il campo è alto 170 px e i comandi lo seguono
+  subito sotto: con la tastiera alta dell'utente sopra restano circa 358 px (sua richiesta,
+  2026-10-03). Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di

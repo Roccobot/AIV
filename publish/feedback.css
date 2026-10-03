@@ -60,6 +60,11 @@
 [hidden] {
   display: none !important;
 }
+/* No rectangle over what the finger touches on Android (the user's request); keyboard focus
+   keeps its own ring. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
 body {
   margin: 0;
   font:
@@ -434,13 +439,13 @@ textarea {
   gap: 0;
   padding: 4px;
   border-radius: 28px;
-  /* The fill at 40% (the user's choice, once the frosted glass was in): the blurred page
-     shows through, the glyphs stay solid. */
-  background: color-mix(in srgb, var(--accent) 40%, transparent);
-  /* Frosted glass under the fill (the user's request): the page behind is blurred, not readable.
-     Where the browser lacks it, the 80% fill alone stays. */
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  backdrop-filter: blur(12px) saturate(160%);
+  /* The fill at 25% (the user's choice: with the frosted glass a little colour is enough);
+     the glyphs stay solid. */
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  /* Frosted glass under the fill (the user's request), light enough to let the page show a
+     little. Where the browser lacks it, the fill alone stays. */
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(160%);
   box-shadow: var(--shadow-fab);
   z-index: 3;
 }
@@ -742,20 +747,29 @@ body[data-feedback] main {
   color: var(--ink);
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  /* A tall keyboard leaves little room: the panel starts high (the user's request). */
+  padding: 8px 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
 }
+/* Small title, centred on the panel; the close button keeps its 44px target and lends the
+   header no extra height. */
 .altro-overlay-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  height: 32px;
+  margin-bottom: 8px;
 }
 .altro-overlay-header h2 {
+  grid-column: 2;
   margin: 0;
-  font-size: 22px;
+  font-size: 18px;
+  text-align: center;
+}
+.altro-overlay-header .altro-overlay-close {
+  grid-column: 3;
+  margin: -6px 0;
 }
 /* Bare ×: same 24px glyph as before, no chip. Hit target stays 44px. */
 .altro-overlay-close {
@@ -793,15 +807,18 @@ button.altro-overlay-close:hover {
   z-index: 5;
 }
 .altro-overlay-body {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
 }
-.altro-overlay-body textarea,
-.altro-overlay-body .rich-editor {
-  flex: 1;
-  min-height: 50vh;
-  font-size: 18px;
+/* The commands follow right under the field instead of being pushed to the bottom of the
+   panel, and the field is a little shorter than on the page: with the user's tall keyboard
+   only about 358px stay visible. feedback-format.js moves the editor out of the body, so the
+   rule names the panel. */
+.altro-overlay-panel textarea,
+.altro-overlay-panel .rich-editor {
+  height: 170px;
+  min-height: 170px;
 }
 
 /* Altro: real side column on desktop; in-flow before PP on mobile */
