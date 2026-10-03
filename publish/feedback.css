@@ -1092,14 +1092,14 @@ main > .feedback-columns {
   line-height: 1.2;
   text-transform: lowercase;
   text-align: left;
-  color: #222222;
+  color: var(--muted);
   opacity: 0.4;
   cursor: pointer;
 }
 #labels .label-id:hover,
 #labels .label-id:focus-visible {
   background: transparent;
-  color: #222222;
+  color: var(--muted);
 }
 #labels .label-card h3 {
   margin-top: 0;
@@ -1110,7 +1110,7 @@ main > .feedback-columns {
   height: 10px;
   margin-left: 8px;
   border-radius: 50%;
-  background: #e36a00;
+  background: var(--warn);
   vertical-align: 2px;
 }
 /* Top-right of the card border, same color as that border. Not inside the field. */
