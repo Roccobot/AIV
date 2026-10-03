@@ -114,9 +114,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ **o** su Salva
   (dischetto) apre Altro a pannello overlay (chiudi con ×), sullo stesso campo `notes` del
   riquadro in fondo e con lo stesso salvataggio cloud; il tocco breve resta l'azione del FAB.
-  Nell'overlay il titolo è piccolo e centrato, il campo è alto 170 px e i comandi lo seguono
-  subito sotto: con la tastiera alta dell'utente sopra restano circa 358 px (sua richiesta,
-  2026-10-03). Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
+  Nell'overlay il titolo è piccolo e centrato e il campo è alto 250 px, senza anello di
+  selezione: con la tastiera alta dell'utente sopra restano circa 358 px, la riga di
+  formattazione finisce appena sopra e solo i sei comandi vanno sotto (sue scelte,
+  2026-10-03). Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
