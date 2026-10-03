@@ -24,7 +24,7 @@ controls(true);
       db.onversionchange = () => {
         db.close();
         db = null;
-        saved.textContent = "Memoria chiusa da un'altra scheda: esporta il JSON.";
+        saved.textContent = "Memoria chiusa da un'altra scheda: esporta le risposte.";
       };
       const existing = await new Promise((resolve, reject) => {
         const request = db
@@ -43,8 +43,8 @@ controls(true);
     remote?.failed(error);
     const needsLogin = remote && error.status === 401;
     saved.textContent = needsLogin
-      ? "Accedi con GitHub per compilare il documento e importare il JSON."
-      : (remote ? "Cloud non disponibile. " : "Memoria non disponibile o dati non leggibili. Esporta il JSON prima di chiudere. ") + error.message;
+      ? "Accedi con GitHub per compilare il documento e importare le risposte."
+      : (remote ? "Cloud non disponibile. " : "Memoria non disponibile o dati non leggibili. Esporta le risposte prima di chiudere. ") + error.message;
     saved.classList.toggle("error", !needsLogin);
   } finally {
     loaded = remote ? remoteReady : true;

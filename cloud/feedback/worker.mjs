@@ -142,6 +142,7 @@ async function handle(request, env) {
   }
   return json({error:'Percorso non trovato.'},404);
 }
+const CONTENT_SECURITY_POLICY = ["default-src 'none'","script-src 'self'","style-src 'self'","img-src 'self' blob:","font-src 'self'","connect-src 'self'","manifest-src 'self'","base-uri 'none'","form-action 'none'","frame-ancestors 'none'"].join('; ');
 export default {
   async fetch(request,env) {
     let response;
@@ -150,6 +151,10 @@ export default {
     const protectedResponse = new Response(response.body,response);
     protectedResponse.headers.set('X-Content-Type-Options','nosniff');
     protectedResponse.headers.set('Referrer-Policy','same-origin');
+    // Second line of defence for the page: only its own scripts, styles, fonts and API, and
+    // images only from itself or from the attachments the page holds in memory (blob:).
+    if ((protectedResponse.headers.get('Content-Type') || '').startsWith('text/html'))
+      protectedResponse.headers.set('Content-Security-Policy',CONTENT_SECURITY_POLICY);
     return protectedResponse;
   }
 };

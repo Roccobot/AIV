@@ -13,6 +13,32 @@ import threading
 import zipfile
 
 
+def read_export(path):
+    """The export ZIP -> (feedback.json as data, {name in the ZIP: bytes})."""
+    with zipfile.ZipFile(path) as archive:
+        assert archive.testzip() is None, 'CRC sbagliato nello ZIP esportato.'
+        assert all(info.compress_type == zipfile.ZIP_STORED for info in archive.infolist()), 'ZIP compresso.'
+        files = {name: archive.read(name) for name in archive.namelist()}
+    return json.loads(files.pop('feedback.json')), files
+
+
+def write_export(path, data, files, compression=zipfile.ZIP_STORED):
+    with zipfile.ZipFile(path, 'w', compression) as archive:
+        archive.writestr('feedback.json', json.dumps(data))
+        for name, payload in files.items():
+            archive.writestr(name, payload)
+
+
+def to_legacy(data, files):
+    """An export as the JSON of before 2026-10-03: every file inside, as base64 text."""
+    legacy = json.loads(json.dumps(data))
+    for value in [*legacy['entries'].values(), legacy['extra']]:
+        for attached in value['images']:
+            payload = files[attached.pop('file')]
+            attached['data'] = 'data:' + attached['type'] + ';base64,' + base64.b64encode(payload).decode()
+    return legacy
+
+
 SYNTHETIC_TEST = '''
 | 0.00-01 | prova di sintesi del controllo |
 
@@ -306,17 +332,18 @@ def check(path):
             assert all(value in formatted_summary for value in expected_bits)
             with formatting.expect_download() as pending:
                 formatting.locator('#export').click()
-            formatted_export=Path(temporary)/'formatted.json'
+            formatted_export=Path(temporary)/'formatted.zip'
             pending.value.save_as(str(formatted_export))
-            formatted_data=json.loads(formatted_export.read_text())
+            formatted_data, formatted_files = read_export(formatted_export)
             assert formatted_data['entries'][data['items'][0]['id']]['comment']==expected_comment
             assert formatted_data['notes']=='*note*'
             # Old drafts containing formatted text, literal Markdown characters and line breaks.
             restored='**grassetto** e *corsivo*\n[link]('+destination+')\nPercorso C:\\foto, \\*letterale\\* <img src=x>'
             formatted_data['entries'][data['items'][0]['id']]['comment']=restored
-            formatted_export.write_text(json.dumps(formatted_data))
+            # Repacked with deflate, as another program or an agent would: the import still reads it.
+            write_export(formatted_export, formatted_data, formatted_files, zipfile.ZIP_DEFLATED)
             formatting.locator('#import').set_input_files(str(formatted_export))
-            expect(formatting.locator('#action-message')).to_contain_text('JSON importato')
+            expect(formatting.locator('#action-message')).to_contain_text('Risposte importate')
             expect(stored).to_have_value(restored)
             expect(field.locator('strong')).to_have_text('grassetto')
             expect(field.locator('em')).to_have_text('corsivo')
@@ -462,7 +489,7 @@ def check(path):
             # Consegna lives in the Altro row: no overlay, no opener, no summary field.
             assert page.locator('#delivery-overlay, #open-delivery, #summary').count() == 0
             assert page.locator('.browse-label').count() == 0
-            expected = ['Azzera tutto', 'Copia il riepilogo', 'Esporta JSON', 'Importa JSON', 'Salva', 'Invia']
+            expected = ['Azzera tutto', 'Copia il riepilogo', 'Esporta', 'Importa', 'Salva', 'Invia']
             near = lambda a, b: abs(a - b) < 1
             for width in [320, 390, 800, 1280]:
                 page.set_viewport_size({'width': width, 'height': 900})
@@ -664,20 +691,26 @@ def check(path):
             expect(page.locator('#notes')).to_have_value('Osservazioni libere di verifica')
             with page.expect_download() as pending:
                 page.locator('#export').click()
-            export = Path(temporary) / 'export.json'
+            assert pending.value.suggested_filename == 'AIV-feedback-' + data['version'] + '.zip'
+            export = Path(temporary) / 'export.zip'
             pending.value.save_as(str(export))
-            exported = json.loads(export.read_text())
-            encoded = exported['entries'][data['items'][0]['id']]['images'][0]['data'].split(',')[1]
-            assert base64.b64decode(encoded) == image.read_bytes(), 'Immagine modificata.'
-            for attached in exported['entries'][data['items'][0]['id']]['images'][1:3]:
+            exported, exported_files = read_export(export)
+            first_images = exported['entries'][data['items'][0]['id']]['images']
+            # Short names in one folder: the test's position plus a letter, 00 for Altro.
+            assert [a['file'] for a in first_images] == ['01a.png', '01b.svg', '01c.svg', '01d.zip', '01e.zip'], first_images
+            assert [a['file'] for a in exported['extra']['images']] == ['00a.png', '00b.svg', '00c.zip', '00d.zip']
+            assert set(exported_files) == {a['file'] for a in first_images + exported['extra']['images']}
+            assert first_images[0]['name'] == 'feedback.png', 'Nome originale perso.'
+            assert all('data' not in a and 'blob' not in a for a in first_images), 'Allegato come testo nel JSON.'
+            assert exported_files['01a.png'] == image.read_bytes(), 'Immagine modificata.'
+            for attached in first_images[1:3]:
                 assert attached['type'] == 'image/svg+xml'
-                assert base64.b64decode(attached['data'].split(',')[1]) == svg_bytes, 'SVG originale modificato.'
-            for attached in exported['entries'][data['items'][0]['id']]['images'][3:]:
+                assert exported_files[attached['file']] == svg_bytes, 'SVG originale modificato.'
+            for attached in first_images[3:]:
                 assert attached['type'] == 'application/zip'
-                assert base64.b64decode(attached['data'].split(',')[1]) == archive.read_bytes()
-            assert len(exported['extra']['images']) == 4
+                assert exported_files[attached['file']] == archive.read_bytes()
             for attached, original in zip(exported['extra']['images'], [image.read_bytes(), svg_bytes, archive.read_bytes(), archive.read_bytes()]):
-                assert base64.b64decode(attached['data'].split(',')[1]) == original, 'Allegato delle osservazioni modificato.'
+                assert exported_files[attached['file']] == original, 'Allegato delle osservazioni modificato.'
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
 
             second_context = browser.new_context(permissions=['clipboard-read', 'clipboard-write'])
@@ -688,7 +721,7 @@ def check(path):
             with second.expect_file_chooser() as chooser:
                 second.locator('#extra-section .file-button').click()
             chooser.value.set_files(str(export))
-            expect(second.locator('#action-message')).to_contain_text('JSON importato')
+            expect(second.locator('#action-message')).to_contain_text('Risposte importate')
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.reload()
@@ -702,13 +735,23 @@ def check(path):
             pending_zip.value.save_as(str(zip_copy))
             assert zip_copy.read_bytes() == archive.read_bytes(), 'ZIP scaricato modificato.'
             expect(second.locator('.test').first.locator('.comment')).to_have_value('Commento di verifica: <script>test</script>')
-            bad = Path(temporary) / 'invalid.json'
-            invalid = json.loads(export.read_text())
+            bad = Path(temporary) / 'invalid.zip'
+            invalid = json.loads(json.dumps(exported))
             invalid['entries'][data['items'][0]['id']]['status'] = 'Esito inventato'
-            bad.write_text(json.dumps(invalid))
+            write_export(bad, invalid, exported_files)
             second.locator('#import').set_input_files(str(bad))
             expect(second.locator('#action-message')).to_contain_text('Importazione annullata')
+            missing = Path(temporary) / 'missing.zip'
+            write_export(missing, exported, {k: v for k, v in exported_files.items() if k != '01a.png'})
+            second.locator('#import').set_input_files(str(missing))
+            expect(second.locator('#action-message')).to_contain_text('manca 01a.png')
             expect(second.locator('.test').first.locator('.item-state')).to_have_count(0)
+            # A JSON exported before 2026-10-03, with the files inside as base64, still imports.
+            old_json = Path(temporary) / 'old.json'
+            old_json.write_text(json.dumps(to_legacy(exported, exported_files)))
+            second.locator('#import').set_input_files(str(old_json))
+            expect(second.locator('#action-message')).to_contain_text('Risposte importate')
+            expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.locator('#send').click()
             expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
             assert second.evaluate('summary()').startswith('Feedback AIV '+data['version'])
@@ -752,7 +795,8 @@ def check(path):
             page.set_viewport_size({'width': 1100, 'height': 900})
             page.screenshot(path='/tmp/aiv-feedback-light.png', full_page=False)
             # A previous release's saved draft must survive the cumulative document update.
-            legacy = json.loads(export.read_text())
+            # A draft saved in the browser before 2026-10-03 holds its files as base64 text.
+            legacy = to_legacy(exported, exported_files)
             legacy['version'] = legacy['installed'] = '3.14'
             legacy.pop('extra', None)
             # Earlier drafts contain images only and have no optional extra attachments.
@@ -811,9 +855,14 @@ def check(path):
                     request.onerror = () => reject(request.error);
                 });
                 db.close();
-                return draft.decisions;
+                // The base64 of the old draft is now stored as real files, with their bytes.
+                const files = Object.values(draft.entries).flatMap((value) => value.images);
+                const sizes = await Promise.all(files.map((file) =>
+                    file.blob instanceof Blob && !('data' in file) ? file.blob.size : -1));
+                return {decisions: draft.decisions, sizes, expected: files.map((file) => file.size)};
             }""")
-            assert kept_decisions == legacy['decisions'], 'Decisioni della bozza precedente perse.'
+            assert kept_decisions['decisions'] == legacy['decisions'], 'Decisioni della bozza precedente perse.'
+            assert kept_decisions['sizes'] and kept_decisions['sizes'] == kept_decisions['expected'], 'Allegati salvati come testo: ' + str(kept_decisions)
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
             expect(migration.locator('#giro-version')).to_have_text(data['version'])
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
