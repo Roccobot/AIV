@@ -34,6 +34,10 @@
   --accent: light-dark(#0b6b5b, #43b59e);
   --accent-focus: light-dark(#13896f, #4fd9be);
   --accent-on: light-dark(#fff, #0b1f18);
+  /* The pill's fill over the frosted glass. Dark: 25% is enough (the user's choice). Light:
+     white glyphs need 65% to reach 3:1 over the page, so 70% (3.4:1, the user's choice). */
+  --pill-fill: light-dark(color-mix(in srgb, var(--accent) 70%, transparent),
+    color-mix(in srgb, var(--accent) 25%, transparent));
   --link: light-dark(#0b6b5b, #4fd9be);
   --warn: light-dark(#745713, #e4b348);
   --bad: light-dark(#a23737, #ff9999);
@@ -439,9 +443,8 @@ textarea {
   gap: 0;
   padding: 4px;
   border-radius: 28px;
-  /* The fill at 25% (the user's choice: with the frosted glass a little colour is enough);
-     the glyphs stay solid. */
-  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  /* The fill depends on the theme (--pill-fill); the glyphs stay solid. */
+  background: var(--pill-fill);
   /* Frosted glass under the fill (the user's request), light enough to let the page show a
      little. Where the browser lacks it, the fill alone stays. */
   -webkit-backdrop-filter: blur(8px) saturate(160%);
@@ -1020,11 +1023,11 @@ main > .feedback-columns {
     max-height: 20px;
     padding: 0 8px;
   }
-  /* Connected only: 2 CSS px left on the mark. Right inset 4.5px (the user's optical
-     centring): Esci sits 4px from the border above and below, 4.5px on the right. */
+  /* Connected only: the mark 5px from the outline all round, Esci 4px all round (the
+     user's optical centring, as on desktop). */
   .cloud-account.is-connected {
     padding-left: 5px;
-    padding-right: 4.5px;
+    padding-right: 4px;
   }
   /* Connected, only the GitHub mark and Esci. */
   .cloud-account.is-connected .cloud-account-user {

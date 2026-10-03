@@ -186,9 +186,14 @@ def check(path):
                 # A button that cannot act is not shown: at the first card there is no 'previous'.
                 expect(navigation.locator('#previous-card')).to_be_hidden()
                 assert pill.evaluate('(el)=>getComputedStyle(el).borderRadius') == '28px'
-                # The fill is 25% opaque, the glyphs are not faded with it.
-                fill = pill.evaluate('(el)=>getComputedStyle(el).backgroundColor')
-                assert re.search(r'(?:/|,)\s*0?\.25\)$', fill), fill
+                # The fill is 70% opaque in the light theme, where white glyphs need it, and 25%
+                # in the dark one; the glyphs are not faded with it.
+                previous_theme = navigation.evaluate("document.documentElement.getAttribute('data-theme')")
+                for theme, alpha in [('light', r'0?\.7'), ('dark', r'0?\.25')]:
+                    navigation.evaluate(f"document.documentElement.dataset.theme = '{theme}'")
+                    fill = pill.evaluate('(el)=>getComputedStyle(el).backgroundColor')
+                    assert re.search(r'(?:/|,)\s*' + alpha + r'\)$', fill), (theme, fill)
+                navigation.evaluate("(theme)=>theme ? document.documentElement.setAttribute('data-theme', theme) : document.documentElement.removeAttribute('data-theme')", previous_theme)
                 assert navigation.locator('#floating-save').evaluate('(el)=>getComputedStyle(el).opacity') == '1'
                 # Under the fill the page is blurred, like frosted glass (the user's request).
                 frost = pill.evaluate('(el)=>getComputedStyle(el).backdropFilter')
