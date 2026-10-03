@@ -306,7 +306,7 @@
       }
     } else {
       // Proof cards: label.attachment follows this field (or sits on the card).
-      // Not #altro-attach, and not decision or label cards (they have no such label).
+      // Not #altro-attach, and not label cards (they have no such label).
       const sibling = wrapper.nextElementSibling;
       const card = wrapper.closest("article.test");
       const onCard = card ? card.querySelector(":scope > label.attachment") : null;

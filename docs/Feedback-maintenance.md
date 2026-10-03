@@ -23,7 +23,7 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | File | Responsabilità |
 |---|---|
 | [Feedback.md](Feedback.md) | Prove, identificatori, passi e risultati attesi |
-| [feedback-build.py](../tools/feedback-build.py) | Generatore, struttura della pagina, decisioni e dati incorporati |
+| [feedback-build.py](../tools/feedback-build.py) | Generatore, struttura della pagina e dati incorporati |
 | [feedback.html](../publish/feedback.html) | Documento generato da pubblicare, mai unica fonte di una modifica |
 | [feedback.js](../publish/feedback.js) | Risposte, validazione JSON, importazione/esportazione, riepilogo, navigazione |
 | [feedback-format.js](../publish/feedback-format.js) | Editor visivo, Markdown, icone e scorciatoie |
@@ -68,11 +68,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
   atteso. Mantieni le prove aperte fra release; archivia soltanto quelle concluse dal
   giro consegnato. Non sostituire riscontri manuali con prove automatiche.
-- Conserva gli identificatori esistenti, come `3.13-01`, e le chiavi delle decisioni.
+- Conserva gli identificatori esistenti, come `3.13-01`.
   Per una prova nuova usa un identificatore nuovo: rinominare o riutilizzare una chiave
   può associare una risposta a una prova diversa.
 - Ogni verifica mostra `Verifica X/Y`, con X in grassetto; il totale deriva dalle prove.
-  Le decisioni sono separate e non entrano nel conteggio degli esiti.
 - Esiti: `Tutto OK`, `Accettabile`, `Non approvato`; nessuna scelta significa `Non provato`.
   Un secondo clic toglie l'esito. Verde, ambra e rosso seguono la scelta; commenti o allegati
   senza esito hanno evidenza neutra. Una risposta presente non equivale ad approvazione.
@@ -133,7 +132,7 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `device` | Specifiche del telefono; chiave storica conservata |
 | `tablet` | Specifiche del tablet; assente nei vecchi JSON, ripristinata come testo vuoto |
 | `entries` | Risposte per ID: `status`, `comment`, `images` |
-| `decisions` | Decisioni per ID: `choice`, `comment` |
+| `decisions` | Decisioni per ID: `choice`, `comment`. Dal 2026-10-03 la pagina non ne pone più (le domande si fanno in chat), ma la chiave resta: il Worker la richiede, e una bozza vecchia la conserva intatta |
 | `labels` | Etichette testuali per ID: `revision` (campo libero; assente nei JSON vecchi → `{}`) |
 | `notes`, `extra.images` | Osservazioni libere e relativi allegati |
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
