@@ -41,18 +41,14 @@ La pressione lunga sul nome di una cartella offre gli stessi comandi del telefon
 
 ## Etichette testuali
 
-### e-settings-page-controls · Sotto-pagina pulsanti
-Pulsanti e indicatori
+Nessuna etichetta aperta in questo giro. Queste quattro sono già nel prodotto e **non** vanno rilistate:
 
-### e-settings-group-files · Sezione file
-Gestione dei file
+- `e-settings-page-controls`: Sotto-pagina pulsanti: Pulsanti e indicatori. Riordino Impostazioni 3.41-02 Tutto OK.
+- `e-settings-group-files`: Sezione file: Gestione dei file. Riordino Impostazioni 3.41-02 Tutto OK.
+- `e-settings-group-advanced`: Sezione avanzate: Avanzate. Riordino Impostazioni 3.41-02 Tutto OK.
+- `e-folders-rail-move`: Maniglia elenco cartelle, solo lettore di schermo (contentDescription): Sposta la lista delle cartelle. Già nel prodotto.
 
-### e-settings-group-advanced · Sezione avanzate
-Avanzate
-
-### e-folders-rail-move · Maniglia elenco cartelle
-<!-- non visibile: contentDescription, solo lettore di schermo -->
-Sposta la lista delle cartelle
+Non sono prove. Non rimetterle tra le etichette aperte del DF.
 
 ## Decisioni da concordare
 

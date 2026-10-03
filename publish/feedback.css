@@ -976,10 +976,17 @@ main > .feedback-columns {
   flex-direction: column;
   gap: 8px;
 }
+/* Page-bottom Altro only: drop the heading's default bottom margin and the
+   label's top margin so the field sits on the section gap, not a double gap.
+   The overlay heading has its own rule and is not this card. */
+#extra-section > h2 {
+  margin-bottom: 0;
+}
 #extra-section .altro-notes-label {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: 0;
 }
 .altro-tools {
   display: flex;
@@ -987,25 +994,29 @@ main > .feedback-columns {
   gap: 8px;
   flex-wrap: wrap;
 }
-/* Compact dashed + (card drop zone, button-sized). Sits left of the format toolbar. */
+/* Dashed + fills the row left of the format tools (page Altro and overlay). */
 .altro-format-cluster {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-left: auto;
+  flex: 1 1 auto;
+  width: 100%;
+  margin-left: 0;
   max-width: 100%;
   min-width: 0;
 }
 .altro-format-cluster > .format-toolbar {
+  flex: 0 0 auto;
+  width: max-content;
   margin-left: 0;
   min-width: 0;
 }
 .altro-attach {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 44px;
-  width: 44px;
+  flex: 1 1 auto;
+  width: auto;
   height: 44px;
   min-width: 44px;
   min-height: 44px;
