@@ -141,8 +141,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
-- Collegamenti esterni in nuova scheda con `noopener noreferrer`. Tutte le pagine AIV
-  usano la stessa favicon `assets/feedback-favicon.svg`, colore `#43B59E`, e alternativa PNG.
+- Collegamenti esterni in nuova scheda con `noopener noreferrer`. Il DF e le sue pagine di
+  supporto usano la favicon `assets/feedback-favicon.svg` (il blocco note col glifo), colore
+  `#43B59E`, e alternativa PNG. ⚠️ La paginetta di download `index.html` **non** la usa: ha il
+  glifo nudo dell'app, e non cambia (segnalazione dell'utente, 2026-10-03).
 - `Azzera tutto` richiede conferma e riguarda la bozza su tutti i dispositivi.
   Un comando disabilitato non indica un caricamento: cursore normale e aspetto coerente,
   anche per il selettore di `Importa`.

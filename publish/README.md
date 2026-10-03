@@ -13,8 +13,11 @@ favicon restano, perché le usano anche le altre pagine.
 | [settings.html](settings.html) | Proposta di riordino delle impostazioni | [docs/Settings-proposal.md](../docs/Settings-proposal.md), generatore `tools/settings-build.py` |
 
 Gli asset condivisi vivono in `assets/`: favicon SVG e PNG, Roboto e relativa licenza.
-La favicon comune è `assets/feedback-favicon.svg`, in `#43B59E`; il nome conserva il link
-consegnato all'utente. Il PNG trasparente è l'alternativa per i browser meno recenti.
+La favicon del documento di feedback e delle sue pagine di supporto (`tablet.html`,
+`settings.html`) è `assets/feedback-favicon.svg`, il blocco note col glifo in `#43B59E`; il
+PNG trasparente è l'alternativa per i browser meno recenti. ⚠️ `index.html`, la paginetta di
+download, **non** la usa: ha il glifo nudo dell'app incorporato nella pagina, e la prova
+`PaginettaTest` lo controlla.
 CSS e JavaScript portano il nome della pagina a cui appartengono. `feedback-format.js`
 gestisce gli editor visivi dei commenti, selezione e scorciatoie. I campi mostrano la
 formattazione direttamente, mentre salvataggi ed esportazioni conservano Markdown.
