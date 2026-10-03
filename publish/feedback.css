@@ -710,6 +710,14 @@ body[data-feedback] footer {
   padding-bottom: calc(260px + env(safe-area-inset-bottom));
 }
 
+/* Row under the field: reset (etichette) on the left, format tools bottom-right. */
+.format-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 8px 0 0;
+}
 .format-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -717,8 +725,9 @@ body[data-feedback] footer {
   width: max-content;
   max-width: 100%;
   /* Outside the field, anchored to the bottom-right of the field block. */
-  margin: 8px 0 0 auto;
+  margin: 0 0 0 auto;
 }
+.format-actions > .label-reset,
 .format-toolbar button {
   display: inline-flex;
   align-items: center;
@@ -728,22 +737,23 @@ body[data-feedback] footer {
   min-height: 44px;
   padding: 10px;
 }
-.format-toolbar svg {
+.format-toolbar svg,
+.format-actions > .label-reset svg {
   width: 24px;
   height: 24px;
   fill: currentColor;
 }
-.format-toolbar .label-reset svg {
+.format-actions > .label-reset svg {
   fill: none;
 }
 /* Pressed state must beat the in-frame surface fill, or the icon stays
    accent-on (near-black in dark, white in light) on the field background. */
-.formatted-field > .format-toolbar button[aria-pressed="true"] {
+.formatted-field > .format-actions .format-toolbar button[aria-pressed="true"] {
   background: var(--accent);
   color: var(--accent-on);
   border-color: var(--accent);
 }
-.formatted-field > .format-toolbar button[aria-pressed="true"] svg {
+.formatted-field > .format-actions .format-toolbar button[aria-pressed="true"] svg {
   fill: currentColor;
 }
 textarea[hidden] {

@@ -248,6 +248,7 @@
     wrapper.append(label);
     area.id ||= "formatted-comment-" + index;
     label.id = area.id + "-label";
+    const actions = node("div", undefined, "format-actions");
     const toolbar = node("div", undefined, "format-toolbar");
     toolbar.setAttribute("role", "group");
     toolbar.setAttribute("aria-label", "Formattazione del testo");
@@ -256,7 +257,9 @@
     box.contentEditable = String(!area.disabled);
     box.setAttribute("role", "textbox");
     box.setAttribute("aria-multiline", "true");
-    box.setAttribute("aria-labelledby", label.id);
+    const named = area.getAttribute("aria-label");
+    if (named) box.setAttribute("aria-label", named);
+    else box.setAttribute("aria-labelledby", label.id);
     box.setAttribute("aria-disabled", String(area.disabled));
     box.dataset.placeholder = area.placeholder;
     box.spellcheck = true;
@@ -273,9 +276,10 @@
       reset.append(resetIcon());
       reset.addEventListener("pointerdown", event => event.preventDefault());
       reset.addEventListener("click", () => window.feedbackRestoreLabel?.(area));
-      toolbar.append(reset);
+      actions.append(reset);
     }
-    wrapper.append(area, box, toolbar);
+    actions.append(toolbar);
+    wrapper.append(area, box, actions);
     const editor = {area, box, range: null, lastMarkdown: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {
