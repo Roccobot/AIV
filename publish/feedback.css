@@ -134,6 +134,12 @@ h1 {
   background: transparent;
   border-radius: 0;
 }
+/* Connected: each end sits as far from the outline on its side as above and below
+   (the user's optical centring): the mark 7px all round, Esci 6px. */
+.cloud-account.is-connected {
+  padding-left: 7px;
+  padding-right: 6px;
+}
 .cloud-account-logo {
   display: block;
   width: 20px;
