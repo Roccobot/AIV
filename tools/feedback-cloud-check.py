@@ -67,7 +67,11 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
 
     def comment_editor(target):
         # First test-card comment (historical `.rich-editor`.first before Altro mirrors).
-        return target.locator('.test').first.locator('.rich-editor')
+        # An empty proof list is valid: the same sync runs on the Altro editor.
+        cards = target.locator('.test')
+        if cards.count():
+            return cards.first.locator('.rich-editor')
+        return altro_editor(target)
     def altro_editor(target):
         # Visible Altro free-text (desktop rail, bottom card, or open mobile menu).
         return target.locator('#notes-editor, #notes-mobile-editor').locator('visible=true').first
@@ -93,6 +97,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
     first.locator('#device').fill('Telefono di prova, Android 13')
     first.locator('#tablet').fill('Tablet di prova, Android 15', timeout=2000)
+    using_proof = first.locator('.test').count() > 0
     comment_editor(first).fill('Da telefono')
     save(first)
     assert first.evaluate('window.feedbackRemote.hasUpdates()') is False
@@ -128,20 +133,32 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     with zipfile.ZipFile(archive,'w') as container:
         container.writestr('nome originale.txt','File originale')
     svg=b'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="#43B59E"/></svg>'
-    second.locator('.test').first.locator('.images').set_input_files([{'name':'disegno originale.svg','mimeType':'image/svg+xml','buffer':svg},{'name':'fonti originali.zip','mimeType':'application/zip','buffer':archive.getvalue()}])
+    attach_host = second.locator('.test').first if using_proof else second.locator('#extra-section')
+    attach_host.locator('.images').set_input_files([{'name':'disegno originale.svg','mimeType':'image/svg+xml','buffer':svg},{'name':'fonti originali.zip','mimeType':'application/zip','buffer':archive.getvalue()}])
     save(second)
     assert len(put_files)==2, put_files
     altro_editor(second).fill('**Testo letterale**')
     save(second)
     assert len(put_files)==2, put_files
     wire=second.evaluate('fetch("/api/feedback").then(response=>response.json())')
-    first_id=second.evaluate('() => document.querySelector(".test").dataset.id')
-    assert all('data' not in file and len(file['storageKey'])==64 for file in wire['entries'][first_id]['images'])
+    if using_proof:
+        first_id=second.evaluate('() => document.querySelector(".test").dataset.id')
+        stored=wire['entries'][first_id]['images']
+    else:
+        first_id=None
+        stored=wire['extra']['images']
+        assert wire['notes']=='**Testo letterale**'
+    assert all('data' not in file and len(file['storageKey'])==64 for file in stored)
     third_context=context()
     third=page(third_context)
-    expect(comment_editor(third)).to_have_text('Ultima versione sul tablet')
-    expect(third.locator('.test').first.locator('img')).to_have_count(1)
-    expect(third.locator('.test').first.locator('.zip-download')).to_have_count(1)
+    if using_proof:
+        expect(comment_editor(third)).to_have_text('Ultima versione sul tablet')
+        expect(third.locator('.test').first.locator('img')).to_have_count(1)
+        expect(third.locator('.test').first.locator('.zip-download')).to_have_count(1)
+    else:
+        expect(altro_editor(third)).to_have_text('**Testo letterale**')
+        expect(third.locator('#extra-section img')).to_have_count(1)
+        expect(third.locator('#extra-section .zip-download')).to_have_count(1)
     open_delivery(third)
     with third.expect_download() as pending:
         third.locator('#export').click()
@@ -150,7 +167,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     exported=json.loads(output.read_text())
     assert exported['device']=='Telefono di prova, Android 13'
     assert exported['tablet']=='Tablet di prova, Android 15'
-    attached=exported['entries'][first_id]['images']
+    attached=exported['entries'][first_id]['images'] if using_proof else exported['extra']['images']
     assert [file['name'] for file in attached]==['disegno originale.svg','fonti originali.zip']
     assert base64.b64decode(attached[0]['data'].split(',')[1])==svg
     assert base64.b64decode(attached[1]['data'].split(',')[1])==archive.getvalue()
@@ -179,7 +196,9 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(anonymous.locator('.cloud-account-user')).to_be_hidden()
     expect(anonymous.locator('#save')).to_be_disabled()
     expect(anonymous.locator('#saved')).to_contain_text('Accedi con GitHub')
-    assert anonymous.locator('button[data-status]').first.evaluate('element => getComputedStyle(element).cursor') == 'default'
+    outcomes = anonymous.locator('button[data-status]')
+    if outcomes.count():
+        assert outcomes.first.evaluate('element => getComputedStyle(element).cursor') == 'default'
     assert anonymous.locator('.file-button').evaluate('element => getComputedStyle(element).opacity') == '0.55'
     assert anonymous.locator('.file-button').evaluate('element => getComputedStyle(element).cursor') == 'default'
     assert anonymous.evaluate('indexedDB.databases().then(values=>values.length)')==0
