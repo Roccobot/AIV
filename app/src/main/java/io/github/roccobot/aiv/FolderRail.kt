@@ -318,8 +318,15 @@ fun FolderRail(
                                     },
                                     modifier = Modifier.size(22.dp)
                                 )
+                                /*
+                                 * ⚠️ **Il nome va a capo sulle giunture camelCase, dalla
+                                 * `3.54`** (sua richiesta): [camelBreak] è lo stesso criterio
+                                 * delle destinazioni e delle cartelle nascoste. Due righe al
+                                 * massimo, poi l'ellissi in fondo; senza giunture il nome
+                                 * lungo si spezzava dove capitava.
+                                 */
                                 Text(
-                                    text = bucket.name,
+                                    text = camelBreak(bucket.name),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = if (chosen) {
                                         MaterialTheme.colorScheme.onPrimaryContainer
