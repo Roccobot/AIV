@@ -122,6 +122,14 @@
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
     <string name="settings_hand">الموضع المفضل للأزرار</string>
     <string name="settings_hand_desc">الجهة المفضلة للأزرار الرئيسية عند الاستخدام بيد واحدة، لمن يستخدم اليمنى أو اليسرى. تحدد موضع زر الإجراء العائم (\'FAB\') وبعض أزرار التنقل وأجزاء من واجهة المحرر.</string>
+    <string name="settings_phone_pill">حبة بدلاً من FAB في الوضع العمودي</string>
+    <string name="settings_phone_pill_desc">صف من الأيقونات المتجاورة في إطار مستدير بدلاً من القائمة ذات الأوامر الكاملة. اضغط مطولاً على أيقونة لعرض التلميح التوضيحي.</string>
+    <string name="pill_off">متوقفة</string>
+    <string name="pill_slide">منزلقة</string>
+    <string name="pill_extended">ممتدة</string>
+    <string name="pill_solid">لون خالص</string>
+    <string name="pill_translucent">شبه شفافة</string>
+    <string name="pill_glass">زجاج مصنفر</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>

@@ -145,7 +145,8 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels")
     area(
         BackupArea.BUTTONS, PrefType.STRING,
-        "hand", "menu-order", "pick-order", "turn-order", "step-order", "mod-order", "last-mark"
+        "hand", "menu-order", "pick-order", "turn-order", "step-order", "mod-order", "last-mark",
+        "phone-pill", "pill-fill"
     )
     area(
         BackupArea.EDITOR, PrefType.BOOLEAN,

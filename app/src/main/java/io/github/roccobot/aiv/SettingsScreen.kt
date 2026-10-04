@@ -926,7 +926,11 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_controls),
-            summary = listOf(
+            // ⚠️ La voce della pillola c'è solo sul telefono, e il riepilogo dice quello che la
+            // pagina contiene davvero.
+            summary = listOfNotNull(
+                stringResource(R.string.settings_phone_pill)
+                    .takeIf { pillOffered(LocalConfiguration.current.smallestScreenWidthDp) },
                 stringResource(R.string.settings_hand),
                 stringResource(R.string.settings_labels),
                 stringResource(R.string.settings_buttons)
@@ -1680,6 +1684,17 @@ private fun ControlsPage(
     // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
     // risorse invece di `stringResource`, che è componibile.
     val res = LocalResources.current
+
+    /*
+     * ⚠️⚠️ **IN CIMA DALLA `4.00`, ED È IL POSTO CHE HA DETTO LUI** (*Aspetto → Pulsanti e
+     * indicatori: aggiungi in cima `Pillola al posto del FAB in verticale` (deve apparire solo su
+     * smartphone)*). Titolo e paragrafo sono suoi, alla lettera. Sul tablet la voce non c'è,
+     * perché il tablet in verticale ha già la sua pillola: lo decide [pillOffered], lo stesso
+     * conto che [pillMode] fa per l'app.
+     */
+    if (pillOffered(LocalConfiguration.current.smallestScreenWidthDp)) {
+        PillChoices(settings = settings, onChange = onChange)
+    }
 
     Choices(
         label = stringResource(R.string.settings_hand),
@@ -3274,6 +3289,70 @@ internal fun <T : Choice> Choices(
                 onClick = { onSelect(option) },
                 label = { Text(names[at]) },
                 modifier = Modifier.picked(option == selected)
+            )
+        }
+    }
+}
+
+/**
+ * La voce della pillola della `4.00`: un titolo, il suo paragrafo e **due** file di gettoni.
+ *
+ * ⚠️ **Una voce sola con due file, e non due voci**: è la forma che ha chiesto lui (*l'opzione
+ * prevede due file di gettoni*), e il paragrafo spiega tutte e due. La prima dice che cosa prende
+ * il posto del FAB, la seconda di che cosa è fatta la pillola.
+ * ⚠️ **'Vetro satinato' non compare sotto Android 12** (sua risposta, 2026-10-05): il vetro vuole
+ * un `RenderEffect`, e un gettone che non fa niente è peggio di un gettone che non c'è.
+ * ⚠️ **La ricerca guarda anche i nomi dei gettoni**, come in [Choices]: 'Vetro satinato' è il nome
+ * con cui la si cerca.
+ */
+@Composable
+private fun PillChoices(settings: Settings, onChange: (Settings) -> Unit) {
+    val label = stringResource(R.string.settings_phone_pill)
+    val detail = stringResource(R.string.settings_phone_pill_desc)
+    val modes = PhonePill.entries
+    val fills = PillFill.entries.filter { it != PillFill.GLASS || glassAvailable() }
+    val modeNames = modes.map {
+        stringResource(
+            when (it) {
+                PhonePill.OFF -> R.string.pill_off
+                PhonePill.SLIDE -> R.string.pill_slide
+                PhonePill.EXTENDED -> R.string.pill_extended
+            }
+        )
+    }
+    val fillNames = fills.map {
+        stringResource(
+            when (it) {
+                PillFill.SOLID -> R.string.pill_solid
+                PillFill.TRANSLUCENT -> R.string.pill_translucent
+                PillFill.GLASS -> R.string.pill_glass
+            }
+        )
+    }
+    if (!shown(label, detail, *(modeNames + fillNames).toTypedArray())) return
+    Text(
+        text = label,
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 12.dp)
+    )
+    Detail(detail)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+        modes.forEachIndexed { at, mode ->
+            FilterChip(
+                selected = mode == settings.phonePill,
+                onClick = { onChange(settings.copy(phonePill = mode)) },
+                label = { Text(modeNames[at]) },
+                modifier = Modifier.picked(mode == settings.phonePill)
+            )
+        }
+    }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+        fills.forEachIndexed { at, fill ->
+            FilterChip(
+                selected = fill == settings.pillFill,
+                onClick = { onChange(settings.copy(pillFill = fill)) },
+                label = { Text(fillNames[at]) },
+                modifier = Modifier.picked(fill == settings.pillFill)
             )
         }
     }

@@ -122,6 +122,14 @@
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
     <string name="settings_hand">موقعیت ترجیحی دکمه‌ها</string>
     <string name="settings_hand_desc">سمت ترجیحی برای دکمه‌های اصلی در استفادهٔ یک‌دستی، برای راست‌دست‌ها و چپ‌دست‌ها. جای دکمهٔ کنش شناور (\'FAB\')، برخی دکمه‌های پیمایش و بخش‌هایی از رابط ویرایشگر را تعیین می‌کند.</string>
+    <string name="settings_phone_pill">قرص به‌جای FAB در حالت عمودی</string>
+    <string name="settings_phone_pill_desc">ردیفی از نمادهای کنار هم در کادری گرد به‌جای منو با فرمان‌های کامل. برای دیدن راهنمای توضیحی، روی نماد انگشت را نگه دارید.</string>
+    <string name="pill_off">خاموش</string>
+    <string name="pill_slide">کشویی</string>
+    <string name="pill_extended">گسترده</string>
+    <string name="pill_solid">رنگ یکدست</string>
+    <string name="pill_translucent">نیمه‌شفاف</string>
+    <string name="pill_glass">شیشهٔ مات</string>
     <string name="settings_right">راست</string>
     <string name="settings_left">چپ</string>
     <string name="settings_list_path">فهرست پرونده‌ها: نشانی پوشه هم رونوشت شود</string>

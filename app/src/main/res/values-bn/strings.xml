@@ -122,6 +122,14 @@
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
     <string name="settings_hand">বোতামের পছন্দের অবস্থান</string>
     <string name="settings_hand_desc">এক হাতে ব্যবহারের সময় প্রধান বোতামগুলির পছন্দের দিক, ডানহাতি ও বাঁহাতিদের জন্য। এটি ভাসমান অ্যাকশন বোতাম (\'FAB\'), কিছু নেভিগেশন বোতাম এবং সম্পাদকের UI-এর অংশগুলির অবস্থান ঠিক করে।</string>
+    <string name="settings_phone_pill">উল্লম্বে FAB-এর বদলে পিল</string>
+    <string name="settings_phone_pill_desc">পূর্ণ কমান্ডের মেনুর বদলে একটি গোলাকার বাক্সে পাশাপাশি আইকনের সারি। ব্যাখ্যামূলক টুলটিপ দেখতে কোনো আইকনে দীর্ঘক্ষণ চাপুন।</string>
+    <string name="pill_off">বন্ধ</string>
+    <string name="pill_slide">স্লাইডিং</string>
+    <string name="pill_extended">প্রসারিত</string>
+    <string name="pill_solid">একরঙা</string>
+    <string name="pill_translucent">আধা-স্বচ্ছ</string>
+    <string name="pill_glass">ঘষা কাচ</string>
     <string name="settings_right">ডানে</string>
     <string name="settings_left">বামে</string>
     <string name="settings_list_path">ফাইল তালিকা: ফোল্ডারের পথও কপি করুন</string>

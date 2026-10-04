@@ -122,6 +122,14 @@
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
     <string name="settings_hand">بٹنوں کی ترجیحی جگہ</string>
     <string name="settings_hand_desc">ایک ہاتھ سے استعمال کرتے وقت بنیادی بٹنوں کے لیے ترجیحی سمت، دائیں اور بائیں ہاتھ والوں کے لیے۔ یہ فلوٹنگ ایکشن بٹن (\'FAB\')، بعض نیویگیشن بٹنوں اور ایڈیٹر کے UI کے حصوں کی جگہ طے کرتی ہے۔</string>
+    <string name="settings_phone_pill">عمودی حالت میں FAB کی جگہ گولی</string>
+    <string name="settings_phone_pill_desc">مکمل کمانڈز والے مینو کی جگہ ایک گول خانے میں ساتھ ساتھ آئیکنز کی قطار۔ وضاحتی ٹول ٹپ دیکھنے کے لیے کسی آئیکن کو دیر تک دبائیں۔</string>
+    <string name="pill_off">بند</string>
+    <string name="pill_slide">سلائیڈنگ</string>
+    <string name="pill_extended">پھیلی ہوئی</string>
+    <string name="pill_solid">ٹھوس رنگ</string>
+    <string name="pill_translucent">نیم شفاف</string>
+    <string name="pill_glass">دھندلا شیشہ</string>
     <string name="settings_right">دائیں</string>
     <string name="settings_left">بائیں</string>
     <string name="settings_list_path">فائل فہرست: فولڈر کا راستہ بھی نقل کریں</string>

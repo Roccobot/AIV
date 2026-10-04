@@ -525,9 +525,16 @@ fun FolderScreen(
                 }
             }
         )
+        /*
+         * ⚠️ **Quello che la pillola di vetro sfoca, dalla `4.00`**: la colonna intera, che è sorella
+         * della pillola e non sua madre (il perché su [Backdrop]). Fuori dal vetro non registra
+         * niente.
+         */
+        val backdrop = rememberBackdrop()
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .backdropSource(backdrop)
                 /*
                  * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una
                  * catena di modificatori il `nestedScroll` scritto **per primo** riceve per primo
@@ -710,6 +717,7 @@ fun FolderScreen(
                 onPeek = onPeek,
                 onPeekList = { listing = true },
                 onSize = { sizing = true },
+                backdrop = backdrop,
                 /*
                  * ⚠️ **Le due condizioni sono quelle scritte nel menu**: la vista ad albero, e
                  * una cartella in cui si sia già scesi. Alla radice `treePath` è nullo, e là
@@ -748,8 +756,15 @@ fun FolderScreen(
          * fa da sempre. Quello che va insegnato è il tocco **lungo**, ed è quello che la
          * copia fa.
          */
+        /*
+         * ⚠️ **Con la pillola estesa della `4.00` il velo non compare**: il FAB non c'è, e con lui
+         * il tocco lungo che il velo insegna (risposta B1: nella pillola nessuna funzione
+         * secondaria). Con la pillola a scorrimento il tasto tondo il tocco lungo lo tiene, e la
+         * copia illuminata è tonda.
+         */
+        val pill = LocalPillLook.current.mode
         val hint = home && granted && view == FolderView.GRID &&
-            !folders.isNullOrEmpty() && !columnsSeen && !columnsOff
+            !folders.isNullOrEmpty() && !columnsSeen && !columnsOff && pill != PhonePill.EXTENDED
 
         /** Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta. */
         val hintDone: () -> Unit = {
@@ -773,6 +788,7 @@ fun FolderScreen(
                     holdLabel = stringResource(R.string.columns_title),
                     onTap = hintDone,
                     onHold = { hintDone(); sizing = true },
+                    round = pill == PhonePill.SLIDE,
                     // ⚠️ Lo stesso glifo del FAB vero, e non uno che gli somiglia: questo è
                     // il suo ritratto sull'onboarding, e deve essere la stessa cosa.
                     glyph = { Marchio(it) }
@@ -1084,6 +1100,8 @@ private fun Hub(
      * qui non si sa in che vista si è né dove si è arrivati navigando.
      */
     onNewFolder: (() -> Unit)? = null,
+    /** Quello che la pillola di vetro sfoca, o `null` fuori dal vetro. Vedi [Backdrop]. */
+    backdrop: Backdrop? = null,
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
@@ -1110,7 +1128,25 @@ private fun Hub(
         onSettings = onSettings
     )
 
-    Box(modifier = modifier) {
+    /*
+     * ⚠️⚠️ **DALLA `4.00` AL POSTO DEL FAB PUÒ ESSERCI LA PILLOLA** (sua richiesta del 2026-10-05):
+     * le stesse voci del menu, nello stesso ordine, scritte una volta da [hubEntries]. Col tasto
+     * tondo restano il salto e il tocco lungo delle colonne (risposta C1); con la pillola estesa
+     * il salto diventa i due tasti in fondo, e il tocco lungo non c'è (risposte C2 e B1).
+     */
+    if (LocalPillLook.current.mode != PhonePill.OFF) {
+        PhonePillBar(
+            entries = voci,
+            arm = arm,
+            nested = nested,
+            fabLabel = jumpLabel(arm, stringResource(R.string.hub_open)),
+            holdLabel = stringResource(R.string.columns_title),
+            onHold = onSize,
+            backdrop = backdrop,
+            modifier = modifier,
+            fabGlyph = { JumpGlyph(arm) { Marchio(it) } }
+        )
+    } else Box(modifier = modifier) {
         /*
          * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la funzione** (1.39):
          * il FAB si stacca in una finestra sua per restare sopra il velo (vedi `lifted` in

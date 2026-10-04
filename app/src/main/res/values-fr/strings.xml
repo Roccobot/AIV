@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
     <string name="settings_hand">Position préférée des boutons</string>
     <string name="settings_hand_desc">Le côté préféré pour les boutons principaux lors d\'une utilisation à une main, pour droitiers et gauchers. Il définit la place du bouton d\'action flottant (\'FAB\'), de certains boutons de navigation et de parties de l\'interface de l\'éditeur.</string>
+    <string name="settings_phone_pill">Pilule à la place du FAB en portrait</string>
+    <string name="settings_phone_pill_desc">Une série d\'icônes côte à côte dans un cadre arrondi à la place du menu avec les commandes complètes. Appuyez longuement sur une icône pour afficher son info-bulle.</string>
+    <string name="pill_off">Désactivée</string>
+    <string name="pill_slide">Coulissante</string>
+    <string name="pill_extended">Étendue</string>
+    <string name="pill_solid">Couleur unie</string>
+    <string name="pill_translucent">Semi-transparente</string>
+    <string name="pill_glass">Verre dépoli</string>
     <string name="settings_right">Droite</string>
     <string name="settings_left">Gauche</string>
     <string name="settings_list_path">Liste de fichiers : copier le chemin du dossier parent</string>

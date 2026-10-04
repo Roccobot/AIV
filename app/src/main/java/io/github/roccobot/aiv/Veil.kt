@@ -105,9 +105,10 @@ fun WindowVeil(
     val view = LocalView.current
     val on = LocalAivDepth.current == PanelDepth.BLUR
     val dark = !LocalAivLight.current
-    val radius = with(LocalDensity.current) { BLUR.roundToPx() }
+    val glass = LocalPillLook.current.fill == PillFill.GLASS
+    val radius = with(LocalDensity.current) { blurOf(glass).roundToPx() }
     val misura by rememberUpdatedState(quanto)
-    val velo = remember(view, on, bare, dark, radius) { veilFor(view, on, bare, dark, radius) }
+    val velo = remember(view, on, bare, dark, radius, glass) { veilFor(view, on, bare, dark, radius, glass) }
     /*
      * ⚠️⚠️ **IL VELO SI DOSA A OGNI FOTOGRAMMA, dalla 1.50, e prima cadeva in un colpo**
      * (riscontro dell'utente, 2026-09-04: *la sfocatura non dovrebbe sparire all'inizio della
@@ -159,15 +160,17 @@ fun AppPatina(quanto: () -> Float) {
     val view = LocalView.current
     val on = LocalAivDepth.current == PanelDepth.BLUR
     val dark = !LocalAivLight.current
+    val glass = LocalPillLook.current.fill == PillFill.GLASS
     val misura by rememberUpdatedState(quanto)
     val chiave = remember { Any() }
-    val dim = if (on) dimFor(view, dark) else 0f
-    LaunchedEffect(chiave, dim) {
+    val dim = if (on) dimFor(view, dark, glass) else 0f
+    val colore = veilInk(view, dark, glass)
+    LaunchedEffect(chiave, dim, colore) {
         // ⚠️ **A funzione spenta si toglie invece di non mettere**: l'interruttore può spegnersi
         // mentre questo è in scena, e senza questa riga la richiesta di prima resterebbe nella
         // mappa, cioè uno schermo velato con la funzione disattivata.
         if (dim <= 0f) return@LaunchedEffect VeilStage.off(chiave)
-        snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { VeilStage.at(chiave, dim * it) }
+        snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { VeilStage.at(chiave, dim * it, dim, colore) }
     }
     DisposableEffect(chiave) { onDispose { VeilStage.off(chiave) } }
 }
@@ -235,13 +238,15 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
         if (currentValueOf(LocalAivDepth) != PanelDepth.BLUR) return
         val view = currentValueOf(LocalView)
         val dark = !currentValueOf(LocalAivLight)
-        val radius = with(currentValueOf(LocalDensity)) { BLUR.roundToPx() }
-        velo = veilFor(view, on = true, bare = 0f, dark = dark, radius = radius)
+        val glass = currentValueOf(LocalPillLook).fill == PillFill.GLASS
+        val radius = with(currentValueOf(LocalDensity)) { blurOf(glass).roundToPx() }
+        velo = veilFor(view, on = true, bare = 0f, dark = dark, radius = radius, glass = glass)
             ?.also { it.at(PIENO) }
         // ⚠️ **La patina se la chiede da sé, dalla `1.64`**: prima gliela chiedeva [Veil], che dalla
         // stessa versione parla alla sola finestra. Qui resta piena e basta, perché un dialogo di
         // Material compare di colpo e non ha nessun avanzamento da seguire.
-        VeilStage.at(this, dimFor(view, dark))
+        val pieno = dimFor(view, dark, glass)
+        VeilStage.at(this, pieno, pieno, veilInk(view, dark, glass))
     }
 
     override fun onDetach() {
@@ -258,11 +263,18 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
  * scheda quando la funzione è spenta) vuole la seconda metà senza la prima: la sfocatura non
  * la chiede e la quantità gliela dice chi chiama.
  */
-private fun veilFor(view: View, on: Boolean, bare: Float, dark: Boolean, radius: Int): Veil? =
+private fun veilFor(
+    view: View,
+    on: Boolean,
+    bare: Float,
+    dark: Boolean,
+    radius: Int,
+    glass: Boolean
+): Veil? =
     when {
         on -> Veil(
             view = view,
-            dim = dimFor(view, dark),
+            dim = dimFor(view, dark, glass),
             radius = if (blurs(view)) radius else null,
             dipinto = true
         )
@@ -298,8 +310,29 @@ private fun blurs(view: View): Boolean =
  * Scritta due volte, un giorno una delle due darebbe uno sfondo più chiaro dell'altro senza che
  * nessuno se ne accorgesse: un velo che non torna non dà nessun errore.
  */
-private fun dimFor(view: View, dark: Boolean): Float =
-    (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurs(view)) 0f else DIM_MORE)
+private fun dimFor(view: View, dark: Boolean, glass: Boolean): Float = when {
+    glass && blurs(view) -> GLASS_VEIL
+    else -> (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurs(view)) 0f else DIM_MORE)
+}
+
+/**
+ * Di che colore è il velo: nero, o l'accento quando la pillola è di vetro e il telefono sfoca.
+ *
+ * ⚠️⚠️ **DALLA `4.00`, ED È SUA RICHIESTA** (2026-10-05: *se 'Effetto dietro menu e pannelli' è
+ * impostato su 'Sfocatura', l'effetto sfocatura cambia e diventa esattamente lo stesso ... salvo
+ * il colore che diventa quello di accento al 10% di opacità*). La sfocatura prende il raggio del
+ * vetro della pillola ([blurOf]), e il velo diventa l'accento a [GLASS_VEIL].
+ * ⚠️ **Dove il telefono non sfoca (risparmio energetico) torna il velo nero**: un accento al 10%
+ * senza sfocatura sotto non separa niente dallo sfondo.
+ */
+private fun veilInk(view: View, dark: Boolean, glass: Boolean): Color =
+    if (glass && blurs(view)) aivAccent(!dark) else VEIL_INK
+
+/** Il raggio della sfocatura: quello di sempre, o quello del vetro della pillola. */
+private fun blurOf(glass: Boolean) = if (glass) GLASS_BLUR else BLUR
+
+/** L'accento del velo col vetro: il 10%, il suo numero. */
+private const val GLASS_VEIL = 0.10f
 
 /**
  * Il velo **dipinto dall'app**: quanto ne vuole chi, fra le superfici in scena, ne chiede di più.
@@ -352,13 +385,31 @@ internal object VeilStage {
      * arrivata. Con un numero solo, la seconda che se ne va porterebbe via anche il velo della
      * prima.
      */
-    private val chiedono = mutableStateMapOf<Any, Float>()
+    private val chiedono = mutableStateMapOf<Any, Richiesta>()
+
+    /**
+     * Una richiesta: quanto velo, quanto ne vorrebbe a pieno, e di che colore.
+     *
+     * ⚠️ **Il pieno viaggia con la dose dalla `4.00`**, perché i pieni sono diventati due: il velo
+     * nero dei due temi e l'accento al 10% del vetro. [veilProgress] lo usa per dire a che punto
+     * è la transizione qualunque sia il velo.
+     */
+    data class Richiesta(val dose: Float, val pieno: Float, val colore: Color)
+
+    private val piu: Richiesta? get() = chiedono.values.maxByOrNull { it.dose }
 
     /** Quanto velo si dipinge adesso. Si legge nella fase di **disegno**, non in composizione. */
-    val dose: Float get() = chiedono.values.maxOrNull() ?: 0f
+    val dose: Float get() = piu?.dose ?: 0f
 
-    fun at(chi: Any, quanto: Float) {
-        if (quanto <= 0f) chiedono.remove(chi) else chiedono[chi] = quanto
+    /** Di che colore è il velo che si dipinge adesso: quello della richiesta più forte. */
+    val colore: Color get() = piu?.colore ?: VEIL_INK
+
+    /** A che punto è la transizione del velo, da 0 a 1. Vedi [veilProgress]. */
+    val avanzamento: Float
+        get() = chiedono.values.maxOfOrNull { if (it.pieno > 0f) it.dose / it.pieno else 0f } ?: 0f
+
+    fun at(chi: Any, quanto: Float, pieno: Float, colore: Color) {
+        if (quanto <= 0f) chiedono.remove(chi) else chiedono[chi] = Richiesta(quanto, pieno, colore)
     }
 
     fun off(chi: Any) {
@@ -395,7 +446,7 @@ fun AppVeil(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.drawBehind {
             val quanto = VeilStage.dose
-            if (quanto > 0f) drawRect(color = VEIL_INK, alpha = quanto)
+            if (quanto > 0f) drawRect(color = VeilStage.colore, alpha = quanto)
         }
     )
 }
@@ -601,15 +652,15 @@ private const val DIM_DARK = 0.45f
  * è uno dei punti forti di AIV, tuttavia va pochissimo d'accordo con la sfocatura, e fa un
  * effetto ottico tremendo*). Il velo dice quanto **buio** c'è; questo dice a che punto è la
  * transizione, che è la cosa da seguire per coprire qualcosa 'nello stesso intervallo'.
- * ⚠️ **Si divide per la dose piena del tema in vigore** ([DIM_LIGHT] contro [DIM_DARK]): senza,
- * lo stesso avanzamento darebbe due numeri diversi nei due temi.
- * ⚠️ **Il taglio in alto non è prudenza**: senza sfocatura il velo si fa più fitto di [DIM_MORE],
- * quindi la dose supera quella piena e il rapporto passerebbe 1.
+ * ⚠️ **Si divide per la dose piena di chi chiede il velo**, che ogni richiesta porta con sé dalla
+ * `4.00` (vedi [VeilStage.Richiesta]): senza, lo stesso avanzamento darebbe numeri diversi nei
+ * due temi, senza sfocatura ([DIM_MORE]) e col vetro della pillola, che vela col 10% d'accento.
+ * Fino alla `3.73` si divideva per il pieno del tema, e il tema arrivava come parametro.
  * ⚠️ **Si legge nella fase di DISEGNO**, come [AppVeil]: leggerlo in composizione fa ricomporre
  * chi lo guarda a ogni fotogramma della transizione.
  */
-internal fun veilProgress(light: Boolean): Float =
-    (VeilStage.dose / (if (light) DIM_LIGHT else DIM_DARK)).coerceIn(0f, 1f)
+internal fun veilProgress(): Float =
+    VeilStage.avanzamento.coerceIn(0f, 1f)
 
 /**
  * Quanto si aggiunge al velo quando la sfocatura non c'è.

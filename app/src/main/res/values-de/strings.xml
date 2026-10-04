@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
     <string name="settings_hand">Bevorzugte Position der Schaltflächen</string>
     <string name="settings_hand_desc">Die bevorzugte Seite für die Hauptschaltflächen bei einhändiger Bedienung, für Rechts- und Linkshänder. Sie legt fest, wo die schwebende Aktionsschaltfläche (\'FAB\'), einige Navigationsschaltflächen und Teile der Editor-Oberfläche liegen.</string>
+    <string name="settings_phone_pill">Pille statt FAB im Hochformat</string>
+    <string name="settings_phone_pill_desc">Eine Reihe nebeneinanderliegender Symbole in einem abgerundeten Feld statt des Menüs mit den ausführlichen Befehlen. Lange auf ein Symbol drücken, um den erklärenden Tooltip anzuzeigen.</string>
+    <string name="pill_off">Aus</string>
+    <string name="pill_slide">Ausklappbar</string>
+    <string name="pill_extended">Erweitert</string>
+    <string name="pill_solid">Volltonfarbe</string>
+    <string name="pill_translucent">Halbtransparent</string>
+    <string name="pill_glass">Milchglas</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Dateiliste: Pfad des übergeordneten Ordners kopieren</string>

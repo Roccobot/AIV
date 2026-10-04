@@ -2843,8 +2843,18 @@ class ViewerActivity : ComponentActivity() {
                 // ⚠️ E accanto a loro il minuto di 'Mostra nascoste', dalla `2.03`: la finestra
                 // delle destinazioni deve sapere se è acceso, e il perché per esteso, con la
                 // ragione per cui questo non è uno static local, vive su [LocalPeek].
+                // ⚠️ E la pillola della `4.00`, coi due valori **in vigore** e non quelli scritti:
+                // sul tablet niente pillola al posto del FAB, e sotto Android 12 niente vetro.
+                // Il perché per esteso vive su [PillLook].
+                val pillola = model.settings?.let {
+                    PillLook(
+                        mode = pillMode(it.phonePill, LocalConfiguration.current.smallestScreenWidthDp),
+                        fill = pillFillIn(it.pillFill)
+                    )
+                } ?: PillLook()
                 CompositionLocalProvider(
                     LocalAivDepth provides (model.settings?.panelDepth ?: PanelDepth.NONE),
+                    LocalPillLook provides pillola,
                     LocalPadLook provides look,
                     LocalDestLook provides dove,
                     LocalPeek provides model.peeking

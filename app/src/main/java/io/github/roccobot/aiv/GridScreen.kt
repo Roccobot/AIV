@@ -822,9 +822,13 @@ fun GridScreen(
      * niente da ordinare. Resta un `when` invece di un `if` perché un velo nuovo si aggiunge
      * come ramo, e allora la precedenza si scrive quando esiste.
      */
+    val pillLook = LocalPillLook.current
     val hint: Hint? = when {
         // ⚠️ Il velo indica il FAB, e dalla `3.70` sugli schermi larghi e alti il FAB non c'è.
-        bin && !binSeen && !binOff && shape == Adaptive.Shape.PHONE -> Hint.BIN_EMPTY
+        // ⚠️ E dalla `4.00` con la pillola estesa nemmeno sul telefono: quello che il velo insegna
+        // è il tocco lungo del FAB, e la pillola non ne ha (risposta B1).
+        bin && !binSeen && !binOff && shape == Adaptive.Shape.PHONE &&
+            pillLook.mode != PhonePill.EXTENDED -> Hint.BIN_EMPTY
         else -> null
     }
 
@@ -1326,12 +1330,14 @@ fun GridScreen(
      * fino alla `3.70` Cerca era un campo in testa alla pillola (scelta B6), e la voce `3.70-07`
      * l'ha voluta compatta, con le sole tre icone.
      * ⚠️ **In selezione la pillola non c'è**, come il FAB: le azioni sono nella scheda in basso.
+     * ⚠️⚠️ **DALLA `4.00` C'È ANCHE SUL TELEFONO IN VERTICALE, se l'impostazione la chiede**: le
+     * stesse voci, che col FAB restano nel suo menu ([PickMenu]).
      */
     val cerca = stringResource(R.string.hub_search)
     val cestino = stringResource(R.string.bin_title)
     val impostazioni = stringResource(R.string.hub_settings)
     val pillEntries: List<PillEntry> = when {
-        picking || shape == Adaptive.Shape.PHONE -> emptyList()
+        picking || (shape == Adaptive.Shape.PHONE && pillLook.mode == PhonePill.OFF) -> emptyList()
         bin -> listOf(
             PillEntry(Glyphs.BinHistory, stringResource(R.string.bin_history)) { onHistory() },
             PillEntry(Glyphs.BinRestore, stringResource(R.string.bin_restore_all), enabled = filled) {
@@ -1348,6 +1354,8 @@ fun GridScreen(
         )
     }
     val pillShown = pillEntries.isNotEmpty()
+    /** Quello che la pillola di vetro sfoca, cioè la griglia, o `null` fuori dal vetro. */
+    val backdrop = rememberBackdrop()
 
     /*
      * ⚠️⚠️ **L'ICONA E LE PASTIGLIE DELL'INTESTAZIONE SONO SCRITTE UNA VOLTA SOLA, DALLA `3.70`**,
@@ -2240,13 +2248,14 @@ fun GridScreen(
                         contentPadding = PaddingValues(
                             bottom = GRID_PAD_Y + bottomInset() + if (picking) {
                                 with(LocalDensity.current) { sheetTall.toDp() }
-                            } else if (tall && pillShown) {
-                                // ⚠️ La pillola in basso del tablet in verticale: l'ultima riga deve
-                                // poter salire sopra di lei, come sopra il FAB.
+                            } else if ((tall || shape == Adaptive.Shape.PHONE) && pillShown) {
+                                // ⚠️ La pillola in basso del tablet in verticale, e dalla `4.00`
+                                // quella del telefono: l'ultima riga deve poter salire sopra di
+                                // lei, come sopra il FAB.
                                 PILL_KEY + PILL_AIR * 2
                             } else if (bin) BELOW_FAB else 16.dp
                         ),
-                        modifier = Modifier.fillMaxWidth().then(grab)
+                        modifier = Modifier.fillMaxWidth().backdropSource(backdrop).then(grab)
                     ) {
                         itemsIndexed(
                             items = items,
@@ -2318,6 +2327,7 @@ fun GridScreen(
                 ActionPill(
                     entries = pillEntries,
                     vertical = true,
+                    backdrop = backdrop,
                     modifier = Modifier
                         .align(Alignment.Bottom)
                         .windowInsetsPadding(steadyDrawing().only(WindowInsetsSides.Bottom))
@@ -2425,7 +2435,7 @@ fun GridScreen(
              */
             FabPop(
                 visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
-                    !picking && shape == Adaptive.Shape.PHONE,
+                    !picking && shape == Adaptive.Shape.PHONE && pillLook.mode == PhonePill.OFF,
                 // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
                 // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
                 // sé: quello di sistema, il margine della schermata e gli 8dp del FAB.
@@ -2647,6 +2657,37 @@ fun GridScreen(
             }
 
             /*
+             * ⚠️⚠️ **SUL TELEFONO IN VERTICALE, DALLA `4.00`, LA PILLOLA PUÒ PRENDERE IL POSTO DEL
+             * FAB** (sua richiesta del 2026-10-05): nello stesso punto, con la stessa comparsa e la
+             * stessa uscita della selezione, e con le voci che il FAB porta nel suo menu. Il tasto
+             * tondo tiene il salto e la scorciatoia del tocco lungo (risposta C1).
+             */
+            FabPop(
+                visible = pillShown && shape == Adaptive.Shape.PHONE,
+                modifier = Modifier
+                    .align(fabSide())
+                    .windowInsetsPadding(steadyDrawing())
+                    .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+                    .padding(8.dp)
+            ) {
+                PhonePillBar(
+                    entries = pillEntries,
+                    arm = arm,
+                    nested = paging,
+                    fabLabel = jumpLabel(arm, stringResource(R.string.pick_actions)),
+                    holdLabel = stringResource(shortcutLabel),
+                    onHold = { shortcut(); hintDone() },
+                    backdrop = backdrop,
+                    fabGlyph = { d ->
+                        JumpGlyph(arm) {
+                            if (!bin) Marchio(d)
+                            else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
+                        }
+                    }
+                )
+            }
+
+            /*
              * ⚠️⚠️ **SUL TABLET IN VERTICALE LA PILLOLA È IN BASSO, DALLA `3.70`** (richiesta B3 e
              * mockup `Tablet_V`), sopra la griglia e staccata dal bordo come il FAB.
              * ⚠️⚠️ **Dalla `3.71` è compatta e a destra** (voce `3.70-07`: *la pillola dev'essere
@@ -2657,6 +2698,7 @@ fun GridScreen(
                 ActionPill(
                     entries = pillEntries,
                     vertical = false,
+                    backdrop = backdrop,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .windowInsetsPadding(steadyDrawing())
@@ -2774,7 +2816,10 @@ fun GridScreen(
                         // ⚠️ Qui il salto non c'è: questa copia vive dentro un velo che insegna il
                         // tocco lungo, e un chevron sopra di lei indicherebbe un altro comando.
                         arm = null,
-                        onTap = { hintDone(); menu.open() },
+                        round = pillLook.mode == PhonePill.SLIDE,
+                        // ⚠️ Col tasto tondo il tocco breve apre la pillola e non il menu: il
+                        // velo lo chiude e basta, e la pillola si apre col tasto vero.
+                        onTap = { hintDone(); if (pillLook.mode == PhonePill.OFF) menu.open() },
                         onHold = { shortcut(); hintDone() }
                     )
                 }
@@ -3013,7 +3058,9 @@ private fun PickFab(
     onTap: () -> Unit,
     onHold: () -> Unit,
     lifted: Boolean = false,
-    pressed: Boolean = false
+    pressed: Boolean = false,
+    /** La copia del tasto tondo della pillola, per il velo d'aiuto. Vedi `round` in [TapHoldFab]. */
+    round: Boolean = false
 ) {
     val home = @Composable { d: String? ->
         if (mark) Marchio(d)
@@ -3027,6 +3074,7 @@ private fun PickFab(
         holdLabel = stringResource(holdLabel),
         lifted = lifted,
         pressed = pressed,
+        round = round,
         onTap = onTap,
         onHold = onHold,
         glyph = { d -> if (arm == null) home(d) else JumpGlyph(arm) { home(d) } }

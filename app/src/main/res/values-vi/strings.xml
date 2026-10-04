@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>
     <string name="settings_hand">Vị trí ưa thích của các nút</string>
     <string name="settings_hand_desc">Bên ưa thích cho các nút chính khi dùng một tay, cho người thuận tay phải và tay trái. Nó quyết định vị trí của nút tác vụ nổi (\'FAB\'), một số nút điều hướng và vài phần giao diện trình chỉnh sửa.</string>
+    <string name="settings_phone_pill">Viên thuốc thay cho FAB khi dọc</string>
+    <string name="settings_phone_pill_desc">Một hàng biểu tượng nằm cạnh nhau trong khung bo tròn thay cho menu với các lệnh đầy đủ. Nhấn giữ một biểu tượng để xem chú thích giải thích.</string>
+    <string name="pill_off">Tắt</string>
+    <string name="pill_slide">Trượt</string>
+    <string name="pill_extended">Mở rộng</string>
+    <string name="pill_solid">Màu đặc</string>
+    <string name="pill_translucent">Bán trong suốt</string>
+    <string name="pill_glass">Kính mờ</string>
     <string name="settings_right">Phải</string>
     <string name="settings_left">Trái</string>
     <string name="settings_list_path">Danh sách tệp: chép cả đường dẫn thư mục</string>
