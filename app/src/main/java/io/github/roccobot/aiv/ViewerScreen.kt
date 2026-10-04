@@ -1,5 +1,15 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.unit.Dp
+import androidx.compose.animation.core.animateFloatAsState
 import android.content.Context
 import android.content.Intent
 import android.graphics.RectF
@@ -804,6 +814,31 @@ fun ViewerScreen(
     barState.targetState = info.visible && shown != null && state !is ViewerState.Clip
 
     /*
+     * ⚠️⚠️ **LO SPAZIO CHE L'IMMAGINE LASCIA ALLA BARRA, dalla `3.60`** (richiesta dell'utente,
+     * mockup `Viewer_NOPE`): l'immagine a riposo si adatta a quello che la barra lascia libero, e
+     * quando la barra si nasconde col tocco torna a tutto schermo con una breve animazione
+     * (scelta A2). Il conto vive in `restPlace` (`Fit.kt`).
+     * ⚠️ **Segue la barra VOLUTA e non quella visibile**: la dissolvenza della barra e lo
+     * spostamento dell'immagine partono insieme, invece che uno dopo l'altro.
+     * ⚠️ **All'apertura la misura non c'è ancora**: per un fotogramma l'immagine prende tutto lo
+     * schermo, poi fa posto alla barra con la stessa animazione, mentre la barra compare.
+     */
+    val reserve by animateFloatAsState(
+        targetValue = if (barState.targetState) info.height else 0f,
+        animationSpec = tween(BAR_ROOM_MS),
+        label = "spazioBarra"
+    )
+    val barSpace = if (reserve > 0f) {
+        BarSpace(
+            edge = if (settings.infoPosition == InfoPosition.TOP) BarEdge.TOP else BarEdge.BOTTOM,
+            size = reserve,
+            spans = info.spans()
+        )
+    } else {
+        null
+    }
+
+    /*
      * ⚠️⚠️ **LO SFONDO SI DIPINGE QUI, e prima viveva dentro `ImageCanvas`: era LUI il
      * lampeggio che restava** (segnalazione dell'utente, 2026-08-29: *non ancora risolto,
      * anzi adesso lampeggia anche l'immagine*). La scacchiera esisteva solo nello stato
@@ -904,7 +939,7 @@ fun ViewerScreen(
     ) {
         when (state) {
             is ViewerState.Loading -> {
-                PreviewThumb(source, settings)
+                PreviewThumb(source, settings, barSpace)
                 /*
                  * ⚠️⚠️ **L'ANELLO ASPETTA, e non è cortesia: comparire e sparire in un
                  * decimo di secondo È un lampeggio.** Fra una foto e l'altra del telefono
@@ -954,7 +989,8 @@ fun ViewerScreen(
                      * ⚠️ **Ferma e basta, non alterna**: chi apre il menu su un'animazione
                      * già in pausa non se la vede ripartire in faccia.
                      */
-                    onHold = { animation?.pause() }
+                    onHold = { animation?.pause() },
+                    bar = barSpace
                 )
                 if (animation != null) {
                     AnimatedBar(
@@ -962,15 +998,14 @@ fun ViewerScreen(
                         counter = settings.animCounter,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            // ⚠️ **PRIMA TARATURA, DA GUARDARE SUL TELEFONO**: la riga dei
-                            // dettagli può stare in basso, e allora i comandi le vanno
-                            // sopra. L'altezza di quella riga non è una costante, quindi
-                            // questo numero è una stima e non una misura.
+                            // ⚠️ La riga dei dettagli può stare in basso, e allora i comandi
+                            // le vanno sopra. Dalla `3.60` la sua altezza è misurata (la stessa
+                            // che l'immagine le lascia), e la stima fissa di prima non c'è più.
                             .padding(
-                                bottom = if (settings.infoPosition == InfoPosition.BOTTOM) {
-                                    ANIM_OVER_INFO
+                                bottom = ANIM_LIP + if (barSpace?.edge == BarEdge.BOTTOM) {
+                                    with(density) { barSpace.size.toDp() }
                                 } else {
-                                    ANIM_LIP
+                                    0.dp
                                 }
                             )
                     )
@@ -1042,7 +1077,13 @@ fun ViewerScreen(
                 Surface(
                     color = MaterialTheme.colorScheme.surface.copy(alpha = PANEL_VEIL),
                     contentColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // ⚠️ La misura che l'immagine le lascia: vedi `reserve` più sopra.
+                        .onGloballyPositioned {
+                            info.height = it.size.height.toFloat()
+                            info.left = it.boundsInRoot().left
+                        }
                 ) {
                     AnimatedContent(
                         targetState = picture,
@@ -1060,7 +1101,9 @@ fun ViewerScreen(
                             // ⚠️ Solo per una foto di questo telefono: su un'immagine del
                             // web o di una chat 'non è nella galleria' è la normalità, non
                             // una notizia.
-                            folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
+                            folder = folder.takeIf { source?.scheme?.lowercase() == "content" },
+                            // ⚠️ Solo la riga che entra dice dove disegna: vedi [BarReport].
+                            report = if (shownNow === picture) BarReport(info) else null
                         )
                     }
                 }
@@ -1298,6 +1341,29 @@ private class InfoBar {
      * sparirebbe a ogni cambio di pagina proprio mentre lo si sta leggendo.
      */
     var tiles by mutableStateOf<String?>(null)
+
+    /**
+     * L'altezza della barra in pixel, margini di sistema compresi, e zero finché non è stata
+     * misurata.
+     *
+     * ⚠️ **Resta anche quando la barra si nasconde**: è la misura a cui l'immagine torna a fare
+     * posto quando la barra riappare, e azzerarla vorrebbe dire una barra che compare sopra
+     * l'immagine e solo dopo un fotogramma la spinge.
+     */
+    var height by mutableFloatStateOf(0f)
+
+    /**
+     * Dove la barra disegna, in pixel della radice: un rettangolo per pezzo (nome, dati,
+     * contatore, marchio). Lo scrive solo la riga che sta entrando, non quella che sfuma via.
+     */
+    val pieces = mutableStateMapOf<String, Rect>()
+
+    /** Il bordo sinistro della barra nella radice, per riportare [pieces] nella vista. */
+    var left by mutableFloatStateOf(0f)
+
+    /** I tratti orizzontali con del testo, in pixel della vista. Vedi [BarSpace.spans]. */
+    fun spans(): List<ClosedFloatingPointRange<Float>> =
+        pieces.values.map { (it.left - left)..(it.right - left) }
 }
 
 /**
@@ -1776,8 +1842,8 @@ internal fun ClipStage(
         // stesse miniature della griglia: entrano nell'istante del gesto perché sono già in
         // memoria, e a riposo non c'è niente da tenere in scena.
         if (dragging) {
-            Neighbour(nextUri, settings) { travel + viewWidth + pageGap }
-            Neighbour(prevUri, settings) { travel - viewWidth - pageGap }
+            Neighbour(nextUri, settings, null) { travel + viewWidth + pageGap }
+            Neighbour(prevUri, settings, null) { travel - viewWidth - pageGap }
         }
 
         // ⚠️ L'indicatore sta sopra i comandi e sotto niente: è l'unica risposta visibile a
@@ -2011,10 +2077,10 @@ private const val TICK_MS = 500L
  * chiedere al telefono, e questo caricatore non parla con la rete apposta.
  */
 @Composable
-private fun PreviewThumb(source: Uri?, settings: Settings) {
+private fun PreviewThumb(source: Uri?, settings: Settings, bar: BarSpace?) {
     val local = source?.scheme?.lowercase() == "content" || source?.scheme?.lowercase() == "file"
     if (source == null || !local) return
-    Preview(source, settings, Modifier.fillMaxSize())
+    Preview(source, settings, Modifier.fillMaxSize(), bar)
 }
 
 /**
@@ -2051,7 +2117,7 @@ private fun PreviewThumb(source: Uri?, settings: Settings) {
  * fotografia; sfogliando, la vicina ha già scaldato la misura mentre entrava dal bordo.
  */
 @Composable
-private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
+private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSpace? = null) {
     val context = LocalContext.current
 
     /*
@@ -2110,13 +2176,16 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
      * contenitore: è questo a garantire che le due scale coincidano invece di somigliarsi.
      */
     BoxWithConstraints(modifier = modifier) {
+        val viewWidth = constraints.maxWidth.toFloat()
+        val viewHeight = constraints.maxHeight.toFloat()
         val planned = plannedSize(
             seen = seen,
             longSide = longSide,
-            viewWidth = constraints.maxWidth.toFloat(),
-            viewHeight = constraints.maxHeight.toFloat(),
+            viewWidth = viewWidth,
+            viewHeight = viewHeight,
             settings = settings,
-            density = density.density
+            density = density.density,
+            bar = bar
         )
 
         // Il ripiego di quando la misura vera non si sa ancora: vedi la nota sulla
@@ -2132,15 +2201,29 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
         // ⚠️ Con la misura nota il riquadro ha **già** le proporzioni giuste, quindi
         // `Fit` qui dentro non ridimensiona niente: serve solo a non deformare se
         // l'arrotondamento in dp sposta il riquadro di mezzo pixel.
-        val frame = if (planned == null) {
-            Modifier.fillMaxSize()
-        } else {
-            Modifier
-                .align(Alignment.Center)
+        /*
+         * ⚠️ **Dalla `3.60` il riquadro è nella fascia di riposo e non al centro della vista**:
+         * è il posto in cui `ImageCanvas` metterà la fotografia, e un'anteprima centrata altrove
+         * salterebbe all'arrivo. Senza misura nota la fascia si ricava dalle proporzioni della
+         * miniatura, che bastano a dire quanto spazio sotto la barra può prendere.
+         */
+        val frame = when {
+            planned != null -> Modifier
+                .align(Alignment.TopCenter)
+                .offset { IntOffset(0, (planned.centre - planned.height / 2f).roundToInt()) }
                 .size(
                     with(density) { planned.width.toDp() },
                     with(density) { planned.height.toDp() }
                 )
+            seen.isSpecified && bar != null -> {
+                val room = restPlace(viewWidth, viewHeight, seen.width, seen.height, null, bar)
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .offset { IntOffset(0, room.top.roundToInt()) }
+                    .fillMaxWidth()
+                    .height(with(density) { room.height.toDp() })
+            }
+            else -> Modifier.fillMaxSize()
         }
 
         standIn?.let {
@@ -2181,20 +2264,28 @@ private fun plannedSize(
     viewWidth: Float,
     viewHeight: Float,
     settings: Settings,
-    density: Float
-): Size? {
+    density: Float,
+    bar: BarSpace?
+): Planned? {
     if (longSide <= 0 || viewWidth <= 0f || viewHeight <= 0f) return null
     if (!seen.isSpecified || seen.width <= 0f || seen.height <= 0f) return null
     val ratio = seen.width / seen.height
     val wide = ratio >= 1f
     val pixelWidth = if (wide) longSide.toFloat() else longSide * ratio
     val pixelHeight = if (wide) longSide / ratio else longSide.toFloat()
-    val fit = min(viewWidth / pixelWidth, viewHeight / pixelHeight)
     // ⚠️ Senza il campionamento, che qui non serve: vedi la nota sulla funzione.
     val oneToOne = if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density
-    val rest = if (settings.fitGrow) fit else min(fit, oneToOne)
-    return Size(pixelWidth * rest, pixelHeight * rest)
+    // ⚠️ La stessa `restPlace` di `ImageCanvas`, barra compresa: vedi `Fit.kt`.
+    val place = restPlace(
+        viewWidth, viewHeight, pixelWidth, pixelHeight,
+        cap = if (settings.fitGrow) null else oneToOne,
+        bar = bar
+    )
+    return Planned(pixelWidth * place.scale, pixelHeight * place.scale, place.centre)
 }
+
+/** La misura di [plannedSize] e il centro verticale in cui la fotografia riposerà. */
+private data class Planned(val width: Float, val height: Float, val centre: Float)
 
 /** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nella fotografia. */
 private data class SharpTile(val bitmap: ImageBitmap, val area: PixelRect)
@@ -2245,11 +2336,12 @@ private fun asked(
  * proprio nel punto in cui deve essere invisibile.
  */
 @Composable
-private fun Neighbour(uri: Uri?, settings: Settings, dx: () -> Float) {
+private fun Neighbour(uri: Uri?, settings: Settings, bar: BarSpace?, dx: () -> Float) {
     if (uri == null) return
     Preview(
         uri = uri,
         settings = settings,
+        bar = bar,
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer { translationX = dx() }
@@ -2362,7 +2454,9 @@ private fun ImageCanvas(
      * ⚠️ Serve a fermare un'animazione: la tela non sa che l'immagine si muove, quindi la
      * cosa da fare la sa il chiamante, come per [onSingleTap].
      */
-    onHold: () -> Unit = {}
+    onHold: () -> Unit = {},
+    /** La barra delle info sopra o sotto la tela, o `null` quando non c'è. Vedi [BarSpace]. */
+    bar: BarSpace? = null
 ) {
     val density = LocalDensity.current
     // Vedi [withHaptics]: qui il gesto non passa da `combinedClickable`, quindi la
@@ -2408,20 +2502,28 @@ private fun ImageCanvas(
         val oneToOne =
             sampleFactor * if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density.density
 
-        val fitScale = min(viewWidth / imageWidth, viewHeight / imageHeight)
         // 'Fit' means shown whole. Growing a small picture to fill the screen is a
         // separate wish, and it is a setting rather than the default for the same
         // reason it is in the userscript: blowing up a 64px icon helps nobody.
-        val restScale = if (settings.fitGrow) fitScale else min(fitScale, oneToOne)
+        /*
+         * ⚠️⚠️ **DALLA `3.60` IL RIPOSO SI CALCOLA SULLO SPAZIO CHE LA BARRA LASCIA LIBERO**, e
+         * non su tutta la vista (richiesta dell'utente, mockup `Viewer_NOPE`): la regola, con la
+         * tolleranza del 5% in orizzontale, vive in `restPlace` (`Fit.kt`), perché la chiedono
+         * anche l'anteprima e la vicina che entra dal bordo.
+         */
+        val place = restPlace(
+            viewWidth, viewHeight, imageWidth, imageHeight,
+            cap = if (settings.fitGrow) null else oneToOne,
+            bar = bar
+        )
+        val restScale = place.scale
 
-        fun clampOffset(candidate: Offset, atScale: Float): Offset {
-            val slackX = max(0f, (imageWidth * atScale - viewWidth) / 2f)
-            val slackY = max(0f, (imageHeight * atScale - viewHeight) / 2f)
-            return Offset(
-                candidate.x.coerceIn(-slackX, slackX),
-                candidate.y.coerceIn(-slackY, slackY)
-            )
-        }
+        // ⚠️ In verticale la fascia di riposo è quella di [place], non la vista intera: vedi
+        // `clampAxis`, che senza barra torna la regola di sempre.
+        fun clampOffset(candidate: Offset, atScale: Float): Offset = Offset(
+            clampAxis(candidate.x, imageWidth * atScale, viewWidth, 0f, viewWidth),
+            clampAxis(candidate.y, imageHeight * atScale, viewHeight, place.top, place.bottom)
+        )
 
         /*
          * ⚠️⚠️ **LA CHIAVE È LA SCALA DI RIPOSO E NON LE IMPOSTAZIONI, DALLA `1.81`** (riscontro
@@ -2446,7 +2548,9 @@ private fun ImageCanvas(
         var scale by remember(image, restScale) {
             mutableFloatStateOf(kept.scaleFor(restScale).coerceIn(MIN_SCALE, settings.zoomMax))
         }
-        var offset by remember(image, restScale) {
+        // ⚠️ Anche la fascia è una chiave: su un'immagine limitata dalla larghezza la scala non
+        // cambia quando la barra si nasconde, ma il centro di riposo sì.
+        var offset by remember(image, restScale, place.top, place.bottom) {
             mutableStateOf(clampOffset(kept.offsetFor(scale, imageWidth, imageHeight), scale))
         }
         /*
@@ -2835,8 +2939,8 @@ private fun ImageCanvas(
         // entrano nell'istante del gesto perché sono già in memoria, e la fotografia
         // vera arriva quando la pagina è girata.
         if (dragging) {
-            Neighbour(nextUri, settings) { travel + viewWidth + pageGap }
-            Neighbour(prevUri, settings) { travel - viewWidth - pageGap }
+            Neighbour(nextUri, settings, bar) { travel + viewWidth + pageGap }
+            Neighbour(prevUri, settings, bar) { travel - viewWidth - pageGap }
         }
 
         // A riposo la figura non ha gioco da trascinare, quindi una strisciata
@@ -3672,7 +3776,9 @@ private val BAR_AIR = 2.dp
 private fun DetailsPanel(
     image: LoadedImage,
     percent: Float,
-    folder: Folder.Lookup?
+    folder: Folder.Lookup?,
+    /** Chi raccoglie dove la riga disegna, o `null` per la riga che sta sfumando via. */
+    report: BarReport? = null
 ) {
     /*
      * ⚠️ Letta fuori dal `buildString`, che non è un contesto composable: è la stessa ragione
@@ -3712,121 +3818,264 @@ private fun DetailsPanel(
              */
             .padding(start = 16.dp, end = 16.dp, top = BAR_AIR, bottom = BAR_AIR)
     ) {
+        val name = image.displayName?.takeIf { it.isNotBlank() }
+        // ⚠️ Il nome del formato lo calcola [kindOf], dalla `1.42`: qui stava la stessa
+        // regola scritta a mano, e sugli SVG diceva ancora `SVG+XML` due versioni dopo
+        // che il pannello delle informazioni aveva smesso.
+        val formato = kindOf(image.mimeType) ?: "?"
+        val resto = buildString {
+                append("  ")
+                append(image.pixelWidth).append(" x ").append(image.pixelHeight)
+                image.byteSize?.let { append("  ").append(formatBytes(it)) }
+                append("  ").append((percent * 100).roundToInt()).append('%')
+                /*
+                 * ⚠️⚠️ **DALLA 1.31 DICE UNA PAROLA TRADOTTA E NON UNA DIAGNOSTICA**
+                 * (domanda dell'utente, 2026-09-02, che sul suo AVIF leggeva
+                 * `(sampled, no tile: format)`: *leggere quella cosa mi serve davvero, a
+                 * parte motivi di debug? Pensavo di sbarazzarmene o di riscriverla in
+                 * modo più amichevole*). La risposta è che **metà serviva e metà no**:
+                 * 'ridotta' è un fatto sull'immagine che si sta guardando, cioè che non
+                 * è a piena risoluzione; il motivo per cui i tasselli non si applicano
+                 * era per me, ed era in inglese in mezzo a un'interfaccia tradotta.
+                 * ⚠️⚠️ **E SU UN AVIF QUELLA CODA C'È SEMPRE**, che è la ragione per cui
+                 * il rumore si notava adesso: `RegionSource` non sa rileggere un AVIF
+                 * (nessun `BitmapRegionDecoder` per quel formato), quindi ogni AVIF
+                 * grande portava `no tile: format` per sempre.
+                 * ⚠️ **Il motivo dei tasselli resta nel codice** (`info.tiles`, che
+                 * `sharpen` continua a riempire): il giorno che serve di nuovo si
+                 * rimette in scena una riga, e il difetto della `0.49` si è potuto
+                 * nominare grazie a lui.
+                 * ⚠️ Solo per le immagini **ridotte**: su tutte le altre la parola non
+                 * dice niente, e sarebbe rumore su ogni foto.
+                 */
+                // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
+                // e non va nell'angolo del contatore: è una frase, non un numero, e in
+                // quello spazio sarebbe stretta o lo farebbe crescere rimettendo in
+                // movimento il contatore che si è appena fissato.
+                folderNote?.let { append("  ").append(it) }
+        }
         /*
-         * ⚠️⚠️ **IL NOME STA SOPRA I DATI E NON IN MEZZO A LORO** (richiesta dell'utente,
-         * 2026-09-02: *sopra i dati già esistenti, in piccolo, in una sola riga con ellissi
-         * centrale*). Infilato nella riga di sotto avrebbe rubato lo spazio al formato, alla
-         * misura e alla percentuale, che sono corti e stanno tutti insieme proprio perché si
-         * leggono in un colpo d'occhio; e allungandosi col nome avrebbe rimesso in movimento il
-         * contatore, che tre note qui intorno difendono dall'essere spostato.
-         * ⚠️ **Più piccolo dei dati e non più grande**: è il titolo di quello che si guarda, ma
-         * la riga esiste per i dati, e un nome in grande sopra una riga di numeri li farebbe
-         * sembrare una didascalia. `labelMedium` contro il `labelLarge` di sotto.
+         * ⚠️⚠️ **IL SEGNO È SUBITO DOPO IL FORMATO, dalla 1.36, e prima era in CODA**
+         * (riscontro dell'utente, 2026-09-02: *forse il segno è meglio piazzarlo subito
+         * dopo il formato (es. `AVIF ◱`), in modo che non ci sia jitter quando si passa da
+         * 9% a 10% di zoom*). Il difetto era vero e si vedeva ingrandendo: la percentuale
+         * cresce di una cifra, la riga si allunga, e un segno agganciato alla fine ballava
+         * a ogni decina. Dopo il formato invece non si muove mai, perché quello che ha
+         * davanti non cambia lunghezza.
+         * ⚠️⚠️ **E È PIÙ GRANDE DEL TESTO di [MARK_GROW]** (*leggermente ingrandito perché
+         * sia grande quanto un carattere maiuscolo*). ⚠️ **Il fattore è una SCELTA e non
+         * una misura**, e va detto: `U+25F1` è disegnato all'altezza della x in quasi
+         * tutti i caratteri, quindi per arrivare a una maiuscola serve circa un quinto in
+         * più; ma senza il carattere vero sotto mano (in sessione non c'è Roboto) il
+         * rapporto fra il suo inchiostro e l'altezza delle maiuscole non è stato
+         * verificato. Se sul telefono risulta grosso o piccolo, si tocca questo numero.
+         * ⚠️ **Relativo e non in `sp`**: parte dal corpo della riga, quindi segue chi
+         * cambia la dimensione dei caratteri nelle impostazioni di sistema.
          */
-        image.displayName?.takeIf { it.isNotBlank() }?.let { NameLine(it) }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // ⚠️ Il nome del formato lo calcola [kindOf], dalla `1.42`: qui stava la stessa
-            // regola scritta a mano, e sugli SVG diceva ancora `SVG+XML` due versioni dopo
-            // che il pannello delle informazioni aveva smesso.
-            val formato = kindOf(image.mimeType) ?: "?"
-            val resto = buildString {
-                    append("  ")
-                    append(image.pixelWidth).append(" x ").append(image.pixelHeight)
-                    image.byteSize?.let { append("  ").append(formatBytes(it)) }
-                    append("  ").append((percent * 100).roundToInt()).append('%')
-                    /*
-                     * ⚠️⚠️ **DALLA 1.31 DICE UNA PAROLA TRADOTTA E NON UNA DIAGNOSTICA**
-                     * (domanda dell'utente, 2026-09-02, che sul suo AVIF leggeva
-                     * `(sampled, no tile: format)`: *leggere quella cosa mi serve davvero, a
-                     * parte motivi di debug? Pensavo di sbarazzarmene o di riscriverla in
-                     * modo più amichevole*). La risposta è che **metà serviva e metà no**:
-                     * 'ridotta' è un fatto sull'immagine che si sta guardando, cioè che non
-                     * è a piena risoluzione; il motivo per cui i tasselli non si applicano
-                     * era per me, ed era in inglese in mezzo a un'interfaccia tradotta.
-                     * ⚠️⚠️ **E SU UN AVIF QUELLA CODA C'È SEMPRE**, che è la ragione per cui
-                     * il rumore si notava adesso: `RegionSource` non sa rileggere un AVIF
-                     * (nessun `BitmapRegionDecoder` per quel formato), quindi ogni AVIF
-                     * grande portava `no tile: format` per sempre.
-                     * ⚠️ **Il motivo dei tasselli resta nel codice** (`info.tiles`, che
-                     * `sharpen` continua a riempire): il giorno che serve di nuovo si
-                     * rimette in scena una riga, e il difetto della `0.49` si è potuto
-                     * nominare grazie a lui.
-                     * ⚠️ Solo per le immagini **ridotte**: su tutte le altre la parola non
-                     * dice niente, e sarebbe rumore su ogni foto.
-                     */
-                    // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
-                    // e non va nell'angolo del contatore: è una frase, non un numero, e in
-                    // quello spazio starebbe stretta o lo farebbe crescere rimettendo in
-                    // movimento il contatore che si è appena fissato.
-                    folderNote?.let { append("  ").append(it) }
+        val corpo = MaterialTheme.typography.labelLarge
+        val dati = buildAnnotatedString {
+            append(formato)
+            if (image.sampled) {
+                append(' ')
+                withStyle(SpanStyle(fontSize = corpo.fontSize * MARK_GROW)) {
+                    append(REDUCED_MARK)
+                }
             }
-            /*
-             * ⚠️⚠️ **IL SEGNO STA SUBITO DOPO IL FORMATO, dalla 1.36, e prima stava in CODA**
-             * (riscontro dell'utente, 2026-09-02: *forse il segno è meglio piazzarlo subito
-             * dopo il formato (es. `AVIF ◱`), in modo che non ci sia jitter quando si passa da
-             * 9% a 10% di zoom*). Il difetto era vero e si vedeva ingrandendo: la percentuale
-             * cresce di una cifra, la riga si allunga, e un segno agganciato alla fine ballava
-             * a ogni decina. Dopo il formato invece non si muove mai, perché quello che ha
-             * davanti non cambia lunghezza.
-             * ⚠️⚠️ **E È PIÙ GRANDE DEL TESTO di [MARK_GROW]** (*leggermente ingrandito perché
-             * sia grande quanto un carattere maiuscolo*). ⚠️ **Il fattore è una SCELTA e non
-             * una misura**, e va detto: `U+25F1` è disegnato all'altezza della x in quasi
-             * tutti i caratteri, quindi per arrivare a una maiuscola serve circa un quinto in
-             * più; ma senza il carattere vero sotto mano (in sessione non c'è Roboto) il
-             * rapporto fra il suo inchiostro e l'altezza delle maiuscole non è stato
-             * verificato. Se sul telefono risulta grosso o piccolo, si tocca questo numero.
-             * ⚠️ **Relativo e non in `sp`**: parte dal corpo della riga, quindi segue chi
-             * cambia la dimensione dei caratteri nelle impostazioni di sistema.
-             */
-            val corpo = MaterialTheme.typography.labelLarge
-            val dati = buildAnnotatedString {
-                append(formato)
-                if (image.sampled) {
-                    append(' ')
-                    withStyle(SpanStyle(fontSize = corpo.fontSize * MARK_GROW)) {
-                        append(REDUCED_MARK)
+            append(resto)
+        }
+        /*
+         * ⚠️⚠️ **IL SIMBOLO SI VEDE E LA PAROLA SI SENTE, dalla `1.34`.** Il segno
+         * non ha bisogno di traduzione (era la ragione dell'utente), ma un lettore
+         * di schermo su `◱` non dice niente di utile: quindi la stringa tradotta
+         * `bar_reduced` **resta** e diventa quello che TalkBack legge. Se un domani
+         * il simbolo cambia, la parola non si tocca.
+         * ⚠️ **Si dichiara solo quando serve**: su un'immagine intera la
+         * descrizione sarebbe una copia del testo, cioè lavoro per niente e un
+         * posto in più dove le due versioni possono divergere.
+         * ⚠️ **Si ricompone dai pezzi invece di sostituire nel testo**: da quando il
+         * segno ha un corpo suo il testo è un `AnnotatedString`, e cercare un
+         * carattere dentro di lui per cambiarlo sarebbe girare intorno alla forma
+         * con cui è stato costruito.
+         */
+        val spoken = if (!image.sampled) Modifier
+            else Modifier.semantics { contentDescription = "$formato $reduced$resto" }
+        val series = folder?.seriesOrNull
+
+        /*
+         * ⚠️⚠️ **SU UNA RIGA SOLA QUANDO C'È POSTO, dalla `3.60`** (richiesta dell'utente, mockup
+         * `Viewer_H`, e scelta A1: *una riga ogni volta che tutto entra nella larghezza*).
+         * ⚠️⚠️ **La scelta dipende dalla LARGHEZZA e non dal nome né dalla percentuale**: i dati
+         * si misurano su un modello coi numeri più larghi possibili ([oneRowFits]), e al nome
+         * si chiede soltanto lo spazio minimo [ONE_ROW_NAME]. Se dipendesse dal nome, la barra
+         * cambierebbe altezza da un'immagine all'altra, e con lei la misura dell'immagine; se
+         * dipendesse dalla percentuale, cambierebbe a metà di una pinza.
+         */
+        val markWidth = with(LocalDensity.current) {
+            (MaterialTheme.typography.labelMedium.fontSize.toPx() * MARK_TALL * MARK_RATIO).toDp()
+        }
+        val measurer = rememberTextMeasurer()
+        val dataRoom = with(LocalDensity.current) {
+            measurer.measure(dataModel(corpo), corpo).size.width.toDp()
+        }
+        /*
+         * ⚠️⚠️ **L'IMPRONTA DEI DATI SI MISURA CON LA PERCENTUALE PIÙ LARGA**, e non con quella in
+         * scena: la tolleranza dell'immagine legge dove la barra ha del testo, e se quel tratto
+         * cambiasse con la percentuale cambierebbe la misura di riposo a metà di una pinza, che
+         * azzera il gesto.
+         */
+        val dataInk = remember(dati, corpo, measurer) {
+            val widest = buildAnnotatedString {
+                append(dati.subSequence(0, dati.length - resto.length))
+                append(resto.replace(Regex("\\d+%"), "8888%"))
+            }
+            measurer.measure(widest, corpo).size.width.toFloat()
+        }
+        val counterRoom = with(LocalDensity.current) {
+            series?.let { measurer.measure(counterModel(it.size), corpo).size.width.toDp() } ?: 0.dp
+        }
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val rowWidth = maxWidth
+            val oneRow = name == null || oneRowFits(rowWidth, dataRoom, counterRoom, markWidth)
+            if (report != null) {
+                SideEffect {
+                    if (name == null) { report.drop("name"); report.drop("mark") }
+                    if (series == null) report.drop("counter")
+                }
+            }
+            if (oneRow) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (name != null) {
+                        NameText(name, Modifier.weight(1f), report)
+                        Spacer(Modifier.width(ONE_ROW_GAP))
+                    }
+                    /*
+                     * ⚠️⚠️ **I DATI SONO ALLINEATI A DESTRA, accanto al contatore**: così il
+                     * centro della barra resta senza testo, ed è là che un'immagine stretta può
+                     * passare sotto la barra (la tolleranza in orizzontale). Allineati a sinistra,
+                     * subito dopo il nome, coprivano il centro su ogni telefono, e la tolleranza
+                     * non scattava mai: l'ha misurato `BarraInfoTest`.
+                     * ⚠️ La scatola ha la larghezza dei dati più larghi possibili ([dataModel]):
+                     * il nome non si riaccorcia mentre la percentuale cresce.
+                     */
+                    Text(
+                        text = dati,
+                        style = corpo,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.End,
+                        modifier = (if (name == null) Modifier.weight(1f)
+                            else Modifier.widthIn(min = dataRoom, max = rowWidth * ONE_ROW_DATA_MAX))
+                            .then(spoken)
+                            .then(report?.atEnd("data", dataInk) ?: Modifier)
+                    )
+                    series?.let { Counter(it, report) }
+                    if (name != null) {
+                        Spacer(Modifier.width(MARK_GAP))
+                        AppMark(report)
                     }
                 }
-                append(resto)
-            }
-            Text(
-                text = dati,
-                style = corpo,
-                /*
-                 * ⚠️⚠️ **IL SIMBOLO SI VEDE E LA PAROLA SI SENTE, dalla `1.34`.** Il segno
-                 * non ha bisogno di traduzione (era la ragione dell'utente), ma un lettore
-                 * di schermo su `◱` non dice niente di utile: quindi la stringa tradotta
-                 * `bar_reduced` **resta** e diventa quello che TalkBack legge. Se un domani
-                 * il simbolo cambia, la parola non si tocca.
-                 * ⚠️ **Si dichiara solo quando serve**: su un'immagine intera la
-                 * descrizione sarebbe una copia del testo, cioè lavoro per niente e un
-                 * posto in più dove le due versioni possono divergere.
-                 * ⚠️ **Si ricompone dai pezzi invece di sostituire nel testo**: da quando il
-                 * segno porta un corpo suo il testo è un `AnnotatedString`, e cercare un
-                 * carattere dentro di lui per cambiarlo sarebbe girare intorno alla forma
-                 * con cui è stato costruito.
-                 */
-                modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        if (!image.sampled) Modifier
-                        else Modifier.semantics {
-                            contentDescription = "$formato $reduced$resto"
-                        }
-                    )
-            )
-            folder?.seriesOrNull?.let {
-                Text(
-                    text = "${it.index + 1}/${it.size}",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(start = 12.dp)
-                )
+            } else {
+                Column {
+                    /*
+                     * ⚠️⚠️ **IL NOME È SOPRA I DATI E NON IN MEZZO A LORO** (richiesta
+                     * dell'utente, 2026-09-02: *sopra i dati già esistenti, in piccolo, in una
+                     * sola riga con ellissi centrale*). Infilato nella riga di sotto avrebbe
+                     * rubato lo spazio al formato, alla misura e alla percentuale, che sono corti
+                     * e vanno insieme proprio perché si leggono in un colpo d'occhio; e
+                     * allungandosi col nome avrebbe rimesso in movimento il contatore, che tre
+                     * note qui intorno difendono dall'essere spostato.
+                     * ⚠️ **Più piccolo dei dati e non più grande**: è il titolo di quello che si
+                     * guarda, ma la riga esiste per i dati, e un nome in grande sopra una riga di
+                     * numeri li farebbe sembrare una didascalia. `labelMedium` contro il
+                     * `labelLarge` di sotto.
+                     * ⚠️ **Dalla `3.60` vale solo quando la riga unica non c'è**: vedi sopra.
+                     */
+                    NameLine(name, report)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = dati,
+                            style = corpo,
+                            modifier = Modifier
+                                .weight(1f)
+                                .then(spoken)
+                                .then(report?.at("data") ?: Modifier)
+                        )
+                        series?.let { Counter(it, report) }
+                    }
+                }
             }
         }
     }
+}
+
+/** Il contatore `n/totale`, fisso a destra: vedi la nota su [DetailsPanel]. */
+@Composable
+private fun Counter(series: Folder.Series, report: BarReport?) {
+    Text(
+        text = "${series.index + 1}/${series.size}",
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier
+            .padding(start = 12.dp)
+            .then(report?.at("counter") ?: Modifier)
+    )
+}
+
+/**
+ * Chi raccoglie dove la barra disegna, per la tolleranza dell'immagine (`restPlace`).
+ *
+ * ⚠️ Lo passa alla sola riga che sta entrando: durante la dissolvenza incrociata ci sono due
+ * righe, e quella che sfuma via descrive un'immagine che non c'è più.
+ */
+private class BarReport(private val info: InfoBar) {
+    fun at(key: String): Modifier =
+        Modifier.onGloballyPositioned { info.pieces[key] = it.boundsInRoot() }
+
+    /**
+     * Come [at], per un testo allineato a destra: del riquadro conta solo l'ultimo tratto, largo
+     * [ink] pixel, che è dove il testo è davvero.
+     */
+    fun atEnd(key: String, ink: Float): Modifier =
+        Modifier.onGloballyPositioned {
+            val box = it.boundsInRoot()
+            info.pieces[key] = Rect(max(box.left, box.right - ink), box.top, box.right, box.bottom)
+        }
+
+    fun drop(key: String) {
+        info.pieces.remove(key)
+    }
+}
+
+/**
+ * Se la riga unica entra in [width]: i dati al loro massimo, il contatore, il marchio e almeno
+ * [ONE_ROW_NAME] per il nome.
+ */
+internal fun oneRowFits(width: Dp, data: Dp, counter: Dp, mark: Dp): Boolean =
+    width - data - counter - mark - (ONE_ROW_GAP + 12.dp + MARK_GAP) >= ONE_ROW_NAME
+
+/**
+ * I dati coi numeri più larghi che possono comparire: il formato più lungo, il segno della
+ * riduzione, cinque cifre per lato, il peso più largo che [formatBytes] scrive e una percentuale
+ * a quattro cifre.
+ *
+ * ⚠️ Le cifre sono `8`, che in Roboto hanno tutte la stessa larghezza: il modello misura lo
+ * spazio, non un valore.
+ */
+private fun dataModel(corpo: TextStyle) = buildAnnotatedString {
+    append("WEBP ")
+    withStyle(SpanStyle(fontSize = corpo.fontSize * MARK_GROW)) { append(REDUCED_MARK) }
+    append("  88888 x 88888  8888.88 MB  8888%")
+}
+
+/** Il contatore più largo per una serie di [size] elementi. */
+private fun counterModel(size: Int): String {
+    val digits = "8".repeat(size.toString().length)
+    return "$digits/$digits"
 }
 
 /**
@@ -3865,8 +4114,8 @@ private fun DetailsPanel(
  * sotto invece che come la sua testatina.
  */
 @Composable
-private fun NameLine(name: String) {
-    val style = MaterialTheme.typography.labelMedium
+private fun NameLine(name: String?, report: BarReport?) {
+    if (name == null) return
     /*
      * ⚠️⚠️ **IL MARCHIO DELL'APP STA IN CODA A QUESTA RIGA, dalla 1.45, e si paga con un
      * pezzo di nome** (richiesta dell'utente, 2026-09-03: *sulla stessa riga del nome nella
@@ -3891,57 +4140,80 @@ private fun NameLine(name: String) {
         modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BoxWithConstraints(modifier = Modifier.weight(1f)) {
-            val measurer = rememberTextMeasurer()
-            val room = with(LocalDensity.current) { maxWidth.roundToPx() }
-            val shown = remember(name, room, style, measurer) {
-                fitName(name, room, 1, style, measurer)
-            }
-            Text(
-                text = shown.text,
-                // ⚠️ Lo stile a cui il nome è stato misurato e non quello pieno: vedi `fitName`.
-                style = shown.style,
-                maxLines = 1,
-                color = LocalContentColor.current.copy(alpha = NAME_FADE)
-            )
-        }
+        NameText(name, Modifier.weight(1f), report)
         Spacer(Modifier.width(MARK_GAP))
-        /*
-         * ⚠️⚠️ **L'ALTEZZA SI RICAVA DAL CORPO DELLA RIGA, e la larghezza segue**: il glifo è
-         * 70 x 60 (vedi `ic_aiv_mark.xml`), quindi darne una sola misura lo schiaccerebbe.
-         * ⚠️ **Relativa e non in dp**, come il segno dell'immagine ridotta qui sopra: parte
-         * dal corpo del testo, quindi segue chi ha ingrandito i caratteri di sistema.
-         * ⚠️ **[MARK_TALL] è una SCELTA e non una misura**, e va detto: 0,85 del corpo lo
-         * porta un po' sopra l'altezza delle maiuscole del nome, che per un marchio è il
-         * verso giusto (deve farsi vedere); a 0,71, cioè l'altezza esatta di una maiuscola,
-         * spariva. Il carattere vero in sessione non c'è, quindi il rapporto fra il suo
-         * inchiostro e le maiuscole di Roboto non è verificato: se sul telefono risulta
-         * grosso o piccolo, il numero da muovere è uno solo.
-         */
-        val tall = with(LocalDensity.current) { (style.fontSize.toPx() * MARK_TALL).toDp() }
-        Icon(
-            imageVector = Glyphs.AivMark,
-            /*
-             * ⚠️ **Nessuna descrizione, ed è la scelta giusta**: questo non dice niente
-             * dell'immagine che si sta guardando, dice di che app è la schermata. Un lettore
-             * di schermo che annunciasse 'AIV' dopo ogni nome di file leggerebbe la stessa
-             * parola a ogni fotografia.
-             */
-            contentDescription = null,
-            /*
-             * ⚠️⚠️ **L'ACCENTO PIENO, SENZA TRASPARENZA** (riscontro della `1.45`: *niente
-             * trasparenza: colore pieno dell'accento corrente*). Nella `1.45` portava la
-             * stessa alfa del nome, che era quello che aveva chiesto allora, e il risultato
-             * era una firma più spenta del testo che firma.
-             * ⚠️ Il contrasto resta quello dell'accento, 2,43 sul fondo chiaro (misurato in
-             * `Theme.kt`): sotto la soglia delle grafiche non testuali, e accettato dove quel
-             * colore è nato. Qui non c'è niente da leggere, c'è una firma.
-             */
-            tint = MaterialTheme.colorScheme.primary,
-            // Perché lo scostamento è un `offset` e non un margine: vedi [MARK_NUDGE].
-            modifier = Modifier.height(tall).offset(x = MARK_NUDGE, y = -MARK_NUDGE)
+        AppMark(report)
+    }
+}
+
+/**
+ * Il nome accorciato al centro con [fitName], nello spazio che [modifier] gli dà.
+ *
+ * ⚠️ Vive a sé dalla `3.60` perché lo usano due righe: quella del nome sopra i dati e la riga
+ * unica, dove il marchio non gli è accanto ma in fondo, dopo il contatore.
+ */
+@Composable
+private fun NameText(name: String, modifier: Modifier, report: BarReport?) {
+    val style = MaterialTheme.typography.labelMedium
+    BoxWithConstraints(modifier = modifier) {
+        val measurer = rememberTextMeasurer()
+        val room = with(LocalDensity.current) { maxWidth.roundToPx() }
+        val shown = remember(name, room, style, measurer) {
+            fitName(name, room, 1, style, measurer)
+        }
+        Text(
+            text = shown.text,
+            // ⚠️ Lo stile a cui il nome è stato misurato e non quello pieno: vedi `fitName`.
+            style = shown.style,
+            maxLines = 1,
+            color = LocalContentColor.current.copy(alpha = NAME_FADE),
+            modifier = report?.at("name") ?: Modifier
         )
     }
+}
+
+/** Il marchio dell'app in fondo alla riga del nome: le ragioni sono su [NameLine]. */
+@Composable
+private fun AppMark(report: BarReport?) {
+    val style = MaterialTheme.typography.labelMedium
+    /*
+     * ⚠️⚠️ **L'ALTEZZA SI RICAVA DAL CORPO DELLA RIGA, e la larghezza segue**: il glifo è
+     * 70 x 60 (vedi `ic_aiv_mark.xml`), quindi darne una sola misura lo schiaccerebbe.
+     * ⚠️ **Relativa e non in dp**, come il segno dell'immagine ridotta qui sopra: parte
+     * dal corpo del testo, quindi segue chi ha ingrandito i caratteri di sistema.
+     * ⚠️ **[MARK_TALL] è una SCELTA e non una misura**, e va detto: 0,85 del corpo lo
+     * porta un po' sopra l'altezza delle maiuscole del nome, che per un marchio è il
+     * verso giusto (deve farsi vedere); a 0,71, cioè l'altezza esatta di una maiuscola,
+     * spariva. Il carattere vero in sessione non c'è, quindi il rapporto fra il suo
+     * inchiostro e le maiuscole di Roboto non è verificato: se sul telefono risulta
+     * grosso o piccolo, il numero da muovere è uno solo.
+     */
+    val tall = with(LocalDensity.current) { (style.fontSize.toPx() * MARK_TALL).toDp() }
+    Icon(
+        imageVector = Glyphs.AivMark,
+        /*
+         * ⚠️ **Nessuna descrizione, ed è la scelta giusta**: questo non dice niente
+         * dell'immagine che si sta guardando, dice di che app è la schermata. Un lettore
+         * di schermo che annunciasse 'AIV' dopo ogni nome di file leggerebbe la stessa
+         * parola a ogni fotografia.
+         */
+        contentDescription = null,
+        /*
+         * ⚠️⚠️ **L'ACCENTO PIENO, SENZA TRASPARENZA** (riscontro della `1.45`: *niente
+         * trasparenza: colore pieno dell'accento corrente*). Nella `1.45` portava la
+         * stessa alfa del nome, che era quello che aveva chiesto allora, e il risultato
+         * era una firma più spenta del testo che firma.
+         * ⚠️ Il contrasto resta quello dell'accento, 2,43 sul fondo chiaro (misurato in
+         * `Theme.kt`): sotto la soglia delle grafiche non testuali, e accettato dove quel
+         * colore è nato. Qui non c'è niente da leggere, c'è una firma.
+         */
+        tint = MaterialTheme.colorScheme.primary,
+        // Perché lo scostamento è un `offset` e non un margine: vedi [MARK_NUDGE].
+        modifier = Modifier
+            .height(tall)
+            .offset(x = MARK_NUDGE, y = -MARK_NUDGE)
+            .then(report?.at("mark") ?: Modifier)
+    )
 }
 
 /**
@@ -3959,6 +4231,27 @@ private fun NameLine(name: String) {
  * 'allinearlo alle maiuscole', ed è la ragione per cui questa nota esiste.
  */
 private const val MARK_TALL = 0.85f * 1.15f
+
+/** Larghezza su altezza del marchio: il glifo è 70 x 60 (`ic_aiv_mark.xml`). */
+private const val MARK_RATIO = 70f / 60f
+
+/**
+ * Lo spazio minimo che il nome deve avere perché la barra vada su una riga sola.
+ *
+ * ⚠️ **È una SCELTA**, da guardare sul telefono: 160 dp tengono una ventina di caratteri, cioè
+ * un nome accorciato al centro che si riconosce ancora. Su un telefono in verticale non ci sono,
+ * e la barra resta su due righe; su un telefono in orizzontale e su un tablet sì.
+ */
+private val ONE_ROW_NAME = 160.dp
+
+/** Lo stacco fra il nome e i dati nella riga unica. */
+private val ONE_ROW_GAP = 16.dp
+
+/**
+ * Quanto della riga unica i dati possono prendere quando portano una frase (la cartella che non
+ * c'è): oltre, la frase si accorcia coi tre punti e il nome conserva il suo spazio.
+ */
+private const val ONE_ROW_DATA_MAX = 0.6f
 
 /**
  * L'aria fra la fine del nome e il marchio.
@@ -4092,10 +4385,16 @@ internal fun formatBytes(value: Long): String = when {
     else -> String.format(Locale.US, "%.2f GB", value / (1024f * 1024f * 1024f))
 }
 
-/** Quanto la fila dei comandi si stacca dal fondo, e quanto in più se sotto c'è la riga dei
- * dettagli. Vedi la nota alla chiamata: sono tarature, non misure. */
+/** Quanto la fila dei comandi si stacca dal fondo, o dalla riga dei dettagli quando è sotto. */
 private val ANIM_LIP = 24.dp
-private val ANIM_OVER_INFO = 96.dp
+
+/**
+ * Quanto dura lo spostamento dell'immagine quando la barra delle info compare o si nasconde.
+ *
+ * ⚠️ **Breve, ed è la scelta A2** (*con una breve animazione*): è un cambio di spazio, non un
+ * evento da guardare.
+ */
+private const val BAR_ROOM_MS = 220
 
 /**
  * Quanto vive la notifica che dice 'questa l'hai già scaricata'.

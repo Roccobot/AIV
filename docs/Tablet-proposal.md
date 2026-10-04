@@ -13,6 +13,10 @@ sistema cartelle a lato e file a destra; dialoghi rinomina/converti/salva a 520 
 Copia/sposta a 800 dp su tablet. Dalla `3.36` Dimensioni e filigrana mettono anteprima
 accanto ai parametri da 1.024 dp; Guida/scelta editor e bottomsheet sono finestre
 scorrevoli a larghezza contenuta da 600 dp.
+Dalla `3.60` (richiesta del 2026-10-04, scelte A1-A4) la barra delle info del Visualizzatore va
+su una riga sola quando il nome ha almeno 160 dp, cioè su telefono in orizzontale e su tablet, e
+l'immagine a riposo si adatta allo spazio che la barra lascia libero; in orizzontale può passare
+sotto la barra fino al 5% dell'altezza, solo dove la barra non ha testo (`Fit.kt`).
 I colori derivano da `Theme.kt`; il font è Roboto, distribuito con la propria licenza.
 Sono composizioni web dimostrative, non schermate Android misurate né una nuova identità grafica.
 
