@@ -52,6 +52,20 @@ class RiposoTest {
         assertEquals(-75f, clampAxis(0f, 2250f, 2400f, place.top, place.bottom), eps)
     }
 
+    /**
+     * **La tolleranza non entra nella barra di sistema** (voce `3.70-01`: *su tablet in
+     * orizzontale le immagini alte vanno ancora a finire sotto l'overlay info*).
+     */
+    @Test
+    fun `la tolleranza si ferma alla barra di stato`() {
+        // Landscape tablet 2880 x 1800: status bar of 60 px, then the bar's row of 44 px.
+        val bar = BarSpace(BarEdge.TOP, 104f, listOf(48f..900f, 1900f..2832f), system = 60f)
+        val place = restPlace(2880f, 1800f, 1000f, 3000f, cap = null, bar = bar)
+        // 5% of 1800 = 90 px would reach 14 px from the top, inside the status bar: it stops at 60.
+        assertEquals(60f, place.top, eps)
+        assertEquals((1800f - 60f) / 3000f, place.scale, 1e-6f)
+    }
+
     @Test
     fun `in orizzontale il 5 per cento va sotto la barra dove non c e testo`() {
         // Landscape phone 2400 x 1080, bar of 100 px with text only at the two ends.

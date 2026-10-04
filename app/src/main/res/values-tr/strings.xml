@@ -157,7 +157,7 @@
     <string name="folders_permission">Klasörleri listelemek tüm dosyalara erişim ister. Bir klasörü çevirmeyi sağlayan izinle aynıdır ve bir sistem sayfasından verilir.</string>
     <string name="folders_grant">Erişim ver</string>
     <string name="folders_none">Gösterilecek bir şey içeren klasör yok.</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">Gezinme çubuğundan bir klasör seçin</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

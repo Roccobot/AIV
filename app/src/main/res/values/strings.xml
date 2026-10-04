@@ -469,7 +469,7 @@
     <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
     <string name="folders_grant">Grant access</string>
     <string name="folders_none">No folder holds anything to show.</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">Choose a folder from the navigation bar</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

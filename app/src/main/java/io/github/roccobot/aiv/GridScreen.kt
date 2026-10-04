@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -113,6 +114,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -1322,9 +1324,9 @@ fun GridScreen(
      * Cronologia, Ripristina tutto e Svuota il cestino (*se il FAB prevede scelte diverse o più
      * scelte, la pillola si adatta*). Le due azioni del cestino si spengono a cestino vuoto, come
      * nel menu.
-     * ⚠️ **Sul tablet in verticale Cerca non è una voce ma il campo in testa alla pillola**
-     * (scelta B6, mockup `Tablet_V`), e dopo vengono Impostazioni e Cestino, nell'ordine del
-     * mockup.
+     * ⚠️ **Sul tablet in verticale le voci sono le stesse dello schermo largo, dalla `3.71`**:
+     * fino alla `3.70` Cerca era un campo in testa alla pillola (scelta B6), e la voce `3.70-07`
+     * l'ha voluta compatta, con le sole tre icone.
      * ⚠️ **In selezione la pillola non c'è**, come il FAB: le azioni sono nella scheda in basso.
      */
     val cerca = stringResource(R.string.hub_search)
@@ -1341,19 +1343,13 @@ fun GridScreen(
                 emptying = true
             }
         )
-        tall -> listOfNotNull(
-            onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, onTap = it) },
-            onBin?.let { PillEntry(Glyphs.Bin, cestino, onTap = it) }
-        )
         else -> listOfNotNull(
             onSearchHere?.let { PillEntry(Icons.Default.Search, cerca, onTap = it) },
             onBin?.let { PillEntry(Glyphs.Bin, cestino, onTap = it) },
             onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, onTap = it) }
         )
     }
-    /** Il campo di ricerca in testa alla pillola del tablet in verticale, dove c'è: vedi sopra. */
-    val pillSearch = onSearchHere.takeIf { tall && !bin && !picking }
-    val pillShown = pillEntries.isNotEmpty() || pillSearch != null
+    val pillShown = pillEntries.isNotEmpty()
 
     /*
      * ⚠️⚠️ **L'ICONA E LE PASTIGLIE DELL'INTESTAZIONE SONO SCRITTE UNA VOLTA SOLA, DALLA `3.70`**,
@@ -1366,13 +1362,19 @@ fun GridScreen(
      * ⚠️ Il pieno dell'icona segue il colore scelto: la sagoma in negativo vuole tutto
      * l'inchiostro, il bianco sovrapposto ne vuole il 40%, che è il numero che ha dettato lui.
      */
-    val pienoIcona = when {
-        !frontWash -> FRONT_INK
+    /*
+     * ⚠️ **Dipende dalla sfumatura sotto l'icona, e dalla `3.71` le sfumature sono due**: la
+     * fascia del telefono segue l'interruttore, la testa della colonna lo segue salvo il foro della
+     * fotocamera ([lavaTesta]). Per questo il pieno e la tinta si chiedono con la sfumatura in mano.
+     */
+    fun pienoPer(lavata: Boolean) = when {
+        !lavata -> FRONT_INK
         chiaro -> FRONT_NEG_INK
         else -> FRONT_DARK_INK
     }
-    val iconaCartella: @Composable (Modifier, GraphicsLayerScope.() -> Float) -> Unit =
-        { misura, inchiostro ->
+    val pienoIcona = pienoPer(frontWash)
+    val iconaCartella: @Composable (Modifier, Boolean, GraphicsLayerScope.() -> Float) -> Unit =
+        { misura, lavata, inchiostro ->
             Icon(
                 imageVector = Glyphs.FolderAiv,
                 /*
@@ -1397,7 +1399,7 @@ fun GridScreen(
                  * 'Aspetto', e una risorsa letta dalla configurazione direbbe il contrario.
                  */
                 tint = when {
-                    !frontWash -> LocalContentColor.current
+                    !lavata -> LocalContentColor.current
                     chiaro -> MaterialTheme.colorScheme.surface
                     else -> Color.White
                 },
@@ -1426,7 +1428,11 @@ fun GridScreen(
                     .graphicsLayer { alpha = inchiostro() }
             )
         }
-    val pastiglie: @Composable (() -> Float) -> Unit = { quanto ->
+    /*
+     * ⚠️ [inColumn] è la testa della colonna sullo schermo largo: là la fila è centrata e ha meno
+     * margine ai lati, il perché vive accanto alla `FlowRow`.
+     */
+    val pastiglie: @Composable (Boolean, () -> Float) -> Unit = { inColumn, quanto ->
         val pesa = frontFacts && facts.bytes > 0L
         val conta = frontFacts && facts.clips > 0
         val scatta = frontFacts && facts.shots > 0
@@ -1457,11 +1463,22 @@ fun GridScreen(
              * da spostare. Quando si va a capo la fila è larga quanto la riga più
              * lunga, ed è dentro quella larghezza che la seconda si sposta.
              */
+            /*
+             * ⚠️⚠️ **NELLA TESTA DELLA COLONNA LA FILA È CENTRATA, CON 8 PUNTI AI LATI, DALLA
+             * `3.71`** (nota del giro della `3.70`: *nell'elenco cartelle le pillole vanno a capo
+             * anche se in teoria ci dovrebbero stare e sono allineate male*). La colonna è stretta
+             * e i 24 punti per lato della fascia del telefono la mandavano a capo; e il lato del
+             * FAB non ha senso dove il FAB non c'è, quindi la seconda riga si allineava a un
+             * bordo qualunque.
+             */
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp, fabEdge()),
+                horizontalArrangement = Arrangement.spacedBy(
+                    6.dp,
+                    if (inColumn) Alignment.CenterHorizontally else fabEdge()
+                ),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = if (inColumn) 8.dp else 24.dp)
                     .graphicsLayer { alpha = quanto() }
             ) {
                 if (pesa) {
@@ -1529,33 +1546,55 @@ fun GridScreen(
      * ⚠️ **Nella ricerca la testa è vuota**, come la fascia: là la testata ha un campo di testo e
      * non un'intestazione.
      */
+    /*
+     * ⚠️⚠️ **Il foro della fotocamera dal lato della colonna spegne la sfumatura, dalla `3.71`**
+     * (nota del giro della `3.70`: *i telefoni con notch o foro della fotocamera aggiungono una
+     * barra vuota sul lato dello schermo: forse in presenza di quella barra si dovrebbe disattivare
+     * la sfumatura, perché mette in risalto proprio la barra extra*). La colonna comincia dopo
+     * quella fascia, e la tinta accanto la faceva sembrare un bordo.
+     */
+    val dir = LocalLayoutDirection.current
+    val forata = rail?.let { r ->
+        val ritaglio = WindowInsets.displayCutout
+        val lato = if (r.onStart) ritaglio.getLeft(LocalDensity.current, dir) else ritaglio.getRight(LocalDensity.current, dir)
+        lato > 0
+    } ?: false
+    val lavaTesta = frontWash && !forata
     val testa: @Composable BoxScope.() -> Unit = {
         if (headed) {
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
                     .clipToBounds()
-                    .then(
-                        if (frontWash) {
-                            Modifier.frontWash(
+            ) {
+                /*
+                 * ⚠️⚠️ **LA SFUMATURA FINISCE PIÙ IN ALTO, DALLA `3.71`** (nota del giro della
+                 * `3.70`: *sul tablet la sfumatura nell'elenco cartelle ha MOLTO banding. Se può
+                 * aiutare a risolvere, puoi farla finire prima*). Sul tablet la testa è alta mezza
+                 * colonna, e la stessa rampa di colore distesa su tanto spazio fa gradini larghi;
+                 * con il tetto di [HEAD_WASH_MAX] la rampa è quella della fascia del telefono.
+                 */
+                if (lavaTesta) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(minOf(maxHeight, HEAD_WASH_MAX))
+                            .frontWash(
                                 tint = frontTintOf(frontTint) ?: MaterialTheme.colorScheme.primary,
                                 air = 0.dp,
                                 up = 0.dp,
                                 bar = 0.dp,
                                 ink = { 1f }
                             )
-                        } else {
-                            Modifier
-                        }
                     )
-            ) {
+                }
                 val lato = minOf(HEADER_ICON, maxHeight * HEAD_ICON_SHARE)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.align(Alignment.Center).fillMaxWidth()
                 ) {
-                    iconaCartella(Modifier.size(lato)) { pienoIcona }
-                    pastiglie { 1f }
+                    iconaCartella(Modifier.size(lato), lavaTesta) { pienoPer(lavaTesta) }
+                    pastiglie(true) { 1f }
                 }
             }
         }
@@ -1873,7 +1912,8 @@ fun GridScreen(
                          * dietro un confine di layout.
                          */
                         iconaCartella(
-                            Modifier.frontIconMeasure(fullPx = headerPx, shut = { shut }, max = HEADER_ICON)
+                            Modifier.frontIconMeasure(fullPx = headerPx, shut = { shut }, max = HEADER_ICON),
+                            frontWash
                         ) {
                             frontIconInk(
                                 aperto = quanto(),
@@ -2018,7 +2058,7 @@ fun GridScreen(
                          * vorrebbe dire niente, perché non ci sarebbe mai altro da lasciare in piedi.
                          * Il guadagno è che i due dati si compongono: immagini più video fa tutto.
                          */
-                        pastiglie(quanto)
+                        pastiglie(false, quanto)
                     }
                 }
             }
@@ -2041,6 +2081,8 @@ fun GridScreen(
              * del FAB, a destra nella stessa colonna che ospita anche il tasto filtro, in una pillola
              * del colore dell'accento di tema*). La colonna comincia sotto la testata, cioè sotto il
              * filtro, e la griglia si stringe per lasciarle il posto invece di finirle sotto.
+             * ⚠️ **Dalla `3.71` la pillola è agganciata in basso**, staccata dal bordo di [PILL_AIR]
+             * (voce `3.70-04`: *agganciala in basso, con un piccolo padding*).
              */
             Row(modifier = Modifier.fillMaxWidth().weight(1f)) {
             Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
@@ -2278,7 +2320,10 @@ fun GridScreen(
                 ActionPill(
                     entries = pillEntries,
                     vertical = true,
-                    modifier = Modifier.padding(start = PILL_AIR)
+                    modifier = Modifier
+                        .align(Alignment.Bottom)
+                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                        .padding(start = PILL_AIR, bottom = PILL_AIR)
                 )
             }
             }
@@ -2605,16 +2650,17 @@ fun GridScreen(
 
             /*
              * ⚠️⚠️ **SUL TABLET IN VERTICALE LA PILLOLA È IN BASSO, DALLA `3.70`** (richiesta B3 e
-             * mockup `Tablet_V`): il campo 'Cerca in ...', poi Impostazioni e Cestino; nel cestino le
-             * sue tre voci. Al centro, sopra la griglia, staccata dal bordo come il FAB.
+             * mockup `Tablet_V`), sopra la griglia e staccata dal bordo come il FAB.
+             * ⚠️⚠️ **Dalla `3.71` è compatta e a destra** (voce `3.70-07`: *la pillola dev'essere
+             * compatta (solo le tre icone) e agganciata a destra*): le stesse tre voci dello schermo
+             * largo, senza il campo 'Cerca in ...' della `3.70`; nel cestino le sue tre voci.
              */
             if (tall && pillShown) {
                 ActionPill(
                     entries = pillEntries,
                     vertical = false,
-                    lead = pillSearch?.let { apri -> { PillSearch(title.takeIf { it.isNotEmpty() }, apri) } },
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
+                        .align(Alignment.BottomEnd)
                         .safeDrawingPadding()
                         .padding(PILL_AIR)
                 )
@@ -4146,3 +4192,12 @@ private fun RailFrame(
  * testa è al minimo, cioè con l'elenco delle cartelle al 70% della colonna.
  */
 private const val HEAD_ICON_SHARE = 0.4f
+
+/**
+ * Fin dove arriva la sfumatura nella testa della colonna (dalla `3.71`, nota sul banding del giro
+ * della `3.70`).
+ *
+ * ⚠️ **È una scelta**: circa l'altezza della fascia del telefono aperta, dove la sfumatura non ha
+ * mai dato bande che lui abbia segnalato dopo la `2.06`.
+ */
+private val HEAD_WASH_MAX = 200.dp

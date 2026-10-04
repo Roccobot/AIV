@@ -4,10 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -84,6 +86,40 @@ fun Identity(
             modifier = Modifier.heading()
         )
         Signature()
+    }
+}
+
+/**
+ * L'identità coricata: l'icona a sinistra, e accanto il nome e la firma, allineati a sinistra.
+ *
+ * ⚠️⚠️ **Serve alla testa della colonna sul telefono in orizzontale, dalla `3.71`** (voce
+ * `3.70-05` non approvata, con l'allegato `home_phoneH`: *gli smartphone sono MOLTO orizzontali:
+ * lì voglio un'intestazione che ci si adatta meglio, con l'icona dell'app affiancata al testo
+ * con allineamento a sinistra*). Là la testa è bassa e larga, e l'identità in colonna lasciava
+ * l'icona minuscola. Sul tablet resta [Identity].
+ * ⚠️ **Gli stessi pezzi di [Identity]**, cioè la stessa icona col suo tocco e la stessa firma:
+ * cambia soltanto come sono disposti.
+ */
+@Composable
+fun IdentityRow(
+    iconSize: Dp,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppIcon(iconSize)
+        Spacer(Modifier.width(FRONT_GAP * 2))
+        Column(horizontalAlignment = Alignment.Start) {
+            Text(
+                text = "Astonishing Image Viewer",
+                style = MaterialTheme.typography.titleMedium,
+                // ⚠️ Il titolo della schermata iniziale, come in [Identity].
+                modifier = Modifier.heading()
+            )
+            Signature()
+        }
     }
 }
 

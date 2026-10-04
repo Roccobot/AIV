@@ -82,11 +82,15 @@ class LayoutLargoTest {
         assertEquals(Adaptive.Shape.WIDE, Adaptive.shape(1280, 800, 800))
         assertEquals(Adaptive.Shape.TALL, Adaptive.shape(800, 1280, 800))
         assertEquals(Adaptive.Shape.PHONE, Adaptive.shape(560, 320, 320))
-        // Full screen only on the phone held sideways, the narrow one included.
-        assertTrue(Adaptive.immersive(891, 411, 411))
-        assertTrue(Adaptive.immersive(560, 320, 320))
-        assertFalse(Adaptive.immersive(411, 891, 411))
-        assertFalse(Adaptive.immersive(1280, 800, 800))
+        // Full screen on the phone held sideways, the narrow one included, in every screen.
+        assertTrue(Adaptive.immersive(891, 411, 411, viewer = false))
+        assertTrue(Adaptive.immersive(560, 320, 320, viewer = false))
+        // Upright, only in the viewer (3.70-01).
+        assertFalse(Adaptive.immersive(411, 891, 411, viewer = false))
+        assertTrue(Adaptive.immersive(411, 891, 411, viewer = true))
+        // Never on a tablet.
+        assertFalse(Adaptive.immersive(1280, 800, 800, viewer = true))
+        assertFalse(Adaptive.immersive(800, 1280, 800, viewer = true))
     }
 
     /**
@@ -103,6 +107,8 @@ class LayoutLargoTest {
         // A vertical pill on the right edge, in the FAB's order.
         assertTrue("La pillola non è a destra: $cerca", cerca.left > 891f - 80f)
         assertTrue("Le voci non sono in colonna", cerca.top < cestino.top && cestino.top < impostazioni.top)
+        // At the bottom since 3.71 (3.70-04), a few points off the edge.
+        assertTrue("La pillola non è in basso: $impostazioni", impostazioni.bottom in (411f - 24f)..(411f - 4f))
 
         val nome = rect(banco.onNodeWithText(TITOLO).getBoundsInRoot())
         val numero = rect(banco.onNodeWithText("40 items").getBoundsInRoot())
@@ -134,17 +140,21 @@ class LayoutLargoTest {
         assertEquals(alto, lungo.bottom, 1f)
     }
 
-    /** **Sul tablet in verticale la pillola è in basso, col campo di ricerca in testa.** */
+    /**
+     * **Sul tablet in verticale la pillola è in basso a destra, compatta: le sole tre icone**
+     * (voce `3.70-07`; fino alla `3.70` aveva in testa il campo 'Cerca in ...').
+     */
     @Test
     @Config(qualifiers = "w800dp-h1280dp")
-    fun `tablet in verticale pillola in basso col campo`() {
+    fun `tablet in verticale pillola compatta in basso a destra`() {
         monta(Adaptive.Shape.TALL)
-        val campo = rect(banco.onNodeWithText("Search in $TITOLO").getBoundsInRoot())
-        val impostazioni = rect(banco.onNodeWithContentDescription("Settings").getBoundsInRoot())
+        val cerca = rect(banco.onNodeWithContentDescription("Search").getBoundsInRoot())
         val cestino = rect(banco.onNodeWithContentDescription("Bin").getBoundsInRoot())
-        assertTrue("La pillola non è in basso: $campo", campo.top > 1280f - 120f)
-        assertTrue("L'ordine non è campo, Impostazioni, Cestino", campo.right < impostazioni.left && impostazioni.left < cestino.left)
-        banco.onNodeWithContentDescription("Search").assertDoesNotExist()
+        val impostazioni = rect(banco.onNodeWithContentDescription("Settings").getBoundsInRoot())
+        assertTrue("La pillola non è in basso: $cerca", cerca.top > 1280f - 120f)
+        assertTrue("La pillola non è a destra: $impostazioni", impostazioni.right > 800f - 24f)
+        assertTrue("L'ordine non è Cerca, Cestino, Impostazioni", cerca.right <= cestino.left && cestino.right <= impostazioni.left)
+        banco.onNodeWithText("Search in $TITOLO").assertDoesNotExist()
     }
 
     /**

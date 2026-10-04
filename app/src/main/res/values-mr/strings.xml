@@ -157,7 +157,7 @@
     <string name="folders_permission">संचिकासंचांची यादी करण्यासाठी सर्व संचिकांची परवानगी लागते. एखादा संचिकासंच पाहू देणारी तीच परवानगी आहे, आणि ती प्रणालीच्या एका पानावरून दिली जाते.</string>
     <string name="folders_grant">परवानगी द्या</string>
     <string name="folders_none">कोणत्याही संचिकासंचात दाखवण्यासारखे काही नाही.</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">नेव्हिगेशन बारमधून एक फोल्डर निवडा</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

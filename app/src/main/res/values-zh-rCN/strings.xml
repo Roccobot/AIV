@@ -157,7 +157,7 @@
     <string name="folders_permission">列出文件夹需要访问所有文件的权限。这与翻看文件夹用的是同一个权限,在系统页面里授予。</string>
     <string name="folders_grant">授予访问权限</string>
     <string name="folders_none">没有文件夹含有可显示的内容。</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">从导航栏中选择一个文件夹</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -402,7 +403,7 @@ private class LowerNode(
          * ieri.
          */
         val insets = ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
-        val window = windowHeight(insets)
+        val window = windowHeight(insets, hostInsets())
         val air = LOWER_AIR.roundToPx()
         if (pinTop) return pinned(measurable, constraints, window, air)
         /*
@@ -523,7 +524,7 @@ private class LowerNode(
      * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
      * sarebbe zero comunque.
      */
-    private fun windowHeight(insets: WindowInsetsCompat?): Int {
+    private fun windowHeight(insets: WindowInsetsCompat?, host: WindowInsetsCompat?): Int {
         val view = currentValueOf(LocalView)
         val whole = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             view.context.getSystemService(WindowManager::class.java)
@@ -533,15 +534,48 @@ private class LowerNode(
             view.context.resources.displayMetrics.heightPixels
         }
         if (whole <= 0) return 0
-        // ⚠️ `or` e non due letture: `getInsets` di un insieme di tipi restituisce il **massimo**
-        // per ogni lato, quindi a tastiera chiusa il conto è identico a quello di prima e a
-        // tastiera aperta il lato di sotto diventa quello della tastiera, che è più alto della
-        // barra di navigazione che copre.
-        val bars = insets?.getInsets(
-            WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
-        )
-        return (whole - (bars?.top ?: 0) - (bars?.bottom ?: 0)).coerceAtLeast(0)
+        return insideBars(whole, insets?.let(::barsOf), host?.let(::barsOf))
     }
+
+    /**
+     * I rientri della finestra dell'attività sotto il dialogo.
+     *
+     * ⚠️⚠️ **SERVONO DALLA `3.71`** (allegato `popup_phoneH` del giro della `3.70`: sul telefono in
+     * orizzontale la conferma 'Vuoi nascondere...' arrivava a filo del fondo, sopra la barra dei
+     * gesti). La finestra di un dialogo è disposta **dentro** le barre di sistema, quindi i suoi
+     * rientri non le contano, mentre [windowHeight] parte dall'altezza dello schermo intero: il
+     * conto credeva che sotto ci fosse l'aria delle barre, e la stretta lasciava scendere il
+     * pannello fin là. Le barre le conosce l'attività.
+     */
+    private fun hostInsets(): WindowInsetsCompat? {
+        val view = currentValueOf(LocalView)
+        val decor = Knobs.activityOf(view.context)?.window?.decorView ?: return null
+        return ViewCompat.getRootWindowInsets(decor)
+    }
+}
+
+/**
+ * Le barre di sistema e la tastiera di una finestra, sopra e sotto.
+ *
+ * ⚠️ `or` e non due letture: `getInsets` di un insieme di tipi restituisce il **massimo** per ogni
+ * lato, quindi a tastiera chiusa il conto è identico a quello di prima e a tastiera aperta il lato
+ * di sotto diventa quello della tastiera, che è più alto della barra di navigazione che copre.
+ */
+internal fun barsOf(insets: WindowInsetsCompat): Insets =
+    insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
+
+/**
+ * L'altezza di [whole] dentro le barre: per ogni lato vale la più alta fra quelle della finestra
+ * ([own]) e quelle dell'attività sotto di lei ([host]), il perché vive su `hostInsets`.
+ *
+ * ⚠️ **Il massimo e non la somma**: dove la finestra vede già le barre (un'attività, o un dialogo
+ * a schermo intero) le due letture dicono la stessa cosa, e sommarle toglierebbe le barre due
+ * volte.
+ */
+internal fun insideBars(whole: Int, own: Insets?, host: Insets?): Int {
+    val top = maxOf(own?.top ?: 0, host?.top ?: 0)
+    val bottom = maxOf(own?.bottom ?: 0, host?.bottom ?: 0)
+    return (whole - top - bottom).coerceAtLeast(0)
 }
 
 /**
