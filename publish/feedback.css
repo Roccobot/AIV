@@ -735,6 +735,16 @@ body[data-feedback] main {
 }
 
 /* Mobile Altro overlay (long-press on floating ⇥); same notes field as bottom Altro */
+/* While it is open the page under it stays still (the user's request): a drag on the
+   overlay must not scroll it, nor chain to it from the panel. */
+html:has(body.altro-overlay-open),
+body.altro-overlay-open {
+  overflow: hidden;
+}
+.altro-overlay,
+.altro-overlay-panel {
+  overscroll-behavior: contain;
+}
 .altro-overlay {
   position: fixed;
   inset: 0;
@@ -814,14 +824,14 @@ button.altro-overlay-close:hover {
   display: flex;
   flex-direction: column;
 }
-/* With the user's tall keyboard about 358px stay visible: the field takes all of it down to
+/* With the user's tall keyboard about 368px stay visible: the field takes all of it down to
    the formatting row, which ends just above the keyboard, and only the six commands go
    below it (the user's choice). feedback-format.js moves the editor out of the body, so the
    rule names the panel. The focus ring is off here: the field is the whole overlay. */
 .altro-overlay-panel textarea,
 .altro-overlay-panel .rich-editor {
-  height: 250px;
-  min-height: 250px;
+  height: 265px;
+  min-height: 265px;
 }
 .altro-overlay-panel textarea:focus-visible,
 .altro-overlay-panel .rich-editor:focus-visible {
