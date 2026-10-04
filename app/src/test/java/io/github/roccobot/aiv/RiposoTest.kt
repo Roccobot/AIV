@@ -149,4 +149,13 @@ class RiposoTest {
         assertTrue(oneRowFits((230 + 40 + 16 + 34 + 160).dp, 230.dp, 40.dp, 16.dp))
         assertFalse(oneRowFits((230 + 40 + 16 + 34 + 159).dp, 230.dp, 40.dp, 16.dp))
     }
+
+    /** **Un'immagine a riposo cresce sul posto**: il suo spostamento è il centro della fascia. */
+    @Test
+    fun `lo zoom cresce intorno al centro della fascia`() {
+        val pivot = 75f
+        for (ratio in listOf(1.1f, 1.5f, 2f, 3f)) assertEquals(pivot, zoomOffset(pivot, pivot, ratio), eps)
+        // Away from it, the distance grows with the ratio, once.
+        assertEquals(75f + 50f * 2f, zoomOffset(125f, pivot, 2f), eps)
+    }
 }

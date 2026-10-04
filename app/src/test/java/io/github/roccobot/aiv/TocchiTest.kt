@@ -215,13 +215,21 @@ class TocchiTest {
      */
     @Test
     fun `le proprieta di una modale spengono la chiusura dal fuori`() {
+        // ⚠️ Lette in composizione dalla `3.72`: la larghezza dipende dalla finestra.
+        var modale: androidx.compose.ui.window.DialogProperties? = null
+        var secondaria: androidx.compose.ui.window.DialogProperties? = null
+        banco.setContent {
+            modale = loweredWindow(null)
+            secondaria = loweredWindow { }
+        }
+        banco.waitForIdle()
         assertFalse(
             "Una modale accetta ancora la chiusura toccando fuori dalla finestra",
-            loweredWindow(null).dismissOnClickOutside
+            modale!!.dismissOnClickOutside
         )
         assertTrue(
             "Una finestra secondaria non si chiude più toccando fuori",
-            loweredWindow { }.dismissOnClickOutside
+            secondaria!!.dismissOnClickOutside
         )
     }
 }

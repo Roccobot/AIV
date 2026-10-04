@@ -2,7 +2,9 @@ package io.github.roccobot.aiv
 
 import android.os.Build
 import android.view.WindowManager
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -161,8 +163,27 @@ fun Modifier.lowered(
  * dialogo nuovo che scrive `lowered(null)` e dimentica questa riga torna a non essere modale, e
  * non dà nessun errore.
  */
+@Composable
 fun loweredWindow(onOutside: (() -> Unit)?) =
-    DialogProperties(dismissOnClickOutside = onOutside != null)
+    DialogProperties(
+        dismissOnClickOutside = onOutside != null,
+        usePlatformDefaultWidth = !lowWindow()
+    )
+
+/**
+ * Se la finestra è bassa, cioè il telefono in orizzontale.
+ *
+ * ⚠️⚠️ **DALLA `3.72` UNA FINESTRA BASSA NON USA LA LARGHEZZA DI SERIE DEI DIALOGHI** (voce
+ * `3.71-08` non approvata: la conferma 'Vuoi nascondere...' aveva l'ultimo tasto tagliato). In
+ * orizzontale Android dà al dialogo una finestra larga circa quanto il lato corto dello schermo
+ * (misurato sull'allegato: 352 punti su un telefono largo 914), e in 400 punti di altezza il
+ * contenuto andava su troppe righe. Senza la larghezza di serie il pannello si allarga fino a
+ * [Adaptive.dialogMaxWidth], e il resto lo fa lo spostamento (`lowWindowWidth`).
+ * ⚠️ **Altrove la larghezza di serie resta**: in verticale toglierla porterebbe il dialogo a filo
+ * dei bordi dello schermo.
+ */
+@Composable
+fun lowWindow(): Boolean = LocalConfiguration.current.screenHeightDp < LOW_WINDOW.value
 
 /**
  * Le proprietà di una finestra che copre lo schermo **intero**, barre di sistema comprese.
@@ -423,8 +444,11 @@ private class LowerNode(
          */
         val roof = window - air * 2
         val placed = measurable.measure(
-            if (roof > 0) constraints.copy(maxHeight = minOf(constraints.maxHeight, roof))
-            else constraints
+            lowWindowWidth(
+                if (roof > 0) constraints.copy(maxHeight = minOf(constraints.maxHeight, roof))
+                else constraints,
+                window
+            )
         )
         val free = (window - placed.height).coerceAtLeast(0)
         val room = (free / 2 - air).coerceAtLeast(0)
@@ -451,6 +475,29 @@ private class LowerNode(
         aria.top = shift * 2
         aria.from = Int.MAX_VALUE
         return layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
+    }
+
+    /**
+     * In una finestra bassa il pannello si allarga, perché il testo vada su meno righe.
+     *
+     * ⚠️⚠️ **DALLA `3.72`** (voce `3.71-08` non approvata, con l'allegato `pop`: sul telefono in
+     * orizzontale la conferma 'Vuoi nascondere...' lasciava l'aria sotto di sé, ma il tasto
+     * 'Applica a tutte le cartelle allo stesso livello' era tagliato a metà). Il dialogo di
+     * Material si stringe sul suo contenuto, cioè sui 280 punti del minimo, e in un'altezza di
+     * circa 400 punti un titolo su due righe e un testo su quattro non entravano: il tetto
+     * accorciava il pannello e lo spazio del testo, che in un `AlertDialog` non scorre, tagliava
+     * l'ultima riga. Largo [Adaptive.dialogMaxWidth] lo stesso contenuto entra.
+     * ⚠️⚠️ **Da solo non basta, e serve [loweredWindow]**: la finestra di un dialogo con la
+     * larghezza di serie di Android, in orizzontale, è larga circa quanto il lato corto dello
+     * schermo, quindi il minimo nuovo non supererebbe quel massimo.
+     * ⚠️ **Solo sotto [LOW_WINDOW] di altezza**, cioè sul telefono in orizzontale: altrove un
+     * dialogo stretto è quello che Material disegna, e nessuno l'ha segnalato.
+     * ⚠️ **Mai oltre la larghezza concessa**: il minimo nuovo non supera il massimo che arriva.
+     */
+    private fun MeasureScope.lowWindowWidth(constraints: Constraints, window: Int): Constraints {
+        if (window <= 0 || window >= LOW_WINDOW.roundToPx() || !constraints.hasBoundedWidth) return constraints
+        val wide = minOf(Adaptive.dialogMaxWidth.roundToPx(), constraints.maxWidth)
+        return if (wide > constraints.minWidth) constraints.copy(minWidth = wide) else constraints
     }
 
     /**
@@ -587,6 +634,12 @@ internal fun insideBars(whole: Int, own: Insets?, host: Insets?): Int {
  * differenza fra 15 e 17 non la vede nessuno.
  */
 const val LOWER_BY = 0.15f
+
+/**
+ * Sotto questa altezza la finestra è 'bassa', e i pannelli centrati si allargano fino a
+ * [Adaptive.dialogMaxWidth]: vedi [loweredWindow].
+ */
+val LOW_WINDOW = 480.dp
 val LOWER_AIR = 16.dp
 
 /**

@@ -194,32 +194,15 @@ fun FolderRail(
                     .offset { IntOffset(0, -shown.roundToInt()) }
                     .heightIn(max = with(density) { blockCapPx.toDp() })
             ) {
-                FolderRailList(
-                    buckets = buckets,
-                    selected = selected,
-                    selection = selection,
-                    peeking = peeking,
-                    colour = colour,
-                    tints = tints,
-                    onPick = onPick,
-                    onHide = onHide,
-                    onUnhide = onUnhide,
-                    onSelectionChange = onSelectionChange,
-                    onRead = onRead,
-                    listIndex = listIndex,
-                    listOffset = listOffset,
-                    onListScroll = onListScroll,
-                    rowInset = if (chrome) RAIL_ROW_INSET else RAIL_ROW_INSET_TALL,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
-                )
                 /*
-                 * ⚠️⚠️ **LA MANIGLIA È SOTTO L'ELENCO, DALLA `3.71`** (voce `3.70-07`: *la maniglia
-                 * di trascinamento deve essere SOTTO, non sopra le cartelle; al posto dei puntini,
-                 * come icona, usa due righe tipo = ma più allungate, e più tenui
-                 * (semitrasparenti)*). Fino alla `3.70` era a destra sopra l'elenco, coi sei
-                 * puntini di Material.
+                 * ⚠️⚠️ **LA MANIGLIA È SOPRA L'ELENCO, AL CENTRO, CON DUE RIGHE TENUI, DALLA `3.72`**.
+                 * La `3.71` l'aveva messa sotto (voce `3.70-07`), e la voce `3.71-06` l'ha riportata
+                 * su: *con la navigazione a gesti non si riesce ad interagire perché il
+                 * trascinamento dal bordo ha la precedenza. Rimettila in alto, ma la spaziatura dal
+                 * bordo è PERFETTA*. Restano il segno, il centro e il riquadro della `3.71`; fino
+                 * alla `3.70` era a destra, coi sei puntini di Material.
+                 * ⚠️ **Mai più in fondo alla colonna**: là il gesto di sistema dal bordo inferiore
+                 * vince sul trascinamento, e la maniglia non si prende.
                  * ⚠️ **Centrata, come la maniglia di una scheda**: due righe orizzontali dicono
                  * 'si trascina in su e in giù' a chi le ha viste sulle schede di Android.
                  * ⚠️ **Il riquadro del tocco è più grande del segno** ([HANDLE_TOUCH]): le due righe
@@ -283,6 +266,26 @@ fun FolderRail(
                         }
                     }
                 }
+                FolderRailList(
+                    buckets = buckets,
+                    selected = selected,
+                    selection = selection,
+                    peeking = peeking,
+                    colour = colour,
+                    tints = tints,
+                    onPick = onPick,
+                    onHide = onHide,
+                    onUnhide = onUnhide,
+                    onSelectionChange = onSelectionChange,
+                    onRead = onRead,
+                    listIndex = listIndex,
+                    listOffset = listOffset,
+                    onListScroll = onListScroll,
+                    rowInset = if (chrome) RAIL_ROW_INSET else RAIL_ROW_INSET_TALL,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
+                )
             }
         }
 

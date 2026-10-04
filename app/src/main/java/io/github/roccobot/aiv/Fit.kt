@@ -139,3 +139,19 @@ fun clampAxis(candidate: Float, extent: Float, view: Float, top: Float, bottom: 
     if (extent <= bottom - top) return (top + bottom) / 2f - mid
     return (mid + candidate).coerceIn(bottom - extent / 2f, top + extent / 2f) - mid
 }
+
+/**
+ * Where an animated zoom puts the picture's offset, for a scale that goes from one value to
+ * another by [ratio] (new scale over old).
+ *
+ * @param pivot the offset of the rest band's centre from the view's centre ([RestPlace.centre]
+ *   minus half the view): the point the zoom grows around.
+ *
+ * ⚠️⚠️ Since 3.71 the zoom grows around the centre of the band the bar leaves free, and not
+ * around the view's (item `3.71-01`: *al doppio tocco lo zoom fa un percorso strano e
+ * l'immagine usa comunque lo spazio sotto l'overlay*). A picture at rest sits on the band's
+ * centre, below the view's when the bar is at the top; scaling its offset around the view's
+ * centre multiplied that gap too, and the picture slid down while it grew, then slid back.
+ * Around the band's centre a picture at rest grows in place.
+ */
+fun zoomOffset(offset: Float, pivot: Float, ratio: Float): Float = pivot + (offset - pivot) * ratio
