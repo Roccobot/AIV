@@ -53,12 +53,13 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         expect(result.locator('.cloud-account-user')).to_have_text('Roccobot')
         expect(result.locator('.cloud-account')).not_to_contain_text('Accedi')
         expect(result.locator('.cloud-account')).to_contain_text('Esci')
-        # Desktop, connected: the mark 7px from the outline all round, Esci 6px all round.
+        # Desktop, connected: the mark 7px from the outline all round, Esci 6px above and below
+        # and 7px on the right (at 6 it looked 1px too far right, the user's note of 2026-10-04).
         gaps=result.locator('.cloud-account').evaluate('''(chip)=>{
           const c=chip.getBoundingClientRect(),g=chip.querySelector('.cloud-account-logo').getBoundingClientRect(),
             b=chip.querySelector('button.cloud-account-action').getBoundingClientRect();
           return [g.left-c.left-1,g.top-c.top-1,c.bottom-1-g.bottom,b.top-c.top-1,c.bottom-1-b.bottom,c.right-1-b.right];}''')
-        assert [round(value,2) for value in gaps]==[7,7,7,6,6,6], gaps
+        assert [round(value,2) for value in gaps]==[7,7,7,6,6,7], gaps
         # Mobile, connected: Esci 4px from the outline all round (the user's optical centring).
         size=result.viewport_size
         result.set_viewport_size({'width':390,'height':800})

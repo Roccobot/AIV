@@ -51,6 +51,46 @@
     if (className) element.className = className;
     return element;
   }
+  function strokeIcon(paths, width = 2) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", String(width));
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    for (const d of paths) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", d);
+      svg.append(path);
+    }
+    return svg;
+  }
+  // Mobile Altro: one row of keys with two states (the user's mockup Altro_mobile,
+  // 2026-10-04). The base state holds Consegna, the attach key, the four formats and
+  // Chiudi; Consegna swaps in Torna and the six commands, Torna swaps them back. The
+  // commands are the copy feedback-ui.js puts under the panel: it moves into this row.
+  function overlayRow(actions) {
+    const key = (className, label, paths, onClick, width) => {
+      const button = node("button", undefined, "altro-row-key " + className);
+      button.type = "button";
+      button.setAttribute("aria-label", label);
+      button.title = label;
+      button.append(strokeIcon(paths, width));
+      button.addEventListener("pointerdown", event => event.preventDefault());
+      button.addEventListener("click", onClick);
+      return button;
+    };
+    const commands = document.querySelector(".altro-overlay-panel > .altro-commands");
+    const show = state => { actions.dataset.state = state; };
+    actions.dataset.state = "base";
+    actions.prepend(key("altro-row-delivery", "Consegna", ["M5 12h.01", "M12 12h.01", "M19 12h.01"], () => show("consegna"), 4));
+    actions.append(key("altro-row-close", "Chiudi", ["M6 6l12 12", "M18 6 6 18"], () => document.getElementById("altro-overlay-close")?.click()));
+    actions.append(key("altro-row-back", "Torna", ["M9 14 4 9l5-5", "M4 9h10.5a5.5 5.5 0 0 1 0 11H11"], () => show("base")));
+    if (commands) actions.append(commands);
+  }
   function webAddress(value) {
     try {
       const address = new URL(value);
@@ -131,7 +171,7 @@
     const add = (text, style) => {
       if (!text) return;
       const last = runs.at(-1);
-      if (last && last.bold === style.bold && last.italic === style.italic && last.href === style.href) last.text += text;
+      if (last && last.bold === style.bold && last.italic === style.italic && last.href === style.href && last.code === style.code) last.text += text;
       else runs.push({...style, text});
     };
     function visit(element, style) {
@@ -149,8 +189,10 @@
       }
       const block = ["DIV", "P"].includes(tag);
       if (block && element.previousSibling) add("\n", {});
+      // ⚠️ A run of its own, written back as it is: escaped with the rest, its backticks
+      // became \` and the code came back as plain text (found by the check, 2026-10-04).
       if (tag === "CODE") {
-        add("`" + element.textContent + "`", style);
+        add("`" + element.textContent + "`", {...style, code: true});
         return;
       }
       const next = {
@@ -167,6 +209,7 @@
       for (const child of root.childNodes) visit(child, {});
     }
     return runs.map(run => {
+      if (run.code) return run.text;
       let text = run.text.replace(/[\\*`\[\]_]/g, "\\$&");
       const marker = (run.bold ? "**" : "") + (run.italic ? "*" : "");
       if (marker) text = text.replace(/^(\s*)([\s\S]*?\S)(\s*)$/, (_, before, body, after) => before + marker + body + marker + after);
@@ -239,9 +282,26 @@
       document.execCommand("createLink", false, address);
       links(editor);
     } else if (kind === "code") {
-      const selected = range.toString() || "codice";
-      if (!range.collapsed) document.execCommand("delete", false);
-      document.execCommand("insertText", false, "`" + selected + "`");
+      // Rendered in the editor like bold, italic and links (the user's request, 2026-10-04):
+      // a <code> node, which markdown() writes back between backticks. Inside one, the key
+      // takes the code away again.
+      const container = range.startContainer.nodeType === Node.ELEMENT_NODE ? range.startContainer : range.startContainer.parentElement;
+      const current = container.closest("code");
+      if (current && editor.box.contains(current)) {
+        current.replaceWith(document.createTextNode(current.textContent));
+      } else {
+        const code = node("code", range.toString() || "codice");
+        range.deleteContents();
+        range.insertNode(code);
+        // The caret goes after the code, in a text node of its own, so what follows is plain.
+        const after = document.createTextNode("");
+        code.after(after);
+        const caret = document.createRange();
+        caret.setStart(after, 0);
+        caret.collapse(true);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(caret);
+      }
     } else document.execCommand(kind === "bold" ? "bold" : "italic", false);
     sync(editor);
   }
@@ -308,6 +368,7 @@
         toolbar.replaceWith(cluster);
         cluster.append(attach, toolbar);
       }
+      if (area.id === "notes-mobile") overlayRow(actions);
     } else {
       // Proof cards: label.attachment follows this field (or sits on the card).
       // Not #altro-attach, and not label cards (they have no such label).

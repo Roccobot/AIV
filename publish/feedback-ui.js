@@ -70,6 +70,27 @@ function report(text, error = false) {
   message.textContent = text;
   message.classList.toggle("error", error);
 }
+// A notice that rises at the bottom of the page and fades after a few seconds, for the
+// outcomes the user waits for after a tap (Invia, since 2026-10-04: there was no visible
+// answer). The same words go to report(), which screen readers hear.
+let toastTimer = null;
+function toast(text, error = false) {
+  let box = document.querySelector(".toast");
+  if (!box) {
+    box = el("div", undefined, "toast");
+    box.setAttribute("aria-hidden", "true");
+    document.body.append(box);
+  }
+  box.textContent = text;
+  box.classList.toggle("is-error", error);
+  // Restart the entrance when a second notice replaces the first.
+  box.classList.remove("is-visible");
+  void box.offsetWidth;
+  box.classList.add("is-visible");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => box.classList.remove("is-visible"), TOAST_MS);
+}
+const TOAST_MS = 4000;
 function countIcon(kind) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
@@ -511,6 +532,9 @@ const altroOverlay = document.querySelector("#altro-overlay");
 function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
   altroOverlay.hidden = !open;
+  // The overlay always opens on the base row (format keys), not on the Consegna one.
+  const row = document.querySelector(".altro-overlay-panel .format-actions");
+  if (row?.dataset.state) row.dataset.state = "base";
   document.body.classList.toggle("altro-overlay-open", open);
   if (open) {
     syncAltroFields();
@@ -540,6 +564,7 @@ async function send() {
   revision++;
   if (!await save()) {
     report("Invio non confermato: le ultime modifiche non sono ancora disponibili all'agente. Riprova quando il salvataggio cloud funziona.", true);
+    toast("Invio non riuscito: riprova quando il salvataggio funziona.", true);
     return;
   }
   report(
@@ -547,6 +572,7 @@ async function send() {
       ? "Giro reso leggibile all'agente. Puoi modificarlo e inviarlo di nuovo; l'agente lo leggerà solo dopo il tuo via in chat."
       : "Risposte pronte. Per renderle leggibili dal cloud, esportale, importale nel documento cloud e premi Invia.",
   );
+  toast(remote ? "Giro inviato." : "Risposte pronte: esportale per inviarle.");
 }
 // The export is a ZIP: feedback.json with the answers, and the attachments next to it with
 // short names, the test's position on two digits plus a letter (01a.png, 01b.jpg, 02a.webp),
@@ -648,8 +674,11 @@ for (const row of [pageCommands, overlayCommands]) {
   const picker = row.querySelector('[data-command="import"] input');
   picker.addEventListener("change", () => importFile(picker));
 }
-// The page's only keyboard handler: Ctrl/Cmd+S saves, Escape closes the Altro overlay, and
-// T switches the theme outside the fields. The format shortcuts belong to each editor.
+// The page's only keyboard handler: Ctrl/Cmd+S saves, Escape closes the Altro overlay,
+// T switches the theme outside the fields, and Cmd+Up / Cmd+Down (Ctrl elsewhere) go to the
+// top and the bottom of the page (the user's request, 2026-10-04). In a field those two keep
+// moving the caret, which is what they do in any text. The format shortcuts belong to each
+// editor.
 function typing(target) {
   if (!(target instanceof Element)) return false;
   if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return true;
@@ -662,6 +691,10 @@ document.addEventListener("keydown", (event) => {
     save();
   } else if (event.key === "Escape" && altroOverlay && !altroOverlay.hidden) {
     setAltroOverlayOpen(false);
+  } else if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey &&
+      (event.key === "ArrowUp" || event.key === "ArrowDown") && !typing(event.target)) {
+    event.preventDefault();
+    window.scrollTo({ top: event.key === "ArrowUp" ? 0 : document.documentElement.scrollHeight });
   } else if (event.key.toLowerCase() === "t" && !modified && !typing(event.target)) {
     event.preventDefault();
     toggleTheme();
@@ -675,3 +708,32 @@ function controls(disabled) {
     control.disabled = disabled;
   window.feedbackFormatting?.setDisabled(disabled);
 }
+
+// --- Desktop: at the end of the page Prossimi passi ends where Altro does ---
+// Altro is sticky, so at the end of the page its bottom edge is its sticky top plus its height;
+// the room under the grid is set so that the last card ends there too (the user's request,
+// 2026-10-04). Only where the two columns exist; elsewhere the variable is removed.
+(() => {
+  const columns = document.querySelector(".feedback-columns");
+  const altro = document.querySelector("#extra-section");
+  const wide = window.matchMedia("(min-width: 1100px)");
+  if (!columns || !altro) return;
+  function align() {
+    const last = columns.lastElementChild;
+    if (!wide.matches || !last || last === altro) {
+      columns.style.removeProperty("--df-tail");
+      return;
+    }
+    columns.style.setProperty("--df-tail", "0px");
+    const top = parseFloat(getComputedStyle(altro).top) || 0;
+    const below = document.documentElement.scrollHeight - (last.getBoundingClientRect().bottom + window.scrollY);
+    const wanted = window.innerHeight - (top + altro.offsetHeight);
+    columns.style.setProperty("--df-tail", Math.max(0, Math.round(wanted - below)) + "px");
+  }
+  const observer = new ResizeObserver(align);
+  observer.observe(altro);
+  observer.observe(columns);
+  window.addEventListener("resize", align);
+  wide.addEventListener("change", align);
+  align();
+})();

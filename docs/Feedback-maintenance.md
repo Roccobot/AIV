@@ -112,12 +112,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   totale di (colonne prove + Altro), senza fascia a tutta viewport. Su mobile resta in
   fondo **prima** del PP; la striscia sticky mostra solo i chip semaforo centrati (niente
   hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ **o** su Salva
-  (dischetto) apre Altro a pannello overlay (chiudi con ×), sullo stesso campo `notes` del
+  (dischetto) apre Altro a pannello overlay (chiudi con × in alto o con `Chiudi` nella riga), sullo stesso campo `notes` del
   riquadro in fondo e con lo stesso salvataggio cloud; il tocco breve resta l'azione del FAB.
   Nell'overlay il titolo è piccolo e centrato e il campo è alto 265 px, senza anello di
-  selezione: con la tastiera alta dell'utente sopra restano circa 368 px, la riga di
-  formattazione finisce appena sopra e solo i sei comandi vanno sotto (sue scelte,
-  2026-10-04). Con l'overlay aperto la pagina sotto non scorre. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
+  selezione: con la tastiera alta dell'utente sopra restano circa 368 px, e la riga di tasti
+  finisce appena sopra (sue scelte, 2026-10-04). Con l'overlay aperto la pagina sotto non scorre. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
@@ -131,18 +130,32 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   ⚠️⚠️ **Dopo la prima conferma un'etichetta esce dal DF**: è risolta (campo vuoto, o testo
   dell'utente applicato), oppure, se servono chiarimenti o modifiche, torna nel brief. Non
   resta in pagina per un secondo giro.
-- ⚠️ **Sotto il campo di Altro, due righe** (istruzione dell'utente, 2026-10-03), uguali nella
-  colonna della pagina e nel pannello mobile:
+- ⚠️ **Sotto il campo di Altro, nella colonna della pagina, due righe** (istruzione
+  dell'utente, 2026-10-03):
   1. la riga divisa **esattamente a metà**: a sinistra il `+` tratteggiato degli allegati, a
      destra i quattro tasti di formattazione, che si dividono la metà in parti uguali;
   2. i sei comandi di consegna come **icone con tooltip**, ognuno largo 1/6 della riga, in
      quest'ordine: `Azzera tutto`, `Copia il riepilogo`, `Esporta`, `Importa`,
      `Salva`, `Invia`. `Copia il riepilogo` copia negli appunti e basta: il testo non compare
      in nessun campo.
+  ⚠️⚠️ **Nel pannello mobile la riga è una sola, a due stati** (mockup `Altro_mobile`, sua
+  istruzione del 2026-10-04), e le larghezze sono al netto degli spazi: nello stato base
+  `Consegna` 10%, il `+` 40%, i quattro tasti di formattazione e `Chiudi` 10% ciascuno;
+  `Consegna` passa allo stato consegna, con `Torna` 10% e i sei comandi 15% ciascuno, e
+  `Torna` riporta lo stato base. Il pannello si apre sempre sullo stato base. `Chiudi` ha
+  preso il posto della × in basso a destra.
   ⚠️ **L'overlay `Consegna e copie` non c'è più dal 2026-10-03**, e con lui la pressione lunga
   su Salva che lo apriva su desktop. I messaggi dei comandi compaiono nella striscia in alto,
   sotto lo stato del salvataggio (`#action-message`). Gli identificativi `#save`, `#copy`...
   sono sui pulsanti della pagina; la copia nel pannello mobile li riconosce da `data-command`.
+- ⚠️ **Ritocchi del 2026-10-04 (sue richieste)**: l'introduzione dice soltanto *Giro x.yz:
+  collaudo chiuso. Le migliorie e le scelte dei giri precedenti sono in archivio.*, su mobile
+  con la seconda frase a capo; `Invia` risponde anche con un toast in basso; il campo in cui
+  si scrive non ha il bordo colorato; le miniature degli allegati sono due per riga; il codice
+  inline è reso nell'editor come grassetto, corsivo e link; su desktop `Prossimi passi` segue
+  l'ultimo riquadro a 18 px e, a fine pagina, finisce dove finisce `Altro` (lo spazio in fondo lo
+  calcola `feedback-ui.js`, variabile `--df-tail`); `Esci` ha 7 px a destra; `⌘↑` e `⌘↓`
+  (`Ctrl` altrove) portano a inizio e fine pagina fuori dai campi.
 - La **B** del grassetto è un tracciato SVG, non testo: ricavata dalla B di Arial Bold
   (Liberation Sans Bold, con le stesse misure), alla stessa dimensione e allo stesso tratto
   della lettera di prima, perché la sua resa non dipenda dai caratteri installati.
