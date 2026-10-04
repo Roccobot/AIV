@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
     <string name="settings_hand">Предпочтительное положение кнопок</string>
     <string name="settings_hand_desc">Предпочтительная сторона для основных кнопок при работе одной рукой, для правшей и левшей. Она задаёт расположение плавающей кнопки действия (\'FAB\'), части кнопок навигации и элементов интерфейса редактора.</string>
+    <string name="settings_phone_pill">Пилюля вместо FAB в портретной ориентации</string>
+    <string name="settings_phone_pill_desc">Ряд значков в скруглённой панели вместо меню с полными командами. Нажмите и удерживайте значок, чтобы увидеть подсказку.</string>
+    <string name="pill_off">Выключена</string>
+    <string name="pill_slide">Выдвижная</string>
+    <string name="pill_extended">Развёрнутая</string>
+    <string name="pill_solid">Сплошной цвет</string>
+    <string name="pill_translucent">Полупрозрачная</string>
+    <string name="pill_glass">Матовое стекло</string>
     <string name="settings_right">Справа</string>
     <string name="settings_left">Слева</string>
     <string name="settings_list_path">Список файлов: копировать путь папки</string>

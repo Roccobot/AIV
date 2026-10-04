@@ -122,6 +122,14 @@
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
     <string name="settings_hand">பொத்தான்களின் விருப்ப இடம்</string>
     <string name="settings_hand_desc">ஒரு கையால் பயன்படுத்தும்போது முதன்மைப் பொத்தான்களுக்கான விருப்பப் பக்கம், வலது கை மற்றும் இடது கை பயனர்களுக்கு. இது மிதக்கும் செயல் பொத்தான் (\'FAB\'), சில வழிசெலுத்தல் பொத்தான்கள் மற்றும் திருத்தியின் UI பகுதிகளின் இடத்தை நிர்ணயிக்கிறது.</string>
+    <string name="settings_phone_pill">செங்குத்தில் FAB-க்குப் பதிலாக மாத்திரை</string>
+    <string name="settings_phone_pill_desc">முழு கட்டளைகள் கொண்ட மெனுவுக்குப் பதிலாக வட்டமான பெட்டியில் அருகருகே ஐகான்களின் வரிசை. விளக்கக் குறிப்பைப் பார்க்க ஒரு ஐகானை நீண்ட நேரம் அழுத்தவும்.</string>
+    <string name="pill_off">முடக்கம்</string>
+    <string name="pill_slide">நகரும்</string>
+    <string name="pill_extended">விரிந்த</string>
+    <string name="pill_solid">திட நிறம்</string>
+    <string name="pill_translucent">அரை ஒளிபுகும்</string>
+    <string name="pill_glass">உறைந்த கண்ணாடி</string>
     <string name="settings_right">வலது</string>
     <string name="settings_left">இடது</string>
     <string name="settings_list_path">கோப்புப் பட்டியல்: கோப்புறைப் பாதையையும் நகலெடு</string>

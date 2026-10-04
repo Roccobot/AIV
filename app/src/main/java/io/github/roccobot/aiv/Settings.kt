@@ -185,6 +185,43 @@ enum class LastMark(override val token: String) : Choice {
 enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("right") }
 
 /**
+ * Che cosa prende il posto del FAB sul telefono in verticale.
+ *
+ * ⚠️⚠️ **DALLA `4.00`, ED È SUA RICHIESTA** (2026-10-05: *la pillola mi sta piacendo tanto che
+ * potrei provare ad inserirla nella modalità principale dell'app*): la pillola d'accento degli
+ * schermi larghi, coricata in basso e ancorata al lato preferito ([Hand]).
+ * ⚠️ **Solo sul telefono**: il tablet in verticale ha già la sua pillola, e la voce nelle sue
+ * impostazioni non compare. La regola vive in `pillMode`, in `PhonePill.kt`.
+ */
+enum class PhonePill(override val token: String) : Choice {
+    /** Il FAB di sempre col suo menu. Valore di fabbrica. */
+    OFF("off"),
+    /**
+     * Un FAB tondo color accento che al tocco si allunga nella pillola e si richiude sulla sua ×.
+     * Il salto e il tocco lungo del FAB restano sul tasto tondo (risposta C1).
+     */
+    SLIDE("slide"),
+    /** La pillola sempre aperta: niente FAB, niente ×, niente menu (risposta A1). */
+    EXTENDED("extended")
+}
+
+/**
+ * Di che cosa è fatta la pillola.
+ *
+ * ⚠️ **[GLASS] vuole Android 12** (la sfocatura di quello che c'è dietro una vista,
+ * `RenderEffect`): sotto, il gettone non compare (sua risposta, 2026-10-05), e un valore letto da
+ * un backup fatto su un telefono più nuovo ripiega su [SOLID] (`pillFillIn`, in `PhonePill.kt`).
+ */
+enum class PillFill(override val token: String) : Choice {
+    /** L'accento pieno. Valore di fabbrica. */
+    SOLID("solid"),
+    /** L'accento all'80%. */
+    TRANSLUCENT("translucent"),
+    /** Vetro satinato nell'accento: la pillola del DF, come risultato. */
+    GLASS("glass")
+}
+
+/**
  * Dopo quanto un file eliminato se ne va dal cestino da solo.
  *
  * ⚠️⚠️ **DURATE CON UN NOME E NON UN NUMERO DI GIORNI, ed è una scelta di traduzione**: '7
@@ -439,6 +476,24 @@ data class Settings(
     val treePictures: Boolean = false,
     /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
     val hand: Hand = Hand.RIGHT,
+    /**
+     * Che cosa prende il posto del FAB sul telefono in verticale. Vedi [PhonePill].
+     *
+     * ⚠️ **Spenta di fabbrica, ed è sua** (*`Disattivata` (predefinito) = usa il normale FAB*):
+     * la pillola è una cosa da provare, non la faccia nuova dell'app.
+     * ⚠️ **Il valore di fabbrica vive qui e in [SettingsStore.read]**, e il banco legge un
+     * archivio vuoto contro questo campo.
+     */
+    val phonePill: PhonePill = PhonePill.OFF,
+    /**
+     * Di che cosa è fatta la pillola, dovunque ci sia. Vedi [PillFill].
+     *
+     * ⚠️ **Riempie anche la pillola degli schermi larghi**: la voce compare solo sul telefono, e
+     * il telefono in orizzontale mostra quella pillola, quindi una scelta copre tutte e due. Sul
+     * tablet la voce non c'è e il valore resta quello di fabbrica.
+     * ⚠️ **Tinta unita di fabbrica, ed è sua** (*`Tinta unita` (predefinito)*).
+     */
+    val pillFill: PillFill = PillFill.SOLID,
     /**
      * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
      *
@@ -1309,6 +1364,8 @@ object SettingsStore {
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val CLIPBOARD_WHEN = longPreferencesKey("clipboard-when")
     private val HAND = stringPreferencesKey("hand")
+    private val PHONE_PILL = stringPreferencesKey("phone-pill")
+    private val PILL_FILL = stringPreferencesKey("pill-fill")
     private val LIST_PATH = booleanPreferencesKey("list-path")
     private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
@@ -1461,6 +1518,8 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
+            phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.OFF),
+            pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.SOLID),
             listPath = p[LIST_PATH] ?: false,
             pickWeight = p[PICK_WEIGHT] ?: true,
             editorApp = p[EDITOR_APP] ?: "",
@@ -1587,6 +1646,8 @@ object SettingsStore {
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
+            p[PHONE_PILL] = settings.phonePill.token
+            p[PILL_FILL] = settings.pillFill.token
             p[LIST_PATH] = settings.listPath
             p[PICK_WEIGHT] = settings.pickWeight
             p[EDITOR_APP] = settings.editorApp

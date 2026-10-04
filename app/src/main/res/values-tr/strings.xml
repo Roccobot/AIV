@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
     <string name="settings_hand">Düğmelerin tercih edilen konumu</string>
     <string name="settings_hand_desc">Tek elle kullanımda ana düğmeler için tercih edilen taraf; sağ ve sol elini kullananlar için. Kayan işlem düğmesinin (\'FAB\'), bazı gezinme düğmelerinin ve düzenleyici arayüzünün bazı bölümlerinin yerini belirler.</string>
+    <string name="settings_phone_pill">Dikey modda FAB yerine hap</string>
+    <string name="settings_phone_pill_desc">Tam komutların bulunduğu menü yerine yuvarlatılmış bir kutuda yan yana duran simgeler. Açıklama ipucunu görmek için bir simgeye uzun basın.</string>
+    <string name="pill_off">Kapalı</string>
+    <string name="pill_slide">Kayan</string>
+    <string name="pill_extended">Genişletilmiş</string>
+    <string name="pill_solid">Düz renk</string>
+    <string name="pill_translucent">Yarı saydam</string>
+    <string name="pill_glass">Buzlu cam</string>
     <string name="settings_right">Sağ</string>
     <string name="settings_left">Sol</string>
     <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>

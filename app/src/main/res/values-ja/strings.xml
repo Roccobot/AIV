@@ -122,6 +122,14 @@
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
     <string name="settings_hand">ボタンの優先位置</string>
     <string name="settings_hand_desc">片手で使うときにメインのボタンを置く側です。右利きにも左利きにも合わせられます。フローティング操作ボタン（\'FAB\'）や一部のナビゲーションボタン、エディターの UI の一部の位置を決めます。</string>
+    <string name="settings_phone_pill">縦向きで FAB の代わりにピル</string>
+    <string name="settings_phone_pill_desc">すべてのコマンドを含むメニューの代わりに、角の丸い枠にアイコンを横に並べます。アイコンを長押しすると説明のツールチップが表示されます。</string>
+    <string name="pill_off">オフ</string>
+    <string name="pill_slide">スライド</string>
+    <string name="pill_extended">展開</string>
+    <string name="pill_solid">単色</string>
+    <string name="pill_translucent">半透明</string>
+    <string name="pill_glass">すりガラス</string>
     <string name="settings_right">右</string>
     <string name="settings_left">左</string>
     <string name="settings_list_path">ファイル一覧: フォルダーのパスもコピー</string>

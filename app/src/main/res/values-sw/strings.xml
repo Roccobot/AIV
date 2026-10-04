@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
     <string name="settings_hand">Nafasi unayopendelea ya vitufe</string>
     <string name="settings_hand_desc">Upande unaopendelea kwa vitufe vikuu unapotumia kwa mkono mmoja, kwa wanaotumia mkono wa kulia au wa kushoto. Huamua mahali pa kitufe cha kitendo kinachoelea (\'FAB\'), baadhi ya vitufe vya urambazaji na sehemu za kiolesura cha kihariri.</string>
+    <string name="settings_phone_pill">Kidonge badala ya FAB ukiwa wima</string>
+    <string name="settings_phone_pill_desc">Safu ya aikoni kando kwa kando ndani ya kisanduku chenye pembe za mviringo badala ya menyu yenye amri kamili. Bonyeza aikoni kwa muda mrefu ili kuona maelezo yake.</string>
+    <string name="pill_off">Imezimwa</string>
+    <string name="pill_slide">Ya kuteleza</string>
+    <string name="pill_extended">Iliyopanuliwa</string>
+    <string name="pill_solid">Rangi thabiti</string>
+    <string name="pill_translucent">Nusu angavu</string>
+    <string name="pill_glass">Kioo cha barafu</string>
     <string name="settings_right">Kulia</string>
     <string name="settings_left">Kushoto</string>
     <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>

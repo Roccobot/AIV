@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
     <string name="settings_hand">Posição preferida dos botões</string>
     <string name="settings_hand_desc">O lado preferido para os botões principais no uso com uma só mão, para destros e canhotos. Define onde ficam o botão de ação flutuante (\'FAB\'), alguns botões de navegação e partes da interface do editor.</string>
+    <string name="settings_phone_pill">Pílula no lugar do FAB na vertical</string>
+    <string name="settings_phone_pill_desc">Uma série de ícones lado a lado em um quadro arredondado no lugar do menu com os comandos completos. Toque e segure um ícone para ver a dica explicativa.</string>
+    <string name="pill_off">Desativada</string>
+    <string name="pill_slide">Deslizante</string>
+    <string name="pill_extended">Estendida</string>
+    <string name="pill_solid">Cor sólida</string>
+    <string name="pill_translucent">Semitransparente</string>
+    <string name="pill_glass">Vidro fosco</string>
     <string name="settings_right">Direita</string>
     <string name="settings_left">Esquerda</string>
     <string name="settings_list_path">Lista de arquivos: copiar o caminho da pasta</string>

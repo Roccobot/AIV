@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
     <string name="settings_hand">Бажане розташування кнопок</string>
     <string name="settings_hand_desc">Бажаний бік для основних кнопок під час керування однією рукою, для правшів і шульг. Він задає розташування плаваючої кнопки дії (\'FAB\'), частини кнопок навігації та елементів інтерфейсу редактора.</string>
+    <string name="settings_phone_pill">Пігулка замість FAB у портретній орієнтації</string>
+    <string name="settings_phone_pill_desc">Ряд значків у заокругленій панелі замість меню з повними командами. Натисніть і утримуйте значок, щоб побачити підказку.</string>
+    <string name="pill_off">Вимкнено</string>
+    <string name="pill_slide">Висувна</string>
+    <string name="pill_extended">Розгорнута</string>
+    <string name="pill_solid">Суцільний колір</string>
+    <string name="pill_translucent">Напівпрозора</string>
+    <string name="pill_glass">Матове скло</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
     <string name="settings_list_path">Список файлів: копіювати шлях теки</string>

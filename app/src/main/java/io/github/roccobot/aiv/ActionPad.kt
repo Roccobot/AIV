@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Flip
@@ -1669,6 +1670,14 @@ fun TapHoldFab(
      * FAB senza menu non ha nessun secondo tempo da evitare.
      */
     pressed: Boolean = lifted,
+    /**
+     * Se il FAB è il tasto tondo della pillola ([PhonePill.SLIDE]) invece del quadrato.
+     *
+     * ⚠️ **Lo chiede solo la copia che un velo d'aiuto illumina**: il tasto tondo vero lo disegna
+     * la pillola, e la copia deve avere la sua forma e la sua misura, o il velo indicherebbe un
+     * tasto che non c'è.
+     */
+    round: Boolean = false,
     onTap: () -> Unit,
     onHold: () -> Unit,
     /**
@@ -1797,10 +1806,12 @@ fun TapHoldFab(
      * rimbalza, e scalare il solo fondo lascerebbe il glifo fermo in mezzo a una piastrella che
      * si muove.
      */
+    val lato = if (round) PILL_KEY else FAB_SIZE
+    val forma = if (round) CircleShape else RoundedCornerShape(FAB_CORNER)
     val tasto = @Composable { muto: Boolean ->
         Surface(
             modifier = Modifier
-                .size(FAB_SIZE)
+                .size(lato)
                 .graphicsLayer {
                     val k = rimbalzo.value * via.value
                     scaleX = k
@@ -1810,7 +1821,7 @@ fun TapHoldFab(
                 // più un comando: annunciarlo darebbe un tasto che il lettore di schermo trova e
                 // che non fa niente.
                 .then(if (muto) Modifier.clearAndSetSemantics { } else Modifier),
-            shape = RoundedCornerShape(FAB_CORNER),
+            shape = forma,
             color = fondo,
             contentColor = segno,
             shadowElevation = 0.dp
@@ -1852,21 +1863,7 @@ fun TapHoldFab(
      * che sta scendendo **quando** entra nella fascia di questo tasto (il perché su
      * [Modifier.aboveFoot]).
      */
-    val quota = remember { Any() }
-    val finestra = LocalWindowInfo.current.containerSize
-    DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
-    val misura = Modifier.onGloballyPositioned {
-        val dove = it.positionInWindow()
-        val da = dove.x.roundToInt()
-        val fino = da + it.size.width
-        val destra = da + fino > finestra.width
-        FootStage.beside(
-            quota,
-            if (destra) finestra.width - da else fino,
-            destra,
-            tall = finestra.height - dove.y.roundToInt()
-        )
-    }
+    val misura = Modifier.declaresFoot()
 
     if (!lifted) {
         Box(modifier = misura) { tasto(false) }
@@ -1907,18 +1904,18 @@ fun TapHoldFab(
      * finestra del FAB vero nascerebbe mezza scatola più in là.
      */
     var suo by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.size(FAB_SIZE)) {
+    Box(modifier = Modifier.size(lato)) {
         if (!suo) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(FAB_SIZE)
+                    .size(lato)
                     .graphicsLayer {
                         val k = rimbalzo.value
                         scaleX = k
                         scaleY = k
                     }
-                    .background(fondo, RoundedCornerShape(FAB_CORNER)),
+                    .background(fondo, forma),
                 contentAlignment = Alignment.Center
             ) {
                 /*
@@ -1939,6 +1936,33 @@ fun TapHoldFab(
             DisposableEffect(Unit) { onDispose { suo = false } }
             tasto(true)
         }
+    }
+}
+
+/**
+ * Dichiara a [FootStage] quanto del fondo dello schermo occupa il nodo: il fianco e l'altezza.
+ *
+ * ⚠️⚠️ **È LA MISURA CHE [TapHoldFab] SI FACEVA DA SÉ, ESTRATTA NELLA `4.00`**: dalla pillola del
+ * telefono in verticale i tasti in fondo sono due, e la notifica deve scansare l'uno e l'altro
+ * con lo stesso conto. Il perché del fianco, dell'altezza e della chiave per ogni tasto vive
+ * nella nota dentro [TapHoldFab].
+ */
+@Composable
+fun Modifier.declaresFoot(): Modifier {
+    val quota = remember { Any() }
+    val finestra = LocalWindowInfo.current.containerSize
+    DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
+    return this.onGloballyPositioned {
+        val dove = it.positionInWindow()
+        val da = dove.x.roundToInt()
+        val fino = da + it.size.width
+        val destra = da + fino > finestra.width
+        FootStage.beside(
+            quota,
+            if (destra) finestra.width - da else fino,
+            destra,
+            tall = finestra.height - dove.y.roundToInt()
+        )
     }
 }
 

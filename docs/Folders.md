@@ -167,6 +167,31 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️ **Dove c'è la pillola il FAB non c'è**, e con lui il salto in cima e in fondo (B4). In
   selezione la pillola sparisce come il FAB, perché le azioni sono nella scheda in basso.
 - ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.
+- ⚠️⚠️ **Telefono in verticale, dalla `4.00`: la pillola può prendere il posto del FAB** (sua
+  richiesta del 2026-10-05, risposte A1-D1 nel brief). La voce è `Pillola al posto del FAB in
+  verticale`, in cima a 'Pulsanti e indicatori', solo sul telefono, con due file di gettoni:
+  - `Disattivata` (di fabbrica): il FAB di sempre;
+  - `A scorrimento`: il FAB diventa tondo e color accento, e al tocco si allunga in pillola
+    orizzontale con tutte le voci del menu e la × semitrasparente nell'angolo, in 160 ms con una
+    curva che parte velocissima e rallenta; la × la richiude, e così Indietro. Il tasto tondo
+    tiene il salto (il chevron mentre si scorre) e il tocco lungo del FAB (risposta C1);
+  - `Estesa`: niente FAB, niente ×, niente menu. Scorrendo la pillola si piega a due tasti: i due
+    verso il lato preferito diventano `↑` (interno) e `↓` (nell'angolo), con l'animazione del
+    salto, e la pillola torna larga con gli stessi tempi del chevron che rientra (risposta C2).
+    Il tocco lungo delle colonne qui non c'è (risposta B1);
+  - la seconda fila dice di che cosa è fatta la pillola: `Tinta unita` (di fabbrica), `Semitrasparente`
+    (accento all'80%), `Vetro satinato` (la pillola del DF come risultato: sfocatura di deviazione
+    8, saturazione al 160%, accento al 70% sul tema chiaro e al 25% sullo scuro). Da Android 11 in
+    giù il vetro non compare. La scelta riempie anche le pillole degli schermi larghi.
+- ⚠️⚠️ **Col vetro e la sfocatura dietro i pannelli, anche i menu sfocano come il vetro**, col velo
+  nell'accento al 10% al posto del nero (sua richiesta). Dove il telefono non sfoca torna il velo
+  nero.
+- ⚠️⚠️ **Il tocco lungo su un tasto di una pillola mostra la sua etichetta in un fumetto, e basta**
+  (risposte B1-B3), in tutte le pillole: per questo nella pillola il tocco lungo di 'Mostra
+  nascoste' non c'è, e resta nel menu del FAB.
+- ⚠️ **Dove la pillola c'è, la si vede in tutte le schermate che avevano il FAB** (risposta A3): la
+  schermata iniziale in tutte e tre le viste, la griglia di una cartella, la ricerca e il cestino.
+  Il tablet non ha la voce, perché in verticale ha già la sua pillola.
 
 ## 📐 Le griglie arrivano al vetro, anche in basso
 

@@ -5,15 +5,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -23,7 +30,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 /*
  * The accent pill that stands in for the FAB on wide and tall screens.
@@ -40,6 +49,10 @@ import androidx.compose.ui.unit.dp
  * adatta*). That is why a screen hands a list to the pill and does not write a second one.
  * ⚠️ The jump to the top or the bottom (the chevron on the FAB) does not move here: a pill is not
  * a place that changes glyph while scrolling (decision B4).
+ * ⚠️⚠️ Since 4.00 a long press on a key shows its label in a tooltip, and does nothing else
+ * (answers B1 and B2 of 2026-10-05): a key without a written label needs a way to say what it
+ * is, and the long press is that way in every pill, the wide ones included. So the long press of
+ * 'Mostra nascoste' lives in the FAB's menu only. The fill follows the setting ([pillFill]).
  */
 
 /**
@@ -58,7 +71,11 @@ data class PillEntry(
      * capsule reads as a seam.
      */
     val group: Int = 0,
-    /** What a long press does, where the menu row has one ('Mostra nascoste'). */
+    /**
+     * What a long press does in the FAB's menu, where the row has one ('Mostra nascoste').
+     *
+     * ⚠️ **A pill does not read it**: there the long press shows the label (see the header).
+     */
     val onHold: (() -> Unit)? = null,
     val onTap: () -> Unit
 )
@@ -69,6 +86,9 @@ val PILL_AIR = 8.dp
 /** The side of a pill's key, which is also the pill's thickness. */
 val PILL_KEY = 44.dp
 
+/** The side of a pill's glyph. */
+internal val PILL_GLYPH = 22.dp
+
 /**
  * The pill, standing on its own.
  *
@@ -76,7 +96,8 @@ val PILL_KEY = 44.dp
  *   bottom right corner (tall).
  *
  * ⚠️ The colours are the accent and its ink, as in the mockup: the pill says 'commands' the way
- * the FAB did, with the theme's main colour.
+ * the FAB did, with the theme's main colour. Since 4.00 the accent can be at 80% or frosted
+ * glass ([pillFill]), and [backdrop] is what the glass blurs.
  * ⚠️ A pill with no entry draws nothing: an empty capsule is a control that does nothing.
  * ⚠️ Since 3.71 the horizontal pill holds the three icons alone (item `3.70-07`: *la pillola
  * dev'essere compatta (solo le tre icone)*): the search field that led it in 3.70 is gone.
@@ -85,44 +106,85 @@ val PILL_KEY = 44.dp
 fun ActionPill(
     entries: List<PillEntry>,
     vertical: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backdrop: Backdrop? = null
 ) {
     if (entries.isEmpty()) return
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        shape = RoundedCornerShape(PILL_KEY / 2),
-        modifier = modifier
-    ) {
+    CompositionLocalProvider(LocalContentColor provides pillInk()) {
         if (vertical) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier.pillFill(backdrop)
+            ) {
                 entries.forEach { PillKey(it) }
             }
         } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.pillFill(backdrop)
+            ) {
                 entries.forEach { PillKey(it) }
             }
         }
     }
 }
 
-/** One key of the pill: the icon alone, with its label for screen readers. */
+/**
+ * One key of a pill: the icon alone, with its label for screen readers and in a tooltip.
+ *
+ * ⚠️⚠️ **THE LONG PRESS SHOWS THE LABEL, AND ONLY THAT** (answer B1, 2026-10-05: *nessuna funzione
+ * secondaria*), in a tooltip next to the key (answer B3: *fumetto*), above it, where the finger
+ * does not cover it. The one exception is [holdLabel]: the round key of [PhonePill.SLIDE] at
+ * rest is the FAB, and keeps the FAB's long press (answer C1).
+ *
+ * @param size the key's side: smaller than [PILL_KEY] only when the pill would not fit.
+ * @param glyph what the key shows, where it is not just [PillEntry.icon] (the round key, and the
+ *   two keys that turn into the jump).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PillKey(entry: PillEntry) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(PILL_KEY)
-            .combinedClickable(
-                enabled = entry.enabled,
-                role = Role.Button,
-                onClick = entry.onTap,
-                onLongClick = entry.onHold
-            )
-            .semantics { contentDescription = entry.label }
-            .alpha(if (entry.enabled) 1f else DISABLED_INK)
+internal fun PillKey(
+    entry: PillEntry,
+    size: Dp = PILL_KEY,
+    enabled: Boolean = entry.enabled,
+    holdLabel: String? = null,
+    modifier: Modifier = Modifier,
+    glyph: (@Composable () -> Unit)? = null
+) {
+    val tip = rememberTooltipState()
+    val scope = rememberCoroutineScope()
+    val haptics = LocalHapticFeedback.current
+    val hold = entry.onHold.takeIf { holdLabel != null }
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        tooltip = { PlainTooltip { Text(entry.label) } },
+        state = tip,
+        enableUserInput = false,
+        modifier = modifier
     ) {
-        Icon(imageVector = entry.icon, contentDescription = null, modifier = Modifier.size(22.dp))
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(size)
+                .combinedClickable(
+                    enabled = enabled,
+                    role = Role.Button,
+                    onClick = entry.onTap,
+                    onLongClickLabel = holdLabel,
+                    onLongClick = {
+                        haptics.performHapticFeedback(HOLD_BUZZ)
+                        if (hold != null) hold() else scope.launch { tip.show() }
+                    }
+                )
+                .semantics { contentDescription = entry.label }
+                .alpha(if (entry.enabled) 1f else DISABLED_INK)
+        ) {
+            if (glyph != null) {
+                glyph()
+            } else {
+                Icon(imageVector = entry.icon, contentDescription = null, modifier = Modifier.size(PILL_GLYPH))
+            }
+        }
     }
 }
 

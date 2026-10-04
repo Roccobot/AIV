@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
     <string name="settings_hand">Posición preferida de los botones</string>
     <string name="settings_hand_desc">El lado preferido para los botones principales al usar el teléfono con una mano, para diestros y zurdos. Define dónde se colocan el botón de acción flotante (\'FAB\'), algunos botones de navegación y partes de la interfaz del editor.</string>
+    <string name="settings_phone_pill">Píldora en lugar del FAB en vertical</string>
+    <string name="settings_phone_pill_desc">Una serie de iconos uno al lado del otro en un recuadro redondeado en lugar del menú con los comandos completos. Mantén pulsado un icono para ver su descripción emergente.</string>
+    <string name="pill_off">Desactivada</string>
+    <string name="pill_slide">Deslizante</string>
+    <string name="pill_extended">Extendida</string>
+    <string name="pill_solid">Color sólido</string>
+    <string name="pill_translucent">Semitransparente</string>
+    <string name="pill_glass">Vidrio esmerilado</string>
     <string name="settings_right">Derecha</string>
     <string name="settings_left">Izquierda</string>
     <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>

@@ -122,6 +122,14 @@
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
     <string name="settings_hand">按鈕的偏好位置</string>
     <string name="settings_hand_desc">單手使用時主要按鈕的偏好一側，適合慣用右手和左手的人。它決定浮動操作按鈕（\'FAB\'）、部分導覽按鈕以及編輯器介面部分元素的位置。</string>
+    <string name="settings_phone_pill">直向時以膠囊取代 FAB</string>
+    <string name="settings_phone_pill_desc">以圓角框中並排的一組圖示取代含完整指令的選單。長按圖示可查看說明提示。</string>
+    <string name="pill_off">關閉</string>
+    <string name="pill_slide">滑動展開</string>
+    <string name="pill_extended">展開</string>
+    <string name="pill_solid">純色</string>
+    <string name="pill_translucent">半透明</string>
+    <string name="pill_glass">霧面玻璃</string>
     <string name="settings_right">右側</string>
     <string name="settings_left">左側</string>
     <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>

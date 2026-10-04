@@ -921,14 +921,6 @@ fun ViewerScreen(
         BgTheme.DARK -> false
         BgTheme.AUTO -> MaterialTheme.colorScheme.background.isLight()
     }
-    /*
-     * ⚠️ **Il tema dell'APP si legge qui e non nel disegno**, e sono due cose diverse da
-     * [lightGreys]: quello dice di che colore è la scacchiera (lo scegle un'impostazione sua),
-     * questo dice quanto velo è pieno in questo tema, che è il metro con cui [veilProgress]
-     * normalizza. ⚠️ E si legge in composizione perché un `CompositionLocal` là dentro non
-     * esiste: `drawBehind` non è una lambda composabile.
-     */
-    val appChiara = LocalAivLight.current
 
     /*
      * ⚠️⚠️ **DA 600 dp IL MEDIA E IL PANNELLO INFO SONO IN RIGA** (3.31): il mockup
@@ -974,7 +966,7 @@ fun ViewerScreen(
                  * ⚠️ **A funzione spenta non fa niente**: senza l'impostazione della sfocatura
                  * nessuno chiede il velo, la dose è zero, e questa riga esce subito.
                  */
-                val coperto = veilProgress(appChiara)
+                val coperto = veilProgress()
                 if (coperto > 0f) {
                     drawRect(color = piatto(lightGreys), alpha = coperto, size = size)
                 }

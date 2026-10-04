@@ -136,7 +136,7 @@ private const val BACK_MS = 250
  * A 0,8 la somma non scende mai sotto il pieno. Chi lo scrive con un `Crossfade` di serie si
  * riprende quel buco.
  */
-private const val FULL = 0.8f
+internal const val JUMP_FULL = 0.8f
 
 /**
  * Quanto si rimpicciolisce il disegno che se ne va, e da quanto arriva quello che entra.
@@ -144,7 +144,7 @@ private const val FULL = 0.8f
  * ⚠️ **A distinguere i due glifi è la SCALA e non il turno**: si incrociano per tutta la corsa,
  * quindi senza un movimento che li separi si vedrebbe una macchia sola.
  */
-private const val JUMP_ZOOM = 0.45f
+internal const val JUMP_ZOOM = 0.45f
 
 /**
  * Ferma la corsa quando la lista non prende più niente.
@@ -277,6 +277,21 @@ class JumpArm internal constructor(
         retreat()
     }
 
+    /**
+     * La corsa verso un capo scelto: `-1` l'inizio, `+1` la fine.
+     *
+     * ⚠️ **Nasce con la pillola estesa della `4.00`**, che ha due tasti e non un chevron solo
+     * (risposta C2): il capo lo sceglie il tasto, non il verso dell'ultimo scorrimento.
+     */
+    internal suspend fun leapToward(capo: Int, nested: NestedScrollConnection?) {
+        val quanti = if (capo > 0) down() else -up()
+        try {
+            glide(state, nested, quanti)
+        } finally {
+            tick++
+        }
+    }
+
     /** La corsa verso il capo che il chevron indica. */
     internal suspend fun leap(nested: NestedScrollConnection?) {
         val quanti = if (toward > 0) down() else -up()
@@ -339,7 +354,7 @@ fun JumpGlyph(arm: JumpArm, home: @Composable () -> Unit) {
     Box(contentAlignment = Alignment.Center) {
         Box(
             modifier = Modifier.graphicsLayer {
-                alpha = (1f - q).pow(FULL)
+                alpha = (1f - q).pow(JUMP_FULL)
                 val s = 1f - JUMP_ZOOM * q
                 scaleX = s
                 scaleY = s
@@ -353,7 +368,7 @@ fun JumpGlyph(arm: JumpArm, home: @Composable () -> Unit) {
         if (q > 0f) {
             Box(
                 modifier = Modifier.graphicsLayer {
-                    alpha = q.pow(FULL)
+                    alpha = q.pow(JUMP_FULL)
                     val s = 1f - JUMP_ZOOM * (1f - q)
                     scaleX = s
                     scaleY = s

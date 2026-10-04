@@ -122,6 +122,14 @@
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
     <string name="settings_hand">Preferowana pozycja przycisków</string>
     <string name="settings_hand_desc">Preferowana strona dla głównych przycisków przy obsłudze jedną ręką, dla praworęcznych i leworęcznych. Określa położenie pływającego przycisku akcji (\'FAB\'), części przycisków nawigacji i fragmentów interfejsu edytora.</string>
+    <string name="settings_phone_pill">Pigułka zamiast FAB w pionie</string>
+    <string name="settings_phone_pill_desc">Rząd ikon obok siebie w zaokrąglonym polu zamiast menu z pełnymi poleceniami. Przytrzymaj ikonę, aby zobaczyć podpowiedź.</string>
+    <string name="pill_off">Wyłączona</string>
+    <string name="pill_slide">Wysuwana</string>
+    <string name="pill_extended">Rozwinięta</string>
+    <string name="pill_solid">Jednolity kolor</string>
+    <string name="pill_translucent">Półprzezroczysta</string>
+    <string name="pill_glass">Szkło matowe</string>
     <string name="settings_right">Prawa</string>
     <string name="settings_left">Lewa</string>
     <string name="settings_list_path">Lista plików: kopiuj ścieżkę folderu</string>

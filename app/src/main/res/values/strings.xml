@@ -391,6 +391,14 @@
     <string name="settings_folder_count">Item counter under folders in grid view</string>
     <string name="settings_hand">Preferred button position</string>
     <string name="settings_hand_desc">The preferred side for the main buttons in one-handed use, for right- and left-handers. It sets where the floating action button (\'FAB\'), some navigation buttons and parts of the editor UI go.</string>
+    <string name="settings_phone_pill">Pill instead of the FAB in portrait</string>
+    <string name="settings_phone_pill_desc">A row of side-by-side icons in a rounded box instead of the menu with the full commands. Long-press an icon to see its explanatory tooltip.</string>
+    <string name="pill_off">Off</string>
+    <string name="pill_slide">Sliding</string>
+    <string name="pill_extended">Extended</string>
+    <string name="pill_solid">Solid color</string>
+    <string name="pill_translucent">Translucent</string>
+    <string name="pill_glass">Frosted glass</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>
