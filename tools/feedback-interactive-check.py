@@ -557,9 +557,9 @@ def check(path):
                 assert page.locator('#altro-overlay [id="save"], #altro-overlay [id="import"]').count() == 0
                 page.locator('#altro-overlay-close').click()
                 expect(page.locator('#altro-overlay')).to_be_hidden()
-            # Measured on the user's phone with its tall keyboard: only about 358px stay visible
-            # above it. The title is small and centred, the field fills them down to the
-            # formatting row, and only the six commands go below (the user's choice).
+            # Measured on the user's phone with its tall keyboard: about 368px stay visible above
+            # it. The title is small and centred, the field fills them down to the formatting
+            # row, and only the six commands go below (the user's choice).
             page.set_viewport_size({'width': 412, 'height': 800})
             hold(fab)
             title = page.locator('#altro-overlay-title')
@@ -568,9 +568,16 @@ def check(path):
             panel_box = page.locator('.altro-overlay-panel').bounding_box()
             assert abs(title_box['x']+title_box['width']/2 - (panel_box['x']+panel_box['width']/2)) < 1, (title_box, panel_box)
             format_box = page.locator('.altro-overlay-panel .format-actions').bounding_box()
-            assert 340 < format_box['y']+format_box['height'] <= 358, format_box
+            assert 360 < format_box['y']+format_box['height'] <= 368, format_box
             commands_box = page.locator('#altro-overlay .altro-commands').bounding_box()
-            assert commands_box['y'] >= 358, commands_box
+            assert commands_box['y'] >= 368, commands_box
+            # Dragging on the overlay does not scroll the page under it.
+            page.evaluate("window.scrollTo(0, 300)")
+            before = page.evaluate("window.scrollY")
+            page.mouse.move(200, 150)
+            page.mouse.wheel(0, 400)
+            page.wait_for_timeout(300)
+            assert page.evaluate("window.scrollY") == before, (before, page.evaluate("window.scrollY"))
             # No focus ring around the field in the overlay.
             page.locator('#notes-mobile-editor').focus()
             assert page.locator('#notes-mobile-editor').evaluate('(el)=>getComputedStyle(el).outlineStyle') == 'none'
