@@ -2895,9 +2895,15 @@ private fun ImageCanvas(
             scope.launch {
                 val from = scale
                 val animation = Animatable(from)
+                // ⚠️ Intorno al centro della fascia libera, dalla `3.71`: vedi `zoomOffset`.
+                val pivot = place.centre - viewHeight / 2f
+                val start = offset
                 animation.animateTo(target.coerceIn(MIN_SCALE, settings.zoomMax)) {
                     scale = value
-                    offset = clampOffset(offset * (value / from), value)
+                    offset = clampOffset(
+                        Offset(start.x * (value / from), zoomOffset(start.y, pivot, value / from)),
+                        value
+                    )
                 }
             }
         }

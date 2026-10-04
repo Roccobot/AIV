@@ -305,6 +305,14 @@ sessione dopo è perso.
     minimo, e il candidato naturale di un menu ancorato lo rispetta già, quindi non lo muove. Lo ha
     misurato il banco.
   - ⚠️ **L'aria dell'ombra si sconta**, perché vive dentro la finestra.
+- ⚠️⚠️ **In una finestra bassa (sotto i 480 punti, cioè il telefono in orizzontale) un pannello
+  centrato si allarga fino a `Adaptive.dialogMaxWidth`**, dalla `3.72` (voce `3.71-08`: la conferma
+  'Vuoi nascondere...' aveva l'ultimo tasto tagliato). Lo fanno insieme `loweredWindow`, che là
+  spegne la larghezza di serie dei dialoghi di Android (in orizzontale è circa il lato corto dello
+  schermo), e lo spostamento di `lowered`, che alza il minimo. Per questo anche un dialogo che si
+  chiude toccando fuori passa `properties = loweredWindow(onDismiss)`.
+  - ⚠️ **L'altezza utile di un dialogo toglie le barre dell'attività** (`insideBars`, dalla `3.71`):
+    la finestra del dialogo è disposta dentro le barre e i suoi rientri non le contano.
 - ⚠️ **Un dialogo a tutto schermo non si sposta** (`DestinationDialog`): non ha un centro da
   spostare.
 - ⚠️ **Le 'Info dettagliate sul file' sono una scheda in fondo, e non una superficie centrata**:

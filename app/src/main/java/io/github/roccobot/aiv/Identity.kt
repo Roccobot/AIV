@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -90,15 +91,19 @@ fun Identity(
 }
 
 /**
- * L'identità coricata: l'icona a sinistra, e accanto il nome e la firma, allineati a sinistra.
+ * L'identità coricata: l'icona a sinistra, e accanto il nome su due righe, piccolo e tenue.
  *
  * ⚠️⚠️ **Serve alla testa della colonna sul telefono in orizzontale, dalla `3.71`** (voce
  * `3.70-05` non approvata, con l'allegato `home_phoneH`: *gli smartphone sono MOLTO orizzontali:
  * lì voglio un'intestazione che ci si adatta meglio, con l'icona dell'app affiancata al testo
  * con allineamento a sinistra*). Là la testa è bassa e larga, e l'identità in colonna lasciava
  * l'icona minuscola. Sul tablet resta [Identity].
- * ⚠️ **Gli stessi pezzi di [Identity]**, cioè la stessa icona col suo tocco e la stessa firma:
- * cambia soltanto come sono disposti.
+ * ⚠️⚠️ **Dalla `3.72` il nome è piccolo, al 70%, su due righe fisse e senza la firma** (nota del
+ * giro della `3.71`: *il testo dev'essere molto più piccolo e con opacità ~70%. Lascia stare il
+ * made with love by Roccobot: solo Astonishing / Image Viewer*). Nella `3.71` era il titolo pieno
+ * con la firma, e nella colonna stretta andava a capo dentro 'Astonishing'.
+ * ⚠️ **L'a capo è scritto e non lasciato alla larghezza**: le due righe sono quelle che ha
+ * dettato lui, e una colonna più larga non deve rimetterle su una.
  */
 @Composable
 fun IdentityRow(
@@ -111,17 +116,20 @@ fun IdentityRow(
     ) {
         AppIcon(iconSize)
         Spacer(Modifier.width(FRONT_GAP * 2))
-        Column(horizontalAlignment = Alignment.Start) {
-            Text(
-                text = "Astonishing Image Viewer",
-                style = MaterialTheme.typography.titleMedium,
-                // ⚠️ Il titolo della schermata iniziale, come in [Identity].
-                modifier = Modifier.heading()
-            )
-            Signature()
-        }
+        Text(
+            text = "Astonishing\nImage Viewer",
+            style = MaterialTheme.typography.labelMedium,
+            color = LocalContentColor.current.copy(alpha = IDENTITY_ROW_INK),
+            maxLines = 2,
+            softWrap = false,
+            // ⚠️ Il titolo della schermata iniziale, come in [Identity].
+            modifier = Modifier.heading()
+        )
     }
 }
+
+/** L'opacità del nome nell'identità coricata: il numero è suo (*opacità ~70%*). */
+private const val IDENTITY_ROW_INK = 0.7f
 
 /**
  * Quanto si ingrandisce il livello di primo piano perché questa anteprima mostri la

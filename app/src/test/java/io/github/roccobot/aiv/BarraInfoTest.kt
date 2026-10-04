@@ -11,6 +11,10 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.captureToImage
@@ -258,6 +262,29 @@ class BarraInfoTest {
         banco.waitForIdle()
         val figura = figura()
         assertTrue("L'immagine entra nella barra di stato: $figura", figura.top >= STATO - 1f)
+    }
+
+    /**
+     * **Il doppio tocco ingrandisce intorno al centro della fascia libera** (voce `3.71-01`: *al
+     * doppio tocco lo zoom fa un percorso strano*). Fino alla `3.71` a ogni fotogramma lo
+     * spostamento era moltiplicato di nuovo per il rapporto fra la scala e quella di partenza,
+     * cioè cresceva su sé stesso, e l'immagine scivolava fino al bordo della fascia: a fine corsa
+     * la sua cima era appoggiata sotto la barra invece di coprire lo schermo.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h740dp")
+    fun `il doppio tocco ingrandisce sul centro della fascia`() {
+        monta()
+        // ⚠️ La prima immagine ha il velo che spiega il doppio tocco: il primo tocco lo chiude.
+        banco.onNodeWithText("Quick zoom", substring = true).performClick()
+        // ⚠️ Il velo se ne va quando l'archivio ha scritto, in un'altra coroutine: si aspetta lui.
+        banco.waitUntil(5_000) {
+            banco.onAllNodesWithText("Quick zoom", substring = true).fetchSemanticsNodes().isEmpty()
+        }
+        banco.onRoot().performTouchInput { doubleClick(center) }
+        banco.waitForIdle()
+        val figura = figura()
+        assertTrue("L'immagine ingrandita è scivolata sotto la barra: $figura", figura.top <= 1f)
     }
 
     private companion object {

@@ -30,7 +30,7 @@ internal fun AuthorizeFolderDialog(
         hasMedia = withContext(Dispatchers.IO) { Tree.list(File(path), true, false).any { it.media } }
     }
     AlertDialog(
-        onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss),
+        onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
         title = { Text(stringResource(if (included) R.string.folder_remove else R.string.folder_authorize_title)) },
         text = {
             Column {
@@ -75,7 +75,7 @@ internal fun SystemFolderDialog(
         return
     }
     if (step == 1 && covered.isEmpty() && children?.isEmpty() == true) {
-        AlertDialog(onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss),
+        AlertDialog(onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
             title = { Text(stringResource(R.string.hide_folder_title, File(path).name)) },
             text = { Text(stringResource(R.string.hide_folder_desc)) },
             confirmButton = { TextButton(onClick = { onChange(selection.exclude(listOf(path), false)); onDismiss() }) {
@@ -84,7 +84,7 @@ internal fun SystemFolderDialog(
         return
     }
     if (step == 1 && covered.isNotEmpty()) {
-        AlertDialog(onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss),
+        AlertDialog(onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
             title = { Text(stringResource(R.string.show_folder_title, hiddenName(covered.minBy { it.length }))) },
             text = { Text(stringResource(R.string.show_folder_desc)) },
             confirmButton = { TextButton(onClick = { onChange(selection.remove(covered)); onDismiss() }) {
@@ -162,7 +162,7 @@ internal fun SiblingFoldersDialog(path: String, selection: FolderSelection,
     val parent = File(path).parentFile ?: return
     var children by remember(path) { mutableStateOf<List<File>?>(null) }
     LaunchedEffect(path) { children = withContext(Dispatchers.IO) { childFolders(parent) } }
-    AlertDialog(onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss),
+    AlertDialog(onDismissRequest = onDismiss, modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.folder_siblings)) },
         text = { Text(stringResource(R.string.folder_siblings_desc, parent.name)) },
         confirmButton = { TextButton(onClick = {
@@ -214,7 +214,7 @@ internal fun FolderHoldDialog(
     val nome = if (alta == null || alta == propria) bucket.name else hiddenName(alta)
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(onDismiss),
+        modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
         title = {
             Text(stringResource(
                 if (nascosta) R.string.show_folder_title else R.string.hide_folder_title,

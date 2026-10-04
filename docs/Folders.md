@@ -143,7 +143,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   - dalla `3.71` nella testa le pastiglie sono centrate con 8 punti ai lati, la sfumatura finisce
     entro 200 punti (il banding sul tablet), e sparisce dove il foro della fotocamera lascia una
     fascia vuota dal lato della colonna; sul telefono l'identità di casa è coricata, con l'icona
-    accanto al nome e allineata a sinistra (`IdentityRow`, voce `3.70-05`);
+    accanto al nome e allineata a sinistra (`IdentityRow`, voce `3.70-05`), e dalla `3.72` il nome è
+    piccolo, al 70%, su due righe fisse ('Astonishing' e 'Image Viewer') e senza la firma;
   - la colonna la compone la griglia, perché 'Seleziona tutto' agisce sulla sua selezione;
   - i comandi del FAB sono in una pillola d'accento verticale a destra, agganciata in basso dalla
     `3.71` (voce `3.70-04`): in una cartella Cerca, Cestino e Impostazioni; nel cestino le sue tre
@@ -154,8 +155,10 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **Tablet in verticale**: la colonna resta com'è, spostabile, ma senza Cerca, Cestino e
   Impostazioni in fondo (B7); quei comandi sono in una pillola compatta in basso a destra, con le
   sole tre icone (dalla `3.71`, voce `3.70-07`; nella `3.70` aveva in testa il campo 'Cerca in
-  ...'). Nel cestino la pillola ha le sue tre voci. Dalla `3.71` la maniglia è sotto l'elenco, al
-  centro, con due righe tenui al posto dei puntini, e le righe dell'elenco hanno 20 punti ai lati.
+  ...'). Nel cestino la pillola ha le sue tre voci. Dalla `3.71` la maniglia è al centro, con due
+  righe tenui al posto dei puntini, e le righe dell'elenco hanno 20 punti ai lati. ⚠️ **La maniglia è
+  sopra l'elenco, mai sotto** (voce `3.71-06`): nella `3.71` era in fondo, e là il gesto di sistema dal
+  bordo inferiore vince sul trascinamento.
 - ⚠️ **Dove c'è la pillola il FAB non c'è**, e con lui il salto in cima e in fondo (B4). In
   selezione la pillola sparisce come il FAB, perché le azioni sono nella scheda in basso.
 - ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.

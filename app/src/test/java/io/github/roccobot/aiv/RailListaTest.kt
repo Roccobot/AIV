@@ -157,12 +157,12 @@ class RailListaTest {
     }
 
     /**
-     * **La maniglia è sotto l'elenco e al centro della colonna** (voce `3.70-07`: *la maniglia di
-     * trascinamento deve essere SOTTO, non sopra le cartelle*). Fino alla `3.70` era a destra,
-     * sopra la prima cartella.
+     * **La maniglia è sopra l'elenco e al centro della colonna** (voce `3.71-06`: in fondo il gesto
+     * di sistema dal bordo vince sul trascinamento, *rimettila in alto*). Fino alla `3.70` era a
+     * destra, e nella `3.71` sotto l'elenco.
      */
     @Test
-    fun `la maniglia e sotto l'elenco`() {
+    fun `la maniglia e sopra l'elenco e centrata`() {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 FolderRail(
@@ -196,9 +196,9 @@ class RailListaTest {
         val maniglia = banco.onNodeWithContentDescription(testo(R.string.folders_rail_move))
             .getUnclippedBoundsInRoot()
         // ⚠️ Il banco non ha il permesso sui file, quindi l'elenco è la riga che lo chiede: è lei
-        // il contenuto che la maniglia deve avere sopra.
+        // il contenuto che la maniglia deve avere sotto.
         val elenco = banco.onNodeWithText(testo(R.string.folders_permission)).getUnclippedBoundsInRoot()
-        assertTrue("La maniglia non è sotto l'elenco: $maniglia / $elenco", maniglia.top >= elenco.bottom)
+        assertTrue("La maniglia non è sopra l'elenco: $maniglia / $elenco", maniglia.bottom <= elenco.top)
         val scarto = abs(((maniglia.left + maniglia.right) / 2 - (rail.left + rail.right) / 2).value)
         assertTrue("La maniglia non è al centro della colonna: $scarto", scarto <= 1f)
     }
