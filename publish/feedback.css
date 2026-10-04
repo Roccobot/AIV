@@ -147,7 +147,9 @@ h1 {
    (the user's optical centring): the mark 7px all round, Esci 6px. */
 .cloud-account.is-connected {
   padding-left: 7px;
-  padding-right: 6px;
+  /* 7 and not 6 on the right since 2026-10-04: at 6 Esci looked 1px too far right (the
+     user's note). Above and below it stays 6. */
+  padding-right: 7px;
 }
 .cloud-account-logo {
   display: block;
@@ -375,15 +377,19 @@ textarea {
   max-width: 100%;
   font-size: 14px;
 }
+/* Two thumbnails per row, on desktop and mobile alike (the user's request, 2026-10-04). */
 .image-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 12px;
 }
+.image-list:empty {
+  display: none;
+}
 .image-list figure {
   margin: 0;
-  max-width: 220px;
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px;
@@ -674,9 +680,12 @@ body[data-feedback] main {
   color: var(--placeholder);
   pointer-events: none;
 }
-.rich-editor:focus-visible {
-  outline: 3px solid var(--accent-focus);
-  outline-offset: 3px;
+/* No coloured ring on the field being written in (the user's request, 2026-10-04): the caret
+   already says where the text goes. Buttons and links keep theirs. */
+.rich-editor:focus-visible,
+input:not([type="checkbox"]):not([type="file"]):focus-visible,
+textarea:focus-visible {
+  outline: none;
 }
 .rich-editor[aria-disabled="true"] {
   opacity: 0.55;
@@ -811,13 +820,6 @@ button.altro-overlay-close:hover {
   height: 24px;
   flex: 0 0 24px;
   display: block;
-}
-/* Second copy, bottom-right, for the thumb. Same glyph, no box. */
-.altro-overlay-close-thumb {
-  position: absolute;
-  right: 16px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
-  z-index: 5;
 }
 .altro-overlay-body {
   flex: 0 0 auto;
@@ -1099,16 +1101,19 @@ main > .feedback-columns {
     margin-left: 0;
     margin-right: 0;
   }
+  /* No gap between the rows: Prossimi passi follows the last card at the cards' own 18px,
+     and the bottom padding is what feedback-ui.js measures (--df-tail) so that, at the end
+     of the page, Prossimi passi ends where Altro does (the user's request, 2026-10-04). */
   .feedback-columns {
     display: grid;
     grid-template-columns: var(--altro-rail) minmax(0, 1fr);
-    gap: 24px;
+    gap: 0 24px;
     align-items: start;
-    padding: 0 24px 28px;
+    padding: 0 24px var(--df-tail, 28px);
   }
   #extra-section {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / span 2;
     position: sticky;
     top: 88px;
     align-self: start;
@@ -1128,6 +1133,7 @@ main > .feedback-columns {
   }
   .feedback-columns > .next-steps {
     grid-column: 2;
+    margin-top: 0;
   }
 }
 
@@ -1244,4 +1250,93 @@ main > .feedback-columns {
   .feedback-columns > .next-steps {
     order: 3;
   }
+}
+
+/* The intro's two sentences go on two lines on mobile only. */
+.intro br.mobile-break {
+  display: none;
+}
+@media (max-width: 720px) {
+  .intro br.mobile-break {
+    display: inline;
+  }
+}
+
+/* A short notice that rises at the bottom of the page after Invia (the user's request,
+   2026-10-04: there was no visible answer to the tap). The same words also go to
+   #action-message, which screen readers hear. */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 30;
+  max-width: min(520px, calc(100vw - 32px));
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: var(--ink-strong);
+  color: var(--bg);
+  font-size: 15px;
+  line-height: 1.4;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  transform: translate(-50%, 12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.toast.is-error {
+  background: var(--bad-text);
+}
+
+/* Mobile Altro: one row of keys with two states (the user's mockup Altro_mobile,
+   2026-10-04). Base: Consegna 10%, Allega 40%, the four formats and Chiudi 10% each.
+   Consegna: Torna 10%, the six commands 15% each. The shares are of the room left after the
+   gaps, which is what fr units give. */
+.altro-overlay-panel .format-actions {
+  display: grid;
+  gap: 6px;
+  align-items: stretch;
+}
+.altro-overlay-panel .format-actions[data-state="base"] {
+  grid-template-columns: 1fr 4fr 1fr 1fr 1fr 1fr 1fr;
+}
+.altro-overlay-panel .format-actions[data-state="consegna"] {
+  grid-template-columns: 2fr 3fr 3fr 3fr 3fr 3fr 3fr;
+}
+.altro-overlay-panel .format-actions > .altro-format-cluster,
+.altro-overlay-panel .format-actions > .altro-format-cluster > .format-toolbar,
+.altro-overlay-panel .format-actions > .altro-commands {
+  display: contents;
+}
+.altro-overlay-panel .format-actions[data-state="base"] > .altro-commands > *,
+.altro-overlay-panel .format-actions[data-state="base"] > .altro-row-back,
+.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-format-cluster > *,
+.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-format-cluster > .format-toolbar > *,
+.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-row-delivery,
+.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-row-close {
+  display: none;
+}
+.altro-overlay-panel .format-actions button,
+.altro-overlay-panel .format-actions .command,
+.altro-overlay-panel .format-actions .altro-attach {
+  width: auto;
+  min-width: 0;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.altro-overlay-panel .format-actions .altro-row-key {
+  background: var(--surface-hover);
+}
+.altro-overlay-panel .format-actions .altro-row-key svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }

@@ -510,6 +510,48 @@ def check(path):
             page.on('pageerror', lambda e: errors.append(str(e)))
             page.goto(url)
             expect(page.locator('#save')).to_be_enabled()
+            # The intro says the round is closed and where the earlier ones are, in one generic
+            # sentence; on mobile the second sentence starts on its own line.
+            intro = page.locator('.intro > p').first
+            expect(intro).to_have_text(re.compile(r'^Giro [0-9.]+: collaudo chiuso\. ?Le migliorie e le scelte dei giri precedenti sono in archivio\.$'))
+            assert page.locator('.intro br.mobile-break').evaluate('(el)=>getComputedStyle(el).display') == 'none'
+            # No coloured ring around the field being written in.
+            page.locator('#notes-editor').focus()
+            assert page.locator('#notes-editor').evaluate('(el)=>getComputedStyle(el).outlineStyle') == 'none'
+            # Inline code is rendered in the editor, like bold: a <code> node, and backticks in
+            # what is saved.
+            page.locator('#notes-editor').press('End')
+            page.locator('#extra-section [data-format="code"]').click()
+            expect(page.locator('#notes-editor code')).to_have_text('codice')
+            assert page.locator('#notes').input_value().endswith('`codice`'), page.locator('#notes').input_value()
+            # With the caret inside the code, the key takes it away again.
+            page.evaluate("""() => { const code = document.querySelector('#notes-editor code');
+                const range = document.createRange(); range.setStart(code.firstChild, 2); range.collapse(true);
+                const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range); }""")
+            page.locator('#extra-section [data-format="code"]').click()
+            expect(page.locator('#notes-editor code')).to_have_count(0)
+            page.evaluate("() => { const box = document.querySelector('#notes-editor'); box.replaceChildren(); box.dispatchEvent(new Event('input', {bubbles: true})); }")
+            # Desktop: Prossimi passi follows the last card at the cards' own 18px, and at the
+            # end of the page it ends where Altro ends.
+            page.set_viewport_size({'width': 1280, 'height': 900})
+            steps = page.locator('.feedback-columns > .next-steps')
+            last_card = page.locator('.feedback-primary > section').last
+            assert abs(steps.bounding_box()['y'] - (last_card.bounding_box()['y'] + last_card.bounding_box()['height']) - 18) < 1.5
+            page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+            page.wait_for_timeout(200)
+            altro_bottom = page.locator('#extra-section').evaluate('(el)=>el.getBoundingClientRect().bottom')
+            steps_bottom = steps.evaluate('(el)=>el.getBoundingClientRect().bottom')
+            assert abs(altro_bottom - steps_bottom) < 1.5, (altro_bottom, steps_bottom)
+            # Cmd+Up and Cmd+Down go to the top and the bottom of the page, outside the fields.
+            page.locator('h1').click()
+            page.keyboard.press('Meta+ArrowUp')
+            page.wait_for_function("window.scrollY === 0")
+            page.keyboard.press('Meta+ArrowDown')
+            page.wait_for_function("Math.abs(window.scrollY + innerHeight - document.documentElement.scrollHeight) < 2")
+            page.keyboard.press('Control+ArrowUp')
+            page.wait_for_function("window.scrollY === 0")
+            page.set_viewport_size({'width': 390, 'height': 900})
+            assert page.locator('.intro br.mobile-break').evaluate('(el)=>getComputedStyle(el).display') == 'inline'
             assert page.locator('.test').count() == len(data['items'])
             assert page.locator('.decision, #decisions').count() == 0
             # Consegna lives in the Altro row: no overlay, no opener, no summary field.
@@ -569,8 +611,30 @@ def check(path):
             assert abs(title_box['x']+title_box['width']/2 - (panel_box['x']+panel_box['width']/2)) < 1, (title_box, panel_box)
             format_box = page.locator('.altro-overlay-panel .format-actions').bounding_box()
             assert 360 < format_box['y']+format_box['height'] <= 368, format_box
-            commands_box = page.locator('#altro-overlay .altro-commands').bounding_box()
-            assert commands_box['y'] >= 368, commands_box
+            # One row with two states (the user's mockup Altro_mobile, 2026-10-04). Base:
+            # Consegna 10%, Allega 40%, four formats and Chiudi 10% each, of the room left
+            # after the gaps. Consegna: Torna 10%, the six commands 15% each.
+            row = page.locator('.altro-overlay-panel .format-actions')
+            def widths(selector):
+                boxes = [b.bounding_box() for b in row.locator(selector).all()]
+                boxes = [b for b in boxes if b]
+                assert all(abs(b['y'] - boxes[0]['y']) < 1 for b in boxes), boxes
+                room = sum(b['width'] for b in boxes)
+                return [round(b['width'] / room, 3) for b in boxes]
+            base = widths(':scope > .altro-row-delivery, .altro-attach, .format-toolbar button, :scope > .altro-row-close')
+            assert [abs(v - w) < 0.005 for v, w in zip(base, [0.1, 0.4, 0.1, 0.1, 0.1, 0.1, 0.1])] == [True] * 7, base
+            expect(row.locator('.altro-commands > .command').first).to_be_hidden()
+            row.locator('.altro-row-delivery').click()
+            delivery = widths(':scope > .altro-row-back, .altro-commands > .command')
+            assert [abs(v - w) < 0.005 for v, w in zip(delivery, [0.1] + [0.15] * 6)] == [True] * 7, delivery
+            expect(row.locator('.altro-attach')).to_be_hidden()
+            row.locator('.altro-row-back').click()
+            expect(row.locator('.altro-attach')).to_be_visible()
+            # Chiudi in the row replaces the old bottom close key.
+            assert page.locator('.altro-overlay-close-thumb').count() == 0
+            row.locator('.altro-row-close').click()
+            expect(page.locator('#altro-overlay')).to_be_hidden()
+            hold(fab)
             # Dragging on the overlay does not scroll the page under it.
             page.evaluate("window.scrollTo(0, 300)")
             before = page.evaluate("window.scrollY")
@@ -591,6 +655,7 @@ def check(path):
             # The overlay's copy of the commands is wired: its Copia reports, from an empty message.
             hold(fab)
             page.evaluate("document.querySelector('#action-message').textContent = ''")
+            page.locator('#altro-overlay .altro-row-delivery').click()
             page.locator('#altro-overlay [data-command="copy"]').click()
             expect(page.locator('#action-message')).to_have_text(re.compile('Riepilogo copiato|appunti'))
             # One keyboard handler: Escape closes Altro, T switches the theme outside the fields only.
@@ -821,6 +886,11 @@ def check(path):
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
             second.locator('#send').click()
             expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
+            # Invia answers with a visible notice too (the user's request, 2026-10-04).
+            expect(second.locator('.toast.is-visible')).to_contain_text('Risposte pronte')
+            # Thumbnails two per row, on desktop and on mobile.
+            thumbs = [f.bounding_box() for f in second.locator('.test').first.locator('.image-list figure').all()]
+            assert abs(thumbs[0]['y'] - thumbs[1]['y']) < 1 and thumbs[2]['y'] > thumbs[0]['y'] + 1, thumbs
             assert second.evaluate('summary()').startswith('Feedback AIV '+data['version'])
             second.locator('#copy').click()
             expect(second.locator('#action-message')).to_contain_text('Riepilogo copiato')
