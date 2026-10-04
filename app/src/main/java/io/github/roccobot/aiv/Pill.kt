@@ -1,23 +1,14 @@
 package io.github.roccobot.aiv
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +22,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
@@ -41,8 +31,9 @@ import androidx.compose.ui.unit.dp
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
  * ⚠️⚠️ Since 3.70 (user's request of 2026-10-04, mockups `Tablet_H` and `Tablet_V`): with the
- * phone or the tablet held sideways the FAB's entries live in a vertical pill under the filter
- * key, and on a tablet held upright in a horizontal pill at the bottom. Where the pill is, the
+ * phone or the tablet held sideways the FAB's entries live in a vertical pill on the right of the
+ * grid, at the bottom since 3.71, and on a tablet held upright in a horizontal pill at the bottom
+ * right. Where the pill is, the
  * FAB is not (decision B4).
  * ⚠️ The entries are the FAB's own, read from the same place: when the FAB offers other or more
  * choices, the pill follows (*se il FAB prevede scelte diverse o più scelte, la pillola si
@@ -81,22 +72,22 @@ val PILL_KEY = 44.dp
 /**
  * The pill, standing on its own.
  *
- * @param vertical a column under the filter key (wide screens) or a row at the bottom (tall).
- * @param lead what comes before the keys in a horizontal pill: the search field of `Tablet_V`.
+ * @param vertical a column at the bottom of the grid's right side (wide screens) or a row at the
+ *   bottom right corner (tall).
  *
  * ⚠️ The colours are the accent and its ink, as in the mockup: the pill says 'commands' the way
  * the FAB did, with the theme's main colour.
- * ⚠️ A pill with no entry and no lead draws nothing: an empty capsule is a control that does
- * nothing.
+ * ⚠️ A pill with no entry draws nothing: an empty capsule is a control that does nothing.
+ * ⚠️ Since 3.71 the horizontal pill holds the three icons alone (item `3.70-07`: *la pillola
+ * dev'essere compatta (solo le tre icone)*): the search field that led it in 3.70 is gone.
  */
 @Composable
 fun ActionPill(
     entries: List<PillEntry>,
     vertical: Boolean,
-    modifier: Modifier = Modifier,
-    lead: (@Composable RowScope.() -> Unit)? = null
+    modifier: Modifier = Modifier
 ) {
-    if (entries.isEmpty() && lead == null) return
+    if (entries.isEmpty()) return
     Surface(
         color = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -108,11 +99,7 @@ fun ActionPill(
                 entries.forEach { PillKey(it) }
             }
         } else {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(start = if (lead != null) 6.dp else 0.dp)
-            ) {
-                lead?.invoke(this)
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 entries.forEach { PillKey(it) }
             }
         }
@@ -136,41 +123,6 @@ private fun PillKey(entry: PillEntry) {
             .alpha(if (entry.enabled) 1f else DISABLED_INK)
     ) {
         Icon(imageVector = entry.icon, contentDescription = null, modifier = Modifier.size(22.dp))
-    }
-}
-
-/**
- * The search field at the head of the horizontal pill (`Tablet_V`): a tap that opens the search,
- * with 'Cerca in *folder*' as its invitation, the folder in bold.
- *
- * ⚠️ It is the same field the folder column had at its foot until 3.70 (`RailSearch`), moved into
- * the pill (decision B7), with the same two strings: a new wording would cost a string in every
- * language for the same meaning.
- */
-@Composable
-fun RowScope.PillSearch(folderName: String?, onSearch: () -> Unit) {
-    val placeholder = searchInvitation(folderName)
-    Icon(
-        imageVector = Icons.Default.Search,
-        contentDescription = null,
-        modifier = Modifier.padding(start = 6.dp).size(22.dp)
-    )
-    Box(
-        contentAlignment = Alignment.CenterStart,
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .widthIn(min = 160.dp, max = 320.dp)
-            .height(32.dp)
-            .border(1.dp, MaterialTheme.colorScheme.onPrimary, RoundedCornerShape(16.dp))
-            .clickable(role = Role.Button, onClick = onSearch)
-            .padding(horizontal = 12.dp)
-    ) {
-        Text(
-            text = placeholder,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 

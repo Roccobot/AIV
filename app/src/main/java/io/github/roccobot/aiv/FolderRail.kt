@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -31,7 +32,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -58,6 +58,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -192,68 +194,6 @@ fun FolderRail(
                     .offset { IntOffset(0, -shown.roundToInt()) }
                     .heightIn(max = with(density) { blockCapPx.toDp() })
             ) {
-                /*
-                 * ⚠️ **Maniglia a destra sopra l'elenco** (mockup): sei puntini, trascinabile
-                 * in verticale. ContentDescription sul tocco: altrimenti è decorazione muta.
-                 */
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 4.dp),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    /*
-                     * ⚠️⚠️ **MANIGLIA PIU DISCRETA DALLA `3.40`** (`3.39-03`): troppo
-                     * contrastata sul fondo scuro del rail. Icona più piccola e tinta al
-                     * 38% dell'onSurfaceVariant, così resta trovabile al tocco senza
-                     * competere con Cerca e con l'elenco.
-                     */
-                    Icon(
-                        imageVector = Icons.Default.DragIndicator,
-                        contentDescription = stringResource(R.string.folders_rail_move),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-                        modifier = Modifier
-                            .size(20.dp)
-                            .onGloballyPositioned { dragSpace.handle = it }
-                            .pointerInput(Unit) {
-                                detectVerticalDragGestures(
-                                    onDragStart = {
-                                        dragSpace.dragging = true
-                                        dragSpace.anchored = false
-                                    },
-                                    onDragEnd = {
-                                        dragSpace.dragging = false
-                                        onLiftNow.value(lift)
-                                    },
-                                    onDragCancel = {
-                                        dragSpace.dragging = false
-                                        onLiftNow.value(lift)
-                                    },
-                                    onVerticalDrag = { change, dragAmount ->
-                                        val y = dragSpace.fingerY(change.position) ?: return@detectVerticalDragGestures
-                                        if (!dragSpace.anchored) {
-                                            // L'oltre-soglia è l'unico delta locale affidabile:
-                                            // il nodo non si è ancora mosso. L'ancora sta su
-                                            // quel punto, e da lì si usa solo lo spazio fermo.
-                                            dragSpace.anchorY = y - dragAmount
-                                            dragSpace.anchorLift = lift
-                                            dragSpace.anchored = true
-                                        }
-                                        val next = railLiftForFinger(
-                                            dragSpace.anchorLift,
-                                            dragSpace.anchorY,
-                                            y,
-                                            maxLiftNow.value,
-                                        )
-                                        if (next != lift) {
-                                            lift = next
-                                            onLiftNow.value(next)
-                                        }
-                                    },
-                                )
-                            }
-                    )
-                }
                 FolderRailList(
                     buckets = buckets,
                     selected = selected,
@@ -269,10 +209,80 @@ fun FolderRail(
                     listIndex = listIndex,
                     listOffset = listOffset,
                     onListScroll = onListScroll,
+                    rowInset = if (chrome) RAIL_ROW_INSET else RAIL_ROW_INSET_TALL,
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
                 )
+                /*
+                 * ⚠️⚠️ **LA MANIGLIA È SOTTO L'ELENCO, DALLA `3.71`** (voce `3.70-07`: *la maniglia
+                 * di trascinamento deve essere SOTTO, non sopra le cartelle; al posto dei puntini,
+                 * come icona, usa due righe tipo = ma più allungate, e più tenui
+                 * (semitrasparenti)*). Fino alla `3.70` era a destra sopra l'elenco, coi sei
+                 * puntini di Material.
+                 * ⚠️ **Centrata, come la maniglia di una scheda**: due righe orizzontali dicono
+                 * 'si trascina in su e in giù' a chi le ha viste sulle schede di Android.
+                 * ⚠️ **Il riquadro del tocco è più grande del segno** ([HANDLE_TOUCH]): le due righe
+                 * sono sottili, e un bersaglio grande quanto loro non si prenderebbe al primo colpo.
+                 * Il nome per i lettori di schermo resta `folders_rail_move`.
+                 */
+                val handleInk = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = HANDLE_INK)
+                val handleName = stringResource(R.string.folders_rail_move)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .size(width = HANDLE_TOUCH * 2, height = HANDLE_TOUCH)
+                        .semantics { contentDescription = handleName }
+                        .onGloballyPositioned { dragSpace.handle = it }
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragStart = {
+                                    dragSpace.dragging = true
+                                    dragSpace.anchored = false
+                                },
+                                onDragEnd = {
+                                    dragSpace.dragging = false
+                                    onLiftNow.value(lift)
+                                },
+                                onDragCancel = {
+                                    dragSpace.dragging = false
+                                    onLiftNow.value(lift)
+                                },
+                                onVerticalDrag = { change, dragAmount ->
+                                    val y = dragSpace.fingerY(change.position) ?: return@detectVerticalDragGestures
+                                    if (!dragSpace.anchored) {
+                                        // L'oltre-soglia è l'unico delta locale affidabile:
+                                        // il nodo non si è ancora mosso. L'ancora è su quel
+                                        // punto, e da lì si usa solo lo spazio fermo.
+                                        dragSpace.anchorY = y - dragAmount
+                                        dragSpace.anchorLift = lift
+                                        dragSpace.anchored = true
+                                    }
+                                    val next = railLiftForFinger(
+                                        dragSpace.anchorLift,
+                                        dragSpace.anchorY,
+                                        y,
+                                        maxLiftNow.value,
+                                    )
+                                    if (next != lift) {
+                                        lift = next
+                                        onLiftNow.value(next)
+                                    }
+                                },
+                            )
+                        }
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(HANDLE_GAP)) {
+                        repeat(2) {
+                            Box(
+                                Modifier
+                                    .size(width = HANDLE_LINE, height = HANDLE_STROKE)
+                                    .background(handleInk, RoundedCornerShape(50))
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -366,6 +376,8 @@ fun FolderRailList(
     listIndex: Int,
     listOffset: Int,
     onListScroll: (index: Int, offset: Int) -> Unit,
+    /** Il margine di ogni riga verso i bordi della colonna. */
+    rowInset: Dp = RAIL_ROW_INSET,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState(listIndex, listOffset)
@@ -417,7 +429,7 @@ fun FolderRailList(
                             onClick = { onPick(bucket) },
                             onLongClick = withHaptics { holding = bucket },
                         )
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                        .padding(horizontal = rowInset, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
@@ -658,12 +670,19 @@ fun FoldersTabletHint(
      * ⚠️ **Spenta sullo schermo largo, dalla `3.70`**: là l'identità è nella testa della colonna
      * delle cartelle (scelta B5), e due loghi a pochi centimetri si leggerebbero come un errore.
      */
-    identity: Boolean = true
+    identity: Boolean = true,
+    /**
+     * Lo spazio della pillola, che non fa parte dell'area utile: l'invito si centra in quello che
+     * resta (voce `3.70-05`: *al centro dell'area utile della griglia (lo spazio orizzontale della
+     * pillola non ne fa parte)*).
+     */
+    pillRoom: PaddingValues = PaddingValues()
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .padding(pillRoom)
             .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -672,13 +691,41 @@ fun FoldersTabletHint(
             Identity(iconSize = HEADER_ICON)
             Spacer(Modifier.height(48.dp))
         }
+        /*
+         * ⚠️ **Al 50% di opacità, dalla `3.71`** (voci `3.70-05`, `3.70-06` e `3.70-07`): è un
+         * invito e non un contenuto, e la frase nuova dice dove si sceglie.
+         */
         Text(
             text = stringResource(R.string.folders_tablet_pick),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = PICK_HINT_INK)
         )
     }
 }
+
+/** Il margine delle righe dell'elenco verso i bordi della colonna. */
+private val RAIL_ROW_INSET = 12.dp
+
+/**
+ * Il margine delle righe sul tablet in verticale, dalla `3.71` (voce `3.70-07`: *la lista
+ * cartelle deve avere un po' più di margine verso i bordi esterni*).
+ */
+private val RAIL_ROW_INSET_TALL = 20.dp
+
+/** Lunghezza e spessore delle due righe della maniglia, e lo stacco fra loro. */
+private val HANDLE_LINE = 28.dp
+private val HANDLE_STROKE = 2.dp
+private val HANDLE_GAP = 4.dp
+
+/** L'altezza del riquadro che la maniglia offre al dito; la larghezza è il doppio. */
+private val HANDLE_TOUCH = 24.dp
+
+/** Quanto inchiostro hanno le righe della maniglia: tenui, come la maniglia di prima dalla `3.40`. */
+private const val HANDLE_INK = 0.38f
+
+/** L'opacità dell'invito a scegliere una cartella: il numero è suo (voce `3.70-05`). */
+private const val PICK_HINT_INK = 0.5f
 
 /**
  * Riga a due colonne per Cartelle + contenuto, allineata al mockup.

@@ -157,7 +157,7 @@
     <string name="folders_permission">フォルダを一覧にするにはすべてのファイルへのアクセスが必要です。フォルダをめくるのと同じ権限で、システムのページで許可します。</string>
     <string name="folders_grant">アクセスを許可</string>
     <string name="folders_none">中身のあるフォルダがありません。</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">ナビゲーションバーからフォルダを選んでください</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

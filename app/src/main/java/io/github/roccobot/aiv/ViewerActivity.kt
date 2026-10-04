@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.padding
 import android.app.Application
 import android.content.Context
@@ -2796,15 +2799,16 @@ class ViewerActivity : ComponentActivity() {
              * recuperare un po' di prezioso spazio verticale*; scelte B2 e A4). Le barre di stato
              * e di navigazione si nascondono, e uno scorrimento dal bordo le richiama per qualche
              * secondo: è il comportamento immersivo di Android.
-             * ⚠️ **Vale per tutta l'app, visualizzatore compreso**, ed è il motivo per cui vive qui
-             * e non in una schermata: una schermata che le nasconde e una che no le farebbero
-             * comparire e sparire a ogni passaggio.
+             * ⚠️ **In orizzontale vale per tutta l'app, e in verticale per il solo
+             * visualizzatore, dalla `3.71`** (voce `3.70-01`): la regola vive in
+             * [Adaptive.immersive], e qui si dice soltanto quale schermata è in scena.
              * ⚠️ **Gli spazi di sistema si azzerano da sé**: con le barre nascoste `safeDrawing` non
              * le conta più, quindi chi se ne scansava riprende lo spazio senza toccare niente.
              */
             val conf = LocalConfiguration.current
             val immersivo = Adaptive.immersive(
-                conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp
+                conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp,
+                viewer = model.screen == Screen.Viewer
             )
             LaunchedEffect(immersivo) {
                 val barre = WindowCompat.getInsetsController(window, window.decorView)
@@ -3329,10 +3333,24 @@ private fun Stage(
                         width = Adaptive.sideWidth(widthDp),
                         head = {
                             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                                Identity(
-                                    iconSize = minOf(HEADER_ICON, maxHeight * 0.4f),
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
+                                /*
+                                 * ⚠️ Sul telefono l'icona è accanto al nome, allineata a
+                                 * sinistra (voce `3.70-05`): la testa è bassa e larga, e il
+                                 * perché vive su [IdentityRow].
+                                 */
+                                if (LocalConfiguration.current.smallestScreenWidthDp < Adaptive.PHONE_MAX) {
+                                    IdentityRow(
+                                        iconSize = minOf(HEADER_ICON, maxHeight * 0.4f),
+                                        modifier = Modifier
+                                            .align(Alignment.CenterStart)
+                                            .padding(horizontal = 24.dp)
+                                    )
+                                } else {
+                                    Identity(
+                                        iconSize = minOf(HEADER_ICON, maxHeight * 0.4f),
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
                             }
                         },
                         list = railListFor(model, settings, null)
@@ -3341,7 +3359,10 @@ private fun Stage(
                 Row(modifier = Modifier.fillMaxSize()) {
                     if (settings.hand == Hand.RIGHT) railWide()
                     Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                        FoldersTabletHint(identity = false)
+                        FoldersTabletHint(
+                            identity = false,
+                            pillRoom = PaddingValues(end = PILL_KEY + PILL_AIR * 2)
+                        )
                         HomePill(
                             view = settings.folderView,
                             // ⚠️ Letto qui come nella schermata delle cartelle: decide se compare
@@ -3360,8 +3381,10 @@ private fun Stage(
                             onSearch = { model.openSearch() },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
+                            // ⚠️ In basso dalla `3.71` (voce `3.70-05`: *pillola agganciata in basso
+                            // con padding*).
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
+                                .align(Alignment.BottomEnd)
                                 .safeDrawingPadding()
                                 .padding(PILL_AIR)
                         )
@@ -3416,28 +3439,38 @@ private fun Stage(
                     },
                     detail = {
                         Box(modifier = Modifier.fillMaxSize()) {
-                            FoldersTabletHint()
+                            FoldersTabletHint(
+                                pillRoom = if (shape == Adaptive.Shape.TALL) {
+                                    PaddingValues(bottom = PILL_KEY + PILL_AIR * 2)
+                                } else {
+                                    PaddingValues()
+                                }
+                            )
                             /*
-                             * ⚠️⚠️ **SUL TABLET IN VERTICALE CERCA, IMPOSTAZIONI E CESTINO SONO
-                             * NELLA PILLOLA IN BASSO, DALLA `3.70`** (richiesta B3, scelte B6 e
-                             * B7, mockup `Tablet_V`): il campo 'Cerca nelle cartelle', poi
-                             * Impostazioni e Cestino. In fondo alla colonna non ci sono più.
+                             * ⚠️⚠️ **SUL TABLET IN VERTICALE CERCA, CESTINO E IMPOSTAZIONI SONO
+                             * NELLA PILLOLA IN BASSO, DALLA `3.70`** (richiesta B3, mockup
+                             * `Tablet_V`). In fondo alla colonna non ci sono più.
+                             * ⚠️ **Dalla `3.71` è compatta e a destra** (voce `3.70-07`: *solo
+                             * le tre icone*): il campo 'Cerca nelle cartelle' della `3.70` è
+                             * diventato un tasto, nell'ordine dello schermo largo.
                              */
                             if (shape == Adaptive.Shape.TALL) {
                                 ActionPill(
                                     entries = listOf(
+                                        PillEntry(Icons.Default.Search, stringResource(R.string.hub_search)) {
+                                            model.openSearch()
+                                        },
+                                        PillEntry(Glyphs.Bin, stringResource(R.string.bin_title)) {
+                                            model.openBin()
+                                        },
                                         PillEntry(
                                             Icons.Default.Settings,
                                             stringResource(R.string.hub_settings)
-                                        ) { model.openSettings() },
-                                        PillEntry(Glyphs.Bin, stringResource(R.string.bin_title)) {
-                                            model.openBin()
-                                        }
+                                        ) { model.openSettings() }
                                     ),
                                     vertical = false,
-                                    lead = { PillSearch(null) { model.openSearch() } },
                                     modifier = Modifier
-                                        .align(Alignment.BottomCenter)
+                                        .align(Alignment.BottomEnd)
                                         .safeDrawingPadding()
                                         .padding(PILL_AIR)
                                 )

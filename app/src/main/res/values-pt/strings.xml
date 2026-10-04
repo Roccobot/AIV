@@ -157,7 +157,7 @@
     <string name="folders_permission">Listar as pastas exige acesso a todos os arquivos. É a mesma permissão que deixa folhear uma pasta, e ela é concedida numa página do sistema.</string>
     <string name="folders_grant">Conceder acesso</string>
     <string name="folders_none">Nenhuma pasta contém nada para mostrar.</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">Escolha uma pasta na barra de navegação</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

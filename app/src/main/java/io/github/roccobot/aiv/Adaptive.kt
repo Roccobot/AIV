@@ -147,11 +147,16 @@ object Adaptive {
     }
 
     /**
-     * Se l'app va a tutto schermo, con le barre di sistema nascoste: solo il telefono in
-     * orizzontale (richiesta B1, scelte B2 e A4), dove lo spazio in altezza è il più prezioso.
+     * Se l'app va a tutto schermo, con le barre di sistema nascoste: solo sul telefono, in tutte
+     * le schermate quando è in orizzontale e nel solo visualizzatore quando è in verticale.
+     *
+     * ⚠️⚠️ **Il visualizzatore in verticale c'è dalla `3.71`** (voce `3.70-01` non approvata:
+     * *solo per lo smartphone: lasciare il resto dell'app in modalità normale e mettere a tutto
+     * schermo solo visualizzatore (verticale) e tutte le schermate incluso il visualizzatore
+     * (orizzontale)*). In verticale il resto dell'app tiene le sue barre.
      */
-    fun immersive(widthDp: Int, heightDp: Int, smallestDp: Int): Boolean =
-        smallestDp < PHONE_MAX && widthDp > heightDp
+    fun immersive(widthDp: Int, heightDp: Int, smallestDp: Int, viewer: Boolean): Boolean =
+        smallestDp < PHONE_MAX && (widthDp > heightDp || viewer)
 
     enum class Shape { PHONE, WIDE, TALL }
 }

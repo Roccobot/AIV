@@ -357,7 +357,7 @@
     <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
     <string name="folders_grant">Concedi l\'accesso</string>
     <string name="folders_none">Nessuna cartella contiene niente da mostrare.</string>
-    <string name="folders_tablet_pick">Tocca una cartella per iniziare.</string>
+    <string name="folders_tablet_pick">Scegli una cartella dalla barra di navigazione</string>
     <string name="folders_rail_search">Cerca nelle cartelle</string>
     <string name="folders_rail_search_in">Cerca in %1$s</string>
     <string name="folders_rail_move">Sposta la lista delle cartelle</string>

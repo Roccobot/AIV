@@ -157,7 +157,7 @@
     <string name="folders_permission">列出資料夾需要存取所有檔案的權限。這與翻看資料夾用的是同一個權限,在系統頁面裡授予。</string>
     <string name="folders_grant">授予存取權</string>
     <string name="folders_none">沒有資料夾含有可顯示的內容。</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">從導覽列中選擇一個資料夾</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

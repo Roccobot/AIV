@@ -156,6 +156,53 @@ class RailListaTest {
         )
     }
 
+    /**
+     * **La maniglia è sotto l'elenco e al centro della colonna** (voce `3.70-07`: *la maniglia di
+     * trascinamento deve essere SOTTO, non sopra le cartelle*). Fino alla `3.70` era a destra,
+     * sopra la prima cartella.
+     */
+    @Test
+    fun `la maniglia e sotto l'elenco`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                FolderRail(
+                    buckets = emptyList(),
+                    selected = null,
+                    selection = FolderSelection(),
+                    peeking = false,
+                    colour = FolderColour.NONE,
+                    tints = emptyMap(),
+                    onPick = {},
+                    onHide = {},
+                    onUnhide = {},
+                    onSelectionChange = {},
+                    onRead = {},
+                    onSearch = {},
+                    onBin = {},
+                    onSettings = {},
+                    width = 280.dp,
+                    liftPx = 0f,
+                    onLift = {},
+                    listIndex = 0,
+                    listOffset = 0,
+                    onListScroll = { _, _ -> },
+                    chrome = false,
+                    modifier = Modifier.testTag("rail").width(280.dp).height(640.dp)
+                )
+            }
+        }
+        banco.waitForIdle()
+        val rail = banco.onNodeWithTag("rail").getUnclippedBoundsInRoot()
+        val maniglia = banco.onNodeWithContentDescription(testo(R.string.folders_rail_move))
+            .getUnclippedBoundsInRoot()
+        // ⚠️ Il banco non ha il permesso sui file, quindi l'elenco è la riga che lo chiede: è lei
+        // il contenuto che la maniglia deve avere sopra.
+        val elenco = banco.onNodeWithText(testo(R.string.folders_permission)).getUnclippedBoundsInRoot()
+        assertTrue("La maniglia non è sotto l'elenco: $maniglia / $elenco", maniglia.top >= elenco.bottom)
+        val scarto = abs(((maniglia.left + maniglia.right) / 2 - (rail.left + rail.right) / 2).value)
+        assertTrue("La maniglia non è al centro della colonna: $scarto", scarto <= 1f)
+    }
+
     @Test
     fun `cestino e impostazioni sono centrati nella colonna`() {
         banco.setContent {

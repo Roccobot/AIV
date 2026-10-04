@@ -57,7 +57,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -856,11 +860,23 @@ fun ViewerScreen(
         }
     }
     val reserve = reserveMotion.value
+    /*
+     * ⚠️ La parte della riserva che appartiene al sistema (la barra di stato sopra una barra in
+     * cima, quella di navigazione sotto una in fondo): la tolleranza non ci entra, dalla `3.71`.
+     * Il perché vive su `restPlace`.
+     */
+    val density = LocalDensity.current
+    val systemSide = if (settings.infoPosition == InfoPosition.TOP) {
+        WindowInsets.safeDrawing.getTop(density)
+    } else {
+        WindowInsets.safeDrawing.getBottom(density)
+    }
     val barSpace = if (reserve > 0f) {
         BarSpace(
             edge = if (settings.infoPosition == InfoPosition.TOP) BarEdge.TOP else BarEdge.BOTTOM,
             size = reserve,
-            spans = info.spans()
+            spans = info.spans(),
+            system = systemSide.toFloat()
         )
     } else {
         null
@@ -899,7 +915,6 @@ fun ViewerScreen(
      * secondo, e quello che si guadagnerebbe sono pochi fotogrammi di un'animazione, non un
      * costo che si paga sfogliando.
      */
-    val density = LocalDensity.current
     val checkerPx = with(density) { CHECKER.toPx() }
     val lightGreys = when (settings.bgTheme) {
         BgTheme.LIGHT -> true
@@ -1075,7 +1090,12 @@ fun ViewerScreen(
                     .clearAndSetSemantics { }
                     .onGloballyPositioned { info.height = it.size.height.toFloat() }
             ) {
-                DetailsPanel(image = PROBE_IMAGE, percent = 1f, folder = null)
+                DetailsPanel(
+                    image = PROBE_IMAGE,
+                    percent = 1f,
+                    folder = null,
+                    atTop = settings.infoPosition == InfoPosition.TOP
+                )
             }
         }
 
@@ -1154,7 +1174,8 @@ fun ViewerScreen(
                             // una notizia.
                             folder = folder.takeIf { source?.scheme?.lowercase() == "content" },
                             // ⚠️ Solo la riga che entra dice dove disegna: vedi [BarReport].
-                            report = if (shownNow === picture) BarReport(info) else null
+                            report = if (shownNow === picture) BarReport(info) else null,
+                            atTop = settings.infoPosition == InfoPosition.TOP
                         )
                     }
                 }
@@ -3829,7 +3850,9 @@ private fun DetailsPanel(
     percent: Float,
     folder: Folder.Lookup?,
     /** Chi raccoglie dove la riga disegna, o `null` per la riga che sta sfumando via. */
-    report: BarReport? = null
+    report: BarReport? = null,
+    /** Se la barra è in cima allo schermo: decide da quale lato prende lo spazio di sistema. */
+    atTop: Boolean
 ) {
     /*
      * ⚠️ Letta fuori dal `buildString`, che non è un contesto composable: è la stessa ragione
@@ -3857,7 +3880,21 @@ private fun DetailsPanel(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .safeDrawingPadding()
+            /*
+             * ⚠️⚠️ **LO SPAZIO DI SISTEMA SI PRENDE SOLO DAL LATO DEL BORDO, dalla `3.71`** (voce
+             * `3.70-01` non approvata: *TUTTE le barre info devono essere più sottili*). Fino alla
+             * `3.70` qui c'era `safeDrawingPadding()`, che aggiunge i quattro lati: una barra in
+             * cima riceveva anche lo spazio della barra di navigazione, cioè una fascia vuota
+             * sotto il testo alta quanto i gesti di sistema. Si vedeva sul tablet e sul telefono
+             * in verticale, e non sul telefono in orizzontale, dove le barre sono nascoste.
+             * ⚠️ I lati restano, per il foro della fotocamera e la barra di navigazione laterale.
+             */
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Horizontal +
+                        if (atTop) WindowInsetsSides.Top else WindowInsetsSides.Bottom
+                )
+            )
             /*
              * ⚠️ **Sopra e sotto due punti e non quattro, dalla 1.36** (riscontro dell'utente,
              * 2026-09-02: *togli qualche pixel di spazio dedicato alla barra info sotto/sopra
@@ -3999,7 +4036,7 @@ private fun DetailsPanel(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (name != null) {
-                        NameText(name, Modifier.weight(1f), report, snug = true)
+                        NameText(name, Modifier.weight(1f), report)
                         Spacer(Modifier.width(ONE_ROW_GAP))
                     }
                     /*
@@ -4022,7 +4059,7 @@ private fun DetailsPanel(
                             .then(spoken)
                             .then(report?.atEnd("data", dataInk) ?: Modifier)
                     )
-                    series?.let { Counter(it, report, snug = true) }
+                    series?.let { Counter(it, report) }
                     if (name != null) {
                         Spacer(Modifier.width(MARK_GAP))
                         AppMark(report)
@@ -4051,7 +4088,7 @@ private fun DetailsPanel(
                     ) {
                         Text(
                             text = dati,
-                            style = corpo,
+                            style = corpo.snug(),
                             modifier = Modifier
                                 .weight(1f)
                                 .then(spoken)
@@ -4067,10 +4104,10 @@ private fun DetailsPanel(
 
 /** Il contatore `n/totale`, fisso a destra: vedi la nota su [DetailsPanel]. */
 @Composable
-private fun Counter(series: Folder.Series, report: BarReport?, snug: Boolean = false) {
+private fun Counter(series: Folder.Series, report: BarReport?) {
     Text(
         text = "${series.index + 1}/${series.size}",
-        style = MaterialTheme.typography.labelLarge.let { if (snug) it.snug() else it },
+        style = MaterialTheme.typography.labelLarge.snug(),
         modifier = Modifier
             .padding(start = 12.dp)
             .then(report?.at("counter") ?: Modifier)
@@ -4204,8 +4241,8 @@ private fun NameLine(name: String?, report: BarReport?) {
  * unica, dove il marchio non gli è accanto ma in fondo, dopo il contatore.
  */
 @Composable
-private fun NameText(name: String, modifier: Modifier, report: BarReport?, snug: Boolean = false) {
-    val style = MaterialTheme.typography.labelMedium.let { if (snug) it.snug() else it }
+private fun NameText(name: String, modifier: Modifier, report: BarReport?) {
+    val style = MaterialTheme.typography.labelMedium.snug()
     BoxWithConstraints(modifier = modifier) {
         val measurer = rememberTextMeasurer()
         val room = with(LocalDensity.current) { maxWidth.roundToPx() }
@@ -4516,7 +4553,9 @@ private val PROBE_IMAGE by lazy {
  * ridisposizione non serve*). Un'etichetta di Material ha una riga più alta del suo carattere
  * (20 sp per 14 nel corpo dei dati), e su una riga sola quell'aria sopra e sotto è tutta barra
  * in più. Tagliata, la riga è alta quanto il carattere.
- * ⚠️ **Sulle due righe resta com'era**: là l'interlinea separa il nome dai dati.
+ * ⚠️⚠️ **Dalla `3.71` vale anche sulle due righe** (voce `3.70-01`: *TUTTE le barre info devono
+ * essere più sottili, non solo quelle tutte su una riga*): fra il nome e i dati resta il solo
+ * [NAME_GAP].
  */
 private fun TextStyle.snug(): TextStyle = copy(
     lineHeightStyle = LineHeightStyle(

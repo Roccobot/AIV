@@ -1,7 +1,12 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.ui.geometry.Rect
+import android.view.View
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalView
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -53,8 +58,12 @@ class BarraInfoTest {
         displayName = NOME
     )
 
+    /** The view that hosts the scene, to hand it the system bars' insets. */
+    private var vista: View? = null
+
     private fun monta(avanza: Boolean = true) {
         banco.setContent {
+            vista = LocalView.current
             AivTheme(darkTheme = false) {
                 ViewerScreen(
                     state = ViewerState.Ready(immagine()),
@@ -204,7 +213,55 @@ class BarraInfoTest {
         assertTrue("La riga dei dati è alta ${dati.height}", dati.height < 18f)
     }
 
+    /**
+     * **La barra in cima non prende lo spazio della barra di navigazione in basso** (voce
+     * `3.70-01` non approvata: *TUTTE le barre info devono essere più sottili*). Fino alla `3.70`
+     * la barra aggiungeva lo spazio di sistema dei quattro lati, e sotto il testo restava una
+     * fascia vuota alta quanto i gesti di sistema.
+     *
+     * ⚠️ Il banco non ha barre di sistema: lo spazio della barra di navigazione si consegna a mano
+     * alla vista della scena, come farebbe Android.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h740dp")
+    fun `la barra in cima non prende lo spazio della navigazione`() {
+        monta()
+        banco.runOnUiThread {
+            val spazi = WindowInsetsCompat.Builder()
+                .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(0, 0, 0, 48))
+                .setVisible(WindowInsetsCompat.Type.navigationBars(), true)
+                .build()
+            ViewCompat.dispatchApplyWindowInsets(vista!!, spazi)
+        }
+        banco.waitForIdle()
+        val dati = dati()
+        val figura = figura()
+        assertTrue("Sotto i dati resta una fascia vuota: $dati / $figura", figura.top - dati.bottom <= 6f)
+    }
+
+    /**
+     * **Sul tablet in orizzontale l'immagine alta non entra nella barra di stato** (voce
+     * `3.70-01`: *su tablet in orizzontale le immagini alte vanno ancora a finire sotto l'overlay
+     * info*). Là la barra di stato resta, e il 5% dell'altezza arrivava fino all'orologio.
+     */
+    @Test
+    @Config(qualifiers = "w1280dp-h800dp")
+    fun `tablet in orizzontale l'immagine non entra nella barra di stato`() {
+        monta()
+        banco.runOnUiThread {
+            val spazi = WindowInsetsCompat.Builder()
+                .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, STATO, 0, 0))
+                .setVisible(WindowInsetsCompat.Type.statusBars(), true)
+                .build()
+            ViewCompat.dispatchApplyWindowInsets(vista!!, spazi)
+        }
+        banco.waitForIdle()
+        val figura = figura()
+        assertTrue("L'immagine entra nella barra di stato: $figura", figura.top >= STATO - 1f)
+    }
+
     private companion object {
+        const val STATO = 24
         const val NOME = "foto.jpg"
     }
 }

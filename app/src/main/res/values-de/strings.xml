@@ -157,7 +157,7 @@
     <string name="folders_permission">Für die Ordnerliste braucht es Zugriff auf alle Dateien. Es ist dieselbe Berechtigung, die das Durchblättern erlaubt, und sie wird auf einer Systemseite erteilt.</string>
     <string name="folders_grant">Zugriff erteilen</string>
     <string name="folders_none">Kein Ordner enthält etwas zum Anzeigen.</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">Einen Ordner in der Navigationsleiste auswählen</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>

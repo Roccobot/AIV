@@ -129,8 +129,10 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
 Dalla `3.70` (richiesta dell'utente del 2026-10-04, mockup `Tablet_H` e `Tablet_V`, scelte B1-B7).
 La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minore sotto i 600 dp.
 
-- ⚠️⚠️ **Telefono in orizzontale: tutto schermo**, con le barre di sistema nascoste e richiamabili
-  con uno scorrimento dal bordo, in tutta l'app, visualizzatore compreso (B1, scelte B2 e A4).
+- ⚠️⚠️ **Telefono: tutto schermo in orizzontale in tutta l'app, e in verticale nel solo
+  visualizzatore** (B1, scelte B2 e A4; il verticale dalla `3.71`, voce `3.70-01`), con le barre di
+  sistema nascoste e richiamabili con uno scorrimento dal bordo. La regola vive in
+  `Adaptive.immersive`.
 - ⚠️⚠️ **Schermo largo (telefono e tablet in orizzontale)**:
   - la griglia non ha la fascia dell'intestazione: in testa ci sono nome e numero di elementi su
     una riga, e il nome si accorcia per primo;
@@ -138,13 +140,22 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     quante cartelle ci sono, senza maniglia; sopra c'è la testa, con la sfumatura, l'icona e le
     pastiglie dell'intestazione (tutto tranne il titolo), e nella schermata iniziale l'identità
     dell'app;
+  - dalla `3.71` nella testa le pastiglie sono centrate con 8 punti ai lati, la sfumatura finisce
+    entro 200 punti (il banding sul tablet), e sparisce dove il foro della fotocamera lascia una
+    fascia vuota dal lato della colonna; sul telefono l'identità di casa è coricata, con l'icona
+    accanto al nome e allineata a sinistra (`IdentityRow`, voce `3.70-05`);
   - la colonna la compone la griglia, perché 'Seleziona tutto' agisce sulla sua selezione;
-  - i comandi del FAB sono in una pillola d'accento sotto il filtro: in una cartella Cerca,
-    Cestino e Impostazioni; nel cestino le sue tre voci; nella schermata iniziale tutte le voci
-    del FAB di casa, scritte una volta sola in `hubEntries` e lette anche dal menu del FAB.
+  - i comandi del FAB sono in una pillola d'accento verticale a destra, agganciata in basso dalla
+    `3.71` (voce `3.70-04`): in una cartella Cerca, Cestino e Impostazioni; nel cestino le sue tre
+    voci; nella schermata iniziale tutte le voci del FAB di casa, scritte una volta sola in
+    `hubEntries` e lette anche dal menu del FAB;
+  - nella schermata iniziale l'invito `Scegli una cartella dalla barra di navigazione` è al 50% e
+    centrato nell'area utile, cioè senza la fascia della pillola (`3.70-05`, `3.70-06`).
 - ⚠️⚠️ **Tablet in verticale**: la colonna resta com'è, spostabile, ma senza Cerca, Cestino e
-  Impostazioni in fondo; quei comandi sono in una pillola in basso, col campo 'Cerca in ...' in
-  testa (B6, B7). Nel cestino la pillola ha le sue tre voci.
+  Impostazioni in fondo (B7); quei comandi sono in una pillola compatta in basso a destra, con le
+  sole tre icone (dalla `3.71`, voce `3.70-07`; nella `3.70` aveva in testa il campo 'Cerca in
+  ...'). Nel cestino la pillola ha le sue tre voci. Dalla `3.71` la maniglia è sotto l'elenco, al
+  centro, con due righe tenui al posto dei puntini, e le righe dell'elenco hanno 20 punti ai lati.
 - ⚠️ **Dove c'è la pillola il FAB non c'è**, e con lui il salto in cima e in fondo (B4). In
   selezione la pillola sparisce come il FAB, perché le azioni sono nella scheda in basso.
 - ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.

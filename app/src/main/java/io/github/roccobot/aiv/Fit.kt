@@ -27,11 +27,14 @@ enum class BarEdge { TOP, BOTTOM }
  *   bar is hidden. It is animated by the caller, so a hidden bar gives the space back smoothly.
  * @property spans the horizontal stretches, in pixels of the view, where the bar draws text
  *   or the app mark. Only the tolerance reads them.
+ * @property system the part of [size] that belongs to the system (the status bar over a bar at
+ *   the top, the navigation bar under one at the bottom). The tolerance never reaches it.
  */
 data class BarSpace(
     val edge: BarEdge,
     val size: Float,
-    val spans: List<ClosedFloatingPointRange<Float>> = emptyList()
+    val spans: List<ClosedFloatingPointRange<Float>> = emptyList(),
+    val system: Float = 0f
 )
 
 /**
@@ -64,6 +67,11 @@ const val BAR_TOLERANCE = 0.05f
  * grows only as far as the nearest span allows, and not at all if a span covers the centre.
  * ⚠️ The overlap is spent only when the picture needs it: one limited by the width, or by
  * [cap], rests in the free band like any other.
+ * ⚠️⚠️ Since 3.71 the overlap stops at the system bar (item `3.70-01` not approved: *su tablet
+ * in orizzontale le immagini alte vanno ancora a finire sotto l'overlay info*). On a tablet the
+ * status bar stays on screen, and 5% of the height is more than the bar's own text row: the
+ * picture crossed the whole bar and reached the clock and the icons of the system, which are
+ * text too. On a phone held sideways the system bars are hidden, and nothing changes.
  */
 fun restPlace(
     viewWidth: Float,
@@ -82,7 +90,7 @@ fun restPlace(
     val byWidth = viewWidth / picWidth
     var fit = min(byWidth, freeHeight / picHeight)
     if (bar != null && reserve > 0f && viewWidth > viewHeight && freeHeight / picHeight < byWidth) {
-        val allowance = min(viewHeight * BAR_TOLERANCE, reserve)
+        val allowance = min(viewHeight * BAR_TOLERANCE, (reserve - bar.system).coerceAtLeast(0f))
         val wanted = min(byWidth, (freeHeight + allowance) / picHeight)
         val clear = clearWidth(viewWidth / 2f, bar.spans)
         fit = max(fit, min(wanted, clear / picWidth))

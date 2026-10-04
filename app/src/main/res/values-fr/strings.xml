@@ -157,7 +157,7 @@
     <string name="folders_permission">Lister les dossiers demande l\'accès à tous les fichiers. C\'est la même autorisation qui permet de parcourir un dossier, et elle s\'accorde depuis une page du système.</string>
     <string name="folders_grant">Accorder l\'accès</string>
     <string name="folders_none">Aucun dossier ne contient quoi que ce soit à afficher.</string>
-    <string name="folders_tablet_pick">Tap a folder to get started.</string>
+    <string name="folders_tablet_pick">Choisissez un dossier dans la barre de navigation</string>
     <string name="folders_rail_search">Search in folders</string>
     <string name="folders_rail_search_in">Search in %1$s</string>
     <string name="folders_rail_move">Move the folder list</string>
