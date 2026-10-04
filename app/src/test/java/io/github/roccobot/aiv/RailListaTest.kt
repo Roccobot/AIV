@@ -296,6 +296,11 @@ class RailListaTest {
      */
     @Test
     fun `il nome lungo va a capo sulle giunture camelCase`() {
+        // Senza il permesso di lettura il rail mostra l'invito e non la lista.
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        org.robolectric.Shadows.shadowOf(app).grantPermissions(
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        )
         val nome = "FotografieVacanzeEstateLunghissimeDavvero"
         val cartella = Folder.Bucket(8, nome, 3, 0, null, "/tmp/$nome")
         banco.setContent {
