@@ -133,6 +133,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   visualizzatore** (B1, scelte B2 e A4; il verticale dalla `3.71`, voce `3.70-01`), con le barre di
   sistema nascoste e richiamabili con uno scorrimento dal bordo. La regola vive in
   `Adaptive.immersive`.
+  - ⚠️ **Dove l'app non è a tutto schermo, la griglia conta le barre anche mentre sono nascoste**
+    (`steadyDrawing`, dalla `3.73`, voce `3.72-01`): uscendo dal visualizzatore le barre ricompaiono
+    con un'animazione, e uno spazio che le seguiva spostava la griglia a ogni fotogramma.
 - ⚠️⚠️ **Schermo largo (telefono e tablet in orizzontale)**:
   - la griglia non ha la fascia dell'intestazione: in testa ci sono nome e numero di elementi su
     una riga, e il nome si accorcia per primo;
@@ -144,7 +147,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     entro 200 punti (il banding sul tablet), e sparisce dove il foro della fotocamera lascia una
     fascia vuota dal lato della colonna; sul telefono l'identità di casa è coricata, con l'icona
     accanto al nome e allineata a sinistra (`IdentityRow`, voce `3.70-05`), e dalla `3.72` il nome è
-    piccolo, al 70%, su due righe fisse ('Astonishing' e 'Image Viewer') e senza la firma;
+    piccolo, al 70%, su due righe fisse ('Astonishing' e 'Image Viewer') e senza la firma, e dalla
+    `3.73` l'icona comincia dove cominciano le cartelle sotto (`RailIdentity`, voce `3.72-04`);
   - la colonna la compone la griglia, perché 'Seleziona tutto' agisce sulla sua selezione;
   - i comandi del FAB sono in una pillola d'accento verticale a destra, agganciata in basso dalla
     `3.71` (voce `3.70-04`): in una cartella Cerca, Cestino e Impostazioni; nel cestino le sue tre
@@ -156,7 +160,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   Impostazioni in fondo (B7); quei comandi sono in una pillola compatta in basso a destra, con le
   sole tre icone (dalla `3.71`, voce `3.70-07`; nella `3.70` aveva in testa il campo 'Cerca in
   ...'). Nel cestino la pillola ha le sue tre voci. Dalla `3.71` la maniglia è al centro, con due
-  righe tenui al posto dei puntini, e le righe dell'elenco hanno 20 punti ai lati. ⚠️ **La maniglia è
+  righe tenui al posto dei puntini (dalla `3.73` a metà dell'opacità di prima, voce `3.72-02`), e le
+  righe dell'elenco hanno 20 punti ai lati. ⚠️ **La maniglia è
   sopra l'elenco, mai sotto** (voce `3.71-06`): nella `3.71` era in fondo, e là il gesto di sistema dal
   bordo inferiore vince sul trascinamento.
 - ⚠️ **Dove c'è la pillola il FAB non c'è**, e con lui il salto in cima e in fondo (B4). In

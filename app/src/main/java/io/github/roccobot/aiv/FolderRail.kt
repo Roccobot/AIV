@@ -707,8 +707,12 @@ fun FoldersTabletHint(
     }
 }
 
-/** Il margine delle righe dell'elenco verso i bordi della colonna. */
-private val RAIL_ROW_INSET = 12.dp
+/**
+ * Il margine delle righe dell'elenco verso i bordi della colonna.
+ *
+ * ⚠️ Lo legge anche la testa di casa coricata ([RailIdentity]), che si allinea alle cartelle.
+ */
+internal val RAIL_ROW_INSET = 12.dp
 
 /**
  * Il margine delle righe sul tablet in verticale, dalla `3.71` (voce `3.70-07`: *la lista
@@ -724,8 +728,14 @@ private val HANDLE_GAP = 4.dp
 /** L'altezza del riquadro che la maniglia offre al dito; la larghezza è il doppio. */
 private val HANDLE_TOUCH = 24.dp
 
-/** Quanto inchiostro hanno le righe della maniglia: tenui, come la maniglia di prima dalla `3.40`. */
-private const val HANDLE_INK = 0.38f
+/**
+ * Quanto inchiostro hanno le righe della maniglia.
+ *
+ * ⚠️ **La metà di 0,38, dalla `3.73`** (voce `3.72-02`: *voglio la maniglia ancora più
+ * trasparente: opacità dimezzata rispetto all'attuale*). 0,38 era il valore della maniglia coi
+ * puntini dalla `3.40`.
+ */
+private const val HANDLE_INK = 0.38f / 2
 
 /** L'opacità dell'invito a scegliere una cartella: il numero è suo (voce `3.70-05`). */
 private const val PICK_HINT_INK = 0.5f

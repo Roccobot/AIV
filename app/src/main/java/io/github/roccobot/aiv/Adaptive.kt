@@ -1,6 +1,13 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.systemBarsIgnoringVisibility
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -168,3 +175,31 @@ fun screenShape(): Adaptive.Shape {
     return Adaptive.shape(conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp)
 }
 
+/**
+ * Lo spazio di sistema che una schermata lascia libero, fermo mentre le barre compaiono.
+ *
+ * ⚠️⚠️ **DALLA `3.73`, PER LO SFARFALLIO TORNANDO ALLA GRIGLIA** (voce `3.72-01`: *dopo aver
+ * visualizzato un'immagine, se torno alla griglia c'è (non sempre ma quasi) uno sfarfallio tipo
+ * nastro video difettoso*). Dalla `3.71` il visualizzatore in verticale è a tutto schermo, e
+ * uscendo le barre ricompaiono con un'animazione: `safeDrawing` le segue fotogramma per
+ * fotogramma, quindi durante la dissolvenza fra le schermate la griglia si spostava a ogni
+ * fotogramma. La causa è dedotta e non misurata sul telefono: nel banco le barre non esistono.
+ * ⚠️ **Dove la schermata non è a tutto schermo si contano le barre anche mentre sono nascoste**
+ * (`systemBarsIgnoringVisibility`), quindi lo spazio è già quello finale quando compaiono. Dove
+ * è a tutto schermo resta `safeDrawing`, che lì vale il solo ritaglio del display.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun steadyDrawing(): WindowInsets {
+    val conf = LocalConfiguration.current
+    val full = Adaptive.immersive(
+        conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp, viewer = false
+    )
+    return if (full) {
+        WindowInsets.safeDrawing
+    } else {
+        WindowInsets.systemBarsIgnoringVisibility
+            .union(WindowInsets.displayCutout)
+            .union(WindowInsets.ime)
+    }
+}

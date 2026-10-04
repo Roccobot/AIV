@@ -3332,26 +3332,9 @@ private fun Stage(
                     FolderRailWide(
                         width = Adaptive.sideWidth(widthDp),
                         head = {
-                            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                                /*
-                                 * ⚠️ Sul telefono l'icona è accanto al nome, allineata a
-                                 * sinistra (voce `3.70-05`): la testa è bassa e larga, e il
-                                 * perché vive su [IdentityRow].
-                                 */
-                                if (LocalConfiguration.current.smallestScreenWidthDp < Adaptive.PHONE_MAX) {
-                                    IdentityRow(
-                                        iconSize = minOf(HEADER_ICON, maxHeight * 0.4f),
-                                        modifier = Modifier
-                                            .align(Alignment.CenterStart)
-                                            .padding(horizontal = 24.dp)
-                                    )
-                                } else {
-                                    Identity(
-                                        iconSize = minOf(HEADER_ICON, maxHeight * 0.4f),
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                }
-                            }
+                            RailIdentity(
+                                phone = LocalConfiguration.current.smallestScreenWidthDp < Adaptive.PHONE_MAX
+                            )
                         },
                         list = railListFor(model, settings, null)
                     )

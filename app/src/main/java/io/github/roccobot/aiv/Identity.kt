@@ -3,6 +3,8 @@ package io.github.roccobot.aiv
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -121,12 +123,41 @@ fun IdentityRow(
             style = MaterialTheme.typography.labelMedium,
             color = LocalContentColor.current.copy(alpha = IDENTITY_ROW_INK),
             maxLines = 2,
-            softWrap = false,
             // ⚠️ Il titolo della schermata iniziale, come in [Identity].
             modifier = Modifier.heading()
         )
     }
 }
+
+/**
+ * La testa della colonna delle cartelle nella schermata iniziale, sullo schermo largo.
+ *
+ * ⚠️ Sul telefono l'identità è coricata ([IdentityRow], voce `3.70-05`) e la sua icona comincia
+ * dove cominciano le icone delle cartelle sotto, cioè a [RAIL_ROW_INSET] dal bordo della colonna
+ * (dalla `3.73`, voce `3.72-04`: *a sinistra l'icona deve allinearsi alle cartelle. Inoltre il
+ * testo è tagliato*). Nella `3.72` il margine era 24 punti per lato: l'icona era fuori asse, e
+ * con il foro della fotocamera da quel lato a 'Image Viewer' mancavano pochi punti.
+ * ⚠️ Sul tablet resta [Identity], centrata.
+ */
+@Composable
+fun RailIdentity(phone: Boolean) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val icon = minOf(HEADER_ICON, maxHeight * RAIL_IDENTITY_SHARE)
+        if (phone) {
+            IdentityRow(
+                iconSize = icon,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(horizontal = RAIL_ROW_INSET)
+            )
+        } else {
+            Identity(iconSize = icon, modifier = Modifier.align(Alignment.Center))
+        }
+    }
+}
+
+/** Quanto dell'altezza della testa prende l'icona, prima del tetto della fascia piena. */
+private const val RAIL_IDENTITY_SHARE = 0.4f
 
 /** L'opacità del nome nell'identità coricata: il numero è suo (*opacità ~70%*). */
 private const val IDENTITY_ROW_INK = 0.7f
