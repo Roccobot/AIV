@@ -40,7 +40,8 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 ## Prossimi passi
 
-- **Rimasti fuori, da decidere se servono**: la vista 'Cartelle di sistema' tiene il FAB anche su tablet e in orizzontale; nella pillola di casa il tocco lungo su 'Mostra nascoste' non apre il pannello.
+- **Deciso**: la vista 'Cartelle di sistema' tiene il FAB anche su tablet e in orizzontale.
+- **Da decidere**: nel menu del FAB di casa (telefono in verticale) il tocco lungo su 'Mostra nascoste' apre l'elenco 'Cartelle nascoste'; nella pillola (tablet e telefono in orizzontale) lo stesso tocco lungo oggi non fa niente.
 - **Concluso**: ritorno alla griglia, maniglia e intestazione di casa (`3.73-01`, `3.73-02`, `3.73-03`); doppio tocco e conferme in orizzontale (`3.72-01`, `3.72-03`).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
