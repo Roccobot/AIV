@@ -511,10 +511,10 @@ def check(path):
             page.goto(url)
             expect(page.locator('#save')).to_be_enabled()
             # The intro says the round is closed and where the earlier ones are, in one generic
-            # sentence; on mobile the second sentence starts on its own line.
-            intro = page.locator('.intro > p').first
-            expect(intro).to_have_text(re.compile(r'^Giro [0-9.]+: collaudo chiuso\. ?Le migliorie e le scelte dei giri precedenti sono in archivio\.$'))
-            assert page.locator('.intro br.mobile-break').evaluate('(el)=>getComputedStyle(el).display') == 'none'
+            # sentence; on mobile there is no summary line.
+            intro = page.locator('.intro > .intro-summary')
+            expect(intro).to_have_text(re.compile(r'^Giro [0-9.]+: collaudo chiuso\. Le migliorie e le scelte dei giri precedenti sono in archivio\.$'))
+            expect(intro).to_be_visible()
             # No coloured ring around the field being written in.
             page.locator('#notes-editor').focus()
             assert page.locator('#notes-editor').evaluate('(el)=>getComputedStyle(el).outlineStyle') == 'none'
@@ -551,7 +551,8 @@ def check(path):
             page.keyboard.press('Control+ArrowUp')
             page.wait_for_function("window.scrollY === 0")
             page.set_viewport_size({'width': 390, 'height': 900})
-            assert page.locator('.intro br.mobile-break').evaluate('(el)=>getComputedStyle(el).display') == 'inline'
+            # Mobile: Scarica AIV follows the title, with no summary line in between.
+            expect(page.locator('.intro > .intro-summary')).to_be_hidden()
             assert page.locator('.test').count() == len(data['items'])
             assert page.locator('.decision, #decisions').count() == 0
             # Consegna lives in the Altro row: no overlay, no opener, no summary field.
@@ -611,9 +612,9 @@ def check(path):
             assert abs(title_box['x']+title_box['width']/2 - (panel_box['x']+panel_box['width']/2)) < 1, (title_box, panel_box)
             format_box = page.locator('.altro-overlay-panel .format-actions').bounding_box()
             assert 360 < format_box['y']+format_box['height'] <= 368, format_box
-            # One row with two states (the user's mockup Altro_mobile, 2026-10-04). Base:
-            # Consegna 10%, Allega 40%, four formats and Chiudi 10% each, of the room left
-            # after the gaps. Consegna: Torna 10%, the six commands 15% each.
+            # One row with two states (the user's mockup Altro_mobile, 2026-10-04), with the
+            # same columns: the first key 10%, the other six 15% each, of the room left after
+            # the gaps.
             row = page.locator('.altro-overlay-panel .format-actions')
             def widths(selector):
                 boxes = [b.bounding_box() for b in row.locator(selector).all()]
@@ -622,7 +623,7 @@ def check(path):
                 room = sum(b['width'] for b in boxes)
                 return [round(b['width'] / room, 3) for b in boxes]
             base = widths(':scope > .altro-row-delivery, .altro-attach, .format-toolbar button, :scope > .altro-row-close')
-            assert [abs(v - w) < 0.005 for v, w in zip(base, [0.1, 0.4, 0.1, 0.1, 0.1, 0.1, 0.1])] == [True] * 7, base
+            assert [abs(v - w) < 0.005 for v, w in zip(base, [0.1] + [0.15] * 6)] == [True] * 7, base
             expect(row.locator('.altro-commands > .command').first).to_be_hidden()
             row.locator('.altro-row-delivery').click()
             delivery = widths(':scope > .altro-row-back, .altro-commands > .command')
