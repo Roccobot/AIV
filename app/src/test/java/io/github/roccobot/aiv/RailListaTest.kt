@@ -288,4 +288,53 @@ class RailListaTest {
         assertTrue("Confermare non ha nascosto la cartella", nascosta)
     }
 
+    /**
+     * ⚠️ **Dalla `3.54` il nome va a capo sulle giunture camelCase** (sua richiesta): il testo
+     * reso è quello di [camelBreak], con gli spazi a larghezza zero prima di ogni maiuscola
+     * che segue una minuscola, e non il nome nudo. Due righe e l'ellissi restano quelle di
+     * prima. Col nome nudo nel nodo (il codice della `3.53`) la seconda asserzione cade.
+     */
+    @Test
+    fun `il nome lungo va a capo sulle giunture camelCase`() {
+        // Senza il permesso di lettura il rail mostra l'invito e non la lista.
+        val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+        org.robolectric.Shadows.shadowOf(app).grantPermissions(
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+        val nome = "FotografieVacanzeEstateLunghissimeDavvero"
+        val cartella = Folder.Bucket(8, nome, 3, 0, null, "/tmp/$nome")
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                FolderRail(
+                    buckets = listOf(cartella),
+                    selected = null,
+                    selection = FolderSelection(),
+                    peeking = false,
+                    colour = FolderColour.NONE,
+                    tints = emptyMap(),
+                    onPick = {},
+                    onHide = {},
+                    onUnhide = {},
+                    onSelectionChange = {},
+                    onRead = {},
+                    onSearch = {},
+                    onBin = {},
+                    onSettings = {},
+                    width = 280.dp,
+                    liftPx = 0f,
+                    onLift = {},
+                    listIndex = 0,
+                    listOffset = 0,
+                    onListScroll = { _, _ -> },
+                    modifier = Modifier.width(280.dp).height(640.dp)
+                )
+            }
+        }
+        banco.waitForIdle()
+        val spezzato = camelBreak(nome)
+        assertEquals("Fotografie\u200BVacanze\u200BEstate\u200BLunghissime\u200BDavvero", spezzato)
+        banco.onNodeWithText(spezzato).assertExists()
+        banco.onNodeWithText(nome).assertDoesNotExist()
+    }
+
 }
