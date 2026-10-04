@@ -1252,13 +1252,11 @@ main > .feedback-columns {
   }
 }
 
-/* The intro's two sentences go on two lines on mobile only. */
-.intro br.mobile-break {
-  display: none;
-}
+/* On mobile the intro has no summary line: Scarica AIV follows the title (the user's
+   request, 2026-10-04). */
 @media (max-width: 720px) {
-  .intro br.mobile-break {
-    display: inline;
+  .intro .intro-summary {
+    display: none;
   }
 }
 
@@ -1292,18 +1290,16 @@ main > .feedback-columns {
 }
 
 /* Mobile Altro: one row of keys with two states (the user's mockup Altro_mobile,
-   2026-10-04). Base: Consegna 10%, Allega 40%, the four formats and Chiudi 10% each.
-   Consegna: Torna 10%, the six commands 15% each. The shares are of the room left after the
+   2026-10-04). Both states share the same columns: the first key 10%, the other six 15%
+   each (Consegna, then Allega, the four formats and Chiudi; Torna, then the six commands).
+   The shares are of the room left after the
    gaps, which is what fr units give. */
 .altro-overlay-panel .format-actions {
   display: grid;
   gap: 6px;
   align-items: stretch;
 }
-.altro-overlay-panel .format-actions[data-state="base"] {
-  grid-template-columns: 1fr 4fr 1fr 1fr 1fr 1fr 1fr;
-}
-.altro-overlay-panel .format-actions[data-state="consegna"] {
+.altro-overlay-panel .format-actions[data-state] {
   grid-template-columns: 2fr 3fr 3fr 3fr 3fr 3fr 3fr;
 }
 .altro-overlay-panel .format-actions > .altro-format-cluster,

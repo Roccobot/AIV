@@ -140,7 +140,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
      in nessun campo.
   ⚠️⚠️ **Nel pannello mobile la riga è una sola, a due stati** (mockup `Altro_mobile`, sua
   istruzione del 2026-10-04), e le larghezze sono al netto degli spazi: nello stato base
-  `Consegna` 10%, il `+` 40%, i quattro tasti di formattazione e `Chiudi` 10% ciascuno;
+  `Consegna` 10%, il `+`, i quattro tasti di formattazione e `Chiudi` 15% ciascuno, come la
+  riga consegna (sua istruzione del 2026-10-04 sera; prima il `+` era al 40%);
   `Consegna` passa allo stato consegna, con `Torna` 10% e i sei comandi 15% ciascuno, e
   `Torna` riporta lo stato base. Il pannello si apre sempre sullo stato base. `Chiudi` ha
   preso il posto della × in basso a destra.
@@ -150,7 +151,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   sono sui pulsanti della pagina; la copia nel pannello mobile li riconosce da `data-command`.
 - ⚠️ **Ritocchi del 2026-10-04 (sue richieste)**: l'introduzione dice soltanto *Giro x.yz:
   collaudo chiuso. Le migliorie e le scelte dei giri precedenti sono in archivio.*, su mobile
-  con la seconda frase a capo; `Invia` risponde anche con un toast in basso; il campo in cui
+  non c'è, e dopo il titolo viene subito `Scarica AIV` (sua istruzione, 2026-10-04 sera); `Invia` risponde anche con un toast in basso; il campo in cui
   si scrive non ha il bordo colorato; le miniature degli allegati sono due per riga; il codice
   inline è reso nell'editor come grassetto, corsivo e link; su desktop `Prossimi passi` segue
   l'ultimo riquadro a 18 px e, a fine pagina, finisce dove finisce `Altro` (lo spazio in fondo lo
