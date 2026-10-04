@@ -35,9 +35,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -1170,7 +1168,7 @@ fun GridScreen(
      * là dentro.
      */
     val density = LocalDensity.current
-    val bordi = WindowInsets.safeDrawing
+    val bordi = steadyDrawing()
     /*
      * ⚠️⚠️ **SULLO SCHERMO LARGO LA FASCIA NON C'È, DALLA `3.70`** (richiesta B1: *niente
      * intestazioni: la griglia prende tutto lo spazio fin dall'inizio*): quello che la fascia
@@ -1604,7 +1602,7 @@ fun GridScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+                    steadyDrawing().only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                 )
                 /*
                  * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una catena
@@ -2322,7 +2320,7 @@ fun GridScreen(
                     vertical = true,
                     modifier = Modifier
                         .align(Alignment.Bottom)
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                        .windowInsetsPadding(steadyDrawing().only(WindowInsetsSides.Bottom))
                         .padding(start = PILL_AIR, bottom = PILL_AIR)
                 )
             }
@@ -2435,7 +2433,7 @@ fun GridScreen(
                 // volta sola per ognuno dei due.
                 modifier = Modifier
                     .align(fabSide())
-                    .safeDrawingPadding()
+                    .windowInsetsPadding(steadyDrawing())
                     .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
                     .padding(8.dp)
             ) {
@@ -2661,7 +2659,7 @@ fun GridScreen(
                     vertical = false,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .safeDrawingPadding()
+                        .windowInsetsPadding(steadyDrawing())
                         .padding(PILL_AIR)
                 )
             }
@@ -2758,7 +2756,7 @@ fun GridScreen(
                     // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
                     // del FAB. Il perché sta in [HintVeil], sul parametro.
                     inset = Modifier
-                        .safeDrawingPadding()
+                        .windowInsetsPadding(steadyDrawing())
                         .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
                         .padding(8.dp),
                     onDone = hintDone

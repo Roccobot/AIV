@@ -1,6 +1,11 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
+import android.view.View
+import androidx.compose.ui.platform.LocalView
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +20,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
@@ -187,6 +193,40 @@ class LayoutLargoTest {
         banco.onNodeWithContentDescription("Settings").assertDoesNotExist()
     }
 
+    /**
+     * **Sul telefono in verticale la griglia conta le barre di sistema anche quando sono nascoste**
+     * (voce `3.72-01`: lo sfarfallio tornando alla griglia dal visualizzatore a tutto schermo). Le
+     * barre ricompaiono con un'animazione, e uno spazio che le seguiva spostava la griglia a ogni
+     * fotogramma della dissolvenza.
+     *
+     * ⚠️ Il banco non ha barre: si consegna alla vista la barra di stato nascosta, come la vede
+     * Android nel primo fotogramma dopo il visualizzatore.
+     */
+    @Test
+    fun `telefono in verticale la griglia conta la barra di stato nascosta`() {
+        var vista: View? = null
+        banco.setContent {
+            vista = LocalView.current
+            AivTheme(darkTheme = false) {
+                GridScreen(title = TITOLO, items = FOTO, highlight = null, onOpen = {}, onBack = {},
+                    onChanged = {}, onSearch = {}, shape = Adaptive.Shape.PHONE)
+            }
+        }
+        banco.waitForIdle()
+        // ⚠️ Il titolo compare due volte (testata e intestazione): conta il primo, in cima.
+        val prima = rect(banco.onAllNodesWithText(TITOLO)[0].getBoundsInRoot())
+        banco.runOnUiThread {
+            val spazi = WindowInsetsCompat.Builder()
+                .setInsetsIgnoringVisibility(WindowInsetsCompat.Type.statusBars(), Insets.of(0, STATO, 0, 0))
+                .setVisible(WindowInsetsCompat.Type.statusBars(), false)
+                .build()
+            ViewCompat.dispatchApplyWindowInsets(vista!!, spazi)
+        }
+        banco.waitForIdle()
+        val nome = rect(banco.onAllNodesWithText(TITOLO)[0].getBoundsInRoot())
+        assertEquals("La griglia non lascia lo spazio della barra nascosta: $prima / $nome", prima.top + STATO, nome.top, 1f)
+    }
+
     /** **Sul telefono la pillola non c'è: resta il FAB.** */
     @Test
     fun `telefono senza pillola`() {
@@ -198,6 +238,7 @@ class LayoutLargoTest {
     private companion object {
         const val TITOLO = "Lightroom"
         const val ELENCO = "elenco"
+        const val STATO = 40
         val FOTO = (1..40).map { Uri.parse("file:///finta/$it.jpg") }
     }
 }

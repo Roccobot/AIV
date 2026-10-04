@@ -205,7 +205,8 @@ fun FrontBand(
  * cambia solo chi se lo mette.
  */
 @Composable
-fun bottomInset(): Dp = WindowInsets.safeDrawing.asPaddingValues().calculateBottomPadding()
+// ⚠️ Ferma mentre le barre compaiono, dalla `3.73`: vedi [steadyDrawing].
+fun bottomInset(): Dp = steadyDrawing().asPaddingValues().calculateBottomPadding()
 
 @Composable
 fun GroundFade(
