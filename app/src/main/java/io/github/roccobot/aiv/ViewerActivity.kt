@@ -1,5 +1,12 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.layout.padding
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -21,6 +28,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -2780,6 +2790,32 @@ class ViewerActivity : ComponentActivity() {
                 }
                 enableEdgeToEdge(statusBarStyle = stile, navigationBarStyle = stile)
             }
+            /*
+             * ⚠️⚠️ **SUL TELEFONO IN ORIZZONTALE L'APP È A TUTTO SCHERMO, DALLA `3.70`**
+             * (richiesta dell'utente del 2026-10-04, B1: *l'app dev'essere a tutto schermo per
+             * recuperare un po' di prezioso spazio verticale*; scelte B2 e A4). Le barre di stato
+             * e di navigazione si nascondono, e uno scorrimento dal bordo le richiama per qualche
+             * secondo: è il comportamento immersivo di Android.
+             * ⚠️ **Vale per tutta l'app, visualizzatore compreso**, ed è il motivo per cui vive qui
+             * e non in una schermata: una schermata che le nasconde e una che no le farebbero
+             * comparire e sparire a ogni passaggio.
+             * ⚠️ **Gli spazi di sistema si azzerano da sé**: con le barre nascoste `safeDrawing` non
+             * le conta più, quindi chi se ne scansava riprende lo spazio senza toccare niente.
+             */
+            val conf = LocalConfiguration.current
+            val immersivo = Adaptive.immersive(
+                conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp
+            )
+            LaunchedEffect(immersivo) {
+                val barre = WindowCompat.getInsetsController(window, window.decorView)
+                if (immersivo) {
+                    barre.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    barre.hide(WindowInsetsCompat.Type.systemBars())
+                } else {
+                    barre.show(WindowInsetsCompat.Type.systemBars())
+                }
+            }
             AivTheme(darkTheme = scuro) {
                 // ⚠️ Anche la scelta di che cosa c'è dietro un pannello si mette in scena QUI,
                 // accanto al tema e per la stessa ragione: la chiedono finestre che le
@@ -3034,11 +3070,11 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
      * decimi di secondo la griglia e l'immagine insieme.
      * ⚠️⚠️ **LA RAGIONE SCRITTA QUI FINO ALLA `1.78` ERA FALSA, e la correzione dice il metodo
      * invece del solo esito**: diceva che entrando o uscendo *le barre di sistema cambiano e lo
-     * schermo passa a immersivo*, e in questa app non c'è niente che nasconda le barre. Misurato:
-     * nessuna delle API che rendono immersiva una schermata compare in `app/src`, e la barra
-     * delle info del visualizzatore si scansa dalle barre di sistema con `safeDrawingPadding()`,
-     * cioè da barre che esistono per tutto il tempo. Una frase falsa in un commento ferma chi
-     * verifica, ed è un costo già pagato due volte in questo progetto.
+     * schermo passa a immersivo*, e allora in questa app non c'era niente che nascondesse le
+     * barre. ⚠️ **Dalla `3.70` le barre si nascondono sul telefono in orizzontale**, ma per tutta
+     * l'app e non entrando nel visualizzatore (vedi `immersivo` in `onCreate`), quindi il
+     * passaggio fra le schermate continua a non cambiarle. Una frase falsa in un commento ferma
+     * chi verifica, ed è un costo già pagato due volte in questo progetto.
      */
         /*
          * ⚠️⚠️ **LO SCORRIMENTO DI UNA SCHERMATA SOPRAVVIVE ALLA SCHERMATA, DALLA `1.91`, ED È
@@ -3280,7 +3316,59 @@ private fun Stage(
             val dualFolders = Adaptive.sideAvailable(widthDp) &&
                 !screen.forStart &&
                 settings.folderView != FolderView.TREE
-            if (dualFolders) {
+            val shape = screenShape()
+            if (dualFolders && shape == Adaptive.Shape.WIDE) {
+                /*
+                 * ⚠️⚠️ **SULLO SCHERMO LARGO, DALLA `3.70`** (richiesta B2, scelta B5): la colonna
+                 * ha in testa l'intestazione di casa (l'identità dell'app) e in basso l'elenco
+                 * delle cartelle fra il 40 e il 70%; a destra dell'invito, la pillola con tutte le
+                 * voci del FAB di casa.
+                 */
+                val railWide: @Composable () -> Unit = {
+                    FolderRailWide(
+                        width = Adaptive.sideWidth(widthDp),
+                        head = {
+                            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                                Identity(
+                                    iconSize = minOf(HEADER_ICON, maxHeight * 0.4f),
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                        },
+                        list = railListFor(model, settings, null)
+                    )
+                }
+                Row(modifier = Modifier.fillMaxSize()) {
+                    if (settings.hand == Hand.RIGHT) railWide()
+                    Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                        FoldersTabletHint(identity = false)
+                        HomePill(
+                            view = settings.folderView,
+                            // ⚠️ Letto qui come nella schermata delle cartelle: decide se compare
+                            // 'Scegli un'immagine', l'unica via senza il permesso sui file.
+                            granted = Folder.granted(LocalContext.current),
+                            hiddenCount = settings.folderSelection.let {
+                                if (it.mode == FolderMode.EXCLUDED) it.excluded.size else 0
+                            },
+                            peeking = model.peeking,
+                            onPeek = { model.peek(it) },
+                            recents = model.recents,
+                            onOpen = { model.open(it) },
+                            onOpenPage = { model.openPage(it) },
+                            onForget = { model.forgetRecents() },
+                            onView = { model.updateSettings(settings.copy(folderView = it)) },
+                            onSearch = { model.openSearch() },
+                            onBin = { model.openBin() },
+                            onSettings = { model.openSettings() },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .safeDrawingPadding()
+                                .padding(PILL_AIR)
+                        )
+                    }
+                    if (settings.hand != Hand.RIGHT) railWide()
+                }
+            } else if (dualFolders) {
                 FoldersTabletSplit(
                     panelOnStart = settings.hand == Hand.RIGHT,
                     rail = {
@@ -3323,9 +3411,39 @@ private fun Stage(
                                 model.folderRailIndex = i
                                 model.folderRailOffset = o
                             },
+                            chrome = shape != Adaptive.Shape.TALL,
                         )
                     },
-                    detail = { FoldersTabletHint() }
+                    detail = {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            FoldersTabletHint()
+                            /*
+                             * ⚠️⚠️ **SUL TABLET IN VERTICALE CERCA, IMPOSTAZIONI E CESTINO SONO
+                             * NELLA PILLOLA IN BASSO, DALLA `3.70`** (richiesta B3, scelte B6 e
+                             * B7, mockup `Tablet_V`): il campo 'Cerca nelle cartelle', poi
+                             * Impostazioni e Cestino. In fondo alla colonna non ci sono più.
+                             */
+                            if (shape == Adaptive.Shape.TALL) {
+                                ActionPill(
+                                    entries = listOf(
+                                        PillEntry(
+                                            Icons.Default.Settings,
+                                            stringResource(R.string.hub_settings)
+                                        ) { model.openSettings() },
+                                        PillEntry(Glyphs.Bin, stringResource(R.string.bin_title)) {
+                                            model.openBin()
+                                        }
+                                    ),
+                                    vertical = false,
+                                    lead = { PillSearch(null) { model.openSearch() } },
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .safeDrawingPadding()
+                                        .padding(PILL_AIR)
+                                )
+                            }
+                        }
+                    }
                 )
             } else {
                 FolderScreen(
@@ -3428,151 +3546,17 @@ private fun Stage(
             // che non finisce mai.
             val lookup = model.folder
             val widthDp = LocalConfiguration.current.screenWidthDp
+            val shape = screenShape()
             val dualGrid = Adaptive.sideAvailable(widthDp) &&
                 settings.folderView != FolderView.TREE
-            if (dualGrid) {
-                FoldersTabletSplit(
-                    panelOnStart = settings.hand == Hand.RIGHT,
-                    rail = {
-                        FolderRail(
-                            buckets = model.buckets,
-                            selected = screen.bucket,
-                            selectedName = screen.name,
-                            selection = settings.folderSelection,
-                            peeking = model.peeking,
-                            colour = settings.folderColour,
-                            tints = model.folderTints,
-                            onPick = { model.folderPicked(it, false) },
-                            onHide = { bucket ->
-                                bucket.path?.let {
-                                    model.updateSettings(
-                                        settings.copy(
-                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
-                                        )
-                                    )
-                                }
-                            },
-                            onUnhide = { voci ->
-                                model.updateSettings(
-                                    settings.withFolders(settings.folderSelection.remove(voci))
-                                )
-                            },
-                            onSelectionChange = {
-                                model.updateSettings(settings.withFolders(it))
-                            },
-                            onRead = { model.readBuckets(it) },
-                            onSearch = {
-                                model.openSearch(screen.bucket, screen.name)
-                            },
-                            onBin = { model.openBin() },
-                            onSettings = { model.openSettings() },
-                            width = Adaptive.sideWidth(widthDp),
-                            liftPx = model.folderRailLift,
-                            onLift = { model.folderRailLift = it },
-                            listIndex = model.folderRailIndex,
-                            listOffset = model.folderRailOffset,
-                            onListScroll = { i, o ->
-                                model.folderRailIndex = i
-                                model.folderRailOffset = o
-                            },
-                        )
-                    },
-                    detail = {
-                GridScreen(
-                    title = screen.name,
-                    items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
-                    // ⚠️ L'indice si legge dalla serie VIVA e non da una copia: è quello
-                    // della foto mostrata per ultima nel visualizzatore, che la strisciata
-                    // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
-                    highlight = if (model.gridVisited) model.series?.index else null,
-                    /*
-                     * ⚠️⚠️ **I DUE RICHIAMI DEL FAB ARRIVANO SOLO QUI, DALLA `1.82`** (campo
-                     * libero del giro della `1.81`, punto B: *il FAB deve vedersi in tutte le
-                     * cartelle*): questa è la griglia di una cartella vera, cioè il posto da cui
-                     * lui vuole raggiungere il cestino e le impostazioni senza tornare indietro.
-                     * ⚠️ **La ricerca e il cestino non li ricevono**: la prima è un elenco di
-                     * risultati e non una cartella, il secondo porta già il suo menu.
-                     */
-                    onBin = { model.openBin() },
-                    onSettings = { model.openSettings() },
-                    /*
-                     * ⚠️⚠️ **'Cerca' DENTRO LA CARTELLA, DALLA `1.83`** (risposta a `d-fab-voci` del
-                     * giro della `1.82`: *cerca*, con la nota *in quel caso, 'Cerca' è limitato alla
-                     * cartella corrente*). Il bucket e il nome viaggiano insieme perché la ricerca
-                     * ristretta è un'altra schermata da quella globale: vedi [Screen.Search].
-                     * ⚠️ **Arriva al solo ramo della cartella**, come i due richiami qui sopra: nella
-                     * ricerca sarebbe una ricerca dentro una ricerca, e nel cestino non c'è nessun
-                     * bucket da cui partire.
-                     */
-                    onSearchHere = { model.openSearch(screen.bucket, screen.name) },
-                    /*
-                     * ⚠️⚠️ **ANCHE QUESTI DUE ARRIVANO AL SOLO RAMO DELLA CARTELLA**: l'intestazione
-                     * con la sua icona esiste qui e non nella ricerca né nel cestino, e una
-                     * copertina è di una cartella. Il perché per esteso vive su
-                     * [ViewerViewModel.covering].
-                     */
-                    onCoverPick = { model.startCover() },
-                    onCoverAway = { model.coverAway() },
-                    onCoverClear = { model.clearCover() },
-                    coverSet = model.cover != null,
-                    // ⚠️ Serve al solo mini onboarding, e vuole **questa** cartella: scegliendo la
-                    // copertina di un'altra si naviga, e un velo che comparisse là indicherebbe
-                    // l'icona sbagliata.
-                    coverHere = model.covering?.bucket == screen.bucket,
-                    // ⚠️ Anche la rinomina è del solo ramo della cartella, e per la stessa ragione:
-                    // il gesto vive sul nome dell'intestazione, che qui c'è e altrove no.
-                    onFolderRename = { model.renameFolder(it) },
-                    /*
-                     * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**:
-                     * l'intestazione esiste nella griglia di una **cartella** e non nelle altre due
-                     * (nel cestino il FAB c'è sempre, nella ricerca la testata porta un campo di
-                     * testo), quindi passarli anche là sarebbe dare valori a una fascia che non si
-                     * disegna.
-                     */
-                    frontWash = settings.frontWash,
-                    frontSerif = settings.frontSerif,
-                    frontFacts = settings.frontFacts,
-                    frontPickAll = settings.frontPickAll,
-                    /*
-                     * ⚠️ **La tinta di questa cartella non viene dalle impostazioni**: è un dato
-                     * della cartella, e il perché vive su [ViewerViewModel.tint].
-                     */
-                    frontTint = model.tint,
-                    onFrontTint = { model.tintFolder(it) },
-                    facts = model.facts,
-                    onOpen = { quale ->
-                        // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
-                        if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
-                    },
-                    onBack = { model.leaveGrid() },
-                    onChanged = { model.reloadGrid() },
-                    columns = settings.folderColumns,
-                    factFields = settings.factRows,
-                    binOn = settings.binOn,
-                    listPath = settings.listPath,
-                    pickWeight = settings.pickWeight,
-                    filter = model.gridFilter,
-                    /*
-                     * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
-                     * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
-                     * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
-                     * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
-                     * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
-                     * il gesto vibrava e chiamava una funzione che non fa niente, che è
-                     * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
-                     * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
-                     * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
-                     * nello stesso giro parlando dei pannelli.
-                     */
-                    onSearch = { model.openSearch() },
-                    onFilter = { model.sift(it) },
-                    gridNames = settings.gridNames,
-                    lastMark = settings.lastMark,
-                    onBusy = { model.gridBusy = it }
-                )
-                    }
-                )
-            } else {
+            /*
+             * ⚠️⚠️ **UNA CHIAMATA SOLA, DALLA `3.70`**: fino alla `3.60` la griglia della cartella
+             * era scritta due volte, identica, nel ramo del tablet e in quello del telefono, cioè
+             * due posti da tenere d'accordo a ogni parametro nuovo. Adesso le tre vesti (colonna
+             * larga, colonna di sempre, telefono) chiamano questa.
+             */
+            @Composable
+            fun FolderGrid(forma: Adaptive.Shape, colonna: WideRail?) {
             GridScreen(
                 title = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
@@ -3663,8 +3647,75 @@ private fun Stage(
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
                 lastMark = settings.lastMark,
-                onBusy = { model.gridBusy = it }
+                onBusy = { model.gridBusy = it },
+                shape = forma,
+                rail = colonna
             )
+            }
+            /*
+             * ⚠️⚠️ **SULLO SCHERMO LARGO LA COLONNA LA COMPONE LA GRIGLIA, DALLA `3.70`**: in cima
+             * alla colonna ci sono le pastiglie dell'intestazione, che agiscono sulla selezione,
+             * e la selezione vive nella griglia. Il perché per esteso è sul parametro `rail`.
+             */
+            when {
+                dualGrid && shape == Adaptive.Shape.WIDE -> FolderGrid(
+                    shape,
+                    WideRail(
+                        width = Adaptive.sideWidth(widthDp),
+                        onStart = settings.hand == Hand.RIGHT,
+                        list = railListFor(model, settings, screen.bucket)
+                    )
+                )
+                dualGrid -> FoldersTabletSplit(
+                    panelOnStart = settings.hand == Hand.RIGHT,
+                    rail = {
+                        FolderRail(
+                            buckets = model.buckets,
+                            selected = screen.bucket,
+                            selectedName = screen.name,
+                            selection = settings.folderSelection,
+                            peeking = model.peeking,
+                            colour = settings.folderColour,
+                            tints = model.folderTints,
+                            onPick = { model.folderPicked(it, false) },
+                            onHide = { bucket ->
+                                bucket.path?.let {
+                                    model.updateSettings(
+                                        settings.copy(
+                                            hiddenFolders = settings.hiddenFolders + portablePath(it)
+                                        )
+                                    )
+                                }
+                            },
+                            onUnhide = { voci ->
+                                model.updateSettings(
+                                    settings.withFolders(settings.folderSelection.remove(voci))
+                                )
+                            },
+                            onSelectionChange = {
+                                model.updateSettings(settings.withFolders(it))
+                            },
+                            onRead = { model.readBuckets(it) },
+                            onSearch = {
+                                model.openSearch(screen.bucket, screen.name)
+                            },
+                            onBin = { model.openBin() },
+                            onSettings = { model.openSettings() },
+                            width = Adaptive.sideWidth(widthDp),
+                            liftPx = model.folderRailLift,
+                            onLift = { model.folderRailLift = it },
+                            listIndex = model.folderRailIndex,
+                            listOffset = model.folderRailOffset,
+                            onListScroll = { i, o ->
+                                model.folderRailIndex = i
+                                model.folderRailOffset = o
+                            },
+                            chrome = shape != Adaptive.Shape.TALL,
+                        )
+                    },
+                    detail = { FolderGrid(shape, null) }
+                )
+                else -> FolderGrid(shape, null)
             }
         }
 
@@ -3681,8 +3732,9 @@ private fun Stage(
              */
             val dualSearch = Adaptive.sideAvailable(widthDp) &&
                 settings.folderView != FolderView.TREE
+            val shape = screenShape()
             @Composable
-            fun SearchGrid() {
+            fun SearchGrid(forma: Adaptive.Shape, colonna: WideRail?) {
                 GridScreen(
                     title = "",
                     // ⚠️ Il nome della cartella in cui si cerca, e `null` per la ricerca di tutta la
@@ -3709,10 +3761,30 @@ private fun Stage(
                     onFilter = { model.sift(it) },
                     gridNames = settings.gridNames,
                     lastMark = settings.lastMark,
-                    onBusy = { model.gridBusy = it }
+                    onBusy = { model.gridBusy = it },
+                    /*
+                     * ⚠️⚠️ **CESTINO E IMPOSTAZIONI ARRIVANO ANCHE QUI FUORI DAL TELEFONO, DALLA
+                     * `3.70`**: sul tablet stavano in fondo alla colonna delle cartelle, e
+                     * dalla `3.70` vivono nella pillola (decisioni B4 e B7). Senza, dalla ricerca
+                     * non si raggiungerebbero più. Sul telefono restano fuori, come prima: là il
+                     * FAB della ricerca non c'è.
+                     */
+                    onBin = { model.openBin() }.takeIf { forma != Adaptive.Shape.PHONE },
+                    onSettings = { model.openSettings() }.takeIf { forma != Adaptive.Shape.PHONE },
+                    shape = forma,
+                    rail = colonna
                 )
             }
-            if (dualSearch) {
+            if (dualSearch && shape == Adaptive.Shape.WIDE) {
+                SearchGrid(
+                    shape,
+                    WideRail(
+                        width = Adaptive.sideWidth(widthDp),
+                        onStart = settings.hand == Hand.RIGHT,
+                        list = railListFor(model, settings, screen.bucket)
+                    )
+                )
+            } else if (dualSearch) {
                 FoldersTabletSplit(
                     panelOnStart = settings.hand == Hand.RIGHT,
                     rail = {
@@ -3757,12 +3829,13 @@ private fun Stage(
                                 model.folderRailIndex = i
                                 model.folderRailOffset = o
                             },
+                            chrome = shape != Adaptive.Shape.TALL,
                         )
                     },
-                    detail = { SearchGrid() }
+                    detail = { SearchGrid(shape, null) }
                 )
             } else {
-                SearchGrid()
+                SearchGrid(shape, null)
             }
         }
 
@@ -3815,7 +3888,10 @@ private fun Stage(
                     lastMark = settings.lastMark,
                     bin = true,
                     onHistory = { model.openHistory() },
-                    onBusy = { model.gridBusy = it }
+                    onBusy = { model.gridBusy = it },
+                    // ⚠️ Dalla `3.70` le voci del FAB del cestino vanno nella pillola fuori dal
+                    // telefono (richiesta B2, *stessa cosa per pagine analoghe (es. Cestino)*).
+                    shape = screenShape()
                 )
             }
             /*
@@ -3987,3 +4063,46 @@ private fun Intent.getParcelableExtraCompat(name: String): Uri? =
     } else {
         getParcelableExtra(name)
     }
+
+/**
+ * L'elenco delle cartelle per la colonna dello schermo largo, con le stesse scritture della
+ * colonna di sempre: nascondere, rimostrare, la modalità delle incluse, la posizione dello
+ * scorrimento.
+ *
+ * ⚠️ **Vive qui una volta sola** perché lo chiedono la griglia della cartella, la ricerca e la
+ * schermata iniziale: tre copie delle stesse scritture divergerebbero alla prima voce nuova.
+ */
+private fun railListFor(
+    model: ViewerViewModel,
+    settings: Settings,
+    selected: Long?
+): @Composable (Modifier) -> Unit = { modifier ->
+    FolderRailList(
+        buckets = model.buckets,
+        selected = selected,
+        selection = settings.folderSelection,
+        peeking = model.peeking,
+        colour = settings.folderColour,
+        tints = model.folderTints,
+        onPick = { model.folderPicked(it, false) },
+        onHide = { bucket ->
+            bucket.path?.let {
+                model.updateSettings(
+                    settings.copy(hiddenFolders = settings.hiddenFolders + portablePath(it))
+                )
+            }
+        },
+        onUnhide = { voci ->
+            model.updateSettings(settings.withFolders(settings.folderSelection.remove(voci)))
+        },
+        onSelectionChange = { model.updateSettings(settings.withFolders(it)) },
+        onRead = { model.readBuckets(it) },
+        listIndex = model.folderRailIndex,
+        listOffset = model.folderRailOffset,
+        onListScroll = { i, o ->
+            model.folderRailIndex = i
+            model.folderRailOffset = o
+        },
+        modifier = modifier
+    )
+}

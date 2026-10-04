@@ -1,5 +1,7 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -121,5 +123,43 @@ object Adaptive {
         if (sideAvailable(widthDp)) 720.dp else null
 
     enum class Band { PHONE, NARROW, MEDIUM, WIDE }
+
+    /**
+     * La forma dello schermo, che dalla `3.70` decide dove vivono l'elenco delle cartelle e i
+     * comandi del FAB (richiesta dell'utente del 2026-10-04, mockup `Tablet_H` e `Tablet_V`).
+     *
+     * - [Shape.PHONE]: il telefono in verticale, o una finestra stretta. Tutto come prima.
+     * - [Shape.WIDE]: lo schermo più largo che alto, con la larghezza del layout a due colonne:
+     *   telefono e tablet in orizzontale. L'elenco delle cartelle è ancorato in basso nella sua
+     *   colonna, e i comandi del FAB sono in una pillola sotto il filtro.
+     * - [Shape.TALL]: il tablet in verticale. L'elenco resta com'è, e i comandi del FAB sono in
+     *   una pillola in basso.
+     *
+     * ⚠️⚠️ **Telefono e tablet si distinguono dal LATO MINORE, non dalla larghezza** (scelta B1):
+     * sotto i [PHONE_MAX] dp è un telefono in qualunque orientamento, che è il criterio di
+     * Android. La larghezza da sola cambia ruotando, e un telefono in orizzontale passerebbe per
+     * un tablet.
+     */
+    fun shape(widthDp: Int, heightDp: Int, smallestDp: Int): Shape = when {
+        widthDp > heightDp && sideAvailable(widthDp) -> Shape.WIDE
+        smallestDp >= PHONE_MAX -> Shape.TALL
+        else -> Shape.PHONE
+    }
+
+    /**
+     * Se l'app va a tutto schermo, con le barre di sistema nascoste: solo il telefono in
+     * orizzontale (richiesta B1, scelte B2 e A4), dove lo spazio in altezza è il più prezioso.
+     */
+    fun immersive(widthDp: Int, heightDp: Int, smallestDp: Int): Boolean =
+        smallestDp < PHONE_MAX && widthDp > heightDp
+
+    enum class Shape { PHONE, WIDE, TALL }
+}
+
+/** La forma dello schermo in questo momento: vedi [Adaptive.shape]. */
+@Composable
+fun screenShape(): Adaptive.Shape {
+    val conf = LocalConfiguration.current
+    return Adaptive.shape(conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp)
 }
 

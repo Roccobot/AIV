@@ -124,6 +124,31 @@ il colore del gradiente per quella cartella fra sedici tinte in una griglia 4x4.
 - ⚠️ **Una cartella cancellata non si rincorre** (sua istruzione): l'archivio delle tinte non si
   pota, e il perché vive su `FolderTints`.
 
+## 📱 Schermo largo e tablet in verticale: dove vanno intestazione, elenco e FAB
+
+Dalla `3.70` (richiesta dell'utente del 2026-10-04, mockup `Tablet_H` e `Tablet_V`, scelte B1-B7).
+La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minore sotto i 600 dp.
+
+- ⚠️⚠️ **Telefono in orizzontale: tutto schermo**, con le barre di sistema nascoste e richiamabili
+  con uno scorrimento dal bordo, in tutta l'app, visualizzatore compreso (B1, scelte B2 e A4).
+- ⚠️⚠️ **Schermo largo (telefono e tablet in orizzontale)**:
+  - la griglia non ha la fascia dell'intestazione: in testa ci sono nome e numero di elementi su
+    una riga, e il nome si accorcia per primo;
+  - la colonna delle cartelle ha l'elenco ancorato in basso, dal 40 al 70% dell'altezza secondo
+    quante cartelle ci sono, senza maniglia; sopra c'è la testa, con la sfumatura, l'icona e le
+    pastiglie dell'intestazione (tutto tranne il titolo), e nella schermata iniziale l'identità
+    dell'app;
+  - la colonna la compone la griglia, perché 'Seleziona tutto' agisce sulla sua selezione;
+  - i comandi del FAB sono in una pillola d'accento sotto il filtro: in una cartella Cerca,
+    Cestino e Impostazioni; nel cestino le sue tre voci; nella schermata iniziale tutte le voci
+    del FAB di casa, scritte una volta sola in `hubEntries` e lette anche dal menu del FAB.
+- ⚠️⚠️ **Tablet in verticale**: la colonna resta com'è, spostabile, ma senza Cerca, Cestino e
+  Impostazioni in fondo; quei comandi sono in una pillola in basso, col campo 'Cerca in ...' in
+  testa (B6, B7). Nel cestino la pillola ha le sue tre voci.
+- ⚠️ **Dove c'è la pillola il FAB non c'è**, e con lui il salto in cima e in fondo (B4). In
+  selezione la pillola sparisce come il FAB, perché le azioni sono nella scheda in basso.
+- ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.
+
 ## 📐 Le griglie arrivano al vetro, anche in basso
 
 - ⚠️⚠️ **Il rientro di sotto vive nel `contentPadding` della lista e non sul contenitore** (sua

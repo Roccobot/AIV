@@ -1,5 +1,7 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.geometry.Rect
@@ -9,7 +11,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.unit.Dp
-import androidx.compose.animation.core.animateFloatAsState
 import android.content.Context
 import android.content.Intent
 import android.graphics.RectF
@@ -820,14 +821,41 @@ fun ViewerScreen(
      * (scelta A2). Il conto vive in `restPlace` (`Fit.kt`).
      * ⚠️ **Segue la barra VOLUTA e non quella visibile**: la dissolvenza della barra e lo
      * spostamento dell'immagine partono insieme, invece che uno dopo l'altro.
-     * ⚠️ **All'apertura la misura non c'è ancora**: per un fotogramma l'immagine prende tutto lo
-     * schermo, poi fa posto alla barra con la stessa animazione, mentre la barra compare.
+     * ⚠️⚠️ **ALL'APERTURA LO SPAZIO SI APPLICA SENZA ANIMAZIONE, DALLA `3.70`** (voce `3.60-02`
+     * non approvata: *all'apertura lo screenshot si apre ingrandito e si restringe con
+     * un'animazione [...] Dovrebbe apparire direttamente nella posizione/dimensione corrette*).
+     * Nella `3.60` la misura arrivava dalla barra vera, che compare solo con la prima immagine
+     * pronta, e la riserva partiva da zero animando. Adesso: la misura la prende subito una copia
+     * invisibile della barra ([probe]), la prima riserva si applica di colpo, e finché non c'è
+     * l'immagine non si disegna ([spaceReady]). L'animazione resta per quando la barra si nasconde
+     * o ricompare, che è la scelta A2.
+     * ⚠️ **La barra voluta qui è quella che ci sarà**, non quella che c'è: `barState` aspetta la
+     * prima immagine pronta, e legarsi a lui rimetterebbe la riserva a zero durante il primo
+     * caricamento.
      */
-    val reserve by animateFloatAsState(
-        targetValue = if (barState.targetState) info.height else 0f,
-        animationSpec = tween(BAR_ROOM_MS),
-        label = "spazioBarra"
-    )
+    val reserveTarget = if (info.visible && state !is ViewerState.Clip) info.height else 0f
+    val reserveMotion = remember { Animatable(0f) }
+    var reserveSettled by remember { mutableStateOf(false) }
+    val probe = info.visible && info.height == 0f
+    /*
+     * ⚠️ In orizzontale serve anche dove la barra ha del testo, per la tolleranza del 5%: lo dice
+     * la barra vera, un fotogramma dopo la prima immagine pronta. In verticale la tolleranza non
+     * c'è, e non si aspetta.
+     * ⚠️ **L'attesa vale per l'anteprima e per l'immagine, non per un filmato né per un errore**:
+     * là la barra non compare, quindi aspettarla vorrebbe dire una schermata vuota per sempre.
+     */
+    val wideView = LocalConfiguration.current.let { it.screenWidthDp > it.screenHeightDp }
+    val spaceReady = !info.visible ||
+        (info.height > 0f && (!wideView || info.pieces.isNotEmpty()))
+    LaunchedEffect(reserveTarget, spaceReady) {
+        if (!reserveSettled) {
+            reserveMotion.snapTo(reserveTarget)
+            if (spaceReady) reserveSettled = true
+        } else {
+            reserveMotion.animateTo(reserveTarget, tween(BAR_ROOM_MS))
+        }
+    }
+    val reserve = reserveMotion.value
     val barSpace = if (reserve > 0f) {
         BarSpace(
             edge = if (settings.infoPosition == InfoPosition.TOP) BarEdge.TOP else BarEdge.BOTTOM,
@@ -939,7 +967,7 @@ fun ViewerScreen(
     ) {
         when (state) {
             is ViewerState.Loading -> {
-                PreviewThumb(source, settings, barSpace)
+                if (reserveSettled) PreviewThumb(source, settings, barSpace)
                 /*
                  * ⚠️⚠️ **L'ANELLO ASPETTA, e non è cortesia: comparire e sparire in un
                  * decimo di secondo È un lampeggio.** Fra una foto e l'altra del telefono
@@ -976,7 +1004,7 @@ fun ViewerScreen(
                  * ⚠️ **Si apre più in su, dalla 1.21**, perché la guarda anche il dialogo di
                  * 'Converti/Esporta': la ragione sta là.
                  */
-                ImageCanvas(
+                if (reserveSettled) ImageCanvas(
                     state.image, settings, source, folder, info, onStep, ops, inBin,
                     animation?.frame,
                     onSingleTap = { animation?.toggle() },
@@ -1026,6 +1054,29 @@ fun ViewerScreen(
                 autoStart = state.from.plays(settings.clipAutoplay),
                 onStarted = onClipStarted
             )
+        }
+
+        /*
+         * ⚠️⚠️ **LA COPIA INVISIBILE DELLA BARRA, DALLA `3.70`**: misura l'altezza prima che la
+         * barra vera compaia, perché la prima immagine nasca già nello spazio giusto (voce
+         * `3.60-02`). Ha la stessa forma della barra vera, con dati finti: l'altezza dipende dalla
+         * larghezza e dai caratteri, non dall'immagine (`oneRowFits`). Sparisce appena c'è la
+         * misura, e non parla ai lettori di schermo.
+         */
+        if (probe) {
+            Surface(
+                modifier = Modifier
+                    .align(
+                        if (settings.infoPosition == InfoPosition.TOP) Alignment.TopCenter
+                        else Alignment.BottomCenter
+                    )
+                    .fillMaxWidth()
+                    .alpha(0f)
+                    .clearAndSetSemantics { }
+                    .onGloballyPositioned { info.height = it.size.height.toFloat() }
+            ) {
+                DetailsPanel(image = PROBE_IMAGE, percent = 1f, folder = null)
+            }
         }
 
         androidx.compose.animation.AnimatedVisibility(
@@ -3948,7 +3999,7 @@ private fun DetailsPanel(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (name != null) {
-                        NameText(name, Modifier.weight(1f), report)
+                        NameText(name, Modifier.weight(1f), report, snug = true)
                         Spacer(Modifier.width(ONE_ROW_GAP))
                     }
                     /*
@@ -3962,7 +4013,7 @@ private fun DetailsPanel(
                      */
                     Text(
                         text = dati,
-                        style = corpo,
+                        style = corpo.snug(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.End,
@@ -3971,7 +4022,7 @@ private fun DetailsPanel(
                             .then(spoken)
                             .then(report?.atEnd("data", dataInk) ?: Modifier)
                     )
-                    series?.let { Counter(it, report) }
+                    series?.let { Counter(it, report, snug = true) }
                     if (name != null) {
                         Spacer(Modifier.width(MARK_GAP))
                         AppMark(report)
@@ -4016,10 +4067,10 @@ private fun DetailsPanel(
 
 /** Il contatore `n/totale`, fisso a destra: vedi la nota su [DetailsPanel]. */
 @Composable
-private fun Counter(series: Folder.Series, report: BarReport?) {
+private fun Counter(series: Folder.Series, report: BarReport?, snug: Boolean = false) {
     Text(
         text = "${series.index + 1}/${series.size}",
-        style = MaterialTheme.typography.labelLarge,
+        style = MaterialTheme.typography.labelLarge.let { if (snug) it.snug() else it },
         modifier = Modifier
             .padding(start = 12.dp)
             .then(report?.at("counter") ?: Modifier)
@@ -4153,8 +4204,8 @@ private fun NameLine(name: String?, report: BarReport?) {
  * unica, dove il marchio non gli è accanto ma in fondo, dopo il contatore.
  */
 @Composable
-private fun NameText(name: String, modifier: Modifier, report: BarReport?) {
-    val style = MaterialTheme.typography.labelMedium
+private fun NameText(name: String, modifier: Modifier, report: BarReport?, snug: Boolean = false) {
+    val style = MaterialTheme.typography.labelMedium.let { if (snug) it.snug() else it }
     BoxWithConstraints(modifier = modifier) {
         val measurer = rememberTextMeasurer()
         val room = with(LocalDensity.current) { maxWidth.roundToPx() }
@@ -4436,3 +4487,40 @@ private suspend fun noteDownload(
     val mark = markOf(context, image, uri, suffix) ?: return
     DownloadLog.note(context, mark, System.currentTimeMillis())
 }
+
+/**
+ * L'immagine finta con cui la copia invisibile della barra misura la propria altezza.
+ *
+ * ⚠️ **Ha un nome**, perché la riga del nome cambia l'altezza della barra quando va su due righe:
+ * un'immagine senza nome è un caso raro, e allora la barra vera corregge la misura.
+ * ⚠️ **Nasce la prima volta che serve e non all'avvio della classe**: una bitmap creata con la
+ * classe fa fallire chi carica questo file senza una grafica vera, come il banco di prova.
+ */
+private val PROBE_IMAGE by lazy {
+    LoadedImage(
+        bitmap = ImageBitmap(1, 1),
+        mimeType = "image/jpeg",
+        byteSize = 1L,
+        pixelWidth = 1,
+        pixelHeight = 1,
+        sampled = false,
+        displayName = "probe.jpg"
+    )
+}
+
+/**
+ * Lo stesso stile senza l'interlinea in eccesso sopra e sotto la riga.
+ *
+ * ⚠️⚠️ **SERVE ALLA RIGA UNICA DELLA BARRA, DALLA `3.70`** (voce `3.60-01` non approvata: *oltre
+ * a disporre gli elementi in orizzontale devi anche assottigliare l'overlay, altrimenti la
+ * ridisposizione non serve*). Un'etichetta di Material ha una riga più alta del suo carattere
+ * (20 sp per 14 nel corpo dei dati), e su una riga sola quell'aria sopra e sotto è tutta barra
+ * in più. Tagliata, la riga è alta quanto il carattere.
+ * ⚠️ **Sulle due righe resta com'era**: là l'interlinea separa il nome dai dati.
+ */
+private fun TextStyle.snug(): TextStyle = copy(
+    lineHeightStyle = LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Center,
+        trim = LineHeightStyle.Trim.Both
+    )
+)

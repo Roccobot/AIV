@@ -1092,6 +1092,23 @@ private fun Hub(
     val picker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { picked -> picked?.let(onOpen) }
+    val voci = hubEntries(
+        view = view,
+        granted = granted,
+        hiddenCount = hiddenCount,
+        peeking = peeking,
+        onPeek = onPeek,
+        onPeekList = onPeekList,
+        onView = onView,
+        onSearch = onSearch,
+        onAddress = { asking = true },
+        onPickImage = {
+            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
+        onNewFolder = onNewFolder,
+        onBin = onBin,
+        onSettings = onSettings
+    )
 
     Box(modifier = modifier) {
         /*
@@ -1146,136 +1163,19 @@ private fun Hub(
              */
             minWidth = menuFloor(spread(columns, LocalWindowInfo.current), FOLDER_GAP)
         ) {
-            // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
-            // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
-            // è una richiesta, non un indicatore di stato, quindi in griglia si legge
-            // 'Visualizzazione lista'. Chi la leggesse come stato la invertirebbe, e da
-            // quel momento il menu direbbe il contrario di quello che fa.
-            // ⚠️ Le due etichette vanno cambiate INSIEME e nella stessa forma: si vedono
-            // una per volta, quindi due registri diversi non si notano subito e restano.
-            // Erano 'Vedile come elenco' e 'Vedile come copertine' fino alla 0.46,
-            // quando l'utente le ha volute al nominale.
-            // ⚠️⚠️ **DALLA `0.84` LE VISTE SONO TRE, e il menu mostra le DUE che non sono
-            // quella corrente**: con due bastava una riga sola che nominava l'altra, e la
-            // regola qui sopra resta intatta, perché una riga che nomina la vista in cui si
-            // è già non sarebbe una richiesta ma un indicatore di stato spento.
-            // ⚠️ **'Cartelle di sistema' non segue la forma delle altre due** ('Visualizzazione
-            // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
-            // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
-            // vorrebbe dire ribattezzare una cosa che ha già un nome.
-            FolderView.entries.filter { it != view }.forEach { other ->
+            // ⚠️ Le voci le scrive [hubEntries], una volta sola, e le legge anche la pillola dello
+            // schermo largo (`HomePill`, dalla `3.70`): due elenchi delle stesse voci
+            // divergerebbero alla prima voce nuova. Qui il menu le dispone, col filetto fra un
+            // gruppo e l'altro.
+            voci.forEachIndexed { i, voce ->
+                if (i > 0 && voce.group != voci[i - 1].group) HorizontalDivider()
                 MenuRow(
-                    text = stringResource(other.label()),
-                    icon = other.glyph,
-                    onTap = { menu.close(); onView(other) }
+                    text = voce.label,
+                    icon = voce.icon,
+                    onTap = { menu.close(); voce.onTap() },
+                    onHold = voce.onHold?.let { tieni -> { menu.close(); tieni() } }
                 )
             }
-
-            /*
-             * ⚠️⚠️ **'Mostra nascoste' STA COL GRUPPO DELLE VISTE, e non con le azioni**: quelle
-             * righe rispondono a *come guardo le cartelle*, e questa risponde a *quali ne
-             * guardo*, che è la stessa domanda vista dall'altro lato. Le azioni sotto invece
-             * portano da un'altra parte.
-             * ⚠️⚠️ **C'È SE E SOLO SE CE N'È UNA NASCOSTA**: senza, la voce accenderebbe un
-             * minuto in cui non compare niente e il tocco lungo aprirebbe un pannello vuoto.
-             * ⚠️ **La riga nomina quello che il tocco FA, come le viste**: con le nascoste in
-             * scena dice 'Nascondi cartelle', perché è quello che succede toccandola.
-             * ⚠️ **I due glifi sono suoi** (2026-09-08), e sono una cartella con un occhio:
-             * quelli di Material dicono 'vedi' e 'non vedere' senza dire di che cosa.
-             */
-            if (hiddenCount > 0) {
-                MenuRow(
-                    text = stringResource(
-                        if (peeking) R.string.hub_unpeek else R.string.hub_peek
-                    ),
-                    icon = if (peeking) Glyphs.FolderEyeOff else Glyphs.FolderEye,
-                    onTap = { menu.close(); onPeek(!peeking) },
-                    onHold = { menu.close(); onPeekList() }
-                )
-            }
-
-            HorizontalDivider()
-
-            // ⚠️ Sta in cima al gruppo delle azioni, prima delle tre vie che aprono
-            // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
-            // dove andare, ed è il caso in cui una persona apre questo menu.
-            MenuRow(
-                text = stringResource(R.string.hub_search),
-                icon = Icons.Default.Search,
-                onTap = { menu.close(); onSearch() }
-            )
-            MenuRow(
-                text = stringResource(R.string.hub_url),
-                icon = Icons.Default.Public,
-                onTap = { menu.close(); asking = true }
-            )
-            /*
-             * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
-             * dell'utente, 2026-08-31: *facciamo un bivio, lo mostriamo se e solo se l'app
-             * non ha il permesso di accedere alla memoria*). La richiesta di partenza era di
-             * toglierla del tutto, *a meno che non mi sia perso qualcosa*: quel qualcosa era
-             * che questa voce è l'**unica via per aprire un'immagine senza quel permesso**,
-             * ed è scritto sopra questo composabile.
-             * ⚠️ **Il bivio la rende utile invece di ridondante**, che è la ragione per cui
-             * dava fastidio: col permesso concesso le cartelle ci sono, e allora il selettore
-             * di sistema è una seconda strada per la stessa cosa; senza permesso è l'unica
-             * strada che c'è.
-             * ⚠️ **Sparisce da sé quando il permesso arriva**, senza uscire e rientrare: lo
-             * stato di `granted` si rinfresca al ritorno dalla pagina di sistema (vedi
-             * `fromSettings` in chi chiama), quindi il menu si ricompone.
-             */
-            if (!granted) {
-                MenuRow(
-                    text = stringResource(R.string.hub_pick),
-                    icon = Icons.Default.Image,
-                    onTap = {
-                        menu.close()
-                        picker.launch(
-                            PickVisualMediaRequest(
-                                ActivityResultContracts.PickVisualMedia.ImageOnly
-                            )
-                        )
-                    }
-                )
-            }
-            // ⚠️⚠️ **IL CESTINO SI RAGGIUNGE SOLO DA QUI, ed è per costruzione**: le sue
-            // fotografie stanno nella cartella dell'app, dove il MediaStore non guarda,
-            // quindi non compaiono nell'elenco delle cartelle e non possono comparirci.
-            // Senza questa voce sarebbero irraggiungibili, cioè cancellate.
-            // ⚠️ Sta in fondo al gruppo di quelle che aprono qualcosa: è un posto dove si
-            // va, come una cartella, ma è il meno frequentato dei quattro.
-            /*
-             * ⚠️⚠️ **'Nuova cartella' C'È SOLO DENTRO UNA CARTELLA DELLA VISTA AD ALBERO**
-             * (riscontro del giro della `1.81`, campo libero punto B: *in vista 'Cartelle di
-             * sistema', il menu del FAB deve avere una funzione in più: `Nuova cartella` sopra
-             * 'Cestino', che crea una nuova sottocartella nella cartella corrente*).
-             * ⚠️ **Alla radice dell'albero non c'è, e non è una dimenticanza**: là l'elenco è
-             * fatto di volumi (la memoria interna, una scheda), che non sono cartelle in cui si
-             * possa scrivere. La 'cartella corrente' esiste dal primo passo in giù.
-             * ⚠️ **Nelle altre due viste nemmeno**: quelle elencano le cartelle che il
-             * MediaStore conosce, cioè un indice, non un posto sul disco. Una cartella creata là
-             * non comparirebbe finché non ci finisce dentro un'immagine.
-             */
-            if (onNewFolder != null) {
-                MenuRow(
-                    text = stringResource(R.string.dest_new),
-                    icon = Glyphs.FolderNew,
-                    onTap = { menu.close(); onNewFolder() }
-                )
-            }
-            MenuRow(
-                text = stringResource(R.string.bin_title),
-                icon = Glyphs.Bin,
-                onTap = { menu.close(); onBin() }
-            )
-
-            HorizontalDivider()
-
-            MenuRow(
-                text = stringResource(R.string.hub_settings),
-                icon = Icons.Default.Settings,
-                onTap = { menu.close(); onSettings() }
-            )
         }
         /*
          * ⚠️⚠️ **NON È PIÙ `SmallFloatingActionButton`, dalla 0.78**, e la ragione è la
@@ -1348,6 +1248,190 @@ private fun Hub(
         )
     }
 
+    if (asking) {
+        AddressDialog(
+            recents = recents,
+            onOpen = onOpen,
+            onOpenPage = onOpenPage,
+            onForget = onForget,
+            onDismiss = { asking = false }
+        )
+    }
+}
+
+/**
+ * Le voci del FAB della schermata iniziale, in ordine e coi loro gruppi.
+ *
+ * ⚠️⚠️ **SONO UN ELENCO DALLA `3.70`, E PRIMA ERANO LE RIGHE DEL MENU**: sullo schermo largo le
+ * stesse voci vanno nella pillola d'accento (scelta B5: *la pillola prende tutte le voci del FAB
+ * di casa*), quindi l'elenco si scrive qui una volta e il menu ([Hub]) e la pillola ([HomePill])
+ * lo leggono. Il gruppo dice dove il menu mette il filetto: le viste, le azioni, le impostazioni.
+ * ⚠️ **Le note di ogni voce sono rimaste accanto alla sua riga**, che adesso aggiunge una voce
+ * invece di disegnarla: il perché di ognuna non è cambiato.
+ */
+@Composable
+private fun hubEntries(
+    view: FolderView,
+    granted: Boolean,
+    hiddenCount: Int,
+    peeking: Boolean,
+    onPeek: (Boolean) -> Unit,
+    onPeekList: (() -> Unit)?,
+    onView: (FolderView) -> Unit,
+    onSearch: () -> Unit,
+    onAddress: () -> Unit,
+    onPickImage: () -> Unit,
+    onNewFolder: (() -> Unit)?,
+    onBin: () -> Unit,
+    onSettings: () -> Unit
+): List<PillEntry> = buildList {
+    // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
+    // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
+    // è una richiesta, non un indicatore di stato, quindi in griglia si legge
+    // 'Visualizzazione lista'. Chi la leggesse come stato la invertirebbe, e da
+    // quel momento il menu direbbe il contrario di quello che fa.
+    // ⚠️ Le due etichette vanno cambiate INSIEME e nella stessa forma: si vedono
+    // una per volta, quindi due registri diversi non si notano subito e restano.
+    // Erano 'Vedile come elenco' e 'Vedile come copertine' fino alla 0.46,
+    // quando l'utente le ha volute al nominale.
+    // ⚠️⚠️ **DALLA `0.84` LE VISTE SONO TRE, e il menu mostra le DUE che non sono
+    // quella corrente**: con due bastava una riga sola che nominava l'altra, e la
+    // regola qui sopra resta intatta, perché una riga che nomina la vista in cui si
+    // è già non sarebbe una richiesta ma un indicatore di stato spento.
+    // ⚠️ **'Cartelle di sistema' non segue la forma delle altre due** ('Visualizzazione
+    // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
+    // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
+    // vorrebbe dire ribattezzare una cosa che ha già un nome.
+    FolderView.entries.filter { it != view }.forEach { other ->
+        add(PillEntry(other.glyph, stringResource(other.label()), group = 0) { onView(other) })
+    }
+
+    /*
+     * ⚠️⚠️ **'Mostra nascoste' STA COL GRUPPO DELLE VISTE, e non con le azioni**: quelle
+     * righe rispondono a *come guardo le cartelle*, e questa risponde a *quali ne
+     * guardo*, che è la stessa domanda vista dall'altro lato. Le azioni sotto invece
+     * portano da un'altra parte.
+     * ⚠️⚠️ **C'È SE E SOLO SE CE N'È UNA NASCOSTA**: senza, la voce accenderebbe un
+     * minuto in cui non compare niente e il tocco lungo aprirebbe un pannello vuoto.
+     * ⚠️ **La riga nomina quello che il tocco FA, come le viste**: con le nascoste in
+     * scena dice 'Nascondi cartelle', perché è quello che succede toccandola.
+     * ⚠️ **I due glifi sono suoi** (2026-09-08), e sono una cartella con un occhio:
+     * quelli di Material dicono 'vedi' e 'non vedere' senza dire di che cosa.
+     */
+    if (hiddenCount > 0) {
+        add(
+            PillEntry(
+                icon = if (peeking) Glyphs.FolderEyeOff else Glyphs.FolderEye,
+                label = stringResource(
+                    if (peeking) R.string.hub_unpeek else R.string.hub_peek
+                ),
+                group = 0,
+                onHold = onPeekList,
+                onTap = { onPeek(!peeking) }
+            )
+        )
+    }
+
+    // ⚠️ È in cima al gruppo delle azioni, prima delle tre vie che aprono
+    // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
+    // dove andare, ed è il caso in cui una persona apre questo menu.
+    add(PillEntry(Icons.Default.Search, stringResource(R.string.hub_search), group = 1) { onSearch() })
+    add(PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1) { onAddress() })
+    /*
+     * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
+     * dell'utente, 2026-08-31: *facciamo un bivio, lo mostriamo se e solo se l'app
+     * non ha il permesso di accedere alla memoria*). La richiesta di partenza era di
+     * toglierla del tutto, *a meno che non mi sia perso qualcosa*: quel qualcosa era
+     * che questa voce è l'**unica via per aprire un'immagine senza quel permesso**,
+     * ed è scritto sopra questo composabile.
+     * ⚠️ **Il bivio la rende utile invece di ridondante**, che è la ragione per cui
+     * dava fastidio: col permesso concesso le cartelle ci sono, e allora il selettore
+     * di sistema è una seconda strada per la stessa cosa; senza permesso è l'unica
+     * strada che c'è.
+     * ⚠️ **Sparisce da sé quando il permesso arriva**, senza uscire e rientrare: lo
+     * stato di `granted` si rinfresca al ritorno dalla pagina di sistema (vedi
+     * `fromSettings` in chi chiama), quindi il menu si ricompone.
+     */
+    if (!granted) {
+        add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 1) { onPickImage() })
+    }
+    // ⚠️⚠️ **IL CESTINO SI RAGGIUNGE SOLO DA QUI, ed è per costruzione**: le sue
+    // fotografie stanno nella cartella dell'app, dove il MediaStore non guarda,
+    // quindi non compaiono nell'elenco delle cartelle e non possono comparirci.
+    // Senza questa voce sarebbero irraggiungibili, cioè cancellate.
+    // ⚠️ È in fondo al gruppo di quelle che aprono qualcosa: è un posto dove si
+    // va, come una cartella, ma è il meno frequentato dei quattro.
+    /*
+     * ⚠️⚠️ **'Nuova cartella' C'È SOLO DENTRO UNA CARTELLA DELLA VISTA AD ALBERO**
+     * (riscontro del giro della `1.81`, campo libero punto B: *in vista 'Cartelle di
+     * sistema', il menu del FAB deve avere una funzione in più: `Nuova cartella` sopra
+     * 'Cestino', che crea una nuova sottocartella nella cartella corrente*).
+     * ⚠️ **Alla radice dell'albero non c'è, e non è una dimenticanza**: là l'elenco è
+     * fatto di volumi (la memoria interna, una scheda), che non sono cartelle in cui si
+     * possa scrivere. La 'cartella corrente' esiste dal primo passo in giù.
+     * ⚠️ **Nelle altre due viste nemmeno**: quelle elencano le cartelle che il
+     * MediaStore conosce, cioè un indice, non un posto sul disco. Una cartella creata là
+     * non comparirebbe finché non ci finisce dentro un'immagine.
+     */
+    if (onNewFolder != null) {
+        add(PillEntry(Glyphs.FolderNew, stringResource(R.string.dest_new), group = 1) { onNewFolder() })
+    }
+    add(PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1) { onBin() })
+    add(PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2) { onSettings() })
+}
+
+/**
+ * La pillola della schermata iniziale sullo schermo largo: le voci del FAB di casa, con le due
+ * finestre che alcune aprono (l'indirizzo e il selettore di sistema).
+ *
+ * ⚠️ **Le finestre vivono qui e non nella schermata**: sullo schermo largo la schermata delle
+ * cartelle non è in scena (al suo posto ci sono la colonna e l'invito a scegliere una cartella),
+ * quindi chi apre la finestra deve anche tenerla.
+ * ⚠️ **Il tocco lungo su 'Mostra nascoste' qui non c'è**: apre il pannello delle nascoste, che
+ * vive nella schermata delle cartelle; la stessa pagina si raggiunge dalle impostazioni.
+ */
+@Composable
+fun HomePill(
+    view: FolderView,
+    granted: Boolean,
+    hiddenCount: Int,
+    peeking: Boolean,
+    onPeek: (Boolean) -> Unit,
+    recents: List<RecentImage>,
+    onOpen: (Uri) -> Unit,
+    onOpenPage: (Folder.Series) -> Unit,
+    onForget: () -> Unit,
+    onView: (FolderView) -> Unit,
+    onSearch: () -> Unit,
+    onBin: () -> Unit,
+    onSettings: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var asking by remember { mutableStateOf(false) }
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { picked -> picked?.let(onOpen) }
+    ActionPill(
+        entries = hubEntries(
+            view = view,
+            granted = granted,
+            hiddenCount = hiddenCount,
+            peeking = peeking,
+            onPeek = onPeek,
+            onPeekList = null,
+            onView = onView,
+            onSearch = onSearch,
+            onAddress = { asking = true },
+            onPickImage = {
+                picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onNewFolder = null,
+            onBin = onBin,
+            onSettings = onSettings
+        ),
+        vertical = true,
+        modifier = modifier
+    )
     if (asking) {
         AddressDialog(
             recents = recents,

@@ -1,5 +1,9 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.annotation.StringRes
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -418,8 +422,28 @@ fun GridScreen(
      * l'identificatore della cartella e con lui la copertina e la tinta, e alla fine riapre la
      * griglia. Da qui esce il solo nome nuovo.
      */
-    onFolderRename: ((String) -> Unit)? = null
+    onFolderRename: ((String) -> Unit)? = null,
+    /**
+     * La forma dello schermo: vedi [Adaptive.shape]. Decide dove vivono l'intestazione e i comandi
+     * del FAB, dalla `3.70`.
+     *
+     * ⚠️ **Arriva da fuori e non si legge qui**: la decide chi compone le colonne, che sa anche se
+     * accanto c'è l'elenco delle cartelle. Il valore di serie è il telefono, cioè la griglia di
+     * sempre, quella che il banco di prova monta.
+     */
+    shape: Adaptive.Shape = Adaptive.Shape.PHONE,
+    /**
+     * La colonna delle cartelle sullo schermo largo, che questa schermata compone da sé, o `null`.
+     *
+     * ⚠️⚠️ **LA COMPONE LA GRIGLIA E NON CHI LA CHIAMA, ed è la ragione per cui arriva qui**: in
+     * cima alla colonna vivono le pastiglie dell'intestazione (richiesta B2), e 'Seleziona tutto'
+     * agisce sulla selezione, che è uno stato di questa schermata. Composta fuori, la colonna
+     * avrebbe dovuto ricevere la selezione e restituirla, cioè una seconda casa per lo stesso dato.
+     */
+    rail: WideRail? = null
 ) {
+    val wide = shape == Adaptive.Shape.WIDE
+    val tall = shape == Adaptive.Shape.TALL
     val state = rememberLazyGridState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -799,7 +823,8 @@ fun GridScreen(
      * come ramo, e allora la precedenza si scrive quando esiste.
      */
     val hint: Hint? = when {
-        bin && !binSeen && !binOff -> Hint.BIN_EMPTY
+        // ⚠️ Il velo indica il FAB, e dalla `3.70` sugli schermi larghi e alti il FAB non c'è.
+        bin && !binSeen && !binOff && shape == Adaptive.Shape.PHONE -> Hint.BIN_EMPTY
         else -> null
     }
 
@@ -1144,7 +1169,13 @@ fun GridScreen(
      */
     val density = LocalDensity.current
     val bordi = WindowInsets.safeDrawing
-    val front = !bin && query == null
+    /*
+     * ⚠️⚠️ **SULLO SCHERMO LARGO LA FASCIA NON C'È, DALLA `3.70`** (richiesta B1: *niente
+     * intestazioni: la griglia prende tutto lo spazio fin dall'inizio*): quello che la fascia
+     * mostrava, tranne il titolo, vive nella testa della colonna delle cartelle ([headed]).
+     */
+    val front = !bin && query == null && !wide
+    val headed = !bin && query == null
     val headerMax = if (front) {
         (maxHeight - with(density) { (bordi.getTop(this) + bordi.getBottom(this)).toDp() }) *
             HEADER_SHARE
@@ -1285,1298 +1316,1456 @@ fun GridScreen(
      * un pixel, quindi da sola direbbe di essere già in cima proprio nel caso in cui il salto ha
      * qualcosa da fare.
      */
+    /*
+     * ⚠️⚠️ **LE VOCI DELLA PILLOLA SONO QUELLE DEL MENU DEL FAB, DALLA `3.70`**, nello stesso
+     * ordine e con le stesse etichette: in una cartella Cerca, Cestino e Impostazioni, nel cestino
+     * Cronologia, Ripristina tutto e Svuota il cestino (*se il FAB prevede scelte diverse o più
+     * scelte, la pillola si adatta*). Le due azioni del cestino si spengono a cestino vuoto, come
+     * nel menu.
+     * ⚠️ **Sul tablet in verticale Cerca non è una voce ma il campo in testa alla pillola**
+     * (scelta B6, mockup `Tablet_V`), e dopo vengono Impostazioni e Cestino, nell'ordine del
+     * mockup.
+     * ⚠️ **In selezione la pillola non c'è**, come il FAB: le azioni sono nella scheda in basso.
+     */
+    val cerca = stringResource(R.string.hub_search)
+    val cestino = stringResource(R.string.bin_title)
+    val impostazioni = stringResource(R.string.hub_settings)
+    val pillEntries: List<PillEntry> = when {
+        picking || shape == Adaptive.Shape.PHONE -> emptyList()
+        bin -> listOf(
+            PillEntry(Glyphs.BinHistory, stringResource(R.string.bin_history)) { onHistory() },
+            PillEntry(Glyphs.BinRestore, stringResource(R.string.bin_restore_all), enabled = filled) {
+                restoringAll = true
+            },
+            PillEntry(Icons.Default.DeleteForever, stringResource(R.string.bin_empty), enabled = filled) {
+                emptying = true
+            }
+        )
+        tall -> listOfNotNull(
+            onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, onTap = it) },
+            onBin?.let { PillEntry(Glyphs.Bin, cestino, onTap = it) }
+        )
+        else -> listOfNotNull(
+            onSearchHere?.let { PillEntry(Icons.Default.Search, cerca, onTap = it) },
+            onBin?.let { PillEntry(Glyphs.Bin, cestino, onTap = it) },
+            onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, onTap = it) }
+        )
+    }
+    /** Il campo di ricerca in testa alla pillola del tablet in verticale, dove c'è: vedi sopra. */
+    val pillSearch = onSearchHere.takeIf { tall && !bin && !picking }
+    val pillShown = pillEntries.isNotEmpty() || pillSearch != null
+
+    /*
+     * ⚠️⚠️ **L'ICONA E LE PASTIGLIE DELL'INTESTAZIONE SONO SCRITTE UNA VOLTA SOLA, DALLA `3.70`**,
+     * e le chiamano due posti: la fascia sopra la griglia sul telefono, e la testa della colonna
+     * delle cartelle sullo schermo largo (richiesta B2). Quello che cambia fra i due è solo come
+     * l'icona si misura e quanto si vede, che arrivano come parametri: i gesti, i colori e le
+     * etichette sono gli stessi, o la stessa icona farebbe due cose diverse in due orientamenti.
+     */
+    /*
+     * ⚠️ Il pieno dell'icona segue il colore scelto: la sagoma in negativo vuole tutto
+     * l'inchiostro, il bianco sovrapposto ne vuole il 40%, che è il numero che ha dettato lui.
+     */
+    val pienoIcona = when {
+        !frontWash -> FRONT_INK
+        chiaro -> FRONT_NEG_INK
+        else -> FRONT_DARK_INK
+    }
+    val iconaCartella: @Composable (Modifier, GraphicsLayerScope.() -> Float) -> Unit =
+        { misura, inchiostro ->
+            Icon(
+                imageVector = Glyphs.FolderAiv,
+                /*
+                 * ⚠️ **La descrizione è quella del TOCCO, e il tocco lungo se la dichiara
+                 * a parte**: chi ascolta sente prima che cosa fa il gesto normale, che è
+                 * quello che farà.
+                 */
+                contentDescription = if (scegliCopertina != null) {
+                    copertinaEtichetta
+                } else {
+                    tintaEtichetta
+                },
+                /*
+                 * ⚠️⚠️ **NEL TEMA SCURO L'ICONA È BIANCA E SOVRAPPOSTA, DALLA `1.95`, E
+                 * NON PIÙ IN NEGATIVO** (sua richiesta: *l'icona dell'intestazione deve
+                 * ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità
+                 * 40%*). Il negativo è la sagoma della **superficie**, che nel tema chiaro
+                 * è quasi bianca e stacca sulla tinta, mentre nel tema scuro è quasi nera:
+                 * là 'in negativo' voleva dire uno scuro sopra un altro scuro.
+                 * ⚠️ **Il tema è quello dell'APP e non quello di sistema** ([LocalAivLight]),
+                 * per la stessa ragione dell'icona in testata: l'app ha una voce sua in
+                 * 'Aspetto', e una risorsa letta dalla configurazione direbbe il contrario.
+                 */
+                tint = when {
+                    !frontWash -> LocalContentColor.current
+                    chiaro -> MaterialTheme.colorScheme.surface
+                    else -> Color.White
+                },
+                modifier = Modifier
+                    .semantics {
+                        onLongClick(label = tintaEtichetta) { tinge = true; true }
+                    }
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = {
+                                haptics.performHapticFeedback(HOLD_BUZZ)
+                                tinge = true
+                            },
+                            onTap = {
+                                scegliCopertina?.invoke()
+                                // ⚠️ La prima volta si resta, per il mini-onboarding:
+                                // vedi `onCoverAway`.
+                                if (coverSeen) viaPerCopertina()
+                            }
+                        )
+                    }
+                    .then(misura)
+                    // ⚠️ Il riquadro serve al velo del mini onboarding, che ci cade sopra:
+                    // il perché si misura invece di ricalcolarlo vive su [iconaSpot].
+                    .onGloballyPositioned { iconaSpot = it.boundsInRoot() }
+                    .graphicsLayer { alpha = inchiostro() }
+            )
+        }
+    val pastiglie: @Composable (() -> Float) -> Unit = { quanto ->
+        val pesa = frontFacts && facts.bytes > 0L
+        val conta = frontFacts && facts.clips > 0
+        val scatta = frontFacts && facts.shots > 0
+        val tutti = items.orEmpty()
+        // ⚠️ Lo stesso conto del tocco lungo sul FAB, dalla `1.87`: due comandi che
+        // dicono la stessa cosa non possono avere due idee di che cosa sia 'tutto'.
+        val presi = allTaken
+        val foto = remember(tutti) { tutti.filterNot { Videos.isVideo(it) }.toSet() }
+        val clip = remember(tutti) { tutti.filter { Videos.isVideo(it) }.toSet() }
+        if (pesa || conta || scatta || frontPickAll) {
+            Spacer(Modifier.height(FRONT_CHIP_GAP))
+            /*
+             * ⚠️⚠️ **LA FILA SI ALLINEA AL LATO DEL FAB, DALLA `1.89`** (sua
+             * richiesta, con schermata: *quando le pastiglie vanno a capo, voglio
+             * che quella nella seconda (che è sempre 'Seleziona tutto', essendo in
+             * ultima posizione) sia centrata a destra o a sinistra a seconda del
+             * lato in cui si trova il FAB*). Fino alla `1.87` la seconda riga
+             * restava all'inizio, cioè dalla parte opposta al pollice quando il FAB
+             * è a destra.
+             * ⚠️ **L'allineamento è della FILA e non dell'ultima pastiglia**, ed è
+             * il solo modo che `FlowRow` offre: le sue righe hanno un allineamento
+             * solo, e non c'è un modificatore che ne sposti una.
+             * ⚠️⚠️ **E TOCCA SOLO IL CASO CHE HA CHIESTO, cioè quando si va a capo:
+             * misurato dal banco, non ragionato.** Il blocco dell'intestazione è
+             * centrato, quindi questa fila si dimensiona sul **contenuto** e non
+             * sulla larghezza della schermata: con le pastiglie tutte su una riga
+             * non le avanza un pixel da distribuire, e l'allineamento non ha niente
+             * da spostare. Quando si va a capo la fila è larga quanto la riga più
+             * lunga, ed è dentro quella larghezza che la seconda si sposta.
+             */
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp, fabEdge()),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .graphicsLayer { alpha = quanto() }
+            ) {
+                if (pesa) {
+                    FrontChip(
+                        // ⚠️ Col punto e a 1024, dalla `2.87`: vedi [formatBytes].
+                        text = formatBytes(facts.bytes),
+                        tapLabel = stringResource(R.string.pick_all),
+                        onTap = { chosen = tutti.toSet() },
+                        holdLabel = stringResource(R.string.front_unpick),
+                        onHold = { chosen = emptySet() }
+                    )
+                }
+                if (scatta) {
+                    FrontChip(
+                        text = pluralStringResource(
+                            R.plurals.folders_count,
+                            facts.shots,
+                            facts.shots
+                        ),
+                        tapLabel = stringResource(R.string.front_pick_images),
+                        onTap = { chosen = chosen + foto },
+                        holdLabel = stringResource(R.string.front_unpick_images),
+                        onHold = { chosen = chosen - foto }
+                    )
+                }
+                if (conta) {
+                    FrontChip(
+                        text = pluralStringResource(
+                            R.plurals.folders_clips,
+                            facts.clips,
+                            facts.clips
+                        ),
+                        tapLabel = stringResource(R.string.pick_clips),
+                        onTap = { chosen = chosen + clip },
+                        holdLabel = stringResource(R.string.front_unpick_clips),
+                        onHold = { chosen = chosen - clip }
+                    )
+                }
+                if (frontPickAll) {
+                    FrontPick(
+                        picked = presi,
+                        onTap = {
+                            chosen = if (presi) emptySet() else tutti.toSet()
+                        },
+                        onHold = { chosen = emptySet() }
+                    )
+                }
+            }
+        }
+    }
     val arm = rememberJumpArm(
         state = state,
         up = { state.jumpUpPixels() + shut },
         down = { state.jumpDownPixels() }
     )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
-            )
-            /*
-             * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una catena
-             * di modificatori il `nestedScroll` scritto **per primo** è quello che riceve per
-             * primo il delta della lista, e `frontScroll` ne consuma la parte con cui chiude
-             * l'intestazione. Scritto dopo, al motore del glifo arrivava **zero** finché la
-             * fascia aveva spazio da chiudere: misurato sul banco, un colpo solo con somma 0.
-             */
-            .nestedScroll(arm.watch)
-            .nestedScroll(paging)
-            .padding(horizontal = GRID_PAD_X)
-            .padding(top = GRID_PAD_Y)
-    ) {
-        /*
-         * ⚠️⚠️ **LA TESTATA E LA FASCIA VIVONO IN UN BLOCCO SOLO, DALLA `1.85`, E LA TINTA SI
-         * DIPINGE DIETRO DI LUI**: è la correzione del difetto che ha fatto bocciare la `1.83`
-         * (voce `front-dieci`: *il nome della cartella e gli elementi non passano più in testa
-         * allo scorrimento (lo spazio rimane vuoto)*). Fino alla `1.84` la tinta viveva su un
-         * nodo che la colonna disegnava **dopo** la testata, quindi il rettangolo che sconfina
-         * verso l'alto le finiva sopra e si mangiava il titolo che stava comparendo. Il perché
-         * per esteso, e la trappola che resta per chi lo rifà, vivono su [Modifier.frontWash].
-         * ⚠️ **Il blocco si accorcia da sé**: quando la fascia si chiude qui dentro resta la sola
-         * testata, quindi l'area della tinta segue senza che nessuno la animi.
-         * ⚠️ **Sconfina di [GRID_PAD_Y] verso l'alto** e non più dell'altezza della testata: da
-         * qui al bordo dell'area sicura c'è solo il rientro verticale della schermata, che è un
-         * numero noto. Con lui è sparita anche la misura della testata, che era un
-         * `onGloballyPositioned` con la sua ricomposizione.
-         */
-        Column(
-            modifier = if (front && frontWash) {
-                Modifier.frontWash(
-                    tint = frontTintOf(frontTint) ?: MaterialTheme.colorScheme.primary,
-                    air = GRID_PAD_X,
-                    up = GRID_PAD_Y,
-                    // ⚠️ **La fascia in cima arriva fin sotto la barra di sistema, dalla
-                    // `1.87`**, ed è la sua richiesta con la schermata alla mano: il numero è
-                    // quello che questa colonna le ha appena lasciato con `safeDrawingPadding`,
-                    // quindi il colore chiude esattamente il buco che quel rientro apre.
-                    bar = with(density) { bordi.getTop(this).toDp() },
-                    ink = aperto
-                )
-            } else {
-                Modifier
-            }
-        ) {
-        // ⚠️⚠️ **LA BARRA DELLA SELEZIONE PRENDE IL POSTO DEL TITOLO invece di aggiungersi
-        // sopra**: due barre insieme mangerebbero un quarto di schermo alle miniature, che
-        // sono la cosa per cui si è entrati. Ed è anche il modo di dire che si è in un
-        // modo diverso, senza scriverlo.
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { if (picking) chosen = emptySet() else onBack() }) {
-                Icon(
-                    imageVector = if (picking) Icons.Default.Close
-                    else Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(
-                        if (picking) R.string.pick_leave else R.string.settings_back
+    /*
+     * ⚠️⚠️ **LA TESTA DELLA COLONNA SULLO SCHERMO LARGO, DALLA `3.70`** (richiesta B2: *la parte
+     * alta è occupata dalla stessa combinazione sfumatura/cartella/pillole di info/selezione
+     * dell'intestazione smartphone: in sostanza tutto tranne il titolo, che rimane sopra la
+     * griglia*). Sono l'icona e le pastiglie della fascia, scritte una volta sola qui sopra, sulla
+     * sfumatura della fascia.
+     * ⚠️ **L'icona si misura sull'altezza della testa**, fino alla misura piena della fascia: la
+     * testa va dal 30 al 60% della colonna secondo quante cartelle ci sono, come la fascia del
+     * telefono si stringe scorrendo.
+     * ⚠️ **Nella ricerca la testa è vuota**, come la fascia: là la testata ha un campo di testo e
+     * non un'intestazione.
+     */
+    val testa: @Composable BoxScope.() -> Unit = {
+        if (headed) {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clipToBounds()
+                    .then(
+                        if (frontWash) {
+                            Modifier.frontWash(
+                                tint = frontTintOf(frontTint) ?: MaterialTheme.colorScheme.primary,
+                                air = 0.dp,
+                                up = 0.dp,
+                                bar = 0.dp,
+                                ink = { 1f }
+                            )
+                        } else {
+                            Modifier
+                        }
                     )
-                )
+            ) {
+                val lato = minOf(HEADER_ICON, maxHeight * HEAD_ICON_SHARE)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.align(Alignment.Center).fillMaxWidth()
+                ) {
+                    iconaCartella(Modifier.size(lato)) { pienoIcona }
+                    pastiglie { 1f }
+                }
             }
-            Column(modifier = Modifier.weight(1f)) {
-                if (query != null && !picking) {
-                    /*
-                     * ⚠️⚠️ **IL CAMPO PRENDE IL FUOCO DA SÉ, e senza questo la ricerca si
-                     * apre su una schermata che non fa niente**: chi tocca 'Cerca' ha già
-                     * in mente la parola, e trovarsi davanti un campo spento con la
-                     * tastiera chiusa vuol dire un tocco in più prima di poter scrivere.
-                     * ⚠️ Una volta sola per visita: rimettere il fuoco a ogni
-                     * ricomposizione riaprirebbe la tastiera dopo che la si è chiusa per
-                     * guardare i risultati, che è precisamente quando la si vuole via.
-                     */
-                    val focus = remember { FocusRequester() }
-                    LaunchedEffect(Unit) { focus.requestFocus() }
-                    TextField(
-                        value = query,
-                        onValueChange = onQuery,
-                        placeholder = {
-                            Text(searchIn ?: stringResource(R.string.search_hint))
-                        },
-                        singleLine = true,
-                        // ⚠️ Senza contorno e senza fondo: qui sta al posto di un titolo,
-                        // e un campo squadrato in testata sembrerebbe un modulo da
-                        // compilare invece della riga che dice dove si è.
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        trailingIcon = if (query.isEmpty()) null else ({
-                            IconButton(onClick = { onQuery("") }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.search_clear)
-                                )
-                            }
-                        }),
-                        modifier = Modifier.fillMaxWidth().focusRequester(focus)
+        }
+    }
+    RailFrame(rail = rail.takeIf { wide }, head = testa) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+                )
+                /*
+                 * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una catena
+                 * di modificatori il `nestedScroll` scritto **per primo** è quello che riceve per
+                 * primo il delta della lista, e `frontScroll` ne consuma la parte con cui chiude
+                 * l'intestazione. Scritto dopo, al motore del glifo arrivava **zero** finché la
+                 * fascia aveva spazio da chiudere: misurato sul banco, un colpo solo con somma 0.
+                 */
+                .nestedScroll(arm.watch)
+                .nestedScroll(paging)
+                .padding(horizontal = GRID_PAD_X)
+                .padding(top = GRID_PAD_Y)
+        ) {
+            /*
+             * ⚠️⚠️ **LA TESTATA E LA FASCIA VIVONO IN UN BLOCCO SOLO, DALLA `1.85`, E LA TINTA SI
+             * DIPINGE DIETRO DI LUI**: è la correzione del difetto che ha fatto bocciare la `1.83`
+             * (voce `front-dieci`: *il nome della cartella e gli elementi non passano più in testa
+             * allo scorrimento (lo spazio rimane vuoto)*). Fino alla `1.84` la tinta viveva su un
+             * nodo che la colonna disegnava **dopo** la testata, quindi il rettangolo che sconfina
+             * verso l'alto le finiva sopra e si mangiava il titolo che stava comparendo. Il perché
+             * per esteso, e la trappola che resta per chi lo rifà, vivono su [Modifier.frontWash].
+             * ⚠️ **Il blocco si accorcia da sé**: quando la fascia si chiude qui dentro resta la sola
+             * testata, quindi l'area della tinta segue senza che nessuno la animi.
+             * ⚠️ **Sconfina di [GRID_PAD_Y] verso l'alto** e non più dell'altezza della testata: da
+             * qui al bordo dell'area sicura c'è solo il rientro verticale della schermata, che è un
+             * numero noto. Con lui è sparita anche la misura della testata, che era un
+             * `onGloballyPositioned` con la sua ricomposizione.
+             */
+            Column(
+                modifier = if (front && frontWash) {
+                    Modifier.frontWash(
+                        tint = frontTintOf(frontTint) ?: MaterialTheme.colorScheme.primary,
+                        air = GRID_PAD_X,
+                        up = GRID_PAD_Y,
+                        // ⚠️ **La fascia in cima arriva fin sotto la barra di sistema, dalla
+                        // `1.87`**, ed è la sua richiesta con la schermata alla mano: il numero è
+                        // quello che questa colonna le ha appena lasciato con `safeDrawingPadding`,
+                        // quindi il colore chiude esattamente il buco che quel rientro apre.
+                        bar = with(density) { bordi.getTop(this).toDp() },
+                        ink = aperto
                     )
                 } else {
-                    /*
-                     * ⚠️⚠️ **IL TITOLO SI DISSOLVE COL INTESTAZIONE, dalla `1.76`**: mentre la
-                     * fascia è aperta il nome della cartella si legge là dentro, grande e al
-                     * centro, e chiudendola sale verso qui e lascia il posto a questo, che è
-                     * *come già appare adesso in posizione finale* (parole sue). ⚠️ **La
-                     * traslazione non è scritta da nessuna parte**: la fa la parallasse della
-                     * fascia, che alza il proprio contenuto mentre lo spazio si stringe (vedi
-                     * [FrontBand]). Aggiungerne una seconda vorrebbe dire due movimenti sullo
-                     * stesso oggetto.
-                     * ⚠️ **Le due opacità sono complementari e non due curve**: sommano uno a
-                     * ogni istante, quindi non esiste un punto della corsa in cui il nome della
-                     * cartella si legga meno che agli estremi.
-                     * ⚠️ **Senza intestazione l'opacità è piena**, perché lì `aperto` vale zero:
-                     * il titolo del cestino e quello della ricerca non hanno niente da cui
-                     * arrivare.
-                     * ⚠️⚠️ **E IL TITOLO RESTA IL NOME DELLA CARTELLA ANCHE IN SELEZIONE, dalla
-                     * `1.78`**: fino alla `1.77` diventava il conto dei selezionati, ed era la
-                     * ragione per cui la fascia doveva chiudersi (vedi la nota là sopra). Col
-                     * conto spostato sotto, il titolo dice sempre **dove si è**, che è la sola
-                     * cosa che una testata deve dire.
-                     */
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        maxLines = 1,
-                        /*
-                         * ⚠️⚠️ **L'ELLISSI IN CODA, DALLA `1.81`: fino alla `1.80` un nome
-                         * lungo si tagliava a metà glifo** (censimento della UI del
-                         * 2026-09-05). ⚠️ **Non è il caso dei nomi di FILE**, dove l'ellissi
-                         * in coda è vietata perché mangerebbe l'estensione e si usa quella in
-                         * mezzo (`Names.kt`, `RenameDialog.kt`, `FileOps.kt`): questo è il
-                         * nome di una raccolta del `MediaStore`, che estensione non ha.
-                         * ⚠️ **E la copia nella fascia la portava già**, quindi le due copie
-                         * dello stesso nome si troncavano in due modi diversi.
-                         */
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.heading().graphicsLayer { alpha = 1f - aperto() }
-                    )
-                    /*
-                     * ⚠️⚠️ **IL CONTO DEGLI ELEMENTI STA SOTTO IL TITOLO, ED È LA SUA SPECIFICA
-                     * ALLA LETTERA** (riscontro del giro della `1.77`): *il numero di elementi
-                     * (non immagini) totali / selezionati dev'essere indicato sotto il titolo,
-                     * centrato, con un carattere leggermente più piccolo e meno opaco*. Il corpo
-                     * più piccolo è `bodySmall` e il meno opaco è `onSurfaceVariant`, cioè i due
-                     * che questa riga aveva già: quello che cambia è **che cosa conta** e che
-                     * c'è anche in selezione.
-                     * ⚠️⚠️ **DICE 'ELEMENTI' E NON 'IMMAGINI', punto (b) del suo campo libero**:
-                     * *in alto sullo schermo, all'interno di una cartella c'è il contatore del
-                     * numero di 'immagini', ma non va più bene da quando ci sono anche i video*.
-                     * Qui si contava `items.size`, cioè tutto, con la stringa che dice
-                     * *immagini*: era falso da quando i video sono entrati nella griglia.
-                     * ⚠️⚠️ **E `folders_count` NON SI È RISCRITTA, perché ha un secondo
-                     * chiamante con un altro significato**: nella schermata iniziale conta le
-                     * **sole immagini** di una cartella, accanto a `folders_clips` che conta i
-                     * video, e là *immagini* è la parola giusta. Cambiarla avrebbe corretto qui
-                     * e mentito là, che è la trappola di ogni stringa riusata per somiglianza.
-                     * ⚠️⚠️ **E LA DIVERGENZA PER CUI LE DUE CHIAVI ESISTONO È ARRIVATA AL GIRO
-                     * DOPO**: dalla `1.80` `pick_count` dice *N elementi selezionati* (sua nota
-                     * sulla voce `front-selezione`: *quando elenchi solo il numero di elementi
-                     * s'intende il totale. Invece se c'è una selezione scrivi 'elementi
-                     * selezionati'*), mentre `items_count` resta il totale. Fino alla `1.79` le
-                     * due dicevano lo stesso testo, e riusarne una avrebbe cambiato l'altra in
-                     * silenzio: è esattamente quello che sarebbe successo qui.
-                     * ⚠️ **In selezione il conto è quello dei selezionati** (*totali /
-                     * selezionati*, parole sue), e il posto non cambia: il numero da guardare è
-                     * sempre sotto il nome.
-                     */
-                    conto?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            modifier = Modifier.graphicsLayer { alpha = 1f - aperto() }
+                    Modifier
+                }
+            ) {
+            // ⚠️⚠️ **LA BARRA DELLA SELEZIONE PRENDE IL POSTO DEL TITOLO invece di aggiungersi
+            // sopra**: due barre insieme mangerebbero un quarto di schermo alle miniature, che
+            // sono la cosa per cui si è entrati. Ed è anche il modo di dire che si è in un
+            // modo diverso, senza scriverlo.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { if (picking) chosen = emptySet() else onBack() }) {
+                    Icon(
+                        imageVector = if (picking) Icons.Default.Close
+                        else Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(
+                            if (picking) R.string.pick_leave else R.string.settings_back
                         )
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    if (query != null && !picking) {
+                        /*
+                         * ⚠️⚠️ **IL CAMPO PRENDE IL FUOCO DA SÉ, e senza questo la ricerca si
+                         * apre su una schermata che non fa niente**: chi tocca 'Cerca' ha già
+                         * in mente la parola, e trovarsi davanti un campo spento con la
+                         * tastiera chiusa vuol dire un tocco in più prima di poter scrivere.
+                         * ⚠️ Una volta sola per visita: rimettere il fuoco a ogni
+                         * ricomposizione riaprirebbe la tastiera dopo che la si è chiusa per
+                         * guardare i risultati, che è precisamente quando la si vuole via.
+                         */
+                        val focus = remember { FocusRequester() }
+                        LaunchedEffect(Unit) { focus.requestFocus() }
+                        TextField(
+                            value = query,
+                            onValueChange = onQuery,
+                            placeholder = {
+                                Text(searchIn ?: stringResource(R.string.search_hint))
+                            },
+                            singleLine = true,
+                            // ⚠️ Senza contorno e senza fondo: qui sta al posto di un titolo,
+                            // e un campo squadrato in testata sembrerebbe un modulo da
+                            // compilare invece della riga che dice dove si è.
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            trailingIcon = if (query.isEmpty()) null else ({
+                                IconButton(onClick = { onQuery("") }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = stringResource(R.string.search_clear)
+                                    )
+                                }
+                            }),
+                            modifier = Modifier.fillMaxWidth().focusRequester(focus)
+                        )
+                    } else {
+                        /*
+                         * ⚠️⚠️ **IL TITOLO SI DISSOLVE COL INTESTAZIONE, dalla `1.76`**: mentre la
+                         * fascia è aperta il nome della cartella si legge là dentro, grande e al
+                         * centro, e chiudendola sale verso qui e lascia il posto a questo, che è
+                         * *come già appare adesso in posizione finale* (parole sue). ⚠️ **La
+                         * traslazione non è scritta da nessuna parte**: la fa la parallasse della
+                         * fascia, che alza il proprio contenuto mentre lo spazio si stringe (vedi
+                         * [FrontBand]). Aggiungerne una seconda vorrebbe dire due movimenti sullo
+                         * stesso oggetto.
+                         * ⚠️ **Le due opacità sono complementari e non due curve**: sommano uno a
+                         * ogni istante, quindi non esiste un punto della corsa in cui il nome della
+                         * cartella si legga meno che agli estremi.
+                         * ⚠️ **Senza intestazione l'opacità è piena**, perché lì `aperto` vale zero:
+                         * il titolo del cestino e quello della ricerca non hanno niente da cui
+                         * arrivare.
+                         * ⚠️⚠️ **E IL TITOLO RESTA IL NOME DELLA CARTELLA ANCHE IN SELEZIONE, dalla
+                         * `1.78`**: fino alla `1.77` diventava il conto dei selezionati, ed era la
+                         * ragione per cui la fascia doveva chiudersi (vedi la nota là sopra). Col
+                         * conto spostato sotto, il titolo dice sempre **dove si è**, che è la sola
+                         * cosa che una testata deve dire.
+                         */
+                        val titolo: @Composable (Modifier) -> Unit = { m ->
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.headlineSmall,
+                                maxLines = 1,
+                                /*
+                                 * ⚠️⚠️ **L'ELLISSI IN CODA, DALLA `1.81`: fino alla `1.80` un nome
+                                 * lungo si tagliava a metà glifo** (censimento della UI del
+                                 * 2026-09-05). ⚠️ **Non è il caso dei nomi di FILE**, dove l'ellissi
+                                 * in coda è vietata perché mangerebbe l'estensione e si usa quella in
+                                 * mezzo (`Names.kt`, `RenameDialog.kt`, `FileOps.kt`): questo è il
+                                 * nome di una raccolta del `MediaStore`, che estensione non ha.
+                                 * ⚠️ **E la copia nella fascia la portava già**, quindi le due copie
+                                 * dello stesso nome si troncavano in due modi diversi.
+                                 */
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = m.heading().graphicsLayer { alpha = 1f - aperto() }
+                            )
+                        }
+                        /*
+                         * ⚠️⚠️ **IL CONTO DEGLI ELEMENTI È SOTTO IL TITOLO, ED È LA SUA SPECIFICA
+                         * ALLA LETTERA** (riscontro del giro della `1.77`): *il numero di elementi
+                         * (non immagini) totali / selezionati dev'essere indicato sotto il titolo,
+                         * centrato, con un carattere leggermente più piccolo e meno opaco*. Il corpo
+                         * più piccolo è `bodySmall` e il meno opaco è `onSurfaceVariant`, cioè i due
+                         * che questa riga aveva già: quello che cambia è **che cosa conta** e che
+                         * c'è anche in selezione.
+                         * ⚠️⚠️ **DICE 'ELEMENTI' E NON 'IMMAGINI', punto (b) del suo campo libero**:
+                         * *in alto sullo schermo, all'interno di una cartella c'è il contatore del
+                         * numero di 'immagini', ma non va più bene da quando ci sono anche i video*.
+                         * Qui si contava `items.size`, cioè tutto, con la stringa che dice
+                         * *immagini*: era falso da quando i video sono entrati nella griglia.
+                         * ⚠️⚠️ **E `folders_count` NON SI È RISCRITTA, perché ha un secondo
+                         * chiamante con un altro significato**: nella schermata iniziale conta le
+                         * **sole immagini** di una cartella, accanto a `folders_clips` che conta i
+                         * video, e là *immagini* è la parola giusta. Cambiarla avrebbe corretto qui
+                         * e mentito là, che è la trappola di ogni stringa riusata per somiglianza.
+                         * ⚠️⚠️ **E LA DIVERGENZA PER CUI LE DUE CHIAVI ESISTONO È ARRIVATA AL GIRO
+                         * DOPO**: dalla `1.80` `pick_count` dice *N elementi selezionati* (sua nota
+                         * sulla voce `front-selezione`: *quando elenchi solo il numero di elementi
+                         * s'intende il totale. Invece se c'è una selezione scrivi 'elementi
+                         * selezionati'*), mentre `items_count` resta il totale. Fino alla `1.79` le
+                         * due dicevano lo stesso testo, e riusarne una avrebbe cambiato l'altra in
+                         * silenzio: è esattamente quello che sarebbe successo qui.
+                         * ⚠️ **In selezione il conto è quello dei selezionati** (*totali /
+                         * selezionati*, parole sue), e il posto non cambia: il numero da guardare è
+                         * sempre sotto il nome.
+                         */
+                        val numero: @Composable () -> Unit = {
+                            conto?.let {
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    modifier = Modifier.graphicsLayer { alpha = 1f - aperto() }
+                                )
+                            }
+                        }
+                        /*
+                         * ⚠️⚠️ **SULLO SCHERMO LARGO NOME E NUMERO SONO SU UNA RIGA, DALLA `3.70`**
+                         * (richiesta B1 e mockup `Tablet_H`: *solo nome della cartella e numero di
+                         * elementi in testa, ridistribuiti per lo schermo orizzontale*). Il nome si
+                         * accorcia per primo, così il numero resta sempre leggibile.
+                         */
+                        if (wide) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                titolo(Modifier.weight(1f, fill = false))
+                                numero()
+                            }
+                        } else {
+                            titolo(Modifier)
+                            numero()
+                        }
                     }
                 }
+                // ⚠️ Il peso sta FUORI dalla colonna del conto, non sotto: la richiesta dice
+                // *in linea ma a destra, allineato al bordo destro*, e dentro la colonna
+                // seguirebbe la larghezza del testo invece del bordo della barra.
+                // ⚠️ **Spento il peso, in selezione qui non va NIENTE**, e non il filtro: quello
+                // sceglie che cosa mostrare nella cartella, e in mezzo a una selezione
+                // cambierebbe l'elenco sotto le spunte già date.
+                when {
+                    picking && pickWeight -> PickWeight(chosen)
+                    picking -> Unit
+                    else -> FilterKey(filter, onFilter, onSearch)
+                }
+
+                /*
+                 * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
+                 * invece che dimenticata.** Fino alla `0.72` accanto al conto stava un FAB
+                 * 'Tutte', messo lì perché su una cartella da trecento foto il gesto
+                 * alternativo è trecento tocchi. Quel bisogno adesso lo copre il **tocco lungo
+                 * sul FAB**, che fa la stessa cosa, si annuncia a TalkBack e ha
+                 * un onboarding che lo insegna una volta.
+                 * ⚠️ Togliendolo si guadagna la coerenza, che è la ragione dell'utente
+                 * (2026-08-31): *è un unicum e nessun'altra azione fa apparire qualcosa lì*.
+                 * In questa barra non compariva nient'altro, mai, in nessun altro modo.
+                 * ⚠️ Chi volesse rimetterlo tenga presente che ne servirebbe **anche** uno per
+                 * 'nessuna', o la barra torna a essere un posto dove una sola azione su due ha
+                 * un FAB.
+                 */
             }
-            // ⚠️ Il peso sta FUORI dalla colonna del conto, non sotto: la richiesta dice
-            // *in linea ma a destra, allineato al bordo destro*, e dentro la colonna
-            // seguirebbe la larghezza del testo invece del bordo della barra.
-            // ⚠️ **Spento il peso, in selezione qui non va NIENTE**, e non il filtro: quello
-            // sceglie che cosa mostrare nella cartella, e in mezzo a una selezione
-            // cambierebbe l'elenco sotto le spunte già date.
-            when {
-                picking && pickWeight -> PickWeight(chosen)
-                picking -> Unit
-                else -> FilterKey(filter, onFilter, onSearch)
-            }
+            Spacer(Modifier.height(8.dp))
 
             /*
-             * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
-             * invece che dimenticata.** Fino alla `0.72` accanto al conto stava un FAB
-             * 'Tutte', messo lì perché su una cartella da trecento foto il gesto
-             * alternativo è trecento tocchi. Quel bisogno adesso lo copre il **tocco lungo
-             * sul FAB**, che fa la stessa cosa, si annuncia a TalkBack e ha
-             * un onboarding che lo insegna una volta.
-             * ⚠️ Togliendolo si guadagna la coerenza, che è la ragione dell'utente
-             * (2026-08-31): *è un unicum e nessun'altra azione fa apparire qualcosa lì*.
-             * In questa barra non compariva nient'altro, mai, in nessun altro modo.
-             * ⚠️ Chi volesse rimetterlo tenga presente che ne servirebbe **anche** uno per
-             * 'nessuna', o la barra torna a essere un posto dove una sola azione su due ha
-             * un FAB.
+             * ⚠️⚠️ **LA FASCIA DEL INTESTAZIONE, dalla `1.76`**: l'icona della cartella a mezza
+             * tinta e sotto il nome, *con un posizionamento analogo alla home*. Il meccanismo di
+             * misura, il ritaglio e la parallasse stanno in [FrontBand]; qui c'è solo quello che si
+             * vede dentro.
+             * ⚠️ **L'icona si stringe se la fascia è bassa**, con lo stesso conto della schermata
+             * iniziale: in orizzontale non resta niente, e senza questa stretta la tela verrebbe
+             * tagliata sopra e sotto invece di stare dentro.
+             * ⚠️ **L'icona non parla** (`contentDescription` nullo): a dire dove si è c'è il nome
+             * della cartella, e un lettore di schermo che annuncia 'cartella' prima di leggerlo
+             * darebbe due voci per una cosa sola.
+             * ⚠️⚠️ **IL NOME È SCRITTO DUE VOLTE NELL'ALBERO SEMANTICO, e va saputo**: qui e in
+             * testata. Nessuna delle due copie si può togliere, perché l'una si dissolve nell'altra
+             * e un titolo che compare a metà corsa sarebbe un salto; a non farne due voci ci pensa
+             * l'opacità, perché un nodo trasparente resta comunque leggibile da TalkBack. ⚠️ Chi
+             * volesse chiudere anche quel buco lo faccia con `alpha` **semantico**, non togliendo
+             * uno dei due testi.
              */
-        }
-        Spacer(Modifier.height(8.dp))
-
-        /*
-         * ⚠️⚠️ **LA FASCIA DEL INTESTAZIONE, dalla `1.76`**: l'icona della cartella a mezza
-         * tinta e sotto il nome, *con un posizionamento analogo alla home*. Il meccanismo di
-         * misura, il ritaglio e la parallasse stanno in [FrontBand]; qui c'è solo quello che si
-         * vede dentro.
-         * ⚠️ **L'icona si stringe se la fascia è bassa**, con lo stesso conto della schermata
-         * iniziale: in orizzontale non resta niente, e senza questa stretta la tela verrebbe
-         * tagliata sopra e sotto invece di stare dentro.
-         * ⚠️ **L'icona non parla** (`contentDescription` nullo): a dire dove si è c'è il nome
-         * della cartella, e un lettore di schermo che annuncia 'cartella' prima di leggerlo
-         * darebbe due voci per una cosa sola.
-         * ⚠️⚠️ **IL NOME È SCRITTO DUE VOLTE NELL'ALBERO SEMANTICO, e va saputo**: qui e in
-         * testata. Nessuna delle due copie si può togliere, perché l'una si dissolve nell'altra
-         * e un titolo che compare a metà corsa sarebbe un salto; a non farne due voci ci pensa
-         * l'opacità, perché un nodo trasparente resta comunque leggibile da TalkBack. ⚠️ Chi
-         * volesse chiudere anche quel buco lo faccia con `alpha` **semantico**, non togliendo
-         * uno dei due testi.
-         */
-        if (front) {
-            FrontBand(fullPx = headerPx, shut = { shut }) { quanto ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    /*
-                     * ⚠️⚠️ **L'ICONA SI RIMPICCIOLISCE PRIMA DI SPARIRE, dalla `1.78`, ED È LA
-                     * SUA SPECIFICA** (riscontro del giro della `1.77`): *man mano che si
-                     * scorre, deve prima rimpicciolirsi e adattarsi ad ogni fotogramma allo
-                     * spazio disponibile in verticale, poi sparire con una dissolvenza come fa
-                     * adesso*. Fino alla `1.77` la misura era **fissa** (metà della fascia
-                     * piena) e l'opacità andava col quadrato dell'apertura: il disegno usciva di
-                     * scena sbiadendo e facendosi tagliare, senza mai stringersi.
-                     * ⚠️ **Le due metà stanno in `Front.kt`**, [frontIconMeasure] per la misura
-                     * e [frontIconInk] per la dissolvenza, perché sono un movimento solo in due
-                     * fasi e i loro numeri vivono accanto agli altri della fascia.
-                     * ⚠️ **La misura vince sulla scala**, e la differenza è che il titolo sotto
-                     * prende lo spazio che l'icona cede: il perché per esteso è sul
-                     * modificatore.
-                     * ⚠️⚠️ **DALLA `1.80` LE DUE FASI COMINCIANO INSIEME** (riscontro del giro
-                     * della `1.79`: *deve iniziare la sua dissolvenza appena inizia a ridursi di
-                     * dimensione*): la soglia non è più un numero scritto a mano ma la risolve
-                     * [frontIconFade] dagli stessi ingressi della misura. ⚠️ **`toPx()` si può
-                     * chiamare qui** perché `GraphicsLayerScope` è una `Density`, e leggerla nel
-                     * disegno costa niente: la soglia è la stessa a ogni fotogramma.
-                     */
-                    /*
-                     * ⚠️⚠️ **CON LA TINTA ACCESA L'ICONA VA IN NEGATIVO, DALLA `1.83`** (variante
-                     * 10: *l'icona centrata in negativo all'80% invece del 20%*). Cambiano due
-                     * cose insieme e vanno insieme: il **colore**, che diventa quello della
-                     * superficie perché sopra la tinta l'inchiostro del contenuto sparirebbe, e
-                     * l'**inchiostro**, che passa da un accenno a una sagoma.
-                     * ⚠️ **La dissolvenza resta la stessa**: quello che cambia è il valore da cui
-                     * parte, non la curva, quindi la coreografia dello scorrimento non si tocca.
-                     */
-                    /*
-                     * ⚠️⚠️ **IL TOCCO SULL'ICONA SCEGLIE LA COPERTINA, DALLA `1.94`, ED È LA
-                     * PROPOSTA CHE ASPETTAVA** (risposta a `d-copertina-come` del giro della
-                     * `1.92`: *solo con il tocco singolo sull'icona dell'intestazione di una
-                     * cartella*). Dalla `1.86` quel gesto era spento su sua istruzione (*per il
-                     * momento disattiva questo tocco, e proponimi un'azione alternativa realmente
-                     * utile. In assenza di funzionalità utili, per il momento resta senza*): la
-                     * riga qui sotto è quella funzione utile arrivata. Il tocco lungo, che sceglie
-                     * il colore, resta com'era.
-                     * ⚠️⚠️ **E CON IL GESTO ESCE IL CODICE CHE LO SERVIVA**, cioè
-                     * `Folder.openInFiles` e le sue due stringhe: un ramo senza chiamanti tenuto
-                     * in caldo per una funzione che forse torna è codice morto, e la storia git lo
-                     * riporta indietro in un comando il giorno che lui sceglie una delle proposte.
-                     * ⚠️ **La sua domanda tecnica ha una risposta, e vive nel documento del giro**
-                     * (*non si potrebbe far scegliere all'utente con quale app aprire la cartella,
-                     * se apparentemente nessuna app è disponibile?*): un selettore di app mostra
-                     * quelle che rispondono all'intento, quindi dove non risponde nessuno non
-                     * mostra niente. Quello che risponde sempre è un'altra strada, ed è una delle
-                     * proposte.
-                     * ⚠️⚠️ **L'ICONA RESTA PARLANTE, e adesso dice il gesto che le è rimasto**:
-                     * con la descrizione a `null` sarebbe un disegno muto con un'azione sopra,
-                     * cioè una funzione per chi la sa e non per chi la cerca.
-                     * ⚠️ **Chi ascolta viene PRIMA di chi misura** (regola in `Rules.md`,
-                     * § '👆 Che cosa fa il tocco FUORI da una finestra'): qui i due riquadri
-                     * coincidono, ma l'ordine è quello per cui un nodo di tocco non finisce mai
-                     * dietro un confine di layout.
-                     */
-                    Icon(
-                        imageVector = Glyphs.FolderAiv,
+            if (front) {
+                FrontBand(fullPx = headerPx, shut = { shut }) { quanto ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         /*
-                         * ⚠️ **La descrizione è quella del TOCCO, e il tocco lungo se la dichiara
-                         * a parte**: chi ascolta sente prima che cosa fa il gesto normale, che è
-                         * quello che farà.
+                         * ⚠️⚠️ **L'ICONA SI RIMPICCIOLISCE PRIMA DI SPARIRE, dalla `1.78`, ED È LA
+                         * SUA SPECIFICA** (riscontro del giro della `1.77`): *man mano che si
+                         * scorre, deve prima rimpicciolirsi e adattarsi ad ogni fotogramma allo
+                         * spazio disponibile in verticale, poi sparire con una dissolvenza come fa
+                         * adesso*. Fino alla `1.77` la misura era **fissa** (metà della fascia
+                         * piena) e l'opacità andava col quadrato dell'apertura: il disegno usciva di
+                         * scena sbiadendo e facendosi tagliare, senza mai stringersi.
+                         * ⚠️ **Le due metà stanno in `Front.kt`**, [frontIconMeasure] per la misura
+                         * e [frontIconInk] per la dissolvenza, perché sono un movimento solo in due
+                         * fasi e i loro numeri vivono accanto agli altri della fascia.
+                         * ⚠️ **La misura vince sulla scala**, e la differenza è che il titolo sotto
+                         * prende lo spazio che l'icona cede: il perché per esteso è sul
+                         * modificatore.
+                         * ⚠️⚠️ **DALLA `1.80` LE DUE FASI COMINCIANO INSIEME** (riscontro del giro
+                         * della `1.79`: *deve iniziare la sua dissolvenza appena inizia a ridursi di
+                         * dimensione*): la soglia non è più un numero scritto a mano ma la risolve
+                         * [frontIconFade] dagli stessi ingressi della misura. ⚠️ **`toPx()` si può
+                         * chiamare qui** perché `GraphicsLayerScope` è una `Density`, e leggerla nel
+                         * disegno costa niente: la soglia è la stessa a ogni fotogramma.
                          */
-                        contentDescription = if (scegliCopertina != null) {
-                            copertinaEtichetta
-                        } else {
-                            tintaEtichetta
-                        },
                         /*
-                         * ⚠️⚠️ **NEL TEMA SCURO L'ICONA È BIANCA E SOVRAPPOSTA, DALLA `1.95`, E
-                         * NON PIÙ IN NEGATIVO** (sua richiesta: *l'icona dell'intestazione deve
-                         * ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità
-                         * 40%*). Il negativo è la sagoma della **superficie**, che nel tema chiaro
-                         * è quasi bianca e stacca sulla tinta, mentre nel tema scuro è quasi nera:
-                         * là 'in negativo' voleva dire uno scuro sopra un altro scuro.
-                         * ⚠️ **Il tema è quello dell'APP e non quello di sistema** ([LocalAivLight]),
-                         * per la stessa ragione dell'icona in testata: l'app ha una voce sua in
-                         * 'Aspetto', e una risorsa letta dalla configurazione direbbe il contrario.
+                         * ⚠️⚠️ **CON LA TINTA ACCESA L'ICONA VA IN NEGATIVO, DALLA `1.83`** (variante
+                         * 10: *l'icona centrata in negativo all'80% invece del 20%*). Cambiano due
+                         * cose insieme e vanno insieme: il **colore**, che diventa quello della
+                         * superficie perché sopra la tinta l'inchiostro del contenuto sparirebbe, e
+                         * l'**inchiostro**, che passa da un accenno a una sagoma.
+                         * ⚠️ **La dissolvenza resta la stessa**: quello che cambia è il valore da cui
+                         * parte, non la curva, quindi la coreografia dello scorrimento non si tocca.
                          */
-                        tint = when {
-                            !frontWash -> LocalContentColor.current
-                            chiaro -> MaterialTheme.colorScheme.surface
-                            else -> Color.White
-                        },
-                        modifier = Modifier
-                            .semantics {
-                                onLongClick(label = tintaEtichetta) { tinge = true; true }
-                            }
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        haptics.performHapticFeedback(HOLD_BUZZ)
-                                        tinge = true
-                                    },
-                                    onTap = {
-                                        scegliCopertina?.invoke()
-                                        // ⚠️ La prima volta si resta, per il mini-onboarding:
-                                        // vedi `onCoverAway`.
-                                        if (coverSeen) viaPerCopertina()
-                                    }
-                                )
-                            }
-                            .frontIconMeasure(
-                                fullPx = headerPx,
-                                shut = { shut },
-                                max = HEADER_ICON
+                        /*
+                         * ⚠️⚠️ **IL TOCCO SULL'ICONA SCEGLIE LA COPERTINA, DALLA `1.94`, ED È LA
+                         * PROPOSTA CHE ASPETTAVA** (risposta a `d-copertina-come` del giro della
+                         * `1.92`: *solo con il tocco singolo sull'icona dell'intestazione di una
+                         * cartella*). Dalla `1.86` quel gesto era spento su sua istruzione (*per il
+                         * momento disattiva questo tocco, e proponimi un'azione alternativa realmente
+                         * utile. In assenza di funzionalità utili, per il momento resta senza*): la
+                         * riga qui sotto è quella funzione utile arrivata. Il tocco lungo, che sceglie
+                         * il colore, resta com'era.
+                         * ⚠️⚠️ **E CON IL GESTO ESCE IL CODICE CHE LO SERVIVA**, cioè
+                         * `Folder.openInFiles` e le sue due stringhe: un ramo senza chiamanti tenuto
+                         * in caldo per una funzione che forse torna è codice morto, e la storia git lo
+                         * riporta indietro in un comando il giorno che lui sceglie una delle proposte.
+                         * ⚠️ **La sua domanda tecnica ha una risposta, e vive nel documento del giro**
+                         * (*non si potrebbe far scegliere all'utente con quale app aprire la cartella,
+                         * se apparentemente nessuna app è disponibile?*): un selettore di app mostra
+                         * quelle che rispondono all'intento, quindi dove non risponde nessuno non
+                         * mostra niente. Quello che risponde sempre è un'altra strada, ed è una delle
+                         * proposte.
+                         * ⚠️⚠️ **L'ICONA RESTA PARLANTE, e adesso dice il gesto che le è rimasto**:
+                         * con la descrizione a `null` sarebbe un disegno muto con un'azione sopra,
+                         * cioè una funzione per chi la sa e non per chi la cerca.
+                         * ⚠️ **Chi ascolta viene PRIMA di chi misura** (regola in `Rules.md`,
+                         * § '👆 Che cosa fa il tocco FUORI da una finestra'): qui i due riquadri
+                         * coincidono, ma l'ordine è quello per cui un nodo di tocco non finisce mai
+                         * dietro un confine di layout.
+                         */
+                        iconaCartella(
+                            Modifier.frontIconMeasure(fullPx = headerPx, shut = { shut }, max = HEADER_ICON)
+                        ) {
+                            frontIconInk(
+                                aperto = quanto(),
+                                soglia = frontIconFade(headerPx, HEADER_ICON.toPx()),
+                                pieno = pienoIcona
                             )
-                            // ⚠️ Il riquadro serve al velo del mini onboarding, che ci cade sopra:
-                            // il perché si misura invece di ricalcolarlo vive su [iconaSpot].
-                            .onGloballyPositioned { iconaSpot = it.boundsInRoot() }
-                            .graphicsLayer {
-                                alpha = frontIconInk(
-                                    aperto = quanto(),
-                                    soglia = frontIconFade(headerPx, HEADER_ICON.toPx()),
-                                    // ⚠️ Il pieno segue il colore scelto qui sopra: la sagoma in
-                                    // negativo vuole tutto l'inchiostro, il bianco sovrapposto ne
-                                    // vuole il 40%, che è il numero che ha dettato lui.
-                                    pieno = when {
-                                        !frontWash -> FRONT_INK
-                                        chiaro -> FRONT_NEG_INK
-                                        else -> FRONT_DARK_INK
-                                    }
-                                )
-                            }
-                    )
-                    Spacer(Modifier.height(FRONT_GAP))
-                    /*
-                     * ⚠️⚠️ **UN GRADINO SU DALLA `1.77`, ED È IL SUO SECONDO NUMERO**: la
-                     * `1.76` scriveva questo titolo in `titleSmall`, un gradino sotto il
-                     * `titleMedium` con cui la schermata iniziale scrive il nome dell'app,
-                     * perché la sua specifica diceva *un po' più piccolo per lasciare spazio
-                     * anche a nomi lunghi*. Col telefono in mano l'ha voluto più grande
-                     * (riscontro del giro della `1.76`: *il testo del titolo dev'essere un po'
-                     * più grande*).
-                     * ⚠️ **La sua ragione di allora non cade, perché non era il corpo a
-                     * portarla**: lo spazio per un nome lungo lo fa [FRONT_TITLE_LINES], cioè
-                     * l'andata a capo, e quella non è cambiata. Il corpo più piccolo era un
-                     * secondo modo di dire la stessa cosa, e questo giro dice che di quei due
-                     * ne serviva uno.
-                     * ⚠️ **E resta più piccolo di quello della testata**, che è `headlineSmall`:
-                     * la fascia non scrive il titolo alla misura in cui lo troverà in cima, o la
-                     * traslazione non avrebbe niente da raccontare.
-                     */
-                    /*
-                     * ⚠️⚠️ **'Titolo graziato' CAMBIA SOLO IL CARATTERE, DALLA `1.85`, ED È UNA
-                     * SUA CORREZIONE** (riscontro del giro della `1.83`: *l'opzione 'Testo
-                     * graziato' cambia solo il carattere, niente iconcina color accento
-                     * aggiuntiva*). Nella `1.83` quel chip faceva tre cose insieme, perché
-                     * traduceva la variante 7 del mockup: il carattere, un corpo più grande, e
-                     * una cartella piccola color accento sopra il nome. Adesso ne fa una, e le
-                     * altre due sono uscite: la cartellina con lei, e il corpo perché il titolo
-                     * è più grande **sempre**.
-                     * ⚠️ **Il carattere graziato è quello di SISTEMA** ([FontFamily.Serif]) e non
-                     * un font portato nell'APK: un carattere in più pesa e va scelto, e qui la
-                     * richiesta è la **forma** delle grazie, non una tipografia nuova.
-                     * ⚠️⚠️ **UN GRADINO SU ANCORA, DALLA `1.85`, ED È IL SUO TERZO NUMERO**
-                     * (*il testo dev'essere un po' più grande di default*): `titleSmall` nella
-                     * `1.76`, `titleMedium` nella `1.77`, `titleLarge` adesso. ⚠️ **E resta
-                     * sotto la testata**, che è `headlineSmall`: se la fascia scrivesse il nome
-                     * alla misura in cui lo troverà in cima, la traslazione non avrebbe niente
-                     * da raccontare.
-                     *
-                     * ⚠️⚠️ **I DUE GESTI SUL NOME SONO SUOI** (stesso riscontro, come *bonus*):
-                     * *un tap sul nome della cartella copia il suo nome (con notifica toast); un
-                     * tap lungo copia il nome della cartella con il percorso*.
-                     * ⚠️ **Senza percorso il tocco lungo copia il solo nome** invece di non fare
-                     * niente: la cartella di una ricerca o una appena aperta può non averlo
-                     * ancora, e un gesto che a volte tace si legge come rotto.
-                     */
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge.let {
-                            if (frontSerif) it.copy(fontFamily = FontFamily.Serif) else it
-                        },
-                        textAlign = TextAlign.Center,
-                        maxLines = FRONT_TITLE_LINES,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .heading()
-                            .semantics { onLongClick(label = rinominaEtichetta) { viaLungo(); true } }
-                            .pointerInput(title, facts.path) {
-                                detectTapGestures(
-                                    onTap = { copiaNome() },
-                                    onLongPress = {
-                                        haptics.performHapticFeedback(HOLD_BUZZ)
-                                        viaLungo()
-                                    }
-                                )
-                            }
-                            .padding(horizontal = 24.dp)
-                            .graphicsLayer { alpha = quanto() }
-                    )
-                    /*
-                     * ⚠️⚠️ **IL CONTO STA ANCHE QUI, e la traslazione in testata viene per
-                     * costruzione**: sua richiesta del giro della `1.77`, *sia il nome che il
-                     * numero di elementi totali/selezionati devono traslare e adattarsi alla
-                     * loro nuova posizione in testata con un'animazione fluida e moderna*. Il
-                     * movimento è la parallasse che [FrontBand] fa da sempre, quindi basta che
-                     * il numero viva **dentro** la fascia insieme al nome: aggiungerne uno
-                     * scritto a mano darebbe due movimenti sullo stesso oggetto.
-                     * ⚠️ **L'opacità è complementare a quella della testata**, come per il
-                     * nome: sommano uno a ogni istante, quindi non c'è un punto della corsa in
-                     * cui il numero si legga meno che agli estremi.
-                     * ⚠️ **La stringa è la stessa dei due posti**, calcolata una volta sola
-                     * sopra: il perché è sul suo KDoc.
-                     */
-                    conto?.let {
-                        Spacer(Modifier.height(FRONT_COUNT_GAP))
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            maxLines = 1,
-                            modifier = Modifier.graphicsLayer { alpha = quanto() }
-                        )
-                    }
-                    /*
-                     * ⚠️⚠️ **LA FILA MISTA DELLA VARIANTE 10: DUE DATI E UN COMANDO** (scelta
-                     * sua), e i due vestiti sono diversi apposta: il mockup lo dichiara (*un dato
-                     * e un comando che si somigliano sono la trappola vera di una fila mista*).
-                     * ⚠️⚠️ **I DUE TOCCHI LUNGHI SONO IL PUNTO A DEL SUO CAMPO LIBERO** (giro
-                     * della `1.82`: *tap lungo sulla pastiglia dello spazio occupato → seleziona
-                     * tutto; tap lungo sulla pastiglia del numero dei video → seleziona tutti i
-                     * video*). Sono scorciatoie su un dato, quindi il tocco breve non fa niente:
-                     * un dato che al primo tocco seleziona duecento file sarebbe una sorpresa.
-                     * ⚠️ **Una pastiglia senza numero non compare**: una cartella appena aperta
-                     * non è ancora pesata e una cartella di sole immagini non ha video, e in tutti
-                     * e due i casi uno zero non direbbe niente a nessuno.
-                     * ⚠️ **In selezione la fila resta**, perché 'Seleziona tutto' serve proprio
-                     * là: è la stessa scorciatoia del riquadro, a portata di pollice.
-                     */
-                    /*
-                     * ⚠️⚠️ **TUTTE DELLO STESSO COLORE DALLA `1.85`, ED È UNA SUA CORREZIONE**
-                     * (riscontro del giro della `1.83`: *le pastiglie restano (se abilitate), ma
-                     * tutte dello stesso colore neutro, senza distinzione tra info e selezione*).
-                     * La `1.83` dava al comando un vestito pieno e scuro, perché il mockup
-                     * dichiarava che *un dato e un comando che si somigliano sono la trappola vera
-                     * di una fila mista*: col telefono in mano ha deciso il contrario, e adesso il
-                     * pezzo che le disegna è **uno**.
-                     * ⚠️⚠️ **E IL TERZO DATO È LA RISPOSTA A `d-front-altro`**: `immagini`,
-                     * cioè *aggiungi il numero di immagini, accanto ai video, così la somma torna
-                     * col conto sotto il titolo*. Viene dalla stessa query delle altre due.
-                     *
-                     * ⚠️⚠️ **I GESTI SONO QUATTRO COPPIE, E LI HA RIDETTATI NELLA `1.86`**
-                     * (riscontro del giro della `1.85`, voce `int-chip`: *benissimo il colore; le
-                     * funzionalità però devono essere le seguenti (c'ho pensato meglio)*). Ogni
-                     * pastiglia adesso ha **tutti e due** i gesti, e la coppia è sempre la stessa:
-                     * il tocco **aggiunge** alla selezione quello che la pastiglia nomina, il
-                     * tocco lungo lo **toglie**. Fino alla `1.85` i tre dati avevano il solo tocco
-                     * lungo e il comando il solo tocco, cioè quattro pastiglie con tre regole.
-                     * - **Peso**: tocco tutto, tocco lungo niente.
-                     * - **Immagini**: tocco le immagini, tocco lungo via le immagini.
-                     * - **Video**: tocco i video, tocco lungo via i video.
-                     * - **Comando**: tocco tutto, tocco lungo niente.
-                     * ⚠️⚠️ **AGGIUNGE INVECE DI SOSTITUIRE, e la sua chiosa lo richiede**: *(come
-                     * secondo comando dopo il tocco normale equivale a un 'azzera la selezione')*.
-                     * Quella frase torna solo se il tocco somma e il tocco lungo sottrae; con una
-                     * sostituzione la parola **solo** di *deseleziona solo le immagini* non
-                     * vorrebbe dire niente, perché non ci sarebbe mai altro da lasciare in piedi.
-                     * Il guadagno è che i due dati si compongono: immagini più video fa tutto.
-                     */
-                    val pesa = frontFacts && facts.bytes > 0L
-                    val conta = frontFacts && facts.clips > 0
-                    val scatta = frontFacts && facts.shots > 0
-                    val tutti = items.orEmpty()
-                    // ⚠️ Lo stesso conto del tocco lungo sul FAB, dalla `1.87`: due comandi che
-                    // dicono la stessa cosa non possono avere due idee di che cosa sia 'tutto'.
-                    val presi = allTaken
-                    val foto = remember(tutti) { tutti.filterNot { Videos.isVideo(it) }.toSet() }
-                    val clip = remember(tutti) { tutti.filter { Videos.isVideo(it) }.toSet() }
-                    if (pesa || conta || scatta || frontPickAll) {
-                        Spacer(Modifier.height(FRONT_CHIP_GAP))
+                        }
+                        Spacer(Modifier.height(FRONT_GAP))
                         /*
-                         * ⚠️⚠️ **LA FILA SI ALLINEA AL LATO DEL FAB, DALLA `1.89`** (sua
-                         * richiesta, con schermata: *quando le pastiglie vanno a capo, voglio
-                         * che quella nella seconda (che è sempre 'Seleziona tutto', essendo in
-                         * ultima posizione) sia centrata a destra o a sinistra a seconda del
-                         * lato in cui si trova il FAB*). Fino alla `1.87` la seconda riga
-                         * restava all'inizio, cioè dalla parte opposta al pollice quando il FAB
-                         * è a destra.
-                         * ⚠️ **L'allineamento è della FILA e non dell'ultima pastiglia**, ed è
-                         * il solo modo che `FlowRow` offre: le sue righe hanno un allineamento
-                         * solo, e non c'è un modificatore che ne sposti una.
-                         * ⚠️⚠️ **E TOCCA SOLO IL CASO CHE HA CHIESTO, cioè quando si va a capo:
-                         * misurato dal banco, non ragionato.** Il blocco dell'intestazione è
-                         * centrato, quindi questa fila si dimensiona sul **contenuto** e non
-                         * sulla larghezza della schermata: con le pastiglie tutte su una riga
-                         * non le avanza un pixel da distribuire, e l'allineamento non ha niente
-                         * da spostare. Quando si va a capo la fila è larga quanto la riga più
-                         * lunga, ed è dentro quella larghezza che la seconda si sposta.
+                         * ⚠️⚠️ **UN GRADINO SU DALLA `1.77`, ED È IL SUO SECONDO NUMERO**: la
+                         * `1.76` scriveva questo titolo in `titleSmall`, un gradino sotto il
+                         * `titleMedium` con cui la schermata iniziale scrive il nome dell'app,
+                         * perché la sua specifica diceva *un po' più piccolo per lasciare spazio
+                         * anche a nomi lunghi*. Col telefono in mano l'ha voluto più grande
+                         * (riscontro del giro della `1.76`: *il testo del titolo dev'essere un po'
+                         * più grande*).
+                         * ⚠️ **La sua ragione di allora non cade, perché non era il corpo a
+                         * portarla**: lo spazio per un nome lungo lo fa [FRONT_TITLE_LINES], cioè
+                         * l'andata a capo, e quella non è cambiata. Il corpo più piccolo era un
+                         * secondo modo di dire la stessa cosa, e questo giro dice che di quei due
+                         * ne serviva uno.
+                         * ⚠️ **E resta più piccolo di quello della testata**, che è `headlineSmall`:
+                         * la fascia non scrive il titolo alla misura in cui lo troverà in cima, o la
+                         * traslazione non avrebbe niente da raccontare.
                          */
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp, fabEdge()),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        /*
+                         * ⚠️⚠️ **'Titolo graziato' CAMBIA SOLO IL CARATTERE, DALLA `1.85`, ED È UNA
+                         * SUA CORREZIONE** (riscontro del giro della `1.83`: *l'opzione 'Testo
+                         * graziato' cambia solo il carattere, niente iconcina color accento
+                         * aggiuntiva*). Nella `1.83` quel chip faceva tre cose insieme, perché
+                         * traduceva la variante 7 del mockup: il carattere, un corpo più grande, e
+                         * una cartella piccola color accento sopra il nome. Adesso ne fa una, e le
+                         * altre due sono uscite: la cartellina con lei, e il corpo perché il titolo
+                         * è più grande **sempre**.
+                         * ⚠️ **Il carattere graziato è quello di SISTEMA** ([FontFamily.Serif]) e non
+                         * un font portato nell'APK: un carattere in più pesa e va scelto, e qui la
+                         * richiesta è la **forma** delle grazie, non una tipografia nuova.
+                         * ⚠️⚠️ **UN GRADINO SU ANCORA, DALLA `1.85`, ED È IL SUO TERZO NUMERO**
+                         * (*il testo dev'essere un po' più grande di default*): `titleSmall` nella
+                         * `1.76`, `titleMedium` nella `1.77`, `titleLarge` adesso. ⚠️ **E resta
+                         * sotto la testata**, che è `headlineSmall`: se la fascia scrivesse il nome
+                         * alla misura in cui lo troverà in cima, la traslazione non avrebbe niente
+                         * da raccontare.
+                         *
+                         * ⚠️⚠️ **I DUE GESTI SUL NOME SONO SUOI** (stesso riscontro, come *bonus*):
+                         * *un tap sul nome della cartella copia il suo nome (con notifica toast); un
+                         * tap lungo copia il nome della cartella con il percorso*.
+                         * ⚠️ **Senza percorso il tocco lungo copia il solo nome** invece di non fare
+                         * niente: la cartella di una ricerca o una appena aperta può non averlo
+                         * ancora, e un gesto che a volte tace si legge come rotto.
+                         */
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleLarge.let {
+                                if (frontSerif) it.copy(fontFamily = FontFamily.Serif) else it
+                            },
+                            textAlign = TextAlign.Center,
+                            maxLines = FRONT_TITLE_LINES,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
+                                .heading()
+                                .semantics { onLongClick(label = rinominaEtichetta) { viaLungo(); true } }
+                                .pointerInput(title, facts.path) {
+                                    detectTapGestures(
+                                        onTap = { copiaNome() },
+                                        onLongPress = {
+                                            haptics.performHapticFeedback(HOLD_BUZZ)
+                                            viaLungo()
+                                        }
+                                    )
+                                }
                                 .padding(horizontal = 24.dp)
                                 .graphicsLayer { alpha = quanto() }
-                        ) {
-                            if (pesa) {
-                                FrontChip(
-                                    // ⚠️ Col punto e a 1024, dalla `2.87`: vedi [formatBytes].
-                                    text = formatBytes(facts.bytes),
-                                    tapLabel = stringResource(R.string.pick_all),
-                                    onTap = { chosen = tutti.toSet() },
-                                    holdLabel = stringResource(R.string.front_unpick),
-                                    onHold = { chosen = emptySet() }
-                                )
-                            }
-                            if (scatta) {
-                                FrontChip(
-                                    text = pluralStringResource(
-                                        R.plurals.folders_count,
-                                        facts.shots,
-                                        facts.shots
-                                    ),
-                                    tapLabel = stringResource(R.string.front_pick_images),
-                                    onTap = { chosen = chosen + foto },
-                                    holdLabel = stringResource(R.string.front_unpick_images),
-                                    onHold = { chosen = chosen - foto }
-                                )
-                            }
-                            if (conta) {
-                                FrontChip(
-                                    text = pluralStringResource(
-                                        R.plurals.folders_clips,
-                                        facts.clips,
-                                        facts.clips
-                                    ),
-                                    tapLabel = stringResource(R.string.pick_clips),
-                                    onTap = { chosen = chosen + clip },
-                                    holdLabel = stringResource(R.string.front_unpick_clips),
-                                    onHold = { chosen = chosen - clip }
-                                )
-                            }
-                            if (frontPickAll) {
-                                FrontPick(
-                                    picked = presi,
-                                    onTap = {
-                                        chosen = if (presi) emptySet() else tutti.toSet()
-                                    },
-                                    onHold = { chosen = emptySet() }
-                                )
-                            }
+                        )
+                        /*
+                         * ⚠️⚠️ **IL CONTO STA ANCHE QUI, e la traslazione in testata viene per
+                         * costruzione**: sua richiesta del giro della `1.77`, *sia il nome che il
+                         * numero di elementi totali/selezionati devono traslare e adattarsi alla
+                         * loro nuova posizione in testata con un'animazione fluida e moderna*. Il
+                         * movimento è la parallasse che [FrontBand] fa da sempre, quindi basta che
+                         * il numero viva **dentro** la fascia insieme al nome: aggiungerne uno
+                         * scritto a mano darebbe due movimenti sullo stesso oggetto.
+                         * ⚠️ **L'opacità è complementare a quella della testata**, come per il
+                         * nome: sommano uno a ogni istante, quindi non c'è un punto della corsa in
+                         * cui il numero si legga meno che agli estremi.
+                         * ⚠️ **La stringa è la stessa dei due posti**, calcolata una volta sola
+                         * sopra: il perché è sul suo KDoc.
+                         */
+                        conto?.let {
+                            Spacer(Modifier.height(FRONT_COUNT_GAP))
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                modifier = Modifier.graphicsLayer { alpha = quanto() }
+                            )
                         }
+                        /*
+                         * ⚠️⚠️ **LA FILA MISTA DELLA VARIANTE 10: DUE DATI E UN COMANDO** (scelta
+                         * sua), e i due vestiti sono diversi apposta: il mockup lo dichiara (*un dato
+                         * e un comando che si somigliano sono la trappola vera di una fila mista*).
+                         * ⚠️⚠️ **I DUE TOCCHI LUNGHI SONO IL PUNTO A DEL SUO CAMPO LIBERO** (giro
+                         * della `1.82`: *tap lungo sulla pastiglia dello spazio occupato → seleziona
+                         * tutto; tap lungo sulla pastiglia del numero dei video → seleziona tutti i
+                         * video*). Sono scorciatoie su un dato, quindi il tocco breve non fa niente:
+                         * un dato che al primo tocco seleziona duecento file sarebbe una sorpresa.
+                         * ⚠️ **Una pastiglia senza numero non compare**: una cartella appena aperta
+                         * non è ancora pesata e una cartella di sole immagini non ha video, e in tutti
+                         * e due i casi uno zero non direbbe niente a nessuno.
+                         * ⚠️ **In selezione la fila resta**, perché 'Seleziona tutto' serve proprio
+                         * là: è la stessa scorciatoia del riquadro, a portata di pollice.
+                         */
+                        /*
+                         * ⚠️⚠️ **TUTTE DELLO STESSO COLORE DALLA `1.85`, ED È UNA SUA CORREZIONE**
+                         * (riscontro del giro della `1.83`: *le pastiglie restano (se abilitate), ma
+                         * tutte dello stesso colore neutro, senza distinzione tra info e selezione*).
+                         * La `1.83` dava al comando un vestito pieno e scuro, perché il mockup
+                         * dichiarava che *un dato e un comando che si somigliano sono la trappola vera
+                         * di una fila mista*: col telefono in mano ha deciso il contrario, e adesso il
+                         * pezzo che le disegna è **uno**.
+                         * ⚠️⚠️ **E IL TERZO DATO È LA RISPOSTA A `d-front-altro`**: `immagini`,
+                         * cioè *aggiungi il numero di immagini, accanto ai video, così la somma torna
+                         * col conto sotto il titolo*. Viene dalla stessa query delle altre due.
+                         *
+                         * ⚠️⚠️ **I GESTI SONO QUATTRO COPPIE, E LI HA RIDETTATI NELLA `1.86`**
+                         * (riscontro del giro della `1.85`, voce `int-chip`: *benissimo il colore; le
+                         * funzionalità però devono essere le seguenti (c'ho pensato meglio)*). Ogni
+                         * pastiglia adesso ha **tutti e due** i gesti, e la coppia è sempre la stessa:
+                         * il tocco **aggiunge** alla selezione quello che la pastiglia nomina, il
+                         * tocco lungo lo **toglie**. Fino alla `1.85` i tre dati avevano il solo tocco
+                         * lungo e il comando il solo tocco, cioè quattro pastiglie con tre regole.
+                         * - **Peso**: tocco tutto, tocco lungo niente.
+                         * - **Immagini**: tocco le immagini, tocco lungo via le immagini.
+                         * - **Video**: tocco i video, tocco lungo via i video.
+                         * - **Comando**: tocco tutto, tocco lungo niente.
+                         * ⚠️⚠️ **AGGIUNGE INVECE DI SOSTITUIRE, e la sua chiosa lo richiede**: *(come
+                         * secondo comando dopo il tocco normale equivale a un 'azzera la selezione')*.
+                         * Quella frase torna solo se il tocco somma e il tocco lungo sottrae; con una
+                         * sostituzione la parola **solo** di *deseleziona solo le immagini* non
+                         * vorrebbe dire niente, perché non ci sarebbe mai altro da lasciare in piedi.
+                         * Il guadagno è che i due dati si compongono: immagini più video fa tutto.
+                         */
+                        pastiglie(quanto)
                     }
                 }
             }
-        }
-        }
-
-        /*
-         * ⚠️⚠️ **IL RIQUADRO AVVOLGE TUTTI E TRE I CASI, dalla 1.06, e non il solo elenco
-         * pieno** (riscontro dell'utente sul collaudo: *il FAB deve apparire anche a cestino
-         * vuoto, altrimenti è irraggiungibile*). Fino alla `1.05` il FAB nasceva dentro
-         * il ramo dell'elenco pieno, quindi in un cestino vuoto non esisteva: e siccome la
-         * **Cronologia** vive nel suo menu, un cestino appena svuotato si portava via l'unica
-         * via per sapere che cosa c'era dentro. Il ramo che lo nascondeva era proprio quello
-         * in cui serve di più.
-         * ⚠️ Il `weight` serve: senza, con tre sole fotografie il riquadro sarebbe alto
-         * quanto loro e il FAB finirebbe a mezza schermata invece che in basso.
-         */
-        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-        when {
-            items == null -> CircularProgressIndicator(
-                // ⚠️ `TopCenter` e non `CenterHorizontally`: qui il genitore è un `Box`, e
-                // l'allineamento di colonna non esiste più.
-                Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.TopCenter)
-            )
-
-            /*
-             * ⚠️⚠️ **CINQUE VUOTI DIVERSI, CINQUE FRASI, e dirli con la stessa sarebbe un
-             * piccolo inganno**: un cestino vuoto è una buona notizia, una cartella vuota
-             * dice che non c'è niente, un **filtro** senza esito dice che manca **quel
-             * genere** e non che la cartella è vuota, e una ricerca senza esito dice che
-             * nessun nome combacia. A ricerca ancora da scrivere non significa niente, e
-             * allora non si dice nulla.
-             * ⚠️⚠️ **IL FILTRO SI GUARDA PRIMA DELLA CARTELLA, dalla 1.09** (riscontro
-             * dell'utente): con 'solo foto' acceso in una cartella di soli filmati, dire 'La
-             * cartella è vuota' è **falso**, perché là dentro ci sono dei file. La frase deve dire
-             * che cosa manca, non lamentare un vuoto che non c'è.
-             * ⚠️ **La ricerca vince sul filtro**: se si sta cercando, quello che si vuole
-             * sapere è se il nome combacia, e il filtro è una condizione in più che l'utente
-             * ha in testa.
-             */
-            items.isEmpty() -> {
-                val nulla = when {
-                    bin -> stringResource(R.string.bin_none)
-                    query != null && query.isNotBlank() ->
-                        stringResource(R.string.search_none, query)
-                    query != null -> null
-                    filter == MediaKind.IMAGES -> stringResource(R.string.folder_no_images)
-                    filter == MediaKind.VIDEOS -> stringResource(R.string.folder_no_videos)
-                    else -> stringResource(R.string.folder_empty)
-                }
-                // ⚠️ **Al centro dello spazio vuoto** (richiesta dell'utente), come nella
-                // vista ad albero dalla `1.04`: una frase appesa in alto a sinistra sembra
-                // l'inizio di un elenco che non arriva mai.
-                if (nulla != null) {
-                    Text(
-                        text = nulla,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(horizontal = 24.dp)
-                            .padding(bottom = BELOW_FAB)
-                    )
-                }
             }
 
-            else -> {
             /*
-             * ⚠️⚠️ **IL GESTO STA SULLA GRIGLIA E NON SULLE PIASTRELLE, perché comincia su
-             * una e finisce su un'altra** (richiesta dell'utente: *se striscio da una foto
-             * all'altra deve avvenire una selezione da/a*). Una piastrella vede solo sé
-             * stessa; la griglia le vede tutte e sa dove sono.
-             * ⚠️⚠️ **LA CHIAVE DEL `pointerInput` NON COMPRENDE LA SELEZIONE, e sarebbe il
-             * difetto che è già costato una versione** (la `0.32`): cambiare una chiave
-             * **annulla il gesto in corso**, quindi con `chosen` fra le chiavi il
-             * trascinamento si interromperebbe alla prima foto aggiunta, cioè subito. La selezione
-             * si legge **dentro** il gesto, che è lettura e non chiave.
-             * ⚠️ Il gesto si limita a dire **dove** sta il dito: chi estende la selezione è
-             * l'effetto qui sotto, e averne uno solo vuol dire che il conto è identico sia
-             * che si muova il dito sia che si muova la griglia sotto a un dito fermo.
+             * ⚠️⚠️ **IL RIQUADRO AVVOLGE TUTTI E TRE I CASI, dalla 1.06, e non il solo elenco
+             * pieno** (riscontro dell'utente sul collaudo: *il FAB deve apparire anche a cestino
+             * vuoto, altrimenti è irraggiungibile*). Fino alla `1.05` il FAB nasceva dentro
+             * il ramo dell'elenco pieno, quindi in un cestino vuoto non esisteva: e siccome la
+             * **Cronologia** vive nel suo menu, un cestino appena svuotato si portava via l'unica
+             * via per sapere che cosa c'era dentro. Il ramo che lo nascondeva era proprio quello
+             * in cui serve di più.
+             * ⚠️ Il `weight` serve: senza, con tre sole fotografie il riquadro sarebbe alto
+             * quanto loro e il FAB finirebbe a mezza schermata invece che in basso.
              */
-            val grab = Modifier.pointerInput(items) {
-                detectDragGesturesAfterLongPress(
-                    onDragStart = { at ->
-                        val hit = state.itemIndexAt(at)
-                        if (hit != null) {
-                            dragFrom = hit
-                            dragBase = chosen
-                            // ⚠️ Il verso si legge PRIMA di toccare la selezione, o la
-                            // riga dopo lo avrebbe già falsato.
-                            dragOff = items[hit] in chosen
-                            // ⚠️ **Il colpetto è UNO SOLO dalla 1.21**, e qui stava il
-                            // condizionale che dava quello forte all'ingresso nel modo
-                            // selezione e quello leggero ai gesti dentro. Adesso sono la
-                            // stessa cosa perché la vibrazione l'utente la vuole discreta
-                            // dappertutto: il perché sta su [HOLD_BUZZ].
-                            haptics.performHapticFeedback(HOLD_BUZZ)
-                            chosen =
-                                if (dragOff) chosen - items[hit] else chosen + items[hit]
-                            dragAt = at
-                        }
-                    },
-                    onDrag = { change, _ ->
-                        change.consume()
-                        if (dragFrom != null) dragAt = change.position
-                    },
-                    onDragEnd = { dragFrom = null; dragAt = null },
-                    onDragCancel = { dragFrom = null; dragAt = null }
+            /*
+             * ⚠️⚠️ **SULLO SCHERMO LARGO, A DESTRA DELLA GRIGLIA, LA PILLOLA DEI COMANDI DEL FAB,
+             * DALLA `3.70`** (richiesta B2 e mockup `Tablet_H`: *tre tasti fanno le veci delle tre voci
+             * del FAB, a destra nella stessa colonna che ospita anche il tasto filtro, in una pillola
+             * del colore dell'accento di tema*). La colonna comincia sotto la testata, cioè sotto il
+             * filtro, e la griglia si stringe per lasciarle il posto invece di finirle sotto.
+             */
+            Row(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            when {
+                items == null -> CircularProgressIndicator(
+                    // ⚠️ `TopCenter` e non `CenterHorizontally`: qui il genitore è un `Box`, e
+                    // l'allineamento di colonna non esiste più.
+                    Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.TopCenter)
                 )
-            }
 
-            /*
-             * ⚠️⚠️ **LO SCORRIMENTO AI BORDI È QUELLO CHE RENDE LA FUNZIONE UTILE, non un
-             * ornamento**: senza, una selezione da/a arriva al massimo fino al bordo dello
-             * schermo, cioè a una quindicina di foto, e chi ne vuole cinquanta torna a
-             * toccarle una per una. Col dito appoggiato in fondo la griglia scorre e la
-             * selezione lo segue.
-             * ⚠️⚠️ **Si aggiorna a ogni FOTOGRAMMA e non a ogni evento del dito**, ed è la
-             * ragione per cui questo lavoro non sta dentro `onDrag`: mentre la griglia
-             * scorre sotto un dito **fermo** non arriva nessun evento di puntatore, e la
-             * selezione resterebbe ferma insieme a lui.
-             * ⚠️ La spinta cresce **avvicinandosi al bordo** invece di essere un
-             * interruttore: a velocità unica o si striscia piano e non basta, o si arriva
-             * in fondo alla cartella prima di accorgersene.
-             */
-            LaunchedEffect(dragAt != null, items) {
-                while (dragAt != null) {
-                    withFrameNanos { }
-                    val at = dragAt ?: break
-                    val from = dragFrom ?: break
-                    val height = state.layoutInfo.viewportSize.height.toFloat()
-                    val push = when {
-                        height <= 0f -> 0f
-                        at.y < edgePx -> -(edgePx - at.y) / edgePx
-                        at.y > height - edgePx -> (at.y - (height - edgePx)) / edgePx
-                        else -> 0f
+                /*
+                 * ⚠️⚠️ **CINQUE VUOTI DIVERSI, CINQUE FRASI, e dirli con la stessa sarebbe un
+                 * piccolo inganno**: un cestino vuoto è una buona notizia, una cartella vuota
+                 * dice che non c'è niente, un **filtro** senza esito dice che manca **quel
+                 * genere** e non che la cartella è vuota, e una ricerca senza esito dice che
+                 * nessun nome combacia. A ricerca ancora da scrivere non significa niente, e
+                 * allora non si dice nulla.
+                 * ⚠️⚠️ **IL FILTRO SI GUARDA PRIMA DELLA CARTELLA, dalla 1.09** (riscontro
+                 * dell'utente): con 'solo foto' acceso in una cartella di soli filmati, dire 'La
+                 * cartella è vuota' è **falso**, perché là dentro ci sono dei file. La frase deve dire
+                 * che cosa manca, non lamentare un vuoto che non c'è.
+                 * ⚠️ **La ricerca vince sul filtro**: se si sta cercando, quello che si vuole
+                 * sapere è se il nome combacia, e il filtro è una condizione in più che l'utente
+                 * ha in testa.
+                 */
+                items.isEmpty() -> {
+                    val nulla = when {
+                        bin -> stringResource(R.string.bin_none)
+                        query != null && query.isNotBlank() ->
+                            stringResource(R.string.search_none, query)
+                        query != null -> null
+                        filter == MediaKind.IMAGES -> stringResource(R.string.folder_no_images)
+                        filter == MediaKind.VIDEOS -> stringResource(R.string.folder_no_videos)
+                        else -> stringResource(R.string.folder_empty)
                     }
-                    if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
-                    val hit = state.itemIndexAt(at) ?: continue
-                    // ⚠️ L'intervallo si SOMMA o si SOTTRAE alla selezione di partenza
-                    // secondo il verso deciso da [dragOff]: nei due casi il conto resta
-                    // 'quella di prima più (o meno) l'intervallo di adesso', quindi
-                    // tornare indietro col dito disfa in tutti e due i versi.
-                    val span = items.subList(minOf(from, hit), maxOf(from, hit) + 1)
-                    chosen = if (dragOff) dragBase - span.toSet() else dragBase + span
-                }
-            }
-
-            LazyVerticalGrid(
-                    columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
-                    state = state,
-                    horizontalArrangement = Arrangement.spacedBy(gridGap()),
-                    verticalArrangement = Arrangement.spacedBy(gridGap()),
-                    // ⚠️ Il fondo cresce **con la selezione**, cioè quando il FAB
-                    // compare: senza, la fotografia in basso a destra resterebbe coperta
-                    // proprio mentre la si deve poter toccare. Fuori dalla selezione il
-                    // FAB non c'è e quello spazio sarebbe un buco.
-                    /*
-                     * ⚠️⚠️ **SOTTO LA GRIGLIA CI VA IL PANNELLO MISURATO, dalla 0.94**: prima
-                     * bastava lo spazio del FAB, che è alto quanto un dito; il pannello
-                     * è due file di icone, e con [BELOW_FAB] l'ultima riga di fotografie
-                     * sarebbe rimasta sotto di lui senza modo di tirarla fuori.
-                     * ⚠️ Fuori dalla selezione il pannello non c'è, e resta [BELOW_FAB] per
-                     * il solo FAB del cestino.
-                     */
-                    /*
-                     * ⚠️⚠️ **E DALLA `1.90` CI SI SOMMANO IL MARGINE DELLA SCHERMATA E IL
-                     * RIENTRO DI SOTTO**, che il contenitore ha smesso di mettersi: senza,
-                     * l'ultima riga di miniature finirebbe sotto la barra gestuale senza modo
-                     * di tirarla fuori, che è il prezzo di far arrivare la griglia al vetro.
-                     */
-                    contentPadding = PaddingValues(
-                        bottom = GRID_PAD_Y + bottomInset() + if (picking) {
-                            with(LocalDensity.current) { sheetTall.toDp() }
-                        } else if (bin) BELOW_FAB else 16.dp
-                    ),
-                    modifier = Modifier.fillMaxWidth().then(grab)
-                ) {
-                    itemsIndexed(
-                        items = items,
-                        // ⚠️ La chiave è l'indirizzo e non la posizione: senza, ruotando
-                        // il telefono le miniature già decodificate si rimescolerebbero
-                        // fra i riquadri.
-                        key = { _, uri -> uri.toString() },
-                        // Un tipo solo per tutti i riquadri: così Compose riusa la
-                        // composizione di quelli che escono per quelli che entrano,
-                        // invece di ricostruirla a ogni riga che scorre.
-                        contentType = { _, _ -> THUMB_KIND }
-                    ) { index, uri ->
-                        Thumbnail(
-                            uri = uri,
-                            position = index + 1,
-                            total = items.size,
-                            marked = index == highlight,
-                            chosen = uri in chosen,
-                            named = gridNames,
-                            mark = lastMark,
-                            room = cellPx,
-                            // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire,
-                            // ed è la convenzione di ogni galleria: chi ne ha scelte
-                            // cinque e tocca la sesta ne vuole sei, non vuole uscire e
-                            // perderle.
-                            /*
-                             * ⚠️⚠️ **IL PRIMO RAMO RIPARA IL TOCCO LUNGO SU UNA SOLA FOTO,
-                             * che dalla 0.53 non avviava più la selezione** (riscontro
-                             * dell'utente sulla 0.65). Il gesto era sano: il difetto stava
-                             * qui. `Modifier.clickable` **senza** `onLongClick` fa scattare
-                             * il tocco al rilascio **qualunque sia stata la durata** della
-                             * pressione, e nella passata `Main` gli eventi vanno dal figlio
-                             * al genitore, quindi la piastrella li vede prima della griglia:
-                             * il tocco lungo selezionava la foto, il dito si alzava, questo
-                             * richiamo partiva con `picking` già vero e la **toglieva**.
-                             * Effetto netto, niente. La spia è `dragFrom` e non un flag
-                             * nuovo perché vale esattamente fra `onDragStart` e la fine del
-                             * gesto: un tocco che la trova impostata è la **coda** di un
-                             * tocco lungo, e un tocco normale non la trova mai, perché
-                             * senza tocco lungo `onDragStart` non parte.
-                             * ⚠️ **Col trascinamento non si vedeva**, ed è la ragione per
-                             * cui la prova della 0.53 non l'aveva scoperto: `onDrag` consuma
-                             * gli eventi, e un tocco i cui eventi sono consumati si annulla
-                             * da sé. Il difetto viveva nel solo caso del dito fermo, cioè
-                             * nel gesto che si fa per selezionarne una.
-                             * ⚠️ **Non si ripara dando un `onLongClick` alla piastrella**,
-                             * che è la strada ovvia: al tocco lungo `combinedClickable`
-                             * consuma tutto fino al rilascio, e il gesto della griglia
-                             * verrebbe annullato. Si perderebbe la selezione da/a per
-                             * riparare quella singola.
-                             */
-                            onClick = {
-                                when {
-                                    dragFrom != null -> Unit
-                                    picking -> {
-                                        haptics.performHapticFeedback(HOLD_BUZZ)
-                                        chosen = chosen.toggle(uri)
-                                    }
-                                    else -> onOpen(index)
-                                }
-                            }
+                    // ⚠️ **Al centro dello spazio vuoto** (richiesta dell'utente), come nella
+                    // vista ad albero dalla `1.04`: una frase appesa in alto a sinistra sembra
+                    // l'inizio di un elenco che non arriva mai.
+                    if (nulla != null) {
+                        Text(
+                            text = nulla,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(horizontal = 24.dp)
+                                .padding(bottom = BELOW_FAB)
                         )
                     }
                 }
-            }
-        }
-        }
-    }
 
-        /*
-         * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
-         * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
-         * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
-         * conto suo, le stesse cinque restano insieme e cambia solo da che parte
-         * cominciano.
-         */
-        /*
-         * ⚠️⚠️ **STA NEL `Box` DI RADICE DALLA 1.40, e prima viveva dentro la colonna**
-         * (richiesta dell'utente, 2026-09-03: *fa' in modo che la barra multi-attività in
-         * basso assuma lo stesso colore dello sfondo*). Dentro la colonna il rientro di
-         * sistema è già applicato e **consumato**, quindi la scheda si fermava sopra la barra
-         * e là sotto restava la pagina, di un altro colore. Qui arriva al bordo dello schermo
-         * e il rientro se lo mette da sé, sul contenuto (vedi [PickSheet]).
-         * ⚠️ **Misurato sullo screenshot**: la striscia della barra era
-         * `252,251,247` contro i `242,241,237` della scheda.
-         * ⚠️ **Sta PRIMA del velo del menu e di quello dell'onboarding**, come stava prima:
-         * l'ordine dei figli di un `Box` è l'ordine di sovrapposizione, e i due veli devono
-         * restare sopra di lei.
-         */
-        /*
-         * ⚠️⚠️ **LE DUE SFUMATURE IN FONDO, dalla `1.76`, E QUI SE NE VANNO SCORRENDO**
-         * (richiesta sua, giro della `1.67`: *esattamente insieme, sincronizzato con
-         * l'animazione del titolo, le due sfumature in basso devono progressivamente sparire e
-         * lasciare campo libero alla griglia piena su tutto lo schermo; anche in questo caso:
-         * l'opposto se si torna in cima*). Nella schermata iniziale restano sempre, perché là il
-         * FAB c'è sempre e vuole un fondo neutro sotto di sé; qui il FAB non c'è, quindi appena
-         * l'intestazione è chiusa non hanno più niente da fare.
-         * ⚠️ **La stessa curva, gli stessi numeri**: vivono in [GroundFade], che la schermata
-         * iniziale legge dalla stessa riga. 'Sincronizzato' è alla lettera, perché è lo stesso
-         * `aperto` che muove il titolo.
-         * ⚠️⚠️ **STA PRIMA DELLA SCHEDA, DELLA NOTIFICA E DEI VELI**: in un `Box` l'ultimo
-         * figlio sta sopra, e nessuno dei tre va sbiadito da lei.
-         * ⚠️⚠️ **E QUI DI STRATI NE RESTA UNO, DALLA `1.85`** (riscontro del giro della `1.83`,
-         * voce `fab-sopra`: *togli la seconda sfumatura sovrapposta, quella corta. SOLO DALLE
-         * CARTELLE, resta in home*). La coda serviva a chiudere in pieno l'ultima striscia di
-         * schermo, e qui sotto quella striscia adesso passa il FAB.
-         */
-        if (front) {
-            GroundFade(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                alpha = aperto,
-                foot = false
-            )
-        }
-
-        /*
-         * ⚠️⚠️ **IL FAB STA DOPO LA SFUMATURA, DALLA `1.83`, E FINO ALLA `1.82` VIVEVA NELLA
-         * COLONNA** (riscontro del giro della `1.82`, voce `fab-cartella` approvata con una
-         * riserva: *deve stare SOPRA le sfumature*). In un `Box` l'ultimo figlio sta sopra,
-         * quindi dentro la colonna il FAB finiva **sotto** le due sfumature, che sono figlie
-         * della radice: al riposo non si vedeva, perché con l'intestazione aperta sono
-         * trasparenti, e scorrendo il FAB si velava insieme alle miniature.
-         * ⚠️ **La schermata iniziale ha sempre avuto quest'ordine**, e la sua nota lo dice da
-         * cinque versioni (*sta prima del FAB e non dopo*): questa era l'unica delle due a
-         * non seguirla, perché il suo FAB è nato nel cestino, dove la sfumatura non c'è.
-         * ⚠️ **La posizione sullo schermo non cambia di un pixel**: i tre rientri che la colonna
-         * gli dava adesso sono scritti sul suo modificatore, e sono gli stessi tre che
-         * [HintVeil] usa per illuminarlo.
-         */
-        /*
-         * ⚠️⚠️ **IL FAB RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
-         * Con una selezione in corso le operazioni stanno nella bottomsheet qui
-         * sotto, e il FAB è sparito perché non aveva più niente da fare (vedi
-         * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
-         * **intero**, che non sono operazioni su una selezione e non hanno un altro
-         * posto dove stare.
-         */
-        /*
-         * ⚠️⚠️ **DALLA 1.44 ALLA `2.85` SI FACEVA DA PARTE ANCHE PER LA NOTIFICA, E DALLA `2.86`
-         * NON PIÙ** (segnalazione dell'utente, 2026-09-21: *l'avviso dal basso (es. selezione
-         * scartata o file eliminato) deve evitare di coprire il FAB anche nel cestino*). La
-         * ragione di allora era buona: il gesto Indietro azzera la selezione, il FAB tornava
-         * proprio dove compare la notifica, e la notifica era larga tutto lo schermo, quindi il
-         * tasto avrebbe coperto 'Annulla'.
-         * ⚠️⚠️ **QUELLA RAGIONE È CADUTA CON LA `2.25`**, quando la notifica ha cominciato a
-         * stringersi accanto al FAB: da lì tenerlo fuori scena per tutta la vita della notifica
-         * voleva dire un comando sparito per tre secondi, che ricompariva mentre la notifica se ne
-         * andava (misurato sul banco: assente dal gesto alla scadenza, e di nuovo in scena con la
-         * notifica ancora in uscita).
-         * ⚠️ **Adesso rientra appena la selezione finisce**, come dopo un'eliminazione, e a
-         * scansarsi è la notifica: il perché, e la soglia che la fa stringere mentre scende, vivono
-         * su [Modifier.aboveFoot].
-         */
-        /*
-         * ⚠️⚠️ **DALLA `1.82` IL FAB C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
-         * giro della `1.81`, campo libero punto B: *il FAB deve vedersi in tutte le cartelle,
-         * non solo nella schermata home*). Fino alla `1.81` viveva nel solo cestino, e da
-         * dentro una cartella il cestino e le impostazioni si raggiungevano tornando indietro.
-         * ⚠️ **Le voci non sono le stesse**: nel cestino porta le tre che riguardano il
-         * cestino intero, in una cartella le due destinazioni che di qui non si raggiungono.
-         * A dirlo è [PickMenu], che riceve un blocco diverso.
-         * ⚠️ **Senza i due richiami non compare**, ed è il caso della griglia montata in una
-         * veste che non ha dove mandare (vedi i due parametri): un FAB che apre un menu
-         * vuoto è peggio di un FAB che non c'è.
-         */
-        FabPop(
-            visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
-                !picking,
-            // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
-            // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
-            // sé: quello di sistema, il margine della schermata e gli 8dp del FAB.
-            // Sono gli stessi che [HintVeil] riceve per illuminarlo, e restano scritti una
-            // volta sola per ognuno dei due.
-            modifier = Modifier
-                .align(fabSide())
-                .safeDrawingPadding()
-                .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                .padding(8.dp)
-        ) {
-            Box {
+                else -> {
                 /*
-                 * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la
-                 * funzione** (1.39): il FAB si stacca in una finestra sua per restare
-                 * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
-                 * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
-                 * della composizione. Scritto dopo, il menu coprirebbe il FAB invece
-                 * del contrario.
-                 * ⚠️ **Il menu non si sposta di un pixel**: il posizionatore legge il
-                 * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
-                 * l'ordine dei figli.
+                 * ⚠️⚠️ **IL GESTO STA SULLA GRIGLIA E NON SULLE PIASTRELLE, perché comincia su
+                 * una e finisce su un'altra** (richiesta dell'utente: *se striscio da una foto
+                 * all'altra deve avvenire una selezione da/a*). Una piastrella vede solo sé
+                 * stessa; la griglia le vede tutte e sa dove sono.
+                 * ⚠️⚠️ **LA CHIAVE DEL `pointerInput` NON COMPRENDE LA SELEZIONE, e sarebbe il
+                 * difetto che è già costato una versione** (la `0.32`): cambiare una chiave
+                 * **annulla il gesto in corso**, quindi con `chosen` fra le chiavi il
+                 * trascinamento si interromperebbe alla prima foto aggiunta, cioè subito. La selezione
+                 * si legge **dentro** il gesto, che è lettura e non chiave.
+                 * ⚠️ Il gesto si limita a dire **dove** sta il dito: chi estende la selezione è
+                 * l'effetto qui sotto, e averne uno solo vuol dire che il conto è identico sia
+                 * che si muova il dito sia che si muova la griglia sotto a un dito fermo.
                  */
-                PickMenu(menu = menu, columns = columns) {
-                    /*
-                     * ⚠️⚠️ **IN UNA CARTELLA IL MENU È UN ALTRO, DALLA `1.82`**: le tre
-                     * voci qui sotto riguardano il cestino intero e in una cartella non
-                     * vogliono dire niente. Quelle di una cartella sono le due destinazioni
-                     * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
-                     * FAB: *il FAB deve vedersi in tutte le cartelle*.
-                     * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
-                     * poi il filetto, poi le impostazioni. Chi ha imparato dov'è una voce
-                     * la ritrova, che è la ragione per cui questo menu passa dallo stesso
-                     * [MenuRow] e non da un elenco scritto a parte.
-                     */
-                    if (!bin) {
-                        /*
-                         * ⚠️⚠️ **'Cerca' STA IN CIMA, DALLA `1.83`, COME NELLA SCHERMATA
-                         * INIZIALE** (risposta a `d-fab-voci` del giro della `1.82`): là la sua
-                         * nota dice che *cercare è la domanda che si fa più spesso quando non si
-                         * sa già dove andare*, e in una cartella vale ancora di più, perché le
-                         * altre due voci portano **fuori** di qui mentre questa resta dentro.
-                         */
-                        onSearchHere?.let { cerca ->
-                            MenuRow(
-                                text = stringResource(R.string.hub_search),
-                                icon = Icons.Default.Search,
-                                onTap = { menu.close(); cerca() }
-                            )
-                        }
-                        /*
-                         * ⚠️⚠️ **QUI C'È LA SOLA VOCE CHE TOGLIE, e non quella che sceglie**: a
-                         * scegliere è il tocco sull'icona dell'intestazione, che è la sua
-                         * specifica alla lettera (risposta a `d-copertina-come`: *solo con il
-                         * tocco singolo sull'icona dell'intestazione di una cartella*). Una
-                         * seconda porta per la stessa cosa sarebbe un secondo modo da imparare
-                         * per un comando che si dà una volta per cartella.
-                         * ⚠️ **C'è se e solo se una copertina scelta esiste**, come 'Mostra
-                         * nascoste' nella schermata iniziale: offrire di togliere quello che non
-                         * c'è è una riga che non fa niente.
-                         * ⚠️ **Vive fra 'Cerca' e 'Cestino' perché l'ordine dice una cosa**: sopra
-                         * quello che si fa dentro questa cartella, sotto quello che porta
-                         * altrove.
-                         * ⚠️⚠️ **DALLA `1.95` NON SI VEDE, PERCHÉ [COVER_MENU_ROW] È SPENTA**: la
-                         * voce l'ha bocciata lui, e a togliere la copertina adesso è il gesto
-                         * ricorsivo sull'icona dell'intestazione. Il perché, e come si riaccende,
-                         * vivono su quella costante.
-                         */
-                        val togliCopertina = onCoverClear.takeIf { coverSet && COVER_MENU_ROW }
-                        togliCopertina?.let { togli ->
-                            if (onSearchHere != null) HorizontalDivider()
-                            MenuRow(
-                                text = stringResource(R.string.folder_cover_auto),
-                                icon = Icons.Outlined.HideImage,
-                                onTap = { menu.close(); togli() }
-                            )
-                        }
-                        onBin?.let { vaiAlCestino ->
-                            if (onSearchHere != null || togliCopertina != null) HorizontalDivider()
-                            MenuRow(
-                                text = stringResource(R.string.bin_title),
-                                icon = Glyphs.Bin,
-                                onTap = { menu.close(); vaiAlCestino() }
-                            )
-                        }
-                        onSettings?.let { vaiAlleImpostazioni ->
-                            if (onBin != null) HorizontalDivider()
-                            MenuRow(
-                                text = stringResource(R.string.hub_settings),
-                                icon = Icons.Default.Settings,
-                                onTap = { menu.close(); vaiAlleImpostazioni() }
-                            )
-                        }
-                        return@PickMenu
-                    }
-                    /*
-                     * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
-                     * posto, poi quella che racconta, ultima quella che cancella per
-                     * sempre. Chi tocca al buio la prima voce di un menu non deve
-                     * poterci svuotare il cestino, e 'Ripristina tutto' come prima
-                     * voce è la richiesta dell'utente.
-                     * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
-                     * cronologia no: quelle non avrebbero niente su cui agire e
-                     * direbbero '0 fatti', mentre la cronologia ha senso proprio
-                     * quando il cestino è vuoto perché si è ripristinato tutto.
-                     */
-                    /*
-                     * ⚠️⚠️ **TRE `MenuRow` E NON PIÙ TRE `DropdownMenuItem`, dalla
-                     * `1.46`**: erano l'ultima fila di voci scritta con un componente
-                     * diverso da quello degli altri menu, e il prezzo del cambio è
-                     * dichiarato: il rientro di sinistra passa da 12 a 15dp, cioè le tre
-                     * voci si spostano di tre punti a destra. Quei tre punti esistono per
-                     * il glifo che sporge nel menu del visualizzatore, e portarli qui è
-                     * esattamente allineare i due menu fra loro.
-                     * ⚠️ **Il margine sopra e sotto lo mette la superficie**, quindi
-                     * `PICK_EDGE` non c'è più: era il terzo posto in cui viveva lo stesso
-                     * otto.
-                     */
-                    /*
-                     * ⚠️⚠️ **LA CRONOLOGIA STA IN CIMA, dalla 1.53, per sua richiesta**
-                     * (riscontro del giro della `1.51`, voce `icone-cestino`: *cambia
-                     * l'ordine delle voci portando 'Cronologia' in cima*). Le altre due
-                     * agiscono su tutto il contenuto, questa lo racconta: chi apre questo
-                     * menu senza sapere che cosa c'è dentro incontra prima la voce che
-                     * glielo dice, e le due che muovono i file dopo.
-                     * ⚠️ **È anche la sola sempre toccabile**: le altre due si spengono a
-                     * cestino vuoto, quindi in cima ci sarebbero due righe grigie e la sola
-                     * viva in fondo.
-                     */
-                    MenuRow(
-                        text = stringResource(R.string.bin_history),
-                        /*
-                         * ⚠️⚠️ **UN DISEGNO SUO, dalla `1.55`, e la sua terza scelta su
-                         * questa riga.** Nella `1.51` aveva preso il simbolo del riciclo
-                         * fra due proposte, perché `Icons.Default.History` diceva 'il
-                         * tempo' mentre qui conta quello che è **passato di qui**; poi lo
-                         * ha guardato in mano e lo ha ridisegnato (*pensavo che fosse un
-                         * miglioramento, ma non mi piaceva*). Il suo mette insieme le due
-                         * cose: il cassone e la freccia che torna indietro.
-                         */
-                        icon = Glyphs.BinHistory,
-                        onTap = { menu.close(); onHistory() }
-                    )
-                    MenuRow(
-                        text = stringResource(R.string.bin_restore_all),
-                        // ⚠️ **Lo stesso glifo del ripristino singolo, dalla `1.56`**, per
-                        // sua istruzione: il perché sta su [Glyphs.BinRestore].
-                        icon = Glyphs.BinRestore,
-                        enabled = filled,
-                        /*
-                         * ⚠️⚠️ **ADESSO CHIEDE, dalla 1.53, e la nota di prima diceva il
-                         * contrario** (richiesta dell'utente, giro della `1.51`:
-                         * *'Ripristina tutto' deve funzionare previa conferma*). Quella
-                         * nota diceva che il ripristino non chiede perché è reversibile,
-                         * e l'argomento resta vero per **una** immagine: rimette una cosa
-                         * dov'era, e la si rielimina con un tocco. Su **tutto** il cestino
-                         * no, e la differenza non è la reversibilità ma il **sapere dove
-                         * vanno**: i file tornano ognuno nella sua cartella d'origine, che
-                         * possono essere molte e non tutte in mente, quindi disfare a mano
-                         * vorrebbe dire ritrovarli uno per uno.
-                         * ⚠️ **Per questo il testo della conferma nomina la Cronologia**,
-                         * che è il posto in cui quelle destinazioni sono scritte: le parole
-                         * sono sue.
-                         */
-                        onTap = { menu.close(); restoringAll = true }
-                    )
-                    MenuRow(
-                        text = stringResource(R.string.bin_empty),
-                        icon = Icons.Default.DeleteForever,
-                        enabled = filled,
-                        danger = true,
-                        onTap = { menu.close(); emptying = true }
+                val grab = Modifier.pointerInput(items) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = { at ->
+                            val hit = state.itemIndexAt(at)
+                            if (hit != null) {
+                                dragFrom = hit
+                                dragBase = chosen
+                                // ⚠️ Il verso si legge PRIMA di toccare la selezione, o la
+                                // riga dopo lo avrebbe già falsato.
+                                dragOff = items[hit] in chosen
+                                // ⚠️ **Il colpetto è UNO SOLO dalla 1.21**, e qui stava il
+                                // condizionale che dava quello forte all'ingresso nel modo
+                                // selezione e quello leggero ai gesti dentro. Adesso sono la
+                                // stessa cosa perché la vibrazione l'utente la vuole discreta
+                                // dappertutto: il perché sta su [HOLD_BUZZ].
+                                haptics.performHapticFeedback(HOLD_BUZZ)
+                                chosen =
+                                    if (dragOff) chosen - items[hit] else chosen + items[hit]
+                                dragAt = at
+                            }
+                        },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            if (dragFrom != null) dragAt = change.position
+                        },
+                        onDragEnd = { dragFrom = null; dragAt = null },
+                        onDragCancel = { dragFrom = null; dragAt = null }
                     )
                 }
-                val altroTema = aivLauncher(!LocalAivLight.current)
-                PickFab(
-                    // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il FAB della
-                    // schermata iniziale: il perché per esteso è là, e i due FAB sono
-                    // lo stesso oggetto in due schermate. ⚠️ Dalla `1.86` sono quelli
-                    // dell'**altro** tema e li dà `aivLauncher`, che legge le risorse col tema
-                    // dell'app invece che con quello di sistema: le due ragioni vivono là.
-                    container = altroTema.first,
-                    ink = altroTema.second,
-                    holdLabel = shortcutLabel,
-                    // ⚠️ E dalla `1.83` anche lo stesso glifo, in una cartella: nel cestino
-                    // restano i tre puntini. Il perché è su [PickFab].
-                    mark = !bin,
-                    /*
-                     * ⚠️⚠️ **A TASTO ARMATO IL TOCCO FA IL SALTO E NON APRE IL MENU, DALLA
-                     * `2.07`**: è la conseguenza della sua scelta, cioè che il comando viva
-                     * **sul** FAB invece che accanto. Il tratto in cui il menu non si apre è
-                     * quello in cui il chevron si vede, e finisce da sé un secondo dopo
-                     * l'ultimo pixel scorso.
-                     */
-                    arm = arm,
-                    // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
-                    // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
-                    // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
-                    // finché la patina durava più del pannello.
-                    lifted = menu.visible,
-                    // ⚠️ **`wanted` e non `visible`**: il perché sta sul parametro
-                    // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
-                    pressed = menu.wanted,
-                    // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
-                    // arriva più qui, perché lo consuma `MenuGuard` (in `Menus.kt`,
-                    // messo in scena da `AivTheme`). Un'alternanza qui riaprirebbe
-                    // il menu che quella guardia ha appena chiuso.
-                    // ⚠️⚠️ **IL RIMANDO ERA SBAGLIATO DUE VOLTE FINO ALLA `1.78`**:
-                    // nominava un `menuOpen` che non è mai esistito, e diceva 'in
-                    // fondo alla schermata', mentre dalla `1.70` quella guardia non
-                    // vive più qui dentro.
-                    // ⚠️ **E lo raggiunge ancora benché il FAB stia in una finestra
-                    // più alta**: quella finestra è trasparente al tocco apposta
-                    // (vedi `untouchable` in `ActionPad`).
-                    onTap = { if (arm.armed) scope.launch { arm.leap(paging) } else menu.open() },
-                    onHold = { shortcut(); hintDone() }
+
+                /*
+                 * ⚠️⚠️ **LO SCORRIMENTO AI BORDI È QUELLO CHE RENDE LA FUNZIONE UTILE, non un
+                 * ornamento**: senza, una selezione da/a arriva al massimo fino al bordo dello
+                 * schermo, cioè a una quindicina di foto, e chi ne vuole cinquanta torna a
+                 * toccarle una per una. Col dito appoggiato in fondo la griglia scorre e la
+                 * selezione lo segue.
+                 * ⚠️⚠️ **Si aggiorna a ogni FOTOGRAMMA e non a ogni evento del dito**, ed è la
+                 * ragione per cui questo lavoro non è dentro `onDrag`: mentre la griglia
+                 * scorre sotto un dito **fermo** non arriva nessun evento di puntatore, e la
+                 * selezione resterebbe ferma insieme a lui.
+                 * ⚠️ La spinta cresce **avvicinandosi al bordo** invece di essere un
+                 * interruttore: a velocità unica o si striscia piano e non basta, o si arriva
+                 * in fondo alla cartella prima di accorgersene.
+                 */
+                LaunchedEffect(dragAt != null, items) {
+                    while (dragAt != null) {
+                        withFrameNanos { }
+                        val at = dragAt ?: break
+                        val from = dragFrom ?: break
+                        val height = state.layoutInfo.viewportSize.height.toFloat()
+                        val push = when {
+                            height <= 0f -> 0f
+                            at.y < edgePx -> -(edgePx - at.y) / edgePx
+                            at.y > height - edgePx -> (at.y - (height - edgePx)) / edgePx
+                            else -> 0f
+                        }
+                        if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
+                        val hit = state.itemIndexAt(at) ?: continue
+                        // ⚠️ L'intervallo si SOMMA o si SOTTRAE alla selezione di partenza
+                        // secondo il verso deciso da [dragOff]: nei due casi il conto resta
+                        // 'quella di prima più (o meno) l'intervallo di adesso', quindi
+                        // tornare indietro col dito disfa in tutti e due i versi.
+                        val span = items.subList(minOf(from, hit), maxOf(from, hit) + 1)
+                        chosen = if (dragOff) dragBase - span.toSet() else dragBase + span
+                    }
+                }
+
+                LazyVerticalGrid(
+                        columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
+                        state = state,
+                        horizontalArrangement = Arrangement.spacedBy(gridGap()),
+                        verticalArrangement = Arrangement.spacedBy(gridGap()),
+                        // ⚠️ Il fondo cresce **con la selezione**, cioè quando il FAB
+                        // compare: senza, la fotografia in basso a destra resterebbe coperta
+                        // proprio mentre la si deve poter toccare. Fuori dalla selezione il
+                        // FAB non c'è e quello spazio sarebbe un buco.
+                        /*
+                         * ⚠️⚠️ **SOTTO LA GRIGLIA CI VA IL PANNELLO MISURATO, dalla 0.94**: prima
+                         * bastava lo spazio del FAB, che è alto quanto un dito; il pannello
+                         * è due file di icone, e con [BELOW_FAB] l'ultima riga di fotografie
+                         * sarebbe rimasta sotto di lui senza modo di tirarla fuori.
+                         * ⚠️ Fuori dalla selezione il pannello non c'è, e resta [BELOW_FAB] per
+                         * il solo FAB del cestino.
+                         */
+                        /*
+                         * ⚠️⚠️ **E DALLA `1.90` CI SI SOMMANO IL MARGINE DELLA SCHERMATA E IL
+                         * RIENTRO DI SOTTO**, che il contenitore ha smesso di mettersi: senza,
+                         * l'ultima riga di miniature finirebbe sotto la barra gestuale senza modo
+                         * di tirarla fuori, che è il prezzo di far arrivare la griglia al vetro.
+                         */
+                        contentPadding = PaddingValues(
+                            bottom = GRID_PAD_Y + bottomInset() + if (picking) {
+                                with(LocalDensity.current) { sheetTall.toDp() }
+                            } else if (tall && pillShown) {
+                                // ⚠️ La pillola in basso del tablet in verticale: l'ultima riga deve
+                                // poter salire sopra di lei, come sopra il FAB.
+                                PILL_KEY + PILL_AIR * 2
+                            } else if (bin) BELOW_FAB else 16.dp
+                        ),
+                        modifier = Modifier.fillMaxWidth().then(grab)
+                    ) {
+                        itemsIndexed(
+                            items = items,
+                            // ⚠️ La chiave è l'indirizzo e non la posizione: senza, ruotando
+                            // il telefono le miniature già decodificate si rimescolerebbero
+                            // fra i riquadri.
+                            key = { _, uri -> uri.toString() },
+                            // Un tipo solo per tutti i riquadri: così Compose riusa la
+                            // composizione di quelli che escono per quelli che entrano,
+                            // invece di ricostruirla a ogni riga che scorre.
+                            contentType = { _, _ -> THUMB_KIND }
+                        ) { index, uri ->
+                            Thumbnail(
+                                uri = uri,
+                                position = index + 1,
+                                total = items.size,
+                                marked = index == highlight,
+                                chosen = uri in chosen,
+                                named = gridNames,
+                                mark = lastMark,
+                                room = cellPx,
+                                // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire,
+                                // ed è la convenzione di ogni galleria: chi ne ha scelte
+                                // cinque e tocca la sesta ne vuole sei, non vuole uscire e
+                                // perderle.
+                                /*
+                                 * ⚠️⚠️ **IL PRIMO RAMO RIPARA IL TOCCO LUNGO SU UNA SOLA FOTO,
+                                 * che dalla 0.53 non avviava più la selezione** (riscontro
+                                 * dell'utente sulla 0.65). Il gesto era sano: il difetto stava
+                                 * qui. `Modifier.clickable` **senza** `onLongClick` fa scattare
+                                 * il tocco al rilascio **qualunque sia stata la durata** della
+                                 * pressione, e nella passata `Main` gli eventi vanno dal figlio
+                                 * al genitore, quindi la piastrella li vede prima della griglia:
+                                 * il tocco lungo selezionava la foto, il dito si alzava, questo
+                                 * richiamo partiva con `picking` già vero e la **toglieva**.
+                                 * Effetto netto, niente. La spia è `dragFrom` e non un flag
+                                 * nuovo perché vale esattamente fra `onDragStart` e la fine del
+                                 * gesto: un tocco che la trova impostata è la **coda** di un
+                                 * tocco lungo, e un tocco normale non la trova mai, perché
+                                 * senza tocco lungo `onDragStart` non parte.
+                                 * ⚠️ **Col trascinamento non si vedeva**, ed è la ragione per
+                                 * cui la prova della 0.53 non l'aveva scoperto: `onDrag` consuma
+                                 * gli eventi, e un tocco i cui eventi sono consumati si annulla
+                                 * da sé. Il difetto viveva nel solo caso del dito fermo, cioè
+                                 * nel gesto che si fa per selezionarne una.
+                                 * ⚠️ **Non si ripara dando un `onLongClick` alla piastrella**,
+                                 * che è la strada ovvia: al tocco lungo `combinedClickable`
+                                 * consuma tutto fino al rilascio, e il gesto della griglia
+                                 * verrebbe annullato. Si perderebbe la selezione da/a per
+                                 * riparare quella singola.
+                                 */
+                                onClick = {
+                                    when {
+                                        dragFrom != null -> Unit
+                                        picking -> {
+                                            haptics.performHapticFeedback(HOLD_BUZZ)
+                                            chosen = chosen.toggle(uri)
+                                        }
+                                        else -> onOpen(index)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            }
+            if (wide && pillEntries.isNotEmpty()) {
+                ActionPill(
+                    entries = pillEntries,
+                    vertical = true,
+                    modifier = Modifier.padding(start = PILL_AIR)
                 )
+            }
             }
         }
 
-        PickSheet(
-            visible = picking,
             /*
-             * ⚠️⚠️ **LA SPECCHIATURA È USCITA DEL TUTTO NELLA `1.57`** (decisione dell'utente,
-             * giro della `1.55`: *la specchiatura se ne va del tutto, l'altra funzionalità la
-             * sostituirà*). Rovesciava le due file per la mano sinistra, e adesso quel
-             * mestiere lo fanno meglio due cose insieme: l'**ordine** che si trascina, che
-             * mette ogni tasto dove uno lo vuole, e il **lato del FAB**, che sposta tutto
-             * il resto. La chiave che diceva la mano adesso dice il lato, quindi chi aveva
-             * scelto la sinistra non perde niente.
+             * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
+             * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
+             * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
+             * conto suo, le stesse cinque restano insieme e cambia solo da che parte
+             * cominciano.
              */
-            actions = pickActions,
-            onHeight = { sheetTall = it }
-        )
+            /*
+             * ⚠️⚠️ **STA NEL `Box` DI RADICE DALLA 1.40, e prima viveva dentro la colonna**
+             * (richiesta dell'utente, 2026-09-03: *fa' in modo che la barra multi-attività in
+             * basso assuma lo stesso colore dello sfondo*). Dentro la colonna il rientro di
+             * sistema è già applicato e **consumato**, quindi la scheda si fermava sopra la barra
+             * e là sotto restava la pagina, di un altro colore. Qui arriva al bordo dello schermo
+             * e il rientro se lo mette da sé, sul contenuto (vedi [PickSheet]).
+             * ⚠️ **Misurato sullo screenshot**: la striscia della barra era
+             * `252,251,247` contro i `242,241,237` della scheda.
+             * ⚠️ **Sta PRIMA del velo del menu e di quello dell'onboarding**, come stava prima:
+             * l'ordine dei figli di un `Box` è l'ordine di sovrapposizione, e i due veli devono
+             * restare sopra di lei.
+             */
+            /*
+             * ⚠️⚠️ **LE DUE SFUMATURE IN FONDO, dalla `1.76`, E QUI SE NE VANNO SCORRENDO**
+             * (richiesta sua, giro della `1.67`: *esattamente insieme, sincronizzato con
+             * l'animazione del titolo, le due sfumature in basso devono progressivamente sparire e
+             * lasciare campo libero alla griglia piena su tutto lo schermo; anche in questo caso:
+             * l'opposto se si torna in cima*). Nella schermata iniziale restano sempre, perché là il
+             * FAB c'è sempre e vuole un fondo neutro sotto di sé; qui il FAB non c'è, quindi appena
+             * l'intestazione è chiusa non hanno più niente da fare.
+             * ⚠️ **La stessa curva, gli stessi numeri**: vivono in [GroundFade], che la schermata
+             * iniziale legge dalla stessa riga. 'Sincronizzato' è alla lettera, perché è lo stesso
+             * `aperto` che muove il titolo.
+             * ⚠️⚠️ **STA PRIMA DELLA SCHEDA, DELLA NOTIFICA E DEI VELI**: in un `Box` l'ultimo
+             * figlio è sopra, e nessuno dei tre va sbiadito da lei.
+             * ⚠️⚠️ **E QUI DI STRATI NE RESTA UNO, DALLA `1.85`** (riscontro del giro della `1.83`,
+             * voce `fab-sopra`: *togli la seconda sfumatura sovrapposta, quella corta. SOLO DALLE
+             * CARTELLE, resta in home*). La coda serviva a chiudere in pieno l'ultima striscia di
+             * schermo, e qui sotto quella striscia adesso passa il FAB.
+             */
+            if (front) {
+                GroundFade(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    alpha = aperto,
+                    foot = false
+                )
+            }
 
-        /*
-         * ⚠️⚠️ **LA NOTIFICA DELL'AZZERAMENTO, dalla 1.44**, che è la seconda metà della
-         * richiesta con cui la conferma è uscita (istruzione dell'utente, 2026-09-03: *deve
-         * apparire per 3 secondi (o finché non si cambia cartella) una notifica in basso che
-         * a sinistra dice 'Selezione azzerata' e a destra un pulsante 'Annulla' che la
-         * ripristina e fa riapparire la bottomsheet*).
-         * ⚠️⚠️ **E DALLA `1.84` QUI NON SI DISEGNA PIÙ NIENTE**: la notifica dell'azzeramento
-         * passa dal canale, e la superficie con cui l'app parla è una sola, in `AivApp`. Quello
-         * che resta di questa nota è la ragione per cui il velo dei menu deve restare **sopra**
-         * la notifica, e quella non è cambiata: senza, un tocco fuori dal menu del FAB
-         * finirebbe sul tasto 'Annulla'.
-         * ⚠️ **Non serve dire alla griglia che c'è**: [sheetTall] esiste perché la scheda delle
-         * azioni copre l'ultima fila di immagini per tutto il tempo della selezione, mentre
-         * questa passa in tre secondi e non porta niente da raggiungere sotto di lei.
-         */
-
-        /*
-         * ⚠️⚠️ **IL VELO CHE CHIUDEVA IL MENU DEL FAB STAVA QUI FINO ALLA `1.69`, E ADESSO
-         * VIVE IN `AivTheme`** (vedi `MenuGuard` in `Menus.kt`). Il fatto che lo aveva fatto
-         * nascere nella `1.06` non è cambiato ed è questo: da Android 12 la finestra di un popup
-         * **non è modale al tocco**, quindi un dito fuori dal pannello arriva a tutte e due le
-         * finestre, e il solo `dismissOnClickOutside` non basta.
-         * ⚠️⚠️ **A spostarlo è stato il censimento della UI del 2026-09-05**: questo velo esisteva
-         * in **una** schermata su cinque, e le altre quattro avevano il difetto intero (nella
-         * vista ad albero il tocco che chiudeva il menu apriva la riga sotto il dito). Ripeterlo
-         * qui altre quattro volte avrebbe lasciato in piedi il quinto modo di dimenticarsene: uno
-         * solo, sopra tutto quello che l'app disegna, vale per ogni menu che nascerà.
-         * ⚠️ **Non è una perdita di comportamento**: quello copriva lo schermo intero e consumava
-         * il tocco, e il velo nuovo fa la stessa cosa una passata prima, quindi questo non
-         * arriverebbe mai a vederlo.
-         */
-
-        /*
-         * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO**, che dalla `0.78` è un velo condiviso:
-         * il colore, il contrasto misurato e la geometria stanno in [HintVeil], qui restano la
-         * frase e il FAB.
-         * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnare la scorciatoia**, perché il FAB
-         * 'Tutte' in testata non c'è più (vedi la nota là dove stava): finché c'era, questo
-         * velo era un aiuto e la barra la rete di sicurezza.
-         * ⚠️⚠️ **IL VELO DI QUESTA SCHERMATA È UNO, quello del cestino**, e compare alla prima
-         * apertura del cestino.
-         * ⚠️⚠️ **FINO ALLA `1.78` QUESTA NOTA NE CONTAVA DUE, e il secondo non esiste dalla
-         * `0.94`**: era quello della selezione, uscito con la sua chiave (`Settings.kt` lo
-         * dichiara). Il difetto era della specie peggiore, perché una nota che conta descrive
-         * anche quello che non c'è: chi cercava il velo della selezione lo cercava nel codice.
-         */
-        if (hint != null) {
-            HintVeil(
-                text = stringResource(
-                    when (hint) {
-                        Hint.BIN_EMPTY -> R.string.bin_empty_hint
-                        // ⚠️ Le colonne non si insegnano qui: quel velo vive nella schermata
-                        // delle cartelle, dov'è il FAB che le cambia. Il ramo c'è
-                        // perché [Hint] è un enum e il `when` deve essere completo, e questa
-                        // frase non si vedrà mai (vedi `hint`, che la esclude).
-                        Hint.COLUMNS -> R.string.columns_hint
-                        // ⚠️ Idem per il doppio tocco, che vive nel visualizzatore e non ha
-                        // nemmeno un FAB da evidenziare: là il velo è `HintCentre`.
-                        Hint.ZOOM_TAP -> R.string.hint_zoom_tap
-                        // ⚠️ E idem per l'avviso sulle estensioni, che non è nemmeno un velo
-                        // di questa forma: è un `HintNotice`, cioè una finestra sua, aperta
-                        // dalla finestra di rinomina.
-                        Hint.EXT_WARN -> R.string.hint_ext_warn
-                        // ⚠️ E idem per la copertina: quel velo indica l'icona dell'intestazione,
-                        // quindi è un `HintSpot` e la sua frase la sceglie lui.
-                        Hint.COVER -> R.string.hint_cover
-                        // ⚠️ E idem per la fila dei moduli dell'editor completo, che è un
-                        // `HintStrip`: indica una fila che continua fuori dallo schermo.
-                        Hint.MODULES -> R.string.hint_modules
-                        // ⚠️ E per la sua seconda slide, che indica i tre tasti della testata:
-                        // là il velo è un `HintSpots`, cioè più riquadri misurati.
-                        Hint.EDITOR_TOOLS -> R.string.hint_tools
-                    }
-                ),
-                // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
-                // del FAB. Il perché sta in [HintVeil], sul parametro.
-                inset = Modifier
+            /*
+             * ⚠️⚠️ **IL FAB STA DOPO LA SFUMATURA, DALLA `1.83`, E FINO ALLA `1.82` VIVEVA NELLA
+             * COLONNA** (riscontro del giro della `1.82`, voce `fab-cartella` approvata con una
+             * riserva: *deve stare SOPRA le sfumature*). In un `Box` l'ultimo figlio è sopra,
+             * quindi dentro la colonna il FAB finiva **sotto** le due sfumature, che sono figlie
+             * della radice: al riposo non si vedeva, perché con l'intestazione aperta sono
+             * trasparenti, e scorrendo il FAB si velava insieme alle miniature.
+             * ⚠️ **La schermata iniziale ha sempre avuto quest'ordine**, e la sua nota lo dice da
+             * cinque versioni (*sta prima del FAB e non dopo*): questa era l'unica delle due a
+             * non seguirla, perché il suo FAB è nato nel cestino, dove la sfumatura non c'è.
+             * ⚠️ **La posizione sullo schermo non cambia di un pixel**: i tre rientri che la colonna
+             * gli dava adesso sono scritti sul suo modificatore, e sono gli stessi tre che
+             * [HintVeil] usa per illuminarlo.
+             */
+            /*
+             * ⚠️⚠️ **IL FAB RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
+             * Con una selezione in corso le operazioni stanno nella bottomsheet qui
+             * sotto, e il FAB è sparito perché non aveva più niente da fare (vedi
+             * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
+             * **intero**, che non sono operazioni su una selezione e non hanno un altro
+             * posto dove stare.
+             */
+            /*
+             * ⚠️⚠️ **DALLA 1.44 ALLA `2.85` SI FACEVA DA PARTE ANCHE PER LA NOTIFICA, E DALLA `2.86`
+             * NON PIÙ** (segnalazione dell'utente, 2026-09-21: *l'avviso dal basso (es. selezione
+             * scartata o file eliminato) deve evitare di coprire il FAB anche nel cestino*). La
+             * ragione di allora era buona: il gesto Indietro azzera la selezione, il FAB tornava
+             * proprio dove compare la notifica, e la notifica era larga tutto lo schermo, quindi il
+             * tasto avrebbe coperto 'Annulla'.
+             * ⚠️⚠️ **QUELLA RAGIONE È CADUTA CON LA `2.25`**, quando la notifica ha cominciato a
+             * stringersi accanto al FAB: da lì tenerlo fuori scena per tutta la vita della notifica
+             * voleva dire un comando sparito per tre secondi, che ricompariva mentre la notifica se ne
+             * andava (misurato sul banco: assente dal gesto alla scadenza, e di nuovo in scena con la
+             * notifica ancora in uscita).
+             * ⚠️ **Adesso rientra appena la selezione finisce**, come dopo un'eliminazione, e a
+             * scansarsi è la notifica: il perché, e la soglia che la fa stringere mentre scende, vivono
+             * su [Modifier.aboveFoot].
+             */
+            /*
+             * ⚠️⚠️ **DALLA `1.82` IL FAB C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
+             * giro della `1.81`, campo libero punto B: *il FAB deve vedersi in tutte le cartelle,
+             * non solo nella schermata home*). Fino alla `1.81` viveva nel solo cestino, e da
+             * dentro una cartella il cestino e le impostazioni si raggiungevano tornando indietro.
+             * ⚠️ **Le voci non sono le stesse**: nel cestino porta le tre che riguardano il
+             * cestino intero, in una cartella le due destinazioni che di qui non si raggiungono.
+             * A dirlo è [PickMenu], che riceve un blocco diverso.
+             * ⚠️ **Senza i due richiami non compare**, ed è il caso della griglia montata in una
+             * veste che non ha dove mandare (vedi i due parametri): un FAB che apre un menu
+             * vuoto è peggio di un FAB che non c'è.
+             */
+            FabPop(
+                visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
+                    !picking && shape == Adaptive.Shape.PHONE,
+                // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
+                // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
+                // sé: quello di sistema, il margine della schermata e gli 8dp del FAB.
+                // Sono gli stessi che [HintVeil] riceve per illuminarlo, e restano scritti una
+                // volta sola per ognuno dei due.
+                modifier = Modifier
+                    .align(fabSide())
                     .safeDrawingPadding()
                     .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                    .padding(8.dp),
-                onDone = hintDone
+                    .padding(8.dp)
             ) {
-                PickFab(
-                    container = HINT_MARK,
-                    ink = HINT_INK,
-                    holdLabel = shortcutLabel,
-                    // ⚠️ **Lo stesso valore del FAB vero**, che è il mestiere di questa
-                    // copia: un velo che illuminasse un disegno diverso indicherebbe il tasto
-                    // sbagliato. Oggi questo velo compare solo nel cestino, quindi la condizione
-                    // è sempre falsa: scritta uguale, resta vera anche il giorno che un
-                    // onboarding nuovo comparisse in una cartella.
-                    mark = !bin,
-                    // ⚠️ Qui il salto non c'è: questa copia vive dentro un velo che insegna il
-                    // tocco lungo, e un chevron sopra di lei indicherebbe un altro comando.
-                    arm = null,
-                    onTap = { hintDone(); menu.open() },
-                    onHold = { shortcut(); hintDone() }
+                Box {
+                    /*
+                     * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la
+                     * funzione** (1.39): il FAB si stacca in una finestra sua per restare
+                     * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
+                     * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
+                     * della composizione. Scritto dopo, il menu coprirebbe il FAB invece
+                     * del contrario.
+                     * ⚠️ **Il menu non si sposta di un pixel**: il posizionatore legge il
+                     * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
+                     * l'ordine dei figli.
+                     */
+                    PickMenu(menu = menu, columns = columns) {
+                        /*
+                         * ⚠️⚠️ **IN UNA CARTELLA IL MENU È UN ALTRO, DALLA `1.82`**: le tre
+                         * voci qui sotto riguardano il cestino intero e in una cartella non
+                         * vogliono dire niente. Quelle di una cartella sono le due destinazioni
+                         * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
+                         * FAB: *il FAB deve vedersi in tutte le cartelle*.
+                         * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
+                         * poi il filetto, poi le impostazioni. Chi ha imparato dov'è una voce
+                         * la ritrova, che è la ragione per cui questo menu passa dallo stesso
+                         * [MenuRow] e non da un elenco scritto a parte.
+                         */
+                        if (!bin) {
+                            /*
+                             * ⚠️⚠️ **'Cerca' È IN CIMA, DALLA `1.83`, COME NELLA SCHERMATA
+                             * INIZIALE** (risposta a `d-fab-voci` del giro della `1.82`): là la sua
+                             * nota dice che *cercare è la domanda che si fa più spesso quando non si
+                             * sa già dove andare*, e in una cartella vale ancora di più, perché le
+                             * altre due voci portano **fuori** di qui mentre questa resta dentro.
+                             */
+                            onSearchHere?.let { cerca ->
+                                MenuRow(
+                                    text = stringResource(R.string.hub_search),
+                                    icon = Icons.Default.Search,
+                                    onTap = { menu.close(); cerca() }
+                                )
+                            }
+                            /*
+                             * ⚠️⚠️ **QUI C'È LA SOLA VOCE CHE TOGLIE, e non quella che sceglie**: a
+                             * scegliere è il tocco sull'icona dell'intestazione, che è la sua
+                             * specifica alla lettera (risposta a `d-copertina-come`: *solo con il
+                             * tocco singolo sull'icona dell'intestazione di una cartella*). Una
+                             * seconda porta per la stessa cosa sarebbe un secondo modo da imparare
+                             * per un comando che si dà una volta per cartella.
+                             * ⚠️ **C'è se e solo se una copertina scelta esiste**, come 'Mostra
+                             * nascoste' nella schermata iniziale: offrire di togliere quello che non
+                             * c'è è una riga che non fa niente.
+                             * ⚠️ **Vive fra 'Cerca' e 'Cestino' perché l'ordine dice una cosa**: sopra
+                             * quello che si fa dentro questa cartella, sotto quello che porta
+                             * altrove.
+                             * ⚠️⚠️ **DALLA `1.95` NON SI VEDE, PERCHÉ [COVER_MENU_ROW] È SPENTA**: la
+                             * voce l'ha bocciata lui, e a togliere la copertina adesso è il gesto
+                             * ricorsivo sull'icona dell'intestazione. Il perché, e come si riaccende,
+                             * vivono su quella costante.
+                             */
+                            val togliCopertina = onCoverClear.takeIf { coverSet && COVER_MENU_ROW }
+                            togliCopertina?.let { togli ->
+                                if (onSearchHere != null) HorizontalDivider()
+                                MenuRow(
+                                    text = stringResource(R.string.folder_cover_auto),
+                                    icon = Icons.Outlined.HideImage,
+                                    onTap = { menu.close(); togli() }
+                                )
+                            }
+                            onBin?.let { vaiAlCestino ->
+                                if (onSearchHere != null || togliCopertina != null) HorizontalDivider()
+                                MenuRow(
+                                    text = stringResource(R.string.bin_title),
+                                    icon = Glyphs.Bin,
+                                    onTap = { menu.close(); vaiAlCestino() }
+                                )
+                            }
+                            onSettings?.let { vaiAlleImpostazioni ->
+                                if (onBin != null) HorizontalDivider()
+                                MenuRow(
+                                    text = stringResource(R.string.hub_settings),
+                                    icon = Icons.Default.Settings,
+                                    onTap = { menu.close(); vaiAlleImpostazioni() }
+                                )
+                            }
+                            return@PickMenu
+                        }
+                        /*
+                         * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
+                         * posto, poi quella che racconta, ultima quella che cancella per
+                         * sempre. Chi tocca al buio la prima voce di un menu non deve
+                         * poterci svuotare il cestino, e 'Ripristina tutto' come prima
+                         * voce è la richiesta dell'utente.
+                         * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
+                         * cronologia no: quelle non avrebbero niente su cui agire e
+                         * direbbero '0 fatti', mentre la cronologia ha senso proprio
+                         * quando il cestino è vuoto perché si è ripristinato tutto.
+                         */
+                        /*
+                         * ⚠️⚠️ **TRE `MenuRow` E NON PIÙ TRE `DropdownMenuItem`, dalla
+                         * `1.46`**: erano l'ultima fila di voci scritta con un componente
+                         * diverso da quello degli altri menu, e il prezzo del cambio è
+                         * dichiarato: il rientro di sinistra passa da 12 a 15dp, cioè le tre
+                         * voci si spostano di tre punti a destra. Quei tre punti esistono per
+                         * il glifo che sporge nel menu del visualizzatore, e portarli qui è
+                         * esattamente allineare i due menu fra loro.
+                         * ⚠️ **Il margine sopra e sotto lo mette la superficie**, quindi
+                         * `PICK_EDGE` non c'è più: era il terzo posto in cui viveva lo stesso
+                         * otto.
+                         */
+                        /*
+                         * ⚠️⚠️ **LA CRONOLOGIA È IN CIMA, dalla 1.53, per sua richiesta**
+                         * (riscontro del giro della `1.51`, voce `icone-cestino`: *cambia
+                         * l'ordine delle voci portando 'Cronologia' in cima*). Le altre due
+                         * agiscono su tutto il contenuto, questa lo racconta: chi apre questo
+                         * menu senza sapere che cosa c'è dentro incontra prima la voce che
+                         * glielo dice, e le due che muovono i file dopo.
+                         * ⚠️ **È anche la sola sempre toccabile**: le altre due si spengono a
+                         * cestino vuoto, quindi in cima ci sarebbero due righe grigie e la sola
+                         * viva in fondo.
+                         */
+                        MenuRow(
+                            text = stringResource(R.string.bin_history),
+                            /*
+                             * ⚠️⚠️ **UN DISEGNO SUO, dalla `1.55`, e la sua terza scelta su
+                             * questa riga.** Nella `1.51` aveva preso il simbolo del riciclo
+                             * fra due proposte, perché `Icons.Default.History` diceva 'il
+                             * tempo' mentre qui conta quello che è **passato di qui**; poi lo
+                             * ha guardato in mano e lo ha ridisegnato (*pensavo che fosse un
+                             * miglioramento, ma non mi piaceva*). Il suo mette insieme le due
+                             * cose: il cassone e la freccia che torna indietro.
+                             */
+                            icon = Glyphs.BinHistory,
+                            onTap = { menu.close(); onHistory() }
+                        )
+                        MenuRow(
+                            text = stringResource(R.string.bin_restore_all),
+                            // ⚠️ **Lo stesso glifo del ripristino singolo, dalla `1.56`**, per
+                            // sua istruzione: il perché sta su [Glyphs.BinRestore].
+                            icon = Glyphs.BinRestore,
+                            enabled = filled,
+                            /*
+                             * ⚠️⚠️ **ADESSO CHIEDE, dalla 1.53, e la nota di prima diceva il
+                             * contrario** (richiesta dell'utente, giro della `1.51`:
+                             * *'Ripristina tutto' deve funzionare previa conferma*). Quella
+                             * nota diceva che il ripristino non chiede perché è reversibile,
+                             * e l'argomento resta vero per **una** immagine: rimette una cosa
+                             * dov'era, e la si rielimina con un tocco. Su **tutto** il cestino
+                             * no, e la differenza non è la reversibilità ma il **sapere dove
+                             * vanno**: i file tornano ognuno nella sua cartella d'origine, che
+                             * possono essere molte e non tutte in mente, quindi disfare a mano
+                             * vorrebbe dire ritrovarli uno per uno.
+                             * ⚠️ **Per questo il testo della conferma nomina la Cronologia**,
+                             * che è il posto in cui quelle destinazioni sono scritte: le parole
+                             * sono sue.
+                             */
+                            onTap = { menu.close(); restoringAll = true }
+                        )
+                        MenuRow(
+                            text = stringResource(R.string.bin_empty),
+                            icon = Icons.Default.DeleteForever,
+                            enabled = filled,
+                            danger = true,
+                            onTap = { menu.close(); emptying = true }
+                        )
+                    }
+                    val altroTema = aivLauncher(!LocalAivLight.current)
+                    PickFab(
+                        // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il FAB della
+                        // schermata iniziale: il perché per esteso è là, e i due FAB sono
+                        // lo stesso oggetto in due schermate. ⚠️ Dalla `1.86` sono quelli
+                        // dell'**altro** tema e li dà `aivLauncher`, che legge le risorse col tema
+                        // dell'app invece che con quello di sistema: le due ragioni vivono là.
+                        container = altroTema.first,
+                        ink = altroTema.second,
+                        holdLabel = shortcutLabel,
+                        // ⚠️ E dalla `1.83` anche lo stesso glifo, in una cartella: nel cestino
+                        // restano i tre puntini. Il perché è su [PickFab].
+                        mark = !bin,
+                        /*
+                         * ⚠️⚠️ **A TASTO ARMATO IL TOCCO FA IL SALTO E NON APRE IL MENU, DALLA
+                         * `2.07`**: è la conseguenza della sua scelta, cioè che il comando viva
+                         * **sul** FAB invece che accanto. Il tratto in cui il menu non si apre è
+                         * quello in cui il chevron si vede, e finisce da sé un secondo dopo
+                         * l'ultimo pixel scorso.
+                         */
+                        arm = arm,
+                        // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
+                        // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
+                        // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
+                        // finché la patina durava più del pannello.
+                        lifted = menu.visible,
+                        // ⚠️ **`wanted` e non `visible`**: il perché sta sul parametro
+                        // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
+                        pressed = menu.wanted,
+                        // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
+                        // arriva più qui, perché lo consuma `MenuGuard` (in `Menus.kt`,
+                        // messo in scena da `AivTheme`). Un'alternanza qui riaprirebbe
+                        // il menu che quella guardia ha appena chiuso.
+                        // ⚠️⚠️ **IL RIMANDO ERA SBAGLIATO DUE VOLTE FINO ALLA `1.78`**:
+                        // nominava un `menuOpen` che non è mai esistito, e diceva 'in
+                        // fondo alla schermata', mentre dalla `1.70` quella guardia non
+                        // vive più qui dentro.
+                        // ⚠️ **E lo raggiunge ancora benché il FAB stia in una finestra
+                        // più alta**: quella finestra è trasparente al tocco apposta
+                        // (vedi `untouchable` in `ActionPad`).
+                        onTap = { if (arm.armed) scope.launch { arm.leap(paging) } else menu.open() },
+                        onHold = { shortcut(); hintDone() }
+                    )
+                }
+            }
+
+            /*
+             * ⚠️⚠️ **SUL TABLET IN VERTICALE LA PILLOLA È IN BASSO, DALLA `3.70`** (richiesta B3 e
+             * mockup `Tablet_V`): il campo 'Cerca in ...', poi Impostazioni e Cestino; nel cestino le
+             * sue tre voci. Al centro, sopra la griglia, staccata dal bordo come il FAB.
+             */
+            if (tall && pillShown) {
+                ActionPill(
+                    entries = pillEntries,
+                    vertical = false,
+                    lead = pillSearch?.let { apri -> { PillSearch(title.takeIf { it.isNotEmpty() }, apri) } },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .safeDrawingPadding()
+                        .padding(PILL_AIR)
                 )
             }
-        }
 
-        /*
-         * ⚠️⚠️ **IL MINI ONBOARDING DELLA COPERTINA, DALLA `1.95`, ED È SUA RICHIESTA ALLA
-         * LETTERA** (riscontro del giro della `1.94`: *la prima volta che si tocca la copertina e
-         * si avvia la selezione di un'immagine personalizzata, deve esserci un mini-onboarding con
-         * l'icona dell'intestazione evidenziata nell'arancione onboarding, più il seguente testo
-         * sotto, centrato*). Il testo è il suo, e vive in `hint_cover`.
-         * ⚠️ **Non passa da [hint]**, che è il velo del FAB: quello indica un tasto in fondo allo
-         * schermo e questo un'icona in cima, quindi sono due veli diversi e non due frasi dello
-         * stesso. La chiave però è nello stesso enum, perché 'Ripristina gli avvisi' li deve
-         * rimettere tutti.
-         * ⚠️ **Vuole il riquadro dell'icona**, quindi non compare prima che la fascia sia stata
-         * disegnata: è la condizione su [iconaSpot], e in pratica non si vede mai, perché il velo
-         * nasce da un tocco **su** quell'icona.
-         */
-        val dovIcona = iconaSpot
-        if (coverHere && !coverSeen && dovIcona != null) {
-            HintSpot(
-                text = stringResource(R.string.hint_cover),
-                spot = dovIcona,
-                glyph = Glyphs.FolderAiv,
-                // ⚠️ Chiuso il velo, la scelta continua dall'elenco iniziale: vedi `onCoverAway`.
-                onDone = {
-                    scope.launch { Hint.COVER.remember(context) }
-                    onCoverAway()
-                }
+            PickSheet(
+                visible = picking,
+                /*
+                 * ⚠️⚠️ **LA SPECCHIATURA È USCITA DEL TUTTO NELLA `1.57`** (decisione dell'utente,
+                 * giro della `1.55`: *la specchiatura se ne va del tutto, l'altra funzionalità la
+                 * sostituirà*). Rovesciava le due file per la mano sinistra, e adesso quel
+                 * mestiere lo fanno meglio due cose insieme: l'**ordine** che si trascina, che
+                 * mette ogni tasto dove uno lo vuole, e il **lato del FAB**, che sposta tutto
+                 * il resto. La chiave che diceva la mano adesso dice il lato, quindi chi aveva
+                 * scelto la sinistra non perde niente.
+                 */
+                actions = pickActions,
+                onHeight = { sheetTall = it }
             )
-        }
+
+            /*
+             * ⚠️⚠️ **LA NOTIFICA DELL'AZZERAMENTO, dalla 1.44**, che è la seconda metà della
+             * richiesta con cui la conferma è uscita (istruzione dell'utente, 2026-09-03: *deve
+             * apparire per 3 secondi (o finché non si cambia cartella) una notifica in basso che
+             * a sinistra dice 'Selezione azzerata' e a destra un pulsante 'Annulla' che la
+             * ripristina e fa riapparire la bottomsheet*).
+             * ⚠️⚠️ **E DALLA `1.84` QUI NON SI DISEGNA PIÙ NIENTE**: la notifica dell'azzeramento
+             * passa dal canale, e la superficie con cui l'app parla è una sola, in `AivApp`. Quello
+             * che resta di questa nota è la ragione per cui il velo dei menu deve restare **sopra**
+             * la notifica, e quella non è cambiata: senza, un tocco fuori dal menu del FAB
+             * finirebbe sul tasto 'Annulla'.
+             * ⚠️ **Non serve dire alla griglia che c'è**: [sheetTall] esiste perché la scheda delle
+             * azioni copre l'ultima fila di immagini per tutto il tempo della selezione, mentre
+             * questa passa in tre secondi e non porta niente da raggiungere sotto di lei.
+             */
+
+            /*
+             * ⚠️⚠️ **IL VELO CHE CHIUDEVA IL MENU DEL FAB STAVA QUI FINO ALLA `1.69`, E ADESSO
+             * VIVE IN `AivTheme`** (vedi `MenuGuard` in `Menus.kt`). Il fatto che lo aveva fatto
+             * nascere nella `1.06` non è cambiato ed è questo: da Android 12 la finestra di un popup
+             * **non è modale al tocco**, quindi un dito fuori dal pannello arriva a tutte e due le
+             * finestre, e il solo `dismissOnClickOutside` non basta.
+             * ⚠️⚠️ **A spostarlo è stato il censimento della UI del 2026-09-05**: questo velo esisteva
+             * in **una** schermata su cinque, e le altre quattro avevano il difetto intero (nella
+             * vista ad albero il tocco che chiudeva il menu apriva la riga sotto il dito). Ripeterlo
+             * qui altre quattro volte avrebbe lasciato in piedi il quinto modo di dimenticarsene: uno
+             * solo, sopra tutto quello che l'app disegna, vale per ogni menu che nascerà.
+             * ⚠️ **Non è una perdita di comportamento**: quello copriva lo schermo intero e consumava
+             * il tocco, e il velo nuovo fa la stessa cosa una passata prima, quindi questo non
+             * arriverebbe mai a vederlo.
+             */
+
+            /*
+             * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO**, che dalla `0.78` è un velo condiviso:
+             * il colore, il contrasto misurato e la geometria stanno in [HintVeil], qui restano la
+             * frase e il FAB.
+             * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnare la scorciatoia**, perché il FAB
+             * 'Tutte' in testata non c'è più (vedi la nota là dove stava): finché c'era, questo
+             * velo era un aiuto e la barra la rete di sicurezza.
+             * ⚠️⚠️ **IL VELO DI QUESTA SCHERMATA È UNO, quello del cestino**, e compare alla prima
+             * apertura del cestino.
+             * ⚠️⚠️ **FINO ALLA `1.78` QUESTA NOTA NE CONTAVA DUE, e il secondo non esiste dalla
+             * `0.94`**: era quello della selezione, uscito con la sua chiave (`Settings.kt` lo
+             * dichiara). Il difetto era della specie peggiore, perché una nota che conta descrive
+             * anche quello che non c'è: chi cercava il velo della selezione lo cercava nel codice.
+             */
+            if (hint != null) {
+                HintVeil(
+                    text = stringResource(
+                        when (hint) {
+                            Hint.BIN_EMPTY -> R.string.bin_empty_hint
+                            // ⚠️ Le colonne non si insegnano qui: quel velo vive nella schermata
+                            // delle cartelle, dov'è il FAB che le cambia. Il ramo c'è
+                            // perché [Hint] è un enum e il `when` deve essere completo, e questa
+                            // frase non si vedrà mai (vedi `hint`, che la esclude).
+                            Hint.COLUMNS -> R.string.columns_hint
+                            // ⚠️ Idem per il doppio tocco, che vive nel visualizzatore e non ha
+                            // nemmeno un FAB da evidenziare: là il velo è `HintCentre`.
+                            Hint.ZOOM_TAP -> R.string.hint_zoom_tap
+                            // ⚠️ E idem per l'avviso sulle estensioni, che non è nemmeno un velo
+                            // di questa forma: è un `HintNotice`, cioè una finestra sua, aperta
+                            // dalla finestra di rinomina.
+                            Hint.EXT_WARN -> R.string.hint_ext_warn
+                            // ⚠️ E idem per la copertina: quel velo indica l'icona dell'intestazione,
+                            // quindi è un `HintSpot` e la sua frase la sceglie lui.
+                            Hint.COVER -> R.string.hint_cover
+                            // ⚠️ E idem per la fila dei moduli dell'editor completo, che è un
+                            // `HintStrip`: indica una fila che continua fuori dallo schermo.
+                            Hint.MODULES -> R.string.hint_modules
+                            // ⚠️ E per la sua seconda slide, che indica i tre tasti della testata:
+                            // là il velo è un `HintSpots`, cioè più riquadri misurati.
+                            Hint.EDITOR_TOOLS -> R.string.hint_tools
+                        }
+                    ),
+                    // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
+                    // del FAB. Il perché sta in [HintVeil], sul parametro.
+                    inset = Modifier
+                        .safeDrawingPadding()
+                        .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+                        .padding(8.dp),
+                    onDone = hintDone
+                ) {
+                    PickFab(
+                        container = HINT_MARK,
+                        ink = HINT_INK,
+                        holdLabel = shortcutLabel,
+                        // ⚠️ **Lo stesso valore del FAB vero**, che è il mestiere di questa
+                        // copia: un velo che illuminasse un disegno diverso indicherebbe il tasto
+                        // sbagliato. Oggi questo velo compare solo nel cestino, quindi la condizione
+                        // è sempre falsa: scritta uguale, resta vera anche il giorno che un
+                        // onboarding nuovo comparisse in una cartella.
+                        mark = !bin,
+                        // ⚠️ Qui il salto non c'è: questa copia vive dentro un velo che insegna il
+                        // tocco lungo, e un chevron sopra di lei indicherebbe un altro comando.
+                        arm = null,
+                        onTap = { hintDone(); menu.open() },
+                        onHold = { shortcut(); hintDone() }
+                    )
+                }
+            }
+
+            /*
+             * ⚠️⚠️ **IL MINI ONBOARDING DELLA COPERTINA, DALLA `1.95`, ED È SUA RICHIESTA ALLA
+             * LETTERA** (riscontro del giro della `1.94`: *la prima volta che si tocca la copertina e
+             * si avvia la selezione di un'immagine personalizzata, deve esserci un mini-onboarding con
+             * l'icona dell'intestazione evidenziata nell'arancione onboarding, più il seguente testo
+             * sotto, centrato*). Il testo è il suo, e vive in `hint_cover`.
+             * ⚠️ **Non passa da [hint]**, che è il velo del FAB: quello indica un tasto in fondo allo
+             * schermo e questo un'icona in cima, quindi sono due veli diversi e non due frasi dello
+             * stesso. La chiave però è nello stesso enum, perché 'Ripristina gli avvisi' li deve
+             * rimettere tutti.
+             * ⚠️ **Vuole il riquadro dell'icona**, quindi non compare prima che la fascia sia stata
+             * disegnata: è la condizione su [iconaSpot], e in pratica non si vede mai, perché il velo
+             * nasce da un tocco **su** quell'icona.
+             */
+            val dovIcona = iconaSpot
+            if (coverHere && !coverSeen && dovIcona != null) {
+                HintSpot(
+                    text = stringResource(R.string.hint_cover),
+                    spot = dovIcona,
+                    glyph = Glyphs.FolderAiv,
+                    // ⚠️ Chiuso il velo, la scelta continua dall'elenco iniziale: vedi `onCoverAway`.
+                    onDone = {
+                        scope.launch { Hint.COVER.remember(context) }
+                        onCoverAway()
+                    }
+                )
+            }
+    
     }
+}
 
     /*
      * ⚠️⚠️ **QUESTO DIALOGO STA QUI E NON IN `FileOps.kt`, e la ragione è che non parla di
@@ -3913,3 +4102,47 @@ private const val FAB_IN = 90
 /** L'uscita, in millisecondi: secca, e più breve dell'entrata. */
 private const val FAB_OUT = 110
 
+/**
+ * Quello che serve alla griglia per comporre la colonna delle cartelle sullo schermo largo.
+ *
+ * @property width la larghezza della colonna, la stessa del layout a due colonne.
+ * @property onStart se la colonna è a sinistra: segue la mano, come nel visualizzatore.
+ * @property list l'elenco delle cartelle ([FolderRailList]) col modificatore che gli dà l'altezza.
+ */
+class WideRail(
+    val width: Dp,
+    val onStart: Boolean,
+    val list: @Composable (Modifier) -> Unit
+)
+
+/**
+ * La griglia con accanto la colonna delle cartelle, o la griglia da sola.
+ *
+ * ⚠️ **Senza colonna è un `Box` a tutto spazio**, cioè quello che la griglia era prima della
+ * `3.70`: i figli che si allineano agli angoli (il FAB, la scheda della selezione, i veli)
+ * trovano lo stesso riquadro di sempre.
+ */
+@Composable
+private fun RailFrame(
+    rail: WideRail?,
+    head: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit
+) {
+    if (rail == null) {
+        Box(modifier = Modifier.fillMaxSize(), content = content)
+        return
+    }
+    Row(modifier = Modifier.fillMaxSize()) {
+        if (rail.onStart) FolderRailWide(width = rail.width, head = head, list = rail.list)
+        Box(modifier = Modifier.weight(1f).fillMaxHeight(), content = content)
+        if (!rail.onStart) FolderRailWide(width = rail.width, head = head, list = rail.list)
+    }
+}
+
+/**
+ * Quanto dell'altezza della testa può prendere l'icona, prima del tetto della fascia piena.
+ *
+ * ⚠️ **È una scelta**: poco meno della metà lascia sotto il posto per le pastiglie anche quando la
+ * testa è al minimo, cioè con l'elenco delle cartelle al 70% della colonna.
+ */
+private const val HEAD_ICON_SHARE = 0.4f

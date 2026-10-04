@@ -7,6 +7,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,12 +58,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -127,23 +124,17 @@ fun FolderRail(
     /** Offset in pixel del primo elemento visibile. */
     listOffset: Int,
     onListScroll: (index: Int, offset: Int) -> Unit,
+    /**
+     * Se in fondo alla colonna ci sono Cerca, Cestino e Impostazioni.
+     *
+     * ⚠️ **Spento sul tablet in verticale, dalla `3.70`** (scelta B7): là quei tre comandi vivono
+     * nella pillola in basso, e due copie degli stessi comandi a pochi centimetri si leggerebbero
+     * come due cose diverse.
+     */
+    chrome: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState(listIndex, listOffset)
-    LaunchedEffect(listState) {
-        snapshotFlow {
-            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        }.collect { (index, offset) -> onListScroll(index, offset) }
-    }
-
-    val context = LocalContext.current
-    var granted by remember { mutableStateOf(Folder.granted(context)) }
-    LaunchedEffect(granted) { onRead(granted) }
-
-    val folders = buckets?.filter { selection.visible(it.path, peeking) }
     val dragSpace = remember { RailDragSpace() }
-    var holding by remember { mutableStateOf<Folder.Bucket?>(null) }
-
 
     Column(
         modifier = modifier
@@ -263,145 +254,205 @@ fun FolderRail(
                             }
                     )
                 }
-                when {
-                    !granted -> Text(
-                        text = stringResource(R.string.folders_permission),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    folders == null -> Box(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(Modifier.size(28.dp))
-                    }
-                    folders.isEmpty() -> Text(
-                        text = stringResource(R.string.folders_none),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    else -> LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
-                    ) {
-                        items(folders, key = { it.id }) { bucket ->
-                            val chosen = bucket.id == selected
-                            val tinta = frontTintOf(tints[bucket.id])
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        if (chosen) MaterialTheme.colorScheme.primaryContainer
-                                        else MaterialTheme.colorScheme.surface
-                                    )
-                                    .combinedClickable(
-                                        role = Role.Button,
-                                        onClick = { onPick(bucket) },
-                                        onLongClick = withHaptics { holding = bucket },
-                                    )
-                                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Folder,
-                                    contentDescription = null,
-                                    tint = when {
-                                        colour == FolderColour.NONE ->
-                                            MaterialTheme.colorScheme.onSurfaceVariant
-                                        tinta != null -> tinta
-                                        else -> MaterialTheme.colorScheme.primary
-                                    },
-                                    modifier = Modifier.size(22.dp)
-                                )
-                                /*
-                                 * ⚠️ **Il nome va a capo sulle giunture camelCase, dalla
-                                 * `3.54`** (sua richiesta): [camelBreak] è lo stesso criterio
-                                 * delle destinazioni e delle cartelle nascoste. Due righe al
-                                 * massimo, poi l'ellissi in fondo; senza giunture il nome
-                                 * lungo si spezzava dove capitava.
-                                 */
-                                Text(
-                                    text = camelBreak(bucket.name),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = if (chosen) {
-                                        MaterialTheme.colorScheme.onPrimaryContainer
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurface
-                                    },
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                    }
-                }
+                FolderRailList(
+                    buckets = buckets,
+                    selected = selected,
+                    selection = selection,
+                    peeking = peeking,
+                    colour = colour,
+                    tints = tints,
+                    onPick = onPick,
+                    onHide = onHide,
+                    onUnhide = onUnhide,
+                    onSelectionChange = onSelectionChange,
+                    onRead = onRead,
+                    listIndex = listIndex,
+                    listOffset = listOffset,
+                    onListScroll = onListScroll,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = with(density) { (areaPx - 32f).coerceAtLeast(0f).toDp() })
+                )
             }
         }
 
-        RailSearch(
-            folderName = selectedName?.takeIf { selected != null },
-            onSearch = onSearch,
-            modifier = Modifier
-                .fillMaxWidth()
-                // ⚠️ Inset orizzontale come quando il campo stava in cima: il disegno
-                // non cambia, cambia solo il posto. Niente inset alto: l'orologio non
-                // è qui, e un inset alto aprirebbe un vuoto sopra Cestino.
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
-                )
-                .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 8.dp)
-        )
+        if (chrome) {
+            RailSearch(
+                folderName = selectedName?.takeIf { selected != null },
+                onSearch = onSearch,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    // ⚠️ Inset orizzontale come quando il campo stava in cima: il disegno
+                    // non cambia, cambia solo il posto. Niente inset alto: l'orologio non
+                    // è qui, e un inset alto aprirebbe un vuoto sopra Cestino.
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                    )
+                    .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 8.dp)
+            )
 
-        /*
-         * ⚠️⚠️ **Cestino e Impostazioni IN BASSO CON ETICHETTA, DALLA `3.39`**
-         * (`3.38-03`): non più icone in testata accanto a Cerca (sembravano azioni di
-         * cancellazione sulla lista). Due colonne, icona sopra e testo sotto.
-         */
-        /*
-         * ⚠️⚠️ **CENTRATI SULLA COLONNA INTERA, DALLA `3.41`** (`3.40-01`): le due colonne
-         * uguali della `3.40` stavano dentro l'inset orizzontale, quindi il centro del
-         * contenuto non era il centro della colonna. Qui la riga è larga quanto il rail.
-         * Il testo è centrato: senza `TextAlign.Center` un'etichetta lunga resta a sinistra
-         * del suo riquadro e la coppia sembra spostata.
-         */
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+            /*
+             * ⚠️⚠️ **Cestino e Impostazioni IN BASSO CON ETICHETTA, DALLA `3.39`**
+             * (`3.38-03`): non più icone in testata accanto a Cerca (sembravano azioni di
+             * cancellazione sulla lista). Due colonne, icona sopra e testo sotto.
+             */
+            /*
+             * ⚠️⚠️ **CENTRATI SULLA COLONNA INTERA, DALLA `3.41`** (`3.40-01`): le due colonne
+             * uguali della `3.40` stavano dentro l'inset orizzontale, quindi il centro del
+             * contenuto non era il centro della colonna. Qui la riga è larga quanto il rail.
+             * Il testo è centrato: senza `TextAlign.Center` un'etichetta lunga resta a sinistra
+             * del suo riquadro e la coppia sembra spostata.
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RailAction(
+                    icon = { tint ->
+                        Icon(
+                            imageVector = Glyphs.Bin,
+                            contentDescription = null,
+                            tint = tint,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = stringResource(R.string.bin_title),
+                    onClick = onBin,
+                    modifier = Modifier.weight(1f)
+                )
+                RailAction(
+                    icon = { tint ->
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = tint,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = stringResource(R.string.hub_settings),
+                    onClick = onSettings,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * L'elenco delle cartelle della colonna, con i suoi tre stati vuoti (permesso, lettura, nessuna
+ * cartella) e il tocco lungo che apre [FolderHoldDialog].
+ *
+ * ⚠️ **Vive a sé dalla `3.70`** perché lo usano due colonne: quella di sempre, che lo alza con la
+ * maniglia, e quella dello schermo largo, che lo ancora in basso fra il 40 e il 70% dell'altezza
+ * ([FolderRailWide]). Una seconda copia dell'elenco divergerebbe al primo ritocco di una riga.
+ * ⚠️ **[modifier] va al solo elenco pieno**: è lui che deve rispettare l'altezza che la colonna
+ * gli concede, mentre i tre stati vuoti sono una riga di testo o un anello.
+ */
+@Composable
+fun FolderRailList(
+    buckets: List<Folder.Bucket>?,
+    selected: Long?,
+    selection: FolderSelection,
+    peeking: Boolean,
+    colour: FolderColour,
+    tints: Map<Long, Int>,
+    onPick: (Folder.Bucket) -> Unit,
+    onHide: (Folder.Bucket) -> Unit,
+    onUnhide: (Collection<String>) -> Unit,
+    onSelectionChange: (FolderSelection) -> Unit,
+    onRead: (Boolean) -> Unit,
+    listIndex: Int,
+    listOffset: Int,
+    onListScroll: (index: Int, offset: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val listState = rememberLazyListState(listIndex, listOffset)
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collect { (index, offset) -> onListScroll(index, offset) }
+    }
+
+    val context = LocalContext.current
+    val granted by remember { mutableStateOf(Folder.granted(context)) }
+    LaunchedEffect(granted) { onRead(granted) }
+
+    val folders = buckets?.filter { selection.visible(it.path, peeking) }
+    var holding by remember { mutableStateOf<Folder.Bucket?>(null) }
+
+    when {
+        !granted -> Text(
+            text = stringResource(R.string.folders_permission),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(16.dp)
+        )
+        folders == null -> Box(
+            modifier = Modifier.fillMaxWidth().padding(24.dp),
+            contentAlignment = Alignment.Center
         ) {
-            RailAction(
-                icon = { tint ->
+            CircularProgressIndicator(Modifier.size(28.dp))
+        }
+        folders.isEmpty() -> Text(
+            text = stringResource(R.string.folders_none),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(16.dp)
+        )
+        else -> LazyColumn(state = listState, modifier = modifier) {
+            items(folders, key = { it.id }) { bucket ->
+                val chosen = bucket.id == selected
+                val tinta = frontTintOf(tints[bucket.id])
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            if (chosen) MaterialTheme.colorScheme.primaryContainer
+                            else MaterialTheme.colorScheme.surface
+                        )
+                        .combinedClickable(
+                            role = Role.Button,
+                            onClick = { onPick(bucket) },
+                            onLongClick = withHaptics { holding = bucket },
+                        )
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     Icon(
-                        imageVector = Glyphs.Bin,
+                        imageVector = Icons.Default.Folder,
                         contentDescription = null,
-                        tint = tint,
-                        modifier = Modifier.size(24.dp)
+                        tint = when {
+                            colour == FolderColour.NONE ->
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            tinta != null -> tinta
+                            else -> MaterialTheme.colorScheme.primary
+                        },
+                        modifier = Modifier.size(22.dp)
                     )
-                },
-                label = stringResource(R.string.bin_title),
-                onClick = onBin,
-                modifier = Modifier.weight(1f)
-            )
-            RailAction(
-                icon = { tint ->
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = null,
-                        tint = tint,
-                        modifier = Modifier.size(24.dp)
+                    /*
+                     * ⚠️ **Il nome va a capo sulle giunture camelCase, dalla
+                     * `3.54`** (sua richiesta): [camelBreak] è lo stesso criterio
+                     * delle destinazioni e delle cartelle nascoste. Due righe al
+                     * massimo, poi l'ellissi in fondo; senza giunture il nome
+                     * lungo si spezzava dove capitava.
+                     */
+                    Text(
+                        text = camelBreak(bucket.name),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (chosen) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
-                },
-                label = stringResource(R.string.hub_settings),
-                onClick = onSettings,
-                modifier = Modifier.weight(1f)
-            )
+                }
+            }
         }
     }
     holding?.let { bucket ->
@@ -415,6 +466,62 @@ fun FolderRail(
         )
     }
 }
+
+/**
+ * La colonna delle cartelle sullo schermo largo (telefono e tablet in orizzontale), dalla `3.70`.
+ *
+ * ⚠️⚠️ **L'ELENCO È ANCORATO IN BASSO E NON SI SPOSTA PIÙ** (richiesta dell'utente del
+ * 2026-10-04, B2: *occupa con poche cartelle solo il 40% inferiore della schermata, che sale al
+ * 70% con una lista lunga: la lista scorre, ma non supera mai il 70% dello schermo, ancorata in
+ * basso*). Niente maniglia: in orizzontale l'altezza è poca, e un blocco da trascinare ne
+ * consumerebbe una parte per un gesto che lì non serve.
+ * ⚠️ **L'altezza la decide il numero di cartelle** (scelta B3): l'elenco prende quello che gli
+ * serve fra [RAIL_LIST_MIN] e [RAIL_LIST_MAX] della colonna, e oltre scorre dentro.
+ * ⚠️⚠️ **SOPRA C'È LA TESTA**, cioè quello che la schermata ci mette ([head]): nella griglia di
+ * una cartella sfumatura, icona e pastiglie dell'intestazione, nella schermata iniziale
+ * l'intestazione di casa. Prende lo spazio che l'elenco lascia, fra il 30 e il 60%, come
+ * l'intestazione del telefono si stringe scorrendo la griglia.
+ * ⚠️ **Niente Cerca, Cestino e Impostazioni in fondo**: sullo schermo largo vivono nella pillola
+ * sotto il filtro (decisione B4).
+ */
+@Composable
+fun FolderRailWide(
+    width: Dp,
+    head: @Composable BoxScope.() -> Unit,
+    list: @Composable (Modifier) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(
+        modifier = modifier
+            .width(width)
+            .fillMaxHeight()
+            .background(MaterialTheme.colorScheme.surface)
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+            )
+    ) {
+        val alto = maxHeight
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+                content = head
+            )
+            list(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = alto * RAIL_LIST_MIN, max = alto * RAIL_LIST_MAX)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+            )
+        }
+    }
+}
+
+/** La quota minima della colonna che l'elenco occupa sullo schermo largo: vedi [FolderRailWide]. */
+const val RAIL_LIST_MIN = 0.4f
+
+/** La quota massima della colonna che l'elenco occupa sullo schermo largo. */
+const val RAIL_LIST_MAX = 0.7f
 
 /**
  * Quanto alzare il blocco perché il dito, nello spazio fermo, sia andato da
@@ -466,23 +573,9 @@ private fun RailSearch(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val placeholder = if (folderName == null) {
-        buildAnnotatedString { append(stringResource(R.string.folders_rail_search)) }
-    } else {
-        /*
-         * ⚠️ **Grassetto solo sul nome**: il template porta un `%1$s`, si spezza sul
-         * segnaposto sostituito con un carattere sentinella, e il nome va in mezzo
-         * in grassetto. Così le lingue che mettono il nome altrove restano corrette.
-         */
-        val marker = "\u0001"
-        val raw = stringResource(R.string.folders_rail_search_in, marker)
-        val parts = raw.split(marker, limit = 2)
-        buildAnnotatedString {
-            append(parts[0])
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(folderName) }
-            if (parts.size > 1) append(parts[1])
-        }
-    }
+    // ⚠️ L'invito lo compone [searchInvitation], che serve anche alla pillola del tablet in
+    // verticale: due copie dello stesso grassetto divergerebbero al primo ritocco.
+    val placeholder = searchInvitation(folderName)
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -557,7 +650,16 @@ private fun RailAction(
  * logo + titolo + firma con link, più in basso "Tocca una cartella per iniziare".
  */
 @Composable
-fun FoldersTabletHint(modifier: Modifier = Modifier) {
+fun FoldersTabletHint(
+    modifier: Modifier = Modifier,
+    /**
+     * Se sopra l'invito c'è l'identità dell'app.
+     *
+     * ⚠️ **Spenta sullo schermo largo, dalla `3.70`**: là l'identità è nella testa della colonna
+     * delle cartelle (scelta B5), e due loghi a pochi centimetri si leggerebbero come un errore.
+     */
+    identity: Boolean = true
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -566,8 +668,10 @@ fun FoldersTabletHint(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Identity(iconSize = HEADER_ICON)
-        Spacer(Modifier.height(48.dp))
+        if (identity) {
+            Identity(iconSize = HEADER_ICON)
+            Spacer(Modifier.height(48.dp))
+        }
         Text(
             text = stringResource(R.string.folders_tablet_pick),
             style = MaterialTheme.typography.bodyLarge,

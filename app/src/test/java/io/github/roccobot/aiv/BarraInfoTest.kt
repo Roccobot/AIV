@@ -53,7 +53,7 @@ class BarraInfoTest {
         displayName = NOME
     )
 
-    private fun monta() {
+    private fun monta(avanza: Boolean = true) {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 ViewerScreen(
@@ -74,7 +74,7 @@ class BarraInfoTest {
                 )
             }
         }
-        banco.waitForIdle()
+        if (avanza) banco.waitForIdle()
     }
 
     private fun rect(r: DpRect): Rect = Rect(r.left.value, r.top.value, r.right.value, r.bottom.value)
@@ -162,6 +162,46 @@ class BarraInfoTest {
             assertTrue("L'immagine passa sotto il testo $testo: $figura", !sovrapposti)
         }
         assertTrue("L'immagine non arriva in fondo: $figura", figura.bottom >= 359f)
+    }
+
+    /**
+     * **All'apertura l'immagine compare già nella misura finale, senza restringersi** (voce
+     * `3.60-02` non approvata: *si apre ingrandito e si restringe con un'animazione*).
+     *
+     * ⚠️ L'orologio è fermo e si avanza un fotogramma per volta: a corsa finita l'immagine era
+     * giusta anche col difetto, che viveva tutto nei primi fotogrammi.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h740dp")
+    fun `all'apertura l'immagine nasce nella misura finale`() {
+        banco.mainClock.autoAdvance = false
+        monta(avanza = false)
+        val visti = mutableListOf<Rect>()
+        repeat(40) {
+            banco.mainClock.advanceTimeByFrame()
+            val f = figura()
+            if (f.right > f.left) visti += f
+        }
+        banco.mainClock.autoAdvance = true
+        banco.waitForIdle()
+        val finale = figura()
+        assertTrue("L'immagine non è mai comparsa", visti.isNotEmpty())
+        for (f in visti) {
+            assertTrue("Un fotogramma con l'immagine fuori misura: $f contro $finale", kotlin.math.abs(f.top - finale.top) <= 1f && kotlin.math.abs(f.height - finale.height) <= 1f)
+        }
+    }
+
+    /**
+     * **La riga unica è alta quanto il carattere, senza l'interlinea di Material** (voce
+     * `3.60-01` non approvata: *devi anche assottigliare l'overlay*). Il corpo dei dati è 14 sp
+     * con una riga da 20: tagliata, la riga resta sotto i 18.
+     */
+    @Test
+    @Config(qualifiers = "w740dp-h360dp")
+    fun `la riga unica e sottile`() {
+        monta()
+        val dati = dati()
+        assertTrue("La riga dei dati è alta ${dati.height}", dati.height < 18f)
     }
 
     private companion object {

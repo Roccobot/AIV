@@ -17,6 +17,10 @@ Dalla `3.60` (richiesta del 2026-10-04, scelte A1-A4) la barra delle info del Vi
 su una riga sola quando il nome ha almeno 160 dp, cioè su telefono in orizzontale e su tablet, e
 l'immagine a riposo si adatta allo spazio che la barra lascia libero; in orizzontale può passare
 sotto la barra fino al 5% dell'altezza, solo dove la barra non ha testo (`Fit.kt`).
+Dalla `3.70` (richiesta del 2026-10-04, scelte B1-B7) telefono e tablet in orizzontale hanno
+l'elenco delle cartelle ancorato in basso e i comandi del FAB in una pillola d'accento sotto il
+filtro, e il tablet in verticale una pillola in basso col campo di ricerca: i dettagli vivono in
+`docs/Folders.md` § '📱 Schermo largo e tablet in verticale: dove vanno intestazione, elenco e FAB'.
 I colori derivano da `Theme.kt`; il font è Roboto, distribuito con la propria licenza.
 Sono composizioni web dimostrative, non schermate Android misurate né una nuova identità grafica.
 
