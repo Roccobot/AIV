@@ -332,6 +332,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   indipendentemente dalle due liste. La pressione lunga su una cartella apre 'Autorizza
   cartella' in modalità incluse e 'Nascondi' in modalità escluse; una voce già presente propone
   di rimuovere l'autorizzazione o 'Mostra'. Le righe segnano 'autorizzata' o 'nascosta'.
+  - ⚠️ **Su tablet e in orizzontale resta a una colonna, col FAB** (sua risposta del 2026-10-04,
+    dopo la `3.73`): non prende la colonna delle cartelle né la pillola delle altre viste, perché
+    ha una navigazione propria (`dualFolders` in `ViewerActivity.kt`).
 - ⚠️⚠️ **Dalla `3.27`, il tocco lungo su un media entra in selezione multipla** (giro 3.24,
   campo libero): stessa scheda della griglia/lista ([PickSheet]), non più il riquadro centrato
   su un solo file. Indietro o 'Nessuno' azzerano; cambiando cartella la selezione si perde.
