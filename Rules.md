@@ -44,6 +44,11 @@ sessione dopo è perso.
   Indirizzo stabile: <https://aiv-feedback.roccobot-b90.workers.dev/feedback>.
   Titolo `Feedback AIV`; i testi visibili usano `l'agente`, senza attribuzione esclusiva.
   Il proprietario ha confermato il funzionamento completo il 1 ottobre 2026.
+- ⚠️⚠️ **Ogni volta che un testo per l'utente nomina il DF, la parola è un link al suo indirizzo**
+  (sua istruzione, 2026-10-05: *quando menzioni il DF, fa' sempre in modo che la parola sia
+  linkata al suo URL effettivo*): in chat, nei corpi delle PR e negli artefatti si scrive
+  `[DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback)`, o lo stesso link sul nome per
+  esteso. Così lui apre il documento con un tocco, senza cercarlo.
 - **Prima di prenderlo in carico o aggiornarlo leggi `docs/Feedback-maintenance.md`**:
   è la guida comune per fonti, convenzioni, schema JSON, salvataggio, sicurezza, errori,
   prove e pubblicazione. La configurazione tecnica vive in `cloud/feedback/README.md`.
