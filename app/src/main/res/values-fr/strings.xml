@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menu d\'angle</string>
     <string name="glass_radius">Rayon</string>
     <string name="glass_intensity">Intensité</string>
-    <string name="glass_tint">Couleur</string>
-    <string name="glass_light">Luminosité</string>
+    <string name="glass_tint">Opacité</string>
+    <string name="glass_light">Écart</string>
+    <string name="glass_colour_light">Couleur claire</string>
+    <string name="glass_colour_dark">Couleur sombre</string>
+    <string name="glass_default">Par défaut</string>
+    <string name="glass_reset">Réinitialiser</string>
+    <string name="corner_rest_pill">Pilule au repos</string>
+    <string name="corner_rest_round">Bouton rond au repos</string>
     <string name="settings_button_look">Aspect des boutons principaux</string>
     <string name="settings_button_look_desc">Remplissage et effets de transparence ou de flou appliqués au bouton flottant, à la pilule d\'icônes et au menu inférieur.</string>
     <string name="pill_slide">Rétractable</string>

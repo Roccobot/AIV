@@ -131,8 +131,14 @@
     <string name="main_control_corner">모서리 메뉴</string>
     <string name="glass_radius">반경</string>
     <string name="glass_intensity">강도</string>
-    <string name="glass_tint">색상</string>
-    <string name="glass_light">밝기</string>
+    <string name="glass_tint">불투명도</string>
+    <string name="glass_light">편차</string>
+    <string name="glass_colour_light">밝은 색</string>
+    <string name="glass_colour_dark">어두운 색</string>
+    <string name="glass_default">기본값</string>
+    <string name="glass_reset">초기화</string>
+    <string name="corner_rest_pill">대기 시 알약</string>
+    <string name="corner_rest_round">대기 시 원형 버튼</string>
     <string name="settings_button_look">기본 버튼 모양</string>
     <string name="settings_button_look_desc">플로팅 버튼, 아이콘 알약, 하단 메뉴에 적용되는 채우기와 투명 또는 흐림 효과입니다.</string>
     <string name="pill_slide">접이식</string>

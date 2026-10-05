@@ -99,41 +99,60 @@ data class PillLook(
     /** Whether the main control is the corner menu ([MainControl.CORNER]): always [PhonePill.SLIDE]. */
     val corner: Boolean = false,
     /** How the translucent look is tuned. */
-    val glass: GlassTune = GlassTune()
+    val glass: GlassTune = GlassTune(),
+    /**
+     * Whether the corner menu rests as a single round key ([cornerRound] `true`) or as the vertical
+     * pill of two keys. Only the corner menu reads it. See [Settings.cornerRound].
+     */
+    val cornerRound: Boolean = true
 )
 
 /**
- * How the translucent look is tuned: the four sliders that appear with it (Raggio, Intensità,
- * Colore, Luminosità).
+ * How the translucent look is tuned: the sliders and the two colours that appear with it.
  *
  * ⚠️⚠️ **SINCE 4.20, HIS REQUEST** (note N1 on the 4.15 round: *se all'attivazione dell'effetto
  * traslucido si attivassero dei controlli tipo Luminosità, Colore, Raggio (della sfocatura),
- * Intensità (della sfocatura)? ... poi si possono disattivare spegnendo un feature flag*). The
- * meaning of each is a reading declared in the DF, to be corrected on his round.
- * ⚠️ **The factory values are the glass up to 4.15**, the DF's: 13dp of radius, 160% of
- * saturation, the theme's ink as it was, no light added.
+ * Intensità (della sfocatura)? ... poi si possono disattivare spegnendo un feature flag*).
+ * ⚠️⚠️ **SINCE 4.25 THE FACTORY VALUES ARE HIS** (note D on the 4.20 round: *Raggio 16dp, Intensità
+ * 300%, Colore 20%, Luminosità -35 (chiaro) / +35 (scuro)*, and 'Scostamento' 35 in his answer
+ * C2), and the glass is tied to the theme: [shift] darkens on the light theme and lightens on the
+ * dark one, and each theme has its own colour (answer B3). Until 4.20 they were the DF's glass
+ * (13dp, 160%, 100%, a signed 'Luminosità' at zero).
  *
  * @property radius the blur's radius, in dp.
  * @property intensity how vivid the colours behind get, in percent: 100 leaves them as they are.
- * @property tint how much accent the glass carries, in percent of the theme's own ink.
- * @property light what is added over the blurred picture, in percent: white above zero, black below.
+ * @property tint how much of the colour the glass carries ('Opacità'), in percent of the theme's
+ *   own ink.
+ * @property shift how far the blurred picture moves away from the page ('Scostamento'), in percent:
+ *   black on the light theme, white on the dark one.
+ * @property lightColour the glass's colour on the light theme, as ARGB, or `null` for the accent in
+ *   force; [darkColour] the same on the dark theme.
  */
 @Immutable
 data class GlassTune(
     val radius: Int = RADIUS,
     val intensity: Int = INTENSITY,
     val tint: Int = TINT,
-    val light: Int = LIGHT
+    val shift: Int = SHIFT,
+    val lightColour: Int? = null,
+    val darkColour: Int? = null
 ) {
+    /** The colour chosen for the theme in force, or `null` for the accent. */
+    fun colourFor(light: Boolean): Int? = if (light) lightColour else darkColour
+
+    /** This tune with the colour of one theme replaced: `null` goes back to the accent. */
+    fun withColour(light: Boolean, colour: Int?): GlassTune =
+        if (light) copy(lightColour = colour) else copy(darkColour = colour)
+
     companion object {
-        const val RADIUS = 13
-        const val INTENSITY = 160
-        const val TINT = 100
-        const val LIGHT = 0
+        const val RADIUS = 16
+        const val INTENSITY = 300
+        const val TINT = 20
+        const val SHIFT = 35
         val RADIUS_RANGE = 0..40
         val INTENSITY_RANGE = 0..300
         val TINT_RANGE = 0..150
-        val LIGHT_RANGE = -50..50
+        val SHIFT_RANGE = 0..50
     }
 }
 
@@ -222,13 +241,13 @@ fun Modifier.backdropSource(backdrop: Backdrop?): Modifier =
         }
 
 /**
- * How much the glass blurs: the DF pill's `blur(8px)` turned into a radius.
+ * How much the glass blurs behind the menus' veil: the glass's factory radius.
  *
- * ⚠️⚠️ **THE CSS NUMBER IS A STANDARD DEVIATION, THE ANDROID ONE A RADIUS**: Android turns a
- * radius into a deviation as `0.57735 * r + 0.5` (the same conversion in `RenderEffect` and in
- * the compositor's window blur), so 8 of deviation want 13 of radius. Writing 8 would have given
- * a glass visibly clearer than the DF's.
- * ⚠️ **In dp, like the CSS pixel**: the DF's 8px are 8 device-independent pixels.
+ * ⚠️ **His 16dp since 4.25** (note D on the 4.20 round). Until 4.20 it was the DF pill's
+ * `blur(8px)` turned into a radius, 13: Android turns a radius into a standard deviation as
+ * `0.57735 * r + 0.5`, so 8 of the CSS deviation wanted 13 of radius.
+ * ⚠️ **The factory value and not the slider's**: the veil is the menus' and is drawn by windows
+ * that do not read the tune.
  */
 internal val GLASS_BLUR = GlassTune.RADIUS.dp
 
@@ -287,11 +306,19 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
         PillFill.GLASS -> {
             val tune = LocalPillLook.current.glass
             val ink = (if (light) GLASS_INK_LIGHT else GLASS_INK_DARK) * tune.tint / 100f
-            val tint = colour.copy(alpha = (colour.alpha * ink).coerceIn(0f, 1f))
+            // ⚠️ A colour of his replaces [colour] and keeps its alpha, so the FAB's press still
+            // shows (answer B3: *due colori memorizzabili*).
+            val base = tune.colourFor(light)?.let { Color(it).copy(alpha = colour.alpha) } ?: colour
+            val tint = base.copy(alpha = (base.alpha * ink).coerceIn(0f, 1f))
             val radiusDp = tune.radius.dp
             val saturation = tune.intensity / 100f
-            val wash = if (tune.light >= 0) Color.White.copy(alpha = tune.light / 100f)
-            else Color.Black.copy(alpha = -tune.light / 100f)
+            /*
+             * ⚠️⚠️ **'SCOSTAMENTO' HAS NO SIGN, SINCE 4.25, AND IT IS HIS CHOICE** (answer C2): it
+             * moves the glass away from the page, so it darkens on the light theme and lightens on
+             * the dark one. In 4.20 the slider was signed, and the same value looked opposite on
+             * the two themes.
+             */
+            val wash = (if (light) Color.Black else Color.White).copy(alpha = tune.shift / 100f)
             val blurred = rememberGraphicsLayer()
             var me by remember { mutableStateOf(Offset.Zero) }
             this
@@ -324,7 +351,7 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                         }
                         clipPath(path) { drawLayer(blurred) }
                     }
-                    if (tune.light != 0) drawOutline(outline, wash)
+                    if (tune.shift != 0) drawOutline(outline, wash)
                     drawOutline(outline, tint)
                 }
                 .clip(shape)
@@ -539,7 +566,16 @@ private fun SlidePill(
     )
     val count = entries.size + 1
     val key = keyFor(count, room)
-    val full = key * count
+    /*
+     * ⚠️⚠️ **OPEN WITH MANY ENTRIES IT SPANS THE ROW, SINCE 4.25, AND IT IS HIS CHOICE** (note A on
+     * the 4.20 round, and A2 after the preview): eight keys of 44dp left the open pill short of
+     * both the thumbnails' edge and its own margin. As in the extended pill ([PILL_FULL]) the cells
+     * widen and the keys do not.
+     * ⚠️ **The corner cell grows from the key to the cell while opening**, so at rest the round key
+     * is exactly where it was.
+     */
+    val cell = if (count >= PILL_FULL) room / count else key
+    val full = cell * count
     val closeLabel = stringResource(R.string.pick_close)
     val corner = PillEntry(
         icon = Icons.Default.Close,
@@ -554,39 +590,48 @@ private fun SlidePill(
         }
     )
     val cornerKey = @Composable {
-        PillKey(
-            entry = corner,
-            size = key,
-            // ⚠️ Closed, the round key is the FAB: its long press is the FAB's and not a
-            // tooltip. Open, it is a key of the pill like the others.
-            holdLabel = if (open) null else holdLabel,
-            glyph = {
-                Box(contentAlignment = Alignment.Center) {
-                    Box(
-                        modifier = Modifier.graphicsLayer {
-                            alpha = 1f - p
-                            val s = 1f - SWAP_ZOOM * p
-                            scaleX = s
-                            scaleY = s
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.width(lerp(key, cell, p))) {
+            PillKey(
+                entry = corner,
+                size = key,
+                // ⚠️ Closed, the round key is the FAB: its long press is the FAB's and not a
+                // tooltip. Open, it is a key of the pill like the others.
+                holdLabel = if (open) null else holdLabel,
+                glyph = {
+                    Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.graphicsLayer {
+                                alpha = 1f - p
+                                val s = 1f - SWAP_ZOOM * p
+                                scaleX = s
+                                scaleY = s
+                            }
+                        ) {
+                            // ⚠️ The round key is drawn here and not by [TapHoldFab]: without this
+                            // the mark kept the square FAB's size and centre (4.02-03, not approved).
+                            CompositionLocalProvider(LocalRoundKey provides true) { fabGlyph(null) }
                         }
-                    ) {
-                        // ⚠️ The round key is drawn here and not by [TapHoldFab]: without this
-                        // the mark kept the square FAB's size and centre (4.02-03, not approved).
-                        CompositionLocalProvider(LocalRoundKey provides true) { fabGlyph(null) }
+                        Box(
+                            modifier = Modifier.graphicsLayer {
+                                alpha = p * CLOSE_INK
+                                val s = 1f - SWAP_ZOOM * (1f - p)
+                                scaleX = s
+                                scaleY = s
+                            }
+                        ) { Icon(Icons.Default.Close, contentDescription = null) }
                     }
-                    Box(
-                        modifier = Modifier.graphicsLayer {
-                            alpha = p * CLOSE_INK
-                            val s = 1f - SWAP_ZOOM * (1f - p)
-                            scaleX = s
-                            scaleY = s
-                        }
-                    ) { Icon(Icons.Default.Close, contentDescription = null) }
                 }
-            }
-        )
+            )
+        }
     }
     Box(
+        /*
+         * ⚠️ **The row leans on the preferred side, and it is measured**: each cell rounds its width
+         * to the pixel, so eight cells can come out a few pixels short of the pill, and leaning on
+         * the start left the × that much off the edge (3px on the bench, at density 1). On this side
+         * the corner key is exact, and the shortfall goes to the far end.
+         */
+        contentAlignment = if (atEnd) Alignment.CenterEnd else Alignment.CenterStart,
         modifier = Modifier
             .width(lerp(key, full, p))
             .height(key)
@@ -607,13 +652,15 @@ private fun SlidePill(
         ) {
             if (!atEnd) cornerKey()
             entries.forEach { entry ->
-                PillKey(
-                    entry = entry.copy(onTap = { open = false; entry.onTap() }),
-                    size = key,
-                    // ⚠️ A key hidden behind the round one is not a command yet.
-                    enabled = open,
-                    modifier = Modifier.graphicsLayer { alpha = p }
-                )
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.width(cell)) {
+                    PillKey(
+                        entry = entry.copy(onTap = { open = false; entry.onTap() }),
+                        size = key,
+                        // ⚠️ A key hidden behind the round one is not a command yet.
+                        enabled = open,
+                        modifier = Modifier.graphicsLayer { alpha = p }
+                    )
+                }
             }
             if (atEnd) cornerKey()
         }
@@ -651,8 +698,8 @@ private fun ExtendedPill(
      * distanza che la separa dal bordo a destra, aumentando leggermente la spaziatura in modo che
      * l'icona 'Cerca' sia esattamente al centro*): [room] is already the row between the two
      * margins, so seven equal cells put the fourth, 'Cerca', on the screen's centre line.
-     * ⚠️ **Only the extended pill** (his answer: *solo nella pillola estesa*): the sliding one
-     * adds its × and would have eight keys.
+     * ⚠️ **Since 4.25 the open sliding pill spans the row too** (his choice A2), with its × among
+     * the eight cells: in 4.15 it was *solo nella pillola estesa*.
      * ⚠️ **The cells widen, the keys do not**: the touch target and the round ripple stay the
      * key's, and the extra width is spacing.
      */

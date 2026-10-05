@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menu góc</string>
     <string name="glass_radius">Bán kính</string>
     <string name="glass_intensity">Cường độ</string>
-    <string name="glass_tint">Màu</string>
-    <string name="glass_light">Độ sáng</string>
+    <string name="glass_tint">Độ mờ đục</string>
+    <string name="glass_light">Độ lệch</string>
+    <string name="glass_colour_light">Màu sáng</string>
+    <string name="glass_colour_dark">Màu tối</string>
+    <string name="glass_default">Mặc định</string>
+    <string name="glass_reset">Đặt lại</string>
+    <string name="corner_rest_pill">Viên khi nghỉ</string>
+    <string name="corner_rest_round">Nút tròn khi nghỉ</string>
     <string name="settings_button_look">Kiểu nút chính</string>
     <string name="settings_button_look_desc">Màu nền và hiệu ứng trong suốt hoặc làm mờ áp dụng cho nút nổi, viên biểu tượng và menu dưới cùng.</string>
     <string name="pill_slide">Thu gọn</string>

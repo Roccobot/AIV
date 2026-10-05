@@ -131,8 +131,14 @@
     <string name="main_control_corner">เมนูมุม</string>
     <string name="glass_radius">รัศมี</string>
     <string name="glass_intensity">ความเข้ม</string>
-    <string name="glass_tint">สี</string>
-    <string name="glass_light">ความสว่าง</string>
+    <string name="glass_tint">ความทึบ</string>
+    <string name="glass_light">ค่าเบี่ยง</string>
+    <string name="glass_colour_light">สีอ่อน</string>
+    <string name="glass_colour_dark">สีเข้ม</string>
+    <string name="glass_default">ค่าเริ่มต้น</string>
+    <string name="glass_reset">รีเซ็ต</string>
+    <string name="corner_rest_pill">แคปซูลขณะพัก</string>
+    <string name="corner_rest_round">ปุ่มกลมขณะพัก</string>
     <string name="settings_button_look">ลักษณะของปุ่มหลัก</string>
     <string name="settings_button_look_desc">การเติมสีและเอฟเฟกต์โปร่งใสหรือเบลอสำหรับปุ่มลอย แคปซูลไอคอน และเมนูด้านล่าง</string>
     <string name="pill_slide">แบบซ่อนได้</string>

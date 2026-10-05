@@ -131,8 +131,14 @@
     <string name="main_control_corner">कोपऱ्यातील मेनू</string>
     <string name="glass_radius">त्रिज्या</string>
     <string name="glass_intensity">तीव्रता</string>
-    <string name="glass_tint">रंग</string>
-    <string name="glass_light">उजळपणा</string>
+    <string name="glass_tint">अपारदर्शकता</string>
+    <string name="glass_light">विचलन</string>
+    <string name="glass_colour_light">फिकट रंग</string>
+    <string name="glass_colour_dark">गडद रंग</string>
+    <string name="glass_default">डीफॉल्ट</string>
+    <string name="glass_reset">रीसेट करा</string>
+    <string name="corner_rest_pill">विश्रांतीत पिल</string>
+    <string name="corner_rest_round">विश्रांतीत गोल बटण</string>
     <string name="settings_button_look">मुख्य बटणांचे स्वरूप</string>
     <string name="settings_button_look_desc">तरंगते बटण, चिन्हांची पिल आणि खालच्या मेनूला लागू होणारे भरण आणि पारदर्शकता किंवा धूसरपणाचे परिणाम.</string>
     <string name="pill_slide">लपणारी</string>

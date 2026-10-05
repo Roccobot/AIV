@@ -34,7 +34,9 @@ internal fun Casa(
     /** Se le nascoste sono in scena col minuto in corso. */
     peeking: Boolean = false,
     /** Riceve le voci che 'Mostra' toglie: dalla `2.96` sono tutte quelle che coprono la cartella. */
-    onUnhide: (Collection<String>) -> Unit = {}
+    onUnhide: (Collection<String>) -> Unit = {},
+    /** Il commutatore del menu angolare, per le prove della `4.25`. */
+    onCornerRest: () -> Unit = {}
 ) {
     FolderScreen(
         view = FolderView.GRID,
@@ -57,6 +59,7 @@ internal fun Casa(
         onSettings = {},
         onSearch = {},
         onBin = {},
+        onCornerRest = onCornerRest,
         onColumns = {},
         onColour = {},
         listCount = true,

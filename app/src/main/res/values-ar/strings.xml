@@ -131,8 +131,14 @@
     <string name="main_control_corner">قائمة الزاوية</string>
     <string name="glass_radius">نصف القطر</string>
     <string name="glass_intensity">الشدة</string>
-    <string name="glass_tint">اللون</string>
-    <string name="glass_light">السطوع</string>
+    <string name="glass_tint">العتامة</string>
+    <string name="glass_light">الإزاحة</string>
+    <string name="glass_colour_light">اللون الفاتح</string>
+    <string name="glass_colour_dark">اللون الداكن</string>
+    <string name="glass_default">الافتراضي</string>
+    <string name="glass_reset">إعادة الضبط</string>
+    <string name="corner_rest_pill">الشريط عند السكون</string>
+    <string name="corner_rest_round">الزر الدائري عند السكون</string>
     <string name="settings_button_look">مظهر الأزرار الرئيسية</string>
     <string name="settings_button_look_desc">التعبئة وتأثيرات الشفافية أو التمويه مطبقة على الزر العائم وشريط الأيقونات والقائمة السفلية.</string>
     <string name="pill_slide">قابلة للإخفاء</string>

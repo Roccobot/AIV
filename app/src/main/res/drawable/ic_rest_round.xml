@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il commutatore del menu angolare quando a riposo c'è la pillola verticale: tocca e il riposo
+     torna il tasto tondo solo, che è quello che il glifo mostra.
+
+     DISEGNO DELL'UTENTE, dalla 4.25 (`round_11.svg`, giro della 4.20, `4.20-01`), UNIFORMATO
+     COME LA CAPSULA GEMELLA (`ic_rest_pill.xml`, dove vive il conto): nella bozza era un
+     cerchio di raggio 6,32 al centro della tela, cioè largo quanto la capsula; scalato dello
+     stesso fattore (20 / 22,98) il raggio diventa 5,5.
+
+     NON È IL TONDO DI MATERIAL (`FiberManualRecord`, raggio 8): sarebbe più largo della capsula,
+     e la coppia non direbbe più 'un tasto contro due'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6.5,12A5.5,5.5,0,1,1,17.5,12A5.5,5.5,0,1,1,6.5,12Z" />
+</vector>

@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menyu ya kona</string>
     <string name="glass_radius">Kipenyo</string>
     <string name="glass_intensity">Ukali</string>
-    <string name="glass_tint">Rangi</string>
-    <string name="glass_light">Mwangaza</string>
+    <string name="glass_tint">Kiwango cha rangi</string>
+    <string name="glass_light">Mkengeuko</string>
+    <string name="glass_colour_light">Rangi angavu</string>
+    <string name="glass_colour_dark">Rangi nzito</string>
+    <string name="glass_default">Chaguo-msingi</string>
+    <string name="glass_reset">Weka upya</string>
+    <string name="corner_rest_pill">Kidonge kikiwa kimetulia</string>
+    <string name="corner_rest_round">Kitufe cha duara kikiwa kimetulia</string>
     <string name="settings_button_look">Mwonekano wa vitufe vikuu</string>
     <string name="settings_button_look_desc">Ujazo na athari za uwazi au ukungu kwa kitufe kinachoelea, kidonge cha aikoni na menyu ya chini.</string>
     <string name="pill_slide">Inayojificha</string>

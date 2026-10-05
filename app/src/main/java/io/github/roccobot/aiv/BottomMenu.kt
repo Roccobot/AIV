@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -26,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,10 +67,22 @@ internal val BAR_ROW = 56.dp
 internal const val BAR_SPREAD = 5
 
 /**
- * The margin of a bar with few keys from the side it leans on: the FAB's corner (16dp in the home
- * and in a grid), so the corner key falls under the folded pill's.
+ * How far the pills and their round key keep from the glass, sideways: three margins of the grid,
+ * 24dp, the same inset as the menus ([MENU_INSET]).
+ *
+ * ⚠️⚠️ **SINCE 4.25, HIS CHOICE A2** (after the preview of the two widths, note A on the 4.20
+ * round): the pill that spans the row stays shorter than the thumbnails, inside their edges, and the
+ * round key moves in by the same 8dp so it coincides with the open pill's edge. Until 4.20 both kept
+ * the FAB's 16dp, and an open pill ended neither on the thumbnails' edge nor on its own key's.
+ * ⚠️ **Sideways only**: from the bottom they keep the FAB's margin, and the FAB keeps its corner.
  */
-internal val BAR_SIDE = 16.dp
+internal val PILL_SIDE = MENU_INSET
+
+/**
+ * The margin of a bar with few keys from the side it leans on: the pills' ([PILL_SIDE]), so the
+ * corner key falls under the folded pill's.
+ */
+internal val BAR_SIDE = PILL_SIDE
 
 /**
  * How long the bar takes to come in or go: a third less than the pill's 160 ms (answer M1).
@@ -199,6 +213,12 @@ internal fun BottomMenu(
  * ⚠️ **While scrolling, the corner cell and the one above it turn into the jump** (answer M2, read
  * on the panel): they are where the folded pill's two keys were.
  * ⚠️ **It grows out of its corner**, in the bottom menu's time and curve: it is the same gesture.
+ * ⚠️⚠️ **SINCE 4.25 IT CLOSES AFTER EVERY TAP, AND IT IS HIS RULE** (`4.20-01`: *al contrario della
+ * pillola a scomparsa, che rimane aperta, il menu angolare deve chiudersi dopo ogni interazione*):
+ * open, it covers a thumbnail of the grid. In 4.20 a tap on the current view left it open.
+ * ⚠️⚠️ **AND AT REST IT IS A SINGLE ROUND KEY, unless he chose the pill** (`4.20-01`, R2-R4, and
+ * [PillLook.cornerRound]): while scrolling the key stretches upwards into the vertical pill of the
+ * two jumps, following the jump's own state, as the sliding pill stretches sideways.
  *
  * @param entries the cells in the right-handed reading order, without the ×.
  */
@@ -224,7 +244,7 @@ internal fun CornerMenu(
         label = "corner"
     )
     val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
-    val cells = entries.map { e -> e.copy(onTap = { if (!e.chosen) { open = false; e.onTap() } }) } + close
+    val cells = entries.map { e -> e.copy(onTap = { open = false; e.onTap() }) } + close
     val columns = if (cells.size > CORNER_SMALL) 3 else 2
     // ⚠️ The rows are filled from the top, so that the last one, with the ×, is always full: a
     // gap left by an odd count goes to the top row, away from the thumb.
@@ -249,6 +269,7 @@ internal fun CornerMenu(
                 onOpen = { open = true },
                 onJump = onJump,
                 mark = mark,
+                round = LocalPillLook.current.cornerRound,
                 modifier = Modifier.graphicsLayer { alpha = 1f - p }
             )
         }
@@ -380,6 +401,8 @@ private fun Bar(
  * con il solito meccanismo*).
  * ⚠️ **Where the screen has no jump only the mark is left**: an upper key that does nothing would
  * be a command that lies.
+ * ⚠️ **With [round] the upper key exists only while scrolling** (the corner menu's round rest,
+ * since 4.25): it grows out of the round key with the jump's state, and goes with it.
  */
 @Composable
 private fun FoldedPill(
@@ -392,18 +415,38 @@ private fun FoldedPill(
     onOpen: () -> Unit,
     onJump: (Int) -> Unit,
     mark: @Composable (String?) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    round: Boolean = false
 ) {
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
     val top = stringResource(R.string.jump_top)
     val bottom = stringResource(R.string.jump_bottom)
     Column(modifier = modifier.declaresFoot().pillFill(backdrop)) {
-        if (arm != null) {
+        if (arm != null && !round) {
             PillKey(
                 entry = PillEntry(Glyphs.BrowseTop, top, enabled = enabled) { onJump(-1) },
                 size = PILL_KEY
             )
+        } else if (arm != null && q > 0f) {
+            /*
+             * ⚠️ **The key keeps its size and the box around it grows**, anchored at the bottom:
+             * the glyph rises out of the round key instead of being squashed, as the sliding
+             * pill's keys come out from behind its round one.
+             */
+            Box(
+                contentAlignment = Alignment.BottomCenter,
+                modifier = Modifier
+                    .height(PILL_KEY * q)
+                    .clipToBounds()
+                    .graphicsLayer { alpha = q }
+            ) {
+                PillKey(
+                    entry = PillEntry(Glyphs.BrowseTop, top, enabled = enabled && armed) { onJump(-1) },
+                    size = PILL_KEY,
+                    modifier = Modifier.wrapContentHeight(align = Alignment.Bottom, unbounded = true)
+                )
+            }
         }
         val opener = PillEntry(Icons.Default.Close, fabLabel, enabled = enabled, onHold = onHold) { onOpen() }
         JumpKey(

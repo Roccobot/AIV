@@ -215,7 +215,11 @@ class PillolaTest {
     @Test
     fun `col FAB i gettoni della pillola non ci sono, e la pillola si sceglie`() {
         var scritte: Settings? = null
-        apriPagina(R.string.settings_page_controls, Settings(phonePill = PhonePill.EXTENDED)) { scritte = it }
+        // ⚠️ Il FAB si dichiara: dalla `4.25` di fabbrica c'è la pillola (nota D del giro della `4.20`).
+        apriPagina(
+            R.string.settings_page_controls,
+            Settings(mainControl = MainControl.FAB, phonePill = PhonePill.EXTENDED)
+        ) { scritte = it }
         banco.onNodeWithText(voce(R.string.settings_main_control)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_slide)).assertDoesNotExist()
         banco.onNodeWithText(voce(R.string.main_control_pill)).performClick()

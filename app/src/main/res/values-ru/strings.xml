@@ -131,8 +131,14 @@
     <string name="main_control_corner">Угловое меню</string>
     <string name="glass_radius">Радиус</string>
     <string name="glass_intensity">Интенсивность</string>
-    <string name="glass_tint">Цвет</string>
-    <string name="glass_light">Яркость</string>
+    <string name="glass_tint">Непрозрачность</string>
+    <string name="glass_light">Отклонение</string>
+    <string name="glass_colour_light">Светлый цвет</string>
+    <string name="glass_colour_dark">Тёмный цвет</string>
+    <string name="glass_default">По умолчанию</string>
+    <string name="glass_reset">Сбросить</string>
+    <string name="corner_rest_pill">Таблетка в покое</string>
+    <string name="corner_rest_round">Круглая кнопка в покое</string>
     <string name="settings_button_look">Вид главных кнопок</string>
     <string name="settings_button_look_desc">Заливка и эффекты прозрачности или размытия для плавающей кнопки, таблетки со значками и нижнего меню.</string>
     <string name="pill_slide">Скрываемая</string>

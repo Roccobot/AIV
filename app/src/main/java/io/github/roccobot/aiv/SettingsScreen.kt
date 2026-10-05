@@ -4,6 +4,11 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -3436,9 +3441,137 @@ private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) 
         GlassSlider(R.string.glass_radius, vivo.radius, GlassTune.RADIUS_RANGE, "dp", { vivo = vivo.copy(radius = it) }, scrivi)
         GlassSlider(R.string.glass_intensity, vivo.intensity, GlassTune.INTENSITY_RANGE, "%", { vivo = vivo.copy(intensity = it) }, scrivi)
         GlassSlider(R.string.glass_tint, vivo.tint, GlassTune.TINT_RANGE, "%", { vivo = vivo.copy(tint = it) }, scrivi)
-        GlassSlider(R.string.glass_light, vivo.light, GlassTune.LIGHT_RANGE, "", { vivo = vivo.copy(light = it) }, scrivi)
+        GlassSlider(R.string.glass_light, vivo.shift, GlassTune.SHIFT_RANGE, "%", { vivo = vivo.copy(shift = it) }, scrivi)
+        /*
+         * ⚠️⚠️ **I DUE COLORI, DALLA `4.25`, ED È LA SUA RISPOSTA B3** (*due colori memorizzabili
+         * 'Colore chiaro' e 'Colore scuro' da color picker, con ritorno al predefinito*): uno per
+         * tema, e il predefinito è l'accento che il vetro porta in quel tema ([pillAccent]).
+         * L'anteprima mostra quello del tema in cui si è.
+         */
+        GlassColourRow(R.string.glass_colour_light, light = true, tune = settings.glass) {
+            onChange(settings.copy(glass = settings.glass.withColour(true, it)))
+        }
+        GlassColourRow(R.string.glass_colour_dark, light = false, tune = settings.glass) {
+            onChange(settings.copy(glass = settings.glass.withColour(false, it)))
+        }
+        /*
+         * ⚠️ **'Ripristina' riporta tutto ai valori di fabbrica, colori compresi**: chi aveva mosso i
+         * cursori nella `4.20` non vede i valori nuovi della `4.25`, perché valgono dove l'archivio
+         * tace, e questo è il modo di ritrovarli.
+         */
+        TextButton(
+            onClick = { onChange(settings.copy(glass = GlassTune())) },
+            enabled = settings.glass != GlassTune(),
+            modifier = Modifier.padding(top = 4.dp)
+        ) { Text(stringResource(R.string.glass_reset)) }
     }
 }
+
+/**
+ * Uno dei due colori del traslucido: il nome, e un tondo col colore in vigore in quel tema.
+ *
+ * ⚠️ **Il tocco apre il selettore** ([GlassColourDialog]), che scrive quando si tocca 'Applica';
+ * 'Predefinito' rimette l'accento, cioè toglie la scelta dall'archivio.
+ */
+@Composable
+private fun GlassColourRow(label: Int, light: Boolean, tune: GlassTune, onPick: (Int?) -> Unit) {
+    val name = stringResource(label)
+    val fallback = aivAccent(!light)
+    val current = tune.colourFor(light)?.let { Color(it) } ?: fallback
+    var picking by remember { mutableStateOf(false) }
+    Searchable(name) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+                .clickable(role = Role.Button, onClickLabel = name) { picking = true }
+                .padding(vertical = 8.dp)
+        ) {
+            Text(text = name, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .size(SWATCH)
+                    .background(current, CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+            )
+        }
+    }
+    if (picking) {
+        GlassColourDialog(
+            title = name,
+            initial = current,
+            onPick = { picking = false; onPick(it) },
+            onDismiss = { picking = false }
+        )
+    }
+}
+
+/**
+ * Il selettore di un colore del traslucido: tonalità, saturazione e luminanza, col colore che ne
+ * risulta in cima.
+ *
+ * ⚠️ **HSL e non una ruota**: tre cursori con le parole del modulo HSL dell'editor completo, che
+ * le ventotto lingue hanno già, e un cursore si muove a un'unità per volta, una ruota no.
+ * ⚠️ **Si chiude toccando fuori, come 'Annulla'**: non raccoglie un testo scritto, quindi non è una
+ * modale vera (`Rules.md`, § 'Che cosa fa il tocco FUORI da una finestra').
+ *
+ * @param onPick il colore scelto in ARGB, o `null` per tornare all'accento ('Predefinito').
+ */
+@Composable
+private fun GlassColourDialog(title: String, initial: Color, onPick: (Int?) -> Unit, onDismiss: () -> Unit) {
+    val hsl = remember(initial) { FloatArray(3).also { ColorUtils.colorToHSL(initial.toArgb(), it) } }
+    var hue by remember(initial) { mutableFloatStateOf(hsl[0]) }
+    var sat by remember(initial) { mutableFloatStateOf(hsl[1]) }
+    var lum by remember(initial) { mutableFloatStateOf(hsl[2]) }
+    val colour = Color(ColorUtils.HSLToColor(floatArrayOf(hue, sat, lum)))
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(onDismiss),
+        properties = loweredWindow(onDismiss),
+        title = { Text(title) },
+        text = {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(SWATCH_TALL)
+                        .background(colour, RoundedCornerShape(12.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+                )
+                HslSlider(R.string.look_hue, hue, 0f..360f, "°") { hue = it }
+                HslSlider(R.string.look_saturation, sat * 100f, 0f..100f, "%") { sat = it / 100f }
+                HslSlider(R.string.look_lum, lum * 100f, 0f..100f, "%") { lum = it / 100f }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onPick(colour.toArgb()) }) { Text(stringResource(R.string.editor_apply)) }
+        },
+        dismissButton = {
+            Row {
+                TextButton(onClick = { onPick(null) }) { Text(stringResource(R.string.glass_default)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            }
+        }
+    )
+}
+
+/** Un cursore del selettore: il nome col valore intero accanto, e il cursore sotto. */
+@Composable
+private fun HslSlider(label: Int, value: Float, range: ClosedFloatingPointRange<Float>, unit: String, onMove: (Float) -> Unit) {
+    Text(
+        text = "${stringResource(label)}   ${value.roundToInt()}$unit",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 12.dp)
+    )
+    Slider(value = value, onValueChange = onMove, valueRange = range, modifier = Modifier.fillMaxWidth())
+}
+
+/** Il tondo che mostra un colore del traslucido nella sua riga. */
+private val SWATCH = 28.dp
+
+/** Quanto è alto il colore risultante in cima al selettore. */
+private val SWATCH_TALL = 48.dp
 
 /**
  * Uno dei quattro cursori del traslucido: il nome col valore accanto, e il cursore sotto.
@@ -3491,7 +3624,7 @@ private fun GlassPreview(tune: GlassTune) {
             .padding(top = 12.dp)
             .fillMaxWidth()
             .height(PREVIEW_TALL)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(PREVIEW_ROUND))
             // ⚠️ Muta per il lettore di schermo: è un disegno, e le icone finte non sono comandi.
             .clearAndSetSemantics { }
     ) {
@@ -3519,8 +3652,24 @@ private fun GlassPreview(tune: GlassTune) {
                 }
             }
         }
+        /*
+         * ⚠️⚠️ **IL BORDO D'ACCENTO, DALLA `4.25`, ED È SUO** (punto B del giro della `4.20`, e la
+         * misura nella risposta: *5dp interni all'immagine, in sovrapposizione*): copre i bordi
+         * seghettati delle righe contro lo stondamento, ed è disegnato dopo, cioè sopra.
+         */
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .border(PREVIEW_EDGE, aivAccent(LocalAivLight.current), RoundedCornerShape(PREVIEW_ROUND))
+        )
     }
 }
+
+/** How thick the accent border inside the preview is: his 5dp. */
+private val PREVIEW_EDGE = 5.dp
+
+/** The preview's corner radius, shared by its clip and its border. */
+private val PREVIEW_ROUND = 16.dp
 
 /** How tall the translucent look's preview is: enough for the pill and some stripes around it. */
 private val PREVIEW_TALL = 96.dp

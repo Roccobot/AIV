@@ -201,6 +201,11 @@ fun FolderScreen(
     onSearch: () -> Unit,
     onBin: () -> Unit,
     /**
+     * Il commutatore del menu angolare, dalla `4.25`: passa il riposo dal tondo alla pillola
+     * verticale e ritorno. Vedi `Settings.cornerRound`.
+     */
+    onCornerRest: () -> Unit,
+    /**
      * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
      *
      * ⚠️ **La stessa impostazione delle preferenze e non una seconda**: la scorciatoia è una
@@ -712,6 +717,7 @@ fun FolderScreen(
                 onSettings = onSettings,
                 onSearch = onSearch,
                 onBin = onBin,
+                onCornerRest = onCornerRest,
                 hiddenCount = if (selection.mode == FolderMode.EXCLUDED) selection.excluded.size else 0,
                 peeking = peeking,
                 onPeek = onPeek,
@@ -740,7 +746,12 @@ fun FolderScreen(
                 modifier = Modifier.align(
                     if (LocalPillLook.current.bar) Alignment.BottomCenter else fabSide()
                 ),
-                corner = Modifier.safeDrawingPadding().padding(HUB_PAD)
+                // ⚠️ Le pillole e il loro tondo stanno a [PILL_SIDE] dal vetro di fianco, dalla
+                // `4.25` (scelta A2); il FAB resta a [HUB_PAD].
+                corner = Modifier.safeDrawingPadding().padding(
+                    horizontal = if (LocalPillLook.current.mode != PhonePill.OFF) PILL_SIDE else HUB_PAD,
+                    vertical = HUB_PAD
+                )
             )
         }
 
@@ -783,7 +794,10 @@ fun FolderScreen(
                 // ⚠️ Due rientri e non tre come nella griglia delle foto: qui il FAB vive
                 // dentro il rientro di sistema più il suo margine, e basta. Il perché sta in
                 // [HintVeil], sul parametro.
-                inset = Modifier.safeDrawingPadding().padding(HUB_PAD),
+                inset = Modifier.safeDrawingPadding().padding(
+                    horizontal = if (pill != PhonePill.OFF) PILL_SIDE else HUB_PAD,
+                    vertical = HUB_PAD
+                ),
                 onDone = hintDone
             ) {
                 TapHoldFab(
@@ -1114,6 +1128,8 @@ private fun Hub(
      * alla sola pillola in cui si ripiega. Vedi `corner` in [PhonePillBar].
      */
     corner: Modifier = Modifier,
+    /** Il commutatore del riposo del menu angolare. Vedi [hubEntries]. */
+    onCornerRest: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
@@ -1155,7 +1171,9 @@ private fun Hub(
         onNewFolder = onNewFolder,
         onBin = onBin,
         onSettings = onSettings,
-        steady = true
+        steady = true,
+        onCornerRest = onCornerRest,
+        cornerRound = LocalPillLook.current.cornerRound
     ) else null
 
     /*
@@ -1356,16 +1374,39 @@ private fun hubEntries(
     onBin: () -> Unit,
     onSettings: () -> Unit,
     /**
-     * Le voci del menu angolare invece di quelle del FAB, dalla `4.20` (decisioni C1 e C2): le tre
-     * viste sempre, con quella in cui si è segnata come scelta, e 'Mostra nascoste' sempre al suo
-     * posto, spenta quando non ce n'è una e sostituita da 'Seleziona immagine' senza il permesso.
-     * Così le caselle sono nove in ogni caso, e ogni icona resta nella sua casella.
-     * ⚠️ **Rovescia, nel solo menu angolare, la regola della `0.84` qui sotto** (*no problem, va
-     * benissimo*): nel menu del FAB e nelle pillole il menu mostra ancora le sole due viste
-     * diverse da quella corrente.
+     * Le voci del menu angolare invece di quelle del FAB, dalla `4.20` (decisione C2): 'Mostra
+     * nascoste' sempre al suo posto, spenta quando non ce n'è una e sostituita da 'Seleziona
+     * immagine' senza il permesso. Così le caselle sono nove in ogni caso, e ogni icona resta nella
+     * sua casella.
+     * ⚠️ **Dalla `4.25` le viste sono di nuovo le due diverse da quella corrente**, come nel menu del
+     * FAB: la terza casella della prima riga è il commutatore ([onCornerRest]). Nella `4.20` c'erano
+     * tutte e tre, con quella corrente segnata da un disco.
      */
-    steady: Boolean = false
+    steady: Boolean = false,
+    /**
+     * Il commutatore del riposo del menu angolare, che dalla `4.25` apre la prima riga (giro della
+     * `4.20`, `4.20-01`: *una nona icona fa da commutatore ... non si vedono più tutte e tre le viste
+     * con la selezionata*). `null` fuori dal menu angolare.
+     */
+    onCornerRest: (() -> Unit)? = null,
+    /** Come riposa adesso il menu angolare: decide il glifo e l'etichetta del commutatore. */
+    cornerRound: Boolean = true
 ): List<PillEntry> = buildList {
+    /*
+     * ⚠️⚠️ **DALLA `4.25` NEL MENU ANGOLARE LA PRIMA RIGA È IL COMMUTATORE E LE DUE ALTRE VISTE**: la
+     * vista in cui si è non c'è più, e la sua casella la prende il commutatore. Il glifo mostra il
+     * riposo che il tocco mette (la capsula col tondo attivo, il tondo con la pillola attiva), e
+     * l'etichetta nomina quello che il tocco fa, come ogni voce di un menu.
+     */
+    if (onCornerRest != null) {
+        add(
+            PillEntry(
+                icon = if (cornerRound) Glyphs.RestPill else Glyphs.RestRound,
+                label = stringResource(if (cornerRound) R.string.corner_rest_pill else R.string.corner_rest_round),
+                group = 0
+            ) { onCornerRest() }
+        )
+    }
     // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
     // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
     // è una richiesta, non un indicatore di stato, quindi in griglia si legge
@@ -1383,8 +1424,8 @@ private fun hubEntries(
     // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
     // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
     // vorrebbe dire ribattezzare una cosa che ha già un nome.
-    FolderView.entries.filter { steady || it != view }.forEach { other ->
-        add(PillEntry(other.glyph, stringResource(other.label()), group = 0, chosen = steady && other == view) { onView(other) })
+    FolderView.entries.filter { it != view }.forEach { other ->
+        add(PillEntry(other.glyph, stringResource(other.label()), group = 0) { onView(other) })
     }
 
     /*

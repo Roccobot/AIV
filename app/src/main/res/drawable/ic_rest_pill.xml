@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il commutatore del menu angolare quando a riposo c'è il tondo: tocca e il riposo diventa la
+     pillola verticale di due tasti, che è quello che il glifo mostra.
+
+     DISEGNO DELL'UTENTE, dalla 4.25 (`pill_12.svg`, giro della 4.20, `4.20-01`: *icona
+     `pill_12.svg` col tondo attivo, `round_11.svg` con la pillola attiva*), UNIFORMATO ALLE
+     ALTRE ICONE COME HA CHIESTO (*sono solo una bozza: uniformale alle dimensioni di tutte le
+     altre*). Nella bozza la capsula era alta 22,98 unità su 24 e larga 12,64, cioè senza il
+     margine di 2 unità che le icone di Material e di casa tengono dal bordo della tela. Qui è
+     alta 20 (da 2 a 22) e larga 11, cioè la bozza scalata di 20 / 22,98 intorno al centro: la
+     proporzione resta la sua.
+
+     LO STESSO FATTORE VALE PER IL TONDO GEMELLO (`ic_rest_round.xml`), ed è la ragione per cui
+     non si è preso il tondo di Material: nella bozza il diametro del tondo è la larghezza della
+     capsula, e la coppia si legge proprio così (un tasto o due tasti uno sopra l'altro).
+
+     NESSUNO SPIGOLO DA ARROTONDARE: due semicerchi raccordati da due rette, tangenti fra loro.
+     `fillType` dichiarato per la regola di `Rules.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6.5,7.5A5.5,5.5,0,0,1,17.5,7.5L17.5,16.5A5.5,5.5,0,0,1,6.5,16.5L6.5,7.5Z" />
+</vector>

@@ -142,7 +142,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.VIEW, PrefType.LONG, "start-folder")
     area(BackupArea.VIEW, PrefType.INT, "folder-columns")
     area(BackupArea.VIEW, PrefType.SET, "fact-off")
-    area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels")
+    area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels", "corner-round")
     area(
         BackupArea.BUTTONS, PrefType.STRING,
         "hand", "menu-order", "pick-order", "turn-order", "step-order", "mod-order", "last-mark",
@@ -161,7 +161,10 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
         BackupArea.EDITOR, PrefType.INT,
         "mark-size-pct", "mark-air-tenths", "mark-air", "mark-alpha", "size-value"
     )
-    area(BackupArea.BUTTONS, PrefType.INT, "glass-radius", "glass-intensity", "glass-tint", "glass-light")
+    area(
+        BackupArea.BUTTONS, PrefType.INT,
+        "glass-radius", "glass-intensity", "glass-tint", "glass-shift", "glass-colour-light", "glass-colour-dark"
+    )
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
     area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative", "hidden-only", "included-relative")
@@ -212,6 +215,14 @@ internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
         type = PrefType.BOOLEAN,
         into = PREF_KEYS.first { it.name == "main-control" },
         convert = { acceso -> if (acceso == true) MainControl.PILL.token else MainControl.FAB.token }
+    ),
+    // ⚠️ La 'Luminosità' col segno della `4.20`: dalla `4.25` lo 'Scostamento' non ha segno, e
+    // scurisce o schiarisce secondo il tema (risposta C2). Il perché vive su `GlassTune.shift`.
+    "glass-light" to RetiredKey(
+        area = BackupArea.BUTTONS,
+        type = PrefType.INT,
+        into = PREF_KEYS.first { it.name == "glass-shift" },
+        convert = { luce -> kotlin.math.abs((luce as Number).toInt()) }
     )
 )
 

@@ -131,8 +131,14 @@
     <string name="main_control_corner">コーナーメニュー</string>
     <string name="glass_radius">半径</string>
     <string name="glass_intensity">強さ</string>
-    <string name="glass_tint">色</string>
-    <string name="glass_light">明るさ</string>
+    <string name="glass_tint">不透明度</string>
+    <string name="glass_light">オフセット</string>
+    <string name="glass_colour_light">明るい色</string>
+    <string name="glass_colour_dark">暗い色</string>
+    <string name="glass_default">デフォルト</string>
+    <string name="glass_reset">リセット</string>
+    <string name="corner_rest_pill">待機時はピル</string>
+    <string name="corner_rest_round">待機時は丸ボタン</string>
     <string name="settings_button_look">メインボタンの見た目</string>
     <string name="settings_button_look_desc">フローティングボタン、アイコンのピル、下部メニューに適用される塗りと透明・ぼかしの効果です。</string>
     <string name="pill_slide">格納式</string>

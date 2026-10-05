@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menu narożne</string>
     <string name="glass_radius">Promień</string>
     <string name="glass_intensity">Intensywność</string>
-    <string name="glass_tint">Kolor</string>
-    <string name="glass_light">Jasność</string>
+    <string name="glass_tint">Krycie</string>
+    <string name="glass_light">Odchylenie</string>
+    <string name="glass_colour_light">Jasny kolor</string>
+    <string name="glass_colour_dark">Ciemny kolor</string>
+    <string name="glass_default">Domyślny</string>
+    <string name="glass_reset">Przywróć</string>
+    <string name="corner_rest_pill">Pigułka w spoczynku</string>
+    <string name="corner_rest_round">Okrągły przycisk w spoczynku</string>
     <string name="settings_button_look">Wygląd głównych przycisków</string>
     <string name="settings_button_look_desc">Wypełnienie oraz efekty przezroczystości lub rozmycia dla przycisku pływającego, pigułki z ikonami i menu dolnego.</string>
     <string name="pill_slide">Chowana</string>

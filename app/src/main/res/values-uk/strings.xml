@@ -131,8 +131,14 @@
     <string name="main_control_corner">Кутове меню</string>
     <string name="glass_radius">Радіус</string>
     <string name="glass_intensity">Інтенсивність</string>
-    <string name="glass_tint">Колір</string>
-    <string name="glass_light">Яскравість</string>
+    <string name="glass_tint">Непрозорість</string>
+    <string name="glass_light">Відхилення</string>
+    <string name="glass_colour_light">Світлий колір</string>
+    <string name="glass_colour_dark">Темний колір</string>
+    <string name="glass_default">Типово</string>
+    <string name="glass_reset">Скинути</string>
+    <string name="corner_rest_pill">Пігулка в спокої</string>
+    <string name="corner_rest_round">Кругла кнопка в спокої</string>
     <string name="settings_button_look">Вигляд головних кнопок</string>
     <string name="settings_button_look_desc">Заливка та ефекти прозорості чи розмиття для плаваючої кнопки, пігулки зі значками та нижнього меню.</string>
     <string name="pill_slide">Згортна</string>

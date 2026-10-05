@@ -131,8 +131,14 @@
     <string name="main_control_corner">角落菜单</string>
     <string name="glass_radius">半径</string>
     <string name="glass_intensity">强度</string>
-    <string name="glass_tint">颜色</string>
-    <string name="glass_light">亮度</string>
+    <string name="glass_tint">不透明度</string>
+    <string name="glass_light">偏移</string>
+    <string name="glass_colour_light">浅色</string>
+    <string name="glass_colour_dark">深色</string>
+    <string name="glass_default">默认</string>
+    <string name="glass_reset">重置</string>
+    <string name="corner_rest_pill">静止时为胶囊</string>
+    <string name="corner_rest_round">静止时为圆形按钮</string>
     <string name="settings_button_look">主要按钮外观</string>
     <string name="settings_button_look_desc">应用于悬浮按钮、图标胶囊和底部菜单的填充及透明或模糊效果。</string>
     <string name="pill_slide">收起式</string>
