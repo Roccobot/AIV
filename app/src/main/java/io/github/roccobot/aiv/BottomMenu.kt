@@ -27,10 +27,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -77,6 +82,19 @@ internal const val BAR_SPREAD = 5
  * ⚠️ **Sideways only**: from the bottom they keep the FAB's margin, and the FAB keeps its corner.
  */
 internal val PILL_SIDE = MENU_INSET
+
+/**
+ * Where the pills and their round key sit, in the home and in every grid: the system's insets,
+ * [PILL_SIDE] sideways and the FAB's 16dp ([HUB_PAD]) from the bottom.
+ *
+ * ⚠️⚠️ **ONE PLACE FOR BOTH SCREENS, SINCE 4.30, AND IT IS HIS NOTE** (B on the 4.25 round: *tra home
+ * e cartelle il tondo col glifo salta da una posizione all'altra ... Vanno unificate posizioni e
+ * dimensioni del tondo*): until 4.25 the home wrote 16dp from the bottom and a grid its own 12dp
+ * plus 8, so the key jumped by 4dp between the two.
+ */
+internal fun Modifier.pillCorner(): Modifier = composed {
+    windowInsetsPadding(steadyDrawing()).padding(horizontal = PILL_SIDE, vertical = HUB_PAD)
+}
 
 /**
  * The margin of a bar with few keys from the side it leans on: the pills' ([PILL_SIDE]), so the
@@ -245,6 +263,12 @@ internal fun CornerMenu(
     )
     val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
     val cells = entries.map { e -> e.copy(onTap = { open = false; e.onTap() }) } + close
+    var panel by remember { mutableStateOf(Rect.Zero) }
+    val watcher = remember { Any() }
+    DisposableEffect(open) {
+        if (open) OutsideTouch.on(watcher) { at -> if (!panel.contains(at)) open = false }
+        onDispose { OutsideTouch.off(watcher) }
+    }
     val columns = if (cells.size > CORNER_SMALL) 3 else 2
     // ⚠️ The rows are filled from the top, so that the last one, with the ×, is always full: a
     // gap left by an odd count goes to the top row, away from the thumb.
@@ -283,6 +307,7 @@ internal fun CornerMenu(
                         transformOrigin = TransformOrigin(if (atEnd) 1f else 0f, 1f)
                     }
                     .declaresFoot()
+                    .onGloballyPositioned { panel = it.boundsInRoot() }
                     .buttonFill(backdrop, pillAccent(), RoundedCornerShape(PILL_KEY / 2))
             ) {
                 rows.forEachIndexed { r, row ->
@@ -307,6 +332,31 @@ internal fun CornerMenu(
             }
         }
     }
+}
+
+/**
+ * Who wants to know about every press on the app, wherever it lands: the open Start menu, which
+ * closes when the finger goes down outside it.
+ *
+ * ⚠️⚠️ **SINCE 4.30, HIS NOTE** (on `4.25-02`: *QUALSIASI tocco fuori, anche un trascinamento sulla
+ * griglia ad esempio, o un tocco in un'area vuota*): until 4.25 only its own cells closed it.
+ * ⚠️ **The root watches and does not consume**, so the drag that closes the menu also scrolls the
+ * grid. And the watcher is in the tree only while somebody listens ([active]): a node over the
+ * whole screen exists only when it is needed (`Rules.md`, § 'Che cosa fa il tocco FUORI da una
+ * finestra').
+ */
+internal object OutsideTouch {
+    private val listeners = mutableStateMapOf<Any, (Offset) -> Unit>()
+
+    /** Whether somebody is listening, so that [AivTheme] puts the watcher in the tree. */
+    val active: Boolean get() = listeners.isNotEmpty()
+
+    fun on(who: Any, listener: (Offset) -> Unit) { listeners[who] = listener }
+
+    fun off(who: Any) { listeners.remove(who) }
+
+    /** A press at [at], in the root's coordinates. */
+    fun press(at: Offset) { listeners.values.toList().forEach { it(at) } }
 }
 
 /** Up to how many cells, the × included, the corner menu is a 2x2 (decision C3). */

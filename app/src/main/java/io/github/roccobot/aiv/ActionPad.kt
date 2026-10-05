@@ -1552,6 +1552,12 @@ val FAB_SIZE = 40.dp
  */
 val HUB_PAD = 16.dp
 
+/** The FAB's glyph on the translucent look, on the light theme: his `#ecfff7`. */
+private val FAB_GLASS_INK_LIGHT = Color(0xFFECFFF7)
+
+/** The FAB's glyph on the translucent look, on the dark theme: his `#004247`. */
+private val FAB_GLASS_INK_DARK = Color(0xFF004247)
+
 /**
  * Quanto arriva in su il FAB quadrato delle cartelle, misurato dal fondo dello schermo:
  * il suo margine ([HUB_PAD]) più la sua altezza.
@@ -1773,7 +1779,17 @@ fun TapHoldFab(
      */
     val light = LocalAivLight.current
     val fondo = lerp(container, aivAccent(light), tinta.value)
-    val segno = lerp(ink, aivOnAccent(light), tinta.value)
+    /*
+     * ⚠️⚠️ **COL TRASLUCIDO IL GLIFO HA UN COLORE FISSO, DALLA `4.30`, ED È SUO** (nota F del giro
+     * della `4.25`, coi due valori corretti in chat: *quelli corretti sono #ecfff7 per il chiaro e
+     * #004247 per lo scuro*): sul vetro l'inchiostro dell'accento non regge il contrasto. Fisso
+     * vuol dire anche da premuto.
+     * ⚠️ **Solo per il FAB vero, quello che ha uno sfondo da sfocare** ([backdrop]): le copie che
+     * un velo d'aiuto illumina portano il loro arancione.
+     */
+    val glassInk = backdrop != null && LocalPillLook.current.fill == PillFill.GLASS
+    val segno = if (glassInk) (if (light) FAB_GLASS_INK_LIGHT else FAB_GLASS_INK_DARK)
+    else lerp(ink, aivOnAccent(light), tinta.value)
     /*
      * ⚠️ **I due simboli stanno uno sopra l'altro in una scatola sola**, e la scatola si misura
      * sul più grande: così il tasto non si rimisura mentre la dissolvenza va, e il glifo che sta
@@ -2022,7 +2038,11 @@ private fun untouchable() {
  * principale con il glifo dell'app ... Il glifo è da centrare OTTICAMENTE*). I tre puntini non
  * sono spariti: sono scesi sul FAB del cestino, dove c'era un disco ancora più generico.
  *
- * ⚠️⚠️ **CENTRATO OTTICAMENTE VUOL DIRE CHE IL SUO BARICENTRO STA AL CENTRO, e i due numeri
+ * ⚠️⚠️ **DALLA `4.30` IN ORIZZONTALE NON VALE PIÙ IL BARICENTRO** (nota C del giro della `4.25`:
+ * *il FAB ha il glifo fuori centro in orizzontale ... è il triangolo a dover essere centrato, e il
+ * tondo di conseguenza*): lo spostamento a destra del 5% qui sotto è caduto, e resta quello
+ * verticale. Quello che segue racconta la misura di allora.
+ * ⚠️⚠️ **CENTRATO OTTICAMENTE VOLEVA DIRE CHE IL SUO BARICENTRO STA AL CENTRO, e i due numeri
  * sono MISURATI e non scelti**: reso il disegno in Chromium a 700 x 600 e pesato l'inchiostro
  * pixel per pixel, il baricentro cade al 5,0% della larghezza a **sinistra** del centro del
  * riquadro e al 9,4% dell'altezza **sotto** di lui. Lo spostamento è quello, cambiato di segno.
@@ -2045,7 +2065,10 @@ internal fun Marchio(descrizione: String?) {
         contentDescription = descrizione,
         modifier = Modifier
             .offset(
-                x = if (tondo) 0.dp else largo * MARK_DX,
+                // ⚠️ In orizzontale è la A a stare al centro, nel tondo e dalla `4.30` anche nel
+                // quadrato (nota C del giro della `4.25`: *è il triangolo a dover essere
+                // centrato, e il tondo di conseguenza*): la A occupa tutta la larghezza della tela.
+                x = 0.dp,
                 y = if (tondo) alto * MARK_DY_ROUND - MARK_LIFT_ROUND else alto * MARK_DY
             )
             .size(width = largo, height = alto)
@@ -2102,9 +2125,4 @@ private val MARK_LIFT_ROUND = 1.5.dp
  */
 private val MARK_WIDE = 24.dp
 
-/** L'altezza che segue dalla forma del disegno, 70 x 60. */
-private val MARK_HIGH = MARK_WIDE * 60f / 70f
-
-/** Lo spostamento ottico, in frazione del glifo: vedi la misura in testa a [Marchio]. */
-private const val MARK_DX = 0.050f
 private const val MARK_DY = -0.094f

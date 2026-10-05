@@ -123,12 +123,12 @@
     <string name="settings_hand">Preferowana pozycja przycisków</string>
     <string name="settings_hand_desc">Preferowana strona dla głównych przycisków przy obsłudze jedną ręką, dla praworęcznych i leworęcznych. Określa położenie pływającego przycisku akcji (\'FAB\'), części przycisków nawigacji i fragmentów interfejsu edytora.</string>
     <string name="settings_main_control">Główny element sterowania</string>
-    <string name="settings_main_control_desc">Wybierz, jak chcesz obsługiwać aplikację, gdy trzymasz telefon pionowo: przycisk pływający (\'FAB\') z menu, pigułka z ikonami, menu dolne albo menu narożne.</string>
+    <string name="settings_main_control_desc">Wybierz, jak chcesz obsługiwać aplikację, gdy trzymasz telefon pionowo: przycisk pływający (\'FAB\') z menu, pigułka z ikonami, menu albo menu \'Start\'.</string>
     <string name="main_control_fab">Przycisk pływający</string>
     <string name="main_control_pill">Pigułka z ikonami</string>
-    <string name="main_control_bar">Menu dolne</string>
+    <string name="main_control_bar">Menu</string>
     <string name="bar_fixed">Stałe</string>
-    <string name="main_control_corner">Menu narożne</string>
+    <string name="main_control_corner">Menu \'Start\'</string>
     <string name="glass_radius">Promień</string>
     <string name="glass_intensity">Intensywność</string>
     <string name="glass_tint">Krycie</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">Pigułka w spoczynku</string>
     <string name="corner_rest_round">Okrągły przycisk w spoczynku</string>
     <string name="settings_button_look">Wygląd głównych przycisków</string>
-    <string name="settings_button_look_desc">Wypełnienie oraz efekty przezroczystości lub rozmycia dla przycisku pływającego, pigułki z ikonami i menu dolnego.</string>
+    <string name="settings_button_look_desc">Wypełnienie oraz efekty przezroczystości lub rozmycia dla przycisku pływającego, pigułki z ikonami i menu.</string>
     <string name="pill_slide">Chowana</string>
     <string name="pill_extended">Rozwinięta</string>
     <string name="pill_solid">Pełny</string>

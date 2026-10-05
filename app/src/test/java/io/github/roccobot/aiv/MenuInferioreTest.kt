@@ -16,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -472,6 +473,63 @@ class MenuInferioreTest {
         banco.waitForIdle()
         assertTrue("'Applica' non ha scritto il colore", scritte?.glass?.lightColour != null)
         assertEquals("'Applica' ha toccato il colore scuro", null, scritte?.glass?.darkColour)
+    }
+
+    /**
+     * **The open Start menu closes with any touch outside it, a drag on the grid too** (his note on
+     * `4.25-02`: *QUALSIASI tocco fuori, anche un trascinamento sulla griglia*).
+     */
+    @Test
+    fun `il menu Start si chiude trascinando sulla griglia`() {
+        banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true)) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.pick_actions)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il menu Start non si è aperto", 1, quanti(R.string.hub_settings))
+        scorri()
+        banco.waitForIdle()
+        assertEquals("Il trascinamento sulla griglia non ha chiuso il menu Start", 0, quanti(R.string.hub_settings))
+    }
+
+    /**
+     * **The round key is 44dp and sits in the same corner in the home and in a folder** (note B on
+     * the 4.25 round: *tra home e cartelle il tondo col glifo salta da una posizione all'altra ...
+     * addirittura cambia dimensione*).
+     *
+     * ⚠️ **A narrow phone**: on a wide one eight keys of 44dp fit the row, and the key did not
+     * shrink even with the defect.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class], qualifiers = "w340dp-h740dp")
+    fun `il tondo ha la stessa misura e lo stesso angolo in home e in cartella`() {
+        var casa by mutableStateOf(true)
+        banco.setContent { if (casa) Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) else Griglia(PillLook(PhonePill.SLIDE)) }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        val inCasa = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
+        casa = false
+        banco.waitForIdle()
+        val inCartella = banco.onNodeWithContentDescription(voce(R.string.pick_actions)).fetchSemanticsNode().boundsInRoot
+        assertEquals("Il tondo della home non è largo 44dp", 44f * dp, inCasa.width, 0.5f * dp)
+        assertEquals("Il tondo della cartella non è largo 44dp", 44f * dp, inCartella.width, 0.5f * dp)
+        assertEquals("Il tondo salta in verticale fra home e cartella", inCasa.bottom, inCartella.bottom, 0.5f * dp)
+        assertEquals("Il tondo salta in orizzontale fra home e cartella", inCasa.right, inCartella.right, 0.5f * dp)
+    }
+
+    /**
+     * **On the square FAB the A is centred sideways, and the sun disc follows it** (note C on the
+     * 4.25 round: *è il triangolo a dover essere centrato, e il tondo di conseguenza*). The A spans
+     * the whole width of the mark's canvas, so the mark's centre is the A's.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `nel FAB quadrato il triangolo del marchio e centrato`() {
+        banco.setContent { Home(PillLook(), Hand.RIGHT) }
+        banco.waitForIdle()
+        val fab = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
+        val segno = banco.onAllNodesWithTag(MARK_TAG, useUnmergedTree = true).fetchSemanticsNodes().first().boundsInRoot
+        val dp = app.resources.displayMetrics.density
+        assertEquals("Il marchio è fuori centro in orizzontale nel FAB", fab.center.x, segno.center.x, 0.25f * dp)
     }
 
     private fun quanti(id: Int): Int =

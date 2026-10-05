@@ -123,12 +123,12 @@
     <string name="settings_hand">ボタンの優先位置</string>
     <string name="settings_hand_desc">片手で使うときにメインのボタンを置く側です。右利きにも左利きにも合わせられます。フローティング操作ボタン（\'FAB\'）や一部のナビゲーションボタン、エディターの UI の一部の位置を決めます。</string>
     <string name="settings_main_control">メイン操作</string>
-    <string name="settings_main_control_desc">スマートフォンを縦に持ったときの操作方法を選びます：メニュー付きのフローティングボタン（\'FAB\'）、アイコンのピル、下部メニュー、またはコーナーメニューです。</string>
+    <string name="settings_main_control_desc">スマートフォンを縦に持ったときの操作方法を選びます：メニュー付きのフローティングボタン（\'FAB\'）、アイコンのピル、メニュー、または\'スタート\'メニューです。</string>
     <string name="main_control_fab">フローティングボタン</string>
     <string name="main_control_pill">アイコンのピル</string>
-    <string name="main_control_bar">下部メニュー</string>
+    <string name="main_control_bar">メニュー</string>
     <string name="bar_fixed">固定</string>
-    <string name="main_control_corner">コーナーメニュー</string>
+    <string name="main_control_corner">\'スタート\'メニュー</string>
     <string name="glass_radius">半径</string>
     <string name="glass_intensity">強さ</string>
     <string name="glass_tint">不透明度</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">待機時はピル</string>
     <string name="corner_rest_round">待機時は丸ボタン</string>
     <string name="settings_button_look">メインボタンの見た目</string>
-    <string name="settings_button_look_desc">フローティングボタン、アイコンのピル、下部メニューに適用される塗りと透明・ぼかしの効果です。</string>
+    <string name="settings_button_look_desc">フローティングボタン、アイコンのピル、メニューに適用される塗りと透明・ぼかしの効果です。</string>
     <string name="pill_slide">格納式</string>
     <string name="pill_extended">展開</string>
     <string name="pill_solid">不透明</string>

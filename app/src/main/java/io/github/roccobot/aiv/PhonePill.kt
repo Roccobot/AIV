@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -319,6 +320,7 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
              * the two themes.
              */
             val wash = (if (light) Color.Black else Color.White).copy(alpha = tune.shift / 100f)
+            val ground = MaterialTheme.colorScheme.background
             val blurred = rememberGraphicsLayer()
             var me by remember { mutableStateOf(Offset.Zero) }
             this
@@ -349,7 +351,20 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                                 drawLayer(backdrop.layer)
                             }
                         }
-                        clipPath(path) { drawLayer(blurred) }
+                        /*
+                         * ⚠️⚠️ **THE PAGE'S GROUND GOES UNDER THE BLURRED COPY, SINCE 4.30, AND IT
+                         * IS MEASURED ON HIS SCREENSHOTS** (note E on the 4.25 round: *non sfoca gli
+                         * elementi di UI creati dall'app stessa: testi e bordi delle miniature
+                         * rimangono sempre nitidi sotto il 'vetro'*). The recorded content has no
+                         * ground of its own (the page's colour is the theme's `Surface`, outside
+                         * it), so text and edges drawn on nothing blurred into a faint halo, and the
+                         * sharp originals showed through it. The pictures are opaque, which is why
+                         * they looked blurred and the rest did not.
+                         */
+                        clipPath(path) {
+                            drawRect(ground)
+                            drawLayer(blurred)
+                        }
                     }
                     if (tune.shift != 0) drawOutline(outline, wash)
                     drawOutline(outline, tint)
@@ -565,6 +580,13 @@ private fun SlidePill(
         label = "pill"
     )
     val count = entries.size + 1
+    /*
+     * ⚠️⚠️ **THE ROUND KEY IS ALWAYS 44DP, SINCE 4.30, AND IT IS HIS NOTE** (B on the 4.25 round: *in
+     * modalità pillola a scomparsa, addirittura cambia dimensione ... La dimensione corretta è
+     * quella del tondo della pillola a scomparsa*): until 4.25 the whole pill used [keyFor], and in
+     * the home eight keys on a narrow phone made every key, the round one too, a little smaller
+     * than in a folder. Now only the open keys shrink, the round key and the pill's height do not.
+     */
     val key = keyFor(count, room)
     /*
      * ⚠️⚠️ **OPEN WITH MANY ENTRIES IT SPANS THE ROW, SINCE 4.25, AND IT IS HIS CHOICE** (note A on
@@ -590,10 +612,10 @@ private fun SlidePill(
         }
     )
     val cornerKey = @Composable {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.width(lerp(key, cell, p))) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.width(lerp(PILL_KEY, cell, p))) {
             PillKey(
                 entry = corner,
-                size = key,
+                size = PILL_KEY,
                 // ⚠️ Closed, the round key is the FAB: its long press is the FAB's and not a
                 // tooltip. Open, it is a key of the pill like the others.
                 holdLabel = if (open) null else holdLabel,
@@ -633,8 +655,8 @@ private fun SlidePill(
          */
         contentAlignment = if (atEnd) Alignment.CenterEnd else Alignment.CenterStart,
         modifier = Modifier
-            .width(lerp(key, full, p))
-            .height(key)
+            .width(lerp(PILL_KEY, full, p))
+            .height(PILL_KEY)
             .pillFill(backdrop)
     ) {
         /*

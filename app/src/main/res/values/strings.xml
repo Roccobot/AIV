@@ -392,12 +392,12 @@
     <string name="settings_hand">Preferred button position</string>
     <string name="settings_hand_desc">The preferred side for the main buttons in one-handed use, for right- and left-handers. It sets where the floating action button (\'FAB\'), some navigation buttons and parts of the editor UI go.</string>
     <string name="settings_main_control">Main control</string>
-    <string name="settings_main_control_desc">Choose how you interact with the app when you hold your phone upright: a floating action button (\'FAB\') with a menu, a pill of icons, a bottom menu or a corner menu.</string>
+    <string name="settings_main_control_desc">Choose how you interact with the app when you hold your phone upright: a floating action button (\'FAB\') with a menu, a pill of icons, a menu or a \'Start\' menu.</string>
     <string name="main_control_fab">Floating button</string>
     <string name="main_control_pill">Icon pill</string>
-    <string name="main_control_bar">Bottom menu</string>
+    <string name="main_control_bar">Menu</string>
     <string name="bar_fixed">Fixed</string>
-    <string name="main_control_corner">Corner menu</string>
+    <string name="main_control_corner">\'Start\' menu</string>
     <string name="glass_radius">Radius</string>
     <string name="glass_intensity">Intensity</string>
     <string name="glass_tint">Opacity</string>
@@ -409,7 +409,7 @@
     <string name="corner_rest_pill">Pill at rest</string>
     <string name="corner_rest_round">Round button at rest</string>
     <string name="settings_button_look">Look of the main buttons</string>
-    <string name="settings_button_look_desc">Fill and transparency or blur effects applied to the floating button, the icon pill and the bottom menu.</string>
+    <string name="settings_button_look_desc">Fill and transparency or blur effects applied to the floating button, the icon pill and the menus.</string>
     <string name="pill_slide">Retractable</string>
     <string name="pill_extended">Extended</string>
     <string name="pill_solid">Solid</string>

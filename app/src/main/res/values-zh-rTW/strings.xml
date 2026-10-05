@@ -123,12 +123,12 @@
     <string name="settings_hand">按鈕的偏好位置</string>
     <string name="settings_hand_desc">單手使用時主要按鈕的偏好一側，適合慣用右手和左手的人。它決定浮動操作按鈕（\'FAB\'）、部分導覽按鈕以及編輯器介面部分元素的位置。</string>
     <string name="settings_main_control">主要操作方式</string>
-    <string name="settings_main_control_desc">選擇直握手機時與 App 互動的方式：附選單的懸浮按鈕（\'FAB\'）、圖示膠囊、底部選單或角落選單。</string>
+    <string name="settings_main_control_desc">選擇直握手機時與 App 互動的方式：附選單的懸浮按鈕（\'FAB\'）、圖示膠囊、選單或\'開始\'選單。</string>
     <string name="main_control_fab">懸浮按鈕</string>
     <string name="main_control_pill">圖示膠囊</string>
-    <string name="main_control_bar">底部選單</string>
+    <string name="main_control_bar">選單</string>
     <string name="bar_fixed">固定</string>
-    <string name="main_control_corner">角落選單</string>
+    <string name="main_control_corner">\'開始\'選單</string>
     <string name="glass_radius">半徑</string>
     <string name="glass_intensity">強度</string>
     <string name="glass_tint">不透明度</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">靜止時為膠囊</string>
     <string name="corner_rest_round">靜止時為圓形按鈕</string>
     <string name="settings_button_look">主要按鈕外觀</string>
-    <string name="settings_button_look_desc">套用於懸浮按鈕、圖示膠囊和底部選單的填色及透明或模糊效果。</string>
+    <string name="settings_button_look_desc">套用於懸浮按鈕、圖示膠囊和選單的填色及透明或模糊效果。</string>
     <string name="pill_slide">收合式</string>
     <string name="pill_extended">展開</string>
     <string name="pill_solid">純色</string>

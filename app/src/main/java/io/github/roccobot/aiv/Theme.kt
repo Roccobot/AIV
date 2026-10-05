@@ -1,5 +1,8 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerEventPass
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -497,6 +500,16 @@ fun AivPalette(light: Boolean, content: @Composable () -> Unit) {
     }
 }
 
+/** Reports every press to [OutsideTouch], in the first pass and without consuming it. */
+private fun Modifier.watchPresses(): Modifier = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent(PointerEventPass.Initial)
+            if (event.type == PointerEventType.Press) event.changes.firstOrNull()?.let { OutsideTouch.press(it.position) }
+        }
+    }
+}
+
 @Composable
 fun AivTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -536,7 +549,13 @@ fun AivTheme(
                  * sta sopra. Quello che deve restare sopra di lui è la superficie che si è
                  * aperta, e quella vive in un'altra finestra.
                  */
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // ⚠️ Every press, for whoever listens (the open Start menu); never consumed.
+                        // In the tree only while somebody listens. Why on [OutsideTouch].
+                        .then(if (OutsideTouch.active) Modifier.watchPresses() else Modifier)
+                ) {
                     content()
                     AppVeil(modifier = Modifier.matchParentSize())
                     /*
