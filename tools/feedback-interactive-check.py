@@ -157,9 +157,15 @@ def check(path):
                     navigation.locator('#previous-card').tap()
                     aligned(navigation.locator('.test').nth(0))
                     navigation.locator('#next-card').tap()
-                else:
-                    # Una prova sola: Avanti arriva ad Altro, così ⇥ resta visibile anche su desktop.
+                elif width <= 720:
+                    # Una prova sola: su mobile Avanti arriva ad Altro, così ⇥ resta visibile.
                     navigation.locator('#next-card').tap()
+                else:
+                    # Su desktop, dal 2026-10-05, dopo l'ultima prova Avanti non c'è (sua
+                    # richiesta: Altro è la colonna laterale, e andarci faceva oscillare la
+                    # pagina). Allora ⇥ si rende visibile tornando in cima, fuori dalla prova.
+                    expect(navigation.locator('#next-card')).to_be_hidden()
+                    navigation.evaluate('window.scrollTo(0,0)')
                 expect(navigation.locator('#first-empty')).to_be_visible()
                 navigation.locator('#first-empty').tap()
                 aligned(navigation.locator('.test').nth(0))
