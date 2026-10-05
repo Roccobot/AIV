@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.00**: la pillola al posto del FAB sul telefono in verticale, con le sue due file di gettoni.
+Versione **4.01**: la pillola al posto del FAB sul telefono in verticale, nell'accento dell'altro tema.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.00 è pubblicata: [v4.00](https://github.com/Roccobot/AIV/releases/tag/v4.00), con l'APK
-[AIV-4.00.apk](https://github.com/Roccobot/AIV/releases/download/v4.00/AIV-4.00.apk).
-Commit prodotto su `main`: `91c4c0f` (SlimVer 4.00 / versionCode 309).
+La Release 4.01 è pubblicata: [v4.01](https://github.com/Roccobot/AIV/releases/tag/v4.01), con l'APK
+[AIV-4.01.apk](https://github.com/Roccobot/AIV/releases/download/v4.01/AIV-4.01.apk).
+Commit prodotto su `main`: `b274a56` (SlimVer 4.01 / versionCode 310).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor e HEIC restano chiusi. Giro **4.00**: sei prove in collaudo, tutte nuove. Giro **3.73**: `3.73-01`, `3.73-02` e `3.73-03` OK.
+Lati editor e HEIC restano chiusi. Giro **4.00**: sei prove in collaudo; la `4.00-05` è sostituita dalla `4.01-01`, col colore che hai scelto. Giro **3.73**: `3.73-01`, `3.73-02` e `3.73-03` OK.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,7 +22,7 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.00 sono superate: banco di prova completo (544 prove), controllo delle 28 traduzioni e compilazione.
+Le verifiche automatiche della 4.01 sono superate: banco di prova completo (544 prove), controllo delle 28 traduzioni e compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -30,7 +30,7 @@ Le verifiche automatiche della 4.00 sono superate: banco di prova completo (544 
 | 4.00-02 | Non provato | | Attendere il collaudo. |
 | 4.00-03 | Non provato | | Attendere il collaudo. |
 | 4.00-04 | Non provato | | Attendere il collaudo. |
-| 4.00-05 | Non provato | | Attendere il collaudo. |
+| 4.01-01 | Non provato | | Attendere il collaudo. |
 | 4.00-06 | Non provato | | Attendere il collaudo. |
 
 ## 1. La voce nelle impostazioni
@@ -49,9 +49,9 @@ Scegli `Estesa`: niente FAB, niente ×, niente menu; la pillola con tutte le ico
 
 In qualunque pillola (anche quelle del telefono in orizzontale e del tablet) tieni premuta un'icona: compare un fumetto con il suo nome, sopra il dito, e nient'altro. Con una cartella nascosta, il tocco lungo su 'Mostra nascoste' nella pillola mostra il fumetto e non apre l'elenco delle nascoste, che resta nel menu del FAB.
 
-## 5. Tinta unita, Semitrasparente, Vetro satinato
+## 5. Il colore della pillola
 
-Con la pillola in scena prova le tre tinte, nei due temi: piena, all'80%, e il vetro, che sfoca quello che scorre sotto come la pillola del DF, con l'accento al 70% sul tema chiaro e al 25% su quello scuro. Come nel DF, il vetro ravviva anche i colori che ci passano sotto. La scelta vale anche per la pillola del telefono in orizzontale.
+Con AIV **4.01** la pillola porta l'accento dell'**altro** tema, coi suoi glifi, come il FAB: petrolio con glifi bianchi sul tema chiaro, verde acqua con glifi scuri sullo scuro (la variante che hai scelto). Prova le tre tinte nei due temi: `Tinta unita` piena, `Semitrasparente` all'80%, e `Vetro satinato`, che sfoca e ravviva quello che scorre sotto con l'accento all'80% sul chiaro e al 65% sullo scuro, meno trasparente della 4.00. Vale anche per il tasto tondo di `A scorrimento` e per la pillola del telefono in orizzontale.
 
 ## 6. I menu col vetro
 
@@ -83,7 +83,7 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 | A scorrimento | 4.00-02 | Non provato | | Attendere il collaudo. |
 | Estesa e piegatura | 4.00-03 | Non provato | | Attendere il collaudo. |
 | Fumetto al tocco lungo | 4.00-04 | Non provato | | Attendere il collaudo. |
-| Tinte della pillola | 4.00-05 | Non provato | | Attendere il collaudo. |
+| Colore della pillola | 4.01-01 | Non provato | | Attendere il collaudo. |
 | Menu col vetro | 4.00-06 | Non provato | | Attendere il collaudo. |
 | Ritorno alla griglia senza sfarfallio | 3.73-01 | OK | Tutto OK. | Archiviata. |
 | Tablet in verticale: maniglia più tenue | 3.73-02 | OK | Tutto OK. | Archiviata. |
@@ -91,7 +91,7 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 ## Prossimi passi
 
-- **In collaudo**: la pillola al posto del FAB (`4.00-01`-`4.00-06`).
+- **In collaudo**: la pillola al posto del FAB (`4.00-01`-`4.00-04`, `4.01-01`, `4.00-06`).
 - **Deciso**: la vista 'Cartelle di sistema' tiene il FAB anche su tablet e in orizzontale.
 - **Concluso**: ritorno alla griglia, maniglia e intestazione di casa (`3.73-01`-`3.73-03`).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
