@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -58,6 +61,15 @@ import kotlin.math.roundToInt
 /** The height of the bar's row of keys, above the gesture area it also covers. */
 internal val BAR_ROW = 56.dp
 
+/** From how many keys the bar spreads them across its width: five (note N2). */
+internal const val BAR_SPREAD = 5
+
+/**
+ * The margin of a bar with few keys from the side it leans on: the FAB's corner (16dp in the home
+ * and in a grid), so the corner key falls under the folded pill's.
+ */
+internal val BAR_SIDE = 16.dp
+
 /**
  * How long the bar takes to come in or go: a third less than the pill's 160 ms (answer M1).
  *
@@ -77,6 +89,8 @@ private const val BAR_IN_MS = 110
 internal fun controlRoom(): Dp {
     val look = LocalPillLook.current
     return when {
+        // ⚠️ The corner menu folds into the same two-key pill as the sliding bottom menu.
+        look.corner -> PILL_KEY * 2 + PILL_AIR * 2
         !look.bar -> PILL_KEY + PILL_AIR * 2
         look.mode == PhonePill.SLIDE -> PILL_KEY * 2 + PILL_AIR * 2
         else -> BAR_ROW
@@ -173,6 +187,114 @@ internal fun BottomMenu(
 }
 
 /**
+ * The corner menu: the commands in a panel of three columns in the preferred corner.
+ *
+ * ⚠️⚠️ **SINCE 4.20, AND EVERY SHAPE OF IT IS HIS** (note D on the 4.04 round, `bottom_menu_corner.png`,
+ * and the answers G1, C1, C2 and C3): always sliding (*il menu angolare sempre*), from the same
+ * vertical pill as the sliding bottom menu; open, a grid of three columns in the home (3x3: the three
+ * views, then 'Mostra nascoste', Cerca and Indirizzo, then Cestino, Impostazioni and the ×) and of
+ * two in a folder (2x2). It stops above the gesture line (G1), so the line keeps its colour.
+ * ⚠️ **The × takes the place of the mark**: the panel stands on the folded pill's corner, and its
+ * corner cell is where the pill's lower key was. A left-handed panel mirrors every row.
+ * ⚠️ **While scrolling, the corner cell and the one above it turn into the jump** (answer M2, read
+ * on the panel): they are where the folded pill's two keys were.
+ * ⚠️ **It grows out of its corner**, in the bottom menu's time and curve: it is the same gesture.
+ *
+ * @param entries the cells in the right-handed reading order, without the ×.
+ */
+@Composable
+internal fun CornerMenu(
+    entries: List<PillEntry>,
+    arm: JumpArm?,
+    fabLabel: String,
+    holdLabel: String?,
+    onHold: (() -> Unit)?,
+    backdrop: Backdrop?,
+    atEnd: Boolean,
+    corner: Modifier,
+    modifier: Modifier,
+    onJump: (Int) -> Unit,
+    mark: @Composable (String?) -> Unit
+) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = open) { open = false }
+    val p by animateFloatAsState(
+        targetValue = if (open) 1f else 0f,
+        animationSpec = tween(BAR_IN_MS, easing = PILL_EASE),
+        label = "corner"
+    )
+    val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
+    val cells = entries.map { e -> e.copy(onTap = { if (!e.chosen) { open = false; e.onTap() } }) } + close
+    val columns = if (cells.size > CORNER_SMALL) 3 else 2
+    // ⚠️ The rows are filled from the top, so that the last one, with the ×, is always full: a
+    // gap left by an odd count goes to the top row, away from the thumb.
+    val rows = cells.reversed().chunked(columns).map { it.reversed() }.reversed()
+        .map { row -> if (atEnd) row else row.reversed() }
+    val q = arm?.shown ?: 0f
+    val armed = arm?.armed == true
+    val top = stringResource(R.string.jump_top)
+    val bottom = stringResource(R.string.jump_bottom)
+    Box(
+        contentAlignment = if (atEnd) Alignment.BottomEnd else Alignment.BottomStart,
+        modifier = modifier.then(corner)
+    ) {
+        if (p < 1f) {
+            FoldedPill(
+                arm = arm,
+                fabLabel = fabLabel,
+                holdLabel = holdLabel,
+                onHold = onHold,
+                backdrop = backdrop,
+                enabled = !open,
+                onOpen = { open = true },
+                onJump = onJump,
+                mark = mark,
+                modifier = Modifier.graphicsLayer { alpha = 1f - p }
+            )
+        }
+        if (p > 0f) {
+            Column(
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = p
+                        scaleX = 0.6f + 0.4f * p
+                        scaleY = 0.6f + 0.4f * p
+                        transformOrigin = TransformOrigin(if (atEnd) 1f else 0f, 1f)
+                    }
+                    .declaresFoot()
+                    .buttonFill(backdrop, pillAccent(), RoundedCornerShape(PILL_KEY / 2))
+            ) {
+                rows.forEachIndexed { r, row ->
+                    Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
+                        row.forEachIndexed { c, cell ->
+                            val inCorner = if (atEnd) c == row.lastIndex else c == 0
+                            val jump = when {
+                                arm == null || !inCorner -> 0
+                                r == rows.lastIndex -> 1
+                                r == rows.lastIndex - 1 -> -1
+                                else -> 0
+                            }
+                            val usable = cell.copy(enabled = cell.enabled && open)
+                            if (jump == 0) {
+                                PillKey(entry = usable, size = CORNER_CELL, enabled = usable.enabled && !armed)
+                            } else {
+                                JumpKey(usable, jump, q, armed, CORNER_CELL, top, bottom, onJump)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Up to how many cells, the × included, the corner menu is a 2x2 (decision C3). */
+private const val CORNER_SMALL = 4
+
+/** The side of a corner menu's cell: a pill's key, so the corner cell is the folded pill's. */
+private val CORNER_CELL = PILL_KEY
+
+/**
  * The bar itself: every key on one row, spread across the width, over the gesture area.
  *
  * ⚠️ **The two keys at the preferred corner turn into the jump while scrolling** (answer M2): on the
@@ -208,13 +330,28 @@ private fun Bar(
             .buttonFill(backdrop, pillAccent(), RectangleShape)
     ) {
         val key = min(PILL_KEY, maxWidth / count.coerceAtLeast(1))
+        /*
+         * ⚠️⚠️ **WITH FEW KEYS THEY GATHER ON THE PREFERRED SIDE, SINCE 4.20, AND IT IS HIS RULE**
+         * (note N2 on the 4.15 round: *quando le icone sono 5, 6 o 7 ... si distribuiscono per tutta
+         * la larghezza disponibile. Ma se sono 2, 3 o 4 devono stare sul lato preferito*), with the
+         * pill's own spacing, and the × counts (*le tre (4 a scomparsa)*). In 4.15 every bar spread
+         * its keys, and the bin's three were lost across the screen.
+         * ⚠️ **The margin is the FAB's corner** ([BAR_SIDE]), so the corner key lands where the
+         * folded pill's key was.
+         */
+        val spread = count >= BAR_SPREAD
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = when {
+                spread -> Arrangement.SpaceEvenly
+                atEnd -> Arrangement.End
+                else -> Arrangement.Start
+            },
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .height(BAR_ROW)
+                .padding(horizontal = if (spread) 0.dp else BAR_SIDE)
         ) {
             keys.forEachIndexed { i, entry ->
                 val jump = when {

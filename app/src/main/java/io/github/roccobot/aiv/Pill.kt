@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -80,10 +82,11 @@ data class PillEntry(
      */
     val onHold: (() -> Unit)? = null,
     /**
-     * Entries with the same run stay in their order when a left-handed pill mirrors the others
-     * (`mirrored`, in `PhonePill.kt`): the two views, since 4.15.
+     * Whether the entry is the state the screen is in, and not a request: the current view in the
+     * corner menu, which shows all three (decision C1). It is drawn on a disc of ink, announced as
+     * selected, and a tap on it does nothing.
      */
-    val run: Int? = null,
+    val chosen: Boolean = false,
     val onTap: () -> Unit
 )
 
@@ -186,7 +189,11 @@ internal fun PillKey(
                         if (hold != null) hold() else scope.launch { tip.show() }
                     }
                 )
-                .semantics { contentDescription = entry.label }
+                .semantics {
+                    contentDescription = entry.label
+                    if (entry.chosen) selected = true
+                }
+                .then(if (entry.chosen) Modifier.background(LocalContentColor.current.copy(alpha = CHOSEN_INK), CircleShape) else Modifier)
                 .alpha(if (entry.enabled) 1f else DISABLED_INK)
         ) {
             if (glyph != null) {
@@ -217,6 +224,9 @@ fun searchInvitation(folderName: String?): AnnotatedString {
         if (parts.size > 1) append(parts[1])
     }
 }
+
+/** How much ink the disc under a [PillEntry.chosen] key carries. */
+private const val CHOSEN_INK = 0.22f
 
 /** How much ink a key keeps when it cannot act: the value Material uses for disabled content. */
 private const val DISABLED_INK = 0.38f

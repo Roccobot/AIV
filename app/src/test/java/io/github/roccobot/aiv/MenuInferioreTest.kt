@@ -61,19 +61,15 @@ class MenuInferioreTest {
     }
 
     /**
-     * **The two views keep their order when the pill is mirrored, and the rest is reversed** (his
-     * order for the left side: *Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra nascoste,
-     * Altra vista 1, Altra vista 2*).
+     * **On the left the order is the exact mirror, the two views included** (his comment on
+     * `4.15-04`: *volevo specchiati anche quei due*).
      */
     @Test
-    fun `a sinistra l'ordine e il rovescio, con le due viste nel loro ordine`() {
-        fun e(name: String, run: Int? = null) = PillEntry(Icons.Default.Close, name, run = run) {}
-        val destra = listOf(
-            e("Vista 1", 0), e("Vista 2", 0), e("Nascoste"), e("Cerca"), e("Indirizzo"),
-            e("Cestino"), e("Impostazioni")
-        )
+    fun `a sinistra l'ordine e il rovescio, viste comprese`() {
+        fun e(name: String) = PillEntry(Icons.Default.Close, name) {}
+        val destra = listOf("Vista 1", "Vista 2", "Nascoste", "Cerca", "Indirizzo", "Cestino", "Impostazioni").map { e(it) }
         assertEquals(
-            listOf("Impostazioni", "Cestino", "Indirizzo", "Cerca", "Nascoste", "Vista 1", "Vista 2"),
+            listOf("Impostazioni", "Cestino", "Indirizzo", "Cerca", "Nascoste", "Vista 2", "Vista 1"),
             mirrored(destra).map { it.label }
         )
     }
@@ -232,6 +228,127 @@ class MenuInferioreTest {
         banco.onNodeWithText(voce(R.string.main_control_pill)).performClick()
         banco.waitForIdle()
         assertEquals(MainControl.PILL, scritte?.mainControl)
+    }
+
+    /**
+     * **With three keys the fixed bar gathers them on the preferred side** (note N2 on the 4.15
+     * round: *se sono 2, 3 o 4 devono stare sul lato preferito*), the corner key 16dp from the edge.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `con tre tasti il menu inferiore li raccoglie sul lato preferito`() {
+        banco.setContent { Griglia(PillLook(PhonePill.EXTENDED, bar = true)) }
+        banco.waitForIdle()
+        val scena = banco.onRoot().fetchSemanticsNode().size.width
+        val cerca = banco.onNodeWithContentDescription(voce(R.string.hub_search)).fetchSemanticsNode()
+        val impostazioni = banco.onNodeWithContentDescription(voce(R.string.hub_settings)).fetchSemanticsNode()
+        assertTrue("'Cerca' è ancora a sinistra del centro", cerca.positionInRoot.x > scena / 2f)
+        val dp = app.resources.displayMetrics.density
+        val margine = scena - (impostazioni.positionInRoot.x + impostazioni.size.width)
+        assertEquals("Il tasto d'angolo non è a 16dp dal bordo", 16f * dp, margine, 1.5f * dp)
+    }
+
+    /**
+     * **The corner menu in a folder: the folded pill opens a 2x2, with Impostazioni and the × in the
+     * bottom row and the × in the corner** (decisions G1 and C3).
+     */
+    @Test
+    fun `il menu angolare nelle cartelle e un 2x2 con la x nell'angolo`() {
+        banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true)) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.jump_top)).assertExists()
+        banco.onNodeWithContentDescription(voce(R.string.pick_actions)).performClick()
+        banco.waitForIdle()
+        val pos = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot }
+        val chiudi = pos(R.string.pick_close)
+        val impostazioni = pos(R.string.hub_settings)
+        val cerca = pos(R.string.hub_search)
+        val cestino = pos(R.string.bin_title)
+        assertEquals("Impostazioni e la × non sono sulla stessa riga", impostazioni.y, chiudi.y, 1f)
+        assertTrue("La × non è nell'angolo", chiudi.x > impostazioni.x)
+        assertEquals("Cerca e Cestino non sono sulla stessa riga", cerca.y, cestino.y, 1f)
+        assertTrue("La riga di Cerca non è sopra", cerca.y < impostazioni.y)
+        assertFalse("Il menu angolare colora la linea dei gesti", BarStage.under)
+        banco.onNodeWithContentDescription(voce(R.string.pick_close)).performClick()
+        banco.waitForIdle()
+        assertTrue(
+            "La × non ha richiuso il menu angolare",
+            banco.onAllNodesWithContentDescription(voce(R.string.hub_settings)).fetchSemanticsNodes().isEmpty()
+        )
+    }
+
+    /**
+     * **In the home the corner menu is a 3x3 with the three views on top, the current one chosen,
+     * and the × under the thumb** (decisions C1 and C2), mirrored on the left.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `nella home il menu angolare e un 3x3 con le tre viste`() {
+        banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.LEFT) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        val pos = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot }
+        val griglia = pos(R.string.hub_view_grid)
+        val lista = pos(R.string.hub_view_list)
+        val albero = pos(R.string.hub_view_tree)
+        assertEquals("Le tre viste non sono sulla prima riga", griglia.y, albero.y, 1f)
+        assertEquals(griglia.y, lista.y, 1f)
+        assertTrue("A sinistra le viste non sono a specchio", albero.x < lista.x && lista.x < griglia.x)
+        val chiudi = pos(R.string.pick_close)
+        assertTrue("A sinistra la × non è nell'angolo", chiudi.x < pos(R.string.hub_settings).x)
+        assertTrue("La × non è nell'ultima riga", chiudi.y > pos(R.string.hub_search).y)
+        assertEquals("La riga di Cerca non ha anche Mostra nascoste", pos(R.string.hub_search).y, pos(R.string.hub_peek).y, 1f)
+    }
+
+    /**
+     * **With the translucent look the four sliders and the live preview appear** (note N1 and his
+     * correction: *serve un elemento traslucido che si aggiorna in tempo reale*), and not otherwise.
+     */
+    @Test
+    fun `col traslucido compaiono i quattro cursori`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SettingsScreen(
+                    settings = Settings(pillFill = PillFill.GLASS),
+                    onChange = {},
+                    onStartFolder = {},
+                    onResetHints = {},
+                    onChooseEditor = {},
+                    onBack = {}
+                )
+            }
+        }
+        banco.waitForIdle()
+        banco.onAllNodesWithText(voce(R.string.settings_page_look), substring = false)[0]
+            .performScrollTo().performClick()
+        banco.waitForIdle()
+        listOf(R.string.glass_radius, R.string.glass_intensity, R.string.glass_tint, R.string.glass_light).forEach {
+            banco.onNodeWithText(voce(it), substring = true).assertExists()
+        }
+    }
+
+    /** **The corner menu's chip is there, and with it the second row is not** (always sliding). */
+    @Test
+    fun `il gettone del menu angolare c'e e non ha la seconda fila`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SettingsScreen(
+                    settings = Settings(mainControl = MainControl.CORNER),
+                    onChange = {},
+                    onStartFolder = {},
+                    onResetHints = {},
+                    onChooseEditor = {},
+                    onBack = {}
+                )
+            }
+        }
+        banco.waitForIdle()
+        banco.onAllNodesWithText(voce(R.string.settings_page_controls), substring = false)[0]
+            .performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(voce(R.string.main_control_corner)).assertExists()
+        banco.onNodeWithText(voce(R.string.pill_slide)).assertDoesNotExist()
     }
 
     private fun quanti(id: Int): Int =

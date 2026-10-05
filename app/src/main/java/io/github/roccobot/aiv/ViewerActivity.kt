@@ -2860,7 +2860,9 @@ class ViewerActivity : ComponentActivity() {
                     PillLook(
                         mode = pillMode(it.mainControl, it.phonePill, LocalConfiguration.current.smallestScreenWidthDp),
                         fill = pillFillIn(it.pillFill),
-                        bar = barIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp)
+                        bar = barIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp),
+                        glass = it.glass,
+                        corner = cornerIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp)
                     )
                 } ?: PillLook()
                 CompositionLocalProvider(

@@ -123,11 +123,16 @@
     <string name="settings_hand">Nafasi unayopendelea ya vitufe</string>
     <string name="settings_hand_desc">Upande unaopendelea kwa vitufe vikuu unapotumia kwa mkono mmoja, kwa wanaotumia mkono wa kulia au wa kushoto. Huamua mahali pa kitufe cha kitendo kinachoelea (\'FAB\'), baadhi ya vitufe vya urambazaji na sehemu za kiolesura cha kihariri.</string>
     <string name="settings_main_control">Kidhibiti kikuu</string>
-    <string name="settings_main_control_desc">Chagua jinsi ya kutumia programu unaposhika simu wima: kitufe kinachoelea (\'FAB\') chenye menyu, kidonge cha aikoni au menyu ya chini.</string>
+    <string name="settings_main_control_desc">Chagua jinsi ya kutumia programu unaposhika simu wima: kitufe kinachoelea (\'FAB\') chenye menyu, kidonge cha aikoni, menyu ya chini au menyu ya kona.</string>
     <string name="main_control_fab">Kitufe kinachoelea</string>
     <string name="main_control_pill">Kidonge cha aikoni</string>
     <string name="main_control_bar">Menyu ya chini</string>
     <string name="bar_fixed">Isiyobadilika</string>
+    <string name="main_control_corner">Menyu ya kona</string>
+    <string name="glass_radius">Kipenyo</string>
+    <string name="glass_intensity">Ukali</string>
+    <string name="glass_tint">Rangi</string>
+    <string name="glass_light">Mwangaza</string>
     <string name="settings_button_look">Mwonekano wa vitufe vikuu</string>
     <string name="settings_button_look_desc">Ujazo na athari za uwazi au ukungu kwa kitufe kinachoelea, kidonge cha aikoni na menyu ya chini.</string>
     <string name="pill_slide">Inayojificha</string>

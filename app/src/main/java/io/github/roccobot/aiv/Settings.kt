@@ -207,7 +207,14 @@ enum class MainControl(override val token: String) : Choice {
      * sola, cioè se il comando resta aperto, e due valori diversi chiederebbero di sceglierla due
      * volte. Il disegno vive in `BottomMenu.kt`.
      */
-    BOTTOM("bottom")
+    BOTTOM("bottom"),
+    /**
+     * Il menu angolare, dalla `4.20`: 'Menu angolare'. Sempre a scomparsa (*il menu angolare
+     * sempre*), quindi [Settings.phonePill] non lo riguarda: a riposo è la pillola verticale del
+     * menu inferiore, aperto è un pannello 3x3 nella schermata iniziale e 2x2 nelle cartelle
+     * (decisioni G1 e C1-C3). Il disegno vive in `BottomMenu.kt`.
+     */
+    CORNER("corner")
 }
 
 /**
@@ -539,6 +546,14 @@ data class Settings(
      * ⚠️ **Solido di fabbrica, ed è sua** (*`Tinta unita` (predefinito)*, il nome di allora).
      */
     val pillFill: PillFill = PillFill.SOLID,
+    /**
+     * Come si regola il traslucido, coi quattro cursori che compaiono con lui. Vedi [GlassTune].
+     *
+     * ⚠️ **Dalla `4.20`, ed è sua richiesta** (nota N1 del giro della `4.15`): servono a trovare lo
+     * stile che vuole, e si nascondono spegnendo [GLASS_TUNING]. Di fabbrica sono i valori della
+     * `4.15`, cioè il vetro del DF.
+     */
+    val glass: GlassTune = GlassTune(),
     /**
      * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
      *
@@ -1414,6 +1429,10 @@ object SettingsStore {
     private val PHONE_PILL_ON = booleanPreferencesKey("phone-pill-on")
     private val PHONE_PILL = stringPreferencesKey("phone-pill")
     private val PILL_FILL = stringPreferencesKey("pill-fill")
+    private val GLASS_RADIUS = intPreferencesKey("glass-radius")
+    private val GLASS_INTENSITY = intPreferencesKey("glass-intensity")
+    private val GLASS_TINT = intPreferencesKey("glass-tint")
+    private val GLASS_LIGHT = intPreferencesKey("glass-light")
     private val LIST_PATH = booleanPreferencesKey("list-path")
     private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
@@ -1577,6 +1596,12 @@ object SettingsStore {
             phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.SLIDE)
                 .takeIf { it != PhonePill.OFF } ?: PhonePill.SLIDE,
             pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.SOLID),
+            glass = GlassTune(
+                radius = (p[GLASS_RADIUS] ?: GlassTune.RADIUS).coerceIn(GlassTune.RADIUS_RANGE),
+                intensity = (p[GLASS_INTENSITY] ?: GlassTune.INTENSITY).coerceIn(GlassTune.INTENSITY_RANGE),
+                tint = (p[GLASS_TINT] ?: GlassTune.TINT).coerceIn(GlassTune.TINT_RANGE),
+                light = (p[GLASS_LIGHT] ?: GlassTune.LIGHT).coerceIn(GlassTune.LIGHT_RANGE)
+            ),
             listPath = p[LIST_PATH] ?: false,
             pickWeight = p[PICK_WEIGHT] ?: true,
             editorApp = p[EDITOR_APP] ?: "",
@@ -1706,6 +1731,10 @@ object SettingsStore {
             p[MAIN_CONTROL] = settings.mainControl.token
             p[PHONE_PILL] = settings.phonePill.token
             p[PILL_FILL] = settings.pillFill.token
+            p[GLASS_RADIUS] = settings.glass.radius
+            p[GLASS_INTENSITY] = settings.glass.intensity
+            p[GLASS_TINT] = settings.glass.tint
+            p[GLASS_LIGHT] = settings.glass.light
             p[LIST_PATH] = settings.listPath
             p[PICK_WEIGHT] = settings.pickWeight
             p[EDITOR_APP] = settings.editorApp

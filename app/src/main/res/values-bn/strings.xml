@@ -123,11 +123,16 @@
     <string name="settings_hand">বোতামের পছন্দের অবস্থান</string>
     <string name="settings_hand_desc">এক হাতে ব্যবহারের সময় প্রধান বোতামগুলির পছন্দের দিক, ডানহাতি ও বাঁহাতিদের জন্য। এটি ভাসমান অ্যাকশন বোতাম (\'FAB\'), কিছু নেভিগেশন বোতাম এবং সম্পাদকের UI-এর অংশগুলির অবস্থান ঠিক করে।</string>
     <string name="settings_main_control">প্রধান নিয়ন্ত্রণ</string>
-    <string name="settings_main_control_desc">ফোন খাড়া করে ধরলে অ্যাপের সঙ্গে কীভাবে কাজ করবেন তা বেছে নিন: মেনুসহ ভাসমান বোতাম (\'FAB\'), আইকনের পিল অথবা নিচের মেনু।</string>
+    <string name="settings_main_control_desc">ফোন খাড়া করে ধরলে অ্যাপের সঙ্গে কীভাবে কাজ করবেন তা বেছে নিন: মেনুসহ ভাসমান বোতাম (\'FAB\'), আইকনের পিল, নিচের মেনু অথবা কোণের মেনু।</string>
     <string name="main_control_fab">ভাসমান বোতাম</string>
     <string name="main_control_pill">আইকনের পিল</string>
     <string name="main_control_bar">নিচের মেনু</string>
     <string name="bar_fixed">স্থির</string>
+    <string name="main_control_corner">কোণের মেনু</string>
+    <string name="glass_radius">ব্যাসার্ধ</string>
+    <string name="glass_intensity">তীব্রতা</string>
+    <string name="glass_tint">রং</string>
+    <string name="glass_light">উজ্জ্বলতা</string>
     <string name="settings_button_look">প্রধান বোতামের চেহারা</string>
     <string name="settings_button_look_desc">ভাসমান বোতাম, আইকনের পিল ও নিচের মেনুতে প্রয়োগ করা ভরাট এবং স্বচ্ছতা বা ঝাপসা প্রভাব।</string>
     <string name="pill_slide">লুকানো যায়</string>

@@ -192,9 +192,26 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
       diventano `in cima` e `in fondo`;
     - l'aspetto è quello dei pulsanti principali.
   - ⚠️⚠️ **Col lato preferito a sinistra, dalla `4.15`, l'ordine è il rovescio di quello di destra**
-    (sua richiesta): Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra nascoste, poi le due viste,
-    che restano nel loro ordine come le ha scritte (`run` di `PillEntry`, `mirrored` in
-    `PhonePill.kt`). Vale per la pillola a scomparsa, per quella estesa e per il menu inferiore.
+    (sua richiesta): Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra nascoste, poi le due viste.
+    ⚠️ **Dalla `4.20` a specchio anche le due viste** (suo commento a `4.15-04`), che nella `4.15`
+    restavano nel loro ordine (`mirrored` in `PhonePill.kt`). Vale per la pillola a scomparsa, per
+    quella estesa e per il menu inferiore; il menu angolare specchia ogni riga.
+  - ⚠️⚠️ **Il menu inferiore con 2, 3 o 4 tasti, × compresa, li raccoglie sul lato preferito**, a
+    16dp dal bordo come l'angolo del FAB e con la spaziatura della pillola; da 5 in su li distribuisce
+    su tutta la larghezza (sua nota N2 del giro della `4.15`, dalla `4.20`). Nel cestino, a destra:
+    Cronologia, Ripristina tutto, Svuota cestino, ×.
+  - ⚠️⚠️ **Dalla `4.20` c'è il quarto gettone, `Menu angolare`** (nota D del giro della `4.04`,
+    decisioni G1 e C1-C3), sempre a scomparsa e quindi senza la seconda fila. A riposo è la pillola
+    verticale del menu inferiore; il marchio apre un pannello d'accento che cresce dal suo angolo, sopra
+    la linea dei gesti (che non cambia colore), con caselle grandi quanto i tasti della pillola:
+    - nella schermata iniziale un 3x3: le tre viste, con quella in cui sei segnata come scelta;
+      'Mostra nascoste' (spenta senza nascoste; senza permesso al suo posto 'Seleziona immagine'),
+      Cerca, Indirizzo; Cestino, Impostazioni, ×. Nel solo menu angolare questo rovescia la regola
+      della `0.84` sulle due viste, col suo consenso;
+    - nelle cartelle e nel cestino un 2x2: Cerca, Cestino; Impostazioni, × (nel cestino le sue tre
+      voci);
+    - la × prende il posto del marchio, e scorrendo la × e la casella sopra di lei diventano `in fondo`
+      e `in cima`; a sinistra ogni riga è a specchio.
   - ⚠️⚠️ **Con sette voci, il massimo, la pillola estesa occupa tutta la riga fra i due margini**
     (sua regola, dalla `4.15`): le celle si allargano, i tasti no, e la quarta voce, `Cerca`, cade sulla
     linea di mezzo dello schermo. ⚠️ Solo nella pillola estesa (sua risposta): quella a scomparsa,
@@ -218,7 +235,13 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     in fondo a 'Tema e dettagli grafici' e su ogni apparecchio** (nota E): `Solido` (di fabbrica),
     `Trasparente` (colore all'80%), `Traslucido` (fino alla `4.05` `Vetro`: sfocatura di
     deviazione 8 e saturazione al 160% come la pillola del DF, colore all'80% sul tema chiaro e al
-    65% sullo scuro dalla `4.01`). Da Android 11 in giù il traslucido non compare. Vale per il FAB
+    65% sullo scuro dalla `4.01`). Da Android 11 in giù il traslucido non compare. ⚠️ **Dalla `4.20`, col
+    traslucido scelto, compaiono quattro cursori con un'anteprima dal vivo** (sua nota N1 del giro
+    della `4.15` e sua correzione: *serve un elemento traslucido che si aggiorna in tempo reale*):
+    Raggio (della sfocatura, 13dp di fabbrica), Intensità (saturazione di quello che c'è dietro, 160%),
+    Colore (quantità di accento rispetto al tono del tema, 100%), Luminosità (bianco sopra zero, nero
+    sotto, 0). La lettura dei quattro è dichiarata nel DF; si nascondono spegnendo `GLASS_TUNING`, e i
+    valori restano quelli scelti. Vale per il FAB
     (anche premuto, mentre passa all'accento dell'altro tema), per la pillola del telefono, per il
     menu inferiore e per le pillole degli schermi larghi e del tablet, anche dove la forma è imposta
     (suo commento a `4.10-02`); il FAB staccato sopra il suo menu tiene la sola tinta, perché

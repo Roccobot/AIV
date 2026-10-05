@@ -67,6 +67,10 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -3330,6 +3334,7 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
                 MainControl.FAB -> R.string.main_control_fab
                 MainControl.PILL -> R.string.main_control_pill
                 MainControl.BOTTOM -> R.string.main_control_bar
+                MainControl.CORNER -> R.string.main_control_corner
             }
         )
     }
@@ -3364,7 +3369,8 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
                 )
             }
         }
-        if (settings.mainControl != MainControl.FAB) {
+        // ⚠️ Il menu angolare è sempre a scomparsa (*il menu angolare sempre*): niente seconda fila.
+        if (settings.mainControl == MainControl.PILL || settings.mainControl == MainControl.BOTTOM) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
                 modes.forEachIndexed { at, mode ->
                     FilterChip(
@@ -3409,7 +3415,123 @@ private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) 
         },
         onSelect = { onChange(settings.copy(pillFill = it)) }
     )
+    /*
+     * ⚠️⚠️ **I QUATTRO CURSORI DEL TRASLUCIDO, DALLA `4.20`, ED È SUA RICHIESTA** (nota N1 del giro
+     * della `4.15`): compaiono solo col traslucido scelto, e si nascondono tutti spegnendo
+     * [GLASS_TUNING]. Il significato di ognuno è dichiarato su [GlassTune].
+     * ⚠️ **Scrivono quando il dito si alza**, come il cursore dello zoom, e per la stessa ragione.
+     */
+    if (GLASS_TUNING && settings.pillFill == PillFill.GLASS && glassAvailable()) {
+        /*
+         * ⚠️⚠️ **L'ANTEPRIMA SEGUE IL DITO, ED È SUA CORREZIONE** (2026-10-05: *è impossibile
+         * configurarli alla cieca. Serve un elemento traslucido che si aggiorna in tempo reale man
+         * mano che si cambiano i valori*): i cursori muovono [vivo], che l'anteprima legge a ogni
+         * fotogramma, e la preferenza si scrive quando il dito si alza.
+         * ⚠️ **[vivo] riparte quando il valore cambia da fuori**, come lo stato del cursore dello
+         * zoom: un ripristino rimette cursori e anteprima dove devono stare.
+         */
+        var vivo by remember(settings.glass) { mutableStateOf(settings.glass) }
+        val scrivi = { onChange(settings.copy(glass = vivo)) }
+        GlassPreview(vivo)
+        GlassSlider(R.string.glass_radius, vivo.radius, GlassTune.RADIUS_RANGE, "dp", { vivo = vivo.copy(radius = it) }, scrivi)
+        GlassSlider(R.string.glass_intensity, vivo.intensity, GlassTune.INTENSITY_RANGE, "%", { vivo = vivo.copy(intensity = it) }, scrivi)
+        GlassSlider(R.string.glass_tint, vivo.tint, GlassTune.TINT_RANGE, "%", { vivo = vivo.copy(tint = it) }, scrivi)
+        GlassSlider(R.string.glass_light, vivo.light, GlassTune.LIGHT_RANGE, "", { vivo = vivo.copy(light = it) }, scrivi)
+    }
 }
+
+/**
+ * Uno dei quattro cursori del traslucido: il nome col valore accanto, e il cursore sotto.
+ *
+ * ⚠️ **Muove il valore dal vivo a ogni passo** ([onMove]), perché l'anteprima lo segua, e scrive
+ * la preferenza solo quando il dito si alza ([onDone]).
+ */
+@Composable
+private fun GlassSlider(
+    label: Int,
+    value: Int,
+    range: IntRange,
+    unit: String,
+    onMove: (Int) -> Unit,
+    onDone: () -> Unit
+) {
+    val name = stringResource(label)
+    Searchable(name) {
+        Text(
+            text = "$name   $value$unit",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(top = 12.dp)
+        )
+        Slider(
+            value = value.toFloat(),
+            onValueChange = { onMove(it.roundToInt()) },
+            onValueChangeFinished = onDone,
+            valueRange = range.first.toFloat()..range.last.toFloat(),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+/**
+ * L'anteprima del traslucido: una pillola di vetro sopra un fondo a righe colorate, coi valori
+ * dei cursori così come sono adesso.
+ *
+ * ⚠️ **Il fondo è disegnato e non è una fotografia**: righe sottili e colori saturi sono il caso in
+ * cui raggio e intensità si vedono meglio, e non c'è un file da portarsi dietro.
+ * ⚠️ **È il vetro vero** ([buttonFill] con lo stesso [Backdrop] delle schermate), con il tono
+ * scelto passato da [LocalPillLook]: quello che si vede qui è quello che si vedrà sulle pillole.
+ */
+@Composable
+private fun GlassPreview(tune: GlassTune) {
+    val layer = androidx.compose.ui.graphics.rememberGraphicsLayer()
+    val backdrop = remember(layer) { Backdrop(layer) }
+    val look = LocalPillLook.current.copy(fill = PillFill.GLASS, glass = tune)
+    Box(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth()
+            .height(PREVIEW_TALL)
+            .clip(RoundedCornerShape(16.dp))
+            // ⚠️ Muta per il lettore di schermo: è un disegno, e le icone finte non sono comandi.
+            .clearAndSetSemantics { }
+    ) {
+        androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize().backdropSource(backdrop)) {
+            val step = PREVIEW_STRIPE.toPx()
+            var x = -size.height
+            var i = 0
+            while (x < size.width + size.height) {
+                drawLine(
+                    color = PREVIEW_COLOURS[i % PREVIEW_COLOURS.size],
+                    start = androidx.compose.ui.geometry.Offset(x, size.height),
+                    end = androidx.compose.ui.geometry.Offset(x + size.height, 0f),
+                    strokeWidth = step
+                )
+                x += step
+                i++
+            }
+        }
+        CompositionLocalProvider(LocalPillLook provides look, LocalContentColor provides pillInk()) {
+            Row(modifier = Modifier.align(Alignment.Center).pillFill(backdrop)) {
+                listOf(Icons.Default.Search, Icons.Default.Close, Icons.Default.Settings).forEach {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(PILL_KEY)) {
+                        Icon(it, contentDescription = null, modifier = Modifier.size(PILL_GLYPH))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** How tall the translucent look's preview is: enough for the pill and some stripes around it. */
+private val PREVIEW_TALL = 96.dp
+
+/** The width of each stripe behind the preview's pill. */
+private val PREVIEW_STRIPE = 10.dp
+
+/** The stripes' colours: saturated and far apart, where blur and intensity show the most. */
+private val PREVIEW_COLOURS = listOf(
+    Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA), Color(0xFFFFFFFF)
+)
 
 /**
  * Una voce con l'interruttore.

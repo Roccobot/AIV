@@ -95,8 +95,55 @@ data class PillLook(
      * Whether [mode] is drawn as the bottom menu ([MainControl.BOTTOM]) instead of a pill: then
      * [PhonePill.SLIDE] is the menu that slides in from below and [PhonePill.EXTENDED] the fixed one.
      */
-    val bar: Boolean = false
+    val bar: Boolean = false,
+    /** Whether the main control is the corner menu ([MainControl.CORNER]): always [PhonePill.SLIDE]. */
+    val corner: Boolean = false,
+    /** How the translucent look is tuned. */
+    val glass: GlassTune = GlassTune()
 )
+
+/**
+ * How the translucent look is tuned: the four sliders that appear with it (Raggio, Intensità,
+ * Colore, Luminosità).
+ *
+ * ⚠️⚠️ **SINCE 4.20, HIS REQUEST** (note N1 on the 4.15 round: *se all'attivazione dell'effetto
+ * traslucido si attivassero dei controlli tipo Luminosità, Colore, Raggio (della sfocatura),
+ * Intensità (della sfocatura)? ... poi si possono disattivare spegnendo un feature flag*). The
+ * meaning of each is a reading declared in the DF, to be corrected on his round.
+ * ⚠️ **The factory values are the glass up to 4.15**, the DF's: 13dp of radius, 160% of
+ * saturation, the theme's ink as it was, no light added.
+ *
+ * @property radius the blur's radius, in dp.
+ * @property intensity how vivid the colours behind get, in percent: 100 leaves them as they are.
+ * @property tint how much accent the glass carries, in percent of the theme's own ink.
+ * @property light what is added over the blurred picture, in percent: white above zero, black below.
+ */
+@Immutable
+data class GlassTune(
+    val radius: Int = RADIUS,
+    val intensity: Int = INTENSITY,
+    val tint: Int = TINT,
+    val light: Int = LIGHT
+) {
+    companion object {
+        const val RADIUS = 13
+        const val INTENSITY = 160
+        const val TINT = 100
+        const val LIGHT = 0
+        val RADIUS_RANGE = 0..40
+        val INTENSITY_RANGE = 0..300
+        val TINT_RANGE = 0..150
+        val LIGHT_RANGE = -50..50
+    }
+}
+
+/**
+ * Whether the four sliders of [GlassTune] are shown: the 'feature flag' of his note N1.
+ *
+ * ⚠️ **Turning it off hides the sliders and keeps their values**: the style he reached stays the
+ * one in force, and the factory values only matter to a phone that never moved them.
+ */
+const val GLASS_TUNING = true
 
 /**
  * The pill as the activity sets it on stage, next to the other looks.
@@ -120,8 +167,16 @@ fun pillFillIn(fill: PillFill): PillFill =
  * ⚠️ **The smallest width and not the current one**: a phone held sideways is still a phone, and
  * the wide screens have their own pill; this only decides whether the item exists at all.
  */
-fun pillMode(control: MainControl, mode: PhonePill, smallestWidthDp: Int): PhonePill =
-    if (control != MainControl.FAB && pillOffered(smallestWidthDp)) mode else PhonePill.OFF
+fun pillMode(control: MainControl, mode: PhonePill, smallestWidthDp: Int): PhonePill = when {
+    control == MainControl.FAB || !pillOffered(smallestWidthDp) -> PhonePill.OFF
+    // ⚠️ The corner menu has no fixed form: it always folds into its pill.
+    control == MainControl.CORNER -> PhonePill.SLIDE
+    else -> mode
+}
+
+/** Whether the main control in force is the corner menu: only on a phone, like [pillMode]. */
+fun cornerIn(control: MainControl, smallestWidthDp: Int): Boolean =
+    control == MainControl.CORNER && pillOffered(smallestWidthDp)
 
 /** Whether the main control in force is the bottom menu: only on a phone, like [pillMode]. */
 fun barIn(control: MainControl, smallestWidthDp: Int): Boolean =
@@ -175,10 +230,8 @@ fun Modifier.backdropSource(backdrop: Backdrop?): Modifier =
  * a glass visibly clearer than the DF's.
  * ⚠️ **In dp, like the CSS pixel**: the DF's 8px are 8 device-independent pixels.
  */
-internal val GLASS_BLUR = 13.dp
+internal val GLASS_BLUR = GlassTune.RADIUS.dp
 
-/** The DF pill's `saturate(160%)`: the colours behind the glass get 60% more vivid. */
-private const val GLASS_SATURATION = 1.6f
 
 /**
  * How much accent the glass carries.
@@ -232,7 +285,13 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
             )
         }
         PillFill.GLASS -> {
-            val tint = colour.copy(alpha = colour.alpha * (if (light) GLASS_INK_LIGHT else GLASS_INK_DARK))
+            val tune = LocalPillLook.current.glass
+            val ink = (if (light) GLASS_INK_LIGHT else GLASS_INK_DARK) * tune.tint / 100f
+            val tint = colour.copy(alpha = (colour.alpha * ink).coerceIn(0f, 1f))
+            val radiusDp = tune.radius.dp
+            val saturation = tune.intensity / 100f
+            val wash = if (tune.light >= 0) Color.White.copy(alpha = tune.light / 100f)
+            else Color.Black.copy(alpha = -tune.light / 100f)
             val blurred = rememberGraphicsLayer()
             var me by remember { mutableStateOf(Offset.Zero) }
             this
@@ -253,8 +312,8 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                          * every pixel, and at the pill's edge those would be transparent, which
                          * draws a dark rim the DF's glass does not have.
                          */
-                        val edge = (GLASS_BLUR.toPx() * 2).roundToInt()
-                        blurred.renderEffect = glassEffect(GLASS_BLUR.toPx())
+                        val edge = (radiusDp.toPx() * 2).roundToInt()
+                        blurred.renderEffect = glassEffect(radiusDp.toPx(), saturation)
                         blurred.topLeft = IntOffset(-edge, -edge)
                         blurred.record(
                             size = IntSize(size.width.roundToInt() + edge * 2, size.height.roundToInt() + edge * 2)
@@ -265,6 +324,7 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
                         }
                         clipPath(path) { drawLayer(blurred) }
                     }
+                    if (tune.light != 0) drawOutline(outline, wash)
                     drawOutline(outline, tint)
                 }
                 .clip(shape)
@@ -274,10 +334,18 @@ fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modif
 
 /** The blur plus the saturation, in that order, as the DF's `backdrop-filter` writes them. */
 @RequiresApi(Build.VERSION_CODES.S)
-private fun glassEffect(radius: Float) = RenderEffect.createColorFilterEffect(
-    ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(GLASS_SATURATION) }),
-    RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
-).asComposeRenderEffect()
+private fun glassEffect(radius: Float, saturation: Float): androidx.compose.ui.graphics.RenderEffect {
+    // ⚠️ A radius of zero is no blur at all, and `createBlurEffect` refuses it.
+    val colour = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(saturation) })
+    return if (radius <= 0f) {
+        RenderEffect.createColorFilterEffect(colour).asComposeRenderEffect()
+    } else {
+        RenderEffect.createColorFilterEffect(
+            colour,
+            RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
+        ).asComposeRenderEffect()
+    }
+}
 
 /**
  * The pill's colour: the accent of the OTHER theme, in every fill.
@@ -352,6 +420,11 @@ fun PhonePillBar(
      * jump ('in fondo', always), and [fabLabel] follows the FAB's chevron instead.
      */
     restLabel: String? = null,
+    /**
+     * The corner menu's cells, in the right-handed reading order, where they differ from [entries]:
+     * the home's 3x3 keeps all three views and 'Mostra nascoste' in place (decisions C1 and C2).
+     */
+    cornerEntries: List<PillEntry>? = null,
     fabGlyph: @Composable (String?) -> Unit
 ) {
     if (entries.isEmpty()) return
@@ -359,6 +432,25 @@ fun PhonePillBar(
     val look = LocalPillLook.current
     val scope = rememberCoroutineScope()
     val ordered = if (atEnd) entries else mirrored(entries)
+    if (look.corner) {
+        CompositionLocalProvider(LocalContentColor provides pillInk()) {
+            CornerMenu(
+                // ⚠️ In reading order for the right hand: the corner menu mirrors each row itself.
+                entries = cornerEntries ?: entries,
+                arm = arm,
+                fabLabel = restLabel ?: fabLabel,
+                holdLabel = holdLabel,
+                onHold = onHold,
+                backdrop = backdrop,
+                atEnd = atEnd,
+                corner = corner,
+                modifier = modifier,
+                onJump = { toward -> scope.launch { arm?.leapToward(toward, nested) } },
+                mark = mark
+            )
+        }
+        return
+    }
     if (look.bar) {
         CompositionLocalProvider(LocalContentColor provides pillInk()) {
             BottomMenu(
@@ -401,19 +493,11 @@ fun PhonePillBar(
  * ⚠️⚠️ **SINCE 4.15, THE USER'S ORDER** (*quando il lato preferito è sinistra, l'ordine deve
  * cambiare: sarà (da sinistra a destra) Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra
  * nascoste, Altra vista 1, Altra vista 2*): the key under the thumb is 'Impostazioni' on both sides.
- * ⚠️ **A run of entries marked [PillEntry.run] keeps its own order**: the two views, which he wrote
- * as 'Altra vista 1, Altra vista 2' and not reversed. Until 4.10 a left-handed pill kept the
- * right-handed order, with the round key moved to the left.
+ * ⚠️ **Since 4.20 the two views are mirrored too** (his comment on `4.15-04`: *volevo specchiati
+ * anche quei due*): in 4.15 they kept their order, read from his list. Until 4.10 a left-handed
+ * pill kept the right-handed order, with the round key moved to the left.
  */
-internal fun mirrored(entries: List<PillEntry>): List<PillEntry> {
-    val blocks = mutableListOf<MutableList<PillEntry>>()
-    entries.forEach { entry ->
-        val last = blocks.lastOrNull()
-        if (entry.run != null && last != null && last.first().run == entry.run) last += entry
-        else blocks += mutableListOf(entry)
-    }
-    return blocks.asReversed().flatten()
-}
+internal fun mirrored(entries: List<PillEntry>): List<PillEntry> = entries.asReversed()
 
 /**
  * The size of a key when the pill has to fit [count] of them in [room].

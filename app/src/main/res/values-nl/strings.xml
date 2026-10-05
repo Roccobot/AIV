@@ -123,11 +123,16 @@
     <string name="settings_hand">Voorkeurspositie van de knoppen</string>
     <string name="settings_hand_desc">De voorkeurszijde voor de hoofdknoppen bij bediening met één hand, voor rechts- en linkshandigen. Ze bepaalt waar de zwevende actieknop (\'FAB\'), enkele navigatieknoppen en delen van de editor-interface komen.</string>
     <string name="settings_main_control">Hoofdbediening</string>
-    <string name="settings_main_control_desc">Kies hoe je de app bedient als je de telefoon rechtop houdt: zwevende knop (\'FAB\') met menu, pil met pictogrammen of onderste menu.</string>
+    <string name="settings_main_control_desc">Kies hoe je de app bedient als je de telefoon rechtop houdt: zwevende knop (\'FAB\') met menu, pil met pictogrammen, onderste menu of hoekmenu.</string>
     <string name="main_control_fab">Zwevende knop</string>
     <string name="main_control_pill">Pil met pictogrammen</string>
     <string name="main_control_bar">Onderste menu</string>
     <string name="bar_fixed">Vast</string>
+    <string name="main_control_corner">Hoekmenu</string>
+    <string name="glass_radius">Straal</string>
+    <string name="glass_intensity">Intensiteit</string>
+    <string name="glass_tint">Kleur</string>
+    <string name="glass_light">Helderheid</string>
     <string name="settings_button_look">Uiterlijk van de hoofdknoppen</string>
     <string name="settings_button_look_desc">Vulling en transparantie- of vervagingseffecten voor de zwevende knop, de pil met pictogrammen en het onderste menu.</string>
     <string name="pill_slide">Inklapbaar</string>

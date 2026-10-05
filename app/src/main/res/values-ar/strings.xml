@@ -123,11 +123,16 @@
     <string name="settings_hand">الموضع المفضل للأزرار</string>
     <string name="settings_hand_desc">الجهة المفضلة للأزرار الرئيسية عند الاستخدام بيد واحدة، لمن يستخدم اليمنى أو اليسرى. تحدد موضع زر الإجراء العائم (\'FAB\') وبعض أزرار التنقل وأجزاء من واجهة المحرر.</string>
     <string name="settings_main_control">عنصر التحكم الرئيسي</string>
-    <string name="settings_main_control_desc">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') مع قائمة، أو شريط من الأيقونات، أو قائمة سفلية.</string>
+    <string name="settings_main_control_desc">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') مع قائمة، أو شريط من الأيقونات، أو قائمة سفلية، أو قائمة الزاوية.</string>
     <string name="main_control_fab">زر عائم</string>
     <string name="main_control_pill">شريط أيقونات</string>
     <string name="main_control_bar">القائمة السفلية</string>
     <string name="bar_fixed">ثابتة</string>
+    <string name="main_control_corner">قائمة الزاوية</string>
+    <string name="glass_radius">نصف القطر</string>
+    <string name="glass_intensity">الشدة</string>
+    <string name="glass_tint">اللون</string>
+    <string name="glass_light">السطوع</string>
     <string name="settings_button_look">مظهر الأزرار الرئيسية</string>
     <string name="settings_button_look_desc">التعبئة وتأثيرات الشفافية أو التمويه مطبقة على الزر العائم وشريط الأيقونات والقائمة السفلية.</string>
     <string name="pill_slide">قابلة للإخفاء</string>
