@@ -90,7 +90,12 @@ import kotlin.math.roundToInt
 @Immutable
 data class PillLook(
     val mode: PhonePill = PhonePill.OFF,
-    val fill: PillFill = PillFill.SOLID
+    val fill: PillFill = PillFill.SOLID,
+    /**
+     * Whether [mode] is drawn as the bottom menu ([MainControl.BOTTOM]) instead of a pill: then
+     * [PhonePill.SLIDE] is the menu that slides in from below and [PhonePill.EXTENDED] the fixed one.
+     */
+    val bar: Boolean = false
 )
 
 /**
@@ -109,13 +114,18 @@ fun pillFillIn(fill: PillFill): PillFill =
     if (fill == PillFill.GLASS && !glassAvailable()) PillFill.SOLID else fill
 
 /**
- * The mode in force: the chosen pill on a phone whose main control is the pill, the FAB elsewhere.
+ * The mode in force: the chosen pill on a phone whose main control is the pill or the bottom menu,
+ * the FAB elsewhere. Whether it is drawn as the bottom menu says [barIn].
  *
  * ⚠️ **The smallest width and not the current one**: a phone held sideways is still a phone, and
  * the wide screens have their own pill; this only decides whether the item exists at all.
  */
 fun pillMode(control: MainControl, mode: PhonePill, smallestWidthDp: Int): PhonePill =
-    if (control == MainControl.PILL && pillOffered(smallestWidthDp)) mode else PhonePill.OFF
+    if (control != MainControl.FAB && pillOffered(smallestWidthDp)) mode else PhonePill.OFF
+
+/** Whether the main control in force is the bottom menu: only on a phone, like [pillMode]. */
+fun barIn(control: MainControl, smallestWidthDp: Int): Boolean =
+    control == MainControl.BOTTOM && pillOffered(smallestWidthDp)
 
 /** Whether this device is a phone, which is where the setting exists at all. */
 fun pillOffered(smallestWidthDp: Int): Boolean = smallestWidthDp < Adaptive.PHONE_MAX
@@ -296,7 +306,7 @@ fun pillInk(): Color = aivOnAccent(!LocalAivLight.current)
 private const val PILL_OPEN_MS = 160
 
 /** The exponential ease-out: `1 - 2^(-10x)`, pinned to 1 at the end. */
-private val PILL_EASE = Easing { x -> if (x >= 1f) 1f else 1f - 2f.pow(-10f * x) }
+internal val PILL_EASE = Easing { x -> if (x >= 1f) 1f else 1f - 2f.pow(-10f * x) }
 
 /** How much ink the × keeps: *semitrasparente*, the user's word. */
 private const val CLOSE_INK = 0.6f
@@ -328,27 +338,81 @@ fun PhonePillBar(
     onHold: (() -> Unit)?,
     backdrop: Backdrop?,
     modifier: Modifier = Modifier,
+    /**
+     * Where the corner key sits, inside [modifier]: the insets and the margins the FAB had.
+     *
+     * ⚠️ **Apart from [modifier] since 4.15**: the bottom menu spans the whole width down to the
+     * glass, and only its folded pill keeps the FAB's corner.
+     */
+    corner: Modifier = Modifier,
+    /** The FAB's glyph without the jump's chevron, for the bottom menu's folded pill. */
+    mark: @Composable (String?) -> Unit = {},
+    /**
+     * What the round key does at rest, without the jump: the bottom menu's folded pill says its own
+     * jump ('in fondo', always), and [fabLabel] follows the FAB's chevron instead.
+     */
+    restLabel: String? = null,
     fabGlyph: @Composable (String?) -> Unit
 ) {
     if (entries.isEmpty()) return
     val atEnd = LocalPadLook.current.hand == Hand.RIGHT
-    val mode = LocalPillLook.current.mode
+    val look = LocalPillLook.current
     val scope = rememberCoroutineScope()
-    BoxWithConstraints(modifier = modifier.declaresFoot()) {
+    val ordered = if (atEnd) entries else mirrored(entries)
+    if (look.bar) {
         CompositionLocalProvider(LocalContentColor provides pillInk()) {
-            when (mode) {
+            BottomMenu(
+                entries = ordered,
+                arm = arm,
+                fabLabel = restLabel ?: fabLabel,
+                holdLabel = holdLabel,
+                onHold = onHold,
+                backdrop = backdrop,
+                atEnd = atEnd,
+                slide = look.mode == PhonePill.SLIDE,
+                corner = corner,
+                modifier = modifier,
+                onJump = { toward -> scope.launch { arm?.leapToward(toward, nested) } },
+                mark = mark
+            )
+        }
+        return
+    }
+    BoxWithConstraints(modifier = modifier.then(corner).declaresFoot()) {
+        CompositionLocalProvider(LocalContentColor provides pillInk()) {
+            when (look.mode) {
                 PhonePill.SLIDE -> SlidePill(
-                    entries, arm, fabLabel, holdLabel, onHold, backdrop, atEnd, maxWidth,
+                    ordered, arm, fabLabel, holdLabel, onHold, backdrop, atEnd, maxWidth,
                     onJump = { scope.launch { arm?.leap(nested) } },
                     fabGlyph = fabGlyph
                 )
                 else -> ExtendedPill(
-                    entries, arm, backdrop, atEnd, maxWidth,
+                    ordered, arm, backdrop, atEnd, maxWidth,
                     onJump = { toward -> scope.launch { arm?.leapToward(toward, nested) } }
                 )
             }
         }
     }
+}
+
+/**
+ * The entries in the order a left-handed pill reads them: the mirror of the right-handed one.
+ *
+ * ⚠️⚠️ **SINCE 4.15, THE USER'S ORDER** (*quando il lato preferito è sinistra, l'ordine deve
+ * cambiare: sarà (da sinistra a destra) Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra
+ * nascoste, Altra vista 1, Altra vista 2*): the key under the thumb is 'Impostazioni' on both sides.
+ * ⚠️ **A run of entries marked [PillEntry.run] keeps its own order**: the two views, which he wrote
+ * as 'Altra vista 1, Altra vista 2' and not reversed. Until 4.10 a left-handed pill kept the
+ * right-handed order, with the round key moved to the left.
+ */
+internal fun mirrored(entries: List<PillEntry>): List<PillEntry> {
+    val blocks = mutableListOf<MutableList<PillEntry>>()
+    entries.forEach { entry ->
+        val last = blocks.lastOrNull()
+        if (entry.run != null && last != null && last.first().run == entry.run) last += entry
+        else blocks += mutableListOf(entry)
+    }
+    return blocks.asReversed().flatten()
 }
 
 /**
@@ -497,6 +561,18 @@ private fun ExtendedPill(
     val armed = arm?.armed == true
     val count = entries.size
     val key = keyFor(count, room)
+    /*
+     * ⚠️⚠️ **WITH THE MOST ENTRIES THE PILL SPANS THE WHOLE ROW, SINCE 4.15, AND IT IS HIS RULE**
+     * (*se si raggiungono le 7 icone (il massimo), la pillola raggiunge a sinistra la stessa
+     * distanza che la separa dal bordo a destra, aumentando leggermente la spaziatura in modo che
+     * l'icona 'Cerca' sia esattamente al centro*): [room] is already the row between the two
+     * margins, so seven equal cells put the fourth, 'Cerca', on the screen's centre line.
+     * ⚠️ **Only the extended pill** (his answer: *solo nella pillola estesa*): the sliding one
+     * adds its × and would have eight keys.
+     * ⚠️ **The cells widen, the keys do not**: the touch target and the round ripple stay the
+     * key's, and the extra width is spacing.
+     */
+    val cell = if (count >= PILL_FULL) room / count else key
     // ⚠️ The two keys at the corner, in reading order: on the right they are the last two.
     val inner = if (atEnd) count - 2 else 1
     val outer = if (atEnd) count - 1 else 0
@@ -513,58 +589,88 @@ private fun ExtendedPill(
             }
             if (jump == 0) {
                 if (q < 1f || !folds) {
-                    PillKey(
-                        entry = entry,
-                        size = key,
-                        enabled = !armed,
+                    Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .width(key * (if (folds) 1f - q else 1f))
+                            .width(cell * (if (folds) 1f - q else 1f))
                             .graphicsLayer { alpha = if (folds) 1f - q else 1f }
-                    )
+                    ) {
+                        PillKey(entry = entry, size = key, enabled = !armed)
+                    }
                 }
             } else {
-                val shown = if (armed) {
-                    entry.copy(
-                        label = if (jump < 0) top else bottom,
-                        onHold = null,
-                        onTap = { onJump(jump) }
-                    )
-                } else {
-                    entry
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.width(lerp(cell, key, q))) {
+                    JumpKey(entry, jump, q, armed, key, top, bottom, onJump)
                 }
-                PillKey(
-                    entry = shown,
-                    size = key,
-                    glyph = {
-                        Box(contentAlignment = Alignment.Center) {
-                            Box(
-                                modifier = Modifier.graphicsLayer {
-                                    alpha = (1f - q).pow(JUMP_FULL)
-                                    val s = 1f - JUMP_ZOOM * q
-                                    scaleX = s
-                                    scaleY = s
-                                }
-                            ) { Icon(entry.icon, contentDescription = null, modifier = Modifier.size(PILL_GLYPH)) }
-                            if (q > 0f) {
-                                Box(
-                                    modifier = Modifier.graphicsLayer {
-                                        alpha = q.pow(JUMP_FULL)
-                                        val s = 1f - JUMP_ZOOM * (1f - q)
-                                        scaleX = s
-                                        scaleY = s
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = if (jump < 0) Glyphs.BrowseTop else Glyphs.BrowseBottom,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(PILL_GLYPH)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                )
             }
         }
     }
+}
+
+/** From how many entries the extended pill spans the whole row: seven, the most there are. */
+internal const val PILL_FULL = 7
+
+/**
+ * A key that turns into a jump while the screen scrolls: [entry] at rest, `↑` ([jump] `-1`) or
+ * `↓` ([jump] `1`) while [armed], with the chevron's own crossfade driven by [q].
+ *
+ * ⚠️ **Written once since 4.15**: the extended pill, the bottom menu and its folded pill all turn
+ * two of their keys into the jump, and with the same mechanism (*con il solito meccanismo*).
+ * ⚠️ **A tap jumps only while armed**: halfway through, the key is still the entry, and it does
+ * what it shows.
+ */
+@Composable
+internal fun JumpKey(
+    entry: PillEntry,
+    jump: Int,
+    q: Float,
+    armed: Boolean,
+    size: Dp,
+    top: String,
+    bottom: String,
+    onJump: (Int) -> Unit,
+    holdLabel: String? = null,
+    rest: (@Composable () -> Unit)? = null
+) {
+    val shown = if (armed) {
+        entry.copy(label = if (jump < 0) top else bottom, onHold = null, onTap = { onJump(jump) })
+    } else {
+        entry
+    }
+    PillKey(
+        entry = shown,
+        size = size,
+        holdLabel = if (armed) null else holdLabel,
+        glyph = {
+            Box(contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.graphicsLayer {
+                        alpha = (1f - q).pow(JUMP_FULL)
+                        val s = 1f - JUMP_ZOOM * q
+                        scaleX = s
+                        scaleY = s
+                    }
+                ) {
+                    if (rest != null) rest()
+                    else Icon(entry.icon, contentDescription = null, modifier = Modifier.size(PILL_GLYPH))
+                }
+                if (q > 0f) {
+                    Box(
+                        modifier = Modifier.graphicsLayer {
+                            alpha = q.pow(JUMP_FULL)
+                            val s = 1f - JUMP_ZOOM * (1f - q)
+                            scaleX = s
+                            scaleY = s
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (jump < 0) Glyphs.BrowseTop else Glyphs.BrowseBottom,
+                            contentDescription = null,
+                            modifier = Modifier.size(PILL_GLYPH)
+                        )
+                    }
+                }
+            }
+        }
+    )
 }

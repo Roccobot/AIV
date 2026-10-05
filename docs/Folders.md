@@ -176,6 +176,29 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   Chiave `main-control`; un archivio o un file di impostazioni con l'interruttore della
   `4.02`-`4.05` (`phone-pill-on`) o col solo gettone della `4.00`-`4.01` si rilegge col suo
   significato.
+  - ⚠️⚠️ **Dalla `4.15` c'è il terzo gettone, `Menu inferiore`** (nota D del giro della `4.04`,
+    risposte G5, M1 e M2), e il paragrafo è completo con le sue parole. La seconda fila vale anche per
+    lui, coi gettoni `A scomparsa` e `Fisso`, sullo stesso valore della pillola (`phone-pill`):
+    - è una barra a tutta larghezza in fondo allo schermo, sotto la linea dei gesti, che sopra di lei
+      diventa bianca; si sovrappone alla griglia, e l'ultima riga ha lo spazio per salirle sopra;
+    - `A scomparsa`: a riposo resta nell'angolo del lato preferito una pillola verticale di due
+      tasti, `in cima` sopra e il marchio sotto (col tocco lungo del FAB); il marchio apre la barra,
+      che entra dal basso in 110 ms con la curva della pillola, con la × nell'angolo; la × e
+      Indietro la richiudono, e una voce la richiude prima di agire;
+    - `Fisso`: la barra è sempre aperta, senza × e senza pillola verticale;
+    - ⚠️ **scorrendo, i due tasti nell'angolo diventano il salto** col meccanismo della pillola
+      estesa: nella pillola verticale il marchio diventa `in fondo` (sopra resta `in cima`), nella
+      barra i due tasti dell'angolo (la × e la voce accanto, o le ultime due voci nel fisso)
+      diventano `in cima` e `in fondo`;
+    - l'aspetto è quello dei pulsanti principali.
+  - ⚠️⚠️ **Col lato preferito a sinistra, dalla `4.15`, l'ordine è il rovescio di quello di destra**
+    (sua richiesta): Impostazioni, Cestino, Apri un indirizzo, Cerca, Mostra nascoste, poi le due viste,
+    che restano nel loro ordine come le ha scritte (`run` di `PillEntry`, `mirrored` in
+    `PhonePill.kt`). Vale per la pillola a scomparsa, per quella estesa e per il menu inferiore.
+  - ⚠️⚠️ **Con sette voci, il massimo, la pillola estesa occupa tutta la riga fra i due margini**
+    (sua regola, dalla `4.15`): le celle si allargano, i tasti no, e la quarta voce, `Cerca`, cade sulla
+    linea di mezzo dello schermo. ⚠️ Solo nella pillola estesa (sua risposta): quella a scomparsa,
+    aperta, ha anche la × e quindi otto tasti.
   - Storico: dalla `4.02` alla `4.05` era l'interruttore `Pillola al posto del FAB in verticale`,
     in cima a 'Pulsanti e indicatori' fino alla `4.03` e in fondo a 'Tema e dettagli grafici'
     dalla `4.04`, con sotto le due file di gettoni.
@@ -196,8 +219,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     `Trasparente` (colore all'80%), `Traslucido` (fino alla `4.05` `Vetro`: sfocatura di
     deviazione 8 e saturazione al 160% come la pillola del DF, colore all'80% sul tema chiaro e al
     65% sullo scuro dalla `4.01`). Da Android 11 in giù il traslucido non compare. Vale per il FAB
-    (anche premuto, mentre passa all'accento dell'altro tema), per la pillola del telefono e per
-    quelle degli schermi larghi; il FAB staccato sopra il suo menu tiene la sola tinta, perché
+    (anche premuto, mentre passa all'accento dell'altro tema), per la pillola del telefono, per il
+    menu inferiore e per le pillole degli schermi larghi e del tablet, anche dove la forma è imposta
+    (suo commento a `4.10-02`); il FAB staccato sopra il suo menu tiene la sola tinta, perché
     sotto c'è già la sfocatura del velo. Fino alla `4.05` era la seconda fila della pillola, e il
     FAB restava pieno.
   - ⚠️⚠️ **Dalla `4.01` la pillola ha l'accento dell'ALTRO tema, coi suoi glifi** (sua scelta,

@@ -123,11 +123,13 @@
     <string name="settings_hand">ตำแหน่งปุ่มที่ต้องการ</string>
     <string name="settings_hand_desc">ด้านที่ต้องการสำหรับปุ่มหลักเมื่อใช้มือเดียว ทั้งคนถนัดขวาและถนัดซ้าย กำหนดตำแหน่งของปุ่มการทำงานแบบลอย (\'FAB\') ปุ่มนำทางบางปุ่ม และบางส่วนของหน้าจอตัวแก้ไข</string>
     <string name="settings_main_control">ตัวควบคุมหลัก</string>
-    <string name="settings_main_control_desc">เลือกวิธีใช้งานแอปเมื่อถือโทรศัพท์แนวตั้ง: ปุ่มลอย (\'FAB\') พร้อมเมนู หรือแถบไอคอนทรงแคปซูล</string>
+    <string name="settings_main_control_desc">เลือกวิธีใช้งานแอปเมื่อถือโทรศัพท์แนวตั้ง: ปุ่มลอย (\'FAB\') พร้อมเมนู แคปซูลไอคอน หรือเมนูด้านล่าง</string>
     <string name="main_control_fab">ปุ่มลอย</string>
     <string name="main_control_pill">แคปซูลไอคอน</string>
+    <string name="main_control_bar">เมนูด้านล่าง</string>
+    <string name="bar_fixed">คงที่</string>
     <string name="settings_button_look">ลักษณะของปุ่มหลัก</string>
-    <string name="settings_button_look_desc">ใช้กับปุ่มลอยและแคปซูลไอคอน</string>
+    <string name="settings_button_look_desc">การเติมสีและเอฟเฟกต์โปร่งใสหรือเบลอสำหรับปุ่มลอย แคปซูลไอคอน และเมนูด้านล่าง</string>
     <string name="pill_slide">แบบซ่อนได้</string>
     <string name="pill_extended">แบบขยาย</string>
     <string name="pill_solid">ทึบ</string>

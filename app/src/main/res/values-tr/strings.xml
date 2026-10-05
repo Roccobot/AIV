@@ -123,11 +123,13 @@
     <string name="settings_hand">Düğmelerin tercih edilen konumu</string>
     <string name="settings_hand_desc">Tek elle kullanımda ana düğmeler için tercih edilen taraf; sağ ve sol elini kullananlar için. Kayan işlem düğmesinin (\'FAB\'), bazı gezinme düğmelerinin ve düzenleyici arayüzünün bazı bölümlerinin yerini belirler.</string>
     <string name="settings_main_control">Ana denetim öğesi</string>
-    <string name="settings_main_control_desc">Telefonu dik tutarken uygulamayla nasıl etkileşeceğini seç: menülü kayan düğme (\'FAB\') ya da simge hapı.</string>
+    <string name="settings_main_control_desc">Telefonu dik tutarken uygulamayla nasıl etkileşeceğini seç: menülü kayan düğme (\'FAB\'), simge hapı ya da alt menü.</string>
     <string name="main_control_fab">Kayan düğme</string>
     <string name="main_control_pill">Simge hapı</string>
+    <string name="main_control_bar">Alt menü</string>
+    <string name="bar_fixed">Sabit</string>
     <string name="settings_button_look">Ana düğmelerin görünümü</string>
-    <string name="settings_button_look_desc">Kayan düğme ve simge hapları için geçerlidir.</string>
+    <string name="settings_button_look_desc">Kayan düğmeye, simge hapına ve alt menüye uygulanan dolgu ile saydamlık veya bulanıklık efektleri.</string>
     <string name="pill_slide">Gizlenen</string>
     <string name="pill_extended">Genişletilmiş</string>
     <string name="pill_solid">Düz</string>

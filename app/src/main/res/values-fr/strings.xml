@@ -123,11 +123,13 @@
     <string name="settings_hand">Position préférée des boutons</string>
     <string name="settings_hand_desc">Le côté préféré pour les boutons principaux lors d\'une utilisation à une main, pour droitiers et gauchers. Il définit la place du bouton d\'action flottant (\'FAB\'), de certains boutons de navigation et de parties de l\'interface de l\'éditeur.</string>
     <string name="settings_main_control">Commande principale</string>
-    <string name="settings_main_control_desc">Choisis comment interagir avec l\'app quand tu tiens le téléphone à la verticale : bouton flottant (\'FAB\') avec menu ou pilule d\'icônes.</string>
+    <string name="settings_main_control_desc">Choisis comment interagir avec l\'app quand tu tiens le téléphone à la verticale : bouton flottant (\'FAB\') avec menu, pilule d\'icônes ou menu inférieur.</string>
     <string name="main_control_fab">Bouton flottant</string>
     <string name="main_control_pill">Pilule d\'icônes</string>
+    <string name="main_control_bar">Menu inférieur</string>
+    <string name="bar_fixed">Fixe</string>
     <string name="settings_button_look">Aspect des boutons principaux</string>
-    <string name="settings_button_look_desc">S\'applique au bouton flottant et aux pilules d\'icônes.</string>
+    <string name="settings_button_look_desc">Remplissage et effets de transparence ou de flou appliqués au bouton flottant, à la pilule d\'icônes et au menu inférieur.</string>
     <string name="pill_slide">Rétractable</string>
     <string name="pill_extended">Étendue</string>
     <string name="pill_solid">Plein</string>

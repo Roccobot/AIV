@@ -2785,13 +2785,23 @@ class ViewerActivity : ComponentActivity() {
              * Il colore di fondo resta trasparente in tutti e due i casi, che è quello che
              * l'app dipinge da sé.
              */
-            LaunchedEffect(scuro) {
+            /*
+             * ⚠️⚠️ **E DALLA `4.15` LA LINEA DEI GESTI È BIANCA SOPRA IL MENU INFERIORE** (nota D del
+             * giro della `4.04`, col suo mockup): sull'accento la linea scura del tema chiaro quasi
+             * sparisce, e il sistema la colora solo intera. Chi è sotto la linea lo dice
+             * [BarStage].
+             */
+            val sottoBarra = BarStage.under
+            LaunchedEffect(scuro, sottoBarra) {
                 val stile = if (scuro) {
                     SystemBarStyle.dark(Color.TRANSPARENT)
                 } else {
                     SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
                 }
-                enableEdgeToEdge(statusBarStyle = stile, navigationBarStyle = stile)
+                enableEdgeToEdge(
+                    statusBarStyle = stile,
+                    navigationBarStyle = if (sottoBarra) SystemBarStyle.dark(Color.TRANSPARENT) else stile
+                )
             }
             /*
              * ⚠️⚠️ **SUL TELEFONO IN ORIZZONTALE L'APP È A TUTTO SCHERMO, DALLA `3.70`**
@@ -2849,7 +2859,8 @@ class ViewerActivity : ComponentActivity() {
                 val pillola = model.settings?.let {
                     PillLook(
                         mode = pillMode(it.mainControl, it.phonePill, LocalConfiguration.current.smallestScreenWidthDp),
-                        fill = pillFillIn(it.pillFill)
+                        fill = pillFillIn(it.pillFill),
+                        bar = barIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp)
                     )
                 } ?: PillLook()
                 CompositionLocalProvider(
