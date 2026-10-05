@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">Бажаний бік для основних кнопок під час керування однією рукою, для правшів і шульг. Він задає розташування плаваючої кнопки дії (\'FAB\'), частини кнопок навігації та елементів інтерфейсу редактора.</string>
     <string name="settings_phone_pill">Пігулка замість FAB у портретній орієнтації</string>
     <string name="settings_phone_pill_desc">Ряд значків у заокругленій панелі замість меню з повними командами. Натисніть і утримуйте значок, щоб побачити підказку.</string>
-    <string name="pill_off">Вимкнено</string>
-    <string name="pill_slide">Висувна</string>
+    <string name="pill_slide">Згортна</string>
     <string name="pill_extended">Розгорнута</string>
-    <string name="pill_solid">Суцільний колір</string>
-    <string name="pill_translucent">Напівпрозора</string>
-    <string name="pill_glass">Матове скло</string>
+    <string name="pill_solid">Суцільна</string>
+    <string name="pill_translucent">Прозора</string>
+    <string name="pill_glass">Скло</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
     <string name="settings_list_path">Список файлів: копіювати шлях теки</string>
@@ -384,7 +383,7 @@
     <string name="settings_page_info">Інформація</string>
     <string name="settings_page_controls">Кнопки та індикатори</string>
     <string name="settings_page_editing">Редактор і збереження</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Тема й графічні деталі</string>
     <string name="settings_ext_edit">Дозволити змінювати розширення</string>
     <string name="settings_ext_edit_desc">Додає кнопку \'Розширення\' до вікон з іменами файлів. Нижче вибери, до яких. ⚠️ Зміна розширення не перетворює формат (для цього є \'Експортувати й перетворити\') і потребує обачності: деякі файли стануть нечитабельними і зникнуть із застосунків галереї.</string>
     <string name="settings_gpu_thumbs">Тримати мініатюри у графічній пам\'яті</string>

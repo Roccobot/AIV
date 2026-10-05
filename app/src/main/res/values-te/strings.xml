@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">ఒక చేతితో వాడేటప్పుడు ముఖ్య బటన్‌లకు ప్రాధాన్య వైపు, కుడిచేతి మరియు ఎడమచేతి వాడకందారులకు. ఇది తేలియాడే చర్య బటన్ (\'FAB\'), కొన్ని నావిగేషన్ బటన్‌లు మరియు ఎడిటర్ UI భాగాల స్థానాన్ని నిర్ణయిస్తుంది.</string>
     <string name="settings_phone_pill">నిలువు స్థితిలో FAB బదులు పిల్</string>
     <string name="settings_phone_pill_desc">పూర్తి ఆదేశాల మెనూకు బదులుగా గుండ్రటి పెట్టెలో పక్కపక్కనే ఐకాన్‌ల వరుస. వివరణాత్మక టూల్‌టిప్ చూడటానికి ఐకాన్‌ను ఎక్కువసేపు నొక్కండి.</string>
-    <string name="pill_off">ఆఫ్</string>
-    <string name="pill_slide">జారే</string>
+    <string name="pill_slide">ముడుచుకునే</string>
     <string name="pill_extended">విస్తరించిన</string>
-    <string name="pill_solid">ఘన రంగు</string>
-    <string name="pill_translucent">సగం పారదర్శకం</string>
-    <string name="pill_glass">మసక గాజు</string>
+    <string name="pill_solid">ఘన</string>
+    <string name="pill_translucent">పారదర్శకం</string>
+    <string name="pill_glass">గాజు</string>
     <string name="settings_right">కుడి</string>
     <string name="settings_left">ఎడమ</string>
     <string name="settings_list_path">దస్త్ర జాబితా: సంచయ మార్గాన్ని కూడా కాపీ చెయ్యి</string>
@@ -354,7 +353,7 @@
     <string name="settings_page_info">సమాచారం</string>
     <string name="settings_page_controls">బటన్లు మరియు సూచికలు</string>
     <string name="settings_page_editing">ఎడిటర్ మరియు సేవ్</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">థీమ్ మరియు గ్రాఫిక్ వివరాలు</string>
     <string name="settings_ext_edit">పొడిగింపును మార్చడానికి అనుమతించు</string>
     <string name="settings_ext_edit_desc">ఫైల్ పేరు విండోలకు \'పొడిగింపు\' బటన్‌ను జోడిస్తుంది. ఏ విండోలలో కనిపించాలో కింద ఎంచుకో. ⚠️ పొడిగింపు మార్చడం ఫార్మాట్ మార్పిడి కాదు (దానికి \'ఎగుమతి చేసి మార్చు\' ఉంది), జాగ్రత్తగా వాడాలి: కొన్ని ఫైళ్లు చదవలేనివిగా మారి గ్యాలరీ యాప్‌లలో కనిపించకపోవచ్చు.</string>
     <string name="settings_gpu_thumbs">సూక్ష్మచిత్రాలను గ్రాఫిక్స్ మెమరీలో ఉంచు</string>

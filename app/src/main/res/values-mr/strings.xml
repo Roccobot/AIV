@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">एका हाताने वापरताना मुख्य बटणांसाठी पसंतीची बाजू, उजव्या आणि डाव्या हाताच्या वापरकर्त्यांसाठी. ती फ्लोटिंग अ‍ॅक्शन बटण (\'FAB\'), काही नेव्हिगेशन बटणे आणि संपादकाच्या UI च्या भागांची जागा ठरवते.</string>
     <string name="settings_phone_pill">उभ्या स्थितीत FAB ऐवजी पिल</string>
     <string name="settings_phone_pill_desc">पूर्ण आदेशांच्या मेनूऐवजी गोलाकार चौकटीत शेजारी शेजारी आयकॉनची रांग. स्पष्टीकरण टूलटिप पाहण्यासाठी आयकॉनवर दीर्घ दाबा.</string>
-    <string name="pill_off">बंद</string>
-    <string name="pill_slide">सरकणारी</string>
+    <string name="pill_slide">लपणारी</string>
     <string name="pill_extended">विस्तारित</string>
-    <string name="pill_solid">एकसंध रंग</string>
-    <string name="pill_translucent">अर्धपारदर्शक</string>
-    <string name="pill_glass">धूसर काच</string>
+    <string name="pill_solid">भरीव</string>
+    <string name="pill_translucent">पारदर्शक</string>
+    <string name="pill_glass">काच</string>
     <string name="settings_right">उजवीकडे</string>
     <string name="settings_left">डावीकडे</string>
     <string name="settings_list_path">संचिका यादी: संचिकासंचाचा मार्गही प्रत करा</string>
@@ -354,7 +353,7 @@
     <string name="settings_page_info">माहिती</string>
     <string name="settings_page_controls">बटणे आणि निर्देशक</string>
     <string name="settings_page_editing">संपादक आणि जतन</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">थीम आणि ग्राफिक तपशील</string>
     <string name="settings_ext_edit">एक्सटेन्शन बदलू द्या</string>
     <string name="settings_ext_edit_desc">फाइल नावाच्या विंडोमध्ये \'विस्तार\' बटण जोडते. कोणत्या विंडोत दिसावे ते खाली निवड. ⚠️ विस्तार बदलणे म्हणजे स्वरूप रूपांतर नव्हे (त्यासाठी \'निर्यात आणि रूपांतर\' आहे) आणि ते जपून वापरावे, कारण काही फाइल वाचता न येण्याजोग्या होऊन गॅलरी ॲपमध्ये दिसेनाशा होऊ शकतात.</string>
     <string name="settings_gpu_thumbs">थंबनेल ग्राफिक्स मेमरीत ठेवा</string>

@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">Upande unaopendelea kwa vitufe vikuu unapotumia kwa mkono mmoja, kwa wanaotumia mkono wa kulia au wa kushoto. Huamua mahali pa kitufe cha kitendo kinachoelea (\'FAB\'), baadhi ya vitufe vya urambazaji na sehemu za kiolesura cha kihariri.</string>
     <string name="settings_phone_pill">Kidonge badala ya FAB ukiwa wima</string>
     <string name="settings_phone_pill_desc">Safu ya aikoni kando kwa kando ndani ya kisanduku chenye pembe za mviringo badala ya menyu yenye amri kamili. Bonyeza aikoni kwa muda mrefu ili kuona maelezo yake.</string>
-    <string name="pill_off">Imezimwa</string>
-    <string name="pill_slide">Ya kuteleza</string>
+    <string name="pill_slide">Inayojificha</string>
     <string name="pill_extended">Iliyopanuliwa</string>
-    <string name="pill_solid">Rangi thabiti</string>
-    <string name="pill_translucent">Nusu angavu</string>
-    <string name="pill_glass">Kioo cha barafu</string>
+    <string name="pill_solid">Thabiti</string>
+    <string name="pill_translucent">Angavu</string>
+    <string name="pill_glass">Kioo</string>
     <string name="settings_right">Kulia</string>
     <string name="settings_left">Kushoto</string>
     <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>
@@ -354,7 +353,7 @@
     <string name="settings_page_info">Taarifa</string>
     <string name="settings_page_controls">Vitufe na viashiria</string>
     <string name="settings_page_editing">Kihariri na kuhifadhi</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Mandhari na maelezo ya picha</string>
     <string name="settings_ext_edit">Ruhusu kubadilisha kiendelezi</string>
     <string name="settings_ext_edit_desc">Huongeza kitufe \'Kiendelezi\' kwenye madirisha ya majina ya faili. Chagua hapa chini yapi. ⚠️ Kubadilisha kiendelezi si kubadilisha muundo (kwa hilo kuna \'Hamisha na kubadilisha\') na kunahitaji uangalifu, kwa sababu baadhi ya faili zinaweza kutosomeka na kutoonekana tena kwenye programu za matunzio.</string>
     <string name="settings_gpu_thumbs">Weka vijipicha kwenye kumbukumbu ya michoro</string>

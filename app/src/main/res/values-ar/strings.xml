@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">الجهة المفضلة للأزرار الرئيسية عند الاستخدام بيد واحدة، لمن يستخدم اليمنى أو اليسرى. تحدد موضع زر الإجراء العائم (\'FAB\') وبعض أزرار التنقل وأجزاء من واجهة المحرر.</string>
     <string name="settings_phone_pill">حبة بدلاً من FAB في الوضع العمودي</string>
     <string name="settings_phone_pill_desc">صف من الأيقونات المتجاورة في إطار مستدير بدلاً من القائمة ذات الأوامر الكاملة. اضغط مطولاً على أيقونة لعرض التلميح التوضيحي.</string>
-    <string name="pill_off">متوقفة</string>
-    <string name="pill_slide">منزلقة</string>
+    <string name="pill_slide">قابلة للإخفاء</string>
     <string name="pill_extended">ممتدة</string>
-    <string name="pill_solid">لون خالص</string>
-    <string name="pill_translucent">شبه شفافة</string>
-    <string name="pill_glass">زجاج مصنفر</string>
+    <string name="pill_solid">مصمتة</string>
+    <string name="pill_translucent">شفافة</string>
+    <string name="pill_glass">زجاج</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
@@ -414,7 +413,7 @@
     <string name="settings_page_info">المعلومات</string>
     <string name="settings_page_controls">الأزرار والمؤشرات</string>
     <string name="settings_page_editing">المحرر والحفظ</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">السمة والتفاصيل الرسومية</string>
     <string name="settings_ext_edit">السماح بتعديل الامتداد</string>
     <string name="settings_ext_edit_desc">يضيف زر \'الامتداد\' إلى نوافذ أسماء الملفات. اختر أدناه أين يظهر. ⚠️ تغيير الامتداد ليس تحويلاً للصيغة (لذلك يوجد \'تصدير وتحويل\') ويحتاج إلى حذر، لأن بعض الملفات قد تصبح غير قابلة للقراءة ولا تظهر في تطبيقات المعرض.</string>
     <string name="settings_gpu_thumbs">الاحتفاظ بالصور المصغرة في ذاكرة الرسوميات</string>

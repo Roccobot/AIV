@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">Sisi yang disukai untuk tombol utama saat memakai ponsel dengan satu tangan, bagi yang kidal maupun tidak. Ini menentukan letak tombol aksi mengambang (\'FAB\'), beberapa tombol navigasi, dan bagian antarmuka editor.</string>
     <string name="settings_phone_pill">Pil sebagai pengganti FAB dalam mode tegak</string>
     <string name="settings_phone_pill_desc">Deretan ikon berdampingan dalam kotak membulat sebagai pengganti menu dengan perintah lengkap. Tekan lama sebuah ikon untuk melihat keterangannya.</string>
-    <string name="pill_off">Nonaktif</string>
-    <string name="pill_slide">Geser</string>
+    <string name="pill_slide">Dapat disembunyikan</string>
     <string name="pill_extended">Diperluas</string>
-    <string name="pill_solid">Warna solid</string>
-    <string name="pill_translucent">Semitransparan</string>
-    <string name="pill_glass">Kaca buram</string>
+    <string name="pill_solid">Solid</string>
+    <string name="pill_translucent">Transparan</string>
+    <string name="pill_glass">Kaca</string>
     <string name="settings_right">Kanan</string>
     <string name="settings_left">Kiri</string>
     <string name="settings_list_path">Daftar berkas: salin juga jalur foldernya</string>
@@ -339,7 +338,7 @@
     <string name="settings_page_info">Informasi</string>
     <string name="settings_page_controls">Tombol dan indikator</string>
     <string name="settings_page_editing">Editor dan penyimpanan</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Tema dan detail grafis</string>
     <string name="settings_ext_edit">Izinkan mengubah ekstensi</string>
     <string name="settings_ext_edit_desc">Menambahkan tombol \'Ekstensi\' ke jendela nama berkas. Pilih di bawah untuk yang mana. ⚠️ Mengubah ekstensi bukan konversi format (untuk itu ada \'Ekspor dan konversi\') dan perlu kehati-hatian, karena sebagian berkas bisa jadi tak terbaca dan hilang dari aplikasi galeri.</string>
     <string name="settings_gpu_thumbs">Simpan gambar mini di memori grafis</string>

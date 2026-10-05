@@ -3295,30 +3295,25 @@ internal fun <T : Choice> Choices(
 }
 
 /**
- * La voce della pillola della `4.00`: un titolo, il suo paragrafo e **due** file di gettoni.
+ * La voce della pillola: un interruttore col suo paragrafo e, ad acceso, **due** file di gettoni.
  *
- * ⚠️ **Una voce sola con due file, e non due voci**: è la forma che ha chiesto lui (*l'opzione
- * prevede due file di gettoni*), e il paragrafo spiega tutte e due. La prima dice che cosa prende
- * il posto del FAB, la seconda di che cosa è fatta la pillola.
- * ⚠️ **'Vetro satinato' non compare sotto Android 12** (sua risposta, 2026-10-05): il vetro vuole
- * un `RenderEffect`, e un gettone che non fa niente è peggio di un gettone che non c'è.
- * ⚠️ **La ricerca guarda anche i nomi dei gettoni**, come in [Choices]: 'Vetro satinato' è il nome
- * con cui la si cerca.
+ * ⚠️⚠️ **L'INTERRUTTORE C'È DALLA `4.02`, ED È SUA RISPOSTA A `4.00-01`** (*preferisco un
+ * interruttore on/off generale e poi due serie di gettoni*): prima lo spento era il gettone
+ * `Disattivata` della prima fila. I gettoni si leggono solo ad acceso, perché da spento non
+ * cambiano niente di quello che si vede (lettura dichiarata nel DF).
+ * ⚠️ **La prima fila dice quale pillola, la seconda di che cosa è fatta**, e i nomi sono suoi
+ * (`A scomparsa`, `Estesa`; `Solido`, `Trasparente`, `Vetro`).
+ * ⚠️ **'Vetro' non compare sotto Android 12** (sua risposta, 2026-10-05): il vetro vuole un
+ * `RenderEffect`, e un gettone che non fa niente è peggio di un gettone che non c'è.
+ * ⚠️ **La ricerca guarda anche i nomi dei gettoni** (`extra` di [SwitchRow]): chi cerca 'Vetro'
+ * trova l'interruttore anche da spento.
  */
 @Composable
 private fun PillChoices(settings: Settings, onChange: (Settings) -> Unit) {
-    val label = stringResource(R.string.settings_phone_pill)
-    val detail = stringResource(R.string.settings_phone_pill_desc)
-    val modes = PhonePill.entries
+    val modes = PhonePill.entries.filter { it != PhonePill.OFF }
     val fills = PillFill.entries.filter { it != PillFill.GLASS || glassAvailable() }
     val modeNames = modes.map {
-        stringResource(
-            when (it) {
-                PhonePill.OFF -> R.string.pill_off
-                PhonePill.SLIDE -> R.string.pill_slide
-                PhonePill.EXTENDED -> R.string.pill_extended
-            }
-        )
+        stringResource(if (it == PhonePill.EXTENDED) R.string.pill_extended else R.string.pill_slide)
     }
     val fillNames = fills.map {
         stringResource(
@@ -3329,31 +3324,34 @@ private fun PillChoices(settings: Settings, onChange: (Settings) -> Unit) {
             }
         )
     }
-    if (!shown(label, detail, *(modeNames + fillNames).toTypedArray())) return
-    Text(
-        text = label,
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 12.dp)
+    SwitchRow(
+        label = stringResource(R.string.settings_phone_pill),
+        detail = stringResource(R.string.settings_phone_pill_desc),
+        checked = settings.phonePillOn,
+        onChange = { onChange(settings.copy(phonePillOn = it)) },
+        extra = modeNames + fillNames
     )
-    Detail(detail)
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
-        modes.forEachIndexed { at, mode ->
-            FilterChip(
-                selected = mode == settings.phonePill,
-                onClick = { onChange(settings.copy(phonePill = mode)) },
-                label = { Text(modeNames[at]) },
-                modifier = Modifier.picked(mode == settings.phonePill)
-            )
+    if (!settings.phonePillOn) return
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+            modes.forEachIndexed { at, mode ->
+                FilterChip(
+                    selected = mode == settings.phonePill,
+                    onClick = { onChange(settings.copy(phonePill = mode)) },
+                    label = { Text(modeNames[at]) },
+                    modifier = Modifier.picked(mode == settings.phonePill)
+                )
+            }
         }
-    }
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
-        fills.forEachIndexed { at, fill ->
-            FilterChip(
-                selected = fill == settings.pillFill,
-                onClick = { onChange(settings.copy(pillFill = fill)) },
-                label = { Text(fillNames[at]) },
-                modifier = Modifier.picked(fill == settings.pillFill)
-            )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+            fills.forEachIndexed { at, fill ->
+                FilterChip(
+                    selected = fill == settings.pillFill,
+                    onClick = { onChange(settings.copy(pillFill = fill)) },
+                    label = { Text(fillNames[at]) },
+                    modifier = Modifier.picked(fill == settings.pillFill)
+                )
+            }
         }
     }
 }
@@ -3376,9 +3374,10 @@ internal fun SwitchRow(
     label: String,
     detail: String?,
     checked: Boolean,
-    onChange: (Boolean) -> Unit
+    onChange: (Boolean) -> Unit,
+    extra: List<String> = emptyList()
 ) {
-    if (!shown(label, detail)) return
+    if (!shown(label, detail, *extra.toTypedArray())) return
     Row(
         modifier = Modifier
             .fillMaxWidth()

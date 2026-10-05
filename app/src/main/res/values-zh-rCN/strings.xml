@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">单手使用时主要按钮的首选一侧，适合右手和左手用户。它决定悬浮操作按钮（\'FAB\'）、部分导航按钮以及编辑器界面部分元素的位置。</string>
     <string name="settings_phone_pill">竖屏时用胶囊代替 FAB</string>
     <string name="settings_phone_pill_desc">用圆角框中并排的一组图标代替包含完整命令的菜单。长按图标可查看说明提示。</string>
-    <string name="pill_off">关闭</string>
-    <string name="pill_slide">滑动展开</string>
+    <string name="pill_slide">收起式</string>
     <string name="pill_extended">展开</string>
     <string name="pill_solid">纯色</string>
-    <string name="pill_translucent">半透明</string>
-    <string name="pill_glass">磨砂玻璃</string>
+    <string name="pill_translucent">透明</string>
+    <string name="pill_glass">玻璃</string>
     <string name="settings_right">右侧</string>
     <string name="settings_left">左侧</string>
     <string name="settings_list_path">文件列表：一并复制文件夹路径</string>
@@ -339,7 +338,7 @@
     <string name="settings_page_info">信息</string>
     <string name="settings_page_controls">按钮和指示</string>
     <string name="settings_page_editing">编辑器与保存</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">主题与图形细节</string>
     <string name="settings_ext_edit">允许修改扩展名</string>
     <string name="settings_ext_edit_desc">在文件名窗口中添加 \'扩展名\' 按钮。在下面选择出现在哪些窗口。⚠️ 修改扩展名不等于格式转换（那是 \'导出并转换\' 的事），要谨慎使用，因为有些文件会变得无法读取，并从相册应用中消失。</string>
     <string name="settings_gpu_thumbs">把缩略图放在图形内存里</string>

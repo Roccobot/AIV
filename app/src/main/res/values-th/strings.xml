@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">ด้านที่ต้องการสำหรับปุ่มหลักเมื่อใช้มือเดียว ทั้งคนถนัดขวาและถนัดซ้าย กำหนดตำแหน่งของปุ่มการทำงานแบบลอย (\'FAB\') ปุ่มนำทางบางปุ่ม และบางส่วนของหน้าจอตัวแก้ไข</string>
     <string name="settings_phone_pill">แคปซูลแทน FAB ในแนวตั้ง</string>
     <string name="settings_phone_pill_desc">แถวไอคอนเรียงกันในกรอบมุมมนแทนเมนูที่มีคำสั่งแบบเต็ม กดไอคอนค้างไว้เพื่อดูคำอธิบาย</string>
-    <string name="pill_off">ปิด</string>
-    <string name="pill_slide">แบบเลื่อน</string>
+    <string name="pill_slide">แบบซ่อนได้</string>
     <string name="pill_extended">แบบขยาย</string>
-    <string name="pill_solid">สีทึบ</string>
-    <string name="pill_translucent">กึ่งโปร่งใส</string>
-    <string name="pill_glass">กระจกฝ้า</string>
+    <string name="pill_solid">ทึบ</string>
+    <string name="pill_translucent">โปร่งใส</string>
+    <string name="pill_glass">กระจก</string>
     <string name="settings_right">ขวา</string>
     <string name="settings_left">ซ้าย</string>
     <string name="settings_list_path">รายชื่อไฟล์: คัดลอกเส้นทางโฟลเดอร์ด้วย</string>
@@ -339,7 +338,7 @@
     <string name="settings_page_info">ข้อมูล</string>
     <string name="settings_page_controls">ปุ่มและตัวบ่งชี้</string>
     <string name="settings_page_editing">โปรแกรมแก้ไขและการบันทึก</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">ธีมและรายละเอียดกราฟิก</string>
     <string name="settings_ext_edit">อนุญาตให้แก้ไขนามสกุล</string>
     <string name="settings_ext_edit_desc">เพิ่มปุ่ม \'นามสกุล\' ในหน้าต่างชื่อไฟล์ เลือกด้านล่างว่าจะให้ปรากฏที่ไหน ⚠️ การเปลี่ยนนามสกุลไม่ใช่การแปลงรูปแบบ (สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\') และต้องใช้อย่างระวัง เพราะบางไฟล์อาจอ่านไม่ได้และหายไปจากแอปแกลเลอรี</string>
     <string name="settings_gpu_thumbs">เก็บภาพย่อไว้ในหน่วยความจำกราฟิก</string>

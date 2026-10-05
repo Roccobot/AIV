@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">한 손으로 사용할 때 주요 버튼이 놓일 선호 방향입니다. 오른손잡이와 왼손잡이 모두에 맞습니다. 플로팅 작업 버튼(\'FAB\')과 일부 탐색 버튼, 편집기 UI의 일부 위치를 정합니다.</string>
     <string name="settings_phone_pill">세로 모드에서 FAB 대신 알약</string>
     <string name="settings_phone_pill_desc">전체 명령이 있는 메뉴 대신 둥근 상자에 아이콘을 나란히 놓습니다. 아이콘을 길게 누르면 설명 도움말이 표시됩니다.</string>
-    <string name="pill_off">끄기</string>
-    <string name="pill_slide">슬라이드</string>
+    <string name="pill_slide">접이식</string>
     <string name="pill_extended">펼침</string>
-    <string name="pill_solid">단색</string>
-    <string name="pill_translucent">반투명</string>
-    <string name="pill_glass">젖빛 유리</string>
+    <string name="pill_solid">불투명</string>
+    <string name="pill_translucent">투명</string>
+    <string name="pill_glass">유리</string>
     <string name="settings_right">오른쪽</string>
     <string name="settings_left">왼쪽</string>
     <string name="settings_list_path">파일 목록: 폴더 경로도 복사</string>
@@ -339,7 +338,7 @@
     <string name="settings_page_info">정보</string>
     <string name="settings_page_controls">버튼과 표시</string>
     <string name="settings_page_editing">편집기와 저장</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">테마 및 그래픽 세부 사항</string>
     <string name="settings_ext_edit">확장자 변경 허용</string>
     <string name="settings_ext_edit_desc">파일 이름 창에 \'확장자\' 버튼을 추가합니다. 어느 창에 나타낼지는 아래에서 고르세요. ⚠️ 확장자를 바꾸는 것은 형식 변환이 아니며(그것은 \'내보내기 및 변환\'가 합니다) 조심해서 써야 합니다. 일부 파일은 읽을 수 없게 되어 갤러리 앱에서 사라집니다.</string>
     <string name="settings_gpu_thumbs">미리보기를 그래픽 메모리에 보관</string>

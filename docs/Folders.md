@@ -169,9 +169,14 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.
 - ⚠️⚠️ **Telefono in verticale, dalla `4.00`: la pillola può prendere il posto del FAB** (sua
   richiesta del 2026-10-05, risposte A1-D1 nel brief). La voce è `Pillola al posto del FAB in
-  verticale`, in cima a 'Pulsanti e indicatori', solo sul telefono, con due file di gettoni:
-  - `Disattivata` (di fabbrica): il FAB di sempre;
-  - `A scorrimento`: il FAB diventa tondo e color accento, e al tocco si allunga in pillola
+  verticale`, in cima a 'Pulsanti e indicatori', solo sul telefono.
+  - ⚠️⚠️ **Dalla `4.02` la voce è un interruttore, spento di fabbrica, con sotto due file di
+    gettoni che compaiono ad acceso** (sua risposta a `4.00-01`): spento vuol dire il FAB di
+    sempre, e il gettone `Disattivata` non c'è più. I nomi dei gettoni sono suoi: `A scomparsa`
+    (prima `A scorrimento`), `Estesa`; `Solido`, `Trasparente`, `Vetro` (prima `Tinta unita`,
+    `Semitrasparente`, `Vetro satinato`). Un archivio della `4.00` o della `4.01` si rilegge col
+    suo significato: `Disattivata` è l'interruttore spento.
+  - `A scomparsa`: il FAB diventa tondo e color accento, e al tocco si allunga in pillola
     orizzontale con tutte le voci del menu e la × semitrasparente nell'angolo, in 160 ms con una
     curva che parte velocissima e rallenta; la × la richiude, e così Indietro. Il tasto tondo
     tiene il salto (il chevron mentre si scorre) e il tocco lungo del FAB (risposta C1);
@@ -179,11 +184,13 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     verso il lato preferito diventano `↑` (interno) e `↓` (nell'angolo), con l'animazione del
     salto, e la pillola torna larga con gli stessi tempi del chevron che rientra (risposta C2).
     Il tocco lungo delle colonne qui non c'è (risposta B1);
-  - la seconda fila dice di che cosa è fatta la pillola: `Tinta unita` (di fabbrica), `Semitrasparente`
-    (accento all'80%), `Vetro satinato` (sfocatura di deviazione 8 e saturazione al 160% come la
+  - ⚠️ **Nel tasto tondo il marchio è largo 22dp e non 24, e al centro c'è la A**, non il
+    baricentro del disegno (sua nota, giro della `4.01`): il disco solare si sposta con lei;
+  - la seconda fila dice di che cosa è fatta la pillola: `Solido` (di fabbrica), `Trasparente`
+    (accento all'80%), `Vetro` (sfocatura di deviazione 8 e saturazione al 160% come la
     pillola del DF, accento all'80% sul tema chiaro e al 65% sullo scuro dalla `4.01`). Da Android
     11 in giù il vetro non compare. La scelta riempie anche le pillole degli schermi larghi.
-  - ⚠️⚠️ **Dalla `4.01` la pillola porta l'accento dell'ALTRO tema, coi suoi glifi** (sua scelta,
+  - ⚠️⚠️ **Dalla `4.01` la pillola ha l'accento dell'ALTRO tema, coi suoi glifi** (sua scelta,
     varianti A2 e C1): la coppia del FAB, petrolio sul tema chiaro e verde acqua sullo scuro, in
     tutte e tre le tinte. Nella `4.00` era l'accento del tema, e sul vetro scuro quasi spariva.
 - ⚠️⚠️ **Col vetro e la sfocatura dietro i pannelli, anche i menu sfocano come il vetro**, col velo

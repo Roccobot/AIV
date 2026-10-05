@@ -194,7 +194,15 @@ enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("righ
  * impostazioni non compare. La regola vive in `pillMode`, in `PhonePill.kt`.
  */
 enum class PhonePill(override val token: String) : Choice {
-    /** Il FAB di sempre col suo menu. Valore di fabbrica. */
+    /**
+     * Il FAB di sempre col suo menu: il valore **in vigore** quando l'interruttore è spento o
+     * sul tablet (`pillMode`).
+     *
+     * ⚠️ **Dalla `4.02` non è più una scelta** (sua risposta a `4.00-01`: *preferisco un
+     * interruttore on/off generale*): lo dice [Settings.phonePillOn], e [Settings.phonePill] non
+     * vale mai questo. Il gettone resta solo nei file scritti prima, e [SettingsStore.read] lo
+     * legge come interruttore spento.
+     */
     OFF("off"),
     /**
      * Un FAB tondo color accento che al tocco si allunga nella pillola e si richiude sulla sua ×.
@@ -217,7 +225,7 @@ enum class PillFill(override val token: String) : Choice {
     SOLID("solid"),
     /** L'accento all'80%. */
     TRANSLUCENT("translucent"),
-    /** Vetro satinato nell'accento: la pillola del DF, come risultato. */
+    /** Il vetro nell'accento (gettone 'Vetro'): la pillola del DF, come risultato. */
     GLASS("glass")
 }
 
@@ -477,21 +485,31 @@ data class Settings(
     /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
     val hand: Hand = Hand.RIGHT,
     /**
-     * Che cosa prende il posto del FAB sul telefono in verticale. Vedi [PhonePill].
+     * Se la pillola prende il posto del FAB sul telefono in verticale: l'interruttore della voce.
      *
-     * ⚠️ **Spenta di fabbrica, ed è sua** (*`Disattivata` (predefinito) = usa il normale FAB*):
+     * ⚠️ **Spento di fabbrica, ed è suo** (*`Disattivata` (predefinito) = usa il normale FAB*):
      * la pillola è una cosa da provare, non la faccia nuova dell'app.
+     * ⚠️ **Nato nella `4.02` con la chiave `phone-pill-on`**: prima lo spento era il gettone
+     * `Disattivata` di [phonePill], e un archivio senza questa chiave lo ricava da là, così chi
+     * aveva acceso la pillola la ritrova accesa.
      * ⚠️ **Il valore di fabbrica vive qui e in [SettingsStore.read]**, e il banco legge un
      * archivio vuoto contro questo campo.
      */
-    val phonePill: PhonePill = PhonePill.OFF,
+    val phonePillOn: Boolean = false,
+    /**
+     * Quale pillola, quando [phonePillOn] è acceso. Vedi [PhonePill].
+     *
+     * ⚠️ **Mai [PhonePill.OFF]**: lo spento è dell'interruttore. **A scomparsa di fabbrica**, il
+     * primo gettone, perché è quella che tiene il FAB al suo posto finché non lo si tocca.
+     */
+    val phonePill: PhonePill = PhonePill.SLIDE,
     /**
      * Di che cosa è fatta la pillola, dovunque ci sia. Vedi [PillFill].
      *
      * ⚠️ **Riempie anche la pillola degli schermi larghi**: la voce compare solo sul telefono, e
      * il telefono in orizzontale mostra quella pillola, quindi una scelta copre tutte e due. Sul
      * tablet la voce non c'è e il valore resta quello di fabbrica.
-     * ⚠️ **Tinta unita di fabbrica, ed è sua** (*`Tinta unita` (predefinito)*).
+     * ⚠️ **Solido di fabbrica, ed è sua** (*`Tinta unita` (predefinito)*, il nome di allora).
      */
     val pillFill: PillFill = PillFill.SOLID,
     /**
@@ -1364,6 +1382,7 @@ object SettingsStore {
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val CLIPBOARD_WHEN = longPreferencesKey("clipboard-when")
     private val HAND = stringPreferencesKey("hand")
+    private val PHONE_PILL_ON = booleanPreferencesKey("phone-pill-on")
     private val PHONE_PILL = stringPreferencesKey("phone-pill")
     private val PILL_FILL = stringPreferencesKey("pill-fill")
     private val LIST_PATH = booleanPreferencesKey("list-path")
@@ -1518,7 +1537,11 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
-            phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.OFF),
+            // ⚠️ Un archivio della `4.00` o della `4.01` ha il solo gettone: `off` vuol dire
+            // spenta, gli altri due vogliono dire accesa con quella pillola.
+            phonePillOn = p[PHONE_PILL_ON] ?: (p[PHONE_PILL]?.let { it != PhonePill.OFF.token } ?: false),
+            phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.SLIDE)
+                .takeIf { it != PhonePill.OFF } ?: PhonePill.SLIDE,
             pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.SOLID),
             listPath = p[LIST_PATH] ?: false,
             pickWeight = p[PICK_WEIGHT] ?: true,
@@ -1646,6 +1669,7 @@ object SettingsStore {
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
+            p[PHONE_PILL_ON] = settings.phonePillOn
             p[PHONE_PILL] = settings.phonePill.token
             p[PILL_FILL] = settings.pillFill.token
             p[LIST_PATH] = settings.listPath

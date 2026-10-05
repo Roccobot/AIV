@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">El lado preferido para los botones principales al usar el teléfono con una mano, para diestros y zurdos. Define dónde se colocan el botón de acción flotante (\'FAB\'), algunos botones de navegación y partes de la interfaz del editor.</string>
     <string name="settings_phone_pill">Píldora en lugar del FAB en vertical</string>
     <string name="settings_phone_pill_desc">Una serie de iconos uno al lado del otro en un recuadro redondeado en lugar del menú con los comandos completos. Mantén pulsado un icono para ver su descripción emergente.</string>
-    <string name="pill_off">Desactivada</string>
-    <string name="pill_slide">Deslizante</string>
+    <string name="pill_slide">Retráctil</string>
     <string name="pill_extended">Extendida</string>
-    <string name="pill_solid">Color sólido</string>
-    <string name="pill_translucent">Semitransparente</string>
-    <string name="pill_glass">Vidrio esmerilado</string>
+    <string name="pill_solid">Sólido</string>
+    <string name="pill_translucent">Transparente</string>
+    <string name="pill_glass">Vidrio</string>
     <string name="settings_right">Derecha</string>
     <string name="settings_left">Izquierda</string>
     <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>
@@ -369,7 +368,7 @@
     <string name="settings_page_info">Información</string>
     <string name="settings_page_controls">Botones e indicadores</string>
     <string name="settings_page_editing">Editor y guardado</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Tema y detalles gráficos</string>
     <string name="settings_ext_edit">Permitir cambiar la extensión</string>
     <string name="settings_ext_edit_desc">Añade el botón \'Extensión\' a las ventanas de nombres de archivo. Elige abajo en cuáles aparece. ⚠️ Cambiar la extensión no es una conversión de formato (para eso está \'Exportar y convertir\') y hay que usarlo con cuidado, porque algunos archivos pueden volverse ilegibles y dejar de verse en las apps de galería.</string>
     <string name="settings_gpu_thumbs">Guardar las miniaturas en la memoria gráfica</string>
