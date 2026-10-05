@@ -862,7 +862,11 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_controls),
-            summary = listOf(
+            // ⚠️ L'elemento interattivo principale c'è solo sul telefono, e il riepilogo dice
+            // quello che la pagina contiene davvero.
+            summary = listOfNotNull(
+                stringResource(R.string.settings_main_control)
+                    .takeIf { pillOffered(LocalConfiguration.current.smallestScreenWidthDp) },
                 stringResource(R.string.settings_hand),
                 stringResource(R.string.settings_labels),
                 stringResource(R.string.settings_buttons)
@@ -877,13 +881,10 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_look),
-            // ⚠️ La voce della pillola c'è solo sul telefono, e il riepilogo dice quello che la
-            // pagina contiene davvero.
-            summary = listOfNotNull(
+            summary = listOf(
                 stringResource(R.string.settings_ui_theme),
                 stringResource(R.string.settings_depth),
-                stringResource(R.string.settings_phone_pill)
-                    .takeIf { pillOffered(LocalConfiguration.current.smallestScreenWidthDp) }
+                stringResource(R.string.settings_button_look)
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.LOOK) }
         ) { LookPage(settings = settings, onChange = onChange) }
@@ -1216,17 +1217,12 @@ private fun LookPage(
     )
 
     /*
-     * ⚠️⚠️ **IN FONDO A 'TEMA E DETTAGLI GRAFICI' DALLA `4.04`, ED È IL POSTO CHE HA DETTO LUI**
-     * (commento a `4.03-03`: *sposta l'intero blocco della 'Pillola al posto del FAB in
-     * verticale' dal primo posto di 'Pulsanti e indicatori' all'ultima posizione di 'Tema e
-     * dettagli grafici'*). Dalla `4.00` alla `4.03` era in cima a 'Pulsanti e indicatori'; la
-     * chiave non è cambiata. Titolo e paragrafo sono suoi, alla lettera. Sul tablet la voce non
-     * c'è, perché il tablet in verticale ha già la sua pillola: lo decide [pillOffered], lo stesso
-     * conto che [pillMode] fa per l'app.
+     * ⚠️⚠️ **IN FONDO A 'TEMA E DETTAGLI GRAFICI', ED È IL POSTO CHE HA DETTO LUI**: dalla `4.04` qui
+     * viveva la voce della pillola (commento a `4.03-03`), e dalla `4.10` ne resta l'aspetto, che
+     * vale per tutti i pulsanti principali (nota E del giro della `4.04`). La scelta dell'elemento
+     * è salita in cima a 'Pulsanti e indicatori'.
      */
-    if (pillOffered(LocalConfiguration.current.smallestScreenWidthDp)) {
-        PillChoices(settings = settings, onChange = onChange)
-    }
+    ButtonLookChoices(settings = settings, onChange = onChange)
 }
 
 /**
@@ -1699,6 +1695,15 @@ private fun ControlsPage(
     // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
     // risorse invece di `stringResource`, che è componibile.
     val res = LocalResources.current
+
+    /*
+     * ⚠️⚠️ **LA PRIMA VOCE DELLA PAGINA DALLA `4.10`, ED È IL POSTO CHE HA DETTO LUI** (nota E del
+     * giro della `4.04`). Sul tablet non c'è, perché il tablet in verticale ha già la sua pillola:
+     * lo decide [pillOffered], lo stesso conto che [pillMode] fa per l'app.
+     */
+    if (pillOffered(LocalConfiguration.current.smallestScreenWidthDp)) {
+        MainControlChoices(settings = settings, onChange = onChange)
+    }
 
     Choices(
         label = stringResource(R.string.settings_hand),
@@ -3299,65 +3304,101 @@ internal fun <T : Choice> Choices(
 }
 
 /**
- * La voce della pillola: un interruttore col suo paragrafo e, ad acceso, **due** file di gettoni.
+ * 'Elemento interattivo principale': che cosa comanda l'app sul telefono in verticale, e per la
+ * pillola come si presenta.
  *
- * ⚠️⚠️ **L'INTERRUTTORE C'È DALLA `4.02`, ED È SUA RISPOSTA A `4.00-01`** (*preferisco un
- * interruttore on/off generale e poi due serie di gettoni*): prima lo spento era il gettone
- * `Disattivata` della prima fila. I gettoni si leggono solo ad acceso, perché da spento non
- * cambiano niente di quello che si vede (lettura dichiarata nel DF).
- * ⚠️ **La prima fila dice quale pillola, la seconda di che cosa è fatta**, e i nomi sono suoi
- * (`A scomparsa`, `Estesa`; `Solido`, `Trasparente`, `Vetro`).
- * ⚠️ **'Vetro' non compare sotto Android 12** (sua risposta, 2026-10-05): il vetro vuole un
- * `RenderEffect`, e un gettone che non fa niente è peggio di un gettone che non c'è.
- * ⚠️ **La ricerca guarda anche i nomi dei gettoni** (`extra` di [SwitchRow]): chi cerca 'Vetro'
- * trova l'interruttore anche da spento.
+ * ⚠️⚠️ **DALLA `4.10`, IN CIMA A 'PULSANTI E INDICATORI', ED È SUA** (giro della `4.04`, nota E):
+ * titolo, gettoni e paragrafo sono suoi alla lettera, e il paragrafo è quello della risposta G4
+ * (*quando tieni lo smartphone in verticale*). Prende il posto dell'interruttore 'Pillola al posto
+ * del FAB in verticale' della `4.02`, che viveva in fondo a 'Tema e dettagli grafici'.
+ * ⚠️ **Nella `4.10` il paragrafo non nomina il menu inferiore**, che arriva con la `4.15`: un
+ * paragrafo che elenca un gettone che non c'è descriverebbe un'altra versione. Con la `4.15`
+ * si completa con le sue parole.
+ * ⚠️ **La seconda fila c'è solo per la pillola** (*'a scomparsa' solo per pillola e menu
+ * inferiore*): il FAB non ha un modo a scomparsa.
+ * ⚠️ **La ricerca guarda anche i nomi dei gettoni**, di tutte e due le file: chi cerca 'Estesa'
+ * trova la voce anche col FAB scelto.
  */
 @Composable
-private fun PillChoices(settings: Settings, onChange: (Settings) -> Unit) {
-    val modes = PhonePill.entries.filter { it != PhonePill.OFF }
-    val fills = PillFill.entries.filter { it != PillFill.GLASS || glassAvailable() }
-    val modeNames = modes.map {
-        stringResource(if (it == PhonePill.EXTENDED) R.string.pill_extended else R.string.pill_slide)
-    }
-    val fillNames = fills.map {
+private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit) {
+    val label = stringResource(R.string.settings_main_control)
+    val detail = stringResource(R.string.settings_main_control_desc)
+    val controls = MainControl.entries
+    val controlNames = controls.map {
         stringResource(
             when (it) {
-                PillFill.SOLID -> R.string.pill_solid
-                PillFill.TRANSLUCENT -> R.string.pill_translucent
-                PillFill.GLASS -> R.string.pill_glass
+                MainControl.FAB -> R.string.main_control_fab
+                MainControl.PILL -> R.string.main_control_pill
             }
         )
     }
-    SwitchRow(
-        label = stringResource(R.string.settings_phone_pill),
-        detail = stringResource(R.string.settings_phone_pill_desc),
-        checked = settings.phonePillOn,
-        onChange = { onChange(settings.copy(phonePillOn = it)) },
-        extra = modeNames + fillNames
+    val modes = PhonePill.entries.filter { it != PhonePill.OFF }
+    val modeNames = modes.map {
+        stringResource(if (it == PhonePill.EXTENDED) R.string.pill_extended else R.string.pill_slide)
+    }
+    if (!shown(label, detail, *(controlNames + modeNames).toTypedArray())) return
+    Text(
+        text = label,
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 12.dp)
     )
-    if (!settings.phonePillOn) return
+    Detail(detail)
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
-            modes.forEachIndexed { at, mode ->
+            controls.forEachIndexed { at, control ->
                 FilterChip(
-                    selected = mode == settings.phonePill,
-                    onClick = { onChange(settings.copy(phonePill = mode)) },
-                    label = { Text(modeNames[at]) },
-                    modifier = Modifier.picked(mode == settings.phonePill)
+                    selected = control == settings.mainControl,
+                    onClick = { onChange(settings.copy(mainControl = control)) },
+                    label = { Text(controlNames[at]) },
+                    modifier = Modifier.picked(control == settings.mainControl)
                 )
             }
         }
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
-            fills.forEachIndexed { at, fill ->
-                FilterChip(
-                    selected = fill == settings.pillFill,
-                    onClick = { onChange(settings.copy(pillFill = fill)) },
-                    label = { Text(fillNames[at]) },
-                    modifier = Modifier.picked(fill == settings.pillFill)
-                )
+        if (settings.mainControl == MainControl.PILL) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+                modes.forEachIndexed { at, mode ->
+                    FilterChip(
+                        selected = mode == settings.phonePill,
+                        onClick = { onChange(settings.copy(phonePill = mode)) },
+                        label = { Text(modeNames[at]) },
+                        modifier = Modifier.picked(mode == settings.phonePill)
+                    )
+                }
             }
         }
     }
+}
+
+/**
+ * 'Aspetto dei pulsanti principali': di che cosa sono fatti il FAB e le pillole.
+ *
+ * ⚠️⚠️ **DALLA `4.10` È UNA VOCE A SÉ, IN FONDO A 'TEMA E DETTAGLI GRAFICI', ED È SUA** (giro della
+ * `4.04`, nota E: *voce globale 'Aspetto dei pulsanti principali' che vale anche per il FAB*):
+ * prima era la seconda fila di gettoni della pillola, e valeva solo per le pillole.
+ * ⚠️ **Su ogni apparecchio, tablet compreso**: il FAB e la pillola degli schermi larghi ci sono
+ * anche là.
+ * ⚠️ **'Vetro' è diventato 'Traslucido'**, parola sua; la chiave della stringa resta `pill_glass`.
+ * ⚠️ **'Traslucido' non compare sotto Android 12** (sua risposta, 2026-10-05): il vetro vuole un
+ * `RenderEffect`, e un gettone che non fa niente è peggio di un gettone che non c'è.
+ */
+@Composable
+private fun ButtonLookChoices(settings: Settings, onChange: (Settings) -> Unit) {
+    Choices(
+        label = stringResource(R.string.settings_button_look),
+        detail = stringResource(R.string.settings_button_look_desc),
+        options = PillFill.entries.filter { it != PillFill.GLASS || glassAvailable() },
+        selected = settings.pillFill,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    PillFill.SOLID -> R.string.pill_solid
+                    PillFill.TRANSLUCENT -> R.string.pill_translucent
+                    PillFill.GLASS -> R.string.pill_glass
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(pillFill = it)) }
+    )
 }
 
 /**

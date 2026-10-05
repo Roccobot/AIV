@@ -1679,6 +1679,13 @@ fun TapHoldFab(
      * tasto che non c'è.
      */
     round: Boolean = false,
+    /**
+     * Quello che il vetro sfoca, o `null` dove non c'è niente da sfocare. Vedi [Backdrop].
+     *
+     * ⚠️ **Da staccato il vetro non legge lo sfondo**: il FAB vive in un'altra finestra, sopra
+     * il velo del suo menu, e là sotto c'è già la sfocatura. Resta la tinta.
+     */
+    backdrop: Backdrop? = null,
     onTap: () -> Unit,
     onHold: () -> Unit,
     /**
@@ -1818,12 +1825,19 @@ fun TapHoldFab(
                     scaleX = k
                     scaleY = k
                 }
+                /*
+                 * ⚠️⚠️ **IL FONDO LO DIPINGE `buttonFill`, DALLA `4.10`, ED È SUA** (nota E del
+                 * giro della `4.04`: 'Aspetto dei pulsanti principali' *vale anche per il FAB*):
+                 * pieno, all'80% o di vetro, come le pillole. La `Surface` resta per il colore
+                 * del contenuto e per la forma dell'increspatura, e il suo fondo è trasparente.
+                 */
+                .buttonFill(if (lifted) null else backdrop, fondo, forma)
                 // ⚠️ Da staccato il FAB non prende i tocchi ([untouchable]), quindi non è
                 // più un comando: annunciarlo darebbe un tasto che il lettore di schermo trova e
                 // che non fa niente.
                 .then(if (muto) Modifier.clearAndSetSemantics { } else Modifier),
             shape = forma,
-            color = fondo,
+            color = Color.Transparent,
             contentColor = segno,
             shadowElevation = 0.dp
         ) {

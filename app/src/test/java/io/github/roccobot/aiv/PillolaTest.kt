@@ -27,6 +27,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.mutablePreferencesOf
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -190,58 +191,78 @@ class PillolaTest {
     }
 
     /**
-     * **The settings item is on the phone, last in 'Tema e dettagli grafici', with both rows of
-     * chips, and the glass from Android 12 on.** From 4.04 (his comment on `4.03-03`); before, it
-     * was at the top of 'Pulsanti e indicatori'.
+     * **'Elemento interattivo principale' is the first item of 'Pulsanti e indicatori', on the
+     * phone, and with the pill chosen it shows the pill's two chips.** From 4.10 (his note E on the
+     * 4.04 round); before, the pill was a switch last in 'Tema e dettagli grafici'.
      */
     @Test
-    fun `la voce c'e sul telefono, col vetro`() {
-        apriTema(Settings(phonePillOn = true))
-        banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
+    fun `l'elemento principale e in cima ai pulsanti, coi gettoni della pillola`() {
+        apriPagina(R.string.settings_page_controls, Settings(mainControl = MainControl.PILL))
+        banco.onNodeWithText(voce(R.string.main_control_fab)).assertExists()
+        banco.onNodeWithText(voce(R.string.main_control_pill)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_slide)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_extended)).assertExists()
-        banco.onNodeWithText(voce(R.string.pill_translucent)).assertExists()
-        banco.onNodeWithText(voce(R.string.pill_glass)).assertExists()
-        // Last in the page: below 'Effetto dietro menu e pannelli', the item that was last.
-        val sotto = banco.onNodeWithText(voce(R.string.settings_depth)).fetchSemanticsNode().boundsInRoot
-        val pillola = banco.onNodeWithText(voce(R.string.settings_phone_pill)).fetchSemanticsNode().boundsInRoot
-        assertTrue("La voce della pillola non è in fondo alla pagina", pillola.top > sotto.top)
+        // First in the page: above 'Lato preferito', the item that was first.
+        val sotto = banco.onNodeWithText(voce(R.string.settings_hand)).fetchSemanticsNode().positionInRoot
+        val prima = banco.onNodeWithText(voce(R.string.settings_main_control)).fetchSemanticsNode().positionInRoot
+        assertTrue("L'elemento principale non è in cima alla pagina", prima.y < sotto.y)
     }
 
     /**
-     * **From 4.02 the item is a switch, and switched off its chips are not there** (the user's
-     * answer to `4.00-01`: *preferisco un interruttore on/off generale*). Switching it on writes
-     * the switch, and leaves the chosen pill alone.
+     * **With the FAB the pill's chips are not there** (*'a scomparsa' solo per pillola e menu
+     * inferiore*), and choosing the pill writes the main control and leaves the chosen pill alone.
      */
     @Test
-    fun `l'interruttore spento non mostra i gettoni, acceso li mostra`() {
+    fun `col FAB i gettoni della pillola non ci sono, e la pillola si sceglie`() {
         var scritte: Settings? = null
-        apriTema(Settings(phonePill = PhonePill.EXTENDED)) { scritte = it }
-        banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
+        apriPagina(R.string.settings_page_controls, Settings(phonePill = PhonePill.EXTENDED)) { scritte = it }
+        banco.onNodeWithText(voce(R.string.settings_main_control)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_slide)).assertDoesNotExist()
-        banco.onNodeWithText(voce(R.string.pill_solid)).assertDoesNotExist()
-        banco.onNodeWithText(voce(R.string.settings_phone_pill)).performClick()
+        banco.onNodeWithText(voce(R.string.main_control_pill)).performClick()
         banco.waitForIdle()
-        assertEquals(true, scritte?.phonePillOn)
+        assertEquals(MainControl.PILL, scritte?.mainControl)
         assertEquals(PhonePill.EXTENDED, scritte?.phonePill)
     }
 
     /**
-     * **An archive written by 4.00 or 4.01 has only the chip**, and it must keep meaning what it
-     * meant: `off` is the switch off, the two pills are the switch on with that pill.
+     * **An archive written before 4.10 keeps meaning what it meant**: the switch of 4.02-4.05 and,
+     * before it, the chip of 4.00-4.01 (`off` is the FAB, the two pills are the pill). The new key
+     * wins over both.
      */
     @Test
-    fun `l'archivio della 4_00 si rilegge con l'interruttore`() {
-        val chiave = stringPreferencesKey("phone-pill")
-        val spenta = SettingsStore.read(mutablePreferencesOf(chiave to "off"))
-        assertEquals(false, spenta.phonePillOn)
+    fun `gli archivi di prima della 4_10 si rileggono con l'elemento principale`() {
+        val gettone = stringPreferencesKey("phone-pill")
+        val interruttore = booleanPreferencesKey("phone-pill-on")
+        val elemento = stringPreferencesKey("main-control")
+        val spenta = SettingsStore.read(mutablePreferencesOf(gettone to "off"))
+        assertEquals(MainControl.FAB, spenta.mainControl)
         assertEquals(PhonePill.SLIDE, spenta.phonePill)
-        val estesa = SettingsStore.read(mutablePreferencesOf(chiave to "extended"))
-        assertEquals(true, estesa.phonePillOn)
+        val estesa = SettingsStore.read(mutablePreferencesOf(gettone to "extended"))
+        assertEquals(MainControl.PILL, estesa.mainControl)
         assertEquals(PhonePill.EXTENDED, estesa.phonePill)
+        val accesa = SettingsStore.read(mutablePreferencesOf(interruttore to true, gettone to "slide"))
+        assertEquals(MainControl.PILL, accesa.mainControl)
+        val nuova = SettingsStore.read(mutablePreferencesOf(interruttore to true, elemento to "fab"))
+        assertEquals(MainControl.FAB, nuova.mainControl)
         val vuoto = SettingsStore.read(emptyPreferences())
-        assertEquals(Settings().phonePillOn, vuoto.phonePillOn)
+        assertEquals(Settings().mainControl, vuoto.mainControl)
         assertEquals(Settings().phonePill, vuoto.phonePill)
+    }
+
+    /**
+     * **'Aspetto dei pulsanti principali' is last in 'Tema e dettagli grafici', with the glass from
+     * Android 12 on, and 'Vetro' is now 'Traslucido'.** From 4.10 (his note E).
+     */
+    @Test
+    fun `l'aspetto dei pulsanti e in fondo al tema, col traslucido`() {
+        apriPagina(R.string.settings_page_look)
+        banco.onNodeWithText(voce(R.string.settings_button_look)).assertExists()
+        banco.onNodeWithText(voce(R.string.pill_solid)).assertExists()
+        banco.onNodeWithText(voce(R.string.pill_translucent)).assertExists()
+        banco.onNodeWithText(voce(R.string.pill_glass)).assertExists()
+        val sopra = banco.onNodeWithText(voce(R.string.settings_depth)).fetchSemanticsNode().positionInRoot
+        val aspetto = banco.onNodeWithText(voce(R.string.settings_button_look)).fetchSemanticsNode().positionInRoot
+        assertTrue("L'aspetto dei pulsanti non è in fondo alla pagina", aspetto.y > sopra.y)
     }
 
     /**
@@ -273,22 +294,30 @@ class PillolaTest {
     /** **Below Android 12 the glass chip is not there** (the user's answer, 2026-10-05). */
     @Test
     @Config(sdk = [30])
-    fun `sotto Android 12 il vetro non c'e`() {
-        apriTema(Settings(phonePillOn = true))
-        banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
+    fun `sotto Android 12 il traslucido non c'e`() {
+        apriPagina(R.string.settings_page_look)
+        banco.onNodeWithText(voce(R.string.settings_button_look)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_glass)).assertDoesNotExist()
     }
 
-    /** **On a tablet the item is not there**: the tablet held upright has its own pill. */
+    /**
+     * **On a tablet the main control is not there** (the tablet held upright has its own pill), and
+     * the look of the main buttons is, because the FAB and the wide pills are there too.
+     */
     @Test
     @Config(qualifiers = "sw600dp-w600dp-h960dp")
-    fun `sul tablet la voce non c'e`() {
-        apriTema()
-        banco.onAllNodesWithText(voce(R.string.settings_depth), substring = false)[0].assertExists()
-        banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertDoesNotExist()
+    fun `sul tablet l'elemento principale non c'e, l'aspetto si`() {
+        apriPagina(R.string.settings_page_controls)
+        banco.onAllNodesWithText(voce(R.string.settings_hand), substring = false)[0].assertExists()
+        banco.onNodeWithText(voce(R.string.settings_main_control)).assertDoesNotExist()
+        // ⚠️ One `setContent` per test: the second page opens from the column of sections.
+        banco.onAllNodesWithText(voce(R.string.settings_page_look), substring = false)[0]
+            .performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onAllNodesWithText(voce(R.string.settings_button_look), substring = false)[0].assertExists()
     }
 
-    private fun apriTema(settings: Settings = Settings(), onChange: (Settings) -> Unit = {}) {
+    private fun apriPagina(pagina: Int, settings: Settings = Settings(), onChange: (Settings) -> Unit = {}) {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 SettingsScreen(
@@ -304,7 +333,7 @@ class PillolaTest {
         banco.waitForIdle()
         // ⚠️ Sul tablet il pannello ha due colonne e la stessa etichetta compare due volte: nella
         // colonna delle sezioni e nella pagina. La prima è la porta.
-        banco.onAllNodesWithText(voce(R.string.settings_page_look), substring = false)[0]
+        banco.onAllNodesWithText(voce(pagina), substring = false)[0]
             .performScrollTo().performClick()
         banco.waitForIdle()
     }

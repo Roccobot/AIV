@@ -987,6 +987,32 @@ class BackupTest {
         }
     }
 
+    /**
+     * **Un file dalla `4.02` alla `4.05` porta l'interruttore della pillola, e diventa
+     * l'elemento interattivo principale** (`phone-pill-on` ritirata nella `4.10`): acceso è la
+     * pillola, spento il FAB, e il file non si legge come uno di una versione più nuova.
+     * ⚠️ **Controprovata** togliendo la traduzione: il resoconto dice di aver saltato qualcosa, e la
+     * pillola non arriva.
+     */
+    @Test
+    fun `un file della 4_05 porta l'interruttore della pillola e si traduce`() {
+        val file = sigilla { zip ->
+            testo(zip, "manifest.json", resoconto("buttons"))
+            testo(
+                zip, "prefs/buttons.json",
+                preferenze(chiave("phone-pill-on", "boolean", true), chiave("phone-pill", "string", "extended"))
+            )
+        }
+
+        val esito = importa(file, setOf(BackupArea.BUTTONS))
+
+        assertEquals(setOf(BackupArea.BUTTONS), esito.applied)
+        assertFalse("un file di una versione vecchia non salta niente", esito.skipped)
+        assertEquals("pill", archivio()["main-control"])
+        assertEquals(MainControl.PILL, SettingsStore.read(runBlocking { storedPreferences(app) }).mainControl)
+        assertEquals(PhonePill.EXTENDED, SettingsStore.read(runBlocking { storedPreferences(app) }).phonePill)
+    }
+
     // ── Gli attrezzi ─────────────────────────────────────────────────────────
 
     /**

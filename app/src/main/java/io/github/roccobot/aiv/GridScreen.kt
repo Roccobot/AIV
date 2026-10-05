@@ -2620,6 +2620,7 @@ fun GridScreen(
                         container = altroTema.first,
                         ink = altroTema.second,
                         holdLabel = shortcutLabel,
+                        backdrop = backdrop,
                         // ⚠️ E dalla `1.83` anche lo stesso glifo, in una cartella: nel cestino
                         // restano i tre puntini. Il perché è su [PickFab].
                         mark = !bin,
@@ -3060,7 +3061,9 @@ private fun PickFab(
     lifted: Boolean = false,
     pressed: Boolean = false,
     /** La copia del tasto tondo della pillola, per il velo d'aiuto. Vedi `round` in [TapHoldFab]. */
-    round: Boolean = false
+    round: Boolean = false,
+    /** Quello che il vetro sfoca. Vedi `backdrop` in [TapHoldFab]. */
+    backdrop: Backdrop? = null
 ) {
     val home = @Composable { d: String? ->
         if (mark) Marchio(d)
@@ -3075,6 +3078,7 @@ private fun PickFab(
         lifted = lifted,
         pressed = pressed,
         round = round,
+        backdrop = backdrop,
         onTap = onTap,
         onHold = onHold,
         glyph = { d -> if (arm == null) home(d) else JumpGlyph(arm) { home(d) } }

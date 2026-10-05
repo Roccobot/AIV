@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -108,13 +109,13 @@ fun pillFillIn(fill: PillFill): PillFill =
     if (fill == PillFill.GLASS && !glassAvailable()) PillFill.SOLID else fill
 
 /**
- * The mode in force: the setting on a phone with the switch on, the FAB everywhere else.
+ * The mode in force: the chosen pill on a phone whose main control is the pill, the FAB elsewhere.
  *
  * ⚠️ **The smallest width and not the current one**: a phone held sideways is still a phone, and
  * the wide screens have their own pill; this only decides whether the item exists at all.
  */
-fun pillMode(on: Boolean, mode: PhonePill, smallestWidthDp: Int): PhonePill =
-    if (on && pillOffered(smallestWidthDp)) mode else PhonePill.OFF
+fun pillMode(control: MainControl, mode: PhonePill, smallestWidthDp: Int): PhonePill =
+    if (control == MainControl.PILL && pillOffered(smallestWidthDp)) mode else PhonePill.OFF
 
 /** Whether this device is a phone, which is where the setting exists at all. */
 fun pillOffered(smallestWidthDp: Int): Boolean = smallestWidthDp < Adaptive.PHONE_MAX
@@ -193,18 +194,35 @@ private const val TRANSLUCENT_INK = 0.80f
  * is the case of the wide home, where the pill sits on an empty background.
  */
 @Composable
-fun Modifier.pillFill(backdrop: Backdrop?): Modifier {
+fun Modifier.pillFill(backdrop: Backdrop?): Modifier =
+    buttonFill(backdrop, pillAccent(), RoundedCornerShape(50))
+
+/**
+ * Fills a main button's surface in the fill in force: [colour] as it is, at 80%, or frosted glass
+ * tinted with it.
+ *
+ * ⚠️⚠️ **SINCE 4.10 THE FAB GOES THROUGH HERE TOO** (the user's note E on the 4.04 round: *'Aspetto
+ * dei pulsanti principali' ... vale anche per il FAB*), with its own colour and its own shape: the
+ * pills and the FAB are filled in one way, and only these two values tell them apart.
+ * ⚠️ **The glass keeps the pill's two inks**, [GLASS_INK_LIGHT] and [GLASS_INK_DARK], applied to
+ * [colour]'s own alpha, so a FAB fading to the other accent while pressed stays glass all along.
+ */
+@Composable
+fun Modifier.buttonFill(backdrop: Backdrop?, colour: Color, shape: Shape): Modifier {
     val fill = LocalPillLook.current.fill
     val light = LocalAivLight.current
-    val accent = pillAccent()
-    val shape = RoundedCornerShape(50)
     return when (fill) {
-        PillFill.SOLID -> this.clip(shape).drawBehind { drawRect(accent) }
+        PillFill.SOLID -> this.clip(shape).drawBehind {
+            drawOutline(shape.createOutline(size, layoutDirection, this), colour)
+        }
         PillFill.TRANSLUCENT -> this.clip(shape).drawBehind {
-            drawRect(accent.copy(alpha = TRANSLUCENT_INK))
+            drawOutline(
+                shape.createOutline(size, layoutDirection, this),
+                colour.copy(alpha = colour.alpha * TRANSLUCENT_INK)
+            )
         }
         PillFill.GLASS -> {
-            val tint = accent.copy(alpha = if (light) GLASS_INK_LIGHT else GLASS_INK_DARK)
+            val tint = colour.copy(alpha = colour.alpha * (if (light) GLASS_INK_LIGHT else GLASS_INK_DARK))
             val blurred = rememberGraphicsLayer()
             var me by remember { mutableStateOf(Offset.Zero) }
             this

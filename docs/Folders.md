@@ -168,15 +168,17 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   selezione la pillola sparisce come il FAB, perché le azioni sono nella scheda in basso.
 - ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.
 - ⚠️⚠️ **Telefono in verticale, dalla `4.00`: la pillola può prendere il posto del FAB** (sua
-  richiesta del 2026-10-05, risposte A1-D1 nel brief). La voce è `Pillola al posto del FAB in
-  verticale`, solo sul telefono. ⚠️ Dalla `4.04` è in fondo a 'Tema e dettagli grafici' (suo
-  commento a `4.03-03`); dalla `4.00` alla `4.03` era in cima a 'Pulsanti e indicatori'.
-  - ⚠️⚠️ **Dalla `4.02` la voce è un interruttore, spento di fabbrica, con sotto due file di
-    gettoni che compaiono ad acceso** (sua risposta a `4.00-01`): spento vuol dire il FAB di
-    sempre, e il gettone `Disattivata` non c'è più. I nomi dei gettoni sono suoi: `A scomparsa`
-    (prima `A scorrimento`), `Estesa`; `Solido`, `Trasparente`, `Vetro` (prima `Tinta unita`,
-    `Semitrasparente`, `Vetro satinato`). Un archivio della `4.00` o della `4.01` si rilegge col
-    suo significato: `Disattivata` è l'interruttore spento.
+  richiesta del 2026-10-05, risposte A1-D1 nel brief). ⚠️ **Dalla `4.10` la scelta è la voce
+  `Elemento interattivo principale`, la prima di 'Pulsanti e indicatori'** (nota E del giro della
+  `4.04`), solo sul telefono in verticale (risposta G4): gettoni `Tasto fluttuante` (di fabbrica) e
+  `Pillola di icone`, e per la pillola una seconda fila, `A scomparsa` ed `Estesa`. Titolo, gettoni
+  e paragrafo sono suoi; il paragrafo nomina il menu inferiore solo dalla `4.15`, quando arriva.
+  Chiave `main-control`; un archivio o un file di impostazioni con l'interruttore della
+  `4.02`-`4.05` (`phone-pill-on`) o col solo gettone della `4.00`-`4.01` si rilegge col suo
+  significato.
+  - Storico: dalla `4.02` alla `4.05` era l'interruttore `Pillola al posto del FAB in verticale`,
+    in cima a 'Pulsanti e indicatori' fino alla `4.03` e in fondo a 'Tema e dettagli grafici'
+    dalla `4.04`, con sotto le due file di gettoni.
   - `A scomparsa`: il FAB diventa tondo e color accento, e al tocco si allunga in pillola
     orizzontale con tutte le voci del menu e la × semitrasparente nell'angolo, in 160 ms con una
     curva che parte velocissima e rallenta; la × la richiude, e così Indietro. Il tasto tondo
@@ -189,10 +191,15 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     baricentro del disegno (sua nota, giro della `4.01`): il disco solare si sposta con lei.
     ⚠️ Sul telefono vale dalla `4.03` (`4.02-03` non approvata): il tondo vero lo disegna
     `SlidePill`, che nella `4.02` non lo diceva al marchio;
-  - la seconda fila dice di che cosa è fatta la pillola: `Solido` (di fabbrica), `Trasparente`
-    (accento all'80%), `Vetro` (sfocatura di deviazione 8 e saturazione al 160% come la
-    pillola del DF, accento all'80% sul tema chiaro e al 65% sullo scuro dalla `4.01`). Da Android
-    11 in giù il vetro non compare. La scelta riempie anche le pillole degli schermi larghi.
+  - ⚠️⚠️ **Di che cosa sono fatti, dalla `4.10`, lo dice la voce `Aspetto dei pulsanti principali`,
+    in fondo a 'Tema e dettagli grafici' e su ogni apparecchio** (nota E): `Solido` (di fabbrica),
+    `Trasparente` (colore all'80%), `Traslucido` (fino alla `4.05` `Vetro`: sfocatura di
+    deviazione 8 e saturazione al 160% come la pillola del DF, colore all'80% sul tema chiaro e al
+    65% sullo scuro dalla `4.01`). Da Android 11 in giù il traslucido non compare. Vale per il FAB
+    (anche premuto, mentre passa all'accento dell'altro tema), per la pillola del telefono e per
+    quelle degli schermi larghi; il FAB staccato sopra il suo menu tiene la sola tinta, perché
+    sotto c'è già la sfocatura del velo. Fino alla `4.05` era la seconda fila della pillola, e il
+    FAB restava pieno.
   - ⚠️⚠️ **Dalla `4.01` la pillola ha l'accento dell'ALTRO tema, coi suoi glifi** (sua scelta,
     varianti A2 e C1): la coppia del FAB, petrolio sul tema chiaro e verde acqua sullo scuro, in
     tutte e tre le tinte. Nella `4.00` era l'accento del tema, e sul vetro scuro quasi spariva.

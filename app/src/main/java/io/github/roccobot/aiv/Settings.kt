@@ -185,6 +185,25 @@ enum class LastMark(override val token: String) : Choice {
 enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("right") }
 
 /**
+ * L'elemento interattivo principale del telefono in verticale: la voce in cima a 'Pulsanti e
+ * indicatori'.
+ *
+ * ⚠️⚠️ **DALLA `4.10`, ED È SUA RICHIESTA** (giro della `4.04`, nota E: *'Elemento interattivo
+ * principale' al primo posto di 'Pulsanti e indicatori'*): prima la stessa scelta era
+ * l'interruttore 'Pillola al posto del FAB in verticale' (`phone-pill-on`), che con il menu
+ * inferiore della `4.15` e il menu angolare non basta più. La domanda ha cambiato verso, quindi la
+ * chiave è nuova (`main-control`), e quella di prima si traduce (`PREF_RETIRED`, in `Backup.kt`).
+ * ⚠️ **Solo sul telefono in verticale** (risposta G4): sul tablet la voce non compare, e il valore
+ * in vigore è [FAB] (`pillMode`, in `PhonePill.kt`).
+ */
+enum class MainControl(override val token: String) : Choice {
+    /** Il FAB col suo menu: 'Tasto fluttuante'. Valore di fabbrica. */
+    FAB("fab"),
+    /** La pillola di icone, a scomparsa o estesa secondo [Settings.phonePill]: 'Pillola di icone'. */
+    PILL("pill")
+}
+
+/**
  * Che cosa prende il posto del FAB sul telefono in verticale.
  *
  * ⚠️⚠️ **DALLA `4.00`, ED È SUA RICHIESTA** (2026-10-05: *la pillola mi sta piacendo tanto che
@@ -199,8 +218,8 @@ enum class PhonePill(override val token: String) : Choice {
      * sul tablet (`pillMode`).
      *
      * ⚠️ **Dalla `4.02` non è più una scelta** (sua risposta a `4.00-01`: *preferisco un
-     * interruttore on/off generale*): lo dice [Settings.phonePillOn], e [Settings.phonePill] non
-     * vale mai questo. Il gettone resta solo nei file scritti prima, e [SettingsStore.read] lo
+     * interruttore on/off generale*), e dalla `4.10` lo dice [Settings.mainControl]:
+     * [Settings.phonePill] non vale mai questo. Il gettone resta solo nei file scritti prima, e [SettingsStore.read] lo
      * legge come interruttore spento.
      */
     OFF("off"),
@@ -485,19 +504,20 @@ data class Settings(
     /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
     val hand: Hand = Hand.RIGHT,
     /**
-     * Se la pillola prende il posto del FAB sul telefono in verticale: l'interruttore della voce.
+     * L'elemento interattivo principale del telefono in verticale. Vedi [MainControl].
      *
-     * ⚠️ **Spento di fabbrica, ed è suo** (*`Disattivata` (predefinito) = usa il normale FAB*):
-     * la pillola è una cosa da provare, non la faccia nuova dell'app.
-     * ⚠️ **Nato nella `4.02` con la chiave `phone-pill-on`**: prima lo spento era il gettone
-     * `Disattivata` di [phonePill], e un archivio senza questa chiave lo ricava da là, così chi
-     * aveva acceso la pillola la ritrova accesa.
+     * ⚠️ **Il FAB di fabbrica**, come lo era l'interruttore spento della pillola (*`Disattivata`
+     * (predefinito) = usa il normale FAB*): la pillola è una cosa da provare, non la faccia nuova
+     * dell'app.
+     * ⚠️ **Nato nella `4.10` con la chiave `main-control`**: un archivio senza di lei lo ricava da
+     * `phone-pill-on` (4.02-4.05), e uno ancora più vecchio dal gettone di [phonePill] (4.00-4.01),
+     * così chi aveva acceso la pillola la ritrova accesa.
      * ⚠️ **Il valore di fabbrica vive qui e in [SettingsStore.read]**, e il banco legge un
      * archivio vuoto contro questo campo.
      */
-    val phonePillOn: Boolean = false,
+    val mainControl: MainControl = MainControl.FAB,
     /**
-     * Quale pillola, quando [phonePillOn] è acceso. Vedi [PhonePill].
+     * Quale pillola, quando [mainControl] è [MainControl.PILL]. Vedi [PhonePill].
      *
      * ⚠️ **Mai [PhonePill.OFF]**: lo spento è dell'interruttore. **A scomparsa di fabbrica**, il
      * primo gettone, perché è quella che tiene il FAB al suo posto finché non lo si tocca.
@@ -1382,6 +1402,8 @@ object SettingsStore {
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val CLIPBOARD_WHEN = longPreferencesKey("clipboard-when")
     private val HAND = stringPreferencesKey("hand")
+    private val MAIN_CONTROL = stringPreferencesKey("main-control")
+    /** Ritirata nella `4.10`: si legge solo per ricavare [MAIN_CONTROL]. */
     private val PHONE_PILL_ON = booleanPreferencesKey("phone-pill-on")
     private val PHONE_PILL = stringPreferencesKey("phone-pill")
     private val PILL_FILL = stringPreferencesKey("pill-fill")
@@ -1537,9 +1559,14 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
-            // ⚠️ Un archivio della `4.00` o della `4.01` ha il solo gettone: `off` vuol dire
-            // spenta, gli altri due vogliono dire accesa con quella pillola.
-            phonePillOn = p[PHONE_PILL_ON] ?: (p[PHONE_PILL]?.let { it != PhonePill.OFF.token } ?: false),
+            // ⚠️ Un archivio dalla `4.02` alla `4.05` ha l'interruttore, uno della `4.00` o della
+            // `4.01` il solo gettone: `off` vuol dire spenta, gli altri due accesa.
+            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, MainControl.FAB) }
+                ?: if (p[PHONE_PILL_ON] ?: (p[PHONE_PILL]?.let { it != PhonePill.OFF.token } ?: false)) {
+                    MainControl.PILL
+                } else {
+                    MainControl.FAB
+                },
             phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.SLIDE)
                 .takeIf { it != PhonePill.OFF } ?: PhonePill.SLIDE,
             pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.SOLID),
@@ -1669,7 +1696,7 @@ object SettingsStore {
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
-            p[PHONE_PILL_ON] = settings.phonePillOn
+            p[MAIN_CONTROL] = settings.mainControl.token
             p[PHONE_PILL] = settings.phonePill.token
             p[PILL_FILL] = settings.pillFill.token
             p[LIST_PATH] = settings.listPath

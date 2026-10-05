@@ -177,4 +177,7 @@
     <string name="settings_thumbs_do">Limpar a cache de miniaturas</string>
     <string name="settings_thumbs_ask">Quer mesmo limpar a cache? As pré-visualizações das imagens e dos vídeos serão eliminadas e regeneradas automaticamente ao abrir cada pasta (pode demorar um minuto ou mais nas pastas com muitas imagens grandes).</string>
     <string name="settings_thumbs_done">Cache de miniaturas limpa</string>
+    <!-- 4.10: 'controlo', 'aplicação' and 'telemóvel' are the European words. -->
+    <string name="settings_main_control">Controlo principal</string>
+    <string name="settings_main_control_desc">Escolha como quer interagir com a aplicação quando segura o telemóvel na vertical: botão flutuante (\'FAB\') com menu ou pílula de ícones.</string>
 </resources>
