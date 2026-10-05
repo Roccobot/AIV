@@ -123,12 +123,12 @@
     <string name="settings_hand">الموضع المفضل للأزرار</string>
     <string name="settings_hand_desc">الجهة المفضلة للأزرار الرئيسية عند الاستخدام بيد واحدة، لمن يستخدم اليمنى أو اليسرى. تحدد موضع زر الإجراء العائم (\'FAB\') وبعض أزرار التنقل وأجزاء من واجهة المحرر.</string>
     <string name="settings_main_control">عنصر التحكم الرئيسي</string>
-    <string name="settings_main_control_desc">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') مع قائمة، أو شريط من الأيقونات، أو قائمة سفلية، أو قائمة الزاوية.</string>
+    <string name="settings_main_control_desc">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') مع قائمة، أو شريط من الأيقونات، أو قائمة، أو قائمة \'ابدأ\'.</string>
     <string name="main_control_fab">زر عائم</string>
     <string name="main_control_pill">شريط أيقونات</string>
-    <string name="main_control_bar">القائمة السفلية</string>
+    <string name="main_control_bar">القائمة</string>
     <string name="bar_fixed">ثابتة</string>
-    <string name="main_control_corner">قائمة الزاوية</string>
+    <string name="main_control_corner">قائمة \'ابدأ\'</string>
     <string name="glass_radius">نصف القطر</string>
     <string name="glass_intensity">الشدة</string>
     <string name="glass_tint">العتامة</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">الشريط عند السكون</string>
     <string name="corner_rest_round">الزر الدائري عند السكون</string>
     <string name="settings_button_look">مظهر الأزرار الرئيسية</string>
-    <string name="settings_button_look_desc">التعبئة وتأثيرات الشفافية أو التمويه مطبقة على الزر العائم وشريط الأيقونات والقائمة السفلية.</string>
+    <string name="settings_button_look_desc">التعبئة وتأثيرات الشفافية أو التمويه مطبقة على الزر العائم وشريط الأيقونات والقوائم.</string>
     <string name="pill_slide">قابلة للإخفاء</string>
     <string name="pill_extended">ممتدة</string>
     <string name="pill_solid">مصمتة</string>

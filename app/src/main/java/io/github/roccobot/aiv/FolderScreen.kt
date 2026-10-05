@@ -748,10 +748,8 @@ fun FolderScreen(
                 ),
                 // ⚠️ Le pillole e il loro tondo stanno a [PILL_SIDE] dal vetro di fianco, dalla
                 // `4.25` (scelta A2); il FAB resta a [HUB_PAD].
-                corner = Modifier.safeDrawingPadding().padding(
-                    horizontal = if (LocalPillLook.current.mode != PhonePill.OFF) PILL_SIDE else HUB_PAD,
-                    vertical = HUB_PAD
-                )
+                corner = if (LocalPillLook.current.mode != PhonePill.OFF) Modifier.pillCorner()
+                else Modifier.safeDrawingPadding().padding(HUB_PAD)
             )
         }
 
@@ -794,10 +792,8 @@ fun FolderScreen(
                 // ⚠️ Due rientri e non tre come nella griglia delle foto: qui il FAB vive
                 // dentro il rientro di sistema più il suo margine, e basta. Il perché sta in
                 // [HintVeil], sul parametro.
-                inset = Modifier.safeDrawingPadding().padding(
-                    horizontal = if (pill != PhonePill.OFF) PILL_SIDE else HUB_PAD,
-                    vertical = HUB_PAD
-                ),
+                inset = if (pill != PhonePill.OFF) Modifier.pillCorner()
+                else Modifier.safeDrawingPadding().padding(HUB_PAD),
                 onDone = hintDone
             ) {
                 TapHoldFab(

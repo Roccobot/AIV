@@ -123,12 +123,12 @@
     <string name="settings_hand">बटनों की पसंदीदा स्थिति</string>
     <string name="settings_hand_desc">एक हाथ से उपयोग करते समय मुख्य बटनों के लिए पसंदीदा दिशा, दाएँ और बाएँ हाथ वालों के लिए। यह फ़्लोटिंग ऐक्शन बटन (\'FAB\'), कुछ नेविगेशन बटन और संपादक के UI के हिस्सों की जगह तय करती है।</string>
     <string name="settings_main_control">मुख्य नियंत्रण</string>
-    <string name="settings_main_control_desc">फ़ोन सीधा पकड़ने पर ऐप से कैसे इंटरैक्ट करना है, चुनें: मेनू वाला फ़्लोटिंग बटन (\'FAB\'), आइकनों की पिल, नीचे का मेनू या कोने का मेनू।</string>
+    <string name="settings_main_control_desc">फ़ोन सीधा पकड़ने पर ऐप से कैसे इंटरैक्ट करना है, चुनें: मेनू वाला फ़्लोटिंग बटन (\'FAB\'), आइकनों की पिल, मेनू या \'प्रारंभ\' मेनू।</string>
     <string name="main_control_fab">फ़्लोटिंग बटन</string>
     <string name="main_control_pill">आइकन पिल</string>
-    <string name="main_control_bar">नीचे का मेनू</string>
+    <string name="main_control_bar">मेनू</string>
     <string name="bar_fixed">स्थिर</string>
-    <string name="main_control_corner">कोने का मेनू</string>
+    <string name="main_control_corner">\'प्रारंभ\' मेनू</string>
     <string name="glass_radius">त्रिज्या</string>
     <string name="glass_intensity">तीव्रता</string>
     <string name="glass_tint">अपारदर्शिता</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">विश्राम में पिल</string>
     <string name="corner_rest_round">विश्राम में गोल बटन</string>
     <string name="settings_button_look">मुख्य बटनों का रूप</string>
-    <string name="settings_button_look_desc">फ़्लोटिंग बटन, आइकन पिल और नीचे के मेनू पर लागू भराव और पारदर्शिता या धुंधलापन प्रभाव।</string>
+    <string name="settings_button_look_desc">फ़्लोटिंग बटन, आइकन पिल और मेनुओं पर लागू भराव और पारदर्शिता या धुंधलापन प्रभाव।</string>
     <string name="pill_slide">छिपने वाली</string>
     <string name="pill_extended">विस्तारित</string>
     <string name="pill_solid">ठोस</string>

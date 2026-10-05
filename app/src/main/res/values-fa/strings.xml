@@ -123,12 +123,12 @@
     <string name="settings_hand">موقعیت ترجیحی دکمه‌ها</string>
     <string name="settings_hand_desc">سمت ترجیحی برای دکمه‌های اصلی در استفادهٔ یک‌دستی، برای راست‌دست‌ها و چپ‌دست‌ها. جای دکمهٔ کنش شناور (\'FAB\')، برخی دکمه‌های پیمایش و بخش‌هایی از رابط ویرایشگر را تعیین می‌کند.</string>
     <string name="settings_main_control">کنترل اصلی</string>
-    <string name="settings_main_control_desc">انتخاب کن وقتی گوشی را عمودی نگه می‌داری چگونه با برنامه کار کنی: دکمهٔ شناور (\'FAB\') با منو، قرصی از نمادها، منوی پایین یا منوی گوشه.</string>
+    <string name="settings_main_control_desc">انتخاب کن وقتی گوشی را عمودی نگه می‌داری چگونه با برنامه کار کنی: دکمهٔ شناور (\'FAB\') با منو، قرصی از نمادها، منو یا منوی \'شروع\'.</string>
     <string name="main_control_fab">دکمهٔ شناور</string>
     <string name="main_control_pill">قرص نمادها</string>
-    <string name="main_control_bar">منوی پایین</string>
+    <string name="main_control_bar">منو</string>
     <string name="bar_fixed">ثابت</string>
-    <string name="main_control_corner">منوی گوشه</string>
+    <string name="main_control_corner">منوی \'شروع\'</string>
     <string name="glass_radius">شعاع</string>
     <string name="glass_intensity">شدت</string>
     <string name="glass_tint">کدری</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">قرص در حالت سکون</string>
     <string name="corner_rest_round">دکمهٔ گرد در حالت سکون</string>
     <string name="settings_button_look">ظاهر دکمه‌های اصلی</string>
-    <string name="settings_button_look_desc">پرکردن و جلوه‌های شفافیت یا محوشدگی برای دکمهٔ شناور، قرص نمادها و منوی پایین.</string>
+    <string name="settings_button_look_desc">پرکردن و جلوه‌های شفافیت یا محوشدگی برای دکمهٔ شناور، قرص نمادها و منوها.</string>
     <string name="pill_slide">جمع‌شونده</string>
     <string name="pill_extended">گسترده</string>
     <string name="pill_solid">توپر</string>

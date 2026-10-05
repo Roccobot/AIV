@@ -47,9 +47,10 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
   passare sopra le sfumature; nella ricerca la testata contiene un campo di testo.
 - **Le sfumature in fondo sono due, sovrapposte**: la fascia grande, che non arriva mai al pieno, e la
   coda corta, che ci arriva subito (`FOOT_SOLID`, `FOOT_REACH`). Nella schermata iniziale e in cima a
-  ogni cartella ci sono tutte e due; scorrendo una cartella se ne va la sola fascia grande, insieme al
-  titolo, e la coda resta sempre, salvo quando la griglia tocca il fondo (sua regola, punto E del giro
-  della `4.20`, dalla `4.25`). Dalla `1.85` alla `4.20` nelle cartelle la coda non c'era.
+  ogni cartella ci sono tutte e due; scorrendo una cartella se ne va la coda corta, insieme al titolo,
+  e la fascia grande resta sempre, salvo quando la griglia tocca il fondo (sua correzione su
+  `4.25-07`, dalla `4.30`; nella `4.25` era il rovescio). Dalla `1.85` alla `4.20` nelle cartelle la
+  coda non c'era.
 
 **La variante 10** (sua risposta a `d-frontespizio`).
 - **Si compone di quattro interruttori** sotto 'Intestazione delle cartelle', in 'Aspetto':
@@ -175,6 +176,10 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   `4.04`), solo sul telefono in verticale (risposta G4): gettoni `Tasto fluttuante` (di fabbrica) e
   `Pillola di icone`, e per la pillola una seconda fila, `A scomparsa` ed `Estesa`. Titolo, gettoni
   e paragrafo sono suoi; il paragrafo nomina il menu inferiore solo dalla `4.15`, quando arriva.
+  ⚠️⚠️ **Dalla `4.30` i due menu si chiamano `Menu` (il menu inferiore) e `Menu 'Start'` (il menu
+  angolare)**, con gli apici dritti (nota A del giro della `4.25` e risposta `nome-start`); nelle
+  altre lingue `Start` è il nome che ognuna dà al menu di Windows (risposta `start-lingue`). Nelle
+  voci qui sotto restano i nomi di allora.
   Chiave `main-control`; un archivio o un file di impostazioni con l'interruttore della
   `4.02`-`4.05` (`phone-pill-on`) o col solo gettone della `4.00`-`4.01` si rilegge col suo
   significato.
@@ -225,6 +230,11 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     linea di mezzo dello schermo. ⚠️ **Dalla `4.25` anche quella a scomparsa, aperta**, con la × fra le
     otto celle (nota A del giro della `4.20`, scelta A2 dopo l'anteprima); nella `4.15` valeva solo per
     l'estesa.
+  - ⚠️⚠️ **Dalla `4.30` il tondo è uno solo** (nota B del giro della `4.25`): 44dp anche quando la
+    pillola aperta stringe i tasti (nella home, su un telefono stretto, era più piccolo), e lo
+    stesso angolo in home e nelle cartelle (`pillCorner`: 24dp di fianco, 16 da sotto; la griglia
+    ne aveva 20). Il menu Start aperto si chiude con **qualunque** tocco fuori, anche un
+    trascinamento sulla griglia, che intanto scorre (`OutsideTouch`, sua nota su `4.25-02`).
   - ⚠️⚠️ **Pillole e tasto tondo stanno a 24dp dal vetro di fianco (`PILL_SIDE`), dalla `4.25`**, tre
     margini della griglia e lo stesso rientro dei menu (scelta A2): la riga resta dentro i bordi delle
     miniature, e il tondo coincide col bordo della pillola aperta. Da sotto restano i margini del FAB,
@@ -262,7 +272,12 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     ci sono `Colore chiaro` e `Colore scuro` (risposta B3): un tondo che apre un selettore di tonalità,
     saturazione e luminanza, con `Predefinito` che torna all'accento del vetro in quel tema; e
     `Ripristina` riporta tutto ai valori di fabbrica, che chi aveva già l'app non vede da sé.
-    L'anteprima ha un bordo d'accento di 5dp dentro l'immagine, sopra le righe (punto B). Vale per il FAB
+    L'anteprima ha un bordo d'accento di 5dp dentro l'immagine, sopra le righe (punto B).
+    ⚠️⚠️ **Dalla `4.30` sotto la copia sfocata c'è il fondo della pagina** (nota E del giro della
+    `4.25`): testi e bordi, disegnati sul vuoto, si sfocavano in un alone trasparente e sotto si
+    vedevano gli originali nitidi. E col traslucido il glifo del FAB ha un colore fisso, anche da
+    premuto: `#ecfff7` sul tema chiaro, `#004247` sullo scuro (nota F, valori corretti in chat).
+    Vale per il FAB
     (anche premuto, mentre passa all'accento dell'altro tema), per la pillola del telefono, per il
     menu inferiore e per le pillole degli schermi larghi e del tablet, anche dove la forma è imposta
     (suo commento a `4.10-02`); il FAB staccato sopra il suo menu tiene la sola tinta, perché

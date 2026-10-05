@@ -190,11 +190,28 @@ fun screenShape(): Adaptive.Shape {
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun steadyDrawing(): WindowInsets {
+fun steadyDrawing(
+    /**
+     * Se a chiedere è il visualizzatore, che sul telefono è a tutto schermo anche in verticale.
+     *
+     * ⚠️⚠️ **DALLA `4.30`, PER LO ZOOM ALL'APERTURA** (nota D del giro della `4.25`: *è tornata
+     * un'animazione di zoom all'apertura delle immagini*, e in chat: *piccola, poi cresce*, aprendo
+     * dalla griglia). Il visualizzatore misurava la sua barra con `safeDrawing`, che segue le barre
+     * di sistema mentre si nascondono: la barra delle info nasceva alta quanto la sua riga più la
+     * barra di navigazione e si accorciava fotogramma per fotogramma, e lo spazio che lascia
+     * all'immagine cresceva con lei, animato. Qui vale già lo spazio finale, cioè il solo ritaglio
+     * del display (e la tastiera). La causa è dedotta e non misurata sul telefono: nel banco le
+     * barre non esistono.
+     */
+    viewer: Boolean = false
+): WindowInsets {
     val conf = LocalConfiguration.current
     val full = Adaptive.immersive(
-        conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp, viewer = false
+        conf.screenWidthDp, conf.screenHeightDp, conf.smallestScreenWidthDp, viewer = viewer
     )
+    // ⚠️ Fuori dal tutto schermo il visualizzatore tiene `safeDrawing`, come prima della `4.30`: là
+    // le barre restano, e la misura che le conta non si muove (la prova del tablet in orizzontale).
+    if (viewer) return if (full) WindowInsets.displayCutout.union(WindowInsets.ime) else WindowInsets.safeDrawing
     return if (full) {
         WindowInsets.safeDrawing
     } else {

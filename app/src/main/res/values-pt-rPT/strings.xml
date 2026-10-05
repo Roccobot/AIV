@@ -179,7 +179,7 @@
     <string name="settings_thumbs_done">Cache de miniaturas limpa</string>
     <!-- 4.10: 'controlo', 'aplicação' and 'telemóvel' are the European words. -->
     <string name="settings_main_control">Controlo principal</string>
-    <string name="settings_main_control_desc">Escolha como quer interagir com a aplicação quando segura o telemóvel na vertical: botão flutuante (\'FAB\') com menu, pílula de ícones, menu inferior ou menu de canto.</string>
+    <string name="settings_main_control_desc">Escolha como quer interagir com a aplicação quando segura o telemóvel na vertical: botão flutuante (\'FAB\') com menu, pílula de ícones, menu ou menu \'Iniciar\'.</string>
     <string name="glass_default">Predefinição</string>
     <string name="glass_reset">Repor</string>
 </resources>

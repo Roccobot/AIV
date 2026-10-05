@@ -255,6 +255,8 @@ sessione dopo è perso.
 | copertina **predefinita** (quella che l'app sceglie da sé, l'ultima immagine della cartella) | 'automatica' | |
 | **file di impostazioni** (il file dell'esportazione, parola sua) | | `Backup`, `backup_*` |
 | **tondo** (il terzo segno dell'ultimo media) | 'pallino' | `DOT`, `lastDot`, `MARK_DOT` |
+| **Menu 'Start'**, con gli apici dritti (il menu che cresce dall'angolo; sua nota A del giro della `4.25`) | 'menu angolare' | `MainControl.CORNER`, `CornerMenu`, la stringa `main_control_corner` |
+| **Menu** (la barra in fondo allo schermo; stessa nota) | 'menu inferiore' | `MainControl.BOTTOM`, `BottomMenu`, la stringa `main_control_bar` |
 | **stili** ('Salva stile', 'Stili AIV', 'Stili salvati') | 'preset' | la parola `preset` del codice |
 | **modalità griglia o lista**, e 'modalità griglia e lista' (le due viste dell'elenco iniziale nominate insieme; sua istruzione del 2026-09-28, per la cacofonia 'vista'/'lista') | 'vista griglia o lista', 'viste griglia e lista' | |
 

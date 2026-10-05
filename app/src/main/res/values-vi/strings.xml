@@ -123,12 +123,12 @@
     <string name="settings_hand">Vị trí ưa thích của các nút</string>
     <string name="settings_hand_desc">Bên ưa thích cho các nút chính khi dùng một tay, cho người thuận tay phải và tay trái. Nó quyết định vị trí của nút tác vụ nổi (\'FAB\'), một số nút điều hướng và vài phần giao diện trình chỉnh sửa.</string>
     <string name="settings_main_control">Điều khiển chính</string>
-    <string name="settings_main_control_desc">Chọn cách tương tác với ứng dụng khi cầm điện thoại dọc: nút nổi (\'FAB\') có menu, viên thuốc biểu tượng, menu dưới cùng hoặc menu góc.</string>
+    <string name="settings_main_control_desc">Chọn cách tương tác với ứng dụng khi cầm điện thoại dọc: nút nổi (\'FAB\') có menu, viên thuốc biểu tượng, menu hoặc menu \'Bắt đầu\'.</string>
     <string name="main_control_fab">Nút nổi</string>
     <string name="main_control_pill">Viên biểu tượng</string>
-    <string name="main_control_bar">Menu dưới cùng</string>
+    <string name="main_control_bar">Menu</string>
     <string name="bar_fixed">Cố định</string>
-    <string name="main_control_corner">Menu góc</string>
+    <string name="main_control_corner">Menu \'Bắt đầu\'</string>
     <string name="glass_radius">Bán kính</string>
     <string name="glass_intensity">Cường độ</string>
     <string name="glass_tint">Độ mờ đục</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">Viên khi nghỉ</string>
     <string name="corner_rest_round">Nút tròn khi nghỉ</string>
     <string name="settings_button_look">Kiểu nút chính</string>
-    <string name="settings_button_look_desc">Màu nền và hiệu ứng trong suốt hoặc làm mờ áp dụng cho nút nổi, viên biểu tượng và menu dưới cùng.</string>
+    <string name="settings_button_look_desc">Màu nền và hiệu ứng trong suốt hoặc làm mờ áp dụng cho nút nổi, viên biểu tượng và các menu.</string>
     <string name="pill_slide">Thu gọn</string>
     <string name="pill_extended">Mở rộng</string>
     <string name="pill_solid">Đặc</string>

@@ -60,7 +60,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -867,9 +866,9 @@ fun ViewerScreen(
      */
     val density = LocalDensity.current
     val systemSide = if (settings.infoPosition == InfoPosition.TOP) {
-        WindowInsets.safeDrawing.getTop(density)
+        steadyDrawing(viewer = true).getTop(density)
     } else {
-        WindowInsets.safeDrawing.getBottom(density)
+        steadyDrawing(viewer = true).getBottom(density)
     }
     val barSpace = if (reserve > 0f) {
         BarSpace(
@@ -3897,7 +3896,7 @@ private fun DetailsPanel(
              * ⚠️ I lati restano, per il foro della fotocamera e la barra di navigazione laterale.
              */
             .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(
+                steadyDrawing(viewer = true).only(
                     WindowInsetsSides.Horizontal +
                         if (atTop) WindowInsetsSides.Top else WindowInsetsSides.Bottom
                 )

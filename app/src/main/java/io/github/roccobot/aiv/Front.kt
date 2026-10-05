@@ -178,16 +178,17 @@ fun FrontBand(
  * ⚠️⚠️ **DALLA `4.25` I DUE STRATI HANNO UN'OPACITÀ CIASCUNO, ED È LA SUA REGOLA** (punto E del
  * giro della `4.20`: *sulla home e in cima a tutte le cartelle devono apparire ENTRAMBE le
  * sfumature ... scorrendo si fa sparire la prima (più ampia ...), mentre la seconda (più corta ...)
- * rimane sempre, salvo quando si tocca letteralmente il fondo di una cartella*). Dalla `1.85` alla
- * `4.20` nelle cartelle la coda non c'era (voce `fab-sopra` del giro della `1.83`, quando il FAB
- * passava sopra le sfumature), e la fascia grande se ne andava scorrendo da sola: dalla `4.00` in
- * fondo a una cartella c'è sempre un comando, e lui ha ritrovato la sfumatura che si aspettava.
+ * rimane sempre, salvo quando si tocca letteralmente il fondo di una cartella*), e ⚠️⚠️ **DALLA
+ * `4.30` I RUOLI SONO QUELLI DELLA SUA CORREZIONE** (`4.25-07`: *è la sfumatura più ampia e leggera
+ * che rimane quando si scorre, sempre presente tranne in fondo*): nella `4.25` restava la coda, ed
+ * era il rovescio. Dalla `1.85` alla `4.20` nelle cartelle la coda non c'era (voce `fab-sopra` del
+ * giro della `1.83`).
  *
  * @param alpha quanto si vede la fascia grande, da 0 a 1. ⚠️ **Il valore di serie è il pieno**, che
- *   è il caso della schermata iniziale. Nella griglia di una cartella se ne va scorrendo, insieme al
- *   titolo (*le due sfumature in basso devono progressivamente sparire*, giro della `1.67`).
+ *   è il caso della schermata iniziale. In una cartella se ne va solo quando la griglia tocca il
+ *   fondo.
  * @param footAlpha quanto si vede la coda che chiude in pieno l'ultima striscia. ⚠️ **Il valore di
- *   serie è il pieno**: in una cartella se ne va solo quando la griglia tocca il fondo.
+ *   serie è il pieno**: in una cartella se ne va scorrendo, insieme al titolo.
  */
 /**
  * Quanto rientra il bordo di SOTTO dello schermo: la barra gestuale, o zero dove non c'è.
@@ -228,8 +229,8 @@ fun GroundFade(
     }
     /*
      * ⚠️⚠️ **UN'OPACITÀ PER STRATO, DALLA `4.25`**: fino alla `4.20` era una sola intorno ai due,
-     * perché sbiadivano insieme. Adesso se ne vanno in momenti diversi (la fascia scorrendo, la
-     * coda in fondo), e quando sono tutte e due a metà la loro somma non segue un numero solo: è
+     * perché sbiadivano insieme. Adesso se ne vanno in momenti diversi (la coda scorrendo, la
+     * fascia in fondo), e quando sono tutte e due a metà la loro somma non segue un numero solo: è
      * il prezzo dichiarato di due comportamenti separati.
      */
     Box(

@@ -2371,25 +2371,27 @@ fun GridScreen(
              * `aperto` che muove il titolo.
              * ⚠️⚠️ **STA PRIMA DELLA SCHEDA, DELLA NOTIFICA E DEI VELI**: in un `Box` l'ultimo
              * figlio è sopra, e nessuno dei tre va sbiadito da lei.
-             * ⚠️⚠️ **E DALLA `4.25` SE NE VA LA SOLA FASCIA GRANDE** (punto E del giro della `4.20`):
-             * la coda corta resta sempre, salvo quando la griglia tocca il fondo, e là sparisce in
-             * fretta perché l'ultima riga si veda intera. Dalla `1.85` alla `4.20` qui la coda non
-             * c'era (voce `fab-sopra` del giro della `1.83`). Il perché per esteso vive su
-             * [GroundFade].
+             * ⚠️⚠️ **DALLA `4.30` SCORRENDO RESTA LA FASCIA GRANDE E SE NE VA LA CODA CORTA** (sua
+             * correzione su `4.25-07`: *è la sfumatura più ampia e leggera che rimane quando si
+             * scorre, sempre presente tranne in fondo*): la coda se ne va insieme al titolo, e la
+             * fascia grande sparisce in fretta quando la griglia tocca il fondo, perché l'ultima
+             * riga si veda intera. Nella `4.25` era il rovescio, letto male dalla sua nota del giro
+             * della `4.20`; dalla `1.85` alla `4.20` qui la coda non c'era. Il perché per esteso
+             * vive su [GroundFade].
              * ⚠️ **'Il fondo' vuol dire che la griglia non scende più ed è scesa**: una cartella che
              * entra in uno schermo non ha un fondo da toccare, e in cima le sfumature sono due.
              */
             if (front) {
                 val inFondo by remember { derivedStateOf { !state.canScrollForward && state.canScrollBackward } }
-                val coda by animateFloatAsState(
+                val fascia by animateFloatAsState(
                     targetValue = if (inFondo) 0f else 1f,
                     animationSpec = tween(FOOT_FADE_MS),
-                    label = "coda"
+                    label = "fascia"
                 )
                 GroundFade(
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    alpha = aperto,
-                    footAlpha = { coda }
+                    alpha = { fascia },
+                    footAlpha = aperto
                 )
             }
 
@@ -2680,11 +2682,8 @@ fun GridScreen(
                 modifier = Modifier.align(if (pillLook.bar) Alignment.BottomCenter else fabSide())
             ) {
                 PhonePillBar(
-                    // ⚠️ Di fianco a [PILL_SIDE] dal vetro, dalla `4.25` (scelta A2); da sotto i
-                    // due margini del FAB.
-                    corner = Modifier
-                        .windowInsetsPadding(steadyDrawing())
-                        .padding(horizontal = PILL_SIDE, vertical = GRID_PAD_Y + 8.dp),
+                    // ⚠️ Lo stesso angolo della schermata iniziale, dalla `4.30`: vedi [pillCorner].
+                    corner = Modifier.pillCorner(),
                     mark = { d ->
                         if (!bin) Marchio(d)
                         else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
@@ -2816,14 +2815,12 @@ fun GridScreen(
                     ),
                     // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
                     // del FAB. Il perché sta in [HintVeil], sul parametro.
-                    // ⚠️ Col tasto tondo di fianco a [PILL_SIDE], dove il tasto vero sta dalla
-                    // `4.25`.
-                    inset = Modifier
+                    // ⚠️ Col tasto tondo nell'angolo del tasto vero ([pillCorner]).
+                    inset = if (pillLook.mode != PhonePill.OFF) Modifier.pillCorner()
+                    else Modifier
                         .windowInsetsPadding(steadyDrawing())
-                        .padding(
-                            horizontal = if (pillLook.mode != PhonePill.OFF) PILL_SIDE else GRID_PAD_X + 8.dp,
-                            vertical = GRID_PAD_Y + 8.dp
-                        ),
+                        .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+                        .padding(8.dp),
                     onDone = hintDone
                 ) {
                     PickFab(
@@ -3951,7 +3948,7 @@ private const val THUMB_KIND = "thumb"
 // là dentro sarebbe la coincidenza che si rompe al primo ritocco di questo margine.
 internal val GRID_PAD_X = 8.dp
 
-/** Quanto mette la coda corta delle sfumature a sparire e a tornare, in fondo a una cartella. */
+/** Quanto mette la fascia grande delle sfumature a sparire e a tornare, in fondo a una cartella. */
 private const val FOOT_FADE_MS = 150
 private val GRID_PAD_Y = 12.dp
 

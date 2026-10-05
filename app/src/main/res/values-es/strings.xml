@@ -123,12 +123,12 @@
     <string name="settings_hand">Posición preferida de los botones</string>
     <string name="settings_hand_desc">El lado preferido para los botones principales al usar el teléfono con una mano, para diestros y zurdos. Define dónde se colocan el botón de acción flotante (\'FAB\'), algunos botones de navegación y partes de la interfaz del editor.</string>
     <string name="settings_main_control">Control principal</string>
-    <string name="settings_main_control_desc">Elige cómo quieres interactuar con la app cuando sostienes el teléfono en vertical: botón flotante (\'FAB\') con menú, píldora de iconos, menú inferior o menú de esquina.</string>
+    <string name="settings_main_control_desc">Elige cómo quieres interactuar con la app cuando sostienes el teléfono en vertical: botón flotante (\'FAB\') con menú, píldora de iconos, menú o menú \'Inicio\'.</string>
     <string name="main_control_fab">Botón flotante</string>
     <string name="main_control_pill">Píldora de iconos</string>
-    <string name="main_control_bar">Menú inferior</string>
+    <string name="main_control_bar">Menú</string>
     <string name="bar_fixed">Fijo</string>
-    <string name="main_control_corner">Menú de esquina</string>
+    <string name="main_control_corner">Menú \'Inicio\'</string>
     <string name="glass_radius">Radio</string>
     <string name="glass_intensity">Intensidad</string>
     <string name="glass_tint">Opacidad</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">Píldora en reposo</string>
     <string name="corner_rest_round">Botón redondo en reposo</string>
     <string name="settings_button_look">Aspecto de los botones principales</string>
-    <string name="settings_button_look_desc">Relleno y efectos de transparencia o desenfoque aplicados al botón flotante, a la píldora de iconos y al menú inferior.</string>
+    <string name="settings_button_look_desc">Relleno y efectos de transparencia o desenfoque aplicados al botón flotante, a la píldora de iconos y a los menús.</string>
     <string name="pill_slide">Retráctil</string>
     <string name="pill_extended">Extendida</string>
     <string name="pill_solid">Sólido</string>

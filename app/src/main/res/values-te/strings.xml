@@ -123,12 +123,12 @@
     <string name="settings_hand">బటన్ల ప్రాధాన్య స్థానం</string>
     <string name="settings_hand_desc">ఒక చేతితో వాడేటప్పుడు ముఖ్య బటన్‌లకు ప్రాధాన్య వైపు, కుడిచేతి మరియు ఎడమచేతి వాడకందారులకు. ఇది తేలియాడే చర్య బటన్ (\'FAB\'), కొన్ని నావిగేషన్ బటన్‌లు మరియు ఎడిటర్ UI భాగాల స్థానాన్ని నిర్ణయిస్తుంది.</string>
     <string name="settings_main_control">ప్రధాన నియంత్రణ</string>
-    <string name="settings_main_control_desc">ఫోన్‌ను నిలువుగా పట్టుకున్నప్పుడు యాప్‌తో ఎలా పనిచేయాలో ఎంచుకోండి: మెనూతో తేలియాడే బటన్ (\'FAB\'), ఐకాన్‌ల పిల్, కింది మెనూ లేదా మూల మెనూ.</string>
+    <string name="settings_main_control_desc">ఫోన్‌ను నిలువుగా పట్టుకున్నప్పుడు యాప్‌తో ఎలా పనిచేయాలో ఎంచుకోండి: మెనూతో తేలియాడే బటన్ (\'FAB\'), ఐకాన్‌ల పిల్, మెనూ లేదా \'ప్రారంభం\' మెనూ.</string>
     <string name="main_control_fab">తేలియాడే బటన్</string>
     <string name="main_control_pill">ఐకాన్ పిల్</string>
-    <string name="main_control_bar">కింది మెనూ</string>
+    <string name="main_control_bar">మెనూ</string>
     <string name="bar_fixed">స్థిరం</string>
-    <string name="main_control_corner">మూల మెనూ</string>
+    <string name="main_control_corner">\'ప్రారంభం\' మెనూ</string>
     <string name="glass_radius">వ్యాసార్ధం</string>
     <string name="glass_intensity">తీవ్రత</string>
     <string name="glass_tint">అపారదర్శకత</string>
@@ -140,7 +140,7 @@
     <string name="corner_rest_pill">విశ్రాంతిలో పిల్</string>
     <string name="corner_rest_round">విశ్రాంతిలో గుండ్రని బటన్</string>
     <string name="settings_button_look">ప్రధాన బటన్‌ల రూపం</string>
-    <string name="settings_button_look_desc">తేలియాడే బటన్, ఐకాన్ పిల్, కింది మెనూకు వర్తించే నింపు మరియు పారదర్శకత లేదా మసక ప్రభావాలు.</string>
+    <string name="settings_button_look_desc">తేలియాడే బటన్, ఐకాన్ పిల్, మెనూలకు వర్తించే నింపు మరియు పారదర్శకత లేదా మసక ప్రభావాలు.</string>
     <string name="pill_slide">ముడుచుకునే</string>
     <string name="pill_extended">విస్తరించిన</string>
     <string name="pill_solid">ఘన</string>
