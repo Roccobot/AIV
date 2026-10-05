@@ -1139,6 +1139,24 @@ private fun Hub(
         onBin = onBin,
         onSettings = onSettings
     )
+    val angolo = if (LocalPillLook.current.corner) hubEntries(
+        view = view,
+        granted = granted,
+        hiddenCount = hiddenCount,
+        peeking = peeking,
+        onPeek = onPeek,
+        onPeekList = onPeekList,
+        onView = onView,
+        onSearch = onSearch,
+        onAddress = { asking = true },
+        onPickImage = {
+            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
+        onNewFolder = onNewFolder,
+        onBin = onBin,
+        onSettings = onSettings,
+        steady = true
+    ) else null
 
     /*
      * ⚠️⚠️ **DALLA `4.00` AL POSTO DEL FAB PUÒ ESSERCI LA PILLOLA** (sua richiesta del 2026-10-05):
@@ -1159,6 +1177,7 @@ private fun Hub(
             corner = corner,
             mark = { Marchio(it) },
             restLabel = stringResource(R.string.hub_open),
+            cornerEntries = angolo,
             fabGlyph = { JumpGlyph(arm) { Marchio(it) } }
         )
     } else Box(modifier = modifier.then(corner)) {
@@ -1335,7 +1354,17 @@ private fun hubEntries(
     onPickImage: () -> Unit,
     onNewFolder: (() -> Unit)?,
     onBin: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    /**
+     * Le voci del menu angolare invece di quelle del FAB, dalla `4.20` (decisioni C1 e C2): le tre
+     * viste sempre, con quella in cui si è segnata come scelta, e 'Mostra nascoste' sempre al suo
+     * posto, spenta quando non ce n'è una e sostituita da 'Seleziona immagine' senza il permesso.
+     * Così le caselle sono nove in ogni caso, e ogni icona resta nella sua casella.
+     * ⚠️ **Rovescia, nel solo menu angolare, la regola della `0.84` qui sotto** (*no problem, va
+     * benissimo*): nel menu del FAB e nelle pillole il menu mostra ancora le sole due viste
+     * diverse da quella corrente.
+     */
+    steady: Boolean = false
 ): List<PillEntry> = buildList {
     // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
     // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
@@ -1354,8 +1383,8 @@ private fun hubEntries(
     // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
     // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
     // vorrebbe dire ribattezzare una cosa che ha già un nome.
-    FolderView.entries.filter { it != view }.forEach { other ->
-        add(PillEntry(other.glyph, stringResource(other.label()), group = 0, run = 0) { onView(other) })
+    FolderView.entries.filter { steady || it != view }.forEach { other ->
+        add(PillEntry(other.glyph, stringResource(other.label()), group = 0, chosen = steady && other == view) { onView(other) })
     }
 
     /*
@@ -1370,7 +1399,9 @@ private fun hubEntries(
      * ⚠️ **I due glifi sono suoi** (2026-09-08), e sono una cartella con un occhio:
      * quelli di Material dicono 'vedi' e 'non vedere' senza dire di che cosa.
      */
-    if (hiddenCount > 0) {
+    if (steady && !granted) {
+        add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 0) { onPickImage() })
+    } else if (hiddenCount > 0 || steady) {
         add(
             PillEntry(
                 icon = if (peeking) Glyphs.FolderEyeOff else Glyphs.FolderEye,
@@ -1378,6 +1409,7 @@ private fun hubEntries(
                     if (peeking) R.string.hub_unpeek else R.string.hub_peek
                 ),
                 group = 0,
+                enabled = hiddenCount > 0,
                 onHold = onPeekList,
                 onTap = { onPeek(!peeking) }
             )
@@ -1404,7 +1436,7 @@ private fun hubEntries(
      * stato di `granted` si rinfresca al ritorno dalla pagina di sistema (vedi
      * `fromSettings` in chi chiama), quindi il menu si ricompone.
      */
-    if (!granted) {
+    if (!granted && !steady) {
         add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 1) { onPickImage() })
     }
     // ⚠️⚠️ **IL CESTINO SI RAGGIUNGE SOLO DA QUI, ed è per costruzione**: le sue

@@ -123,11 +123,16 @@
     <string name="settings_hand">Posisi tombol yang disukai</string>
     <string name="settings_hand_desc">Sisi yang disukai untuk tombol utama saat memakai ponsel dengan satu tangan, bagi yang kidal maupun tidak. Ini menentukan letak tombol aksi mengambang (\'FAB\'), beberapa tombol navigasi, dan bagian antarmuka editor.</string>
     <string name="settings_main_control">Kontrol utama</string>
-    <string name="settings_main_control_desc">Pilih cara berinteraksi dengan aplikasi saat ponsel dipegang tegak: tombol mengambang (\'FAB\') dengan menu, pil ikon, atau menu bawah.</string>
+    <string name="settings_main_control_desc">Pilih cara berinteraksi dengan aplikasi saat ponsel dipegang tegak: tombol mengambang (\'FAB\') dengan menu, pil ikon, menu bawah, atau menu sudut.</string>
     <string name="main_control_fab">Tombol mengambang</string>
     <string name="main_control_pill">Pil ikon</string>
     <string name="main_control_bar">Menu bawah</string>
     <string name="bar_fixed">Tetap</string>
+    <string name="main_control_corner">Menu sudut</string>
+    <string name="glass_radius">Radius</string>
+    <string name="glass_intensity">Intensitas</string>
+    <string name="glass_tint">Warna</string>
+    <string name="glass_light">Kecerahan</string>
     <string name="settings_button_look">Tampilan tombol utama</string>
     <string name="settings_button_look_desc">Isian serta efek transparansi atau buram yang diterapkan pada tombol mengambang, pil ikon, dan menu bawah.</string>
     <string name="pill_slide">Dapat disembunyikan</string>

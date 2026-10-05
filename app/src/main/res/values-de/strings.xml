@@ -123,11 +123,16 @@
     <string name="settings_hand">Bevorzugte Position der Schaltflächen</string>
     <string name="settings_hand_desc">Die bevorzugte Seite für die Hauptschaltflächen bei einhändiger Bedienung, für Rechts- und Linkshänder. Sie legt fest, wo die schwebende Aktionsschaltfläche (\'FAB\'), einige Navigationsschaltflächen und Teile der Editor-Oberfläche liegen.</string>
     <string name="settings_main_control">Hauptbedienelement</string>
-    <string name="settings_main_control_desc">Wähle, wie du die App bedienst, wenn du das Smartphone hochkant hältst: schwebende Schaltfläche (\'FAB\') mit Menü, Symbolleiste in Pillenform oder unteres Menü.</string>
+    <string name="settings_main_control_desc">Wähle, wie du die App bedienst, wenn du das Smartphone hochkant hältst: schwebende Schaltfläche (\'FAB\') mit Menü, Symbolleiste in Pillenform, unteres Menü oder Eckmenü.</string>
     <string name="main_control_fab">Schwebende Schaltfläche</string>
     <string name="main_control_pill">Symbol-Pille</string>
     <string name="main_control_bar">Unteres Menü</string>
     <string name="bar_fixed">Fest</string>
+    <string name="main_control_corner">Eckmenü</string>
+    <string name="glass_radius">Radius</string>
+    <string name="glass_intensity">Intensität</string>
+    <string name="glass_tint">Farbe</string>
+    <string name="glass_light">Helligkeit</string>
     <string name="settings_button_look">Aussehen der Hauptschaltflächen</string>
     <string name="settings_button_look_desc">Füllung sowie Transparenz- oder Unschärfeeffekte für die schwebende Schaltfläche, die Symbol-Pille und das untere Menü.</string>
     <string name="pill_slide">Einklappbar</string>

@@ -123,11 +123,16 @@
     <string name="settings_hand">Бажане розташування кнопок</string>
     <string name="settings_hand_desc">Бажаний бік для основних кнопок під час керування однією рукою, для правшів і шульг. Він задає розташування плаваючої кнопки дії (\'FAB\'), частини кнопок навігації та елементів інтерфейсу редактора.</string>
     <string name="settings_main_control">Головний елемент керування</string>
-    <string name="settings_main_control_desc">Виберіть, як керувати застосунком, коли тримаєте телефон вертикально: плаваюча кнопка (\'FAB\') з меню, пігулка зі значками або нижнє меню.</string>
+    <string name="settings_main_control_desc">Виберіть, як керувати застосунком, коли тримаєте телефон вертикально: плаваюча кнопка (\'FAB\') з меню, пігулка зі значками, нижнє меню або кутове меню.</string>
     <string name="main_control_fab">Плаваюча кнопка</string>
     <string name="main_control_pill">Пігулка зі значками</string>
     <string name="main_control_bar">Нижнє меню</string>
     <string name="bar_fixed">Закріплене</string>
+    <string name="main_control_corner">Кутове меню</string>
+    <string name="glass_radius">Радіус</string>
+    <string name="glass_intensity">Інтенсивність</string>
+    <string name="glass_tint">Колір</string>
+    <string name="glass_light">Яскравість</string>
     <string name="settings_button_look">Вигляд головних кнопок</string>
     <string name="settings_button_look_desc">Заливка та ефекти прозорості чи розмиття для плаваючої кнопки, пігулки зі значками та нижнього меню.</string>
     <string name="pill_slide">Згортна</string>

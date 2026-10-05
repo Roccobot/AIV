@@ -161,6 +161,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
         BackupArea.EDITOR, PrefType.INT,
         "mark-size-pct", "mark-air-tenths", "mark-air", "mark-alpha", "size-value"
     )
+    area(BackupArea.BUTTONS, PrefType.INT, "glass-radius", "glass-intensity", "glass-tint", "glass-light")
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
     area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative", "hidden-only", "included-relative")

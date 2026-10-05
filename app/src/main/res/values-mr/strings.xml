@@ -123,11 +123,16 @@
     <string name="settings_hand">बटणांची पसंतीची स्थिती</string>
     <string name="settings_hand_desc">एका हाताने वापरताना मुख्य बटणांसाठी पसंतीची बाजू, उजव्या आणि डाव्या हाताच्या वापरकर्त्यांसाठी. ती फ्लोटिंग अ‍ॅक्शन बटण (\'FAB\'), काही नेव्हिगेशन बटणे आणि संपादकाच्या UI च्या भागांची जागा ठरवते.</string>
     <string name="settings_main_control">मुख्य नियंत्रण</string>
-    <string name="settings_main_control_desc">फोन उभा धरल्यावर ॲपशी कसा संवाद साधायचा ते निवडा: मेनूसह तरंगते बटण (\'FAB\'), चिन्हांची पिल किंवा खालचा मेनू.</string>
+    <string name="settings_main_control_desc">फोन उभा धरल्यावर ॲपशी कसा संवाद साधायचा ते निवडा: मेनूसह तरंगते बटण (\'FAB\'), चिन्हांची पिल, खालचा मेनू किंवा कोपऱ्यातील मेनू.</string>
     <string name="main_control_fab">तरंगते बटण</string>
     <string name="main_control_pill">चिन्हांची पिल</string>
     <string name="main_control_bar">खालचा मेनू</string>
     <string name="bar_fixed">स्थिर</string>
+    <string name="main_control_corner">कोपऱ्यातील मेनू</string>
+    <string name="glass_radius">त्रिज्या</string>
+    <string name="glass_intensity">तीव्रता</string>
+    <string name="glass_tint">रंग</string>
+    <string name="glass_light">उजळपणा</string>
     <string name="settings_button_look">मुख्य बटणांचे स्वरूप</string>
     <string name="settings_button_look_desc">तरंगते बटण, चिन्हांची पिल आणि खालच्या मेनूला लागू होणारे भरण आणि पारदर्शकता किंवा धूसरपणाचे परिणाम.</string>
     <string name="pill_slide">लपणारी</string>
