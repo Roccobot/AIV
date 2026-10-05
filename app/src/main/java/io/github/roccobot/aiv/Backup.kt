@@ -142,7 +142,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.VIEW, PrefType.LONG, "start-folder")
     area(BackupArea.VIEW, PrefType.INT, "folder-columns")
     area(BackupArea.VIEW, PrefType.SET, "fact-off")
-    area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels")
+    area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels", "phone-pill-on")
     area(
         BackupArea.BUTTONS, PrefType.STRING,
         "hand", "menu-order", "pick-order", "turn-order", "step-order", "mod-order", "last-mark",

@@ -312,7 +312,7 @@
     <string name="settings_page_info">Information</string>
     <string name="settings_page_controls">Buttons and indicators</string>
     <string name="settings_page_editing">Editor and saving</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Theme and graphic details</string>
     <string name="settings_ext_edit">Allow editing the extension</string>
     <string name="settings_ext_edit_desc">Adds an \'Extension\' button to the file name windows. Pick below which ones it appears in. ⚠️ Changing an extension is not a format conversion (that is what \'Export and convert\' is for) and needs care, because some files may become unreadable and stop showing up in gallery apps.</string>
     <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
@@ -393,12 +393,11 @@
     <string name="settings_hand_desc">The preferred side for the main buttons in one-handed use, for right- and left-handers. It sets where the floating action button (\'FAB\'), some navigation buttons and parts of the editor UI go.</string>
     <string name="settings_phone_pill">Pill instead of the FAB in portrait</string>
     <string name="settings_phone_pill_desc">A row of side-by-side icons in a rounded box instead of the menu with the full commands. Long-press an icon to see its explanatory tooltip.</string>
-    <string name="pill_off">Off</string>
-    <string name="pill_slide">Sliding</string>
+    <string name="pill_slide">Retractable</string>
     <string name="pill_extended">Extended</string>
-    <string name="pill_solid">Solid color</string>
-    <string name="pill_translucent">Translucent</string>
-    <string name="pill_glass">Frosted glass</string>
+    <string name="pill_solid">Solid</string>
+    <string name="pill_translucent">Transparent</string>
+    <string name="pill_glass">Glass</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>

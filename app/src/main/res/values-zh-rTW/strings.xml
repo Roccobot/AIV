@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">單手使用時主要按鈕的偏好一側，適合慣用右手和左手的人。它決定浮動操作按鈕（\'FAB\'）、部分導覽按鈕以及編輯器介面部分元素的位置。</string>
     <string name="settings_phone_pill">直向時以膠囊取代 FAB</string>
     <string name="settings_phone_pill_desc">以圓角框中並排的一組圖示取代含完整指令的選單。長按圖示可查看說明提示。</string>
-    <string name="pill_off">關閉</string>
-    <string name="pill_slide">滑動展開</string>
+    <string name="pill_slide">收合式</string>
     <string name="pill_extended">展開</string>
     <string name="pill_solid">純色</string>
-    <string name="pill_translucent">半透明</string>
-    <string name="pill_glass">霧面玻璃</string>
+    <string name="pill_translucent">透明</string>
+    <string name="pill_glass">玻璃</string>
     <string name="settings_right">右側</string>
     <string name="settings_left">左側</string>
     <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>
@@ -339,7 +338,7 @@
     <string name="settings_page_info">資訊</string>
     <string name="settings_page_controls">按鈕與指示</string>
     <string name="settings_page_editing">編輯器與儲存</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">主題與圖形細節</string>
     <string name="settings_ext_edit">允許修改副檔名</string>
     <string name="settings_ext_edit_desc">在檔名視窗中加入 \'延伸檔名\' 按鈕。在下方選擇要出現在哪些視窗。⚠️ 修改副檔名不等於格式轉換（那是 \'匯出並轉換\' 的事），要謹慎使用，因為有些檔案會變得無法讀取，並從相簿應用程式中消失。</string>
     <string name="settings_gpu_thumbs">把縮圖放在圖形記憶體裡</string>

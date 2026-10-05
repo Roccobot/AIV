@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">Предпочтительная сторона для основных кнопок при работе одной рукой, для правшей и левшей. Она задаёт расположение плавающей кнопки действия (\'FAB\'), части кнопок навигации и элементов интерфейса редактора.</string>
     <string name="settings_phone_pill">Пилюля вместо FAB в портретной ориентации</string>
     <string name="settings_phone_pill_desc">Ряд значков в скруглённой панели вместо меню с полными командами. Нажмите и удерживайте значок, чтобы увидеть подсказку.</string>
-    <string name="pill_off">Выключена</string>
-    <string name="pill_slide">Выдвижная</string>
+    <string name="pill_slide">Скрываемая</string>
     <string name="pill_extended">Развёрнутая</string>
-    <string name="pill_solid">Сплошной цвет</string>
-    <string name="pill_translucent">Полупрозрачная</string>
-    <string name="pill_glass">Матовое стекло</string>
+    <string name="pill_solid">Сплошная</string>
+    <string name="pill_translucent">Прозрачная</string>
+    <string name="pill_glass">Стекло</string>
     <string name="settings_right">Справа</string>
     <string name="settings_left">Слева</string>
     <string name="settings_list_path">Список файлов: копировать путь папки</string>
@@ -384,7 +383,7 @@
     <string name="settings_page_info">Информация</string>
     <string name="settings_page_controls">Кнопки и индикаторы</string>
     <string name="settings_page_editing">Редактор и сохранение</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Тема и графические детали</string>
     <string name="settings_ext_edit">Разрешить изменение расширения</string>
     <string name="settings_ext_edit_desc">Добавляет кнопку \'Расширение\' в окна с именами файлов. Ниже выбери, в какие. ⚠️ Смена расширения не преобразует формат (для этого есть \'Экспортировать и преобразовать\') и требует осторожности: некоторые файлы станут нечитаемыми и пропадут из приложений галереи.</string>
     <string name="settings_gpu_thumbs">Хранить миниатюры в графической памяти</string>

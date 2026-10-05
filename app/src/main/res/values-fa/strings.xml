@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">سمت ترجیحی برای دکمه‌های اصلی در استفادهٔ یک‌دستی، برای راست‌دست‌ها و چپ‌دست‌ها. جای دکمهٔ کنش شناور (\'FAB\')، برخی دکمه‌های پیمایش و بخش‌هایی از رابط ویرایشگر را تعیین می‌کند.</string>
     <string name="settings_phone_pill">قرص به‌جای FAB در حالت عمودی</string>
     <string name="settings_phone_pill_desc">ردیفی از نمادهای کنار هم در کادری گرد به‌جای منو با فرمان‌های کامل. برای دیدن راهنمای توضیحی، روی نماد انگشت را نگه دارید.</string>
-    <string name="pill_off">خاموش</string>
-    <string name="pill_slide">کشویی</string>
+    <string name="pill_slide">جمع‌شونده</string>
     <string name="pill_extended">گسترده</string>
-    <string name="pill_solid">رنگ یکدست</string>
-    <string name="pill_translucent">نیمه‌شفاف</string>
-    <string name="pill_glass">شیشهٔ مات</string>
+    <string name="pill_solid">توپر</string>
+    <string name="pill_translucent">شفاف</string>
+    <string name="pill_glass">شیشه</string>
     <string name="settings_right">راست</string>
     <string name="settings_left">چپ</string>
     <string name="settings_list_path">فهرست پرونده‌ها: نشانی پوشه هم رونوشت شود</string>
@@ -354,7 +353,7 @@
     <string name="settings_page_info">اطلاعات</string>
     <string name="settings_page_controls">دکمه‌ها و نشانگرها</string>
     <string name="settings_page_editing">ویرایشگر و ذخیره</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">پوسته و جزئیات گرافیکی</string>
     <string name="settings_ext_edit">اجازه تغییر پسوند</string>
     <string name="settings_ext_edit_desc">دکمهٔ \'پسوند\' را به پنجره‌های نام فایل می‌افزاید. پایین‌تر انتخاب کن در کدام‌ها دیده شود. ⚠️ تغییر پسوند تبدیل قالب نیست (برای آن \'برون‌بری و تبدیل\' هست) و باید با احتیاط به کار برود، چون برخی فایل‌ها ناخوانا می‌شوند و دیگر در برنامه‌های گالری دیده نمی‌شوند.</string>
     <string name="settings_gpu_thumbs">نگه‌داشتن بندانگشتی‌ها در حافظه گرافیکی</string>

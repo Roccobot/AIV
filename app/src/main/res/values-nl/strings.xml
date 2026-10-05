@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">De voorkeurszijde voor de hoofdknoppen bij bediening met één hand, voor rechts- en linkshandigen. Ze bepaalt waar de zwevende actieknop (\'FAB\'), enkele navigatieknoppen en delen van de editor-interface komen.</string>
     <string name="settings_phone_pill">Pil in plaats van de FAB in staande stand</string>
     <string name="settings_phone_pill_desc">Een rij pictogrammen naast elkaar in een afgerond vak in plaats van het menu met de volledige opdrachten. Houd een pictogram ingedrukt om de uitleg te zien.</string>
-    <string name="pill_off">Uit</string>
-    <string name="pill_slide">Uitschuifbaar</string>
+    <string name="pill_slide">Inklapbaar</string>
     <string name="pill_extended">Uitgevouwen</string>
-    <string name="pill_solid">Effen kleur</string>
-    <string name="pill_translucent">Halfdoorzichtig</string>
-    <string name="pill_glass">Matglas</string>
+    <string name="pill_solid">Dekkend</string>
+    <string name="pill_translucent">Transparant</string>
+    <string name="pill_glass">Glas</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Bestandslijst: pad van de map kopiëren</string>
@@ -354,7 +353,7 @@
     <string name="settings_page_info">Informatie</string>
     <string name="settings_page_controls">Knoppen en indicatoren</string>
     <string name="settings_page_editing">Editor en opslaan</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">Thema en grafische details</string>
     <string name="settings_ext_edit">Extensie wijzigen toestaan</string>
     <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters met bestandsnamen. Kies hieronder in welke. ⚠️ Een extensie wijzigen is geen formaatomzetting (daarvoor is \'Exporteren en omzetten\') en vraagt om voorzichtigheid, want sommige bestanden worden onleesbaar en verdwijnen uit galerij-apps.</string>
     <string name="settings_gpu_thumbs">Miniaturen in het grafisch geheugen houden</string>

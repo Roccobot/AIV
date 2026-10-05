@@ -108,13 +108,13 @@ fun pillFillIn(fill: PillFill): PillFill =
     if (fill == PillFill.GLASS && !glassAvailable()) PillFill.SOLID else fill
 
 /**
- * The mode in force: the setting on a phone, the FAB everywhere else.
+ * The mode in force: the setting on a phone with the switch on, the FAB everywhere else.
  *
  * ⚠️ **The smallest width and not the current one**: a phone held sideways is still a phone, and
  * the wide screens have their own pill; this only decides whether the item exists at all.
  */
-fun pillMode(mode: PhonePill, smallestWidthDp: Int): PhonePill =
-    if (pillOffered(smallestWidthDp)) mode else PhonePill.OFF
+fun pillMode(on: Boolean, mode: PhonePill, smallestWidthDp: Int): PhonePill =
+    if (on && pillOffered(smallestWidthDp)) mode else PhonePill.OFF
 
 /** Whether this device is a phone, which is where the setting exists at all. */
 fun pillOffered(smallestWidthDp: Int): Boolean = smallestWidthDp < Adaptive.PHONE_MAX

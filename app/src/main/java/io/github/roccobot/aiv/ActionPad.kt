@@ -1781,7 +1781,7 @@ fun TapHoldFab(
                     scaleX = s
                     scaleY = s
                 }
-            ) { glyph(descrizione) }
+            ) { CompositionLocalProvider(LocalRoundKey provides round) { glyph(descrizione) } }
             Box(
                 modifier = Modifier.graphicsLayer {
                     val m = morph.value
@@ -2022,14 +2022,46 @@ private fun untouchable() {
  */
 @Composable
 internal fun Marchio(descrizione: String?) {
+    val tondo = LocalRoundKey.current
+    val largo = if (tondo) MARK_WIDE_ROUND else MARK_WIDE
+    val alto = largo * 60f / 70f
     Icon(
         imageVector = Glyphs.AivMark,
         contentDescription = descrizione,
         modifier = Modifier
-            .offset(x = MARK_WIDE * MARK_DX, y = MARK_HIGH * MARK_DY)
-            .size(width = MARK_WIDE, height = MARK_HIGH)
+            .offset(
+                x = if (tondo) 0.dp else largo * MARK_DX,
+                y = alto * if (tondo) MARK_DY_ROUND else MARK_DY
+            )
+            .size(width = largo, height = alto)
     )
 }
+
+/**
+ * Se il glifo è disegnato nel tasto tondo della pillola a scomparsa ([PhonePill.SLIDE]): lo fornisce
+ * [TapHoldFab] attorno al suo glifo, così ogni chiamante di [Marchio] lo riceve per costruzione.
+ */
+internal val LocalRoundKey = compositionLocalOf { false }
+
+/**
+ * Quanto è largo il marchio nel tasto tondo: 22dp contro 24, cioè l'8% in meno.
+ *
+ * ⚠️ **Sua richiesta, giro della `4.01`** (*il glifo dev'essere un 5-10% più piccolo*): il numero
+ * sta in mezzo alla forbice che ha dato.
+ */
+private val MARK_WIDE_ROUND = 22.dp
+
+/**
+ * Lo spostamento del marchio nel tasto tondo: è la **A** a stare al centro, e il disco la segue.
+ *
+ * ⚠️⚠️ **NEL TONDO NON VALE IL BARICENTRO DEL QUADRATO** (sua richiesta, giro della `4.01`: *è il
+ * TRIANGOLO del glifo a dover essere centrato sui due assi rispetto al tondo contenitore*). Il
+ * riquadro della A, letto dal tracciato di `ic_aiv_mark.xml`, va da 0 a 70 in larghezza (cioè
+ * tutta la tela, quindi in orizzontale non si sposta niente) e da 6 a 60 in altezza: il suo
+ * centro cade a 33 su 60, il 5% sotto il centro della tela, e lo spostamento è quello cambiato
+ * di segno. Lettura dichiarata nel DF: centrata vuol dire il centro del riquadro della A.
+ */
+private const val MARK_DY_ROUND = -0.050f
 
 /**
  * Quanto è largo il marchio sul FAB.

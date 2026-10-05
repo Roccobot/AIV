@@ -4,9 +4,12 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -15,11 +18,15 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.mutablePreferencesOf
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
@@ -187,18 +194,85 @@ class PillolaTest {
      */
     @Test
     fun `la voce c'e sul telefono, col vetro`() {
-        apriPulsanti()
+        apriPulsanti(Settings(phonePillOn = true))
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_slide)).assertExists()
+        banco.onNodeWithText(voce(R.string.pill_extended)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_translucent)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_glass)).assertExists()
+    }
+
+    /**
+     * **From 4.02 the item is a switch, and switched off its chips are not there** (the user's
+     * answer to `4.00-01`: *preferisco un interruttore on/off generale*). Switching it on writes
+     * the switch, and leaves the chosen pill alone.
+     */
+    @Test
+    fun `l'interruttore spento non mostra i gettoni, acceso li mostra`() {
+        var scritte: Settings? = null
+        apriPulsanti(Settings(phonePill = PhonePill.EXTENDED)) { scritte = it }
+        banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
+        banco.onNodeWithText(voce(R.string.pill_slide)).assertDoesNotExist()
+        banco.onNodeWithText(voce(R.string.pill_solid)).assertDoesNotExist()
+        banco.onNodeWithText(voce(R.string.settings_phone_pill)).performClick()
+        banco.waitForIdle()
+        assertEquals(true, scritte?.phonePillOn)
+        assertEquals(PhonePill.EXTENDED, scritte?.phonePill)
+    }
+
+    /**
+     * **An archive written by 4.00 or 4.01 has only the chip**, and it must keep meaning what it
+     * meant: `off` is the switch off, the two pills are the switch on with that pill.
+     */
+    @Test
+    fun `l'archivio della 4_00 si rilegge con l'interruttore`() {
+        val chiave = stringPreferencesKey("phone-pill")
+        val spenta = SettingsStore.read(mutablePreferencesOf(chiave to "off"))
+        assertEquals(false, spenta.phonePillOn)
+        assertEquals(PhonePill.SLIDE, spenta.phonePill)
+        val estesa = SettingsStore.read(mutablePreferencesOf(chiave to "extended"))
+        assertEquals(true, estesa.phonePillOn)
+        assertEquals(PhonePill.EXTENDED, estesa.phonePill)
+        val vuoto = SettingsStore.read(emptyPreferences())
+        assertEquals(Settings().phonePillOn, vuoto.phonePillOn)
+        assertEquals(Settings().phonePill, vuoto.phonePill)
+    }
+
+    /**
+     * **In the round key the mark is 22dp wide, and its A sits in the middle** (the user's note on
+     * the 4.01 round: *un 5-10% più piccolo*, and the triangle centred on both axes). The square
+     * FAB keeps its 24dp and its optical centre.
+     */
+    @Test
+    fun `nel tasto tondo il marchio e piu piccolo e centrato sulla A`() {
+        val tondo = true
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                CompositionLocalProvider(LocalRoundKey provides tondo) {
+                    Box(
+                        modifier = Modifier.size(PILL_KEY).testTag("tasto"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Marchio("marchio")
+                    }
+                }
+            }
+        }
+        val scatola = banco.onNodeWithTag("tasto").fetchSemanticsNode().boundsInRoot
+        val segno = banco.onNodeWithContentDescription("marchio").fetchSemanticsNode().boundsInRoot
+        val dp = app.resources.displayMetrics.density
+        assertEquals(22f, segno.width / dp, 0.5f)
+        // The A spans the whole width and 6..60 of the 60-unit height, so its box is centred.
+        val alto = segno.height
+        assertEquals(scatola.center.x, segno.center.x, 0.5f * dp)
+        assertEquals(scatola.center.y, segno.top + alto * 33f / 60f, 0.5f * dp)
     }
 
     /** **Below Android 12 the glass chip is not there** (the user's answer, 2026-10-05). */
     @Test
     @Config(sdk = [30])
     fun `sotto Android 12 il vetro non c'e`() {
-        apriPulsanti()
+        apriPulsanti(Settings(phonePillOn = true))
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_glass)).assertDoesNotExist()
     }
@@ -212,12 +286,12 @@ class PillolaTest {
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertDoesNotExist()
     }
 
-    private fun apriPulsanti() {
+    private fun apriPulsanti(settings: Settings = Settings(), onChange: (Settings) -> Unit = {}) {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 SettingsScreen(
-                    settings = Settings(),
-                    onChange = {},
+                    settings = settings,
+                    onChange = onChange,
                     onStartFolder = {},
                     onResetHints = {},
                     onChooseEditor = {},

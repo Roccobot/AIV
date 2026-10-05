@@ -124,12 +124,11 @@
     <string name="settings_hand_desc">ایک ہاتھ سے استعمال کرتے وقت بنیادی بٹنوں کے لیے ترجیحی سمت، دائیں اور بائیں ہاتھ والوں کے لیے۔ یہ فلوٹنگ ایکشن بٹن (\'FAB\')، بعض نیویگیشن بٹنوں اور ایڈیٹر کے UI کے حصوں کی جگہ طے کرتی ہے۔</string>
     <string name="settings_phone_pill">عمودی حالت میں FAB کی جگہ گولی</string>
     <string name="settings_phone_pill_desc">مکمل کمانڈز والے مینو کی جگہ ایک گول خانے میں ساتھ ساتھ آئیکنز کی قطار۔ وضاحتی ٹول ٹپ دیکھنے کے لیے کسی آئیکن کو دیر تک دبائیں۔</string>
-    <string name="pill_off">بند</string>
-    <string name="pill_slide">سلائیڈنگ</string>
+    <string name="pill_slide">چھپنے والی</string>
     <string name="pill_extended">پھیلی ہوئی</string>
-    <string name="pill_solid">ٹھوس رنگ</string>
-    <string name="pill_translucent">نیم شفاف</string>
-    <string name="pill_glass">دھندلا شیشہ</string>
+    <string name="pill_solid">ٹھوس</string>
+    <string name="pill_translucent">شفاف</string>
+    <string name="pill_glass">شیشہ</string>
     <string name="settings_right">دائیں</string>
     <string name="settings_left">بائیں</string>
     <string name="settings_list_path">فائل فہرست: فولڈر کا راستہ بھی نقل کریں</string>
@@ -354,7 +353,7 @@
     <string name="settings_page_info">معلومات</string>
     <string name="settings_page_controls">بٹن اور اشارے</string>
     <string name="settings_page_editing">ایڈیٹر اور محفوظ کرنا</string>
-    <string name="settings_page_look">Theme and panels</string>
+    <string name="settings_page_look">تھیم اور گرافک تفصیلات</string>
     <string name="settings_ext_edit">توسیع بدلنے کی اجازت</string>
     <string name="settings_ext_edit_desc">فائل کے ناموں کی ونڈوز میں \'لاحقہ\' بٹن شامل کرتا ہے۔ نیچے چنو کہ کن میں دکھے۔ ⚠️ لاحقہ بدلنا فارمیٹ کی تبدیلی نہیں ہے (اس کے لیے \'برآمد اور تبدیل\' ہے) اور احتیاط چاہتا ہے، کیونکہ کچھ فائلیں ناقابلِ مطالعہ ہو کر گیلری ایپس میں دکھنا بند ہو سکتی ہیں۔</string>
     <string name="settings_gpu_thumbs">تھمب نیلز کو گرافکس میموری میں رکھیں</string>

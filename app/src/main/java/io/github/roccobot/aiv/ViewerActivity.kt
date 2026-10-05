@@ -2848,7 +2848,7 @@ class ViewerActivity : ComponentActivity() {
                 // Il perché per esteso vive su [PillLook].
                 val pillola = model.settings?.let {
                     PillLook(
-                        mode = pillMode(it.phonePill, LocalConfiguration.current.smallestScreenWidthDp),
+                        mode = pillMode(it.phonePillOn, it.phonePill, LocalConfiguration.current.smallestScreenWidthDp),
                         fill = pillFillIn(it.pillFill)
                     )
                 } ?: PillLook()
