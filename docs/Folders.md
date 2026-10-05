@@ -169,7 +169,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️ **La vista ad albero resta fuori**: ha una navigazione sua, e lì il FAB resta.
 - ⚠️⚠️ **Telefono in verticale, dalla `4.00`: la pillola può prendere il posto del FAB** (sua
   richiesta del 2026-10-05, risposte A1-D1 nel brief). La voce è `Pillola al posto del FAB in
-  verticale`, in cima a 'Pulsanti e indicatori', solo sul telefono.
+  verticale`, solo sul telefono. ⚠️ Dalla `4.04` è in fondo a 'Tema e dettagli grafici' (suo
+  commento a `4.03-03`); dalla `4.00` alla `4.03` era in cima a 'Pulsanti e indicatori'.
   - ⚠️⚠️ **Dalla `4.02` la voce è un interruttore, spento di fabbrica, con sotto due file di
     gettoni che compaiono ad acceso** (sua risposta a `4.00-01`): spento vuol dire il FAB di
     sempre, e il gettone `Disattivata` non c'è più. I nomi dei gettoni sono suoi: `A scomparsa`
