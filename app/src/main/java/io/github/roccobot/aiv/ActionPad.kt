@@ -43,6 +43,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -2034,12 +2035,18 @@ internal fun Marchio(descrizione: String?) {
                 y = alto * if (tondo) MARK_DY_ROUND else MARK_DY
             )
             .size(width = largo, height = alto)
+            // The bench finds the mark by this, wherever it is drawn (PillolaTest).
+            .testTag(MARK_TAG)
     )
 }
 
+/** The test tag of [Marchio]. */
+internal const val MARK_TAG = "aiv-mark"
+
 /**
- * Se il glifo è disegnato nel tasto tondo della pillola a scomparsa ([PhonePill.SLIDE]): lo fornisce
- * [TapHoldFab] attorno al suo glifo, così ogni chiamante di [Marchio] lo riceve per costruzione.
+ * Se il glifo è disegnato nel tasto tondo della pillola a scomparsa ([PhonePill.SLIDE]): lo forniscono
+ * i due posti che disegnano quel tondo, [TapHoldFab] (la copia dell'onboarding) e `SlidePill` (il
+ * tasto vero). ⚠️ Nella `4.02` lo forniva solo il primo, e sul telefono non cambiava niente.
  */
 internal val LocalRoundKey = compositionLocalOf { false }
 

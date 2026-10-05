@@ -483,6 +483,20 @@ fun aivLauncher(light: Boolean): Pair<Color, Color> {
     }
 }
 
+/**
+ * The palette of one theme for a piece of a screen, inside an app that may be in the other one.
+ *
+ * ⚠️⚠️ **Born in 4.03 for the info shown with the image** (the user's note on the 4.02 round: with
+ * 'Tema dello sfondo' on `Scuro` the info must sit on a dark background too). Only the palette and
+ * [LocalAivLight] change: typography, shapes and motion are the app's, inherited.
+ */
+@Composable
+fun AivPalette(light: Boolean, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalAivLight provides light) {
+        MaterialTheme(colorScheme = if (light) LightScheme else DarkScheme, content = content)
+    }
+}
+
 @Composable
 fun AivTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

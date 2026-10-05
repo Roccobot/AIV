@@ -185,7 +185,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     salto, e la pillola torna larga con gli stessi tempi del chevron che rientra (risposta C2).
     Il tocco lungo delle colonne qui non c'è (risposta B1);
   - ⚠️ **Nel tasto tondo il marchio è largo 22dp e non 24, e al centro c'è la A**, non il
-    baricentro del disegno (sua nota, giro della `4.01`): il disco solare si sposta con lei;
+    baricentro del disegno (sua nota, giro della `4.01`): il disco solare si sposta con lei.
+    ⚠️ Sul telefono vale dalla `4.03` (`4.02-03` non approvata): il tondo vero lo disegna
+    `SlidePill`, che nella `4.02` non lo diceva al marchio;
   - la seconda fila dice di che cosa è fatta la pillola: `Solido` (di fabbrica), `Trasparente`
     (accento all'80%), `Vetro` (sfocatura di deviazione 8 e saturazione al 160% come la
     pillola del DF, accento all'80% sul tema chiaro e al 65% sullo scuro dalla `4.01`). Da Android

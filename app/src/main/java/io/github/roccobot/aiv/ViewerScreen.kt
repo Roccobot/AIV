@@ -932,13 +932,15 @@ fun ViewerScreen(
     val panelOnStart = settings.hand == Hand.RIGHT
     Row(modifier = modifier.fillMaxSize()) {
         if (sideAvailable && sideOpen && panelOnStart) {
-            ViewerFactsSide(
-                uri = source,
-                fields = settings.factRows,
-                width = Adaptive.sideWidth(widthDp),
-                onClose = { sideOpen = false },
-                onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
-            )
+            AivPalette(light = lightGreys) {
+                ViewerFactsSide(
+                    uri = source,
+                    fields = settings.factRows,
+                    width = Adaptive.sideWidth(widthDp),
+                    onClose = { sideOpen = false },
+                    onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
+                )
+            }
         }
     Box(
         modifier = Modifier
@@ -1137,6 +1139,10 @@ fun ViewerScreen(
                  * ogni fotogramma di una pinza, e incrociarla vorrebbe dire una
                  * dissolvenza al secondo mentre si ingrandisce.
                  */
+                // ⚠️ Le info prendono il tema dello sfondo e non quello dell'app (`4.03`, sua nota
+                // sul giro della `4.02`): con 'Tema dello sfondo' su `Scuro` il pannello è scuro.
+                // Lo stesso vale per il pannello laterale degli schermi larghi.
+                AivPalette(light = lightGreys) {
                 Surface(
                     color = MaterialTheme.colorScheme.surface.copy(alpha = PANEL_VEIL),
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -1170,6 +1176,7 @@ fun ViewerScreen(
                             atTop = settings.infoPosition == InfoPosition.TOP
                         )
                     }
+                }
                 }
             }
         }
@@ -1218,13 +1225,15 @@ fun ViewerScreen(
         }
     }
         if (sideAvailable && sideOpen && !panelOnStart) {
-            ViewerFactsSide(
-                uri = source,
-                fields = settings.factRows,
-                width = Adaptive.sideWidth(widthDp),
-                onClose = { sideOpen = false },
-                onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
-            )
+            AivPalette(light = lightGreys) {
+                ViewerFactsSide(
+                    uri = source,
+                    fields = settings.factRows,
+                    width = Adaptive.sideWidth(widthDp),
+                    onClose = { sideOpen = false },
+                    onRename = { renamed -> job = FileJob.Rename(listOf(renamed)) }
+                )
+            }
         }
     }
 

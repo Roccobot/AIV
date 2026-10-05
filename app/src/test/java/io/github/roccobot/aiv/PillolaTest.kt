@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -239,33 +240,26 @@ class PillolaTest {
     }
 
     /**
-     * **In the round key the mark is 22dp wide, and its A sits in the middle** (the user's note on
-     * the 4.01 round: *un 5-10% più piccolo*, and the triangle centred on both axes). The square
-     * FAB keeps its 24dp and its optical centre.
+     * **In the round key of the pill the mark is 22dp wide, and its A sits in the middle** (the
+     * user's note on the 4.01 round, and `4.02-03` not approved: on the phone nothing changed).
+     *
+     * ⚠️⚠️ **It mounts the real pill and not a copy**: the 4.02 version of this test gave the mark
+     * its round-key flag by hand, and passed while the pill never gave it.
      */
     @Test
     fun `nel tasto tondo il marchio e piu piccolo e centrato sulla A`() {
-        val tondo = true
-        banco.setContent {
-            AivTheme(darkTheme = false) {
-                CompositionLocalProvider(LocalRoundKey provides tondo) {
-                    Box(
-                        modifier = Modifier.size(PILL_KEY).testTag("tasto"),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Marchio("marchio")
-                    }
-                }
-            }
-        }
-        val scatola = banco.onNodeWithTag("tasto").fetchSemanticsNode().boundsInRoot
-        val segno = banco.onNodeWithContentDescription("marchio").fetchSemanticsNode().boundsInRoot
+        banco.setContent { Griglia(PhonePill.SLIDE) }
+        banco.waitForIdle()
+        val tasto = banco.onNodeWithContentDescription(voce(R.string.pick_actions))
+            .fetchSemanticsNode().boundsInRoot
+        val segno = banco.onAllNodesWithTag(MARK_TAG, useUnmergedTree = true).fetchSemanticsNodes()
+            .map { it.boundsInRoot }
+            .single { tasto.contains(it.center) }
         val dp = app.resources.displayMetrics.density
         assertEquals(22f, segno.width / dp, 0.5f)
         // The A spans the whole width and 6..60 of the 60-unit height, so its box is centred.
-        val alto = segno.height
-        assertEquals(scatola.center.x, segno.center.x, 0.5f * dp)
-        assertEquals(scatola.center.y, segno.top + alto * 33f / 60f, 0.5f * dp)
+        assertEquals(tasto.center.x, segno.center.x, 0.5f * dp)
+        assertEquals(tasto.center.y, segno.top + segno.height * 33f / 60f, 0.5f * dp)
     }
 
     /** **Below Android 12 the glass chip is not there** (the user's answer, 2026-10-05). */

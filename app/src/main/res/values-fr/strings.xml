@@ -78,7 +78,7 @@
     <string name="settings_theme_dark">Sombre</string>
     <string name="settings_bg_theme">Thème du fond</string>
     <string name="settings_auto">Automatique</string>
-    <string name="settings_light">Claire</string>
+    <string name="settings_light">Clair</string>
     <string name="settings_dark">Sombre</string>
 
     <string name="settings_depth">Effet derrière les menus et les panneaux</string>
