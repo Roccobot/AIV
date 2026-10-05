@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -171,13 +170,15 @@ internal val GLASS_BLUR = 13.dp
 private const val GLASS_SATURATION = 1.6f
 
 /**
- * How much accent the glass carries: the DF's `--pill-fill`.
+ * How much accent the glass carries.
  *
- * ⚠️ **Two values, the user's own in the DF**: 70% on the light theme, because white glyphs need
- * 65% to reach 3:1 over the page, and 25% on the dark one (*25% is enough*).
+ * ⚠️⚠️ **SINCE 4.01, LESS TRANSPARENT THAN THE DF** (the user's answer, 2026-10-05, after the
+ * variants page: *accento dell'altro tema. In più, disegnalo un po' meno trasparente*). In 4.00
+ * they were the DF's `--pill-fill`, 70% and 25%, and on the dark theme the colour nearly vanished;
+ * the variant he picked (A2) had 70% and 55%, and 'a bit less transparent' took both up.
  */
-private const val GLASS_INK_LIGHT = 0.70f
-private const val GLASS_INK_DARK = 0.25f
+private const val GLASS_INK_LIGHT = 0.80f
+private const val GLASS_INK_DARK = 0.65f
 
 /** The accent's opacity in [PillFill.TRANSLUCENT]: 80%, the user's number. */
 private const val TRANSLUCENT_INK = 0.80f
@@ -194,8 +195,8 @@ private const val TRANSLUCENT_INK = 0.80f
 @Composable
 fun Modifier.pillFill(backdrop: Backdrop?): Modifier {
     val fill = LocalPillLook.current.fill
-    val accent = MaterialTheme.colorScheme.primary
     val light = LocalAivLight.current
+    val accent = pillAccent()
     val shape = RoundedCornerShape(50)
     return when (fill) {
         PillFill.SOLID -> this.clip(shape).drawBehind { drawRect(accent) }
@@ -250,9 +251,22 @@ private fun glassEffect(radius: Float) = RenderEffect.createColorFilterEffect(
     RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
 ).asComposeRenderEffect()
 
-/** The ink of the pill's glyphs: the accent's own ink, in every fill, as in the DF. */
+/**
+ * The pill's colour: the accent of the OTHER theme, in every fill.
+ *
+ * ⚠️⚠️ **SINCE 4.01, THE USER'S CHOICE** (*accento dell'altro tema*, variants A2 and C1): it is the
+ * pair the FAB already wears (`aivLauncher`), the teal on the dark theme and the petrol on the
+ * light one, which stand out more from the page than the theme's own accent did. In 4.00 the pill
+ * wore the theme's accent.
+ * ⚠️ **The theme is the app's and not the system's** ([LocalAivLight]), for the reason written
+ * on the FAB's colours.
+ */
 @Composable
-fun pillInk(): Color = MaterialTheme.colorScheme.onPrimary
+fun pillAccent(): Color = aivAccent(!LocalAivLight.current)
+
+/** The ink of the pill's glyphs: the ink that goes with [pillAccent], in every fill. */
+@Composable
+fun pillInk(): Color = aivOnAccent(!LocalAivLight.current)
 
 /**
  * How long the pill takes to open or fold: at most 160 ms, the user's ceiling.

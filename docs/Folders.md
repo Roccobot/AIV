@@ -180,9 +180,12 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     salto, e la pillola torna larga con gli stessi tempi del chevron che rientra (risposta C2).
     Il tocco lungo delle colonne qui non c'è (risposta B1);
   - la seconda fila dice di che cosa è fatta la pillola: `Tinta unita` (di fabbrica), `Semitrasparente`
-    (accento all'80%), `Vetro satinato` (la pillola del DF come risultato: sfocatura di deviazione
-    8, saturazione al 160%, accento al 70% sul tema chiaro e al 25% sullo scuro). Da Android 11 in
-    giù il vetro non compare. La scelta riempie anche le pillole degli schermi larghi.
+    (accento all'80%), `Vetro satinato` (sfocatura di deviazione 8 e saturazione al 160% come la
+    pillola del DF, accento all'80% sul tema chiaro e al 65% sullo scuro dalla `4.01`). Da Android
+    11 in giù il vetro non compare. La scelta riempie anche le pillole degli schermi larghi.
+  - ⚠️⚠️ **Dalla `4.01` la pillola porta l'accento dell'ALTRO tema, coi suoi glifi** (sua scelta,
+    varianti A2 e C1): la coppia del FAB, petrolio sul tema chiaro e verde acqua sullo scuro, in
+    tutte e tre le tinte. Nella `4.00` era l'accento del tema, e sul vetro scuro quasi spariva.
 - ⚠️⚠️ **Col vetro e la sfocatura dietro i pannelli, anche i menu sfocano come il vetro**, col velo
   nell'accento al 10% al posto del nero (sua richiesta). Dove il telefono non sfoca torna il velo
   nero.
