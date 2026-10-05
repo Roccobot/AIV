@@ -98,11 +98,23 @@ function currentCardIndex() {
 function firstEmptyCard() {
   return responseCards.find(card => !card.classList.contains("extra") && !card.classList.contains("has-response"));
 }
+// The card the next key goes to, or nothing when it cannot move the page down.
+// On desktop Altro is the sticky side column: going to it shifted the page by a few pixels
+// and the following press shifted it back (the user's report, 2026-10-05), so past the last
+// proof there is no next. The page already at its bottom has no next either.
+function nextTarget(index) {
+  const card = responseCards[index + 1];
+  if (!card) return null;
+  if (!isMobileUi() && card.classList.contains("extra")) return null;
+  const bottom = document.documentElement.scrollHeight - window.innerHeight;
+  if (window.scrollY >= bottom - 2) return null;
+  return card;
+}
 function refreshNavigation() {
   refreshDashboardDocked();
   const index = currentCardIndex();
   previousCard.disabled = !loaded || index <= 0;
-  nextCard.disabled = !loaded || index >= responseCards.length - 1;
+  nextCard.disabled = !loaded || !nextTarget(index);
   // A button that cannot act leaves the pill, which shortens with it.
   previousCard.hidden = previousCard.disabled;
   nextCard.hidden = nextCard.disabled;
@@ -142,7 +154,7 @@ function goToCard(card) {
   refreshNavigation();
 }
 previousCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() - 1]));
-nextCard.addEventListener("click", () => goToCard(responseCards[currentCardIndex() + 1]));
+nextCard.addEventListener("click", () => goToCard(nextTarget(currentCardIndex())));
 // On mobile a long press opens the Altro overlay; a short tap keeps the button's own action.
 function onTapOrHold(button, tap) {
   let held = false, timer = null;
@@ -184,4 +196,4 @@ window.addEventListener("scroll", () => {
   });
 }, {passive: true});
 new ResizeObserver(refreshNavigation).observe(document.querySelector(".dashboard"));
-onTapOrHold(document.querySelector("#floating-save"), save);
+onTapOrHold(document.querySelector("#floating-save"), saveByHand);
