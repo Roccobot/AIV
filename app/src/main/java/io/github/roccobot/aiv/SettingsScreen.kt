@@ -861,9 +861,13 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_look),
-            summary = listOf(
+            // ⚠️ La voce della pillola c'è solo sul telefono, e il riepilogo dice quello che la
+            // pagina contiene davvero.
+            summary = listOfNotNull(
                 stringResource(R.string.settings_ui_theme),
-                stringResource(R.string.settings_depth)
+                stringResource(R.string.settings_depth),
+                stringResource(R.string.settings_phone_pill)
+                    .takeIf { pillOffered(LocalConfiguration.current.smallestScreenWidthDp) }
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.LOOK) }
         ) { LookPage(settings = settings, onChange = onChange) }
@@ -926,11 +930,7 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_controls),
-            // ⚠️ La voce della pillola c'è solo sul telefono, e il riepilogo dice quello che la
-            // pagina contiene davvero.
-            summary = listOfNotNull(
-                stringResource(R.string.settings_phone_pill)
-                    .takeIf { pillOffered(LocalConfiguration.current.smallestScreenWidthDp) },
+            summary = listOf(
                 stringResource(R.string.settings_hand),
                 stringResource(R.string.settings_labels),
                 stringResource(R.string.settings_buttons)
@@ -1212,6 +1212,19 @@ private fun LookPage(
         },
         onSelect = { onChange(settings.copy(panelDepth = it)) }
     )
+
+    /*
+     * ⚠️⚠️ **IN FONDO A 'TEMA E DETTAGLI GRAFICI' DALLA `4.04`, ED È IL POSTO CHE HA DETTO LUI**
+     * (commento a `4.03-03`: *sposta l'intero blocco della 'Pillola al posto del FAB in
+     * verticale' dal primo posto di 'Pulsanti e indicatori' all'ultima posizione di 'Tema e
+     * dettagli grafici'*). Dalla `4.00` alla `4.03` era in cima a 'Pulsanti e indicatori'; la
+     * chiave non è cambiata. Titolo e paragrafo sono suoi, alla lettera. Sul tablet la voce non
+     * c'è, perché il tablet in verticale ha già la sua pillola: lo decide [pillOffered], lo stesso
+     * conto che [pillMode] fa per l'app.
+     */
+    if (pillOffered(LocalConfiguration.current.smallestScreenWidthDp)) {
+        PillChoices(settings = settings, onChange = onChange)
+    }
 }
 
 /**
@@ -1684,17 +1697,6 @@ private fun ControlsPage(
     // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
     // risorse invece di `stringResource`, che è componibile.
     val res = LocalResources.current
-
-    /*
-     * ⚠️⚠️ **IN CIMA DALLA `4.00`, ED È IL POSTO CHE HA DETTO LUI** (*Aspetto → Pulsanti e
-     * indicatori: aggiungi in cima `Pillola al posto del FAB in verticale` (deve apparire solo su
-     * smartphone)*). Titolo e paragrafo sono suoi, alla lettera. Sul tablet la voce non c'è,
-     * perché il tablet in verticale ha già la sua pillola: lo decide [pillOffered], lo stesso
-     * conto che [pillMode] fa per l'app.
-     */
-    if (pillOffered(LocalConfiguration.current.smallestScreenWidthDp)) {
-        PillChoices(settings = settings, onChange = onChange)
-    }
 
     Choices(
         label = stringResource(R.string.settings_hand),

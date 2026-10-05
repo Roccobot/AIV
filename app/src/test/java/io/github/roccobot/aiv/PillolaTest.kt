@@ -190,17 +190,22 @@ class PillolaTest {
     }
 
     /**
-     * **The settings item is on the phone, at the top of 'Pulsanti e indicatori', with both rows
-     * of chips, and the glass from Android 12 on.**
+     * **The settings item is on the phone, last in 'Tema e dettagli grafici', with both rows of
+     * chips, and the glass from Android 12 on.** From 4.04 (his comment on `4.03-03`); before, it
+     * was at the top of 'Pulsanti e indicatori'.
      */
     @Test
     fun `la voce c'e sul telefono, col vetro`() {
-        apriPulsanti(Settings(phonePillOn = true))
+        apriTema(Settings(phonePillOn = true))
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_slide)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_extended)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_translucent)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_glass)).assertExists()
+        // Last in the page: below 'Effetto dietro menu e pannelli', the item that was last.
+        val sotto = banco.onNodeWithText(voce(R.string.settings_depth)).fetchSemanticsNode().boundsInRoot
+        val pillola = banco.onNodeWithText(voce(R.string.settings_phone_pill)).fetchSemanticsNode().boundsInRoot
+        assertTrue("La voce della pillola non è in fondo alla pagina", pillola.top > sotto.top)
     }
 
     /**
@@ -211,7 +216,7 @@ class PillolaTest {
     @Test
     fun `l'interruttore spento non mostra i gettoni, acceso li mostra`() {
         var scritte: Settings? = null
-        apriPulsanti(Settings(phonePill = PhonePill.EXTENDED)) { scritte = it }
+        apriTema(Settings(phonePill = PhonePill.EXTENDED)) { scritte = it }
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_slide)).assertDoesNotExist()
         banco.onNodeWithText(voce(R.string.pill_solid)).assertDoesNotExist()
@@ -266,7 +271,7 @@ class PillolaTest {
     @Test
     @Config(sdk = [30])
     fun `sotto Android 12 il vetro non c'e`() {
-        apriPulsanti(Settings(phonePillOn = true))
+        apriTema(Settings(phonePillOn = true))
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertExists()
         banco.onNodeWithText(voce(R.string.pill_glass)).assertDoesNotExist()
     }
@@ -275,12 +280,12 @@ class PillolaTest {
     @Test
     @Config(qualifiers = "sw600dp-w600dp-h960dp")
     fun `sul tablet la voce non c'e`() {
-        apriPulsanti()
-        banco.onNodeWithText(voce(R.string.settings_hand)).assertExists()
+        apriTema()
+        banco.onAllNodesWithText(voce(R.string.settings_depth), substring = false)[0].assertExists()
         banco.onNodeWithText(voce(R.string.settings_phone_pill)).assertDoesNotExist()
     }
 
-    private fun apriPulsanti(settings: Settings = Settings(), onChange: (Settings) -> Unit = {}) {
+    private fun apriTema(settings: Settings = Settings(), onChange: (Settings) -> Unit = {}) {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 SettingsScreen(
@@ -296,7 +301,7 @@ class PillolaTest {
         banco.waitForIdle()
         // ⚠️ Sul tablet il pannello ha due colonne e la stessa etichetta compare due volte: nella
         // colonna delle sezioni e nella pagina. La prima è la porta.
-        banco.onAllNodesWithText(voce(R.string.settings_page_controls), substring = false)[0]
+        banco.onAllNodesWithText(voce(R.string.settings_page_look), substring = false)[0]
             .performScrollTo().performClick()
         banco.waitForIdle()
     }
