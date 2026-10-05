@@ -53,6 +53,7 @@
     <string name="hub_settings">Definições</string>
     <string name="columns_title">Tamanho da grelha</string>
     <string name="columns_hint">Atalho: mantenha o botão flutuante premido para escolher o tamanho da grelha.</string>
+    <string name="corner_hint">Todos os comandos estão no menu \'Iniciar\': toque no botão redondo para o abrir e mantenha-o premido para as opções de visualização.</string>
     <string name="hide_folder_desc">A pasta não será listada na vista de grelha nem de lista. É apenas uma definição de visualização: nenhum ficheiro será apagado.</string>
     <string name="show_folder_desc">A pasta voltará a aparecer normalmente entre as pastas na vista de grelha e de lista.</string>
 

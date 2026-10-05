@@ -197,9 +197,12 @@ enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("righ
  * in vigore è [FAB] (`pillMode`, in `PhonePill.kt`).
  */
 enum class MainControl(override val token: String) : Choice {
-    /** Il FAB col suo menu: 'Tasto fluttuante'. Valore di fabbrica. */
+    /** Il FAB col suo menu: 'Tasto fluttuante'. Valore di fabbrica fino alla `4.20`. */
     FAB("fab"),
-    /** La pillola di icone, a scomparsa o estesa secondo [Settings.phonePill]: 'Pillola di icone'. */
+    /**
+     * La pillola di icone, a scomparsa o estesa secondo [Settings.phonePill]: 'Pillola di icone'.
+     * Valore di fabbrica nella `4.25` e nella `4.30`.
+     */
     PILL("pill"),
     /**
      * Il menu inferiore, dalla `4.15`: 'Menu inferiore'. A scomparsa o fisso secondo lo stesso
@@ -212,7 +215,7 @@ enum class MainControl(override val token: String) : Choice {
      * Il menu angolare, dalla `4.20`: 'Menu angolare'. Sempre a scomparsa (*il menu angolare
      * sempre*), quindi [Settings.phonePill] non lo riguarda: a riposo è la pillola verticale del
      * menu inferiore, aperto è un pannello 3x3 nella schermata iniziale e 2x2 nelle cartelle
-     * (decisioni G1 e C1-C3). Il disegno vive in `BottomMenu.kt`.
+     * (decisioni G1 e C1-C3). Il disegno vive in `BottomMenu.kt`. Valore di fabbrica dalla `4.31`.
      */
     CORNER("corner")
 }
@@ -523,9 +526,9 @@ data class Settings(
     /**
      * L'elemento interattivo principale del telefono in verticale. Vedi [MainControl].
      *
-     * ⚠️⚠️ **LA PILLOLA DI FABBRICA DALLA `4.25`, ED È SUA** (nota D del giro della `4.20`: *la
-     * pillola a scomparsa con traslucido diventa il metodo predefinito*). Fino alla `4.20` era il
-     * FAB, come lo era l'interruttore spento della pillola.
+     * ⚠️⚠️ **IL MENU 'START' DI FABBRICA DALLA `4.31`, ED È SUA SCELTA** (domanda in chat dopo la
+     * `4.30`, risposta *Menu 'Start' predefinito*). Nella `4.25` e nella `4.30` era la pillola a
+     * scomparsa (nota D del giro della `4.20`), e fino alla `4.20` il FAB.
      * ⚠️ **Chi ha già l'app tiene la sua scelta**: il valore di fabbrica vale dove l'archivio tace.
      * ⚠️ **Nato nella `4.10` con la chiave `main-control`**: un archivio senza di lei lo ricava da
      * `phone-pill-on` (4.02-4.05), e uno ancora più vecchio dal gettone di [phonePill] (4.00-4.01),
@@ -533,7 +536,7 @@ data class Settings(
      * ⚠️ **Il valore di fabbrica vive qui e in [SettingsStore.read]**, e il banco legge un
      * archivio vuoto contro questo campo.
      */
-    val mainControl: MainControl = MainControl.PILL,
+    val mainControl: MainControl = MainControl.CORNER,
     /**
      * Quale pillola, quando [mainControl] è [MainControl.PILL]. Vedi [PhonePill].
      *
@@ -1611,12 +1614,13 @@ object SettingsStore {
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             // ⚠️ Un archivio dalla `4.02` alla `4.05` ha l'interruttore, uno della `4.00` o della
             // `4.01` il solo gettone: `off` vuol dire spenta, gli altri due accesa.
-            // ⚠️ Un archivio che non dice niente dà la pillola, il valore di fabbrica della `4.25`.
-            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, MainControl.PILL) }
-                ?: if (p[PHONE_PILL_ON] ?: (p[PHONE_PILL]?.let { it != PhonePill.OFF.token } ?: true)) {
-                    MainControl.PILL
-                } else {
-                    MainControl.FAB
+            // ⚠️ Un archivio che non dice niente dà il menu 'Start', il valore di fabbrica della
+            // `4.31`; uno con la sola pillola dei giri vecchi dà la pillola o il FAB, come prima.
+            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, MainControl.CORNER) }
+                ?: when (p[PHONE_PILL_ON] ?: p[PHONE_PILL]?.let { it != PhonePill.OFF.token }) {
+                    null -> MainControl.CORNER
+                    true -> MainControl.PILL
+                    false -> MainControl.FAB
                 },
             phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.SLIDE)
                 .takeIf { it != PhonePill.OFF } ?: PhonePill.SLIDE,

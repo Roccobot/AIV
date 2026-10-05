@@ -173,7 +173,7 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **Telefono in verticale, dalla `4.00`: la pillola può prendere il posto del FAB** (sua
   richiesta del 2026-10-05, risposte A1-D1 nel brief). ⚠️ **Dalla `4.10` la scelta è la voce
   `Elemento interattivo principale`, la prima di 'Pulsanti e indicatori'** (nota E del giro della
-  `4.04`), solo sul telefono in verticale (risposta G4): gettoni `Tasto fluttuante` (di fabbrica) e
+  `4.04`), solo sul telefono in verticale (risposta G4): gettoni `Tasto fluttuante` (di fabbrica fino alla `4.20`) e
   `Pillola di icone`, e per la pillola una seconda fila, `A scomparsa` ed `Estesa`. Titolo, gettoni
   e paragrafo sono suoi; il paragrafo nomina il menu inferiore solo dalla `4.15`, quando arriva.
   ⚠️⚠️ **Dalla `4.30` i due menu si chiamano `Menu` (il menu inferiore) e `Menu 'Start'` (il menu
@@ -235,10 +235,24 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     stesso angolo in home e nelle cartelle (`pillCorner`: 24dp di fianco, 16 da sotto; la griglia
     ne aveva 20). Il menu Start aperto si chiude con **qualunque** tocco fuori, anche un
     trascinamento sulla griglia, che intanto scorre (`OutsideTouch`, sua nota su `4.25-02`).
+  - ⚠️⚠️ **Dalla `4.31` il centro del tondo è il punto di riferimento di ogni comando** (sua regola
+    dopo la `4.30`: *tutti i posizionamenti di tutti i menu devono usare quel punto di riferimento.
+    Anche il centro del FAB dev'essere centrato sul centro di quel tondo*). La posizione resta quella
+    della `4.30`, la più bassa delle due della `4.25` (sua risposta: il salto l'aveva visto sulla
+    `4.25`). Il FAB da 40dp ha lo stesso centro, quindi sta a 26dp di fianco e a 18 da sotto (prima
+    16 per 16 nella home, 16 per 20 nelle cartelle); il menu del FAB ha il fianco a 24dp come il menu
+    Start aperto (`cornerSide` in `BottomMenu.kt`), e i veli d'aiuto usano lo stesso angolo
+    (`pillCorner`). ⚠️ La barra del menu inferiore resta una fascia in fondo: con 2, 3 o 4
+    tasti quello d'angolo è sull'asse verticale del tondo, ma non alla sua altezza.
+  - ⚠️⚠️ **Dalla `4.31` il menu Start è il comando di fabbrica** (sua risposta in chat dopo la
+    `4.30`; nella `4.25` e nella `4.30` era la pillola a scomparsa). Vale per un telefono nuovo:
+    chi ha già l'app ritrova la sua scelta. Al primo avvio il velo d'aiuto lo mostra **aperto**, con
+    le sue caselle disegnate e la copia del tondo nell'angolo, e la frase `Tutti i comandi sono nel
+    menu 'Start'...` (`corner_hint`, sua richiesta: *magari espanso*).
   - ⚠️⚠️ **Pillole e tasto tondo stanno a 24dp dal vetro di fianco (`PILL_SIDE`), dalla `4.25`**, tre
     margini della griglia e lo stesso rientro dei menu (scelta A2): la riga resta dentro i bordi delle
     miniature, e il tondo coincide col bordo della pillola aperta. Da sotto restano i margini del FAB,
-    e il FAB resta a 16dp.
+    e dalla `4.31` il FAB ha il centro sul tondo (voce qui sopra).
   - Storico: dalla `4.02` alla `4.05` era l'interruttore `Pillola al posto del FAB in verticale`,
     in cima a 'Pulsanti e indicatori' fino alla `4.03` e in fondo a 'Tema e dettagli grafici'
     dalla `4.04`, con sotto le due file di gettoni.

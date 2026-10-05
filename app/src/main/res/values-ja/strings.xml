@@ -397,6 +397,7 @@
     <string name="tree_show_hidden">隠しファイルを表示</string>
     <string name="tree_pictures">画像か動画のあるフォルダーのみ</string>
     <string name="columns_hint">ショートカット: 表示オプションはフローティングボタンを長押し。</string>
+    <string name="corner_hint">すべてのコマンドは\'スタート\'メニューにあります。丸いボタンをタップすると開き、長押しすると表示オプションが開きます。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
     <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン →\u00A0\'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。\n⚠️ 注意: アプリをアンインストールすると、ゴミ箱の中身は失われ、元に戻せません。</string>
     <string name="settings_bin_sweep">ごみ箱の自動整理</string>

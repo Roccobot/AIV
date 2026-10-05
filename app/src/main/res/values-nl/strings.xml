@@ -414,6 +414,7 @@
     <string name="tree_show_hidden">Verborgen bestanden tonen</string>
     <string name="tree_pictures">Alleen mappen met afbeeldingen of video\'s</string>
     <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
+    <string name="corner_hint">Alle opdrachten staan in het menu \'Start\': tik op de ronde knop om het te openen, houd hem ingedrukt voor de weergaveopties.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
     <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop →\u00A0\'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.\n⚠️ LET OP: als je de app verwijdert, gaat de inhoud van de prullenbak verloren en is die niet meer terug te halen.</string>
     <string name="settings_bin_sweep">Prullenbak automatisch opruimen</string>

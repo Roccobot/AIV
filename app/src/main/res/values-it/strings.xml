@@ -665,6 +665,7 @@
     <string name="tree_show_hidden">Mostra i file nascosti</string>
     <string name="tree_pictures">Solo cartelle con immagini/video</string>
     <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per le opzioni di visualizzazione.</string>
+    <string name="corner_hint">Tutti i comandi sono nel menu \'Start\': tocca il tasto tondo per aprirlo, tienilo premuto per le opzioni di visualizzazione.</string>
     <string name="settings_bin">Attiva il cestino</string>
     <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante →\u00A0\'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.\n⚠️ ATTENZIONE: se disinstalli l\'app, il contenuto del cestino va perso e diventa irrecuperabile.</string>
     <string name="settings_bin_sweep">Pulizia automatica del cestino</string>

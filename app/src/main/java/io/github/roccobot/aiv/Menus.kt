@@ -853,8 +853,9 @@ fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
             MenuSpot(
                 across, along, MENU_KEEP_OUT.roundToPx(),
                 // ⚠️ La soglia è il margine del FAB, perché è là che cade il fianco di un menu
-                // ancorato: vedi `MenuSpot.flush`.
-                flush = HUB_PAD.roundToPx(),
+                // ancorato: vedi `MenuSpot.flush`. Dalla `4.31` il FAB ha il centro sul tondo
+                // ([pillCorner]), quindi il margine è il suo e non più [HUB_PAD].
+                flush = cornerSide(FAB_SIZE).roundToPx(),
                 flushTo = (MENU_INSET.roundToPx() - aria).coerceAtLeast(0)
             )
         }

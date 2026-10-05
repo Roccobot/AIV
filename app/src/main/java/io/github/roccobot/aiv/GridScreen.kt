@@ -2449,15 +2449,12 @@ fun GridScreen(
                 visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
                     !picking && shape == Adaptive.Shape.PHONE && pillLook.mode == PhonePill.OFF,
                 // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
-                // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
-                // sé: quello di sistema, il margine della schermata e gli 8dp del FAB.
-                // Sono gli stessi che [HintVeil] riceve per illuminarlo, e restano scritti una
-                // volta sola per ognuno dei due.
+                // ⚠️ Dalla `4.31` il centro è quello del tondo, come nella schermata iniziale
+                // ([pillCorner]): fino alla `4.30` qui il FAB stava a 16dp dal fianco e a 20 dal
+                // fondo, 4dp più in alto che nella home. Lo stesso angolo lo riceve [HintVeil].
                 modifier = Modifier
                     .align(fabSide())
-                    .windowInsetsPadding(steadyDrawing())
-                    .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                    .padding(8.dp)
+                    .pillCorner(FAB_SIZE)
             ) {
                 Box {
                     /*
@@ -2813,14 +2810,9 @@ fun GridScreen(
                             Hint.EDITOR_TOOLS -> R.string.hint_tools
                         }
                     ),
-                    // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
-                    // del FAB. Il perché sta in [HintVeil], sul parametro.
-                    // ⚠️ Col tasto tondo nell'angolo del tasto vero ([pillCorner]).
-                    inset = if (pillLook.mode != PhonePill.OFF) Modifier.pillCorner()
-                    else Modifier
-                        .windowInsetsPadding(steadyDrawing())
-                        .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                        .padding(8.dp),
+                    // ⚠️ L'angolo del comando vero, tondo o FAB, col centro sul centro del tondo
+                    // dalla `4.31` ([pillCorner]). Il perché è scritto su [HintVeil], sul parametro.
+                    inset = Modifier.pillCorner(if (pillLook.mode != PhonePill.OFF) PILL_KEY else FAB_SIZE),
                     onDone = hintDone
                 ) {
                     PickFab(

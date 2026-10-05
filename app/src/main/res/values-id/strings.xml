@@ -397,6 +397,7 @@
     <string name="tree_show_hidden">Tampilkan berkas tersembunyi</string>
     <string name="tree_pictures">Hanya folder dengan gambar atau video</string>
     <string name="columns_hint">Pintasan: tekan lama tombol mengambang untuk opsi tampilan.</string>
+    <string name="corner_hint">Semua perintah ada di menu \'Mulai\': ketuk tombol bulat untuk membukanya, tekan lama untuk opsi tampilan.</string>
     <string name="settings_bin">Aktifkan tempat sampah</string>
     <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang →\u00A0\'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.\n⚠️ PERHATIAN: jika aplikasi dicopot, isi tempat sampah hilang dan tidak dapat dipulihkan.</string>
     <string name="settings_bin_sweep">Bersihkan tempat sampah otomatis</string>

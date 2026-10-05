@@ -397,6 +397,7 @@
     <string name="tree_show_hidden">显示隐藏文件</string>
     <string name="tree_pictures">仅含图片或视频的文件夹</string>
     <string name="columns_hint">快捷方式：长按悬浮按钮打开显示选项。</string>
+    <string name="corner_hint">所有命令都在\'开始\'菜单中：点按圆形按钮打开菜单，长按打开显示选项。</string>
     <string name="settings_bin">启用回收站</string>
     <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n⚠️ 注意：卸载应用后，回收站里的内容会丢失且无法恢复。</string>
     <string name="settings_bin_sweep">自动清理回收站</string>

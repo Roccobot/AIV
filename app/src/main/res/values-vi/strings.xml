@@ -397,6 +397,7 @@
     <string name="tree_show_hidden">Hiện tệp ẩn</string>
     <string name="tree_pictures">Chỉ thư mục có ảnh hoặc video</string>
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
+    <string name="corner_hint">Mọi lệnh đều nằm trong menu \'Bắt đầu\': chạm vào nút tròn để mở, nhấn giữ nút để mở tùy chọn hiển thị.</string>
     <string name="settings_bin">Bật thùng rác</string>
     <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi →\u00A0\'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.\n⚠️ CẢNH BÁO: nếu gỡ cài đặt ứng dụng, nội dung thùng rác sẽ mất và không thể khôi phục.</string>
     <string name="settings_bin_sweep">Dọn thùng rác tự động</string>

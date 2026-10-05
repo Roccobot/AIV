@@ -532,6 +532,61 @@ class MenuInferioreTest {
         assertEquals("Il marchio è fuori centro in orizzontale nel FAB", fab.center.x, segno.center.x, 0.25f * dp)
     }
 
+    /**
+     * **The FAB's centre is the round key's centre, in the home and in a folder** (his rule after the
+     * 4.30: *anche il centro del FAB dev'essere centrato sul centro di quel tondo*). Until 4.30 the FAB
+     * kept its own corner: 16dp from the glass in the home, 16 by 20 in a grid.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `il FAB ha il centro sul centro del tondo in home e in cartella`() {
+        var scena by mutableStateOf(0)
+        banco.setContent {
+            when (scena) {
+                0 -> Home(PillLook(PhonePill.SLIDE), Hand.RIGHT)
+                1 -> Home(PillLook(), Hand.RIGHT)
+                else -> Griglia(PillLook())
+            }
+        }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        val tondo = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
+        scena = 1
+        banco.waitForIdle()
+        val inCasa = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
+        scena = 2
+        banco.waitForIdle()
+        val inCartella = banco.onNodeWithContentDescription(voce(R.string.pick_actions)).fetchSemanticsNode().boundsInRoot
+        assertEquals("Il FAB della home non è largo 40dp", 40f * dp, inCasa.width, 0.5f * dp)
+        assertEquals("Il FAB della home è fuori asse in orizzontale", tondo.center.x, inCasa.center.x, 0.5f * dp)
+        assertEquals("Il FAB della home è fuori asse in verticale", tondo.center.y, inCasa.center.y, 0.5f * dp)
+        assertEquals("Il FAB della cartella è fuori asse in orizzontale", tondo.center.x, inCartella.center.x, 0.5f * dp)
+        assertEquals("Il FAB della cartella è fuori asse in verticale", tondo.center.y, inCartella.center.y, 0.5f * dp)
+    }
+
+    /**
+     * **At the first start the hint shows the Start menu open, its corner on the round key** (his
+     * request after the 4.30: *è fondamentale che al primo avvio il micro-onboarding mostri quello,
+     * magari espanso*): the home's three columns, and the copy of the key exactly over the real one.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `al primo avvio il velo mostra il menu Start aperto sul tondo`() {
+        runBlocking { Hint.COLUMNS.forget(app) }
+        banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        banco.onNodeWithText(voce(R.string.corner_hint)).assertExists()
+        val tondi = banco.onAllNodesWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNodes().map { it.boundsInRoot }
+        assertEquals("Sotto il velo non ci sono il tondo e la sua copia", 2, tondi.size)
+        assertEquals("La copia del tondo è fuori asse in orizzontale", tondi[0].center.x, tondi[1].center.x, 0.5f * dp)
+        assertEquals("La copia del tondo è fuori asse in verticale", tondi[0].center.y, tondi[1].center.y, 0.5f * dp)
+        val pannello = banco.onAllNodesWithTag(CORNER_COPY_TAG, useUnmergedTree = true).fetchSemanticsNodes().single().boundsInRoot
+        assertEquals("Il menu Start del velo non è aperto su tre colonne", 3 * 44f * dp, pannello.width, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha l'angolo sul tondo", tondi[0].right, pannello.right, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].bottom, pannello.bottom, 0.5f * dp)
+    }
+
     private fun quanti(id: Int): Int =
         banco.onAllNodesWithContentDescription(voce(id)).fetchSemanticsNodes().size
 
