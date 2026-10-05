@@ -1278,6 +1278,7 @@ private fun Hub(
             // patina durava più del pannello.
             lifted = menu.visible,
             pressed = menu.wanted,
+            backdrop = backdrop,
             onTap = { if (arm.armed) salto.launch { arm.leap(nested) } else menu.open() },
             onHold = onSize,
             glyph = { JumpGlyph(arm) { Marchio(it) } }

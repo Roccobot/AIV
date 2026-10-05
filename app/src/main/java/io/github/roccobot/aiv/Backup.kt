@@ -142,11 +142,11 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.VIEW, PrefType.LONG, "start-folder")
     area(BackupArea.VIEW, PrefType.INT, "folder-columns")
     area(BackupArea.VIEW, PrefType.SET, "fact-off")
-    area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels", "phone-pill-on")
+    area(BackupArea.BUTTONS, PrefType.BOOLEAN, "list-path", "pad-labels")
     area(
         BackupArea.BUTTONS, PrefType.STRING,
         "hand", "menu-order", "pick-order", "turn-order", "step-order", "mod-order", "last-mark",
-        "phone-pill", "pill-fill"
+        "phone-pill", "pill-fill", "main-control"
     )
     area(
         BackupArea.EDITOR, PrefType.BOOLEAN,
@@ -203,6 +203,14 @@ internal val PREF_RETIRED: Map<String, RetiredKey> = mapOf(
         type = PrefType.SET,
         into = PREF_KEYS.first { it.name == "hidden-relative" },
         convert = { vecchie -> (vecchie as Set<*>).map { portablePath(it.toString()) }.toSet() }
+    ),
+    // ⚠️ L'interruttore della pillola dalla `4.02` alla `4.05`: acceso vuol dire la pillola, spento
+    // il FAB. Il perché della chiave nuova vive su `MainControl`.
+    "phone-pill-on" to RetiredKey(
+        area = BackupArea.BUTTONS,
+        type = PrefType.BOOLEAN,
+        into = PREF_KEYS.first { it.name == "main-control" },
+        convert = { acceso -> if (acceso == true) MainControl.PILL.token else MainControl.FAB.token }
     )
 )
 
