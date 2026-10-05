@@ -10,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -2370,16 +2371,25 @@ fun GridScreen(
              * `aperto` che muove il titolo.
              * ⚠️⚠️ **STA PRIMA DELLA SCHEDA, DELLA NOTIFICA E DEI VELI**: in un `Box` l'ultimo
              * figlio è sopra, e nessuno dei tre va sbiadito da lei.
-             * ⚠️⚠️ **E QUI DI STRATI NE RESTA UNO, DALLA `1.85`** (riscontro del giro della `1.83`,
-             * voce `fab-sopra`: *togli la seconda sfumatura sovrapposta, quella corta. SOLO DALLE
-             * CARTELLE, resta in home*). La coda serviva a chiudere in pieno l'ultima striscia di
-             * schermo, e qui sotto quella striscia adesso passa il FAB.
+             * ⚠️⚠️ **E DALLA `4.25` SE NE VA LA SOLA FASCIA GRANDE** (punto E del giro della `4.20`):
+             * la coda corta resta sempre, salvo quando la griglia tocca il fondo, e là sparisce in
+             * fretta perché l'ultima riga si veda intera. Dalla `1.85` alla `4.20` qui la coda non
+             * c'era (voce `fab-sopra` del giro della `1.83`). Il perché per esteso vive su
+             * [GroundFade].
+             * ⚠️ **'Il fondo' vuol dire che la griglia non scende più ed è scesa**: una cartella che
+             * entra in uno schermo non ha un fondo da toccare, e in cima le sfumature sono due.
              */
             if (front) {
+                val inFondo by remember { derivedStateOf { !state.canScrollForward && state.canScrollBackward } }
+                val coda by animateFloatAsState(
+                    targetValue = if (inFondo) 0f else 1f,
+                    animationSpec = tween(FOOT_FADE_MS),
+                    label = "coda"
+                )
                 GroundFade(
                     modifier = Modifier.align(Alignment.BottomCenter),
                     alpha = aperto,
-                    foot = false
+                    footAlpha = { coda }
                 )
             }
 
@@ -2670,10 +2680,11 @@ fun GridScreen(
                 modifier = Modifier.align(if (pillLook.bar) Alignment.BottomCenter else fabSide())
             ) {
                 PhonePillBar(
+                    // ⚠️ Di fianco a [PILL_SIDE] dal vetro, dalla `4.25` (scelta A2); da sotto i
+                    // due margini del FAB.
                     corner = Modifier
                         .windowInsetsPadding(steadyDrawing())
-                        .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                        .padding(8.dp),
+                        .padding(horizontal = PILL_SIDE, vertical = GRID_PAD_Y + 8.dp),
                     mark = { d ->
                         if (!bin) Marchio(d)
                         else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
@@ -2805,10 +2816,14 @@ fun GridScreen(
                     ),
                     // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
                     // del FAB. Il perché sta in [HintVeil], sul parametro.
+                    // ⚠️ Col tasto tondo di fianco a [PILL_SIDE], dove il tasto vero sta dalla
+                    // `4.25`.
                     inset = Modifier
                         .windowInsetsPadding(steadyDrawing())
-                        .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                        .padding(8.dp),
+                        .padding(
+                            horizontal = if (pillLook.mode != PhonePill.OFF) PILL_SIDE else GRID_PAD_X + 8.dp,
+                            vertical = GRID_PAD_Y + 8.dp
+                        ),
                     onDone = hintDone
                 ) {
                     PickFab(
@@ -3935,6 +3950,9 @@ private const val THUMB_KIND = "thumb"
 // menu ancorato (`menuFloor`), cioè due misure che parlano della griglia da fuori. Ricopiare l'8
 // là dentro sarebbe la coincidenza che si rompe al primo ritocco di questo margine.
 internal val GRID_PAD_X = 8.dp
+
+/** Quanto mette la coda corta delle sfumature a sparire e a tornare, in fondo a una cartella. */
+private const val FOOT_FADE_MS = 150
 private val GRID_PAD_Y = 12.dp
 
 /**

@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menu de canto</string>
     <string name="glass_radius">Raio</string>
     <string name="glass_intensity">Intensidade</string>
-    <string name="glass_tint">Cor</string>
-    <string name="glass_light">Brilho</string>
+    <string name="glass_tint">Opacidade</string>
+    <string name="glass_light">Desvio</string>
+    <string name="glass_colour_light">Cor clara</string>
+    <string name="glass_colour_dark">Cor escura</string>
+    <string name="glass_default">Padrão</string>
+    <string name="glass_reset">Redefinir</string>
+    <string name="corner_rest_pill">Pílula em repouso</string>
+    <string name="corner_rest_round">Botão redondo em repouso</string>
     <string name="settings_button_look">Aparência dos botões principais</string>
     <string name="settings_button_look_desc">Preenchimento e efeitos de transparência ou desfoque aplicados ao botão flutuante, à pílula de ícones e ao menu inferior.</string>
     <string name="pill_slide">Retrátil</string>

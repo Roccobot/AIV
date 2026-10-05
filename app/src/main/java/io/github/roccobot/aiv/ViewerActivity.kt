@@ -2862,7 +2862,8 @@ class ViewerActivity : ComponentActivity() {
                         fill = pillFillIn(it.pillFill),
                         bar = barIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp),
                         glass = it.glass,
-                        corner = cornerIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp)
+                        corner = cornerIn(it.mainControl, LocalConfiguration.current.smallestScreenWidthDp),
+                        cornerRound = it.cornerRound
                     )
                 } ?: PillLook()
                 CompositionLocalProvider(
@@ -3541,6 +3542,7 @@ private fun Stage(
                     onSettings = { model.openSettings() },
                     onSearch = { model.openSearch() },
                     onBin = { model.openBin() },
+                    onCornerRest = { model.updateSettings(settings.copy(cornerRound = !settings.cornerRound)) },
                     // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
                     // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
                     // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`

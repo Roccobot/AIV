@@ -131,8 +131,14 @@
     <string name="main_control_corner">Hoekmenu</string>
     <string name="glass_radius">Straal</string>
     <string name="glass_intensity">Intensiteit</string>
-    <string name="glass_tint">Kleur</string>
-    <string name="glass_light">Helderheid</string>
+    <string name="glass_tint">Dekking</string>
+    <string name="glass_light">Afwijking</string>
+    <string name="glass_colour_light">Lichte kleur</string>
+    <string name="glass_colour_dark">Donkere kleur</string>
+    <string name="glass_default">Standaard</string>
+    <string name="glass_reset">Herstellen</string>
+    <string name="corner_rest_pill">Pil in rust</string>
+    <string name="corner_rest_round">Ronde knop in rust</string>
     <string name="settings_button_look">Uiterlijk van de hoofdknoppen</string>
     <string name="settings_button_look_desc">Vulling en transparantie- of vervagingseffecten voor de zwevende knop, de pil met pictogrammen en het onderste menu.</string>
     <string name="pill_slide">Inklapbaar</string>

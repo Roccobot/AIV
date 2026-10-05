@@ -131,8 +131,14 @@
     <string name="main_control_corner">منوی گوشه</string>
     <string name="glass_radius">شعاع</string>
     <string name="glass_intensity">شدت</string>
-    <string name="glass_tint">رنگ</string>
-    <string name="glass_light">روشنایی</string>
+    <string name="glass_tint">کدری</string>
+    <string name="glass_light">انحراف</string>
+    <string name="glass_colour_light">رنگ روشن</string>
+    <string name="glass_colour_dark">رنگ تیره</string>
+    <string name="glass_default">پیش‌فرض</string>
+    <string name="glass_reset">بازنشانی</string>
+    <string name="corner_rest_pill">قرص در حالت سکون</string>
+    <string name="corner_rest_round">دکمهٔ گرد در حالت سکون</string>
     <string name="settings_button_look">ظاهر دکمه‌های اصلی</string>
     <string name="settings_button_look_desc">پرکردن و جلوه‌های شفافیت یا محوشدگی برای دکمهٔ شناور، قرص نمادها و منوی پایین.</string>
     <string name="pill_slide">جمع‌شونده</string>

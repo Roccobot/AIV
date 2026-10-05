@@ -131,8 +131,14 @@
     <string name="main_control_corner">மூலை மெனு</string>
     <string name="glass_radius">ஆரம்</string>
     <string name="glass_intensity">தீவிரம்</string>
-    <string name="glass_tint">நிறம்</string>
-    <string name="glass_light">பிரகாசம்</string>
+    <string name="glass_tint">ஒளிபுகாமை</string>
+    <string name="glass_light">விலகல்</string>
+    <string name="glass_colour_light">வெளிர் நிறம்</string>
+    <string name="glass_colour_dark">அடர் நிறம்</string>
+    <string name="glass_default">இயல்புநிலை</string>
+    <string name="glass_reset">மீட்டமை</string>
+    <string name="corner_rest_pill">ஓய்வில் மாத்திரை</string>
+    <string name="corner_rest_round">ஓய்வில் வட்டப் பொத்தான்</string>
     <string name="settings_button_look">முதன்மைப் பொத்தான்களின் தோற்றம்</string>
     <string name="settings_button_look_desc">மிதக்கும் பொத்தான், ஐகான் மாத்திரை, கீழ் மெனு ஆகியவற்றுக்கான நிரப்பு மற்றும் ஒளிபுகுதல் அல்லது மங்கல் விளைவுகள்.</string>
     <string name="pill_slide">மறையும்</string>

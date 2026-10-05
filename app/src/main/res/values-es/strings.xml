@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menú de esquina</string>
     <string name="glass_radius">Radio</string>
     <string name="glass_intensity">Intensidad</string>
-    <string name="glass_tint">Color</string>
-    <string name="glass_light">Brillo</string>
+    <string name="glass_tint">Opacidad</string>
+    <string name="glass_light">Desviación</string>
+    <string name="glass_colour_light">Color claro</string>
+    <string name="glass_colour_dark">Color oscuro</string>
+    <string name="glass_default">Predeterminado</string>
+    <string name="glass_reset">Restablecer</string>
+    <string name="corner_rest_pill">Píldora en reposo</string>
+    <string name="corner_rest_round">Botón redondo en reposo</string>
     <string name="settings_button_look">Aspecto de los botones principales</string>
     <string name="settings_button_look_desc">Relleno y efectos de transparencia o desenfoque aplicados al botón flotante, a la píldora de iconos y al menú inferior.</string>
     <string name="pill_slide">Retráctil</string>

@@ -131,8 +131,14 @@
     <string name="main_control_corner">Köşe menüsü</string>
     <string name="glass_radius">Yarıçap</string>
     <string name="glass_intensity">Yoğunluk</string>
-    <string name="glass_tint">Renk</string>
-    <string name="glass_light">Parlaklık</string>
+    <string name="glass_tint">Opaklık</string>
+    <string name="glass_light">Sapma</string>
+    <string name="glass_colour_light">Açık renk</string>
+    <string name="glass_colour_dark">Koyu renk</string>
+    <string name="glass_default">Varsayılan</string>
+    <string name="glass_reset">Sıfırla</string>
+    <string name="corner_rest_pill">Beklerken hap</string>
+    <string name="corner_rest_round">Beklerken yuvarlak düğme</string>
     <string name="settings_button_look">Ana düğmelerin görünümü</string>
     <string name="settings_button_look_desc">Kayan düğmeye, simge hapına ve alt menüye uygulanan dolgu ile saydamlık veya bulanıklık efektleri.</string>
     <string name="pill_slide">Gizlenen</string>

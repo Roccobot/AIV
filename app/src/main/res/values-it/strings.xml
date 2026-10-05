@@ -324,8 +324,14 @@
     <string name="main_control_corner">Menu angolare</string>
     <string name="glass_radius">Raggio</string>
     <string name="glass_intensity">Intensità</string>
-    <string name="glass_tint">Colore</string>
-    <string name="glass_light">Luminosità</string>
+    <string name="glass_tint">Opacità</string>
+    <string name="glass_light">Scostamento</string>
+    <string name="glass_colour_light">Colore chiaro</string>
+    <string name="glass_colour_dark">Colore scuro</string>
+    <string name="glass_default">Predefinito</string>
+    <string name="glass_reset">Ripristina</string>
+    <string name="corner_rest_pill">Pillola a riposo</string>
+    <string name="corner_rest_round">Tondo a riposo</string>
     <string name="settings_button_look">Aspetto dei pulsanti principali</string>
     <string name="settings_button_look_desc">Riempimento ed effetti di trasparenza/sfocatura applicati al pulsante fluttuante, alla pillola di icone e al menu inferiore.</string>
     <string name="pill_slide">A scomparsa</string>

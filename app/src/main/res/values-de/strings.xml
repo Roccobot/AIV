@@ -131,8 +131,14 @@
     <string name="main_control_corner">Eckmenü</string>
     <string name="glass_radius">Radius</string>
     <string name="glass_intensity">Intensität</string>
-    <string name="glass_tint">Farbe</string>
-    <string name="glass_light">Helligkeit</string>
+    <string name="glass_tint">Deckkraft</string>
+    <string name="glass_light">Abweichung</string>
+    <string name="glass_colour_light">Helle Farbe</string>
+    <string name="glass_colour_dark">Dunkle Farbe</string>
+    <string name="glass_default">Standard</string>
+    <string name="glass_reset">Zurücksetzen</string>
+    <string name="corner_rest_pill">Pille in Ruhe</string>
+    <string name="corner_rest_round">Runde Schaltfläche in Ruhe</string>
     <string name="settings_button_look">Aussehen der Hauptschaltflächen</string>
     <string name="settings_button_look_desc">Füllung sowie Transparenz- oder Unschärfeeffekte für die schwebende Schaltfläche, die Symbol-Pille und das untere Menü.</string>
     <string name="pill_slide">Einklappbar</string>

@@ -175,20 +175,19 @@ fun FrontBand(
  * che hanno un modificatore di puntatore, e qui non ce n'è nessuno. Senza questo fatto servirebbe
  * un `pointerInput` che lascia passare, che è il rimedio a un problema che non c'è.
  *
- * ⚠️⚠️ **E DALLA `1.85` NELLE CARTELLE DI STRATO CE N'È UNO SOLO** (riscontro del giro della
- * `1.83`, voce `fab-sopra` approvata con una prova: *togli la seconda sfumatura sovrapposta,
- * quella corta. SOLO DALLE CARTELLE, resta in home*). Il secondo strato è nato per chiudere in
- * pieno l'ultima striscia di schermo, e là dentro quella striscia adesso la attraversa il FAB,
- * che dalla `1.83` passa **sopra** le sfumature: la coda gli finiva addosso.
+ * ⚠️⚠️ **DALLA `4.25` I DUE STRATI HANNO UN'OPACITÀ CIASCUNO, ED È LA SUA REGOLA** (punto E del
+ * giro della `4.20`: *sulla home e in cima a tutte le cartelle devono apparire ENTRAMBE le
+ * sfumature ... scorrendo si fa sparire la prima (più ampia ...), mentre la seconda (più corta ...)
+ * rimane sempre, salvo quando si tocca letteralmente il fondo di una cartella*). Dalla `1.85` alla
+ * `4.20` nelle cartelle la coda non c'era (voce `fab-sopra` del giro della `1.83`, quando il FAB
+ * passava sopra le sfumature), e la fascia grande se ne andava scorrendo da sola: dalla `4.00` in
+ * fondo a una cartella c'è sempre un comando, e lui ha ritrovato la sfumatura che si aspettava.
  *
- * @param alpha quanto si vedono, da 0 a 1. ⚠️ **Il valore di serie è il pieno**, che è il caso
- *   della schermata iniziale: là il FAB c'è sempre, quindi la fascia che lo tiene su un fondo
- *   neutro non ha ragione di andarsene. Nella griglia di una cartella invece se ne va scorrendo,
- *   ed è una richiesta sua (*le due sfumature in basso devono progressivamente sparire e lasciare
- *   campo libero alla griglia piena su tutto lo schermo*).
- * @param foot se disegnare anche la coda che chiude in pieno l'ultima striscia. ⚠️ **Il valore di
- *   serie è di averla**, perché la schermata iniziale non ha cambiato idea: quello che cambia è
- *   la cartella, e un valore di serie rovesciato avrebbe tolto la coda anche a lei.
+ * @param alpha quanto si vede la fascia grande, da 0 a 1. ⚠️ **Il valore di serie è il pieno**, che
+ *   è il caso della schermata iniziale. Nella griglia di una cartella se ne va scorrendo, insieme al
+ *   titolo (*le due sfumature in basso devono progressivamente sparire*, giro della `1.67`).
+ * @param footAlpha quanto si vede la coda che chiude in pieno l'ultima striscia. ⚠️ **Il valore di
+ *   serie è il pieno**: in una cartella se ne va solo quando la griglia tocca il fondo.
  */
 /**
  * Quanto rientra il bordo di SOTTO dello schermo: la barra gestuale, o zero dove non c'è.
@@ -212,7 +211,7 @@ fun bottomInset(): Dp = steadyDrawing().asPaddingValues().calculateBottomPadding
 fun GroundFade(
     modifier: Modifier = Modifier,
     alpha: () -> Float = { 1f },
-    foot: Boolean = true
+    footAlpha: () -> Float = { 1f }
 ) {
     val ground = MaterialTheme.colorScheme.background
     val ramp = remember(ground) {
@@ -228,35 +227,34 @@ fun GroundFade(
         }
     }
     /*
-     * ⚠️⚠️ **UN'OPACITÀ SOLA PER TUTTE E DUE, e non una per strato**: i due strati si
-     * **sovrappongono**, quindi sbiadendoli separatamente la loro somma non seguirebbe il
-     * numero che arriva (due strati al 50% coprono più della metà di quanto coprano al 100%).
-     * Con un livello solo intorno, quello che sbiadisce è il risultato già composto.
+     * ⚠️⚠️ **UN'OPACITÀ PER STRATO, DALLA `4.25`**: fino alla `4.20` era una sola intorno ai due,
+     * perché sbiadivano insieme. Adesso se ne vanno in momenti diversi (la fascia scorrendo, la
+     * coda in fondo), e quando sono tutte e due a metà la loro somma non segue un numero solo: è
+     * il prezzo dichiarato di due comportamenti separati.
      */
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(GRADIENT_REACH)
-            .graphicsLayer { this.alpha = alpha() }
     ) {
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(GRADIENT_REACH)
+                .graphicsLayer { this.alpha = alpha() }
                 .background(Brush.verticalGradient(colorStops = ramp))
         )
         // ⚠️ **Sta DOPO la fascia grande**: in un `Box` l'ultimo figlio sta sopra, e questa coda
         // esiste per riportare al pieno quello che la fascia lascia a sei decimi.
-        if (foot) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(FOOT_REACH)
-                    .background(Brush.verticalGradient(colorStops = piede))
-            )
-        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(FOOT_REACH)
+                .graphicsLayer { this.alpha = footAlpha() }
+                .background(Brush.verticalGradient(colorStops = piede))
+        )
     }
 }
 

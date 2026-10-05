@@ -169,6 +169,17 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_browse_bottom)
 
     /**
+     * Il commutatore del menu angolare col tondo a riposo: una capsula, cioè la pillola verticale
+     * che il tocco mette a riposo. Disegno dell'utente, dalla `4.25`.
+     */
+    val RestPill: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_rest_pill)
+
+    /** Il commutatore con la pillola a riposo: il tondo, che il tocco rimette. Disegno suo. */
+    val RestRound: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_rest_round)
+
+    /**
      * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
      *
      * ⚠️⚠️ **È IL SOLO GLIFO CHE ESCE DALLA PROPRIA TELA, dalla 1.37**, quindi si dichiara

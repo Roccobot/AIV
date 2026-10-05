@@ -8,6 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsEnabled
@@ -35,6 +38,8 @@ import kotlin.math.abs
 
 /*
  * The 4.15 round: the bottom menu, the pill with seven entries, and the mirrored order on the left.
+ * Since 4.20 the corner menu, and since 4.25 its round rest and switch, the 24dp margins (A2) and
+ * the glass's two colours.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
@@ -232,7 +237,8 @@ class MenuInferioreTest {
 
     /**
      * **With three keys the fixed bar gathers them on the preferred side** (note N2 on the 4.15
-     * round: *se sono 2, 3 o 4 devono stare sul lato preferito*), the corner key 16dp from the edge.
+     * round: *se sono 2, 3 o 4 devono stare sul lato preferito*), the corner key [PILL_SIDE] from the
+     * edge: 16dp until 4.20, 24dp since 4.25 (his choice A2).
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
@@ -245,16 +251,17 @@ class MenuInferioreTest {
         assertTrue("'Cerca' è ancora a sinistra del centro", cerca.positionInRoot.x > scena / 2f)
         val dp = app.resources.displayMetrics.density
         val margine = scena - (impostazioni.positionInRoot.x + impostazioni.size.width)
-        assertEquals("Il tasto d'angolo non è a 16dp dal bordo", 16f * dp, margine, 1.5f * dp)
+        assertEquals("Il tasto d'angolo non è a 24dp dal bordo", 24f * dp, margine, 1.5f * dp)
     }
 
     /**
      * **The corner menu in a folder: the folded pill opens a 2x2, with Impostazioni and the × in the
-     * bottom row and the × in the corner** (decisions G1 and C3).
+     * bottom row and the × in the corner** (decisions G1 and C3). With the pill at rest, chosen from
+     * the switch since 4.25: the round rest has its own tests in `MenuAngolareTest`.
      */
     @Test
     fun `il menu angolare nelle cartelle e un 2x2 con la x nell'angolo`() {
-        banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true)) }
+        banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true, cornerRound = false)) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.jump_top)).assertExists()
         banco.onNodeWithContentDescription(voce(R.string.pick_actions)).performClick()
@@ -278,23 +285,25 @@ class MenuInferioreTest {
     }
 
     /**
-     * **In the home the corner menu is a 3x3 with the three views on top, the current one chosen,
-     * and the × under the thumb** (decisions C1 and C2), mirrored on the left.
+     * **In the home the corner menu is a 3x3: on top the switch and the two other views, and the ×
+     * under the thumb** (decisions C1 and C2, and since 4.25 `4.20-01`: *non si vedono più tutte e
+     * tre le viste con la selezionata*), mirrored on the left.
      */
     @Test
     @Config(shadows = [ArchivioAperto::class])
-    fun `nella home il menu angolare e un 3x3 con le tre viste`() {
+    fun `nella home il menu angolare e un 3x3 col commutatore e le due viste`() {
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.LEFT) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
         banco.waitForIdle()
         val pos = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot }
-        val griglia = pos(R.string.hub_view_grid)
+        assertEquals("La vista in cui si è è ancora nel menu", 0, quanti(R.string.hub_view_grid))
+        val commutatore = pos(R.string.corner_rest_pill)
         val lista = pos(R.string.hub_view_list)
         val albero = pos(R.string.hub_view_tree)
-        assertEquals("Le tre viste non sono sulla prima riga", griglia.y, albero.y, 1f)
-        assertEquals(griglia.y, lista.y, 1f)
-        assertTrue("A sinistra le viste non sono a specchio", albero.x < lista.x && lista.x < griglia.x)
+        assertEquals("Il commutatore non è sulla riga delle viste", commutatore.y, albero.y, 1f)
+        assertEquals(commutatore.y, lista.y, 1f)
+        assertTrue("A sinistra la prima riga non è a specchio", albero.x < lista.x && lista.x < commutatore.x)
         val chiudi = pos(R.string.pick_close)
         assertTrue("A sinistra la × non è nell'angolo", chiudi.x < pos(R.string.hub_settings).x)
         assertTrue("La × non è nell'ultima riga", chiudi.y > pos(R.string.hub_search).y)
@@ -306,7 +315,7 @@ class MenuInferioreTest {
      * correction: *serve un elemento traslucido che si aggiorna in tempo reale*), and not otherwise.
      */
     @Test
-    fun `col traslucido compaiono i quattro cursori`() {
+    fun `col traslucido compaiono i cursori e i due colori`() {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 SettingsScreen(
@@ -323,7 +332,10 @@ class MenuInferioreTest {
         banco.onAllNodesWithText(voce(R.string.settings_page_look), substring = false)[0]
             .performScrollTo().performClick()
         banco.waitForIdle()
-        listOf(R.string.glass_radius, R.string.glass_intensity, R.string.glass_tint, R.string.glass_light).forEach {
+        listOf(
+            R.string.glass_radius, R.string.glass_intensity, R.string.glass_tint, R.string.glass_light,
+            R.string.glass_colour_light, R.string.glass_colour_dark
+        ).forEach {
             banco.onNodeWithText(voce(it), substring = true).assertExists()
         }
     }
@@ -351,6 +363,117 @@ class MenuInferioreTest {
         banco.onNodeWithText(voce(R.string.pill_slide)).assertDoesNotExist()
     }
 
+    /**
+     * **At rest the corner menu is a single round key, and while scrolling it stretches into the
+     * vertical pill of the two jumps** (`4.20-01`, R2 and R4, the factory rest since 4.25).
+     *
+     * ⚠️ **The clock is stopped**, as in the other jump tests.
+     */
+    @Test
+    fun `col tondo a riposo il menu angolare scorrendo diventa la pillola dei salti`() {
+        banco.mainClock.autoAdvance = false
+        banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true)) }
+        banco.mainClock.advanceTimeBy(NASCITA)
+        assertEquals("A riposo il tondo ha già 'in cima' sopra di sé", 0, quanti(R.string.jump_top))
+        assertEquals(1, quanti(R.string.pick_actions))
+
+        scorri()
+
+        assertEquals("Scorrendo non compare 'in cima'", 1, quanti(R.string.jump_top))
+        assertEquals("Scorrendo il tondo non diventa 'in fondo'", 1, quanti(R.string.jump_bottom))
+    }
+
+    /**
+     * **The switch in the home's corner menu writes the rest and closes the menu** (`4.20-01`, R1 and
+     * R3: *il menu angolare deve chiudersi dopo ogni interazione*), and with the pill at rest it
+     * offers the round key back.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `il commutatore cambia il riposo e chiude il menu angolare`() {
+        var cambi = 0
+        var look by mutableStateOf(PillLook(PhonePill.SLIDE, corner = true))
+        banco.setContent { Home(look, Hand.RIGHT, onCornerRest = { cambi++ }) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.corner_rest_pill)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il commutatore non ha scritto il riposo", 1, cambi)
+        assertEquals("Il commutatore non ha chiuso il menu", 0, quanti(R.string.hub_search))
+
+        look = look.copy(cornerRound = false)
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.corner_rest_round)).assertExists()
+    }
+
+    /**
+     * **The open sliding pill spans the row between two margins of 24dp, and the round key sits on
+     * its edge** (note A on the 4.20 round, his choice A2 after the preview).
+     */
+    @Test
+    // ⚠️ A real phone's width, for the reason written on the test of 'Cerca' in the centre.
+    @Config(shadows = [ArchivioAperto::class], qualifiers = "w411dp-h891dp")
+    fun `aperta la pillola a scomparsa arriva ai due margini di 24dp`() {
+        banco.setContent { Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        val scena = banco.onRoot().fetchSemanticsNode().size.width
+        val tondo = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode()
+        val aria = scena - (tondo.positionInRoot.x + tondo.size.width)
+        assertEquals("A riposo il tondo non è a 24dp dal bordo", 24f * dp, aria, 1.5f * dp)
+
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        val cella = (scena - 48f * dp) / 8f
+        val centro = { id: Int ->
+            banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().let { it.positionInRoot.x + it.size.width / 2f }
+        }
+        // ⚠️ The far end may be off by half a pixel per cell, rounded to the pixel: the corner is exact.
+        assertEquals("La prima voce non è nella prima cella dopo 24dp", 24f * dp + cella / 2f, centro(R.string.hub_view_list), 1.5f * dp + 4f)
+        assertEquals("La × non è nell'ultima cella prima dei 24dp", scena - 24f * dp - cella / 2f, centro(R.string.pick_close), 1.5f * dp)
+    }
+
+    /**
+     * **'Colore chiaro' opens the picker: 'Predefinito' goes back to the accent and 'Applica' writes a
+     * colour** (his answer B3).
+     */
+    @Test
+    fun `il selettore del colore torna al predefinito o scrive il colore`() {
+        var scritte: Settings? = null
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SettingsScreen(
+                    settings = Settings(pillFill = PillFill.GLASS, glass = GlassTune(lightColour = 0xFF336699.toInt())),
+                    onChange = { scritte = it },
+                    onStartFolder = {},
+                    onResetHints = {},
+                    onChooseEditor = {},
+                    onBack = {}
+                )
+            }
+        }
+        banco.waitForIdle()
+        banco.onAllNodesWithText(voce(R.string.settings_page_look), substring = false)[0]
+            .performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(voce(R.string.glass_colour_light)).performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(voce(R.string.glass_default)).performClick()
+        banco.waitForIdle()
+        assertTrue("'Predefinito' non ha scritto niente", scritte != null)
+        assertEquals("'Predefinito' non è tornato all'accento", null, scritte?.glass?.lightColour)
+
+        banco.onNodeWithText(voce(R.string.glass_colour_light)).performScrollTo().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(voce(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        assertTrue("'Applica' non ha scritto il colore", scritte?.glass?.lightColour != null)
+        assertEquals("'Applica' ha toccato il colore scuro", null, scritte?.glass?.darkColour)
+    }
+
     private fun quanti(id: Int): Int =
         banco.onAllNodesWithContentDescription(voce(id)).fetchSemanticsNodes().size
 
@@ -368,11 +491,11 @@ class MenuInferioreTest {
 
     /** The home with one hidden folder, so the pill has its seven entries. */
     @Composable
-    private fun Home(look: PillLook, hand: Hand) {
+    private fun Home(look: PillLook, hand: Hand, onCornerRest: () -> Unit = {}) {
         AivTheme(darkTheme = false) {
             CompositionLocalProvider(LocalPillLook provides look, LocalPadLook provides PadLook(hand = hand)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Casa(CARTELLE, hidden = setOf("Segreta"))
+                    Casa(CARTELLE, hidden = setOf("Segreta"), onCornerRest = onCornerRest)
                 }
             }
         }

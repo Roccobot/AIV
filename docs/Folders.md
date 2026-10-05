@@ -45,9 +45,11 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
 - ⚠️ **Né il cestino né la ricerca hanno l'intestazione, ed è una scelta non rivista**: la ragione
   del cestino (un FAB che non poteva perdere la sfumatura) è decaduta quando il FAB ha preso a
   passare sopra le sfumature; nella ricerca la testata contiene un campo di testo.
-- **Le sfumature in fondo**: nelle cartelle ce n'è una sola, e se ne va scorrendo (sue richieste);
-  nella schermata iniziale restano le due, e il valore di serie di `GroundFade` include la coda. Là
-  la coda è più in alto da quando la griglia arriva al vetro (`FOOT_SOLID`, `FOOT_REACH`).
+- **Le sfumature in fondo sono due, sovrapposte**: la fascia grande, che non arriva mai al pieno, e la
+  coda corta, che ci arriva subito (`FOOT_SOLID`, `FOOT_REACH`). Nella schermata iniziale e in cima a
+  ogni cartella ci sono tutte e due; scorrendo una cartella se ne va la sola fascia grande, insieme al
+  titolo, e la coda resta sempre, salvo quando la griglia tocca il fondo (sua regola, punto E del giro
+  della `4.20`, dalla `4.25`). Dalla `1.85` alla `4.20` nelle cartelle la coda non c'era.
 
 **La variante 10** (sua risposta a `d-frontespizio`).
 - **Si compone di quattro interruttori** sotto 'Intestazione delle cartelle', in 'Aspetto':
@@ -197,25 +199,36 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     restavano nel loro ordine (`mirrored` in `PhonePill.kt`). Vale per la pillola a scomparsa, per
     quella estesa e per il menu inferiore; il menu angolare specchia ogni riga.
   - ⚠️⚠️ **Il menu inferiore con 2, 3 o 4 tasti, × compresa, li raccoglie sul lato preferito**, a
-    16dp dal bordo come l'angolo del FAB e con la spaziatura della pillola; da 5 in su li distribuisce
+    24dp dal bordo come le pillole (dalla `4.25`; 16dp prima) e con la spaziatura della pillola; da 5 in su li distribuisce
     su tutta la larghezza (sua nota N2 del giro della `4.15`, dalla `4.20`). Nel cestino, a destra:
     Cronologia, Ripristina tutto, Svuota cestino, ×.
   - ⚠️⚠️ **Dalla `4.20` c'è il quarto gettone, `Menu angolare`** (nota D del giro della `4.04`,
-    decisioni G1 e C1-C3), sempre a scomparsa e quindi senza la seconda fila. A riposo è la pillola
-    verticale del menu inferiore; il marchio apre un pannello d'accento che cresce dal suo angolo, sopra
-    la linea dei gesti (che non cambia colore), con caselle grandi quanto i tasti della pillola:
-    - nella schermata iniziale un 3x3: le tre viste, con quella in cui sei segnata come scelta;
+    decisioni G1 e C1-C3), sempre a scomparsa e quindi senza la seconda fila. Il marchio apre un
+    pannello d'accento che cresce dal suo angolo, sopra la linea dei gesti (che non cambia colore), con
+    caselle grandi quanto i tasti della pillola, e **dalla `4.25` si richiude dopo ogni tocco** (R1 del
+    giro della `4.20`):
+    - ⚠️⚠️ **a riposo, dalla `4.25`, è un tasto tondo solo** (R2), che scorrendo si allunga in su nella
+      pillola verticale dei due salti, `in cima` sopra e `in fondo` al posto del marchio, col ritmo
+      del salto (R4); oppure, scelta dal commutatore, la pillola verticale del menu inferiore com'era
+      nella `4.20` (R3, `corner-round`);
+    - nella schermata iniziale un 3x3: il commutatore e le due viste diverse da quella in cui sei;
       'Mostra nascoste' (spenta senza nascoste; senza permesso al suo posto 'Seleziona immagine'),
-      Cerca, Indirizzo; Cestino, Impostazioni, ×. Nel solo menu angolare questo rovescia la regola
-      della `0.84` sulle due viste, col suo consenso;
+      Cerca, Indirizzo; Cestino, Impostazioni, ×. Il commutatore (R3, dalla `4.25`) mostra il riposo che
+      il tocco mette, con le sue due icone uniformate alle altre (`ic_rest_pill`, `ic_rest_round`);
+      nella `4.20` la prima riga aveva le tre viste, con quella corrente segnata da un disco;
     - nelle cartelle e nel cestino un 2x2: Cerca, Cestino; Impostazioni, × (nel cestino le sue tre
       voci);
     - la × prende il posto del marchio, e scorrendo la × e la casella sopra di lei diventano `in fondo`
       e `in cima`; a sinistra ogni riga è a specchio.
   - ⚠️⚠️ **Con sette voci, il massimo, la pillola estesa occupa tutta la riga fra i due margini**
     (sua regola, dalla `4.15`): le celle si allargano, i tasti no, e la quarta voce, `Cerca`, cade sulla
-    linea di mezzo dello schermo. ⚠️ Solo nella pillola estesa (sua risposta): quella a scomparsa,
-    aperta, ha anche la × e quindi otto tasti.
+    linea di mezzo dello schermo. ⚠️ **Dalla `4.25` anche quella a scomparsa, aperta**, con la × fra le
+    otto celle (nota A del giro della `4.20`, scelta A2 dopo l'anteprima); nella `4.15` valeva solo per
+    l'estesa.
+  - ⚠️⚠️ **Pillole e tasto tondo stanno a 24dp dal vetro di fianco (`PILL_SIDE`), dalla `4.25`**, tre
+    margini della griglia e lo stesso rientro dei menu (scelta A2): la riga resta dentro i bordi delle
+    miniature, e il tondo coincide col bordo della pillola aperta. Da sotto restano i margini del FAB,
+    e il FAB resta a 16dp.
   - Storico: dalla `4.02` alla `4.05` era l'interruttore `Pillola al posto del FAB in verticale`,
     in cima a 'Pulsanti e indicatori' fino alla `4.03` e in fondo a 'Tema e dettagli grafici'
     dalla `4.04`, con sotto le due file di gettoni.
@@ -232,7 +245,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     ⚠️ Sul telefono vale dalla `4.03` (`4.02-03` non approvata): il tondo vero lo disegna
     `SlidePill`, che nella `4.02` non lo diceva al marchio;
   - ⚠️⚠️ **Di che cosa sono fatti, dalla `4.10`, lo dice la voce `Aspetto dei pulsanti principali`,
-    in fondo a 'Tema e dettagli grafici' e su ogni apparecchio** (nota E): `Solido` (di fabbrica),
+    in fondo a 'Tema e dettagli grafici' e su ogni apparecchio** (nota E): `Solido` (di fabbrica fino
+    alla `4.20`),
     `Trasparente` (colore all'80%), `Traslucido` (fino alla `4.05` `Vetro`: sfocatura di
     deviazione 8 e saturazione al 160% come la pillola del DF, colore all'80% sul tema chiaro e al
     65% sullo scuro dalla `4.01`). Da Android 11 in giù il traslucido non compare. ⚠️ **Dalla `4.20`, col
@@ -241,7 +255,14 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     Raggio (della sfocatura, 13dp di fabbrica), Intensità (saturazione di quello che c'è dietro, 160%),
     Colore (quantità di accento rispetto al tono del tema, 100%), Luminosità (bianco sopra zero, nero
     sotto, 0). La lettura dei quattro è dichiarata nel DF; si nascondono spegnendo `GLASS_TUNING`, e i
-    valori restano quelli scelti. Vale per il FAB
+    valori restano quelli scelti. ⚠️⚠️ **Dalla `4.25` i valori di fabbrica sono i suoi** (nota D del giro
+    della `4.20`): pillola a scomparsa e traslucido di fabbrica, Raggio 16dp, Intensità 300%, `Opacità`
+    (il cursore che si chiamava Colore) 20%, e `Scostamento` 35, senza segno, che scurisce sul tema
+    chiaro e schiarisce sullo scuro (risposta C2) al posto della Luminosità col segno. Sotto i cursori
+    ci sono `Colore chiaro` e `Colore scuro` (risposta B3): un tondo che apre un selettore di tonalità,
+    saturazione e luminanza, con `Predefinito` che torna all'accento del vetro in quel tema; e
+    `Ripristina` riporta tutto ai valori di fabbrica, che chi aveva già l'app non vede da sé.
+    L'anteprima ha un bordo d'accento di 5dp dentro l'immagine, sopra le righe (punto B). Vale per il FAB
     (anche premuto, mentre passa all'accento dell'altro tema), per la pillola del telefono, per il
     menu inferiore e per le pillole degli schermi larghi e del tablet, anche dove la forma è imposta
     (suo commento a `4.10-02`); il FAB staccato sopra il suo menu tiene la sola tinta, perché

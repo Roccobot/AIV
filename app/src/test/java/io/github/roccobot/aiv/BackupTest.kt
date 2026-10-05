@@ -1085,7 +1085,9 @@ class BackupTest {
     }
 
     private suspend fun scriviTutto() {
-        SettingsStore.save(app, Settings(startFolder = 42L))
+        // ⚠️ Come la cartella di partenza, i due colori del traslucido si scrivono solo quando sono
+        // scelti (dalla `4.25`): l'assenza è l'accento, cioè il valore di fabbrica.
+        SettingsStore.save(app, Settings(startFolder = 42L, glass = GlassTune(lightColour = 1, darkColour = 2)))
         SettingsStore.clipboardOpened(app, "https://esempio.it/a.jpg", 1L)
         FolderAsk.remember(app)
         Hint.entries.forEach { it.remember(app) }

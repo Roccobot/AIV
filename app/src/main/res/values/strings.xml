@@ -400,8 +400,14 @@
     <string name="main_control_corner">Corner menu</string>
     <string name="glass_radius">Radius</string>
     <string name="glass_intensity">Intensity</string>
-    <string name="glass_tint">Colour</string>
-    <string name="glass_light">Brightness</string>
+    <string name="glass_tint">Opacity</string>
+    <string name="glass_light">Offset</string>
+    <string name="glass_colour_light">Light color</string>
+    <string name="glass_colour_dark">Dark color</string>
+    <string name="glass_default">Default</string>
+    <string name="glass_reset">Reset</string>
+    <string name="corner_rest_pill">Pill at rest</string>
+    <string name="corner_rest_round">Round button at rest</string>
     <string name="settings_button_look">Look of the main buttons</string>
     <string name="settings_button_look_desc">Fill and transparency or blur effects applied to the floating button, the icon pill and the bottom menu.</string>
     <string name="pill_slide">Retractable</string>

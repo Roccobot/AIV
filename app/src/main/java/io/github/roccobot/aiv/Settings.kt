@@ -254,11 +254,14 @@ enum class PhonePill(override val token: String) : Choice {
  * un backup fatto su un telefono più nuovo ripiega su [SOLID] (`pillFillIn`, in `PhonePill.kt`).
  */
 enum class PillFill(override val token: String) : Choice {
-    /** L'accento pieno. Valore di fabbrica. */
+    /** L'accento pieno. Valore di fabbrica fino alla `4.20`. */
     SOLID("solid"),
     /** L'accento all'80%. */
     TRANSLUCENT("translucent"),
-    /** Il vetro nell'accento (gettone 'Vetro'): la pillola del DF, come risultato. */
+    /**
+     * Il vetro nell'accento (gettone 'Traslucido'): la pillola del DF, come risultato. Valore di
+     * fabbrica dalla `4.25` (nota D del giro della `4.20`).
+     */
     GLASS("glass")
 }
 
@@ -520,16 +523,17 @@ data class Settings(
     /**
      * L'elemento interattivo principale del telefono in verticale. Vedi [MainControl].
      *
-     * ⚠️ **Il FAB di fabbrica**, come lo era l'interruttore spento della pillola (*`Disattivata`
-     * (predefinito) = usa il normale FAB*): la pillola è una cosa da provare, non la faccia nuova
-     * dell'app.
+     * ⚠️⚠️ **LA PILLOLA DI FABBRICA DALLA `4.25`, ED È SUA** (nota D del giro della `4.20`: *la
+     * pillola a scomparsa con traslucido diventa il metodo predefinito*). Fino alla `4.20` era il
+     * FAB, come lo era l'interruttore spento della pillola.
+     * ⚠️ **Chi ha già l'app tiene la sua scelta**: il valore di fabbrica vale dove l'archivio tace.
      * ⚠️ **Nato nella `4.10` con la chiave `main-control`**: un archivio senza di lei lo ricava da
      * `phone-pill-on` (4.02-4.05), e uno ancora più vecchio dal gettone di [phonePill] (4.00-4.01),
      * così chi aveva acceso la pillola la ritrova accesa.
      * ⚠️ **Il valore di fabbrica vive qui e in [SettingsStore.read]**, e il banco legge un
      * archivio vuoto contro questo campo.
      */
-    val mainControl: MainControl = MainControl.FAB,
+    val mainControl: MainControl = MainControl.PILL,
     /**
      * Quale pillola, quando [mainControl] è [MainControl.PILL]. Vedi [PhonePill].
      *
@@ -543,17 +547,32 @@ data class Settings(
      * ⚠️ **Riempie anche la pillola degli schermi larghi**: la voce compare solo sul telefono, e
      * il telefono in orizzontale mostra quella pillola, quindi una scelta copre tutte e due. Sul
      * tablet la voce non c'è e il valore resta quello di fabbrica.
-     * ⚠️ **Solido di fabbrica, ed è sua** (*`Tinta unita` (predefinito)*, il nome di allora).
+     * ⚠️ **Traslucido di fabbrica dalla `4.25`, ed è sua** (nota D del giro della `4.20`); fino alla
+     * `4.20` era il solido (*`Tinta unita` (predefinito)*, il nome di allora). Sotto Android 12 il
+     * traslucido non si disegna, e `pillFillIn` ripiega sul solido.
      */
-    val pillFill: PillFill = PillFill.SOLID,
+    val pillFill: PillFill = PillFill.GLASS,
     /**
-     * Come si regola il traslucido, coi quattro cursori che compaiono con lui. Vedi [GlassTune].
+     * Come si regola il traslucido, coi cursori e i due colori che compaiono con lui. Vedi
+     * [GlassTune].
      *
-     * ⚠️ **Dalla `4.20`, ed è sua richiesta** (nota N1 del giro della `4.15`): servono a trovare lo
-     * stile che vuole, e si nascondono spegnendo [GLASS_TUNING]. Di fabbrica sono i valori della
-     * `4.15`, cioè il vetro del DF.
+     * ⚠️ **Dalla `4.20`, ed è sua richiesta** (nota N1 del giro della `4.15`), e si nascondono
+     * spegnendo [GLASS_TUNING]. Di fabbrica dalla `4.25` sono i suoi valori (nota D del giro della
+     * `4.20`); fino alla `4.20` erano il vetro del DF.
+     * ⚠️ **Chi aveva già mosso i cursori li ritrova dove li aveva lasciati**: i valori di fabbrica
+     * nuovi valgono dove l'archivio tace, e 'Ripristina' sotto i cursori ce li riporta.
      */
     val glass: GlassTune = GlassTune(),
+    /**
+     * Come riposa il menu angolare: un tasto tondo solo, oppure la pillola verticale di due tasti.
+     *
+     * ⚠️⚠️ **DALLA `4.25`, ED È SUA** (giro della `4.20`, `4.20-01`: *di default è un tasto singolo e
+     * rotondo ... una nona icona fa da commutatore*): il tondo di fabbrica, e la pillola si sceglie
+     * dal commutatore nella prima riga del menu angolare della schermata iniziale.
+     * ⚠️ **Vive solo in quel commutatore**, che è la sua casa e la sua sola via: nel pannello delle
+     * impostazioni non c'è una voce, perché la scelta si fa guardando il menu.
+     */
+    val cornerRound: Boolean = true,
     /**
      * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
      *
@@ -1432,7 +1451,12 @@ object SettingsStore {
     private val GLASS_RADIUS = intPreferencesKey("glass-radius")
     private val GLASS_INTENSITY = intPreferencesKey("glass-intensity")
     private val GLASS_TINT = intPreferencesKey("glass-tint")
+    /** Ritirata nella `4.25`: un archivio della `4.20` la contiene ancora, ma non si legge più. */
     private val GLASS_LIGHT = intPreferencesKey("glass-light")
+    private val GLASS_SHIFT = intPreferencesKey("glass-shift")
+    private val GLASS_COLOUR_LIGHT = intPreferencesKey("glass-colour-light")
+    private val GLASS_COLOUR_DARK = intPreferencesKey("glass-colour-dark")
+    private val CORNER_ROUND = booleanPreferencesKey("corner-round")
     private val LIST_PATH = booleanPreferencesKey("list-path")
     private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
@@ -1587,21 +1611,27 @@ object SettingsStore {
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             // ⚠️ Un archivio dalla `4.02` alla `4.05` ha l'interruttore, uno della `4.00` o della
             // `4.01` il solo gettone: `off` vuol dire spenta, gli altri due accesa.
-            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, MainControl.FAB) }
-                ?: if (p[PHONE_PILL_ON] ?: (p[PHONE_PILL]?.let { it != PhonePill.OFF.token } ?: false)) {
+            // ⚠️ Un archivio che non dice niente dà la pillola, il valore di fabbrica della `4.25`.
+            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, MainControl.PILL) }
+                ?: if (p[PHONE_PILL_ON] ?: (p[PHONE_PILL]?.let { it != PhonePill.OFF.token } ?: true)) {
                     MainControl.PILL
                 } else {
                     MainControl.FAB
                 },
             phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.SLIDE)
                 .takeIf { it != PhonePill.OFF } ?: PhonePill.SLIDE,
-            pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.SOLID),
+            pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.GLASS),
             glass = GlassTune(
                 radius = (p[GLASS_RADIUS] ?: GlassTune.RADIUS).coerceIn(GlassTune.RADIUS_RANGE),
                 intensity = (p[GLASS_INTENSITY] ?: GlassTune.INTENSITY).coerceIn(GlassTune.INTENSITY_RANGE),
                 tint = (p[GLASS_TINT] ?: GlassTune.TINT).coerceIn(GlassTune.TINT_RANGE),
-                light = (p[GLASS_LIGHT] ?: GlassTune.LIGHT).coerceIn(GlassTune.LIGHT_RANGE)
+                // ⚠️ Non si ricava da `glass-light`: là zero era il valore di fabbrica, e un archivio
+                // della `4.20` avrebbe spento lo scostamento che lui ha chiesto di fabbrica.
+                shift = (p[GLASS_SHIFT] ?: GlassTune.SHIFT).coerceIn(GlassTune.SHIFT_RANGE),
+                lightColour = p[GLASS_COLOUR_LIGHT],
+                darkColour = p[GLASS_COLOUR_DARK]
             ),
+            cornerRound = p[CORNER_ROUND] ?: true,
             listPath = p[LIST_PATH] ?: false,
             pickWeight = p[PICK_WEIGHT] ?: true,
             editorApp = p[EDITOR_APP] ?: "",
@@ -1734,7 +1764,12 @@ object SettingsStore {
             p[GLASS_RADIUS] = settings.glass.radius
             p[GLASS_INTENSITY] = settings.glass.intensity
             p[GLASS_TINT] = settings.glass.tint
-            p[GLASS_LIGHT] = settings.glass.light
+            p[GLASS_SHIFT] = settings.glass.shift
+            // ⚠️ Un colore che torna all'accento si toglie: l'assenza è il valore di fabbrica.
+            settings.glass.lightColour?.let { p[GLASS_COLOUR_LIGHT] = it } ?: p.remove(GLASS_COLOUR_LIGHT)
+            settings.glass.darkColour?.let { p[GLASS_COLOUR_DARK] = it } ?: p.remove(GLASS_COLOUR_DARK)
+            p.remove(GLASS_LIGHT)
+            p[CORNER_ROUND] = settings.cornerRound
             p[LIST_PATH] = settings.listPath
             p[PICK_WEIGHT] = settings.pickWeight
             p[EDITOR_APP] = settings.editorApp

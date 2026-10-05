@@ -131,8 +131,14 @@
     <string name="main_control_corner">कोने का मेनू</string>
     <string name="glass_radius">त्रिज्या</string>
     <string name="glass_intensity">तीव्रता</string>
-    <string name="glass_tint">रंग</string>
-    <string name="glass_light">चमक</string>
+    <string name="glass_tint">अपारदर्शिता</string>
+    <string name="glass_light">विचलन</string>
+    <string name="glass_colour_light">हल्का रंग</string>
+    <string name="glass_colour_dark">गहरा रंग</string>
+    <string name="glass_default">डिफ़ॉल्ट</string>
+    <string name="glass_reset">रीसेट करें</string>
+    <string name="corner_rest_pill">विश्राम में पिल</string>
+    <string name="corner_rest_round">विश्राम में गोल बटन</string>
     <string name="settings_button_look">मुख्य बटनों का रूप</string>
     <string name="settings_button_look_desc">फ़्लोटिंग बटन, आइकन पिल और नीचे के मेनू पर लागू भराव और पारदर्शिता या धुंधलापन प्रभाव।</string>
     <string name="pill_slide">छिपने वाली</string>

@@ -131,8 +131,14 @@
     <string name="main_control_corner">Menu sudut</string>
     <string name="glass_radius">Radius</string>
     <string name="glass_intensity">Intensitas</string>
-    <string name="glass_tint">Warna</string>
-    <string name="glass_light">Kecerahan</string>
+    <string name="glass_tint">Opasitas</string>
+    <string name="glass_light">Simpangan</string>
+    <string name="glass_colour_light">Warna terang</string>
+    <string name="glass_colour_dark">Warna gelap</string>
+    <string name="glass_default">Bawaan</string>
+    <string name="glass_reset">Atur ulang</string>
+    <string name="corner_rest_pill">Pil saat diam</string>
+    <string name="corner_rest_round">Tombol bulat saat diam</string>
     <string name="settings_button_look">Tampilan tombol utama</string>
     <string name="settings_button_look_desc">Isian serta efek transparansi atau buram yang diterapkan pada tombol mengambang, pil ikon, dan menu bawah.</string>
     <string name="pill_slide">Dapat disembunyikan</string>

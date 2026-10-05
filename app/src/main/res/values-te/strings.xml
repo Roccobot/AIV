@@ -131,8 +131,14 @@
     <string name="main_control_corner">మూల మెనూ</string>
     <string name="glass_radius">వ్యాసార్ధం</string>
     <string name="glass_intensity">తీవ్రత</string>
-    <string name="glass_tint">రంగు</string>
-    <string name="glass_light">ప్రకాశం</string>
+    <string name="glass_tint">అపారదర్శకత</string>
+    <string name="glass_light">విచలనం</string>
+    <string name="glass_colour_light">లేత రంగు</string>
+    <string name="glass_colour_dark">ముదురు రంగు</string>
+    <string name="glass_default">డిఫాల్ట్</string>
+    <string name="glass_reset">రీసెట్ చేయి</string>
+    <string name="corner_rest_pill">విశ్రాంతిలో పిల్</string>
+    <string name="corner_rest_round">విశ్రాంతిలో గుండ్రని బటన్</string>
     <string name="settings_button_look">ప్రధాన బటన్‌ల రూపం</string>
     <string name="settings_button_look_desc">తేలియాడే బటన్, ఐకాన్ పిల్, కింది మెనూకు వర్తించే నింపు మరియు పారదర్శకత లేదా మసక ప్రభావాలు.</string>
     <string name="pill_slide">ముడుచుకునే</string>

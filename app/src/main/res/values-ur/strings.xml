@@ -131,8 +131,14 @@
     <string name="main_control_corner">کونے کا مینو</string>
     <string name="glass_radius">رداس</string>
     <string name="glass_intensity">شدت</string>
-    <string name="glass_tint">رنگ</string>
-    <string name="glass_light">چمک</string>
+    <string name="glass_tint">دھندلاپن</string>
+    <string name="glass_light">انحراف</string>
+    <string name="glass_colour_light">ہلکا رنگ</string>
+    <string name="glass_colour_dark">گہرا رنگ</string>
+    <string name="glass_default">طے شدہ</string>
+    <string name="glass_reset">ری سیٹ کریں</string>
+    <string name="corner_rest_pill">آرام میں گولی</string>
+    <string name="corner_rest_round">آرام میں گول بٹن</string>
     <string name="settings_button_look">مرکزی بٹنوں کی شکل</string>
     <string name="settings_button_look_desc">تیرتے بٹن، آئیکن گولی اور نیچے کے مینو پر لاگو بھرائی اور شفافیت یا دھندلاہٹ کے اثرات۔</string>
     <string name="pill_slide">چھپنے والی</string>
