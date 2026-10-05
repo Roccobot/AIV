@@ -198,6 +198,22 @@ function drawAttachments(card) {
       image.alt = img.name;
       figure.append(image, el("figcaption", img.name));
     }
+    /* While a field is being written in, a click on the attachment writes its name, with the
+       extension, between straight quotes at the caret (the user's request, 2026-10-05). The
+       press is held back so the field keeps the focus and the caret; the two buttons and the
+       ZIP link keep their own click. */
+    figure.title = "Mentre scrivi, un clic qui inserisce il nome nel testo";
+    figure.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button, a")) return;
+      if (window.feedbackFormatting?.writing()) event.preventDefault();
+    });
+    figure.addEventListener("click", (event) => {
+      if (event.target.closest("button, a")) return;
+      window.feedbackFormatting?.insertAtCaret("'" + img.name + "'");
+    });
+    const rename = el("button", "Rinomina allegato");
+    rename.type = "button";
+    rename.addEventListener("click", () => renameAttachment(card, index));
     const remove = el("button", "Rimuovi allegato");
     remove.type = "button";
     remove.addEventListener("click", () => {
@@ -205,9 +221,33 @@ function drawAttachments(card) {
       drawAttachments(card);
       changed();
     });
-    figure.append(remove);
+    figure.append(rename, remove);
     list.append(figure);
   });
+}
+/* Renames an attachment after it was loaded (the user's request, 2026-10-05). Only the name
+   changes: the original bytes, and on the cloud their storageKey, stay as they are. The
+   extension is kept, because the type was checked on the file, and a name that already ends
+   with it is not given a second one. */
+function renameAttachment(card, index) {
+  const image = attachmentEntry(card).images[index];
+  if (!image) return;
+  const dot = image.name.lastIndexOf(".");
+  const extension = dot > 0 ? image.name.slice(dot) : "";
+  const base = extension ? image.name.slice(0, dot) : image.name;
+  const typed = prompt(extension ? "Nuovo nome dell'allegato (l'estensione " + extension + " resta):" : "Nuovo nome dell'allegato:", base);
+  if (typed === null) return;
+  let name = typed.trim();
+  if (extension && name.toLowerCase().endsWith(extension.toLowerCase())) name = name.slice(0, -extension.length).trim();
+  if (!name || /[\\/\u0000-\u001f]/.test(name) || (name + extension).length > 500) {
+    report("Il nome non può essere vuoto, contenere barre o superare i 500 caratteri.", true);
+    return;
+  }
+  if (name + extension === image.name) return;
+  image.name = name + extension;
+  drawAttachments(card);
+  changed();
+  report("Allegato rinominato: " + image.name + ".");
 }
 function changed() {
   revision++;

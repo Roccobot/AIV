@@ -433,8 +433,24 @@
       }
     }
   });
+  // The editor being written in: the one that has the focus, and only if it can be edited.
+  function writing() {
+    return editors.find(editor => editor.box === document.activeElement && !editor.area.disabled) || null;
+  }
   window.feedbackFormatting = {
     refresh: () => editors.forEach(render),
+    // Whether a field is being written in now: an attachment click then writes its name there.
+    writing: () => Boolean(writing()),
+    /* Inserts plain text at the caret of the field being written in, as typing would (the
+       browser's own insertion, so undo works and the input event saves it). False when no
+       field has the focus. */
+    insertAtCaret: text => {
+      const editor = writing();
+      if (!editor) return false;
+      selection(editor);
+      document.execCommand("insertText", false, text);
+      return true;
+    },
     setDisabled: disabled => editors.forEach(editor => {
       editor.box.contentEditable = String(!disabled);
       editor.box.setAttribute("aria-disabled", String(disabled));
