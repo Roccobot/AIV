@@ -414,6 +414,7 @@
     <string name="tree_show_hidden">Versteckte Dateien zeigen</string>
     <string name="tree_pictures">Nur Ordner mit Bildern oder Videos</string>
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
+    <string name="corner_hint">Alle Befehle sind im Menü \'Start\': Tippe auf die runde Taste, um es zu öffnen, und halte sie gedrückt für die Anzeigeoptionen.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
     <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n⚠️ ACHTUNG: Wenn du die App deinstallierst, geht der Inhalt des Papierkorbs verloren und ist nicht wiederherstellbar.</string>
     <string name="settings_bin_sweep">Papierkorb automatisch bereinigen</string>

@@ -520,6 +520,7 @@
     <string name="tree_show_hidden">Show hidden files</string>
     <string name="tree_pictures">Only folders with pictures/videos</string>
     <string name="columns_hint">Shortcut: press and hold the floating button for the display options.</string>
+    <string name="corner_hint">All commands are in the \'Start\' menu: tap the round button to open it, press and hold it for the display options.</string>
     <!-- Each of these names the view you would GET, not the one you are in: a menu
          entry is a thing you ask for. -->
     <string name="hub_view_list">List view</string>

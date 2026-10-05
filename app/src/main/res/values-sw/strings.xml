@@ -414,6 +414,7 @@
     <string name="tree_show_hidden">Onyesha faili zilizofichwa</string>
     <string name="tree_pictures">Folda zenye picha au video pekee</string>
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
+    <string name="corner_hint">Amri zote ziko kwenye menyu ya \'Anza\': gusa kitufe cha duara ili kuifungua, kishikilie ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
     <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, yaliyomo kwenye tapishi hupotea na hayawezi kurudishwa.</string>
     <string name="settings_bin_sweep">Safisha tupio kiotomatiki</string>

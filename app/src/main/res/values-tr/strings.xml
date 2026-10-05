@@ -414,6 +414,7 @@
     <string name="tree_show_hidden">Gizli dosyaları göster</string>
     <string name="tree_pictures">Yalnızca görsel veya video içeren klasörler</string>
     <string name="columns_hint">Kısayol: görünüm seçenekleri için kayan düğmeyi basılı tutun.</string>
+    <string name="corner_hint">Tüm komutlar \'Başlat\' menüsünde: açmak için yuvarlak düğmeye dokunun, görünüm seçenekleri için basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
     <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme →\u00A0\'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.\n⚠️ DİKKAT: uygulamayı kaldırırsan çöp kutusundaki içerik kaybolur ve geri getirilemez.</string>
     <string name="settings_bin_sweep">Çöp kutusunu otomatik temizle</string>

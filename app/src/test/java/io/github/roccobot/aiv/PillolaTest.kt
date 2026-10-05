@@ -246,6 +246,8 @@ class PillolaTest {
         assertEquals(PhonePill.EXTENDED, estesa.phonePill)
         val accesa = SettingsStore.read(mutablePreferencesOf(interruttore to true, gettone to "slide"))
         assertEquals(MainControl.PILL, accesa.mainControl)
+        // ⚠️ Un archivio vuoto è un telefono nuovo: dalla `4.31` il menu 'Start' (sua scelta).
+        assertEquals(MainControl.CORNER, SettingsStore.read(mutablePreferencesOf()).mainControl)
         val nuova = SettingsStore.read(mutablePreferencesOf(interruttore to true, elemento to "fab"))
         assertEquals(MainControl.FAB, nuova.mainControl)
         val vuoto = SettingsStore.read(emptyPreferences())

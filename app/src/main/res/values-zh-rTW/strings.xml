@@ -397,6 +397,7 @@
     <string name="tree_show_hidden">顯示隱藏檔案</string>
     <string name="tree_pictures">僅含圖片或影片的資料夾</string>
     <string name="columns_hint">快捷方式：長按浮動按鈕開啟顯示選項。</string>
+    <string name="corner_hint">所有命令都在\'開始\'選單中：點按圓形按鈕開啟選單，長按開啟顯示選項。</string>
     <string name="settings_bin">啟用回收筒</string>
     <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 →\u00A0\'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。\n⚠️ 注意：解除安裝應用程式後，回收筒裡的內容會遺失且無法復原。</string>
     <string name="settings_bin_sweep">自動清理回收筒</string>

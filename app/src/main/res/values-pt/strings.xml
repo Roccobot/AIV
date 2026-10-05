@@ -431,6 +431,7 @@
     <string name="tree_show_hidden">Mostrar arquivos ocultos</string>
     <string name="tree_pictures">Só pastas com imagens ou vídeos</string>
     <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para as opções de exibição.</string>
+    <string name="corner_hint">Todos os comandos estão no menu \'Iniciar\': toque no botão redondo para abri-lo e mantenha-o pressionado para as opções de exibição.</string>
     <string name="settings_bin">Ativar a lixeira</string>
     <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n⚠️ ATENÇÃO: se você desinstalar o app, o conteúdo da lixeira é perdido e não pode ser recuperado.</string>
     <string name="settings_bin_sweep">Limpeza automática da lixeira</string>

@@ -397,6 +397,7 @@
     <string name="tree_show_hidden">숨긴 파일 표시</string>
     <string name="tree_pictures">사진이나 동영상이 있는 폴더만</string>
     <string name="columns_hint">단축: 표시 옵션은 떠 있는 버튼을 길게 누르세요.</string>
+    <string name="corner_hint">모든 명령은 \'시작\' 메뉴에 있습니다. 둥근 버튼을 누르면 열리고, 길게 누르면 표시 옵션이 열립니다.</string>
     <string name="settings_bin">휴지통 사용</string>
     <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 →\u00A0\'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.\n⚠️ 주의: 앱을 삭제하면 휴지통의 내용이 사라지고 되돌릴 수 없습니다.</string>
     <string name="settings_bin_sweep">휴지통 자동 정리</string>

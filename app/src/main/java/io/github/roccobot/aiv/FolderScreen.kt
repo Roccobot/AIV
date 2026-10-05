@@ -747,9 +747,10 @@ fun FolderScreen(
                     if (LocalPillLook.current.bar) Alignment.BottomCenter else fabSide()
                 ),
                 // ⚠️ Le pillole e il loro tondo stanno a [PILL_SIDE] dal vetro di fianco, dalla
-                // `4.25` (scelta A2); il FAB resta a [HUB_PAD].
-                corner = if (LocalPillLook.current.mode != PhonePill.OFF) Modifier.pillCorner()
-                else Modifier.safeDrawingPadding().padding(HUB_PAD)
+                // `4.25` (scelta A2), e dalla `4.31` il FAB ha il centro sul centro del tondo.
+                corner = Modifier.pillCorner(
+                    if (LocalPillLook.current.mode != PhonePill.OFF) PILL_KEY else FAB_SIZE
+                )
             )
         }
 
@@ -787,27 +788,63 @@ fun FolderScreen(
         }
 
         if (hint) {
+            /*
+             * ⚠️⚠️ **COL MENU 'START' IL VELO LO MOSTRA APERTO, DALLA `4.31`, ED È SUA RICHIESTA**
+             * (dopo la `4.30`: *è fondamentale che al primo avvio il micro-onboarding mostri
+             * quello, magari espanso*), insieme al menu 'Start' di fabbrica: le caselle sono le sue,
+             * disegnate, e nell'angolo la copia del tasto tondo, che è quella che risponde. La
+             * frase dice le due cose che il tasto fa.
+             */
+            val start = LocalPillLook.current.corner
             HintVeil(
-                text = stringResource(R.string.columns_hint),
-                // ⚠️ Due rientri e non tre come nella griglia delle foto: qui il FAB vive
-                // dentro il rientro di sistema più il suo margine, e basta. Il perché sta in
-                // [HintVeil], sul parametro.
-                inset = if (pill != PhonePill.OFF) Modifier.pillCorner()
-                else Modifier.safeDrawingPadding().padding(HUB_PAD),
+                text = stringResource(if (start) R.string.corner_hint else R.string.columns_hint),
+                // ⚠️ L'angolo del comando vero, tondo o FAB, col centro sul centro del tondo dalla
+                // `4.31` ([pillCorner]). Il perché è scritto su [HintVeil], sul parametro.
+                inset = Modifier.pillCorner(if (pill != PhonePill.OFF) PILL_KEY else FAB_SIZE),
                 onDone = hintDone
             ) {
-                TapHoldFab(
-                    label = stringResource(R.string.hub_open),
-                    container = HINT_MARK,
-                    ink = HINT_INK,
-                    holdLabel = stringResource(R.string.columns_title),
-                    onTap = hintDone,
-                    onHold = { hintDone(); sizing = true },
-                    round = pill == PhonePill.SLIDE,
-                    // ⚠️ Lo stesso glifo del FAB vero, e non uno che gli somiglia: questo è
-                    // il suo ritratto sull'onboarding, e deve essere la stessa cosa.
-                    glyph = { Marchio(it) }
-                )
+                val tasto = @Composable {
+                    TapHoldFab(
+                        label = stringResource(R.string.hub_open),
+                        container = HINT_MARK,
+                        ink = HINT_INK,
+                        holdLabel = stringResource(R.string.columns_title),
+                        onTap = hintDone,
+                        onHold = { hintDone(); sizing = true },
+                        round = pill == PhonePill.SLIDE,
+                        // ⚠️ Lo stesso glifo del FAB vero, e non uno che gli somiglia: questo è
+                        // il suo ritratto sull'onboarding, e deve essere la stessa cosa.
+                        glyph = { Marchio(it) }
+                    )
+                }
+                if (start) {
+                    // ⚠️ Le stesse caselle del menu vero, scritte da [hubEntries]: qui sono un
+                    // disegno, quindi i comandi che chiedono uno stato di [Hub] restano vuoti.
+                    CornerMenuCopy(
+                        entries = hubEntries(
+                            view = view,
+                            granted = granted,
+                            hiddenCount = if (selection.mode == FolderMode.EXCLUDED) selection.excluded.size else 0,
+                            peeking = peeking,
+                            onPeek = onPeek,
+                            onPeekList = null,
+                            onView = onView,
+                            onSearch = onSearch,
+                            onAddress = {},
+                            onPickImage = {},
+                            onNewFolder = null,
+                            onBin = onBin,
+                            onSettings = onSettings,
+                            steady = true,
+                            onCornerRest = onCornerRest,
+                            cornerRound = LocalPillLook.current.cornerRound
+                        ),
+                        atEnd = LocalPadLook.current.hand == Hand.RIGHT,
+                        key = tasto
+                    )
+                } else {
+                    tasto()
+                }
             }
         }
     }

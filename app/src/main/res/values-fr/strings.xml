@@ -431,6 +431,7 @@
     <string name="tree_show_hidden">Afficher les fichiers cachés</string>
     <string name="tree_pictures">Seulement les dossiers avec images ou vidéos</string>
     <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
+    <string name="corner_hint">Toutes les commandes sont dans le menu \'Démarrer\' : touchez le bouton rond pour l\'ouvrir, appuyez longuement dessus pour les options d\'affichage.</string>
     <string name="settings_bin">Activer la corbeille</string>
     <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si vous désinstallez l\'application, le contenu de la corbeille est perdu et devient irrécupérable.</string>
     <string name="settings_bin_sweep">Nettoyage automatique de la corbeille</string>

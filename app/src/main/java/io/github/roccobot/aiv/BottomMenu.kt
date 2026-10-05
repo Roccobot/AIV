@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -12,10 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -39,6 +42,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -91,10 +95,24 @@ internal val PILL_SIDE = MENU_INSET
  * e cartelle il tondo col glifo salta da una posizione all'altra ... Vanno unificate posizioni e
  * dimensioni del tondo*): until 4.25 the home wrote 16dp from the bottom and a grid its own 12dp
  * plus 8, so the key jumped by 4dp between the two.
+ * ⚠️⚠️ **AND SINCE 4.31 THE ROUND KEY'S CENTRE IS EVERY MAIN CONTROL'S CENTRE, HIS RULE** (after the
+ * 4.30: *tutti i posizionamenti di tutti i menu devono usare quel punto di riferimento. Anche il
+ * centro del FAB dev'essere centrato sul centro di quel tondo*): a control of another [side] keeps
+ * the same centre, so the 40dp FAB stands 2dp further in on both axes. Until 4.30 the FAB kept its
+ * own corner, 16dp from the glass in the home and 16 by 20 in a grid.
+ *
+ * @param side the control's side: the round key's ([PILL_KEY]) unless it is the FAB.
  */
-internal fun Modifier.pillCorner(): Modifier = composed {
-    windowInsetsPadding(steadyDrawing()).padding(horizontal = PILL_SIDE, vertical = HUB_PAD)
+internal fun Modifier.pillCorner(side: Dp = PILL_KEY): Modifier = composed {
+    windowInsetsPadding(steadyDrawing())
+        .padding(horizontal = cornerSide(side), vertical = HUB_PAD + (PILL_KEY - side) / 2)
 }
+
+/**
+ * How far a main control of [side] keeps from the glass sideways, inside the system's insets: what
+ * [pillCorner] writes, and what a menu anchored to the FAB reads ([rememberMenuSpot]).
+ */
+internal fun cornerSide(side: Dp): Dp = PILL_SIDE + (PILL_KEY - side) / 2
 
 /**
  * The margin of a bar with few keys from the side it leans on: the pills' ([PILL_SIDE]), so the
@@ -269,11 +287,7 @@ internal fun CornerMenu(
         if (open) OutsideTouch.on(watcher) { at -> if (!panel.contains(at)) open = false }
         onDispose { OutsideTouch.off(watcher) }
     }
-    val columns = if (cells.size > CORNER_SMALL) 3 else 2
-    // ⚠️ The rows are filled from the top, so that the last one, with the ×, is always full: a
-    // gap left by an odd count goes to the top row, away from the thumb.
-    val rows = cells.reversed().chunked(columns).map { it.reversed() }.reversed()
-        .map { row -> if (atEnd) row else row.reversed() }
+    val rows = cornerRows(cells, atEnd)
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
     val top = stringResource(R.string.jump_top)
@@ -358,6 +372,57 @@ internal object OutsideTouch {
     /** A press at [at], in the root's coordinates. */
     fun press(at: Offset) { listeners.values.toList().forEach { it(at) } }
 }
+
+/**
+ * The corner menu's cells in rows, the corner cell last: what the menu and its copy on the first
+ * start's hint ([CornerMenuCopy]) both lay out.
+ *
+ * ⚠️ **The rows are filled from the top**, so that the last one, with the corner cell, is always
+ * full: a gap left by an odd count goes to the top row, away from the thumb.
+ */
+private fun <T> cornerRows(cells: List<T>, atEnd: Boolean): List<List<T>> {
+    val columns = if (cells.size > CORNER_SMALL) 3 else 2
+    return cells.reversed().chunked(columns).map { it.reversed() }.reversed()
+        .map { row -> if (atEnd) row else row.reversed() }
+}
+
+/**
+ * The open Start menu as the first start's hint draws it, in the hint's orange, with [key] (the
+ * hint's copy of the round key) in the corner cell where the open menu has its ×.
+ *
+ * ⚠️⚠️ **SINCE 4.31, HIS REQUEST** (after the 4.30: *se il predefinito di fabbrica è il menu Start, è
+ * fondamentale che al primo avvio il micro-onboarding mostri quello, magari espanso*): the first hint
+ * of the home showed the round key alone, which says nothing about the commands behind it.
+ * ⚠️ **The cells are a drawing and only the key answers**, as in every [HintVeil]: the key teaches its
+ * two gestures, and a cell that acted would leave the hint by a door it does not explain.
+ * ⚠️ **The corner cell is the round key's own place**, so the copy lies over the real key.
+ */
+@Composable
+internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Composable () -> Unit) {
+    Column(modifier = Modifier.testTag(CORNER_COPY_TAG).background(HINT_MARK, RoundedCornerShape(PILL_KEY / 2))) {
+        cornerRows(entries + null, atEnd).forEach { row ->
+            Row {
+                row.forEach { cell ->
+                    if (cell == null) {
+                        key()
+                    } else {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(CORNER_CELL)) {
+                            Icon(
+                                imageVector = cell.icon,
+                                contentDescription = null,
+                                tint = HINT_INK,
+                                modifier = Modifier.size(PILL_GLYPH)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** The tag of [CornerMenuCopy], which the bench reads: its cells are drawings, without semantics. */
+internal const val CORNER_COPY_TAG = "corner-copy"
 
 /** Up to how many cells, the × included, the corner menu is a 2x2 (decision C3). */
 private const val CORNER_SMALL = 4
