@@ -403,7 +403,11 @@ private fun SlidePill(
                             scaleX = s
                             scaleY = s
                         }
-                    ) { fabGlyph(null) }
+                    ) {
+                        // ⚠️ The round key is drawn here and not by [TapHoldFab]: without this
+                        // the mark kept the square FAB's size and centre (4.02-03, not approved).
+                        CompositionLocalProvider(LocalRoundKey provides true) { fabGlyph(null) }
+                    }
                     Box(
                         modifier = Modifier.graphicsLayer {
                             alpha = p * CLOSE_INK

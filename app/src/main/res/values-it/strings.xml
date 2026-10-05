@@ -266,9 +266,9 @@
     <string name="settings_theme_dark">Scuro</string>
 
     <string name="settings_bg_theme">Tema dello sfondo</string>
-    <string name="settings_auto">Automatica</string>
-    <string name="settings_light">Chiara</string>
-    <string name="settings_dark">Scura</string>
+    <string name="settings_auto">Automatico</string>
+    <string name="settings_light">Chiaro</string>
+    <string name="settings_dark">Scuro</string>
 
     <string name="settings_depth">Effetto dietro menu e pannelli</string>
     <string name="settings_depth_desc">Definisce l\'effetto applicato dietro un menu o un pannello per staccarlo dallo sfondo e renderlo più visibile. La sfocatura potrebbe causare qualche rallentamento su dispositivi molto datati.</string>

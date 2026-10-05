@@ -436,6 +436,10 @@ sessione dopo è perso.
     guarda prima da dove viene quel colore.
   - ⚠️ **Il banco non lo vede**: una prova gira in una configurazione sola. Si guarda sul telefono,
     coi due temi.
+- ⚠️⚠️ **Le info mostrate insieme all'immagine seguono 'Tema dello sfondo', non il tema dell'app**
+  (sua nota, giro della `4.02`): la barra delle info e il pannello laterale degli schermi larghi
+  prendono la tavolozza da `AivPalette`, in `Theme.kt`, con lo stesso chiaro o scuro che il
+  visualizzatore dà allo sfondo.
 - ⚠️⚠️ **L'icona in testata e il FAB sono incrociati di proposito** (sua specifica): l'icona segue
   il tema in vigore, il FAB mostra l'accento dell'altro tema, e a menu aperto quello del tema in
   vigore. Un FAB che 'non segue il tema' non si corregge.
