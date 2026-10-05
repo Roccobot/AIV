@@ -2032,7 +2032,7 @@ internal fun Marchio(descrizione: String?) {
         modifier = Modifier
             .offset(
                 x = if (tondo) 0.dp else largo * MARK_DX,
-                y = alto * if (tondo) MARK_DY_ROUND else MARK_DY
+                y = if (tondo) alto * MARK_DY_ROUND - MARK_LIFT_ROUND else alto * MARK_DY
             )
             .size(width = largo, height = alto)
             // The bench finds the mark by this, wherever it is drawn (PillolaTest).
@@ -2069,6 +2069,15 @@ private val MARK_WIDE_ROUND = 22.dp
  * di segno. Lettura dichiarata nel DF: centrata vuol dire il centro del riquadro della A.
  */
 private const val MARK_DY_ROUND = -0.050f
+
+/**
+ * Quanto il marchio sale ancora nel tondo, oltre al centro geometrico della A.
+ *
+ * ⚠️ **È una correzione ottica, sua** (nota del giro della `4.04`: *l'allineamento verticale
+ * (ottico) non è ancora a posto: prova a spostare in su di 1,5dp*). Il riquadro della A è centrato,
+ * ma il triangolo ha la massa in basso, quindi a occhio cade sotto il centro.
+ */
+private val MARK_LIFT_ROUND = 1.5.dp
 
 /**
  * Quanto è largo il marchio sul FAB.
