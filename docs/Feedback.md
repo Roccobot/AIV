@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.20**: il menu angolare, le viste a specchio, il menu inferiore con pochi tasti sul lato preferito e i quattro cursori del traslucido.
+Versione **4.25**: il menu angolare col tondo a riposo e il commutatore, la pillola più corta, il traslucido di fabbrica con i due colori, e le due sfumature in basso.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.20 è pubblicata: [v4.20](https://github.com/Roccobot/AIV/releases/tag/v4.20), con l'APK
-[AIV-4.20.apk](https://github.com/Roccobot/AIV/releases/download/v4.20/AIV-4.20.apk).
-Commit prodotto su `main`: `bc6e638` (SlimVer 4.20 / versionCode 317).
+La Release 4.25 è pubblicata: [v4.25](https://github.com/Roccobot/AIV/releases/tag/v4.25), con l'APK
+[AIV-4.25.apk](https://github.com/Roccobot/AIV/releases/download/v4.25/AIV-4.25.apk).
+Commit prodotto su `main`: `32af491` (SlimVer 4.25 / versionCode 318).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor e HEIC restano chiusi. Giro **4.20**: cinque prove, dalle tue note del giro 4.15 e dalle decisioni sul menu angolare. Giro **4.15**: `4.15-01`-`4.15-06` OK.
+Lati editor e HEIC restano chiusi. Giro **4.25**: sette prove, dalle tue note del giro 4.20 e dalle scelte A2, B3, C2. Giro **4.20**: `4.20-02`-`4.20-04` OK; `4.20-01` e `4.20-05` fatte nella 4.25.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,35 +22,45 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.20 sono superate: banco di prova completo (563 prove), controllo delle 28 traduzioni e compilazione.
+Le verifiche automatiche della 4.25 sono superate: banco di prova completo (567 prove), controllo delle 28 traduzioni e compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.20-01 | Non provato | | Attendere il collaudo. |
-| 4.20-02 | Non provato | | Attendere il collaudo. |
-| 4.20-03 | Non provato | | Attendere il collaudo. |
-| 4.20-04 | Non provato | | Attendere il collaudo. |
-| 4.20-05 | Non provato | | Attendere il collaudo. |
+| 4.25-01 | Non provato | | Attendere il collaudo. |
+| 4.25-02 | Non provato | | Attendere il collaudo. |
+| 4.25-03 | Non provato | | Attendere il collaudo. |
+| 4.25-04 | Non provato | | Attendere il collaudo. |
+| 4.25-05 | Non provato | | Attendere il collaudo. |
+| 4.25-06 | Non provato | | Attendere il collaudo. |
+| 4.25-07 | Non provato | | Attendere il collaudo. |
 
-## 1. Il menu angolare nella schermata iniziale
+## 1. Il menu angolare a riposo, e il commutatore
 
-Con AIV **4.20**, sul telefono in verticale, scegli **Elemento interattivo principale** → `Menu angolare`: non c'è una seconda fila, perché è sempre a scomparsa. A riposo c'è la pillola verticale del menu inferiore; tocca il marchio e dall'angolo cresce un pannello 3×3: in alto le tre viste, con quella in cui sei segnata da un disco; poi Mostra nascoste (spenta se non hai cartelle nascoste), Cerca e Apri un indirizzo; in basso Cestino, Impostazioni e la ×, che prende il posto del marchio. Il pannello si ferma sopra la linea dei gesti. Il paragrafo della voce adesso nomina anche il menu angolare.
+Con **Elemento interattivo principale** → `Menu angolare`, a riposo c'è un tasto tondo solo, col marchio. Scorri una cartella o la schermata iniziale: il tondo si allunga verso l'alto nella pillola verticale, con `in cima` sopra e `in fondo` al posto del marchio, e torna tondo quando il salto se ne va. Aperto nella schermata iniziale, la prima riga ha il commutatore e le due viste diverse da quella in cui sei: il commutatore mostra il riposo che il tocco mette (la capsula quando a riposo c'è il tondo, il tondo quando c'è la pillola). Toccalo: il menu si chiude e a riposo trovi la pillola verticale di due tasti, com'era nella 4.20; toccalo di nuovo per tornare al tondo. La scelta resta. Le tue due icone sono uniformate alle altre: la capsula alta 20 unità su 24, come gli altri glifi, e il tondo scalato dello stesso fattore, quindi largo quanto la capsula.
 
-## 2. Il menu angolare nelle cartelle, e i salti
+## 2. Il menu angolare si chiude a ogni tocco
 
-In una cartella il pannello è un 2×2: Cerca e Cestino sopra, Impostazioni e la × sotto (nel cestino le sue tre voci). Scorrendo, la × e la casella sopra di lei diventano `in fondo` e `in cima`. Col lato preferito a sinistra ogni riga è a specchio, con la × nell'angolo di sinistra.
+Apri il menu angolare e tocca una voce qualunque, il commutatore o una vista compresi: il menu si richiude prima di agire, anche nelle cartelle (il 2×2).
 
-## 3. Le due viste a specchio
+## 3. La pillola più corta
 
-Col lato preferito a sinistra, nella pillola e nel menu inferiore anche le due viste sono a specchio, come hai chiesto: l'ordine è il rovescio esatto di quello di destra.
+Con la pillola (`A scomparsa` o `Estesa`) il tondo e la pillola stanno a 24dp dal bordo dello schermo, cioè 8dp dentro i bordi delle miniature, come nella variante A2 dell'anteprima. Nella schermata iniziale apri la pillola a scomparsa: con otto tasti arriva a 24dp da tutti e due i bordi, e la × è dove era il tondo. Vale anche nelle cartelle, nel menu angolare e nella pillola verticale del menu inferiore, e il menu inferiore fisso con pochi tasti li raccoglie a 24dp. Il FAB resta dov'era.
 
-## 4. Il menu inferiore con pochi tasti
+## 4. Il traslucido di fabbrica, e lo Scostamento
 
-Col `Menu inferiore` in una cartella o nel cestino (tre voci, quattro con la × a scomparsa) i tasti si raccolgono sul lato preferito con la spaziatura della pillola, e il tasto d'angolo cade dove era il marchio della pillola verticale. Da cinque tasti in su, come nella schermata iniziale, restano distribuiti su tutta la larghezza.
+Da questa versione, su un telefono che non ha mai toccato le impostazioni, il metodo predefinito è la pillola a scomparsa col traslucido, con i tuoi valori: Raggio 16, Intensità 300%, Opacità 20%, Scostamento 35. Il cursore che si chiamava Colore si chiama **Opacità**, e Luminosità è diventato **Scostamento**, da 0 a 50 e senza segno: scurisce nel tema chiaro e schiarisce nel tema scuro. Tu hai già l'app e i tuoi valori della 4.20 restano: in **Tema e dettagli grafici**, sotto i cursori, tocca `Ripristina` per avere quelli di fabbrica. Poi passa dal tema chiaro a quello scuro e guarda le pillole.
 
-## 5. I quattro cursori del traslucido, con l'anteprima
+## 5. I due colori del vetro
 
-In **Tema e dettagli grafici** scegli `Traslucido`: sotto compaiono un'anteprima e quattro cursori, e l'anteprima cambia mentre muovi il dito. Come li ho letti, da correggere se intendevi altro: **Raggio** è quanto sfoca (13 di fabbrica, il valore di prima); **Intensità** è quanto si accendono i colori dietro il vetro (160%); **Colore** è quanto accento ha il vetro rispetto al tono del tema (100%); **Luminosità** schiarisce verso il bianco sopra lo zero e scurisce verso il nero sotto. Il valore si salva quando alzi il dito. Per ora il fondo dell'anteprima è a righe colorate: l'immagine fissa che mi mandi entra al prossimo giro. Quando avrai trovato lo stile, i cursori si nascondono con un interruttore nel codice e i valori restano.
+Sotto i cursori ci sono **Colore chiaro** e **Colore scuro**, ognuno con un tondo del suo colore. Toccane uno: si apre un selettore con tonalità, saturazione e luminanza, e il colore che ne risulta in cima. `Applica` lo salva, `Predefinito` torna all'accento che il vetro ha in quel tema, `Annulla` (o un tocco fuori) chiude senza cambiare niente. L'anteprima e le pillole usano il colore del tema in cui sei. `Ripristina` toglie anche i due colori.
+
+## 6. Il bordo dell'anteprima
+
+L'anteprima del traslucido ha un bordo d'accento di 5dp, dentro l'immagine e sopra le righe, che copre i bordi seghettati.
+
+## 7. Le due sfumature in basso
+
+Nella schermata iniziale e in cima a ogni cartella ci sono tutte e due le sfumature in basso, la più ampia e la più corta. Scorri una cartella: la più ampia se ne va insieme al titolo, la più corta resta. Arriva in fondo alla cartella: sparisce anche la più corta, così l'ultima riga si vede intera; risalendo torna. In una cartella che entra tutta nello schermo restano le due.
 
 ## Decisioni da concordare
 
@@ -60,23 +70,22 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Il menu angolare nella schermata iniziale | 4.20-01 | Non provato | | Attendere il collaudo. |
-| Il menu angolare nelle cartelle, e i salti | 4.20-02 | Non provato | | Attendere il collaudo. |
-| Le due viste a specchio | 4.20-03 | Non provato | | Attendere il collaudo. |
-| Il menu inferiore con pochi tasti | 4.20-04 | Non provato | | Attendere il collaudo. |
-| I quattro cursori del traslucido, con l'anteprima | 4.20-05 | Non provato | | Attendere il collaudo. |
-| Il menu inferiore a scomparsa | 4.15-01 | OK | Tutto OK. | Archiviata. |
-| Il menu inferiore fisso, sopra la griglia | 4.15-02 | OK | Tutto OK. | Archiviata. |
-| I salti nei due tasti dell'angolo | 4.15-03 | OK | Tutto OK. | Archiviata. |
-| L'ordine col lato preferito a sinistra | 4.15-04 | OK | Tutto OK, con le due viste da mettere a specchio. | Fatto nella 4.20 (`4.20-03`). |
-| La pillola estesa a sette voci | 4.15-05 | OK | Tutto OK. | Archiviata. |
-| I testi delle due voci | 4.15-06 | OK | Tutto OK. | Archiviata. |
+| Il menu angolare a riposo, e il commutatore | 4.25-01 | Non provato | | Attendere il collaudo. |
+| Il menu angolare si chiude a ogni tocco | 4.25-02 | Non provato | | Attendere il collaudo. |
+| La pillola più corta | 4.25-03 | Non provato | | Attendere il collaudo. |
+| Il traslucido di fabbrica, e lo Scostamento | 4.25-04 | Non provato | | Attendere il collaudo. |
+| I due colori del vetro | 4.25-05 | Non provato | | Attendere il collaudo. |
+| Il bordo dell'anteprima | 4.25-06 | Non provato | | Attendere il collaudo. |
+| Le due sfumature in basso | 4.25-07 | Non provato | | Attendere il collaudo. |
+| Il menu angolare nella schermata iniziale | 4.20-01 | Accettabile | Molto valido, con quattro ritocchi. | Fatto nella 4.25 (`4.25-01`, `4.25-02`). |
+| Il menu angolare nelle cartelle, e i salti | 4.20-02 | OK | Tutto OK. | Archiviata. |
+| Le due viste a specchio | 4.20-03 | OK | Tutto OK. | Archiviata. |
+| Il menu inferiore con pochi tasti | 4.20-04 | OK | Tutto OK. | Archiviata. |
+| I quattro cursori del traslucido, con l'anteprima | 4.20-05 | OK | Tutto OK, con la proposta dei due colori. | Fatto nella 4.25 (`4.25-04`, `4.25-05`). |
 
 ## Prossimi passi
 
-- **In collaudo**: menu angolare nella home e nelle cartelle, viste a specchio, menu inferiore con pochi tasti, cursori del traslucido (`4.20-01`-`4.20-05`).
-- **In attesa di te**: l'immagine fissa in WebP per l'anteprima del traslucido.
-- **Poi**: i valori del traslucido che sceglierai diventano quelli di fabbrica, e i cursori si nascondono.
-- **Concluso**: menu inferiore, salti, ordine a sinistra, pillola estesa a sette voci, testi (`4.15-01`-`4.15-06`).
+- **In collaudo**: menu angolare a riposo e commutatore, chiusura a ogni tocco, pillola più corta, traslucido di fabbrica, due colori, bordo dell'anteprima, sfumature (`4.25-01`-`4.25-07`).
+- **Concluso**: menu angolare nelle cartelle, viste a specchio, menu inferiore con pochi tasti (`4.20-02`-`4.20-04`).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
