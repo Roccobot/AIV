@@ -574,6 +574,13 @@ async function send() {
   );
   toast(remote ? "Giro inviato." : "Risposte pronte: esportale per inviarle.");
 }
+// A save asked by hand answers with a toast, like Invia (the user's request, 2026-10-05): the
+// state line changes too, but while one writes it is out of sight. Ctrl/Cmd+S, the Salva command
+// and the floating key all come here; the saves the page makes by itself stay silent.
+async function saveByHand() {
+  if (await save()) toast(remote ? "Salvato nel cloud." : "Salvato in questo browser.");
+  else toast("Salvataggio non riuscito: esporta le risposte prima di chiudere.", true);
+}
 // The export is a ZIP: feedback.json with the answers, and the attachments next to it with
 // short names, the test's position on two digits plus a letter (01a.png, 01b.jpg, 02a.webp),
 // and 00 for Altro (00a.png). feedback.json keeps each original name next to the short one.
@@ -667,7 +674,7 @@ async function reset() {
   await save();
   report(remote ? "Bozza cloud azzerata." : "Risposte del browser azzerate.");
 }
-const commands = { reset, copy, export: exportZip, save, send };
+const commands = { reset, copy, export: exportZip, save: saveByHand, send };
 for (const row of [pageCommands, overlayCommands]) {
   for (const button of row.querySelectorAll("button[data-command]"))
     button.addEventListener("click", () => commands[button.dataset.command]());
@@ -688,7 +695,7 @@ document.addEventListener("keydown", (event) => {
   const modified = event.ctrlKey || event.metaKey || event.altKey || event.shiftKey;
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
     event.preventDefault();
-    save();
+    saveByHand();
   } else if (event.key === "Escape" && altroOverlay && !altroOverlay.hidden) {
     setAltroOverlayOpen(false);
   } else if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey &&

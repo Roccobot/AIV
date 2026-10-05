@@ -245,6 +245,20 @@ def check(path):
             navigation.locator('#previous-card').tap()
             # responseCards end at .extra, so previous from the bottom lands on the last test.
             aligned(navigation.locator('.test').last)
+            # Desktop: past the last proof the next key leaves, and every press moves the page
+            # down. It used to aim at the sticky Altro column and rock the page by 3px (2026-10-05).
+            navigation.set_viewport_size({'width':1280,'height':900})
+            navigation.evaluate('window.scrollTo(0,0)')
+            # The page refreshes the keys on the next frame after a scroll: wait for it.
+            expect(navigation.locator('#next-card')).to_be_visible()
+            seen = [navigation.evaluate('scrollY')]
+            for _ in range(len(data['items']) + 3):
+                if navigation.locator('#next-card').is_hidden():
+                    break
+                navigation.locator('#next-card').tap()
+                seen.append(navigation.evaluate('scrollY'))
+            expect(navigation.locator('#next-card')).to_be_hidden()
+            assert all(b > a for a, b in zip(seen, seen[1:])), seen
             navigation_context.close()
             formatting_context = browser.new_context(permissions=['clipboard-read','clipboard-write'])
             formatting = formatting_context.new_page()
@@ -580,6 +594,10 @@ def check(path):
                 formats = [b.bounding_box() for b in halves.locator('.format-toolbar button').all()]
                 assert len(formats) == 4 and all(near(b['width'], formats[0]['width']) for b in formats), width
                 assert near(formats[-1]['x'] + formats[-1]['width'], tools['x'] + tools['width']), width
+                # Every format glyph keeps its 24px: on a phone the italic, code and link icons
+                # shrank to 16px in 38px keys, and only bold looked right (2026-10-05).
+                glyphs = [s.bounding_box()['width'] for s in halves.locator('.format-toolbar svg').all()]
+                assert all(near(g, 24) for g in glyphs), (width, glyphs)
                 assert near(cluster_box['width'], row_box['width']), width
             fab = page.locator('#floating-save')
             def hold(button):
@@ -885,6 +903,9 @@ def check(path):
             # The import says how many answers belong to tests no longer on the page.
             expect(second.locator('#action-message')).to_contain_text('1 sono di prove chiuse')
             expect(second.locator('.test').first.locator('.image-list img')).to_have_count(3)
+            # Salva answers with a toast as Invia does (the user's request, 2026-10-05).
+            second.locator('#save').click()
+            expect(second.locator('.toast.is-visible')).to_contain_text('Salvato')
             second.locator('#send').click()
             expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
             # Invia answers with a visible notice too (the user's request, 2026-10-04).

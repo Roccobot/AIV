@@ -36,8 +36,7 @@
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", iconPaths[kind]);
     if (kind === "bold") {
-      // The letter was never shrunk with the other icons: it keeps its size in a 22px slot.
-      svg.setAttribute("class", "format-bold");
+      // A thin stroke of its own colour gives the letter the weight of the other glyphs.
       path.setAttribute("stroke", "currentColor");
       path.setAttribute("stroke-width", "0.6");
       path.setAttribute("paint-order", "stroke fill");

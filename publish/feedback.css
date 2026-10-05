@@ -633,10 +633,14 @@ body[data-feedback] main {
   min-height: 44px;
   padding: 10px;
 }
+/* Every format glyph keeps its 24px: in Altro on a phone a key is 38px wide, and with its
+   10px of padding a shrinkable icon came out 16px wide (the user's screenshot, 2026-10-05).
+   Bold alone had this before, which is why it was the only one at the right size. */
 .format-toolbar svg,
 .format-actions > .label-reset svg {
   width: 24px;
   height: 24px;
+  flex-shrink: 0;
   fill: currentColor;
 }
 .format-actions > .label-reset svg {
@@ -730,10 +734,6 @@ textarea:focus-visible {
 .count-chip-warn { color: var(--chip-warn); }
 .count-chip-bad { color: var(--chip-bad); }
 
-/* The bold B keeps its size where the other icons shrink to the 22px slot. */
-.format-toolbar svg.format-bold {
-  flex-shrink: 0;
-}
 .rich-editor code,
 .card.test p code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
