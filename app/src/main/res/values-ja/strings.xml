@@ -123,11 +123,13 @@
     <string name="settings_hand">ボタンの優先位置</string>
     <string name="settings_hand_desc">片手で使うときにメインのボタンを置く側です。右利きにも左利きにも合わせられます。フローティング操作ボタン（\'FAB\'）や一部のナビゲーションボタン、エディターの UI の一部の位置を決めます。</string>
     <string name="settings_main_control">メイン操作</string>
-    <string name="settings_main_control_desc">スマートフォンを縦に持ったときの操作方法を選びます：メニュー付きのフローティングボタン（\'FAB\'）か、アイコンのピルです。</string>
+    <string name="settings_main_control_desc">スマートフォンを縦に持ったときの操作方法を選びます：メニュー付きのフローティングボタン（\'FAB\'）、アイコンのピル、または下部メニューです。</string>
     <string name="main_control_fab">フローティングボタン</string>
     <string name="main_control_pill">アイコンのピル</string>
+    <string name="main_control_bar">下部メニュー</string>
+    <string name="bar_fixed">固定</string>
     <string name="settings_button_look">メインボタンの見た目</string>
-    <string name="settings_button_look_desc">フローティングボタンとアイコンのピルに適用されます。</string>
+    <string name="settings_button_look_desc">フローティングボタン、アイコンのピル、下部メニューに適用される塗りと透明・ぼかしの効果です。</string>
     <string name="pill_slide">格納式</string>
     <string name="pill_extended">展開</string>
     <string name="pill_solid">不透明</string>

@@ -123,11 +123,13 @@
     <string name="settings_hand">بٹنوں کی ترجیحی جگہ</string>
     <string name="settings_hand_desc">ایک ہاتھ سے استعمال کرتے وقت بنیادی بٹنوں کے لیے ترجیحی سمت، دائیں اور بائیں ہاتھ والوں کے لیے۔ یہ فلوٹنگ ایکشن بٹن (\'FAB\')، بعض نیویگیشن بٹنوں اور ایڈیٹر کے UI کے حصوں کی جگہ طے کرتی ہے۔</string>
     <string name="settings_main_control">مرکزی کنٹرول</string>
-    <string name="settings_main_control_desc">فون سیدھا پکڑنے پر ایپ سے کیسے کام لینا ہے، منتخب کریں: مینو والا تیرتا بٹن (\'FAB\') یا آئیکنز کی گولی۔</string>
+    <string name="settings_main_control_desc">فون سیدھا پکڑنے پر ایپ سے کیسے کام لینا ہے، منتخب کریں: مینو والا تیرتا بٹن (\'FAB\')، آئیکنز کی گولی یا نیچے کا مینو۔</string>
     <string name="main_control_fab">تیرتا بٹن</string>
     <string name="main_control_pill">آئیکن گولی</string>
+    <string name="main_control_bar">نیچے کا مینو</string>
+    <string name="bar_fixed">مستقل</string>
     <string name="settings_button_look">مرکزی بٹنوں کی شکل</string>
-    <string name="settings_button_look_desc">تیرتے بٹن اور آئیکن گولیوں پر لاگو ہوتا ہے۔</string>
+    <string name="settings_button_look_desc">تیرتے بٹن، آئیکن گولی اور نیچے کے مینو پر لاگو بھرائی اور شفافیت یا دھندلاہٹ کے اثرات۔</string>
     <string name="pill_slide">چھپنے والی</string>
     <string name="pill_extended">پھیلی ہوئی</string>
     <string name="pill_solid">ٹھوس</string>

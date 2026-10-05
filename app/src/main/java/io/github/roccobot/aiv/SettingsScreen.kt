@@ -3311,11 +3311,11 @@ internal fun <T : Choice> Choices(
  * titolo, gettoni e paragrafo sono suoi alla lettera, e il paragrafo è quello della risposta G4
  * (*quando tieni lo smartphone in verticale*). Prende il posto dell'interruttore 'Pillola al posto
  * del FAB in verticale' della `4.02`, che viveva in fondo a 'Tema e dettagli grafici'.
- * ⚠️ **Nella `4.10` il paragrafo non nomina il menu inferiore**, che arriva con la `4.15`: un
- * paragrafo che elenca un gettone che non c'è descriverebbe un'altra versione. Con la `4.15`
- * si completa con le sue parole.
- * ⚠️ **La seconda fila c'è solo per la pillola** (*'a scomparsa' solo per pillola e menu
- * inferiore*): il FAB non ha un modo a scomparsa.
+ * ⚠️ **Dalla `4.15` c'è il gettone `Menu inferiore`, e il paragrafo è completo con le sue
+ * parole**: nella `4.10` non lo nominava, perché il gettone non c'era.
+ * ⚠️ **La seconda fila c'è per la pillola e per il menu inferiore** (*'a scomparsa' solo per
+ * pillola e menu inferiore*): il FAB non ha un modo a scomparsa. Il valore è uno, e per il menu il
+ * secondo gettone si chiama `Fisso` invece di `Estesa`.
  * ⚠️ **La ricerca guarda anche i nomi dei gettoni**, di tutte e due le file: chi cerca 'Estesa'
  * trova la voce anche col FAB scelto.
  */
@@ -3329,14 +3329,24 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
             when (it) {
                 MainControl.FAB -> R.string.main_control_fab
                 MainControl.PILL -> R.string.main_control_pill
+                MainControl.BOTTOM -> R.string.main_control_bar
             }
         )
     }
     val modes = PhonePill.entries.filter { it != PhonePill.OFF }
+    // ⚠️ Il menu è maschile, la pillola femminile: il secondo gettone cambia nome, il valore no.
+    val bar = settings.mainControl == MainControl.BOTTOM
     val modeNames = modes.map {
-        stringResource(if (it == PhonePill.EXTENDED) R.string.pill_extended else R.string.pill_slide)
+        stringResource(
+            when {
+                it == PhonePill.SLIDE -> R.string.pill_slide
+                bar -> R.string.bar_fixed
+                else -> R.string.pill_extended
+            }
+        )
     }
-    if (!shown(label, detail, *(controlNames + modeNames).toTypedArray())) return
+    val searched = controlNames + modeNames + stringResource(R.string.bar_fixed)
+    if (!shown(label, detail, *searched.toTypedArray())) return
     Text(
         text = label,
         style = MaterialTheme.typography.titleSmall,
@@ -3354,7 +3364,7 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
                 )
             }
         }
-        if (settings.mainControl == MainControl.PILL) {
+        if (settings.mainControl != MainControl.FAB) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
                 modes.forEachIndexed { at, mode ->
                     FilterChip(

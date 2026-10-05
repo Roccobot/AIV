@@ -79,6 +79,11 @@ data class PillEntry(
      * ⚠️ **A pill does not read it**: there the long press shows the label (see the header).
      */
     val onHold: (() -> Unit)? = null,
+    /**
+     * Entries with the same run stay in their order when a left-handed pill mirrors the others
+     * (`mirrored`, in `PhonePill.kt`): the two views, since 4.15.
+     */
+    val run: Int? = null,
     val onTap: () -> Unit
 )
 

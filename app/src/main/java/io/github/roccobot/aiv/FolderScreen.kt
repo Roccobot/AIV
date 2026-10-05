@@ -735,7 +735,12 @@ fun FolderScreen(
                 // griglia perché le copertine arrivino al vetro. Senza questa riga il FAB
                 // scenderebbe sopra la barra gestuale. ⚠️ Sono gli stessi due rientri che il
                 // velo della scorciatoia si mette qui sotto, e adesso le due righe coincidono.
-                modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(HUB_PAD)
+                // ⚠️ Il menu inferiore della `4.15` si posa in fondo a tutta larghezza, e tiene
+                // l'angolo per la sola pillola in cui si ripiega.
+                modifier = Modifier.align(
+                    if (LocalPillLook.current.bar) Alignment.BottomCenter else fabSide()
+                ),
+                corner = Modifier.safeDrawingPadding().padding(HUB_PAD)
             )
         }
 
@@ -1102,6 +1107,13 @@ private fun Hub(
     onNewFolder: (() -> Unit)? = null,
     /** Quello che la pillola di vetro sfoca, o `null` fuori dal vetro. Vedi [Backdrop]. */
     backdrop: Backdrop? = null,
+    /**
+     * I rientri e il margine dell'angolo del FAB, dentro [modifier].
+     *
+     * ⚠️ **Separati dalla `4.15`**: il menu inferiore arriva ai bordi dello schermo, e l'angolo resta
+     * alla sola pillola in cui si ripiega. Vedi `corner` in [PhonePillBar].
+     */
+    corner: Modifier = Modifier,
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
@@ -1144,9 +1156,12 @@ private fun Hub(
             onHold = onSize,
             backdrop = backdrop,
             modifier = modifier,
+            corner = corner,
+            mark = { Marchio(it) },
+            restLabel = stringResource(R.string.hub_open),
             fabGlyph = { JumpGlyph(arm) { Marchio(it) } }
         )
-    } else Box(modifier = modifier) {
+    } else Box(modifier = modifier.then(corner)) {
         /*
          * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la funzione** (1.39):
          * il FAB si stacca in una finestra sua per restare sopra il velo (vedi `lifted` in
@@ -1340,7 +1355,7 @@ private fun hubEntries(
     // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
     // vorrebbe dire ribattezzare una cosa che ha già un nome.
     FolderView.entries.filter { it != view }.forEach { other ->
-        add(PillEntry(other.glyph, stringResource(other.label()), group = 0) { onView(other) })
+        add(PillEntry(other.glyph, stringResource(other.label()), group = 0, run = 0) { onView(other) })
     }
 
     /*
@@ -1416,6 +1431,13 @@ private fun hubEntries(
     add(PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1) { onBin() })
     add(PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2) { onSettings() })
 }
+
+/**
+ * Quanto spazio in più del FAB chiede sotto l'ultima cartella il comando in vigore: la pillola
+ * verticale del menu inferiore a scomparsa è alta due tasti, dalla `4.15`. Vedi [controlRoom].
+ */
+@Composable
+private fun extraRoom(): Dp = (controlRoom() - PILL_KEY - PILL_AIR * 2).coerceAtLeast(0.dp)
 
 /**
  * La pillola della schermata iniziale sullo schermo largo: le voci del FAB di casa, con le due
@@ -1879,7 +1901,7 @@ internal fun Covers(
         // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
         // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
         // l'ultima riga fuori da sotto la barra gestuale vive qui.
-        contentPadding = PaddingValues(bottom = BELOW_FAB + bottomInset()),
+        contentPadding = PaddingValues(bottom = BELOW_FAB + extraRoom() + bottomInset()),
         modifier = modifier
     ) {
         items(
@@ -1948,7 +1970,7 @@ internal fun Rows(
         // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
         // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
         // l'ultima riga fuori da sotto la barra gestuale vive qui.
-        contentPadding = PaddingValues(bottom = BELOW_FAB + bottomInset()),
+        contentPadding = PaddingValues(bottom = BELOW_FAB + extraRoom() + bottomInset()),
         modifier = modifier
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->

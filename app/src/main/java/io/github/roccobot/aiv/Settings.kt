@@ -200,7 +200,14 @@ enum class MainControl(override val token: String) : Choice {
     /** Il FAB col suo menu: 'Tasto fluttuante'. Valore di fabbrica. */
     FAB("fab"),
     /** La pillola di icone, a scomparsa o estesa secondo [Settings.phonePill]: 'Pillola di icone'. */
-    PILL("pill")
+    PILL("pill"),
+    /**
+     * Il menu inferiore, dalla `4.15`: 'Menu inferiore'. A scomparsa o fisso secondo lo stesso
+     * [Settings.phonePill] della pillola (gettoni `A scomparsa` e `Fisso`): la domanda è una
+     * sola, cioè se il comando resta aperto, e due valori diversi chiederebbero di sceglierla due
+     * volte. Il disegno vive in `BottomMenu.kt`.
+     */
+    BOTTOM("bottom")
 }
 
 /**

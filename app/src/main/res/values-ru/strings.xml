@@ -123,11 +123,13 @@
     <string name="settings_hand">Предпочтительное положение кнопок</string>
     <string name="settings_hand_desc">Предпочтительная сторона для основных кнопок при работе одной рукой, для правшей и левшей. Она задаёт расположение плавающей кнопки действия (\'FAB\'), части кнопок навигации и элементов интерфейса редактора.</string>
     <string name="settings_main_control">Главный элемент управления</string>
-    <string name="settings_main_control_desc">Выберите, как управлять приложением, когда телефон в вертикальном положении: плавающая кнопка (\'FAB\') с меню или таблетка со значками.</string>
+    <string name="settings_main_control_desc">Выберите, как управлять приложением, когда телефон в вертикальном положении: плавающая кнопка (\'FAB\') с меню, таблетка со значками или нижнее меню.</string>
     <string name="main_control_fab">Плавающая кнопка</string>
     <string name="main_control_pill">Таблетка со значками</string>
+    <string name="main_control_bar">Нижнее меню</string>
+    <string name="bar_fixed">Закреплённое</string>
     <string name="settings_button_look">Вид главных кнопок</string>
-    <string name="settings_button_look_desc">Действует для плавающей кнопки и таблеток со значками.</string>
+    <string name="settings_button_look_desc">Заливка и эффекты прозрачности или размытия для плавающей кнопки, таблетки со значками и нижнего меню.</string>
     <string name="pill_slide">Скрываемая</string>
     <string name="pill_extended">Развёрнутая</string>
     <string name="pill_solid">Сплошные</string>

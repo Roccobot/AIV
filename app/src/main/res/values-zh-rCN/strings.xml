@@ -123,11 +123,13 @@
     <string name="settings_hand">按钮的首选位置</string>
     <string name="settings_hand_desc">单手使用时主要按钮的首选一侧，适合右手和左手用户。它决定悬浮操作按钮（\'FAB\'）、部分导航按钮以及编辑器界面部分元素的位置。</string>
     <string name="settings_main_control">主要操作方式</string>
-    <string name="settings_main_control_desc">选择竖握手机时与应用交互的方式：带菜单的悬浮按钮（\'FAB\'）或图标胶囊。</string>
+    <string name="settings_main_control_desc">选择竖握手机时与应用交互的方式：带菜单的悬浮按钮（\'FAB\'）、图标胶囊或底部菜单。</string>
     <string name="main_control_fab">悬浮按钮</string>
     <string name="main_control_pill">图标胶囊</string>
+    <string name="main_control_bar">底部菜单</string>
+    <string name="bar_fixed">固定</string>
     <string name="settings_button_look">主要按钮外观</string>
-    <string name="settings_button_look_desc">适用于悬浮按钮和图标胶囊。</string>
+    <string name="settings_button_look_desc">应用于悬浮按钮、图标胶囊和底部菜单的填充及透明或模糊效果。</string>
     <string name="pill_slide">收起式</string>
     <string name="pill_extended">展开</string>
     <string name="pill_solid">纯色</string>

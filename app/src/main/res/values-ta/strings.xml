@@ -123,11 +123,13 @@
     <string name="settings_hand">பொத்தான்களின் விருப்ப இடம்</string>
     <string name="settings_hand_desc">ஒரு கையால் பயன்படுத்தும்போது முதன்மைப் பொத்தான்களுக்கான விருப்பப் பக்கம், வலது கை மற்றும் இடது கை பயனர்களுக்கு. இது மிதக்கும் செயல் பொத்தான் (\'FAB\'), சில வழிசெலுத்தல் பொத்தான்கள் மற்றும் திருத்தியின் UI பகுதிகளின் இடத்தை நிர்ணயிக்கிறது.</string>
     <string name="settings_main_control">முதன்மைக் கட்டுப்பாடு</string>
-    <string name="settings_main_control_desc">தொலைபேசியை நேராகப் பிடிக்கும்போது செயலியை எப்படி இயக்குவது என்பதைத் தேர்வுசெய்யுங்கள்: மெனுவுடன் மிதக்கும் பொத்தான் (\'FAB\') அல்லது ஐகான் மாத்திரை.</string>
+    <string name="settings_main_control_desc">தொலைபேசியை நேராகப் பிடிக்கும்போது செயலியை எப்படி இயக்குவது என்பதைத் தேர்வுசெய்யுங்கள்: மெனுவுடன் மிதக்கும் பொத்தான் (\'FAB\'), ஐகான் மாத்திரை அல்லது கீழ் மெனு.</string>
     <string name="main_control_fab">மிதக்கும் பொத்தான்</string>
     <string name="main_control_pill">ஐகான் மாத்திரை</string>
+    <string name="main_control_bar">கீழ் மெனு</string>
+    <string name="bar_fixed">நிலையானது</string>
     <string name="settings_button_look">முதன்மைப் பொத்தான்களின் தோற்றம்</string>
-    <string name="settings_button_look_desc">மிதக்கும் பொத்தானுக்கும் ஐகான் மாத்திரைகளுக்கும் பொருந்தும்.</string>
+    <string name="settings_button_look_desc">மிதக்கும் பொத்தான், ஐகான் மாத்திரை, கீழ் மெனு ஆகியவற்றுக்கான நிரப்பு மற்றும் ஒளிபுகுதல் அல்லது மங்கல் விளைவுகள்.</string>
     <string name="pill_slide">மறையும்</string>
     <string name="pill_extended">விரிந்த</string>
     <string name="pill_solid">திடமான</string>

@@ -2251,8 +2251,8 @@ fun GridScreen(
                             } else if ((tall || shape == Adaptive.Shape.PHONE) && pillShown) {
                                 // ⚠️ La pillola in basso del tablet in verticale, e dalla `4.00`
                                 // quella del telefono: l'ultima riga deve poter salire sopra di
-                                // lei, come sopra il FAB.
-                                PILL_KEY + PILL_AIR * 2
+                                // lei, come sopra il FAB. Dalla `4.15` anche il menu inferiore.
+                                if (tall) PILL_KEY + PILL_AIR * 2 else controlRoom()
                             } else if (bin) BELOW_FAB else 16.dp
                         ),
                         modifier = Modifier.fillMaxWidth().backdropSource(backdrop).then(grab)
@@ -2665,13 +2665,20 @@ fun GridScreen(
              */
             FabPop(
                 visible = pillShown && shape == Adaptive.Shape.PHONE,
-                modifier = Modifier
-                    .align(fabSide())
-                    .windowInsetsPadding(steadyDrawing())
-                    .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                    .padding(8.dp)
+                // ⚠️ Il menu inferiore della `4.15` si posa in fondo a tutta larghezza, e tiene
+                // l'angolo per la sola pillola in cui si ripiega (`corner`).
+                modifier = Modifier.align(if (pillLook.bar) Alignment.BottomCenter else fabSide())
             ) {
                 PhonePillBar(
+                    corner = Modifier
+                        .windowInsetsPadding(steadyDrawing())
+                        .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+                        .padding(8.dp),
+                    mark = { d ->
+                        if (!bin) Marchio(d)
+                        else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
+                    },
+                    restLabel = stringResource(R.string.pick_actions),
                     entries = pillEntries,
                     arm = arm,
                     nested = paging,

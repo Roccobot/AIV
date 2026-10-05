@@ -123,11 +123,13 @@
     <string name="settings_hand">버튼 선호 위치</string>
     <string name="settings_hand_desc">한 손으로 사용할 때 주요 버튼이 놓일 선호 방향입니다. 오른손잡이와 왼손잡이 모두에 맞습니다. 플로팅 작업 버튼(\'FAB\')과 일부 탐색 버튼, 편집기 UI의 일부 위치를 정합니다.</string>
     <string name="settings_main_control">기본 조작 요소</string>
-    <string name="settings_main_control_desc">휴대폰을 세로로 들었을 때 앱을 조작할 방식을 고르세요: 메뉴가 있는 플로팅 버튼(\'FAB\') 또는 아이콘 알약.</string>
+    <string name="settings_main_control_desc">휴대폰을 세로로 들었을 때 앱을 조작할 방식을 고르세요: 메뉴가 있는 플로팅 버튼(\'FAB\'), 아이콘 알약 또는 하단 메뉴.</string>
     <string name="main_control_fab">플로팅 버튼</string>
     <string name="main_control_pill">아이콘 알약</string>
+    <string name="main_control_bar">하단 메뉴</string>
+    <string name="bar_fixed">고정</string>
     <string name="settings_button_look">기본 버튼 모양</string>
-    <string name="settings_button_look_desc">플로팅 버튼과 아이콘 알약에 적용됩니다.</string>
+    <string name="settings_button_look_desc">플로팅 버튼, 아이콘 알약, 하단 메뉴에 적용되는 채우기와 투명 또는 흐림 효과입니다.</string>
     <string name="pill_slide">접이식</string>
     <string name="pill_extended">펼침</string>
     <string name="pill_solid">불투명</string>
