@@ -167,6 +167,13 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
+- ⚠️ **Un allegato si rinomina e si cita** (richiesta dell'utente, 2026-10-05):
+  - `Rinomina allegato` cambia il solo `name` (l'estensione resta, e un nome scritto con
+    l'estensione non ne prende una seconda); l'originale e il suo `storageKey` non cambiano;
+  - mentre si scrive in un campo, un clic sull'allegato inserisce al cursore il suo nome con
+    l'estensione fra apici dritti (`'nome.png'`); la pressione è trattenuta, così il campo tiene
+    fuoco e cursore. Pensato per il desktop; da mobile funziona se il browser lascia il fuoco al
+    campo durante il tocco.
 - Collegamenti esterni in nuova scheda con `noopener noreferrer`. Il DF e le sue pagine di
   supporto usano la favicon `assets/feedback-favicon.svg` (il blocco note col glifo), colore
   `#43B59E`, e alternativa PNG. ⚠️ La paginetta di download `index.html` **non** la usa: ha il

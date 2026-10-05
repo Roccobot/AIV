@@ -775,7 +775,7 @@ def check(path):
             attachment_only.locator('.images').set_input_files(str(image))
             expect(attachment_only.locator('.image-list img')).to_have_count(1)
             expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
-            attachment_only.locator('.image-list button').click()
+            attachment_only.get_by_role('button', name='Rimuovi allegato').click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             if page.locator('.test').count() == 1:
                 first.locator('[data-status="Accettabile"]').click()
@@ -835,6 +835,25 @@ def check(path):
             notes_card.locator('.images').set_input_files(str(bad_zip))
             expect(page.locator('#action-message')).to_contain_text('ZIP non è riconosciuto')
             expect(notes_card.locator('.zip-download')).to_have_count(2)
+            # Rename (the user's request, 2026-10-05): the extension stays, and a name typed with
+            # it does not get a second one. Renamed back, so the checks below keep their names.
+            figura = first.locator('.image-list figure').first
+            page.once('dialog', lambda dialog: dialog.accept('schermata prova'))
+            figura.get_by_role('button', name='Rinomina allegato').click()
+            expect(figura.locator('figcaption')).to_have_text('schermata prova.png')
+            assert page.evaluate("draft.entries[spec.items[0].id].images[0].name") == 'schermata prova.png', 'Nome non scritto nella bozza.'
+            page.once('dialog', lambda dialog: dialog.accept('feedback.png'))
+            figura.get_by_role('button', name='Rinomina allegato').click()
+            expect(figura.locator('figcaption')).to_have_text('feedback.png')
+            # While writing in a field, a click on an attachment writes its name at the caret.
+            if page.locator('.test').count() > 2:
+                writing = page.locator('.test').nth(2)
+                writing.locator('.rich-editor').click()
+                page.keyboard.type('Vedi ')
+                figura.locator('img').click()
+                expect(writing.locator('.comment')).to_have_value("Vedi 'feedback.png'")
+                writing.locator('.rich-editor').fill('')
+                expect(writing.locator('.comment')).to_have_value('')
             page.locator('#floating-save').click()
             expect(page.locator('#saved')).to_contain_text('Salvato in questo browser')
             page.reload()
