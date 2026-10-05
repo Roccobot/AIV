@@ -2237,8 +2237,19 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
      * 'non lo so', e un lato lungo di zero non è una misura possibile.
      */
     var longSide by remember(uri) { mutableIntStateOf(Pixels.known(uri) ?: 0) }
+    /*
+     * ⚠️⚠️ **L'ANTEPRIMA ASPETTA LA RISPOSTA SULLA MISURA, RIUSCITA O NO, DALLA `4.32`** (sua
+     * segnalazione sulla `4.30`: lo zoom all'apertura c'era ancora con le info spente, e
+     * riaccendendole spariva). Senza la misura del file l'anteprima usa il ripiego qui sotto, che
+     * per una miniatura piccola vale `Inside`, cioè la sua misura: l'immagine compariva piccola e
+     * cresceva all'arrivo della misura, un attimo dopo. Con la barra delle info non succedeva perché
+     * l'anteprima aspetta già la barra, e intanto la misura arriva. Il prezzo è un'attesa quanto la
+     * lettura dell'intestazione del file, che con la misura in memoria non c'è.
+     */
+    var asked by remember(uri) { mutableStateOf(longSide > 0) }
     LaunchedEffect(uri) {
         if (longSide == 0) longSide = Pixels.longSideOf(context, uri) ?: 0
+        asked = true
     }
 
     val density = LocalDensity.current
@@ -2298,20 +2309,22 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
             else -> Modifier.fillMaxSize()
         }
 
-        standIn?.let {
+        if (asked) {
+            standIn?.let {
+                Image(
+                    painter = it,
+                    contentDescription = null,
+                    contentScale = scale,
+                    modifier = frame
+                )
+            }
             Image(
-                painter = it,
+                painter = painter,
                 contentDescription = null,
                 contentScale = scale,
                 modifier = frame
             )
         }
-        Image(
-            painter = painter,
-            contentDescription = null,
-            contentScale = scale,
-            modifier = frame
-        )
     }
 }
 

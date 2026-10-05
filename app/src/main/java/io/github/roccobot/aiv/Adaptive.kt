@@ -202,6 +202,10 @@ fun steadyDrawing(
      * all'immagine cresceva con lei, animato. Qui vale già lo spazio finale, cioè il solo ritaglio
      * del display (e la tastiera). La causa è dedotta e non misurata sul telefono: nel banco le
      * barre non esistono.
+     * ⚠️⚠️ **E NON ERA LA SOLA, NÉ FORSE LA VERA**: sulla `4.30` lo zoom restava con le info
+     * spente, cioè senza nessuna barra da misurare, e la causa di quel caso era l'anteprima
+     * disegnata prima di sapere la misura del file (`asked` in `Preview`, dalla `4.32`). Se questa
+     * riga serva anche con le info accese non è misurato.
      */
     viewer: Boolean = false
 ): WindowInsets {
