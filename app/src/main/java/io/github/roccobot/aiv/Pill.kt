@@ -18,6 +18,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -166,6 +168,9 @@ internal fun PillKey(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(size)
+                // ⚠️ The touch ripple is round (his note on the 4.04 round): it was the cell's
+                // square, which inside a rounded pill reads as a mistake.
+                .clip(CircleShape)
                 .combinedClickable(
                     enabled = enabled,
                     role = Role.Button,

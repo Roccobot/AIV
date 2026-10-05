@@ -252,6 +252,8 @@ class PillolaTest {
      * its round-key flag by hand, and passed while the pill never gave it.
      */
     @Test
+    // ⚠️ At a phone's density: at 1x the offset rounds to whole pixels, and 1.5dp becomes one.
+    @Config(qualifiers = "xxhdpi")
     fun `nel tasto tondo il marchio e piu piccolo e centrato sulla A`() {
         banco.setContent { Griglia(PhonePill.SLIDE) }
         banco.waitForIdle()
@@ -264,7 +266,8 @@ class PillolaTest {
         assertEquals(22f, segno.width / dp, 0.5f)
         // The A spans the whole width and 6..60 of the 60-unit height, so its box is centred.
         assertEquals(tasto.center.x, segno.center.x, 0.5f * dp)
-        assertEquals(tasto.center.y, segno.top + segno.height * 33f / 60f, 0.5f * dp)
+        // And from 4.05 it sits 1.5dp higher still, his optical correction.
+        assertEquals(tasto.center.y - 1.5f * dp, segno.top + segno.height * 33f / 60f, 0.5f * dp)
     }
 
     /** **Below Android 12 the glass chip is not there** (the user's answer, 2026-10-05). */

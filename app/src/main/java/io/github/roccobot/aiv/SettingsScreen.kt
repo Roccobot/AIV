@@ -855,6 +855,22 @@ private fun ColumnScope.RootPage(
     Section(stringResource(R.string.settings_group_look)) {
 
         /*
+         * ⚠️⚠️ **PRIMA SOTTO-PAGINA DI ASPETTO, DALLA `4.05`, ED È IL POSTO CHE HA DETTO LUI** (nota
+         * del giro della `4.04`: *sposta 'Pulsanti e indicatori' al primo posto della schermata
+         * principale delle impostazioni, prima di 'Tema e dettagli grafici'*). Dalla `3.41` era
+         * l'ultima; prima si chiamava 'Etichette e pulsanti' e stava sotto 'Comandi e indicatori'.
+         */
+        PageOfRows(
+            label = stringResource(R.string.settings_page_controls),
+            summary = listOf(
+                stringResource(R.string.settings_hand),
+                stringResource(R.string.settings_labels),
+                stringResource(R.string.settings_buttons)
+            ).joinToString(SUMMARY_JOIN),
+            onOpen = { onOpen(Page.CONTROLS) }
+        ) { ControlsPage(settings = settings, onChange = onChange, onOpen = onOpen) }
+
+        /*
          * ⚠️⚠️ **TEMA E PANNELLI SCENDONO DI UN LIVELLO DALLA `3.40`** (`3.27-03`): restano
          * la stessa famiglia 'Aspetto', ma dietro una porta come Cartelle/Visualizzatore,
          * così la radice non ammucchia gettoni accanto alle porte.
@@ -923,20 +939,6 @@ private fun ColumnScope.RootPage(
             onOpen = { onOpen(Page.INFO) }
         ) { InfoPage(settings = settings, onChange = onChange, onOpen = onOpen) }
 
-        /*
-         * ⚠️⚠️ **ULTIMA SOTTO-PAGINA DI ASPETTO, DALLA `3.41`** (`3.40-04`): si chiamava
-         * 'Etichette e pulsanti' e stava sotto 'Comandi e indicatori'. Quella sezione non
-         * c'è più. Il titolo nuovo è 'Pulsanti e indicatori'.
-         */
-        PageOfRows(
-            label = stringResource(R.string.settings_page_controls),
-            summary = listOf(
-                stringResource(R.string.settings_hand),
-                stringResource(R.string.settings_labels),
-                stringResource(R.string.settings_buttons)
-            ).joinToString(SUMMARY_JOIN),
-            onOpen = { onOpen(Page.CONTROLS) }
-        ) { ControlsPage(settings = settings, onChange = onChange, onOpen = onOpen) }
     }
 
     /*

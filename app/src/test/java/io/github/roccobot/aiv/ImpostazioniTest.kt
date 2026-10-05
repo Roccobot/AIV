@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -332,6 +333,13 @@ class ImpostazioniTest {
 
         banco.onNode(hasText(vecchia) and isHeading()).assertDoesNotExist()
         banco.onNodeWithText(mano).assertDoesNotExist()
+        // ⚠️ Dalla `4.05` è la prima porta di 'Aspetto', sopra 'Tema e dettagli grafici' (sua nota).
+        // ⚠️ `positionInRoot` e non `boundsInRoot`: una porta fuori dallo schermo ha i limiti tagliati
+        // a zero, e con quelli la prova passava anche con la porta in fondo.
+        val primaTema = banco.onNodeWithText(testo(R.string.settings_page_look), substring = false)
+            .fetchSemanticsNode().positionInRoot.y
+        val primaPulsanti = banco.onNodeWithText(porta, substring = false).fetchSemanticsNode().positionInRoot.y
+        assertTrue("'Pulsanti e indicatori' non è la prima porta di Aspetto", primaPulsanti < primaTema)
         banco.onNodeWithText(porta, substring = false).performScrollTo().performClick()
         banco.waitForIdle()
         banco.onNodeWithText(mano).assertExists()
