@@ -45,6 +45,10 @@ try {
   assert.deepEqual((await fixture.db.query('select count(*)::int as count from public.aiv_feedback_history')).rows,before.rows);
   assert.equal(JSON.parse((await store.get(store.prefix+'current.json')).body).notes,'Modifica privata successiva, non ancora inviata');
   const requestedAt=new Date().toISOString();
+  // The second send must come strictly after the request. PGlite's now() has millisecond
+  // resolution and matched Date.now() in 284 samples out of 300 (measured), so a save in the
+  // same millisecond counted as 'not after the request' and the test failed once on GitHub.
+  while (Date.now()<=Date.parse(requestedAt)) await new Promise(r=>setTimeout(r,1));
   await save({...sent,notes:'Secondo invio, versione aggiornata'});
   assert.equal((await submittedFeedback(env)).notes,'Secondo invio, versione aggiornata');
   assert.equal((await submittedFeedback(env,'',requestedAt)).notes,'Primo giro inviato');
