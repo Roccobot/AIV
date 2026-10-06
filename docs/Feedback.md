@@ -1,16 +1,16 @@
 # Feedback AIV
 
-Versione **4.37**: le note del giro 4.36. Le frecce su e giù un poco più spesse, le due frasi dei veli d'aiuto che dicono 'il pulsante', l'`Opacità` di fabbrica al 40%, `Estensione` senza salto e le linee dei terzi in `Raddrizza`.
+Versione **4.38**: i pannelli nudi, senza il bordo d'accento, e le frecce su e giù ancora un poco più spesse.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.37 è pubblicata: [v4.37](https://github.com/Roccobot/AIV/releases/tag/v4.37), con l'APK
-[AIV-4.37.apk](https://github.com/Roccobot/AIV/releases/download/v4.37/AIV-4.37.apk).
-Commit prodotto su `main`: `b369e61`, release dal commit `b369e61` (SlimVer 4.37 / versionCode 326; APK 8.466.453 byte, digest `1288d546`).
+La Release 4.38 è pubblicata: [v4.38](https://github.com/Roccobot/AIV/releases/tag/v4.38), con l'APK
+[AIV-4.38.apk](https://github.com/Roccobot/AIV/releases/download/v4.38/AIV-4.38.apk).
+Commit prodotto su `main`: `f372ae0`, release dal commit `f372ae0` (SlimVer 4.38 / versionCode 327; APK 8.466.477 byte, digest `6f05e54d`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor e HEIC restano chiusi. Giro **4.37**: cinque prove nuove dalle note del giro 4.36. Giro **4.36**: `4.36-01` e `4.36-03` OK, `4.36-02` accettabile e ripresa in `4.37-01`.
+Lati editor e HEIC restano chiusi. Giro **4.38**: due prove nuove. Giro **4.37**: `4.37-01`-`4.37-05` tutte OK.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -23,35 +23,20 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.37 sono superate: banco di prova completo (590 prove), controllo delle 28 traduzioni, controllo delle icone e compilazione.
+Le verifiche automatiche della 4.38 sono superate: banco di prova completo (592 prove), controllo delle icone e compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.37-01 | Non provato | | Attendere il collaudo. |
-| 4.37-02 | Non provato | | Attendere il collaudo. |
-| 4.37-03 | Non provato | | Attendere il collaudo. |
-| 4.37-04 | Non provato | | Attendere il collaudo. |
-| 4.37-05 | Non provato | | Attendere il collaudo. |
+| 4.38-01 | Non provato | | Attendere il collaudo. |
+| 4.38-02 | Non provato | | Attendere il collaudo. |
 
-## 1. Le frecce su e giù un poco più spesse
+## 1. I pannelli nudi
 
-Scorri una cartella con un gesto veloce: la freccia su o giù ha la stessa forma e lo stesso vertice della 4.36, con il tratto più spesso di 0,3dp, come hai chiesto in `4.36-02`. Confrontala con le icone accanto.
+Apri un menu qualunque, le `Informazioni` di un'immagine e una conferma, come `Svuota il cestino`, in tutti e due i temi: nessun pannello ha più il bordo d'accento. Si staccano dallo sfondo col solo colore della superficie, sopra la sfocatura e il velo. È la variante A del [mockup](https://claude.ai/artifact/CueMxi6gDkJqYbMVymeWPT). Le misure non cambiano, perché il bordo era disegnato sopra il pannello e non occupava spazio. Se cambi idea, il bordo torna com'era con una riga di codice.
 
-## 2. Le frasi dei veli d'aiuto
+## 2. Le frecce su e giù ancora un poco più spesse
 
-In `Impostazioni` tocca `Ripristina gli avvisi`, poi torna alla schermata iniziale con il FAB o con una pillola: il velo dice `Scorciatoia: tieni premuto il pulsante per le opzioni di visualizzazione.` Entra nel cestino: il velo dice `Scorciatoia: tieni premuto il pulsante per svuotare il cestino.` Sono le tue frasi, e la stessa correzione è nelle altre lingue.
-
-## 3. L'Opacità di fabbrica al 40%
-
-Con l'aspetto `Traslucido`, in `Tema e dettagli grafici` tocca `Ripristina`: `Opacità` torna al 40% e non più al 20%. Gli altri valori della tua schermata (Raggio 16dp, Intensità 300%, Scostamento 35%, colori predefiniti) erano già quelli di fabbrica. Chi ha già l'app tiene i valori che ha finché non tocca `Ripristina`.
-
-## 4. Estensione senza salto
-
-Con `Consenti la modifica dell'estensione` acceso per la rinomina, in una cartella seleziona un file, tocca `Rinomina`, poi `Estensione`: la finestra deve comparire ferma, con la tastiera già aperta sul campo. Prima il campo non prendeva il fuoco, la tastiera di `Rinomina` si chiudeva e le due finestre si ridisponevano mentre spariva: la causa è ragionata e non misurata, perché sul banco non c'è una tastiera. Se il salto resta, dimmi se la tastiera si chiude e si riapre.
-
-## 5. Le linee dei terzi in Raddrizza
-
-Apri un'immagine nell'editor completo, modulo `Geometria`, e trascina `Raddrizza`: mentre il dito è sul cursore compaiono due linee verticali e due orizzontali, ai terzi dell'immagine, e spariscono quando lo lasci. Per restare visibili su qualunque immagine sono una linea chiara su un alone scuro e non un colore scelto dall'immagine: una linea dell'orizzonte attraversa cielo e terra, e un colore solo sparirebbe su metà della sua lunghezza. Se toccando la barra senza strisciare le linee restano un istante dopo il rilascio, è l'attesa del doppio tocco che azzera il cursore.
+Scorri una cartella con un gesto veloce: la freccia su o giù ha altri 0,3dp di tratto, come hai chiesto in `4.37-01`. La 4.37 era passata da 2 a 2,33 unità su 24, cioè 0,3dp; adesso è a 2,66.
 
 ## Decisioni da concordare
 
@@ -61,19 +46,18 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Le frecce su e giù un poco più spesse | 4.37-01 | Non provato | | Attendere il collaudo. |
-| Le frasi dei veli d'aiuto | 4.37-02 | Non provato | | Attendere il collaudo. |
-| L'Opacità di fabbrica al 40% | 4.37-03 | Non provato | | Attendere il collaudo. |
-| Estensione senza salto | 4.37-04 | Non provato | | Attendere il collaudo. |
-| Le linee dei terzi in Raddrizza | 4.37-05 | Non provato | | Attendere il collaudo. |
-| La dissolvenza al posto dei cambi netti | 4.36-01 | OK | Funziona, va tutto molto meglio. | Archiviata. |
-| I glifi su e giù più sottili | 4.36-02 | Accettabile | Troppo sottili: 0,3dp in più. | Ripresa in `4.37-01`. |
-| I tasti della pillola aperta centrati | 4.36-03 | OK | Tutto OK. | Archiviata. |
+| I pannelli nudi | 4.38-01 | Non provato | | Attendere il collaudo. |
+| Le frecce su e giù ancora un poco più spesse | 4.38-02 | Non provato | | Attendere il collaudo. |
+| Le frecce su e giù un poco più spesse | 4.37-01 | OK | Quasi bene, un altro 0,3dp non guasterebbe. | Ripresa in `4.38-02`. |
+| Le frasi dei veli d'aiuto | 4.37-02 | OK | Tutto OK. | Archiviata. |
+| L'Opacità di fabbrica al 40% | 4.37-03 | OK | Tutto OK. | Archiviata. |
+| Estensione senza salto | 4.37-04 | OK | Tutto OK. | Archiviata. |
+| Le linee dei terzi in Raddrizza | 4.37-05 | OK | Tutto OK. | Archiviata. |
 
 ## Prossimi passi
 
-- **In collaudo**: frecce più spesse, frasi dei veli, `Opacità` al 40%, `Estensione` senza salto, terzi in `Raddrizza` (`4.37-01`-`4.37-05`).
+- **In collaudo**: pannelli nudi, frecce più spesse (`4.38-01`, `4.38-02`).
 - **Prossima versione**: il modulo Disegno, prima fase (4.40: mano libera, segmenti, frecce, rettangoli, ellissi, colore e tratto), ultimo a destra nella fila dei moduli, con l'icona di Material dagli spigoli esterni arrotondati e le tue risposte D1a, D2a, D3a e D4a.
-- **Concluso**: dissolvenza ai cambi netti, tasti della pillola centrati (`4.36-01`, `4.36-03`).
+- **Concluso**: frasi dei veli, `Opacità` al 40%, `Estensione` senza salto, terzi in `Raddrizza` (`4.37-02`-`4.37-05`).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
