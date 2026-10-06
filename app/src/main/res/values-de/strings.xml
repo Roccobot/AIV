@@ -393,7 +393,7 @@
         <item quantity="one">%1$d Angabe sichtbar</item>
         <item quantity="other">%1$d Angaben sichtbar</item>
     </plurals>
-    <string name="bin_empty_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um den Papierkorb zu leeren.</string>
+    <string name="bin_empty_hint">Kurzbefehl: Halte die Schaltfläche gedrückt, um den Papierkorb zu leeren.</string>
     <string name="facts_title">Informationen</string>
     <string name="settings_reset_hints">Hinweise zurückholen</string>
     <string name="settings_reset_hints_desc">Die Mini-Anleitungen, die Einführung, die Tipps und die Hinweise, die sonst nur beim ersten Start erscheinen, werden wieder sichtbar (einmalig).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">Groß</string>
     <string name="tree_show_hidden">Versteckte Dateien zeigen</string>
     <string name="tree_pictures">Nur Ordner mit Bildern oder Videos</string>
-    <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
+    <string name="columns_hint">Kurzbefehl: Halte die Schaltfläche für die Anzeigeoptionen gedrückt.</string>
     <string name="corner_hint">Tippe auf die Taste in der Ecke, um das Menü zu öffnen: Es enthält alle wichtigen Befehle; halte sie gedrückt für die Anzeigeoptionen. In den Einstellungen kannst du die Seite der Taste ändern, wenn du willst.</string>
     <string name="start_pill">Pille</string>
     <string name="start_round">Rund</string>

@@ -641,7 +641,7 @@
         <item quantity="other">%1$d campi visualizzati</item>
         <item quantity="many">%1$d campi visualizzati</item>
     </plurals>
-    <string name="bin_empty_hint">Scorciatoia: tieni premuto il tasto flottante per svuotare il cestino.</string>
+    <string name="bin_empty_hint">Scorciatoia: tieni premuto il pulsante per svuotare il cestino.</string>
     <string name="facts_title">Informazioni</string>
     <string name="settings_reset_hints">Ripristina gli avvisi</string>
     <string name="settings_reset_hints_desc">I mini-tutorial, gli onboarding, i suggerimenti e gli avvisi, visualizzati di norma solo al primo avvio, tornano visibili (una sola volta).</string>
@@ -664,7 +664,7 @@
     <string name="text_large">Grande</string>
     <string name="tree_show_hidden">Mostra i file nascosti</string>
     <string name="tree_pictures">Solo cartelle con immagini/video</string>
-    <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per le opzioni di visualizzazione.</string>
+    <string name="columns_hint">Scorciatoia: tieni premuto il pulsante per le opzioni di visualizzazione.</string>
     <string name="corner_hint">Tocca il tasto nell\'angolo per accedere al menu: contiene tutti i comandi principali; tienilo premuto per le opzioni di visualizzazione. Dalle impostazioni, se vuoi, puoi cambiare il lato del pulsante.</string>
     <string name="start_pill">Pillola</string>
     <string name="start_round">Tondo</string>

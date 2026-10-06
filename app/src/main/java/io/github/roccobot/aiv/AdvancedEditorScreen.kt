@@ -758,6 +758,7 @@ fun AdvancedEditorScreen(
                         selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
                         healingRadius = { gaze.healingRadius },
                         healingSizing = { gaze.healingSizing },
+                        leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -911,6 +912,7 @@ fun AdvancedEditorScreen(
                         selection = gaze.selection.takeIf { MODULES[gaze.module].extra == Extra.HEALING },
                         healingRadius = { gaze.healingRadius },
                         healingSizing = { gaze.healingSizing },
+                        leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -1224,6 +1226,8 @@ private fun LookStage(
     healingRadius: () -> Float,
     healingSizing: () -> Boolean,
     onHealPaint: (List<Offset>) -> Unit,
+    /** Whether the rule-of-thirds lines are on: see [Gaze.leveling]. */
+    leveling: () -> Boolean,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -2202,6 +2206,8 @@ private fun LookStage(
             }
         }
 
+        if (leveling()) levelThirds(visto, room)
+
         if (liquifying() || healing()) {
             val radius = (if (healing()) healingRadius() else brushRadius()) * max(view.width(), view.height())
             val touching = brushAt
@@ -2329,6 +2335,41 @@ private fun nearestCorner(at: Offset, spots: List<Offset>, reach: Float): Int {
     }
     return best
 }
+
+/**
+ * The rule-of-thirds lines over the image while 'Raddrizza' moves (note E on the 4.36 round:
+ * two vertical and two horizontal lines, always visible, gone when the dial is released).
+ *
+ * ⚠️ **The thirds are those of the image [image], drawn only where it is on screen** ([room]):
+ * a zoomed image keeps its thirds where they are, and a line outside the stage helps nobody.
+ * ⚠️⚠️ **Visible on any image means two strokes, not one colour**: a light line under a dark
+ * halo. A colour picked from the image would serve one background, and a horizon line crosses
+ * sky and ground, so it would vanish on half of its length. The reading is declared in the
+ * test entry.
+ */
+private fun DrawScope.levelThirds(image: RectF, room: Size) {
+    val left = max(0f, image.left)
+    val top = max(0f, image.top)
+    val right = min(room.width, image.right)
+    val bottom = min(room.height, image.bottom)
+    if (right <= left || bottom <= top) return
+    val thin = LEVEL_LINE.toPx()
+    val halo = thin + 2f * LEVEL_HALO.toPx()
+    for (i in 1..2) {
+        val x = image.left + image.width() * i / 3f
+        val y = image.top + image.height() * i / 3f
+        for ((ink, width) in listOf(Color.Black.copy(alpha = 0.45f) to halo, Color.White to thin)) {
+            if (x in left..right) drawLine(ink, Offset(x, top), Offset(x, bottom), width)
+            if (y in top..bottom) drawLine(ink, Offset(left, y), Offset(right, y), width)
+        }
+    }
+}
+
+/** The light stroke of [levelThirds]. */
+private val LEVEL_LINE = 1.dp
+
+/** How far the dark halo of [levelThirds] reaches on each side of the light stroke. */
+private val LEVEL_HALO = 1.dp
 
 /**
  * Il velo, il riquadro che resterà e le quattro maniglie dello strumento 'Angoli'.
@@ -3160,6 +3201,17 @@ private val EFFECT_ROWS = listOf(
 )
 
 /**
+ * The 'Raddrizza' dial, named because the stage draws the rule-of-thirds lines while it moves
+ * (see [Gaze.leveling]). The identity of the row decides it, as for [FILTER_ROW]: an index would
+ * move the day a dial is added in front of it.
+ */
+private val STRAIGHTEN_ROW = Dial(
+    R.string.look_straighten,
+    { it.geo.straighten },
+    { k, v -> k.copy(geo = k.geo.copy(straighten = v)) }
+)
+
+/**
  * I cinque cursori del **Geometria**, nell'ordine del pannello di Lightroom: raddrizzamento,
  * proporzioni, orizzontale, verticale, distorsione.
  *
@@ -3180,11 +3232,7 @@ private val EFFECT_ROWS = listOf(
  * grado vive.
  */
 private val GEO_ROWS = listOf(
-    Dial(
-        R.string.look_straighten,
-        { it.geo.straighten },
-        { k, v -> k.copy(geo = k.geo.copy(straighten = v)) }
-    ),
+    STRAIGHTEN_ROW,
     Dial(
         R.string.look_aspect,
         { it.geo.aspect },
@@ -3764,6 +3812,15 @@ private class Gaze(
     var brushRadius by mutableFloatStateOf(0.10f)
     var brushSizing by mutableStateOf(false)
     var brushStrength by mutableFloatStateOf(0.50f)
+
+    /**
+     * Whether a finger is on the 'Raddrizza' dial: the stage draws the rule-of-thirds lines.
+     *
+     * ⚠️ Note E on the 4.36 round: the lines appear while the image is slightly rotated with
+     * 'Raddrizza' and disappear when the dial is released. Like [brushSizing] it is a gesture,
+     * not a choice, so it is not saved across a rotation.
+     */
+    var leveling by mutableStateOf(false)
 
     companion object {
         /**
@@ -4812,6 +4869,9 @@ private fun ModuleBody(
                 onSettled = onSettled
             )
         }
+        if (knob === STRAIGHTEN_ROW) {
+            DisposableEffect(gaze) { onDispose { gaze.leveling = false } }
+        }
         key(knob) {
             LookKnob(
                 name = stringResource(knob.name),
@@ -4827,8 +4887,14 @@ private fun ModuleBody(
                  */
                 enabled = ready && !busy && !knob.off(look),
                 nameWidth = nameWidth,
-                onLive = { v -> dialAt(riga)?.let { onLive(it.set(v)) } },
-                onSettled = onSettled,
+                onLive = { v ->
+                    if (knob === STRAIGHTEN_ROW) gaze.leveling = true
+                    dialAt(riga)?.let { onLive(it.set(v)) }
+                },
+                onSettled = {
+                    gaze.leveling = false
+                    onSettled()
+                },
                 /*
                  * ⚠️ **Il confronto si costruisce QUI**, con lo stesso `set` con cui il
                  * cursore scrive: è l'immagine di adesso con questo solo campo a zero,

@@ -410,7 +410,7 @@
         <item quantity="many">%1$d datos visibles</item>
         <item quantity="other">%1$d datos visibles</item>
     </plurals>
-    <string name="bin_empty_hint">Atajo: mantén pulsado el botón flotante para vaciar la papelera.</string>
+    <string name="bin_empty_hint">Atajo: mantén pulsado el botón para vaciar la papelera.</string>
     <string name="facts_title">Información</string>
     <string name="settings_reset_hints">Volver a ver los avisos</string>
     <string name="settings_reset_hints_desc">Los minitutoriales, la introducción, los consejos y los avisos, que normalmente solo se ven en el primer inicio, vuelven a ser visibles (una sola vez).</string>
@@ -430,7 +430,7 @@
     <string name="text_large">Grande</string>
     <string name="tree_show_hidden">Mostrar archivos ocultos</string>
     <string name="tree_pictures">Solo carpetas con imágenes o vídeos</string>
-    <string name="columns_hint">Atajo: mantén pulsado el botón flotante para las opciones de visualización.</string>
+    <string name="columns_hint">Atajo: mantén pulsado el botón para las opciones de visualización.</string>
     <string name="corner_hint">Toca el botón de la esquina para abrir el menú: tiene todos los comandos principales; mantenlo pulsado para las opciones de visualización. Si quieres, en los ajustes puedes cambiar el lado del botón.</string>
     <string name="start_pill">Píldora</string>
     <string name="start_round">Redondo</string>

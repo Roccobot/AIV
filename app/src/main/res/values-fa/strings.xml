@@ -393,7 +393,7 @@
         <item quantity="one">%1$d مورد نمایش داده می‌شود</item>
         <item quantity="other">%1$d مورد نمایش داده می‌شود</item>
     </plurals>
-    <string name="bin_empty_hint">میان‌بر: دکمه شناور را نگه دارید تا سبد زباله خالی شود.</string>
+    <string name="bin_empty_hint">میان‌بر: دکمه را نگه دارید تا سبد زباله خالی شود.</string>
     <string name="facts_title">اطلاعات</string>
     <string name="settings_reset_hints">بازگرداندن راهنماها</string>
     <string name="settings_reset_hints_desc">آموزش‌های کوتاه، معرفی، نکته‌ها و هشدارها که معمولاً تنها در نخستین اجرا دیده می‌شوند، دوباره نمایان می‌شوند (تنها یک بار).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">بزرگ</string>
     <string name="tree_show_hidden">نمایش پرونده‌های پنهان</string>
     <string name="tree_pictures">فقط پوشه‌های دارای تصویر یا ویدیو</string>
-    <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا گزینه‌های نمایش باز شود.</string>
+    <string name="columns_hint">میان‌بر: دکمه را نگه دارید تا گزینه‌های نمایش باز شود.</string>
     <string name="corner_hint">برای باز کردن منو، دکمهٔ گوشه را لمس کنید: همهٔ فرمان‌های اصلی در آن است؛ برای گزینه‌های نمایش آن را نگه دارید. اگر بخواهید، از تنظیمات می‌توانید سمت دکمه را عوض کنید.</string>
     <string name="start_pill">قرص</string>
     <string name="start_round">گرد</string>

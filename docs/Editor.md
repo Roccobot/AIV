@@ -498,6 +498,18 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   copertura più alta, dichiarato; la corsa non cambia (sua risposta `bene`).
 - ⚠️⚠️ **La distorsione ha il fondo corsa 0,12**, sotto il tetto oltre il quale il disegno si
   ripiega. Lo ha trovato il banco da un colore mirato sbagliato, senza nessun errore sul palco.
+- ⚠️⚠️ **Mentre il dito muove 'Raddrizza' compaiono le linee dei terzi**, due verticali e due
+  orizzontali, e spariscono quando il cursore si lascia (nota E del giro della `4.36`, dalla
+  `4.37`). Sono i terzi del riquadro dell'immagine, disegnati dove l'immagine è sullo schermo
+  (`levelThirds`), e a dirlo è l'identità della riga (`STRAIGHTEN_ROW`).
+  - ⚠️ **'Sempre visibili' è letto come due tratti e non come un colore**: una linea chiara su un
+    alone scuro. Un colore scelto dall'immagine servirebbe un fondo solo, e la linea
+    dell'orizzonte attraversa cielo e terra. La lettura è dichiarata nella voce di collaudo.
+  - ⚠️ **Toccando la barra senza strisciare le linee restano per il tempo del doppio tocco**
+    (circa 0,3 secondi): il cursore aspetta di sapere se i tocchi erano due prima di chiudere il
+    gesto.
+  - La prova è in `SviluppoTest`, sui due fotogrammi con lo stesso valore, col dito giù e dopo il
+    rilascio.
 - **Il colore mirato passa dalla mappatura inversa** (`WarpPlan.back`), perché il dito tocca
   l'immagine deformata.
 - ⚠️ **Col modulo mosso il pezzo a piena risoluzione non si legge**, e si dichiara.

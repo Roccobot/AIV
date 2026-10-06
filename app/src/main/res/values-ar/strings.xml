@@ -461,7 +461,7 @@
         <item quantity="many">%1$d عنصرا ظاهرا</item>
         <item quantity="other">%1$d عنصر ظاهر</item>
     </plurals>
-    <string name="bin_empty_hint">اختصار: اضغط مطولا على الزر العائم لإفراغ سلة المهملات.</string>
+    <string name="bin_empty_hint">اختصار: اضغط مطولا على الزر لإفراغ سلة المهملات.</string>
     <string name="facts_title">معلومات</string>
     <string name="settings_reset_hints">إرجاع التلميحات</string>
     <string name="settings_reset_hints_desc">تعود الشروح المصغّرة والتعريف والتلميحات والتنبيهات، التي تظهر عادةً عند أول تشغيل فقط، إلى الظهور مرةً واحدة.</string>
@@ -481,7 +481,7 @@
     <string name="text_large">كبير</string>
     <string name="tree_show_hidden">إظهار الملفات المخفية</string>
     <string name="tree_pictures">المجلدات التي بها صور أو فيديو فقط</string>
-    <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لفتح خيارات العرض.</string>
+    <string name="columns_hint">اختصار: اضغط مطولا على الزر لفتح خيارات العرض.</string>
     <string name="corner_hint">المس الزر في الزاوية لفتح القائمة: فيها كل الأوامر الرئيسية؛ واضغط عليه مطولًا لخيارات العرض. ويمكنك من الإعدادات، إن شئت، تغيير جانب الزر.</string>
     <string name="start_pill">الشريط</string>
     <string name="start_round">دائري</string>

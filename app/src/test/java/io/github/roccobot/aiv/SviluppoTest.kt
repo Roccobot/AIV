@@ -1136,6 +1136,56 @@ class SviluppoTest {
         )
     }
 
+    /**
+     * **'Raddrizza' shows the rule-of-thirds lines while the finger moves it, and only then**
+     * (note E on the 4.36 round).
+     *
+     * ⚠️ **The two frames have the same value**: one with the finger still on the dial, one
+     * after the release. The rotation is the same in both, so what differs are the lines alone,
+     * and every pixel that differs must lie on one of the four thirds of the image box, which
+     * the bench finds in the pixels (the white preview covers its box once straightened).
+     * ⚠️ **Counter-tested** by removing the call to `levelThirds`: no pixel differs.
+     */
+    @Test
+    fun `Raddrizza mostra i terzi solo mentre il dito tiene il cursore`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        // Down away from the knob, so the value jumps at once; then a short move.
+        cursore(0).performTouchInput { down(Offset(width * 0.62f, height / 2f)) }
+        cursore(0).performTouchInput { moveTo(Offset(width * 0.66f, height / 2f)) }
+        banco.waitForIdle()
+        val tenuto = palco.captureToImage().toPixelMap()
+        cursore(0).performTouchInput { up() }
+        banco.waitForIdle()
+        val lasciato = palco.captureToImage().toPixelMap()
+        assertTrue("the dial had to move the image", valore(0) != 0f)
+
+        val riga = lasciato.height / 2
+        val colonna = lasciato.width / 2
+        val fondo = lasciato[0, riga]
+        val sinistra = (0 until lasciato.width).first { lasciato[it, riga] != fondo }
+        val destra = (lasciato.width - 1 downTo 0).first { lasciato[it, riga] != fondo }
+        val alto = (0 until lasciato.height).first { lasciato[colonna, it] != fondo }
+        val basso = (lasciato.height - 1 downTo 0).first { lasciato[colonna, it] != fondo }
+        val xs = listOf(1, 2).map { sinistra + (destra + 1 - sinistra) * it / 3f }
+        val ys = listOf(1, 2).map { alto + (basso + 1 - alto) * it / 3f }
+
+        var diversi = 0
+        for (y in 0 until tenuto.height) for (x in 0 until tenuto.width) {
+            if (tenuto[x, y] == lasciato[x, y]) continue
+            diversi++
+            assertTrue(
+                "pixel $x,$y differs off the thirds",
+                xs.any { abs(x + 0.5f - it) <= 4f } || ys.any { abs(y + 0.5f - it) <= 4f }
+            )
+        }
+        assertTrue("the thirds had to be drawn while the finger was down", diversi > 0)
+    }
+
     /** I quattro vertici del rettangolo deformato, in senso orario da quello in alto a sinistra. */
     private fun quattroAngoli(geo: Geometry, w: Float, h: Float): List<FloatArray> {
         val nudo = senzaCopertura(Warp.plan(geo, cx = w / 2f, cy = h / 2f, w = w, h = h))

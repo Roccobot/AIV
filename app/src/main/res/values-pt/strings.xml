@@ -410,7 +410,7 @@
         <item quantity="many">%1$d dados visíveis</item>
         <item quantity="other">%1$d dados visíveis</item>
     </plurals>
-    <string name="bin_empty_hint">Atalho: mantenha o botão flutuante pressionado para esvaziar a lixeira.</string>
+    <string name="bin_empty_hint">Atalho: mantenha o botão pressionado para esvaziar a lixeira.</string>
     <string name="facts_title">Informações</string>
     <string name="settings_reset_hints">Ver os avisos de novo</string>
     <string name="settings_reset_hints_desc">Os minitutoriais, a introdução, as dicas e os avisos, normalmente exibidos apenas no primeiro início, voltam a ficar visíveis (uma só vez).</string>
@@ -430,7 +430,7 @@
     <string name="text_large">Grande</string>
     <string name="tree_show_hidden">Mostrar arquivos ocultos</string>
     <string name="tree_pictures">Só pastas com imagens ou vídeos</string>
-    <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para as opções de exibição.</string>
+    <string name="columns_hint">Atalho: mantenha o botão pressionado para as opções de exibição.</string>
     <string name="corner_hint">Toque no botão do canto para abrir o menu: ele contém todos os comandos principais; mantenha-o pressionado para as opções de visualização. Se quiser, nas configurações você pode mudar o lado do botão.</string>
     <string name="start_pill">Pílula</string>
     <string name="start_round">Redondo</string>

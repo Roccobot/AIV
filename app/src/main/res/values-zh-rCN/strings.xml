@@ -376,7 +376,7 @@
     <plurals name="settings_facts_count">
         <item quantity="other">显示 %1$d 项</item>
     </plurals>
-    <string name="bin_empty_hint">快捷操作：长按悬浮按钮可清空回收站。</string>
+    <string name="bin_empty_hint">快捷操作：长按按钮可清空回收站。</string>
     <string name="facts_title">信息</string>
     <string name="settings_reset_hints">重新显示提示</string>
     <string name="settings_reset_hints_desc">通常只在首次启动时出现的小教程、引导、提示和提醒会再次显示（仅一次）。</string>
@@ -396,7 +396,7 @@
     <string name="text_large">大</string>
     <string name="tree_show_hidden">显示隐藏文件</string>
     <string name="tree_pictures">仅含图片或视频的文件夹</string>
-    <string name="columns_hint">快捷方式：长按悬浮按钮打开显示选项。</string>
+    <string name="columns_hint">快捷方式：长按按钮打开显示选项。</string>
     <string name="corner_hint">点按角落的按钮打开菜单：其中包含所有主要命令；长按可打开显示选项。如有需要，可在设置中更换按钮所在的一侧。</string>
     <string name="start_pill">胶囊</string>
     <string name="start_round">圆形</string>

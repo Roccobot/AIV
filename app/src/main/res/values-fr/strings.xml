@@ -410,7 +410,7 @@
         <item quantity="many">%1$d données affichées</item>
         <item quantity="other">%1$d données affichées</item>
     </plurals>
-    <string name="bin_empty_hint">Raccourci: appuyez longuement sur le bouton flottant pour vider la corbeille.</string>
+    <string name="bin_empty_hint">Raccourci : appuyez longuement sur le bouton pour vider la corbeille.</string>
     <string name="facts_title">Informations</string>
     <string name="settings_reset_hints">Revoir les astuces</string>
     <string name="settings_reset_hints_desc">Les mini-tutoriels, l\'introduction, les conseils et les avertissements, normalement affichés au seul premier démarrage, redeviennent visibles (une seule fois).</string>
@@ -430,7 +430,7 @@
     <string name="text_large">Grand</string>
     <string name="tree_show_hidden">Afficher les fichiers cachés</string>
     <string name="tree_pictures">Seulement les dossiers avec images ou vidéos</string>
-    <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
+    <string name="columns_hint">Raccourci : appuyez longuement sur le bouton pour les options d\'affichage.</string>
     <string name="corner_hint">Touchez le bouton dans le coin pour ouvrir le menu : il contient toutes les commandes principales ; maintenez-le appuyé pour les options d\'affichage. Dans les réglages, vous pouvez changer le côté du bouton, si vous le souhaitez.</string>
     <string name="start_pill">Pilule</string>
     <string name="start_round">Rond</string>

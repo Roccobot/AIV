@@ -376,7 +376,7 @@
     <plurals name="settings_facts_count">
         <item quantity="other">%1$d data ditampilkan</item>
     </plurals>
-    <string name="bin_empty_hint">Pintasan: tekan dan tahan tombol mengambang untuk mengosongkan tempat sampah.</string>
+    <string name="bin_empty_hint">Pintasan: tekan dan tahan tombol untuk mengosongkan tempat sampah.</string>
     <string name="facts_title">Informasi</string>
     <string name="settings_reset_hints">Tampilkan lagi petunjuknya</string>
     <string name="settings_reset_hints_desc">Tutorial singkat, pengenalan, kiat, dan peringatan yang biasanya hanya tampil saat pertama kali dijalankan akan tampil lagi (sekali saja).</string>
@@ -396,7 +396,7 @@
     <string name="text_large">Besar</string>
     <string name="tree_show_hidden">Tampilkan berkas tersembunyi</string>
     <string name="tree_pictures">Hanya folder dengan gambar atau video</string>
-    <string name="columns_hint">Pintasan: tekan lama tombol mengambang untuk opsi tampilan.</string>
+    <string name="columns_hint">Pintasan: tekan lama tombol untuk opsi tampilan.</string>
     <string name="corner_hint">Ketuk tombol di sudut untuk membuka menu: semua perintah utama ada di sana; tekan lama untuk opsi tampilan. Jika mau, Anda bisa mengganti sisi tombol dari pengaturan.</string>
     <string name="start_pill">Pil</string>
     <string name="start_round">Bulat</string>

@@ -376,7 +376,7 @@
     <plurals name="settings_facts_count">
         <item quantity="other">顯示 %1$d 項</item>
     </plurals>
-    <string name="bin_empty_hint">快捷操作：長按浮動按鈕即可清空回收筒。</string>
+    <string name="bin_empty_hint">快捷操作：長按按鈕即可清空回收筒。</string>
     <string name="facts_title">資訊</string>
     <string name="settings_reset_hints">重新顯示提示</string>
     <string name="settings_reset_hints_desc">通常只在首次啟動時出現的小教學、導覽、提示與警告會再次顯示（僅一次）。</string>
@@ -396,7 +396,7 @@
     <string name="text_large">大</string>
     <string name="tree_show_hidden">顯示隱藏檔案</string>
     <string name="tree_pictures">僅含圖片或影片的資料夾</string>
-    <string name="columns_hint">快捷方式：長按浮動按鈕開啟顯示選項。</string>
+    <string name="columns_hint">快捷方式：長按按鈕開啟顯示選項。</string>
     <string name="corner_hint">輕觸角落的按鈕開啟選單：其中包含所有主要指令；長按可開啟顯示選項。如有需要，可在設定中更換按鈕所在的一側。</string>
     <string name="start_pill">膠囊</string>
     <string name="start_round">圓形</string>

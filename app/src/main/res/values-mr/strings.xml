@@ -393,7 +393,7 @@
         <item quantity="one">%1$d माहिती दिसते</item>
         <item quantity="other">%1$d माहिती दिसतात</item>
     </plurals>
-    <string name="bin_empty_hint">शॉर्टकट: कचरापेटी रिकामी करण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
+    <string name="bin_empty_hint">शॉर्टकट: कचरापेटी रिकामी करण्यासाठी बटण दाबून धरा.</string>
     <string name="facts_title">माहिती</string>
     <string name="settings_reset_hints">सूचना परत आणा</string>
     <string name="settings_reset_hints_desc">छोटी मार्गदर्शने, ओळख, सूचना आणि इशारे, जे सहसा पहिल्यांदा सुरू करतानाच दिसतात, पुन्हा दिसू लागतात (एकदाच).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">मोठा</string>
     <string name="tree_show_hidden">लपलेल्या संचिका दाखवा</string>
     <string name="tree_pictures">फक्त प्रतिमा किंवा चित्रफिती असलेले संचिकासंच</string>
-    <string name="columns_hint">शॉर्टकट: दर्शन पर्यायांसाठी तरंगते बटण दाबून धरा.</string>
+    <string name="columns_hint">शॉर्टकट: दर्शन पर्यायांसाठी बटण दाबून धरा.</string>
     <string name="corner_hint">मेनू उघडण्यासाठी कोपऱ्यातील बटणावर टॅप करा: त्यात सर्व मुख्य आज्ञा आहेत; दाखवण्याच्या पर्यायांसाठी ते दाबून धरा. हवे असल्यास सेटिंग्जमधून बटणाची बाजू बदलू शकता.</string>
     <string name="start_pill">पिल</string>
     <string name="start_round">गोल</string>

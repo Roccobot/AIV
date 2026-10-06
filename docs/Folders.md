@@ -334,7 +334,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     sotto, 0). La lettura dei quattro è dichiarata nel DF; si nascondono spegnendo `GLASS_TUNING`, e i
     valori restano quelli scelti. ⚠️⚠️ **Dalla `4.25` i valori di fabbrica sono i suoi** (nota D del giro
     della `4.20`): pillola a scomparsa e traslucido di fabbrica, Raggio 16dp, Intensità 300%, `Opacità`
-    (il cursore che si chiamava Colore) 20%, e `Scostamento` 35, senza segno, che scurisce sul tema
+    (il cursore che si chiamava Colore) 20%, dalla `4.37` 40% (nota B del giro della `4.36`), e
+    `Scostamento` 35, senza segno, che scurisce sul tema
     chiaro e schiarisce sullo scuro (risposta C2) al posto della Luminosità col segno. Sotto i cursori
     ci sono `Colore chiaro` e `Colore scuro` (risposta B3): un tondo che apre un selettore di tonalità,
     saturazione e luminanza, con `Predefinito` che torna all'accento del vetro in quel tema; e

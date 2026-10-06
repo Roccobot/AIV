@@ -393,7 +393,7 @@
         <item quantity="one">%1$d जानकारी दिख रही है</item>
         <item quantity="other">%1$d जानकारियाँ दिख रही हैं</item>
     </plurals>
-    <string name="bin_empty_hint">शॉर्टकट: कूड़ेदान खाली करने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
+    <string name="bin_empty_hint">शॉर्टकट: कूड़ेदान खाली करने के लिए बटन दबाए रखें।</string>
     <string name="facts_title">जानकारी</string>
     <string name="settings_reset_hints">संकेत फिर दिखाएँ</string>
     <string name="settings_reset_hints_desc">छोटे मार्गदर्शक, परिचय, सुझाव और चेतावनियाँ, जो आम तौर पर केवल पहली बार चलाने पर दिखते हैं, फिर से दिखने लगते हैं (केवल एक बार)।</string>
@@ -413,7 +413,7 @@
     <string name="text_large">बड़ा</string>
     <string name="tree_show_hidden">छिपी फ़ाइलें दिखाएँ</string>
     <string name="tree_pictures">केवल चित्रों या वीडियो वाले फ़ोल्डर</string>
-    <string name="columns_hint">शॉर्टकट: दिखाने के विकल्पों के लिए तैरता बटन दबाए रखें।</string>
+    <string name="columns_hint">शॉर्टकट: दिखाने के विकल्पों के लिए बटन दबाए रखें।</string>
     <string name="corner_hint">मेनू खोलने के लिए कोने वाला बटन टैप करें: इसमें सभी मुख्य आदेश हैं; दिखाने के विकल्पों के लिए इसे दबाकर रखें। चाहें तो सेटिंग्स से बटन की तरफ़ बदल सकते हैं।</string>
     <string name="start_pill">पिल</string>
     <string name="start_round">गोल</string>

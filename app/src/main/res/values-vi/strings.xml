@@ -376,7 +376,7 @@
     <plurals name="settings_facts_count">
         <item quantity="other">Hiện %1$d mục</item>
     </plurals>
-    <string name="bin_empty_hint">Lối tắt: nhấn giữ nút nổi để dọn thùng rác.</string>
+    <string name="bin_empty_hint">Lối tắt: nhấn giữ nút để dọn thùng rác.</string>
     <string name="facts_title">Thông tin</string>
     <string name="settings_reset_hints">Hiện lại các gợi ý</string>
     <string name="settings_reset_hints_desc">Các hướng dẫn ngắn, phần giới thiệu, mẹo và cảnh báo, thường chỉ hiện ở lần chạy đầu tiên, sẽ hiện lại (chỉ một lần).</string>
@@ -396,7 +396,7 @@
     <string name="text_large">Lớn</string>
     <string name="tree_show_hidden">Hiện tệp ẩn</string>
     <string name="tree_pictures">Chỉ thư mục có ảnh hoặc video</string>
-    <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
+    <string name="columns_hint">Lối tắt: nhấn giữ nút để mở tùy chọn hiển thị.</string>
     <string name="corner_hint">Chạm vào nút ở góc để mở menu: menu chứa mọi lệnh chính; nhấn giữ nút để mở tùy chọn hiển thị. Nếu muốn, bạn có thể đổi bên của nút trong phần cài đặt.</string>
     <string name="start_pill">Viên</string>
     <string name="start_round">Tròn</string>
