@@ -859,6 +859,27 @@ function controls(disabled) {
       if (box instanceof Element && canScroll(box, event.deltaY)) return;
     event.preventDefault();
   }, { passive: false });
+  // Altro scrolls only when there is something to scroll (the user's note, 2026-10-06, with a
+  // screenshot: a bar almost as long as Altro, about 1% of overflow, appeared at a scroll
+  // attempt). Altro is a flex column, so at its maximum height its children shrink first and it
+  // overflows only past their minimum heights; on his Mac that left a few pixels, all of them
+  // inside the empty bottom padding. Scrolling them would show nothing, so while the overflow
+  // stays within the padding Altro does not scroll at all.
+  // scrollHeight counts the content with overflow hidden too, so the class is never lifted to
+  // measure: lifting it would change the layout inside the observer that called this.
+  const fit = () => {
+    const room = parseFloat(getComputedStyle(altro).paddingBottom) || 0;
+    altro.classList.toggle("fits", wide.matches && altro.scrollHeight <= altro.clientHeight + room + 1);
+  };
+  const watch = new ResizeObserver(fit);
+  watch.observe(altro);
+  for (const child of altro.children) watch.observe(child);
+  new MutationObserver(() => {
+    for (const child of altro.children) watch.observe(child);
+    fit();
+  }).observe(altro, { childList: true, subtree: true });
+  wide.addEventListener("change", fit);
+  fit();
 })();
 
 // --- Desktop: at the end of the page Prossimi passi ends where Altro does ---
