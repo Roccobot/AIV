@@ -358,6 +358,21 @@ Per recuperare, con GitHub CLI autenticato come proprietario e Node 24, dalla ra
 node tools/feedback-read.mjs --version 3.24 --output /tmp/aiv-feedback-3.24.json
 ```
 
+**Senza GitHub CLI** (le sessioni cloud di Claude Code, dal 2026-10-06), lo stesso recupero si fa in
+due comandi, con il workflow avviato e l'artefatto scaricato dagli strumenti GitHub della sessione:
+
+```sh
+node tools/feedback-read.mjs --prepare --dir /tmp/aiv-chiave --version 4.33
+node tools/feedback-read.mjs --open feedback-envelope.zip --dir /tmp/aiv-chiave --output /tmp/aiv-giro/giro.json
+```
+
+Il primo crea la cartella privata con chiave e richiesta e stampa gli ingressi di `feedback-read.yml`
+(`request_id`, `public_key`, `requested_at`, `version`, `verify_only`), da passare così come sono;
+il secondo apre l'artefatto (ZIP o JSON), scrive il giro e gli allegati accanto (`allegato-1.svg`...),
+e solo allora cancella la cartella con la chiave. Un'apertura fallita tiene la chiave, e si riprova
+sullo stesso artefatto. Prima di questi due comandi ogni passo si scriveva a mano, ed è lì che i
+recuperi del 2026-10-06 sono falliti tre volte. Lo prova `tools/feedback-read-test.mjs`.
+
 Ometti `--version` per l'ultimo giro inviato di qualsiasi versione. Lo strumento avvia
 soltanto su comando il workflow `Leggi feedback inviato`, con chiave pubblica temporanea.
 Il server recupera dalla storia l'ultima copia inviata entro la data di avvio della
