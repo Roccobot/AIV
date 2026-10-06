@@ -143,6 +143,12 @@ def check(path):
                 assert int(counter.locator('strong').evaluate('(el)=>getComputedStyle(el).fontWeight')) >= 700
             def aligned(card):
                 box = card.bounding_box()
+                # Since 2026-10-06 the desktop has no fixed strip (the counts live in Altro), so a
+                # card lands 18px from the top, at Altro's height; elsewhere under the strip.
+                if navigation.viewport_size['width'] >= 1100:
+                    assert abs(box['y'] - 18) < 3, f"Card not at Altro's top: {box['y']}"
+                    expect(navigation.locator('#extra-section .dashboard')).to_have_count(1)
+                    return
                 dashboard = navigation.locator('.dashboard').bounding_box()
                 assert abs(box['y'] - dashboard['height'] - 12) < 3, 'Card hidden beneath the sticky dashboard.'
             for width in [320,390,800,1280]:
@@ -694,16 +700,23 @@ def check(path):
             # transparent, fades out on the right, and has its own icon, which opens the modal
             # with the caret in that device's field.
             expect(page.locator('#devices-edit')).to_be_hidden()
-            row_style = page.locator('.device-row').first.evaluate("(el)=>{const c=getComputedStyle(el),t=getComputedStyle(el.querySelector('.device-shown'));return [c.opacity,(t.maskImage||t.webkitMaskImage).includes('linear-gradient')]}")
-            assert row_style == ['0.55', True], row_style
+            # Since his request of the same evening: the text at 70%, the icons smaller (20px) and at
+            # 22.5% of the row's muted ink, which over the page gives about #d4d8d2, and not clipped
+            # by the buttons' rounded corners.
+            row_style = page.locator('.device-row').first.evaluate("""(el)=>{const t=getComputedStyle(el.querySelector('.device-shown')),
+              b=getComputedStyle(el.querySelector('button.device-edit'));
+              return [getComputedStyle(el).opacity,t.opacity,(t.maskImage||t.webkitMaskImage).includes('linear-gradient'),
+                b.opacity,b.width,b.borderTopLeftRadius,b.backgroundColor===getComputedStyle(el).color]}""")
+            assert row_style == ['1','0.7',True,'0.225','20px','0px',True], row_style
             # A long device name fades before the icon and never pushes the row off the screen.
             page.evaluate("document.querySelector('#tablet-shown').textContent='Xiaomi Pad 6 Tablet 11 pollici, Android 14 / HyperOS 2.0.16.0 e altro testo'")
             row_right = page.locator('.device-row').nth(1).evaluate('(el)=>el.getBoundingClientRect().right')
             assert row_right <= 390 - 15, row_right
             page.evaluate("syncDevices()")
+            # The icon moves right by the empty part of its canvas, so its ink ends where the row does.
             phone_icon = page.locator('.device-edit-phone').bounding_box()
             phone_row = page.locator('.device-row').first.bounding_box()
-            assert abs(phone_icon['x'] + phone_icon['width'] - (phone_row['x'] + phone_row['width'])) <= 1, (phone_icon, phone_row)
+            assert abs(phone_icon['x'] + phone_icon['width'] - 0.2172 * 20 - (phone_row['x'] + phone_row['width'])) <= 0.5, (phone_icon, phone_row)
             page.locator('.device-edit-tablet').click()
             expect(page.locator('#devices-dialog')).to_be_visible()
             expect(page.locator('#tablet')).to_be_focused()

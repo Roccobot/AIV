@@ -59,14 +59,29 @@ const previousCard = document.querySelector("#previous-card");
 const nextCard = document.querySelector("#next-card");
 const firstEmpty = document.querySelector("#first-empty");
 const dashboard = document.querySelector(".dashboard");
+// On desktop the counts live at the top of Altro, and the page has no fixed strip (the user's
+// request, 2026-10-06: *sparisce del tutto la striscia cloud, e il caricatore con le info va a
+// vivere sopra 'Altro', nello stesso riquadro*). Elsewhere the strip stays where the page has it.
+const desktopUi = window.matchMedia("(min-width: 1100px)");
+const dashboardHome = document.createComment("dashboard");
+dashboard.before(dashboardHome);
+function placeDashboard() {
+  const altro = document.querySelector("#extra-section");
+  if (desktopUi.matches && altro) altro.prepend(dashboard);
+  else dashboardHome.after(dashboard);
+}
+placeDashboard();
 function refreshDashboardDocked() {
   // Sticky positioning is not exposed as a CSS state. The viewport edge is the
   // reliable boundary between the normal floating strip and its docked state.
   dashboard.classList.toggle("is-docked", dashboard.getBoundingClientRect().top <= 0);
 }
+// On desktop nothing is fixed above the cards, so a card lands where Altro's top is.
 function navigationOffset() {
-  return document.querySelector(".dashboard").getBoundingClientRect().height + 12;
+  if (desktopUi.matches) return DESKTOP_TOP;
+  return dashboard.getBoundingClientRect().height + 12;
 }
+const DESKTOP_TOP = 18;
 function currentCardIndex() {
   const cards = responseCards;
   const offset = navigationOffset();
@@ -196,4 +211,5 @@ window.addEventListener("scroll", () => {
   });
 }, {passive: true});
 new ResizeObserver(refreshNavigation).observe(document.querySelector(".dashboard"));
+desktopUi.addEventListener("change", () => { placeDashboard(); refreshNavigation(); });
 onTapOrHold(document.querySelector("#floating-save"), saveByHand);
