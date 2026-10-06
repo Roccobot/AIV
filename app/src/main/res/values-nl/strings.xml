@@ -393,7 +393,7 @@
         <item quantity="one">%1$d gegeven zichtbaar</item>
         <item quantity="other">%1$d gegevens zichtbaar</item>
     </plurals>
-    <string name="bin_empty_hint">Sneltoets: houd de zwevende knop ingedrukt om de prullenbak te legen.</string>
+    <string name="bin_empty_hint">Sneltoets: houd de knop ingedrukt om de prullenbak te legen.</string>
     <string name="facts_title">Informatie</string>
     <string name="settings_reset_hints">Tips terughalen</string>
     <string name="settings_reset_hints_desc">De minihandleidingen, de introductie, de tips en de waarschuwingen, die normaal alleen bij de eerste start verschijnen, worden weer zichtbaar (eenmalig).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">Groot</string>
     <string name="tree_show_hidden">Verborgen bestanden tonen</string>
     <string name="tree_pictures">Alleen mappen met afbeeldingen of video\'s</string>
-    <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
+    <string name="columns_hint">Snelkoppeling: houd de knop ingedrukt voor de weergaveopties.</string>
     <string name="corner_hint">Tik op de knop in de hoek om het menu te openen: daarin staan alle belangrijke opdrachten; houd hem ingedrukt voor de weergaveopties. In de instellingen kun je de kant van de knop wijzigen, als je wilt.</string>
     <string name="start_pill">Pil</string>
     <string name="start_round">Rond</string>

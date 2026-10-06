@@ -393,7 +393,7 @@
         <item quantity="one">%1$d సమాచారం చూపబడుతోంది</item>
         <item quantity="other">%1$d సమాచారాలు చూపబడుతున్నాయి</item>
     </plurals>
-    <string name="bin_empty_hint">షార్ట్‌కట్: చెత్తబుట్ట ఖాళీ చేయడానికి ఫ్లోటింగ్ బటన్‌ను నొక్కి పట్టుకోండి.</string>
+    <string name="bin_empty_hint">షార్ట్‌కట్: చెత్తబుట్ట ఖాళీ చేయడానికి బటన్‌ను నొక్కి పట్టుకోండి.</string>
     <string name="facts_title">సమాచారం</string>
     <string name="settings_reset_hints">సూచనలు తిరిగి చూపు</string>
     <string name="settings_reset_hints_desc">సాధారణంగా మొదటిసారి మాత్రమే కనిపించే చిన్న పాఠాలు, పరిచయం, సూచనలు, హెచ్చరికలు మళ్లీ కనిపిస్తాయి (ఒకే ఒకసారి).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">పెద్దది</string>
     <string name="tree_show_hidden">దాచిన దస్త్రాలను చూపు</string>
     <string name="tree_pictures">చిత్రాలు లేదా వీడియోలున్న సంచయాలు మాత్రమే</string>
-    <string name="columns_hint">సత్వరమార్గం: ప్రదర్శన ఎంపికల కోసం తేలియాడే బొత్తాన్ని నొక్కి పట్టుకోండి.</string>
+    <string name="columns_hint">సత్వరమార్గం: ప్రదర్శన ఎంపికల కోసం బటన్‌ను నొక్కి పట్టుకోండి.</string>
     <string name="corner_hint">మెనూ తెరవడానికి మూలలోని బటన్‌ను నొక్కండి: అందులో అన్ని ప్రధాన ఆదేశాలు ఉన్నాయి; ప్రదర్శన ఎంపికల కోసం దాన్ని నొక్కి పట్టుకోండి. కావాలంటే, సెట్టింగ్‌లలో బటన్ వైపును మార్చవచ్చు.</string>
     <string name="start_pill">పిల్</string>
     <string name="start_round">గుండ్రం</string>

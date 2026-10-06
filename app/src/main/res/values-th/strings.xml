@@ -376,7 +376,7 @@
     <plurals name="settings_facts_count">
         <item quantity="other">แสดง %1$d รายการ</item>
     </plurals>
-    <string name="bin_empty_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเทถังขยะ</string>
+    <string name="bin_empty_hint">ทางลัด: กดปุ่มค้างไว้เพื่อเทถังขยะ</string>
     <string name="facts_title">ข้อมูล</string>
     <string name="settings_reset_hints">แสดงคำแนะนำอีกครั้ง</string>
     <string name="settings_reset_hints_desc">บทแนะนำสั้น ๆ การแนะนำเริ่มต้น เคล็ดลับ และคำเตือน ซึ่งปกติแสดงเฉพาะเมื่อเปิดครั้งแรก จะกลับมาแสดงอีกครั้ง (เพียงครั้งเดียว)</string>
@@ -396,7 +396,7 @@
     <string name="text_large">ใหญ่</string>
     <string name="tree_show_hidden">แสดงไฟล์ที่ซ่อน</string>
     <string name="tree_pictures">เฉพาะโฟลเดอร์ที่มีภาพหรือวิดีโอ</string>
-    <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มลอยเพื่อเปิดตัวเลือกการแสดงผล.</string>
+    <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มเพื่อเปิดตัวเลือกการแสดงผล.</string>
     <string name="corner_hint">แตะปุ่มที่มุมเพื่อเปิดเมนู ซึ่งมีคำสั่งหลักทั้งหมด แตะค้างไว้เพื่อเปิดตัวเลือกการแสดงผล หากต้องการ คุณเปลี่ยนด้านของปุ่มได้ในการตั้งค่า</string>
     <string name="start_pill">แคปซูล</string>
     <string name="start_round">วงกลม</string>

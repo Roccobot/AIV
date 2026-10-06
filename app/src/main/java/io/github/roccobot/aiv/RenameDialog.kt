@@ -607,6 +607,17 @@ private fun ExtensionDialog(
              * campo veniva tagliata **senza modo di raggiungerla**.
              */
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                /*
+                 * ⚠️ **The field takes the focus as soon as the panel appears**, like the name
+                 * field of [RenameDialog] (note C on the 4.36 round: the panel appeared with a
+                 * jump). 'Rinomina' has its field focused and the keyboard open; a panel that
+                 * opened without a focused field closed the keyboard, and both windows were
+                 * laid out again while it went away. With the focus here the keyboard stays.
+                 * ⚠️ The cause is reasoned and not measured: the bench has no keyboard, and the
+                 * test entry says so.
+                 */
+                val fuoco = remember { FocusRequester() }
+                LaunchedEffect(Unit) { fuoco.requestFocus() }
                 OutlinedTextField(
                     value = typed,
                     // ⚠️ Si filtra mentre si scrive invece di validare dopo: qui dentro va
@@ -617,7 +628,7 @@ private fun ExtensionDialog(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     shape = BOX_SHAPE,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().focusRequester(fuoco)
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(

@@ -393,7 +393,7 @@
         <item quantity="one">%1$d تفصیل دکھائی جا رہی ہے</item>
         <item quantity="other">%1$d تفصیلات دکھائی جا رہی ہیں</item>
     </plurals>
-    <string name="bin_empty_hint">شارٹ کٹ: ردی کی ٹوکری خالی کرنے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
+    <string name="bin_empty_hint">شارٹ کٹ: ردی کی ٹوکری خالی کرنے کے لیے بٹن دبائے رکھیں۔</string>
     <string name="facts_title">معلومات</string>
     <string name="settings_reset_hints">اشارے واپس لائیں</string>
     <string name="settings_reset_hints_desc">چھوٹے سبق، تعارف، مشورے اور تنبیہات، جو عام طور پر صرف پہلی بار چلانے پر دکھائی دیتے ہیں، دوبارہ ظاہر ہو جاتے ہیں (صرف ایک بار)۔</string>
@@ -413,7 +413,7 @@
     <string name="text_large">بڑا</string>
     <string name="tree_show_hidden">پوشیدہ فائلیں دکھائیں</string>
     <string name="tree_pictures">صرف تصاویر یا ویڈیو والے فولڈر</string>
-    <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے تیرتا بٹن دبائے رکھیں۔</string>
+    <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے بٹن دبائے رکھیں۔</string>
     <string name="corner_hint">مینو کھولنے کے لیے کونے والے بٹن کو تھپتھپائیں: اس میں تمام اہم احکامات ہیں؛ دکھانے کے اختیارات کے لیے اسے دبائے رکھیں۔ چاہیں تو ترتیبات سے بٹن کی طرف بدل سکتے ہیں۔</string>
     <string name="start_pill">گولی</string>
     <string name="start_round">گول</string>

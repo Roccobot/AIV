@@ -427,7 +427,7 @@
         <item quantity="many">%1$d полів показано</item>
         <item quantity="other">%1$d поля показано</item>
     </plurals>
-    <string name="bin_empty_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб очистити кошик.</string>
+    <string name="bin_empty_hint">Швидка дія: натисніть і утримуйте кнопку, щоб очистити кошик.</string>
     <string name="facts_title">Інформація</string>
     <string name="settings_reset_hints">Повернути підказки</string>
     <string name="settings_reset_hints_desc">Мініпосібники, вступні підказки, поради та попередження, які зазвичай видно лише під час першого запуску, знову стануть видимими (один раз).</string>
@@ -447,7 +447,7 @@
     <string name="text_large">Великий</string>
     <string name="tree_show_hidden">Показувати приховані файли</string>
     <string name="tree_pictures">Лише теки із зображеннями або відео</string>
-    <string name="columns_hint">Швидкий доступ: натисніть і утримуйте плавну кнопку, щоб відкрити параметри вигляду.</string>
+    <string name="columns_hint">Швидкий доступ: натисніть і утримуйте кнопку, щоб відкрити параметри вигляду.</string>
     <string name="corner_hint">Торкніться кнопки в куті, щоб відкрити меню: у ньому всі основні команди; утримуйте її для параметрів перегляду. За бажання в налаштуваннях можна перенести кнопку на інший бік.</string>
     <string name="start_pill">Пігулка</string>
     <string name="start_round">Коло</string>

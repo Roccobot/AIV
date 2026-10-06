@@ -519,7 +519,7 @@
     <string name="text_large">Large</string>
     <string name="tree_show_hidden">Show hidden files</string>
     <string name="tree_pictures">Only folders with pictures/videos</string>
-    <string name="columns_hint">Shortcut: press and hold the floating button for the display options.</string>
+    <string name="columns_hint">Shortcut: press and hold the button for the display options.</string>
     <string name="corner_hint">Tap the button in the corner to open the menu: it holds all the main commands; press and hold it for the display options. In settings you can move the button to the other side, if you like.</string>
     <!-- The short labels under the Start menu's icons (note F on the 4.32 round). -->
     <string name="start_pill">Pill</string>
@@ -771,7 +771,7 @@
     <string name="bin_empty_desc">You will not be able to get its contents back.</string>
     <string name="bin_restore_all_ask">Really restore all the files?</string>
     <string name="bin_restore_all_desc">Every item will go back to its own folder of origin: to see where it was moved, check the bin history.</string>
-    <string name="bin_empty_hint">Shortcut: press and hold the floating button to empty the bin.</string>
+    <string name="bin_empty_hint">Shortcut: press and hold the button to empty the bin.</string>
     <string name="bin_restore_all">Restore everything</string>
     <string name="bin_history">History</string>
     <!-- The history of restores: where the files that left the bin ended up. The number

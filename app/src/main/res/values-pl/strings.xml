@@ -427,7 +427,7 @@
         <item quantity="many">%1$d widocznych pól</item>
         <item quantity="other">%1$d widocznego pola</item>
     </plurals>
-    <string name="bin_empty_hint">Skrót: przytrzymaj pływający przycisk, aby opróżnić kosz.</string>
+    <string name="bin_empty_hint">Skrót: przytrzymaj przycisk, aby opróżnić kosz.</string>
     <string name="facts_title">Informacje</string>
     <string name="settings_reset_hints">Przywróć wskazówki</string>
     <string name="settings_reset_hints_desc">Minisamouczki, wprowadzenie, podpowiedzi i ostrzeżenia, zwykle pokazywane tylko przy pierwszym uruchomieniu, znów staną się widoczne (jednorazowo).</string>
@@ -447,7 +447,7 @@
     <string name="text_large">Duży</string>
     <string name="tree_show_hidden">Pokaż ukryte pliki</string>
     <string name="tree_pictures">Tylko foldery z obrazami lub filmami</string>
-    <string name="columns_hint">Skrót: przytrzymaj przycisk pływający, aby otworzyć opcje widoku.</string>
+    <string name="columns_hint">Skrót: przytrzymaj przycisk, aby otworzyć opcje widoku.</string>
     <string name="corner_hint">Dotknij przycisku w rogu, aby otworzyć menu: zawiera wszystkie główne polecenia; przytrzymaj go, aby otworzyć opcje wyświetlania. W ustawieniach możesz, jeśli chcesz, zmienić stronę przycisku.</string>
     <string name="start_pill">Pigułka</string>
     <string name="start_round">Okrągły</string>

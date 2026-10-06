@@ -393,7 +393,7 @@
         <item quantity="one">Kipengele %1$d kinaonekana</item>
         <item quantity="other">Vipengele %1$d vinaonekana</item>
     </plurals>
-    <string name="bin_empty_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kumwaga tapishi.</string>
+    <string name="bin_empty_hint">Njia ya mkato: shikilia kitufe ili kumwaga tapishi.</string>
     <string name="facts_title">Maelezo</string>
     <string name="settings_reset_hints">Rejesha vidokezo</string>
     <string name="settings_reset_hints_desc">Miongozo mifupi, utangulizi, vidokezo na maonyo, ambayo kwa kawaida huonekana tu wakati wa kuanza mara ya kwanza, yatarudi kuonekana (mara moja tu).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">Kubwa</string>
     <string name="tree_show_hidden">Onyesha faili zilizofichwa</string>
     <string name="tree_pictures">Folda zenye picha au video pekee</string>
-    <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
+    <string name="columns_hint">Njia ya mkato: shikilia kitufe ili kufungua chaguo za mwonekano.</string>
     <string name="corner_hint">Gusa kitufe kilicho pembeni ili kufungua menyu: ina amri zote kuu; kibonyeze na ukishikilie kwa chaguo za kuonyesha. Ukipenda, katika mipangilio unaweza kubadilisha upande wa kitufe.</string>
     <string name="start_pill">Kidonge</string>
     <string name="start_round">Duara</string>

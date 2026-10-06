@@ -24,8 +24,8 @@
     <string name="hub_settings">Configuración</string>
     <string name="hide_folder_desc">La carpeta no aparecerá en la vista de cuadrícula ni de lista. Es solo una configuración de visualización: no se eliminará ningún archivo.</string>
     <string name="settings_hidden_desc">Un toque largo sobre una carpeta la oculta. Estas ya no aparecen en la lista, pero siguen intactas en el teléfono.</string>
-    <string name="bin_empty_hint">Atajo: mantén presionado el botón flotante para vaciar la papelera.</string>
-    <string name="columns_hint">Atajo: mantén presionado el botón flotante para elegir el tamaño de la cuadrícula.</string>
+    <string name="bin_empty_hint">Atajo: mantén presionado el botón para vaciar la papelera.</string>
+    <string name="columns_hint">Atajo: mantén presionado el botón para las opciones de visualización.</string>
     <string name="corner_hint">Toca el botón de la esquina para abrir el menú: tiene todos los comandos principales; mantenlo presionado para las opciones de visualización. Si quieres, en la configuración puedes cambiar el lado del botón.</string>
     <!-- En America Latina la palabra es llana y va sin tilde: solo eso cambia, y las
          otras dos cadenas de los videos son iguales a las de Espana. -->

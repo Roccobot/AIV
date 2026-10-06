@@ -121,6 +121,9 @@ data class PillLook(
  * C2), and the glass is tied to the theme: [shift] darkens on the light theme and lightens on the
  * dark one, and each theme has its own colour (answer B3). Until 4.20 they were the DF's glass
  * (13dp, 160%, 100%, a signed 'Luminosità' at zero).
+ * ⚠️ **Since 4.37 'Opacità' is 40 and not 20** (note B on the 4.36 round, with a screenshot of the
+ * sliders: *Raggio 16dp, Intensità 300%, Opacità 40%, Scostamento 35%, colori predefiniti*); the
+ * other three were already his. A phone that moved the slider keeps its value.
  *
  * @property radius the blur's radius, in dp.
  * @property intensity how vivid the colours behind get, in percent: 100 leaves them as they are.
@@ -150,7 +153,7 @@ data class GlassTune(
     companion object {
         const val RADIUS = 16
         const val INTENSITY = 300
-        const val TINT = 20
+        const val TINT = 40
         const val SHIFT = 35
         val RADIUS_RANGE = 0..40
         val INTENSITY_RANGE = 0..300

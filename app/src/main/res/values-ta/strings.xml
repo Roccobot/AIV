@@ -393,7 +393,7 @@
         <item quantity="one">%1$d தகவல் காட்டப்படுகிறது</item>
         <item quantity="other">%1$d தகவல்கள் காட்டப்படுகின்றன</item>
     </plurals>
-    <string name="bin_empty_hint">குறுக்குவழி: குப்பைத் தொட்டியைக் காலி செய்ய மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
+    <string name="bin_empty_hint">குறுக்குவழி: குப்பைத் தொட்டியைக் காலி செய்ய பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="facts_title">தகவல்</string>
     <string name="settings_reset_hints">குறிப்புகளை மீண்டும் காட்டு</string>
     <string name="settings_reset_hints_desc">வழக்கமாக முதல் தொடக்கத்தில் மட்டும் தோன்றும் சிறு வழிகாட்டிகள், அறிமுகம், குறிப்புகள், எச்சரிக்கைகள் மீண்டும் தோன்றும் (ஒரே ஒரு முறை).</string>
@@ -413,7 +413,7 @@
     <string name="text_large">பெரியது</string>
     <string name="tree_show_hidden">மறைந்த கோப்புகளைக் காட்டு</string>
     <string name="tree_pictures">படங்கள் அல்லது காணொளிகள் உள்ள கோப்புறைகள் மட்டும்</string>
-    <string name="columns_hint">குறுக்குவழி: காட்சி விருப்பங்களுக்கு மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
+    <string name="columns_hint">குறுக்குவழி: காட்சி விருப்பங்களுக்கு பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="corner_hint">மெனுவைத் திறக்க மூலையில் உள்ள பொத்தானைத் தட்டவும்: அதில் எல்லா முதன்மைக் கட்டளைகளும் உள்ளன; காட்சி விருப்பங்களுக்கு அதை அழுத்திப் பிடிக்கவும். விரும்பினால், அமைப்புகளில் பொத்தானின் பக்கத்தை மாற்றலாம்.</string>
     <string name="start_pill">மாத்திரை</string>
     <string name="start_round">வட்டம்</string>
