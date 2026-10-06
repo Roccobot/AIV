@@ -139,8 +139,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
      `Salva`, `Invia`. `Copia il riepilogo` copia negli appunti e basta: il testo non compare
      in nessun campo.
   ⚠️⚠️ **Nel pannello mobile le file sono due, sempre visibili, di sei tasti uguali su tutta la
-  larghezza, alti 42 px** (sua istruzione del 2026-10-06): il `+`, i quattro tasti di
-  formattazione e `Chiudi`; poi i sei comandi. Dal 2026-10-04 era una fila sola a due stati, con
+  larghezza, alti 42 px** (sua istruzione del 2026-10-06), in quest'ordine: `Invia`, `Link`,
+  `Codice`, `Grassetto`, `Corsivo`, `+`; poi `Azzera tutto`, `Copia il riepilogo`, `Esporta`,
+  `Importa`, `Salva`, `Chiudi`. L'ordine lo dà il CSS: nella pagina i tasti restano dove sono. Dal 2026-10-04 era una fila sola a due stati, con
   `Consegna` e `Torna` per passare dall'uno all'altro (mockup `Altro_mobile`): i due commutatori
   non ci sono più. `Chiudi` ha preso il posto della × in alto e di quella in basso a destra.
   Sotto le file ci sono gli allegati di Altro (sua istruzione del 2026-10-06), che con la

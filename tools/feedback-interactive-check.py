@@ -636,18 +636,20 @@ def check(path):
             assert abs(field_box['height'] - 269) < 1, field_box
             format_box = page.locator('.altro-overlay-panel .format-actions').bounding_box()
             assert format_box['y'] + format_box['height'] <= 368, format_box
-            # Two rows of six equal keys over the whole width, both visible, 42px each: Allega,
-            # the four formats and Chiudi, then the six commands.
+            # Two rows of six equal keys over the whole width, both visible, 42px each, in his
+            # order (2026-10-06): Invia, Link, Codice, Grassetto, Corsivo, Allega; then Azzera
+            # tutto, Copia, Esporta, Importa, Salva, Chiudi.
             row = page.locator('.altro-overlay-panel .format-actions')
             assert row.locator('.altro-row-delivery, .altro-row-back').count() == 0
-            def keys(selector):
-                boxes = [b.bounding_box() for b in row.locator(selector).all()]
+            def keys(*selectors):
+                boxes = [row.locator(selector).bounding_box() for selector in selectors]
                 assert len(boxes) == 6 and all(boxes), boxes
                 assert all(abs(b['y'] - boxes[0]['y']) < 1 and abs(b['width'] - boxes[0]['width']) < 1 and abs(b['height'] - 42) < 1 for b in boxes), boxes
                 assert abs(boxes[0]['x'] - format_box['x']) < 1 and abs(boxes[-1]['x'] + boxes[-1]['width'] - format_box['x'] - format_box['width']) < 1, (boxes, format_box)
+                assert all(boxes[i]['x'] < boxes[i + 1]['x'] for i in range(5)), boxes
                 return boxes
-            first_row = keys('.altro-attach, .format-toolbar button, :scope > .altro-row-close')
-            second_row = keys('.altro-commands > .command')
+            first_row = keys('[data-command="send"]', '[data-format="link"]', '[data-format="code"]', '[data-format="bold"]', '[data-format="italic"]', '.altro-attach')
+            second_row = keys('[data-command="reset"]', '[data-command="copy"]', '[data-command="export"]', '[data-command="import"]', '[data-command="save"]', '.altro-row-close')
             assert second_row[0]['y'] > first_row[0]['y'] + 40, (first_row, second_row)
             # Chiudi in the row replaces the old bottom close key.
             assert page.locator('.altro-overlay-close-thumb').count() == 0

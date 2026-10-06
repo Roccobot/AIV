@@ -1266,7 +1266,7 @@ main > .feedback-columns {
 }
 
 /* Mobile Altro: two rows of six keys, both always visible and spread over the whole width (the
-   user's request, 2026-10-06): Allega, the four formats and Chiudi, then the six commands. Until
+   user's request, 2026-10-06), in the order written below. Until
    then one row with two states and a switch key in front (the mockup Altro_mobile). */
 .altro-overlay-panel .format-actions {
   display: grid;
@@ -1279,6 +1279,20 @@ main > .feedback-columns {
 .altro-overlay-panel .format-actions > .altro-commands {
   display: contents;
 }
+/* The order of the keys is his, 2026-10-06: Invia, Link, Codice, Grassetto, Corsivo, Allega;
+   then Azzera tutto, Copia, Esporta, Importa, Salva, Chiudi. The DOM keeps the page's order. */
+.altro-overlay-panel .format-actions [data-command="send"] { order: 1; }
+.altro-overlay-panel .format-actions [data-format="link"] { order: 2; }
+.altro-overlay-panel .format-actions [data-format="code"] { order: 3; }
+.altro-overlay-panel .format-actions [data-format="bold"] { order: 4; }
+.altro-overlay-panel .format-actions [data-format="italic"] { order: 5; }
+.altro-overlay-panel .format-actions .altro-attach { order: 6; }
+.altro-overlay-panel .format-actions [data-command="reset"] { order: 7; }
+.altro-overlay-panel .format-actions [data-command="copy"] { order: 8; }
+.altro-overlay-panel .format-actions [data-command="export"] { order: 9; }
+.altro-overlay-panel .format-actions [data-command="import"] { order: 10; }
+.altro-overlay-panel .format-actions [data-command="save"] { order: 11; }
+.altro-overlay-panel .format-actions .altro-row-close { order: 12; }
 .altro-overlay-panel .format-actions button,
 .altro-overlay-panel .format-actions .command,
 .altro-overlay-panel .format-actions .altro-attach {
