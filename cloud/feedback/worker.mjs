@@ -30,6 +30,21 @@ async function sessionData(request, env) {
 async function authorized(request, env) {
   return Boolean(await sessionData(request,env));
 }
+/*
+ * The session renews itself while it is used, since 2026-10-06 (the owner's draft was lost the
+ * day a seven-day session expired in the middle of a round). A request at least a day after the
+ * last renewal gets a fresh week; past the cap from the GitHub login the owner signs in again.
+ */
+const SESSION_DAYS = 7, RENEW_AFTER = 86400, SESSION_CAP = 60*86400;
+async function renewal(request, env) {
+  try {
+    const session = await sessionData(request,env);
+    if (!session) return null;
+    const now = Date.now()/1000, since = session.since ?? now;
+    if (session.exp - now > SESSION_DAYS*86400 - RENEW_AFTER || now - since > SESSION_CAP) return null;
+    return cookie(SESSION,await sign(env,{...session,since,exp:now+SESSION_DAYS*86400}),SESSION_DAYS*86400);
+  } catch { return null; }
+}
 const root = env => `feedback/v1/${env.OWNER_ID}/`;
 const redirect = (location, setCookie) => new Response(null,{status:302,headers:{Location:location,'Set-Cookie':setCookie,'Cache-Control':'no-store'}});
 function storageKey(value) { return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value); }
@@ -81,8 +96,8 @@ async function handle(request, env) {
     const profile = await profileResponse.json();
     if (String(profile.id) !== String(env.OWNER_ID)) return json({error:'Questo documento è riservato al proprietario.'},403);
     if (typeof profile.login !== 'string' || !/^[A-Za-z0-9-]{1,39}$/.test(profile.login)) return json({error:'Nome utente GitHub non verificabile.'},502);
-    const session = await sign(env,{kind:'session',owner:profile.id,username:profile.login,exp:Date.now()/1000+7*86400});
-    const response = redirect('/feedback',cookie(SESSION,session,7*86400));
+    const session = await sign(env,{kind:'session',owner:profile.id,username:profile.login,since:Date.now()/1000,exp:Date.now()/1000+SESSION_DAYS*86400});
+    const response = redirect('/feedback',cookie(SESSION,session,SESSION_DAYS*86400));
     response.headers.append('Set-Cookie',cookie(STATE,'',0));
     return response;
   }
@@ -149,6 +164,12 @@ export default {
     try { response = await handle(request,env); }
     catch { response = json({error:'Servizio cloud temporaneamente non disponibile. Le modifiche non sono state confermate.'},503); }
     const protectedResponse = new Response(response.body,response);
+    // Every answered call of the page renews a session that is in use; logout clears it instead.
+    const path = new URL(request.url).pathname;
+    if ((path.startsWith('/api/') || path === '/auth/me') && response.status < 400) {
+      const renewed = await renewal(request,env);
+      if (renewed) protectedResponse.headers.append('Set-Cookie',renewed);
+    }
     protectedResponse.headers.set('X-Content-Type-Options','nosniff');
     protectedResponse.headers.set('Referrer-Policy','same-origin');
     // Second line of defence for the page: only its own scripts, styles, fonts and API, and

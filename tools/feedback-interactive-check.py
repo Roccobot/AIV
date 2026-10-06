@@ -690,9 +690,27 @@ def check(path):
             # The devices live on the download row and change in a modal (the user's request,
             # 2026-10-06): OK writes them, Annulla leaves them as they were.
             expect(page.locator('#device')).to_be_hidden()
-            page.locator('#devices-edit').click()
+            # On a phone (his mockup, 2026-10-06) no modifica line: each device row is half
+            # transparent, fades out on the right, and has its own icon, which opens the modal
+            # with the caret in that device's field.
+            expect(page.locator('#devices-edit')).to_be_hidden()
+            row_style = page.locator('.device-row').first.evaluate("(el)=>{const c=getComputedStyle(el),t=getComputedStyle(el.querySelector('.device-shown'));return [c.opacity,(t.maskImage||t.webkitMaskImage).includes('linear-gradient')]}")
+            assert row_style == ['0.55', True], row_style
+            # A long device name fades before the icon and never pushes the row off the screen.
+            page.evaluate("document.querySelector('#tablet-shown').textContent='Xiaomi Pad 6 Tablet 11 pollici, Android 14 / HyperOS 2.0.16.0 e altro testo'")
+            row_right = page.locator('.device-row').nth(1).evaluate('(el)=>el.getBoundingClientRect().right')
+            assert row_right <= 390 - 15, row_right
+            page.evaluate("syncDevices()")
+            phone_icon = page.locator('.device-edit-phone').bounding_box()
+            phone_row = page.locator('.device-row').first.bounding_box()
+            assert abs(phone_icon['x'] + phone_icon['width'] - (phone_row['x'] + phone_row['width'])) <= 1, (phone_icon, phone_row)
+            page.locator('.device-edit-tablet').click()
             expect(page.locator('#devices-dialog')).to_be_visible()
-            page.locator('#device').focus()
+            expect(page.locator('#tablet')).to_be_focused()
+            page.locator('#devices-cancel').click()
+            page.locator('.device-edit-phone').click()
+            expect(page.locator('#devices-dialog')).to_be_visible()
+            expect(page.locator('#device')).to_be_focused()
             page.keyboard.press('t')
             assert page.evaluate("document.documentElement.dataset.theme") == theme, 'T cambia il tema mentre si scrive.'
             expect(page.locator('#device')).to_have_value(re.compile('t$'))
@@ -701,7 +719,7 @@ def check(path):
             page.locator('#devices-cancel').click()
             expect(page.locator('#devices-dialog')).to_be_hidden()
             expect(page.locator('#device-shown')).to_have_text('non indicato')
-            page.locator('#devices-edit').click()
+            page.locator('.device-edit-phone').click()
             expect(page.locator('#device')).to_have_value('')
             page.locator('#device').fill('Telefono del modale')
             page.locator('#tablet').fill('Tablet del modale')
@@ -710,13 +728,26 @@ def check(path):
             expect(page.locator('#device-shown')).to_have_text('Telefono del modale')
             expect(page.locator('#tablet-shown')).to_have_text('Tablet del modale')
             assert page.evaluate('draft.device') == 'Telefono del modale' and page.evaluate('draft.tablet') == 'Tablet del modale'
-            page.locator('#devices-edit').click()
+            page.locator('.device-edit-phone').click()
             page.locator('#device').fill('')
             page.locator('#tablet').fill('')
             page.locator('#devices-ok').click()
             # Desktop: Scarica e installa, the checkbox and the devices share one row, the
             # devices on the right; the page goes from the strip straight to the first test.
             page.set_viewport_size({'width': 1280, 'height': 900})
+            # On a desktop the small modifica stays, and the row icons do not show.
+            expect(page.locator('#devices-edit')).to_be_visible()
+            expect(page.locator('.device-edit-phone')).to_be_hidden()
+            # A wheel over Altro never scrolls the page (his request, 2026-10-06), not even
+            # where Altro has nothing to scroll.
+            page.evaluate('window.scrollTo(0, 300)')
+            before = page.evaluate('window.scrollY')
+            altro_box = page.locator('#extra-section').bounding_box()
+            page.mouse.move(altro_box['x'] + altro_box['width'] / 2, altro_box['y'] + 40)
+            page.mouse.wheel(0, 600)
+            page.wait_for_timeout(300)
+            assert page.evaluate('window.scrollY') == before, 'La rotella sopra Altro scorre la pagina.'
+            page.evaluate('window.scrollTo(0, 0)')
             link = page.locator('.intro-actions a').bounding_box()
             devices = page.locator('.devices').bounding_box()
             assert abs(link['y'] + link['height'] / 2 - devices['y'] - devices['height'] / 2) < 4, (link, devices)

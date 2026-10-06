@@ -570,6 +570,15 @@ document.querySelector("#devices-edit").addEventListener("click", () => {
   syncDevices();
   devicesDialog.showModal();
 });
+// On a phone each device row has its own edit icon (the user's mockup, 2026-10-06): the same
+// dialog, with the caret already in that device's field.
+for (const button of document.querySelectorAll(".device-edit")) {
+  button.addEventListener("click", () => {
+    syncDevices();
+    devicesDialog.showModal();
+    document.querySelector("#" + button.dataset.field).focus();
+  });
+}
 document.querySelector("#devices-cancel").addEventListener("click", () => devicesDialog.close());
 devicesDialog.addEventListener("click", (event) => {
   if (event.target === devicesDialog) devicesDialog.close();
@@ -807,6 +816,26 @@ function controls(disabled) {
     control.disabled = disabled;
   window.feedbackFormatting?.setDisabled(disabled);
 }
+
+// --- Desktop: a wheel over Altro never scrolls the page ---
+// The user's request, 2026-10-06: with the pointer on Altro, the wheel and the touchpad move
+// only Altro. overscroll-behavior stops the chain at the end of a scroll, but it does nothing
+// where no box under the pointer can scroll, so there the event is stopped here.
+(() => {
+  const altro = document.querySelector("#extra-section");
+  const wide = window.matchMedia("(min-width: 1100px)");
+  if (!altro) return;
+  const canScroll = (box, dy) =>
+    box.scrollHeight > box.clientHeight + 1 &&
+    /(auto|scroll)/.test(getComputedStyle(box).overflowY) &&
+    (dy < 0 ? box.scrollTop > 0 : box.scrollTop + box.clientHeight < box.scrollHeight - 1);
+  altro.addEventListener("wheel", (event) => {
+    if (!wide.matches || event.deltaY === 0) return;
+    for (let box = event.target; box && box !== altro.parentElement; box = box.parentElement)
+      if (box instanceof Element && canScroll(box, event.deltaY)) return;
+    event.preventDefault();
+  }, { passive: false });
+})();
 
 // --- Desktop: at the end of the page Prossimi passi ends where Altro does ---
 // Altro is sticky, so at the end of the page its bottom edge is its sticky top plus its height;

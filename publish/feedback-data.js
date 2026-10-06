@@ -221,6 +221,47 @@ function alignDocumentVersion() {
   draft.installed = "";
   syncAltroFields();
 }
+// --- The browser's safety copy of a cloud draft (R2, the user's choice of 2026-10-06) ---
+// Before every cloud save the page keeps a copy, attachments included, in a store of its own;
+// the copy is marked as arrived when the cloud confirms. A copy that never arrived (a session
+// that expired, a lost connection) is offered back at the next load, if it is newer than the
+// cloud's. Until then the edits lived only in memory, and a reload lost them.
+function backupStore(mode) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("aiv-feedback-backup", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("copies");
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const base = request.result;
+      const transaction = base.transaction("copies", mode);
+      transaction.oncomplete = () => base.close();
+      resolve(transaction.objectStore("copies"));
+    };
+  });
+}
+async function writeBackup(copy) {
+  try {
+    const store = await backupStore("readwrite");
+    store.put(copy, "cloud");
+  } catch { /* A browser without storage keeps working on the cloud alone. */ }
+}
+// Esci clears the copy: on a borrowed device nothing of the round stays behind.
+async function dropBackup() {
+  try {
+    const store = await backupStore("readwrite");
+    store.delete("cloud");
+  } catch { /* Nothing to clear. */ }
+}
+async function readBackup() {
+  try {
+    const store = await backupStore("readonly");
+    return await new Promise((resolve) => {
+      const request = store.get("cloud");
+      request.onsuccess = () => resolve(request.result ?? null);
+      request.onerror = () => resolve(null);
+    });
+  } catch { return null; }
+}
 function save() {
   clearTimeout(saveTimer);
   saveTimer = null;
@@ -233,6 +274,8 @@ function save() {
   snapshot.version = spec.version;
   saved.textContent = "Salvataggio in corso...";
   saved.classList.remove("error");
+  const copy = remote ? { draft: { ...structuredClone(draft), version: spec.version }, at: snapshot.updated, arrived: false } : null;
+  if (copy) writeBackup(copy);
   saveQueue = saveQueue
     .catch(() => {})
     .then(
@@ -251,6 +294,8 @@ function save() {
     )
     .then((result) => {
       if (result?.updated) snapshot.updated = result.updated;
+      // Only when nothing changed since: a newer edit has its own copy, still on its way.
+      if (copy && current === revision) writeBackup({ ...copy, arrived: true });
       persistedRevision = current;
       if (current === revision) {
         draft.updated = snapshot.updated;

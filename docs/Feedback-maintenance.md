@@ -259,7 +259,13 @@ PostgreSQL e bucket privato `aiv-feedback`. GitHub conserva il codice. R2 non è
 Credenziali e token rimangono sul server; la guida cloud descrive i cinque campi Actions,
 OAuth, SQL e configurazione. Non chiedere segreti in chat e non metterli nella pagina.
 
-La pagina cloud non usa IndexedDB o localStorage come memoria persistente. La copia su
+Dal 2026-10-06 la pagina cloud tiene nel browser una **copia di sicurezza** della bozza (scelta
+R2 del proprietario, dopo una bozza persa per una sessione scaduta): IndexedDB `aiv-feedback-backup`,
+scritta prima di ogni salvataggio nel cloud e segnata come arrivata quando il cloud conferma. Una
+copia non arrivata e più recente di quella del cloud si offre al caricamento successivo; `Esci` la
+cancella. Non è una seconda fonte: il cloud resta la bozza, e la copia serve solo a recuperarla.
+Dalla stessa data la sessione si rinnova a ogni uso (un giorno dopo l'ultimo rinnovo, per altri 7
+giorni), fino a 60 giorni dall'accesso con GitHub (R1, `worker.mjs`). La copia su
 GitHub Pages, che conservava il vecchio salvataggio locale, non è più pubblicata dal
 2026-10-03 (decisione del proprietario): `pages.yml` esclude dal sito la pagina del documento
 e i suoi script, che restano in `publish/` perché il Worker serve quella cartella come asset. Se una vecchia
