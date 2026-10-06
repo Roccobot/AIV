@@ -98,8 +98,11 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     expect(first.locator('#device')).to_have_value('Telefono precedente')
     expect(first.locator('#tablet')).to_have_value('')
     expect(first.locator('#saved')).to_contain_text('Salvato nel cloud')
+    # The devices change in a modal since 2026-10-06: OK writes both.
+    first.locator('#devices-edit').click()
     first.locator('#device').fill('Telefono di prova, Android 13')
     first.locator('#tablet').fill('Tablet di prova, Android 15', timeout=2000)
+    first.locator('#devices-ok').click()
     using_proof = first.locator('.test').count() > 0
     comment_editor(first).fill('Da telefono')
     save(first)

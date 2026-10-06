@@ -63,10 +63,18 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   casella versione, PP, ...) si discute e si concorda **in chat**, e vive in codice, in questa
   guida e nel brief. **Non** compare nel documento: né come prova di collaudo, né come riga
   di `Aggiornamenti recenti`.
-- ⚠️⚠️ **L'introduzione tiene due righe sullo stato del giro e la voce `Scarica AIV`**, e
-  nient'altro. Un link a un documento esterno (per esempio una proposta di interfaccia) va
-  in testa, subito dopo `Scarica AIV`, **finché serve**: chiusa la decisione che lo riguarda,
+- ⚠️⚠️ **L'introduzione tiene due righe sullo stato del giro e la riga di `Scarica e installa
+  AIV`**, e nient'altro. Un link a un documento esterno (per esempio una proposta di interfaccia)
+  va in testa, subito dopo quella riga, **finché serve**: chiusa la decisione che lo riguarda,
   si toglie.
+- ⚠️⚠️ **La riga di download, dal 2026-10-06** (sue istruzioni): `Scarica e installa AIV x.yz`
+  con accanto la casella sobria `installata`, che vale 'Sì, ho installato questa versione'; a
+  destra, sulla stessa riga su desktop e sotto su mobile, `modifica` e i due dispositivi
+  (`**Smartphone**: ...` e `**Tablet**: ...`). `modifica` apre una modale con i due campi,
+  `Annulla` e `OK`: solo `OK` scrive la bozza. Il riquadro `I tuoi dispositivi` non c'è più, e
+  nemmeno il titolo `Prove sui dispositivi` con la riga delle risposte: dopo la striscia cloud
+  viene il primo riquadro delle prove. Il titolo `Feedback AIV` riprende il margine interno della
+  F (0,0625 em, misurato su Roboto Bold), così la F comincia dove cominciano le righe sotto.
 - ⚠️⚠️ **`Aggiornamenti recenti` è un riepilogo degli ultimi due giri circa, non un changelog**:
   (si chiamava `Riscontri conclusi` fino al 2026-10-03, rinominata da Rocco)
   le righe dei giri più vecchi si tolgono quando entra un giro nuovo. La storia completa vive
@@ -117,7 +125,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   Nell'overlay il campo comincia in cima al pannello, senza titolo né spazio sopra, ed è alto
   269 px, senza anello di selezione: con la tastiera alta dell'utente sopra restano circa
   368 px, e il campo e le due file di tasti entrano in quello spazio (sue scelte, 2026-10-04 e 2026-10-06). Con l'overlay aperto la pagina sotto non scorre. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
-  Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. Non usare un riquadro `position: fixed` staccato dal flusso come unica
+  Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. ⚠️ **Altro non prende i
+  colori di una risposta** (`has-response`, sfondo e bordo grigio-azzurri) quando contiene testo:
+  li aveva dal 2026-10-02 e lui l'ha visto diventare blu (2026-10-06); restano alle prove. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
   interfaccia (paragrafi, pulsanti, toast, voci, ...), l'agente può redigere la proposta e
@@ -164,7 +174,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Da scollegati, l'accesso è una pillola sola `Accedi con GitHub`, ancorata a destra della
   riga del titolo.
 - La versione AIV del giro nel DF è testo fisso (`spec.version`); la conferma avviene solo
-  con la casella 'Sì, ho installato questa versione' (`installed` = versione del giro o vuoto).
+  con la casella `installata` della riga di download (`installed` = versione del giro o vuoto).
 - Allegati mediante selettore e trascinamento nelle verifiche e in Altro:
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
