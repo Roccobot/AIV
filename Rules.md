@@ -16,6 +16,12 @@
 file committato**: il brief è stato volatile e non un archivio, e un indirizzo scritto solo là alla
 sessione dopo è perso.
 
+⚠️ **Il catalogo dei veli d'aiuto** (il micro-onboarding, uno per chiave di `Hint` più la variante
+col menu Start) vive in un [artefatto](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE), con la
+schermata, il punto in cui compare e la frase esatta di ogni velo (sua richiesta, 2026-10-06, voce
+`4.34-02`). **Si aggiorna quando nasce un velo nuovo o ne cambia uno**: le schermate si fanno col
+banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
+
 ## 📚 Dove vivono le specifiche delle funzioni
 
 - **`docs/Folders.md`**: l'intestazione delle cartelle, le griglie che arrivano al vetro, il salto
