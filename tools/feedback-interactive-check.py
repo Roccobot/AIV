@@ -625,36 +625,30 @@ def check(path):
                 page.locator('#altro-overlay-close').click()
                 expect(page.locator('#altro-overlay')).to_be_hidden()
             # Measured on the user's phone with its tall keyboard: about 368px stay visible above
-            # it. The title is small and centred, the field fills them down to the formatting
-            # row, and only the six commands go below (the user's choice).
+            # it. Since 2026-10-06 (his request) the field starts at the top of the panel, with
+            # no title, and the field and both rows of keys fit in those 368px.
             page.set_viewport_size({'width': 412, 'height': 800})
             hold(fab)
-            title = page.locator('#altro-overlay-title')
-            assert title.evaluate('(el)=>getComputedStyle(el).fontSize') == '18px'
-            title_box = title.evaluate('(el)=>{const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return {x:b.x,width:b.width}}')
+            assert page.locator('#altro-overlay h2').count() == 0
             panel_box = page.locator('.altro-overlay-panel').bounding_box()
-            assert abs(title_box['x']+title_box['width']/2 - (panel_box['x']+panel_box['width']/2)) < 1, (title_box, panel_box)
+            field_box = page.locator('#notes-mobile-editor').bounding_box()
+            assert abs(field_box['y'] - panel_box['y']) < 1, (field_box, panel_box)
+            assert abs(field_box['height'] - 269) < 1, field_box
             format_box = page.locator('.altro-overlay-panel .format-actions').bounding_box()
-            assert 360 < format_box['y']+format_box['height'] <= 368, format_box
-            # One row with two states (the user's mockup Altro_mobile, 2026-10-04), with the
-            # same columns: the first key 10%, the other six 15% each, of the room left after
-            # the gaps.
+            assert format_box['y'] + format_box['height'] <= 368, format_box
+            # Two rows of six equal keys over the whole width, both visible, 42px each: Allega,
+            # the four formats and Chiudi, then the six commands.
             row = page.locator('.altro-overlay-panel .format-actions')
-            def widths(selector):
+            assert row.locator('.altro-row-delivery, .altro-row-back').count() == 0
+            def keys(selector):
                 boxes = [b.bounding_box() for b in row.locator(selector).all()]
-                boxes = [b for b in boxes if b]
-                assert all(abs(b['y'] - boxes[0]['y']) < 1 for b in boxes), boxes
-                room = sum(b['width'] for b in boxes)
-                return [round(b['width'] / room, 3) for b in boxes]
-            base = widths(':scope > .altro-row-delivery, .altro-attach, .format-toolbar button, :scope > .altro-row-close')
-            assert [abs(v - w) < 0.005 for v, w in zip(base, [0.1] + [0.15] * 6)] == [True] * 7, base
-            expect(row.locator('.altro-commands > .command').first).to_be_hidden()
-            row.locator('.altro-row-delivery').click()
-            delivery = widths(':scope > .altro-row-back, .altro-commands > .command')
-            assert [abs(v - w) < 0.005 for v, w in zip(delivery, [0.1] + [0.15] * 6)] == [True] * 7, delivery
-            expect(row.locator('.altro-attach')).to_be_hidden()
-            row.locator('.altro-row-back').click()
-            expect(row.locator('.altro-attach')).to_be_visible()
+                assert len(boxes) == 6 and all(boxes), boxes
+                assert all(abs(b['y'] - boxes[0]['y']) < 1 and abs(b['width'] - boxes[0]['width']) < 1 and abs(b['height'] - 42) < 1 for b in boxes), boxes
+                assert abs(boxes[0]['x'] - format_box['x']) < 1 and abs(boxes[-1]['x'] + boxes[-1]['width'] - format_box['x'] - format_box['width']) < 1, (boxes, format_box)
+                return boxes
+            first_row = keys('.altro-attach, .format-toolbar button, :scope > .altro-row-close')
+            second_row = keys('.altro-commands > .command')
+            assert second_row[0]['y'] > first_row[0]['y'] + 40, (first_row, second_row)
             # Chiudi in the row replaces the old bottom close key.
             assert page.locator('.altro-overlay-close-thumb').count() == 0
             row.locator('.altro-row-close').click()
@@ -680,7 +674,6 @@ def check(path):
             # The overlay's copy of the commands is wired: its Copia reports, from an empty message.
             hold(fab)
             page.evaluate("document.querySelector('#action-message').textContent = ''")
-            page.locator('#altro-overlay .altro-row-delivery').click()
             page.locator('#altro-overlay [data-command="copy"]').click()
             expect(page.locator('#action-message')).to_have_text(re.compile('Riepilogo copiato|appunti'))
             # One keyboard handler: Escape closes Altro, T switches the theme outside the fields only.
@@ -943,6 +936,39 @@ def check(path):
             expect(second.locator('#action-message')).to_contain_text('Riepilogo copiato')
             clipboard = second.evaluate('navigator.clipboard.readText()')
             assert all(name in clipboard for name in ['Osservazioni libere di verifica', 'feedback.png', 'notes.zip', 'sources.zip', 'dropped.zip'])
+            # Altro's attachments show in the mobile overlay too, under the field, and there a tap
+            # with no field being written in copies the quoted name (the user's request,
+            # 2026-10-06). On a phone Rinomina and Rimuovi are icons, with the same names.
+            size = second.viewport_size
+            second.set_viewport_size({'width': 390, 'height': 900})
+            page_figures = second.locator('.extra .image-list figure').count()
+            assert page_figures > 0
+            opener = second.locator('#floating-save')
+            opener.dispatch_event('pointerdown', {'button': 0})
+            second.wait_for_timeout(600)
+            opener.dispatch_event('pointerup', {'button': 0})
+            opener.dispatch_event('click')
+            overlay_figures = second.locator('#altro-overlay .image-list figure')
+            expect(overlay_figures).to_have_count(page_figures)
+            list_box = second.locator('#altro-overlay .image-list').bounding_box()
+            rows_box = second.locator('#altro-overlay .format-actions').bounding_box()
+            assert list_box['y'] >= rows_box['y'] + rows_box['height'], (list_box, rows_box)
+            second.evaluate('document.activeElement.blur()')
+            caption = overlay_figures.first.locator('figcaption')
+            quoted = "'" + caption.inner_text() + "'"
+            caption.click()
+            expect(second.locator('.toast.is-visible')).to_contain_text(quoted)
+            assert second.evaluate('navigator.clipboard.readText()') == quoted
+            remove = overlay_figures.first.get_by_role('button', name='Rimuovi allegato')
+            expect(remove.locator('svg')).to_be_visible()
+            expect(remove.locator('.attachment-action-text')).to_be_hidden()
+            expect(overlay_figures.first.get_by_role('button', name='Rinomina allegato').locator('svg')).to_be_visible()
+            second.locator('#altro-overlay-close').click()
+            second.set_viewport_size({'width': 1280, 'height': 900})
+            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Rimuovi allegato')
+            expect(page_remove.locator('.attachment-action-text')).to_be_visible()
+            expect(page_remove.locator('svg')).to_be_hidden()
+            second.set_viewport_size(size)
             confirmations = []
             def cancel_reset(dialog):
                 confirmations.append((dialog.type, dialog.message))

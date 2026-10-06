@@ -67,27 +67,21 @@
     }
     return svg;
   }
-  // Mobile Altro: one row of keys with two states (the user's mockup Altro_mobile,
-  // 2026-10-04). The base state holds Consegna, the attach key, the four formats and
-  // Chiudi; Consegna swaps in Torna and the six commands, Torna swaps them back. The
-  // commands are the copy feedback-ui.js puts under the panel: it moves into this row.
+  // Mobile Altro: two rows of six keys under the field, both always visible (the user's request,
+  // 2026-10-06, which drops the two states of the mockup Altro_mobile and their switch keys):
+  // Allega, the four formats and Chiudi, then the six commands. The commands are the copy
+  // feedback-ui.js puts under the panel: it moves into these rows.
   function overlayRow(actions) {
-    const key = (className, label, paths, onClick, width) => {
-      const button = node("button", undefined, "altro-row-key " + className);
-      button.type = "button";
-      button.setAttribute("aria-label", label);
-      button.title = label;
-      button.append(strokeIcon(paths, width));
-      button.addEventListener("pointerdown", event => event.preventDefault());
-      button.addEventListener("click", onClick);
-      return button;
-    };
+    const close = node("button", undefined, "altro-row-key altro-row-close");
+    close.type = "button";
+    close.id = "altro-overlay-close";
+    close.setAttribute("aria-label", "Chiudi");
+    close.title = "Chiudi";
+    close.append(strokeIcon(["M6 6l12 12", "M18 6 6 18"]));
+    close.addEventListener("pointerdown", event => event.preventDefault());
+    close.addEventListener("click", () => window.feedbackCloseAltro?.());
+    actions.append(close);
     const commands = document.querySelector(".altro-overlay-panel > .altro-commands");
-    const show = state => { actions.dataset.state = state; };
-    actions.dataset.state = "base";
-    actions.prepend(key("altro-row-delivery", "Consegna", ["M5 12h.01", "M12 12h.01", "M19 12h.01"], () => show("consegna"), 4));
-    actions.append(key("altro-row-close", "Chiudi", ["M6 6l12 12", "M18 6 6 18"], () => document.getElementById("altro-overlay-close")?.click()));
-    actions.append(key("altro-row-back", "Torna", ["M9 14 4 9l5-5", "M4 9h10.5a5.5 5.5 0 0 1 0 11H11"], () => show("base")));
     if (commands) actions.append(commands);
   }
   function webAddress(value) {

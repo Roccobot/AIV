@@ -112,11 +112,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   totale di (colonne prove + Altro), senza fascia a tutta viewport. Su mobile resta in
   fondo **prima** del PP; la striscia sticky mostra solo i chip semaforo centrati (niente
   hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ **o** su Salva
-  (dischetto) apre Altro a pannello overlay (chiudi con × in alto o con `Chiudi` nella riga), sullo stesso campo `notes` del
+  (dischetto) apre Altro a pannello overlay (chiudi con `Chiudi` nella prima fila di tasti), sullo stesso campo `notes` del
   riquadro in fondo e con lo stesso salvataggio cloud; il tocco breve resta l'azione del FAB.
-  Nell'overlay il titolo è piccolo e centrato e il campo è alto 265 px, senza anello di
-  selezione: con la tastiera alta dell'utente sopra restano circa 368 px, e la riga di tasti
-  finisce appena sopra (sue scelte, 2026-10-04). Con l'overlay aperto la pagina sotto non scorre. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
+  Nell'overlay il campo comincia in cima al pannello, senza titolo né spazio sopra, ed è alto
+  269 px, senza anello di selezione: con la tastiera alta dell'utente sopra restano circa
+  368 px, e il campo e le due file di tasti entrano in quello spazio (sue scelte, 2026-10-04 e 2026-10-06). Con l'overlay aperto la pagina sotto non scorre. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
 - ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
@@ -138,13 +138,13 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
      quest'ordine: `Azzera tutto`, `Copia il riepilogo`, `Esporta`, `Importa`,
      `Salva`, `Invia`. `Copia il riepilogo` copia negli appunti e basta: il testo non compare
      in nessun campo.
-  ⚠️⚠️ **Nel pannello mobile la riga è una sola, a due stati** (mockup `Altro_mobile`, sua
-  istruzione del 2026-10-04), e le larghezze sono al netto degli spazi: nello stato base
-  `Consegna` 10%, il `+`, i quattro tasti di formattazione e `Chiudi` 15% ciascuno, come la
-  riga consegna (sua istruzione del 2026-10-04 sera; prima il `+` era al 40%);
-  `Consegna` passa allo stato consegna, con `Torna` 10% e i sei comandi 15% ciascuno, e
-  `Torna` riporta lo stato base. Il pannello si apre sempre sullo stato base. `Chiudi` ha
-  preso il posto della × in basso a destra.
+  ⚠️⚠️ **Nel pannello mobile le file sono due, sempre visibili, di sei tasti uguali su tutta la
+  larghezza, alti 42 px** (sua istruzione del 2026-10-06): il `+`, i quattro tasti di
+  formattazione e `Chiudi`; poi i sei comandi. Dal 2026-10-04 era una fila sola a due stati, con
+  `Consegna` e `Torna` per passare dall'uno all'altro (mockup `Altro_mobile`): i due commutatori
+  non ci sono più. `Chiudi` ha preso il posto della × in alto e di quella in basso a destra.
+  Sotto le file ci sono gli allegati di Altro (sua istruzione del 2026-10-06), che con la
+  tastiera aperta restano sotto di lei.
   ⚠️ **L'overlay `Consegna e copie` non c'è più dal 2026-10-03**, e con lui la pressione lunga
   su Salva che lo apriva su desktop. I messaggi dei comandi compaiono nella striscia in alto,
   sotto lo stato del salvataggio (`#action-message`). Gli identificativi `#save`, `#copy`...
@@ -173,7 +173,13 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   - mentre si scrive in un campo, un clic sull'allegato inserisce al cursore il suo nome con
     l'estensione fra apici dritti (`'nome.png'`); la pressione è trattenuta, così il campo tiene
     fuoco e cursore. Pensato per il desktop; da mobile funziona se il browser lascia il fuoco al
-    campo durante il tocco.
+    campo durante il tocco;
+  - **solo nell'overlay mobile**, se nessun campo ha il cursore (la tastiera chiusa può
+    toglierlo), il tocco copia negli appunti lo stesso testo, `'nome.png'`, e lo dice con un
+    avviso (sua istruzione del 2026-10-06);
+  - su mobile `Rinomina allegato` e `Rimuovi allegato` sono due icone (matita e cestino), con lo
+    stesso nome per il lettore di schermo; sul desktop restano le parole (sua istruzione del
+    2026-10-06).
 - Collegamenti esterni in nuova scheda con `noopener noreferrer`. Il DF e le sue pagine di
   supporto usano la favicon `assets/feedback-favicon.svg` (il blocco note col glifo), colore
   `#43B59E`, e alternativa PNG. ⚠️ La paginetta di download `index.html` **non** la usa: ha il
