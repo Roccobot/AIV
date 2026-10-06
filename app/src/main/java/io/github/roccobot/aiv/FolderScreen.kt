@@ -806,8 +806,10 @@ fun FolderScreen(
                 val tasto = @Composable {
                     TapHoldFab(
                         label = stringResource(R.string.hub_open),
-                        container = HINT_MARK,
-                        ink = HINT_INK,
+                        // ⚠️ Sul menu Start del velo la copia è gialla (voce `4.33-05`): l'arancione
+                        // del pannello la nasconderebbe. Il perché è scritto su [HINT_KEY].
+                        container = if (start) HINT_KEY else HINT_MARK,
+                        ink = if (start) HINT_KEY_INK else HINT_INK,
                         holdLabel = stringResource(R.string.columns_title),
                         onTap = hintDone,
                         onHold = { hintDone(); sizing = true },

@@ -347,13 +347,12 @@ class PillolaTest {
     private fun quanti(id: Int): Int =
         banco.onAllNodesWithContentDescription(voce(id)).fetchSemanticsNodes().size
 
-    /** The same drag as `SaltiTest`, for the same measured reasons, written there. */
+    /** The same flick as `SaltiTest`, for the same measured reasons, written there. */
     private fun scorri() {
         val scena = banco.onRoot().fetchSemanticsNode().size
         banco.onRoot().performTouchInput {
             down(Offset(scena.width * LATO, scena.height * DA))
-            moveTo(Offset(scena.width * LATO, scena.height * A))
-            advanceEventTime(FERMO)
+            for (i in 1..PASSI) moveTo(Offset(scena.width * LATO, scena.height * (DA + (A - DA) * i / PASSI)), PASSO_MS)
             up()
         }
         banco.mainClock.advanceTimeBy(RESPIRO)
@@ -406,8 +405,10 @@ private const val NASCITA = 1_000L
 /** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
 private const val RESPIRO = 100L
 
-/** As in `SaltiTest`: longer than the velocity tracker's window, so the list does not fling. */
-private const val FERMO = 300L
+/** As in `SaltiTest`: the flick's steps. */
+private const val PASSI = 6
+private const val PASSO_MS = 10L
+
 
 /** Where the drag starts and ends, as fractions of the screen's height. */
 private const val DA = 0.8f

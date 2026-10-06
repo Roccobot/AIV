@@ -405,7 +405,7 @@
     <string name="start_tree">フォルダ</string>
     <string name="start_show">表示</string>
     <string name="start_hide">非表示</string>
-    <string name="start_url">URL</string>
+    <string name="start_url">URLを開く</string>
     <string name="start_new">作成</string>
     <string name="start_pick">開く</string>
     <string name="start_restore">復元</string>

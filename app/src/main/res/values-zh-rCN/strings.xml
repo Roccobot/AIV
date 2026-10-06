@@ -405,7 +405,7 @@
     <string name="start_tree">文件夹</string>
     <string name="start_show">显示</string>
     <string name="start_hide">隐藏</string>
-    <string name="start_url">URL</string>
+    <string name="start_url">打开网址</string>
     <string name="start_new">新建</string>
     <string name="start_pick">打开</string>
     <string name="start_restore">恢复</string>

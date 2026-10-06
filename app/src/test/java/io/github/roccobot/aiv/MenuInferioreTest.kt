@@ -337,7 +337,7 @@ class MenuInferioreTest {
         }
         val x = banco.onNodeWithContentDescription(voce(R.string.pick_close)).fetchSemanticsNode().boundsInRoot
         val dp = app.resources.displayMetrics.density
-        assertEquals("La casella della × non è di 64dp", 64f * dp, x.width, 0.5f * dp)
+        assertEquals("Il tasto della × non è di 64dp", 64f * dp, x.width, 0.5f * dp)
         assertEquals("La × non è sul centro del tondo in orizzontale", tondo.center.x, x.center.x, 0.5f * dp)
         assertEquals("La × non è sul centro del tondo in verticale", tondo.center.y, x.center.y, 0.5f * dp)
         val commutatore = pos(R.string.corner_rest_pill)
@@ -469,13 +469,95 @@ class MenuInferioreTest {
 
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
         banco.waitForIdle()
-        val cella = (scena - 48f * dp) / 8f
+        // ⚠️ Since 4.34 the row keeps 6dp from both ends of the pill (note A on the 4.33 round).
+        val cella = (scena - 60f * dp) / 8f
         val centro = { id: Int ->
             banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().let { it.positionInRoot.x + it.size.width / 2f }
         }
         // ⚠️ The far end may be off by half a pixel per cell, rounded to the pixel: the corner is exact.
-        assertEquals("La prima voce non è nella prima cella dopo 24dp", 24f * dp + cella / 2f, centro(R.string.hub_view_list), 1.5f * dp + 4f)
-        assertEquals("La × non è nell'ultima cella prima dei 24dp", scena - 24f * dp - cella / 2f, centro(R.string.pick_close), 1.5f * dp)
+        assertEquals("La prima voce non è nella prima cella dopo 30dp", 30f * dp + cella / 2f, centro(R.string.hub_view_list), 0.5f * dp + 4f)
+        assertEquals("La × non è nell'ultima cella prima dei 30dp", scena - 30f * dp - cella / 2f, centro(R.string.pick_close), 0.5f * dp)
+    }
+
+    /**
+     * **With the sliding pill open, the two keys beside the × turn into the jump while scrolling**
+     * (note B on the 4.33 round: *come accade nelle altre modalità. Anche nelle cartelle e nel
+     * cestino*). Until 4.33 the open pill had no jump.
+     */
+    @Test
+    fun `aperta la pillola a scomparsa scorrendo i tasti accanto alla x diventano i salti`() {
+        banco.mainClock.autoAdvance = false
+        banco.setContent { Griglia(PillLook(PhonePill.SLIDE)) }
+        banco.mainClock.advanceTimeBy(NASCITA)
+        banco.onNodeWithContentDescription(voce(R.string.pick_actions)).performClick()
+        banco.mainClock.advanceTimeBy(NASCITA)
+        assertEquals("La pillola non si è aperta", 1, quanti(R.string.pick_close))
+        assertEquals("Aperta e ferma, la pillola annuncia già un salto", 0, quanti(R.string.jump_top) + quanti(R.string.jump_bottom))
+
+        scorri()
+
+        assertEquals("La pillola si è chiusa scorrendo", 1, quanti(R.string.pick_close))
+        assertEquals("Scorrendo non compare 'Vai all'inizio'", 1, quanti(R.string.jump_top))
+        assertEquals("Scorrendo non compare 'Vai alla fine'", 1, quanti(R.string.jump_bottom))
+    }
+
+    /**
+     * **The open Start menu's side keeps clear of the thumbnails' edge, in the home and in a folder**
+     * (item `4.33-07` B, `startMenu.png`: *le linee verticali e orizzontali non devono avvicinarsi
+     * troppo a quelle sottostanti*). In 4.33 it fell 2dp inside the home's thumbnails and 6dp inside a
+     * grid's.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class], qualifiers = "w393dp-h873dp")
+    fun `il fianco del menu Start resta fuori dal bordo delle miniature`() {
+        var casa by mutableStateOf(true)
+        banco.setContent {
+            if (casa) Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT)
+            else Griglia(PillLook(PhonePill.SLIDE, corner = true))
+        }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        fun misura(apri: Int): Float {
+            banco.onNodeWithContentDescription(voce(apri)).performClick()
+            banco.waitForIdle()
+            val griglia = banco.onAllNodes(androidx.compose.ui.test.hasScrollAction()).fetchSemanticsNodes().first()
+            fun tutti(n: androidx.compose.ui.semantics.SemanticsNode): List<androidx.compose.ui.semantics.SemanticsNode> =
+                listOf(n) + n.children.flatMap { tutti(it) }
+            val miniature = tutti(griglia).drop(1).maxOf { it.boundsInRoot.right }
+            val pannello = banco.onAllNodesWithTag(START_PANEL_TAG, useUnmergedTree = true)
+                .fetchSemanticsNodes().single().boundsInRoot.right
+            return (pannello - miniature) / dp
+        }
+        val inCasa = misura(R.string.hub_open)
+        banco.onNodeWithContentDescription(voce(R.string.pick_close)).performClick()
+        casa = false
+        banco.waitForIdle()
+        val inCartella = misura(R.string.pick_actions)
+        assertTrue("In home il fianco del menu è a ${inCasa}dp dal bordo delle miniature", inCasa >= 4f)
+        assertTrue("In cartella il fianco del menu è a ${inCartella}dp dal bordo delle miniature", inCartella >= 4f)
+    }
+
+    /**
+     * **On a glass colour of his the glyphs take the ink with more contrast** (answer A1 to
+     * `colore-icone-vetro`): a light yellow gets the dark ink, a deep blue the light one, and without
+     * his colour the pill keeps the accent's ink.
+     */
+    @Test
+    fun `sul vetro col suo colore l'inchiostro e quello di maggior contrasto`() {
+        assertEquals(FAB_GLASS_INK_DARK, inkOn(androidx.compose.ui.graphics.Color(0xFFFFE680)))
+        assertEquals(FAB_GLASS_INK_LIGHT, inkOn(androidx.compose.ui.graphics.Color(0xFF102060)))
+        var letto: androidx.compose.ui.graphics.Color? = null
+        var look by mutableStateOf(PillLook(PhonePill.SLIDE, fill = PillFill.GLASS))
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                CompositionLocalProvider(LocalPillLook provides look) { letto = pillInk() }
+            }
+        }
+        banco.waitForIdle()
+        assertEquals("Senza il suo colore il vetro non tiene l'inchiostro dell'accento", aivOnAccent(false), letto)
+        look = look.copy(glass = look.glass.withColour(light = true, colour = 0xFFFFE680.toInt()))
+        banco.waitForIdle()
+        assertEquals("Sul suo giallo chiaro l'inchiostro non è quello scuro", FAB_GLASS_INK_DARK, letto)
     }
 
     /**
@@ -682,6 +764,9 @@ class MenuInferioreTest {
     fun `al primo avvio il velo mostra il menu Start aperto sul tondo`() {
         runBlocking { Hint.COLUMNS.forget(app) }
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
+        // ⚠️ The hint comes from the preferences' store, read on another thread that `waitForIdle`
+        // does not wait for: in the full bench the veil was not there yet, and the test failed.
+        banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(voce(R.string.corner_hint)).fetchSemanticsNodes().isNotEmpty() }
         banco.waitForIdle()
         val dp = app.resources.displayMetrics.density
         banco.onNodeWithText(voce(R.string.corner_hint)).assertExists()
@@ -690,23 +775,22 @@ class MenuInferioreTest {
         assertEquals("La copia del tondo è fuori asse in orizzontale", tondi[0].center.x, tondi[1].center.x, 0.5f * dp)
         assertEquals("La copia del tondo è fuori asse in verticale", tondi[0].center.y, tondi[1].center.y, 0.5f * dp)
         val pannello = banco.onAllNodesWithTag(CORNER_COPY_TAG, useUnmergedTree = true).fetchSemanticsNodes().single().boundsInRoot
-        // ⚠️ Since 4.33 the cells are 64dp (note F on the 4.32 round), and the corner cell's centre
-        // is the round key's.
-        assertEquals("Il menu Start del velo non è aperto su tre colonne", 3 * 64f * dp, pannello.width, 0.5f * dp)
-        assertEquals("Il menu Start del velo non ha l'angolo sul tondo", tondi[0].center.x, pannello.right - 32f * dp, 0.5f * dp)
-        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].center.y, pannello.bottom - 32f * dp, 0.5f * dp)
+        // ⚠️ Since 4.34 the columns are 72dp and the panel grows 6dp past them towards the glass,
+        // 4 down and 10 up (item `4.33-07` B); the corner cell's centre is still the round key's.
+        assertEquals("Il menu Start del velo non è aperto su tre colonne", (3 * 72f + 6f) * dp, pannello.width, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha l'angolo sul tondo", tondi[0].center.x, pannello.right - (6f + 36f) * dp, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].center.y, pannello.bottom - (4f + 32f) * dp, 0.5f * dp)
     }
 
     private fun quanti(id: Int): Int =
         banco.onAllNodesWithContentDescription(voce(id)).fetchSemanticsNodes().size
 
-    /** The same drag as `SaltiTest`, for the same measured reasons, written there. */
+    /** The same flick as `SaltiTest`, for the same measured reasons, written there. */
     private fun scorri() {
         val scena = banco.onRoot().fetchSemanticsNode().size
         banco.onRoot().performTouchInput {
             down(Offset(scena.width * LATO, scena.height * DA))
-            moveTo(Offset(scena.width * LATO, scena.height * A))
-            advanceEventTime(FERMO)
+            for (i in 1..PASSI) moveTo(Offset(scena.width * LATO, scena.height * (DA + (A - DA) * i / PASSI)), PASSO_MS)
             up()
         }
         banco.mainClock.advanceTimeBy(RESPIRO)
@@ -766,8 +850,13 @@ private const val NASCITA = 1_000L
 /** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
 private const val RESPIRO = 100L
 
-/** As in `SaltiTest`. */
-private const val FERMO = 300L
+/** How long a test waits for the first start's hint, read from the preferences' store. */
+internal const val VELO_MS = 5_000L
+
+/** As in `SaltiTest`: the flick's steps. */
+private const val PASSI = 6
+private const val PASSO_MS = 10L
+
 
 /** As in `SaltiTest`. */
 private const val DA = 0.8f

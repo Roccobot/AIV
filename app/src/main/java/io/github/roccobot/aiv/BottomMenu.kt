@@ -7,7 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -340,8 +340,10 @@ internal fun CornerMenu(
                         transformOrigin = TransformOrigin(if (atEnd) 1f else 0f, 1f)
                     }
                     .declaresFoot()
+                    .testTag(START_PANEL_TAG)
                     .onGloballyPositioned { panel = it.boundsInRoot() }
                     .buttonFill(backdrop, pillAccent(), RoundedCornerShape(CORNER_CELL / 2))
+                    .startRoom(atEnd)
             ) {
                 rows.forEachIndexed { r, row ->
                     Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
@@ -354,13 +356,15 @@ internal fun CornerMenu(
                                 else -> 0
                             }
                             val usable = cell.copy(enabled = cell.enabled && open)
-                            if (jump == 0) {
-                                PillKey(
-                                    entry = usable, size = CORNER_CELL, enabled = usable.enabled && !armed,
-                                    glyph = { StartFace(cell) }
-                                )
-                            } else {
-                                JumpKey(usable, jump, q, armed, CORNER_CELL, top, bottom, onJump, rest = { StartFace(cell) })
+                            StartCell {
+                                if (jump == 0) {
+                                    PillKey(
+                                        entry = usable, size = CORNER_CELL, enabled = usable.enabled && !armed,
+                                        glyph = { StartFace(cell) }
+                                    )
+                                } else {
+                                    JumpKey(usable, jump, q, armed, CORNER_CELL, top, bottom, onJump, rest = { StartFace(cell) })
+                                }
                             }
                         }
                     }
@@ -429,11 +433,12 @@ internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Comp
             .startShift(atEnd)
             .testTag(CORNER_COPY_TAG)
             .background(HINT_MARK, RoundedCornerShape(CORNER_CELL / 2))
+            .startRoom(atEnd)
     ) {
         cornerRows(entries + null, atEnd).forEach { row ->
             Row {
                 row.forEach { cell ->
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(CORNER_CELL)) {
+                    StartCell {
                         if (cell == null) {
                             key()
                         } else {
@@ -449,35 +454,73 @@ internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Comp
 /** The tag of [CornerMenuCopy], which the bench reads: its cells are drawings, without semantics. */
 internal const val CORNER_COPY_TAG = "corner-copy"
 
+/** The tag of the open Start menu's panel, whose bounds the bench reads. */
+internal const val START_PANEL_TAG = "start-panel"
+
 /** Up to how many cells, the × included, the corner menu is a 2x2 (decision C3). */
 private const val CORNER_SMALL = 4
 
 /**
- * The side of a Start menu's cell.
+ * The height of a Start menu's cell, and the side of its key.
  *
  * ⚠️⚠️ **SINCE 4.33 LARGER THAN A PILL'S KEY, A USABILITY TEST OF HIS** (note F on the 4.32 round:
  * *le icone appaiano nello stessa disposizione, ma più grandi e più distanziate, con un testo
  * piccolo e abbreviato*). Until 4.32 it was [PILL_KEY], so the corner cell was the folded pill's
- * key; now the panel moves out by half the difference ([startShift]) and the × keeps the round
- * key's centre.
+ * key; now the panel moves out ([startShift]) and the × keeps the round key's centre.
  */
 private val CORNER_CELL = 64.dp
 
-/** The side of a Start menu's glyph, larger than a pill's ([PILL_GLYPH]) with the cell. */
+/**
+ * The width of a Start menu's column, wider than the key so a label has room beside it.
+ *
+ * ⚠️⚠️ **SINCE 4.34, HIS NOTE** (item `4.33-07` B: *le icone restano grandi uguali, il testo
+ * 'Impostazioni' assume le stesse dimensioni degli altri testi e ci sta per intero*): in 4.33 the
+ * column was the 64dp key, and 'Impostazioni' shrank or lost its edges.
+ */
+private val START_COLUMN = 72.dp
+
+/**
+ * How much the Start menu's panel grows past its cells: towards the glass, down and up.
+ *
+ * ⚠️⚠️ **SINCE 4.34, HIS NOTE** (item `4.33-07` B, `startMenu.png`: *le linee verticali e orizzontali
+ * non devono avvicinarsi troppo a quelle sottostanti ... l'intero menu deve ingrandirsi a destra, un
+ * poco verso il basso e di ~10dp verso l'alto*). Measured on the bench at 393dp in 4.33: the panel's
+ * side fell 14dp from the glass, 2dp inside the home's thumbnails (12dp) and 6dp inside a grid's
+ * (8dp). With [START_EDGE] it falls 4dp from the glass, outside both.
+ * ⚠️ Rejected: the edge flush with a grid's thumbnails, which is the optical fault itself.
+ */
+private val START_EDGE = 6.dp
+private val START_FOOT = 4.dp
+private val START_HEAD = 10.dp
+
+/** The glyph's side, larger than a pill's ([PILL_GLYPH]) with the cell. */
 private val START_GLYPH = 28.dp
 
-/** The short label's largest and smallest size: it shrinks to fit a long word in its cell. */
+/** The short label's largest and smallest size: it shrinks to fit a long word in its column. */
 private val START_LABEL = 10.sp
 private val START_LABEL_MIN = 7.sp
 
 /**
- * Moves the Start menu's panel out by half the difference between its cell and the round key,
- * sideways towards the glass and down, so the corner cell's centre is the round key's: every main
- * control's centre since 4.31 ([pillCorner]).
+ * Moves the Start menu's panel out, sideways towards the glass and down, so the corner cell's
+ * centre is the round key's: every main control's centre since 4.31 ([pillCorner]).
  */
 private fun Modifier.startShift(atEnd: Boolean): Modifier {
-    val d = (CORNER_CELL - PILL_KEY) / 2
-    return offset(x = if (atEnd) d else -d, y = d)
+    val x = START_EDGE + START_COLUMN / 2 - PILL_KEY / 2
+    return offset(x = if (atEnd) x else -x, y = START_FOOT + (CORNER_CELL - PILL_KEY) / 2)
+}
+
+/** The room [START_EDGE], [START_FOOT] and [START_HEAD] give the panel, inside its fill. */
+private fun Modifier.startRoom(atEnd: Boolean): Modifier = padding(
+    start = if (atEnd) 0.dp else START_EDGE,
+    end = if (atEnd) START_EDGE else 0.dp,
+    top = START_HEAD,
+    bottom = START_FOOT
+)
+
+/** One cell of a Start menu, the menu's or the hint's copy: its key in the middle of the column. */
+@Composable
+private fun StartCell(content: @Composable () -> Unit) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(START_COLUMN, CORNER_CELL)) { content() }
 }
 
 /**
@@ -494,7 +537,9 @@ private fun StartFace(entry: PillEntry) {
                 style = TextStyle(color = LocalContentColor.current, textAlign = TextAlign.Center),
                 maxLines = 1,
                 autoSize = TextAutoSize.StepBased(START_LABEL_MIN, START_LABEL, 0.5.sp),
-                modifier = Modifier.width(CORNER_CELL - 6.dp)
+                // ⚠️ Wider than the key, which the label overflows: the key draws no clip since
+                // 4.34 ([PillKey]).
+                modifier = Modifier.requiredWidth(START_COLUMN - 4.dp)
             )
         }
     }
