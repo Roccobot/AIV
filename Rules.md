@@ -454,6 +454,13 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
 
 ## 🎬 Le animazioni dentro una schermata che arriva
 
+- ⚠️⚠️ **Nessun cambio di schermata è un taglio netto, dalla `4.36`** (sua indicazione del
+  2026-10-06: *una transizione di 100ms ogni volta che c'è un cambio netto di schermata*, nata
+  dal 'flash' al tocco di una miniatura, nota A del giro della `4.35`). Dove prima la schermata
+  si sostituiva di colpo (l'entrata e l'uscita del visualizzatore, le pagine delle impostazioni)
+  c'è una dissolvenza di sola opacità da 100 ms, `CUT_FADE_MS`; le schermate che avevano già
+  quella da 180 ms la tengono. Una schermata o una pagina nuova passa da uno dei due, e lo
+  misura `TagliTest`. ⚠️ **È una prova**: se non va, alla versione dopo si toglie.
 - ⚠️⚠️ **Le opacità si moltiplicano**: un'animazione giocata sotto la dissolvenza di schermata
   (180 ms, `cambioSchermata` in `ViewerActivity`) si vede solo per la coda. Quindi un'animazione
   che deve farsi vedere aspetta che la schermata sia arrivata, e quello che arriva con la schermata

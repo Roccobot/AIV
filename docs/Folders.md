@@ -291,6 +291,10 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     Un trascinamento lento non lo arma più. Con la pillola a scomparsa **aperta** i due tasti accanto
     alla × diventano su e giù (nota B), come nelle altre modalità; aperta e a fila piena, la pillola
     tiene i due tasti alle estremità a 6dp dai suoi capi (nota A, `SLIDE_INSET`).
+  - ⚠️ **Dalla `4.36` i tasti della pillola a scomparsa aperta sono centrati in altezza** (sua
+    nota del 2026-10-06, con una schermata): con otto voci su un telefono stretto si rimpiccioliscono
+    sotto i 44dp, e la fila li metteva in alto, mentre la ×, sempre da 44dp, restava al centro.
+    Anche la fila della pillola estesa dichiara la centratura; menu basso e menu Start la avevano già.
   - ⚠️ **Dalla `4.34` sul vetro con un colore suo l'inchiostro dei glifi si sceglie per contrasto**
     (risposta A1 a `colore-icone-vetro`): fra i due inchiostri del FAB sul vetro, quello che stacca
     di più dal colore scelto (`ownGlassInk`).
@@ -385,6 +389,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   - ⚠️⚠️ **A tasto armato il tocco salta e non apre il menu**; l'armamento finisce un secondo dopo
     l'ultimo pixel scorso.
   - **I cinque numeri sono del mockup che ha approvato**, e vivono in `Jump.kt`.
+  - ⚠️ **Dalla `4.36` i glifi su e giù sono sottili** (nota B del giro della `4.35`): stessa forma
+    del suo disegno, tratto da 2 unità su 24 come le icone di Material accanto, vertice con raggio
+    1,5. Il perché vive in testa a `ic_browse_top.xml`.
   - ⚠️ **Il crossfade dei due glifi usa un esponente sotto uno (0,8)**: con due opacità lineari, a
     metà corsa i glifi sono al 9% e il tasto resta vuoto.
 - ⚠️⚠️ **Dove il FAB non c'è, il comando non c'è**: nelle impostazioni è la sua risposta (le voci le

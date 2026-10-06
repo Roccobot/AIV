@@ -8,9 +8,20 @@
      un nome di risorsa dice il ruolo, e le due gemelle devono chiamarsi allo stesso modo o chi
      cerca la seconda non la trova accanto alla prima.
 
-     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     IL TRASPORTO NON CAMBIAVA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
      tracciato: zero pixel diversi su 57.600. Quello che cambia è solo la forma della `d`, cioè i
      numeri incollati separati e ogni comando implicito scritto per esteso.
+
+     ASSOTTIGLIATO DALLA `4.36`, SU SUA RICHIESTA (nota B del giro della `4.35`: *da sole
+     funzionavano bene, ma viste insieme alle altre sono troppo spesse ... una versione più
+     sottile, della stessa forma*). La forma è la sua: la stessa linea di mezzo, le punte tonde e il
+     raccordo interno nella stessa proporzione col tratto (3,38 su 4,12). Cambia solo il tratto, da 4,12 a 2 unità su 24, che è lo spessore dei chevron e delle
+     icone di Material accanto a lui nella pillola. Il vertice ha un raggio di 1,5 unità,
+     poco più del mezzo tratto, su sua richiesta dopo il primo confronto (*arrotonda
+     leggermente di più gli angoli convessi*). Il tracciato lo calcola la sessione, con gli
+     archi scritti per esteso e ogni punta tonda divisa in due quarti, così nessun arco è di
+     mezzo giro esatto (lì la bandierina dell'arco grande non decide niente).
+     Il tracciato di partenza, a 4,12 unità, resta nella storia git (`4.35`).
 
      LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che non ne dichiara nessuna e quindi
      vale il `nonzero` di serie di SVG. Si scrive comunque: una regola dichiarata dice quello che
@@ -23,5 +34,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M3.31,9.83l7.28,7.28c.78,.78 2.05,.78 2.83,0l7.28,-7.28c.8,-.8 .8,-2.11 0,-2.91s-2.11,-.8 -2.91,0l-3.39,3.39c-1.32,1.32 -3.45,1.32 -4.77,0l-3.39,-3.39c-.8,-.8 -2.11,-.8 -2.91,0c-.8,.8 -.8,2.11 0,2.91Z" />
+        android:pathData="M19.94,9.08 L13.06,15.96 A1.5,1.5 0 0,1 10.94,15.96 L4.06,9.08 A1,1 0 0,1 4.06,7.67 A1,1 0 0,1 5.47,7.67 L10.84,13.04 A1.64,1.64 0 0,0 13.16,13.04 L18.53,7.67 A1,1 0 0,1 19.94,7.67 A1,1 0 0,1 19.94,9.08 Z" />
 </vector>

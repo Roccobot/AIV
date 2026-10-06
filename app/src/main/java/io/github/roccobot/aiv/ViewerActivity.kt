@@ -37,8 +37,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -3242,10 +3240,24 @@ private const val SCHERMO_MS = 180
  */
 internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTransform =
     if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
-        EnterTransition.None togetherWith ExitTransition.None
+        fadeIn(tween(CUT_FADE_MS)) togetherWith fadeOut(tween(CUT_FADE_MS))
     } else {
         fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
     } using null
+
+/**
+ * The short fade that takes the place of every hard cut between two screens.
+ *
+ * ⚠️⚠️ **Until 4.35 the viewer came and went with a hard cut**, and so did the settings' pages: the
+ * jump from the grid to the checkerboard read as a flash at every tap on a thumbnail (note A of the
+ * 4.35 round, and his message of 2026-10-06: *una transizione di 100ms ogni volta che c'è un cambio
+ * netto di schermata*). Opacity only, and his length; the screens that already had the longer fade
+ * ([SCHERMO_MS]) keep it.
+ * ⚠️ **One value for every cut**: the viewer here, and the settings' pages (`SettingsScreen.kt`).
+ * ⚠️ **The video is a `TextureView`** (`ViewerScreen.kt`), which fades with the tree: a
+ * `SurfaceView` would have appeared at once over the fade.
+ */
+internal const val CUT_FADE_MS = 100
 
 /**
  * Quello che sta in scena adesso.
