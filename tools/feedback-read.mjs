@@ -26,6 +26,76 @@ async function gh(arguments_,input) {
   });
 }
 const pause=ms=>new Promise(resolve_=>setTimeout(resolve_,ms));
+
+/*
+ * Sessions without the GitHub CLI (Claude Code in the cloud), since 2026-10-06: the recovery in
+ * two commands, with the workflow started and its artifact downloaded by the session's own GitHub
+ * tools in between. Until then every step was typed by hand (key, UUID, base64, folders), and
+ * that is where the recoveries of 2026-10-06 went wrong.
+ *   --prepare --dir D [--version X]  makes D (private), keeps the key and the request in it, and
+ *                                    prints the inputs of `feedback-read.yml`;
+ *   --open FILE --dir D --output OUT opens the artifact (ZIP or JSON), writes the round to OUT and
+ *                                    its attachments next to it, and only then removes D with the key.
+ */
+async function prepare(dir) {
+  const version=option('--version');
+  if (version && !/^\d+\.\d{2}$/.test(version)) throw Error('Versione non valida.');
+  await mkdir(dir,{recursive:true,mode:0o700});
+  const {publicKey,privateKey}=generateKeyPairSync('rsa',{modulusLength:3072});
+  const request={request_id:randomUUID(),requested_at:new Date().toISOString(),version,verify_only:String(args.includes('--verify-only'))};
+  await writeFile(join(dir,'key.pem'),privateKey.export({format:'pem',type:'pkcs8'}),{mode:0o600,flag:'wx'});
+  await writeFile(join(dir,'request.json'),JSON.stringify(request),{mode:0o600,flag:'wx'});
+  console.log(JSON.stringify({...request,public_key:Buffer.from(publicKey.export({format:'pem',type:'spki'})).toString('base64')}));
+}
+async function envelopeFrom(file) {
+  if (!file.endsWith('.zip')) return readFile(file,'utf8');
+  return new Promise((resolve_,reject)=>{
+    const child=spawn('unzip',['-p',file,'feedback-envelope.json'],{stdio:['ignore','pipe','ignore']});
+    let output='';
+    child.stdout.on('data',data=>{output+=data;});
+    child.on('error',()=>reject(Error('unzip non disponibile.')));
+    child.on('close',code=>code===0 ? resolve_(output) : reject(Error('Artefatto non leggibile.')));
+  });
+}
+async function openEnvelope(file,dir) {
+  const output=resolve(option('--output'));
+  if (!option('--output')) throw Error('Manca --output.');
+  const request=JSON.parse(await readFile(join(dir,'request.json'),'utf8'));
+  const payload=open(JSON.parse(await envelopeFrom(file)),await readFile(join(dir,'key.pem'),'utf8'),request.request_id);
+  if (payload.schema!==1 || payload.project!=='AIV' || !payload.completed) throw Error('Giro recuperato non valido.');
+  await mkdir(dirname(output),{recursive:true,mode:0o700});
+  // Every attachment becomes a file with its own name, numbered, next to the round.
+  let count=0;
+  const files=[];
+  const plain=JSON.parse(JSON.stringify(payload,(key,value)=>{
+    const match=typeof value==='string' && value.match(/^data:([\w/+.-]+);base64,(.*)$/);
+    if (!match) return value;
+    const name=`allegato-${++count}.${match[1].split('/')[1].replace('svg+xml','svg')}`;
+    files.push([name,Buffer.from(match[2],'base64')]);
+    return `[file ${name}]`;
+  }));
+  for (const [name,bytes] of files) await writeFile(join(dirname(output),name),bytes,{mode:0o600,flag:'wx'});
+  await writeFile(output,JSON.stringify(plain,null,2),{mode:0o600,flag:'wx'});
+  console.log('Giro aperto: '+output+(files.length ? ', con '+files.length+' allegati accanto' : '')+'.');
+}
+const prepareMode=args.includes('--prepare'), openFile=option('--open');
+if (prepareMode || openFile) {
+  const dir=option('--dir');
+  try {
+    if (!dir) throw Error('Manca --dir.');
+    if (prepareMode) await prepare(resolve(dir));
+    else {
+      await openEnvelope(resolve(openFile),resolve(dir));
+      // The key lives until the round is open: a failed opening can be retried on the same
+      // artifact, without a new request.
+      await rm(resolve(dir),{recursive:true,force:true});
+    }
+  } catch (error) {
+    console.error(error.message+(openFile ? ' La chiave resta in '+dir+': si può riprovare.' : ''));
+    process.exitCode=1;
+  }
+  process.exit();
+}
 let temporary;
 try {
   const verifyOnly=args.includes('--verify-only');

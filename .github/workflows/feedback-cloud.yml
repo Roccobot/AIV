@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', '.github/workflows/feedback-cloud.yml']
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
 permissions:
   contents: read
 concurrency:
@@ -27,6 +27,7 @@ jobs:
           node cloud/feedback/supabase-sql-test.mjs
           node cloud/feedback/supabase-test.mjs
           node cloud/feedback/feedback-transfer-test.mjs
+          node tools/feedback-read-test.mjs
       - name: Prepara il browser di prova
         run: |
           python3 -m venv /tmp/aiv-cloud-tests
