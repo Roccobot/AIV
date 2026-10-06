@@ -765,6 +765,7 @@ fun AdvancedEditorScreen(
                         },
                         onDraw = { look = look.copy(drawing = it) },
                         onDrawEnd = { push() },
+                        inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -924,6 +925,7 @@ fun AdvancedEditorScreen(
                         },
                         onDraw = { look = look.copy(drawing = it) },
                         onDrawEnd = { push() },
+                        inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -1248,6 +1250,8 @@ private fun LookStage(
     onDraw: (Drawing) -> Unit,
     /** The finger is up: what was drawn becomes a step of the history. */
     onDrawEnd: () -> Unit,
+    /** Whether a finger holds the 'Spessore' dial of the Disegno module: see [Gaze.inkSizing]. */
+    inkSizing: () -> Boolean,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -1420,6 +1424,11 @@ private fun LookStage(
     var held by remember { mutableStateOf(Grab.NONE) }
     var brushAt by remember(picture) { mutableStateOf<Offset?>(null) }
     var brushTouching by remember(picture) { mutableStateOf(false) }
+    /**
+     * Where the finger draws, while the shape it draws is still small: the stage shows the loupe
+     * there (his note on `4.40-01`, R2), or `null`.
+     */
+    var penLoupe by remember(picture) { mutableStateOf<Offset?>(null) }
     var brushHide by remember(picture) { mutableStateOf<Job?>(null) }
     /**
      * Quanto è grande il palco, misurato dal layout.
@@ -1853,16 +1862,37 @@ private fun LookStage(
                         val draws = pen.pen == Pen.FREE || esito == Settled.MOVED
                         if (esito == Settled.MOVED) toImage(oltre)?.let { mark = mark.reaching(it) }
                         if (draws) drawTo(base.with(mark))
-                        if (esito == Settled.MOVED) {
-                            drag(down.id) { change ->
-                                toImage(change.position)?.let { at ->
-                                    if (mark.pen != Pen.FREE || Draw.far(mark.points.last(), at)) {
-                                        mark = mark.reaching(at)
-                                        drawTo(base.with(mark))
+                        /*
+                         * ⚠️ The loupe follows the finger while the shape is small, measured on the
+                         * screen: the box of the free hand stroke so far, or the span from A to the
+                         * finger for the other pens. A shape that grows past the threshold drops
+                         * the loupe, and one of the four A-B pens that shrinks back gets it again.
+                         */
+                        var box = Rect(down.position, oltre)
+                        fun loupeAt(at: Offset) {
+                            box = if (pen.pen == Pen.FREE) Rect(
+                                min(box.left, at.x), min(box.top, at.y),
+                                max(box.right, at.x), max(box.bottom, at.y)
+                            ) else Rect(down.position, at)
+                            val span = max(abs(box.width), abs(box.height))
+                            penLoupe = at.takeIf { span < brushCmPx * PEN_LOUPE_CM }
+                        }
+                        try {
+                            if (esito == Settled.MOVED) {
+                                loupeAt(oltre)
+                                drag(down.id) { change ->
+                                    loupeAt(change.position)
+                                    toImage(change.position)?.let { at ->
+                                        if (mark.pen != Pen.FREE || Draw.far(mark.points.last(), at)) {
+                                            mark = mark.reaching(at)
+                                            drawTo(base.with(mark))
+                                        }
                                     }
+                                    change.consume()
                                 }
-                                change.consume()
                             }
+                        } finally {
+                            penLoupe = null
                         }
                         if (draws) drawEnd()
                         return@awaitEachGesture
@@ -2213,8 +2243,8 @@ private fun LookStage(
          * so here it is warped exactly as the image is (with the 'Angoli' view when armed), and
          * clipped to the same visible frame.
          */
-        val disegno = drawingMask
-        if (disegno != null) {
+        fun DrawScope.paintDrawing() {
+            val disegno = drawingMask ?: return
             val shader = BitmapShader(disegno, TileMode.CLAMP, TileMode.CLAMP)
             shader.setLocalMatrix(Matrix().apply {
                 setScale(view.width() / disegno.width, view.height() / disegno.height)
@@ -2237,6 +2267,7 @@ private fun LookStage(
                 }
             }
         }
+        paintDrawing()
 
         fun DrawScope.paintSelection() {
             val mask = selectionMask ?: return
@@ -2272,6 +2303,9 @@ private fun LookStage(
                     )
                 }
             }
+            // ⚠️ The ink is in the loupe too: it opens while drawing (R2 of the 4.40 round), and a
+            // loupe without the stroke under the finger would show everything but the stroke.
+            paintDrawing()
             paintSelection()
         }
 
@@ -2372,6 +2406,42 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                     HANDLE_THICK.toPx(), LENS_EDGE.toPx(), brushAccent,
                     farthestCorner = true,
                     zoom = fitZoom.coerceAtLeast(1f)
+                ) {
+                    pictureForLens()
+                }
+            }
+        }
+
+        /*
+         * The two helpers of the Disegno module, from 4.41 (his notes on `4.40-01`).
+         * ⚠️ R1: while a finger holds 'Spessore', the tip at its real size, as a full dot in the
+         * outline's ink, bottom right of the visible image: the same corner and margin as the brush
+         * of Correggi and Fluidifica, which is the preview he already knows. The real size is the
+         * width (a fraction of the long side) on the long side of the image on screen.
+         * ⚠️ R2: the loupe of Correggi while the finger draws a small shape, with its zoom.
+         */
+        val penura = drawPen()
+        if (penura != null) {
+            if (inkSizing() && visto.width() > 0f && visto.height() > 0f) {
+                val r = (penura.width * max(view.width(), view.height()) / 2f).coerceAtLeast(0.5f)
+                val margin = 12.dp.toPx()
+                val left = max(0f, visto.left)
+                val top = max(0f, visto.top)
+                val right = min(room.width, visto.right)
+                val bottom = min(room.height, visto.bottom)
+                val centre = Offset(
+                    if (right - left >= 2f * (r + margin)) right - r - margin else (left + right) / 2f,
+                    if (bottom - top >= 2f * (r + margin)) bottom - r - margin else (top + bottom) / 2f
+                )
+                clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                    drawCircle(Color(penura.ink), r, centre)
+                }
+            }
+            penLoupe?.let { at ->
+                lens(
+                    at, null, LOUPE_SIDE.toPx(), LOUPE_EDGE.toPx(),
+                    HANDLE_THICK.toPx(), LENS_EDGE.toPx(), brushAccent,
+                    farthestCorner = true
                 ) {
                     pictureForLens()
                 }
@@ -2939,6 +3009,13 @@ private class Module(
  * si possono accendere insieme, e un modulo che dichiarasse le fasce **e** il grafico sarebbe una
  * riga che compila e non vuol dire niente. Con un valore solo quel caso non esiste.
  */
+/**
+ * Below this span on the screen, in centimetres, a shape being drawn gets the loupe (R2 of the
+ * 4.40 round, threshold left to the session): about a fingertip and a half, where the finger
+ * covers most of what it draws. ⚠️ A choice, declared in the test item, not a measure.
+ */
+private const val PEN_LOUPE_CM = 1.5f
+
 private enum class Extra {
     /** Niente: la scheda mostra i soli cursori, come la Luce e il Colore. */
     NONE,
@@ -3988,6 +4065,12 @@ private class Gaze(
     var fillTarget by mutableStateOf(false)
 
     /**
+     * Whether a finger holds the 'Spessore' dial: the stage shows the tip at its real size (R1 of
+     * the 4.40 round). Like [brushSizing] it is a gesture, not a choice.
+     */
+    var inkSizing by mutableStateOf(false)
+
+    /**
      * The pen as an empty mark, ready for the first point of the finger.
      *
      * ⚠️ The three pens that do not close a shape get no fill, so a mark never carries a value
@@ -4692,9 +4775,11 @@ private fun DrawBody(
             enabled = live && gaze.fillInk != null
         )
     } else {
+        DisposableEffect(gaze) { onDispose { gaze.inkSizing = false } }
         Slider(
             value = gaze.inkWidth,
-            onValueChange = { gaze.inkWidth = it },
+            onValueChange = { gaze.inkSizing = true; gaze.inkWidth = it },
+            onValueChangeFinished = { gaze.inkSizing = false },
             valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
             enabled = live
         )
