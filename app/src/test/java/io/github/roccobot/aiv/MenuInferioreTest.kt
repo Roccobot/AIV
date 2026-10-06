@@ -847,9 +847,7 @@ class MenuInferioreTest {
     fun `al primo avvio il velo mostra il menu Start aperto sul tondo`() {
         runBlocking { Hint.COLUMNS.forget(app) }
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
-        // ⚠️ The hint comes from the preferences' store, read on another thread that `waitForIdle`
-        // does not wait for: in the full bench the veil was not there yet, and the test failed.
-        banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(voce(R.string.corner_hint)).fetchSemanticsNodes().isNotEmpty() }
+        aspettaIlVelo(banco, app)
         banco.waitForIdle()
         val dp = app.resources.displayMetrics.density
         banco.onNodeWithText(voce(R.string.corner_hint)).assertExists()
@@ -938,8 +936,44 @@ private const val NASCITA = 1_000L
 /** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
 private const val RESPIRO = 100L
 
-/** How long a test waits for the first start's hint, read from the preferences' store. */
-internal const val VELO_MS = 5_000L
+/**
+ * How long a test waits for the first start's hint, read from the preferences' store.
+ *
+ * ⚠️ **20 s since 4.36, and it was 5**: see [aspettaIlVelo].
+ */
+internal const val VELO_MS = 20_000L
+
+/**
+ * Waits for the first start's hint of the Start menu, and says why when it does not come.
+ *
+ * ⚠️ The hint comes from the preferences' store, read on another thread that `waitForIdle` does not
+ * wait for: in the full bench the veil was not there yet, and the test failed.
+ * ⚠️⚠️ **ON GITHUB IT ONCE NEVER CAME, TWICE IN A ROW AND IN TWO TESTS, AND THE CAUSE IS NOT KNOWN**
+ * (releases of 4.36: `EtichetteStartTest`, glass variant, then this class's hint test, each time
+ * after 5 s; the same commit was green in between, and on this machine it always is). The two
+ * guesses, neither proved: the machine is slow (hence the wait raised to 20 s), or a state left in
+ * the preferences' store by another class (the store is one per process, and on GitHub the classes
+ * run in another order). So a timeout reports the store and the texts on screen, and a hint that
+ * takes more than [VELO_LENTO_MS] prints how long it took: either way the next run says which.
+ */
+internal fun aspettaIlVelo(banco: androidx.compose.ui.test.junit4.ComposeContentTestRule, app: android.content.Context) {
+    val frase = app.getString(R.string.corner_hint)
+    val inizio = System.nanoTime()
+    try {
+        banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(frase).fetchSemanticsNodes().isNotEmpty() }
+    } catch (e: androidx.compose.ui.test.ComposeTimeoutException) {
+        val p = runBlocking { storedPreferences(app) }
+        val testi = banco.onAllNodes(androidx.compose.ui.test.hasText("", substring = true), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .mapNotNull { n -> n.config.getOrElseNullable(androidx.compose.ui.semantics.SemanticsProperties.Text) { null }?.joinToString() }
+        throw AssertionError("Il velo non è comparso. archivio=${p.asMap()} vista=${SettingsStore.read(p).folderView} testi=$testi", e)
+    }
+    val ms = (System.nanoTime() - inizio) / 1_000_000
+    if (ms > VELO_LENTO_MS) println("VELO LENTO: $ms ms")
+}
+
+/** Beyond this, a hint that came is reported as slow: the solid variant took 0,3 s. */
+private const val VELO_LENTO_MS = 2_000L
 
 /** As in `SaltiTest`: the flick's steps. */
 private const val PASSI = 6

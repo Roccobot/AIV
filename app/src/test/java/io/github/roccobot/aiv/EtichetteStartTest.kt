@@ -113,23 +113,7 @@ class EtichetteStartTest {
     private fun copiaGialla(fill: PillFill) {
         runBlocking { Hint.COLUMNS.forget(app) }
         banco.setContent { Home(fill) }
-        // ⚠️ As in `MenuInferioreTest`: the hint is read on another thread.
-        /*
-         * ⚠️⚠️ **THE HINT ONCE NEVER CAME, ON GITHUB ONLY, AND THE CAUSE IS NOT KNOWN** (release of
-         * 4.36, glass variant: 5 s without the hint, while the solid one found it in 0,3 s; the
-         * same commit was green on the next run). The best guess, not proved, is a state left in
-         * the preferences' store by another class: the store is one per process, and on GitHub the
-         * classes run in another order. So a timeout reports the store and the texts on screen,
-         * which is the data to close the question the next time it happens.
-         */
-        try {
-            banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(voce(R.string.corner_hint)).fetchSemanticsNodes().isNotEmpty() }
-        } catch (e: androidx.compose.ui.test.ComposeTimeoutException) {
-            val p = runBlocking { storedPreferences(app) }
-            val testi = banco.onAllNodes(androidx.compose.ui.test.hasText("", substring = true), useUnmergedTree = true)
-                .fetchSemanticsNodes().mapNotNull { n -> n.config.getOrElseNullable(androidx.compose.ui.semantics.SemanticsProperties.Text) { null }?.joinToString() }
-            throw AssertionError("Il velo non è comparso. archivio=${p.asMap()} vista=${SettingsStore.read(p).folderView} testi=$testi", e)
-        }
+        aspettaIlVelo(banco, app)
         banco.waitForIdle()
         val dp = app.resources.displayMetrics.density
         val mappa = banco.onRoot().captureToImage().toPixelMap()
