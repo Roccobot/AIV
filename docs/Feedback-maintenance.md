@@ -75,6 +75,15 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   nemmeno il titolo `Prove sui dispositivi` con la riga delle risposte: dopo la striscia cloud
   viene il primo riquadro delle prove. Il titolo `Feedback AIV` riprende il margine interno della
   F (0,0625 em, misurato su Roboto Bold), così la F comincia dove cominciano le righe sotto.
+  - ⚠️ **Su mobile, dalla sera del 2026-10-06** (sua richiesta): testo dei dispositivi al 70%;
+    icone da 20px al 22,5% dell'inchiostro attenuato, che sullo sfondo chiaro dà circa
+    `#d4d8d2`; il bordo destro del **disegno** sulla verticale del lato destro della pillola di
+    GitHub (ogni icona si sposta di quanto la sua tela lascia vuoto a destra, `--ink-gap`); il
+    centro dell'icona sul centro di una maiuscola della riga (unità `cap`). Le icone non hanno
+    gli angoli arrotondati dei pulsanti, che tagliavano ai lati quella del tablet.
+  - ⚠️ **Su desktop, dalla stessa sera**: l'intestazione ha 26px di rientro per lato invece di
+    24 (il blocco a sinistra va a destra di 2px, la pillola e i dispositivi a sinistra di 2px), e
+    le schede cominciano 30px sotto la riga dei dispositivi.
 - ⚠️⚠️ **`Aggiornamenti recenti` è un riepilogo degli ultimi due giri circa, non un changelog**:
   (si chiamava `Riscontri conclusi` fino al 2026-10-03, rinominata da Rocco)
   le righe dei giri più vecchi si tolgono quando entra un giro nuovo. La storia completa vive
@@ -115,9 +124,12 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   card, che la tiene libera dalla pillola, è del contenuto stesso (`main`).
 - **Altro**: su desktop è una colonna laterale reale (preferibilmente a sinistra), sticky,
   sempre pronta, con toolbar di formattazione e allegati (`+` e trascinamento); la colonna
-  è circa il 50% più larga del primo taglio laterale. Su desktop la striscia conteggi,
-  la card Accedi/Salvataggio cloud e i paragrafi intro condividono la stessa larghezza
-  totale di (colonne prove + Altro), senza fascia a tutta viewport. Su mobile resta in
+  è circa il 50% più larga del primo taglio laterale. ⚠️ **Su desktop, dal 2026-10-06, la
+  striscia dei conteggi vive in cima ad Altro** (sua richiesta: *sparisce del tutto la striscia
+  cloud, e il caricatore con le info va a vivere sopra 'Altro', nello stesso riquadro*): la sposta
+  `feedback-nav.js`, senza bordo né ombra, e sopra la pagina non c'è più niente di fisso, quindi
+  Altro sta a 18px dal bordo e una scheda raggiunta coi tasti di navigazione arriva lì. Sotto i
+  1100px la striscia resta fissa in cima, come prima. Su mobile resta in
   fondo **prima** del PP; la striscia sticky mostra solo i chip semaforo centrati (niente
   hamburger né tasto Altro). Pressione prolungata sul FAB flottante ⇥ **o** su Salva
   (dischetto) apre Altro a pannello overlay (chiudi con `Chiudi` nella prima fila di tasti), sullo stesso campo `notes` del
@@ -157,7 +169,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   Sotto le file ci sono gli allegati di Altro (sua istruzione del 2026-10-06), che con la
   tastiera aperta restano sotto di lei.
   ⚠️ **L'overlay `Consegna e copie` non c'è più dal 2026-10-03**, e con lui la pressione lunga
-  su Salva che lo apriva su desktop. I messaggi dei comandi compaiono nella striscia in alto,
+  su Salva che lo apriva su desktop. I messaggi dei comandi compaiono nella striscia dei
+  conteggi (su desktop in cima ad Altro),
   sotto lo stato del salvataggio (`#action-message`). Gli identificativi `#save`, `#copy`...
   sono sui pulsanti della pagina; la copia nel pannello mobile li riconosce da `data-command`.
 - ⚠️ **Ritocchi del 2026-10-04 (sue richieste)**: l'introduzione dice soltanto *Giro x.yz:

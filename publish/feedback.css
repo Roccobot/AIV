@@ -1051,16 +1051,23 @@ button.device-edit {
   min-height: 0;
   padding: 0;
   border: none;
+  /* The buttons' rounded corners clipped the tablet's drawing, which fills its canvas sideways. */
+  border-radius: 0;
   background: currentColor;
   -webkit-mask: var(--edit-icon) center / contain no-repeat;
   mask: var(--edit-icon) center / contain no-repeat;
   cursor: pointer;
 }
+/* --ink-gap: how much of its 800-unit canvas each drawing leaves empty on the right, measured on
+   the files (ink to 626.21 and to 790.52): the icon moves by that much, so its ink, and not its
+   canvas, reaches the vertical of the GitHub chip's right side. */
 .device-edit-phone {
   --edit-icon: url("assets/changePhone.svg");
+  --ink-gap: 0.2172;
 }
 .device-edit-tablet {
   --edit-icon: url("assets/changeTablet.svg");
+  --ink-gap: 0.0118;
 }
 /* On a phone (the user's mockup, 2026-10-06): no line of its own for modifica. The two device
    rows are half transparent and fade out towards the right, and each ends with its own icon. */
@@ -1079,21 +1086,33 @@ button.device-edit {
     display: none;
   }
   /* A grid and not a flex row: with a long line a flex row grew past the screen. */
+  /* The user's request of 2026-10-06: smaller icons, coloured about #d4d8d2 over the page (the
+     muted ink at 22.5%: 0.222, 0.221 and 0.228 per channel), and the text a little more visible. */
   .device-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 24px;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) var(--edit-size);
+    align-items: baseline;
     gap: 8px;
     color: var(--muted);
-    opacity: 0.55;
+    --edit-size: 20px;
   }
   .device-row .device-shown {
+    opacity: 0.7;
     overflow: hidden;
     -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent calc(100% - 8px));
     mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent calc(100% - 8px));
   }
+  /* The icon's bottom sits on the text's baseline (grid baseline alignment of an empty box), then
+     it moves down by half its side less half a capital, so its centre is a capital's centre. */
   button.device-edit {
     display: block;
+    width: var(--edit-size);
+    height: var(--edit-size);
+    font: inherit;
+    /* The row's muted ink: a button takes the page's full ink otherwise, and came out darker. */
+    color: inherit;
+    opacity: 0.225;
+    transform: translate(calc(var(--ink-gap) * var(--edit-size)), calc(var(--edit-size) / 2 - 0.5cap));
   }
 }
 button.devices-edit {
@@ -1211,24 +1230,35 @@ button.devices-edit:disabled {
     margin-left: auto;
     margin-right: auto;
   }
-  /* The count strip aligns with the columns' content and intro copy. */
-  .dashboard {
-    width: calc(100% - 48px);
-    max-width: calc(var(--df-shell) - 48px);
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px solid var(--border);
-    border-radius: 16px;
+  /* The counts live at the top of Altro, which is always there, and nothing is fixed above the
+     page (the user's request, 2026-10-06): feedback-nav.js moves the strip into Altro. */
+  #extra-section .dashboard {
+    position: static;
+    margin: 0 0 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    z-index: auto;
   }
   .intro,
   footer {
     padding-left: 24px;
     padding-right: 24px;
   }
-  /* A docked strip meets the viewport edge; keep only its lower corners rounded. */
-  .dashboard.is-docked {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+  /* 2px more on both sides: the title block moves right and the chip and the devices move left,
+     onto the cards' edges as he measured them (the user's request, 2026-10-06). */
+  .intro {
+    padding-left: 26px;
+    padding-right: 26px;
+    /* With the strip inside Altro the cards follow the devices' row at 30px, as in his
+       screenshot: 12 here, none above the page, and the cards' own 18. */
+    padding-bottom: 12px;
+  }
+  body[data-feedback] main {
+    padding-top: 0;
   }
   .dashboard > div,
   .dashboard > p,
@@ -1252,9 +1282,9 @@ button.devices-edit:disabled {
     grid-column: 1;
     grid-row: 1 / span 2;
     position: sticky;
-    top: 88px;
+    top: 18px;
     align-self: start;
-    max-height: calc(100vh - 104px);
+    max-height: calc(100vh - 36px);
     overflow: auto;
     margin: 18px 0;
     z-index: 1;
