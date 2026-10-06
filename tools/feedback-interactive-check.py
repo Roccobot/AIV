@@ -857,7 +857,7 @@ def check(path):
             attachment_only.locator('.images').set_input_files(str(image))
             expect(attachment_only.locator('.image-list img')).to_have_count(1)
             expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
-            attachment_only.get_by_role('button', name='Rimuovi', exact=True).click()
+            attachment_only.get_by_role('button', name='Elimina', exact=True).click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             if page.locator('.test').count() == 1:
                 first.locator('[data-status="Accettabile"]').click()
@@ -926,10 +926,18 @@ def check(path):
             caption_style = figura.locator('figcaption').evaluate("(el)=>{const c=getComputedStyle(el);return [c.textAlign,c.cursor,c.fontSize]}")
             assert caption_style == ['center', 'pointer', '14px'], caption_style
             row = figura.locator('.attachment-actions').bounding_box()
-            buttons = [figura.get_by_role('button', name=label, exact=True).bounding_box() for label in ['Rinomina', 'Rimuovi']]
+            buttons = [figura.get_by_role('button', name=label, exact=True).bounding_box() for label in ['Rinomina', 'Elimina']]
             left_room = buttons[0]['x'] - row['x']
             right_room = row['x'] + row['width'] - (buttons[1]['x'] + buttons[1]['width'])
             assert abs(left_room - right_room) <= 1, (left_room, right_room)
+            # Since the same evening: the icon before the words on a desktop, and the two buttons
+            # of one size, 40px high as before (the user's request: hard to tell apart at a glance).
+            assert abs(buttons[0]['width'] - buttons[1]['width']) <= 0.5 and buttons[0]['height'] == buttons[1]['height'] == 40, buttons
+            for label in ['Rinomina', 'Elimina']:
+                button = figura.get_by_role('button', name=label, exact=True)
+                expect(button.locator('svg')).to_be_visible()
+                expect(button.locator('.attachment-action-text')).to_be_visible()
+                assert button.locator('svg').bounding_box()['x'] < button.locator('.attachment-action-text').bounding_box()['x'], label
             figura.get_by_role('button', name='Rinomina', exact=True).click()
             expect(figura.locator('.attachment-rename-name')).to_have_value('feedback')
             expect(figura.locator('.attachment-rename-extension')).to_have_text('.png')
@@ -1047,7 +1055,7 @@ def check(path):
             assert all(name in clipboard for name in ['Osservazioni libere di verifica', 'feedback.png', 'notes.zip', 'sources.zip', 'dropped.zip'])
             # Altro's attachments show in the mobile overlay too, under the field, and there a tap
             # with no field being written in copies the quoted name (the user's request,
-            # 2026-10-06). On a phone Rinomina and Rimuovi are icons, with the same names.
+            # 2026-10-06). On a phone Rinomina and Elimina are icons, with the same names.
             size = second.viewport_size
             second.set_viewport_size({'width': 390, 'height': 900})
             page_figures = second.locator('.extra .image-list figure').count()
@@ -1068,15 +1076,16 @@ def check(path):
             caption.click()
             expect(second.locator('.toast.is-visible')).to_contain_text(shown)
             assert second.evaluate('navigator.clipboard.readText()') == '`' + shown + '`'
-            remove = overlay_figures.first.get_by_role('button', name='Rimuovi', exact=True)
+            remove = overlay_figures.first.get_by_role('button', name='Elimina', exact=True)
             expect(remove.locator('svg')).to_be_visible()
             expect(remove.locator('.attachment-action-text')).to_be_hidden()
             expect(overlay_figures.first.get_by_role('button', name='Rinomina', exact=True).locator('svg')).to_be_visible()
             second.locator('#altro-overlay-close').click()
             second.set_viewport_size({'width': 1280, 'height': 900})
-            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Rimuovi', exact=True)
+            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Elimina', exact=True)
             expect(page_remove.locator('.attachment-action-text')).to_be_visible()
-            expect(page_remove.locator('svg')).to_be_hidden()
+            # Since the evening of 2026-10-06 the icon shows on a desktop too, before the words.
+            expect(page_remove.locator('svg')).to_be_visible()
             second.set_viewport_size(size)
             confirmations = []
             def cancel_reset(dialog):

@@ -203,9 +203,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   - **solo nell'overlay mobile**, se nessun campo ha il cursore (la tastiera chiusa può
     toglierlo), il tocco copia negli appunti il nome fra backtick (`` `nome.png` ``) e lo dice
     con un avviso (sua istruzione del 2026-10-06);
-  - il nome è centrato, a 14px e staccato dalla miniatura e dai tasti; `Rinomina` e `Rimuovi`
-    sono su una fila centrata. Su mobile sono due icone (matita e cestino), con lo stesso nome
-    per il lettore di schermo; sul desktop restano le parole (sue istruzioni del 2026-10-06).
+  - il nome è centrato, a 14px e staccato dalla miniatura e dai tasti; `Rinomina` ed `Elimina`
+    (fino alla sera del 2026-10-06 `Rimuovi`) sono su una fila centrata, larghi uguali e alti
+    40px. Su mobile sono due icone (matita e cestino), con lo stesso nome per il lettore di
+    schermo; sul desktop l'icona viene prima della parola, perché le sole parole a colpo d'occhio
+    si confondevano (sue istruzioni del 2026-10-06).
 - Collegamenti esterni in nuova scheda con `noopener noreferrer`. Il DF e le sue pagine di
   supporto usano la favicon `assets/feedback-favicon.svg` (il blocco note col glifo), colore
   `#43B59E`, e alternativa PNG. ⚠️ La paginetta di download `index.html` **non** la usa: ha il
