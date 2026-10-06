@@ -537,6 +537,7 @@
     <string name="draw_arrow">Strzałka</string>
     <string name="draw_rect">Prostokąt</string>
     <string name="draw_ellipse">Elipsa</string>
+    <string name="draw_outline">Kontur</string>
     <string name="draw_width">Grubość</string>
     <string name="draw_dashed">Przerywana</string>
     <string name="draw_filled">Wypełnienie</string>

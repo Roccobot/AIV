@@ -114,6 +114,7 @@
     <string name="draw_arrow">Freccia</string>
     <string name="draw_rect">Rettangolo</string>
     <string name="draw_ellipse">Ellisse</string>
+    <string name="draw_outline">Contorno</string>
     <string name="draw_width">Spessore</string>
     <string name="draw_dashed">Tratteggio</string>
     <string name="draw_filled">Riempimento</string>

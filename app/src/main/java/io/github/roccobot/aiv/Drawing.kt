@@ -51,7 +51,12 @@ data class Drawing(val marks: List<Mark> = emptyList()) {
 }
 
 /** The five shapes of the first phase, in the order the module shows them. */
-enum class Pen { FREE, LINE, ARROW, RECT, ELLIPSE }
+enum class Pen {
+    FREE, LINE, ARROW, RECT, ELLIPSE;
+
+    /** Whether this pen closes a shape, so a fill means something. */
+    val closed: Boolean get() = this == RECT || this == ELLIPSE
+}
 
 /**
  * One shape of the drawing.
@@ -68,8 +73,15 @@ data class Mark(
     val ink: Int,
     val width: Float,
     val dashed: Boolean,
-    /** Whether a closed shape (rectangle, ellipse) is filled with [ink]; the others ignore it. */
-    val filled: Boolean
+    /**
+     * The fill of a closed shape (rectangle, ellipse) as a colour with its alpha, or `null` for
+     * none; the other three pens ignore it.
+     *
+     * ⚠️⚠️ **Its own colour and its own opacity, apart from the outline**: his note during G1
+     * (2026-10-06) gives the example of a red border with a white fill at 50%, so a fill in the
+     * outline's ink, as G1 was first written, could not say it.
+     */
+    val fill: Int?
 ) {
     /** This mark with its last point moved to [to], or appended for a free hand stroke. */
     fun reaching(to: Offset): Mark = when (pen) {
@@ -83,6 +95,17 @@ internal object Draw {
 
     /** The factory width: about 4 pixels on a 1600 pixel preview, 16 on a 12 MP photo. */
     const val WIDTH = 0.004f
+
+    /**
+     * The factory opacity of a fill: half, so the image stays readable under a highlighted area.
+     * ⚠️ It is the value of his example (a white fill at 50%), and a choice to declare in the
+     * test item, not a measure.
+     */
+    const val FILL_ALPHA = 0.5f
+
+    /** [colour] with its alpha set to [alpha], from 0 to 1. */
+    fun withAlpha(colour: Int, alpha: Float): Int =
+        ((alpha.coerceIn(0f, 1f) * 255f + 0.5f).toInt() shl 24) or (colour and 0xFFFFFF)
 
     /** The width slider, as fractions of the long side. */
     const val WIDTH_MIN = 0.001f
@@ -167,17 +190,19 @@ internal object Draw {
             }
             Pen.RECT, Pen.ELLIPSE -> {
                 val box = RectF(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y))
-                val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                    color = mark.ink
-                    style = Paint.Style.FILL
+                val fill = mark.fill?.let {
+                    Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        color = it
+                        style = Paint.Style.FILL
+                    }
                 }
                 if (mark.pen == Pen.ELLIPSE) {
-                    if (mark.filled) canvas.drawOval(box, fill)
+                    fill?.let { canvas.drawOval(box, it) }
                     canvas.drawOval(box, pen)
                 } else {
                     // ⚠️ The corner radius follows the stroke, and never more than half a side.
                     val r = min(stroke * CORNER, min(box.width(), box.height()) / 2f)
-                    if (mark.filled) canvas.drawRoundRect(box, r, r, fill)
+                    fill?.let { canvas.drawRoundRect(box, r, r, it) }
                     canvas.drawRoundRect(box, r, r, pen)
                 }
             }

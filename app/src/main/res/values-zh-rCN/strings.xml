@@ -486,6 +486,7 @@
     <string name="draw_arrow">箭头</string>
     <string name="draw_rect">矩形</string>
     <string name="draw_ellipse">椭圆</string>
+    <string name="draw_outline">轮廓</string>
     <string name="draw_width">粗细</string>
     <string name="draw_dashed">虚线</string>
     <string name="draw_filled">填充</string>

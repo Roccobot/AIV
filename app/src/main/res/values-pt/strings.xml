@@ -520,6 +520,7 @@
     <string name="draw_arrow">Seta</string>
     <string name="draw_rect">Retângulo</string>
     <string name="draw_ellipse">Elipse</string>
+    <string name="draw_outline">Contorno</string>
     <string name="draw_width">Espessura</string>
     <string name="draw_dashed">Tracejado</string>
     <string name="draw_filled">Preenchimento</string>

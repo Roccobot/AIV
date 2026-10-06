@@ -3979,10 +3979,24 @@ private class Gaze(
     var ink by mutableIntStateOf(Draw.INKS.first())
     var inkWidth by mutableFloatStateOf(Draw.WIDTH)
     var dashed by mutableStateOf(false)
-    var filled by mutableStateOf(false)
 
-    /** The pen as an empty mark, ready for the first point of the finger. */
-    fun penMark(): Mark = Mark(pen, emptyList(), ink, inkWidth, dashed, filled)
+    /** The fill's colour, without alpha, or `null` for none: none at the factory. */
+    var fillInk by mutableStateOf<Int?>(null)
+    var fillAlpha by mutableFloatStateOf(Draw.FILL_ALPHA)
+
+    /** Whether the swatches and the slider of the module set the fill instead of the outline. */
+    var fillTarget by mutableStateOf(false)
+
+    /**
+     * The pen as an empty mark, ready for the first point of the finger.
+     *
+     * ⚠️ The three pens that do not close a shape get no fill, so a mark never carries a value
+     * that nothing draws (his note: the arrow ignores the fill).
+     */
+    fun penMark(): Mark = Mark(
+        pen, emptyList(), ink, inkWidth, dashed,
+        fill = fillInk?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) }
+    )
 
     companion object {
         /**
@@ -4537,16 +4551,19 @@ private fun Comandi(
 }
 
 /**
- * Il corpo del modulo **Disegno**, dalla `4.40`: le cinque penne, gli otto colori, lo spessore,
- * il tratteggio, il riempimento e 'Azzera'.
+ * Il corpo del modulo **Disegno**, dalla `4.40`: le cinque penne, il bersaglio (contorno o
+ * riempimento), i colori, lo spessore o l'opacità, il tratteggio e 'Azzera'.
  *
- * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': penna, colore e tratto sono lo
+ * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': penna, colori e tratto sono lo
  * strumento, e lo strumento non entra nella storia. Un segno nuovo li prende al momento in cui il
  * dito si posa (`Gaze.penMark`), quindi cambiarli non tocca i segni già fatti.
+ * ⚠️⚠️ **IL RIEMPIMENTO HA COLORE E OPACITÀ SUOI**, ed è la sua precisazione arrivata a G1 in
+ * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
+ * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
+ * una seconda tavolozza. Per il riempimento il primo colore è 'Nessuno', che è anche quello di
+ * fabbrica.
  * ⚠️ **'Riempimento' si spegne per le tre penne che non chiudono una forma**, con lo stesso
  * criterio del 'Filtro BN': un comando che non cambia niente si legge come un guasto.
- * ⚠️ **Il riempimento usa il colore del contorno**, in questa prima fase: un secondo colore
- * vorrebbe dire una seconda tavolozza, e lo dice la voce di collaudo.
  */
 @Composable
 private fun DrawBody(
@@ -4556,6 +4573,8 @@ private fun DrawBody(
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit
 ) {
+    val chiusa = gaze.pen.closed
+    val riempimento = gaze.fillTarget && chiusa
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         for (pen in Pen.entries) {
             val nome = stringResource(penName(pen))
@@ -4573,65 +4592,89 @@ private fun DrawBody(
         }
     }
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val bordo = MaterialTheme.colorScheme.onSurface
-        val filo = MaterialTheme.colorScheme.outline
-        Draw.INKS.forEachIndexed { i, ink ->
-            val scelto = gaze.ink == ink
-            val nome = stringResource(INK_NAMES[i])
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .selectable(selected = scelto, enabled = live, role = Role.RadioButton) {
-                        gaze.ink = ink
-                    }
-                    .semantics { contentDescription = nome },
-                contentAlignment = Alignment.Center
-            ) {
-                // ⚠️ Il filo sottile c'è sempre, o il bianco sul tema chiaro e il nero sul tema
-                // scuro non si vedrebbero; il cerchio pieno dice qual è scelto.
-                Canvas(Modifier.size(32.dp)) {
-                    val r = size.minDimension / 2f
-                    if (scelto) drawCircle(bordo, radius = r)
-                    drawCircle(Color(ink), radius = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx())
-                    drawCircle(
-                        filo, radius = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx(),
-                        style = Stroke(1.dp.toPx())
-                    )
-                }
-            }
-        }
-    }
-    Text(stringResource(R.string.draw_width), style = MaterialTheme.typography.labelMedium)
-    Slider(
-        value = gaze.inkWidth,
-        onValueChange = { gaze.inkWidth = it },
-        valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
-        enabled = live
-    )
-    Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        FilterChip(
+            selected = !riempimento,
+            onClick = { gaze.fillTarget = false },
+            label = { Text(stringResource(R.string.draw_outline), maxLines = 1) },
+            enabled = live
+        )
+        FilterChip(
+            selected = riempimento,
+            onClick = { gaze.fillTarget = true },
+            label = { Text(stringResource(R.string.draw_filled), maxLines = 1) },
+            enabled = live && chiusa
+        )
+        Spacer(Modifier.weight(1f))
         FilterChip(
             selected = gaze.dashed,
             onClick = { gaze.dashed = !gaze.dashed },
             label = { Text(stringResource(R.string.draw_dashed), maxLines = 1) },
             enabled = live
         )
-        val chiusa = gaze.pen == Pen.RECT || gaze.pen == Pen.ELLIPSE
-        FilterChip(
-            selected = gaze.filled && chiusa,
-            onClick = { gaze.filled = !gaze.filled },
-            label = { Text(stringResource(R.string.draw_filled), maxLines = 1) },
-            enabled = live && chiusa
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val bordo = MaterialTheme.colorScheme.onSurface
+        val filo = MaterialTheme.colorScheme.outline
+        // ⚠️ The fill's row starts with 'none'; the outline's keeps an empty place there, so the
+        // eight colours do not move under the finger when the target changes.
+        val nessuno = stringResource(R.string.settings_colour_none)
+        val voci: List<Int?> = listOf(null) + Draw.INKS
+        voci.forEachIndexed { i, ink ->
+            val scelto = if (riempimento) gaze.fillInk == ink else ink != null && gaze.ink == ink
+            if (ink == null && !riempimento) {
+                Spacer(Modifier.size(32.dp))
+                return@forEachIndexed
+            }
+            val nome = if (ink == null) nessuno else stringResource(INK_NAMES[i - 1])
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .selectable(selected = scelto, enabled = live, role = Role.RadioButton) {
+                        if (riempimento) gaze.fillInk = ink else if (ink != null) gaze.ink = ink
+                    }
+                    .semantics { contentDescription = nome },
+                contentAlignment = Alignment.Center
+            ) {
+                // ⚠️ Il filo sottile c'è sempre, o il bianco sul tema chiaro e il nero sul tema
+                // scuro non si vedrebbero; il cerchio pieno dice qual è scelto. 'Nessuno' è il
+                // cerchio vuoto con la diagonale.
+                Canvas(Modifier.size(32.dp)) {
+                    val r = size.minDimension / 2f
+                    val dentro = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx()
+                    if (scelto) drawCircle(bordo, radius = r)
+                    if (ink != null) {
+                        drawCircle(Color(ink), radius = dentro)
+                    } else {
+                        drawCircle(Color.White, radius = dentro)
+                        val d = dentro * 0.7071f
+                        drawLine(
+                            Color(Draw.INKS.first()), center + Offset(-d, d), center + Offset(d, -d),
+                            strokeWidth = 2.dp.toPx()
+                        )
+                    }
+                    drawCircle(filo, radius = dentro, style = Stroke(1.dp.toPx()))
+                }
+            }
+        }
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stringResource(if (riempimento) R.string.settings_mark_alpha else R.string.draw_width),
+            style = MaterialTheme.typography.labelMedium
         )
-        Spacer(Modifier.weight(1f))
         TextButton(
             onClick = {
                 onLive { it.copy(drawing = Drawing.NONE) }
@@ -4640,6 +4683,21 @@ private fun DrawBody(
             enabled = live && !look.drawing.idle,
             contentPadding = PaddingValues(horizontal = 4.dp)
         ) { Text(stringResource(R.string.editor_original)) }
+    }
+    if (riempimento) {
+        Slider(
+            value = gaze.fillAlpha,
+            onValueChange = { gaze.fillAlpha = it },
+            valueRange = 0.1f..1f,
+            enabled = live && gaze.fillInk != null
+        )
+    } else {
+        Slider(
+            value = gaze.inkWidth,
+            onValueChange = { gaze.inkWidth = it },
+            valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
+            enabled = live
+        )
     }
 }
 

@@ -503,6 +503,7 @@
     <string name="draw_arrow">तीर</string>
     <string name="draw_rect">आयत</string>
     <string name="draw_ellipse">दीर्घवृत्त</string>
+    <string name="draw_outline">रूपरेखा</string>
     <string name="draw_width">मोटाई</string>
     <string name="draw_dashed">डैश</string>
     <string name="draw_filled">भराव</string>

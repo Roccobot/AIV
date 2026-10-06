@@ -503,6 +503,7 @@
     <string name="draw_arrow">پیکان</string>
     <string name="draw_rect">مستطیل</string>
     <string name="draw_ellipse">بیضی</string>
+    <string name="draw_outline">خط دور</string>
     <string name="draw_width">ضخامت</string>
     <string name="draw_dashed">خط‌چین</string>
     <string name="draw_filled">پرکردن</string>

@@ -503,6 +503,7 @@
     <string name="draw_arrow">Mshale</string>
     <string name="draw_rect">Mstatili</string>
     <string name="draw_ellipse">Duaradufu</string>
+    <string name="draw_outline">Ukingo</string>
     <string name="draw_width">Unene</string>
     <string name="draw_dashed">Vistari</string>
     <string name="draw_filled">Kujaza</string>

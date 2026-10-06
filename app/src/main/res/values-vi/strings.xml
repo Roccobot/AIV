@@ -486,6 +486,7 @@
     <string name="draw_arrow">Mũi tên</string>
     <string name="draw_rect">Hình chữ nhật</string>
     <string name="draw_ellipse">Hình elip</string>
+    <string name="draw_outline">Viền</string>
     <string name="draw_width">Độ dày</string>
     <string name="draw_dashed">Nét đứt</string>
     <string name="draw_filled">Tô màu</string>

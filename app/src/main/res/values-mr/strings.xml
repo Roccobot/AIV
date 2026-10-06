@@ -503,6 +503,7 @@
     <string name="draw_arrow">बाण</string>
     <string name="draw_rect">आयत</string>
     <string name="draw_ellipse">लंबवर्तुळ</string>
+    <string name="draw_outline">बाह्यरेषा</string>
     <string name="draw_width">जाडी</string>
     <string name="draw_dashed">तुटक</string>
     <string name="draw_filled">भरण</string>

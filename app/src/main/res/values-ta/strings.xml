@@ -503,6 +503,7 @@
     <string name="draw_arrow">அம்பு</string>
     <string name="draw_rect">செவ்வகம்</string>
     <string name="draw_ellipse">நீள்வட்டம்</string>
+    <string name="draw_outline">வெளிக்கோடு</string>
     <string name="draw_width">தடிமன்</string>
     <string name="draw_dashed">இடைக்கோடு</string>
     <string name="draw_filled">நிரப்பு</string>

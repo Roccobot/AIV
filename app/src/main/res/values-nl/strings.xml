@@ -503,6 +503,7 @@
     <string name="draw_arrow">Pijl</string>
     <string name="draw_rect">Rechthoek</string>
     <string name="draw_ellipse">Ellips</string>
+    <string name="draw_outline">Omtrek</string>
     <string name="draw_width">Dikte</string>
     <string name="draw_dashed">Gestippeld</string>
     <string name="draw_filled">Opvulling</string>
