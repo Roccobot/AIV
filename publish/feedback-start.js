@@ -3,6 +3,7 @@
    function is defined by now. Locks the controls, loads the draft (cloud or browser),
    then unlocks them and keeps the cloud draft in step with other devices. */
 controls(true);
+let restoredCopy = false;
 (async () => {
   try {
     if (remote) {
@@ -11,6 +12,19 @@ controls(true);
       remoteReady = true;
       remote.account(true);
       saved.textContent = existing ? "Risposte ripristinate dal cloud." : "Nessuna risposta nel cloud: puoi iniziare.";
+      // The browser's copy that never reached the cloud, if newer than the cloud's (R2).
+      const copy = await readBackup();
+      if (copy && !copy.arrived && copy.draft?.version === spec.version &&
+          Date.parse(copy.at) > Date.parse(existing?.updated ?? 0)) {
+        const when = new Date(copy.at).toLocaleString("it-IT");
+        if (window.confirm("In questo browser ci sono risposte del " + when + " che non sono arrivate al cloud. Le ripristino?")) {
+          draft = validate(copy.draft);
+          restoredCopy = true;
+          saved.textContent = "Risposte ripristinate da questo browser: le salvo nel cloud.";
+        } else {
+          await writeBackup({ ...copy, arrived: true });
+        }
+      }
     } else {
       db = await new Promise((resolve, reject) => {
         const request = indexedDB.open("aiv-feedback", 1);
@@ -52,11 +66,20 @@ controls(true);
     hydrate();
     controls(!loaded);
     refreshNavigation();
+    // A restored copy goes to the cloud at once, as any other edit would.
+    if (restoredCopy) {
+      revision++;
+      save();
+    }
   }
 })();
 
 window.feedbackHasUnsaved = () => revision !== persistedRevision;
-window.feedbackSaveForLogout = async () => await save() && revision === persistedRevision;
+window.feedbackSaveForLogout = async () => {
+  const done = await save() && revision === persistedRevision;
+  if (done) await dropBackup();
+  return done;
+};
 async function refreshRemote() {
   if (!remote || !remoteReady || syncing || pendingSaves || revision !== persistedRevision || document.hidden) return;
   const observed = revision;

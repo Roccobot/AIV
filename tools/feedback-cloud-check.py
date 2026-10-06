@@ -112,7 +112,8 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     sent = first.evaluate('summary()')
     assert 'Telefono: Telefono di prova, Android 13' in sent and 'Tablet: Tablet di prova, Android 15' in sent
     assert first.evaluate('localStorage.length')==0
-    assert first.evaluate('indexedDB.databases().then(values=>values.length)')==0
+    # Since 2026-10-06 (R2) the only browser store is the safety copy of the cloud draft.
+    assert first.evaluate('indexedDB.databases().then(values=>values.map(value=>value.name))')==['aiv-feedback-backup']
     second_context=context()
     second=page(second_context)
     expect(second.locator('#device')).to_have_value('Telefono di prova, Android 13')
@@ -177,7 +178,7 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
         assert [file['name'] for file in attached]==['disegno originale.svg','fonti originali.zip']
         assert container.read(attached[0]['file'])==svg
         assert container.read(attached[1]['file'])==archive.getvalue()
-    assert third.evaluate('indexedDB.databases().then(values=>values.length)')==0
+    assert third.evaluate('indexedDB.databases().then(values=>values.map(value=>value.name))')==['aiv-feedback-backup']
     # Failure remains visible; it must not pretend to be a successful cloud save.
     third.route('**/api/feedback',lambda route:route.abort() if route.request.method=='PUT' else route.continue_())
     altro_editor(third).fill('Modifica senza connessione')
@@ -187,9 +188,23 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     third.locator('#send').click()
     expect(third.locator('#action-message')).to_contain_text('Invio non confermato')
     assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.completed)') is None
+    # R2: a save that never arrived survives a reload, and comes back from the browser's copy.
+    # Two dialogs: the browser's warning about unsaved edits at the reload, then the page's
+    # offer of the copy.
+    offers=[]
+    def accept(dialog):
+        offers.append(dialog.type)
+        dialog.accept()
+    third.on('dialog',accept)
+    third.reload()
+    expect(third.locator('#saved')).to_contain_text('Non salvato')
+    expect(altro_editor(third)).to_have_text('Modifica senza connessione')
     third.unroute('**/api/feedback')
     third.evaluate('window.dispatchEvent(new Event("online"))')
     expect(third.locator('#saved')).to_contain_text('Salvato nel cloud')
+    assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.notes)')=='Modifica senza connessione'
+    third.remove_listener('dialog',accept)
+    assert 'confirm' in offers, offers
     third_context.close()
     second_context.close()
     anonymous_context=browser.new_context()
@@ -211,4 +226,4 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     anonymous_context.close()
     assert not errors,errors
     browser.close()
-print('Cloud locale: due dispositivi isolati, sincronizzazione, Supabase locale e PostgreSQL reale, conflitto senza sovrascrittura, SVG/ZIP originali, caricamento unico, JSON, assenza di memoria locale, accesso riservato ed errore di rete verificati.')
+print('Cloud locale: due dispositivi isolati, sincronizzazione, Supabase locale e PostgreSQL reale, conflitto senza sovrascrittura, SVG/ZIP originali, caricamento unico, JSON, copia di sicurezza nel browser ripresa dopo un ricaricamento, accesso riservato ed errore di rete verificati.')

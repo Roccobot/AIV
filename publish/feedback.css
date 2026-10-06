@@ -404,14 +404,51 @@ textarea {
   max-height: 180px;
   object-fit: contain;
 }
+/* The name, centred, a little larger and apart from the thumbnail and the buttons (the
+   user's request, 2026-10-06); a click on it writes it in the field, so it shows the hand. */
 .image-list figcaption {
+  margin: 10px 0 2px;
   overflow-wrap: anywhere;
-  font-size: 12px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.35;
+  cursor: pointer;
+}
+.image-list img {
+  cursor: pointer;
+}
+/* Rinomina and Rimuovi on one row, centred, with the same room between and around them. */
+.attachment-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
 }
 .image-list button {
   min-height: 40px;
-  padding: 6px 10px;
+  padding: 6px 14px;
   font-size: 14px;
+}
+/* Renaming in place: the name alone in the field, the extension beside it and out of reach. */
+.attachment-rename {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  margin: 10px 0 2px;
+  font-size: 14px;
+}
+.attachment-rename-name {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px 6px;
+  font: inherit;
+  text-align: center;
+}
+.attachment-rename-extension {
+  flex: none;
+  color: var(--muted);
 }
 /* Rinomina and Rimuovi: words on a wide screen, the icon alone on a phone (the user's request,
    2026-10-06). The button's label stays the same on both. */
@@ -1001,6 +1038,64 @@ main > .feedback-columns {
 .device-shown {
   white-space: nowrap;
 }
+.device-row {
+  display: inline-flex;
+  align-items: center;
+}
+/* The per-row edit icons exist on a phone only; on a desktop the small modifica stays. */
+button.device-edit {
+  display: none;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: currentColor;
+  -webkit-mask: var(--edit-icon) center / contain no-repeat;
+  mask: var(--edit-icon) center / contain no-repeat;
+  cursor: pointer;
+}
+.device-edit-phone {
+  --edit-icon: url("assets/changePhone.svg");
+}
+.device-edit-tablet {
+  --edit-icon: url("assets/changeTablet.svg");
+}
+/* On a phone (the user's mockup, 2026-10-06): no line of its own for modifica. The two device
+   rows are half transparent and fade out towards the right, and each ends with its own icon. */
+@media (max-width: 720px) {
+  .devices {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    /* A flex item is as wide as its longest line unless told otherwise: without these the
+       rows ran off the screen instead of fading before their icons. */
+    flex: 1 1 100%;
+    min-width: 0;
+    row-gap: 2px;
+  }
+  button.devices-edit {
+    display: none;
+  }
+  /* A grid and not a flex row: with a long line a flex row grew past the screen. */
+  .device-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    opacity: 0.55;
+  }
+  .device-row .device-shown {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent calc(100% - 8px));
+    mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent calc(100% - 8px));
+  }
+  button.device-edit {
+    display: block;
+  }
+}
 button.devices-edit {
   min-height: 0;
   padding: 0;
@@ -1172,6 +1267,12 @@ button.devices-edit:disabled {
     min-height: 280px;
     height: 40vh;
     max-height: 50vh;
+  }
+  /* A wheel or a touchpad over Altro never scrolls the page (the user's request, 2026-10-06):
+     here at the end of a scroll, and in feedback-ui.js where Altro has nothing to scroll. */
+  #extra-section,
+  #extra-section .rich-editor {
+    overscroll-behavior: contain;
   }
   .feedback-columns > .next-steps {
     grid-column: 2;

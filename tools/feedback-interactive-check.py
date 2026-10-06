@@ -690,9 +690,27 @@ def check(path):
             # The devices live on the download row and change in a modal (the user's request,
             # 2026-10-06): OK writes them, Annulla leaves them as they were.
             expect(page.locator('#device')).to_be_hidden()
-            page.locator('#devices-edit').click()
+            # On a phone (his mockup, 2026-10-06) no modifica line: each device row is half
+            # transparent, fades out on the right, and has its own icon, which opens the modal
+            # with the caret in that device's field.
+            expect(page.locator('#devices-edit')).to_be_hidden()
+            row_style = page.locator('.device-row').first.evaluate("(el)=>{const c=getComputedStyle(el),t=getComputedStyle(el.querySelector('.device-shown'));return [c.opacity,(t.maskImage||t.webkitMaskImage).includes('linear-gradient')]}")
+            assert row_style == ['0.55', True], row_style
+            # A long device name fades before the icon and never pushes the row off the screen.
+            page.evaluate("document.querySelector('#tablet-shown').textContent='Xiaomi Pad 6 Tablet 11 pollici, Android 14 / HyperOS 2.0.16.0 e altro testo'")
+            row_right = page.locator('.device-row').nth(1).evaluate('(el)=>el.getBoundingClientRect().right')
+            assert row_right <= 390 - 15, row_right
+            page.evaluate("syncDevices()")
+            phone_icon = page.locator('.device-edit-phone').bounding_box()
+            phone_row = page.locator('.device-row').first.bounding_box()
+            assert abs(phone_icon['x'] + phone_icon['width'] - (phone_row['x'] + phone_row['width'])) <= 1, (phone_icon, phone_row)
+            page.locator('.device-edit-tablet').click()
             expect(page.locator('#devices-dialog')).to_be_visible()
-            page.locator('#device').focus()
+            expect(page.locator('#tablet')).to_be_focused()
+            page.locator('#devices-cancel').click()
+            page.locator('.device-edit-phone').click()
+            expect(page.locator('#devices-dialog')).to_be_visible()
+            expect(page.locator('#device')).to_be_focused()
             page.keyboard.press('t')
             assert page.evaluate("document.documentElement.dataset.theme") == theme, 'T cambia il tema mentre si scrive.'
             expect(page.locator('#device')).to_have_value(re.compile('t$'))
@@ -701,7 +719,7 @@ def check(path):
             page.locator('#devices-cancel').click()
             expect(page.locator('#devices-dialog')).to_be_hidden()
             expect(page.locator('#device-shown')).to_have_text('non indicato')
-            page.locator('#devices-edit').click()
+            page.locator('.device-edit-phone').click()
             expect(page.locator('#device')).to_have_value('')
             page.locator('#device').fill('Telefono del modale')
             page.locator('#tablet').fill('Tablet del modale')
@@ -710,13 +728,26 @@ def check(path):
             expect(page.locator('#device-shown')).to_have_text('Telefono del modale')
             expect(page.locator('#tablet-shown')).to_have_text('Tablet del modale')
             assert page.evaluate('draft.device') == 'Telefono del modale' and page.evaluate('draft.tablet') == 'Tablet del modale'
-            page.locator('#devices-edit').click()
+            page.locator('.device-edit-phone').click()
             page.locator('#device').fill('')
             page.locator('#tablet').fill('')
             page.locator('#devices-ok').click()
             # Desktop: Scarica e installa, the checkbox and the devices share one row, the
             # devices on the right; the page goes from the strip straight to the first test.
             page.set_viewport_size({'width': 1280, 'height': 900})
+            # On a desktop the small modifica stays, and the row icons do not show.
+            expect(page.locator('#devices-edit')).to_be_visible()
+            expect(page.locator('.device-edit-phone')).to_be_hidden()
+            # A wheel over Altro never scrolls the page (his request, 2026-10-06), not even
+            # where Altro has nothing to scroll.
+            page.evaluate('window.scrollTo(0, 300)')
+            before = page.evaluate('window.scrollY')
+            altro_box = page.locator('#extra-section').bounding_box()
+            page.mouse.move(altro_box['x'] + altro_box['width'] / 2, altro_box['y'] + 40)
+            page.mouse.wheel(0, 600)
+            page.wait_for_timeout(300)
+            assert page.evaluate('window.scrollY') == before, 'La rotella sopra Altro scorre la pagina.'
+            page.evaluate('window.scrollTo(0, 0)')
             link = page.locator('.intro-actions a').bounding_box()
             devices = page.locator('.devices').bounding_box()
             assert abs(link['y'] + link['height'] / 2 - devices['y'] - devices['height'] / 2) < 4, (link, devices)
@@ -813,7 +844,7 @@ def check(path):
             attachment_only.locator('.images').set_input_files(str(image))
             expect(attachment_only.locator('.image-list img')).to_have_count(1)
             expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
-            attachment_only.get_by_role('button', name='Rimuovi allegato').click()
+            attachment_only.get_by_role('button', name='Rimuovi', exact=True).click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             if page.locator('.test').count() == 1:
                 first.locator('[data-status="Accettabile"]').click()
@@ -873,23 +904,43 @@ def check(path):
             notes_card.locator('.images').set_input_files(str(bad_zip))
             expect(page.locator('#action-message')).to_contain_text('ZIP non è riconosciuto')
             expect(notes_card.locator('.zip-download')).to_have_count(2)
-            # Rename (the user's request, 2026-10-05): the extension stays, and a name typed with
-            # it does not get a second one. Renamed back, so the checks below keep their names.
+            # Rename in place (the user's requests, 2026-10-05 and 2026-10-06): the field holds
+            # the name alone, the extension stays beside it, Invio confirms and Esc cancels; a
+            # name typed with the extension does not get a second one. Renamed back, so the
+            # checks below keep their names.
             figura = first.locator('.image-list figure').first
-            page.once('dialog', lambda dialog: dialog.accept('schermata prova'))
-            figura.get_by_role('button', name='Rinomina allegato').click()
+            # The name is centred and shows the hand; the two buttons sit on one centred row.
+            caption_style = figura.locator('figcaption').evaluate("(el)=>{const c=getComputedStyle(el);return [c.textAlign,c.cursor,c.fontSize]}")
+            assert caption_style == ['center', 'pointer', '14px'], caption_style
+            row = figura.locator('.attachment-actions').bounding_box()
+            buttons = [figura.get_by_role('button', name=label, exact=True).bounding_box() for label in ['Rinomina', 'Rimuovi']]
+            left_room = buttons[0]['x'] - row['x']
+            right_room = row['x'] + row['width'] - (buttons[1]['x'] + buttons[1]['width'])
+            assert abs(left_room - right_room) <= 1, (left_room, right_room)
+            figura.get_by_role('button', name='Rinomina', exact=True).click()
+            expect(figura.locator('.attachment-rename-name')).to_have_value('feedback')
+            expect(figura.locator('.attachment-rename-extension')).to_have_text('.png')
+            figura.locator('.attachment-rename-name').fill('schermata prova')
+            figura.locator('.attachment-rename-name').press('Enter')
             expect(figura.locator('figcaption')).to_have_text('schermata prova.png')
             assert page.evaluate("draft.entries[spec.items[0].id].images[0].name") == 'schermata prova.png', 'Nome non scritto nella bozza.'
-            page.once('dialog', lambda dialog: dialog.accept('feedback.png'))
-            figura.get_by_role('button', name='Rinomina allegato').click()
+            figura.get_by_role('button', name='Rinomina', exact=True).click()
+            figura.locator('.attachment-rename-name').fill('da non tenere')
+            figura.locator('.attachment-rename-name').press('Escape')
+            expect(figura.locator('figcaption')).to_have_text('schermata prova.png')
+            figura.get_by_role('button', name='Rinomina', exact=True).click()
+            figura.locator('.attachment-rename-name').fill('feedback.png')
+            figura.locator('.attachment-rename-name').press('Enter')
             expect(figura.locator('figcaption')).to_have_text('feedback.png')
-            # While writing in a field, a click on an attachment writes its name at the caret.
+            # While writing in a field, a click on an attachment writes its name at the caret, as
+            # inline code (since 2026-10-06; before, between quotes).
             if page.locator('.test').count() > 2:
                 writing = page.locator('.test').nth(2)
                 writing.locator('.rich-editor').click()
                 page.keyboard.type('Vedi ')
                 figura.locator('img').click()
-                expect(writing.locator('.comment')).to_have_value("Vedi 'feedback.png'")
+                expect(writing.locator('.comment')).to_have_value("Vedi `feedback.png`")
+                expect(writing.locator('.rich-editor code')).to_have_text('feedback.png')
                 writing.locator('.rich-editor').fill('')
                 expect(writing.locator('.comment')).to_have_value('')
             page.locator('#floating-save').click()
@@ -1000,17 +1051,17 @@ def check(path):
             assert list_box['y'] >= rows_box['y'] + rows_box['height'], (list_box, rows_box)
             second.evaluate('document.activeElement.blur()')
             caption = overlay_figures.first.locator('figcaption')
-            quoted = "'" + caption.inner_text() + "'"
+            shown = caption.inner_text()
             caption.click()
-            expect(second.locator('.toast.is-visible')).to_contain_text(quoted)
-            assert second.evaluate('navigator.clipboard.readText()') == quoted
-            remove = overlay_figures.first.get_by_role('button', name='Rimuovi allegato')
+            expect(second.locator('.toast.is-visible')).to_contain_text(shown)
+            assert second.evaluate('navigator.clipboard.readText()') == '`' + shown + '`'
+            remove = overlay_figures.first.get_by_role('button', name='Rimuovi', exact=True)
             expect(remove.locator('svg')).to_be_visible()
             expect(remove.locator('.attachment-action-text')).to_be_hidden()
-            expect(overlay_figures.first.get_by_role('button', name='Rinomina allegato').locator('svg')).to_be_visible()
+            expect(overlay_figures.first.get_by_role('button', name='Rinomina', exact=True).locator('svg')).to_be_visible()
             second.locator('#altro-overlay-close').click()
             second.set_viewport_size({'width': 1280, 'height': 900})
-            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Rimuovi allegato')
+            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Rimuovi', exact=True)
             expect(page_remove.locator('.attachment-action-text')).to_be_visible()
             expect(page_remove.locator('svg')).to_be_hidden()
             second.set_viewport_size(size)

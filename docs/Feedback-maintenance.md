@@ -179,18 +179,20 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   PNG, JPG, WebP, GIF, SVG e ZIP. Originali interi, nomi conservati, ZIP scaricabili.
   Limiti attuali: 8 MB per file, 20 MB totali, 30 allegati per riquadro.
 - ⚠️ **Un allegato si rinomina e si cita** (richiesta dell'utente, 2026-10-05):
-  - `Rinomina allegato` cambia il solo `name` (l'estensione resta, e un nome scritto con
-    l'estensione non ne prende una seconda); l'originale e il suo `storageKey` non cambiano;
+  - `Rinomina` cambia il solo `name`, dentro la scheda: il campo contiene il nome senza
+    estensione, l'estensione resta accanto e non si modifica, `Invio` o l'uscita dal campo
+    confermano ed `Esc` annulla (sua istruzione del 2026-10-06); un nome scritto con
+    l'estensione non ne prende una seconda; l'originale e il suo `storageKey` non cambiano;
   - mentre si scrive in un campo, un clic sull'allegato inserisce al cursore il suo nome con
-    l'estensione fra apici dritti (`'nome.png'`); la pressione è trattenuta, così il campo tiene
-    fuoco e cursore. Pensato per il desktop; da mobile funziona se il browser lascia il fuoco al
-    campo durante il tocco;
+    l'estensione **come codice inline**, formattato nell'editor (dal 2026-10-06; prima fra apici
+    dritti); la pressione è trattenuta, così il campo tiene fuoco e cursore. Su desktop nome e
+    miniatura mostrano la mano al passaggio;
   - **solo nell'overlay mobile**, se nessun campo ha il cursore (la tastiera chiusa può
-    toglierlo), il tocco copia negli appunti lo stesso testo, `'nome.png'`, e lo dice con un
-    avviso (sua istruzione del 2026-10-06);
-  - su mobile `Rinomina allegato` e `Rimuovi allegato` sono due icone (matita e cestino), con lo
-    stesso nome per il lettore di schermo; sul desktop restano le parole (sua istruzione del
-    2026-10-06).
+    toglierlo), il tocco copia negli appunti il nome fra backtick (`` `nome.png` ``) e lo dice
+    con un avviso (sua istruzione del 2026-10-06);
+  - il nome è centrato, a 14px e staccato dalla miniatura e dai tasti; `Rinomina` e `Rimuovi`
+    sono su una fila centrata. Su mobile sono due icone (matita e cestino), con lo stesso nome
+    per il lettore di schermo; sul desktop restano le parole (sue istruzioni del 2026-10-06).
 - Collegamenti esterni in nuova scheda con `noopener noreferrer`. Il DF e le sue pagine di
   supporto usano la favicon `assets/feedback-favicon.svg` (il blocco note col glifo), colore
   `#43B59E`, e alternativa PNG. ⚠️ La paginetta di download `index.html` **non** la usa: ha il
@@ -259,7 +261,13 @@ PostgreSQL e bucket privato `aiv-feedback`. GitHub conserva il codice. R2 non è
 Credenziali e token rimangono sul server; la guida cloud descrive i cinque campi Actions,
 OAuth, SQL e configurazione. Non chiedere segreti in chat e non metterli nella pagina.
 
-La pagina cloud non usa IndexedDB o localStorage come memoria persistente. La copia su
+Dal 2026-10-06 la pagina cloud tiene nel browser una **copia di sicurezza** della bozza (scelta
+R2 del proprietario, dopo una bozza persa per una sessione scaduta): IndexedDB `aiv-feedback-backup`,
+scritta prima di ogni salvataggio nel cloud e segnata come arrivata quando il cloud conferma. Una
+copia non arrivata e più recente di quella del cloud si offre al caricamento successivo; `Esci` la
+cancella. Non è una seconda fonte: il cloud resta la bozza, e la copia serve solo a recuperarla.
+Dalla stessa data la sessione si rinnova a ogni uso (un giorno dopo l'ultimo rinnovo, per altri 7
+giorni), fino a 60 giorni dall'accesso con GitHub (R1, `worker.mjs`). La copia su
 GitHub Pages, che conservava il vecchio salvataggio locale, non è più pubblicata dal
 2026-10-03 (decisione del proprietario): `pages.yml` esclude dal sito la pagina del documento
 e i suoi script, che restano in `publish/` perché il Worker serve quella cartella come asset. Se una vecchia

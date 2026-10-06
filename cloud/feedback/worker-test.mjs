@@ -50,6 +50,25 @@ try {
   try {
     Date.now=()=>realNow()+8*86400*1000;
     assert.equal((await worker.fetch(authenticated('/api/feedback'),env)).status,401);
+    // A session in use renews itself (2026-10-06): not within a day of the last renewal, then
+    // with a fresh week, until the cap from the login.
+    Date.now=()=>realNow()+3600*1000;
+    assert(!(await worker.fetch(authenticated('/api/feedback'),env)).headers.getSetCookie().length);
+    Date.now=()=>realNow()+6*86400*1000;
+    const renewed=(await worker.fetch(authenticated('/api/feedback'),env)).headers.getSetCookie().find(value=>value.startsWith('__Host-aiv-session='));
+    assert(renewed && renewed.includes('HttpOnly') && renewed.includes('Max-Age=604800'));
+    const renewedCookie=renewed.split(';')[0];
+    Date.now=()=>realNow()+12*86400*1000;
+    assert.equal((await worker.fetch(request('/api/feedback',{headers:{Cookie:renewedCookie}}),env)).status,200);
+    assert.equal((await worker.fetch(request('/api/feedback',{headers:{Cookie:sessionCookie}}),env)).status,401);
+    let rolling=renewedCookie;
+    for (let day=12; day<=66; day+=5) {
+      Date.now=()=>realNow()+day*86400*1000;
+      const next=(await worker.fetch(request('/api/feedback',{headers:{Cookie:rolling}}),env)).headers.getSetCookie().find(value=>value.startsWith('__Host-aiv-session='));
+      if (next) rolling=next.split(';')[0];
+    }
+    Date.now=()=>realNow()+70*86400*1000;
+    assert.equal((await worker.fetch(request('/api/feedback',{headers:{Cookie:rolling}}),env)).status,401,'the session must end at the cap from the login');
   } finally { Date.now=realNow; }
   const initial=await worker.fetch(authenticated('/api/feedback'),env);
   assert.equal(initial.headers.get('ETag'),'"empty"');
