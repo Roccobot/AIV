@@ -844,7 +844,7 @@ def check(path):
             attachment_only.locator('.images').set_input_files(str(image))
             expect(attachment_only.locator('.image-list img')).to_have_count(1)
             expect(attachment_only).to_have_class(re.compile(r'\bhas-response\b'))
-            attachment_only.get_by_role('button', name='Rimuovi allegato').click()
+            attachment_only.get_by_role('button', name='Rimuovi', exact=True).click()
             expect(attachment_only).not_to_have_class(re.compile(r'\bhas-response\b'))
             if page.locator('.test').count() == 1:
                 first.locator('[data-status="Accettabile"]').click()
@@ -904,23 +904,43 @@ def check(path):
             notes_card.locator('.images').set_input_files(str(bad_zip))
             expect(page.locator('#action-message')).to_contain_text('ZIP non è riconosciuto')
             expect(notes_card.locator('.zip-download')).to_have_count(2)
-            # Rename (the user's request, 2026-10-05): the extension stays, and a name typed with
-            # it does not get a second one. Renamed back, so the checks below keep their names.
+            # Rename in place (the user's requests, 2026-10-05 and 2026-10-06): the field holds
+            # the name alone, the extension stays beside it, Invio confirms and Esc cancels; a
+            # name typed with the extension does not get a second one. Renamed back, so the
+            # checks below keep their names.
             figura = first.locator('.image-list figure').first
-            page.once('dialog', lambda dialog: dialog.accept('schermata prova'))
-            figura.get_by_role('button', name='Rinomina allegato').click()
+            # The name is centred and shows the hand; the two buttons sit on one centred row.
+            caption_style = figura.locator('figcaption').evaluate("(el)=>{const c=getComputedStyle(el);return [c.textAlign,c.cursor,c.fontSize]}")
+            assert caption_style == ['center', 'pointer', '14px'], caption_style
+            row = figura.locator('.attachment-actions').bounding_box()
+            buttons = [figura.get_by_role('button', name=label, exact=True).bounding_box() for label in ['Rinomina', 'Rimuovi']]
+            left_room = buttons[0]['x'] - row['x']
+            right_room = row['x'] + row['width'] - (buttons[1]['x'] + buttons[1]['width'])
+            assert abs(left_room - right_room) <= 1, (left_room, right_room)
+            figura.get_by_role('button', name='Rinomina', exact=True).click()
+            expect(figura.locator('.attachment-rename-name')).to_have_value('feedback')
+            expect(figura.locator('.attachment-rename-extension')).to_have_text('.png')
+            figura.locator('.attachment-rename-name').fill('schermata prova')
+            figura.locator('.attachment-rename-name').press('Enter')
             expect(figura.locator('figcaption')).to_have_text('schermata prova.png')
             assert page.evaluate("draft.entries[spec.items[0].id].images[0].name") == 'schermata prova.png', 'Nome non scritto nella bozza.'
-            page.once('dialog', lambda dialog: dialog.accept('feedback.png'))
-            figura.get_by_role('button', name='Rinomina allegato').click()
+            figura.get_by_role('button', name='Rinomina', exact=True).click()
+            figura.locator('.attachment-rename-name').fill('da non tenere')
+            figura.locator('.attachment-rename-name').press('Escape')
+            expect(figura.locator('figcaption')).to_have_text('schermata prova.png')
+            figura.get_by_role('button', name='Rinomina', exact=True).click()
+            figura.locator('.attachment-rename-name').fill('feedback.png')
+            figura.locator('.attachment-rename-name').press('Enter')
             expect(figura.locator('figcaption')).to_have_text('feedback.png')
-            # While writing in a field, a click on an attachment writes its name at the caret.
+            # While writing in a field, a click on an attachment writes its name at the caret, as
+            # inline code (since 2026-10-06; before, between quotes).
             if page.locator('.test').count() > 2:
                 writing = page.locator('.test').nth(2)
                 writing.locator('.rich-editor').click()
                 page.keyboard.type('Vedi ')
                 figura.locator('img').click()
-                expect(writing.locator('.comment')).to_have_value("Vedi 'feedback.png'")
+                expect(writing.locator('.comment')).to_have_value("Vedi `feedback.png`")
+                expect(writing.locator('.rich-editor code')).to_have_text('feedback.png')
                 writing.locator('.rich-editor').fill('')
                 expect(writing.locator('.comment')).to_have_value('')
             page.locator('#floating-save').click()
@@ -1031,17 +1051,17 @@ def check(path):
             assert list_box['y'] >= rows_box['y'] + rows_box['height'], (list_box, rows_box)
             second.evaluate('document.activeElement.blur()')
             caption = overlay_figures.first.locator('figcaption')
-            quoted = "'" + caption.inner_text() + "'"
+            shown = caption.inner_text()
             caption.click()
-            expect(second.locator('.toast.is-visible')).to_contain_text(quoted)
-            assert second.evaluate('navigator.clipboard.readText()') == quoted
-            remove = overlay_figures.first.get_by_role('button', name='Rimuovi allegato')
+            expect(second.locator('.toast.is-visible')).to_contain_text(shown)
+            assert second.evaluate('navigator.clipboard.readText()') == '`' + shown + '`'
+            remove = overlay_figures.first.get_by_role('button', name='Rimuovi', exact=True)
             expect(remove.locator('svg')).to_be_visible()
             expect(remove.locator('.attachment-action-text')).to_be_hidden()
-            expect(overlay_figures.first.get_by_role('button', name='Rinomina allegato').locator('svg')).to_be_visible()
+            expect(overlay_figures.first.get_by_role('button', name='Rinomina', exact=True).locator('svg')).to_be_visible()
             second.locator('#altro-overlay-close').click()
             second.set_viewport_size({'width': 1280, 'height': 900})
-            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Rimuovi allegato')
+            page_remove = second.locator('.extra .image-list figure').first.get_by_role('button', name='Rimuovi', exact=True)
             expect(page_remove.locator('.attachment-action-text')).to_be_visible()
             expect(page_remove.locator('svg')).to_be_hidden()
             second.set_viewport_size(size)

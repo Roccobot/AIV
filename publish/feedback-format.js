@@ -198,7 +198,10 @@
         for (const child of element.childNodes) visit(child, next);
       }
     }
-    if (!(root.childNodes.length === 1 && root.firstChild.nodeName === "BR")) {
+    // An empty field's sole BR is a caret placeholder. Empty text nodes do not count: one is
+    // left after inline code to keep the caret out of it, and beside the BR it made a line.
+    const filled = [...root.childNodes].filter((child) => !(child.nodeType === Node.TEXT_NODE && child.textContent === ""));
+    if (!(filled.length === 1 && filled[0].nodeName === "BR")) {
       for (const child of root.childNodes) visit(child, {});
     }
     return runs.map(run => {
@@ -435,14 +438,25 @@
     refresh: () => editors.forEach(render),
     // Whether a field is being written in now: an attachment click then writes its name there.
     writing: () => Boolean(writing()),
-    /* Inserts plain text at the caret of the field being written in, as typing would (the
-       browser's own insertion, so undo works and the input event saves it). False when no
-       field has the focus. */
-    insertAtCaret: text => {
+    /* Inserts text at the caret as inline code, rendered as the Codice key renders it (the
+       user's request, 2026-10-06: an attachment's name goes in as code, not between quotes).
+       The caret goes after the code, so what is typed next is plain. False when no field has
+       the focus. */
+    insertCodeAtCaret: text => {
       const editor = writing();
       if (!editor) return false;
-      selection(editor);
-      document.execCommand("insertText", false, text);
+      const range = selection(editor);
+      const code = node("code", text);
+      range.deleteContents();
+      range.insertNode(code);
+      const after = document.createTextNode("");
+      code.after(after);
+      const caret = document.createRange();
+      caret.setStart(after, 0);
+      caret.collapse(true);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(caret);
+      sync(editor);
       return true;
     },
     setDisabled: disabled => editors.forEach(editor => {

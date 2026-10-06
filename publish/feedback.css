@@ -404,14 +404,51 @@ textarea {
   max-height: 180px;
   object-fit: contain;
 }
+/* The name, centred, a little larger and apart from the thumbnail and the buttons (the
+   user's request, 2026-10-06); a click on it writes it in the field, so it shows the hand. */
 .image-list figcaption {
+  margin: 10px 0 2px;
   overflow-wrap: anywhere;
-  font-size: 12px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.35;
+  cursor: pointer;
+}
+.image-list img {
+  cursor: pointer;
+}
+/* Rinomina and Rimuovi on one row, centred, with the same room between and around them. */
+.attachment-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
 }
 .image-list button {
   min-height: 40px;
-  padding: 6px 10px;
+  padding: 6px 14px;
   font-size: 14px;
+}
+/* Renaming in place: the name alone in the field, the extension beside it and out of reach. */
+.attachment-rename {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  margin: 10px 0 2px;
+  font-size: 14px;
+}
+.attachment-rename-name {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px 6px;
+  font: inherit;
+  text-align: center;
+}
+.attachment-rename-extension {
+  flex: none;
+  color: var(--muted);
 }
 /* Rinomina and Rimuovi: words on a wide screen, the icon alone on a phone (the user's request,
    2026-10-06). The button's label stays the same on both. */

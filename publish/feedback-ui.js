@@ -219,65 +219,87 @@ function drawAttachmentList(card, list) {
       figure.append(image, el("figcaption", img.name));
     }
     /* While a field is being written in, a click on the attachment writes its name, with the
-       extension, between straight quotes at the caret (the user's request, 2026-10-05). The
-       press is held back so the field keeps the focus and the caret; the two buttons and the
-       ZIP link keep their own click.
-       In the mobile overlay a tap with no field being written in copies the same text to the
-       clipboard (the user's request, 2026-10-06): with the keyboard closed the field may have
-       lost the caret. */
+       extension, at the caret as inline code (the user's request, 2026-10-05, and as code and
+       not between quotes since 2026-10-06). The press is held back so the field keeps the focus
+       and the caret; the two buttons, the ZIP link and the rename field keep their own click.
+       In the mobile overlay a tap with no field being written in copies the name to the
+       clipboard, between backticks (the user's request, 2026-10-06): with the keyboard closed
+       the field may have lost the caret. */
     figure.title = inOverlay
       ? "Un tocco inserisce il nome nel testo, o lo copia negli appunti"
       : "Mentre scrivi, un clic qui inserisce il nome nel testo";
     figure.addEventListener("pointerdown", (event) => {
-      if (event.target.closest("button, a")) return;
+      if (event.target.closest("button, a, input")) return;
       if (window.feedbackFormatting?.writing()) event.preventDefault();
     });
     figure.addEventListener("click", async (event) => {
-      if (event.target.closest("button, a")) return;
-      const quoted = "'" + img.name + "'";
-      if (window.feedbackFormatting?.insertAtCaret(quoted) || !inOverlay) return;
+      if (event.target.closest("button, a, input")) return;
+      if (window.feedbackFormatting?.insertCodeAtCaret(img.name) || !inOverlay) return;
       try {
-        await copyText(quoted);
-        toast("Copiato negli appunti: " + quoted);
+        await copyText("`" + img.name + "`");
+        toast("Copiato negli appunti: " + img.name);
       } catch {
         toast("Copia non riuscita.", true);
       }
     });
-    const rename = attachmentButton("Rinomina allegato", ["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"]);
-    rename.addEventListener("click", () => renameAttachment(card, index));
-    const remove = attachmentButton("Rimuovi allegato", ["M3 6h18", "M8 6V4h8v2", "M19 6l-1 14H6L5 6", "M10 11v6M14 11v6"]);
+    // Rinomina and Rimuovi, the user's words since 2026-10-06, on one centred row.
+    const rename = attachmentButton("Rinomina", ["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"]);
+    rename.addEventListener("click", () => renameAttachment(card, index, figure));
+    const remove = attachmentButton("Rimuovi", ["M3 6h18", "M8 6V4h8v2", "M19 6l-1 14H6L5 6", "M10 11v6M14 11v6"]);
     remove.addEventListener("click", () => {
       attachmentEntry(card).images.splice(index, 1);
       drawAttachments(card);
       changed();
     });
-    figure.append(rename, remove);
+    const actions = el("div", "", "attachment-actions");
+    actions.append(rename, remove);
+    figure.append(actions);
     list.append(figure);
   });
 }
 /* Renames an attachment after it was loaded (the user's request, 2026-10-05). Only the name
-   changes: the original bytes, and on the cloud their storageKey, stay as they are. The
-   extension is kept, because the type was checked on the file, and a name that already ends
-   with it is not given a second one. */
-function renameAttachment(card, index) {
+   changes: the original bytes, and on the cloud their storageKey, stay as they are.
+   Since 2026-10-06 (his request: *voglio digitare un nome e poi Invio, senza preoccuparmi delle
+   estensioni*) the name is edited in place, in a field that holds the name alone, with the
+   extension beside it and out of reach: Invio or leaving the field confirms, Esc cancels. */
+function renameAttachment(card, index, figure) {
   const image = attachmentEntry(card).images[index];
-  if (!image) return;
+  const caption = figure.querySelector("figcaption");
+  if (!image || !caption) return;
   const dot = image.name.lastIndexOf(".");
   const extension = dot > 0 ? image.name.slice(dot) : "";
-  const base = extension ? image.name.slice(0, dot) : image.name;
-  const typed = prompt(extension ? "Nuovo nome dell'allegato (l'estensione " + extension + " resta):" : "Nuovo nome dell'allegato:", base);
-  if (typed === null) return;
-  let name = typed.trim();
-  if (extension && name.toLowerCase().endsWith(extension.toLowerCase())) name = name.slice(0, -extension.length).trim();
-  if (!name || /[\\/\u0000-\u001f]/.test(name) || (name + extension).length > 500) {
-    report("Il nome non può essere vuoto, contenere barre o superare i 500 caratteri.", true);
-    return;
-  }
-  if (name + extension === image.name) return;
-  image.name = name + extension;
-  drawAttachments(card);
-  changed();
-  report("Allegato rinominato: " + image.name + ".");
+  const field = el("input", "", "attachment-rename-name");
+  field.type = "text";
+  field.value = extension ? image.name.slice(0, dot) : image.name;
+  field.setAttribute("aria-label", "Nome dell'allegato, senza estensione");
+  const editing = el("div", "", "attachment-rename");
+  editing.append(field, el("span", extension, "attachment-rename-extension"));
+  caption.replaceWith(editing);
+  let done = false;
+  const finish = (keep) => {
+    if (done) return;
+    done = true;
+    let name = field.value.trim();
+    // A name typed with its extension does not get a second one.
+    if (extension && name.toLowerCase().endsWith(extension.toLowerCase())) name = name.slice(0, -extension.length).trim();
+    if (!keep || name + extension === image.name) { drawAttachments(card); return; }
+    if (!name || /[\\/\u0000-\u001f]/.test(name) || (name + extension).length > 500) {
+      report("Il nome non può essere vuoto, contenere barre o superare i 500 caratteri.", true);
+      drawAttachments(card);
+      return;
+    }
+    image.name = name + extension;
+    drawAttachments(card);
+    changed();
+    report("Allegato rinominato: " + image.name + ".");
+  };
+  field.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { event.preventDefault(); finish(true); }
+    else if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); finish(false); }
+  });
+  field.addEventListener("blur", () => finish(true));
+  field.focus();
+  field.select();
 }
 function changed() {
   revision++;
