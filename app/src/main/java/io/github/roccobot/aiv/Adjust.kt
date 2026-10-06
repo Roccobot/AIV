@@ -1182,7 +1182,15 @@ data class Look(
      * su [Framing].
      */
     val framing: Framing = Framing.NONE,
-    val healing: Healing.Plan = Healing.Plan.NONE
+    val healing: Healing.Plan = Healing.Plan.NONE,
+    /**
+     * The **Disegno** module, from 4.40: shapes laid after the development and before the
+     * geometry (the why lives at the top of `Drawing.kt`).
+     *
+     * ⚠️ **It sits on the 'where' side of [place]**: it is not a colour, so the comparison of a
+     * colour module keeps it; the Disegno module compares without it on its own.
+     */
+    val drawing: Drawing = Drawing.NONE
 ) {
 
     /**
@@ -1222,11 +1230,11 @@ data class Look(
      * cioè non si vede più che cosa fa.
      */
     val place: Look
-        get() = Look(spin = spin, crop = crop, geo = geo, framing = framing)
+        get() = Look(spin = spin, crop = crop, geo = geo, framing = framing, drawing = drawing)
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
     val idle: Boolean
-        get() = plain && geo.idle && square && healing.idle
+        get() = plain && geo.idle && square && healing.idle && drawing.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -1247,7 +1255,7 @@ data class Look(
      * ⚠️ **Un taglio invece riscrive**, e non è una scelta: un ritaglio a blocchi lascerebbe il
      * bordo al multiplo di otto più vicino, cioè non taglierebbe dove l'utente ha chiesto.
      */
-    val lossless: Boolean get() = plain && geo.idle && crop.whole && healing.idle
+    val lossless: Boolean get() = plain && geo.idle && crop.whole && healing.idle && drawing.idle
 
     companion object {
         val NONE = Look()

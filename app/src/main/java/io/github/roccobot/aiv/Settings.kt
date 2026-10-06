@@ -1246,7 +1246,13 @@ val MOD_KEYS = listOf(
      * un tasto nuovo subito dopo l'ultimo dei suoi predecessori già in scena, che qui è l'ultimo
      * dell'ordine scelto.
      */
-    PadKey.MOD_PRESET
+    PadKey.MOD_PRESET,
+    /*
+     * ⚠️ **The Disegno module is last, from 4.40** (his note D on the 4.36 round: *a destra, in
+     * fondo, ultimo modulo*). Who already reordered the row finds it at the end too, for the same
+     * reason as the styles above.
+     */
+    PadKey.MOD_DRAW
 )
 
 /**

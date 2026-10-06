@@ -913,7 +913,10 @@ enum class PadKey(override val token: String) : Choice {
      * `2.40` gli stili erano un pannello che si apriva sopra la scheda, e un pannello nella fila
      * dei moduli non c'era.
      */
-    MOD_PRESET("mod-preset")
+    MOD_PRESET("mod-preset"),
+
+    /** The Disegno module, from 4.40: last of the factory order (his note D on the 4.36 round). */
+    MOD_DRAW("mod-draw")
 }
 
 /**
@@ -966,7 +969,7 @@ fun PadKey.label(): Int = when (this) {
     // due posti in cui un modulo si chiama.
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
-    PadKey.MOD_PRESET -> modName(this)
+    PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modName(this)
 }
 
 /**
@@ -1003,7 +1006,7 @@ fun PadKey.glyph(): ImageVector = when (this) {
     // ⚠️ Come il nome: il segno di un modulo vive nella sua tabella, e qui si chiede a lei.
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
-    PadKey.MOD_PRESET -> modGlyph(this)
+    PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modGlyph(this)
 }
 
 /**

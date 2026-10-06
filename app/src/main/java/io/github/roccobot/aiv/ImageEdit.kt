@@ -325,7 +325,7 @@ object ImageEdit {
          * riscrivere il file esce accanto, che è quello che questa funzione fa da sé con
          * [lookTarget].
          */
-        if (look.plain && look.geo.idle && look.healing.idle) {
+        if (look.plain && look.geo.idle && look.healing.idle && look.drawing.idle) {
             val way = if (!beside && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
             return@withContext save(
                 context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup, mark,
@@ -349,6 +349,7 @@ object ImageEdit {
         var full: Bitmap? = null
         var posed: Bitmap? = null
         var shaded: Bitmap? = null
+        var drawn: Bitmap? = null
         var warped: Bitmap? = null
         var done: Bitmap? = null
         var small: Bitmap? = null
@@ -379,7 +380,13 @@ object ImageEdit {
              */
             shaded = if (look.plain) posed else AdjustRender.apply(posed, look)
                 ?: return@withContext Result.Failed(R.string.look_failed)
-            warped = if (look.geo.idle) shaded else Warp.render(shaded, look.geo)
+            /*
+             * ⚠️⚠️ **The drawing comes after the colour and before the geometry, from 4.40**: the
+             * sliders must not repaint the ink, and straightening and the crop must move it with
+             * the image (his answer D2a). The why lives at the top of `Drawing.kt`.
+             */
+            drawn = Draw.onto(shaded, look.drawing, look.spin)
+            warped = if (look.geo.idle) drawn else Warp.render(drawn, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)
             done = if (look.crop.whole) warped else warped.cutTo(look.crop)
             // ⚠️ Il ridimensionamento viene prima della firma, e il perché vive nell'altra via
@@ -415,7 +422,8 @@ object ImageEdit {
             if (signed !== small && signed !== done) signed?.recycle()
             if (small !== done) small?.recycle()
             if (done !== warped) done?.recycle()
-            if (warped !== shaded) warped?.recycle()
+            if (warped !== drawn) warped?.recycle()
+            if (drawn !== shaded) drawn?.recycle()
             if (shaded !== posed) shaded?.recycle()
             if (posed !== full) posed?.recycle()
             full?.recycle()

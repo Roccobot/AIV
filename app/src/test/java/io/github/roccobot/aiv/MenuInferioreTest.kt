@@ -955,6 +955,14 @@ internal const val VELO_MS = 20_000L
  * the preferences' store by another class (the store is one per process, and on GitHub the classes
  * run in another order). So a timeout reports the store and the texts on screen, and a hint that
  * takes more than [VELO_LENTO_MS] prints how long it took: either way the next run says which.
+ * ⚠️⚠️ **4.40: REPRODUCED ON THIS MACHINE, STILL WITHOUT A CAUSE.** With `DisegnoTest` in the bench
+ * the hint failed in 4 full runs out of 10 (in this class or in `EtichetteStartTest`, each time a
+ * different test), all in the first runs; without its two tests that drag and save, 0 out of 4.
+ * What was measured at the timeout: the store has no `columns-hint-seen` (so it reads 'not
+ * seen'), and a thread dump shows no busy thread, so the store is not stuck. Any edit to
+ * `FolderScreen` that logs the hint's conditions made it disappear (0 out of 4), so it is a race
+ * on timing. A guess, not proved: these classes run in the default graphics sandbox and
+ * `DisegnoTest` in the native one, i.e. two class loaders and two in-memory stores on one file.
  */
 internal fun aspettaIlVelo(banco: androidx.compose.ui.test.junit4.ComposeContentTestRule, app: android.content.Context) {
     val frase = app.getString(R.string.corner_hint)

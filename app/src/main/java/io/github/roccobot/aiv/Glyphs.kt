@@ -531,6 +531,27 @@ object Glyphs {
     val ModEffects: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_effects)
 
+    /**
+     * La matita con lo scarabocchio: il modulo 'Disegno', dalla `4.40`.
+     *
+     * ⚠️ È `Icons.Filled.Draw` di Material con gli spigoli convessi esterni raccordati: le misure
+     * vivono in testa al file.
+     */
+    val ModDraw: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_draw)
+
+    /** Le cinque penne del modulo 'Disegno', dalla `4.40`: un tratto ciascuna, vedi i file. */
+    @Composable
+    fun pen(pen: Pen): ImageVector = ImageVector.vectorResource(
+        when (pen) {
+            Pen.FREE -> R.drawable.ic_pen_free
+            Pen.LINE -> R.drawable.ic_pen_line
+            Pen.ARROW -> R.drawable.ic_pen_arrow
+            Pen.RECT -> R.drawable.ic_pen_rect
+            Pen.ELLIPSE -> R.drawable.ic_pen_ellipse
+        }
+    )
+
     /** Il mirino: il tasto 'Mirato', che arma il colore mirato. */
     val Aim: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_aim)
