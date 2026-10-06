@@ -51,6 +51,11 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
   e la fascia grande resta sempre, salvo quando la griglia tocca il fondo (sua correzione su
   `4.25-07`, dalla `4.30`; nella `4.25` era il rovescio). Dalla `1.85` alla `4.20` nelle cartelle la
   coda non c'era.
+  - ⚠️⚠️ **Dalla `4.33` vale la sua specifica nuova** (voce `4.30-07` del giro della `4.32`): nella
+    schermata iniziale la fascia grande resta com'è (60%) e la coda arriva all'85% invece del pieno;
+    nelle cartelle c'è la sola fascia grande, col massimo al 65%, che a intestazione chiusa scende al
+    60% della sua opacità e negli ultimi 2 cm di griglia (`TAIL_REACH`, lettura dichiarata) scende a
+    zero seguendo lo scorrimento. Le curve e le altezze restano quelle di `GroundFade`.
 
 **La variante 10** (sua risposta a `d-frontespizio`).
 - **Si compone di quattro interruttori** sotto 'Intestazione delle cartelle', in 'Aspetto':
@@ -179,7 +184,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   ⚠️⚠️ **Dalla `4.30` i due menu si chiamano `Menu` (il menu inferiore) e `Menu 'Start'` (il menu
   angolare)**, con gli apici dritti (nota A del giro della `4.25` e risposta `nome-start`); nelle
   altre lingue `Start` è il nome che ognuna dà al menu di Windows (risposta `start-lingue`). Nelle
-  voci qui sotto restano i nomi di allora.
+  voci qui sotto restano i nomi di allora. ⚠️ **Dalla `4.33` `Menu` diventa `Menu basso`** (sua
+  risposta alla voce `4.30-01` del giro della `4.32`), in tutte le lingue.
   Chiave `main-control`; un archivio o un file di impostazioni con l'interruttore della
   `4.02`-`4.05` (`phone-pill-on`) o col solo gettone della `4.00`-`4.01` si rilegge col suo
   significato.
@@ -235,6 +241,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     stesso angolo in home e nelle cartelle (`pillCorner`: 24dp di fianco, 16 da sotto; la griglia
     ne aveva 20). Il menu Start aperto si chiude con **qualunque** tocco fuori, anche un
     trascinamento sulla griglia, che intanto scorre (`OutsideTouch`, sua nota su `4.25-02`).
+    ⚠️ **Dalla `4.33` con un gesto solo** (voce `4.30-03`): fino alla `4.32` il primo tocco chiudeva
+    il menu e annullava il trascinamento, perché l'osservatore usciva dalla radice a metà gesto.
   - ⚠️⚠️ **Dalla `4.31` il centro del tondo è il punto di riferimento di ogni comando** (sua regola
     dopo la `4.30`: *tutti i posizionamenti di tutti i menu devono usare quel punto di riferimento.
     Anche il centro del FAB dev'essere centrato sul centro di quel tondo*). La posizione resta quella
@@ -248,7 +256,18 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     `4.30`; nella `4.25` e nella `4.30` era la pillola a scomparsa). Vale per un telefono nuovo:
     chi ha già l'app ritrova la sua scelta. Al primo avvio il velo d'aiuto lo mostra **aperto**, con
     le sue caselle disegnate e la copia del tondo nell'angolo, e la frase `Tutti i comandi sono nel
-    menu 'Start'...` (`corner_hint`, sua richiesta: *magari espanso*).
+    menu 'Start'...` (`corner_hint`, sua richiesta: *magari espanso*). Dalla `4.33` la frase è la sua
+    (voce `4.31-03`): *Tocca il tasto nell'angolo per accedere al menu...*
+  - ⚠️⚠️ **Dalla `4.33` il menu Start ha caselle da 64dp con un'etichetta breve** (nota F del giro
+    della `4.32`, una prova di usabilità): stessa disposizione, glifi da 28dp e sotto ognuno il nome
+    breve (`Pillola`/`Tondo`, `Griglia`, `Lista`, `Cartelle`, `Mostra`/`Nascondi`, `Cerca`, `URL`,
+    `Crea`, `Cestino`, `Impostazioni`; nel cestino `Cronologia`, `Ripristina`, `Svuota`), la × senza.
+    Il pannello esce di 10dp verso il vetro e verso il basso, così la × resta col centro sul tondo.
+    Se la prova va bene si riattiva il tocco lungo su `Mostra`/`Nascondi` (sue parole).
+  - ⚠️ **Dalla `4.33` il commutatore pillola/tondo non c'è quando c'è `Nuova cartella`** (nota E del
+    giro della `4.32`): là le caselle sarebbero dieci e la decima apriva una quarta riga.
+  - ⚠️ **Dalla `4.33` la barra di `Menu basso` scende di 8dp dentro lo spazio della barra di
+    navigazione** (nota B del giro della `4.32`, `BAR_DROP`).
   - ⚠️⚠️ **Pillole e tasto tondo stanno a 24dp dal vetro di fianco (`PILL_SIDE`), dalla `4.25`**, tre
     margini della griglia e lo stesso rientro dei menu (scelta A2): la riga resta dentro i bordi delle
     miniature, e il tondo coincide col bordo della pillola aperta. Da sotto restano i margini del FAB,

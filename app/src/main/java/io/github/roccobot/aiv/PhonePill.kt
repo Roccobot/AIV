@@ -624,6 +624,8 @@ private fun SlidePill(
                         Box(
                             modifier = Modifier.graphicsLayer {
                                 alpha = 1f - p
+                                // ⚠️ Without a buffer: see [MARK_FADE].
+                                compositingStrategy = MARK_FADE
                                 val s = 1f - SWAP_ZOOM * p
                                 scaleX = s
                                 scaleY = s
@@ -799,6 +801,8 @@ internal fun JumpKey(
                 Box(
                     modifier = Modifier.graphicsLayer {
                         alpha = (1f - q).pow(JUMP_FULL)
+                        // ⚠️ Without a buffer: see [MARK_FADE].
+                        compositingStrategy = MARK_FADE
                         val s = 1f - JUMP_ZOOM * q
                         scaleX = s
                         scaleY = s

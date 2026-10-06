@@ -187,8 +187,17 @@ fun FrontBand(
  * @param alpha quanto si vede la fascia grande, da 0 a 1. ⚠️ **Il valore di serie è il pieno**, che
  *   è il caso della schermata iniziale. In una cartella se ne va solo quando la griglia tocca il
  *   fondo.
- * @param footAlpha quanto si vede la coda che chiude in pieno l'ultima striscia. ⚠️ **Il valore di
- *   serie è il pieno**: in una cartella se ne va scorrendo, insieme al titolo.
+ * @param footAlpha quanto si vede la coda che chiude l'ultima striscia, o `null` dove la coda non c'è.
+ *   ⚠️ **Dalla `4.33` nelle cartelle non c'è** (voce `4.30-07` del giro della `4.32`: *Cartelle:
+ *   solo sfumatura ampia*); il valore di serie è il pieno, cioè la schermata iniziale.
+ * @param peak l'opacità massima della fascia grande: [GRADIENT_PEAK] in home, di più in una cartella.
+ * @param footPeak l'opacità massima della coda.
+ *
+ * ⚠️⚠️ **DALLA `4.33` LE DUE SCHERMATE HANNO SFUMATURE DIVERSE, ED È LA SUA SPECIFICA** (voce
+ * `4.30-07` non approvata sul giro della `4.32`: *Home: sfumatura ampia com'è adesso + sfumatura
+ * breve e decisa fino all'85% anziché al 100% di opacità. Cartelle: solo sfumatura ampia, ma il
+ * punto finale dev'essere leggermente più opaco, intorno al 65%*). Curve e altezze restano una
+ * sola, scritte qui; cambiano i soli massimi, che arrivano da chi chiama.
  */
 /**
  * Quanto rientra il bordo di SOTTO dello schermo: la barra gestuale, o zero dove non c'è.
@@ -212,19 +221,21 @@ fun bottomInset(): Dp = steadyDrawing().asPaddingValues().calculateBottomPadding
 fun GroundFade(
     modifier: Modifier = Modifier,
     alpha: () -> Float = { 1f },
-    footAlpha: () -> Float = { 1f }
+    footAlpha: (() -> Float)? = { 1f },
+    peak: Float = GRADIENT_PEAK,
+    footPeak: Float = HOME_FOOT_PEAK
 ) {
     val ground = MaterialTheme.colorScheme.background
-    val ramp = remember(ground) {
+    val ramp = remember(ground, peak) {
         Array(GRADIENT_STOPS + 1) { step ->
             val at = step / GRADIENT_STOPS.toFloat()
-            at to ground.copy(alpha = swallow(at))
+            at to ground.copy(alpha = peak * swallow(at))
         }
     }
-    val piede = remember(ground) {
+    val piede = remember(ground, footPeak) {
         Array(FOOT_STOPS + 1) { step ->
             val at = step / FOOT_STOPS.toFloat()
-            at to ground.copy(alpha = foot(at))
+            at to ground.copy(alpha = footPeak * foot(at))
         }
     }
     /*
@@ -248,14 +259,16 @@ fun GroundFade(
         )
         // ⚠️ **Sta DOPO la fascia grande**: in un `Box` l'ultimo figlio sta sopra, e questa coda
         // esiste per riportare al pieno quello che la fascia lascia a sei decimi.
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(FOOT_REACH)
-                .graphicsLayer { this.alpha = footAlpha() }
-                .background(Brush.verticalGradient(colorStops = piede))
-        )
+        if (footAlpha != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(FOOT_REACH)
+                    .graphicsLayer { this.alpha = footAlpha() }
+                    .background(Brush.verticalGradient(colorStops = piede))
+            )
+        }
     }
 }
 
@@ -290,6 +303,12 @@ private const val GRADIENT_TIMES = 2.5f
  * strato ([FOOT_REACH]), che riporta al pieno l'ultima striscia.
  */
 private const val GRADIENT_PEAK = 0.60f
+
+/**
+ * L'opacità massima della coda in home: l'85%, dalla `4.33` (voce `4.30-07` del giro della `4.32`:
+ * *sfumatura breve e decisa fino all'85% anziché al 100% di opacità*). Fino alla `4.32` era il pieno.
+ */
+private const val HOME_FOOT_PEAK = 0.85f
 
 /**
  * In quanti gradini si disegna la curva della sfumatura.
@@ -388,20 +407,21 @@ private const val FOOT_STOPS = 20
 private const val SWALLOW = 1f / GRADIENT_TIMES
 
 /**
- * Quanto colore c'è a una data altezza della fascia, con `0` in cima e `1` sul fondo.
+ * Quanto colore c'è a una data altezza della fascia, con `0` in cima e `1` sul fondo, come frazione
+ * del suo massimo (il `peak` di [GroundFade], dalla `4.33`).
  *
  * ⚠️⚠️ **UNA SALITA SOLA, DI NUOVO, DALLA `1.55`**: la `1.54` ne aveva due perché la sfumatura
  * doveva **arrivare** a un terzo invece di sparire, e senza una coda in cima quel terzo sarebbe
  * comparso di colpo in una riga di pixel. Adesso in cima si arriva a zero, quindi lo scalino non
  * esiste e la seconda salita non ha più niente da nascondere.
- * ⚠️ **Il tratto si ricava da [SWALLOW]** e non è scritto a mano: si sale da niente a
- * [GRADIENT_PEAK] fino al bordo del FAB, e da lì in giù il colore sta fermo. Cambiando
+ * ⚠️ **Il tratto si ricava da [SWALLOW]** e non è scritto a mano: si sale da niente al
+ * massimo fino al bordo del FAB, e da lì in giù il colore sta fermo. Cambiando
  * [GRADIENT_TIMES] i due tratti si ridistribuiscono da soli.
  */
 private fun swallow(at: Float): Float {
     val fermo = 1f - SWALLOW
-    if (at >= fermo) return GRADIENT_PEAK
-    return GRADIENT_PEAK * smoothstep(at / fermo)
+    if (at >= fermo) return 1f
+    return smoothstep(at / fermo)
 }
 
 /**

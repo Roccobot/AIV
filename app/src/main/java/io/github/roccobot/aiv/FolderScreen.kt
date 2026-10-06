@@ -1042,6 +1042,13 @@ private fun FolderView.label(): Int = when (this) {
     FolderView.TREE -> R.string.hub_view_tree
 }
 
+/** Il nome breve di una vista, sotto la sua icona nel menu Start (nota F del giro della `4.32`). */
+private fun FolderView.short(): Int = when (this) {
+    FolderView.GRID -> R.string.start_grid
+    FolderView.LIST -> R.string.start_list
+    FolderView.TREE -> R.string.start_tree
+}
+
 /**
  * Il glifo di una vista nel menu, dalla `1.51`.
  *
@@ -1430,13 +1437,17 @@ private fun hubEntries(
      * vista in cui si è non c'è più, e la sua casella la prende il commutatore. Il glifo mostra il
      * riposo che il tocco mette (la capsula col tondo attivo, il tondo con la pillola attiva), e
      * l'etichetta nomina quello che il tocco fa, come ogni voce di un menu.
+     * ⚠️⚠️ **DALLA `4.33` NON C'È QUANDO C'È 'Nuova cartella'** (nota E del giro della `4.32`, con
+     * `10icons.png`): là le caselle sarebbero dieci, e la decima apriva una quarta riga per il solo
+     * commutatore. Nelle altre forme l'icona in più va bene (sue parole).
      */
-    if (onCornerRest != null) {
+    if (onCornerRest != null && onNewFolder == null) {
         add(
             PillEntry(
                 icon = if (cornerRound) Glyphs.RestPill else Glyphs.RestRound,
                 label = stringResource(if (cornerRound) R.string.corner_rest_pill else R.string.corner_rest_round),
-                group = 0
+                group = 0,
+                short = stringResource(if (cornerRound) R.string.start_pill else R.string.start_round)
             ) { onCornerRest() }
         )
     }
@@ -1458,7 +1469,7 @@ private fun hubEntries(
     // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
     // vorrebbe dire ribattezzare una cosa che ha già un nome.
     FolderView.entries.filter { it != view }.forEach { other ->
-        add(PillEntry(other.glyph, stringResource(other.label()), group = 0) { onView(other) })
+        add(PillEntry(other.glyph, stringResource(other.label()), group = 0, short = stringResource(other.short())) { onView(other) })
     }
 
     /*
@@ -1474,7 +1485,7 @@ private fun hubEntries(
      * quelli di Material dicono 'vedi' e 'non vedere' senza dire di che cosa.
      */
     if (steady && !granted) {
-        add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 0) { onPickImage() })
+        add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 0, short = stringResource(R.string.start_pick)) { onPickImage() })
     } else if (hiddenCount > 0 || steady) {
         add(
             PillEntry(
@@ -1484,6 +1495,7 @@ private fun hubEntries(
                 ),
                 group = 0,
                 enabled = hiddenCount > 0,
+                short = stringResource(if (peeking) R.string.start_hide else R.string.start_show),
                 onHold = onPeekList,
                 onTap = { onPeek(!peeking) }
             )
@@ -1493,8 +1505,8 @@ private fun hubEntries(
     // ⚠️ È in cima al gruppo delle azioni, prima delle tre vie che aprono
     // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
     // dove andare, ed è il caso in cui una persona apre questo menu.
-    add(PillEntry(Icons.Default.Search, stringResource(R.string.hub_search), group = 1) { onSearch() })
-    add(PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1) { onAddress() })
+    add(PillEntry(Icons.Default.Search, stringResource(R.string.hub_search), group = 1, short = stringResource(R.string.hub_search)) { onSearch() })
+    add(PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1, short = stringResource(R.string.start_url)) { onAddress() })
     /*
      * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
      * dell'utente, 2026-08-31: *facciamo un bivio, lo mostriamo se e solo se l'app
@@ -1532,10 +1544,10 @@ private fun hubEntries(
      * non comparirebbe finché non ci finisce dentro un'immagine.
      */
     if (onNewFolder != null) {
-        add(PillEntry(Glyphs.FolderNew, stringResource(R.string.dest_new), group = 1) { onNewFolder() })
+        add(PillEntry(Glyphs.FolderNew, stringResource(R.string.dest_new), group = 1, short = stringResource(R.string.start_new)) { onNewFolder() })
     }
-    add(PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1) { onBin() })
-    add(PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2) { onSettings() })
+    add(PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1, short = stringResource(R.string.bin_title)) { onBin() })
+    add(PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2, short = stringResource(R.string.hub_settings)) { onSettings() })
 }
 
 /**

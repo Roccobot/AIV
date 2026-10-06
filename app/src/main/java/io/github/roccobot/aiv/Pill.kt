@@ -79,6 +79,11 @@ data class PillEntry(
      * ⚠️ **A pill does not read it**: there the long press shows the label (see the header).
      */
     val onHold: (() -> Unit)? = null,
+    /**
+     * The abbreviated label the Start menu writes under the icon, since 4.33 (note F on the 4.32
+     * round, a usability test): `null` where the cell keeps the icon alone (the ×).
+     */
+    val short: String? = null,
     val onTap: () -> Unit
 )
 

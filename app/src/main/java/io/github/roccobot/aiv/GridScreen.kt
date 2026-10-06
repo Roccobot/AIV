@@ -1340,18 +1340,18 @@ fun GridScreen(
     val pillEntries: List<PillEntry> = when {
         picking || (shape == Adaptive.Shape.PHONE && pillLook.mode == PhonePill.OFF) -> emptyList()
         bin -> listOf(
-            PillEntry(Glyphs.BinHistory, stringResource(R.string.bin_history)) { onHistory() },
-            PillEntry(Glyphs.BinRestore, stringResource(R.string.bin_restore_all), enabled = filled) {
+            PillEntry(Glyphs.BinHistory, stringResource(R.string.bin_history), short = stringResource(R.string.bin_history)) { onHistory() },
+            PillEntry(Glyphs.BinRestore, stringResource(R.string.bin_restore_all), enabled = filled, short = stringResource(R.string.start_restore)) {
                 restoringAll = true
             },
-            PillEntry(Icons.Default.DeleteForever, stringResource(R.string.bin_empty), enabled = filled) {
+            PillEntry(Icons.Default.DeleteForever, stringResource(R.string.bin_empty), enabled = filled, short = stringResource(R.string.start_empty)) {
                 emptying = true
             }
         )
         else -> listOfNotNull(
-            onSearchHere?.let { PillEntry(Icons.Default.Search, cerca, onTap = it) },
-            onBin?.let { PillEntry(Glyphs.Bin, cestino, onTap = it) },
-            onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, onTap = it) }
+            onSearchHere?.let { PillEntry(Icons.Default.Search, cerca, short = cerca, onTap = it) },
+            onBin?.let { PillEntry(Glyphs.Bin, cestino, short = cestino, onTap = it) },
+            onSettings?.let { PillEntry(Icons.Default.Settings, impostazioni, short = impostazioni, onTap = it) }
         )
     }
     val pillShown = pillEntries.isNotEmpty()
@@ -2381,17 +2381,24 @@ fun GridScreen(
              * ⚠️ **'Il fondo' vuol dire che la griglia non scende più ed è scesa**: una cartella che
              * entra in uno schermo non ha un fondo da toccare, e in cima le sfumature sono due.
              */
+            /*
+             * ⚠️⚠️ **DALLA `4.33` C'È LA SOLA FASCIA GRANDE, E SEGUE LO SCORRIMENTO** (voce `4.30-07`
+             * del giro della `4.32`: *Cartelle: solo sfumatura ampia, ma il punto finale dev'essere
+             * leggermente più opaco, intorno al 65%. Quando si scorre, rimane la stessa ma la sua
+             * opacità si riduce del 40%. Quando si arriva in fondo, sfuma fino allo 0% negli ultimi
+             * centimetri*). In cima vale il pieno del suo 65%, a intestazione chiusa il 60% di quel
+             * pieno, insieme al titolo; negli ultimi [TAIL_REACH] di griglia scende a zero seguendo il
+             * dito, quindi a fine corsa l'ultima riga si vede intera. Nella `4.32` la fascia
+             * spariva con un'animazione appena la griglia toccava il fondo.
+             */
             if (front) {
-                val inFondo by remember { derivedStateOf { !state.canScrollForward && state.canScrollBackward } }
-                val fascia by animateFloatAsState(
-                    targetValue = if (inFondo) 0f else 1f,
-                    animationSpec = tween(FOOT_FADE_MS),
-                    label = "fascia"
-                )
+                val coda = with(LocalDensity.current) { TAIL_REACH.toPx() }
+                val resto by remember(coda) { derivedStateOf { tailLeft(state, coda) } }
                 GroundFade(
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    alpha = { fascia },
-                    footAlpha = aperto
+                    alpha = { (SCROLLED_FADE + (1f - SCROLLED_FADE) * aperto()) * resto },
+                    footAlpha = null,
+                    peak = FOLDER_PEAK
                 )
             }
 
@@ -3940,8 +3947,32 @@ private const val THUMB_KIND = "thumb"
 // là dentro sarebbe la coincidenza che si rompe al primo ritocco di questo margine.
 internal val GRID_PAD_X = 8.dp
 
-/** Quanto mette la fascia grande delle sfumature a sparire e a tornare, in fondo a una cartella. */
-private const val FOOT_FADE_MS = 150
+/** L'opacità massima della fascia in fondo a una cartella: il 65%, dalla `4.33` (voce `4.30-07`). */
+private const val FOLDER_PEAK = 0.65f
+
+/** Quanto della fascia resta a intestazione chiusa: il 60%, cioè il 40% in meno (voce `4.30-07`). */
+private const val SCROLLED_FADE = 0.6f
+
+/**
+ * In quanto spazio di griglia, prima della fine, la fascia di una cartella scende a zero: due
+ * centimetri (voce `4.30-07`: *sfuma fino allo 0% negli ultimi centimetri*). Lettura dichiarata nel DF.
+ */
+private val TAIL_REACH = 76.dp
+
+/**
+ * Quanto resta della fascia in fondo a una cartella, da 1 a 0 negli ultimi [coda] pixel di griglia.
+ *
+ * ⚠️ **Una griglia che entra nello schermo resta a 1**: non ha un fondo da raggiungere, e senza
+ * questa condizione una cartella corta non avrebbe mai la fascia.
+ */
+private fun tailLeft(state: LazyGridState, coda: Float): Float {
+    if (!state.canScrollBackward && !state.canScrollForward) return 1f
+    val info = state.layoutInfo
+    val last = info.visibleItemsInfo.lastOrNull() ?: return 1f
+    if (last.index < info.totalItemsCount - 1) return 1f
+    val fine = last.offset.y + last.size.height + info.afterContentPadding - info.viewportEndOffset
+    return (fine / coda).coerceIn(0f, 1f)
+}
 private val GRID_PAD_Y = 12.dp
 
 /**

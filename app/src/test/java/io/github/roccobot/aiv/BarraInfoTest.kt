@@ -65,13 +65,13 @@ class BarraInfoTest {
     /** The view that hosts the scene, to hand it the system bars' insets. */
     private var vista: View? = null
 
-    private fun monta(avanza: Boolean = true) {
+    private fun monta(avanza: Boolean = true, impostazioni: Settings = Settings()) {
         banco.setContent {
             vista = LocalView.current
             AivTheme(darkTheme = false) {
                 ViewerScreen(
                     state = ViewerState.Ready(immagine()),
-                    settings = Settings(),
+                    settings = impostazioni,
                     source = null,
                     folder = null,
                     onStep = {},
@@ -199,6 +199,36 @@ class BarraInfoTest {
         banco.waitForIdle()
         val finale = figura()
         assertTrue("L'immagine non è mai comparsa", visti.isNotEmpty())
+        for (f in visti) {
+            assertTrue("Un fotogramma con l'immagine fuori misura: $f contro $finale", kotlin.math.abs(f.top - finale.top) <= 1f && kotlin.math.abs(f.height - finale.height) <= 1f)
+        }
+    }
+
+    /**
+     * **Con le info spente l'immagine nasce a tutto schermo, senza crescere** (voce `4.30-05` non
+     * approvata sul giro della `4.32`: *l'animazione di zoom repentino all'apertura delle immagini
+     * [...] continua ad esserci se disattivo la barra delle info*).
+     *
+     * ⚠️ La causa: lo stato della barra nasceva visibile e prendeva l'impostazione solo a immagine
+     * pronta, quindi la prima misura faceva posto a una barra che non c'era, e il posto si
+     * richiudeva con l'animazione della barra che si nasconde.
+     */
+    @Test
+    @Config(qualifiers = "w360dp-h740dp")
+    fun `con le info spente l'immagine nasce nella misura finale`() {
+        banco.mainClock.autoAdvance = false
+        monta(avanza = false, impostazioni = Settings(infoVisible = false))
+        val visti = mutableListOf<Rect>()
+        repeat(40) {
+            banco.mainClock.advanceTimeByFrame()
+            val f = figura()
+            if (f.right > f.left) visti += f
+        }
+        banco.mainClock.autoAdvance = true
+        banco.waitForIdle()
+        val finale = figura()
+        assertTrue("L'immagine non è mai comparsa", visti.isNotEmpty())
+        assertTrue("L'immagine non arriva in cima: $finale", finale.top <= 1f)
         for (f in visti) {
             assertTrue("Un fotogramma con l'immagine fuori misura: $f contro $finale", kotlin.math.abs(f.top - finale.top) <= 1f && kotlin.math.abs(f.height - finale.height) <= 1f)
         }
