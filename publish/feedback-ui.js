@@ -177,12 +177,35 @@ function hydrate() {
 // The object URLs each attachment list shows, released when the list is drawn again: an
 // unreleased URL keeps its file in memory for as long as the page is open.
 const shownUrls = new WeakMap();
+/* Where a card's attachments are drawn: its own list, and for Altro also the one under the
+   mobile overlay's field (the user's request, 2026-10-06: *voglio vedere gli allegati ad
+   'Altro' nell'overlay mobile*). Each list makes its own object URLs. */
+function attachmentLists(card) {
+  const own = card.querySelector(".image-list");
+  const overlay = card.classList.contains("extra") ? document.querySelector("#altro-overlay .image-list") : null;
+  return overlay ? [own, overlay] : [own];
+}
+/* Rinomina and Rimuovi carry an icon and their words: on a phone only the icon shows (the
+   user's request, 2026-10-06), and the name stays the label a screen reader says. */
+function attachmentButton(label, paths) {
+  const button = el("button");
+  button.type = "button";
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  const icon = strokeIcon(paths);
+  icon.setAttribute("aria-hidden", "true");
+  button.append(icon, el("span", label, "attachment-action-text"));
+  return button;
+}
 function drawAttachments(card) {
-  const list = card.querySelector(".image-list");
+  for (const list of attachmentLists(card)) drawAttachmentList(card, list);
+}
+function drawAttachmentList(card, list) {
   for (const url of shownUrls.get(list) || []) URL.revokeObjectURL(url);
   const urls = [];
   shownUrls.set(list, urls);
   list.replaceChildren();
+  const inOverlay = Boolean(list.closest("#altro-overlay"));
   attachmentEntry(card).images.forEach((img, index) => {
     const figure = el("figure");
     const url = URL.createObjectURL(img.blob);
@@ -201,21 +224,31 @@ function drawAttachments(card) {
     /* While a field is being written in, a click on the attachment writes its name, with the
        extension, between straight quotes at the caret (the user's request, 2026-10-05). The
        press is held back so the field keeps the focus and the caret; the two buttons and the
-       ZIP link keep their own click. */
-    figure.title = "Mentre scrivi, un clic qui inserisce il nome nel testo";
+       ZIP link keep their own click.
+       In the mobile overlay a tap with no field being written in copies the same text to the
+       clipboard (the user's request, 2026-10-06): with the keyboard closed the field may have
+       lost the caret. */
+    figure.title = inOverlay
+      ? "Un tocco inserisce il nome nel testo, o lo copia negli appunti"
+      : "Mentre scrivi, un clic qui inserisce il nome nel testo";
     figure.addEventListener("pointerdown", (event) => {
       if (event.target.closest("button, a")) return;
       if (window.feedbackFormatting?.writing()) event.preventDefault();
     });
-    figure.addEventListener("click", (event) => {
+    figure.addEventListener("click", async (event) => {
       if (event.target.closest("button, a")) return;
-      window.feedbackFormatting?.insertAtCaret("'" + img.name + "'");
+      const quoted = "'" + img.name + "'";
+      if (window.feedbackFormatting?.insertAtCaret(quoted) || !inOverlay) return;
+      try {
+        await copyText(quoted);
+        toast("Copiato negli appunti: " + quoted);
+      } catch {
+        toast("Copia non riuscita.", true);
+      }
     });
-    const rename = el("button", "Rinomina allegato");
-    rename.type = "button";
+    const rename = attachmentButton("Rinomina allegato", ["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"]);
     rename.addEventListener("click", () => renameAttachment(card, index));
-    const remove = el("button", "Rimuovi allegato");
-    remove.type = "button";
+    const remove = attachmentButton("Rimuovi allegato", ["M3 6h18", "M8 6V4h8v2", "M19 6l-1 14H6L5 6", "M10 11v6M14 11v6"]);
     remove.addEventListener("click", () => {
       attachmentEntry(card).images.splice(index, 1);
       drawAttachments(card);
@@ -572,9 +605,6 @@ const altroOverlay = document.querySelector("#altro-overlay");
 function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
   altroOverlay.hidden = !open;
-  // The overlay always opens on the base row (format keys), not on the Consegna one.
-  const row = document.querySelector(".altro-overlay-panel .format-actions");
-  if (row?.dataset.state) row.dataset.state = "base";
   document.body.classList.toggle("altro-overlay-open", open);
   if (open) {
     syncAltroFields();
@@ -584,9 +614,9 @@ function setAltroOverlayOpen(open) {
     editor?.focus?.();
   }
 }
-document.querySelectorAll(".altro-overlay-close").forEach((button) => {
-  button.addEventListener("click", () => setAltroOverlayOpen(false));
-});
+// The overlay has no header since 2026-10-06: its Chiudi key, in the row under the field, is
+// made by feedback-format.js, which runs after this file.
+window.feedbackCloseAltro = () => setAltroOverlayOpen(false);
 altroOverlay?.addEventListener("click", (event) => {
   if (event.target === altroOverlay) setAltroOverlayOpen(false);
 });

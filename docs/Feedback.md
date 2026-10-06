@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.30**: i nomi dei menu, il tondo unico, il menu Start che si chiude a ogni tocco, il glifo del FAB, lo zoom all'apertura, la sfocatura sotto il vetro e le sfumature in basso.
+Versione **4.32**: un solo punto di riferimento per tutti i comandi, il menu Start di fabbrica, il velo d'aiuto del primo avvio e lo zoom all'apertura anche con le info spente. Le prove della 4.30 restano aperte.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.30 è pubblicata: [v4.30](https://github.com/Roccobot/AIV/releases/tag/v4.30), con l'APK
-[AIV-4.30.apk](https://github.com/Roccobot/AIV/releases/download/v4.30/AIV-4.30.apk).
-Commit prodotto su `main`: `090009b` (SlimVer 4.30 / versionCode 319).
+La Release 4.32 è pubblicata: [v4.32](https://github.com/Roccobot/AIV/releases/tag/v4.32), con l'APK
+[AIV-4.32.apk](https://github.com/Roccobot/AIV/releases/download/v4.32/AIV-4.32.apk).
+Commit prodotto su `main`: `0e7f0ab` (SlimVer 4.32 / versionCode 321).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor e HEIC restano chiusi. Giro **4.30**: sette prove, dalle tue note del giro 4.25. Giro **4.25**: `4.25-01` e `4.25-03`-`4.25-06` OK; `4.25-02` e `4.25-07` rifatte nella 4.30.
+Lati editor e HEIC restano chiusi. Giro **4.32**: le prove della 4.30 e tre nuove, dalle tue note dopo la 4.30; `4.30-05` riscritta per le info spente. Giro **4.25**: `4.25-01` e `4.25-03`-`4.25-06` OK; `4.25-02` e `4.25-07` rifatte nella 4.30.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,7 +22,7 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.30 sono superate: banco di prova completo (570 prove), controllo delle 28 traduzioni e compilazione.
+Le verifiche automatiche della 4.32 sono superate: banco di prova completo (572 prove), controllo delle 28 traduzioni e compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -33,6 +33,9 @@ Le verifiche automatiche della 4.30 sono superate: banco di prova completo (570 
 | 4.30-05 | Non provato | | Attendere il collaudo. |
 | 4.30-06 | Non provato | | Attendere il collaudo. |
 | 4.30-07 | Non provato | | Attendere il collaudo. |
+| 4.31-01 | Non provato | | Attendere il collaudo. |
+| 4.31-02 | Non provato | | Attendere il collaudo. |
+| 4.31-03 | Non provato | | Attendere il collaudo. |
 
 ## 1. I nomi dei menu
 
@@ -52,7 +55,7 @@ Con `Tasto fluttuante`, nel FAB quadrato il triangolo del marchio è centrato in
 
 ## 5. Lo zoom all'apertura
 
-Apri un'immagine dalla griglia di una cartella: deve comparire subito nella sua misura, senza partire piccola e crescere. La causa era il visualizzatore, che dalla 3.71 è a tutto schermo anche in verticale: misurava la barra delle info insieme alle barre di sistema mentre si nascondevano, e lo spazio per l'immagine cresceva con loro. Adesso misura subito lo spazio finale. La causa l'ho dedotta leggendo il codice: sul banco le barre di sistema non ci sono, quindi la conferma viene dal tuo telefono.
+Apri un'immagine dalla griglia di una cartella, una volta con le info in alto accese e una volta spente: deve comparire subito nella sua misura, senza partire piccola e crescere. Con le info spente l'anteprima si disegnava prima di sapere la misura del file, quindi alla misura della miniatura, e cresceva quando la misura arrivava (la causa del tuo caso, corretta nella 4.32). Adesso aspetta la misura, cioè un attimo in più prima di comparire. Il banco non carica immagini, quindi la conferma viene dal tuo telefono.
 
 ## 6. La sfocatura sotto il vetro
 
@@ -61,6 +64,18 @@ Con `Traslucido` apri il menu Start o la pillola sopra la griglia della schermat
 ## 7. Le sfumature in basso
 
 Nella schermata iniziale e in cima a ogni cartella ci sono tutte e due le sfumature. Scorri una cartella: se ne va la più corta, insieme al titolo, e resta la più ampia e leggera. Arriva in fondo: sparisce anche lei, così l'ultima riga si vede intera.
+
+## 8. Il punto di riferimento dei comandi
+
+Il centro del tondo è il centro di ogni comando, nella stessa posizione della 4.30. In **Elemento interattivo principale** scegli `Tasto fluttuante`: il FAB ha il centro dove la pillola e il menu Start hanno il tondo, nella schermata iniziale come in una cartella. Passa da una schermata all'altra e poi da `Tasto fluttuante` a `Menu 'Start'` e ritorno: il centro del comando non si deve muovere. Il menu del FAB, aperto, ha il fianco dove ce l'ha il menu Start aperto. La barra di `Menu` resta una fascia in fondo: con pochi tasti quello d'angolo è sull'asse del tondo, ma non alla sua altezza.
+
+## 9. Il menu Start di fabbrica
+
+Il menu Start è il comando di fabbrica di un telefono nuovo. Chi ha già l'app ritrova la sua scelta: per vederlo, scegli `Menu 'Start'` in **Elemento interattivo principale**, oppure installa l'app da zero.
+
+## 10. Il velo d'aiuto del primo avvio
+
+Con `Menu 'Start'` scelto, nelle impostazioni tocca `Ripristina gli avvisi` e torna alla schermata iniziale, in modalità griglia. Il velo mostra il menu Start aperto, in arancione, con la copia del tondo nell'angolo esattamente sopra il tondo vero, e la frase `Tutti i comandi sono nel menu 'Start': tocca il tasto tondo per aprirlo, tienilo premuto per le opzioni di visualizzazione.` Il tocco lungo sulla copia apre le opzioni di visualizzazione; un tocco qualunque chiude il velo. La frase è nuova: dimmi se la vuoi diversa.
 
 ## Decisioni da concordare
 
@@ -77,6 +92,9 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 | Lo zoom all'apertura | 4.30-05 | Non provato | | Attendere il collaudo. |
 | La sfocatura sotto il vetro | 4.30-06 | Non provato | | Attendere il collaudo. |
 | Le sfumature in basso | 4.30-07 | Non provato | | Attendere il collaudo. |
+| Il punto di riferimento dei comandi | 4.31-01 | Non provato | | Attendere il collaudo. |
+| Il menu Start di fabbrica | 4.31-02 | Non provato | | Attendere il collaudo. |
+| Il velo d'aiuto del primo avvio | 4.31-03 | Non provato | | Attendere il collaudo. |
 | Il menu angolare a riposo, e il commutatore | 4.25-01 | OK | Tutto OK. | Archiviata. |
 | Il menu angolare si chiude a ogni tocco | 4.25-02 | Accettabile | Qualunque tocco fuori, anche un trascinamento. | Fatto nella 4.30 (`4.30-03`). |
 | La pillola più corta | 4.25-03 | OK | Tutto OK. | Archiviata. |
@@ -87,7 +105,7 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 ## Prossimi passi
 
-- **In collaudo**: nomi dei menu, tondo unico, chiusura del menu Start, glifo del FAB, zoom all'apertura, sfocatura sotto il vetro, sfumature (`4.30-01`-`4.30-07`).
+- **In collaudo**: nomi dei menu, tondo unico, chiusura del menu Start, glifo del FAB, zoom all'apertura, sfocatura sotto il vetro, sfumature (`4.30-01`-`4.30-07`); punto di riferimento dei comandi, menu Start di fabbrica, velo del primo avvio (`4.31-01`-`4.31-03`).
 - **Concluso**: menu Start a riposo e commutatore, pillola più corta, traslucido di fabbrica, due colori, bordo dell'anteprima (`4.25-01`, `4.25-03`-`4.25-06`).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.

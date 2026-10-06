@@ -410,6 +410,28 @@ textarea {
   padding: 6px 10px;
   font-size: 14px;
 }
+/* Rinomina and Rimuovi: words on a wide screen, the icon alone on a phone (the user's request,
+   2026-10-06). The button's label stays the same on both. */
+.image-list button svg {
+  display: none;
+  width: 22px;
+  height: 22px;
+}
+@media (max-width: 720px) {
+  .image-list button {
+    min-width: 44px;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .image-list button svg {
+    display: block;
+  }
+  .image-list button .attachment-action-text {
+    display: none;
+  }
+}
 .file-button {
   display: inline-flex;
   align-items: center;
@@ -769,71 +791,25 @@ body.altro-overlay-open {
   color: var(--ink);
   display: flex;
   flex-direction: column;
-  /* A tall keyboard leaves little room: the panel starts high (the user's request). */
-  padding: 8px 16px;
+  /* The field starts at the top, with no title and no room above it (the user's request,
+     2026-10-06: *il titolo e lo spazio vuoto sono uno spreco*). Chiudi is in the row of keys. */
+  padding: 0 16px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
   overflow: auto;
-}
-/* Small title, centred on the panel; the close button keeps its 44px target and lends the
-   header no extra height. */
-.altro-overlay-header {
-  display: grid;
-  grid-template-columns: 44px 1fr 44px;
-  align-items: center;
-  height: 32px;
-  margin-bottom: 8px;
-}
-.altro-overlay-header h2 {
-  grid-column: 2;
-  margin: 0;
-  font-size: 18px;
-  text-align: center;
-}
-.altro-overlay-header .altro-overlay-close {
-  grid-column: 3;
-  margin: -6px 0;
-}
-/* Bare ×: same 24px glyph as before, no chip. Hit target stays 44px. */
-.altro-overlay-close {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: inherit;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-}
-button.altro-overlay-close:hover {
-  background: transparent;
-  border: none;
-}
-.altro-overlay-close svg {
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  display: block;
 }
 .altro-overlay-body {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
 }
-/* With the user's tall keyboard about 368px stay visible: the field takes all of it down to
-   the formatting row, which ends just above the keyboard, and only the six commands go
-   below it (the user's choice). feedback-format.js moves the editor out of the body, so the
-   rule names the panel. The focus ring is off here: the field is the whole overlay. */
+/* With the user's tall keyboard about 368px stay visible, and since 2026-10-06 the field and
+   both rows of keys fit in them: the rows are 2px lower than before and the field 4px taller
+   (his request). feedback-format.js moves the editor out of the body, so the rule names the
+   panel. The focus ring is off here: the field is the whole overlay. */
 .altro-overlay-panel textarea,
 .altro-overlay-panel .rich-editor {
-  height: 265px;
-  min-height: 265px;
+  height: 269px;
+  min-height: 269px;
 }
 .altro-overlay-panel textarea:focus-visible,
 .altro-overlay-panel .rich-editor:focus-visible {
@@ -1289,39 +1265,27 @@ main > .feedback-columns {
   background: var(--bad-text);
 }
 
-/* Mobile Altro: one row of keys with two states (the user's mockup Altro_mobile,
-   2026-10-04). Both states share the same columns: the first key 10%, the other six 15%
-   each (Consegna, then Allega, the four formats and Chiudi; Torna, then the six commands).
-   The shares are of the room left after the
-   gaps, which is what fr units give. */
+/* Mobile Altro: two rows of six keys, both always visible and spread over the whole width (the
+   user's request, 2026-10-06): Allega, the four formats and Chiudi, then the six commands. Until
+   then one row with two states and a switch key in front (the mockup Altro_mobile). */
 .altro-overlay-panel .format-actions {
   display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
   align-items: stretch;
-}
-.altro-overlay-panel .format-actions[data-state] {
-  grid-template-columns: 2fr 3fr 3fr 3fr 3fr 3fr 3fr;
 }
 .altro-overlay-panel .format-actions > .altro-format-cluster,
 .altro-overlay-panel .format-actions > .altro-format-cluster > .format-toolbar,
 .altro-overlay-panel .format-actions > .altro-commands {
   display: contents;
 }
-.altro-overlay-panel .format-actions[data-state="base"] > .altro-commands > *,
-.altro-overlay-panel .format-actions[data-state="base"] > .altro-row-back,
-.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-format-cluster > *,
-.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-format-cluster > .format-toolbar > *,
-.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-row-delivery,
-.altro-overlay-panel .format-actions[data-state="consegna"] > .altro-row-close {
-  display: none;
-}
 .altro-overlay-panel .format-actions button,
 .altro-overlay-panel .format-actions .command,
 .altro-overlay-panel .format-actions .altro-attach {
   width: auto;
   min-width: 0;
-  height: 44px;
-  min-height: 44px;
+  height: 42px;
+  min-height: 42px;
   margin: 0;
   padding: 0;
   display: flex;
