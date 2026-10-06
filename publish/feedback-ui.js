@@ -114,7 +114,6 @@ function countChip(kind, label, value) {
   return chip;
 }
 function refreshCounts() {
-  document.querySelector(".extra")?.classList.toggle("has-response", Boolean(draft.notes.trim() || draft.extra.images.length));
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
     card.dataset.outcome = value.status;
@@ -146,8 +145,6 @@ function refreshCounts() {
     ...spec.outcomes.map((outcome) => countChip(outcome.kind, outcome.label, counters[outcome.label])),
   );
   document.querySelector("#progress").value = done;
-  document.querySelector("#answered").textContent =
-    `Risposte: ${done} su ${spec.items.length}.`;
   refreshNavigation();
 }
 
@@ -164,8 +161,8 @@ function hydrate() {
     if (!item) continue;
     card.querySelector("textarea").value = labelShown(item);
   }
-  for (const key of ["device", "tablet", "notes"])
-    document.querySelector("#" + key).value = draft[key];
+  document.querySelector("#notes").value = draft.notes;
+  syncDevices();
   syncInstalledConfirm();
   syncAltroFields();
   drawAttachments(document.querySelector(".extra"));
@@ -559,16 +556,41 @@ if (altroOverlayImages) {
     if (card) attachFiles(card, Array.from(altroOverlayImages.files));
   });
 }
-for (const key of ["device", "tablet"])
-  document.querySelector("#" + key).addEventListener("input", (event) => {
-    draft[key] = event.target.value;
-    changed();
-  });
+/* The two devices are shown on the download row and changed in a modal (the user's request,
+   2026-10-06: *inutile lasciarli sempre compilabili: non cambio dispositivi ad ogni giro*). The
+   fields write the draft only on OK; Annulla, Escape and the scrim leave it as it was. */
+const devicesDialog = document.querySelector("#devices-dialog");
+function syncDevices() {
+  for (const key of ["device", "tablet"]) {
+    document.querySelector("#" + key).value = draft[key];
+    document.querySelector("#" + key + "-shown").textContent = draft[key].trim() || "non indicato";
+  }
+}
+document.querySelector("#devices-edit").addEventListener("click", () => {
+  syncDevices();
+  devicesDialog.showModal();
+});
+document.querySelector("#devices-cancel").addEventListener("click", () => devicesDialog.close());
+devicesDialog.addEventListener("click", (event) => {
+  if (event.target === devicesDialog) devicesDialog.close();
+});
+document.querySelector("#devices-ok").addEventListener("click", (event) => {
+  event.preventDefault();
+  let edited = false;
+  for (const key of ["device", "tablet"]) {
+    const value = document.querySelector("#" + key).value;
+    if (value !== draft[key]) {
+      draft[key] = value;
+      edited = true;
+    }
+  }
+  devicesDialog.close();
+  if (edited) changed();
+});
+devicesDialog.addEventListener("close", syncDevices);
 
 function syncInstalledConfirm() {
   const box = document.querySelector("#installed-confirm");
-  const giro = document.querySelector("#giro-version");
-  if (giro) giro.textContent = spec.version;
   if (box) box.checked = draft.installed === spec.version;
 }
 document.querySelector("#installed-confirm")?.addEventListener("change", (event) => {

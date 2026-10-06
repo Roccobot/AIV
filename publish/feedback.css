@@ -109,10 +109,13 @@ h1 {
   grid-column: 1;
   grid-row: 1;
 }
+/* The F of Roboto Bold starts 0.0625em right of its box (measured on the loaded font with
+   canvas measureText, 62.5px at 1000px): the margin puts its ink on the left edge of the lines
+   below (the user's request, 2026-10-06: *togli il rientro eccessivo*). */
 .intro-title-row h1 {
   grid-column: 1;
   grid-row: 2;
-  margin: 0;
+  margin: 0 0 0 -0.0625em;
   min-width: 0;
   white-space: nowrap;
 }
@@ -959,29 +962,92 @@ main > .feedback-columns {
   display: none;
 }
 
-.installed-confirm {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface-soft);
+/* The download row (the user's request, 2026-10-06): Scarica e installa with its sober
+   checkbox, and on the right the two devices with a small modifica. On a phone the devices go
+   to the line below. */
+.intro-actions {
+  justify-content: space-between;
+  align-items: baseline;
+  row-gap: 6px;
 }
-.installed-giro {
-  margin: 0 0 8px;
+.intro-install,
+.devices {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 4px;
 }
 .installed-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 0;
   cursor: pointer;
 }
 .installed-check input {
-  width: 20px;
-  height: 20px;
-  margin-top: 2px;
-  flex-shrink: 0;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 0;
   accent-color: var(--accent);
+}
+.devices {
+  font-size: 14px;
+}
+.device-shown {
+  white-space: nowrap;
+}
+button.devices-edit {
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--link);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+button.devices-edit:hover {
+  background: none;
+}
+button.devices-edit:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+.devices-dialog {
+  width: min(440px, calc(100vw - 32px));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.devices-dialog::backdrop {
+  background: var(--scrim);
+}
+.devices-dialog h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+.devices-dialog label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.devices-dialog input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.devices-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 /* Keep the GitHub chip on the title row at every viewport width. */

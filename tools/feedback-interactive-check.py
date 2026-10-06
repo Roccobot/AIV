@@ -687,14 +687,55 @@ def check(path):
             assert page.evaluate("document.documentElement.dataset.theme") != theme, 'T non cambia il tema.'
             page.keyboard.press('t')
             assert page.evaluate("document.documentElement.dataset.theme") == theme
+            # The devices live on the download row and change in a modal (the user's request,
+            # 2026-10-06): OK writes them, Annulla leaves them as they were.
+            expect(page.locator('#device')).to_be_hidden()
+            page.locator('#devices-edit').click()
+            expect(page.locator('#devices-dialog')).to_be_visible()
             page.locator('#device').focus()
             page.keyboard.press('t')
             assert page.evaluate("document.documentElement.dataset.theme") == theme, 'T cambia il tema mentre si scrive.'
             expect(page.locator('#device')).to_have_value(re.compile('t$'))
+            page.locator('#device').fill('Telefono del modale')
+            page.locator('#tablet').fill('Tablet del modale')
+            page.locator('#devices-cancel').click()
+            expect(page.locator('#devices-dialog')).to_be_hidden()
+            expect(page.locator('#device-shown')).to_have_text('non indicato')
+            page.locator('#devices-edit').click()
+            expect(page.locator('#device')).to_have_value('')
+            page.locator('#device').fill('Telefono del modale')
+            page.locator('#tablet').fill('Tablet del modale')
+            page.locator('#devices-ok').click()
+            expect(page.locator('#devices-dialog')).to_be_hidden()
+            expect(page.locator('#device-shown')).to_have_text('Telefono del modale')
+            expect(page.locator('#tablet-shown')).to_have_text('Tablet del modale')
+            assert page.evaluate('draft.device') == 'Telefono del modale' and page.evaluate('draft.tablet') == 'Tablet del modale'
+            page.locator('#devices-edit').click()
             page.locator('#device').fill('')
+            page.locator('#tablet').fill('')
+            page.locator('#devices-ok').click()
+            # Desktop: Scarica e installa, the checkbox and the devices share one row, the
+            # devices on the right; the page goes from the strip straight to the first test.
+            page.set_viewport_size({'width': 1280, 'height': 900})
+            link = page.locator('.intro-actions a').bounding_box()
+            devices = page.locator('.devices').bounding_box()
+            assert abs(link['y'] + link['height'] / 2 - devices['y'] - devices['height'] / 2) < 4, (link, devices)
+            assert devices['x'] + devices['width'] > 1280 - 30, devices
+            expect(page.locator('.intro-actions a')).to_have_text('Scarica e installa AIV ' + data['version'])
+            assert page.evaluate("document.querySelector('.feedback-primary').firstElementChild.firstElementChild.firstElementChild.classList.contains('test')")
+            assert page.locator('text=Prove sui dispositivi').count() == 0 and page.locator('#answered').count() == 0
+            # The title's F starts where the lines below start: its side bearing is taken back.
+            bearing = page.evaluate("""async()=>{await document.fonts.ready;const h=document.querySelector('h1');const c=getComputedStyle(h);const x=document.createElement('canvas').getContext('2d');x.font=c.fontWeight+' '+c.fontSize+' '+c.fontFamily;return h.getBoundingClientRect().left-x.measureText('F').actualBoundingBoxLeft-document.querySelector('.intro-summary').getBoundingClientRect().left}""")
+            assert abs(bearing) < 1, bearing
+            # Altro keeps its own colours when it has text: the response colours are the tests'.
+            page.locator('.extra .rich-editor').fill('Testo in Altro')
+            expect(page.locator('#extra-section')).not_to_have_class(re.compile(r'\bhas-response\b'))
+            page.locator('.extra .rich-editor').fill('')
             # Writing on mobile leaves only Salva: the pill becomes a circle.
             page.set_viewport_size({'width': 390, 'height': 800})
-            page.locator('#device').focus()
+            first_test = page.locator('.test').first
+            assert first_test.bounding_box()['y'] < page.locator('#extra-section').bounding_box()['y']
+            page.locator('.test .rich-editor').first.focus()
             expect(page.locator('#previous-card')).to_be_hidden()
             pill = page.locator('.floating-controls').bounding_box()
             assert abs(pill['width'] - pill['height']) < 1 and abs(pill['width'] - 56) < 1, pill
@@ -757,7 +798,9 @@ def check(path):
             first.locator('[data-status="Accettabile"]').click()
             first.locator('.rich-editor').fill('Commento di verifica: <script>test</script>')
             page.locator('.extra .rich-editor').fill('Osservazioni libere di verifica')
+            page.locator('#devices-edit').click()
             page.locator('#device').fill('Dispositivo di verifica')
+            page.locator('#devices-ok').click()
             image = Path(temporary) / 'feedback.png'
             # An original, complete PNG is attached without image transformations.
             image.write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP9sAAAAASUVORK5CYII='))
@@ -1082,7 +1125,7 @@ def check(path):
             assert 'e-chiusa' not in kept_decisions['labels'], 'Etichetta di un giro chiuso rimasta.'
             assert kept_decisions['sizes'] and kept_decisions['sizes'] == kept_decisions['expected'], 'Allegati salvati come testo: ' + str(kept_decisions)
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
-            expect(migration.locator('#giro-version')).to_have_text(data['version'])
+            expect(migration.locator('.intro-actions a')).to_contain_text(data['version'])
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
             for item in data['items']:
                 if item['id'] == first_id:
