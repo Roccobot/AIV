@@ -1317,6 +1317,10 @@ button.devices-edit:disabled {
   #extra-section {
     overscroll-behavior: contain;
   }
+  /* Nothing to scroll, within a pixel: no scroll bar either (feedback-ui.js sets the class). */
+  #extra-section.fits {
+    overflow-y: hidden;
+  }
   .feedback-columns > .next-steps {
     grid-column: 2;
     margin-top: 0;
