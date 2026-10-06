@@ -129,6 +129,7 @@ private class EdgeNode(
      */
     override fun ContentDrawScope.draw() {
         drawContent()
+        if (!ACCENT_EDGE) return
         val spesso = EDGE.toPx()
         val colore = aivAccent(currentValueOf(LocalAivLight))
         /*
@@ -190,6 +191,21 @@ private fun treLati(size: Size, round: Float, inset: Float): Path {
         lineTo(right, bottom)
     }
 }
+
+/**
+ * Whether the accent edge is drawn at all.
+ *
+ * ⚠️⚠️ **Off since 4.38, on his request** (2026-10-06, after a mockup of the three ways a panel
+ * can stand off the blurred screen: *implementiamo subito i pannelli nudi (A) spegnendo il
+ * contorno, e facendo in modo che lo si possa recuperare in seguito se cambio idea*). Panels and
+ * sheets keep only their surface colour over the blur and the veil.
+ * - **How to bring it back**: set this to `true`. Nothing else changed: [edged] and [edgedTop]
+ *   are still called by every surface, and the drawing below is intact, so the edge returns as
+ *   it was in 4.37 (2dp, inside on panels, outside on bottom sheets).
+ * - ⚠️ **No measure depends on it**: the edge is a drawing over the panel and never took space,
+ *   so turning it off moves nothing. The test is `BordoTest`.
+ */
+internal const val ACCENT_EDGE = false
 
 /**
  * Quanto è spesso il bordo.

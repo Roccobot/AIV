@@ -18,7 +18,8 @@
      raccordo interno nella stessa proporzione col tratto (3,38 su 4,12). Cambia solo il tratto, da 4,12 a 2 unità su 24, che è lo spessore dei chevron e delle
      icone di Material accanto a lui nella pillola; dalla `4.37` a 2,33, cioè 0,3dp in più
      (voce `4.36-02`: *sarebbe sufficiente 0,3dp in più di spessore per uniformarsi alle altre
-     icone*). Il vertice ha un raggio di 1,5 unità,
+     icone*), e dalla `4.38` a 2,66, altri 0,3dp (voce `4.37-01`: *forse un altro 0,3dp non
+     guasterebbe*). Il vertice ha un raggio di 1,5 unità,
      poco più del mezzo tratto, su sua richiesta dopo il primo confronto (*arrotonda
      leggermente di più gli angoli convessi*). Il tracciato lo calcola la sessione, con gli
      archi scritti per esteso e ogni punta tonda divisa in due quarti, così nessun arco è di
@@ -36,5 +37,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M20.06,14.8 L13.06,7.8 A1.5,1.5 0 0,0 10.94,7.8 L3.94,14.8 A1.17,1.17 0 0,0 3.94,16.45 A1.17,1.17 0 0,0 5.59,16.45 L10.65,11.39 A1.91,1.91 0 0,1 13.35,11.39 L18.41,16.45 A1.17,1.17 0 0,0 20.06,16.45 A1.17,1.17 0 0,0 20.06,14.8 Z" />
+        android:pathData="M20.18,14.68 L13.06,7.57 A1.5,1.5 0 0,0 10.94,7.57 L3.82,14.68 A1.33,1.33 0 0,0 3.82,16.57 A1.33,1.33 0 0,0 5.71,16.57 L10.46,11.81 A2.18,2.18 0 0,1 13.54,11.81 L18.29,16.57 A1.33,1.33 0 0,0 20.18,16.57 A1.33,1.33 0 0,0 20.18,14.68 Z" />
 </vector>

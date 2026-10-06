@@ -25,6 +25,9 @@ try {
   assert.throws(()=>execFileSync('node',[tool,'--open',envelope,'--dir',dir,'--output',output],{stdio:'pipe'}));
   assert(existsSync(join(dir,'key.pem')),'a failed opening must keep the key');
   writeFileSync(envelope,JSON.stringify(seal(payload,pem,inputs.request_id)));
+  // A round written inside the key folder would be deleted with it: refused, and the key stays.
+  assert.throws(()=>execFileSync('node',[tool,'--open',envelope,'--dir',dir,'--output',join(dir,'giro.json')],{stdio:'pipe'}));
+  assert(existsSync(join(dir,'key.pem')),'an output inside the key folder must keep the key');
   execFileSync('node',[tool,'--open',envelope,'--dir',dir,'--output',output],{stdio:'pipe'});
   const round=JSON.parse(readFileSync(output,'utf8'));
   assert.equal(round.notes,'Nota di prova');
