@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -291,6 +292,8 @@ class MenuInferioreTest {
      * the switch since 4.25: the round rest has its own tests in `MenuAngolareTest`.
      */
     @Test
+    // ⚠️ In Italian: the swap follows the longest label, and in English that is the bin's.
+    @Config(qualifiers = "it")
     fun `il menu angolare nelle cartelle e un 2x2 con la x nell'angolo`() {
         banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true, cornerRound = false)) }
         banco.waitForIdle()
@@ -302,10 +305,12 @@ class MenuInferioreTest {
         val impostazioni = pos(R.string.hub_settings)
         val cerca = pos(R.string.hub_search)
         val cestino = pos(R.string.bin_title)
-        assertEquals("Impostazioni e la × non sono sulla stessa riga", impostazioni.y, chiudi.y, 1f)
-        assertTrue("La × non è nell'angolo", chiudi.x > impostazioni.x)
-        assertEquals("Cerca e Cestino non sono sulla stessa riga", cerca.y, cestino.y, 1f)
-        assertTrue("La riga di Cerca non è sopra", cerca.y < impostazioni.y)
+        // ⚠️ Since 4.35 'Impostazioni', the longest label, is never in the bottom row's rounded
+        // corner (item `4.34-01`): it swaps with 'Cestino'.
+        assertEquals("Cestino e la × non sono sulla stessa riga", cestino.y, chiudi.y, 1f)
+        assertTrue("La × non è nell'angolo", chiudi.x > cestino.x)
+        assertEquals("Cerca e Impostazioni non sono sulla stessa riga", cerca.y, impostazioni.y, 1f)
+        assertTrue("La riga di Cerca non è sopra", cerca.y < cestino.y)
         assertFalse("Il menu angolare colora la linea dei gesti", BarStage.under)
         banco.onNodeWithContentDescription(voce(R.string.pick_close)).performClick()
         banco.waitForIdle()
@@ -496,9 +501,63 @@ class MenuInferioreTest {
 
         scorri()
 
-        assertEquals("La pillola si è chiusa scorrendo", 1, quanti(R.string.pick_close))
+        assertEquals("La pillola si è chiusa scorrendo", 1, quanti(R.string.hub_search))
         assertEquals("Scorrendo non compare 'Vai all'inizio'", 1, quanti(R.string.jump_top))
         assertEquals("Scorrendo non compare 'Vai alla fine'", 1, quanti(R.string.jump_bottom))
+        // ⚠️ Since 4.35 the two keys nearest the corner, × included (item `4.34-04`): the × is
+        // 'in fondo' and the key beside it 'in cima'.
+        assertEquals("Scorrendo la × è ancora la ×", 0, quanti(R.string.pick_close))
+        val giu = banco.onNodeWithContentDescription(voce(R.string.jump_bottom)).fetchSemanticsNode().boundsInRoot
+        val su = banco.onNodeWithContentDescription(voce(R.string.jump_top)).fetchSemanticsNode().boundsInRoot
+        val cerca = banco.onNodeWithContentDescription(voce(R.string.hub_search)).fetchSemanticsNode().boundsInRoot
+        assertTrue("'In fondo' non è nell'angolo", giu.left > su.left && su.left > cerca.left)
+    }
+
+    /**
+     * **The open Start menu is square, in the home and in a folder** (item `4.34-01`: *fa' in modo
+     * che il menu sia sempre quadrato*). In 4.34 it was 222 by 206dp in the home.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `il menu Start aperto e quadrato`() {
+        var casa by mutableStateOf(true)
+        banco.setContent {
+            if (casa) Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT)
+            else Griglia(PillLook(PhonePill.SLIDE, corner = true))
+        }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        fun pannello(): androidx.compose.ui.geometry.Rect =
+            banco.onAllNodesWithTag(START_PANEL_TAG, useUnmergedTree = true).fetchSemanticsNodes().single().boundsInRoot
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        val inCasa = pannello()
+        assertEquals("In home il menu Start non è quadrato", inCasa.width, inCasa.height, 0.5f * dp)
+        banco.onNodeWithContentDescription(voce(R.string.pick_close)).performClick()
+        casa = false
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.pick_actions)).performClick()
+        banco.waitForIdle()
+        val inCartella = pannello()
+        assertEquals("In cartella il menu Start non è quadrato", inCartella.width, inCartella.height, 0.5f * dp)
+    }
+
+    /**
+     * **A long press on 'Mostra' opens the hidden folders and closes the menu** (item `4.34-01`:
+     * *possiamo rimettere la scorciatoia alle cartelle escluse/incluse al tap lungo su
+     * Mostra/Nascondi*). From 4.30 to 4.34 the long press only showed the label.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `il tocco lungo su Mostra apre le cartelle nascoste`() {
+        banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_peek)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("Il tocco lungo non ha chiuso il menu", 0, quanti(R.string.hub_search))
+        banco.onNodeWithText(voce(R.string.settings_hidden)).assertExists()
     }
 
     /**
@@ -776,10 +835,15 @@ class MenuInferioreTest {
         assertEquals("La copia del tondo è fuori asse in verticale", tondi[0].center.y, tondi[1].center.y, 0.5f * dp)
         val pannello = banco.onAllNodesWithTag(CORNER_COPY_TAG, useUnmergedTree = true).fetchSemanticsNodes().single().boundsInRoot
         // ⚠️ Since 4.34 the columns are 72dp and the panel grows 6dp past them towards the glass,
-        // 4 down and 10 up (item `4.33-07` B); the corner cell's centre is still the round key's.
+        // 4 down and 10 up (item `4.33-07` B); since 4.35 it is square (item `4.34-01`), so a row
+        // is 68dp, a third of 222 less 14 rounded down to an even number. The corner cell's centre
+        // is still the round key's.
+        // An even number of dp (`startRow`), the rest above.
+        val riga = 68f
         assertEquals("Il menu Start del velo non è aperto su tre colonne", (3 * 72f + 6f) * dp, pannello.width, 0.5f * dp)
+        assertEquals("Il menu Start del velo non è quadrato", pannello.width, pannello.height, 0.5f * dp)
         assertEquals("Il menu Start del velo non ha l'angolo sul tondo", tondi[0].center.x, pannello.right - (6f + 36f) * dp, 0.5f * dp)
-        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].center.y, pannello.bottom - (4f + 32f) * dp, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].center.y, pannello.bottom - (4f + riga / 2f) * dp, 0.5f * dp)
     }
 
     private fun quanti(id: Int): Int =

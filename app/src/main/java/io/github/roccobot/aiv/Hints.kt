@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -131,7 +132,14 @@ fun BoxScope.HintVeil(
                 textAlign = if (destra) TextAlign.End else TextAlign.Start,
                 modifier = Modifier.widthIn(max = HINT_WIDTH)
             )
-            fab()
+            /*
+             * ⚠️⚠️ **LA COPIA È SEMPRE PIENA, DALLA `4.35`** (voce `4.34-02`: *il tondo lo voglio
+             * di colore #ffda3c. Colore finto, come quello arancione del velo*): fino alla `4.34`
+             * prendeva l'aspetto scelto per i pulsanti veri, e col vetro il giallo arrivava velato.
+             * È un colore del velo, non dell'app, quindi non segue quella scelta.
+             */
+            val look = LocalPillLook.current
+            CompositionLocalProvider(LocalPillLook provides look.copy(fill = PillFill.SOLID)) { fab() }
         }
     }
 }
