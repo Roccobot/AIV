@@ -486,6 +486,7 @@
     <string name="draw_arrow">ลูกศร</string>
     <string name="draw_rect">สี่เหลี่ยม</string>
     <string name="draw_ellipse">วงรี</string>
+    <string name="draw_outline">เส้นขอบ</string>
     <string name="draw_width">ความหนา</string>
     <string name="draw_dashed">เส้นประ</string>
     <string name="draw_filled">เติมสี</string>

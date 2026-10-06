@@ -108,7 +108,7 @@ class DisegnoTest {
 
         // In the original (20 x 40) a vertical line at x = 0.5; after a quarter turn the posed
         // image is 40 x 20 and the line is horizontal, across the middle.
-        val segno = Mark(Pen.LINE, listOf(Offset(0.5f, 0.1f), Offset(0.5f, 0.9f)), Color.BLUE, 0.05f, false, false)
+        val segno = Mark(Pen.LINE, listOf(Offset(0.5f, 0.1f), Offset(0.5f, 0.9f)), Color.BLUE, 0.05f, false, null)
         val immutabile = bianca.copy(Bitmap.Config.ARGB_8888, false)
         val fatta = Draw.onto(immutabile, Drawing(listOf(segno)), Spin(1, false))
         assertNotSame("un'immagine immutabile doveva essere copiata", immutabile, fatta)
@@ -120,7 +120,7 @@ class DisegnoTest {
     /** **Un disegno toglie il senza perdita, e vive dalla parte del 'dove'.** */
     @Test
     fun `un disegno toglie il senza perdita e resta nel confronto`() {
-        val segno = Mark(Pen.FREE, listOf(Offset(0.5f, 0.5f)), Color.RED, Draw.WIDTH, false, false)
+        val segno = Mark(Pen.FREE, listOf(Offset(0.5f, 0.5f)), Color.RED, Draw.WIDTH, false, null)
         val look = Look(drawing = Drawing(listOf(segno)))
         assertFalse("un disegno non è un'immagine intonsa", look.idle)
         assertFalse("un disegno riscrive i pixel", look.lossless)
@@ -173,6 +173,55 @@ class DisegnoTest {
         assertTrue("il secondo vertice doveva seguire il dito", segno.points[1].y > segno.points[0].y)
         assertEquals("il colore scelto", Draw.INKS[3], segno.ink)
         assertTrue("il tratteggio scelto", segno.dashed)
+    }
+
+    /**
+     * **Il riempimento ha colore e opacità suoi, e la freccia lo ignora.**
+     *
+     * ⚠️ È il suo esempio alla lettera, arrivato a G1 in corso: *un bordo rosso primario e un
+     * riempimento bianco 50%*. L'opacità di fabbrica è proprio il 50%.
+     * ⚠️⚠️ **CONTROPROVATA** dando alla freccia il riempimento in `Gaze.penMark`: il secondo segno
+     * arriva con un riempimento che niente disegna.
+     */
+    @Test
+    fun `bordo rosso e riempimento bianco al 50 per cento, la freccia senza`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        banco.onNodeWithText(testo(R.string.draw_filled)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.ink_white)).performClick()
+        banco.waitForIdle()
+        trascina()
+        banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
+        banco.waitForIdle()
+        trascina(dy = -PASSO)
+
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val segni = salvato!!.drawing.marks
+        assertEquals(2, segni.size)
+        assertEquals("il bordo resta rosso", Draw.INKS[0], segni[0].ink)
+        assertEquals("il riempimento bianco al 50%", 0x80FFFFFF.toInt(), segni[0].fill)
+        assertEquals(Pen.ARROW, segni[1].pen)
+        assertEquals("la freccia ignora il riempimento", null, segni[1].fill)
+    }
+
+    /** **Il riempimento si dipinge con la sua opacità, sotto il contorno.** */
+    @Test
+    fun `il riempimento si dipinge con la sua opacita`() {
+        val nera = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.BLACK) }
+        val segno = Mark(
+            Pen.RECT, listOf(Offset(0.1f, 0.1f), Offset(0.9f, 0.9f)), Color.RED, 0.02f, false,
+            Draw.withAlpha(Color.WHITE, 0.5f)
+        )
+        val fatta = Draw.onto(nera, Drawing(listOf(segno)), Spin.STILL)
+        val dentro = fatta.getPixel(20, 20)
+        assertEquals("il bianco al 50% sul nero dà un grigio medio", 128f, Color.red(dentro).toFloat(), 2f)
+        assertEquals("fuori dal rettangolo resta nero", Color.BLACK, fatta.getPixel(1, 20))
     }
 
     /** **'Annulla' toglie l'ultimo segno, e solo quello.** */

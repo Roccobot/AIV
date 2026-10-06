@@ -486,6 +486,7 @@
     <string name="draw_arrow">화살표</string>
     <string name="draw_rect">사각형</string>
     <string name="draw_ellipse">타원</string>
+    <string name="draw_outline">윤곽선</string>
     <string name="draw_width">두께</string>
     <string name="draw_dashed">점선</string>
     <string name="draw_filled">채우기</string>

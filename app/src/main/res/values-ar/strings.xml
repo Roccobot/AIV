@@ -571,6 +571,7 @@
     <string name="draw_arrow">سهم</string>
     <string name="draw_rect">مستطيل</string>
     <string name="draw_ellipse">قطع ناقص</string>
+    <string name="draw_outline">الحدود</string>
     <string name="draw_width">السُمك</string>
     <string name="draw_dashed">متقطع</string>
     <string name="draw_filled">تعبئة</string>

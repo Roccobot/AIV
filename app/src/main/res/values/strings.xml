@@ -143,6 +143,7 @@
     <string name="draw_arrow">Arrow</string>
     <string name="draw_rect">Rectangle</string>
     <string name="draw_ellipse">Ellipse</string>
+    <string name="draw_outline">Outline</string>
     <string name="draw_width">Width</string>
     <string name="draw_dashed">Dashed</string>
     <string name="draw_filled">Fill</string>

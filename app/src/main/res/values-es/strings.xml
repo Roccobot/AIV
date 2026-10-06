@@ -520,6 +520,7 @@
     <string name="draw_arrow">Flecha</string>
     <string name="draw_rect">Rectángulo</string>
     <string name="draw_ellipse">Elipse</string>
+    <string name="draw_outline">Contorno</string>
     <string name="draw_width">Grosor</string>
     <string name="draw_dashed">Discontinua</string>
     <string name="draw_filled">Relleno</string>

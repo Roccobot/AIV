@@ -520,6 +520,7 @@
     <string name="draw_arrow">Flèche</string>
     <string name="draw_rect">Rectangle</string>
     <string name="draw_ellipse">Ellipse</string>
+    <string name="draw_outline">Contour</string>
     <string name="draw_width">Épaisseur</string>
     <string name="draw_dashed">Pointillés</string>
     <string name="draw_filled">Remplissage</string>

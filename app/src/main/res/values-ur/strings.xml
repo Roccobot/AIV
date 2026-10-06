@@ -503,6 +503,7 @@
     <string name="draw_arrow">تیر</string>
     <string name="draw_rect">مستطیل</string>
     <string name="draw_ellipse">بیضوی</string>
+    <string name="draw_outline">خاکہ</string>
     <string name="draw_width">موٹائی</string>
     <string name="draw_dashed">ٹوٹی لکیر</string>
     <string name="draw_filled">بھرائی</string>

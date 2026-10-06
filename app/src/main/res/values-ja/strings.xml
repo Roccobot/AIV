@@ -486,6 +486,7 @@
     <string name="draw_arrow">矢印</string>
     <string name="draw_rect">長方形</string>
     <string name="draw_ellipse">楕円</string>
+    <string name="draw_outline">輪郭</string>
     <string name="draw_width">太さ</string>
     <string name="draw_dashed">破線</string>
     <string name="draw_filled">塗りつぶし</string>

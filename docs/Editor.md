@@ -623,7 +623,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   selezione e maniglie, G3 (`4.60`) il testo.
 - **La G1 ha cinque penne**: mano libera, linea, freccia, rettangolo arrotondato ed ellisse; otto
   colori fissi, lo spessore, il tratteggio, il riempimento (solo per rettangolo ed ellisse) e
-  'Azzera'. Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
+  'Azzera'. Il rettangolo e la freccia sono i due strumenti principali (sua precisazione). Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
   capi del trascinamento sono due vertici opposti. Un tocco senza movimento lascia un punto con la
   mano libera, e niente con le altre penne. Ogni segno è un passo di 'Annulla'.
 - ⚠️⚠️ **I punti vivono nella cornice ORIGINALE dell'immagine, in frazioni dei lati**, come la
@@ -635,8 +635,14 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️ **Il palco prende sempre il dito**, come nel Ritaglio; pinza e panoramica restano a due dita.
 - ⚠️ **Penna, colore e tratto sono lo strumento e non l'immagine**: non entrano nella storia, e
   cambiarli non tocca i segni già fatti. La selezione di un segno per cambiarlo è la G2.
-- ⚠️ **Sua precisazione del 2026-10-06, a G1 in corso** (vive nel brief): il riempimento avrà
-  colore e opacità suoi, separati dal contorno, e la freccia lo ignora.
+- ⚠️⚠️ **Il riempimento ha colore e opacità suoi, separati dal contorno**, ed è la sua precisazione
+  arrivata a G1 in corso (*un bordo rosso primario e un riempimento bianco 50%*). Due gettoni,
+  'Contorno' e 'Riempimento', dicono a che cosa si applicano la fila dei colori e il cursore
+  (spessore o opacità), così la scheda non cresce di una seconda tavolozza; per il riempimento il
+  primo colore è 'Nessuno', che è quello di fabbrica, e l'opacità di fabbrica è il 50%. La
+  freccia, la linea e la mano libera lo ignorano, e il segno nasce senza.
+- **La G2 (`4.50`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
+  quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

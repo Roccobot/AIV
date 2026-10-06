@@ -503,6 +503,7 @@
     <string name="draw_arrow">బాణం</string>
     <string name="draw_rect">దీర్ఘచతురస్రం</string>
     <string name="draw_ellipse">దీర్ఘవృత్తం</string>
+    <string name="draw_outline">అంచు</string>
     <string name="draw_width">మందం</string>
     <string name="draw_dashed">చుక్కల గీత</string>
     <string name="draw_filled">నింపు</string>

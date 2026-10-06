@@ -486,6 +486,7 @@
     <string name="draw_arrow">Panah</string>
     <string name="draw_rect">Persegi panjang</string>
     <string name="draw_ellipse">Elips</string>
+    <string name="draw_outline">Garis tepi</string>
     <string name="draw_width">Ketebalan</string>
     <string name="draw_dashed">Putus-putus</string>
     <string name="draw_filled">Isian</string>

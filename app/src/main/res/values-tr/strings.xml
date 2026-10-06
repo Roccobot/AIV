@@ -503,6 +503,7 @@
     <string name="draw_arrow">Ok</string>
     <string name="draw_rect">Dikdörtgen</string>
     <string name="draw_ellipse">Elips</string>
+    <string name="draw_outline">Kontur</string>
     <string name="draw_width">Kalınlık</string>
     <string name="draw_dashed">Kesikli</string>
     <string name="draw_filled">Dolgu</string>

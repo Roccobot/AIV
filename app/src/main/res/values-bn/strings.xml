@@ -503,6 +503,7 @@
     <string name="draw_arrow">তীর</string>
     <string name="draw_rect">আয়তক্ষেত্র</string>
     <string name="draw_ellipse">উপবৃত্ত</string>
+    <string name="draw_outline">রেখা</string>
     <string name="draw_width">পুরুত্ব</string>
     <string name="draw_dashed">ড্যাশ</string>
     <string name="draw_filled">ভরাট</string>
