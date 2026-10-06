@@ -1499,6 +1499,7 @@ private fun hubEntries(
                 enabled = hiddenCount > 0,
                 short = stringResource(if (peeking) R.string.start_hide else R.string.start_show),
                 onHold = onPeekList,
+                holdLabel = onPeekList?.let { stringResource(R.string.settings_hidden) },
                 onTap = { onPeek(!peeking) }
             )
         )

@@ -275,6 +275,16 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   - ⚠️ **Dalla `4.34` la copia del tondo sul menu Start del velo è gialla** (`HINT_KEY`, voce
     `4.33-05`): arancione sul pannello arancione non si leggeva come un tasto. Glifo e giallo sono
     quelli del suo mockup.
+  - ⚠️⚠️ **Dalla `4.35` il menu Start è sempre quadrato** (voce `4.34-01`): le righe sono alte
+    68dp invece di 64 (un numero pari di dp, il resto va nel margine in alto) e fra icona ed
+    etichetta ci sono 3dp; il fondo resta sul tondo, quindi il pannello sale. L'etichetta più
+    lunga non sta mai nella casella d'angolo arrotondata della riga in basso: si scambia con la
+    casella sopra la ×, quindi nelle cartelle `Impostazioni` va in alto e `Cestino` in basso.
+    Torna il tocco lungo su `Mostra`/`Nascondi`, che apre `Cartelle nascoste` e chiude il menu.
+  - ⚠️ **Dalla `4.35` la copia del tondo nei veli è sempre piena** (voce `4.34-02`): col vetro il
+    giallo arrivava velato.
+  - ⚠️ **Dalla `4.35`, con la pillola a scomparsa aperta, diventano su e giù i due tasti più vicini
+    all'angolo, × compresa** (voce `4.34-04`): la × diventa giù, il tasto accanto su.
   - ⚠️⚠️ **Dalla `4.34` i tasti su/giù temporanei compaiono solo con un lancio veloce** (nota C del
     giro della `4.33`, in tutte le modalità): il salto si arma quando il dito si stacca con almeno
     1000dp al secondo (`JUMP_SPEED`, prima stima da tarare), e da lì il glifo segue lo scorrimento.

@@ -649,18 +649,28 @@ private fun SlidePill(
     val full = cell * count + inset * 2
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
-    // ⚠️ The two keys beside the ×, in reading order: on the right they are the last two.
-    val inner = if (atEnd) entries.size - 2 else 1
+    /*
+     * ⚠️⚠️ **THE JUMP TAKES THE TWO KEYS NEAREST THE CORNER, × INCLUDED, SINCE 4.35** (item `4.34-04`:
+     * *sono letteralmente i primi due tasti (incluso ×) che si devono trasformare in top/bottom*): the
+     * × turns into `↓` and the key beside it into `↑`. In 4.34 they were the two keys beside the ×.
+     * The key beside the ×, in reading order: on the right it is the last one.
+     */
     val outer = if (atEnd) entries.size - 1 else 0
+    val jumping = open && armed
     val top = stringResource(R.string.jump_top)
     val bottom = stringResource(R.string.jump_bottom)
     val closeLabel = stringResource(R.string.pick_close)
     val corner = PillEntry(
         icon = Icons.Default.Close,
-        label = if (open) closeLabel else fabLabel,
+        label = when {
+            jumping -> bottom
+            open -> closeLabel
+            else -> fabLabel
+        },
         onHold = if (open) null else onHold,
         onTap = {
             when {
+                jumping -> onJumpTo(1)
                 open -> open = false
                 arm?.armed == true -> onJump()
                 else -> open = true
@@ -692,13 +702,38 @@ private fun SlidePill(
                             CompositionLocalProvider(LocalRoundKey provides true) { fabGlyph(null) }
                         }
                         Box(
+                            contentAlignment = Alignment.Center,
                             modifier = Modifier.graphicsLayer {
-                                alpha = p * CLOSE_INK
+                                alpha = p
+                                // ⚠️ Without a buffer: see [MARK_FADE].
+                                compositingStrategy = MARK_FADE
                                 val s = 1f - SWAP_ZOOM * (1f - p)
                                 scaleX = s
                                 scaleY = s
                             }
-                        ) { Icon(Icons.Default.Close, contentDescription = null) }
+                        ) {
+                            // Open, the × crossfades into `↓` with the jump, as the keys of
+                            // [JumpKey] do (item `4.34-04`).
+                            val j = if (open) q else 0f
+                            Box(
+                                modifier = Modifier.graphicsLayer {
+                                    alpha = CLOSE_INK * (1f - j).pow(JUMP_FULL)
+                                    val s = 1f - JUMP_ZOOM * j
+                                    scaleX = s
+                                    scaleY = s
+                                }
+                            ) { Icon(Icons.Default.Close, contentDescription = null) }
+                            if (j > 0f) {
+                                Box(
+                                    modifier = Modifier.graphicsLayer {
+                                        alpha = j.pow(JUMP_FULL)
+                                        val s = 1f - JUMP_ZOOM * (1f - j)
+                                        scaleX = s
+                                        scaleY = s
+                                    }
+                                ) { Icon(Glyphs.BrowseBottom, contentDescription = null, modifier = Modifier.size(PILL_GLYPH)) }
+                            }
+                        }
                     }
                 }
             )
@@ -737,18 +772,13 @@ private fun SlidePill(
                 // ⚠️ A key hidden behind the round one is not a command yet.
                 val usable = entry.copy(enabled = entry.enabled && open, onTap = { open = false; entry.onTap() })
                 /*
-                 * ⚠️⚠️ **SINCE 4.34 THE TWO KEYS BESIDE THE × TURN INTO THE JUMP WHILE SCROLLING**
-                 * (note B on the 4.33 round: *devono diventare top/bottom mentre si scorre, e
-                 * tornare alle loro funzioni una volta finito di scorrere, come accade nelle altre
-                 * modalità*): open, the round key is the ×, and until 4.33 the open pill had no
-                 * jump at all.
+                 * ⚠️⚠️ **SINCE 4.34 THE OPEN PILL TURNS INTO THE JUMP WHILE SCROLLING** (note B on
+                 * the 4.33 round: *devono diventare top/bottom mentre si scorre, e tornare alle loro
+                 * funzioni una volta finito di scorrere, come accade nelle altre modalità*); until
+                 * 4.33 it had no jump at all. Since 4.35 the key beside the × is `↑`, and the × is
+                 * `↓` (see [outer]).
                  */
-                val jump = when {
-                    arm == null || entries.size < 2 -> 0
-                    i == inner -> -1
-                    i == outer -> 1
-                    else -> 0
-                }
+                val jump = if (arm != null && i == outer) -1 else 0
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.width(cell).graphicsLayer { alpha = p }

@@ -85,6 +85,14 @@ data class PillEntry(
      * round, a usability test): `null` where the cell keeps the icon alone (the ×).
      */
     val short: String? = null,
+    /**
+     * What [onHold] does, where the Start menu offers it: the tooltip's place goes to the gesture.
+     *
+     * ⚠️ **Since 4.35, his note** (item `4.34-01`: *possiamo rimettere la scorciatoia alle cartelle
+     * escluse/incluse al tap lungo su Mostra/Nascondi*): from 4.30 to 4.34 every long press in the
+     * menu only showed the label.
+     */
+    val holdLabel: String? = null,
     val onTap: () -> Unit
 )
 

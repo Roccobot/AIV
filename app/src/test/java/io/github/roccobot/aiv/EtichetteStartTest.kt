@@ -99,9 +99,20 @@ class EtichetteStartTest {
      */
     @Test
     @Config(shadows = [ArchivioAperto::class])
-    fun `sul velo la copia del tondo e gialla`() {
+    fun `sul velo la copia del tondo e gialla`() = copiaGialla(PillFill.SOLID)
+
+    /**
+     * **And it stays a flat yellow with the glass** (item `4.34-02`: *il tondo lo voglio di colore
+     * #ffda3c. Colore finto, come quello arancione del velo*): in 4.34 the copy took the look chosen
+     * for the real buttons, and on his phone, with the glass, the yellow came out veiled.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `col vetro la copia del tondo resta gialla piena`() = copiaGialla(PillFill.GLASS)
+
+    private fun copiaGialla(fill: PillFill) {
         runBlocking { Hint.COLUMNS.forget(app) }
-        banco.setContent { Home() }
+        banco.setContent { Home(fill) }
         // ⚠️ As in `MenuInferioreTest`: the hint is read on another thread.
         banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(voce(R.string.corner_hint)).fetchSemanticsNodes().isNotEmpty() }
         banco.waitForIdle()
@@ -119,10 +130,10 @@ class EtichetteStartTest {
 
     /** The home with the Start menu, right-handed. */
     @Composable
-    private fun Home() {
+    private fun Home(fill: PillFill = PillFill.SOLID) {
         AivTheme(darkTheme = false) {
             CompositionLocalProvider(
-                LocalPillLook provides PillLook(PhonePill.SLIDE, corner = true),
+                LocalPillLook provides PillLook(PhonePill.SLIDE, corner = true, fill = fill),
                 LocalPadLook provides PadLook(hand = Hand.RIGHT)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) { Casa(CARTELLE_VELO) }

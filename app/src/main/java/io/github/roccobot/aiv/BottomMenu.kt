@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -298,14 +299,17 @@ internal fun CornerMenu(
         label = "corner"
     )
     val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
-    val cells = entries.map { e -> e.copy(onTap = { open = false; e.onTap() }) } + close
+    val cells = entries.map { e ->
+        e.copy(onTap = { open = false; e.onTap() }, onHold = e.onHold?.let { hold -> { open = false; hold() } })
+    } + close
     var panel by remember { mutableStateOf(Rect.Zero) }
     val watcher = remember { Any() }
     DisposableEffect(open) {
         if (open) OutsideTouch.on(watcher) { at -> if (!panel.contains(at)) open = false }
         onDispose { OutsideTouch.off(watcher) }
     }
-    val rows = cornerRows(cells, atEnd)
+    val rows = cornerRows(cells, atEnd) { it.short }
+    val tall = startRow(rows.size, rows.first().size)
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
     val top = stringResource(R.string.jump_top)
@@ -332,7 +336,7 @@ internal fun CornerMenu(
         if (p > 0f) {
             Column(
                 modifier = Modifier
-                    .startShift(atEnd)
+                    .startShift(atEnd, tall)
                     .graphicsLayer {
                         alpha = p
                         scaleX = 0.6f + 0.4f * p
@@ -343,7 +347,7 @@ internal fun CornerMenu(
                     .testTag(START_PANEL_TAG)
                     .onGloballyPositioned { panel = it.boundsInRoot() }
                     .buttonFill(backdrop, pillAccent(), RoundedCornerShape(CORNER_CELL / 2))
-                    .startRoom(atEnd)
+                    .startRoom(atEnd, rows.size, rows.first().size)
             ) {
                 rows.forEachIndexed { r, row ->
                     Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
@@ -356,14 +360,19 @@ internal fun CornerMenu(
                                 else -> 0
                             }
                             val usable = cell.copy(enabled = cell.enabled && open)
-                            StartCell {
+                            StartCell(tall) {
                                 if (jump == 0) {
                                     PillKey(
                                         entry = usable, size = CORNER_CELL, enabled = usable.enabled && !armed,
+                                        holdLabel = usable.holdLabel.takeIf { usable.onHold != null },
                                         glyph = { StartFace(cell) }
                                     )
                                 } else {
-                                    JumpKey(usable, jump, q, armed, CORNER_CELL, top, bottom, onJump, rest = { StartFace(cell) })
+                                    JumpKey(
+                                        usable, jump, q, armed, CORNER_CELL, top, bottom, onJump,
+                                        holdLabel = usable.holdLabel.takeIf { usable.onHold != null },
+                                        rest = { StartFace(cell) }
+                                    )
                                 }
                             }
                         }
@@ -409,10 +418,27 @@ internal object OutsideTouch {
  * ⚠️ **The rows are filled from the top**, so that the last one, with the corner cell, is always
  * full: a gap left by an odd count goes to the top row, away from the thumb.
  */
-private fun <T> cornerRows(cells: List<T>, atEnd: Boolean): List<List<T>> {
+private fun <T> cornerRows(cells: List<T>, atEnd: Boolean, short: (T) -> String?): List<List<T>> {
     val columns = if (cells.size > CORNER_SMALL) 3 else 2
-    return cells.reversed().chunked(columns).map { it.reversed() }.reversed()
-        .map { row -> if (atEnd) row else row.reversed() }
+    val rows = cells.reversed().chunked(columns).map { it.reversed().toMutableList() }.reversed()
+    /*
+     * ⚠️⚠️ **THE LONGEST LABEL NEVER TAKES THE ROUNDED CORNER OF THE BOTTOM ROW, SINCE 4.35** (item
+     * `4.34-01`: *'Impostazioni' non deve mai apparire in basso, perché l'arrotondamento ruba prezioso
+     * spazio orizzontale ... e fare lo stesso qualora ci fossero casi simili*). That corner is the
+     * bottom row's first cell, read right-handed; the entry there swaps with the one above the ×,
+     * as his arrow in `settings.png` draws it. In a folder 'Impostazioni' and 'Cestino' swap; in the
+     * home and in the bin the corner already holds a short label. The length is counted in characters, which is what makes a label long here.
+     */
+    if (rows.size > 1) {
+        val longest = cells.maxByOrNull { short(it)?.length ?: 0 }
+        val corner = rows.last()[0]
+        val above = rows[rows.size - 2]
+        if (corner === longest && above.size == columns) {
+            rows.last()[0] = above.last()
+            above[above.lastIndex] = corner
+        }
+    }
+    return rows.map { row -> if (atEnd) row else row.reversed() }
 }
 
 /**
@@ -428,17 +454,19 @@ private fun <T> cornerRows(cells: List<T>, atEnd: Boolean): List<List<T>> {
  */
 @Composable
 internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Composable () -> Unit) {
+    val rows = cornerRows(entries + null, atEnd) { it?.short }
+    val tall = startRow(rows.size, rows.first().size)
     Column(
         modifier = Modifier
-            .startShift(atEnd)
+            .startShift(atEnd, tall)
             .testTag(CORNER_COPY_TAG)
             .background(HINT_MARK, RoundedCornerShape(CORNER_CELL / 2))
-            .startRoom(atEnd)
+            .startRoom(atEnd, rows.size, rows.first().size)
     ) {
-        cornerRows(entries + null, atEnd).forEach { row ->
+        rows.forEach { row ->
             Row {
                 row.forEach { cell ->
-                    StartCell {
+                    StartCell(tall) {
                         if (cell == null) {
                             key()
                         } else {
@@ -496,31 +524,54 @@ private val START_HEAD = 10.dp
 /** The glyph's side, larger than a pill's ([PILL_GLYPH]) with the cell. */
 private val START_GLYPH = 28.dp
 
+/** The room between a Start menu cell's glyph and its label. */
+private val START_LABEL_GAP = 3.dp
+
 /** The short label's largest and smallest size: it shrinks to fit a long word in its column. */
 private val START_LABEL = 10.sp
 private val START_LABEL_MIN = 7.sp
 
 /**
+ * How tall a Start menu's row is, so that the panel is as tall as it is wide.
+ *
+ * ⚠️⚠️ **SINCE 4.35 THE PANEL IS ALWAYS SQUARE, HIS NOTE** (item `4.34-01`: *mi sembra più largo che
+ * alto: fa' in modo che il menu sia sempre quadrato (ancoraggio in basso, perciò eventualmente si
+ * alzerà un altro po'). Con più spazio verticale, va introdotta una maggiore spaziatura verticale
+ * tra le righe e anche tra icone ed etichette*). The rows share what the width leaves after the
+ * panel's room above and below: 68dp in the home's 3x3 and in a 2x2, where in 4.34 they were the
+ * key's 64. The bottom stays where the round key is, so the panel grows upwards.
+ * ⚠️ **An even number of dp, and the rest goes to the room above** ([startHead]): a third of 208 is
+ * 69.33dp, and rounded to the pixel it left the panel short of square; at 69 the cell's centre fell
+ * on half a pixel, and the × a pixel off the round key's centre. Measured on the bench.
+ */
+private fun startRow(rows: Int, columns: Int): Dp =
+    ((START_COLUMN * columns + START_EDGE - START_HEAD - START_FOOT) / rows).value.toInt().let { it - it % 2 }.dp
+
+/** The room above the Start menu's rows: [START_HEAD] and what [startRow] leaves of the width. */
+private fun startHead(rows: Int, columns: Int): Dp =
+    START_COLUMN * columns + START_EDGE - START_FOOT - startRow(rows, columns) * rows
+
+/**
  * Moves the Start menu's panel out, sideways towards the glass and down, so the corner cell's
  * centre is the round key's: every main control's centre since 4.31 ([pillCorner]).
  */
-private fun Modifier.startShift(atEnd: Boolean): Modifier {
+private fun Modifier.startShift(atEnd: Boolean, row: Dp): Modifier {
     val x = START_EDGE + START_COLUMN / 2 - PILL_KEY / 2
-    return offset(x = if (atEnd) x else -x, y = START_FOOT + (CORNER_CELL - PILL_KEY) / 2)
+    return offset(x = if (atEnd) x else -x, y = START_FOOT + (row - PILL_KEY) / 2)
 }
 
-/** The room [START_EDGE], [START_FOOT] and [START_HEAD] give the panel, inside its fill. */
-private fun Modifier.startRoom(atEnd: Boolean): Modifier = padding(
+/** The room [START_EDGE], [START_FOOT] and [startHead] give the panel, inside its fill. */
+private fun Modifier.startRoom(atEnd: Boolean, rows: Int, columns: Int): Modifier = padding(
     start = if (atEnd) 0.dp else START_EDGE,
     end = if (atEnd) START_EDGE else 0.dp,
-    top = START_HEAD,
+    top = startHead(rows, columns),
     bottom = START_FOOT
 )
 
 /** One cell of a Start menu, the menu's or the hint's copy: its key in the middle of the column. */
 @Composable
-private fun StartCell(content: @Composable () -> Unit) {
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(START_COLUMN, CORNER_CELL)) { content() }
+private fun StartCell(row: Dp, content: @Composable () -> Unit) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(START_COLUMN, row)) { content() }
 }
 
 /**
@@ -532,6 +583,8 @@ private fun StartFace(entry: PillEntry) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector = entry.icon, contentDescription = null, modifier = Modifier.size(START_GLYPH))
         entry.short?.let { label ->
+            // ⚠️ Since 4.35 more room between icon and label, with the taller rows (item `4.34-01`).
+            Spacer(Modifier.height(START_LABEL_GAP))
             BasicText(
                 text = label,
                 style = TextStyle(color = LocalContentColor.current, textAlign = TextAlign.Center),
