@@ -395,7 +395,7 @@
     <string name="settings_main_control_desc">Choose how you interact with the app when you hold your phone upright: a floating action button (\'FAB\') with a menu, a pill of icons, a menu or a \'Start\' menu.</string>
     <string name="main_control_fab">Floating button</string>
     <string name="main_control_pill">Icon pill</string>
-    <string name="main_control_bar">Menu</string>
+    <string name="main_control_bar">Bottom menu</string>
     <string name="bar_fixed">Fixed</string>
     <string name="main_control_corner">\'Start\' menu</string>
     <string name="glass_radius">Radius</string>
@@ -520,7 +520,20 @@
     <string name="tree_show_hidden">Show hidden files</string>
     <string name="tree_pictures">Only folders with pictures/videos</string>
     <string name="columns_hint">Shortcut: press and hold the floating button for the display options.</string>
-    <string name="corner_hint">All commands are in the \'Start\' menu: tap the round button to open it, press and hold it for the display options.</string>
+    <string name="corner_hint">Tap the button in the corner to open the menu: it holds all the main commands; press and hold it for the display options. In settings you can move the button to the other side, if you like.</string>
+    <!-- The short labels under the Start menu's icons (note F on the 4.32 round). -->
+    <string name="start_pill">Pill</string>
+    <string name="start_round">Round</string>
+    <string name="start_grid">Grid</string>
+    <string name="start_list">List</string>
+    <string name="start_tree">Folders</string>
+    <string name="start_show">Show</string>
+    <string name="start_hide">Hide</string>
+    <string name="start_url">URL</string>
+    <string name="start_new">New</string>
+    <string name="start_pick">Open</string>
+    <string name="start_restore">Restore</string>
+    <string name="start_empty">Empty</string>
     <!-- Each of these names the view you would GET, not the one you are in: a menu
          entry is a thing you ask for. -->
     <string name="hub_view_list">List view</string>

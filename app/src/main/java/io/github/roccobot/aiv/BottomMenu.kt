@@ -4,6 +4,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,7 +19,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -71,6 +81,14 @@ import kotlin.math.roundToInt
 
 /** The height of the bar's row of keys, above the gesture area it also covers. */
 internal val BAR_ROW = 56.dp
+
+/**
+ * How much of the gesture area the bar's row of keys takes, since 4.33: the row sits this much
+ * lower than the top of the system's navigation inset (note B on the 4.32 round: *la modalità Menu
+ * deve avere il menu più basso di 7/8dp*). With a navigation inset smaller than this the row stops
+ * on the screen's edge.
+ */
+internal val BAR_DROP = 8.dp
 
 /** From how many keys the bar spreads them across its width: five (note N2). */
 internal const val BAR_SPREAD = 5
@@ -143,7 +161,7 @@ internal fun controlRoom(): Dp {
         look.corner -> PILL_KEY * 2 + PILL_AIR * 2
         !look.bar -> PILL_KEY + PILL_AIR * 2
         look.mode == PhonePill.SLIDE -> PILL_KEY * 2 + PILL_AIR * 2
-        else -> BAR_ROW
+        else -> BAR_ROW - BAR_DROP
     }
 }
 
@@ -314,6 +332,7 @@ internal fun CornerMenu(
         if (p > 0f) {
             Column(
                 modifier = Modifier
+                    .startShift(atEnd)
                     .graphicsLayer {
                         alpha = p
                         scaleX = 0.6f + 0.4f * p
@@ -322,7 +341,7 @@ internal fun CornerMenu(
                     }
                     .declaresFoot()
                     .onGloballyPositioned { panel = it.boundsInRoot() }
-                    .buttonFill(backdrop, pillAccent(), RoundedCornerShape(PILL_KEY / 2))
+                    .buttonFill(backdrop, pillAccent(), RoundedCornerShape(CORNER_CELL / 2))
             ) {
                 rows.forEachIndexed { r, row ->
                     Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
@@ -336,9 +355,12 @@ internal fun CornerMenu(
                             }
                             val usable = cell.copy(enabled = cell.enabled && open)
                             if (jump == 0) {
-                                PillKey(entry = usable, size = CORNER_CELL, enabled = usable.enabled && !armed)
+                                PillKey(
+                                    entry = usable, size = CORNER_CELL, enabled = usable.enabled && !armed,
+                                    glyph = { StartFace(cell) }
+                                )
                             } else {
-                                JumpKey(usable, jump, q, armed, CORNER_CELL, top, bottom, onJump)
+                                JumpKey(usable, jump, q, armed, CORNER_CELL, top, bottom, onJump, rest = { StartFace(cell) })
                             }
                         }
                     }
@@ -355,15 +377,18 @@ internal fun CornerMenu(
  * ⚠️⚠️ **SINCE 4.30, HIS NOTE** (on `4.25-02`: *QUALSIASI tocco fuori, anche un trascinamento sulla
  * griglia ad esempio, o un tocco in un'area vuota*): until 4.25 only its own cells closed it.
  * ⚠️ **The root watches and does not consume**, so the drag that closes the menu also scrolls the
- * grid. And the watcher is in the tree only while somebody listens ([active]): a node over the
- * whole screen exists only when it is needed (`Rules.md`, § 'Che cosa fa il tocco FUORI da una
- * finestra').
+ * grid.
+ * ⚠️⚠️ **AND SINCE 4.33 THE WATCHER IS ALWAYS IN THE TREE** (item `4.30-03` on the 4.32 round: *al
+ * primo tocco si chiude il menu e al secondo posso agire. Dev'essere un unico gesto*). Until 4.32 it
+ * was there only while somebody listened, so the press that closed the menu took it out of the root
+ * in the middle of the gesture, and the change to the root's modifiers cancelled the drag below.
+ * Measured by `MenuInferioreTest` with a drag in steps; a drag in one block never saw it.
+ * ⚠️ It is not a node over the screen (`Rules.md`, § 'Che cosa fa il tocco FUORI da una
+ * finestra'): it is a modifier of the root, which every touch crosses anyway, and with nobody
+ * listening it does nothing.
  */
 internal object OutsideTouch {
     private val listeners = mutableStateMapOf<Any, (Offset) -> Unit>()
-
-    /** Whether somebody is listening, so that [AivTheme] puts the watcher in the tree. */
-    val active: Boolean get() = listeners.isNotEmpty()
 
     fun on(who: Any, listener: (Offset) -> Unit) { listeners[who] = listener }
 
@@ -399,20 +424,20 @@ private fun <T> cornerRows(cells: List<T>, atEnd: Boolean): List<List<T>> {
  */
 @Composable
 internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Composable () -> Unit) {
-    Column(modifier = Modifier.testTag(CORNER_COPY_TAG).background(HINT_MARK, RoundedCornerShape(PILL_KEY / 2))) {
+    Column(
+        modifier = Modifier
+            .startShift(atEnd)
+            .testTag(CORNER_COPY_TAG)
+            .background(HINT_MARK, RoundedCornerShape(CORNER_CELL / 2))
+    ) {
         cornerRows(entries + null, atEnd).forEach { row ->
             Row {
                 row.forEach { cell ->
-                    if (cell == null) {
-                        key()
-                    } else {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(CORNER_CELL)) {
-                            Icon(
-                                imageVector = cell.icon,
-                                contentDescription = null,
-                                tint = HINT_INK,
-                                modifier = Modifier.size(PILL_GLYPH)
-                            )
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(CORNER_CELL)) {
+                        if (cell == null) {
+                            key()
+                        } else {
+                            CompositionLocalProvider(LocalContentColor provides HINT_INK) { StartFace(cell) }
                         }
                     }
                 }
@@ -427,8 +452,53 @@ internal const val CORNER_COPY_TAG = "corner-copy"
 /** Up to how many cells, the × included, the corner menu is a 2x2 (decision C3). */
 private const val CORNER_SMALL = 4
 
-/** The side of a corner menu's cell: a pill's key, so the corner cell is the folded pill's. */
-private val CORNER_CELL = PILL_KEY
+/**
+ * The side of a Start menu's cell.
+ *
+ * ⚠️⚠️ **SINCE 4.33 LARGER THAN A PILL'S KEY, A USABILITY TEST OF HIS** (note F on the 4.32 round:
+ * *le icone appaiano nello stessa disposizione, ma più grandi e più distanziate, con un testo
+ * piccolo e abbreviato*). Until 4.32 it was [PILL_KEY], so the corner cell was the folded pill's
+ * key; now the panel moves out by half the difference ([startShift]) and the × keeps the round
+ * key's centre.
+ */
+private val CORNER_CELL = 64.dp
+
+/** The side of a Start menu's glyph, larger than a pill's ([PILL_GLYPH]) with the cell. */
+private val START_GLYPH = 28.dp
+
+/** The short label's largest and smallest size: it shrinks to fit a long word in its cell. */
+private val START_LABEL = 10.sp
+private val START_LABEL_MIN = 7.sp
+
+/**
+ * Moves the Start menu's panel out by half the difference between its cell and the round key,
+ * sideways towards the glass and down, so the corner cell's centre is the round key's: every main
+ * control's centre since 4.31 ([pillCorner]).
+ */
+private fun Modifier.startShift(atEnd: Boolean): Modifier {
+    val d = (CORNER_CELL - PILL_KEY) / 2
+    return offset(x = if (atEnd) d else -d, y = d)
+}
+
+/**
+ * A Start menu cell's face: the glyph, and under it the short label when the entry has one
+ * ([PillEntry.short]). The × has none, and keeps its glyph alone in the middle.
+ */
+@Composable
+private fun StartFace(entry: PillEntry) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(imageVector = entry.icon, contentDescription = null, modifier = Modifier.size(START_GLYPH))
+        entry.short?.let { label ->
+            BasicText(
+                text = label,
+                style = TextStyle(color = LocalContentColor.current, textAlign = TextAlign.Center),
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(START_LABEL_MIN, START_LABEL, 0.5.sp),
+                modifier = Modifier.width(CORNER_CELL - 6.dp)
+            )
+        }
+    }
+}
 
 /**
  * The bar itself: every key on one row, spread across the width, over the gesture area.
@@ -476,6 +546,7 @@ private fun Bar(
          * folded pill's key was.
          */
         val spread = count >= BAR_SPREAD
+        val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
         Row(
             horizontalArrangement = when {
                 spread -> Arrangement.SpaceEvenly
@@ -485,7 +556,7 @@ private fun Bar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .navigationBarsPadding()
+                .padding(bottom = (navBottom - BAR_DROP).coerceAtLeast(0.dp))
                 .height(BAR_ROW)
                 .padding(horizontal = if (spread) 0.dp else BAR_SIDE)
         ) {

@@ -169,6 +169,36 @@ class MenuInferioreTest {
     }
 
     /**
+     * **The bottom menu's keys sit 8dp into the navigation inset** (note B on the 4.32 round: *la
+     * modalità Menu deve avere il menu più basso di 7/8dp*).
+     *
+     * ⚠️ The bench has no system bars: the inset is handed to the scene's view, as in
+     * `BarraInfoTest`.
+     */
+    @Test
+    fun `il menu basso scende di 8dp dentro la barra di navigazione`() {
+        var vista: android.view.View? = null
+        banco.setContent {
+            vista = androidx.compose.ui.platform.LocalView.current
+            Griglia(PillLook(PhonePill.EXTENDED, bar = true))
+        }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        banco.runOnUiThread {
+            val spazi = androidx.core.view.WindowInsetsCompat.Builder()
+                .setInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars(), androidx.core.graphics.Insets.of(0, 0, 0, (48 * dp).toInt()))
+                .setVisible(androidx.core.view.WindowInsetsCompat.Type.navigationBars(), true)
+                .build()
+            androidx.core.view.ViewCompat.dispatchApplyWindowInsets(vista!!, spazi)
+        }
+        banco.waitForIdle()
+        val scena = banco.onRoot().fetchSemanticsNode().boundsInRoot
+        val tasto = banco.onNodeWithContentDescription(voce(R.string.hub_settings)).fetchSemanticsNode().boundsInRoot
+        val fila = tasto.center.y + 28f * dp
+        assertEquals("La fila dei tasti non scende di 8dp nella barra di navigazione", scena.bottom - 40f * dp, fila, 1f * dp)
+    }
+
+    /**
      * **Folded, while scrolling: the upper key is still 'in cima' and the mark turns into 'in fondo'**
      * (answer M2). **Open, the two keys in the corner turn into the two arrows.**
      *
@@ -295,10 +325,21 @@ class MenuInferioreTest {
     fun `nella home il menu angolare e un 3x3 col commutatore e le due viste`() {
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.LEFT) }
         banco.waitForIdle()
+        val tondo = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
         banco.waitForIdle()
         val pos = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot }
         assertEquals("La vista in cui si è è ancora nel menu", 0, quanti(R.string.hub_view_grid))
+        // ⚠️ Since 4.33 (note F on the 4.32 round): a short label under every icon but the ×, and
+        // the ×, in a larger cell, still centred on the round key.
+        for (id in listOf(R.string.start_pill, R.string.start_list, R.string.start_tree, R.string.start_show, R.string.start_url)) {
+            banco.onNodeWithText(voce(id), useUnmergedTree = true).assertExists()
+        }
+        val x = banco.onNodeWithContentDescription(voce(R.string.pick_close)).fetchSemanticsNode().boundsInRoot
+        val dp = app.resources.displayMetrics.density
+        assertEquals("La casella della × non è di 64dp", 64f * dp, x.width, 0.5f * dp)
+        assertEquals("La × non è sul centro del tondo in orizzontale", tondo.center.x, x.center.x, 0.5f * dp)
+        assertEquals("La × non è sul centro del tondo in verticale", tondo.center.y, x.center.y, 0.5f * dp)
         val commutatore = pos(R.string.corner_rest_pill)
         val lista = pos(R.string.hub_view_list)
         val albero = pos(R.string.hub_view_tree)
@@ -492,6 +533,73 @@ class MenuInferioreTest {
     }
 
     /**
+     * **The drag that closes the Start menu scrolls the grid too, in one gesture** (item `4.30-03`
+     * on the 4.32 round: *al primo tocco si chiude il menu e al secondo posso agire. Dev'essere un
+     * unico gesto*).
+     */
+    @Test
+    fun `il trascinamento che chiude il menu Start scorre anche la griglia`() {
+        banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true)) }
+        banco.waitForIdle()
+        val riferimento = scorrimento()
+        banco.onNodeWithContentDescription(voce(R.string.pick_actions)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il menu Start non si è aperto", 1, quanti(R.string.hub_settings))
+        scorriAPassi()
+        banco.waitForIdle()
+        assertEquals("Il trascinamento non ha chiuso il menu Start", 0, quanti(R.string.hub_settings))
+        assertTrue("Il trascinamento che chiude il menu non ha scorso la griglia", scorrimento() != riferimento)
+    }
+
+    /** The same in the home, with enough folders to scroll. */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `nella home il trascinamento che chiude il menu Start scorre anche le cartelle`() {
+        val molte = (1..40).map {
+            Folder.Bucket(id = it.toLong(), name = "Cartella $it", pictures = 2, clips = 0, cover = null, path = "/storage/emulated/0/F$it")
+        }
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                CompositionLocalProvider(LocalPillLook provides PillLook(PhonePill.SLIDE, corner = true), LocalPadLook provides PadLook(hand = Hand.RIGHT)) {
+                    Box(modifier = Modifier.fillMaxSize()) { Casa(molte) }
+                }
+            }
+        }
+        banco.waitForIdle()
+        val riferimento = scorrimento()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        assertEquals("Il menu Start non si è aperto", 1, quanti(R.string.hub_settings))
+        scorriAPassi()
+        banco.waitForIdle()
+        assertEquals("Il trascinamento non ha chiuso il menu Start", 0, quanti(R.string.hub_settings))
+        assertTrue("Il trascinamento che chiude il menu non ha scorso le cartelle", scorrimento() != riferimento)
+    }
+
+    /**
+     * A drag in steps with frames between them, as on a phone: the menu closes after the press, and
+     * the rest of the gesture arrives on the screen as it is after the close.
+     */
+    private fun scorriAPassi() {
+        val scena = banco.onRoot().fetchSemanticsNode().size
+        val x = scena.width * LATO
+        banco.onRoot().performTouchInput { down(Offset(x, scena.height * DA)) }
+        banco.mainClock.advanceTimeBy(50)
+        for (i in 1..12) {
+            val y = scena.height * (DA + (A - DA) * i / 12f)
+            banco.onRoot().performTouchInput { moveTo(Offset(x, y)) }
+            banco.mainClock.advanceTimeBy(16)
+        }
+        banco.onRoot().performTouchInput { up() }
+        banco.mainClock.advanceTimeBy(RESPIRO)
+    }
+
+    /** How far the grid has scrolled, from its semantics: it changes when the grid scrolls. */
+    private fun scorrimento(): Float =
+        banco.onAllNodes(androidx.compose.ui.test.hasScrollAction()).fetchSemanticsNodes().first()
+            .config[androidx.compose.ui.semantics.SemanticsProperties.VerticalScrollAxisRange].value()
+
+    /**
      * **The round key is 44dp and sits in the same corner in the home and in a folder** (note B on
      * the 4.25 round: *tra home e cartelle il tondo col glifo salta da una posizione all'altra ...
      * addirittura cambia dimensione*).
@@ -582,9 +690,11 @@ class MenuInferioreTest {
         assertEquals("La copia del tondo è fuori asse in orizzontale", tondi[0].center.x, tondi[1].center.x, 0.5f * dp)
         assertEquals("La copia del tondo è fuori asse in verticale", tondi[0].center.y, tondi[1].center.y, 0.5f * dp)
         val pannello = banco.onAllNodesWithTag(CORNER_COPY_TAG, useUnmergedTree = true).fetchSemanticsNodes().single().boundsInRoot
-        assertEquals("Il menu Start del velo non è aperto su tre colonne", 3 * 44f * dp, pannello.width, 0.5f * dp)
-        assertEquals("Il menu Start del velo non ha l'angolo sul tondo", tondi[0].right, pannello.right, 0.5f * dp)
-        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].bottom, pannello.bottom, 0.5f * dp)
+        // ⚠️ Since 4.33 the cells are 64dp (note F on the 4.32 round), and the corner cell's centre
+        // is the round key's.
+        assertEquals("Il menu Start del velo non è aperto su tre colonne", 3 * 64f * dp, pannello.width, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha l'angolo sul tondo", tondi[0].center.x, pannello.right - 32f * dp, 0.5f * dp)
+        assertEquals("Il menu Start del velo non ha il fondo sul tondo", tondi[0].center.y, pannello.bottom - 32f * dp, 0.5f * dp)
     }
 
     private fun quanti(id: Int): Int =

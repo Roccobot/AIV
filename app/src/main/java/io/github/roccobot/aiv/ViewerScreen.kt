@@ -404,7 +404,14 @@ fun ViewerScreen(
      * quella che si è appena lasciata, così non c'è mai un istante vuoto, e quando la
      * nuova è pronta il testo si dissolve nell'altro.
      */
-    val info = remember { InfoBar() }
+    /*
+     * ⚠️⚠️ **NASCE CON L'IMPOSTAZIONE, DALLA `4.33`** (voce `4.30-05` non approvata sul giro della
+     * `4.32`: lo zoom all'apertura restava con le info spente). Lo stato nasceva visibile e
+     * prendeva l'impostazione solo a immagine pronta: la prima misura faceva posto a una barra che
+     * non c'era, e il posto si richiudeva con l'animazione della barra che si nasconde. Lo misura
+     * `BarraInfoTest`.
+     */
+    val info = remember { InfoBar().also { it.visible = settings.infoVisible } }
 
     /**
      * L'ultima fotografia che si è vista, tenuta **anche mentre la prossima si carica**.
@@ -2238,13 +2245,13 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier, bar: BarSp
      */
     var longSide by remember(uri) { mutableIntStateOf(Pixels.known(uri) ?: 0) }
     /*
-     * ⚠️⚠️ **L'ANTEPRIMA ASPETTA LA RISPOSTA SULLA MISURA, RIUSCITA O NO, DALLA `4.32`** (sua
-     * segnalazione sulla `4.30`: lo zoom all'apertura c'era ancora con le info spente, e
-     * riaccendendole spariva). Senza la misura del file l'anteprima usa il ripiego qui sotto, che
-     * per una miniatura piccola vale `Inside`, cioè la sua misura: l'immagine compariva piccola e
-     * cresceva all'arrivo della misura, un attimo dopo. Con la barra delle info non succedeva perché
-     * l'anteprima aspetta già la barra, e intanto la misura arriva. Il prezzo è un'attesa quanto la
-     * lettura dell'intestazione del file, che con la misura in memoria non c'è.
+     * ⚠️ **L'ANTEPRIMA ASPETTA LA RISPOSTA SULLA MISURA, RIUSCITA O NO, DALLA `4.32`**. Senza la
+     * misura del file l'anteprima usa il ripiego qui sotto, che per una miniatura piccola vale
+     * `Inside`, cioè la sua misura, e l'immagine crescerebbe all'arrivo della misura. Il prezzo è
+     * un'attesa quanto la lettura dell'intestazione del file, che con la misura in memoria non c'è.
+     * ⚠️⚠️ **Non era la causa dello zoom con le info spente**, come la `4.32` credeva (il giro della
+     * `4.32` l'ha smentita): la causa era lo stato della barra, che nasceva visibile (vedi `info`
+     * in `ViewerScreen`).
      */
     var asked by remember(uri) { mutableStateOf(longSide > 0) }
     LaunchedEffect(uri) {

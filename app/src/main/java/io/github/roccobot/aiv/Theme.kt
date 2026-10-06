@@ -553,8 +553,8 @@ fun AivTheme(
                     modifier = Modifier
                         .fillMaxSize()
                         // ⚠️ Every press, for whoever listens (the open Start menu); never consumed.
-                        // In the tree only while somebody listens. Why on [OutsideTouch].
-                        .then(if (OutsideTouch.active) Modifier.watchPresses() else Modifier)
+                        // Always in the tree since 4.33: why on [OutsideTouch].
+                        .watchPresses()
                 ) {
                     content()
                     AppVeil(modifier = Modifier.matchParentSize())

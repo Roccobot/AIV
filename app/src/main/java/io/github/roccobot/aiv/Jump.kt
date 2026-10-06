@@ -25,6 +25,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -145,6 +146,21 @@ internal const val JUMP_FULL = 0.8f
  * quindi senza un movimento che li separi si vedrebbe una macchia sola.
  */
 internal const val JUMP_ZOOM = 0.45f
+
+/**
+ * How the app's mark and its stand-ins fade on the FAB and the round key: the alpha goes to each
+ * drawing, without an offscreen buffer.
+ *
+ * ⚠️⚠️ **SINCE 4.33, NOTE C ON THE 4.32 ROUND** (*il simbolo quasi del tutto disegnato si ferma per
+ * un attimo (visibile) con un pezzo mancante (parte superiore del cerchio) che poi appare con uno
+ * scatto unico*). The mark is drawn a few dp above its box (`Marchio`, the optical lift), and with
+ * the default strategy a layer below full opacity draws into a buffer as large as the box: the
+ * disc's top was cut for the whole fade and came back in one frame at full opacity. Measured by
+ * `ScattoGlifoTest`.
+ * ⚠️ Fading each drawing on its own is what a buffer avoids when shapes overlap: here a glyph is one
+ * vector, so nothing overlaps.
+ */
+internal val MARK_FADE = CompositingStrategy.ModulateAlpha
 
 /**
  * Ferma la corsa quando la lista non prende più niente.
@@ -355,6 +371,8 @@ fun JumpGlyph(arm: JumpArm, home: @Composable () -> Unit) {
         Box(
             modifier = Modifier.graphicsLayer {
                 alpha = (1f - q).pow(JUMP_FULL)
+                // ⚠️ Without a buffer: see [MARK_FADE].
+                compositingStrategy = MARK_FADE
                 val s = 1f - JUMP_ZOOM * q
                 scaleX = s
                 scaleY = s
