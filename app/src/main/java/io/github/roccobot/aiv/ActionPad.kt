@@ -1553,10 +1553,10 @@ val FAB_SIZE = 40.dp
 val HUB_PAD = 16.dp
 
 /** The FAB's glyph on the translucent look, on the light theme: his `#ecfff7`. */
-private val FAB_GLASS_INK_LIGHT = Color(0xFFECFFF7)
+internal val FAB_GLASS_INK_LIGHT = Color(0xFFECFFF7)
 
 /** The FAB's glyph on the translucent look, on the dark theme: his `#004247`. */
-private val FAB_GLASS_INK_DARK = Color(0xFF004247)
+internal val FAB_GLASS_INK_DARK = Color(0xFF004247)
 
 /**
  * Quanto arriva in su il FAB quadrato delle cartelle, misurato dal fondo dello schermo:
@@ -1788,7 +1788,8 @@ fun TapHoldFab(
      * un velo d'aiuto illumina portano il loro arancione.
      */
     val glassInk = backdrop != null && LocalPillLook.current.fill == PillFill.GLASS
-    val segno = if (glassInk) (if (light) FAB_GLASS_INK_LIGHT else FAB_GLASS_INK_DARK)
+    // ⚠️ Since 4.34 a glass colour of his picks its own ink (answer A1): see [ownGlassInk].
+    val segno = if (glassInk) ownGlassInk() ?: (if (light) FAB_GLASS_INK_LIGHT else FAB_GLASS_INK_DARK)
     else lerp(ink, aivOnAccent(light), tinta.value)
     /*
      * ⚠️ **I due simboli stanno uno sopra l'altro in una scatola sola**, e la scatola si misura

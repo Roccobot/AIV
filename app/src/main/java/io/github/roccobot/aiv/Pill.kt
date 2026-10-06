@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,13 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -162,6 +163,7 @@ internal fun PillKey(
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
     val hold = entry.onHold.takeIf { holdLabel != null }
+    val press = remember { MutableInteractionSource() }
     TooltipBox(
         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
         tooltip = { PlainTooltip { Text(entry.label) } },
@@ -173,10 +175,14 @@ internal fun PillKey(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(size)
-                // ⚠️ The touch ripple is round (his note on the 4.04 round): it was the cell's
-                // square, which inside a rounded pill reads as a mistake.
-                .clip(CircleShape)
                 .combinedClickable(
+                    // ⚠️ The touch ripple is round (his note on the 4.04 round): it was the cell's
+                    // square, which inside a rounded pill reads as a mistake.
+                    // ⚠️⚠️ **An unbounded ripple and not a clip, since 4.34** (item `4.33-07` A:
+                    // *le etichette dei comandi sono come tagliate da una maschera*): a round clip
+                    // cut the Start menu's labels, which are wider than the key.
+                    interactionSource = press,
+                    indication = ripple(bounded = false, radius = size / 2),
                     enabled = enabled,
                     role = Role.Button,
                     onClick = entry.onTap,

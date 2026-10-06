@@ -551,6 +551,18 @@ val HINT_MARK = Color(0xFFFFA726)
 /** Il glifo sopra l'arancione: misurato 7.29, cioè leggibile senza discussioni. */
 val HINT_INK = Color(0xFF3E2600)
 
+/**
+ * Il giallo della copia del tondo sul menu Start aperto del velo, e il suo glifo: i colori del suo
+ * mockup (`micro_onboarding.png`, voce `4.33-05`: *riproducilo con un tondo dello stesso giallo che
+ * vedi nel mio mockup*), campionati dal file.
+ *
+ * ⚠️ Fino alla `4.33` la copia era arancione come il pannello, quindi sul pannello non si vedeva
+ * come un tasto. Misurato: il glifo sul giallo 7.15; il giallo sull'arancione 1.42, che non è un
+ * contrasto da testo ma basta a staccare una forma piena.
+ */
+val HINT_KEY = Color(0xFFFFDA3C)
+val HINT_KEY_INK = Color(0xFF643A00)
+
 /** Quanto sta lontano il testo dal FAB che indica: abbastanza da non sembrarne parte. */
 private val HINT_GAP = 14.dp
 

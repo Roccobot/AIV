@@ -29,7 +29,10 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -105,6 +108,16 @@ private val SMOOTHER = Easing { x -> x * x * x * (x * (x * 6f - 15f) + 10f) }
 private const val HAUL = 44f
 
 /**
+ * How much of [HAUL] one scroll event may cover: a sixth, so the swap takes at least six frames.
+ *
+ * ⚠️⚠️ **SINCE 4.34, AND IT IS MEASURED**: since the jump arms only from a fling ([JUMP_SPEED]), the
+ * pixels that move the glyph are the fling's, and its first frame alone runs past [HAUL]. The mark
+ * turned into the chevron in one frame, which `ScattoGlifoTest` measured as a 5px jump of its top.
+ * A finger dragging moved a few pixels per event, so until 4.33 the cap was never reached.
+ */
+private const val HAUL_STEP = 1f / 6f
+
+/**
  * I pixel nel verso opposto che fanno cambiare idea al tasto: **otto**.
  *
  * ⚠️⚠️ **SENZA QUESTA SOGLIA IL GLIFO SFARFALLA**, ed è misurato nel mockup: un dito che scorre
@@ -171,6 +184,21 @@ internal val MARK_FADE = CompositingStrategy.ModulateAlpha
  */
 private class Arrivato : CancellationException("bordo")
 
+/**
+ * How fast a fling has to start for the jump to arm, in dp per second.
+ *
+ * ⚠️⚠️ **SINCE 4.34, HIS NOTE** (note C on the 4.33 round: *voglio che appaiano solo se il gesto di
+ * scorrimento è abbastanza veloce ... se le righe di anteprime o gli elementi della lista sono pochi,
+ * si scorre di poco e lo si fa lentamente*): until 4.33 every pixel of a drag counted, so a short slow
+ * scroll armed the jump after [HAUL] pixels.
+ * ⚠️ **The measure is the fling's starting speed**, the one the system computes from the finger's
+ * last samples: the gesture of whoever scrolls many items is a fling, and a drag that stops before
+ * the finger lifts starts none. Once armed, the glyph follows the scroll as before.
+ * ⚠️ **The number is a first estimate, to be tuned on his phone**: Android starts a fling from
+ * 50dp/s, and a deliberate one runs to thousands.
+ */
+internal const val JUMP_SPEED = 1_000f
+
 /** Le quattro fasi del glifo, che sono quelle del mockup. */
 private enum class Phase { IDLE, PULL, READY, BACK }
 
@@ -198,7 +226,9 @@ private enum class Phase { IDLE, PULL, READY, BACK }
 class JumpArm internal constructor(
     private val state: ScrollableState,
     private val up: () -> Float,
-    private val down: () -> Float
+    private val down: () -> Float,
+    /** The fling speed that arms the jump, in pixels per second: [JUMP_SPEED] at this density. */
+    private val fast: Float
 ) {
     /** Quanto il chevron ha preso il posto del disegno dell'app: da 0 a 1. */
     var shown by mutableFloatStateOf(0f)
@@ -209,6 +239,9 @@ class JumpArm internal constructor(
         private set
 
     private var phase by mutableStateOf(Phase.IDLE)
+
+    /** True from a fling fast enough ([fast]) to the glyph's way back: only then a pixel counts. */
+    private var flung = false
     private var run = 0f
     private var against = 0f
 
@@ -229,8 +262,14 @@ class JumpArm internal constructor(
      */
     internal val watch = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            pull(available.y)
+            // ⚠️ A slow drag does not arm the jump (note C on the 4.33 round): see [JUMP_SPEED].
+            if (flung || phase != Phase.IDLE) pull(available.y)
             return Offset.Zero
+        }
+
+        override suspend fun onPreFling(available: Velocity): Velocity {
+            if (abs(available.y) >= fast) flung = true
+            return Velocity.Zero
         }
     }
 
@@ -257,7 +296,8 @@ class JumpArm internal constructor(
             against = 0f
         }
         phase = Phase.PULL
-        run = min(HAUL, run + px)
+        // ⚠️ At most [HAUL_STEP] of the haul per event: see there.
+        run = min(HAUL, run + min(px, HAUL * HAUL_STEP))
         shown = run / HAUL
         if (shown >= 1f) phase = Phase.READY
         tick++
@@ -280,6 +320,7 @@ class JumpArm internal constructor(
         run = 0f
         against = 0f
         toward = 0
+        flung = false
         phase = Phase.IDLE
     }
 
@@ -340,7 +381,8 @@ fun rememberJumpArm(
      */
     val alto by rememberUpdatedState(up)
     val basso by rememberUpdatedState(down)
-    val arm = remember(state) { JumpArm(state, { alto() }, { basso() }) }
+    val fast = with(LocalDensity.current) { JUMP_SPEED.dp.toPx() }
+    val arm = remember(state, fast) { JumpArm(state, { alto() }, { basso() }, fast) }
     /*
      * ⚠️ **`collectLatest` è il modo in cui il congedo si rimette a zero**: ogni pixel alza
      * `tick`, quindi l'attesa precedente viene annullata e ne parte una nuova. Senza, un lancio

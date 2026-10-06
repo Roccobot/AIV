@@ -144,6 +144,24 @@ class SaltiTest {
     }
 
     /**
+     * **Un trascinamento lento non arma il salto** (nota C del giro della `4.33`: *voglio che
+     * appaiano solo se il gesto di scorrimento è abbastanza veloce*).
+     *
+     * ⚠️ Lo stesso tragitto del lancio, col dito fermo prima di staccarsi: la lista scorre, e
+     * fino alla `4.33` bastavano 44 pixel di quel tragitto per armare il tasto.
+     */
+    @Test
+    fun `un trascinamento lento non arma il salto`() {
+        val arm = montaArm()
+        banco.waitForIdle()
+
+        trascina()
+
+        assertFalse("Un trascinamento lento non deve armare il tasto", arm().armed)
+        assertEquals("Il chevron non deve comparire", 0f, arm().shown, 0.001f)
+    }
+
+    /**
      * **Cambiando verso, il chevron si gira sul posto.**
      *
      * ⚠️ **La soglia è la metà che conta**: un dito che scorre non va mai in un verso solo, e
@@ -231,24 +249,33 @@ class SaltiTest {
     }
 
     /**
-     * Un trascinamento che è uno scorrimento e non un lancio.
+     * Un lancio: il dito percorre il tragitto in [PASSI] passi da [PASSO_MS] e si stacca in corsa.
      *
      * ⚠️⚠️ **`down` e `moveTo` E NON `swipe`, ED È MISURATO**: col clock fermo uno `swipe` con
      * la sua durata inietta i passi intermedi a un tempo che non avanza, e al motore del glifo
      * non arriva niente. La prima stesura di questa prova era rossa **col codice giusto** per
      * quella ragione, e la forma qui sotto è quella che l'app riceve da un dito vero.
-     * ⚠️ **Il dito resta fermo prima di staccarsi**, più a lungo della finestra del velocimetro
-     * (100 ms): così la velocità stimata è zero e la lista non parte per inerzia, che
-     * rimetterebbe a zero il conto alla rovescia mentre la prova guarda.
+     * ⚠️ **Dalla `4.34` è un lancio e non un trascinamento**: il salto si arma solo dalla velocità
+     * di un lancio ([JUMP_SPEED]), e il trascinamento lento ha la sua prova.
+     * ⚠️⚠️ **IN PIÙ PASSI, ED È MISURATO**: con un passo solo il velocimetro ha due campioni e
+     * stima zero, quindi il lancio non partiva e la prova era rossa col codice giusto.
      */
-    private fun scorri(su: Boolean) {
+    private fun scorri(su: Boolean) = gesto(su, fermo = false)
+
+    /**
+     * Lo stesso tragitto col dito fermo prima di staccarsi, più a lungo della finestra del
+     * velocimetro (100 ms): la velocità stimata è zero, e la lista non parte per inerzia.
+     */
+    private fun trascina() = gesto(su = true, fermo = true)
+
+    private fun gesto(su: Boolean, fermo: Boolean) {
         val scena = banco.onRoot().fetchSemanticsNode().size
         banco.onRoot().performTouchInput {
             val da = if (su) DA else A
             val a = if (su) A else DA
             down(Offset(scena.width * LATO, scena.height * da))
-            moveTo(Offset(scena.width * LATO, scena.height * a))
-            advanceEventTime(FERMO)
+            for (i in 1..PASSI) moveTo(Offset(scena.width * LATO, scena.height * (da + (a - da) * i / PASSI)), PASSO_MS)
+            if (fermo) advanceEventTime(FERMO)
             up()
         }
         /*
@@ -322,6 +349,10 @@ private const val NASCITA = 1_000L
  * fuori tempo massimo, la velocità stimata è zero e la lista non parte per inerzia.
  */
 private const val FERMO = 300L
+
+/** In quanti passi il dito percorre il tragitto, e quanto dura ognuno, in millisecondi. */
+private const val PASSI = 6
+private const val PASSO_MS = 10L
 
 /** Da dove a dove va il trascinamento, in frazioni dell'altezza della scena. */
 private const val DA = 0.8f

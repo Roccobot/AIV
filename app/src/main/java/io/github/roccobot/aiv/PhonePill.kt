@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -40,6 +41,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.drawOutline
@@ -402,9 +404,40 @@ private fun glassEffect(radius: Float, saturation: Float): androidx.compose.ui.g
 @Composable
 fun pillAccent(): Color = aivAccent(!LocalAivLight.current)
 
-/** The ink of the pill's glyphs: the ink that goes with [pillAccent], in every fill. */
+/**
+ * The ink of the pill's glyphs: the ink that goes with [pillAccent], in every fill, unless the glass
+ * wears a colour of his ([ownGlassInk]).
+ */
 @Composable
-fun pillInk(): Color = aivOnAccent(!LocalAivLight.current)
+fun pillInk(): Color = ownGlassInk() ?: aivOnAccent(!LocalAivLight.current)
+
+/**
+ * The ink of the glyphs on a glass that wears a colour of his, or `null` where it does not.
+ *
+ * ⚠️⚠️ **SINCE 4.34, HIS ANSWER A1** (to `colore-icone-vetro`, on `4.30-04`: *l'app sceglie da sé
+ * chiaro o scuro, in base al contrasto col colore che hai scelto per il vetro*): until 4.33 the
+ * glyphs kept the accent's ink, which on a light colour of his could vanish.
+ * ⚠️ **The two inks are the FAB's on the glass** ([FAB_GLASS_INK_LIGHT], [FAB_GLASS_INK_DARK]), his
+ * two values: the choice is between them, by the contrast with the colour as he chose it, before
+ * the glass dilutes it over what lies behind.
+ */
+@Composable
+internal fun ownGlassInk(): Color? {
+    val look = LocalPillLook.current
+    if (look.fill != PillFill.GLASS) return null
+    val own = look.glass.colourFor(LocalAivLight.current) ?: return null
+    return inkOn(Color(own))
+}
+
+/** Of the glass's two inks, the one with more contrast on [colour]. */
+internal fun inkOn(colour: Color): Color {
+    val ground = colour.copy(alpha = 1f).luminance()
+    fun contrast(ink: Color): Float {
+        val l = ink.luminance()
+        return (maxOf(l, ground) + 0.05f) / (minOf(l, ground) + 0.05f)
+    }
+    return if (contrast(FAB_GLASS_INK_LIGHT) >= contrast(FAB_GLASS_INK_DARK)) FAB_GLASS_INK_LIGHT else FAB_GLASS_INK_DARK
+}
 
 /**
  * How long the pill takes to open or fold: at most 160 ms, the user's ceiling.
@@ -417,6 +450,15 @@ private const val PILL_OPEN_MS = 160
 
 /** The exponential ease-out: `1 - 2^(-10x)`, pinned to 1 at the end. */
 internal val PILL_EASE = Easing { x -> if (x >= 1f) 1f else 1f - 2f.pow(-10f * x) }
+
+/**
+ * How far the open sliding pill's two end keys keep from its ends, when the row is full.
+ *
+ * ⚠️ **Since 4.34, his note** (note A on the 4.33 round: *vanno spostate di qualche dp verso
+ * l'interno e le altre icone spaziate di conseguenza*): 'qualche dp' is his, the number a first
+ * reading of it.
+ */
+private val SLIDE_INSET = 6.dp
 
 /** How much ink the × keeps: *semitrasparente*, the user's word. */
 private const val CLOSE_INK = 0.6f
@@ -518,6 +560,7 @@ fun PhonePillBar(
                 PhonePill.SLIDE -> SlidePill(
                     ordered, arm, fabLabel, holdLabel, onHold, backdrop, atEnd, maxWidth,
                     onJump = { scope.launch { arm?.leap(nested) } },
+                    onJumpTo = { toward -> scope.launch { arm?.leapToward(toward, nested) } },
                     fabGlyph = fabGlyph
                 )
                 else -> ExtendedPill(
@@ -570,6 +613,7 @@ private fun SlidePill(
     atEnd: Boolean,
     room: Dp,
     onJump: () -> Unit,
+    onJumpTo: (Int) -> Unit,
     fabGlyph: @Composable (String?) -> Unit
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
@@ -587,7 +631,6 @@ private fun SlidePill(
      * the home eight keys on a narrow phone made every key, the round one too, a little smaller
      * than in a folder. Now only the open keys shrink, the round key and the pill's height do not.
      */
-    val key = keyFor(count, room)
     /*
      * ⚠️⚠️ **OPEN WITH MANY ENTRIES IT SPANS THE ROW, SINCE 4.25, AND IT IS HIS CHOICE** (note A on
      * the 4.20 round, and A2 after the preview): eight keys of 44dp left the open pill short of
@@ -595,9 +638,22 @@ private fun SlidePill(
      * widen and the keys do not.
      * ⚠️ **The corner cell grows from the key to the cell while opening**, so at rest the round key
      * is exactly where it was.
+     * ⚠️⚠️ **AND SINCE 4.34 THE ROW KEEPS [SLIDE_INSET] FROM BOTH ENDS** (note A on the 4.33 round:
+     * *modalità lista (a un estremo) e × di chiusura (all'altro) sono troppo vicini ai margini*):
+     * the two end keys move in, and the cells share what is left.
      */
-    val cell = if (count >= PILL_FULL) room / count else key
-    val full = cell * count
+    val wide = count >= PILL_FULL
+    val inset = if (wide) SLIDE_INSET else 0.dp
+    val key = keyFor(count, room - inset * 2)
+    val cell = if (wide) (room - inset * 2) / count else key
+    val full = cell * count + inset * 2
+    val q = arm?.shown ?: 0f
+    val armed = arm?.armed == true
+    // ⚠️ The two keys beside the ×, in reading order: on the right they are the last two.
+    val inner = if (atEnd) entries.size - 2 else 1
+    val outer = if (atEnd) entries.size - 1 else 0
+    val top = stringResource(R.string.jump_top)
+    val bottom = stringResource(R.string.jump_bottom)
     val closeLabel = stringResource(R.string.pick_close)
     val corner = PillEntry(
         icon = Icons.Default.Close,
@@ -669,21 +725,39 @@ private fun SlidePill(
          * dov'era il FAB.
          */
         Row(
-            modifier = Modifier.wrapContentWidth(
-                align = if (atEnd) Alignment.End else Alignment.Start,
-                unbounded = true
-            )
+            modifier = Modifier
+                .wrapContentWidth(
+                    align = if (atEnd) Alignment.End else Alignment.Start,
+                    unbounded = true
+                )
+                .padding(horizontal = inset * p)
         ) {
             if (!atEnd) cornerKey()
-            entries.forEach { entry ->
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.width(cell)) {
-                    PillKey(
-                        entry = entry.copy(onTap = { open = false; entry.onTap() }),
-                        size = key,
-                        // ⚠️ A key hidden behind the round one is not a command yet.
-                        enabled = open,
-                        modifier = Modifier.graphicsLayer { alpha = p }
-                    )
+            entries.forEachIndexed { i, entry ->
+                // ⚠️ A key hidden behind the round one is not a command yet.
+                val usable = entry.copy(enabled = entry.enabled && open, onTap = { open = false; entry.onTap() })
+                /*
+                 * ⚠️⚠️ **SINCE 4.34 THE TWO KEYS BESIDE THE × TURN INTO THE JUMP WHILE SCROLLING**
+                 * (note B on the 4.33 round: *devono diventare top/bottom mentre si scorre, e
+                 * tornare alle loro funzioni una volta finito di scorrere, come accade nelle altre
+                 * modalità*): open, the round key is the ×, and until 4.33 the open pill had no
+                 * jump at all.
+                 */
+                val jump = when {
+                    arm == null || entries.size < 2 -> 0
+                    i == inner -> -1
+                    i == outer -> 1
+                    else -> 0
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.width(cell).graphicsLayer { alpha = p }
+                ) {
+                    if (jump == 0) {
+                        PillKey(entry = usable, size = key, enabled = usable.enabled && !armed)
+                    } else {
+                        JumpKey(usable, jump, q, armed, key, top, bottom, onJumpTo)
+                    }
                 }
             }
             if (atEnd) cornerKey()

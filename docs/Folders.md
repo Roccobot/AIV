@@ -260,10 +260,30 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     (voce `4.31-03`): *Tocca il tasto nell'angolo per accedere al menu...*
   - ⚠️⚠️ **Dalla `4.33` il menu Start ha caselle da 64dp con un'etichetta breve** (nota F del giro
     della `4.32`, una prova di usabilità): stessa disposizione, glifi da 28dp e sotto ognuno il nome
-    breve (`Pillola`/`Tondo`, `Griglia`, `Lista`, `Cartelle`, `Mostra`/`Nascondi`, `Cerca`, `URL`,
+    breve (`Pillola`/`Tondo`, `Griglia`, `Lista`, `Cartelle`, `Mostra`/`Nascondi`, `Cerca`, `URL` (`Apri URL` dalla `4.34`),
     `Crea`, `Cestino`, `Impostazioni`; nel cestino `Cronologia`, `Ripristina`, `Svuota`), la × senza.
     Il pannello esce di 10dp verso il vetro e verso il basso, così la × resta col centro sul tondo.
     Se la prova va bene si riattiva il tocco lungo su `Mostra`/`Nascondi` (sue parole).
+  - ⚠️⚠️ **Dalla `4.34` le colonne sono da 72dp e il pannello cresce oltre le caselle** (voce
+    `4.33-07` B: *l'intero menu deve ingrandirsi a destra, un poco verso il basso e di ~10dp verso
+    l'alto*): 6dp verso il vetro, 4 in basso, 10 in alto (`START_EDGE`, `START_FOOT`, `START_HEAD`),
+    con la × sempre sul centro del tondo. Misurato a 393dp: nella `4.33` il fianco cadeva 2dp dentro
+    il bordo delle miniature della home e 6 dentro quello di una cartella; adesso è a 4dp dal vetro,
+    fuori da entrambi. `URL` diventa `Apri URL` (sua richiesta; se `Impostazioni` non entrasse
+    ancora diventerebbe `Opzioni`). I tasti delle pillole non ritagliano più il contenuto a cerchio:
+    l'onda del tocco resta tonda, ed è senza limite (voce `4.33-07` A, le etichette tagliate).
+  - ⚠️ **Dalla `4.34` la copia del tondo sul menu Start del velo è gialla** (`HINT_KEY`, voce
+    `4.33-05`): arancione sul pannello arancione non si leggeva come un tasto. Glifo e giallo sono
+    quelli del suo mockup.
+  - ⚠️⚠️ **Dalla `4.34` i tasti su/giù temporanei compaiono solo con un lancio veloce** (nota C del
+    giro della `4.33`, in tutte le modalità): il salto si arma quando il dito si stacca con almeno
+    1000dp al secondo (`JUMP_SPEED`, prima stima da tarare), e da lì il glifo segue lo scorrimento.
+    Un trascinamento lento non lo arma più. Con la pillola a scomparsa **aperta** i due tasti accanto
+    alla × diventano su e giù (nota B), come nelle altre modalità; aperta e a fila piena, la pillola
+    tiene i due tasti alle estremità a 6dp dai suoi capi (nota A, `SLIDE_INSET`).
+  - ⚠️ **Dalla `4.34` sul vetro con un colore suo l'inchiostro dei glifi si sceglie per contrasto**
+    (risposta A1 a `colore-icone-vetro`): fra i due inchiostri del FAB sul vetro, quello che stacca
+    di più dal colore scelto (`ownGlassInk`).
   - ⚠️ **Dalla `4.33` il commutatore pillola/tondo non c'è quando c'è `Nuova cartella`** (nota E del
     giro della `4.32`): là le caselle sarebbero dieci e la decima apriva una quarta riga.
   - ⚠️ **Dalla `4.33` la barra di `Menu basso` scende di 8dp dentro lo spazio della barra di

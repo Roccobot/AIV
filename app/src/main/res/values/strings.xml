@@ -529,7 +529,7 @@
     <string name="start_tree">Folders</string>
     <string name="start_show">Show</string>
     <string name="start_hide">Hide</string>
-    <string name="start_url">URL</string>
+    <string name="start_url">Open URL</string>
     <string name="start_new">New</string>
     <string name="start_pick">Open</string>
     <string name="start_restore">Restore</string>

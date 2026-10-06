@@ -405,7 +405,7 @@
     <string name="start_tree">폴더</string>
     <string name="start_show">표시</string>
     <string name="start_hide">숨기기</string>
-    <string name="start_url">URL</string>
+    <string name="start_url">URL 열기</string>
     <string name="start_new">만들기</string>
     <string name="start_pick">열기</string>
     <string name="start_restore">복원</string>

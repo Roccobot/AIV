@@ -16,6 +16,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -72,16 +73,20 @@ class ScattoGlifoTest {
         val scena = banco.onRoot().fetchSemanticsNode().size
         banco.onRoot().performTouchInput {
             down(Offset(scena.width * LATO, scena.height * DA))
-            moveTo(Offset(scena.width * LATO, scena.height * A))
-            advanceEventTime(FERMO)
+            // ⚠️ A flick, as in `SaltiTest`: since 4.34 only a fling arms the jump.
+            for (i in 1..6) moveTo(Offset(scena.width * LATO, scena.height * (DA + (A - DA) * i / 6f)), 10L)
             up()
         }
         val cime = mutableListOf<Int>()
-        repeat(240) {
+        // ⚠️ Since 4.34 a flick arms the jump, and the mark comes back after the fling and the
+        // farewell's second: the frames cover both, the chevron's arrival included.
+        repeat(FOTOGRAMMI) {
             banco.mainClock.advanceTimeByFrame()
             cima(banco.onRoot().captureToImage().toPixelMap())?.let { cime += it }
         }
         assertTrue("Il marchio non è mai tornato", cime.isNotEmpty())
+        assertEquals("Il marchio non è tornato al suo posto", cime.first(), cime.last())
+        assertTrue("Il glifo non è mai diventato il chevron", cime.any { it != cime.first() })
         var salto = 0
         for (i in 1 until cime.size) salto = maxOf(salto, abs(cime[i] - cime[i - 1]))
         assertTrue("La cima del marchio salta di $salto px fra due fotogrammi: $cime", salto <= 1.2f * dp)
@@ -111,11 +116,12 @@ class ScattoGlifoTest {
     }
 }
 
+/** How many frames the test captures: the fling, the farewell's wait and the way back. */
+private const val FOTOGRAMMI = 480
+
 /** As in `SaltiTest`: the first composition and its effects. */
 private const val NASCITA = 1_000L
 
-/** As in `SaltiTest`. */
-private const val FERMO = 300L
 
 /** As in `SaltiTest`. */
 private const val DA = 0.8f
