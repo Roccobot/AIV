@@ -1310,14 +1310,49 @@ button.devices-edit:disabled {
     max-height: 50vh;
   }
   /* A wheel or a touchpad over Altro never scrolls the page (the user's request, 2026-10-06):
-     here at the end of a scroll, and in feedback-ui.js where Altro has nothing to scroll. */
-  #extra-section,
-  #extra-section .rich-editor {
+     here at the end of a scroll, and in feedback-ui.js where Altro has nothing to scroll.
+     ⚠️ On Altro only, not on its field: on the field it stopped the scroll at the end of the
+     text too, so with attachments below Altro could not be scrolled to them (his note,
+     2026-10-06, measured in Chromium: field at its end, Altro 292px from its end, stuck). */
+  #extra-section {
     overscroll-behavior: contain;
   }
   .feedback-columns > .next-steps {
     grid-column: 2;
     margin-top: 0;
+  }
+  /* No outline appears on an element when a key is pressed (the user's request, 2026-10-06,
+     desktop only): the page is used with the mouse, and a ring that comes and goes with the
+     keyboard read as a defect. ⚠️ `html` in front, or `button:focus-visible` above would win. */
+  html :focus-visible,
+  .file-button:focus-within,
+  .altro-attach:focus-within,
+  .altro-format-cluster > .attachment:focus-within,
+  #labels .label-id:focus-visible {
+    outline: none;
+  }
+  /* The three outcomes on one row under their title (the user's request, 2026-10-06): at rest
+     each is outlined in its own color, chosen it is filled, and the card is colored as before. */
+  .card.test fieldset {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .card.test fieldset > legend {
+    margin-bottom: 10px;
+  }
+  .card.test .outcome {
+    margin: 0;
+    border-width: 2px;
+  }
+  .card.test .outcome[data-kind="ok"] {
+    border-color: var(--accent);
+  }
+  .card.test .outcome[data-kind="warn"] {
+    border-color: var(--warn);
+  }
+  .card.test .outcome[data-kind="bad"] {
+    border-color: var(--bad);
   }
 }
 
