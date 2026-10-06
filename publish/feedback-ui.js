@@ -182,8 +182,9 @@ function attachmentLists(card) {
   const overlay = card.classList.contains("extra") ? document.querySelector("#altro-overlay .image-list") : null;
   return overlay ? [own, overlay] : [own];
 }
-/* Rinomina and Rimuovi carry an icon and their words: on a phone only the icon shows (the
-   user's request, 2026-10-06), and the name stays the label a screen reader says. */
+/* Rinomina and Elimina carry an icon and their words: on a phone only the icon shows, on a
+   desktop the icon comes before the words (the user's requests, 2026-10-06), and the name stays
+   the label a screen reader says. */
 function attachmentButton(label, paths) {
   const button = el("button");
   button.type = "button";
@@ -242,10 +243,11 @@ function drawAttachmentList(card, list) {
         toast("Copia non riuscita.", true);
       }
     });
-    // Rinomina and Rimuovi, the user's words since 2026-10-06, on one centred row.
+    // Rinomina and Elimina, the user's words since 2026-10-06 ('Rimuovi' until that evening),
+    // on one centred row.
     const rename = attachmentButton("Rinomina", ["M12 20h9", "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"]);
     rename.addEventListener("click", () => renameAttachment(card, index, figure));
-    const remove = attachmentButton("Rimuovi", ["M3 6h18", "M8 6V4h8v2", "M19 6l-1 14H6L5 6", "M10 11v6M14 11v6"]);
+    const remove = attachmentButton("Elimina", ["M3 6h18", "M8 6V4h8v2", "M19 6l-1 14H6L5 6", "M10 11v6M14 11v6"]);
     remove.addEventListener("click", () => {
       attachmentEntry(card).images.splice(index, 1);
       drawAttachments(card);
