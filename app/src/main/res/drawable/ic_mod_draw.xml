@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il gettone del modulo 'Disegno' dell'editor completo, dalla 4.40.
+
+     AMMORBIDISCE `Icons.Filled.Draw` di Material e non cambia nient'altro: la matita con lo
+     scarabocchio, cioè 'disegna sull'immagine'. È la sua nota D del giro della 4.34 (l'icona
+     parte da Material, con gli spigoli convessi esterni arrotondati), e il criterio è quello di
+     `Rules.md`, § 'Come entra un disegno'.
+
+     GLI SPIGOLI RACCORDATI SONO UNDICI: due sul cappuccio della matita, cinque sul corpo (tre
+     retti e i due da 135 gradi della punta) e due per ognuno dei due capi tagliati dello
+     scarabocchio. Il raggio è 0,4 dappertutto tranne sui due capi acuti (68,7 e 67,1 gradi),
+     dove scende a 0,215 e 0,205 perché il vertice arretri quanto quello di un angolo retto.
+
+     DOVE IL GIUNTO TOCCA UNA CURVA IL RACCORDO È UNA QUADRATICA, col controllo dove le due
+     tangenti si incrociano e il capo sulla curva, che è spezzata in quel punto; fra due rette è
+     un arco. I tracciati cominciano dopo un raccordo, quindi nessuno parte da un vertice.
+
+     QUANTO CAMBIA: 767 pixel su 57.600 (l'1,3% della tela), rendendo i due tracciati a 240px.
+     `tools/icon-round.py` risponde zero. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M19.133,10.107L19.91,9.33C20.69,8.55,20.69,7.28,19.91,6.5L18.5,5.09C17.72,4.31,16.45,4.31,15.67,5.09L14.893,5.867A0.4,0.4,0,0,0,14.893,6.433L18.567,10.107A0.4,0.4,0,0,0,19.133,10.107ZM12.908,7.843L4.117,16.643A0.4,0.4,0,0,0,4,16.926L4,20.6A0.4,0.4,0,0,0,4.4,21L8.074,21A0.4,0.4,0,0,0,8.357,20.883L17.147,12.093A0.4,0.4,0,0,0,17.148,11.527L13.472,7.843A0.399,0.399,0,0,0,12.908,7.843ZM15.992,16.078L17.031,15.039Q17.256,14.814,17.513,14.984C18.43,15.595,19,16.392,19,17.5C19,19.69,16.46,21,14,21C13.45,21,13,20.55,13,20C13,19.45,13.45,19,14,19C15.54,19,17,18.27,17,17.5C17,17.092,16.639,16.737,16.054,16.435Q15.778,16.292,15.992,16.078ZM4.319,13.189C3.502,12.651,3,11.961,3,11C3,9.2,4.89,8.37,6.56,7.64C7.59,7.18,9,6.56,9,6C9,5.59,8.22,5,7,5C5.74,5,5.2,5.61,5.17,5.64C4.82,6.05,4.19,6.1,3.77,5.76C3.36,5.42,3.28,4.81,3.62,4.38C3.73,4.24,4.76,3,7,3C9.24,3,11,4.32,11,6C11,7.87,9.07,8.72,7.36,9.47C6.42,9.88,5,10.5,5,11C5,11.262,5.306,11.509,5.787,11.736Q6.063,11.867,5.851,12.079L4.797,13.133Q4.573,13.357,4.319,13.189Z" />
+</vector>

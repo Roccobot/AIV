@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -759,6 +760,11 @@ fun AdvancedEditorScreen(
                         healingRadius = { gaze.healingRadius },
                         healingSizing = { gaze.healingSizing },
                         leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
+                        drawPen = {
+                            gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
+                        },
+                        onDraw = { look = look.copy(drawing = it) },
+                        onDrawEnd = { push() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -913,6 +919,11 @@ fun AdvancedEditorScreen(
                         healingRadius = { gaze.healingRadius },
                         healingSizing = { gaze.healingSizing },
                         leveling = { gaze.leveling && MODULES[gaze.module].extra == Extra.CORNERS },
+                        drawPen = {
+                            gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
+                        },
+                        onDraw = { look = look.copy(drawing = it) },
+                        onDrawEnd = { push() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -1228,6 +1239,15 @@ private fun LookStage(
     onHealPaint: (List<Offset>) -> Unit,
     /** Whether the rule-of-thirds lines are on: see [Gaze.leveling]. */
     leveling: () -> Boolean,
+    /**
+     * The pen of the Disegno module as an empty mark, or `null` when that module is not on stage:
+     * with a pen the stage draws with one finger and zooms with two, like Fluidifica.
+     */
+    drawPen: () -> Mark?,
+    /** The drawing while the finger moves: the stage writes it, the screen keeps it in the look. */
+    onDraw: (Drawing) -> Unit,
+    /** The finger is up: what was drawn becomes a step of the history. */
+    onDrawEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -1254,6 +1274,10 @@ private fun LookStage(
     val spinNow by rememberUpdatedState(look.spin)
     val healTo by rememberUpdatedState(onHealPaint)
     val healingNow by rememberUpdatedState(healing)
+    val drawingNow by rememberUpdatedState(look.drawing)
+    val drawTo by rememberUpdatedState(onDraw)
+    val drawEnd by rememberUpdatedState(onDrawEnd)
+    val penNow by rememberUpdatedState(drawPen)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
     val metrics = LocalContext.current.resources.displayMetrics
     val brushCmPx = (metrics.xdpi.takeIf { it > 0f } ?: metrics.densityDpi.toFloat()) / 2.54f
@@ -1294,6 +1318,16 @@ private fun LookStage(
      */
     val posed = remember(picture, look.spin, look.healing) {
         Healing.render(picture, look.healing).spunBy(look.spin.turns, look.spin.mirror)
+    }
+    /*
+     * The drawing of the Disegno module, in the posed frame of the preview (see `Draw.overlay`).
+     * ⚠️ One bitmap kept across frames and redrawn in place: the finger changes the drawing at
+     * every move, and a new bitmap each time would be megabytes of garbage per second.
+     */
+    val drawingHolder = remember(picture, look.spin) { arrayOfNulls<Bitmap>(1) }
+    val drawingMask = remember(picture, look.drawing, look.spin) {
+        Draw.overlay(look.drawing, picture.width, picture.height, look.spin, drawingHolder[0])
+            ?.also { drawingHolder[0] = it }
     }
     val selectionMask = remember(picture, selection, look.spin, brushAccent) {
         selection?.let { Healing.overlay(it, picture.width, picture.height, brushAccent.toArgb()) }
@@ -1777,6 +1811,62 @@ private fun LookStage(
                         }
                         return@awaitEachGesture
                     }
+                    /*
+                     * ⚠️⚠️ **With the Disegno module on stage one finger draws and two zoom**, as in
+                     * Fluidifica: the finger goes back through the geometry (`Warp.back`) and the
+                     * pose (`Healing.unpose`) to the original frame, where the drawing lives, so a
+                     * line drawn on a straightened image lands where the finger saw it.
+                     * ⚠️ A tap draws a dot with the free hand, and nothing with the other pens: a
+                     * line or a rectangle with no length is not a shape.
+                     */
+                    val pen = penNow()
+                    if (pen != null) {
+                        // ⚠️ The event that crosses the slop is consumed by `settled`: its position
+                        // is kept here and becomes the second point, or a line would wait for a
+                        // further move to have one.
+                        var oltre = down.position
+                        val esito = settled(down, viewConfiguration.touchSlop) { oltre = it }
+                        if (esito == Settled.MULTI) {
+                            transformed(::pinch)
+                            resting++
+                            return@awaitEachGesture
+                        }
+                        fun toImage(at: Offset): Offset? {
+                            val view = viewport(room, shownNow, scale, shift, air(), framedNow)
+                            if (view.width() <= 0f || view.height() <= 0f) return null
+                            val p = if (geoNow.idle) floatArrayOf(at.x, at.y) else Warp.back(
+                                Warp.plan(geoNow, view.centerX(), view.centerY(), view.width(), view.height()),
+                                view, geoNow.liquify, at.x, at.y
+                            )
+                            return Healing.unpose(
+                                Offset((p[0] - view.left) / view.width(), (p[1] - view.top) / view.height()),
+                                spinNow
+                            )
+                        }
+                        val visible = cutout(
+                            viewport(room, shownNow, scale, shift, air(), framedNow), framedNow
+                        )
+                        if (!visible.contains(down.position.x, down.position.y)) return@awaitEachGesture
+                        val start = toImage(down.position) ?: return@awaitEachGesture
+                        val base = drawingNow
+                        var mark = pen.copy(points = listOf(start))
+                        val draws = pen.pen == Pen.FREE || esito == Settled.MOVED
+                        if (esito == Settled.MOVED) toImage(oltre)?.let { mark = mark.reaching(it) }
+                        if (draws) drawTo(base.with(mark))
+                        if (esito == Settled.MOVED) {
+                            drag(down.id) { change ->
+                                toImage(change.position)?.let { at ->
+                                    if (mark.pen != Pen.FREE || Draw.far(mark.points.last(), at)) {
+                                        mark = mark.reaching(at)
+                                        drawTo(base.with(mark))
+                                    }
+                                }
+                                change.consume()
+                            }
+                        }
+                        if (draws) drawEnd()
+                        return@awaitEachGesture
+                    }
                     if (liquifying()) {
                         brushHide?.cancel()
                         brushAt = down.position
@@ -2114,6 +2204,37 @@ private fun LookStage(
                     dove.left, dove.top, dove.right, dove.bottom,
                     pennello(fine.pixels, dove, false, dentro)
                 )
+            }
+        }
+
+        /*
+         * ⚠️⚠️ **The drawing goes over the developed image and under the selection, through the
+         * same mesh**: it is laid after the development and before the geometry in the saved file,
+         * so here it is warped exactly as the image is (with the 'Angoli' view when armed), and
+         * clipped to the same visible frame.
+         */
+        val disegno = drawingMask
+        if (disegno != null) {
+            val shader = BitmapShader(disegno, TileMode.CLAMP, TileMode.CLAMP)
+            shader.setLocalMatrix(Matrix().apply {
+                setScale(view.width() / disegno.width, view.height() / disegno.height)
+                postTranslate(view.left, view.top)
+            })
+            val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG).apply {
+                this.shader = shader
+            }
+            clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                drawIntoCanvas { canvas ->
+                    if (look.geo.idle && !armato) canvas.nativeCanvas.drawRect(view, paint)
+                    else Warp.draw(
+                        canvas.nativeCanvas, view,
+                        Warp.plan(
+                            look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
+                            hold = if (armato) ARMED_FIT else null
+                        ),
+                        paint, look.geo.liquify
+                    )
+                }
             }
         }
 
@@ -2863,7 +2984,18 @@ private enum class Extra {
      * alza a ogni stile salvato, anche per chi gli stili non li usa.
      */
     PRESETS,
-    HEALING;
+    HEALING,
+
+    /**
+     * Le penne del **Disegno** e il dito sull'immagine, dalla `4.40` (prima fase, G1).
+     *
+     * ⚠️⚠️ **È IL TERZO CHE PRENDE IL DITO SUL PALCO, E LO PRENDE SEMPRE**, come il Ritaglio: un
+     * modulo che disegna e che chiede di armare la penna farebbe un tocco in più a ogni segno.
+     * Pinza e panoramica restano, a due dita (vedi il ramo del disegno nel gesto del palco).
+     * ⚠️ **Non è [places]**, anche se il disegno vive dalla parte del 'dove' di [Look.place]: il
+     * confronto col prima lo raggiunge solo un dito, e qui ogni dito disegna.
+     */
+    DRAW;
 
     /**
      * Se questo modulo dice **dove** va un pixel invece di che colore è.
@@ -3450,6 +3582,22 @@ private val MODULES = listOf(
         spent = { false },
         icon = { Icons.Filled.Style },
         extra = Extra.PRESETS
+    ),
+    /*
+     * ⚠️⚠️ **IL DECIMO È IL DISEGNO, DALLA `4.40`, ULTIMO A DESTRA SU SUA ISTRUZIONE** (nota D del
+     * giro della `4.34`, e risposte D1a-D4a): vive solo qui, quindi sotto Android 13 non c'è.
+     * ⚠️ **Nella catena del salvataggio è a metà**, dopo lo sviluppo e prima della geometria (vedi
+     * `Drawing.kt`): nella fila è ultimo perché è l'ultimo che si usa, non perché sia l'ultimo
+     * conto.
+     */
+    Module(
+        PadKey.MOD_DRAW,
+        R.string.look_draw,
+        rows = { emptyList() },
+        clear = { it.copy(drawing = Drawing.NONE) },
+        spent = { !it.drawing.idle },
+        icon = { Glyphs.ModDraw },
+        extra = Extra.DRAW
     )
 )
 
@@ -3821,6 +3969,20 @@ private class Gaze(
      * not a choice, so it is not saved across a rotation.
      */
     var leveling by mutableStateOf(false)
+
+    /*
+     * The pen of the Disegno module (4.40): shape, ink, width, dashes and fill.
+     * ⚠️ Like the brush of Fluidifica they are tools, not the image, so they stay out of the
+     * history and are not saved across a rotation.
+     */
+    var pen by mutableStateOf(Pen.FREE)
+    var ink by mutableIntStateOf(Draw.INKS.first())
+    var inkWidth by mutableFloatStateOf(Draw.WIDTH)
+    var dashed by mutableStateOf(false)
+    var filled by mutableStateOf(false)
+
+    /** The pen as an empty mark, ready for the first point of the finger. */
+    fun penMark(): Mark = Mark(pen, emptyList(), ink, inkWidth, dashed, filled)
 
     companion object {
         /**
@@ -4375,6 +4537,128 @@ private fun Comandi(
 }
 
 /**
+ * Il corpo del modulo **Disegno**, dalla `4.40`: le cinque penne, gli otto colori, lo spessore,
+ * il tratteggio, il riempimento e 'Azzera'.
+ *
+ * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': penna, colore e tratto sono lo
+ * strumento, e lo strumento non entra nella storia. Un segno nuovo li prende al momento in cui il
+ * dito si posa (`Gaze.penMark`), quindi cambiarli non tocca i segni già fatti.
+ * ⚠️ **'Riempimento' si spegne per le tre penne che non chiudono una forma**, con lo stesso
+ * criterio del 'Filtro BN': un comando che non cambia niente si legge come un guasto.
+ * ⚠️ **Il riempimento usa il colore del contorno**, in questa prima fase: un secondo colore
+ * vorrebbe dire una seconda tavolozza, e lo dice la voce di collaudo.
+ */
+@Composable
+private fun DrawBody(
+    look: Look,
+    gaze: Gaze,
+    live: Boolean,
+    onLive: ((Look) -> Look) -> Unit,
+    onSettled: () -> Unit
+) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        for (pen in Pen.entries) {
+            val nome = stringResource(penName(pen))
+            FilterChip(
+                selected = gaze.pen == pen,
+                onClick = { gaze.pen = pen },
+                label = {
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        Icon(Glyphs.pen(pen), contentDescription = nome)
+                    }
+                },
+                enabled = live,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val bordo = MaterialTheme.colorScheme.onSurface
+        val filo = MaterialTheme.colorScheme.outline
+        Draw.INKS.forEachIndexed { i, ink ->
+            val scelto = gaze.ink == ink
+            val nome = stringResource(INK_NAMES[i])
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .selectable(selected = scelto, enabled = live, role = Role.RadioButton) {
+                        gaze.ink = ink
+                    }
+                    .semantics { contentDescription = nome },
+                contentAlignment = Alignment.Center
+            ) {
+                // ⚠️ Il filo sottile c'è sempre, o il bianco sul tema chiaro e il nero sul tema
+                // scuro non si vedrebbero; il cerchio pieno dice qual è scelto.
+                Canvas(Modifier.size(32.dp)) {
+                    val r = size.minDimension / 2f
+                    if (scelto) drawCircle(bordo, radius = r)
+                    drawCircle(Color(ink), radius = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx())
+                    drawCircle(
+                        filo, radius = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx(),
+                        style = Stroke(1.dp.toPx())
+                    )
+                }
+            }
+        }
+    }
+    Text(stringResource(R.string.draw_width), style = MaterialTheme.typography.labelMedium)
+    Slider(
+        value = gaze.inkWidth,
+        onValueChange = { gaze.inkWidth = it },
+        valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
+        enabled = live
+    )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FilterChip(
+            selected = gaze.dashed,
+            onClick = { gaze.dashed = !gaze.dashed },
+            label = { Text(stringResource(R.string.draw_dashed), maxLines = 1) },
+            enabled = live
+        )
+        val chiusa = gaze.pen == Pen.RECT || gaze.pen == Pen.ELLIPSE
+        FilterChip(
+            selected = gaze.filled && chiusa,
+            onClick = { gaze.filled = !gaze.filled },
+            label = { Text(stringResource(R.string.draw_filled), maxLines = 1) },
+            enabled = live && chiusa
+        )
+        Spacer(Modifier.weight(1f))
+        TextButton(
+            onClick = {
+                onLive { it.copy(drawing = Drawing.NONE) }
+                onSettled()
+            },
+            enabled = live && !look.drawing.idle,
+            contentPadding = PaddingValues(horizontal = 4.dp)
+        ) { Text(stringResource(R.string.editor_original)) }
+    }
+}
+
+/** Il nome di una penna, che il lettore di schermo annuncia al posto del suo segno. */
+private fun penName(pen: Pen): Int = when (pen) {
+    Pen.FREE -> R.string.draw_free
+    Pen.LINE -> R.string.draw_line
+    Pen.ARROW -> R.string.draw_arrow
+    Pen.RECT -> R.string.draw_rect
+    Pen.ELLIPSE -> R.string.draw_ellipse
+}
+
+/** I nomi degli otto colori, nell'ordine di [Draw.INKS]. */
+private val INK_NAMES = listOf(
+    R.string.ink_red, R.string.ink_amber, R.string.ink_green, R.string.ink_blue,
+    R.string.ink_violet, R.string.ink_black, R.string.ink_white, R.string.ink_orange
+)
+
+/**
  * Quello che la scheda mostra fra la fila dei gettoni e quella dei comandi: i cursori del modulo
  * [module], e quello che quel modulo ha in più (le forme e la posa del Ritaglio, le otto fasce
  * dell'HSL, il grafico delle Curve, l'interruttore del bianco e nero del Colore).
@@ -4542,6 +4826,10 @@ private fun ModuleBody(
             valueRange = 0.05f..1f,
             enabled = ready && !busy
         )
+        return
+    }
+    if (mod.extra == Extra.DRAW) {
+        DrawBody(look, gaze, live = ready && !busy, onLive = onLive, onSettled = onSettled)
         return
     }
     /*

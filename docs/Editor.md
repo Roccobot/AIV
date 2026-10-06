@@ -67,8 +67,8 @@
 - Il bordo resta fermo, così una pennellata non scopre il fondo. Restano esclusi 'Congela', che
   sarebbe una maschera, gli strumenti che riconoscono i volti, 'Vortice', 'Contrai' ed 'Espandi'.
 
-- ⚠️⚠️ **I moduli sono nove**: Dettaglio, Effetti, Geometria, Ritaglio, Luce, Colore, HSL, Curve,
-  Stili. **Le maschere no, in modo assoluto** (sua risposta `d-preset-manca`): è una porta chiusa,
+- ⚠️⚠️ **I moduli sono dieci, dalla `4.40`**: Dettaglio, Effetti, Geometria, Ritaglio, Luce, Colore,
+  HSL, Curve, Stili e Disegno (§ '✏️ Il modulo Disegno, prima fase'). **Le maschere no, in modo assoluto** (sua risposta `d-preset-manca`): è una porta chiusa,
   non una tappa rimandata. L'ordine della fila vive in § '✂️ Il modulo Ritaglio, e la fila che è
   diventata di icone', e non è quello della catena del conto.
 - ⚠️⚠️ **In testata i due editor dicono 'Modifica'** (sua istruzione): il titolo dice che cosa si fa,
@@ -612,6 +612,31 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   giro, i chip spenti a pixel, la porzione, e la lente; ogni caso ha la sua controprova. Non vede il
   file salvato. Le trappole dell'iniezione dei gesti trovate qui vivono in `Rules.md` § '🧪 Quando
   si scrive una prova, e quando no'.
+
+## ✏️ Il modulo Disegno, prima fase
+
+- ⚠️⚠️ **Le sue quattro risposte del 2026-10-06 decidono la forma** (nota G del giro della `4.32` e
+  nota D del giro della `4.34`): **D1a**, vive solo nell'editor completo, come ultimo modulo a
+  destra, quindi sotto Android 13 non c'è; **D2a**, il disegno è attaccato all'immagine e gira, si
+  deforma e si ritaglia con lei; **D3a**, si fonde nel file salvato come la filigrana, e un file
+  riaperto contiene pixel e non forme; **D4a**, tre versioni: G1 (`4.40`) le forme, G2 (`4.50`)
+  selezione e maniglie, G3 (`4.60`) il testo.
+- **La G1 ha cinque penne**: mano libera, linea, freccia, rettangolo arrotondato ed ellisse; otto
+  colori fissi, lo spessore, il tratteggio, il riempimento (solo per rettangolo ed ellisse) e
+  'Azzera'. Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
+  capi del trascinamento sono due vertici opposti. Un tocco senza movimento lascia un punto con la
+  mano libera, e niente con le altre penne. Ogni segno è un passo di 'Annulla'.
+- ⚠️⚠️ **I punti vivono nella cornice ORIGINALE dell'immagine, in frazioni dei lati**, come la
+  selezione di Correggi; lo spessore è una frazione del lato lungo, così anteprima e file pieno
+  hanno lo stesso tratto. Il perché per esteso vive in testa a `Drawing.kt`.
+- ⚠️⚠️ **Si posa dopo lo sviluppo e prima della geometria**, sul palco e nel salvataggio
+  (`Draw.onto` in `ImageEdit.saveLook`): i cursori del colore non ridipingono l'inchiostro, e
+  raddrizzamento, prospettiva, Fluidifica e ritaglio lo portano con l'immagine.
+- ⚠️ **Il palco prende sempre il dito**, come nel Ritaglio; pinza e panoramica restano a due dita.
+- ⚠️ **Penna, colore e tratto sono lo strumento e non l'immagine**: non entrano nella storia, e
+  cambiarli non tocca i segni già fatti. La selezione di un segno per cambiarlo è la G2.
+- ⚠️ **Sua precisazione del 2026-10-06, a G1 in corso** (vive nel brief): il riempimento avrà
+  colore e opacità suoi, separati dal contorno, e la freccia lo ignora.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 
