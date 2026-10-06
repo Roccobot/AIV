@@ -87,8 +87,18 @@ class ScattoGlifoTest {
         assertTrue("Il marchio non è mai tornato", cime.isNotEmpty())
         assertEquals("Il marchio non è tornato al suo posto", cime.first(), cime.last())
         assertTrue("Il glifo non è mai diventato il chevron", cime.any { it != cime.first() })
+        /*
+         * ⚠️⚠️ **ONLY THE RETURN, SINCE 4.36, AND IT IS MEASURED**: the frames begin with the
+         * chevron's arrival, a crossfade between two drawings whose tops differ by a few pixels, so
+         * its last step is as large as the gap between the mark and the chevron at rest. With the
+         * thinner chevron of 4.36 (note B on the 4.35 round) that step became 2px (425, 427), while
+         * the return stayed a step of one pixel per frame (427, 426, 425 ... 421). The defect this
+         * test guards lives in the return, so the jumps are read from the last frame of the chevron
+         * at rest onwards.
+         */
+        val riposo = cime.lastIndexOf(cime.max())
         var salto = 0
-        for (i in 1 until cime.size) salto = maxOf(salto, abs(cime[i] - cime[i - 1]))
+        for (i in riposo + 1 until cime.size) salto = maxOf(salto, abs(cime[i] - cime[i - 1]))
         assertTrue("La cima del marchio salta di $salto px fra due fotogrammi: $cime", salto <= 1.2f * dp)
     }
 

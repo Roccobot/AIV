@@ -759,7 +759,15 @@ private fun SlidePill(
          * ha visto il banco). Così la fila si allinea al lato preferito, e il tasto tondo resta
          * dov'era il FAB.
          */
+        /*
+         * ⚠️⚠️ **CENTRED IN HEIGHT, SINCE 4.36** (his note of 2026-10-06, with a screenshot: *l'unica
+         * icona centrata verticalmente sulla pillola è la × ... tutte le altre appaiono molto più in
+         * alto*): a `Row` puts its children at the top unless told otherwise, and with eight entries
+         * on a narrow phone [keyFor] makes the open keys smaller than the pill, while the × keeps
+         * [PILL_KEY]. So every key but the × sat at the top of the pill. `PillRowTest` measures it.
+         */
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .wrapContentWidth(
                     align = if (atEnd) Alignment.End else Alignment.Start,
@@ -838,7 +846,9 @@ private fun ExtendedPill(
     val folds = count >= 2
     val top = stringResource(R.string.jump_top)
     val bottom = stringResource(R.string.jump_bottom)
-    Row(modifier = Modifier.pillFill(backdrop)) {
+    // ⚠️ Centred in height like the sliding pill's row (see [SlidePill]): here every key has the
+    // same size, so they agree among themselves, but a key of another size would sit at the top.
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.pillFill(backdrop)) {
         entries.forEachIndexed { i, entry ->
             val jump = when {
                 !folds -> 0

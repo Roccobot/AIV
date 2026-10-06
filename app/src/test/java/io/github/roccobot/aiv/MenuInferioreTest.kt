@@ -485,6 +485,30 @@ class MenuInferioreTest {
     }
 
     /**
+     * **Open, every key of the sliding pill is centred in height on the ×** (his note of 2026-10-06,
+     * with a screenshot: *l'unica icona centrata verticalmente sulla pillola è la × ... tutte le
+     * altre appaiono molto più in alto*). With eight entries on a narrow phone the keys shrink
+     * under 44dp, and the row put them at its top.
+     * ⚠️ **On a narrow phone on purpose**: at 411dp the keys lose a tenth of a dp and the defect
+     * is under a pixel; at 360dp they lose more than 4dp.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class], qualifiers = "w360dp-h800dp")
+    fun `aperta la pillola a scomparsa ogni tasto e centrato in altezza sulla x`() {
+        banco.setContent { Home(PillLook(PhonePill.SLIDE), Hand.RIGHT) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        val centro = { id: Int ->
+            banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().boundsInRoot.center.y
+        }
+        val x = centro(R.string.pick_close)
+        for (id in listOf(R.string.hub_view_list, R.string.hub_search, R.string.hub_settings)) {
+            assertEquals("'${voce(id)}' non è centrato in altezza sulla ×", x, centro(id), 0.5f)
+        }
+    }
+
+    /**
      * **With the sliding pill open, the two keys beside the × turn into the jump while scrolling**
      * (note B on the 4.33 round: *come accade nelle altre modalità. Anche nelle cartelle e nel
      * cestino*). Until 4.33 the open pill had no jump.

@@ -2,6 +2,11 @@ package io.github.roccobot.aiv
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.toArgb
@@ -311,7 +316,13 @@ fun SettingsScreen(
 
     @Composable
     fun Pages(chrome: Modifier) {
-    when (page) {
+    // ⚠️ A fade instead of the hard cut between two pages: see [CUT_FADE_MS].
+    AnimatedContent(
+        targetState = page,
+        transitionSpec = { fadeIn(tween(CUT_FADE_MS)) togetherWith fadeOut(tween(CUT_FADE_MS)) using null },
+        label = "pagina"
+    ) { shown ->
+    when (shown) {
         Page.ROOT -> Shell(
             title = stringResource(R.string.settings_title),
             onBack = onBack,
@@ -626,6 +637,7 @@ fun SettingsScreen(
             BinPage(settings = settings, onChange = onChange)
         }
     }
+    } // AnimatedContent
     } // Pages
 
     if (dual) {
