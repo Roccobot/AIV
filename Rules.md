@@ -876,6 +876,15 @@ il job le scrive su disco per la durata di una sola esecuzione.
   - **Gira da sé in due posti**: in `check.yml` a ogni push su `main` e a ogni PR, tranne i push
     che cambiano soltanto file `.md` (il banco non li legge, e l'Action `core-sync` vi committa
     `AGENTS.md`); ed è il cancello di `release.yml`. Si lancia comunque a mano prima della PR.
+  - ⚠️⚠️ **Quando il banco cade solo su GitHub, prima si guarda lo spazio delle cache**
+    (<https://github.com/Roccobot/AIV/actions/caches>, tetto di 10 GB per repository). Al rilascio
+    della `4.36` le prove del velo d'aiuto cadevano in tre corse su tre da `main` e passavano
+    sempre dal branch e in locale, con le cache a 9,7 GB su 10: svuotate (263 voci), il rilascio
+    è passato al primo colpo. Ci sono volute un'ora e sei corse per arrivarci, e l'utente ha
+    chiesto che il passo da fare a lui gli si chieda prima. Lo svuotamento lo fa lui dal terminale
+    (`gh cache delete --all -R Roccobot/AIV`, col GitHub CLI), perché la pagina cancella una voce
+    per volta. ⚠️ **La causa esatta non è misurata** (cache incompleta per lo sfratto automatico
+    vicino al tetto, è un'ipotesi): l'attesa del velo in `aspettaIlVelo` resta con la diagnosi.
   - ⚠️ **La piattaforma finta pesa 213 MB e si scarica al primo giro**: in CI la tiene una cache
     sui due file che la decidono (il catalogo delle versioni e `robolectric.properties`), perché
     `setup-gradle` non copre `~/.m2`. In una sessione il primo giro paga il download.

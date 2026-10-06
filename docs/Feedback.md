@@ -4,7 +4,7 @@ Versione **4.36**: le note del giro 4.35. Una dissolvenza breve dove la schermat
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 La Release 4.36 è pubblicata: [v4.36](https://github.com/Roccobot/AIV/releases/tag/v4.36), con l'APK
 [AIV-4.36.apk](https://github.com/Roccobot/AIV/releases/download/v4.36/AIV-4.36.apk).
-Commit prodotto su `main`: `7c4a09a` (SlimVer 4.36 / versionCode 325).
+Commit prodotto su `main`: `7c4a09a`, release dal commit `444ad69` (SlimVer 4.36 / versionCode 325; APK 8.469.281 byte, digest `73014a53`).
 Tutti i veli d'aiuto, con le schermate: [Veli d'aiuto di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
