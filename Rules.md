@@ -341,6 +341,14 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
   secondo modo con cui sbagliare. La ragione è sua: un sistema affidabile, in cui un ritocco si
   ragiona una volta per tutti. Chi apre un `Popup` o un `Dialog` scritto in casa chiama
   `WindowVeil()` a mano (lo fanno `MenuShell` e `Sheet`).
+- ⚠️⚠️ **Dalla `4.38` il bordo d'accento è spento: i pannelli sono nudi** (sua scelta del
+  2026-10-06, variante A di un mockup a tre varianti: *implementiamo subito i pannelli nudi (A)
+  spegnendo il contorno, e facendo in modo che lo si possa recuperare in seguito se cambio idea*).
+  Pannelli e schede staccano dallo sfondo col solo colore della superficie, sopra la sfocatura e il
+  velo. **Si riaccende con una riga**, `ACCENT_EDGE` in `Edge.kt`: i modificatori restano chiamati
+  da tutte le superfici e il disegno resta intatto. Il bordo non ha mai occupato spazio, quindi
+  spegnerlo non sposta nessuna misura; lo presidia `BordoTest`. Le note qui sotto descrivono il
+  bordo com'era fino alla `4.37`, e valgono di nuovo se si riaccende.
 - **Il bordo d'accento da 2dp sostituisce l'ombra, e non dipende dall'interruttore della
   sfocatura** (sua richiesta): è il modo in cui l'app è fatta, non una funzione che si accende.
   Spessore scartato: 3dp (sua preferenza, dopo un giro). Il come vive in testa a `Edge.kt`.

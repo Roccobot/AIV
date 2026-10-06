@@ -3,7 +3,7 @@ import {generateKeyPairSync,randomUUID} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {mkdtemp,mkdir,readFile,writeFile,rm,stat} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {resolve,join,dirname} from 'node:path';
+import {resolve,join,dirname,relative,isAbsolute} from 'node:path';
 import {open} from '../cloud/feedback/feedback-transfer.mjs';
 
 const args=process.argv.slice(2);
@@ -60,6 +60,10 @@ async function envelopeFrom(file) {
 async function openEnvelope(file,dir) {
   const output=resolve(option('--output'));
   if (!option('--output')) throw Error('Manca --output.');
+  // The key folder is deleted once the round is open, so a round written inside it would go
+  // with it (it happened on 2026-10-06, and the round had to be recovered twice).
+  const inside=relative(dir,output);
+  if (!inside.startsWith('..') && !isAbsolute(inside)) throw Error('--output deve stare fuori da --dir, che si cancella dopo l\'apertura.');
   const request=JSON.parse(await readFile(join(dir,'request.json'),'utf8'));
   const payload=open(JSON.parse(await envelopeFrom(file)),await readFile(join(dir,'key.pem'),'utf8'),request.request_id);
   if (payload.schema!==1 || payload.project!=='AIV' || !payload.completed) throw Error('Giro recuperato non valido.');
