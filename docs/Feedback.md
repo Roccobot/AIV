@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.32**: un solo punto di riferimento per tutti i comandi, il menu Start di fabbrica, il velo d'aiuto del primo avvio e lo zoom all'apertura anche con le info spente. Le prove della 4.30 restano aperte.
+Versione **4.33**: le correzioni del giro 4.32. Lo zoom all'apertura con le info spente, il trascinamento unico col menu Start aperto, il glifo senza scatto, le etichette del menu Start, `Menu basso`, le sfumature nuove e il testo nuovo del velo d'aiuto.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.32 è pubblicata: [v4.32](https://github.com/Roccobot/AIV/releases/tag/v4.32), con l'APK
-[AIV-4.32.apk](https://github.com/Roccobot/AIV/releases/download/v4.32/AIV-4.32.apk).
-Commit prodotto su `main`: `0e7f0ab` (SlimVer 4.32 / versionCode 321).
+La Release 4.33 è pubblicata: [v4.33](https://github.com/Roccobot/AIV/releases/tag/v4.33), con l'APK
+[AIV-4.33.apk](https://github.com/Roccobot/AIV/releases/download/v4.33/AIV-4.33.apk).
+Commit prodotto su `main`: `55c9c88` (SlimVer 4.33 / versionCode 322).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
 Le decisioni 3.24 restano chiuse e **non** sono riproposte.
-Lati editor e HEIC restano chiusi. Giro **4.32**: le prove della 4.30 e tre nuove, dalle tue note dopo la 4.30; `4.30-05` riscritta per le info spente. Giro **4.25**: `4.25-01` e `4.25-03`-`4.25-06` OK; `4.25-02` e `4.25-07` rifatte nella 4.30.
+Lati editor e HEIC restano chiusi. Giro **4.33**: otto prove nuove dal giro 4.32. Giro **4.32**: `4.30-02`, `4.30-04`, `4.30-06`, `4.31-01` e `4.31-02` OK; `4.30-01`, `4.30-03`, `4.30-05`, `4.30-07` e `4.31-03` rifatte nella 4.33.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,60 +22,50 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.32 sono superate: banco di prova completo (572 prove), controllo delle 28 traduzioni e compilazione.
+Le verifiche automatiche della 4.33 sono superate: banco di prova completo (577 prove), controllo delle 28 traduzioni e compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.30-01 | Non provato | | Attendere il collaudo. |
-| 4.30-02 | Non provato | | Attendere il collaudo. |
-| 4.30-03 | Non provato | | Attendere il collaudo. |
-| 4.30-04 | Non provato | | Attendere il collaudo. |
-| 4.30-05 | Non provato | | Attendere il collaudo. |
-| 4.30-06 | Non provato | | Attendere il collaudo. |
-| 4.30-07 | Non provato | | Attendere il collaudo. |
-| 4.31-01 | Non provato | | Attendere il collaudo. |
-| 4.31-02 | Non provato | | Attendere il collaudo. |
-| 4.31-03 | Non provato | | Attendere il collaudo. |
+| 4.33-01 | Non provato | | Attendere il collaudo. |
+| 4.33-02 | Non provato | | Attendere il collaudo. |
+| 4.33-03 | Non provato | | Attendere il collaudo. |
+| 4.33-04 | Non provato | | Attendere il collaudo. |
+| 4.33-05 | Non provato | | Attendere il collaudo. |
+| 4.33-06 | Non provato | | Attendere il collaudo. |
+| 4.33-07 | Non provato | | Attendere il collaudo. |
+| 4.33-08 | Non provato | | Attendere il collaudo. |
 
-## 1. I nomi dei menu
+## 1. Lo zoom all'apertura con le info spente
 
-In **Elemento interattivo principale** i gettoni si chiamano `Menu` (era `Menu inferiore`) e `Menu 'Start'` (era `Menu angolare`), e il paragrafo sotto il titolo li nomina così. Nelle altre lingue `Start` è il nome che ognuna usa per il menu di Windows: per esempio `Démarrer` in francese, `Inicio` in spagnolo e `Start` dove è rimasto così, come in tedesco e in olandese.
+Spegni le info in alto (o in basso) e apri un'immagine dalla griglia di una cartella: deve comparire subito a tutto schermo, senza partire più piccola e crescere. La causa era un'altra da quella corretta nella 4.32: lo stato della barra delle info nasceva acceso anche con le info spente, quindi la prima misura lasciava spazio a una barra che non c'era, e lo spazio si richiudeva con l'animazione. Il banco adesso lo misura fotogramma per fotogramma, e la prova falliva col difetto.
 
-## 2. Il tondo unico
+## 2. Il trascinamento col menu Start aperto
 
-Con la pillola a scomparsa, e col menu Start, il tondo è largo 44dp nella schermata iniziale come nelle cartelle, ed è nello stesso angolo: passa dalla home a una cartella e ritorno, e non deve muoversi né cambiare misura. Nella home su un telefono stretto era più piccolo, perché la pillola aperta divideva la riga per otto tasti, e nelle cartelle era 4dp più in alto.
+Apri il menu Start, poi trascina subito su o giù sulla griglia (o sulle cartelle della schermata iniziale): con lo stesso gesto il menu si chiude e la griglia scorre. Prima il primo tocco chiudeva il menu e annullava il trascinamento.
 
-## 3. Il menu Start si chiude a ogni tocco fuori
+## 3. Menu basso
 
-Apri il menu Start, poi tocca un'area vuota, oppure trascina il dito sulla griglia: il menu si chiude. Trascinando, la griglia intanto scorre.
+In **Elemento interattivo principale** il gettone `Menu` si chiama `Menu basso`, in tutte le lingue. Sceglilo: la fila dei tasti è 8dp più in basso, dentro lo spazio dei gesti di sistema.
 
-## 4. Il glifo del FAB
+## 4. Le sfumature in basso
 
-Con `Tasto fluttuante`, nel FAB quadrato il triangolo del marchio è centrato in orizzontale, e il disco lo segue; l'altezza è quella di prima. Poi scegli `Traslucido` in **Tema e dettagli grafici**: il glifo del FAB è `#ecfff7` nel tema chiaro e `#004247` nel tema scuro, anche quando lo premi.
+Nella schermata iniziale: la sfumatura ampia com'è, più quella corta, che arriva all'85% invece del pieno. In una cartella: solo la sfumatura ampia, più opaca in fondo (65%); scorrendo resta, al 60% della sua opacità; negli ultimi 2 cm prima della fine della griglia scende a zero seguendo il dito. I 2 cm sono la mia lettura di *negli ultimi centimetri*: dimmi se li vuoi diversi.
 
-## 5. Lo zoom all'apertura
+## 5. Il velo d'aiuto del primo avvio
 
-Apri un'immagine dalla griglia di una cartella, una volta con le info in alto accese e una volta spente: deve comparire subito nella sua misura, senza partire piccola e crescere. Con le info spente l'anteprima si disegnava prima di sapere la misura del file, quindi alla misura della miniatura, e cresceva quando la misura arrivava (la causa del tuo caso, corretta nella 4.32). Adesso aspetta la misura, cioè un attimo in più prima di comparire. Il banco non carica immagini, quindi la conferma viene dal tuo telefono.
+Nelle impostazioni tocca `Ripristina gli avvisi` e torna alla schermata iniziale col menu Start: la frase è la tua, `Tocca il tasto nell'angolo per accedere al menu: contiene tutti i comandi principali; tienilo premuto per le opzioni di visualizzazione. Dalle impostazioni, se vuoi, puoi cambiare il lato del pulsante.`
 
-## 6. La sfocatura sotto il vetro
+## 6. Il glifo che torna sul tondo
 
-Con `Traslucido` apri il menu Start o la pillola sopra la griglia della schermata iniziale: sotto il vetro anche i nomi delle cartelle, i numeri e i bordi delle miniature devono essere sfocati, non nitidi. Sotto la copia sfocata adesso c'è il fondo della pagina, che prima mancava: per questo si vedevano gli originali nitidi attraverso.
+Con la pillola a scomparsa, scorri una cartella e fermati: il marchio torna sul tondo senza fermarsi a metà e senza il pezzo del disco che compariva di colpo alla fine. La causa: durante la dissolvenza il marchio era disegnato in un livello grande quanto la sua scatola, e il disco, che sporge un poco sopra, veniva tagliato. Il banco lo misura sui pixel.
 
-## 7. Le sfumature in basso
+## 7. Le etichette del menu Start
 
-Nella schermata iniziale e in cima a ogni cartella ci sono tutte e due le sfumature. Scorri una cartella: se ne va la più corta, insieme al titolo, e resta la più ampia e leggera. Arriva in fondo: sparisce anche lei, così l'ultima riga si vede intera.
+La tua prova di usabilità: il menu Start ha la stessa disposizione, con icone più grandi (caselle da 64dp) e sotto ognuna un nome breve: `Pillola`/`Tondo`, `Griglia`, `Lista`, `Cartelle`, `Mostra`/`Nascondi`, `Cerca`, `URL`, `Crea`, `Cestino`, `Impostazioni`; nel cestino `Cronologia`, `Ripristina`, `Svuota`. La × resta senza nome, e col centro sul centro del tondo. Le parole lunghe di altre lingue si rimpiccioliscono per entrare nella casella. Dimmi se la prova funziona: allora riattivo il tocco lungo su `Mostra`/`Nascondi`.
 
-## 8. Il punto di riferimento dei comandi
+## 8. Il commutatore con dieci icone
 
-Il centro del tondo è il centro di ogni comando, nella stessa posizione della 4.30. In **Elemento interattivo principale** scegli `Tasto fluttuante`: il FAB ha il centro dove la pillola e il menu Start hanno il tondo, nella schermata iniziale come in una cartella. Passa da una schermata all'altra e poi da `Tasto fluttuante` a `Menu 'Start'` e ritorno: il centro del comando non si deve muovere. Il menu del FAB, aperto, ha il fianco dove ce l'ha il menu Start aperto. La barra di `Menu` resta una fascia in fondo: con pochi tasti quello d'angolo è sull'asse del tondo, ma non alla sua altezza.
-
-## 9. Il menu Start di fabbrica
-
-Il menu Start è il comando di fabbrica di un telefono nuovo. Chi ha già l'app ritrova la sua scelta: per vederlo, scegli `Menu 'Start'` in **Elemento interattivo principale**, oppure installa l'app da zero.
-
-## 10. Il velo d'aiuto del primo avvio
-
-Con `Menu 'Start'` scelto, nelle impostazioni tocca `Ripristina gli avvisi` e torna alla schermata iniziale, in modalità griglia. Il velo mostra il menu Start aperto, in arancione, con la copia del tondo nell'angolo esattamente sopra il tondo vero, e la frase `Tutti i comandi sono nel menu 'Start': tocca il tasto tondo per aprirlo, tienilo premuto per le opzioni di visualizzazione.` Il tocco lungo sulla copia apre le opzioni di visualizzazione; un tocco qualunque chiude il velo. La frase è nuova: dimmi se la vuoi diversa.
+Nella modalità `Cartelle di sistema`, dentro una cartella, il menu Start ha `Crea` (Nuova cartella): lì il commutatore pillola/tondo non c'è, e le righe restano tre.
 
 ## Decisioni da concordare
 
@@ -85,27 +75,30 @@ Nessuna decisione aperta in questo giro. Le tre del 3.24 restano chiuse e **non*
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| I nomi dei menu | 4.30-01 | Non provato | | Attendere il collaudo. |
-| Il tondo unico | 4.30-02 | Non provato | | Attendere il collaudo. |
-| Il menu Start si chiude a ogni tocco fuori | 4.30-03 | Non provato | | Attendere il collaudo. |
-| Il glifo del FAB | 4.30-04 | Non provato | | Attendere il collaudo. |
-| Lo zoom all'apertura | 4.30-05 | Non provato | | Attendere il collaudo. |
-| La sfocatura sotto il vetro | 4.30-06 | Non provato | | Attendere il collaudo. |
-| Le sfumature in basso | 4.30-07 | Non provato | | Attendere il collaudo. |
-| Il punto di riferimento dei comandi | 4.31-01 | Non provato | | Attendere il collaudo. |
-| Il menu Start di fabbrica | 4.31-02 | Non provato | | Attendere il collaudo. |
-| Il velo d'aiuto del primo avvio | 4.31-03 | Non provato | | Attendere il collaudo. |
-| Il menu angolare a riposo, e il commutatore | 4.25-01 | OK | Tutto OK. | Archiviata. |
-| Il menu angolare si chiude a ogni tocco | 4.25-02 | Accettabile | Qualunque tocco fuori, anche un trascinamento. | Fatto nella 4.30 (`4.30-03`). |
-| La pillola più corta | 4.25-03 | OK | Tutto OK. | Archiviata. |
-| Il traslucido di fabbrica, e lo Scostamento | 4.25-04 | OK | Tutto OK. | Archiviata. |
-| I due colori del vetro | 4.25-05 | OK | Tutto OK. | Archiviata. |
-| Il bordo dell'anteprima | 4.25-06 | OK | Tutto OK. | Archiviata. |
-| Le due sfumature in basso | 4.25-07 | Non approvato | Resta la sfumatura più ampia, non la corta. | Rifatto nella 4.30 (`4.30-07`). |
+| Lo zoom all'apertura con le info spente | 4.33-01 | Non provato | | Attendere il collaudo. |
+| Il trascinamento col menu Start aperto | 4.33-02 | Non provato | | Attendere il collaudo. |
+| Menu basso | 4.33-03 | Non provato | | Attendere il collaudo. |
+| Le sfumature in basso | 4.33-04 | Non provato | | Attendere il collaudo. |
+| Il velo d'aiuto del primo avvio | 4.33-05 | Non provato | | Attendere il collaudo. |
+| Il glifo che torna sul tondo | 4.33-06 | Non provato | | Attendere il collaudo. |
+| Le etichette del menu Start | 4.33-07 | Non provato | | Attendere il collaudo. |
+| Il commutatore con dieci icone | 4.33-08 | Non provato | | Attendere il collaudo. |
+| I nomi dei menu | 4.30-01 | OK | `Menu` diventa `Menu basso`. | Fatto nella 4.33 (`4.33-03`). |
+| Il tondo unico | 4.30-02 | OK | Tutto OK. | Archiviata. |
+| Il menu Start si chiude a ogni tocco fuori | 4.30-03 | Accettabile | Il trascinamento dev'essere un gesto solo. | Rifatto nella 4.33 (`4.33-02`). |
+| Il glifo del FAB | 4.30-04 | OK | Domanda sul colore delle icone. | Risposta in chat. |
+| Lo zoom all'apertura | 4.30-05 | Non approvato | Resta con le info spente. | Rifatto nella 4.33 (`4.33-01`). |
+| La sfocatura sotto il vetro | 4.30-06 | OK | Tutto OK. | Archiviata. |
+| Le sfumature in basso | 4.30-07 | Non approvato | Specifica nuova per home e cartelle. | Rifatto nella 4.33 (`4.33-04`). |
+| Il punto di riferimento dei comandi | 4.31-01 | OK | Tutto OK. | Archiviata. |
+| Il menu Start di fabbrica | 4.31-02 | OK | Tutto OK. | Archiviata. |
+| Il velo d'aiuto del primo avvio | 4.31-03 | OK | Testo nuovo. | Fatto nella 4.33 (`4.33-05`). |
 
 ## Prossimi passi
 
-- **In collaudo**: nomi dei menu, tondo unico, chiusura del menu Start, glifo del FAB, zoom all'apertura, sfocatura sotto il vetro, sfumature (`4.30-01`-`4.30-07`); punto di riferimento dei comandi, menu Start di fabbrica, velo del primo avvio (`4.31-01`-`4.31-03`).
-- **Concluso**: menu Start a riposo e commutatore, pillola più corta, traslucido di fabbrica, due colori, bordo dell'anteprima (`4.25-01`, `4.25-03`-`4.25-06`).
+- **In collaudo**: zoom con le info spente, trascinamento unico, Menu basso, sfumature, velo d'aiuto, glifo, etichette del menu Start, commutatore (`4.33-01`-`4.33-08`).
+- **Da decidere in chat**: colore delle icone sul vetro personalizzato (`4.30-04`); dissolvenza al tocco di una miniatura (nota A).
+- **In attesa di piano e stima**: il modulo Disegno dell'editor (nota G), da concordare prima di cominciare.
+- **Concluso**: tondo unico, sfocatura sotto il vetro, punto di riferimento, menu Start di fabbrica (`4.30-02`, `4.30-06`, `4.31-01`, `4.31-02`).
 - **Chiuso, non riaperto**: lati editor `3.40-02`; HEIC `3.40-03`.
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
