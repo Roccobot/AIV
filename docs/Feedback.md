@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.48**: nel modulo Disegno il tasto Spessore, la linea trasparente, la luminosità sui tondi e le linee dritte (4.47); l'ombra della selezione rifatta (4.48).
+Versione **4.49**: nel modulo Disegno Spessore prima di Riempimento, e il cursore della luminosità sopra i tondi.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.48 è pubblicata: [v4.48](https://github.com/Roccobot/AIV/releases/tag/v4.48), con l'APK
-[AIV-4.48.apk](https://github.com/Roccobot/AIV/releases/download/v4.48/AIV-4.48.apk).
-Commit prodotto su `main`: `dbe2e55`, release dal commit `dbe2e55` (SlimVer 4.48 / versionCode 336; APK 8.525.257 byte, digest `bddff268`).
+La Release 4.49 è pubblicata: [v4.49](https://github.com/Roccobot/AIV/releases/tag/v4.49), con l'APK
+[AIV-4.49.apk](https://github.com/Roccobot/AIV/releases/download/v4.49/AIV-4.49.apk).
+Commit prodotto su `main`: `ac6df7a`, release dal commit `ac6df7a` (SlimVer 4.49 / versionCode 337; APK 8.525.257 byte, digest `34c15703`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.47** e **4.48**: cinque prove nuove. Giro **4.46**: quattro prove OK, `4.46-04` ripresa in `4.48-01`.
+Giro **4.49**: due prove nuove. Giro **4.48**: quattro prove OK, `4.47-03` ripresa in `4.49-02`.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,35 +22,20 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.48 sono superate: banco di prova completo (627 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.49 sono superate: banco di prova completo (628 prove), controllo delle traduzioni, compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.47-01 | Non provato | | Attendere il collaudo. |
-| 4.47-02 | Non provato | | Attendere il collaudo. |
-| 4.47-03 | Non provato | | Attendere il collaudo. |
-| 4.47-04 | Non provato | | Attendere il collaudo. |
-| 4.48-01 | Non provato | | Attendere il collaudo. |
+| 4.49-01 | Non provato | | Attendere il collaudo. |
+| 4.49-02 | Non provato | | Attendere il collaudo. |
 
-## 1. Il tasto Spessore e le tre scelte
+## 1. Spessore prima di Riempimento
 
-Nel modulo `Disegno` il quarto tasto è `Spessore`, al posto di `Luminosità`: una linea del colore della traccia, più spessa quanto più alto è lo spessore. `Traccia`, `Riempimento` e `Spessore` sono una scelta sola, come hai risposto (`S1`): con `Traccia` il cursore regola l'opacità della linea (nuova, piena di fabbrica), con `Riempimento` l'opacità del riempimento, con `Spessore` lo spessore. Con `Spessore` scelto i tondi cambiano il colore della linea: è una mia lettura, se li vuoi spenti scrivilo qui.
+Nel modulo `Disegno` i tasti sotto gli strumenti sono adesso `Tratteggio`, `Traccia`, `Spessore`, `Riempimento`, da sinistra, come hai chiesto su `4.47-01`.
 
-## 2. La linea trasparente, uniforme
+## 2. Il cursore della luminosità sopra i tondi
 
-Scegli `Traccia`, porta l'opacità a metà e disegna una freccia e qualche tratto a mano libera che ripassa su sé stesso. Dove la punta incrocia l'asta, e dove il tratto si sovrappone, il colore resta uguale al resto, senza zone più scure.
-
-## 3. La luminosità tenendo premuto un tondo
-
-Tieni premuto un tondo per circa mezzo secondo: sotto i colori compare un cursore della luminosità, con accanto il colore che ne risulta. Se senza staccare il dito scorri a destra o a sinistra, allo stacco il colore si applica e il cursore si chiude. Se invece alzi il dito fermo, il cursore resta: lo regoli e lo chiudi toccando fuori, e quel tocco non disegna. Il tondo resta del suo colore base, e un tocco successivo sul tondo torna al colore base. Vale per la traccia o per il riempimento, secondo il tasto scelto.
-
-## 4. Linee e frecce dritte
-
-Con `Linea` o `Freccia`, disegna quasi in orizzontale o quasi in verticale: entro 5 gradi dall'asse la linea si posa esattamente sull'asse, e finché il dito resta giù una linea sottile color accento attraversa l'immagine sull'asse scelto, e sparisce allo stacco. I 5 gradi sono una mia scelta: dimmi se l'aggancio scatta troppo presto o troppo tardi.
-
-## 5. L'ombra della selezione, da bordo a bordo
-
-Tieni premuta una miniatura per cominciare una selezione, in una cartella con poche immagini e in una con molte, nei due temi. Sopra la scheda in basso l'ombra adesso attraversa tutta la larghezza dello schermo e arriva fino alla scheda, senza il rettangolo che vedevi nella 4.46, e al massimo è la metà di prima (24,5% invece di 49%). Le spunte e la durata dei video restano sopra, piene.
+Tieni premuto un tondo: il cursore della luminosità compare sopra la fila dei tondi, dove il dito non lo copre, ed è più corto della fila, staccato di 24 dp da ciascun lato. Il resto funziona come nella 4.47: scorrendo senza staccare il dito il colore si applica allo stacco, alzando il dito fermo il cursore resta e lo chiudi toccando fuori.
 
 ## Decisioni da concordare
 
@@ -60,20 +45,17 @@ Nessuna decisione aperta in questo giro.
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Il tasto Spessore | 4.47-01 | Non provato | | Attendere il collaudo. |
-| La linea trasparente | 4.47-02 | Non provato | | Attendere il collaudo. |
-| La luminosità sui tondi | 4.47-03 | Non provato | | Attendere il collaudo. |
-| Linee e frecce dritte | 4.47-04 | Non provato | | Attendere il collaudo. |
-| L'ombra della selezione | 4.48-01 | Non provato | | Attendere il collaudo. |
-| Dal menu a Info, senza lampeggio | 4.46-01 | OK | | Concluso. |
-| La cartella d'origine | 4.46-02 | OK | La scelta della destinazione aveva sempre le miniature in alto? | Sì: la 4.46 non ha cambiato la disposizione, risposta in chat. |
-| Gli avvisi centrati | 4.46-03 | OK | | Concluso. |
-| L'ombra della selezione | 4.46-04 | Non approvato | Un rettangolo invece dell'ombra sotto la scheda; opacità da dimezzare. | Ripresa in `4.48-01`. |
-| La freccia tratteggiata | 4.46-05 | OK | | Concluso. |
+| Spessore prima di Riempimento | 4.49-01 | Non provato | | Attendere il collaudo. |
+| Il cursore della luminosità sopra i tondi | 4.49-02 | Non provato | | Attendere il collaudo. |
+| Il tasto Spessore | 4.47-01 | OK | Spessore a sinistra di Riempimento. | Fatto in `4.49-01`. |
+| La linea trasparente | 4.47-02 | OK | | Concluso. |
+| La luminosità sui tondi | 4.47-03 | Accettabile | Il cursore sopra i tondi, più corto e staccato dai lati. | Ripresa in `4.49-02`. |
+| Linee e frecce dritte | 4.47-04 | OK | | Concluso. |
+| L'ombra della selezione | 4.48-01 | OK | Meravigliosa. | Concluso. |
 
 ## Prossimi passi
 
-- **In collaudo**: Spessore (`4.47-01`), la linea trasparente (`4.47-02`), la luminosità sui tondi (`4.47-03`), linee e frecce dritte (`4.47-04`), l'ombra della selezione (`4.48-01`).
+- **In collaudo**: Spessore prima di Riempimento (`4.49-01`), il cursore della luminosità sopra i tondi (`4.49-02`).
 - **Dopo**: G2 (selezione, vertici, parametri sull'oggetto, elimina; poi maniglie, sopra e sotto); lo strumento Sfocatura; G3, il testo; la pillola.
-- **Concluso**: dal menu a Info, la cartella d'origine, gli avvisi centrati, la freccia tratteggiata (`4.46-01`, `-02`, `-03`, `-05`).
+- **Concluso**: la linea trasparente, le linee dritte (`4.47-02`, `4.47-04`); l'ombra della selezione (`4.48-01`).
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
