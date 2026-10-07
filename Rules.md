@@ -375,9 +375,15 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
     sfocatura di finestra il banco non la vede.
   - ⚠️⚠️ **E la selezione ha un'ombra sua, dalla `4.46`** (sua nota E, col suo mockup): la scheda
     della selezione non vela la griglia, che deve restare toccabile, quindi sopra di lei una
-    sfumatura nera (bianca sul tema scuro) sale dal 49% sul bordo a zero in 120dp, disegnata dietro
-    le celle per gli spazi fra di loro e dentro ogni cella sotto la spunta (`PickShade.kt`,
-    `OmbraSceltaTest`).
+    sfumatura nera (bianca sul tema scuro) sale da zero, 120dp sopra, fino al massimo sul bordo,
+    disegnata dietro le celle per gli spazi fra di loro e dentro ogni cella sotto la spunta
+    (`PickShade.kt`, `OmbraSceltaTest`).
+    - ⚠️⚠️ **Dalla `4.48` la metà dietro le celle vive sulla colonna intera della schermata, prima
+      dei suoi margini, e il massimo è il 24,5%** (sua nota su `4.46-04`: *l'ombra appare in un
+      rettangolo che non dovrebbe esserci*, e *l'opacità massima dev'essere la metà*). Sul nodo
+      della griglia si fermava 8dp dentro ogni lato e sopra la scheda. La copia della scena in
+      `OmbraSceltaTest` non poteva vederlo, perché il difetto era in dove la schermata mette
+      l'ombra: lo misura `OmbraGrigliaTest`, che monta `GridScreen`.
   - ⚠️⚠️ **Dalla `4.45` il passaggio fra due superfici non lampeggia** (sua nota su `4.44-02`, dal
     menu di una miniatura a 'Info'): il velo non scende finché un'altra superficie sta entrando
     (`VeilStage.sale`), e una finestra che si apre con un velo già in scena sfoca subito al pieno

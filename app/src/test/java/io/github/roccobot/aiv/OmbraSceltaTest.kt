@@ -23,6 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
+import kotlin.math.pow
 
 /**
  * **The shade over the grid above the selection sheet** (`4.45`, his note E, with his mockup).
@@ -68,10 +69,10 @@ class OmbraSceltaTest {
 
         val alto = SHADE_TALL.value
         assertEquals("sopra l'ombra il bianco è intatto", 0f, buio(CELLA_X + 5, (BORDO - alto - 5).toInt()), 0.01f)
-        assertEquals("sul bordo della scheda l'ombra è al 49%", SHADE_MAX, buio(CELLA_X + 5, (BORDO - 1).toInt()), 0.03f)
+        assertEquals("sul bordo della scheda l'ombra è al massimo", SHADE_MAX, buio(CELLA_X + 5, (BORDO - 1).toInt()), 0.03f)
         assertEquals(
-            "a metà altezza l'ombra è circa un decimo, come nel mockup",
-            0.15f, buio(CELLA_X + 5, (BORDO - alto / 2).toInt()), 0.04f
+            "a metà altezza l'ombra segue la curva del mockup, a metà della sua forza dalla 4.48",
+            SHADE_MAX * 0.5f.pow(1.7f), buio(CELLA_X + 5, (BORDO - alto / 2).toInt()), 0.03f
         )
         val y = (BORDO - 10).toInt()
         assertEquals(

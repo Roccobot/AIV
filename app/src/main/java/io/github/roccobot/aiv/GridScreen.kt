@@ -1606,10 +1606,25 @@ fun GridScreen(
             }
         }
     }
+    /*
+     * ⚠️ The shade above the selection sheet (his note E on the 4.45 round): read once here and
+     * handed to the column and to every cell, so the two halves of `PickShade.kt` draw from the
+     * same edge.
+     */
+    val ombra = if (picking) sheetTop() else null
     RailFrame(rail = rail.takeIf { wide }, head = testa) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                /*
+                 * ⚠️⚠️ **The shade behind the cells lives HERE, before the margins, since 4.48**
+                 * (his note on `4.46-04`: *l'ombra appare in un rettangolo che non dovrebbe
+                 * esserci*). In 4.46 it was on the grid, which sits inside [GRID_PAD_X] on each
+                 * side and ends above the sheet: on his phone it stopped 26 px from each edge and
+                 * 36 px over the sheet. This column reaches the glass on three sides, and the
+                 * shade goes on at full strength under the sheet.
+                 */
+                .pickShade(ombra, behind = true)
                 .windowInsetsPadding(
                     steadyDrawing().only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
                 )
@@ -2223,12 +2238,6 @@ fun GridScreen(
                     }
                 }
 
-                /*
-                 * ⚠️ The shade above the selection sheet (his note E on the 4.45 round): read once
-                 * here and handed to the grid and to every cell, so the two halves of `PickShade.kt`
-                 * draw from the same edge.
-                 */
-                val ombra = if (picking) sheetTop() else null
                 LazyVerticalGrid(
                         columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
                         state = state,
@@ -2263,7 +2272,6 @@ fun GridScreen(
                             } else if (bin) BELOW_FAB else 16.dp
                         ),
                         modifier = Modifier.fillMaxWidth().backdropSource(backdrop).then(grab)
-                            .pickShade(ombra, behind = true)
                     ) {
                         itemsIndexed(
                             items = items,
