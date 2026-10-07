@@ -61,3 +61,44 @@ jobs:
           name: bench-report
           path: app/build/reports/tests/testDebugUnitTest/
           if-no-files-found: ignore
+
+  # ⚠️⚠️ THE CACHES ARE PRUNED HERE, AND A PERSON DID IT BY HAND BEFORE. GitHub
+  # keeps 10 GB of Actions caches per repository, and every run on main saves a
+  # new copy of the Gradle home under a key that ends with the commit, a few
+  # hundred MB each. Twice, at 4.36 and 4.43, the release bench fell with the
+  # caches near the ceiling and passed once the owner emptied them from his
+  # terminal (`gh cache delete --all`). Whether the ceiling was the cause is not
+  # measured: a pull request run fell on the same tests at 4.45 with the caches
+  # just emptied. Pruning removes the suspect and the manual step either way.
+  # ⚠️ Least recently USED goes first, not oldest: the platform the bench needs
+  # (213 MB, key unchanged for weeks) is restored by every run, so it stays.
+  # ⚠️ The total is written to the run summary, because a session cannot read it:
+  # its proxy refuses the Actions cache API.
+  caches:
+    needs: bench
+    if: always() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+
+    steps:
+      - name: Prune the Actions caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # Below the 10 GB ceiling with room for a release and a few runs.
+          KEEP_BYTES: 6000000000
+        run: |
+          set -euo pipefail
+          list="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/caches?per_page=100" \
+            --jq '.actions_caches[] | "\(.last_accessed_at) \(.id) \(.size_in_bytes)"' | sort)"
+          total=0
+          while read -r _ _ size; do total=$(( total + ${size:-0} )); done <<< "$list"
+          before=$total; removed=0
+          while read -r _ id size; do
+            [ -n "$id" ] && [ "$total" -gt "$KEEP_BYTES" ] || break
+            gh api -X DELETE "repos/${GITHUB_REPOSITORY}/actions/caches/${id}" > /dev/null
+            total=$(( total - size )); removed=$(( removed + 1 ))
+          done <<< "$list"
+          gb() { awk -v b="$1" 'BEGIN { printf "%.2f GB", b / 1e9 }'; }
+          echo "Caches: $(gb "$before") before, $(gb "$total") after, ${removed} removed"
+          echo "🗄️ Actions caches: $(gb "$before") before, $(gb "$total") after, ${removed} removed (ceiling 10 GB, kept under $(gb "$KEEP_BYTES"))." >> "$GITHUB_STEP_SUMMARY"

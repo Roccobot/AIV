@@ -42,14 +42,28 @@ on:
 # (`pages.yml`), and its download button reads the release published here.
 permissions:
   contents: write
+  # Read only, and only for the gate job: it asks the Actions API how `check.yml`
+  # ended on this same commit.
+  actions: read
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+# ⚠️⚠️ THREE JOBS, AND THE SPLIT IS WHAT MAKES A RELEASE TAKE HALF THE TIME. Until
+# 4.45 one job ran the bench and THEN built the APK, eight to nine minutes, while
+# `check.yml` was running the very same bench on the very same commit, started by
+# the merge a few seconds earlier. Now `build` and `gate` run side by side, and
+# `publish` waits for both: nothing goes out without a green bench on this exact
+# commit, and the bench is not paid twice.
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      tag: ${{ steps.ver.outputs.tag }}
+      signed: ${{ steps.keystore.outputs.signed }}
+      apk: ${{ steps.apk.outputs.name }}
 
     steps:
       - name: Check out the sources
@@ -102,37 +116,6 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "Building version ${version}, tag ${tag}"
-
-      # ⚠️⚠️ THE GATE: A RED BENCH MEANS NO RELEASE AT ALL. Before this
-      # step existed the bench only ran when somebody remembered to run it, which
-      # is the same as not having it: the defect it is meant to catch is exactly
-      # the kind nobody suspects, so nobody goes looking for it. The 1.70 blocked
-      # the whole app and the 1.70 to 1.72 shipped a feature that did nothing,
-      # both with a green build.
-      # ⚠️ It sits BEFORE the keystore and the build on purpose: those two take
-      # minutes and touch secrets, and there is no reason to spend either on a
-      # version that is not going to go out.
-      # ⚠️ The cheap guards stay ahead of it: a tag that disagrees with
-      # versionName, or a publish from the wrong branch, fails in a second.
-      - name: Run the bench
-        run: ./gradlew --no-daemon :app:testDebugUnitTest
-
-      # ⚠️ The translations are a release check too, and the repo has said so for
-      # versions: `28 lingue, 0 problemi`, and a lower number means a folder was
-      # not seen. It was a step somebody had to remember, like the bench.
-      - name: Check the translations
-        run: python3 tools/i18n-check.py
-
-      # ⚠️ Without this, a failure gives a name and nothing else: the report says
-      # WHICH assertion fell and with what message, which is the only thing that
-      # tells a red bench from a broken toolchain.
-      - name: Keep the bench report when it fails
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bench-report
-          path: app/build/reports/tests/testDebugUnitTest/
-          if-no-files-found: ignore
 
       # An absent keystore is a warning and not a failure: a dispatch run is
       # allowed to prove that the build works before any secret exists. The
@@ -199,15 +182,116 @@ jobs:
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
 
+
+  # ⚠️⚠️ THE GATE: A RED BENCH MEANS NO RELEASE AT ALL. Before it existed the bench
+  # only ran when somebody remembered to run it, which is the same as not having
+  # it: the 1.70 blocked the whole app and the 1.70 to 1.72 shipped a feature that
+  # did nothing, both with a green build.
+  # ⚠️ It first asks `check.yml` about this commit, because a merge on main has
+  # already started that run. Green there is green here: same commit, same bench,
+  # same translation check. Red there STOPS the release, and the bench is NOT run
+  # again to get a second opinion: a second try that passes would hide the defect
+  # instead of answering it. Cancelled, missing (a push of Markdown only does not
+  # start it) or not finished in time: the gate runs the bench itself, as every
+  # release did before 4.46.
+  gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ask check.yml how this commit went
+        id: ask
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # ⚠️ Only a PUSH run counts: a pull request run tests the merge commit
+          # GitHub builds for the PR, which is not the commit being released.
+          query="repos/${GITHUB_REPOSITORY}/actions/workflows/check.yml/runs?head_sha=${GITHUB_SHA}&event=push&per_page=1"
+          # The merge and the release are started seconds apart, so the run may
+          # not be listed yet: it gets two minutes to appear, then thirty to end.
+          appear=$(( $(date +%s) + 120 ))
+          finish=$(( $(date +%s) + 1800 ))
+          run=""; status=""; conclusion=""
+          while :; do
+            read -r run status conclusion < <(gh api "$query" \
+              --jq '.workflow_runs[0] // {} | "\(.id // "") \(.status // "") \(.conclusion // "")"')
+            now=$(date +%s)
+            if [ "$status" = "completed" ]; then break; fi
+            if [ -z "$run" ] && [ "$now" -ge "$appear" ]; then break; fi
+            if [ "$now" -ge "$finish" ]; then break; fi
+            sleep 20
+          done
+          echo "check.yml on ${GITHUB_SHA}: run ${run:-none}, ${status:-not started}, ${conclusion:-no verdict}"
+          [ "$status" = "completed" ] || conclusion=""
+          case "$conclusion" in
+            success)
+              echo "green=true" >> "$GITHUB_OUTPUT"
+              echo "✅ \`check.yml\` was green on this commit: the bench is not run again." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            failure)
+              echo "check.yml was RED on this commit (run ${run}): no release." >&2
+              echo "Fix the bench, or read its report, then release again." >&2
+              exit 1
+              ;;
+            *)
+              echo "green=false" >> "$GITHUB_OUTPUT"
+              echo "⚠️ \`check.yml\` gave no verdict (run ${run:-none}, ${status:-not started}, ${conclusion:-no verdict}): the gate runs the bench itself." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+          esac
+
+      - name: Check out the sources
+        if: steps.ask.outputs.green != 'true'
+        uses: actions/checkout@v5
+
+      - name: Set up the Android toolchain
+        if: steps.ask.outputs.green != 'true'
+        uses: ./.github/actions/toolchain
+
+      - name: Run the bench
+        if: steps.ask.outputs.green != 'true'
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+
+      # ⚠️ The translations are a release check too, and the repo has said so for
+      # versions: `28 lingue, 0 problemi`, and a lower number means a folder was
+      # not seen. It was a step somebody had to remember, like the bench.
+      - name: Check the translations
+        if: steps.ask.outputs.green != 'true'
+        run: python3 tools/i18n-check.py
+
+      # ⚠️ Without this, a failure gives a name and nothing else: the report says
+      # WHICH assertion fell and with what message, which is the only thing that
+      # tells a red bench from a broken toolchain.
+      - name: Keep the bench report when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-report
+          path: app/build/reports/tests/testDebugUnitTest/
+          if-no-files-found: ignore
+
+
+  publish:
+    needs: [build, gate]
+    if: github.ref_type == 'tag' || inputs.publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Take the APK the build job kept
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ needs.build.outputs.apk }}
+          path: ${{ runner.temp }}/out
+
       # The release asset is the ONLY place the APK lives, and it is also what
       # keeps old versions reachable: the download page points at the asset of
       # the latest release, and the releases page keeps every version for free.
       - name: Attach the APK to a GitHub release
-        if: github.ref_type == 'tag' || inputs.publish
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ steps.ver.outputs.tag }}
-          SIGNED: ${{ steps.keystore.outputs.signed }}
+          # No checkout in this job, so `gh` is told the repository by name.
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build.outputs.tag }}
+          SIGNED: ${{ needs.build.outputs.signed }}
         run: |
           set -euo pipefail
           # ⚠️ The same guard the old website step had, and it was MISSING here: on a
@@ -225,13 +309,13 @@ jobs:
           # and is being re-published. Creating it blindly would fail on the path
           # a person is most likely to take.
           if gh release view "${TAG}" > /dev/null 2>&1; then
-            gh release upload "${TAG}" "${{ steps.apk.outputs.path }}" --clobber
+            gh release upload "${TAG}" "${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}" --clobber
           else
             # `--target` is what lets the workflow cut its own tag: gh creates
             # the ref at that commit. On a tag push it is the tagged commit
             # anyway, so the same line serves both ways in.
-            gh release create "${TAG}" "${{ steps.apk.outputs.path }}" \
+            gh release create "${TAG}" "${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}" \
               --target "${GITHUB_SHA}" \
-              --title "AIV ${{ steps.ver.outputs.version }}" \
+              --title "AIV ${{ needs.build.outputs.version }}" \
               --generate-notes
           fi

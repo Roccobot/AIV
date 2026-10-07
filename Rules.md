@@ -813,11 +813,19 @@ documento, riscontro'.
   (`browser_download_url`), e nome, peso e data li chiede all'API mentre la pagina si carica.
   Quindi un rilascio non richiede nessun deploy, e il sito si ripubblica solo quando cambia
   `publish/`.
-- ⚠️⚠️ **Prima di firma e build c'è il cancello**: `release.yml` lancia il banco di prova e il
-  controllo delle traduzioni, quindi una prova rossa o una lingua incompleta fermano il rilascio
-  invece di produrre un APK da ritirare. I controlli a costo zero (il tag contro il `versionName`,
-  un `publish` da un branch che non è quello principale) vengono prima, perché falliscono in un
-  secondo.
+- ⚠️⚠️ **Nessuna release senza un banco verde sullo stesso commit**: il cancello di `release.yml`
+  è il banco di prova col controllo delle traduzioni, quindi una prova rossa o una lingua
+  incompleta fermano il rilascio invece di produrre un APK da ritirare. I controlli a costo zero
+  (il tag contro il `versionName`, un `publish` da un branch che non è quello principale) vengono
+  prima, perché falliscono in un secondo.
+  - ⚠️⚠️ **Dalla `4.45` il banco non si paga due volte** (sua richiesta, 2026-10-07, B1: un
+    rilascio durava 8-9 minuti perché rifaceva il banco che il merge aveva già lanciato in
+    `check.yml`). Tre lavori: `build` costruisce e firma subito, `gate` chiede a `check.yml` com'è
+    andata sullo **stesso commit**, `publish` aspetta tutti e due. Verde vuol dire banco non
+    rifatto; **rosso ferma il rilascio**, senza un secondo tentativo, che passando nasconderebbe il
+    difetto; annullato, assente o non finito in 30 minuti, il banco gira nel cancello come prima.
+  - ⚠️ **Conta solo la corsa di un push**: quella di una PR prova il commit di merge che GitHub
+    costruisce per lei, che non è quello rilasciato.
 - **Verifica di pubblicazione**: la release col suo tag e l'APK allegato (`get_release_by_tag`),
   perché è da lì che la paginetta prende il download. Il sito si controlla solo quando cambia
   `publish/`, e allora fa fede la corsa di `pages.yml`.
@@ -892,16 +900,29 @@ il job le scrive su disco per la durata di una sola esecuzione.
     due classi.
   - **Gira da sé in due posti**: in `check.yml` a ogni push su `main` e a ogni PR, tranne i push
     che cambiano soltanto file `.md` (il banco non li legge, e l'Action `core-sync` vi committa
-    `AGENTS.md`); ed è il cancello di `release.yml`. Si lancia comunque a mano prima della PR.
-  - ⚠️⚠️ **Quando il banco cade solo su GitHub, prima si guarda lo spazio delle cache**
-    (<https://github.com/Roccobot/AIV/actions/caches>, tetto di 10 GB per repository). Al rilascio
-    della `4.36` le prove del velo d'aiuto cadevano in tre corse su tre da `main` e passavano
-    sempre dal branch e in locale, con le cache a 9,7 GB su 10: svuotate (263 voci), il rilascio
-    è passato al primo colpo. Ci sono volute un'ora e sei corse per arrivarci, e l'utente ha
-    chiesto che il passo da fare a lui gli si chieda prima. Lo svuotamento lo fa lui dal terminale
-    (`gh cache delete --all -R Roccobot/AIV`, col GitHub CLI), perché la pagina cancella una voce
-    per volta. ⚠️ **La causa esatta non è misurata** (cache incompleta per lo sfratto automatico
-    vicino al tetto, è un'ipotesi): l'attesa del velo in `aspettaIlVelo` resta con la diagnosi.
+    `AGENTS.md`); ed è il cancello di `release.yml`, che si fida della corsa di `check.yml` sullo
+    stesso commit (§ '🚀 Che cosa produce un rilascio'). Si lancia comunque a mano prima della PR.
+  - ⚠️⚠️ **Le cache di Actions si potano da sole dalla `4.45`** (B1): il lavoro `caches` di
+    `check.yml`, a ogni push su `main`, toglie per prime le meno usate di recente finché il totale
+    è sotto i 6 GB, e scrive l'occupazione nel riepilogo della corsa. Prima lo svuotamento lo
+    faceva l'utente dal terminale (`gh cache delete --all -R Roccobot/AIV`), due volte: al
+    rilascio della `4.36`, dopo un'ora e sei corse cadute sulle prove del velo d'aiuto con le
+    cache a 9,7 GB su 10, e a quello della `4.43`. ⚠️ La sessione non legge l'occupazione da sé: il
+    suo proxy rifiuta le chiamate alle cache, e il riepilogo è il posto in cui guardare.
+  - ⚠️⚠️ **Le cache non spiegano la prova del velo d'aiuto**: il 2026-10-07 la corsa della PR della
+    `4.45` è caduta sulle tre prove che aspettano il velo, con le cache appena svuotate, e il
+    rilascio dello stesso codice è passato. **Quando cade, cadono tutte quelle della corsa**:
+    qualcosa che una classe precedente lascia nel processo spegne il velo fino alla fine. In
+    locale le 615 prove passano nell'ordine solito e in quello rovesciato, quindi sul server il
+    banco scrive l'ordine in cui partono le prove (`build.gradle.kts`, solo con `CI`), e alla
+    caduta successiva quell'ordine si rifà in locale. Il messaggio di `aspettaIlVelo` dice
+    permesso, flusso e archivio al momento della caduta.
+  - ⚠️⚠️ **Un banco verde può non aver girato**: con `org.gradle.caching` acceso il compito delle
+    prove è nella cache di Gradle, e su un codice già provato il registro dice
+    `testDebugUnitTest FROM-CACHE` e riprende l'esito della corsa di prima (misurato il
+    2026-10-07 sul rilascio a vuoto di B1: banco in 16 secondi). Una prova caduta non entra in
+    cache, quindi una corsa che la rivede la riesegue; ma un verde ripreso non dice niente di una
+    prova che cade a caso, e l'ordine delle prove compare nel registro solo quando girano davvero.
   - ⚠️ **La piattaforma finta pesa 213 MB e si scarica al primo giro**: in CI la tiene una cache
     sui due file che la decidono (il catalogo delle versioni e `robolectric.properties`), perché
     `setup-gradle` non copre `~/.m2`. In una sessione il primo giro paga il download.
