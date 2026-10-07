@@ -507,6 +507,7 @@
     <string name="draw_width">Dikte</string>
     <string name="draw_dashed">Gestippeld</string>
     <string name="draw_filled">Opvulling</string>
+    <string name="draw_light">Helderheid</string>
     <string name="ink_red">Rood</string>
     <string name="ink_amber">Amber</string>
     <string name="ink_green">Groen</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">Zwart</string>
     <string name="ink_white">Wit</string>
     <string name="ink_pink">Roze</string>
+    <string name="ink_grey">Grijs</string>
     <string name="look_preset_save">Stijl opslaan</string>
     <string name="look_preset_name">Presetnaam</string>
     <string name="look_preset_mine">Opgeslagen stijlen</string>

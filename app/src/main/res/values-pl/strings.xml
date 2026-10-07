@@ -541,6 +541,7 @@
     <string name="draw_width">Grubość</string>
     <string name="draw_dashed">Przerywana</string>
     <string name="draw_filled">Wypełnienie</string>
+    <string name="draw_light">Jasność</string>
     <string name="ink_red">Czerwony</string>
     <string name="ink_amber">Bursztynowy</string>
     <string name="ink_green">Zielony</string>
@@ -549,6 +550,7 @@
     <string name="ink_black">Czarny</string>
     <string name="ink_white">Biały</string>
     <string name="ink_pink">Różowy</string>
+    <string name="ink_grey">Szary</string>
     <string name="look_preset_save">Zapisz styl</string>
     <string name="look_preset_name">Nazwa ustawienia</string>
     <string name="look_preset_mine">Zapisane style</string>

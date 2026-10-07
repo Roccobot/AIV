@@ -541,6 +541,7 @@
     <string name="draw_width">Толщина</string>
     <string name="draw_dashed">Пунктир</string>
     <string name="draw_filled">Заливка</string>
+    <string name="draw_light">Яркость</string>
     <string name="ink_red">Красный</string>
     <string name="ink_amber">Янтарный</string>
     <string name="ink_green">Зелёный</string>
@@ -549,6 +550,7 @@
     <string name="ink_black">Чёрный</string>
     <string name="ink_white">Белый</string>
     <string name="ink_pink">Розовый</string>
+    <string name="ink_grey">Серый</string>
     <string name="look_preset_save">Сохранить стиль</string>
     <string name="look_preset_name">Имя пресета</string>
     <string name="look_preset_mine">Сохранённые стили</string>

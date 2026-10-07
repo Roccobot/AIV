@@ -507,6 +507,7 @@
     <string name="draw_width">ضخامت</string>
     <string name="draw_dashed">خط‌چین</string>
     <string name="draw_filled">پرکردن</string>
+    <string name="draw_light">روشنایی</string>
     <string name="ink_red">قرمز</string>
     <string name="ink_amber">کهربایی</string>
     <string name="ink_green">سبز</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">سیاه</string>
     <string name="ink_white">سفید</string>
     <string name="ink_pink">صورتی</string>
+    <string name="ink_grey">خاکستری</string>
     <string name="look_preset_save">ذخیرهٔ سبک</string>
     <string name="look_preset_name">نام پیش‌تنظیم</string>
     <string name="look_preset_mine">سبک‌های ذخیره‌شده</string>

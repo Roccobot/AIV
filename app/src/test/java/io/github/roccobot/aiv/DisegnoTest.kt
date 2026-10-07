@@ -24,6 +24,7 @@ import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -464,6 +465,75 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_filled)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.ink_amber)).assertIsSelected()
+    }
+
+    /**
+     * **Luminosità schiarisce e scurisce senza arrivare al bianco o al nero** (4.45; sua nota su
+     * `4.43-01`), e tiene tinta e opacità.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo i due limiti (schiarire fino a 1 e scurire fino a 0).
+     */
+    @Test
+    fun `Luminosita resta fra i suoi limiti e tiene tinta e opacita`() {
+        val hsl = FloatArray(3)
+        val blu = 0xFF3EB7FF.toInt()
+        assertEquals("a zero il colore è il tondo", blu, Draw.lit(blu, 0f))
+        androidx.core.graphics.ColorUtils.colorToHSL(Draw.lit(blu, 1f), hsl)
+        assertEquals("il più chiaro si ferma all'85%", Draw.LIGHT_MAX, hsl[2], 0.01f)
+        val tinta = hsl[0]
+        androidx.core.graphics.ColorUtils.colorToHSL(Draw.lit(blu, -1f), hsl)
+        assertEquals("il più scuro si ferma al 15%", Draw.LIGHT_MIN, hsl[2], 0.01f)
+        assertEquals("la tinta resta quella del tondo", tinta, hsl[0], 1.5f)
+        assertEquals("il bianco non diventa più chiaro", 0xFFFFFFFF.toInt(), Draw.lit(0xFFFFFFFF.toInt(), 1f))
+        androidx.core.graphics.ColorUtils.colorToHSL(Draw.lit(0xFFFFFFFF.toInt(), -1f), hsl)
+        assertEquals("il bianco scurito si ferma al 15%", Draw.LIGHT_MIN, hsl[2], 0.01f)
+        assertEquals("l'opacità resta", 0x33, Draw.lit(Draw.FILL, 0.5f) ushr 24)
+    }
+
+    /**
+     * **Col tasto Luminosità acceso il cursore schiarisce la traccia, e il tondo resta scelto**
+     * (4.45). Un tondo nuovo riparte dal suo colore.
+     * ⚠️⚠️ **CONTROPROVATA** facendo prendere al segno nuovo il tondo senza la sua luminosità.
+     */
+    @Test
+    fun `Luminosita schiarisce la traccia del segno nuovo`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.draw_light)).performClick()
+        banco.waitForIdle()
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).assertIsSelected()
+        trascina()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertEquals("la linea doveva nascere schiarita", Draw.lit(Draw.INK, 1f), salvato!!.drawing.marks.single().ink)
+
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.waitForIdle()
+        assertEquals("un tondo nuovo doveva ripartire dal suo colore", 0f, valore(), 1e-4f)
+    }
+
+    /**
+     * **Il grigio è fra il bianco e il nero, e i dieci posti entrano anche su uno schermo
+     * stretto** (sua nota su `4.44-01`; il banco di serie è largo 320dp, meno di dieci tondi da
+     * 32dp).
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo i tondi da 32dp fissi: il nero esce dal bordo.
+     */
+    @Test
+    fun `il grigio e fra bianco e nero e la fila entra nello schermo`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val (bianco, grigio, nero) = listOf(R.string.ink_white, R.string.ink_grey, R.string.ink_black)
+            .map { banco.onNodeWithContentDescription(testo(it)).fetchSemanticsNode().boundsInRoot }
+        assertTrue("il grigio doveva stare dopo il bianco", grigio.left > bianco.left)
+        assertTrue("il nero doveva stare dopo il grigio", nero.left > grigio.left)
+        val largo = banco.onRoot().fetchSemanticsNode().boundsInRoot.right
+        assertTrue("il nero doveva entrare nello schermo: ${nero.right} su $largo", nero.right <= largo)
     }
 
     /** I pixel che cambiano fra il palco col dito giù dopo il trascinamento e a dito alzato. */

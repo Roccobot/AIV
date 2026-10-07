@@ -507,6 +507,7 @@
     <string name="draw_width">మందం</string>
     <string name="draw_dashed">చుక్కల గీత</string>
     <string name="draw_filled">నింపు</string>
+    <string name="draw_light">ప్రకాశం</string>
     <string name="ink_red">ఎరుపు</string>
     <string name="ink_amber">కాషాయం</string>
     <string name="ink_green">ఆకుపచ్చ</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">నలుపు</string>
     <string name="ink_white">తెలుపు</string>
     <string name="ink_pink">గులాబీ</string>
+    <string name="ink_grey">బూడిద</string>
     <string name="look_preset_save">శైలిని సేవ్ చేయి</string>
     <string name="look_preset_name">ప్రీసెట్ పేరు</string>
     <string name="look_preset_mine">సేవ్ చేసిన శైలులు</string>

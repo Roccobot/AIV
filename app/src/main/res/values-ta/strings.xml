@@ -507,6 +507,7 @@
     <string name="draw_width">தடிமன்</string>
     <string name="draw_dashed">இடைக்கோடு</string>
     <string name="draw_filled">நிரப்பு</string>
+    <string name="draw_light">ஒளிர்வு</string>
     <string name="ink_red">சிவப்பு</string>
     <string name="ink_amber">அம்பர்</string>
     <string name="ink_green">பச்சை</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">கருப்பு</string>
     <string name="ink_white">வெள்ளை</string>
     <string name="ink_pink">இளஞ்சிவப்பு</string>
+    <string name="ink_grey">சாம்பல்</string>
     <string name="look_preset_save">பாணியைச் சேமி</string>
     <string name="look_preset_name">முன்னமைவின் பெயர்</string>
     <string name="look_preset_mine">சேமித்த பாணிகள்</string>

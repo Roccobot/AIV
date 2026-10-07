@@ -507,6 +507,7 @@
     <string name="draw_width">পুরুত্ব</string>
     <string name="draw_dashed">ড্যাশ</string>
     <string name="draw_filled">ভরাট</string>
+    <string name="draw_light">উজ্জ্বলতা</string>
     <string name="ink_red">লাল</string>
     <string name="ink_amber">অ্যাম্বার</string>
     <string name="ink_green">সবুজ</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">কালো</string>
     <string name="ink_white">সাদা</string>
     <string name="ink_pink">গোলাপি</string>
+    <string name="ink_grey">ধূসর</string>
     <string name="look_preset_save">স্টাইল সংরক্ষণ</string>
     <string name="look_preset_name">প্রিসেটের নাম</string>
     <string name="look_preset_mine">সংরক্ষিত স্টাইল</string>

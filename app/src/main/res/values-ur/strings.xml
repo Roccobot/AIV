@@ -507,6 +507,7 @@
     <string name="draw_width">موٹائی</string>
     <string name="draw_dashed">ٹوٹی لکیر</string>
     <string name="draw_filled">بھرائی</string>
+    <string name="draw_light">چمک</string>
     <string name="ink_red">سرخ</string>
     <string name="ink_amber">کہربائی</string>
     <string name="ink_green">سبز</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">سیاہ</string>
     <string name="ink_white">سفید</string>
     <string name="ink_pink">گلابی</string>
+    <string name="ink_grey">سرمئی</string>
     <string name="look_preset_save">انداز محفوظ کریں</string>
     <string name="look_preset_name">پری سیٹ کا نام</string>
     <string name="look_preset_mine">محفوظ کردہ اسٹائل</string>

@@ -677,6 +677,16 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     (nome `Rosa`, chiave nuova `ink_pink`), poi bianco e nero per ultimi. Il salmone è uscito.
   - **Valori di fabbrica**: traccia `#FF4C3F` (`D1`) e riempimento `#33FFBF00`, l'ambra al 20%
     (`D2`), così all'apertura i due tondi di fabbrica risultano scelti.
+- **Dalla `4.45` Luminosità e il grigio** (sue note sul giro della `4.44` e risposta `D3`):
+  - **Luminosità** è il quarto tasto: acceso, il cursore schiarisce (a destra) o scurisce (a
+    sinistra) il colore del bersaglio scelto, Traccia o Riempimento, fermandosi al 15% e all'85% di
+    luminosità, senza toccare tinta e opacità (`Draw.lit`). Il tondo resta scelto, e scegliere un
+    tondo nuovo riporta lo scostamento a zero. Il disegno del tasto è il colore che il cursore
+    muove, dal più scuro al più chiaro. Limiti e azzeramento sono scelte della sessione,
+    dichiarate nella voce di collaudo.
+  - **Il grigio** (`#B3B3B3`, chiave `ink_grey`) è fra il bianco e il nero: 'grigio 30%' letto
+    come tinta al 30% di nero, lettura dichiarata. Con dieci posti la fila dei tondi si stringe
+    sugli schermi stretti, fino a 32dp per tondo.
 - **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.

@@ -507,6 +507,7 @@
     <string name="draw_width">Unene</string>
     <string name="draw_dashed">Vistari</string>
     <string name="draw_filled">Kujaza</string>
+    <string name="draw_light">Mwangaza</string>
     <string name="ink_red">Nyekundu</string>
     <string name="ink_amber">Kaharabu</string>
     <string name="ink_green">Kijani</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">Nyeusi</string>
     <string name="ink_white">Nyeupe</string>
     <string name="ink_pink">Waridi</string>
+    <string name="ink_grey">Kijivu</string>
     <string name="look_preset_save">Hifadhi mtindo</string>
     <string name="look_preset_name">Jina la mpangilio</string>
     <string name="look_preset_mine">Mitindo iliyohifadhiwa</string>

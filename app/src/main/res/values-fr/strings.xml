@@ -524,6 +524,7 @@
     <string name="draw_width">Épaisseur</string>
     <string name="draw_dashed">Pointillés</string>
     <string name="draw_filled">Remplissage</string>
+    <string name="draw_light">Luminosité</string>
     <string name="ink_red">Rouge</string>
     <string name="ink_amber">Ambre</string>
     <string name="ink_green">Vert</string>
@@ -532,6 +533,7 @@
     <string name="ink_black">Noir</string>
     <string name="ink_white">Blanc</string>
     <string name="ink_pink">Rose</string>
+    <string name="ink_grey">Gris</string>
     <string name="look_preset_save">Enregistrer le style</string>
     <string name="look_preset_name">Nom du préréglage</string>
     <string name="look_preset_mine">Styles enregistrés</string>

@@ -105,6 +105,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
@@ -4071,6 +4072,24 @@ private class Gaze(
     var fillTarget by mutableStateOf(false)
 
     /**
+     * **Luminosità** (4.45): how much the stroke's and the fill's colours are made lighter or
+     * darker, from -1 to 1 ([Draw.lit]), and whether the slider is showing it.
+     *
+     * ⚠️ **The swatch stays the colour chosen, and the shift lives beside it**: so the chosen
+     * swatch stays chosen, and a new swatch starts from its own colour (choosing one sets its shift
+     * back to 0, a choice of the session declared in the test item).
+     */
+    var inkLight by mutableFloatStateOf(0f)
+    var fillLight by mutableFloatStateOf(0f)
+    var lighting by mutableStateOf(false)
+
+    /** The stroke's colour as it is drawn: the swatch with its [inkLight]. */
+    val litInk: Int get() = Draw.lit(ink, inkLight)
+
+    /** The fill's colour as it is drawn, without alpha: the swatch with its [fillLight]. */
+    val litFill: Int? get() = fillInk?.let { Draw.lit(it, fillLight) }
+
+    /**
      * Whether a finger holds the 'Spessore' dial: the stage shows the tip at its real size (R1 of
      * the 4.40 round). Like [brushSizing] it is a gesture, not a choice.
      */
@@ -4083,8 +4102,8 @@ private class Gaze(
      * that nothing draws (his note: the arrow ignores the fill).
      */
     fun penMark(): Mark = Mark(
-        pen, emptyList(), ink, inkWidth, dashed,
-        fill = fillInk?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) }
+        pen, emptyList(), litInk, inkWidth, dashed,
+        fill = litFill?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) }
     )
 
     companion object {
@@ -4695,55 +4714,70 @@ private fun DrawBody(
             KeyKind.FILL, gaze, selected = riempimento, enabled = live && chiusa, name = R.string.draw_filled,
             toggle = false, onClick = { gaze.fillTarget = true }, modifier = Modifier.weight(1f)
         )
-        Spacer(Modifier.weight(1f))
+        ArtKey(
+            KeyKind.LIGHT, gaze, selected = gaze.lighting,
+            enabled = live && (!riempimento || gaze.fillInk != null), name = R.string.draw_light,
+            toggle = true, onClick = { gaze.lighting = !gaze.lighting }, modifier = Modifier.weight(1f)
+        )
         Spacer(Modifier.weight(1f))
     }
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val bordo = MaterialTheme.colorScheme.onSurface
-        val filo = MaterialTheme.colorScheme.outline
-        // ⚠️ The fill's row starts with 'none'; the outline's keeps an empty place there, so the
-        // eight colours do not move under the finger when the target changes.
-        val nessuno = stringResource(R.string.settings_colour_none)
-        val voci: List<Int?> = listOf(null) + Draw.INKS
-        voci.forEachIndexed { i, ink ->
-            val scelto = if (riempimento) gaze.fillInk == ink else ink != null && gaze.ink == ink
-            if (ink == null && !riempimento) {
-                Spacer(Modifier.size(32.dp))
-                return@forEachIndexed
-            }
-            val nome = if (ink == null) nessuno else stringResource(INK_NAMES[i - 1])
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .selectable(selected = scelto, enabled = live, role = Role.RadioButton) {
-                        if (riempimento) gaze.fillInk = ink else if (ink != null) gaze.ink = ink
+    // ⚠️ Ten places since 4.45 (his grey): 32dp each is 320dp, more than a narrow phone gives the
+    // panel, so the swatch shrinks to fit and never grows past [SWATCH].
+    val voci: List<Int?> = listOf(null) + Draw.INKS
+    BoxWithConstraints(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        val lato = minOf(SWATCH, maxWidth / voci.size - SWATCH_GAP)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val bordo = MaterialTheme.colorScheme.onSurface
+            val filo = MaterialTheme.colorScheme.outline
+            // ⚠️ The fill's row starts with 'none'; the outline's keeps an empty place there, so the
+            // colours do not move under the finger when the target changes.
+            val nessuno = stringResource(R.string.settings_colour_none)
+            voci.forEachIndexed { i, ink ->
+                val scelto = if (riempimento) gaze.fillInk == ink else ink != null && gaze.ink == ink
+                if (ink == null && !riempimento) {
+                    Spacer(Modifier.size(lato))
+                    return@forEachIndexed
+                }
+                val nome = if (ink == null) nessuno else stringResource(INK_NAMES[i - 1])
+                Box(
+                    modifier = Modifier
+                        .size(lato)
+                        .clip(CircleShape)
+                        .selectable(selected = scelto, enabled = live, role = Role.RadioButton) {
+                            if (riempimento) {
+                                gaze.fillInk = ink
+                                gaze.fillLight = 0f
+                            } else if (ink != null) {
+                                gaze.ink = ink
+                                gaze.inkLight = 0f
+                            }
+                        }
+                        .semantics { contentDescription = nome },
+                    contentAlignment = Alignment.Center
+                ) {
+                    // ⚠️ Il filo sottile c'è sempre, o il bianco sul tema chiaro e il nero sul tema
+                    // scuro non si vedrebbero; il cerchio pieno dice qual è scelto. 'Nessuno' è il
+                    // cerchio vuoto con la diagonale.
+                    Canvas(Modifier.size(lato)) {
+                        val r = size.minDimension / 2f
+                        val dentro = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx()
+                        if (scelto) drawCircle(bordo, radius = r)
+                        if (ink != null) {
+                            drawCircle(Color(ink), radius = dentro)
+                        } else {
+                            drawCircle(Color.White, radius = dentro)
+                            val d = dentro * 0.7071f
+                            drawLine(
+                                Color(Draw.INKS.first()), center + Offset(-d, d), center + Offset(d, -d),
+                                strokeWidth = 2.dp.toPx()
+                            )
+                        }
+                        drawCircle(filo, radius = dentro, style = Stroke(1.dp.toPx()))
                     }
-                    .semantics { contentDescription = nome },
-                contentAlignment = Alignment.Center
-            ) {
-                // ⚠️ Il filo sottile c'è sempre, o il bianco sul tema chiaro e il nero sul tema
-                // scuro non si vedrebbero; il cerchio pieno dice qual è scelto. 'Nessuno' è il
-                // cerchio vuoto con la diagonale.
-                Canvas(Modifier.size(32.dp)) {
-                    val r = size.minDimension / 2f
-                    val dentro = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx()
-                    if (scelto) drawCircle(bordo, radius = r)
-                    if (ink != null) {
-                        drawCircle(Color(ink), radius = dentro)
-                    } else {
-                        drawCircle(Color.White, radius = dentro)
-                        val d = dentro * 0.7071f
-                        drawLine(
-                            Color(Draw.INKS.first()), center + Offset(-d, d), center + Offset(d, -d),
-                            strokeWidth = 2.dp.toPx()
-                        )
-                    }
-                    drawCircle(filo, radius = dentro, style = Stroke(1.dp.toPx()))
                 }
             }
         }
@@ -4754,7 +4788,13 @@ private fun DrawBody(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            stringResource(if (riempimento) R.string.settings_mark_alpha else R.string.draw_width),
+            stringResource(
+                when {
+                    gaze.lighting -> R.string.draw_light
+                    riempimento -> R.string.settings_mark_alpha
+                    else -> R.string.draw_width
+                }
+            ),
             style = MaterialTheme.typography.labelMedium
         )
         TextButton(
@@ -4766,7 +4806,15 @@ private fun DrawBody(
             contentPadding = PaddingValues(horizontal = 4.dp)
         ) { Text(stringResource(R.string.editor_original)) }
     }
-    if (riempimento) {
+    if (gaze.lighting) {
+        // ⚠️ Centred on 0, the swatch itself: left darker, right lighter ([Draw.lit]).
+        Slider(
+            value = if (riempimento) gaze.fillLight else gaze.inkLight,
+            onValueChange = { if (riempimento) gaze.fillLight = it else gaze.inkLight = it },
+            valueRange = -1f..1f,
+            enabled = live && (!riempimento || gaze.fillInk != null)
+        )
+    } else if (riempimento) {
         Slider(
             value = gaze.fillAlpha,
             onValueChange = { gaze.fillAlpha = it },
@@ -4795,7 +4843,7 @@ private fun penName(pen: Pen): Int = when (pen) {
 }
 
 /** The three keys above the palette, drawn instead of named (`ArtKey`). */
-internal enum class KeyKind { STROKE, FILL, DASH }
+internal enum class KeyKind { STROKE, FILL, DASH, LIGHT }
 
 /**
  * **The opacity the Fill key shows for a fill of opacity [alpha]**: the real one raised in
@@ -4861,12 +4909,27 @@ private fun ArtKey(
             val y = size.height / 2f
             when (kind) {
                 KeyKind.STROKE -> drawRect(
-                    Color(gaze.ink), Offset(0f, y - banda / 2f), Size(size.width, banda)
+                    Color(gaze.litInk), Offset(0f, y - banda / 2f), Size(size.width, banda)
                 )
                 KeyKind.DASH -> drawLine(
                     DASH_GREY, Offset(0f, y), Offset(size.width, y), strokeWidth = banda,
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(KEY_DASH.toPx(), KEY_SPACE.toPx()))
                 )
+                KeyKind.LIGHT -> {
+                    // ⚠️ The colour the slider moves, from its darkest to its lightest, in the Fill
+                    // key's shape: the key says what it changes and on which colour.
+                    val base = if (gaze.fillTarget && gaze.pen.closed) gaze.fillInk else gaze.ink
+                    if (base != null) {
+                        val g = KEY_GAP.toPx()
+                        drawRoundRect(
+                            Brush.horizontalGradient(
+                                listOf(Color(Draw.lit(base, -1f)), Color(base), Color(Draw.lit(base, 1f)))
+                            ),
+                            Offset(g, g), Size(size.width - 2 * g, size.height - 2 * g),
+                            CornerRadius((KEY_CORNER - KEY_GAP).toPx())
+                        )
+                    }
+                }
                 KeyKind.FILL -> {
                     val g = KEY_GAP.toPx()
                     val angolo = (KEY_CORNER - KEY_GAP).toPx()
@@ -4885,7 +4948,7 @@ private fun ArtKey(
                             }
                             r++
                         }
-                        val ink = gaze.fillInk
+                        val ink = gaze.litFill
                         if (ink != null) {
                             drawRect(Color(ink).copy(alpha = keyAlpha(gaze.fillAlpha)))
                         } else {
@@ -4908,6 +4971,10 @@ private val KEY_BAND = 6.dp
 private val KEY_DASH = 10.dp
 private val KEY_SPACE = 6.dp
 
+/** The largest swatch of the palette row, and the least air between two swatches. */
+private val SWATCH = 32.dp
+private val SWATCH_GAP = 2.dp
+
 /** The thread of space between the Fill key's edge and its rectangle (his note 4). */
 private val KEY_GAP = 3.dp
 
@@ -4917,10 +4984,10 @@ private val KEY_CORNER = 8.dp
 /** The darker squares of the Fill key's checkerboard. */
 private val CHECKER = Color(0xFFC8C8C8)
 
-/** I nomi degli otto colori, nell'ordine di [Draw.INKS]. */
+/** I nomi dei colori, nell'ordine di [Draw.INKS]. */
 private val INK_NAMES = listOf(
     R.string.ink_red, R.string.ink_amber, R.string.ink_green, R.string.ink_blue,
-    R.string.ink_violet, R.string.ink_pink, R.string.ink_white, R.string.ink_black
+    R.string.ink_violet, R.string.ink_pink, R.string.ink_white, R.string.ink_grey, R.string.ink_black
 )
 
 /**
