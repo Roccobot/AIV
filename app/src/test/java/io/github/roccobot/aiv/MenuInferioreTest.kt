@@ -27,6 +27,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -974,7 +975,11 @@ internal fun aspettaIlVelo(banco: androidx.compose.ui.test.junit4.ComposeContent
         val testi = banco.onAllNodes(androidx.compose.ui.test.hasText("", substring = true), useUnmergedTree = true)
             .fetchSemanticsNodes()
             .mapNotNull { n -> n.config.getOrElseNullable(androidx.compose.ui.semantics.SemanticsProperties.Text) { null }?.joinToString() }
-        throw AssertionError("Il velo non è comparso. archivio=${p.asMap()} vista=${SettingsStore.read(p).folderView} testi=$testi", e)
+        val flusso = runBlocking { kotlinx.coroutines.withTimeoutOrNull(2_000) { Hint.COLUMNS.flow(app).first() } }
+        throw AssertionError(
+            "Il velo non è comparso. permesso=${Folder.granted(app)} flusso=$flusso archivio=${p.asMap()} " +
+                "vista=${SettingsStore.read(p).folderView} testi=$testi", e
+        )
     }
     val ms = (System.nanoTime() - inizio) / 1_000_000
     if (ms > VELO_LENTO_MS) println("VELO LENTO: $ms ms")
