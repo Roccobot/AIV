@@ -9,6 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.down
@@ -34,6 +39,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import kotlinx.coroutines.runBlocking
@@ -259,6 +265,91 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.draw_filled)).assertIsNotEnabled()
+    }
+
+    /**
+     * **Mentre il dito tiene 'Spessore', la punta si vede nella sua misura vera** (R1 del giro della
+     * `4.40`): un tondo pieno del colore della linea, in basso a destra sull'immagine, che sparisce
+     * quando il dito si alza.
+     * ⚠️⚠️ **CONTROPROVATA** spegnendo il tondo nel palco: i pixel del colore della linea restano
+     * zero col dito sul cursore.
+     * ⚠️ **Su uno schermo da telefono e non su quello di serie del banco**: là il palco è alto 40
+     * pixel e l'immagine 30, quindi la punta vera misura meno di un pixel e non si distingue da
+     * niente.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `tenendo Spessore si vede la punta piena del colore della linea`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val spessore = banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+        spessore.performTouchInput { down(Offset(width * 0.9f, height / 2f)) }
+        spessore.performTouchInput { moveTo(Offset(width * 0.95f, height / 2f)) }
+        banco.waitForIdle()
+        val tenuto = palco.captureToImage().toPixelMap()
+        spessore.performTouchInput { up() }
+        banco.waitForIdle()
+        val lasciato = palco.captureToImage().toPixelMap()
+        val rosso = androidx.compose.ui.graphics.Color(Draw.INKS[0])
+        assertTrue("col dito sul cursore la punta rossa doveva vedersi", inchiostro(tenuto, rosso) > 20)
+        assertEquals("a dito alzato la punta doveva sparire", 0, inchiostro(lasciato, rosso))
+        val (cx, cy) = centro(tenuto, rosso)
+        assertTrue("la punta doveva stare a destra", cx > tenuto.width / 2)
+        assertTrue("la punta doveva stare in basso", cy > tenuto.height / 2)
+    }
+
+    /**
+     * **Mentre si disegna una forma piccola compare la lente, e una forma grande non la vuole**
+     * (R2 del giro della `4.40`, soglia di 1,5 cm sullo schermo).
+     * ⚠️ Si confronta il palco col dito giù e a dito alzato: il segno resta in tutti e due, quindi
+     * quello che cambia è la sola lente.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la lente dal palco: col segno piccolo la differenza scende
+     * a zero.
+     */
+    @Test
+    fun `la lente compare sulle forme piccole e non su quelle grandi`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.waitForIdle()
+        assertTrue("col rettangolo piccolo doveva comparire la lente", diffDurante(PASSO, PASSO) > 500)
+        assertEquals("col rettangolo grande la lente non doveva esserci", 0, diffDurante(-PASSO * 4, PASSO * 4))
+    }
+
+    /** I pixel che cambiano fra il palco col dito giù dopo il trascinamento e a dito alzato. */
+    private fun diffDurante(dx: Float, dy: Float): Int {
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        palco.performTouchInput { down(center) }
+        palco.performTouchInput { moveTo(center + Offset(dx, dy)) }
+        banco.waitForIdle()
+        val giu = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        val su = palco.captureToImage().toPixelMap()
+        var n = 0
+        for (y in 0 until giu.height) for (x in 0 until giu.width) if (giu[x, y] != su[x, y]) n++
+        return n
+    }
+
+    private fun vicino(a: androidx.compose.ui.graphics.Color, b: androidx.compose.ui.graphics.Color) =
+        kotlin.math.abs(a.red - b.red) < 0.04f && kotlin.math.abs(a.green - b.green) < 0.04f &&
+            kotlin.math.abs(a.blue - b.blue) < 0.04f
+
+    private fun inchiostro(mappa: PixelMap, colore: androidx.compose.ui.graphics.Color): Int {
+        var n = 0
+        for (y in 0 until mappa.height) for (x in 0 until mappa.width) if (vicino(mappa[x, y], colore)) n++
+        return n
+    }
+
+    private fun centro(mappa: PixelMap, colore: androidx.compose.ui.graphics.Color): Pair<Int, Int> {
+        var sx = 0L; var sy = 0L; var n = 0
+        for (y in 0 until mappa.height) for (x in 0 until mappa.width) if (vicino(mappa[x, y], colore)) {
+            sx += x; sy += y; n++
+        }
+        return Pair((sx / n).toInt(), (sy / n).toInt())
     }
 
     /**

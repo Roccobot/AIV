@@ -641,6 +641,14 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   (spessore o opacità), così la scheda non cresce di una seconda tavolozza; per il riempimento il
   primo colore è 'Nessuno', che è quello di fabbrica, e l'opacità di fabbrica è il 50%. La
   freccia, la linea e la mano libera lo ignorano, e il segno nasce senza.
+- **Dalla `4.41` due aiuti del giro della `4.40`** (sue note su `4.40-01`):
+  - **R1**: mentre il dito tiene `Spessore`, la punta nella sua misura vera, come tondo pieno del
+    colore della linea in basso a destra sull'immagine, nello stesso angolo e con lo stesso margine
+    del pennello di Correggi e Fluidifica; sparisce quando il dito si alza.
+  - **R2**: mentre il dito disegna una forma piccola compare la lente di Correggi, con l'inchiostro
+    dentro. La soglia la sceglie la sessione ed è dichiarata: **1,5 cm sullo schermo**, misurati sul
+    riquadro del tratto a mano libera o sulla distanza da A al dito per le altre penne. Oltre la
+    soglia la lente sparisce, e torna se una forma delle quattro penne da A a B si restringe.
 - **La G2 (`4.50`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
   quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
 
