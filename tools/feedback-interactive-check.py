@@ -141,6 +141,11 @@ def check(path):
                 expect(counter.locator('strong')).to_have_text(str(index))
                 assert counter.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
                 assert int(counter.locator('strong').evaluate('(el)=>getComputedStyle(el).fontWeight')) >= 700
+            def torna(posizione):
+                # ⚠️ The page refreshes its keys on the frame after a scroll, so a check read at
+                # once sees the keys of the position before (found on the DF of 4.40).
+                navigation.evaluate(f'window.scrollTo(0, {posizione})')
+                navigation.evaluate('new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))')
             def aligned(card):
                 box = card.bounding_box()
                 # Since 2026-10-06 the desktop has no fixed strip (the counts live in Altro), so a
@@ -228,20 +233,23 @@ def check(path):
             # Con 2 o 3 prove non c'è quel buco: l'esito sulla 1 resta, e lo si toglie più sotto.
             # Con una prova sola esito e commento sono sulla stessa carta.
             outcome = 1 if len(data['items']) >= 2 else 0
+            # ⚠️ `fill` and `click` scroll the field into view, which no navigation key did, so the
+            # page goes back where the keys left it after each of them. The position is taken
+            # right after the last key that moved the page: taken after a `fill` it is already
+            # Playwright's (found on the DF of 4.44, 12 px off; on the DF of 4.41, 16 px).
+            fermo = navigation.evaluate('scrollY')
             navigation.locator('.test').nth(0).locator('.rich-editor').fill('Solo commento')
             navigation.locator('.test').nth(outcome).locator('[data-status="Non approvato"]').click()
+            torna(fermo)
             if len(data['items']) >= 4:
                 navigation.locator('.test').nth(len(data['items']) - 1).locator('.rich-editor').fill('Più in basso')
                 navigation.locator('#first-empty').tap()
                 aligned(navigation.locator('.test').nth(2))
+                fermo = navigation.evaluate('scrollY')
             # Fill through normal input handlers; navigation must update without a reload.
-            # ⚠️ `fill` scrolls each field into view, which no navigation key did: the page goes
-            # back where the keys left it, or with two proofs (no key can act afterwards) the
-            # check measured Playwright's scroll. Found on the DF of 4.41, 16 px off.
-            fermo = navigation.evaluate('scrollY')
             for field in navigation.locator('.test .rich-editor').all():
                 field.fill('Risposta di verifica')
-            navigation.evaluate(f'window.scrollTo(0, {fermo})')
+            torna(fermo)
             # Desktop hides ⇥ when nothing is empty; mobile keeps it for long-press Altro.
             if navigation.viewport_size['width'] <= 720:
                 expect(navigation.locator('#first-empty')).to_be_visible()
@@ -249,6 +257,7 @@ def check(path):
                 expect(navigation.locator('#first-empty')).to_be_hidden()
             navigation.locator('.test').nth(outcome).locator('[data-status="Non approvato"]').click()
             navigation.locator('.test').nth(outcome).locator('.rich-editor').fill('')
+            torna(fermo)
             # Con poche prove si è già sulla carta vuota: ⇥ è nascosto e Avanti è fermo.
             if navigation.locator('#next-card').is_enabled():
                 navigation.locator('#next-card').tap()
