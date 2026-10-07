@@ -668,7 +668,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
   niente*; la chiave resta `draw_outline`).
   - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
-    di disegno: la quarta è il posto di Luminosità (`4.45`), la quinta resta vuota.
+    di disegno: la quarta è Spessore (dalla `4.47`; nella `4.45` e nella `4.46` era Luminosità), la quinta resta vuota.
   - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
     filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
     rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
@@ -694,9 +694,25 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   non resta un buco fra l'ultimo trattino e la punta, e il primo trattino esce dall'angolo
   rientrante. Un'asta più corta di quel pezzo è piena. La linea tratteggiata non cambia. La
   misura la fa `FrecciaTest`.
-- **Luminosità e Spessore cambiano nella `4.47`** (sua nota su `4.45-02`): il tasto Luminosità
-  esce, ne entra uno per lo Spessore, e la luminosità si sceglie tenendo premuto un tondo. La
-  specifica e le tre domande aperte vivono nel brief, voce del giro della `4.45`.
+- **Dalla `4.47` il tasto Spessore, la luminosità sui tondi e l'aggancio** (sue note sul giro della
+  `4.45`, risposte `L1a`, `L2a`, `L3a` e `S1`):
+  - **Il quarto tasto è Spessore**, al posto di Luminosità: una linea del colore della traccia,
+    più spessa col cursore. **Traccia, Riempimento e Spessore sono tre scelte esclusive** (`S1`) di
+    che cosa regola il cursore: l'**opacità della linea** (nuova, piena di fabbrica), l'opacità
+    del riempimento, lo spessore. La tavolozza regola il riempimento con Riempimento scelto, e la
+    linea negli altri due casi: lettura della sessione, dichiarata nella voce di collaudo.
+  - ⚠️ **L'opacità della linea vale per il segno intero**, posata con un livello: dove la punta
+    della freccia incrocia l'asta, o una mano libera ripassa su sé stessa, il colore resta uguale.
+  - **La luminosità si sceglie tenendo premuto un tondo**, con la pressione lunga di sistema
+    (`L1a`): compare un cursore sotto la tavolozza, con accanto il colore che ne risulta. Se il dito
+    scorre è un gesto solo, e il valore si applica quando il dito si stacca, chiudendo il cursore
+    (`L2a`); se il dito si alza fermo il cursore resta, e un tocco fuori lo chiude (`L3a`). Il
+    cursore è un menu, quindi quel tocco non arriva al palco. Il tondo resta del suo colore base, e
+    un tocco successivo gli rende la luminosità base. Tenere un tondo non scelto lo sceglie prima.
+  - **Linee e frecce si agganciano all'orizzontale e alla verticale** (nota A): entro 5 gradi
+    dall'asse, misurati sullo schermo, il capo si posa esattamente sull'asse, e una linea guida
+    color accento attraversa l'immagine finché il dito resta giù. I 5 gradi sono una scelta della
+    sessione, dichiarata.
 - **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.

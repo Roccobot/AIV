@@ -9,6 +9,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import androidx.compose.ui.geometry.Offset
 import androidx.core.graphics.ColorUtils
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -192,9 +193,44 @@ internal object Draw {
 
     private fun paint(canvas: Canvas, mark: Mark, w: Float, h: Float, long: Float) {
         if (mark.points.isEmpty()) return
+        val pts = mark.points.map { Offset(it.x * w, it.y * h) }
+        val a = pts.first()
+        val b = pts.last()
+        // ⚠️ The fill goes first and on its own: its opacity is its own, and the outline's layer
+        // below must not multiply it.
+        if (mark.pen.closed) mark.fill?.let {
+            val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = it
+                style = Paint.Style.FILL
+            }
+            val box = RectF(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y))
+            if (mark.pen == Pen.ELLIPSE) canvas.drawOval(box, fill)
+            else {
+                val r = corner(mark, long, box)
+                canvas.drawRoundRect(box, r, r, fill)
+            }
+        }
+        /*
+         * ⚠️⚠️ **The outline's opacity is laid on the whole mark, through a layer** (Opacità of
+         * Traccia, 4.47, his answer `S1`): drawn with a translucent paint, every place where two
+         * strokes of the same mark cross (the arrow's head on its shaft, the round caps of the
+         * dashes, a free hand stroke over itself) would come out darker than the rest.
+         */
+        val alpha = mark.ink ushr 24
+        val layer = if (alpha < 255) canvas.saveLayerAlpha(null, alpha) else -1
+        strokeOf(canvas, mark, pts, long)
+        if (layer >= 0) canvas.restoreToCount(layer)
+    }
+
+    /** The corner radius of a rectangle [box]: it follows the stroke, never past half a side. */
+    private fun corner(mark: Mark, long: Float, box: RectF): Float =
+        min((mark.width * long).coerceAtLeast(1f) * CORNER, min(box.width(), box.height()) / 2f)
+
+    /** The outline of [mark], opaque: [paint] lays its opacity. */
+    private fun strokeOf(canvas: Canvas, mark: Mark, pts: List<Offset>, long: Float) {
         val stroke = (mark.width * long).coerceAtLeast(1f)
         val pen = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = mark.ink
+            color = mark.ink or 0xFF000000.toInt()
             style = Paint.Style.STROKE
             strokeWidth = stroke
             strokeCap = Paint.Cap.ROUND
@@ -202,7 +238,6 @@ internal object Draw {
             // ⚠️ The dashes scale with the stroke, so a thick line is not a row of dots.
             if (mark.dashed) pathEffect = DashPathEffect(floatArrayOf(stroke * DASH, stroke * GAP), 0f)
         }
-        val pts = mark.points.map { Offset(it.x * w, it.y * h) }
         val a = pts.first()
         val b = pts.last()
         when (mark.pen) {
@@ -233,19 +268,9 @@ internal object Draw {
             }
             Pen.RECT, Pen.ELLIPSE -> {
                 val box = RectF(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y))
-                val fill = mark.fill?.let {
-                    Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                        color = it
-                        style = Paint.Style.FILL
-                    }
-                }
-                if (mark.pen == Pen.ELLIPSE) {
-                    fill?.let { canvas.drawOval(box, it) }
-                    canvas.drawOval(box, pen)
-                } else {
-                    // ⚠️ The corner radius follows the stroke, and never more than half a side.
-                    val r = min(stroke * CORNER, min(box.width(), box.height()) / 2f)
-                    fill?.let { canvas.drawRoundRect(box, r, r, it) }
+                if (mark.pen == Pen.ELLIPSE) canvas.drawOval(box, pen)
+                else {
+                    val r = corner(mark, long, box)
                     canvas.drawRoundRect(box, r, r, pen)
                 }
             }
@@ -358,4 +383,36 @@ internal object Draw {
 
     /** Whether [b] is far enough from [a] to be kept in a free hand stroke. */
     fun far(a: Offset, b: Offset): Boolean = hypot(b.x - a.x, b.y - a.y) >= STEP
+
+    /**
+     * **[b] laid onto the horizontal or the vertical through [a]** when the line from [a] to [b] is
+     * within [SNAP_DEG] of it, with that axis; otherwise [b] itself and `null` (his note A on the
+     * 4.45 round: *all'avvicinarsi della direzione perfettamente orizzontale e perfettamente
+     * verticale fossero posizionate PRECISAMENTE sulla direttrice corrispondente*).
+     *
+     * ⚠️⚠️ **It works in screen pixels, not in the image's frame**: the horizontal he means is the
+     * one he sees, and on a straightened or mirrored image the two differ.
+     * ⚠️ The point is projected, not turned: only the coordinate across the axis changes, so the
+     * end stays under the finger along the axis.
+     */
+    fun snap(a: Offset, b: Offset): Pair<Offset, SnapAxis?> {
+        val dx = abs(b.x - a.x)
+        val dy = abs(b.y - a.y)
+        if (dx == 0f && dy == 0f) return b to null
+        val deg = Math.toDegrees(atan2(dy, dx).toDouble())
+        return when {
+            deg <= SNAP_DEG -> Offset(b.x, a.y) to SnapAxis.HORIZONTAL
+            deg >= 90.0 - SNAP_DEG -> Offset(a.x, b.y) to SnapAxis.VERTICAL
+            else -> b to null
+        }
+    }
+
+    /**
+     * How close to an axis a line snaps, in degrees. ⚠️ A choice of the session, declared in the
+     * test item: at 5 degrees a line 3 cm long snaps when its end is within about 2.6 mm of the axis.
+     */
+    const val SNAP_DEG = 5.0
 }
+
+/** The two directions a line or an arrow snaps to ([Draw.snap]). */
+enum class SnapAxis { HORIZONTAL, VERTICAL }
