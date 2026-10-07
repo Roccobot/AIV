@@ -259,8 +259,9 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   controllo lo verifica (`Rules.md` § '🚀 Che cosa produce un rilascio').
 - **Il rilascio**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia il
   tag, costruisce l'APK firmato e crea la release; senza `publish` è la corsa a vuoto, che non si
-  chiama 'banco di prova'. Il banco e il controllo delle traduzioni sono il cancello, prima della
-  firma e del build (`Rules.md` § '🚀 Che cosa produce un rilascio').
+  chiama 'banco di prova'. Il cancello è il banco con le traduzioni: se `check.yml` è verde
+  sullo stesso commit non si rifà, se è rosso il rilascio si ferma, se manca gira nel rilascio;
+  intanto il build procede (`Rules.md` § '🚀 Che cosa produce un rilascio').
 - **Verifica di pubblicazione**: la release col suo tag e l'APK allegato (`get_release_by_tag`).
   ⚠️ Due build si distinguono dal `digest` dell'asset, non dal peso, che l'allineamento a 16 KB
   lascia uguale. Il sito si controlla solo quando cambia `publish/`, con la corsa di `pages.yml`

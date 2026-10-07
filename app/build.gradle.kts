@@ -273,3 +273,17 @@ dependencies {
     testImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+/*
+ * ⚠️⚠️ ON GITHUB THE BENCH WRITES THE ORDER IN WHICH ITS TESTS START, AND ONLY THERE (4.45).
+ * The tests that wait for the veil hint fall on GitHub now and then, and when they fall every
+ * one of them falls in that run: something an earlier class leaves in the process stops the
+ * hint for the rest of it. All 615 pass locally, in the usual order and in reverse, so the
+ * order of the failing run is the one fact missing to reproduce it. Off locally: 615 lines a
+ * run is noise for a session that already knows its own order.
+ */
+if (providers.environmentVariable("CI").isPresent) {
+    tasks.withType<Test>().configureEach {
+        testLogging { events(org.gradle.api.tasks.testing.logging.TestLogEvent.STARTED) }
+    }
+}
