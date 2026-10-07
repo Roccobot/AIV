@@ -100,6 +100,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
@@ -4685,20 +4686,20 @@ private fun DrawBody(
         FilterChip(
             selected = !riempimento,
             onClick = { gaze.fillTarget = false },
-            label = { Text(stringResource(R.string.draw_outline), maxLines = 1) },
+            label = { KeyArt(KeyKind.STROKE, gaze, live, R.string.draw_outline) },
             enabled = live
         )
         FilterChip(
             selected = riempimento,
             onClick = { gaze.fillTarget = true },
-            label = { Text(stringResource(R.string.draw_filled), maxLines = 1) },
+            label = { KeyArt(KeyKind.FILL, gaze, live && chiusa, R.string.draw_filled) },
             enabled = live && chiusa
         )
         Spacer(Modifier.weight(1f))
         FilterChip(
             selected = gaze.dashed,
             onClick = { gaze.dashed = !gaze.dashed },
-            label = { Text(stringResource(R.string.draw_dashed), maxLines = 1) },
+            label = { KeyArt(KeyKind.DASH, gaze, live, R.string.draw_dashed) },
             enabled = live
         )
     }
@@ -4797,6 +4798,93 @@ private fun penName(pen: Pen): Int = when (pen) {
     Pen.RECT -> R.string.draw_rect
     Pen.ELLIPSE -> R.string.draw_ellipse
 }
+
+/** The three keys above the palette, drawn instead of named (`KeyArt`). */
+internal enum class KeyKind { STROKE, FILL, DASH }
+
+/**
+ * **The opacity the Fill key shows for a fill of opacity [alpha]**: the real one raised in
+ * proportion, never under [KEY_ALPHA_MIN], and a full fill stays full (item `4.42-01`: *leggermente
+ * accentuato per visualizzare le trasparenze basse, minimo alfa 40%*). His factory 15% shows at
+ * about 49%, and the slider's floor (10%) at 46%.
+ */
+internal fun keyAlpha(alpha: Float): Float = KEY_ALPHA_MIN + (1f - KEY_ALPHA_MIN) * alpha.coerceIn(0f, 1f)
+
+/** The least opacity the Fill key shows, his figure. */
+internal const val KEY_ALPHA_MIN = 0.4f
+
+/** The Dashes key's grey: his 'grigio scuro', the same on both themes. */
+private val DASH_GREY = Color(0xFF616161)
+
+/**
+ * **What the Stroke, Fill and Dashes keys show, since 4.43** (item `4.42-01`): a thick line in
+ * the current colour, a rounded rectangle in the fill's colour over a checkerboard, and a thick
+ * dashed dark grey line. The word stays as the description a screen reader announces; on screen
+ * there is only the drawing.
+ *
+ * ⚠️ **The Stroke line has the palette's thin rim around it**, as the swatches below do: without
+ * it a black line on the dark theme and a white one on the light theme would not be there. A choice
+ * of the session, declared in the test item.
+ * ⚠️ **The Fill key with 'none' chosen is the empty checkerboard crossed by the red diagonal** of
+ * the 'none' swatch, so the two say the same thing.
+ * ⚠️ The Dashes key says on or off with the chip's own selected state, like every other toggle
+ * chip of the editor.
+ */
+@Composable
+private fun KeyArt(kind: KeyKind, gaze: Gaze, enabled: Boolean, name: Int) {
+    val nome = stringResource(name)
+    val filo = MaterialTheme.colorScheme.outline
+    Canvas(
+        Modifier
+            .size(width = 32.dp, height = 18.dp)
+            .alpha(if (enabled) 1f else 0.38f)
+            .semantics { contentDescription = nome }
+    ) {
+        val spessore = 5.dp.toPx()
+        val da = Offset(spessore, size.height / 2f)
+        val a = Offset(size.width - spessore, size.height / 2f)
+        when (kind) {
+            KeyKind.STROKE -> {
+                drawLine(filo, da, a, strokeWidth = spessore + 2.dp.toPx(), cap = StrokeCap.Round)
+                drawLine(Color(gaze.ink), da, a, strokeWidth = spessore, cap = StrokeCap.Round)
+            }
+            KeyKind.FILL -> {
+                val forma = RoundRect(
+                    Rect(Offset.Zero, size), CornerRadius(5.dp.toPx())
+                )
+                clipPath(Path().apply { addRoundRect(forma) }) {
+                    val lato = 4.dp.toPx()
+                    drawRect(Color.White)
+                    var y = 0
+                    while (y * lato < size.height) {
+                        var x = y % 2
+                        while (x * lato < size.width) {
+                            drawRect(CHECKER, Offset(x * lato, y * lato), Size(lato, lato))
+                            x += 2
+                        }
+                        y++
+                    }
+                    val ink = gaze.fillInk
+                    if (ink != null) {
+                        drawRect(Color(ink).copy(alpha = keyAlpha(gaze.fillAlpha)))
+                    } else {
+                        drawLine(
+                            Color(Draw.INKS.first()), Offset(0f, size.height), Offset(size.width, 0f),
+                            strokeWidth = 2.dp.toPx()
+                        )
+                    }
+                }
+            }
+            KeyKind.DASH -> drawLine(
+                DASH_GREY, da, a, strokeWidth = spessore,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 3.dp.toPx()))
+            )
+        }
+    }
+}
+
+/** The darker squares of the Fill key's checkerboard. */
+private val CHECKER = Color(0xFFC8C8C8)
 
 /** I nomi degli otto colori, nell'ordine di [Draw.INKS]. */
 private val INK_NAMES = listOf(

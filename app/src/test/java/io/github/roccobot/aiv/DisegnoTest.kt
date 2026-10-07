@@ -23,6 +23,7 @@ import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
@@ -163,7 +164,7 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
-        banco.onNodeWithText(testo(R.string.draw_dashed)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).performClick()
         banco.waitForIdle()
         trascina()
 
@@ -198,7 +199,7 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
-        banco.onNodeWithText(testo(R.string.draw_filled)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.draw_filled)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.ink_white)).performClick()
         // ⚠️ Since 4.42 the factory opacity is about 15% (his values), so the 50% of his example
@@ -297,13 +298,13 @@ class DisegnoTest {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
-        banco.onNodeWithText(testo(R.string.draw_filled)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_filled)).assertIsNotEnabled()
         banco.onNodeWithContentDescription(testo(R.string.draw_ellipse)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.draw_filled)).assertIsEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_filled)).assertIsEnabled()
         banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.draw_filled)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_filled)).assertIsNotEnabled()
     }
 
     /**
@@ -356,6 +357,70 @@ class DisegnoTest {
         banco.waitForIdle()
         assertTrue("col rettangolo piccolo doveva comparire la lente", diffDurante(PASSO, PASSO) > 500)
         assertEquals("col rettangolo grande la lente non doveva esserci", 0, diffDurante(-PASSO * 4, PASSO * 4))
+    }
+
+    /**
+     * **I tasti Tratto, Riempimento e Tratteggio sono disegni, non parole** (voce `4.42-01`): sullo
+     * schermo non c'è più la parola, che resta come descrizione per il lettore di schermo.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il testo nell'etichetta di 'Tratteggio'.
+     */
+    @Test
+    fun `i tre tasti sono disegni con la loro descrizione`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        for (id in listOf(R.string.draw_outline, R.string.draw_filled, R.string.draw_dashed)) {
+            assertEquals("il tasto '${testo(id)}' doveva esserci, descritto", 1,
+                banco.onAllNodesWithContentDescription(testo(id)).fetchSemanticsNodes().size)
+            assertEquals("il tasto '${testo(id)}' non doveva mostrare la parola", 0,
+                banco.onAllNodesWithText(testo(id)).fetchSemanticsNodes().size)
+        }
+    }
+
+    /**
+     * **Il tasto Tratto mostra il colore della linea, e lo cambia con lei.**
+     * ⚠️⚠️ **CONTROPROVATA** disegnando la linea del tasto in un colore fisso.
+     */
+    @Test
+    fun `il tasto Tratto ha il colore della linea`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
+        val blu = androidx.compose.ui.graphics.Color(Draw.INKS[3])
+        val prima = banco.onNodeWithContentDescription(testo(R.string.draw_outline)).captureToImage().toPixelMap()
+        assertTrue("il tasto doveva essere rosso", inchiostro(prima, rosso) > 20)
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.waitForIdle()
+        val dopo = banco.onNodeWithContentDescription(testo(R.string.draw_outline)).captureToImage().toPixelMap()
+        assertTrue("il tasto doveva diventare blu", inchiostro(dopo, blu) > 20)
+        assertEquals("del rosso non doveva restare niente", 0, inchiostro(dopo, rosso))
+    }
+
+    /**
+     * **Il tasto Riempimento mostra il colore del riempimento con l'opacità alzata, minimo 40%**
+     * (voce `4.42-01`): il salmone al 15% di fabbrica si vede a circa il 49% sui quadretti bianchi.
+     * ⚠️⚠️ **CONTROPROVATA** dipingendo il tasto con l'opacità vera: sul bianco il salmone al 15%
+     * è un altro colore, e i pixel attesi scendono a zero.
+     */
+    @Test
+    fun `il tasto Riempimento mostra il riempimento accentuato`() {
+        assertEquals(KEY_ALPHA_MIN, keyAlpha(0f), 1e-6f)
+        assertEquals(1f, keyAlpha(1f), 1e-6f)
+        assertTrue("l'accentuazione deve crescere con l'opacità", keyAlpha(0.3f) > keyAlpha(0.2f))
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.waitForIdle()
+        val salmone = Draw.FILL or 0xFF000000.toInt()
+        val a = keyAlpha((Draw.FILL ushr 24) / 255f)
+        fun su(fondo: Float, c: Int) = fondo * (1 - a) + (c and 0xFF) / 255f * a
+        val atteso = androidx.compose.ui.graphics.Color(
+            su(1f, salmone shr 16), su(1f, salmone shr 8), su(1f, salmone)
+        )
+        val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_filled)).captureToImage().toPixelMap()
+        assertTrue("sui quadretti bianchi il salmone doveva vedersi accentuato", inchiostro(tasto, atteso) > 10)
     }
 
     /** I pixel che cambiano fra il palco col dito giù dopo il trascinamento e a dito alzato. */
