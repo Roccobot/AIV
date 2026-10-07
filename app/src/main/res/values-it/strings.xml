@@ -118,6 +118,7 @@
     <string name="draw_width">Spessore</string>
     <string name="draw_dashed">Tratteggio</string>
     <string name="draw_filled">Riempimento</string>
+    <string name="draw_light">Luminosità</string>
     <string name="ink_red">Rosso</string>
     <string name="ink_amber">Ambra</string>
     <string name="ink_green">Verde</string>
@@ -126,6 +127,7 @@
     <string name="ink_black">Nero</string>
     <string name="ink_white">Bianco</string>
     <string name="ink_pink">Rosa</string>
+    <string name="ink_grey">Grigio</string>
     <string name="look_preset_save">Salva stile</string>
     <string name="look_preset_name">Nome dello stile</string>
     <string name="look_preset_mine">Stili salvati</string>

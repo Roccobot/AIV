@@ -107,9 +107,54 @@ class VeloTest {
         assertEquals("tolta la richiesta, il velo doveva sparire subito", 0f, velo(), 0.01f)
     }
 
+    /**
+     * **Fra un menu che esce e una scheda che entra il velo resta pieno** (sua nota su `4.44-02`:
+     * dal menu di una miniatura a 'Info' *c'è un lampeggio, mi pare che la sfocatura se ne vada e
+     * ritorni*).
+     * ⚠️ Il passaggio si riproduce sulla mappa: il menu cala in [MENU_STEPS] fotogrammi (la sua
+     * uscita di 75 ms), e nello stesso tempo la scheda sale da zero col suo avanzamento.
+     * ⚠️⚠️ **CONTROPROVATA** sul velo della `4.44`, che scendeva con la dose del menu e risaliva in
+     * 800 ms per la scheda: a metà passaggio il velo era sotto il 10%.
+     */
+    @Test
+    fun `fra un menu che esce e una scheda che entra il velo resta pieno`() {
+        banco.mainClock.autoAdvance = false
+        banco.setContent {
+            Box(Modifier.size(40.dp).background(Color.White).testTag("fondo")) {
+                AppVeil(Modifier.size(40.dp))
+            }
+        }
+        banco.mainClock.advanceTimeByFrame()
+        val menu = Any()
+        val scheda = Any()
+        banco.runOnIdle {
+            VeilStage.at(menu, 0.30f, 0.30f, Color.Black)
+            Snapshot.sendApplyNotifications()
+        }
+        banco.mainClock.advanceTimeBy(VEIL_IN_MS.toLong() + 100)
+        assertEquals("il velo del menu doveva essere pieno", 0.30f, velo(), 0.02f)
+
+        var minimo = 1f
+        for (i in 1..MENU_STEPS * 3) {
+            val esce = (1f - i / MENU_STEPS.toFloat()).coerceAtLeast(0f)
+            val entra = (i / (MENU_STEPS * 3f)).coerceAtMost(1f)
+            banco.runOnIdle {
+                VeilStage.at(menu, 0.30f * esce, 0.30f, Color.Black)
+                VeilStage.at(scheda, 0.30f * entra, 0.30f, Color.Black)
+                Snapshot.sendApplyNotifications()
+            }
+            banco.mainClock.advanceTimeByFrame()
+            minimo = minOf(minimo, velo())
+        }
+        assertTrue("fra il menu e la scheda il velo è sceso a $minimo", minimo > 0.27f)
+    }
+
     /** Quanto velo nero c'è sul fondo bianco, al centro. */
     private fun velo(): Float {
         val mappa = banco.onNodeWithTag("fondo").captureToImage().toPixelMap()
         return 1f - mappa[mappa.width / 2, mappa.height / 2].red
     }
 }
+
+/** The frames of a menu's exit, 75 ms at 60 frames per second. */
+private const val MENU_STEPS = 5

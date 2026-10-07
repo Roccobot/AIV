@@ -130,9 +130,27 @@ fun WindowVeil(
      * flusso girava per tutta la durata dell'animazione per chiamare un metodo su niente. È la
      * stessa guardia che `Veil.at` ha già dentro di sé, portata dove costa zero.
      */
+    /*
+     * ⚠️⚠️ **UNA SUPERFICIE CHE SI APRE MENTRE UN'ALTRA È IN SCENA EREDITA LA SFOCATURA PIENA, dalla
+     * `4.45`** (sua nota su `4.44-02`: dal menu di una miniatura a 'Info' *la sfocatura se ne va e
+     * ritorna*). La sfocatura è di finestra: quella del menu se ne va con la sua uscita di 75 ms, e
+     * quella della scheda cresceva da zero con la sua entrata, quindi per qualche fotogramma lo
+     * sfondo tornava nitido. Adesso, se al momento dell'apertura c'è già un velo in scena, la
+     * finestra nuova sfoca subito al pieno, e segue il proprio avanzamento solo quando comincia a
+     * uscire. Il velo dipinto ha la stessa regola in [AppVeil].
+     * ⚠️ **Il banco non la misura**: la sfocatura è un attributo che risponde il gestore delle
+     * finestre, e su una macchina senza schermo non risponde nessuno. Si guarda sul telefono.
+     */
+    val eredita = remember { VeilStage.dose > 0f }
     if (velo != null) {
         LaunchedEffect(velo) {
-            snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { velo.at(it) }
+            var piena = eredita
+            var prima = 0f
+            snapshotFlow { misura().coerceIn(0f, PIENO) }.collect {
+                if (it < prima) piena = false
+                prima = it
+                velo.at(if (piena) PIENO else it)
+            }
         }
     }
     DisposableEffect(velo) { onDispose { velo?.off() } }
@@ -373,7 +391,7 @@ internal object VeilStage {
      * col vetro; dalla `4.44` è [VEIL_DOSE] per tutti, e [veilProgress] lo usa lo stesso per dire a
      * che punto è la transizione senza conoscere il numero.
      */
-    data class Richiesta(val dose: Float, val pieno: Float, val colore: Color)
+    data class Richiesta(val dose: Float, val pieno: Float, val colore: Color, val sale: Boolean)
 
     private val piu: Richiesta? get() = chiedono.values.maxByOrNull { it.dose }
 
@@ -390,8 +408,23 @@ internal object VeilStage {
     val avanzamento: Float
         get() = chiedono.values.maxOfOrNull { if (it.pieno > 0f) it.dose / it.pieno else 0f } ?: 0f
 
+    /**
+     * Se c'è una superficie che sta entrando, cioè la cui dose è salita all'ultima richiesta.
+     *
+     * ⚠️ Serve ad [AppVeil] per non scendere mentre un'altra superficie esce (vedi la nota là): una
+     * richiesta che si ferma al pieno resta 'in salita' finché non comincia a calare, ed è giusto,
+     * perché fino a quel momento la superficie è in scena.
+     */
+    val sale: Boolean get() = chiedono.values.any { it.sale }
+
     fun at(chi: Any, quanto: Float, pieno: Float, colore: Color) {
-        if (quanto <= 0f) chiedono.remove(chi) else chiedono[chi] = Richiesta(quanto, pieno, colore)
+        if (quanto <= 0f) {
+            chiedono.remove(chi)
+            return
+        }
+        val prima = chiedono[chi]
+        val sale = prima == null || quanto > prima.dose || (quanto == prima.dose && prima.sale)
+        chiedono[chi] = Richiesta(quanto, pieno, colore, sale)
     }
 
     fun off(chi: Any) {
@@ -437,13 +470,18 @@ fun AppVeil(modifier: Modifier = Modifier) {
      * esce, la coda della scheda in fondo) il velo la segue fotogramma per fotogramma, com'era
      * prima. Un velo che resta dopo il pannello si legge come uno schermo bloccato, e l'uscita
      * lenta della sfocatura era già stata scartata (nota in fondo a questo file).
+     * ⚠️⚠️ **MA NON SCENDE MENTRE UN'ALTRA SUPERFICIE STA ENTRANDO** ([VeilStage.sale], dalla
+     * `4.45`): dal menu di una miniatura a 'Info' il menu esce in 75 ms e la scheda entra coi suoi
+     * tempi, quindi la dose più forte cala per qualche fotogramma; nella `4.44` il velo la seguiva
+     * fino quasi a zero e poi risaliva in 800 ms, ed era il lampeggio della sua nota su `4.44-02`.
+     * La misura è `VeloTest`: a metà passaggio il velo era all'8%.
      */
     val dipinto = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         var salita: Job? = null
         var meta = -1f
-        snapshotFlow { VeilStage.dose to VeilStage.pieno }.collect { (dose, pieno) ->
-            if (dose <= 0f || dose < dipinto.value) {
+        snapshotFlow { Triple(VeilStage.dose, VeilStage.pieno, VeilStage.sale) }.collect { (dose, pieno, sale) ->
+            if (dose <= 0f || (dose < dipinto.value && !sale)) {
                 salita?.cancel()
                 meta = -1f
                 dipinto.snapTo(dose)

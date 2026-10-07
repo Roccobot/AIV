@@ -490,6 +490,7 @@
     <string name="draw_width">ความหนา</string>
     <string name="draw_dashed">เส้นประ</string>
     <string name="draw_filled">เติมสี</string>
+    <string name="draw_light">ความสว่าง</string>
     <string name="ink_red">แดง</string>
     <string name="ink_amber">อำพัน</string>
     <string name="ink_green">เขียว</string>
@@ -498,6 +499,7 @@
     <string name="ink_black">ดำ</string>
     <string name="ink_white">ขาว</string>
     <string name="ink_pink">ชมพู</string>
+    <string name="ink_grey">เทา</string>
     <string name="look_preset_save">บันทึกสไตล์</string>
     <string name="look_preset_name">ชื่อพรีเซ็ต</string>
     <string name="look_preset_mine">สไตล์ที่บันทึกไว้</string>

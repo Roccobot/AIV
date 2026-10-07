@@ -507,6 +507,7 @@
     <string name="draw_width">मोटाई</string>
     <string name="draw_dashed">डैश</string>
     <string name="draw_filled">भराव</string>
+    <string name="draw_light">चमक</string>
     <string name="ink_red">लाल</string>
     <string name="ink_amber">एम्बर</string>
     <string name="ink_green">हरा</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">काला</string>
     <string name="ink_white">सफ़ेद</string>
     <string name="ink_pink">गुलाबी</string>
+    <string name="ink_grey">धूसर</string>
     <string name="look_preset_save">स्टाइल सहेजें</string>
     <string name="look_preset_name">प्रीसेट का नाम</string>
     <string name="look_preset_mine">सहेजी गई शैलियाँ</string>

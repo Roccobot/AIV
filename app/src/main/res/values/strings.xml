@@ -147,6 +147,7 @@
     <string name="draw_width">Width</string>
     <string name="draw_dashed">Dashed</string>
     <string name="draw_filled">Fill</string>
+    <string name="draw_light">Brightness</string>
     <string name="ink_red">Red</string>
     <string name="ink_amber">Amber</string>
     <string name="ink_green">Green</string>
@@ -155,6 +156,7 @@
     <string name="ink_black">Black</string>
     <string name="ink_white">White</string>
     <string name="ink_pink">Pink</string>
+    <string name="ink_grey">Gray</string>
     <string name="look_preset_save">Save style</string>
     <string name="look_preset_name">Style name</string>
     <string name="look_preset_mine">Saved styles</string>

@@ -368,6 +368,11 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
     800 ms** mentre pannello e sfocatura arrivano col loro tempo (sua richiesta sul giro della
     `4.43`); scende invece subito, insieme a chi lo chiede. Numeri, curva e misure scartate vivono
     in `Veil.kt` (`VEIL_DOSE`, `veilInk`, `AppVeil`).
+  - ⚠️⚠️ **Dalla `4.45` il passaggio fra due superfici non lampeggia** (sua nota su `4.44-02`, dal
+    menu di una miniatura a 'Info'): il velo non scende finché un'altra superficie sta entrando
+    (`VeilStage.sale`), e una finestra che si apre con un velo già in scena sfoca subito al pieno
+    invece di ripartire da zero. Il velo lo misura `VeloTest`; la sfocatura di finestra il banco
+    non la vede.
 - ⚠️⚠️ **Una sfocatura che cala vuole in scena qualcosa che se ne va**: senza una causa in scena, il
   raggio che scende si legge come una messa a fuoco. Quindi i menu escono con una dissolvenza sola
   di 75 ms (pannello, sfocatura e livello scuro insieme), e la coda lunga resta sulla sola scheda in

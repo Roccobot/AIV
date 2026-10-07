@@ -524,6 +524,7 @@
     <string name="draw_width">Grosor</string>
     <string name="draw_dashed">Discontinua</string>
     <string name="draw_filled">Relleno</string>
+    <string name="draw_light">Brillo</string>
     <string name="ink_red">Rojo</string>
     <string name="ink_amber">Ámbar</string>
     <string name="ink_green">Verde</string>
@@ -532,6 +533,7 @@
     <string name="ink_black">Negro</string>
     <string name="ink_white">Blanco</string>
     <string name="ink_pink">Rosa</string>
+    <string name="ink_grey">Gris</string>
     <string name="look_preset_save">Guardar estilo</string>
     <string name="look_preset_name">Nombre del ajuste</string>
     <string name="look_preset_mine">Estilos guardados</string>

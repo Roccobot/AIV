@@ -507,6 +507,7 @@
     <string name="draw_width">Kalınlık</string>
     <string name="draw_dashed">Kesikli</string>
     <string name="draw_filled">Dolgu</string>
+    <string name="draw_light">Parlaklık</string>
     <string name="ink_red">Kırmızı</string>
     <string name="ink_amber">Kehribar</string>
     <string name="ink_green">Yeşil</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">Siyah</string>
     <string name="ink_white">Beyaz</string>
     <string name="ink_pink">Pembe</string>
+    <string name="ink_grey">Gri</string>
     <string name="look_preset_save">Stili kaydet</string>
     <string name="look_preset_name">Hazır ayar adı</string>
     <string name="look_preset_mine">Kaydedilen stiller</string>

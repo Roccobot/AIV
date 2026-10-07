@@ -524,6 +524,7 @@
     <string name="draw_width">Espessura</string>
     <string name="draw_dashed">Tracejado</string>
     <string name="draw_filled">Preenchimento</string>
+    <string name="draw_light">Brilho</string>
     <string name="ink_red">Vermelho</string>
     <string name="ink_amber">Âmbar</string>
     <string name="ink_green">Verde</string>
@@ -532,6 +533,7 @@
     <string name="ink_black">Preto</string>
     <string name="ink_white">Branco</string>
     <string name="ink_pink">Rosa</string>
+    <string name="ink_grey">Cinza</string>
     <string name="look_preset_save">Guardar estilo</string>
     <string name="look_preset_name">Nome da predefinição</string>
     <string name="look_preset_mine">Estilos salvos</string>

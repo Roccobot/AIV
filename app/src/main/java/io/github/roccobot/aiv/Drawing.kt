@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import androidx.compose.ui.geometry.Offset
+import androidx.core.graphics.ColorUtils
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -117,12 +118,40 @@ internal object Draw {
      */
     const val FILL = 0x33FFBF00
 
+    /**
+     * **[colour] made lighter or darker by [shift]**, from -1 (the darkest) to 1 (the lightest),
+     * with 0 the colour itself (Luminosità, 4.45; his note on `4.43-01`: *dal colore mostrato lo
+     * schiarisce o scurisce senza avvicinarsi troppo né al bianco né al nero*).
+     *
+     * ⚠️ It moves the HSL lightness towards [LIGHT_MAX] or [LIGHT_MIN] and never past them, so hue
+     * and saturation stay those of the swatch. A colour already beyond a bound does not move that
+     * way: white does not get lighter, black does not get darker. The alpha is kept.
+     */
+    fun lit(colour: Int, shift: Float): Int {
+        if (shift == 0f) return colour
+        val hsl = FloatArray(3)
+        ColorUtils.colorToHSL(colour, hsl)
+        val l = hsl[2]
+        val s = shift.coerceIn(-1f, 1f)
+        hsl[2] = if (s > 0f) l + s * max(0f, LIGHT_MAX - l) else l + s * max(0f, l - LIGHT_MIN)
+        return (ColorUtils.HSLToColor(hsl) and 0xFFFFFF) or (colour and 0xFF000000.toInt())
+    }
+
+    /**
+     * How far Luminosità goes, as HSL lightness: 15% and 85%, so it never reaches black or white.
+     * A choice of the session, declared in the test item.
+     */
+    const val LIGHT_MIN = 0.15f
+    const val LIGHT_MAX = 0.85f
+
     /** [colour] with its alpha set to [alpha], from 0 to 1. */
     fun withAlpha(colour: Int, alpha: Float): Int =
         ((alpha.coerceIn(0f, 1f) * 255f + 0.5f).toInt() shl 24) or (colour and 0xFFFFFF)
 
     /**
-     * The eight inks of the palette, his of 4.44 in his order: six hues, then white and black last.
+     * The nine inks of the palette, his of 4.44 in his order: six hues, then white, grey and black
+     * last. The grey is a 30% black, `#B3B3B3` (his note on `4.44-01`, read as a graphic designer
+     * says it; declared in the test item, the other reading being `#4D4D4D`).
      *
      * ⚠️ **No colour picker in G1**: eight swatches cover the use the module is for (marking,
      * pointing, underlining), and a picker costs a dialog.
@@ -133,7 +162,7 @@ internal object Draw {
      */
     val INKS = listOf(
         INK, 0xFFFFBF00.toInt(), 0xFF5ACB8C.toInt(), 0xFF3EB7FF.toInt(),
-        0xFF846AE2.toInt(), 0xFFCC6898.toInt(), 0xFFFFFFFF.toInt(), 0xFF000000.toInt()
+        0xFF846AE2.toInt(), 0xFFCC6898.toInt(), 0xFFFFFFFF.toInt(), 0xFFB3B3B3.toInt(), 0xFF000000.toInt()
     )
 
     /**

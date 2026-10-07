@@ -507,6 +507,7 @@
     <string name="draw_width">Stärke</string>
     <string name="draw_dashed">Gestrichelt</string>
     <string name="draw_filled">Füllung</string>
+    <string name="draw_light">Helligkeit</string>
     <string name="ink_red">Rot</string>
     <string name="ink_amber">Bernstein</string>
     <string name="ink_green">Grün</string>
@@ -515,6 +516,7 @@
     <string name="ink_black">Schwarz</string>
     <string name="ink_white">Weiß</string>
     <string name="ink_pink">Rosa</string>
+    <string name="ink_grey">Grau</string>
     <string name="look_preset_save">Stil speichern</string>
     <string name="look_preset_name">Preset-Name</string>
     <string name="look_preset_mine">Gespeicherte Stile</string>

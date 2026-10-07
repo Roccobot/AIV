@@ -490,6 +490,7 @@
     <string name="draw_width">Độ dày</string>
     <string name="draw_dashed">Nét đứt</string>
     <string name="draw_filled">Tô màu</string>
+    <string name="draw_light">Độ sáng</string>
     <string name="ink_red">Đỏ</string>
     <string name="ink_amber">Hổ phách</string>
     <string name="ink_green">Xanh lá</string>
@@ -498,6 +499,7 @@
     <string name="ink_black">Đen</string>
     <string name="ink_white">Trắng</string>
     <string name="ink_pink">Hồng</string>
+    <string name="ink_grey">Xám</string>
     <string name="look_preset_save">Lưu kiểu</string>
     <string name="look_preset_name">Tên cài đặt sẵn</string>
     <string name="look_preset_mine">Kiểu đã lưu</string>
