@@ -24,6 +24,7 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.up
@@ -148,7 +149,7 @@ class DisegnoTest {
     }
 
     /**
-     * **Un trascinamento sul palco lascia un segno, con la penna, il colore e il tratto scelti.**
+     * **Un trascinamento sul palco lascia un segno, con lo strumento, il colore e il tratto scelti.**
      *
      * ⚠️⚠️ **CONTROPROVATA** due volte: togliendo il ramo del disegno dal gesto del palco il
      * salvataggio non riceve nessun segno, e senza il punto che supera la soglia il rettangolo
@@ -185,7 +186,7 @@ class DisegnoTest {
      * **Il riempimento ha colore e opacità suoi, e la freccia lo ignora.**
      *
      * ⚠️ È il suo esempio alla lettera, arrivato a G1 in corso: *un bordo rosso primario e un
-     * riempimento bianco 50%*. L'opacità di fabbrica è proprio il 50%.
+     * riempimento bianco 50%*.
      * ⚠️⚠️ **CONTROPROVATA** dando alla freccia il riempimento in `Gaze.penMark`: il secondo segno
      * arriva con un riempimento che niente disegna.
      */
@@ -200,6 +201,10 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.draw_filled)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.ink_white)).performClick()
+        // ⚠️ Since 4.42 the factory opacity is about 15% (his values), so the 50% of his example
+        // is set on the slider, as he would.
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.5f) }
         banco.waitForIdle()
         trascina()
         banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
@@ -215,6 +220,40 @@ class DisegnoTest {
         assertEquals(Pen.ARROW, segni[1].pen)
         assertEquals("la freccia ignora il riempimento", null, segni[1].fill)
     }
+
+    /**
+     * **I valori di fabbrica sono i suoi** (2026-10-07, dopo il giro della `4.41`): spessore al 60%
+     * della corsa del cursore, tratto `#FFFF4B3D`, riempimento delle forme `#26FFAE8E`; la freccia
+     * nasce senza riempimento.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo i valori della `4.41` (spessore 0,004, nessun riempimento).
+     */
+    @Test
+    fun `i valori di fabbrica sono i suoi`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        assertEquals("il cursore doveva partire dal 60% della corsa", 0.6f,
+            (valore() - Draw.WIDTH_MIN) / (Draw.WIDTH_MAX - Draw.WIDTH_MIN), 1e-3f)
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.waitForIdle()
+        trascina()
+        banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
+        banco.waitForIdle()
+        trascina(dy = -PASSO)
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val (rettangolo, freccia) = salvato!!.drawing.marks
+        assertEquals("il tratto di fabbrica", 0xFFFF4B3D.toInt(), rettangolo.ink)
+        assertEquals("lo spessore di fabbrica", Draw.WIDTH_MIN + 0.6f * (Draw.WIDTH_MAX - Draw.WIDTH_MIN), rettangolo.width, 1e-5f)
+        assertEquals("il riempimento di fabbrica", 0x26FFAE8E, rettangolo.fill)
+        assertEquals("la freccia nasce senza riempimento", null, freccia.fill)
+        assertEquals("la freccia ha lo stesso tratto", rettangolo.ink, freccia.ink)
+    }
+
+    private fun valore(): Float =
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0].fetchSemanticsNode()
+            .config[androidx.compose.ui.semantics.SemanticsProperties.ProgressBarRangeInfo].current
 
     /** **Il riempimento si dipinge con la sua opacità, sotto il contorno.** */
     @Test

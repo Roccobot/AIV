@@ -621,11 +621,12 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   deforma e si ritaglia con lei; **D3a**, si fonde nel file salvato come la filigrana, e un file
   riaperto contiene pixel e non forme; **D4a**, tre versioni: G1 (`4.40`) le forme, G2 (`4.50`)
   selezione e maniglie, G3 (`4.60`) il testo.
-- **La G1 ha cinque penne**: mano libera, linea, freccia, rettangolo arrotondato ed ellisse; otto
+- **La G1 ha cinque strumenti di disegno** (si chiamano così, sua correzione del 2026-10-07; nel
+  codice resta `Pen`): mano libera, linea, freccia, rettangolo arrotondato ed ellisse; otto
   colori fissi, lo spessore, il tratteggio, il riempimento (solo per rettangolo ed ellisse) e
   'Azzera'. Il rettangolo e la freccia sono i due strumenti principali (sua precisazione). Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
   capi del trascinamento sono due vertici opposti. Un tocco senza movimento lascia un punto con la
-  mano libera, e niente con le altre penne. Ogni segno è un passo di 'Annulla'.
+  mano libera, e niente con gli altri strumenti. Ogni segno è un passo di 'Annulla'.
 - ⚠️⚠️ **I punti vivono nella cornice ORIGINALE dell'immagine, in frazioni dei lati**, come la
   selezione di Correggi; lo spessore è una frazione del lato lungo, così anteprima e file pieno
   hanno lo stesso tratto. Il perché per esteso vive in testa a `Drawing.kt`.
@@ -633,7 +634,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   (`Draw.onto` in `ImageEdit.saveLook`): i cursori del colore non ridipingono l'inchiostro, e
   raddrizzamento, prospettiva, Fluidifica e ritaglio lo portano con l'immagine.
 - ⚠️ **Il palco prende sempre il dito**, come nel Ritaglio; pinza e panoramica restano a due dita.
-- ⚠️ **Penna, colore e tratto sono lo strumento e non l'immagine**: non entrano nella storia, e
+- ⚠️ **Strumento, colore e tratto sono gli arnesi e non l'immagine**: non entrano nella storia, e
   cambiarli non tocca i segni già fatti. La selezione di un segno per cambiarlo è la G2.
 - ⚠️⚠️ **Il riempimento ha colore e opacità suoi, separati dal contorno**, ed è la sua precisazione
   arrivata a G1 in corso (*un bordo rosso primario e un riempimento bianco 50%*). Due gettoni,
@@ -647,8 +648,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     del pennello di Correggi e Fluidifica; sparisce quando il dito si alza.
   - **R2**: mentre il dito disegna una forma piccola compare la lente di Correggi, con l'inchiostro
     dentro. La soglia la sceglie la sessione ed è dichiarata: **1,5 cm sullo schermo**, misurati sul
-    riquadro del tratto a mano libera o sulla distanza da A al dito per le altre penne. Oltre la
-    soglia la lente sparisce, e torna se una forma delle quattro penne da A a B si restringe.
+    riquadro del tratto a mano libera o sulla distanza da A al dito per gli altri strumenti. Oltre la
+    soglia la lente sparisce, e torna se una forma dei quattro strumenti da A a B si restringe.
+- **Dalla `4.42` i valori di fabbrica sono i suoi** (2026-10-07, dopo il giro della `4.41`):
+  spessore al 60% della corsa del cursore, tratto `#FFFF4B3D`, riempimento delle forme `#26FFAE8E`
+  (salmone al 15% circa), quindi rettangolo ed ellisse nascono riempiti. Nella tavolozza il rosso
+  è diventato `#FF4B3D` e l'arancio il salmone `#FFAE8E`, perché i due colori di fabbrica restino
+  selezionabili: è una scelta della sessione, dichiarata nella voce di collaudo.
 - **La G2 (`4.50`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
   quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
 

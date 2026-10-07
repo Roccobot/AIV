@@ -3064,10 +3064,10 @@ private enum class Extra {
     HEALING,
 
     /**
-     * Le penne del **Disegno** e il dito sull'immagine, dalla `4.40` (prima fase, G1).
+     * Gli strumenti del **Disegno** e il dito sull'immagine, dalla `4.40` (prima fase, G1).
      *
      * ⚠️⚠️ **È IL TERZO CHE PRENDE IL DITO SUL PALCO, E LO PRENDE SEMPRE**, come il Ritaglio: un
-     * modulo che disegna e che chiede di armare la penna farebbe un tocco in più a ogni segno.
+     * modulo che disegna e che chiede di armare lo strumento farebbe un tocco in più a ogni segno.
      * Pinza e panoramica restano, a due dita (vedi il ramo del disegno nel gesto del palco).
      * ⚠️ **Non è [places]**, anche se il disegno vive dalla parte del 'dove' di [Look.place]: il
      * confronto col prima lo raggiunge solo un dito, e qui ogni dito disegna.
@@ -4057,9 +4057,12 @@ private class Gaze(
     var inkWidth by mutableFloatStateOf(Draw.WIDTH)
     var dashed by mutableStateOf(false)
 
-    /** The fill's colour, without alpha, or `null` for none: none at the factory. */
-    var fillInk by mutableStateOf<Int?>(null)
-    var fillAlpha by mutableFloatStateOf(Draw.FILL_ALPHA)
+    /**
+     * The fill's colour, without alpha, or `null` for none. At the factory the colour and the
+     * opacity of [Draw.FILL] (his values of 2026-10-07): shapes are born filled.
+     */
+    var fillInk by mutableStateOf<Int?>(Draw.FILL or 0xFF000000.toInt())
+    var fillAlpha by mutableFloatStateOf((Draw.FILL ushr 24) / 255f)
 
     /** Whether the swatches and the slider of the module set the fill instead of the outline. */
     var fillTarget by mutableStateOf(false)
@@ -4634,18 +4637,18 @@ private fun Comandi(
 }
 
 /**
- * Il corpo del modulo **Disegno**, dalla `4.40`: le cinque penne, il bersaglio (contorno o
+ * Il corpo del modulo **Disegno**, dalla `4.40`: i cinque strumenti di disegno, il bersaglio (contorno o
  * riempimento), i colori, lo spessore o l'opacità, il tratteggio e 'Azzera'.
  *
- * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': penna, colori e tratto sono lo
+ * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': strumento, colori e tratto sono lo
  * strumento, e lo strumento non entra nella storia. Un segno nuovo li prende al momento in cui il
  * dito si posa (`Gaze.penMark`), quindi cambiarli non tocca i segni già fatti.
  * ⚠️⚠️ **IL RIEMPIMENTO HA COLORE E OPACITÀ SUOI**, ed è la sua precisazione arrivata a G1 in
  * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
  * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
- * una seconda tavolozza. Per il riempimento il primo colore è 'Nessuno', che è anche quello di
- * fabbrica.
- * ⚠️ **'Riempimento' si spegne per le tre penne che non chiudono una forma**, con lo stesso
+ * una seconda tavolozza. Per il riempimento il primo colore è 'Nessuno'; quello di fabbrica, dalla
+ * `4.42`, è il salmone al 15% di [Draw.FILL].
+ * ⚠️ **'Riempimento' si spegne per i tre strumenti che non chiudono una forma**, con lo stesso
  * criterio del 'Filtro BN': un comando che non cambia niente si legge come un guasto.
  */
 @Composable
@@ -4786,7 +4789,7 @@ private fun DrawBody(
     }
 }
 
-/** Il nome di una penna, che il lettore di schermo annuncia al posto del suo segno. */
+/** Il nome di uno strumento di disegno, che il lettore di schermo annuncia al posto del suo segno. */
 private fun penName(pen: Pen): Int = when (pen) {
     Pen.FREE -> R.string.draw_free
     Pen.LINE -> R.string.draw_line

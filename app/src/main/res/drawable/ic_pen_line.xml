@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- La penna 'Linea' del modulo 'Disegno': un segmento in diagonale.
+<!-- Lo strumento 'Linea' del modulo 'Disegno': un segmento in diagonale.
 
      È UN TRATTO E NON UNA SAGOMA, come `ic_liquify.xml`: spessore 1,8 con capi e giunti tondi,
-     quindi non ha spigoli da raccordare. Le cinque penne del modulo 'Disegno' (dalla 4.40)
+     quindi non ha spigoli da raccordare. I cinque strumenti del modulo 'Disegno' (dalla 4.40)
      hanno lo stesso tratto, così si leggono come una famiglia. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"

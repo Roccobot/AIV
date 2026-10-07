@@ -93,23 +93,28 @@ data class Mark(
 /** How a drawing becomes pixels, the same way on the stage and in the saved file. */
 internal object Draw {
 
-    /** The factory width: about 4 pixels on a 1600 pixel preview, 16 on a 12 MP photo. */
-    const val WIDTH = 0.004f
+    /** The width slider, as fractions of the long side. */
+    const val WIDTH_MIN = 0.001f
+    const val WIDTH_MAX = 0.03f
 
     /**
-     * The factory opacity of a fill: half, so the image stays readable under a highlighted area.
-     * ⚠️ It is the value of his example (a white fill at 50%), and a choice to declare in the
-     * test item, not a measure.
+     * The factory width: the slider at 60% of its travel (his values of 2026-10-07, after the
+     * 4.41 round). Until 4.41 it was 0.004, near the bottom of the slider, and he found it thin.
      */
-    const val FILL_ALPHA = 0.5f
+    const val WIDTH = WIDTH_MIN + 0.6f * (WIDTH_MAX - WIDTH_MIN)
+
+    /** The factory ink of the outline, `#FFFF4B3D` (his value), which is also the first swatch. */
+    const val INK = 0xFFFF4B3D.toInt()
+
+    /**
+     * The factory fill of a closed shape, `#26FFAE8E` in ARGB (his value): a salmon at about 15%,
+     * so rectangles and ellipses are born filled. Its colour is also the last swatch.
+     */
+    const val FILL = 0x26FFAE8E
 
     /** [colour] with its alpha set to [alpha], from 0 to 1. */
     fun withAlpha(colour: Int, alpha: Float): Int =
         ((alpha.coerceIn(0f, 1f) * 255f + 0.5f).toInt() shl 24) or (colour and 0xFFFFFF)
-
-    /** The width slider, as fractions of the long side. */
-    const val WIDTH_MIN = 0.001f
-    const val WIDTH_MAX = 0.03f
 
     /**
      * The eight inks of the palette: white, black, and six clear hues.
@@ -117,10 +122,13 @@ internal object Draw {
      * ⚠️ **No colour picker in G1**: eight swatches cover the use the module is for (marking,
      * pointing, underlining), and a picker costs a dialog. The first is red because an arrow on a
      * photo is red more often than not.
+     * ⚠️ **Since 4.42 the red is [INK] and the last swatch is the colour of [FILL]** (they were
+     * `#E53935` and an orange, `#FF7043`): his two factory colours stay one tap away after being
+     * changed. A choice of the session, declared in the test item.
      */
     val INKS = listOf(
-        0xFFE53935.toInt(), 0xFFFFB300.toInt(), 0xFF43A047.toInt(), 0xFF1E88E5.toInt(),
-        0xFF8E24AA.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFFFF7043.toInt()
+        INK, 0xFFFFB300.toInt(), 0xFF43A047.toInt(), 0xFF1E88E5.toInt(),
+        0xFF8E24AA.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), FILL or 0xFF000000.toInt()
     )
 
     /**
