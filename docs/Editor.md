@@ -655,6 +655,17 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   (salmone al 15% circa), quindi rettangolo ed ellisse nascono riempiti. Nella tavolozza il rosso
   è diventato `#FF4B3D` e l'arancio il salmone `#FFAE8E`, perché i due colori di fabbrica restino
   selezionabili: è una scelta della sessione, dichiarata nella voce di collaudo.
+- **Dalla `4.43` i tasti Contorno, Riempimento e Tratteggio sono disegni** (sua nota su
+  `4.42-01`): Contorno è una linea spessa del colore della linea; Riempimento un rettangolo
+  arrotondato del colore del riempimento, senza contorno, sopra una scacchiera, con l'opacità
+  alzata in proporzione e mai sotto il 40% (`keyAlpha`); Tratteggio una linea spessa tratteggiata
+  grigio scuro, e il tasto si accende e si spegne. La parola resta come descrizione per il lettore
+  di schermo, e per lui il primo resta **Contorno** (sua indicazione: nella nota l'aveva chiamato
+  'Tratto'). Scelte della sessione, dichiarate nella voce di collaudo: il filo sottile della
+  tavolozza attorno alla linea di Contorno, perché il nero sul tema scuro e il bianco sul tema
+  chiaro si vedano; con 'Nessuno' il rettangolo è la scacchiera vuota con la diagonale rossa.
+- ⚠️ **La tavolozza aspetta i suoi colori** (sua richiesta sullo stesso giro): gli sono stati
+  mandati in chat il 2026-10-07, e il ritocco entra nella versione dopo la sua risposta.
 - **La G2 (`4.50`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
   quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
 
