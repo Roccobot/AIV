@@ -120,6 +120,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   vetro satinato (`backdrop-filter`, sua richiesta); dove il browser non la supporta resta il
   solo fondo. Commento o allegato
   contano come compilazione.
+  ⚠️ Il tondo chiaro sotto un tasto della pillola vale solo dove c'è un puntatore vero
+  (`@media (hover: hover)`, dal 2026-10-07): su un telefono lo stato `:hover` resta sull'ultimo
+  tasto toccato, e l'utente lo leggeva come uno stato di `Salva`.
 - ⚠️ **Il DF non ha un footer dal 2026-10-03** (*non serve a nulla*): lo spazio sotto l'ultima
   card, che la tiene libera dalla pillola, è del contenuto stesso (`main`).
 - **Altro**: su desktop è una colonna laterale reale (preferibilmente a sinistra), sticky,
