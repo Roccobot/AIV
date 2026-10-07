@@ -668,7 +668,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
   niente*; la chiave resta `draw_outline`).
   - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
-    di disegno: la quarta è Spessore (dalla `4.47`; nella `4.45` e nella `4.46` era Luminosità), la quinta resta vuota.
+    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta resta vuota.
   - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
     filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
     rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
@@ -713,6 +713,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     dall'asse, misurati sullo schermo, il capo si posa esattamente sull'asse, e una linea guida
     color accento attraversa l'immagine finché il dito resta giù. I 5 gradi sono una scelta della
     sessione, dichiarata.
+- **Dalla `4.49` Spessore è a sinistra di Riempimento, e il cursore della luminosità sopra i
+  tondi** (sue note sul giro della `4.48`): l'ordine dei tasti è Tratteggio, Traccia, Spessore,
+  Riempimento (`4.47-01`); il cursore compare sopra la fila dei tondi, perché sotto il dito che
+  tiene il tondo lo copriva, ed è più corto della fila di 24 dp per lato (`4.47-03`).
 - **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.

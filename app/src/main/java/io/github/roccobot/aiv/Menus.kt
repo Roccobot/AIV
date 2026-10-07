@@ -620,12 +620,21 @@ enum class MenuSide {
     /** Dopo l'ancora, cioè sotto di lei o dal suo lato finale. */
     AFTER_ANCHOR,
 
-    /*
-     * ⚠️ **QUI C'ERA `BEFORE_ANCHOR` FINO ALLA `1.78`, e nessuno lo chiedeva**: era il
-     * simmetrico di [AFTER_ANCHOR], cioè 'sopra l'ancora', e le sue due occorrenze erano la
-     * dichiarazione e il ramo del `when` che la serviva. Chi ne avesse bisogno lo ritrova
-     * nella storia git: erano tre candidati come quelli di [AFTER_ANCHOR], letti al rovescio.
+    /**
+     * Prima dell'ancora, cioè sopra di lei, e sotto solo se sopra non c'è posto.
+     *
+     * ⚠️ **Era stato tolto nella `1.78` perché nessuno lo chiedeva, ed è tornato nella `4.49`** col
+     * cursore della luminosità del Disegno (sua nota su `4.47-03`: *lo slider deve apparire più in
+     * alto della striscia di colori, altrimenti il dito lo copre*): il dito che tiene un tondo copre
+     * quello che gli si apre sotto.
      */
+    BEFORE_ANCHOR,
+
+    /**
+     * Centrato sull'ancora, sull'asse orizzontale: il cursore della luminosità, più corto della
+     * fila dei tondi, le resta sopra a distanza uguale dai due lati (stessa nota).
+     */
+    ANCHOR_CENTRE,
 
     /** In mezzo alla finestra, senza guardare l'ancora. */
     IN_WINDOW,
@@ -756,6 +765,8 @@ private fun spots(
         if ((from + to) / 2 < space / 2) 0 else space - size
     )
     MenuSide.AFTER_ANCHOR -> intArrayOf(to, from - size, from - size / 2)
+    MenuSide.BEFORE_ANCHOR -> intArrayOf(from - size, to, to - size / 2)
+    MenuSide.ANCHOR_CENTRE -> intArrayOf((from + to - size) / 2)
     MenuSide.IN_WINDOW -> intArrayOf((space - size) / 2)
     // Il centro più il 15%: 'centrato' in AIV vuol dire questo, e il numero è [LOWER_BY].
     MenuSide.LOWERED_IN_WINDOW -> intArrayOf((space - size) / 2 + (space * LOWER_BY).toInt())

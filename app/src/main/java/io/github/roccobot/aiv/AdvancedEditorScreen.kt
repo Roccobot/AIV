@@ -4747,9 +4747,9 @@ private fun DrawBody(
         }
     }
     // ⚠️ Five columns, the same as the drawing tools above, so the keys line up with them (his
-    // mockup of 4.43-01). Since 4.47 the fourth is Spessore, where Luminosità was (his note on
-    // `4.45-02`); the fifth stays empty. Traccia, Riempimento and Spessore are one choice: what
-    // the slider sets (his answer `S1`).
+    // mockup of 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and
+    // since 4.49 it sits left of Riempimento (his note on `4.47-01`); the fifth stays empty.
+    // Traccia, Spessore and Riempimento are one choice: what the slider sets (his answer `S1`).
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         ArtKey(
             KeyKind.DASH, gaze, selected = gaze.dashed, enabled = live, name = R.string.draw_dashed,
@@ -4761,13 +4761,13 @@ private fun DrawBody(
             onClick = { gaze.target = DrawTarget.STROKE }, modifier = Modifier.weight(1f)
         )
         ArtKey(
-            KeyKind.FILL, gaze, selected = riempimento, enabled = live && chiusa, name = R.string.draw_filled,
-            toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
-        )
-        ArtKey(
             KeyKind.WIDTH, gaze, selected = bersaglio == DrawTarget.WIDTH, enabled = live,
             name = R.string.draw_width, toggle = false,
             onClick = { gaze.target = DrawTarget.WIDTH }, modifier = Modifier.weight(1f)
+        )
+        ArtKey(
+            KeyKind.FILL, gaze, selected = riempimento, enabled = live && chiusa, name = R.string.draw_filled,
+            toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.weight(1f))
     }
@@ -4902,11 +4902,22 @@ private fun DrawBody(
                 }
             }
         }
-        MenuShell(state = chiaro, position = rememberMenuAtAnchor(), minWidth = maxWidth) {
+        /*
+         * ⚠️⚠️ **Above the row of swatches and shorter than it, since 4.49** (his note on
+         * `4.47-03`: *lo slider deve apparire più in alto della striscia di colori, altrimenti il
+         * dito lo copre*, and *un po' più corto, e restare leggermente più distanziato dai lati*):
+         * the finger that holds a swatch covers what opens below it.
+         */
+        val largo = maxWidth - LIGHT_INSET * 2
+        MenuShell(
+            state = chiaro,
+            position = rememberMenuSpot(MenuSide.ANCHOR_CENTRE, MenuSide.BEFORE_ANCHOR),
+            minWidth = largo
+        ) {
             val base = (if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
             val valore = pendente ?: luce()
             Row(
-                modifier = Modifier.width(maxWidth).padding(horizontal = 12.dp),
+                modifier = Modifier.width(largo).padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // ⚠️ The colour as it will be drawn: under the menu's blur the stage and the keys
@@ -5106,6 +5117,9 @@ private val KEY_BAND = 6.dp
 /** The dashes of the Dashes key: dash, then space, measured on his mockup. */
 private val KEY_DASH = 10.dp
 private val KEY_SPACE = 6.dp
+
+/** How far the Luminosità slider's panel stays in from each end of the row of swatches. */
+private val LIGHT_INSET = 24.dp
 
 /** The largest swatch of the palette row, and the least air between two swatches. */
 private val SWATCH = 32.dp
