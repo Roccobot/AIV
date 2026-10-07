@@ -143,7 +143,7 @@
     <string name="draw_arrow">Arrow</string>
     <string name="draw_rect">Rectangle</string>
     <string name="draw_ellipse">Ellipse</string>
-    <string name="draw_outline">Outline</string>
+    <string name="draw_outline">Stroke</string>
     <string name="draw_width">Width</string>
     <string name="draw_dashed">Dashed</string>
     <string name="draw_filled">Fill</string>
@@ -154,7 +154,7 @@
     <string name="ink_violet">Violet</string>
     <string name="ink_black">Black</string>
     <string name="ink_white">White</string>
-    <string name="ink_orange">Salmon</string>
+    <string name="ink_pink">Pink</string>
     <string name="look_preset_save">Save style</string>
     <string name="look_preset_name">Style name</string>
     <string name="look_preset_mine">Saved styles</string>

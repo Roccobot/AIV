@@ -486,7 +486,7 @@
     <string name="draw_arrow">Panah</string>
     <string name="draw_rect">Persegi panjang</string>
     <string name="draw_ellipse">Elips</string>
-    <string name="draw_outline">Garis tepi</string>
+    <string name="draw_outline">Garis</string>
     <string name="draw_width">Ketebalan</string>
     <string name="draw_dashed">Putus-putus</string>
     <string name="draw_filled">Isian</string>
@@ -497,7 +497,7 @@
     <string name="ink_violet">Ungu</string>
     <string name="ink_black">Hitam</string>
     <string name="ink_white">Putih</string>
-    <string name="ink_orange">Salem</string>
+    <string name="ink_pink">Merah muda</string>
     <string name="look_preset_save">Simpan gaya</string>
     <string name="look_preset_name">Nama prasetel</string>
     <string name="look_preset_mine">Gaya tersimpan</string>

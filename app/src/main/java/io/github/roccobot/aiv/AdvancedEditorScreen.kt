@@ -16,6 +16,7 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -66,6 +67,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.LocalContentColor
@@ -4060,7 +4062,7 @@ private class Gaze(
 
     /**
      * The fill's colour, without alpha, or `null` for none. At the factory the colour and the
-     * opacity of [Draw.FILL] (his values of 2026-10-07): shapes are born filled.
+     * opacity of [Draw.FILL] (his values, since 4.44 the amber at 20%): shapes are born filled.
      */
     var fillInk by mutableStateOf<Int?>(Draw.FILL or 0xFF000000.toInt())
     var fillAlpha by mutableFloatStateOf((Draw.FILL ushr 24) / 255f)
@@ -4648,7 +4650,7 @@ private fun Comandi(
  * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
  * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
  * una seconda tavolozza. Per il riempimento il primo colore è 'Nessuno'; quello di fabbrica, dalla
- * `4.42`, è il salmone al 15% di [Draw.FILL].
+ * `4.44`, è l'ambra al 20% di [Draw.FILL].
  * ⚠️ **'Riempimento' si spegne per i tre strumenti che non chiudono una forma**, con lo stesso
  * criterio del 'Filtro BN': un comando che non cambia niente si legge come un guasto.
  */
@@ -4678,30 +4680,23 @@ private fun DrawBody(
             )
         }
     }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        FilterChip(
-            selected = !riempimento,
-            onClick = { gaze.fillTarget = false },
-            label = { KeyArt(KeyKind.STROKE, gaze, live, R.string.draw_outline) },
-            enabled = live
+    // ⚠️ Five columns, the same as the drawing tools above, so the keys line up with them (his
+    // mockup of 4.43-01). The fourth is the place of Luminosità (4.45); the fifth stays empty.
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        ArtKey(
+            KeyKind.DASH, gaze, selected = gaze.dashed, enabled = live, name = R.string.draw_dashed,
+            toggle = true, onClick = { gaze.dashed = !gaze.dashed }, modifier = Modifier.weight(1f)
         )
-        FilterChip(
-            selected = riempimento,
-            onClick = { gaze.fillTarget = true },
-            label = { KeyArt(KeyKind.FILL, gaze, live && chiusa, R.string.draw_filled) },
-            enabled = live && chiusa
+        ArtKey(
+            KeyKind.STROKE, gaze, selected = !riempimento, enabled = live, name = R.string.draw_outline,
+            toggle = false, onClick = { gaze.fillTarget = false }, modifier = Modifier.weight(1f)
+        )
+        ArtKey(
+            KeyKind.FILL, gaze, selected = riempimento, enabled = live && chiusa, name = R.string.draw_filled,
+            toggle = false, onClick = { gaze.fillTarget = true }, modifier = Modifier.weight(1f)
         )
         Spacer(Modifier.weight(1f))
-        FilterChip(
-            selected = gaze.dashed,
-            onClick = { gaze.dashed = !gaze.dashed },
-            label = { KeyArt(KeyKind.DASH, gaze, live, R.string.draw_dashed) },
-            enabled = live
-        )
+        Spacer(Modifier.weight(1f))
     }
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -4799,14 +4794,14 @@ private fun penName(pen: Pen): Int = when (pen) {
     Pen.ELLIPSE -> R.string.draw_ellipse
 }
 
-/** The three keys above the palette, drawn instead of named (`KeyArt`). */
+/** The three keys above the palette, drawn instead of named (`ArtKey`). */
 internal enum class KeyKind { STROKE, FILL, DASH }
 
 /**
  * **The opacity the Fill key shows for a fill of opacity [alpha]**: the real one raised in
  * proportion, never under [KEY_ALPHA_MIN], and a full fill stays full (item `4.42-01`: *leggermente
- * accentuato per visualizzare le trasparenze basse, minimo alfa 40%*). His factory 15% shows at
- * about 49%, and the slider's floor (10%) at 46%.
+ * accentuato per visualizzare le trasparenze basse, minimo alfa 40%*). His factory 20% shows at
+ * 52%, and the slider's floor (10%) at 46%.
  */
 internal fun keyAlpha(alpha: Float): Float = KEY_ALPHA_MIN + (1f - KEY_ALPHA_MIN) * alpha.coerceIn(0f, 1f)
 
@@ -4817,71 +4812,107 @@ internal const val KEY_ALPHA_MIN = 0.4f
 private val DASH_GREY = Color(0xFF616161)
 
 /**
- * **What the Stroke, Fill and Dashes keys show, since 4.43** (item `4.42-01`): a thick line in
- * the current colour, a rounded rectangle in the fill's colour over a checkerboard, and a thick
- * dashed dark grey line. The word stays as the description a screen reader announces; on screen
- * there is only the drawing.
+ * **The Dashes, Stroke and Fill keys, drawn instead of named** (4.43, redrawn in 4.44 after his
+ * notes on `4.43-01` and his mockup).
+ * - **Stroke** ('Traccia' since 4.44, `draw_outline`): a straight solid band of the current colour,
+ *   of one thickness, from edge to edge of the key, with no rim.
+ * - **Dashes**: the same band, dashed and dark grey, edge to edge; the key turns on and off.
+ * - **Fill**: a rounded rectangle of the key's own shape, inset by [KEY_GAP], over a checkerboard,
+ *   in the fill's colour at [keyAlpha]. With 'none' chosen it is the empty checkerboard crossed by
+ *   the red diagonal of the 'none' swatch.
  *
- * ⚠️ **The Stroke line has the palette's thin rim around it**, as the swatches below do: without
- * it a black line on the dark theme and a white one on the light theme would not be there. A choice
- * of the session, declared in the test item.
- * ⚠️ **The Fill key with 'none' chosen is the empty checkerboard crossed by the red diagonal** of
- * the 'none' swatch, so the two say the same thing.
- * ⚠️ The Dashes key says on or off with the chip's own selected state, like every other toggle
- * chip of the editor.
+ * ⚠️ **A key of its own and not a `FilterChip`**: a chip keeps its label away from its edges, and
+ * his drawing runs to them. Shape, colours and height are the chip's, so the row reads like the
+ * drawing tools above it. The word stays as the description a screen reader announces.
+ * ⚠️ The 4.43 rim around the stroke line is gone with the edges: on the chosen key the line sits on
+ * the key's tint, and an unchosen key has its border.
  */
 @Composable
-private fun KeyArt(kind: KeyKind, gaze: Gaze, enabled: Boolean, name: Int) {
+private fun ArtKey(
+    kind: KeyKind,
+    gaze: Gaze,
+    selected: Boolean,
+    enabled: Boolean,
+    name: Int,
+    toggle: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
     val nome = stringResource(name)
-    val filo = MaterialTheme.colorScheme.outline
-    Canvas(
-        Modifier
-            .size(width = 32.dp, height = 18.dp)
+    val forma = FilterChipDefaults.shape
+    val schema = MaterialTheme.colorScheme
+    val scelta = Modifier
+        .then(
+            if (toggle) Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
+            else Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
+        )
+        .semantics { contentDescription = nome }
+    Box(
+        modifier
+            .height(FilterChipDefaults.Height)
             .alpha(if (enabled) 1f else 0.38f)
-            .semantics { contentDescription = nome }
+            .clip(forma)
+            .background(if (selected) schema.secondaryContainer else Color.Transparent)
+            .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))
+            .then(scelta)
     ) {
-        val spessore = 5.dp.toPx()
-        val da = Offset(spessore, size.height / 2f)
-        val a = Offset(size.width - spessore, size.height / 2f)
-        when (kind) {
-            KeyKind.STROKE -> {
-                drawLine(filo, da, a, strokeWidth = spessore + 2.dp.toPx(), cap = StrokeCap.Round)
-                drawLine(Color(gaze.ink), da, a, strokeWidth = spessore, cap = StrokeCap.Round)
-            }
-            KeyKind.FILL -> {
-                val forma = RoundRect(
-                    Rect(Offset.Zero, size), CornerRadius(5.dp.toPx())
+        Canvas(Modifier.fillMaxSize()) {
+            val banda = KEY_BAND.toPx()
+            val y = size.height / 2f
+            when (kind) {
+                KeyKind.STROKE -> drawRect(
+                    Color(gaze.ink), Offset(0f, y - banda / 2f), Size(size.width, banda)
                 )
-                clipPath(Path().apply { addRoundRect(forma) }) {
-                    val lato = 4.dp.toPx()
-                    drawRect(Color.White)
-                    var y = 0
-                    while (y * lato < size.height) {
-                        var x = y % 2
-                        while (x * lato < size.width) {
-                            drawRect(CHECKER, Offset(x * lato, y * lato), Size(lato, lato))
-                            x += 2
+                KeyKind.DASH -> drawLine(
+                    DASH_GREY, Offset(0f, y), Offset(size.width, y), strokeWidth = banda,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(KEY_DASH.toPx(), KEY_SPACE.toPx()))
+                )
+                KeyKind.FILL -> {
+                    val g = KEY_GAP.toPx()
+                    val angolo = (KEY_CORNER - KEY_GAP).toPx()
+                    val dentro = RoundRect(
+                        Rect(Offset(g, g), Size(size.width - 2 * g, size.height - 2 * g)), CornerRadius(angolo)
+                    )
+                    clipPath(Path().apply { addRoundRect(dentro) }) {
+                        val lato = 4.dp.toPx()
+                        drawRect(Color.White)
+                        var r = 0
+                        while (r * lato < size.height) {
+                            var c = r % 2
+                            while (c * lato < size.width) {
+                                drawRect(CHECKER, Offset(c * lato, r * lato), Size(lato, lato))
+                                c += 2
+                            }
+                            r++
                         }
-                        y++
-                    }
-                    val ink = gaze.fillInk
-                    if (ink != null) {
-                        drawRect(Color(ink).copy(alpha = keyAlpha(gaze.fillAlpha)))
-                    } else {
-                        drawLine(
-                            Color(Draw.INKS.first()), Offset(0f, size.height), Offset(size.width, 0f),
-                            strokeWidth = 2.dp.toPx()
-                        )
+                        val ink = gaze.fillInk
+                        if (ink != null) {
+                            drawRect(Color(ink).copy(alpha = keyAlpha(gaze.fillAlpha)))
+                        } else {
+                            drawLine(
+                                Color(Draw.INKS.first()), Offset(0f, size.height), Offset(size.width, 0f),
+                                strokeWidth = 2.dp.toPx()
+                            )
+                        }
                     }
                 }
             }
-            KeyKind.DASH -> drawLine(
-                DASH_GREY, da, a, strokeWidth = spessore,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 3.dp.toPx()))
-            )
         }
     }
 }
+
+/** How thick the Stroke and Dashes bands are, the same for both (his note 3 on `4.43-01`). */
+private val KEY_BAND = 6.dp
+
+/** The dashes of the Dashes key: dash, then space, measured on his mockup. */
+private val KEY_DASH = 10.dp
+private val KEY_SPACE = 6.dp
+
+/** The thread of space between the Fill key's edge and its rectangle (his note 4). */
+private val KEY_GAP = 3.dp
+
+/** The corner of a chip, which the Fill rectangle follows inside the gap. */
+private val KEY_CORNER = 8.dp
 
 /** The darker squares of the Fill key's checkerboard. */
 private val CHECKER = Color(0xFFC8C8C8)
@@ -4889,7 +4920,7 @@ private val CHECKER = Color(0xFFC8C8C8)
 /** I nomi degli otto colori, nell'ordine di [Draw.INKS]. */
 private val INK_NAMES = listOf(
     R.string.ink_red, R.string.ink_amber, R.string.ink_green, R.string.ink_blue,
-    R.string.ink_violet, R.string.ink_black, R.string.ink_white, R.string.ink_orange
+    R.string.ink_violet, R.string.ink_pink, R.string.ink_white, R.string.ink_black
 )
 
 /**

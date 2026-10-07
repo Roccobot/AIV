@@ -503,7 +503,7 @@
     <string name="draw_arrow">तीर</string>
     <string name="draw_rect">आयत</string>
     <string name="draw_ellipse">दीर्घवृत्त</string>
-    <string name="draw_outline">रूपरेखा</string>
+    <string name="draw_outline">रेखा</string>
     <string name="draw_width">मोटाई</string>
     <string name="draw_dashed">डैश</string>
     <string name="draw_filled">भराव</string>
@@ -514,7 +514,7 @@
     <string name="ink_violet">बैंगनी</string>
     <string name="ink_black">काला</string>
     <string name="ink_white">सफ़ेद</string>
-    <string name="ink_orange">सैल्मन</string>
+    <string name="ink_pink">गुलाबी</string>
     <string name="look_preset_save">स्टाइल सहेजें</string>
     <string name="look_preset_name">प्रीसेट का नाम</string>
     <string name="look_preset_mine">सहेजी गई शैलियाँ</string>

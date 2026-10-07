@@ -503,7 +503,7 @@
     <string name="draw_arrow">Pijl</string>
     <string name="draw_rect">Rechthoek</string>
     <string name="draw_ellipse">Ellips</string>
-    <string name="draw_outline">Omtrek</string>
+    <string name="draw_outline">Lijn</string>
     <string name="draw_width">Dikte</string>
     <string name="draw_dashed">Gestippeld</string>
     <string name="draw_filled">Opvulling</string>
@@ -514,7 +514,7 @@
     <string name="ink_violet">Violet</string>
     <string name="ink_black">Zwart</string>
     <string name="ink_white">Wit</string>
-    <string name="ink_orange">Zalm</string>
+    <string name="ink_pink">Roze</string>
     <string name="look_preset_save">Stijl opslaan</string>
     <string name="look_preset_name">Presetnaam</string>
     <string name="look_preset_mine">Opgeslagen stijlen</string>

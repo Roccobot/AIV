@@ -486,7 +486,7 @@
     <string name="draw_arrow">Mũi tên</string>
     <string name="draw_rect">Hình chữ nhật</string>
     <string name="draw_ellipse">Hình elip</string>
-    <string name="draw_outline">Viền</string>
+    <string name="draw_outline">Nét</string>
     <string name="draw_width">Độ dày</string>
     <string name="draw_dashed">Nét đứt</string>
     <string name="draw_filled">Tô màu</string>
@@ -497,7 +497,7 @@
     <string name="ink_violet">Tím</string>
     <string name="ink_black">Đen</string>
     <string name="ink_white">Trắng</string>
-    <string name="ink_orange">Hồng cam</string>
+    <string name="ink_pink">Hồng</string>
     <string name="look_preset_save">Lưu kiểu</string>
     <string name="look_preset_name">Tên cài đặt sẵn</string>
     <string name="look_preset_mine">Kiểu đã lưu</string>

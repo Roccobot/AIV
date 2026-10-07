@@ -486,7 +486,7 @@
     <string name="draw_arrow">箭頭</string>
     <string name="draw_rect">矩形</string>
     <string name="draw_ellipse">橢圓</string>
-    <string name="draw_outline">輪廓</string>
+    <string name="draw_outline">線條</string>
     <string name="draw_width">粗細</string>
     <string name="draw_dashed">虛線</string>
     <string name="draw_filled">填滿</string>
@@ -497,7 +497,7 @@
     <string name="ink_violet">紫</string>
     <string name="ink_black">黑</string>
     <string name="ink_white">白</string>
-    <string name="ink_orange">鮭紅</string>
+    <string name="ink_pink">粉紅</string>
     <string name="look_preset_save">儲存風格</string>
     <string name="look_preset_name">預設集名稱</string>
     <string name="look_preset_mine">已儲存的樣式</string>

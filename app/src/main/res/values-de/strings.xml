@@ -503,7 +503,7 @@
     <string name="draw_arrow">Pfeil</string>
     <string name="draw_rect">Rechteck</string>
     <string name="draw_ellipse">Ellipse</string>
-    <string name="draw_outline">Kontur</string>
+    <string name="draw_outline">Strich</string>
     <string name="draw_width">Stärke</string>
     <string name="draw_dashed">Gestrichelt</string>
     <string name="draw_filled">Füllung</string>
@@ -514,7 +514,7 @@
     <string name="ink_violet">Violett</string>
     <string name="ink_black">Schwarz</string>
     <string name="ink_white">Weiß</string>
-    <string name="ink_orange">Lachs</string>
+    <string name="ink_pink">Rosa</string>
     <string name="look_preset_save">Stil speichern</string>
     <string name="look_preset_name">Preset-Name</string>
     <string name="look_preset_mine">Gespeicherte Stile</string>
