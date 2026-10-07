@@ -55,7 +55,7 @@ class CartelleDialoghiTest {
     fun `destinazioni incluse dalla vista di sistema richiedono sfoglia esplicito`() {
         scene.setContent { AivTheme(darkTheme = false) {
             CompositionLocalProvider(LocalDestLook provides DestLook(view = FolderView.TREE, folderMode = FolderMode.INCLUDED)) {
-                DestinationDialog(R.string.dest_here, {}, {})
+                DestinationDialog(R.string.dest_here, {}, {}, from = emptySet())
             }
         } }
         val app = ApplicationProvider.getApplicationContext<android.content.Context>()

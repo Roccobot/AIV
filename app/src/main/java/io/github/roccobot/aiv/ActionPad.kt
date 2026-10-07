@@ -48,6 +48,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
@@ -731,6 +734,14 @@ internal object FootStage {
      */
     private val alti = mutableStateMapOf<Any, Int>()
 
+    /*
+     * ⚠️⚠️ And since 4.46 a side occupant also says where its centre is (his note D on the 4.45
+     * round: *adesso che in teoria tutti i pulsanti bassi hanno lo stesso centro di riferimento,
+     * probabilmente si può far sì che gli avvisi appaiano centrati anch'essi*): a notice beside a
+     * key lines its centre up with the key's, while one that climbs over a sheet does not.
+     */
+    private val mezzi = mutableStateMapOf<Any, Int>()
+
     /** Quanti pixel di schermo copre, contati dal bordo di sotto: `0` quando non c'è nessuno. */
     val covers: Int get() = coprono.values.maxOrNull() ?: 0
 
@@ -743,6 +754,13 @@ internal object FootStage {
     /** Fin dove arriva in altezza chi occupa un fianco, contato dal bordo di sotto della finestra. */
     val tall: Int get() = alti.values.maxOrNull() ?: 0
 
+    /**
+     * Where the centre of whoever holds a side is, counted from the bottom edge of the window: `0`
+     * when nobody does. The keys at the bottom share one centre since 4.31, so the highest wins
+     * only during a change.
+     */
+    val mid: Int get() = mezzi.values.maxOrNull() ?: 0
+
     fun cover(chi: Any, px: Int) {
         if (px <= 0) coprono.remove(chi) else coprono[chi] = px
     }
@@ -751,16 +769,18 @@ internal object FootStage {
      * Dice che [chi] occupa [px] pixel del fondo dello schermo dal lato dichiarato, invece di una
      * fascia larga quanto la finestra, e che arriva fino a [tall] pixel dal bordo di sotto.
      */
-    fun beside(chi: Any, px: Int, right: Boolean, tall: Int) {
+    fun beside(chi: Any, px: Int, right: Boolean, tall: Int, mid: Int) {
         val qui = if (right) aDestra else aSinistra
         val altrove = if (right) aSinistra else aDestra
         altrove.remove(chi)
         if (px <= 0 || tall <= 0) {
             qui.remove(chi)
             alti.remove(chi)
+            mezzi.remove(chi)
         } else {
             qui[chi] = px
             alti[chi] = tall
+            mezzi[chi] = mid
         }
     }
 
@@ -769,6 +789,7 @@ internal object FootStage {
         aDestra.remove(chi)
         aSinistra.remove(chi)
         alti.remove(chi)
+        mezzi.remove(chi)
     }
 }
 
@@ -835,7 +856,24 @@ internal fun Modifier.aboveFoot(): Modifier {
     val stretta = su == 0 || su < FootStage.tall - barra
     val sinistra = with(density) { (if (stretta) FootStage.left else 0).toDp() }
     val destra = with(density) { (if (stretta) FootStage.right else 0).toDp() }
-    return padding(start = sinistra, end = destra).offset { IntOffset(0, -su) }
+    val posata = padding(start = sinistra, end = destra).offset { IntOffset(0, -su) }
+    /*
+     * ⚠️⚠️ **Beside a key the notice is centred on the key, since 4.46** (his note D on the 4.45
+     * round, with a screenshot: the notice beside the round key sat higher than the key's centre).
+     * Only on the ground: over a sheet there is no key beside it, and his note says so (*ciò non si
+     * applica quando devono apparire sopra una bottomsheet*).
+     * ⚠️ The centre is the notice's own, without the system bar under it: the caller pads the bar
+     * at the bottom only, so the surface's centre sits half the bar above the box's.
+     */
+    val mezzo = FootStage.mid
+    if (su != 0 || mezzo <= 0 || (FootStage.left == 0 && FootStage.right == 0)) return posata
+    return posata.layout { misurabile, vincoli ->
+        val p = misurabile.measure(vincoli)
+        layout(p.width, p.height) {
+            val centro = barra + (p.height - barra) / 2
+            p.place(0, centro - mezzo)
+        }
+    }
 }
 
 /**
@@ -1996,7 +2034,12 @@ fun Modifier.declaresFoot(): Modifier {
             quota,
             if (destra) finestra.width - da else fino,
             destra,
-            tall = finestra.height - dove.y.roundToInt()
+            tall = finestra.height - dove.y.roundToInt(),
+            // ⚠️ From the bottom of the composition's root, not of the window: the notice is laid
+            // at the root's bottom, and the two differ wherever the root does not fill the window
+            // (on the bench by 8 dp, measured).
+            mid = it.findRootCoordinates().size.height -
+                (it.positionInRoot().y + it.size.height / 2f).roundToInt()
         )
     }
 }

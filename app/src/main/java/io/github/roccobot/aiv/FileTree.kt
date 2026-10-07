@@ -537,6 +537,16 @@ object FileTree {
      * attraverso un `content://`; leggendo il file vero, che questa app può aprire perché
      * ha l'accesso a tutti i file, le coordinate arrivano intere. Vedi `factsOf`.
      */
+    /**
+     * The folders [uris] live in, in the form of [portablePath]: the sources of a copy or a move,
+     * which the destination window greys out (`4.45`, his note C).
+     *
+     * ⚠️ A file whose path cannot be read adds nothing: the window then leaves its folder
+     * pickable, and the copy itself still works as before.
+     */
+    internal fun sourcesOf(context: Context, uris: List<Uri>): Set<String> =
+        uris.mapNotNull { fileOf(context, it)?.parentFile?.absolutePath?.let(::portablePath) }.toSet()
+
     internal fun fileOf(context: Context, uri: Uri): File? {
         val path = when (uri.scheme?.lowercase()) {
             "file" -> uri.path

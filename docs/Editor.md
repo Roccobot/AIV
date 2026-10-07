@@ -687,6 +687,16 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **Il grigio** (`#B3B3B3`, chiave `ink_grey`) è fra il bianco e il nero: 'grigio 30%' letto
     come tinta al 30% di nero, lettura dichiarata. Con dieci posti la fila dei tondi si stringe
     sugli schermi stretti, fino a 32dp per tondo.
+- **Dalla `4.46` la freccia tratteggiata comincia dalla punta** (sua nota B sul giro della `4.45`,
+  con un disegno della freccia sbagliata e di quella giusta): contro la punta l'asta è piena per
+  quanto le alette arrivano lungo di lei, più uno spessore per le loro estremità tonde; da lì il
+  tratteggio va verso la coda cominciando con un vuoto, e il pezzo parziale cade alla coda. Così
+  non resta un buco fra l'ultimo trattino e la punta, e il primo trattino esce dall'angolo
+  rientrante. Un'asta più corta di quel pezzo è piena. La linea tratteggiata non cambia. La
+  misura la fa `FrecciaTest`.
+- **Luminosità e Spessore cambiano nella `4.47`** (sua nota su `4.45-02`): il tasto Luminosità
+  esce, ne entra uno per lo Spessore, e la luminosità si sceglie tenendo premuto un tondo. La
+  specifica e le tre domande aperte vivono nel brief, voce del giro della `4.45`.
 - **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.

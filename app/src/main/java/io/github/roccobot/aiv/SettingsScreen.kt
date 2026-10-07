@@ -2884,6 +2884,8 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
             ) {
                 DestinationDialog(
                     action = R.string.folder_authorize,
+                    // Picking a folder to authorize moves no file, so nothing is a source here.
+                    from = emptySet(),
                     onDismiss = { picking = false },
                     onPick = { dir ->
                         val path = portablePath(dir.absolutePath)

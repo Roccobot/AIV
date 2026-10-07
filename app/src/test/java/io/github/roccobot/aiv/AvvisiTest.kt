@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -308,6 +310,18 @@ class AvvisiTest {
 
         val notifica = banco.onNodeWithTag("avviso").getBoundsInRoot()
         val tasto = banco.onNodeWithTag("fab").getBoundsInRoot()
+        // ⚠️ Since 4.46 the notice beside a key is centred on it (his note D on the 4.45 round).
+        // COUNTER-PROVED with the centring taken out of `aboveFoot()`: the notice's centre sits
+        // above the key's.
+        // ⚠️ The key's own node, not the box around it: that one carries the key's margin. And the
+        // notice unclipped: centred on a key near the edge, its transparent margin runs past the
+        // bottom, and the clipped bounds would put its centre higher than it is.
+        val tondo = banco.onNodeWithContentDescription("Comandi").getBoundsInRoot()
+        val intera = banco.onNodeWithTag("avviso").getUnclippedBoundsInRoot()
+        assertEquals(
+            "il centro della notifica doveva coincidere con quello del FAB",
+            ((tondo.top + tondo.bottom) / 2).value, ((intera.top + intera.bottom) / 2).value, 1f
+        )
         if (destra) {
             assertTrue(
                 "la notifica (fino a ${notifica.right}) copre il FAB (da ${tasto.left})",

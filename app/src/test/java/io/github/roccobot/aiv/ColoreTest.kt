@@ -193,6 +193,7 @@ class ColoreTest {
                     // scelta a mano. Il perché vive sul parametro, in `FolderScreen.kt`.
                     covers = emptyMap(),
                     onPick = {},
+                    off = emptySet(),
                     onHide = {}
                 )
             }
