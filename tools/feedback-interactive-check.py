@@ -235,8 +235,13 @@ def check(path):
                 navigation.locator('#first-empty').tap()
                 aligned(navigation.locator('.test').nth(2))
             # Fill through normal input handlers; navigation must update without a reload.
+            # ⚠️ `fill` scrolls each field into view, which no navigation key did: the page goes
+            # back where the keys left it, or with two proofs (no key can act afterwards) the
+            # check measured Playwright's scroll. Found on the DF of 4.41, 16 px off.
+            fermo = navigation.evaluate('scrollY')
             for field in navigation.locator('.test .rich-editor').all():
                 field.fill('Risposta di verifica')
+            navigation.evaluate(f'window.scrollTo(0, {fermo})')
             # Desktop hides ⇥ when nothing is empty; mobile keeps it for long-press Altro.
             if navigation.viewport_size['width'] <= 720:
                 expect(navigation.locator('#first-empty')).to_be_visible()
