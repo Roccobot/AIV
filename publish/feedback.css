@@ -543,8 +543,13 @@ textarea {
   height: 48px;
   padding: 0;
 }
-.floating-controls button:hover {
-  background: color-mix(in srgb, var(--accent-on) 14%, transparent);
+/* Only where a real pointer hovers (the user's note, 2026-10-07: a circle stayed on Salva). On a
+   phone :hover sticks to the last button touched until the next touch elsewhere, so the round
+   tint read as a state of the button. */
+@media (hover: hover) {
+  .floating-controls button:hover {
+    background: color-mix(in srgb, var(--accent-on) 14%, transparent);
+  }
 }
 .floating-controls button:disabled {
   cursor: default;
