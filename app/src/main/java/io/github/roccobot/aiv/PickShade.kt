@@ -27,13 +27,15 @@ import kotlin.math.pow
  * netta ma graduale abbastanza da essere discreta, e gli indicatori-checkbox dovrebbero ignorarla*).
  * The sheet stays without a veil on purpose, so the grid can still be picked from; the shade only
  * darkens, and takes no touch.
- * ⚠️⚠️ **IT IS DRAWN TWICE, WITH ONE FORMULA**: behind the cells, on the grid itself, where it
- * covers the gaps between them; and inside every cell, above the picture and below the tick. A
+ * ⚠️⚠️ **IT IS DRAWN TWICE, WITH ONE FORMULA**: behind the cells, on the screen's whole column
+ * (since 4.48; on the grid, in 4.46, it was boxed in by the grid's margins), where it covers the
+ * gaps between them and the margins; and inside every cell, above the picture and below the tick. A
  * single layer over the grid would cover the ticks, which his note keeps on top; a layer inside the
  * cells alone would leave the gaps bright, which his mockup darkens too. Both read the same window
  * position, so the two halves meet without a seam.
  * ⚠️ **The numbers are his mockup's, measured** (1200 x 2670 px, light theme): the shade starts 340
- * px above the sheet, about 120 dp on his phone, and reaches 49% black at the sheet's edge, growing
+ * px above the sheet, about 120 dp on his phone, and reaches 49% black at the sheet's edge (halved
+ * in 4.48, see [SHADE_MAX]), growing
  * faster near the bottom (about a tenth at half height, three tenths at three quarters), which a
  * power of 1.7 fits within a hundredth.
  * ⚠️ **On the dark theme it is white**, like the veil (`veilInk`): his own choice for the veil, that
@@ -44,8 +46,11 @@ import kotlin.math.pow
 /** How tall the shade is above the sheet: 340 px of his phone, at a density of about 2.9. */
 internal val SHADE_TALL = 120.dp
 
-/** How dark the shade is at the sheet's edge, read from his mockup. */
-internal const val SHADE_MAX = 0.49f
+/**
+ * How dark the shade is at the sheet's edge: half of his mockup's 49% since 4.48 (his note on
+ * `4.46-04`: *l'opacità massima dev'essere la metà di quella che vedo nella 4.46*).
+ */
+internal const val SHADE_MAX = 0.245f
 
 /** The curve of his mockup: the shade at height fraction t below its top is `SHADE_MAX * t^1.7`. */
 private const val SHADE_CURVE = 1.7f
