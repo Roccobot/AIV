@@ -2223,6 +2223,12 @@ fun GridScreen(
                     }
                 }
 
+                /*
+                 * ⚠️ The shade above the selection sheet (his note E on the 4.45 round): read once
+                 * here and handed to the grid and to every cell, so the two halves of `PickShade.kt`
+                 * draw from the same edge.
+                 */
+                val ombra = if (picking) sheetTop() else null
                 LazyVerticalGrid(
                         columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
                         state = state,
@@ -2257,6 +2263,7 @@ fun GridScreen(
                             } else if (bin) BELOW_FAB else 16.dp
                         ),
                         modifier = Modifier.fillMaxWidth().backdropSource(backdrop).then(grab)
+                            .pickShade(ombra, behind = true)
                     ) {
                         itemsIndexed(
                             items = items,
@@ -2278,6 +2285,7 @@ fun GridScreen(
                                 named = gridNames,
                                 mark = lastMark,
                                 room = cellPx,
+                                shade = ombra,
                                 // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire,
                                 // ed è la convenzione di ogni galleria: chi ne ha scelte
                                 // cinque e tocca la sesta ne vuole sei, non vuole uscire e
@@ -3116,6 +3124,8 @@ private fun Thumbnail(
     mark: LastMark,
     /** Quanto è larga la cella, in pixel: serve solo al nome. Vedi `cellPx`. */
     room: Int,
+    /** Where the selection sheet's edge is in the window, or `null`: see `PickShade.kt`. */
+    shade: Float?,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(CORNER)
@@ -3302,6 +3312,13 @@ private fun Thumbnail(
         // ⚠️ Dopo il velo e il nastro, così resta leggibile su una piastrella scelta: dentro
         // un `Box` si dipinge nell'ordine in cui si scrive, e il velo che schiarisce la
         // fotografia schiarirebbe anche la durata.
+        /*
+         * ⚠️⚠️ **THE SHADE OF THE SELECTION GOES HERE, BELOW THE TICK AND THE DURATION**: his note
+         * E on the 4.45 round wants the ticks *sopra*, so they are not hidden; the duration of a
+         * clip is a mark of the same kind, and stays readable for the same reason. Clipped to the
+         * picture's shape, or its rounded corners would be shaded twice, here and on the grid.
+         */
+        Box(modifier = Modifier.matchParentSize().clip(shape).pickShade(shade, behind = false))
         if (Videos.isVideo(uri)) ClipBadge(uri, Modifier.align(Alignment.BottomEnd))
         if (chosen) {
             Box(

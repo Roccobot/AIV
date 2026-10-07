@@ -136,6 +136,21 @@
 - **La prova è `CestinoSpazioTest`**, su file veri nella cartella del cestino, in una classe sua per
   la trappola di `OmbraArchivio` (`Rules.md` § '🧰 Gli strumenti che questo repo si porta dietro').
 
+## 🚫 La cartella d'origine non è una destinazione
+
+- ⚠️⚠️ **Dalla `4.46` la cartella da cui vengono i file è spenta nella scelta della destinazione**
+  (sua nota C sul giro della `4.45`: *piuttosto che inserire un messaggio di errore sarebbe meglio
+  impedirlo all'origine, ovvero disattivare (sia in senso effettivo che graficamente) la cartella di
+  origine*). Nell'elenco delle cartelle, a griglia o a lista, è al 38% di opacità e non risponde al
+  tocco (`off` su `Covers` e `Rows`, senza valore di serie).
+- ⚠️ **Nell'albero si entra lo stesso, e si spegne solo il tasto che la sceglierebbe**: le sue
+  sottocartelle sono destinazioni valide, e chiudere la porta vorrebbe dire non arrivarci. È una
+  lettura della sua nota, dichiarata nella voce di collaudo.
+- ⚠️ **Le cartelle d'origine si leggono prima che la finestra si apra** (`FileTree.sourcesOf`,
+  una domanda al MediaStore per file): partendo da un insieme vuoto, l'origine sarebbe stata
+  toccabile per il tempo della domanda. Un file di cui non si legge il percorso non spegne niente.
+- La prova è `OrigineTest`, sulle due viste.
+
 ## ↩️ Disfare una copia o uno spostamento
 
 - ⚠️⚠️ **Copia e spostamento offrono 'Annulla' per tre secondi, come l'eliminazione** (sua

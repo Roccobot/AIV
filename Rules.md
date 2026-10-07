@@ -368,6 +368,16 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
     800 ms** mentre pannello e sfocatura arrivano col loro tempo (sua richiesta sul giro della
     `4.43`); scende invece subito, insieme a chi lo chiede. Numeri, curva e misure scartate vivono
     in `Veil.kt` (`VEIL_DOSE`, `veilInk`, `AppVeil`).
+  - ⚠️⚠️ **Dalla `4.46` la finestra che esce tiene la sfocatura piena finché un'altra superficie
+    chiede più velo di lei** (sua nota su `4.45-01`: *lampeggio 'attenuato' ma ancora visibile*):
+    la finestra nuova compare qualche fotogramma dopo la sua composizione, e in quei fotogrammi la
+    sfocatura del menu che esce calava già. La decisione è `blurHeld`, misurata da `VeloTest`; la
+    sfocatura di finestra il banco non la vede.
+  - ⚠️⚠️ **E la selezione ha un'ombra sua, dalla `4.46`** (sua nota E, col suo mockup): la scheda
+    della selezione non vela la griglia, che deve restare toccabile, quindi sopra di lei una
+    sfumatura nera (bianca sul tema scuro) sale dal 49% sul bordo a zero in 120dp, disegnata dietro
+    le celle per gli spazi fra di loro e dentro ogni cella sotto la spunta (`PickShade.kt`,
+    `OmbraSceltaTest`).
   - ⚠️⚠️ **Dalla `4.45` il passaggio fra due superfici non lampeggia** (sua nota su `4.44-02`, dal
     menu di una miniatura a 'Info'): il velo non scende finché un'altra superficie sta entrando
     (`VeilStage.sale`), e una finestra che si apre con un velo già in scena sfoca subito al pieno
@@ -595,6 +605,10 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
     misura dal nodo e non da `fabSide`, o ci sarebbero due posti a decidere dov'è quel tasto; il
     rientro va bene qui perché la larghezza di un comando non cambia mentre lo si guarda. Il corpo
     del testo non è stato ridotto.
+  - ⚠️⚠️ **Accanto a un tasto in basso l'avviso si centra sul suo centro, dalla `4.46`** (sua nota D
+    sul giro della `4.45`): il tasto dichiara a `FootStage` anche dove è il suo centro, contato
+    dalla radice della composizione, che è il riferimento su cui l'avviso si posa (sul banco la
+    finestra e la radice differiscono di 8 dp). Sopra una scheda non vale, come dice la sua nota.
   - ⚠️ **Chi sale non si stringe** (sua risposta `sempre`), ma si stringe appena entra nella fascia
     in altezza del FAB (`FootStage.tall`), con uno scatto e con una soglia un poco larga.
   - ⚠️ **A dichiarare l'ingombro del FAB è `TapHoldFab`** (un segnaposto, a menu aperto), così un

@@ -51,6 +51,8 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Le operazioni sui file e i loro dialoghi, in un posto solo.
@@ -92,8 +94,18 @@ fun FileJobDialogs(
     when (job) {
         null -> Unit
 
-        is FileJob.Transfer -> DestinationDialog(
+        is FileJob.Transfer -> {
+            /*
+             * ⚠️ The folders the files come from, read before the window opens (`4.45`, his note
+             * C): with an empty set first, the source would answer a touch for the moment the
+             * query takes. One MediaStore lookup per file, off the main thread.
+             */
+            val from by produceState<Set<String>?>(null, job) {
+                value = withContext(Dispatchers.IO) { FileTree.sourcesOf(context, job.uris) }
+            }
+            from?.let { from -> DestinationDialog(
             action = if (job.move) R.string.dest_move_here else R.string.dest_here,
+            from = from,
             onDismiss = onClose,
             /*
              * ⚠️⚠️ **E DALLA `1.83` LE DUE APRONO L'OFFERTA DI DISFARE** (campo libero del giro
@@ -121,7 +133,8 @@ fun FileJobDialogs(
                     }
                 }
             }
-        )
+        ) }
+        }
 
         is FileJob.Rename -> RenameDialog(
             uris = job.uris,

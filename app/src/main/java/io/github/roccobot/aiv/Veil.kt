@@ -97,12 +97,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun WindowVeil(
     bare: Float = 0f,
+    /**
+     * The progress of this surface's own painted veil, the share it asks of [VeilStage]: the
+     * leaving window compares it with the stage (see [blurHeld]). The sheet passes its patina,
+     * which leaves on another curve than its blur; a menu moves the two together.
+     */
+    patina: (() -> Float)? = null,
     quanto: () -> Float = { PIENO }
 ) {
     val view = LocalView.current
     val on = LocalAivDepth.current == PanelDepth.BLUR
     val radius = with(LocalDensity.current) { BLUR.roundToPx() }
     val misura by rememberUpdatedState(quanto)
+    val quota by rememberUpdatedState(patina ?: quanto)
     val velo = remember(view, on, bare, radius) { veilFor(view, on, bare, radius) }
     /*
      * ⚠️⚠️ **IL VELO SI DOSA A OGNI FOTOGRAMMA, dalla 1.50, e prima cadeva in un colpo**
@@ -142,19 +149,41 @@ fun WindowVeil(
      * finestre, e su una macchina senza schermo non risponde nessuno. Si guarda sul telefono.
      */
     val eredita = remember { VeilStage.dose > 0f }
+    /*
+     * ⚠️⚠️ **AND A WINDOW THAT LEAVES WHILE ANOTHER SURFACE IS UP KEEPS ITS BLUR FULL, since 4.46**
+     * (his note on `4.45-01`: *lampeggio 'attenuato' ma ancora visibile*). The inheritance above
+     * covers the window that arrives; the one that leaves still dropped its blur during its 75 ms,
+     * while the newcomer's window is added a few frames after its composition, so for those
+     * frames the background sharpened. Now the leaving window holds the blur as long as the
+     * stage asks for more veil than its own share: only another surface can be asking for it.
+     * ⚠️ Not measured on the bench, like the inheritance: the decision is, in [blurHeld].
+     */
     if (velo != null) {
         LaunchedEffect(velo) {
             var piena = eredita
             var prima = 0f
-            snapshotFlow { misura().coerceIn(0f, PIENO) }.collect {
-                if (it < prima) piena = false
-                prima = it
-                velo.at(if (piena) PIENO else it)
-            }
+            snapshotFlow { Triple(misura().coerceIn(0f, PIENO), quota().coerceIn(0f, PIENO), VeilStage.dose) }
+                .collect { (it, mia, scena) ->
+                    if (it < prima) piena = false
+                    prima = it
+                    velo.at(if (piena || blurHeld(mia, scena)) PIENO else it)
+                }
         }
     }
     DisposableEffect(velo) { onDispose { velo?.off() } }
 }
+
+/**
+ * Whether a window whose own progress is [own] keeps its blur full because the stage, at [stage],
+ * asks for more veil than its share: another surface is up, and the blur must not dip before that
+ * surface's window is drawn. See the note in [WindowVeil].
+ *
+ * ⚠️ The margin keeps a window that is simply closing, alone, from holding on through rounding.
+ */
+internal fun blurHeld(own: Float, stage: Float): Boolean = own < PIENO && stage > own * VEIL_DOSE + HOLD_MARGIN
+
+/** A thousandth of the veil: the rounding of two floats, not a visible amount. */
+private const val HOLD_MARGIN = 0.001f
 
 /**
  * Il **livello sovrapposto**: quanta patina scura chiede alla scena chi lo scrive.
@@ -329,7 +358,7 @@ private fun veilInk(dark: Boolean): Color = if (dark) Color.White else VEIL_INK
  * dove il telefono non sfoca, e 0,10 d'accento col vetro della pillola. Il velo di serie di
  * Material, sui dialoghi, è 0,6.
  */
-private const val VEIL_DOSE = 0.30f
+internal const val VEIL_DOSE = 0.30f
 
 /**
  * Il velo **dipinto dall'app**: quanto ne vuole chi, fra le superfici in scena, ne chiede di più.

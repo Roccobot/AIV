@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -147,6 +148,22 @@ class VeloTest {
             minimo = minOf(minimo, velo())
         }
         assertTrue("fra il menu e la scheda il velo è sceso a $minimo", minimo > 0.27f)
+    }
+
+    /**
+     * **A window that leaves while another surface is up keeps its blur full** (his note on
+     * `4.45-01`: *lampeggio 'attenuato' ma ancora visibile*, from a thumbnail's menu to 'Info').
+     * ⚠️ The window blur itself the bench cannot see (the window manager answers it): this checks
+     * the decision [WindowVeil] takes at every frame of a window's exit.
+     * ⚠️⚠️ **COUNTER-PROVED** with the decision left as it was until 4.45 (the leaving window
+     * follows its own progress): the first case comes out `false`.
+     */
+    @Test
+    fun `la finestra che esce tiene la sfocatura se un'altra superficie e in scena`() {
+        assertTrue("menu a metà uscita, scheda già piena", blurHeld(own = 0.5f, stage = VEIL_DOSE))
+        assertFalse("menu a metà uscita e da solo", blurHeld(own = 0.5f, stage = VEIL_DOSE * 0.5f))
+        assertFalse("una superficie piena non ha niente da tenere", blurHeld(own = 1f, stage = VEIL_DOSE))
+        assertFalse("menu uscito e scena vuota", blurHeld(own = 0f, stage = 0f))
     }
 
     /** Quanto velo nero c'è sul fondo bianco, al centro. */

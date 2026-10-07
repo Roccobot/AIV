@@ -200,7 +200,7 @@ internal object Draw {
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
             // ⚠️ The dashes scale with the stroke, so a thick line is not a row of dots.
-            if (mark.dashed) pathEffect = DashPathEffect(floatArrayOf(stroke * 2f, stroke * 2.2f), 0f)
+            if (mark.dashed) pathEffect = DashPathEffect(floatArrayOf(stroke * DASH, stroke * GAP), 0f)
         }
         val pts = mark.points.map { Offset(it.x * w, it.y * h) }
         val a = pts.first()
@@ -216,11 +216,12 @@ internal object Draw {
             }
             Pen.LINE -> canvas.drawLine(a.x, a.y, b.x, b.y, pen)
             Pen.ARROW -> {
-                canvas.drawLine(a.x, a.y, b.x, b.y, pen)
                 // ⚠️ The head is never dashed: a broken head no longer reads as a head.
                 val head = Paint(pen).apply { pathEffect = null }
                 val angle = atan2((b.y - a.y).toDouble(), (b.x - a.x).toDouble())
                 val size = max(stroke * HEAD, long * HEAD_MIN)
+                if (mark.dashed) dashedShaft(canvas, a, b, size, stroke, pen, head)
+                else canvas.drawLine(a.x, a.y, b.x, b.y, pen)
                 for (side in listOf(-1, 1)) {
                     val t = angle + Math.PI + side * HEAD_ANGLE
                     canvas.drawLine(
@@ -248,6 +249,35 @@ internal object Draw {
                     canvas.drawRoundRect(box, r, r, pen)
                 }
             }
+        }
+    }
+
+    /**
+     * The shaft of a dashed arrow, laid from the tip back to the tail (his note B on the 4.45
+     * round, with a drawing: *che non rimanesse un buco tra il tratto finale e la punta*, and *che
+     * il primo tratto fosse lungo almeno quanto basta per 'uscire' dall'angolo concavo della
+     * punta*).
+     *
+     * ⚠️⚠️ **The dashes start from the tip, not from the tail**: counted from the tail, the pattern
+     * reached the tip wherever the length left it, often in a gap, and a short dash could sit
+     * inside the head. Now the piece against the tip is solid and as long as the head's arms reach
+     * along the shaft, plus a stroke for their round caps; the pattern goes on from there toward
+     * the tail, starting with a gap, and it is the tail's end that comes out partial.
+     * ⚠️ A shaft shorter than that piece is drawn solid, whole.
+     */
+    private fun dashedShaft(canvas: Canvas, a: Offset, b: Offset, size: Float, stroke: Float, dashed: Paint, solid: Paint) {
+        val len = hypot(a.x - b.x, a.y - b.y)
+        if (len <= 0f) return
+        val ux = (a.x - b.x) / len
+        val uy = (a.y - b.y) / len
+        val piena = min(len, (size * cos(HEAD_ANGLE)).toFloat() + stroke)
+        val cx = b.x + ux * piena
+        val cy = b.y + uy * piena
+        canvas.drawLine(b.x, b.y, cx, cy, solid)
+        if (len > piena) {
+            // ⚠️ The phase skips the first dash, so the pattern opens with a gap after the solid piece.
+            val gap = Paint(dashed).apply { pathEffect = DashPathEffect(floatArrayOf(stroke * DASH, stroke * GAP), stroke * DASH) }
+            canvas.drawLine(cx, cy, a.x, a.y, gap)
         }
     }
 
@@ -315,6 +345,10 @@ internal object Draw {
     private const val HEAD = 5f
     private const val HEAD_MIN = 0.012f
     private const val HEAD_ANGLE = Math.PI / 7
+
+    /** A dash and the gap after it, as strokes: the round caps eat half a stroke at each end. */
+    private const val DASH = 2f
+    private const val GAP = 2.2f
 
     /** The corner radius of a rectangle, as strokes. */
     private const val CORNER = 3f

@@ -644,14 +644,14 @@ fun FolderScreen(
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         Covers(
                             folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
-                            onPick, coverScroll, modifier = Modifier.fillMaxSize()
+                            onPick, coverScroll, modifier = Modifier.fillMaxSize(), off = emptySet()
                         ) { hiding = it }
                     }
                 else ->
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         Rows(
                             folders!!, prestate, listCount, listText, colour, tints, covers, onPick,
-                            rowScroll, modifier = Modifier.fillMaxSize()
+                            rowScroll, modifier = Modifier.fillMaxSize(), off = emptySet()
                         ) {
                             hiding = it
                         }
@@ -1998,6 +1998,14 @@ internal fun Covers(
      * l'intestazione.
      */
     modifier: Modifier = Modifier.fillMaxWidth(),
+    /**
+     * The folders that cannot be picked here, in the form of [portablePath]: the ones the files
+     * come from, when this view picks where to copy or move them (`4.45`, his note C).
+     *
+     * ⚠️ **No default value**, like [covers]: a caller declares it, so the destination window
+     * cannot forget it by omission. The home passes an empty set.
+     */
+    off: Set<String>,
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyVerticalGrid(
@@ -2036,6 +2044,7 @@ internal fun Covers(
                 bucket = bucket,
                 counted = counted,
                 peeked = bucket.path?.let { listedIn(peeked, it) } == true,
+                off = bucket.path?.let { listedIn(off, it) } == true,
                 nameStyle = nameStyle,
                 colour = colour,
                 cover = bucket.coverIn(covers),
@@ -2084,6 +2093,14 @@ internal fun Rows(
     state: LazyListState = rememberLazyListState(),
     /** Vedi il gemello di [Covers]: di serie `fillMaxWidth`, in home `fillMaxSize`. */
     modifier: Modifier = Modifier.fillMaxWidth(),
+    /**
+     * The folders that cannot be picked here, in the form of [portablePath]: the ones the files
+     * come from, when this view picks where to copy or move them (`4.45`, his note C).
+     *
+     * ⚠️ **No default value**, like [covers]: a caller declares it, so the destination window
+     * cannot forget it by omission. The home passes an empty set.
+     */
+    off: Set<String>,
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyColumn(
@@ -2097,11 +2114,13 @@ internal fun Rows(
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->
             val tinta = frontTintOf(tints[bucket.id])
             val prestata = bucket.path?.let { listedIn(peeked, it) } == true
+            val spenta = bucket.path?.let { listedIn(off, it) } == true
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .alpha(if (prestata) PEEK_INK else 1f)
+                    .alpha(if (spenta) OFF_INK else if (prestata) PEEK_INK else 1f)
                     .combinedClickable(
+                        enabled = !spenta,
                         role = Role.Button,
                         onClick = { onPick(bucket) },
                         onLongClick = withHaptics { onHide(bucket) }
@@ -2202,6 +2221,8 @@ private fun FolderCard(
     tint: Color?,
     /** Se questa cartella è in scena **in prestito**, cioè col minuto di 'Mostra nascoste'. */
     peeked: Boolean = false,
+    /** If this folder cannot be picked: see `off` on [Covers]. */
+    off: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -2210,8 +2231,9 @@ private fun FolderCard(
         // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
         // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
         modifier = Modifier
-            .alpha(if (peeked) PEEK_INK else 1f)
+            .alpha(if (off) OFF_INK else if (peeked) PEEK_INK else 1f)
             .combinedClickable(
+                enabled = !off,
                 role = Role.Button,
                 onClick = onClick,
                 onLongClick = withHaptics(onLongClick)

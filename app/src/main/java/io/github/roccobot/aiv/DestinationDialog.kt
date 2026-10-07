@@ -92,7 +92,16 @@ fun DestinationDialog(
     onDismiss: () -> Unit,
     onPick: (File) -> Unit,
     /** Percorsi già in lista (autorizzate/escluse): indicatore e niente ri-aggiunta (`3.27-02`). */
-    alreadyListed: Set<String> = emptySet()
+    alreadyListed: Set<String> = emptySet(),
+    /**
+     * The folders the files come from, in the form of [portablePath] (`4.45`, his note C: *la
+     * destinazione dev'essere diversa dall'origine, e piuttosto che inserire un messaggio di errore
+     * sarebbe meglio impedirlo all'origine*). In the list they are greyed and do not answer a
+     * touch; in the tree a source folder can still be entered, because its subfolders are fair
+     * destinations, and only the button that would pick it is off.
+     * ⚠️ No default value: a caller that copies files has to say where they come from.
+     */
+    from: Set<String>
 ) {
     val context = LocalContext.current
     val look = LocalDestLook.current
@@ -114,7 +123,8 @@ fun DestinationDialog(
             look = look,
             onDismiss = onDismiss,
             onPick = onPick,
-            onBrowse = { sfoglia = true }
+            onBrowse = { sfoglia = true },
+            from = from
         )
         return
     }
@@ -291,7 +301,7 @@ fun DestinationDialog(
                     val inList = portablePath(dir.absolutePath) in alreadyListed
                     Button(
                         onClick = { onPick(dir) },
-                        enabled = !Bin.holds(context, dir) && !inList,
+                        enabled = !Bin.holds(context, dir) && !inList && portablePath(dir.absolutePath) !in from,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
@@ -421,7 +431,9 @@ private fun FolderShortcut(
     look: DestLook,
     onDismiss: () -> Unit,
     onPick: (File) -> Unit,
-    onBrowse: () -> Unit
+    onBrowse: () -> Unit,
+    /** See `from` on [DestinationDialog]. */
+    from: Set<String>
 ) {
     val context = LocalContext.current
     val peekNow = LocalPeek.current
@@ -541,6 +553,7 @@ private fun FolderShortcut(
                             tints = dati?.tints.orEmpty(),
                             covers = dati?.covers.orEmpty(),
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
+                            off = from,
                             onHide = { }
                         )
                         else -> Rows(
@@ -552,6 +565,7 @@ private fun FolderShortcut(
                             tints = dati?.tints.orEmpty(),
                             covers = dati?.covers.orEmpty(),
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
+                            off = from,
                             onHide = { }
                         )
                     }

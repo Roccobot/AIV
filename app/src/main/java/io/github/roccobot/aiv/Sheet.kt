@@ -197,7 +197,7 @@ fun Sheet(
         val acceso = LocalAivDepth.current == PanelDepth.BLUR
         val alzata = LocalAivDepth.current == PanelDepth.SHADOW
         AppPatina { patina }
-        WindowVeil(bare = SHEET_DIM) { if (acceso) sfoca else patina }
+        WindowVeil(bare = SHEET_DIM, patina = { patina }) { if (acceso) sfoca else patina }
 
         /*
          * ⚠️⚠️ **DUE ANIMAZIONI E NON UNA, e sono due perché durano tempi diversi**: la
