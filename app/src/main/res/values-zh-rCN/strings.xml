@@ -486,7 +486,7 @@
     <string name="draw_arrow">箭头</string>
     <string name="draw_rect">矩形</string>
     <string name="draw_ellipse">椭圆</string>
-    <string name="draw_outline">轮廓</string>
+    <string name="draw_outline">线条</string>
     <string name="draw_width">粗细</string>
     <string name="draw_dashed">虚线</string>
     <string name="draw_filled">填充</string>
@@ -497,7 +497,7 @@
     <string name="ink_violet">紫</string>
     <string name="ink_black">黑</string>
     <string name="ink_white">白</string>
-    <string name="ink_orange">鲑红</string>
+    <string name="ink_pink">粉红</string>
     <string name="look_preset_save">保存风格</string>
     <string name="look_preset_name">预设名称</string>
     <string name="look_preset_mine">已保存的样式</string>

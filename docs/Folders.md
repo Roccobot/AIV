@@ -354,9 +354,11 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   - ⚠️⚠️ **Dalla `4.01` la pillola ha l'accento dell'ALTRO tema, coi suoi glifi** (sua scelta,
     varianti A2 e C1): la coppia del FAB, petrolio sul tema chiaro e verde acqua sullo scuro, in
     tutte e tre le tinte. Nella `4.00` era l'accento del tema, e sul vetro scuro quasi spariva.
-- ⚠️⚠️ **Col vetro e la sfocatura dietro i pannelli, anche i menu sfocano come il vetro**, col velo
-  nell'accento al 10% al posto del nero (sua richiesta). Dove il telefono non sfoca torna il velo
-  nero.
+- ⚠️⚠️ **Dalla `4.44` il vetro non cambia più il velo né la sfocatura dietro i pannelli** (sua
+  richiesta sul giro della `4.43`, nota B): il velo è il 30%, nero sul tema chiaro e bianco sullo
+  scuro, arriva in 800 ms, e la sfocatura è quella di fabbrica. Dalla `4.00` alla `4.43`, col vetro,
+  i menu sfocavano col raggio del vetro e il velo era l'accento al 10%, che non staccava i pannelli
+  nudi della `4.38` da quello che c'era dietro.
 - ⚠️⚠️ **Il tocco lungo su un tasto di una pillola mostra la sua etichetta in un fumetto, e basta**
   (risposte B1-B3), in tutte le pillole: per questo nella pillola il tocco lungo di 'Mostra
   nascoste' non c'è, e resta nel menu del FAB.

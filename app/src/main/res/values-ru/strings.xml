@@ -537,7 +537,7 @@
     <string name="draw_arrow">Стрелка</string>
     <string name="draw_rect">Прямоугольник</string>
     <string name="draw_ellipse">Эллипс</string>
-    <string name="draw_outline">Контур</string>
+    <string name="draw_outline">Линия</string>
     <string name="draw_width">Толщина</string>
     <string name="draw_dashed">Пунктир</string>
     <string name="draw_filled">Заливка</string>
@@ -548,7 +548,7 @@
     <string name="ink_violet">Фиолетовый</string>
     <string name="ink_black">Чёрный</string>
     <string name="ink_white">Белый</string>
-    <string name="ink_orange">Лососевый</string>
+    <string name="ink_pink">Розовый</string>
     <string name="look_preset_save">Сохранить стиль</string>
     <string name="look_preset_name">Имя пресета</string>
     <string name="look_preset_mine">Сохранённые стили</string>

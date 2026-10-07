@@ -15,6 +15,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.down
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -224,8 +225,8 @@ class DisegnoTest {
 
     /**
      * **I valori di fabbrica sono i suoi** (2026-10-07, dopo il giro della `4.41`): spessore al 60%
-     * della corsa del cursore, tratto `#FFFF4B3D`, riempimento delle forme `#26FFAE8E`; la freccia
-     * nasce senza riempimento.
+     * della corsa del cursore; dalla `4.44` (risposte `D1` e `D2`) tratto `#FFFF4C3F` e riempimento
+     * delle forme `#33FFBF00`. La freccia nasce senza riempimento.
      * ⚠️⚠️ **CONTROPROVATA** rimettendo i valori della `4.41` (spessore 0,004, nessun riempimento).
      */
     @Test
@@ -245,9 +246,9 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         val (rettangolo, freccia) = salvato!!.drawing.marks
-        assertEquals("il tratto di fabbrica", 0xFFFF4B3D.toInt(), rettangolo.ink)
+        assertEquals("il tratto di fabbrica", 0xFFFF4C3F.toInt(), rettangolo.ink)
         assertEquals("lo spessore di fabbrica", Draw.WIDTH_MIN + 0.6f * (Draw.WIDTH_MAX - Draw.WIDTH_MIN), rettangolo.width, 1e-5f)
-        assertEquals("il riempimento di fabbrica", 0x26FFAE8E, rettangolo.fill)
+        assertEquals("il riempimento di fabbrica", 0x33FFBF00, rettangolo.fill)
         assertEquals("la freccia nasce senza riempimento", null, freccia.fill)
         assertEquals("la freccia ha lo stesso tratto", rettangolo.ink, freccia.ink)
     }
@@ -360,7 +361,7 @@ class DisegnoTest {
     }
 
     /**
-     * **I tasti Tratto, Riempimento e Tratteggio sono disegni, non parole** (voce `4.42-01`): sullo
+     * **I tasti Traccia, Riempimento e Tratteggio sono disegni, non parole** (voce `4.42-01`): sullo
      * schermo non c'è più la parola, che resta come descrizione per il lettore di schermo.
      * ⚠️⚠️ **CONTROPROVATA** rimettendo il testo nell'etichetta di 'Tratteggio'.
      */
@@ -378,11 +379,13 @@ class DisegnoTest {
     }
 
     /**
-     * **Il tasto Tratto mostra il colore della linea, e lo cambia con lei.**
-     * ⚠️⚠️ **CONTROPROVATA** disegnando la linea del tasto in un colore fisso.
+     * **Il tasto Traccia mostra il colore della linea, e lo cambia con lei; la linea arriva ai bordi
+     * del tasto** (sua nota 2 su `4.43-01`: *fino ai limiti dello spazio del tasto*).
+     * ⚠️⚠️ **CONTROPROVATA** due volte: disegnando la linea in un colore fisso, e rimettendo la linea
+     * della `4.43`, che si fermava prima dei bordi.
      */
     @Test
-    fun `il tasto Tratto ha il colore della linea`() {
+    fun `il tasto Traccia ha il colore della linea, da bordo a bordo`() {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
@@ -390,6 +393,10 @@ class DisegnoTest {
         val blu = androidx.compose.ui.graphics.Color(Draw.INKS[3])
         val prima = banco.onNodeWithContentDescription(testo(R.string.draw_outline)).captureToImage().toPixelMap()
         assertTrue("il tasto doveva essere rosso", inchiostro(prima, rosso) > 20)
+        // ⚠️ Two pixels in from each side, on the middle row: the edge itself is antialiased.
+        val y = prima.height / 2
+        assertTrue("la linea doveva arrivare al bordo sinistro", vicino(prima[2, y], rosso))
+        assertTrue("la linea doveva arrivare al bordo destro", vicino(prima[prima.width - 3, y], rosso))
         banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
         banco.waitForIdle()
         val dopo = banco.onNodeWithContentDescription(testo(R.string.draw_outline)).captureToImage().toPixelMap()
@@ -399,9 +406,9 @@ class DisegnoTest {
 
     /**
      * **Il tasto Riempimento mostra il colore del riempimento con l'opacità alzata, minimo 40%**
-     * (voce `4.42-01`): il salmone al 15% di fabbrica si vede a circa il 49% sui quadretti bianchi.
-     * ⚠️⚠️ **CONTROPROVATA** dipingendo il tasto con l'opacità vera: sul bianco il salmone al 15%
-     * è un altro colore, e i pixel attesi scendono a zero.
+     * (voce `4.42-01`): l'ambra al 20% di fabbrica si vede al 52% sui quadretti bianchi.
+     * ⚠️⚠️ **CONTROPROVATA** dipingendo il tasto con l'opacità vera: sul bianco l'ambra al 20% è un
+     * altro colore, e i pixel attesi scendono a zero.
      */
     @Test
     fun `il tasto Riempimento mostra il riempimento accentuato`() {
@@ -413,14 +420,50 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.waitForIdle()
-        val salmone = Draw.FILL or 0xFF000000.toInt()
+        val ambra = Draw.FILL or 0xFF000000.toInt()
         val a = keyAlpha((Draw.FILL ushr 24) / 255f)
         fun su(fondo: Float, c: Int) = fondo * (1 - a) + (c and 0xFF) / 255f * a
         val atteso = androidx.compose.ui.graphics.Color(
-            su(1f, salmone shr 16), su(1f, salmone shr 8), su(1f, salmone)
+            su(1f, ambra shr 16), su(1f, ambra shr 8), su(1f, ambra)
         )
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_filled)).captureToImage().toPixelMap()
-        assertTrue("sui quadretti bianchi il salmone doveva vedersi accentuato", inchiostro(tasto, atteso) > 10)
+        assertTrue("sui quadretti bianchi l'ambra doveva vedersi accentuata", inchiostro(tasto, atteso) > 10)
+    }
+
+    /**
+     * **L'ordine dei tre tasti è Tratteggio, Traccia, Riempimento** (sua risposta sul giro della
+     * `4.43`), da sinistra a destra.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo l'ordine della `4.43` (Traccia, Riempimento, Tratteggio).
+     */
+    @Test
+    fun `i tasti sono Tratteggio, Traccia e Riempimento da sinistra`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val (tratteggio, traccia, riempimento) = listOf(R.string.draw_dashed, R.string.draw_outline, R.string.draw_filled)
+            .map { banco.onNodeWithContentDescription(testo(it)).fetchSemanticsNode().boundsInRoot.left }
+        assertTrue("Tratteggio doveva stare a sinistra di Traccia", tratteggio < traccia)
+        assertTrue("Traccia doveva stare a sinistra di Riempimento", traccia < riempimento)
+    }
+
+    /**
+     * **All'apertura il tondo del colore di fabbrica risulta scelto, per la traccia e per il
+     * riempimento** (sue risposte `D1` e `D2`): un colore di fabbrica fuori tavolozza aprirebbe il
+     * modulo senza nessun tondo scelto. La traccia prende il primo tondo per costruzione; il
+     * riempimento ha una costante sua, ed è lei che questa prova sorveglia.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il riempimento di fabbrica della `4.43` (`#26FFAE8E`), che
+     * nella tavolozza nuova non c'è.
+     */
+    @Test
+    fun `all'apertura i tondi di fabbrica sono scelti`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).assertIsSelected()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.draw_filled)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.ink_amber)).assertIsSelected()
     }
 
     /** I pixel che cambiano fra il palco col dito giù dopo il trascinamento e a dito alzato. */

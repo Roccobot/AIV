@@ -664,8 +664,26 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   'Tratto'). Scelte della sessione, dichiarate nella voce di collaudo: il filo sottile della
   tavolozza attorno alla linea di Contorno, perché il nero sul tema scuro e il bianco sul tema
   chiaro si vedano; con 'Nessuno' il rettangolo è la scacchiera vuota con la diagonale rossa.
-- ⚠️ **La tavolozza aspetta i suoi colori** (sua richiesta sullo stesso giro): gli sono stati
-  mandati in chat il 2026-10-07, e il ritocco entra nella versione dopo la sua risposta.
+- **Dalla `4.44` i tasti sono ridisegnati, e 'Contorno' si chiama `Traccia`** (sue note su
+  `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
+  niente*; la chiave resta `draw_outline`).
+  - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
+    di disegno: la quarta è il posto di Luminosità (`4.45`), la quinta resta vuota.
+  - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
+    filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
+    rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
+    schermo resta `Riempimento` (sua risposta `D4`).
+  - **La tavolozza è la sua**: `#FF4C3F`, `#FFBF00`, `#5ACB8C`, `#3EB7FF`, `#846AE2`, `#CC6898`
+    (nome `Rosa`, chiave nuova `ink_pink`), poi bianco e nero per ultimi. Il salmone è uscito.
+  - **Valori di fabbrica**: traccia `#FF4C3F` (`D1`) e riempimento `#33FFBF00`, l'ambra al 20%
+    (`D2`), così all'apertura i due tondi di fabbrica risultano scelti.
+- **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
+  2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
+  riempimento, che copre l'intera forma.
+- **Sopra e sotto fra gli oggetti** (sua nota dello stesso giorno: *una versione semplificata di
+  Z-index andrà gestita in qualche modo*) entra nella G2, insieme alla selezione.
+- **Prima della pillola viene lo strumento Sfocatura**, e prima ancora il testo (G3): la sua
+  specifica vive nel brief, voce del giro della `4.43`.
 - **La G2 (`4.50`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
   quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
 

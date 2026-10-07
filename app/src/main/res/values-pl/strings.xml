@@ -537,7 +537,7 @@
     <string name="draw_arrow">Strzałka</string>
     <string name="draw_rect">Prostokąt</string>
     <string name="draw_ellipse">Elipsa</string>
-    <string name="draw_outline">Kontur</string>
+    <string name="draw_outline">Linia</string>
     <string name="draw_width">Grubość</string>
     <string name="draw_dashed">Przerywana</string>
     <string name="draw_filled">Wypełnienie</string>
@@ -548,7 +548,7 @@
     <string name="ink_violet">Fioletowy</string>
     <string name="ink_black">Czarny</string>
     <string name="ink_white">Biały</string>
-    <string name="ink_orange">Łososiowy</string>
+    <string name="ink_pink">Różowy</string>
     <string name="look_preset_save">Zapisz styl</string>
     <string name="look_preset_name">Nazwa ustawienia</string>
     <string name="look_preset_mine">Zapisane style</string>

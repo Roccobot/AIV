@@ -4,8 +4,10 @@ import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -28,6 +30,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * Il **velo** e la **sfocatura** dietro tutto quello che si apre sopra la schermata.
@@ -51,20 +55,13 @@ import kotlin.math.roundToInt
  * non possono cambiare il proprio velo nello **stesso fotogramma**, e da lì veniva il lampo che
  * l'utente ha bocciato tre volte. La **sfocatura** invece resta di finestra, perché quella non
  * si può dipingere senza il rifacimento descritto in fondo a questo file.
- * ⚠️ **E la tinta adesso si potrebbe scegliere**: il velo dipinto è un rettangolo nostro, non
- * più il `FLAG_DIM_BEHIND` di Android, che ha una sola quantità e nessun colore. Resta nero come
- * prima perché la `1.54` cambia il meccanismo e non l'aspetto: un colore nuovo sarebbe una
- * seconda cosa da giudicare nello stesso giro.
- * ⚠️ **Ma il 'chiaro/scuro a seconda del tema' si ottiene lo stesso, e non per compromesso**:
- * quello che si vede attraverso non è il velo, è lo **sfondo sfocato**, che sul tema chiaro è
- * chiaro e sullo scuro è scuro. Il velo aggiunge la quantità di buio che serve, e ne serve
- * meno sul chiaro (dove il contrasto con la scheda c'è già) e di più sullo scuro. Quindi il
- * numero cambia col tema, ed è [DIM_LIGHT] contro [DIM_DARK].
- *
- * ⚠️⚠️ **SENZA SFOCATURA IL VELO SI FA PIÙ FITTO, e non è un ripiego travestito**: la
- * sfocatura vuole Android 12 e un telefono che la conceda (si spegne da sé col risparmio
- * energetico, e certi apparecchi non la fanno affatto). Dove non c'è, a separare la superficie
- * resta il solo velo, e con la stessa quantità la separazione sarebbe minore. Vedi [DIM_MORE].
+ * ⚠️ **E la tinta si può scegliere**: il velo dipinto è un rettangolo nostro, non più il
+ * `FLAG_DIM_BEHIND` di Android, che ha una sola quantità e nessun colore.
+ * ⚠️⚠️ **DALLA `4.44` IL VELO È IL 30%, NERO SUL TEMA CHIARO E BIANCO SU QUELLO SCURO** (sua
+ * richiesta sul giro della `4.43`, nota B: i pannelli nudi non staccavano abbastanza da quello che
+ * c'è dietro), e **arriva in [VEIL_IN_MS]** mentre il pannello compare veloce (stessa nota, e la
+ * C). Quantità, colore e tempo vivono in [VEIL_DOSE], [veilInk] e [AppVeil], con le misure
+ * scartate.
  *
  * ⚠️⚠️ **SI APPLICA ALLA FINESTRA CHE OSPITA CHI LO CHIEDE, e sbagliare finestra è
  * silenzioso**: chiesto dal posto sbagliato, questo velo va sulla finestra dell'**attività**,
@@ -104,11 +101,9 @@ fun WindowVeil(
 ) {
     val view = LocalView.current
     val on = LocalAivDepth.current == PanelDepth.BLUR
-    val dark = !LocalAivLight.current
-    val glass = LocalPillLook.current.fill == PillFill.GLASS
-    val radius = with(LocalDensity.current) { blurOf(glass).roundToPx() }
+    val radius = with(LocalDensity.current) { BLUR.roundToPx() }
     val misura by rememberUpdatedState(quanto)
-    val velo = remember(view, on, bare, dark, radius, glass) { veilFor(view, on, bare, dark, radius, glass) }
+    val velo = remember(view, on, bare, radius) { veilFor(view, on, bare, radius) }
     /*
      * ⚠️⚠️ **IL VELO SI DOSA A OGNI FOTOGRAMMA, dalla 1.50, e prima cadeva in un colpo**
      * (riscontro dell'utente, 2026-09-04: *la sfocatura non dovrebbe sparire all'inizio della
@@ -157,14 +152,12 @@ fun WindowVeil(
  */
 @Composable
 fun AppPatina(quanto: () -> Float) {
-    val view = LocalView.current
     val on = LocalAivDepth.current == PanelDepth.BLUR
     val dark = !LocalAivLight.current
-    val glass = LocalPillLook.current.fill == PillFill.GLASS
     val misura by rememberUpdatedState(quanto)
     val chiave = remember { Any() }
-    val dim = if (on) dimFor(view, dark, glass) else 0f
-    val colore = veilInk(view, dark, glass)
+    val dim = if (on) VEIL_DOSE else 0f
+    val colore = veilInk(dark)
     LaunchedEffect(chiave, dim, colore) {
         // ⚠️ **A funzione spenta si toglie invece di non mettere**: l'interruttore può spegnersi
         // mentre questo è in scena, e senza questa riga la richiesta di prima resterebbe nella
@@ -238,15 +231,12 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
         if (currentValueOf(LocalAivDepth) != PanelDepth.BLUR) return
         val view = currentValueOf(LocalView)
         val dark = !currentValueOf(LocalAivLight)
-        val glass = currentValueOf(LocalPillLook).fill == PillFill.GLASS
-        val radius = with(currentValueOf(LocalDensity)) { blurOf(glass).roundToPx() }
-        velo = veilFor(view, on = true, bare = 0f, dark = dark, radius = radius, glass = glass)
-            ?.also { it.at(PIENO) }
+        val radius = with(currentValueOf(LocalDensity)) { BLUR.roundToPx() }
+        velo = veilFor(view, on = true, bare = 0f, radius = radius)?.also { it.at(PIENO) }
         // ⚠️ **La patina se la chiede da sé, dalla `1.64`**: prima gliela chiedeva [Veil], che dalla
         // stessa versione parla alla sola finestra. Qui resta piena e basta, perché un dialogo di
         // Material compare di colpo e non ha nessun avanzamento da seguire.
-        val pieno = dimFor(view, dark, glass)
-        VeilStage.at(this, pieno, pieno, veilInk(view, dark, glass))
+        VeilStage.at(this, VEIL_DOSE, VEIL_DOSE, veilInk(dark))
     }
 
     override fun onDetach() {
@@ -267,14 +257,12 @@ private fun veilFor(
     view: View,
     on: Boolean,
     bare: Float,
-    dark: Boolean,
-    radius: Int,
-    glass: Boolean
+    radius: Int
 ): Veil? =
     when {
         on -> Veil(
             view = view,
-            dim = dimFor(view, dark, glass),
+            dim = VEIL_DOSE,
             radius = if (blurs(view)) radius else null,
             dipinto = true
         )
@@ -303,36 +291,27 @@ private fun blurs(view: View): Boolean =
         view.context.getSystemService(WindowManager::class.java)?.isCrossWindowBlurEnabled == true
 
 /**
- * Quanto scurisce la patina piena, con questo tema e su questo telefono.
+ * Di che colore è il velo: **nero sul tema chiaro, bianco su quello scuro**, dalla `4.44`.
  *
- * ⚠️ **È una funzione a sé dalla `1.64`**, perché adesso la chiedono in due: [Veil], che ne ricava
- * quanto azzerare del velo di serie di una finestra, e [AppPatina], che è quella che la dipinge.
- * Scritta due volte, un giorno una delle due darebbe uno sfondo più chiaro dell'altro senza che
- * nessuno se ne accorgesse: un velo che non torna non dà nessun errore.
+ * ⚠️⚠️ **SUA RICHIESTA SUL GIRO DELLA `4.43`** (nota B: *aggiungi un velo del 30% di nero sul tema
+ * chiaro e del 30% di bianco su tema chiaro*; il secondo è il tema **scuro**, lettura dichiarata
+ * nella voce di collaudo). Sul tema scuro i pannelli sono scuri, quindi uno sfondo schiarito li
+ * stacca dove un velo nero li confondeva con lui.
+ * ⚠️ **Misure scartate**: fino alla `4.43` il velo era nero sui due temi, e con la pillola di vetro
+ * e la sfocatura diventava l'accento al 10% (`4.00`), cioè quasi niente: è da lì che i pannelli
+ * nudi della `4.38` hanno smesso di staccare. Con quell'accento se n'è andato anche il raggio del
+ * vetro: la sfocatura è quella di fabbrica, [BLUR], anche con la pillola di vetro (sua nota).
  */
-private fun dimFor(view: View, dark: Boolean, glass: Boolean): Float = when {
-    glass && blurs(view) -> GLASS_VEIL
-    else -> (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurs(view)) 0f else DIM_MORE)
-}
+private fun veilInk(dark: Boolean): Color = if (dark) Color.White else VEIL_INK
 
 /**
- * Di che colore è il velo: nero, o l'accento quando la pillola è di vetro e il telefono sfoca.
+ * Quanto copre il velo pieno: il 30% sui due temi, con o senza sfocatura (sua richiesta, `4.44`).
  *
- * ⚠️⚠️ **DALLA `4.00`, ED È SUA RICHIESTA** (2026-10-05: *se 'Effetto dietro menu e pannelli' è
- * impostato su 'Sfocatura', l'effetto sfocatura cambia e diventa esattamente lo stesso ... salvo
- * il colore che diventa quello di accento al 10% di opacità*). La sfocatura prende il raggio del
- * vetro della pillola ([blurOf]), e il velo diventa l'accento a [GLASS_VEIL].
- * ⚠️ **Dove il telefono non sfoca (risparmio energetico) torna il velo nero**: un accento al 10%
- * senza sfocatura sotto non separa niente dallo sfondo.
+ * ⚠️ **Misure scartate**: fino alla `4.43` erano 0,20 sul chiaro e 0,45 sullo scuro, più 0,12
+ * dove il telefono non sfoca, e 0,10 d'accento col vetro della pillola. Il velo di serie di
+ * Material, sui dialoghi, è 0,6.
  */
-private fun veilInk(view: View, dark: Boolean, glass: Boolean): Color =
-    if (glass && blurs(view)) aivAccent(!dark) else VEIL_INK
-
-/** Il raggio della sfocatura: quello di sempre, o quello del vetro della pillola. */
-private fun blurOf(glass: Boolean) = if (glass) GLASS_BLUR else BLUR
-
-/** L'accento del velo col vetro: il 10%, il suo numero. */
-private const val GLASS_VEIL = 0.10f
+private const val VEIL_DOSE = 0.30f
 
 /**
  * Il velo **dipinto dall'app**: quanto ne vuole chi, fra le superfici in scena, ne chiede di più.
@@ -390,9 +369,9 @@ internal object VeilStage {
     /**
      * Una richiesta: quanto velo, quanto ne vorrebbe a pieno, e di che colore.
      *
-     * ⚠️ **Il pieno viaggia con la dose dalla `4.00`**, perché i pieni sono diventati due: il velo
-     * nero dei due temi e l'accento al 10% del vetro. [veilProgress] lo usa per dire a che punto
-     * è la transizione qualunque sia il velo.
+     * ⚠️ **Il pieno viaggia con la dose dalla `4.00`**, quando i pieni erano diversi fra i temi e
+     * col vetro; dalla `4.44` è [VEIL_DOSE] per tutti, e [veilProgress] lo usa lo stesso per dire a
+     * che punto è la transizione senza conoscere il numero.
      */
     data class Richiesta(val dose: Float, val pieno: Float, val colore: Color)
 
@@ -403,6 +382,9 @@ internal object VeilStage {
 
     /** Di che colore è il velo che si dipinge adesso: quello della richiesta più forte. */
     val colore: Color get() = piu?.colore ?: VEIL_INK
+
+    /** Il pieno della richiesta più forte: dove il velo arriva quando [AppVeil] ha finito di salire. */
+    val pieno: Float get() = piu?.pieno ?: 0f
 
     /** A che punto è la transizione del velo, da 0 a 1. Vedi [veilProgress]. */
     val avanzamento: Float
@@ -443,22 +425,60 @@ internal object VeilStage {
 @Composable
 fun AppVeil(modifier: Modifier = Modifier) {
     DisposableEffect(Unit) { onDispose { VeilStage.clear() } }
+    /*
+     * ⚠️⚠️ **DALLA `4.44` IL VELO SALE PER CONTO SUO, IN [VEIL_IN_MS]** (sua richiesta sul giro della
+     * `4.43`, note B e C: *la sfocatura ragiona come da impostazioni di fabbrica, mentre potrebbe
+     * essere il velo a impiegare 800 ms ad apparire*, con un inizio veloce e una fine il più sfumata
+     * possibile). Il pannello e la sfocatura compaiono col loro tempo; il velo parte con loro e
+     * arriva al pieno della richiesta più forte con [VEIL_IN_EASING].
+     * ⚠️ **Sale verso il pieno e non verso la dose del momento**: la dose cresce a ogni fotogramma
+     * dell'entrata del pannello, e inseguirla farebbe ripartire la salita a ogni fotogramma.
+     * ⚠️⚠️ **E SCENDE SUBITO**: appena la dose richiesta è sotto quella dipinta (un pannello che
+     * esce, la coda della scheda in fondo) il velo la segue fotogramma per fotogramma, com'era
+     * prima. Un velo che resta dopo il pannello si legge come uno schermo bloccato, e l'uscita
+     * lenta della sfocatura era già stata scartata (nota in fondo a questo file).
+     */
+    val dipinto = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        var salita: Job? = null
+        var meta = -1f
+        snapshotFlow { VeilStage.dose to VeilStage.pieno }.collect { (dose, pieno) ->
+            if (dose <= 0f || dose < dipinto.value) {
+                salita?.cancel()
+                meta = -1f
+                dipinto.snapTo(dose)
+            } else if (pieno != meta) {
+                meta = pieno
+                salita?.cancel()
+                salita = launch { dipinto.animateTo(pieno, tween(VEIL_IN_MS, easing = VEIL_IN_EASING)) }
+            }
+        }
+    }
     Box(
         modifier = modifier.drawBehind {
-            val quanto = VeilStage.dose
+            val quanto = dipinto.value
             if (quanto > 0f) drawRect(color = VeilStage.colore, alpha = quanto)
         }
     )
 }
 
+/** Quanto ci mette il velo a comparire, dalla `4.44`: 800 ms, il suo numero (era 1200 in C). */
+internal const val VEIL_IN_MS = 800
+
+/**
+ * La curva con cui il velo compare: parte veloce e arriva sfumando (sue parole, nota C del giro
+ * della `4.43`). Misurata sulla curva: 29% dopo un decimo del tempo, 61% dopo un quarto, 88% a
+ * metà, 98% a tre quarti, quindi la salita si vede per quasi tutti gli 800 ms.
+ * ⚠️ **Curva scartata**: l'esponenziale `(0,16; 1; 0,3; 1)`, che a metà tempo è già al 97% e fa
+ * sembrare il velo arrivato in 200 ms.
+ */
+private val VEIL_IN_EASING: Easing = CubicBezierEasing(0.2f, 0.6f, 0.35f, 1f)
+
 /**
  * Di che colore è il velo.
  *
- * ⚠️ **Nero, com'era quando lo dipingeva Android**: la `1.54` cambia chi lo dipinge e non che
- * cosa si vede. Il 'chiaro/scuro a seconda del tema' che l'utente ha chiesto ce l'ha già, e non
- * viene da qui: quello che si vede attraverso è lo **sfondo sfocato**, chiaro sul tema chiaro e
- * scuro su quello scuro; il velo aggiunge solo la quantità di buio, che cambia col tema
- * ([DIM_LIGHT] contro [DIM_DARK]).
+ * ⚠️ **Nero sul tema chiaro, com'era quando lo dipingeva Android**; sul tema scuro, dalla `4.44`,
+ * è bianco ([veilInk]).
  */
 private val VEIL_INK = Color.Black
 
@@ -632,19 +652,6 @@ fun View.dialogWindow(): Window? {
 private val BLUR = 12.dp
 
 /**
- * Quanto scurisce il velo, sul tema chiaro e su quello scuro.
- *
- * ⚠️ **Meno sul chiaro e non per timidezza**: là la scheda è chiara sopra uno sfondo chiaro ma
- * la sua ombra e il suo bordo la staccano già, mentre sullo scuro una scheda scura sopra uno
- * sfondo scuro ha bisogno che il fondo si allontani davvero.
- * ⚠️ **Sono più bassi del velo di serie di Material** (0,6 di fabbrica sui dialoghi), perché
- * qui il lavoro lo fa in gran parte la sfocatura: 0,6 sopra uno sfondo già sfocato cancella
- * quello che c'è sotto invece di allontanarlo.
- */
-private const val DIM_LIGHT = 0.20f
-private const val DIM_DARK = 0.45f
-
-/**
  * Quanto è avanzato il velo, da 0 a 1, indipendentemente da quanto scuro sia.
  *
  * ⚠️⚠️ **SERVE A CHI DEVE CAMBIARE DISEGNO INSIEME ALLA SFOCATURA, e il primo caso è la
@@ -653,23 +660,15 @@ private const val DIM_DARK = 0.45f
  * effetto ottico tremendo*). Il velo dice quanto **buio** c'è; questo dice a che punto è la
  * transizione, che è la cosa da seguire per coprire qualcosa 'nello stesso intervallo'.
  * ⚠️ **Si divide per la dose piena di chi chiede il velo**, che ogni richiesta porta con sé dalla
- * `4.00` (vedi [VeilStage.Richiesta]): senza, lo stesso avanzamento darebbe numeri diversi nei
- * due temi, senza sfocatura ([DIM_MORE]) e col vetro della pillola, che vela col 10% d'accento.
- * Fino alla `3.73` si divideva per il pieno del tema, e il tema arrivava come parametro.
+ * `4.00` (vedi [VeilStage.Richiesta]): così l'avanzamento non dipende dal numero del velo, che
+ * fino alla `4.43` cambiava coi temi e col vetro. Fino alla `3.73` si divideva per il pieno del
+ * tema, e il tema arrivava come parametro.
  * ⚠️ **Si legge nella fase di DISEGNO**, come [AppVeil]: leggerlo in composizione fa ricomporre
  * chi lo guarda a ogni fotogramma della transizione.
  */
 internal fun veilProgress(): Float =
     VeilStage.avanzamento.coerceIn(0f, 1f)
 
-/**
- * Quanto si aggiunge al velo quando la sfocatura non c'è.
- *
- * ⚠️ Vedi la nota in testa: la separazione la devono fare in due, e se uno dei due manca
- * l'altro deve valere di più. Con questo, sul chiaro senza sfocatura si arriva a 0,32, che è
- * il velo classico di un dialogo Material.
- */
-private const val DIM_MORE = 0.12f
 
 /**
  * Il velo al massimo: quello che chiede chi non ha un'animazione da seguire.

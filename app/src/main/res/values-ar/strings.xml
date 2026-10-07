@@ -571,7 +571,7 @@
     <string name="draw_arrow">سهم</string>
     <string name="draw_rect">مستطيل</string>
     <string name="draw_ellipse">قطع ناقص</string>
-    <string name="draw_outline">الحدود</string>
+    <string name="draw_outline">الخط</string>
     <string name="draw_width">السُمك</string>
     <string name="draw_dashed">متقطع</string>
     <string name="draw_filled">تعبئة</string>
@@ -582,7 +582,7 @@
     <string name="ink_violet">بنفسجي</string>
     <string name="ink_black">أسود</string>
     <string name="ink_white">أبيض</string>
-    <string name="ink_orange">سلموني</string>
+    <string name="ink_pink">وردي</string>
     <string name="look_preset_save">حفظ النمط</string>
     <string name="look_preset_name">اسم الإعداد المسبق</string>
     <string name="look_preset_mine">الأنماط المحفوظة</string>

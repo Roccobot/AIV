@@ -103,32 +103,37 @@ internal object Draw {
      */
     const val WIDTH = WIDTH_MIN + 0.6f * (WIDTH_MAX - WIDTH_MIN)
 
-    /** The factory ink of the outline, `#FFFF4B3D` (his value), which is also the first swatch. */
-    const val INK = 0xFFFF4B3D.toInt()
+    /**
+     * The factory ink of the stroke, the first swatch: `#FFFF4C3F` (his palette of 4.44, answer
+     * `D1`). In 4.42 and 4.43 it was `#FFFF4B3D`, his value; his palette of 4.44 starts with a red a
+     * shade away, and he chose to move the factory ink onto it.
+     */
+    const val INK = 0xFFFF4C3F.toInt()
 
     /**
-     * The factory fill of a closed shape, `#26FFAE8E` in ARGB (his value): a salmon at about 15%,
-     * so rectangles and ellipses are born filled. Its colour is also the last swatch.
+     * The factory fill of a closed shape, `#33FFBF00` in ARGB (his answer `D2`, 4.44): the amber
+     * swatch at 20%, so rectangles and ellipses are born filled. In 4.42 and 4.43 it was a salmon at
+     * about 15% (`#26FFAE8E`), which his palette of 4.44 no longer has.
      */
-    const val FILL = 0x26FFAE8E
+    const val FILL = 0x33FFBF00
 
     /** [colour] with its alpha set to [alpha], from 0 to 1. */
     fun withAlpha(colour: Int, alpha: Float): Int =
         ((alpha.coerceIn(0f, 1f) * 255f + 0.5f).toInt() shl 24) or (colour and 0xFFFFFF)
 
     /**
-     * The eight inks of the palette: white, black, and six clear hues.
+     * The eight inks of the palette, his of 4.44 in his order: six hues, then white and black last.
      *
      * ⚠️ **No colour picker in G1**: eight swatches cover the use the module is for (marking,
-     * pointing, underlining), and a picker costs a dialog. The first is red because an arrow on a
-     * photo is red more often than not.
-     * ⚠️ **Since 4.42 the red is [INK] and the last swatch is the colour of [FILL]** (they were
-     * `#E53935` and an orange, `#FF7043`): his two factory colours stay one tap away after being
-     * changed. A choice of the session, declared in the test item.
+     * pointing, underlining), and a picker costs a dialog.
+     * ⚠️ **The factory colours are swatches**: [INK] is the first, and [FILL] is the amber at 20%.
+     * A swatch is chosen when its colour equals the current one, so a factory colour off the palette
+     * would open the module with no swatch chosen. The stroke takes the first swatch by
+     * construction (`Gaze.ink`); the fill keeps its own constant, and `DisegnoTest` watches it.
      */
     val INKS = listOf(
-        INK, 0xFFFFB300.toInt(), 0xFF43A047.toInt(), 0xFF1E88E5.toInt(),
-        0xFF8E24AA.toInt(), 0xFF000000.toInt(), 0xFFFFFFFF.toInt(), FILL or 0xFF000000.toInt()
+        INK, 0xFFFFBF00.toInt(), 0xFF5ACB8C.toInt(), 0xFF3EB7FF.toInt(),
+        0xFF846AE2.toInt(), 0xFFCC6898.toInt(), 0xFFFFFFFF.toInt(), 0xFF000000.toInt()
     )
 
     /**

@@ -364,6 +364,10 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
   delle richieste in scena: due finestre non cambiano il proprio velo nello stesso fotogramma,
   quindi fra un menu e un dialogo c'era sempre un fotogramma con due veli o con nessuno. La
   sfocatura resta un attributo di finestra.
+  - ⚠️⚠️ **Dalla `4.44` il velo è il 30%, nero sul tema chiaro e bianco sullo scuro, e compare in
+    800 ms** mentre pannello e sfocatura arrivano col loro tempo (sua richiesta sul giro della
+    `4.43`); scende invece subito, insieme a chi lo chiede. Numeri, curva e misure scartate vivono
+    in `Veil.kt` (`VEIL_DOSE`, `veilInk`, `AppVeil`).
 - ⚠️⚠️ **Una sfocatura che cala vuole in scena qualcosa che se ne va**: senza una causa in scena, il
   raggio che scende si legge come una messa a fuoco. Quindi i menu escono con una dissolvenza sola
   di 75 ms (pannello, sfocatura e livello scuro insieme), e la coda lunga resta sulla sola scheda in
