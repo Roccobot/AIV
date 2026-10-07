@@ -439,25 +439,60 @@ class DisegnoTest {
     }
 
     /**
-     * **L'ordine dei tasti è Tratteggio, Traccia, Riempimento** (sua risposta sul giro della
-     * `4.43`), da sinistra a destra, e **Spessore** dalla `4.47` al posto di Luminosità, il quarto.
-     * ⚠️⚠️ **CONTROPROVATA** rimettendo l'ordine della `4.43` (Traccia, Riempimento, Tratteggio).
+     * **L'ordine dei tasti è Tratteggio, Traccia, Spessore, Riempimento** (sua risposta sul giro
+     * della `4.43` per i primi tre; Spessore dalla `4.47` al posto di Luminosità, e dalla `4.49` a
+     * sinistra di Riempimento, sua nota su `4.47-01`).
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo l'ordine della `4.47` (Riempimento prima di Spessore).
      */
     @Test
-    fun `i tasti sono Tratteggio, Traccia, Riempimento e Spessore da sinistra`() {
+    fun `i tasti sono Tratteggio, Traccia, Spessore e Riempimento da sinistra`() {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
-        val (tratteggio, traccia, riempimento, spessore) = listOf(
-            R.string.draw_dashed, R.string.draw_outline, R.string.draw_filled, R.string.draw_width
+        val (tratteggio, traccia, spessore, riempimento) = listOf(
+            R.string.draw_dashed, R.string.draw_outline, R.string.draw_width, R.string.draw_filled
         ).map { banco.onNodeWithContentDescription(testo(it)).fetchSemanticsNode().boundsInRoot.left }
         assertTrue("Tratteggio doveva stare a sinistra di Traccia", tratteggio < traccia)
-        assertTrue("Traccia doveva stare a sinistra di Riempimento", traccia < riempimento)
-        assertTrue("Riempimento doveva stare a sinistra di Spessore", riempimento < spessore)
+        assertTrue("Traccia doveva stare a sinistra di Spessore", traccia < spessore)
+        assertTrue("Spessore doveva stare a sinistra di Riempimento", spessore < riempimento)
         assertEquals("Luminosità non è più un tasto", 0,
             banco.onAllNodes(SemanticsMatcher.expectValue(
                 androidx.compose.ui.semantics.SemanticsProperties.ContentDescription, listOf(testo(R.string.draw_light))
             )).fetchSemanticsNodes().size)
+    }
+
+    /**
+     * **Il cursore della luminosità compare sopra la fila dei tondi, più corto di lei e staccato dai
+     * due lati** (sua nota su `4.47-03`: *altrimenti il dito lo copre*).
+     * ⚠️ Le posizioni si leggono sullo schermo, perché il cursore vive nella finestra del menu.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: col cursore sotto la fila (`AFTER_ANCHOR`, com'era nella
+     * `4.47`) e largo quanto lei.
+     */
+    @Test
+    fun `il cursore della luminosita compare sopra i tondi, piu corto della fila`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val rosso = banco.onNodeWithContentDescription(testo(R.string.ink_red))
+        rosso.performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("tenuto il tondo, il cursore doveva restare", 1, luci())
+        val tondo = rosso.fetchSemanticsNode()
+        val nero = banco.onNodeWithContentDescription(testo(R.string.ink_black)).fetchSemanticsNode()
+        val cursore = banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress) and
+            SemanticsMatcher.expectValue(
+                androidx.compose.ui.semantics.SemanticsProperties.ContentDescription, listOf(testo(R.string.draw_light))
+            )).fetchSemanticsNode()
+        val alto = tondo.positionOnScreen.y
+        val fondo = cursore.positionOnScreen.y + cursore.size.height
+        assertTrue("il cursore doveva finire sopra i tondi: fondo $fondo, tondi da $alto", fondo <= alto)
+        // The row of swatches runs from the 'none' place to the black swatch: the slider's panel
+        // starts right of the first swatch's left edge and ends left of the black one's right edge.
+        val sinistra = tondo.positionOnScreen.x - tondo.size.width
+        val destra = nero.positionOnScreen.x + nero.size.width
+        assertTrue("il cursore doveva staccarsi dal lato sinistro", cursore.positionOnScreen.x > sinistra + 16)
+        assertTrue("il cursore doveva staccarsi dal lato destro",
+            cursore.positionOnScreen.x + cursore.size.width < destra - 16)
     }
 
     /**
