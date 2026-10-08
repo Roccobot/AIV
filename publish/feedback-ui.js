@@ -120,6 +120,10 @@ function refreshCounts() {
     card.dataset.outcomeKind = spec.outcomes.find((outcome) => outcome.label === value.status)?.kind || "";
     card.classList.toggle("has-response", Boolean(value.status || value.comment.trim() || value.images.length));
   }
+  for (const card of document.querySelectorAll(".question")) {
+    const value = draft.decisions[card.dataset.id];
+    card.classList.toggle("has-response", Boolean(value && (value.choice || value.comment.trim())));
+  }
   for (const card of document.querySelectorAll(".label-card")) {
     const item = labelById(card.dataset.id);
     const dirty = item ? labelDirty(item) : false;
@@ -155,6 +159,12 @@ function hydrate() {
     for (const b of card.querySelectorAll(".outcome"))
       b.setAttribute("aria-pressed", String(b.dataset.status === value.status));
     drawAttachments(card);
+  }
+  for (const card of document.querySelectorAll(".question")) {
+    const value = draft.decisions[card.dataset.id] || { choice: "", comment: "" };
+    card.querySelector(".question-comment").value = value.comment;
+    for (const b of card.querySelectorAll(".choice"))
+      b.setAttribute("aria-pressed", String(b.dataset.choice === value.choice));
   }
   for (const card of document.querySelectorAll(".label-card")) {
     const item = labelById(card.dataset.id);
@@ -539,6 +549,21 @@ for (const card of document.querySelectorAll(".test")) {
     });
   card.querySelector(".comment").addEventListener("input", (event) => {
     entry(card.dataset.id).comment = event.target.value;
+    changed();
+  });
+}
+// A question: one option at a time, a second tap clears it; `Rimando` is one more option.
+for (const card of document.querySelectorAll(".question")) {
+  for (const b of card.querySelectorAll(".choice"))
+    b.addEventListener("click", () => {
+      const value = decision(card.dataset.id);
+      value.choice = value.choice === b.dataset.choice ? "" : b.dataset.choice;
+      for (const peer of card.querySelectorAll(".choice"))
+        peer.setAttribute("aria-pressed", String(peer.dataset.choice === value.choice));
+      changed();
+    });
+  card.querySelector(".question-comment").addEventListener("input", (event) => {
+    decision(card.dataset.id).comment = event.target.value;
     changed();
   });
 }

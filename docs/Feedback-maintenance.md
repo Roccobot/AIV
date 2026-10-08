@@ -94,21 +94,31 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief. È una sorta di **mini-brief** per Rocco.
 - Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
   Gli eventuali riferimenti all'autore nei testi visibili usano `l'agente`.
-- ⚠️⚠️ **Le domande ferme nel brief da più di dieci giri entrano nel DF come prove** (istruzione
-  di Rocco, 2026-10-08; regola completa in `Roccobot.md` § '⏳ Dopo dieci giri, una voce ferma nel
-  brief torna nel documento di feedback'). La pagina non pone decisioni, quindi ogni domanda è
-  una prova della versione in collaudo:
-  - il titolo comincia con `Domanda ·`, e il corpo contiene la domanda, le opzioni con la lettera
-    e il parere dell'agente;
-  - si risponde scrivendo la lettera nel commento; `Tutto OK` senza commento vale il parere, e
-    `Non approvato` col commento chiede una strada diversa;
-  - nella tabella l'azione della riga è `Rispondere nel commento.`;
-  - letta la risposta, la prova si archivia come le altre e la decisione va nel brief con la sua
-    lettera; se Rocco rimanda, la domanda resta nel brief e torna dopo altri dieci giri.
+- ⚠️⚠️ **L'ordine dei blocchi del DF** (istruzione di Rocco, 2026-10-08: *gli unici blocchi
+  numerati sono versioni atomiche di funzionalità precisa (1 blocco = 1 serie di controlli)*):
+  1. le **prove**, `## N. Titolo`, le sole numerate: una funzione per blocco, con i suoi
+     controlli;
+  2. le **Domande**, `## Domande`, non numerate (voce qui sotto);
+  3. le **Etichette testuali**, non numerate (voce più avanti);
+  4. `Aggiornamenti recenti` e `Prossimi passi`.
 
-  È un'eccezione dichiarata alla regola che vuole nel corpo il solo feedback sull'app. La prima
-  volta, il 2026-10-08, sono entrate su sua richiesta tutte le domande aperte del brief, anche
-  quelle di altri progetti.
+  Una domanda o un testo da confermare non diventa mai una prova numerata: nel DF della 4.64
+  le domande erano entrate come prove `4.64-03`...`4.64-12`, ed è la forma che questa voce
+  sostituisce.
+- ⚠️⚠️ **Le Domande: quelle ferme nel brief da più di dieci giri, e ogni scelta che spetta a
+  Rocco** (regola completa in `Roccobot.md` § '⏳ Dopo dieci giri, una voce ferma nel brief
+  torna nel documento di feedback'). Nella fonte:
+  - `### d-chiave · titolo`, con la chiave in minuscolo (la stessa con cui la risposta si cita
+    nel brief, come `d-cestino-quando`);
+  - il testo della domanda; un paragrafo per opzione, che comincia con `**C1**:`; un paragrafo
+    che comincia con `Parere:` e nomina in grassetto l'opzione consigliata;
+  - una domanda senza opzioni (una richiesta di dati) vive del solo commento.
+
+  La pagina mostra le opzioni come tasti (uno alla volta, un secondo tocco lo toglie), segna
+  quella del parere e aggiunge `Rimando`; la risposta si salva in `decisions` della bozza.
+  Nessuna risposta vuol dire che la domanda resta aperta nel brief; `Rimando` riparte il conto
+  dei dieci giri, col giro scritto accanto alla voce. Il generatore si ferma su una chiave
+  doppia, su un parere che non nomina un'opzione, su una domanda senza testo.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
   atteso. Mantieni le prove aperte fra release; archivia soltanto quelle concluse dal
   giro consegnato. Non sostituire riscontri manuali con prove automatiche.
@@ -159,11 +169,28 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   colori di una risposta** (`has-response`, sfondo e bordo grigio-azzurri) quando contiene testo:
   li aveva dal 2026-10-02 e lui l'ha visto diventare blu (2026-10-06); restano alle prove. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
-- ⚠️ **Etichette testuali**: quando una feature introduce o aggiorna copy italiano di
+- ⚠️⚠️ **Etichette testuali: OGNI testo italiano nuovo o cambiato, anche quello scelto da
+  Rocco** (sua istruzione, ribadita il 2026-10-08: *tutti i testi nuovi (anche quelli scelti da
+  me) mi fossero sottoposti nel DF*). Dal DF 4.02 al 4.64 la sezione non è più comparsa mentre
+  l'italiano dell'app riceveva 54 stringhe nuove e 10 cambiate: l'obbligo viveva solo qui, la
+  frase si leggeva come rivolta ai testi proposti dall'agente, e una sezione assente non
+  dava nessun allarme. Adesso c'è il presidio:
+  - **`docs/Labels-approved.json`** è il registro dei testi italiani approvati, chiave per
+    chiave (il punto di partenza è l'italiano della 4.00, l'ultimo giro con le etichette);
+  - **`tools/feedback-build.py` si ferma** se un testo di `values-it/strings.xml` è diverso dal
+    registro e nessuna etichetta lo copre, e li elenca;
+  - un'etichetta copre la chiave del suo id (`e-draw_clear` copre `draw_clear`) e quelle di un
+    commento `<!-- chiavi: draw_free draw_line -->`, per raccogliere in una scheda le stringhe
+    corte della stessa funzione;
+  - letto il giro e applicate le sue riscritture, `python3 tools/feedback-build.py
+    --approve-labels` scrive nel registro il testo in vigore di ogni chiave coperta, e le
+    etichette escono dal DF successivo.
+
+  Quando una feature introduce o aggiorna copy italiano di
   interfaccia (paragrafi, pulsanti, toast, voci, ...), l'agente può redigere la proposta e
-  far uscire la versione; il DF deve elencare **ogni** nuova stringa ITA una per una in
-  una sezione intitolata esattamente **Etichette testuali**, in basso **prima** delle
-  sezioni conclusive/archivio (`Aggiornamenti recenti`) e del PP. Ogni sotto-card mostra il
+  far uscire la versione; il DF deve elencare **ogni** nuova stringa ITA in
+  una sezione intitolata esattamente **Etichette testuali**, in basso, dopo le **Domande** e
+  **prima** delle sezioni conclusive/archivio (`Aggiornamenti recenti`) e del PP. Ogni sotto-card mostra il
   testo ITA proposto per intero e un campo libero: ciò che l'utente scrive sostituisce la
   proposta al prossimo rilascio utile; campo vuoto = approvato. Non è una sezione di prove
   (niente esiti, fuori dai contatori). Assente o vuota → sezione nascosta.
@@ -244,7 +271,7 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `device` | Specifiche del telefono; chiave storica conservata |
 | `tablet` | Specifiche del tablet; assente nei vecchi JSON, ripristinata come testo vuoto |
 | `entries` | Risposte per ID: `status`, `comment`, `images` |
-| `decisions` | Decisioni per ID: `choice`, `comment`. Dal 2026-10-03 la pagina non ne pone più (le domande si fanno in chat, e quelle ferme da più di dieci giri diventano prove), ma la chiave resta: il Worker la richiede, e una bozza vecchia la conserva intatta |
+| `decisions` | Decisioni per ID: `choice`, `comment`. Dal 2026-10-08 contiene le risposte al blocco `Domande` (`choice` è la lettera, o `rimando`); dal 2026-10-03 a quel giorno la pagina non ne poneva, e la chiave resta comunque: il Worker la richiede, e una bozza vecchia la conserva intatta |
 | `labels` | Etichette testuali per ID: `revision` (campo libero; assente nei JSON vecchi → `{}`) |
 | `notes`, `extra.images` | Osservazioni libere e relativi allegati |
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |

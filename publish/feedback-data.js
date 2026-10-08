@@ -7,6 +7,7 @@
    syncAltroFields() from feedback-ui.js. */
 const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
 if (!Array.isArray(spec.labels)) spec.labels = [];
+if (!Array.isArray(spec.questions)) spec.questions = [];
 // The outcome labels and the project come from the embedded data (feedback-build.py).
 const outcomes = spec.outcomes.map((outcome) => outcome.label);
 const maxFile = 8 * 1024 * 1024,
@@ -15,8 +16,9 @@ const allowedMime = ["image/png", "image/jpeg", "image/webp", "image/gif", "imag
 // Preserve the historical images key in JSON drafts; it also holds ZIP files. In the page
 // and in the browser's own store an attachment is {name, type, size, blob}: the original
 // bytes as a file, never as text.
-// `decisions` stays in schema 1: the page no longer asks any, but old drafts carry them,
-// the Worker requires the key, and an import must give them back unchanged.
+// `decisions` stays in schema 1 and holds the answers to the "Domande" block (from 2026-10-08;
+// from 2026-10-03 to then the page asked none). Answers to questions no longer on the page are
+// kept as they are: the Worker requires the key, and an import must give them back unchanged.
 const blank = () => ({
   schema: 1,
   project: spec.project,
@@ -54,6 +56,9 @@ function entry(id) {
 function usedAttachmentBytes() {
   return [draft.extra, ...Object.values(draft.entries)].reduce((sum, value) =>
     sum + value.images.reduce((bytes, file) => bytes + file.size, 0), 0);
+}
+function decision(id) {
+  return draft.decisions[id] ?? (draft.decisions[id] = { choice: "", comment: "" });
 }
 function labelEntry(id) {
   return draft.labels[id] ?? (draft.labels[id] = { revision: "" });
@@ -334,6 +339,15 @@ function summary() {
         `Allegati: ${value.images.map((i) => i.name).join(", ")} (nello ZIP esportato)`,
       );
     lines.push("");
+  }
+  if (spec.questions.length) {
+    lines.push("", "Domande");
+    for (const item of spec.questions) {
+      const value = draft.decisions[item.id] || { choice: "", comment: "" };
+      const choice = value.choice === "rimando" ? "rimando" : value.choice || "nessuna risposta";
+      lines.push(`${item.id} - ${item.title}: ${choice}`);
+      if (value.comment) lines.push(value.comment);
+    }
   }
   if (spec.labels && spec.labels.length) {
     lines.push("", "Etichette testuali");

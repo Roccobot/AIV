@@ -48,6 +48,129 @@ Scheda generata dal controllo e mai pubblicata: serve a esercitare la pagina qua
 '''
 
 
+SYNTHETIC_BLOCKS = '''# Feedback AIV
+
+Documento di sintesi, costruito dal controllo e mai pubblicato.
+
+| Voce | Stato | Commento dell'utente | Azione successiva |
+|---|---|---|---|
+| 0.00-01 | Non provato | | Attendere il collaudo. |
+
+## 1. Prova di sintesi
+
+Scheda generata dal controllo.
+
+## Domande
+
+### d-sintesi · Domanda di sintesi
+
+Quale strada si prende?
+
+**A1**: la prima strada.
+
+**A2**: la seconda strada.
+
+Parere: **A1**, perché è la prima.
+
+## Etichette testuali
+
+### e-sintesi · Etichetta di sintesi
+Testo proposto
+
+## Prossimi passi
+
+- **In collaudo**: la prova di sintesi.
+'''
+
+
+class Quiet(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+
+def check_questions_and_labels(path):
+    """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
+    synthetic source with the real generator and template: the questions come after the tests and
+    before the labels, carry no number, take one option at a time (a second tap clears it,
+    Rimando is one more option), and their choice and comment survive a reload and reach the
+    summary; a label revision is saved and reaches the summary too."""
+    from playwright.sync_api import sync_playwright, expect
+    import subprocess
+    import sys
+    browser_path = shutil.which('chromium') or shutil.which('google-chrome')
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: blocchi dopo le prove non verificati.')
+    folder = Path(path).resolve().parent
+    root = Path(__file__).resolve().parents[1]
+    errors = []
+    with tempfile.TemporaryDirectory() as temporary:
+        stage = Path(temporary)
+        for entry in folder.iterdir():
+            if entry.name != Path(path).name:
+                (stage / entry.name).symlink_to(entry)
+        source = stage / 'Feedback.md'
+        source.write_text(SYNTHETIC_BLOCKS)
+        page_copy = stage / Path(path).name
+        subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'),
+                        '--source', str(source), '--output', str(page_copy)], check=True, stdout=subprocess.DEVNULL)
+        server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=str(stage)))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        url = f'http://127.0.0.1:{server.server_port}/{page_copy.name}'
+        try:
+            with sync_playwright() as pw:
+                engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+                page = engine.new_page()
+                page.on('pageerror', lambda e: errors.append(str(e)))
+                page.goto(url)
+                expect(page.locator('#save')).to_be_enabled()
+                order = page.evaluate("""() => [...document.querySelectorAll('.test, #questions, #labels')]
+                    .map((node) => node.classList.contains('test') ? 'prova' : node.id)""")
+                assert order == ['prova', 'questions', 'labels'], 'Ordine dei blocchi: ' + str(order)
+                question = page.locator('#questions .question')
+                expect(question).to_have_count(1)
+                assert question.locator('.check-position').count() == 0, 'Una domanda non è numerata.'
+                expect(page.locator('.test .check-position')).to_have_text('Verifica 1/1')
+                expect(question.locator('.choice[data-choice="A1"] .advised')).to_have_count(1)
+                expect(question.locator('.advised')).to_have_count(1)
+                first, second = question.locator('.choice[data-choice="A1"]'), question.locator('.choice[data-choice="A2"]')
+                later = question.locator('.choice[data-choice="rimando"]')
+                first.click()
+                expect(first).to_have_attribute('aria-pressed', 'true')
+                expect(question).to_have_class(re.compile(r'\bhas-response\b'))
+                second.click()
+                expect(second).to_have_attribute('aria-pressed', 'true')
+                expect(first).to_have_attribute('aria-pressed', 'false')
+                second.click()
+                expect(second).to_have_attribute('aria-pressed', 'false')
+                expect(question).not_to_have_class(re.compile(r'\bhas-response\b'))
+                later.click()
+                expect(later).to_have_attribute('aria-pressed', 'true')
+                question.locator('.rich-editor').fill('Commento di sintesi')
+                page.locator('#labels .label-card .rich-editor').fill('Testo riveduto')
+                page.locator('#save').click()
+                expect(page.locator('#saved')).to_contain_text('Salvato in questo browser')
+                summary = page.evaluate('summary()')
+                assert 'd-sintesi - Domanda di sintesi: rimando' in summary, summary
+                assert 'Commento di sintesi' in summary, summary
+                assert 'e-sintesi: Testo riveduto' in summary, summary
+                assert summary.index('Domande') < summary.index('Etichette testuali'), summary
+                page.reload()
+                expect(page.locator('#save')).to_be_enabled()
+                expect(later).to_have_attribute('aria-pressed', 'true')
+                kept = page.evaluate('draft.decisions')
+                assert kept == {'d-sintesi': {'choice': 'rimando', 'comment': 'Commento di sintesi'}}, str(kept)
+                expect(question.locator('.rich-editor')).to_have_text('Commento di sintesi')
+                for width in [320, 390, 800, 1280]:
+                    page.set_viewport_size({'width': width, 'height': 900})
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Scorrimento orizzontale a {width}px.'
+                engine.close()
+        finally:
+            server.shutdown()
+            server.server_close()
+    assert not errors, 'Errori nella pagina di sintesi: ' + str(errors)
+    print('Domande ed etichette: ordine, opzioni, Rimando, commento, ricarica e riepilogo verificati.')
+
+
 def check_without_tests(path):
     """A round with every test closed publishes a page with no cards, and the exercise below
     needs at least one: it used to time out waiting for `.test`, so the check failed on a
@@ -106,7 +229,11 @@ def check(path):
     for label in data.get('labels', []):
         assert all(label.get(k) for k in ['id', 'title', 'proposal']), 'Etichetta incompleta.'
         assert label['id'].startswith('e-'), 'id etichetta deve iniziare con e-.'
-    assert 'decisions' not in data, 'La pagina non pone più decisioni.'
+    assert 'decisions' not in data, 'Le domande vivono in `questions`, le risposte in `decisions` della bozza.'
+    for question in data.get('questions', []):
+        assert re.fullmatch(r'd-[a-z0-9-]+', question.get('id', '')), 'Chiave di domanda non valida.'
+        assert question.get('title') and question.get('paragraphs'), 'Domanda incompleta.'
+    check_questions_and_labels(path)
     if not data['items']:
         check_without_tests(path)
         return
@@ -114,10 +241,6 @@ def check(path):
     if not browser:
         raise AssertionError('Chromium non disponibile: resa non verificata.')
     from playwright.sync_api import sync_playwright, expect
-
-    class Quiet(http.server.SimpleHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
 
     handler = functools.partial(Quiet, directory=str(Path(path).resolve().parent))
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
