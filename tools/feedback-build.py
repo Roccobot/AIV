@@ -91,8 +91,10 @@ for match in re.finditer(r'^## (\d+)\. ([^\n]+)\n(.*?)(?=^## |\Z)', md, re.M | r
     items.append(dict(id=identifier, version=identifier.rsplit('-', 1)[0], title=match[2],
                       paragraphs=paragraphs))
 # Optional "Etichette testuali" section: each `### id[ · title]` heading plus its body is the
-# proposed Italian text. The page asks no decisions any more; old drafts keep theirs (feedback-data.js).
+# proposed Italian text. The string keys a label covers are its id without `e-` and the ones
+# named in a `<!-- chiavi: a b c -->` comment, so one card can hold a family of short strings.
 labels = []
+label_keys = set()
 labels_match = re.search(r'^## Etichette testuali\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if labels_match:
     for lm in re.finditer(r'^### ([^\n]+)\n(.*?)(?=^### |\Z)', labels_match[1], re.M | re.S):
@@ -111,7 +113,101 @@ if labels_match:
         if a11y:
             entry['a11y'] = True
         labels.append(entry)
-data = dict(project=PROJECT, version=version, items=items, labels=labels,
+        label_keys.add(entry['id'][2:] if entry['id'].startswith('e-') else entry['id'])
+        for comment in re.findall(r'<!--(.*?)-->', raw, re.S):
+            named = re.match(r'\s*chiavi:(.*)', comment, re.S)
+            if named:
+                label_keys.update(named[1].replace(',', ' ').split())
+
+
+# Optional "Domande" section, after the tests and before the labels (the user's rule of
+# 2026-10-08: numbered blocks are tests of one feature each, and the questions taken from the
+# brief live in a block of their own). Each `### d-key · title` holds the question; a paragraph
+# that opens with `**C1**:` is an option, the one that opens with `Parere:` names the advised
+# option in bold. The answer is saved under the draft's `decisions`, which schema 1 kept.
+def parse_questions(text):
+    found = []
+    section = re.search(r'^## Domande\n(.*?)(?=^## |\Z)', text, re.M | re.S)
+    if not section:
+        return found
+    for qm in re.finditer(r'^### ([^\n]+)\n(.*?)(?=^### |\Z)', section[1], re.M | re.S):
+        head = qm[1].strip()
+        if ' · ' not in head:
+            raise SystemExit(f'Domanda {head}: il titolo vuole la forma `### d-chiave · titolo`')
+        qid, qtitle = (part.strip() for part in head.split(' · ', 1))
+        if not re.fullmatch(r'd-[a-z0-9-]+', qid):
+            raise SystemExit(f'Domanda {qid}: la chiave deve essere `d-` seguito da minuscole, cifre e trattini')
+        paragraphs, options, advice, advice_text = [], [], None, ''
+        for p in qm[2].strip().split('\n\n'):
+            flat = re.sub(r'\s*\n\s*', ' ', p).strip()
+            if not flat:
+                continue
+            option_match = re.match(r'\*\*([A-Z][A-Za-z0-9]{0,5})\*\*:\s*(.+)', flat)
+            if option_match:
+                options.append(dict(key=option_match[1], text=option_match[2]))
+            elif flat.startswith('Parere:'):
+                advised = re.search(r'\*\*([A-Z][A-Za-z0-9]{0,5})\*\*', flat)
+                advice, advice_text = (advised[1] if advised else None), flat
+            else:
+                paragraphs.append(flat)
+        keys = [option['key'] for option in options]
+        if len(set(keys)) != len(keys):
+            raise SystemExit(f'Domanda {qid}: due opzioni con la stessa lettera')
+        if options and advice not in keys:
+            raise SystemExit(f'Domanda {qid}: il paragrafo `Parere:` deve nominare in grassetto una delle opzioni')
+        if not paragraphs:
+            raise SystemExit(f'Domanda {qid}: manca il testo della domanda')
+        found.append(dict(id=qid, title=qtitle, paragraphs=paragraphs, options=options,
+                          advice=advice, adviceText=advice_text))
+    return found
+
+
+questions = parse_questions(md)
+if len({question['id'] for question in questions}) != len(questions):
+    raise SystemExit('Due domande con la stessa chiave')
+
+
+# Every Italian interface text that is new or changed since the user last approved it is listed
+# under "Etichette testuali", the ones he picked himself included (his rule, restated on
+# 2026-10-08 after the DFs from 4.02 to 4.64 showed none while 64 texts came in). The approved
+# texts live in docs/Labels-approved.json; `--approve-labels` records the current text of every
+# key the labels cover, once his answers to them are applied. A throwaway build (`--source`)
+# skips the check: it exercises the page, it is not a document.
+APPROVED = ROOT / 'docs/Labels-approved.json'
+
+
+def italian_strings():
+    import xml.etree.ElementTree as ET
+    texts = {}
+    for element in ET.parse(ROOT / 'app/src/main/res/values-it/strings.xml').getroot():
+        name = element.get('name')
+        if element.tag == 'string':
+            texts[name] = ''.join(element.itertext())
+        elif element.tag == 'plurals':
+            texts[name] = ' | '.join(f"{item.get('quantity')}: {''.join(item.itertext())}" for item in element)
+        elif element.tag == 'string-array':
+            texts[name] = ' | '.join(''.join(item.itertext()) for item in element)
+    return texts
+
+
+if '--approve-labels' in sys.argv:
+    current, approved = italian_strings(), json.loads(APPROVED.read_text())
+    for key in sorted(label_keys):
+        if key not in current:
+            raise SystemExit(f'Etichetta {key}: la chiave non esiste in values-it/strings.xml')
+        approved[key] = current[key]
+        print(f'approvata {key}: {current[key]}')
+    APPROVED.write_text(json.dumps(dict(sorted(approved.items())), ensure_ascii=False, indent=1) + '\n')
+    sys.exit(0)
+if '--source' not in sys.argv:
+    approved = json.loads(APPROVED.read_text())
+    unsubmitted = [key for key, text in italian_strings().items()
+                   if approved.get(key) != text and key not in label_keys]
+    if unsubmitted:
+        raise SystemExit('Testi italiani nuovi o cambiati senza etichetta nel DF (' + str(len(unsubmitted)) +
+                         '): ' + ', '.join(sorted(unsubmitted)) +
+                         '. Mettili in "Etichette testuali" (docs/Feedback-maintenance.md).')
+data = dict(project=PROJECT, version=version, items=items, questions=questions, labels=labels,
             outcomes=[dict(label=label, kind=kind) for label, kind in OUTCOMES])
 next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if not next_match:
@@ -155,12 +251,34 @@ for index, item in enumerate(items, 1):
     for status, kind in OUTCOMES:
         cards.append(f'<button type="button" class="outcome" data-status="{status}" data-kind="{kind}" aria-pressed="false">{status}</button>')
     cards.append('</fieldset><label>Commento<textarea class="comment" rows="3"></textarea></label><label class="attachment" aria-label="Allega file o trascinali qui"><span class="attachment-plus" aria-hidden="true">+</span><input class="images" aria-label="Allega file o trascinali qui" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.svg,application/zip,application/x-zip-compressed,.zip" multiple></label><div class="image-list"></div></article>')
+# The questions: no number and no outcome. An option is a toggle (a second tap clears it), and
+# `Rimando` keeps the question in the brief for ten more rounds.
+questions_html = ''
+if questions:
+    parts = ['<section id="questions"><h2>Domande</h2><p>Domande del brief, da decidere. Tocca '
+             'un\'opzione, o <strong>Rimando</strong> per lasciarla nel brief altri dieci giri; '
+             'un secondo tocco la toglie. Non sono prove di collaudo.</p>']
+    for question in questions:
+        qid = esc(question['id'])
+        parts.append(f'<article class="card question" id="{qid}" data-id="{qid}"><p class="question-id">{qid}</p><h3>{inline_md(question["title"])}</h3>')
+        parts.extend('<p>' + inline_md(p) + '</p>' for p in question['paragraphs'])
+        parts.append('<fieldset class="choices"><legend>Risposta</legend>')
+        for choice in question['options']:
+            tag = '<span class="advised">parere</span>' if choice['key'] == question['advice'] else ''
+            parts.append(f'<button type="button" class="choice" data-choice="{esc(choice["key"])}" aria-pressed="false"><strong>{esc(choice["key"])}</strong> {inline_md(choice["text"])}{tag}</button>')
+        parts.append('<button type="button" class="choice postpone" data-choice="rimando" aria-pressed="false">Rimando</button></fieldset>')
+        if question['adviceText']:
+            parts.append('<p class="advice">' + inline_md(question['adviceText']) + '</p>')
+        parts.append('<label>Commento<textarea class="question-comment" rows="3"></textarea></label></article>')
+    parts.append('</section>')
+    questions_html = ''.join(parts)
 
 tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
 page = (tpl
     .replace('__TOTAL__', str(len(items)))
     .replace('__VERSION__', version)
     .replace('__CARDS__', '\n'.join(cards))
+    .replace('__QUESTIONS__', questions_html)
     .replace('__NEXT_STEPS__', next_steps_html)
     .replace('__CONCLUDED__', concluded_html)
     .replace('__DATA__', json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')))
@@ -180,7 +298,7 @@ output = option('--output', ROOT / 'publish/feedback.html')
 if '--check' in sys.argv:
     if not output.exists() or output.read_text() != page:
         sys.exit('Il documento HTML non corrisponde a docs/Feedback.md: esegui tools/feedback-build.py.')
-    print(f'Documento HTML allineato alle {len(items)} prove, {len(labels)} etichette e alla versione {version}')
+    print(f'Documento HTML allineato alle {len(items)} prove, {len(questions)} domande, {len(labels)} etichette e alla versione {version}')
 else:
     output.write_text(page)
     print('Creato ' + str(output))

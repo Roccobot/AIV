@@ -87,7 +87,7 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   soltanto dopo il giro completo consegnato. La riuscita delle verifiche automatiche o
   l'approvazione del documento non approva automaticamente le feature Android.
 - **Il DF si pubblica o si aggiorna soltanto dopo la GitHub Release pubblicata della stessa versione, con l'APK allegato**: prima si verifica il tag `vX.XX`; il numero nella pagina o il collegamento all'APK non bastano. Se la release manca, resta una bozza locale. ⚠️ **Eccezione**: un ritocco **solo UX/documentale** del DF (layout, Altro e i suoi comandi, Etichette testuali, controlli, copy di manutenzione) si pubblica subito su Feedback cloud/Pages **senza** nuova Release APK (`docs/Feedback-maintenance.md`).
-- ⚠️ **Etichette testuali** e **i comandi di consegna sotto Altro** (l'overlay `Consegna e copie` non c'è più dal 2026-10-03): regole operative in `docs/Feedback-maintenance.md` § Convenzioni.
+- ⚠️ **Domande**, **Etichette testuali** e **i comandi di consegna sotto Altro** (l'overlay `Consegna e copie` non c'è più dal 2026-10-03): regole operative in `docs/Feedback-maintenance.md` § Convenzioni.
 - **Dopo ogni release si consegnano i passi di collaudo e il risultato atteso**, in chat
   o nel documento funzionante. Una bozza che richiede accesso a una piattaforma diversa
   non basta. Non creare un secondo documento per l'agente che prende in carico il lavoro.
@@ -104,11 +104,27 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni DF con la sezione intitolata esattamente **Prossimi passi**, in forma breve e schematica: una sorta di mini-brief.
 - ⚠️⚠️ **Una voce ferma nel brief da più di dieci giri si ripropone nel DF** (sua istruzione,
   2026-10-08; la regola completa vive in `Roccobot.md` § '⏳ Dopo dieci giri, una voce ferma nel
-  brief torna nel documento di feedback'). La pagina non pone decisioni, quindi la domanda entra
-  come prova della versione in collaudo, con le opzioni con la lettera e il parere; un lavoro
-  rimandato entra con la domanda 'lo facciamo adesso?'. Se lui rimanda, la voce resta nel brief e
-  torna dopo altri dieci giri. La forma della prova vive in `docs/Feedback-maintenance.md`
-  § 'Convenzioni di contenuto e interfaccia'.
+  brief torna nel documento di feedback'). Entra nel blocco **Domande**, non numerato, dopo le
+  prove e prima delle etichette, con le opzioni con la lettera e il parere; un lavoro rimandato
+  entra con la domanda 'lo facciamo adesso?'. Se lui rimanda, la voce resta nel brief e torna
+  dopo altri dieci giri. La forma vive in `docs/Feedback-maintenance.md` § 'Convenzioni di
+  contenuto e interfaccia'.
+- ⚠️⚠️ **I blocchi numerati del DF sono soltanto prove: una funzione, una serie di controlli**
+  (sua istruzione, 2026-10-08: *gli unici blocchi numerati sono versioni atomiche di funzionalità
+  precisa (1 blocco = 1 serie di controlli)*). Dopo le prove vengono, non numerati, le
+  **Domande** e le **Etichette testuali**. Nel DF della 4.64 le domande erano entrate come prove
+  (`4.64-03`...`4.64-12`), e quella forma non si ripete.
+- ⚠️⚠️ **OGNI TESTO ITALIANO NUOVO O CAMBIATO DELL'APP VA NELLE ETICHETTE TESTUALI DEL DF, ANCHE
+  QUELLO SCELTO DA LUI** (sua istruzione, ribadita il 2026-10-08: *tutti i testi nuovi (anche
+  quelli scelti da me) mi fossero sottoposti nel DF, dopo i blocchi normali, in una serie non
+  numerata di etichette da confermare o riscrivere*). Dal DF 4.02 al 4.64 non ne è comparsa
+  nessuna, mentre entravano 54 stringhe nuove e ne cambiavano 10: l'obbligo viveva solo nella
+  guida, si leggeva come rivolto ai testi proposti dalla sessione, e con la 4.64 `Elimina tutto`
+  è passato per approvato perché l'aveva scelto lui.
+  - **Il presidio è una macchina**: `tools/feedback-build.py` confronta `values-it/strings.xml`
+    col registro dei testi approvati, `docs/Labels-approved.json`, e si ferma se un testo nuovo o
+    cambiato non ha un'etichetta. Letto il giro, `--approve-labels` registra i testi confermati.
+    Il come vive in `docs/Feedback-maintenance.md` § 'Convenzioni di contenuto e interfaccia'.
 - ⚠️⚠️ **Le norme sulla forma del DF** (sue, 2026-10-03), per esteso in `docs/Feedback-maintenance.md`
   § 'Convenzioni di contenuto e interfaccia':
   - il corpo contiene solo feedback sull'app, e l'interfaccia del DF si gestisce in chat;

@@ -1366,6 +1366,51 @@ button.devices-edit:disabled {
 }
 
 
+/* --- Domande: the questions taken from the brief, after the tests and before the labels (the
+   user's rule of 2026-10-08). No number and no outcome: the options are stacked toggles, the
+   advised one carries a small tag, and Rimando is set apart as the way to leave it open. --- */
+#questions .question {
+  margin-top: 12px;
+  padding-top: 8px;
+}
+#questions .question-id {
+  margin: 0 0 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--muted);
+  opacity: 0.4;
+}
+#questions .question h3 {
+  margin-top: 0;
+}
+#questions .choices {
+  display: grid;
+  gap: 10px;
+}
+#questions .choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+#questions .choice .advised {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid currentColor;
+  border-radius: 99px;
+  font-size: 13px;
+  vertical-align: 1px;
+  opacity: 0.8;
+}
+#questions .choice.postpone {
+  width: fit-content;
+  margin-top: 4px;
+}
+#questions .advice {
+  color: var(--muted);
+}
+
 /* --- Etichette testuali --- */
 #labels .label-card {
   position: relative;
