@@ -1,15 +1,16 @@
 # Feedback AIV
 
-Versione **4.64**: nel modulo Disegno il comando si chiama `Elimina tutto`, e le linee dei terzi di `Raddrizza` hanno l'aspetto delle guide del Disegno.
+Versione **4.80**: nel modulo Disegno il menu della pressione lunga su un elemento, le maniglie per ridimensionarlo, la rotazione e lo strumento Sfocatura (giro cumulativo della 4.70 e della 4.80).
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.64 è pubblicata: [v4.64](https://github.com/Roccobot/AIV/releases/tag/v4.64), con l'APK
-[AIV-4.64.apk](https://github.com/Roccobot/AIV/releases/download/v4.64/AIV-4.64.apk).
-Commit prodotto su `main`: `b3f6671`, release dal commit `b3f6671` (SlimVer 4.64 / versionCode 343; APK 8.558.441 byte, digest `4956dfa0`).
+La Release 4.80 è pubblicata: [v4.80](https://github.com/Roccobot/AIV/releases/tag/v4.80), con l'APK
+[AIV-4.80.apk](https://github.com/Roccobot/AIV/releases/download/v4.80/AIV-4.80.apk).
+Commit prodotto su `main`: `341202c`, release dal commit `341202c` (SlimVer 4.80 / versionCode 345; APK 8.603.733 byte, digest `e6771deb`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
+Per il testo (G3), il prossimo lavoro: scegli i caratteri, il nome dello stile della striscia e che cosa entra nell'APK nell'[artefatto dei caratteri](https://claude.ai/artifact/BnskaC7AgjgE5Dn23RVmoe), e incolla in chat la risposta che compone.
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.64**: due prove nuove, e dieci domande aperte da `4.64-03` a `4.64-12`: rispondi con la lettera nel commento, e `Tutto OK` senza commento accetta il parere. Giro **4.63**: una prova OK.
+Giro **4.80**, cumulativo con la 4.70: quattro prove sugli elementi del Disegno e una sulla Sfocatura, e in fondo le **etichette testuali**: i testi dell'app nuovi o cambiati dalla 4.00, che non ti erano mai stati sottoposti, raggruppati per funzione, più una correzione che ti propongo. Campo vuoto vuol dire approvato. Giro **4.64**: due prove OK, e le dieci domande hanno tutte una risposta.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,154 +23,134 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.64 sono superate: banco di prova completo (646 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.80 sono superate: banco di prova completo (651 prove), controllo delle traduzioni, compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.64-01 | Non provato | | Attendere il collaudo. |
-| 4.64-02 | Non provato | | Attendere il collaudo. |
-| 4.64-03 | Non provato | | Rispondere nel commento. |
-| 4.64-04 | Non provato | | Rispondere nel commento. |
-| 4.64-05 | Non provato | | Rispondere nel commento. |
-| 4.64-06 | Non provato | | Rispondere nel commento. |
-| 4.64-07 | Non provato | | Rispondere nel commento. |
-| 4.64-08 | Non provato | | Rispondere nel commento. |
-| 4.64-09 | Non provato | | Rispondere nel commento. |
-| 4.64-10 | Non provato | | Rispondere nel commento. |
-| 4.64-11 | Non provato | | Rispondere nel commento. |
-| 4.64-12 | Non provato | | Rispondere nel commento. |
+| 4.70-01 | Non provato | | Attendere il collaudo. |
+| 4.70-02 | Non provato | | Attendere il collaudo. |
+| 4.70-03 | Non provato | | Attendere il collaudo. |
+| 4.70-04 | Non provato | | Attendere il collaudo. |
+| 4.80-01 | Non provato | | Attendere il collaudo. |
 
-## 1. `Elimina tutto`, e la pressione lunga sul Disegno
+## 1. Il menu della pressione lunga su un elemento
 
-Nel modulo Disegno disegna due elementi. Il comando a destra, sopra il cursore dell'opacità, si chiamava `Azzera` e adesso si chiama `Elimina tutto`: toccalo, e il disegno si svuota. Poi disegna un elemento, sceglilo con un tocco e tieni premuta l'icona del Disegno nella fila dei moduli: il disegno si svuota e `Elimina` si spegne. Disegna un altro elemento: deve nascere senza i punti color accento, cioè non scelto. Fino alla 4.63 la pressione lunga lasciava la scelta su un elemento che non c'era più, e l'elemento disegnato dopo nasceva scelto.
+Nel modulo Disegno disegna due rettangoli che si sovrappongono un poco. Tieni il dito fermo sul secondo: l'elemento risulta scelto, coi punti color accento, e si apre un menu di sei icone con la parola, come quello della pressione lunga sull'immagine nel visualizzatore ma senza la parte sopra. Nella prima riga `Sposta sopra`, `Copia`, `Duplica`; nella seconda `Sposta sotto`, `Ruota`, `Elimina`. Il secondo rettangolo è già in cima, quindi `Sposta sopra` è spento.
 
-## 2. Le linee dei terzi di `Raddrizza`
+Tocca `Sposta sotto`: il rettangolo passa sotto il primo, e riaprendo il menu `Sposta sopra` è acceso e `Sposta sotto` spento. Tocca `Duplica`: compare una copia appena scostata in basso a destra, sopra l'originale, e risulta scelta. `Elimina` toglie l'elemento scelto, e `Annulla` lo rimette. Tenendo premuto un punto vuoto non si apre niente: dopo l'attesa il dito disegna come prima.
 
-Nel modulo Geometria trascina il cursore `Raddrizza`: mentre il dito è giù compaiono le linee dei terzi, adesso nel colore d'accento, sottili e senza alone, come la guida che corre lungo il bordo quando un elemento del Disegno vi si appoggia. Prova su un'immagine chiara e su una scura. Fino alla 4.63 erano una linea bianca su un alone scuro.
+Letture mie, da confermare: l'ordine delle icone è quello della tua nota letto per righe; le parole sotto le icone seguono l'impostazione dei riquadri, come nel visualizzatore; la copia di `Duplica` è scostata del 3% del lato lungo dell'immagine; `Sposta sopra` e `Sposta sotto` scambiano l'elemento col vicino, un gradino per volta.
 
-## 3. Domanda · `Copia` accanto a `Duplica` (G2)
+## 2. `Copia` e `Incolla` dello stile
 
-Nel menu a pressione lunga sull'elemento, cioè la seconda parte della G2 (nota E del giro della 4.60), ci sono sia `Duplica` sia `Copia`. Che cosa fa `Copia`? Aspetta dal giro della 4.60.
+Disegna un rettangolo blu, spesso e tratteggiato, e un'ellisse rossa senza tratteggio. Tieni premuto il rettangolo e tocca `Copia`. Tieni premuta l'ellisse: dove c'era `Copia` adesso c'è `Incolla`. Toccalo: l'ellisse prende colore, luminosità, opacità e spessore della linea, il tratteggio e il riempimento del rettangolo, e tiene forma, posizione e rotazione. Un `Annulla` toglie lo stile incollato.
 
-**C1**: `Duplica` posa subito la copia accanto all'originale; `Copia` la tiene da parte, e `Incolla` la posa in un'altra immagine aperta nell'editor completo.
+Disegna una freccia e incollale lo stesso stile: prende la linea e non il riempimento, che una freccia non ha. Poi tieni premuto `Incolla`: compare l'avviso `Stile in memoria eliminato.`, e riaprendo il menu c'è di nuovo `Copia`.
 
-**C2**: `Copia` prende lo stile dell'elemento (colori, luminosità, spessore, tratteggio, riempimento), e `Incolla stile` lo dà a un altro elemento.
+Letture mie: lo stile resta in memoria finché l'editor è aperto, e si incolla su quanti elementi vuoi; fra rettangoli ed ellissi passa anche la Sfocatura (prova 5).
 
-Con C1, dove compare `Incolla`? **I1**: in un menu che appare tenendo premuto un punto vuoto dell'immagine. **I2**: in un tasto `Incolla` del modulo Disegno, accanto a `Elimina tutto`, che c'è solo quando hai copiato un elemento.
+## 3. Le maniglie per ridimensionare
 
-Parere: **C1**, perché `Copia` da solo dice che si copia l'elemento, e copiare lo stile si chiamerebbe `Copia stile`; in una sola immagine `Copia` più `Incolla` rifarebbe il lavoro di `Duplica`, quindi `Incolla` serve in un'altra. E **I2**, perché il tasto si vede senza doverlo cercare.
+Scegli un rettangolo con un tocco: ha otto punti color accento, i quattro vertici e il mezzo di ogni lato. Trascina un vertice: si muovono i due lati che ci arrivano, e il vertice opposto resta fermo. Trascina il mezzo di un lato: si muove solo quel lato. Un punto si prende entro circa 16 dp; più in là il dito sposta l'elemento, come prima.
 
-## 4. Domanda · come gira `Ruota` (G2)
+Prova anche l'ellisse e la mano libera, che si stira col suo riquadro e, trascinata oltre il lato opposto, si specchia. Su una linea e su una freccia i punti sono i due capi: trascinandone uno, vicino all'orizzontale o alla verticale si aggancia, con la guida, come quando la disegni.
 
-Nello stesso menu c'è `Ruota`: come gira l'elemento? Aspetta dal giro della 4.60.
+Letture mie: i punti a metà dei lati sono un'aggiunta, per allungare lungo un asse solo; tirando un punto l'elemento non si appoggia ai bordi dell'immagine, come fa invece disegnando e spostando. Se lo vuoi anche lì, scrivilo.
 
-**R1**: un quarto di giro a ogni tocco.
+## 4. `Ruota` e `Trasforma`
 
-**R2**: una maniglia libera, con scatti a 0, 45 e 90 gradi.
+Scegli un rettangolo, tieni premuto e tocca `Ruota`: i punti diventano vuoti. Trascina un punto qualunque attorno all'elemento: gira attorno al suo centro, liberamente, e vicino a 0, 45 e 90 gradi, e ai loro multipli, si aggancia. Trascinando l'elemento lo sposti anche in questa modalità.
 
-Parere: **R1**. Un rettangolo o un'ellisse girati di un quarto di giro restano allineati ai bordi dell'immagine; con R2 l'editor dovrebbe prima imparare a disegnarli inclinati, perché oggi li descrive con due angoli opposti.
+Riapri il menu: dove c'era `Ruota` adesso c'è `Trasforma`, che riporta i punti pieni. Tirando un vertice, il rettangolo girato si allarga lungo i suoi lati e non lungo quelli dell'immagine. Prova anche una freccia e una mano libera. Scegliendo un altro elemento si riparte da `Trasforma`.
 
-## 5. Domanda · i venti stili di casa, con foschia, grana e vignettatura
+Letture mie: l'aggancio ai multipli di 45 gradi scatta entro 5 gradi, come quello delle linee all'orizzontale; la modalità torna `Trasforma` quando cambia l'elemento scelto.
 
-Gli `Stili AIV` sono ancora senza foschia, grana e vignettatura. Con `d-preset-xmp` avevi scelto di rifarli da capo una volta entrati tutti gli effetti, e gli effetti sono completi dalla 2.67: manca solo il tuo via libera. Insieme arriva il file di uno stile solo, `.aivstyle` (`d-stile-singolo`): un comando sulla riga di uno stile, e un'importazione che lo aggiunge agli altri.
+## 5. Lo strumento Sfocatura
 
-**S1**: si rifanno subito dopo la seconda parte della G2.
+Nel modulo Disegno, con il rettangolo come strumento, tocca il quinto tasto, `Sfocatura`. Si accende, e si spengono Tratteggio, Traccia, Spessore, Riempimento e i tondi dei colori; sotto, il cursore diventa `Sfocatura`. Disegna un rettangolo su una zona con dettagli, per esempio una scritta: dentro diventa sfocata, senza linea e senza riempimento. Sposta il cursore: va dallo 0,5 al 25% del lato maggiore dell'elemento.
 
-**S2**: si rifanno dopo i lavori già in fila: la G2, lo strumento Sfocatura e il testo (G3).
+Disegna sopra una freccia: resta nitida, perché la sfocatura è sotto tutti gli elementi. Cambia la Luce o il Colore, raddrizza l'immagine o ritagliala: l'area sfocata segue l'immagine e ne prende i colori. Ingrandisci con due dita sull'area: resta sfocata anche da vicino. Salva una copia, tenendo premuto `Salva`, e apri il file: l'area è sfocata come nell'editor.
 
-**S3**: restano in attesa.
+Scegli il rettangolo sfocato e spegni il tasto: torna un rettangolo con la sua linea e il suo riempimento. Con linea, freccia e mano libera il tasto è spento.
 
-Se nel frattempo hai cambiato i tuoi stili in Lightroom, allega qui i file XMP: servono solo in quel caso.
+Letture mie: il tasto è nella quinta colonna, dove dalla 4.60 alla 4.70 c'era `Elimina`, che adesso è nel menu della pressione lunga; di fabbrica la sfocatura vale il 10%; con la Sfocatura accesa i comandi della linea e del riempimento sono spenti, non nascosti.
 
-Parere: **S2**, perché i lavori del Disegno sono già cominciati e in fila, e gli stili non dipendono da loro.
+Mentre disegni, sposti o ridimensioni un rettangolo sfocato, l'anteprima rifà la sfocatura a ogni movimento del dito: se l'elemento resta indietro rispetto al dito, scrivilo, e lo alleggerisco.
 
-## 6. Domanda · lo sfogliatore Web e il Play Store
+## Etichette testuali
 
-Li hai congelati tu (*per ora aspetta* e *per ora*), e te li ripropongo perché sono fermi da più di dieci giri.
+### e-look_draw · Il modulo Disegno e i suoi strumenti
+Disegno · Mano libera · Linea · Freccia · Rettangolo · Ellisse
+<!-- chiavi: look_draw draw_free draw_line draw_arrow draw_rect draw_ellipse -->
+<!-- Il nome del gettone del modulo e i cinque strumenti, che il lettore di schermo legge sui tasti. -->
 
-**W1**: restano congelati tutti e due.
+### e-draw_outline · I tasti e i comandi del Disegno
+Tratteggio · Traccia · Spessore · Riempimento · Sfocatura · Luminosità · Elimina tutto
+<!-- chiavi: draw_dashed draw_outline draw_width draw_filled draw_blur draw_light draw_clear -->
 
-**W2**: si sblocca lo sfogliatore Web.
+### e-ink_red · I colori della tavolozza
+Rosso · Ambra · Verde · Blu · Viola · Rosa · Bianco · Grigio · Nero
+<!-- chiavi: ink_red ink_amber ink_green ink_blue ink_violet ink_pink ink_white ink_grey ink_black -->
+<!-- I nomi che il lettore di schermo legge sui tondi. -->
 
-**W3**: si sblocca il Play Store.
+### e-draw_raise · Il menu della pressione lunga su un elemento
+Sposta sopra · Copia · Incolla · Sposta sotto · Ruota · Trasforma. Tenendo premuto `Incolla`, il lettore di schermo dice: Elimina lo stile in memoria. L'avviso: Stile in memoria eliminato.
+<!-- chiavi: draw_raise draw_copy draw_paste draw_lower draw_rotate draw_transform draw_paste_clear draw_style_cleared -->
 
-**W4**: si sbloccano tutti e due.
+### e-hint_draw · Il velo d'aiuto del Disegno
+Con il modulo Disegno puoi aggiungere all'immagine linee, frecce, ellissi, rettangoli arrotondati, testi semplici e riquadri 'pillola'. Il salvataggio appiattisce l'immagine: non è possibile riaprirla per modificare o spostare gli elementi. Premi a lungo su un colore per regolare la sua luminosità.
 
-Parere: **W1**, perché davanti ci sono già la G2, la Sfocatura, il testo e gli stili.
+### e-settings_auto · I tre temi
+Automatico · Chiaro · Scuro
+<!-- chiavi: settings_auto settings_light settings_dark -->
+<!-- Fino alla 4.00 erano al femminile: Automatica, Chiara, Scura. -->
 
-## 7. Domanda · la verifica approfondita delle regole di Arda e AIV
+### e-settings_main_control · L'elemento interattivo principale
+Elemento interattivo principale. Scegli come vuoi interagire con l'app quando tieni lo smartphone in verticale: puoi scegliere tra pulsante fluttuante ('FAB') con menu, pillola con icone, menu e menu 'Start'. Le scelte: Tasto fluttuante · Pillola di icone · Menu basso · Menu 'Start'. L'opzione del menu basso: Fisso.
+<!-- chiavi: settings_main_control settings_main_control_desc main_control_fab main_control_pill main_control_bar main_control_corner bar_fixed -->
 
-Il 2026-10-01 un'altra sessione l'aveva cominciata e poi sospesa, in attesa di una tua conferma esplicita. Il brief non dice che cosa cercasse con precisione, e il lavoro preliminare è rimasto nel contenitore di quella sessione, che da qui non si raggiunge.
+### e-settings_button_look · L'aspetto dei pulsanti principali
+Aspetto dei pulsanti principali. Riempimento ed effetti di trasparenza/sfocatura applicati al pulsante fluttuante, alla pillola di icone e ai menu. Le scelte: A scomparsa · Solido · Trasparente · Traslucido.
+<!-- chiavi: settings_button_look settings_button_look_desc pill_slide pill_solid pill_translucent pill_glass -->
+<!-- Fino alla 4.00 le scelte erano: A scorrimento, Tinta unita, Semitrasparente, Vetro satinato. -->
 
-**V1**: si riprende da capo, con una stima prima di partire.
+### e-glass_radius · I cursori del vetro
+Raggio · Intensità · Opacità · Scostamento · Colore chiaro · Colore scuro · Predefinito · Ripristina
+<!-- chiavi: glass_radius glass_intensity glass_tint glass_light glass_colour_light glass_colour_dark glass_default glass_reset -->
 
-**V2**: resta sospesa.
+### e-start_pill · Il menu 'Start'
+Il tasto a riposo: Pillola a riposo · Tondo a riposo. Nel menu: Pillola · Tondo · Griglia · Lista · Cartelle · Mostra · Nascondi · Apri URL · Crea · Apri · Ripristina · Svuota
+<!-- chiavi: corner_rest_pill corner_rest_round start_pill start_round start_grid start_list start_tree start_show start_hide start_url start_new start_pick start_restore start_empty -->
 
-**V3**: si abbandona, e la voce esce dal brief.
+### e-corner_hint · Il velo d'aiuto del menu 'Start'
+Tocca il tasto nell'angolo per accedere al menu: contiene tutti i comandi principali; tienilo premuto per le opzioni di visualizzazione. Dalle impostazioni, se vuoi, puoi cambiare il lato del pulsante.
 
-Parere: **V3**, perché da allora le regole dei due repo sono cambiate molto, e una verifica nuova si chiede quando serve, con un obiettivo preciso.
+### e-bin_empty_hint · Le due scorciatoie del pulsante
+Scorciatoia: tieni premuto il pulsante per svuotare il cestino. · Scorciatoia: tieni premuto il pulsante per le opzioni di visualizzazione.
+<!-- chiavi: bin_empty_hint columns_hint -->
+<!-- Fino alla 4.00 dicevano 'il tasto flottante' al posto di 'il pulsante'. -->
 
-## 8. Domanda · lo snellimento dei file di regole
+### e-settings_page_look · Il titolo della pagina dell'aspetto
+Tema e dettagli grafici
+<!-- Fino alla 4.00: Tema e pannelli. -->
 
-Il 2026-09-28 avevi chiesto di indagare se si possono snellire ancora i file di configurazione e renderli modulari, con le parti poco usate in file che si leggono solo quando servono. È un'indagine: si misura quanto pesa ogni file che si carica da sé e quali sezioni si usano davvero, poi si propone. Intanto il nucleo comune a tutti gli agenti, `Core.md`, è arrivato a 13.981 byte su un limite di 14.000.
-
-**M1**: comincio dalla misura e ti do la stima del lavoro, senza toccare niente.
-
-**M2**: resta in attesa.
-
-Parere: **M1**, perché il nucleo comune è pieno, e la prossima regola che deve valere sempre non ci entra.
-
-## 9. Domanda · le foto di Subito (Roccobot ABP)
-
-Su Subito le foto non si vedono: vivono su `images.sbito.it`, e la protezione anti-typosquatting del tuo profilo AdGuard DNS, quella che blocca i domini che imitano un nome noto, lo scambia per un'imitazione di `subito.it`. Lo sblocco che hai fatto non vale ancora per il server che usa il Mac.
-
-Mi servono tre dati dalla dashboard di AdGuard DNS: a quale server è collegato ogni dispositivo; se la regola di sblocco, quella che comincia con `@@`, compare fra le regole utente del server del Mac; se le query del Mac compaiono nel registro. Scrivili nel commento: qui `Tutto OK` da solo non basta.
-
-Se la regola c'è e la risposta resta riscritta: **P1** spegni la protezione anti-typosquatting su quel server, che è la via documentata da AdGuard; **P2** la lasci accesa, e le foto di Subito restano rotte.
-
-Parere: **P1**, sapendo che quel server smette di bloccare i domini che imitano siti noti.
-
-## 10. Domanda · le icone dei badge di Arda a 64 px (B3)
-
-Su 'I Grandi di Arda' le icone dei badge sono a 256 px e si vedono a circa 15. Ridotte a 64 px pesano 193 KB invece di 413, ma non restano identiche: alle misure normali circa il 5% dei pixel cambia di colore in modo misurabile, e in Modalità XL, dove 64 px non bastano, il 23%. Il risparmio vale una volta sola per ogni visitatore, e non rallenta il primo disegno della pagina.
-
-**B3a**: si riducono a 64 px.
-
-**B3b**: restano come sono.
-
-Parere: **B3b**, perché il guadagno è piccolo e una volta sola, e in Modalità XL le icone peggiorano.
-
-## 11. Domanda · il riflusso forzato su Arda e Terramare
-
-Lighthouse segnalava un riflusso forzato, cioè il browser costretto a ricalcolare l'impaginazione a metà di uno script: 812 ms su Terramare e 233 ms su Arda, misurati prima della 2.95 e della 15.85. Da allora i tuoi report danno 99 su Terramare e 95-98 su Arda, e quel dato non è stato rimisurato.
-
-**F1**: lo rimisuro e, se pesa ancora, ti propongo come toglierlo.
-
-**F2**: si chiude così, coi punteggi di adesso.
-
-Parere: **F2**: col tempo di blocco a 120 ms su Terramare e a 250 ms su Arda, difficilmente un residuo cambierebbe qualcosa che si veda.
-
-## 12. Domanda · il tocco su un allegato, nel pannello di Altro
-
-Sul telefono apri Altro tenendo premuto il FAB, allega un'immagine, chiudi la tastiera e tocca l'allegato. Se il campo ha ancora il cursore, il nome dell'allegato entra nel testo; se non ce l'ha, va negli appunti. È un dubbio rimasto dalla 4.32: non si sa quale dei due capiti a tastiera chiusa.
-
-Scrivi nel commento che cosa è successo e, se non è quello che ti aspetti, che cosa vorresti.
-
-## Decisioni da concordare
-
-- **Tutte le domande aperte del brief** sono le prove da `4.64-03` a `4.64-12` (eccezione chiesta da Rocco il 2026-10-08): `Copia` e `Ruota` della G2, gli stili di casa, sfogliatore Web e Play Store, la verifica approfondita, lo snellimento dei file di regole, le foto di Subito, le icone dei badge di Arda, il riflusso forzato, il tocco su un allegato in Altro.
+### e-edit_no_file · Un file che non è sul telefono
+Questo file non è sul telefono
+<!-- Correzione proposta dall'agente: prima diceva `non sta sul telefono`, che usa 'stare' per dire dove una cosa si trova. -->
 
 ## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| `Elimina tutto`, e la pressione lunga sul Disegno | 4.64-01 | Non provato | | Attendere il collaudo. |
-| Le linee dei terzi di `Raddrizza` | 4.64-02 | Non provato | | Attendere il collaudo. |
-| La luminosità dal vivo sull'elemento scelto | 4.63-01 | OK | Chiesto se `Azzera` serva, e in Altro le linee dei terzi come le guide del Disegno | Fatte nella 4.64 (`4.64-01`, `4.64-02`). |
+| Il menu della pressione lunga, `Copia` e `Incolla`, le maniglie e `Ruota` | 4.70-01, 4.70-02, 4.70-03, 4.70-04 | Non provato | | Attendere il collaudo. |
+| Lo strumento Sfocatura | 4.80-01 | Non provato | | Attendere il collaudo. |
+| `Elimina tutto`, e la pressione lunga sul Disegno | 4.64-01 | OK | | Concluso. |
+| Le linee dei terzi di `Raddrizza` | 4.64-02 | OK | | Concluso. |
+| Le dieci domande del brief | da 4.64-03 a 4.64-12 | Risposte | `Copia` copia lo stile e `Ruota` è una modalità libera; stili di casa dopo il Disegno; snellimento dei file di regole e Play Store dopo; nel DF solo le voci di AIV | Fatte nella 4.70 (prove `4.70-01`, `4.70-04`); il resto è nel brief. |
 
 ## Prossimi passi
 
-- **In collaudo**: `Elimina tutto` e la pressione lunga sul Disegno (`4.64-01`); le linee dei terzi di `Raddrizza` (`4.64-02`).
-- **Domande aperte**: dieci, da `4.64-03` a `4.64-12`, anche di altri progetti; si risponde con la lettera nel commento.
-- **Dopo**: la seconda parte della G2, cioè il menu a pressione lunga sull'elemento (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`) e le maniglie per ridimensionare; lo strumento Sfocatura; G3, il testo; la pillola.
-- **Concluso**: la luminosità dal vivo sull'elemento scelto (`4.63-01`).
+- **In collaudo**: il menu della pressione lunga (`4.70-01`), `Copia` e `Incolla` dello stile (`4.70-02`), le maniglie (`4.70-03`), `Ruota` e `Trasforma` (`4.70-04`), lo strumento Sfocatura (`4.80-01`); le etichette testuali.
+- **Da scegliere**: caratteri, nome dello stile della striscia e peso nell'APK, nell'artefatto dei caratteri, con la risposta in chat.
+- **Dopo**: G3, il testo; la pillola; poi gli stili di casa con gli effetti e il file di uno stile solo; poi il Play Store, insieme allo snellimento dei file di regole.
+- **Concluso**: `Elimina tutto` e la pressione lunga sul Disegno (`4.64-01`), le linee dei terzi di `Raddrizza` (`4.64-02`).
