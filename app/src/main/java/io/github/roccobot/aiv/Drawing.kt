@@ -1025,23 +1025,74 @@ internal object Draw {
      * stays, so an element still goes past the edge (*dev'essere possibile ... anche OLTRE i
      * bordi*). On each axis the nearer edge wins, and only the sides in [sides] may move.
      * ⚠️ Screen pixels, like [snap]: the edge he means is the one he sees.
+     * ⚠️⚠️ **Since 4.90 the boxes of the [others] are there to rest on too** (his request of
+     * 2026-10-08: *Voglio che mi propongano di allineare dinamicamente gli elementi a
+     * lati/centro/estremi di altri elementi già presenti*): a moving side, or the centre when both
+     * sides move, comes onto a side or the centre of another element within the same [reach]. On
+     * each axis the nearest of all wins, and on a tie the edge of the image; [lines] says which
+     * guides to show.
      */
-    fun rest(box: Rect, frame: Rect, reach: Float, sides: Set<ImageEdge> = ImageEdge.entries.toSet()): Pair<Offset, Set<ImageEdge>> {
-        fun axis(lo: Float, hi: Float, edgeLo: Float, edgeHi: Float, low: ImageEdge, high: ImageEdge): Pair<Float, ImageEdge?> {
-            val toLo = edgeLo - lo
-            val toHi = edgeHi - hi
-            val canLo = low in sides && abs(toLo) <= reach
-            val canHi = high in sides && abs(toHi) <= reach
-            return when {
-                canLo && (!canHi || abs(toLo) <= abs(toHi)) -> toLo to low
-                canHi -> toHi to high
-                else -> 0f to null
+    fun rest(
+        box: Rect, frame: Rect, reach: Float, sides: Set<ImageEdge> = ImageEdge.entries.toSet(),
+        others: List<Rect> = emptyList()
+    ): Pair<Offset, Set<ImageEdge>> {
+        fun axis(
+            lo: Float, hi: Float, edgeLo: Float, edgeHi: Float, low: ImageEdge, high: ImageEdge,
+            marks: List<Float>
+        ): Pair<Float, ImageEdge?> {
+            var best = 0f
+            var edge: ImageEdge? = null
+            var found = false
+            // ⚠️ The first of two equal distances wins: the low edge, then the high one, then the
+            // elements, as before 4.90.
+            fun offer(d: Float, e: ImageEdge?) {
+                if (abs(d) <= reach && (!found || abs(d) < abs(best))) {
+                    best = d
+                    edge = e
+                    found = true
+                }
             }
+            val moveLo = low in sides
+            val moveHi = high in sides
+            if (moveLo) offer(edgeLo - lo, low)
+            if (moveHi) offer(edgeHi - hi, high)
+            val own = buildList {
+                if (moveLo) add(lo)
+                if (moveHi) add(hi)
+                if (moveLo && moveHi) add((lo + hi) / 2f)
+            }
+            for (t in marks) for (v in own) offer(t - v, null)
+            return best to edge
         }
-        val (dx, ex) = axis(box.left, box.right, frame.left, frame.right, ImageEdge.LEFT, ImageEdge.RIGHT)
-        val (dy, ey) = axis(box.top, box.bottom, frame.top, frame.bottom, ImageEdge.TOP, ImageEdge.BOTTOM)
+        val (dx, ex) = axis(
+            box.left, box.right, frame.left, frame.right, ImageEdge.LEFT, ImageEdge.RIGHT,
+            others.flatMap { listOf(it.left, it.center.x, it.right) }
+        )
+        val (dy, ey) = axis(
+            box.top, box.bottom, frame.top, frame.bottom, ImageEdge.TOP, ImageEdge.BOTTOM,
+            others.flatMap { listOf(it.top, it.center.y, it.bottom) }
+        )
         return Offset(dx, dy) to setOfNotNull(ex, ey)
     }
+
+    /**
+     * **The guides between [box] and the [others] it lines up with** (4.90), as segments on the
+     * screen: where a side or the centre of [box] meets a side or the centre of another box, a
+     * line along it from the farther end of one to the farther end of the other, so the guide
+     * says which element it lines up with. The same [ON] as the edges.
+     */
+    fun lines(box: Rect, others: List<Rect>): List<Pair<Offset, Offset>> = buildList {
+        val xs = listOf(box.left, box.center.x, box.right)
+        val ys = listOf(box.top, box.center.y, box.bottom)
+        for (o in others) {
+            for (t in listOf(o.left, o.center.x, o.right)) if (xs.any { abs(it - t) < ON }) {
+                add(Offset(t, min(box.top, o.top)) to Offset(t, max(box.bottom, o.bottom)))
+            }
+            for (t in listOf(o.top, o.center.y, o.bottom)) if (ys.any { abs(it - t) < ON }) {
+                add(Offset(min(box.left, o.left), t) to Offset(max(box.right, o.right), t))
+            }
+        }
+    }.distinct()
 
     /**
      * **[b], the end the finger draws, moved so the outline of a two-point [pen] from [a] rests on
@@ -1050,10 +1101,11 @@ internal object Draw {
      * on the horizontal keeps its height.
      * ⚠️ Up to three passes, because the arrow's head turns with the end it sits on, and a pass
      * that moves nothing ends early; for the other pens the first pass is exact.
+     * ⚠️ Since 4.90 the end rests on the [others] too, as in [rest].
      */
     fun restEnd(
         pen: Pen, a: Offset, b: Offset, stroke: Float, long: Float, frame: Rect, reach: Float,
-        axes: Set<SnapAxis> = SnapAxis.entries.toSet()
+        axes: Set<SnapAxis> = SnapAxis.entries.toSet(), others: List<Rect> = emptyList()
     ): Pair<Offset, Set<ImageEdge>> {
         val start = extent(pen, a, a, stroke, long)
         var end = b
@@ -1069,7 +1121,7 @@ internal object Draw {
                     if (box.bottom > start.bottom + OWN) add(ImageEdge.BOTTOM)
                 }
             }
-            val (d, _) = rest(box, frame, reach, own)
+            val (d, _) = rest(box, frame, reach, own, others)
             if (d == Offset.Zero) return end to on(box, frame)
             end += d
         }

@@ -409,6 +409,9 @@ class DisegnoTest {
      * quello che cambia è la sola lente.
      * ⚠️⚠️ **CONTROPROVATA** togliendo la lente dal palco: con l'elemento piccolo la differenza scende
      * a zero.
+     * ⚠️ Dalla `4.90` il rettangolo grande comincia lontano dai lati di quello piccolo: cominciato
+     * nello stesso punto ne condivide due lati, e le guide verso gli altri elementi cambiano il
+     * palco quanto la lente.
      */
     @Test
     fun `la lente compare sulle forme piccole e non su quelle grandi`() {
@@ -418,7 +421,8 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.waitForIdle()
         assertTrue("col rettangolo piccolo doveva comparire la lente", diffDurante(PASSO, PASSO) > 500)
-        assertEquals("col rettangolo grande la lente non doveva esserci", 0, diffDurante(-PASSO * 4, PASSO * 4))
+        assertEquals("col rettangolo grande la lente non doveva esserci", 0,
+            diffDurante(-PASSO * 4, PASSO * 4, Offset(-30f, -60f)))
     }
 
     /**
@@ -915,6 +919,8 @@ class DisegnoTest {
      * nota A). Su uno schermo da telefono e con un elemento lungo, così la lente non c'è e quello che
      * cambia fra dito giù e dito alzato è la sola guida.
      * ⚠️⚠️ **CONTROPROVATA** togliendo la guida dal palco: la differenza scende a zero.
+     * ⚠️ Dalla `4.90` la linea storta comincia lontano da quella agganciata: cominciata nello
+     * stesso punto ne condivide l'inizio, e le guide verso gli altri elementi cambiano il palco.
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
@@ -925,7 +931,8 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
         assertTrue("con la linea agganciata la guida doveva vedersi", diffDurante(PASSO * 5, 6f) > 50)
-        assertEquals("con la linea storta la guida non doveva esserci", 0, diffDurante(PASSO * 5, PASSO * 3))
+        assertEquals("con la linea storta la guida non doveva esserci", 0,
+            diffDurante(PASSO * 5, PASSO * 3, Offset(-30f, -60f)))
     }
 
     /**
@@ -1326,6 +1333,110 @@ class DisegnoTest {
         assertEquals("la freccia arriva al bordo con la punta intera", 0f,
             Draw.extent(Pen.ARROW, Offset(500f, 400f), fine, 10f, 1000f).top, 0.5f)
         assertTrue(ImageEdge.TOP in bordi)
+    }
+
+    /**
+     * **Il conto delle guide verso gli altri elementi** (`4.90`, sua richiesta del 2026-10-08:
+     * *Voglio che mi propongano di allineare dinamicamente gli elementi a lati/centro/estremi di
+     * altri elementi già presenti*): un lato entro la portata va sul lato o sul centro di un altro
+     * elemento; spostando tutto l'elemento si allinea anche il suo centro; vince il bersaglio più
+     * vicino e, a parità, il bordo dell'immagine; un lato che non si muove non si aggancia; le
+     * guide vanno da un elemento all'altro lungo la linea che hanno in comune.
+     */
+    @Test
+    fun `il conto delle guide verso gli altri elementi`() {
+        val cornice = androidx.compose.ui.geometry.Rect(0f, 0f, 1000f, 800f)
+        fun box(l: Float, t: Float, r: Float, b: Float) = androidx.compose.ui.geometry.Rect(l, t, r, b)
+        val altro = box(300f, 300f, 500f, 400f)
+        assertEquals("il lato sinistro va sul lato sinistro dell'altro", Offset(-7f, 0f),
+            Draw.rest(box(307f, 500f, 420f, 600f), cornice, 12f, others = listOf(altro)).first)
+        assertEquals("il lato sinistro va sul centro dell'altro", Offset(5f, 0f),
+            Draw.rest(box(395f, 500f, 450f, 600f), cornice, 12f, others = listOf(altro)).first)
+        assertEquals("il centro va sul centro dell'altro", Offset(0f, -6f),
+            Draw.rest(box(600f, 320f, 700f, 392f), cornice, 12f, others = listOf(altro)).first)
+        assertEquals("oltre la portata resta", Offset.Zero,
+            Draw.rest(box(330f, 500f, 380f, 600f), cornice, 12f, others = listOf(altro)).first)
+        assertEquals("a parità vince il bordo dell'immagine", Offset(-6f, 0f) to setOf(ImageEdge.LEFT),
+            Draw.rest(box(6f, 500f, 100f, 600f), cornice, 12f, others = listOf(box(12f, 100f, 30f, 200f))))
+        assertEquals("un lato che non si muove non si aggancia", Offset.Zero,
+            Draw.rest(box(305f, 500f, 450f, 600f), cornice, 12f, setOf(ImageEdge.RIGHT), listOf(altro)).first)
+        val guide = Draw.lines(box(300f, 500f, 380f, 600f), listOf(altro))
+        assertEquals("una guida sola, lungo il lato sinistro, da un elemento all'altro",
+            listOf(Offset(300f, 300f) to Offset(300f, 600f)), guide)
+        assertEquals("senza niente in comune, nessuna guida", emptyList<Pair<Offset, Offset>>(),
+            Draw.lines(box(320f, 500f, 380f, 600f), listOf(altro)))
+    }
+
+    /**
+     * **Un elemento disegnato o spostato vicino a un altro si allinea a lui** (`4.90`, sua richiesta
+     * del 2026-10-08). Il secondo rettangolo comincia 3 pixel a destra del lato sinistro del primo,
+     * e il suo punto di partenza va su quel lato; poi, spostato con il centro a 2 pixel da quello del
+     * primo, il suo centro va sul centro del primo.
+     * ⚠️⚠️ **CONTROPROVATA**: senza gli altri elementi fra i bersagli di `Draw.rest` il punto resta
+     * dove cade il dito.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `un elemento disegnato o spostato vicino a un altro si allinea a lui`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        trascinaDa(Offset(-97f, 20f), Offset(-10f, 60f))
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        val (primo, secondo) = salva()
+        assertEquals("il secondo doveva cominciare sul lato sinistro del primo",
+            primo.points.first().x, secondo.points.first().x, 1e-4f)
+        // ⚠️ The second one's centre is at -55 px and the first one's at -70: 14.5 px to the left
+        // brings it within half a pixel, and no side of the second comes as near a side. Under the
+        // bench's touch slop (16 px, Robolectric's ShadowViewConfiguration) a single move of 14.5
+        // is a tap, so the finger goes past it first and comes back: every frame moves the element
+        // from where the finger went down.
+        tocca(Offset(-50f, 40f))
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        palco.performTouchInput { down(center + Offset(-50f, 40f)) }
+        palco.performTouchInput { moveTo(center + Offset(-90f, 40f)) }
+        palco.performTouchInput { moveTo(center + Offset(-64.5f, 40f)) }
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        val (uno, due) = salva()
+        assertEquals("spostato, il centro del secondo doveva andare sul centro del primo",
+            (uno.points.first().x + uno.points.last().x) / 2f, (due.points.first().x + due.points.last().x) / 2f, 1e-4f)
+    }
+
+    /**
+     * **In `Trasforma` il lato tirato da una maniglia si ferma sul lato di un altro elemento**
+     * (`4.90`, lettura B1 della sessione: le guide valgono anche ridimensionando). Il secondo
+     * rettangolo, tirato per la maniglia a metà del lato destro fino a 3 pixel dal lato destro del
+     * primo, finisce sullo stesso lato; quello sinistro resta dov'era.
+     * ⚠️⚠️ **CONTROPROVATA**: senza l'appoggio nel ramo delle maniglie il lato resta a 3 pixel.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `il lato tirato da una maniglia si ferma sul lato di un altro elemento`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        trascinaDa(Offset(-160f, 20f), Offset(0f, 60f))
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        val prima = salva()[1]
+        tocca(Offset(-80f, 40f))
+        trascinaDa(Offset(0f, 40f), Offset(-37f, 40f))
+        val (uno, due) = salva()
+        assertEquals("il lato destro del secondo doveva finire sul lato destro del primo",
+            uno.points.last().x, due.points.last().x, 1e-4f)
+        assertEquals("il lato sinistro doveva restare", prima.points.first().x, due.points.first().x, 1e-4f)
     }
 
     /**
@@ -1863,10 +1974,10 @@ class DisegnoTest {
     }
 
     /** I pixel che cambiano fra il palco col dito giù dopo il trascinamento e a dito alzato. */
-    private fun diffDurante(dx: Float, dy: Float): Int {
+    private fun diffDurante(dx: Float, dy: Float, da: Offset = Offset.Zero): Int {
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        palco.performTouchInput { down(center) }
-        palco.performTouchInput { moveTo(center + Offset(dx, dy)) }
+        palco.performTouchInput { down(center + da) }
+        palco.performTouchInput { moveTo(center + da + Offset(dx, dy)) }
         banco.waitForIdle()
         val giu = palco.captureToImage().toPixelMap()
         palco.performTouchInput { up() }

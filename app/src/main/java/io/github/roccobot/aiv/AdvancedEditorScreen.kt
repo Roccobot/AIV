@@ -1570,6 +1570,12 @@ private fun LookStage(
      * request of 2026-10-08, 4.62).
      */
     var penEdges by remember(picture) { mutableStateOf(emptySet<ImageEdge>()) }
+    /**
+     * The guides between the element under the finger and the other elements it lines up with,
+     * as segments on the stage ([Draw.lines]), gone when the finger lifts (his request of
+     * 2026-10-08, 4.90).
+     */
+    var penLines by remember(picture) { mutableStateOf(emptyList<Pair<Offset, Offset>>()) }
     var brushHide by remember(picture) { mutableStateOf<Job?>(null) }
     /**
      * Quanto è grande il palco, misurato dal layout.
@@ -2094,6 +2100,29 @@ private fun LookStage(
                             if (presa != null) {
                                 val giro = turningNow()
                                 val scarto = maniglie[presa] - down.position
+                                /*
+                                 * ⚠️⚠️ **In 'Trasforma' the side the handle pulls rests on the edges
+                                 * and on the other elements, since 4.90** (his request of 2026-10-08:
+                                 * *allineare dinamicamente gli elementi a lati/centro/estremi di altri
+                                 * elementi già presenti*), as when the element is drawn or moved.
+                                 * Which sides a handle pulls is read on the screen, from where it is
+                                 * in the element's box, so a mirrored or a spun image pulls the
+                                 * sides it shows. A turned rectangle or ellipse does not rest: its
+                                 * box does not follow the handle.
+                                 */
+                                val altri = base.marks.filterIndexed { i, _ -> i != scelto }
+                                    .map { stageBox(it, sulPalco, lungo, w, h) }
+                                val prima = stageBox(tenendo, sulPalco, lungo, w, h)
+                                val tirati = buildSet {
+                                    val m = maniglie[presa]
+                                    if (abs(m.x - prima.center.x) > prima.width / 4f) {
+                                        add(if (m.x < prima.center.x) ImageEdge.LEFT else ImageEdge.RIGHT)
+                                    }
+                                    if (abs(m.y - prima.center.y) > prima.height / 4f) {
+                                        add(if (m.y < prima.center.y) ImageEdge.TOP else ImageEdge.BOTTOM)
+                                    }
+                                }
+                                val appoggia = !(tenendo.pen.closed && tenendo.angle != 0f)
                                 val perno = tenendo.centre(w, h)
                                 fun verso(p: Offset): Float = Math.toDegrees(
                                     kotlin.math.atan2(((p.y - perno.y) * h).toDouble(), ((p.x - perno.x) * w).toDouble())
@@ -2108,7 +2137,22 @@ private fun LookStage(
                                             val altro = maniglie[1 - presa]
                                             val (d, asse) = Draw.snap(altro, qui)
                                             penGuide = asse?.let { altro to it }
-                                            qui = d
+                                            val tratto = tenendo.width * lungo
+                                            val (fine, _) = Draw.restEnd(
+                                                tenendo.pen, altro, d, tratto, lungo, cornice, portata,
+                                                asse?.let { setOf(it) } ?: SnapAxis.entries.toSet(), altri
+                                            )
+                                            qui = fine
+                                            val box = Draw.extent(tenendo.pen, altro, fine, tratto, lungo)
+                                            penEdges = Draw.on(box, cornice)
+                                            penLines = Draw.lines(box, altri)
+                                        } else if (appoggia) {
+                                            val prova = tenendo.reshaped(presa, toImage(qui) ?: return, w, h)
+                                            val box = stageBox(prova, sulPalco, lungo, w, h)
+                                            val (d, _) = Draw.rest(box, cornice, portata, tirati, altri)
+                                            qui += d
+                                            penEdges = Draw.on(box.translate(d), cornice)
+                                            penLines = Draw.lines(box.translate(d), altri)
                                         }
                                         tenendo.reshaped(presa, toImage(qui) ?: return, w, h)
                                     }
@@ -2122,6 +2166,8 @@ private fun LookStage(
                                     }
                                 } finally {
                                     penGuide = null
+                                    penEdges = emptySet()
+                                    penLines = emptyList()
                                 }
                                 drawEnd()
                                 return@awaitEachGesture
@@ -2146,14 +2192,19 @@ private fun LookStage(
                         } else if (scelto != null) {
                             val segno = base.marks.getOrNull(scelto)
                             if (segno != null && Draw.hit(Drawing(listOf(segno)), start, picture.width, picture.height, reach) == 0) {
+                                // ⚠️ Since 4.90 the moving element rests on the others too.
+                                val sulPalco = toStage()
+                                val altri = base.marks.filterIndexed { i, _ -> i != scelto }
+                                    .map { stageBox(it, sulPalco, lungo, picture.width, picture.height) }
                                 fun sposta(at: Offset) {
                                     val dove = toImage(at) ?: return
                                     val prova = segno.moved(dove - start)
                                     val box = stageBox(prova, toStage(), lungo, picture.width, picture.height)
-                                    val (d, _) = Draw.rest(box, cornice, portata)
+                                    val (d, _) = Draw.rest(box, cornice, portata, others = altri)
                                     val finale = if (d == Offset.Zero) prova
                                     else toImage(at + d)?.let { segno.moved(it - start) } ?: prova
                                     penEdges = Draw.on(box.translate(d), cornice)
+                                    penLines = Draw.lines(box.translate(d), altri)
                                     drawTo(base.replacing(scelto, finale))
                                 }
                                 try {
@@ -2164,6 +2215,7 @@ private fun LookStage(
                                     }
                                 } finally {
                                     penEdges = emptySet()
+                                    penLines = emptyList()
                                 }
                                 drawEnd()
                                 return@awaitEachGesture
@@ -2173,8 +2225,13 @@ private fun LookStage(
                         // ⚠️ The four pens of two points lay their start on an edge near it too
                         // (4.62); the free hand follows the finger.
                         val tratto = pen.width * lungo
+                        // ⚠️ Since 4.90 the start and the end rest on the other elements too.
+                        val altri = toStage().let { sulPalco ->
+                            base.marks.map { stageBox(it, sulPalco, lungo, picture.width, picture.height) }
+                        }
                         val inizio = if (pen.pen == Pen.FREE) down.position else down.position + Draw.rest(
-                            Draw.extent(pen.pen, down.position, down.position, tratto, lungo), cornice, portata
+                            Draw.extent(pen.pen, down.position, down.position, tratto, lungo), cornice, portata,
+                            others = altri
                         ).first
                         var mark = pen.copy(points = listOf(toImage(inizio) ?: start))
                         val draws = pen.pen == Pen.FREE || esito == Settled.MOVED
@@ -2195,8 +2252,10 @@ private fun LookStage(
                                 dove = d
                                 if (asse != null) assi = setOf(asse)
                             }
-                            val (fine, _) = Draw.restEnd(pen.pen, inizio, dove, tratto, lungo, cornice, portata, assi)
-                            penEdges = Draw.on(Draw.extent(pen.pen, inizio, fine, tratto, lungo), cornice)
+                            val (fine, _) = Draw.restEnd(pen.pen, inizio, dove, tratto, lungo, cornice, portata, assi, altri)
+                            val box = Draw.extent(pen.pen, inizio, fine, tratto, lungo)
+                            penEdges = Draw.on(box, cornice)
+                            penLines = Draw.lines(box, altri)
                             return fine
                         }
                         if (esito == Settled.MOVED) toImage(aimed(oltre))?.let { mark = mark.reaching(it) }
@@ -2234,6 +2293,7 @@ private fun LookStage(
                             penLoupe = null
                             penGuide = null
                             penEdges = emptySet()
+                            penLines = emptyList()
                         }
                         if (draws) drawEnd()
                         return@awaitEachGesture
@@ -2811,6 +2871,13 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                         ImageEdge.BOTTOM -> Offset(visto.left, visto.bottom - g / 2f) to Offset(visto.right, visto.bottom - g / 2f)
                     }
                     drawLine(brushAccent, da, a, g)
+                }
+            }
+            // ⚠️ The guides to the other elements (4.90): the same line, from one element to the
+            // other along the side or the centre they share.
+            if (penLines.isNotEmpty()) {
+                clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                    for ((da, a) in penLines) drawLine(brushAccent, da, a, GUIDE_LINE.toPx())
                 }
             }
             /*

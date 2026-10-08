@@ -840,6 +840,22 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     la Geometria accesa porta a filo gli angoli dell'elemento;
   - scelte della sessione, dichiarate nella voce di collaudo: i 12 dp, e il primo tocco che deve
     ancora cadere dentro l'immagine.
+- **Dalla `4.90` gli elementi si allineano anche agli altri elementi** (sua richiesta del
+  2026-10-08: *le guide dinamiche sono eccezionali e funzionano davvero bene. Voglio che mi
+  propongano di allineare dinamicamente gli elementi a lati/centro/estremi di altri elementi già
+  presenti*):
+  - un lato che si muove, o il centro quando si muove l'elemento intero, si posa sul lato o sul
+    centro di un altro elemento entro gli stessi 12 dp del bordo; su ogni asse vince il bersaglio
+    più vicino e, a parità, il bordo dell'immagine. Il riquadro di un elemento è quello della sua
+    traccia, come per il bordo;
+  - vale disegnando (l'inizio e la fine), spostando, e tirando una maniglia in `Trasforma`: il lato
+    tirato si appoggia ai bordi e agli altri elementi. Fino alla `4.81` tirando una maniglia
+    l'elemento non si appoggiava a niente. Un rettangolo o un'ellisse girati, tirati per una
+    maniglia, non si appoggiano: il loro riquadro non segue la maniglia;
+  - mentre il dito tiene l'elemento, una guida color accento va da un elemento all'altro lungo il
+    lato o il centro che hanno in comune (`Draw.rest` con gli altri elementi, `Draw.lines`);
+  - lettura della sessione, dichiarata nella voce di collaudo: la stessa portata del bordo, e le
+    maniglie comprese (lettura B1).
 - **Dalla `4.64` 'Azzera' si chiama `Elimina tutto`** (sua risposta in chat del 2026-10-08:
   *Allora può restare, ma rinominalo in 'Elimina tutto'*): svuota il disegno, mentre il tasto in
   fondo azzera tutti i moduli, e la parola era la stessa. La pressione lunga sul gettone del
@@ -880,7 +896,8 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     modalità immagino possibile anche lo spostamento*), e una maniglia vince sul corpo entro 16 dp;
   - letture della sessione, dichiarate nella voce di collaudo: l'ordine per righe, le maniglie dei
     lati, i 16 dp, lo scostamento della copia, i 45 gradi, la memoria che dura quanto l'editor, e
-    l'appoggio ai bordi, che vale disegnando e spostando ma non tirando una maniglia.
+    l'appoggio ai bordi, che fino alla `4.81` valeva disegnando e spostando ma non tirando una
+    maniglia.
   - ⚠️ **Rettangolo ed ellisse tengono un angolo** (`Mark.angle`), e la tela gira prima di
     disegnarli; linea, freccia e mano libera girano i loro punti. Il giro si conta nei pixel
     dell'immagine originale, non nelle sue frazioni, o su un'immagine non quadrata la forma si
