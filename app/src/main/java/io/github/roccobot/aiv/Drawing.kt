@@ -177,12 +177,15 @@ internal object Faces {
         val weight = if (key.bold) BOLD else REGULAR
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             runCatching {
+                val slant = if (key.italic) FontStyle.FONT_SLANT_ITALIC else FontStyle.FONT_SLANT_UPRIGHT
                 val font = android.graphics.fonts.Font.Builder(context.resources, res)
                     .setFontVariationSettings("'wght' $weight")
                     .setWeight(weight)
-                    .setSlant(if (key.italic) FontStyle.FONT_SLANT_ITALIC else FontStyle.FONT_SLANT_UPRIGHT)
+                    .setSlant(slant)
                     .build()
-                return Typeface.CustomFallbackBuilder(FontFamily.Builder(font).build()).build()
+                // ⚠️ The typeface asks for the font's own style: the builder's default is 400 upright.
+                return Typeface.CustomFallbackBuilder(FontFamily.Builder(font).build())
+                    .setStyle(FontStyle(weight, slant)).build()
             }
         }
         return ResourcesCompat.getFont(context, res) ?: Typeface.DEFAULT

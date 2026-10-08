@@ -1975,7 +1975,7 @@ class DisegnoTest {
         val doppio = testo.reshaped(2, Offset(0.5f + 2f * hw / w, 0.5f + 2f * hh / h), w, h)
         assertEquals("l'angolo tirato al doppio della distanza doveva raddoppiare il corpo", 0.1f, doppio.width, 1e-4f)
         assertEquals("il centro doveva restare", testo.points, doppio.points)
-        assertEquals("oltre il tetto il corpo si ferma", Draw.TEXT_MAX, testo.reshaped(2, Offset(0.99f, 0.99f), w, h).width, 1e-4f)
+        assertEquals("oltre il tetto il corpo si ferma", Draw.TEXT_MAX, testo.reshaped(2, Offset(9f, 9f), w, h).width, 1e-4f)
         assertEquals("verso il centro il corpo si ferma al minimo", Draw.TEXT_MIN, testo.reshaped(5, Offset(0.5f, 0.5f), w, h).width, 1e-4f)
 
         val girato = testo.turned(88f, w, h)
