@@ -789,6 +789,21 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **Il cursore della luminosità non ha velo né sfocatura** (nota D): prende l'ombra della scelta
     'Ombra' delle impostazioni, l'unica dell'app, così l'elemento scelto e i tasti si vedono
     cambiare mentre il dito scorre.
+- **Dalla `4.62` gli elementi si appoggiano ai bordi dell'immagine** (sua richiesta del
+  2026-10-08, con un esempio: un rettangolo arrotondato tratteggiato appoggiato all'angolo in alto
+  a sinistra, *a filo del bordo (totalmente visibile e a 0 pixel di distanza dal bordo)*):
+  - quando la traccia di un elemento, col suo spessore e con la punta della freccia, arriva entro
+    12 dp da un bordo dell'immagine, da dentro o da fuori, si posa sul bordo: a filo e tutta
+    visibile. Più lontano l'elemento va oltre il bordo, e se ne vede solo la parte dentro;
+  - vale disegnando (il primo punto e quello sotto il dito, per i quattro strumenti a due punti; la
+    mano libera segue il dito) e spostando l'elemento scelto. Una linea agganciata
+    all'orizzontale o alla verticale tiene la sua direzione, e si appoggia solo lungo l'altro asse;
+  - mentre il dito tiene un elemento appoggiato, la guida color accento corre lungo quel bordo, e
+    allo stacco sparisce (`Draw.rest`, `Draw.restEnd`, `ImageEdge`);
+  - il conto è sullo schermo, sul riquadro dell'immagine come la si vede, ritaglio compreso; con
+    la Geometria accesa porta a filo gli angoli dell'elemento;
+  - scelte della sessione, dichiarate nella voce di collaudo: i 12 dp, e il primo tocco che deve
+    ancora cadere dentro l'immagine.
 - **La seconda parte della G2**: un menu a pressione lunga sull'elemento, con sei icone su 3x2
   (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`; sua nota E sul giro
   della `4.60`), e le maniglie per ridimensionare. Da chiedergli prima: dove si incolla un elemento

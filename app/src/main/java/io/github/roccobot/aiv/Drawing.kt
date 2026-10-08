@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.core.graphics.ColorUtils
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -534,7 +535,119 @@ internal object Draw {
      * test item: at 5 degrees a line 3 cm long snaps when its end is within about 2.6 mm of the axis.
      */
     const val SNAP_DEG = 5.0
+
+    /**
+     * **The box on the screen that the outline of a two-point [pen] from [a] to [b] covers**
+     * (4.62), for a stroke [stroke] pixels thick on an image whose long side is [long] pixels: the
+     * shape's box with the arrow's head, grown by half the stroke, since the outline is centred on
+     * the shape and its ends are round. The same numbers as [strokeOf], read on the screen.
+     */
+    fun extent(pen: Pen, a: Offset, b: Offset, stroke: Float, long: Float): Rect {
+        var l = min(a.x, b.x)
+        var t = min(a.y, b.y)
+        var r = max(a.x, b.x)
+        var bt = max(a.y, b.y)
+        if (pen == Pen.ARROW && a != b) {
+            val angle = atan2((b.y - a.y).toDouble(), (b.x - a.x).toDouble())
+            val size = max(stroke * HEAD, long * HEAD_MIN)
+            for (side in listOf(-1, 1)) {
+                val th = angle + Math.PI + side * HEAD_ANGLE
+                val x = b.x + (size * cos(th)).toFloat()
+                val y = b.y + (size * sin(th)).toFloat()
+                l = min(l, x); r = max(r, x); t = min(t, y); bt = max(bt, y)
+            }
+        }
+        val h = stroke / 2f
+        return Rect(l - h, t - h, r + h, bt + h)
+    }
+
+    /** The box on the screen that a free hand outline through [points] covers (4.62). */
+    fun extent(points: List<Offset>, stroke: Float): Rect {
+        val h = stroke / 2f
+        return Rect(
+            points.minOf { it.x } - h, points.minOf { it.y } - h,
+            points.maxOf { it.x } + h, points.maxOf { it.y } + h
+        )
+    }
+
+    /**
+     * **The shift that lays the sides of [box] near the edges of [frame] on them** (4.62, his
+     * request of 2026-10-08: *un piccolo scatto calamitato simile a quello delle linee
+     * orizzontali/verticali che renda semplice far sì che una linea rimanga a filo del bordo
+     * (totalmente visibile e a 0 pixel di distanza dal bordo)*), with the edges it rests on.
+     *
+     * ⚠️ A side within [reach] of an edge comes onto it, from inside or from outside; farther, it
+     * stays, so an element still goes past the edge (*dev'essere possibile ... anche OLTRE i
+     * bordi*). On each axis the nearer edge wins, and only the sides in [sides] may move.
+     * ⚠️ Screen pixels, like [snap]: the edge he means is the one he sees.
+     */
+    fun rest(box: Rect, frame: Rect, reach: Float, sides: Set<ImageEdge> = ImageEdge.entries.toSet()): Pair<Offset, Set<ImageEdge>> {
+        fun axis(lo: Float, hi: Float, edgeLo: Float, edgeHi: Float, low: ImageEdge, high: ImageEdge): Pair<Float, ImageEdge?> {
+            val toLo = edgeLo - lo
+            val toHi = edgeHi - hi
+            val canLo = low in sides && abs(toLo) <= reach
+            val canHi = high in sides && abs(toHi) <= reach
+            return when {
+                canLo && (!canHi || abs(toLo) <= abs(toHi)) -> toLo to low
+                canHi -> toHi to high
+                else -> 0f to null
+            }
+        }
+        val (dx, ex) = axis(box.left, box.right, frame.left, frame.right, ImageEdge.LEFT, ImageEdge.RIGHT)
+        val (dy, ey) = axis(box.top, box.bottom, frame.top, frame.bottom, ImageEdge.TOP, ImageEdge.BOTTOM)
+        return Offset(dx, dy) to setOfNotNull(ex, ey)
+    }
+
+    /**
+     * **[b], the end the finger draws, moved so the outline of a two-point [pen] from [a] rests on
+     * the edges of [frame]** (4.62), with the edges it rests on. Only the sides that [b] draws
+     * move, so the start stays where it was laid, and only along the axes in [axes]: a line laid
+     * on the horizontal keeps its height.
+     * ⚠️ Up to three passes, because the arrow's head turns with the end it sits on, and a pass
+     * that moves nothing ends early; for the other pens the first pass is exact.
+     */
+    fun restEnd(
+        pen: Pen, a: Offset, b: Offset, stroke: Float, long: Float, frame: Rect, reach: Float,
+        axes: Set<SnapAxis> = SnapAxis.entries.toSet()
+    ): Pair<Offset, Set<ImageEdge>> {
+        val start = extent(pen, a, a, stroke, long)
+        var end = b
+        repeat(3) {
+            val box = extent(pen, a, end, stroke, long)
+            val own = buildSet {
+                if (SnapAxis.HORIZONTAL in axes) {
+                    if (box.left < start.left - OWN) add(ImageEdge.LEFT)
+                    if (box.right > start.right + OWN) add(ImageEdge.RIGHT)
+                }
+                if (SnapAxis.VERTICAL in axes) {
+                    if (box.top < start.top - OWN) add(ImageEdge.TOP)
+                    if (box.bottom > start.bottom + OWN) add(ImageEdge.BOTTOM)
+                }
+            }
+            val (d, _) = rest(box, frame, reach, own)
+            if (d == Offset.Zero) return end to on(box, frame)
+            end += d
+        }
+        return end to on(extent(pen, a, end, stroke, long), frame)
+    }
+
+    /** The edges of [frame] that a side of [box] lies on, within a fraction of a pixel. */
+    fun on(box: Rect, frame: Rect): Set<ImageEdge> = buildSet {
+        if (abs(box.left - frame.left) < ON) add(ImageEdge.LEFT)
+        if (abs(box.top - frame.top) < ON) add(ImageEdge.TOP)
+        if (abs(box.right - frame.right) < ON) add(ImageEdge.RIGHT)
+        if (abs(box.bottom - frame.bottom) < ON) add(ImageEdge.BOTTOM)
+    }
+
+    /** How far past the start's own box a side must be to belong to the end, in pixels. */
+    private const val OWN = 0.01f
+
+    /** How near a side must be to an edge to lie on it, in pixels. */
+    private const val ON = 0.5f
 }
 
 /** The two directions a line or an arrow snaps to ([Draw.snap]). */
 enum class SnapAxis { HORIZONTAL, VERTICAL }
+
+/** The four edges of the visible image an element of the drawing rests on ([Draw.rest], 4.62). */
+enum class ImageEdge { LEFT, TOP, RIGHT, BOTTOM }

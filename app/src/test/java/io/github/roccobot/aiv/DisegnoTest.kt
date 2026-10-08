@@ -1183,6 +1183,142 @@ class DisegnoTest {
         assertTrue("e ricordarlo", runBlocking { Hint.DRAW.flow(app).first() })
     }
 
+    /**
+     * **Il conto dell'aggancio ai bordi** (`4.62`, sua richiesta del 2026-10-08: *un piccolo scatto
+     * calamitato ... a filo del bordo*): un lato entro la portata va sul bordo, da dentro o da fuori;
+     * oltre la portata resta dov'è; su un asse vince il bordo più vicino; la punta di una freccia
+     * conta nell'ingombro, e una freccia che sale verso il bordo ci arriva con la punta intera.
+     */
+    @Test
+    fun `il conto dell'aggancio ai bordi`() {
+        val cornice = androidx.compose.ui.geometry.Rect(0f, 0f, 1000f, 800f)
+        fun box(l: Float, t: Float, r: Float, b: Float) = androidx.compose.ui.geometry.Rect(l, t, r, b)
+        assertEquals(Offset(-8f, 0f) to setOf(ImageEdge.LEFT), Draw.rest(box(8f, 300f, 200f, 400f), cornice, 12f))
+        assertEquals("da fuori rientra", Offset(6f, 0f) to setOf(ImageEdge.LEFT), Draw.rest(box(-6f, 300f, 200f, 400f), cornice, 12f))
+        assertEquals("oltre la portata resta", Offset.Zero to emptySet<ImageEdge>(), Draw.rest(box(-30f, 300f, 200f, 400f), cornice, 12f))
+        assertEquals("vince il bordo più vicino", Offset(-5f, 0f) to setOf(ImageEdge.LEFT), Draw.rest(box(5f, 300f, 990f, 400f), cornice, 12f))
+        assertEquals("in un angolo, due bordi", Offset(-3f, 4f) to setOf(ImageEdge.LEFT, ImageEdge.BOTTOM),
+            Draw.rest(box(3f, 700f, 100f, 796f), cornice, 12f))
+        val freccia = Draw.extent(Pen.ARROW, Offset(100f, 100f), Offset(300f, 100f), 10f, 1000f)
+        assertEquals("la punta e il mezzo tratto", 305f, freccia.right, 1e-3f)
+        assertTrue("le ali della punta allargano l'ingombro", freccia.top < 100f - 5f - 20f)
+        val (fine, bordi) = Draw.restEnd(Pen.ARROW, Offset(500f, 400f), Offset(530f, 8f), 10f, 1000f, cornice, 12f)
+        assertEquals("la freccia arriva al bordo con la punta intera", 0f,
+            Draw.extent(Pen.ARROW, Offset(500f, 400f), fine, 10f, 1000f).top, 0.5f)
+        assertTrue(ImageEdge.TOP in bordi)
+    }
+
+    /**
+     * **Un rettangolo cominciato vicino a un angolo si appoggia ai due bordi, e uno finito vicino
+     * all'angolo opposto anche; lontano dai bordi resta dove cade il dito** (`4.62`). A filo vuol dire
+     * che il mezzo tratto esterno cade sul bordo: il punto è a metà spessore dal bordo.
+     * ⚠️ L'immagine è quadrata, quindi sullo schermo il suo lato lungo è la sua larghezza e il mezzo
+     * spessore, in frazioni, è la metà di [Mark.width].
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza l'aggancio del primo punto, e senza quello del secondo.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `un rettangolo vicino a un angolo si appoggia ai due bordi`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        val img = immagine()
+        trascinaDa(Offset(img.left + 4f, img.top + 4f), Offset(-20f, -20f))
+        trascinaDa(Offset(20f, 20f), Offset(img.right - 4f, img.bottom - 4f))
+        trascinaDa(Offset(img.left + 40f, -60f), Offset(0f, -30f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val (primo, secondo, terzo) = salvato!!.drawing.marks
+        val mezzo = primo.width / 2f
+        assertEquals("a filo del bordo sinistro", mezzo, primo.points.minOf { it.x }, 1e-3f)
+        assertEquals("a filo del bordo di sopra", mezzo, primo.points.minOf { it.y }, 1e-3f)
+        assertEquals("a filo del bordo destro", 1f - mezzo, secondo.points.maxOf { it.x }, 1e-3f)
+        assertEquals("a filo del bordo di sotto", 1f - mezzo, secondo.points.maxOf { it.y }, 1e-3f)
+        assertTrue("lontano dai bordi l'elemento resta dov'è", terzo.points.minOf { it.x } > mezzo + 0.05f)
+    }
+
+    /**
+     * **Un elemento spostato vicino a un bordo vi si appoggia, e spinto oltre la portata esce
+     * dall'immagine** (`4.62`, *dev'essere possibile ... spostare gli elementi di Disegno anche OLTRE
+     * i bordi*).
+     * ⚠️⚠️ **CONTROPROVATA** togliendo l'aggancio dallo spostamento: il lato sinistro resta a 5 pixel
+     * dal bordo.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `un elemento spostato vicino al bordo vi si appoggia, e oltre esce`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        val img = immagine()
+        trascinaDa(Offset(-40f, -40f), Offset(40f, 40f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val mezzo = salvato!!.drawing.marks.single().width / 2f
+        // The stroke's outer side, on the screen: half the stroke left of the corner at -40.
+        val fuori = -40f - mezzo * (img.right - img.left)
+        tocca(Offset.Zero)
+        trascinaDa(Offset.Zero, Offset(img.left + 5f - fuori, 0f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertEquals("a filo del bordo sinistro", mezzo, salvato!!.drawing.marks.single().points.minOf { it.x }, 1e-3f)
+        trascinaDa(Offset(img.left + 30f, 0f), Offset(img.left - 40f, 0f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertTrue("spinto oltre, l'elemento doveva uscire dal bordo",
+            salvato!!.drawing.marks.single().points.minOf { it.x } < 0f)
+    }
+
+    /**
+     * **Mentre il dito tiene un elemento appoggiato a un bordo, la guida corre lungo quel bordo; allo
+     * stacco sparisce** (`4.62`, *una nuova 'guida dinamica'*).
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la guida dei bordi dal palco: nella colonna del bordo l'accento
+     * non c'è.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `mentre l'elemento tocca un bordo la guida corre lungo il bordo`() {
+        var accento = androidx.compose.ui.graphics.Color.Unspecified
+        banco.setContent { Scena(onAccent = { accento = it }) }
+        pronta()
+        apriDisegno()
+        val img = immagine()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        palco.performTouchInput { down(center + Offset(img.left + 4f, -60f)) }
+        palco.performTouchInput { moveTo(center + Offset(-20f, 60f)) }
+        banco.waitForIdle()
+        val giu = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        val su = palco.captureToImage().toPixelMap()
+        val x = (giu.width / 2f + img.left).toInt()
+        val alto = (img.bottom - img.top).toInt()
+        fun colonna(m: PixelMap) = (0 until m.height).count { vicino(m[x, it], accento) }
+        assertTrue("col dito giù la guida doveva correre lungo il bordo sinistro: ${colonna(giu)} su $alto",
+            colonna(giu) > alto * 8 / 10)
+        assertEquals("allo stacco la guida doveva sparire", 0, colonna(su))
+    }
+
+    /**
+     * Il riquadro dell'immagine sul palco, misurato dal centro del palco come i gesti di
+     * [trascinaDa]: i pixel bianchi del quadrato di prova.
+     */
+    private fun immagine(): androidx.compose.ui.geometry.Rect {
+        val m = banco.onNodeWithContentDescription(testo(R.string.look_compare)).captureToImage().toPixelMap()
+        var x0 = Int.MAX_VALUE; var x1 = -1; var y0 = Int.MAX_VALUE; var y1 = -1
+        for (y in 0 until m.height) for (x in 0 until m.width) {
+            val c = m[x, y]
+            if (c.red > 0.97f && c.green > 0.97f && c.blue > 0.97f) {
+                x0 = minOf(x0, x); x1 = maxOf(x1, x); y0 = minOf(y0, y); y1 = maxOf(y1, y)
+            }
+        }
+        val cx = m.width / 2f
+        val cy = m.height / 2f
+        return androidx.compose.ui.geometry.Rect(x0 - cx, y0 - cy, x1 + 1 - cx, y1 + 1 - cy)
+    }
+
     /** Un tocco sul palco, a [da] dal suo centro. */
     private fun tocca(da: Offset) {
         banco.onNodeWithContentDescription(testo(R.string.look_compare)).performTouchInput {

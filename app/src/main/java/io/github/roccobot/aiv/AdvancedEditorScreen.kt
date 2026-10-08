@@ -1507,6 +1507,12 @@ private fun LookStage(
      * round), or `null`.
      */
     var penGuide by remember(picture) { mutableStateOf<Pair<Offset, SnapAxis>?>(null) }
+    /**
+     * The edges of the visible image that the element under the finger rests on, while the finger
+     * draws or moves it: the stage shows a guide along each, gone when the finger lifts (his
+     * request of 2026-10-08, 4.62).
+     */
+    var penEdges by remember(picture) { mutableStateOf(emptySet<ImageEdge>()) }
     var brushHide by remember(picture) { mutableStateOf<Job?>(null) }
     /**
      * Quanto è grande il palco, misurato dal layout.
@@ -1930,6 +1936,13 @@ private fun LookStage(
                                 spinNow
                             )
                         }
+                        // The way back, from the image to the stage: see [onStage].
+                        fun toStage(): (Offset) -> Offset {
+                            val view = viewport(room, shownNow, scale, shift, air(), framedNow)
+                            val plan = if (geoNow.idle) null
+                            else Warp.plan(geoNow, view.centerX(), view.centerY(), view.width(), view.height())
+                            return onStage(picture.width, picture.height, spinNow, view, plan, geoNow.liquify)
+                        }
                         val visible = cutout(
                             viewport(room, shownNow, scale, shift, air(), framedNow), framedNow
                         )
@@ -1948,6 +1961,19 @@ private fun LookStage(
                         val scelto = pickedNow()
                         val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
                         val reach = PICK_REACH.toPx() / max(vista.width(), vista.height()).coerceAtLeast(1f)
+                        /*
+                         * ⚠️⚠️ **An element that comes near an edge of the visible image rests on it,
+                         * since 4.62** (his request of 2026-10-08: *un piccolo scatto calamitato ...
+                         * che renda semplice far sì che una linea rimanga a filo del bordo
+                         * (totalmente visibile e a 0 pixel di distanza dal bordo)*): its outline,
+                         * stroke and arrow head included, comes onto the edge within [EDGE_REACH],
+                         * from inside or outside, and the stage shows the guide. Farther it goes past
+                         * the edge, and only its inside part shows. Measured on the screen, where the
+                         * edge he means is ([Draw.rest]).
+                         */
+                        val cornice = Rect(visible.left, visible.top, visible.right, visible.bottom)
+                        val lungo = max(vista.width(), vista.height())
+                        val portata = EDGE_REACH.toPx()
                         if (esito == Settled.UP) {
                             val preso = Draw.hit(base, start, picture.width, picture.height, reach)
                             if (preso != null || scelto != null) {
@@ -1958,30 +1984,57 @@ private fun LookStage(
                             val segno = base.marks.getOrNull(scelto)
                             if (segno != null && Draw.hit(Drawing(listOf(segno)), start, picture.width, picture.height, reach) == 0) {
                                 fun sposta(at: Offset) {
-                                    toImage(at)?.let { drawTo(base.replacing(scelto, segno.moved(it - start))) }
+                                    val dove = toImage(at) ?: return
+                                    val prova = segno.moved(dove - start)
+                                    val box = stageBox(prova, toStage(), lungo)
+                                    val (d, _) = Draw.rest(box, cornice, portata)
+                                    val finale = if (d == Offset.Zero) prova
+                                    else toImage(at + d)?.let { segno.moved(it - start) } ?: prova
+                                    penEdges = Draw.on(box.translate(d), cornice)
+                                    drawTo(base.replacing(scelto, finale))
                                 }
-                                sposta(oltre)
-                                drag(down.id) { change ->
-                                    sposta(change.position)
-                                    change.consume()
+                                try {
+                                    sposta(oltre)
+                                    drag(down.id) { change ->
+                                        sposta(change.position)
+                                        change.consume()
+                                    }
+                                } finally {
+                                    penEdges = emptySet()
                                 }
                                 drawEnd()
                                 return@awaitEachGesture
                             }
                             pickNow(null)
                         }
-                        var mark = pen.copy(points = listOf(start))
+                        // ⚠️ The four pens of two points lay their start on an edge near it too
+                        // (4.62); the free hand follows the finger.
+                        val tratto = pen.width * lungo
+                        val inizio = if (pen.pen == Pen.FREE) down.position else down.position + Draw.rest(
+                            Draw.extent(pen.pen, down.position, down.position, tratto, lungo), cornice, portata
+                        ).first
+                        var mark = pen.copy(points = listOf(toImage(inizio) ?: start))
                         val draws = pen.pen == Pen.FREE || esito == Settled.MOVED
                         /*
                          * ⚠️ A line and an arrow near the horizontal or the vertical are laid on
                          * it, on the screen, and the guide shows which (his note A on the 4.45
                          * round). The loupe keeps following the finger, not the snapped end.
+                         * ⚠️ Then the end rests on the edges near it (4.62), along the axes it is
+                         * free on: a line laid on the horizontal keeps its height.
                          */
                         fun aimed(at: Offset): Offset {
-                            if (pen.pen != Pen.LINE && pen.pen != Pen.ARROW) return at
-                            val (dove, asse) = Draw.snap(down.position, at)
-                            penGuide = asse?.let { down.position to it }
-                            return dove
+                            if (pen.pen == Pen.FREE) return at
+                            var dove = at
+                            var assi = SnapAxis.entries.toSet()
+                            if (pen.pen == Pen.LINE || pen.pen == Pen.ARROW) {
+                                val (d, asse) = Draw.snap(inizio, at)
+                                penGuide = asse?.let { inizio to it }
+                                dove = d
+                                if (asse != null) assi = setOf(asse)
+                            }
+                            val (fine, _) = Draw.restEnd(pen.pen, inizio, dove, tratto, lungo, cornice, portata, assi)
+                            penEdges = Draw.on(Draw.extent(pen.pen, inizio, fine, tratto, lungo), cornice)
+                            return fine
                         }
                         if (esito == Settled.MOVED) toImage(aimed(oltre))?.let { mark = mark.reaching(it) }
                         if (draws) drawTo(base.with(mark))
@@ -2017,6 +2070,7 @@ private fun LookStage(
                         } finally {
                             penLoupe = null
                             penGuide = null
+                            penEdges = emptySet()
                         }
                         if (draws) drawEnd()
                         return@awaitEachGesture
@@ -2582,6 +2636,20 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                     )
                 }
             }
+            // ⚠️ The edges the element rests on (4.62): the same guide, along each edge and half
+            // its thickness inside, so all of it shows.
+            if (penEdges.isNotEmpty()) {
+                val g = GUIDE_LINE.toPx()
+                for (bordo in penEdges) {
+                    val (da, a) = when (bordo) {
+                        ImageEdge.LEFT -> Offset(visto.left + g / 2f, visto.top) to Offset(visto.left + g / 2f, visto.bottom)
+                        ImageEdge.RIGHT -> Offset(visto.right - g / 2f, visto.top) to Offset(visto.right - g / 2f, visto.bottom)
+                        ImageEdge.TOP -> Offset(visto.left, visto.top + g / 2f) to Offset(visto.right, visto.top + g / 2f)
+                        ImageEdge.BOTTOM -> Offset(visto.left, visto.bottom - g / 2f) to Offset(visto.right, visto.bottom - g / 2f)
+                    }
+                    drawLine(brushAccent, da, a, g)
+                }
+            }
             /*
              * ⚠️⚠️ **The points of the chosen mark, G2 (4.60)**: accent dots of a fixed size on the
              * screen, where the mesh carries the mark's corners or ends (his specification: *4
@@ -2591,24 +2659,16 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
              * 'Angoli' view when armed) through [Warp.to].
              */
             drawPicked()?.let { look.drawing.marks.getOrNull(it) }?.let { segno ->
-                val posa = Draw.posed(picture.width, picture.height, look.spin)
-                val dispari = look.spin.turns.mod(2) == 1
-                val pw = if (dispari) picture.height else picture.width
-                val ph = if (dispari) picture.width else picture.height
                 val piano = if (look.geo.idle && !armato) null else Warp.plan(
                     look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
                     hold = if (armato) ARMED_FIT else null
                 )
+                val sulPalco = onStage(picture.width, picture.height, look.spin, view, piano, look.geo.liquify)
                 val r = HANDLE_DOT.toPx()
                 val anello = HANDLE_RING.toPx()
                 clipRect(visto.left, visto.top, visto.right, visto.bottom) {
                     for (punto in segno.handles()) {
-                        val q = floatArrayOf(punto.x * picture.width, punto.y * picture.height)
-                        posa.mapPoints(q)
-                        val x = view.left + q[0] / pw * view.width()
-                        val y = view.top + q[1] / ph * view.height()
-                        val dove = piano?.let { Warp.to(it, view, look.geo.liquify, x, y) } ?: floatArrayOf(x, y)
-                        val centro = Offset(dove[0], dove[1])
+                        val centro = sulPalco(punto)
                         drawCircle(Color.White, r + anello, centro)
                         drawCircle(brushAccent, r, centro)
                     }
@@ -3206,8 +3266,47 @@ private val PICK_REACH = 24.dp
 private val HANDLE_DOT = 5.dp
 private val HANDLE_RING = 1.5.dp
 
+/**
+ * **Where the points of the drawing fall on the stage**: a point in fractions of the original
+ * [w] x [h] image, through the pose [spin], into the [view] the posed image fills, and through the
+ * geometry [plan] when there is one. The way back is the gesture's `toImage`.
+ * ⚠️ One function for the points of the chosen element (G2, 4.60) and for the edge rest (4.62), so
+ * the two land where the drawing lands; the pose is built once, and the mapping is run per point.
+ */
+private fun onStage(w: Int, h: Int, spin: Spin, view: RectF, plan: WarpPlan?, liquify: Liquify): (Offset) -> Offset {
+    val posa = Draw.posed(w, h, spin)
+    val odd = spin.turns.mod(2) == 1
+    val pw = if (odd) h else w
+    val ph = if (odd) w else h
+    val q = FloatArray(2)
+    return { p ->
+        q[0] = p.x * w
+        q[1] = p.y * h
+        posa.mapPoints(q)
+        val x = view.left + q[0] / pw * view.width()
+        val y = view.top + q[1] / ph * view.height()
+        val d = plan?.let { Warp.to(it, view, liquify, x, y) }
+        if (d == null) Offset(x, y) else Offset(d[0], d[1])
+    }
+}
+
+/** The box on the stage that [mark]'s outline covers, with [toStage] carrying its points (4.62). */
+private fun stageBox(mark: Mark, toStage: (Offset) -> Offset, long: Float): Rect {
+    val pts = mark.points.map(toStage)
+    val stroke = mark.width * long
+    return if (mark.pen == Pen.FREE) Draw.extent(pts, stroke)
+    else Draw.extent(mark.pen, pts.first(), pts.last(), stroke, long)
+}
+
 /** How thick the guide of a snapped line is on the stage. */
 private val GUIDE_LINE = 1.dp
+
+/**
+ * How near an edge of the visible image an element's outline rests on it (4.62). ⚠️ A choice of
+ * the session, declared in the test item: about 2 mm, a short pull to come off, as the 5 degrees
+ * of the horizontal and the vertical.
+ */
+private val EDGE_REACH = 12.dp
 
 private enum class Extra {
     /** Niente: la scheda mostra i soli cursori, come la Luce e il Colore. */
