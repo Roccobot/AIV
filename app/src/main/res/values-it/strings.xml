@@ -463,6 +463,17 @@
     <string name="pick_rename">Rinomina</string>
     <string name="pick_delete">Elimina</string>
     <string name="draw_clear">Elimina tutto</string>
+    <string name="draw_text">Testo</string>
+    <string name="draw_pill">Pillola</string>
+    <string name="draw_face">Carattere</string>
+    <string name="draw_bold">Grassetto</string>
+    <string name="draw_italic">Corsivo</string>
+    <string name="draw_strike">Barrato</string>
+    <string name="draw_ground">Fondo</string>
+    <string name="draw_highlight">Evidenziato</string>
+    <string name="draw_label">Etichetta</string>
+    <string name="draw_size">Dimensione</string>
+    <string name="draw_text_edit">Modifica testo</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Inverti</string>
     <string name="pick_all_short">Tutti</string>

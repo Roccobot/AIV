@@ -225,6 +225,17 @@
     <string name="pick_rename">Zmień nazwę</string>
     <string name="pick_delete">Usuń</string>
     <string name="draw_clear">Usuń wszystko</string>
+    <string name="draw_text">Tekst</string>
+    <string name="draw_pill">Pigułka</string>
+    <string name="draw_face">Czcionka</string>
+    <string name="draw_bold">Pogrubienie</string>
+    <string name="draw_italic">Kursywa</string>
+    <string name="draw_strike">Przekreślenie</string>
+    <string name="draw_ground">Tło</string>
+    <string name="draw_highlight">Wyróżnienie</string>
+    <string name="draw_label">Etykieta</string>
+    <string name="draw_size">Rozmiar</string>
+    <string name="draw_text_edit">Edytuj tekst</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Odwróć</string>
     <string name="pick_all_short">Wszystko</string>

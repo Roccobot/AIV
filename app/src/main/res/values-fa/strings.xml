@@ -225,6 +225,17 @@
     <string name="pick_rename">تغییر نام</string>
     <string name="pick_delete">پاک کردن</string>
     <string name="draw_clear">پاک کردن همه</string>
+    <string name="draw_text">متن</string>
+    <string name="draw_pill">کپسول</string>
+    <string name="draw_face">قلم</string>
+    <string name="draw_bold">پررنگ</string>
+    <string name="draw_italic">کج</string>
+    <string name="draw_strike">خط‌خورده</string>
+    <string name="draw_ground">پس‌زمینه</string>
+    <string name="draw_highlight">برجسته</string>
+    <string name="draw_label">برچسب</string>
+    <string name="draw_size">اندازه</string>
+    <string name="draw_text_edit">ویرایش متن</string>
     <string name="pick_list">فهرست</string>
     <string name="pick_invert">وارونه</string>
     <string name="pick_all_short">همه</string>

@@ -34,6 +34,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.up
 import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -1928,6 +1931,387 @@ class DisegnoTest {
         sfocatura.performClick()
         banco.waitForIdle()
         assertEquals("spento il tasto con l'elemento scelto, l'elemento doveva tornare un rettangolo", null, salva().single().blur)
+    }
+
+    /**
+     * **Il conto del Testo** (`4.90`, G3): il riquadro nasce dalle parole misurate, una riga in più lo
+     * allunga di un passo e il fondo lo allarga del suo margine; il grassetto ha il suo peso; le
+     * maniglie sono gli angoli e i mezzi dei lati; una maniglia tirata cambia il corpo intorno al
+     * centro, entro i limiti del cursore; il giro tiene il punto; il tocco prende il testo dentro il
+     * riquadro, anche girato; lo stile passa intero fra due testi, parole escluse, e fra un testo e
+     * una forma passa solo il colore, ricetta compresa; le parole bianche o nere prendono sul fondo
+     * quella delle due che si legge meglio; un fondo si offre se stacca dall'immagine e tiene
+     * leggibili le parole.
+     * ⚠️⚠️ **CONTROPROVATA** quattro volte: con la scala della maniglia senza il limite (il corpo
+     * oltre il tetto), con la riga della ricetta tolta in `Mark.styledLike` (il rettangolo tiene il
+     * colore vecchio nella ricetta), con `Draw.wordsOn` che tiene le parole neutre (le bianche restano
+     * bianche sul giallo), e con il contrasto di luminanza al posto della distanza dei colori in
+     * `Draw.readable` (il giallo dell'evidenziatore non si offre su una pagina bianca).
+     */
+    @Test
+    fun `il conto del testo`() {
+        Faces.load(app)
+        val w = 400
+        val h = 200
+        val corpo = 0.05f * w
+        val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null, words = Words("Ciao mondo"))
+        val (hw, hh) = Draw.textHalf(testo, w.toFloat(), h.toFloat())
+        assertEquals("una riga è alta un passo, 1,3 volte il corpo", corpo * 1.3f / 2f, hh, 1e-3f)
+        assertTrue("la riga doveva avere la sua larghezza", hw > corpo)
+        val due = Draw.textHalf(testo.copy(words = Words("Ciao mondo\nCiao")), w.toFloat(), h.toFloat())
+        assertEquals("due righe sono alte due passi", 2f * hh, due.second, 1e-3f)
+        assertEquals("e larghe come la più larga", hw, due.first, 1e-3f)
+        val etichetta = Draw.textHalf(testo.copy(words = Words("Ciao mondo", back = Back.LABEL)), w.toFloat(), h.toFloat())
+        assertEquals("il fondo aggiunge il suo margine ai due capi", hw + 0.35f * corpo, etichetta.first, 1e-3f)
+        // ⚠️ Il banco non disegna le variazioni di un carattere (misurato: il grassetto vi risulta largo
+        // quanto il normale), quindi qui si guarda il peso che il carattere dichiara.
+        assertEquals("il grassetto doveva avere il suo peso nel carattere", Faces.BOLD, Faces.of(Face.ROBOTO, false, true).weight)
+        assertEquals("e il normale il suo", Faces.REGULAR, Faces.of(Face.LITERATA, true, false).weight)
+
+        val maniglie = testo.handles(w, h)
+        assertEquals("quattro angoli e quattro lati", 8, maniglie.size)
+        assertEquals(0.5f - hw / w, maniglie[0].x, 1e-4f)
+        assertEquals(0.5f - hh / h, maniglie[0].y, 1e-4f)
+        val doppio = testo.reshaped(2, Offset(0.5f + 2f * hw / w, 0.5f + 2f * hh / h), w, h)
+        assertEquals("l'angolo tirato al doppio della distanza doveva raddoppiare il corpo", 0.1f, doppio.width, 1e-4f)
+        assertEquals("il centro doveva restare", testo.points, doppio.points)
+        assertEquals("oltre il tetto il corpo si ferma", Draw.TEXT_MAX, testo.reshaped(2, Offset(0.99f, 0.99f), w, h).width, 1e-4f)
+        assertEquals("verso il centro il corpo si ferma al minimo", Draw.TEXT_MIN, testo.reshaped(5, Offset(0.5f, 0.5f), w, h).width, 1e-4f)
+
+        val girato = testo.turned(88f, w, h)
+        assertEquals("il testo si aggancia a 90 gradi", 90f, girato.angle, 1e-4f)
+        assertEquals("girando il punto resta", testo.points, girato.points)
+        val sotto = Offset(0.5f, 0.5f + (hw - 4f) / h)
+        assertEquals("sotto il centro il testo girato si prende", 0, Draw.hit(Drawing(listOf(girato)), sotto, w, h, 0.01f))
+        assertEquals("e quello dritto no", null, Draw.hit(Drawing(listOf(testo)), sotto, w, h, 0.01f))
+        assertEquals("accanto al centro il testo dritto si prende", 0,
+            Draw.hit(Drawing(listOf(testo)), Offset(0.5f + (hw - 4f) / w, 0.5f), w, h, 0.01f))
+        val contorno = Draw.outline(girato, w, h)
+        assertEquals("girato, il riquadro è largo quanto la riga è alta", 2f * hh / w, contorno.maxOf { it.x } - contorno.minOf { it.x }, 1e-3f)
+
+        val altro = Mark(Pen.TEXT, listOf(Offset(0.1f, 0.1f)), Color.YELLOW, 0.08f, false, null,
+            words = Words("Altro", Face.LITERATA, bold = true, back = Back.LABEL, backInk = Draw.LABEL_INKS[1]))
+        val stilato = testo.styledLike(altro)
+        assertEquals("le parole restano sue", "Ciao mondo", stilato.words?.text)
+        assertEquals(Words("Ciao mondo", Face.LITERATA, bold = true, back = Back.LABEL, backInk = Draw.LABEL_INKS[1]), stilato.words)
+        assertEquals(Color.YELLOW, stilato.ink)
+        assertEquals(0.08f, stilato.width)
+        assertEquals("il punto resta suo", testo.points, stilato.points)
+        val ricetta = Tint(Color.WHITE, 0f, 1f, null, 0f, 1f)
+        val rett = Mark(Pen.RECT, listOf(Offset(0.2f, 0.2f), Offset(0.4f, 0.4f)), Color.BLUE, 0.01f, false, Color.GREEN,
+            tint = Tint(Color.BLUE, 0f, 1f, Color.GREEN, 0f, 1f))
+        val blu = testo.copy(tint = ricetta).styledLike(rett)
+        assertEquals("da una forma il testo prende il colore", Color.BLUE, blu.ink)
+        assertEquals("e la ricetta del colore", Color.BLUE, blu.tint?.ink)
+        assertEquals("non lo spessore", 0.05f, blu.width)
+        val bianco = rett.styledLike(testo.copy(tint = ricetta))
+        assertEquals("da un testo la forma prende il colore", Color.WHITE, bianco.ink)
+        assertEquals("e la ricetta del colore", Color.WHITE, bianco.tint?.ink)
+        assertEquals("e tiene il riempimento", Color.GREEN, bianco.fill)
+        assertEquals("e lo spessore", 0.01f, bianco.width)
+
+        assertEquals("sul giallo le parole bianche diventano nere", Color.BLACK, Draw.wordsOn(Draw.HIGHLIGHT_INK, Color.WHITE))
+        assertEquals("sulla striscia viola le nere diventano bianche", Color.WHITE, Draw.wordsOn(Draw.LABEL_INK, Color.BLACK))
+        assertEquals("un colore che si legge resta", 0xFF1F5FA8.toInt(), Draw.wordsOn(Draw.HIGHLIGHT_INK, 0xFF1F5FA8.toInt()))
+        assertEquals("un colore che non si legge diventa nero o bianco", Color.BLACK, Draw.wordsOn(Draw.HIGHLIGHT_INK, 0xFFFFF0A0.toInt()))
+        assertTrue("il giallo dell'evidenziatore stacca da una pagina bianca", Draw.readable(Draw.HIGHLIGHT_INK, Color.WHITE, Color.BLACK))
+        assertFalse("un fondo bianco non stacca da una pagina bianca", Draw.readable(Color.WHITE, Color.WHITE, Color.BLACK))
+        assertFalse("le parole bianche non si leggono sul giallo", Draw.readable(Draw.HIGHLIGHT_INK, Color.BLACK, Color.WHITE))
+        assertTrue("e sulla striscia viola sì", Draw.readable(Draw.LABEL_INK, Color.WHITE, Color.WHITE))
+    }
+
+    /**
+     * **Le righe si centrano sulla H, in tutti e quattro i caratteri** (`4.90`, sua nota: *Literata
+     * ha una baseline stranamente bassa: credo sia l'unico font per il quale sarà necessario
+     * aggiustare la centratura verticale dell'etichetta*): su una striscia di `Etichetta` la H
+     * bianca ha lo stesso centro della striscia, entro un pixel e mezzo su un corpo di 80. Le
+     * larghezze diverse della H dicono che i quattro file sono caricati davvero.
+     * ⚠️⚠️ **CONTROPROVATA**: con le righe centrate sul riquadro del carattere (la metà fra
+     * `ascent` e `descent`) cade Literata, e solo lei.
+     */
+    @Test
+    fun `l'etichetta tiene la H al centro in tutti e quattro i caratteri`() {
+        Faces.load(app)
+        val lato = 400
+        val larghezze = mutableSetOf<Int>()
+        for (face in Face.entries) {
+            val segno = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.2f, false, null,
+                words = Words("H", face, back = Back.LABEL))
+            val tela = Draw.overlay(Drawing(listOf(segno)), lato, lato, Spin(0, false))!!
+            var a0 = lato; var a1 = -1; var x0 = lato; var x1 = -1; var s0 = lato; var s1 = -1
+            for (y in 0 until lato) for (x in 0 until lato) {
+                val c = tela.getPixel(x, y)
+                if (Color.alpha(c) > 250 && Color.red(c) > 245 && Color.green(c) > 245 && Color.blue(c) > 245) {
+                    a0 = minOf(a0, y); a1 = maxOf(a1, y); x0 = minOf(x0, x); x1 = maxOf(x1, x)
+                }
+                if (Color.alpha(c) > 250 && kotlin.math.abs(Color.red(c) - 0xA3) < 3 && kotlin.math.abs(Color.green(c) - 0x40) < 3 &&
+                    kotlin.math.abs(Color.blue(c) - 0x8F) < 3) {
+                    s0 = minOf(s0, y); s1 = maxOf(s1, y)
+                }
+            }
+            assertTrue("${face.label}: la H doveva esserci", a1 > a0)
+            assertTrue("${face.label}: la striscia doveva esserci", s1 > s0)
+            assertEquals("${face.label}: la H doveva essere al centro della striscia", (s0 + s1 + 1) / 2f, (a0 + a1 + 1) / 2f, 1.5f)
+            larghezze += x1 - x0
+        }
+        assertTrue("i quattro caratteri dovevano essere caricati davvero, con H di larghezze diverse: $larghezze", larghezze.size >= 3)
+    }
+
+    /**
+     * **Il conto della Pillola** (`4.90`, sua nota A sul giro della `4.43`): il riquadro è quello
+     * disegnato; le parole prendono la misura più grande che ci sta, quindi in un riquadro più alto
+     * sono più grandi; parole che non ci stanno nemmeno al minimo allungano il riquadro verso il
+     * basso, col lato di sopra fermo; la traccia scura è sul bordo, quella chiara dentro, il
+     * riempimento più dentro ancora, coi suoi colori; sotto la pillola l'immagine si sfoca, come un
+     * vetro; il tocco la prende dentro; fra un testo e una pillola passano il carattere e i tre
+     * stili, mai il colore; la pillola posata da un tocco contiene le parole senza allungarsi.
+     * ⚠️⚠️ **CONTROPROVATA** tre volte: con le parole a misura fissa (la pillola alta ha le parole
+     * alte come quella bassa), senza la crescita del riquadro (il lato di sotto resta dov'era e le
+     * parole escono), e senza la pillola fra gli elementi di `Draw.blurAreas` (sotto la pillola le
+     * righe restano nette).
+     */
+    @Test
+    fun `il conto della pillola`() {
+        Faces.load(app)
+        val lato = 1000
+        fun pillola(dall: Offset, al: Offset, parole: String) =
+            Mark(Pen.PILL, listOf(dall, al), Draw.PILL_WORDS, 0f, false, null, words = Words(parole))
+        val bassa = pillola(Offset(0.2f, 0.45f), Offset(0.8f, 0.55f), "Ciao")
+        val (c, hw, hh) = Draw.textFrame(bassa, lato.toFloat(), lato.toFloat())
+        assertEquals("il riquadro è quello disegnato, x", 500f, c.x, 1e-3f)
+        assertEquals("il riquadro è quello disegnato, y", 500f, c.y, 1e-3f)
+        assertEquals(300f, hw, 1e-3f)
+        assertEquals(50f, hh, 1e-3f)
+        assertEquals("otto maniglie, come un rettangolo", 8, bassa.handles(lato, lato).size)
+        assertEquals(0.2f, bassa.handles(lato, lato)[0].x, 1e-4f)
+
+        fun altezzaParole(segno: Mark): Int {
+            val tela = Draw.overlay(Drawing(listOf(segno)), lato, lato, Spin(0, false))!!
+            var y0 = lato; var y1 = -1
+            for (y in 0 until lato) for (x in 0 until lato) {
+                val p = tela.getPixel(x, y)
+                if (Color.alpha(p) > 250 && Color.red(p) > 245 && Color.green(p) > 245 && Color.blue(p) > 245) {
+                    y0 = minOf(y0, y); y1 = maxOf(y1, y)
+                }
+            }
+            return y1 - y0 + 1
+        }
+        val alta = pillola(Offset(0.2f, 0.4f), Offset(0.8f, 0.6f), "Ciao")
+        assertTrue("in un riquadro più alto le parole dovevano essere più grandi",
+            altezzaParole(alta) > altezzaParole(bassa) * 3 / 2)
+
+        val lunga = pillola(Offset(0.4f, 0.48f), Offset(0.6f, 0.52f), "uno due tre quattro cinque sei sette otto nove dieci")
+        val (cl, _, hl) = Draw.textFrame(lunga, lato.toFloat(), lato.toFloat())
+        assertTrue("le parole che non ci stanno dovevano allungare il riquadro", hl > 20f + 1f)
+        assertEquals("col lato di sopra fermo", 480f, cl.y - hl, 1e-2f)
+        val contorno = Draw.outline(lunga, lato, lato)
+        assertEquals("il contorno segue il riquadro allungato", 2f * hl / lato, contorno.maxOf { it.y } - contorno.minOf { it.y }, 1e-3f)
+
+        val tela = Draw.overlay(Drawing(listOf(bassa)), lato, lato, Spin(0, false))!!
+        fun vicino(p: Int, atteso: Int) = kotlin.math.abs(Color.alpha(p) - Color.alpha(atteso)) <= 3 &&
+            kotlin.math.abs(Color.red(p) - Color.red(atteso)) <= 3 && kotlin.math.abs(Color.green(p) - Color.green(atteso)) <= 3 &&
+            kotlin.math.abs(Color.blue(p) - Color.blue(atteso)) <= 3
+        // La traccia è lo 0,5% del lato maggiore, 600: 3 pixel per traccia, dal lato di sopra a y 450.
+        assertTrue("sul bordo la traccia scura", vicino(tela.getPixel(500, 451), Draw.PILL_DARK))
+        assertTrue("dentro la traccia chiara", vicino(tela.getPixel(500, 454), Draw.PILL_LIGHT))
+        assertTrue("più dentro il riempimento", vicino(tela.getPixel(500, 460), Draw.PILL_FILL))
+        assertEquals("fuori dalla pillola niente", 0, tela.getPixel(500, 445))
+
+        val righe = Bitmap.createBitmap(lato, lato, Bitmap.Config.ARGB_8888).apply {
+            for (x in 0 until lato) for (y in 0 until lato) setPixel(x, y, if ((x / 2) % 2 == 0) Color.BLACK else Color.WHITE)
+        }
+        val vetro = Draw.blurAreas(righe, Drawing(listOf(bassa)), mine = true)
+        assertTrue("sotto la pillola l'immagine doveva sfocarsi", Color.red(vetro.getPixel(300, 500)) in 80..175)
+        assertTrue("fuori no", Color.red(vetro.getPixel(300, 300)).let { it == 0 || it == 255 })
+
+        assertEquals("la pillola si prende dentro", 0, Draw.hit(Drawing(listOf(bassa)), Offset(0.3f, 0.5f), lato, lato, 0.01f))
+        val testo = Mark(Pen.TEXT, listOf(Offset(0.1f, 0.1f)), Color.RED, 0.05f, false, null,
+            words = Words("Altro", Face.LITERATA, bold = true, back = Back.LABEL))
+        val presa = bassa.styledLike(testo)
+        assertEquals("fra un testo e una pillola passano carattere e stili", Words("Ciao", Face.LITERATA, bold = true), presa.words)
+        assertEquals("e non il colore", Draw.PILL_WORDS, presa.ink)
+        assertEquals("né il riquadro", bassa.points, presa.points)
+        val data = testo.styledLike(bassa)
+        assertEquals("da una pillola il testo prende il carattere", Face.ROBOTO, data.words?.face)
+        assertEquals("e tiene il suo colore e il suo fondo", Color.RED, data.ink)
+        assertEquals(Back.LABEL, data.words?.back)
+
+        val posata = Mark(Pen.PILL, Draw.pillAround(Words("Ciao"), 0.05f, Offset(0.5f, 0.5f), lato.toFloat(), lato.toFloat()),
+            Draw.PILL_WORDS, 0f, false, null, words = Words("Ciao"))
+        val alto = kotlin.math.abs(posata.points.last().y - posata.points.first().y) * lato
+        assertEquals("la pillola posata da un tocco contiene le parole senza allungarsi", alto / 2f,
+            Draw.textFrame(posata, lato.toFloat(), lato.toFloat()).third, 1e-3f)
+        assertTrue("ed è più larga che alta", kotlin.math.abs(posata.points.last().x - posata.points.first().x) * lato > alto)
+    }
+
+    /**
+     * **Con `Testo` un tocco apre la finestra, e il testo nasce dove si è toccato, scelto** (`4.90`,
+     * lettura `A1`): `Applica` aspetta una lettera; le parole compaiono sul palco nel colore scelto
+     * coi tondi; `Modifica testo` riapre la finestra con le parole e le cambia, e il testo resta dove
+     * era; un trascinamento con `Testo` non disegna niente.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza il ramo di `Testo` nel gesto del palco (il tocco non
+     * apre la finestra), e con `Modifica testo` che aggiunge un testo invece di cambiare quello
+     * scelto (i testi salvati diventano due).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `con Testo un tocco apre la finestra e il testo nasce dove si tocca`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato?.drawing?.marks.orEmpty()
+        }
+        val r = immagine()
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.waitForIdle()
+        trascinaDa(Offset(-60f, -60f), Offset(0f, 0f))
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertDoesNotExist()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = palco.captureToImage().toPixelMap()
+        tocca(Offset(-40f, -60f))
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsNotEnabled()
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsEnabled().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertDoesNotExist()
+        assertTrue("le parole dovevano comparire sul palco", differenza(prima, palco.captureToImage().toPixelMap()) > 50)
+        val nato = salva().single()
+        assertEquals(Pen.TEXT, nato.pen)
+        assertEquals("Ciao", nato.words?.text)
+        assertTrue("le parole dovevano avere il colore scelto", (nato.ink or 0xFF000000.toInt()) != Color.WHITE)
+        assertEquals("il testo doveva nascere dove si è toccato, x", (-40f - r.left) / r.width, nato.points.single().x, 0.03f)
+        assertEquals("il testo doveva nascere dove si è toccato, y", (-60f - r.top) / r.height, nato.points.single().y, 0.03f)
+
+        banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).performClick()
+        banco.waitForIdle()
+        banco.onNode(hasSetTextAction()).performTextReplacement("Ciao\nmondo")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        val cambiato = salva().single()
+        assertEquals("Modifica testo doveva cambiare le parole", "Ciao\nmondo", cambiato.words?.text)
+        assertEquals("e il testo doveva restare dov'era", nato.points, cambiato.points)
+    }
+
+    /**
+     * **I tasti del Testo cambiano il testo scelto** (`4.90`, letture `A3`, `A5` e `A6`): `Grassetto`
+     * si accende; `Carattere` passa al carattere dopo e lo dice; `Fondo` passa a `Evidenziato` col
+     * giallo, e le parole bianche diventano nere; su una pagina bianca il fondo bianco non si offre e
+     * gli altri sì; `Fondo` passa poi a `Etichetta` col viola, e le parole tornano bianche;
+     * `Dimensione` cambia il corpo.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza i parametri del testo fra quelli che il modulo posa
+     * sull'elemento scelto (il grassetto non arriva al testo), e con la fila dei fondi che offre
+     * tutti i colori (il fondo bianco si offre su una pagina bianca).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `i tasti del Testo cambiano il testo scelto`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        fun salva(): Mark {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks.single()
+        }
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        tocca(Offset(-40f, -60f))
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+
+        val grassetto = banco.onNodeWithContentDescription(testo(R.string.draw_bold))
+        grassetto.performClick()
+        banco.waitForIdle()
+        grassetto.assertIsOn()
+        assertTrue("Grassetto doveva arrivare al testo scelto", salva().words!!.bold)
+
+        val carattere = testo(R.string.draw_face)
+        banco.onNodeWithContentDescription("$carattere: Roboto").performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription("$carattere: Montserrat").assertExists()
+        assertEquals(Face.MONTSERRAT, salva().words!!.face)
+
+        val fondo = testo(R.string.draw_ground)
+        banco.onNodeWithContentDescription("$fondo: ${testo(R.string.settings_colour_none)}").performClick()
+        banco.waitForIdle()
+        val evidenziato = salva()
+        assertEquals(Back.HIGHLIGHT, evidenziato.words!!.back)
+        assertEquals(Draw.HIGHLIGHT_INK, evidenziato.words!!.backInk)
+        assertEquals("sul giallo le parole bianche dovevano diventare nere", Color.BLACK, evidenziato.ink)
+        banco.onNodeWithContentDescription("$fondo 6").assertIsNotEnabled()
+        banco.onNodeWithContentDescription("$fondo 2").assertIsEnabled().performClick()
+        banco.waitForIdle()
+        assertEquals(Draw.HIGHLIGHT_INKS[1], salva().words!!.backInk)
+
+        banco.onNodeWithContentDescription("$fondo: ${testo(R.string.draw_highlight)}").performClick()
+        banco.waitForIdle()
+        val etichetta = salva()
+        assertEquals(Back.LABEL, etichetta.words!!.back)
+        assertEquals(Draw.LABEL_INK, etichetta.words!!.backInk)
+        assertEquals("sulla striscia viola le parole dovevano tornare bianche", Color.WHITE, etichetta.ink)
+
+        banco.onAllNodesWithContentDescription(testo(R.string.draw_size))
+            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.1f) }
+        banco.waitForIdle()
+        assertEquals("Dimensione doveva cambiare il corpo", 0.1f, salva().width, 1e-4f)
+    }
+
+    /**
+     * **Con `Pillola` un trascinamento disegna la pillola e chiede le parole, e un tocco la posa
+     * attorno alle parole** (`4.90`, sua nota A sul giro della `4.43`): la pillola nasce scelta, coi
+     * due angoli del trascinamento; tavolozza, `Dimensione` e `Fondo` sono spenti; un tocco sul vuoto
+     * toglie la scelta, e il tocco dopo posa una seconda pillola.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la domanda delle parole alla fine del trascinamento (la
+     * finestra non compare), e con la tavolozza accesa per la Pillola (il tondo blu risulta acceso).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `con Pillola un trascinamento disegna la pillola e chiede le parole`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).assertIsNotEnabled()
+        banco.onAllNodesWithContentDescription(testo(R.string.draw_size))
+            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription("${testo(R.string.draw_ground)}: ${testo(R.string.settings_colour_none)}")
+            .assertIsNotEnabled()
+        trascinaDa(Offset(-100f, -60f), Offset(60f, -20f))
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsNotEnabled()
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        val disegnata = salva().single()
+        assertEquals(Pen.PILL, disegnata.pen)
+        assertEquals("Ciao", disegnata.words?.text)
+        assertEquals("la pillola ha i due angoli del trascinamento", 2, disegnata.points.size)
+        banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).assertIsEnabled()
+
+        tocca(Offset(80f, 100f))
+        tocca(Offset(80f, 100f))
+        banco.onNode(hasSetTextAction()).performTextInput("Seconda")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        val due = salva()
+        assertEquals("il tocco doveva posare una seconda pillola", 2, due.size)
+        assertEquals(Pen.PILL, due[1].pen)
+        assertTrue("posata attorno alle parole, più larga che alta",
+            kotlin.math.abs(due[1].points.last().x - due[1].points.first().x) > kotlin.math.abs(due[1].points.last().y - due[1].points.first().y))
     }
 
     /**

@@ -225,6 +225,17 @@
     <string name="pick_rename">नाव बदला</string>
     <string name="pick_delete">पुसा</string>
     <string name="draw_clear">सर्व पुसा</string>
+    <string name="draw_text">मजकूर</string>
+    <string name="draw_pill">कॅप्सूल</string>
+    <string name="draw_face">फॉन्ट</string>
+    <string name="draw_bold">ठळक</string>
+    <string name="draw_italic">तिरपा</string>
+    <string name="draw_strike">खोडलेले</string>
+    <string name="draw_ground">पार्श्वभूमी</string>
+    <string name="draw_highlight">हायलाइट</string>
+    <string name="draw_label">लेबल</string>
+    <string name="draw_size">आकार</string>
+    <string name="draw_text_edit">मजकूर संपादित करा</string>
     <string name="pick_list">यादी</string>
     <string name="pick_invert">उलटा</string>
     <string name="pick_all_short">सर्व</string>

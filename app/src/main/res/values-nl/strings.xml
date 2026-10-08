@@ -225,6 +225,17 @@
     <string name="pick_rename">Naam wijzigen</string>
     <string name="pick_delete">Verwijderen</string>
     <string name="draw_clear">Alles verwijderen</string>
+    <string name="draw_text">Tekst</string>
+    <string name="draw_pill">Pil</string>
+    <string name="draw_face">Lettertype</string>
+    <string name="draw_bold">Vet</string>
+    <string name="draw_italic">Cursief</string>
+    <string name="draw_strike">Doorgehaald</string>
+    <string name="draw_ground">Achtergrond</string>
+    <string name="draw_highlight">Markering</string>
+    <string name="draw_label">Label</string>
+    <string name="draw_size">Grootte</string>
+    <string name="draw_text_edit">Tekst bewerken</string>
     <string name="pick_list">Lijst</string>
     <string name="pick_invert">Omkeren</string>
     <string name="pick_all_short">Alles</string>
