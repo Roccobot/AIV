@@ -3260,7 +3260,7 @@ private enum class Extra {
      * Gli strumenti del **Disegno** e il dito sull'immagine, dalla `4.40` (prima fase, G1).
      *
      * ⚠️⚠️ **È IL TERZO CHE PRENDE IL DITO SUL PALCO, E LO PRENDE SEMPRE**, come il Ritaglio: un
-     * modulo che disegna e che chiede di armare lo strumento farebbe un tocco in più a ogni segno.
+     * modulo che disegna e che chiede di armare lo strumento farebbe un tocco in più a ogni elemento.
      * Pinza e panoramica restano, a due dita (vedi il ramo del disegno nel gesto del palco).
      * ⚠️ **Non è [places]**, anche se il disegno vive dalla parte del 'dove' di [Look.place]: il
      * confronto col prima lo raggiunge solo un dito, e qui ogni dito disegna.
@@ -4925,8 +4925,8 @@ private fun Comandi(
  * riempimento), i colori, lo spessore o l'opacità, il tratteggio e 'Azzera'.
  *
  * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': strumento, colori e tratto sono lo
- * strumento, e lo strumento non entra nella storia. Un segno nuovo li prende al momento in cui il
- * dito si posa (`Gaze.penMark`), quindi cambiarli non tocca i segni già fatti.
+ * strumento, e lo strumento non entra nella storia. Un elemento nuovo li prende al momento in cui
+ * il dito si posa (`Gaze.penMark`), quindi cambiarli non tocca gli elementi già fatti.
  * ⚠️⚠️ **IL RIEMPIMENTO HA COLORE E OPACITÀ SUOI**, ed è la sua precisazione arrivata a G1 in
  * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
  * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
