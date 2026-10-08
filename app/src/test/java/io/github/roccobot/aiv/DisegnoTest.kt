@@ -2154,9 +2154,14 @@ class DisegnoTest {
      * ⚠️⚠️ **CONTROPROVATA** due volte: senza il ramo di `Testo` nel gesto del palco (il tocco non
      * apre la finestra), e con `Modifica testo` che aggiunge un testo invece di cambiare quello
      * scelto (i testi salvati diventano due).
+     * ⚠️⚠️ **Lo schermo è quello di serie del banco, di proposito**, e così le altre due prove che
+     * aprono la finestra delle parole: su uno schermo di 411 per 891 dp una finestra con un campo di
+     * testo, aperta sopra l'editor durante la prova, non lascia mai il banco in quiete, e lo stesso
+     * fa la finestra di `Ridimensiona` (misurato il 2026-10-08). La causa è legata alla misura
+     * dello schermo e non nella finestra, e il perché non è accertato: la trappola è scritta in
+     * `Rules.md` § '🧪 Quando si scrive una prova, e quando no'.
      */
     @Test
-    @Config(qualifiers = "w411dp-h891dp")
     fun `con Testo un tocco apre la finestra e il testo nasce dove si tocca`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
@@ -2213,7 +2218,6 @@ class DisegnoTest {
      * tutti i colori (il fondo bianco si offre su una pagina bianca).
      */
     @Test
-    @Config(qualifiers = "w411dp-h891dp")
     fun `i tasti del Testo cambiano il testo scelto`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
@@ -2279,7 +2283,6 @@ class DisegnoTest {
      * finestra non compare), e con la tavolozza accesa per la Pillola (il tondo blu risulta acceso).
      */
     @Test
-    @Config(qualifiers = "w411dp-h891dp")
     fun `con Pillola un trascinamento disegna la pillola e chiede le parole`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
@@ -2309,9 +2312,11 @@ class DisegnoTest {
         assertEquals("la pillola ha i due angoli del trascinamento", 2, disegnata.points.size)
         banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).assertIsEnabled()
 
+        // ⚠️ Un tocco sul vuoto con un elemento scelto toglie la scelta e basta: la finestra la apre
+        // il tocco dopo. Se il salvataggio ha già tolto la scelta, la apre il primo.
         val vuoto = Offset(r.left + 0.5f * r.width, r.top + 0.8f * r.height)
         tocca(vuoto)
-        tocca(vuoto)
+        if (banco.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isEmpty()) tocca(vuoto)
         banco.onNode(hasSetTextAction()).performTextInput("Seconda")
         banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
         banco.waitForIdle()

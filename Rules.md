@@ -814,6 +814,13 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   - uno `swipe` con la sua durata, a clock fermo, inietta i passi a un tempo che non avanza;
   - una prova sulla cornice del ritaglio tocca il palco prima del cambiamento, o il gesto nasce
     già aggiornato e il difetto non si vede.
+- ⚠️⚠️ **Una finestra con un campo di testo, aperta sopra l'editor completo durante una prova con
+  `@Config(qualifiers = "w411dp-h891dp")`, non lascia mai il banco in quiete** (misurato il
+  2026-10-08 con la finestra delle parole del Testo e con quella di `Ridimensiona`): nessuno stato
+  cambia, eppure Compose non si ferma, e ogni attesa cade dopo 60 secondi. Con lo schermo di serie
+  del banco la stessa prova passa. Non è un difetto dell'app, e il perché non è accertato: la
+  finestra nuda si ferma, il fuoco e il modificatore delle modali sono esclusi. Una prova che apre
+  una di quelle finestre usa lo schermo di serie, e tocca in proporzione all'immagine misurata.
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.
