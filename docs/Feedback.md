@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.61**: nel modulo Disegno il tasto acceso ha un bordo pieno, arriva il velo d'aiuto del modulo, il tratteggio del tasto finisce con due trattini e il cursore della luminosità lascia vedere il colore che cambia.
+Versione **4.62**: nel modulo Disegno gli elementi si appoggiano ai bordi dell'immagine, con la guida; restano da provare le quattro voci della 4.61.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.61 è pubblicata: [v4.61](https://github.com/Roccobot/AIV/releases/tag/v4.61), con l'APK
-[AIV-4.61.apk](https://github.com/Roccobot/AIV/releases/download/v4.61/AIV-4.61.apk).
-Commit prodotto su `main`: `745a150`, release dal commit `745a150` (SlimVer 4.61 / versionCode 340; APK 8.554.837 byte, digest `af41136e`).
+La Release 4.62 è pubblicata: [v4.62](https://github.com/Roccobot/AIV/releases/tag/v4.62), con l'APK
+[AIV-4.62.apk](https://github.com/Roccobot/AIV/releases/download/v4.62/AIV-4.62.apk).
+Commit prodotto su `main`: `c593f42`, release dal commit `c593f42` (SlimVer 4.62 / versionCode 341; APK 8.556.921 byte, digest `331bbff7`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.61**: quattro prove nuove. Giro **4.60**: cinque prove OK.
+Giro **4.62**: tre prove nuove, e le quattro della 4.61 ancora da provare. Giro **4.60**: cinque prove OK.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,7 +22,7 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.61 sono superate: banco di prova completo (639 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.62 sono superate: banco di prova completo (643 prove), controllo delle traduzioni, compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -30,6 +30,9 @@ Le verifiche automatiche della 4.61 sono superate: banco di prova completo (639 
 | 4.61-02 | Non provato | | Attendere il collaudo. |
 | 4.61-03 | Non provato | | Attendere il collaudo. |
 | 4.61-04 | Non provato | | Attendere il collaudo. |
+| 4.62-01 | Non provato | | Attendere il collaudo. |
+| 4.62-02 | Non provato | | Attendere il collaudo. |
+| 4.62-03 | Non provato | | Attendere il collaudo. |
 
 ## 1. Il bordo pieno sul tasto acceso
 
@@ -47,6 +50,18 @@ Spegni `Tratteggio` e guardane i due capi: la banda comincia e finisce con un tr
 
 Disegna un elemento, sceglilo, e tieni premuto un tondo: il cursore della luminosità si apre senza velo e senza sfocatura, con un'ombra intorno (la stessa dell'opzione 'Ombra' delle impostazioni). Mentre il dito scorre vedi l'elemento scelto e i tasti cambiare colore.
 
+## 5. Disegnando, l'elemento si appoggia al bordo
+
+Disegna un rettangolo cominciando a pochi millimetri dall'angolo in alto a sinistra dell'immagine: il primo vertice va sull'angolo, con la traccia a filo dei due bordi, tutta visibile. Allo stesso modo il vertice che tiene il dito si appoggia al bordo quando gli arriva vicino, da dentro o da fuori; più lontano (oltre 12 dp, circa 2 mm) l'elemento va oltre il bordo e se ne vede solo la parte dentro. Vale per rettangolo, ellisse, linea e freccia, punta compresa; la mano libera segue il dito. Una linea agganciata all'orizzontale o alla verticale tiene la direzione e si appoggia solo lungo l'altro asse. Il primo tocco deve ancora cadere dentro l'immagine.
+
+## 6. Spostando, l'elemento si appoggia al bordo, e oltre esce
+
+Scegli un elemento e trascinalo verso un bordo: arrivato vicino, si posa a filo. Spinto più in là, esce dall'immagine.
+
+## 7. La guida lungo il bordo
+
+Mentre il dito tiene un elemento appoggiato a un bordo, una linea sottile color accento corre lungo quel bordo; allo stacco sparisce. È la stessa guida dell'orizzontale e della verticale.
+
 ## Decisioni da concordare
 
 - **La seconda parte della G2** (nota E del giro della 4.60): due domande in chat, su `Copia` e su `Ruota`.
@@ -59,6 +74,9 @@ Disegna un elemento, sceglilo, e tieni premuto un tondo: il cursore della lumino
 | Il velo d'aiuto del Disegno | 4.61-02 | Non provato | | Attendere il collaudo. |
 | Il tratteggio del tasto finisce con due trattini | 4.61-03 | Non provato | | Attendere il collaudo. |
 | Il cursore della luminosità senza velo | 4.61-04 | Non provato | | Attendere il collaudo. |
+| Disegnando, l'elemento si appoggia al bordo | 4.62-01 | Non provato | | Attendere il collaudo. |
+| Spostando, l'elemento si appoggia al bordo, e oltre esce | 4.62-02 | Non provato | | Attendere il collaudo. |
+| La guida lungo il bordo | 4.62-03 | Non provato | | Attendere il collaudo. |
 | Un tocco sceglie un elemento | 4.60-01 | OK | | Concluso. |
 | I parametri cambiano l'elemento scelto | 4.60-02 | OK | | Concluso. |
 | L'elemento scelto si sposta | 4.60-03 | OK | | Concluso. |
@@ -67,7 +85,7 @@ Disegna un elemento, sceglilo, e tieni premuto un tondo: il cursore della lumino
 
 ## Prossimi passi
 
-- **In collaudo**: il bordo pieno (`4.61-01`), il velo d'aiuto del Disegno (`4.61-02`), il tratteggio del tasto (`4.61-03`), il cursore della luminosità senza velo (`4.61-04`).
+- **In collaudo**: il bordo pieno (`4.61-01`), il velo d'aiuto del Disegno (`4.61-02`), il tratteggio del tasto (`4.61-03`), il cursore della luminosità senza velo (`4.61-04`); l'appoggio ai bordi disegnando (`4.62-01`) e spostando (`4.62-02`), e la sua guida (`4.62-03`).
 - **Dopo**: la seconda parte della G2, cioè il menu a pressione lunga sull'elemento (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`) e le maniglie per ridimensionare; lo strumento Sfocatura; G3, il testo; la pillola.
 - **Concluso**: le cinque prove della 4.60 (`4.60-01..05`).
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
