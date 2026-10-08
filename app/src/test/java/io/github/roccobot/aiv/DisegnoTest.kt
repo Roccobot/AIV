@@ -1006,6 +1006,56 @@ class DisegnoTest {
     }
 
     /**
+     * **The module's command is 'Elimina tutto', and it empties the drawing and drops the choice**
+     * (4.64, his answer in chat: *Allora può restare, ma rinominalo in 'Elimina tutto'*). Until
+     * 4.63 it was called 'Azzera', the word of the bar's key that resets every module.
+     * ⚠️⚠️ **CONTROPROVATA** with the old string: the command is not found by its new name.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `Elimina tutto svuota il disegno e toglie la scelta`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        tocca(Offset(-70f, -70f))
+        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
+        elimina.assertIsEnabled()
+        banco.onNodeWithText(testo(R.string.editor_original)).assertDoesNotExist()
+        val tutto = banco.onNodeWithText(testo(R.string.draw_clear))
+        tutto.performClick()
+        banco.waitForIdle()
+        elimina.assertIsNotEnabled()
+        tutto.assertIsNotEnabled()
+    }
+
+    /**
+     * **Holding the Disegno chip empties the drawing and drops the choice too** (4.64). Until 4.63
+     * it emptied the drawing and left the choice on an element that was no longer there: 'Elimina'
+     * stayed lit, and the next element drawn was born chosen, so the module's parameters changed it.
+     * 'Elimina tutto' already dropped the choice, and with it kept the hold is the other way to the
+     * same result.
+     * ⚠️⚠️ **CONTROPROVATA** without the line that drops the choice: 'Elimina' stays lit after the
+     * hold.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `tenere il gettone del Disegno toglie anche la scelta`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        tocca(Offset(-70f, -70f))
+        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
+        elimina.assertIsEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.look_draw)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        elimina.assertIsNotEnabled()
+        trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
+        elimina.assertIsNotEnabled()
+    }
+
+    /**
      * **Con un elemento scelto, i parametri cambiano quell'elemento e non gli altri** (G2, `4.60`, sua
      * specifica: *i parametri (colore della linea, spessore, ecc.) cambiano quell'oggetto*).
      * ⚠️⚠️ **CONTROPROVATA** togliendo il passaggio dei parametri all'elemento scelto: il primo resta

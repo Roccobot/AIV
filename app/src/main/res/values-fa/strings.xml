@@ -224,6 +224,7 @@
     <string name="pick_move">جابجایی</string>
     <string name="pick_rename">تغییر نام</string>
     <string name="pick_delete">پاک کردن</string>
+    <string name="draw_clear">پاک کردن همه</string>
     <string name="pick_list">فهرست</string>
     <string name="pick_invert">وارونه</string>
     <string name="pick_all_short">همه</string>

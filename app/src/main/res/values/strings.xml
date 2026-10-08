@@ -639,6 +639,7 @@
     <string name="pick_duplicate">Duplicate</string>
     <string name="pick_rename">Rename</string>
     <string name="pick_delete">Delete</string>
+    <string name="draw_clear">Delete all</string>
     <string name="pick_list">List</string>
     <string name="pick_invert">Invert</string>
     <string name="pick_all_short">All</string>

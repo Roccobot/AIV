@@ -2539,7 +2539,7 @@ private fun LookStage(
             }
         }
 
-        if (leveling()) levelThirds(visto, room)
+        if (leveling()) levelThirds(visto, room, brushAccent)
 
         if (liquifying() || healing()) {
             val radius = (if (healing()) healingRadius() else brushRadius()) * max(view.width(), view.height())
@@ -2770,34 +2770,25 @@ private fun nearestCorner(at: Offset, spots: List<Offset>, reach: Float): Int {
  *
  * ⚠️ **The thirds are those of the image [image], drawn only where it is on screen** ([room]):
  * a zoomed image keeps its thirds where they are, and a line outside the stage helps nobody.
- * ⚠️⚠️ **Visible on any image means two strokes, not one colour**: a light line under a dark
- * halo. A colour picked from the image would serve one background, and a horizon line crosses
- * sky and ground, so it would vanish on half of its length. The reading is declared in the
- * test entry.
+ * ⚠️⚠️ **Since 4.64 they are the Disegno's guides** (his note in Altro on the 4.63 round: *in
+ * tutto e per tutto simili (come aspetto) alle guide dinamiche dei bordi del modulo Disegno*):
+ * [ink], the accent, [GUIDE_LINE] wide, with no halo. Until 4.63 they were a white line on a
+ * dark halo, a reading of 'always visible' that he has replaced.
  */
-private fun DrawScope.levelThirds(image: RectF, room: Size) {
+private fun DrawScope.levelThirds(image: RectF, room: Size, ink: Color) {
     val left = max(0f, image.left)
     val top = max(0f, image.top)
     val right = min(room.width, image.right)
     val bottom = min(room.height, image.bottom)
     if (right <= left || bottom <= top) return
-    val thin = LEVEL_LINE.toPx()
-    val halo = thin + 2f * LEVEL_HALO.toPx()
+    val g = GUIDE_LINE.toPx()
     for (i in 1..2) {
         val x = image.left + image.width() * i / 3f
         val y = image.top + image.height() * i / 3f
-        for ((ink, width) in listOf(Color.Black.copy(alpha = 0.45f) to halo, Color.White to thin)) {
-            if (x in left..right) drawLine(ink, Offset(x, top), Offset(x, bottom), width)
-            if (y in top..bottom) drawLine(ink, Offset(left, y), Offset(right, y), width)
-        }
+        if (x in left..right) drawLine(ink, Offset(x, top), Offset(x, bottom), g)
+        if (y in top..bottom) drawLine(ink, Offset(left, y), Offset(right, y), g)
     }
 }
-
-/** The light stroke of [levelThirds]. */
-private val LEVEL_LINE = 1.dp
-
-/** How far the dark halo of [levelThirds] reaches on each side of the light stroke. */
-private val LEVEL_HALO = 1.dp
 
 /**
  * Il velo, il riquadro che resterà e le quattro maniglie dello strumento 'Angoli'.
@@ -4666,6 +4657,10 @@ private fun LookSheet(
                                     gaze.selection = Healing.Selection.NONE
                                     gaze.healingFailed = false
                                 }
+                                // ⚠️ The drawing empties, so no element is chosen any more: as with
+                                // 'Elimina tutto'. Until 4.63 the choice stayed on an index that no
+                                // longer existed, and the next element drawn was born chosen.
+                                if (mod.extra == Extra.DRAW) gaze.picked = null
                                 onLive(mod.clear)
                                 onSettled()
                             },
@@ -5021,9 +5016,12 @@ private fun Comandi(
 
 /**
  * Il corpo del modulo **Disegno**, dalla `4.40`: i cinque strumenti di disegno, il bersaglio (contorno o
- * riempimento), i colori, lo spessore o l'opacità, il tratteggio e 'Azzera'.
+ * riempimento), i colori, lo spessore o l'opacità, il tratteggio ed 'Elimina tutto'.
+ * ⚠️ **'Elimina tutto' si chiamava 'Azzera' fino alla `4.63`** (sua risposta in chat del
+ * 2026-10-08: *Allora può restare, ma rinominalo in 'Elimina tutto'*): era la parola del tasto
+ * della barra in fondo, che azzera tutti i moduli e non il solo disegno.
  *
- * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': strumento, colori e tratto sono lo
+ * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Elimina tutto': strumento, colori e tratto sono lo
  * strumento, e lo strumento non entra nella storia. Un elemento nuovo li prende al momento in cui
  * il dito si posa (`Gaze.penMark`), quindi cambiarli non tocca gli elementi già fatti.
  * ⚠️⚠️ **IL RIEMPIMENTO HA COLORE E OPACITÀ SUOI**, ed è la sua precisazione arrivata a G1 in
@@ -5359,7 +5357,7 @@ private fun DrawBody(
             },
             enabled = live && !look.drawing.idle,
             contentPadding = PaddingValues(horizontal = 4.dp)
-        ) { Text(stringResource(R.string.editor_original)) }
+        ) { Text(stringResource(R.string.draw_clear)) }
     }
     when (bersaglio) {
         DrawTarget.STROKE -> Slider(

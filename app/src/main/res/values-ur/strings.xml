@@ -224,6 +224,7 @@
     <string name="pick_move">منتقل کریں</string>
     <string name="pick_rename">نام بدلیں</string>
     <string name="pick_delete">مٹائیں</string>
+    <string name="draw_clear">سب مٹائیں</string>
     <string name="pick_list">فہرست</string>
     <string name="pick_invert">الٹیں</string>
     <string name="pick_all_short">سب</string>

@@ -224,6 +224,7 @@
     <string name="pick_move">সরান</string>
     <string name="pick_rename">নাম বদলান</string>
     <string name="pick_delete">মুছুন</string>
+    <string name="draw_clear">সব মুছুন</string>
     <string name="pick_list">তালিকা</string>
     <string name="pick_invert">উল্টান</string>
     <string name="pick_all_short">সব</string>

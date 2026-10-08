@@ -453,6 +453,7 @@
     <string name="pick_move">Sposta</string>
     <string name="pick_rename">Rinomina</string>
     <string name="pick_delete">Elimina</string>
+    <string name="draw_clear">Elimina tutto</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Inverti</string>
     <string name="pick_all_short">Tutti</string>

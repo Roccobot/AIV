@@ -502,14 +502,15 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   orizzontali, e spariscono quando il cursore si lascia (nota E del giro della `4.36`, dalla
   `4.37`). Sono i terzi del riquadro dell'immagine, disegnati dove l'immagine è sullo schermo
   (`levelThirds`), e a dirlo è l'identità della riga (`STRAIGHTEN_ROW`).
-  - ⚠️ **'Sempre visibili' è letto come due tratti e non come un colore**: una linea chiara su un
-    alone scuro. Un colore scelto dall'immagine servirebbe un fondo solo, e la linea
-    dell'orizzonte attraversa cielo e terra. La lettura è dichiarata nella voce di collaudo.
+  - ⚠️⚠️ **Dalla `4.64` hanno l'aspetto delle guide del Disegno** (sua nota in Altro sul giro della
+    `4.63`: *in tutto e per tutto simili (come aspetto) alle guide dinamiche dei bordi del modulo
+    Disegno*): il solo accento, larghe 1 dp (`GUIDE_LINE`), senza alone. Fino alla `4.63` erano
+    una linea chiara su un alone scuro, la lettura di 'sempre visibili' che lui ha sostituito.
   - ⚠️ **Toccando la barra senza strisciare le linee restano per il tempo del doppio tocco**
     (circa 0,3 secondi): il cursore aspetta di sapere se i tocchi erano due prima di chiudere il
     gesto.
   - La prova è in `SviluppoTest`, sui due fotogrammi con lo stesso valore, col dito giù e dopo il
-    rilascio.
+    rilascio; dalla `4.64` misura anche il colore e lo spessore delle linee (`verificaGuide`).
 - **Il colore mirato passa dalla mappatura inversa** (`WarpPlan.back`), perché il dito tocca
   l'immagine deformata.
 - ⚠️ **Col modulo mosso il pezzo a piena risoluzione non si legge**, e si dichiara.
@@ -626,7 +627,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - **La G1 ha cinque strumenti di disegno** (si chiamano così, sua correzione del 2026-10-07; nel
   codice resta `Pen`): mano libera, linea, freccia, rettangolo arrotondato ed ellisse; otto
   colori fissi, lo spessore, il tratteggio, il riempimento (solo per rettangolo ed ellisse) e
-  'Azzera'. Il rettangolo e la freccia sono i due strumenti principali (sua precisazione). Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
+  'Azzera', che dalla `4.64` si chiama `Elimina tutto`. Il rettangolo e la freccia sono i due strumenti principali (sua precisazione). Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
   capi del trascinamento sono due vertici opposti. Un tocco senza movimento lascia un punto con la
   mano libera, e niente con gli altri strumenti. Ogni elemento è un passo di 'Annulla'.
 - ⚠️⚠️ **I punti vivono nella cornice ORIGINALE dell'immagine, in frazioni dei lati**, come la
@@ -806,6 +807,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     la Geometria accesa porta a filo gli angoli dell'elemento;
   - scelte della sessione, dichiarate nella voce di collaudo: i 12 dp, e il primo tocco che deve
     ancora cadere dentro l'immagine.
+- **Dalla `4.64` 'Azzera' si chiama `Elimina tutto`** (sua risposta in chat del 2026-10-08:
+  *Allora può restare, ma rinominalo in 'Elimina tutto'*): svuota il disegno, mentre il tasto in
+  fondo azzera tutti i moduli, e la parola era la stessa. La pressione lunga sul gettone del
+  Disegno fa lo stesso lavoro e, come lui, toglie la scelta dell'elemento: fino alla `4.63` la
+  scelta restava su un elemento che non c'era più, `Elimina` restava acceso, e l'elemento
+  disegnato dopo nasceva scelto. La chiave è nuova (`draw_clear`), perché `editor_original`
+  resta agli altri 'Azzera'.
 - **La seconda parte della G2**: un menu a pressione lunga sull'elemento, con sei icone su 3x2
   (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`; sua nota E sul giro
   della `4.60`), e le maniglie per ridimensionare. Da chiedergli prima: dove si incolla un elemento

@@ -224,6 +224,7 @@
     <string name="pick_move">Pindahkan</string>
     <string name="pick_rename">Ganti nama</string>
     <string name="pick_delete">Hapus</string>
+    <string name="draw_clear">Hapus semua</string>
     <string name="pick_list">Daftar</string>
     <string name="pick_invert">Balik</string>
     <string name="pick_all_short">Semua</string>

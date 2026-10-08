@@ -61,6 +61,7 @@
     <string name="search_hint">Procurar no nome do ficheiro</string>
     <string name="grid_item_last">Item %1$d de %2$d, o último que viu</string>
     <string name="pick_delete">Eliminar</string>
+    <string name="draw_clear">Eliminar tudo</string>
     <string name="facts_name">Nome do ficheiro</string>
     <string name="facts_kind">Tipo de ficheiro</string>
     <string name="rename_hint">Cada sequência de cardinais torna-se o número, e quantos escrever, tantos dígitos ele terá: ## dá 01, ### dá 001. A extensão nunca é tocada, e os ficheiros são numerados por ordem alfabética.</string>

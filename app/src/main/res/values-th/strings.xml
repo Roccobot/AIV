@@ -224,6 +224,7 @@
     <string name="pick_move">ย้าย</string>
     <string name="pick_rename">เปลี่ยนชื่อ</string>
     <string name="pick_delete">ลบ</string>
+    <string name="draw_clear">ลบทั้งหมด</string>
     <string name="pick_list">รายชื่อ</string>
     <string name="pick_invert">สลับ</string>
     <string name="pick_all_short">ทั้งหมด</string>

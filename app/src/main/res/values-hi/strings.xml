@@ -224,6 +224,7 @@
     <string name="pick_move">ले जाएँ</string>
     <string name="pick_rename">नाम बदलें</string>
     <string name="pick_delete">मिटाएँ</string>
+    <string name="draw_clear">सब मिटाएँ</string>
     <string name="pick_list">सूची</string>
     <string name="pick_invert">उलटें</string>
     <string name="pick_all_short">सभी</string>
