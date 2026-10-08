@@ -3144,7 +3144,7 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
             difetto = MOD_KEYS,
             columns = MOD_KEYS.size,
             labels = false,
-            onOrder = { onChange(settings.copy(modOrder = it)) }
+            onOrder = { onChange(settings.copy(modOrder = stylesLast(it))) }
         )
     }
 }

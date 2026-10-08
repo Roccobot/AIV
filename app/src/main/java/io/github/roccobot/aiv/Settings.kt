@@ -1233,27 +1233,38 @@ val MOD_KEYS = listOf(
     PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
     PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX,
     /*
-     * ⚠️ **Le Curve sono penultime dalla `2.55`**, e fino alla `2.54` erano seconde: è la stessa
-     * istruzione che ha portato gli Effetti al loro posto, cioè uno scambio e non due traslochi.
+     * ⚠️ **Le Curve vengono dopo l'HSL dalla `2.55`**, e fino alla `2.54` erano seconde: è la
+     * stessa istruzione che ha portato gli Effetti al loro posto, cioè uno scambio e non due
+     * traslochi.
      */
     PadKey.MOD_TONE,
+    /*
+     * ⚠️ **Il Disegno è penultimo dalla `4.50`**, e dalla `4.40` era l'ultimo (sua nota D sul giro
+     * della `4.36`: *a destra, in fondo, ultimo modulo*): dopo di lui vengono gli Stili, che sono
+     * sempre in fondo (vedi [stylesLast]).
+     */
+    PadKey.MOD_DRAW,
     /*
      * ⚠️⚠️ **L'OTTAVO ARRIVA IN CODA CON LA `2.50`, E SUL SUO SCHERMO SARÀ L'UNICO DA
      * RAGGIUNGERE SCORRENDO** (campo libero del giro della `2.40`: *nel mio caso, con il mio
      * schermo, sarà l'unico a richiedere uno scorrimento a destra, ma va benissimo così*). Fino
      * alla `2.40` gli stili erano un pannello che si apriva da un'icona in fondo alla scheda.
-     * ⚠️ **Chi ha già riordinato la fila se lo ritrova lo stesso**, e in coda: `padOrderOf` infila
-     * un tasto nuovo subito dopo l'ultimo dei suoi predecessori già in scena, che qui è l'ultimo
-     * dell'ordine scelto.
+     * ⚠️ **Dalla `4.50` resta in coda anche a chi ha riordinato la fila**: lo fa [stylesLast].
      */
-    PadKey.MOD_PRESET,
-    /*
-     * ⚠️ **The Disegno module is last, from 4.40** (his note D on the 4.36 round: *a destra, in
-     * fondo, ultimo modulo*). Who already reordered the row finds it at the end too, for the same
-     * reason as the styles above.
-     */
-    PadKey.MOD_DRAW
+    PadKey.MOD_PRESET
 )
+
+/**
+ * L'ordine dei moduli con gli Stili in fondo, qualunque sia quello salvato.
+ *
+ * ⚠️⚠️ **GLI STILI SONO SEMPRE L'ULTIMO MODULO A DESTRA, DALLA `4.50`** (sua nota E sul giro della
+ * `4.49`: *Il modulo Stili dev'essere sempre l'ultimo a destra*). 'Sempre' vale anche per chi ha
+ * già riordinato la fila, dove la `4.40` aveva messo il Disegno dopo di loro, e per il riquadro
+ * delle impostazioni: un gettone degli Stili trascinato altrove torna in fondo.
+ * ⚠️ Un modulo che nascerà entra prima di loro da sé, perché `padOrderOf` lo infila dove
+ * [MOD_KEYS] lo mette e questa funzione sposta solo gli Stili.
+ */
+fun stylesLast(order: List<PadKey>): List<PadKey> = order.sortedBy { it == PadKey.MOD_PRESET }
 
 /**
  * Rilegge un ordine salvato, tollerando tutto quello che un archivio può avere di storto.
@@ -1707,7 +1718,7 @@ object SettingsStore {
             pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
             turnOrder = padOrderOf((p[TURN_ORDER] ?: "").split(','), TURN_KEYS),
             stepOrder = padOrderOf((p[STEP_ORDER] ?: "").split(','), STEP_KEYS),
-            modOrder = padOrderOf((p[MOD_ORDER] ?: "").split(','), MOD_KEYS),
+            modOrder = stylesLast(padOrderOf((p[MOD_ORDER] ?: "").split(','), MOD_KEYS)),
             padLabels = p[PAD_LABELS] ?: true,
             /*
              * ⚠️ **Il ripiego è il valore di fabbrica dichiarato**, e in pratica non si usa mai:

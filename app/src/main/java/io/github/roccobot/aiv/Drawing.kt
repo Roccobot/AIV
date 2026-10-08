@@ -100,10 +100,24 @@ internal object Draw {
     const val WIDTH_MAX = 0.03f
 
     /**
-     * The factory width: the slider at 60% of its travel (his values of 2026-10-07, after the
-     * 4.41 round). Until 4.41 it was 0.004, near the bottom of the slider, and he found it thin.
+     * The factory width: the slider at 40% of its travel since 4.50 (his note A on the 4.49 round:
+     * *spessore con slider al 40%*). It was 60% from 4.42, and 0.004 before, near the bottom.
      */
-    const val WIDTH = WIDTH_MIN + 0.6f * (WIDTH_MAX - WIDTH_MIN)
+    const val WIDTH = WIDTH_MIN + 0.4f * (WIDTH_MAX - WIDTH_MIN)
+
+    /**
+     * The factory light of the stroke: its slider at 25% of the travel, so -0.5 on -1..1 (note A:
+     * *luminosità con slider al 25%*). ⚠️ A reading declared in the test item: 'slider al X%' is a
+     * place on the travel, as for the width. It holds for the factory red only: a tap on a swatch
+     * gives that swatch its own colour, by his rule of `4.45-02`.
+     */
+    const val INK_LIGHT = -0.5f
+
+    /**
+     * The factory opacity of the stroke: its slider (0.1 to 1) at 50% of the travel (note A:
+     * *opacità con slider al 50%*), the same reading.
+     */
+    const val INK_ALPHA = 0.1f + 0.5f * (1f - 0.1f)
 
     /**
      * The factory ink of the stroke, the first swatch: `#FFFF4C3F` (his palette of 4.44, answer

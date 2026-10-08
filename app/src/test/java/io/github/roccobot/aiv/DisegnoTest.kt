@@ -15,6 +15,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.down
@@ -33,6 +34,8 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.up
+import androidx.datastore.preferences.core.mutablePreferencesOf
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -140,17 +143,31 @@ class DisegnoTest {
     }
 
     /**
-     * **Il modulo è l'ultimo della fila, a destra degli Stili.**
-     *
-     * ⚠️ È la sua nota D del giro della `4.34`.
+     * **Gli Stili sono sempre l'ultimo modulo a destra, subito dopo il Disegno** (sua nota E sul
+     * giro della `4.49`; fino alla `4.49` il Disegno era dopo gli Stili, sua nota D del giro della
+     * `4.34`), anche in un ordine salvato che li mette altrove: quello di fabbrica della `4.49`, e
+     * uno riordinato a mano con gli Stili in testa.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: rimettendo il Disegno in fondo alle due tabelle (la fila
+     * mostra gli Stili prima), e togliendo `stylesLast` dalla lettura dell'archivio.
      */
     @Test
-    fun `il Disegno e l'ultimo modulo della fila`() {
+    fun `gli Stili sono sempre l'ultimo modulo a destra`() {
+        val altri = MOD_KEYS - PadKey.MOD_PRESET - PadKey.MOD_DRAW
+        for (salvato in listOf(
+            altri + PadKey.MOD_PRESET + PadKey.MOD_DRAW,
+            listOf(PadKey.MOD_PRESET) + altri + PadKey.MOD_DRAW
+        )) {
+            val letto = SettingsStore.read(
+                mutablePreferencesOf(stringPreferencesKey("mod-order") to salvato.joinToString(",") { it.token })
+            ).modOrder
+            assertEquals("gli Stili dovevano tornare in fondo a ${salvato.map { it.token }}",
+                altri + PadKey.MOD_DRAW + PadKey.MOD_PRESET, letto)
+        }
         banco.setContent { Scena() }
         pronta()
         val disegno = banco.onNodeWithContentDescription(testo(R.string.look_draw)).getUnclippedBoundsInRoot()
         val stili = banco.onNodeWithContentDescription(testo(R.string.look_presets)).getUnclippedBoundsInRoot()
-        assertTrue("il Disegno doveva venire dopo gli Stili", disegno.left > stili.left)
+        assertTrue("gli Stili dovevano venire dopo il Disegno", stili.left > disegno.left)
     }
 
     /**
@@ -168,6 +185,7 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        // ⚠️ Dashed is on at the factory since 4.50, so the touch turns it off.
         banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).performClick()
         banco.waitForIdle()
         trascina()
@@ -183,8 +201,8 @@ class DisegnoTest {
         assertEquals("il rettangolo vive di due vertici opposti", 2, segno.points.size)
         assertTrue("il secondo vertice doveva seguire il dito", segno.points[1].x > segno.points[0].x)
         assertTrue("il secondo vertice doveva seguire il dito", segno.points[1].y > segno.points[0].y)
-        assertEquals("il colore scelto", Draw.INKS[3], segno.ink)
-        assertTrue("il tratteggio scelto", segno.dashed)
+        assertEquals("il colore scelto, all'opacità di fabbrica", Draw.withAlpha(Draw.INKS[3], Draw.INK_ALPHA), segno.ink)
+        assertFalse("il tratteggio spento", segno.dashed)
     }
 
     /**
@@ -220,17 +238,21 @@ class DisegnoTest {
         banco.waitForIdle()
         val segni = salvato!!.drawing.marks
         assertEquals(2, segni.size)
-        assertEquals("il bordo resta rosso", Draw.INKS[0], segni[0].ink)
+        assertEquals("il bordo resta rosso", Draw.withAlpha(Draw.INKS[0], Draw.INK_ALPHA), segni[0].ink)
         assertEquals("il riempimento bianco al 50%", 0x80FFFFFF.toInt(), segni[0].fill)
         assertEquals(Pen.ARROW, segni[1].pen)
         assertEquals("la freccia ignora il riempimento", null, segni[1].fill)
     }
 
     /**
-     * **I valori di fabbrica sono i suoi** (2026-10-07, dopo il giro della `4.41`): spessore al 60%
-     * della corsa del cursore; dalla `4.44` (risposte `D1` e `D2`) tratto `#FFFF4C3F` e riempimento
-     * delle forme `#33FFBF00`. La freccia nasce senza riempimento.
-     * ⚠️⚠️ **CONTROPROVATA** rimettendo i valori della `4.41` (spessore 0,004, nessun riempimento).
+     * **I valori di fabbrica sono i suoi** (sua nota A sul giro della `4.49`): rettangolo
+     * arrotondato con la linea tratteggiata, traccia rossa con la luminosità al 25% della corsa,
+     * l'opacità al 50% e lo spessore al 40%; il riempimento resta l'ambra al 20% della `4.44`
+     * (risposta `D2`), e la freccia nasce senza.
+     * ⚠️ 'Cursore al X%' si legge come un posto sulla corsa: è la lettura dichiarata nella voce di
+     * collaudo.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo i valori della `4.49` (mano libera senza tratteggio,
+     * luminosità e opacità di base, spessore al 60%).
      */
     @Test
     fun `i valori di fabbrica sono i suoi`() {
@@ -238,12 +260,13 @@ class DisegnoTest {
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
         apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).assertIsSelected()
+        banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).assertIsOn()
+        assertEquals("l'opacità doveva partire dal 50% della corsa", 0.5f, (valore() - 0.1f) / 0.9f, 1e-3f)
         banco.onNodeWithContentDescription(testo(R.string.draw_width)).performClick()
         banco.waitForIdle()
-        assertEquals("il cursore doveva partire dal 60% della corsa", 0.6f,
+        assertEquals("lo spessore doveva partire dal 40% della corsa", 0.4f,
             (valore() - Draw.WIDTH_MIN) / (Draw.WIDTH_MAX - Draw.WIDTH_MIN), 1e-3f)
-        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
-        banco.waitForIdle()
         trascina()
         banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
         banco.waitForIdle()
@@ -251,16 +274,31 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         val (rettangolo, freccia) = salvato!!.drawing.marks
-        assertEquals("il tratto di fabbrica", 0xFFFF4C3F.toInt(), rettangolo.ink)
-        assertEquals("lo spessore di fabbrica", Draw.WIDTH_MIN + 0.6f * (Draw.WIDTH_MAX - Draw.WIDTH_MIN), rettangolo.width, 1e-5f)
+        assertEquals(Pen.RECT, rettangolo.pen)
+        assertTrue("il tratteggio di fabbrica", rettangolo.dashed)
+        assertEquals("il tratto di fabbrica", Draw.withAlpha(Draw.lit(0xFFFF4C3F.toInt(), -0.5f), 0.55f), rettangolo.ink)
+        assertEquals("lo spessore di fabbrica", Draw.WIDTH_MIN + 0.4f * (Draw.WIDTH_MAX - Draw.WIDTH_MIN), rettangolo.width, 1e-5f)
         assertEquals("il riempimento di fabbrica", 0x33FFBF00, rettangolo.fill)
         assertEquals("la freccia nasce senza riempimento", null, freccia.fill)
         assertEquals("la freccia ha lo stesso tratto", rettangolo.ink, freccia.ink)
     }
 
-    private fun valore(): Float =
-        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0].fetchSemanticsNode()
-            .config[androidx.compose.ui.semantics.SemanticsProperties.ProgressBarRangeInfo].current
+    /** Il valore del cursore in fondo alla scheda, o con [luce] quello della luminosità. */
+    private fun valore(luce: Boolean = false): Float =
+        (if (luce) banco.onNode(cursoreLuce()) else banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0])
+            .fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.ProgressBarRangeInfo].current
+
+    private fun cursoreLuce() = SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress) and
+        SemanticsMatcher.expectValue(
+            androidx.compose.ui.semantics.SemanticsProperties.ContentDescription, listOf(testo(R.string.draw_light))
+        )
+
+    /** Porta l'opacità della traccia al pieno, dove una prova guarda i colori puri. */
+    private fun opacitaPiena() {
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
+        banco.waitForIdle()
+    }
 
     /** **Il riempimento si dipinge con la sua opacità, sotto il contorno.** */
     @Test
@@ -290,7 +328,7 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         assertEquals("dopo 'Annulla' doveva restare il primo segno", 1, salvato!!.drawing.marks.size)
-        assertEquals(Pen.FREE, salvato!!.drawing.marks.single().pen)
+        assertEquals(Pen.RECT, salvato!!.drawing.marks.single().pen)
     }
 
     /**
@@ -304,6 +342,10 @@ class DisegnoTest {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).assertIsSelected()
+        banco.onNodeWithContentDescription(testo(R.string.draw_filled)).assertIsEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
+        banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.draw_filled)).assertIsNotEnabled()
         banco.onNodeWithContentDescription(testo(R.string.draw_ellipse)).performClick()
         banco.waitForIdle()
@@ -314,21 +356,25 @@ class DisegnoTest {
     }
 
     /**
-     * **Mentre il dito tiene 'Spessore', la punta si vede nella sua misura vera** (R1 del giro della
-     * `4.40`): un tondo pieno del colore della linea, in basso a destra sull'immagine, che sparisce
-     * quando il dito si alza.
-     * ⚠️⚠️ **CONTROPROVATA** spegnendo il tondo nel palco: i pixel del colore della linea restano
-     * zero col dito sul cursore.
+     * **Mentre il dito tiene 'Spessore', l'anteprima è una lineetta curva alla sua misura vera**
+     * (R1 del giro della `4.40`; curva dalla `4.50`, sua nota D sul giro della `4.49`: *una
+     * lineetta curva, non un punto*), del colore della linea, in basso a destra sull'immagine, e
+     * sparisce quando il dito si alza.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: spegnendo l'anteprima nel palco (i pixel del colore della
+     * linea restano zero col dito sul cursore), e rimettendo il tondo pieno della `4.49` (il segno
+     * è largo quanto alto).
      * ⚠️ **Su uno schermo da telefono e non su quello di serie del banco**: là il palco è alto 40
-     * pixel e l'immagine 30, quindi la punta vera misura meno di un pixel e non si distingue da
-     * niente.
+     * pixel e l'immagine 30, quindi l'anteprima vera misura meno di un pixel.
+     * ⚠️ Rosso e opacità piena, perché la prova cerca il colore puro.
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `tenendo Spessore si vede la punta piena del colore della linea`() {
+    fun `tenendo Spessore si vede una lineetta curva del colore della linea`() {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        opacitaPiena()
         banco.onNodeWithContentDescription(testo(R.string.draw_width)).performClick()
         banco.waitForIdle()
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -341,11 +387,13 @@ class DisegnoTest {
         banco.waitForIdle()
         val lasciato = palco.captureToImage().toPixelMap()
         val rosso = androidx.compose.ui.graphics.Color(Draw.INKS[0])
-        assertTrue("col dito sul cursore la punta rossa doveva vedersi", inchiostro(tenuto, rosso) > 20)
-        assertEquals("a dito alzato la punta doveva sparire", 0, inchiostro(lasciato, rosso))
+        assertTrue("col dito sul cursore l'anteprima rossa doveva vedersi", inchiostro(tenuto, rosso) > 20)
+        assertEquals("a dito alzato l'anteprima doveva sparire", 0, inchiostro(lasciato, rosso))
         val (cx, cy) = centro(tenuto, rosso)
-        assertTrue("la punta doveva stare a destra", cx > tenuto.width / 2)
-        assertTrue("la punta doveva stare in basso", cy > tenuto.height / 2)
+        assertTrue("l'anteprima doveva stare a destra", cx > tenuto.width / 2)
+        assertTrue("l'anteprima doveva stare in basso", cy > tenuto.height / 2)
+        val (largo, alto) = ingombro(tenuto, rosso)
+        assertTrue("l'anteprima doveva essere una lineetta, più larga che alta: $largo per $alto", largo > alto * 2)
     }
 
     /**
@@ -397,6 +445,9 @@ class DisegnoTest {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
+        // ⚠️ The pure red at full opacity: since 4.50 the factory stroke is darker and at 55%.
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        opacitaPiena()
         val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
         val blu = androidx.compose.ui.graphics.Color(Draw.INKS[3])
         val prima = banco.onNodeWithContentDescription(testo(R.string.draw_outline)).captureToImage().toPixelMap()
@@ -462,14 +513,16 @@ class DisegnoTest {
     }
 
     /**
-     * **Il cursore della luminosità compare sopra la fila dei tondi, più corto di lei e staccato dai
-     * due lati** (sua nota su `4.47-03`: *altrimenti il dito lo copre*).
-     * ⚠️ Le posizioni si leggono sullo schermo, perché il cursore vive nella finestra del menu.
-     * ⚠️⚠️ **CONTROPROVATA** due volte: col cursore sotto la fila (`AFTER_ANCHOR`, com'era nella
-     * `4.47`) e largo quanto lei.
+     * **Il cursore della luminosità si apre sopra la fila dei tondi e la copre**, largo quanto lei
+     * (sua nota su `4.49-02`: *come un livello sovrapposto a coprirli*), con l'anteprima a lato.
+     * ⚠️ Le posizioni si leggono sullo schermo, perché il cursore vive nella finestra del menu. Il
+     * pannello non è un nodo: se ne misura il cursore, che ne occupa la parte dopo l'anteprima.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: col cursore aperto sotto la fila, e più corto di 24dp per
+     * lato come nella `4.49`. La prima volta cade la misura del centro, la seconda quella del lato
+     * destro.
      */
     @Test
-    fun `il cursore della luminosita compare sopra i tondi, piu corto della fila`() {
+    fun `il cursore della luminosita copre la fila dei tondi`() {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
@@ -479,20 +532,89 @@ class DisegnoTest {
         assertEquals("tenuto il tondo, il cursore doveva restare", 1, luci())
         val tondo = rosso.fetchSemanticsNode()
         val nero = banco.onNodeWithContentDescription(testo(R.string.ink_black)).fetchSemanticsNode()
-        val cursore = banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress) and
-            SemanticsMatcher.expectValue(
-                androidx.compose.ui.semantics.SemanticsProperties.ContentDescription, listOf(testo(R.string.draw_light))
-            )).fetchSemanticsNode()
-        val alto = tondo.positionOnScreen.y
-        val fondo = cursore.positionOnScreen.y + cursore.size.height
-        assertTrue("il cursore doveva finire sopra i tondi: fondo $fondo, tondi da $alto", fondo <= alto)
-        // The row of swatches runs from the 'none' place to the black swatch: the slider's panel
-        // starts right of the first swatch's left edge and ends left of the black one's right edge.
-        val sinistra = tondo.positionOnScreen.x - tondo.size.width
+        val cursore = banco.onNode(cursoreLuce()).fetchSemanticsNode()
+        val mezzoTondi = tondo.positionOnScreen.y + tondo.size.height / 2f
+        val mezzoCursore = cursore.positionOnScreen.y + cursore.size.height / 2f
+        assertEquals("il cursore doveva avere il centro sulla fila dei tondi", mezzoTondi, mezzoCursore, 2f)
+        // The panel runs as wide as the row: its padding (12dp) is all that stays between the end
+        // of the slider and the black swatch's right edge, which closes the row.
         val destra = nero.positionOnScreen.x + nero.size.width
-        assertTrue("il cursore doveva staccarsi dal lato sinistro", cursore.positionOnScreen.x > sinistra + 16)
-        assertTrue("il cursore doveva staccarsi dal lato destro",
-            cursore.positionOnScreen.x + cursore.size.width < destra - 16)
+        val fine = cursore.positionOnScreen.x + cursore.size.width
+        assertTrue("il cursore doveva arrivare in fondo alla fila: finisce a $fine, la fila a $destra", fine > destra - 16)
+        assertTrue("il cursore doveva cominciare dopo l'anteprima, a lato",
+            cursore.positionOnScreen.x > tondo.positionOnScreen.x - tondo.size.width)
+    }
+
+    /**
+     * **Il pollice va sotto il dito: la luminosità è il posto del dito sul cursore** (sua nota C
+     * sul giro della `4.49`: *Lo slider pare seguire il dito solo verso un lato*). Dal tondo rosso,
+     * che è il secondo da sinistra, il dito va a un quarto e a tre quarti della corsa, e poi oltre
+     * il bordo sinistro dello schermo, dove la luminosità tocca il fondo.
+     * ⚠️ Il gesto parte dal tondo e il cursore vive in un'altra finestra: i posti si convertono
+     * dallo schermo alle coordinate del tondo, che sono quelle del gesto.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il conto della `4.49` (lo spostamento del dito aggiunto alla
+     * luminosità di partenza): a un quarto della corsa il valore non è -0,5.
+     */
+    @Test
+    fun `il pollice della luminosita va sotto il dito`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val rosso = banco.onNodeWithContentDescription(testo(R.string.ink_red))
+        val da = rosso.fetchSemanticsNode().positionOnScreen
+        rosso.performTouchInput { down(center) }
+        rosso.performTouchInput { advanceEventTime(viewConfiguration.longPressTimeoutMillis + 100); moveBy(Offset(1f, 0f)) }
+        banco.waitForIdle()
+        assertEquals("tenuto il tondo, il cursore della luminosità doveva comparire", 1, luci())
+        val pista = banco.onNode(cursoreLuce()).fetchSemanticsNode()
+        fun a(frazione: Float) {
+            val x = pista.positionOnScreen.x + pista.size.width * frazione - da.x
+            rosso.performTouchInput { moveTo(Offset(x, center.y)) }
+            banco.waitForIdle()
+        }
+        a(0.25f)
+        assertEquals("a un quarto della corsa la luminosità è -0,5", -0.5f, valore(luce = true), 0.05f)
+        a(0.75f)
+        assertEquals("a tre quarti della corsa la luminosità è 0,5", 0.5f, valore(luce = true), 0.05f)
+        rosso.performTouchInput { moveTo(Offset(-da.x - 4f, center.y)) }
+        banco.waitForIdle()
+        assertEquals("oltre il bordo sinistro la luminosità tocca il fondo", -1f, valore(luce = true), 1e-4f)
+        rosso.performTouchInput { up() }
+        banco.waitForIdle()
+        assertEquals("allo stacco il cursore doveva chiudersi", 0, luci())
+    }
+
+    /**
+     * **I tondi svaniscono mentre una superficie si apre sopra l'editor** (sua nota F sul giro della
+     * `4.49`: sotto la sfocatura i loro colori pieni sbordavano da 'Vuoi scartare le modifiche?').
+     * ⚠️⚠️ **Il velo si chiede da qui, e non aprendo un menu**: il cursore della luminosità copre la
+     * fila, quindi una cattura non distinguerebbe un tondo svanito da uno coperto. E il velo dipinto
+     * scurisce tutta l'app, quindi il tondo si confronta col fondo che gli sta intorno, scurito allo
+     * stesso modo: svanito, al centro del tondo c'è quel fondo.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo l'opacità che segue il velo dalla fila dei tondi: al centro
+     * resta il blu.
+     */
+    @Test
+    fun `i tondi svaniscono sotto una superficie aperta`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val tondo = banco.onNodeWithContentDescription(testo(R.string.ink_blue))
+        fun pieno(): Boolean {
+            val mappa = tondo.captureToImage().toPixelMap()
+            return !vicino(mappa[mappa.width / 2, mappa.height / 2], mappa[1, 1])
+        }
+        assertTrue("prima il tondo blu doveva vedersi sul fondo", pieno())
+        val chi = Any()
+        try {
+            VeilStage.at(chi, VEIL_DOSE, VEIL_DOSE, androidx.compose.ui.graphics.Color.Black)
+            banco.waitForIdle()
+            assertFalse("sotto il velo il tondo blu doveva svanire nel fondo", pieno())
+        } finally {
+            VeilStage.off(chi)
+        }
+        banco.waitForIdle()
+        assertTrue("tolto il velo il tondo doveva tornare", pieno())
     }
 
     /**
@@ -553,7 +675,7 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.draw_outline)).assertIsSelected()
-        assertEquals("con Traccia il cursore è l'opacità, piena di fabbrica", 1f, valore(), 1e-4f)
+        assertEquals("con Traccia il cursore è l'opacità, quella di fabbrica", Draw.INK_ALPHA, valore(), 1e-4f)
         banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
             .performSemanticsAction(SemanticsActions.SetProgress) { it(0.5f) }
         banco.onNodeWithContentDescription(testo(R.string.draw_width)).performClick()
@@ -592,15 +714,22 @@ class DisegnoTest {
     }
 
     /**
-     * **Il tasto Spessore disegna una linea del colore della traccia, più spessa col cursore**
-     * (sua nota su `4.45-02`).
-     * ⚠️⚠️ **CONTROPROVATA** disegnando la linea del tasto con uno spessore fisso.
+     * **La linea del tasto Spessore è spessa quanto il tratto sullo schermo**, cioè quanto la
+     * lineetta dell'anteprima (sua nota su `4.49-01`), e alle misure più piccole resta di 2dp.
+     * Lo spessore si misura sulla colonna di mezzo del tasto, e su quella dell'anteprima a un
+     * decimo della sua larghezza, dove la curva è quasi orizzontale.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo la linea della `4.49`, che andava da 2 a 16dp lungo il
+     * cursore: al massimo è più spessa del tratto vero.
+     * ⚠️ Su uno schermo da telefono, per la ragione scritta sulla prova dell'anteprima.
      */
     @Test
-    fun `il tasto Spessore ingrossa la sua linea col cursore`() {
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `il tasto Spessore e spesso quanto il tratto`() {
         banco.setContent { Scena() }
         pronta()
         apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        opacitaPiena()
         val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_width))
         tasto.performClick()
@@ -608,12 +737,21 @@ class DisegnoTest {
         val cursore = banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
         cursore.performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.WIDTH_MIN) }
         banco.waitForIdle()
-        val sottile = inchiostro(tasto.captureToImage().toPixelMap(), rosso)
-        cursore.performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.WIDTH_MAX) }
+        assertEquals("alle misure più piccole la linea resta di 2dp", 2f, colonna(tasto.captureToImage().toPixelMap()).toFloat(), 1f)
+        // The finger holds the slider near its end, so the stage shows the preview, thick.
+        cursore.performTouchInput { down(Offset(width * 0.9f, height / 2f)) }
+        cursore.performTouchInput { moveTo(Offset(width - 1f, height / 2f)) }
         banco.waitForIdle()
-        val grossa = inchiostro(tasto.captureToImage().toPixelMap(), rosso)
-        assertTrue("la linea doveva vedersi anche sottile", sottile > 0)
-        assertTrue("la linea doveva ingrossarsi: $sottile poi $grossa", grossa > sottile * 3)
+        val chiave = colonna(tasto.captureToImage().toPixelMap())
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare)).captureToImage().toPixelMap()
+        cursore.performTouchInput { up() }
+        banco.waitForIdle()
+        val (largo, _) = ingombro(palco, rosso)
+        var sinistra = palco.width
+        for (y in 0 until palco.height) for (x in 0 until palco.width) if (vicino(palco[x, y], rosso)) sinistra = minOf(sinistra, x)
+        val tratto = colonna(palco, sinistra + largo / 10)
+        assertTrue("il tratto dell'anteprima doveva essere più spesso del minimo: $tratto", tratto > 4)
+        assertEquals("la linea del tasto doveva essere spessa quanto il tratto", tratto.toFloat(), chiave.toFloat(), 2f)
     }
 
     /**
@@ -659,7 +797,7 @@ class DisegnoTest {
         trascina(dy = -PASSO)
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
-        assertEquals("un tocco sul tondo doveva rendergli il suo colore", Draw.INK,
+        assertEquals("un tocco sul tondo doveva rendergli il suo colore", Draw.withAlpha(Draw.INK, Draw.INK_ALPHA),
             salvato!!.drawing.marks.last().ink)
     }
 
@@ -679,14 +817,12 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_line)).performClick()
         banco.waitForIdle()
+        opacitaPiena()
         banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performTouchInput { longClick() }
         banco.waitForIdle()
         assertEquals("a dito alzato il cursore doveva restare", 1, luci())
         banco.onNodeWithContentDescription(testo(R.string.ink_blue)).assertIsSelected()
-        banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress) and
-            SemanticsMatcher.expectValue(
-                androidx.compose.ui.semantics.SemanticsProperties.ContentDescription, listOf(testo(R.string.draw_light))
-            )).performSemanticsAction(SemanticsActions.SetProgress) { it(-1f) }
+        banco.onNode(cursoreLuce()).performSemanticsAction(SemanticsActions.SetProgress) { it(-1f) }
         banco.waitForIdle()
         val scuro = androidx.compose.ui.graphics.Color(Draw.lit(Draw.INKS[3], -1f))
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_outline)).captureToImage().toPixelMap()
@@ -795,6 +931,23 @@ class DisegnoTest {
         var n = 0
         for (y in 0 until mappa.height) for (x in 0 until mappa.width) if (vicino(mappa[x, y], colore)) n++
         return n
+    }
+
+    /**
+     * Quanti pixel rossi ha la colonna [x], di serie quella di mezzo: lo spessore di una linea rossa.
+     * ⚠️ Conta anche i pixel del bordo coperti per più di metà, che sul fondo chiaro hanno ancora
+     * il verde sotto 0,6: così una linea a cavallo di due righe di pixel non perde un pixel.
+     */
+    private fun colonna(mappa: PixelMap, x: Int = mappa.width / 2): Int =
+        (0 until mappa.height).count { mappa[x, it].let { c -> c.red > 0.8f && c.green < 0.6f && c.blue < 0.6f } }
+
+    /** Larghezza e altezza del rettangolo che contiene i pixel di [colore]. */
+    private fun ingombro(mappa: PixelMap, colore: androidx.compose.ui.graphics.Color): Pair<Int, Int> {
+        var x0 = Int.MAX_VALUE; var x1 = -1; var y0 = Int.MAX_VALUE; var y1 = -1
+        for (y in 0 until mappa.height) for (x in 0 until mappa.width) if (vicino(mappa[x, y], colore)) {
+            x0 = minOf(x0, x); x1 = maxOf(x1, x); y0 = minOf(y0, y); y1 = maxOf(y1, y)
+        }
+        return Pair(x1 - x0 + 1, y1 - y0 + 1)
     }
 
     private fun centro(mappa: PixelMap, colore: androidx.compose.ui.graphics.Color): Pair<Int, Int> {
