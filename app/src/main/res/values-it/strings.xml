@@ -119,6 +119,7 @@
     <string name="draw_dashed">Tratteggio</string>
     <string name="draw_filled">Riempimento</string>
     <string name="draw_light">Luminosità</string>
+    <string name="draw_blur">Sfocatura</string>
     <string name="draw_raise">Sposta sopra</string>
     <string name="draw_lower">Sposta sotto</string>
     <string name="draw_copy">Copia</string>
@@ -188,7 +189,7 @@
     <string name="editor_discard_ask">Vuoi scartare le modifiche?</string>
     <string name="editor_discard">Scarta</string>
     <string name="editor_done_lossless">Salvata senza ricomprimere</string>
-    <string name="edit_no_file">Questo file non sta sul telefono</string>
+    <string name="edit_no_file">Questo file non è sul telefono</string>
     <string name="edit_too_big">L\'immagine è troppo grande per questo dispositivo</string>
     <string name="edit_nothing">Non è cambiato niente</string>
     <string name="edit_no_overwrite">Questo formato non si può riscrivere, quindi resta la sola copia.</string>

@@ -509,6 +509,7 @@
     <string name="draw_dashed">ٹوٹی لکیر</string>
     <string name="draw_filled">بھرائی</string>
     <string name="draw_light">چمک</string>
+    <string name="draw_blur">بلر</string>
     <string name="draw_raise">آگے لائیں</string>
     <string name="draw_lower">پیچھے بھیجیں</string>
     <string name="draw_copy">کاپی کریں</string>

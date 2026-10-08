@@ -526,6 +526,7 @@
     <string name="draw_dashed">Discontinua</string>
     <string name="draw_filled">Relleno</string>
     <string name="draw_light">Brillo</string>
+    <string name="draw_blur">Desenfoque</string>
     <string name="draw_raise">Traer adelante</string>
     <string name="draw_lower">Enviar atrás</string>
     <string name="draw_copy">Copiar</string>

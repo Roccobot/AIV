@@ -121,8 +121,22 @@ data class Mark(
      * ⚠️ The turn is in the pixels of the original image, not in its fractions: on an image that
      * is not square, a fraction turned would shear the shape.
      */
-    val angle: Float = 0f
+    val angle: Float = 0f,
+    /**
+     * **How much a rectangle or an ellipse blurs the image under it**, as a fraction of the longer
+     * side of its box, or `null` for an element drawn with its line and fill (4.80, his
+     * specification in the brief, round of 4.43: *una selezione tipo rettangolo arrotondato, che
+     * anziché riempire la propria area di un colore la sfoca ... da 0,5% a 25% del lato maggiore
+     * dell'oggetto. Si applica solo agli oggetti con un'area*).
+     *
+     * ⚠️ With a value the element ignores its line and its fill, which it keeps: turned off, it is
+     * the element it was. The blur is laid by [Draw.blurAreas], under every other element.
+     */
+    val blur: Float? = null
 ) {
+    /** Whether this element blurs the image under it instead of being drawn ([blur]). */
+    val blurs: Boolean get() = blur != null && pen.closed
+
     /** This mark with its last point moved to [to], or appended for a free hand stroke. */
     fun reaching(to: Offset): Mark = when (pen) {
         Pen.FREE -> copy(points = points + to)
@@ -305,7 +319,9 @@ data class Mark(
         }
         return copy(
             ink = source.ink, width = source.width, dashed = source.dashed,
-            fill = if (fillToo) source.fill else fill, tint = ricetta
+            fill = if (fillToo) source.fill else fill, tint = ricetta,
+            // ⚠️ The blur is an area's, like the fill (4.80): it passes between two closed shapes.
+            blur = if (fillToo) source.blur else blur
         )
     }
 
@@ -446,7 +462,8 @@ internal object Draw {
     }
 
     private fun paint(canvas: Canvas, mark: Mark, w: Float, h: Float, long: Float) {
-        if (mark.points.isEmpty()) return
+        // ⚠️ A blurring element is not drawn: [blurAreas] has already blurred the image under it.
+        if (mark.points.isEmpty() || mark.blurs) return
         val pts = mark.points.map { Offset(it.x * w, it.y * h) }
         val a = pts.first()
         val b = pts.last()
@@ -489,10 +506,10 @@ internal object Draw {
      * round corners included. The stage reads it to lay a turned element on an edge.
      * ⚠️ Points and not a box: the geometry can bend the outline, and only points go through it.
      */
-    fun outline(mark: Mark, w: Int, h: Int): List<Offset> {
+    fun outline(mark: Mark, w: Int, h: Int): List<Offset> = outline(mark, w.toFloat(), h.toFloat())
+
+    private fun outline(mark: Mark, fw: Float, fh: Float): List<Offset> {
         if (mark.points.isEmpty()) return emptyList()
-        val fw = w.toFloat()
-        val fh = h.toFloat()
         val a = Offset(mark.points.first().x * fw, mark.points.first().y * fh)
         val b = Offset(mark.points.last().x * fw, mark.points.last().y * fh)
         val c = Offset((a.x + b.x) / 2f, (a.y + b.y) / 2f)
@@ -682,6 +699,145 @@ internal object Draw {
         return out
     }
 
+    /** The Sfocatura slider, as fractions of the longer side of the element (his figures). */
+    const val BLUR_MIN = 0.005f
+    const val BLUR_MAX = 0.25f
+
+    /**
+     * The factory blur: 10% of the element's longer side, enough that a face or a number plate
+     * under it can no longer be read, which is the use he named (*oscuramento di parti di immagini
+     * che voglio nascondere prima della condivisione*). A choice of the session, declared in the
+     * test item.
+     */
+    const val BLUR = 0.1f
+
+    /**
+     * **[target] with the image under every blurring element of [drawing] blurred** (4.80), in the
+     * original frame of the image: [at] says which part of the original [target] holds, as
+     * fractions (the whole of it, or the piece the stage reads at full resolution).
+     *
+     * ⚠️⚠️ **Before the development and before every other element, on the stage and in the saved
+     * file alike**, like the patches of Correggi: the colour sliders then develop the blurred
+     * pixels, the geometry and the crop carry the blurred area with the image, and the other
+     * elements are drawn over it (his specification: *con l'esclusione di tutti gli altri elementi
+     * di Disegno (anzi, per definizione la sfocatura sarà sempre al livello più basso)*).
+     * ⚠️ **The radius is a fraction of the element's longer side**, measured in the pixels of
+     * [target], so the preview and the full file blur in the same proportion.
+     * ⚠️ **How**: the area around the element, grown by the radius, is halved until the radius is
+     * a few pixels (each halving averages four pixels, so nothing is skipped), blurred there with
+     * three box passes, which come close to a Gaussian, and laid back through the element's own
+     * outline, stretched with a bilinear filter. A blur of hundreds of pixels costs as much as one
+     * of a few.
+     * ⚠️ It draws on [target] when [mine] says the caller owns it and it is mutable, and on a copy
+     * otherwise: the stage's preview must never be touched.
+     */
+    fun blurAreas(target: Bitmap, drawing: Drawing, mine: Boolean, at: RectF = WHOLE): Bitmap {
+        val zone = drawing.marks.filter { it.blurs && it.points.isNotEmpty() }
+        if (zone.isEmpty() || at.width() <= 0f || at.height() <= 0f) return target
+        val out = if (mine && target.isMutable && target.config != Bitmap.Config.HARDWARE) target
+        else target.copy(Bitmap.Config.ARGB_8888, true)
+        val ow = out.width / at.width()
+        val oh = out.height / at.height()
+        val canvas = Canvas(out)
+        for (mark in zone) {
+            val path = Path()
+            outline(mark, ow, oh).forEachIndexed { i, f ->
+                val x = (f.x - at.left) * ow
+                val y = (f.y - at.top) * oh
+                if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+            path.close()
+            val a = mark.points.first()
+            val b = mark.points.last()
+            val radius = (mark.blur ?: BLUR) * max(abs(b.x - a.x) * ow, abs(b.y - a.y) * oh)
+            if (radius < 0.5f) continue
+            val box = RectF().also { path.computeBounds(it, true) }
+            val area = android.graphics.Rect(
+                (box.left - radius).toInt().coerceAtLeast(0), (box.top - radius).toInt().coerceAtLeast(0),
+                kotlin.math.ceil(box.right + radius).toInt().coerceAtMost(out.width),
+                kotlin.math.ceil(box.bottom + radius).toInt().coerceAtMost(out.height)
+            )
+            if (area.width() <= 0 || area.height() <= 0) continue
+            val down = max(1f, radius / BLUR_SMALL)
+            val sw = max(1, (area.width() / down).toInt())
+            val sh = max(1, (area.height() / down).toInt())
+            val small = shrink(out, area, sw, sh)
+            boxBlur(small, max(1, Math.round(radius / down)))
+            val shader = android.graphics.BitmapShader(small, android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
+            shader.setLocalMatrix(Matrix().apply {
+                setScale(area.width().toFloat() / sw, area.height().toFloat() / sh)
+                postTranslate(area.left.toFloat(), area.top.toFloat())
+            })
+            canvas.drawPath(path, Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply { this.shader = shader })
+            small.recycle()
+        }
+        return out
+    }
+
+    /** The whole of the original image, as fractions: what [blurAreas] reads by default. */
+    private val WHOLE = RectF(0f, 0f, 1f, 1f)
+
+    /** The radius, in pixels, that [blurAreas] blurs at after halving the area. */
+    private const val BLUR_SMALL = 4f
+
+    /**
+     * The [from] part of [src] made [toW] x [toH], halving it while it is more than twice as large:
+     * a bilinear filter at half size averages two by two, and at a larger step it would skip pixels.
+     */
+    private fun shrink(src: Bitmap, from: android.graphics.Rect, toW: Int, toH: Int): Bitmap {
+        val filtro = Paint(Paint.FILTER_BITMAP_FLAG)
+        var cur: Bitmap? = null
+        var w = from.width()
+        var h = from.height()
+        while (w / 2 >= toW && h / 2 >= toH && w > 1 && h > 1) {
+            val next = Bitmap.createBitmap(w / 2, h / 2, Bitmap.Config.ARGB_8888)
+            Canvas(next).drawBitmap(cur ?: src, if (cur == null) from else null, android.graphics.Rect(0, 0, w / 2, h / 2), filtro)
+            cur?.recycle()
+            cur = next
+            w /= 2
+            h /= 2
+        }
+        val last = Bitmap.createBitmap(toW, toH, Bitmap.Config.ARGB_8888)
+        Canvas(last).drawBitmap(cur ?: src, if (cur == null) from else null, android.graphics.Rect(0, 0, toW, toH), filtro)
+        cur?.recycle()
+        return last
+    }
+
+    /** Three box passes of radius [r] on [bitmap], across and down, with the edges repeated. */
+    private fun boxBlur(bitmap: Bitmap, r: Int) {
+        val w = bitmap.width
+        val h = bitmap.height
+        val px = IntArray(w * h)
+        bitmap.getPixels(px, 0, w, 0, 0, w, h)
+        val tmp = IntArray(max(w, h))
+        repeat(3) {
+            for (y in 0 until h) pass(px, y * w, 1, w, r, tmp)
+            for (x in 0 until w) pass(px, x, w, h, r, tmp)
+        }
+        bitmap.setPixels(px, 0, w, 0, 0, w, h)
+    }
+
+    /** One box pass along a row or a column of [n] pixels, from [start] by [step]. */
+    private fun pass(px: IntArray, start: Int, step: Int, n: Int, r: Int, tmp: IntArray) {
+        for (i in 0 until n) tmp[i] = px[start + i * step]
+        var sa = 0; var sr = 0; var sg = 0; var sb = 0
+        val span = 2 * r + 1
+        fun at(i: Int) = tmp[i.coerceIn(0, n - 1)]
+        for (i in -r..r) {
+            val c = at(i)
+            sa += c ushr 24; sr += (c shr 16) and 0xFF; sg += (c shr 8) and 0xFF; sb += c and 0xFF
+        }
+        for (i in 0 until n) {
+            px[start + i * step] = ((sa / span) shl 24) or ((sr / span) shl 16) or ((sg / span) shl 8) or (sb / span)
+            val out = at(i - r)
+            val inn = at(i + r + 1)
+            sa += (inn ushr 24) - (out ushr 24)
+            sr += ((inn shr 16) and 0xFF) - ((out shr 16) and 0xFF)
+            sg += ((inn shr 8) and 0xFF) - ((out shr 8) and 0xFF)
+            sb += (inn and 0xFF) - (out and 0xFF)
+        }
+    }
+
     /** The arrow head, as strokes long, at least a fraction of the long side, and its half angle. */
     private const val HEAD = 5f
     private const val HEAD_MIN = 0.012f
@@ -753,8 +909,11 @@ internal object Draw {
         val sx = w / long
         val sy = h / long
         val p = Offset(at.x * sx, at.y * sy)
-        for (i in drawing.marks.indices.reversed()) {
+        // ⚠️ The blurring elements lie under all the others whatever their place in the list
+        // (4.80), so a touch tries them last.
+        for (sotto in listOf(false, true)) for (i in drawing.marks.indices.reversed()) {
             val mark = drawing.marks[i]
+            if (mark.blurs != sotto) continue
             if (touches(mark, mark.points.map { Offset(it.x * sx, it.y * sy) }, p, reach + mark.width / 2f)) return i
         }
         return null
@@ -786,7 +945,7 @@ internal object Draw {
             Pen.RECT -> {
                 val l = min(a.x, b.x); val rt = max(a.x, b.x); val t = min(a.y, b.y); val bt = max(a.y, b.y)
                 val inside = p.x in l..rt && p.y in t..bt
-                if (inside) mark.fill != null || min(min(p.x - l, rt - p.x), min(p.y - t, bt - p.y)) <= r
+                if (inside) mark.fill != null || mark.blurs || min(min(p.x - l, rt - p.x), min(p.y - t, bt - p.y)) <= r
                 else hypot(max(max(l - p.x, 0f), p.x - rt), max(max(t - p.y, 0f), p.y - bt)) <= r
             }
             Pen.ELLIPSE -> {
@@ -796,7 +955,7 @@ internal object Draw {
                 if (min(rx, ry) < 1e-4f) segment(p, a, b) <= r
                 else {
                     val d = hypot((p.x - cx) / rx, (p.y - cy) / ry)
-                    (d <= 1f && mark.fill != null) || abs(d - 1f) * min(rx, ry) <= r
+                    (d <= 1f && (mark.fill != null || mark.blurs)) || abs(d - 1f) * min(rx, ry) <= r
                 }
             }
         }

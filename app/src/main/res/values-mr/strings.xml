@@ -509,6 +509,7 @@
     <string name="draw_dashed">तुटक</string>
     <string name="draw_filled">भरण</string>
     <string name="draw_light">उजळपणा</string>
+    <string name="draw_blur">ब्लर</string>
     <string name="draw_raise">पुढे आणा</string>
     <string name="draw_lower">मागे पाठवा</string>
     <string name="draw_copy">कॉपी करा</string>

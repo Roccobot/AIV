@@ -577,6 +577,7 @@
     <string name="draw_dashed">متقطع</string>
     <string name="draw_filled">تعبئة</string>
     <string name="draw_light">السطوع</string>
+    <string name="draw_blur">تمويه</string>
     <string name="draw_raise">إحضار للأمام</string>
     <string name="draw_lower">إرسال للخلف</string>
     <string name="draw_copy">نسخ</string>

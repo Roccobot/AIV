@@ -509,6 +509,7 @@
     <string name="draw_dashed">చుక్కల గీత</string>
     <string name="draw_filled">నింపు</string>
     <string name="draw_light">ప్రకాశం</string>
+    <string name="draw_blur">బ్లర్</string>
     <string name="draw_raise">ముందుకు తీసుకురా</string>
     <string name="draw_lower">వెనక్కి పంపు</string>
     <string name="draw_copy">కాపీ</string>

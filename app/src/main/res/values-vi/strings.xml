@@ -492,6 +492,7 @@
     <string name="draw_dashed">Nét đứt</string>
     <string name="draw_filled">Tô màu</string>
     <string name="draw_light">Độ sáng</string>
+    <string name="draw_blur">Làm mờ</string>
     <string name="draw_raise">Đưa lên trên</string>
     <string name="draw_lower">Đưa xuống dưới</string>
     <string name="draw_copy">Sao chép</string>

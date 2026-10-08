@@ -509,6 +509,7 @@
     <string name="draw_dashed">இடைக்கோடு</string>
     <string name="draw_filled">நிரப்பு</string>
     <string name="draw_light">ஒளிர்வு</string>
+    <string name="draw_blur">மங்கல்</string>
     <string name="draw_raise">முன்னே கொண்டுவா</string>
     <string name="draw_lower">பின்னே அனுப்பு</string>
     <string name="draw_copy">நகலெடு</string>

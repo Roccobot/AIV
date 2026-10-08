@@ -58,6 +58,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.ControlPointDuplicate
 import androidx.compose.material.icons.filled.CropFree
@@ -1436,8 +1437,15 @@ private fun LookStage(
      * vecchia non si ricicla a mano, perché può essere ancora dentro un disegno in corso (è la
      * stessa ragione scritta sui passi dell'editor semplice).
      */
-    val posed = remember(picture, look.spin, look.healing) {
-        Healing.render(picture, look.healing).spunBy(look.spin.turns, look.spin.mirror)
+    /*
+     * ⚠️ The blurring elements of the Disegno module (4.80) change the image itself, before the
+     * development, like the patches of Correggi ([Draw.blurAreas]): they are the key of the posed
+     * preview, and the other elements are not, so drawing a line does not blur the image again.
+     */
+    val sfocature = remember(look.drawing) { Drawing(look.drawing.marks.filter { it.blurs }) }
+    val posed = remember(picture, look.spin, look.healing, sfocature) {
+        val curato = Healing.render(picture, look.healing)
+        Draw.blurAreas(curato, sfocature, mine = curato !== picture).spunBy(look.spin.turns, look.spin.mirror)
     }
     /*
      * The drawing of the Disegno module, in the posed frame of the preview (see `Draw.overlay`).
@@ -1611,7 +1619,7 @@ private fun LookStage(
      * letture di stato non diventano dipendenze di nessuno. È la ragione per cui le chiavi sono
      * [resting] e [stage] e non i due valori che al conto servono davvero.
      */
-    LaunchedEffect(picture, full, stage, resting, look.geo.idle, look.square, look.healing) {
+    LaunchedEffect(picture, full, stage, resting, look.geo.idle, look.square, look.healing, sfocature) {
         val source = full
         if (source == null || stage.width <= 0f || stage.height <= 0f) {
             sharp = null
@@ -1643,9 +1651,11 @@ private fun LookStage(
         // rileggerlo costerebbe una decodifica per niente.
         // Applied patches can change while the viewport remains still.
         val tile = source.tile(ask.area, ask.sample) ?: return@LaunchedEffect
-        val pixels = Healing.render(tile, look.healing, RectF(
+        val pezzo = RectF(
             ask.area.left.toFloat()/source.width, ask.area.top.toFloat()/source.height,
-            ask.area.right.toFloat()/source.width, ask.area.bottom.toFloat()/source.height))
+            ask.area.right.toFloat()/source.width, ask.area.bottom.toFloat()/source.height)
+        // ⚠️ The blur goes on the piece too (4.80), or zooming in would show the hidden area sharp.
+        val pixels = Draw.blurAreas(Healing.render(tile, look.healing, pezzo), sfocature, mine = true, at = pezzo)
         sharp = SharpPiece(
             pixels = pixels,
             area = ask.area,
@@ -4562,6 +4572,16 @@ private class Gaze(
     var inkSizing by mutableStateOf(false)
 
     /**
+     * **Whether the rectangle and the ellipse blur the image instead of being drawn**, and by how
+     * much (4.80, his specification: *Il tasto sarebbe un interruttore che accende/spegne la
+     * sfocatura per l'oggetto selezionato (anche se non esiste ancora la selezione)*): like the other
+     * parameters it sets the element chosen, or the next one drawn. Off at the factory, at
+     * [Draw.BLUR] when turned on.
+     */
+    var blurOn by mutableStateOf(false)
+    var blurAmount by mutableFloatStateOf(Draw.BLUR)
+
+    /**
      * The pen as an empty mark, ready for the first point of the finger.
      *
      * ⚠️ The three pens that do not close a shape get no fill, so a mark never carries a value
@@ -4570,7 +4590,8 @@ private class Gaze(
     fun penMark(): Mark = Mark(
         pen, emptyList(), Draw.withAlpha(litInk, inkAlpha), inkWidth, dashed,
         fill = litFill?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) },
-        tint = tint()
+        tint = tint(),
+        blur = blurAmount.takeIf { blurOn && pen.closed }
     )
 
     /** How the colours are chosen now, which a mark keeps to be loaded back ([Tint]). */
@@ -4630,6 +4651,8 @@ private class Gaze(
             fillInk = t.fill
             fillLight = t.fillLight
             fillAlpha = t.fillAlpha
+            blurOn = mark.blur != null
+            mark.blur?.let { blurAmount = it }
         }
     }
 
@@ -4639,7 +4662,8 @@ private class Gaze(
         width = inkWidth,
         dashed = dashed,
         fill = if (mark.pen.closed) litFill?.let { Draw.withAlpha(it, fillAlpha) } else null,
-        tint = tint()
+        tint = tint(),
+        blur = blurAmount.takeIf { blurOn && mark.pen.closed }
     )
 
     companion object {
@@ -5334,6 +5358,14 @@ private fun DrawBody(
     // shape it stands for Traccia: a key that changes nothing reads as broken.
     val bersaglio = if (gaze.target == DrawTarget.FILL && !chiusa) DrawTarget.STROKE else gaze.target
     val riempimento = bersaglio == DrawTarget.FILL
+    /*
+     * ⚠️⚠️ **With Sfocatura on, the element ignores its line and its fill** (4.80, his specification:
+     * *se acceso, l'oggetto ignora traccia e riempimento e l'intera area diventa sfocata*): the keys
+     * and the swatches that set them go off, and the slider sets the blur (*Con la sfocatura accesa,
+     * appare uno slider che ne regola l'entità*). Only the rectangle and the ellipse blur.
+     */
+    val sfoca = gaze.blurOn && chiusa
+    val tratto = live && !sfoca
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         for (pen in Pen.entries) {
             val nome = stringResource(penName(pen))
@@ -5366,35 +5398,29 @@ private fun DrawBody(
     // Traccia, Spessore and Riempimento are one choice: what the slider sets (his answer `S1`).
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         ArtKey(
-            KeyKind.DASH, gaze, selected = gaze.dashed, enabled = live, name = R.string.draw_dashed,
+            KeyKind.DASH, gaze, selected = gaze.dashed, enabled = tratto, name = R.string.draw_dashed,
             toggle = true, onClick = { gaze.dashed = !gaze.dashed }, modifier = Modifier.weight(1f)
         )
         ArtKey(
-            KeyKind.STROKE, gaze, selected = bersaglio == DrawTarget.STROKE, enabled = live,
+            KeyKind.STROKE, gaze, selected = bersaglio == DrawTarget.STROKE, enabled = tratto,
             name = R.string.draw_outline, toggle = false,
             onClick = { gaze.target = DrawTarget.STROKE }, modifier = Modifier.weight(1f)
         )
         ArtKey(
-            KeyKind.WIDTH, gaze, selected = bersaglio == DrawTarget.WIDTH, enabled = live,
+            KeyKind.WIDTH, gaze, selected = bersaglio == DrawTarget.WIDTH, enabled = tratto,
             name = R.string.draw_width, toggle = false,
             onClick = { gaze.target = DrawTarget.WIDTH }, modifier = Modifier.weight(1f)
         )
         ArtKey(
-            KeyKind.FILL, gaze, selected = riempimento, enabled = live && chiusa, name = R.string.draw_filled,
+            KeyKind.FILL, gaze, selected = riempimento, enabled = tratto && chiusa, name = R.string.draw_filled,
             toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
         )
-        // ⚠️ G2, 4.60: 'Elimina' takes the fifth column, lit only with a mark chosen.
+        // ⚠️ Since 4.80 the fifth column is Sfocatura, a switch like Tratteggio; 'Elimina', which was
+        // here from 4.60, lives in the menu of the long press since 4.70 (a reading of the session,
+        // declared in the test item).
         ArtKey(
-            KeyKind.DELETE, gaze, selected = false, enabled = live && gaze.picked != null,
-            name = R.string.pick_delete, toggle = false,
-            onClick = {
-                gaze.picked?.let { i ->
-                    gaze.picked = null
-                    onLive { it.copy(drawing = it.drawing.without(i)) }
-                    onSettled()
-                }
-            },
-            modifier = Modifier.weight(1f)
+            KeyKind.BLUR, gaze, selected = sfoca, enabled = live && chiusa, name = R.string.draw_blur,
+            toggle = true, onClick = { gaze.blurOn = !gaze.blurOn }, modifier = Modifier.weight(1f)
         )
     }
     /*
@@ -5414,7 +5440,7 @@ private fun DrawBody(
         snapshotFlow {
             listOf(
                 gaze.ink, gaze.inkLight, gaze.inkAlpha, gaze.fillInk, gaze.fillLight, gaze.fillAlpha,
-                gaze.inkWidth, gaze.dashed
+                gaze.inkWidth, gaze.dashed, gaze.blurOn, gaze.blurAmount
             )
         }.drop(1).collectLatest {
             if (gaze.picked != scelto) return@collectLatest
@@ -5445,6 +5471,7 @@ private fun DrawBody(
     }
     val chiaro = rememberMenuState()
     val nomeLuce = stringResource(R.string.draw_light)
+    val nomeSfocatura = stringResource(R.string.draw_blur)
     /** The Luminosità slider's track, where the finger that holds a swatch is read (note C). */
     val pista = remember { Placed() }
     val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -5476,7 +5503,9 @@ private fun DrawBody(
              * full colours spread past the dialog's edge. They follow the veil's progress, as the
              * checkerboard of the viewer does since 1.68, and read it while drawing.
              */
-            modifier = Modifier.fillMaxWidth().graphicsLayer { alpha = 1f - veilProgress() },
+            modifier = Modifier.fillMaxWidth().graphicsLayer {
+                alpha = (1f - veilProgress()) * if (sfoca) OFF_SWATCHES else 1f
+            },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -5521,8 +5550,8 @@ private fun DrawBody(
                             if (ink == Draw.INKS.first()) gaze.redSpot = it.boundsInRoot()
                         }
                         .clip(CircleShape)
-                        .pointerInput(ink, riempimento, live) {
-                            if (!live) return@pointerInput
+                        .pointerInput(ink, riempimento, tratto) {
+                            if (!tratto) return@pointerInput
                             awaitEachGesture {
                                 val giu = awaitFirstDown()
                                 val lungo = awaitLongPressOrCancellation(giu.id)
@@ -5558,7 +5587,7 @@ private fun DrawBody(
                             contentDescription = nome
                             role = Role.RadioButton
                             selected = scelto
-                            if (!live) disabled()
+                            if (!tratto) disabled()
                             onClick { scegli(ink); true }
                             if (ink != null) onLongClick(nomeLuce) { tieni(); true }
                         },
@@ -5635,7 +5664,13 @@ private fun DrawBody(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            stringResource(if (bersaglio == DrawTarget.WIDTH) R.string.draw_width else R.string.settings_mark_alpha),
+            stringResource(
+                when {
+                    sfoca -> R.string.draw_blur
+                    bersaglio == DrawTarget.WIDTH -> R.string.draw_width
+                    else -> R.string.settings_mark_alpha
+                }
+            ),
             style = MaterialTheme.typography.labelMedium
         )
         TextButton(
@@ -5648,7 +5683,13 @@ private fun DrawBody(
             contentPadding = PaddingValues(horizontal = 4.dp)
         ) { Text(stringResource(R.string.draw_clear)) }
     }
-    when (bersaglio) {
+    if (sfoca) Slider(
+        value = gaze.blurAmount,
+        onValueChange = { gaze.blurAmount = it },
+        valueRange = Draw.BLUR_MIN..Draw.BLUR_MAX,
+        enabled = live,
+        modifier = Modifier.semantics { contentDescription = nomeSfocatura }
+    ) else when (bersaglio) {
         DrawTarget.STROKE -> Slider(
             value = gaze.inkAlpha,
             onValueChange = { gaze.inkAlpha = it },
@@ -5693,7 +5734,10 @@ private class Placed {
 }
 
 /** The four keys above the palette, drawn instead of named (`ArtKey`). */
-internal enum class KeyKind { STROKE, FILL, DASH, WIDTH, DELETE }
+internal enum class KeyKind { STROKE, FILL, DASH, WIDTH, BLUR }
+
+/** How much of their colour the swatches keep while Sfocatura is on, the 38% of a key that is off. */
+private const val OFF_SWATCHES = 0.38f
 
 /** How long the module waits, still, before a change to the chosen mark enters the history. */
 private const val RESTYLE_SETTLE_MS = 400L
@@ -5758,8 +5802,6 @@ private fun ArtKey(
         .then(
             when {
                 toggle -> Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
-                // ⚠️ 'Elimina' is an action, not a choice: a button, not a radio button.
-                kind == KeyKind.DELETE -> Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
                 else -> Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
             }
         )
@@ -5838,12 +5880,13 @@ private fun ArtKey(
                         }
                     }
                 }
-                KeyKind.DELETE -> Unit
+                KeyKind.BLUR -> Unit
             }
         }
-        if (kind == KeyKind.DELETE) Icon(
-            Glyphs.PickDelete, contentDescription = null, modifier = Modifier.align(Alignment.Center),
-            tint = schema.onSurfaceVariant
+        // ⚠️ Sfocatura is the one key drawn with a glyph (4.80): a blur has no line to show.
+        if (kind == KeyKind.BLUR) Icon(
+            Icons.Filled.BlurOn, contentDescription = null, modifier = Modifier.align(Alignment.Center),
+            tint = if (selected) schema.primary else schema.onSurfaceVariant
         )
         /*
          * ⚠️⚠️ **A full rim around the chosen key, since 4.61** (his note A on the 4.60 round: *oltre

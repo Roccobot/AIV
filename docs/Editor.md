@@ -671,7 +671,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
   niente*; la chiave resta `draw_outline`).
   - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
-    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50` e dalla `4.60` è `Elimina`.
+    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50`, dalla `4.60` è `Elimina` e dalla `4.80` è `Sfocatura`.
   - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
     filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
     rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
@@ -749,8 +749,30 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   riempimento, che copre l'intera forma.
 - **Sopra e sotto fra gli oggetti** (sua nota dello stesso giorno: *una versione semplificata di
   Z-index andrà gestita in qualche modo*): dalla `4.70`, nel menu della pressione lunga.
-- **Prima della pillola viene lo strumento Sfocatura**, e prima ancora il testo (G3): la sua
-  specifica vive nel brief, voce del giro della `4.43`.
+- **Dalla `4.80` lo strumento Sfocatura** (sua specifica del giro della `4.43`: *una selezione
+  tipo rettangolo arrotondato, che anziché riempire la propria area di un colore la sfoca. È una
+  cosa che userei spesso per l'oscuramento di parti di immagini che voglio nascondere prima della
+  condivisione*):
+  - **è un interruttore nella quinta colonna dei tasti**, dove dalla `4.60` alla `4.70` c'era
+    `Elimina`, che vive nel menu della pressione lunga (lettura della sessione, dichiarata nella
+    voce di collaudo). Come gli altri parametri vale per l'elemento scelto, o per il prossimo
+    disegnato (*anche se non esiste ancora la selezione*). Vale solo per rettangolo ed ellisse
+    (*Si applica solo agli oggetti con un'area*), e per gli altri strumenti è spento;
+  - **acceso, l'elemento ignora traccia e riempimento** (che tiene: spento, torna com'era), e
+    l'area dentro di lui è sfocata. Si spengono i tasti e i tondi che li regolano, e il cursore
+    regola l'entità, dallo 0,5 al 25% del lato maggiore dell'elemento; di fabbrica il 10%, scelta
+    della sessione dichiarata;
+  - **sfoca l'immagine con le altre modifiche e senza gli altri elementi** (*per definizione la
+    sfocatura sarà sempre al livello più basso*): si posa prima dello sviluppo, come Correggi
+    (`Draw.blurAreas`, sul palco, nel pezzo a piena risoluzione e nel salvataggio), quindi i
+    cursori del colore sviluppano l'area sfocata, geometria e ritaglio la portano con l'immagine, e
+    gli altri elementi le si disegnano sopra. Un tocco prende prima gli altri elementi, e la
+    sfocatura si prende anche dentro;
+  - **il conto**: l'area intorno all'elemento si dimezza finché il raggio è di pochi pixel, si
+    sfoca con tre passate a scatola e si riposa attraverso il contorno dell'elemento, stirata con
+    un filtro bilineare. Una sfocatura di centinaia di pixel costa come una di pochi;
+  - `Copia` e `Incolla` portano la sfocatura fra due forme chiuse, come il riempimento.
+- **Poi il testo (G3) e la pillola**: le loro specifiche vivono nel brief.
 - **I caratteri del testo (G3) si scelgono da un [artefatto](https://claude.ai/artifact/BnskaC7AgjgE5Dn23RVmoe)**
   con dodici caratteri liberi, Roboto di fabbrica (sua richiesta del 2026-10-08), più gli stili
   grassetto, corsivo, barrato, evidenziato ed etichettato; la scelta è sua e non è ancora
@@ -777,7 +799,8 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro
     dell'elemento;
   - **trascinare partendo dall'elemento scelto lo sposta**; partendo altrove si disegna come prima;
-  - **`Elimina`** è la quinta colonna dei tasti, acceso solo con un elemento scelto; Annulla, Ripeti
+  - **`Elimina`** è la quinta colonna dei tasti (fino alla `4.70`; dalla `4.80` vive nel menu della
+    pressione lunga), acceso solo con un elemento scelto; Annulla, Ripeti
     e Originale tolgono la scelta, perché dopo di loro l'indice può essere di un altro elemento.
 - **Dalla `4.60` il tasto Tratteggio dice se è acceso** (sua risposta `B2` alla nota B sul giro
   della `4.49`): acceso, il tratteggio nel colore della traccia; spento, il grigio scuro sbiadito al

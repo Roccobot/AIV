@@ -509,6 +509,7 @@
     <string name="draw_dashed">डैश</string>
     <string name="draw_filled">भराव</string>
     <string name="draw_light">चमक</string>
+    <string name="draw_blur">ब्लर</string>
     <string name="draw_raise">आगे लाएँ</string>
     <string name="draw_lower">पीछे भेजें</string>
     <string name="draw_copy">कॉपी करें</string>

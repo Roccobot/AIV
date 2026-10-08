@@ -543,6 +543,7 @@
     <string name="draw_dashed">Пунктир</string>
     <string name="draw_filled">Заливка</string>
     <string name="draw_light">Яскравість</string>
+    <string name="draw_blur">Розмиття</string>
     <string name="draw_raise">Підняти</string>
     <string name="draw_lower">Опустити</string>
     <string name="draw_copy">Копіювати</string>

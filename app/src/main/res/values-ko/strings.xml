@@ -492,6 +492,7 @@
     <string name="draw_dashed">점선</string>
     <string name="draw_filled">채우기</string>
     <string name="draw_light">밝기</string>
+    <string name="draw_blur">흐리게</string>
     <string name="draw_raise">앞으로</string>
     <string name="draw_lower">뒤로</string>
     <string name="draw_copy">복사</string>

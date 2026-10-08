@@ -359,6 +359,10 @@ object ImageEdit {
                 ?: return@withContext Result.Failed(R.string.edit_too_big)
             val healed = Healing.render(full, look.healing)
             if (healed !== full) { full.recycle(); full = healed }
+            // ⚠️ The blurring elements of the Disegno module change the image before the
+            // development, as on the stage (4.80): the reason lives on `Draw.blurAreas`.
+            val blurred = Draw.blurAreas(full, look.drawing, mine = true)
+            if (blurred !== full) { full.recycle(); full = blurred }
             /*
              * ⚠️⚠️ **LA POSA VIENE PER PRIMA E IL TAGLIO PER ULTIMO, DALLA `2.31`, E I DUE POSTI
              * SONO LA SPECIFICA**: mettere in posa è una permutazione di pixel, quindi il Dettaglio

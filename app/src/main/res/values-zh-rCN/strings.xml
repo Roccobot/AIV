@@ -492,6 +492,7 @@
     <string name="draw_dashed">虚线</string>
     <string name="draw_filled">填充</string>
     <string name="draw_light">亮度</string>
+    <string name="draw_blur">模糊</string>
     <string name="draw_raise">上移一层</string>
     <string name="draw_lower">下移一层</string>
     <string name="draw_copy">复制</string>

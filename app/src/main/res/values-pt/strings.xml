@@ -526,6 +526,7 @@
     <string name="draw_dashed">Tracejado</string>
     <string name="draw_filled">Preenchimento</string>
     <string name="draw_light">Brilho</string>
+    <string name="draw_blur">Desfoque</string>
     <string name="draw_raise">Trazer para frente</string>
     <string name="draw_lower">Enviar para trás</string>
     <string name="draw_copy">Copiar</string>

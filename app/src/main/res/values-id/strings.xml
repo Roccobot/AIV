@@ -492,6 +492,7 @@
     <string name="draw_dashed">Putus-putus</string>
     <string name="draw_filled">Isian</string>
     <string name="draw_light">Kecerahan</string>
+    <string name="draw_blur">Blur</string>
     <string name="draw_raise">Ke depan</string>
     <string name="draw_lower">Ke belakang</string>
     <string name="draw_copy">Salin</string>

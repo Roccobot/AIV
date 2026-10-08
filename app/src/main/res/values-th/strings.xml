@@ -492,6 +492,7 @@
     <string name="draw_dashed">เส้นประ</string>
     <string name="draw_filled">เติมสี</string>
     <string name="draw_light">ความสว่าง</string>
+    <string name="draw_blur">เบลอ</string>
     <string name="draw_raise">นำมาด้านหน้า</string>
     <string name="draw_lower">ส่งไปด้านหลัง</string>
     <string name="draw_copy">คัดลอก</string>
