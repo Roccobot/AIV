@@ -224,6 +224,7 @@
     <string name="pick_move">移動</string>
     <string name="pick_rename">名前を変更</string>
     <string name="pick_delete">削除</string>
+    <string name="draw_clear">すべて削除</string>
     <string name="pick_list">一覧</string>
     <string name="pick_invert">反転</string>
     <string name="pick_all_short">すべて</string>

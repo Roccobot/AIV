@@ -224,6 +224,7 @@
     <string name="pick_move">Przenieś</string>
     <string name="pick_rename">Zmień nazwę</string>
     <string name="pick_delete">Usuń</string>
+    <string name="draw_clear">Usuń wszystko</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Odwróć</string>
     <string name="pick_all_short">Wszystko</string>

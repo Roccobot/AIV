@@ -224,6 +224,7 @@
     <string name="pick_move">తరలించు</string>
     <string name="pick_rename">పేరు మార్చు</string>
     <string name="pick_delete">తొలగించు</string>
+    <string name="draw_clear">అన్నీ తొలగించు</string>
     <string name="pick_list">జాబితా</string>
     <string name="pick_invert">తలకిందులు</string>
     <string name="pick_all_short">అన్నీ</string>

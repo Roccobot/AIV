@@ -224,6 +224,7 @@
     <string name="pick_move">हलवा</string>
     <string name="pick_rename">नाव बदला</string>
     <string name="pick_delete">पुसा</string>
+    <string name="draw_clear">सर्व पुसा</string>
     <string name="pick_list">यादी</string>
     <string name="pick_invert">उलटा</string>
     <string name="pick_all_short">सर्व</string>

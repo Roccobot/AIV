@@ -224,6 +224,7 @@
     <string name="pick_move">Переместить</string>
     <string name="pick_rename">Переименовать</string>
     <string name="pick_delete">Удалить</string>
+    <string name="draw_clear">Удалить всё</string>
     <string name="pick_list">Список</string>
     <string name="pick_invert">Обратить</string>
     <string name="pick_all_short">Все</string>

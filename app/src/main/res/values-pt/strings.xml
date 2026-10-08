@@ -224,6 +224,7 @@
     <string name="pick_move">Mover</string>
     <string name="pick_rename">Renomear</string>
     <string name="pick_delete">Excluir</string>
+    <string name="draw_clear">Excluir tudo</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Inverter</string>
     <string name="pick_all_short">Tudo</string>

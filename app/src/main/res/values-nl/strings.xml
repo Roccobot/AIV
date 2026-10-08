@@ -224,6 +224,7 @@
     <string name="pick_move">Verplaatsen</string>
     <string name="pick_rename">Naam wijzigen</string>
     <string name="pick_delete">Verwijderen</string>
+    <string name="draw_clear">Alles verwijderen</string>
     <string name="pick_list">Lijst</string>
     <string name="pick_invert">Omkeren</string>
     <string name="pick_all_short">Alles</string>

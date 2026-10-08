@@ -1145,6 +1145,11 @@ class SviluppoTest {
      * and every pixel that differs must lie on one of the four thirds of the image box, which
      * the bench finds in the pixels (the white preview covers its box once straightened).
      * ⚠️ **Counter-tested** by removing the call to `levelThirds`: no pixel differs.
+     * ⚠️⚠️ **Since 4.64 the lines look like the Disegno's guides** (his note in Altro on the 4.63
+     * round: *in tutto e per tutto simili (come aspetto) alle guide dinamiche dei bordi del modulo
+     * Disegno*): the accent alone, `GUIDE_LINE` wide, with no halo ([verificaGuide]).
+     * **Counter-tested** with the white line on the dark halo of 4.63: the halo is grey, not a
+     * blend of white and the accent.
      */
     @Test
     fun `Raddrizza mostra i terzi solo mentre il dito tiene il cursore`() {
@@ -1184,6 +1189,8 @@ class SviluppoTest {
             )
         }
         assertTrue("the thirds had to be drawn while the finger was down", diversi > 0)
+        // The class runs at mdpi, so the guide's 1 dp is one pixel.
+        verificaGuide(lasciato, tenuto, brushInk, width = 1.0)
     }
 
     /** I quattro vertici del rettangolo deformato, in senso orario da quello in alto a sinistra. */
@@ -4442,6 +4449,47 @@ class SviluppoTest {
                 ((1f - after[x, y].red) / (1f - red)).toDouble()
             }
             assertEquals("spessore del solo bordo, senza altri contorni", width, coverage, 0.2)
+        }
+    }
+
+    /**
+     * The two vertical guides on the middle row of what changed: every pixel a blend of the white
+     * image and [ink], and each guide [width] pixels of coverage.
+     *
+     * ⚠️ **Unlike [verificaBordo] it asks for no pixel of pure ink**: a 1 dp line on a third
+     * falls across two pixels, and each takes half. The blend is what tells the accent from a
+     * grey halo, whose pixels are not on the line from white to the accent.
+     * ⚠️ The coverage is read on the channel where [ink] is farthest from white, so an accent
+     * with one channel near white does not divide by nothing.
+     */
+    private fun verificaGuide(
+        before: PixelMap,
+        after: PixelMap,
+        ink: androidx.compose.ui.graphics.Color,
+        width: Double
+    ) {
+        val righe = (0 until before.height).filter { y -> (0 until before.width).any { before[it, y] != after[it, y] } }
+        assertTrue("le guide devono essere visibili", righe.isNotEmpty())
+        val y = (righe.first() + righe.last()) / 2
+        val xs = (0 until before.width).filter { before[it, y] != after[it, y] }
+        val runs = mutableListOf<MutableList<Int>>()
+        for (x in xs) {
+            if (runs.isEmpty() || runs.last().last() != x - 1) runs += mutableListOf(x)
+            else runs.last() += x
+        }
+        assertEquals("due guide verticali nella sezione centrale", 2, runs.size)
+        val canali = listOf<(androidx.compose.ui.graphics.Color) -> Float>({ it.red }, { it.green }, { it.blue })
+        val misura = canali.maxBy { 1f - it(ink) }
+        for (run in runs) {
+            val copertura = run.sumOf { x ->
+                for (c in canali) assertEquals("la prova misura le guide sull'immagine bianca", 1f, c(before[x, y]), 0.01f)
+                val a = (1f - misura(after[x, y])) / (1f - misura(ink))
+                for (c in canali) {
+                    assertEquals("pixel $x,$y: solo l'accento, senza alone", 1f - a * (1f - c(ink)), c(after[x, y]), 0.03f)
+                }
+                a.toDouble()
+            }
+            assertEquals("spessore della sola guida", width, copertura, 0.2)
         }
     }
 

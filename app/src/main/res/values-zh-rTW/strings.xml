@@ -224,6 +224,7 @@
     <string name="pick_move">移動</string>
     <string name="pick_rename">重新命名</string>
     <string name="pick_delete">刪除</string>
+    <string name="draw_clear">全部刪除</string>
     <string name="pick_list">清單</string>
     <string name="pick_invert">反選</string>
     <string name="pick_all_short">全選</string>

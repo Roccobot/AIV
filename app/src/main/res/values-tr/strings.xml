@@ -224,6 +224,7 @@
     <string name="pick_move">Taşı</string>
     <string name="pick_rename">Yeniden adlandır</string>
     <string name="pick_delete">Sil</string>
+    <string name="draw_clear">Tümünü sil</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Tersine çevir</string>
     <string name="pick_all_short">Tümü</string>

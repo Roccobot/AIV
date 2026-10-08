@@ -224,6 +224,7 @@
     <string name="pick_move">نقل</string>
     <string name="pick_rename">إعادة تسمية</string>
     <string name="pick_delete">حذف</string>
+    <string name="draw_clear">حذف الكل</string>
     <string name="pick_list">قائمة</string>
     <string name="pick_invert">عكس</string>
     <string name="pick_all_short">الكل</string>

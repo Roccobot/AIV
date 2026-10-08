@@ -224,6 +224,7 @@
     <string name="pick_move">Di chuyển</string>
     <string name="pick_rename">Đổi tên</string>
     <string name="pick_delete">Xóa</string>
+    <string name="draw_clear">Xóa tất cả</string>
     <string name="pick_list">Danh sách</string>
     <string name="pick_invert">Đảo</string>
     <string name="pick_all_short">Tất cả</string>
