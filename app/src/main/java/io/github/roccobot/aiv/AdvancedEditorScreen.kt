@@ -96,6 +96,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -164,6 +165,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -411,6 +414,17 @@ fun AdvancedEditorScreen(
     }
 
     /**
+     * **Chooses the mark at [index] of the Disegno module, or drops the choice with `null`** (G2,
+     * 4.60): the module loads the mark's parameters, so its swatches and sliders show them and
+     * change them ([Gaze.load]).
+     */
+    fun pick(index: Int?) {
+        val segno = index?.let { look.drawing.marks.getOrNull(it) }
+        gaze.picked = if (segno != null) index else null
+        segno?.let { gaze.load(it) }
+    }
+
+    /**
      * Il colore mirato: che cosa vuol dire aver toccato il pixel [pixel].
      *
      * ⚠️⚠️ **DALLA `2.32` IL MIRATO È DELL'HSL E BASTA, ED È LA SUA RISPOSTA `via` A
@@ -654,19 +668,23 @@ fun AdvancedEditorScreen(
                 onLive = { cambia -> look = cambia(look) },
                 onSettled = { push() },
                 onPeek = { senza -> peek = senza },
+                // ⚠️ The three drop the chosen mark of Disegno: after them its index may be another's.
                 onUndo = {
                     if (at > 0) {
                         at -= 1
                         look = history[at]
+                        gaze.picked = null
                     }
                 },
                 onRedo = {
                     if (at < history.size - 1) {
                         at += 1
                         look = history[at]
+                        gaze.picked = null
                     }
                 },
                 onOriginal = {
+                    gaze.picked = null
                     gaze.selection = Healing.Selection.NONE
                     gaze.healingFailed = false
                     look = Look.NONE
@@ -778,6 +796,8 @@ fun AdvancedEditorScreen(
                         onDrawEnd = { push() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
+                        drawPicked = { gaze.picked },
+                        onDrawPick = { i -> pick(i) },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -939,6 +959,8 @@ fun AdvancedEditorScreen(
                         onDrawEnd = { push() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
+                        drawPicked = { gaze.picked },
+                        onDrawPick = { i -> pick(i) },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -1267,6 +1289,10 @@ private fun LookStage(
     inkSizing: () -> Boolean,
     /** The image's long side on the stage, in pixels, while the Disegno module is on: see [Gaze.viewLong]. */
     onViewLong: (Float) -> Unit,
+    /** The index of the chosen mark of the Disegno module, or `null`: see [Gaze.picked]. */
+    drawPicked: () -> Int?,
+    /** A touch chose the mark at this index, or dropped the choice with `null` (G2, 4.60). */
+    onDrawPick: (Int?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -1297,6 +1323,8 @@ private fun LookStage(
     val drawTo by rememberUpdatedState(onDraw)
     val drawEnd by rememberUpdatedState(onDrawEnd)
     val penNow by rememberUpdatedState(drawPen)
+    val pickedNow by rememberUpdatedState(drawPicked)
+    val pickNow by rememberUpdatedState(onDrawPick)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
     val metrics = LocalContext.current.resources.displayMetrics
     val brushCmPx = (metrics.xdpi.takeIf { it > 0f } ?: metrics.densityDpi.toFloat()) / 2.54f
@@ -1879,6 +1907,40 @@ private fun LookStage(
                         if (!visible.contains(down.position.x, down.position.y)) return@awaitEachGesture
                         val start = toImage(down.position) ?: return@awaitEachGesture
                         val base = drawingNow
+                        /*
+                         * ⚠️⚠️ **G2, 4.60: a tap chooses a mark, and a drag from the chosen one
+                         * moves it** (his specification: *un tocco singolo seleziona un oggetto*).
+                         * A tap on nothing drops the choice, and with a choice it leaves no dot: a
+                         * tap that only meant 'enough' would otherwise draw. A drag that starts
+                         * elsewhere drops the choice and draws, as before.
+                         * ⚠️ The reach is measured on the screen, [PICK_REACH] beyond half the line,
+                         * and turned into the image's long side: a thin line is hard to hit.
+                         */
+                        val scelto = pickedNow()
+                        val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
+                        val reach = PICK_REACH.toPx() / max(vista.width(), vista.height()).coerceAtLeast(1f)
+                        if (esito == Settled.UP) {
+                            val preso = Draw.hit(base, start, picture.width, picture.height, reach)
+                            if (preso != null || scelto != null) {
+                                pickNow(preso)
+                                return@awaitEachGesture
+                            }
+                        } else if (scelto != null) {
+                            val segno = base.marks.getOrNull(scelto)
+                            if (segno != null && Draw.hit(Drawing(listOf(segno)), start, picture.width, picture.height, reach) == 0) {
+                                fun sposta(at: Offset) {
+                                    toImage(at)?.let { drawTo(base.replacing(scelto, segno.moved(it - start))) }
+                                }
+                                sposta(oltre)
+                                drag(down.id) { change ->
+                                    sposta(change.position)
+                                    change.consume()
+                                }
+                                drawEnd()
+                                return@awaitEachGesture
+                            }
+                            pickNow(null)
+                        }
                         var mark = pen.copy(points = listOf(start))
                         val draws = pen.pen == Pen.FREE || esito == Settled.MOVED
                         /*
@@ -2491,6 +2553,38 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                     )
                 }
             }
+            /*
+             * ⚠️⚠️ **The points of the chosen mark, G2 (4.60)**: accent dots of a fixed size on the
+             * screen, where the mesh carries the mark's corners or ends (his specification: *4
+             * vertici color accento*, *2 punti color accento*). They are the stage's and not the
+             * drawing's, so they never reach the saved file.
+             * ⚠️ The same path as the drawing: original frame, pose, then the geometry (with the
+             * 'Angoli' view when armed) through [Warp.to].
+             */
+            drawPicked()?.let { look.drawing.marks.getOrNull(it) }?.let { segno ->
+                val posa = Draw.posed(picture.width, picture.height, look.spin)
+                val dispari = look.spin.turns.mod(2) == 1
+                val pw = if (dispari) picture.height else picture.width
+                val ph = if (dispari) picture.width else picture.height
+                val piano = if (look.geo.idle && !armato) null else Warp.plan(
+                    look.geo, view.centerX(), view.centerY(), view.width(), view.height(),
+                    hold = if (armato) ARMED_FIT else null
+                )
+                val r = HANDLE_DOT.toPx()
+                val anello = HANDLE_RING.toPx()
+                clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                    for (punto in segno.handles()) {
+                        val q = floatArrayOf(punto.x * picture.width, punto.y * picture.height)
+                        posa.mapPoints(q)
+                        val x = view.left + q[0] / pw * view.width()
+                        val y = view.top + q[1] / ph * view.height()
+                        val dove = piano?.let { Warp.to(it, view, look.geo.liquify, x, y) } ?: floatArrayOf(x, y)
+                        val centro = Offset(dove[0], dove[1])
+                        drawCircle(Color.White, r + anello, centro)
+                        drawCircle(brushAccent, r, centro)
+                    }
+                }
+            }
             penLoupe?.let { at ->
                 lens(
                     at, null, LOUPE_SIDE.toPx(), LOUPE_EDGE.toPx(),
@@ -3072,6 +3166,16 @@ private const val PEN_LOUPE_CM = 1.5f
 
 /** How long the curved sample of the Spessore preview is, at the least. */
 private val SAMPLE_LONG = 56.dp
+
+/**
+ * How far from a mark's line a tap still chooses it, on the screen, beyond half the line (G2,
+ * 4.60). A choice of the session, declared in the test item: about a fingertip's half width.
+ */
+private val PICK_REACH = 24.dp
+
+/** The points of the chosen mark: an accent dot with a ring that keeps it visible on any image. */
+private val HANDLE_DOT = 5.dp
+private val HANDLE_RING = 1.5.dp
 
 /** How thick the guide of a snapped line is on the stage. */
 private val GUIDE_LINE = 1.dp
@@ -4181,7 +4285,52 @@ private class Gaze(
      */
     fun penMark(): Mark = Mark(
         pen, emptyList(), Draw.withAlpha(litInk, inkAlpha), inkWidth, dashed,
-        fill = litFill?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) }
+        fill = litFill?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) },
+        tint = tint()
+    )
+
+    /** How the colours are chosen now, which a mark keeps to be loaded back ([Tint]). */
+    fun tint(): Tint = Tint(ink, inkLight, inkAlpha, fillInk, fillLight, fillAlpha)
+
+    /**
+     * **The index of the chosen mark**, or `null` (G2, 4.60). Like the pen it is a tool and not the
+     * image: it stays out of the history, and Annulla, Ripeti and Originale drop it, since after
+     * them the index may point at another mark.
+     */
+    var picked by mutableStateOf<Int?>(null)
+
+    /**
+     * **Loads [mark]'s parameters into the module**, so its swatch, its sliders and its keys show
+     * them and edit them (G2, 4.60). They stay after the choice is dropped: the next mark is born
+     * like the last one chosen (a choice of the session, declared in the test item).
+     * ⚠️ A mark with no [Tint] (made by a test) loads its colours as swatches with no light, and the
+     * fill only for a closed shape, whose fill is the only one that means something.
+     */
+    fun load(mark: Mark) {
+        pen = mark.pen
+        inkWidth = mark.width
+        dashed = mark.dashed
+        val t = mark.tint ?: Tint(
+            mark.ink or 0xFF000000.toInt(), 0f, (mark.ink ushr 24) / 255f,
+            mark.fill?.let { it or 0xFF000000.toInt() }, 0f, mark.fill?.let { (it ushr 24) / 255f } ?: fillAlpha
+        )
+        ink = t.ink
+        inkLight = t.inkLight
+        inkAlpha = t.inkAlpha
+        if (mark.pen.closed) {
+            fillInk = t.fill
+            fillLight = t.fillLight
+            fillAlpha = t.fillAlpha
+        }
+    }
+
+    /** [mark] with the module's parameters, its pen and its points kept (G2, 4.60). */
+    fun restyle(mark: Mark): Mark = mark.copy(
+        ink = Draw.withAlpha(litInk, inkAlpha),
+        width = inkWidth,
+        dashed = dashed,
+        fill = if (mark.pen.closed) litFill?.let { Draw.withAlpha(it, fillAlpha) } else null,
+        tint = tint()
     )
 
     companion object {
@@ -4769,7 +4918,11 @@ private fun DrawBody(
             val nome = stringResource(penName(pen))
             FilterChip(
                 selected = gaze.pen == pen,
-                onClick = { gaze.pen = pen },
+                // ⚠️ The pen is not a parameter of a mark (G2, 4.60): a pen key drops the choice.
+                onClick = {
+                    gaze.picked = null
+                    gaze.pen = pen
+                },
                 label = {
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Icon(Glyphs.pen(pen), contentDescription = nome)
@@ -4782,7 +4935,8 @@ private fun DrawBody(
     }
     // ⚠️ Five columns, the same as the drawing tools above, so the keys line up with them (his
     // mockup of 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and
-    // since 4.49 it sits left of Riempimento (his note on `4.47-01`); the fifth stays empty.
+    // since 4.49 it sits left of Riempimento (his note on `4.47-01`); the fifth was empty until
+    // 4.50, and is Elimina since 4.60 (G2).
     // Traccia, Spessore and Riempimento are one choice: what the slider sets (his answer `S1`).
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         ArtKey(
@@ -4803,7 +4957,47 @@ private fun DrawBody(
             KeyKind.FILL, gaze, selected = riempimento, enabled = live && chiusa, name = R.string.draw_filled,
             toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
         )
-        Spacer(Modifier.weight(1f))
+        // ⚠️ G2, 4.60: 'Elimina' takes the fifth column, lit only with a mark chosen.
+        ArtKey(
+            KeyKind.DELETE, gaze, selected = false, enabled = live && gaze.picked != null,
+            name = R.string.pick_delete, toggle = false,
+            onClick = {
+                gaze.picked?.let { i ->
+                    gaze.picked = null
+                    onLive { it.copy(drawing = it.drawing.without(i)) }
+                    onSettled()
+                }
+            },
+            modifier = Modifier.weight(1f)
+        )
+    }
+    /*
+     * ⚠️⚠️ **With a mark chosen, the module's parameters change it** (G2, 4.60, his specification:
+     * *con un oggetto selezionato, i parametri cambiano quell'oggetto*): every change of a swatch,
+     * a light, an opacity, the width or the dashes is laid on the mark at once, and enters the
+     * history when the module has been still for [RESTYLE_SETTLE_MS], so a slider dragged is one
+     * step and not one per frame.
+     * ⚠️ The first value is the one [Gaze.load] has just set, and changes nothing: it is skipped.
+     * ⚠️ A change that arrives when the choice has moved to another mark is not this mark's: choosing
+     * a mark loads its values in the same step that moves the choice, and this collector can see
+     * them before it is cancelled.
+     */
+    val scelto = gaze.picked
+    LaunchedEffect(scelto) {
+        if (scelto == null) return@LaunchedEffect
+        snapshotFlow {
+            listOf(
+                gaze.ink, gaze.inkLight, gaze.inkAlpha, gaze.fillInk, gaze.fillLight, gaze.fillAlpha,
+                gaze.inkWidth, gaze.dashed
+            )
+        }.drop(1).collectLatest {
+            if (gaze.picked != scelto) return@collectLatest
+            onLive { l ->
+                l.drawing.marks.getOrNull(scelto)?.let { l.copy(drawing = l.drawing.replacing(scelto, gaze.restyle(it))) } ?: l
+            }
+            delay(RESTYLE_SETTLE_MS)
+            onSettled()
+        }
     }
     /*
      * ⚠️ The palette sets the fill with Riempimento chosen, and the outline otherwise: with
@@ -5007,6 +5201,7 @@ private fun DrawBody(
         )
         TextButton(
             onClick = {
+                gaze.picked = null
                 onLive { it.copy(drawing = Drawing.NONE) }
                 onSettled()
             },
@@ -5059,7 +5254,10 @@ private class Placed {
 }
 
 /** The four keys above the palette, drawn instead of named (`ArtKey`). */
-internal enum class KeyKind { STROKE, FILL, DASH, WIDTH }
+internal enum class KeyKind { STROKE, FILL, DASH, WIDTH, DELETE }
+
+/** How long the module waits, still, before a change to the chosen mark enters the history. */
+private const val RESTYLE_SETTLE_MS = 400L
 
 /** What the slider of the Disegno module sets, chosen with Traccia, Riempimento or Spessore. */
 internal enum class DrawTarget { STROKE, FILL, WIDTH }
@@ -5119,8 +5317,12 @@ private fun ArtKey(
     val schema = MaterialTheme.colorScheme
     val scelta = Modifier
         .then(
-            if (toggle) Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
-            else Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
+            when {
+                toggle -> Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
+                // ⚠️ 'Elimina' is an action, not a choice: a button, not a radio button.
+                kind == KeyKind.DELETE -> Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+                else -> Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
+            }
         )
         .semantics { contentDescription = nome }
     Box(
@@ -5194,8 +5396,13 @@ private fun ArtKey(
                         }
                     }
                 }
+                KeyKind.DELETE -> Unit
             }
         }
+        if (kind == KeyKind.DELETE) Icon(
+            Glyphs.PickDelete, contentDescription = null, modifier = Modifier.align(Alignment.Center),
+            tint = schema.onSurfaceVariant
+        )
     }
 }
 
