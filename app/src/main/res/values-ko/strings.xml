@@ -492,6 +492,14 @@
     <string name="draw_dashed">점선</string>
     <string name="draw_filled">채우기</string>
     <string name="draw_light">밝기</string>
+    <string name="draw_raise">앞으로</string>
+    <string name="draw_lower">뒤로</string>
+    <string name="draw_copy">복사</string>
+    <string name="draw_paste">붙여넣기</string>
+    <string name="draw_paste_clear">복사한 스타일 지우기</string>
+    <string name="draw_style_cleared">복사한 스타일을 지웠습니다.</string>
+    <string name="draw_rotate">회전</string>
+    <string name="draw_transform">변형</string>
     <string name="ink_red">빨강</string>
     <string name="ink_amber">호박색</string>
     <string name="ink_green">초록</string>

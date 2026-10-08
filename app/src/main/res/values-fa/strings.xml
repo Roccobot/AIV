@@ -509,6 +509,14 @@
     <string name="draw_dashed">خط‌چین</string>
     <string name="draw_filled">پرکردن</string>
     <string name="draw_light">روشنایی</string>
+    <string name="draw_raise">آوردن به جلو</string>
+    <string name="draw_lower">فرستادن به عقب</string>
+    <string name="draw_copy">کپی</string>
+    <string name="draw_paste">جای‌گذاری</string>
+    <string name="draw_paste_clear">پاک کردن سبک کپی‌شده</string>
+    <string name="draw_style_cleared">سبک کپی‌شده پاک شد.</string>
+    <string name="draw_rotate">چرخاندن</string>
+    <string name="draw_transform">تغییر شکل</string>
     <string name="ink_red">قرمز</string>
     <string name="ink_amber">کهربایی</string>
     <string name="ink_green">سبز</string>

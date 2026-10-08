@@ -577,6 +577,14 @@
     <string name="draw_dashed">متقطع</string>
     <string name="draw_filled">تعبئة</string>
     <string name="draw_light">السطوع</string>
+    <string name="draw_raise">إحضار للأمام</string>
+    <string name="draw_lower">إرسال للخلف</string>
+    <string name="draw_copy">نسخ</string>
+    <string name="draw_paste">لصق</string>
+    <string name="draw_paste_clear">مسح النمط المنسوخ</string>
+    <string name="draw_style_cleared">تم مسح النمط المنسوخ.</string>
+    <string name="draw_rotate">تدوير</string>
+    <string name="draw_transform">تحويل</string>
     <string name="ink_red">أحمر</string>
     <string name="ink_amber">كهرماني</string>
     <string name="ink_green">أخضر</string>

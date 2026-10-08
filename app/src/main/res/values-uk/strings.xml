@@ -543,6 +543,14 @@
     <string name="draw_dashed">Пунктир</string>
     <string name="draw_filled">Заливка</string>
     <string name="draw_light">Яскравість</string>
+    <string name="draw_raise">Підняти</string>
+    <string name="draw_lower">Опустити</string>
+    <string name="draw_copy">Копіювати</string>
+    <string name="draw_paste">Вставити</string>
+    <string name="draw_paste_clear">Очистити скопійований стиль</string>
+    <string name="draw_style_cleared">Скопійований стиль видалено.</string>
+    <string name="draw_rotate">Повернути</string>
+    <string name="draw_transform">Перетворити</string>
     <string name="ink_red">Червоний</string>
     <string name="ink_amber">Бурштиновий</string>
     <string name="ink_green">Зелений</string>

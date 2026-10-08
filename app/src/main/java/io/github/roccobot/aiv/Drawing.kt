@@ -55,6 +55,19 @@ data class Drawing(val marks: List<Mark> = emptyList()) {
     /** This drawing without the mark at [index] (G2, 4.60). */
     fun without(index: Int): Drawing = Drawing(marks.filterIndexed { i, _ -> i != index })
 
+    /** This drawing with [mark] put at [index], the marks from there on one place higher (4.70). */
+    fun inserting(index: Int, mark: Mark): Drawing =
+        Drawing(marks.toMutableList().apply { add(index.coerceIn(0, size), mark) })
+
+    /**
+     * This drawing with the marks at [i] and [j] changed places (4.70, 'Sposta sopra' and 'Sposta
+     * sotto'): the list is the order of the layers, the last one on top.
+     */
+    fun swapping(i: Int, j: Int): Drawing {
+        if (i !in marks.indices || j !in marks.indices) return this
+        return Drawing(marks.toMutableList().apply { this[i] = marks[j]; this[j] = marks[i] })
+    }
+
     companion object {
         val NONE = Drawing()
     }
@@ -96,7 +109,19 @@ data class Mark(
      * How the module chose [ink] and [fill], or `null` for a mark made elsewhere (the tests): the
      * module loads it back when the mark is chosen (G2, 4.60). See [Tint].
      */
-    val tint: Tint? = null
+    val tint: Tint? = null,
+    /**
+     * **The turn of a rectangle or an ellipse around the centre of its box**, in degrees,
+     * clockwise on the original image (4.70, his answer on `4.64-04`: *toccando `Ruota` si passa in
+     * modalità rotazione*). [points] stay the two corners of the box before the turn.
+     *
+     * ⚠️ **Only the two closed pens keep an angle**: a line, an arrow and a free hand stroke turn
+     * by turning their points, which say everything about them, so a second place for the same
+     * turn would be a second truth. [turned] does both.
+     * ⚠️ The turn is in the pixels of the original image, not in its fractions: on an image that
+     * is not square, a fraction turned would shear the shape.
+     */
+    val angle: Float = 0f
 ) {
     /** This mark with its last point moved to [to], or appended for a free hand stroke. */
     fun reaching(to: Offset): Mark = when (pen) {
@@ -108,19 +133,185 @@ data class Mark(
     fun moved(by: Offset): Mark = copy(points = points.map { it + by })
 
     /**
-     * **Where the chosen mark shows its points**, in fractions of the original image (G2, 4.60,
-     * his specification: *il rettangolo selezionato mostra 4 vertici color accento, la freccia 2
-     * punti color accento*): the four corners of the box for the rectangle and the ellipse, the
-     * two ends for the line and the arrow, and the four corners of its box for the free hand (a
-     * choice of the session, declared in the test item).
+     * **The frame the handles of this mark live in**, in the pixels of a [w] x [h] original
+     * (4.70): the centre of its box, its half sides, and the cosine and sine of its turn. For the
+     * free hand the box holds every point, and the turn is zero.
      */
-    fun handles(): List<Offset> {
+    private class Frame(val c: Offset, val hw: Float, val hh: Float, val cos: Float, val sin: Float) {
+        /** A point of the box's own axes, from its centre, as a point of the image. */
+        fun out(x: Float, y: Float) = Offset(c.x + x * cos - y * sin, c.y + x * sin + y * cos)
+
+        /** A point of the image, in the box's own axes from its centre. */
+        fun into(p: Offset): Offset {
+            val dx = p.x - c.x
+            val dy = p.y - c.y
+            return Offset(dx * cos + dy * sin, -dx * sin + dy * cos)
+        }
+    }
+
+    private fun frame(w: Float, h: Float): Frame {
+        val xs = if (pen == Pen.FREE) points.map { it.x * w } else listOf(points.first().x * w, points.last().x * w)
+        val ys = if (pen == Pen.FREE) points.map { it.y * h } else listOf(points.first().y * h, points.last().y * h)
+        val l = xs.min(); val r = xs.max(); val t = ys.min(); val b = ys.max()
+        val rad = Math.toRadians(angle.toDouble())
+        return Frame(Offset((l + r) / 2f, (t + b) / 2f), (r - l) / 2f, (b - t) / 2f, cos(rad).toFloat(), sin(rad).toFloat())
+    }
+
+    /**
+     * **Where the chosen mark shows its handles**, in fractions of a [w] x [h] original (G2, 4.60,
+     * his specification: *il rettangolo selezionato mostra 4 vertici color accento, la freccia 2
+     * punti color accento*; 4.70, *le maniglie di base permetteranno di ridimensionare gli
+     * oggetti*).
+     *
+     * - The line and the arrow: their two ends.
+     * - The rectangle, the ellipse and the free hand: the four corners of the box, then the middle
+     *   of each side, in the order top left, top right, bottom right, bottom left, then top,
+     *   right, bottom, left of the box's own axes. The four corners were there in 4.60; the middles
+     *   of the sides came with 4.70, to stretch along one axis (a reading of the session, declared
+     *   in the test item).
+     *
+     * ⚠️ The index of a handle is what [reshaped] reads, so the order is a contract.
+     */
+    fun handles(w: Int, h: Int): List<Offset> {
         if (points.isEmpty()) return emptyList()
         if (pen == Pen.LINE || pen == Pen.ARROW) return listOf(points.first(), points.last())
-        val xs = if (pen == Pen.FREE) points.map { it.x } else listOf(points.first().x, points.last().x)
-        val ys = if (pen == Pen.FREE) points.map { it.y } else listOf(points.first().y, points.last().y)
-        val l = xs.min(); val r = xs.max(); val t = ys.min(); val b = ys.max()
-        return listOf(Offset(l, t), Offset(r, t), Offset(r, b), Offset(l, b))
+        val fw = w.toFloat()
+        val fh = h.toFloat()
+        val f = frame(fw, fh)
+        return listOf(
+            -f.hw to -f.hh, f.hw to -f.hh, f.hw to f.hh, -f.hw to f.hh,
+            0f to -f.hh, f.hw to 0f, 0f to f.hh, -f.hw to 0f
+        ).map { (x, y) -> f.out(x, y).let { Offset(it.x / fw, it.y / fh) } }
+    }
+
+    /**
+     * **This mark with the handle [handle] of [handles] dragged to [to]**, in fractions of a [w] x
+     * [h] original (4.70, 'Trasforma').
+     *
+     * - A corner moves its two sides and the opposite corner stays; the middle of a side moves that
+     *   side and the opposite one stays. The sides are those of the box's own axes, so a turned
+     *   rectangle stretches along itself and not along the image.
+     * - An end of a line or of an arrow goes where it is dragged.
+     * - The free hand stretches its points with its box, and dragged past the opposite side it
+     *   mirrors, as in the drawing programs; the rectangle and the ellipse, being symmetric, just
+     *   grow on the other side.
+     *
+     * ⚠️ The gesture calls it with the mark as it was when the finger went down, every frame: from
+     * the last frame the rounding would add up.
+     */
+    fun reshaped(handle: Int, to: Offset, w: Int, h: Int): Mark {
+        if (points.isEmpty()) return this
+        if (pen == Pen.LINE || pen == Pen.ARROW) {
+            return copy(points = if (handle == 0) listOf(to, points.last()) else listOf(points.first(), to))
+        }
+        val fw = w.toFloat()
+        val fh = h.toFloat()
+        val f = frame(fw, fh)
+        val p = f.into(Offset(to.x * fw, to.y * fh))
+        var l = -f.hw; var r = f.hw; var t = -f.hh; var b = f.hh
+        when (handle) {
+            0 -> { l = p.x; t = p.y }
+            1 -> { r = p.x; t = p.y }
+            2 -> { r = p.x; b = p.y }
+            3 -> { l = p.x; b = p.y }
+            4 -> t = p.y
+            5 -> r = p.x
+            6 -> b = p.y
+            7 -> l = p.x
+            else -> return this
+        }
+        if (pen == Pen.FREE) {
+            // ⚠️ A free hand stroke has no turn, so its box's axes are the image's: each point
+            // keeps its place in the box. A box with no width (a straight stroke) has nothing to
+            // stretch along that axis.
+            fun along(v: Float, lo: Float, size: Float, nlo: Float, nsize: Float) =
+                if (size > FLAT) nlo + (v - lo) / size * nsize else v
+            val x0 = f.c.x - f.hw
+            val y0 = f.c.y - f.hh
+            return copy(points = points.map {
+                Offset(
+                    along(it.x * fw, x0, 2f * f.hw, f.c.x + l, r - l) / fw,
+                    along(it.y * fh, y0, 2f * f.hh, f.c.y + t, b - t) / fh
+                )
+            })
+        }
+        val c = f.out((l + r) / 2f, (t + b) / 2f)
+        val hw = abs(r - l) / 2f
+        val hh = abs(b - t) / 2f
+        return copy(points = listOf(Offset((c.x - hw) / fw, (c.y - hh) / fh), Offset((c.x + hw) / fw, (c.y + hh) / fh)))
+    }
+
+    /**
+     * **This mark turned by [delta] degrees, clockwise, around the centre of its box**, in a [w] x
+     * [h] original (4.70, 'Ruota'), with the snap to the multiples of 45 degrees within
+     * [Draw.SNAP_DEG] (a reading of the session, declared in the test item: the R2 of his question,
+     * *libera, con scatti a 0, 45 e 90 gradi*).
+     *
+     * - The rectangle and the ellipse turn their [angle], and the snap is on where they end up.
+     * - The line and the arrow turn their points around their middle, and the snap is on the
+     *   direction of the line: a line that comes near the horizontal lies on it.
+     * - The free hand turns its points around the centre of its box, and the snap is on [delta]:
+     *   a stroke has no direction of its own.
+     *
+     * ⚠️ Like [reshaped], it is called with the mark of when the finger went down.
+     */
+    fun turned(delta: Float, w: Int, h: Int): Mark {
+        if (points.isEmpty()) return this
+        val fw = w.toFloat()
+        val fh = h.toFloat()
+        if (pen.closed) return copy(angle = Draw.snapTurn(angle + delta))
+        val by = if (pen == Pen.FREE) Draw.snapTurn(delta) else {
+            val a = points.first()
+            val b = points.last()
+            val dir = Math.toDegrees(atan2(((b.y - a.y) * fh).toDouble(), ((b.x - a.x) * fw).toDouble())).toFloat()
+            Draw.snapTurn(dir + delta) - dir
+        }
+        val f = frame(fw, fh)
+        val rad = Math.toRadians(by.toDouble())
+        val cs = cos(rad).toFloat()
+        val sn = sin(rad).toFloat()
+        return copy(points = points.map {
+            val dx = it.x * fw - f.c.x
+            val dy = it.y * fh - f.c.y
+            Offset((f.c.x + dx * cs - dy * sn) / fw, (f.c.y + dx * sn + dy * cs) / fh)
+        })
+    }
+
+    /** The centre of this mark's box, in fractions of a [w] x [h] original: what [turned] turns around. */
+    fun centre(w: Int, h: Int): Offset {
+        if (points.isEmpty()) return Offset.Zero
+        val f = frame(w.toFloat(), h.toFloat())
+        return Offset(f.c.x / w, f.c.y / h)
+    }
+
+    /**
+     * **This mark with the style of [source]** (4.70, his answer on `4.64-03`: *È C2 (stile), che è
+     * poi applicato (nelle parti compatibili/applicabili) ad un altro oggetto selezionato*): the
+     * line's colour, light and opacity, the width and the dashes always; the fill only between two
+     * closed shapes, since a line has no fill to give and an arrow none to take. The pen, the points
+     * and the turn are the mark's own.
+     */
+    fun styledLike(source: Mark): Mark {
+        val fillToo = pen.closed && source.pen.closed
+        val ricetta = source.tint?.let { s ->
+            if (fillToo) s else {
+                val mine = tint
+                if (mine != null) s.copy(fill = mine.fill, fillLight = mine.fillLight, fillAlpha = mine.fillAlpha)
+                else s.copy(
+                    fill = fill?.let { it or 0xFF000000.toInt() }, fillLight = 0f,
+                    fillAlpha = fill?.let { (it ushr 24) / 255f } ?: s.fillAlpha
+                )
+            }
+        }
+        return copy(
+            ink = source.ink, width = source.width, dashed = source.dashed,
+            fill = if (fillToo) source.fill else fill, tint = ricetta
+        )
+    }
+
+    private companion object {
+        /** Below this size, in pixels, a free hand box has no side to stretch. */
+        const val FLAT = 0.5f
     }
 }
 
@@ -259,6 +450,12 @@ internal object Draw {
         val pts = mark.points.map { Offset(it.x * w, it.y * h) }
         val a = pts.first()
         val b = pts.last()
+        // ⚠️ A turned rectangle or ellipse is the same shape drawn on a turned canvas (4.70): its
+        // fill, its outline, its round corners and its dashes all turn with it, with no second
+        // drawing of the turned shape.
+        val turned = mark.pen.closed && mark.angle != 0f
+        val kept = if (turned) canvas.save() else -1
+        if (turned) canvas.rotate(mark.angle, (a.x + b.x) / 2f, (a.y + b.y) / 2f)
         // ⚠️ The fill goes first and on its own: its opacity is its own, and the outline's layer
         // below must not multiply it.
         if (mark.pen.closed) mark.fill?.let {
@@ -283,6 +480,62 @@ internal object Draw {
         val layer = if (alpha < 255) canvas.saveLayerAlpha(null, alpha) else -1
         strokeOf(canvas, mark, pts, long)
         if (layer >= 0) canvas.restoreToCount(layer)
+        if (kept >= 0) canvas.restoreToCount(kept)
+    }
+
+    /**
+     * **The outline of a turned rectangle or ellipse**, as points in fractions of a [w] x [h]
+     * original (4.70): enough of them that the box they span is the shape's box on the screen,
+     * round corners included. The stage reads it to lay a turned element on an edge.
+     * ⚠️ Points and not a box: the geometry can bend the outline, and only points go through it.
+     */
+    fun outline(mark: Mark, w: Int, h: Int): List<Offset> {
+        if (mark.points.isEmpty()) return emptyList()
+        val fw = w.toFloat()
+        val fh = h.toFloat()
+        val a = Offset(mark.points.first().x * fw, mark.points.first().y * fh)
+        val b = Offset(mark.points.last().x * fw, mark.points.last().y * fh)
+        val c = Offset((a.x + b.x) / 2f, (a.y + b.y) / 2f)
+        val hw = abs(b.x - a.x) / 2f
+        val hh = abs(b.y - a.y) / 2f
+        val rad = Math.toRadians(mark.angle.toDouble())
+        val cs = cos(rad).toFloat()
+        val sn = sin(rad).toFloat()
+        val local = mutableListOf<Offset>()
+        if (mark.pen == Pen.ELLIPSE) {
+            for (i in 0 until OUTLINE_STEPS) {
+                val t = 2.0 * Math.PI * i / OUTLINE_STEPS
+                local += Offset(hw * cos(t).toFloat(), hh * sin(t).toFloat())
+            }
+        } else {
+            val r = corner(mark, max(fw, fh), RectF(c.x - hw, c.y - hh, c.x + hw, c.y + hh))
+            for ((sx, sy) in listOf(-1f to -1f, 1f to -1f, 1f to 1f, -1f to 1f)) {
+                val o = Offset(sx * (hw - r), sy * (hh - r))
+                for (i in 0..CORNER_STEPS) {
+                    val t = Math.PI / 2 * i / CORNER_STEPS
+                    local += Offset(o.x + sx * r * cos(t).toFloat(), o.y + sy * r * sin(t).toFloat())
+                }
+            }
+        }
+        return local.map { Offset((c.x + it.x * cs - it.y * sn) / fw, (c.y + it.x * sn + it.y * cs) / fh) }
+    }
+
+    /** How many points [outline] takes on an ellipse, and on each round corner of a rectangle. */
+    private const val OUTLINE_STEPS = 72
+    private const val CORNER_STEPS = 6
+
+    /**
+     * **[deg] on the nearest multiple of 45 degrees when it is within [SNAP_DEG] of it**, and in
+     * the range from -180 to 180 (4.70, the turn of 'Ruota'). The same 5 degrees as the lines on the
+     * horizontal and the vertical, so the two snaps feel alike under the finger.
+     */
+    fun snapTurn(deg: Float): Float {
+        var d = deg % 360f
+        if (d > 180f) d -= 360f
+        if (d <= -180f) d += 360f
+        val m = Math.round(d / 45f) * 45f
+        val out = if (abs(d - m) <= SNAP_DEG) m else d
+        return if (out <= -180f) out + 360f else out
     }
 
     /** The corner radius of a rectangle [box]: it follows the stroke, never past half a side. */
@@ -448,6 +701,19 @@ internal object Draw {
     fun far(a: Offset, b: Offset): Boolean = hypot(b.x - a.x, b.y - a.y) >= STEP
 
     /**
+     * **How far 'Duplica' lays the copy from its original**, in fractions of a [w] x [h] original
+     * (4.70): [DUPLICATE_SHIFT] of the long side, right and down on the original image, so the copy
+     * shows beside the original instead of hiding it. A choice of the session, declared in the
+     * test item.
+     */
+    fun duplicateShift(w: Int, h: Int): Offset {
+        val long = max(w, h).toFloat()
+        return Offset(DUPLICATE_SHIFT * long / w.coerceAtLeast(1), DUPLICATE_SHIFT * long / h.coerceAtLeast(1))
+    }
+
+    private const val DUPLICATE_SHIFT = 0.03f
+
+    /**
      * **[b] laid onto the horizontal or the vertical through [a]** when the line from [a] to [b] is
      * within [SNAP_DEG] of it, with that axis; otherwise [b] itself and `null` (his note A on the
      * 4.45 round: *all'avvicinarsi della direzione perfettamente orizzontale e perfettamente
@@ -494,10 +760,25 @@ internal object Draw {
         return null
     }
 
-    private fun touches(mark: Mark, pts: List<Offset>, p: Offset, r: Float): Boolean {
+    private fun touches(mark: Mark, pts: List<Offset>, at: Offset, r: Float): Boolean {
         if (pts.isEmpty()) return false
         val a = pts.first()
         val b = pts.last()
+        /*
+         * ⚠️ A turned rectangle or ellipse (4.70) is tested with the touch turned back around its
+         * centre, so the box below stays the box it was drawn in. The coordinates here are the
+         * image's pixels scaled by its long side, where a turn is still a turn.
+         */
+        val p = if (!mark.pen.closed || mark.angle == 0f) at else {
+            val cx = (a.x + b.x) / 2f
+            val cy = (a.y + b.y) / 2f
+            val rad = Math.toRadians(mark.angle.toDouble())
+            val cs = cos(rad).toFloat()
+            val sn = sin(rad).toFloat()
+            val dx = at.x - cx
+            val dy = at.y - cy
+            Offset(cx + dx * cs + dy * sn, cy - dx * sn + dy * cs)
+        }
         return when (mark.pen) {
             Pen.FREE -> if (pts.size == 1) hypot(p.x - a.x, p.y - a.y) <= r
             else pts.zipWithNext().any { (u, v) -> segment(p, u, v) <= r }

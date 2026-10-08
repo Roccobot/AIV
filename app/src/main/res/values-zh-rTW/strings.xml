@@ -492,6 +492,14 @@
     <string name="draw_dashed">虛線</string>
     <string name="draw_filled">填滿</string>
     <string name="draw_light">亮度</string>
+    <string name="draw_raise">上移一層</string>
+    <string name="draw_lower">下移一層</string>
+    <string name="draw_copy">複製</string>
+    <string name="draw_paste">貼上</string>
+    <string name="draw_paste_clear">清除已複製的樣式</string>
+    <string name="draw_style_cleared">已清除複製的樣式。</string>
+    <string name="draw_rotate">旋轉</string>
+    <string name="draw_transform">變形</string>
     <string name="ink_red">紅</string>
     <string name="ink_amber">琥珀</string>
     <string name="ink_green">綠</string>

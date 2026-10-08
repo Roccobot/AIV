@@ -492,6 +492,14 @@
     <string name="draw_dashed">破線</string>
     <string name="draw_filled">塗りつぶし</string>
     <string name="draw_light">明るさ</string>
+    <string name="draw_raise">前面へ</string>
+    <string name="draw_lower">背面へ</string>
+    <string name="draw_copy">コピー</string>
+    <string name="draw_paste">貼り付け</string>
+    <string name="draw_paste_clear">コピーしたスタイルを消去</string>
+    <string name="draw_style_cleared">コピーしたスタイルを消去しました。</string>
+    <string name="draw_rotate">回転</string>
+    <string name="draw_transform">変形</string>
     <string name="ink_red">赤</string>
     <string name="ink_amber">琥珀</string>
     <string name="ink_green">緑</string>

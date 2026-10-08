@@ -1397,6 +1397,226 @@ class DisegnoTest {
     }
 
     /**
+     * **Il conto della `4.70`: giro, maniglie, ridimensionamento, stile e livelli**, su un'immagine
+     * non quadrata (200 x 100), dove un giro fatto sulle frazioni invece che sui pixel deformerebbe
+     * la forma.
+     * ⚠️⚠️ **CONTROPROVATA** tre volte: senza la rotazione della tela in `Draw.paint` (il pixel del
+     * rettangolo girato resta trasparente), senza il tocco riportato indietro in `Draw.touches` (il
+     * tocco dentro la forma girata la manca), e col giro della linea fatto sulle frazioni (la linea
+     * girata di 90 gradi cambia lunghezza).
+     */
+    @Test
+    fun `il conto di giro, maniglie, stile e livelli`() {
+        val w = 200
+        val h = 100
+        fun uguale(cosa: String, atteso: Offset, visto: Offset) {
+            assertEquals("$cosa, x", atteso.x, visto.x, 1e-4f)
+            assertEquals("$cosa, y", atteso.y, visto.y, 1e-4f)
+        }
+        val rett = Mark(Pen.RECT, listOf(Offset(0.2f, 0.4f), Offset(0.6f, 0.6f)), Color.RED, 0.01f, false, Color.GREEN)
+        val maniglie = rett.handles(w, h)
+        assertEquals("quattro angoli e quattro lati", 8, maniglie.size)
+        uguale("angolo in alto a sinistra", Offset(0.2f, 0.4f), maniglie[0])
+        uguale("angolo in basso a destra", Offset(0.6f, 0.6f), maniglie[2])
+        uguale("mezzo del lato di sopra", Offset(0.4f, 0.4f), maniglie[4])
+        uguale("mezzo del lato sinistro", Offset(0.2f, 0.5f), maniglie[7])
+
+        assertEquals("un giro libero resta com'è", 30f, rett.turned(30f, w, h).angle, 1e-4f)
+        assertEquals("vicino a 45 gradi si aggancia", 45f, rett.turned(42f, w, h).angle, 1e-4f)
+        assertEquals("vicino al mezzo giro si aggancia, nel suo intervallo", 180f, rett.turned(-178f, w, h).angle, 1e-4f)
+        val girato = rett.turned(90f, w, h)
+        assertEquals("il giro non tocca i punti del rettangolo", rett.points, girato.points)
+        uguale("l'angolo in alto a sinistra del rettangolo girato", Offset(0.45f, 0.1f), girato.handles(w, h)[0])
+        assertEquals("dentro la forma girata, fuori da quella dritta", 0,
+            Draw.hit(Drawing(listOf(girato)), Offset(0.4f, 0.85f), w, h, 0.01f))
+        assertEquals("dentro la forma dritta, fuori da quella girata", null,
+            Draw.hit(Drawing(listOf(girato)), Offset(0.55f, 0.5f), w, h, 0.01f))
+        val tela = Draw.overlay(Drawing(listOf(girato)), w, h, Spin(0, false))!!
+        assertEquals("il riempimento è dove la forma girata arriva", Color.GREEN, tela.getPixel(80, 85))
+        assertEquals("e non dove arrivava quella dritta", 0, tela.getPixel(110, 50))
+        val contorno = Draw.outline(girato, w, h)
+        assertEquals(0.35f, contorno.minOf { it.x }, 1e-3f)
+        assertEquals(0.45f, contorno.maxOf { it.x }, 1e-3f)
+        assertEquals(0.1f, contorno.minOf { it.y }, 1e-3f)
+        assertEquals(0.9f, contorno.maxOf { it.y }, 1e-3f)
+
+        val tirato = rett.reshaped(2, Offset(0.8f, 0.8f), w, h)
+        uguale("tirando un angolo l'opposto resta", Offset(0.2f, 0.4f), tirato.points.first())
+        uguale("e l'angolo va dove è tirato", Offset(0.8f, 0.8f), tirato.points.last())
+        val allungato = girato.reshaped(5, Offset(0.4f, 0.95f), w, h)
+        assertEquals("allungando un lato il giro resta", 90f, allungato.angle, 1e-4f)
+        uguale("il lato destro del rettangolo girato scende, il sinistro resta", Offset(0.1875f, 0.425f), allungato.points.first())
+        uguale("il lato destro del rettangolo girato scende", Offset(0.6125f, 0.625f), allungato.points.last())
+        val mano = Mark(Pen.FREE, listOf(Offset(0.1f, 0.1f), Offset(0.2f, 0.3f), Offset(0.3f, 0.2f)), Color.RED, 0.01f, false, null)
+        assertEquals("la mano libera si stira col suo riquadro", listOf(0.1f, 0.3f, 0.5f),
+            mano.reshaped(5, Offset(0.5f, 0.9f), w, h).points.map { (it.x * 1e4f).roundToInt() / 1e4f })
+        assertEquals("e in altezza resta", mano.points.map { (it.y * 1e4f).roundToInt() },
+            mano.reshaped(5, Offset(0.5f, 0.9f), w, h).points.map { (it.y * 1e4f).roundToInt() })
+
+        val linea = Mark(Pen.LINE, listOf(Offset(0.2f, 0.5f), Offset(0.6f, 0.5f)), Color.RED, 0.01f, false, null)
+        val ritta = linea.turned(88f, w, h)
+        uguale("la linea girata si aggancia alla verticale e tiene la sua lunghezza", Offset(0.4f, 0.1f), ritta.points.first())
+        uguale("la linea girata, l'altro capo", Offset(0.4f, 0.9f), ritta.points.last())
+
+        val blu = Mark(Pen.LINE, listOf(Offset(0f, 0f), Offset(1f, 1f)), Color.BLUE, 0.02f, true, null)
+        val stilato = rett.styledLike(blu)
+        assertEquals(Color.BLUE, stilato.ink)
+        assertEquals(0.02f, stilato.width)
+        assertTrue(stilato.dashed)
+        assertEquals("una linea non ha un riempimento da dare", Color.GREEN, stilato.fill)
+        assertEquals("i punti restano suoi", rett.points, stilato.points)
+        val ellisse = Mark(Pen.ELLIPSE, listOf(Offset(0f, 0f), Offset(0.1f, 0.1f)), Color.BLACK, 0.005f, false, Color.YELLOW)
+        assertEquals("fra due forme chiuse passa anche il riempimento", Color.YELLOW, girato.styledLike(ellisse).fill)
+        assertEquals("il giro resta suo", 90f, girato.styledLike(ellisse).angle, 1e-4f)
+        assertEquals("una freccia non prende un riempimento", null,
+            Mark(Pen.ARROW, linea.points, Color.RED, 0.01f, false, null).styledLike(ellisse).fill)
+
+        val disegno = Drawing(listOf(rett, linea, ellisse))
+        assertEquals(listOf(linea, rett, ellisse), disegno.swapping(0, 1).marks)
+        assertEquals("oltre la cima non si sposta niente", disegno, disegno.swapping(2, 3))
+        assertEquals(listOf(rett, blu, linea, ellisse), disegno.inserting(1, blu).marks)
+        uguale("la copia si posa al 3% del lato lungo", Offset(0.03f, 0.06f), Draw.duplicateShift(w, h))
+    }
+
+    /**
+     * **Tenendo fermo un elemento si apre il suo menu di sei voci, e le voci funzionano** (`4.70`,
+     * sua nota E sul giro della `4.60` e sue risposte su `4.64-03`): `Duplica` posa una copia
+     * scostata e la sceglie, `Sposta sotto` la porta sotto l'originale, il tocco fuori dal menu lo
+     * chiude senza disegnare, `Copia` diventa `Incolla` e porta lo stile, e tenendo `Incolla` la
+     * memoria si svuota con l'avviso.
+     * ⚠️⚠️ **CONTROPROVATA** tre volte: senza l'attesa del tocco lungo nel palco (il menu non
+     * compare), con `Incolla` che non posa lo stile (l'elemento tiene il suo colore), e senza lo
+     * svuotamento al tocco lungo (l'avviso non compare).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `tenendo fermo un elemento si apre il suo menu`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        fun tieni(da: Offset) {
+            palco.performTouchInput { longClick(center + da) }
+            banco.waitForIdle()
+        }
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        banco.onNodeWithText(testo(R.string.draw_raise)).assertDoesNotExist()
+        tieni(Offset(-70f, -70f))
+        for (voce in listOf(R.string.draw_raise, R.string.draw_copy, R.string.pick_duplicate, R.string.draw_lower, R.string.draw_rotate)) {
+            banco.onNodeWithText(testo(voce)).assertExists()
+        }
+        banco.onNodeWithText(testo(R.string.draw_raise)).assertIsNotEnabled()
+        banco.onNodeWithText(testo(R.string.draw_lower)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.pick_delete)).assertIsEnabled()
+        banco.onNodeWithText(testo(R.string.pick_duplicate)).performClick()
+        banco.waitForIdle()
+        val dopo = salva()
+        assertEquals("Duplica doveva aggiungere un elemento", 2, dopo.size)
+        assertEquals("la copia doveva essere scostata", dopo[0].moved(Draw.duplicateShift(LATO, LATO)).points, dopo[1].points)
+
+        // ⚠️ La copia è sopra e scelta: tenerla e portarla sotto la mette prima dell'originale.
+        tieni(Offset(-70f, -70f))
+        banco.onNodeWithText(testo(R.string.draw_lower)).performClick()
+        banco.waitForIdle()
+        val scambiati = salva()
+        assertEquals("Sposta sotto doveva scambiare i due", listOf(dopo[1], dopo[0]), scambiati)
+
+        /*
+         * Il tocco fuori dal menu non disegna, nemmeno con la mano libera. ⚠️ Che lo chiuda lo fa la
+         * finestra del menu, e il banco non le consegna quel tocco (vedi la prova del cursore della
+         * luminosità): qui si misura che il palco non cambia, poi il menu si chiude con 'Ruota'.
+         */
+        banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
+        banco.waitForIdle()
+        tieni(Offset(-70f, -70f))
+        banco.onNodeWithText(testo(R.string.draw_copy)).assertExists()
+        val aperto = palco.captureToImage().toPixelMap()
+        tocca(Offset(80f, 80f))
+        assertEquals("il tocco fuori dal menu non doveva disegnare", 0, differenza(aperto, palco.captureToImage().toPixelMap()))
+        banco.onNodeWithText(testo(R.string.draw_rotate)).performClick()
+        banco.waitForIdle()
+        assertEquals(2, salva().size)
+
+        // Copia, poi Incolla su un altro elemento: lo stile passa.
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.waitForIdle()
+        trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
+        tieni(Offset(70f, 70f))
+        banco.onNodeWithText(testo(R.string.draw_copy)).performClick()
+        banco.waitForIdle()
+        tieni(Offset(-70f, -70f))
+        banco.onNodeWithText(testo(R.string.draw_copy)).assertDoesNotExist()
+        banco.onNodeWithText(testo(R.string.draw_paste)).performClick()
+        banco.waitForIdle()
+        val incollati = salva()
+        assertEquals("Incolla doveva dare all'elemento il colore copiato", incollati[2].ink, incollati[1].ink)
+
+        // Tenendo Incolla la memoria si svuota, lo dice l'avviso, e torna Copia.
+        tieni(Offset(-70f, -70f))
+        banco.onNodeWithText(testo(R.string.draw_paste)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals(testo(R.string.draw_style_cleared), Notices.line?.text)
+        tieni(Offset(-70f, -70f))
+        banco.onNodeWithText(testo(R.string.draw_copy)).assertExists()
+        banco.onNodeWithText(testo(R.string.draw_paste)).assertDoesNotExist()
+    }
+
+    /**
+     * **Le maniglie ridimensionano l'elemento scelto, e in `Ruota` lo girano** (`4.70`, sua risposta
+     * su `4.64-04`: *le maniglie di base permetteranno di ridimensionare gli oggetti. Invece,
+     * toccando `Ruota` si passa in modalità rotazione*). In `Ruota` il tasto diventa `Trasforma`, e
+     * le maniglie si vedono vuote.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza il ramo delle maniglie nel palco (il trascinamento
+     * dall'angolo sposta l'elemento invece di tirarlo), e con `Ruota` che non cambia modalità (le
+     * maniglie restano piene).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `le maniglie ridimensionano e in Ruota girano`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        val prima = salva().single()
+        tocca(Offset(-70f, -70f))
+        trascinaDa(Offset(-40f, -40f), Offset(-10f, -10f))
+        val tirato = salva()
+        assertEquals("il trascinamento da un angolo non doveva disegnare", 1, tirato.size)
+        assertEquals("l'angolo opposto doveva restare, x", prima.points.first().x, tirato[0].points.first().x, 1e-4f)
+        assertEquals("l'angolo opposto doveva restare, y", prima.points.first().y, tirato[0].points.first().y, 1e-4f)
+        assertTrue("l'angolo tirato doveva allontanarsi", tirato[0].points.last().x > prima.points.last().x + 0.02f)
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val pieno = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { longClick(center + Offset(-55f, -55f)) }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.draw_rotate)).performClick()
+        banco.waitForIdle()
+        assertTrue("in Ruota le maniglie dovevano cambiare aspetto", differenza(pieno, palco.captureToImage().toPixelMap()) > 20)
+        // ⚠️ Dall'angolo in basso a destra, a 45 gradi dal centro, a dritto sotto il centro: 45 gradi.
+        trascinaDa(Offset(-10f, -10f), Offset(-55f, -55f + 45f * 1.4142f))
+        val girato = salva().single()
+        assertEquals("il trascinamento in Ruota doveva girare l'elemento di 45 gradi", 45f, girato.angle, 1e-3f)
+        assertEquals("girando i punti restano", tirato[0].points, girato.points)
+        palco.performTouchInput { longClick(center + Offset(-55f, -55f)) }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.draw_transform)).assertExists()
+    }
+
+    /**
      * Il riquadro dell'immagine sul palco, misurato dal centro del palco come i gesti di
      * [trascinaDa]: i pixel bianchi del quadrato di prova.
      */

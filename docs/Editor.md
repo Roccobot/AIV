@@ -748,9 +748,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.
 - **Sopra e sotto fra gli oggetti** (sua nota dello stesso giorno: *una versione semplificata di
-  Z-index andrà gestita in qualche modo*) entra nella seconda parte della G2, con le maniglie.
+  Z-index andrà gestita in qualche modo*): dalla `4.70`, nel menu della pressione lunga.
 - **Prima della pillola viene lo strumento Sfocatura**, e prima ancora il testo (G3): la sua
   specifica vive nel brief, voce del giro della `4.43`.
+- **I caratteri del testo (G3) si scelgono da un [artefatto](https://claude.ai/artifact/BnskaC7AgjgE5Dn23RVmoe)**
+  con dodici caratteri liberi, Roboto di fabbrica (sua richiesta del 2026-10-08), più gli stili
+  grassetto, corsivo, barrato, evidenziato ed etichettato; la scelta è sua e non è ancora
+  arrivata.
 - **Dalla `4.60` la G2, prima parte: scegliere, cambiare, spostare, eliminare** (sua specifica:
   *un tocco singolo seleziona un oggetto; il rettangolo selezionato mostra 4 vertici color accento,
   la freccia 2 punti color accento; con un oggetto selezionato, i parametri cambiano
@@ -814,10 +818,41 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   scelta restava su un elemento che non c'era più, `Elimina` restava acceso, e l'elemento
   disegnato dopo nasceva scelto. La chiave è nuova (`draw_clear`), perché `editor_original`
   resta agli altri 'Azzera'.
-- **La seconda parte della G2**: un menu a pressione lunga sull'elemento, con sei icone su 3x2
-  (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`; sua nota E sul giro
-  della `4.60`), e le maniglie per ridimensionare. Da chiedergli prima: dove si incolla un elemento
-  copiato, e se `Ruota` va a scatti di 90 gradi o è libera.
+- **Dalla `4.70` la G2, seconda parte: il menu della pressione lunga, le maniglie e la rotazione**
+  (sua nota E sul giro della `4.60` e sue risposte su `4.64-03` e `4.64-04`):
+  - **tenendo fermo un elemento lo si sceglie e si apre il suo menu**, col disegno del menu della
+    pressione lunga sull'immagine nel visualizzatore e senza la parte sopra: sei icone con la
+    parola, su due righe da tre, nell'ordine della sua nota letto per righe (`Sposta sopra`,
+    `Copia`, `Duplica`; `Sposta sotto`, `Ruota`, `Elimina`). Le parole seguono l'impostazione dei
+    riquadri, come nel visualizzatore. Tenendo fermo il vuoto il gesto resta quello di prima;
+  - **`Copia` copia lo stile** (sua risposta: *È C2 (stile)*) e al suo posto compare `Incolla`,
+    che lo posa su ogni elemento scelto finché lo si tiene premuto: allora la memoria si svuota,
+    l'avviso dice `Stile in memoria eliminato.` e torna `Copia`. Passano colore, luminosità e
+    opacità della traccia, lo spessore e il tratteggio; il riempimento solo fra rettangoli ed
+    ellissi. La memoria dura finché l'editor è aperto, e lo stile incollato è un passo di
+    'Annulla';
+  - **`Duplica` posa la copia sopra l'originale, scostata del 3% del lato lungo in basso a destra,
+    e la sceglie**; **`Sposta sopra` e `Sposta sotto` scambiano l'elemento col vicino**, e in cima
+    o in fondo sono spenti;
+  - **le maniglie sono otto**: i quattro vertici e il mezzo di ogni lato, per rettangolo, ellisse e
+    mano libera; i due capi per linea e freccia. In `Trasforma` (la modalità di partenza) un
+    vertice muove i suoi due lati e l'opposto resta, il mezzo di un lato muove quel lato; i lati
+    sono quelli dell'elemento, quindi un rettangolo girato si allunga lungo sé stesso. Un capo di
+    linea o di freccia si aggancia all'orizzontale e alla verticale come quando la si disegna. La
+    mano libera trascinata oltre il lato opposto si specchia;
+  - **`Ruota` mette le maniglie in rotazione, e il tasto diventa `Trasforma`**: trascinando una
+    maniglia l'elemento gira attorno al centro del suo riquadro, libero, e si aggancia ai multipli
+    di 45 gradi entro 5 gradi (la R2 della sua domanda). In rotazione le maniglie sono vuote. La
+    modalità torna `Trasforma` quando la scelta cambia;
+  - **in tutte e due le modalità trascinare l'elemento lo sposta** (sua frase: *In entrambe le
+    modalità immagino possibile anche lo spostamento*), e una maniglia vince sul corpo entro 16 dp;
+  - letture della sessione, dichiarate nella voce di collaudo: l'ordine per righe, le maniglie dei
+    lati, i 16 dp, lo scostamento della copia, i 45 gradi, la memoria che dura quanto l'editor, e
+    l'appoggio ai bordi, che vale disegnando e spostando ma non tirando una maniglia.
+  - ⚠️ **Rettangolo ed ellisse tengono un angolo** (`Mark.angle`), e la tela gira prima di
+    disegnarli; linea, freccia e mano libera girano i loro punti. Il giro si conta nei pixel
+    dell'immagine originale, non nelle sue frazioni, o su un'immagine non quadrata la forma si
+    deformerebbe. Le prove sono in `DisegnoTest`.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

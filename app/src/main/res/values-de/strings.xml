@@ -509,6 +509,14 @@
     <string name="draw_dashed">Gestrichelt</string>
     <string name="draw_filled">Füllung</string>
     <string name="draw_light">Helligkeit</string>
+    <string name="draw_raise">Nach vorne</string>
+    <string name="draw_lower">Nach hinten</string>
+    <string name="draw_copy">Kopieren</string>
+    <string name="draw_paste">Einfügen</string>
+    <string name="draw_paste_clear">Kopierten Stil löschen</string>
+    <string name="draw_style_cleared">Kopierter Stil gelöscht.</string>
+    <string name="draw_rotate">Drehen</string>
+    <string name="draw_transform">Transformieren</string>
     <string name="ink_red">Rot</string>
     <string name="ink_amber">Bernstein</string>
     <string name="ink_green">Grün</string>

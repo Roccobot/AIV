@@ -526,6 +526,14 @@
     <string name="draw_dashed">Pointillés</string>
     <string name="draw_filled">Remplissage</string>
     <string name="draw_light">Luminosité</string>
+    <string name="draw_raise">Mettre devant</string>
+    <string name="draw_lower">Mettre derrière</string>
+    <string name="draw_copy">Copier</string>
+    <string name="draw_paste">Coller</string>
+    <string name="draw_paste_clear">Effacer le style copié</string>
+    <string name="draw_style_cleared">Style copié effacé.</string>
+    <string name="draw_rotate">Tourner</string>
+    <string name="draw_transform">Transformer</string>
     <string name="ink_red">Rouge</string>
     <string name="ink_amber">Ambre</string>
     <string name="ink_green">Vert</string>

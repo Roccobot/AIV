@@ -148,6 +148,14 @@
     <string name="draw_dashed">Dashed</string>
     <string name="draw_filled">Fill</string>
     <string name="draw_light">Brightness</string>
+    <string name="draw_raise">Bring forward</string>
+    <string name="draw_lower">Send backward</string>
+    <string name="draw_copy">Copy</string>
+    <string name="draw_paste">Paste</string>
+    <string name="draw_paste_clear">Clear copied style</string>
+    <string name="draw_style_cleared">Copied style cleared.</string>
+    <string name="draw_rotate">Rotate</string>
+    <string name="draw_transform">Transform</string>
     <string name="ink_red">Red</string>
     <string name="ink_amber">Amber</string>
     <string name="ink_green">Green</string>

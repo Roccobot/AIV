@@ -509,6 +509,14 @@
     <string name="draw_dashed">डैश</string>
     <string name="draw_filled">भराव</string>
     <string name="draw_light">चमक</string>
+    <string name="draw_raise">आगे लाएँ</string>
+    <string name="draw_lower">पीछे भेजें</string>
+    <string name="draw_copy">कॉपी करें</string>
+    <string name="draw_paste">पेस्ट करें</string>
+    <string name="draw_paste_clear">कॉपी की गई शैली हटाएँ</string>
+    <string name="draw_style_cleared">कॉपी की गई शैली हटा दी गई।</string>
+    <string name="draw_rotate">घुमाएँ</string>
+    <string name="draw_transform">रूपांतरित करें</string>
     <string name="ink_red">लाल</string>
     <string name="ink_amber">एम्बर</string>
     <string name="ink_green">हरा</string>

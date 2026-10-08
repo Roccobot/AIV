@@ -543,6 +543,14 @@
     <string name="draw_dashed">Przerywana</string>
     <string name="draw_filled">Wypełnienie</string>
     <string name="draw_light">Jasność</string>
+    <string name="draw_raise">Przesuń wyżej</string>
+    <string name="draw_lower">Przesuń niżej</string>
+    <string name="draw_copy">Kopiuj</string>
+    <string name="draw_paste">Wklej</string>
+    <string name="draw_paste_clear">Usuń skopiowany styl</string>
+    <string name="draw_style_cleared">Skopiowany styl usunięty.</string>
+    <string name="draw_rotate">Obróć</string>
+    <string name="draw_transform">Przekształć</string>
     <string name="ink_red">Czerwony</string>
     <string name="ink_amber">Bursztynowy</string>
     <string name="ink_green">Zielony</string>

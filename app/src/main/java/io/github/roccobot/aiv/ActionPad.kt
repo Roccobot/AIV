@@ -27,7 +27,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ControlPointDuplicate
 import androidx.compose.material.icons.filled.Flip
+import androidx.compose.material.icons.filled.FlipToBack
+import androidx.compose.material.icons.filled.FlipToFront
+import androidx.compose.material.icons.filled.FormatPaint
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
@@ -954,7 +958,20 @@ enum class PadKey(override val token: String) : Choice {
     MOD_PRESET("mod-preset"),
 
     /** The Disegno module, from 4.40: last of the factory order (his note D on the 4.36 round). */
-    MOD_DRAW("mod-draw")
+    MOD_DRAW("mod-draw"),
+
+    /*
+     * ⚠️ The menu of an element of the Disegno module, from 4.70 (his note E on the 4.60 round and
+     * his answers on `4.64-03` and `4.64-04`). Its order is his and is not saved, so these keys are
+     * never reordered: they are here because a key is what a pad's action is made of. 'Elimina'
+     * is [DELETE], the same action as everywhere else. [DRAW_STYLE] is 'Copia' or 'Incolla', and
+     * [DRAW_TURN] is 'Ruota' or 'Trasforma': one place each, like [RENAME] in the bin.
+     */
+    DRAW_RAISE("draw-raise"),
+    DRAW_STYLE("draw-style"),
+    DRAW_DUPLICATE("draw-duplicate"),
+    DRAW_LOWER("draw-lower"),
+    DRAW_TURN("draw-turn")
 }
 
 /**
@@ -1008,6 +1025,11 @@ fun PadKey.label(): Int = when (this) {
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
     PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modName(this)
+    PadKey.DRAW_RAISE -> R.string.draw_raise
+    PadKey.DRAW_STYLE -> R.string.draw_copy
+    PadKey.DRAW_DUPLICATE -> R.string.pick_duplicate
+    PadKey.DRAW_LOWER -> R.string.draw_lower
+    PadKey.DRAW_TURN -> R.string.draw_rotate
 }
 
 /**
@@ -1045,6 +1067,11 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
     PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL, PadKey.MOD_EFFECTS,
     PadKey.MOD_PRESET, PadKey.MOD_DRAW -> modGlyph(this)
+    PadKey.DRAW_RAISE -> Icons.Filled.FlipToFront
+    PadKey.DRAW_STYLE -> Icons.Filled.FormatPaint
+    PadKey.DRAW_DUPLICATE -> Icons.Filled.ControlPointDuplicate
+    PadKey.DRAW_LOWER -> Icons.Filled.FlipToBack
+    PadKey.DRAW_TURN -> Glyphs.TurnRight
 }
 
 /**
@@ -1320,6 +1347,14 @@ val HOLD_BUZZ = HapticFeedbackType.TextHandleMove
  * numero che un giorno diverge da questo.
  */
 internal const val PAD_COLUMNS = 3
+
+/**
+ * How wide a menu made of a pad of six actions is: the viewer's long press menu, and since 4.70
+ * the menu of an element of the Disegno module (his answer on `4.64-03`: *Lo stile del menu 3×2 è
+ * come quello della pressione lunga sulla foto nel visualizzatore*). Until 4.64 it lived in
+ * `ViewerScreen.kt`, where it had one reader.
+ */
+internal val PAD_MENU_WIDTH = 252.dp
 
 /**
  * Quanto è alta una cella della replica che si riordina.

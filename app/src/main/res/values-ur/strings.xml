@@ -509,6 +509,14 @@
     <string name="draw_dashed">ٹوٹی لکیر</string>
     <string name="draw_filled">بھرائی</string>
     <string name="draw_light">چمک</string>
+    <string name="draw_raise">آگے لائیں</string>
+    <string name="draw_lower">پیچھے بھیجیں</string>
+    <string name="draw_copy">کاپی کریں</string>
+    <string name="draw_paste">پیسٹ کریں</string>
+    <string name="draw_paste_clear">کاپی شدہ انداز صاف کریں</string>
+    <string name="draw_style_cleared">کاپی شدہ انداز صاف کر دیا گیا۔</string>
+    <string name="draw_rotate">گھمائیں</string>
+    <string name="draw_transform">تبدیل کریں</string>
     <string name="ink_red">سرخ</string>
     <string name="ink_amber">کہربائی</string>
     <string name="ink_green">سبز</string>
