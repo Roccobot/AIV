@@ -674,6 +674,7 @@
     <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
     <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır.</string>
     <string name="hint_save">İşin bitince dosyanın üzerine yazmak için \'Kaydet\' düğmesine dokun (etkinse yedek kopyayla birlikte); uzun basış, görüntünün yeni bir kopyasını aynı klasöre kaydeder.</string>
+    <string name="hint_draw">Çizim modülüyle görüntüye çizgiler, oklar, elipsler, yuvarlatılmış dikdörtgenler, basit metinler ve \'hap\' kutuları ekleyebilirsin. Kaydetmek görüntüyü tek katmana indirir: öğeleri düzenlemek ya da taşımak için onu yeniden açamazsın. Parlaklığını ayarlamak için bir renge uzun bas.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Dışa ve içe aktarma</string>

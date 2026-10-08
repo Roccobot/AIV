@@ -289,8 +289,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   è morto, il codice resta `front`), 'gradiente', 'FAB' e non 'tastino', 'Sfocatura dietro i
   pannelli' e non 'velo', 'immagine' e non 'fotografia', 'editor semplice' ed 'editor completo',
   copertina 'predefinita' e non 'automatica', 'file di impostazioni', 'tondo' e non 'pallino',
-  'stili' e non 'preset'; ogni peso si scrive con `formatBytes` (`Rules.md` § '🗣️ Come si chiamano
-  le cose').
+  'stili' e non 'preset', 'elemento' del Disegno e non 'segno'; ogni peso si scrive con
+  `formatBytes` (`Rules.md` § '🗣️ Come si chiamano le cose').
 - **'Centrato' vuol dire** centrato in orizzontale e il 15% più in basso in verticale, con
   `Modifier.lowered`. Modale vera solo una finestra che raccoglie un input scritto, e allora usa
   **insieme** `Modifier.lowered(null)` e `properties = loweredWindow(null)`: senza la seconda non è

@@ -51,7 +51,11 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlin.math.roundToInt
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.MaterialTheme
 
 /** Il lato del PNG di prova, in pixel. */
 private const val LATO = 64
@@ -82,6 +86,7 @@ class DisegnoTest {
         runBlocking {
             Hint.MODULES.remember(ApplicationProvider.getApplicationContext())
             Hint.EDITOR_TOOLS.remember(ApplicationProvider.getApplicationContext())
+            Hint.DRAW.remember(ApplicationProvider.getApplicationContext())
         }
     }
 
@@ -117,7 +122,7 @@ class DisegnoTest {
      * caso in cui un disegno dipinto nella cornice sbagliata cade fuori dal punto atteso.
      */
     @Test
-    fun `il salvataggio dipinge il segno nella posa dell'immagine`() {
+    fun `il salvataggio dipinge l'elemento nella posa dell'immagine`() {
         val bianca = Bitmap.createBitmap(40, 20, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
         assertSame("senza disegno l'immagine doveva passare intatta", bianca, Draw.onto(bianca, Drawing.NONE, Spin.STILL))
 
@@ -127,9 +132,9 @@ class DisegnoTest {
         val immutabile = bianca.copy(Bitmap.Config.ARGB_8888, false)
         val fatta = Draw.onto(immutabile, Drawing(listOf(segno)), Spin(1, false))
         assertNotSame("un'immagine immutabile doveva essere copiata", immutabile, fatta)
-        assertEquals("il centro del segno doveva essere blu", Color.BLUE, fatta.getPixel(20, 10))
-        assertEquals("fuori dal segno doveva restare bianco", Color.WHITE, fatta.getPixel(20, 2))
-        assertEquals("il segno girato non doveva arrivare ai bordi", Color.WHITE, fatta.getPixel(1, 10))
+        assertEquals("il centro dell'elemento doveva essere blu", Color.BLUE, fatta.getPixel(20, 10))
+        assertEquals("fuori dall'elemento doveva restare bianco", Color.WHITE, fatta.getPixel(20, 2))
+        assertEquals("l'elemento girato non doveva arrivare ai bordi", Color.WHITE, fatta.getPixel(1, 10))
     }
 
     /** **Un disegno toglie il senza perdita, e vive dalla parte del 'dove'.** */
@@ -171,10 +176,10 @@ class DisegnoTest {
     }
 
     /**
-     * **Un trascinamento sul palco lascia un segno, con lo strumento, il colore e il tratto scelti.**
+     * **Un trascinamento sul palco lascia un elemento, con lo strumento, il colore e il tratto scelti.**
      *
      * ⚠️⚠️ **CONTROPROVATA** due volte: togliendo il ramo del disegno dal gesto del palco il
-     * salvataggio non riceve nessun segno, e senza il punto che supera la soglia il rettangolo
+     * salvataggio non riceve nessun elemento, e senza il punto che supera la soglia il rettangolo
      * nasce con un punto solo.
      */
     @Test
@@ -193,9 +198,9 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         val look = salvato
-        assertNotNull("il segno doveva accendere 'Salva'", look)
+        assertNotNull("l'elemento doveva accendere 'Salva'", look)
         val segni = look!!.drawing.marks
-        assertEquals("un trascinamento, un segno", 1, segni.size)
+        assertEquals("un trascinamento, un elemento", 1, segni.size)
         val segno = segni.single()
         assertEquals(Pen.RECT, segno.pen)
         assertEquals("il rettangolo vive di due vertici opposti", 2, segno.points.size)
@@ -210,7 +215,7 @@ class DisegnoTest {
      *
      * ⚠️ È il suo esempio alla lettera, arrivato a G1 in corso: *un bordo rosso primario e un
      * riempimento bianco 50%*.
-     * ⚠️⚠️ **CONTROPROVATA** dando alla freccia il riempimento in `Gaze.penMark`: il secondo segno
+     * ⚠️⚠️ **CONTROPROVATA** dando alla freccia il riempimento in `Gaze.penMark`: il secondo elemento
      * arriva con un riempimento che niente disegna.
      */
     @Test
@@ -314,9 +319,9 @@ class DisegnoTest {
         assertEquals("fuori dal rettangolo resta nero", Color.BLACK, fatta.getPixel(1, 20))
     }
 
-    /** **'Annulla' toglie l'ultimo segno, e solo quello.** */
+    /** **'Annulla' toglie l'ultimo elemento, e solo quello.** */
     @Test
-    fun `Annulla toglie l'ultimo segno`() {
+    fun `Annulla toglie l'ultimo elemento`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
@@ -327,7 +332,7 @@ class DisegnoTest {
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
-        assertEquals("dopo 'Annulla' doveva restare il primo segno", 1, salvato!!.drawing.marks.size)
+        assertEquals("dopo 'Annulla' doveva restare il primo elemento", 1, salvato!!.drawing.marks.size)
         assertEquals(Pen.RECT, salvato!!.drawing.marks.single().pen)
     }
 
@@ -361,7 +366,7 @@ class DisegnoTest {
      * lineetta curva, non un punto*), del colore della linea, in basso a destra sull'immagine, e
      * sparisce quando il dito si alza.
      * ⚠️⚠️ **CONTROPROVATA** due volte: spegnendo l'anteprima nel palco (i pixel del colore della
-     * linea restano zero col dito sul cursore), e rimettendo il tondo pieno della `4.49` (il segno
+     * linea restano zero col dito sul cursore), e rimettendo il tondo pieno della `4.49` (l'elemento
      * è largo quanto alto).
      * ⚠️ **Su uno schermo da telefono e non su quello di serie del banco**: là il palco è alto 40
      * pixel e l'immagine 30, quindi l'anteprima vera misura meno di un pixel.
@@ -399,9 +404,9 @@ class DisegnoTest {
     /**
      * **Mentre si disegna una forma piccola compare la lente, e una forma grande non la vuole**
      * (R2 del giro della `4.40`, soglia di 1,5 cm sullo schermo).
-     * ⚠️ Si confronta il palco col dito giù e a dito alzato: il segno resta in tutti e due, quindi
+     * ⚠️ Si confronta il palco col dito giù e a dito alzato: l'elemento resta in tutti e due, quindi
      * quello che cambia è la sola lente.
-     * ⚠️⚠️ **CONTROPROVATA** togliendo la lente dal palco: col segno piccolo la differenza scende
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la lente dal palco: con l'elemento piccolo la differenza scende
      * a zero.
      */
     @Test
@@ -694,7 +699,7 @@ class DisegnoTest {
      * **Tre scelte esclusive: Traccia regola l'opacità della linea, Riempimento quella del
      * riempimento, Spessore lo spessore** (sua risposta `S1`, `4.47`). Con Spessore scelto i tondi
      * restano sulla linea.
-     * ⚠️⚠️ **CONTROPROVATA** dando al segno nuovo la linea piena invece della sua opacità
+     * ⚠️⚠️ **CONTROPROVATA** dando all'elemento nuovo la linea piena invece della sua opacità
      * (`Gaze.penMark`).
      */
     @Test
@@ -726,13 +731,13 @@ class DisegnoTest {
     }
 
     /**
-     * **L'opacità della linea vale per il segno intero**: dove la freccia incrocia la sua asta il
+     * **L'opacità della linea vale per l'elemento intero**: dove la freccia incrocia la sua asta il
      * colore resta quello del resto, non più scuro.
      * ⚠️⚠️ **CONTROPROVATA** dipingendo la linea con un colore trasparente invece che in un livello:
      * dove punta e asta si sovrappongono il nero al 50% sul bianco scende verso il 25%.
      */
     @Test
-    fun `l'opacita della linea non scurisce dove il segno si sovrappone`() {
+    fun `l'opacita della linea non scurisce dove l'elemento si sovrappone`() {
         val bianca = Bitmap.createBitmap(80, 80, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
         val segno = Mark(
             Pen.ARROW, listOf(Offset(0.1f, 0.5f), Offset(0.9f, 0.5f)), Draw.withAlpha(Color.BLACK, 0.5f),
@@ -904,7 +909,7 @@ class DisegnoTest {
 
     /**
      * **Mentre il dito tiene una linea agganciata compare la guida, e sparisce allo stacco** (sua
-     * nota A). Su uno schermo da telefono e con un segno lungo, così la lente non c'è e quello che
+     * nota A). Su uno schermo da telefono e con un elemento lungo, così la lente non c'è e quello che
      * cambia fra dito giù e dito alzato è la sola guida.
      * ⚠️⚠️ **CONTROPROVATA** togliendo la guida dal palco: la differenza scende a zero.
      */
@@ -941,13 +946,13 @@ class DisegnoTest {
 
     /**
      * **La prova del tocco della G2** (`4.60`): una forma riempita si prende anche dentro, una
-     * vuota solo vicino alla linea; una linea entro la portata; fra due segni sovrapposti vince
+     * vuota solo vicino alla linea; una linea entro la portata; fra due elementi sovrapposti vince
      * quello sopra.
      * ⚠️⚠️ **CONTROPROVATA** prendendo il rettangolo vuoto anche dentro: il tocco al centro lo
      * sceglie.
      */
     @Test
-    fun `il tocco prende il segno giusto`() {
+    fun `il tocco prende l'elemento giusto`() {
         val pieno = Mark(Pen.RECT, listOf(Offset(0.1f, 0.1f), Offset(0.4f, 0.4f)), Color.RED, 0.01f, false, Color.WHITE)
         val vuoto = Mark(Pen.RECT, listOf(Offset(0.6f, 0.1f), Offset(0.9f, 0.4f)), Color.RED, 0.01f, false, null)
         val linea = Mark(Pen.LINE, listOf(Offset(0.1f, 0.8f), Offset(0.9f, 0.8f)), Color.RED, 0.01f, false, null)
@@ -959,20 +964,20 @@ class DisegnoTest {
         assertEquals("sulla linea del rettangolo vuoto", 1, h(0.6f, 0.25f))
         assertEquals("vicino alla linea", 2, h(0.5f, 0.815f))
         assertEquals("lontano da tutto", null, h(0.5f, 0.6f))
-        assertEquals("dove due segni si sovrappongono vince quello sopra", 3, h(0.25f, 0.25f))
+        assertEquals("dove due elementi si sovrappongono vince quello sopra", 3, h(0.25f, 0.25f))
     }
 
     /**
-     * **Un tocco su un segno lo sceglie e mostra i suoi vertici; un tocco nel vuoto toglie la scelta
+     * **Un tocco su un elemento lo sceglie e mostra i suoi vertici; un tocco nel vuoto toglie la scelta
      * e non disegna** (G2, `4.60`, sua specifica: *un tocco singolo seleziona un oggetto; il
      * rettangolo selezionato mostra 4 vertici color accento*). Con la mano libera e senza scelta, un
      * tocco nel vuoto lascia il punto come prima.
-     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la scelta nel gesto del palco (il tocco sul segno
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la scelta nel gesto del palco (il tocco sull'elemento
      * disegna un punto), e senza i vertici nel palco (il palco non cambia).
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `un tocco sceglie il segno e il vuoto toglie la scelta`() {
+    fun `un tocco sceglie l'elemento e il vuoto toglie la scelta`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
@@ -985,7 +990,7 @@ class DisegnoTest {
         tocca(Offset(-70f, -70f))
         elimina.assertIsEnabled()
         val scelto = palco.captureToImage().toPixelMap()
-        assertTrue("scelto il segno, i suoi vertici dovevano comparire", differenza(prima, scelto) > 40)
+        assertTrue("scelto l'elemento, i suoi vertici dovevano comparire", differenza(prima, scelto) > 40)
         tocca(Offset(80f, 80f))
         elimina.assertIsNotEnabled()
         assertEquals("tolta la scelta, il palco doveva tornare com'era", 0, differenza(prima, palco.captureToImage().toPixelMap()))
@@ -999,14 +1004,14 @@ class DisegnoTest {
     }
 
     /**
-     * **Con un segno scelto, i parametri cambiano quel segno e non gli altri** (G2, `4.60`, sua
+     * **Con un elemento scelto, i parametri cambiano quell'elemento e non gli altri** (G2, `4.60`, sua
      * specifica: *i parametri (colore della linea, spessore, ecc.) cambiano quell'oggetto*).
-     * ⚠️⚠️ **CONTROPROVATA** togliendo il passaggio dei parametri al segno scelto: il primo resta
+     * ⚠️⚠️ **CONTROPROVATA** togliendo il passaggio dei parametri all'elemento scelto: il primo resta
      * rosso.
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `i parametri cambiano il segno scelto`() {
+    fun `i parametri cambiano l'elemento scelto`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
@@ -1019,20 +1024,20 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         val (primo, secondo) = salvato!!.drawing.marks
-        assertEquals("il segno scelto doveva diventare blu", Draw.withAlpha(Draw.INKS[3], Draw.INK_ALPHA), primo.ink)
+        assertEquals("l'elemento scelto doveva diventare blu", Draw.withAlpha(Draw.INKS[3], Draw.INK_ALPHA), primo.ink)
         assertEquals("l'altro doveva restare com'era", Draw.withAlpha(Draw.lit(Draw.INK, Draw.INK_LIGHT), Draw.INK_ALPHA), secondo.ink)
-        assertEquals("il segno scelto tiene la sua ricetta", Draw.INKS[3], primo.tint?.ink)
+        assertEquals("l'elemento scelto tiene la sua ricetta", Draw.INKS[3], primo.tint?.ink)
     }
 
     /**
-     * **Il segno scelto si sposta trascinandolo, e si elimina col tasto; Annulla lo riporta** (G2,
+     * **L'elemento scelto si sposta trascinandolo, e si elimina col tasto; Annulla lo riporta** (G2,
      * `4.60`).
      * ⚠️⚠️ **CONTROPROVATA** due volte: senza lo spostamento nel gesto (il trascinamento disegna un
-     * terzo segno), e con 'Elimina' che non toglie niente.
+     * terzo elemento), e con 'Elimina' che non toglie niente.
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `il segno scelto si sposta e si elimina`() {
+    fun `l'elemento scelto si sposta e si elimina`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
@@ -1049,19 +1054,133 @@ class DisegnoTest {
         banco.waitForIdle()
         val spostati = salvato!!.drawing.marks
         assertEquals("lo spostamento non doveva disegnare", 2, spostati.size)
-        assertTrue("il segno scelto doveva spostarsi a destra", spostati[0].points[0].x > prima[0].points[0].x)
+        assertTrue("l'elemento scelto doveva spostarsi a destra", spostati[0].points[0].x > prima[0].points[0].x)
         assertEquals("in verticale doveva restare", prima[0].points[0].y, spostati[0].points[0].y, 1e-4f)
         assertEquals("l'altro doveva restare dov'era", prima[1].points, spostati[1].points)
         banco.onNodeWithContentDescription(testo(R.string.pick_delete)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
-        assertEquals("Elimina doveva togliere il segno scelto", listOf(spostati[1]), salvato!!.drawing.marks)
+        assertEquals("Elimina doveva togliere l'elemento scelto", listOf(spostati[1]), salvato!!.drawing.marks)
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         assertEquals("Annulla doveva riportarlo", 2, salvato!!.drawing.marks.size)
+    }
+
+    /**
+     * **Il tasto acceso ha un bordo pieno color accento, negli strumenti e nei tasti** (sua nota A
+     * sul giro della `4.60`: *aggiungi anche un bordo pieno di qualche DP intorno al tasto attivo*).
+     * Di fabbrica sono accesi il rettangolo, Traccia e Tratteggio; spenti la linea e Spessore.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo il bordo dai due posti: nei tasti accesi l'accento non c'è.
+     */
+    @Test
+    fun `il tasto acceso ha un bordo pieno`() {
+        var accento = androidx.compose.ui.graphics.Color.Unspecified
+        banco.setContent { Scena(onAccent = { accento = it }) }
+        pronta()
+        apriDisegno()
+        fun bordo(id: Int) =
+            inchiostro(banco.onNodeWithContentDescription(testo(id)).captureToImage().toPixelMap(), accento)
+        for (id in listOf(R.string.draw_rect, R.string.draw_outline, R.string.draw_dashed)) {
+            assertTrue("'${testo(id)}' acceso doveva avere il bordo", bordo(id) > 100)
+        }
+        for (id in listOf(R.string.draw_line, R.string.draw_width)) {
+            assertEquals("'${testo(id)}' spento non doveva averlo", 0, bordo(id))
+        }
+    }
+
+    /**
+     * **Il tratteggio del tasto comincia e finisce con un trattino** (sua nota C sul giro della
+     * `4.60`: *tocchi le due estremità laterali del tasto con il tratto effettivo, non con lo
+     * spazio*). Il conto: a ogni larghezza i trattini chiudono sul bordo, col ritmo del suo mockup
+     * (10 e 6). Il disegno: sul tasto spento, che non ha il bordo pieno, i due capi della banda
+     * sono pieni.
+     * ⚠️ Lo schermo di 441 dp perché là il tasto è largo 77 dp, e col tratteggio fisso la banda
+     * finiva a metà di uno spazio; a 411 dp finiva per caso su un trattino.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il tratteggio fisso: a destra la banda finisce nel vuoto.
+     */
+    @Test
+    @Config(qualifiers = "w441dp-h891dp")
+    fun `il tratteggio del tasto comincia e finisce con un trattino`() {
+        for (w in listOf(40f, 52.8f, 71f, 100f, 213f)) {
+            val (t, v) = keyDashes(w, 10f, 6f)
+            val n = ((w + v) / (t + v)).roundToInt()
+            assertEquals("a $w i trattini chiudono sul bordo", w, n * t + (n - 1) * v, 1e-3f)
+            assertEquals("a $w il ritmo resta il suo", 10f / 6f, t / v, 1e-4f)
+        }
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_dashed))
+        tasto.performClick()
+        banco.waitForIdle()
+        val m = tasto.captureToImage().toPixelMap()
+        // ⚠️ The scene is chosen so the fixed pattern of 4.60 (10 and 6) would end in a space: on a
+        // key where it ends on a dash by chance, the two drawings look the same.
+        val largo = m.width / app.resources.displayMetrics.density
+        assertTrue("la scena deve far finire il tratteggio fisso in uno spazio: tasto di $largo dp",
+            largo % 16f in 10.5f..15.5f)
+        val y = m.height / 2
+        val sopra = m.height / 4
+        assertFalse("a sinistra la banda doveva cominciare con un trattino", vicino(m[2, y], m[2, sopra]))
+        assertFalse("a destra la banda doveva finire con un trattino", vicino(m[m.width - 3, y], m[m.width - 3, sopra]))
+    }
+
+    /**
+     * **Il cursore della luminosità non vela quello che c'è sotto** (sua nota D sul giro della
+     * `4.60`: *la sfocatura e il velo non consentono di vedere in tempo reale il colore che si sta
+     * applicando*): con la sfocatura scelta, come di fabbrica, il palco catturato col cursore
+     * aperto è identico a prima. Il velo lo dipinge l'app sopra tutto, quindi una cattura lo vede;
+     * la sfocatura di finestra il banco non la vede, e la toglie la stessa riga che toglie il velo.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la scelta dell'ombra intorno al cursore: il palco si scurisce.
+     */
+    @Test
+    fun `il cursore della luminosita non vela il palco`() {
+        banco.setContent { CompositionLocalProvider(LocalAivDepth provides PanelDepth.BLUR) { Scena() } }
+        pronta()
+        apriDisegno()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = palco.captureToImage().toPixelMap()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("tenuto il tondo, il cursore doveva restare", 1, luci())
+        assertEquals("col cursore aperto il palco non doveva cambiare", 0,
+            differenza(prima, palco.captureToImage().toPixelMap()))
+    }
+
+    /**
+     * **La prima volta che il Disegno si apre compare il suo velo d'aiuto**, col tondo rosso
+     * cerchiato d'arancione e la frase sopra, senza coprirlo (sua nota B sul giro della `4.60`); un
+     * tocco lo chiude e lo ricorda.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: col velo spento, e col cerchio del colore del tondo.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `alla prima apertura del Disegno compare il suo velo d'aiuto`() {
+        runBlocking { Hint.DRAW.forget(app) }
+        banco.setContent { Scena() }
+        pronta()
+        assertEquals("prima del Disegno il velo non doveva esserci", 0,
+            banco.onAllNodesWithText(testo(R.string.hint_draw)).fetchSemanticsNodes().size)
+        apriDisegno()
+        // ⚠️ The unmerged tree: the veil is one clickable node that takes the sentence in, and the
+        // merged search would answer with the whole screen.
+        val frase = banco.onNodeWithText(testo(R.string.hint_draw), useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val tondo = banco.onNodeWithContentDescription(testo(R.string.ink_red)).fetchSemanticsNode().boundsInRoot
+        assertTrue("la frase doveva stare sopra il tondo, senza coprirlo: ${frase.bottom} e ${tondo.top}",
+            frase.bottom <= tondo.top)
+        val schermo = banco.onRoot().captureToImage().toPixelMap()
+        val x = tondo.center.x.toInt()
+        assertTrue("il bordo del tondo rosso doveva essere arancione", vicino(schermo[x, tondo.top.toInt() + 1], HINT_MARK))
+        assertTrue("dentro, il tondo doveva restare rosso",
+            vicino(schermo[x, tondo.center.y.toInt()], androidx.compose.ui.graphics.Color(Draw.INKS.first())))
+        banco.onNodeWithText(testo(R.string.hint_draw)).performClick()
+        // ⚠️ The veil goes when the archive answers, which the bench's idling does not wait for.
+        banco.waitUntil(5_000) { banco.onAllNodesWithText(testo(R.string.hint_draw)).fetchSemanticsNodes().isEmpty() }
+        assertTrue("e ricordarlo", runBlocking { Hint.DRAW.flow(app).first() })
     }
 
     /** Un tocco sul palco, a [da] dal suo centro. */
@@ -1170,8 +1289,9 @@ class DisegnoTest {
     }
 
     @Composable
-    private fun Scena(onSave: (Look) -> Unit = {}) {
+    private fun Scena(onSave: (Look) -> Unit = {}, onAccent: (androidx.compose.ui.graphics.Color) -> Unit = {}) {
         AivTheme(darkTheme = false) {
+            onAccent(MaterialTheme.colorScheme.primary)
             Box(modifier = Modifier.fillMaxSize()) {
                 AdvancedEditorScreen(
                     uri = quadrato(),

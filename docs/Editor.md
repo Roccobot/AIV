@@ -628,7 +628,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   colori fissi, lo spessore, il tratteggio, il riempimento (solo per rettangolo ed ellisse) e
   'Azzera'. Il rettangolo e la freccia sono i due strumenti principali (sua precisazione). Per la freccia il dito va dall'inizio alla punta; per il rettangolo e l'ellisse i due
   capi del trascinamento sono due vertici opposti. Un tocco senza movimento lascia un punto con la
-  mano libera, e niente con gli altri strumenti. Ogni segno è un passo di 'Annulla'.
+  mano libera, e niente con gli altri strumenti. Ogni elemento è un passo di 'Annulla'.
 - ⚠️⚠️ **I punti vivono nella cornice ORIGINALE dell'immagine, in frazioni dei lati**, come la
   selezione di Correggi; lo spessore è una frazione del lato lungo, così anteprima e file pieno
   hanno lo stesso tratto. Il perché per esteso vive in testa a `Drawing.kt`.
@@ -637,13 +637,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   raddrizzamento, prospettiva, Fluidifica e ritaglio lo portano con l'immagine.
 - ⚠️ **Il palco prende sempre il dito**, come nel Ritaglio; pinza e panoramica restano a due dita.
 - ⚠️ **Strumento, colore e tratto sono gli arnesi e non l'immagine**: non entrano nella storia, e
-  cambiarli non tocca i segni già fatti. La selezione di un segno per cambiarlo è la G2.
+  cambiarli non tocca gli elementi già fatti. La selezione di un elemento per cambiarlo è la G2.
 - ⚠️⚠️ **Il riempimento ha colore e opacità suoi, separati dal contorno**, ed è la sua precisazione
   arrivata a G1 in corso (*un bordo rosso primario e un riempimento bianco 50%*). Due gettoni,
   'Contorno' e 'Riempimento', dicono a che cosa si applicano la fila dei colori e il cursore
   (spessore o opacità), così la scheda non cresce di una seconda tavolozza; per il riempimento il
   primo colore è 'Nessuno', che è quello di fabbrica, e l'opacità di fabbrica è il 50%. La
-  freccia, la linea e la mano libera lo ignorano, e il segno nasce senza.
+  freccia, la linea e la mano libera lo ignorano, e l'elemento nasce senza.
 - **Dalla `4.41` due aiuti del giro della `4.40`** (sue note su `4.40-01`):
   - **R1**: mentre il dito tiene `Spessore`, la punta nella sua misura vera, come tondo pieno del
     colore della linea in basso a destra sull'immagine, nello stesso angolo e con lo stesso margine
@@ -703,7 +703,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     che cosa regola il cursore: l'**opacità della linea** (nuova, piena di fabbrica), l'opacità
     del riempimento, lo spessore. La tavolozza regola il riempimento con Riempimento scelto, e la
     linea negli altri due casi: lettura della sessione, dichiarata nella voce di collaudo.
-  - ⚠️ **L'opacità della linea vale per il segno intero**, posata con un livello: dove la punta
+  - ⚠️ **L'opacità della linea vale per l'elemento intero**, posata con un livello: dove la punta
     della freccia incrocia l'asta, o una mano libera ripassa su sé stessa, il colore resta uguale.
   - **La luminosità si sceglie tenendo premuto un tondo**, con la pressione lunga di sistema
     (`L1a`): compare un cursore sotto la tavolozza, con accanto il colore che ne risulta. Se il dito
@@ -753,7 +753,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   la freccia 2 punti color accento; con un oggetto selezionato, i parametri cambiano
   quell'oggetto*). Il numero è passato dalla `4.50` alla `4.60` perché le correzioni dei giri
   hanno preso le versioni in mezzo. Le scelte della sessione, dichiarate nella voce di collaudo:
-  - **un tocco su un segno lo sceglie**: il più in alto sotto il dito, con 24 dp di portata oltre
+  - **un tocco su un elemento lo sceglie**: il più in alto sotto il dito, con 24 dp di portata oltre
     metà della sua linea; una forma riempita si prende anche dentro, una vuota solo vicino alla
     linea, la freccia per l'asta (`Draw.hit`). Un tocco nel vuoto toglie la scelta, e se c'era una
     scelta non lascia il punto della mano libera;
@@ -761,20 +761,38 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     freccia, i quattro vertici del riquadro per la mano libera; tondi color accento a misura fissa
     sullo schermo, con un filo bianco, portati dalla stessa geometria dell'immagine (`Warp.to`). Sono
     del palco, quindi il file salvato non li contiene;
-  - **scegliere un segno carica i suoi parametri nel modulo** (il tondo, la luminosità, l'opacità,
-    lo spessore, il tratteggio, il riempimento), che restano poi per il segno nuovo. Il segno ricorda
+  - **scegliere un elemento carica i suoi parametri nel modulo** (il tondo, la luminosità,
+    l'opacità, lo spessore, il tratteggio, il riempimento), che restano poi per l'elemento nuovo.
+    L'elemento ricorda
     la ricetta del suo colore (`Tint`), così il tondo scelto e i cursori tornano dove erano;
-  - **ogni cambio vale per il segno scelto** ed entra nella storia dopo 400 ms di quiete, così un
+  - **ogni cambio vale per l'elemento scelto** ed entra nella storia dopo 400 ms di quiete, così un
     cursore trascinato è un passo solo;
-  - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro del
-    segno;
-  - **trascinare partendo dal segno scelto lo sposta**; partendo altrove si disegna come prima;
-  - **`Elimina`** è la quinta colonna dei tasti, acceso solo con un segno scelto; Annulla, Ripeti e
-    Originale tolgono la scelta, perché dopo di loro l'indice può essere di un altro segno.
+  - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro
+    dell'elemento;
+  - **trascinare partendo dall'elemento scelto lo sposta**; partendo altrove si disegna come prima;
+  - **`Elimina`** è la quinta colonna dei tasti, acceso solo con un elemento scelto; Annulla, Ripeti
+    e Originale tolgono la scelta, perché dopo di loro l'indice può essere di un altro elemento.
 - **Dalla `4.60` il tasto Tratteggio dice se è acceso** (sua risposta `B2` alla nota B sul giro
   della `4.49`): acceso, il tratteggio nel colore della traccia; spento, il grigio scuro sbiadito al
   35%. Fino alla `4.50` i due stati avevano lo stesso disegno e cambiava solo lo sfondo del tasto.
-- **La seconda parte della G2**: le maniglie per ridimensionare e ruotare, sopra e sotto.
+- **Dalla `4.61` le correzioni del giro della `4.60`** (sue note A-D):
+  - **Il tasto acceso ha un bordo pieno color accento di 2 dp** (nota A), negli strumenti e nei
+    tasti, oltre allo sfondo verde; è disegnato sopra il tasto, così le bande da bordo a bordo non
+    lo interrompono. I 2 dp sono una scelta della sessione, dichiarata.
+  - **Il velo d'aiuto del Disegno** (nota B): la prima volta che il modulo si apre, dopo le due
+    slide dell'editor, il tondo rosso cerchiato d'arancione e il suo testo sopra, alla lettera
+    (`hint_draw`, chiave `draw-hint-seen`). Nomina anche il testo e la pillola, che non ci sono
+    ancora: entra com'è perché le lingue si scrivono una volta sola, lettura dichiarata.
+  - **Il tratteggio del tasto comincia e finisce con un trattino** (nota C): il numero dei
+    trattini è il più vicino al ritmo 10 e 6 del suo mockup, e trattino e spazio si allungano o si
+    accorciano insieme fino a chiudere sui due bordi (`keyDashes`).
+  - **Il cursore della luminosità non ha velo né sfocatura** (nota D): prende l'ombra della scelta
+    'Ombra' delle impostazioni, l'unica dell'app, così l'elemento scelto e i tasti si vedono
+    cambiare mentre il dito scorre.
+- **La seconda parte della G2**: un menu a pressione lunga sull'elemento, con sei icone su 3x2
+  (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`; sua nota E sul giro
+  della `4.60`), e le maniglie per ridimensionare. Da chiedergli prima: dove si incolla un elemento
+  copiato, e se `Ruota` va a scatti di 90 gradi o è libera.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

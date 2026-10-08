@@ -506,6 +506,7 @@ fun AdvancedEditorScreen(
     val toolsHinted by produceState(true) {
         Hint.EDITOR_TOOLS.flow(context).collect { value = it }
     }
+    val drawHinted by produceState(true) { Hint.DRAW.flow(context).collect { value = it } }
     var markSpot by remember { mutableStateOf(Rect.Zero) }
     var resizeSpot by remember { mutableStateOf(Rect.Zero) }
     var saveSpot by remember { mutableStateOf(Rect.Zero) }
@@ -1077,6 +1078,34 @@ fun AdvancedEditorScreen(
             HintSpots(
                 groups = listOf(sopra, sotto),
                 onDone = { scope.launch { Hint.EDITOR_TOOLS.remember(context) } }
+            )
+        }
+
+        /*
+         * ⚠️⚠️ **The Disegno module's hint, since 4.61** (his note B on the 4.60 round: *Il contorno
+         * del pallino del colore rosso dev'essere evidenziato in arancione onboarding. Il testo,
+         * senza sovrapporsi al pallino, recita...*): the first time the module is on screen, after
+         * the two slides of the editor. The copy is the red swatch as the chosen one is drawn, with
+         * its ring in [HINT_MARK]; the swatch lives in the lower half, so [HintSpots] lays the text
+         * above it.
+         */
+        if (hinted && toolsHinted && !drawHinted && MODULES[gaze.module].extra == Extra.DRAW && !gaze.redSpot.isEmpty) {
+            HintSpots(
+                groups = listOf(
+                    HintGroup(
+                        text = stringResource(R.string.hint_draw),
+                        spots = listOf(
+                            gaze.redSpot to {
+                                Canvas(Modifier.fillMaxSize()) {
+                                    val r = size.minDimension / 2f
+                                    drawCircle(HINT_MARK, radius = r)
+                                    drawCircle(Color(Draw.INKS.first()), radius = r - SWATCH_RING.toPx())
+                                }
+                            }
+                        )
+                    )
+                ),
+                onDone = { scope.launch { Hint.DRAW.remember(context) } }
             )
         }
     }
@@ -3231,7 +3260,7 @@ private enum class Extra {
      * Gli strumenti del **Disegno** e il dito sull'immagine, dalla `4.40` (prima fase, G1).
      *
      * ⚠️⚠️ **È IL TERZO CHE PRENDE IL DITO SUL PALCO, E LO PRENDE SEMPRE**, come il Ritaglio: un
-     * modulo che disegna e che chiede di armare lo strumento farebbe un tocco in più a ogni segno.
+     * modulo che disegna e che chiede di armare lo strumento farebbe un tocco in più a ogni elemento.
      * Pinza e panoramica restano, a due dita (vedi il ramo del disegno nel gesto del palco).
      * ⚠️ **Non è [places]**, anche se il disegno vive dalla parte del 'dove' di [Look.place]: il
      * confronto col prima lo raggiunge solo un dito, e qui ogni dito disegna.
@@ -4265,6 +4294,12 @@ private class Gaze(
      */
     var viewLong by mutableFloatStateOf(0f)
 
+    /**
+     * Where the red swatch of the Disegno module is, in root coordinates: the module's hint draws
+     * its copy there (his note B on the 4.60 round). Empty until the module has been laid out.
+     */
+    var redSpot by mutableStateOf(Rect.Zero)
+
     /** The stroke's colour as it is drawn, without alpha: the swatch with its [inkLight]. */
     val litInk: Int get() = Draw.lit(ink, inkLight)
 
@@ -4890,8 +4925,8 @@ private fun Comandi(
  * riempimento), i colori, lo spessore o l'opacità, il tratteggio e 'Azzera'.
  *
  * ⚠️⚠️ **SCRIVE NEL [Gaze] E NON NEL [Look]**, tranne 'Azzera': strumento, colori e tratto sono lo
- * strumento, e lo strumento non entra nella storia. Un segno nuovo li prende al momento in cui il
- * dito si posa (`Gaze.penMark`), quindi cambiarli non tocca i segni già fatti.
+ * strumento, e lo strumento non entra nella storia. Un elemento nuovo li prende al momento in cui
+ * il dito si posa (`Gaze.penMark`), quindi cambiarli non tocca gli elementi già fatti.
  * ⚠️⚠️ **IL RIEMPIMENTO HA COLORE E OPACITÀ SUOI**, ed è la sua precisazione arrivata a G1 in
  * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
  * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
@@ -4918,6 +4953,11 @@ private fun DrawBody(
             val nome = stringResource(penName(pen))
             FilterChip(
                 selected = gaze.pen == pen,
+                // ⚠️ The chosen tool has the rim of the chosen keys below, [KEY_RIM] (note A).
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled = live, selected = gaze.pen == pen,
+                    selectedBorderColor = MaterialTheme.colorScheme.primary, selectedBorderWidth = KEY_RIM
+                ),
                 // ⚠️ The pen is not a parameter of a mark (G2, 4.60): a pen key drops the choice.
                 onClick = {
                     gaze.picked = null
@@ -5085,7 +5125,10 @@ private fun DrawBody(
                 Box(
                     modifier = Modifier
                         .size(lato)
-                        .onGloballyPositioned { qui.at = it }
+                        .onGloballyPositioned {
+                            qui.at = it
+                            if (ink == Draw.INKS.first()) gaze.redSpot = it.boundsInRoot()
+                        }
                         .clip(CircleShape)
                         .pointerInput(ink, riempimento, live) {
                             if (!live) return@pointerInput
@@ -5140,7 +5183,7 @@ private fun DrawBody(
                     // cerchio vuoto con la diagonale.
                     Canvas(Modifier.size(lato)) {
                         val r = size.minDimension / 2f
-                        val dentro = if (scelto) r - 3.dp.toPx() else r - 4.dp.toPx()
+                        val dentro = if (scelto) r - SWATCH_RING.toPx() else r - 4.dp.toPx()
                         if (scelto) drawCircle(bordo, radius = r)
                         if (ink != null) {
                             drawCircle(Color(ink), radius = dentro)
@@ -5167,26 +5210,36 @@ private fun DrawBody(
          * window's edges inward, and this one must stay exactly on the row.
          */
         val sopra = remember { MenuSpot(MenuSide.ANCHOR_CENTRE, MenuSide.ANCHOR_CENTRE) }
-        MenuShell(state = chiaro, position = sopra, minWidth = maxWidth) {
-            val base = (if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
-            val valore = pendente ?: luce()
-            Row(
-                modifier = Modifier.width(maxWidth).padding(horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // ⚠️ The colour as it will be drawn: under the menu's blur the stage and the keys
-                // do not show it, and the swatch keeps its base colour by his request.
-                Canvas(Modifier.size(SWATCH)) { drawCircle(Color(Draw.lit(base, valore))) }
-                Slider(
-                    value = valore,
-                    onValueChange = { if (riempimento) gaze.fillLight = it else gaze.inkLight = it },
-                    valueRange = -1f..1f,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 12.dp)
-                        .onGloballyPositioned { pista.at = it }
-                        .semantics { contentDescription = nomeLuce }
-                )
+        /*
+         * ⚠️⚠️ **No veil and no blur behind this slider, and the shadow instead, since 4.61** (his
+         * note D on the 4.60 round: *la sfocatura e il velo non consentono di vedere in tempo reale
+         * il colore che si sta applicando. Proviamo senza sfocatura e senza velo, magari applicando
+         * una leggera ombreggiatura intorno al popup*): the element chosen on the stage and the keys
+         * change colour while the finger moves, and they must be seen. It is the 'Ombra' choice of
+         * the settings, the app's one shadow ([MenuShell], `Edge.kt`), given to this menu alone.
+         */
+        CompositionLocalProvider(LocalAivDepth provides PanelDepth.SHADOW) {
+            MenuShell(state = chiaro, position = sopra, minWidth = maxWidth) {
+                val base = (if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
+                val valore = pendente ?: luce()
+                Row(
+                    modifier = Modifier.width(maxWidth).padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // ⚠️ The colour as it will be drawn, which the swatch does not show: it keeps its
+                    // base colour by his request.
+                    Canvas(Modifier.size(SWATCH)) { drawCircle(Color(Draw.lit(base, valore))) }
+                    Slider(
+                        value = valore,
+                        onValueChange = { if (riempimento) gaze.fillLight = it else gaze.inkLight = it },
+                        valueRange = -1f..1f,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
+                            .onGloballyPositioned { pista.at = it }
+                            .semantics { contentDescription = nomeLuce }
+                    )
+                }
             }
         }
     }
@@ -5342,11 +5395,14 @@ private fun ArtKey(
                     Color(gaze.litInk).copy(alpha = keyAlpha(gaze.inkAlpha)),
                     Offset(0f, y - banda / 2f), Size(size.width, banda)
                 )
-                KeyKind.DASH -> drawLine(
-                    if (selected) Color(gaze.litInk) else DASH_GREY.copy(alpha = DASH_OFF),
-                    Offset(0f, y), Offset(size.width, y), strokeWidth = banda,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(KEY_DASH.toPx(), KEY_SPACE.toPx()))
-                )
+                KeyKind.DASH -> {
+                    val (tratto, vuoto) = keyDashes(size.width, KEY_DASH.toPx(), KEY_SPACE.toPx())
+                    drawLine(
+                        if (selected) Color(gaze.litInk) else DASH_GREY.copy(alpha = DASH_OFF),
+                        Offset(0f, y), Offset(size.width, y), strokeWidth = banda,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(tratto, vuoto))
+                    )
+                }
                 KeyKind.WIDTH -> {
                     /*
                      * ⚠️⚠️ **The line is as thick as the stroke will be on the screen, since 4.50**
@@ -5403,8 +5459,32 @@ private fun ArtKey(
             Glyphs.PickDelete, contentDescription = null, modifier = Modifier.align(Alignment.Center),
             tint = schema.onSurfaceVariant
         )
+        /*
+         * ⚠️⚠️ **A full rim around the chosen key, since 4.61** (his note A on the 4.60 round: *oltre
+         * al riempimento verde semitrasparente ... aggiungi anche un bordo pieno di qualche DP intorno
+         * al tasto attivo*): drawings run to the keys' edges, so the tint alone was hard to read.
+         * ⚠️ Over the drawing and not under it: the Traccia and Tratteggio bands run edge to edge,
+         * and under them the rim would break at both sides.
+         */
+        if (selected) Box(Modifier.matchParentSize().border(KEY_RIM, schema.primary, forma))
     }
 }
+
+/**
+ * **The dash and the space of the Dashes key, stretched so the band starts and ends on a dash**
+ * (his note C on the 4.60 round: *l'icona tratteggio tocchi le due estremità laterali del tasto con
+ * il tratto effettivo, non con lo spazio*). The count of dashes is the one nearest to [dash] and
+ * [space] at their own size, and both grow or shrink by the same factor, so the rhythm of his
+ * mockup holds on every key width. Until 4.60 the pattern was cut wherever the key ended.
+ */
+internal fun keyDashes(width: Float, dash: Float, space: Float): Pair<Float, Float> {
+    val n = ((width + space) / (dash + space)).roundToInt().coerceAtLeast(1)
+    val k = width / (n * dash + (n - 1) * space)
+    return dash * k to space * k
+}
+
+/** How thick the rim of a chosen key of the Disegno module is, tools and keys alike (note A). */
+private val KEY_RIM = 2.dp
 
 /** The thinnest line the Spessore key draws, even when the stroke on the screen is thinner. */
 private val KEY_WIDTH_MIN = 2.dp
@@ -5419,6 +5499,9 @@ private val KEY_SPACE = 6.dp
 /** The largest swatch of the palette row, and the least air between two swatches. */
 private val SWATCH = 32.dp
 private val SWATCH_GAP = 2.dp
+
+/** The ring around the chosen swatch, which the Disegno hint draws orange around the red one. */
+private val SWATCH_RING = 3.dp
 
 /** The thread of space between the Fill key's edge and its rectangle (his note 4). */
 private val KEY_GAP = 3.dp

@@ -656,6 +656,7 @@
     <string name="hint_modules">Vuốt các biểu tượng để đến mọi mô-đun chỉnh sửa. Nhấn giữ biểu tượng của một mô-đun để đặt lại riêng các thay đổi của nó.</string>
     <string name="hint_tools">Ngoài các mô-đun, còn hai chức năng bạn có thể bật hoặc tắt ngay bằng một chạm lên biểu tượng, và biểu tượng sẽ sáng lên: \'Hình mờ\' và \'Đổi kích thước\'. Nhấn giữ sẽ mở phần cài đặt của từng chức năng.</string>
     <string name="hint_save">Khi xong, chạm \'Lưu\' để ghi đè tệp (kèm bản sao dự phòng, nếu đang bật); nhấn giữ sẽ lưu một bản sao mới của ảnh trong cùng thư mục.</string>
+    <string name="hint_draw">Với mô-đun Vẽ, bạn có thể thêm vào ảnh các đường thẳng, mũi tên, hình elip, hình chữ nhật bo góc, văn bản đơn giản và khung \'viên thuốc\'. Khi lưu, ảnh sẽ được làm phẳng: không thể mở lại để sửa hoặc di chuyển các thành phần. Nhấn giữ một màu để chỉnh độ sáng của màu đó.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Xuất và nhập</string>

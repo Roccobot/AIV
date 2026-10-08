@@ -656,6 +656,7 @@
     <string name="hint_modules">滑動圖示即可到達所有編輯模組。長按某個模組的圖示，只重設該模組的調整。</string>
     <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。</string>
     <string name="hint_save">完成後輕觸\'儲存\'覆寫原檔案(若已啟用備份，備份也會保留)；長按則會在同一資料夾中儲存圖片的新副本。</string>
+    <string name="hint_draw">使用繪圖模組，你可以在圖片上加入直線、箭頭、橢圓、圓角矩形、簡單文字和\'膠囊\'框。儲存會合併影像：之後無法重新開啟來編輯或移動這些元素。長按某個顏色可以調整它的亮度。</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">匯出與匯入</string>

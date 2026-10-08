@@ -674,6 +674,7 @@
     <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
     <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen.</string>
     <string name="hint_save">Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
+    <string name="hint_draw">Mit dem Modul Zeichnen fügst du dem Bild Linien, Pfeile, Ellipsen, abgerundete Rechtecke, einfache Texte und \'Pillen\'-Rahmen hinzu. Beim Speichern wird das Bild auf eine Ebene reduziert: Du kannst es nicht wieder öffnen, um die Elemente zu bearbeiten oder zu verschieben. Halte eine Farbe gedrückt, um ihre Helligkeit einzustellen.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Export und Import</string>
