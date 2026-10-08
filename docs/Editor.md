@@ -617,10 +617,12 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 
 - ⚠️⚠️ **Le sue quattro risposte del 2026-10-06 decidono la forma** (nota G del giro della `4.32` e
   nota D del giro della `4.34`): **D1a**, vive solo nell'editor completo, come ultimo modulo a
-  destra, quindi sotto Android 13 non c'è; **D2a**, il disegno è attaccato all'immagine e gira, si
+  destra (dalla `4.50` penultimo, perché gli Stili sono sempre in fondo), quindi sotto Android 13
+  non c'è; **D2a**, il disegno è attaccato all'immagine e gira, si
   deforma e si ritaglia con lei; **D3a**, si fonde nel file salvato come la filigrana, e un file
   riaperto contiene pixel e non forme; **D4a**, tre versioni: G1 (`4.40`) le forme, G2 (`4.50`)
-  selezione e maniglie, G3 (`4.60`) il testo.
+  selezione e maniglie, G3 (`4.60`) il testo. I numeri sono quelli di allora: la G2 è diventata
+  la `4.60`, e il testo viene dopo.
 - **La G1 ha cinque strumenti di disegno** (si chiamano così, sua correzione del 2026-10-07; nel
   codice resta `Pen`): mano libera, linea, freccia, rettangolo arrotondato ed ellisse; otto
   colori fissi, lo spessore, il tratteggio, il riempimento (solo per rettangolo ed ellisse) e
@@ -717,6 +719,28 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   tondi** (sue note sul giro della `4.48`): l'ordine dei tasti è Tratteggio, Traccia, Spessore,
   Riempimento (`4.47-01`); il cursore compare sopra la fila dei tondi, perché sotto il dito che
   tiene il tondo lo copriva, ed è più corto della fila di 24 dp per lato (`4.47-03`).
+- **Dalla `4.50` le correzioni del giro della `4.49`** (sue note `4.49-01`, `4.49-02` e A-F):
+  - **Valori di fabbrica** (nota A): rettangolo arrotondato con la linea tratteggiata, traccia
+    rossa con la luminosità al 25% della corsa del cursore (-0,5), l'opacità al 50% (55%, su un
+    cursore che va dal 10 al 100%) e lo spessore al 40%; il riempimento resta l'ambra al 20%.
+    'Cursore al X%' è letto come un posto sulla corsa: lettura dichiarata. La luminosità di
+    fabbrica vale per il rosso di partenza, perché un tocco su un tondo gli rende il suo colore.
+  - **La linea del tasto Spessore è spessa quanto il tratto sullo schermo** (`4.49-01`): lo
+    spessore sul lato lungo dell'immagine com'è mostrata, quindi segue lo zoom, mai sotto i 2 dp e
+    mai oltre l'altezza del tasto.
+  - **L'anteprima di Spessore è una lineetta curva** (nota D), alla misura vera, al posto del tondo
+    pieno.
+  - **Il cursore della luminosità si apre sopra la fila dei tondi e la copre**, largo quanto lei,
+    con il colore che ne risulta a lato (`4.49-02`); **il pollice va sotto il dito** (nota C): la
+    luminosità è il posto del dito sul cursore, e non più lo spostamento aggiunto al valore di
+    partenza, che da un tondo vicino al bordo non lasciava spazio per andare dall'altra parte.
+  - **I tondi svaniscono mentre una superficie si apre sopra l'editor** (nota F): seguono
+    l'avanzamento del velo, come la scacchiera del visualizzatore, così sotto la sfocatura i loro
+    colori non sbordano dai dialoghi.
+  - **Gli Stili sono sempre l'ultimo modulo a destra** (nota E), anche dove la fila è stata
+    riordinata: il Disegno è penultimo, e un gettone degli Stili trascinato altrove nelle
+    impostazioni torna in fondo (`stylesLast`, in `Settings.kt`).
+  - **Il tratteggio più evidente** (nota B) aspetta la sua scelta fra le proposte fatte in chat.
 - **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.
@@ -724,8 +748,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   Z-index andrà gestita in qualche modo*) entra nella G2, insieme alla selezione.
 - **Prima della pillola viene lo strumento Sfocatura**, e prima ancora il testo (G3): la sua
   specifica vive nel brief, voce del giro della `4.43`.
-- **La G2 (`4.50`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
+- **La G2 (`4.60`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
   quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
+  Il numero è passato dalla `4.50` alla `4.60` perché le correzioni dei giri hanno preso le
+  versioni in mezzo.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

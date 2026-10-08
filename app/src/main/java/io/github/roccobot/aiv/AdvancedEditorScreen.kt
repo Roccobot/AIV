@@ -115,6 +115,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -127,6 +128,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -135,6 +137,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -154,6 +157,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
@@ -773,6 +777,7 @@ fun AdvancedEditorScreen(
                         onDraw = { look = look.copy(drawing = it) },
                         onDrawEnd = { push() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
+                        onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -933,6 +938,7 @@ fun AdvancedEditorScreen(
                         onDraw = { look = look.copy(drawing = it) },
                         onDrawEnd = { push() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
+                        onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -1259,6 +1265,8 @@ private fun LookStage(
     onDrawEnd: () -> Unit,
     /** Whether a finger holds the 'Spessore' dial of the Disegno module: see [Gaze.inkSizing]. */
     inkSizing: () -> Boolean,
+    /** The image's long side on the stage, in pixels, while the Disegno module is on: see [Gaze.viewLong]. */
+    onViewLong: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -2439,27 +2447,37 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
 
         /*
          * The two helpers of the Disegno module, from 4.41 (his notes on `4.40-01`).
-         * ⚠️ R1: while a finger holds 'Spessore', the tip at its real size, as a full dot in the
+         * ⚠️ R1: while a finger holds 'Spessore', a short curved stroke at its real width in the
          * outline's ink, bottom right of the visible image: the same corner and margin as the brush
-         * of Correggi and Fluidifica, which is the preview he already knows. The real size is the
-         * width (a fraction of the long side) on the long side of the image on screen.
+         * of Correggi and Fluidifica. Until 4.49 it was a full dot; since 4.50 a curved line (his
+         * note D on the 4.49 round: *una lineetta curva, non un punto: rende meglio l'idea*). The
+         * real width is the width (a fraction of the long side) on the long side of the image on
+         * screen, the same number the Spessore key reads ([onViewLong]).
          * ⚠️ R2: the loupe of Correggi while the finger draws a small shape, with its zoom.
          */
         val penura = drawPen()
         if (penura != null) {
+            onViewLong(max(view.width(), view.height()))
             if (inkSizing() && visto.width() > 0f && visto.height() > 0f) {
-                val r = (penura.width * max(view.width(), view.height()) / 2f).coerceAtLeast(0.5f)
-                val margin = 12.dp.toPx()
+                val tratto = (penura.width * max(view.width(), view.height())).coerceAtLeast(1f)
+                val largo = max(SAMPLE_LONG.toPx(), tratto * 4f)
+                val alto = largo / 4f
+                val margin = 12.dp.toPx() + tratto / 2f
                 val left = max(0f, visto.left)
                 val top = max(0f, visto.top)
                 val right = min(room.width, visto.right)
                 val bottom = min(room.height, visto.bottom)
-                val centre = Offset(
-                    if (right - left >= 2f * (r + margin)) right - r - margin else (left + right) / 2f,
-                    if (bottom - top >= 2f * (r + margin)) bottom - r - margin else (top + bottom) / 2f
-                )
+                val x1 = if (right - left >= largo + 2f * margin) right - margin else (left + right + largo) / 2f
+                val y1 = if (bottom - top >= alto + 2f * margin) bottom - margin else (top + bottom + alto) / 2f
+                val x0 = x1 - largo
+                val y0 = y1 - alto
+                // ⚠️ A gentle S from bottom left to top right: it reads as a stroke drawn by hand.
+                val lineetta = Path().apply {
+                    moveTo(x0, y1)
+                    cubicTo(x0 + largo * 0.45f, y1, x0 + largo * 0.55f, y0, x1, y0)
+                }
                 clipRect(visto.left, visto.top, visto.right, visto.bottom) {
-                    drawCircle(Color(penura.ink), r, centre)
+                    drawPath(lineetta, Color(penura.ink), style = Stroke(tratto, cap = StrokeCap.Round))
                 }
             }
             // ⚠️ The guide crosses the whole visible image, thin and in the accent, under the
@@ -3051,6 +3069,9 @@ private class Module(
  * covers most of what it draws. ⚠️ A choice, declared in the test item, not a measure.
  */
 private const val PEN_LOUPE_CM = 1.5f
+
+/** How long the curved sample of the Spessore preview is, at the least. */
+private val SAMPLE_LONG = 56.dp
 
 /** How thick the guide of a snapped line is on the stage. */
 private val GUIDE_LINE = 1.dp
@@ -3670,10 +3691,28 @@ private val MODULES = listOf(
         extra = Extra.CURVES
     ),
     /*
+     * ⚠️⚠️ **IL DECIMO È IL DISEGNO, DALLA `4.40`** (nota D del giro della `4.34`, e risposte
+     * D1a-D4a): vive solo qui, quindi sotto Android 13 non c'è. Fino alla `4.49` era l'ultimo a
+     * destra, e dalla `4.50` è penultimo, perché gli Stili sono sempre in fondo (sua nota E sul giro
+     * della `4.49`; vedi `stylesLast`, in `Settings.kt`).
+     * ⚠️ **Nella catena del salvataggio è a metà**, dopo lo sviluppo e prima della geometria (vedi
+     * `Drawing.kt`): il posto nella fila è l'ordine in cui si lavora, non quello del conto.
+     */
+    Module(
+        PadKey.MOD_DRAW,
+        R.string.look_draw,
+        rows = { emptyList() },
+        clear = { it.copy(drawing = Drawing.NONE) },
+        spent = { !it.drawing.idle },
+        icon = { Glyphs.ModDraw },
+        extra = Extra.DRAW
+    ),
+    /*
      * ⚠️⚠️ **L'OTTAVO È L'ELENCO DEGLI STILI, DALLA `2.50`, ED È SUA ISTRUZIONE** (campo libero
      * del giro della `2.40`, punto 1: *inserisci i modelli in un modulo a parte*). Fino alla
      * `2.40` gli stili si aprivano da un'icona in fondo alla scheda, cioè da una superficie in
-     * più davanti all'immagine su cui si lavora.
+     * più davanti all'immagine su cui si lavora. Dalla `4.50` è sempre l'ultimo a destra (sua nota
+     * E sul giro della `4.49`), anche dove la fila è stata riordinata: vedi `stylesLast`.
      * ⚠️⚠️ **IL 'RESET MODULO' AZZERA I CINQUE MODULI DI COLORE, che è quello che uno stile
      * governa**: un preset non lascia un valore suo da rimettere a zero, lascia i cursori dove li
      * ha portati, quindi il tocco lungo su questo gettone vuol dire 'togli l'aspetto'. ⚠️ **La
@@ -3698,22 +3737,6 @@ private val MODULES = listOf(
         spent = { false },
         icon = { Icons.Filled.Style },
         extra = Extra.PRESETS
-    ),
-    /*
-     * ⚠️⚠️ **IL DECIMO È IL DISEGNO, DALLA `4.40`, ULTIMO A DESTRA SU SUA ISTRUZIONE** (nota D del
-     * giro della `4.34`, e risposte D1a-D4a): vive solo qui, quindi sotto Android 13 non c'è.
-     * ⚠️ **Nella catena del salvataggio è a metà**, dopo lo sviluppo e prima della geometria (vedi
-     * `Drawing.kt`): nella fila è ultimo perché è l'ultimo che si usa, non perché sia l'ultimo
-     * conto.
-     */
-    Module(
-        PadKey.MOD_DRAW,
-        R.string.look_draw,
-        rows = { emptyList() },
-        clear = { it.copy(drawing = Drawing.NONE) },
-        spent = { !it.drawing.idle },
-        icon = { Glyphs.ModDraw },
-        extra = Extra.DRAW
     )
 )
 
@@ -4091,10 +4114,14 @@ private class Gaze(
      * ⚠️ Like the brush of Fluidifica they are tools, not the image, so they stay out of the
      * history and are not saved across a rotation.
      */
-    var pen by mutableStateOf(Pen.FREE)
+    /*
+     * ⚠️ Since 4.50 the factory tool is the rounded rectangle with a dashed line (his note A on the
+     * 4.49 round); until then it was the free hand, solid.
+     */
+    var pen by mutableStateOf(Pen.RECT)
     var ink by mutableIntStateOf(Draw.INKS.first())
     var inkWidth by mutableFloatStateOf(Draw.WIDTH)
-    var dashed by mutableStateOf(false)
+    var dashed by mutableStateOf(true)
 
     /**
      * The fill's colour, without alpha, or `null` for none. At the factory the colour and the
@@ -4105,9 +4132,9 @@ private class Gaze(
 
     /**
      * The opacity of the outline, from 0.1 to 1 (Traccia, 4.47, his answer `S1`). At the factory
-     * full, which is what every mark had before it existed.
+     * [Draw.INK_ALPHA] since 4.50; full in 4.47-4.49.
      */
-    var inkAlpha by mutableFloatStateOf(1f)
+    var inkAlpha by mutableFloatStateOf(Draw.INK_ALPHA)
 
     /**
      * Which of the three keys Traccia, Riempimento and Spessore is chosen, so what the slider sets
@@ -4124,8 +4151,15 @@ private class Gaze(
      * colore-base resta identico e torna ad applicarsi alla sua luminosità base all'uso
      * successivo*).
      */
-    var inkLight by mutableFloatStateOf(0f)
+    var inkLight by mutableFloatStateOf(Draw.INK_LIGHT)
     var fillLight by mutableFloatStateOf(0f)
+
+    /**
+     * How long the image's long side is on the stage, in pixels: the stage writes it as it draws,
+     * and the Spessore key reads it to draw the width as the stroke will be (his note on
+     * `4.49-01`). Zero until the stage has drawn once.
+     */
+    var viewLong by mutableFloatStateOf(0f)
 
     /** The stroke's colour as it is drawn, without alpha: the swatch with its [inkLight]. */
     val litInk: Int get() = Draw.lit(ink, inkLight)
@@ -4790,14 +4824,38 @@ private fun DrawBody(
     /** The light the finger is choosing in the single gesture, applied when it lifts (`L2a`). */
     var pendente by remember { mutableStateOf<Float?>(null) }
     val nomeLuce = stringResource(R.string.draw_light)
+    /** The Luminosità slider's track, where the finger that holds a swatch is read (note C). */
+    val pista = remember { Placed() }
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    /*
+     * ⚠️⚠️ **The light is the place of the finger on the slider's track, since 4.50** (his note C on
+     * the 4.49 round: *Lo slider pare seguire il dito solo verso un lato*). Until 4.49 the finger's
+     * movement was added to the light it started from, so from a swatch near one end the finger
+     * had no room to go the other way. Now the slider covers the swatches and its thumb goes under
+     * the finger, which is the gesture he described for `4.49-02`.
+     * ⚠️ The two places are on the screen because the slider lives in the menu's window. Material
+     * reads a touch from half a thumb in from each end, 2dp: the only gap between finger and thumb.
+     */
+    fun lucePer(x: Float): Float? {
+        val binario = pista.at?.takeIf { it.isAttached } ?: return null
+        val largo = binario.size.width.toFloat().takeIf { it > 0f } ?: return null
+        val t = ((x - binario.localToScreen(Offset.Zero).x) / largo).coerceIn(0f, 1f)
+        return (if (rtl) 1f - t else t) * 2f - 1f
+    }
     // ⚠️ Ten places since 4.45 (his grey): 32dp each is 320dp, more than a narrow phone gives the
     // panel, so the swatch shrinks to fit and never grows past [SWATCH].
     val voci: List<Int?> = listOf(null) + Draw.INKS
     BoxWithConstraints(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         val lato = minOf(SWATCH, maxWidth / voci.size - SWATCH_GAP)
-        val corsa = constraints.maxWidth.toFloat()
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            /*
+             * ⚠️⚠️ **The swatches fade while a surface opens over the editor, since 4.50** (his
+             * note F on the 4.49 round, with a capture of 'Vuoi scartare le modifiche?': *evitare
+             * che i tondi colorati facciano capolino da sotto alcuni popup*). Under the blur their
+             * full colours spread past the dialog's edge. They follow the veil's progress, as the
+             * checkerboard of the viewer does since 1.68, and read it while drawing.
+             */
+            modifier = Modifier.fillMaxWidth().graphicsLayer { alpha = 1f - veilProgress() },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -4829,9 +4887,11 @@ private fun DrawBody(
                     pendente = luce()
                     chiaro.open()
                 }
+                val qui = remember { Placed() }
                 Box(
                     modifier = Modifier
                         .size(lato)
+                        .onGloballyPositioned { qui.at = it }
                         .clip(CircleShape)
                         .pointerInput(ink, riempimento, live) {
                             if (!live) return@pointerInput
@@ -4848,8 +4908,9 @@ private fun DrawBody(
                                 }
                                 if (ink == null) return@awaitEachGesture
                                 tieni()
-                                val partenza = pendente ?: 0f
-                                var da: Float? = null
+                                // ⚠️ A finger that only lifts leaves the light as it was (`L3a`):
+                                // the track takes over past the slop.
+                                var mosso = false
                                 while (true) {
                                     val evento = awaitPointerEvent()
                                     val dito = evento.changes.firstOrNull { it.id == giu.id } ?: break
@@ -4857,13 +4918,13 @@ private fun DrawBody(
                                         dito.consume()
                                         break
                                     }
-                                    val x = dito.position.x
-                                    if (da == null && abs(x - lungo.position.x) > viewConfiguration.touchSlop) da = x
-                                    da?.let { pendente = (partenza + (x - it) / corsa * 2f).coerceIn(-1f, 1f) }
+                                    if (!mosso) mosso = abs(dito.position.x - lungo.position.x) > viewConfiguration.touchSlop
+                                    if (mosso) qui.at?.takeIf { it.isAttached }?.localToScreen(dito.position)
+                                        ?.let { lucePer(it.x) }?.let { pendente = it }
                                     dito.consume()
                                 }
                                 val scelta = pendente
-                                if (da != null && scelta != null) {
+                                if (mosso && scelta != null) {
                                     if (riempimento) gaze.fillLight = scelta else gaze.inkLight = scelta
                                     chiaro.close()
                                 }
@@ -4903,21 +4964,20 @@ private fun DrawBody(
             }
         }
         /*
-         * ⚠️⚠️ **Above the row of swatches and shorter than it, since 4.49** (his note on
-         * `4.47-03`: *lo slider deve apparire più in alto della striscia di colori, altrimenti il
-         * dito lo copre*, and *un po' più corto, e restare leggermente più distanziato dai lati*):
-         * the finger that holds a swatch covers what opens below it.
+         * ⚠️⚠️ **Over the row of swatches, covering it, since 4.50** (his note on `4.49-02`: *Lo
+         * slider dev'essere sopra i tondi del colore proprio nel senso di sopra, letteralmente,
+         * come un livello sovrapposto a coprirli. In quel modo il dito è realmente sul cursore e
+         * lo sposta naturalmente, e l'anteprima è a lato*): as wide as the row and centred on it.
+         * In 4.49 it opened above the row, shorter, and in 4.47 below it.
+         * ⚠️ A [MenuSpot] of its own and not [rememberMenuSpot]: that one pulls a panel near the
+         * window's edges inward, and this one must stay exactly on the row.
          */
-        val largo = maxWidth - LIGHT_INSET * 2
-        MenuShell(
-            state = chiaro,
-            position = rememberMenuSpot(MenuSide.ANCHOR_CENTRE, MenuSide.BEFORE_ANCHOR),
-            minWidth = largo
-        ) {
+        val sopra = remember { MenuSpot(MenuSide.ANCHOR_CENTRE, MenuSide.ANCHOR_CENTRE) }
+        MenuShell(state = chiaro, position = sopra, minWidth = maxWidth) {
             val base = (if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
             val valore = pendente ?: luce()
             Row(
-                modifier = Modifier.width(largo).padding(horizontal = 12.dp),
+                modifier = Modifier.width(maxWidth).padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // ⚠️ The colour as it will be drawn: under the menu's blur the stage and the keys
@@ -4927,7 +4987,11 @@ private fun DrawBody(
                     value = valore,
                     onValueChange = { if (riempimento) gaze.fillLight = it else gaze.inkLight = it },
                     valueRange = -1f..1f,
-                    modifier = Modifier.weight(1f).padding(start = 12.dp).semantics { contentDescription = nomeLuce }
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp)
+                        .onGloballyPositioned { pista.at = it }
+                        .semantics { contentDescription = nomeLuce }
                 )
             }
         }
@@ -4983,6 +5047,15 @@ private fun penName(pen: Pen): Int = when (pen) {
     Pen.ARROW -> R.string.draw_arrow
     Pen.RECT -> R.string.draw_rect
     Pen.ELLIPSE -> R.string.draw_ellipse
+}
+
+/**
+ * Where a node was last laid out, read when a gesture needs it: the Luminosità slider turns the
+ * finger on a swatch into a place on its own track, which lives in the menu's window.
+ * ⚠️ Not a state: the coordinates are read at the event, so writing them recomposes nothing.
+ */
+private class Placed {
+    var at: LayoutCoordinates? = null
 }
 
 /** The four keys above the palette, drawn instead of named (`ArtKey`). */
@@ -5063,11 +5136,20 @@ private fun ArtKey(
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(KEY_DASH.toPx(), KEY_SPACE.toPx()))
                 )
                 KeyKind.WIDTH -> {
-                    // ⚠️ The width as a line of the outline's colour, thicker with the slider: the
-                    // key says what it sets and how much (his note on `4.45-02`).
-                    val t = (gaze.inkWidth - Draw.WIDTH_MIN) / (Draw.WIDTH_MAX - Draw.WIDTH_MIN)
-                    val spesso = (KEY_WIDTH_MIN + (KEY_WIDTH_MAX - KEY_WIDTH_MIN) * t.coerceIn(0f, 1f)).toPx()
-                    val margine = KEY_WIDTH_MAX.toPx() / 2f + KEY_GAP.toPx()
+                    /*
+                     * ⚠️⚠️ **The line is as thick as the stroke will be on the screen, since 4.50**
+                     * (his note on `4.49-01`: *dello spessore reale che risulterà al tratto e che si
+                     * vede nell'anteprima dinamica*): the width on the long side of the image as the
+                     * stage shows it ([Gaze.viewLong]), so it follows the zoom. Never thinner than
+                     * [KEY_WIDTH_MIN], which he allows for the smallest widths, nor thicker than
+                     * the key, with [KEY_GAP] above and below. Until 4.49 it went from 2 to 16dp
+                     * along the slider.
+                     * ⚠️ The ends stay half the key's height in from its sides, so the round caps
+                     * of the thickest line keep the same gap.
+                     */
+                    val spesso = (gaze.inkWidth * gaze.viewLong)
+                        .coerceIn(KEY_WIDTH_MIN.toPx(), size.height - 2f * KEY_GAP.toPx())
+                    val margine = size.height / 2f
                     drawLine(
                         Color(gaze.litInk), Offset(margine, y), Offset(size.width - margine, y),
                         strokeWidth = spesso, cap = StrokeCap.Round
@@ -5107,9 +5189,8 @@ private fun ArtKey(
     }
 }
 
-/** The thinnest and the thickest line the Spessore key draws, at the two ends of the slider. */
+/** The thinnest line the Spessore key draws, even when the stroke on the screen is thinner. */
 private val KEY_WIDTH_MIN = 2.dp
-private val KEY_WIDTH_MAX = 16.dp
 
 /** How thick the Stroke and Dashes bands are, the same for both (his note 3 on `4.43-01`). */
 private val KEY_BAND = 6.dp
@@ -5117,9 +5198,6 @@ private val KEY_BAND = 6.dp
 /** The dashes of the Dashes key: dash, then space, measured on his mockup. */
 private val KEY_DASH = 10.dp
 private val KEY_SPACE = 6.dp
-
-/** How far the Luminosità slider's panel stays in from each end of the row of swatches. */
-private val LIGHT_INSET = 24.dp
 
 /** The largest swatch of the palette row, and the least air between two swatches. */
 private val SWATCH = 32.dp
