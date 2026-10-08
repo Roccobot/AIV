@@ -94,6 +94,21 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Ogni DF termina, prima della coda, con una sezione intitolata esattamente **Prossimi passi** (PP): un riepilogo breve e schematico di differiti, accorpati per dopo, voci da decidere e altre voci già nel brief. È una sorta di **mini-brief** per Rocco.
 - Dopo aver letto un giro, la release successiva non deve comprendere tutto il backlog. L'agente sceglie liberamente il piano, ma lo comunica proattivamente a Rocco in chat, con ciò che entra e ciò che resta, senza aspettare che Rocco lo ricavi dal DF.
   Gli eventuali riferimenti all'autore nei testi visibili usano `l'agente`.
+- ⚠️⚠️ **Le domande ferme nel brief da più di dieci giri entrano nel DF come prove** (istruzione
+  di Rocco, 2026-10-08; regola completa in `Roccobot.md` § '⏳ Dopo dieci giri, una voce ferma nel
+  brief torna nel documento di feedback'). La pagina non pone decisioni, quindi ogni domanda è
+  una prova della versione in collaudo:
+  - il titolo comincia con `Domanda ·`, e il corpo contiene la domanda, le opzioni con la lettera
+    e il parere dell'agente;
+  - si risponde scrivendo la lettera nel commento; `Tutto OK` senza commento vale il parere, e
+    `Non approvato` col commento chiede una strada diversa;
+  - nella tabella l'azione della riga è `Rispondere nel commento.`;
+  - letta la risposta, la prova si archivia come le altre e la decisione va nel brief con la sua
+    lettera; se Rocco rimanda, la domanda resta nel brief e torna dopo altri dieci giri.
+
+  È un'eccezione dichiarata alla regola che vuole nel corpo il solo feedback sull'app. La prima
+  volta, il 2026-10-08, sono entrate su sua richiesta tutte le domande aperte del brief, anche
+  quelle di altri progetti.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
   atteso. Mantieni le prove aperte fra release; archivia soltanto quelle concluse dal
   giro consegnato. Non sostituire riscontri manuali con prove automatiche.
@@ -229,7 +244,7 @@ Il JSON usa `schema: 1`, `project: AIV`. La bozza contiene:
 | `device` | Specifiche del telefono; chiave storica conservata |
 | `tablet` | Specifiche del tablet; assente nei vecchi JSON, ripristinata come testo vuoto |
 | `entries` | Risposte per ID: `status`, `comment`, `images` |
-| `decisions` | Decisioni per ID: `choice`, `comment`. Dal 2026-10-03 la pagina non ne pone più (le domande si fanno in chat), ma la chiave resta: il Worker la richiede, e una bozza vecchia la conserva intatta |
+| `decisions` | Decisioni per ID: `choice`, `comment`. Dal 2026-10-03 la pagina non ne pone più (le domande si fanno in chat, e quelle ferme da più di dieci giri diventano prove), ma la chiave resta: il Worker la richiede, e una bozza vecchia la conserva intatta |
 | `labels` | Etichette testuali per ID: `revision` (campo libero; assente nei JSON vecchi → `{}`) |
 | `notes`, `extra.images` | Osservazioni libere e relativi allegati |
 | `updated`, `completed` | Data del salvataggio e della preparazione del giro |
