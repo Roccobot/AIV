@@ -4,7 +4,7 @@ Versione **4.80**: nel modulo Disegno il menu della pressione lunga su un elemen
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 La Release 4.80 è pubblicata: [v4.80](https://github.com/Roccobot/AIV/releases/tag/v4.80), con l'APK
 [AIV-4.80.apk](https://github.com/Roccobot/AIV/releases/download/v4.80/AIV-4.80.apk).
-Commit prodotto su `main`: `341202c`, release dal commit `341202c` (SlimVer 4.80 / versionCode 345; APK PESO_480 byte, digest `DIGEST_480`).
+Commit prodotto su `main`: `341202c`, release dal commit `341202c` (SlimVer 4.80 / versionCode 345; APK 8.603.733 byte, digest `e6771deb`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 Per il testo (G3), il prossimo lavoro: scegli i caratteri, il nome dello stile della striscia e che cosa entra nell'APK nell'[artefatto dei caratteri](https://claude.ai/artifact/BnskaC7AgjgE5Dn23RVmoe), e incolla in chat la risposta che compone.
 
