@@ -5144,6 +5144,9 @@ private fun DrawBody(
      * in the test item).
      */
     fun luce(): Float = if (riempimento) gaze.fillLight else gaze.inkLight
+    fun posa(luce: Float) {
+        if (riempimento) gaze.fillLight = luce else gaze.inkLight = luce
+    }
     fun scegli(ink: Int?) {
         if (riempimento) {
             gaze.fillInk = ink
@@ -5154,8 +5157,6 @@ private fun DrawBody(
         }
     }
     val chiaro = rememberMenuState()
-    /** The light the finger is choosing in the single gesture, applied when it lifts (`L2a`). */
-    var pendente by remember { mutableStateOf<Float?>(null) }
     val nomeLuce = stringResource(R.string.draw_light)
     /** The Luminosità slider's track, where the finger that holds a swatch is read (note C). */
     val pista = remember { Placed() }
@@ -5207,8 +5208,13 @@ private fun DrawBody(
                 /*
                  * ⚠️⚠️ **Holding a swatch opens Luminosità** (his note on `4.45-02`, answers `L1a`,
                  * `L2a`, `L3a`): after the system's long press the finger that slides sets the
-                 * light and lifts to apply it, closing the slider; the finger that lifts still
-                 * leaves the slider on screen, and a tap outside closes it.
+                 * light and lifts to close the slider; the finger that lifts still leaves the slider
+                 * on screen, and a tap outside closes it.
+                 * ⚠️⚠️ **The sliding finger lays the light at once, since 4.63** (his note on
+                 * `4.61-04`: *man mano che trascino vedo il colore che cambia nell'oggetto*): with an
+                 * element chosen, it changes colour under the finger, as it did with the slider
+                 * dragged on its own. Until 4.62 the value waited for the lift (`L2a`), and the
+                 * element showed it only then.
                  * ⚠️ The slider is a menu, through [MenuShell] like every other: a tap outside
                  * closes it without reaching the stage, where it would draw a dot.
                  * ⚠️ Holding a swatch that is not the chosen one chooses it first, from its own
@@ -5217,7 +5223,6 @@ private fun DrawBody(
                 fun tieni() {
                     if (ink == null) return
                     if (!scelto) scegli(ink)
-                    pendente = luce()
                     chiaro.open()
                 }
                 val qui = remember { Placed() }
@@ -5256,15 +5261,10 @@ private fun DrawBody(
                                     }
                                     if (!mosso) mosso = abs(dito.position.x - lungo.position.x) > viewConfiguration.touchSlop
                                     if (mosso) qui.at?.takeIf { it.isAttached }?.localToScreen(dito.position)
-                                        ?.let { lucePer(it.x) }?.let { pendente = it }
+                                        ?.let { lucePer(it.x) }?.let { posa(it) }
                                     dito.consume()
                                 }
-                                val scelta = pendente
-                                if (mosso && scelta != null) {
-                                    if (riempimento) gaze.fillLight = scelta else gaze.inkLight = scelta
-                                    chiaro.close()
-                                }
-                                pendente = null
+                                if (mosso) chiaro.close()
                             }
                         }
                         .semantics {
@@ -5273,7 +5273,7 @@ private fun DrawBody(
                             selected = scelto
                             if (!live) disabled()
                             onClick { scegli(ink); true }
-                            if (ink != null) onLongClick(nomeLuce) { tieni(); pendente = null; true }
+                            if (ink != null) onLongClick(nomeLuce) { tieni(); true }
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -5320,7 +5320,7 @@ private fun DrawBody(
         CompositionLocalProvider(LocalAivDepth provides PanelDepth.SHADOW) {
             MenuShell(state = chiaro, position = sopra, minWidth = maxWidth) {
                 val base = (if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
-                val valore = pendente ?: luce()
+                val valore = luce()
                 Row(
                     modifier = Modifier.width(maxWidth).padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -5330,7 +5330,7 @@ private fun DrawBody(
                     Canvas(Modifier.size(SWATCH)) { drawCircle(Color(Draw.lit(base, valore))) }
                     Slider(
                         value = valore,
-                        onValueChange = { if (riempimento) gaze.fillLight = it else gaze.inkLight = it },
+                        onValueChange = { posa(it) },
                         valueRange = -1f..1f,
                         modifier = Modifier
                             .weight(1f)

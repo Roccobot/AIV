@@ -707,8 +707,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     della freccia incrocia l'asta, o una mano libera ripassa su sé stessa, il colore resta uguale.
   - **La luminosità si sceglie tenendo premuto un tondo**, con la pressione lunga di sistema
     (`L1a`): compare un cursore sotto la tavolozza, con accanto il colore che ne risulta. Se il dito
-    scorre è un gesto solo, e il valore si applica quando il dito si stacca, chiudendo il cursore
-    (`L2a`); se il dito si alza fermo il cursore resta, e un tocco fuori lo chiude (`L3a`). Il
+    scorre è un gesto solo, e quando il dito si stacca il cursore si chiude (`L2a`); se il dito si
+    alza fermo il cursore resta, e un tocco fuori lo chiude (`L3a`). ⚠️ Dalla `4.63` il valore si
+    posa mentre il dito scorre, e un elemento scelto cambia colore sotto il dito (sua nota su
+    `4.61-04`); fino alla `4.62` si posava allo stacco. Il
     cursore è un menu, quindi quel tocco non arriva al palco. Il tondo resta del suo colore base, e
     un tocco successivo gli rende la luminosità base. Tenere un tondo non scelto lo sceglie prima.
   - **Linee e frecce si agganciano all'orizzontale e alla verticale** (nota A): entro 5 gradi
