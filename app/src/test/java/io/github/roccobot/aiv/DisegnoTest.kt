@@ -25,6 +25,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -985,16 +986,14 @@ class DisegnoTest {
         pronta()
         apriDisegno()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        // ⚠️ Until 4.70 the 'Elimina' key said whether an element was chosen; since 4.80 its column
+        // is Sfocatura, and the handles on the stage say it.
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
-        elimina.assertIsNotEnabled()
         val prima = palco.captureToImage().toPixelMap()
         tocca(Offset(-70f, -70f))
-        elimina.assertIsEnabled()
         val scelto = palco.captureToImage().toPixelMap()
         assertTrue("scelto l'elemento, i suoi vertici dovevano comparire", differenza(prima, scelto) > 40)
         tocca(Offset(80f, 80f))
-        elimina.assertIsNotEnabled()
         assertEquals("tolta la scelta, il palco doveva tornare com'era", 0, differenza(prima, palco.captureToImage().toPixelMap()))
         banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
         banco.waitForIdle()
@@ -1009,24 +1008,41 @@ class DisegnoTest {
      * **The module's command is 'Elimina tutto', and it empties the drawing and drops the choice**
      * (4.64, his answer in chat: *Allora può restare, ma rinominalo in 'Elimina tutto'*). Until
      * 4.63 it was called 'Azzera', the word of the bar's key that resets every module.
-     * ⚠️⚠️ **CONTROPROVATA** with the old string: the command is not found by its new name.
+     * ⚠️⚠️ **CONTROPROVATA** with the old string: the command is not found by its new name. And
+     * since 4.80, without the line that drops the choice: a free hand tap leaves no dot.
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
     fun `Elimina tutto svuota il disegno e toglie la scelta`() {
-        banco.setContent { Scena() }
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
         apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
+        banco.waitForIdle()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         tocca(Offset(-70f, -70f))
-        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
-        elimina.assertIsEnabled()
         banco.onNodeWithText(testo(R.string.editor_original)).assertDoesNotExist()
         val tutto = banco.onNodeWithText(testo(R.string.draw_clear))
         tutto.performClick()
         banco.waitForIdle()
-        elimina.assertIsNotEnabled()
         tutto.assertIsNotEnabled()
+        assertFalse("dopo Elimina tutto la scelta non doveva restare", sceltaRimasta {
+            // ⚠️ With nothing drawn 'Salva' is off, and nothing is saved.
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            salvato?.drawing?.marks.orEmpty()
+        })
+    }
+
+    /**
+     * **Whether a choice is left in place after the drawing was emptied**: with one, a tap of the
+     * free hand only drops it and leaves no dot. Since 4.80 the 'Elimina' key, whose light used to
+     * say it, has left its column to Sfocatura.
+     */
+    private fun sceltaRimasta(salva: () -> List<Mark>): Boolean {
+        tocca(Offset(80f, 80f))
+        return salva().isEmpty()
     }
 
     /**
@@ -1035,24 +1051,29 @@ class DisegnoTest {
      * stayed lit, and the next element drawn was born chosen, so the module's parameters changed it.
      * 'Elimina tutto' already dropped the choice, and with it kept the hold is the other way to the
      * same result.
-     * ⚠️⚠️ **CONTROPROVATA** without the line that drops the choice: 'Elimina' stays lit after the
-     * hold.
+     * ⚠️⚠️ **CONTROPROVATA** without the line that drops the choice: until 4.70 'Elimina' stayed lit
+     * after the hold; since 4.80, when that key has left its column to Sfocatura, a free hand tap
+     * after the hold only drops the choice that was left, and leaves no dot ([sceltaRimasta]).
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
     fun `tenere il gettone del Disegno toglie anche la scelta`() {
-        banco.setContent { Scena() }
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
         apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
+        banco.waitForIdle()
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         tocca(Offset(-70f, -70f))
-        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
-        elimina.assertIsEnabled()
         banco.onNodeWithContentDescription(testo(R.string.look_draw)).performTouchInput { longClick() }
         banco.waitForIdle()
-        elimina.assertIsNotEnabled()
-        trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
-        elimina.assertIsNotEnabled()
+        assertFalse("tenuto il gettone, la scelta non doveva restare", sceltaRimasta {
+            // ⚠️ With nothing drawn 'Salva' is off, and nothing is saved.
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            salvato?.drawing?.marks.orEmpty()
+        })
     }
 
     /**
@@ -1152,7 +1173,11 @@ class DisegnoTest {
         assertTrue("l'elemento scelto doveva spostarsi a destra", spostati[0].points[0].x > prima[0].points[0].x)
         assertEquals("in verticale doveva restare", prima[0].points[0].y, spostati[0].points[0].y, 1e-4f)
         assertEquals("l'altro doveva restare dov'era", prima[1].points, spostati[1].points)
-        banco.onNodeWithContentDescription(testo(R.string.pick_delete)).performClick()
+        // ⚠️ Since 4.80 'Elimina' is in the element's menu, and its column is Sfocatura's.
+        banco.onNodeWithContentDescription(testo(R.string.look_compare))
+            .performTouchInput { longClick(center + Offset(-70f + PASSO, -70f)) }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.pick_delete)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
@@ -1513,7 +1538,7 @@ class DisegnoTest {
         }
         banco.onNodeWithText(testo(R.string.draw_raise)).assertIsNotEnabled()
         banco.onNodeWithText(testo(R.string.draw_lower)).assertIsNotEnabled()
-        banco.onNodeWithContentDescription(testo(R.string.pick_delete)).assertIsEnabled()
+        banco.onNodeWithText(testo(R.string.pick_delete)).assertIsEnabled()
         banco.onNodeWithText(testo(R.string.pick_duplicate)).performClick()
         banco.waitForIdle()
         val dopo = salva()
@@ -1614,6 +1639,99 @@ class DisegnoTest {
         palco.performTouchInput { longClick(center + Offset(-55f, -55f)) }
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.draw_transform)).assertExists()
+    }
+
+    /**
+     * **Il conto della Sfocatura** (`4.80`, sua specifica: *una selezione tipo rettangolo
+     * arrotondato, che anziché riempire la propria area di un colore la sfoca*): l'area dentro
+     * l'elemento diventa grigia su un'immagine a righe e fuori resta com'è; l'elemento non si
+     * disegna; il pezzo letto a piena risoluzione sfoca come l'immagine intera; un tocco prende
+     * prima gli altri elementi, perché la sfocatura è sotto tutti; lo stile la porta fra due
+     * forme chiuse.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la posa dell'area sfocata in `Draw.blurAreas` (il
+     * centro resta nero o bianco), e senza il salto dell'elemento sfocato in `Draw.paint`
+     * (l'elemento si disegna sopra).
+     */
+    @Test
+    fun `il conto della sfocatura`() {
+        val w = 200
+        val h = 100
+        fun righe(): Bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply {
+            for (x in 0 until w) for (y in 0 until h) setPixel(x, y, if ((x / 2) % 2 == 0) Color.BLACK else Color.WHITE)
+        }
+        val sfoca = Mark(Pen.RECT, listOf(Offset(0.25f, 0.25f), Offset(0.75f, 0.75f)), Color.RED, 0.01f, false, Color.GREEN, blur = 0.1f)
+        val dentro = Draw.blurAreas(righe(), Drawing(listOf(sfoca)), mine = true)
+        fun grigio(c: Int) = Color.red(c) in 80..175
+        assertTrue("al centro dell'elemento l'immagine doveva diventare grigia", grigio(dentro.getPixel(100, 50)))
+        assertTrue("e accanto anche", grigio(dentro.getPixel(101, 50)))
+        assertEquals("fuori dall'elemento l'immagine doveva restare com'era", righe().getPixel(10, 10), dentro.getPixel(10, 10))
+        val sopra = Draw.overlay(Drawing(listOf(sfoca)), w, h, Spin(0, false))!!
+        assertEquals("l'elemento sfocato non si disegna", 0, sopra.getPixel(100, 50))
+        assertEquals("né sul bordo", 0, sopra.getPixel(50, 50))
+        val niente = righe()
+        assertSame("senza elementi sfocati l'immagine resta la stessa", niente,
+            Draw.blurAreas(niente, Drawing(listOf(sfoca.copy(blur = null))), mine = true))
+
+        // ⚠️ Il pezzo del centro letto a parte, come fa il palco ingrandito: lo stesso grigio.
+        val pezzo = android.graphics.RectF(0.4f, 0.3f, 0.6f, 0.7f)
+        val ritaglio = Bitmap.createBitmap(righe(), 80, 30, 40, 40)
+        val pezzoSfocato = Draw.blurAreas(ritaglio.copy(Bitmap.Config.ARGB_8888, true), Drawing(listOf(sfoca)), mine = true, at = pezzo)
+        assertEquals("il pezzo doveva sfocarsi come l'immagine intera",
+            Color.red(dentro.getPixel(100, 50)).toFloat(), Color.red(pezzoSfocato.getPixel(20, 20)).toFloat(), 30f)
+
+        val linea = Mark(Pen.LINE, listOf(Offset(0.2f, 0.5f), Offset(0.8f, 0.5f)), Color.RED, 0.01f, false, null)
+        val pieno = Mark(Pen.RECT, listOf(Offset(0.4f, 0.4f), Offset(0.6f, 0.6f)), Color.RED, 0.01f, false, Color.WHITE)
+        assertEquals("un tocco prende l'elemento disegnato, non la sfocatura che è sotto di lui", 0,
+            Draw.hit(Drawing(listOf(pieno, sfoca)), Offset(0.5f, 0.5f), w, h, 0.01f))
+        assertEquals("e la sfocatura si prende dentro, anche senza riempimento", 1,
+            Draw.hit(Drawing(listOf(linea, sfoca.copy(fill = null))), Offset(0.3f, 0.3f), w, h, 0.01f))
+        assertEquals("lo stile porta la sfocatura fra due forme chiuse", 0.1f, pieno.styledLike(sfoca).blur)
+        assertEquals("e non a una linea", null, linea.styledLike(sfoca).blur)
+    }
+
+    /**
+     * **Il tasto Sfocatura sfoca l'area dell'elemento sul palco, il cursore ne regola l'entità, e con
+     * la sfocatura accesa traccia e riempimento si spengono** (`4.80`). Acceso prima di disegnare
+     * vale per l'elemento nuovo; con un elemento scelto vale per lui.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la sfocatura nell'anteprima del palco (l'area resta a
+     * righe), e senza i due valori della Sfocatura fra quelli che il modulo posa sull'elemento
+     * scelto (il cursore non lo cambia).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `il tasto Sfocatura sfoca l'area sul palco`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }, uri = righe()) }
+        pronta()
+        apriDisegno()
+        fun salva(): List<Mark> {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks
+        }
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val sfocatura = banco.onAllNodesWithContentDescription(testo(R.string.draw_blur))
+            .filterToOne(SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsProperties.ToggleableState))
+        sfocatura.performClick()
+        banco.waitForIdle()
+        sfocatura.assertIsOn()
+        banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_outline)).assertIsNotEnabled()
+        val prima = palco.captureToImage().toPixelMap()
+        trascinaDa(Offset(-100f, -100f), Offset(-20f, -20f))
+        val dopo = palco.captureToImage().toPixelMap()
+        assertEquals("l'elemento nuovo doveva nascere sfocato", Draw.BLUR, salva().single().blur)
+        assertTrue("dentro l'elemento le righe dovevano diventare grigie",
+            grigi(dopo, Offset(-60f, -60f), 30) > grigi(prima, Offset(-60f, -60f), 30) + 200)
+        tocca(Offset(-60f, -60f))
+        banco.onAllNodesWithContentDescription(testo(R.string.draw_blur))
+            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.BLUR_MAX) }
+        banco.waitForIdle()
+        assertEquals("il cursore doveva regolare la sfocatura dell'elemento scelto", Draw.BLUR_MAX, salva().single().blur)
+        sfocatura.performClick()
+        banco.waitForIdle()
+        assertEquals("spento il tasto con l'elemento scelto, l'elemento doveva tornare un rettangolo", null, salva().single().blur)
     }
 
     /**
@@ -1740,12 +1858,16 @@ class DisegnoTest {
     }
 
     @Composable
-    private fun Scena(onSave: (Look) -> Unit = {}, onAccent: (androidx.compose.ui.graphics.Color) -> Unit = {}) {
+    private fun Scena(
+        onSave: (Look) -> Unit = {},
+        onAccent: (androidx.compose.ui.graphics.Color) -> Unit = {},
+        uri: Uri = quadrato()
+    ) {
         AivTheme(darkTheme = false) {
             onAccent(MaterialTheme.colorScheme.primary)
             Box(modifier = Modifier.fillMaxSize()) {
                 AdvancedEditorScreen(
-                    uri = quadrato(),
+                    uri = uri,
                     busy = false,
                     marked = false,
                     marking = false,
@@ -1774,6 +1896,29 @@ class DisegnoTest {
             file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
         return Uri.fromFile(file)
+    }
+
+    /** A [LATO] square of black and white columns two pixels wide: a blur turns it grey. */
+    private fun righe(): Uri {
+        val file = File(app.cacheDir, "righe.png")
+        if (!file.exists()) {
+            val mappa = Bitmap.createBitmap(LATO, LATO, Bitmap.Config.ARGB_8888)
+            for (x in 0 until LATO) for (y in 0 until LATO) mappa.setPixel(x, y, if ((x / 2) % 2 == 0) Color.BLACK else Color.WHITE)
+            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        return Uri.fromFile(file)
+    }
+
+    /** How many pixels of [mappa] are a middle grey, in the square of side [lato] around [dove] from its centre. */
+    private fun grigi(mappa: PixelMap, dove: Offset, lato: Int): Int {
+        val cx = (mappa.width / 2f + dove.x).toInt()
+        val cy = (mappa.height / 2f + dove.y).toInt()
+        var n = 0
+        for (y in cy - lato / 2 until cy + lato / 2) for (x in cx - lato / 2 until cx + lato / 2) {
+            val c = mappa[x, y]
+            if (c.red in 0.25f..0.75f && kotlin.math.abs(c.red - c.green) < 0.05f && kotlin.math.abs(c.red - c.blue) < 0.05f) n++
+        }
+        return n
     }
 
     private fun testo(id: Int): String = app.getString(id)

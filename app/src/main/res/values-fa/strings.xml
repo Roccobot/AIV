@@ -509,6 +509,7 @@
     <string name="draw_dashed">خط‌چین</string>
     <string name="draw_filled">پرکردن</string>
     <string name="draw_light">روشنایی</string>
+    <string name="draw_blur">تاری</string>
     <string name="draw_raise">آوردن به جلو</string>
     <string name="draw_lower">فرستادن به عقب</string>
     <string name="draw_copy">کپی</string>

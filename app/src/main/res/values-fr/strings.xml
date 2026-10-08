@@ -526,6 +526,7 @@
     <string name="draw_dashed">Pointillés</string>
     <string name="draw_filled">Remplissage</string>
     <string name="draw_light">Luminosité</string>
+    <string name="draw_blur">Flou</string>
     <string name="draw_raise">Mettre devant</string>
     <string name="draw_lower">Mettre derrière</string>
     <string name="draw_copy">Copier</string>

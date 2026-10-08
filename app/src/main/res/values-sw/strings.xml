@@ -509,6 +509,7 @@
     <string name="draw_dashed">Vistari</string>
     <string name="draw_filled">Kujaza</string>
     <string name="draw_light">Mwangaza</string>
+    <string name="draw_blur">Ukungu</string>
     <string name="draw_raise">Leta mbele</string>
     <string name="draw_lower">Peleka nyuma</string>
     <string name="draw_copy">Nakili</string>

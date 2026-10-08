@@ -509,6 +509,7 @@
     <string name="draw_dashed">Kesikli</string>
     <string name="draw_filled">Dolgu</string>
     <string name="draw_light">Parlaklık</string>
+    <string name="draw_blur">Bulanıklık</string>
     <string name="draw_raise">Öne getir</string>
     <string name="draw_lower">Arkaya gönder</string>
     <string name="draw_copy">Kopyala</string>

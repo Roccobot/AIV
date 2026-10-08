@@ -543,6 +543,7 @@
     <string name="draw_dashed">Przerywana</string>
     <string name="draw_filled">Wypełnienie</string>
     <string name="draw_light">Jasność</string>
+    <string name="draw_blur">Rozmycie</string>
     <string name="draw_raise">Przesuń wyżej</string>
     <string name="draw_lower">Przesuń niżej</string>
     <string name="draw_copy">Kopiuj</string>

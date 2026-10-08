@@ -509,6 +509,7 @@
     <string name="draw_dashed">Gestippeld</string>
     <string name="draw_filled">Opvulling</string>
     <string name="draw_light">Helderheid</string>
+    <string name="draw_blur">Vervaging</string>
     <string name="draw_raise">Naar voren</string>
     <string name="draw_lower">Naar achteren</string>
     <string name="draw_copy">Kopiëren</string>

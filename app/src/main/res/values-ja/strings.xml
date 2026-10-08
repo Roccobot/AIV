@@ -492,6 +492,7 @@
     <string name="draw_dashed">破線</string>
     <string name="draw_filled">塗りつぶし</string>
     <string name="draw_light">明るさ</string>
+    <string name="draw_blur">ぼかし</string>
     <string name="draw_raise">前面へ</string>
     <string name="draw_lower">背面へ</string>
     <string name="draw_copy">コピー</string>

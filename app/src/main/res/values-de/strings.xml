@@ -509,6 +509,7 @@
     <string name="draw_dashed">Gestrichelt</string>
     <string name="draw_filled">Füllung</string>
     <string name="draw_light">Helligkeit</string>
+    <string name="draw_blur">Weichzeichnen</string>
     <string name="draw_raise">Nach vorne</string>
     <string name="draw_lower">Nach hinten</string>
     <string name="draw_copy">Kopieren</string>

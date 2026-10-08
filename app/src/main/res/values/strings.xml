@@ -148,6 +148,7 @@
     <string name="draw_dashed">Dashed</string>
     <string name="draw_filled">Fill</string>
     <string name="draw_light">Brightness</string>
+    <string name="draw_blur">Blur</string>
     <string name="draw_raise">Bring forward</string>
     <string name="draw_lower">Send backward</string>
     <string name="draw_copy">Copy</string>
