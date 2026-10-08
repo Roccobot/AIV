@@ -1642,6 +1642,41 @@ class DisegnoTest {
     }
 
     /**
+     * **Un tocco sull'elemento scelto alterna `Trasforma` e `Ruota`** (`4.81`, sua nota su
+     * `4.70-04`: *un tap singolo su un oggetto già selezionato lo fa passare ciclicamente da
+     * trasformazione e rotazione*). Il primo tocco sceglie l'elemento; il secondo lo mette in
+     * `Ruota`, con le maniglie vuote, e un trascinamento da un angolo lo gira; il terzo lo riporta
+     * in `Trasforma`, e il menu offre di nuovo `Ruota`.
+     * ⚠️⚠️ **CONTROPROVATA**: senza il ramo del tocco sull'elemento scelto nel palco, il secondo
+     * tocco lascia le maniglie piene.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `un tocco sull'elemento scelto alterna Trasforma e Ruota`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        tocca(Offset(-70f, -70f))
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val pieno = palco.captureToImage().toPixelMap()
+        tocca(Offset(-70f, -70f))
+        assertTrue("il secondo tocco doveva mettere l'elemento in Ruota, con le maniglie vuote",
+            differenza(pieno, palco.captureToImage().toPixelMap()) > 20)
+        // ⚠️ Dall'angolo in basso a destra, a 45 gradi dal centro, a dritto sotto il centro: 45 gradi.
+        trascinaDa(Offset(-40f, -40f), Offset(-70f, -70f + 30f * 1.4142f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertEquals("in Ruota il trascinamento da un angolo doveva girare l'elemento", 45f,
+            salvato!!.drawing.marks.single().angle, 1e-3f)
+        tocca(Offset(-70f, -70f))
+        palco.performTouchInput { longClick(center + Offset(-70f, -70f)) }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.draw_rotate)).assertExists()
+    }
+
+    /**
      * **Il conto della Sfocatura** (`4.80`, sua specifica: *una selezione tipo rettangolo
      * arrotondato, che anziché riempire la propria area di un colore la sfoca*): l'area dentro
      * l'elemento diventa grigia su un'immagine a righe e fuori resta com'è; l'elemento non si
@@ -1687,6 +1722,56 @@ class DisegnoTest {
             Draw.hit(Drawing(listOf(linea, sfoca.copy(fill = null))), Offset(0.3f, 0.3f), w, h, 0.01f))
         assertEquals("lo stile porta la sfocatura fra due forme chiuse", 0.1f, pieno.styledLike(sfoca).blur)
         assertEquals("e non a una linea", null, linea.styledLike(sfoca).blur)
+    }
+
+    /**
+     * **L'area sfocata ha la forma dell'elemento, pixel per pixel** (`4.81`, il suo `Non approvato`
+     * su `4.80-01`: *Questo è come appare un rettangolo sfocato fin dalla sua nascita*, con un
+     * parallelogramma inclinato e due angoli stondati staccati). Su un'immagine a righe ogni pixel
+     * ben dentro il rettangolo stondato è grigio e ogni pixel ben fuori resta com'era: diritto,
+     * girato di 30 gradi, e un'ellisse. Gli angoli sono larghi, 30 pixel, perché la prova della
+     * `4.80` usava un tratto sottile, e con angoli di 6 pixel il contorno storto quasi non si vedeva.
+     * ⚠️⚠️ **CONTROPROVATA**: con gli archi della `4.80` in `Draw.outline` (quelli in alto a destra
+     * e in basso a sinistra percorsi al contrario) i pixel fuori posto sono centinaia.
+     */
+    @Test
+    fun `l'area sfocata ha la forma dell'elemento`() {
+        val lato = 200
+        fun righe(): Bitmap = Bitmap.createBitmap(lato, lato, Bitmap.Config.ARGB_8888).apply {
+            for (x in 0 until lato) for (y in 0 until lato) setPixel(x, y, if ((x / 2) % 2 == 0) Color.BLACK else Color.WHITE)
+        }
+        val originale = righe()
+        // A stroke of 10 pixels gives round corners of 30 (three strokes): a quarter of the side.
+        val diritto = Mark(Pen.RECT, listOf(Offset(0.2f, 0.2f), Offset(0.8f, 0.8f)), Color.RED, 0.05f, false, null, blur = 0.1f)
+        val metà = 60f
+        val raggio = 30f
+        fun stondato(lx: Float, ly: Float): Float {
+            val qx = kotlin.math.abs(lx) - (metà - raggio)
+            val qy = kotlin.math.abs(ly) - (metà - raggio)
+            return kotlin.math.hypot(kotlin.math.max(qx, 0f), kotlin.math.max(qy, 0f)) + kotlin.math.min(kotlin.math.max(qx, qy), 0f) - raggio
+        }
+        fun ellisse(lx: Float, ly: Float): Float = (kotlin.math.hypot(lx / metà, ly / metà) - 1f) * metà
+        val casi = listOf(
+            Triple("il rettangolo diritto", diritto, ::stondato),
+            Triple("il rettangolo girato di 30 gradi", diritto.copy(angle = 30f), ::stondato),
+            Triple("l'ellisse", diritto.copy(pen = Pen.ELLIPSE), ::ellisse),
+        )
+        for ((nome, elemento, distanza) in casi) {
+            val sfocata = Draw.blurAreas(righe(), Drawing(listOf(elemento)), mine = true)
+            val rad = Math.toRadians(elemento.angle.toDouble())
+            val cs = kotlin.math.cos(rad).toFloat()
+            val sn = kotlin.math.sin(rad).toFloat()
+            var fuoriPosto = 0
+            for (y in 0 until lato) for (x in 0 until lato) {
+                val dx = x + 0.5f - 100f
+                val dy = y + 0.5f - 100f
+                val d = distanza(dx * cs + dy * sn, -dx * sn + dy * cs)
+                val c = sfocata.getPixel(x, y)
+                if (d < -3f && Color.red(c) !in 80..175) fuoriPosto++
+                if (d > 3f && c != originale.getPixel(x, y)) fuoriPosto++
+            }
+            assertEquals("$nome: ogni pixel dentro doveva essere sfocato e ogni pixel fuori com'era", 0, fuoriPosto)
+        }
     }
 
     /**

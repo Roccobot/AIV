@@ -771,7 +771,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **il conto**: l'area intorno all'elemento si dimezza finché il raggio è di pochi pixel, si
     sfoca con tre passate a scatola e si riposa attraverso il contorno dell'elemento, stirata con
     un filtro bilineare. Una sfocatura di centinaia di pixel costa come una di pochi;
-  - `Copia` e `Incolla` portano la sfocatura fra due forme chiuse, come il riempimento.
+  - `Copia` e `Incolla` portano la sfocatura fra due forme chiuse, come il riempimento;
+  - ⚠️⚠️ **nella `4.80` l'area sfocata del rettangolo era storta** (suo `Non approvato` su
+    `4.80-01`): nel contorno di `Draw.outline` gli archi degli angoli in alto a destra e in basso a
+    sinistra erano percorsi al contrario, e il contorno si incrociava da solo. La `4.70` lo usava
+    solo per l'ingombro, dove l'ordine dei punti non conta. Corretto nella `4.81`, con la prova
+    `l'area sfocata ha la forma dell'elemento`, che guarda ogni pixel dentro e fuori, con angoli
+    larghi: quella della `4.80` aveva angoli di 6 pixel, e la forma storta quasi non si vedeva.
 - **Poi il testo (G3) e la pillola**: le loro specifiche vivono nel brief.
 - **I caratteri del testo (G3) si scelgono da un [artefatto](https://claude.ai/artifact/BnskaC7AgjgE5Dn23RVmoe)**
   con dodici caratteri liberi, Roboto di fabbrica (sua richiesta del 2026-10-08), più gli stili
@@ -867,6 +873,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     maniglia l'elemento gira attorno al centro del suo riquadro, libero, e si aggancia ai multipli
     di 45 gradi entro 5 gradi (la R2 della sua domanda). In rotazione le maniglie sono vuote. La
     modalità torna `Trasforma` quando la scelta cambia;
+  - **dalla `4.81` anche un tocco sull'elemento scelto alterna `Trasforma` e `Ruota`** (sua nota su
+    `4.70-04`: *un tap singolo su un oggetto già selezionato lo fa passare ciclicamente da
+    trasformazione e rotazione*); il tasto del menu resta, e dice la modalità a cui porta;
   - **in tutte e due le modalità trascinare l'elemento lo sposta** (sua frase: *In entrambe le
     modalità immagino possibile anche lo spostamento*), e una maniglia vince sul corpo entro 16 dp;
   - letture della sessione, dichiarate nella voce di collaudo: l'ordine per righe, le maniglie dei

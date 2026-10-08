@@ -834,6 +834,7 @@ fun AdvancedEditorScreen(
                         drawPicked = { gaze.picked },
                         onDrawPick = { i -> pick(i) },
                         drawTurning = { gaze.turning },
+                        onDrawTurn = { gaze.turning = !gaze.turning },
                         onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
@@ -999,6 +1000,7 @@ fun AdvancedEditorScreen(
                         drawPicked = { gaze.picked },
                         onDrawPick = { i -> pick(i) },
                         drawTurning = { gaze.turning },
+                        onDrawTurn = { gaze.turning = !gaze.turning },
                         onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
@@ -1362,6 +1364,8 @@ private fun LookStage(
     onDrawPick: (Int?) -> Unit,
     /** Whether the handles of the chosen mark turn it instead of reshaping it: see [Gaze.turning]. */
     drawTurning: () -> Boolean,
+    /** A tap on the chosen mark: 'Trasforma' and 'Ruota' swap (4.81), see [Gaze.turning]. */
+    onDrawTurn: () -> Unit,
     /** A finger held still on a mark, which the stage has just chosen: its menu opens (4.70). */
     onDrawHold: () -> Unit,
     modifier: Modifier = Modifier
@@ -1398,6 +1402,7 @@ private fun LookStage(
     val pickedNow by rememberUpdatedState(drawPicked)
     val pickNow by rememberUpdatedState(onDrawPick)
     val turningNow by rememberUpdatedState(drawTurning)
+    val turnNow by rememberUpdatedState(onDrawTurn)
     val holdNow by rememberUpdatedState(onDrawHold)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
     val metrics = LocalContext.current.resources.displayMetrics
@@ -2124,6 +2129,16 @@ private fun LookStage(
                         }
                         if (esito == Settled.UP) {
                             val preso = Draw.hit(base, start, picture.width, picture.height, reach)
+                            /*
+                             * ⚠️⚠️ **A tap on the chosen element swaps 'Trasforma' and 'Ruota',
+                             * since 4.81** (his note on `4.70-04`: *un tap singolo su un oggetto già
+                             * selezionato lo fa passare ciclicamente da trasformazione e rotazione*).
+                             * The key in the menu stays, and says the mode the tap leads to.
+                             */
+                            if (preso != null && preso == scelto) {
+                                turnNow()
+                                return@awaitEachGesture
+                            }
                             if (preso != null || scelto != null) {
                                 pickNow(preso)
                                 return@awaitEachGesture
@@ -4616,7 +4631,8 @@ private class Gaze(
      * **Whether the handles of the chosen mark turn it ('Ruota') or reshape it ('Trasforma')**
      * (4.70, his answer on `4.64-04`: *toccando `Ruota` si passa in modalità rotazione. Mentre si è in
      * modalità rotazione il tasto diventa `Trasforma`*). Dragging the mark itself moves it in both.
-     * It drops back to 'Trasforma' when the choice changes ([picked]).
+     * It drops back to 'Trasforma' when the choice changes ([picked]). Since 4.81 a tap on the chosen
+     * mark swaps the two as well (his note on `4.70-04`).
      */
     var turning by mutableStateOf(false)
 
