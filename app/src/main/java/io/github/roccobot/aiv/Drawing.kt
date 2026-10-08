@@ -525,12 +525,17 @@ internal object Draw {
                 local += Offset(hw * cos(t).toFloat(), hh * sin(t).toFloat())
             }
         } else {
+            // ⚠️⚠️ One way round, corner after corner: top left from the left side to the top, top
+            // right from the top to the right side, and so on. In 4.80 the arcs of the top right
+            // and bottom left corners ran backwards, so the outline crossed itself: harmless for
+            // the box it spans (4.70), and a slanted area with two loose corners once Sfocatura
+            // cut the image along it (his `Non approvato` on `4.80-01`).
             val r = corner(mark, max(fw, fh), RectF(c.x - hw, c.y - hh, c.x + hw, c.y + hh))
-            for ((sx, sy) in listOf(-1f to -1f, 1f to -1f, 1f to 1f, -1f to 1f)) {
-                val o = Offset(sx * (hw - r), sy * (hh - r))
+            for ((k, s) in listOf(-1f to -1f, 1f to -1f, 1f to 1f, -1f to 1f).withIndex()) {
+                val o = Offset(s.first * (hw - r), s.second * (hh - r))
                 for (i in 0..CORNER_STEPS) {
-                    val t = Math.PI / 2 * i / CORNER_STEPS
-                    local += Offset(o.x + sx * r * cos(t).toFloat(), o.y + sy * r * sin(t).toFloat())
+                    val t = Math.PI * (1.0 + k / 2.0) + Math.PI / 2 * i / CORNER_STEPS
+                    local += Offset(o.x + r * cos(t).toFloat(), o.y + r * sin(t).toFloat())
                 }
             }
         }
