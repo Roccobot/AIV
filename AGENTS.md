@@ -240,6 +240,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').
   Quando un testo per l'utente nomina il DF, la parola è sempre un link a quell'indirizzo.
 - **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni documento di feedback con la sezione esatta `Prossimi passi`, in forma breve e schematica.
+- **Una voce ferma nel brief da più di dieci giri torna nel DF** come prova (titolo `Domanda ·`, opzioni con la lettera, parere); se l'utente rimanda resta nel brief e torna dopo altri dieci (`Rules.md` § '🔗 Il documento vivo del progetto').
+- **Il catalogo dei veli d'aiuto si aggiorna senza aspettare la richiesta**, ogni volta che un velo nasce o cambia, nello stesso giro della versione (la nota in testa a `Rules.md`).
 - **Il documento di feedback si pubblica o aggiorna solo dopo la GitHub Release pubblicata, con l'APK, della stessa versione**: verificare il tag `vX.XX`; numero e link all'APK non bastano. Eccezione: ritocco solo UX/documentale del DF → Feedback cloud/Pages senza nuova Release APK (`docs/Feedback-maintenance.md`).
 - **Forma del DF** (`docs/Feedback-maintenance.md`): solo feedback sull'app, la sua UI si gestisce in chat; intro di due righe più `Scarica AIV`; `Aggiornamenti recenti` copre un paio di giri; un'etichetta esce dopo la prima conferma; Etichette testuali e comandi di consegna sotto Altro come da guida.
 - **Dopo ogni giro elaborato: audit obbligatorio** contro l'export precedente.

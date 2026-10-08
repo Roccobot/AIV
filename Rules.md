@@ -16,11 +16,16 @@
 file committato**: il brief è stato volatile e non un archivio, e un indirizzo scritto solo là alla
 sessione dopo è perso.
 
-⚠️ **Il catalogo dei veli d'aiuto** (il micro-onboarding, uno per chiave di `Hint` più la variante
-col menu Start) vive in un [artefatto](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE), con la
-schermata, il punto in cui compare e la frase esatta di ogni velo (sua richiesta, 2026-10-06, voce
-`4.34-02`). **Si aggiorna quando nasce un velo nuovo o ne cambia uno**: le schermate si fanno col
-banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
+⚠️⚠️ **Il catalogo dei veli d'aiuto** (il micro-onboarding, uno per chiave di `Hint` più la
+variante col menu Start) vive in un [artefatto](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE),
+con la schermata, il punto in cui compare e la frase esatta di ogni velo (sua richiesta,
+2026-10-06, voce `4.34-02`). **Si aggiorna da sé, senza aspettare che lui lo chieda, ogni volta
+che un velo nasce o cambia**: la frase, il punto in cui compare, la condizione che lo mostra, il
+disegno. Lo si fa nello stesso giro della versione che introduce la modifica (sua istruzione,
+2026-10-08: *ogni volta che aggiungiamo un micro-onboarding, aggiorna l'artefatto relativo anche
+se non te lo chiedo esplicitamente*, e subito dopo *in realtà non solo quando nasce: anche quando
+modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nativa,
+`it-w393dp-h873dp-xhdpi`.
 
 ## 📚 Dove vivono le specifiche delle funzioni
 
@@ -97,6 +102,13 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
   rimane un riferimento storico per le sue voci ancora aperte, senza chiuderle implicitamente.
 
 - **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni DF con la sezione intitolata esattamente **Prossimi passi**, in forma breve e schematica: una sorta di mini-brief.
+- ⚠️⚠️ **Una voce ferma nel brief da più di dieci giri si ripropone nel DF** (sua istruzione,
+  2026-10-08; la regola completa vive in `Roccobot.md` § '⏳ Dopo dieci giri, una voce ferma nel
+  brief torna nel documento di feedback'). La pagina non pone decisioni, quindi la domanda entra
+  come prova della versione in collaudo, con le opzioni con la lettera e il parere; un lavoro
+  rimandato entra con la domanda 'lo facciamo adesso?'. Se lui rimanda, la voce resta nel brief e
+  torna dopo altri dieci giri. La forma della prova vive in `docs/Feedback-maintenance.md`
+  § 'Convenzioni di contenuto e interfaccia'.
 - ⚠️⚠️ **Le norme sulla forma del DF** (sue, 2026-10-03), per esteso in `docs/Feedback-maintenance.md`
   § 'Convenzioni di contenuto e interfaccia':
   - il corpo contiene solo feedback sull'app, e l'interfaccia del DF si gestisce in chat;
