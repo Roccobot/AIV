@@ -109,6 +109,12 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   entra con la domanda 'lo facciamo adesso?'. Se lui rimanda, la voce resta nel brief e torna
   dopo altri dieci giri. La forma vive in `docs/Feedback-maintenance.md` § 'Convenzioni di
   contenuto e interfaccia'.
+  - ⚠️⚠️ **Nel DF di AIV entrano solo le voci di AIV, dei file di regole, delle convenzioni e
+    delle impostazioni, e quelle sul DF stesso** (sua precisazione sul giro della 4.64: *in questo
+    DF devono arrivare solo le questioni di AIV, ciò che riguarda file di regole, convenzioni e
+    impostazioni, più le meta-questioni DF (che andrebbero fatte in chat, ma ogni 10 giri le leggo
+    anche qui). Nient'altro. Questo documento è nato principalmente per AIV.*). Le voci ferme di
+    un altro progetto si ripropongono in chat.
 - ⚠️⚠️ **I blocchi numerati del DF sono soltanto prove: una funzione, una serie di controlli**
   (sua istruzione, 2026-10-08: *gli unici blocchi numerati sono versioni atomiche di funzionalità
   precisa (1 blocco = 1 serie di controlli)*). Dopo le prove vengono, non numerati, le

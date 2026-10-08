@@ -107,7 +107,9 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   sostituisce.
 - ⚠️⚠️ **Le Domande: quelle ferme nel brief da più di dieci giri, e ogni scelta che spetta a
   Rocco** (regola completa in `Roccobot.md` § '⏳ Dopo dieci giri, una voce ferma nel brief
-  torna nel documento di feedback'). Nella fonte:
+  torna nel documento di feedback'). Solo quelle di AIV, dei file di regole, delle convenzioni,
+  delle impostazioni e del DF stesso: le voci di un altro progetto si ripropongono in chat (sua
+  precisazione sul giro della 4.64). Nella fonte:
   - `### d-chiave · titolo`, con la chiave in minuscolo (la stessa con cui la risposta si cita
     nel brief, come `d-cestino-quando`);
   - il testo della domanda; un paragrafo per opzione, che comincia con `**C1**:`; un paragrafo
