@@ -791,9 +791,11 @@ class DisegnoTest {
     }
 
     /**
-     * **Tenendo premuto un tondo e scorrendo si sceglie la luminosità, che si applica quando il dito
-     * si stacca, e il cursore si chiude** (sua nota su `4.45-02`, risposte `L1a` e `L2a`). Il tondo
-     * resta scelto, e un tocco successivo gli rende il suo colore.
+     * **Tenendo premuto un tondo e scorrendo si sceglie la luminosità, e allo stacco il cursore si
+     * chiude** (sua nota su `4.45-02`, risposte `L1a` e `L2a`). Il tondo resta scelto, e un tocco
+     * successivo gli rende il suo colore. Dalla `4.63` il valore si posa mentre il dito scorre (sua
+     * nota su `4.61-04`), e fino alla `4.62` si posava allo stacco: qui conta che ci sia, allo
+     * stacco.
      * ⚠️⚠️ **CONTROPROVATA** due volte: senza applicare il valore allo stacco (la linea nasce col
      * colore del tondo), e senza chiudere il cursore (resta in scena).
      */
@@ -1027,6 +1029,49 @@ class DisegnoTest {
         assertEquals("l'elemento scelto doveva diventare blu", Draw.withAlpha(Draw.INKS[3], Draw.INK_ALPHA), primo.ink)
         assertEquals("l'altro doveva restare com'era", Draw.withAlpha(Draw.lit(Draw.INK, Draw.INK_LIGHT), Draw.INK_ALPHA), secondo.ink)
         assertEquals("l'elemento scelto tiene la sua ricetta", Draw.INKS[3], primo.tint?.ink)
+    }
+
+    /**
+     * **Con un elemento scelto, la luminosità si vede sull'elemento mentre il dito scorre, nei due
+     * gesti** (sua nota su `4.61-04`: *man mano che trascino vedo il colore che cambia
+     * nell'oggetto*). Nel gesto unico il valore si posa dal vivo dalla `4.63`, e il cursore si chiude
+     * allo stacco come prima; col dito alzato e il cursore trascinato a parte, il valore si posava
+     * dal vivo già dalla `4.60`.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: col codice della `4.62` (nel gesto unico il valore aspetta
+     * lo stacco, e la prima metà fallisce), e col cursore che non posa niente (la seconda metà).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `la luminosita si vede sull'elemento scelto mentre il dito scorre`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        tocca(Offset(-70f, -70f))
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = palco.captureToImage().toPixelMap()
+        val rosso = banco.onNodeWithContentDescription(testo(R.string.ink_red))
+        rosso.performTouchInput { down(center) }
+        rosso.performTouchInput { advanceEventTime(viewConfiguration.longPressTimeoutMillis + 100); moveBy(Offset(1f, 0f)) }
+        banco.waitForIdle()
+        assertEquals("tenuto il tondo, il cursore della luminosità doveva comparire", 1, luci())
+        rosso.performTouchInput { moveBy(Offset(PASSO, 0f)) }
+        rosso.performTouchInput { moveBy(Offset(PASSO * 4, 0f)) }
+        banco.waitForIdle()
+        assertTrue("col dito ancora giù l'elemento scelto doveva già cambiare colore",
+            differenza(prima, palco.captureToImage().toPixelMap()) > 40)
+        rosso.performTouchInput { up() }
+        banco.waitForIdle()
+        assertEquals("allo stacco il cursore doveva chiudersi", 0, luci())
+
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("a dito alzato il cursore doveva restare", 1, luci())
+        val fermo = palco.captureToImage().toPixelMap()
+        banco.onNode(cursoreLuce()).performSemanticsAction(SemanticsActions.SetProgress) { it(-1f) }
+        banco.waitForIdle()
+        assertTrue("trascinando il cursore l'elemento scelto doveva cambiare colore",
+            differenza(fermo, palco.captureToImage().toPixelMap()) > 40)
     }
 
     /**
