@@ -865,9 +865,10 @@ fun GridScreen(
             // non passa da qui: indica l'icona dell'intestazione, quindi ha un velo suo e si
             // archivia per conto proprio.
             // ⚠️ E dalla `2.50` quello della fila dei moduli, che vive nell'editor completo,
-            // con dalla `2.73` la sua seconda slide sui due comandi del salvataggio.
+            // con dalla `2.73` la sua seconda slide sui due comandi del salvataggio, e dalla
+            // `4.61` quello del modulo Disegno.
             Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN, Hint.COVER, Hint.MODULES,
-            Hint.EDITOR_TOOLS -> Unit
+            Hint.EDITOR_TOOLS, Hint.DRAW -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -2831,6 +2832,9 @@ fun GridScreen(
                             // ⚠️ E per la sua seconda slide, che indica i tre tasti della testata:
                             // là il velo è un `HintSpots`, cioè più riquadri misurati.
                             Hint.EDITOR_TOOLS -> R.string.hint_tools
+                            // ⚠️ E per quello del modulo Disegno, dalla `4.61`: anche lui un
+                            // `HintSpots`, sul tondo rosso.
+                            Hint.DRAW -> R.string.hint_draw
                         }
                     ),
                     // ⚠️ L'angolo del comando vero, tondo o FAB, col centro sul centro del tondo

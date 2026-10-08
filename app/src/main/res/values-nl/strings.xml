@@ -674,6 +674,7 @@
     <string name="hint_modules">Veeg door de pictogrammen om alle bewerkingsmodules te bereiken. Houd het pictogram van een module ingedrukt om alleen die wijzigingen te wissen.</string>
     <string name="hint_tools">Naast de modules zijn er twee functies die je met één tik op het pictogram meteen aan of uit zet, waarna het oplicht: \'Watermerk\' en \'Formaat wijzigen\'. Met lang drukken open je de instellingen van elk van beide.</string>
     <string name="hint_save">Als je klaar bent, tik je op \'Opslaan\' om het bestand te overschrijven (met reservekopie, als die aanstaat); lang drukken bewaart een nieuwe kopie van de afbeelding in dezelfde map.</string>
+    <string name="hint_draw">Met de module Tekenen voeg je lijnen, pijlen, ellipsen, afgeronde rechthoeken, eenvoudige teksten en \'pil\'-kaders aan de afbeelding toe. Bij het opslaan wordt de afbeelding samengevoegd: je kunt haar niet opnieuw openen om de elementen te bewerken of te verplaatsen. Houd een kleur ingedrukt om de helderheid ervan aan te passen.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exporteren en importeren</string>

@@ -692,6 +692,7 @@
     <string name="hint_modules">Desliza los iconos para llegar a todos los módulos de edición. Mantén pulsado el icono de un módulo para restablecer solo sus cambios.</string>
     <string name="hint_tools">Además de los módulos, hay dos funciones que puedes activar o desactivar al momento con un toque en el icono, que se enciende: \'Marca de agua\' y \'Redimensionar\'. Con una pulsación larga accedes a los ajustes de cada una.</string>
     <string name="hint_save">Cuando termines, toca \'Guardar\' para sobrescribir el archivo (con copia de seguridad, si está activada); una pulsación larga guarda una copia nueva de la imagen en la misma carpeta.</string>
+    <string name="hint_draw">Con el módulo Dibujo puedes añadir a la imagen líneas, flechas, elipses, rectángulos redondeados, textos sencillos y recuadros \'píldora\'. Al guardar, la imagen se acopla: no se puede volver a abrir para editar o mover los elementos. Mantén pulsado un color para ajustar su brillo.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>

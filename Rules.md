@@ -264,6 +264,7 @@ banco a grafica nativa, `it-w393dp-h873dp-xhdpi`.
 | **Menu 'Start'**, con gli apici dritti (il menu che cresce dall'angolo; sua nota A del giro della `4.25`) | 'menu angolare' | `MainControl.CORNER`, `CornerMenu`, la stringa `main_control_corner` |
 | **Menu basso** (la barra in fondo allo schermo; stessa nota, e dalla `4.33` la voce `4.30-01`) | 'menu inferiore', e 'Menu' da solo | `MainControl.BOTTOM`, `BottomMenu`, la stringa `main_control_bar` |
 | **stili** ('Salva stile', 'Stili AIV', 'Stili salvati') | 'preset' | la parola `preset` del codice |
+| **elemento** o **oggetto** (quello che si disegna col modulo Disegno: una linea, una freccia, un'ellisse, un rettangolo; sua correzione del 2026-10-08: *quelli che chiami 'segni' sono 'elementi' o 'oggetti'. In questo contesto, per un umano, 'segno' non ha senso*) | 'segno' | `Mark`, `marks`, e il nome della variabile `segno` |
 | **modalità griglia o lista**, e 'modalità griglia e lista' (le due viste dell'elenco iniziale nominate insieme; sua istruzione del 2026-09-28, per la cacofonia 'vista'/'lista') | 'vista griglia o lista', 'viste griglia e lista' | |
 
 - ⚠️ **Le sfumature in fondo allo schermo sono un'altra cosa dal gradiente**: se in una frase ci

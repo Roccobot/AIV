@@ -2030,7 +2030,21 @@ enum class Hint(internal val token: String) {
      * ⚠️ **Viene dopo la prima**, perché la condizione la guarda: due veli in scena insieme
      * sarebbero due frasi sovrapposte.
      */
-    EDITOR_TOOLS("editor-tools-hint-seen");
+    EDITOR_TOOLS("editor-tools-hint-seen"),
+
+    /**
+     * Il modulo Disegno, dalla `4.61`: **la prima volta che il modulo si apre**, col tondo rosso
+     * evidenziato e la frase sopra.
+     *
+     * ⚠️⚠️ **IL TESTO È SUO ALLA LETTERA** (nota B del giro della `4.60`), e dice tre cose: che cosa
+     * si disegna, che il salvataggio appiattisce gli elementi nell'immagine, e che la pressione
+     * lunga su un tondo regola la luminosità, cioè un gesto che non si scopre da sé. ⚠️ **Nomina
+     * anche il testo e la pillola, che nella `4.61` non ci sono ancora**: entra com'è perché le
+     * lingue si scrivono una volta sola, e la lettura è dichiarata nella voce di collaudo.
+     * ⚠️ **Viene dopo le due slide dell'editor**, e la condizione le guarda: con un velo già in
+     * scena le frasi sarebbero due, sovrapposte.
+     */
+    DRAW("draw-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 

@@ -51,7 +51,11 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlin.math.roundToInt
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.MaterialTheme
 
 /** Il lato del PNG di prova, in pixel. */
 private const val LATO = 64
@@ -82,6 +86,7 @@ class DisegnoTest {
         runBlocking {
             Hint.MODULES.remember(ApplicationProvider.getApplicationContext())
             Hint.EDITOR_TOOLS.remember(ApplicationProvider.getApplicationContext())
+            Hint.DRAW.remember(ApplicationProvider.getApplicationContext())
         }
     }
 
@@ -1064,6 +1069,112 @@ class DisegnoTest {
         assertEquals("Annulla doveva riportarlo", 2, salvato!!.drawing.marks.size)
     }
 
+    /**
+     * **Il tasto acceso ha un bordo pieno color accento, negli strumenti e nei tasti** (sua nota A
+     * sul giro della `4.60`: *aggiungi anche un bordo pieno di qualche DP intorno al tasto attivo*).
+     * Di fabbrica sono accesi il rettangolo, Traccia e Tratteggio; spenti la linea e Spessore.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo il bordo dai due posti: nei tasti accesi l'accento non c'è.
+     */
+    @Test
+    fun `il tasto acceso ha un bordo pieno`() {
+        var accento = androidx.compose.ui.graphics.Color.Unspecified
+        banco.setContent { Scena(onAccent = { accento = it }) }
+        pronta()
+        apriDisegno()
+        fun bordo(id: Int) =
+            inchiostro(banco.onNodeWithContentDescription(testo(id)).captureToImage().toPixelMap(), accento)
+        for (id in listOf(R.string.draw_rect, R.string.draw_outline, R.string.draw_dashed)) {
+            assertTrue("'${testo(id)}' acceso doveva avere il bordo", bordo(id) > 100)
+        }
+        for (id in listOf(R.string.draw_line, R.string.draw_width)) {
+            assertEquals("'${testo(id)}' spento non doveva averlo", 0, bordo(id))
+        }
+    }
+
+    /**
+     * **Il tratteggio del tasto comincia e finisce con un trattino** (sua nota C sul giro della
+     * `4.60`: *tocchi le due estremità laterali del tasto con il tratto effettivo, non con lo
+     * spazio*). Il conto: a ogni larghezza i trattini chiudono sul bordo, col ritmo del suo mockup
+     * (10 e 6). Il disegno: sul tasto spento, che non ha il bordo pieno, i due capi della banda
+     * sono pieni.
+     * ⚠️ Lo schermo largo perché là, col tratteggio fisso, la banda finiva in uno spazio.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il tratteggio fisso: a destra la banda finisce nel vuoto.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `il tratteggio del tasto comincia e finisce con un trattino`() {
+        for (w in listOf(40f, 52.8f, 71f, 100f, 213f)) {
+            val (t, v) = keyDashes(w, 10f, 6f)
+            val n = ((w + v) / (t + v)).roundToInt()
+            assertEquals("a $w i trattini chiudono sul bordo", w, n * t + (n - 1) * v, 1e-3f)
+            assertEquals("a $w il ritmo resta il suo", 10f / 6f, t / v, 1e-4f)
+        }
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_dashed))
+        tasto.performClick()
+        banco.waitForIdle()
+        val m = tasto.captureToImage().toPixelMap()
+        val y = m.height / 2
+        val sopra = m.height / 4
+        assertFalse("a sinistra la banda doveva cominciare con un trattino", vicino(m[2, y], m[2, sopra]))
+        assertFalse("a destra la banda doveva finire con un trattino", vicino(m[m.width - 3, y], m[m.width - 3, sopra]))
+    }
+
+    /**
+     * **Il cursore della luminosità non vela quello che c'è sotto** (sua nota D sul giro della
+     * `4.60`: *la sfocatura e il velo non consentono di vedere in tempo reale il colore che si sta
+     * applicando*): con la sfocatura scelta, come di fabbrica, il palco catturato col cursore
+     * aperto è identico a prima. Il velo lo dipinge l'app sopra tutto, quindi una cattura lo vede;
+     * la sfocatura di finestra il banco non la vede, e la toglie la stessa riga che toglie il velo.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo la scelta dell'ombra intorno al cursore: il palco si scurisce.
+     */
+    @Test
+    fun `il cursore della luminosita non vela il palco`() {
+        banco.setContent { CompositionLocalProvider(LocalAivDepth provides PanelDepth.BLUR) { Scena() } }
+        pronta()
+        apriDisegno()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = palco.captureToImage().toPixelMap()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("tenuto il tondo, il cursore doveva restare", 1, luci())
+        assertEquals("col cursore aperto il palco non doveva cambiare", 0,
+            differenza(prima, palco.captureToImage().toPixelMap()))
+    }
+
+    /**
+     * **La prima volta che il Disegno si apre compare il suo velo d'aiuto**, col tondo rosso
+     * cerchiato d'arancione e la frase sopra, senza coprirlo (sua nota B sul giro della `4.60`); un
+     * tocco lo chiude e lo ricorda.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: col velo spento, e col cerchio del colore del tondo.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `alla prima apertura del Disegno compare il suo velo d'aiuto`() {
+        runBlocking { Hint.DRAW.forget(app) }
+        banco.setContent { Scena() }
+        pronta()
+        assertEquals("prima del Disegno il velo non doveva esserci", 0,
+            banco.onAllNodesWithText(testo(R.string.hint_draw)).fetchSemanticsNodes().size)
+        apriDisegno()
+        val frase = banco.onNodeWithText(testo(R.string.hint_draw)).fetchSemanticsNode().boundsInRoot
+        val tondo = banco.onNodeWithContentDescription(testo(R.string.ink_red)).fetchSemanticsNode().boundsInRoot
+        assertTrue("la frase doveva stare sopra il tondo, senza coprirlo: ${frase.bottom} e ${tondo.top}",
+            frase.bottom <= tondo.top)
+        val schermo = banco.onRoot().captureToImage().toPixelMap()
+        val x = tondo.center.x.toInt()
+        assertTrue("il bordo del tondo rosso doveva essere arancione", vicino(schermo[x, tondo.top.toInt() + 1], HINT_MARK))
+        assertTrue("dentro, il tondo doveva restare rosso",
+            vicino(schermo[x, tondo.center.y.toInt()], androidx.compose.ui.graphics.Color(Draw.INKS.first())))
+        banco.onNodeWithText(testo(R.string.hint_draw)).performClick()
+        banco.waitForIdle()
+        assertEquals("un tocco doveva chiuderlo", 0,
+            banco.onAllNodesWithText(testo(R.string.hint_draw)).fetchSemanticsNodes().size)
+        assertTrue("e ricordarlo", runBlocking { Hint.DRAW.flow(app).first() })
+    }
+
     /** Un tocco sul palco, a [da] dal suo centro. */
     private fun tocca(da: Offset) {
         banco.onNodeWithContentDescription(testo(R.string.look_compare)).performTouchInput {
@@ -1170,8 +1281,9 @@ class DisegnoTest {
     }
 
     @Composable
-    private fun Scena(onSave: (Look) -> Unit = {}) {
+    private fun Scena(onSave: (Look) -> Unit = {}, onAccent: (androidx.compose.ui.graphics.Color) -> Unit = {}) {
         AivTheme(darkTheme = false) {
+            onAccent(MaterialTheme.colorScheme.primary)
             Box(modifier = Modifier.fillMaxSize()) {
                 AdvancedEditorScreen(
                     uri = quadrato(),
