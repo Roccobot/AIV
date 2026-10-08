@@ -435,6 +435,37 @@ class DisegnoTest {
     }
 
     /**
+     * **Il tasto Tratteggio acceso mostra il tratteggio nel colore della traccia, spento lo mostra
+     * grigio sbiadito** (sua risposta `B2` alla nota B sul giro della `4.49`: *non si capisce bene
+     * quando la linea tratteggiata è attiva*). Rosso puro e opacità piena, per cercare il colore
+     * esatto.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il grigio pieno della `4.50` nei due stati: acceso, il
+     * rosso non c'è.
+     */
+    @Test
+    fun `il Tratteggio acceso ha il colore della traccia, spento e sbiadito`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        opacitaPiena()
+        val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
+        val grigio = androidx.compose.ui.graphics.Color(0xFF616161)
+        val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_dashed))
+        tasto.assertIsOn()
+        val acceso = tasto.captureToImage().toPixelMap()
+        assertTrue("acceso, il tratteggio doveva essere rosso", inchiostro(acceso, rosso) > 20)
+        tasto.performClick()
+        banco.waitForIdle()
+        val spento = tasto.captureToImage().toPixelMap()
+        assertEquals("spento, il rosso doveva sparire", 0, inchiostro(spento, rosso))
+        assertEquals("spento, il grigio doveva essere sbiadito", 0, inchiostro(spento, grigio))
+        val y = spento.height / 2
+        assertTrue("spento, il tratteggio doveva vedersi lo stesso",
+            (0 until spento.width).map { spento[it, y] }.distinct().size > 1)
+    }
+
+    /**
      * **Il tasto Traccia mostra il colore della linea, e lo cambia con lei; la linea arriva ai bordi
      * del tasto** (sua nota 2 su `4.43-01`: *fino ai limiti dello spazio del tasto*).
      * ⚠️⚠️ **CONTROPROVATA** due volte: disegnando la linea in un colore fisso, e rimettendo la linea

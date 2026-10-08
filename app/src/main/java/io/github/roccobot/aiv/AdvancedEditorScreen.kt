@@ -5079,11 +5079,20 @@ internal const val KEY_ALPHA_MIN = 0.4f
 private val DASH_GREY = Color(0xFF616161)
 
 /**
+ * How much of [DASH_GREY] the Dashes key shows while off, since 4.60 (his answer `B2` to note B
+ * on the 4.49 round, from the mockup 'Tasto Tratteggio': *spento, il tratteggio grigio sbiadito*).
+ */
+private const val DASH_OFF = 0.35f
+
+/**
  * **The Dashes, Stroke and Fill keys, drawn instead of named** (4.43, redrawn in 4.44 after his
  * notes on `4.43-01` and his mockup).
  * - **Stroke** ('Traccia' since 4.44, `draw_outline`): a straight solid band of the current colour,
  *   of one thickness, from edge to edge of the key, with no rim.
- * - **Dashes**: the same band, dashed and dark grey, edge to edge; the key turns on and off.
+ * - **Dashes**: the same band, dashed, edge to edge; the key turns on and off. Since 4.60 (his
+ *   answer `B2` to note B on the 4.49 round: *non si capisce bene quando la linea tratteggiata è
+ *   attiva*) on is the dashes in the outline's colour, as drawn, and off is the dark grey faded to
+ *   [DASH_OFF]; until 4.50 both states were the same grey, and only the key's tint told them apart.
  * - **Fill**: a rounded rectangle of the key's own shape, inset by [KEY_GAP], over a checkerboard,
  *   in the fill's colour at [keyAlpha]. With 'none' chosen it is the empty checkerboard crossed by
  *   the red diagonal of the 'none' swatch.
@@ -5132,7 +5141,8 @@ private fun ArtKey(
                     Offset(0f, y - banda / 2f), Size(size.width, banda)
                 )
                 KeyKind.DASH -> drawLine(
-                    DASH_GREY, Offset(0f, y), Offset(size.width, y), strokeWidth = banda,
+                    if (selected) Color(gaze.litInk) else DASH_GREY.copy(alpha = DASH_OFF),
+                    Offset(0f, y), Offset(size.width, y), strokeWidth = banda,
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(KEY_DASH.toPx(), KEY_SPACE.toPx()))
                 )
                 KeyKind.WIDTH -> {
