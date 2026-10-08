@@ -509,6 +509,14 @@
     <string name="draw_dashed">చుక్కల గీత</string>
     <string name="draw_filled">నింపు</string>
     <string name="draw_light">ప్రకాశం</string>
+    <string name="draw_raise">ముందుకు తీసుకురా</string>
+    <string name="draw_lower">వెనక్కి పంపు</string>
+    <string name="draw_copy">కాపీ</string>
+    <string name="draw_paste">అతికించు</string>
+    <string name="draw_paste_clear">కాపీ చేసిన శైలిని తొలగించు</string>
+    <string name="draw_style_cleared">కాపీ చేసిన శైలి తొలగించబడింది.</string>
+    <string name="draw_rotate">తిప్పు</string>
+    <string name="draw_transform">రూపాంతరం</string>
     <string name="ink_red">ఎరుపు</string>
     <string name="ink_amber">కాషాయం</string>
     <string name="ink_green">ఆకుపచ్చ</string>

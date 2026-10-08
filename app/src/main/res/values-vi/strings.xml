@@ -492,6 +492,14 @@
     <string name="draw_dashed">Nét đứt</string>
     <string name="draw_filled">Tô màu</string>
     <string name="draw_light">Độ sáng</string>
+    <string name="draw_raise">Đưa lên trên</string>
+    <string name="draw_lower">Đưa xuống dưới</string>
+    <string name="draw_copy">Sao chép</string>
+    <string name="draw_paste">Dán</string>
+    <string name="draw_paste_clear">Xóa kiểu đã sao chép</string>
+    <string name="draw_style_cleared">Đã xóa kiểu đã sao chép.</string>
+    <string name="draw_rotate">Xoay</string>
+    <string name="draw_transform">Biến đổi</string>
     <string name="ink_red">Đỏ</string>
     <string name="ink_amber">Hổ phách</string>
     <string name="ink_green">Xanh lá</string>

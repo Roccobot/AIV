@@ -509,6 +509,14 @@
     <string name="draw_dashed">Kesikli</string>
     <string name="draw_filled">Dolgu</string>
     <string name="draw_light">Parlaklık</string>
+    <string name="draw_raise">Öne getir</string>
+    <string name="draw_lower">Arkaya gönder</string>
+    <string name="draw_copy">Kopyala</string>
+    <string name="draw_paste">Yapıştır</string>
+    <string name="draw_paste_clear">Kopyalanan stili temizle</string>
+    <string name="draw_style_cleared">Kopyalanan stil temizlendi.</string>
+    <string name="draw_rotate">Döndür</string>
+    <string name="draw_transform">Dönüştür</string>
     <string name="ink_red">Kırmızı</string>
     <string name="ink_amber">Kehribar</string>
     <string name="ink_green">Yeşil</string>

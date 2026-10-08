@@ -509,6 +509,14 @@
     <string name="draw_dashed">Vistari</string>
     <string name="draw_filled">Kujaza</string>
     <string name="draw_light">Mwangaza</string>
+    <string name="draw_raise">Leta mbele</string>
+    <string name="draw_lower">Peleka nyuma</string>
+    <string name="draw_copy">Nakili</string>
+    <string name="draw_paste">Bandika</string>
+    <string name="draw_paste_clear">Futa mtindo ulionakiliwa</string>
+    <string name="draw_style_cleared">Mtindo ulionakiliwa umefutwa.</string>
+    <string name="draw_rotate">Zungusha</string>
+    <string name="draw_transform">Badilisha umbo</string>
     <string name="ink_red">Nyekundu</string>
     <string name="ink_amber">Kaharabu</string>
     <string name="ink_green">Kijani</string>

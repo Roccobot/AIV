@@ -509,6 +509,14 @@
     <string name="draw_dashed">तुटक</string>
     <string name="draw_filled">भरण</string>
     <string name="draw_light">उजळपणा</string>
+    <string name="draw_raise">पुढे आणा</string>
+    <string name="draw_lower">मागे पाठवा</string>
+    <string name="draw_copy">कॉपी करा</string>
+    <string name="draw_paste">पेस्ट करा</string>
+    <string name="draw_paste_clear">कॉपी केलेली शैली काढा</string>
+    <string name="draw_style_cleared">कॉपी केलेली शैली काढली.</string>
+    <string name="draw_rotate">फिरवा</string>
+    <string name="draw_transform">रूपांतर करा</string>
     <string name="ink_red">लाल</string>
     <string name="ink_amber">अंबर</string>
     <string name="ink_green">हिरवा</string>

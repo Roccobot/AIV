@@ -526,6 +526,14 @@
     <string name="draw_dashed">Discontinua</string>
     <string name="draw_filled">Relleno</string>
     <string name="draw_light">Brillo</string>
+    <string name="draw_raise">Traer adelante</string>
+    <string name="draw_lower">Enviar atrás</string>
+    <string name="draw_copy">Copiar</string>
+    <string name="draw_paste">Pegar</string>
+    <string name="draw_paste_clear">Borrar el estilo copiado</string>
+    <string name="draw_style_cleared">Estilo copiado borrado.</string>
+    <string name="draw_rotate">Girar</string>
+    <string name="draw_transform">Transformar</string>
     <string name="ink_red">Rojo</string>
     <string name="ink_amber">Ámbar</string>
     <string name="ink_green">Verde</string>

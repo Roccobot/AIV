@@ -119,6 +119,14 @@
     <string name="draw_dashed">Tratteggio</string>
     <string name="draw_filled">Riempimento</string>
     <string name="draw_light">Luminosità</string>
+    <string name="draw_raise">Sposta sopra</string>
+    <string name="draw_lower">Sposta sotto</string>
+    <string name="draw_copy">Copia</string>
+    <string name="draw_paste">Incolla</string>
+    <string name="draw_paste_clear">Elimina lo stile in memoria</string>
+    <string name="draw_style_cleared">Stile in memoria eliminato.</string>
+    <string name="draw_rotate">Ruota</string>
+    <string name="draw_transform">Trasforma</string>
     <string name="ink_red">Rosso</string>
     <string name="ink_amber">Ambra</string>
     <string name="ink_green">Verde</string>

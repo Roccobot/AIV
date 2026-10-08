@@ -509,6 +509,14 @@
     <string name="draw_dashed">ড্যাশ</string>
     <string name="draw_filled">ভরাট</string>
     <string name="draw_light">উজ্জ্বলতা</string>
+    <string name="draw_raise">সামনে আনুন</string>
+    <string name="draw_lower">পিছনে পাঠান</string>
+    <string name="draw_copy">কপি</string>
+    <string name="draw_paste">পেস্ট</string>
+    <string name="draw_paste_clear">কপি করা স্টাইল মুছুন</string>
+    <string name="draw_style_cleared">কপি করা স্টাইল মুছে ফেলা হয়েছে।</string>
+    <string name="draw_rotate">ঘোরান</string>
+    <string name="draw_transform">রূপান্তর</string>
     <string name="ink_red">লাল</string>
     <string name="ink_amber">অ্যাম্বার</string>
     <string name="ink_green">সবুজ</string>

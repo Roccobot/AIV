@@ -509,6 +509,14 @@
     <string name="draw_dashed">Gestippeld</string>
     <string name="draw_filled">Opvulling</string>
     <string name="draw_light">Helderheid</string>
+    <string name="draw_raise">Naar voren</string>
+    <string name="draw_lower">Naar achteren</string>
+    <string name="draw_copy">Kopiëren</string>
+    <string name="draw_paste">Plakken</string>
+    <string name="draw_paste_clear">Gekopieerde stijl wissen</string>
+    <string name="draw_style_cleared">Gekopieerde stijl gewist.</string>
+    <string name="draw_rotate">Draaien</string>
+    <string name="draw_transform">Transformeren</string>
     <string name="ink_red">Rood</string>
     <string name="ink_amber">Amber</string>
     <string name="ink_green">Groen</string>

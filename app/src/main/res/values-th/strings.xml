@@ -492,6 +492,14 @@
     <string name="draw_dashed">เส้นประ</string>
     <string name="draw_filled">เติมสี</string>
     <string name="draw_light">ความสว่าง</string>
+    <string name="draw_raise">นำมาด้านหน้า</string>
+    <string name="draw_lower">ส่งไปด้านหลัง</string>
+    <string name="draw_copy">คัดลอก</string>
+    <string name="draw_paste">วาง</string>
+    <string name="draw_paste_clear">ล้างสไตล์ที่คัดลอก</string>
+    <string name="draw_style_cleared">ล้างสไตล์ที่คัดลอกแล้ว</string>
+    <string name="draw_rotate">หมุน</string>
+    <string name="draw_transform">แปลงรูป</string>
     <string name="ink_red">แดง</string>
     <string name="ink_amber">อำพัน</string>
     <string name="ink_green">เขียว</string>

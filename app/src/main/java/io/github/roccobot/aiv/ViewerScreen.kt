@@ -3518,7 +3518,7 @@ private fun ImageMenu(
      * numero.
      */
     MenuShell(state = menu, position = MenuInWindow) {
-        Column(modifier = Modifier.width(MENU_WIDTH)) {
+        Column(modifier = Modifier.width(PAD_MENU_WIDTH)) {
             /*
              * ⚠️⚠️ **OGNI VOCE HA LA SUA ICONA, dalla 0.69** (scelta dell'utente sul
              * mockup), e la conseguenza che vale più dell'aspetto: **l'allineamento dei
@@ -3811,8 +3811,6 @@ private fun ImageMenu(
     }
 }
 
-/** Quanto è larga la tendina del tocco lungo: la misura del riquadro delle sei icone. */
-private val MENU_WIDTH = 252.dp
 
 
 /**

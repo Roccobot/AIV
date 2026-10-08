@@ -492,6 +492,14 @@
     <string name="draw_dashed">Putus-putus</string>
     <string name="draw_filled">Isian</string>
     <string name="draw_light">Kecerahan</string>
+    <string name="draw_raise">Ke depan</string>
+    <string name="draw_lower">Ke belakang</string>
+    <string name="draw_copy">Salin</string>
+    <string name="draw_paste">Tempel</string>
+    <string name="draw_paste_clear">Hapus gaya yang disalin</string>
+    <string name="draw_style_cleared">Gaya yang disalin dihapus.</string>
+    <string name="draw_rotate">Putar</string>
+    <string name="draw_transform">Transformasi</string>
     <string name="ink_red">Merah</string>
     <string name="ink_amber">Kuning tua</string>
     <string name="ink_green">Hijau</string>

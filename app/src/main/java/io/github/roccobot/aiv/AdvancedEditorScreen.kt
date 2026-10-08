@@ -58,8 +58,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.ControlPointDuplicate
 import androidx.compose.material.icons.filled.CropFree
 import androidx.compose.material.icons.filled.Flip
+import androidx.compose.material.icons.filled.FlipToBack
+import androidx.compose.material.icons.filled.FlipToFront
+import androidx.compose.material.icons.filled.FormatPaint
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
@@ -542,6 +547,34 @@ fun AdvancedEditorScreen(
         )
     }
 
+    /*
+     * ⚠️⚠️ **The menu of the chosen element of the Disegno module, since 4.70**: holding an element
+     * still chooses it and opens this menu ([LookStage]). It keeps the index and the drawing of
+     * when it opened, so its six keys do not change under the finger while it leaves.
+     */
+    val drawMenu = rememberMenuState()
+    var drawFor by remember(uri) { mutableStateOf<Pair<Int, Drawing>?>(null) }
+    fun holdDraw() {
+        gaze.picked?.let { drawFor = it to look.drawing }
+        drawMenu.open()
+    }
+    origin?.let { base ->
+        drawFor?.let { held ->
+            DrawMenu(
+                state = drawMenu,
+                gaze = gaze,
+                held = held,
+                w = base.width,
+                h = base.height,
+                onEdit = { cambia ->
+                    look = look.copy(drawing = cambia(look.drawing))
+                    push()
+                },
+                onPick = { pick(it) }
+            )
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
@@ -799,6 +832,8 @@ fun AdvancedEditorScreen(
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         drawPicked = { gaze.picked },
                         onDrawPick = { i -> pick(i) },
+                        drawTurning = { gaze.turning },
+                        onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -962,6 +997,8 @@ fun AdvancedEditorScreen(
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         drawPicked = { gaze.picked },
                         onDrawPick = { i -> pick(i) },
+                        drawTurning = { gaze.turning },
+                        onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
                                 if (gaze.selection.polygons.size < Healing.MAX_POLYGONS) {
@@ -1322,8 +1359,13 @@ private fun LookStage(
     drawPicked: () -> Int?,
     /** A touch chose the mark at this index, or dropped the choice with `null` (G2, 4.60). */
     onDrawPick: (Int?) -> Unit,
+    /** Whether the handles of the chosen mark turn it instead of reshaping it: see [Gaze.turning]. */
+    drawTurning: () -> Boolean,
+    /** A finger held still on a mark, which the stage has just chosen: its menu opens (4.70). */
+    onDrawHold: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val haptics = LocalHapticFeedback.current
     val hold = stringResource(R.string.look_compare)
     /**
      * La geometria di **adesso**, per chi la legge dentro un gesto.
@@ -1354,6 +1396,8 @@ private fun LookStage(
     val penNow by rememberUpdatedState(drawPen)
     val pickedNow by rememberUpdatedState(drawPicked)
     val pickNow by rememberUpdatedState(onDrawPick)
+    val turningNow by rememberUpdatedState(drawTurning)
+    val holdNow by rememberUpdatedState(onDrawHold)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
     val metrics = LocalContext.current.resources.displayMetrics
     val brushCmPx = (metrics.xdpi.takeIf { it > 0f } ?: metrics.densityDpi.toFloat()) / 2.54f
@@ -1918,12 +1962,6 @@ private fun LookStage(
                         // is kept here and becomes the second point, or a line would wait for a
                         // further move to have one.
                         var oltre = down.position
-                        val esito = settled(down, viewConfiguration.touchSlop) { oltre = it }
-                        if (esito == Settled.MULTI) {
-                            transformed(::pinch)
-                            resting++
-                            return@awaitEachGesture
-                        }
                         fun toImage(at: Offset): Offset? {
                             val view = viewport(room, shownNow, scale, shift, air(), framedNow)
                             if (view.width() <= 0f || view.height() <= 0f) return null
@@ -1942,6 +1980,46 @@ private fun LookStage(
                             val plan = if (geoNow.idle) null
                             else Warp.plan(geoNow, view.centerX(), view.centerY(), view.width(), view.height())
                             return onStage(picture.width, picture.height, spinNow, view, plan, geoNow.liquify)
+                        }
+                        /*
+                         * ⚠️⚠️ **A finger held still on an element chooses it and opens its menu,
+                         * since 4.70** (his note E on the 4.60 round, *un menu a pressione lunga
+                         * sull'elemento*, and his answer on `4.64-03` for its shape). The wait is the
+                         * system's long press, as everywhere in the app; held still on nothing, the
+                         * gesture goes on as before, so a finger that waits and then draws still
+                         * draws, and one that lifts still taps.
+                         */
+                        var esito = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                            settled(down, viewConfiguration.touchSlop) { oltre = it }
+                        }
+                        if (esito == null) {
+                            val vista = viewport(room, shownNow, scale, shift, air(), framedNow)
+                            val tenuto = toImage(down.position)
+                                ?.takeIf { cutout(vista, framedNow).contains(down.position.x, down.position.y) }
+                                ?.let { at ->
+                                    Draw.hit(
+                                        drawingNow, at, picture.width, picture.height,
+                                        PICK_REACH.toPx() / max(vista.width(), vista.height()).coerceAtLeast(1f)
+                                    )
+                                }
+                            if (tenuto != null) {
+                                pickNow(tenuto)
+                                haptics.performHapticFeedback(HOLD_BUZZ)
+                                holdNow()
+                                // ⚠️ The finger's lift belongs to this gesture: let loose, it would
+                                // reach the stage as a tap and drop the choice the menu acts on.
+                                do {
+                                    val evento = awaitPointerEvent()
+                                    evento.changes.forEach { it.consume() }
+                                } while (evento.changes.any { it.pressed })
+                                return@awaitEachGesture
+                            }
+                            esito = settled(down, viewConfiguration.touchSlop) { oltre = it }
+                        }
+                        if (esito == Settled.MULTI) {
+                            transformed(::pinch)
+                            resting++
+                            return@awaitEachGesture
                         }
                         val visible = cutout(
                             viewport(room, shownNow, scale, shift, air(), framedNow), framedNow
@@ -1974,6 +2052,66 @@ private fun LookStage(
                         val cornice = Rect(visible.left, visible.top, visible.right, visible.bottom)
                         val lungo = max(vista.width(), vista.height())
                         val portata = EDGE_REACH.toPx()
+                        /*
+                         * ⚠️⚠️ **A drag from a handle of the chosen element reshapes it or turns it,
+                         * since 4.70** (his answer on `4.64-04`: *le maniglie di base permetteranno
+                         * di ridimensionare gli oggetti. Invece, toccando `Ruota` si passa in
+                         * modalità rotazione*). The handle nearest the finger within
+                         * [HANDLE_REACH] wins over the element's body, which still moves it.
+                         * - 'Trasforma': the handle follows the finger, kept at the distance it was
+                         *   taken from, so it does not jump under the finger. The end of a line or
+                         *   an arrow snaps to the horizontal and the vertical against the other end,
+                         *   as when it was drawn, with the guide.
+                         * - 'Ruota': the element turns around its centre by the angle the finger
+                         *   sweeps, measured on the original image ([Mark.turned]), so a mirrored
+                         *   image still turns the way the finger goes.
+                         * ⚠️ Every frame starts from the element of when the finger went down.
+                         */
+                        val tenendo = scelto?.let { base.marks.getOrNull(it) }
+                        if (tenendo != null && esito == Settled.MOVED) {
+                            val w = picture.width
+                            val h = picture.height
+                            val sulPalco = toStage()
+                            val maniglie = tenendo.handles(w, h).map(sulPalco)
+                            val presa = maniglie.indices
+                                .minByOrNull { (maniglie[it] - down.position).getDistance() }
+                                ?.takeIf { (maniglie[it] - down.position).getDistance() <= HANDLE_REACH.toPx() }
+                            if (presa != null) {
+                                val giro = turningNow()
+                                val scarto = maniglie[presa] - down.position
+                                val perno = tenendo.centre(w, h)
+                                fun verso(p: Offset): Float = Math.toDegrees(
+                                    kotlin.math.atan2(((p.y - perno.y) * h).toDouble(), ((p.x - perno.x) * w).toDouble())
+                                ).toFloat()
+                                fun tira(at: Offset) {
+                                    val nuovo = if (giro) {
+                                        val dove = toImage(at) ?: return
+                                        tenendo.turned(verso(dove) - verso(start), w, h)
+                                    } else {
+                                        var qui = at + scarto
+                                        if (tenendo.pen == Pen.LINE || tenendo.pen == Pen.ARROW) {
+                                            val altro = maniglie[1 - presa]
+                                            val (d, asse) = Draw.snap(altro, qui)
+                                            penGuide = asse?.let { altro to it }
+                                            qui = d
+                                        }
+                                        tenendo.reshaped(presa, toImage(qui) ?: return, w, h)
+                                    }
+                                    drawTo(base.replacing(scelto, nuovo))
+                                }
+                                try {
+                                    tira(oltre)
+                                    drag(down.id) { change ->
+                                        tira(change.position)
+                                        change.consume()
+                                    }
+                                } finally {
+                                    penGuide = null
+                                }
+                                drawEnd()
+                                return@awaitEachGesture
+                            }
+                        }
                         if (esito == Settled.UP) {
                             val preso = Draw.hit(base, start, picture.width, picture.height, reach)
                             if (preso != null || scelto != null) {
@@ -1986,7 +2124,7 @@ private fun LookStage(
                                 fun sposta(at: Offset) {
                                     val dove = toImage(at) ?: return
                                     val prova = segno.moved(dove - start)
-                                    val box = stageBox(prova, toStage(), lungo)
+                                    val box = stageBox(prova, toStage(), lungo, picture.width, picture.height)
                                     val (d, _) = Draw.rest(box, cornice, portata)
                                     val finale = if (d == Offset.Zero) prova
                                     else toImage(at + d)?.let { segno.moved(it - start) } ?: prova
@@ -2653,8 +2791,9 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
             /*
              * ⚠️⚠️ **The points of the chosen mark, G2 (4.60)**: accent dots of a fixed size on the
              * screen, where the mesh carries the mark's corners or ends (his specification: *4
-             * vertici color accento*, *2 punti color accento*). They are the stage's and not the
-             * drawing's, so they never reach the saved file.
+             * vertici color accento*, *2 punti color accento*), and since 4.70 the middles of the
+             * sides too, the handles that reshape it ([Mark.handles]). They are the stage's and not
+             * the drawing's, so they never reach the saved file.
              * ⚠️ The same path as the drawing: original frame, pose, then the geometry (with the
              * 'Angoli' view when armed) through [Warp.to].
              */
@@ -2666,11 +2805,15 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                 val sulPalco = onStage(picture.width, picture.height, look.spin, view, piano, look.geo.liquify)
                 val r = HANDLE_DOT.toPx()
                 val anello = HANDLE_RING.toPx()
+                // ⚠️ In 'Ruota' the handles are hollow (4.70): the mode shows where the finger goes.
+                val vuote = drawTurning()
+                val cavo = HANDLE_HOLLOW.toPx()
                 clipRect(visto.left, visto.top, visto.right, visto.bottom) {
-                    for (punto in segno.handles()) {
+                    for (punto in segno.handles(picture.width, picture.height)) {
                         val centro = sulPalco(punto)
                         drawCircle(Color.White, r + anello, centro)
-                        drawCircle(brushAccent, r, centro)
+                        if (vuote) drawCircle(brushAccent, r - cavo / 2f, centro, style = Stroke(cavo))
+                        else drawCircle(brushAccent, r, centro)
                     }
                 }
             }
@@ -3258,6 +3401,19 @@ private val HANDLE_DOT = 5.dp
 private val HANDLE_RING = 1.5.dp
 
 /**
+ * How thick the accent ring of a handle is in 'Ruota' (4.70), where the handles are hollow so the
+ * mode shows on the element itself. A choice of the session, declared in the test item.
+ */
+private val HANDLE_HOLLOW = 2.dp
+
+/**
+ * How near a handle of the chosen mark a finger takes it (4.70), on the screen. ⚠️ Smaller than
+ * [PICK_REACH], since the handles cover the element: on a small element a larger reach would leave
+ * no room to move it. A choice of the session, declared in the test item.
+ */
+private val HANDLE_REACH = 16.dp
+
+/**
  * **Where the points of the drawing fall on the stage**: a point in fractions of the original
  * [w] x [h] image, through the pose [spin], into the [view] the posed image fills, and through the
  * geometry [plan] when there is one. The way back is the gesture's `toImage`.
@@ -3282,9 +3438,12 @@ private fun onStage(w: Int, h: Int, spin: Spin, view: RectF, plan: WarpPlan?, li
 }
 
 /** The box on the stage that [mark]'s outline covers, with [toStage] carrying its points (4.62). */
-private fun stageBox(mark: Mark, toStage: (Offset) -> Offset, long: Float): Rect {
-    val pts = mark.points.map(toStage)
+private fun stageBox(mark: Mark, toStage: (Offset) -> Offset, long: Float, w: Int, h: Int): Rect {
     val stroke = mark.width * long
+    // ⚠️ A turned rectangle or ellipse (4.70) is measured on its outline: its two corners say
+    // nothing about where its sides went.
+    if (mark.pen.closed && mark.angle != 0f) return Draw.extent(Draw.outline(mark, w, h).map(toStage), stroke)
+    val pts = mark.points.map(toStage)
     return if (mark.pen == Pen.FREE) Draw.extent(pts, stroke)
     else Draw.extent(mark.pen, pts.first(), pts.last(), stroke, long)
 }
@@ -4422,7 +4581,32 @@ private class Gaze(
      * image: it stays out of the history, and Annulla, Ripeti and Originale drop it, since after
      * them the index may point at another mark.
      */
-    var picked by mutableStateOf<Int?>(null)
+    var picked: Int?
+        get() = pickedNow
+        set(value) {
+            // ⚠️ The mode belongs to the chosen mark (4.70): a new choice, or none, starts again in
+            // 'Trasforma', so the handles never turn a mark that was not set to turn.
+            if (value != pickedNow) turning = false
+            pickedNow = value
+        }
+    private var pickedNow by mutableStateOf<Int?>(null)
+
+    /**
+     * **Whether the handles of the chosen mark turn it ('Ruota') or reshape it ('Trasforma')**
+     * (4.70, his answer on `4.64-04`: *toccando `Ruota` si passa in modalità rotazione. Mentre si è in
+     * modalità rotazione il tasto diventa `Trasforma`*). Dragging the mark itself moves it in both.
+     * It drops back to 'Trasforma' when the choice changes ([picked]).
+     */
+    var turning by mutableStateOf(false)
+
+    /**
+     * **The style copied with 'Copia'**, as the mark it was copied from, or `null` (4.70, his answer
+     * on `4.64-03`: *Il tasto `Incolla` appare nello stesso posto di `Copia` ... Con pressione lunga
+     * su `Incolla`, si svuota la memoria*). Only its style is read ([Mark.styledLike]); it stays
+     * while the editor is open, so one style goes onto several marks. Like the pen it is a tool,
+     * out of the history.
+     */
+    var styleClip by mutableStateOf<Mark?>(null)
 
     /**
      * **Loads [mark]'s parameters into the module**, so its swatch, its sliders and its keys show
@@ -5010,6 +5194,111 @@ private fun Comandi(
         }
         Bar.ORIGINAL -> IconButton(modifier = button, onClick = onOriginal, enabled = !look.idle && !busy) {
             Icon(Glyphs.EditReset, stringResource(R.string.editor_original), modifier = glyph)
+        }
+    }
+}
+
+/**
+ * **The menu of an element of the Disegno module**, opened by holding the element still (4.70, his
+ * note E on the 4.60 round and his answer on `4.64-03`: *Lo stile del menu 3×2 è come quello della
+ * pressione lunga sulla foto nel visualizzatore (ma senza la parte sopra). 6 icone in ordine, 2
+ * righe e 3 colonne con etichetta*).
+ *
+ * - **The order is his note's, read row by row**: 'Sposta sopra', 'Copia', 'Duplica' above,
+ *   'Sposta sotto', 'Ruota', 'Elimina' below (a reading declared in the test item).
+ * - **'Copia' and 'Incolla' are one place** (his answer: *non si possono copiare due cose di
+ *   seguito, si deve prima incollare*): 'Copia' keeps the element's style ([Gaze.styleClip]), then
+ *   the place says 'Incolla' and lays it on any element chosen ([Mark.styledLike]) until it is
+ *   held, which empties the memory and says so (*una notifica toast avvisa: `Stile in memoria
+ *   eliminato.`*).
+ * - **'Ruota' and 'Trasforma' are one place** (his answer on `4.64-04`): what the handles do.
+ * - **'Sposta sopra' and 'Sposta sotto' swap the element with its neighbour**, the simplified layer
+ *   order of his note of 2026-10-07 (*una versione semplificata di Z-index*); at the top or at the
+ *   bottom the key is off. The choice and the mode follow the element.
+ * - **'Duplica' lays a copy a step aside, above the original, and chooses it**
+ *   ([Draw.duplicateShift]).
+ *
+ * ⚠️ The pad and its width are those of the viewer's menu ([ActionPad], [PAD_MENU_WIDTH]): two
+ * menus with the same shape have one drawing. Every key closes the menu before acting.
+ */
+@Composable
+private fun DrawMenu(
+    state: MenuState,
+    gaze: Gaze,
+    /** The index of the element and the drawing of when the menu opened. */
+    held: Pair<Int, Drawing>,
+    w: Int,
+    h: Int,
+    /** A change of the drawing, which becomes a step of the history. */
+    onEdit: ((Drawing) -> Drawing) -> Unit,
+    /** Chooses the element at this index, loading its parameters, or drops the choice. */
+    onPick: (Int?) -> Unit
+) {
+    val context = LocalContext.current
+    val (i, prima) = held
+    val segno = prima.marks.getOrNull(i) ?: return
+    /** Moves the choice to [j] keeping the mode, since the element is the same one. */
+    fun segui(j: Int) {
+        val giro = gaze.turning
+        onPick(j)
+        gaze.turning = giro
+    }
+    MenuShell(state = state, position = MenuInWindow) {
+        val sopra = PadAction(
+            PadKey.DRAW_RAISE, Icons.Filled.FlipToFront, R.string.draw_raise, enabled = i < prima.marks.size - 1
+        ) {
+            state.close()
+            onEdit { it.swapping(i, i + 1) }
+            segui(i + 1)
+        }
+        val copiato = gaze.styleClip
+        val stile = if (copiato == null) PadAction(PadKey.DRAW_STYLE, Icons.Filled.FormatPaint, R.string.draw_copy) {
+            state.close()
+            gaze.styleClip = segno
+        } else PadAction(
+            key = PadKey.DRAW_STYLE,
+            icon = Icons.Filled.ContentPaste,
+            label = R.string.draw_paste,
+            onHold = {
+                state.close()
+                gaze.styleClip = null
+                Notices.say(context.getString(R.string.draw_style_cleared))
+            },
+            holdLabel = R.string.draw_paste_clear
+        ) {
+            state.close()
+            /*
+             * ⚠️ The style goes through the module, as every change of the chosen element does:
+             * loaded, the module lays it on the element and makes it one step of the history
+             * ([DrawBody]). Laid on the drawing directly, the module would then lay its own reading
+             * of the same style, a second step that 'Annulla' had to undo for nothing.
+             */
+            gaze.load(segno.styledLike(copiato))
+        }
+        val doppio = PadAction(PadKey.DRAW_DUPLICATE, Icons.Filled.ControlPointDuplicate, R.string.pick_duplicate) {
+            state.close()
+            onEdit { d -> d.marks.getOrNull(i)?.let { d.inserting(i + 1, it.moved(Draw.duplicateShift(w, h))) } ?: d }
+            onPick(i + 1)
+        }
+        val sotto = PadAction(PadKey.DRAW_LOWER, Icons.Filled.FlipToBack, R.string.draw_lower, enabled = i > 0) {
+            state.close()
+            onEdit { it.swapping(i, i - 1) }
+            segui(i - 1)
+        }
+        val gira = if (gaze.turning) PadAction(PadKey.DRAW_TURN, Icons.Filled.Transform, R.string.draw_transform) {
+            state.close()
+            gaze.turning = false
+        } else PadAction(PadKey.DRAW_TURN, Glyphs.TurnRight, R.string.draw_rotate) {
+            state.close()
+            gaze.turning = true
+        }
+        val elimina = PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete) {
+            state.close()
+            onPick(null)
+            onEdit { it.without(i) }
+        }
+        Column(modifier = Modifier.width(PAD_MENU_WIDTH)) {
+            ActionPad(actions = listOf(sopra, stile, doppio, sotto, gira, elimina))
         }
     }
 }
