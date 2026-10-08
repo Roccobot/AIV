@@ -15,6 +15,9 @@ import android.graphics.fonts.FontFamily
 import android.graphics.fonts.FontStyle
 import android.os.Build
 import androidx.core.content.res.ResourcesCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.core.graphics.ColorUtils
@@ -153,6 +156,13 @@ internal object Faces {
     const val REGULAR = 400
     const val BOLD = 700
 
+    /**
+     * How many times the faces have been loaded: the keys that show a face read it, so they draw it
+     * again once the faces arrive, the editor loading them off the main thread.
+     */
+    var loads by mutableIntStateOf(0)
+        private set
+
     /** Loads the sixteen typefaces of the eight files, once: later calls find them loaded. */
     fun load(context: Context) {
         if (loaded.size == Face.entries.size * 4) return
@@ -162,6 +172,7 @@ internal object Faces {
                 if (loaded[key] == null) loaded[key] = build(context, key)
             }
         }
+        loads++
     }
 
     /**

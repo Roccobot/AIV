@@ -72,11 +72,9 @@ import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.unit.sp
@@ -8030,7 +8028,7 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
         Back.HIGHLIGHT -> stringResource(R.string.draw_highlight)
         Back.LABEL -> stringResource(R.string.draw_label)
     }
-    val famiglia = remember(gaze.face) { faceFamily(gaze.face) }
+    val famiglia = remember(gaze.face, Faces.loads) { faceFamily(gaze.face) }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         TextKey("$carattere: $faccia", selected = false, enabled = live, toggle = false,
             onClick = { gaze.face = Face.entries[(gaze.face.ordinal + 1) % Face.entries.size] },
@@ -8160,11 +8158,15 @@ private fun GroundRow(gaze: Gaze, live: Boolean) {
     }
 }
 
-/** The face of the 'Aa' on the Carattere key: its upright file at the regular weight (4.90). */
-@OptIn(ExperimentalTextApi::class)
-private fun faceFamily(face: Face): FontFamily = FontFamily(
-    Font(face.upright, FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400)))
-)
+/**
+ * **The face of the 'Aa' on the Carattere key** (4.90): the typeface the drawing paints with,
+ * regular and upright, wrapped for Compose.
+ * ⚠️⚠️ **Not a resource font of Compose with its weight as a variation**, which it was at first: on
+ * the bench, as soon as another text was measured (the field of the words' window), the editor
+ * never came to rest, and the window never showed. One loader for the four faces, [Faces], and no
+ * second one.
+ */
+private fun faceFamily(face: Face): FontFamily = FontFamily(Typeface(Faces.of(face, italic = false, bold = false)))
 
 /** How big the letters on the keys of the Testo pen are. */
 private val KEY_GLYPH = 18.sp

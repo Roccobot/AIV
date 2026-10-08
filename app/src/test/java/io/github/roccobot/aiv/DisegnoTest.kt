@@ -1227,12 +1227,14 @@ class DisegnoTest {
      * spazio*). Il conto: a ogni larghezza i trattini chiudono sul bordo, col ritmo del suo mockup
      * (10 e 6). Il disegno: sul tasto spento, che non ha il bordo pieno, i due capi della banda
      * sono pieni.
-     * ⚠️ Lo schermo di 441 dp perché là il tasto è largo 77 dp, e col tratteggio fisso la banda
-     * finiva a metà di uno spazio; a 411 dp finiva per caso su un trattino.
+     * ⚠️ Lo schermo di 495 dp perché là il tasto è largo circa 61 dp, e col tratteggio fisso la
+     * banda finirebbe a metà di uno spazio. Fino alla `4.81` era di 441 dp, coi tasti larghi 77:
+     * dalla `4.90` la fila ha sette colonne, e a 441 il tratteggio fisso finiva per caso su un
+     * trattino.
      * ⚠️⚠️ **CONTROPROVATA** rimettendo il tratteggio fisso: a destra la banda finisce nel vuoto.
      */
     @Test
-    @Config(qualifiers = "w441dp-h891dp")
+    @Config(qualifiers = "w495dp-h891dp")
     fun `il tratteggio del tasto comincia e finisce con un trattino`() {
         for (w in listOf(40f, 52.8f, 71f, 100f, 213f)) {
             val (t, v) = keyDashes(w, 10f, 6f)
