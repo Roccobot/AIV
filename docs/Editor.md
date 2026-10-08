@@ -92,12 +92,14 @@
   nome mostra l'immagine senza quel solo cursore (sul nome e non sulla barra, dove il dito è già
   appoggiato mentre si trascina); il tocco lungo sull'immagine mostra il prima. Il valore da
   confrontare lo costruisce la scheda, con lo stesso `write` del cursore.
-- ⚠️⚠️ **Il prima dell'immagine non toglie tutto** (sua richiesta): nei moduli Ritaglio e Geometria
-  mostra tutto, negli altri tutto tranne posa e geometria, perché chi tara un colore vuole vedere
-  quel colore com'era e non un'altra inquadratura. `Look.place` divide i campi del 'dove' da quelli
-  del colore, e la vista confermata sta dalla parte del 'dove', o il confronto riaprirebbe un taglio
-  già applicato. Quali moduli parlano del 'dove' lo dice la tabella dei moduli. ⚠️ Nel Ritaglio
-  quel ramo non lo raggiunge nessun dito, e si dichiara.
+- ⚠️⚠️ **Il prima dell'immagine non toglie tutto** (sua richiesta, giro della `2.55`: *se è attivo
+  un altro modulo il 'Prima' deve mostrare tutto tranne Geometria e Ritaglio*): nei moduli Ritaglio
+  e Geometria mostra tutto, negli altri tutto tranne il 'dove' (posa, taglio e geometria; dalla
+  `4.40` anche il disegno), perché chi tara un colore vuole vedere quel colore com'era e non
+  un'altra inquadratura. `Look.place` divide i campi del 'dove' da quelli del colore, e la vista
+  confermata sta dalla parte del 'dove', o il confronto riaprirebbe un taglio già applicato. Quali
+  moduli parlano del 'dove' lo dice la tabella dei moduli. ⚠️ Nel Ritaglio quel ramo non lo
+  raggiunge nessun dito, e si dichiara.
 - ⚠️ **Un confronto acceso si spegne in un `finally`**: un rilevatore annullato (basta un
   salvataggio che parte) non torna alla riga dopo, e il confronto restava acceso. Caso 14 di
   `LuceTest`.
@@ -148,7 +150,9 @@
     verde non va a zero, o un cielo blu puro diventerebbe nero. Il filtro verde si fa con la fascia
     verde dell'HSL.
   - ⚠️ **Un elenco a tendina dei tre filtri classici non si fa**: la sua condizione, 'senza occupare
-    più spazio', non si può soddisfare.
+    più spazio', non si può soddisfare, perché un elenco è un comando in più sulla riga (sua nota su
+    `d-filtro-verde`, giro della `2.36`: *se si può fare una dropdown o qualcosa del genere con i 3
+    filtri classici senza occupare più spazio, OK. Sennò va bene così*).
 
 **La fila, l'ordine del conto, le curve della Luce.**
 - ⚠️ **La fila dei moduli**: il tocco lungo su un gettone azzera il modulo; il punto d'accento dice
@@ -182,7 +186,8 @@
   su, perché un'immagine più dispersa ha un carattere e non un difetto. Legge l'anteprima,
   campionata.
   - ⚠️ **Il glifo è la bacchetta di Material ammorbidita**, e non è più provvisorio (sua risposta
-    `resta`). 'Auto' compare solo in Luce e Colore, che sono i moduli dei suoi sei cursori.
+    `resta` a `d-auto-glifo`, giro della `2.32`: *va bene quello di Material*). 'Auto' compare
+    solo in Luce e Colore, che sono i moduli dei suoi sei cursori.
 
 **La storia, il salvataggio, la barra.**
 - ⚠️⚠️ **La storia è di valori, un passo al rilascio del dito**, preso dallo stato vivo: il valore
@@ -212,10 +217,13 @@
 
 **Due difetti chiusi senza causa accertata.** Due volte i cursori si sono 'mescolati' (un gesto che
 azzerava o muoveva un altro cursore, anche di un altro modulo), e il sintomo è sparito senza che
-si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunque è risolto').
+si sappia quale riga l'abbia tolto (sue risposte `via` a `d-legame-cosa`, giro della `2.17`: *non
+succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunque è risolto*).
 - ⚠️ **Le ipotesi misurate e cadute sono quattro, e non si rifanno**: una lambda catturata in un
   `pointerInput` che invecchia; un trascinamento vero che riporta indietro gli altri cursori; il
   rilascio di un tocco lungo che si perde; due tocchi ravvicinati su due cursori che si confondono.
+- ⚠️ **La domanda gemella `d-mescola-cosa` è rimasta senza risposta, e non si ripropone**: serviva a
+  distinguere due cause di un sintomo che non c'è più.
 - ⚠️ **Restano come difese**, dichiarate come tali: `Dial.set`, cioè un cambiamento da applicare al
   posto di un `Look` già fatto; il confronto tenuto come trasformazione; la riga risolta nel modulo
   in scena al momento della scrittura (`dialAt`); e la chiave sul `Dial`, perché senza Compose
@@ -231,14 +239,16 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   risultato.
 - ⚠️⚠️ **I pesi delle fasce sono triangolari, con un raggio per lato ricavato dai centri**, e così la
   somma vale uno senza normalizzare. Scartato il raggio unico: i centri non sono equispaziati, e un
-  rosso pieno riceveva il 55% del proprio cursore. `SviluppoTest` misura la relazione fra i raggi,
-  non il conto, che vive in AGSL.
+  rosso pieno riceveva il 55% del proprio cursore. Scartata anche la normalizzazione per la somma:
+  toglie lo sbilanciamento, ma il centro continuerebbe a dividere il suo effetto coi vicini.
+  `SviluppoTest` misura la relazione fra i raggi, non il conto, che vive in AGSL.
 - ⚠️ **Il conto passa per HSV dietro due guardie** (uniforme, e per pixel), perché l'andata e il
   ritorno non sono l'identità: a riposo non si fa affatto, e muovendo una fascia il resto resta
   identico.
 - ⚠️ **La saturazione si moltiplica** (un grigio resta grigio); **la luminanza è pesata da quanto il
   pixel ha colore**, o schiarirebbe un cielo bianco; **la tonalità si sposta al massimo di trenta
-  gradi**, la distanza fra due fasce vicine.
+  gradi**, la distanza fra due fasce vicine. Tonalità e saturazione quel peso non lo scrivono perché
+  lo hanno per costruzione: ruotare o saturare un grigio lo lascia grigio.
 - ⚠️ **Nella catena viene fra il contrasto e la saturazione**: dopo il contrasto perché sceglie per
   tonalità, prima della saturazione perché il grigio del bianco e nero si ricava da quello che esce
   di qui.
@@ -343,6 +353,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   reticolo, perché nove campioni radi campionano invece di mediare. Il rimedio, una media letta da
   una riduzione dell'immagine, esisteva e non è stato scritto: chi rimettesse quei cursori riparte
   di lì.
+  - ⚠️ **Un contrasto locale rimesso negli Effetti gira prima della foschia**: misura lo scarto fra
+    il pixel e il suo intorno, e con la foschia davanti cambierebbe il solo centro, cioè
+    riempirebbe l'immagine di aloni dove il velo cambia. Fino alla `2.63` la foschia era l'ultima
+    del modulo per questa ragione.
 - ⚠️⚠️ **La Foschia toglie il velo stimato col canale scuro mediato sull'intorno**: dove c'è
   foschia l'aria alza tutti e tre i canali, quindi non scende nemmeno il più basso.
   - **Si prende la media dei minimi e non il minimo del blocco**, che fa una mappa a gradini e degli
@@ -351,8 +365,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - ⚠️⚠️ **I nove campioni cadono su due anelli, di cinque e di tre** (coprimi, raggi non in rapporto
     intero): su una griglia la stima a certe frequenze copiava la trama, e il reticolo si vedeva in
     negativo (suo riscontro). Scartate la riduzione, che costa una texture e un bordo in più per lo
-    stesso risultato su una texture vera, e più campioni sugli anelli, che non migliorano
-    abbastanza.
+    stesso risultato su una texture vera, e più campioni sugli anelli: con 17 il massimo fuori banda
+    si ferma a 0,567 e con 25 a 0,550, contro lo 0,246 della riduzione, cioè triplicare il costo
+    non la avvicina.
   - ⚠️⚠️ **La luce atmosferica si prende bianca**: un numero ricavato dall'immagine intera non può
     vivere in `Look` e darebbe una cucitura su ogni tessera. Con una foschia colorata resta una
     dominante, e si usa il bilanciamento.
@@ -414,7 +429,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️⚠️ **'Sfumatura' sposta il punto del pieno**, e la rampa parte sempre dal centro (sua richiesta:
   sfumatura sempre massima). 'Inizio' si legge guardando dall'esterno, ed è una lettura dichiarata:
   a +100 il pieno cade a 0,70 del raggio, a riposo sull'angolo, a -100 a 1,30, fuori dal
-  fotogramma. **A riposo l'alone arriva più dentro di prima**, e si dichiara.
+  fotogramma. **A riposo l'alone arriva più dentro di prima**, e si dichiara. Letto come il capo
+  interno, la sua frase si contraddice: in negativo un capo interno fuori dal fotogramma vorrebbe
+  dire nessun alone, e in positivo un alone stretto sul bordo.
 - ⚠️ **La scheda non cresce**: l'altezza comune la detta il modulo più alto (§ '📈 Il modulo Curve, e
   il colore mirato').
 - ⚠️⚠️ **La prova ricalcola le sue richieste**, non una costante: le ombre al 130%, il mezzo livello,
@@ -451,6 +468,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - ⚠️ **Il colore letto è quello del file e non quello che si vede**, e si dichiara; si legge dal
     pezzo a piena risoluzione quando c'è. Un grigio non appartiene a nessuna fascia (`Mix.bandOf`
     risponde `-1`).
+  - ⚠️ **Il trascinamento sposta il mirino e non muove nessun cursore** (sua risposta `niente` a
+    `d-mirato-hsl`): i cursori di una fascia sono tre, e sceglierne uno per il dito sarebbe una
+    decisione che lui non ha preso.
   - ⚠️ **La lente del mirato non c'è più** (sua risposta `via`); chi la volesse la ritrova nella
     storia git.
 - ⚠️⚠️ **Trappola generale: un `Canvas` si ridisegna quando cambia uno stato che il suo disegno
@@ -478,6 +498,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   diventerebbero isole.
 - **Il banco** misura la spline, la tabella, gli estremi, i canali, il mirato e il punto nato in
   mezzo; non vede i pixel né il tocco lungo che toglie un punto.
+  - ⚠️ **Il caso 48 di `SviluppoTest` misura meno di quanto il nome dica**: muove il dito con un
+    colpo solo, e quel movimento se lo prende `settled` per pagare la soglia, quindi nel grafico
+    compare il punto nuovo ma la curva non cambia. Un punto che si sposta si misura con due colpi.
 
 ## 📐 Il modulo Geometria, e il conto che non passa dallo shader
 
@@ -594,6 +617,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️⚠️ **Il gesto del palco legge posa, taglio e anteprima di adesso** (`rememberUpdatedState`; la
   chiave del `pointerInput` non si tocca, o si annullerebbe il gesto in corso): letti al primo
   tocco, dopo 'Applica' o dopo una rotazione la cornice non si prendeva (sua segnalazione).
+  - ⚠️ **Per la stessa causa il colore mirato dell'HSL e i limiti dello zoom leggevano la forma di
+    prima**: sono due casi ragionati e non misurati, quindi una prova nuova li misura per primi
+    (`Rules.md` § '🧪 Quando si scrive una prova, e quando no').
 - ⚠️ **Il verso di partenza lo decide la fotografia** (`startLay`), una volta, all'arrivo
   dell'anteprima.
 - ⚠️⚠️ **'Originale' è l'immagine intera in qualunque verso, anche dopo una rotazione** (sua
@@ -925,6 +951,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   col testo suo, che dice che cosa si perde. I due gruppi si riordinano separatamente; uno stile di
   casa cancellato finisce fra i nascosti, e 'Ripristina' porta via anche quell'elenco. La pagina è
   una sotto-pagina perché è un elenco con comandi per riga.
+  - ⚠️ **Il nome è la sua riscrittura nel campo `t-stili-pagina`**: la `2.50` la chiamava 'Stili di
+    modifica', che era la proposta della sessione, e i commenti e le prove che dicono ancora così
+    parlano della stessa pagina.
 - ⚠️⚠️ **'Importa' ed 'Esporta' passano dal selettore di sistema**, e il file è l'archivio stesso,
   col suffisso `.aivcollection` (sua istruzione) e il tipo generico; si importa ogni file.
   L'importazione di questa pagina sostituisce (`docs/Files.md` § '💼 Esporta e importa, e il file
@@ -956,9 +985,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️⚠️ **Il tipo si riconosce dai byte, non dal nome**: un JPEG non ha trasparenza e stamperebbe un
   rettangolo pieno. I tipi si dichiarano anche al selettore; il file si disegna prima di adottarlo,
   e il vecchio si cancella solo dopo.
-- ⚠️ **La misura è una frazione del lato lungo** (il lato corto la farebbe pesare un quarto su una
-  verticale); l'aria dal bordo è una sola (`Watermark.AIR`); un PNG piccolo si ingrandisce e resta
-  morbido, e chi vuole nitidezza usa un SVG. I posti sono cinque: i quattro angoli e il centro.
+- ⚠️ **La misura è una frazione del lato lungo**: una misura in pixel cambierebbe peso da un file
+  all'altro, e la larghezza farebbe la firma più piccola su una verticale; l'aria dal bordo è una
+  sola (`Watermark.AIR`); un PNG piccolo si ingrandisce e resta morbido, e chi vuole nitidezza usa
+  un SVG. I posti sono cinque: i quattro angoli e il centro.
 - ⚠️ **Si scrive sul bitmap ricevuto**, e la copia è il ripiego: se non si può fare, la firma salta,
   che è meglio di un salvataggio fallito.
 - ⚠️⚠️ **La firma si posa su pixel interi, senza filtro** (sua segnalazione: veniva sfocata): un

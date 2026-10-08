@@ -711,9 +711,10 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   dichiarata nel codice: 'Funzionalità avanzate', dove il titolo è metà dell'avviso su una funzione
   che può fare danni.
 - ⚠️ **Una voce fra due famiglie va dove si cerca, non dove si vede**. Se resta in bilico va nella
-  famiglia più piccola, e fra i testi della ricerca riceve il nome della sezione in cui l'effetto
-  si vede, con la ragione scritta accanto alla riga. Non si mette in due famiglie: a farla trovare
-  ci pensa la ricerca.
+  famiglia più piccola, perché una famiglia grande non si accorge di una voce in più e in una
+  piccola la voce si trova scorrendo; e fra i testi della ricerca riceve il nome della sezione in
+  cui l'effetto si vede, che esiste già e non costa stringhe nuove, con la ragione scritta accanto
+  alla riga. Non si mette in due famiglie: a farla trovare ci pensa la ricerca.
 - ⚠️⚠️ **La ricerca deve trovare ogni voce, dovunque viva.** `LocalQuery` è fornito solo alla
   radice, quindi una voce dietro un tocco esce dalla ricerca se nessuno la copre.
   - **Pagina fatta di righe**: durante una ricerca la radice compone il corpo della pagina al posto
@@ -749,9 +750,9 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     sceglie per far vedere la funzione.
 - ⚠️ **Il conto delle stringhe va nella proposta, prima di cominciare**: un testo nuovo si scrive a
   mano in tutte le lingue, e un plurale costa molto più di una stringa. Si riusa solo una stringa
-  che dice esattamente quella cosa (una descrizione parlata non diventa il titolo di una sezione),
-  e ogni testo nuovo del pannello si valida prima del rilascio: finché non è validato, la modifica
-  non è pronta.
+  che dice esattamente quella cosa (una descrizione parlata non diventa il titolo di una sezione);
+  un titolo che la prima riga della famiglia dice già non si scrive; e ogni testo nuovo del
+  pannello si valida prima del rilascio: finché non è validato, la modifica non è pronta.
 - ⚠️ **Non decidono**: il gruppo in cui la voce era prima, la comodità del codice, la lunghezza
   della pagina piatta, lo sbilanciamento fra sezioni. E i conti di sezioni, famiglie e voci non si
   scrivono: si contano nel codice (`SettingsScreen.kt`).

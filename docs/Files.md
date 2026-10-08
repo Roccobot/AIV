@@ -31,7 +31,8 @@
 - ⚠️ **`singleTop` qui non disturba**: chi chiede un risultato non passa da
   `FLAG_ACTIVITY_NEW_TASK`, quindi l'istanza nasce nel task di chi chiama.
 - ⚠️ **Un'immagine per volta**: `EXTRA_ALLOW_MULTIPLE` non è gestito, e un file solo è una risposta
-  legittima.
+  legittima. La selezione multipla dell'app c'è, ma consegnarla vorrebbe un comando in più nella
+  scheda dei comandi.
 - ⚠️ **Nessuna prova del banco**: non ha un selettore di sistema né un'app che riceve. Si prova sul
   telefono.
 - ⚠️⚠️ **Un intento nudo che arriva a giro iniziato non azzera niente**: toccare l'icona del launcher
@@ -320,6 +321,11 @@ Dalla 3.14:
   la griglia. **Se ricapita, le domande**: se il tempo torna a 0:00, se ricomincia una volta o di
   continuo, che cosa si vede prima di Play, se succede con 'Riproduzione diretta dei video' accesa,
   e la versione di Android.
+  - ⚠️ **Le esclusioni valgono per le versioni lette allora**: material3 1.5.0-alpha26
+    (`onValueChange` parte solo da un gesto), media3-ui-compose 1.11.0 (non chiama `seekTo` e
+    aggancia la superficie una volta sola) ed ExoPlayer 1.11.0 (`mayRenderStartOfStream` è vero
+    per il periodo in riproduzione). Se il difetto torna dopo un aggiornamento di quelle librerie,
+    le esclusioni si rileggono.
 
 ## 💼 Esporta e importa, e il file che solo AIV sa leggere
 
@@ -433,7 +439,9 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
 - **`BackupTest`** misura le preferenze e la copertura dell'archivio, le caselle, le regole fra
   versioni con una controprova per ognuna, il contenitore (password, byte cambiato, file tagliato su
   ogni confine, segmenti scambiati, vettori di PBKDF2), i file fatti a mano, la fusione e il file
-  vuoto. Non vede il selettore di sistema, Drive, né il costo della chiave sul telefono.
+  vuoto. Non vede il selettore di sistema, Drive, il costo della chiave sul telefono, un fornitore
+  che perde i byte, né l'app che si ridisegna dopo un'importazione: quelli si guardano sul
+  telefono, e la voce di collaudo li chiede.
   - ⚠️⚠️ **Trappola del banco**: la JVM rifiuta di cifrare due volte con la stessa chiave e lo stesso
     nonce, quindi un difetto che congela il contatore fa cadere le prove per la ragione sbagliata.
     Per misurarlo serve un cifrario per segmento, ed è scritto sul caso 16.

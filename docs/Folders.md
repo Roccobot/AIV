@@ -83,8 +83,9 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
     cui la sfumatura parte. Le icone della barra non si toccano: chi alza `WASH_PEAK` guarda anche
     quelle.
 - **Il dithering**: il gradiente si posa a mano (`Brush.applyTo` più `drawIntoCanvas`, con
-  `isDither`), su un rettangolo più largo dello schermo, col pennello costruito sulla misura vera.
-  Non è bastato (sua segnalazione, per una ragione che non si conosce), e il rumore è diventato uno
+  `isDither`), su un rettangolo più largo dello schermo, col pennello costruito sulla misura vera
+  del rettangolo: costruito su quella dello schermo, la rampa finirebbe prima del bordo. Non è
+  bastato (sua segnalazione, per una ragione che non si conosce), e il rumore è diventato uno
   shader per pixel con un livello di rumore triangolare (`Dither.kt`).
   - ⚠️⚠️ **Sotto Android 13 la rampa col rumore è precalcolata e stesa come maschera di sola
     opacità** (`rampMask`, una tessera larga 128), ed è la sua risposta `copri` a
@@ -586,14 +587,16 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **Il tocco lungo su una cartella in prestito propone 'Mostra'** (sua segnalazione): il verso
   lo decide il fatto, perché una cartella in scena può essere nascosta solo durante il prestito, e
   non un secondo stato. I testi di 'Nascondi' includono il nome fra apici e dicono 'un'impostazione
-  di visualizzazione' (sue frasi).
+  di visualizzazione' (sue frasi). Il tasto dice 'Mostra', la parola del pannello e delle
+  impostazioni: un sinonimo sarebbe una terza parola per lo stesso comando.
 - ⚠️ **Il pannello riusa le due stringhe della pagina delle impostazioni**, e non aggiunge uno
   scorrimento: `Sheet` scorre già, e due scorrimenti verticali annidati sono un errore che Compose
   segnala.
 - ⚠️ **I due glifi sono suoi, una cartella con l'occhio aperto e sbarrato**, non l'occhio di
   Material, che dice 'vedi' senza dire di che cosa. L'angolo che lui non era riuscito ad
   arrotondare prende il raggio degli altri angoli dello stesso disegno.
-- ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione).
+- ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione). Scartato *nulla è
+  cancellato*: dice la stessa cosa, ma fa pensare proprio a quello che non succede.
 - ⚠️⚠️ **Una cartella nascosta non è una destinazione** (sua istruzione): il filtro è
   `Folder.Bucket.isHidden`, in `Folder.kt`, uno per le due schermate che fanno la domanda.
   - ⚠️⚠️ **Durante il minuto di prestito anche le destinazioni la mostrano** (suo riscontro): il
