@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.63**: nel modulo Disegno la luminosità si vede sull'elemento scelto mentre il dito scorre.
+Versione **4.64**: nel modulo Disegno il comando si chiama `Elimina tutto`, e le linee dei terzi di `Raddrizza` hanno l'aspetto delle guide del Disegno.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.63 è pubblicata: [v4.63](https://github.com/Roccobot/AIV/releases/tag/v4.63), con l'APK
-[AIV-4.63.apk](https://github.com/Roccobot/AIV/releases/download/v4.63/AIV-4.63.apk).
-Commit prodotto su `main`: `cc1c250`, release dal commit `cc1c250` (SlimVer 4.63 / versionCode 342; APK 8.554.837 byte, digest `97c6427a`).
+La Release 4.64 è pubblicata: [v4.64](https://github.com/Roccobot/AIV/releases/tag/v4.64), con l'APK
+[AIV-4.64.apk](https://github.com/Roccobot/AIV/releases/download/v4.64/AIV-4.64.apk).
+Commit prodotto su `main`: `b3f6671`, release dal commit `b3f6671` (SlimVer 4.64 / versionCode 343; APK 8.558.441 byte, digest `4956dfa0`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.63**: una prova nuova. Giro **4.61** e **4.62**: sette prove OK.
+Giro **4.64**: due prove nuove. Giro **4.63**: una prova OK.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,15 +22,20 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.63 sono superate: banco di prova completo (644 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.64 sono superate: banco di prova completo (646 prove), controllo delle traduzioni, compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.63-01 | Non provato | | Attendere il collaudo. |
+| 4.64-01 | Non provato | | Attendere il collaudo. |
+| 4.64-02 | Non provato | | Attendere il collaudo. |
 
-## 1. La luminosità dal vivo sull'elemento scelto
+## 1. `Elimina tutto`, e la pressione lunga sul Disegno
 
-Disegna un elemento e sceglilo con un tocco. Tieni premuto un tondo e, senza staccare il dito, scorri: l'elemento cambia luminosità sotto il dito, e allo stacco il cursore si chiude. Poi tieni premuto un tondo e alza il dito fermo: il cursore resta, e trascinandolo l'elemento cambia colore allo stesso modo. Nella 4.61 il gesto unico posava il valore solo allo stacco, anche se la voce `4.61-04` prometteva l'anteprima dal vivo: adesso una prova lo misura.
+Nel modulo Disegno disegna due elementi. Il comando a destra, sopra il cursore dell'opacità, si chiamava `Azzera` e adesso si chiama `Elimina tutto`: toccalo, e il disegno si svuota. Poi disegna un elemento, sceglilo con un tocco e tieni premuta l'icona del Disegno nella fila dei moduli: il disegno si svuota e `Elimina` si spegne. Disegna un altro elemento: deve nascere senza i punti color accento, cioè non scelto. Fino alla 4.63 la pressione lunga lasciava la scelta su un elemento che non c'era più, e l'elemento disegnato dopo nasceva scelto.
+
+## 2. Le linee dei terzi di `Raddrizza`
+
+Nel modulo Geometria trascina il cursore `Raddrizza`: mentre il dito è giù compaiono le linee dei terzi, adesso nel colore d'accento, sottili e senza alone, come la guida che corre lungo il bordo quando un elemento del Disegno vi si appoggia. Prova su un'immagine chiara e su una scura. Fino alla 4.63 erano una linea bianca su un alone scuro.
 
 ## Decisioni da concordare
 
@@ -40,18 +45,13 @@ Disegna un elemento e sceglilo con un tocco. Tieni premuto un tondo e, senza sta
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| La luminosità dal vivo sull'elemento scelto | 4.63-01 | Non provato | | Attendere il collaudo. |
-| Il bordo pieno sul tasto acceso | 4.61-01 | OK | | Concluso. |
-| Il velo d'aiuto del Disegno | 4.61-02 | OK | | Concluso. |
-| Il tratteggio del tasto finisce con due trattini | 4.61-03 | OK | | Concluso. |
-| Il cursore della luminosità senza velo | 4.61-04 | OK | Chiesta l'anteprima dal vivo sull'elemento scelto, nei due gesti | Fatta nella 4.63 (`4.63-01`). |
-| Disegnando, l'elemento si appoggia al bordo | 4.62-01 | OK | | Concluso. |
-| Spostando, l'elemento si appoggia al bordo, e oltre esce | 4.62-02 | OK | | Concluso. |
-| La guida lungo il bordo | 4.62-03 | OK | | Concluso. |
+| `Elimina tutto`, e la pressione lunga sul Disegno | 4.64-01 | Non provato | | Attendere il collaudo. |
+| Le linee dei terzi di `Raddrizza` | 4.64-02 | Non provato | | Attendere il collaudo. |
+| La luminosità dal vivo sull'elemento scelto | 4.63-01 | OK | Chiesto se `Azzera` serva, e in Altro le linee dei terzi come le guide del Disegno | Fatte nella 4.64 (`4.64-01`, `4.64-02`). |
 
 ## Prossimi passi
 
-- **In collaudo**: la luminosità dal vivo sull'elemento scelto (`4.63-01`).
+- **In collaudo**: `Elimina tutto` e la pressione lunga sul Disegno (`4.64-01`); le linee dei terzi di `Raddrizza` (`4.64-02`).
 - **Dopo**: la seconda parte della G2, cioè il menu a pressione lunga sull'elemento (`Sposta sopra`, `Copia`, `Duplica`, `Sposta sotto`, `Ruota`, `Elimina`) e le maniglie per ridimensionare; lo strumento Sfocatura; G3, il testo; la pillola.
-- **Concluso**: le sette prove di 4.61 e 4.62 (`4.61-01..04`, `4.62-01..03`).
+- **Concluso**: la luminosità dal vivo sull'elemento scelto (`4.63-01`).
 - **Già nel brief**: stili Lightroom in attesa di via libera; sfogliatore Web e Play Store sospesi.
