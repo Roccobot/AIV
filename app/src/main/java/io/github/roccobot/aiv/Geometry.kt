@@ -934,6 +934,35 @@ internal object Warp {
         )
     }
 
+    /**
+     * Dove arriva sullo schermo il punto ([x], [y]) di [dest], deformato da [plan] e da
+     * [liquify]: il rovescio di [back].
+     *
+     * ⚠️ **Serve a chi deve disegnare SOPRA l'immagine deformata qualcosa che non si deforma**, i
+     * vertici del segno scelto nel modulo Disegno (G2, `4.60`): un tondo a misura fissa sullo
+     * schermo, nel punto in cui la maglia porta il vertice.
+     * ⚠️ Lo scarto di Fluidifica si legge sulla stessa griglia su cui [draw] lo applica, interpolato
+     * fra i quattro vertici della cella: la maglia interpola nei triangoli, quindi i due conti
+     * differiscono di una frazione di pixel dentro una cella.
+     */
+    fun to(plan: WarpPlan, dest: RectF, liquify: Liquify, x: Float, y: Float): FloatArray {
+        val p = plan.map(x, y)
+        if (liquify.idle || dest.width() <= 0f || dest.height() <= 0f) return p
+        val cells = Liquify.CELLS
+        val gx = ((x - dest.left) / dest.width() * cells).coerceIn(0f, cells.toFloat())
+        val gy = ((y - dest.top) / dest.height() * cells).coerceIn(0f, cells.toFloat())
+        val i = gx.toInt().coerceAtMost(cells - 1)
+        val j = gy.toInt().coerceAtMost(cells - 1)
+        val fx = gx - i
+        val fy = gy - j
+        fun mix(f: (Int, Int) -> Float): Float =
+            (f(i, j) * (1f - fx) + f(i + 1, j) * fx) * (1f - fy) +
+                (f(i, j + 1) * (1f - fx) + f(i + 1, j + 1) * fx) * fy
+        p[0] += mix(liquify::dx) * dest.width()
+        p[1] += mix(liquify::dy) * dest.height()
+        return p
+    }
+
     /** Il punto della texture che cade sotto ([x], [y]) nella maglia di Fluidifica. */
     fun back(plan: WarpPlan, dest: RectF, liquify: Liquify, x: Float, y: Float): FloatArray {
         if (liquify.idle) return plan.back(x, y)

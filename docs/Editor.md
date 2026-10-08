@@ -670,7 +670,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
   niente*; la chiave resta `draw_outline`).
   - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
-    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta resta vuota.
+    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50` e dalla `4.60` è `Elimina`.
   - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
     filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
     rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
@@ -740,18 +740,41 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **Gli Stili sono sempre l'ultimo modulo a destra** (nota E), anche dove la fila è stata
     riordinata: il Disegno è penultimo, e un gettone degli Stili trascinato altrove nelle
     impostazioni torna in fondo (`stylesLast`, in `Settings.kt`).
-  - **Il tratteggio più evidente** (nota B) aspetta la sua scelta fra le proposte fatte in chat.
+  - **Il tratteggio più evidente** (nota B): sua risposta `B2`, entrata nella `4.60`.
 - **La traccia di rettangoli ed ellissi è centrata sul bordo** (risposta alla sua domanda del
   2026-10-07): Android la disegna metà dentro e metà fuori, e la metà interna passa sopra il
   riempimento, che copre l'intera forma.
 - **Sopra e sotto fra gli oggetti** (sua nota dello stesso giorno: *una versione semplificata di
-  Z-index andrà gestita in qualche modo*) entra nella G2, insieme alla selezione.
+  Z-index andrà gestita in qualche modo*) entra nella seconda parte della G2, con le maniglie.
 - **Prima della pillola viene lo strumento Sfocatura**, e prima ancora il testo (G3): la sua
   specifica vive nel brief, voce del giro della `4.43`.
-- **La G2 (`4.60`) ha già la sua specifica**: un tocco seleziona un oggetto, il rettangolo mostra
-  quattro vertici color accento e la freccia due punti, e i parametri cambiano l'oggetto scelto.
-  Il numero è passato dalla `4.50` alla `4.60` perché le correzioni dei giri hanno preso le
-  versioni in mezzo.
+- **Dalla `4.60` la G2, prima parte: scegliere, cambiare, spostare, eliminare** (sua specifica:
+  *un tocco singolo seleziona un oggetto; il rettangolo selezionato mostra 4 vertici color accento,
+  la freccia 2 punti color accento; con un oggetto selezionato, i parametri cambiano
+  quell'oggetto*). Il numero è passato dalla `4.50` alla `4.60` perché le correzioni dei giri
+  hanno preso le versioni in mezzo. Le scelte della sessione, dichiarate nella voce di collaudo:
+  - **un tocco su un segno lo sceglie**: il più in alto sotto il dito, con 24 dp di portata oltre
+    metà della sua linea; una forma riempita si prende anche dentro, una vuota solo vicino alla
+    linea, la freccia per l'asta (`Draw.hit`). Un tocco nel vuoto toglie la scelta, e se c'era una
+    scelta non lascia il punto della mano libera;
+  - **i punti**: quattro vertici del riquadro per rettangolo ed ellisse, i due capi per linea e
+    freccia, i quattro vertici del riquadro per la mano libera; tondi color accento a misura fissa
+    sullo schermo, con un filo bianco, portati dalla stessa geometria dell'immagine (`Warp.to`). Sono
+    del palco, quindi il file salvato non li contiene;
+  - **scegliere un segno carica i suoi parametri nel modulo** (il tondo, la luminosità, l'opacità,
+    lo spessore, il tratteggio, il riempimento), che restano poi per il segno nuovo. Il segno ricorda
+    la ricetta del suo colore (`Tint`), così il tondo scelto e i cursori tornano dove erano;
+  - **ogni cambio vale per il segno scelto** ed entra nella storia dopo 400 ms di quiete, così un
+    cursore trascinato è un passo solo;
+  - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro del
+    segno;
+  - **trascinare partendo dal segno scelto lo sposta**; partendo altrove si disegna come prima;
+  - **`Elimina`** è la quinta colonna dei tasti, acceso solo con un segno scelto; Annulla, Ripeti e
+    Originale tolgono la scelta, perché dopo di loro l'indice può essere di un altro segno.
+- **Dalla `4.60` il tasto Tratteggio dice se è acceso** (sua risposta `B2` alla nota B sul giro
+  della `4.49`): acceso, il tratteggio nel colore della traccia; spento, il grigio scuro sbiadito al
+  35%. Fino alla `4.50` i due stati avevano lo stesso disegno e cambiava solo lo sfondo del tasto.
+- **La seconda parte della G2**: le maniglie per ridimensionare e ruotare, sopra e sotto.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

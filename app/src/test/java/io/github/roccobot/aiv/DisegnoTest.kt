@@ -435,6 +435,37 @@ class DisegnoTest {
     }
 
     /**
+     * **Il tasto Tratteggio acceso mostra il tratteggio nel colore della traccia, spento lo mostra
+     * grigio sbiadito** (sua risposta `B2` alla nota B sul giro della `4.49`: *non si capisce bene
+     * quando la linea tratteggiata è attiva*). Rosso puro e opacità piena, per cercare il colore
+     * esatto.
+     * ⚠️⚠️ **CONTROPROVATA** rimettendo il grigio pieno della `4.50` nei due stati: acceso, il
+     * rosso non c'è.
+     */
+    @Test
+    fun `il Tratteggio acceso ha il colore della traccia, spento e sbiadito`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        opacitaPiena()
+        val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
+        val grigio = androidx.compose.ui.graphics.Color(0xFF616161)
+        val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_dashed))
+        tasto.assertIsOn()
+        val acceso = tasto.captureToImage().toPixelMap()
+        assertTrue("acceso, il tratteggio doveva essere rosso", inchiostro(acceso, rosso) > 20)
+        tasto.performClick()
+        banco.waitForIdle()
+        val spento = tasto.captureToImage().toPixelMap()
+        assertEquals("spento, il rosso doveva sparire", 0, inchiostro(spento, rosso))
+        assertEquals("spento, il grigio doveva essere sbiadito", 0, inchiostro(spento, grigio))
+        val y = spento.height / 2
+        assertTrue("spento, il tratteggio doveva vedersi lo stesso",
+            (0 until spento.width).map { spento[it, y] }.distinct().size > 1)
+    }
+
+    /**
      * **Il tasto Traccia mostra il colore della linea, e lo cambia con lei; la linea arriva ai bordi
      * del tasto** (sua nota 2 su `4.43-01`: *fino ai limiti dello spazio del tasto*).
      * ⚠️⚠️ **CONTROPROVATA** due volte: disegnando la linea in un colore fisso, e rimettendo la linea
@@ -906,6 +937,156 @@ class DisegnoTest {
         assertTrue("il nero doveva stare dopo il grigio", nero.left > grigio.left)
         val largo = banco.onRoot().fetchSemanticsNode().boundsInRoot.right
         assertTrue("il nero doveva entrare nello schermo: ${nero.right} su $largo", nero.right <= largo)
+    }
+
+    /**
+     * **La prova del tocco della G2** (`4.60`): una forma riempita si prende anche dentro, una
+     * vuota solo vicino alla linea; una linea entro la portata; fra due segni sovrapposti vince
+     * quello sopra.
+     * ⚠️⚠️ **CONTROPROVATA** prendendo il rettangolo vuoto anche dentro: il tocco al centro lo
+     * sceglie.
+     */
+    @Test
+    fun `il tocco prende il segno giusto`() {
+        val pieno = Mark(Pen.RECT, listOf(Offset(0.1f, 0.1f), Offset(0.4f, 0.4f)), Color.RED, 0.01f, false, Color.WHITE)
+        val vuoto = Mark(Pen.RECT, listOf(Offset(0.6f, 0.1f), Offset(0.9f, 0.4f)), Color.RED, 0.01f, false, null)
+        val linea = Mark(Pen.LINE, listOf(Offset(0.1f, 0.8f), Offset(0.9f, 0.8f)), Color.RED, 0.01f, false, null)
+        val sopra = Mark(Pen.ELLIPSE, listOf(Offset(0.2f, 0.2f), Offset(0.3f, 0.3f)), Color.BLUE, 0.01f, false, Color.BLUE)
+        val disegno = Drawing(listOf(pieno, vuoto, linea, sopra))
+        fun h(x: Float, y: Float) = Draw.hit(disegno, Offset(x, y), 100, 100, 0.02f)
+        assertEquals("dentro il rettangolo pieno", 0, h(0.15f, 0.35f))
+        assertEquals("dentro il rettangolo vuoto, lontano dalla linea, niente", null, h(0.75f, 0.25f))
+        assertEquals("sulla linea del rettangolo vuoto", 1, h(0.6f, 0.25f))
+        assertEquals("vicino alla linea", 2, h(0.5f, 0.815f))
+        assertEquals("lontano da tutto", null, h(0.5f, 0.6f))
+        assertEquals("dove due segni si sovrappongono vince quello sopra", 3, h(0.25f, 0.25f))
+    }
+
+    /**
+     * **Un tocco su un segno lo sceglie e mostra i suoi vertici; un tocco nel vuoto toglie la scelta
+     * e non disegna** (G2, `4.60`, sua specifica: *un tocco singolo seleziona un oggetto; il
+     * rettangolo selezionato mostra 4 vertici color accento*). Con la mano libera e senza scelta, un
+     * tocco nel vuoto lascia il punto come prima.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la scelta nel gesto del palco (il tocco sul segno
+     * disegna un punto), e senza i vertici nel palco (il palco non cambia).
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `un tocco sceglie il segno e il vuoto toglie la scelta`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
+        elimina.assertIsNotEnabled()
+        val prima = palco.captureToImage().toPixelMap()
+        tocca(Offset(-70f, -70f))
+        elimina.assertIsEnabled()
+        val scelto = palco.captureToImage().toPixelMap()
+        assertTrue("scelto il segno, i suoi vertici dovevano comparire", differenza(prima, scelto) > 40)
+        tocca(Offset(80f, 80f))
+        elimina.assertIsNotEnabled()
+        assertEquals("tolta la scelta, il palco doveva tornare com'era", 0, differenza(prima, palco.captureToImage().toPixelMap()))
+        banco.onNodeWithContentDescription(testo(R.string.draw_free)).performClick()
+        banco.waitForIdle()
+        tocca(Offset(80f, 80f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertEquals("i tocchi che sceglievano non dovevano disegnare, l'ultimo sì", 2, salvato!!.drawing.marks.size)
+        assertEquals(Pen.FREE, salvato!!.drawing.marks.last().pen)
+    }
+
+    /**
+     * **Con un segno scelto, i parametri cambiano quel segno e non gli altri** (G2, `4.60`, sua
+     * specifica: *i parametri (colore della linea, spessore, ecc.) cambiano quell'oggetto*).
+     * ⚠️⚠️ **CONTROPROVATA** togliendo il passaggio dei parametri al segno scelto: il primo resta
+     * rosso.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `i parametri cambiano il segno scelto`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
+        tocca(Offset(-70f, -70f))
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val (primo, secondo) = salvato!!.drawing.marks
+        assertEquals("il segno scelto doveva diventare blu", Draw.withAlpha(Draw.INKS[3], Draw.INK_ALPHA), primo.ink)
+        assertEquals("l'altro doveva restare com'era", Draw.withAlpha(Draw.lit(Draw.INK, Draw.INK_LIGHT), Draw.INK_ALPHA), secondo.ink)
+        assertEquals("il segno scelto tiene la sua ricetta", Draw.INKS[3], primo.tint?.ink)
+    }
+
+    /**
+     * **Il segno scelto si sposta trascinandolo, e si elimina col tasto; Annulla lo riporta** (G2,
+     * `4.60`).
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza lo spostamento nel gesto (il trascinamento disegna un
+     * terzo segno), e con 'Elimina' che non toglie niente.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `il segno scelto si sposta e si elimina`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
+        trascinaDa(Offset(40f, 40f), Offset(100f, 100f))
+        val prima = mutableListOf<Mark>()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        prima += salvato!!.drawing.marks
+        tocca(Offset(-70f, -70f))
+        trascinaDa(Offset(-70f, -70f), Offset(-70f + PASSO, -70f))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val spostati = salvato!!.drawing.marks
+        assertEquals("lo spostamento non doveva disegnare", 2, spostati.size)
+        assertTrue("il segno scelto doveva spostarsi a destra", spostati[0].points[0].x > prima[0].points[0].x)
+        assertEquals("in verticale doveva restare", prima[0].points[0].y, spostati[0].points[0].y, 1e-4f)
+        assertEquals("l'altro doveva restare dov'era", prima[1].points, spostati[1].points)
+        banco.onNodeWithContentDescription(testo(R.string.pick_delete)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertEquals("Elimina doveva togliere il segno scelto", listOf(spostati[1]), salvato!!.drawing.marks)
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        assertEquals("Annulla doveva riportarlo", 2, salvato!!.drawing.marks.size)
+    }
+
+    /** Un tocco sul palco, a [da] dal suo centro. */
+    private fun tocca(da: Offset) {
+        banco.onNodeWithContentDescription(testo(R.string.look_compare)).performTouchInput {
+            down(center + da)
+            up()
+        }
+        banco.waitForIdle()
+    }
+
+    /** Un trascinamento sul palco da [da] ad [a], misurati dal suo centro, nelle tre chiamate di [trascina]. */
+    private fun trascinaDa(da: Offset, a: Offset) {
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        palco.performTouchInput { down(center + da) }
+        palco.performTouchInput { moveTo(center + a) }
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+    }
+
+    /** Quanti pixel differiscono fra due catture della stessa misura. */
+    private fun differenza(a: PixelMap, b: PixelMap): Int {
+        var n = 0
+        for (y in 0 until a.height) for (x in 0 until a.width) if (a[x, y] != b[x, y]) n++
+        return n
     }
 
     /** I pixel che cambiano fra il palco col dito giù dopo il trascinamento e a dito alzato. */

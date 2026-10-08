@@ -47,6 +47,13 @@ data class Drawing(val marks: List<Mark> = emptyList()) {
     /** This drawing with [mark] on top. */
     fun with(mark: Mark): Drawing = Drawing(marks + mark)
 
+    /** This drawing with the mark at [index] replaced by [mark] (G2, 4.60). */
+    fun replacing(index: Int, mark: Mark): Drawing =
+        Drawing(marks.mapIndexed { i, m -> if (i == index) mark else m })
+
+    /** This drawing without the mark at [index] (G2, 4.60). */
+    fun without(index: Int): Drawing = Drawing(marks.filterIndexed { i, _ -> i != index })
+
     companion object {
         val NONE = Drawing()
     }
@@ -83,14 +90,55 @@ data class Mark(
      * (2026-10-06) gives the example of a red border with a white fill at 50%, so a fill in the
      * outline's ink, as G1 was first written, could not say it.
      */
-    val fill: Int?
+    val fill: Int?,
+    /**
+     * How the module chose [ink] and [fill], or `null` for a mark made elsewhere (the tests): the
+     * module loads it back when the mark is chosen (G2, 4.60). See [Tint].
+     */
+    val tint: Tint? = null
 ) {
     /** This mark with its last point moved to [to], or appended for a free hand stroke. */
     fun reaching(to: Offset): Mark = when (pen) {
         Pen.FREE -> copy(points = points + to)
         else -> copy(points = listOf(points.first(), to))
     }
+
+    /** This mark moved by [by], in fractions of the original image (G2, 4.60). */
+    fun moved(by: Offset): Mark = copy(points = points.map { it + by })
+
+    /**
+     * **Where the chosen mark shows its points**, in fractions of the original image (G2, 4.60,
+     * his specification: *il rettangolo selezionato mostra 4 vertici color accento, la freccia 2
+     * punti color accento*): the four corners of the box for the rectangle and the ellipse, the
+     * two ends for the line and the arrow, and the four corners of its box for the free hand (a
+     * choice of the session, declared in the test item).
+     */
+    fun handles(): List<Offset> {
+        if (points.isEmpty()) return emptyList()
+        if (pen == Pen.LINE || pen == Pen.ARROW) return listOf(points.first(), points.last())
+        val xs = if (pen == Pen.FREE) points.map { it.x } else listOf(points.first().x, points.last().x)
+        val ys = if (pen == Pen.FREE) points.map { it.y } else listOf(points.first().y, points.last().y)
+        val l = xs.min(); val r = xs.max(); val t = ys.min(); val b = ys.max()
+        return listOf(Offset(l, t), Offset(r, t), Offset(r, b), Offset(l, b))
+    }
 }
+
+/**
+ * **How the module chose a mark's colours**: the swatch, its light and its opacity, for the
+ * outline and the fill (G2, 4.60).
+ *
+ * ⚠️ The mark draws [Mark.ink] and [Mark.fill], which are these values already mixed: from them
+ * alone the module could not tell which swatch was chosen and how far its light was moved, and
+ * choosing a mark has to show its swatch chosen and its sliders where they were.
+ */
+data class Tint(
+    val ink: Int,
+    val inkLight: Float,
+    val inkAlpha: Float,
+    val fill: Int?,
+    val fillLight: Float,
+    val fillAlpha: Float
+)
 
 /** How a drawing becomes pixels, the same way on the stage and in the saved file. */
 internal object Draw {
@@ -419,6 +467,66 @@ internal object Draw {
             deg >= 90.0 - SNAP_DEG -> Offset(a.x, b.y) to SnapAxis.VERTICAL
             else -> b to null
         }
+    }
+
+    /**
+     * **The index of the topmost mark of [drawing] under [at]**, or `null` (G2, 4.60: *un tocco
+     * singolo seleziona un oggetto*). [at] is in fractions of the original [w] x [h] image, and
+     * [reach] is how far from the line a touch still takes it, as a fraction of the long side, on
+     * top of half the line's width.
+     *
+     * ⚠️ The distances are measured on the long side of the image, as the width is: in fractions
+     * of each side a rectangle that is not square would take a touch further on one axis.
+     * ⚠️ A closed shape with a fill is taken anywhere inside, one without only near its line: its
+     * inside shows the image, and a touch there means the image. The arrow is taken by its shaft.
+     */
+    fun hit(drawing: Drawing, at: Offset, w: Int, h: Int, reach: Float): Int? {
+        if (w <= 0 || h <= 0) return null
+        val long = max(w, h).toFloat()
+        val sx = w / long
+        val sy = h / long
+        val p = Offset(at.x * sx, at.y * sy)
+        for (i in drawing.marks.indices.reversed()) {
+            val mark = drawing.marks[i]
+            if (touches(mark, mark.points.map { Offset(it.x * sx, it.y * sy) }, p, reach + mark.width / 2f)) return i
+        }
+        return null
+    }
+
+    private fun touches(mark: Mark, pts: List<Offset>, p: Offset, r: Float): Boolean {
+        if (pts.isEmpty()) return false
+        val a = pts.first()
+        val b = pts.last()
+        return when (mark.pen) {
+            Pen.FREE -> if (pts.size == 1) hypot(p.x - a.x, p.y - a.y) <= r
+            else pts.zipWithNext().any { (u, v) -> segment(p, u, v) <= r }
+            Pen.LINE, Pen.ARROW -> segment(p, a, b) <= r
+            Pen.RECT -> {
+                val l = min(a.x, b.x); val rt = max(a.x, b.x); val t = min(a.y, b.y); val bt = max(a.y, b.y)
+                val inside = p.x in l..rt && p.y in t..bt
+                if (inside) mark.fill != null || min(min(p.x - l, rt - p.x), min(p.y - t, bt - p.y)) <= r
+                else hypot(max(max(l - p.x, 0f), p.x - rt), max(max(t - p.y, 0f), p.y - bt)) <= r
+            }
+            Pen.ELLIPSE -> {
+                val cx = (a.x + b.x) / 2f; val cy = (a.y + b.y) / 2f
+                val rx = abs(b.x - a.x) / 2f; val ry = abs(b.y - a.y) / 2f
+                // ⚠️ A flat ellipse is a segment: the formula below would divide by zero.
+                if (min(rx, ry) < 1e-4f) segment(p, a, b) <= r
+                else {
+                    val d = hypot((p.x - cx) / rx, (p.y - cy) / ry)
+                    (d <= 1f && mark.fill != null) || abs(d - 1f) * min(rx, ry) <= r
+                }
+            }
+        }
+    }
+
+    /** The distance from [p] to the segment from [a] to [b]. */
+    private fun segment(p: Offset, a: Offset, b: Offset): Float {
+        val dx = b.x - a.x
+        val dy = b.y - a.y
+        val len = dx * dx + dy * dy
+        val t = if (len <= 0f) 0f else (((p.x - a.x) * dx + (p.y - a.y) * dy) / len).coerceIn(0f, 1f)
+        return hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
     }
 
     /**
