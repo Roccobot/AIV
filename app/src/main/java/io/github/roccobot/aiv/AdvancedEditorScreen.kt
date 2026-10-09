@@ -4754,7 +4754,7 @@ private class Gaze(
 
     /**
      * The fill's colour, without alpha, or `null` for none. At the factory the colour and the
-     * opacity of [Draw.FILL] (his values, since 4.44 the amber at 20%): shapes are born filled.
+     * opacity of [Draw.FILL] (his values, since 4.95 the red at 20%): shapes are born filled.
      */
     var fillInk by mutableStateOf<Int?>(Draw.FILL or 0xFF000000.toInt())
     var fillAlpha by mutableFloatStateOf((Draw.FILL ushr 24) / 255f)
@@ -5701,7 +5701,7 @@ private fun DrawMenu(
  * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
  * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
  * una seconda tavolozza. Per il riempimento il primo colore è 'Nessuno'; quello di fabbrica, dalla
- * `4.44`, è l'ambra al 20% di [Draw.FILL].
+ * `4.95`, è il rosso al 20% di [Draw.FILL] (dalla `4.44` alla `4.94` era l'ambra al 20%).
  * ⚠️ **'Riempimento' si spegne per i tre strumenti che non chiudono una forma**, con lo stesso
  * criterio del 'Filtro BN': un comando che non cambia niente si legge come un guasto.
  */
@@ -5754,12 +5754,14 @@ private fun DrawBody(
             ) { tinta -> Icon(Glyphs.pen(pen), contentDescription = null, tint = tinta, modifier = Modifier.size(PEN_GLYPH)) }
         }
     }
-    // ⚠️ Five columns, the same as the drawing tools above, so the keys line up with them (his
-    // mockup of 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and
-    // since 4.49 it sits left of Riempimento (his note on `4.47-01`); the fifth was empty until
-    // 4.50, and was Elimina from 4.60 (G2), Sfocatura from 4.80 and Elimina in 4.91.
+    // ⚠️ The columns of the drawing tools above, so the keys line up with them (his mockup of
+    // 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and since 4.49
+    // it sits left of Riempimento (his note on `4.47-01`). Since 4.95 the row ends with Elimina and
+    // is anchored to the right (his answer `B1`), so its first three columns are empty.
     // Traccia, Spessore and Riempimento are one choice: what the slider sets (his answer `S1`).
-    if (scrive || incornicia) TextKeys(look, gaze, live, pill = incornicia) else Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    val elimina: @Composable (Modifier) -> Unit = { m -> DeleteKey(look, gaze, live, onLive, onSettled, m) }
+    if (scrive || incornicia) TextKeys(look, gaze, live, pill = incornicia, delete = elimina) else Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        repeat(3) { Spacer(Modifier.weight(1f)) }
         ArtKey(
             KeyKind.DASH, gaze, selected = gaze.dashed, enabled = tratto, name = R.string.draw_dashed,
             toggle = true, onClick = { gaze.dashed = !gaze.dashed }, modifier = Modifier.weight(1f)
@@ -5778,9 +5780,7 @@ private fun DrawBody(
             KeyKind.FILL, gaze, selected = riempimento, enabled = tratto && chiusa, name = R.string.draw_filled,
             toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
         )
-        // ⚠️ Eight tools since 4.91, so four columns, empty, keep the keys under the tools.
-        // Elimina was the fifth from 4.60 to 4.70 and in 4.91, and is a key of words since 4.92.
-        repeat(4) { Spacer(Modifier.weight(1f)) }
+        elimina(Modifier.weight(1f))
     }
     /*
      * ⚠️⚠️ **With a mark chosen, the module's parameters change it** (G2, 4.60, his specification:
@@ -6040,57 +6040,19 @@ private fun DrawBody(
     }
     // ⚠️ The name of the slider and the slider are one row of the module: no air between them.
     Column(Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                stringResource(
-                    when {
-                        pannello -> R.string.draw_blur
-                        scrive || pillola -> R.string.draw_size
-                        bersaglio == DrawTarget.WIDTH -> R.string.draw_width
-                        else -> R.string.settings_mark_alpha
-                    }
-                ),
-                style = MaterialTheme.typography.labelMedium,
-                // ⚠️ Since 4.92 two keys of words share the row (Elimina), so in a long language the name
-                // of the slider gives way first.
-                modifier = Modifier.weight(1f, fill = false)
-            )
-            /*
-             * ⚠️⚠️ **Elimina is a key of words beside Elimina tutto, since 4.92, for every pen** (his
-             * `Non approvato` on `4.91-04`: *Se sto usando la pillola o ne ho una selezionata, il tasto
-             * 'Elimina' non appare ... Potrebbe essere anche un pulsante testuale a sinistra di 'Elimina
-             * tutto' (che è anche pertinente)*, and his answer to `d-elimina-testo`). It deletes the
-             * element chosen. In 4.91 it was the fifth column of the shapes' keys, which the keys of the
-             * text have no room for; from 4.60 to 4.70 too, and it stays in the menu of the long press.
-             */
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TextButton(
-                    onClick = {
-                        val i = gaze.picked ?: return@TextButton
-                        gaze.picked = null
-                        onLive { l -> l.copy(drawing = l.drawing.without(i)) }
-                        onSettled()
-                    },
-                    enabled = live && gaze.picked != null,
-                    contentPadding = PaddingValues(horizontal = 4.dp),
-                    modifier = Modifier.height(DRAW_WORDS_ROW)
-                ) { Text(stringResource(R.string.pick_delete)) }
-                TextButton(
-                    onClick = {
-                        gaze.picked = null
-                        onLive { it.copy(drawing = Drawing.NONE) }
-                        onSettled()
-                    },
-                    enabled = live && !look.drawing.idle,
-                    contentPadding = PaddingValues(horizontal = 4.dp),
-                    modifier = Modifier.height(DRAW_WORDS_ROW)
-                ) { Text(stringResource(R.string.draw_clear)) }
-            }
-        }
+        // ⚠️ Until 4.94 Elimina and Elimina tutto were two keys of words on this row: since 4.95 they
+        // are one key with an icon, the last of the row of keys above ([DeleteKey]).
+        Text(
+            stringResource(
+                when {
+                    pannello -> R.string.draw_blur
+                    scrive || pillola -> R.string.draw_size
+                    bersaglio == DrawTarget.WIDTH -> R.string.draw_width
+                    else -> R.string.settings_mark_alpha
+                }
+            ),
+            style = MaterialTheme.typography.labelMedium
+        )
         if (pannello) Slider(
             value = gaze.blurAmount,
             onValueChange = { gaze.blurAmount = it },
@@ -8187,7 +8149,7 @@ private fun TextDialog(initial: String, blank: Boolean, onDismiss: () -> Unit, o
  *   `Modifica testo`.
  */
 @Composable
-private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
+private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean, delete: @Composable (Modifier) -> Unit) {
     val segno = gaze.picked?.let { look.drawing.marks.getOrNull(it) }?.takeIf { it.pen.written }
     val faccia = gaze.face.label
     val carattere = stringResource(R.string.draw_face)
@@ -8232,7 +8194,47 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
             modifier = Modifier.weight(1f)) { tinta ->
             Icon(Icons.Filled.Edit, contentDescription = null, tint = tinta)
         }
+        delete(Modifier.weight(1f))
     }
+}
+
+/**
+ * **The Elimina key, the last on the right of every row of keys, since 4.95** (his note B on the
+ * 4.94 round: *tocco per errore troppo spesso i tasti `Elimina` ed `Elimina tutto` ... Rimetto il
+ * tasto 'Elimina' (solo icona) nella quinta colonna; per 'Elimina tutto' si tiene premuto il
+ * pulsante (allo stesso modo di quello del modulo). Scompaiono entrambi i pulsanti testuali*, and
+ * his answer `B1`: *Ultima a destra, e anche quando sono meno di 7 pulsanti restano ancorati a
+ * destra*). A tap deletes the element chosen, a long press deletes them all.
+ * ⚠️ It is on while the drawing has an element, so the long press reaches it with none chosen; a
+ * tap with none chosen does nothing (a reading of the session, declared in the test item).
+ * ⚠️ From 4.92 to 4.94 they were two keys of words beside the slider's name; in 4.91 Elimina was
+ * the fifth column of the shapes' keys, and from 4.60 to 4.70 too.
+ */
+@Composable
+private fun DeleteKey(
+    look: Look,
+    gaze: Gaze,
+    live: Boolean,
+    onLive: ((Look) -> Look) -> Unit,
+    onSettled: () -> Unit,
+    modifier: Modifier
+) {
+    TextKey(
+        stringResource(R.string.pick_delete), selected = false, enabled = live && !look.drawing.idle, toggle = false,
+        onClick = {
+            val i = gaze.picked ?: return@TextKey
+            gaze.picked = null
+            onLive { l -> l.copy(drawing = l.drawing.without(i)) }
+            onSettled()
+        },
+        onLongClick = {
+            gaze.picked = null
+            onLive { it.copy(drawing = Drawing.NONE) }
+            onSettled()
+        },
+        longName = stringResource(R.string.draw_clear),
+        modifier = modifier
+    ) { tinta -> Icon(Glyphs.PickDelete, contentDescription = null, tint = tinta) }
 }
 
 /**
@@ -8249,16 +8251,23 @@ private fun TextKey(
     onClick: () -> Unit,
     modifier: Modifier,
     choice: Boolean = false,
+    /** A second gesture, the long press, and what a screen reader calls it (`Elimina tutto`, 4.95). */
+    onLongClick: (() -> Unit)? = null,
+    longName: String? = null,
     content: @Composable (Color) -> Unit
 ) {
     val forma = FilterChipDefaults.shape
     val schema = MaterialTheme.colorScheme
-    // ⚠️ A switch, one choice among several (the tools, 4.91), or a button.
+    // ⚠️ A switch, one choice among several (the tools, 4.91), a button, or a button with a long press.
     val scelta = Modifier
         .then(
             when {
                 toggle -> Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
                 choice -> Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
+                onLongClick != null -> Modifier.combinedClickable(
+                    enabled = enabled, role = Role.Button, onLongClickLabel = longName,
+                    onLongClick = onLongClick, onClick = onClick
+                )
                 else -> Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             }
         )
@@ -8389,13 +8398,6 @@ private val DRAW_AIR = 12.dp
 
 /** How far the strips stay from the bar under the module, past [DRAW_AIR] (4.94, his mockup). */
 private val DRAW_FOOT = 8.dp
-
-/**
- * **How tall the row of the slider's name and of Elimina is** (4.94, his mockup on the 4.93 round,
- * where the name sits close to its slider): the height of the keys above, below Material's 40dp for
- * a key of words.
- */
-private val DRAW_WORDS_ROW = 32.dp
 
 /**
  * **The face of the 'Aa' on the Carattere key** (4.90): the typeface the drawing paints with,

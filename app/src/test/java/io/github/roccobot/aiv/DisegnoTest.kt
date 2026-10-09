@@ -22,6 +22,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.down
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.moveBy
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -258,14 +259,18 @@ class DisegnoTest {
     }
 
     /**
-     * **I valori di fabbrica sono i suoi** (sua nota A sul giro della `4.49`): rettangolo
-     * arrotondato con la linea tratteggiata, traccia rossa con la luminosità al 25% della corsa,
-     * l'opacità al 50% e lo spessore al 40%; il riempimento resta l'ambra al 20% della `4.44`
-     * (risposta `D2`), e la freccia nasce senza.
-     * ⚠️ 'Cursore al X%' si legge come un posto sulla corsa: è la lettura dichiarata nella voce di
-     * collaudo.
+     * **I valori di fabbrica sono i suoi** (sua nota A sul giro della `4.49`, e dalla `4.95` la sua
+     * nota A sul giro della `4.94` con la risposta `A3`: *La freccia dev'essere rossa, dimensione 66%
+     * dello slider, opacità 95%, tratteggiata*, valori comuni a tutti gli strumenti di forma):
+     * rettangolo arrotondato con la linea tratteggiata, traccia del rosso pieno del primo tondo,
+     * opacità al 95% e spessore al 66% della corsa; il riempimento è il rosso al 20% (dalla `4.95`,
+     * sua richiesta in chat; prima l'ambra al 20% della risposta `D2`), e la freccia nasce senza, con
+     * lo stesso tratto.
+     * ⚠️ 'Cursore al X%' si legge come un posto sulla corsa, e 'rossa' come il rosso del tondo con
+     * la luminosità a zero: letture dichiarate nella voce di collaudo.
      * ⚠️⚠️ **CONTROPROVATA** rimettendo i valori della `4.49` (mano libera senza tratteggio,
-     * luminosità e opacità di base, spessore al 60%).
+     * luminosità e opacità di base, spessore al 60%), e dalla `4.95` quelli della `4.94` (rosso
+     * scurito, opacità 0,55, spessore al 40%).
      */
     @Test
     fun `i valori di fabbrica sono i suoi`() {
@@ -275,10 +280,10 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).assertIsSelected()
         banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).assertIsOn()
-        assertEquals("l'opacità doveva partire dal 50% della corsa", 0.5f, (valore() - 0.1f) / 0.9f, 1e-3f)
+        assertEquals("l'opacità doveva partire dal 95%", 0.95f, valore(), 1e-3f)
         banco.onNodeWithContentDescription(testo(R.string.draw_width)).performClick()
         banco.waitForIdle()
-        assertEquals("lo spessore doveva partire dal 40% della corsa", 0.4f,
+        assertEquals("lo spessore doveva partire dal 66% della corsa", 0.66f,
             (valore() - Draw.WIDTH_MIN) / (Draw.WIDTH_MAX - Draw.WIDTH_MIN), 1e-3f)
         trascina()
         banco.onNodeWithContentDescription(testo(R.string.draw_arrow)).performClick()
@@ -289,11 +294,13 @@ class DisegnoTest {
         val (rettangolo, freccia) = salvato!!.drawing.marks
         assertEquals(Pen.RECT, rettangolo.pen)
         assertTrue("il tratteggio di fabbrica", rettangolo.dashed)
-        assertEquals("il tratto di fabbrica", Draw.withAlpha(Draw.lit(0xFFFF4C3F.toInt(), -0.5f), 0.55f), rettangolo.ink)
-        assertEquals("lo spessore di fabbrica", Draw.WIDTH_MIN + 0.4f * (Draw.WIDTH_MAX - Draw.WIDTH_MIN), rettangolo.width, 1e-5f)
-        assertEquals("il riempimento di fabbrica", 0x33FFBF00, rettangolo.fill)
+        assertEquals("il tratto di fabbrica", Draw.withAlpha(0xFFFF4C3F.toInt(), 0.95f), rettangolo.ink)
+        assertEquals("lo spessore di fabbrica", Draw.WIDTH_MIN + 0.66f * (Draw.WIDTH_MAX - Draw.WIDTH_MIN), rettangolo.width, 1e-5f)
+        assertEquals("il riempimento di fabbrica, il rosso al 20% dalla 4.95", 0x33FF4C3F, rettangolo.fill)
         assertEquals("la freccia nasce senza riempimento", null, freccia.fill)
         assertEquals("la freccia ha lo stesso tratto", rettangolo.ink, freccia.ink)
+        assertEquals("e lo stesso spessore", rettangolo.width, freccia.width, 1e-6f)
+        assertTrue("ed è tratteggiata", freccia.dashed)
     }
 
     /** Il valore del cursore in fondo alla scheda, o con [luce] quello della luminosità. */
@@ -527,14 +534,14 @@ class DisegnoTest {
         apriDisegno()
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.waitForIdle()
-        val ambra = Draw.FILL or 0xFF000000.toInt()
+        val pieno = Draw.FILL or 0xFF000000.toInt()
         val a = keyAlpha((Draw.FILL ushr 24) / 255f)
         fun su(fondo: Float, c: Int) = fondo * (1 - a) + (c and 0xFF) / 255f * a
         val atteso = androidx.compose.ui.graphics.Color(
-            su(1f, ambra shr 16), su(1f, ambra shr 8), su(1f, ambra)
+            su(1f, pieno shr 16), su(1f, pieno shr 8), su(1f, pieno)
         )
         val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_filled)).captureToImage().toPixelMap()
-        assertTrue("sui quadretti bianchi l'ambra doveva vedersi accentuata", inchiostro(tasto, atteso) > 10)
+        assertTrue("sui quadretti bianchi il riempimento doveva vedersi accentuato", inchiostro(tasto, atteso) > 10)
     }
 
     /**
@@ -682,7 +689,9 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
         banco.onNodeWithContentDescription(testo(R.string.draw_filled)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithContentDescription(testo(R.string.ink_amber)).assertIsSelected()
+        // ⚠️ The red since 4.95 (his message in chat: *sostituisci il riempimento giallo con quello
+        // rosso, stessa opacità*); the amber from 4.44 to 4.94.
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).assertIsSelected()
     }
 
     /**
@@ -1040,8 +1049,9 @@ class DisegnoTest {
         trascinaDa(Offset(-100f, -100f), Offset(-40f, -40f))
         tocca(Offset(-70f, -70f))
         banco.onNodeWithText(testo(R.string.editor_original)).assertDoesNotExist()
-        val tutto = banco.onNodeWithText(testo(R.string.draw_clear))
-        tutto.performClick()
+        // ⚠️ Since 4.95 'Elimina tutto' is the long press of the Elimina key.
+        val tutto = tastoElimina()
+        tutto.performTouchInput { longClick() }
         banco.waitForIdle()
         tutto.assertIsNotEnabled()
         assertFalse("dopo Elimina tutto la scelta non doveva restare", sceltaRimasta {
@@ -2007,7 +2017,7 @@ class DisegnoTest {
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
         apriDisegno()
-        val elimina = banco.onNodeWithText(testo(R.string.pick_delete))
+        val elimina = tastoElimina()
         elimina.assertIsNotEnabled()
         val r = immagine()
         fun a(x: Float, y: Float) = Offset(r.left + x * r.width, r.top + y * r.height)
@@ -2016,7 +2026,10 @@ class DisegnoTest {
         tocca(a(0.75f, 0.6f))
         elimina.assertIsEnabled().performClick()
         banco.waitForIdle()
-        elimina.assertIsNotEnabled()
+        // ⚠️ Since 4.95 the key stays on while the drawing has an element, and a tap with none
+        // chosen deletes nothing.
+        elimina.assertIsEnabled().performClick()
+        banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         val resta = salvato!!.drawing.marks.single()
@@ -2766,9 +2779,9 @@ class DisegnoTest {
         val pannello = salvato!!.drawing.marks.single()
         assertEquals(Pen.PANEL, pannello.pen)
         assertEquals("il pannello nasce senza parole", "", pannello.words?.text)
-        banco.onNodeWithText(testo(R.string.pick_delete)).assertIsEnabled().performClick()
+        tastoElimina().assertIsEnabled().performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.draw_clear)).assertIsNotEnabled()
+        tastoElimina().assertIsNotEnabled()
     }
 
     /**
@@ -2817,7 +2830,7 @@ class DisegnoTest {
      * **Le file del modulo Disegno stanno a 12dp l'una dall'altra** (`4.94`, sua nota in Altro sul giro
      * della `4.93`, col suo mockup: *Disponi meglio gli elementi dell'interfaccia: c'è spazio per
      * tutto*): fra i gettoni dei moduli e gli strumenti, fra gli strumenti e i tasti, fra i tasti e i
-     * tondi, fra i tondi e la fila di `Elimina`. Il nome del cursore e il cursore restano attaccati.
+     * tondi, fra i tondi e il nome del cursore. Il nome del cursore e il cursore restano attaccati.
      * ⚠️⚠️ **CONTROPROVATA** col corpo della `4.93`, dove le file stavano a 3, 4 e 7dp.
      */
     @Test
@@ -2833,13 +2846,13 @@ class DisegnoTest {
         val strumenti = dove(R.string.draw_free)
         val tasti = dove(R.string.draw_bold)
         val tondi = dove(R.string.ink_red)
-        val elimina = banco.onNodeWithText(testo(R.string.draw_clear)).getUnclippedBoundsInRoot()
+        val nome = banco.onNodeWithText(testo(R.string.draw_size)).getUnclippedBoundsInRoot()
         val cursore = banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).getUnclippedBoundsInRoot()
         assertEquals("fra i moduli e gli strumenti", 12f, strumenti.top.value - moduli.bottom.value, 0.5f)
         assertEquals("fra gli strumenti e i tasti", 12f, tasti.top.value - strumenti.bottom.value, 0.5f)
         assertEquals("fra i tasti e i tondi", 12f, tondi.top.value - tasti.bottom.value, 0.5f)
-        assertEquals("fra i tondi ed Elimina", 12f, elimina.top.value - tondi.bottom.value, 0.5f)
-        assertTrue("il cursore doveva restare attaccato al suo nome", cursore.top.value - elimina.bottom.value < 4f)
+        assertEquals("fra i tondi e il nome del cursore", 12f, nome.top.value - tondi.bottom.value, 0.5f)
+        assertTrue("il cursore doveva restare attaccato al suo nome", cursore.top.value - nome.bottom.value < 4f)
     }
 
     /**
@@ -2895,6 +2908,43 @@ class DisegnoTest {
         val cy = m.height / 2f
         return androidx.compose.ui.geometry.Rect(x0 - cx, y0 - cy, x1 + 1 - cx, y1 + 1 - cy)
     }
+
+    /**
+     * **`Elimina` è l'ultimo tasto a destra di ogni fila, sotto l'ultimo strumento** (`4.95`, sua
+     * nota B sul giro della `4.94` e risposta `B1`: *Ultima a destra, e anche quando sono meno di 7
+     * pulsanti restano ancorati a destra*): con le forme la fila dei quattro tasti e `Elimina` si
+     * allinea a destra, col testo `Elimina` viene dopo `Testo`. I due tasti di testo non ci sono più.
+     * ⚠️⚠️ **CONTROPROVATA** col corpo della `4.94`, dove `Elimina` era un tasto di testo.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h891dp")
+    fun `Elimina e l'ultimo tasto a destra di ogni fila`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        fun dove(id: Int) = banco.onNodeWithContentDescription(testo(id)).getUnclippedBoundsInRoot()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.waitForIdle()
+        val ultimo = dove(R.string.draw_panel)
+        val forme = tastoElimina().getUnclippedBoundsInRoot()
+        assertEquals("con le forme, sotto l'ultimo strumento", ultimo.right.value, forme.right.value, 0.5f)
+        assertEquals("e il Riempimento subito a sinistra", ultimo.left.value - (ultimo.right.value - ultimo.left.value) - 6f,
+            dove(R.string.draw_filled).left.value, 1f)
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        val testi = tastoElimina().getUnclippedBoundsInRoot()
+        assertEquals("col testo, sotto l'ultimo strumento", ultimo.right.value, testi.right.value, 0.5f)
+        assertTrue("e dopo Testo", dove(R.string.draw_text_edit).right.value <= testi.left.value)
+        banco.onNodeWithText(testo(R.string.draw_clear)).assertDoesNotExist()
+    }
+
+    /**
+     * Il tasto `Elimina` del modulo, un'icona dalla `4.95`: il suo nome lo dice al lettore di
+     * schermo, e la voce omonima del menu della pressione lunga non ha la sua azione di tocco lungo.
+     */
+    private fun tastoElimina() = banco.onNode(
+        hasContentDescription(testo(R.string.pick_delete)) and SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick)
+    )
 
     /**
      * La voce [id] del menu della pressione lunga: dalla `4.92` `Elimina` è anche un tasto del
