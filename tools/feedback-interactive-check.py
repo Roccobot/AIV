@@ -119,10 +119,24 @@ def check_questions_and_labels(path):
         try:
             with sync_playwright() as pw:
                 engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
-                page = engine.new_page()
+                page = engine.new_context(permissions=['clipboard-read', 'clipboard-write']).new_page()
                 page.on('pageerror', lambda e: errors.append(str(e)))
                 page.goto(url)
                 expect(page.locator('#save')).to_be_enabled()
+                # The copy mark (his request of 2026-10-09): one per card, test, question or
+                # label, in the top right corner, and a tap copies the card's reference.
+                cards = page.locator('.card.test, .card.question, .label-card')
+                expect(cards).to_have_count(3)
+                for index in range(3):
+                    card = cards.nth(index)
+                    mark = card.locator(':scope > .card-ref')
+                    expect(mark).to_have_count(1)
+                    card_box, mark_box = card.bounding_box(), mark.bounding_box()
+                    assert card_box['x'] + card_box['width'] - (mark_box['x'] + mark_box['width']) < 48, (index, card_box, mark_box)
+                    assert mark_box['y'] - card_box['y'] < 16, (index, card_box, mark_box)
+                    mark.click()
+                    copied = page.evaluate('navigator.clipboard.readText()')
+                    assert copied == card.get_attribute('data-id').lower(), (copied, card.get_attribute('data-id'))
                 order = page.evaluate("""() => [...document.querySelectorAll('.test, #questions, #labels')]
                     .map((node) => node.classList.contains('test') ? 'prova' : node.id)""")
                 assert order == ['prova', 'questions', 'labels'], 'Ordine dei blocchi: ' + str(order)
@@ -168,7 +182,7 @@ def check_questions_and_labels(path):
             server.shutdown()
             server.server_close()
     assert not errors, 'Errori nella pagina di sintesi: ' + str(errors)
-    print('Domande ed etichette: ordine, opzioni, Rimando, commento, ricarica e riepilogo verificati.')
+    print('Domande ed etichette: ordine, opzioni, Rimando, commento, ricarica, riepilogo e copia dei riferimenti verificati.')
 
 
 def check_without_tests(path):
