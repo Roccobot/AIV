@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -126,23 +125,24 @@ private class PickShadeNode(
         }
     }
 
+    /**
+     * ⚠️⚠️ **The ramp is laid with the noise that takes its bands away, since 4.90** (his report of
+     * 2026-10-08: *vedo di nuovo un po' di banding*): over a light photo the shade goes through about
+     * fifty levels in 120 dp, a step every seven pixels. The reckoning lives at the head of
+     * `Dither.kt`. From [top] minus [tall] to [top], in the drawing's own coordinates: clear above,
+     * [SHADE_MAX] at the sheet's edge and below it, where the sheet covers the rest.
+     */
+    private val ramp = GrainedRamp(SHADE_RAMP, SHADE_MAX)
+
     override fun ContentDrawScope.draw() {
         if (!behind) drawContent()
-        if (!y.isNaN()) drawRect(brush = shadeBrush(top - tall - y, top - y, ink))
+        if (!y.isNaN()) ramp.paint(this, ink, top - tall - y, top - y)
         if (behind) drawContent()
     }
 }
 
-/**
- * The ramp from [from] to [to], in the drawing's own coordinates: clear above, [SHADE_MAX] at the
- * sheet's edge and below it, where the sheet covers the rest.
- */
-internal fun shadeBrush(from: Float, to: Float, ink: Color): Brush =
-    Brush.verticalGradient(
-        colorStops = Array(SHADE_STOPS + 1) { i ->
-            val t = i / SHADE_STOPS.toFloat()
-            t to ink.copy(alpha = SHADE_MAX * t.pow(SHADE_CURVE))
-        },
-        startY = from,
-        endY = to
-    )
+/** The stops of his curve, as fractions of [SHADE_MAX]. */
+private val SHADE_RAMP = List(SHADE_STOPS + 1) { i ->
+    val t = i / SHADE_STOPS.toFloat()
+    t to t.pow(SHADE_CURVE)
+}

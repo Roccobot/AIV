@@ -566,8 +566,12 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   colori scelti: ogni gradino di colore è alto decine di pixel. Il dithering del `Paint` non è
   bastato, per una ragione che non si conosce, e `Modifier.background(brush)` non dà accesso al
   `Paint`; il rumore lo scrive l'app (`Dither.kt`).
-  - ⚠️ **Non si porta alle sfumature che attraversano tutti i livelli in pochi pixel**: là un
-    gradino è alto un pixel.
+  - ⚠️⚠️ **Dalla `4.90` vale per ogni rampa di una tinta sola, e lo strumento è `GrainedRamp`**
+    (sua segnalazione del 2026-10-08, *vedo di nuovo un po' di banding*): fino alla `4.81` qui era
+    scritto che le fasce in fondo allo schermo non ne avevano bisogno, perché vanno dal fondo pieno
+    al trasparente. Il conto era sbagliato: sopra un'immagine una rampa attraversa i livelli fra il
+    fondo e l'immagine, e là un gradino viene alto una dozzina di pixel. Restano fuori le sfumature
+    alte o larghe pochi punti (il filetto, l'alone di una copertina), dove un gradino è di un pixel.
 
 ## 🎚️ L'editor completo, e il conto che esiste in una copia sola
 
