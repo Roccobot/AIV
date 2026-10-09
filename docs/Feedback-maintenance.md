@@ -130,7 +130,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   un altro commento che necessita una cross-reference*). I riferimenti sono tre famiglie, e sono
   le chiavi che già esistono: la prova `4.90-05`, la domanda `d-velo-pannello`, l'etichetta
   `e-draw_panel`. Il tasto lo aggiunge `refButton` in `publish/feedback-ui.js` a ogni riquadro
-  di prova, domanda ed etichetta, e copia il testo nudo, in minuscolo; lo presidia
+  di prova, domanda ed etichetta, e copia il riferimento in minuscolo **come codice in linea**
+  (sua seconda richiesta dello stesso giorno: *formattato come codice in linea e che appaia come
+  tale quando lo incollo*): fra apici inversi nel testo semplice, e come `<code>` nella copia
+  formattata, per le app che la leggono. I campi di commento del DF incollano come codice un testo
+  che è tutto fra apici inversi, come lo farebbe il tasto `Codice`. Lo presidia
   `tools/feedback-interactive-check.py`. Nelle etichette con l'icona del lettore di schermo il
   tasto è alla sua sinistra.
 - Conserva gli identificatori esistenti, come `3.13-01`.
