@@ -390,7 +390,16 @@
       if (window.feedbackPasteImage?.(event, box)) return;
       event.preventDefault();
       // Plain-text paste prevents foreign HTML, styles and active elements entering the editor.
-      document.execCommand("insertText", false, event.clipboardData.getData("text/plain"));
+      const text = event.clipboardData.getData("text/plain");
+      /* A text that is all between backticks goes in as inline code, as the Codice key makes it
+         (his request of 2026-10-09: the reference a card's copy mark copies appears as code
+         when pasted). Anything else stays plain. */
+      const code = /^`([^`\n]+)`$/.exec(text.trim());
+      if (code && window.feedbackFormatting.insertCodeAtCaret(code[1])) {
+        sync(editor);
+        return;
+      }
+      document.execCommand("insertText", false, text);
     });
     box.addEventListener("drop", event => {
       // File drops continue to the card's existing attachment handler.
