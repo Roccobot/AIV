@@ -671,7 +671,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
   niente*; la chiave resta `draw_outline`).
   - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
-    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50`, dalla `4.60` è `Elimina`, dalla `4.80` è `Sfocatura`, nella `4.91` di nuovo `Elimina`, e dalla `4.92` è vuota, perché `Elimina` è un tasto di testo accanto a `Elimina tutto`.
+    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50`, dalla `4.60` è `Elimina`, dalla `4.80` è `Sfocatura`, nella `4.91` di nuovo `Elimina`, e dalla `4.92` alla `4.94` è vuota, perché `Elimina` è un tasto di testo accanto a `Elimina tutto`. Dalla `4.95` la fila è allineata a destra e finisce con `Elimina` (voce su `Elimina` più avanti).
   - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
     filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
     rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
@@ -728,6 +728,14 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     cursore che va dal 10 al 100%) e lo spessore al 40%; il riempimento resta l'ambra al 20%.
     'Cursore al X%' è letto come un posto sulla corsa: lettura dichiarata. La luminosità di
     fabbrica vale per il rosso di partenza, perché un tocco su un tondo gli rende il suo colore.
+  - ⚠️⚠️ **Dalla `4.95` i valori di fabbrica della traccia sono altri** (sua nota A sul giro della
+    `4.94`: *La freccia dev'essere rossa, dimensione 66% dello slider, opacità 95%, tratteggiata*,
+    e la sua risposta `A3`: valori comuni a tutti gli strumenti di forma, non solo alla freccia):
+    il rosso pieno del primo tondo (luminosità a zero, lettura della sessione), l'opacità al 95%
+    e lo spessore al 66% della corsa; il tratteggio resta acceso. E il riempimento di fabbrica è
+    il rosso del primo tondo al 20% (`#33FF4C3F`), al posto dell'ambra (sua richiesta in chat del
+    2026-10-09: *sostituisci il riempimento giallo con quello rosso, stessa opacità*). Il testo, la
+    pillola e il pannello hanno valori loro e non cambiano.
   - **La linea del tasto Spessore è spessa quanto il tratto sullo schermo** (`4.49-01`): lo
     spessore sul lato lungo dell'immagine com'è mostrata, quindi segue lo zoom, mai sotto i 2 dp e
     mai oltre l'altezza del tasto.
@@ -808,12 +816,20 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro
     dell'elemento;
   - **trascinare partendo dall'elemento scelto lo sposta**; partendo altrove si disegna come prima;
-  - **`Elimina`** è un tasto di testo a sinistra di `Elimina tutto`, con ogni strumento, dalla `4.92`
-    (suo `Non approvato` su `4.91-04`: *Se sto usando la pillola o ne ho una selezionata, il tasto
-    'Elimina' non appare ... Potrebbe essere anche un pulsante testuale a sinistra di 'Elimina
-    tutto'*, e la sua risposta a `d-elimina-testo`). È acceso solo con un elemento scelto, e resta
-    anche nel menu della pressione lunga. Fino alla `4.70` e nella `4.91` era la quinta colonna dei
-    tasti delle forme, che la fila del testo non ha; dalla `4.80` alla `4.90` viveva solo nel menu.
+  - ⚠️⚠️ **`Elimina` è un tasto con l'icona del cestino, l'ultimo a destra di ogni fila, dalla
+    `4.95`, e tenerlo premuto vale `Elimina tutto`** (sua nota B sul giro della `4.94`: *tocco per
+    errore troppo spesso i tasti `Elimina` ed `Elimina tutto`, forse perché non sono abbastanza
+    visibili. Rimetto il tasto 'Elimina' (solo icona) nella quinta colonna; per 'Elimina tutto'
+    si tiene premuto il pulsante (allo stesso modo di quello del modulo). Scompaiono entrambi i
+    pulsanti testuali*, e la sua risposta `B1`: *Ultima a destra, e anche quando sono meno di 7
+    pulsanti restano ancorati a destra*). Con le forme la fila è Tratteggio, Traccia, Spessore,
+    Riempimento ed `Elimina`, nelle ultime cinque colonne; col testo, la pillola e il pannello
+    `Elimina` viene dopo `Testo`. Il tasto è acceso finché il disegno ha un elemento, così la
+    pressione lunga lo raggiunge anche senza scelta, e un tocco senza un elemento scelto non fa
+    niente (lettura della sessione). Resta anche nel menu della pressione lunga.
+    - Fino alla `4.70` e nella `4.91` era la quinta colonna dei tasti delle forme; dalla `4.80`
+      alla `4.90` viveva solo nel menu; dalla `4.92` alla `4.94` era un tasto di testo a sinistra
+      di `Elimina tutto` (suo `Non approvato` su `4.91-04` e risposta a `d-elimina-testo`).
     Annulla, Ripeti e Originale tolgono la scelta, perché dopo di loro l'indice può essere di un
     altro elemento.
 - **Dalla `4.60` il tasto Tratteggio dice se è acceso** (sua risposta `B2` alla nota B sul giro
@@ -990,8 +1006,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - ⚠️⚠️ **dalla `4.94` le file del modulo stanno a 12 dp l'una dall'altra** (sua nota sul giro della
     `4.93`, col suo mockup: *Disponi meglio gli elementi dell'interfaccia: c'è spazio per tutto*): i
     gettoni dei moduli, gli strumenti, i tasti, i tondi, il nome del cursore con `Elimina` ed `Elimina
-    tutto`, il cursore e le strisce. Il nome e il cursore restano attaccati, in una fila alta 32 dp
-    come i tasti, e sotto le strisce c'è un po' più d'aria, come nel suo disegno. Fino alla `4.93`
+    tutto`, il cursore e le strisce. Il nome e il cursore restano attaccati (dalla `4.95` il nome è
+    da solo, perché `Elimina` è diventato un tasto della fila sopra), e sotto le strisce c'è un po'
+    più d'aria, come nel suo disegno. Fino alla `4.93`
     ogni fila teneva solo il suo margine, quindi i tasti quasi si toccavano e l'aria si raccoglieva
     sotto il cursore. Il Disegno è il modulo più alto, quindi la scheda cresce con lui: 17 dp,
     misurati sul banco su uno schermo largo 320 dp. Misure della sessione, prese sul suo mockup e

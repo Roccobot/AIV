@@ -587,24 +587,24 @@ internal object Draw {
     const val WIDTH_MAX = 0.03f
 
     /**
-     * The factory width: the slider at 40% of its travel since 4.50 (his note A on the 4.49 round:
-     * *spessore con slider al 40%*). It was 60% from 4.42, and 0.004 before, near the bottom.
+     * The factory width: the slider at 66% of its travel since 4.95 (his note A on the 4.94 round:
+     * *dimensione 66% dello slider*, and his answer `A3`: the factory values of every pen of a
+     * shape, not of the arrow alone). It was 40% from 4.50, 60% from 4.42, and 0.004 before.
      */
-    const val WIDTH = WIDTH_MIN + 0.4f * (WIDTH_MAX - WIDTH_MIN)
+    const val WIDTH = WIDTH_MIN + 0.66f * (WIDTH_MAX - WIDTH_MIN)
 
     /**
-     * The factory light of the stroke: its slider at 25% of the travel, so -0.5 on -1..1 (note A:
-     * *luminosità con slider al 25%*). ⚠️ A reading declared in the test item: 'slider al X%' is a
-     * place on the travel, as for the width. It holds for the factory red only: a tap on a swatch
-     * gives that swatch its own colour, by his rule of `4.45-02`.
+     * The factory light of the stroke: zero since 4.95, so the red of the first swatch as it is
+     * (note A on the 4.94 round: *dev'essere rossa*; a reading declared in the test item). From
+     * 4.50 to 4.94 it was -0.5, the slider at 25% of its travel, a darker red.
      */
-    const val INK_LIGHT = -0.5f
+    const val INK_LIGHT = 0f
 
     /**
-     * The factory opacity of the stroke: its slider (0.1 to 1) at 50% of the travel (note A:
-     * *opacità con slider al 50%*), the same reading.
+     * The factory opacity of the stroke: 95% since 4.95 (note A on the 4.94 round: *opacità 95%*).
+     * From 4.50 to 4.94 it was the slider (0.1 to 1) at 50% of its travel, 0.55.
      */
-    const val INK_ALPHA = 0.1f + 0.5f * (1f - 0.1f)
+    const val INK_ALPHA = 0.95f
 
     /**
      * The factory ink of the stroke, the first swatch: `#FFFF4C3F` (his palette of 4.44, answer
@@ -614,11 +614,13 @@ internal object Draw {
     const val INK = 0xFFFF4C3F.toInt()
 
     /**
-     * The factory fill of a closed shape, `#33FFBF00` in ARGB (his answer `D2`, 4.44): the amber
-     * swatch at 20%, so rectangles and ellipses are born filled. In 4.42 and 4.43 it was a salmon at
-     * about 15% (`#26FFAE8E`), which his palette of 4.44 no longer has.
+     * The factory fill of a closed shape, `#33FF4C3F` in ARGB since 4.95: the red of the first
+     * swatch at 20%, so rectangles and ellipses are born filled (his message of 2026-10-09:
+     * *sostituisci il riempimento giallo con quello rosso, stessa opacità*). From 4.44 to 4.94 it was
+     * the amber swatch at 20% (`#33FFBF00`, his answer `D2`), and in 4.42 and 4.43 a salmon at about
+     * 15% (`#26FFAE8E`), which his palette of 4.44 no longer has.
      */
-    const val FILL = 0x33FFBF00
+    const val FILL = 0x33FF4C3F
 
     /**
      * **[colour] made lighter or darker by [shift]**, from -1 (the darkest) to 1 (the lightest),
