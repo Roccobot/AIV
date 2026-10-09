@@ -1,16 +1,15 @@
 # Feedback AIV
 
-Versione **4.80**: nel modulo Disegno il menu della pressione lunga su un elemento, le maniglie per ridimensionarlo, la rotazione e lo strumento Sfocatura (giro cumulativo della 4.70 e della 4.80).
+Versione **4.90**: nel modulo Disegno il testo, la pillola, le guide verso gli altri elementi, e le sfumature senza bande (giro cumulativo della 4.81 e della 4.90).
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.80 è pubblicata: [v4.80](https://github.com/Roccobot/AIV/releases/tag/v4.80), con l'APK
-[AIV-4.80.apk](https://github.com/Roccobot/AIV/releases/download/v4.80/AIV-4.80.apk).
-Commit prodotto su `main`: `341202c`, release dal commit `341202c` (SlimVer 4.80 / versionCode 345; APK 8.603.733 byte, digest `e6771deb`).
+La Release 4.90 è pubblicata: [v4.90](https://github.com/Roccobot/AIV/releases/tag/v4.90), con l'APK
+[AIV-4.90.apk](https://github.com/Roccobot/AIV/releases/download/v4.90/AIV-4.90.apk).
+Commit prodotto su `main`: `e5f5bb8`, release dal commit `e5f5bb8` (SlimVer 4.90 / versionCode 347; APK 10.999.097 byte, digest `11e62677`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
-Per il testo (G3), il prossimo lavoro: scegli i caratteri, il nome dello stile della striscia e che cosa entra nell'APK nell'[artefatto dei caratteri](https://claude.ai/artifact/BnskaC7AgjgE5Dn23RVmoe), e incolla in chat la risposta che compone.
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.80**, cumulativo con la 4.70: quattro prove sugli elementi del Disegno e una sulla Sfocatura, e in fondo le **etichette testuali**: i testi dell'app nuovi o cambiati dalla 4.00, che non ti erano mai stati sottoposti, raggruppati per funzione, più una correzione che ti propongo. Campo vuoto vuol dire approvato. Giro **4.64**: due prove OK, e le dieci domande hanno tutte una risposta.
+Giro **4.90**, cumulativo con la 4.81: due prove sulla Sfocatura e sugli elementi scelti, cinque sul testo, sulla pillola e sulle guide, una sulle sfumature, e in fondo le **etichette testuali** dei testi nuovi. Campo vuoto vuol dire approvato. Giro **4.80**: le quattro prove della 4.70 OK, la Sfocatura rifatta nella 4.81.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -23,134 +22,110 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.80 sono superate: banco di prova completo (651 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.90 sono superate: banco di prova completo (666 prove), controllo delle traduzioni, compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.70-01 | Non provato | | Attendere il collaudo. |
-| 4.70-02 | Non provato | | Attendere il collaudo. |
-| 4.70-03 | Non provato | | Attendere il collaudo. |
-| 4.70-04 | Non provato | | Attendere il collaudo. |
-| 4.80-01 | Non provato | | Attendere il collaudo. |
+| 4.81-01 | Non provato | | Attendere il collaudo. |
+| 4.81-02 | Non provato | | Attendere il collaudo. |
+| 4.90-01 | Non provato | | Attendere il collaudo. |
+| 4.90-02 | Non provato | | Attendere il collaudo. |
+| 4.90-03 | Non provato | | Attendere il collaudo. |
+| 4.90-04 | Non provato | | Attendere il collaudo. |
+| 4.90-05 | Non provato | | Attendere il collaudo. |
+| 4.90-06 | Non provato | | Attendere il collaudo. |
 
-## 1. Il menu della pressione lunga su un elemento
+## 1. La forma dell'area sfocata
 
-Nel modulo Disegno disegna due rettangoli che si sovrappongono un poco. Tieni il dito fermo sul secondo: l'elemento risulta scelto, coi punti color accento, e si apre un menu di sei icone con la parola, come quello della pressione lunga sull'immagine nel visualizzatore ma senza la parte sopra. Nella prima riga `Sposta sopra`, `Copia`, `Duplica`; nella seconda `Sposta sotto`, `Ruota`, `Elimina`. Il secondo rettangolo è già in cima, quindi `Sposta sopra` è spento.
+Nel modulo Disegno, col rettangolo come strumento, accendi `Sfocatura` e disegna un rettangolo su una zona con dettagli: l'area sfocata ha esattamente la forma del rettangolo, con gli angoli stondati. Scegli il rettangolo, tieni premuto, tocca `Ruota` e giralo di una trentina di gradi: l'area resta un rettangolo stondato girato, senza parallelogrammi e senza angoli staccati. Prova anche un'ellisse, dritta e girata.
 
-Tocca `Sposta sotto`: il rettangolo passa sotto il primo, e riaprendo il menu `Sposta sopra` è acceso e `Sposta sotto` spento. Tocca `Duplica`: compare una copia appena scostata in basso a destra, sopra l'originale, e risulta scelta. `Elimina` toglie l'elemento scelto, e `Annulla` lo rimette. Tenendo premuto un punto vuoto non si apre niente: dopo l'attesa il dito disegna come prima.
+Nella 4.80 il rettangolo girato diventava un parallelogramma con due angoli stondati staccati: la causa era il contorno con cui l'area si ritaglia, che in due angoli girava al contrario.
 
-Letture mie, da confermare: l'ordine delle icone è quello della tua nota letto per righe; le parole sotto le icone seguono l'impostazione dei riquadri, come nel visualizzatore; la copia di `Duplica` è scostata del 3% del lato lungo dell'immagine; `Sposta sopra` e `Sposta sotto` scambiano l'elemento col vicino, un gradino per volta.
+## 2. Un tocco sull'elemento scelto alterna `Trasforma` e `Ruota`
 
-## 2. `Copia` e `Incolla` dello stile
+Disegna un rettangolo e toccalo: è scelto, coi punti pieni. Toccalo di nuovo: i punti diventano vuoti, e trascinandone uno l'elemento gira. Un terzo tocco riporta i punti pieni. Il tasto del menu della pressione lunga resta, e dice la modalità a cui porta.
 
-Disegna un rettangolo blu, spesso e tratteggiato, e un'ellisse rossa senza tratteggio. Tieni premuto il rettangolo e tocca `Copia`. Tieni premuta l'ellisse: dove c'era `Copia` adesso c'è `Incolla`. Toccalo: l'ellisse prende colore, luminosità, opacità e spessore della linea, il tratteggio e il riempimento del rettangolo, e tiene forma, posizione e rotazione. Un `Annulla` toglie lo stile incollato.
+## 3. Le guide verso gli altri elementi
 
-Disegna una freccia e incollale lo stesso stile: prende la linea e non il riempimento, che una freccia non ha. Poi tieni premuto `Incolla`: compare l'avviso `Stile in memoria eliminato.`, e riaprendo il menu c'è di nuovo `Copia`.
+Disegna un rettangolo. Disegnane un secondo accanto, e mentre lo disegni avvicina il suo lato sinistro al lato sinistro del primo: entro circa 2 mm si posa sullo stesso allineamento, e una guida color accento va da un elemento all'altro lungo il lato comune. Lo stesso vale per i centri e per gli estremi (il lato di sopra di uno sul lato di sotto dell'altro), in orizzontale e in verticale.
 
-Letture mie: lo stile resta in memoria finché l'editor è aperto, e si incolla su quanti elementi vuoi; fra rettangoli ed ellissi passa anche la Sfocatura (prova 5).
+Sposta il secondo rettangolo vicino al primo: si allinea allo stesso modo, coi lati e col centro. Scegli un rettangolo, tira una maniglia verso il lato di un altro elemento: il lato tirato si ferma su di lui. Prova anche con una linea, una freccia e un testo.
 
-## 3. Le maniglie per ridimensionare
+Letture mie: la distanza è quella delle guide sul bordo dell'immagine, 12 dp; a parità di distanza vince il bordo dell'immagine; un rettangolo o un'ellisse girati, tirati per una maniglia, non si appoggiano, perché il loro riquadro non segue la maniglia.
 
-Scegli un rettangolo con un tocco: ha otto punti color accento, i quattro vertici e il mezzo di ogni lato. Trascina un vertice: si muovono i due lati che ci arrivano, e il vertice opposto resta fermo. Trascina il mezzo di un lato: si muove solo quel lato. Un punto si prende entro circa 16 dp; più in là il dito sposta l'elemento, come prima.
+## 4. Lo strumento Testo
 
-Prova anche l'ellisse e la mano libera, che si stira col suo riquadro e, trascinata oltre il lato opposto, si specchia. Su una linea e su una freccia i punti sono i due capi: trascinandone uno, vicino all'orizzontale o alla verticale si aggancia, con la guida, come quando la disegni.
+Nel modulo Disegno tocca il sesto strumento, `Testo`. Sotto compaiono i suoi sette tasti, e i tondi dei colori scelgono il colore delle parole, bianco di fabbrica. Tocca un punto vuoto dell'immagine: si apre una finestra in cui scrivi, con la tastiera; `Applica` resta spento finché non c'è una lettera. Scrivi due righe, con Invio fra le due, e tocca `Applica`: il testo compare centrato dove avevi toccato, già scelto.
 
-Letture mie: i punti a metà dei lati sono un'aggiunta, per allungare lungo un asse solo; tirando un punto l'elemento non si appoggia ai bordi dell'immagine, come fa invece disegnando e spostando. Se lo vuoi anche lì, scrivilo.
+Tocca `Modifica testo`: la finestra si riapre con le parole, e cambiandole il testo resta dov'era. Trascinare il dito con `Testo` non disegna niente. Sposta il testo, giralo con un tocco su di lui o col menu, copialo e incollane lo stile su un altro testo: tutto come per gli altri elementi.
 
-## 4. `Ruota` e `Trasforma`
+Scrivi una frase lunga su una riga sola, sceglila e tira verso sinistra il punto a metà del lato destro: il lato sinistro resta fermo, il testo si stringe e le parole vanno a capo da sole. Tirando il punto a metà del lato sinistro succede lo stesso dall'altra parte. Poi tira un angolo: il testo ingrandisce tutto, e le righe restano le stesse.
 
-Scegli un rettangolo, tieni premuto e tocca `Ruota`: i punti diventano vuoti. Trascina un punto qualunque attorno all'elemento: gira attorno al suo centro, liberamente, e vicino a 0, 45 e 90 gradi, e ai loro multipli, si aggancia. Trascinando l'elemento lo sposti anche in questa modalità.
+Letture mie: la finestra è modale, come `Rinomina`, perché raccoglie un testo; un testo nuovo nasce largo quanto la sua riga più lunga, quindi va a capo da solo solo dopo che ne hai stretto un lato; i punti a metà dei lati di sopra e di sotto ingrandiscono, come gli angoli; la larghezza è del testo, quindi incollandogli lo stile di un altro testo non cambia.
 
-Riapri il menu: dove c'era `Ruota` adesso c'è `Trasforma`, che riporta i punti pieni. Tirando un vertice, il rettangolo girato si allarga lungo i suoi lati e non lungo quelli dell'immagine. Prova anche una freccia e una mano libera. Scegliendo un altro elemento si riparte da `Trasforma`.
+## 5. Caratteri, stili, allineamento e dimensione
 
-Letture mie: l'aggancio ai multipli di 45 gradi scatta entro 5 gradi, come quello delle linee all'orizzontale; la modalità torna `Trasforma` quando cambia l'elemento scelto.
+Con un testo scelto tocca `Carattere`: a ogni tocco passa al carattere dopo, Roboto, Montserrat, Archivo Narrow e Literata, e il tasto mostra il suo 'Aa' in quel carattere. `Grassetto`, `Corsivo` e `Barrato` si accendono e si spengono e si combinano fra loro. Scrivi un testo su due righe di lunghezza diversa e tocca l'ultimo tasto, `Allineamento`: le righe passano a destra, poi a sinistra, poi tornano al centro, e il tasto mostra dove sono. Sposta il cursore `Dimensione`: va dall'1% al 20% del lato lungo dell'immagine, 5% di fabbrica. Salva una copia, tenendo premuto `Salva`, e apri il file: caratteri, stili e allineamento sono quelli dell'editor.
 
-## 5. Lo strumento Sfocatura
+Letture mie: `Carattere` e `Allineamento` vanno a giro, perché pochi valori si scorrono bene con un tocco, e l'allineamento parte dal centro, com'era prima; il testo ha colore e dimensione suoi, distinti da quelli della linea, così dopo un rettangolo rosso non scrivi in rosso.
 
-Nel modulo Disegno, con il rettangolo come strumento, tocca il quinto tasto, `Sfocatura`. Si accende, e si spengono Tratteggio, Traccia, Spessore, Riempimento e i tondi dei colori; sotto, il cursore diventa `Sfocatura`. Disegna un rettangolo su una zona con dettagli, per esempio una scritta: dentro diventa sfocata, senza linea e senza riempimento. Sposta il cursore: va dallo 0,5 al 25% del lato maggiore dell'elemento.
+## 6. Il fondo: `Evidenziato` ed `Etichetta`
 
-Disegna sopra una freccia: resta nitida, perché la sfocatura è sotto tutti gli elementi. Cambia la Luce o il Colore, raddrizza l'immagine o ritagliala: l'area sfocata segue l'immagine e ne prende i colori. Ingrandisci con due dita sull'area: resta sfocata anche da vicino. Salva una copia, tenendo premuto `Salva`, e apri il file: l'area è sfocata come nell'editor.
+Con un testo bianco scelto tocca `Fondo`: passa a `Evidenziato`, il testo ha dietro una fascia gialla per riga e le parole diventano nere. Toccalo ancora: passa a `Etichetta`, una striscia viola stondata per riga, che si fondono in una forma sola con un'ombra morbida sotto, e le parole tornano bianche. Un terzo tocco toglie il fondo.
 
-Scegli il rettangolo sfocato e spegni il tasto: torna un rettangolo con la sua linea e il suo riempimento. Con linea, freccia e mano libera il tasto è spento.
+Con un fondo acceso, sotto il cursore compare la fila dei suoi sei colori: si offrono solo quelli che staccano dall'immagine sotto il testo e lasciano leggibili le parole, gli altri sono sbiaditi e non si scelgono. Su una pagina bianca, con `Evidenziato`, il bianco è spento e il giallo no. Scrivi un testo con `Etichetta` in ciascuno dei quattro caratteri, Literata compresa: la riga è al centro della striscia in tutti e quattro.
 
-Letture mie: il tasto è nella quinta colonna, dove dalla 4.60 alla 4.70 c'era `Elimina`, che adesso è nel menu della pressione lunga; di fabbrica la sfocatura vale il 10%; con la Sfocatura accesa i comandi della linea e del riempimento sono spenti, non nascosti.
+Letture mie: le parole bianche o nere prendono, cambiando fondo, quella delle due che si legge meglio sul fondo nuovo, mentre un colore diverso resta, se si legge; un fondo stacca dall'immagine per distanza dei colori, che conta anche la tinta, e le parole si leggono per contrasto di luminosità, quindi il giallo su una pagina bianca si offre; la centratura della riga sulla striscia è una regola per tutti e quattro i caratteri, la metà della H sopra la linea di base, invece di una correzione per la sola Literata (la causa è nelle metriche di Literata, che dichiara un'ascesa di 1177 unità per maiuscole di 700).
 
-Mentre disegni, sposti o ridimensioni un rettangolo sfocato, l'anteprima rifà la sfocatura a ogni movimento del dito: se l'elemento resta indietro rispetto al dito, scrivilo, e lo alleggerisco.
+## 7. Lo strumento Pillola
+
+Tocca il settimo strumento, `Pillola`: i tondi dei colori, il cursore `Dimensione` e `Fondo` sono spenti, perché la pillola ha il suo aspetto fisso. Trascina il dito: disegni la pillola come un rettangolo, con gli stessi appoggi ai bordi e agli altri elementi; alzando il dito si apre la finestra delle parole. Scrivi una frase lunga e tocca `Applica`: le parole sono bianche, vanno a capo da sole e prendono la misura più grande che la pillola contiene. Tira una maniglia: le parole si riadattano. Tocca `Allineamento`: le righe passano a destra e a sinistra anche qui.
+
+Tocca un punto vuoto con `Pillola`: dopo le parole compare una pillola che le contiene, alla dimensione scelta per il testo. Controlla l'aspetto su una zona chiara e su una scura: riempimento rosso traslucido, una traccia chiara dentro e una scura sul bordo, e sotto l'immagine sfocata come un vetro.
+
+Letture mie: la Pillola è uno strumento a sé, il settimo, perché la chiami strumento; le due tracce sono dentro il riquadro disegnato, così la pillola si appoggia come un rettangolo; i 12 px di sfocatura sono il 2,2% del lato maggiore della pillola, cioè 12 px su una pillola larga mezzo telefono, così l'anteprima e il file sfocano allo stesso modo; il minimo di leggibilità è il 2% del lato lungo dell'immagine, e parole che non ci stanno nemmeno al minimo allungano la pillola verso il basso, invece di sparire tagliate; carattere, stili e allineamento si cambiano coi tasti del testo, e `Annulla` nella finestra lascia la pillola vuota.
+
+## 8. Le sfumature senza bande
+
+Col tema scuro apri una cartella con fotografie scure e lisce in fondo allo schermo (un cielo di sera, un muro in ombra) e guarda la sfumatura che sale dal fondo sopra il menu: deve passare dal fondo alla fotografia senza gradini, anche da vicino. Poi tieni premuta una miniatura per scegliere più immagini, scorri fino a fotografie chiare e guarda l'ombra che scende sulla griglia sopra la scheda della selezione: nemmeno lì devono vedersi bande. Guarda anche il gradiente dell'intestazione di una cartella col colore, come prima.
+
+Fino alla 4.81 le due fasce in fondo allo schermo e l'ombra della selezione si dipingevano senza il rumore che toglie le bande, che aveva solo l'intestazione: avevo calcolato che non servisse, e il conto era sbagliato, perché sopra una fotografia i gradini dipendono dalla differenza fra il fondo e la fotografia. Adesso tutte e quattro passano dallo stesso rimedio. Se vedi ancora bande, allega una schermata: dai pixel si capisce se il rumore arriva allo schermo.
 
 ## Etichette testuali
 
-### e-look_draw · Il modulo Disegno e i suoi strumenti
-Disegno · Mano libera · Linea · Freccia · Rettangolo · Ellisse
-<!-- chiavi: look_draw draw_free draw_line draw_arrow draw_rect draw_ellipse -->
-<!-- Il nome del gettone del modulo e i cinque strumenti, che il lettore di schermo legge sui tasti. -->
+### e-draw_text · Gli strumenti Testo e Pillola
+Testo · Pillola
+<!-- chiavi: draw_text draw_pill -->
+<!-- I nomi che il lettore di schermo legge sui due strumenti nuovi, e il titolo della finestra delle parole. -->
 
-### e-draw_outline · I tasti e i comandi del Disegno
-Tratteggio · Traccia · Spessore · Riempimento · Sfocatura · Luminosità · Elimina tutto
-<!-- chiavi: draw_dashed draw_outline draw_width draw_filled draw_blur draw_light draw_clear -->
+### e-draw_face · I tasti del testo
+Carattere · Grassetto · Corsivo · Barrato · Fondo · Modifica testo · Allineamento
+<!-- chiavi: draw_face draw_bold draw_italic draw_strike draw_ground draw_text_edit draw_align -->
 
-### e-ink_red · I colori della tavolozza
-Rosso · Ambra · Verde · Blu · Viola · Rosa · Bianco · Grigio · Nero
-<!-- chiavi: ink_red ink_amber ink_green ink_blue ink_violet ink_pink ink_white ink_grey ink_black -->
-<!-- I nomi che il lettore di schermo legge sui tondi. -->
+### e-draw_center · Dove sono le righe
+Sinistra · Centro · Destra
+<!-- chiavi: draw_center -->
+<!-- Il lettore di schermo legge 'Allineamento: Centro'. Sinistra e Destra sono le parole del lato preferito nelle impostazioni, già approvate. -->
 
-### e-draw_raise · Il menu della pressione lunga su un elemento
-Sposta sopra · Copia · Incolla · Sposta sotto · Ruota · Trasforma. Tenendo premuto `Incolla`, il lettore di schermo dice: Elimina lo stile in memoria. L'avviso: Stile in memoria eliminato.
-<!-- chiavi: draw_raise draw_copy draw_paste draw_lower draw_rotate draw_transform draw_paste_clear draw_style_cleared -->
+### e-draw_highlight · I due fondi del testo
+Evidenziato · Etichetta
+<!-- chiavi: draw_highlight draw_label -->
+<!-- `Etichetta` è il nome dello stile che hai scelto (N1). -->
 
-### e-hint_draw · Il velo d'aiuto del Disegno
-Con il modulo Disegno puoi aggiungere all'immagine linee, frecce, ellissi, rettangoli arrotondati, testi semplici e riquadri 'pillola'. Il salvataggio appiattisce l'immagine: non è possibile riaprirla per modificare o spostare gli elementi. Premi a lungo su un colore per regolare la sua luminosità.
-
-### e-settings_auto · I tre temi
-Automatico · Chiaro · Scuro
-<!-- chiavi: settings_auto settings_light settings_dark -->
-<!-- Fino alla 4.00 erano al femminile: Automatica, Chiara, Scura. -->
-
-### e-settings_main_control · L'elemento interattivo principale
-Elemento interattivo principale. Scegli come vuoi interagire con l'app quando tieni lo smartphone in verticale: puoi scegliere tra pulsante fluttuante ('FAB') con menu, pillola con icone, menu e menu 'Start'. Le scelte: Tasto fluttuante · Pillola di icone · Menu basso · Menu 'Start'. L'opzione del menu basso: Fisso.
-<!-- chiavi: settings_main_control settings_main_control_desc main_control_fab main_control_pill main_control_bar main_control_corner bar_fixed -->
-
-### e-settings_button_look · L'aspetto dei pulsanti principali
-Aspetto dei pulsanti principali. Riempimento ed effetti di trasparenza/sfocatura applicati al pulsante fluttuante, alla pillola di icone e ai menu. Le scelte: A scomparsa · Solido · Trasparente · Traslucido.
-<!-- chiavi: settings_button_look settings_button_look_desc pill_slide pill_solid pill_translucent pill_glass -->
-<!-- Fino alla 4.00 le scelte erano: A scorrimento, Tinta unita, Semitrasparente, Vetro satinato. -->
-
-### e-glass_radius · I cursori del vetro
-Raggio · Intensità · Opacità · Scostamento · Colore chiaro · Colore scuro · Predefinito · Ripristina
-<!-- chiavi: glass_radius glass_intensity glass_tint glass_light glass_colour_light glass_colour_dark glass_default glass_reset -->
-
-### e-start_pill · Il menu 'Start'
-Il tasto a riposo: Pillola a riposo · Tondo a riposo. Nel menu: Pillola · Tondo · Griglia · Lista · Cartelle · Mostra · Nascondi · Apri URL · Crea · Apri · Ripristina · Svuota
-<!-- chiavi: corner_rest_pill corner_rest_round start_pill start_round start_grid start_list start_tree start_show start_hide start_url start_new start_pick start_restore start_empty -->
-
-### e-corner_hint · Il velo d'aiuto del menu 'Start'
-Tocca il tasto nell'angolo per accedere al menu: contiene tutti i comandi principali; tienilo premuto per le opzioni di visualizzazione. Dalle impostazioni, se vuoi, puoi cambiare il lato del pulsante.
-
-### e-bin_empty_hint · Le due scorciatoie del pulsante
-Scorciatoia: tieni premuto il pulsante per svuotare il cestino. · Scorciatoia: tieni premuto il pulsante per le opzioni di visualizzazione.
-<!-- chiavi: bin_empty_hint columns_hint -->
-<!-- Fino alla 4.00 dicevano 'il tasto flottante' al posto di 'il pulsante'. -->
-
-### e-settings_page_look · Il titolo della pagina dell'aspetto
-Tema e dettagli grafici
-<!-- Fino alla 4.00: Tema e pannelli. -->
-
-### e-edit_no_file · Un file che non è sul telefono
-Questo file non è sul telefono
-<!-- Correzione proposta dall'agente: prima diceva `non sta sul telefono`, che usa 'stare' per dire dove una cosa si trova. -->
+### e-draw_size · Il cursore del testo
+Dimensione
 
 ## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Il menu della pressione lunga, `Copia` e `Incolla`, le maniglie e `Ruota` | 4.70-01, 4.70-02, 4.70-03, 4.70-04 | Non provato | | Attendere il collaudo. |
-| Lo strumento Sfocatura | 4.80-01 | Non provato | | Attendere il collaudo. |
-| `Elimina tutto`, e la pressione lunga sul Disegno | 4.64-01 | OK | | Concluso. |
-| Le linee dei terzi di `Raddrizza` | 4.64-02 | OK | | Concluso. |
-| Le dieci domande del brief | da 4.64-03 a 4.64-12 | Risposte | `Copia` copia lo stile e `Ruota` è una modalità libera; stili di casa dopo il Disegno; snellimento dei file di regole e Play Store dopo; nel DF solo le voci di AIV | Fatte nella 4.70 (prove `4.70-01`, `4.70-04`); il resto è nel brief. |
+| La forma della Sfocatura e il tocco che alterna `Trasforma` e `Ruota` | 4.81-01, 4.81-02 | Non provato | | Attendere il collaudo. |
+| Guide, Testo, caratteri, fondi, Pillola e sfumature | da 4.90-01 a 4.90-06 | Non provato | | Attendere il collaudo. |
+| Il menu della pressione lunga, `Copia` e `Incolla`, le maniglie e `Ruota` | 4.70-01, 4.70-02, 4.70-03, 4.70-04 | OK | Un tocco sull'elemento scelto alterna `Trasforma` e `Ruota` | Fatto nella 4.81 (prova `4.81-02`). |
+| Lo strumento Sfocatura | 4.80-01 | Non approvato | Il rettangolo sfocato diventava un parallelogramma | Corretto nella 4.81 (prova `4.81-01`). |
 
 ## Prossimi passi
 
-- **In collaudo**: il menu della pressione lunga (`4.70-01`), `Copia` e `Incolla` dello stile (`4.70-02`), le maniglie (`4.70-03`), `Ruota` e `Trasforma` (`4.70-04`), lo strumento Sfocatura (`4.80-01`); le etichette testuali.
-- **Da scegliere**: caratteri, nome dello stile della striscia e peso nell'APK, nell'artefatto dei caratteri, con la risposta in chat.
-- **Dopo**: G3, il testo; la pillola; poi gli stili di casa con gli effetti e il file di uno stile solo; poi il Play Store, insieme allo snellimento dei file di regole.
-- **Concluso**: `Elimina tutto` e la pressione lunga sul Disegno (`4.64-01`), le linee dei terzi di `Raddrizza` (`4.64-02`).
+- **In collaudo**: la Sfocatura e il tocco sull'elemento scelto (`4.81-01`, `4.81-02`), le guide (`4.90-01`), il Testo con l'a capo (`4.90-02`), caratteri e allineamento (`4.90-03`), i fondi (`4.90-04`), la Pillola (`4.90-05`), le sfumature senza bande (`4.90-06`); le etichette testuali.
+- **Dopo**: gli stili, nella 4.95, con uno o due rilasci di assestamento; poi la 5.00.
+- **5.0x**: la scelta per il Play Store (AIV come gestore di file, o galleria col solo accesso a immagini e video), con lo snellimento dei file di regole.
