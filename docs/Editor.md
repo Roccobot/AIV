@@ -749,6 +749,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   riempimento, che copre l'intera forma.
 - **Sopra e sotto fra gli oggetti** (sua nota dello stesso giorno: *una versione semplificata di
   Z-index andrà gestita in qualche modo*): dalla `4.70`, nel menu della pressione lunga.
+- ⚠️⚠️ **Dalla `4.91` la Sfocatura di rettangoli ed ellissi non c'è più: è diventata lo strumento
+  `Pannello`** (voce più sotto). Quello che segue descrive la Sfocatura com'era dalla `4.80` alla
+  `4.90`; il conto e la forma dell'area valgono per il Pannello.
 - **Dalla `4.80` lo strumento Sfocatura** (sua specifica del giro della `4.43`: *una selezione
   tipo rettangolo arrotondato, che anziché riempire la propria area di un colore la sfoca. È una
   cosa che userei spesso per l'oscuramento di parti di immagini che voglio nascondere prima della
@@ -805,8 +808,9 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro
     dell'elemento;
   - **trascinare partendo dall'elemento scelto lo sposta**; partendo altrove si disegna come prima;
-  - **`Elimina`** è la quinta colonna dei tasti (fino alla `4.70`; dalla `4.80` vive nel menu della
-    pressione lunga), acceso solo con un elemento scelto; Annulla, Ripeti
+  - **`Elimina`** è la quinta colonna dei tasti (fino alla `4.70` e di nuovo dalla `4.91`, sua nota C
+    sul giro della `4.90`; dalla `4.80` alla `4.90` viveva solo nel menu della pressione lunga, dove
+    resta), acceso solo con un elemento scelto; Annulla, Ripeti
     e Originale tolgono la scelta, perché dopo di loro l'indice può essere di un altro elemento.
 - **Dalla `4.60` il tasto Tratteggio dice se è acceso** (sua risposta `B2` alla nota B sul giro
   della `4.49`): acceso, il tratteggio nel colore della traccia; spento, il grigio scuro sbiadito al
@@ -913,19 +917,29 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     variabile (400 il normale, 700 il grassetto); Roboto è quello di fabbrica. Le licenze, tutte SIL
     Open Font License, sono in `docs/fonts`. Si caricano una volta sola (`Faces`), dall'editor e dal
     salvataggio, perché il disegno si dipinge dove un contesto non c'è;
-  - **i sette tasti** sotto gli strumenti: `Carattere` passa al carattere dopo a ogni tocco e mostra
-    il suo 'Aa'; `Grassetto`, `Corsivo` e `Barrato` si accendono e si combinano; `Fondo` passa da
-    nessuno a `Evidenziato` e a `Etichetta`, che si escludono perché sono tutti e due un fondo;
-    `Modifica testo` riapre la finestra con le parole del testo scelto (lettura `A3`);
-    `Allineamento` passa dal centro, che è quello di fabbrica, a destra e a sinistra, e vale anche
-    per la pillola (sua `B2` del 2026-10-08, il tasto a giro è una lettura della sessione). La fila
-    delle forme ha sette colonne, e le ultime due restano vuote, così le cinque forme non cambiano
-    posto;
+  - **i sette tasti** sotto gli strumenti, in quest'ordine dalla `4.91`: `Carattere` passa al
+    carattere dopo a ogni tocco e mostra il suo 'Aa'; `Grassetto`, `Corsivo` e `Barrato` si
+    accendono e si combinano; `Sfondo` accende e spegne la striscia dell'etichetta; `Allineamento`
+    passa dal centro, che è quello di fabbrica, a destra e a sinistra, e vale anche per la pillola
+    (sua `B2` del 2026-10-08, il tasto a giro è una lettura della sessione); `Testo` riapre la
+    finestra con le parole del testo scelto (lettura `A3`), ed è l'ultimo (sua nota E sul giro della
+    `4.90`: *deve essere l'ultima icona a destra*). La fila ha otto colonne, come gli strumenti;
+    - ⚠️ **fino alla `4.90` `Sfondo` si chiamava `Fondo` e passava da nessuno a `Evidenziato` e a
+      `Etichetta`**, e `Testo` si chiamava `Modifica testo` e veniva prima di `Allineamento`.
+      L'evidenziatore è uscito con la `4.91` (sua nota su `4.90-04`: *'Etichetta' è talmente ben
+      fatta che 'Evidenziato' non serve più a niente, possiamo liberarcene!*), e i due nomi sono le
+      sue riscritture delle etichette;
   - **il colore delle parole** si sceglie coi tondi della tavolozza, bianco di fabbrica, con la sua
     luminosità; le parole sono sempre opache. **La dimensione** si regola col cursore `Dimensione`,
-    fra l'1% e il 20% del lato lungo e al 5% di fabbrica, e con le maniglie d'angolo e quelle a
+    fra l'1% e il 150% del lato lungo e al 5% di fabbrica, e con le maniglie d'angolo e quelle a
     metà dei lati di sopra e di sotto, che ingrandiscono e rimpiccioliscono il testo intero intorno
     al suo centro: un testo stirato su un asse sarebbe un carattere deformato (letture `A2` e `A4`).
+  - ⚠️⚠️ **il tetto è il 150% dalla `4.91`, e fino alla `4.90` era il 20%** (sua nota su `4.90-02`:
+    *voglio poter fare un testo grande come l'intera immagine e anche oltre*; il numero è della
+    sessione, dichiarato): una lettera più alta dell'immagine. Il cursore moltiplica il corpo per lo
+    stesso fattore a ogni tratto (`Draw.textTrack`), perché su una pista uniforme dall'1% al 150% i
+    corpi con cui si scrive (dal 2 al 10%) starebbero nel primo ventesimo, sotto la larghezza di un
+    dito; il corpo di fabbrica cade a un terzo della pista;
   - ⚠️⚠️ **le maniglie a metà dei lati sinistro e destro cambiano la larghezza, e le parole vanno a
     capo da sé, dalla `4.90`** (sua `B3` del 2026-10-08: *Aggiungo volentieri B2 e B3 sul testo*):
     il lato opposto resta fermo, e la larghezza non scende sotto un corpo. La larghezza è del testo,
@@ -933,22 +947,21 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     ingrandisce insieme al corpo, così le righe restano quelle (lettura della sessione, dichiarata
     nella voce di collaudo); Il testo ha colore e dimensione suoi, distinti da
     quelli della traccia, così dopo un rettangolo rosso non si scrive in rosso;
-  - **la fila dei fondi** compare sotto il cursore quando il fondo è acceso: sei colori per
-    l'etichetta, scuri perché reggono parole bianche, e sei per l'evidenziatore, chiari come un
-    evidenziatore, col suo di fabbrica in testa. Si offrono solo quelli che staccano dall'immagine
+  - **la fila delle strisce** compare sotto il cursore quando `Sfondo` è acceso: sei colori per
+    l'etichetta, scuri perché reggono parole bianche, col suo di fabbrica in testa (fino alla `4.90`
+    c'erano anche i sei chiari dell'evidenziatore). Si offrono solo quelli che staccano dall'immagine
     sotto il testo e tengono leggibili le parole; gli altri si vedono sbiaditi, così la fila non
     cambia lunghezza sotto il dito (letture `A5` e `A6`, `Draw.readable`);
     - ⚠️⚠️ **le due misure sono diverse, di proposito**: le parole si leggono per la luminosità,
       quindi contro il fondo vale il contrasto delle WCAG, almeno 3; il fondo stacca dall'immagine
       anche per la tinta, quindi contro l'immagine vale la distanza dei colori in CIELAB, almeno 20.
       Col contrasto su tutte e due, il giallo dell'evidenziatore (1,3 contro il bianco) non si
-      sarebbe offerto su una pagina bianca, che è il suo posto;
-  - **cambiando fondo, le parole bianche o nere prendono quella delle due che si legge meglio sul
-    fondo nuovo**, e le parole di un altro colore restano, se si leggono (lettura della sessione,
-    `Draw.wordsOn`): le parole di fabbrica sono bianche, che sulla striscia viola si leggono e sul
-    giallo dell'evidenziatore spariscono;
+      sarebbe offerto su una pagina bianca, che era il suo posto;
+  - **accendendo `Sfondo`, le parole bianche o nere prendono quella delle due che si legge meglio
+    sulla striscia**, e le parole di un altro colore restano, se si leggono (lettura della sessione,
+    `Draw.wordsOn`);
   - **l'etichetta** è una striscia stondata per riga, e le strisce si fondono in una forma sola, con
-    un'ombra morbida sotto, come nel suo esempio; l'evidenziatore è una fascia senza ombra;
+    un'ombra morbida sotto, come nel suo esempio;
   - ⚠️⚠️ **le righe si centrano sulla metà della H sopra la linea di base, per tutti e quattro i
     caratteri** (sua nota: *Literata ha una baseline stranamente bassa: credo sia l'unico font per
     il quale sarà necessario aggiustare la centratura verticale dell'etichetta*). La causa è nelle
@@ -970,9 +983,21 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     La pillola nasce scelta; `Annulla` nella finestra la lascia vuota;
   - **l'aspetto è fisso**: riempimento `#ccff4b3d`, due tracce dello 0,5% del lato maggiore, la chiara
     `#e6fffefa` dentro e la scura `#e6373737` sul bordo, e sotto il vetro, cioè l'immagine sfocata
-    (`Draw.blurAreas`, come la Sfocatura). Le parole sono bianche opache. Tavolozza e `Dimensione`
-    sono spenti, non nascosti, come con la Sfocatura; dei tasti del testo valgono `Carattere`,
-    `Grassetto`, `Corsivo`, `Barrato`, `Modifica testo` e `Allineamento`, e `Fondo` è spento;
+    (`Draw.blurAreas`, come il Pannello). Le parole sono bianche opache. `Dimensione` è spento, non
+    nascosto; dei tasti del testo valgono `Carattere`, `Grassetto`, `Corsivo`, `Barrato`,
+    `Allineamento` e `Testo`, e `Sfondo` è spento;
+  - ⚠️⚠️ **dalla `4.91` il colore si sceglie** (sua nota su `4.90-05`: *vorrei solo che i colori
+    rimanessero attivi e che si potesse selezionare il colore di sfondo della pillola, ma devo avere
+    a disposizione una palette diversa (proponi tu: tutti colori 'stravaganti', neon e ben visibili);
+    gli altri parametri come bordo, trasparenza, ecc. restano invariati*): i tondi restano accesi e
+    mostrano otto colori della pillola, il suo rosso per primo, poi arancio, rosa, magenta, indaco,
+    blu, verde acqua e verde (`Draw.PILL_INKS`), tutti all'opacità `cc` di sempre. Sono vivaci e non
+    chiari: ognuno tiene le parole bianche a un contrasto di almeno 3, quindi il giallo e il lime
+    fluo, che le nasconderebbero, sono fuori (scelta della sessione, dichiarata). Non hanno nome: il
+    lettore di schermo li dice `Sfondo 1`...`Sfondo 8`, e tenerli premuti non apre la luminosità.
+    Fino alla `4.90` la tavolozza era spenta;
+  - ⚠️⚠️ **dalla `4.91` il vetro si vede anche sul palco**: fino alla `4.90` l'anteprima metteva
+    sotto il vetro le sole forme sfocate, e la pillola lo aveva solo nel file salvato;
   - ⚠️ **le tracce sono dentro il riquadro**, così il riquadro disegnato è tutta la pillola e si
     appoggia come un rettangolo; le estremità sono tonde quanto possono, metà del lato corto;
   - **le parole vanno a capo da sé e prendono la misura più grande che il riquadro contiene**, fino a
@@ -984,9 +1009,48 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     fisso di pixel sfocherebbe in modo diverso l'anteprima e il file, e quasi niente su una foto
     grande;
   - **stile**: fra un testo e una pillola passano il carattere, i tre stili e l'allineamento, mai il
-    colore né il fondo; fra una pillola e una forma non passa niente;
+    colore né il fondo; fra due pillole anche il colore (dalla `4.91`); fra una pillola e una forma
+    non passa niente;
   - lettura della sessione, dichiarata nella voce di collaudo: la Pillola è uno strumento a sé, il
     settimo della fila, e non un quarto `Fondo` del testo, perché lui la chiama *strumento*.
+- **Dalla `4.91` il Pannello**, l'ottavo strumento, al posto della Sfocatura di rettangoli ed ellissi
+  (suo `Non approvato` su `4.81-01`: *Funziona in modo ECCELLENTE! Ma ho deciso un cambio di
+  paradigma: l'area sfocata non sarà più attributo di ogni forma, bensì uno strumento a parte. Si
+  chiamerà 'Pannello', ma nella pratica si tratta di un'altra pillola con uno stile diverso*):
+  - **si disegna e si scrive come la pillola**: un trascinamento disegna il riquadro e poi chiede le
+    parole, un tocco chiede le parole e posa un pannello che le contiene; le parole sono bianche,
+    vanno a capo da sé e prendono la misura più grande che il riquadro contiene, coi tasti del
+    testo (`Sfondo` spento) (*Supporto testo: esattamente come l'altra pillola*);
+  - **la forma** è un rettangolo con gli angoli stondati dello 0,3% del lato lungo del pannello
+    (*arrotondamento piccolissimo (0,3% del lato lungo)*; del pannello e non dell'immagine è una
+    lettura della sessione, dichiarata), senza tracce. Le parole stanno al 15% del lato corto dal
+    bordo, meno della pillola, che perde spazio nelle estremità tonde (scelta della sessione);
+  - **la sfocatura** è quella della Sfocatura, col suo cursore e i suoi numeri, dallo 0,5 al 25%
+    del lato maggiore del pannello e al 10% di fabbrica (*come adesso, con lo stesso slider, che
+    funziona benissimo*): il vetro si posa prima dello sviluppo, sul palco e nel file, e il pannello
+    si disegna sopra al suo posto fra gli altri elementi, come la pillola. Fino alla `4.90` l'area
+    sfocata era sotto tutti gli elementi; adesso un tocco prende il più in alto, come per gli altri;
+  - **il colore** si sceglie fra gli otto della pillola, sempre al 20%, oppure `Nessuno`, che è il
+    primo tondo ed è quello di fabbrica (*si applica sempre e solo al 20% di opacità e deve esserci
+    anche 'nessuna'*; nessuno di fabbrica è una lettura della sessione, dichiarata: il pannello è
+    prima di tutto una sfocatura);
+  - **stile**: fra due pannelli passano colore, sfocatura, carattere, stili e allineamento; fra un
+    pannello e una pillola o un testo il carattere, gli stili e l'allineamento; con una forma niente;
+  - ⚠️ **un rettangolo o un'ellisse sfocati con la `4.80`-`4.90` non esistono fuori dall'editor**: il
+    disegno vive finché l'editor è aperto, quindi non c'è niente da convertire.
+- **Dalla `4.91` lo spostamento si centra sull'immagine** (sua nota A sul giro della `4.90`: *devono
+  apparire anche delle guide per la centratura (che faccia fare uno scatto allo spostamento di un
+  elemento quando è al centro verticale/orizzontale/entrambi dell'intera immagine)*): spostando un
+  elemento, il suo centro entro i soliti 12 dp va sul centro dell'immagine, su un asse o su tutti e
+  due, e una guida color accento attraversa l'immagine lungo quel centro. Vale solo per il centro
+  dell'elemento e solo spostandolo: un lato che si ferma a metà dell'immagine, o un elemento che si
+  disegna a partire da lì, sarebbero scatti che non ha chiesto (lettura della sessione, dichiarata;
+  `Draw.rest` con `centred`, `Draw.lines` con la cornice).
+- **Dalla `4.91` i glifi degli strumenti sono più grandi** (sua nota B sul giro della `4.90`: *le
+  icone degli strumenti della prima fila sono diventate troppo piccole ... e hanno tutto lo spazio
+  per essere ingrandite*): gli strumenti sono tasti come quelli sotto, col glifo di 28 dp in un
+  tasto alto 32. Fino alla `4.90` erano i gettoni di Material, che tengono 8 dp per lato attorno
+  all'etichetta, quindi il glifo aveva al più 24 dp, e meno con otto strumenti.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

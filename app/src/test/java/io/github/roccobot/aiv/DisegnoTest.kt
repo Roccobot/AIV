@@ -15,6 +15,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -1227,14 +1228,14 @@ class DisegnoTest {
      * spazio*). Il conto: a ogni larghezza i trattini chiudono sul bordo, col ritmo del suo mockup
      * (10 e 6). Il disegno: sul tasto spento, che non ha il bordo pieno, i due capi della banda
      * sono pieni.
-     * ⚠️ Lo schermo di 495 dp perché là il tasto è largo circa 61 dp, e col tratteggio fisso la
-     * banda finirebbe a metà di uno spazio. Fino alla `4.81` era di 441 dp, coi tasti larghi 77:
-     * dalla `4.90` la fila ha sette colonne, e a 441 il tratteggio fisso finiva per caso su un
-     * trattino.
+     * ⚠️ Lo schermo di 441 dp perché là il tasto è largo circa 46 dp, e col tratteggio fisso la
+     * banda finirebbe a metà di uno spazio. Fino alla `4.81` era di 441 dp, coi tasti larghi 77;
+     * nella `4.90`, con sette colonne, di 495 dp, coi tasti larghi 61; dalla `4.91` le colonne sono
+     * otto, e a 495 il tratteggio fisso finiva per caso su un trattino.
      * ⚠️⚠️ **CONTROPROVATA** rimettendo il tratteggio fisso: a destra la banda finisce nel vuoto.
      */
     @Test
-    @Config(qualifiers = "w495dp-h891dp")
+    @Config(qualifiers = "w441dp-h891dp")
     fun `il tratteggio del tasto comincia e finisce con un trattino`() {
         for (w in listOf(40f, 52.8f, 71f, 100f, 213f)) {
             val (t, v) = keyDashes(w, 10f, 6f)
@@ -1370,6 +1371,34 @@ class DisegnoTest {
             listOf(Offset(300f, 300f) to Offset(300f, 600f)), guide)
         assertEquals("senza niente in comune, nessuna guida", emptyList<Pair<Offset, Offset>>(),
             Draw.lines(box(320f, 500f, 380f, 600f), listOf(altro)))
+    }
+
+    /**
+     * **Spostato, un elemento si centra sull'immagine** (`4.91`, sua nota A sul giro della `4.90`:
+     * *devono apparire anche delle guide per la centratura (che faccia fare uno scatto allo
+     * spostamento di un elemento quando è al centro verticale/orizzontale/entrambi dell'intera
+     * immagine)*): il centro dell'elemento entro la portata va sul centro dell'immagine, su un asse o
+     * su tutti e due, con la guida che attraversa l'immagine; un elemento che si disegna non ci va, e
+     * nemmeno un lato.
+     * ⚠️⚠️ **CONTROPROVATA**: senza il centro dell'immagine fra i bersagli di `Draw.rest` i due scatti
+     * non avvengono, e senza la guida in `Draw.lines` la guida manca.
+     */
+    @Test
+    fun `spostato un elemento si centra sull'immagine`() {
+        val cornice = androidx.compose.ui.geometry.Rect(0f, 0f, 1000f, 800f)
+        fun box(l: Float, t: Float, r: Float, b: Float) = androidx.compose.ui.geometry.Rect(l, t, r, b)
+        assertEquals("il centro va sul centro orizzontale", Offset(-7f, 0f),
+            Draw.rest(box(457f, 100f, 557f, 200f), cornice, 12f, centred = true).first)
+        assertEquals("e su tutti e due", Offset(5f, -4f),
+            Draw.rest(box(445f, 354f, 545f, 454f), cornice, 12f, centred = true).first)
+        assertEquals("un elemento che si disegna non ci va", Offset.Zero,
+            Draw.rest(box(457f, 100f, 557f, 200f), cornice, 12f).first)
+        assertEquals("un lato non si ferma sul centro", Offset.Zero,
+            Draw.rest(box(505f, 100f, 700f, 200f), cornice, 12f, setOf(ImageEdge.LEFT), centred = true).first)
+        assertEquals("la guida attraversa l'immagine", listOf(Offset(500f, 0f) to Offset(500f, 800f)),
+            Draw.lines(box(450f, 100f, 550f, 200f), emptyList(), cornice))
+        assertEquals("centrato su tutti e due, due guide", 2, Draw.lines(box(450f, 350f, 550f, 450f), emptyList(), cornice).size)
+        assertEquals("fuori centro nessuna", emptyList<Pair<Offset, Offset>>(), Draw.lines(box(460f, 100f, 550f, 200f), emptyList(), cornice))
     }
 
     /**
@@ -1793,86 +1822,103 @@ class DisegnoTest {
     }
 
     /**
-     * **Il conto della Sfocatura** (`4.80`, sua specifica: *una selezione tipo rettangolo
-     * arrotondato, che anziché riempire la propria area di un colore la sfoca*): l'area dentro
-     * l'elemento diventa grigia su un'immagine a righe e fuori resta com'è; l'elemento non si
-     * disegna; il pezzo letto a piena risoluzione sfoca come l'immagine intera; un tocco prende
-     * prima gli altri elementi, perché la sfocatura è sotto tutti; lo stile la porta fra due
-     * forme chiuse.
-     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la posa dell'area sfocata in `Draw.blurAreas` (il
-     * centro resta nero o bianco), e senza il salto dell'elemento sfocato in `Draw.paint`
-     * (l'elemento si disegna sopra).
+     * **Il conto del Pannello** (`4.91`, il suo `Non approvato` su `4.81-01`: *l'area sfocata non
+     * sarà più attributo di ogni forma, bensì uno strumento a parte. Si chiamerà 'Pannello'*):
+     * l'area dentro il pannello diventa grigia su un'immagine a righe e fuori resta com'è; senza
+     * colore il pannello non dipinge niente sopra il vetro, col colore lo stende al 20%; il pezzo
+     * letto a piena risoluzione sfoca come l'immagine intera; un tocco prende l'elemento più in alto
+     * e il pannello anche dove non ha colore; lo stile porta colore e sfocatura fra due pannelli e
+     * non a un rettangolo; un rettangolo con una sfocatura, come quelli della `4.80`, non sfoca più.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza il pannello fra gli elementi che stendono il vetro
+     * (`Mark.glass`: il centro resta nero o bianco), e col rettangolo ancora fra quelli (l'immagine
+     * sotto il rettangolo si sfoca).
+     */
+    /**
+     * **I colori della pillola tengono leggibili le parole bianche** (`4.91`, sua nota su `4.90-05`:
+     * *tutti colori 'stravaganti', neon e ben visibili*): otto, il suo rosso per primo, ognuno con un
+     * contrasto di almeno 3 contro il bianco delle parole.
+     * ⚠️⚠️ **CONTROPROVATA**: con un giallo neon (`#FFFF00`) fra i colori la prova cade.
      */
     @Test
-    fun `il conto della sfocatura`() {
+    fun `i colori della pillola tengono leggibili le parole`() {
+        assertEquals(8, Draw.PILL_INKS.size)
+        assertEquals("il primo è il suo rosso", Draw.PILL_FILL or 0xFF000000.toInt(), Draw.PILL_INKS.first())
+        for (ink in Draw.PILL_INKS) {
+            val contrasto = androidx.core.graphics.ColorUtils.calculateContrast(Draw.PILL_WORDS, ink)
+            assertTrue("sul colore ${Integer.toHexString(ink)} le parole bianche dovevano leggersi ($contrasto)", contrasto >= Draw.WORDS_CONTRAST)
+        }
+        assertEquals("i colori sono tutti diversi", 8, Draw.PILL_INKS.toSet().size)
+    }
+
+    @Test
+    fun `il conto del pannello`() {
         val w = 200
         val h = 100
         fun righe(): Bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).apply {
             for (x in 0 until w) for (y in 0 until h) setPixel(x, y, if ((x / 2) % 2 == 0) Color.BLACK else Color.WHITE)
         }
-        val sfoca = Mark(Pen.RECT, listOf(Offset(0.25f, 0.25f), Offset(0.75f, 0.75f)), Color.RED, 0.01f, false, Color.GREEN, blur = 0.1f)
-        val dentro = Draw.blurAreas(righe(), Drawing(listOf(sfoca)), mine = true)
+        val pannello = Mark(Pen.PANEL, listOf(Offset(0.25f, 0.25f), Offset(0.75f, 0.75f)), Draw.PILL_WORDS, 0f, false, null,
+            blur = 0.1f, words = Words(""))
+        val dentro = Draw.blurAreas(righe(), Drawing(listOf(pannello)), mine = true)
         fun grigio(c: Int) = Color.red(c) in 80..175
-        assertTrue("al centro dell'elemento l'immagine doveva diventare grigia", grigio(dentro.getPixel(100, 50)))
+        assertTrue("al centro del pannello l'immagine doveva diventare grigia", grigio(dentro.getPixel(100, 50)))
         assertTrue("e accanto anche", grigio(dentro.getPixel(101, 50)))
-        assertEquals("fuori dall'elemento l'immagine doveva restare com'era", righe().getPixel(10, 10), dentro.getPixel(10, 10))
-        val sopra = Draw.overlay(Drawing(listOf(sfoca)), w, h, Spin(0, false))!!
-        assertEquals("l'elemento sfocato non si disegna", 0, sopra.getPixel(100, 50))
-        assertEquals("né sul bordo", 0, sopra.getPixel(50, 50))
+        assertEquals("fuori dal pannello l'immagine doveva restare com'era", righe().getPixel(10, 10), dentro.getPixel(10, 10))
+        val nudo = Draw.overlay(Drawing(listOf(pannello)), w, h, Spin(0, false))!!
+        assertEquals("senza colore il pannello non dipinge niente", 0, nudo.getPixel(100, 50))
+        val rosso = pannello.copy(fill = Draw.panelFill(Draw.PILL_INKS.first()))
+        val tinto = Draw.overlay(Drawing(listOf(rosso)), w, h, Spin(0, false))!!
+        assertEquals("col colore lo stende al 20%", 0x33.toFloat(), Color.alpha(tinto.getPixel(100, 50)).toFloat(), 1f)
         val niente = righe()
-        assertSame("senza elementi sfocati l'immagine resta la stessa", niente,
-            Draw.blurAreas(niente, Drawing(listOf(sfoca.copy(blur = null))), mine = true))
+        // ⚠️ `mine = false`: senza elementi da sfocare torna la stessa immagine, con uno la copia.
+        assertSame("senza sfocatura l'immagine resta la stessa", niente,
+            Draw.blurAreas(niente, Drawing(listOf(pannello.copy(blur = null))), mine = false))
+        val rettangolo = Mark(Pen.RECT, listOf(Offset(0.25f, 0.25f), Offset(0.75f, 0.75f)), Color.RED, 0.01f, false, null, blur = 0.1f)
+        assertSame("un rettangolo non sfoca più", niente, Draw.blurAreas(niente, Drawing(listOf(rettangolo)), mine = false))
 
         // ⚠️ Il pezzo del centro letto a parte, come fa il palco ingrandito: lo stesso grigio.
         val pezzo = android.graphics.RectF(0.4f, 0.3f, 0.6f, 0.7f)
         val ritaglio = Bitmap.createBitmap(righe(), 80, 30, 40, 40)
-        val pezzoSfocato = Draw.blurAreas(ritaglio.copy(Bitmap.Config.ARGB_8888, true), Drawing(listOf(sfoca)), mine = true, at = pezzo)
+        val pezzoSfocato = Draw.blurAreas(ritaglio.copy(Bitmap.Config.ARGB_8888, true), Drawing(listOf(pannello)), mine = true, at = pezzo)
         assertEquals("il pezzo doveva sfocarsi come l'immagine intera",
             Color.red(dentro.getPixel(100, 50)).toFloat(), Color.red(pezzoSfocato.getPixel(20, 20)).toFloat(), 30f)
 
         val linea = Mark(Pen.LINE, listOf(Offset(0.2f, 0.5f), Offset(0.8f, 0.5f)), Color.RED, 0.01f, false, null)
         val pieno = Mark(Pen.RECT, listOf(Offset(0.4f, 0.4f), Offset(0.6f, 0.6f)), Color.RED, 0.01f, false, Color.WHITE)
-        assertEquals("un tocco prende l'elemento disegnato, non la sfocatura che è sotto di lui", 0,
-            Draw.hit(Drawing(listOf(pieno, sfoca)), Offset(0.5f, 0.5f), w, h, 0.01f))
-        assertEquals("e la sfocatura si prende dentro, anche senza riempimento", 1,
-            Draw.hit(Drawing(listOf(linea, sfoca.copy(fill = null))), Offset(0.3f, 0.3f), w, h, 0.01f))
-        assertEquals("lo stile porta la sfocatura fra due forme chiuse", 0.1f, pieno.styledLike(sfoca).blur)
-        assertEquals("e non a una linea", null, linea.styledLike(sfoca).blur)
+        assertEquals("un tocco prende l'elemento più in alto", 1,
+            Draw.hit(Drawing(listOf(pannello, pieno)), Offset(0.5f, 0.5f), w, h, 0.01f))
+        assertEquals("anche quando è il pannello", 1,
+            Draw.hit(Drawing(listOf(pieno, pannello)), Offset(0.5f, 0.5f), w, h, 0.01f))
+        assertEquals("e il pannello si prende dentro, anche senza colore", 1,
+            Draw.hit(Drawing(listOf(linea, pannello)), Offset(0.3f, 0.3f), w, h, 0.01f))
+        val altro = pannello.copy(blur = 0.2f, fill = Draw.panelFill(Draw.PILL_INKS[3]))
+        assertEquals("lo stile porta la sfocatura fra due pannelli", 0.2f, pannello.styledLike(altro).blur)
+        assertEquals("e il colore", Draw.panelFill(Draw.PILL_INKS[3]), pannello.styledLike(altro).fill)
+        assertEquals("e non a un rettangolo", null, pieno.styledLike(altro).blur)
     }
 
     /**
-     * **L'area sfocata ha la forma dell'elemento, pixel per pixel** (`4.81`, il suo `Non approvato`
-     * su `4.80-01`: *Questo è come appare un rettangolo sfocato fin dalla sua nascita*, con un
-     * parallelogramma inclinato e due angoli stondati staccati). Su un'immagine a righe ogni pixel
-     * ben dentro il rettangolo stondato è grigio e ogni pixel ben fuori resta com'era: diritto,
-     * girato di 30 gradi, e un'ellisse. Gli angoli sono larghi, 30 pixel, perché la prova della
-     * `4.80` usava un tratto sottile, e con angoli di 6 pixel il contorno storto quasi non si vedeva.
-     * ⚠️⚠️ **CONTROPROVATA**: con gli archi della `4.80` in `Draw.outline` (quelli in alto a destra
-     * e in basso a sinistra percorsi al contrario) i pixel fuori posto sono centinaia.
+     * **L'area sfocata ha la forma del pannello, pixel per pixel** (`4.81` per il rettangolo, il suo
+     * `Non approvato` su `4.80-01`, con un parallelogramma inclinato e due angoli stondati staccati;
+     * `4.91` per il pannello). Su un'immagine a righe ogni pixel ben dentro il pannello è grigio e
+     * ogni pixel ben fuori resta com'era: diritto e girato di 30 gradi.
+     * ⚠️ Gli angoli del pannello sono stondati dello 0,3% del suo lato lungo, meno di mezzo pixel qui:
+     * la prova guarda un rettangolo, e la sua rotazione.
+     * ⚠️⚠️ **CONTROPROVATA**: col contorno del pannello non girato in `Draw.outline` i pixel fuori
+     * posto sono centinaia.
      */
     @Test
-    fun `l'area sfocata ha la forma dell'elemento`() {
+    fun `l'area sfocata ha la forma del pannello`() {
         val lato = 200
         fun righe(): Bitmap = Bitmap.createBitmap(lato, lato, Bitmap.Config.ARGB_8888).apply {
             for (x in 0 until lato) for (y in 0 until lato) setPixel(x, y, if ((x / 2) % 2 == 0) Color.BLACK else Color.WHITE)
         }
         val originale = righe()
-        // A stroke of 10 pixels gives round corners of 30 (three strokes): a quarter of the side.
-        val diritto = Mark(Pen.RECT, listOf(Offset(0.2f, 0.2f), Offset(0.8f, 0.8f)), Color.RED, 0.05f, false, null, blur = 0.1f)
+        val diritto = Mark(Pen.PANEL, listOf(Offset(0.2f, 0.2f), Offset(0.8f, 0.8f)), Draw.PILL_WORDS, 0f, false, null,
+            blur = 0.1f, words = Words(""))
         val metà = 60f
-        val raggio = 30f
-        fun stondato(lx: Float, ly: Float): Float {
-            val qx = kotlin.math.abs(lx) - (metà - raggio)
-            val qy = kotlin.math.abs(ly) - (metà - raggio)
-            return kotlin.math.hypot(kotlin.math.max(qx, 0f), kotlin.math.max(qy, 0f)) + kotlin.math.min(kotlin.math.max(qx, qy), 0f) - raggio
-        }
-        fun ellisse(lx: Float, ly: Float): Float = (kotlin.math.hypot(lx / metà, ly / metà) - 1f) * metà
-        val casi = listOf(
-            Triple("il rettangolo diritto", diritto, ::stondato),
-            Triple("il rettangolo girato di 30 gradi", diritto.copy(angle = 30f), ::stondato),
-            Triple("l'ellisse", diritto.copy(pen = Pen.ELLIPSE), ::ellisse),
-        )
-        for ((nome, elemento, distanza) in casi) {
+        fun quadro(lx: Float, ly: Float): Float = kotlin.math.max(kotlin.math.abs(lx), kotlin.math.abs(ly)) - metà
+        for ((nome, elemento) in listOf("il pannello diritto" to diritto, "il pannello girato di 30 gradi" to diritto.copy(angle = 30f))) {
             val sfocata = Draw.blurAreas(righe(), Drawing(listOf(elemento)), mine = true)
             val rad = Math.toRadians(elemento.angle.toDouble())
             val cs = kotlin.math.cos(rad).toFloat()
@@ -1881,7 +1927,7 @@ class DisegnoTest {
             for (y in 0 until lato) for (x in 0 until lato) {
                 val dx = x + 0.5f - 100f
                 val dy = y + 0.5f - 100f
-                val d = distanza(dx * cs + dy * sn, -dx * sn + dy * cs)
+                val d = quadro(dx * cs + dy * sn, -dx * sn + dy * cs)
                 val c = sfocata.getPixel(x, y)
                 if (d < -3f && Color.red(c) !in 80..175) fuoriPosto++
                 if (d > 3f && c != originale.getPixel(x, y)) fuoriPosto++
@@ -1891,16 +1937,17 @@ class DisegnoTest {
     }
 
     /**
-     * **Il tasto Sfocatura sfoca l'area dell'elemento sul palco, il cursore ne regola l'entità, e con
-     * la sfocatura accesa traccia e riempimento si spengono** (`4.80`). Acceso prima di disegnare
-     * vale per l'elemento nuovo; con un elemento scelto vale per lui.
-     * ⚠️⚠️ **CONTROPROVATA** due volte: senza la sfocatura nell'anteprima del palco (l'area resta a
-     * righe), e senza i due valori della Sfocatura fra quelli che il modulo posa sull'elemento
-     * scelto (il cursore non lo cambia).
+     * **Il Pannello sfoca l'area sul palco, il cursore ne regola l'entità e i tondi il colore**
+     * (`4.91`): disegnato, il pannello chiede le parole e nasce senza colore e con la sfocatura di
+     * fabbrica; scelto, il cursore e i tondi cambiano lui. Nella fila dei tasti ci sono quelli del
+     * testo, con `Sfondo` spento.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza il vetro dei pannelli nell'anteprima del palco (l'area
+     * resta a righe), e senza il colore del pannello fra i valori che il modulo posa sull'elemento
+     * scelto (il tondo non lo cambia).
      */
     @Test
-    @Config(qualifiers = "w411dp-h891dp")
-    fun `il tasto Sfocatura sfoca l'area sul palco`() {
+    @Config(qualifiers = "w320dp-h891dp")
+    fun `il Pannello sfoca l'area sul palco`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }, uri = righe()) }
         pronta()
@@ -1911,28 +1958,61 @@ class DisegnoTest {
             return salvato!!.drawing.marks
         }
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
-        val sfocatura = banco.onAllNodesWithContentDescription(testo(R.string.draw_blur))
-            .filterToOne(SemanticsMatcher.keyIsDefined(androidx.compose.ui.semantics.SemanticsProperties.ToggleableState))
-        sfocatura.performClick()
+        banco.onNodeWithContentDescription(testo(R.string.draw_panel)).performClick()
         banco.waitForIdle()
-        sfocatura.assertIsOn()
-        banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).assertIsNotEnabled()
-        banco.onNodeWithContentDescription(testo(R.string.draw_outline)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_ground)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.settings_colour_none)).assertIsSelected()
         val prima = palco.captureToImage().toPixelMap()
         trascinaDa(Offset(-100f, -100f), Offset(-20f, -20f))
+        banco.onNodeWithText(testo(R.string.cancel)).performClick()
+        banco.waitForIdle()
         val dopo = palco.captureToImage().toPixelMap()
-        assertEquals("l'elemento nuovo doveva nascere sfocato", Draw.BLUR, salva().single().blur)
-        assertTrue("dentro l'elemento le righe dovevano diventare grigie",
+        val nato = salva().single()
+        assertEquals(Pen.PANEL, nato.pen)
+        assertEquals("il pannello doveva nascere con la sfocatura di fabbrica", Draw.BLUR, nato.blur)
+        assertEquals("e senza colore", null, nato.fill)
+        assertTrue("dentro il pannello le righe dovevano diventare grigie",
             grigi(dopo, Offset(-60f, -60f), 30) > grigi(prima, Offset(-60f, -60f), 30) + 200)
-        tocca(Offset(-60f, -60f))
         banco.onAllNodesWithContentDescription(testo(R.string.draw_blur))
             .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
             .performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.BLUR_MAX) }
         banco.waitForIdle()
-        assertEquals("il cursore doveva regolare la sfocatura dell'elemento scelto", Draw.BLUR_MAX, salva().single().blur)
-        sfocatura.performClick()
+        assertEquals("il cursore doveva regolare la sfocatura del pannello scelto", Draw.BLUR_MAX, salva().single().blur)
+        banco.onNodeWithContentDescription("${testo(R.string.draw_ground)} 3").performClick()
         banco.waitForIdle()
-        assertEquals("spento il tasto con l'elemento scelto, l'elemento doveva tornare un rettangolo", null, salva().single().blur)
+        assertEquals("il tondo doveva dare il suo colore al 20%", Draw.panelFill(Draw.PILL_INKS[2]), salva().single().fill)
+        banco.onNodeWithContentDescription(testo(R.string.settings_colour_none)).performClick()
+        banco.waitForIdle()
+        assertEquals("'Nessuno' doveva togliere il colore", null, salva().single().fill)
+    }
+
+    /**
+     * **`Elimina` torna nella quinta colonna** (`4.91`, sua nota C sul giro della `4.90`: *vorrei
+     * riavere il tasto 'Elimina', era molto comodo*): spento finché nessun elemento è scelto, toglie
+     * quello scelto.
+     * ⚠️⚠️ **CONTROPROVATA**: col tasto che non toglie l'elemento, l'elemento resta.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp")
+    fun `Elimina toglie l'elemento scelto`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
+        elimina.assertIsNotEnabled()
+        val r = immagine()
+        fun a(x: Float, y: Float) = Offset(r.left + x * r.width, r.top + y * r.height)
+        trascinaDa(a(0.1f, 0.1f), a(0.35f, 0.35f))
+        trascinaDa(a(0.6f, 0.6f), a(0.9f, 0.9f))
+        tocca(a(0.75f, 0.6f))
+        elimina.assertIsEnabled().performClick()
+        banco.waitForIdle()
+        elimina.assertIsNotEnabled()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val resta = salvato!!.drawing.marks.single()
+        assertEquals("Elimina doveva togliere il rettangolo scelto e lasciare l'altro", 0.1f, resta.points.first().x, 0.05f)
     }
 
     /**
@@ -1948,8 +2028,32 @@ class DisegnoTest {
      * oltre il tetto), con la riga della ricetta tolta in `Mark.styledLike` (il rettangolo tiene il
      * colore vecchio nella ricetta), con `Draw.wordsOn` che tiene le parole neutre (le bianche restano
      * bianche sul giallo), e con il contrasto di luminanza al posto della distanza dei colori in
-     * `Draw.readable` (il giallo dell'evidenziatore non si offre su una pagina bianca).
+     * `Draw.readable` (un fondo giallo non si offre su una pagina bianca).
      */
+    /**
+     * **Il testo arriva più grande dell'immagine, e il cursore resta preciso sui corpi piccoli**
+     * (`4.91`, sua nota su `4.90-02`: *voglio poter fare un testo grande come l'intera immagine e
+     * anche oltre*): il corpo arriva a 1,5 volte il lato lungo, e il cursore moltiplica il corpo
+     * per lo stesso fattore a ogni tratto, quindi il corpo di fabbrica non finisce schiacciato in
+     * fondo alla pista.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: col tetto vecchio di 0,2, e con la pista lineare, dove il
+     * corpo di fabbrica cade a meno di un trentesimo della pista.
+     */
+    @Test
+    fun `il corpo del testo supera l'immagine e il cursore resta preciso`() {
+        assertTrue("una lettera doveva poter essere più alta dell'immagine", Draw.TEXT_MAX >= 1.1f)
+        assertEquals("in fondo alla pista il corpo più piccolo", Draw.TEXT_MIN, Draw.textSize(0f), 1e-6f)
+        assertEquals("in cima il più grande", Draw.TEXT_MAX, Draw.textSize(1f), 1e-5f)
+        for (corpo in listOf(0.01f, 0.03f, 0.05f, 0.2f, 1f, 1.5f)) {
+            assertEquals("il corpo $corpo doveva tornare dalla pista", corpo, Draw.textSize(Draw.textTrack(corpo)), corpo * 1e-4f)
+        }
+        assertTrue("il corpo di fabbrica doveva essere oltre un quarto della pista", Draw.textTrack(Draw.TEXT) > 0.25f)
+        val w = 400
+        val h = 200
+        val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null, words = Words("A"))
+        assertEquals("tirando un angolo il corpo arriva al tetto", Draw.TEXT_MAX, testo.reshaped(2, Offset(99f, 99f), w, h).width, 1e-4f)
+    }
+
     @Test
     fun `il conto del testo`() {
         Faces.load(app)
@@ -1963,7 +2067,7 @@ class DisegnoTest {
         val due = Draw.textHalf(testo.copy(words = Words("Ciao mondo\nCiao")), w.toFloat(), h.toFloat())
         assertEquals("due righe sono alte due passi", 2f * hh, due.second, 1e-3f)
         assertEquals("e larghe come la più larga", hw, due.first, 1e-3f)
-        val etichetta = Draw.textHalf(testo.copy(words = Words("Ciao mondo", back = Back.LABEL)), w.toFloat(), h.toFloat())
+        val etichetta = Draw.textHalf(testo.copy(words = Words("Ciao mondo", label = true)), w.toFloat(), h.toFloat())
         assertEquals("il fondo aggiunge il suo margine ai due capi", hw + 0.35f * corpo, etichetta.first, 1e-3f)
         // ⚠️ Il banco non disegna le variazioni di un carattere (misurato: il grassetto vi risulta largo
         // quanto il normale), quindi qui si guarda il peso che il carattere dichiara.
@@ -1992,10 +2096,10 @@ class DisegnoTest {
         assertEquals("girato, il riquadro è largo quanto la riga è alta", 2f * hh / w, contorno.maxOf { it.x } - contorno.minOf { it.x }, 1e-3f)
 
         val altro = Mark(Pen.TEXT, listOf(Offset(0.1f, 0.1f)), Color.YELLOW, 0.08f, false, null,
-            words = Words("Altro", Face.LITERATA, bold = true, back = Back.LABEL, backInk = Draw.LABEL_INKS[1]))
+            words = Words("Altro", Face.LITERATA, bold = true, label = true, ground = Draw.LABEL_INKS[1]))
         val stilato = testo.styledLike(altro)
         assertEquals("le parole restano sue", "Ciao mondo", stilato.words?.text)
-        assertEquals(Words("Ciao mondo", Face.LITERATA, bold = true, back = Back.LABEL, backInk = Draw.LABEL_INKS[1]), stilato.words)
+        assertEquals(Words("Ciao mondo", Face.LITERATA, bold = true, label = true, ground = Draw.LABEL_INKS[1]), stilato.words)
         assertEquals(Color.YELLOW, stilato.ink)
         assertEquals(0.08f, stilato.width)
         assertEquals("il punto resta suo", testo.points, stilato.points)
@@ -2012,13 +2116,14 @@ class DisegnoTest {
         assertEquals("e tiene il riempimento", Color.GREEN, bianco.fill)
         assertEquals("e lo spessore", 0.01f, bianco.width)
 
-        assertEquals("sul giallo le parole bianche diventano nere", Color.BLACK, Draw.wordsOn(Draw.HIGHLIGHT_INK, Color.WHITE))
+        val giallo = 0xFFFFE15A.toInt()
+        assertEquals("sul giallo le parole bianche diventano nere", Color.BLACK, Draw.wordsOn(giallo, Color.WHITE))
         assertEquals("sulla striscia viola le nere diventano bianche", Color.WHITE, Draw.wordsOn(Draw.LABEL_INK, Color.BLACK))
-        assertEquals("un colore che si legge resta", 0xFF1F5FA8.toInt(), Draw.wordsOn(Draw.HIGHLIGHT_INK, 0xFF1F5FA8.toInt()))
-        assertEquals("un colore che non si legge diventa nero o bianco", Color.BLACK, Draw.wordsOn(Draw.HIGHLIGHT_INK, 0xFFFFF0A0.toInt()))
-        assertTrue("il giallo dell'evidenziatore stacca da una pagina bianca", Draw.readable(Draw.HIGHLIGHT_INK, Color.WHITE, Color.BLACK))
+        assertEquals("un colore che si legge resta", 0xFF1F5FA8.toInt(), Draw.wordsOn(giallo, 0xFF1F5FA8.toInt()))
+        assertEquals("un colore che non si legge diventa nero o bianco", Color.BLACK, Draw.wordsOn(giallo, 0xFFFFF0A0.toInt()))
+        assertTrue("un fondo giallo stacca da una pagina bianca", Draw.readable(giallo, Color.WHITE, Color.BLACK))
         assertFalse("un fondo bianco non stacca da una pagina bianca", Draw.readable(Color.WHITE, Color.WHITE, Color.BLACK))
-        assertFalse("le parole bianche non si leggono sul giallo", Draw.readable(Draw.HIGHLIGHT_INK, Color.BLACK, Color.WHITE))
+        assertFalse("le parole bianche non si leggono sul giallo", Draw.readable(giallo, Color.BLACK, Color.WHITE))
         assertTrue("e sulla striscia viola sì", Draw.readable(Draw.LABEL_INK, Color.WHITE, Color.WHITE))
     }
 
@@ -2090,7 +2195,7 @@ class DisegnoTest {
         val larghezze = mutableSetOf<Int>()
         for (face in Face.entries) {
             val segno = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.2f, false, null,
-                words = Words("H", face, back = Back.LABEL))
+                words = Words("H", face, label = true))
             val tela = Draw.overlay(Drawing(listOf(segno)), lato, lato, Spin(0, false))!!
             var a0 = lato; var a1 = -1; var x0 = lato; var x1 = -1; var s0 = lato; var s1 = -1
             for (y in 0 until lato) for (x in 0 until lato) {
@@ -2180,7 +2285,7 @@ class DisegnoTest {
 
         assertEquals("la pillola si prende dentro", 0, Draw.hit(Drawing(listOf(bassa)), Offset(0.3f, 0.5f), lato, lato, 0.01f))
         val testo = Mark(Pen.TEXT, listOf(Offset(0.1f, 0.1f)), Color.RED, 0.05f, false, null,
-            words = Words("Altro", Face.LITERATA, bold = true, back = Back.LABEL))
+            words = Words("Altro", Face.LITERATA, bold = true, label = true))
         val presa = bassa.styledLike(testo)
         assertEquals("fra un testo e una pillola passano carattere e stili", Words("Ciao", Face.LITERATA, bold = true), presa.words)
         assertEquals("e non il colore", Draw.PILL_WORDS, presa.ink)
@@ -2188,7 +2293,7 @@ class DisegnoTest {
         val data = testo.styledLike(bassa)
         assertEquals("da una pillola il testo prende il carattere", Face.ROBOTO, data.words?.face)
         assertEquals("e tiene il suo colore e il suo fondo", Color.RED, data.ink)
-        assertEquals(Back.LABEL, data.words?.back)
+        assertEquals(true, data.words?.label)
 
         val posata = Mark(Pen.PILL, Draw.pillAround(Words("Ciao"), 0.05f, Offset(0.5f, 0.5f), lato.toFloat(), lato.toFloat()),
             Draw.PILL_WORDS, 0f, false, null, words = Words("Ciao"))
@@ -2302,27 +2407,25 @@ class DisegnoTest {
         assertEquals(Face.MONTSERRAT, salva().words!!.face)
 
         val fondo = testo(R.string.draw_ground)
-        banco.onNodeWithContentDescription("$fondo: ${testo(R.string.settings_colour_none)}").performClick()
+        val sfondo = banco.onNodeWithContentDescription(fondo)
+        sfondo.assertIsOff().performClick()
         banco.waitForIdle()
-        val evidenziato = salva()
-        assertEquals(Back.HIGHLIGHT, evidenziato.words!!.back)
-        assertEquals(Draw.HIGHLIGHT_INK, evidenziato.words!!.backInk)
-        assertEquals("sul giallo le parole bianche dovevano diventare nere", Color.BLACK, evidenziato.ink)
-        banco.onNodeWithContentDescription("$fondo 6").assertIsNotEnabled()
+        sfondo.assertIsOn()
+        val etichetta = salva()
+        assertEquals(true, etichetta.words!!.label)
+        assertEquals(Draw.LABEL_INK, etichetta.words!!.ground)
+        assertEquals("sulla striscia viola le parole restano bianche", Color.WHITE, etichetta.ink)
         banco.onNodeWithContentDescription("$fondo 2").assertIsEnabled().performClick()
         banco.waitForIdle()
-        assertEquals(Draw.HIGHLIGHT_INKS[1], salva().words!!.backInk)
-
-        banco.onNodeWithContentDescription("$fondo: ${testo(R.string.draw_highlight)}").performClick()
+        assertEquals(Draw.LABEL_INKS[1], salva().words!!.ground)
+        sfondo.performClick()
         banco.waitForIdle()
-        val etichetta = salva()
-        assertEquals(Back.LABEL, etichetta.words!!.back)
-        assertEquals(Draw.LABEL_INK, etichetta.words!!.backInk)
-        assertEquals("sulla striscia viola le parole dovevano tornare bianche", Color.WHITE, etichetta.ink)
+        sfondo.assertIsOff()
+        assertEquals("Sfondo doveva togliere la striscia", false, salva().words!!.label)
 
         banco.onAllNodesWithContentDescription(testo(R.string.draw_size))
             .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
-            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.1f) }
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.textTrack(0.1f)) }
         banco.waitForIdle()
         assertEquals("Dimensione doveva cambiare il corpo", 0.1f, salva().width, 1e-4f)
 
@@ -2335,10 +2438,12 @@ class DisegnoTest {
 
     /**
      * **Con `Pillola` un trascinamento disegna la pillola e chiede le parole** (`4.90`, sua nota A sul
-     * giro della `4.43`): la pillola nasce scelta, coi due angoli del trascinamento; tavolozza,
-     * `Dimensione` e `Fondo` sono spenti.
+     * giro della `4.43`): la pillola nasce scelta, coi due angoli del trascinamento, e col rosso suo;
+     * `Dimensione` e `Sfondo` sono spenti. Dalla `4.91` i tondi sono accesi e danno i colori della
+     * pillola (sua nota su `4.90-05`), con l'opacità di sempre.
      * ⚠️⚠️ **CONTROPROVATA** due volte: senza la domanda delle parole alla fine del trascinamento (la
-     * finestra non compare), e con la tavolozza accesa per la Pillola (il tondo blu risulta acceso).
+     * finestra non compare), e senza il colore della pillola fra i valori che il modulo posa
+     * sull'elemento scelto (il tondo non lo cambia).
      * ⚠️ Il tocco che posa la pillola ha una prova sua: sullo schermo di serie del banco l'immagine
      * misura una trentina di pixel, e la portata del dito sugli elementi (24 dp) la copre tutta,
      * quindi qui un tocco sul vuoto prende sempre la pillola appena disegnata.
@@ -2356,11 +2461,10 @@ class DisegnoTest {
         }
         banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription("${testo(R.string.draw_ground)} 6").assertIsEnabled()
         banco.onAllNodesWithContentDescription(testo(R.string.draw_size))
             .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertIsNotEnabled()
-        banco.onNodeWithContentDescription("${testo(R.string.draw_ground)}: ${testo(R.string.settings_colour_none)}")
-            .assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.draw_ground)).assertIsNotEnabled()
         val r = immagine()
         trascinaDa(Offset(r.left + 0.1f * r.width, r.top + 0.2f * r.height), Offset(r.left + 0.8f * r.width, r.top + 0.4f * r.height))
         banco.onNodeWithText(testo(R.string.editor_apply)).assertIsNotEnabled()
@@ -2371,7 +2475,12 @@ class DisegnoTest {
         assertEquals(Pen.PILL, disegnata.pen)
         assertEquals("Ciao", disegnata.words?.text)
         assertEquals("la pillola ha i due angoli del trascinamento", 2, disegnata.points.size)
+        assertEquals("la pillola nasce col suo rosso", Draw.PILL_FILL, disegnata.fill)
         banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).assertIsEnabled()
+        banco.onNodeWithContentDescription("${testo(R.string.draw_ground)} 3").performClick()
+        banco.waitForIdle()
+        assertEquals("il tondo doveva dare il suo colore alla pillola scelta", Draw.pillFill(Draw.PILL_INKS[2]), salva().single().fill)
+        assertEquals("con l'opacità della pillola", 0xCC, Color.alpha(salva().single().fill!!))
     }
 
     /**

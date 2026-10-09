@@ -651,13 +651,12 @@
     <string name="draw_clear">Delete all</string>
     <string name="draw_text">Text</string>
     <string name="draw_pill">Pill</string>
+    <string name="draw_panel">Panel</string>
     <string name="draw_face">Font</string>
     <string name="draw_bold">Bold</string>
     <string name="draw_italic">Italic</string>
     <string name="draw_strike">Strikethrough</string>
     <string name="draw_ground">Background</string>
-    <string name="draw_highlight">Highlight</string>
-    <string name="draw_label">Label</string>
     <string name="draw_size">Size</string>
     <string name="draw_text_edit">Edit text</string>
     <string name="draw_align">Alignment</string>

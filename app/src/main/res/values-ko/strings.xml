@@ -227,13 +227,12 @@
     <string name="draw_clear">모두 삭제</string>
     <string name="draw_text">텍스트</string>
     <string name="draw_pill">알약</string>
+    <string name="draw_panel">패널</string>
     <string name="draw_face">글꼴</string>
     <string name="draw_bold">굵게</string>
     <string name="draw_italic">기울임꼴</string>
     <string name="draw_strike">취소선</string>
     <string name="draw_ground">배경</string>
-    <string name="draw_highlight">형광펜</string>
-    <string name="draw_label">라벨</string>
     <string name="draw_size">크기</string>
     <string name="draw_text_edit">텍스트 편집</string>
     <string name="draw_align">정렬</string>

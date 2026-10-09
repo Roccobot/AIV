@@ -227,13 +227,12 @@
     <string name="draw_clear">ลบทั้งหมด</string>
     <string name="draw_text">ข้อความ</string>
     <string name="draw_pill">แคปซูล</string>
+    <string name="draw_panel">แผง</string>
     <string name="draw_face">แบบอักษร</string>
     <string name="draw_bold">ตัวหนา</string>
     <string name="draw_italic">ตัวเอียง</string>
     <string name="draw_strike">ขีดฆ่า</string>
     <string name="draw_ground">พื้นหลัง</string>
-    <string name="draw_highlight">ไฮไลต์</string>
-    <string name="draw_label">ป้าย</string>
     <string name="draw_size">ขนาด</string>
     <string name="draw_text_edit">แก้ไขข้อความ</string>
     <string name="draw_align">การจัดแนว</string>

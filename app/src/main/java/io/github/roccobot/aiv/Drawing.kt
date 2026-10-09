@@ -25,7 +25,9 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.exp
 import kotlin.math.hypot
+import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -86,17 +88,23 @@ data class Drawing(val marks: List<Mark> = emptyList()) {
 }
 
 /**
- * The five shapes of the first phase, and the text and the pill of the third (4.90), in the order
- * the module shows them.
+ * The five shapes of the first phase, the text and the pill of the third (4.90), and the panel
+ * (4.91), in the order the module shows them.
  */
 enum class Pen {
-    FREE, LINE, ARROW, RECT, ELLIPSE, TEXT, PILL;
+    FREE, LINE, ARROW, RECT, ELLIPSE, TEXT, PILL, PANEL;
 
     /** Whether this pen closes a shape, so a fill means something. */
     val closed: Boolean get() = this == RECT || this == ELLIPSE
 
-    /** Whether this pen writes words: the text and the pill (4.90). */
-    val written: Boolean get() = this == TEXT || this == PILL
+    /** Whether this pen writes words: the text, the pill (4.90) and the panel (4.91). */
+    val written: Boolean get() = this == TEXT || framed
+
+    /**
+     * **Whether this pen is a box drawn by its two corners, with its words fitted inside**: the pill
+     * (4.90) and the panel (4.91), which differ only in their look.
+     */
+    val framed: Boolean get() = this == PILL || this == PANEL
 
     /**
      * Whether this pen is a box that turns by its [Mark.angle]: the rectangle and the ellipse
@@ -119,13 +127,6 @@ enum class Face(val upright: Int, val italic: Int, val label: String) {
 }
 
 /**
- * **What sits behind the text** (4.90): nothing, a highlighter's band, or a label's strip, one
- * per line, that melt into one shape (his example of 2026-10-08, *etichetta*, name `N1`). The two
- * exclude each other, since both are a ground (a reading of the session, declared in the test item).
- */
-enum class Back { NONE, HIGHLIGHT, LABEL }
-
-/**
  * **Where the lines of a text or a pill sit** (4.90, his `B2` of 2026-10-08: *Aggiungo volentieri B2
  * e B3 sul testo*): to the left, in the middle (the factory value, as before) or to the right of the
  * text's box.
@@ -133,9 +134,9 @@ enum class Back { NONE, HIGHLIGHT, LABEL }
 enum class Align { LEFT, CENTER, RIGHT }
 
 /**
- * **The words of a text element and how they look** (G3, 4.90): the four styles (*grassetto,
- * corsivo, barrato, evidenziato, contornato*, the last named `Etichetta`) and the ground's colour.
- * The text's own colour is [Mark.ink] and its size [Mark.width], as for the other elements.
+ * **The words of a text element and how they look** (G3, 4.90): the three styles (*grassetto,
+ * corsivo, barrato*), the label behind them and its colour. The text's own colour is [Mark.ink]
+ * and its size [Mark.width], as for the other elements.
  */
 data class Words(
     val text: String,
@@ -143,9 +144,15 @@ data class Words(
     val bold: Boolean = false,
     val italic: Boolean = false,
     val strike: Boolean = false,
-    val back: Back = Back.NONE,
-    /** The colour of the band or the strip, with its alpha; read only when [back] is not NONE. */
-    val backInk: Int = Draw.LABEL_INK,
+    /**
+     * **Whether a label's strip sits behind the text**, one per line, the strips melting into one
+     * shape (his example of 2026-10-08, *etichetta*). ⚠️ Until 4.90 a highlighter's band was the
+     * other ground: since 4.91 it is gone (his note on `4.90-04`: *'Etichetta' è talmente ben fatta
+     * che 'Evidenziato' non serve più a niente*), and `Sfondo` turns the strip on and off.
+     */
+    val label: Boolean = false,
+    /** The colour of the strip, with its alpha; read only when [label] is on. */
+    val ground: Int = Draw.LABEL_INK,
     /** Where the lines sit in the box (4.90, `B2`). */
     val align: Align = Align.CENTER,
     /**
@@ -264,14 +271,13 @@ data class Mark(
      */
     val angle: Float = 0f,
     /**
-     * **How much a rectangle or an ellipse blurs the image under it**, as a fraction of the longer
-     * side of its box, or `null` for an element drawn with its line and fill (4.80, his
-     * specification in the brief, round of 4.43: *una selezione tipo rettangolo arrotondato, che
-     * anziché riempire la propria area di un colore la sfoca ... da 0,5% a 25% del lato maggiore
-     * dell'oggetto. Si applica solo agli oggetti con un'area*).
-     *
-     * ⚠️ With a value the element ignores its line and its fill, which it keeps: turned off, it is
-     * the element it was. The blur is laid by [Draw.blurAreas], under every other element.
+     * **How much a panel blurs the image under it**, as a fraction of the longer side of its box
+     * (4.80 for the rectangle and the ellipse, his specification in the brief, round of 4.43: *da
+     * 0,5% a 25% del lato maggiore dell'oggetto*), or `null` for the other pens. The blur is laid by
+     * [Draw.blurAreas], with the image.
+     * ⚠️⚠️ **Since 4.91 only the panel blurs** (his `Non approvato` on `4.81-01`: *l'area sfocata
+     * non sarà più attributo di ogni forma, bensì uno strumento a parte. Si chiamerà 'Pannello'*):
+     * until then a rectangle or an ellipse with a value ignored its line and its fill.
      */
     val blur: Float? = null,
     /**
@@ -282,8 +288,8 @@ data class Mark(
      */
     val words: Words? = null
 ) {
-    /** Whether this element blurs the image under it instead of being drawn ([blur]). */
-    val blurs: Boolean get() = blur != null && pen.closed
+    /** Whether this element lays a glass under itself: a pill always, a panel with its [blur]. */
+    val glass: Boolean get() = pen == Pen.PILL || (pen == Pen.PANEL && blur != null)
 
     /** This mark with its last point moved to [to], or appended for a free hand stroke. */
     fun reaching(to: Offset): Mark = when (pen) {
@@ -383,7 +389,7 @@ data class Mark(
             val parole = words
             if ((handle == 5 || handle == 7) && parole != null) {
                 val long = max(fw, fh)
-                val pad = if (parole.back == Back.NONE) 0f else width * long * Draw.PAD
+                val pad = if (parole.label) width * long * Draw.PAD else 0f
                 val least = 2f * pad + width * long
                 val wide = max(least, if (handle == 5) p.x + f.hw else f.hw - p.x)
                 val cx = if (handle == 5) -f.hw + wide / 2f else f.hw - wide / 2f
@@ -491,22 +497,27 @@ data class Mark(
      */
     fun styledLike(source: Mark): Mark {
         /*
-         * ⚠️ **Between two texts the style is the text's** (4.90): colour, size, face, the four
-         * styles and the ground, the words being the element's own. Between a text and a shape
+         * ⚠️ **Between two texts the style is the text's** (4.90): colour, size, face, the three
+         * styles, the label and where the lines sit, the words being the element's own. Between a text and a shape
          * only the colour passes: a size is not a line's width, and a shape has no face.
          * ⚠️ **A pill has its own look and no colour to give or take** (his note A on the 4.43
          * round: *senza dover configurare ogni volta tratto, riempimento, opacità*): from a text or
-         * to one only the face and the three styles pass.
+         * to one only the face and the three styles pass. Between two pills the colour passes too
+         * (4.91), as a fill passes between two closed shapes.
          */
         if (pen.written && source.pen.written) {
             val mine = words ?: return this
             val theirs = source.words ?: return this
-            if (pen == Pen.PILL || source.pen == Pen.PILL) {
-                return copy(words = mine.copy(face = theirs.face, bold = theirs.bold, italic = theirs.italic, strike = theirs.strike, align = theirs.align))
+            if (pen.framed || source.pen.framed) {
+                return copy(
+                    fill = if (pen == source.pen) source.fill else fill,
+                    blur = if (pen == source.pen) source.blur else blur,
+                    words = mine.copy(face = theirs.face, bold = theirs.bold, italic = theirs.italic, strike = theirs.strike, align = theirs.align)
+                )
             }
             return copy(ink = source.ink, width = source.width, tint = source.tint, words = theirs.copy(text = mine.text, wrap = mine.wrap))
         }
-        if (pen == Pen.PILL || source.pen == Pen.PILL) return this
+        if (pen.framed || source.pen.framed) return this
         if (pen == Pen.TEXT || source.pen == Pen.TEXT) {
             // ⚠️ The recipe goes with the colour: the module loads the swatch from [tint], so a
             // recipe left behind would show the old colour once the element is chosen.
@@ -529,8 +540,6 @@ data class Mark(
         return copy(
             ink = source.ink, width = source.width, dashed = source.dashed,
             fill = if (fillToo) source.fill else fill, tint = ricetta,
-            // ⚠️ The blur is an area's, like the fill (4.80): it passes between two closed shapes.
-            blur = if (fillToo) source.blur else blur
         )
     }
 
@@ -645,29 +654,42 @@ internal object Draw {
         0xFF846AE2.toInt(), 0xFFCC6898.toInt(), 0xFFFFFFFF.toInt(), 0xFFB3B3B3.toInt(), 0xFF000000.toInt()
     )
 
-    /** The size slider of the text, as fractions of the long side, and its factory size (4.90). */
+    /**
+     * **The sizes of the text, as fractions of the long side, and its factory size** (4.90).
+     * ⚠️⚠️ **The largest is 1,5 since 4.91** (his note on `4.90-02`: *voglio poter fare un testo
+     * grande come l'intera immagine e anche oltre*; 1,1 or more, the number is the session's,
+     * declared in the test item): one letter as tall as the image and half again. Until 4.90 it
+     * was 0,2.
+     */
     const val TEXT_MIN = 0.01f
-    const val TEXT_MAX = 0.2f
+    const val TEXT_MAX = 1.5f
     const val TEXT = 0.05f
+
+    /**
+     * **Where the size slider is for a text of [size]**, from 0 to 1, and back with [textSize]
+     * (4.91). ⚠️⚠️ **The scale is a ratio's, not a difference's**: from 0,01 to 1,5 an even slider
+     * would leave the sizes a text is written at (0,02 to 0,1) in the first twentieth of the track,
+     * under the width of a finger. Each step along the track multiplies the size by the same amount.
+     */
+    fun textTrack(size: Float): Float =
+        (ln(size.coerceIn(TEXT_MIN, TEXT_MAX) / TEXT_MIN) / ln(TEXT_MAX / TEXT_MIN)).coerceIn(0f, 1f)
+
+    fun textSize(track: Float): Float = (TEXT_MIN * exp(track.coerceIn(0f, 1f) * ln(TEXT_MAX / TEXT_MIN)))
+        .coerceIn(TEXT_MIN, TEXT_MAX)
 
     /** The factory colour of the text: white (his factory label, *testo #FFFFFF*; reading `A4`). */
     const val TEXT_INK = 0xFFFFFFFF.toInt()
 
-    /** The factory strip of the label and band of the highlighter (his values of 2026-10-08). */
+    /** The factory strip of the label (his value of 2026-10-08). */
     const val LABEL_INK = 0xFFA3408F.toInt()
-    const val HIGHLIGHT_INK = 0xFFFFE15A.toInt()
 
     /**
-     * **The grounds the module offers** (4.90, his note: *il colore dev'essere selezionabile tra 4-8
-     * colori proposti da te*): six each, his factory one first. The strip holds white words, so its
-     * colours are deep; the band lies under words of any colour, as a highlighter does, so its
-     * colours are light. [readable] says which of them stand out where the text lies.
+     * **The strips the module offers** (4.90, his note: *il colore dev'essere selezionabile tra 4-8
+     * colori proposti da te*): six, his factory one first. The strip holds white words, so its
+     * colours are deep. [readable] says which of them stand out where the text lies.
      */
     val LABEL_INKS = listOf(
         LABEL_INK, 0xFF1F5FA8.toInt(), 0xFF1E7A4A.toInt(), 0xFFB3261E.toInt(), 0xFFB35400.toInt(), 0xFF262626.toInt()
-    )
-    val HIGHLIGHT_INKS = listOf(
-        HIGHLIGHT_INK, 0xFFA6F0A0.toInt(), 0xFF9AD7FF.toInt(), 0xFFFFB3D6.toInt(), 0xFFFFC680.toInt(), 0xFFFFFFFF.toInt()
     )
 
     /**
@@ -676,9 +698,8 @@ internal object Draw {
      * reading `A5`, declared in the test item): at least [GROUND_DISTANCE] from the image in the
      * CIELAB space, and at least [WORDS_CONTRAST] of the WCAG's contrast ratio against the words.
      * ⚠️⚠️ **Two measures, since the two questions differ**: the words are read by their lightness
-     * against the ground, and the ground stands out by its hue too. With the contrast ratio on both,
-     * the factory yellow of the highlighter (1,3 against white) would be off on a white page, which
-     * is a highlighter's own place.
+     * against the ground, and the ground stands out by its hue too, so a strip as light as the
+     * image under it can still stand out from it by its colour.
      */
     fun readable(ground: Int, under: Int, ink: Int): Boolean {
         val a = DoubleArray(3)
@@ -690,11 +711,9 @@ internal object Draw {
     }
 
     /**
-     * **The colour of the words [ink] on the ground [ground]** (4.90, when the `Fondo` key changes the
-     * ground): white or black words take whichever of the two reads better on it, and words of
+     * **The colour of the words [ink] on the ground [ground]** (4.90, when the `Sfondo` key lays the
+     * strip): white or black words take whichever of the two reads better on it, and words of
      * another colour stay, unless they would not be readable, and then turn white or black too.
-     * ⚠️ His factory words are white, which suit the label's strip and vanish on the highlighter's
-     * yellow (a reading of the session, declared in the test item).
      */
     fun wordsOn(ground: Int, ink: Int): Int {
         val fondo = ground or OPAQUE
@@ -744,13 +763,11 @@ internal object Draw {
 
     /**
      * The text's lines, as multiples of its size: the step between two lines, the ground's margin
-     * at the ends of a line, the highlighter's band as a part of the step, the strip's round
-     * corners, and the strip's shadow (blur and drop). Choices of the session, declared in the
-     * test item.
+     * at the ends of a line, the strip's round corners, and the strip's shadow (blur and drop).
+     * Choices of the session, declared in the test item.
      */
     private const val LINE = 1.3f
     const val PAD = 0.35f
-    private const val BAND = 0.8f
     private const val ROUND = 0.3f
     private const val SHADOW_BLUR = 0.12f
     private const val SHADOW_DROP = 0.06f
@@ -809,7 +826,7 @@ internal object Draw {
         val widths = lines.map { paint.measureText(it) }
         val cap = android.graphics.Rect().also { paint.getTextBounds("H", 0, 1, it) }.height().toFloat()
         val step = size * LINE
-        val pad = if (words.back == Back.NONE) 0f else size * PAD
+        val pad = if (words.label) size * PAD else 0f
         val content = if (wrap > 0f) wrap else widths.maxOrNull() ?: 0f
         return Lines(paint, lines, widths, size, step, cap, pad, content / 2f + pad, lines.size * step / 2f, content, words.align)
     }
@@ -826,7 +843,7 @@ internal object Draw {
      */
     fun textFrame(mark: Mark, w: Float, h: Float): Triple<Offset, Float, Float> {
         if (mark.points.isEmpty()) return Triple(Offset.Zero, 0f, 0f)
-        if (mark.pen == Pen.PILL) return pill(mark, w, h).let { Triple(it.c, it.hw, it.hh) }
+        if (mark.pen.framed) return pill(mark, w, h).let { Triple(it.c, it.hw, it.hh) }
         val t = lines(mark, w, h)
         return Triple(Offset(mark.points.first().x * w, mark.points.first().y * h), t?.hw ?: 0f, t?.hh ?: 0f)
     }
@@ -852,6 +869,24 @@ internal object Draw {
     const val PILL_BLUR = 12f / 545f
 
     /**
+     * **The pill's colours** (4.91, his note on `4.90-05`: *si potesse selezionare il colore di sfondo
+     * della pillola, ma devo avere a disposizione una palette diversa (proponi tu: tutti colori
+     * 'stravaganti', neon e ben visibili); gli altri parametri come bordo, trasparenza, ecc. restano
+     * invariati*): eight, opaque, his red first; the pill lays them at the alpha of [PILL_FILL].
+     * ⚠️⚠️ **Vivid and not light**: each keeps the pill's white words at a contrast of 3 or more
+     * (the WCAG's large text, [WORDS_CONTRAST]), so neon yellow and lime, which would hide them, are
+     * out. Red, orange, pink, magenta, indigo, blue, teal and green: the session's choice, declared
+     * in the test item.
+     */
+    val PILL_INKS = listOf(
+        PILL_FILL or OPAQUE, 0xFFFF5A00.toInt(), 0xFFFF1F8E.toInt(), 0xFFD500F9.toInt(),
+        0xFF6B2BFF.toInt(), 0xFF2962FF.toInt(), 0xFF009E9E.toInt(), 0xFF00A651.toInt()
+    )
+
+    /** **[ink] laid at the pill's alpha**, the one of [PILL_FILL] (4.91). */
+    fun pillFill(ink: Int): Int = (ink and 0xFFFFFF) or (PILL_FILL and OPAQUE)
+
+    /**
      * **The least size of a pill's words, as a fraction of the image's long side** (his note: *fino ad
      * un minimo di leggibilità (da definire)*): 2%, about 16 sp when the whole of a photo fills a
      * phone's screen. A reading of the session, declared in the test item.
@@ -863,6 +898,30 @@ internal object Draw {
      * its round ends: at 0.35 the corners of a line of words stay inside the round ends.
      */
     private const val PILL_INSET = 0.35f
+
+    /**
+     * **The panel's look** (4.91, his `Non approvato` on `4.81-01`: *Forma: rettangolo con un
+     * arrotondamento piccolissimo (0,3% del lato lungo). Sfocatura: come adesso ... Supporto testo:
+     * esattamente come l'altra pillola. Colore ... si applica sempre e solo al 20% di opacità e deve
+     * esserci anche 'nessuna'*): the radius of its corners as a part of its own long side (a reading
+     * of the session, declared in the test item: the panel's and not the image's), and the alpha
+     * of its colour. The words are the pill's, white.
+     * ⚠️ No traces, which are the pill's: he listed the panel's attributes, and they were not there.
+     */
+    const val PANEL_ROUND = 0.003f
+    private const val PANEL_ALPHA = 0x33000000
+
+    /** **[ink] laid at the panel's 20%** (4.91). */
+    fun panelFill(ink: Int): Int = (ink and 0xFFFFFF) or PANEL_ALPHA
+
+    /**
+     * How far the words keep from the panel's edge, as a part of its shorter half side: less than
+     * the pill's, whose round ends take room. A choice of the session, declared in the test item.
+     */
+    private const val PANEL_INSET = 0.15f
+
+    /** The margin of [pen]'s words from its edge, beyond the traces, as a part of the shorter half side. */
+    private fun insetOf(pen: Pen): Float = if (pen == Pen.PANEL) PANEL_INSET else PILL_INSET
 
     /** A pill laid out: its box, its traces, and its words fitted. */
     private class Pill(
@@ -886,10 +945,11 @@ internal object Draw {
         val c0 = Offset((a.x + b.x) / 2f, (a.y + b.y) / 2f)
         val hw = abs(b.x - a.x) / 2f
         val hh0 = abs(b.y - a.y) / 2f
-        val trace = PILL_TRACE * 2f * max(hw, hh0)
+        // ⚠️ A panel has no traces (4.91), so its words keep only their margin from the edge.
+        val trace = if (mark.pen == Pen.PILL) PILL_TRACE * 2f * max(hw, hh0) else 0f
         val words = mark.words
         if (words == null || words.text.isBlank()) return Pill(c0, hw, hh0, trace, null, emptyList(), 0f, 0f)
-        val inset = 2f * trace + PILL_INSET * min(hw, hh0)
+        val inset = 2f * trace + insetOf(mark.pen) * min(hw, hh0)
         val wide = (2f * (hw - inset)).coerceAtLeast(1f)
         val tall = 2f * (hh0 - inset)
         val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
@@ -927,12 +987,26 @@ internal object Draw {
     /**
      * **Paints a pill** (4.90): the dark trace on the edge, the light one within, the fill inside,
      * then the white words. The glass under it is laid by [blurAreas], with the image.
+     * ⚠️ A panel (4.91) is painted here too: its colour, when it has one, on its slightly round box,
+     * then the same words.
      */
     private fun paintPill(canvas: Canvas, mark: Mark, w: Float, h: Float) {
         val p = pill(mark, w, h)
         val kept = canvas.save()
         canvas.translate(p.c.x, p.c.y)
         if (mark.angle != 0f) canvas.rotate(mark.angle)
+        if (mark.pen == Pen.PANEL) {
+            mark.fill?.let {
+                val r = panelRound(p.hw, p.hh)
+                canvas.drawRoundRect(RectF(-p.hw, -p.hh, p.hw, p.hh), r, r, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = it
+                    style = Paint.Style.FILL
+                })
+            }
+            words(canvas, p)
+            canvas.restoreToCount(kept)
+            return
+        }
         val r = min(p.hw, p.hh)
         val t = p.trace
         fun ring(inset: Float, colour: Int) {
@@ -949,18 +1023,27 @@ internal object Draw {
         val dentro = RectF(-p.hw + 2f * t, -p.hh + 2f * t, p.hw - 2f * t, p.hh - 2f * t)
         if (dentro.width() > 0f && dentro.height() > 0f) {
             canvas.drawRoundRect(dentro, r - 2f * t, r - 2f * t, Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = PILL_FILL
+                // ⚠️ A pill made elsewhere (the tests) has no fill, and takes his red (4.91).
+                color = mark.fill ?: PILL_FILL
                 style = Paint.Style.FILL
             })
         }
+        words(canvas, p)
+        canvas.restoreToCount(kept)
+    }
+
+    /** The words of a laid out pill or panel, on a canvas centred on its box. */
+    private fun words(canvas: Canvas, p: Pill) {
         p.paint?.let { paint ->
             val top = -p.lines.size * p.step / 2f
             p.lines.forEachIndexed { i, line ->
                 canvas.drawText(line, lineX(p.align, p.content, paint.measureText(line)), top + p.step * (i + 0.5f) + p.cap / 2f, paint)
             }
         }
-        canvas.restoreToCount(kept)
     }
+
+    /** The radius of a panel's corners, for half sides [hw] and [hh] (4.91). */
+    private fun panelRound(hw: Float, hh: Float): Float = min(PANEL_ROUND * 2f * max(hw, hh), min(hw, hh))
 
     /** **The radius of the glass under a pill**, in the pixels of a [w] x [h] original (4.90). */
     fun pillGlass(mark: Mark, w: Float, h: Float): Float = pill(mark, w, h).let { PILL_BLUR * 2f * max(it.hw, it.hh) }
@@ -968,9 +1051,10 @@ internal object Draw {
     /**
      * **The box of a pill that holds [words] at [size]**, centred on [at], as its two corners in
      * fractions of a [w] x [h] original (4.90): a tap with Pillola lays a pill around its words, one
-     * line per line written, with the same insets [pill] keeps.
+     * line per line written, with the same insets [pill] keeps. A tap with Pannello lays a panel
+     * the same way (4.91), with its own margin and no traces ([pen]).
      */
-    fun pillAround(words: Words, size: Float, at: Offset, w: Float, h: Float): List<Offset> {
+    fun pillAround(words: Words, size: Float, at: Offset, w: Float, h: Float, pen: Pen = Pen.PILL): List<Offset> {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             typeface = Faces.of(words.face, words.italic, words.bold)
             textSize = (size * max(w, h)).coerceAtLeast(1f)
@@ -979,8 +1063,9 @@ internal object Draw {
         val wide = lines.maxOf { paint.measureText(it) }
         val tall = lines.size * paint.textSize * LINE
         // ⚠️ The insets are a part of the radius, which is half the box's height: solved for it.
-        val boxH = tall / (1f - PILL_INSET - 4f * PILL_TRACE)
-        val boxW = max(boxH, wide + boxH * (PILL_INSET + 4f * PILL_TRACE) + 2f * paint.textSize * PILL_SIDE)
+        val traces = if (pen == Pen.PILL) 4f * PILL_TRACE else 0f
+        val boxH = tall / (1f - insetOf(pen) - traces)
+        val boxW = max(boxH, wide + boxH * (insetOf(pen) + traces) + 2f * paint.textSize * PILL_SIDE)
         val c = Offset(at.x * w, at.y * h)
         return listOf(Offset((c.x - boxW / 2f) / w, (c.y - boxH / 2f) / h), Offset((c.x + boxW / 2f) / w, (c.y + boxH / 2f) / h))
     }
@@ -992,8 +1077,7 @@ internal object Draw {
      * **Paints a text element** (4.90): the ground first, as one shape (the strips of the lines melt
      * into each other, as in his example), then the lines, centred on the element's point and turned
      * by its angle.
-     * ⚠️ The label's strip has a soft shadow below (his example); the highlighter's band has none,
-     * as a highlighter has none.
+     * ⚠️ The label's strip has a soft shadow below (his example).
      */
     private fun paintText(canvas: Canvas, mark: Mark, w: Float, h: Float) {
         val words = mark.words ?: return
@@ -1001,24 +1085,24 @@ internal object Draw {
         val kept = canvas.save()
         canvas.translate(mark.points.first().x * w, mark.points.first().y * h)
         if (mark.angle != 0f) canvas.rotate(mark.angle)
-        if (words.back != Back.NONE) {
+        if (words.label) {
             val ground = Path()
             t.lines.forEachIndexed { i, line ->
                 if (line.isBlank()) return@forEachIndexed
                 val mid = -t.hh + t.step * (i + 0.5f)
                 val half = t.widths[i] / 2f + t.pad
                 val x = t.x(i)
-                val band = if (words.back == Back.LABEL) t.step / 2f else t.step * BAND / 2f
-                val r = if (words.back == Back.LABEL) min(band, t.size * ROUND) else 0f
+                val band = t.step / 2f
+                val r = min(band, t.size * ROUND)
                 ground.op(
                     Path().apply { addRoundRect(RectF(x - half, mid - band, x + half, mid + band), r, r, Path.Direction.CW) },
                     Path.Op.UNION
                 )
             }
             canvas.drawPath(ground, Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = words.backInk
+                color = words.ground
                 style = Paint.Style.FILL
-                if (words.back == Back.LABEL) setShadowLayer(t.size * SHADOW_BLUR, 0f, t.size * SHADOW_DROP, SHADOW_INK)
+                setShadowLayer(t.size * SHADOW_BLUR, 0f, t.size * SHADOW_DROP, SHADOW_INK)
             })
         }
         t.lines.forEachIndexed { i, line ->
@@ -1054,13 +1138,12 @@ internal object Draw {
     }
 
     private fun paint(canvas: Canvas, mark: Mark, w: Float, h: Float, long: Float) {
-        // ⚠️ A blurring element is not drawn: [blurAreas] has already blurred the image under it.
-        if (mark.points.isEmpty() || mark.blurs) return
+        if (mark.points.isEmpty()) return
         if (mark.pen == Pen.TEXT) {
             paintText(canvas, mark, w, h)
             return
         }
-        if (mark.pen == Pen.PILL) {
+        if (mark.pen.framed) {
             paintPill(canvas, mark, w, h)
             return
         }
@@ -1121,7 +1204,7 @@ internal object Draw {
             }
         }
         // ⚠️ A pill's box is the one its words need (4.90): it can be taller than the one drawn.
-        val (c, hw, hh) = if (mark.pen == Pen.PILL) textFrame(mark, fw, fh) else {
+        val (c, hw, hh) = if (mark.pen.framed) textFrame(mark, fw, fh) else {
             val a = Offset(mark.points.first().x * fw, mark.points.first().y * fh)
             val b = Offset(mark.points.last().x * fw, mark.points.last().y * fh)
             Triple(Offset((a.x + b.x) / 2f, (a.y + b.y) / 2f), abs(b.x - a.x) / 2f, abs(b.y - a.y) / 2f)
@@ -1138,9 +1221,13 @@ internal object Draw {
             // and bottom left corners ran backwards, so the outline crossed itself: harmless for
             // the box it spans (4.70), and a slanted area with two loose corners once Sfocatura
             // cut the image along it (his `Non approvato` on `4.80-01`).
-            // ⚠️ A pill is a rectangle with ends as round as they can be (4.90).
-            val r = if (mark.pen == Pen.PILL) min(hw, hh)
-            else corner(mark, max(fw, fh), RectF(c.x - hw, c.y - hh, c.x + hw, c.y + hh))
+            // ⚠️ A pill is a rectangle with ends as round as they can be (4.90), a panel one with
+            // corners barely round (4.91).
+            val r = when (mark.pen) {
+                Pen.PILL -> min(hw, hh)
+                Pen.PANEL -> panelRound(hw, hh)
+                else -> corner(mark, max(fw, fh), RectF(c.x - hw, c.y - hh, c.x + hw, c.y + hh))
+            }
             val steps = if (mark.pen == Pen.PILL) PILL_STEPS else CORNER_STEPS
             for ((k, s) in listOf(-1f to -1f, 1f to -1f, 1f to 1f, -1f to 1f).withIndex()) {
                 val o = Offset(s.first * (hw - r), s.second * (hh - r))
@@ -1218,8 +1305,9 @@ internal object Draw {
                     )
                 }
             }
-            // ⚠️ A text and a pill never reach here: [paint] draws them with [paintText] and [paintPill].
-            Pen.TEXT, Pen.PILL -> Unit
+            // ⚠️ A text, a pill and a panel never reach here: [paint] draws them with [paintText]
+            // and [paintPill].
+            Pen.TEXT, Pen.PILL, Pen.PANEL -> Unit
             Pen.RECT, Pen.ELLIPSE -> {
                 val box = RectF(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y))
                 if (mark.pen == Pen.ELLIPSE) canvas.drawOval(box, pen)
@@ -1353,8 +1441,9 @@ internal object Draw {
      * otherwise: the stage's preview must never be touched.
      */
     fun blurAreas(target: Bitmap, drawing: Drawing, mine: Boolean, at: RectF = WHOLE): Bitmap {
-        // ⚠️ A pill lays its glass here too (4.90), and is drawn over it as the others are.
-        val zone = drawing.marks.filter { (it.blurs || it.pen == Pen.PILL) && it.points.isNotEmpty() }
+        // ⚠️ A pill (4.90) and a panel (4.91) lay their glass here, and are drawn over it as the
+        // other elements are.
+        val zone = drawing.marks.filter { it.glass && it.points.isNotEmpty() }
         if (zone.isEmpty() || at.width() <= 0f || at.height() <= 0f) return target
         val out = if (mine && target.isMutable && target.config != Bitmap.Config.HARDWARE) target
         else target.copy(Bitmap.Config.ARGB_8888, true)
@@ -1369,10 +1458,9 @@ internal object Draw {
                 if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
             }
             path.close()
-            val a = mark.points.first()
-            val b = mark.points.last()
+            // ⚠️ A panel's blur is a part of the long side of the box its words need, as its outline is.
             val radius = if (mark.pen == Pen.PILL) pillGlass(mark, ow, oh)
-            else (mark.blur ?: BLUR) * max(abs(b.x - a.x) * ow, abs(b.y - a.y) * oh)
+            else textFrame(mark, ow, oh).let { (_, hw, hh) -> (mark.blur ?: BLUR) * 2f * max(hw, hh) }
             if (radius < 0.5f) continue
             val box = RectF().also { path.computeBounds(it, true) }
             val area = android.graphics.Rect(
@@ -1532,13 +1620,10 @@ internal object Draw {
         val sx = w / long
         val sy = h / long
         val p = Offset(at.x * sx, at.y * sy)
-        // ⚠️ The blurring elements lie under all the others whatever their place in the list
-        // (4.80), so a touch tries them last.
-        for (sotto in listOf(false, true)) for (i in drawing.marks.indices.reversed()) {
+        for (i in drawing.marks.indices.reversed()) {
             val mark = drawing.marks[i]
-            if (mark.blurs != sotto) continue
             if (mark.pen.written) {
-                // ⚠️ A text and a pill are taken anywhere in their box, as a filled shape (4.90).
+                // ⚠️ A text, a pill and a panel are taken anywhere in their box, as a filled shape (4.90).
                 if (mark.points.isEmpty()) continue
                 val (c, hw, hh) = textFrame(mark, w.toFloat(), h.toFloat())
                 val rad = Math.toRadians(mark.angle.toDouble())
@@ -1580,11 +1665,11 @@ internal object Draw {
             Pen.RECT -> {
                 val l = min(a.x, b.x); val rt = max(a.x, b.x); val t = min(a.y, b.y); val bt = max(a.y, b.y)
                 val inside = p.x in l..rt && p.y in t..bt
-                if (inside) mark.fill != null || mark.blurs || min(min(p.x - l, rt - p.x), min(p.y - t, bt - p.y)) <= r
+                if (inside) mark.fill != null || min(min(p.x - l, rt - p.x), min(p.y - t, bt - p.y)) <= r
                 else hypot(max(max(l - p.x, 0f), p.x - rt), max(max(t - p.y, 0f), p.y - bt)) <= r
             }
             // ⚠️ A text is tested in [hit], which has the image's sides to measure it with.
-            Pen.TEXT, Pen.PILL -> false
+            Pen.TEXT, Pen.PILL, Pen.PANEL -> false
             Pen.ELLIPSE -> {
                 val cx = (a.x + b.x) / 2f; val cy = (a.y + b.y) / 2f
                 val rx = abs(b.x - a.x) / 2f; val ry = abs(b.y - a.y) / 2f
@@ -1592,7 +1677,7 @@ internal object Draw {
                 if (min(rx, ry) < 1e-4f) segment(p, a, b) <= r
                 else {
                     val d = hypot((p.x - cx) / rx, (p.y - cy) / ry)
-                    (d <= 1f && (mark.fill != null || mark.blurs)) || abs(d - 1f) * min(rx, ry) <= r
+                    (d <= 1f && mark.fill != null) || abs(d - 1f) * min(rx, ry) <= r
                 }
             }
         }
@@ -1663,14 +1748,20 @@ internal object Draw {
      * sides move, comes onto a side or the centre of another element within the same [reach]. On
      * each axis the nearest of all wins, and on a tie the edge of the image; [lines] says which
      * guides to show.
+     * ⚠️⚠️ **Since 4.91 the centre of the image is there too, for the centre of a moving element**
+     * (his note A on the 4.90 round: *devono apparire anche delle guide per la centratura (che faccia
+     * fare uno scatto allo spostamento di un elemento quando è al centro verticale/orizzontale/
+     * entrambi dell'intera immagine)*): only the element's centre, since he named the centring, and
+     * a side that stopped on the middle of the image would be a snap he did not ask for; and only
+     * when [centred] says the element is being moved, so the start of a new one is not pulled there.
      */
     fun rest(
         box: Rect, frame: Rect, reach: Float, sides: Set<ImageEdge> = ImageEdge.entries.toSet(),
-        others: List<Rect> = emptyList()
+        others: List<Rect> = emptyList(), centred: Boolean = false
     ): Pair<Offset, Set<ImageEdge>> {
         fun axis(
             lo: Float, hi: Float, edgeLo: Float, edgeHi: Float, low: ImageEdge, high: ImageEdge,
-            marks: List<Float>
+            marks: List<Float>, middle: Float
         ): Pair<Float, ImageEdge?> {
             var best = 0f
             var edge: ImageEdge? = null
@@ -1694,15 +1785,16 @@ internal object Draw {
                 if (moveLo && moveHi) add((lo + hi) / 2f)
             }
             for (t in marks) for (v in own) offer(t - v, null)
+            if (centred && moveLo && moveHi) offer(middle - (lo + hi) / 2f, null)
             return best to edge
         }
         val (dx, ex) = axis(
             box.left, box.right, frame.left, frame.right, ImageEdge.LEFT, ImageEdge.RIGHT,
-            others.flatMap { listOf(it.left, it.center.x, it.right) }
+            others.flatMap { listOf(it.left, it.center.x, it.right) }, frame.center.x
         )
         val (dy, ey) = axis(
             box.top, box.bottom, frame.top, frame.bottom, ImageEdge.TOP, ImageEdge.BOTTOM,
-            others.flatMap { listOf(it.top, it.center.y, it.bottom) }
+            others.flatMap { listOf(it.top, it.center.y, it.bottom) }, frame.center.y
         )
         return Offset(dx, dy) to setOfNotNull(ex, ey)
     }
@@ -1712,8 +1804,14 @@ internal object Draw {
      * screen: where a side or the centre of [box] meets a side or the centre of another box, a
      * line along it from the farther end of one to the farther end of the other, so the guide
      * says which element it lines up with. The same [ON] as the edges.
+     * ⚠️ Since 4.91 a [box] centred on the middle of [frame], the image on the screen, has the guide
+     * of that middle too, across the whole image (his note A on the 4.90 round).
      */
-    fun lines(box: Rect, others: List<Rect>): List<Pair<Offset, Offset>> = buildList {
+    fun lines(box: Rect, others: List<Rect>, frame: Rect? = null): List<Pair<Offset, Offset>> = buildList {
+        if (frame != null) {
+            if (abs(box.center.x - frame.center.x) < ON) add(Offset(frame.center.x, frame.top) to Offset(frame.center.x, frame.bottom))
+            if (abs(box.center.y - frame.center.y) < ON) add(Offset(frame.left, frame.center.y) to Offset(frame.right, frame.center.y))
+        }
         val xs = listOf(box.left, box.center.x, box.right)
         val ys = listOf(box.top, box.center.y, box.bottom)
         for (o in others) {

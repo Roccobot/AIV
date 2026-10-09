@@ -227,13 +227,12 @@
     <string name="draw_clear">حذف الكل</string>
     <string name="draw_text">نص</string>
     <string name="draw_pill">كبسولة</string>
+    <string name="draw_panel">لوحة</string>
     <string name="draw_face">الخط</string>
     <string name="draw_bold">عريض</string>
     <string name="draw_italic">مائل</string>
     <string name="draw_strike">يتوسطه خط</string>
     <string name="draw_ground">الخلفية</string>
-    <string name="draw_highlight">تمييز</string>
-    <string name="draw_label">ملصق</string>
     <string name="draw_size">الحجم</string>
     <string name="draw_text_edit">تعديل النص</string>
     <string name="draw_align">المحاذاة</string>

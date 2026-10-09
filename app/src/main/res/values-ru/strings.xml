@@ -227,13 +227,12 @@
     <string name="draw_clear">Удалить всё</string>
     <string name="draw_text">Текст</string>
     <string name="draw_pill">Капсула</string>
+    <string name="draw_panel">Панель</string>
     <string name="draw_face">Шрифт</string>
     <string name="draw_bold">Жирный</string>
     <string name="draw_italic">Курсив</string>
     <string name="draw_strike">Зачёркнутый</string>
     <string name="draw_ground">Фон</string>
-    <string name="draw_highlight">Выделение</string>
-    <string name="draw_label">Ярлык</string>
     <string name="draw_size">Размер</string>
     <string name="draw_text_edit">Изменить текст</string>
     <string name="draw_align">Выравнивание</string>
