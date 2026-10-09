@@ -236,6 +236,8 @@
     <string name="draw_label">标签</string>
     <string name="draw_size">大小</string>
     <string name="draw_text_edit">编辑文字</string>
+    <string name="draw_align">对齐</string>
+    <string name="draw_center">居中</string>
     <string name="pick_list">列表</string>
     <string name="pick_invert">反选</string>
     <string name="pick_all_short">全选</string>

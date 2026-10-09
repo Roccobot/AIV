@@ -236,6 +236,8 @@
     <string name="draw_label">ラベル</string>
     <string name="draw_size">サイズ</string>
     <string name="draw_text_edit">テキストを編集</string>
+    <string name="draw_align">配置</string>
+    <string name="draw_center">中央</string>
     <string name="pick_list">一覧</string>
     <string name="pick_invert">反転</string>
     <string name="pick_all_short">すべて</string>

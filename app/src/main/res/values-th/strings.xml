@@ -236,6 +236,8 @@
     <string name="draw_label">ป้าย</string>
     <string name="draw_size">ขนาด</string>
     <string name="draw_text_edit">แก้ไขข้อความ</string>
+    <string name="draw_align">การจัดแนว</string>
+    <string name="draw_center">ตรงกลาง</string>
     <string name="pick_list">รายชื่อ</string>
     <string name="pick_invert">สลับ</string>
     <string name="pick_all_short">ทั้งหมด</string>

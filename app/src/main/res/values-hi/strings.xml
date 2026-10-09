@@ -236,6 +236,8 @@
     <string name="draw_label">लेबल</string>
     <string name="draw_size">आकार</string>
     <string name="draw_text_edit">टेक्स्ट संपादित करें</string>
+    <string name="draw_align">संरेखण</string>
+    <string name="draw_center">बीच में</string>
     <string name="pick_list">सूची</string>
     <string name="pick_invert">उलटें</string>
     <string name="pick_all_short">सभी</string>

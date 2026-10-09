@@ -1978,7 +1978,7 @@ class DisegnoTest {
         assertEquals("l'angolo tirato al doppio della distanza doveva raddoppiare il corpo", 0.1f, doppio.width, 1e-4f)
         assertEquals("il centro doveva restare", testo.points, doppio.points)
         assertEquals("oltre il tetto il corpo si ferma", Draw.TEXT_MAX, testo.reshaped(2, Offset(9f, 9f), w, h).width, 1e-4f)
-        assertEquals("verso il centro il corpo si ferma al minimo", Draw.TEXT_MIN, testo.reshaped(5, Offset(0.5f, 0.5f), w, h).width, 1e-4f)
+        assertEquals("verso il centro il corpo si ferma al minimo", Draw.TEXT_MIN, testo.reshaped(2, Offset(0.5f, 0.5f), w, h).width, 1e-4f)
 
         val girato = testo.turned(88f, w, h)
         assertEquals("il testo si aggancia a 90 gradi", 90f, girato.angle, 1e-4f)
@@ -2020,6 +2020,58 @@ class DisegnoTest {
         assertFalse("un fondo bianco non stacca da una pagina bianca", Draw.readable(Color.WHITE, Color.WHITE, Color.BLACK))
         assertFalse("le parole bianche non si leggono sul giallo", Draw.readable(Draw.HIGHLIGHT_INK, Color.BLACK, Color.WHITE))
         assertTrue("e sulla striscia viola sì", Draw.readable(Draw.LABEL_INK, Color.WHITE, Color.WHITE))
+    }
+
+    /**
+     * **Il testo va a capo dalla sua larghezza, e le righe si allineano** (`4.90`, sue `B2` e `B3`:
+     * *Aggiungo volentieri B2 e B3 sul testo*): la maniglia a metà del lato destro stringe il testo
+     * col lato sinistro fermo, e le parole vanno a capo; una maniglia d'angolo ingrandisce anche la
+     * larghezza, quindi le righe restano quelle; sinistra e destra mettono la riga corta contro il
+     * suo lato del riquadro; lo stile copiato da un altro testo lascia a ognuno la sua larghezza.
+     * ⚠️⚠️ **CONTROPROVATA** tre volte: con le righe spezzate solo dove c'è Invio (il testo stretto
+     * non si allunga), con l'allineamento ignorato nel disegno (la riga corta resta al centro), e con
+     * la scala d'angolo che lascia ferma la larghezza (le righe cambiano).
+     */
+    @Test
+    fun `il testo va a capo e si allinea`() {
+        Faces.load(app)
+        val lato = 400
+        val f = lato.toFloat()
+        val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null,
+            words = Words("Ciao mondo, come stai oggi"))
+        val (hw, hh) = Draw.textHalf(testo, f, f)
+        val stretto = testo.reshaped(5, Offset(0.5f, 0.5f), lato, lato)
+        val (shw, shh) = Draw.textHalf(stretto, f, f)
+        assertTrue("stretto, il testo doveva andare a capo", shh > 1.5f * hh)
+        assertEquals("largo quanto la maniglia tirata", hw / 2f, shw, 0.5f)
+        assertEquals("col lato sinistro fermo", 0.5f * f - hw, stretto.points.single().x * f - shw, 0.5f)
+        val doppio = stretto.reshaped(2, Offset(stretto.points.single().x + 2f * shw / f, 0.5f + 2f * shh / f), lato, lato)
+        assertEquals("l'angolo doveva ingrandire anche la larghezza", 2f * stretto.words!!.wrap, doppio.words!!.wrap, 1e-3f)
+        assertEquals("e le righe restare quelle", 2f * shh, Draw.textHalf(doppio, f, f).second, 1f)
+
+        fun righe(align: Align): Pair<IntRange, IntRange> {
+            val segno = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.08f, false, null,
+                words = Words("I\nmondo intero", align = align))
+            val tela = Draw.overlay(Drawing(listOf(segno)), lato, lato, Spin(0, false))!!
+            var c0 = lato; var c1 = -1; var t0 = lato; var t1 = -1
+            for (y in 0 until lato) for (x in 0 until lato) {
+                if (Color.alpha(tela.getPixel(x, y)) < 200) continue
+                if (y < lato / 2) { c0 = minOf(c0, x); c1 = maxOf(c1, x) }
+                t0 = minOf(t0, x); t1 = maxOf(t1, x)
+            }
+            return c0..c1 to t0..t1
+        }
+        val (corta, tutto) = righe(Align.LEFT)
+        assertEquals("a sinistra la riga corta doveva toccare il lato sinistro", tutto.first.toFloat(), corta.first.toFloat(), 4f)
+        val (cortaD, tuttoD) = righe(Align.RIGHT)
+        assertEquals("a destra la riga corta doveva toccare il lato destro", tuttoD.last.toFloat(), cortaD.last.toFloat(), 4f)
+        val (cortaC, _) = righe(Align.CENTER)
+        assertEquals("al centro la riga corta doveva stare in mezzo", lato / 2f, (cortaC.first + cortaC.last) / 2f, 4f)
+
+        val altro = testo.copy(words = Words("Altro", Face.MONTSERRAT, align = Align.RIGHT, wrap = 0.3f))
+        val stilato = stretto.styledLike(altro)
+        assertEquals("lo stile doveva passare l'allineamento", Align.RIGHT, stilato.words?.align)
+        assertEquals("e lasciare la larghezza", stretto.words?.wrap, stilato.words?.wrap)
     }
 
     /**
@@ -2212,10 +2264,11 @@ class DisegnoTest {
      * si accende; `Carattere` passa al carattere dopo e lo dice; `Fondo` passa a `Evidenziato` col
      * giallo, e le parole bianche diventano nere; su una pagina bianca il fondo bianco non si offre e
      * gli altri sì; `Fondo` passa poi a `Etichetta` col viola, e le parole tornano bianche;
-     * `Dimensione` cambia il corpo.
-     * ⚠️⚠️ **CONTROPROVATA** due volte: senza i parametri del testo fra quelli che il modulo posa
-     * sull'elemento scelto (il grassetto non arriva al testo), e con la fila dei fondi che offre
-     * tutti i colori (il fondo bianco si offre su una pagina bianca).
+     * `Dimensione` cambia il corpo; `Allineamento` passa dal centro a destra.
+     * ⚠️⚠️ **CONTROPROVATA** tre volte: senza i parametri del testo fra quelli che il modulo posa
+     * sull'elemento scelto (il grassetto non arriva al testo), con la fila dei fondi che offre
+     * tutti i colori (il fondo bianco si offre su una pagina bianca), e senza l'allineamento fra le
+     * parole del modulo (il testo resta al centro).
      */
     @Test
     fun `i tasti del Testo cambiano il testo scelto`() {
@@ -2272,6 +2325,12 @@ class DisegnoTest {
             .performSemanticsAction(SemanticsActions.SetProgress) { it(0.1f) }
         banco.waitForIdle()
         assertEquals("Dimensione doveva cambiare il corpo", 0.1f, salva().width, 1e-4f)
+
+        val allineamento = testo(R.string.draw_align)
+        banco.onNodeWithContentDescription("$allineamento: ${testo(R.string.draw_center)}").performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription("$allineamento: ${testo(R.string.settings_right)}").assertExists()
+        assertEquals("Allineamento doveva passare a destra", Align.RIGHT, salva().words!!.align)
     }
 
     /**

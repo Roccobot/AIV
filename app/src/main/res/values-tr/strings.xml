@@ -236,6 +236,8 @@
     <string name="draw_label">Etiket</string>
     <string name="draw_size">Boyut</string>
     <string name="draw_text_edit">Metni düzenle</string>
+    <string name="draw_align">Hizalama</string>
+    <string name="draw_center">Orta</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Tersine çevir</string>
     <string name="pick_all_short">Tümü</string>

@@ -126,6 +126,13 @@ enum class Face(val upright: Int, val italic: Int, val label: String) {
 enum class Back { NONE, HIGHLIGHT, LABEL }
 
 /**
+ * **Where the lines of a text or a pill sit** (4.90, his `B2` of 2026-10-08: *Aggiungo volentieri B2
+ * e B3 sul testo*): to the left, in the middle (the factory value, as before) or to the right of the
+ * text's box.
+ */
+enum class Align { LEFT, CENTER, RIGHT }
+
+/**
  * **The words of a text element and how they look** (G3, 4.90): the four styles (*grassetto,
  * corsivo, barrato, evidenziato, contornato*, the last named `Etichetta`) and the ground's colour.
  * The text's own colour is [Mark.ink] and its size [Mark.width], as for the other elements.
@@ -138,7 +145,15 @@ data class Words(
     val strike: Boolean = false,
     val back: Back = Back.NONE,
     /** The colour of the band or the strip, with its alpha; read only when [back] is not NONE. */
-    val backInk: Int = Draw.LABEL_INK
+    val backInk: Int = Draw.LABEL_INK,
+    /** Where the lines sit in the box (4.90, `B2`). */
+    val align: Align = Align.CENTER,
+    /**
+     * **The width the lines wrap at**, as a fraction of the image's long side, or 0 for lines that
+     * break only where Invio breaks them (4.90, his `B3`). Like the words it belongs to the element:
+     * a style copied onto a text leaves it its own.
+     */
+    val wrap: Float = 0f
 )
 
 /**
@@ -361,9 +376,25 @@ data class Mark(
         val p = f.into(Offset(to.x * fw, to.y * fh))
         if (pen == Pen.TEXT) {
             /*
+             * ⚠️⚠️ **The middles of the left and the right side set the width the lines wrap at,
+             * since 4.90** (his `B3`: the text goes to a new line by itself): the opposite side stays
+             * and the words flow again, at least one size wide. The other six handles scale the text.
+             */
+            val parole = words
+            if ((handle == 5 || handle == 7) && parole != null) {
+                val long = max(fw, fh)
+                val pad = if (parole.back == Back.NONE) 0f else width * long * Draw.PAD
+                val least = 2f * pad + width * long
+                val wide = max(least, if (handle == 5) p.x + f.hw else f.hw - p.x)
+                val cx = if (handle == 5) -f.hw + wide / 2f else f.hw - wide / 2f
+                val c = f.out(cx, 0f)
+                return copy(points = listOf(Offset(c.x / fw, c.y / fh)), words = parole.copy(wrap = (wide - 2f * pad) / long))
+            }
+            /*
              * ⚠️⚠️ **A text grows and shrinks as a whole, around its centre** (4.90): its box is
              * its words measured, so a handle sets the size, by how far along its own direction it
-             * is dragged. A text stretched along one axis would be a distorted face.
+             * is dragged. A text stretched along one axis would be a distorted face. The width it
+             * wraps at grows with it, so the lines stay the same.
              */
             val h0 = listOf(
                 -f.hw to -f.hh, f.hw to -f.hh, f.hw to f.hh, -f.hw to f.hh,
@@ -372,7 +403,8 @@ data class Mark(
             val d = h0.first * h0.first + h0.second * h0.second
             if (d < 1f) return this
             val scale = (p.x * h0.first + p.y * h0.second) / d
-            return copy(width = (width * scale).coerceIn(Draw.TEXT_MIN, Draw.TEXT_MAX))
+            val corpo = (width * scale).coerceIn(Draw.TEXT_MIN, Draw.TEXT_MAX)
+            return copy(width = corpo, words = parole?.let { it.copy(wrap = it.wrap * corpo / width) })
         }
         var l = -f.hw; var r = f.hw; var t = -f.hh; var b = f.hh
         when (handle) {
@@ -470,9 +502,9 @@ data class Mark(
             val mine = words ?: return this
             val theirs = source.words ?: return this
             if (pen == Pen.PILL || source.pen == Pen.PILL) {
-                return copy(words = mine.copy(face = theirs.face, bold = theirs.bold, italic = theirs.italic, strike = theirs.strike))
+                return copy(words = mine.copy(face = theirs.face, bold = theirs.bold, italic = theirs.italic, strike = theirs.strike, align = theirs.align))
             }
-            return copy(ink = source.ink, width = source.width, tint = source.tint, words = theirs.copy(text = mine.text))
+            return copy(ink = source.ink, width = source.width, tint = source.tint, words = theirs.copy(text = mine.text, wrap = mine.wrap))
         }
         if (pen == Pen.PILL || source.pen == Pen.PILL) return this
         if (pen == Pen.TEXT || source.pen == Pen.TEXT) {
@@ -717,7 +749,7 @@ internal object Draw {
      * test item.
      */
     private const val LINE = 1.3f
-    private const val PAD = 0.35f
+    const val PAD = 0.35f
     private const val BAND = 0.8f
     private const val ROUND = 0.3f
     private const val SHADOW_BLUR = 0.12f
@@ -727,8 +759,30 @@ internal object Draw {
     /** A text laid out: its paint, its lines with their widths, and the measures the box reads. */
     private class Lines(
         val paint: Paint, val lines: List<String>, val widths: List<Float>,
-        val size: Float, val step: Float, val cap: Float, val pad: Float, val hw: Float, val hh: Float
-    )
+        val size: Float, val step: Float, val cap: Float, val pad: Float, val hw: Float, val hh: Float,
+        val content: Float, val align: Align
+    ) {
+        /** Where the middle of line [i] is, from the box's middle. */
+        fun x(i: Int): Float = lineX(align, content, widths[i])
+    }
+
+    /** Where the middle of a line [line] wide sits, from the middle of a box [content] wide. */
+    private fun lineX(align: Align, content: Float, line: Float): Float = when (align) {
+        Align.LEFT -> (line - content) / 2f
+        Align.CENTER -> 0f
+        Align.RIGHT -> (content - line) / 2f
+    }
+
+    /**
+     * **[text] broken into the lines that fit [wide] pixels with [paint]**: every line of the text
+     * breaks where it no longer fits, as a paragraph does (4.90, `B3`).
+     */
+    private fun wrapped(text: String, paint: TextPaint, wide: Float): List<String> = text.split('\n').flatMap { riga ->
+        if (riga.isEmpty()) return@flatMap listOf("")
+        val layout = StaticLayout.Builder.obtain(riga, 0, riga.length, paint, wide.toInt().coerceAtLeast(1))
+            .setIncludePad(false).build()
+        (0 until layout.lineCount).map { riga.substring(layout.getLineStart(it), layout.getLineEnd(it)).trimEnd() }
+    }
 
     /**
      * **[mark]'s words laid out for a [w] x [h] original** (4.90): one line per line of the text,
@@ -743,19 +797,21 @@ internal object Draw {
     private fun lines(mark: Mark, w: Float, h: Float): Lines? {
         val words = mark.words ?: return null
         val size = (mark.width * max(w, h)).coerceAtLeast(1f)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
+        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
             typeface = Faces.of(words.face, words.italic, words.bold)
             textSize = size
             isStrikeThruText = words.strike
             textAlign = Paint.Align.CENTER
             color = mark.ink
         }
-        val lines = words.text.split('\n')
+        val wrap = words.wrap * max(w, h)
+        val lines = if (wrap > 0f) wrapped(words.text, paint, wrap) else words.text.split('\n')
         val widths = lines.map { paint.measureText(it) }
         val cap = android.graphics.Rect().also { paint.getTextBounds("H", 0, 1, it) }.height().toFloat()
         val step = size * LINE
         val pad = if (words.back == Back.NONE) 0f else size * PAD
-        return Lines(paint, lines, widths, size, step, cap, pad, (widths.maxOrNull() ?: 0f) / 2f + pad, lines.size * step / 2f)
+        val content = if (wrap > 0f) wrap else widths.maxOrNull() ?: 0f
+        return Lines(paint, lines, widths, size, step, cap, pad, content / 2f + pad, lines.size * step / 2f, content, words.align)
     }
 
     /** **Half the width and half the height of [mark]'s text**, in the pixels of a [w] x [h] original (4.90). */
@@ -811,7 +867,8 @@ internal object Draw {
     /** A pill laid out: its box, its traces, and its words fitted. */
     private class Pill(
         val c: Offset, val hw: Float, val hh: Float, val trace: Float,
-        val paint: Paint?, val lines: List<String>, val step: Float, val cap: Float
+        val paint: Paint?, val lines: List<String>, val step: Float, val cap: Float,
+        val content: Float = 0f, val align: Align = Align.CENTER
     )
 
     /**
@@ -843,9 +900,7 @@ internal object Draw {
         }
         fun laid(size: Float): List<String> {
             paint.textSize = size
-            val layout = StaticLayout.Builder.obtain(words.text, 0, words.text.length, paint, wide.toInt().coerceAtLeast(1))
-                .setIncludePad(false).build()
-            return (0 until layout.lineCount).map { words.text.substring(layout.getLineStart(it), layout.getLineEnd(it)).trimEnd() }
+            return wrapped(words.text, paint, wide)
         }
         val least = (PILL_MIN * max(w, h)).coerceAtLeast(1f)
         var lo = least
@@ -863,7 +918,7 @@ internal object Draw {
         val grow = hh - hh0
         val c = Offset(c0.x - grow * sin(rad).toFloat(), c0.y + grow * cos(rad).toFloat())
         val cap = android.graphics.Rect().also { paint.getTextBounds("H", 0, 1, it) }.height().toFloat()
-        return Pill(c, hw, hh, trace, paint, lines, lo * LINE, cap)
+        return Pill(c, hw, hh, trace, paint, lines, lo * LINE, cap, wide, words.align)
     }
 
     /** How many halvings the fitting of a pill's words takes: a size within a thousandth. */
@@ -901,7 +956,7 @@ internal object Draw {
         p.paint?.let { paint ->
             val top = -p.lines.size * p.step / 2f
             p.lines.forEachIndexed { i, line ->
-                canvas.drawText(line, 0f, top + p.step * (i + 0.5f) + p.cap / 2f, paint)
+                canvas.drawText(line, lineX(p.align, p.content, paint.measureText(line)), top + p.step * (i + 0.5f) + p.cap / 2f, paint)
             }
         }
         canvas.restoreToCount(kept)
@@ -952,10 +1007,11 @@ internal object Draw {
                 if (line.isBlank()) return@forEachIndexed
                 val mid = -t.hh + t.step * (i + 0.5f)
                 val half = t.widths[i] / 2f + t.pad
+                val x = t.x(i)
                 val band = if (words.back == Back.LABEL) t.step / 2f else t.step * BAND / 2f
                 val r = if (words.back == Back.LABEL) min(band, t.size * ROUND) else 0f
                 ground.op(
-                    Path().apply { addRoundRect(RectF(-half, mid - band, half, mid + band), r, r, Path.Direction.CW) },
+                    Path().apply { addRoundRect(RectF(x - half, mid - band, x + half, mid + band), r, r, Path.Direction.CW) },
                     Path.Op.UNION
                 )
             }
@@ -967,7 +1023,7 @@ internal object Draw {
         }
         t.lines.forEachIndexed { i, line ->
             val mid = -t.hh + t.step * (i + 0.5f)
-            canvas.drawText(line, 0f, mid + t.cap / 2f, t.paint)
+            canvas.drawText(line, t.x(i), mid + t.cap / 2f, t.paint)
         }
         canvas.restoreToCount(kept)
     }

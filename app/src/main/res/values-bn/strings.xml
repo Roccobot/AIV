@@ -236,6 +236,8 @@
     <string name="draw_label">লেবেল</string>
     <string name="draw_size">আকার</string>
     <string name="draw_text_edit">টেক্সট সম্পাদনা</string>
+    <string name="draw_align">সারিবদ্ধকরণ</string>
+    <string name="draw_center">মাঝখানে</string>
     <string name="pick_list">তালিকা</string>
     <string name="pick_invert">উল্টান</string>
     <string name="pick_all_short">সব</string>

@@ -236,6 +236,8 @@
     <string name="draw_label">Label</string>
     <string name="draw_size">Grootte</string>
     <string name="draw_text_edit">Tekst bewerken</string>
+    <string name="draw_align">Uitlijning</string>
+    <string name="draw_center">Midden</string>
     <string name="pick_list">Lijst</string>
     <string name="pick_invert">Omkeren</string>
     <string name="pick_all_short">Alles</string>

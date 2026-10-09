@@ -236,6 +236,8 @@
     <string name="draw_label">Ярлык</string>
     <string name="draw_size">Размер</string>
     <string name="draw_text_edit">Изменить текст</string>
+    <string name="draw_align">Выравнивание</string>
+    <string name="draw_center">По центру</string>
     <string name="pick_list">Список</string>
     <string name="pick_invert">Обратить</string>
     <string name="pick_all_short">Все</string>

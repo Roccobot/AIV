@@ -236,6 +236,8 @@
     <string name="draw_label">லேபிள்</string>
     <string name="draw_size">அளவு</string>
     <string name="draw_text_edit">உரையைத் திருத்து</string>
+    <string name="draw_align">சீரமைப்பு</string>
+    <string name="draw_center">நடுவில்</string>
     <string name="pick_list">பட்டியல்</string>
     <string name="pick_invert">தலைகீழ்</string>
     <string name="pick_all_short">அனைத்தும்</string>

@@ -4779,6 +4779,7 @@ private class Gaze(
     var italic by mutableStateOf(false)
     var strike by mutableStateOf(false)
     var back by mutableStateOf(Back.NONE)
+    var align by mutableStateOf(Align.CENTER)
     var labelInk by mutableIntStateOf(Draw.LABEL_INK)
     var highlightInk by mutableIntStateOf(Draw.HIGHLIGHT_INK)
 
@@ -4786,10 +4787,13 @@ private class Gaze(
     val backInk: Int get() = if (back == Back.HIGHLIGHT) highlightInk else labelInk
 
     /** The words of a new text, or of the chosen one, with the module's styles. */
-    fun words(text: String): Words = Words(text, face, bold, italic, strike, back, backInk)
+    fun words(text: String): Words = Words(text, face, bold, italic, strike, back, backInk, align)
 
-    /** The words of a new pill, or of the chosen one: the face and the three styles, and no ground (4.90). */
-    fun pillWords(text: String): Words = Words(text, face, bold, italic, strike)
+    /**
+     * The words of a new pill, or of the chosen one: the face, the three styles and where the lines
+     * sit, and no ground (4.90).
+     */
+    fun pillWords(text: String): Words = Words(text, face, bold, italic, strike, align = align)
 
     /**
      * **The next ground** (4.90): none, `Evidenziato`, `Etichetta`, and again. The words keep a
@@ -4878,6 +4882,7 @@ private class Gaze(
                 bold = w.bold
                 italic = w.italic
                 strike = w.strike
+                align = w.align
             }
             return
         }
@@ -4891,6 +4896,7 @@ private class Gaze(
                 bold = w.bold
                 italic = w.italic
                 strike = w.strike
+                align = w.align
                 back = w.back
                 if (w.back == Back.HIGHLIGHT) highlightInk = w.backInk
                 if (w.back == Back.LABEL) labelInk = w.backInk
@@ -4922,7 +4928,8 @@ private class Gaze(
         ink = Draw.lit(textInk, textLight) or 0xFF000000.toInt(),
         width = textSize,
         tint = Tint(textInk, textLight, 1f, null, 0f, 1f),
-        words = words(mark.words?.text.orEmpty())
+        // ⚠️ The width the lines wrap at is the element's, as its words are (4.90, `B3`).
+        words = words(mark.words?.text.orEmpty()).copy(wrap = mark.words?.wrap ?: 0f)
     ) else mark.copy(
         ink = Draw.withAlpha(litInk, inkAlpha),
         width = inkWidth,
@@ -5716,7 +5723,7 @@ private fun DrawBody(
                 gaze.ink, gaze.inkLight, gaze.inkAlpha, gaze.fillInk, gaze.fillLight, gaze.fillAlpha,
                 gaze.inkWidth, gaze.dashed, gaze.blurOn, gaze.blurAmount,
                 gaze.textInk, gaze.textLight, gaze.textSize, gaze.face, gaze.bold, gaze.italic,
-                gaze.strike, gaze.back, gaze.labelInk, gaze.highlightInk
+                gaze.strike, gaze.back, gaze.labelInk, gaze.highlightInk, gaze.align
             )
         }.drop(1).collectLatest {
             if (gaze.picked != scelto) return@collectLatest
@@ -8006,8 +8013,8 @@ private fun TextDialog(initial: String, onDismiss: () -> Unit, onDone: (String) 
 }
 
 /**
- * **The six keys of the Testo and Pillola pens** (G3, 4.90), under the first six of the seven
- * tools: `Carattere`, `Grassetto`, `Corsivo`, `Barrato`, `Fondo` and `Modifica testo`. They set the
+ * **The seven keys of the Testo and Pillola pens** (G3, 4.90), under the seven tools: `Carattere`,
+ * `Grassetto`, `Corsivo`, `Barrato`, `Fondo`, `Modifica testo` and `Allineamento`. They set the
  * next text or pill, or the chosen one, as the keys of the other pens do. With the Pillola pen
  * ([pill]) `Fondo` is off: a pill is its own ground.
  * - `Carattere` goes to the next of the four faces at every tap, and shows its 'Aa' in the face
@@ -8016,6 +8023,8 @@ private fun TextDialog(initial: String, onDismiss: () -> Unit, onDone: (String) 
  * - `Fondo` goes from none to `Evidenziato` to `Etichetta`, which exclude each other since both are
  *   a ground (reading `A3`), and shows the ground it lays.
  * - `Modifica testo` opens the window of the words of the chosen text.
+ * - `Allineamento` goes from the middle to the right to the left (his `B2`), and shows where the
+ *   lines sit; it holds for the pill too.
  */
 @Composable
 private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
@@ -8070,8 +8079,17 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
             modifier = Modifier.weight(1f)) { tinta ->
             Icon(Icons.Filled.Edit, contentDescription = null, tint = tinta)
         }
-        // ⚠️ A seventh column, empty, keeps the keys under the tools.
-        Spacer(Modifier.weight(1f))
+        val allineamento = stringResource(R.string.draw_align)
+        val dove = when (gaze.align) {
+            Align.LEFT -> stringResource(R.string.settings_left)
+            Align.CENTER -> stringResource(R.string.draw_center)
+            Align.RIGHT -> stringResource(R.string.settings_right)
+        }
+        TextKey("$allineamento: $dove", selected = false, enabled = live, toggle = false,
+            onClick = { gaze.align = Align.entries[(gaze.align.ordinal + 1) % Align.entries.size] },
+            modifier = Modifier.weight(1f)) { tinta ->
+            Icon(Glyphs.align(gaze.align), contentDescription = null, tint = tinta)
+        }
     }
 }
 

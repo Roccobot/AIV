@@ -236,6 +236,8 @@
     <string name="draw_label">Etikett</string>
     <string name="draw_size">Größe</string>
     <string name="draw_text_edit">Text bearbeiten</string>
+    <string name="draw_align">Ausrichtung</string>
+    <string name="draw_center">Mitte</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Umkehren</string>
     <string name="pick_all_short">Alle</string>

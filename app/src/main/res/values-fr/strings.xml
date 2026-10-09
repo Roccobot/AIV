@@ -236,6 +236,8 @@
     <string name="draw_label">Étiquette</string>
     <string name="draw_size">Taille</string>
     <string name="draw_text_edit">Modifier le texte</string>
+    <string name="draw_align">Alignement</string>
+    <string name="draw_center">Centre</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Inverser</string>
     <string name="pick_all_short">Tout</string>

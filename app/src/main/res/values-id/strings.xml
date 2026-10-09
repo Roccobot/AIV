@@ -236,6 +236,8 @@
     <string name="draw_label">Label</string>
     <string name="draw_size">Ukuran</string>
     <string name="draw_text_edit">Edit teks</string>
+    <string name="draw_align">Perataan</string>
+    <string name="draw_center">Tengah</string>
     <string name="pick_list">Daftar</string>
     <string name="pick_invert">Balik</string>
     <string name="pick_all_short">Semua</string>

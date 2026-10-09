@@ -236,6 +236,8 @@
     <string name="draw_label">Lebo</string>
     <string name="draw_size">Ukubwa</string>
     <string name="draw_text_edit">Hariri maandishi</string>
+    <string name="draw_align">Mpangilio</string>
+    <string name="draw_center">Katikati</string>
     <string name="pick_list">Orodha</string>
     <string name="pick_invert">Geuza</string>
     <string name="pick_all_short">Vyote</string>

@@ -236,6 +236,8 @@
     <string name="draw_label">Nhãn</string>
     <string name="draw_size">Cỡ chữ</string>
     <string name="draw_text_edit">Sửa văn bản</string>
+    <string name="draw_align">Căn chỉnh</string>
+    <string name="draw_center">Giữa</string>
     <string name="pick_list">Danh sách</string>
     <string name="pick_invert">Đảo</string>
     <string name="pick_all_short">Tất cả</string>

@@ -474,6 +474,8 @@
     <string name="draw_label">Etichetta</string>
     <string name="draw_size">Dimensione</string>
     <string name="draw_text_edit">Modifica testo</string>
+    <string name="draw_align">Allineamento</string>
+    <string name="draw_center">Centro</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Inverti</string>
     <string name="pick_all_short">Tutti</string>

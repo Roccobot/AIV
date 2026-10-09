@@ -907,22 +907,31 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   fabbrica dell'etichetta: testo #FFFFFF, striscia #A3408F; evidenziatore #FFE15A*):
   - **il sesto strumento è `Testo`**: un tocco sul vuoto apre una finestra modale in cui si scrive,
     come `Rinomina`; `Applica` aspetta una lettera, e il testo nasce centrato dove si è toccato, già
-    scelto. Va a capo solo dove lo manda Invio, e le righe sono centrate. Un trascinamento con
-    `Testo` non disegna niente (letture `A1` e `A8`);
+    scelto. Nasce largo quanto la sua riga più lunga, quindi va a capo dove lo manda Invio. Un
+    trascinamento con `Testo` non disegna niente (letture `A1` e `A8`);
   - **i quattro caratteri** vivono in `res/font`, un file dritto e uno corsivo per ciascuno, a peso
     variabile (400 il normale, 700 il grassetto); Roboto è quello di fabbrica. Le licenze, tutte SIL
     Open Font License, sono in `docs/fonts`. Si caricano una volta sola (`Faces`), dall'editor e dal
     salvataggio, perché il disegno si dipinge dove un contesto non c'è;
-  - **i sei tasti** sotto gli strumenti: `Carattere` passa al carattere dopo a ogni tocco e mostra
+  - **i sette tasti** sotto gli strumenti: `Carattere` passa al carattere dopo a ogni tocco e mostra
     il suo 'Aa'; `Grassetto`, `Corsivo` e `Barrato` si accendono e si combinano; `Fondo` passa da
     nessuno a `Evidenziato` e a `Etichetta`, che si escludono perché sono tutti e due un fondo;
-    `Modifica testo` riapre la finestra con le parole del testo scelto (lettura `A3`). La fila
-    delle forme ha sei colonne, e la sesta resta vuota, così le cinque forme non cambiano posto;
+    `Modifica testo` riapre la finestra con le parole del testo scelto (lettura `A3`);
+    `Allineamento` passa dal centro, che è quello di fabbrica, a destra e a sinistra, e vale anche
+    per la pillola (sua `B2` del 2026-10-08, il tasto a giro è una lettura della sessione). La fila
+    delle forme ha sette colonne, e le ultime due restano vuote, così le cinque forme non cambiano
+    posto;
   - **il colore delle parole** si sceglie coi tondi della tavolozza, bianco di fabbrica, con la sua
     luminosità; le parole sono sempre opache. **La dimensione** si regola col cursore `Dimensione`,
-    fra l'1% e il 20% del lato lungo e al 5% di fabbrica, e con le maniglie, che ingrandiscono e
-    rimpiccioliscono il testo intero intorno al suo centro: un testo stirato su un asse sarebbe un
-    carattere deformato (letture `A2` e `A4`). Il testo ha colore e dimensione suoi, distinti da
+    fra l'1% e il 20% del lato lungo e al 5% di fabbrica, e con le maniglie d'angolo e quelle a
+    metà dei lati di sopra e di sotto, che ingrandiscono e rimpiccioliscono il testo intero intorno
+    al suo centro: un testo stirato su un asse sarebbe un carattere deformato (letture `A2` e `A4`).
+  - ⚠️⚠️ **le maniglie a metà dei lati sinistro e destro cambiano la larghezza, e le parole vanno a
+    capo da sé, dalla `4.90`** (sua `B3` del 2026-10-08: *Aggiungo volentieri B2 e B3 sul testo*):
+    il lato opposto resta fermo, e la larghezza non scende sotto un corpo. La larghezza è del testo,
+    come le parole: lo stile copiato da un altro testo non la cambia, e una maniglia d'angolo la
+    ingrandisce insieme al corpo, così le righe restano quelle (lettura della sessione, dichiarata
+    nella voce di collaudo); Il testo ha colore e dimensione suoi, distinti da
     quelli della traccia, così dopo un rettangolo rosso non si scrive in rosso;
   - **la fila dei fondi** compare sotto il cursore quando il fondo è acceso: sei colori per
     l'etichetta, scuri perché reggono parole bianche, e sei per l'evidenziatore, chiari come un
@@ -951,7 +960,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     gli altri elementi: il testo gira intero, con le righe dritte fra loro. Lo stile passa intero
     fra due testi, parole escluse; fra un testo e una forma passa solo il colore, con la sua ricetta;
   - **il testo si appoggia** ai bordi e agli altri elementi quando lo si sposta, col suo riquadro;
-    tirandone una maniglia no, perché la maniglia cambia il corpo e non un lato.
+    tirandone una maniglia no.
 - **Dalla `4.90` anche la Pillola**, il settimo strumento (sua nota A sul giro della `4.43`: *uno
   strumento 'pillola', ovvero un contenitore di testo 'standard', che posso aggiungere senza dover
   configurare ogni volta tratto, riempimento, opacità*, con i suoi valori ARGB):
@@ -963,7 +972,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     `#e6fffefa` dentro e la scura `#e6373737` sul bordo, e sotto il vetro, cioè l'immagine sfocata
     (`Draw.blurAreas`, come la Sfocatura). Le parole sono bianche opache. Tavolozza e `Dimensione`
     sono spenti, non nascosti, come con la Sfocatura; dei tasti del testo valgono `Carattere`,
-    `Grassetto`, `Corsivo`, `Barrato` e `Modifica testo`, e `Fondo` è spento;
+    `Grassetto`, `Corsivo`, `Barrato`, `Modifica testo` e `Allineamento`, e `Fondo` è spento;
   - ⚠️ **le tracce sono dentro il riquadro**, così il riquadro disegnato è tutta la pillola e si
     appoggia come un rettangolo; le estremità sono tonde quanto possono, metà del lato corto;
   - **le parole vanno a capo da sé e prendono la misura più grande che il riquadro contiene**, fino a
@@ -974,8 +983,8 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     12 px sullo schermo per una pillola larga mezzo telefono, circa 545 px, quindi il 2,2%. Un numero
     fisso di pixel sfocherebbe in modo diverso l'anteprima e il file, e quasi niente su una foto
     grande;
-  - **stile**: fra un testo e una pillola passano il carattere e i tre stili, mai il colore né il
-    fondo; fra una pillola e una forma non passa niente;
+  - **stile**: fra un testo e una pillola passano il carattere, i tre stili e l'allineamento, mai il
+    colore né il fondo; fra una pillola e una forma non passa niente;
   - lettura della sessione, dichiarata nella voce di collaudo: la Pillola è uno strumento a sé, il
     settimo della fila, e non un quarto `Fondo` del testo, perché lui la chiama *strumento*.
 

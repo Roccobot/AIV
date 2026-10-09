@@ -236,6 +236,8 @@
     <string name="draw_label">లేబుల్</string>
     <string name="draw_size">పరిమాణం</string>
     <string name="draw_text_edit">వచనాన్ని సవరించు</string>
+    <string name="draw_align">అమరిక</string>
+    <string name="draw_center">మధ్యలో</string>
     <string name="pick_list">జాబితా</string>
     <string name="pick_invert">తలకిందులు</string>
     <string name="pick_all_short">అన్నీ</string>
