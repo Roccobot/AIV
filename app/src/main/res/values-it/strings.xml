@@ -250,6 +250,8 @@
     <string name="settings_styles_import">Importa</string>
     <string name="settings_styles_saved">Stili esportati</string>
     <string name="settings_styles_loaded">Stili importati</string>
+    <string name="settings_style_saved">Stile esportato</string>
+    <string name="settings_style_loaded">Stile importato</string>
     <string name="settings_styles_bad">Questo file non contiene nessuno stile</string>
     <string name="settings_download_path_desc">Aggiunge il pulsante \'Destinazione\' alla schermata di download, per scegliere la cartella di salvataggio.</string>
     <string name="save_name_path">Cartella di destinazione: %1$s</string>

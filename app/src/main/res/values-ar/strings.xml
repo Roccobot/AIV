@@ -764,6 +764,8 @@
     <string name="settings_styles_import">استيراد</string>
     <string name="settings_styles_saved">تم تصدير الأنماط</string>
     <string name="settings_styles_loaded">تم استيراد الأنماط</string>
+    <string name="settings_style_saved">تم تصدير النمط</string>
+    <string name="settings_style_loaded">تم استيراد النمط</string>
     <string name="settings_styles_bad">هذا الملف لا يحتوي على أي نمط</string>
     <string name="hint_modules">مرّر الأيقونات للوصول إلى كل وحدات التحرير. اضغط مطولاً على أيقونة وحدة لتصفير تعديلاتها وحدها.</string>
     <string name="hint_tools">إلى جانب الوحدات، هناك وظيفتان يمكنك تشغيلهما أو إيقافهما فورًا بنقرة على الأيقونة التي تضيء: \'علامة مائية\' و\'تغيير الحجم\'. الضغط المطول يفتح إعدادات كل منهما.</string>

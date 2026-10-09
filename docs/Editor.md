@@ -1158,9 +1158,12 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   sei della sessione, cioè quattro mestieri che i suoi non toccavano e due riscritture dichiarate,
   con un nome diverso dal suo. Cinque dei suoi XMP non avevano niente da travasare (taratura dei
   primari, color grading a tre zone, maschere).
-  - ⚠️ **Restano fuori** sfrangiatura, viraggio diviso, chiarezza e texture. I venti non includono gli
-    Effetti, e si rifanno da capo a modulo finito (sua risposta `lascia` a `d-preset-xmp`): uno stile
-    di casa non si cambia da sé.
+  - ⚠️ **Restano fuori** sfrangiatura, viraggio diviso, chiarezza e texture.
+  - ⚠️⚠️ **Dalla `4.96` tre dei venti hanno gli Effetti dei suoi XMP** ('Roccobot', 'Dettagli fini',
+    'T&O - Blu/Rosso'), col suo via sulla stima degli stili: era la sua risposta `lascia` a
+    `d-preset-xmp`, che li voleva rifatti a modulo finito. Le regole di conversione (segno della
+    vignettatura, dimensione della grana sul 25 di Lightroom, punto medio come sfumatura) vivono
+    su `HOUSE`, in `Preset.kt`. Uno stile di casa non si cambia da sé.
   - **I nomi dei venti sono suoi** (fra gli altri 'Roccobot', 'Rosso -', 'Rosso - -', i tre col
     prefisso 'T&O - ', 'Blu/Rosso'), e l'elenco è in ordine alfabetico. I nomi non si traducono.
 - ⚠️⚠️ **Il tocco applica sostituendo tutto; il tocco lungo tocca solo i moduli che lo stile nomina**
@@ -1190,8 +1193,12 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
 - ⚠️⚠️ **'Importa' ed 'Esporta' passano dal selettore di sistema**, e il file è l'archivio stesso,
   col suffisso `.aivcollection` (sua istruzione) e il tipo generico; si importa ogni file.
   L'importazione di questa pagina sostituisce (`docs/Files.md` § '💼 Esporta e importa, e il file
-  che solo AIV sa leggere'). **`.aivstyle`, lo stile singolo, non c'è ancora**: è una domanda del
-  giro.
+  che solo AIV sa leggere'). **`.aivstyle`, lo stile singolo, c'è dalla `4.96`** (sua risposta `dopo` a
+  `d-stile-singolo`): ogni riga della pagina ha il comando che la esporta da sola, col nome dello
+  stile come nome del file, e 'Importa' riconosce il file e **aggiunge** lo stile agli altri, con lo
+  stesso nome lo sostituisce. Il file è l'oggetto che l'archivio scrive per ogni stile; uno stile di
+  casa arriva dall'altra parte come stile proprio. Il file di impostazioni non lo accetta come
+  archivio.
 - ⚠️⚠️ **Il primo avvio dell'editor completo mostra due mini-onboarding coi testi suoi**: la fila dei
   moduli (`Hint.MODULES`, lo scorrimento e il tocco lungo che azzera un modulo) e i tre tasti dai due
   gesti (`Hint.EDITOR_TOOLS`, con una chiave sua perché chi ha già l'app la veda).

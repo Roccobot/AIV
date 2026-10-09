@@ -710,6 +710,8 @@
     <string name="settings_styles_import">Importar</string>
     <string name="settings_styles_saved">Estilos exportados</string>
     <string name="settings_styles_loaded">Estilos importados</string>
+    <string name="settings_style_saved">Estilo exportado</string>
+    <string name="settings_style_loaded">Estilo importado</string>
     <string name="settings_styles_bad">Este ficheiro não contém nenhum estilo</string>
     <string name="hint_modules">Desliza os ícones para chegares a todos os módulos de edição. Mantém premido o ícone de um módulo para repor apenas as alterações dele.</string>
     <string name="hint_tools">Além dos módulos, há duas funções que você pode ligar ou desligar na hora com um toque no ícone, que se acende: \'Marca d\'água\' e \'Redimensionar\'. Com um toque longo você acessa as configurações de cada uma.</string>

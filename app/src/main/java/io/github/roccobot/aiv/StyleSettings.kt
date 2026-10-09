@@ -53,6 +53,7 @@ fun StyleSettings(
     var mine by remember { mutableStateOf(Presets.mine(context)) }
     var renaming by remember { mutableStateOf<Preset?>(null) }
     var asking by remember { mutableStateOf(false) }
+    var sending by remember { mutableStateOf<Preset?>(null) }
 
     /*
      * ⚠️ **Si rilegge dal disco invece di ritoccare la lista in mano**: ogni comando passa da
@@ -96,17 +97,45 @@ fun StyleSettings(
             )
         )
     }
+    /*
+     * ⚠️ **Lo stile da esportare si ricorda in [sending]**, perché il selettore di sistema torna
+     * con il solo indirizzo del file: chi l'ha chiesto lo sa solo questa pagina. Il contratto è lo
+     * stesso dell'archivio, e cambia solo il testo che si scrive.
+     */
+    val esportaUno = rememberLauncherForActivityResult(scrittura) { dove ->
+        val chi = sending
+        sending = null
+        if (dove == null || chi == null) return@rememberLauncherForActivityResult
+        val fatto = runCatching {
+            context.contentResolver.openOutputStream(dove)?.use { flusso ->
+                flusso.write(Presets.exportOne(chi).toByteArray())
+            } != null
+        }.getOrDefault(false)
+        Notices.say(
+            context.getString(
+                if (fatto) R.string.settings_style_saved else R.string.toast_save_failed
+            )
+        )
+    }
+    fun mandaFuori(p: Preset) {
+        sending = p
+        esportaUno.launch(ImageActions.safeName(p.name) + ONE_STYLE_SUFFIX)
+    }
     val lettura = remember { ActivityResultContracts.OpenDocument() }
     val importa = rememberLauncherForActivityResult(lettura) { da ->
         if (da == null) return@rememberLauncherForActivityResult
         val testo = runCatching {
             context.contentResolver.openInputStream(da)?.use { it.readBytes().decodeToString() }
         }.getOrNull()
-        val fatto = testo != null && Presets.load(context, testo)
+        val esito = testo?.let { Presets.load(context, it) }
         rileggi()
         Notices.say(
             context.getString(
-                if (fatto) R.string.settings_styles_loaded else R.string.settings_styles_bad
+                when (esito) {
+                    Presets.Loaded.BOOK -> R.string.settings_styles_loaded
+                    Presets.Loaded.ONE -> R.string.settings_style_loaded
+                    null -> R.string.settings_styles_bad
+                }
             )
         )
     }
@@ -120,7 +149,12 @@ fun StyleSettings(
             rileggi()
         }
     ) { p, _ ->
-        StyleRow(preset = p, onRename = { renaming = p }, onRemove = { togli(p) })
+        StyleRow(
+            preset = p,
+            onRename = { renaming = p },
+            onExport = { mandaFuori(p) },
+            onRemove = { togli(p) }
+        )
     }
 
     StyleGroup(stringResource(R.string.look_preset_mine))
@@ -140,7 +174,12 @@ fun StyleSettings(
                 rileggi()
             }
         ) { p, _ ->
-            StyleRow(preset = p, onRename = { renaming = p }, onRemove = { togli(p) })
+            StyleRow(
+            preset = p,
+            onRename = { renaming = p },
+            onExport = { mandaFuori(p) },
+            onRemove = { togli(p) }
+        )
         }
     }
 
@@ -223,16 +262,23 @@ private fun StyleGroup(text: String) {
 }
 
 /**
- * Una riga dell'elenco: il nome e i due comandi che lo toccano.
+ * Una riga dell'elenco: il nome e i tre comandi che lo toccano.
  *
  * ⚠️ **Il rientro a destra è il posto della manopola del trascinamento**, che [Reorderable]
  * disegna sopra la riga: senza, un nome lungo le finirebbe sotto. È la stessa misura delle righe
  * dei campi info.
- * ⚠️ **Due icone e non un tocco lungo**: qui si viene per **gestire** l'elenco, quindi i comandi
- * si vedono; il tocco lungo è il gesto dell'elenco vero, dove serve a comporre uno stile.
+ * ⚠️ **Icone e non un tocco lungo**: qui si viene per **gestire** l'elenco, quindi i comandi si
+ * vedono; il tocco lungo è il gesto dell'elenco vero, dove serve a comporre uno stile.
+ * ⚠️ **L'esportazione è in mezzo e il cestino è l'ultimo, dalla `4.96`**: il comando che toglie
+ * qualcosa resta in fondo alla riga, come nel Disegno dalla `4.95`.
  */
 @Composable
-private fun StyleRow(preset: Preset, onRename: () -> Unit, onRemove: () -> Unit) {
+private fun StyleRow(
+    preset: Preset,
+    onRename: () -> Unit,
+    onExport: () -> Unit,
+    onRemove: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(end = STYLE_HANDLE_ROOM),
         verticalAlignment = Alignment.CenterVertically
@@ -244,6 +290,9 @@ private fun StyleRow(preset: Preset, onRename: () -> Unit, onRemove: () -> Unit)
         )
         IconButton(onClick = onRename) {
             Icon(Glyphs.TextCursor, stringResource(R.string.pick_rename))
+        }
+        IconButton(onClick = onExport) {
+            Icon(Glyphs.Download, stringResource(R.string.settings_styles_export))
         }
         IconButton(onClick = onRemove) {
             Icon(Glyphs.PickDelete, stringResource(R.string.look_preset_remove))
@@ -273,7 +322,7 @@ private const val STYLE_MIME = "application/octet-stream"
  * ⚠️ **Tutti e non il tipo dell'esportazione**, per la stessa ragione del file di impostazioni: un
  * file con un suffisso che nessuno conosce arriva col tipo generico, e uno esportato prima della
  * `2.95` arriva come JSON. Filtrando per tipo, uno dei due non si vedrebbe. A dire se il testo è un
- * archivio di stili ci pensa [Presets.load].
+ * archivio di stili, o uno stile solo, ci pensa [Presets.load].
  */
 private const val STYLE_ANY = "*/*"
 
@@ -283,6 +332,15 @@ private const val STYLE_ANY = "*/*"
  * ⚠️⚠️ **L'ESTENSIONE È `.aivcollection` DALLA `2.95`, ED È SUA** (campo libero del giro della `2.93`
  * e della `2.94`: *File di stile con tutti gli stili: voglio l'estensione `.aivcollection`*). Lui
  * la dava per una funzione futura, e questa pagina la esporta già dalla `2.50`: quindi l'estensione
- * entra adesso, e lo stile singolo, che ancora non si esporta, è una domanda del giro dopo.
+ * entra adesso. Lo stile singolo ha la sua, [ONE_STYLE_SUFFIX].
  */
 private const val STYLE_FILE = "aiv-styles.aivcollection"
+
+/**
+ * Il suffisso del file di uno stile solo, dopo il nome dello stile.
+ *
+ * ⚠️ **`.aivstyle` è il nome che la domanda `d-stile-singolo` gli dava**, e lui ha risposto `dopo`,
+ * cioè con gli stili: entra con la `4.96`. Il contenuto è lo stesso oggetto che l'archivio scrive
+ * per ogni stile ([Presets.exportOne]), e all'importazione lo riconosce [Presets.load].
+ */
+private const val ONE_STYLE_SUFFIX = ".aivstyle"

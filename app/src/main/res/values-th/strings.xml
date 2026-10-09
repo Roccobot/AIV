@@ -674,6 +674,8 @@
     <string name="settings_styles_import">นำเข้า</string>
     <string name="settings_styles_saved">ส่งออกสไตล์แล้ว</string>
     <string name="settings_styles_loaded">นำเข้าสไตล์แล้ว</string>
+    <string name="settings_style_saved">ส่งออกสไตล์แล้ว</string>
+    <string name="settings_style_loaded">นำเข้าสไตล์แล้ว</string>
     <string name="settings_styles_bad">ไฟล์นี้ไม่มีสไตล์ใด ๆ</string>
     <string name="hint_modules">ปัดไอคอนเพื่อเข้าถึงโมดูลแก้ไขทั้งหมด แตะค้างที่ไอคอนของโมดูลเพื่อล้างเฉพาะการปรับของโมดูลนั้น</string>
     <string name="hint_tools">นอกจากโมดูลแล้ว ยังมีสองฟังก์ชันที่เปิดหรือปิดได้ทันทีด้วยการแตะที่ไอคอน ซึ่งจะสว่างขึ้น ได้แก่ \'ลายน้ำ\' และ \'ปรับขนาด\' กดค้างเพื่อเปิดการตั้งค่าของแต่ละอย่าง</string>
