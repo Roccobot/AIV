@@ -2275,12 +2275,14 @@ class DisegnoTest {
     }
 
     /**
-     * **Con `Pillola` un trascinamento disegna la pillola e chiede le parole, e un tocco la posa
-     * attorno alle parole** (`4.90`, sua nota A sul giro della `4.43`): la pillola nasce scelta, coi
-     * due angoli del trascinamento; tavolozza, `Dimensione` e `Fondo` sono spenti; un tocco sul vuoto
-     * toglie la scelta, e il tocco dopo posa una seconda pillola.
+     * **Con `Pillola` un trascinamento disegna la pillola e chiede le parole** (`4.90`, sua nota A sul
+     * giro della `4.43`): la pillola nasce scelta, coi due angoli del trascinamento; tavolozza,
+     * `Dimensione` e `Fondo` sono spenti.
      * ⚠️⚠️ **CONTROPROVATA** due volte: senza la domanda delle parole alla fine del trascinamento (la
      * finestra non compare), e con la tavolozza accesa per la Pillola (il tondo blu risulta acceso).
+     * ⚠️ Il tocco che posa la pillola ha una prova sua: sullo schermo di serie del banco l'immagine
+     * misura una trentina di pixel, e la portata del dito sugli elementi (24 dp) la copre tutta,
+     * quindi qui un tocco sul vuoto prende sempre la pillola appena disegnata.
      */
     @Test
     fun `con Pillola un trascinamento disegna la pillola e chiede le parole`() {
@@ -2311,20 +2313,36 @@ class DisegnoTest {
         assertEquals("Ciao", disegnata.words?.text)
         assertEquals("la pillola ha i due angoli del trascinamento", 2, disegnata.points.size)
         banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).assertIsEnabled()
+    }
 
-        // ⚠️ Un tocco sul vuoto con un elemento scelto toglie la scelta e basta: la finestra la apre
-        // il tocco dopo. Se il salvataggio ha già tolto la scelta, la apre il primo.
-        val vuoto = Offset(r.left + 0.5f * r.width, r.top + 0.8f * r.height)
-        tocca(vuoto)
-        if (banco.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isEmpty()) tocca(vuoto)
+    /**
+     * **Con `Pillola` un tocco chiede le parole e posa la pillola attorno a loro** (`4.90`): la pillola
+     * nasce dove si tocca, più larga che alta per una parola sola, e già scelta.
+     * ⚠️⚠️ **CONTROPROVATA**: con la pillola posata nel solo punto toccato, senza `Draw.pillAround`, la
+     * pillola non è più larga che alta.
+     */
+    @Test
+    fun `con Pillola un tocco posa la pillola attorno alle parole`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
+        banco.waitForIdle()
+        tocca(Offset.Zero)
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsNotEnabled()
         banco.onNode(hasSetTextAction()).performTextInput("Seconda")
         banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
         banco.waitForIdle()
-        val due = salva()
-        assertEquals("il tocco doveva posare una seconda pillola", 2, due.size)
-        assertEquals(Pen.PILL, due[1].pen)
-        assertTrue("posata attorno alle parole, più larga che alta",
-            kotlin.math.abs(due[1].points.last().x - due[1].points.first().x) > kotlin.math.abs(due[1].points.last().y - due[1].points.first().y))
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val posata = salvato!!.drawing.marks.single()
+        assertEquals(Pen.PILL, posata.pen)
+        assertEquals("Seconda", posata.words?.text)
+        val (a, b) = posata.points.first() to posata.points.last()
+        assertTrue("posata attorno alle parole, più larga che alta", kotlin.math.abs(b.x - a.x) > kotlin.math.abs(b.y - a.y))
+        assertEquals("posata dove si è toccato", 0.5f, (a.y + b.y) / 2f, 0.1f)
+        banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).assertIsEnabled()
     }
 
     /**
