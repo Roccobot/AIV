@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.94**: nel modulo Disegno le file hanno la stessa aria fra loro, e la striscia scelta ha gli angoli stondati.
+Versione **4.95**: nel modulo Disegno il tratto e il riempimento di fabbrica sono rossi, e `Elimina` è un'icona, l'ultima a destra.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.94 è pubblicata: [v4.94](https://github.com/Roccobot/AIV/releases/tag/v4.94), con l'APK
-[AIV-4.94.apk](https://github.com/Roccobot/AIV/releases/download/v4.94/AIV-4.94.apk).
-Commit prodotto su `main`: `416b934`, release dal commit `416b934` (SlimVer 4.94 / versionCode 351; APK 11.015.461 byte, digest `e58f5954`).
+La Release 4.95 è pubblicata: [v4.95](https://github.com/Roccobot/AIV/releases/tag/v4.95), con l'APK
+[AIV-4.95.apk](https://github.com/Roccobot/AIV/releases/download/v4.95/AIV-4.95.apk).
+Commit prodotto su `main`: `15d1735`, release dal commit `15d1735` (SlimVer 4.95 / versionCode 352; APK 11.015.461 byte, digest `65c2c41d`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.94**: due prove sul modulo Disegno e una domanda. Giro **4.93**: la prova del doppio tocco OK, e tre note in Altro.
+Giro **4.95**: due prove sul modulo Disegno. Giro **4.94**: le due prove OK, la domanda sul disturbo chiusa (era il gesto a tre dita), e tre note in Altro.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,46 +22,37 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.94 sono superate: banco di prova completo (679 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.95 sono superate: banco di prova completo (680 prove), controllo delle traduzioni, compilazione.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 4.94-01 | Non provato | | Attendere il collaudo. |
-| 4.94-02 | Non provato | | Attendere il collaudo. |
+| 4.95-01 | Non provato | | Attendere il collaudo. |
+| 4.95-02 | Non provato | | Attendere il collaudo. |
 
-## 1. Le file del modulo Disegno
+## 1. Il tratto e il riempimento di fabbrica
 
-Apri il modulo Disegno e confronta la scheda col tuo mockup: fra i gettoni dei moduli, gli strumenti, i tasti, i tondi e la fila di `Dimensione` con `Elimina` ed `Elimina tutto` c'è la stessa aria; il nome del cursore resta vicino al cursore; sotto il cursore la fila delle strisce, e sotto le strisce un po' più d'aria prima della barra in fondo. Passa da uno strumento all'altro e accendi e spegni `Sfondo`: il cursore e le file dei tasti non si muovono. Poi passa agli altri moduli: la scheda è un po' più alta di prima, uguale per tutti.
+Apri un'immagine nell'editor completo, così gli strumenti ripartono dai valori di fabbrica, poi apri il modulo Disegno e disegna una freccia: è rossa piena, quasi opaca, tratteggiata, e spessa come il cursore `Spessore` a due terzi della corsa. Disegna un rettangolo e un'ellisse: hanno lo stesso tratto, e dentro il riempimento rosso leggero. Tocca `Traccia`: il cursore è quasi in fondo a destra, al 95%; tocca `Spessore`: il cursore è a due terzi.
 
-Letture mie: l'aria fra due file è di 12 dp, presa dal tuo mockup, dove va da 11 a 15; la fila del nome e di `Elimina` è alta come i tasti; il Disegno è il modulo più alto, quindi la scheda cresce con lui (17 dp, misurati sul banco) e il palco si stringe di altrettanto.
+Letture mie: i valori valgono per tutti gli strumenti di forma, come hai scelto con A3; 'rossa' è il rosso del primo tondo così com'è, senza scurirlo; il riempimento è lo stesso rosso al 20%, l'opacità che aveva l'ambra.
 
-## 2. La striscia scelta
+## 2. Il tasto `Elimina`
 
-Scrivi un testo, accendi `Sfondo` e scegli una striscia, poi la prima e l'ultima: il bordo scuro, il filo chiaro dentro e il colore hanno gli angoli stondati, uno dentro l'altro, come nel tuo disegno; sulla prima e sull'ultima striscia il bordo scuro segue anche lo stondamento della fila.
+Con il rettangolo scelto come strumento, la fila dei tasti sotto gli strumenti è spostata a destra: Tratteggio, Traccia, Spessore, Riempimento e, per ultimo, il cestino di `Elimina`, sotto `Pannello`. Disegna due rettangoli, scegline uno e tocca il cestino: sparisce quello scelto, l'altro resta. Tieni premuto il cestino: spariscono tutti. Passa a `Testo`: il cestino è l'ultimo tasto della fila, dopo `Testo`, e fa lo stesso con testi, pillole e pannelli. Accanto al nome del cursore non ci sono più `Elimina` ed `Elimina tutto`.
 
-## Domande
-
-### d-tasto-disturbo · Il disturbo sul tasto `Testo`
-
-Nelle tue schermate il disturbo è un alone grigio granuloso: è l'onda che Android disegna sotto il dito quando si tocca un tasto. In `UI.png` ce n'è una su `Testo` e una su `Barrato`, distanti quanto due dita. Sul banco l'onda si spegne da sola, quindi penso che la schermata fatta con tre dita abbia toccato quei due tasti. Scegli `Testo`, aspetta un secondo e fai una schermata coi tasti di accensione e volume, poi guarda il tasto anche a occhio.
-
-**T1**: coi tasti il disturbo non c'è: era il gesto della schermata, e non cambio niente.
-
-**T2**: il disturbo c'è anche coi tasti, o lo vedo a occhio: lo indago con una registrazione dello schermo che mi mandi.
-
-Parere: **T1**, perché le due onde sono su due file diverse e alla distanza di due dita, e sul banco nessun tasto resta segnato.
+Letture mie: il cestino è acceso finché nel disegno c'è almeno un elemento, così la pressione lunga funziona anche senza un elemento scelto; un tocco senza un elemento scelto non fa niente. `Elimina` resta anche nel menu della pressione lunga su un elemento.
 
 ## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Le file del modulo Disegno | 4.94-01 | Non provato | | Attendere il collaudo. |
-| La striscia scelta | 4.94-02 | Non provato | | Attendere il collaudo. |
-| Il doppio tocco su testo, pillola e pannello | 4.93-01 | OK | | Chiusa. |
+| Il tratto e il riempimento di fabbrica | 4.95-01 | Non provato | | Attendere il collaudo. |
+| Il tasto `Elimina` | 4.95-02 | Non provato | | Attendere il collaudo. |
+| Le file del modulo Disegno | 4.94-01 | OK | | Chiusa. |
+| La striscia scelta | 4.94-02 | OK | | Chiusa. |
 
 ## Prossimi passi
 
-- **In collaudo**: le file del Disegno (`4.94-01`), la striscia scelta (`4.94-02`) e la domanda sul disturbo del tasto `Testo` (`d-tasto-disturbo`).
+- **In collaudo**: il tratto e il riempimento di fabbrica (`4.95-01`) e il tasto `Elimina` (`4.95-02`).
+- **Adesso**: gli stili, nella 4.96, dai tuoi diciannove XMP che ho già; poi uno o due rilasci di assestamento e la 5.00.
 - **Escluso per ora**: scegliere e spostare un elemento con un solo trascinamento (nota D del giro 4.90), come hai deciso.
-- **Dopo**: gli stili, nella 4.95, con uno o due rilasci di assestamento; poi la 5.00.
 - **5.0x**: la scelta per il Play Store (AIV come gestore di file, o galleria col solo accesso a immagini e video), con lo snellimento dei file di regole.
