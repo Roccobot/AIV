@@ -4,7 +4,7 @@ Versione **4.90**: nel modulo Disegno il testo, la pillola, le guide verso gli a
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
 La Release 4.90 è pubblicata: [v4.90](https://github.com/Roccobot/AIV/releases/tag/v4.90), con l'APK
 [AIV-4.90.apk](https://github.com/Roccobot/AIV/releases/download/v4.90/AIV-4.90.apk).
-Commit prodotto su `main`: `e5f5bb8`, release dal commit `e5f5bb8` (SlimVer 4.90 / versionCode 347; APK XXBYTES byte, digest `XXDIGEST`).
+Commit prodotto su `main`: `e5f5bb8`, release dal commit `e5f5bb8` (SlimVer 4.90 / versionCode 347; APK 10.999.097 byte, digest `11e62677`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
