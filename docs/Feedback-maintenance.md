@@ -124,6 +124,15 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Scrivi testi italiani e prove eseguibili: comandi da raggiungere, azione e risultato
   atteso. Mantieni le prove aperte fra release; archivia soltanto quelle concluse dal
   giro consegnato. Non sostituire riscontri manuali con prove automatiche.
+- ⚠️⚠️ **Ogni riquadro ha un riferimento, e un tasto che lo copia** (richiesta di Rocco del
+  2026-10-09, col suo mockup e la sua icona: *ogni riquadro di esito abbia un simbolo in alto a
+  destra, cliccabile, che copia il riferimento al riquadro stesso (es. `4.90-05`) da inserire in
+  un altro commento che necessita una cross-reference*). I riferimenti sono tre famiglie, e sono
+  le chiavi che già esistono: la prova `4.90-05`, la domanda `d-velo-pannello`, l'etichetta
+  `e-draw_panel`. Il tasto lo aggiunge `refButton` in `publish/feedback-ui.js` a ogni riquadro
+  di prova, domanda ed etichetta, e copia il testo nudo, in minuscolo; lo presidia
+  `tools/feedback-interactive-check.py`. Nelle etichette con l'icona del lettore di schermo il
+  tasto è alla sua sinistra.
 - Conserva gli identificatori esistenti, come `3.13-01`.
   Per una prova nuova usa un identificatore nuovo: rinominare o riutilizzare una chiave
   può associare una risposta a una prova diversa.
