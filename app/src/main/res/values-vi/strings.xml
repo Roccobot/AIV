@@ -227,13 +227,12 @@
     <string name="draw_clear">Xóa tất cả</string>
     <string name="draw_text">Văn bản</string>
     <string name="draw_pill">Viên nang</string>
+    <string name="draw_panel">Bảng</string>
     <string name="draw_face">Phông chữ</string>
     <string name="draw_bold">Đậm</string>
     <string name="draw_italic">Nghiêng</string>
     <string name="draw_strike">Gạch ngang</string>
     <string name="draw_ground">Nền</string>
-    <string name="draw_highlight">Tô sáng</string>
-    <string name="draw_label">Nhãn</string>
     <string name="draw_size">Cỡ chữ</string>
     <string name="draw_text_edit">Sửa văn bản</string>
     <string name="draw_align">Căn chỉnh</string>

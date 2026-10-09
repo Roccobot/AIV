@@ -227,13 +227,12 @@
     <string name="draw_clear">Hapus semua</string>
     <string name="draw_text">Teks</string>
     <string name="draw_pill">Pil</string>
+    <string name="draw_panel">Panel</string>
     <string name="draw_face">Huruf</string>
     <string name="draw_bold">Tebal</string>
     <string name="draw_italic">Miring</string>
     <string name="draw_strike">Coret</string>
     <string name="draw_ground">Latar</string>
-    <string name="draw_highlight">Sorotan</string>
-    <string name="draw_label">Label</string>
     <string name="draw_size">Ukuran</string>
     <string name="draw_text_edit">Edit teks</string>
     <string name="draw_align">Perataan</string>

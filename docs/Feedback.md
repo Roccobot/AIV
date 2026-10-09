@@ -107,11 +107,6 @@ Sinistra · Centro · Destra
 <!-- chiavi: draw_center -->
 <!-- Il lettore di schermo legge 'Allineamento: Centro'. Sinistra e Destra sono le parole del lato preferito nelle impostazioni, già approvate. -->
 
-### e-draw_highlight · I due fondi del testo
-Evidenziato · Etichetta
-<!-- chiavi: draw_highlight draw_label -->
-<!-- `Etichetta` è il nome dello stile che hai scelto (N1). -->
-
 ### e-draw_size · Il cursore del testo
 Dimensione
 

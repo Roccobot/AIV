@@ -542,8 +542,8 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_draw)
 
     /**
-     * Le sette penne del modulo 'Disegno': le cinque della `4.40`, un tratto ciascuna (vedi i file),
-     * e dalla `4.90` il testo, il glifo di Material ammorbidito, e la pillola.
+     * Le otto penne del modulo 'Disegno': le cinque della `4.40`, un tratto ciascuna (vedi i file),
+     * dalla `4.90` il testo, il glifo di Material ammorbidito, e la pillola, e dalla `4.91` il pannello.
      */
     @Composable
     fun pen(pen: Pen): ImageVector = when (pen) {
@@ -554,6 +554,7 @@ object Glyphs {
         Pen.ELLIPSE -> ImageVector.vectorResource(R.drawable.ic_pen_ellipse)
         Pen.TEXT -> ImageVector.vectorResource(R.drawable.ic_pen_text)
         Pen.PILL -> ImageVector.vectorResource(R.drawable.ic_pen_pill)
+        Pen.PANEL -> ImageVector.vectorResource(R.drawable.ic_pen_panel)
     }
 
     /**

@@ -227,13 +227,12 @@
     <string name="draw_clear">Excluir tudo</string>
     <string name="draw_text">Texto</string>
     <string name="draw_pill">Pílula</string>
+    <string name="draw_panel">Painel</string>
     <string name="draw_face">Fonte</string>
     <string name="draw_bold">Negrito</string>
     <string name="draw_italic">Itálico</string>
     <string name="draw_strike">Tachado</string>
     <string name="draw_ground">Fundo</string>
-    <string name="draw_highlight">Destaque</string>
-    <string name="draw_label">Etiqueta</string>
     <string name="draw_size">Tamanho</string>
     <string name="draw_text_edit">Editar texto</string>
     <string name="draw_align">Alinhamento</string>

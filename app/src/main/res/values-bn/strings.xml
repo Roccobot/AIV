@@ -227,13 +227,12 @@
     <string name="draw_clear">সব মুছুন</string>
     <string name="draw_text">টেক্সট</string>
     <string name="draw_pill">ক্যাপসুল</string>
+    <string name="draw_panel">প্যানেল</string>
     <string name="draw_face">ফন্ট</string>
     <string name="draw_bold">বোল্ড</string>
     <string name="draw_italic">ইটালিক</string>
     <string name="draw_strike">স্ট্রাইকথ্রু</string>
     <string name="draw_ground">পটভূমি</string>
-    <string name="draw_highlight">হাইলাইট</string>
-    <string name="draw_label">লেবেল</string>
     <string name="draw_size">আকার</string>
     <string name="draw_text_edit">টেক্সট সম্পাদনা</string>
     <string name="draw_align">সারিবদ্ধকরণ</string>

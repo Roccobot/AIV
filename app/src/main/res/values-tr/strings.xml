@@ -227,13 +227,12 @@
     <string name="draw_clear">Tümünü sil</string>
     <string name="draw_text">Metin</string>
     <string name="draw_pill">Kapsül</string>
+    <string name="draw_panel">Panel</string>
     <string name="draw_face">Yazı tipi</string>
     <string name="draw_bold">Kalın</string>
     <string name="draw_italic">İtalik</string>
     <string name="draw_strike">Üstü çizili</string>
     <string name="draw_ground">Arka plan</string>
-    <string name="draw_highlight">Vurgu</string>
-    <string name="draw_label">Etiket</string>
     <string name="draw_size">Boyut</string>
     <string name="draw_text_edit">Metni düzenle</string>
     <string name="draw_align">Hizalama</string>

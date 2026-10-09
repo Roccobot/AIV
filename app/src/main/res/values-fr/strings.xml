@@ -227,13 +227,12 @@
     <string name="draw_clear">Tout supprimer</string>
     <string name="draw_text">Texte</string>
     <string name="draw_pill">Pilule</string>
+    <string name="draw_panel">Panneau</string>
     <string name="draw_face">Police</string>
     <string name="draw_bold">Gras</string>
     <string name="draw_italic">Italique</string>
     <string name="draw_strike">Barré</string>
     <string name="draw_ground">Fond</string>
-    <string name="draw_highlight">Surligné</string>
-    <string name="draw_label">Étiquette</string>
     <string name="draw_size">Taille</string>
     <string name="draw_text_edit">Modifier le texte</string>
     <string name="draw_align">Alignement</string>

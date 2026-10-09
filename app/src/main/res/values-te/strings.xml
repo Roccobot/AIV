@@ -227,13 +227,12 @@
     <string name="draw_clear">అన్నీ తొలగించు</string>
     <string name="draw_text">వచనం</string>
     <string name="draw_pill">క్యాప్సూల్</string>
+    <string name="draw_panel">ప్యానెల్</string>
     <string name="draw_face">ఫాంట్</string>
     <string name="draw_bold">బోల్డ్</string>
     <string name="draw_italic">ఇటాలిక్</string>
     <string name="draw_strike">కొట్టివేత</string>
     <string name="draw_ground">నేపథ్యం</string>
-    <string name="draw_highlight">హైలైట్</string>
-    <string name="draw_label">లేబుల్</string>
     <string name="draw_size">పరిమాణం</string>
     <string name="draw_text_edit">వచనాన్ని సవరించు</string>
     <string name="draw_align">అమరిక</string>
