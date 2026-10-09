@@ -692,6 +692,8 @@
     <string name="settings_styles_import">İçe aktar</string>
     <string name="settings_styles_saved">Stiller dışa aktarıldı</string>
     <string name="settings_styles_loaded">Stiller içe aktarıldı</string>
+    <string name="settings_style_saved">Stil dışa aktarıldı</string>
+    <string name="settings_style_loaded">Stil içe aktarıldı</string>
     <string name="settings_styles_bad">Bu dosyada hiç stil yok</string>
     <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
     <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır.</string>

@@ -399,7 +399,9 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
     col nome già usato prende i valori del file, e degli stili di casa si sommano i soli cambiamenti
     dalla fabbrica (`Presets.merge`). Su un telefono nuovo la fusione dà esattamente il file.
   - ⚠️ **L'importazione della pagina degli stili sostituisce** (sua risposta `sostituisce` a
-    `d-stili-importa`): là si importa una raccolta, e chi la sceglie vuole quella.
+    `d-stili-importa`): là si importa una raccolta, e chi la sceglie vuole quella. ⚠️ **Il file di
+    uno stile solo (`.aivstyle`, dalla `4.96`) invece si aggiunge**, e il file di impostazioni non lo
+    accetta come archivio (`docs/Editor.md` § '🎞️ I preset, venti di casa e quelli che si salvano').
   - ⚠️ **I due testi della pagina dicono che cosa si fonde** (sua risposta `si` a `d-backup-testi`):
     l'introduzione e la conferma dell'importazione nominano stili, colori, copertine, cartelle
     nascoste e cestino.

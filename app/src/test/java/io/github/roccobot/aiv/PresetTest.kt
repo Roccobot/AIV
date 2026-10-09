@@ -390,6 +390,29 @@ class PresetTest {
     private fun testo(id: Int): String = app.getString(id)
 
     /** Quanti comandi 'Elimina' sono in scena: il banco non ha un conto pronto. */
+    /**
+     * **Caso 9b: ogni riga della pagina degli stili ha il comando che la esporta da sola.**
+     *
+     * ⚠️ **Dalla `4.96`**, con il file `.aivstyle`: i comandi si contano per descrizione, e il tasto
+     * in fondo alla pagina, che esporta l'archivio intero, ha un testo e non una descrizione, quindi
+     * non entra nel conto.
+     */
+    @Test
+    fun `ogni riga della pagina degli stili si esporta da sola`() {
+        Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                StyleSettings(scroll = rememberScrollState())
+            }
+        }
+        assertEquals(
+            "I comandi che esportano non sono uno per stile",
+            HOUSE.size + 1,
+            banco.onAllNodesWithContentDescription(app.getString(R.string.settings_styles_export))
+                .fetchSemanticsNodes().size
+        )
+    }
+
     private fun comandiCheTolgono(): Int = banco
         .onAllNodesWithContentDescription(app.getString(R.string.look_preset_remove))
         .fetchSemanticsNodes().size
@@ -428,6 +451,83 @@ class PresetTest {
         assertEquals("Gli Effetti sono entrati da soli", Effects.NONE, letto.look.effects)
         assertEquals("Le Curve sono entrate da sole", Tone.NONE, letto.look.tone)
         assertNotEquals("La Luce non è arrivata", Light.NONE, letto.look.light)
+    }
+
+    /**
+     * **Caso 14: il file di uno stile solo si aggiunge agli altri, e non li sostituisce.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `dopo` A `d-stile-singolo`, DALLA `4.96`**: un'importazione che lo
+     * aggiunge. Il difetto che la prova ferma è il più costoso della pagina: letto come archivio, un
+     * file con un solo stile dà un elenco vuoto, e [Presets.load] lo scriverebbe al posto di tutti
+     * gli stili propri.
+     * ⚠️ **Lo stesso nome sostituisce**, come il salvataggio, e senza guardare le maiuscole.
+     */
+    @Test
+    fun `uno stile esportato da solo si aggiunge agli altri`() {
+        Presets.save(app, "Primo", Look(light = Light(exposure = 0.5f)))
+        Presets.save(app, "Secondo", Look(light = Light(contrast = 0.5f)))
+
+        val esito = Presets.load(app, Presets.exportOne(Preset.of("Arrivato", PIENO)))
+        assertEquals("Il file non è stato letto come uno stile solo", Presets.Loaded.ONE, esito)
+        val mine = Presets.mine(app)
+        assertEquals(
+            "Gli stili propri non sono i due di prima più quello arrivato",
+            listOf("Primo", "Secondo", "Arrivato"),
+            mine.map { it.name }
+        )
+        assertEquals("Lo stile arrivato non è quello esportato", PIENO, mine.last().look)
+
+        Presets.load(app, Presets.exportOne(Preset.of("primo", Look(chroma = Chroma(temp = 0.3f)))))
+        assertEquals("Lo stesso nome non ha sostituito", 3, Presets.mine(app).size)
+        assertEquals(
+            "Lo stile sostituito non ha i valori del file",
+            Chroma(temp = 0.3f),
+            Presets.mine(app).first().look.chroma
+        )
+    }
+
+    /**
+     * **Caso 15: il file di uno stile solo non passa per un archivio, e un archivio resta tale.**
+     *
+     * ⚠️ **Il file di impostazioni chiede a [Presets.readable] se il suo testo è un archivio**:
+     * uno stile solo che passasse di lì cancellerebbe gli stili propri all'importazione.
+     */
+    @Test
+    fun `il file di uno stile solo non vale come archivio`() {
+        val uno = Presets.exportOne(Preset.of("Solo", PIENO))
+        assertTrue("Uno stile solo vale come archivio", !Presets.readable(uno))
+
+        Presets.save(app, "Mio", PIENO)
+        val archivio = Presets.export(app)
+        assertTrue("L'archivio non vale più come archivio", Presets.readable(archivio))
+        assertEquals("L'archivio è stato letto come uno stile solo", Presets.Loaded.BOOK, Presets.load(app, archivio))
+        assertEquals("Un testo storto è stato letto", null, Presets.load(app, "{ storto"))
+        assertEquals("Uno stile senza nome è stato letto", null, Presets.load(app, "{\"name\": \" \"}"))
+    }
+
+    /**
+     * **Caso 16: ogni stile di casa esce da solo e rientra identico.**
+     *
+     * ⚠️⚠️ **DALLA `4.96` TRE STILI DI CASA HANNO GLI EFFETTI**, presi dai suoi XMP (vedi [HOUSE]),
+     * quindi un campo degli Effetti che il file di uno stile perdesse si vedrebbe qui e non solo
+     * sul [PIENO] della prova 1. Uno stile di casa rientra come stile proprio.
+     */
+    @Test
+    fun `ogni stile di casa esce da solo e rientra identico`() {
+        HOUSE.forEach { p ->
+            assertEquals(Presets.Loaded.ONE, Presets.load(app, Presets.exportOne(p)))
+            val tornato = Presets.mine(app).last()
+            assertEquals("'${p.name}' è tornato con un altro nome", p.name, tornato.name)
+            assertEquals("'${p.name}' è tornato diverso", p.look, tornato.look)
+            assertTrue("'${p.name}' è tornato come stile di casa", !tornato.house)
+        }
+        assertEquals("Non sono tornati tutti", HOUSE.size, Presets.mine(app).size)
+        val effetti = HOUSE.filter { !it.look.effects.idle }.map { it.key }.toSet()
+        assertEquals(
+            "Gli stili con gli Effetti non sono i tre dei suoi XMP",
+            setOf("combo", "dettagli-fini", "to-blu-rosso"),
+            effetti
+        )
     }
 }
 

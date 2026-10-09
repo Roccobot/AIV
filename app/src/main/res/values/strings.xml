@@ -293,6 +293,8 @@
     <string name="settings_styles_import">Import</string>
     <string name="settings_styles_saved">Styles exported</string>
     <string name="settings_styles_loaded">Styles imported</string>
+    <string name="settings_style_saved">Style exported</string>
+    <string name="settings_style_loaded">Style imported</string>
     <string name="settings_styles_bad">This file does not hold any style</string>
     <string name="settings_download_path_desc">Adds a \'Path\' button to the download window, to choose the folder files are saved to.</string>
     <string name="save_name_path">Download path: %1$s</string>

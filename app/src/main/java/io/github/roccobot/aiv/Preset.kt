@@ -283,7 +283,28 @@ object Presets {
     fun export(context: Context): String = book(read(context)).toString(2)
 
     /**
-     * Rimette un archivio esportato, e dice se ci è riuscito.
+     * Uno stile solo come testo, per il file `.aivstyle`.
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `dopo` A `d-stile-singolo`** (giro della `2.98`): un comando sulla
+     * riga di uno stile, e un'importazione che lo aggiunge agli altri. Entra con la `4.96`.
+     * - ⚠️ **Il testo è l'oggetto che l'archivio scrive per ogni stile**, cioè [writeLook]: un
+     *   secondo formato vorrebbe dire due scritture da tenere allineate.
+     * - ⚠️ **Uno stile di casa esce col nome che ha adesso**, rinomina compresa, e dall'altra parte
+     *   arriva come uno stile proprio: la chiave di casa vive nel programma, e il file non può
+     *   promettere che l'altro telefono abbia la stessa versione.
+     */
+    fun exportOne(p: Preset): String = writeLook(p).toString(2)
+
+    /** Che cosa ha rimesso [load]: l'archivio intero, o uno stile solo. */
+    enum class Loaded { BOOK, ONE }
+
+    /**
+     * Rimette un archivio esportato, o aggiunge uno stile solo, e dice quale dei due ha fatto;
+     * `null` se il testo non si legge.
+     *
+     * ⚠️⚠️ **LO STILE SOLO SI AGGIUNGE E NON SOSTITUISCE NIENTE** (risposta `dopo` a
+     * `d-stile-singolo`): passa da [save], quindi un nome già usato da uno dei propri ne prende i
+     * valori, e uno nuovo va in coda. Che cosa sia lo dice [one], prima di [parse].
      *
      * ⚠️ **Sostituisce invece di fondere**, ed è la scelta che rende il gesto prevedibile: un
      * archivio importato è una fotografia di com'era l'elenco, e mescolarlo a quello che c'è
@@ -292,11 +313,30 @@ object Presets {
      * ⚠️ **Un testo che non si legge non tocca niente**: la scrittura arriva dopo la lettura, e
      * senza quell'ordine un file storto svuoterebbe l'archivio.
      */
-    fun load(context: Context, text: String): Boolean {
-        val letto = runCatching { parse(text) }.getOrNull() ?: return false
+    fun load(context: Context, text: String): Loaded? {
+        val uno = one(text)
+        if (uno != null) {
+            save(context, uno.name, uno.look)
+            return Loaded.ONE
+        }
+        val letto = runCatching { parse(text) }.getOrNull() ?: return null
         write(context, letto)
-        return true
+        return Loaded.BOOK
     }
+
+    /**
+     * Lo stile che [text] contiene, se è il file di uno stile solo.
+     *
+     * ⚠️ **Lo si riconosce da `name` senza `mine`**: un archivio scrive sempre `mine`, anche vuoto
+     * (vedi [book]), e uno stile ha sempre un nome. Un nome vuoto non è uno stile, e il testo passa
+     * a [parse], che lo rifiuta.
+     */
+    private fun one(text: String): Preset? = runCatching {
+        val o = JSONObject(text.trim())
+        if (!o.has(NAME) || o.has(MINE)) return@runCatching null
+        val nome = o.optString(NAME).trim().take(Preset.NAME_MAX)
+        if (nome.isEmpty()) null else Preset.of(nome, readLook(o))
+    }.getOrNull()
 
     /**
      * Aggiunge a quello che c'è un archivio esportato, e dice se ci è riuscito: per il file di
@@ -373,12 +413,18 @@ object Presets {
         val pulito = text.trim()
         if (pulito.startsWith("[")) return Book(mine = readMine(JSONArray(pulito)))
         val o = JSONObject(pulito)
+        /*
+         * ⚠️⚠️ **Il file di uno stile solo NON è un archivio vuoto**: letto così darebbe un elenco
+         * senza stili propri, e [load] lo scriverebbe al posto di quello che c'è, cioè li
+         * cancellerebbe tutti. Lo stesso vale per il file di impostazioni, che chiede [readable].
+         */
+        require(!(o.has(NAME) && !o.has(MINE))) { "one style, not a book" }
         val names = mutableMapOf<String, String>()
         o.optJSONObject("names")?.let { n ->
             n.keys().forEach { k -> n.optString(k).takeIf { it.isNotEmpty() }?.let { names[k] = it } }
         }
         return Book(
-            mine = readMine(o.optJSONArray("mine") ?: JSONArray()),
+            mine = readMine(o.optJSONArray(MINE) ?: JSONArray()),
             names = names,
             gone = strings(o.optJSONArray("gone")),
             house = strings(o.optJSONArray("house"))
@@ -387,7 +433,7 @@ object Presets {
 
     private fun book(b: Book): JSONObject {
         val o = JSONObject()
-        o.put("mine", JSONArray().apply { b.mine.forEach { put(writeLook(it)) } })
+        o.put(MINE, JSONArray().apply { b.mine.forEach { put(writeLook(it)) } })
         if (b.names.isNotEmpty()) {
             o.put("names", JSONObject().apply { b.names.forEach { (k, v) -> put(k, v) } })
         }
@@ -422,7 +468,7 @@ object Presets {
 
     private fun readMine(a: JSONArray): List<Preset> = (0 until a.length()).mapNotNull { i ->
         val o = a.optJSONObject(i) ?: return@mapNotNull null
-        val nome = o.optString("name").trim()
+        val nome = o.optString(NAME).trim()
         if (nome.isEmpty()) null else Preset(nome, readLook(o))
     }
 
@@ -437,7 +483,7 @@ object Presets {
 
     private fun writeLook(p: Preset): JSONObject {
         val o = JSONObject()
-        o.put("name", p.name)
+        o.put(NAME, p.name)
         val l = p.look.light
         if (!l.idle) o.put("light", JSONObject().apply {
             num("exposure", l.exposure); num("contrast", l.contrast)
@@ -547,6 +593,12 @@ object Presets {
 
     /** Come si chiama il file dei preset, dentro `filesDir`. */
     private const val STORE = "presets.json"
+
+    /** Il campo del nome di uno stile, che solo il file di uno stile solo ha in cima. */
+    private const val NAME = "name"
+
+    /** Il campo degli stili propri, che un archivio scrive sempre, anche vuoto. */
+    private const val MINE = "mine"
 }
 
 // ── I venti di casa ──────────────────────────────────────────────────────────
@@ -601,6 +653,18 @@ private fun house(
  *   maschera di contrasto è l'unico che cambia forma, perché là è un numero di pixel con l'uno
  *   come valore di serie e qui lo zero è quel valore di serie, quindi si prende il logaritmo in
  *   base due; e i punti di una curva là vanno da 0 a 255 e qui da 0 a 1.
+ * - ⚠️⚠️ **GLI EFFETTI SONO ENTRATI CON LA `4.96`** (suo via sulla stima degli stili, 2026-10-09):
+ *   prima nessuno stile di casa ne aveva, e tre dei suoi XMP li usano. Dehaze e la quantità della
+ *   grana si dividono per cento come il resto; la vignettatura dopo il ritaglio cambia segno,
+ *   perché in Lightroom scurisce in negativo e qui in positivo; la dimensione della grana è un
+ *   rapporto col 25 di serie di Lightroom, preso in base due come [Effects.grainSize], e il 25 si
+ *   fa coincidere con la cella che lui ha approvato, che è una scelta dichiarata; il punto medio
+ *   della vignettatura (0-100, 50 di serie) diventa `(50 - midpoint) / 50` di
+ *   [Effects.vignetteFeather], dove più basso vuol dire un alone che entra di più.
+ *   ⚠️ **Restano fuori**, perché AIV non ha il modulo: Texture, Clarity, viraggio diviso e color
+ *   grading, la taratura dei primari, la curva parametrica, la frequenza della grana, le maschere.
+ *   I due XMP di sole maschere ('Edifici e rovine', 'Foliage') contengono anche una dimensione della
+ *   grana, ma a quantità zero, quindi non cambiano niente.
  * - ⚠️ **Le otto fasce dell'HSL combaciano una a una**, e non è una fortuna: i centri di [Mix]
  *   sono gli otto di Lightroom, perché di là vengono.
  *
@@ -636,6 +700,9 @@ val HOUSE: List<Preset> = listOf(
             6 to Band(hue = .04f), 7 to Band(hue = .01f)
         ),
         detail = Detail(sharpen = .85f, radius = .6781f, masking = .8f, noise = .25f, noiseColor = .12f),
+        effects = Effects(
+            haze = .05f, vignette = .03f, vignetteFeather = 1f, grain = .02f, grainSize = -.3219f
+        ),
         tone = Tone(all = curve(
             0f to .0706f, .149f to .1451f, .251f to .2196f,
             .502f to .502f, .8824f to .8706f, 1f to .9647f
@@ -678,7 +745,8 @@ val HOUSE: List<Preset> = listOf(
         ))
     ),
     house("dettagli-fini", "Dettagli fini",
-        detail = Detail(sharpen = .7f, masking = .7f)
+        detail = Detail(sharpen = .7f, masking = .7f),
+        effects = Effects(grain = .03f, grainSize = -.3219f)
     ),
     house("dettagli-grossi", "Dettagli grossolani",
         detail = Detail(sharpen = .85f, radius = .6781f, masking = .75f, noise = .2f, noiseColor = .1f)
@@ -747,6 +815,9 @@ val HOUSE: List<Preset> = listOf(
             4 to Band(hue = -.02f, sat = .07f, lum = -.01f), 5 to Band(hue = -.05f, sat = .1f, lum = .1f)
         ),
         detail = Detail(sharpen = .5f, masking = .74f, noise = .12f, noiseColor = .14f),
+        effects = Effects(
+            haze = -.06f, vignette = .01f, vignetteFeather = .7f, grain = .01f, grainSize = -.5564f
+        ),
         tone = Tone(all = curve(
             0f to .0706f, .149f to .1451f, .251f to .2196f,
             .502f to .502f, .8824f to .8706f, 1f to .9647f

@@ -728,6 +728,8 @@
     <string name="settings_styles_import">Импорт</string>
     <string name="settings_styles_saved">Стили экспортированы</string>
     <string name="settings_styles_loaded">Стили импортированы</string>
+    <string name="settings_style_saved">Стиль экспортирован</string>
+    <string name="settings_style_loaded">Стиль импортирован</string>
     <string name="settings_styles_bad">В этом файле нет стилей</string>
     <string name="hint_modules">Пролистайте значки, чтобы добраться до всех модулей обработки. Удерживайте значок модуля, чтобы сбросить только его изменения.</string>
     <string name="hint_tools">Кроме модулей есть две функции, которые можно сразу включить или выключить касанием значка, и он загорается: \'Водяной знак\' и \'Изменить размер\'. Долгое нажатие открывает настройки каждой из них.</string>

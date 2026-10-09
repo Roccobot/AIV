@@ -674,6 +674,8 @@
     <string name="settings_styles_import">匯入</string>
     <string name="settings_styles_saved">已匯出風格</string>
     <string name="settings_styles_loaded">已匯入風格</string>
+    <string name="settings_style_saved">已匯出風格</string>
+    <string name="settings_style_loaded">已匯入風格</string>
     <string name="settings_styles_bad">此檔案不含任何風格</string>
     <string name="hint_modules">滑動圖示即可到達所有編輯模組。長按某個模組的圖示，只重設該模組的調整。</string>
     <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。</string>

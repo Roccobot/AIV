@@ -571,8 +571,10 @@ object ImageActions {
      * ⚠️ **Gli stessi di [fileName]**, e per la stessa ragione: `MediaStore` rifiuta o riscrive
      * un `DISPLAY_NAME` che contiene una barra, e un nome riscritto da lui non è quello che la
      * persona ha appena battuto.
+     * ⚠️ **Lo usa anche il file di uno stile solo** (`StyleSettings`), che prende il nome dallo
+     * stile: 'T&O - Blu/Rosso' ha una barra.
      */
-    private fun safeName(raw: String): String =
+    internal fun safeName(raw: String): String =
         raw.replace(Regex("""[\\/:*?"<>|]"""), "_").trim().ifBlank { "image" }
 
     // ── Sharing ─────────────────────────────────────────────────────────────

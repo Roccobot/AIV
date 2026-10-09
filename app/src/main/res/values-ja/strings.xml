@@ -674,6 +674,8 @@
     <string name="settings_styles_import">読み込む</string>
     <string name="settings_styles_saved">スタイルを書き出しました</string>
     <string name="settings_styles_loaded">スタイルを読み込みました</string>
+    <string name="settings_style_saved">スタイルを書き出しました</string>
+    <string name="settings_style_loaded">スタイルを読み込みました</string>
     <string name="settings_styles_bad">このファイルにはスタイルがありません</string>
     <string name="hint_modules">アイコンをスワイプするとすべての編集モジュールに届きます。モジュールのアイコンを長押しすると、そのモジュールの調整だけを戻せます。</string>
     <string name="hint_tools">モジュールのほかに、アイコンを1回タップするだけでいつでもオンとオフを切り替えられる機能が2つあります。オンになるとアイコンが光ります: \'透かし\'と\'サイズ変更\'です。長押しすると、それぞれの設定が開きます。</string>
