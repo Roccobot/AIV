@@ -982,6 +982,20 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
       fra le righe; adesso il posto c'è sempre, vuoto quando le strisce non servono, quindi il
       cursore e le file dei tasti non si muovono da uno strumento all'altro. Fino alla `4.91` le
       strisce erano tondi alti come quelli della tavolozza. Misure della sessione, dichiarate;
+    - ⚠️⚠️ **dalla `4.94` la striscia scelta ha il filo chiaro e il colore stondati, concentrici al
+      bordo scuro** (sua nota sul giro della `4.93`, col suo disegno: *Disegna meglio il selettore del
+      colore 'secondario' in basso*): il bordo scuro riempie la striscia, e il filo e il colore girano
+      con un raggio, così di fuori il bordo segue lo stondamento della fila e di dentro il filo lo
+      segue a sua volta. Fino alla `4.93` filo e colore erano rettangoli a spigolo vivo;
+  - ⚠️⚠️ **dalla `4.94` le file del modulo stanno a 12 dp l'una dall'altra** (sua nota sul giro della
+    `4.93`, col suo mockup: *Disponi meglio gli elementi dell'interfaccia: c'è spazio per tutto*): i
+    gettoni dei moduli, gli strumenti, i tasti, i tondi, il nome del cursore con `Elimina` ed `Elimina
+    tutto`, il cursore e le strisce. Il nome e il cursore restano attaccati, in una fila alta 32 dp
+    come i tasti, e sotto le strisce c'è un po' più d'aria, come nel suo disegno. Fino alla `4.93`
+    ogni fila teneva solo il suo margine, quindi i tasti quasi si toccavano e l'aria si raccoglieva
+    sotto il cursore. Il Disegno è il modulo più alto, quindi la scheda cresce con lui: 17 dp,
+    misurati sul banco su uno schermo largo 320 dp. Misure della sessione, prese sul suo mockup e
+    dichiarate;
   - ⚠️⚠️ **dalla `4.92` il tasto `Sfondo` è un rettangolino arrotondato con 'Aa' in negativo** (sua
     nota F sul giro della `4.91`: *Il pulsante etichetta è troppo simile a quello del carattere*): le
     lettere sono il fondo del tasto, il rettangolo ha il colore della striscia scelta quando il tasto
