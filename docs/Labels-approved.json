@@ -633,6 +633,8 @@
  "settings_start_folder_desc": "Visualizza il contenuto di una cartella specifica all\\'avvio, al posto della schermata home.",
  "settings_start_folder_none": "Nessuna cartella selezionata",
  "settings_start_folder_pick": "Scegli",
+ "settings_style_loaded": "Stile importato",
+ "settings_style_saved": "Stile esportato",
  "settings_styles": "Stili dell\\'editor",
  "settings_styles_bad": "Questo file non contiene nessuno stile",
  "settings_styles_desc": "Riordina, rinomina o elimina gli stili dell\\'editor completo, sia quelli dell\\'app sia i tuoi.",

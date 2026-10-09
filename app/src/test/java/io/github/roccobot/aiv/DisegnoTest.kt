@@ -812,6 +812,37 @@ class DisegnoTest {
     }
 
     /**
+     * **Il segmento del tasto Spessore arriva a 3dp dai lati, e non li tocca** (sua nota sul giro
+     * della `4.96`: *deve essere un po' più lungo. Non fa niente se arriva vicino al bordo:
+     * l'importante è che non lo tocchi*). Si misura alla linea più sottile, dove fino alla `4.96`
+     * le estremità restavano a mezza altezza del tasto dai lati.
+     */
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-xxhdpi")
+    fun `il segmento del tasto Spessore arriva vicino ai lati senza toccarli`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.ink_red)).performClick()
+        opacitaPiena()
+        val rosso = androidx.compose.ui.graphics.Color(Draw.INK)
+        val tasto = banco.onNodeWithContentDescription(testo(R.string.draw_width))
+        tasto.performClick()
+        banco.waitForIdle()
+        val cursore = banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[0]
+        cursore.performSemanticsAction(SemanticsActions.SetProgress) { it(Draw.WIDTH_MIN) }
+        banco.waitForIdle()
+        val pixel = tasto.captureToImage().toPixelMap()
+        val y = pixel.height / 2
+        val rossi = (0 until pixel.width).filter { vicino(pixel[it, y], rosso) }
+        val dp = app.resources.displayMetrics.density
+        val sinistra = rossi.first() / dp
+        val destra = (pixel.width - 1 - rossi.last()) / dp
+        assertTrue("a sinistra il segmento doveva arrivare a 3dp dal lato: $sinistra dp", sinistra in 2f..4f)
+        assertTrue("a destra il segmento doveva arrivare a 3dp dal lato: $destra dp", destra in 2f..4f)
+    }
+
+    /**
      * **Tenendo premuto un tondo e scorrendo si sceglie la luminosità, e allo stacco il cursore si
      * chiude** (sua nota su `4.45-02`, risposte `L1a` e `L2a`). Il tondo resta scelto, e un tocco
      * successivo gli rende il suo colore. Dalla `4.63` il valore si posa mentre il dito scorre (sua

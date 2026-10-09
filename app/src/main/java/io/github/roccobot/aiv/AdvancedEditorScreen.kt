@@ -6237,12 +6237,16 @@ private fun ArtKey(
                      * [KEY_WIDTH_MIN], which he allows for the smallest widths, nor thicker than
                      * the key, with [KEY_GAP] above and below. Until 4.49 it went from 2 to 16dp
                      * along the slider.
-                     * ⚠️ The ends stay half the key's height in from its sides, so the round caps
-                     * of the thickest line keep the same gap.
+                     * ⚠️ **Since 4.97 the round caps end [KEY_GAP] in from the key's sides, at any
+                     * width** (his note on the 4.96 round: *il segmento del tasto 'Spessore' deve
+                     * essere un po' più lungo. Non fa niente se arriva vicino al bordo:
+                     * l'importante è che non lo tocchi*): the same thread of space as the Fill
+                     * rectangle. Until 4.96 the ends stayed half the key's height in, which only
+                     * the thickest line filled.
                      */
                     val spesso = (gaze.inkWidth * gaze.viewLong)
                         .coerceIn(KEY_WIDTH_MIN.toPx(), size.height - 2f * KEY_GAP.toPx())
-                    val margine = size.height / 2f
+                    val margine = KEY_GAP.toPx() + spesso / 2f
                     drawLine(
                         Color(gaze.litInk), Offset(margine, y), Offset(size.width - margine, y),
                         strokeWidth = spesso, cap = StrokeCap.Round

@@ -16,9 +16,9 @@ import java.io.File
  * - ⚠️ **Quindi i moduli sono cinque e non otto**, e coincidono esattamente con quelli che i
  *   preset di Lightroom sanno dire: Luce, Colore, HSL, Dettaglio e Curve.
  *
- * ⚠️⚠️ **IL NOME NON SI TRADUCE, NEMMENO QUELLO DEI VENTI DI CASA**: è un nome proprio, come
+ * ⚠️⚠️ **IL NOME NON SI TRADUCE, NEMMENO QUELLO DEI DIECI DI CASA**: è un nome proprio, come
  * quello di una cartella, e la cosa che lo distingue è che sia sempre lo stesso. Tradurlo
- * vorrebbe dire venti stringhe per ventotto lingue per dei nomi che chi li ha scritti riconosce
+ * vorrebbe dire dieci stringhe per ventotto lingue per dei nomi che chi li ha scritti riconosce
  * così come sono.
  */
 data class Preset(
@@ -38,7 +38,7 @@ data class Preset(
      */
     val key: String = name,
     /**
-     * Se è uno dei venti che l'app porta con sé.
+     * Se è uno dei dieci che l'app porta con sé.
      *
      * ⚠️ **Serve a due cose**: il gruppo in cui compare ('Stili AIV' o 'Stili salvati'), e dove
      * l'archivio scrive quello che di lui è cambiato (una rinomina fra le rinomine, una
@@ -68,28 +68,81 @@ data class Preset(
     )
 
     /**
-     * [base] con sopra i **soli moduli che questo preset dichiara**: il tocco lungo, dalla `2.50`.
+     * [base] con sopra questo preset **sommato**: il tocco lungo, dalla `2.50`, e somma dalla `4.97`.
      *
      * ⚠️⚠️ **È SUA RICHIESTA, E LE DUE RIGHE SONO SUE** (campo libero del giro della `2.40`:
      * *tocco sullo stile = modifica assoluta (azzera tutto, poi modifica); tocco prolungato =
      * modifica additiva (tocca i valori inclusi, non modifica gli altri)*). Il gesto lungo serve a
-     * **comporre**: un preset di sole curve sopra uno di sola luce, senza che il secondo porti via
-     * quello che il primo aveva messo.
-     * ⚠️⚠️ **QUELLO CHE 'DICHIARA' LO DICE IL FORMATO, e non serve un secondo dato**: un modulo a
-     * riposo non si scrive nel file (vedi [Presets]), quindi 'questo preset parla di luce?' si
-     * risponde chiedendo se la sua luce è a riposo. Un elenco di moduli scritto accanto sarebbe la
-     * stessa informazione in due posti, e il primo a divergere sarebbe quello che nessuno guarda.
-     * ⚠️ **Un modulo a riposo non azzera niente**: additiva vuol dire che quello che il preset non
-     * nomina resta com'è, e un preset che nomina un modulo lo **sostituisce** per intero, perché
-     * dentro un modulo i cursori si leggono insieme.
+     * **comporre** più stili.
+     * ⚠️⚠️ **DALLA `4.97` SOMMA CURSORE PER CURSORE, ED È LA SUA RISPOSTA `B1`** (giro della
+     * `4.96`, voce `4.96-01`: stili *additivi (ne posso usare più di uno e si sommino senza
+     * distruggersi a vicenda)*). Fino alla `4.96` un modulo nominato si sostituiva per intero, quindi
+     * due stili di luce si cancellavano a vicenda.
+     * - **I cursori principali si sommano**, col tetto della loro corsa: luce +10 sopra luce +10 dà
+     *   +20, e lo stesso stile toccato due volte conta due volte. Un cursore a riposo somma zero,
+     *   quindi quello che lo stile non nomina resta com'è.
+     * - ⚠️ **I cursori secondari prendono il valore dello stile, se lo stile lo nomina** (filtro del
+     *   bianco e nero, raggio e maschera della nitidezza, dimensione e luci della grana, sfumatura
+     *   della vignettatura): da soli non cambiano un pixel, sono la forma di un altro cursore, e la
+     *   somma di due forme non è una forma. Lettura della sessione, dichiarata nel DF.
+     * - **Il bianco e nero vale se lo è uno dei due**: è un interruttore, e spegnerlo per somma
+     *   sarebbe la cancellazione che la risposta esclude.
+     * - **Le curve si applicano una dopo l'altra**, quella dello stile sopra quella che c'è: vedi
+     *   [then].
      */
     fun addTo(base: Look): Look = base.copy(
-        light = if (look.light.idle) base.light else look.light,
-        chroma = if (look.chroma.idle) base.chroma else look.chroma,
-        mix = if (look.mix.idle) base.mix else look.mix,
-        detail = if (look.detail.idle) base.detail else look.detail,
-        effects = if (look.effects.idle) base.effects else look.effects,
-        tone = if (look.tone.idle) base.tone else look.tone
+        light = base.light.let { a ->
+            val b = look.light
+            a.copy(
+                exposure = plus(a.exposure, b.exposure, -Light.EXPOSURE_RANGE, Light.EXPOSURE_RANGE),
+                contrast = plus(a.contrast, b.contrast),
+                highlights = plus(a.highlights, b.highlights),
+                shadows = plus(a.shadows, b.shadows),
+                whites = plus(a.whites, b.whites),
+                blacks = plus(a.blacks, b.blacks)
+            )
+        },
+        chroma = base.chroma.let { a ->
+            val b = look.chroma
+            a.copy(
+                temp = plus(a.temp, b.temp),
+                tint = plus(a.tint, b.tint),
+                saturation = plus(a.saturation, b.saturation),
+                vibrance = plus(a.vibrance, b.vibrance),
+                mono = a.mono || b.mono,
+                filter = over(a.filter, b.filter)
+            )
+        },
+        mix = Mix(base.mix.bands.zip(look.mix.bands) { a, b ->
+            Band(hue = plus(a.hue, b.hue), sat = plus(a.sat, b.sat), lum = plus(a.lum, b.lum))
+        }),
+        detail = base.detail.let { a ->
+            val b = look.detail
+            a.copy(
+                sharpen = plus(a.sharpen, b.sharpen, 0f),
+                radius = over(a.radius, b.radius),
+                masking = over(a.masking, b.masking),
+                noise = plus(a.noise, b.noise, 0f),
+                noiseColor = plus(a.noiseColor, b.noiseColor, 0f)
+            )
+        },
+        effects = base.effects.let { a ->
+            val b = look.effects
+            a.copy(
+                haze = plus(a.haze, b.haze),
+                vignette = plus(a.vignette, b.vignette),
+                vignetteFeather = over(a.vignetteFeather, b.vignetteFeather),
+                grain = plus(a.grain, b.grain, 0f),
+                grainSize = over(a.grainSize, b.grainSize),
+                grainLift = over(a.grainLift, b.grainLift)
+            )
+        },
+        tone = base.tone.copy(
+            all = then(base.tone.all, look.tone.all),
+            red = then(base.tone.red, look.tone.red),
+            green = then(base.tone.green, look.tone.green),
+            blue = then(base.tone.blue, look.tone.blue)
+        )
     )
 
     companion object {
@@ -142,7 +195,7 @@ data class Preset(
  */
 object Presets {
 
-    /** Quello che l'elenco mostra: prima i venti di casa, poi i propri. */
+    /** Quello che l'elenco mostra: prima i dieci di casa, poi i propri. */
     fun all(context: Context): List<Preset> = house(context) + mine(context)
 
     /**
@@ -259,7 +312,7 @@ object Presets {
     }
 
     /**
-     * Butta via tutto quello che l'utente ha fatto: l'app torna ai venti di casa, nell'ordine e
+     * Butta via tutto quello che l'utente ha fatto: l'app torna ai dieci di casa, nell'ordine e
      * coi nomi di fabbrica.
      *
      * ⚠️ **Si cancella il file invece di riscriverlo vuoto**: l'assenza è già il valore di
@@ -601,7 +654,41 @@ object Presets {
     private const val MINE = "mine"
 }
 
-// ── I venti di casa ──────────────────────────────────────────────────────────
+// ── La somma del tocco lungo ─────────────────────────────────────────────────
+
+/** Un cursore principale sommato, dentro la sua corsa: vedi [Preset.addTo]. */
+private fun plus(a: Float, b: Float, low: Float = -1f, high: Float = 1f): Float = (a + b).coerceIn(low, high)
+
+/** Un cursore secondario: quello dello stile se lo nomina, altrimenti quello che c'è. */
+private fun over(a: Float, b: Float): Float = if (b != 0f) b else a
+
+/**
+ * La curva [second] applicata dopo [first]: il tocco lungo con le curve, dalla `4.97`.
+ *
+ * ⚠️ **Se una delle due è a riposo la composizione è l'altra, esatta**, ed è il caso di quasi tutti
+ * gli stili. Quando ci sono tutte e due, la curva che ne nasce si campiona nei nodi delle due e su
+ * una griglia di nove punti, perché due curve monotone composte non sono una curva della stessa
+ * famiglia: è un'approssimazione, dichiarata, entro il tetto di [Curve.MAX_KNOTS].
+ */
+internal fun then(first: Curve, second: Curve): Curve {
+    if (second.idle) return first
+    if (first.idle) return second
+    val griglia = (0..COMPOSE_GRID).map { it / COMPOSE_GRID.toFloat() }
+    val tutti = (griglia + first.knots.map { it.at } + second.knots.map { it.at }).sorted()
+    val punti = mutableListOf<Float>()
+    tutti.forEach { x -> if (punti.isEmpty() || x - punti.last() >= COMPOSE_GAP) punti.add(x) }
+    if (punti.last() < 1f) punti[punti.size - 1] = 1f
+    val scelti = if (punti.size <= Curve.MAX_KNOTS) punti else griglia
+    return Curve(scelti.map { x -> Knot(x, second.valueAt(first.valueAt(x))) })
+}
+
+/** I tratti della griglia su cui si campiona una composizione di curve: nove punti. */
+private const val COMPOSE_GRID = 8
+
+/** Due nodi più vicini di così, nella composizione, sono uno solo. */
+private const val COMPOSE_GAP = 1f / 32f
+
+// ── I dieci di casa ──────────────────────────────────────────────────────────
 
 /**
  * Una fascia per volta, invece di scrivere otto `Band` per ogni preset: quelle che non compaiono
@@ -635,222 +722,84 @@ private fun house(
 )
 
 /**
- * I venti preset che l'app porta con sé.
+ * I dieci stili che l'app porta con sé, dalla `4.97`.
  *
- * ⚠️⚠️ **QUATTORDICI SONO I SUOI, CONVERTITI DAI SUOI XMP DI LIGHTROOM, E SEI SONO SCRITTI IN
- * CASA** (sua istruzione, 2026-09-14: *aggiungi i miei, più uno creato ex novo da te per arrivare
- * alla cifra tonda di 20*). I suoi erano diciannove, e cinque non si sono potuti portare perché
- * fatti **soltanto** di cose che AIV non ha: due sono taratura dei primari della fotocamera, due
- * sono maschere locali, e uno è viraggio diviso con color grading a tre zone. Quindi i mancanti
- * sono sei invece di uno, ed è la ragione per cui i preset di casa non sono uno.
+ * ⚠️⚠️ **LI HA SCRITTI LA SESSIONE, ED È LA SUA RISPOSTA `A1`** (giro della `4.96`, voce
+ * `4.96-01`: *Proviamo un approccio diverso: scegli 10 nomi tra cui `Roccobot` (che dev'essere
+ * 'onnicomprensivo') e senza `Bianco e nero`: creali tu come pensi che dovrebbero essere e fa' in
+ * modo che siano più che altro additivi*). Fino alla `4.96` erano venti: quattordici convertiti dai
+ * suoi XMP di Lightroom e sei scritti in casa, e la conversione, Effetti compresi, *non
+ * corrispondeva granché*. La storia git li conserva (`git show 5816198:` su questo file).
  *
- * ⚠️⚠️ **LA CONVERSIONE L'HA FATTA LA SESSIONE E NON C'È NESSUN LETTORE XMP NELL'APP**, ed è sua
- * istruzione (*per ora lasciamo stare l'importazione degli XMP*): quello che vive qui sono i
- * valori **già tradotti** nelle scale di AIV, e un lettore di file XMP sarebbe un meccanismo in
- * più da mantenere per un gesto che si fa una volta.
- * - **Come si sono tradotti**: l'esposizione è in stop e passa tale e quale; tutto il resto in
- *   Lightroom va da -100 a +100 e qui da -1 a +1, quindi si divide per cento; il raggio della
- *   maschera di contrasto è l'unico che cambia forma, perché là è un numero di pixel con l'uno
- *   come valore di serie e qui lo zero è quel valore di serie, quindi si prende il logaritmo in
- *   base due; e i punti di una curva là vanno da 0 a 255 e qui da 0 a 1.
- * - ⚠️⚠️ **GLI EFFETTI SONO ENTRATI CON LA `4.96`** (suo via sulla stima degli stili, 2026-10-09):
- *   prima nessuno stile di casa ne aveva, e tre dei suoi XMP li usano. Dehaze e la quantità della
- *   grana si dividono per cento come il resto; la vignettatura dopo il ritaglio cambia segno,
- *   perché in Lightroom scurisce in negativo e qui in positivo; la dimensione della grana è un
- *   rapporto col 25 di serie di Lightroom, preso in base due come [Effects.grainSize], e il 25 si
- *   fa coincidere con la cella che lui ha approvato, che è una scelta dichiarata; il punto medio
- *   della vignettatura (0-100, 50 di serie) diventa `(50 - midpoint) / 50` di
- *   [Effects.vignetteFeather], dove più basso vuol dire un alone che entra di più.
- *   ⚠️ **Restano fuori**, perché AIV non ha il modulo: Texture, Clarity, viraggio diviso e color
- *   grading, la taratura dei primari, la curva parametrica, la frequenza della grana, le maschere.
- *   I due XMP di sole maschere ('Edifici e rovine', 'Foliage') contengono anche una dimensione della
- *   grana, ma a quantità zero, quindi non cambiano niente.
- * - ⚠️ **Le otto fasce dell'HSL combaciano una a una**, e non è una fortuna: i centri di [Mix]
- *   sono gli otto di Lightroom, perché di là vengono.
+ * ⚠️⚠️ **SONO PENSATI PER SOMMARSI COL TOCCO LUNGO** ([Preset.addTo], risposta `B1`): ognuno
+ * tranne 'Roccobot' lavora su un asse solo (la temperatura, il contrasto, le ombre, la nitidezza,
+ * la grana...), con valori moderati, così due o tre insieme restano dentro le corse dei cursori e
+ * non si cancellano a vicenda. 'Caldo' e 'Freddo' sono l'eccezione voluta: uno disfa l'altro.
+ * - **'Roccobot' tocca tutti e sei i moduli**, perché lui lo vuole 'onnicomprensivo': luce
+ *   aperta nelle ombre e trattenuta nelle luci, colore vivace senza forzare la saturazione, cieli
+ *   più profondi e pelle più chiara nell'HSL, nitidezza con la maschera, un filo di foschia tolta,
+ *   di grana e di vignettatura, e una curva a S leggera.
+ * - ⚠️ **Nessuno usa i cursori secondari**: col tocco lungo un secondario prende il valore dello
+ *   stile invece di sommarsi, quindi uno stile che lo nominasse sovrascriverebbe la forma scelta da
+ *   un altro.
+ * - ⚠️ **Le curve sono tre** ('Roccobot', 'Contrasto', 'Pellicola'), e sommate si applicano una
+ *   dopo l'altra ([then]).
  *
- * ⚠️ **Gli ultimi due dei sei sono riscritture dichiarate e non travasi**: 'Primari caldi' e
- * 'Primari verdi' rifanno nelle nostre fasce quello che i suoi 'Contrasto colore classico' e
- * 'Contrasto colore foliage' ottenevano dalla taratura dei primari, che è un'altra macchina. Il
- * risultato somiglia, la strada no, e per questo hanno un nome diverso dal suo.
- *
- * ⚠️⚠️ **I NOMI E L'ORDINE SONO SUOI, DALLA `2.50`** (campo libero del giro della `2.40`, punto 4:
- * *'Combo' diventa 'Roccobot'. Gli altri vanno elencati in ordine alfabetico, dopo queste
- * rinomine*). Quindi 'Roccobot' è il primo e gli altri diciannove seguono in ordine alfabetico,
- * che è l'ordine in cui questa lista è scritta.
+ * ⚠️⚠️ **L'ORDINE È IL SUO, DALLA `2.50`** (campo libero del giro della `2.40`, punto 4: *gli altri
+ * vanno elencati in ordine alfabetico*): 'Roccobot' è il primo e gli altri nove seguono in ordine
+ * alfabetico, che è l'ordine in cui questa lista è scritta.
  * - ⚠️⚠️ **L'ORDINE SI SCRIVE E LO PRESIDIA IL BANCO, invece di ordinarlo a ogni lettura**: un
  *   `sortedBy` dipenderebbe da come la piattaforma confronta due stringhe (le maiuscole, gli
  *   accenti, la lingua del telefono), quindi la fila che l'utente vede cambierebbe col telefono.
- *   La prova misura l'invariante, cioè che dal secondo in poi siano in ordine, e un preset nuovo
- *   messo nel posto sbagliato la fa diventare rossa.
- * - ⚠️ **Le sue frecce diventano trattini**, ed è la regola dei caratteri applicata: aveva scritto
- *   `Rosso –` con un trattino lungo, che in questo progetto non si usa da nessuna parte, nemmeno
- *   in un nome proprio.
- * - ⚠️ **La chiave non segue il nome**, e per questo rinominare 'Pellicola' in 'Curva pellicola'
- *   non ha toccato la sua: quello che vive nell'archivio di chi aggiorna è la chiave, e cambiarla
- *   vorrebbe dire un preset che riappare dopo essere stato cancellato.
+ * - ⚠️ **La chiave non segue il nome**: quello che vive nell'archivio di chi aggiorna è la chiave
+ *   (una rinomina, un nascosto, un ordine). 'Roccobot' tiene `combo`, quindi una sua rinomina
+ *   resta; le chiavi dei diciannove tolti restano nell'archivio senza effetto, perché l'elenco
+ *   applica solo quelle che esistono ([Presets.house]).
+ * - **I nomi non si traducono**, come quelli di prima: sono nomi propri di uno stile.
  */
 val HOUSE: List<Preset> = listOf(
     house("combo", "Roccobot",
-        light = Light(exposure = -.2f, contrast = -.3f, highlights = -.3f, shadows = .2f, blacks = .4f),
-        chroma = Chroma(saturation = .1f, vibrance = .1f),
+        light = Light(contrast = .08f, highlights = -.2f, shadows = .15f, whites = .05f, blacks = -.05f),
+        chroma = Chroma(saturation = .03f, vibrance = .15f),
         mix = mix(
-            0 to Band(hue = .07f, sat = .1f, lum = .07f), 1 to Band(hue = -.02f, sat = .2f, lum = -.18f),
-            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
-            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
-            6 to Band(hue = .04f), 7 to Band(hue = .01f)
+            1 to Band(sat = -.05f, lum = .05f), 4 to Band(sat = .05f, lum = -.05f),
+            5 to Band(sat = .08f, lum = -.08f)
         ),
-        detail = Detail(sharpen = .85f, radius = .6781f, masking = .8f, noise = .25f, noiseColor = .12f),
-        effects = Effects(
-            haze = .05f, vignette = .03f, vignetteFeather = 1f, grain = .02f, grainSize = -.3219f
-        ),
-        tone = Tone(all = curve(
-            0f to .0706f, .149f to .1451f, .251f to .2196f,
-            .502f to .502f, .8824f to .8706f, 1f to .9647f
-        ))
+        detail = Detail(sharpen = .35f, noise = .08f),
+        effects = Effects(haze = .04f, vignette = .06f, grain = .03f),
+        tone = Tone(all = curve(0f to 0f, .25f to .235f, .75f to .765f, 1f to 1f))
     ),
-    house("bn", "Bianco e nero",
-        light = Light(contrast = .15f, blacks = -.1f),
-        chroma = Chroma(mono = true, filter = .35f),
-        mix = mix(
-            3 to Band(lum = .15f), 5 to Band(lum = -.3f)
-        )
+    house("caldo", "Caldo",
+        chroma = Chroma(temp = .12f, tint = .02f)
     ),
-    house("grading-caldo", "Color grading (caldo)",
-        mix = mix(
-            0 to Band(hue = -.12f, sat = .05f, lum = .07f), 1 to Band(hue = -.08f, sat = .05f, lum = -.14f),
-            2 to Band(hue = .08f, sat = .03f, lum = .05f), 3 to Band(hue = -.12f, sat = .08f, lum = .05f),
-            4 to Band(hue = -.05f, sat = -.03f, lum = .13f), 5 to Band(hue = -.09f, sat = -.14f, lum = .08f),
-            6 to Band(hue = .13f, sat = .13f), 7 to Band(hue = .01f)
-        )
+    house("cieli", "Cieli profondi",
+        light = Light(highlights = -.1f),
+        mix = mix(4 to Band(sat = .1f, lum = -.1f), 5 to Band(sat = .2f, lum = -.2f))
     ),
-    house("curva-chiaroscuro", "Curva chiaroscuro",
-        tone = Tone(all = curve(
-            0f to .0706f, .149f to .1451f, .251f to .2196f,
-            .502f to .502f, .8824f to .8706f, 1f to .9647f
-        ))
+    house("contrasto", "Contrasto",
+        light = Light(contrast = .15f, whites = .05f, blacks = -.08f),
+        tone = Tone(all = curve(0f to 0f, .25f to .22f, .75f to .78f, 1f to 1f))
     ),
-    house("curva-onde", "Curva onde",
-        tone = Tone(all = curve(
-            0f to .0706f, .1569f to .1882f, .2863f to .2667f,
-            .498f to .5059f, .5608f to .5451f, .8824f to .8706f,
-            1f to .9647f
-        ))
+    house("freddo", "Freddo",
+        chroma = Chroma(temp = -.12f, tint = -.02f)
     ),
-    house("pellicola", "Curva pellicola",
-        light = Light(contrast = .1f, whites = -.1f, blacks = .25f),
-        chroma = Chroma(saturation = -.15f, vibrance = .12f),
-        tone = Tone(all = curve(
-            0f to .055f, .25f to .22f, .75f to .79f,
-            1f to .96f
-        ))
+    house("nitido", "Nitido",
+        detail = Detail(sharpen = .45f),
+        effects = Effects(haze = .08f)
     ),
-    house("dettagli-fini", "Dettagli fini",
-        detail = Detail(sharpen = .7f, masking = .7f),
-        effects = Effects(grain = .03f, grainSize = -.3219f)
+    house("ombre", "Ombre aperte",
+        light = Light(highlights = -.15f, shadows = .35f, blacks = .12f)
     ),
-    house("dettagli-grossi", "Dettagli grossolani",
-        detail = Detail(sharpen = .85f, radius = .6781f, masking = .75f, noise = .2f, noiseColor = .1f)
+    house("film", "Pellicola",
+        chroma = Chroma(saturation = -.08f),
+        effects = Effects(vignette = .12f, grain = .22f),
+        tone = Tone(all = curve(0f to .06f, .5f to .5f, 1f to .96f))
     ),
-    house("mix-turchese", "Mix colori turchese",
-        mix = mix(
-            0 to Band(hue = .02f), 1 to Band(hue = -.03f),
-            2 to Band(hue = -.33f), 3 to Band(hue = .02f),
-            4 to Band(hue = -.23f), 5 to Band(hue = -.4f),
-            6 to Band(hue = -.13f)
-        )
+    house("tenue", "Tenue",
+        light = Light(contrast = -.1f),
+        chroma = Chroma(saturation = -.25f, vibrance = -.1f)
     ),
-    house("notturno", "Notturno",
-        light = Light(exposure = .25f, highlights = -.2f, shadows = .45f, blacks = .15f),
-        detail = Detail(sharpen = .3f, masking = .6f, noise = .55f, noiseColor = .45f)
-    ),
-    house("primari-caldi", "Primari caldi",
-        light = Light(contrast = .08f),
-        mix = mix(
-            0 to Band(hue = .28f, sat = -.5f), 1 to Band(hue = .15f, sat = -.2f),
-            3 to Band(sat = .45f), 5 to Band(hue = -.3f, sat = .08f)
-        )
-    ),
-    house("primari-verdi", "Primari verdi",
-        light = Light(contrast = .08f),
-        mix = mix(
-            0 to Band(hue = .28f, sat = -.5f), 1 to Band(hue = .15f, sat = -.2f),
-            2 to Band(hue = .4f, sat = .3f), 3 to Band(hue = .75f, sat = 1f),
-            4 to Band(sat = .2f), 5 to Band(sat = .4f)
-        )
-    ),
-    house("ritratto", "Ritratto",
-        light = Light(highlights = -.25f, shadows = .2f, blacks = .08f),
-        chroma = Chroma(temp = .05f, vibrance = .2f),
-        mix = mix(
-            0 to Band(sat = -.08f), 1 to Band(hue = .05f, sat = -.12f, lum = .12f),
-            2 to Band(sat = -.1f)
-        ),
-        detail = Detail(sharpen = .35f, masking = .8f)
-    ),
-    house("rosso-1", "Rosso -",
-        mix = mix(
-            0 to Band(sat = .1f, lum = .07f), 1 to Band(hue = -.12f, sat = .2f, lum = -.18f),
-            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
-            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
-            6 to Band(hue = .04f), 7 to Band(hue = .01f)
-        )
-    ),
-    house("rosso-2", "Rosso - -",
-        mix = mix(
-            0 to Band(hue = -.06f, lum = -.35f), 1 to Band(hue = -.14f, lum = -.2f),
-            2 to Band(hue = -.11f, sat = .03f, lum = .05f), 3 to Band(sat = .08f, lum = .05f),
-            4 to Band(hue = -.05f, sat = -.09f, lum = .1f), 5 to Band(hue = -.09f, sat = -.25f, lum = .2f),
-            6 to Band(hue = .04f), 7 to Band(hue = .01f)
-        )
-    ),
-    house("to-blu-rosso", "T&O - Blu/Rosso",
-        light = Light(
-            exposure = -.15f, contrast = -.5f, highlights = -.6f, shadows = .5f, whites = .5f,
-            blacks = .2f
-        ),
-        chroma = Chroma(vibrance = -.08f),
-        mix = mix(
-            0 to Band(hue = .06f, sat = .01f), 1 to Band(hue = -.01f, sat = .08f, lum = .01f),
-            2 to Band(hue = .01f, sat = .05f, lum = .01f), 3 to Band(hue = .07f, sat = .06f, lum = .01f),
-            4 to Band(hue = -.02f, sat = .07f, lum = -.01f), 5 to Band(hue = -.05f, sat = .1f, lum = .1f)
-        ),
-        detail = Detail(sharpen = .5f, masking = .74f, noise = .12f, noiseColor = .14f),
-        effects = Effects(
-            haze = -.06f, vignette = .01f, vignetteFeather = .7f, grain = .01f, grainSize = -.5564f
-        ),
-        tone = Tone(all = curve(
-            0f to .0706f, .149f to .1451f, .251f to .2196f,
-            .502f to .502f, .8824f to .8706f, 1f to .9647f
-        ))
-    ),
-    house("to-chiaro", "T&O - Chiaro",
-        mix = mix(
-            0 to Band(hue = .38f, sat = -.06f, lum = -.21f), 1 to Band(sat = -.17f),
-            2 to Band(hue = -.75f, sat = .18f, lum = .19f), 3 to Band(hue = -.78f, sat = -.08f),
-            4 to Band(hue = -.38f, sat = -.08f, lum = .22f), 5 to Band(hue = -.22f, sat = .26f, lum = .39f),
-            6 to Band(hue = .28f, sat = -.63f), 7 to Band(hue = .64f, sat = -.62f)
-        )
-    ),
-    house("to-neutro", "T&O - Neutro",
-        mix = mix(
-            0 to Band(sat = .05f), 1 to Band(hue = .07f, sat = -.49f, lum = .05f),
-            2 to Band(hue = .2f, sat = .06f, lum = .05f), 3 to Band(hue = .06f, sat = .35f, lum = .05f),
-            4 to Band(hue = .42f, sat = .1f, lum = -.05f), 5 to Band(sat = .25f)
-        )
-    ),
-    house("to-slavato", "T&O - Slavato",
-        mix = mix(
-            0 to Band(hue = .36f, sat = -.13f), 1 to Band(sat = -.15f),
-            2 to Band(hue = -.44f, sat = -.1f), 3 to Band(hue = 1f),
-            4 to Band(hue = .1f, sat = -.11f, lum = -.32f), 5 to Band(hue = -.17f, sat = .19f, lum = -.23f),
-            6 to Band(hue = -.1f, sat = -.63f), 7 to Band(hue = -.13f, sat = -.62f)
-        )
-    ),
-    house("to-standard", "T&O - Standard",
-        mix = mix(
-            0 to Band(hue = .36f, sat = .05f), 1 to Band(hue = -.06f, sat = .49f, lum = .05f),
-            2 to Band(hue = .03f, sat = .28f, lum = .05f), 3 to Band(hue = .4f, sat = .35f, lum = .05f),
-            4 to Band(hue = -.12f, sat = .43f, lum = -.05f), 5 to Band(hue = -.32f, sat = .62f)
-        )
+    house("vivido", "Vivido",
+        chroma = Chroma(saturation = .08f, vibrance = .3f)
     )
 )
