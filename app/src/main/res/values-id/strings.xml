@@ -678,7 +678,7 @@
     <string name="hint_modules">Geser ikonnya untuk menjangkau semua modul penyuntingan. Tekan lama ikon modul untuk mengatur ulang perubahannya saja.</string>
     <string name="hint_tools">Selain modul, ada dua fungsi yang bisa kamu nyalakan atau matikan seketika dengan satu ketukan pada ikonnya, yang lalu menyala: \'Tanda air\' dan \'Ubah ukuran\'. Tekan lama untuk membuka pengaturan masing-masing.</string>
     <string name="hint_save">Setelah selesai, ketuk \'Simpan\' untuk menimpa berkas (dengan salinan cadangan, jika aktif); tekan lama untuk menyimpan salinan baru gambar di folder yang sama.</string>
-    <string name="hint_draw">Dengan modul Gambar kamu bisa menambahkan garis, panah, elips, persegi panjang membulat, teks sederhana, dan kotak \'pil\' ke gambar. Menyimpan akan meratakan gambar: gambar tidak bisa dibuka lagi untuk menyunting atau memindahkan elemennya. Tekan lama sebuah warna untuk mengatur kecerahannya.</string>
+    <string name="hint_draw">Dengan modul Gambar kamu bisa menambahkan garis, panah, elips, persegi panjang membulat, teks sederhana, kotak \'pil\', dan panel buram ke gambar. Menyimpan akan meratakan gambar: gambar tidak bisa dibuka lagi untuk menyunting atau memindahkan elemennya. Tekan lama sebuah warna untuk mengatur kecerahannya.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Ekspor dan impor</string>

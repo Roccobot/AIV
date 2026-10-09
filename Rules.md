@@ -828,6 +828,10 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   - ⚠️ **Conta la larghezza, non l'altezza** (misurato il 2026-10-09 con la finestra delle parole
     del Pannello): con `w320dp-h891dp` la stessa prova passa, e il palco è abbastanza alto da
     misurarci i pixel; con `w411dp-h891dp` cade dopo 60 secondi.
+- ⚠️ **Il banco arrotonda il corpo del testo al pixel intero** (misurato il 2026-10-09: a 20 e a
+  20,75 px la stessa riga è larga 107 px, a 21 px 113): una prova che confronta una larghezza di
+  testo con un conto ammette lo scarto di un pixel di corpo, e lo dichiara. Il telefono misura in
+  frazioni di pixel.
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.

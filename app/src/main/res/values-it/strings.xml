@@ -333,7 +333,7 @@
     <string name="hint_modules">Scorri le icone per avere accesso a tutti i moduli di modifica. Premi a lungo l\'icona di un modulo per azzerare solo le sue modifiche.</string>
     <string name="hint_tools">Oltre ai moduli, sono presenti due funzioni che puoi attivare o disattivare al volo con un tocco sull\'icona, che si accende: \'Filigrana\' e \'Ridimensiona\'. Con un tocco prolungato, accedi alle impostazioni di ciascuna.</string>
     <string name="hint_save">Quando hai finito, tocca il tasto \'Salva\' per sovrascrivere il file (con copia di sicurezza, se attivata); con una pressione prolungata salverai una nuova copia dell\'immagine nella stessa cartella.</string>
-    <string name="hint_draw">Con il modulo Disegno puoi aggiungere all\'immagine linee, frecce, ellissi, rettangoli arrotondati, testi semplici e riquadri \'pillola\'. Il salvataggio appiattisce l\'immagine: non è possibile riaprirla per modificare o spostare gli elementi. Premi a lungo su un colore per regolare la sua luminosità.</string>
+    <string name="hint_draw">Con il modulo Disegno puoi aggiungere all\'immagine linee, frecce, ellissi, rettangoli arrotondati, testi semplici, riquadri \'pillola\' e pannelli sfocati. Il salvataggio appiattisce l\'immagine: non è possibile riaprirla per modificare o spostare gli elementi. Premi a lungo su un colore per regolare la sua luminosità.</string>
     <string name="folder_renamed">Cartella rinominata</string>
     <string name="folder_rename_taken">Esiste già una cartella con questo nome</string>
     <string name="folder_rename_fail">Non è stato possibile rinominare la cartella</string>

@@ -38,6 +38,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.up
 import androidx.datastore.preferences.core.mutablePreferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -1184,11 +1186,11 @@ class DisegnoTest {
         assertTrue("l'elemento scelto doveva spostarsi a destra", spostati[0].points[0].x > prima[0].points[0].x)
         assertEquals("in verticale doveva restare", prima[0].points[0].y, spostati[0].points[0].y, 1e-4f)
         assertEquals("l'altro doveva restare dov'era", prima[1].points, spostati[1].points)
-        // ⚠️ Since 4.80 'Elimina' is in the element's menu, and its column is Sfocatura's.
+        // ⚠️ 'Elimina' is in the element's menu since 4.80, and a key of words of the module since 4.92.
         banco.onNodeWithContentDescription(testo(R.string.look_compare))
             .performTouchInput { longClick(center + Offset(-70f + PASSO, -70f)) }
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.pick_delete)).performClick()
+        vocePopup(R.string.pick_delete).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
@@ -1683,7 +1685,7 @@ class DisegnoTest {
         }
         banco.onNodeWithText(testo(R.string.draw_raise)).assertIsNotEnabled()
         banco.onNodeWithText(testo(R.string.draw_lower)).assertIsNotEnabled()
-        banco.onNodeWithText(testo(R.string.pick_delete)).assertIsEnabled()
+        vocePopup(R.string.pick_delete).assertIsEnabled()
         banco.onNodeWithText(testo(R.string.pick_duplicate)).performClick()
         banco.waitForIdle()
         val dopo = salva()
@@ -1989,7 +1991,9 @@ class DisegnoTest {
     /**
      * **`Elimina` torna nella quinta colonna** (`4.91`, sua nota C sul giro della `4.90`: *vorrei
      * riavere il tasto 'Elimina', era molto comodo*): spento finché nessun elemento è scelto, toglie
-     * quello scelto.
+     * quello scelto. Dalla `4.92` è un tasto di testo accanto a `Elimina tutto`, per ogni strumento
+     * (suo `Non approvato` su `4.91-04`), e la sua prova con la pillola vive in
+     * `pillola e pannello si applicano senza parole ed Elimina vale per loro`.
      * ⚠️⚠️ **CONTROPROVATA**: col tasto che non toglie l'elemento, l'elemento resta.
      */
     @Test
@@ -1999,7 +2003,7 @@ class DisegnoTest {
         banco.setContent { Scena(onSave = { salvato = it }) }
         pronta()
         apriDisegno()
-        val elimina = banco.onNodeWithContentDescription(testo(R.string.pick_delete))
+        val elimina = banco.onNodeWithText(testo(R.string.pick_delete))
         elimina.assertIsNotEnabled()
         val r = immagine()
         fun a(x: Float, y: Float) = Offset(r.left + x * r.width, r.top + y * r.height)
@@ -2369,7 +2373,8 @@ class DisegnoTest {
      * si accende; `Carattere` passa al carattere dopo e lo dice; `Fondo` passa a `Evidenziato` col
      * giallo, e le parole bianche diventano nere; su una pagina bianca il fondo bianco non si offre e
      * gli altri sì; `Fondo` passa poi a `Etichetta` col viola, e le parole tornano bianche;
-     * `Dimensione` cambia il corpo; `Allineamento` passa dal centro a destra.
+     * `Dimensione` cambia il corpo; `Allineamento` passa dal centro a sinistra, dalla `4.92` (sua nota
+     * A sul giro della `4.91`; fino alla `4.91` passava a destra).
      * ⚠️⚠️ **CONTROPROVATA** tre volte: senza i parametri del testo fra quelli che il modulo posa
      * sull'elemento scelto (il grassetto non arriva al testo), con la fila dei fondi che offre
      * tutti i colori (il fondo bianco si offre su una pagina bianca), e senza l'allineamento fra le
@@ -2432,8 +2437,11 @@ class DisegnoTest {
         val allineamento = testo(R.string.draw_align)
         banco.onNodeWithContentDescription("$allineamento: ${testo(R.string.draw_center)}").performClick()
         banco.waitForIdle()
-        banco.onNodeWithContentDescription("$allineamento: ${testo(R.string.settings_right)}").assertExists()
-        assertEquals("Allineamento doveva passare a destra", Align.RIGHT, salva().words!!.align)
+        banco.onNodeWithContentDescription("$allineamento: ${testo(R.string.settings_left)}").assertExists()
+        assertEquals("Allineamento doveva passare a sinistra", Align.LEFT, salva().words!!.align)
+        banco.onNodeWithContentDescription("$allineamento: ${testo(R.string.settings_left)}").performClick()
+        banco.waitForIdle()
+        assertEquals("e poi a destra", Align.RIGHT, salva().words!!.align)
     }
 
     /**
@@ -2467,7 +2475,8 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_ground)).assertIsNotEnabled()
         val r = immagine()
         trascinaDa(Offset(r.left + 0.1f * r.width, r.top + 0.2f * r.height), Offset(r.left + 0.8f * r.width, r.top + 0.4f * r.height))
-        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsNotEnabled()
+        // ⚠️ Dalla `4.92` una pillola può non avere parole (sua nota C sul giro della `4.91`).
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsEnabled()
         banco.onNode(hasSetTextAction()).performTextInput("Ciao")
         banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
         banco.waitForIdle()
@@ -2498,7 +2507,7 @@ class DisegnoTest {
         banco.onNodeWithContentDescription(testo(R.string.draw_pill)).performClick()
         banco.waitForIdle()
         tocca(Offset.Zero)
-        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsNotEnabled()
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsEnabled()
         banco.onNode(hasSetTextAction()).performTextInput("Seconda")
         banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
         banco.waitForIdle()
@@ -2511,6 +2520,245 @@ class DisegnoTest {
         assertTrue("posata attorno alle parole, più larga che alta", kotlin.math.abs(b.x - a.x) > kotlin.math.abs(b.y - a.y))
         assertEquals("posata dove si è toccato", 0.5f, (a.y + b.y) / 2f, 0.1f)
         banco.onNodeWithContentDescription(testo(R.string.draw_text_edit)).assertIsEnabled()
+    }
+
+    /**
+     * **Un testo nuovo nasce con la riga più lunga larga metà dell'immagine** (`4.92`, sua nota su
+     * `4.91-03`: *forse è bene stabilire una dimensione predefinita dei testi: la riga più lunga deve
+     * misurare il 50% della larghezza dell'immagine*), su un'immagine larga e su una alta; una
+     * lettera sola si ferma al tetto. E l'allineamento va dal centro a sinistra, poi a destra (sua
+     * nota A sul giro della `4.91`).
+     * ⚠️⚠️ **CONTROPROVATA**: con `Draw.fitSize` che rende il corpo di fabbrica, la riga non è larga
+     * metà dell'immagine.
+     */
+    @Test
+    fun `un testo nuovo nasce con la riga lunga mezza immagine`() {
+        Faces.load(app)
+        for ((w, h) in listOf(400 to 200, 200 to 400)) {
+            val parole = Words("Ciao mondo\nCiao")
+            val corpo = Draw.fitSize(parole, w.toFloat(), h.toFloat())
+            val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, corpo, false, null, words = parole)
+            val (hw, _) = Draw.textHalf(testo, w.toFloat(), h.toFloat())
+            // ⚠️ Il banco arrotonda il corpo al pixel intero (misurato: a 20 e a 20,75 px la riga è
+            // larga uguale), quindi lo scarto ammesso è quello di un pixel di corpo.
+            val pixel = w / 2f / (corpo * maxOf(w, h)) + 1f
+            assertEquals("la riga più lunga doveva misurare metà della larghezza, $w x $h", w / 2f, 2f * hw, pixel)
+        }
+        assertEquals("una lettera sola si ferma al tetto", Draw.TEXT_MAX, Draw.fitSize(Words("i"), 4000f, 100f), 1e-6f)
+        assertEquals(Align.LEFT, Align.CENTER.next)
+        assertEquals(Align.RIGHT, Align.LEFT.next)
+        assertEquals(Align.CENTER, Align.RIGHT.next)
+        assertEquals("gli angoli del Pannello sono all'1% del suo lato lungo", 0.01f, Draw.PANEL_ROUND, 0f)
+    }
+
+    /**
+     * **Le righe di minuscole si centrano sulla loro fascia** (`4.92`, sua nota B sul giro della
+     * `4.91`, col mockup di una pillola alta 126 px sopra le minuscole e 96 sotto): in una pillola e
+     * su una striscia dell'etichetta le lettere di `xo`, che stanno tutte nella fascia delle
+     * minuscole, hanno lo stesso centro del riquadro, entro un pixel e mezzo.
+     * ⚠️⚠️ **CONTROPROVATA**: con le righe centrate sempre sulla metà della H, le minuscole cadono
+     * sotto il centro di parecchi pixel, nella pillola e sulla striscia.
+     */
+    @Test
+    fun `le minuscole stanno al centro della pillola e della striscia`() {
+        Faces.load(app)
+        val lato = 1000
+        fun bianchi(tela: Bitmap): IntRange {
+            var y0 = lato; var y1 = -1
+            for (y in 0 until lato) for (x in 0 until lato) {
+                val p = tela.getPixel(x, y)
+                if (Color.alpha(p) > 250 && Color.red(p) > 245 && Color.green(p) > 245 && Color.blue(p) > 245) {
+                    y0 = minOf(y0, y); y1 = maxOf(y1, y)
+                }
+            }
+            return y0..y1
+        }
+        val pillola = Mark(Pen.PILL, listOf(Offset(0.2f, 0.4f), Offset(0.8f, 0.6f)), Draw.PILL_WORDS, 0f, false, null, words = Words("xo"))
+        val nella = bianchi(Draw.overlay(Drawing(listOf(pillola)), lato, lato, Spin(0, false))!!)
+        assertTrue("le parole dovevano esserci", nella.last > nella.first + 20)
+        assertEquals("le minuscole al centro della pillola", 500f, (nella.first + nella.last + 1) / 2f, 1.5f)
+
+        val etichetta = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.2f, false, null, words = Words("xo", label = true))
+        val tela = Draw.overlay(Drawing(listOf(etichetta)), lato, lato, Spin(0, false))!!
+        val parole = bianchi(tela)
+        var s0 = lato; var s1 = -1
+        for (y in 0 until lato) {
+            val p = tela.getPixel(lato / 2, y)
+            if (Color.alpha(p) > 250 && kotlin.math.abs(Color.red(p) - 0xA3) < 3 && kotlin.math.abs(Color.green(p) - 0x40) < 3 &&
+                kotlin.math.abs(Color.blue(p) - 0x8F) < 3) { s0 = minOf(s0, y); s1 = maxOf(s1, y) }
+        }
+        assertTrue("la striscia doveva esserci", s1 > s0)
+        assertEquals("le minuscole al centro della striscia", (s0 + s1 + 1) / 2f, (parole.first + parole.last + 1) / 2f, 1.5f)
+    }
+
+    /**
+     * **Dove una riga dell'etichetta è più stretta della vicina, l'incastro ha un raccordo concavo**
+     * (`4.92`, sua nota D sul giro della `4.91`, col suo mockup: *gli arrotondamenti non devono stare
+     * nelle linee intermedie, anzi lì ci vorrebbe un arrotondamento contrario*): appena sopra il
+     * punto in cui la riga stretta incontra quella larga la striscia è più larga che a metà della
+     * riga, perché il raccordo la allarga verso la vicina; gli angoli di fuori restano tondi, cioè
+     * in cima alla riga stretta e in cima alla parte che sporge della riga larga la striscia è più
+     * stretta che a metà.
+     * ⚠️⚠️ **CONTROPROVATA**: con quattro angoli tondi per ogni striscia, come fino alla `4.91`, appena
+     * sopra l'incastro la striscia stretta è più stretta che a metà.
+     */
+    @Test
+    fun `l'etichetta ha raccordi concavi fra righe di larghezza diversa`() {
+        Faces.load(app)
+        val lato = 400
+        val segno = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.1f, false, null,
+            words = Words("x\nxxxxxxx", label = true))
+        val tela = Draw.overlay(Drawing(listOf(segno)), lato, lato, Spin(0, false))!!
+        fun largo(y: Int): Int {
+            var x0 = lato; var x1 = -1
+            for (x in 0 until lato) {
+                val p = tela.getPixel(x, y)
+                if (Color.alpha(p) > 250 && kotlin.math.abs(Color.red(p) - 0xA3) < 3 && kotlin.math.abs(Color.green(p) - 0x40) < 3 &&
+                    kotlin.math.abs(Color.blue(p) - 0x8F) < 3) { x0 = minOf(x0, x); x1 = maxOf(x1, x) }
+            }
+            return x1 - x0 + 1
+        }
+        // Due righe di un corpo di 40 px, a un passo di 52: la stretta va da 148 a 200, la larga da 200 a 252.
+        val meta = largo(174)
+        assertTrue("la riga stretta doveva esserci", meta > 10)
+        assertTrue("sopra l'incastro il raccordo doveva allargare la striscia: ${largo(198)} contro $meta", largo(198) > meta + 4)
+        assertTrue("in cima l'angolo di fuori doveva restare tondo: ${largo(149)} contro $meta", largo(149) < meta - 4)
+        assertTrue("la riga larga doveva essere più larga", largo(226) > meta + 40)
+        assertTrue("e in cima la sua parte che sporge doveva avere gli angoli tondi", largo(202) < largo(226) - 4)
+    }
+
+    /**
+     * **Cambiare il colore non riporta il testo al corpo di prima** (`4.92`, sua nota su `4.91-03`:
+     * *Se ingrandisco il testo e poi cambio colore, il colore si applica ma il testo ritorna piccolo
+     * come in origine*): il testo nasce col suo corpo, una maniglia d'angolo lo ingrandisce, e un tondo
+     * gli cambia il colore lasciando il corpo nuovo. `Dimensione` è spento finché nessun testo è
+     * scelto, perché un testo nuovo nasce col corpo suo.
+     * ⚠️⚠️ **CONTROPROVATA**: senza il modulo che ricarica l'elemento scelto alla fine del gesto, il
+     * testo torna al corpo con cui era nato.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h891dp")
+    fun `il colore non riporta il testo al corpo di prima`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        fun salva(): Mark {
+            banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+            banco.waitForIdle()
+            return salvato!!.drawing.marks.single()
+        }
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        banco.onAllNodesWithContentDescription(testo(R.string.draw_size))
+            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertIsNotEnabled()
+        val r = immagine()
+        fun su(p: Offset) = Offset(r.left + p.x * r.width, r.top + p.y * r.height)
+        tocca(su(Offset(0.5f, 0.5f)))
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        banco.onAllNodesWithContentDescription(testo(R.string.draw_size))
+            .filterToOne(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).assertIsEnabled()
+        val nato = salva()
+        assertEquals("il testo nasce col corpo che fa la riga larga metà dell'immagine",
+            Draw.fitSize(nato.words!!, LATO.toFloat(), LATO.toFloat()), nato.width, 1e-4f)
+        val centro = nato.points.single()
+        val angolo = nato.handles(LATO, LATO)[2]
+        trascinaDa(su(angolo), su(centro + (angolo - centro) * 1.5f))
+        val grande = salva()
+        assertTrue("la maniglia doveva ingrandire il testo: ${grande.width} contro ${nato.width}", grande.width > 1.3f * nato.width)
+        banco.onNodeWithContentDescription(testo(R.string.ink_blue)).performClick()
+        banco.waitForIdle()
+        val blu = salva()
+        assertEquals("il tondo doveva dare il suo colore", Draw.INKS[3], blu.ink or 0xFF000000.toInt())
+        assertEquals("e lasciare il corpo nuovo", grande.width, blu.width, 1e-4f)
+    }
+
+    /**
+     * **Il cursore e le file dei tasti restano dove sono con ogni strumento** (`4.92`, sua nota E sul
+     * giro della `4.91`: *Quando si passa allo strumento Testo, le due file di tasti principali del
+     * modulo si avvicinano fino a toccarsi ... posiziona lo slider nella stessa posizione anche con
+     * gli altri strumenti*): col Rettangolo e col Testo con `Sfondo` acceso, la fila dei tasti e il
+     * cursore hanno lo stesso posto, e le strisce sono rettangoli affiancati senza spazio fra loro.
+     * Il tasto `Sfondo` acceso è un rettangolo del colore della striscia con le lettere in negativo,
+     * cioè del fondo del tasto, e spento non ha il colore della striscia (sua nota F).
+     * ⚠️⚠️ **CONTROPROVATA** due volte: con la fila delle strisce che compare sotto il cursore senza
+     * un posto suo, il cursore del Testo si sposta; e con le lettere bianche sul rettangolo al posto
+     * del negativo, dentro il rettangolo non c'è il fondo del tasto.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h891dp")
+    fun `il cursore e le file dei tasti restano dove sono con ogni strumento`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        fun cursore() = banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).getUnclippedBoundsInRoot()
+        banco.onNodeWithContentDescription(testo(R.string.draw_rect)).performClick()
+        banco.waitForIdle()
+        val prima = cursore()
+        val tasti = banco.onNodeWithContentDescription(testo(R.string.draw_dashed)).getUnclippedBoundsInRoot()
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        val r = immagine()
+        tocca(Offset(r.left + 0.5f * r.width, r.top + 0.5f * r.height))
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        val fondo = testo(R.string.draw_ground)
+        val sfondo = banco.onNodeWithContentDescription(fondo)
+        val spento = sfondo.captureToImage().toPixelMap()
+        val striscia = androidx.compose.ui.graphics.Color(Draw.LABEL_INK)
+        assertEquals("spento, il tasto Sfondo non ha il colore della striscia", 0, inchiostro(spento, striscia))
+        sfondo.performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription("$fondo 1").assertExists()
+        assertEquals("col Testo il cursore doveva restare dov'era", prima.top.value, cursore().top.value, 0.5f)
+        assertEquals("e la fila dei tasti", tasti.top.value,
+            banco.onNodeWithContentDescription(testo(R.string.draw_bold)).getUnclippedBoundsInRoot().top.value, 0.5f)
+        val uno = banco.onNodeWithContentDescription("$fondo 1").getUnclippedBoundsInRoot()
+        val due = banco.onNodeWithContentDescription("$fondo 2").getUnclippedBoundsInRoot()
+        assertEquals("le strisce dovevano essere affiancate senza spazio", uno.right.value, due.left.value, 0.5f)
+        assertTrue("e più basse dei tondi", uno.bottom.value - uno.top.value < 32f)
+
+        val acceso = sfondo.captureToImage().toPixelMap()
+        assertTrue("acceso, il tasto doveva avere il colore della striscia", inchiostro(acceso, striscia) > 100)
+        val (cx, cy) = centro(acceso, striscia)
+        val dietro = acceso[acceso.width / 2, 4]
+        var lettere = 0
+        for (y in cy - 6..cy + 6) for (x in cx - 12..cx + 12) if (vicino(acceso[x, y], dietro)) lettere++
+        assertTrue("le lettere dovevano essere in negativo, del fondo del tasto: $lettere", lettere > 10)
+    }
+
+    /**
+     * **Pillola e Pannello si applicano senza parole, ed `Elimina` vale anche per loro** (`4.92`, sua
+     * nota C sul giro della `4.91`: *Nella pillola e nel pannello, il testo non dev'essere
+     * obbligatorio*; e suo `Non approvato` su `4.91-04`: *Se sto usando la pillola o ne ho una
+     * selezionata, il tasto 'Elimina' non appare*): `Applica` si accende a campo vuoto, il pannello
+     * nasce senza parole e scelto, e `Elimina`, un tasto di testo accanto a `Elimina tutto`, lo toglie.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: con `Applica` che aspetta una lettera anche qui, e con `Elimina`
+     * nella sola fila delle forme, come nella `4.91`.
+     */
+    @Test
+    fun `pillola e pannello si applicano senza parole ed Elimina vale per loro`() {
+        var salvato: Look? = null
+        banco.setContent { Scena(onSave = { salvato = it }) }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_panel)).performClick()
+        banco.waitForIdle()
+        val r = immagine()
+        trascinaDa(Offset(r.left + 0.1f * r.width, r.top + 0.2f * r.height), Offset(r.left + 0.8f * r.width, r.top + 0.6f * r.height))
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertIsEnabled().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_save)).performClick()
+        banco.waitForIdle()
+        val pannello = salvato!!.drawing.marks.single()
+        assertEquals(Pen.PANEL, pannello.pen)
+        assertEquals("il pannello nasce senza parole", "", pannello.words?.text)
+        banco.onNodeWithText(testo(R.string.pick_delete)).assertIsEnabled().performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.draw_clear)).assertIsNotEnabled()
     }
 
     /**
@@ -2530,6 +2778,12 @@ class DisegnoTest {
         val cy = m.height / 2f
         return androidx.compose.ui.geometry.Rect(x0 - cx, y0 - cy, x1 + 1 - cx, y1 + 1 - cy)
     }
+
+    /**
+     * La voce [id] del menu della pressione lunga: dalla `4.92` `Elimina` è anche un tasto del
+     * modulo, quindi la voce si cerca dentro il menu.
+     */
+    private fun vocePopup(id: Int) = banco.onAllNodesWithText(testo(id)).filterToOne(hasAnyAncestor(isPopup()))
 
     /** Un tocco sul palco, a [da] dal suo centro. */
     private fun tocca(da: Offset) {
