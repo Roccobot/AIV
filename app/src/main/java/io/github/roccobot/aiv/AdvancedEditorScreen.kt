@@ -5864,7 +5864,7 @@ private fun DrawBody(
     // panel, so the swatch shrinks to fit and never grows past [SWATCH].
     val voci: List<Int?> = listOf(null) + if (incornicia) Draw.PILL_INKS else Draw.INKS
     val sfondo = stringResource(R.string.draw_ground)
-    BoxWithConstraints(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
         val lato = minOf(SWATCH, maxWidth / voci.size - SWATCH_GAP)
         Row(
             /*
@@ -6038,95 +6038,100 @@ private fun DrawBody(
             }
         }
     }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            stringResource(
-                when {
-                    pannello -> R.string.draw_blur
-                    scrive || pillola -> R.string.draw_size
-                    bersaglio == DrawTarget.WIDTH -> R.string.draw_width
-                    else -> R.string.settings_mark_alpha
-                }
-            ),
-            style = MaterialTheme.typography.labelMedium,
-            // ⚠️ Since 4.92 two keys of words share the row (Elimina), so in a long language the name
-            // of the slider gives way first.
-            modifier = Modifier.weight(1f, fill = false)
-        )
-        /*
-         * ⚠️⚠️ **Elimina is a key of words beside Elimina tutto, since 4.92, for every pen** (his
-         * `Non approvato` on `4.91-04`: *Se sto usando la pillola o ne ho una selezionata, il tasto
-         * 'Elimina' non appare ... Potrebbe essere anche un pulsante testuale a sinistra di 'Elimina
-         * tutto' (che è anche pertinente)*, and his answer to `d-elimina-testo`). It deletes the
-         * element chosen. In 4.91 it was the fifth column of the shapes' keys, which the keys of the
-         * text have no room for; from 4.60 to 4.70 too, and it stays in the menu of the long press.
-         */
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(
-                onClick = {
-                    val i = gaze.picked ?: return@TextButton
-                    gaze.picked = null
-                    onLive { l -> l.copy(drawing = l.drawing.without(i)) }
-                    onSettled()
-                },
-                enabled = live && gaze.picked != null,
-                contentPadding = PaddingValues(horizontal = 4.dp)
-            ) { Text(stringResource(R.string.pick_delete)) }
-            TextButton(
-                onClick = {
-                    gaze.picked = null
-                    onLive { it.copy(drawing = Drawing.NONE) }
-                    onSettled()
-                },
-                enabled = live && !look.drawing.idle,
-                contentPadding = PaddingValues(horizontal = 4.dp)
-            ) { Text(stringResource(R.string.draw_clear)) }
+    // ⚠️ The name of the slider and the slider are one row of the module: no air between them.
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(
+                    when {
+                        pannello -> R.string.draw_blur
+                        scrive || pillola -> R.string.draw_size
+                        bersaglio == DrawTarget.WIDTH -> R.string.draw_width
+                        else -> R.string.settings_mark_alpha
+                    }
+                ),
+                style = MaterialTheme.typography.labelMedium,
+                // ⚠️ Since 4.92 two keys of words share the row (Elimina), so in a long language the name
+                // of the slider gives way first.
+                modifier = Modifier.weight(1f, fill = false)
+            )
+            /*
+             * ⚠️⚠️ **Elimina is a key of words beside Elimina tutto, since 4.92, for every pen** (his
+             * `Non approvato` on `4.91-04`: *Se sto usando la pillola o ne ho una selezionata, il tasto
+             * 'Elimina' non appare ... Potrebbe essere anche un pulsante testuale a sinistra di 'Elimina
+             * tutto' (che è anche pertinente)*, and his answer to `d-elimina-testo`). It deletes the
+             * element chosen. In 4.91 it was the fifth column of the shapes' keys, which the keys of the
+             * text have no room for; from 4.60 to 4.70 too, and it stays in the menu of the long press.
+             */
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(
+                    onClick = {
+                        val i = gaze.picked ?: return@TextButton
+                        gaze.picked = null
+                        onLive { l -> l.copy(drawing = l.drawing.without(i)) }
+                        onSettled()
+                    },
+                    enabled = live && gaze.picked != null,
+                    contentPadding = PaddingValues(horizontal = 4.dp),
+                    modifier = Modifier.height(DRAW_WORDS_ROW)
+                ) { Text(stringResource(R.string.pick_delete)) }
+                TextButton(
+                    onClick = {
+                        gaze.picked = null
+                        onLive { it.copy(drawing = Drawing.NONE) }
+                        onSettled()
+                    },
+                    enabled = live && !look.drawing.idle,
+                    contentPadding = PaddingValues(horizontal = 4.dp),
+                    modifier = Modifier.height(DRAW_WORDS_ROW)
+                ) { Text(stringResource(R.string.draw_clear)) }
+            }
         }
-    }
-    if (pannello) Slider(
-        value = gaze.blurAmount,
-        onValueChange = { gaze.blurAmount = it },
-        valueRange = Draw.BLUR_MIN..Draw.BLUR_MAX,
-        enabled = live,
-        modifier = Modifier.semantics { contentDescription = nomeSfocatura }
-    ) else if (scrive || pillola) {
-        val nomeDimensione = stringResource(R.string.draw_size)
-        // ⚠️ A pill's words take the largest size its box holds (4.90), so the slider is off.
-        // ⚠️ Since 4.91 the track is a ratio's ([Draw.textTrack]): the sizes reach 1,5.
-        // ⚠️ Since 4.92 a new text is born at its own size ([Draw.fitSize]), so the slider sets the
-        // chosen text only, and is off with none.
-        Slider(
-            value = Draw.textTrack(gaze.textSize),
-            onValueChange = { gaze.textSize = Draw.textSize(it) },
-            enabled = live && scrive && gaze.picked != null,
-            modifier = Modifier.semantics { contentDescription = nomeDimensione }
-        )
-    } else when (bersaglio) {
-        DrawTarget.STROKE -> Slider(
-            value = gaze.inkAlpha,
-            onValueChange = { gaze.inkAlpha = it },
-            valueRange = 0.1f..1f,
-            enabled = live
-        )
-        DrawTarget.FILL -> Slider(
-            value = gaze.fillAlpha,
-            onValueChange = { gaze.fillAlpha = it },
-            valueRange = 0.1f..1f,
-            enabled = live && gaze.fillInk != null
-        )
-        DrawTarget.WIDTH -> {
-            DisposableEffect(gaze) { onDispose { gaze.inkSizing = false } }
+        if (pannello) Slider(
+            value = gaze.blurAmount,
+            onValueChange = { gaze.blurAmount = it },
+            valueRange = Draw.BLUR_MIN..Draw.BLUR_MAX,
+            enabled = live,
+            modifier = Modifier.semantics { contentDescription = nomeSfocatura }
+        ) else if (scrive || pillola) {
+            val nomeDimensione = stringResource(R.string.draw_size)
+            // ⚠️ A pill's words take the largest size its box holds (4.90), so the slider is off.
+            // ⚠️ Since 4.91 the track is a ratio's ([Draw.textTrack]): the sizes reach 1,5.
+            // ⚠️ Since 4.92 a new text is born at its own size ([Draw.fitSize]), so the slider sets the
+            // chosen text only, and is off with none.
             Slider(
-                value = gaze.inkWidth,
-                onValueChange = { gaze.inkSizing = true; gaze.inkWidth = it },
-                onValueChangeFinished = { gaze.inkSizing = false },
-                valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
+                value = Draw.textTrack(gaze.textSize),
+                onValueChange = { gaze.textSize = Draw.textSize(it) },
+                enabled = live && scrive && gaze.picked != null,
+                modifier = Modifier.semantics { contentDescription = nomeDimensione }
+            )
+        } else when (bersaglio) {
+            DrawTarget.STROKE -> Slider(
+                value = gaze.inkAlpha,
+                onValueChange = { gaze.inkAlpha = it },
+                valueRange = 0.1f..1f,
                 enabled = live
             )
+            DrawTarget.FILL -> Slider(
+                value = gaze.fillAlpha,
+                onValueChange = { gaze.fillAlpha = it },
+                valueRange = 0.1f..1f,
+                enabled = live && gaze.fillInk != null
+            )
+            DrawTarget.WIDTH -> {
+                DisposableEffect(gaze) { onDispose { gaze.inkSizing = false } }
+                Slider(
+                    value = gaze.inkWidth,
+                    onValueChange = { gaze.inkSizing = true; gaze.inkWidth = it },
+                    onValueChangeFinished = { gaze.inkSizing = false },
+                    valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
+                    enabled = live
+                )
+            }
         }
     }
     /*
@@ -6137,7 +6142,7 @@ private fun DrawBody(
      * row that came with `Sfondo` took the air between the rows. Now the place is always there, empty
      * when the strips are not, so the slider does not move from one pen to another.
      */
-    Box(Modifier.fillMaxWidth().height(STRIPS_ROW), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxWidth().height(STRIP), contentAlignment = Alignment.Center) {
         if (scrive && gaze.label) GroundRow(gaze, live)
     }
 }
@@ -6542,7 +6547,20 @@ private fun ModuleBody(
         return
     }
     if (mod.extra == Extra.DRAW) {
-        DrawBody(look, gaze, live = ready && !busy, onLive = onLive, onSettled = onSettled)
+        /*
+         * ⚠️⚠️ **The rows of the Disegno module stand [DRAW_AIR] apart, since 4.94** (his note on the
+         * 4.93 round, with his mockup: *Disponi meglio gli elementi dell'interfaccia: c'è spazio per
+         * tutto*): until 4.93 each row kept only its own margin, so the keys nearly touched and the
+         * air gathered under the slider. The module is the tallest, so the sheet grows with it.
+         * ⚠️ The top margin and the row of the modules' own 4dp ([MOD_GAP]) make one [DRAW_AIR]; at the
+         * bottom, [DRAW_FOOT] keeps the strips as far from the bar's icons as his mockup does.
+         */
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = DRAW_AIR - MOD_GAP, bottom = DRAW_FOOT),
+            verticalArrangement = Arrangement.spacedBy(DRAW_AIR)
+        ) {
+            DrawBody(look, gaze, live = ready && !busy, onLive = onLive, onSettled = onSettled)
+        }
         return
     }
     /*
@@ -8293,14 +8311,28 @@ private fun GroundRow(gaze: Gaze, live: Boolean) {
                     }
                     .semantics { contentDescription = "$fondo ${i + 1}" }
                     .drawBehind {
-                        drawRect(Color(ink))
-                        if (scelto) {
-                            val anello = SWATCH_RING.toPx()
-                            drawRect(bordo, topLeft = Offset(anello / 2f, anello / 2f),
-                                size = Size(size.width - anello, size.height - anello), style = Stroke(anello))
-                            drawRect(dentro, topLeft = Offset(anello * 1.25f, anello * 1.25f),
-                                size = Size(size.width - anello * 2.5f, size.height - anello * 2.5f), style = Stroke(anello / 2f))
+                        if (!scelto) {
+                            drawRect(Color(ink))
+                            return@drawBehind
                         }
+                        /*
+                         * ⚠️⚠️ **Three rounded rectangles, one inside the other, since 4.94** (his note
+                         * on the 4.93 round, with his drawing: *Disegna meglio il selettore del
+                         * colore 'secondario' in basso*): the dark ring fills the strip, the light
+                         * line and the colour are rounded, concentric with the row's own corner
+                         * ([STRIP_ROUND]), so the ring keeps the row's rounding on the outside and
+                         * the line follows it inside. Until 4.93 the line and the colour were square,
+                         * drawn as two strokes over the strip.
+                         */
+                        val anello = SWATCH_RING.toPx()
+                        val filo = anello / 2f
+                        val raggio = (STRIP_ROUND.toPx() - anello).coerceAtLeast(filo)
+                        drawRect(bordo)
+                        drawRoundRect(dentro, topLeft = Offset(anello, anello),
+                            size = Size(size.width - 2 * anello, size.height - 2 * anello), cornerRadius = CornerRadius(raggio))
+                        drawRoundRect(Color(ink), topLeft = Offset(anello + filo, anello + filo),
+                            size = Size(size.width - 2 * (anello + filo), size.height - 2 * (anello + filo)),
+                            cornerRadius = CornerRadius(raggio - filo))
                     }
             )
         }
@@ -8342,13 +8374,28 @@ private val GROUND_GLYPH_ROUND = 5.dp
 private val GROUND_GLYPH_TEXT = 13.sp
 
 /**
- * **How tall the strips are, how round their row, and the place the row has in the module** (4.92,
- * his note E on the 4.91 round): lower than the palette's swatches ([SWATCH]), so the slider moves
- * up little. Choices of the session, declared in the test item.
+ * **How tall the strips are, and how round their row** (4.92, his note E on the 4.91 round): lower
+ * than the palette's swatches ([SWATCH]), so the slider moves up little. Choices of the session,
+ * declared in the test item. Since 4.94 the air around the row is [DRAW_AIR].
  */
 private val STRIP = 20.dp
 private val STRIP_ROUND = 6.dp
-private val STRIPS_ROW = STRIP + 8.dp
+
+/**
+ * **The air between two rows of the Disegno module** (4.94, his mockup on the 4.93 round): the gaps
+ * of his drawing, measured on it, are 11 to 15dp. A choice of the session, declared in the test item.
+ */
+private val DRAW_AIR = 12.dp
+
+/** How far the strips stay from the bar under the module, past [DRAW_AIR] (4.94, his mockup). */
+private val DRAW_FOOT = 8.dp
+
+/**
+ * **How tall the row of the slider's name and of Elimina is** (4.94, his mockup on the 4.93 round,
+ * where the name sits close to its slider): the height of the keys above, below Material's 40dp for
+ * a key of words.
+ */
+private val DRAW_WORDS_ROW = 32.dp
 
 /**
  * **The face of the 'Aa' on the Carattere key** (4.90): the typeface the drawing paints with,

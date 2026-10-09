@@ -899,6 +899,9 @@ class DisegnoTest {
      * hanno altezze diverse.
      */
     @Test
+    // ⚠️ A phone's height (4.94): on the bench's own screen, 470dp tall, the sheet of the Disegno module
+    // leaves the stage too small for the gesture.
+    @Config(qualifiers = "w320dp-h891dp")
     fun `una linea quasi orizzontale si posa sull'orizzontale`() {
         val a = Offset(10f, 10f)
         assertEquals(Offset(110f, 10f) to SnapAxis.HORIZONTAL, Draw.snap(a, Offset(110f, 15f)))
@@ -2324,6 +2327,9 @@ class DisegnoTest {
      * `Rules.md` § '🧪 Quando si scrive una prova, e quando no'.
      */
     @Test
+    // ⚠️ A phone's height (4.94): on the bench's own screen, 470dp tall, the sheet of the Disegno module
+    // leaves the stage too small for the gesture.
+    @Config(qualifiers = "w320dp-h891dp")
     fun `con Testo un tocco apre la finestra e il testo nasce dove si tocca`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
@@ -2741,6 +2747,9 @@ class DisegnoTest {
      * nella sola fila delle forme, come nella `4.91`.
      */
     @Test
+    // ⚠️ A phone's height (4.94): on the bench's own screen, 470dp tall, the sheet of the Disegno module
+    // leaves the stage too small for the gesture.
+    @Config(qualifiers = "w320dp-h891dp")
     fun `pillola e pannello si applicano senza parole ed Elimina vale per loro`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
@@ -2802,6 +2811,71 @@ class DisegnoTest {
         palco.performTouchInput { longClick(center + qui) }
         banco.waitForIdle()
         vocePopup(R.string.draw_rotate).assertExists()
+    }
+
+    /**
+     * **Le file del modulo Disegno stanno a 12dp l'una dall'altra** (`4.94`, sua nota in Altro sul giro
+     * della `4.93`, col suo mockup: *Disponi meglio gli elementi dell'interfaccia: c'è spazio per
+     * tutto*): fra i gettoni dei moduli e gli strumenti, fra gli strumenti e i tasti, fra i tasti e i
+     * tondi, fra i tondi e la fila di `Elimina`. Il nome del cursore e il cursore restano attaccati.
+     * ⚠️⚠️ **CONTROPROVATA** col corpo della `4.93`, dove le file stavano a 3, 4 e 7dp.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h891dp")
+    fun `le file del Disegno hanno la stessa aria fra loro`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        fun dove(id: Int) = banco.onNodeWithContentDescription(testo(id)).getUnclippedBoundsInRoot()
+        val moduli = dove(R.string.look_draw)
+        val strumenti = dove(R.string.draw_free)
+        val tasti = dove(R.string.draw_bold)
+        val tondi = dove(R.string.ink_red)
+        val elimina = banco.onNodeWithText(testo(R.string.draw_clear)).getUnclippedBoundsInRoot()
+        val cursore = banco.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress)).getUnclippedBoundsInRoot()
+        assertEquals("fra i moduli e gli strumenti", 12f, strumenti.top.value - moduli.bottom.value, 0.5f)
+        assertEquals("fra gli strumenti e i tasti", 12f, tasti.top.value - strumenti.bottom.value, 0.5f)
+        assertEquals("fra i tasti e i tondi", 12f, tondi.top.value - tasti.bottom.value, 0.5f)
+        assertEquals("fra i tondi ed Elimina", 12f, elimina.top.value - tondi.bottom.value, 0.5f)
+        assertTrue("il cursore doveva restare attaccato al suo nome", cursore.top.value - elimina.bottom.value < 4f)
+    }
+
+    /**
+     * **La striscia scelta ha il filo chiaro e il colore stondati, concentrici al bordo scuro**
+     * (`4.94`, sua nota in Altro sul giro della `4.93`, col suo disegno: *Disegna meglio il selettore
+     * del colore 'secondario' in basso*): nell'angolo interno del bordo scuro c'è ancora il bordo, perché
+     * il filo chiaro gira con un raggio; a metà del lato il filo c'è.
+     * ⚠️⚠️ **CONTROPROVATA** col disegno della `4.93`, dove filo e colore erano rettangoli a spigolo vivo.
+     */
+    @Test
+    // ⚠️ Three pixels to a point: at one, the corner of the line is a pixel or two, and reads either way.
+    @Config(qualifiers = "w320dp-h891dp-xxhdpi")
+    fun `la striscia scelta ha il filo stondato`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        val r = immagine()
+        tocca(Offset(r.left + 0.5f * r.width, r.top + 0.5f * r.height))
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.draw_ground)).performClick()
+        banco.waitForIdle()
+        val fondo = testo(R.string.draw_ground)
+        // ⚠️ The second strip: the first one has the row's rounding on its left corners as well.
+        banco.onNodeWithContentDescription("$fondo 2").performClick()
+        banco.waitForIdle()
+        val striscia = banco.onNodeWithContentDescription("$fondo 2").captureToImage().toPixelMap()
+        val a = banco.density.density * 3f
+        val scuro = striscia[1, striscia.height / 2]
+        val filo = striscia[striscia.width / 2, (a * 1.25f).toInt()]
+        assertTrue("a metà del lato doveva esserci il filo chiaro: $filo", filo.red > 0.8f && filo.green > 0.8f && filo.blue > 0.8f)
+        val angolo = striscia[(a + 1).toInt(), (a + 1).toInt()]
+        assertTrue("nell'angolo interno doveva restare il bordo scuro: $angolo", vicino(angolo, scuro))
     }
 
     /**
