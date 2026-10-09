@@ -9,9 +9,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import java.nio.ByteBuffer
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /*
@@ -97,13 +102,22 @@ import kotlin.math.roundToInt
  * vedere, e la contraria (una grana che scorre insieme alla tinta) si noterebbe come un velo che
  * si muove.
  *
- * ⚠️⚠️ **LE ALTRE SFUMATURE DELL'APP NON PASSANO DI QUI, E NON È UNA DIMENTICANZA: IL CONTO DICE
- * CHE LÀ NON C'È NIENTE DA TOGLIERE.** Le due in fondo allo schermo (`GroundFade`) vanno dal fondo
- * pieno al trasparente, cioè attraversano **tutti** i livelli in un centinaio di punti: un gradino
- * viene alto **un pixel**, che nessuno vede. Il gradiente dell'intestazione attraversa un quarto
- * dei livelli su quasi tutto lo schermo, e là un gradino viene alto **quasi quaranta pixel**. Lo
- * stesso disegno, due aritmetiche diverse: chi porta il rimedio anche là aggiunge grana dove non
- * serve.
+ * ⚠️⚠️ **DALLA `4.90` PASSANO DI QUI TUTTE LE RAMPE DI UNA TINTA SOLA, E IL CONTO DI PRIMA ERA
+ * SBAGLIATO** (sua segnalazione, 2026-10-08, con una schermata scura e le bande sopra il FAB: *da
+ * quando abbiamo modificato le sfumature vedo di nuovo un po' di banding*). Fino alla `4.81` qui era
+ * scritto che le due sfumature in fondo allo schermo (`GroundFade`) non ne avevano bisogno, perché
+ * vanno dal fondo pieno al trasparente e quindi attraversano tutti i livelli. ⚠️ **Non è così**:
+ * una sfumatura che copre un'immagine attraversa i livelli fra il **fondo** e l'**immagine sotto**,
+ * moltiplicati per la copertura. Una zona scura di una fotografia che dista sessanta livelli dal
+ * fondo, sotto la fascia grande (al 60%, alta due FAB e mezzo, circa 420 pixel), ne attraversa
+ * trentasei: un gradino ogni dodici pixel, che si vede. Lo stesso vale per l'ombra della
+ * selezione (`PickShade.kt`), che dalla `4.46` scurisce la griglia sopra la scheda.
+ * - **Lo strumento è [GrainedRamp]**: una rampa sola, la stessa strada dell'intestazione (il
+ *   programma del rumore da Android 13, la maschera precalcolata sotto), con il programma compilato
+ *   una volta e la rampa rifatta solo quando si sposta.
+ * - ⚠️ **Restano fuori le sfumature piccole**: il filetto che sfuma ai due capi (`FadedRule`),
+ *   l'alone di una copertina (`FolderMark`), la dissolvenza della fila nel velo d'aiuto. Sono alte o
+ *   larghe pochi punti, e là un gradino viene di un pixel.
  */
 
 /**
@@ -145,43 +159,120 @@ half4 main(float2 p) {
 """
 
 /**
- * La stessa sfumatura di [brush], dipinta col rumore che le toglie le bande, oppure `null` dove
- * non si può fare.
+ * **Una rampa di una tinta sola, posata col rumore che le toglie le bande** (dalla `4.90`): lo
+ * strumento di tutte le sfumature dell'app che vanno da una tinta al trasparente, cioè
+ * l'intestazione, le due fasce in fondo allo schermo e l'ombra della selezione.
  *
- * ⚠️⚠️ **`null` VUOL DIRE ANDROID 12 O PRIMA, e chi chiama deve avere la sua strada**: uno shader
- * scritto a mano vuole `RuntimeShader`, che nasce con Android 13. Sotto, il rumore arriva
- * precalcolato da [rampMask], che dalla `2.06` è la seconda strada: chi chiama prova questa e
- * ripiega su quella.
- * ⚠️ **Il secondo `null` è un pennello che non è uno shader**, cioè una tinta unita: una tinta
- * unita non ha nessuna rampa da quantizzare, quindi non c'è niente da ditherare e la strada di
- * prima è già quella giusta.
- * ⚠️ **La misura serve perché una sfumatura è ancorata alla sua scatola**: lo shader nasce per
- * quella misura, quindi va rifatto quando cambia. Chi chiama lo tiene già nella cache del
- * disegno, che si rifà esattamente là.
+ * ⚠️⚠️ **LE STRADE SONO DUE, E LE SCEGLIE LA VERSIONE DI ANDROID**: da Android 13 il rumore lo
+ * mette il programma [DITHER_AGSL], che gira su ogni pixel e legge la rampa come ingresso; sotto,
+ * la rampa arriva precalcolata da [rampMask], col rumore già dentro, e il colore lo mette il paint.
+ * Dove nessuna delle due si può fare (la memoria non basta per la maschera) resta il dither del
+ * paint, che è meno di niente ma è quello che c'è. ⚠️ **I dither non si sommano mai**: col rumore
+ * nostro in scena quello del paint aggiungerebbe solo grana.
+ * ⚠️⚠️ **IL PROGRAMMA SI COMPILA UNA VOLTA PER RAMPA, E A OGNI SPOSTAMENTO CAMBIA SOLO IL SUO
+ * INGRESSO**: l'ombra della selezione si ridisegna a ogni fotogramma dello scorrimento, perché la
+ * scheda resta ferma e le celle si muovono, e compilare un programma a ogni fotogramma costerebbe
+ * molto più del disegno. Per la stessa ragione l'ingresso si rifà soltanto quando cambiano la
+ * tinta o i due capi della rampa.
+ * ⚠️ **La rampa è verticale**, come tutte quelle che le bande hanno toccato: chi ne volesse una
+ * orizzontale cambia la maschera, che si ripete lungo la riga.
  *
- * @param brush la sfumatura da dipingere, con le sue tappe.
- * @param size quanto è grande il rettangolo che la porta.
+ * @param stops le tappe: posizione da 0 a 1 fra i due capi, e quanto di [peak] copre la tinta.
+ * @param peak quanto copre la tinta nel suo punto più forte.
  */
-internal fun ditherShader(brush: Brush, size: Size): Shader? {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
-    val ramp = (brush as? ShaderBrush)?.createShader(size) ?: return null
-    return grainOver(ramp)
+internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private val peak: Float) {
+    private val pittura = Paint()
+    private val grana: android.graphics.Shader? = grainShader()
+    private var maschera: android.graphics.Shader? = null
+    private var altaMaschera = -1
+    private var fatta: Rampa? = null
+
+    /** Quello che decide la rampa disegnata: se non cambia, l'ingresso del programma resta quello. */
+    private data class Rampa(val ink: Color, val from: Float, val to: Float, val width: Float)
+
+    /**
+     * Dipinge la rampa nel rettangolo da [left] a [right] e da [top] a [bottom], con la tinta [ink]
+     * che parte dal pieno di [peak] a [from] (cioè dalla prima tappa) e arriva all'ultima tappa a
+     * [to]; prima e dopo i due capi la rampa resta ferma sul suo valore. [alpha] moltiplica tutto.
+     */
+    fun paint(
+        scope: DrawScope,
+        ink: Color,
+        from: Float,
+        to: Float,
+        alpha: Float = 1f,
+        left: Float = 0f,
+        top: Float = 0f,
+        right: Float = scope.size.width,
+        bottom: Float = scope.size.height
+    ) {
+        if (alpha <= 0f || right <= left || bottom <= top || to <= from) return
+        val rampa = Rampa(ink, from, to, right - left)
+        if (rampa != fatta) {
+            fatta = rampa
+            val pennello = Brush.verticalGradient(
+                colorStops = stops.map { (at, quanto) -> at to ink.copy(alpha = ink.alpha * quanto * peak) }
+                    .toTypedArray(),
+                startY = from,
+                endY = to
+            )
+            val dentro = (pennello as ShaderBrush).createShader(Size(right - left, bottom - top))
+            val cornice = pittura.asFrameworkPaint()
+            if (grana != null) {
+                feed(grana, dentro)
+                cornice.isDither = false
+                cornice.shader = grana
+            } else {
+                val alta = ceil(to - from).toInt()
+                if (alta != altaMaschera) {
+                    altaMaschera = alta
+                    maschera = rampMask(stops, peak, alta, 0f)
+                }
+                val m = maschera
+                if (m != null) {
+                    m.setLocalMatrix(Matrix().apply { setTranslate(0f, from) })
+                    pittura.color = ink
+                    cornice.isDither = false
+                    cornice.shader = m
+                } else {
+                    cornice.isDither = true
+                    cornice.shader = dentro
+                }
+            }
+        }
+        // ⚠️ L'opacità si scrive dopo il colore, che in Compose riscrive anche il suo byte.
+        pittura.alpha = alpha * (if (grana == null && maschera != null) ink.alpha else 1f)
+        scope.drawIntoCanvas { it.drawRect(left, top, right, bottom, pittura) }
+    }
+}
+
+/** Il programma del rumore, oppure `null` sotto Android 13, dove `RuntimeShader` non c'è. */
+private fun grainShader(): android.graphics.Shader? =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) newGrain() else null
+
+/**
+ * Il programma compilato.
+ *
+ * ⚠️ **Vive in una funzione sua, con [feed]**, perché il controllo di versione e l'uso di una
+ * classe che nasce con Android 13 devono stare in due posti diversi, o l'analizzatore statico non
+ * riconosce la guardia.
+ */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private fun newGrain(): android.graphics.Shader = RuntimeShader(DITHER_AGSL)
+
+/** Aggancia la rampa [ramp] al programma [grain] come suo ingresso. */
+private fun feed(grain: android.graphics.Shader, ramp: android.graphics.Shader) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) attach(grain, ramp)
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private fun attach(grain: android.graphics.Shader, ramp: android.graphics.Shader) {
+    (grain as RuntimeShader).setInputShader("ramp", ramp)
 }
 
 /**
- * Il programma compilato, con la sfumatura agganciata.
- *
- * ⚠️ **Vive in una funzione sua e non dentro [ditherShader]** perché il controllo di versione e
- * l'uso di una classe che nasce con Android 13 devono stare in due posti diversi, o l'analizzatore
- * statico non riconosce la guardia.
- */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun grainOver(ramp: Shader): Shader =
-    RuntimeShader(DITHER_AGSL).apply { setInputShader("ramp", ramp) }
-
-/**
  * La stessa rampa col rumore già dentro, disegnata una volta come **maschera**: la strada dei
- * telefoni che [ditherShader] non può servire, cioè Android 12 e prima.
+ * telefoni che il programma di [GrainedRamp] non può servire, cioè Android 12 e prima.
  *
  * ⚠️⚠️ **È UNA MASCHERA E NON UN'IMMAGINE A COLORI, e questo governa tutto il resto**: la rampa
  * dell'intestazione è una tinta **sola** con l'opacità che scende, quindi di lei basta l'opacità,

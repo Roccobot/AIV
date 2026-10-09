@@ -840,6 +840,22 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     la Geometria accesa porta a filo gli angoli dell'elemento;
   - scelte della sessione, dichiarate nella voce di collaudo: i 12 dp, e il primo tocco che deve
     ancora cadere dentro l'immagine.
+- **Dalla `4.90` gli elementi si allineano anche agli altri elementi** (sua richiesta del
+  2026-10-08: *le guide dinamiche sono eccezionali e funzionano davvero bene. Voglio che mi
+  propongano di allineare dinamicamente gli elementi a lati/centro/estremi di altri elementi già
+  presenti*):
+  - un lato che si muove, o il centro quando si muove l'elemento intero, si posa sul lato o sul
+    centro di un altro elemento entro gli stessi 12 dp del bordo; su ogni asse vince il bersaglio
+    più vicino e, a parità, il bordo dell'immagine. Il riquadro di un elemento è quello della sua
+    traccia, come per il bordo;
+  - vale disegnando (l'inizio e la fine), spostando, e tirando una maniglia in `Trasforma`: il lato
+    tirato si appoggia ai bordi e agli altri elementi. Fino alla `4.81` tirando una maniglia
+    l'elemento non si appoggiava a niente. Un rettangolo o un'ellisse girati, tirati per una
+    maniglia, non si appoggiano: il loro riquadro non segue la maniglia;
+  - mentre il dito tiene l'elemento, una guida color accento va da un elemento all'altro lungo il
+    lato o il centro che hanno in comune (`Draw.rest` con gli altri elementi, `Draw.lines`);
+  - lettura della sessione, dichiarata nella voce di collaudo: la stessa portata del bordo, e le
+    maniglie comprese (lettura B1).
 - **Dalla `4.64` 'Azzera' si chiama `Elimina tutto`** (sua risposta in chat del 2026-10-08:
   *Allora può restare, ma rinominalo in 'Elimina tutto'*): svuota il disegno, mentre il tasto in
   fondo azzera tutti i moduli, e la parola era la stessa. La pressione lunga sul gettone del
@@ -880,11 +896,97 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     modalità immagino possibile anche lo spostamento*), e una maniglia vince sul corpo entro 16 dp;
   - letture della sessione, dichiarate nella voce di collaudo: l'ordine per righe, le maniglie dei
     lati, i 16 dp, lo scostamento della copia, i 45 gradi, la memoria che dura quanto l'editor, e
-    l'appoggio ai bordi, che vale disegnando e spostando ma non tirando una maniglia.
+    l'appoggio ai bordi, che fino alla `4.81` valeva disegnando e spostando ma non tirando una
+    maniglia.
   - ⚠️ **Rettangolo ed ellisse tengono un angolo** (`Mark.angle`), e la tela gira prima di
     disegnarli; linea, freccia e mano libera girano i loro punti. Il giro si conta nei pixel
     dell'immagine originale, non nelle sue frazioni, o su un'immagine non quadrata la forma si
     deformerebbe. Le prove sono in `DisegnoTest`.
+- **Dalla `4.90` la G3, il Testo** (sue scelte del 2026-10-08 sull'artefatto dei caratteri: *tengo:
+  Roboto, Montserrat, Archivo Narrow, Literata*, *nome dello stile: N1 Etichetta*, e *colori di
+  fabbrica dell'etichetta: testo #FFFFFF, striscia #A3408F; evidenziatore #FFE15A*):
+  - **il sesto strumento è `Testo`**: un tocco sul vuoto apre una finestra modale in cui si scrive,
+    come `Rinomina`; `Applica` aspetta una lettera, e il testo nasce centrato dove si è toccato, già
+    scelto. Nasce largo quanto la sua riga più lunga, quindi va a capo dove lo manda Invio. Un
+    trascinamento con `Testo` non disegna niente (letture `A1` e `A8`);
+  - **i quattro caratteri** vivono in `res/font`, un file dritto e uno corsivo per ciascuno, a peso
+    variabile (400 il normale, 700 il grassetto); Roboto è quello di fabbrica. Le licenze, tutte SIL
+    Open Font License, sono in `docs/fonts`. Si caricano una volta sola (`Faces`), dall'editor e dal
+    salvataggio, perché il disegno si dipinge dove un contesto non c'è;
+  - **i sette tasti** sotto gli strumenti: `Carattere` passa al carattere dopo a ogni tocco e mostra
+    il suo 'Aa'; `Grassetto`, `Corsivo` e `Barrato` si accendono e si combinano; `Fondo` passa da
+    nessuno a `Evidenziato` e a `Etichetta`, che si escludono perché sono tutti e due un fondo;
+    `Modifica testo` riapre la finestra con le parole del testo scelto (lettura `A3`);
+    `Allineamento` passa dal centro, che è quello di fabbrica, a destra e a sinistra, e vale anche
+    per la pillola (sua `B2` del 2026-10-08, il tasto a giro è una lettura della sessione). La fila
+    delle forme ha sette colonne, e le ultime due restano vuote, così le cinque forme non cambiano
+    posto;
+  - **il colore delle parole** si sceglie coi tondi della tavolozza, bianco di fabbrica, con la sua
+    luminosità; le parole sono sempre opache. **La dimensione** si regola col cursore `Dimensione`,
+    fra l'1% e il 20% del lato lungo e al 5% di fabbrica, e con le maniglie d'angolo e quelle a
+    metà dei lati di sopra e di sotto, che ingrandiscono e rimpiccioliscono il testo intero intorno
+    al suo centro: un testo stirato su un asse sarebbe un carattere deformato (letture `A2` e `A4`).
+  - ⚠️⚠️ **le maniglie a metà dei lati sinistro e destro cambiano la larghezza, e le parole vanno a
+    capo da sé, dalla `4.90`** (sua `B3` del 2026-10-08: *Aggiungo volentieri B2 e B3 sul testo*):
+    il lato opposto resta fermo, e la larghezza non scende sotto un corpo. La larghezza è del testo,
+    come le parole: lo stile copiato da un altro testo non la cambia, e una maniglia d'angolo la
+    ingrandisce insieme al corpo, così le righe restano quelle (lettura della sessione, dichiarata
+    nella voce di collaudo); Il testo ha colore e dimensione suoi, distinti da
+    quelli della traccia, così dopo un rettangolo rosso non si scrive in rosso;
+  - **la fila dei fondi** compare sotto il cursore quando il fondo è acceso: sei colori per
+    l'etichetta, scuri perché reggono parole bianche, e sei per l'evidenziatore, chiari come un
+    evidenziatore, col suo di fabbrica in testa. Si offrono solo quelli che staccano dall'immagine
+    sotto il testo e tengono leggibili le parole; gli altri si vedono sbiaditi, così la fila non
+    cambia lunghezza sotto il dito (letture `A5` e `A6`, `Draw.readable`);
+    - ⚠️⚠️ **le due misure sono diverse, di proposito**: le parole si leggono per la luminosità,
+      quindi contro il fondo vale il contrasto delle WCAG, almeno 3; il fondo stacca dall'immagine
+      anche per la tinta, quindi contro l'immagine vale la distanza dei colori in CIELAB, almeno 20.
+      Col contrasto su tutte e due, il giallo dell'evidenziatore (1,3 contro il bianco) non si
+      sarebbe offerto su una pagina bianca, che è il suo posto;
+  - **cambiando fondo, le parole bianche o nere prendono quella delle due che si legge meglio sul
+    fondo nuovo**, e le parole di un altro colore restano, se si leggono (lettura della sessione,
+    `Draw.wordsOn`): le parole di fabbrica sono bianche, che sulla striscia viola si leggono e sul
+    giallo dell'evidenziatore spariscono;
+  - **l'etichetta** è una striscia stondata per riga, e le strisce si fondono in una forma sola, con
+    un'ombra morbida sotto, come nel suo esempio; l'evidenziatore è una fascia senza ombra;
+  - ⚠️⚠️ **le righe si centrano sulla metà della H sopra la linea di base, per tutti e quattro i
+    caratteri** (sua nota: *Literata ha una baseline stranamente bassa: credo sia l'unico font per
+    il quale sarà necessario aggiustare la centratura verticale dell'etichetta*). La causa è nelle
+    metriche del file: Literata dichiara un'ascesa di 1177 unità per maiuscole di 700, quindi
+    centrata sul riquadro del carattere la sua riga scende di quasi 7 pixel su un corpo di 80, e le
+    altre tre di un pixel e mezzo al più. La regola generale toglie la correzione per un carattere
+    solo, e la voce di collaudo lo dichiara (lettura `A7`);
+  - **`Ruota`, `Trasforma`, il menu della pressione lunga, `Copia` e `Incolla`** valgono come per
+    gli altri elementi: il testo gira intero, con le righe dritte fra loro. Lo stile passa intero
+    fra due testi, parole escluse; fra un testo e una forma passa solo il colore, con la sua ricetta;
+  - **il testo si appoggia** ai bordi e agli altri elementi quando lo si sposta, col suo riquadro;
+    tirandone una maniglia no.
+- **Dalla `4.90` anche la Pillola**, il settimo strumento (sua nota A sul giro della `4.43`: *uno
+  strumento 'pillola', ovvero un contenitore di testo 'standard', che posso aggiungere senza dover
+  configurare ogni volta tratto, riempimento, opacità*, con i suoi valori ARGB):
+  - **un trascinamento disegna la pillola come un rettangolo**, con gli stessi appoggi ai bordi e agli
+    altri elementi, e subito dopo la finestra chiede le parole; **un tocco** chiede le parole e posa
+    una pillola che le contiene, alla `Dimensione` scelta per il testo, centrata dove si è toccato.
+    La pillola nasce scelta; `Annulla` nella finestra la lascia vuota;
+  - **l'aspetto è fisso**: riempimento `#ccff4b3d`, due tracce dello 0,5% del lato maggiore, la chiara
+    `#e6fffefa` dentro e la scura `#e6373737` sul bordo, e sotto il vetro, cioè l'immagine sfocata
+    (`Draw.blurAreas`, come la Sfocatura). Le parole sono bianche opache. Tavolozza e `Dimensione`
+    sono spenti, non nascosti, come con la Sfocatura; dei tasti del testo valgono `Carattere`,
+    `Grassetto`, `Corsivo`, `Barrato`, `Modifica testo` e `Allineamento`, e `Fondo` è spento;
+  - ⚠️ **le tracce sono dentro il riquadro**, così il riquadro disegnato è tutta la pillola e si
+    appoggia come un rettangolo; le estremità sono tonde quanto possono, metà del lato corto;
+  - **le parole vanno a capo da sé e prendono la misura più grande che il riquadro contiene**, fino a
+    un minimo del 2% del lato lungo dell'immagine (lettura della sessione: il suo *minimo di
+    leggibilità* era *da definire*). Parole che non ci stanno nemmeno al minimo allungano la pillola
+    verso il basso, col lato di sopra fermo, invece di sparire tagliate;
+  - ⚠️ **i 12 px del vetro sono una parte del lato maggiore della pillola** (lettura della sessione):
+    12 px sullo schermo per una pillola larga mezzo telefono, circa 545 px, quindi il 2,2%. Un numero
+    fisso di pixel sfocherebbe in modo diverso l'anteprima e il file, e quasi niente su una foto
+    grande;
+  - **stile**: fra un testo e una pillola passano il carattere, i tre stili e l'allineamento, mai il
+    colore né il fondo; fra una pillola e una forma non passa niente;
+  - lettura della sessione, dichiarata nella voce di collaudo: la Pillola è uno strumento a sé, il
+    settimo della fila, e non un quarto `Fondo` del testo, perché lui la chiama *strumento*.
 
 ## 🎞️ I preset, venti di casa e quelli che si salvano
 

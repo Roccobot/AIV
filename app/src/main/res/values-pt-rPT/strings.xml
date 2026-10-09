@@ -187,4 +187,6 @@
     <string name="glass_reset">Repor</string>
     <string name="hint_draw">Com o módulo Desenho pode adicionar à imagem linhas, setas, elipses, retângulos arredondados, textos simples e caixas \'pílula\'. Ao guardar, a imagem é achatada: não é possível reabri-la para editar ou mover os elementos. Um toque longo numa cor ajusta o brilho dela.</string>
     <string name="draw_raise">Trazer para a frente</string>
+    <string name="draw_face">Tipo de letra</string>
+    <string name="draw_strike">Rasurado</string>
 </resources>

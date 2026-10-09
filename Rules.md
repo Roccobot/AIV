@@ -566,8 +566,12 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   colori scelti: ogni gradino di colore è alto decine di pixel. Il dithering del `Paint` non è
   bastato, per una ragione che non si conosce, e `Modifier.background(brush)` non dà accesso al
   `Paint`; il rumore lo scrive l'app (`Dither.kt`).
-  - ⚠️ **Non si porta alle sfumature che attraversano tutti i livelli in pochi pixel**: là un
-    gradino è alto un pixel.
+  - ⚠️⚠️ **Dalla `4.90` vale per ogni rampa di una tinta sola, e lo strumento è `GrainedRamp`**
+    (sua segnalazione del 2026-10-08, *vedo di nuovo un po' di banding*): fino alla `4.81` qui era
+    scritto che le fasce in fondo allo schermo non ne avevano bisogno, perché vanno dal fondo pieno
+    al trasparente. Il conto era sbagliato: sopra un'immagine una rampa attraversa i livelli fra il
+    fondo e l'immagine, e là un gradino viene alto una dozzina di pixel. Restano fuori le sfumature
+    alte o larghe pochi punti (il filetto, l'alone di una copertina), dove un gradino è di un pixel.
 
 ## 🎚️ L'editor completo, e il conto che esiste in una copia sola
 
@@ -814,6 +818,13 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   - uno `swipe` con la sua durata, a clock fermo, inietta i passi a un tempo che non avanza;
   - una prova sulla cornice del ritaglio tocca il palco prima del cambiamento, o il gesto nasce
     già aggiornato e il difetto non si vede.
+- ⚠️⚠️ **Una finestra con un campo di testo, aperta sopra l'editor completo durante una prova con
+  `@Config(qualifiers = "w411dp-h891dp")`, non lascia mai il banco in quiete** (misurato il
+  2026-10-08 con la finestra delle parole del Testo e con quella di `Ridimensiona`): nessuno stato
+  cambia, eppure Compose non si ferma, e ogni attesa cade dopo 60 secondi. Con lo schermo di serie
+  del banco la stessa prova passa. Non è un difetto dell'app, e il perché non è accertato: la
+  finestra nuda si ferma, il fuoco e il modificatore delle modali sono esclusi. Una prova che apre
+  una di quelle finestre usa lo schermo di serie, e tocca in proporzione all'immagine misurata.
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.

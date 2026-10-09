@@ -1,6 +1,5 @@
 package io.github.roccobot.aiv
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -13,13 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -27,7 +24,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /**
@@ -226,17 +222,18 @@ fun GroundFade(
     footPeak: Float = HOME_FOOT_PEAK
 ) {
     val ground = MaterialTheme.colorScheme.background
-    val ramp = remember(ground, peak) {
-        Array(GRADIENT_STOPS + 1) { step ->
-            val at = step / GRADIENT_STOPS.toFloat()
-            at to ground.copy(alpha = peak * swallow(at))
-        }
+    /*
+     * ⚠️⚠️ **LE DUE RAMPE SI POSANO COL RUMORE, DALLA `4.90`** (sua segnalazione, con una schermata
+     * scura e le bande sopra il FAB: *da quando abbiamo modificato le sfumature vedo di nuovo un po'
+     * di banding*): sopra un'immagine i livelli che una rampa attraversa sono quelli fra il fondo e
+     * l'immagine, e là un gradino viene alto una dozzina di pixel. Il conto vive in testa a
+     * `Dither.kt`.
+     */
+    val ramp = remember(peak) {
+        GrainedRamp(List(GRADIENT_STOPS + 1) { step -> (step / GRADIENT_STOPS.toFloat()).let { it to swallow(it) } }, peak)
     }
-    val piede = remember(ground, footPeak) {
-        Array(FOOT_STOPS + 1) { step ->
-            val at = step / FOOT_STOPS.toFloat()
-            at to ground.copy(alpha = footPeak * foot(at))
-        }
+    val piede = remember(footPeak) {
+        GrainedRamp(List(FOOT_STOPS + 1) { step -> (step / FOOT_STOPS.toFloat()).let { it to foot(it) } }, footPeak)
     }
     /*
      * ⚠️⚠️ **UN'OPACITÀ PER STRATO, DALLA `4.25`**: fino alla `4.20` era una sola intorno ai due,
@@ -255,7 +252,7 @@ fun GroundFade(
                 .fillMaxWidth()
                 .height(GRADIENT_REACH)
                 .graphicsLayer { this.alpha = alpha() }
-                .background(Brush.verticalGradient(colorStops = ramp))
+                .drawBehind { ramp.paint(this, ground, 0f, size.height) }
         )
         // ⚠️ **Sta DOPO la fascia grande**: in un `Box` l'ultimo figlio sta sopra, e questa coda
         // esiste per riportare al pieno quello che la fascia lascia a sei decimi.
@@ -266,7 +263,7 @@ fun GroundFade(
                     .fillMaxWidth()
                     .height(FOOT_REACH)
                     .graphicsLayer { this.alpha = footAlpha() }
-                    .background(Brush.verticalGradient(colorStops = piede))
+                    .drawBehind { piede.paint(this, ground, 0f, size.height) }
             )
         }
     }
@@ -702,62 +699,21 @@ fun Modifier.frontWash(
     val alto = size.height + suPx
     val pieno = tint.copy(alpha = WASH_PEAK)
     /*
-     * ⚠️ **Il pennello si costruisce UNA VOLTA per misura e non a ogni fotogramma**: l'opacità
-     * che cambia mentre si scorre entra dal parametro `alpha` di `drawRect`, che moltiplica il
-     * colore già composto. Rifacendo le dieci tappe a ogni disegno si allocherebbe un pennello
-     * per fotogramma per ottenere lo stesso risultato.
-     */
-    val pennello = Brush.verticalGradient(
-        colorStops = WASH_STOPS.map { (at, quanto) -> at to tint.copy(alpha = quanto * WASH_PEAK) }
-            .toTypedArray(),
-        startY = -suPx,
-        endY = alto - suPx
-    )
-    /*
-     * ⚠️⚠️ **IL PENNELLO SI POSA CON UN PAINT DI CASA, DALLA `1.95`, PERCHÉ QUELLO DI COMPOSE NON
-     * DITHERA** (sua segnalazione: *noto un banding fastidioso nel gradiente dell'intestazione:
-     * riducilo al massimo*). [DrawScope.drawRect] costruisce un paint suo, dove il dither resta
-     * spento; `GradientDrawable`, cioè la stessa sfumatura scritta in XML per una `View`, lo
-     * accende di serie. Da qui il paint di casa, acceso e riusato per ogni fotogramma.
-     * ⚠️⚠️ **E DALLA `2.04` C'È ANCHE UN DITHER SCRITTO DA NOI, PERCHÉ IL MEZZO LIVELLO DI SKIA
-     * NON È BASTATO** (riscontro del giro della `2.03`: *vedo ancora del banding. Se per fare un
-     * gradiente di qualità superiore serve gestire una profondità colore più alta, o più memoria,
-     * o più risorse, per me va bene*). Il conto del difetto e che cosa aggiunge il rumore scritto
-     * a mano vivono in testa a `Dither.kt`.
-     * ⚠️⚠️ **E DALLA `2.06` LE STRADE SONO DUE, PERCHÉ UNO SHADER SCRITTO A MANO NASCE CON ANDROID
-     * 13** (risposta `copri` a `d-dither-vecchi`, giro della `2.05`): da lì in su il rumore lo
-     * mette uno shader che gira su ogni pixel e porta dentro anche la sfumatura; sotto, la stessa
-     * rampa arriva **precalcolata** come maschera, col rumore già dentro e il colore che lo mette
-     * questo paint.
-     * ⚠️ **Nessuna delle due si somma al dither di Skia**: quello resta acceso soltanto dove non
-     * c'è nessun rumore nostro, cioè dove non c'è nemmeno una rampa da quantizzare.
+     * ⚠️⚠️ **LA RAMPA SI POSA COL RUMORE CHE LE TOGLIE LE BANDE, E LA STORIA CONTA** (sua
+     * segnalazione: *noto un banding fastidioso nel gradiente dell'intestazione: riducilo al
+     * massimo*). La `1.95` accendeva il dither del paint, che `drawRect` di Compose lascia spento;
+     * la `2.04` ha aggiunto un rumore scritto da noi, perché il mezzo livello di Skia non bastava
+     * (*vedo ancora del banding*); la `2.06` ha dato una seconda strada ai telefoni sotto Android 13
+     * (risposta `copri` a `d-dither-vecchi`). Dalla `4.90` le due strade vivono in [GrainedRamp],
+     * che posa allo stesso modo anche le altre rampe dell'app; il conto del difetto vive in testa a
+     * `Dither.kt`.
+     * ⚠️ **Si costruisce UNA VOLTA per misura e non a ogni fotogramma**: l'opacità che cambia mentre
+     * si scorre entra come `alpha`, che moltiplica il colore già composto.
      * ⚠️ **La fascia piena sopra la testata non passa di qui**: è tinta unita, e una tinta unita
      * non ha nessuna rampa da quantizzare.
      */
     val largo = size.width + ariaPx * 2
-    val misura = Size(largo, alto)
-    val grana = ditherShader(pennello, misura)
-    val maschera =
-        if (grana == null) rampMask(WASH_STOPS, WASH_PEAK, ceil(alto).toInt(), -suPx) else null
-    val pittura = Paint().apply {
-        /*
-         * ⚠️ **I due dither non si sommano**: col rumore nostro in scena, quello di Skia
-         * aggiungerebbe il suo mezzo livello sopra un livello già corretto, cioè più grana senza
-         * niente in cambio. Misurato dal banco: i toni distinti in una riga passano da dieci a
-         * sette, che è quello che tre canali arrotondati per conto loro possono dare.
-         */
-        asFrameworkPaint().isDither = grana == null && maschera == null
-        if (grana != null) asFrameworkPaint().shader = grana
-        /*
-         * ⚠️⚠️ **IL COLORE SI SCRIVE QUI E L'OPACITÀ A OGNI FOTOGRAMMA, E L'ORDINE CONTA**: in
-         * Compose `color` riscrive anche il byte dell'opacità, quindi messo dopo `alpha` gli
-         * cancellerebbe lo scorrimento. La maschera porta la rampa, la tinta la porta il paint.
-         */
-        if (maschera != null) {
-            color = tint
-            asFrameworkPaint().shader = maschera
-        }
-    }
+    val rampa = GrainedRamp(WASH_STOPS, WASH_PEAK)
     onDrawBehind {
         val visto = ink()
         if (visto <= 0f || alto <= 0f) return@onDrawBehind
@@ -767,11 +723,10 @@ fun Modifier.frontWash(
             size = Size(largo, barraPx),
             alpha = visto
         )
-        if (grana != null || maschera != null) pittura.alpha = visto
-        else pennello.applyTo(misura, pittura, visto)
-        drawIntoCanvas { tela ->
-            tela.drawRect(-ariaPx, -suPx, largo - ariaPx, alto - suPx, pittura)
-        }
+        rampa.paint(
+            this, tint, from = -suPx, to = alto - suPx, alpha = visto,
+            left = -ariaPx, top = -suPx, right = largo - ariaPx, bottom = alto - suPx
+        )
     }
 }
 

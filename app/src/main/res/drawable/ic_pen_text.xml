@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lo strumento 'Testo' del modulo 'Disegno' (dalla 4.90): le due T di diversa misura.
+
+     AMMORBIDISCE `Icons.Filled.TextFields` DI MATERIAL, e non cambia nient'altro: ogni spigolo convesso
+     esterno diventa un arco di raggio 0,4 (regola del progetto, `Rules.md` di AIV, § 'Come entra
+     un disegno'). Gli spigoli sono tutti retti, quindi il raggio resta 0,4 dappertutto; gli angoli
+     che rientrano restano vivi. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M2.9,4 L15.1,4 A0.4,0.4,0,0,1,15.5,4.4 L15.5,6.6 A0.4,0.4,0,0,1,15.1,7 L10.5,7 L10.5,18.6 A0.4,0.4,0,0,1,10.1,19 L7.9,19 A0.4,0.4,0,0,1,7.5,18.6 L7.5,7 L2.9,7 A0.4,0.4,0,0,1,2.5,6.6 L2.5,4.4 A0.4,0.4,0,0,1,2.9,4 Z M12.9,9 L21.1,9 A0.4,0.4,0,0,1,21.5,9.4 L21.5,11.6 A0.4,0.4,0,0,1,21.1,12 L18.5,12 L18.5,18.6 A0.4,0.4,0,0,1,18.1,19 L15.9,19 A0.4,0.4,0,0,1,15.5,18.6 L15.5,12 L12.9,12 A0.4,0.4,0,0,1,12.5,11.6 L12.5,9.4 A0.4,0.4,0,0,1,12.9,9 Z" />
+</vector>
