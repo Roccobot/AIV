@@ -15,6 +15,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
@@ -2759,6 +2760,48 @@ class DisegnoTest {
         banco.onNodeWithText(testo(R.string.pick_delete)).assertIsEnabled().performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.draw_clear)).assertIsNotEnabled()
+    }
+
+    /**
+     * **Un doppio tocco su un testo apre la finestra delle sue parole** (`4.93`, sua nota in Altro sul
+     * giro della `4.92`: *gli elementi che hanno un testo (o che potrebbero averlo) dovrebbero
+     * accettare come input un doppio tap, che equivale al tasto 'Testo'*): la finestra si apre con le
+     * parole del testo, e la modalità resta quella di prima, perché il secondo tocco riprende
+     * l'alternanza fra `Trasforma` e `Ruota` del primo. Due tocchi lontani nel tempo restano due tocchi.
+     * ⚠️⚠️ **CONTROPROVATA** due volte: senza il ramo del doppio tocco nel gesto del palco, la finestra
+     * non si apre; e senza l'alternanza ripresa, il menu della pressione lunga offre `Trasforma`.
+     */
+    @Test
+    @Config(qualifiers = "w320dp-h891dp")
+    fun `un doppio tocco su un testo apre le sue parole`() {
+        banco.setContent { Scena() }
+        pronta()
+        apriDisegno()
+        banco.onNodeWithContentDescription(testo(R.string.draw_text)).performClick()
+        banco.waitForIdle()
+        val r = immagine()
+        val qui = Offset(r.left + 0.5f * r.width, r.top + 0.5f * r.height)
+        tocca(qui)
+        banco.onNode(hasSetTextAction()).performTextInput("Ciao")
+        banco.onNodeWithText(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertDoesNotExist()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        palco.performTouchInput {
+            down(center + qui)
+            up()
+            advanceEventTime(80)
+            down(center + qui)
+            up()
+        }
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.editor_apply)).assertExists()
+        banco.onNode(hasSetTextAction()).assertTextEquals("Ciao")
+        banco.onNodeWithText(testo(R.string.cancel)).performClick()
+        banco.waitForIdle()
+        palco.performTouchInput { longClick(center + qui) }
+        banco.waitForIdle()
+        vocePopup(R.string.draw_rotate).assertExists()
     }
 
     /**
