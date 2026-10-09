@@ -732,7 +732,7 @@
     <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
     <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich.</string>
     <string name="hint_save">Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
-    <string name="hint_draw">W module Rysowanie dodasz do obrazu linie, strzałki, elipsy, zaokrąglone prostokąty, proste teksty i ramki \'pigułki\'. Zapisanie spłaszcza obraz: nie można go ponownie otworzyć, aby edytować lub przesuwać elementy. Przytrzymaj kolor, aby dostosować jego jasność.</string>
+    <string name="hint_draw">W module Rysowanie dodasz do obrazu linie, strzałki, elipsy, zaokrąglone prostokąty, proste teksty, ramki \'pigułki\' i rozmyte panele. Zapisanie spłaszcza obraz: nie można go ponownie otworzyć, aby edytować lub przesuwać elementy. Przytrzymaj kolor, aby dostosować jego jasność.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Eksport i import</string>

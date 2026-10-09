@@ -80,6 +80,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.material3.ButtonDefaults
@@ -118,14 +119,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
@@ -169,6 +173,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -445,6 +450,19 @@ fun AdvancedEditorScreen(
     }
 
     /**
+     * **A gesture on the stage of the Disegno module is over**: the history takes the drawing, and
+     * the module loads the chosen mark's parameters again.
+     * ⚠️⚠️ **Since 4.92** (his note on `4.91-03`: *Se ingrandisco il testo e poi cambio colore, il
+     * colore si applica ma il testo ritorna piccolo come in origine*): a handle sets a text's size on
+     * the mark and not in the module, so the next change of a swatch laid the module's old size back
+     * on it ([Gaze.restyle]). Loaded again, the module holds what the stage has made.
+     */
+    fun drawn() {
+        push()
+        gaze.picked?.let { look.drawing.marks.getOrNull(it) }?.let { gaze.load(it) }
+    }
+
+    /**
      * Il colore mirato: che cosa vuol dire aver toccato il pixel [pixel].
      *
      * ⚠️⚠️ **DALLA `2.32` IL MIRATO È DELL'HSL E BASTA, ED È LA SUA RISPOSTA `via` A
@@ -579,7 +597,9 @@ fun AdvancedEditorScreen(
      * `A1` of the session): a modal, as every window that gathers written input. A new text is
      * laid centred where the finger tapped and comes chosen, so the module's keys change it at
      * once; the chosen one keeps its place and its style, and takes the new words. A blank text is
-     * not a text: the key that confirms waits for a letter.
+     * not a text: the key that confirms waits for a letter. A pill or a panel may have no words
+     * (4.92, his note C on the 4.91 round), and a tap with no words lays none, since a tap sizes it
+     * around its words.
      */
     fun askText(at: Offset) {
         gaze.textAsk = TextAsk(at, null, "")
@@ -596,19 +616,29 @@ fun AdvancedEditorScreen(
         gaze.under = withContext(Dispatchers.Default) { Draw.under(base, segno) }
     }
     gaze.textAsk?.let { ask ->
+        val per = ask.index?.let { look.drawing.marks.getOrNull(it)?.pen } ?: gaze.pen
         TextDialog(
             initial = ask.text,
+            blank = per.framed,
             onDismiss = { gaze.textAsk = null },
             onDone = { parole ->
                 gaze.textAsk = null
                 val dove = ask.at
                 if (ask.index == null && dove != null) {
+                    // ⚠️ A tap lays a pill or a panel around its words (4.90), so with none it lays nothing (4.92).
+                    if (parole.isBlank()) return@TextDialog
+                    val w = origin?.width?.toFloat() ?: 1f
+                    val h = origin?.height?.toFloat() ?: 1f
+                    // ⚠️ Since 4.92 a new text is born with its widest line half the image's width
+                    // (his note on `4.91-03`), and so are the words of a pill or a panel laid by a tap.
                     val nuovo = if (gaze.pen.framed) {
                         val pillola = gaze.pillWords(parole)
-                        val w = origin?.width?.toFloat() ?: 1f
-                        val h = origin?.height?.toFloat() ?: 1f
-                        gaze.penMark().copy(points = Draw.pillAround(pillola, gaze.textSize, dove, w, h, gaze.pen), words = pillola)
-                    } else gaze.penMark().copy(points = listOf(dove), words = gaze.words(parole))
+                        gaze.penMark().copy(
+                            points = Draw.pillAround(pillola, Draw.fitSize(pillola, w, h), dove, w, h, gaze.pen), words = pillola
+                        )
+                    } else gaze.words(parole).let { testo ->
+                        gaze.penMark().copy(points = listOf(dove), width = Draw.fitSize(testo, w, h), words = testo)
+                    }
                     look = look.copy(drawing = look.drawing.with(nuovo))
                     push()
                     pick(look.drawing.marks.size - 1)
@@ -890,7 +920,7 @@ fun AdvancedEditorScreen(
                             gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
                         },
                         onDraw = { look = look.copy(drawing = it) },
-                        onDrawEnd = { push() },
+                        onDrawEnd = { drawn() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         drawPicked = { gaze.picked },
@@ -1058,7 +1088,7 @@ fun AdvancedEditorScreen(
                             gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
                         },
                         onDraw = { look = look.copy(drawing = it) },
-                        onDrawEnd = { push() },
+                        onDrawEnd = { drawn() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         drawPicked = { gaze.picked },
@@ -5689,7 +5719,7 @@ private fun DrawBody(
     // ⚠️ Five columns, the same as the drawing tools above, so the keys line up with them (his
     // mockup of 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and
     // since 4.49 it sits left of Riempimento (his note on `4.47-01`); the fifth was empty until
-    // 4.50, and is Elimina since 4.60 (G2).
+    // 4.50, and was Elimina from 4.60 (G2), Sfocatura from 4.80 and Elimina in 4.91.
     // Traccia, Spessore and Riempimento are one choice: what the slider sets (his answer `S1`).
     if (scrive || incornicia) TextKeys(look, gaze, live, pill = incornicia) else Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         ArtKey(
@@ -5710,27 +5740,9 @@ private fun DrawBody(
             KeyKind.FILL, gaze, selected = riempimento, enabled = tratto && chiusa, name = R.string.draw_filled,
             toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
         )
-        /*
-         * ⚠️⚠️ **Elimina is the fifth column again, since 4.91** (his note C on the 4.90 round: *vorrei
-         * riavere il tasto 'Elimina', era molto comodo*): it was there from 4.60 to 4.70, then in the
-         * menu of the long press only, where it stays; from 4.80 to 4.90 the column held Sfocatura,
-         * which is the Pannello tool since 4.91. It deletes the element chosen.
-         */
-        val scelto = gaze.picked
-        TextKey(
-            stringResource(R.string.pick_delete), selected = false, enabled = live && scelto != null, toggle = false,
-            onClick = {
-                val i = gaze.picked ?: return@TextKey
-                gaze.picked = null
-                onLive { l -> l.copy(drawing = l.drawing.without(i)) }
-                onSettled()
-            },
-            modifier = Modifier.weight(1f)
-        ) { tinta -> Icon(Glyphs.PickDelete, contentDescription = null, tint = tinta) }
-        // ⚠️ Eight tools since 4.91, so three columns, empty, keep the keys under the tools.
-        Spacer(Modifier.weight(1f))
-        Spacer(Modifier.weight(1f))
-        Spacer(Modifier.weight(1f))
+        // ⚠️ Eight tools since 4.91, so four columns, empty, keep the keys under the tools.
+        // Elimina was the fifth from 4.60 to 4.70 and in 4.91, and is a key of words since 4.92.
+        repeat(4) { Spacer(Modifier.weight(1f)) }
     }
     /*
      * ⚠️⚠️ **With a mark chosen, the module's parameters change it** (G2, 4.60, his specification:
@@ -6002,17 +6014,40 @@ private fun DrawBody(
                     else -> R.string.settings_mark_alpha
                 }
             ),
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
+            // ⚠️ Since 4.92 two keys of words share the row (Elimina), so in a long language the name
+            // of the slider gives way first.
+            modifier = Modifier.weight(1f, fill = false)
         )
-        TextButton(
-            onClick = {
-                gaze.picked = null
-                onLive { it.copy(drawing = Drawing.NONE) }
-                onSettled()
-            },
-            enabled = live && !look.drawing.idle,
-            contentPadding = PaddingValues(horizontal = 4.dp)
-        ) { Text(stringResource(R.string.draw_clear)) }
+        /*
+         * ⚠️⚠️ **Elimina is a key of words beside Elimina tutto, since 4.92, for every pen** (his
+         * `Non approvato` on `4.91-04`: *Se sto usando la pillola o ne ho una selezionata, il tasto
+         * 'Elimina' non appare ... Potrebbe essere anche un pulsante testuale a sinistra di 'Elimina
+         * tutto' (che è anche pertinente)*, and his answer to `d-elimina-testo`). It deletes the
+         * element chosen. In 4.91 it was the fifth column of the shapes' keys, which the keys of the
+         * text have no room for; from 4.60 to 4.70 too, and it stays in the menu of the long press.
+         */
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextButton(
+                onClick = {
+                    val i = gaze.picked ?: return@TextButton
+                    gaze.picked = null
+                    onLive { l -> l.copy(drawing = l.drawing.without(i)) }
+                    onSettled()
+                },
+                enabled = live && gaze.picked != null,
+                contentPadding = PaddingValues(horizontal = 4.dp)
+            ) { Text(stringResource(R.string.pick_delete)) }
+            TextButton(
+                onClick = {
+                    gaze.picked = null
+                    onLive { it.copy(drawing = Drawing.NONE) }
+                    onSettled()
+                },
+                enabled = live && !look.drawing.idle,
+                contentPadding = PaddingValues(horizontal = 4.dp)
+            ) { Text(stringResource(R.string.draw_clear)) }
+        }
     }
     if (pannello) Slider(
         value = gaze.blurAmount,
@@ -6024,13 +6059,14 @@ private fun DrawBody(
         val nomeDimensione = stringResource(R.string.draw_size)
         // ⚠️ A pill's words take the largest size its box holds (4.90), so the slider is off.
         // ⚠️ Since 4.91 the track is a ratio's ([Draw.textTrack]): the sizes reach 1,5.
+        // ⚠️ Since 4.92 a new text is born at its own size ([Draw.fitSize]), so the slider sets the
+        // chosen text only, and is off with none.
         Slider(
             value = Draw.textTrack(gaze.textSize),
             onValueChange = { gaze.textSize = Draw.textSize(it) },
-            enabled = live && scrive,
+            enabled = live && scrive && gaze.picked != null,
             modifier = Modifier.semantics { contentDescription = nomeDimensione }
         )
-        if (scrive && gaze.label) GroundRow(gaze, live)
     } else when (bersaglio) {
         DrawTarget.STROKE -> Slider(
             value = gaze.inkAlpha,
@@ -6054,6 +6090,17 @@ private fun DrawBody(
                 enabled = live
             )
         }
+    }
+    /*
+     * ⚠️⚠️ **The strips' row has its place with every pen, since 4.92** (his note E on the 4.91 round:
+     * *Quando si passa allo strumento Testo, le due file di tasti principali del modulo si avvicinano
+     * fino a toccarsi ... Per coerenza, posiziona lo slider nella stessa posizione anche con gli altri
+     * strumenti*): the sheet is as tall as its tallest module, measured once ([SteadyBody]), and the
+     * row that came with `Sfondo` took the air between the rows. Now the place is always there, empty
+     * when the strips are not, so the slider does not move from one pen to another.
+     */
+    Box(Modifier.fillMaxWidth().height(STRIPS_ROW), contentAlignment = Alignment.Center) {
+        if (scrive && gaze.label) GroundRow(gaze, live)
     }
 }
 
@@ -8009,11 +8056,15 @@ internal data class TextAsk(val at: Offset?, val index: Int?, val text: String)
  * **The window in which a text is written** (G3, 4.90): a field on several lines, since a text goes
  * to a new line only where Invio puts one (reading `A1`), and the keys of [NewFolderDialog], with
  * 'Applica' waiting for a letter.
+ * ⚠️⚠️ **For a pill and a panel 'Applica' takes an empty field too, since 4.92** ([blank]; his note C
+ * on the 4.91 round: *il testo non dev'essere obbligatorio. Se inserisco un testo, poi cambio idea e
+ * cancello tutto, devo poter cliccare su 'Applica' anche con il campo vuoto*): the box stays, with
+ * no words. A text is its words, so for a text it still waits for a letter.
  * ⚠️ A modal, with the two lines of every window that gathers written input (`Rules.md` of AIV,
  * § '👆 Che cosa fa il tocco FUORI da una finestra'), and the keyboard comes up with it.
  */
 @Composable
-private fun TextDialog(initial: String, onDismiss: () -> Unit, onDone: (String) -> Unit) {
+private fun TextDialog(initial: String, blank: Boolean, onDismiss: () -> Unit, onDone: (String) -> Unit) {
     var text by remember { mutableStateOf(TextFieldValue(initial, TextRange(initial.length))) }
     val fuoco = remember { FocusRequester() }
     LaunchedEffect(Unit) { fuoco.requestFocus() }
@@ -8035,8 +8086,8 @@ private fun TextDialog(initial: String, onDismiss: () -> Unit, onDone: (String) 
         },
         confirmButton = {
             TextButton(
-                onClick = { onDone(text.text) },
-                enabled = text.text.isNotBlank()
+                onClick = { onDone(if (text.text.isBlank()) "" else text.text) },
+                enabled = blank || text.text.isNotBlank()
             ) { Text(stringResource(R.string.editor_apply)) }
         },
         dismissButton = {
@@ -8055,8 +8106,9 @@ private fun TextDialog(initial: String, onDismiss: () -> Unit, onDone: (String) 
  * - Grassetto, Corsivo, Barrato and, since 4.91, Sfondo are switches, and combine (reading `A3`).
  *   Sfondo lays the label's strip, and shows it; until 4.90 it went from none to `Evidenziato` to
  *   `Etichetta` (his note on `4.90-04`: *possiamo liberarcene*).
- * - `Allineamento` goes from the middle to the right to the left (his `B2`), and shows where the
- *   lines sit; it holds for the pill too.
+ * - `Allineamento` goes from the middle to the left to the right (his `B2`, and since 4.92 his note A
+ *   on the 4.91 round: until 4.91 it went to the right first), and shows where the lines sit; it
+ *   holds for the pill and the panel too.
  * - `Testo` opens the window of the words of the chosen text. ⚠️ It is the last key since 4.91 (his
  *   note E on the 4.90 round: *deve essere l'ultima icona a destra*), and until 4.90 was named
  *   `Modifica testo`.
@@ -8089,10 +8141,7 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
         TextKey(stringResource(R.string.draw_ground), selected = sfondo, enabled = live && !pill, toggle = true,
             onClick = { gaze.switchLabel() },
             modifier = Modifier.weight(1f)) { tinta ->
-            if (sfondo) Text(
-                "Aa", color = Color.White, fontSize = KEY_GLYPH,
-                modifier = Modifier.background(Color(gaze.labelInk), RoundedCornerShape(4.dp)).padding(horizontal = 4.dp)
-            ) else Text("Aa", color = tinta, fontSize = KEY_GLYPH)
+            GroundGlyph(if (sfondo) Color(gaze.labelInk) else tinta)
         }
         val allineamento = stringResource(R.string.draw_align)
         val dove = when (gaze.align) {
@@ -8101,7 +8150,7 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
             Align.RIGHT -> stringResource(R.string.settings_right)
         }
         TextKey("$allineamento: $dove", selected = false, enabled = live, toggle = false,
-            onClick = { gaze.align = Align.entries[(gaze.align.ordinal + 1) % Align.entries.size] },
+            onClick = { gaze.align = gaze.align.next },
             modifier = Modifier.weight(1f)) { tinta ->
             Icon(Glyphs.align(gaze.align), contentDescription = null, tint = tinta)
         }
@@ -8165,6 +8214,10 @@ private fun TextKey(
  * sufficienza)*): the six of [Draw.LABEL_INKS]. Those that do not stand out
  * from the image under the text, or that would not keep the words readable ([Draw.readable], with
  * [Gaze.under]), are off: they show, faded, so the row does not change length under the finger.
+ * ⚠️⚠️ **Rectangles side by side, with no gap, since 4.92** (his note E on the 4.91 round: *Rendi
+ * diversamente la barra dei colori inferiore: rettangoli colorati affiancati, senza distanziamento,
+ * più bassi in modo che lo slider non si sposti troppo in su*): until 4.91 they were round swatches
+ * as tall as the palette's. The chosen one has the ring of the chosen swatch, inside it.
  */
 @Composable
 private fun GroundRow(gaze: Gaze, live: Boolean) {
@@ -8172,37 +8225,78 @@ private fun GroundRow(gaze: Gaze, live: Boolean) {
     val parole = Draw.lit(gaze.textInk, gaze.textLight)
     val fondo = stringResource(R.string.draw_ground)
     val bordo = MaterialTheme.colorScheme.onSurface
-    val filo = MaterialTheme.colorScheme.outline
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    val dentro = MaterialTheme.colorScheme.surface
+    Row(modifier = Modifier.fillMaxWidth().height(STRIP).clip(RoundedCornerShape(STRIP_ROUND))) {
         voci.forEachIndexed { i, ink ->
             val scelto = gaze.labelInk == ink
             val leggibile = scelto || Draw.readable(ink, gaze.under, parole)
             val attivo = live && leggibile
             Box(
                 Modifier
-                    .size(SWATCH)
+                    .weight(1f)
+                    .fillMaxHeight()
                     .alpha(if (leggibile) 1f else OFF_SWATCHES)
-                    .clip(CircleShape)
                     .selectable(scelto, enabled = attivo, role = Role.RadioButton) {
                         gaze.labelInk = ink
                     }
                     .semantics { contentDescription = "$fondo ${i + 1}" }
-            ) {
-                Canvas(Modifier.size(SWATCH)) {
-                    val r = size.minDimension / 2f
-                    val dentro = if (scelto) r - SWATCH_RING.toPx() else r - 4.dp.toPx()
-                    if (scelto) drawCircle(bordo, radius = r)
-                    drawCircle(Color(ink), radius = dentro)
-                    drawCircle(filo, radius = dentro, style = Stroke(1.dp.toPx()))
-                }
-            }
+                    .drawBehind {
+                        drawRect(Color(ink))
+                        if (scelto) {
+                            val anello = SWATCH_RING.toPx()
+                            drawRect(bordo, topLeft = Offset(anello / 2f, anello / 2f),
+                                size = Size(size.width - anello, size.height - anello), style = Stroke(anello))
+                            drawRect(dentro, topLeft = Offset(anello * 1.25f, anello * 1.25f),
+                                size = Size(size.width - anello * 2.5f, size.height - anello * 2.5f), style = Stroke(anello / 2f))
+                        }
+                    }
+            )
         }
     }
 }
+
+/**
+ * **The glyph of the `Sfondo` key** (4.92, his note F on the 4.91 round: *Il pulsante etichetta è
+ * troppo simile a quello del carattere: l'icona dev'essere un rettangolino arrotondato con il testo
+ * in negativo, che si accende e si spegne e volendo prende il colore dal vivo come adesso*): a round
+ * rectangle of [colour], the strip's when the key is on, with the letters cut out of it, so the
+ * key's own ground shows through them.
+ * ⚠️ The cut needs a layer of its own ([CompositingStrategy.Offscreen]): drawn on the key, the
+ * letters would cut through the key's ground as well.
+ */
+@Composable
+private fun GroundGlyph(colour: Color) {
+    val misura = rememberTextMeasurer()
+    val stile = TextStyle(fontSize = GROUND_GLYPH_TEXT, fontWeight = FontWeight.Bold)
+    Canvas(
+        Modifier
+            .size(GROUND_GLYPH_W, GROUND_GLYPH_H)
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    ) {
+        drawRoundRect(colour, cornerRadius = CornerRadius(GROUND_GLYPH_ROUND.toPx()))
+        val lettere = misura.measure("Aa", stile)
+        drawText(
+            lettere, color = Color.Black,
+            topLeft = Offset((size.width - lettere.size.width) / 2f, (size.height - lettere.size.height) / 2f),
+            blendMode = BlendMode.DstOut
+        )
+    }
+}
+
+/** The measures of the `Sfondo` glyph: a choice of the session, declared in the test item. */
+private val GROUND_GLYPH_W = 30.dp
+private val GROUND_GLYPH_H = 20.dp
+private val GROUND_GLYPH_ROUND = 5.dp
+private val GROUND_GLYPH_TEXT = 13.sp
+
+/**
+ * **How tall the strips are, how round their row, and the place the row has in the module** (4.92,
+ * his note E on the 4.91 round): lower than the palette's swatches ([SWATCH]), so the slider moves
+ * up little. Choices of the session, declared in the test item.
+ */
+private val STRIP = 20.dp
+private val STRIP_ROUND = 6.dp
+private val STRIPS_ROW = STRIP + 8.dp
 
 /**
  * **The face of the 'Aa' on the Carattere key** (4.90): the typeface the drawing paints with,

@@ -671,7 +671,7 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   `4.43-01`, il suo mockup e le sue risposte dello stesso giorno: *vale anche quando non contorna
   niente*; la chiave resta `draw_outline`).
   - **L'ordine è Tratteggio, Traccia, Riempimento**, su cinque colonne allineate con gli strumenti
-    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50`, dalla `4.60` è `Elimina` e dalla `4.80` è `Sfocatura`.
+    di disegno: Spessore entra nella `4.47` al posto di Luminosità (`4.45` e `4.46`), e dalla `4.49` è la terza; la quinta è vuota fino alla `4.50`, dalla `4.60` è `Elimina`, dalla `4.80` è `Sfocatura`, nella `4.91` di nuovo `Elimina`, e dalla `4.92` è vuota, perché `Elimina` è un tasto di testo accanto a `Elimina tutto`.
   - **Traccia e Tratteggio** sono una banda dello stesso spessore da bordo a bordo del tasto, senza
     filo: piena del colore della linea, tratteggiata in grigio scuro. **Riempimento** è un
     rettangolo della forma del tasto, staccato da un filetto, sopra la scacchiera; per il lettore di
@@ -808,10 +808,14 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **un tasto strumento toglie la scelta** e cambia strumento: lo strumento non è un parametro
     dell'elemento;
   - **trascinare partendo dall'elemento scelto lo sposta**; partendo altrove si disegna come prima;
-  - **`Elimina`** è la quinta colonna dei tasti (fino alla `4.70` e di nuovo dalla `4.91`, sua nota C
-    sul giro della `4.90`; dalla `4.80` alla `4.90` viveva solo nel menu della pressione lunga, dove
-    resta), acceso solo con un elemento scelto; Annulla, Ripeti
-    e Originale tolgono la scelta, perché dopo di loro l'indice può essere di un altro elemento.
+  - **`Elimina`** è un tasto di testo a sinistra di `Elimina tutto`, con ogni strumento, dalla `4.92`
+    (suo `Non approvato` su `4.91-04`: *Se sto usando la pillola o ne ho una selezionata, il tasto
+    'Elimina' non appare ... Potrebbe essere anche un pulsante testuale a sinistra di 'Elimina
+    tutto'*, e la sua risposta a `d-elimina-testo`). È acceso solo con un elemento scelto, e resta
+    anche nel menu della pressione lunga. Fino alla `4.70` e nella `4.91` era la quinta colonna dei
+    tasti delle forme, che la fila del testo non ha; dalla `4.80` alla `4.90` viveva solo nel menu.
+    Annulla, Ripeti e Originale tolgono la scelta, perché dopo di loro l'indice può essere di un
+    altro elemento.
 - **Dalla `4.60` il tasto Tratteggio dice se è acceso** (sua risposta `B2` alla nota B sul giro
   della `4.49`): acceso, il tratteggio nel colore della traccia; spento, il grigio scuro sbiadito al
   35%. Fino alla `4.50` i due stati avevano lo stesso disegno e cambiava solo lo sfondo del tasto.
@@ -822,7 +826,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **Il velo d'aiuto del Disegno** (nota B): la prima volta che il modulo si apre, dopo le due
     slide dell'editor, il tondo rosso cerchiato d'arancione e il suo testo sopra, alla lettera
     (`hint_draw`, chiave `draw-hint-seen`). Nomina anche il testo e la pillola, che non ci sono
-    ancora: entra com'è perché le lingue si scrivono una volta sola, lettura dichiarata.
+    ancora: entra com'è perché le lingue si scrivono una volta sola, lettura dichiarata. **Dalla
+    `4.92` nomina anche i pannelli sfocati** (sua risposta `A1` a `d-velo-pannello`), in fondo
+    all'elenco degli strumenti, in tutte le lingue; la chiave non cambia, quindi chi l'ha già visto
+    non lo rivede.
   - **Il tratteggio del tasto comincia e finisce con un trattino** (nota C): il numero dei
     trattini è il più vicino al ritmo 10 e 6 del suo mockup, e trattino e spazio si allungano o si
     accorciano insieme fino a chiudere sui due bordi (`keyDashes`).
@@ -920,8 +927,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   - **i sette tasti** sotto gli strumenti, in quest'ordine dalla `4.91`: `Carattere` passa al
     carattere dopo a ogni tocco e mostra il suo 'Aa'; `Grassetto`, `Corsivo` e `Barrato` si
     accendono e si combinano; `Sfondo` accende e spegne la striscia dell'etichetta; `Allineamento`
-    passa dal centro, che è quello di fabbrica, a destra e a sinistra, e vale anche per la pillola
-    (sua `B2` del 2026-10-08, il tasto a giro è una lettura della sessione); `Testo` riapre la
+    passa dal centro, che è quello di fabbrica, a sinistra e a destra, e vale anche per la pillola e
+    il pannello (sua `B2` del 2026-10-08, il tasto a giro è una lettura della sessione; il ciclo è
+    il suo dalla `4.92`, nota A sul giro della `4.91`: *il primo tocco deve portare il testo a
+    sinistra, poi destra*, e fino alla `4.91` andava prima a destra); `Testo` riapre la
     finestra con le parole del testo scelto (lettura `A3`), ed è l'ultimo (sua nota E sul giro della
     `4.90`: *deve essere l'ultima icona a destra*). La fila ha otto colonne, come gli strumenti;
     - ⚠️ **fino alla `4.90` `Sfondo` si chiamava `Fondo` e passava da nessuno a `Evidenziato` e a
@@ -931,9 +940,21 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
       sue riscritture delle etichette;
   - **il colore delle parole** si sceglie coi tondi della tavolozza, bianco di fabbrica, con la sua
     luminosità; le parole sono sempre opache. **La dimensione** si regola col cursore `Dimensione`,
-    fra l'1% e il 150% del lato lungo e al 5% di fabbrica, e con le maniglie d'angolo e quelle a
-    metà dei lati di sopra e di sotto, che ingrandiscono e rimpiccioliscono il testo intero intorno
-    al suo centro: un testo stirato su un asse sarebbe un carattere deformato (letture `A2` e `A4`).
+    fra l'1% e il 150% del lato lungo, e con le maniglie d'angolo e quelle a metà dei lati di sopra
+    e di sotto, che ingrandiscono e rimpiccioliscono il testo intero intorno al suo centro: un testo
+    stirato su un asse sarebbe un carattere deformato (letture `A2` e `A4`).
+  - ⚠️⚠️ **dalla `4.92` un testo nuovo nasce con la riga più lunga larga metà dell'immagine** (sua
+    nota su `4.91-03`: *forse è bene stabilire una dimensione predefinita dei testi: la riga più
+    lunga deve misurare il 50% della larghezza dell'immagine*; `Draw.fitSize`), fino al tetto del
+    150%; fino alla `4.91` nasceva al 5% del lato lungo. Quindi `Dimensione` regola il testo scelto
+    ed è spento senza un testo scelto (lettura della sessione, dichiarata). Lo stesso corpo prendono
+    le parole di una pillola o di un pannello posati da un tocco, e anche questa è una lettura della
+    sessione;
+  - ⚠️⚠️ **dalla `4.92` cambiare il colore non riporta il testo al corpo di prima** (sua nota su
+    `4.91-03`: *Se ingrandisco il testo e poi cambio colore, il colore si applica ma il testo
+    ritorna piccolo come in origine*): una maniglia cambiava il corpo dell'elemento e non quello del
+    modulo, e il primo tondo toccato posava sull'elemento il corpo vecchio. Alla fine di ogni gesto
+    sul palco il modulo ricarica i parametri dell'elemento scelto; la prova è in `DisegnoTest`.
   - ⚠️⚠️ **il tetto è il 150% dalla `4.91`, e fino alla `4.90` era il 20%** (sua nota su `4.90-02`:
     *voglio poter fare un testo grande come l'intera immagine e anche oltre*; il numero è della
     sessione, dichiarato): una lettera più alta dell'immagine. Il cursore moltiplica il corpo per lo
@@ -952,6 +973,19 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     c'erano anche i sei chiari dell'evidenziatore). Si offrono solo quelli che staccano dall'immagine
     sotto il testo e tengono leggibili le parole; gli altri si vedono sbiaditi, così la fila non
     cambia lunghezza sotto il dito (letture `A5` e `A6`, `Draw.readable`);
+    - ⚠️⚠️ **dalla `4.92` le strisce sono rettangoli affiancati senza spazio, alti 20 dp, e la loro
+      fila ha il suo posto con ogni strumento** (sua nota E sul giro della `4.91`: *le due file di
+      tasti principali del modulo si avvicinano fino a toccarsi ... Rendi diversamente la barra dei
+      colori inferiore: rettangoli colorati affiancati, senza distanziamento, più bassi ... posiziona
+      lo slider nella stessa posizione anche con gli altri strumenti*). La scheda è alta quanto il
+      modulo più alto, misurato una volta, e la fila che compariva con `Sfondo` si prendeva l'aria
+      fra le righe; adesso il posto c'è sempre, vuoto quando le strisce non servono, quindi il
+      cursore e le file dei tasti non si muovono da uno strumento all'altro. Fino alla `4.91` le
+      strisce erano tondi alti come quelli della tavolozza. Misure della sessione, dichiarate;
+  - ⚠️⚠️ **dalla `4.92` il tasto `Sfondo` è un rettangolino arrotondato con 'Aa' in negativo** (sua
+    nota F sul giro della `4.91`: *Il pulsante etichetta è troppo simile a quello del carattere*): le
+    lettere sono il fondo del tasto, il rettangolo ha il colore della striscia scelta quando il tasto
+    è acceso e quello del tasto quando è spento;
     - ⚠️⚠️ **le due misure sono diverse, di proposito**: le parole si leggono per la luminosità,
       quindi contro il fondo vale il contrasto delle WCAG, almeno 3; il fondo stacca dall'immagine
       anche per la tinta, quindi contro l'immagine vale la distanza dei colori in CIELAB, almeno 20.
@@ -962,6 +996,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     `Draw.wordsOn`);
   - **l'etichetta** è una striscia stondata per riga, e le strisce si fondono in una forma sola, con
     un'ombra morbida sotto, come nel suo esempio;
+    - ⚠️⚠️ **dalla `4.92` gli angoli sono tondi solo dove una striscia sporge, e dove una riga è più
+      stretta della vicina l'incastro ha un raccordo concavo** (sua nota D sul giro della `4.91`, col
+      suo mockup: *gli arrotondamenti non devono stare nelle linee intermedie, anzi lì ci vorrebbe un
+      arrotondamento contrario, che crea una maggiore armonia*). Due lati entro mezzo pixel
+      continuano dritti; quando due lati sono vicini, il tondo e il raccordo prendono metà della
+      distanza, così non si incrociano (`Draw.labelGround`). Fino alla `4.91` ogni striscia aveva
+      quattro angoli tondi, e fra due righe restava una tacca;
   - ⚠️⚠️ **le righe si centrano sulla metà della H sopra la linea di base, per tutti e quattro i
     caratteri** (sua nota: *Literata ha una baseline stranamente bassa: credo sia l'unico font per
     il quale sarà necessario aggiustare la centratura verticale dell'etichetta*). La causa è nelle
@@ -969,6 +1010,13 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     centrata sul riquadro del carattere la sua riga scende di quasi 7 pixel su un corpo di 80, e le
     altre tre di un pixel e mezzo al più. La regola generale toglie la correzione per un carattere
     solo, e la voce di collaudo lo dichiara (lettura `A7`);
+    - ⚠️⚠️ **dalla `4.92` un testo fatto soprattutto di minuscole si centra sulla metà della x** (sua
+      nota B sul giro della `4.91`: *mi piacerebbe che la centratura fosse 'ottica', sui pixel reali
+      del peso maggiore del testo inserito*, col mockup di una pillola alta 126 px sopra le minuscole
+      e 96 sotto). Vale per il testo, l'etichetta, la pillola e il pannello, con una fascia sola per
+      tutto il testo, perché una per riga spazierebbe le righe in modo diverso; quale lettera conta
+      lo decide la maggioranza fra minuscole da una parte e maiuscole e cifre dall'altra (lettura
+      della sessione, dichiarata; `Draw.core`);
   - **`Ruota`, `Trasforma`, il menu della pressione lunga, `Copia` e `Incolla`** valgono come per
     gli altri elementi: il testo gira intero, con le righe dritte fra loro. Lo stile passa intero
     fra due testi, parole escluse; fra un testo e una forma passa solo il colore, con la sua ricetta;
@@ -981,6 +1029,12 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     altri elementi, e subito dopo la finestra chiede le parole; **un tocco** chiede le parole e posa
     una pillola che le contiene, alla `Dimensione` scelta per il testo, centrata dove si è toccato.
     La pillola nasce scelta; `Annulla` nella finestra la lascia vuota;
+  - ⚠️⚠️ **dalla `4.92` le parole non sono obbligatorie, per la pillola e per il pannello** (sua nota
+    C sul giro della `4.91`: *Se inserisco un testo, poi cambio idea e cancello tutto, devo poter
+    cliccare su 'Applica' anche con il campo vuoto*): `Applica` si accende anche a campo vuoto, e il
+    riquadro resta senza parole. Un tocco a campo vuoto non posa niente, perché un tocco misura la
+    pillola sulle sue parole (lettura della sessione, dichiarata). Per il testo `Applica` aspetta
+    ancora una lettera;
   - **l'aspetto è fisso**: riempimento `#ccff4b3d`, due tracce dello 0,5% del lato maggiore, la chiara
     `#e6fffefa` dentro e la scura `#e6373737` sul bordo, e sotto il vetro, cioè l'immagine sfocata
     (`Draw.blurAreas`, come il Pannello). Le parole sono bianche opache. `Dimensione` è spento, non
@@ -1021,9 +1075,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     parole, un tocco chiede le parole e posa un pannello che le contiene; le parole sono bianche,
     vanno a capo da sé e prendono la misura più grande che il riquadro contiene, coi tasti del
     testo (`Sfondo` spento) (*Supporto testo: esattamente come l'altra pillola*);
-  - **la forma** è un rettangolo con gli angoli stondati dello 0,3% del lato lungo del pannello
-    (*arrotondamento piccolissimo (0,3% del lato lungo)*; del pannello e non dell'immagine è una
-    lettura della sessione, dichiarata), senza tracce. Le parole stanno al 15% del lato corto dal
+  - **la forma** è un rettangolo con gli angoli stondati dell'1% del lato lungo del pannello dalla
+    `4.92` (sua nota su `4.91-01`: *0,3% di arrotondamento è troppo poco, facciamo 1%*; nella `4.91`
+    lo 0,3%; del pannello e non dell'immagine è una lettura della sessione, dichiarata), senza
+    tracce. Le parole stanno al 15% del lato corto dal
     bordo, meno della pillola, che perde spazio nelle estremità tonde (scelta della sessione);
   - **la sfocatura** è quella della Sfocatura, col suo cursore e i suoi numeri, dallo 0,5 al 25%
     del lato maggiore del pannello e al 10% di fabbrica (*come adesso, con lo stesso slider, che

@@ -131,7 +131,20 @@ enum class Face(val upright: Int, val italic: Int, val label: String) {
  * e B3 sul testo*): to the left, in the middle (the factory value, as before) or to the right of the
  * text's box.
  */
-enum class Align { LEFT, CENTER, RIGHT }
+enum class Align {
+    LEFT, CENTER, RIGHT;
+
+    /**
+     * **The place the `Allineamento` key goes to next** (4.92, his note A on the 4.91 round: *il primo
+     * tocco deve portare il testo a sinistra, poi destra. Il ciclo è: centro, sinistra, destra*).
+     * Until 4.91 the key went from the middle to the right first.
+     */
+    val next: Align get() = when (this) {
+        CENTER -> LEFT
+        LEFT -> RIGHT
+        RIGHT -> CENTER
+    }
+}
 
 /**
  * **The words of a text element and how they look** (G3, 4.90): the three styles (*grassetto,
@@ -677,6 +690,38 @@ internal object Draw {
     fun textSize(track: Float): Float = (TEXT_MIN * exp(track.coerceIn(0f, 1f) * ln(TEXT_MAX / TEXT_MIN)))
         .coerceIn(TEXT_MIN, TEXT_MAX)
 
+    /**
+     * **The size a new text is born at** (4.92, his note on `4.91-03`: *forse è bene stabilire una
+     * dimensione predefinita dei testi: la riga più lunga deve misurare il 50% della larghezza
+     * dell'immagine*): the size, as a fraction of the long side of a [w] x [h] original, at which the
+     * widest line of [words] is [FIT_WIDE] of the width, within [TEXT_MIN] and [TEXT_MAX]. A pill and
+     * a panel laid by a tap take it too, for their words (a reading of the session, declared in the
+     * test item).
+     * ⚠️ Measured with the paint the text is drawn with ([lines]), first at [FIT_PROBE] pixels and
+     * then once more at the size found: a line's width grows with the size, but not exactly in
+     * proportion, since the letters are fitted to whole pixels.
+     */
+    fun fitSize(words: Words, w: Float, h: Float): Float {
+        if (w <= 0f || h <= 0f) return TEXT
+        val paint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG).apply {
+            typeface = Faces.of(words.face, words.italic, words.bold)
+        }
+        val righe = words.text.split('\n')
+        fun wide(px: Float): Float {
+            paint.textSize = px
+            return righe.maxOfOrNull { paint.measureText(it) } ?: 0f
+        }
+        val bersaglio = FIT_WIDE * w
+        val prova = wide(FIT_PROBE).takeIf { it > 0f } ?: return TEXT
+        var px = bersaglio * FIT_PROBE / prova
+        wide(px).takeIf { it > 0f }?.let { px *= bersaglio / it }
+        return (px / max(w, h)).coerceIn(TEXT_MIN, TEXT_MAX)
+    }
+
+    /** How wide the widest line of a new text is, as a part of the image's width (his 50%). */
+    const val FIT_WIDE = 0.5f
+    private const val FIT_PROBE = 100f
+
     /** The factory colour of the text: white (his factory label, *testo #FFFFFF*; reading `A4`). */
     const val TEXT_INK = 0xFFFFFFFF.toInt()
 
@@ -808,7 +853,8 @@ internal object Draw {
      * ⚠️⚠️ **The lines sit on the middle of the capitals, not on the face's own box** (his note:
      * *Literata ha una baseline stranamente bassa*): Literata's ascent is 1177 units for capitals of
      * 700, so a strip centred on its box would hold the words low. Centred on half the height of an
-     * 'H' above the baseline, the four faces sit alike, with no correction for one face.
+     * 'H' above the baseline, the four faces sit alike, with no correction for one face. Since 4.92 a
+     * text made mostly of lowercase sits on the middle of an 'x' instead ([core]).
      * ⚠️ The weight comes with the typeface ([Faces]): Montserrat's file opens at its thinnest, 100.
      */
     private fun lines(mark: Mark, w: Float, h: Float): Lines? {
@@ -824,11 +870,29 @@ internal object Draw {
         val wrap = words.wrap * max(w, h)
         val lines = if (wrap > 0f) wrapped(words.text, paint, wrap) else words.text.split('\n')
         val widths = lines.map { paint.measureText(it) }
-        val cap = android.graphics.Rect().also { paint.getTextBounds("H", 0, 1, it) }.height().toFloat()
+        val cap = core(paint, words.text)
         val step = size * LINE
         val pad = if (words.label) size * PAD else 0f
         val content = if (wrap > 0f) wrap else widths.maxOrNull() ?: 0f
         return Lines(paint, lines, widths, size, step, cap, pad, content / 2f + pad, lines.size * step / 2f, content, words.align)
+    }
+
+    /**
+     * **The height of the band a line of [text] is centred on**, for [paint]: the lowercase letters'
+     * when the text has more of them than of capitals and figures, the capitals' otherwise.
+     * ⚠️⚠️ **The lowercase band since 4.92** (his note B on the 4.91 round: *mi piacerebbe che la
+     * centratura fosse 'ottica', sui pixel reali del peso maggiore del testo inserito ... quasi tutto il
+     * testo ha il baricentro in un compatto rettangolo che potrebbe contenere tutte le minuscole, è
+     * quello che andrebbe centrato in verticale*, with a pill measured 126 px above its lowercase and
+     * 96 px below): until 4.91 every line sat on the middle of an 'H', so a line of lowercase sat low.
+     * ⚠️ One band for the whole text, read on its letters: a band per line would space the lines
+     * unevenly. The majority is a reading of the session, declared in the test item.
+     */
+    private fun core(paint: Paint, text: String): Float {
+        val minuscole = text.count { it.isLowerCase() }
+        val maiuscole = text.count { it.isUpperCase() || it.isDigit() }
+        val segno = if (minuscole > maiuscole) "x" else "H"
+        return android.graphics.Rect().also { paint.getTextBounds(segno, 0, 1, it) }.height().toFloat()
     }
 
     /** **Half the width and half the height of [mark]'s text**, in the pixels of a [w] x [h] original (4.90). */
@@ -907,8 +971,10 @@ internal object Draw {
      * of the session, declared in the test item: the panel's and not the image's), and the alpha
      * of its colour. The words are the pill's, white.
      * ⚠️ No traces, which are the pill's: he listed the panel's attributes, and they were not there.
+     * ⚠️⚠️ **The radius is 1% since 4.92** (his note on `4.91-01`: *0,3% di arrotondamento è troppo
+     * poco, facciamo 1%*); 0,3% in 4.91.
      */
-    const val PANEL_ROUND = 0.003f
+    const val PANEL_ROUND = 0.01f
     private const val PANEL_ALPHA = 0x33000000
 
     /** **[ink] laid at the panel's 20%** (4.91). */
@@ -937,7 +1003,7 @@ internal object Draw {
      * fit at that size keep it, and the box grows downward to hold them, its top edge staying where it
      * was drawn: a reading of the session, declared in the test item, since words cut off would be
      * lost without a word.
-     * ⚠️ The lines are spaced and centred as a text's ([lines]), on the middle of the capitals.
+     * ⚠️ The lines are spaced and centred as a text's ([lines]), on the band of [core].
      */
     private fun pill(mark: Mark, w: Float, h: Float): Pill {
         val a = Offset(mark.points.first().x * w, mark.points.first().y * h)
@@ -977,7 +1043,7 @@ internal object Draw {
         val rad = Math.toRadians(mark.angle.toDouble())
         val grow = hh - hh0
         val c = Offset(c0.x - grow * sin(rad).toFloat(), c0.y + grow * cos(rad).toFloat())
-        val cap = android.graphics.Rect().also { paint.getTextBounds("H", 0, 1, it) }.height().toFloat()
+        val cap = core(paint, words.text)
         return Pill(c, hw, hh, trace, paint, lines, lo * LINE, cap, wide, words.align)
     }
 
@@ -1086,20 +1152,7 @@ internal object Draw {
         canvas.translate(mark.points.first().x * w, mark.points.first().y * h)
         if (mark.angle != 0f) canvas.rotate(mark.angle)
         if (words.label) {
-            val ground = Path()
-            t.lines.forEachIndexed { i, line ->
-                if (line.isBlank()) return@forEachIndexed
-                val mid = -t.hh + t.step * (i + 0.5f)
-                val half = t.widths[i] / 2f + t.pad
-                val x = t.x(i)
-                val band = t.step / 2f
-                val r = min(band, t.size * ROUND)
-                ground.op(
-                    Path().apply { addRoundRect(RectF(x - half, mid - band, x + half, mid + band), r, r, Path.Direction.CW) },
-                    Path.Op.UNION
-                )
-            }
-            canvas.drawPath(ground, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            canvas.drawPath(labelGround(t), Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = words.ground
                 style = Paint.Style.FILL
                 setShadowLayer(t.size * SHADOW_BLUR, 0f, t.size * SHADOW_DROP, SHADOW_INK)
@@ -1111,6 +1164,71 @@ internal object Draw {
         }
         canvas.restoreToCount(kept)
     }
+
+    /**
+     * **The label's ground for the lines [t]**, centred on the text's point (4.90): one strip per line
+     * that has words, melted into one shape.
+     * ⚠️⚠️ **Round only where a strip stands out, and a concave fillet where it meets a wider one,
+     * since 4.92** (his note D on the 4.91 round, with a mockup: *gli arrotondamenti non devono stare
+     * nelle linee intermedie, anzi lì ci vorrebbe un arrotondamento contrario, che crea una maggiore
+     * armonia*). Until 4.91 every strip had four round corners, so where two strips met the corners
+     * left a notch. Now each corner that meets the next line looks at it:
+     * - the wider of the two keeps its corner round, as the outer corners are;
+     * - the narrower has a square corner, and a concave fillet fills the angle between its side and
+     *   the wider strip's edge;
+     * - two sides within half a pixel go on straight, with no round and no fillet.
+     * ⚠️ The round and the fillet share a radius, at most half of the step between the two sides, so
+     * they never cross.
+     */
+    private fun labelGround(t: Lines): Path {
+        val ground = Path()
+        val band = t.step / 2f
+        val r = min(band, t.size * ROUND)
+        val pieni = t.lines.indices.filter { t.lines[it].isNotBlank() }
+        fun left(i: Int): Float = t.x(i) - t.widths[i] / 2f - t.pad
+        fun right(i: Int): Float = t.x(i) + t.widths[i] / 2f + t.pad
+        /*
+         * The radius of a corner of line [i] on the side [onLeft], against the line [n] above or below
+         * it: a convex corner's, or 0 for a square one, whose fillet it lays into the ground.
+         */
+        fun corner(i: Int, n: Int, onLeft: Boolean, top: Boolean): Float {
+            if (n !in pieni) return r
+            val sporge = if (onLeft) left(n) - left(i) else right(i) - right(n)
+            if (abs(sporge) < JOIN_SLACK) return 0f
+            val rr = min(r, abs(sporge) / 2f)
+            if (sporge > 0f) return rr
+            // ⚠️ The narrower strip: a square corner, and the fillet in its own band, outside it.
+            val x = if (onLeft) left(i) else right(i)
+            val y = -t.hh + t.step * i + if (top) 0f else t.step
+            val fuori = if (onLeft) -rr else rr
+            val dentro = if (top) rr else -rr
+            val quadro = RectF(min(x, x + fuori), min(y, y + dentro), max(x, x + fuori), max(y, y + dentro))
+            val raccordo = Path().apply { addRect(quadro, Path.Direction.CW) }
+            raccordo.op(Path().apply { addCircle(x + fuori, y + dentro, rr, Path.Direction.CW) }, Path.Op.DIFFERENCE)
+            ground.op(raccordo, Path.Op.UNION)
+            return 0f
+        }
+        for (i in pieni) {
+            val top = -t.hh + t.step * i
+            val sopra = i - 1
+            val sotto = i + 1
+            val tl = corner(i, sopra, onLeft = true, top = true)
+            val tr = corner(i, sopra, onLeft = false, top = true)
+            val br = corner(i, sotto, onLeft = false, top = false)
+            val bl = corner(i, sotto, onLeft = true, top = false)
+            val striscia = Path().apply {
+                addRoundRect(
+                    RectF(left(i), top, right(i), top + 2f * band),
+                    floatArrayOf(tl, tl, tr, tr, br, br, bl, bl), Path.Direction.CW
+                )
+            }
+            ground.op(striscia, Path.Op.UNION)
+        }
+        return ground
+    }
+
+    /** Within how many pixels two sides of the label's strips count as one straight side. */
+    private const val JOIN_SLACK = 0.5f
 
     /**
      * The matrix from the original frame ([w] x [h] pixels) to the posed frame.
