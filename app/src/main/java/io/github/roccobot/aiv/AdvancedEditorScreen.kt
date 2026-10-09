@@ -928,6 +928,7 @@ fun AdvancedEditorScreen(
                         drawTurning = { gaze.turning },
                         onDrawTurn = { gaze.turning = !gaze.turning },
                         onDrawText = { at -> askText(at) },
+                        onDrawWords = { i -> gaze.askWords(look.drawing, i) },
                         onDrawPill = { i -> askPill(i) },
                         onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
@@ -1096,6 +1097,7 @@ fun AdvancedEditorScreen(
                         drawTurning = { gaze.turning },
                         onDrawTurn = { gaze.turning = !gaze.turning },
                         onDrawText = { at -> askText(at) },
+                        onDrawWords = { i -> gaze.askWords(look.drawing, i) },
                         onDrawPill = { i -> askPill(i) },
                         onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
@@ -1464,6 +1466,8 @@ private fun LookStage(
     onDrawTurn: () -> Unit,
     /** A tap on nothing with the Testo pen, at this point of the original image: the words are asked (4.90). */
     onDrawText: (Offset) -> Unit,
+    /** A double tap on the mark at this index, a text, a pill or a panel: its words are asked (4.93). */
+    onDrawWords: (Int) -> Unit,
     /** A pill just drawn with the Pillola pen, at this index: it is chosen and its words asked (4.90). */
     onDrawPill: (Int) -> Unit,
     /** A finger held still on a mark, which the stage has just chosen: its menu opens (4.70). */
@@ -1504,6 +1508,9 @@ private fun LookStage(
     val turningNow by rememberUpdatedState(drawTurning)
     val turnNow by rememberUpdatedState(onDrawTurn)
     val textNow by rememberUpdatedState(onDrawText)
+    val wordsNow by rememberUpdatedState(onDrawWords)
+    /** The last tap on a mark of the Disegno module, to read the next one as a double tap (4.93). */
+    val lastTap = remember { MarkTap() }
     val pillNow by rememberUpdatedState(onDrawPill)
     val holdNow by rememberUpdatedState(onDrawHold)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
@@ -2283,6 +2290,26 @@ private fun LookStage(
                         if (esito == Settled.UP) {
                             val preso = Draw.hit(base, start, picture.width, picture.height, reach)
                             /*
+                             * ⚠️⚠️ **A double tap on a text, a pill or a panel asks for its words,
+                             * since 4.93** (his note in Altro on the 4.92 round: *gli elementi che
+                             * hanno un testo (o che potrebbero averlo) dovrebbero accettare come input
+                             * un doppio tap, che equivale al tasto 'Testo'*). The first tap does what a
+                             * tap does, at once (it chooses the element, or swaps its mode); the second,
+                             * on the same element within the system's double-tap time, takes the swap
+                             * back and opens the window. So a tap is never slower, and a drag right
+                             * after a tap stays a drag: each gesture is its own, and only the last tap
+                             * is remembered ([MarkTap]).
+                             */
+                            val su = currentEvent.changes.firstOrNull()?.uptimeMillis ?: down.uptimeMillis
+                            if (preso != null && preso == scelto && base.marks[preso].pen.written &&
+                                lastTap.index == preso && down.uptimeMillis - lastTap.up <= viewConfiguration.doubleTapTimeoutMillis
+                            ) {
+                                if (lastTap.turned) turnNow()
+                                lastTap.index = null
+                                wordsNow(preso)
+                                return@awaitEachGesture
+                            }
+                            /*
                              * ⚠️⚠️ **A tap on the chosen element swaps 'Trasforma' and 'Ruota',
                              * since 4.81** (his note on `4.70-04`: *un tap singolo su un oggetto già
                              * selezionato lo fa passare ciclicamente da trasformazione e rotazione*).
@@ -2290,10 +2317,12 @@ private fun LookStage(
                              */
                             if (preso != null && preso == scelto) {
                                 turnNow()
+                                lastTap.set(preso, su, turned = true)
                                 return@awaitEachGesture
                             }
                             if (preso != null || scelto != null) {
                                 pickNow(preso)
+                                lastTap.set(preso, su, turned = false)
                                 return@awaitEachGesture
                             }
                         } else if (scelto != null) {
@@ -4796,6 +4825,15 @@ private class Gaze(
 
     /** The text being written, or `null` (4.90): the screen shows its window while it is set. */
     var textAsk by mutableStateOf<TextAsk?>(null)
+
+    /**
+     * **Asks again for the words of the mark at [i] of [drawing]**, if it has words: the `Testo` key
+     * (4.90) and, since 4.93, a double tap on a text, a pill or a panel.
+     */
+    fun askWords(drawing: Drawing, i: Int) {
+        val segno = drawing.marks.getOrNull(i)?.takeIf { it.pen.written } ?: return
+        textAsk = TextAsk(null, i, segno.words?.text.orEmpty())
+    }
 
     /**
      * The colour of the image under the chosen text, or of the whole image (4.90): the screen
@@ -8053,6 +8091,23 @@ private val CROP_AIR = HANDLE_THICK + GRIP_HALO
 internal data class TextAsk(val at: Offset?, val index: Int?, val text: String)
 
 /**
+ * **The last tap on a mark of the Disegno module** (4.93): which mark, when the finger lifted, and
+ * whether the tap swapped 'Trasforma' and 'Ruota', so a double tap can take that back.
+ * ⚠️ Not a state: the stage reads it at the next tap, so writing it recomposes nothing.
+ */
+private class MarkTap {
+    var index: Int? = null
+    var up: Long = 0L
+    var turned: Boolean = false
+
+    fun set(index: Int?, up: Long, turned: Boolean) {
+        this.index = index
+        this.up = up
+        this.turned = turned
+    }
+}
+
+/**
  * **The window in which a text is written** (G3, 4.90): a field on several lines, since a text goes
  * to a new line only where Invio puts one (reading `A1`), and the keys of [NewFolderDialog], with
  * 'Applica' waiting for a letter.
@@ -8155,10 +8210,7 @@ private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean) {
             Icon(Glyphs.align(gaze.align), contentDescription = null, tint = tinta)
         }
         TextKey(stringResource(R.string.draw_text_edit), selected = false, enabled = live && segno != null, toggle = false,
-            onClick = {
-                val i = gaze.picked ?: return@TextKey
-                gaze.textAsk = TextAsk(null, i, segno?.words?.text.orEmpty())
-            },
+            onClick = { gaze.picked?.let { gaze.askWords(look.drawing, it) } },
             modifier = Modifier.weight(1f)) { tinta ->
             Icon(Icons.Filled.Edit, contentDescription = null, tint = tinta)
         }

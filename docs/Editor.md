@@ -1101,6 +1101,16 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   dell'elemento e solo spostandolo: un lato che si ferma a metà dell'immagine, o un elemento che si
   disegna a partire da lì, sarebbero scatti che non ha chiesto (lettura della sessione, dichiarata;
   `Draw.rest` con `centred`, `Draw.lines` con la cornice).
+- **Dalla `4.93` un doppio tocco su un testo, una pillola o un pannello apre la finestra delle sue
+  parole**, come il tasto `Testo` (sua nota in Altro sul giro della `4.92`: *gli elementi che hanno
+  un testo (o che potrebbero averlo) dovrebbero accettare come input un doppio tap, che equivale al
+  tasto 'Testo' per inserire o modificare il contenuto testuale*), con qualunque strumento in uso:
+  - il primo tocco fa subito quello che fa un tocco (sceglie l'elemento, o alterna `Trasforma` e
+    `Ruota`); il secondo, sullo stesso elemento entro il tempo del doppio tocco di sistema, riprende
+    quell'alternanza e apre la finestra. Così il tocco singolo non diventa più lento, e un
+    trascinamento subito dopo un tocco resta un trascinamento (lettura della sessione, dichiarata
+    nella voce di collaudo; `MarkTap`);
+  - la prova è `un doppio tocco su un testo apre le sue parole`, in `DisegnoTest`.
 - **Dalla `4.91` i glifi degli strumenti sono più grandi** (sua nota B sul giro della `4.90`: *le
   icone degli strumenti della prima fila sono diventate troppo piccole ... e hanno tutto lo spazio
   per essere ingrandite*): gli strumenti sono tasti come quelli sotto, col glifo di 28 dp in un
