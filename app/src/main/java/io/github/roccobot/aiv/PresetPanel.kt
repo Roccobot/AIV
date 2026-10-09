@@ -52,8 +52,9 @@ import androidx.compose.ui.unit.dp
  *
  * ⚠️⚠️ **I DUE GESTI SONO SUOI, E SONO DUE COSE DIVERSE** (stesso campo libero, punto 3: *tocco
  * normale = modifica assoluta; tocco prolungato = modifica additiva*): il tocco porta l'immagine
- * **dove il preset dice**, il tocco lungo tocca i soli moduli che quel preset dichiara e lascia
- * stare gli altri. Il conto delle due strade vive su [Preset.applyTo] e [Preset.addTo].
+ * **dove il preset dice**, il tocco lungo **somma** il preset a quello che c'è, dalla `4.97` (sua
+ * risposta `B1`), così più stili si combinano. Il conto delle due strade vive su [Preset.applyTo]
+ * e [Preset.addTo].
  * - ⚠️ **Il tocco lungo si annuncia**, con la vibrazione di casa e con l'etichetta che un lettore
  *   di schermo legge: un gesto che non si vede e non si sente non lo scopre nessuno.
  *
@@ -107,7 +108,7 @@ fun PresetBody(
              * pixel verticali sono preziosi e si capisce perfettamente che i primi sono di
              * fabbrica*). Resta un separatore solo, quello dei propri, e l'ordine dei due gruppi
              * non cambia: gli stili dell'app sopra, i salvati sotto.
-             * ⚠️ **'Stili AIV' non è terminologia morta**: è come si chiamano quei venti quando se
+             * ⚠️ **'Stili AIV' non è terminologia morta**: è come si chiamano quelli di casa quando se
              * ne parla, e la pagina delle impostazioni li nomina ancora.
              */
             items(house, key = { "h-" + it.key }) { p ->

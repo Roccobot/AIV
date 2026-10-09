@@ -378,7 +378,8 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   pellicola.
 - ⚠️ **I nomi degli uniform si scelgono con cura**: `texture` è una funzione di GLSL.
 - ⚠️⚠️ **Uno stile include anche gli Effetti**, quindi i moduli che uno stile governa sono sei; ma i
-  venti di casa restano senza (sua risposta `lascia`: si rifanno da capo a modulo finito).
+  stili di casa li usano dalla `4.96` (sua risposta `lascia` a `d-preset-xmp`: si rifanno da capo a
+  modulo finito).
 - **Il gettone vive subito dopo il Dettaglio** (suo ordine), l'altro modulo che guarda i vicini.
 - ⚠️ **Il glifo è suo** (`ic_mod_effects.xml`, una superellisse col tondo scavato), e non ha punte da
   raccordare. I due lati ad arco di raggio 115 sono la firma di SVGO e si tengono; l'avviso '0%' di
@@ -738,7 +739,10 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     pillola e il pannello hanno valori loro e non cambiano.
   - **La linea del tasto Spessore è spessa quanto il tratto sullo schermo** (`4.49-01`): lo
     spessore sul lato lungo dell'immagine com'è mostrata, quindi segue lo zoom, mai sotto i 2 dp e
-    mai oltre l'altezza del tasto.
+    mai oltre l'altezza del tasto. **Dalla `4.97` le estremità tonde arrivano a 3 dp dai lati**
+    (`KEY_GAP`, lo stesso filo del rettangolo di Riempimento), a ogni spessore (sua nota sul giro
+    della `4.96`: *più lungo ... l'importante è che non lo tocchi*); prima si fermavano a mezza
+    altezza dal lato.
   - **L'anteprima di Spessore è una lineetta curva** (nota D), alla misura vera, al posto del tondo
     pieno.
   - **Il cursore della luminosità si apre sopra la fila dei tondi e la copre**, largo quanto lei,
@@ -1148,32 +1152,31 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
   tasto alto 32. Fino alla `4.90` erano i gettoni di Material, che tengono 8 dp per lato attorno
   all'etichetta, quindi il glifo aveva al più 24 dp, e meno con otto strumenti.
 
-## 🎞️ I preset, venti di casa e quelli che si salvano
+## 🎞️ I preset, quelli di casa e quelli che si salvano
 
 - ⚠️⚠️ **Uno stile è un aspetto con un nome**, che si porta da un'immagine all'altra: governa Luce,
   Colore, HSL, Dettaglio, Curve ed Effetti, e non include posa, ritaglio e geometria, che dipendono da
   come è stata scattata quell'immagine.
-- ⚠️⚠️ **Gli stili di casa sono venti**: quattordici suoi, convertiti dai suoi XMP di Lightroom
-  dalla sessione (sua istruzione; nell'APK non c'è un lettore XMP, entrano i valori già tradotti), e
-  sei della sessione, cioè quattro mestieri che i suoi non toccavano e due riscritture dichiarate,
-  con un nome diverso dal suo. Cinque dei suoi XMP non avevano niente da travasare (taratura dei
-  primari, color grading a tre zone, maschere).
-  - ⚠️ **Restano fuori** sfrangiatura, viraggio diviso, chiarezza e texture.
-  - ⚠️⚠️ **Dalla `4.96` tre dei venti hanno gli Effetti dei suoi XMP** ('Roccobot', 'Dettagli fini',
-    'T&O - Blu/Rosso'), col suo via sulla stima degli stili: era la sua risposta `lascia` a
-    `d-preset-xmp`, che li voleva rifatti a modulo finito. Le regole di conversione (segno della
-    vignettatura, dimensione della grana sul 25 di Lightroom, punto medio come sfumatura) vivono
-    su `HOUSE`, in `Preset.kt`. Uno stile di casa non si cambia da sé.
-  - **I nomi dei venti sono suoi** (fra gli altri 'Roccobot', 'Rosso -', 'Rosso - -', i tre col
-    prefisso 'T&O - ', 'Blu/Rosso'), e l'elenco è in ordine alfabetico. I nomi non si traducono.
-- ⚠️⚠️ **Il tocco applica sostituendo tutto; il tocco lungo tocca solo i moduli che lo stile nomina**
-  (sua specifica), e un modulo nominato si sostituisce per intero. Che cosa nomina lo dice il
-  formato: un modulo a riposo non si scrive. Quello che ne esce è un `Look` come un altro, quindi
-  'Annulla' lo disfa.
+- ⚠️⚠️ **Gli stili di casa sono dieci, dalla `4.97`, e li ha scritti la sessione** (sua risposta `A1`
+  sul giro della `4.96`: *scegli 10 nomi tra cui `Roccobot` (che dev'essere 'onnicomprensivo') e
+  senza `Bianco e nero`: creali tu*): 'Roccobot', che tocca tutti e sei i moduli, e nove in ordine
+  alfabetico, uno per asse (Caldo, Cieli profondi, Contrasto, Freddo, Nitido, Ombre aperte,
+  Pellicola, Tenue, Vivido), con valori moderati perché si sommino. Nessuno usa i cursori
+  secondari. Fino alla `4.96` erano venti, quattordici convertiti dai suoi XMP di Lightroom (gli
+  ultimi con gli Effetti) e sei della sessione: la conversione *non corrispondeva granché*, e la
+  storia git li conserva. I nomi non si traducono; uno stile di casa non si cambia da sé.
+- ⚠️⚠️ **Il tocco applica sostituendo tutto; il tocco lungo somma, dalla `4.97`** (sua risposta `B1`,
+  sul suo 'additivi': *ne posso usare più di uno e si sommino senza distruggersi a vicenda*). Ogni
+  cursore principale dello stile si aggiunge a quello che c'è, col tetto della sua corsa, e lo
+  stesso stile toccato due volte conta due volte; un cursore secondario prende il valore dello stile
+  se lo stile lo nomina (lettura della sessione: da solo non cambia un pixel); il bianco e nero vale
+  se lo è uno dei due; le curve si applicano una dopo l'altra, campionate se ci sono tutte e due.
+  Fino alla `4.96` un modulo nominato si sostituiva per intero. Quello che ne esce è un `Look` come
+  un altro, quindi 'Annulla' lo disfa.
 - ⚠️⚠️ **Gli Stili sono il nono modulo** (sua istruzione), col gettone in `MOD_KEYS` e l'elenco che
   scorre dentro l'altezza della scheda. L'immagine cambia in tempo reale e il pannello resta
   aperto, perché uno stile si sceglie confrontando.
-  - ⚠️ **I venti si chiamano 'Stili AIV', ma nell'elenco quel titolo non si scrive** (sua istruzione:
+  - ⚠️ **Quelli di casa si chiamano 'Stili AIV', ma nell'elenco quel titolo non si scrive** (sua istruzione:
     i pixel verticali sono preziosi): il separatore 'Stili salvati' (`look_preset_mine`) c'è solo se
     c'è almeno uno stile suo, e divide quelli di casa, sopra, dai suoi, sotto.
   - ⚠️⚠️ **'Salva stile' è un'icona fissa sulla barra in basso**, fuori dall'elenco che scorre (sua
@@ -1208,8 +1211,8 @@ si sappia quale riga l'abbia tolto (sue risposte `via` e `trascina`, con 'comunq
     dei tasti veri.
   - ⚠️ **Il velo consuma il primo tocco**: nelle prove `@Before` scrive le due chiavi come già viste.
 - **`PresetTest`** misura il formato, l'esclusione della geometria, che applicare due volte dia la
-  stessa immagine, il nome doppio, la cancellazione, i venti, l'ordine e il pannello; non vede come
-  uno stile cambia un'immagine.
+  stessa immagine, il nome doppio, la cancellazione, i dieci di casa, l'ordine, la somma del tocco lungo e il
+  pannello; non vede come uno stile cambia un'immagine.
 
 ## 🔏 La filigrana, e perché il file si copia in casa
 
