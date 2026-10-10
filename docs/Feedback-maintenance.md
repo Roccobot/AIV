@@ -73,8 +73,14 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   (`**Smartphone**: ...` e `**Tablet**: ...`). `modifica` apre una modale con i due campi,
   `Annulla` e `OK`: solo `OK` scrive la bozza. Il riquadro `I tuoi dispositivi` non c'è più, e
   nemmeno il titolo `Prove sui dispositivi` con la riga delle risposte: dopo la striscia cloud
-  viene il primo riquadro delle prove. Il titolo `Feedback AIV` riprende il margine interno della
-  F (0,0625 em, misurato su Roboto Bold), così la F comincia dove cominciano le righe sotto.
+  viene il primo riquadro delle prove.
+  ⚠️ **Il titolo `Feedback AIV` comincia con l'icona dell'app, dal 2026-10-10** (sua richiesta, col
+  mockup: distingue i due DF a colpo d'occhio). Le due icone, `assets/feedback-icon-light.svg` e
+  `assets/feedback-icon-dark.svg`, una per tema, sono le sue e si usano così come sono; il tema le
+  scambia come il resto della pagina, tasto `T` compreso. Misure del mockup, in em del titolo:
+  quadrato di 1,1167 em, 1,5 px a sinistra delle righe sotto, 24,5 px dall'inchiostro della F,
+  centrato sulle maiuscole, e la riga del titolo resta alta com'era. Lo presidia
+  `tools/feedback-interactive-check.py`.
   - ⚠️ **Su mobile, dalla sera del 2026-10-06** (sua richiesta): testo dei dispositivi al 70%;
     icone da 20px al 22,5% dell'inchiostro attenuato, che sullo sfondo chiaro dà circa
     `#d4d8d2`; il bordo destro del **disegno** sulla verticale del lato destro della pillola di
