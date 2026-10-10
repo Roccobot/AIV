@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **4.98**: il banco di prova non cade più a caso sul velo d'aiuto, e la spiegazione di `Filigrana` nelle impostazioni dice dov'è davvero il tasto.
+Versione **4.99**: la pagina `Filigrana` è rifatta sul tuo mockup, con l'anteprima che mostra la firma dal vivo; l'icona e le squadrette dei posti sono ritoccate.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 4.98 è pubblicata: [v4.98](https://github.com/Roccobot/AIV/releases/tag/v4.98), con l'APK
-[AIV-4.98.apk](https://github.com/Roccobot/AIV/releases/download/v4.98/AIV-4.98.apk).
-Commit prodotto su `main`: `7aa7124`, release dal commit `7aa7124` (SlimVer 4.98 / versionCode 355; APK 11.018.805 byte, digest `20aa2775`).
+La Release 4.99 è pubblicata: [v4.99](https://github.com/Roccobot/AIV/releases/tag/v4.99), con l'APK
+[AIV-4.99.apk](https://github.com/Roccobot/AIV/releases/download/v4.99/AIV-4.99.apk).
+Commit prodotto su `main`: `85b38c4`, release dal commit `85b38c4` (SlimVer 4.99 / versionCode 356; APK 11.027.865 byte, digest `24595ed1`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **4.98**: nessuna prova da fare sul telefono, un'etichetta da confermare. Giro **4.97**: tre prove OK, gli stili sono chiusi.
+Giro **4.99**: tre prove sulla pagina `Filigrana` e sette etichette. Giro **4.98**: le note sulla pagina `Filigrana`, fatte qui.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,26 +22,71 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 4.98 sono superate: banco di prova completo (686 prove), controllo delle traduzioni, compilazione.
+Le verifiche automatiche della 4.99 sono superate: banco di prova completo (691 prove), controllo delle traduzioni, compilazione.
+
+| Voce | Stato | Commento dell'utente | Azione successiva |
+|---|---|---|---|
+| 4.99-01 | Non provato | | Attendere il collaudo. |
+| 4.99-02 | Non provato | | Attendere il collaudo. |
+| 4.99-03 | Non provato | | Attendere il collaudo. |
+
+## 1. La pagina `Filigrana`
+
+Apri `Impostazioni` → `Editor e salvataggio` → `Filigrana`. In cima c'è `Attiva` con l'interruttore a destra, e sotto il tuo testo; non c'è più il secondo titolo `Filigrana` né il paragrafo che lo seguiva. Poi la riga del file con `Rimuovi` e `Seleziona`, `Posizione`, i tre numeri, e in fondo l'avviso sul senza perdita. I campi delle percentuali sono più bassi (44 dp invece di 56), e lo spazio fra un numero e l'altro è minore. Tieni premuto il tasto `Filigrana` nell'editor: si apre la stessa pagina, con lo stesso ordine.
+
+Letture mie: `Seleziona` è una stringa della sola pagina, perché `Scegli` vale anche nella riga `Editor di immagini`, che non hai nominato; i cursori hanno la loro altezza di Material, perché sotto quella il dito non li prende bene.
+
+## 2. L'anteprima della filigrana
+
+Con un logo scelto, il riquadro grigio è più piccolo di un quarto, e accanto c'è la nota in corsivo `⚠️ Anteprima solo indicativa: verifica la resa nell'immagine reale.`. Il logo si vede intero e pieno, al doppio della misura. Prova un logo bianco: il riquadro diventa nero. Prova un logo scuro, col tema chiaro: il riquadro resta grigio. Sposta il posto e la distanza dal bordo: il logo segue.
+
+Letture mie: l'opacità nell'anteprima è sempre al 100%, e la misura doppia arriva al massimo al 50% del lato lungo; il riquadro diventa nero o bianco solo quando il logo sul grigio non arriva al contrasto minimo 3:1 (quello del W3C per gli elementi grafici).
+
+## 3. Le squadrette dei posti e l'icona `Filigrana`
+
+Nel riquadro della `Posizione`, guarda le squadrette degli angoli non scelti: la piega ha lo stesso colore dei bracci, senza il punto più scuro. Nell'editor, il rettangolino in basso a sinistra dell'icona `Filigrana` è più piccolo (due terzi per lato).
 
 ## Etichette testuali
 
-### e-settings_mark_on_desc · Spiegazione di Filigrana nelle impostazioni dell'editor
-Aggiunge la filigrana all'immagine al salvataggio. Puoi attivarla o disattivarla al volo con l'apposito tasto on/off nella barra in basso dell'editor, accanto a 'Ridimensiona'. Abilitare o disabilitare la filigrana da lì equivale esattamente a muovere questo interruttore. ⚠️ N.B. con l'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG diventano una riscrittura completa.
-<!-- Cambia solo la posizione del tasto: prima diceva 'in alto a destra, prima di Salva'. -->
+### e-settings_mark_on · Titolo dell'interruttore della filigrana
+Attiva
+<!-- Prima: 'Applica al salvataggio'. -->
+
+### e-settings_mark_on_desc · Spiegazione della filigrana, sotto 'Attiva'
+La filigrana è un elemento grafico (es. firma, logo) sovrapposto all'immagine secondo le tue impostazioni. Puoi attivarla o disattivarla da qui, o farlo al volo prima del salvataggio con l'apposito tasto on/off nella barra in basso dell'editor; tieni premuto il tasto per accedere rapidamente a questa schermata.
+<!-- È il tuo testo del giro 4.98. -->
+
+### e-settings_mark_clear · Tasto che toglie il logo
+Rimuovi
+<!-- Prima: 'Togli'. -->
+
+### e-settings_mark_pick · Tasto che sceglie il logo
+Seleziona
+<!-- Nuova stringa della sola pagina: 'Scegli' resta nella riga dell'editor. -->
+
+### e-settings_mark_lossy · Avviso in fondo alla pagina Filigrana
+⚠️ Con l'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG non sono applicabili: il salvataggio prevede una riscrittura completa.
+<!-- Il tuo testo; prima era la coda della spiegazione. -->
+
+### e-settings_mark_preview_note · Nota accanto all'anteprima
+⚠️ Anteprima solo indicativa: verifica la resa nell'immagine reale.
+
+### e-settings_editor · Voce che sceglie l'editor
+Editor di immagini
+<!-- Prima: 'Editor immagini'. -->
 
 ## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| I dieci stili di casa | 4.97-01 | OK | | Chiusa. |
-| Il tocco lungo somma | 4.97-02 | OK | | Chiusa. |
-| Il segmento del tasto `Spessore` | 4.97-03 | OK | | Chiusa. |
+| La pagina `Filigrana` | 4.99-01 | Non provato | | Attendere il collaudo. |
+| L'anteprima della filigrana | 4.99-02 | Non provato | | Attendere il collaudo. |
+| Le squadrette e l'icona | 4.99-03 | Non provato | | Attendere il collaudo. |
+| La spiegazione di `Filigrana` | 4.98 | Riscritta | Il tuo testo, con la pagina rifatta | Nelle etichette di questo giro. |
 
 ## Prossimi passi
 
-- **In collaudo**: l'etichetta della spiegazione di `Filigrana`.
-- **Fatto nella 4.98**: la prova del velo d'aiuto che fermava i rilasci; la causa era nel banco di prova, non nell'app.
-- **Poi**: gli assestamenti e la 5.00, che ti chiederò di confermare.
+- **In collaudo**: la pagina `Filigrana` (`4.99-01`), la sua anteprima (`4.99-02`), le squadrette e l'icona (`4.99-03`), e sette etichette.
+- **Poi**: la 5.00, che ti chiederò di confermare.
 - **Escluso per ora**: scegliere e spostare un elemento con un solo trascinamento (nota D del giro 4.90), come hai deciso.
 - **5.0x**: la scelta per il Play Store (AIV come gestore di file, o galleria col solo accesso a immagini e video), con lo snellimento dei file di regole.
