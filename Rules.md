@@ -1050,6 +1050,10 @@ il job le scrive su disco per la durata di una sola esecuzione.
     - ⚠️ **Le altre classi usano ancora la regola vecchia**, che Compose dichiara deprecata: una
       prova nuova che aspetta un valore dell'archivio usa la nuova, e il passaggio delle altre è un
       lavoro a sé, nel brief.
+    - ⚠️ **Il 2026-10-10 la regola vecchia ha fermato il rilascio della `5.10`**: sul server
+      `VideoScorreTest` è caduta a metà di un trascinamento con 'performMeasureAndLayout called
+      during measure layout', cioè una seconda misura partita dentro la prima. La classe è passata
+      alla regola nuova; la causa è probabile e non riprodotta (in locale 0 cadute su 5).
   - ⚠️⚠️ **Un banco verde può non aver girato**: con `org.gradle.caching` acceso il compito delle
     prove è nella cache di Gradle, e su un codice già provato il registro dice
     `testDebugUnitTest FROM-CACHE` e riprende l'esito della corsa di prima (misurato il

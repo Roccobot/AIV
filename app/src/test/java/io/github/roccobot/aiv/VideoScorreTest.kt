@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -41,6 +41,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VideoScorreTest {
 
+    /*
+     * ⚠️ **The new rule, since 5.10**: on the server of 5.10 (`check.yml` on the push of
+     * `ff5864a`) the old one failed in `trascina` with 'performMeasureAndLayout called during
+     * measure layout', a second measure started inside the first while the test drained the main
+     * thread. It is the family of B2 (see `aspettaIlVelo`): the old rule runs effects on an
+     * unconfined test dispatcher, and this gesture writes `travel` at every move. Not reproduced
+     * here (0 failures in 5 runs, and the whole bench green), so the cause is probable, not
+     * measured.
+     */
     @get:Rule
     val banco = createComposeRule()
 
