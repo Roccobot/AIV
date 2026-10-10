@@ -423,6 +423,9 @@ nel brief il passaggio mancante, senza creare un secondo documento o un nuovo in
    decisioni con chiave, note del campo libero, ordine di lavoro). Solo dopo si
    tocca il codice. Regola universale: `rules/Roccobot.md` § '📋 Prima cosa: tutto
    nel brief, prima del lavoro prodotto'. Allegati e JSON restano fuori dal repo.
+   ⚠️ Le prove 'Tutto OK' non entrano, e quando la versione è pubblicata la sua voce si
+   riscrive al solo residuo: `refcheck.py` blocca nel brief il segno ✅ e la formula
+   'fatta e pubblicata'.
 
 4. ⚠️⚠️ **Prima di chiudere l'elaborazione del giro: audit obbligatorio contro
    l'export precedente** (`rules/Roccobot.md` § '🔍 Audit obbligatorio').
