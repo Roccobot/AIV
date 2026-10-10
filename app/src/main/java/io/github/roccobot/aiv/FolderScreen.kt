@@ -93,6 +93,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -360,6 +361,7 @@ fun FolderScreen(
     // ⚠️ L'esito si RICHIEDE allo stato delle cose, come fa il viewer: [Store] sceglie la
     // strada della variante, e qui il tocco è della persona, quindi la pagina non si spiega.
     val askAccess = Store.rememberAccessRequest(explain = false) { reread() }
+    val allowAll = Store.rememberAppPage { reread() }
 
     // Il permesso può essere appena arrivato: il modello decide da sé se c'è davvero
     // qualcosa da rileggere.
@@ -594,7 +596,7 @@ fun FolderScreen(
                 }
             }
             Spacer(Modifier.height(HEADER_GAP))
-            if (home && partial) PartialAccess(onAsk = askAccess)
+            if (home && partial) PartialAccess(onAllowAll = allowAll)
 
             when {
                 !granted -> Column(
@@ -2618,21 +2620,49 @@ private const val ROW_KIND = "folder-row"
  * tasto che le richiede tutte (dalla `5.10`).
  *
  * ⚠️⚠️ **Senza questa riga l'accesso parziale è l'inganno per cui la variante `github` non lo
- * chiede**: una cartella da quattrocento immagini direbbe 'tre', e niente direbbe perché. Il tasto
- * riapre il dialogo di sistema, che offre di nuovo 'Consenti tutto' e 'Seleziona foto'; lo tocca
- * la persona, come vuole la guida di Android, perché un dialogo che ricompare da sé sorprende.
+ * chiede**: una cartella da quattrocento immagini direbbe 'tre', e niente direbbe perché.
+ *
+ * ⚠️⚠️ **Il tasto apre la pagina di AIV nelle impostazioni di sistema, dalla `5.11`** (sua nota
+ * sulla prova `5.10-03`: *Consenti tutte è allineato male e oltretutto un tocco non rimanda alla
+ * vera autorizzazione: torna alla selezione 'limitata'*). Con l'accesso parziale già dato, il
+ * dialogo di sistema ripropone la scelta delle foto; nella pagina dell'app `Foto e video` si
+ * concede per intero. Al ritorno la schermata rilegge il permesso.
+ *
+ * ⚠️ **Gli allineamenti sono quelli della griglia**: la frase comincia dove cominciano le
+ * copertine e il testo del tasto finisce dove finiscono, quindi niente rientro aggiunto e un
+ * tasto senza il margine interno di `TextButton`, che lo spostava di 12dp verso il centro. Frase
+ * e tasto condividono la linea di base, e sotto c'è lo stacco della griglia.
  */
 @Composable
-private fun PartialAccess(onAsk: () -> Unit) {
+private fun PartialAccess(onAllowAll: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(bottom = PARTIAL_GAP).testTag(PARTIAL_TAG)
     ) {
         Text(
             text = stringResource(R.string.folders_partial),
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f).alignByBaseline()
         )
-        TextButton(onClick = onAsk) { Text(stringResource(R.string.folders_partial_all)) }
+        // ⚠️ Il bersaglio del dito cresce verso l'alto, il basso e la frase, mai verso il bordo:
+        // là il testo deve toccare il margine della griglia. Il testo vive in un nodo suo, così
+        // il banco misura lui e non il bersaglio.
+        Box(
+            modifier = Modifier
+                .alignByBaseline()
+                .clickable(role = Role.Button, onClick = onAllowAll)
+                .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.folders_partial_all),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
+
+/** Lo stacco fra la riga dell'accesso parziale e la griglia, uguale a quello fra le copertine. */
+private val PARTIAL_GAP = FOLDER_GAP
+
+/** Il tag della riga dell'accesso parziale, che il banco misura. */
+internal const val PARTIAL_TAG = "partial-access"

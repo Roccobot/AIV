@@ -158,12 +158,8 @@ object Store {
                 .filterIsInstance<Activity>().firstOrNull()
             val shut = !granted(context) && !files && activity != null &&
                 mediaPermissions().none { ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
-            if (shut) {
-                val page = Intent(
-                    android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    "package:${context.packageName}".toUri()
-                )
-                if (runCatching { fromSettings.launch(page) }.isSuccess) return@rememberLauncherForActivityResult
+            if (shut && runCatching { fromSettings.launch(appPage(context)) }.isSuccess) {
+                return@rememberLauncherForActivityResult
             }
             onAnswer(granted(context))
         }
@@ -186,5 +182,28 @@ object Store {
                 }
             }
         }
+    }
+
+    /** The app's own page in the system settings, where its permissions are granted one by one. */
+    private fun appPage(context: Context) = Intent(
+        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        "package:${context.packageName}".toUri()
+    )
+
+    /**
+     * Opens the app's page in the system settings, and calls [onBack] on the way back.
+     *
+     * ⚠️⚠️ **It is what 'Consenti tutte' does, since 5.11** (his note on `5.10-03`: *un tocco non
+     * rimanda alla vera autorizzazione: torna alla selezione 'limitata'*): with a partial grant
+     * already given, asking the permission again shows the system's choice of photos, not the
+     * full grant. On the app's page the person grants 'Foto e video' whole.
+     */
+    @Composable
+    fun rememberAppPage(onBack: () -> Unit): () -> Unit {
+        val context = LocalContext.current
+        val launcher = rememberLauncherForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { onBack() }
+        return remember(launcher) { { runCatching { launcher.launch(appPage(context)) } } }
     }
 }
