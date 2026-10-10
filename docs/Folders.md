@@ -15,7 +15,7 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
 - **Il nome della cartella è `titleLarge`**, più piccolo di `headlineSmall` della testata: con lo
   stesso corpo la traslazione non avrebbe niente da raccontare. I nomi lunghi vanno a capo
   (`FRONT_TITLE_LINES`), che è il modo in cui lascia spazio ai nomi lunghi. L'icona è a
-  `FRONT_INK`, 0,3.
+  `FRONT_INK`, 0,18 (sua risposta *facciamo 18%*, giro della `1.77`).
 - **La traslazione del titolo è la parallasse della fascia**: la fascia posa il contenuto centrato
   in quel che resta, quindi chiudendosi lo alza verso la testata. Le due copie del nome si
   scambiano con opacità complementari, senza un punto della corsa in cui il nome si legga meno che
@@ -58,7 +58,7 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
     zero seguendo lo scorrimento. Le curve e le altezze restano quelle di `GroundFade`.
 
 **La variante 10** (sua risposta a `d-frontespizio`).
-- **Si compone di quattro interruttori** sotto 'Intestazione delle cartelle', in 'Aspetto':
+- **Si compone di quattro interruttori** sotto 'Intestazione delle cartelle', nella pagina 'Cartelle':
   `frontWash` (il gradiente), `frontSerif` (il titolo graziato), `frontFacts` (le pastiglie del
   peso e dei video) e `frontPickAll` ('Seleziona tutto'). Di fabbrica tre accesi e `frontSerif`
   spento: è la sua risposta `tre` a `d-front-serif`, e non si tocca.
@@ -83,8 +83,9 @@ decisione per l'app: copiati in due schermate divergerebbero al primo ritocco.
     cui la sfumatura parte. Le icone della barra non si toccano: chi alza `WASH_PEAK` guarda anche
     quelle.
 - **Il dithering**: il gradiente si posa a mano (`Brush.applyTo` più `drawIntoCanvas`, con
-  `isDither`), su un rettangolo più largo dello schermo, col pennello costruito sulla misura vera.
-  Non è bastato (sua segnalazione, per una ragione che non si conosce), e il rumore è diventato uno
+  `isDither`), su un rettangolo più largo dello schermo, col pennello costruito sulla misura vera
+  del rettangolo: costruito su quella dello schermo, la rampa finirebbe prima del bordo. Non è
+  bastato (sua segnalazione, per una ragione che non si conosce), e il rumore è diventato uno
   shader per pixel con un livello di rumore triangolare (`Dither.kt`).
   - ⚠️⚠️ **Sotto Android 13 la rampa col rumore è precalcolata e stesa come maschera di sola
     opacità** (`rampMask`, una tessera larga 128), ed è la sua risposta `copri` a
@@ -461,7 +462,7 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **La finestra delle destinazioni tinge** (sua risposta `tinta` a `d-dest-tinta`): chi sceglie
   dove mettere un file cerca la cartella che riconosce dal colore. Tinte e copertine si caricano
   dentro la finestra, nello stesso `produceState` delle cartelle.
-- **La voce vive in 'Aspetto'**, e la gemella nel dialogo delle opzioni della schermata iniziale (la
+- **La voce vive nella pagina 'Cartelle'**, e la gemella nel dialogo delle opzioni della schermata iniziale (la
   scorciatoia del tocco lungo sul FAB): una preferenza, una chiave, un valore di fabbrica.
 - ⚠️⚠️ **Il tocco lungo sul FAB in una cartella seleziona tutto, e non ha un rovescio** (sua
   richiesta): appena c'è una selezione il FAB lascia il posto alla scheda, quindi un secondo gesto
@@ -586,14 +587,16 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **Il tocco lungo su una cartella in prestito propone 'Mostra'** (sua segnalazione): il verso
   lo decide il fatto, perché una cartella in scena può essere nascosta solo durante il prestito, e
   non un secondo stato. I testi di 'Nascondi' includono il nome fra apici e dicono 'un'impostazione
-  di visualizzazione' (sue frasi).
+  di visualizzazione' (sue frasi). Il tasto dice 'Mostra', la parola del pannello e delle
+  impostazioni: un sinonimo sarebbe una terza parola per lo stesso comando.
 - ⚠️ **Il pannello riusa le due stringhe della pagina delle impostazioni**, e non aggiunge uno
   scorrimento: `Sheet` scorre già, e due scorrimenti verticali annidati sono un errore che Compose
   segnala.
 - ⚠️ **I due glifi sono suoi, una cartella con l'occhio aperto e sbarrato**, non l'occhio di
   Material, che dice 'vedi' senza dire di che cosa. L'angolo che lui non era riuscito ad
   arrotondare prende il raggio degli altri angoli dello stesso disegno.
-- ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione).
+- ⚠️ **La conferma dice 'nessun file sarà eliminato'** (sua istruzione). Scartato *nulla è
+  cancellato*: dice la stessa cosa, ma fa pensare proprio a quello che non succede.
 - ⚠️⚠️ **Una cartella nascosta non è una destinazione** (sua istruzione): il filtro è
   `Folder.Bucket.isHidden`, in `Folder.kt`, uno per le due schermate che fanno la domanda.
   - ⚠️⚠️ **Durante il minuto di prestito anche le destinazioni la mostrano** (suo riscontro): il

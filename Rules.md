@@ -473,7 +473,7 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   (`dismissOnClickOutside` lo legge il gestore delle finestre prima dell'app).
   - ⚠️ **L'aria sopra un pannello abbassato appartiene alla finestra**: `LowerNode` gonfia la
     scatola e ci posa il pannello in fondo, quindi toccarla è toccare dentro. Il perché vive su
-    `airTop`, in `Centred.kt`.
+    `Air` e `OutsideNode`, in `Centred.kt`.
 - ⚠️⚠️ **Un nodo che è insieme di layout e di tocco non riceve eventi**: la hit-test scorre i nodi
   fino al primo nodo di layout e si ferma là. Quindi chi misura e chi ascolta sono due nodi, e chi
   ascolta va prima, così il suo riquadro è la scatola gonfiata. Lo ha misurato il banco; nessun
@@ -646,15 +646,17 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   sposterebbe i comandi sotto il dito (sua proposta, scartata e dichiarata). Lo fa leggendo
   `FootStage`, un oggetto di processo, in composizione: letto nel layout (`Modifier.offset { }`) il
   valore non si rileggeva, per una causa non accertata.
-  - ⚠️⚠️ **Accanto al FAB si stringe invece di salire** (sua risposta `stringe`). Il lato del FAB si
+  - ⚠️⚠️ **Accanto al FAB si stringe invece di salire** (sua risposta `stringe` a `d-avviso-forma`). Il lato del FAB si
     misura dal nodo e non da `fabSide`, o ci sarebbero due posti a decidere dov'è quel tasto; il
     rientro va bene qui perché la larghezza di un comando non cambia mentre lo si guarda. Il corpo
-    del testo non è stato ridotto.
+    del testo non è stato ridotto, perché quanto si perde si vede sul telefono e non sul banco.
+    Quando lui ha chiesto il rientro ha aggiunto *potrebbe anche essere un'opzione*: oggi non lo è,
+    e la porta resta aperta.
   - ⚠️⚠️ **Accanto a un tasto in basso l'avviso si centra sul suo centro, dalla `4.46`** (sua nota D
     sul giro della `4.45`): il tasto dichiara a `FootStage` anche dove è il suo centro, contato
     dalla radice della composizione, che è il riferimento su cui l'avviso si posa (sul banco la
     finestra e la radice differiscono di 8 dp). Sopra una scheda non vale, come dice la sua nota.
-  - ⚠️ **Chi sale non si stringe** (sua risposta `sempre`), ma si stringe appena entra nella fascia
+  - ⚠️ **Chi sale non si stringe** (sua risposta `sempre` a `d-avviso-forma-2`), ma si stringe appena entra nella fascia
     in altezza del FAB (`FootStage.tall`), con uno scatto e con una soglia un poco larga.
   - ⚠️ **A dichiarare l'ingombro del FAB è `TapHoldFab`** (un segnaposto, a menu aperto), così un
     FAB nuovo lo fa per costruzione. Nelle griglie la notifica è quindi più in alto, e si
@@ -702,7 +704,8 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️⚠️ **L'elenco di che cosa è delicato è chiuso, a due casi**: la voce può costare un file o
   togliere la rete che lo protegge, oppure cambia il metro con cui un'immagine si misura. Un elenco
   aperto si allarga da sé, e la pagina piatta si svuota una riga per volta. ⚠️ **Il rovescio**: una
-  riga sola che non è né un elenco né delicata resta nella pagina piatta.
+  riga sola che non è né un elenco né delicata resta nella pagina piatta, perché in una sotto-pagina
+  costerebbe un tocco senza guadagnare niente.
 - ⚠️⚠️ **La profondità è due**: la navigazione è una pila, e Indietro risale un gradino per volta.
   Due e non di più, perché un terzo livello è più di quanto chi cerca una voce tenga a mente. La
   pila e la copertura della ricerca, che si annida da sé perché il corpo di una pagina si compone
@@ -715,9 +718,10 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   dichiarata nel codice: 'Funzionalità avanzate', dove il titolo è metà dell'avviso su una funzione
   che può fare danni.
 - ⚠️ **Una voce fra due famiglie va dove si cerca, non dove si vede**. Se resta in bilico va nella
-  famiglia più piccola, e fra i testi della ricerca riceve il nome della sezione in cui l'effetto
-  si vede, con la ragione scritta accanto alla riga. Non si mette in due famiglie: a farla trovare
-  ci pensa la ricerca.
+  famiglia più piccola, perché una famiglia grande non si accorge di una voce in più e in una
+  piccola la voce si trova scorrendo; e fra i testi della ricerca riceve il nome della sezione in
+  cui l'effetto si vede, che esiste già e non costa stringhe nuove, con la ragione scritta accanto
+  alla riga. Non si mette in due famiglie: a farla trovare ci pensa la ricerca.
 - ⚠️⚠️ **La ricerca deve trovare ogni voce, dovunque viva.** `LocalQuery` è fornito solo alla
   radice, quindi una voce dietro un tocco esce dalla ricerca se nessuno la copre.
   - **Pagina fatta di righe**: durante una ricerca la radice compone il corpo della pagina al posto
@@ -753,9 +757,10 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     sceglie per far vedere la funzione.
 - ⚠️ **Il conto delle stringhe va nella proposta, prima di cominciare**: un testo nuovo si scrive a
   mano in tutte le lingue, e un plurale costa molto più di una stringa. Si riusa solo una stringa
-  che dice esattamente quella cosa (una descrizione parlata non diventa il titolo di una sezione),
-  e ogni testo nuovo del pannello si valida prima del rilascio: finché non è validato, la modifica
-  non è pronta.
+  che dice esattamente quella cosa (una descrizione parlata non diventa il titolo di una sezione);
+  un titolo che la prima riga della famiglia dice già non si scrive; e ogni testo nuovo del
+  pannello entra con la proposta e si valida nel collaudo, nelle Etichette testuali del DF
+  (`rules/Roccobot.md` § '✍️ I testi nuovi entrano con la proposta, e si validano nel collaudo').
 - ⚠️ **Non decidono**: il gruppo in cui la voce era prima, la comodità del codice, la lunghezza
   della pagina piatta, lo sbilanciamento fra sezioni. E i conti di sezioni, famiglie e voci non si
   scrivono: si contano nel codice (`SettingsScreen.kt`).
