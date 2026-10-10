@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">Ein Logo oder Symbol, das die App beim Speichern auf das Bild schreibt.</string>
     <string name="settings_mark_none">Kein Wasserzeichen</string>
     <string name="settings_mark_clear">Entfernen</string>
+    <string name="settings_mark_pick">Auswählen</string>
     <string name="settings_mark_bad">Diese Datei eignet sich nicht als Wasserzeichen: Wähle eine PNG- oder SVG-Datei.</string>
-    <string name="settings_mark_on">Beim Speichern anwenden</string>
-    <string name="settings_mark_on_desc">Fügt das Wasserzeichen beim Speichern in das Bild ein. Du kannst es jederzeit mit der Ein/Aus-Taste im Editor umschalten (in der unteren Leiste, neben \'Größe ändern\'). Das dort zu tun entspricht genau diesem Schalter. ⚠️ Hinweis: Mit Wasserzeichen werden verlustfreie Vorgänge wie das Drehen eines JPEG zu einem vollständigen Neuschreiben.</string>
+    <string name="settings_mark_on">Aktiv</string>
+    <string name="settings_mark_on_desc">Das Wasserzeichen ist ein grafisches Element (z. B. eine Signatur oder ein Logo), das nach deinen Einstellungen über das Bild gelegt wird. Du kannst es hier ein- oder ausschalten oder vor dem Speichern mit der Ein/Aus-Taste in der unteren Leiste des Editors; halte die Taste gedrückt, um schnell zu diesem Bildschirm zu gelangen.</string>
+    <string name="settings_mark_lossy">⚠️ Mit Wasserzeichen sind verlustfreie Vorgänge wie das Drehen eines JPEG nicht möglich: Beim Speichern wird die Datei vollständig neu geschrieben.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Oben links</string>
     <string name="mark_spot_tr">Oben rechts</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">Randabstand</string>
     <string name="settings_mark_alpha">Deckkraft</string>
     <string name="settings_mark_preview">Vorschau des Wasserzeichens</string>
+    <string name="settings_mark_preview_note">⚠️ Die Vorschau ist nur ein Anhaltspunkt: Prüfe das Ergebnis am echten Bild.</string>
     <string name="look_resize">Größe ändern</string>
     <string name="resize_long">Längere Seite</string>
     <string name="resize_short">Kürzere Seite</string>

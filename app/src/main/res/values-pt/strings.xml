@@ -629,9 +629,11 @@
     <string name="settings_mark_desc">Um logótipo ou símbolo que a aplicação escreve na imagem ao guardar.</string>
     <string name="settings_mark_none">Sem marca d\'água</string>
     <string name="settings_mark_clear">Remover</string>
+    <string name="settings_mark_pick">Selecionar</string>
     <string name="settings_mark_bad">Este ficheiro não serve como marca d\'água: escolha um PNG ou um SVG.</string>
-    <string name="settings_mark_on">Aplicar ao guardar</string>
-    <string name="settings_mark_on_desc">Adiciona a marca d\'água à imagem ao salvar. Você pode ligá-la ou desligá-la na hora com o botão liga/desliga do editor (na barra inferior, ao lado de \'Redimensionar\'). Fazer isso ali equivale exatamente a mover este interruptor. ⚠️ Observação: com a marca d\'água, operações sem perdas como girar um JPEG passam a ser uma reescrita completa.</string>
+    <string name="settings_mark_on">Ativada</string>
+    <string name="settings_mark_on_desc">A marca d\'água é um elemento gráfico (p. ex. uma assinatura ou um logo) sobreposto à imagem de acordo com as suas configurações. Você pode ligá-la ou desligá-la aqui, ou na hora antes de salvar com o botão liga/desliga na barra inferior do editor; toque e segure o botão para chegar rápido a esta tela.</string>
+    <string name="settings_mark_lossy">⚠️ Com a marca d\'água, operações sem perdas como girar um JPEG não estão disponíveis: ao salvar, o arquivo é reescrito por inteiro.</string>
     <string name="settings_mark_where">Posição</string>
     <string name="mark_spot_tl">Canto superior esquerdo</string>
     <string name="mark_spot_tr">Canto superior direito</string>
@@ -642,6 +644,7 @@
     <string name="settings_mark_air">Distância da borda</string>
     <string name="settings_mark_alpha">Opacidade</string>
     <string name="settings_mark_preview">Pré-visualização da marca d\'água</string>
+    <string name="settings_mark_preview_note">⚠️ A pré-visualização é apenas indicativa: confira o resultado na imagem real.</string>
     <string name="look_resize">Redimensionar</string>
     <string name="resize_long">Lado maior</string>
     <string name="resize_short">Lado menor</string>

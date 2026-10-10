@@ -1256,7 +1256,8 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   cartella interna perché sopravviva all'originale.
 - ⚠️⚠️ **Non vive in `Look`**, perché è una firma e non un aspetto: arriva al salvataggio come
   argomento. Conta come lavoro da salvare, quindi accende 'Salva' nei due editor, e toglie il senza
-  perdita. Il testo di 'Applica al salvataggio' è suo.
+  perdita. L'interruttore si chiama 'Attiva' e il suo testo è suo (dalla `4.99`; prima 'Applica al
+  salvataggio').
 - ⚠️⚠️ **Il file si copia com'è** in `filesDir`: un SVG resta vettore, nitido a ogni misura, e un
   PNG non si riduce. Si chiama sempre `mark` col suffisso del tipo, e quello dell'altro tipo si
   toglie a mano (caso 3), o resterebbero due filigrane.
@@ -1289,6 +1290,18 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
     del riquadro sono di 2 punti, perché rappresenta una fotografia.
   - ⚠️ **Il disegno dell'anteprima si rilegge con una chiave** (il contatore della pagina), o resta il
     logo di prima.
+- ⚠️⚠️ **Dalla `4.99` l'ordine della pagina è il suo mockup** (nota A del giro della `4.98`): in
+  cima 'Attiva' con la spiegazione di che cos'è la filigrana, poi il file con 'Rimuovi' e
+  'Seleziona' (stringa della sola pagina: 'Scegli' resta nella riga dell'editor), il posto, i tre
+  numeri, e in fondo l'avviso sul senza perdita. Il secondo titolo e il mini-paragrafo sotto il
+  titolo della pagina sono usciti. I campi dei numeri sono alti 44 punti (`BasicTextField` con la
+  cornice di Material).
+- ⚠️⚠️ **L'anteprima è più piccola del 25% e cambia di proposito quello che mostra** (stessa nota):
+  opacità piena, misura doppia fino a 50 centesimi, e il fondo passa al nero o al bianco quando
+  l'inchiostro non arriva al contrasto 3:1 col grigio (`previewLook`, luminanza dell'inchiostro
+  pesata sull'opacità). Accanto, o sotto se non c'è posto, la nota 'Anteprima solo indicativa'.
+- ⚠️ **Ogni squadretta è un tracciato solo** (nota D): due linee coprivano due volte la piega, e
+  l'inchiostro spento la faceva più scura. Lo misura `FiligranaPaginaTest`.
 - ⚠️⚠️ **La pagina è una sotto-pagina di 'Editor e salvataggio'**, e dal tocco lungo sul tasto si apre
   come una scheda sopra l'editor (`MarkPage` in una `Sheet`, sua richiesta): uscendo dall'editor il
   `Look` in lavorazione, che non è salvabile, si perderebbe.
@@ -1367,7 +1380,8 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
 - ⚠️ **Il titolo della testata è 'Modifica'**, sua parola, anche ora che lo spazio è tornato: una sua
   istruzione non si rovescia perché la sua ragione è caduta.
 - ⚠️⚠️ **I glifi**: `ic_resize.xml` (quarantotto punte raccordate) e `ic_watermark.xml`, specchiato su
-  sua richiesta perché il rettangolino cada in basso a sinistra, dove lui mette la firma. Con lo
+  sua richiesta perché il rettangolino cada in basso a sinistra, dove lui mette la firma. Dalla `4.99`
+  il rettangolino è più piccolo, 6x4 unità invece di 9x6 (nota B del giro della `4.98`). Con lo
   specchio Material non lo contiene più, e la trappola del verso di percorrenza vive in testa al file.
 - **Il banco** misura i gesti, il posto nella barra, lo specchio con le sue quattro controprove, e
   le copie dell'onboarding.

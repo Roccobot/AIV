@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">Kaydederken uygulamanın görüntüye yazdığı bir logo veya simge.</string>
     <string name="settings_mark_none">Filigran yok</string>
     <string name="settings_mark_clear">Kaldır</string>
+    <string name="settings_mark_pick">Seç</string>
     <string name="settings_mark_bad">Bu dosya filigran olarak kullanılamaz: bir PNG veya SVG seçin.</string>
-    <string name="settings_mark_on">Kaydederken uygula</string>
-    <string name="settings_mark_on_desc">Kaydederken görüntüye filigranı ekler. Düzenleyicideki aç/kapat düğmesiyle (alt çubukta, \'Yeniden boyutlandır\' düğmesinin yanında) anında açıp kapatabilirsin. Oradan açmak ya da kapatmak, bu anahtarı oynatmakla tamamen aynıdır. ⚠️ Not: filigran eklendiğinde JPEG döndürme gibi kayıpsız işlemler tam bir yeniden yazmaya dönüşür.</string>
+    <string name="settings_mark_on">Etkin</string>
+    <string name="settings_mark_on_desc">Filigran, ayarlarına göre görüntünün üzerine yerleştirilen grafik bir öğedir (ör. imza, logo). Buradan açıp kapatabilir ya da kaydetmeden hemen önce düzenleyicinin alt çubuğundaki aç/kapat düğmesiyle anında değiştirebilirsin; bu ekrana hızlıca gelmek için düğmeye uzun bas.</string>
+    <string name="settings_mark_lossy">⚠️ Filigran eklendiğinde JPEG döndürme gibi kayıpsız işlemler kullanılamaz: kaydetme dosyanın tamamını yeniden yazar.</string>
     <string name="settings_mark_where">Konum</string>
     <string name="mark_spot_tl">Sol üst</string>
     <string name="mark_spot_tr">Sağ üst</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">Kenar mesafesi</string>
     <string name="settings_mark_alpha">Opaklık</string>
     <string name="settings_mark_preview">Filigran önizlemesi</string>
+    <string name="settings_mark_preview_note">⚠️ Önizleme yalnızca fikir verir: sonucu gerçek görüntüde kontrol et.</string>
     <string name="look_resize">Yeniden boyutlandır</string>
     <string name="resize_long">Uzun kenar</string>
     <string name="resize_short">Kısa kenar</string>

@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">சேமிக்கும்போது செயலி படத்தின் மேல் எழுதும் சின்னம் அல்லது குறியீடு.</string>
     <string name="settings_mark_none">நீர்அடையாளம் இல்லை</string>
     <string name="settings_mark_clear">நீக்கு</string>
+    <string name="settings_mark_pick">தேர்ந்தெடு</string>
     <string name="settings_mark_bad">இந்தக் கோப்பை நீர்அடையாளமாகப் பயன்படுத்த முடியாது: PNG அல்லது SVG தேர்வுசெய்க.</string>
-    <string name="settings_mark_on">சேமிக்கும்போது இடு</string>
-    <string name="settings_mark_on_desc">சேமிக்கும்போது படத்தில் நீர்க்குறியைச் சேர்க்கும். திருத்தியின் ஆன்/ஆஃப் பொத்தானால் (கீழ்ப் பட்டையில், \'அளவு மாற்று\' அருகில்) அதை உடனே இயக்கலாம் அல்லது நிறுத்தலாம். அங்கிருந்து மாற்றுவது இந்த நிலைமாற்றியை நகர்த்துவதற்குச் சமம். ⚠️ குறிப்பு: நீர்க்குறியுடன், JPEG சுழற்சி போன்ற இழப்பில்லா செயல்கள் முழுமையான மறுஎழுத்தாக மாறும்.</string>
+    <string name="settings_mark_on">இயக்கத்தில்</string>
+    <string name="settings_mark_on_desc">நீர்க்குறி என்பது உங்கள் அமைப்புகளின்படி படத்தின் மேல் வைக்கப்படும் ஒரு வரைகலை உறுப்பு (எ.கா. கையொப்பம், லோகோ). இதை இங்கிருந்து இயக்கலாம் அல்லது நிறுத்தலாம், அல்லது சேமிக்கும் முன் திருத்தியின் கீழ்ப் பட்டையில் உள்ள ஆன்/ஆஃப் பொத்தானால் உடனே மாற்றலாம்; இந்தத் திரைக்கு விரைவாக வர பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
+    <string name="settings_mark_lossy">⚠️ நீர்க்குறியுடன், JPEG சுழற்சி போன்ற இழப்பில்லா செயல்கள் கிடைக்காது: சேமிக்கும்போது கோப்பு முழுவதும் மீண்டும் எழுதப்படும்.</string>
     <string name="settings_mark_where">இடம்</string>
     <string name="mark_spot_tl">மேல் இடது</string>
     <string name="mark_spot_tr">மேல் வலது</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">விளிம்பிலிருந்து தூரம்</string>
     <string name="settings_mark_alpha">ஒளிபுகாநிலை</string>
     <string name="settings_mark_preview">நீர்அடையாள முன்னோட்டம்</string>
+    <string name="settings_mark_preview_note">⚠️ முன்னோட்டம் தோராயமானது மட்டுமே: உண்மையான படத்தில் விளைவைச் சரிபாருங்கள்.</string>
     <string name="look_resize">அளவு மாற்று</string>
     <string name="resize_long">நீளமான பக்கம்</string>
     <string name="resize_short">குறுகிய பக்கம்</string>

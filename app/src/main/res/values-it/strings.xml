@@ -200,7 +200,7 @@
     <string name="editor_pick_none">Nessun\'altra app di questo telefono si offre di modificare le immagini.</string>
     <string name="editor_pick_send">Per condivisione</string>
     <string name="editor_pick_send_desc">Ricevono una copia e la salvano dove decidono loro. L\'originale resta com\'è.</string>
-    <string name="settings_editor">Editor immagini</string>
+    <string name="settings_editor">Editor di immagini</string>
     <string name="settings_editor_desc">App associata al comando \'Modifica\', nel menu del visualizzatore. Scorciatoia: premi a lungo \'Modifica\' per cambiare app al volo (resta memorizzata). Puoi scegliere anche l\'editor interno di Astonishing Image Viewer, che consente solo due operazioni sulle immagini: ritaglio e rotazione.</string>
     <string name="settings_editor_none">Nessuna scelta</string>
     <string name="settings_editor_pick">Scegli</string>
@@ -209,10 +209,12 @@
     <string name="settings_mark">Filigrana</string>
     <string name="settings_mark_desc">Un logo o un simbolo che l\'app scrive sull\'immagine quando la salvi.</string>
     <string name="settings_mark_none">Nessuna filigrana</string>
-    <string name="settings_mark_clear">Togli</string>
+    <string name="settings_mark_clear">Rimuovi</string>
+    <string name="settings_mark_pick">Seleziona</string>
     <string name="settings_mark_bad">Questo file non si può usare come filigrana: scegli un PNG o un SVG.</string>
-    <string name="settings_mark_on">Applica al salvataggio</string>
-    <string name="settings_mark_on_desc">Aggiunge la filigrana all\'immagine al salvataggio. Puoi attivarla o disattivarla al volo con l\'apposito tasto on/off nella barra in basso dell\'editor, accanto a \'Ridimensiona\'. Abilitare o disabilitare la filigrana da lì equivale esattamente a muovere questo interruttore. ⚠️ N.B. con l\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG diventano una riscrittura completa.</string>
+    <string name="settings_mark_on">Attiva</string>
+    <string name="settings_mark_on_desc">La filigrana è un elemento grafico (es. firma, logo) sovrapposto all\'immagine secondo le tue impostazioni. Puoi attivarla o disattivarla da qui, o farlo al volo prima del salvataggio con l\'apposito tasto on/off nella barra in basso dell\'editor; tieni premuto il tasto per accedere rapidamente a questa schermata.</string>
+    <string name="settings_mark_lossy">⚠️ Con l\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG non sono applicabili: il salvataggio prevede una riscrittura completa.</string>
     <string name="settings_mark_where">Posizione</string>
     <string name="mark_spot_tl">In alto a sinistra</string>
     <string name="mark_spot_tr">In alto a destra</string>
@@ -223,6 +225,7 @@
     <string name="settings_mark_air">Distanza dal bordo</string>
     <string name="settings_mark_alpha">Opacità</string>
     <string name="settings_mark_preview">Anteprima della filigrana</string>
+    <string name="settings_mark_preview_note">⚠️ Anteprima solo indicativa: verifica la resa nell\'immagine reale.</string>
     <string name="look_resize">Ridimensiona</string>
     <string name="resize_long">Lato lungo</string>
     <string name="resize_short">Lato corto</string>

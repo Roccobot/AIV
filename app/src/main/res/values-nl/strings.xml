@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">Een logo of symbool dat de app bij het opslaan op de afbeelding schrijft.</string>
     <string name="settings_mark_none">Geen watermerk</string>
     <string name="settings_mark_clear">Verwijderen</string>
+    <string name="settings_mark_pick">Selecteren</string>
     <string name="settings_mark_bad">Dit bestand kan niet als watermerk worden gebruikt: kies een PNG of een SVG.</string>
-    <string name="settings_mark_on">Toepassen bij opslaan</string>
-    <string name="settings_mark_on_desc">Zet het watermerk bij het opslaan op de afbeelding. Je kunt het direct aan- of uitzetten met de aan/uit-knop in de editor (in de onderste balk, naast \'Formaat wijzigen\'). Dat daar doen is precies hetzelfde als deze schakelaar omzetten. ⚠️ Let op: met een watermerk worden verliesvrije bewerkingen zoals het draaien van een JPEG een volledige herschrijving.</string>
+    <string name="settings_mark_on">Actief</string>
+    <string name="settings_mark_on_desc">Het watermerk is een grafisch element (bijv. een handtekening of logo) dat volgens je instellingen over de afbeelding wordt gelegd. Je kunt het hier aan- of uitzetten, of direct voor het opslaan met de aan/uit-knop in de onderste balk van de editor; houd de knop ingedrukt om snel naar dit scherm te gaan.</string>
+    <string name="settings_mark_lossy">⚠️ Met een watermerk zijn verliesvrije bewerkingen zoals het draaien van een JPEG niet beschikbaar: bij het opslaan wordt het hele bestand herschreven.</string>
     <string name="settings_mark_where">Positie</string>
     <string name="mark_spot_tl">Linksboven</string>
     <string name="mark_spot_tr">Rechtsboven</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">Randafstand</string>
     <string name="settings_mark_alpha">Dekking</string>
     <string name="settings_mark_preview">Voorbeeld van het watermerk</string>
+    <string name="settings_mark_preview_note">⚠️ De voorbeeldweergave is slechts indicatief: controleer het resultaat op de echte afbeelding.</string>
     <string name="look_resize">Formaat wijzigen</string>
     <string name="resize_long">Langste zijde</string>
     <string name="resize_short">Kortste zijde</string>

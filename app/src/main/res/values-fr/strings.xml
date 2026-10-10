@@ -629,9 +629,11 @@
     <string name="settings_mark_desc">Un logo ou un symbole que l\'application inscrit sur l\'image lors de l\'enregistrement.</string>
     <string name="settings_mark_none">Aucun filigrane</string>
     <string name="settings_mark_clear">Retirer</string>
+    <string name="settings_mark_pick">Sélectionner</string>
     <string name="settings_mark_bad">Ce fichier ne peut pas servir de filigrane : choisissez un PNG ou un SVG.</string>
-    <string name="settings_mark_on">Appliquer à l\'enregistrement</string>
-    <string name="settings_mark_on_desc">Ajoute le filigrane à l\'image lors de l\'enregistrement. Tu peux l\'activer ou le désactiver à la volée avec le bouton marche/arrêt de l\'éditeur (dans la barre du bas, à côté de \'Redimensionner\'). Le faire depuis là revient exactement à déplacer cet interrupteur. ⚠️ Remarque : avec un filigrane, les opérations sans perte comme la rotation JPEG deviennent une réécriture complète.</string>
+    <string name="settings_mark_on">Activé</string>
+    <string name="settings_mark_on_desc">Le filigrane est un élément graphique (par ex. une signature ou un logo) superposé à l\'image selon tes réglages. Tu peux l\'activer ou le désactiver ici, ou à la volée avant l\'enregistrement avec le bouton marche/arrêt de la barre du bas de l\'éditeur ; appuie longuement sur le bouton pour accéder rapidement à cet écran.</string>
+    <string name="settings_mark_lossy">⚠️ Avec un filigrane, les opérations sans perte comme la rotation JPEG ne sont pas disponibles : l\'enregistrement réécrit tout le fichier.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">En haut à gauche</string>
     <string name="mark_spot_tr">En haut à droite</string>
@@ -642,6 +644,7 @@
     <string name="settings_mark_air">Distance du bord</string>
     <string name="settings_mark_alpha">Opacité</string>
     <string name="settings_mark_preview">Aperçu du filigrane</string>
+    <string name="settings_mark_preview_note">⚠️ L\'aperçu n\'est qu\'indicatif : vérifie le rendu sur l\'image réelle.</string>
     <string name="look_resize">Redimensionner</string>
     <string name="resize_long">Côté le plus long</string>
     <string name="resize_short">Côté le plus court</string>

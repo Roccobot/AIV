@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">एक लोगो या प्रतीक जिसे ऐप सहेजते समय छवि पर लिखता है।</string>
     <string name="settings_mark_none">कोई वॉटरमार्क नहीं</string>
     <string name="settings_mark_clear">हटाएँ</string>
+    <string name="settings_mark_pick">चयन करें</string>
     <string name="settings_mark_bad">यह फ़ाइल वॉटरमार्क के रूप में काम नहीं करती: PNG या SVG चुनें।</string>
-    <string name="settings_mark_on">सहेजते समय लागू करें</string>
-    <string name="settings_mark_on_desc">सहेजते समय छवि पर वॉटरमार्क जोड़ता है। संपादक के चालू/बंद बटन से (नीचे की पट्टी में, \'आकार बदलें\' के पास) इसे तुरंत चालू या बंद किया जा सकता है। वहाँ से चालू या बंद करना इस स्विच को हिलाने के बिल्कुल बराबर है। ⚠️ ध्यान दें: वॉटरमार्क के साथ, JPEG घुमाने जैसे बिना नुकसान वाले काम पूरी तरह फिर से लिखे जाते हैं।</string>
+    <string name="settings_mark_on">सक्रिय</string>
+    <string name="settings_mark_on_desc">वॉटरमार्क एक ग्राफ़िक तत्व है (जैसे हस्ताक्षर या लोगो), जो आपकी सेटिंग के अनुसार छवि के ऊपर रखा जाता है। आप इसे यहाँ से चालू या बंद कर सकते हैं, या सहेजने से पहले संपादक की नीचे की पट्टी के चालू/बंद बटन से तुरंत; इस स्क्रीन पर जल्दी आने के लिए बटन को दबाकर रखें।</string>
+    <string name="settings_mark_lossy">⚠️ वॉटरमार्क के साथ JPEG घुमाने जैसे बिना नुकसान वाले काम उपलब्ध नहीं हैं: सहेजने पर पूरी फ़ाइल फिर से लिखी जाती है।</string>
     <string name="settings_mark_where">स्थिति</string>
     <string name="mark_spot_tl">ऊपर बाएँ</string>
     <string name="mark_spot_tr">ऊपर दाएँ</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">किनारे से दूरी</string>
     <string name="settings_mark_alpha">अपारदर्शिता</string>
     <string name="settings_mark_preview">वॉटरमार्क का पूर्वावलोकन</string>
+    <string name="settings_mark_preview_note">⚠️ पूर्वावलोकन केवल अनुमानित है: असली छवि पर परिणाम जाँच लें।</string>
     <string name="look_resize">आकार बदलें</string>
     <string name="resize_long">लंबी भुजा</string>
     <string name="resize_short">छोटी भुजा</string>

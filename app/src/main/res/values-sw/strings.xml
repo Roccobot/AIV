@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">Nembo au alama ambayo programu huandika juu ya picha unapohifadhi.</string>
     <string name="settings_mark_none">Hakuna alama ya maji</string>
     <string name="settings_mark_clear">Ondoa</string>
+    <string name="settings_mark_pick">Chagua</string>
     <string name="settings_mark_bad">Faili hii haiwezi kutumika kama alama ya maji: chagua PNG au SVG.</string>
-    <string name="settings_mark_on">Tumia wakati wa kuhifadhi</string>
-    <string name="settings_mark_on_desc">Huweka alama ya maji kwenye picha wakati wa kuhifadhi. Unaweza kuiwasha au kuizima papo hapo kwa kitufe cha kuwasha/kuzima kwenye kihariri (kwenye upau wa chini, kando ya \'Badilisha ukubwa\'). Kufanya hivyo kutoka hapo ni sawa kabisa na kusogeza swichi hii. ⚠️ Kumbuka: ukiweka alama ya maji, kazi zisizopoteza ubora kama kuzungusha JPEG huwa uandishi upya kamili.</string>
+    <string name="settings_mark_on">Imewashwa</string>
+    <string name="settings_mark_on_desc">Alama ya maji ni kipengele cha picha (k.m. sahihi au nembo) kinachowekwa juu ya picha kulingana na mipangilio yako. Unaweza kuiwasha au kuizima hapa, au papo hapo kabla ya kuhifadhi kwa kitufe cha kuwasha/kuzima kwenye upau wa chini wa kihariri; bonyeza kitufe kwa muda mrefu ili kufika haraka kwenye skrini hii.</string>
+    <string name="settings_mark_lossy">⚠️ Ukiweka alama ya maji, kazi zisizopoteza ubora kama kuzungusha JPEG hazipatikani: kuhifadhi huandika upya faili lote.</string>
     <string name="settings_mark_where">Nafasi</string>
     <string name="mark_spot_tl">Juu kushoto</string>
     <string name="mark_spot_tr">Juu kulia</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">Umbali kutoka ukingoni</string>
     <string name="settings_mark_alpha">Ukolezi</string>
     <string name="settings_mark_preview">Onyesho la alama ya maji</string>
+    <string name="settings_mark_preview_note">⚠️ Onyesho la kukagua ni la kukadiria tu: hakikisha matokeo kwenye picha halisi.</string>
     <string name="look_resize">Badilisha ukubwa</string>
     <string name="resize_long">Upande mrefu</string>
     <string name="resize_short">Upande mfupi</string>

@@ -595,9 +595,11 @@
     <string name="settings_mark_desc">保存时应用写在图片上的徽标或符号。</string>
     <string name="settings_mark_none">没有水印</string>
     <string name="settings_mark_clear">移除</string>
+    <string name="settings_mark_pick">选择</string>
     <string name="settings_mark_bad">该文件不能用作水印：请选择 PNG 或 SVG。</string>
-    <string name="settings_mark_on">保存时应用</string>
-    <string name="settings_mark_on_desc">保存时在图像上写入水印。可以用编辑器的开关按钮（底部栏，\'调整尺寸\' 旁边）随时打开或关闭。在那里打开或关闭，与拨动这个开关完全相同。⚠️ 注意：加了水印后，JPEG 旋转这类无损操作会变成完整重写。</string>
+    <string name="settings_mark_on">启用</string>
+    <string name="settings_mark_on_desc">水印是按照你的设置叠加在图像上的图形元素（例如签名、标志）。可以在这里打开或关闭，也可以在保存前用编辑器底部栏的开关按钮随时切换；长按该按钮可快速来到此页面。</string>
+    <string name="settings_mark_lossy">⚠️ 加了水印后，JPEG 旋转这类无损操作不可用：保存时会完整重写文件。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>
@@ -608,6 +610,7 @@
     <string name="settings_mark_air">边距</string>
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">水印预览</string>
+    <string name="settings_mark_preview_note">⚠️ 预览仅供参考：请在实际图像上确认效果。</string>
     <string name="look_resize">调整尺寸</string>
     <string name="resize_long">长边</string>
     <string name="resize_short">短边</string>

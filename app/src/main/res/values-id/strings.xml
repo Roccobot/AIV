@@ -595,9 +595,11 @@
     <string name="settings_mark_desc">Logo atau simbol yang ditulis aplikasi pada gambar saat kamu menyimpan.</string>
     <string name="settings_mark_none">Tanpa tanda air</string>
     <string name="settings_mark_clear">Hapus</string>
+    <string name="settings_mark_pick">Pilih</string>
     <string name="settings_mark_bad">Berkas ini tidak bisa dipakai sebagai tanda air: pilih PNG atau SVG.</string>
-    <string name="settings_mark_on">Terapkan saat menyimpan</string>
-    <string name="settings_mark_on_desc">Menambahkan tanda air ke gambar saat menyimpan. Kamu bisa menyalakan atau mematikannya seketika lewat tombol on/off di editor (di bilah bawah, di samping \'Ubah ukuran\'). Melakukannya dari sana sama persis dengan menggeser sakelar ini. ⚠️ Catatan: dengan tanda air, operasi tanpa kehilangan kualitas seperti memutar JPEG menjadi penulisan ulang penuh.</string>
+    <string name="settings_mark_on">Aktif</string>
+    <string name="settings_mark_on_desc">Tanda air adalah elemen grafis (mis. tanda tangan atau logo) yang ditumpangkan pada gambar sesuai pengaturanmu. Kamu bisa menyalakan atau mematikannya di sini, atau seketika sebelum menyimpan dengan tombol on/off di bilah bawah editor; tekan lama tombol itu untuk cepat membuka layar ini.</string>
+    <string name="settings_mark_lossy">⚠️ Dengan tanda air, operasi tanpa kehilangan kualitas seperti memutar JPEG tidak tersedia: penyimpanan menulis ulang seluruh berkas.</string>
     <string name="settings_mark_where">Posisi</string>
     <string name="mark_spot_tl">Kiri atas</string>
     <string name="mark_spot_tr">Kanan atas</string>
@@ -608,6 +610,7 @@
     <string name="settings_mark_air">Jarak dari tepi</string>
     <string name="settings_mark_alpha">Opasitas</string>
     <string name="settings_mark_preview">Pratinjau tanda air</string>
+    <string name="settings_mark_preview_note">⚠️ Pratinjau hanya perkiraan: periksa hasilnya pada gambar asli.</string>
     <string name="look_resize">Ubah ukuran</string>
     <string name="resize_long">Sisi terpanjang</string>
     <string name="resize_short">Sisi terpendek</string>
