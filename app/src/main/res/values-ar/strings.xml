@@ -684,7 +684,7 @@
     <string name="settings_mark_bad">لا يصلح هذا الملف كعلامة مائية: اختر ملف PNG أو SVG.</string>
     <string name="settings_mark_on_desc">العلامة المائية عنصر رسومي (مثل توقيع أو شعار) يوضع فوق الصورة. يمكنك تشغيلها أو إيقافها قبل الحفظ بزر التشغيل/الإيقاف في الشريط السفلي للمحرر؛ اضغط مطولًا على الزر للوصول بسرعة إلى الإعدادات.</string>
     <string name="settings_mark_lossy">⚠️ مع العلامة المائية لا تتوفر العمليات دون فقدان الجودة مثل تدوير JPEG: يعيد الحفظ كتابة الملف كاملًا.</string>
-    <string name="settings_mark_where">الموضع</string>
+    <string name="settings_mark_where">موضع العلامة المائية</string>
     <string name="mark_spot_tl">أعلى اليسار</string>
     <string name="mark_spot_tr">أعلى اليمين</string>
     <string name="mark_spot_bl">أسفل اليسار</string>

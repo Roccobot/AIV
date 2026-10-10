@@ -496,9 +496,10 @@ data class Detail(
  *   stesso meccanismo che a raggio stretto non si vede affatto, ed è la ragione per cui la
  *   nitidezza del Dettaglio, che lavora a un millesimo del lato, non ha mai avuto quel problema.
  * - ⚠️ **Il rimedio esisteva e il conto lo dice**: leggere la media da una **riduzione**
- *   dell'immagine invece che da nove punti riporta quella trama a zero. Non è stato scritto
- *   perché la risposta è arrivata prima, ed è scritto qui perché chi rimettesse quei due cursori
- *   riparta di lì invece di rifare la misura.
+ *   dell'immagine invece che da nove punti riporta l'energia alla frequenza di campionamento da
+ *   **5,6** a **2,8**, cioè al livello dell'immagine a riposo, e non a zero: la trama che resta è
+ *   quella della foto. Non è stato scritto perché la risposta è arrivata prima, ed è scritto qui
+ *   perché chi rimettesse quei due cursori riparta di lì invece di rifare la misura.
  *
  * ⚠️ **Sono frazioni da -1 a +1 e l'interfaccia li mostra da -100 a +100**, come i cursori degli
  * altri moduli: è il linguaggio di Lightroom, che è quello che lui conosce.
@@ -510,10 +511,10 @@ data class Detail(
  * lui i due difetti non si vedrebbero sull'anteprima, dove la tessera è una sola.
  *
  * ⚠️⚠️ **VENGONO PER ULTIMI NELLA CATENA, E I DUE POSTI HANNO DUE RAGIONI DIVERSE**: la
- * vignettatura sta dopo tutto quello che parla di colore perché è quello che fa un **obiettivo**,
+ * vignettatura viene dopo tutto quello che parla di colore perché è quello che fa un **obiettivo**,
  * cioè meno luce ai bordi del fotogramma, e messa prima ogni cursore della Luce la rimetterebbe in
  * discussione (un 'Auto' calcolato su un'immagine già vignettata leggerebbe un istogramma che non è
- * il suo); la grana sta dopo ancora, perché è la **pellicola**, cioè il supporto su cui l'immagine
+ * il suo); la grana viene dopo ancora, perché è la **pellicola**, cioè il supporto su cui l'immagine
  * è stampata, e messa prima il contrasto e la saturazione la tratterebbero come disegno.
  */
 data class Effects(
@@ -532,19 +533,22 @@ data class Effects(
      *   un numero diverso per ogni tessera. Con la luce bianca il conto sta tutto nello shader e
      *   non c'è niente da tenere allineato. **Quello che si perde** è la foschia molto colorata,
      *   dove resta una dominante: là c'è il bilanciamento del bianco, che è il cursore per quello.
-     * - ⚠️ **I due versi sono l'uno l'inverso dell'altro**, quindi il cursore portato a +50 e poi
-     *   a -50 riporta dov'era: toglierlo è `(c - k) / (1 - k)`, aggiungerlo è `c + k (1 - c)`, con
-     *   lo stesso `k`.
+     * - ⚠️ **I due versi sono l'uno l'inverso dell'altro, tranne dove entra il tetto delle
+     *   ombre**: toglierlo è `(c - k) / (1 - k)`, aggiungerlo è `c + k (1 - c)`, con lo stesso
+     *   `k`. Ma dalla `2.60` togliere non supera il velo presente nel pixel stesso, o le ombre di
+     *   una zona velata si chiuderebbero sul nero: su un dettaglio scuro fine il cursore portato a
+     *   +50 e poi a -50 non riporta esattamente dov'era, e non è un difetto (`docs/Editor.md`
+     *   § '✨ Il modulo Effetti, e i suoi cursori').
      */
     val haze: Float = 0f,
     /**
      * Quanto si scuriscono gli angoli, o si schiariscono verso il basso.
      *
-     * ⚠️⚠️ **NON GUARDA I PIXEL VICINI MA GUARDA DOVE SI TROVA, E QUESTO È IL SUO PREZZO**: i tre
-     * cursori qui sopra costano campioni e un bordo sulle tessere del salvataggio; questo costa
+     * ⚠️⚠️ **NON GUARDA I PIXEL VICINI MA GUARDA DOVE SI TROVA, E QUESTO È IL SUO PREZZO**: la
+     * foschia, qui sopra, costa campioni e un bordo sulle tessere del salvataggio; questo costa
      * zero campioni e in cambio pretende che ogni tessera sappia **dov'è nell'immagine
      * intera**. Senza quel dato ogni tessera si vignetterebbe per conto suo, cioè il file salvato
-     * porterebbe un angolo scuro per ogni giunzione.
+     * avrebbe un angolo scuro per ogni giunzione.
      * - ⚠️ **La distanza si misura sulla mezza diagonale**, quindi vale zero al centro e uno agli
      *   angoli qualunque sia il formato dell'immagine: su un panorama e su un quadrato lo stesso
      *   valore del cursore scurisce lo stesso angolo.
@@ -1208,7 +1212,8 @@ data class Look(
         get() = spin == Spin.STILL && crop.whole
 
     /**
-     * Il solo **dove**: posa, taglio, geometria e vista, senza niente di quello che tocca i colori.
+     * Il solo **dove**: posa, taglio, geometria, vista e disegno, senza niente di quello che tocca
+     * i colori.
      *
      * ⚠️⚠️ **SERVE AL CONFRONTO COL PRIMA, DALLA `2.58`, ED È SUA RICHIESTA** (campo libero del
      * giro della `2.55`: *pressione lunga sulla foto nell'editor: se mi trovo nei moduli Ritaglio o
@@ -1219,11 +1224,13 @@ data class Look(
      * guardando.
      *
      * ⚠️ **La divisione è quella che questo file dichiara in testa a [Look]**: i sei campi che
-     * passano dallo shader dicono di che **colore** è un pixel, questi quattro dicono **dove** va.
+     * passano dallo shader dicono di che **colore** è un pixel, questi cinque dicono **dove** va
+     * (il disegno è di qua dalla `4.40`: non è un colore, quindi il confronto di un modulo di
+     * colore lo tiene, e il modulo Disegno fa il suo confronto senza di lui).
      * Il confronto ne toglie uno dei due gruppi, e quale dei due lo decide il modulo che si sta
      * guardando.
      *
-     * ⚠️⚠️ **[framing] STA DI QUA, E SENZA DI LUI IL CONFRONTO RIAPRIREBBE UN TAGLIO GIÀ
+     * ⚠️⚠️ **[framing] È DI QUA, E SENZA DI LUI IL CONFRONTO RIAPRIREBBE UN TAGLIO GIÀ
      * APPLICATO**: quel campo non cambia un pixel del file, ma dice che cosa il palco inquadra,
      * quindi azzerandolo l'immagine tornerebbe intera sotto il dito. Chi aggiunge un campo a
      * [Look] guardi questa riga: un campo di colore dimenticato qui resta applicato nel confronto,

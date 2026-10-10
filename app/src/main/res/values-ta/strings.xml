@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">இந்தக் கோப்பை நீர்அடையாளமாகப் பயன்படுத்த முடியாது: PNG அல்லது SVG தேர்வுசெய்க.</string>
     <string name="settings_mark_on_desc">நீர்க்குறி என்பது படத்தின் மேல் வைக்கப்படும் ஒரு வரைகலை உறுப்பு (எ.கா. கையொப்பம், லோகோ). சேமிக்கும் முன் திருத்தியின் கீழ்ப் பட்டையில் உள்ள ஆன்/ஆஃப் பொத்தானால் இதை இயக்கலாம் அல்லது நிறுத்தலாம்; அமைப்புகளுக்கு விரைவாக வர பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="settings_mark_lossy">⚠️ நீர்க்குறியுடன், JPEG சுழற்சி போன்ற இழப்பில்லா செயல்கள் கிடைக்காது: சேமிக்கும்போது கோப்பு முழுவதும் மீண்டும் எழுதப்படும்.</string>
-    <string name="settings_mark_where">இடம்</string>
+    <string name="settings_mark_where">நீர்க்குறியின் இடம்</string>
     <string name="mark_spot_tl">மேல் இடது</string>
     <string name="mark_spot_tr">மேல் வலது</string>
     <string name="mark_spot_bl">கீழ் இடது</string>

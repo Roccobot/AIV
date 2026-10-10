@@ -633,7 +633,7 @@
     <string name="settings_mark_bad">Este archivo no sirve como marca de agua: elige un PNG o un SVG.</string>
     <string name="settings_mark_on_desc">La marca de agua es un elemento gráfico (p. ej. una firma o un logo) que se superpone a la imagen. Puedes activarla o desactivarla antes de guardar con el botón de encendido/apagado de la barra inferior del editor; mantén pulsado el botón para llegar rápido a los ajustes.</string>
     <string name="settings_mark_lossy">⚠️ Con la marca de agua, las operaciones sin pérdida como girar un JPEG no están disponibles: al guardar se reescribe el archivo completo.</string>
-    <string name="settings_mark_where">Posición</string>
+    <string name="settings_mark_where">Posición de la marca de agua</string>
     <string name="mark_spot_tl">Arriba a la izquierda</string>
     <string name="mark_spot_tr">Arriba a la derecha</string>
     <string name="mark_spot_bl">Abajo a la izquierda</string>

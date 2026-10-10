@@ -599,7 +599,7 @@
     <string name="settings_mark_bad">這個檔案不能當作浮水印：請選擇 PNG 或 SVG。</string>
     <string name="settings_mark_on_desc">浮水印是疊加在影像上的圖形元素（例如簽名、標誌）。可以在儲存前用編輯器底部列的開關按鈕開啟或關閉；長按該按鈕可快速進入設定。</string>
     <string name="settings_mark_lossy">⚠️ 加上浮水印後，JPEG 旋轉這類無損操作無法使用：儲存時會完整重寫檔案。</string>
-    <string name="settings_mark_where">位置</string>
+    <string name="settings_mark_where">浮水印位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>
     <string name="mark_spot_bl">左下角</string>

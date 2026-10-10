@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">Faili hii haiwezi kutumika kama alama ya maji: chagua PNG au SVG.</string>
     <string name="settings_mark_on_desc">Alama ya maji ni kipengele cha picha (k.m. sahihi au nembo) kinachowekwa juu ya picha. Unaweza kuiwasha au kuizima kabla ya kuhifadhi kwa kitufe cha kuwasha/kuzima kwenye upau wa chini wa kihariri; bonyeza kitufe kwa muda mrefu ili kufika haraka kwenye mipangilio.</string>
     <string name="settings_mark_lossy">⚠️ Ukiweka alama ya maji, kazi zisizopoteza ubora kama kuzungusha JPEG hazipatikani: kuhifadhi huandika upya faili lote.</string>
-    <string name="settings_mark_where">Nafasi</string>
+    <string name="settings_mark_where">Mahali pa alama ya maji</string>
     <string name="mark_spot_tl">Juu kushoto</string>
     <string name="mark_spot_tr">Juu kulia</string>
     <string name="mark_spot_bl">Chini kushoto</string>

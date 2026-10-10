@@ -1907,9 +1907,9 @@ private fun LookStage(
                  * ⚠️⚠️ **E DALLA `2.28` SI PRENDE DAL PEZZO NITIDO QUANDO C'È**, che è la sua
                  * risposta `pieno` a `d-lente-pieno`: un pixel dell'anteprima è la media di due o
                  * tre pixel veri, quindi puntando un dettaglio fine il colore preso poteva cadere
-                 * in una fascia che con quel pixel non c'entrava. ⚠️ **Va insieme al disegno della
-                 * lente**, che dalla stessa versione mostra lo stesso pezzo: se uno dei due
-                 * cambiasse senza l'altro, si tornerebbe a vedere un pixel e a prenderne un altro.
+                 * in una fascia che con quel pixel non c'entrava. ⚠️ **La lente che mostrava lo
+                 * stesso pezzo non c'è più dalla `2.35`** (la nota accanto a `scale` dice perché): resta
+                 * la lettura dal pezzo nitido, e il dito sceglie e basta.
                  */
                 fun colourAt(at: Offset): Int? {
                     val view = viewport(room, shownNow, scale, shift, air(), framedNow)
@@ -3535,15 +3535,18 @@ private class Dial(
     /**
      * Il cambiamento che porta questo cursore a [v], da applicare a quello che si vede **adesso**.
      *
-     * ⚠️⚠️ **È UNA TRASFORMAZIONE E NON UN [Look] GIÀ FATTO, ED È LA CORREZIONE DELLA `2.17`**
-     * (riscontro del giro della `2.16`, voce `luce-sei`: *quasi sempre se modifico il contrasto la
-     * luminosità si azzera; se faccio un doppio tocco su un nome di slider se ne resetta anche un
-     * altro*). Costruendo qui il `Look` di arrivo servirebbe quello di partenza, e chi chiama lo
-     * avrebbe **catturato**: il corpo di un `pointerInput` si ricostruisce solo quando cambiano le
-     * sue chiavi, quindi ogni gesto scriveva a partire dall'immagine di quando il suo nodo era
-     * nato, e tutto quello che gli altri cursori avevano fatto nel frattempo tornava indietro.
-     * Con una trasformazione il punto di partenza lo legge **chi la applica**, che è lo stato
-     * vivo, e l'età della lambda non conta più.
+     * ⚠️⚠️ **È UNA TRASFORMAZIONE E NON UN [Look] GIÀ FATTO, DALLA `2.17`, ED È UNA DIFESA
+     * DICHIARATA E NON LA CURA DI UNA CAUSA MISURATA** (riscontro del giro della `2.16`, voce
+     * `luce-sei`: *quasi sempre se modifico il contrasto la luminosità si azzera; se faccio un
+     * doppio tocco su un nome di slider se ne resetta anche un altro*). Costruendo qui il `Look`
+     * di arrivo servirebbe quello di partenza, e chi chiama potrebbe averlo **catturato**: il
+     * corpo di un `pointerInput` si ricostruisce solo quando cambiano le sue chiavi. Con una
+     * trasformazione il punto di partenza lo legge **chi la applica**, che è lo stato vivo, e
+     * l'età della lambda non conta più.
+     * - ⚠️ **Quella ipotesi è stata misurata e scartata**: una spia dentro il gesto dice che a
+     *   rispondere è sempre la lambda di adesso, e il sintomo è sparito senza che si sappia quale
+     *   riga l'abbia tolto (`docs/Editor.md`, 'Due difetti chiusi senza causa accertata'). La
+     *   trasformazione resta perché costa poco e chiude quella strada comunque.
      */
     fun set(v: Float): (Look) -> Look = { write(it, v) }
 }

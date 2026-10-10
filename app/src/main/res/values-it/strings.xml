@@ -214,7 +214,7 @@
     <string name="settings_mark_bad">Questo file non si può usare come filigrana: scegli un PNG o un SVG.</string>
     <string name="settings_mark_on_desc">La filigrana è un elemento grafico (es. firma, logo) sovrapposto all\'immagine. Puoi attivarla o disattivarla prima del salvataggio con l\'apposito tasto on/off nella barra in basso dell\'editor; tieni premuto il tasto per accedere rapidamente alle impostazioni.</string>
     <string name="settings_mark_lossy">⚠️ Con l\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG non sono applicabili: il salvataggio prevede una riscrittura del file.</string>
-    <string name="settings_mark_where">Posizione</string>
+    <string name="settings_mark_where">Posizione della filigrana</string>
     <string name="mark_spot_tl">In alto a sinistra</string>
     <string name="mark_spot_tr">In alto a destra</string>
     <string name="mark_spot_bl">In basso a sinistra</string>

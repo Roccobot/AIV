@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">یہ فائل واٹرمارک کے طور پر استعمال نہیں ہو سکتی: PNG یا SVG منتخب کریں۔</string>
     <string name="settings_mark_on_desc">واٹر مارک ایک گرافک عنصر ہے (مثلاً دستخط یا لوگو) جو تصویر کے اوپر رکھا جاتا ہے۔ محفوظ کرنے سے پہلے ایڈیٹر کی نیچے والی پٹی کے آن/آف بٹن سے آپ اسے آن یا آف کر سکتے ہیں؛ ترتیبات تک جلدی پہنچنے کے لیے بٹن کو دبائے رکھیں۔</string>
     <string name="settings_mark_lossy">⚠️ واٹر مارک کے ساتھ JPEG گھمانے جیسے بغیر نقصان والے کام دستیاب نہیں: محفوظ کرنے پر پوری فائل دوبارہ لکھی جاتی ہے۔</string>
-    <string name="settings_mark_where">مقام</string>
+    <string name="settings_mark_where">واٹر مارک کی جگہ</string>
     <string name="mark_spot_tl">اوپر بائیں</string>
     <string name="mark_spot_tr">اوپر دائیں</string>
     <string name="mark_spot_bl">نیچے بائیں</string>

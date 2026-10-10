@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -56,6 +58,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -86,6 +89,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -1970,13 +1974,19 @@ private fun EditingPage(
  * altrimenti non è chiaro a che cosa è riferito*). Fino alla `4.99` la forma era quella della
  * cartella d'avvio, con il tasto sotto la spiegazione accanto al valore ([ValueAndPick]); la
  * cartella d'avvio la tiene, perché lui ha nominato questa riga sola.
- * ⚠️ **Dalla `5.01` il tasto dice 'Imposta', e l'app in vigore ha la sua riga**: 'app:' a sinistra
- * e il nome a destra (sua nota su `5.00-02`, col mockup).
+ * ⚠️ **Dalla `5.01` il tasto dice 'Imposta', e l'app in vigore ha la sua riga** (sua nota su
+ * `5.00-02`, col mockup).
+ * ⚠️⚠️ **DALLA `5.02` 'Imposta' E IL NOME FINISCONO SULLA STESSA VERTICALE, quella del nome, e la
+ * riga dice 'app: [nome]' tutta a destra** (sua nota su `5.01-02`). Il testo del tasto rientrava
+ * del margine interno del `TextButton`: il tasto si sposta verso la fine di quel margine, così il
+ * bersaglio resta intero e il testo arriva al bordo. Sotto la riga c'è più aria prima della voce
+ * successiva.
  */
 @Composable
 internal fun EditorChoice(label: String, detail: String, current: String, onChoose: () -> Unit) {
+    val margine = ButtonDefaults.TextButtonContentPadding.calculateEndPadding(LocalLayoutDirection.current)
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Row(
@@ -1985,25 +1995,22 @@ internal fun EditorChoice(label: String, detail: String, current: String, onChoo
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(text = label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-            TextButton(onClick = onChoose) { Text(stringResource(R.string.settings_editor_pick)) }
+            TextButton(onClick = onChoose, modifier = Modifier.offset(x = margine)) {
+                Text(stringResource(R.string.settings_editor_pick))
+            }
         }
         Detail(detail)
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End)
         ) {
             Text(
                 text = stringResource(R.string.settings_editor_app),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = current,
-                style = MaterialTheme.typography.titleSmall,
-                textAlign = TextAlign.End,
-                modifier = Modifier.weight(1f)
-            )
+            Text(text = current, style = MaterialTheme.typography.titleSmall)
         }
     }
 }

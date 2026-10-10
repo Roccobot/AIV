@@ -653,8 +653,9 @@ private fun Outcome(w: Int, h: Int) {
  * Una misura scritta come lui l'ha chiesta: i due numeri in **grassetto**, il segno in mezzo e
  * l'unità in coda.
  *
- * ⚠️ **Una funzione sola per le due righe**, quella della misura di partenza e quella
- * dell'anteprima: scritte due volte, la prima a divergere sarebbe quella che nessuno guarda.
+ * ⚠️ **Il formato vive qui soltanto**: la riga del risultato usa questa funzione, e la riga sotto
+ * il titolo la sua versione senza grassetto, [plain], che ne prende il testo. Scritto due volte,
+ * il primo a divergere sarebbe quello che nessuno guarda.
  */
 private fun measure(w: Int, h: Int): AnnotatedString = buildAnnotatedString {
     val forte = SpanStyle(fontWeight = FontWeight.Bold)
@@ -665,14 +666,15 @@ private fun measure(w: Int, h: Int): AnnotatedString = buildAnnotatedString {
 }
 
 /**
- * La stessa misura senza grassetto, che è la riga sotto il titolo.
+ * La stessa misura senza grassetto, che è la riga sotto il titolo: il testo di [measure], senza
+ * gli stili.
  *
  * ⚠️⚠️ **DALLA `2.81` NON PASSA PIÙ DA UNA FRASE TRADOTTA, e con lei se ne sono andate la
  * stringa `look_resize_now` e la funzione che le infilava dentro il numero**: quella frase
  * diceva 'Dimensioni attuali:', e il suo testo `t-resize-now` la toglie, quindi restava un
  * segnaposto da tradurre in ventotto lingue.
  */
-internal fun plain(w: Int, h: Int): String = "$w $BY $h $PX"
+internal fun plain(w: Int, h: Int): String = measure(w, h).text
 
 /**
  * Il lato lungo del file aperto, che è la sola misura vera che si legge senza decodificarlo.

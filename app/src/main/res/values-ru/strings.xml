@@ -650,7 +650,7 @@
     <string name="settings_mark_bad">Этот файл нельзя использовать как водяной знак: выберите PNG или SVG.</string>
     <string name="settings_mark_on_desc">Водяной знак представляет собой графический элемент (например, подпись или логотип), который накладывается на изображение. Его можно включить или выключить перед сохранением кнопкой вкл./выкл. на нижней панели редактора; удерживайте кнопку, чтобы быстро открыть настройки.</string>
     <string name="settings_mark_lossy">⚠️ С водяным знаком операции без потерь, например поворот JPEG, недоступны: при сохранении файл перезаписывается полностью.</string>
-    <string name="settings_mark_where">Положение</string>
+    <string name="settings_mark_where">Положение водяного знака</string>
     <string name="mark_spot_tl">Слева вверху</string>
     <string name="mark_spot_tr">Справа вверху</string>
     <string name="mark_spot_bl">Слева внизу</string>

@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">این فایل به عنوان واترمارک کار نمی‌کند: یک PNG یا SVG انتخاب کنید.</string>
     <string name="settings_mark_on_desc">واترمارک یک عنصر گرافیکی (مثلاً امضا یا لوگو) است که روی تصویر قرار می‌گیرد. می‌توانید آن را پیش از ذخیره با دکمه روشن/خاموش در نوار پایین ویرایشگر روشن یا خاموش کنید؛ برای رسیدن سریع به تنظیمات، دکمه را نگه دارید.</string>
     <string name="settings_mark_lossy">⚠️ با واترمارک، عملیات بدون افت کیفیت مانند چرخاندن JPEG در دسترس نیست: ذخیره، کل فایل را بازنویسی می‌کند.</string>
-    <string name="settings_mark_where">موقعیت</string>
+    <string name="settings_mark_where">جای واترمارک</string>
     <string name="mark_spot_tl">بالا سمت چپ</string>
     <string name="mark_spot_tr">بالا سمت راست</string>
     <string name="mark_spot_bl">پایین سمت چپ</string>

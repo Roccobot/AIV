@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -39,8 +41,11 @@ import kotlin.math.abs
  * la squadretta di un posto dipinta una volta sola sulla piega. Con le note su `4.99-01` e
  * `5.00-01`, anche il paragrafo largo tutta la pagina, 'Posizione' dentro il riquadro, il blocco
  * centrato con la nota sotto e su una riga, il tondo del centro con lo stelo, e la riga
- * dell'editor con 'Imposta' e 'app:'. ⚠️ **Che cosa non vede**: come appare la firma vera
- * nell'anteprima sul telefono, che dipende dal file scelto; la voce di collaudo la chiede.
+ * dell'editor con 'Imposta' e 'app:'. Dalla `5.02`, con le note su `5.01-01` e `5.01-02`, lo stelo
+ * che si ferma prima del centro, la parola del riquadro più piccola e a contrasto 3, e 'Imposta'
+ * allineato a destra col nome dell'app. ⚠️ **Che cosa non vede**: come appare la firma vera
+ * nell'anteprima sul telefono, che dipende dal file scelto, e quindi nemmeno che il logo copra lo
+ * stelo; la voce di collaudo li chiede.
  *
  * ⚠️ **Usa la regola `v2`** (`Rules.md` di AIV, voce sul velo d'aiuto): le prove nuove non usano la
  * regola deprecata.
@@ -251,15 +256,18 @@ class FiligranaPaginaTest {
     }
 
     /**
-     * **Caso 10: il tondo del centro è sotto il riquadro, e il suo stelo sale fino al centro.**
+     * **Caso 10: il tondo del centro è sotto il riquadro, e il suo stelo si ferma prima del centro.**
      *
      * ⚠️ Sua nota su `5.00-01`, col mockup: *aggiungi uno stelo al cerchio di selezione per il
-     * centro*. Si confronta, poco sotto e poco sopra il centro del riquadro, il pixel sull'asse con
-     * uno a lato, dove c'è il solo fondo: sotto devono differire, perché lì passa lo stelo; sopra
-     * devono essere uguali, perché lo stelo si ferma al centro.
+     * centro*; e dalla `5.02` quella su `5.01-01`: *lo stelo era troppo lungo e va a coprire la
+     * filigrana al centro. Accorcialo di 10-15 dp*. Si confronta il pixel sull'asse con uno a lato,
+     * dove c'è il solo fondo: 20 punti sotto il centro devono differire, perché lì passa lo stelo; 6
+     * punti sotto e 8 sopra devono essere uguali, perché lo stelo si ferma a 12 punti dal centro.
+     * ⚠️ **Che cosa non vede**: che un logo al centro copra lo stelo. Il banco non decodifica un
+     * disegno, e l'ordine (lo stelo prima del logo, in `MarkPreview`) lo chiede la voce di collaudo.
      */
     @Test
-    fun `il tondo del centro e sotto, e lo stelo arriva al centro`() {
+    fun `il tondo del centro e sotto, e lo stelo si ferma prima del centro`() {
         monta()
         val riquadro = banco.onNodeWithContentDescription(testo(R.string.settings_mark_preview))
             .getUnclippedBoundsInRoot()
@@ -269,32 +277,60 @@ class FiligranaPaginaTest {
         val d = app.resources.displayMetrics.density
         val cx = ((riquadro.left + riquadro.right).value / 2 * d).toInt()
         val cy = ((riquadro.top + riquadro.bottom).value / 2 * d).toInt()
-        val passo = (8 * d).toInt()
         val lato = (30 * d).toInt()
-        assertTrue("lo stelo sotto il centro", px[cx, cy + passo] != px[cx + lato, cy + passo])
-        assertEquals("niente stelo sopra il centro", px[cx + lato, cy - passo], px[cx, cy - passo])
+        val lontano = cy + (20 * d).toInt()
+        val vicino = cy + (6 * d).toInt()
+        val sopra = cy - (8 * d).toInt()
+        assertTrue("lo stelo 20 punti sotto il centro", px[cx, lontano] != px[cx + lato, lontano])
+        assertEquals("niente stelo 6 punti sotto il centro", px[cx + lato, vicino], px[cx, vicino])
+        assertEquals("niente stelo sopra il centro", px[cx + lato, sopra], px[cx, sopra])
     }
 
     /**
-     * **Caso 11: 'Posizione' segue il fondo che l'anteprima sceglie per la firma.**
+     * **Caso 11: 'Posizione della filigrana' ha contrasto 3 col fondo, qualunque fondo sia.**
      *
-     * ⚠️ Sua nota su `4.99-01`: *con le stesse regole di contrasto/leggibilità della filigrana*.
+     * ⚠️ Sua nota su `4.99-01` (*con le stesse regole di contrasto/leggibilità della filigrana*) e,
+     * dalla `5.02`, quella su `5.01-01`: *contrasto a 3 anziché ≥4 rispetto al rettangolo*. Si
+     * misura il rapporto del W3C sul nero, sul bianco, sui due grigi della pagina e su un grigio
+     * medio; e sui fondi chiari la parola è più scura del fondo.
      */
     @Test
-    fun `l'inchiostro di Posizione segue il fondo`() {
-        val pagina = androidx.compose.ui.graphics.Color(0xFF1A1C1B)
-        assertEquals(pagina, labelInk(Ground.SURFACE, pagina))
-        assertEquals(androidx.compose.ui.graphics.Color.White, labelInk(Ground.BLACK, pagina))
-        assertEquals(androidx.compose.ui.graphics.Color.Black, labelInk(Ground.WHITE, pagina))
+    fun `l'inchiostro della parola ha contrasto 3 col fondo`() {
+        val fondi = listOf(0xFF000000, 0xFFFFFFFF, 0xFFDBE5E0, 0xFF3F4945, 0xFF777777)
+            .map { androidx.compose.ui.graphics.Color(it) }
+        for (fondo in fondi) {
+            val a = labelInk(fondo).luminance()
+            val b = fondo.luminance()
+            val rapporto = (maxOf(a, b) + 0.05f) / (minOf(a, b) + 0.05f)
+            assertEquals("contrasto su $fondo", 3f, rapporto, 0.05f)
+        }
+        val bianco = androidx.compose.ui.graphics.Color.White
+        assertTrue("sul bianco la parola è più scura", labelInk(bianco).luminance() < bianco.luminance())
+    }
+
+    /**
+     * **Caso 13: 'Posizione della filigrana' è due punti più piccola del titolo di una voce.**
+     *
+     * ⚠️ Sua nota su `5.01-01`: *carattere più piccolo di 2/3 punti*. Fino alla `5.01` la parola era
+     * in `titleSmall` (14 punti); dalla `5.02` è in `labelMedium` (12).
+     */
+    @Test
+    fun `la parola nel riquadro e piu piccola`() {
+        monta()
+        val corpo = impaginato(testo(R.string.settings_mark_where)).layoutInput.style.fontSize.value
+        assertTrue("corpo $corpo", corpo <= 12f)
     }
 
     /**
      * **Caso 12: 'Imposta' è sulla riga del titolo dell'editor, e l'app ha la sua riga sotto.**
      *
-     * ⚠️ Sua nota del giro della `4.99` (*deve stare a destra del titolo 'Editor di immagini'*) e
-     * su `5.00-02` (*a sinistra 'app:', a destra il nome dell'app*). Il tasto deve stare a destra del
-     * titolo, alla sua altezza, e sopra la spiegazione; sotto la spiegazione, 'app:' comincia dove
-     * comincia il titolo e il nome finisce a destra, oltre l'inizio del tasto.
+     * ⚠️ Sua nota del giro della `4.99` (*deve stare a destra del titolo 'Editor di immagini'*), e
+     * dalla `5.02` quella su `5.01-02`: *'Imposta' e il nome dell'app allineati a destra sulla
+     * stessa verticale*, e *'app:' a destra con il nome*. Il tasto è a destra del titolo, alla sua
+     * altezza, e sopra la spiegazione; sotto la spiegazione, il testo di 'Imposta' e il nome
+     * finiscono sulla stessa verticale, e 'app:' viene subito prima del nome, sulla sua riga.
+     * ⚠️ **Si misurano i testi e non il tasto** (`useUnmergedTree`): il tasto ha un rientro suo, ed è
+     * il testo quello che l'occhio allinea.
      */
     @Test
     fun `Imposta e sulla riga del titolo, e l'app ha la sua riga`() {
@@ -312,7 +348,8 @@ class FiligranaPaginaTest {
         }
         banco.waitForIdle()
         val titolo = banco.onNodeWithText(testo(R.string.settings_editor)).getUnclippedBoundsInRoot()
-        val tasto = banco.onNodeWithText(testo(R.string.settings_editor_pick)).getUnclippedBoundsInRoot()
+        val tasto = banco.onNodeWithText(testo(R.string.settings_editor_pick), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
         // ⚠️ Gli apici del testo diventano grassetto (vedi `emphasizeSettingsCopy`), quindi il testo
         // che si legge a schermo è quello senza apici.
         val spiegazione = banco.onNodeWithText(emphasizeSettingsCopy(testo(R.string.settings_editor_desc)).text)
@@ -324,7 +361,10 @@ class FiligranaPaginaTest {
         assertTrue("il tasto alla quota del titolo, scarto $scarto", scarto < 1f)
         assertTrue("il tasto sopra la spiegazione", tasto.bottom <= spiegazione.top)
         assertTrue("'app:' sotto la spiegazione", etichetta.top >= spiegazione.bottom)
-        assertEquals(titolo.left.value, etichetta.left.value, 0.5f)
-        assertTrue("il nome a destra", nome.right > tasto.left)
+        assertEquals("'Imposta' e il nome sulla stessa verticale", tasto.right.value, nome.right.value, 0.5f)
+        assertTrue("'app:' prima del nome", etichetta.right <= nome.left)
+        assertTrue("'app:' a destra, vicino al nome", nome.left - etichetta.right < 8.dp)
+        val quota = abs(((etichetta.top + etichetta.bottom) - (nome.top + nome.bottom)).value / 2)
+        assertTrue("'app:' sulla riga del nome, scarto $quota", quota < 3f)
     }
 }

@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -542,7 +543,7 @@ private fun markClean(text: String, step: Int): String {
  *
  * ⚠️⚠️ **QUINDI IL RIQUADRO C'È ANCHE SENZA UN LOGO SCELTO, e la nota della `2.71` è decaduta**:
  * diceva che un riquadro vuoto non dice niente, e valeva finché era la sola anteprima. Adesso
- * porta i cinque selettori, cioè è il comando: toglierlo vorrebbe dire non poter scegliere il
+ * ospita i cinque selettori, cioè è il comando: toglierlo vorrebbe dire non poter scegliere il
  * posto prima di scegliere il file.
  *
  * ⚠️ **I selettori vivono tutti nella stessa fascia esterna**, larga [SPOT_RING]: i quattro angoli
@@ -572,15 +573,16 @@ private fun MarkSpot(plan: Watermark.Plan, giro: Int, onSpot: (Watermark.Spot) -
          * alla `5.00` il blocco si spostava a sinistra e la nota andava accanto al riquadro, o sotto
          * quando la sua parola più larga non ci entrava, cioè cambiava posto con la lingua e con lo
          * schermo. Senza la nota a lato il riquadro torna un po' più grande ([PREVIEW_SCALE]).
+         * ⚠️ **Dalla `5.02` sopra il blocco c'è meno aria e sotto la nota un po' di più** (sua nota
+         * su `5.01-01`: *aumenta un pelo la distanza fra la nota e il primo slider; diminuisci
+         * invece la distanza fra 'Rimuovi | Seleziona' e il rettangolo*): 6 punti invece di 16
+         * sopra, 8 in più sotto.
          */
         BoxWithConstraints(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             val riquadro = (maxWidth - SPOT_RING * 2) * PREVIEW_SCALE + SPOT_RING * 2
-            // ⚠️ Dal bordo di sotto del blocco al centro dell'anteprima, cioè fin dove sale lo
-            // stelo del centro: l'anteprima è 3:2 (vedi [MarkPreview]) e la fascia la circonda.
-            val stelo = ((riquadro - SPOT_RING * 2) * (2f / 3f) + SPOT_RING * 2) / 2
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(modifier = Modifier.width(riquadro).oneOf()) {
                     MarkPreview(plan, giro, label, Modifier.padding(SPOT_RING))
@@ -590,14 +592,13 @@ private fun MarkSpot(plan: Watermark.Plan, giro: Int, onSpot: (Watermark.Spot) -
                             name = names[at],
                             chosen = spot == plan.spot,
                             onClick = { onSpot(spot) },
-                            stem = stelo,
                             modifier = Modifier.align(spotAlign(spot))
                         )
                     }
                 }
                 PreviewNote(
                     stringResource(R.string.settings_mark_preview_note),
-                    Modifier.fillMaxWidth().padding(top = 8.dp)
+                    Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp)
                 )
             }
         }
@@ -648,7 +649,8 @@ private fun spotName(spot: Watermark.Spot): String = stringResource(
  * In quale punto della fascia esterna vive il selettore di un posto.
  *
  * ⚠️ **Il centro è in basso dalla `5.01`**, come nel suo mockup di `5.00-01`: in alto c'è
- * 'Posizione', e lo stelo sale dal tondo al centro del riquadro (vedi [SpotHandle]).
+ * 'Posizione della filigrana', e lo stelo sale dal tondo verso il centro del riquadro (vedi
+ * [centreStem]).
  */
 private fun spotAlign(spot: Watermark.Spot): Alignment = when (spot) {
     Watermark.Spot.TOP_LEFT -> Alignment.TopStart
@@ -670,9 +672,9 @@ private fun spotAlign(spot: Watermark.Spot): Alignment = when (spot) {
  * cambia inchiostro: un segno che restasse uguale direbbe dove si può toccare e non che cosa è
  * scelto, e il riquadro sotto non lo dice, perché senza un logo è vuoto.
  * ⚠️⚠️ **DALLA `5.01` IL TONDO HA UNO STELO, ED È LA SUA NOTA SU `5.00-01`** (*aggiungi uno stelo
- * al cerchio di selezione per il centro, è più chiaro*): dal tondo, in fondo alla fascia, sale fino
- * al centro del riquadro, cioè per [stem] dal bordo di sotto del bersaglio. Il disegno esce dal
- * bersaglio, e il tocco resta sul tondo.
+ * al cerchio di selezione per il centro, è più chiaro*). Dalla `5.02` lo stelo lo disegna
+ * [MarkPreview], sotto il logo (vedi [centreStem]); qui resta il tondo, e acceso anche il tratto
+ * fra il suo bordo e il riquadro, che cade nella fascia, fuori dall'anteprima.
  */
 @Composable
 private fun SpotHandle(
@@ -680,7 +682,6 @@ private fun SpotHandle(
     name: String,
     chosen: Boolean,
     onClick: () -> Unit,
-    stem: Dp,
     modifier: Modifier
 ) {
     val accento = MaterialTheme.colorScheme.primary
@@ -691,30 +692,23 @@ private fun SpotHandle(
             .semantics { contentDescription = name }
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val tinta = if (chosen) accento else accento.copy(alpha = SPOT_FAINT)
-            val spesso = (if (chosen) SPOT_THICK_ON else SPOT_THICK_OFF).toPx()
+            val tinta = spotInk(accento, chosen)
+            val spesso = spotThick(chosen).toPx()
             val anello = SPOT_RING.toPx()
             if (spot == Watermark.Spot.CENTRE) {
                 val centro = Offset(size.width / 2f, size.height - anello / 2f)
                 val raggio = SPOT_DOT.toPx()
-                if (chosen) drawCircle(tinta, radius = raggio, center = centro)
-                else drawCircle(tinta, radius = raggio, center = centro, style = Stroke(spesso))
-                /*
-                 * ⚠️ **Lo stelo comincia dove finisce il tondo, senza toccarlo**: spento, il segno
-                 * è al [SPOT_FAINT], e un tratto che coprisse l'anello lo farebbe più scuro dove si
-                 * sovrappongono, che è il difetto della nota D del giro della `4.98` sulle
-                 * squadrette. Il capo tondo dello stelo sporge di mezzo tratto, quindi parte un
-                 * tratto intero sopra l'anello; acceso, il tondo è pieno e coprente, e lo stelo
-                 * parte dal suo bordo.
-                 */
-                val partenza = centro.y - raggio - if (chosen) 0f else spesso
-                drawLine(
-                    color = tinta,
-                    start = Offset(centro.x, partenza),
-                    end = Offset(centro.x, size.height - stem.toPx()),
-                    strokeWidth = spesso,
-                    cap = StrokeCap.Round
-                )
+                if (chosen) {
+                    drawCircle(tinta, radius = raggio, center = centro)
+                    drawLine(
+                        color = tinta,
+                        start = Offset(centro.x, centro.y - raggio),
+                        end = Offset(centro.x, size.height - anello),
+                        strokeWidth = spesso
+                    )
+                } else {
+                    drawCircle(tinta, radius = raggio, center = centro, style = Stroke(spesso))
+                }
                 return@Canvas
             }
             val sinistra = spot == Watermark.Spot.TOP_LEFT || spot == Watermark.Spot.BOTTOM_LEFT
@@ -740,6 +734,41 @@ private fun SpotHandle(
             drawPath(squadra, tinta, style = Stroke(spesso, cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
     }
+}
+
+/** L'inchiostro di un selettore: l'accento pieno se il posto è scelto, spento se no. */
+private fun spotInk(accent: Color, chosen: Boolean): Color =
+    if (chosen) accent else accent.copy(alpha = SPOT_FAINT)
+
+/** Lo spessore del segno di un selettore, scelto o no. */
+private fun spotThick(chosen: Boolean): Dp = if (chosen) SPOT_THICK_ON else SPOT_THICK_OFF
+
+/**
+ * Lo stelo del tondo del centro, disegnato nell'anteprima: dal fondo del riquadro sale fino a
+ * [STEM_SHORT] sotto il centro.
+ *
+ * ⚠️⚠️ **DALLA `5.02` VIVE NELL'ANTEPRIMA, SOTTO IL LOGO, ED È LA SUA NOTA SU `5.01-01`** (*lo stelo
+ * del mio mockup era troppo lungo e va a coprire la filigrana al centro. Accorcialo di 10-15 dp e
+ * fa' in modo che un eventuale logo al centro lo copra*). Fino alla `5.01` lo disegnava il
+ * selettore, che si disegna sopra a tutto, e arrivava al centro esatto.
+ * ⚠️ **Spento, comincia un tratto sopra l'anello del tondo, senza toccarlo**: il segno è al
+ * [SPOT_FAINT], e due tratti sovrapposti farebbero una macchia più scura, che è il difetto della
+ * nota D del giro della `4.98` sulle squadrette (il capo tondo sporge di mezzo tratto). Acceso, il
+ * tondo è pieno e coprente, e lo stelo parte dal suo bordo: il pezzo che cade nella fascia, fuori
+ * dall'anteprima, lo disegna [SpotHandle].
+ */
+private fun DrawScope.centreStem(ink: Color, chosen: Boolean) {
+    val spesso = spotThick(chosen).toPx()
+    val x = size.width / 2f
+    val tondo = size.height + SPOT_RING.toPx() / 2f
+    val partenza = tondo - SPOT_DOT.toPx() - if (chosen) 0f else spesso
+    drawLine(
+        color = ink,
+        start = Offset(x, partenza),
+        end = Offset(x, size.height / 2f + STEM_SHORT.toPx()),
+        strokeWidth = spesso,
+        cap = StrokeCap.Round
+    )
 }
 
 /**
@@ -778,32 +807,38 @@ private fun MarkPreview(plan: Watermark.Plan, giro: Int, label: String, modifier
     }
     val descrizione = stringResource(R.string.settings_mark_preview)
     val grigio = MaterialTheme.colorScheme.surfaceVariant
+    val accento = MaterialTheme.colorScheme.primary
     val aspetto = previewLook(art?.second, grigio.luminance(), plan)
+    val fondo = when (aspetto.ground) {
+        Ground.SURFACE -> grigio
+        Ground.BLACK -> Color.Black
+        Ground.WHITE -> Color.White
+    }
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(3f / 2f)
             .clip(RoundedCornerShape(PREVIEW_ROUND))
-            .background(
-                when (aspetto.ground) {
-                    Ground.SURFACE -> grigio
-                    Ground.BLACK -> Color.Black
-                    Ground.WHITE -> Color.White
-                }
-            )
+            .background(fondo)
             .semantics { contentDescription = descrizione }
     ) {
+        // ⚠️ Prima del logo, perché il logo al centro lo copra (vedi [centreStem]).
+        Canvas(modifier = Modifier.matchParentSize()) {
+            centreStem(spotInk(accento, plan.spot == Watermark.Spot.CENTRE), plan.spot == Watermark.Spot.CENTRE)
+        }
         /*
-         * ⚠️⚠️ **'Posizione' VIVE QUI DENTRO DALLA `5.00`** (sua nota su `4.99-01`: *va direttamente
-         * dentro il rettangolo di anteprima, con le stesse regole di contrasto/leggibilità della
-         * filigrana: non al centro, perché lì potrebbe apparire la filigrana, ma spostato verso
-         * l'alto*). Il colore lo sceglie [labelInk] dal fondo che [previewLook] ha scelto per la
-         * firma, e la quota è [LABEL_BIAS], come nel suo mockup.
+         * ⚠️⚠️ **'Posizione della filigrana' VIVE QUI DENTRO DALLA `5.00`** (sua nota su `4.99-01`: *va
+         * direttamente dentro il rettangolo di anteprima, con le stesse regole di
+         * contrasto/leggibilità della filigrana: non al centro, perché lì potrebbe apparire la
+         * filigrana, ma spostato verso l'alto*). Il colore lo sceglie [labelInk] dal fondo che
+         * [previewLook] ha scelto per la firma, e la quota è [LABEL_BIAS], come nel suo mockup.
+         * ⚠️ **Dalla `5.02` dice 'Posizione della filigrana', due punti più piccola** (`labelMedium`
+         * al posto di `titleSmall`) **e a contrasto 3** (sua nota su `5.01-01`).
          */
         Text(
             text = label,
-            style = MaterialTheme.typography.titleSmall,
-            color = labelInk(aspetto.ground, MaterialTheme.colorScheme.onSurface),
+            style = MaterialTheme.typography.labelMedium,
+            color = labelInk(fondo),
             modifier = Modifier.align(BiasAlignment(0f, LABEL_BIAS))
         )
         val disegno = art?.first ?: return@BoxWithConstraints
@@ -871,17 +906,29 @@ internal fun previewLook(ink: Float?, surface: Float, plan: Watermark.Plan): Pre
 }
 
 /**
- * L'inchiostro di 'Posizione' dentro il riquadro: quello della pagina sul grigio, il bianco sul
- * nero e il nero sul bianco.
+ * L'inchiostro di 'Posizione della filigrana' dentro il riquadro: un grigio a contrasto
+ * [LABEL_CONTRAST] col fondo [ground], più scuro del fondo dove ci sta, più chiaro dove no.
  *
- * ⚠️ **Segue il fondo che [previewLook] ha scelto per la firma**, cioè le stesse regole di
- * contrasto della firma, come lui ha chiesto: il fondo diventa nero o bianco proprio quando
- * l'inchiostro della pagina non si leggerebbe più.
+ * ⚠️ **Segue il fondo che [previewLook] ha scelto per la firma** (sua nota su `4.99-01`: *con le
+ * stesse regole di contrasto/leggibilità della filigrana*).
+ * ⚠️⚠️ **DALLA `5.02` IL CONTRASTO È 3 E NON IL MASSIMO, ED È LA SUA NOTA SU `5.01-01`** (*contrasto a
+ * 3 anziché ≥4 rispetto al rettangolo*): fino alla `5.01` la parola era bianca sul nero, nera sul
+ * bianco e del colore del testo sul grigio, cioè gridava più della firma che deve far vedere.
+ * ⚠️ **Più scura quando si può**, cioè quando il fondo è abbastanza chiaro da lasciare posto sotto
+ * di sé a un grigio a quel contrasto; sul nero e su un grigio scuro non c'è posto, e si sale.
  */
-internal fun labelInk(ground: Ground, page: Color): Color = when (ground) {
-    Ground.SURFACE -> page
-    Ground.BLACK -> Color.White
-    Ground.WHITE -> Color.Black
+internal fun labelInk(ground: Color): Color {
+    val fondo = ground.luminance()
+    val sotto = (fondo + 0.05f) / LABEL_CONTRAST - 0.05f
+    val sopra = (fondo + 0.05f) * LABEL_CONTRAST - 0.05f
+    return greyOf(if (sotto >= 0f) sotto else minOf(sopra, 1f))
+}
+
+/** Il grigio sRGB che ha la luminanza relativa [luminance]: l'inverso della linearizzazione. */
+private fun greyOf(luminance: Float): Color {
+    val c = if (luminance <= 0.0031308f) luminance * 12.92f
+    else 1.055f * luminance.toDouble().pow(1 / 2.4).toFloat() - 0.055f
+    return Color(c, c, c)
 }
 
 /** Il rapporto di contrasto del W3C fra due luminanze relative. */
@@ -956,6 +1003,22 @@ private const val NOTE_INK = 1f / 3f
  * centro, dove può cadere la firma, e lontano dagli angoli, che non tocca perché è centrata.
  */
 private const val LABEL_BIAS = -0.7f
+
+/**
+ * Il contrasto di 'Posizione della filigrana' col fondo del riquadro.
+ *
+ * ⚠️ **3 è la sua richiesta della `5.02`** (*contrasto a 3 anziché ≥4 rispetto al rettangolo*, nota
+ * su `5.01-01`): è anche la soglia del W3C per gli elementi grafici, la stessa di [PREVIEW_CONTRAST].
+ */
+private const val LABEL_CONTRAST = 3f
+
+/**
+ * Quanto lo stelo del centro si ferma prima del centro del riquadro.
+ *
+ * ⚠️ **12 è nel mezzo dei suoi 10-15** (nota su `5.01-01`): arrivando al centro esatto, lo stelo
+ * copriva la firma posata lì.
+ */
+private val STEM_SHORT = 12.dp
 
 /** Il lato lungo a cui si disegna la filigrana per l'anteprima. */
 private const val PREVIEW_ART = 512

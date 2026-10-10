@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">Bu dosya filigran olarak kullanılamaz: bir PNG veya SVG seçin.</string>
     <string name="settings_mark_on_desc">Filigran, görüntünün üzerine yerleştirilen grafik bir öğedir (ör. imza, logo). Kaydetmeden önce düzenleyicinin alt çubuğundaki aç/kapat düğmesiyle açıp kapatabilirsin; ayarlara hızlıca gelmek için düğmeye uzun bas.</string>
     <string name="settings_mark_lossy">⚠️ Filigran eklendiğinde JPEG döndürme gibi kayıpsız işlemler kullanılamaz: kaydetme dosyanın tamamını yeniden yazar.</string>
-    <string name="settings_mark_where">Konum</string>
+    <string name="settings_mark_where">Filigranın konumu</string>
     <string name="mark_spot_tl">Sol üst</string>
     <string name="mark_spot_tr">Sağ üst</string>
     <string name="mark_spot_bl">Sol alt</string>

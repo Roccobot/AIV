@@ -257,7 +257,7 @@
     <string name="settings_mark_bad">This file cannot be used as a watermark: choose a PNG or an SVG.</string>
     <string name="settings_mark_on_desc">The watermark is a graphic element (e.g. a signature or logo) laid over the image. You can turn it on or off before saving with the on/off button in the editor\'s bottom bar; long-press the button to reach the settings quickly.</string>
     <string name="settings_mark_lossy">⚠️ With a watermark, lossless operations such as JPEG rotation are not available: saving rewrites the whole file.</string>
-    <string name="settings_mark_where">Position</string>
+    <string name="settings_mark_where">Watermark position</string>
     <string name="mark_spot_tl">Top left</string>
     <string name="mark_spot_tr">Top right</string>
     <string name="mark_spot_bl">Bottom left</string>

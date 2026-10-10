@@ -19,6 +19,11 @@
 - ⚠️ **La scelta salvata del completo (`Editors.FULL`) vale ancora**: nessuno la scrive più, ma i
   telefoni che l'hanno la leggono come 'Editor interno' (`Editors.isInternal`). Lo misura
   `EditorInternoTest`, sui due lati di Android 13.
+- **La riga nelle impostazioni** (`EditorChoice`): il titolo con 'Imposta' a destra, la spiegazione,
+  e sotto 'app: [nome]' tutta a destra. Dalla `5.02` (sua nota su `5.01-02`) il testo di 'Imposta'
+  e il nome finiscono sulla stessa verticale: il tasto si sposta della misura del suo margine
+  interno, così il bersaglio resta intero. Sotto la riga c'è più aria prima di 'Copia di
+  sicurezza'. Lo misura `FiligranaPaginaTest`, caso 12.
 
 ## 🔄 Le otto pose dell'editor, e la fila che è diventata di cinque
 
@@ -1321,13 +1326,23 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   lingua. La nota è piccola, centrata, senza corsivo né `⚠️`, un terzo d'inchiostro sul fondo
   (`#B1B1B1` col tema chiaro, il grigio del suo mockup della `5.00`), e in italiano e in inglese
   entra in una riga anche a 360 punti.
-- ⚠️⚠️ **'Posizione' vive dentro il riquadro, dalla `5.00`**, centrata al 15% dell'altezza, sopra il
-  posto in cui può cadere la firma, bianca sul nero, nera sul bianco e del colore della pagina sul
-  grigio (`labelInk`).
-- ⚠️⚠️ **Dalla `5.01` il tondo del centro è in fondo alla fascia, con uno stelo che sale al centro
-  del riquadro** (sua nota su `5.00-01`, col mockup): fino alla `5.00` era in cima, senza stelo. Lo
-  stelo parte un tratto sopra l'anello del tondo spento, perché due tratti sovrapposti al 55% fanno
-  una macchia più scura (nota D, qui sotto).
+  - **Dalla `5.02` sopra il blocco ci sono 6 punti e non 16, e sotto la nota 8 in più** (sua nota su
+    `5.01-01`: meno distanza fra 'Rimuovi | Seleziona' e il riquadro, un pelo di più fra la nota e il
+    primo cursore).
+- ⚠️⚠️ **'Posizione della filigrana' vive dentro il riquadro, dalla `5.00`**, centrata al 15%
+  dell'altezza, sopra il posto in cui può cadere la firma. Fino alla `5.01` diceva 'Posizione', in
+  `titleSmall`, bianca sul nero, nera sul bianco e del colore della pagina sul grigio. Dalla `5.02`
+  (sua nota su `5.01-01`) dice 'Posizione della filigrana', in `labelMedium` (due punti più piccola),
+  ed è un grigio a contrasto 3 col fondo, più scuro del fondo dove c'è posto e più chiaro dove no
+  (`labelInk`).
+- ⚠️⚠️ **Dalla `5.01` il tondo del centro è in fondo alla fascia, con uno stelo che sale verso il
+  centro del riquadro** (sua nota su `5.00-01`, col mockup): fino alla `5.00` era in cima, senza
+  stelo. Lo stelo parte un tratto sopra l'anello del tondo spento, perché due tratti sovrapposti al
+  55% fanno una macchia più scura (nota D, qui sotto).
+  - ⚠️⚠️ **Dalla `5.02` si ferma 12 punti sotto il centro, e un logo al centro lo copre** (sua nota
+    su `5.01-01`: *lo stelo era troppo lungo e va a coprire la filigrana al centro*). Lo disegna
+    l'anteprima prima del logo (`centreStem`); il selettore disegna il tondo e, acceso, il tratto
+    fra il tondo e il riquadro, che cade nella fascia.
 - ⚠️ **Ogni squadretta è un tracciato solo** (nota D): due linee coprivano due volte la piega, e
   l'inchiostro spento la faceva più scura. Lo misura `FiligranaPaginaTest`, che misura anche
   l'ordine e la forma della pagina qui sopra, lo stelo e la riga dell'editor.
@@ -1355,9 +1370,9 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
     fabbrica non fa niente (`Resize.NONE`, il libero con un tetto di ventimila pixel), e i campi si
     precompilano col risultato del piano, o con le misure correnti. Senza misure resta la sola
     percentuale.
-  - **La misura si scrive con due funzioni dallo stesso formato**, `measure` per il risultato e
-    `plain` per la riga sotto il titolo (il KDoc di `measure` dice ancora 'una funzione sola');
-    l'anteprima si chiama 'Risultato' (stringa sua) ed
+  - **La misura si scrive con due funzioni e un formato solo**: `measure` per il risultato, in
+    grassetto, e `plain` per la riga sotto il titolo, che dalla `5.02` ne prende il testo senza
+    stili (prima ripeteva il formato a mano); l'anteprima si chiama 'Risultato' (stringa sua) ed
     è centrata; il segno × fra i campi si allinea alle cifre (`FIELD_TEXT_DROP`).
   - ⚠️⚠️ **'Ripristina' torna al libero con le misure correnti**, vive in fondo a destra (sua
     richiesta: si raggiunge con una mano) ed è una pastiglia che scrive nei campi. La nota della

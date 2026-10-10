@@ -599,7 +599,7 @@
     <string name="settings_mark_bad">ไฟล์นี้ใช้เป็นลายน้ำไม่ได้ โปรดเลือกไฟล์ PNG หรือ SVG</string>
     <string name="settings_mark_on_desc">ลายน้ำคือองค์ประกอบกราฟิก (เช่น ลายเซ็นหรือโลโก้) ที่วางทับบนภาพ คุณเปิดหรือปิดได้ก่อนบันทึกด้วยปุ่มเปิด/ปิดในแถบด้านล่างของตัวแก้ไข กดปุ่มค้างไว้เพื่อไปที่การตั้งค่าอย่างรวดเร็ว</string>
     <string name="settings_mark_lossy">⚠️ เมื่อมีลายน้ำ จะใช้การทำงานแบบไม่สูญเสียคุณภาพ เช่น การหมุน JPEG ไม่ได้ การบันทึกจะเขียนไฟล์ใหม่ทั้งหมด</string>
-    <string name="settings_mark_where">ตำแหน่ง</string>
+    <string name="settings_mark_where">ตำแหน่งลายน้ำ</string>
     <string name="mark_spot_tl">บนซ้าย</string>
     <string name="mark_spot_tr">บนขวา</string>
     <string name="mark_spot_bl">ล่างซ้าย</string>
