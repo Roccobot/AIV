@@ -466,9 +466,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bewerken</string>
     <string name="menu_edit_hold">App kiezen</string>
-    <string name="editor_internal">Eenvoudige editor</string>
+    <string name="editor_internal">Interne editor</string>
     <string name="editor_title">Bewerken</string>
-    <string name="editor_full">Volledige editor</string>
     <string name="look_light">Licht</string>
     <string name="look_exposure">Belichting</string>
     <string name="look_whites">Witte tinten</string>
@@ -598,9 +597,10 @@
     <string name="edit_failed">Opslaan is niet gelukt</string>
     <string name="edit_app_gone">Die editor is weg. Kies een andere.</string>
     <string name="settings_editor">Afbeeldingseditor</string>
-    <string name="settings_editor_desc">Kies welke app de afbeelding opent met de opdracht Bewerken (menu bij lang drukken in de viewer). Houd Bewerken ingedrukt om direct van app te wisselen zonder de instellingen opnieuw te openen.</string>
+    <string name="settings_editor_desc">Kies welke app de afbeelding opent met de opdracht \'Bewerken\'. Houd \'Bewerken\' ingedrukt om direct van app te wisselen zonder de instellingen opnieuw te openen.</string>
     <string name="settings_editor_none">Geen gekozen</string>
-    <string name="settings_editor_pick">App instellen</string>
+    <string name="settings_editor_pick">Instellen</string>
+    <string name="settings_editor_app">app:</string>
     <string name="view_grid">Raster</string>
     <string name="view_list">Lijst</string>
     <string name="view_tree">Mappen</string>
@@ -614,8 +614,7 @@
     <string name="settings_mark_clear">Verwijderen</string>
     <string name="settings_mark_pick">Selecteren</string>
     <string name="settings_mark_bad">Dit bestand kan niet als watermerk worden gebruikt: kies een PNG of een SVG.</string>
-    <string name="settings_mark_on">Actief</string>
-    <string name="settings_mark_on_desc">Het watermerk is een grafisch element (bijv. een handtekening of logo) dat over de afbeelding wordt gelegd. Je kunt het hier aan- of uitzetten, of direct voor het opslaan met de aan/uit-knop in de onderste balk van de editor; houd de knop ingedrukt om snel naar dit scherm te gaan.</string>
+    <string name="settings_mark_on_desc">Het watermerk is een grafisch element (bijv. een handtekening of logo) dat over de afbeelding wordt gelegd. Je kunt het voor het opslaan aan- of uitzetten met de aan/uit-knop in de onderste balk van de editor; houd de knop ingedrukt om snel naar de instellingen te gaan.</string>
     <string name="settings_mark_lossy">⚠️ Met een watermerk zijn verliesvrije bewerkingen zoals het draaien van een JPEG niet beschikbaar: bij het opslaan wordt het hele bestand herschreven.</string>
     <string name="settings_mark_where">Positie</string>
     <string name="mark_spot_tl">Linksboven</string>
@@ -627,7 +626,7 @@
     <string name="settings_mark_air">Randafstand</string>
     <string name="settings_mark_alpha">Dekking</string>
     <string name="settings_mark_preview">Voorbeeld van het watermerk</string>
-    <string name="settings_mark_preview_note">Vergrote voorvertoning in conceptkwaliteit: controleer het watermerk in het resultaat.</string>
+    <string name="settings_mark_preview_note">Voorvertoning is slechts indicatief: controleer het echte resultaat.</string>
     <string name="look_resize">Formaat wijzigen</string>
     <string name="resize_long">Langste zijde</string>
     <string name="resize_short">Kortste zijde</string>

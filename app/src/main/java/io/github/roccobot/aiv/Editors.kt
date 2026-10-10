@@ -9,7 +9,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 
 /**
- * Chi modifica una fotografia: l'editor semplice, o un'app del telefono.
+ * Chi modifica una fotografia: l'editor interno, o un'app del telefono.
  *
  * ⚠️⚠️ **L'ELENCO SI CHIEDE AL SISTEMA E NON SI SCRIVE**: quali app sappiano modificare
  * un'immagine lo sa `PackageManager`, e ogni elenco scritto a mano sarebbe vecchio il giorno
@@ -28,26 +28,38 @@ import android.net.Uri
  *
  * ⚠️ **La scelta si ricorda come TESTO e non come oggetto**: nelle impostazioni ci va una
  * stringa, e un `ComponentName` si scrive e si rilegge con `flattenToString`. Il valore
- * [INTERNAL] è l'unico che non è un componente, ed è l'editor semplice.
+ * [INTERNAL] è l'unico che non è un componente, ed è l'editor dell'app (con [FULL], che le
+ * versioni prima della `5.01` scrivevano per il completo).
  */
 object Editors {
 
-    /** Il valore che vuol dire 'l'editor dentro AIV'. Vedi `Settings.editorApp`. */
+    /**
+     * Il valore che vuol dire 'l'editor dentro AIV', cioè la voce 'Editor interno'.
+     * Vedi `Settings.editorApp`.
+     *
+     * ⚠️⚠️ **DALLA `5.01` È UNA VOCE SOLA PER I DUE EDITOR DELL'APP, ED È SUA SCELTA** (nota su
+     * `5.00-02`: *sotto Android 13 l'editor semplice, obbligato; da Android 13 in su dev'essere
+     * disponibile SOLO l'editor completo. In entrambi i casi l'editor si chiamerà 'Editor
+     * interno': per l'utente dev'essere trasparente*). Quale dei due si apre lo decide il telefono
+     * al momento di aprirlo ([advancedEditorAvailable]), non la scelta salvata.
+     */
     const val INTERNAL = "interno"
 
     /**
-     * Il valore che vuol dire 'l'editor completo dentro AIV'.
+     * Il valore che fino alla `5.00` voleva dire 'l'editor completo dentro AIV'.
      *
-     * ⚠️⚠️ **È UN SECONDO VALORE E NON UN INTERRUTTORE ACCANTO AL PRIMO**: la scelta
-     * dell'editor è **una stringa sola** (`Settings.editorApp`), quindi i due editor dell'app
-     * vivono nello stesso elenco delle app installate, che è esattamente come l'utente li vede
-     * (*due voci predefinite accanto alle app installate*). Un campo a parte vorrebbe dire due
-     * valori da tenere d'accordo, e il giorno che divergono l'app aprirebbe un editor mentre la
-     * pagina delle impostazioni ne dichiara un altro.
-     * ⚠️ **Il valore scritto non è 'completo' per caso**: quello che finisce nell'archivio non
-     * si traduce e non si rinomina, perché una scelta gia salvata deve continuare a valere.
+     * ⚠️⚠️ **DALLA `5.01` NESSUNO LO SCRIVE PIÙ, MA SI LEGGE ANCORA**: è la scelta che i telefoni
+     * hanno già salvata, e vale come [INTERNAL] (vedi [isInternal]), così chi aveva il completo
+     * continua ad averlo. Quello che finisce nell'archivio non si traduce e non si rinomina,
+     * perché una scelta già salvata deve continuare a valere.
      */
     const val FULL = "completo"
+
+    /**
+     * Se una scelta salvata è l'editor interno: [INTERNAL], o il [FULL] delle versioni prima della
+     * `5.01`. È il solo posto che conosce tutti e due i valori.
+     */
+    fun isInternal(id: String): Boolean = id == INTERNAL || id == FULL
 
     /**
      * Il prefisso che marca una scelta raggiunta con la CONDIVISIONE invece che con la
@@ -70,7 +82,7 @@ object Editors {
     /**
      * Le app che sanno modificare un'immagine, in ordine alfabetico.
      *
-     * ⚠️ **Senza l'editor semplice**: quello lo mette la schermata, in cima, perché è l'unico
+     * ⚠️ **Senza l'editor interno**: quello lo mette la schermata, in cima, perché è l'unico
      * che c'è sempre e non dipende da che cosa ha installato l'utente.
      */
     fun installed(context: Context): List<Choice> {
@@ -169,17 +181,7 @@ object Editors {
      */
     fun labelOf(context: Context, id: String): String? {
         if (id.isBlank()) return null
-        if (id == INTERNAL) return context.getString(R.string.editor_internal)
-        /*
-         * ⚠️⚠️ **SU UN TELEFONO CHE NON LO REGGE LA VOCE RISPONDE `null`, cioè 'nessuno
-         * scelto'**, e non è una scortesia: chi aggiornasse l'app portandosi dietro questa
-         * scelta da un telefono nuovo si troverebbe le impostazioni che dichiarano un editor
-         * che non si puo aprire. Rispondendo `null`, la domanda si rifà e lui sceglie
-         * qualcosa che esiste.
-         */
-        if (id == FULL) {
-            return if (advancedEditorAvailable()) context.getString(R.string.editor_full) else null
-        }
+        if (isInternal(id)) return context.getString(R.string.editor_internal)
         return installed(context).firstOrNull { it.id == id }?.label
     }
 

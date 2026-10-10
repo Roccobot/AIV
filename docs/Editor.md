@@ -7,6 +7,19 @@
 > conto in AGSL, il salvataggio a tessere, `ContoTest`, il senza perdita) in `Rules.md`
 > § '🎚️ L'editor completo, e il conto che esiste in una copia sola'.
 
+## 🧭 Quale editor si apre: una voce sola, 'Editor interno'
+
+- ⚠️⚠️ **Dalla `5.01` i due editor dell'app sono una voce sola fra le scelte di 'Modifica'**, ed è sua
+  scelta (nota su `5.00-02`): *sotto Android 13 l'editor semplice, obbligato; da Android 13 in su
+  dev'essere disponibile SOLO l'editor completo. In entrambi i casi l'editor si chiamerà 'Editor
+  interno'*. Fra noi restano 'editor semplice' (o vecchio) ed 'editor completo' (o nuovo).
+- **Quale dei due si apre lo decide il telefono al momento di aprirlo** (`openInternal`, con
+  `advancedEditorAvailable`), non la scelta salvata. Fino alla `5.00` le voci erano due, e da
+  Android 13 si poteva scegliere anche il semplice.
+- ⚠️ **La scelta salvata del completo (`Editors.FULL`) vale ancora**: nessuno la scrive più, ma i
+  telefoni che l'hanno la leggono come 'Editor interno' (`Editors.isInternal`). Lo misura
+  `EditorInternoTest`, sui due lati di Android 13.
+
 ## 🔄 Le otto pose dell'editor, e la fila che è diventata di cinque
 
 - ⚠️⚠️ **L'editor riflette** (sua richiesta), quindi le pose sono otto: le quattro rotazioni e le
@@ -1252,12 +1265,15 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
 ## 🔏 La filigrana, e perché il file si copia in casa
 
 - ⚠️⚠️ **La specifica è sua**: si configura nelle impostazioni, sezione dell'editor; PNG o SVG, un
-  logo per volta; vale per ogni salvataggio se l'interruttore è acceso; il file si copia in una
-  cartella interna perché sopravviva all'originale.
+  logo per volta; vale per ogni salvataggio se è accesa; il file si copia in una cartella interna
+  perché sopravviva all'originale.
 - ⚠️⚠️ **Non vive in `Look`**, perché è una firma e non un aspetto: arriva al salvataggio come
   argomento. Conta come lavoro da salvare, quindi accende 'Salva' nei due editor, e toglie il senza
-  perdita. L'interruttore si chiama 'Attiva' e il suo testo è suo (dalla `4.99`; prima 'Applica al
-  salvataggio').
+  perdita.
+- ⚠️⚠️ **Dalla `5.01` si accende e si spegne solo dal tasto dell'editor** (sua nota su `5.00-01`:
+  *dalla schermata si impostano i parametri, non si stabilisce se la filigrana è attiva o no*): la
+  pagina non ha più l'interruttore 'Attiva' (dalla `4.99` alla `5.00`; prima 'Applica al
+  salvataggio'). Scegliere un logo la accende, come dalla `2.71`.
 - ⚠️⚠️ **Il file si copia com'è** in `filesDir`: un SVG resta vettore, nitido a ogni misura, e un
   PNG non si riduce. Si chiama sempre `mark` col suffisso del tipo, e quello dell'altro tipo si
   toglie a mano (caso 3), o resterebbero due filigrane.
@@ -1290,31 +1306,31 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
     del riquadro sono di 2 punti, perché rappresenta una fotografia.
   - ⚠️ **Il disegno dell'anteprima si rilegge con una chiave** (il contatore della pagina), o resta il
     logo di prima.
-- ⚠️⚠️ **Dalla `4.99` l'ordine della pagina è il suo mockup** (nota A del giro della `4.98`): in
-  cima 'Attiva' con la spiegazione di che cos'è la filigrana, poi il file con 'Rimuovi' e
-  'Seleziona' (stringa della sola pagina; la riga dell'editor dice 'Imposta app'), il posto, i tre
-  numeri, e in fondo l'avviso sul senza perdita. Il secondo titolo e il mini-paragrafo sotto il
-  titolo della pagina sono usciti. I campi dei numeri sono alti 44 punti (`BasicTextField` con la
-  cornice di Material).
-- ⚠️⚠️ **L'anteprima è più piccola del 25% e cambia di proposito quello che mostra** (stessa nota):
-  opacità piena, misura doppia fino a 50 centesimi, e il fondo passa al nero o al bianco quando
-  l'inchiostro non arriva al contrasto 3:1 col grigio (`previewLook`, luminanza dell'inchiostro
-  pesata sull'opacità). Accanto, o sotto se non c'è posto, la nota sulla qualità dell'anteprima.
-- ⚠️⚠️ **Dalla `5.00` la pagina segue il suo mockup del giro della `4.99`** (nota su `4.99-01`):
-  - la spiegazione di 'Attiva' è larga tutta la pagina, con l'interruttore sulla riga del titolo
-    (`SwitchRow` con `detailBelow`);
-  - il blocco del riquadro si sposta a sinistra (`SPOT_LEAD`), finché il bordo esterno della
-    squadretta cade sul rientro della pagina;
-  - 'Posizione' vive dentro il riquadro, centrata al 15% dell'altezza, sopra il posto in cui può
-    cadere la firma, bianca sul nero, nera sul bianco e del colore della pagina sul grigio
-    (`labelInk`);
-  - la nota non ha più il corsivo né `⚠️`, è un terzo d'inchiostro sul fondo (`#B1B1B1` col tema
-    chiaro, il grigio del suo mockup) e va accanto al riquadro solo se la sua parola più larga ci
-    entra intera, o sotto: i punti in cui si può andare a capo li dà `BreakIterator`, che vale anche
-    per le scritture senza spazi.
+- ⚠️⚠️ **L'ordine della pagina è il suo mockup** (nota A del giro della `4.98`, e su `5.00-01`): in
+  cima il paragrafo che spiega che cos'è la filigrana, largo tutta la pagina, poi il file con
+  'Rimuovi' e 'Seleziona' (stringa della sola pagina; la riga dell'editor dice 'Imposta'), il
+  posto, i tre numeri, e in fondo l'avviso sul senza perdita. Il secondo titolo e il mini-paragrafo
+  sotto il titolo della pagina sono usciti con la `4.99`. I campi dei numeri sono alti 44 punti
+  (`BasicTextField` con la cornice di Material).
+- ⚠️⚠️ **L'anteprima cambia di proposito quello che mostra** (stessa nota): opacità piena, misura
+  doppia fino a 50 centesimi, e il fondo passa al nero o al bianco quando l'inchiostro non arriva al
+  contrasto 3:1 col grigio (`previewLook`, luminanza dell'inchiostro pesata sull'opacità).
+- ⚠️⚠️ **Dalla `5.01` il blocco del riquadro è centrato, all'80% della pagina, e la nota è sotto,
+  su una riga** (sua nota su `5.00-01`: *non mi piace la posizione variabile*). Dalla `4.99` alla
+  `5.00` il riquadro era al 75%, spostato a sinistra, con la nota accanto o sotto a seconda della
+  lingua. La nota è piccola, centrata, senza corsivo né `⚠️`, un terzo d'inchiostro sul fondo
+  (`#B1B1B1` col tema chiaro, il grigio del suo mockup della `5.00`), e in italiano e in inglese
+  entra in una riga anche a 360 punti.
+- ⚠️⚠️ **'Posizione' vive dentro il riquadro, dalla `5.00`**, centrata al 15% dell'altezza, sopra il
+  posto in cui può cadere la firma, bianca sul nero, nera sul bianco e del colore della pagina sul
+  grigio (`labelInk`).
+- ⚠️⚠️ **Dalla `5.01` il tondo del centro è in fondo alla fascia, con uno stelo che sale al centro
+  del riquadro** (sua nota su `5.00-01`, col mockup): fino alla `5.00` era in cima, senza stelo. Lo
+  stelo parte un tratto sopra l'anello del tondo spento, perché due tratti sovrapposti al 55% fanno
+  una macchia più scura (nota D, qui sotto).
 - ⚠️ **Ogni squadretta è un tracciato solo** (nota D): due linee coprivano due volte la piega, e
-  l'inchiostro spento la faceva più scura. Lo misura `FiligranaPaginaTest`, che dalla `5.00` misura
-  anche le quattro note qui sopra e 'Imposta app' sulla riga del titolo dell'editor.
+  l'inchiostro spento la faceva più scura. Lo misura `FiligranaPaginaTest`, che misura anche
+  l'ordine e la forma della pagina qui sopra, lo stelo e la riga dell'editor.
 - ⚠️⚠️ **La pagina è una sotto-pagina di 'Editor e salvataggio'**, e dal tocco lungo sul tasto si apre
   come una scheda sopra l'editor (`MarkPage` in una `Sheet`, sua richiesta): uscendo dall'editor il
   `Look` in lavorazione, che non è salvabile, si perderebbe.

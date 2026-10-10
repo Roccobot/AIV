@@ -189,8 +189,8 @@
     <string name="draw_raise">Trazer para a frente</string>
     <string name="draw_face">Tipo de letra</string>
     <string name="draw_strike">Rasurado</string>
-    <string name="settings_mark_on_desc">A marca d\'água é um elemento gráfico (p. ex. uma assinatura ou um logótipo) sobreposto à imagem. Pode ligá-la ou desligá-la aqui, ou na hora antes de guardar com o botão liga/desliga na barra inferior do editor; mantenha premido o botão para chegar rapidamente a este ecrã.</string>
+    <string name="settings_mark_on_desc">A marca d\'água é um elemento gráfico (p. ex. uma assinatura ou um logótipo) sobreposto à imagem. Pode ligá-la ou desligá-la antes de guardar com o botão liga/desliga na barra inferior do editor; mantenha premido o botão para chegar rapidamente às definições.</string>
     <string name="settings_mark_lossy">⚠️ Com a marca d\'água, operações sem perdas como rodar um JPEG não estão disponíveis: ao guardar, o ficheiro é reescrito por inteiro.</string>
-    <string name="settings_editor_desc">Escolha que app abre a imagem com o comando Editar (menu de toque longo do visualizador). Mantenha premido Editar para mudar de app na hora sem reabrir as definições.</string>
-    <string name="settings_mark_preview_note">Pré-visualização ampliada em qualidade de rascunho: confirme a marca d\'água no resultado.</string>
+    <string name="settings_editor_desc">Escolha que app abre a imagem com o comando \'Editar\'. Mantenha premido \'Editar\' para mudar de app na hora sem reabrir as definições.</string>
+    <string name="settings_mark_preview_note">Pré-visualização apenas indicativa: confirme o resultado real.</string>
 </resources>

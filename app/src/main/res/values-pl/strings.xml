@@ -500,9 +500,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edytuj</string>
     <string name="menu_edit_hold">Wybierz aplikację</string>
-    <string name="editor_internal">Prosty edytor</string>
+    <string name="editor_internal">Wbudowany edytor</string>
     <string name="editor_title">Edytuj</string>
-    <string name="editor_full">Pełny edytor</string>
     <string name="look_light">Światło</string>
     <string name="look_exposure">Ekspozycja</string>
     <string name="look_whites">Biele</string>
@@ -632,9 +631,10 @@
     <string name="edit_failed">Nie udało się zapisać</string>
     <string name="edit_app_gone">Tego edytora już nie ma. Wybierz inny.</string>
     <string name="settings_editor">Edytor obrazów</string>
-    <string name="settings_editor_desc">Wybierz aplikację, która otwiera obraz poleceniem Edytuj (menu długiego naciśnięcia w przeglądarce). Przytrzymaj Edytuj, aby od razu zmienić aplikację bez ponownego otwierania ustawień.</string>
+    <string name="settings_editor_desc">Wybierz aplikację, która otwiera obraz poleceniem \'Edytuj\'. Przytrzymaj \'Edytuj\', aby od razu zmienić aplikację bez ponownego otwierania ustawień.</string>
     <string name="settings_editor_none">Nie wybrano</string>
-    <string name="settings_editor_pick">Ustaw aplikację</string>
+    <string name="settings_editor_pick">Ustaw</string>
+    <string name="settings_editor_app">aplikacja:</string>
     <string name="view_grid">Siatka</string>
     <string name="view_list">Lista</string>
     <string name="view_tree">Foldery</string>
@@ -648,8 +648,7 @@
     <string name="settings_mark_clear">Usuń</string>
     <string name="settings_mark_pick">Wybierz</string>
     <string name="settings_mark_bad">Tego pliku nie można użyć jako znaku wodnego: wybierz PNG lub SVG.</string>
-    <string name="settings_mark_on">Włączony</string>
-    <string name="settings_mark_on_desc">Znak wodny to element graficzny (np. podpis lub logo) nakładany na obraz. Możesz go włączyć lub wyłączyć tutaj albo od razu przed zapisem przyciskiem wł./wył. na dolnym pasku edytora; przytrzymaj przycisk, aby szybko przejść do tego ekranu.</string>
+    <string name="settings_mark_on_desc">Znak wodny to element graficzny (np. podpis lub logo) nakładany na obraz. Możesz go włączyć lub wyłączyć przed zapisem przyciskiem wł./wył. na dolnym pasku edytora; przytrzymaj przycisk, aby szybko przejść do ustawień.</string>
     <string name="settings_mark_lossy">⚠️ Ze znakiem wodnym operacje bezstratne, takie jak obrót JPEG, nie są dostępne: zapis tworzy cały plik od nowa.</string>
     <string name="settings_mark_where">Pozycja</string>
     <string name="mark_spot_tl">Lewy górny róg</string>
@@ -661,7 +660,7 @@
     <string name="settings_mark_air">Odległość od krawędzi</string>
     <string name="settings_mark_alpha">Krycie</string>
     <string name="settings_mark_preview">Podgląd znaku wodnego</string>
-    <string name="settings_mark_preview_note">Powiększony podgląd w jakości roboczej: sprawdź znak wodny w wyniku.</string>
+    <string name="settings_mark_preview_note">Podgląd jest tylko orientacyjny: sprawdź rzeczywisty wynik.</string>
     <string name="look_resize">Zmień rozmiar</string>
     <string name="resize_long">Dłuższy bok</string>
     <string name="resize_short">Krótszy bok</string>
