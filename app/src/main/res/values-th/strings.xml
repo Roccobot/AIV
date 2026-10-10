@@ -180,6 +180,9 @@
     <string name="folders_title">โฟลเดอร์</string>
     <string name="folders_permission">การแสดงรายการโฟลเดอร์ต้องเข้าถึงไฟล์ทั้งหมด เป็นสิทธิ์เดียวกับที่ทำให้ดูโฟลเดอร์ได้ และให้จากหน้าของระบบ</string>
     <string name="folders_grant">ให้สิทธิ์เข้าถึง</string>
+    <string name="folders_partial">แสดงเฉพาะรูปภาพที่คุณเลือก</string>
+    <string name="folders_partial_all">อนุญาตทั้งหมด</string>
+    <string name="folders_permission_media">การแสดงรายการโฟลเดอร์ต้องมีสิทธิ์เข้าถึงรูปภาพและวิดีโอ</string>
     <string name="folders_none">ไม่มีโฟลเดอร์ใดมีอะไรให้แสดง</string>
     <string name="folders_tablet_pick">เลือกโฟลเดอร์จากแถบนำทาง</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -567,6 +570,7 @@
     <string name="editor_center_both">จัดกึ่งกลางแนวนอนและแนวตั้ง</string>
     <string name="editor_done">บันทึกแล้ว</string>
     <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
+    <string name="editor_done_downloads">บันทึกใน Download แล้ว</string>
     <string name="editor_discard_ask">ทิ้งการเปลี่ยนแปลงไหม</string>
     <string name="editor_discard">ทิ้ง</string>
     <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>
@@ -682,6 +686,7 @@
     <string name="hint_modules">ปัดไอคอนเพื่อเข้าถึงโมดูลแก้ไขทั้งหมด แตะค้างที่ไอคอนของโมดูลเพื่อล้างเฉพาะการปรับของโมดูลนั้น</string>
     <string name="hint_tools">นอกจากโมดูลแล้ว ยังมีสองฟังก์ชันที่เปิดหรือปิดได้ทันทีด้วยการแตะที่ไอคอน ซึ่งจะสว่างขึ้น ได้แก่ \'ลายน้ำ\' และ \'ปรับขนาด\' กดค้างเพื่อเปิดการตั้งค่าของแต่ละอย่าง</string>
     <string name="hint_save">เมื่อเสร็จแล้วให้แตะ \'บันทึก\' เพื่อเขียนทับไฟล์ (พร้อมสำเนาสำรอง หากเปิดใช้งานไว้) การกดค้างจะบันทึกสำเนาใหม่ของภาพไว้ในโฟลเดอร์เดียวกัน</string>
+    <string name="hint_save_play">เมื่อเสร็จแล้ว ให้แตะ \'บันทึก\' การแก้ไขจะกลายเป็นไฟล์ใหม่ใน Download และภาพต้นฉบับยังคงเดิม</string>
     <string name="hint_draw">ด้วยโมดูลวาด คุณเพิ่มเส้น ลูกศร วงรี สี่เหลี่ยมมุมมน ข้อความแบบง่าย กรอบทรง\'แคปซูล\' และแผงเบลอ ลงในภาพได้ การบันทึกจะรวมภาพเป็นชั้นเดียว จึงเปิดกลับมาแก้ไขหรือย้ายองค์ประกอบไม่ได้อีก กดค้างที่สีเพื่อปรับความสว่างของสีนั้น</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

@@ -180,6 +180,9 @@
     <string name="folders_title">Теки</string>
     <string name="folders_permission">Для списку тек потрібен доступ до всіх файлів. Це той самий дозвіл, який дає гортати теку, і він надається на сторінці системи.</string>
     <string name="folders_grant">Надати доступ</string>
+    <string name="folders_partial">Показано лише вибрані зображення.</string>
+    <string name="folders_partial_all">Дозволити всі</string>
+    <string name="folders_permission_media">Для списку тек потрібен доступ до зображень і відео.</string>
     <string name="folders_none">У жодній теці немає нічого для показу.</string>
     <string name="folders_tablet_pick">Виберіть теку на панелі навігації</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -618,6 +621,7 @@
     <string name="editor_center_both">По центру горизонтально і вертикально</string>
     <string name="editor_done">Збережено</string>
     <string name="editor_done_copy">Копію збережено</string>
+    <string name="editor_done_downloads">Збережено в Download</string>
     <string name="editor_discard_ask">Відхилити зміни?</string>
     <string name="editor_discard">Відхилити</string>
     <string name="editor_done_lossless">Збережено без перестиснення</string>
@@ -736,6 +740,7 @@
     <string name="hint_modules">Гортайте значки, щоб дістатися до всіх модулів обробки. Утримуйте значок модуля, щоб скинути лише його зміни.</string>
     <string name="hint_tools">Крім модулів, є дві функції, які можна миттєво ввімкнути або вимкнути дотиком до значка, і він засвічується: \'Водяний знак\' і \'Змінити розмір\'. Довге натискання відкриває налаштування кожної з них.</string>
     <string name="hint_save">Коли завершиш, торкнись \'Зберегти\', щоб перезаписати файл (з резервною копією, якщо її ввімкнено); довге натискання збереже нову копію зображення в тій самій теці.</string>
+    <string name="hint_save_play">Коли закінчите, торкніться \'Зберегти\': зміни стануть новим файлом у Download, а початкове зображення залишиться як було.</string>
     <string name="hint_draw">У модулі \'Малювання\' можна додавати на зображення лінії, стрілки, еліпси, заокруглені прямокутники, простий текст, рамки-\'пігулки\' і розмиті панелі. Під час збереження зображення зводиться в один шар: відкрити його знову, щоб змінити або перемістити елементи, не вийде. Утримуйте колір, щоб налаштувати його яскравість.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

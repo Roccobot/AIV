@@ -1193,7 +1193,9 @@ fun AdvancedEditorScreen(
          */
         if (hinted && !toolsHinted && !saveSpot.isEmpty && !resizeSpot.isEmpty) {
             val sopra = HintGroup(
-                text = stringResource(R.string.hint_save),
+                // ⚠️ AIV Play never writes over the original, so its sentence says where the
+                // new file goes (`ImageEdit.outDir`).
+                text = stringResource(if (Store.files) R.string.hint_save else R.string.hint_save_play),
                 spots = listOf(
                     saveSpot to {
                         Text(

@@ -322,19 +322,22 @@ fun FolderRail(
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RailAction(
-                    icon = { tint ->
-                        Icon(
-                            imageVector = Glyphs.Bin,
-                            contentDescription = null,
-                            tint = tint,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    label = stringResource(R.string.bin_title),
-                    onClick = onBin,
-                    modifier = Modifier.weight(1f)
-                )
+                // ⚠️ AIV Play has no bin (`Store.files`).
+                if (Store.files) {
+                    RailAction(
+                        icon = { tint ->
+                            Icon(
+                                imageVector = Glyphs.Bin,
+                                contentDescription = null,
+                                tint = tint,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        label = stringResource(R.string.bin_title),
+                        onClick = onBin,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 RailAction(
                     icon = { tint ->
                         Icon(

@@ -997,9 +997,11 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_editing),
-            summary = listOf(
-                stringResource(R.string.settings_editor),
-                stringResource(R.string.settings_editor_backup),
+            summary = listOfNotNull(
+                // ⚠️ AIV Play has neither the choice of the editor nor the safety copy: it has
+                // only its own editors, which never write over the original.
+                if (Store.files) stringResource(R.string.settings_editor) else null,
+                if (Store.files) stringResource(R.string.settings_editor_backup) else null,
                 stringResource(R.string.settings_quality),
                 stringResource(R.string.settings_styles),
                 stringResource(R.string.settings_mark)
@@ -1033,14 +1035,17 @@ private fun ColumnScope.RootPage(
          * Le due voci che stavano qui in chiaro (attiva il cestino, e per quanto si tiene)
          * rispondono a una domanda sola e lui le vuole dietro una porta.
          */
-        PageOfRows(
-            label = stringResource(R.string.bin_title),
-            summary = listOf(
-                stringResource(R.string.settings_bin),
-                stringResource(R.string.settings_bin_sweep)
-            ).joinToString(SUMMARY_JOIN),
-            onOpen = { onOpen(Page.BIN) }
-        ) { BinPage(settings = settings, onChange = onChange) }
+        // ⚠️ AIV Play has no bin (`Store.files`).
+        if (Store.files) {
+            PageOfRows(
+                label = stringResource(R.string.bin_title),
+                summary = listOf(
+                    stringResource(R.string.settings_bin),
+                    stringResource(R.string.settings_bin_sweep)
+                ).joinToString(SUMMARY_JOIN),
+                onOpen = { onOpen(Page.BIN) }
+            ) { BinPage(settings = settings, onChange = onChange) }
+        }
     }
 
     Section(stringResource(R.string.settings_group_start)) {
@@ -1399,12 +1404,12 @@ private fun FoldersPage(
         label = stringResource(R.string.view_options),
         // ⚠️ Composto dai tre nomi che la pagina usa come titolini: zero stringhe nuove, e se
         // un titolino cambia cambia anche il riepilogo.
-        summary = listOf(
+        summary = listOfNotNull(
             stringResource(R.string.view_grid),
             stringResource(R.string.view_list),
             // ⚠️ `hub_view_tree` ('Cartelle di sistema') e NON `view_tree` ('Cartelle'), che
-            // collide col titolo di questa sezione.
-            stringResource(R.string.hub_view_tree)
+            // collide col titolo di questa sezione. Not in AIV Play (`Store.views`).
+            stringResource(R.string.hub_view_tree).takeIf { FolderView.TREE in Store.views }
         ).joinToString(SUMMARY_JOIN),
         onOpen = { onOpen(Page.VIEWS) }
     ) { ViewOptionsPage(settings = settings, onChange = onChange) }
@@ -1847,7 +1852,8 @@ private fun EditingPage(
      */
     val editorLabel = stringResource(R.string.settings_editor)
     val editorDesc = stringResource(R.string.settings_editor_desc)
-    Searchable(editorLabel, editorDesc) {
+    // ⚠️ AIV Play has only its own editors (`ViewerViewModel.edit`): nothing to choose.
+    if (Store.files) Searchable(editorLabel, editorDesc) {
         val context = LocalContext.current
         val noEditor = stringResource(R.string.settings_editor_none)
         // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
@@ -1867,12 +1873,15 @@ private fun EditingPage(
      * **prima** di lanciarla, quindi si può eccome. Vive sotto la scelta dell'app perché è la
      * stessa faccenda, non perché ne riguardi una sola.
      */
-    SwitchRow(
-        label = stringResource(R.string.settings_editor_backup),
-        detail = stringResource(R.string.settings_editor_backup_desc),
-        checked = settings.editorBackup,
-        onChange = { onChange(settings.copy(editorBackup = it)) }
-    )
+    // ⚠️ Not in AIV Play, whose editors never write over the original (`ImageEdit.outDir`).
+    if (Store.files) {
+        SwitchRow(
+            label = stringResource(R.string.settings_editor_backup),
+            detail = stringResource(R.string.settings_editor_backup_desc),
+            checked = settings.editorBackup,
+            onChange = { onChange(settings.copy(editorBackup = it)) }
+        )
+    }
 
     /*
      * ⚠️⚠️ **VIVE NELLA FAMIGLIA DELL'EDITOR PERCHÉ RISPONDE ALLA SUA STESSA DOMANDA**, cioè
@@ -2713,7 +2722,8 @@ private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
 
     // ⚠️ 'Cartelle di sistema' e non 'Cartelle': il secondo è il nome corto della vista nel
     // dialogo, e come titolino collide col titolo della sezione da cui si arriva qui.
-    Section(stringResource(R.string.hub_view_tree)) {
+    // ⚠️ AIV Play has no such view (`Store.views`), so its two switches are out too.
+    if (FolderView.TREE in Store.views) Section(stringResource(R.string.hub_view_tree)) {
 
         SwitchRow(
             label = stringResource(R.string.tree_show_hidden),
@@ -3131,7 +3141,9 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
      * cartelle normali e cestino*). Nel cestino il riquadro porta 'Ripristina' nel posto che
      * altrove tiene 'Rinomina': è lo stesso ordine, con una voce che cambia mestiere.
      */
-    Detail(stringResource(R.string.settings_buttons_bin))
+    // ⚠️ AIV Play has neither the bin nor 'Rinomina' (`Store.files`), so the sentence has
+    // nothing to explain there.
+    if (Store.files) Detail(stringResource(R.string.settings_buttons_bin))
     PadOrder(
         title = stringResource(R.string.settings_buttons_menu),
         order = settings.menuOrder,

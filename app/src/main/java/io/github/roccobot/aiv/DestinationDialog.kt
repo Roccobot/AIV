@@ -228,7 +228,8 @@ fun DestinationDialog(
                             )
                         }
                     }
-                    if (here != null) {
+                    // ⚠️ AIV Play cannot make a shared folder (`Store.files`).
+                    if (here != null && Store.files) {
                         IconButton(onClick = { naming = true }) {
                             Icon(
                                 imageVector = Icons.Default.CreateNewFolder,

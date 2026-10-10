@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        I permessi sull'archivio della variante `play`, quella per Google Play.
+        ⚠️⚠️ SOLO IMMAGINI E VIDEO, e non è una scelta di gusto: la politica di Google Play
+        concede l'accesso a tutti i file ai gestori di file, ai backup, agli antivirus e ai
+        gestori di documenti, ed elenca l'accesso ai file multimediali fra gli usi rifiutati;
+        a una galleria concede i permessi su foto e video.
+        ⚠️ Il terzo dice se la persona ha concesso solo ALCUNE foto (da Android 14): senza
+        dichiararlo l'accesso parziale si legge come un rifiuto, e l'app non saprebbe dire
+        'vedo solo le foto che hai scelto'. Il conto vive in `Store`.
+        ⚠️ L'ultimo copre Android 9-12, dove i due permessi sui media non esistono ancora e
+        quello classico sull'archivio fa leggere le immagini; si ferma alla 32.
+    -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+</manifest>

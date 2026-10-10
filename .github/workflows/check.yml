@@ -46,8 +46,13 @@ jobs:
       - name: Set up the Android toolchain
         uses: ./.github/actions/toolchain
 
+      # ⚠️⚠️ TWO VARIANTS SINCE 5.10, AND THE BENCH RUNS ON BOTH, IN TWO DIFFERENT WAYS.
+      # The whole bench runs on `github`, the app as it has always been. On `play` only
+      # the classes named `*PlayTest` run (`app/src/testPlay`): the shared tests click
+      # Delete, Rename, Move and the rest, which `play` leaves out, so there they would
+      # fail by design. Which functions `play` leaves out lives in `Rules.md`.
       - name: Run the bench
-        run: ./gradlew --no-daemon :app:testDebugUnitTest
+        run: ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:testPlayDebugUnitTest --tests '*PlayTest'
 
       - name: Check the translations
         run: python3 tools/i18n-check.py
@@ -59,7 +64,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bench-report
-          path: app/build/reports/tests/testDebugUnitTest/
+          path: app/build/reports/tests/
           if-no-files-found: ignore
 
   # ⚠️⚠️ THE CACHES ARE PRUNED HERE, AND A PERSON DID IT BY HAND BEFORE. GitHub

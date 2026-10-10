@@ -759,7 +759,12 @@ internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = M
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(name) {
-                detectTapGestures(onTap = { copia() }, onLongPress = { rinomina() })
+                // ⚠️ AIV Play cannot rename a file (`Store.files`): there the long press is
+                // not offered, and the tap still copies the name.
+                detectTapGestures(
+                    onTap = { copia() },
+                    onLongPress = if (Store.files) { _ -> rinomina() } else null
+                )
             },
         shape = RoundedCornerShape(NAME_CORNER),
         color = MaterialTheme.colorScheme.primaryContainer,

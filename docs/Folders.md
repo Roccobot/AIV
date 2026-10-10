@@ -4,6 +4,9 @@
 > AIV: che cosa fa ognuna, le decisioni dell'utente su di lei e le sue trappole. Non si carica da
 > solo: si legge per intero prima di toccare una di queste funzioni. Le regole del repo vivono in
 > `Rules.md`, e un rimando a una sua sezione indica il nome del file.
+> ⚠️ **Dalla `5.10` AIV Play non ha la vista 'Cartelle di sistema', 'Nuova cartella' e la rinomina
+> di una cartella**, e ha la riga dell'accesso parziale: l'elenco e il perché vivono in `Rules.md`
+> § '🏪 Le due varianti, e che cosa manca ad AIV Play'.
 
 ## 🖼️ Intestazione delle cartelle, e le due schermate che la mostrano
 

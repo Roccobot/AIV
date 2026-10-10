@@ -180,6 +180,9 @@
     <string name="folders_title">Klasörler</string>
     <string name="folders_permission">Klasörleri listelemek tüm dosyalara erişim ister. Bir klasörü çevirmeyi sağlayan izinle aynıdır ve bir sistem sayfasından verilir.</string>
     <string name="folders_grant">Erişim ver</string>
+    <string name="folders_partial">Yalnızca seçtiğin görseller gösteriliyor.</string>
+    <string name="folders_partial_all">Tümüne izin ver</string>
+    <string name="folders_permission_media">Klasörleri listelemek görsellere ve videolara erişim ister.</string>
     <string name="folders_none">Gösterilecek bir şey içeren klasör yok.</string>
     <string name="folders_tablet_pick">Gezinme çubuğundan bir klasör seçin</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">Yatayda ve dikeyde ortala</string>
     <string name="editor_done">Kaydedildi</string>
     <string name="editor_done_copy">Kopya kaydedildi</string>
+    <string name="editor_done_downloads">Download klasörüne kaydedildi</string>
     <string name="editor_discard_ask">Değişiklikler silinsin mi?</string>
     <string name="editor_discard">Sil</string>
     <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
     <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır.</string>
     <string name="hint_save">İşin bitince dosyanın üzerine yazmak için \'Kaydet\' düğmesine dokun (etkinse yedek kopyayla birlikte); uzun basış, görüntünün yeni bir kopyasını aynı klasöre kaydeder.</string>
+    <string name="hint_save_play">Bitirdiğinde \'Kaydet\' düğmesine dokun: düzenleme Download içinde yeni bir dosya olur, özgün görsel olduğu gibi kalır.</string>
     <string name="hint_draw">Çizim modülüyle görüntüye çizgiler, oklar, elipsler, yuvarlatılmış dikdörtgenler, basit metinler, \'hap\' kutuları ve bulanık paneller ekleyebilirsin. Kaydetmek görüntüyü tek katmana indirir: öğeleri düzenlemek ya da taşımak için onu yeniden açamazsın. Parlaklığını ayarlamak için bir renge uzun bas.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

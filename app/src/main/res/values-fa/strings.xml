@@ -180,6 +180,9 @@
     <string name="folders_title">پوشه‌ها</string>
     <string name="folders_permission">فهرست کردن پوشه‌ها به دسترسی به همه فایل‌ها نیاز دارد. همان اجازه‌ای است که مرور یک پوشه را ممکن می‌کند، و از صفحه‌ای در سیستم داده می‌شود.</string>
     <string name="folders_grant">دادن دسترسی</string>
+    <string name="folders_partial">فقط تصویرهایی که انتخاب کرده‌اید نمایش داده می‌شوند.</string>
+    <string name="folders_partial_all">اجازه به همه</string>
+    <string name="folders_permission_media">برای فهرست کردن پوشه‌ها دسترسی به تصویرها و ویدیوها لازم است.</string>
     <string name="folders_none">هیچ پوشه‌ای چیزی برای نمایش ندارد.</string>
     <string name="folders_tablet_pick">یک پوشه را از نوار پیمایش انتخاب کنید</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">وسط‌چین افقی و عمودی</string>
     <string name="editor_done">ذخیره شد</string>
     <string name="editor_done_copy">رونوشت ذخیره شد</string>
+    <string name="editor_done_downloads">در Download ذخیره شد</string>
     <string name="editor_discard_ask">از تغییرات صرف‌نظر می‌کنید؟</string>
     <string name="editor_discard">صرف‌نظر کردن</string>
     <string name="editor_done_lossless">بدون فشرده‌سازی دوباره ذخیره شد</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">نمادها را بکشید تا به همهٔ بخش‌های ویرایش برسید. نماد یک بخش را نگه دارید تا فقط تغییرات همان بخش صفر شود.</string>
     <string name="hint_tools">علاوه بر ماژول‌ها، دو قابلیت وجود دارد که با یک ضربه روی نماد، که روشن می‌شود، بی‌درنگ فعال یا غیرفعال می‌شوند: \'واترمارک\' و \'تغییر اندازه\'. با فشار طولانی به تنظیمات هرکدام می‌روی.</string>
     <string name="hint_save">وقتی کارت تمام شد، برای بازنویسی فایل روی \'ذخیره\' بزن (همراه نسخه پشتیبان، اگر فعال باشد)؛ با فشار طولانی یک نسخه تازه از تصویر در همان پوشه ذخیره می‌شود.</string>
+    <string name="hint_save_play">وقتی کارتان تمام شد، \'ذخیره\' را لمس کنید: ویرایش به یک فایل تازه در Download تبدیل می‌شود و تصویر اصلی همان‌طور می‌ماند.</string>
     <string name="hint_draw">با بخش طراحی می‌توانید به تصویر خط، پیکان، بیضی، مستطیل گوشه‌گرد، متن ساده، قاب \'کپسولی\' و پنل تار اضافه کنید. ذخیره، تصویر را یکپارچه می‌کند: دیگر نمی‌توان آن را باز کرد تا عناصر را ویرایش یا جابه‌جا کرد. یک رنگ را نگه دارید تا روشنایی آن را تنظیم کنید.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

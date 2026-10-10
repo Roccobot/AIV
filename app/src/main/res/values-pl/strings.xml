@@ -180,6 +180,9 @@
     <string name="folders_title">Foldery</string>
     <string name="folders_permission">Wypisanie folderów wymaga dostępu do wszystkich plików. To ta sama zgoda, która pozwala przeglądać folder, i udziela się jej na stronie systemu.</string>
     <string name="folders_grant">Udziel dostępu</string>
+    <string name="folders_partial">Widoczne są tylko wybrane obrazy.</string>
+    <string name="folders_partial_all">Zezwól na wszystkie</string>
+    <string name="folders_permission_media">Wypisanie folderów wymaga dostępu do obrazów i filmów.</string>
     <string name="folders_none">Żaden folder nie zawiera niczego do pokazania.</string>
     <string name="folders_tablet_pick">Wybierz folder z paska nawigacji</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -618,6 +621,7 @@
     <string name="editor_center_both">Wyśrodkuj w poziomie i w pionie</string>
     <string name="editor_done">Zapisano</string>
     <string name="editor_done_copy">Zapisano kopię</string>
+    <string name="editor_done_downloads">Zapisano w Download</string>
     <string name="editor_discard_ask">Odrzucić zmiany?</string>
     <string name="editor_discard">Odrzuć</string>
     <string name="editor_done_lossless">Zapisano bez ponownej kompresji</string>
@@ -736,6 +740,7 @@
     <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
     <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich.</string>
     <string name="hint_save">Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
+    <string name="hint_save_play">Gdy skończysz, dotknij \'Zapisz\': edycja staje się nowym plikiem w Download, a oryginalny obraz zostaje bez zmian.</string>
     <string name="hint_draw">W module Rysowanie dodasz do obrazu linie, strzałki, elipsy, zaokrąglone prostokąty, proste teksty, ramki \'pigułki\' i rozmyte panele. Zapisanie spłaszcza obraz: nie można go ponownie otworzyć, aby edytować lub przesuwać elementy. Przytrzymaj kolor, aby dostosować jego jasność.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

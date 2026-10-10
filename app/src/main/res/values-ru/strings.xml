@@ -180,6 +180,9 @@
     <string name="folders_title">Папки</string>
     <string name="folders_permission">Для списка папок нужен доступ ко всем файлам. Это то же разрешение, которое позволяет листать папку, и оно даётся на системной странице.</string>
     <string name="folders_grant">Дать доступ</string>
+    <string name="folders_partial">Показаны только выбранные изображения.</string>
+    <string name="folders_partial_all">Разрешить все</string>
+    <string name="folders_permission_media">Для списка папок нужен доступ к изображениям и видео.</string>
     <string name="folders_none">Ни в одной папке нет ничего для показа.</string>
     <string name="folders_tablet_pick">Выберите папку на панели навигации</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -618,6 +621,7 @@
     <string name="editor_center_both">По центру по горизонтали и вертикали</string>
     <string name="editor_done">Сохранено</string>
     <string name="editor_done_copy">Копия сохранена</string>
+    <string name="editor_done_downloads">Сохранено в Download</string>
     <string name="editor_discard_ask">Сбросить изменения?</string>
     <string name="editor_discard">Сбросить</string>
     <string name="editor_done_lossless">Сохранено без пересжатия</string>
@@ -736,6 +740,7 @@
     <string name="hint_modules">Пролистайте значки, чтобы добраться до всех модулей обработки. Удерживайте значок модуля, чтобы сбросить только его изменения.</string>
     <string name="hint_tools">Кроме модулей есть две функции, которые можно сразу включить или выключить касанием значка, и он загорается: \'Водяной знак\' и \'Изменить размер\'. Долгое нажатие открывает настройки каждой из них.</string>
     <string name="hint_save">Когда закончишь, коснись \'Сохранить\', чтобы перезаписать файл (с резервной копией, если она включена); долгое нажатие сохранит новую копию изображения в той же папке.</string>
+    <string name="hint_save_play">Когда закончите, нажмите \'Сохранить\': правка станет новым файлом в Download, а исходное изображение останется как было.</string>
     <string name="hint_draw">В модуле \'Рисование\' можно добавлять на изображение линии, стрелки, эллипсы, скруглённые прямоугольники, простой текст, рамки-\'таблетки\' и размытые панели. При сохранении изображение сводится в один слой: открыть его снова, чтобы изменить или переместить элементы, нельзя. Удерживайте цвет, чтобы настроить его яркость.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

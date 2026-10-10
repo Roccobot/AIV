@@ -180,6 +180,9 @@
     <string name="folders_title">ফোল্ডার</string>
     <string name="folders_permission">ফোল্ডারের তালিকা করতে সব ফাইলে প্রবেশাধিকার দরকার। এটি সেই একই অনুমতি যা একটি ফোল্ডার দেখতে দেয়, আর সিস্টেমের একটি পাতা থেকে দেওয়া হয়।</string>
     <string name="folders_grant">প্রবেশাধিকার দিন</string>
+    <string name="folders_partial">শুধু আপনার বেছে নেওয়া ছবিগুলো দেখানো হচ্ছে।</string>
+    <string name="folders_partial_all">সবগুলোর অনুমতি দিন</string>
+    <string name="folders_permission_media">ফোল্ডারের তালিকার জন্য ছবি ও ভিডিওতে প্রবেশাধিকার দরকার।</string>
     <string name="folders_none">কোনো ফোল্ডারে দেখানোর মতো কিছু নেই।</string>
     <string name="folders_tablet_pick">নেভিগেশন বার থেকে একটি ফোল্ডার বেছে নিন</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">আনুভূমিক ও উল্লম্বভাবে কেন্দ্রে</string>
     <string name="editor_done">সংরক্ষিত হয়েছে</string>
     <string name="editor_done_copy">অনুলিপি সংরক্ষিত হয়েছে</string>
+    <string name="editor_done_downloads">Download-এ সংরক্ষিত</string>
     <string name="editor_discard_ask">পরিবর্তনগুলি বাদ দেবেন?</string>
     <string name="editor_discard">বাদ দিন</string>
     <string name="editor_done_lossless">পুনরায় সংকুচিত না করেই সংরক্ষিত হয়েছে</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">সব সম্পাদনা মডিউলে পৌঁছাতে আইকনগুলি সোয়াইপ করুন। কোনও মডিউলের আইকন চেপে ধরে রাখলে শুধু তার পরিবর্তন মুছে যায়।</string>
     <string name="hint_tools">মডিউলগুলি ছাড়াও দুটি ফাংশন আছে, যেগুলি আইকনে একটি ট্যাপ করে সঙ্গে সঙ্গে চালু বা বন্ধ করা যায়, আর আইকনটি জ্বলে ওঠে: \'জলছাপ\' ও \'আকার বদলান\'। দীর্ঘ চাপে প্রতিটির সেটিংস খোলে।</string>
     <string name="hint_save">শেষ হলে ফাইলটি প্রতিস্থাপন করতে \'সংরক্ষণ করুন\' চাপুন (ব্যাকআপ কপিসহ, যদি সেটি চালু থাকে); দীর্ঘ চাপে ছবিটির একটি নতুন কপি একই ফোল্ডারে সংরক্ষিত হয়।</string>
+    <string name="hint_save_play">শেষ হলে \'সংরক্ষণ করুন\' ছুঁয়ে দিন: সম্পাদনাটি Download-এ একটি নতুন ফাইল হয়ে যায়, আর মূল ছবিটি যেমন ছিল তেমনই থাকে।</string>
     <string name="hint_draw">আঁকা মডিউল দিয়ে আপনি ছবিতে রেখা, তীর, উপবৃত্ত, গোল কোণের আয়তক্ষেত্র, সাধারণ লেখা, \'বড়ি\' আকারের বাক্স আর ঝাপসা প্যানেল যোগ করতে পারেন। সংরক্ষণ করলে ছবি একটি স্তরে মিশে যায়: উপাদানগুলি সম্পাদনা বা সরানোর জন্য সেটি আবার খোলা যায় না। কোনও রঙের উজ্জ্বলতা বদলাতে সেটি চেপে ধরে রাখুন।</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

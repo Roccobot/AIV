@@ -3592,8 +3592,9 @@ private fun ImageMenu(
                     text = stringResource(R.string.menu_edit),
                     icon = Glyphs.ImageEdit,
                     onTap = { menu.close(); ops.edit() },
-                    holdLabel = stringResource(R.string.menu_edit_hold),
-                    onHold = { menu.close(); ops.editWith() }
+                    // ⚠️ AIV Play has only its own editors: no app to choose (`Store.files`).
+                    holdLabel = if (Store.files) stringResource(R.string.menu_edit_hold) else null,
+                    onHold = if (Store.files) { { menu.close(); ops.editWith() } } else null
                 )
             }
             /*
@@ -3794,6 +3795,7 @@ private fun ImageMenu(
                 // fabbrica è quello che ha dettato per la `1.54`: vedi `MENU_KEYS`.
                 ActionPad(
                     actions = listOf(copia, sposta, condividi, rinomina, elimina, info)
+                        .filter { Store.allows(it.key) }
                         .inOrder(LocalPadLook.current.menu)
                 )
             }

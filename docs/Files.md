@@ -4,6 +4,9 @@
 > impostazioni salvate: che cosa fa ognuna, le decisioni dell'utente su di lei e le sue trappole.
 > Non si carica da solo: si legge per intero prima di toccare una di queste funzioni. Le regole del
 > repo vivono in `Rules.md`, e un rimando a una sua sezione indica il nome del file.
+> ⚠️ **Dalla `5.10` AIV Play non ha le funzioni che scrivono sui file** (copia, sposta, rinomina,
+> elimina, cestino): l'elenco e il perché vivono in `Rules.md` § '🏪 Le due varianti, e che cosa
+> manca ad AIV Play', e chi ne tocca una controlla che resti spenta là.
 
 ## 📤 AIV come selettore: quando un'altra app chiede un'immagine
 

@@ -193,4 +193,8 @@
     <string name="settings_mark_lossy">⚠️ Com a marca d\'água, operações sem perdas como rodar um JPEG não estão disponíveis: ao guardar, o ficheiro é reescrito por inteiro.</string>
     <string name="settings_editor_desc">Escolha que app abre a imagem com o comando \'Editar\'. Mantenha premido \'Editar\' para mudar de app na hora sem reabrir as definições.</string>
     <string name="settings_mark_preview_note">Pré-visualização apenas indicativa: confirme o resultado real.</string>
+
+    <!-- AIV Play, from 5.10: ficheiro and guardar, as everywhere above. -->
+    <string name="editor_done_downloads">Guardada em Transferências</string>
+    <string name="hint_save_play">Quando terminar, toque em \'Salvar\': a edição passa a ser um ficheiro novo em Transferências, e a imagem original fica como está.</string>
 </resources>

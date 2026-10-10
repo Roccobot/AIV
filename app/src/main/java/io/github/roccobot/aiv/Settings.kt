@@ -1162,17 +1162,19 @@ data class Settings(
  * riempire i buchi di un archivio vecchio, quindi togliere una voce da qui non è un ritocco
  * all'ordine: è dire che quel tasto non esiste più in quel riquadro.
  * ⚠️ **L'ordine è quello dettato dall'utente per la `1.54`**, riga per riga, e non uno mio.
+ * ⚠️ **In AIV Play le prime due perdono i tasti che scrivono sui file** (`Store.allows`, dalla
+ * `5.10`), e con loro li perde la pagina che le riordina.
  */
 val MENU_KEYS = listOf(
     PadKey.COPY, PadKey.MOVE, PadKey.SHARE,
     PadKey.RENAME, PadKey.DELETE, PadKey.INFO
-)
+).filter(Store::allows)
 
 /** I dieci della scheda della selezione, nell'ordine dettato per la `1.54`. */
 val PICK_KEYS = listOf(
     PadKey.RENAME, PadKey.INFO, PadKey.MOVE, PadKey.COPY, PadKey.SHARE,
     PadKey.DELETE, PadKey.LIST, PadKey.ALL, PadKey.NONE, PadKey.INVERT
-)
+).filter(Store::allows)
 
 /**
  * La prima fila dell'editor: centrare, riflettere e girare.
@@ -1624,7 +1626,7 @@ object SettingsStore {
             startFolder = p[START_FOLDER],
             startFolderName = p[START_FOLDER_NAME] ?: "",
             openAtStart = p[OPEN_AT_START] ?: false,
-            folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
+            folderView = Store.views.byToken(p[FOLDER_VIEW], FolderView.GRID),
             clipboardStart = p[CLIPBOARD_START] ?: false,
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,

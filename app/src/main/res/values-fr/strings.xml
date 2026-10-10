@@ -180,6 +180,9 @@
     <string name="folders_title">Dossiers</string>
     <string name="folders_permission">Lister les dossiers demande l\'accès à tous les fichiers. C\'est la même autorisation qui permet de parcourir un dossier, et elle s\'accorde depuis une page du système.</string>
     <string name="folders_grant">Accorder l\'accès</string>
+    <string name="folders_partial">Seules les images choisies sont affichées.</string>
+    <string name="folders_partial_all">Tout autoriser</string>
+    <string name="folders_permission_media">Lister les dossiers demande l\'accès aux images et aux vidéos.</string>
     <string name="folders_none">Aucun dossier ne contient quoi que ce soit à afficher.</string>
     <string name="folders_tablet_pick">Choisissez un dossier dans la barre de navigation</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -601,6 +604,7 @@
     <string name="editor_center_both">Centrer horizontalement et verticalement</string>
     <string name="editor_done">Enregistrée</string>
     <string name="editor_done_copy">Copie enregistrée</string>
+    <string name="editor_done_downloads">Enregistrée dans Download</string>
     <string name="editor_discard_ask">Abandonner les modifications ?</string>
     <string name="editor_discard">Abandonner</string>
     <string name="editor_done_lossless">Enregistrée sans recompression</string>
@@ -718,6 +722,7 @@
     <string name="hint_modules">Fais défiler les icônes pour atteindre tous les modules de retouche. Appuie longuement sur l\'icône d\'un module pour annuler ses seuls réglages.</string>
     <string name="hint_tools">En plus des modules, deux fonctions s\'activent et se désactivent à la volée d\'une simple pression sur l\'icône, qui s\'allume : \'Filigrane\' et \'Redimensionner\'. Un appui long ouvre les réglages de chacune.</string>
     <string name="hint_save">Quand tu as terminé, touche \'Enregistrer\' pour écraser le fichier (avec copie de sauvegarde, si elle est activée) ; un appui long enregistre une nouvelle copie de l\'image dans le même dossier.</string>
+    <string name="hint_save_play">Quand tu as fini, touche \'Enregistrer\' : la retouche devient un nouveau fichier dans Download, et l\'image d\'origine reste telle quelle.</string>
     <string name="hint_draw">Avec le module Dessin, tu peux ajouter à l\'image des lignes, des flèches, des ellipses, des rectangles arrondis, des textes simples, des cadres \'pilule\' et des panneaux floutés. L\'enregistrement aplatit l\'image : tu ne pourras pas la rouvrir pour modifier ou déplacer les éléments. Appuie longuement sur une couleur pour régler sa luminosité.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

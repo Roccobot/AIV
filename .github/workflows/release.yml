@@ -64,6 +64,7 @@ jobs:
       tag: ${{ steps.ver.outputs.tag }}
       signed: ${{ steps.keystore.outputs.signed }}
       apk: ${{ steps.apk.outputs.name }}
+      apkplay: ${{ steps.apk.outputs.play }}
 
     steps:
       - name: Check out the sources
@@ -134,30 +135,40 @@ jobs:
           printf '%s' "${KEYSTORE_BASE64}" | base64 -d > "${RUNNER_TEMP}/aiv.jks"
           echo "signed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Build the release APK
+      # ⚠️⚠️ TWO APKs SINCE 5.10, one per variant (`build.gradle.kts`, `productFlavors`).
+      # `AIV-x.xx.apk` is `github`, the app the download page offers; `AIV-Play-x.xx.apk`
+      # is `play`, the one for Google Play, attached to the same release so the owner
+      # can install it on his phone for the test round. The page picks its APK BY NAME
+      # (`publish/index.html`), so the second asset never takes the first one's place.
+      - name: Build the release APKs
         env:
           AIV_KEYSTORE_FILE: ${{ steps.keystore.outputs.signed == 'true' && format('{0}/aiv.jks', runner.temp) || '' }}
           AIV_KEYSTORE_PASSWORD: ${{ secrets.AIV_KEYSTORE_PASSWORD }}
           AIV_KEY_ALIAS: ${{ secrets.AIV_KEY_ALIAS }}
           AIV_KEY_PASSWORD: ${{ secrets.AIV_KEY_PASSWORD }}
-        run: ./gradlew --no-daemon :app:assembleRelease
+        run: ./gradlew --no-daemon :app:assembleGithubRelease :app:assemblePlayRelease
 
-      - name: Name the artefact
+      - name: Name the artefacts
         id: apk
         run: |
           set -euo pipefail
-          src="$(find app/build/outputs/apk/release -name '*.apk' -print -quit)"
-          if [ -z "$src" ]; then echo "No APK was produced" >&2; exit 1; fi
-          name="AIV-${{ steps.ver.outputs.version }}.apk"
           mkdir -p "${RUNNER_TEMP}/out"
-          cp "$src" "${RUNNER_TEMP}/out/${name}"
+          take() {
+            src="$(find "app/build/outputs/apk/$1/release" -name '*.apk' -print -quit)"
+            if [ -z "$src" ]; then echo "No APK was produced for $1" >&2; exit 1; fi
+            cp "$src" "${RUNNER_TEMP}/out/$2"
+            # No `size` output: since the 1.36 the page asks the GitHub API for the
+            # asset size. The log line keeps the figure where a human looks for it.
+            echo "Produced $2 ($(du -h "$src" | cut -f1)), from $(basename "$src")"
+          }
+          name="AIV-${{ steps.ver.outputs.version }}.apk"
+          play="AIV-Play-${{ steps.ver.outputs.version }}.apk"
+          take github "$name"
+          take play "$play"
           echo "name=${name}" >> "$GITHUB_OUTPUT"
+          echo "play=${play}" >> "$GITHUB_OUTPUT"
           echo "path=${RUNNER_TEMP}/out/${name}" >> "$GITHUB_OUTPUT"
-          # No `size` output any more: its only reader was the __SIZE__ sed of
-          # the old website step, and since the 1.36 the page asks the GitHub API
-          # for the asset size instead. The log line below keeps the figure
-          # where a human looks for it.
-          echo "Produced ${name} ($(du -h "$src" | cut -f1)), from $(basename "$src")"
+          echo "playpath=${RUNNER_TEMP}/out/${play}" >> "$GITHUB_OUTPUT"
 
       # `signed=true` only says the SECRET was there. If the keystore path had
       # failed to resolve while Gradle was configuring, `canSign` would be false,
@@ -173,6 +184,7 @@ jobs:
           apksigner="$(find "$sdk/build-tools" -name apksigner -type f | sort | tail -1)"
           if [ -z "$apksigner" ]; then echo "apksigner is not in the SDK" >&2; exit 1; fi
           "$apksigner" verify --print-certs "${{ steps.apk.outputs.path }}"
+          "$apksigner" verify --print-certs "${{ steps.apk.outputs.playpath }}"
 
       # Kept even on a dispatch run, so a build can be inspected without a tag.
       - name: Keep the APK as a run artefact
@@ -180,6 +192,13 @@ jobs:
         with:
           name: ${{ steps.apk.outputs.name }}
           path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+
+      - name: Keep the Play APK as a run artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.play }}
+          path: ${{ steps.apk.outputs.playpath }}
           if-no-files-found: error
 
 
@@ -249,7 +268,8 @@ jobs:
 
       - name: Run the bench
         if: steps.ask.outputs.green != 'true'
-        run: ./gradlew --no-daemon :app:testDebugUnitTest
+        # The same command as `check.yml`, and the reason for its two halves is there.
+        run: ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:testPlayDebugUnitTest --tests '*PlayTest'
 
       # ⚠️ The translations are a release check too, and the repo has said so for
       # versions: `28 lingue, 0 problemi`, and a lower number means a folder was
@@ -266,7 +286,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bench-report
-          path: app/build/reports/tests/testDebugUnitTest/
+          path: app/build/reports/tests/
           if-no-files-found: ignore
 
 
@@ -280,6 +300,12 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: ${{ needs.build.outputs.apk }}
+          path: ${{ runner.temp }}/out
+
+      - name: Take the Play APK the build job kept
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ needs.build.outputs.apkplay }}
           path: ${{ runner.temp }}/out
 
       # The release asset is the ONLY place the APK lives, and it is also what
@@ -308,13 +334,15 @@ jobs:
           # tag and release together, or this same version was published before
           # and is being re-published. Creating it blindly would fail on the path
           # a person is most likely to take.
+          apk="${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}"
+          play="${RUNNER_TEMP}/out/${{ needs.build.outputs.apkplay }}"
           if gh release view "${TAG}" > /dev/null 2>&1; then
-            gh release upload "${TAG}" "${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}" --clobber
+            gh release upload "${TAG}" "$apk" "$play" --clobber
           else
             # `--target` is what lets the workflow cut its own tag: gh creates
             # the ref at that commit. On a tag push it is the tagged commit
             # anyway, so the same line serves both ways in.
-            gh release create "${TAG}" "${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}" \
+            gh release create "${TAG}" "$apk" "$play" \
               --target "${GITHUB_SHA}" \
               --title "AIV ${{ needs.build.outputs.version }}" \
               --generate-notes

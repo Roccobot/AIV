@@ -20,13 +20,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -1682,6 +1679,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun edit(uri: Uri) {
         val chosen = settings?.editorApp.orEmpty()
         when {
+            // ⚠️ AIV Play has only its own editors (since 5.10): an app outside would be asked to
+            // write over a file that AIV Play cannot let it write.
+            !Store.files -> openInternal(uri)
             chosen.isBlank() -> {
                 editorFor = uri
                 editorAsk = true
@@ -1987,6 +1987,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 is ImageEdit.Result.Failed -> notice = esito.why
                 is ImageEdit.Result.Done -> {
                     notice = when {
+                        esito.downloads -> R.string.editor_done_downloads
                         way == ImageEdit.Way.COPY -> R.string.editor_done_copy
                         esito.lossless -> R.string.editor_done_lossless
                         else -> R.string.editor_done
@@ -2042,7 +2043,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                      */
                     val sopra = esito.file.absolutePath ==
                         FileTree.fileOf(context, here.uri)?.absolutePath
-                    notice = if (sopra) R.string.editor_done else R.string.editor_done_copy
+                    notice = when {
+                        esito.downloads -> R.string.editor_done_downloads
+                        sopra -> R.string.editor_done
+                        else -> R.string.editor_done_copy
+                    }
                     if (sopra) {
                         Thumbs.forget(context, here.uri)
                         retry()
@@ -3480,13 +3485,14 @@ private fun Stage(
                              */
                             if (shape == Adaptive.Shape.TALL) {
                                 ActionPill(
-                                    entries = listOf(
+                                    entries = listOfNotNull(
                                         PillEntry(Icons.Default.Search, stringResource(R.string.hub_search)) {
                                             model.openSearch()
                                         },
+                                        // ⚠️ AIV Play has no bin (`Store.files`).
                                         PillEntry(Glyphs.Bin, stringResource(R.string.bin_title)) {
                                             model.openBin()
-                                        },
+                                        }.takeIf { Store.files },
                                         PillEntry(
                                             Icons.Default.Settings,
                                             stringResource(R.string.hub_settings)
@@ -3630,7 +3636,7 @@ private fun Stage(
                  * ⚠️ **La ricerca e il cestino non li ricevono**: la prima è un elenco di
                  * risultati e non una cartella, il secondo porta già il suo menu.
                  */
-                onBin = { model.openBin() },
+                onBin = { model.openBin() }.takeIf { Store.files },
                 onSettings = { model.openSettings() },
                 /*
                  * ⚠️⚠️ **'Cerca' DENTRO LA CARTELLA, DALLA `1.83`** (risposta a `d-fab-voci` del
@@ -3658,7 +3664,8 @@ private fun Stage(
                 coverHere = model.covering?.bucket == screen.bucket,
                 // ⚠️ Anche la rinomina è del solo ramo della cartella, e per la stessa ragione:
                 // il gesto vive sul nome dell'intestazione, che qui c'è e altrove no.
-                onFolderRename = { model.renameFolder(it) },
+                // ⚠️ Not in AIV Play, which cannot rename a shared folder (`Store.files`).
+                onFolderRename = { name: String -> model.renameFolder(name) }.takeIf { Store.files },
                 /*
                  * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**:
                  * l'intestazione esiste nella griglia di una **cartella** e non nelle altre due
@@ -3827,7 +3834,7 @@ private fun Stage(
                      * non si raggiungerebbero più. Sul telefono restano fuori, come prima: là il
                      * FAB della ricerca non c'è.
                      */
-                    onBin = { model.openBin() }.takeIf { forma != Adaptive.Shape.PHONE },
+                    onBin = { model.openBin() }.takeIf { forma != Adaptive.Shape.PHONE && Store.files },
                     onSettings = { model.openSettings() }.takeIf { forma != Adaptive.Shape.PHONE },
                     shape = forma,
                     rail = colonna
@@ -4067,37 +4074,14 @@ private fun Stage(
 @Composable
 private fun FolderPermission(model: ViewerViewModel) {
     val context = LocalContext.current
-    // Due strade, perché i due permessi si concedono in due modi diversi: quello
-    // ampio con un interruttore in una pagina di sistema, quello vecchio col
-    // dialogo. La prima non restituisce un esito, quindi al ritorno si RICHIEDE
-    // allo stato delle cose invece di credere a quello che l'intent dice.
-    val fromSettings = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { model.folderAnswered(Folder.granted(context)) }
-    val fromDialog = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { allowed -> model.folderAnswered(allowed) }
-
+    // ⚠️ La strada (pagina di sistema o dialogo) la sceglie [Store], che conosce la variante;
+    // qui resta la sola domanda 'se e quando'. Il perché della pagina arriva prima di lei.
+    val ask = Store.rememberAccessRequest(explain = true) { allowed -> model.folderAnswered(allowed) }
     val source = model.source
     val local = source?.scheme?.lowercase() == "content"
     LaunchedEffect(source, model.folderAsked) {
         if (!local || model.folderAsked || Folder.granted(context)) return@LaunchedEffect
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            fromDialog.launch(Folder.legacyPermission)
-            return@LaunchedEffect
-        }
-        // ⚠️ Una pagina di impostazioni che si apre da sola, senza una parola, è
-        // il genere di cosa che fa chiudere l'app: il perché arriva prima.
-        // ⚠️⚠️ **QUESTO È L'UNICO AVVISO DI SISTEMA CHE RESTA, DALLA `1.84`, E NON È UNA
-        // DIMENTICANZA**: la riga dopo porta l'app in **secondo piano**, quindi una notifica di
-        // casa sparirebbe insieme alla schermata che la disegna, cioè non si vedrebbe affatto.
-        // Dire una cosa mentre si esce è esattamente il caso per cui l'avviso di sistema esiste.
-        Toast.makeText(context, R.string.folder_why, Toast.LENGTH_LONG).show()
-        // ⚠️ Il ripiego sulla pagina generale non è un lusso: quella mirata
-        // all'app manca su qualche sistema, e senza il secondo tentativo la
-        // richiesta fallirebbe con un'eccezione invece di portare da qualche parte.
-        val opened = Folder.settingsIntents(context).any { runCatching { fromSettings.launch(it) }.isSuccess }
-        if (!opened) model.folderAnswered(false)
+        ask()
     }
 }
 

@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -440,9 +441,43 @@ object ImageActions {
          * il tipo vero è quello che il caricamento ha misurato.
          */
         val declared = declaredType(image, tail, had)
+        intoDownloads(context, display, declared) { out -> copyOriginalTo(context, uri, out) }
+    }
+
+    /**
+     * A file the app wrote in its own folder, copied into **Download** (AIV Play's editors, since
+     * 5.10): the same road as [saveToDownloads], because in AIV Play that folder is the only
+     * shared one the app may write in.
+     *
+     * ⚠️ The type follows the name, as in [declaredType]: the editors write JPEG and PNG, and
+     * the name they choose already says which.
+     */
+    suspend fun fileToDownloads(context: Context, file: File): Boolean = withContext(Dispatchers.IO) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
+        val type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
+        intoDownloads(context, file.name, type) { out ->
+            file.inputStream().use { it.copyTo(out) }
+            true
+        }
+    }
+
+    /**
+     * The row in Download, written and then released: the half that [saveToDownloads] and
+     * [fileToDownloads] share.
+     *
+     * ⚠️ **One copy of the pending row and of its clean-up**: the notes on `IS_PENDING` and on the
+     * half-written row live on [saveToDownloads], and they hold for both callers.
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private suspend fun intoDownloads(
+        context: Context,
+        display: String,
+        type: String?,
+        write: suspend (OutputStream) -> Boolean
+    ): Boolean {
         val fields = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, display)
-            declared?.let { put(MediaStore.Downloads.MIME_TYPE, it) }
+            type?.let { put(MediaStore.Downloads.MIME_TYPE, it) }
             put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
             put(MediaStore.Downloads.IS_PENDING, 1)
         }
@@ -451,9 +486,9 @@ object ImageActions {
             resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, fields)
         } catch (e: Exception) {
             null
-        } ?: return@withContext false
+        } ?: return false
         val written = try {
-            resolver.openOutputStream(row)?.use { out -> copyOriginalTo(context, uri, out) } ?: false
+            resolver.openOutputStream(row)?.use { write(it) } ?: false
         } catch (e: Exception) {
             false
         }
@@ -468,7 +503,7 @@ object ImageActions {
                 // Se anche la cancellazione fallisce non resta altro: la riga rimane in
                 // sospeso e la galleria non la mostra.
             }
-            return@withContext false
+            return false
         }
         try {
             resolver.update(
@@ -478,9 +513,9 @@ object ImageActions {
                 null
             )
         } catch (e: Exception) {
-            return@withContext false
+            return false
         }
-        true
+        return true
     }
 
     /**
