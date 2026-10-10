@@ -733,10 +733,26 @@ for (const id of ["notes", "notes-mobile"]) {
 
 // --- Mobile Altro overlay (long press on the floating ⇥); same draft.notes as the page Altro ---
 const altroOverlay = document.querySelector("#altro-overlay");
+/* The overlay is as tall as what the keyboard leaves visible (his note of 2026-10-10: with
+   attachments he could not scroll down to them). The overlay opens with the caret in the field,
+   so on Android the keyboard opens with it; it shrinks only the visual viewport, and a panel as
+   tall as the whole screen kept its end under the keyboard: measured with four attachments, the
+   panel scrolled 213px while they were some 700px down. Following visualViewport, the panel
+   scrolls as far as its content goes; with nothing to scroll it still holds still. */
+function fitAltroOverlay() {
+  const view = window.visualViewport;
+  if (!altroOverlay || altroOverlay.hidden || !view) return;
+  altroOverlay.style.top = view.offsetTop + "px";
+  altroOverlay.style.height = view.height + "px";
+}
+window.visualViewport?.addEventListener("resize", fitAltroOverlay);
+window.visualViewport?.addEventListener("scroll", fitAltroOverlay);
 function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
   altroOverlay.hidden = !open;
   document.body.classList.toggle("altro-overlay-open", open);
+  altroOverlay.style.top = altroOverlay.style.height = "";
+  fitAltroOverlay();
   if (open) {
     syncAltroFields();
     const editor =

@@ -659,6 +659,44 @@ def check(path):
             expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
             formatting.reload()
             expect(field).to_have_text('inizio testo <img src=x> *semplice*')
+            # Every style is undone by ⌘Z, survives the save, and travels with copy and paste (his
+            # note of 2026-10-10: ⌘Z after Codice undid the typing and left the code, and code with
+            # bold lost the bold on the save and on a paste).
+            fill_plain(field, 'prima abc dopo')
+            select(field,6,9)
+            field.press('Meta+m')
+            expect(stored).to_have_value('prima `abc` dopo')
+            field.press('Meta+z')
+            expect(stored).to_have_value('prima abc dopo')
+            expect(field.locator('code')).to_have_count(0)
+            assert formatting.evaluate('getSelection().toString()') == 'abc', 'Annullato il codice, la selezione torna sul testo.'
+            field.press('Meta+Shift+z')
+            expect(stored).to_have_value('prima `abc` dopo')
+            select(field,6,9)
+            field.press('Meta+b')
+            expect(stored).to_have_value('prima **`abc`** dopo')
+            field.press('Meta+z')
+            expect(stored).to_have_value('prima `abc` dopo')
+            fill_plain(field, 'x abc y')
+            select(field,2,5)
+            field.press('Meta+b')
+            select(field,2,5)
+            field.press('Meta+m')
+            expect(stored).to_have_value('x **`abc`** y')
+            select(field,0,7)
+            field.press('Control+c')
+            fill_plain(notes_field, '')
+            notes_field.click()
+            notes_field.press('Control+v')
+            expect(formatting.locator('#notes')).to_have_value('x **`abc`** y')
+            expect(notes_field.locator('strong code')).to_have_text('abc')
+            notes_field.press('Meta+z')
+            expect(formatting.locator('#notes')).to_have_value('')
+            formatting.locator('#floating-save').click()
+            expect(formatting.locator('#saved')).to_contain_text('Salvato in questo browser')
+            formatting.reload()
+            expect(stored).to_have_value('x **`abc`** y')
+            expect(field.locator('strong code')).to_have_text('abc')
             for width in [320,390,800,1280]:
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -1267,6 +1305,25 @@ def check(path):
             list_box = second.locator('#altro-overlay .image-list').bounding_box()
             rows_box = second.locator('#altro-overlay .format-actions').bounding_box()
             assert list_box['y'] >= rows_box['y'] + rows_box['height'], (list_box, rows_box)
+            # With the keyboard open the visible area is shorter than the screen, and the overlay
+            # follows it, so the last attachment can be scrolled into view (his note of
+            # 2026-10-10: before, the panel stayed as tall as the screen and its end was under the
+            # keyboard). A page zoom shrinks visualViewport the way an open keyboard does.
+            zoom = second_context.new_cdp_session(second)
+            zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 900 / 368})
+            second.wait_for_timeout(300)
+            reach = second.evaluate("""() => {
+                const view = visualViewport, panel = document.querySelector('.altro-overlay-panel');
+                panel.scrollTop = panel.scrollHeight;
+                const figures = document.querySelectorAll('#altro-overlay .image-list figure');
+                const last = figures[figures.length - 1].getBoundingClientRect();
+                return {overlay: document.querySelector('#altro-overlay').getBoundingClientRect().height,
+                        view: view.height, bottom: last.bottom - view.offsetTop};
+            }""")
+            assert reach['view'] < 400, ('La pagina non si è ingrandita: la prova non misura niente.', reach)
+            assert abs(reach['overlay'] - reach['view']) < 1 and reach['bottom'] <= reach['view'] + 1, reach
+            zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 1})
+            second.wait_for_timeout(300)
             second.evaluate('document.activeElement.blur()')
             caption = overlay_figures.first.locator('figcaption')
             shown = caption.inner_text()

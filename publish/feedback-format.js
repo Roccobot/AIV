@@ -159,6 +159,29 @@
     flush();
   }
 
+  // Whether a node sets bold or italic itself: true, false, or undefined when it says nothing.
+  // An inline style wins over the tag, as in markdown() (a pasted <b style="font-weight:normal">).
+  const weightOf = up => up.style.fontWeight ? /^(bold|[6-9]00)$/.test(up.style.fontWeight) : ["B", "STRONG"].includes(up.tagName) || undefined;
+  const slantOf = up => up.style.fontStyle ? up.style.fontStyle === "italic" : ["I", "EM"].includes(up.tagName) || undefined;
+  /* Bold or italic on a piece of inline code, from inside it: true only when every letter of the
+     code has it. Markdown has one style per code span, and ⌘B on the code's text puts the <b>
+     inside the <code>, where markdown() used to read only the text (his note of 2026-10-10: code
+     with bold did not survive the save). */
+  function codeStyle(code, outer, test) {
+    const texts = [];
+    const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT);
+    for (let text; (text = walker.nextNode());) if (text.textContent) texts.push(text);
+    if (!texts.length) return outer;
+    return texts.every(text => {
+      for (let up = text.parentElement; up; up = up.parentElement) {
+        const said = test(up);
+        if (said !== undefined) return said;
+        if (up === code) break;
+      }
+      return outer;
+    });
+  }
+
   function markdown(root) {
     const runs = [];
     const add = (text, style) => {
@@ -184,8 +207,14 @@
       if (block && element.previousSibling) add("\n", {});
       // ⚠️ A run of its own, written back as it is: escaped with the rest, its backticks
       // became \` and the code came back as plain text (found by the check, 2026-10-04).
+      // Bold and italic around it or inside it travel with it, as **`code`**.
       if (tag === "CODE") {
-        add("`" + element.textContent + "`", {...style, code: true});
+        add("`" + element.textContent + "`", {
+          bold: codeStyle(element, Boolean(style.bold), weightOf),
+          italic: codeStyle(element, Boolean(style.italic), slantOf),
+          href: style.href,
+          code: true
+        });
         return;
       }
       const next = {
@@ -205,20 +234,181 @@
       for (const child of root.childNodes) visit(child, {});
     }
     return runs.map(run => {
-      if (run.code) return run.text;
-      let text = run.text.replace(/[\\*`\[\]_]/g, "\\$&");
+      let text = run.code ? run.text : run.text.replace(/[\\*`\[\]_]/g, "\\$&");
       const marker = (run.bold ? "**" : "") + (run.italic ? "*" : "");
       if (marker) text = text.replace(/^(\s*)([\s\S]*?\S)(\s*)$/, (_, before, body, after) => before + marker + body + marker + after);
       if (run.href) text = "[" + text + "](" + run.href.replace(/\(/g, "%28").replace(/\)/g, "%29") + ")";
       return text;
     }).join("");
   }
+  // --- Undo and redo of the field's own (his request of 2026-10-10) ---
+  /* Every style must be undone by ⌘Z, the way typing is. The browser's undo knows only what
+     execCommand did: the code key builds its node by hand, so ⌘Z undid the typing before it and
+     left the code in place. The field keeps its own history instead, as Markdown snapshots with
+     the selection around each step, and ⌘Z, ⇧⌘Z, Ctrl+Y and the Edit menu walk it; the browser's
+     own stack is never used. Typing of the same kind within GROUP_MS is one step, like the
+     browser's. A change that comes from outside (cloud sync, import, a restored label) starts a
+     new history: undoing past it would bring back a text the draft no longer has. */
+  const GROUP_MS = 1200, HISTORY_CAP = 200;
+  const BLOCKS = ["DIV", "P"];
+  const fresh = md => ({stack: [{md, before: null, after: null, kind: null, at: 0}], index: 0});
+  /* A point of the field as a count of characters, counted as markdown() counts lines: a text's
+     letters, a BR, and the line a block starts. The nodes change when a step is undone; the
+     count does not. */
+  function countTo(box, stopNode, stopOffset) {
+    let count = 0;
+    const walk = node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node === stopNode) { count += stopOffset; return true; }
+        count += node.length;
+        return false;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return false;
+      if (node !== box && BLOCKS.includes(node.tagName) && node.previousSibling) count++;
+      if (node.tagName === "BR") { count++; return node === stopNode; }
+      for (let index = 0; index < node.childNodes.length; index++) {
+        if (node === stopNode && index === stopOffset) return true;
+        if (walk(node.childNodes[index])) return true;
+      }
+      return node === stopNode;
+    };
+    walk(box);
+    return count;
+  }
+  function pointAt(box, target) {
+    let count = 0, found = null;
+    const before = node => { found = [node.parentNode, Array.prototype.indexOf.call(node.parentNode.childNodes, node)]; return true; };
+    const walk = node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (count + node.length >= target) { found = [node, target - count]; return true; }
+        count += node.length;
+        return false;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return false;
+      if (node !== box && (node.tagName === "BR" || BLOCKS.includes(node.tagName) && node.previousSibling)) {
+        if (count >= target) return before(node);
+        count++;
+        if (node.tagName === "BR") return false;
+      }
+      for (const child of node.childNodes) if (walk(child)) return true;
+      return false;
+    };
+    return walk(box) ? found : [box, box.childNodes.length];
+  }
+  function selectionOf(editor) {
+    const selected = window.getSelection();
+    if (!selected.rangeCount || !inside(editor, selected.getRangeAt(0))) return null;
+    const range = selected.getRangeAt(0);
+    return {start: countTo(editor.box, range.startContainer, range.startOffset), end: countTo(editor.box, range.endContainer, range.endOffset)};
+  }
+  function place(editor, chosen) {
+    if (!chosen) return;
+    const range = document.createRange();
+    range.setStart(...pointAt(editor.box, chosen.start));
+    range.setEnd(...pointAt(editor.box, chosen.end));
+    const selected = window.getSelection();
+    selected.removeAllRanges();
+    selected.addRange(range);
+    editor.range = range.cloneRange();
+  }
+  function remember(editor, kind) {
+    const history = editor.history, md = editor.area.value, after = selectionOf(editor);
+    const top = history.stack[history.index];
+    const before = editor.before ?? after;
+    editor.before = null;
+    if (md === top.md) { top.after = after; return; }
+    const now = Date.now();
+    const typing = kind === "insertText" || /^delete(Content|Word)/.test(kind || "");
+    if (typing && top.kind === kind && now - top.at < GROUP_MS && history.index > 0 && history.index === history.stack.length - 1) {
+      Object.assign(top, {md, after, at: now});
+      return;
+    }
+    history.stack.splice(history.index + 1);
+    history.stack.push({md, before, after, kind, at: now});
+    if (history.stack.length > HISTORY_CAP) history.stack.shift();
+    history.index = history.stack.length - 1;
+  }
+  function rebuild(editor, md) {
+    editor.area.value = md;
+    editor.box.replaceChildren();
+    inline(md, editor.box);
+    editor.lastMarkdown = md;
+    editor.range = null;
+  }
+  // One step back (-1) or forward (+1): the text of that step, and the selection around it.
+  function travel(editor, step) {
+    const history = editor.history, target = history.index + step;
+    if (editor.area.disabled || target < 0 || target >= history.stack.length) return;
+    const moved = history.stack[step < 0 ? history.index : target];
+    history.index = target;
+    rebuild(editor, history.stack[target].md);
+    place(editor, step < 0 ? moved.before : moved.after);
+    editor.area.dispatchEvent(new Event("input", {bubbles: true}));
+    refreshNavigation();
+  }
   function render(editor) {
     if (editor.area.value === editor.lastMarkdown) return;
-    editor.box.replaceChildren();
-    inline(editor.area.value, editor.box);
-    editor.lastMarkdown = editor.area.value;
-    editor.range = null;
+    rebuild(editor, editor.area.value);
+    editor.history = fresh(editor.area.value);
+  }
+
+  // --- Copy, cut and paste keep the styles (his request of 2026-10-10) ---
+  /* A copy from a field carries its Markdown twice: as a type of its own, and as an attribute of
+     the HTML copy, which survives browsers that drop unknown types. A paste that finds either
+     puts the styles back; anything else, from another page or app, still goes in as plain text
+     (no foreign HTML is ever read for its markup). Other apps get the plain text and the
+     formatted HTML. */
+  const MARKDOWN_TYPE = "application/x-aiv-markdown";
+  // The selection as Markdown, with the styles of the nodes around it, not only those inside.
+  function selectedMarkdown(editor, range) {
+    let piece = range.cloneContents();
+    for (let up = range.commonAncestorContainer; up && up !== editor.box; up = up.parentNode) {
+      if (up.nodeType !== Node.ELEMENT_NODE) continue;
+      const shell = up.cloneNode(false);
+      shell.append(piece);
+      piece = shell;
+    }
+    const holder = document.createElement("div");
+    holder.append(piece);
+    return markdown(holder);
+  }
+  function toClipboard(data, md) {
+    const shown = document.createElement("span");
+    inline(md, shown);
+    data.setData("text/plain", shown.textContent);
+    shown.dataset.aivMarkdown = md;
+    data.setData("text/html", shown.outerHTML);
+    data.setData(MARKDOWN_TYPE, md);
+  }
+  function fromClipboard(data) {
+    const own = data.getData(MARKDOWN_TYPE);
+    if (own) return own;
+    const html = data.getData("text/html");
+    if (!html.includes("data-aiv-markdown")) return null;
+    // An inert document: nothing in it runs or loads, and only the attribute is read.
+    const marked = new DOMParser().parseFromString(html, "text/html").querySelector("[data-aiv-markdown]");
+    return marked ? marked.getAttribute("data-aiv-markdown") : null;
+  }
+  // Puts nodes at the selection, the caret after them in a text of its own, so what follows is
+  // plain: the way the code key and the attachment names have always done it.
+  function insertNodes(editor, nodes) {
+    const range = selection(editor);
+    range.deleteContents();
+    const piece = document.createDocumentFragment();
+    piece.append(...nodes);
+    const after = document.createTextNode("");
+    piece.append(after);
+    range.insertNode(piece);
+    const caret = document.createRange();
+    caret.setStart(after, 0);
+    caret.collapse(true);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(caret);
+  }
+  function insertMarkdown(editor, md) {
+    const piece = document.createDocumentFragment();
+    inline(md, piece);
+    insertNodes(editor, [...piece.childNodes]);
   }
   function inside(editor, range) {
     return editor.box.contains(range.startContainer) && editor.box.contains(range.endContainer);
@@ -238,10 +428,11 @@
     selected.addRange(range);
     return range;
   }
-  function sync(editor) {
+  function sync(editor, kind) {
     // The original textarea remains the bridge to persistence and schema-1 exports.
     editor.area.value = markdown(editor.box);
     editor.lastMarkdown = editor.area.value;
+    remember(editor, kind);
     editor.area.dispatchEvent(new Event("input", {bubbles: true}));
     refreshNavigation();
   }
@@ -255,6 +446,7 @@
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
     const range = selection(editor);
+    editor.before = selectionOf(editor);
     if (kind === "link") {
       const selected = range.toString();
       const container = range.startContainer.nodeType === Node.ELEMENT_NODE ? range.startContainer : range.startContainer.parentElement;
@@ -286,20 +478,18 @@
       if (current && editor.box.contains(current)) {
         current.replaceWith(document.createTextNode(current.textContent));
       } else {
-        const code = node("code", range.toString() || "codice");
-        range.deleteContents();
-        range.insertNode(code);
-        // The caret goes after the code, in a text node of its own, so what follows is plain.
-        const after = document.createTextNode("");
-        code.after(after);
-        const caret = document.createRange();
-        caret.setStart(after, 0);
-        caret.collapse(true);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(caret);
+        // The selection's bold and italic go on the new code: replacing the text emptied its <b>.
+        let made = node("code", range.toString() || "codice");
+        for (const [command, tag] of [["italic", "em"], ["bold", "strong"]]) {
+          if (!document.queryCommandState(command)) continue;
+          const wrap = node(tag);
+          wrap.append(made);
+          made = wrap;
+        }
+        insertNodes(editor, [made]);
       }
     } else document.execCommand(kind === "bold" ? "bold" : "italic", false);
-    sync(editor);
+    sync(editor, "format");
   }
   for (const [index, area] of Array.from(document.querySelectorAll("textarea:not([readonly])")).entries()) {
     const label = area.parentElement;
@@ -340,7 +530,7 @@
     }
     actions.append(toolbar);
     wrapper.append(area, box, actions);
-    const editor = {area, box, range: null, lastMarkdown: null};
+    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {
       const button = node("button");
@@ -379,28 +569,57 @@
       }
     }
     box.addEventListener("beforeinput", event => {
+      // Undo and redo from the Edit menu or a phone's keyboard walk the field's own history.
+      if (event.inputType === "historyUndo" || event.inputType === "historyRedo") {
+        event.preventDefault();
+        travel(editor, event.inputType === "historyUndo" ? -1 : 1);
+        return;
+      }
+      // The selection before a change: where ⌘Z puts it back. Kept from the first of a group.
+      editor.before ??= selectionOf(editor);
       // Both Enter variants use blocks, avoiding a browser-only terminal newline placeholder.
       if (event.inputType === "insertLineBreak") {
         event.preventDefault();
         document.execCommand("insertParagraph", false);
       }
     });
-    box.addEventListener("input", () => { links(editor); sync(editor); });
+    box.addEventListener("input", event => { links(editor); sync(editor, event.inputType); });
     box.addEventListener("paste", event => {
       if (window.feedbackPasteImage?.(event, box)) return;
       event.preventDefault();
+      editor.before = selectionOf(editor);
+      const own = fromClipboard(event.clipboardData);
+      if (own !== null) {
+        insertMarkdown(editor, own);
+        sync(editor, "insertFromPaste");
+        return;
+      }
       // Plain-text paste prevents foreign HTML, styles and active elements entering the editor.
       const text = event.clipboardData.getData("text/plain");
       /* A text that is all between backticks goes in as inline code, as the Codice key makes it
          (his request of 2026-10-09: the reference a card's copy mark copies appears as code
          when pasted). Anything else stays plain. */
       const code = /^`([^`\n]+)`$/.exec(text.trim());
-      if (code && window.feedbackFormatting.insertCodeAtCaret(code[1])) {
-        sync(editor);
+      if (code) {
+        insertNodes(editor, [node("code", code[1])]);
+        sync(editor, "insertFromPaste");
         return;
       }
       document.execCommand("insertText", false, text);
     });
+    for (const name of ["copy", "cut"]) {
+      box.addEventListener(name, event => {
+        const range = selection(editor);
+        if (range.collapsed) return;
+        event.preventDefault();
+        toClipboard(event.clipboardData, selectedMarkdown(editor, range));
+        if (name === "cut" && !editor.area.disabled) {
+          editor.before = selectionOf(editor);
+          range.deleteContents();
+          sync(editor, "deleteByCut");
+        }
+      });
+    }
     box.addEventListener("drop", event => {
       // File drops continue to the card's existing attachment handler.
       if (event.dataTransfer.files.length) event.preventDefault();
@@ -418,7 +637,13 @@
       }
     });
     box.addEventListener("keydown", event => {
-      const kind = {b: "bold", i: "italic", m: "code", k: "link"}[event.key.toLowerCase()];
+      const key = event.key.toLowerCase();
+      if ((event.metaKey || event.ctrlKey) && !event.altKey && (key === "z" || key === "y" && !event.shiftKey)) {
+        event.preventDefault();
+        travel(editor, key === "y" || event.shiftKey ? 1 : -1);
+        return;
+      }
+      const kind = {b: "bold", i: "italic", m: "code", k: "link"}[key];
       if (kind && (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey) {
         event.preventDefault();
         edit(editor, kind);
@@ -454,18 +679,9 @@
     insertCodeAtCaret: text => {
       const editor = writing();
       if (!editor) return false;
-      const range = selection(editor);
-      const code = node("code", text);
-      range.deleteContents();
-      range.insertNode(code);
-      const after = document.createTextNode("");
-      code.after(after);
-      const caret = document.createRange();
-      caret.setStart(after, 0);
-      caret.collapse(true);
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(caret);
-      sync(editor);
+      editor.before = selectionOf(editor);
+      insertNodes(editor, [node("code", text)]);
+      sync(editor, "format");
       return true;
     },
     setDisabled: disabled => editors.forEach(editor => {
