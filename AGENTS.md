@@ -254,7 +254,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **Ogni testo italiano nuovo o cambiato va nelle Etichette testuali del DF, anche quello scelto dall'utente**: `tools/feedback-build.py` si ferma se manca, confrontando `values-it/strings.xml` con `docs/Labels-approved.json`; letto il giro, `--approve-labels` registra i testi confermati.
 - **Il catalogo dei veli d'aiuto si aggiorna senza aspettare la richiesta**, ogni volta che un velo nasce o cambia, nello stesso giro della versione (la nota in testa a `Rules.md`).
 - **Il documento di feedback si pubblica o aggiorna solo dopo la GitHub Release pubblicata, con l'APK, della stessa versione**: verificare il tag `vX.XX`; numero e link all'APK non bastano. Eccezione: ritocco solo UX/documentale del DF → Feedback cloud/Pages senza nuova Release APK (`docs/Feedback-maintenance.md`).
-- **Forma del DF** (`docs/Feedback-maintenance.md`): solo feedback sull'app, la sua UI si gestisce in chat; intro di due righe più `Scarica AIV` e `Scarica AIV Play`; `Aggiornamenti recenti` copre un paio di giri; un'etichetta esce dopo la prima conferma; Etichette testuali e comandi di consegna sotto Altro come da guida.
+- **Forma del DF** (`docs/Feedback-maintenance.md`): solo feedback sull'app, la sua UI si gestisce in chat; intro di due righe più `Scarica AIV`, che scarica AIV Play; `Aggiornamenti recenti` copre un paio di giri; un'etichetta esce dopo la prima conferma; Etichette testuali e comandi di consegna sotto Altro come da guida.
 - **Dopo ogni giro elaborato: audit obbligatorio** contro l'export precedente.
   Feedback doc = sorgente del lavoro aperto; brief = piano d'azione + backlog
   (non archivio); una richiesta esce dal DF se fatta o nel brief (`Roccobot.md`
