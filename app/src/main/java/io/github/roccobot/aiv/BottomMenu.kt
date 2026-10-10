@@ -309,7 +309,8 @@ internal fun CornerMenu(
         onDispose { OutsideTouch.off(watcher) }
     }
     val rows = cornerRows(cells, atEnd) { it.short }
-    val tall = startRow(rows.size, rows.first().size)
+    val columns = rows.maxOf { it.size }
+    val tall = startRow(rows.size, columns)
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
     val top = stringResource(R.string.jump_top)
@@ -347,7 +348,7 @@ internal fun CornerMenu(
                     .testTag(START_PANEL_TAG)
                     .onGloballyPositioned { panel = it.boundsInRoot() }
                     .buttonFill(backdrop, pillAccent(), RoundedCornerShape(CORNER_CELL / 2))
-                    .startRoom(atEnd, rows.size, rows.first().size)
+                    .startRoom(atEnd, rows.size, columns)
             ) {
                 rows.forEachIndexed { r, row ->
                     Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
@@ -417,6 +418,10 @@ internal object OutsideTouch {
  *
  * ⚠️ **The rows are filled from the top**, so that the last one, with the corner cell, is always
  * full: a gap left by an odd count goes to the top row, away from the thumb.
+ * ⚠️⚠️ **So the top row can be the shortest, and the panel's size is counted on the widest**
+ * (5.10 round, his note on AIV Play's squashed Start menu): until 5.10 the callers counted the
+ * columns on the first row, which with seven cells in the home held one, and the rows came out a
+ * third of their height. AIV GitHub's 'Cartelle di sistema', with 'Crea', had the same fault.
  */
 private fun <T> cornerRows(cells: List<T>, atEnd: Boolean, short: (T) -> String?): List<List<T>> {
     val columns = if (cells.size > CORNER_SMALL) 3 else 2
@@ -455,16 +460,18 @@ private fun <T> cornerRows(cells: List<T>, atEnd: Boolean, short: (T) -> String?
 @Composable
 internal fun CornerMenuCopy(entries: List<PillEntry>, atEnd: Boolean, key: @Composable () -> Unit) {
     val rows = cornerRows(entries + null, atEnd) { it?.short }
-    val tall = startRow(rows.size, rows.first().size)
+    val columns = rows.maxOf { it.size }
+    val tall = startRow(rows.size, columns)
     Column(
         modifier = Modifier
             .startShift(atEnd, tall)
             .testTag(CORNER_COPY_TAG)
             .background(HINT_MARK, RoundedCornerShape(CORNER_CELL / 2))
-            .startRoom(atEnd, rows.size, rows.first().size)
+            .startRoom(atEnd, rows.size, columns)
     ) {
         rows.forEach { row ->
-            Row {
+            // ⚠️ A short top row sits on the corner's side, as in the open menu.
+            Row(horizontalArrangement = if (atEnd) Arrangement.End else Arrangement.Start) {
                 row.forEach { cell ->
                     StartCell(tall) {
                         if (cell == null) {

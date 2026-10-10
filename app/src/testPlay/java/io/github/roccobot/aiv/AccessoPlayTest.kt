@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.app.ActivityOptionsCompat
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -129,18 +130,62 @@ class AccessoPlayTest {
         assertEquals("package:${app.packageName}", pagina?.data.toString())
     }
 
-    /** **With the photos picked one by one, the home says so, and offers to allow them all.** */
+    /**
+     * **With the photos picked one by one, the home says so, and 'Consenti tutte' opens the app's
+     * page in the system settings** (5.11, his note on `5.10-03`: *un tocco non rimanda alla vera
+     * autorizzazione: torna alla selezione 'limitata'*). Up to 5.10 the button asked the permission
+     * again, and Android answered with the choice of photos.
+     */
     @Test
-    fun `con le sole foto scelte compare la riga dell'accesso parziale`() {
+    fun `con le sole foto scelte Consenti tutte apre la pagina di AIV nelle impostazioni`() {
         concedi(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
-        banco.setContent { AivTheme { Casa() } }
+        val lanciati = mutableListOf<Any?>()
+        val registro = object : ActivityResultRegistry() {
+            override fun <I, O> onLaunch(
+                requestCode: Int, contract: ActivityResultContract<I, O>, input: I, options: ActivityOptionsCompat?
+            ) {
+                lanciati += input
+            }
+        }
+        val proprietario = object : ActivityResultRegistryOwner {
+            override val activityResultRegistry = registro
+        }
+        banco.setContent {
+            CompositionLocalProvider(LocalActivityResultRegistryOwner provides proprietario) { AivTheme { Casa() } }
+        }
         banco.waitForIdle()
         assertEquals(1, quante(R.string.folders_partial))
         assertEquals(0, quante(R.string.folders_permission_media))
         banco.onNodeWithText(voce(R.string.folders_partial_all)).performClick()
         banco.waitForIdle()
-        val chiesti = shadowOf(banco.activity).lastRequestedPermission?.requestedPermissions?.toList()
-        assertEquals(true, chiesti?.contains(Manifest.permission.READ_MEDIA_IMAGES))
+        assertEquals("Consenti tutte ha aperto più di una cosa", 1, lanciati.size)
+        val pagina = lanciati.single() as? Intent
+        assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pagina?.action)
+        assertEquals("package:${app.packageName}", pagina?.data.toString())
+    }
+
+    /**
+     * **The partial row is aligned to the grid** (5.11, his note on `5.10-03`: *Consenti tutte è
+     * allineato male*): the sentence starts where the covers start, the button's text ends where
+     * they end. Up to 5.10 the row had 8dp more on the left, and the button 12dp of its own on the
+     * right.
+     */
+    @Test
+    fun `la riga dell'accesso parziale e allineata alla griglia`() {
+        concedi(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        banco.setContent { AivTheme { Casa() } }
+        banco.waitForIdle()
+        val dp = app.resources.displayMetrics.density
+        val larga = banco.onAllNodes(isRoot()).fetchSemanticsNodes().first().boundsInRoot.width
+        fun bordi(id: Int) =
+            banco.onAllNodesWithText(voce(id), useUnmergedTree = true).fetchSemanticsNodes().single().boundsInRoot
+        assertEquals("La frase non comincia sul bordo della griglia", 12f * dp, bordi(R.string.folders_partial).left, 0.5f * dp)
+        // ⚠️ In the unmerged tree the text's node is the text, not the touch target around it:
+        // the edge that shows.
+        assertEquals(
+            "Consenti tutte non finisce sul bordo della griglia",
+            larga - 12f * dp, bordi(R.string.folders_partial_all).right, 0.5f * dp
+        )
     }
 
     /** **With the whole library granted, the partial row is gone.** */

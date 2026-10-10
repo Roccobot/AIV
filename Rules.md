@@ -897,6 +897,14 @@ quindi le due app si installano una accanto all'altra.
 - **L'accesso parziale di Android 14**: chi sceglie solo alcune foto vede quelle, e la schermata
   iniziale lo dice con una riga e il tasto 'Consenti tutte'. Il permesso si rilegge a ogni ritorno
   nell'app, perché si cambia dalle impostazioni di sistema.
+  - ⚠️⚠️ **'Consenti tutte' apre la pagina di AIV nelle impostazioni di Android, dalla `5.11`**
+    (sua nota sulla prova `5.10-03`: *un tocco non rimanda alla vera autorizzazione: torna alla
+    selezione 'limitata'*): con l'accesso parziale già dato, richiedere il permesso ripropone la
+    scelta delle foto, mentre nella pagina dell'app `Foto e video` si concede per intero
+    (`Store.rememberAppPage`). La presidia `AccessoPlayTest`.
+  - ⚠️ **La riga segue i bordi della griglia**: la frase comincia dove cominciano le copertine e il
+    testo del tasto finisce dove finiscono (*Consenti tutte è allineato male*, stessa nota). Per
+    questo il tasto non è un `TextButton`, che ha un margine interno suo.
 - ⚠️ **Dopo il secondo rifiuto Android non mostra più la sua finestra**, e ogni richiesta risponde
   'no' subito: là AIV Play apre la propria pagina nelle impostazioni di Android, l'unico posto in
   cui il permesso si può ancora concedere (`Store.rememberAccessRequest`).
