@@ -1046,19 +1046,16 @@ def check(path):
             page.wait_for_timeout(300)
             assert page.evaluate('window.scrollY') == before, 'La rotella sopra Altro scorre la pagina.'
             page.evaluate('window.scrollTo(0, 0)')
-            link = page.locator('.intro-actions a.install-github').bounding_box()
+            link = page.locator('.intro-actions a').bounding_box()
             devices = page.locator('.devices').bounding_box()
             assert abs(link['y'] + link['height'] / 2 - devices['y'] - devices['height'] / 2) < 4, (link, devices)
             assert devices['x'] + devices['width'] > 1280 - 30, devices
-            expect(page.locator('.intro-actions a.install-github')).to_have_text('Scarica e installa AIV ' + data['version'])
-            # Since 5.11 the row also offers AIV Play's APK of the same release (his request,
-            # 2026-10-10), on the same line as the other one.
-            play = page.locator('.intro-actions a.install-play')
-            expect(play).to_have_text('Scarica AIV Play ' + data['version'])
+            # Since 5.11 the one link is AIV Play's APK of the round's release (his request,
+            # 2026-10-10: AIV GitHub he updates from Obtainium).
+            play = page.locator('.intro-actions a')
+            expect(play).to_have_text('Scarica e installa AIV Play ' + data['version'])
             expect(play).to_have_attribute(
                 'href', f"https://github.com/Roccobot/AIV/releases/download/v{data['version']}/AIV-Play-{data['version']}.apk")
-            play_box = play.bounding_box()
-            assert abs(play_box['y'] - link['y']) < 2 and play_box['x'] > link['x'] + link['width'], (play_box, link)
             assert page.evaluate("document.querySelector('.feedback-primary').firstElementChild.firstElementChild.firstElementChild.classList.contains('test')")
             assert page.locator('text=Prove sui dispositivi').count() == 0 and page.locator('#answered').count() == 0
             # The title starts with the icon of the theme in use, as in his mockup of 2026-10-10:
@@ -1527,7 +1524,7 @@ def check(path):
             assert 'e-chiusa' not in kept_decisions['labels'], 'Etichetta di un giro chiuso rimasta.'
             assert kept_decisions['sizes'] and kept_decisions['sizes'] == kept_decisions['expected'], 'Allegati salvati come testo: ' + str(kept_decisions)
             expect(migration.locator('#installed-confirm')).not_to_be_checked()
-            expect(migration.locator('.intro-actions a.install-github')).to_contain_text(data['version'])
+            expect(migration.locator('.intro-actions a')).to_contain_text(data['version'])
             expect(migration.locator('.test').first.locator('.image-list img')).to_have_count(3)
             for item in data['items']:
                 if item['id'] == first_id:

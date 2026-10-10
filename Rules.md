@@ -136,11 +136,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   - il corpo contiene solo feedback sull'app, e l'interfaccia del DF si gestisce in chat;
   - l'introduzione tiene due righe sullo stato del giro e `Scarica AIV`; un link a un documento
     esterno va subito dopo, finché serve, poi si toglie;
-  - ⚠️ **la riga di download ha due link dalla `5.11`** (sua richiesta, 2026-10-10: *nella
-    testata del DF d'ora in avanti inserisci il link per scaricare la versione Play dell'app*):
-    `Scarica e installa AIV x.xx` e `Scarica AIV Play x.xx`, tutti e due all'APK della release del
-    giro. Li scrive il modello (`tools/feedback-page.html.in`) e li presidia
-    `feedback-interactive-check.py`;
+  - ⚠️ **il link della riga di download è AIV Play dalla `5.11`** (sue richieste, 2026-10-10:
+    *nella testata del DF d'ora in avanti inserisci il link per scaricare la versione Play
+    dell'app*, poi *basta un link solo a Play, l'altra la aggiorno da Obtainium*):
+    `Scarica e installa AIV Play x.xx`, all'APK `AIV-Play` della release del giro. Lo scrive il
+    modello (`tools/feedback-page.html.in`) e lo presidia `feedback-interactive-check.py`;
   - `Aggiornamenti recenti` riepiloga un paio di giri e non è un changelog: il resto si toglie;
   - un'etichetta di testo esce dopo la prima conferma: è risolta, o torna nel brief.
 - ⚠️⚠️ **Il documento vivo è uno solo**: il Changelog AIV non si aggiorna più e il Piano d'azione
