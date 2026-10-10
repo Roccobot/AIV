@@ -148,7 +148,24 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   su quale dispositivo si è verificato un problema quando necessario.
 - Editor con formattazione visibile, senza anteprima duplicata; icone grassetto, corsivo,
   link con nomi accessibili e suggerimenti. Cmd/Ctrl+B, I, K; Cmd/Ctrl+S salva.
-  Il testo normale non è grassetto; incolli di testo semplice, nessun HTML interpretato.
+  Il testo normale non è grassetto; da fuori si incolla testo semplice, nessun HTML interpretato.
+- ⚠️⚠️ **Ogni stile si annulla, si copia e si salva** (richiesta di Rocco del 2026-10-10: *trasferibile,
+  annullabile e persistente*), e lo presidia `tools/feedback-interactive-check.py`:
+  - **annullabile**: ogni campo ha una storia sua, fatta di istantanee del Markdown con la selezione
+    prima e dopo ogni passo, e `⌘Z`, `⇧⌘Z`, `Ctrl+Y` e il menu Modifica la percorrono. La storia
+    del browser conosceva solo quello che fa `execCommand`, quindi `⌘Z` dopo `Codice` annullava la
+    digitazione di prima e lasciava il codice. La digitazione dello stesso tipo entro 1,2 secondi è
+    un passo solo; un cambiamento che arriva da fuori (cloud, importazione, etichetta ripristinata)
+    fa ripartire la storia;
+  - **trasferibile**: copia e taglia da un campo scrivono negli appunti anche il Markdown della
+    selezione, come tipo suo e come attributo `data-aiv-markdown` della copia HTML, e incolla in un
+    campo del DF lo rimette con gli stili. Da un'altra pagina o app si incolla testo semplice, e un
+    testo tutto fra apici inversi diventa codice;
+  - **persistente**: grassetto e corsivo sul codice, sopra di lui o dentro di lui, si scrivono
+    `**`codice`**`. Fino al 2026-10-10 `markdown()` li perdeva, e al salvataggio il codice in
+    grassetto tornava normale.
+  - **Codice e mono sono la stessa cosa**: il tasto `Codice`, il riferimento copiato dal simbolo di
+    un riquadro e il nome di un allegato inserito nel testo fanno tutti lo stesso `<code>`.
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.
@@ -179,7 +196,13 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   riquadro in fondo e con lo stesso salvataggio cloud; il tocco breve resta l'azione del FAB.
   Nell'overlay il campo comincia in cima al pannello, senza titolo né spazio sopra, ed è alto
   269 px, senza anello di selezione: con la tastiera alta dell'utente sopra restano circa
-  368 px, e il campo e le due file di tasti entrano in quello spazio (sue scelte, 2026-10-04 e 2026-10-06). Con l'overlay aperto la pagina sotto non scorre. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
+  368 px, e il campo e le due file di tasti entrano in quello spazio (sue scelte, 2026-10-04 e 2026-10-06). Con l'overlay aperto la pagina sotto non scorre.
+  ⚠️⚠️ **L'overlay è alto quanto l'area che la tastiera lascia visibile** (`visualViewport`, dal
+  2026-10-10, sua nota: con gli allegati non riusciva a scendere a vederli). Si apre col cursore nel
+  campo, quindi su Android la tastiera si apre con lui, e lei riduce solo l'area visibile: un
+  pannello alto quanto lo schermo teneva la sua fine sotto la tastiera, e misurato con quattro
+  allegati scorreva di 213 px mentre loro erano circa 700 px più in basso. Il pannello scorre quando
+  ha qualcosa da scorrere, e resta fermo quando non ce l'ha. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   Il titolo `Altro` è in grigio (`--muted`), non nel colore del testo. ⚠️ **Altro non prende i
   colori di una risposta** (`has-response`, sfondo e bordo grigio-azzurri) quando contiene testo:
   li aveva dal 2026-10-02 e lui l'ha visto diventare blu (2026-10-06); restano alle prove. Non usare un riquadro `position: fixed` staccato dal flusso come unica
