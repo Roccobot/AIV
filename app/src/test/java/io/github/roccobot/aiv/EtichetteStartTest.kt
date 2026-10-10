@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -39,6 +39,7 @@ import kotlin.math.sqrt
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class EtichetteStartTest {
 
+    /** The new rule, since 4.98: see [aspettaIlVelo] for why the old one let the hint fall. */
     @get:Rule
     val banco = createComposeRule()
 
