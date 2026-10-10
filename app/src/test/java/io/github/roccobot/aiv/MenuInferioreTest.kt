@@ -354,9 +354,38 @@ class MenuInferioreTest {
         assertEquals(commutatore.y, lista.y, 1f)
         assertTrue("A sinistra la prima riga non è a specchio", albero.x < lista.x && lista.x < commutatore.x)
         val chiudi = pos(R.string.pick_close)
-        assertTrue("A sinistra la × non è nell'angolo", chiudi.x < pos(R.string.hub_settings).x)
+        assertTrue("A sinistra la × non è nell'angolo", chiudi.x < pos(R.string.bin_title).x)
         assertTrue("La × non è nell'ultima riga", chiudi.y > pos(R.string.hub_search).y)
         assertEquals("La riga di Cerca non ha anche Mostra nascoste", pos(R.string.hub_search).y, pos(R.string.hub_peek).y, 1f)
+    }
+
+    /**
+     * **In the home the Start menu has 'Impostazioni' above the ×, and 'Apri URL' and 'Cestino' in
+     * the bottom row**, since 5.03 (his note on the 5.02 round: *Impostazioni al posto di Apri URL,
+     * Cestino al posto di Impostazioni, Apri URL al posto di Cestino*). In the grid view, read from
+     * the top left: the switch, Lista, Cartelle; Mostra, Cerca, Impostazioni; Apri URL, Cestino, ×.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `nella home il menu Start ha Impostazioni sopra la x`() {
+        banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT) }
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.waitForIdle()
+        val pos = { id: Int -> banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().positionInRoot }
+        val chiudi = pos(R.string.pick_close)
+        val impostazioni = pos(R.string.hub_settings)
+        val indirizzo = pos(R.string.hub_url)
+        val cestino = pos(R.string.bin_title)
+        val cerca = pos(R.string.hub_search)
+        val mostra = pos(R.string.hub_peek)
+        assertEquals("Impostazioni non è sulla riga di Cerca", cerca.y, impostazioni.y, 1f)
+        assertTrue("La riga di mezzo non è Mostra, Cerca, Impostazioni", mostra.x < cerca.x && cerca.x < impostazioni.x)
+        assertEquals("Impostazioni non è sopra la ×", chiudi.x, impostazioni.x, 1f)
+        assertTrue("Impostazioni non è sopra la ×", impostazioni.y < chiudi.y)
+        assertEquals("Apri URL non è nell'ultima riga", chiudi.y, indirizzo.y, 1f)
+        assertEquals("Il Cestino non è nell'ultima riga", chiudi.y, cestino.y, 1f)
+        assertTrue("L'ultima riga non è Apri URL, Cestino, ×", indirizzo.x < cestino.x && cestino.x < chiudi.x)
     }
 
     /**
