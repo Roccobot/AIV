@@ -903,7 +903,9 @@ quindi le due app si installano una accanto all'altra.
 - **Le prove della sola variante play vivono in `app/src/testPlay/`** e i loro nomi finiscono in
   `PlayTest`: `check.yml` e `release.yml` lanciano `testPlayDebugUnitTest --tests '*PlayTest'`, e
   se nessuna classe corrisponde la corsa fallisce. Il resto del banco gira sulla variante github.
-- ⚠️ **Il nome dell'app è lo stesso**: chi le installa tutte e due vede due icone uguali.
+- ⚠️ **Il nome dell'app è lo stesso, ed è la sua scelta** (A2, 2026-10-10: *il nome va bene
+  com'è, non le confondo*): sotto l'icona tutte e due dicono `AIV`, nelle pagine di sistema
+  `Astonishing Image Viewer`. Non si cambia senza chiederglielo.
 - ⚠️ **La pubblicazione su Google Play è un lavoro dell'utente** (account sviluppatore, scheda,
   prova chiusa con 12 tester per 14 giorni per gli account personali nuovi), ed è il pezzo 3 del
   brief.
