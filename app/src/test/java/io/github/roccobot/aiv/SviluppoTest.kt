@@ -2156,13 +2156,15 @@ class SviluppoTest {
      * annullava il gesto stesso. Il codice era giusto e la metà che lui chiedeva non arrivava mai.
      * ⚠️⚠️ **I TRE MOMENTI DEL DITO VANNO IN TRE CHIAMATE**, come nel caso 36: scritti in un blocco
      * solo il movimento e il distacco arrivano insieme, e a valle resta un evento con delta zero.
-     * ⚠️ **Si misura che il punto sia NATO e SPOSTATO**: il primo lo dice il conto dei punti, il
-     * secondo che la curva non sia più l'identità.
+     * ⚠️ **Si misura che il punto sia NATO, non che si sia SPOSTATO**: la prova confronta il
+     * grafico prima e dopo il gesto con un colpo solo, e chiede che il modulo risulti toccato. Un
+     * punto nasce **sulla** curva ([Curve.grow]) e il suo tondo si disegna comunque, quindi un
+     * punto nato e rimasto fermo basta a farla passare: la curva che segue il dito non la vede.
      * ⚠️⚠️ **MA IL DIFETTO DELLA CHIAVE IL BANCO NON LO VEDE, E SI SCRIVE COSÌ INVECE DI FINGERE**:
      * rimettendola a mano questa prova resta **verde**, perché i tre momenti del dito arrivano in
      * tre chiamate separate e il nodo ricostruito fra l'una e l'altra riprende il gesto, cosa che
-     * su un telefono non succede. Quello che presidia è che il gesto **faccia** le due cose, ed è
-     * ⚠️⚠️ **CONTROPROVATO** togliendo la nascita del punto: là diventa rossa.
+     * su un telefono non succede. Quello che presidia è che il gesto faccia **nascere** il punto,
+     * ed è ⚠️⚠️ **CONTROPROVATO** togliendo la nascita del punto: là diventa rossa.
      */
     @Test
     fun `nelle curve un punto nasce e si muove nello stesso gesto`() {
@@ -2202,8 +2204,9 @@ class SviluppoTest {
      * `edge`, e quello rimasto a filo lo toglie [Curve.tidy].
      * ⚠️⚠️ **CONTROPROVATA** togliendo l'`edge`: il bordo resta al valore di partenza, quindi fra i
      * due punti c'è una rampa e la tabella non è più piatta all'inizio. ⚠️ **Il conto e non il
-     * chiamante**: che il gesto chiami [Curve.pin] lo misura il caso 48, e rimettendo quel difetto
-     * qui non cambia niente, perché questa prova non monta nessuna scena.
+     * chiamante**: questa prova non monta nessuna scena, e che il gesto su un estremo chiami
+     * [Curve.pin] non lo misura nessuna prova (il caso 48 tocca il centro del grafico, cioè un
+     * punto che nasce fra due, mai un estremo).
      */
     @Test
     fun `un estremo trascinato lascia un punto al bordo`() {

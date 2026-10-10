@@ -633,7 +633,7 @@
     <string name="settings_mark_bad">Ce fichier ne peut pas servir de filigrane : choisissez un PNG ou un SVG.</string>
     <string name="settings_mark_on_desc">Le filigrane est un élément graphique (par ex. une signature ou un logo) superposé à l\'image. Tu peux l\'activer ou le désactiver avant l\'enregistrement avec le bouton marche/arrêt de la barre du bas de l\'éditeur ; appuie longuement sur le bouton pour accéder rapidement aux réglages.</string>
     <string name="settings_mark_lossy">⚠️ Avec un filigrane, les opérations sans perte comme la rotation JPEG ne sont pas disponibles : l\'enregistrement réécrit tout le fichier.</string>
-    <string name="settings_mark_where">Position</string>
+    <string name="settings_mark_where">Position du filigrane</string>
     <string name="mark_spot_tl">En haut à gauche</string>
     <string name="mark_spot_tr">En haut à droite</string>
     <string name="mark_spot_bl">En bas à gauche</string>

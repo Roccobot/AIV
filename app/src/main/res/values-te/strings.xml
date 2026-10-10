@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">ఈ ఫైల్‌ను వాటర్‌మార్క్‌గా వాడలేము: PNG లేదా SVG ఎంచుకోండి.</string>
     <string name="settings_mark_on_desc">వాటర్‌మార్క్ అనేది చిత్రంపై ఉంచే ఒక గ్రాఫిక్ అంశం (ఉదా. సంతకం, లోగో). భద్రపరిచే ముందు ఎడిటర్ కింది పట్టీలోని ఆన్/ఆఫ్ బటన్‌తో దీన్ని ఆన్ లేదా ఆఫ్ చేయవచ్చు; సెట్టింగ్‌లకు త్వరగా రావడానికి బటన్‌ను నొక్కి పట్టుకోండి.</string>
     <string name="settings_mark_lossy">⚠️ వాటర్‌మార్క్‌తో, JPEG తిప్పడం వంటి నష్టం లేని పనులు అందుబాటులో ఉండవు: భద్రపరిచేటప్పుడు ఫైల్ మొత్తం మళ్లీ రాయబడుతుంది.</string>
-    <string name="settings_mark_where">స్థానం</string>
+    <string name="settings_mark_where">వాటర్‌మార్క్ స్థానం</string>
     <string name="mark_spot_tl">ఎగువ ఎడమ</string>
     <string name="mark_spot_tr">ఎగువ కుడి</string>
     <string name="mark_spot_bl">దిగువ ఎడమ</string>

@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">Diese Datei eignet sich nicht als Wasserzeichen: Wähle eine PNG- oder SVG-Datei.</string>
     <string name="settings_mark_on_desc">Das Wasserzeichen ist ein grafisches Element (z. B. eine Signatur oder ein Logo), das über das Bild gelegt wird. Du kannst es vor dem Speichern mit der Ein/Aus-Taste in der unteren Leiste des Editors ein- oder ausschalten; halte die Taste gedrückt, um schnell zu den Einstellungen zu gelangen.</string>
     <string name="settings_mark_lossy">⚠️ Mit Wasserzeichen sind verlustfreie Vorgänge wie das Drehen eines JPEG nicht möglich: Beim Speichern wird die Datei vollständig neu geschrieben.</string>
-    <string name="settings_mark_where">Position</string>
+    <string name="settings_mark_where">Position des Wasserzeichens</string>
     <string name="mark_spot_tl">Oben links</string>
     <string name="mark_spot_tr">Oben rechts</string>
     <string name="mark_spot_bl">Unten links</string>

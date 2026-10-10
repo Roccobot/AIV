@@ -599,7 +599,7 @@
     <string name="settings_mark_bad">该文件不能用作水印：请选择 PNG 或 SVG。</string>
     <string name="settings_mark_on_desc">水印是叠加在图像上的图形元素（例如签名、标志）。可以在保存前用编辑器底部栏的开关按钮打开或关闭；长按该按钮可快速进入设置。</string>
     <string name="settings_mark_lossy">⚠️ 加了水印后，JPEG 旋转这类无损操作不可用：保存时会完整重写文件。</string>
-    <string name="settings_mark_where">位置</string>
+    <string name="settings_mark_where">水印位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>
     <string name="mark_spot_bl">左下角</string>

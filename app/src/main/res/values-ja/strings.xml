@@ -599,7 +599,7 @@
     <string name="settings_mark_bad">このファイルは透かしに使えません。PNG か SVG を選んでください。</string>
     <string name="settings_mark_on_desc">透かしは、画像の上に重ねるグラフィック要素（署名やロゴなど）です。保存前にエディター下部のバーにあるオン/オフボタンで切り替えられます。ボタンを長押しすると、設定をすぐに開けます。</string>
     <string name="settings_mark_lossy">⚠️ 透かしを付けると、JPEG の回転のような劣化なしの操作は使えません。保存時にファイル全体が書き直されます。</string>
-    <string name="settings_mark_where">位置</string>
+    <string name="settings_mark_where">透かしの位置</string>
     <string name="mark_spot_tl">左上</string>
     <string name="mark_spot_tr">右上</string>
     <string name="mark_spot_bl">左下</string>

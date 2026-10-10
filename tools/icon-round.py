@@ -1,48 +1,48 @@
 #!/usr/bin/env python3
 """Gli spigoli esterni di un'icona: quali sono ancora vivi, e con che raggio si raccordano.
 
-⚠️⚠️ **NASCE NELLA `2.50`, ED E UNA SUA ISTRUZIONE** (2026-09-14, sulla voce `geo-glifo`: *mi
+⚠️⚠️ **NASCE NELLA `2.50`, ED È UNA SUA ISTRUZIONE** (2026-09-14, sulla voce `geo-glifo`: *mi
 pare che manchi l'arrotondamento di 0,4px sugli spigoli netti. Impostalo come regola del progetto
 d'ora in avanti per tutti gli SVG che ti passo o crei in autonomia. Verifica anche le altre icone
 esistenti*). Fino alla `2.40` quel trattamento si faceva a mano, in sessione, sui soli glifi che
-nascevano qui: scritto cosi, era una buona intenzione che nessuno poteva verificare.
+nascevano qui: scritto così, era una buona intenzione che nessuno poteva verificare.
 
-⚠️⚠️ **VERIFICA E NON RISCRIVE, ED E UNA SCELTA MISURATA**: la prima stesura aveva un `--fix`, e
+⚠️⚠️ **VERIFICA E NON RISCRIVE, ED È UNA SCELTA MISURATA**: la prima stesura aveva un `--fix`, e
 sul segno di spunta ha raccordato il vertice sbagliato (quello dove il giro si chiude invece
-della punta), lasciando una quadratica lunga un millesimo di unita. Un tracciato riscritto male
-non da nessun errore e si vede solo guardando, quindi lo strumento dice DOVE manca un raccordo e
-con che raggio, e il raccordo lo fa chi disegna. E' lo stesso patto di `icon-check.py`: misura e
+della punta), lasciando una quadratica lunga un millesimo di unità. Un tracciato riscritto male
+non dà nessun errore e si vede solo guardando, quindi lo strumento dice DOVE manca un raccordo e
+con che raggio, e il raccordo lo fa chi disegna. È lo stesso patto di `icon-check.py`: misura e
 dichiara.
 
-⚠️⚠️ **CHE COSA E UNO SPIGOLO ESTERNO, E LE CONDIZIONI SONO DUE**: convesso **e** esterno. Convesso
-vuol dire che il giunto svolta nel verso del proprio sottotracciato, cioe una punta che sporge, e
-un angolo che rientra e un raccordo interno. Esterno vuol dire che quel sottotracciato e un
-contorno del disegno e non un **buco**: la profondita di contenimento dice quale dei due e, e solo
-i sottotracciati a profondita pari portano punte.
+⚠️⚠️ **CHE COSA È UNO SPIGOLO ESTERNO, E LE CONDIZIONI SONO DUE**: convesso **e** esterno. Convesso
+vuol dire che il giunto svolta nel verso del proprio sottotracciato, cioè una punta che sporge, e
+un angolo che rientra è un raccordo interno. Esterno vuol dire che quel sottotracciato è un
+contorno del disegno e non un **buco**: la profondità di contenimento dice quale dei due è, e solo
+i sottotracciati a profondità pari portano punte.
 
-⚠️⚠️ **LA SECONDA CONDIZIONE E SUA E ARRIVA DOPO LA PRIMA STESURA** (nota su `d-spigoli-icone`,
+⚠️⚠️ **LA SECONDA CONDIZIONE È SUA E ARRIVA DOPO LA PRIMA STESURA** (nota su `d-spigoli-icone`,
 giro della `2.50`: *la regola va affinata: solo gli angoli convessi esterni (le 'punte')*). Fino a
-quel giorno contava anche gli angoli di un buco, perche sporgono verso l'inchiostro: una punta pero
-e convessa **e** esterna, e la seconda meta l'angolo di un buco non ce l'ha. Il conto e sceso da
+quel giorno contava anche gli angoli di un buco, perché sporgono verso l'inchiostro: una punta però
+è convessa **e** esterna, e la seconda metà l'angolo di un buco non ce l'ha. Il conto è sceso da
 138 a 87, e i disegni interessati da venti a quindici.
 
-⚠️ **E il 142 scritto nella `2.50` non e piu il numero del criterio largo**: oggi quello stesso
-criterio ne conta 138, perche i disegni sono cambiati nel frattempo. Chi confronta i due numeri
+⚠️ **E il 142 scritto nella `2.50` non è più il numero del criterio largo**: oggi quello stesso
+criterio ne conta 138, perché i disegni sono cambiati nel frattempo. Chi confronta i due numeri
 confronti prima le due date.
 
-⚠️⚠️ **IL RAGGIO NON E COSTANTE, LO E QUANTO IL VERTICE ARRETRA**: con 0,4 fisso un angolo di 30
-gradi arretra di 1,15 unita su 24 (il 5% della tela) contro le 0,17 di un angolo retto, e le punte
-vengono tozze. Il tetto e l'arretramento dell'angolo retto, quindi sugli spigoli retti, che sono
+⚠️⚠️ **IL RAGGIO NON È COSTANTE, LO È QUANTO IL VERTICE ARRETRA**: con 0,4 fisso un angolo di 30
+gradi arretra di 1,15 unità su 24 (il 5% della tela) contro le 0,17 di un angolo retto, e le punte
+vengono tozze. Il tetto è l'arretramento dell'angolo retto, quindi sugli spigoli retti, che sono
 quasi tutti, il raggio resta 0,4 esatto.
 
 ⚠️ **Avvisa e non blocca**, come le misure di resa di `icon-check.py`: gli spigoli vivi di oggi
-vivono in disegni gia approvati, e toglierli e una decisione di chi li ha fatti.
+vivono in disegni già approvati, e toglierli è una decisione di chi li ha fatti.
 
 ⚠️⚠️ **E DALLA `2.56` I DISEGNI SONO RACCORDATI, TRANNE UNO: IL LOGO PERSONALE NON SI TOCCA MAI**
 (sua istruzione, 2026-09-18, risposta `alcune` a `d-punte-adesso`: *arrotondale tutte, tranne
-`ic_tian`: il mio logo personale non si tocca MAI*). Quell'esclusione non e tecnica e non si
+`ic_tian`: il mio logo personale non si tocca MAI*). Quell'esclusione non è tecnica e non si
 ricava da nessuna misura, quindi vive scritta qui: il verificatore lo **dichiara** escluso invece
-di contarne le punte, perche un numero accanto al suo nome si legge come un lavoro da fare.
+di contarne le punte, perché un numero accanto al suo nome si legge come un lavoro da fare.
 
 Modi:
   icon-round.py                elenca quante punte vive ha ogni disegno di `res/drawable`
@@ -59,27 +59,27 @@ RADICE = QUI.parent
 DRAWABLE = RADICE / 'app/src/main/res/drawable'
 ANDROID = 'http://schemas.android.com/apk/res/android'
 
-# ⚠️ Il parser dei tracciati e quello del verificatore, non una seconda copia: due letture della
-# stessa grammatica divergono al primo ritocco, e quella che sbaglia e quella che nessuno lancia.
+# ⚠️ Il parser dei tracciati è quello del verificatore, non una seconda copia: due letture della
+# stessa grammatica divergono al primo ritocco, e quella che sbaglia è quella che nessuno lancia.
 _spec = importlib.util.spec_from_file_location('icon_check', QUI / 'icon-check.py')
 _check = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_check)
 
-# Il raggio nominale, sulla griglia di Material da 24: e la misura che lui da alle sue icone.
+# Il raggio nominale, sulla griglia di Material da 24: è la misura che lui dà alle sue icone.
 RAGGIO = 0.4
-# Quanto arretra il vertice di un angolo retto raccordato con quel raggio: e il tetto.
+# Quanto arretra il vertice di un angolo retto raccordato con quel raggio: è il tetto.
 TETTO = RAGGIO * (1 / math.sin(math.radians(45)) - 1)
-# Sotto questo angolo (in gradi) due segmenti si leggono come uno solo, e non c'e nessuno spigolo.
+# Sotto questo angolo (in gradi) due segmenti si leggono come uno solo, e non c'è nessuno spigolo.
 DRITTO = 6.0
-# Un segmento piu corto di questo non ha da dove arretrare.
+# Un segmento più corto di questo non ha da dove arretrare.
 CORTO = 1e-3
-# ⚠️⚠️ **IL LOGO PERSONALE NON SI TOCCA MAI, ED E UNA SUA REGOLA**: non e un'esclusione tecnica,
+# ⚠️⚠️ **IL LOGO PERSONALE NON SI TOCCA MAI, ED È UNA SUA REGOLA**: non è un'esclusione tecnica,
 # quindi non si ricava da nessuna misura e resta scritta qui, come in testa al file stesso.
 INTOCCABILI = {'ic_tian.xml'}
-# ⚠️⚠️ **QUANTO LONTANO PUO CADERE UN GIRO DAL PROPRIO PUNTO DI PARTENZA E RESTARE CHIUSO**: i
-# tracciati sono scritti a due decimali, quindi un giro arrotondato torna a un centesimo di unita
+# ⚠️⚠️ **QUANTO LONTANO PUÒ CADERE UN GIRO DAL PROPRIO PUNTO DI PARTENZA E RESTARE CHIUSO**: i
+# tracciati sono scritti a due decimali, quindi un giro arrotondato torna a un centesimo di unità
 # dal punto della `M` e la chiusura implicita diventa una rettina che svolta. Misurato su
-# `ic_apply`, dove quel residuo lungo 0,014 unita si leggeva come uno spigolo vivo a 135 gradi.
+# `ic_apply`, dove quel residuo lungo 0,014 unità si leggeva come uno spigolo vivo a 135 gradi.
 CHIUSA = 0.05
 
 
@@ -130,7 +130,7 @@ def assoluti(comandi):
 
 
 def pezzi(comandi):
-    """I sottotracciati: ognuno e la lista dei suoi comandi assoluti."""
+    """I sottotracciati: ognuno è la lista dei suoi comandi assoluti."""
     fuori = []
     for c in comandi:
         if c[0] == 'M' or not fuori:
@@ -140,7 +140,7 @@ def pezzi(comandi):
 
 
 def punti(sotto):
-    """I vertici di un sottotracciato, cioe il punto finale di ogni comando."""
+    """I vertici di un sottotracciato, cioè il punto finale di ogni comando."""
     fuori = []
     for lettera, n in sotto:
         if lettera == 'Z' or not n:
@@ -172,10 +172,10 @@ def dentro(punto, ps):
 
 
 def punto_dentro(ps):
-    """Un punto sicuramente interno al poligono: il lato piu lungo, scostato verso l'interno.
+    """Un punto sicuramente interno al poligono: il lato più lungo, scostato verso l'interno.
 
-    ⚠️ **Non si prende un VERTICE**, che e proprio il posto in cui due giri che si toccano cadono
-    l'uno sul bordo dell'altro, e la un conto dei raggi risponde a caso. Il mezzo di un lato
+    ⚠️ **Non si prende un VERTICE**, che è proprio il posto in cui due giri che si toccano cadono
+    l'uno sul bordo dell'altro, e là un conto dei raggi risponde a caso. Il mezzo di un lato
     scostato di un millesimo cade dentro, e lontano da ogni altro contorno.
     """
     verso = 1.0 if area(ps) > 0 else -1.0
@@ -198,9 +198,9 @@ def punto_dentro(ps):
 
 
 def contorni(sottos):
-    """I sottotracciati che sono un contorno del disegno, cioe non un buco.
+    """I sottotracciati che sono un contorno del disegno, cioè non un buco.
 
-    Si conta in quanti altri sottotracciati ognuno e contenuto: profondita pari vuol dire contorno,
+    Si conta in quanti altri sottotracciati ognuno è contenuto: profondità pari vuol dire contorno,
     dispari vuol dire buco, e un'isola dentro un buco torna a essere un contorno.
     """
     poligoni = [punti(s) for s in sottos]
@@ -219,9 +219,9 @@ def contorni(sottos):
 def tangenti_arco(p0, n):
     """Le due tangenti di un arco SVG: (entrante nel punto finale, uscente dal punto iniziale).
 
-    ⚠️⚠️ **SENZA QUESTO CONTO UN RACCORDO GIA FATTO SI LEGGE COME UNO SPIGOLO VIVO**: prendendo la
-    corda al posto della tangente, un arco di novanta gradi sbaglia di quarantacinque, cioe
-    esattamente quanto basta a far sembrare vivo un angolo appena smussato. Il conto e quello del
+    ⚠️⚠️ **SENZA QUESTO CONTO UN RACCORDO GIÀ FATTO SI LEGGE COME UNO SPIGOLO VIVO**: prendendo la
+    corda al posto della tangente, un arco di novanta gradi sbaglia di quarantacinque, cioè
+    esattamente quanto basta a far sembrare vivo un angolo appena smussato. Il conto è quello del
     W3C, dagli estremi al centro.
     """
     rx, ry, rot, fa, fs, x2, y2 = n
@@ -266,9 +266,9 @@ def versi(sotto):
     """Per ogni vertice: la tangente con cui ci si arriva e quella con cui si riparte.
 
     ⚠️⚠️ **LE CURVE SMOOTH (`S` E `T`) SONO TANGENTI PER COSTRUZIONE, E TRATTARLE COME LE ALTRE
-    DA 26 SPIGOLI VIVI SU UN DISEGNO CHE NON NE HA NESSUNO**: il loro primo controllo e la
-    riflessione dell'ultimo controllo della curva prima, quindi la tangente con cui partono e
-    esattamente quella con cui si e arrivati. Misurato su `ic_folder_eye`, che e tutto di `s`.
+    DA 26 SPIGOLI VIVI SU UN DISEGNO CHE NON NE HA NESSUNO**: il loro primo controllo è la
+    riflessione dell'ultimo controllo della curva prima, quindi la tangente con cui partono è
+    esattamente quella con cui si è arrivati. Misurato su `ic_folder_eye`, che è tutto di `s`.
     """
     corpo = [c for c in sotto if c[0] != 'Z']
     ps = punti(sotto)
@@ -299,7 +299,7 @@ def versi(sotto):
             dentro.append(d)
             fuori.append(d)
     # ⚠️ Un giro che torna sul proprio punto di partenza ha DUE vertici sullo stesso punto: la
-    # chiusura e lunga zero, e senza questa riga lo spigolo vero fra i due sparisce.
+    # chiusura è lunga zero, e senza questa riga lo spigolo vero fra i due sparisce.
     if len(ps) >= 3 and math.hypot(ps[-1][0] - ps[0][0], ps[-1][1] - ps[0][1]) < CHIUSA:
         dentro[0] = dentro[-1]
         fuori[0] = fuori[1]
@@ -331,9 +331,9 @@ def spigoli(sotto, scala):
     fuori = []
     for i in range(len(ps)):
         if doppio and i == len(ps) - 1:
-            # Lo stesso punto del vertice 0, che porta gia quello spigolo.
+            # Lo stesso punto del vertice 0, che porta già quello spigolo.
             continue
-        # ⚠️ Un tratto piu corto della tolleranza di chiusura non e un lato: e il residuo di un
+        # ⚠️ Un tratto più corto della tolleranza di chiusura non è un lato: è il residuo di un
         # arrotondamento, e raccordarlo vorrebbe dire smussare un difetto di scrittura.
         # ⚠️⚠️ **MA IL VERTICE DELLA `M` FA ECCEZIONE QUANDO IL GIRO TORNA ESATTAMENTE LÌ, E
         # SENZA QUESTA RIGA NON SI GUARDAVA MAI** (misurato il 2026-09-18 su `BookmarkAdd`, il
@@ -346,8 +346,8 @@ def spigoli(sotto, scala):
         if (math.hypot(ps[i][0] - prima[0], ps[i][1] - prima[1]) < CHIUSA * scala
                 or math.hypot(dopo[0] - ps[i][0], dopo[1] - ps[i][1]) < CHIUSA * scala):
             continue
-        # ⚠️ **L'angolo si misura sulle TANGENTI e non sulle corde**: un raccordo gia fatto e un
-        # arco, e la sua corda svolta di meta arco, cioe quanto basta a farlo sembrare vivo.
+        # ⚠️ **L'angolo si misura sulle TANGENTI e non sulle corde**: un raccordo già fatto è un
+        # arco, e la sua corda svolta di metà arco, cioè quanto basta a farlo sembrare vivo.
         ax, ay = entra[i]
         bx, by = esce[(i + 1) % len(ps)]
         la = math.hypot(ax, ay)
@@ -360,7 +360,7 @@ def spigoli(sotto, scala):
         if gira < DRITTO:
             continue
         if cross * verso <= 0:
-            # Svolta verso l'interno: e un raccordo interno, non un bordo esterno.
+            # Svolta verso l'interno: è un raccordo interno, non un bordo esterno.
             continue
         dentro = 180.0 - gira
         r = raggio_per(dentro, scala)
@@ -375,7 +375,7 @@ def lavora(percorso, dettaglio):
     lato = albero.get(f'{{{ANDROID}}}viewportWidth')
     scala = float(lato) / 24.0 if lato else 1.0
     vivi = []
-    # ⚠️ Gli elementi non portano il namespace di Android: quello sta sugli ATTRIBUTI.
+    # ⚠️ Gli elementi non portano il namespace di Android: quello è sugli ATTRIBUTI.
     for path in albero.iter('path'):
         d = path.get(f'{{{ANDROID}}}pathData')
         if not d:
@@ -384,8 +384,8 @@ def lavora(percorso, dettaglio):
         if errore:
             print(f'{percorso.name}: tracciato illeggibile ({errore})')
             continue
-        # ⚠️ Il contenimento si guarda DENTRO un `<path>` e non fra path diversi, perche e la
-        # regola di riempimento di quel path a decidere che cosa e un buco.
+        # ⚠️ Il contenimento si guarda DENTRO un `<path>` e non fra path diversi, perché è la
+        # regola di riempimento di quel path a decidere che cosa è un buco.
         for sotto in contorni(pezzi(assoluti(comandi))):
             vivi.extend(spigoli(sotto, scala))
     if vivi:

@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">এই ফাইলটি জলছাপ হিসেবে ব্যবহার করা যাবে না: একটি PNG বা SVG বেছে নিন।</string>
     <string name="settings_mark_on_desc">জলছাপ হলো একটি গ্রাফিক উপাদান (যেমন স্বাক্ষর বা লোগো), যা ছবির উপরে বসে। সংরক্ষণের আগে সম্পাদকের নিচের বারের চালু/বন্ধ বোতাম দিয়ে এটি চালু বা বন্ধ করতে পারেন; সেটিংসে দ্রুত আসতে বোতামটি চেপে ধরে রাখুন।</string>
     <string name="settings_mark_lossy">⚠️ জলছাপ যোগ করলে JPEG ঘোরানোর মতো ক্ষতিহীন কাজগুলি করা যায় না: সংরক্ষণ পুরো ফাইলটি নতুন করে লেখে।</string>
-    <string name="settings_mark_where">অবস্থান</string>
+    <string name="settings_mark_where">জলছাপের অবস্থান</string>
     <string name="mark_spot_tl">উপরে বাঁদিকে</string>
     <string name="mark_spot_tr">উপরে ডানদিকে</string>
     <string name="mark_spot_bl">নিচে বাঁদিকে</string>

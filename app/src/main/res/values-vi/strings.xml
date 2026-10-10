@@ -599,7 +599,7 @@
     <string name="settings_mark_bad">Không thể dùng tệp này làm hình mờ: hãy chọn một tệp PNG hoặc SVG.</string>
     <string name="settings_mark_on_desc">Hình mờ là một thành phần đồ họa (ví dụ chữ ký, logo) được đặt chồng lên ảnh. Bạn có thể bật hoặc tắt trước khi lưu bằng nút bật/tắt trên thanh dưới cùng của trình chỉnh sửa; nhấn giữ nút để mở nhanh phần cài đặt.</string>
     <string name="settings_mark_lossy">⚠️ Khi có hình mờ, các thao tác không mất dữ liệu như xoay JPEG không dùng được: khi lưu, toàn bộ tệp sẽ được ghi lại.</string>
-    <string name="settings_mark_where">Vị trí</string>
+    <string name="settings_mark_where">Vị trí hình mờ</string>
     <string name="mark_spot_tl">Trên bên trái</string>
     <string name="mark_spot_tr">Trên bên phải</string>
     <string name="mark_spot_bl">Dưới bên trái</string>

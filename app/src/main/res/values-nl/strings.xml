@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">Dit bestand kan niet als watermerk worden gebruikt: kies een PNG of een SVG.</string>
     <string name="settings_mark_on_desc">Het watermerk is een grafisch element (bijv. een handtekening of logo) dat over de afbeelding wordt gelegd. Je kunt het voor het opslaan aan- of uitzetten met de aan/uit-knop in de onderste balk van de editor; houd de knop ingedrukt om snel naar de instellingen te gaan.</string>
     <string name="settings_mark_lossy">⚠️ Met een watermerk zijn verliesvrije bewerkingen zoals het draaien van een JPEG niet beschikbaar: bij het opslaan wordt het hele bestand herschreven.</string>
-    <string name="settings_mark_where">Positie</string>
+    <string name="settings_mark_where">Positie van het watermerk</string>
     <string name="mark_spot_tl">Linksboven</string>
     <string name="mark_spot_tr">Rechtsboven</string>
     <string name="mark_spot_bl">Linksonder</string>

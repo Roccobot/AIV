@@ -616,7 +616,7 @@
     <string name="settings_mark_bad">यह फ़ाइल वॉटरमार्क के रूप में काम नहीं करती: PNG या SVG चुनें।</string>
     <string name="settings_mark_on_desc">वॉटरमार्क एक ग्राफ़िक तत्व है (जैसे हस्ताक्षर या लोगो), जो छवि के ऊपर रखा जाता है। सहेजने से पहले संपादक की नीचे की पट्टी के चालू/बंद बटन से इसे चालू या बंद कर सकते हैं; सेटिंग में जल्दी आने के लिए बटन को दबाकर रखें।</string>
     <string name="settings_mark_lossy">⚠️ वॉटरमार्क के साथ JPEG घुमाने जैसे बिना नुकसान वाले काम उपलब्ध नहीं हैं: सहेजने पर पूरी फ़ाइल फिर से लिखी जाती है।</string>
-    <string name="settings_mark_where">स्थिति</string>
+    <string name="settings_mark_where">वॉटरमार्क की स्थिति</string>
     <string name="mark_spot_tl">ऊपर बाएँ</string>
     <string name="mark_spot_tr">ऊपर दाएँ</string>
     <string name="mark_spot_bl">नीचे बाएँ</string>

@@ -633,7 +633,7 @@
     <string name="settings_mark_bad">Este ficheiro não serve como marca d\'água: escolha um PNG ou um SVG.</string>
     <string name="settings_mark_on_desc">A marca d\'água é um elemento gráfico (p. ex. uma assinatura ou um logo) sobreposto à imagem. Você pode ligá-la ou desligá-la antes de salvar com o botão liga/desliga na barra inferior do editor; toque e segure o botão para chegar rápido às configurações.</string>
     <string name="settings_mark_lossy">⚠️ Com a marca d\'água, operações sem perdas como girar um JPEG não estão disponíveis: ao salvar, o arquivo é reescrito por inteiro.</string>
-    <string name="settings_mark_where">Posição</string>
+    <string name="settings_mark_where">Posição da marca d\'água</string>
     <string name="mark_spot_tl">Canto superior esquerdo</string>
     <string name="mark_spot_tr">Canto superior direito</string>
     <string name="mark_spot_bl">Canto inferior esquerdo</string>

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Verifica le icone vettoriali di AIV: grammatica, vincoli Android, linee guida Material.
 
-Perche esiste: un'icona entra in questo repository come tracciato, e da quel momento nessuno
-la guarda piu. Quello che la conversione non sa fare lo perde in silenzio, e quello che un
-parser accetta per indulgenza si rompe il giorno che cambia il parser. Qui la domanda 'e fatta
+Perché esiste: un'icona entra in questo repository come tracciato, e da quel momento nessuno
+la guarda più. Quello che la conversione non sa fare lo perde in silenzio, e quello che un
+parser accetta per indulgenza si rompe il giorno che cambia il parser. Qui la domanda 'è fatta
 bene?' ha una risposta con dei numeri.
 
 Uso: python3 tools/icon-check.py                  (tutte le icone del repository)
      python3 tools/icon-check.py FILE.xml [...]   (solo quelle)
-Esce 1 se trova un difetto che blocca, 0 se e tutto in ordine.
+Esce 1 se trova un difetto che blocca, 0 se è tutto in ordine.
 
-⚠️ I CONTROLLI SONO DI DUE SPECIE, e la differenza e dichiarata a ogni giro:
-  - quelli di GRAMMATICA e di VINCOLO girano sempre, perche usano la sola libreria standard;
+⚠️ I CONTROLLI SONO DI DUE SPECIE, e la differenza è dichiarata a ogni giro:
+  - quelli di GRAMMATICA e di VINCOLO girano sempre, perché usano la sola libreria standard;
   - quelli di RESA (l'inchiostro, le linee guida, l'avvolgimento, la cucitura) vogliono
     Chromium e Playwright, e se non ci sono si salta DICENDOLO. Un controllo che tace quello
     che non ha guardato mente peggio di uno che non esiste.
@@ -29,18 +29,18 @@ DRAWABLE = RADICE / 'app/src/main/res/drawable'
 ANDROID = '{http://schemas.android.com/apk/res/android}'
 
 # ── La grammatica dei tracciati ───────────────────────────────────────────────────────────
-# ⚠️⚠️ IL TOKENIZZATORE E SCRITTO A MANO DI PROPOSITO, e non e una ruota reinventata: e IL
-# controllo. Il parser di Android e indulgente e accetta forme che la grammatica SVG ammette a
+# ⚠️⚠️ IL TOKENIZZATORE È SCRITTO A MANO DI PROPOSITO, e non è una ruota reinventata: è IL
+# controllo. Il parser di Android è indulgente e accetta forme che la grammatica SVG ammette a
 # stento (due numeri incollati quando il secondo comincia col punto, `-.05.1`) e altre che non
-# ammette affatto. Un tracciato che passa da qui e leggibile da QUALUNQUE parser conforme,
-# che e la definizione operativa di 'a prova di futuro'. Appoggiarsi a una libreria
+# ammette affatto. Un tracciato che passa da qui è leggibile da QUALUNQUE parser conforme,
+# che è la definizione operativa di 'a prova di futuro'. Appoggiarsi a una libreria
 # significherebbe misurare l'indulgenza di quella libreria invece della grammatica.
 COMANDI = {'M': 2, 'L': 2, 'H': 1, 'V': 1, 'C': 6, 'S': 4, 'Q': 4, 'T': 2, 'A': 7, 'Z': 0}
 RE_NUMERO = re.compile(r'[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?')
-# ⚠️ Un punto che segue un numero che ha GIA il punto apre un numero nuovo: `.05.1` sono due.
-# E SVG legale (la grammatica non ammette due punti in un numero, quindi il secondo chiude il
+# ⚠️ Un punto che segue un numero che ha GIÀ il punto apre un numero nuovo: `.05.1` sono due.
+# È SVG legale (la grammatica non ammette due punti in un numero, quindi il secondo chiude il
 # primo), Android lo legge, e un parser che pretende un separatore lo rifiuta. Si segnala e non
-# si blocca: il tracciato e valido, e solo scomodo.
+# si blocca: il tracciato è valido, è solo scomodo.
 RE_INCOLLATI = re.compile(r'(\d*\.\d+)(?=\.)')
 
 
@@ -52,7 +52,7 @@ def separa(d):
 def leggi_tracciato(d):
     """I comandi di `d`, oppure un errore. Torna `(comandi, errore, incollati)`.
 
-    Ogni comando e `(lettera, [numeri])`. `incollati` conta le coppie di numeri senza
+    Ogni comando è `(lettera, [numeri])`. `incollati` conta le coppie di numeri senza
     separatore, che sono legali ma non portabili.
     """
     incollati = len(RE_INCOLLATI.findall(d))
@@ -86,11 +86,11 @@ def leggi_tracciato(d):
             m = RE_NUMERO.match(testo, i)
             if not m:
                 return (None, f"il comando '{lettera}' vuole {quanti} numeri e alla colonna "
-                        f'{i + 1} non ce n-e uno', incollati)
+                        f"{i + 1} non ce n'è uno", incollati)
             numeri.append(float(m.group(0)))
             i = m.end()
         fuori.append((lettera, numeri))
-        # ⚠️ Dopo il primo gruppo, `M` diventa `L` e `m` diventa `l`: e la regola SVG, e senza
+        # ⚠️ Dopo il primo gruppo, `M` diventa `L` e `m` diventa `l`: è la regola SVG, e senza
         # di essa un tracciato con un `M` seguito da quattro numeri sembrerebbe rotto.
         if lettera == 'M':
             lettera = 'L'
@@ -106,7 +106,7 @@ def sottotracciati(comandi):
 
 # ── I vincoli del vettore Android ─────────────────────────────────────────────────────────
 # ⚠️ Quello che il formato NON conosce va dichiarato qui, o passa di straforo: maschere,
-# filtri, modalita di fusione, `<use>`, testo, campiture a motivo. Non esistono come elementi,
+# filtri, modalità di fusione, `<use>`, testo, campiture a motivo. Non esistono come elementi,
 # quindi chi ne trova uno ha un file che Android non sa disegnare.
 ELEMENTI_OK = {'vector', 'group', 'path', 'clip-path', 'aapt:attr', 'gradient', 'item'}
 ATTRIBUTI_PATH_OK = {
@@ -127,7 +127,7 @@ def controlla_xml(percorso):
 
     tag = radice.tag.split('}')[-1]
     if tag != 'vector':
-        blocca.append(f"la radice e '{tag}' invece di 'vector'")
+        blocca.append(f"la radice è '{tag}' invece di 'vector'")
 
     def num(elemento, nome):
         v = elemento.get(ANDROID + nome)
@@ -143,11 +143,11 @@ def controlla_xml(percorso):
     if larghezza is None or altezza is None:
         blocca.append('manca android:width o android:height')
 
-    # ⚠️ IL RAPPORTO FRA MISURA E TELA si riporta e non si giudica. Dove un'unita vale un dp la
-    # famiglia ha la stessa scala ottica (ed e la ragione per cui il glifo che esce dalla tela
-    # cresce di 1 in tutti e tre i numeri: vedi `Menus.kt`); dove la tela e grande di proposito
-    # (800 per un disegno arrivato da Illustrator) il rapporto e un altro e va bene. Un avviso
-    # su ognuna delle due sarebbe rumore su meta delle icone.
+    # ⚠️ IL RAPPORTO FRA MISURA E TELA si riporta e non si giudica. Dove un'unità vale un dp la
+    # famiglia ha la stessa scala ottica (ed è la ragione per cui il glifo che esce dalla tela
+    # cresce di 1 in tutti e tre i numeri: vedi `Menus.kt`); dove la tela è grande di proposito
+    # (800 per un disegno arrivato da Illustrator) il rapporto è un altro e va bene. Un avviso
+    # su ognuna delle due sarebbe rumore su metà delle icone.
     rapporto = None
     if None not in (larghezza, vw) and vw:
         rapporto = larghezza / vw
@@ -156,7 +156,7 @@ def controlla_xml(percorso):
     for elemento in radice.iter():
         nome = elemento.tag.split('}')[-1]
         if nome not in ELEMENTI_OK:
-            blocca.append(f"l-elemento '{nome}' non esiste nel vettore Android: "
+            blocca.append(f"l'elemento '{nome}' non esiste nel vettore Android: "
                           f'maschere, filtri, fusioni e testo non si convertono, si espandono')
             continue
         if nome == 'path':
@@ -164,7 +164,7 @@ def controlla_xml(percorso):
             for chiave in elemento.attrib:
                 corto = chiave.split('}')[-1]
                 if corto not in ATTRIBUTI_PATH_OK:
-                    avvisa.append(f"attributo '{corto}' su un path: non e fra quelli che il "
+                    avvisa.append(f"attributo '{corto}' su un path: non è fra quelli che il "
                                   f'formato usa')
         elif nome == 'group':
             gruppi.append(elemento)
@@ -198,14 +198,14 @@ def controlla_xml(percorso):
             blocca.append(f'tracciato fuori grammatica: {errore}')
             continue
         # ⚠️⚠️ LE DUE BANDIERINE DI UN ARCO VALGONO `0` O `1` E NIENT'ALTRO, e senza questa riga
-        # un tracciato con dentro `0.5` passava indisturbato: e successo in `ic_mod_detail`
+        # un tracciato con dentro `0.5` passava indisturbato: è successo in `ic_mod_detail`
         # dalla 2.32 alla 2.40, dove i raggi erano finiti al posto della rotazione e della
         # bandierina dell'arco maggiore. Otto archi su dodici venivano giusti per caso (la
         # specifica scala i raggi troppo piccoli), quattro no, e il disegno sbagliava del 4,95%
-        # della tela. Un numero fuori posto in un arco non da nessun errore: si vede guardando.
+        # della tela. Un numero fuori posto in un arco non dà nessun errore: si vede guardando.
         for lettera, n in comandi:
             if lettera.upper() == 'A' and (n[3] not in (0.0, 1.0) or n[4] not in (0.0, 1.0)):
-                blocca.append(f'arco con una bandierina che non e 0 o 1: {n[3]},{n[4]}')
+                blocca.append(f'arco con una bandierina che non è 0 o 1: {n[3]},{n[4]}')
                 break
         tratto = p.get(ANDROID + 'strokeWidth') is not None
         riempimento = p.get(ANDROID + 'fillType') or 'nonZero'
@@ -219,29 +219,29 @@ def controlla_xml(percorso):
             'tratto': tratto, 'fillType': riempimento,
         })
 
-    # ⚠️⚠️ UN GRUPPO DI SOLA TRASLAZIONE NON SI SEGNALA, ed e una correzione del 2026-09-03:
-    # e il modo canonico di dire che il disegno ha un'origine, che un vettore Android non sa
-    # dichiarare (`viewportWidth` e `viewportHeight` e nient'altro, quindi l'origine e sempre
+    # ⚠️⚠️ UN GRUPPO DI SOLA TRASLAZIONE NON SI SEGNALA, ed è una correzione del 2026-09-03:
+    # è il modo canonico di dire che il disegno ha un'origine, che un vettore Android non sa
+    # dichiarare (`viewportWidth` e `viewportHeight` e nient'altro, quindi l'origine è sempre
     # 0,0). Prima qui si consigliava di appiattirlo nelle coordinate, e la misura ha detto due
-    # volte no: appiattire `ic_aiv_mark` cambia 9 pixel su 230.400 con scarto 8, perche il
+    # volte no: appiattire `ic_aiv_mark` cambia 9 pixel su 230.400 con scarto 8, perché il
     # disegnatore somma in virgola mobile a 32 bit e non cade sullo stesso numero; e la
     # `pathData` smette di essere confrontabile carattere per carattere col file di partenza,
-    # che e il solo modo di verificare un trasporto. Su tredici icone il consiglio scattava su
-    # quattro legittime, cioe era rumore.
-    # Quello che invece vale la pena di dire e altro: un gruppo che NON trasforma niente e un
+    # che è il solo modo di verificare un trasporto. Su tredici icone il consiglio scattava su
+    # quattro legittime, cioè era rumore.
+    # Quello che invece vale la pena di dire è altro: un gruppo che NON trasforma niente è un
     # livello a vuoto, e un gruppo che SCALA o RUOTA stacca i numeri del tracciato dal disegno
-    # (li si legge e non dicono dove finisce l'inchiostro). Anche quello puo essere voluto: il
-    # rientro del 65% dell'icona adattiva e una convenzione, non un residuo.
+    # (li si legge e non dicono dove finisce l'inchiostro). Anche quello può essere voluto: il
+    # rientro del 65% dell'icona adattiva è una convenzione, non un residuo.
     for g in gruppi:
         mosse = sorted(k.split('}')[-1] for k in g.attrib if k.split('}')[-1] != 'name')
         if not mosse:
-            avvisa.append('un gruppo senza trasformazioni: e un livello a vuoto, si appiattisce')
+            avvisa.append('un gruppo senza trasformazioni: è un livello a vuoto, si appiattisce')
         elif any(m.startswith(('scale', 'rotation', 'pivot')) for m in mosse):
             avvisa.append(f'un gruppo con {", ".join(mosse)}: staccando i numeri dal disegno, '
                           f'legittimo solo se esprime una convenzione (il rientro '
-                          f'dell-icona adattiva) e non un residuo di esportazione')
+                          f"dell'icona adattiva) e non un residuo di esportazione")
     if len(gruppi) > 1:
-        avvisa.append(f'{len(gruppi)} gruppi: un livello solo basta a dichiarare un-origine')
+        avvisa.append(f"{len(gruppi)} gruppi: un livello solo basta a dichiarare un'origine")
 
     return blocca, avvisa, dati
 
@@ -254,7 +254,7 @@ SAGOME = {'quadrato': 18.0, 'cerchio': 20.0, 'orizzontale': (20.0, 16.0), 'verti
 
 
 def resa(icone):
-    """Le misure di resa, o None se Chromium non c-e. `icone` e una lista di (nome, svg)."""
+    """Le misure di resa, o None se Chromium non c'è. `icone` è una lista di (nome, svg)."""
     if not PLAYWRIGHT.exists():
         return None
     with tempfile.TemporaryDirectory() as tmp:
@@ -299,9 +299,9 @@ const fs = require('fs');
 def svg_di(dati, regola=None, unisci=False):
     """La pagina SVG equivalente al vettore, per misurarne la resa.
 
-    ⚠️⚠️ LA TRASFORMAZIONE DEL GRUPPO VA RIPORTATA, o la misura dell'inchiostro e falsa. Alla
+    ⚠️⚠️ LA TRASFORMAZIONE DEL GRUPPO VA RIPORTATA, o la misura dell'inchiostro è falsa. Alla
     prima stesura questa funzione apriva un `<g>` vuoto: `ic_aiv_mark`, il cui gruppo trasla di
-    -19, risultava con l'inchiostro fuori dalla tela di 6,51 unita. Un numero implausibile e
+    -19, risultava con l'inchiostro fuori dalla tela di 6,51 unità. Un numero implausibile è
     l'unica spia che si ha, e va guardato invece che riportato.
     """
     vw, vh = dati['viewport']
@@ -320,11 +320,11 @@ def svg_di(dati, regola=None, unisci=False):
         tx, ty = dati['trasforma']['trasla']
         pezzi.append(f'translate({tx} {ty})')
     dentro = f'<g transform="{" ".join(pezzi)}">{corpo}</g>' if pezzi else corpo
-    # ⚠️⚠️ DUE GRUPPI ANNIDATI, e la ragione e nella specifica: `getBBox` torna i limiti nel
+    # ⚠️⚠️ DUE GRUPPI ANNIDATI, e la ragione è nella specifica: `getBBox` torna i limiti nel
     # sistema di coordinate DELL'ELEMENTO, quindi ignora la trasformazione che l'elemento porta
-    # su di se. Interrogando il gruppo che trasla si otterrebbero i limiti di prima della
+    # su di sé. Interrogando il gruppo che trasla si otterrebbero i limiti di prima della
     # traslazione, e su `ic_aiv_mark` (che trasla di -19) l'inchiostro risultava fuori dalla
-    # tela di 6,51 unita. Il gruppo di fuori non trasforma niente, quindi i suoi limiti
+    # tela di 6,51 unità. Il gruppo di fuori non trasforma niente, quindi i suoi limiti
     # includono la trasformazione di quello di dentro.
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" '
             f'viewBox="0 0 {vw} {vh}"><rect width="{vw}" height="{vh}" fill="#fff"/>'
@@ -406,9 +406,9 @@ def main():
             import numpy as np
             return int((np.abs(pixel[a] - pixel[b2]) > 2).sum())
 
-        # ⚠️⚠️ LA FRAGILITA E LA REGOLA IMPLICITA, non la dipendenza dalla regola. Un vettore
-        # che DICHIARA `fillType="evenOdd"` dipende da quella regola per costruzione, ed e
-        # giusto cosi: il disegno e definito. Fragile e il vettore che NON la dichiara, si
+        # ⚠️⚠️ LA FRAGILITÀ È LA REGOLA IMPLICITA, non la dipendenza dalla regola. Un vettore
+        # che DICHIARA `fillType="evenOdd"` dipende da quella regola per costruzione, ed è
+        # giusto così: il disegno è definito. Fragile è il vettore che NON la dichiara, si
         # affida al `nonZero` di fabbrica, e cambierebbe aspetto se qualcuno la dichiarasse o
         # se un editor riordinasse i sottotracciati. Alla prima stesura questo controllo
         # segnalava `ic_aiv_mark`, che la dichiara: un avviso su un file corretto.
@@ -418,7 +418,7 @@ def main():
         print(f'{nome:<28}{f"{x0:.2f}, {y0:.2f}, {w:.2f}, {h:.2f}":<30}{marg:>6.2f}'
               f'{nomeSagoma:>13}{str(verso):>7}{str(cuc):>6}')
         if isinstance(verso, int) and verso > 0 and not dichiarata:
-            print(f'   ~~ la regola di riempimento NON e dichiarata e il disegno ne dipende '
+            print(f'   ~~ la regola di riempimento NON è dichiarata e il disegno ne dipende '
                   f'({verso} pixel): scrivi fillType di proposito, o un editor che riordina i '
                   f'sottotracciati lo cambia senza che nessuno lo veda')
         if isinstance(cuc, int) and cuc > 0:
@@ -428,8 +428,8 @@ def main():
             print(f'   ~~ margine {marg:.2f} dove Material chiede 2: legittimo se il disegno '
                   f'lo vuole, da sapere')
         if marg < -1e-6:
-            print(f'   ~~ l-inchiostro ESCE dalla tela di {-marg:.2f}: voluto solo se la tela '
-                  f'e cresciuta per permetterlo')
+            print(f"   ~~ l'inchiostro ESCE dalla tela di {-marg:.2f}: voluto solo se la tela "
+                  f'è cresciuta per permetterlo')
 
     print('\nverso = pixel oltre 2/255 fra nonZero ed evenOdd (0 = robusto)')
     print('cuc   = pixel che costerebbe unire i tracciati in uno (0 = si possono unire)')
