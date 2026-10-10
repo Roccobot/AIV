@@ -227,21 +227,57 @@
      2026-09-02. Se un domani la colonna di sinistra diventasse la più alta, il
      filo si perde da sé: là sotto non c'è più spazio da distribuire. */
   .alto{display:grid; grid-template-columns:1fr auto; gap:48px}
-  .parole{display:flex; flex-direction:column; gap:20px; max-width:34rem}
-  .icona{border-radius:24%; display:block}
-  h1{font-size:40px; line-height:1.1; letter-spacing:-0.02em; font-weight:500; margin:0}
-  .claim{font-size:18px; line-height:1.55; color:var(--text-muted); margin:0}
-  .blocco-scarica{display:flex; flex-direction:column; gap:10px; align-items:flex-start; flex:1}
+  /* ══ LO SCHERMO LARGO È IL SUO MOCKUP DEL 2026-10-10 ════════════════════════
+     (*adesso c'è troppo spazio vuoto e l'icona in alto da sola non mi piace*, con le
+     guide): l'icona a sinistra del titolo su due righe, la descrizione, il tasto con
+     la riga tecnica a destra, un filetto, e la nota dell'installazione in fondo.
+     Tre fili, dalle sue guide: un bordo sinistro solo per tutto, l'icona in cima a
+     filo col telefono, la nota in fondo a filo col telefono (la colonna è alta
+     quanto la schermata, e la nota scende all'ultima riga della griglia).
+     ⚠️ **Le misure sono il mockup diviso per 1,92**, la scala che dà la schermata
+     (538 pixel là, 280 qui); la descrizione, che non cambia, lo conferma (517 contro
+     515 misurati col carattere vero). Il tasto è quello di prima ingrandito di
+     circa 1,45, in ogni sua misura; la nota passa da 13 a 16,6 pixel, misurati
+     sulla larghezza della sua prima riga e sull'interlinea. */
+  /* ⚠️ La prima riga è alta quanto l'icona, non quanto il titolo: le due righe del
+     titolo sono 96 pixel contro 88, e una riga alta quanto lui centrava l'icona 4
+     pixel sotto il filo del telefono. Così l'icona è sul filo e il titolo le si
+     centra accanto, sporgendo di 4 pixel sopra e sotto, come nel mockup. */
+  .parole{
+    --icona:88px;
+    display:grid; grid-template-columns:auto 1fr; grid-template-rows:var(--icona) auto 1fr;
+    column-gap:28px; row-gap:20px; align-items:center; max-width:34rem
+  }
+  .icona{border-radius:24%; display:block; width:var(--icona); height:var(--icona)}
+  /* ⚠️ Due righe a ogni lingua: 7em lascia fuori 'Astonishing Image', che chiede
+     circa 8em, e tiene 'Image Viewer'. */
+  h1{font-size:40px; line-height:1.2; letter-spacing:-0.02em; font-weight:500; margin:0; max-width:7em}
+  .claim{font-size:18px; line-height:1.55; color:var(--text-muted); margin:0; grid-column:1 / -1}
+  /* 49 pixel dalla descrizione al tasto: i 20 della griglia più questi 29. */
+  .blocco-scarica{
+    grid-column:1 / -1; align-self:stretch; margin-top:29px;
+    display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto 1fr; column-gap:40px
+  }
+  /* Il filetto sotto il tasto, che sfuma verso destra come nel mockup. */
+  .blocco-scarica::after{
+    content:""; grid-row:2; grid-column:1 / -1; height:1px; margin-top:46px;
+    background:linear-gradient(to right, var(--outline-variant), transparent)
+  }
   .scarica{
-    display:inline-flex; align-items:center; gap:10px;
+    display:inline-flex; align-items:center; gap:14px;
     background:var(--accent); color:var(--glyph);
-    font-size:16px; font-weight:500; padding:14px 24px; border-radius:12px;
+    font-size:23px; font-weight:500; padding:20px 35px; border-radius:17px;
     box-shadow:0 3px 6px rgba(0,0,0,0.18);
   }
+  .scarica svg{width:29px; height:29px}
   .scarica:hover{text-decoration:none; filter:brightness(1.06)}
-  .tecnica{font-size:13px; color:var(--text-muted); font-variant-numeric:tabular-nums}
+  /* ⚠️ La riga tecnica va a capo prima di 'Android' e prima di 'codice sorgente' su
+     ogni schermo, dal 2026-10-10: prima lo faceva solo sul telefono. */
+  .tecnica{font-size:13px; line-height:1.45; color:var(--text-muted); font-variant-numeric:tabular-nums; align-self:center}
   .tecnica .minuta{opacity:0.72}
-  .installa{font-size:13px; line-height:1.6; color:var(--text-muted); opacity:0.7; max-width:44ch; margin-top:auto}
+  .tecnica .sep{display:none}
+  .tecnica .pezzo{display:block}
+  .installa{font-size:16.6px; line-height:1.6; color:var(--text-muted); opacity:0.7; max-width:44ch; grid-column:1 / -1; align-self:end}
 
   /* ── La schermata dell'app, che è VERA dal 2026-09-02 ──
      Prima qui c'era un mockup disegnato in CSS: una cornice di telefono con
@@ -363,18 +399,18 @@
     .alto{display:grid; grid-template-columns:auto 1fr; gap:18px 16px; align-items:center}
     .parole, .blocco-scarica{display:contents}
 
-    .icona{order:1; grid-column:1; grid-row:1; width:88px; height:88px}
-    h1{order:2; grid-column:2; grid-row:1; font-size:30px; text-align:left}
+    .icona{order:1; grid-column:1; grid-row:1}
+    h1{order:2; grid-column:2; grid-row:1; font-size:30px; line-height:1.1; text-align:left; max-width:none}
     .claim{order:3; grid-column:1 / -1}
     .scarica{order:4; grid-column:1 / -1; justify-self:center;
-      font-size:18px; padding:16px 30px; border-radius:14px}
+      font-size:18px; padding:16px 30px; border-radius:14px; gap:10px}
+    .scarica svg{width:20px; height:20px}
     .tecnica{order:5; grid-column:1 / -1; text-align:center; line-height:1.8}
     .schermata-blocco{order:6; grid-column:1 / -1}
-    .installa{order:7; grid-column:1 / -1; margin-top:2px; max-width:none}
-
-    /* la riga tecnica va a capo prima di 'Android' e prima di 'codice sorgente' */
-    .tecnica .sep{display:none}
-    .tecnica .pezzo{display:block}
+    .installa{order:7; grid-column:1 / -1; margin-top:2px; max-width:none; font-size:13px}
+    /* ⚠️ Il filetto è dello schermo largo: col contenitore sciolto diventerebbe una
+       voce della griglia del telefono. */
+    .blocco-scarica::after{display:none}
 
     /* ⚠️⚠️ DA BORDO A BORDO SUL TELEFONO, e prima non lo era (riscontro dell'utente,
        2026-09-03: `da bordo a bordo? Sì, ma dovrebbe essere già così`). Il `width:100%`
