@@ -282,6 +282,13 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     lunga non sta mai nella casella d'angolo arrotondata della riga in basso: si scambia con la
     casella sopra la ×, quindi nelle cartelle `Impostazioni` va in alto e `Cestino` in basso.
     Torna il tocco lungo su `Mostra`/`Nascondi`, che apre `Cartelle nascoste` e chiude il menu.
+  - ⚠️⚠️ **Dalla `5.03` nella schermata iniziale `Impostazioni` è sopra la ×** (sua nota del giro
+    della `5.02`: *Impostazioni al posto di Apri URL, Cestino al posto di Impostazioni, Apri URL al
+    posto di Cestino*). Nella vista Griglia, dall'alto e da sinistra: `Pillola`/`Tondo`, `Lista`,
+    `Cartelle`; `Mostra`, `Cerca`, `Impostazioni`; `Apri URL`, `Cestino`, ×. Cambia il solo menu
+    Start (con lui il suo velo d'aiuto): FAB, pillola e menu basso tengono l'ordine di prima.
+    ⚠️ **Lettura dichiarata**: con `Crea`, nella vista ad albero, vale la stessa regola, e `Crea`
+    resta accanto a `Cerca`. Lo misura `MenuInferioreTest`.
   - ⚠️ **Dalla `4.35` la copia del tondo nei veli è sempre piena** (voce `4.34-02`): col vetro il
     giallo arrivava velato.
   - ⚠️ **Dalla `4.35`, con la pillola a scomparsa aperta, diventano su e giù i due tasti più vicini

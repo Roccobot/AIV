@@ -1509,7 +1509,9 @@ private fun hubEntries(
     // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
     // dove andare, ed è il caso in cui una persona apre questo menu.
     add(PillEntry(Icons.Default.Search, stringResource(R.string.hub_search), group = 1, short = stringResource(R.string.hub_search)) { onSearch() })
-    add(PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1, short = stringResource(R.string.start_url)) { onAddress() })
+    val indirizzo = PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1, short = stringResource(R.string.start_url)) { onAddress() }
+    val impostazioni = PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2, short = stringResource(R.string.hub_settings)) { onSettings() }
+    if (!steady) add(indirizzo)
     /*
      * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
      * dell'utente, 2026-08-31: *facciamo un bivio, lo mostriamo se e solo se l'app
@@ -1549,8 +1551,25 @@ private fun hubEntries(
     if (onNewFolder != null) {
         add(PillEntry(Glyphs.FolderNew, stringResource(R.string.dest_new), group = 1, short = stringResource(R.string.start_new)) { onNewFolder() })
     }
-    add(PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1, short = stringResource(R.string.bin_title)) { onBin() })
-    add(PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2, short = stringResource(R.string.hub_settings)) { onSettings() })
+    val cestino = PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1, short = stringResource(R.string.bin_title)) { onBin() }
+    /*
+     * ⚠️⚠️ **NEL MENU START, DALLA `5.03`, 'Impostazioni' VIENE PRIMA DI 'Apri URL' E DEL CESTINO**
+     * (sua nota del giro della `5.02`: *Impostazioni al posto di Apri URL, Cestino al posto di
+     * Impostazioni, Apri URL al posto di Cestino*). Le caselle si riempiono dall'alto con la × in
+     * fondo, quindi nella vista Griglia la seconda riga è 'Mostra', 'Cerca', 'Impostazioni' e la terza
+     * 'Apri URL', 'Cestino', ×: 'Impostazioni' è sopra la ×, e in basso ci sono le due voci che si
+     * usano di meno. ⚠️ **Lettura dichiarata**: con 'Crea', nella vista ad albero, vale la stessa
+     * regola, e 'Crea' resta accanto a 'Cerca'. Il FAB, la pillola e il menu basso tengono l'ordine
+     * di prima: la nota parla del solo menu Start.
+     */
+    if (steady) {
+        add(impostazioni)
+        add(indirizzo)
+        add(cestino)
+    } else {
+        add(cestino)
+        add(impostazioni)
+    }
 }
 
 /**
