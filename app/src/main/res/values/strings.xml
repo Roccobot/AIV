@@ -253,9 +253,11 @@
     <string name="settings_mark_desc">A logo or symbol the app writes on the image when you save it.</string>
     <string name="settings_mark_none">No watermark</string>
     <string name="settings_mark_clear">Remove</string>
+    <string name="settings_mark_pick">Select</string>
     <string name="settings_mark_bad">This file cannot be used as a watermark: choose a PNG or an SVG.</string>
-    <string name="settings_mark_on">Apply when saving</string>
-    <string name="settings_mark_on_desc">Adds the watermark to the image when saving. You can turn it on or off on the fly with the editor\'s on/off button (in the bottom bar, next to \'Resize\'). Enabling or disabling the watermark there is exactly the same as moving this switch. ⚠️ Note: with a watermark, lossless operations such as JPEG rotation become a full rewrite.</string>
+    <string name="settings_mark_on">Enabled</string>
+    <string name="settings_mark_on_desc">The watermark is a graphic element (e.g. a signature or logo) laid over the image according to your settings. You can turn it on or off here, or on the fly before saving with the on/off button in the editor\'s bottom bar; long-press the button to reach this screen quickly.</string>
+    <string name="settings_mark_lossy">⚠️ With a watermark, lossless operations such as JPEG rotation are not available: saving rewrites the whole file.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Top left</string>
     <string name="mark_spot_tr">Top right</string>
@@ -266,6 +268,7 @@
     <string name="settings_mark_air">Edge distance</string>
     <string name="settings_mark_alpha">Opacity</string>
     <string name="settings_mark_preview">Watermark preview</string>
+    <string name="settings_mark_preview_note">⚠️ The preview is only indicative: check the result on the real image.</string>
     <string name="look_resize">Resize</string>
     <string name="resize_long">Long edge</string>
     <string name="resize_short">Short edge</string>

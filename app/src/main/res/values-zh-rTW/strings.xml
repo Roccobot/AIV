@@ -595,9 +595,11 @@
     <string name="settings_mark_desc">儲存時應用程式寫在圖片上的標誌或符號。</string>
     <string name="settings_mark_none">沒有浮水印</string>
     <string name="settings_mark_clear">移除</string>
+    <string name="settings_mark_pick">選擇</string>
     <string name="settings_mark_bad">這個檔案不能當作浮水印：請選擇 PNG 或 SVG。</string>
-    <string name="settings_mark_on">儲存時套用</string>
-    <string name="settings_mark_on_desc">儲存時在影像上寫入浮水印。可以用編輯器的開關按鈕（底部列，\'調整尺寸\' 旁邊）隨時開啟或關閉。在那裡開啟或關閉，與撥動這個開關完全相同。⚠️ 注意：加上浮水印後，JPEG 旋轉這類無損操作會變成完整重寫。</string>
+    <string name="settings_mark_on">啟用</string>
+    <string name="settings_mark_on_desc">浮水印是依照你的設定疊加在影像上的圖形元素（例如簽名、標誌）。可以在這裡開啟或關閉，也可以在儲存前用編輯器底部列的開關按鈕隨時切換；長按該按鈕可快速來到此畫面。</string>
+    <string name="settings_mark_lossy">⚠️ 加上浮水印後，JPEG 旋轉這類無損操作無法使用：儲存時會完整重寫檔案。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
     <string name="mark_spot_tr">右上角</string>
@@ -608,6 +610,7 @@
     <string name="settings_mark_air">邊距</string>
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">浮水印預覽</string>
+    <string name="settings_mark_preview_note">⚠️ 預覽僅供參考：請在實際影像上確認效果。</string>
     <string name="look_resize">調整尺寸</string>
     <string name="resize_long">長邊</string>
     <string name="resize_short">短邊</string>

@@ -646,9 +646,11 @@
     <string name="settings_mark_desc">Логотип або символ, який застосунок наносить на зображення під час збереження.</string>
     <string name="settings_mark_none">Немає водяного знака</string>
     <string name="settings_mark_clear">Прибрати</string>
+    <string name="settings_mark_pick">Обрати</string>
     <string name="settings_mark_bad">Цей файл не можна використати як водяний знак: виберіть PNG або SVG.</string>
-    <string name="settings_mark_on">Застосовувати під час збереження</string>
-    <string name="settings_mark_on_desc">Додає водяний знак на зображення під час збереження. Його можна увімкнути або вимкнути одразу кнопкою увімк./вимк. у редакторі (на нижній панелі, поруч із \'Змінити розмір\'). Зробити це звідти рівносильно переміщенню цього перемикача. ⚠️ Примітка: із водяним знаком операції без втрат, як-от поворот JPEG, стають повним перезаписом.</string>
+    <string name="settings_mark_on">Увімкнено</string>
+    <string name="settings_mark_on_desc">Водяний знак є графічним елементом (наприклад, підписом або логотипом), що накладається на зображення відповідно до ваших налаштувань. Його можна увімкнути або вимкнути тут або одразу перед збереженням кнопкою увімк./вимк. на нижній панелі редактора; утримуйте кнопку, щоб швидко відкрити цей екран.</string>
+    <string name="settings_mark_lossy">⚠️ Із водяним знаком операції без втрат, як-от поворот JPEG, недоступні: під час збереження файл перезаписується повністю.</string>
     <string name="settings_mark_where">Розташування</string>
     <string name="mark_spot_tl">Ліворуч угорі</string>
     <string name="mark_spot_tr">Праворуч угорі</string>
@@ -659,6 +661,7 @@
     <string name="settings_mark_air">Відступ від краю</string>
     <string name="settings_mark_alpha">Непрозорість</string>
     <string name="settings_mark_preview">Перегляд водяного знака</string>
+    <string name="settings_mark_preview_note">⚠️ Попередній перегляд лише орієнтовний: перевірте результат на справжньому зображенні.</string>
     <string name="look_resize">Змінити розмір</string>
     <string name="resize_long">Довша сторона</string>
     <string name="resize_short">Коротша сторона</string>

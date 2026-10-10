@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">একটি লোগো বা প্রতীক, যা সংরক্ষণের সময় অ্যাপ ছবির উপরে লেখে।</string>
     <string name="settings_mark_none">কোনো জলছাপ নেই</string>
     <string name="settings_mark_clear">সরান</string>
+    <string name="settings_mark_pick">নির্বাচন করুন</string>
     <string name="settings_mark_bad">এই ফাইলটি জলছাপ হিসেবে ব্যবহার করা যাবে না: একটি PNG বা SVG বেছে নিন।</string>
-    <string name="settings_mark_on">সংরক্ষণের সময় প্রয়োগ করুন</string>
-    <string name="settings_mark_on_desc">সংরক্ষণের সময় ছবিতে জলছাপ যোগ করে। সম্পাদকের চালু/বন্ধ বোতাম দিয়ে (নিচের বারে, \'আকার বদলান\' এর পাশে) এটি তাৎক্ষণিকভাবে চালু বা বন্ধ করা যায়। সেখান থেকে চালু বা বন্ধ করা এই সুইচটি সরানোর সমান। ⚠️ দ্রষ্টব্য: জলছাপ যোগ করলে JPEG ঘোরানোর মতো ক্ষতিহীন কাজগুলি সম্পূর্ণ পুনর্লেখনে পরিণত হয়।</string>
+    <string name="settings_mark_on">চালু</string>
+    <string name="settings_mark_on_desc">জলছাপ হলো একটি গ্রাফিক উপাদান (যেমন স্বাক্ষর বা লোগো), যা আপনার সেটিং অনুযায়ী ছবির উপরে বসে। এখান থেকে এটি চালু বা বন্ধ করতে পারেন, অথবা সংরক্ষণের আগে সম্পাদকের নিচের বারের চালু/বন্ধ বোতাম দিয়ে তাৎক্ষণিকভাবে; এই স্ক্রিনে দ্রুত আসতে বোতামটি চেপে ধরে রাখুন।</string>
+    <string name="settings_mark_lossy">⚠️ জলছাপ যোগ করলে JPEG ঘোরানোর মতো ক্ষতিহীন কাজগুলি করা যায় না: সংরক্ষণ পুরো ফাইলটি নতুন করে লেখে।</string>
     <string name="settings_mark_where">অবস্থান</string>
     <string name="mark_spot_tl">উপরে বাঁদিকে</string>
     <string name="mark_spot_tr">উপরে ডানদিকে</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">প্রান্ত থেকে দূরত্ব</string>
     <string name="settings_mark_alpha">অস্বচ্ছতা</string>
     <string name="settings_mark_preview">জলছাপের প্রাকদর্শন</string>
+    <string name="settings_mark_preview_note">⚠️ প্রিভিউ শুধু আনুমানিক: আসল ছবিতে ফলাফল দেখে নিন।</string>
     <string name="look_resize">আকার বদলান</string>
     <string name="resize_long">লম্বা দিক</string>
     <string name="resize_short">ছোট দিক</string>

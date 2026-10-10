@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">ایک لوگو یا نشان جو ایپ محفوظ کرتے وقت تصویر پر لکھتی ہے۔</string>
     <string name="settings_mark_none">کوئی واٹرمارک نہیں</string>
     <string name="settings_mark_clear">ہٹائیں</string>
+    <string name="settings_mark_pick">منتخب کریں</string>
     <string name="settings_mark_bad">یہ فائل واٹرمارک کے طور پر استعمال نہیں ہو سکتی: PNG یا SVG منتخب کریں۔</string>
-    <string name="settings_mark_on">محفوظ کرتے وقت لاگو کریں</string>
-    <string name="settings_mark_on_desc">محفوظ کرتے وقت تصویر پر واٹر مارک لکھتا ہے۔ ایڈیٹر کے آن/آف بٹن سے (نیچے والی پٹی میں، \'سائز تبدیل کریں\' کے ساتھ) اسے فوراً آن یا آف کیا جا سکتا ہے۔ وہاں سے آن یا آف کرنا بالکل اسی سوئچ کو ہلانے کے برابر ہے۔ ⚠️ نوٹ: واٹر مارک کے ساتھ، JPEG گھمانے جیسے بغیر نقصان والے کام مکمل دوبارہ لکھائی بن جاتے ہیں۔</string>
+    <string name="settings_mark_on">فعال</string>
+    <string name="settings_mark_on_desc">واٹر مارک ایک گرافک عنصر ہے (مثلاً دستخط یا لوگو) جو آپ کی ترتیبات کے مطابق تصویر کے اوپر رکھا جاتا ہے۔ آپ اسے یہاں سے آن یا آف کر سکتے ہیں، یا محفوظ کرنے سے پہلے ایڈیٹر کی نیچے والی پٹی کے آن/آف بٹن سے فوراً؛ اس اسکرین تک جلدی پہنچنے کے لیے بٹن کو دبائے رکھیں۔</string>
+    <string name="settings_mark_lossy">⚠️ واٹر مارک کے ساتھ JPEG گھمانے جیسے بغیر نقصان والے کام دستیاب نہیں: محفوظ کرنے پر پوری فائل دوبارہ لکھی جاتی ہے۔</string>
     <string name="settings_mark_where">مقام</string>
     <string name="mark_spot_tl">اوپر بائیں</string>
     <string name="mark_spot_tr">اوپر دائیں</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">کنارے سے فاصلہ</string>
     <string name="settings_mark_alpha">دھندلاپن</string>
     <string name="settings_mark_preview">واٹرمارک کا پیش منظر</string>
+    <string name="settings_mark_preview_note">⚠️ پیش منظر صرف اندازاً ہے: اصل تصویر پر نتیجہ دیکھ لیں۔</string>
     <string name="look_resize">سائز تبدیل کریں</string>
     <string name="resize_long">لمبا کنارہ</string>
     <string name="resize_short">چھوٹا کنارہ</string>

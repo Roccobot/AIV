@@ -595,9 +595,11 @@
     <string name="settings_mark_desc">저장할 때 앱이 이미지에 새기는 로고나 기호입니다.</string>
     <string name="settings_mark_none">워터마크 없음</string>
     <string name="settings_mark_clear">제거</string>
+    <string name="settings_mark_pick">선택</string>
     <string name="settings_mark_bad">이 파일은 워터마크로 사용할 수 없습니다. PNG 또는 SVG를 선택하세요.</string>
-    <string name="settings_mark_on">저장할 때 적용</string>
-    <string name="settings_mark_on_desc">저장할 때 이미지에 워터마크를 넣습니다. 편집기의 켜기/끄기 버튼(아래쪽 막대, \'크기 조정\' 옆)으로 바로 켜거나 끔 수 있습니다. 거기서 켜고 끄는 것은 이 스위치를 움직이는 것과 정확히 같습니다. ⚠️ 참고: 워터마크를 넣으면 JPEG 회전처럼 무손실이던 작업도 전체 재작성이 됩니다.</string>
+    <string name="settings_mark_on">사용</string>
+    <string name="settings_mark_on_desc">워터마크는 설정에 따라 이미지 위에 겹쳐 놓는 그래픽 요소(예: 서명, 로고)입니다. 여기에서 켜거나 끌 수 있고, 저장하기 전에 편집기 아래쪽 막대의 켜기/끄기 버튼으로 바로 바꿀 수도 있습니다. 버튼을 길게 누르면 이 화면으로 빠르게 이동합니다.</string>
+    <string name="settings_mark_lossy">⚠️ 워터마크를 넣으면 JPEG 회전 같은 무손실 작업을 쓸 수 없습니다. 저장할 때 파일 전체를 다시 씁니다.</string>
     <string name="settings_mark_where">위치</string>
     <string name="mark_spot_tl">왼쪽 위</string>
     <string name="mark_spot_tr">오른쪽 위</string>
@@ -608,6 +610,7 @@
     <string name="settings_mark_air">가장자리 여백</string>
     <string name="settings_mark_alpha">불투명도</string>
     <string name="settings_mark_preview">워터마크 미리보기</string>
+    <string name="settings_mark_preview_note">⚠️ 미리보기는 참고용입니다. 실제 이미지에서 결과를 확인하세요.</string>
     <string name="look_resize">크기 조정</string>
     <string name="resize_long">긴 변</string>
     <string name="resize_short">짧은 변</string>

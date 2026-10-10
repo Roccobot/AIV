@@ -629,9 +629,11 @@
     <string name="settings_mark_desc">Un logotipo o símbolo que la aplicación escribe en la imagen al guardarla.</string>
     <string name="settings_mark_none">Sin marca de agua</string>
     <string name="settings_mark_clear">Quitar</string>
+    <string name="settings_mark_pick">Seleccionar</string>
     <string name="settings_mark_bad">Este archivo no sirve como marca de agua: elige un PNG o un SVG.</string>
-    <string name="settings_mark_on">Aplicar al guardar</string>
-    <string name="settings_mark_on_desc">Añade la marca de agua a la imagen al guardar. Puedes activarla o desactivarla al vuelo con el botón de encendido/apagado del editor (en la barra inferior, junto a \'Redimensionar\'). Hacerlo desde ahí equivale exactamente a mover este interruptor. ⚠️ Nota: con la marca de agua, las operaciones sin pérdida como girar un JPEG pasan a ser una reescritura completa.</string>
+    <string name="settings_mark_on">Activada</string>
+    <string name="settings_mark_on_desc">La marca de agua es un elemento gráfico (p. ej. una firma o un logo) que se superpone a la imagen según tus ajustes. Puedes activarla o desactivarla aquí, o al vuelo antes de guardar con el botón de encendido/apagado de la barra inferior del editor; mantén pulsado el botón para llegar rápido a esta pantalla.</string>
+    <string name="settings_mark_lossy">⚠️ Con la marca de agua, las operaciones sin pérdida como girar un JPEG no están disponibles: al guardar se reescribe el archivo completo.</string>
     <string name="settings_mark_where">Posición</string>
     <string name="mark_spot_tl">Arriba a la izquierda</string>
     <string name="mark_spot_tr">Arriba a la derecha</string>
@@ -642,6 +644,7 @@
     <string name="settings_mark_air">Distancia del borde</string>
     <string name="settings_mark_alpha">Opacidad</string>
     <string name="settings_mark_preview">Vista previa de la marca de agua</string>
+    <string name="settings_mark_preview_note">⚠️ La vista previa es solo orientativa: comprueba el resultado en la imagen real.</string>
     <string name="look_resize">Redimensionar</string>
     <string name="resize_long">Lado largo</string>
     <string name="resize_short">Lado corto</string>

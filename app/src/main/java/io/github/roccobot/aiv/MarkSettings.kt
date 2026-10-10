@@ -1,10 +1,12 @@
 package io.github.roccobot.aiv
 
+import android.graphics.Bitmap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -13,15 +15,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,10 +41,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -49,9 +58,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import java.text.DecimalFormatSymbols
+import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,10 +80,10 @@ import kotlinx.coroutines.withContext
  * **radice**, sotto 'Aspetto', mentre il commento di questo file la dava già dov'è adesso. Cioè
  * il codice e la nota dicevano due cose diverse, e a vedersi era il codice.
  *
- * ⚠️⚠️ **L'ORDINE È IL SUO: PRIMA SI DESCRIVE LA FIRMA, POI SI DICE SE APPLICARLA** (stesso punto:
- * *'Posizione' deve stare sopra 'Applica al salvataggio'*). Quindi l'interruttore chiude la
- * pagina invece di spezzarla in due: le righe sopra rispondono a *com'è fatta*, e lui
- * risponde a *la scrivo?*.
+ * ⚠️⚠️ **L'ORDINE È IL SUO, E DALLA `4.99` L'INTERRUTTORE APRE LA PAGINA** (nota A del giro della
+ * `4.98`, sul suo mockup): in cima 'Attiva' con la spiegazione di che cos'è la filigrana, poi il
+ * file, il posto, i tre numeri, e in fondo l'avviso sul senza perdita. Dalla `2.71` alla `4.98`
+ * l'interruttore chiudeva la pagina, perché allora lui voleva 'Posizione' sopra di lui.
  *
  * ⚠️⚠️ **L'ANTEPRIMA NON È UN ORNAMENTO: SENZA DI LEI I NUMERI SI SCEGLIEREBBERO ALLA CIECA.**
  * Posizione, misura, distanza dal bordo e opacità si vedono sul file salvato, cioè dopo, e
@@ -120,14 +132,24 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
 
     val label = stringResource(R.string.settings_mark)
     val desc = stringResource(R.string.settings_mark_desc)
+    /*
+     * ⚠️⚠️ **DALLA `4.99` L'INTERRUTTORE APRE LA PAGINA, SI CHIAMA 'Attiva' E SPIEGA CHE COS'È LA
+     * FILIGRANA, ED È LA SUA NOTA A DEL GIRO DELLA `4.98`** (*il paragrafo in fondo si sposta in
+     * cima alla pagina, con un nuovo titolo che sarà semplicemente 'Attiva'*). L'ordine della `2.71`
+     * (prima com'è fatta la firma, poi se scriverla) è rovesciato da lui, e con lui sono usciti il
+     * secondo titolo 'Filigrana' e il mini-paragrafo sotto il titolo della pagina, che ripetevano
+     * quello che la pagina dice già.
+     * ⚠️ **'Filigrana' resta fra i testi della ricerca della riga**, perché durante una ricerca
+     * la riga compare senza la pagina intorno, e chi cerca 'filigrana' cerca proprio lei.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_mark_on),
+        detail = stringResource(R.string.settings_mark_on_desc),
+        checked = settings.markOn,
+        onChange = { onChange(settings.copy(markOn = it)) },
+        extra = listOf(label)
+    )
     Searchable(label, desc) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(text = label, style = MaterialTheme.typography.titleSmall)
-            Detail(desc)
-        }
         /*
          * ⚠️⚠️ **I TIPI SI DICHIARANO AL SELETTORE, ED È LA SUA SPECIFICA** (*Input PNG o SVG*):
          * così il navigatore di sistema mostra i soli file che si possono usare, invece di
@@ -152,8 +174,11 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
                     giro++
                 }) { Text(stringResource(R.string.settings_mark_clear)) }
             }
+            // ⚠️ 'Seleziona' è una stringa della sola pagina (nota A del giro della `4.98`): lo
+            // 'Scegli' di `settings_editor_pick` vale anche nella riga dell'editor, che lui non ha
+            // nominato.
             TextButton(onClick = { scegli.launch(arrayOf(PNG_MIME, SVG_MIME)) }) {
-                Text(stringResource(R.string.settings_editor_pick))
+                Text(stringResource(R.string.settings_mark_pick))
             }
         }
     }
@@ -214,18 +239,6 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
             range = Watermark.ALPHA,
             onChange = { onChange(settings.copy(markAlpha = it)) }
         )
-        /*
-         * ⚠️⚠️ **L'INTERRUTTORE CHIUDE LA PAGINA DALLA `2.71`, E FINO ALLA `2.70` LA APRIVA**:
-         * è la sua richiesta (*'Posizione' sopra 'Applica al salvataggio'*), e la
-         * ragione che la regge è che le righe sopra descrivono **com'è fatta** la firma, mentre
-         * questa dice se scriverla. Messa in testa, si leggeva come la prima di sei voci pari.
-         */
-        SwitchRow(
-            label = stringResource(R.string.settings_mark_on),
-            detail = stringResource(R.string.settings_mark_on_desc),
-            checked = settings.markOn,
-            onChange = { onChange(settings.copy(markOn = it)) }
-        )
     }
 
     if (beside) {
@@ -245,6 +258,21 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
     } else {
         Spot()
         Params()
+    }
+
+    /*
+     * ⚠️ **L'avviso sul senza perdita chiude la pagina, dalla `4.99`** (nota A del giro della
+     * `4.98`, col testo riscritto da lui): fino alla `4.98` era la coda della spiegazione
+     * dell'interruttore, dove si leggeva come una parte del 'come si accende'.
+     */
+    val avviso = stringResource(R.string.settings_mark_lossy)
+    Searchable(avviso, label) {
+        Text(
+            text = avviso,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp)
+        )
     }
 }
 
@@ -329,7 +357,7 @@ private fun MarkNumber(
         var testo by remember(value) { mutableStateOf(markText(value, step)) }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -338,7 +366,20 @@ private fun MarkNumber(
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.weight(1f)
             )
-            OutlinedTextField(
+            /*
+             * ⚠️⚠️ **DALLA `4.99` IL CAMPO È UN `BasicTextField` CON LA CORNICE DI MATERIAL, PERCHÉ
+             * LUI LO VOLEVA PIÙ COMPATTO** (nota A del giro della `4.98`). `OutlinedTextField` ha
+             * un'altezza minima di 56 punti e un rientro verticale di 16 che nessuna sua firma
+             * espone; la `DecorationBox` prende il rientro come parametro, e il campo scende a
+             * [NUM_FIELD_HIGH] con la stessa cornice, lo stesso segno '%' e lo stesso stato
+             * d'errore.
+             */
+            val tocco = remember { MutableInteractionSource() }
+            // ⚠️ Il numero fuori corsa si segna invece di essere rifiutato: chi scrive '1' per
+            // arrivare a '14' passa da un valore che la corsa non ammette, e un campo che glielo
+            // cancellasse sotto le dita non si potrebbe usare.
+            val fuori = markValue(testo, step) !in range
+            BasicTextField(
                 value = testo,
                 onValueChange = { scritto ->
                     val pulito = markClean(scritto, step)
@@ -349,18 +390,41 @@ private fun MarkNumber(
                         if (n != value) onChange(n)
                     }
                 },
-                // ⚠️ Il numero fuori corsa si segna invece di essere rifiutato: chi scrive '1'
-                // per arrivare a '14' passa da un valore che la corsa non ammette, e un campo
-                // che glielo cancellasse sotto le dita non si potrebbe usare.
-                isError = markValue(testo, step) !in range,
                 singleLine = true,
-                suffix = { Text(PER_CENT) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
-                shape = BOX_SHAPE,
-                modifier = Modifier.width(NUM_FIELD)
+                interactionSource = tocco,
+                modifier = Modifier.width(NUM_FIELD).height(NUM_FIELD_HIGH),
+                decorationBox = { campo ->
+                    OutlinedTextFieldDefaults.DecorationBox(
+                        value = testo,
+                        innerTextField = campo,
+                        enabled = true,
+                        singleLine = true,
+                        visualTransformation = VisualTransformation.None,
+                        interactionSource = tocco,
+                        isError = fuori,
+                        suffix = { Text(PER_CENT) },
+                        contentPadding = OutlinedTextFieldDefaults.contentPadding(
+                            top = NUM_FIELD_PAD,
+                            bottom = NUM_FIELD_PAD
+                        ),
+                        container = {
+                            OutlinedTextFieldDefaults.Container(
+                                enabled = true,
+                                isError = fuori,
+                                interactionSource = tocco,
+                                shape = BOX_SHAPE
+                            )
+                        }
+                    )
+                }
             )
         }
         Slider(
@@ -502,19 +566,63 @@ private fun MarkSpot(plan: Watermark.Plan, giro: Int, onSpot: (Watermark.Spot) -
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(top = 12.dp)
         )
-        Box(modifier = Modifier.fillMaxWidth().padding(top = 10.dp).oneOf()) {
-            MarkPreview(plan, giro, Modifier.padding(SPOT_RING))
-            Watermark.Spot.entries.forEachIndexed { at, spot ->
-                SpotHandle(
-                    spot = spot,
-                    name = names[at],
-                    chosen = spot == plan.spot,
-                    onClick = { onSpot(spot) },
-                    modifier = Modifier.align(spotAlign(spot))
-                )
+        /*
+         * ⚠️⚠️ **DALLA `4.99` IL RIQUADRO È PIÙ PICCOLO DEL 25%, E ACCANTO HA LA NOTA** (nota A del
+         * giro della `4.98`: *rimpicciolisci del 25% la rappresentazione grigia dell'immagine, che
+         * non serve così grande*, e la nota *sotto l'anteprima, o a fianco se ci sta*). Il 25% si
+         * toglie al riquadro e non alla fascia dei selettori, che resta larga quanto prima perché
+         * le squadrette hanno la misura che lui ha chiesto con la `2.78`.
+         * ⚠️ **La nota va accanto quando ci sono almeno [NOTE_BESIDE] punti**, come nel suo
+         * mockup, e sotto quando no, cioè sulle pagine strette.
+         */
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+            val riquadro = (maxWidth - SPOT_RING * 2) * PREVIEW_SCALE + SPOT_RING * 2
+            val accanto = maxWidth - riquadro >= NOTE_BESIDE
+            @Composable
+            fun Riquadro() {
+                Box(modifier = Modifier.width(riquadro).oneOf()) {
+                    MarkPreview(plan, giro, Modifier.padding(SPOT_RING))
+                    Watermark.Spot.entries.forEachIndexed { at, spot ->
+                        SpotHandle(
+                            spot = spot,
+                            name = names[at],
+                            chosen = spot == plan.spot,
+                            onClick = { onSpot(spot) },
+                            modifier = Modifier.align(spotAlign(spot))
+                        )
+                    }
+                }
+            }
+            if (accanto) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Riquadro()
+                    PreviewNote(Modifier.weight(1f).padding(start = 4.dp))
+                }
+            } else {
+                Column {
+                    Riquadro()
+                    PreviewNote(Modifier.padding(start = SPOT_RING))
+                }
             }
         }
     }
+}
+
+/**
+ * La nota che dice che l'anteprima non è la resa vera: piccola, in corsivo, d'accento.
+ *
+ * ⚠️ **Esiste perché dalla `4.99` l'anteprima cambia di proposito quello che mostra** (vedi
+ * [previewLook]): un fondo, un'opacità e una misura diverse da quelle del file, scelte perché la
+ * firma si veda. Il testo è suo, e il colore e il corsivo vengono dal suo mockup.
+ */
+@Composable
+private fun PreviewNote(modifier: Modifier) {
+    Text(
+        text = stringResource(R.string.settings_mark_preview_note),
+        style = MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic),
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+    )
 }
 
 /** Come si chiama un posto, nelle ventotto lingue. */
@@ -584,9 +692,19 @@ private fun SpotHandle(
             val braccio = SPOT_ARM.toPx()
             val dx = if (sinistra) braccio else -braccio
             val dy = if (sopra) braccio else -braccio
-            val piega = Offset(ox, oy)
-            drawLine(tinta, piega, Offset(ox + dx, oy), spesso, StrokeCap.Round)
-            drawLine(tinta, piega, Offset(ox, oy + dy), spesso, StrokeCap.Round)
+            /*
+             * ⚠️⚠️ **UN TRACCIATO SOLO E NON DUE LINEE, DALLA `4.99`, ED È LA SUA NOTA D DEL GIRO
+             * DELLA `4.98`** (*una forma unica unita, senza sovrapposizioni che sommano la loro
+             * opacità*): due linee coi capi tondi coprivano due volte la piega, e con l'inchiostro
+             * spento al [SPOT_FAINT] là la squadretta veniva più scura. Un tracciato solo si
+             * dipinge una volta, e il giunto tondo tiene la piega com'era.
+             */
+            val squadra = Path().apply {
+                moveTo(ox + dx, oy)
+                lineTo(ox, oy)
+                lineTo(ox, oy + dy)
+            }
+            drawPath(squadra, tinta, style = Stroke(spesso, cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
     }
 }
@@ -594,9 +712,12 @@ private fun SpotHandle(
 /**
  * Il riquadro che mostra dove la filigrana cadrà, quanto sarà grande e quanto si vedrà.
  *
- * ⚠️⚠️ **LEGGE IL PIANO E NON LE PREFERENZE, ED È QUELLO CHE LO TIENE ONESTO**: riceve lo stesso
- * [Watermark.Plan] che il salvataggio riceverà, quindi i quattro numeri sono **gli stessi** e non
- * una seconda lettura che il giorno dopo diverge.
+ * ⚠️⚠️ **LEGGE IL PIANO E NON LE PREFERENZE**: riceve lo stesso [Watermark.Plan] che il
+ * salvataggio riceverà, quindi posto e distanza dal bordo sono **gli stessi** e non una seconda
+ * lettura che il giorno dopo diverge.
+ * ⚠️⚠️ **MA DALLA `4.99` FONDO, OPACITÀ E MISURA SI SCELGONO PERCHÉ LA FIRMA SI VEDA** (nota A del
+ * giro della `4.98`: *la trasparenza e la posizione possono devono modificati caso per caso per
+ * facilitare la visibilità*), e la nota accanto lo dice. La scelta la fa [previewLook].
  * ⚠️ **La misura si ricava dal lato lungo del riquadro, esattamente come sull'immagine vera**: il
  * disegno entra in un quadrato di lato `size` centesimi del lato lungo, e il margine vale `air`
  * **decimi di centesimo** dello stesso lato, cioè lo stesso conto di [Watermark.cornerFor].
@@ -617,31 +738,39 @@ private fun MarkPreview(plan: Watermark.Plan, giro: Int, modifier: Modifier) {
     // ⚠️ Non si rilegge alla **misura**: qui si rende a un lato fisso e a rimpicciolirlo è il
     // riquadro, quindi seguire il cursore vorrebbe dire decodificare un SVG sessanta volte al
     // secondo.
-    val art by produceState<ImageBitmap?>(null, giro) {
+    val art by produceState<Pair<ImageBitmap, Float?>?>(null, giro) {
         value = withContext(Dispatchers.IO) {
-            Watermark.artwork(context, PREVIEW_ART)?.asImageBitmap()
+            Watermark.artwork(context, PREVIEW_ART)?.let { it.asImageBitmap() to inkLuminance(it) }
         }
     }
     val descrizione = stringResource(R.string.settings_mark_preview)
+    val grigio = MaterialTheme.colorScheme.surfaceVariant
+    val aspetto = previewLook(art?.second, grigio.luminance(), plan)
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(3f / 2f)
             .clip(RoundedCornerShape(PREVIEW_ROUND))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(
+                when (aspetto.ground) {
+                    Ground.SURFACE -> grigio
+                    Ground.BLACK -> Color.Black
+                    Ground.WHITE -> Color.White
+                }
+            )
             .semantics { contentDescription = descrizione }
     ) {
-        val disegno = art ?: return@BoxWithConstraints
+        val disegno = art?.first ?: return@BoxWithConstraints
         val lungo = maxWidth
-        val lato = lungo * (plan.size / 100f)
+        val lato = lungo * (aspetto.size / 100f)
         Image(
             bitmap = disegno,
             contentDescription = null,
             contentScale = ContentScale.Fit,
-            // ⚠️ L'opacità è quella del piano, cioè la stessa che il pennello del salvataggio
-            // mette sul suo `Paint`: senza, il riquadro mostrerebbe una firma piena mentre sul
-            // file ne arriva una smorzata.
-            alpha = plan.alpha / 100f,
+            // ⚠️⚠️ Dalla `4.99` l'opacità e la misura sono quelle dell'anteprima e non del piano
+            // (vedi [previewLook]): fino alla `4.98` il riquadro le copiava dal salvataggio, e un
+            // logo piccolo e smorzato non si vedeva.
+            alpha = aspetto.alpha,
             modifier = Modifier
                 .align(
                     when (plan.spot) {
@@ -661,6 +790,96 @@ private fun MarkPreview(plan: Watermark.Plan, giro: Int, modifier: Modifier) {
         )
     }
 }
+
+/** Il fondo del riquadro dell'anteprima: il grigio della pagina, o il nero, o il bianco. */
+internal enum class Ground { SURFACE, BLACK, WHITE }
+
+/** Come l'anteprima mostra la firma: su quale fondo, con che opacità, a che misura in centesimi. */
+internal data class PreviewLook(val ground: Ground, val alpha: Float, val size: Int)
+
+/**
+ * Come l'anteprima mostra la firma, dati la luminosità del suo inchiostro e quella del grigio.
+ *
+ * ⚠️⚠️ **È IL SUO ESEMPIO DELLA NOTA A DEL GIRO DELLA `4.98`, MESSO IN REGOLA**: *logo bianco
+ * semitrasparente, piccolo, in basso a sinistra: il grigio di default diventa nero, l'opacità
+ * della filigrana diventa 100%, la dimensione diventa 200%*, con *gli accorgimenti di contrasto
+ * minimo necessari*. Quindi:
+ * - **il fondo resta il grigio** finché il contrasto con l'inchiostro arriva a
+ *   [PREVIEW_CONTRAST], la soglia minima per un elemento grafico; sotto diventa il nero o il
+ *   bianco, quello dei due che contrasta di più. Il conto è il rapporto di contrasto del W3C, fra
+ *   luminanze relative;
+ * - **l'opacità è sempre piena**, perché smorzare la firma è proprio quello che la nasconde;
+ * - **la misura è doppia, con un tetto a [PREVIEW_SIZE_CAP] centesimi**, oltre il quale un logo
+ *   grande coprirebbe il riquadro; una misura che è già oltre il tetto resta com'è.
+ * ⚠️ **Senza un logo il fondo è il grigio**: non c'è niente da far vedere.
+ * ⚠️ **È una funzione pura e interna** perché il banco la chiami: il riquadro vero dipende dal
+ * disegno, che il banco non decodifica.
+ */
+internal fun previewLook(ink: Float?, surface: Float, plan: Watermark.Plan): PreviewLook {
+    val misura = minOf(plan.size * 2, maxOf(plan.size, PREVIEW_SIZE_CAP))
+    if (ink == null || contrast(ink, surface) >= PREVIEW_CONTRAST) {
+        return PreviewLook(Ground.SURFACE, 1f, misura)
+    }
+    val fondo = if (contrast(ink, 0f) >= contrast(ink, 1f)) Ground.BLACK else Ground.WHITE
+    return PreviewLook(fondo, 1f, misura)
+}
+
+/** Il rapporto di contrasto del W3C fra due luminanze relative. */
+private fun contrast(a: Float, b: Float): Float = (maxOf(a, b) + 0.05f) / (minOf(a, b) + 0.05f)
+
+/**
+ * La luminanza relativa media dell'inchiostro di un disegno, pesata sull'opacità, o `null` se il
+ * disegno è tutto trasparente.
+ *
+ * ⚠️ **Pesata sull'opacità** perché i pixel trasparenti non sono inchiostro: un logo bianco su un
+ * PNG vuoto direbbe 'scuro' se contassero anche loro, dato che un pixel trasparente vale nero.
+ * ⚠️ **Le componenti si linearizzano prima della media**, come vuole la luminanza relativa: la
+ * media delle componenti codificate darebbe un grigio più scuro del vero.
+ */
+internal fun inkLuminance(bitmap: Bitmap): Float? {
+    val w = bitmap.width
+    val h = bitmap.height
+    val pixel = IntArray(w * h)
+    bitmap.getPixels(pixel, 0, w, 0, 0, w, h)
+    var somma = 0.0
+    var peso = 0.0
+    for (p in pixel) {
+        val a = (p ushr 24) / 255.0
+        if (a == 0.0) continue
+        val l = 0.2126 * linear((p shr 16) and 0xFF) + 0.7152 * linear((p shr 8) and 0xFF) +
+            0.0722 * linear(p and 0xFF)
+        somma += l * a
+        peso += a
+    }
+    return if (peso == 0.0) null else (somma / peso).toFloat()
+}
+
+/** Una componente sRGB da 0 a 255, portata in luce lineare. */
+private fun linear(c: Int): Double {
+    val v = c / 255.0
+    return if (v <= 0.04045) v / 12.92 else ((v + 0.055) / 1.055).pow(2.4)
+}
+
+/**
+ * Il contrasto minimo fra l'inchiostro della firma e il fondo del riquadro.
+ *
+ * ⚠️ **È il 3:1 che il W3C chiede agli elementi grafici** (WCAG 2.1, criterio 1.4.11): il minimo
+ * della sua richiesta, e non il 4,5:1 del testo, perché una firma è un disegno.
+ */
+private const val PREVIEW_CONTRAST = 3f
+
+/** Il tetto della misura raddoppiata dell'anteprima, in centesimi del lato lungo. */
+private const val PREVIEW_SIZE_CAP = 50
+
+/**
+ * Quanto è grande il riquadro dell'anteprima rispetto alla larghezza che ha a disposizione.
+ *
+ * ⚠️ **Il 75% è la sua richiesta** (*rimpicciolisci del 25%*, nota A del giro della `4.98`).
+ */
+private const val PREVIEW_SCALE = 0.75f
+
+/** Quanto spazio serve accanto al riquadro perché la nota ci vada, invece di andare sotto. */
+private val NOTE_BESIDE = 64.dp
 
 /** Il lato lungo a cui si disegna la filigrana per l'anteprima. */
 private const val PREVIEW_ART = 512
@@ -746,6 +965,15 @@ private const val SVG_MIME = "image/svg+xml"
  * tre colonne diverse una sotto l'altra, e il valore cambia mentre si trascina.
  */
 private val NUM_FIELD = 104.dp
+
+/**
+ * Quanto è alto il campo dei tre numeri, e il suo rientro verticale.
+ *
+ * ⚠️ **44 e non i 56 di Material**, dalla `4.99` (nota A del giro della `4.98`): con il rientro
+ * di 10 per lato resta una riga di `bodyLarge`, che è alta 24.
+ */
+private val NUM_FIELD_HIGH = 44.dp
+private val NUM_FIELD_PAD = 10.dp
 
 /** Quante cifre si accettano: le corse arrivano a cento, e il taglio è la rete. */
 private const val NUM_DIGITS = 3

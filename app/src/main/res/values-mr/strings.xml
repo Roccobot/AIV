@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">एक लोगो किंवा चिन्ह, जे ॲप जतन करताना प्रतिमेवर लिहिते.</string>
     <string name="settings_mark_none">वॉटरमार्क नाही</string>
     <string name="settings_mark_clear">काढा</string>
+    <string name="settings_mark_pick">निवडा</string>
     <string name="settings_mark_bad">ही फाइल वॉटरमार्क म्हणून वापरता येत नाही: PNG किंवा SVG निवडा.</string>
-    <string name="settings_mark_on">जतन करताना लागू करा</string>
-    <string name="settings_mark_on_desc">जतन करताना प्रतिमेवर वॉटरमार्क जोडते. संपादकातील चालू/बंद बटणाने (खालच्या पट्टीत, \'आकार बदला\' च्या शेजारी) ते लगेच चालू किंवा बंद करता येते. तिथून चालू किंवा बंद करणे हे हे बटण हलवण्यासारखेच आहे. ⚠️ टीप: वॉटरमार्कमुळे JPEG फिरवण्यासारखी विनाहानी कामे पूर्ण पुनर्लेखन बनतात.</string>
+    <string name="settings_mark_on">सक्रिय</string>
+    <string name="settings_mark_on_desc">वॉटरमार्क हा एक ग्राफिक घटक आहे (उदा. सही किंवा लोगो), जो तुमच्या सेटिंग्जनुसार प्रतिमेवर ठेवला जातो. तुम्ही तो इथून चालू किंवा बंद करू शकता, किंवा जतन करण्यापूर्वी संपादकाच्या खालच्या पट्टीतील चालू/बंद बटणाने लगेच; या स्क्रीनवर पटकन येण्यासाठी बटण दाबून ठेवा.</string>
+    <string name="settings_mark_lossy">⚠️ वॉटरमार्कसह JPEG फिरवण्यासारखी विनाहानी कामे उपलब्ध नाहीत: जतन करताना संपूर्ण फाइल पुन्हा लिहिली जाते.</string>
     <string name="settings_mark_where">स्थान</string>
     <string name="mark_spot_tl">वर डावीकडे</string>
     <string name="mark_spot_tr">वर उजवीकडे</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">कडेपासूनचे अंतर</string>
     <string name="settings_mark_alpha">अपारदर्शकता</string>
     <string name="settings_mark_preview">वॉटरमार्कचे पूर्वावलोकन</string>
+    <string name="settings_mark_preview_note">⚠️ पूर्वावलोकन फक्त अंदाजे आहे: खऱ्या प्रतिमेवर परिणाम तपासा.</string>
     <string name="look_resize">आकार बदला</string>
     <string name="resize_long">लांब बाजू</string>
     <string name="resize_short">लहान बाजू</string>

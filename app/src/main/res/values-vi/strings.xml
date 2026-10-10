@@ -595,9 +595,11 @@
     <string name="settings_mark_desc">Một biểu trưng hoặc ký hiệu mà ứng dụng ghi lên ảnh khi bạn lưu.</string>
     <string name="settings_mark_none">Không có hình mờ</string>
     <string name="settings_mark_clear">Gỡ bỏ</string>
+    <string name="settings_mark_pick">Chọn</string>
     <string name="settings_mark_bad">Không thể dùng tệp này làm hình mờ: hãy chọn một tệp PNG hoặc SVG.</string>
-    <string name="settings_mark_on">Áp dụng khi lưu</string>
-    <string name="settings_mark_on_desc">Thêm hình mờ vào ảnh khi lưu. Bạn có thể bật hoặc tắt ngay bằng nút bật/tắt của trình chỉnh sửa (trên thanh dưới cùng, cạnh \'Đổi kích thước\'). Làm việc đó ở đó hoàn toàn giống với gạt công tắc này. ⚠️ Lưu ý: khi có hình mờ, các thao tác không mất dữ liệu như xoay JPEG sẽ trở thành ghi lại toàn bộ.</string>
+    <string name="settings_mark_on">Bật</string>
+    <string name="settings_mark_on_desc">Hình mờ là một thành phần đồ họa (ví dụ chữ ký, logo) được đặt chồng lên ảnh theo cài đặt của bạn. Bạn có thể bật hoặc tắt ở đây, hoặc bật tắt ngay trước khi lưu bằng nút bật/tắt trên thanh dưới cùng của trình chỉnh sửa; nhấn giữ nút để mở nhanh màn hình này.</string>
+    <string name="settings_mark_lossy">⚠️ Khi có hình mờ, các thao tác không mất dữ liệu như xoay JPEG không dùng được: khi lưu, toàn bộ tệp sẽ được ghi lại.</string>
     <string name="settings_mark_where">Vị trí</string>
     <string name="mark_spot_tl">Trên bên trái</string>
     <string name="mark_spot_tr">Trên bên phải</string>
@@ -608,6 +610,7 @@
     <string name="settings_mark_air">Khoảng cách từ mép</string>
     <string name="settings_mark_alpha">Độ mờ đục</string>
     <string name="settings_mark_preview">Xem trước hình mờ</string>
+    <string name="settings_mark_preview_note">⚠️ Bản xem trước chỉ mang tính tham khảo: hãy kiểm tra kết quả trên ảnh thật.</string>
     <string name="look_resize">Đổi kích thước</string>
     <string name="resize_long">Cạnh dài</string>
     <string name="resize_short">Cạnh ngắn</string>

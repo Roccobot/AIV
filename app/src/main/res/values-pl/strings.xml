@@ -646,9 +646,11 @@
     <string name="settings_mark_desc">Logo lub symbol, który aplikacja zapisuje na obrazie podczas zapisywania.</string>
     <string name="settings_mark_none">Brak znaku wodnego</string>
     <string name="settings_mark_clear">Usuń</string>
+    <string name="settings_mark_pick">Wybierz</string>
     <string name="settings_mark_bad">Tego pliku nie można użyć jako znaku wodnego: wybierz PNG lub SVG.</string>
-    <string name="settings_mark_on">Zastosuj przy zapisie</string>
-    <string name="settings_mark_on_desc">Dodaje znak wodny do obrazu przy zapisie. Możesz go włączyć lub wyłączyć od razu przyciskiem wł./wył. w edytorze (na dolnym pasku, obok \'Zmień rozmiar\'). Zrobienie tego stamtąd jest dokładnie tym samym co przestawienie tego przełącznika. ⚠️ Uwaga: ze znakiem wodnym operacje bezstratne, takie jak obrót JPEG, stają się pełnym zapisem od nowa.</string>
+    <string name="settings_mark_on">Włączony</string>
+    <string name="settings_mark_on_desc">Znak wodny to element graficzny (np. podpis lub logo) nakładany na obraz zgodnie z twoimi ustawieniami. Możesz go włączyć lub wyłączyć tutaj albo od razu przed zapisem przyciskiem wł./wył. na dolnym pasku edytora; przytrzymaj przycisk, aby szybko przejść do tego ekranu.</string>
+    <string name="settings_mark_lossy">⚠️ Ze znakiem wodnym operacje bezstratne, takie jak obrót JPEG, nie są dostępne: zapis tworzy cały plik od nowa.</string>
     <string name="settings_mark_where">Pozycja</string>
     <string name="mark_spot_tl">Lewy górny róg</string>
     <string name="mark_spot_tr">Prawy górny róg</string>
@@ -659,6 +661,7 @@
     <string name="settings_mark_air">Odległość od krawędzi</string>
     <string name="settings_mark_alpha">Krycie</string>
     <string name="settings_mark_preview">Podgląd znaku wodnego</string>
+    <string name="settings_mark_preview_note">⚠️ Podgląd jest tylko orientacyjny: sprawdź efekt na prawdziwym obrazie.</string>
     <string name="look_resize">Zmień rozmiar</string>
     <string name="resize_long">Dłuższy bok</string>
     <string name="resize_short">Krótszy bok</string>

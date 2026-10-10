@@ -612,9 +612,11 @@
     <string name="settings_mark_desc">نشان یا نمادی که برنامه هنگام ذخیره روی تصویر می‌نویسد.</string>
     <string name="settings_mark_none">بدون واترمارک</string>
     <string name="settings_mark_clear">برداشتن</string>
+    <string name="settings_mark_pick">انتخاب</string>
     <string name="settings_mark_bad">این فایل به عنوان واترمارک کار نمی‌کند: یک PNG یا SVG انتخاب کنید.</string>
-    <string name="settings_mark_on">اعمال هنگام ذخیره</string>
-    <string name="settings_mark_on_desc">هنگام ذخیره، واترمارک را روی تصویر می‌نویسد. می‌توانید آن را با دکمه روشن/خاموش ویرایشگر (در نوار پایین، کنار \'تغییر اندازه\') در همان لحظه روشن یا خاموش کنید. این کار دقیقاً معادل جابه‌جا کردن همین کلید است. ⚠️ توجه: با واترمارک، عملیات بدون افت کیفیت مانند چرخاندن JPEG به بازنویسی کامل تبدیل می‌شود.</string>
+    <string name="settings_mark_on">فعال</string>
+    <string name="settings_mark_on_desc">واترمارک یک عنصر گرافیکی (مثلاً امضا یا لوگو) است که طبق تنظیمات شما روی تصویر قرار می‌گیرد. می‌توانید آن را از همین‌جا روشن یا خاموش کنید، یا پیش از ذخیره با دکمه روشن/خاموش در نوار پایین ویرایشگر؛ برای رسیدن سریع به این صفحه، دکمه را نگه دارید.</string>
+    <string name="settings_mark_lossy">⚠️ با واترمارک، عملیات بدون افت کیفیت مانند چرخاندن JPEG در دسترس نیست: ذخیره، کل فایل را بازنویسی می‌کند.</string>
     <string name="settings_mark_where">موقعیت</string>
     <string name="mark_spot_tl">بالا سمت چپ</string>
     <string name="mark_spot_tr">بالا سمت راست</string>
@@ -625,6 +627,7 @@
     <string name="settings_mark_air">فاصله از لبه</string>
     <string name="settings_mark_alpha">کدری</string>
     <string name="settings_mark_preview">پیش‌نمایش واترمارک</string>
+    <string name="settings_mark_preview_note">⚠️ پیش‌نمایش فقط تقریبی است: نتیجه را روی تصویر واقعی بررسی کنید.</string>
     <string name="look_resize">تغییر اندازه</string>
     <string name="resize_long">ضلع بلند</string>
     <string name="resize_short">ضلع کوتاه</string>
