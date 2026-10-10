@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -52,6 +52,7 @@ import kotlin.math.abs
 @RunWith(AndroidJUnit4::class)
 class MenuInferioreTest {
 
+    /** The new rule, since 4.98: see [aspettaIlVelo] for why the old one let the hint fall. */
     @get:Rule
     val banco = createComposeRule()
 
@@ -949,21 +950,21 @@ internal const val VELO_MS = 20_000L
  *
  * ⚠️ The hint comes from the preferences' store, read on another thread that `waitForIdle` does not
  * wait for: in the full bench the veil was not there yet, and the test failed.
- * ⚠️⚠️ **ON GITHUB IT ONCE NEVER CAME, TWICE IN A ROW AND IN TWO TESTS, AND THE CAUSE IS NOT KNOWN**
- * (releases of 4.36: `EtichetteStartTest`, glass variant, then this class's hint test, each time
- * after 5 s; the same commit was green in between, and on this machine it always is). The two
- * guesses, neither proved: the machine is slow (hence the wait raised to 20 s), or a state left in
- * the preferences' store by another class (the store is one per process, and on GitHub the classes
- * run in another order). So a timeout reports the store and the texts on screen, and a hint that
- * takes more than [VELO_LENTO_MS] prints how long it took: either way the next run says which.
- * ⚠️⚠️ **4.40: REPRODUCED ON THIS MACHINE, STILL WITHOUT A CAUSE.** With `DisegnoTest` in the bench
- * the hint failed in 4 full runs out of 10 (in this class or in `EtichetteStartTest`, each time a
- * different test), all in the first runs; without its two tests that drag and save, 0 out of 4.
- * What was measured at the timeout: the store has no `columns-hint-seen` (so it reads 'not
- * seen'), and a thread dump shows no busy thread, so the store is not stuck. Any edit to
- * `FolderScreen` that logs the hint's conditions made it disappear (0 out of 4), so it is a race
- * on timing. A guess, not proved: these classes run in the default graphics sandbox and
- * `DisegnoTest` in the native one, i.e. two class loaders and two in-memory stores on one file.
+ * ⚠️⚠️ **WHY IT FELL NOW AND THEN, FOUND IN 4.98** (B2, after it stopped the releases of 4.96 and
+ * 4.97): the old `createComposeRule` runs a composition's effects on an unconfined test dispatcher,
+ * so the coroutine of `produceState` in `FolderScreen` resumes on whatever thread hands it the
+ * value. When the store has to read its file again (after `DisegnoTest`, which writes other hints),
+ * 'not seen' arrives on a `DefaultDispatcher` worker, the state is written there, and no recomposition
+ * follows: the hint never comes, with the store saying 'not seen'. Measured on this machine on two
+ * cores, `DisegnoTest` first: the value logged on a worker thread in every fall, 3 falls in 6 runs.
+ * Calling `Snapshot.sendApplyNotifications` while waiting was tried and is not enough (2 falls in
+ * 5 runs, in `EtichetteStartTest`).
+ * ⚠️⚠️ **THE FIX IS THE NEW RULE, `junit4.v2.createComposeRule`**, in this class and in
+ * `EtichetteStartTest`, the two that wait for the hint: its standard dispatcher runs every resume
+ * on the test's main thread, as the app's own dispatcher does on a phone. 0 falls in 5 runs on the
+ * same two cores, every value logged on the main thread. The app was never at fault.
+ * ⚠️ The earlier guesses are fallen: not a slow machine, not two class loaders, not a stuck store.
+ * The 20 s wait and the report on a timeout stay, as a net.
  */
 internal fun aspettaIlVelo(banco: androidx.compose.ui.test.junit4.ComposeContentTestRule, app: android.content.Context) {
     val frase = app.getString(R.string.corner_hint)

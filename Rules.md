@@ -995,6 +995,15 @@ il job le scrive su disco per la durata di una sola esecuzione.
     banco scrive l'ordine in cui partono le prove (`build.gradle.kts`, solo con `CI`), e alla
     caduta successiva quell'ordine si rifà in locale. Il messaggio di `aspettaIlVelo` dice
     permesso, flusso e archivio al momento della caduta.
+    - ✅ **La causa è trovata e corretta nella `4.98`** (voce B2, dopo che aveva fermato i rilasci
+      della `4.96` e della `4.97`): la vecchia `createComposeRule` fa girare gli effetti di una
+      composizione su un dispatcher di prova non confinato, quindi il valore dell'archivio, quando
+      arriva da un thread di sfondo, scrive lo stato fuori dal thread principale e la schermata non
+      si ridisegna. Le due classi che aspettano il velo usano `junit4.v2.createComposeRule`. Misure,
+      tentativo scartato e perché l'app non c'entra vivono nel KDoc di `aspettaIlVelo`.
+    - ⚠️ **Le altre classi usano ancora la regola vecchia**, che Compose dichiara deprecata: una
+      prova nuova che aspetta un valore dell'archivio usa la nuova, e il passaggio delle altre è un
+      lavoro a sé, nel brief.
   - ⚠️⚠️ **Un banco verde può non aver girato**: con `org.gradle.caching` acceso il compito delle
     prove è nella cache di Gradle, e su un codice già provato il registro dice
     `testDebugUnitTest FROM-CACHE` e riprende l'esito della corsa di prima (misurato il
