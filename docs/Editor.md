@@ -114,8 +114,8 @@
     ingrandimento e spostamento, e un dito che scende la ferma dove è arrivata. Lo spostamento si
     riporta nei bordi anche mentre si disegna, perché il limite dipende dall'ingrandimento.
   - ⚠️⚠️ **Si ingrandisce anche a una mano** (sua nota): il secondo tocco di un doppio tocco resta giù
-    e trascina. La corsa del doppio tocco parte quindi al rilascio del primo, perché a dire quale dei
-    due gesti è c'è solo quello che il dito fa dopo. Si raddoppia a ogni `ZOOM_PULL` (l'ingrandimento
+    e trascina. La corsa del doppio tocco parte quindi quando il secondo tocco si alza, perché a dire
+    quale dei due gesti è c'è solo quello che il dito fa dopo. Si raddoppia a ogni `ZOOM_PULL` (l'ingrandimento
     si percepisce in rapporti), il punto fermo è quello toccato, e un compagno che arriva apre la
     pinza.
   - ⚠️ **Si scala il rettangolo e non la tela**: il pennello usa uno shader con la sua matrice.
@@ -348,7 +348,8 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
 ## ✨ Il modulo Effetti, e i suoi cursori
 
 - ⚠️⚠️ **Il modulo include Foschia, Grana e Vignettatura** (sua risposta `effetti` a
-  `d-dopo-editor`), ognuno col suo secondario (§ '🎛️ I tre cursori secondari degli Effetti').
+  `d-dopo-editor`); i secondari sono due alla grana, uno alla vignettatura e nessuno alla foschia
+  (§ '🎛️ I tre cursori secondari degli Effetti').
 - ⚠️⚠️ **Chiarezza e Texture sono state tolte** (sua risposta `via` a `d-eff-restano`): facevano un
   reticolo, perché nove campioni radi campionano invece di mediare. Il rimedio, una media letta da
   una riduzione dell'immagine, esisteva e non è stato scritto: chi rimettesse quei cursori riparte
@@ -374,7 +375,10 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   - **I due versi**: togliere è `(c - k) / (1 - k)`, aggiungere `c + k (1 - c)`. ⚠️⚠️ **Togliere non
     supera il velo presente nel pixel stesso** (tetto col canale scuro del pixel, nel solo verso che
     toglie), o le ombre dentro una zona velata si chiudevano sul nero; la nota vecchia che dava quel
-    difetto 'fuori dalla corsa' era falsa.
+    difetto 'fuori dalla corsa' era falsa. ⚠️ **Dalla `2.60` i due versi quindi non si disfano più
+    esattamente**: dove il tetto entra in funzione, togliere il velo ne toglie meno di quanto
+    rimetterlo ne rimetta. Vale su un dettaglio scuro fine, e il prezzo è quello di non chiudere le
+    ombre: una prova di simmetria su un dettaglio scuro fallisce, e non è un difetto.
   - ⚠️⚠️ **La Foschia ha il raggio più largo e legge i pixel di partenza**, quindi sta subito dopo il
     Dettaglio e prima del bilanciamento. Il bordo delle tessere è il massimo dei filtri mossi
     (`AdjustRender.bleedFor`), e la guardia si scrive sul raggio e non su 'modulo a riposo': con la
@@ -403,8 +407,9 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   l'origine col segno, gli uniform che combaciano e il kernel della stima letto dalla stringa dello
   shader (centrato, pesi che sommano a sedici, dentro il raggio dichiarato, nessuna frequenza che
   passa intera); non vede i pixel.
-  - ⚠️ **Nelle prove che toccano un gettone la fila si monta rovesciata**: la fila scorre, e in coda
-    il gettone cade fuori dal banco, dove il tocco non fa niente senza errori.
+  - ⚠️ **Nelle prove che toccano un gettone il gettone si porta in testa alla fila con `davanti`**: la
+    fila scorre, e in coda il gettone cadrebbe fuori dal banco, dove il tocco non fa niente senza
+    errori.
 
 ## 🎛️ I tre cursori secondari degli Effetti
 
@@ -469,8 +474,8 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   - ⚠️ **Il colore letto è quello del file e non quello che si vede**, e si dichiara; si legge dal
     pezzo a piena risoluzione quando c'è. Un grigio non appartiene a nessuna fascia (`Mix.bandOf`
     risponde `-1`).
-  - ⚠️ **Il trascinamento sposta il mirino e non muove nessun cursore** (sua risposta `niente` a
-    `d-mirato-hsl`): i cursori di una fascia sono tre, e sceglierne uno per il dito sarebbe una
+  - ⚠️ **Il trascinamento sceglie il punto da leggere e non muove nessun cursore** (sua risposta
+    `niente` a `d-mirato-hsl`, giro della `2.23`): i cursori di una fascia sono tre, e sceglierne uno per il dito sarebbe una
     decisione che lui non ha preso.
   - ⚠️ **La lente del mirato non c'è più** (sua risposta `via`); chi la volesse la ritrova nella
     storia git.
@@ -606,10 +611,10 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   dicono sempre la stessa cosa.
 - ⚠️ **La posa resta senza perdita e il ritaglio no**: senza niente da sviluppare il salvataggio
   delega a `ImageEdit.save`, la strada dell'editor semplice.
-- ⚠️⚠️ **'Applica'** (sua richiesta): il palco inquadra la porzione e negli altri moduli si lavora su
-  quella; rientrando nel Ritaglio l'immagine torna intera con le squadrette dov'erano. Scartata la
-  lettura 'taglia davvero e riparti', per sua scelta. Il valore è `Look.framed`, fuori da `idle` e
-  da `lossless`; glifo e parola sono quelli dell'editor semplice; `view` resta il riquadro
+- ⚠️⚠️ **'Applica'** (sua richiesta, e dalla `2.40` taglia anche dentro il Ritaglio): il palco
+  inquadra la porzione e negli altri moduli si lavora su quella; 'Indietro' e 'Avanti' disfano e
+  rifanno le applicazioni. Il valore è `Look.framing`, una lista di tagli con un indice, fuori da
+  `idle` e da `lossless`; glifo e parola sono quelli dell'editor semplice; `view` resta il riquadro
   dell'immagine intera (`spread`, `cutout`).
 - ⚠️⚠️ **Tentativo revocato da lui**: alzare i quattro comandi del ritaglio con un distacco, che si
   prendeva l'avanzo e schiacciava il resto del corpo. Oggi quei comandi vivono dietro un separatore
@@ -1222,7 +1227,8 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   - ⚠️ **Il nome è la sua riscrittura nel campo `t-stili-pagina`**: la `2.50` la chiamava 'Stili di
     modifica', che era la proposta della sessione, e i commenti e le prove che dicono ancora così
     parlano della stessa pagina.
-- ⚠️⚠️ **'Importa' ed 'Esporta' passano dal selettore di sistema**, e il file è l'archivio stesso,
+- ⚠️⚠️ **'Importa' ed 'Esporta' passano dal selettore di sistema** e non da una cartella di casa,
+  perché un file che lui deve poter mandare a qualcuno vive dove lo mette lui; il file è l'archivio stesso,
   col suffisso `.aivcollection` (sua istruzione) e il tipo generico; si importa ogni file.
   L'importazione di questa pagina sostituisce (`docs/Files.md` § '💼 Esporta e importa, e il file
   che solo AIV sa leggere'). **`.aivstyle`, lo stile singolo, c'è dalla `4.96`** (sua risposta `dopo` a
@@ -1307,7 +1313,9 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
     fabbrica non fa niente (`Resize.NONE`, il libero con un tetto di ventimila pixel), e i campi si
     precompilano col risultato del piano, o con le misure correnti. Senza misure resta la sola
     percentuale.
-  - **La misura si scrive con una funzione sola**; l'anteprima si chiama 'Risultato' (stringa sua) ed
+  - **La misura si scrive con due funzioni dallo stesso formato**, `measure` per il risultato e
+    `plain` per la riga sotto il titolo (il KDoc di `measure` dice ancora 'una funzione sola');
+    l'anteprima si chiama 'Risultato' (stringa sua) ed
     è centrata; il segno × fra i campi si allinea alle cifre (`FIELD_TEXT_DROP`).
   - ⚠️⚠️ **'Ripristina' torna al libero con le misure correnti**, vive in fondo a destra (sua
     richiesta: si raggiunge con una mano) ed è una pastiglia che scrive nei campi. La nota della
@@ -1367,7 +1375,8 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
 ## 🚪 Uscire dall'editor completo con del lavoro in corso
 
 - ⚠️⚠️ **Se un modulo diverso dal Ritaglio ha toccato l'immagine, Indietro chiede 'Vuoi scartare le
-  modifiche?'** (sua frase e sua richiesta), con 'Scarta' e 'Annulla'.
+  modifiche?'** (sua frase e sua richiesta); i due tasti, 'Scarta' e 'Annulla', sono una proposta
+  della sessione, e il primo era l'unico testo nuovo.
 - ⚠️ **Le due porte, la freccia e il gesto di sistema, sono una funzione sola** (`leave`).
 - ⚠️⚠️ **La condizione la dà la tabella dei moduli** (`developed`), la stessa del punto d'accento, così
   un modulo nuovo entra nell'avviso da sé. Gli Stili non rispondono mai di sì: i loro valori vivono
@@ -1381,4 +1390,5 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
   tocco fuori vale 'Annulla'. 'Scarta' ha il colore dell'errore.
 - ⚠️ **In russo, ucraino e vietnamita 'Scarta' usa un'altra parola**, perché quella ovvia coincide
   con 'Annulla'.
-- **Casi 80, 81 e 82 di `SviluppoTest`**, controprovati rimettendo quattro difetti.
+- **Casi 80, 81 e 82 di `SviluppoTest`**, controprovati rimettendo quattro difetti. ⚠️ **Il banco non
+  vede la finestra sul telefono**, e la voce di collaudo la chiede.

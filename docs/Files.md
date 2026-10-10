@@ -267,8 +267,8 @@ Dalla 3.14:
     appena riscritto si salta**, perché passando di lì il fetcher di sistema consumerebbe il segno
     della miniatura da rifare. Le corsie sono due, perché la miniatura di un AVIF legge il file
     intero in memoria. ⚠️ **Quanto dura una generazione non è misurato.**
-  - ⚠️ **Senza il permesso l'elenco è vuoto**, e quel tasto non lo raggiunge nessuno che non l'abbia
-    già concesso.
+  - ⚠️ **Senza il permesso l'elenco è vuoto e la frase dice che è andata bene**, ed è accettato di
+    proposito: quel tasto non lo raggiunge nessuno che non l'abbia già concesso.
 - **Le prove** (`GeneraMiniatureTest`, `GeneraMiniatureCorsaTest` e un caso di
   `ImpostazioniTest`): che la generazione salti un indirizzo riscritto, che ogni file passi una
   volta e un errore conti come fatto, che un annullamento non ne faccia partire altre, le due
