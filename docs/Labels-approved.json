@@ -595,6 +595,7 @@
  "settings_mark_bad": "Questo file non si può usare come filigrana: scegli un PNG o un SVG.",
  "settings_mark_clear": "Rimuovi",
  "settings_mark_desc": "Un logo o un simbolo che l\\'app scrive sull\\'immagine quando la salvi.",
+ "settings_mark_lossy": "⚠️ Con l\\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG non sono applicabili: il salvataggio prevede una riscrittura del file.",
  "settings_mark_none": "Nessuna filigrana",
  "settings_mark_on_desc": "Aggiunge la filigrana all\\'immagine al salvataggio. Puoi attivarla o disattivarla al volo con l\\'apposito tasto on/off dell\\'editor (in alto a destra, prima di \\'Salva\\'). Abilitare o disabilitare la filigrana da lì equivale esattamente a muovere questo interruttore. ⚠️ N.B. con l\\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG diventano una riscrittura completa.",
  "settings_mark_pick": "Seleziona",
