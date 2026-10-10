@@ -271,7 +271,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   sono sui pulsanti della pagina; la copia nel pannello mobile li riconosce da `data-command`.
 - ⚠️ **Ritocchi del 2026-10-04 (sue richieste)**: l'introduzione dice soltanto *Giro x.yz:
   collaudo chiuso. Le migliorie e le scelte dei giri precedenti sono in archivio.*, su mobile
-  non c'è, e dopo il titolo viene subito `Scarica AIV` (sua istruzione, 2026-10-04 sera); `Invia` risponde anche con un toast in basso; il campo in cui
+  non c'è, e dopo il titolo viene subito `Scarica AIV` (sua istruzione, 2026-10-04 sera), con
+  accanto `Scarica AIV Play` dalla 5.11 (sua richiesta, 2026-10-10); `Invia` risponde anche con un toast in basso; il campo in cui
   si scrive non ha il bordo colorato; le miniature degli allegati sono due per riga; il codice
   inline è reso nell'editor come grassetto, corsivo e link; su desktop `Prossimi passi` segue
   l'ultimo riquadro a 18 px e, a fine pagina, finisce dove finisce `Altro` (lo spazio in fondo lo
