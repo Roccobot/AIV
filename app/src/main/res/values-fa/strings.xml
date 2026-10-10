@@ -598,9 +598,9 @@
     <string name="edit_failed">ذخیره نشد</string>
     <string name="edit_app_gone">آن ویرایشگر دیگر نیست. یکی دیگر برگزین.</string>
     <string name="settings_editor">ویرایشگر تصویر</string>
-    <string name="settings_editor_desc">برنامهٔ پیوسته به فرمان \'ویرایش\' در منوی نمایشگر. میان‌بر: \'ویرایش\' را نگه دارید تا همان‌جا برنامه را عوض کنید؛ انتخاب به یاد می‌ماند. می‌توانید ویرایشگر درونی Astonishing Image Viewer را هم برگزینید که تنها دو عمل روی تصویر انجام می‌دهد: برش و چرخش.</string>
+    <string name="settings_editor_desc">انتخاب کنید کدام برنامه تصویر را با فرمان ویرایش باز کند (منوی فشار طولانی نمایشگر). برای عوض کردن برنامه در همان لحظه و بدون باز کردن دوباره تنظیمات، ویرایش را نگه دارید.</string>
     <string name="settings_editor_none">چیزی برگزیده نشده</string>
-    <string name="settings_editor_pick">برگزیدن</string>
+    <string name="settings_editor_pick">تنظیم برنامه</string>
     <string name="view_grid">شبکه</string>
     <string name="view_list">فهرست</string>
     <string name="view_tree">پوشه‌ها</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">انتخاب</string>
     <string name="settings_mark_bad">این فایل به عنوان واترمارک کار نمی‌کند: یک PNG یا SVG انتخاب کنید.</string>
     <string name="settings_mark_on">فعال</string>
-    <string name="settings_mark_on_desc">واترمارک یک عنصر گرافیکی (مثلاً امضا یا لوگو) است که طبق تنظیمات شما روی تصویر قرار می‌گیرد. می‌توانید آن را از همین‌جا روشن یا خاموش کنید، یا پیش از ذخیره با دکمه روشن/خاموش در نوار پایین ویرایشگر؛ برای رسیدن سریع به این صفحه، دکمه را نگه دارید.</string>
+    <string name="settings_mark_on_desc">واترمارک یک عنصر گرافیکی (مثلاً امضا یا لوگو) است که روی تصویر قرار می‌گیرد. می‌توانید آن را از همین‌جا روشن یا خاموش کنید، یا پیش از ذخیره با دکمه روشن/خاموش در نوار پایین ویرایشگر؛ برای رسیدن سریع به این صفحه، دکمه را نگه دارید.</string>
     <string name="settings_mark_lossy">⚠️ با واترمارک، عملیات بدون افت کیفیت مانند چرخاندن JPEG در دسترس نیست: ذخیره، کل فایل را بازنویسی می‌کند.</string>
     <string name="settings_mark_where">موقعیت</string>
     <string name="mark_spot_tl">بالا سمت چپ</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">فاصله از لبه</string>
     <string name="settings_mark_alpha">کدری</string>
     <string name="settings_mark_preview">پیش‌نمایش واترمارک</string>
-    <string name="settings_mark_preview_note">⚠️ پیش‌نمایش فقط تقریبی است: نتیجه را روی تصویر واقعی بررسی کنید.</string>
+    <string name="settings_mark_preview_note">پیش‌نمایش بزرگ‌شده با کیفیت پیش‌نویس: واترمارک را در خروجی بررسی کنید.</string>
     <string name="look_resize">تغییر اندازه</string>
     <string name="resize_long">ضلع بلند</string>
     <string name="resize_short">ضلع کوتاه</string>

@@ -581,9 +581,9 @@
     <string name="edit_failed">没能保存</string>
     <string name="edit_app_gone">那个编辑器已经不在了。换一个吧。</string>
     <string name="settings_editor">图像编辑器</string>
-    <string name="settings_editor_desc">与查看器菜单中\'编辑\'命令关联的应用。快捷方式：长按\'编辑\'即可当场更换应用，选择会被记住。也可以选择 Astonishing Image Viewer 的内置编辑器，它对图像只提供两项操作：裁剪和旋转。</string>
+    <string name="settings_editor_desc">选择用\'编辑\'命令打开图像的应用（查看器的长按菜单）。长按\'编辑\'可随时更换应用，无需重新打开设置。</string>
     <string name="settings_editor_none">未选择</string>
-    <string name="settings_editor_pick">选择</string>
+    <string name="settings_editor_pick">设置应用</string>
     <string name="view_grid">网格</string>
     <string name="view_list">列表</string>
     <string name="view_tree">文件夹</string>
@@ -598,7 +598,7 @@
     <string name="settings_mark_pick">选择</string>
     <string name="settings_mark_bad">该文件不能用作水印：请选择 PNG 或 SVG。</string>
     <string name="settings_mark_on">启用</string>
-    <string name="settings_mark_on_desc">水印是按照你的设置叠加在图像上的图形元素（例如签名、标志）。可以在这里打开或关闭，也可以在保存前用编辑器底部栏的开关按钮随时切换；长按该按钮可快速来到此页面。</string>
+    <string name="settings_mark_on_desc">水印是叠加在图像上的图形元素（例如签名、标志）。可以在这里打开或关闭，也可以在保存前用编辑器底部栏的开关按钮随时切换；长按该按钮可快速来到此页面。</string>
     <string name="settings_mark_lossy">⚠️ 加了水印后，JPEG 旋转这类无损操作不可用：保存时会完整重写文件。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
@@ -610,7 +610,7 @@
     <string name="settings_mark_air">边距</string>
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">水印预览</string>
-    <string name="settings_mark_preview_note">⚠️ 预览仅供参考：请在实际图像上确认效果。</string>
+    <string name="settings_mark_preview_note">放大的草稿质量预览：请在输出结果中确认水印。</string>
     <string name="look_resize">调整尺寸</string>
     <string name="resize_long">长边</string>
     <string name="resize_short">短边</string>

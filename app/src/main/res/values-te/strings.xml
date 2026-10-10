@@ -598,9 +598,9 @@
     <string name="edit_failed">భద్రపరచలేకపోయాం</string>
     <string name="edit_app_gone">ఆ సవరణి ఇక లేదు. మరొకటి ఎంచుకో.</string>
     <string name="settings_editor">చిత్ర సంపాదకి</string>
-    <string name="settings_editor_desc">వీక్షకి మెనూలోని \'సవరించు\' ఆదేశానికి జతపడిన యాప్. అడ్డదారి: వెంటనే యాప్ మార్చడానికి \'సవరించు\'పై ఎక్కువసేపు నొక్కండి; ఎంపిక గుర్తుంచుకోబడుతుంది. Astonishing Image Viewer లోపలి సంపాదకిని కూడా ఎంచుకోవచ్చు; అది చిత్రాలపై రెండు పనులే చేస్తుంది: కత్తిరించడం, తిప్పడం.</string>
+    <string name="settings_editor_desc">సవరించు ఆదేశంతో చిత్రాన్ని ఏ యాప్ తెరవాలో ఎంచుకోండి (వ్యూయర్‌లో ఎక్కువసేపు నొక్కే మెనూ). సెట్టింగ్‌లను మళ్లీ తెరవకుండా వెంటనే యాప్ మార్చడానికి సవరించు‌ను నొక్కి పట్టుకోండి.</string>
     <string name="settings_editor_none">ఏదీ ఎంచుకోలేదు</string>
-    <string name="settings_editor_pick">ఎంచుకో</string>
+    <string name="settings_editor_pick">యాప్ సెట్ చేయి</string>
     <string name="view_grid">గడి</string>
     <string name="view_list">జాబితా</string>
     <string name="view_tree">ఫోల్డర్లు</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">ఎంచుకో</string>
     <string name="settings_mark_bad">ఈ ఫైల్‌ను వాటర్‌మార్క్‌గా వాడలేము: PNG లేదా SVG ఎంచుకోండి.</string>
     <string name="settings_mark_on">ఆన్</string>
-    <string name="settings_mark_on_desc">వాటర్‌మార్క్ అనేది మీ సెట్టింగ్‌ల ప్రకారం చిత్రంపై ఉంచే ఒక గ్రాఫిక్ అంశం (ఉదా. సంతకం, లోగో). దీన్ని ఇక్కడి నుండి ఆన్ లేదా ఆఫ్ చేయవచ్చు, లేదా భద్రపరిచే ముందు ఎడిటర్ కింది పట్టీలోని ఆన్/ఆఫ్ బటన్‌తో వెంటనే మార్చవచ్చు; ఈ స్క్రీన్‌కు త్వరగా రావడానికి బటన్‌ను నొక్కి పట్టుకోండి.</string>
+    <string name="settings_mark_on_desc">వాటర్‌మార్క్ అనేది చిత్రంపై ఉంచే ఒక గ్రాఫిక్ అంశం (ఉదా. సంతకం, లోగో). దీన్ని ఇక్కడి నుండి ఆన్ లేదా ఆఫ్ చేయవచ్చు, లేదా భద్రపరిచే ముందు ఎడిటర్ కింది పట్టీలోని ఆన్/ఆఫ్ బటన్‌తో వెంటనే మార్చవచ్చు; ఈ స్క్రీన్‌కు త్వరగా రావడానికి బటన్‌ను నొక్కి పట్టుకోండి.</string>
     <string name="settings_mark_lossy">⚠️ వాటర్‌మార్క్‌తో, JPEG తిప్పడం వంటి నష్టం లేని పనులు అందుబాటులో ఉండవు: భద్రపరిచేటప్పుడు ఫైల్ మొత్తం మళ్లీ రాయబడుతుంది.</string>
     <string name="settings_mark_where">స్థానం</string>
     <string name="mark_spot_tl">ఎగువ ఎడమ</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">అంచు నుండి దూరం</string>
     <string name="settings_mark_alpha">అపారదర్శకత</string>
     <string name="settings_mark_preview">వాటర్‌మార్క్ మునుజూపు</string>
-    <string name="settings_mark_preview_note">⚠️ ప్రివ్యూ సుమారుగా మాత్రమే: అసలు చిత్రంలో ఫలితాన్ని తనిఖీ చేయండి.</string>
+    <string name="settings_mark_preview_note">డ్రాఫ్ట్ నాణ్యతలో పెద్దదిగా చేసిన ప్రివ్యూ: అవుట్‌పుట్‌లో వాటర్‌మార్క్‌ను తనిఖీ చేయండి.</string>
     <string name="look_resize">పరిమాణం మార్చు</string>
     <string name="resize_long">పొడవైన అంచు</string>
     <string name="resize_short">పొట్టి అంచు</string>

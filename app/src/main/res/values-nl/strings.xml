@@ -598,9 +598,9 @@
     <string name="edit_failed">Opslaan is niet gelukt</string>
     <string name="edit_app_gone">Die editor is weg. Kies een andere.</string>
     <string name="settings_editor">Afbeeldingseditor</string>
-    <string name="settings_editor_desc">De app die hoort bij de opdracht \'Bewerken\' in het menu van de viewer. Sneltoets: houd \'Bewerken\' ingedrukt om meteen van app te wisselen (de keuze wordt onthouden). U kunt ook de interne editor van Astonishing Image Viewer kiezen, die maar twee bewerkingen op afbeeldingen toelaat: bijsnijden en draaien.</string>
+    <string name="settings_editor_desc">Kies welke app de afbeelding opent met de opdracht Bewerken (menu bij lang drukken in de viewer). Houd Bewerken ingedrukt om direct van app te wisselen zonder de instellingen opnieuw te openen.</string>
     <string name="settings_editor_none">Geen gekozen</string>
-    <string name="settings_editor_pick">Kiezen</string>
+    <string name="settings_editor_pick">App instellen</string>
     <string name="view_grid">Raster</string>
     <string name="view_list">Lijst</string>
     <string name="view_tree">Mappen</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">Selecteren</string>
     <string name="settings_mark_bad">Dit bestand kan niet als watermerk worden gebruikt: kies een PNG of een SVG.</string>
     <string name="settings_mark_on">Actief</string>
-    <string name="settings_mark_on_desc">Het watermerk is een grafisch element (bijv. een handtekening of logo) dat volgens je instellingen over de afbeelding wordt gelegd. Je kunt het hier aan- of uitzetten, of direct voor het opslaan met de aan/uit-knop in de onderste balk van de editor; houd de knop ingedrukt om snel naar dit scherm te gaan.</string>
+    <string name="settings_mark_on_desc">Het watermerk is een grafisch element (bijv. een handtekening of logo) dat over de afbeelding wordt gelegd. Je kunt het hier aan- of uitzetten, of direct voor het opslaan met de aan/uit-knop in de onderste balk van de editor; houd de knop ingedrukt om snel naar dit scherm te gaan.</string>
     <string name="settings_mark_lossy">⚠️ Met een watermerk zijn verliesvrije bewerkingen zoals het draaien van een JPEG niet beschikbaar: bij het opslaan wordt het hele bestand herschreven.</string>
     <string name="settings_mark_where">Positie</string>
     <string name="mark_spot_tl">Linksboven</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">Randafstand</string>
     <string name="settings_mark_alpha">Dekking</string>
     <string name="settings_mark_preview">Voorbeeld van het watermerk</string>
-    <string name="settings_mark_preview_note">⚠️ De voorbeeldweergave is slechts indicatief: controleer het resultaat op de echte afbeelding.</string>
+    <string name="settings_mark_preview_note">Vergrote voorvertoning in conceptkwaliteit: controleer het watermerk in het resultaat.</string>
     <string name="look_resize">Formaat wijzigen</string>
     <string name="resize_long">Langste zijde</string>
     <string name="resize_short">Kortste zijde</string>

@@ -598,9 +598,9 @@
     <string name="edit_failed">सहेजा नहीं जा सका</string>
     <string name="edit_app_gone">वह संपादक अब नहीं है। कोई और चुनें।</string>
     <string name="settings_editor">छवि संपादक</string>
-    <string name="settings_editor_desc">दर्शक के मेन्यू में \'संपादित करें\' आदेश से जुड़ा ऐप। शॉर्टकट: तुरंत ऐप बदलने के लिए \'संपादित करें\' को देर तक दबाएँ, चुनाव याद रखा जाता है। आप Astonishing Image Viewer का आंतरिक संपादक भी चुन सकते हैं, जो छवियों पर केवल दो काम करता है: कतरन और घुमाव।</string>
+    <string name="settings_editor_desc">चुनें कि संपादित करें कमांड से कौन-सा ऐप छवि खोलेगा (व्यूअर का देर तक दबाने वाला मेनू)। सेटिंग फिर से खोले बिना तुरंत ऐप बदलने के लिए संपादित करें को दबाकर रखें।</string>
     <string name="settings_editor_none">कोई नहीं चुना</string>
-    <string name="settings_editor_pick">चुनें</string>
+    <string name="settings_editor_pick">ऐप सेट करें</string>
     <string name="view_grid">ग्रिड</string>
     <string name="view_list">सूची</string>
     <string name="view_tree">फ़ोल्डर</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">चयन करें</string>
     <string name="settings_mark_bad">यह फ़ाइल वॉटरमार्क के रूप में काम नहीं करती: PNG या SVG चुनें।</string>
     <string name="settings_mark_on">सक्रिय</string>
-    <string name="settings_mark_on_desc">वॉटरमार्क एक ग्राफ़िक तत्व है (जैसे हस्ताक्षर या लोगो), जो आपकी सेटिंग के अनुसार छवि के ऊपर रखा जाता है। आप इसे यहाँ से चालू या बंद कर सकते हैं, या सहेजने से पहले संपादक की नीचे की पट्टी के चालू/बंद बटन से तुरंत; इस स्क्रीन पर जल्दी आने के लिए बटन को दबाकर रखें।</string>
+    <string name="settings_mark_on_desc">वॉटरमार्क एक ग्राफ़िक तत्व है (जैसे हस्ताक्षर या लोगो), जो छवि के ऊपर रखा जाता है। आप इसे यहाँ से चालू या बंद कर सकते हैं, या सहेजने से पहले संपादक की नीचे की पट्टी के चालू/बंद बटन से तुरंत; इस स्क्रीन पर जल्दी आने के लिए बटन को दबाकर रखें।</string>
     <string name="settings_mark_lossy">⚠️ वॉटरमार्क के साथ JPEG घुमाने जैसे बिना नुकसान वाले काम उपलब्ध नहीं हैं: सहेजने पर पूरी फ़ाइल फिर से लिखी जाती है।</string>
     <string name="settings_mark_where">स्थिति</string>
     <string name="mark_spot_tl">ऊपर बाएँ</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">किनारे से दूरी</string>
     <string name="settings_mark_alpha">अपारदर्शिता</string>
     <string name="settings_mark_preview">वॉटरमार्क का पूर्वावलोकन</string>
-    <string name="settings_mark_preview_note">⚠️ पूर्वावलोकन केवल अनुमानित है: असली छवि पर परिणाम जाँच लें।</string>
+    <string name="settings_mark_preview_note">बड़ा किया गया ड्राफ़्ट गुणवत्ता वाला पूर्वावलोकन: आउटपुट में वॉटरमार्क जाँच लें।</string>
     <string name="look_resize">आकार बदलें</string>
     <string name="resize_long">लंबी भुजा</string>
     <string name="resize_short">छोटी भुजा</string>

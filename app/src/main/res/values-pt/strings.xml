@@ -615,9 +615,9 @@
     <string name="edit_failed">Não foi possível salvar</string>
     <string name="edit_app_gone">Esse editor sumiu. Escolha outro.</string>
     <string name="settings_editor">Editor de imagens</string>
-    <string name="settings_editor_desc">Aplicativo associado ao comando \'Editar\', no menu do visualizador. Atalho: mantenha \'Editar\' pressionado para trocar de aplicativo na hora (a escolha fica memorizada). Você também pode escolher o editor interno do Astonishing Image Viewer, que permite apenas duas operações nas imagens: recorte e rotação.</string>
+    <string name="settings_editor_desc">Escolha qual app abre a imagem com o comando Editar (menu de toque longo do visualizador). Toque e segure Editar para trocar de app na hora sem reabrir as configurações.</string>
     <string name="settings_editor_none">Nenhum escolhido</string>
-    <string name="settings_editor_pick">Escolher</string>
+    <string name="settings_editor_pick">Definir app</string>
     <string name="view_grid">Grade</string>
     <string name="view_list">Lista</string>
     <string name="view_tree">Pastas</string>
@@ -632,7 +632,7 @@
     <string name="settings_mark_pick">Selecionar</string>
     <string name="settings_mark_bad">Este ficheiro não serve como marca d\'água: escolha um PNG ou um SVG.</string>
     <string name="settings_mark_on">Ativada</string>
-    <string name="settings_mark_on_desc">A marca d\'água é um elemento gráfico (p. ex. uma assinatura ou um logo) sobreposto à imagem de acordo com as suas configurações. Você pode ligá-la ou desligá-la aqui, ou na hora antes de salvar com o botão liga/desliga na barra inferior do editor; toque e segure o botão para chegar rápido a esta tela.</string>
+    <string name="settings_mark_on_desc">A marca d\'água é um elemento gráfico (p. ex. uma assinatura ou um logo) sobreposto à imagem. Você pode ligá-la ou desligá-la aqui, ou na hora antes de salvar com o botão liga/desliga na barra inferior do editor; toque e segure o botão para chegar rápido a esta tela.</string>
     <string name="settings_mark_lossy">⚠️ Com a marca d\'água, operações sem perdas como girar um JPEG não estão disponíveis: ao salvar, o arquivo é reescrito por inteiro.</string>
     <string name="settings_mark_where">Posição</string>
     <string name="mark_spot_tl">Canto superior esquerdo</string>
@@ -644,7 +644,7 @@
     <string name="settings_mark_air">Distância da borda</string>
     <string name="settings_mark_alpha">Opacidade</string>
     <string name="settings_mark_preview">Pré-visualização da marca d\'água</string>
-    <string name="settings_mark_preview_note">⚠️ A pré-visualização é apenas indicativa: confira o resultado na imagem real.</string>
+    <string name="settings_mark_preview_note">Pré-visualização ampliada em qualidade de rascunho: confira a marca d\'água no resultado.</string>
     <string name="look_resize">Redimensionar</string>
     <string name="resize_long">Lado maior</string>
     <string name="resize_short">Lado menor</string>

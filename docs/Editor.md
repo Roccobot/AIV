@@ -1292,16 +1292,29 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
     logo di prima.
 - ⚠️⚠️ **Dalla `4.99` l'ordine della pagina è il suo mockup** (nota A del giro della `4.98`): in
   cima 'Attiva' con la spiegazione di che cos'è la filigrana, poi il file con 'Rimuovi' e
-  'Seleziona' (stringa della sola pagina: 'Scegli' resta nella riga dell'editor), il posto, i tre
+  'Seleziona' (stringa della sola pagina; la riga dell'editor dice 'Imposta app'), il posto, i tre
   numeri, e in fondo l'avviso sul senza perdita. Il secondo titolo e il mini-paragrafo sotto il
   titolo della pagina sono usciti. I campi dei numeri sono alti 44 punti (`BasicTextField` con la
   cornice di Material).
 - ⚠️⚠️ **L'anteprima è più piccola del 25% e cambia di proposito quello che mostra** (stessa nota):
   opacità piena, misura doppia fino a 50 centesimi, e il fondo passa al nero o al bianco quando
   l'inchiostro non arriva al contrasto 3:1 col grigio (`previewLook`, luminanza dell'inchiostro
-  pesata sull'opacità). Accanto, o sotto se non c'è posto, la nota 'Anteprima solo indicativa'.
+  pesata sull'opacità). Accanto, o sotto se non c'è posto, la nota sulla qualità dell'anteprima.
+- ⚠️⚠️ **Dalla `5.00` la pagina segue il suo mockup del giro della `4.99`** (nota su `4.99-01`):
+  - la spiegazione di 'Attiva' è larga tutta la pagina, con l'interruttore sulla riga del titolo
+    (`SwitchRow` con `detailBelow`);
+  - il blocco del riquadro si sposta a sinistra (`SPOT_LEAD`), finché il bordo esterno della
+    squadretta cade sul rientro della pagina;
+  - 'Posizione' vive dentro il riquadro, centrata al 15% dell'altezza, sopra il posto in cui può
+    cadere la firma, bianca sul nero, nera sul bianco e del colore della pagina sul grigio
+    (`labelInk`);
+  - la nota non ha più il corsivo né `⚠️`, è un terzo d'inchiostro sul fondo (`#B1B1B1` col tema
+    chiaro, il grigio del suo mockup) e va accanto al riquadro solo se la sua parola più larga ci
+    entra intera, o sotto: i punti in cui si può andare a capo li dà `BreakIterator`, che vale anche
+    per le scritture senza spazi.
 - ⚠️ **Ogni squadretta è un tracciato solo** (nota D): due linee coprivano due volte la piega, e
-  l'inchiostro spento la faceva più scura. Lo misura `FiligranaPaginaTest`.
+  l'inchiostro spento la faceva più scura. Lo misura `FiligranaPaginaTest`, che dalla `5.00` misura
+  anche le quattro note qui sopra e 'Imposta app' sulla riga del titolo dell'editor.
 - ⚠️⚠️ **La pagina è una sotto-pagina di 'Editor e salvataggio'**, e dal tocco lungo sul tasto si apre
   come una scheda sopra l'editor (`MarkPage` in una `Sheet`, sua richiesta): uscendo dall'editor il
   `Look` in lavorazione, che non è salvabile, si perderebbe.

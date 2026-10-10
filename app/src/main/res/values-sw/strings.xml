@@ -598,9 +598,9 @@
     <string name="edit_failed">Haikuweza kuhifadhiwa</string>
     <string name="edit_app_gone">Kihariri hicho hakipo tena. Chagua kingine.</string>
     <string name="settings_editor">Kihariri cha picha</string>
-    <string name="settings_editor_desc">Programu iliyounganishwa na amri \'Hariri\' katika menyu ya kitazamaji. Njia ya mkato: bonyeza \'Hariri\' kwa muda mrefu ili kubadilisha programu papo hapo; chaguo hukumbukwa. Unaweza pia kuchagua kihariri cha ndani cha Astonishing Image Viewer, ambacho hufanya mambo mawili tu kwenye picha: kupunguza na kuzungusha.</string>
+    <string name="settings_editor_desc">Chagua programu itakayofungua picha kwa amri ya Hariri (menyu ya kubonyeza kwa muda mrefu kwenye kitazamaji). Bonyeza Hariri kwa muda mrefu ili kubadilisha programu papo hapo bila kufungua mipangilio tena.</string>
     <string name="settings_editor_none">Hakuna iliyochaguliwa</string>
-    <string name="settings_editor_pick">Chagua</string>
+    <string name="settings_editor_pick">Weka programu</string>
     <string name="view_grid">Gridi</string>
     <string name="view_list">Orodha</string>
     <string name="view_tree">Folda</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">Chagua</string>
     <string name="settings_mark_bad">Faili hii haiwezi kutumika kama alama ya maji: chagua PNG au SVG.</string>
     <string name="settings_mark_on">Imewashwa</string>
-    <string name="settings_mark_on_desc">Alama ya maji ni kipengele cha picha (k.m. sahihi au nembo) kinachowekwa juu ya picha kulingana na mipangilio yako. Unaweza kuiwasha au kuizima hapa, au papo hapo kabla ya kuhifadhi kwa kitufe cha kuwasha/kuzima kwenye upau wa chini wa kihariri; bonyeza kitufe kwa muda mrefu ili kufika haraka kwenye skrini hii.</string>
+    <string name="settings_mark_on_desc">Alama ya maji ni kipengele cha picha (k.m. sahihi au nembo) kinachowekwa juu ya picha. Unaweza kuiwasha au kuizima hapa, au papo hapo kabla ya kuhifadhi kwa kitufe cha kuwasha/kuzima kwenye upau wa chini wa kihariri; bonyeza kitufe kwa muda mrefu ili kufika haraka kwenye skrini hii.</string>
     <string name="settings_mark_lossy">⚠️ Ukiweka alama ya maji, kazi zisizopoteza ubora kama kuzungusha JPEG hazipatikani: kuhifadhi huandika upya faili lote.</string>
     <string name="settings_mark_where">Nafasi</string>
     <string name="mark_spot_tl">Juu kushoto</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">Umbali kutoka ukingoni</string>
     <string name="settings_mark_alpha">Ukolezi</string>
     <string name="settings_mark_preview">Onyesho la alama ya maji</string>
-    <string name="settings_mark_preview_note">⚠️ Onyesho la kukagua ni la kukadiria tu: hakikisha matokeo kwenye picha halisi.</string>
+    <string name="settings_mark_preview_note">Onyesho lililokuzwa la ubora wa rasimu: hakikisha alama ya maji kwenye matokeo.</string>
     <string name="look_resize">Badilisha ukubwa</string>
     <string name="resize_long">Upande mrefu</string>
     <string name="resize_short">Upande mfupi</string>

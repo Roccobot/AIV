@@ -598,9 +598,9 @@
     <string name="edit_failed">சேமிக்க முடியவில்லை</string>
     <string name="edit_app_gone">அந்தத் திருத்தி இப்போது இல்லை. வேறொன்றைத் தேர்ந்தெடு.</string>
     <string name="settings_editor">பட எடிட்டர்</string>
-    <string name="settings_editor_desc">காட்டியின் பட்டியலில் உள்ள \'திருத்து\' கட்டளையுடன் இணைந்த செயலி. குறுக்குவழி: உடனடியாகச் செயலியை மாற்ற \'திருத்து\' மீது நீண்ட நேரம் அழுத்தவும்; தேர்வு நினைவில் வைக்கப்படும். Astonishing Image Viewer இன் உள்ளக எடிட்டரையும் தேர்வு செய்யலாம்; அது படங்களில் இரண்டு செயல்களை மட்டுமே செய்யும்: வெட்டுதல், சுழற்றுதல்.</string>
+    <string name="settings_editor_desc">திருத்து கட்டளையால் படத்தைத் திறக்கும் செயலியைத் தேர்ந்தெடுக்கவும் (பார்வையாளரின் நீண்ட அழுத்த மெனு). அமைப்புகளை மீண்டும் திறக்காமல் உடனே செயலியை மாற்ற திருத்து என்பதை அழுத்திப் பிடிக்கவும்.</string>
     <string name="settings_editor_none">எதுவும் தேர்ந்தெடுக்கப்படவில்லை</string>
-    <string name="settings_editor_pick">தேர்ந்தெடு</string>
+    <string name="settings_editor_pick">செயலியை அமை</string>
     <string name="view_grid">கட்டம்</string>
     <string name="view_list">பட்டியல்</string>
     <string name="view_tree">கோப்புறைகள்</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">தேர்ந்தெடு</string>
     <string name="settings_mark_bad">இந்தக் கோப்பை நீர்அடையாளமாகப் பயன்படுத்த முடியாது: PNG அல்லது SVG தேர்வுசெய்க.</string>
     <string name="settings_mark_on">இயக்கத்தில்</string>
-    <string name="settings_mark_on_desc">நீர்க்குறி என்பது உங்கள் அமைப்புகளின்படி படத்தின் மேல் வைக்கப்படும் ஒரு வரைகலை உறுப்பு (எ.கா. கையொப்பம், லோகோ). இதை இங்கிருந்து இயக்கலாம் அல்லது நிறுத்தலாம், அல்லது சேமிக்கும் முன் திருத்தியின் கீழ்ப் பட்டையில் உள்ள ஆன்/ஆஃப் பொத்தானால் உடனே மாற்றலாம்; இந்தத் திரைக்கு விரைவாக வர பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
+    <string name="settings_mark_on_desc">நீர்க்குறி என்பது படத்தின் மேல் வைக்கப்படும் ஒரு வரைகலை உறுப்பு (எ.கா. கையொப்பம், லோகோ). இதை இங்கிருந்து இயக்கலாம் அல்லது நிறுத்தலாம், அல்லது சேமிக்கும் முன் திருத்தியின் கீழ்ப் பட்டையில் உள்ள ஆன்/ஆஃப் பொத்தானால் உடனே மாற்றலாம்; இந்தத் திரைக்கு விரைவாக வர பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="settings_mark_lossy">⚠️ நீர்க்குறியுடன், JPEG சுழற்சி போன்ற இழப்பில்லா செயல்கள் கிடைக்காது: சேமிக்கும்போது கோப்பு முழுவதும் மீண்டும் எழுதப்படும்.</string>
     <string name="settings_mark_where">இடம்</string>
     <string name="mark_spot_tl">மேல் இடது</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">விளிம்பிலிருந்து தூரம்</string>
     <string name="settings_mark_alpha">ஒளிபுகாநிலை</string>
     <string name="settings_mark_preview">நீர்அடையாள முன்னோட்டம்</string>
-    <string name="settings_mark_preview_note">⚠️ முன்னோட்டம் தோராயமானது மட்டுமே: உண்மையான படத்தில் விளைவைச் சரிபாருங்கள்.</string>
+    <string name="settings_mark_preview_note">வரைவுத் தரத்தில் பெரிதாக்கிய முன்னோட்டம்: வெளியீட்டில் நீர்க்குறியைச் சரிபாருங்கள்.</string>
     <string name="look_resize">அளவு மாற்று</string>
     <string name="resize_long">நீளமான பக்கம்</string>
     <string name="resize_short">குறுகிய பக்கம்</string>
