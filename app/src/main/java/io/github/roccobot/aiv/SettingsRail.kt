@@ -122,7 +122,8 @@ internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.EDITING, Page.STYLES, Page.MARK, Page.SAVING, Page.BIN,
     Page.START,
     Page.THUMBS, Page.BACKUP
-)
+// ⚠️ AIV Play has no bin (`Store.files`), so its page is not in the index either.
+).filter { Store.files || it != Page.BIN }
 
 internal val Page.titleRes: Int
     get() = when (this) {

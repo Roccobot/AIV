@@ -180,6 +180,9 @@
     <string name="folders_title">Folder</string>
     <string name="folders_permission">Mendaftar folder memerlukan akses ke semua berkas. Izin yang sama memungkinkanmu menelusuri sebuah folder, dan diberikan dari halaman sistem.</string>
     <string name="folders_grant">Beri akses</string>
+    <string name="folders_partial">Hanya gambar yang kamu pilih yang ditampilkan.</string>
+    <string name="folders_partial_all">Izinkan semua</string>
+    <string name="folders_permission_media">Mendaftar folder memerlukan akses ke gambar dan video.</string>
     <string name="folders_none">Tidak ada folder yang berisi apa pun untuk ditampilkan.</string>
     <string name="folders_tablet_pick">Pilih folder dari bilah navigasi</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -567,6 +570,7 @@
     <string name="editor_center_both">Tengahkan mendatar dan tegak</string>
     <string name="editor_done">Tersimpan</string>
     <string name="editor_done_copy">Salinan tersimpan</string>
+    <string name="editor_done_downloads">Disimpan di Download</string>
     <string name="editor_discard_ask">Buang perubahan?</string>
     <string name="editor_discard">Buang</string>
     <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>
@@ -682,6 +686,7 @@
     <string name="hint_modules">Geser ikonnya untuk menjangkau semua modul penyuntingan. Tekan lama ikon modul untuk mengatur ulang perubahannya saja.</string>
     <string name="hint_tools">Selain modul, ada dua fungsi yang bisa kamu nyalakan atau matikan seketika dengan satu ketukan pada ikonnya, yang lalu menyala: \'Tanda air\' dan \'Ubah ukuran\'. Tekan lama untuk membuka pengaturan masing-masing.</string>
     <string name="hint_save">Setelah selesai, ketuk \'Simpan\' untuk menimpa berkas (dengan salinan cadangan, jika aktif); tekan lama untuk menyimpan salinan baru gambar di folder yang sama.</string>
+    <string name="hint_save_play">Setelah selesai, ketuk \'Simpan\': hasil edit menjadi file baru di Download, dan gambar aslinya tetap seperti semula.</string>
     <string name="hint_draw">Dengan modul Gambar kamu bisa menambahkan garis, panah, elips, persegi panjang membulat, teks sederhana, kotak \'pil\', dan panel buram ke gambar. Menyimpan akan meratakan gambar: gambar tidak bisa dibuka lagi untuk menyunting atau memindahkan elemennya. Tekan lama sebuah warna untuk mengatur kecerahannya.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

@@ -180,6 +180,9 @@
     <string name="folders_title">資料夾</string>
     <string name="folders_permission">列出資料夾需要存取所有檔案的權限。這與翻看資料夾用的是同一個權限,在系統頁面裡授予。</string>
     <string name="folders_grant">授予存取權</string>
+    <string name="folders_partial">僅顯示你選擇的圖片。</string>
+    <string name="folders_partial_all">全部允許</string>
+    <string name="folders_permission_media">列出資料夾需要存取圖片與影片的權限。</string>
     <string name="folders_none">沒有資料夾含有可顯示的內容。</string>
     <string name="folders_tablet_pick">從導覽列中選擇一個資料夾</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -567,6 +570,7 @@
     <string name="editor_center_both">水平和垂直置中</string>
     <string name="editor_done">已儲存</string>
     <string name="editor_done_copy">副本已儲存</string>
+    <string name="editor_done_downloads">已儲存到 Download</string>
     <string name="editor_discard_ask">要捨棄變更嗎？</string>
     <string name="editor_discard">捨棄</string>
     <string name="editor_done_lossless">已儲存，未重新壓縮</string>
@@ -682,6 +686,7 @@
     <string name="hint_modules">滑動圖示即可到達所有編輯模組。長按某個模組的圖示，只重設該模組的調整。</string>
     <string name="hint_tools">除了模組之外，還有兩項功能可以隨時輕觸圖示開啟或關閉，開啟後圖示會亮起：\'浮水印\'和\'調整尺寸\'。長按可開啟各自的設定。</string>
     <string name="hint_save">完成後輕觸\'儲存\'覆寫原檔案(若已啟用備份，備份也會保留)；長按則會在同一資料夾中儲存圖片的新副本。</string>
+    <string name="hint_save_play">完成後輕觸\'儲存\'：編輯結果會成為 Download 中的新檔案，原圖維持不變。</string>
     <string name="hint_draw">使用繪圖模組，你可以在圖片上加入直線、箭頭、橢圓、圓角矩形、簡單文字、\'膠囊\'框和模糊面板。儲存會合併影像：之後無法重新開啟來編輯或移動這些元素。長按某個顏色可以調整它的亮度。</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

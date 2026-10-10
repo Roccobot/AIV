@@ -38,4 +38,22 @@ class PaginettaTest {
         assertEquals(2, tracings.size)
         for (tracing in tracings) assertTrue("Tracing missing: $tracing", squeeze(svg).contains(tracing))
     }
+
+    /**
+     * **The download button takes the `github` APK by name, never the Play one** (5.10): the
+     * release carries both, and the page used to take the first `.apk` in the list. The names
+     * are read from `release.yml`, which writes them, and the pattern from the page, which
+     * reads them, so a rename on either side fails here.
+     */
+    @Test fun `the download page picks the github apk and not the play one`() {
+        val page = File(root(), "publish/index.html").readText()
+        val js = Regex("""/(\^AIV-[^/]*)/i""").find(page)?.groupValues?.get(1)
+        requireNotNull(js) { "The page no longer picks its APK with a pattern on the name" }
+        val picks = Regex(js, RegexOption.IGNORE_CASE)
+        val flow = File(root(), ".github/workflows/release.yml").readText()
+        fun written(key: String) = Regex("""$key="([^"]+)"""").find(flow)!!.groupValues[1]
+            .replace("\${{ steps.ver.outputs.version }}", "5.10")
+        assertTrue("The github APK is not picked", picks.matches(written("name")))
+        assertFalse("The Play APK is picked", picks.matches(written("play")))
+    }
 }

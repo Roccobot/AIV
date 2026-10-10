@@ -66,6 +66,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -295,6 +296,23 @@ fun FolderScreen(
     var granted by remember { mutableStateOf(Folder.granted(context)) }
 
     /**
+     * Se in AIV Play la persona ha concesso solo alcune immagini (da Android 14, [Store]).
+     *
+     * ⚠️ **Si rilegge a ogni ritorno nell'app, insieme a [granted]**: il permesso si cambia
+     * anche dalle impostazioni di sistema, senza chiudere l'app, e Android dice di non tenerlo
+     * da parte. Nella variante `github` vale sempre `false`.
+     */
+    var partial by remember { mutableStateOf(Store.access(context) == Store.Access.PARTIAL) }
+    val reread = {
+        granted = Folder.granted(context)
+        partial = Store.access(context) == Store.Access.PARTIAL
+    }
+    LifecycleResumeEffect(Unit) {
+        reread()
+        onPauseOrDispose { }
+    }
+
+    /**
      * La cartella che si sta per nascondere, e `null` quando non se ne sta nascondendo
      * nessuna.
      *
@@ -339,11 +357,9 @@ fun FolderScreen(
      */
     var columnsOff by remember { mutableStateOf(false) }
 
-    // ⚠️ Al ritorno dalla pagina di sistema non arriva nessun esito, perché non è un
-    // dialogo: si RICHIEDE allo stato delle cose, come fa il viewer.
-    val fromSettings = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { granted = Folder.granted(context) }
+    // ⚠️ L'esito si RICHIEDE allo stato delle cose, come fa il viewer: [Store] sceglie la
+    // strada della variante, e qui il tocco è della persona, quindi la pagina non si spiega.
+    val askAccess = Store.rememberAccessRequest(explain = false) { reread() }
 
     // Il permesso può essere appena arrivato: il modello decide da sé se c'è davvero
     // qualcosa da rileggere.
@@ -578,6 +594,7 @@ fun FolderScreen(
                 }
             }
             Spacer(Modifier.height(HEADER_GAP))
+            if (home && partial) PartialAccess(onAsk = askAccess)
 
             when {
                 !granted -> Column(
@@ -585,18 +602,17 @@ fun FolderScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.folders_permission),
+                        // ⚠️ Il testo dice quale permesso serve, e i permessi sono due: quello di
+                        // `github` nomina tutti i file e una pagina di sistema, che in AIV Play
+                        // non esistono.
+                        text = stringResource(
+                            if (Store.files) R.string.folders_permission else R.string.folders_permission_media
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
                     Spacer(Modifier.height(16.dp))
-                    FilledTonalButton(onClick = {
-                        // Il ripiego sull'elenco generale non è un lusso: la pagina mirata
-                        // all'app manca su qualche sistema.
-                        Folder.settingsIntents(context).any {
-                            runCatching { fromSettings.launch(it) }.isSuccess
-                        }
-                    }) { Text(stringResource(R.string.folders_grant)) }
+                    FilledTonalButton(onClick = askAccess) { Text(stringResource(R.string.folders_grant)) }
                 }
 
                 // ⚠️ Prima dei rami che guardano `folders`, e non dopo: la vista delle
@@ -1470,7 +1486,7 @@ private fun hubEntries(
     // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
     // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
     // vorrebbe dire ribattezzare una cosa che ha già un nome.
-    FolderView.entries.filter { it != view }.forEach { other ->
+    Store.views.filter { it != view }.forEach { other ->
         add(PillEntry(other.glyph, stringResource(other.label()), group = 0, short = stringResource(other.short())) { onView(other) })
     }
 
@@ -1524,8 +1540,8 @@ private fun hubEntries(
      * di sistema è una seconda strada per la stessa cosa; senza permesso è l'unica
      * strada che c'è.
      * ⚠️ **Sparisce da sé quando il permesso arriva**, senza uscire e rientrare: lo
-     * stato di `granted` si rinfresca al ritorno dalla pagina di sistema (vedi
-     * `fromSettings` in chi chiama), quindi il menu si ricompone.
+     * stato di `granted` si rinfresca al ritorno dalla richiesta (vedi `askAccess` in chi
+     * chiama), quindi il menu si ricompone.
      */
     if (!granted && !steady) {
         add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 1) { onPickImage() })
@@ -1562,12 +1578,13 @@ private fun hubEntries(
      * regola, e 'Crea' resta accanto a 'Cerca'. Il FAB, la pillola e il menu basso tengono l'ordine
      * di prima: la nota parla del solo menu Start.
      */
+    // ⚠️ AIV Play has no bin (`Store.files`, since 5.10): nothing there ever goes into it.
     if (steady) {
         add(impostazioni)
         add(indirizzo)
-        add(cestino)
+        if (Store.files) add(cestino)
     } else {
-        add(cestino)
+        if (Store.files) add(cestino)
         add(impostazioni)
     }
 }
@@ -1700,7 +1717,7 @@ private fun ViewOptions(
                     horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
                     modifier = Modifier.oneOf()
                 ) {
-                    FolderView.entries.forEach { one ->
+                    Store.views.forEach { one ->
                         FilterChip(
                             selected = one == view,
                             onClick = { onView(one) },
@@ -2595,3 +2612,27 @@ private const val FOLDER_KIND = "folder"
 
 /** Come sopra, per le righe dell'elenco. */
 private const val ROW_KIND = "folder-row"
+
+/**
+ * La riga che dice, in AIV Play, che l'app vede solo le immagini che la persona ha scelto, col
+ * tasto che le richiede tutte (dalla `5.10`).
+ *
+ * ⚠️⚠️ **Senza questa riga l'accesso parziale è l'inganno per cui la variante `github` non lo
+ * chiede**: una cartella da quattrocento immagini direbbe 'tre', e niente direbbe perché. Il tasto
+ * riapre il dialogo di sistema, che offre di nuovo 'Consenti tutto' e 'Seleziona foto'; lo tocca
+ * la persona, come vuole la guida di Android, perché un dialogo che ricompare da sé sorprende.
+ */
+@Composable
+private fun PartialAccess(onAsk: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.folders_partial),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        TextButton(onClick = onAsk) { Text(stringResource(R.string.folders_partial_all)) }
+    }
+}

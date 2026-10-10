@@ -180,6 +180,9 @@
     <string name="folders_title">フォルダ</string>
     <string name="folders_permission">フォルダを一覧にするにはすべてのファイルへのアクセスが必要です。フォルダをめくるのと同じ権限で、システムのページで許可します。</string>
     <string name="folders_grant">アクセスを許可</string>
+    <string name="folders_partial">選択した画像だけが表示されています。</string>
+    <string name="folders_partial_all">すべて許可</string>
+    <string name="folders_permission_media">フォルダを一覧にするには画像と動画へのアクセスが必要です。</string>
     <string name="folders_none">中身のあるフォルダがありません。</string>
     <string name="folders_tablet_pick">ナビゲーションバーからフォルダを選んでください</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -567,6 +570,7 @@
     <string name="editor_center_both">上下左右中央に</string>
     <string name="editor_done">保存しました</string>
     <string name="editor_done_copy">コピーを保存しました</string>
+    <string name="editor_done_downloads">Download に保存しました</string>
     <string name="editor_discard_ask">変更を破棄しますか？</string>
     <string name="editor_discard">破棄</string>
     <string name="editor_done_lossless">再圧縮せずに保存しました</string>
@@ -682,6 +686,7 @@
     <string name="hint_modules">アイコンをスワイプするとすべての編集モジュールに届きます。モジュールのアイコンを長押しすると、そのモジュールの調整だけを戻せます。</string>
     <string name="hint_tools">モジュールのほかに、アイコンを1回タップするだけでいつでもオンとオフを切り替えられる機能が2つあります。オンになるとアイコンが光ります: \'透かし\'と\'サイズ変更\'です。長押しすると、それぞれの設定が開きます。</string>
     <string name="hint_save">終わったら\'保存\'をタップしてファイルを上書きします(バックアップが有効なら控えも残ります)。長押しすると、画像の新しいコピーが同じフォルダに保存されます。</string>
+    <string name="hint_save_play">終わったら\'保存\'をタップします。編集は Download に新しいファイルとして保存され、元の画像はそのまま残ります。</string>
     <string name="hint_draw">描画モジュールでは、画像に直線、矢印、楕円、角丸長方形、シンプルなテキスト、\'ピル\'型の枠、ぼかしパネルを追加できます。保存すると画像は統合されるため、要素を編集したり移動したりするために開き直すことはできません。色を長押しすると、その明るさを調整できます。</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

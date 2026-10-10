@@ -180,6 +180,9 @@
     <string name="folders_title">సంచయాలు</string>
     <string name="folders_permission">సంచయాలను జాబితా చేయడానికి అన్ని ఫైళ్ళపై అనుమతి కావాలి. ఒక సంచయాన్ని చూడనిచ్చే అదే అనుమతి ఇది, వ్యవస్థలోని ఒక పేజీ నుంచి ఇవ్వబడుతుంది.</string>
     <string name="folders_grant">అనుమతి ఇవ్వు</string>
+    <string name="folders_partial">మీరు ఎంచుకున్న చిత్రాలు మాత్రమే చూపబడుతున్నాయి.</string>
+    <string name="folders_partial_all">అన్నింటినీ అనుమతించు</string>
+    <string name="folders_permission_media">ఫోల్డర్ల జాబితాకు చిత్రాలు మరియు వీడియోలకు అనుమతి అవసరం.</string>
     <string name="folders_none">ఏ సంచయంలోనూ చూపడానికి ఏమీ లేదు.</string>
     <string name="folders_tablet_pick">నావిగేషన్ బార్ నుండి ఒక ఫోల్డర్‌ను ఎంచుకోండి</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">అడ్డంగా మరియు నిలువుగా మధ్యలో</string>
     <string name="editor_done">భద్రపరచబడింది</string>
     <string name="editor_done_copy">నకలు భద్రపరచబడింది</string>
+    <string name="editor_done_downloads">Download లో సేవ్ అయింది</string>
     <string name="editor_discard_ask">మార్పులను విస్మరించాలా?</string>
     <string name="editor_discard">విస్మరించు</string>
     <string name="editor_done_lossless">మళ్లీ కుదించకుండానే భద్రపరచబడింది</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">అన్ని సవరణ మాడ్యూళ్లకు చేరుకోవడానికి చిహ్నాలను స్వైప్ చేయండి. ఒక మాడ్యూల్ చిహ్నాన్ని నొక్కి పట్టుకుంటే దాని మార్పులు మాత్రమే రీసెట్ అవుతాయి.</string>
     <string name="hint_tools">మాడ్యూల్స్‌తో పాటు, ఐకాన్‌ను ఒకసారి తాకి వెంటనే ఆన్ లేదా ఆఫ్ చేయగల రెండు ఫీచర్లు ఉన్నాయి, ఆన్ చేసినప్పుడు ఐకాన్ వెలుగుతుంది: \'వాటర్‌మార్క్\' మరియు \'పరిమాణం మార్చు\'. ఎక్కువసేపు నొక్కితే ఒక్కొక్కదాని సెట్టింగ్‌లు తెరుచుకుంటాయి.</string>
     <string name="hint_save">పూర్తయ్యాక ఫైల్‌ను ఓవర్‌రైట్ చేయడానికి \'భద్రపరచండి\' నొక్కండి (బ్యాకప్ ఆన్‌లో ఉంటే దానితో సహా); ఎక్కువసేపు నొక్కితే చిత్రం కొత్త కాపీ అదే ఫోల్డర్‌లో భద్రమవుతుంది.</string>
+    <string name="hint_save_play">పూర్తయ్యాక \'భద్రపరచండి\' ను తాకండి: సవరణ Download లో కొత్త ఫైల్‌గా మారుతుంది, అసలు చిత్రం అలాగే ఉంటుంది.</string>
     <string name="hint_draw">గీయడం మాడ్యూల్‌తో చిత్రానికి గీతలు, బాణాలు, దీర్ఘవృత్తాలు, గుండ్రని మూలల దీర్ఘచతురస్రాలు, సాధారణ వచనం, \'మాత్ర\' ఆకారపు పెట్టెలు మరియు మసకబారిన ప్యానెల్‌లను జోడించవచ్చు. సేవ్ చేసినప్పుడు చిత్రం ఒకే పొరగా కలిసిపోతుంది: అంశాలను సవరించడానికి లేదా జరపడానికి దాన్ని మళ్లీ తెరవలేరు. ఒక రంగు ప్రకాశాన్ని మార్చడానికి దాన్ని నొక్కి పట్టుకోండి.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

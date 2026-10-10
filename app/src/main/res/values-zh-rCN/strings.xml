@@ -180,6 +180,9 @@
     <string name="folders_title">文件夹</string>
     <string name="folders_permission">列出文件夹需要访问所有文件的权限。这与翻看文件夹用的是同一个权限,在系统页面里授予。</string>
     <string name="folders_grant">授予访问权限</string>
+    <string name="folders_partial">仅显示你选择的图片。</string>
+    <string name="folders_partial_all">全部允许</string>
+    <string name="folders_permission_media">列出文件夹需要访问图片和视频的权限。</string>
     <string name="folders_none">没有文件夹含有可显示的内容。</string>
     <string name="folders_tablet_pick">从导航栏中选择一个文件夹</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -567,6 +570,7 @@
     <string name="editor_center_both">水平和垂直居中</string>
     <string name="editor_done">已保存</string>
     <string name="editor_done_copy">副本已保存</string>
+    <string name="editor_done_downloads">已保存到 Download</string>
     <string name="editor_discard_ask">要舍弃更改吗？</string>
     <string name="editor_discard">舍弃</string>
     <string name="editor_done_lossless">已保存，未重新压缩</string>
@@ -682,6 +686,7 @@
     <string name="hint_modules">滑动图标即可到达所有编辑模块。长按某个模块的图标，只重置该模块的调整。</string>
     <string name="hint_tools">除了模块之外，还有两项功能可以随时轻触图标开启或关闭，开启后图标会亮起：\'水印\'和\'调整尺寸\'。长按可以打开各自的设置。</string>
     <string name="hint_save">完成后轻触\'保存\'覆盖原文件(如果已启用备份，备份也会保留)；长按则会在同一文件夹中保存图片的新副本。</string>
+    <string name="hint_save_play">完成后点按\'保存\'：编辑结果会成为 Download 中的新文件，原图保持不变。</string>
     <string name="hint_draw">使用绘图模块，你可以在图片上添加直线、箭头、椭圆、圆角矩形、简单文字、\'胶囊\'框和模糊面板。保存会合并图像：之后无法重新打开来编辑或移动这些元素。长按某个颜色可以调节它的亮度。</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

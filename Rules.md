@@ -867,6 +867,47 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   supporto: il 2026-10-02 erano state unificate, e lui l'ha segnalato il 2026-10-03. La presidia
   `PaginettaTest`, che confronta i tracciati con `ic_aiv_mark.xml`.
 
+## 🏪 Le due varianti, e che cosa manca ad AIV Play
+
+**Dalla `5.10` lo stesso codice produce due app** (sua scelta B1, 2026-10-10): **AIV GitHub**, quella
+di sempre, che chiede l'accesso a tutti i file (`MANAGE_EXTERNAL_STORAGE`), e **AIV Play**, una
+galleria per Google Play, che chiede solo l'accesso a immagini e video. Google concede l'accesso a
+tutti i file soltanto a gestori di file, backup, antivirus e app di documenti, e una galleria non
+rientra in nessuna delle quattro categorie. Le due varianti sono i due `productFlavors` di
+`app/build.gradle.kts` (`github` e `play`); AIV Play ha il suffisso `.play` nell'identificativo,
+quindi le due app si installano una accanto all'altra.
+
+- **Nel codice la differenza la legge un posto solo**: `Store.kt` (`Store.files`, `Store.allows`,
+  `Store.views`, `Store.access`). Un secondo lettore di `BuildConfig.FILES` sarebbe una seconda
+  risposta alla stessa domanda.
+- **I permessi vivono nei manifest delle varianti** (`app/src/github/` e `app/src/play/`), e il
+  manifest comune non ne dichiara nessuno sull'archivio.
+- ⚠️⚠️ **Che cosa manca ad AIV Play, e perché**: le funzioni che scrivono sui file con `java.io.File`.
+  Senza il permesso su tutti i file falliscono su ogni file che non ha creato l'app, e un comando
+  che fallisce sempre è peggio di nessun comando. Sono nascosti: i tasti Copia, Sposta, Rinomina ed
+  Elimina dei due riquadri dei file (e con loro dalla pagina che li riordina), il cestino con la sua
+  pagina, la vista 'Cartelle di sistema' con 'Nuova cartella', la rinomina di una cartella e quella
+  dal pannello Info, la scelta di un'app esterna per 'Modifica', la copia di sicurezza prima di
+  sovrascrivere e 'Pulisci' degli SVG. La scaletta per riportarle, una per rilascio con MediaStore,
+  vive nel brief.
+- ⚠️⚠️ **Il `Salva` degli editor di AIV Play scrive in Download**: il file nasce nella cache
+  dell'app e poi passa a `MediaStore.Downloads` (`ImageEdit.outDir` e `delivered`), e l'originale
+  resta com'è. ⚠️ **Su Android 9 non c'è questa strada** (`MediaStore.Downloads` nasce con Android
+  10), quindi là il `Salva` di AIV Play risponde che non è riuscito.
+- **L'accesso parziale di Android 14**: chi sceglie solo alcune foto vede quelle, e la schermata
+  iniziale lo dice con una riga e il tasto 'Consenti tutte'. Il permesso si rilegge a ogni ritorno
+  nell'app, perché si cambia dalle impostazioni di sistema.
+- ⚠️ **Dopo il secondo rifiuto Android non mostra più la sua finestra**, e ogni richiesta risponde
+  'no' subito: là AIV Play apre la propria pagina nelle impostazioni di Android, l'unico posto in
+  cui il permesso si può ancora concedere (`Store.rememberAccessRequest`).
+- **Le prove della sola variante play vivono in `app/src/testPlay/`** e i loro nomi finiscono in
+  `PlayTest`: `check.yml` e `release.yml` lanciano `testPlayDebugUnitTest --tests '*PlayTest'`, e
+  se nessuna classe corrisponde la corsa fallisce. Il resto del banco gira sulla variante github.
+- ⚠️ **Il nome dell'app è lo stesso**: chi le installa tutte e due vede due icone uguali.
+- ⚠️ **La pubblicazione su Google Play è un lavoro dell'utente** (account sviluppatore, scheda,
+  prova chiusa con 12 tester per 14 giorni per gli account personali nuovi), ed è il pezzo 3 del
+  brief.
+
 ## 🚀 Che cosa produce un rilascio
 
 **Due cose, e vanno insieme**: il numero di **versione** e le voci nuove nel **documento di
@@ -882,6 +923,10 @@ documento, riscontro'.
 - **Come si pubblica**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia
   il tag dal `versionName`, costruisce l'APK firmato e crea la release. Senza `publish` costruisce e
   si ferma, ed è la **corsa a vuoto**.
+- ⚠️⚠️ **Dalla `5.10` una release ha due APK**: `AIV-x.xx.apk` (la variante github) e
+  `AIV-Play-x.xx.apk` (§ '🏪 Le due varianti, e che cosa manca ad AIV Play'). La paginetta prende
+  il primo **per nome**, con un'espressione regolare che `PaginettaTest` confronta coi nomi scritti
+  da `release.yml`: prima prendeva il primo `.apk` dell'elenco.
   - ⚠️ **Quella corsa non si chiama 'il banco di prova'**: quel nome è delle prove che aprono l'app
     finta (§ '🧰 Gli strumenti che questo repo si porta dietro'), e due cose con lo stesso nome
     prima o poi si scambiano.
@@ -956,7 +1001,8 @@ il job le scrive su disco per la durata di una sola esecuzione.
     del lato più lungo scostato di un millesimo verso l'interno, perché un vertice può cadere sul
     bordo di un vicino. Il verso del giro non basta: con `evenOdd` non significa niente.
   - ⚠️ **I conti fatti con criteri diversi non si confrontano.**
-- ⚠️⚠️ **Il banco di prova è `./gradlew :app:testDebugUnitTest`**: apre l'app finta con
+- ⚠️⚠️ **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove della
+  variante play (`:app:testPlayDebugUnitTest --tests '*PlayTest'`, dalla `5.10`): apre l'app finta con
   Robolectric, senza telefono né emulatore, e la tocca; le prove vivono in `app/src/test/`, le
   librerie sono di sola prova, e nell'APK non entra niente. È nato col blocco totale della `1.70`,
   un'app che non rispondeva ai tocchi e compilava senza una parola. Prende i difetti di struttura,
@@ -1010,6 +1056,10 @@ il job le scrive su disco per la durata di una sola esecuzione.
     2026-10-07 sul rilascio a vuoto di B1: banco in 16 secondi). Una prova caduta non entra in
     cache, quindi una corsa che la rivede la riesegue; ma un verde ripreso non dice niente di una
     prova che cade a caso, e l'ordine delle prove compare nel registro solo quando girano davvero.
+    - ⚠️⚠️ **Un file che una prova legge fuori dal modulo va dichiarato come ingresso del compito**
+      (`inputs.file` in `build.gradle.kts`, dalla `5.10`): `PaginettaTest` legge
+      `publish/index.html` e `release.yml`, e finché Gradle non lo sapeva la prova restava verde col
+      difetto rimesso, perché l'esito arrivava dalla cache.
   - ⚠️ **La piattaforma finta pesa 213 MB e si scarica al primo giro**: in CI la tiene una cache
     sui due file che la decidono (il catalogo delle versioni e `robolectric.properties`), perché
     `setup-gradle` non copre `~/.m2`. In una sessione il primo giro paga il download.

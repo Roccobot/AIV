@@ -221,6 +221,7 @@
     <string name="editor_done">Saved</string>
     <!-- Said when the copy went next to the original instead of over it. -->
     <string name="editor_done_copy">Copy saved</string>
+    <string name="editor_done_downloads">Saved to Downloads</string>
     <!-- Asked on Back in the full editor, when a module other than Crop has changed the picture. -->
     <string name="editor_discard_ask">Discard changes?</string>
     <string name="editor_discard">Discard</string>
@@ -413,6 +414,7 @@
     <string name="hint_modules">Swipe the icons to reach every editing module. Long-press a module icon to reset only its changes.</string>
     <string name="hint_tools">Besides the modules, there are two functions you can turn on or off at any time with a tap on the icon, which lights up: \'Watermark\' and \'Resize\'. A long press opens the settings of each one.</string>
     <string name="hint_save">When you are done, tap \'Save\' to overwrite the file (with a backup copy, if it is enabled); a long press saves a new copy of the image in the same folder.</string>
+    <string name="hint_save_play">When you are done, tap \'Save\': the edit becomes a new file in Downloads, and the original image stays as it is.</string>
     <string name="hint_draw">With the Drawing module you can add lines, arrows, ellipses, rounded rectangles, simple text, \'pill\' boxes and blurred panels to the image. Saving flattens the image: you cannot reopen it to edit or move the elements. Long-press a color to adjust its brightness.</string>
     <string name="folder_renamed">Folder renamed</string>
     <string name="folder_rename_taken">A folder with this name already exists</string>
@@ -526,6 +528,9 @@
     <string name="folders_title">Folders</string>
     <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
     <string name="folders_grant">Grant access</string>
+    <string name="folders_partial">Only the images you picked are visible.</string>
+    <string name="folders_partial_all">Allow all</string>
+    <string name="folders_permission_media">Listing the folders needs access to images and videos.</string>
     <string name="folders_none">No folder holds anything to show.</string>
     <string name="folders_tablet_pick">Choose a folder from the navigation bar</string>
     <string name="folders_rail_search">Search in folders</string>

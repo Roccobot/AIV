@@ -111,8 +111,13 @@ object ImageEdit {
 
     /** Com'è andata. */
     sealed interface Result {
-        /** Fatto: dove, e se si è riusciti a non toccare i pixel. */
-        data class Done(val file: File, val lossless: Boolean) : Result
+        /**
+         * Fatto: dove, e se si è riusciti a non toccare i pixel.
+         *
+         * @param downloads whether the file went to **Download**, AIV Play's only way out (since
+         *   5.10): there [file] is the provisional copy, already deleted.
+         */
+        data class Done(val file: File, val lossless: Boolean, val downloads: Boolean = false) : Result
 
         /** Non fatto, e perché, in una frase da mostrare. */
         data class Failed(@StringRes val why: Int) : Result
@@ -206,10 +211,12 @@ object ImageEdit {
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
-        val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
+        val dir = outDir(context, source) ?: return@withContext Result.Failed(R.string.edit_no_file)
         if (turns == 0 && !mirror && crop.whole && mark == null && resize == null) {
             return@withContext Result.Failed(R.string.edit_nothing)
         }
+        // ⚠️ In AIV Play the original is never written over: see [outDir].
+        val via = if (Store.files) way else Way.COPY
 
         /*
          * ⚠️⚠️ **LA COPIA DI SICUREZZA SI FA QUI, PRIMA DI OGNI ALTRA COSA, ed è l'unico
@@ -223,7 +230,7 @@ object ImageEdit {
          * ⚠️ Con `Way.COPY` non serve: là l'originale non lo tocca nessuno, e una copia in
          * più sarebbe un file nel cestino che nessuno ha chiesto.
          */
-        if (way == Way.OVERWRITE && backup && Bin.keep(context, source) == null) {
+        if (via == Way.OVERWRITE && backup && Bin.keep(context, source) == null) {
             return@withContext Result.Failed(R.string.edit_no_backup)
         }
 
@@ -242,16 +249,40 @@ object ImageEdit {
         // ridisegnare. È la terza voce di questa condizione, e tutte e tre dicono la stessa cosa:
         // il senza perdita vale finché il file non va riscritto.
         if (jpeg && crop.whole && mark == null && resize == null) {
-            return@withContext turnOnly(context, source, dir, turns, mirror, way)
+            return@withContext delivered(context, turnOnly(context, source, dir, turns, mirror, via))
         }
 
-        val target = when (way) {
+        val target = when (via) {
             Way.OVERWRITE ->
                 if (canOverwrite(source.name)) source
                 else return@withContext Result.Failed(R.string.edit_no_overwrite)
             Way.COPY -> FileTree.freeName(dir, outputName(source.name))
         }
-        redraw(context, uri, source, target, turns, mirror, crop, mark, resize)
+        delivered(context, redraw(context, uri, source, target, turns, mirror, crop, mark, resize))
+    }
+
+    /**
+     * Where a save writes: beside the original, or in AIV Play a folder of the app's own.
+     *
+     * ⚠️⚠️ **AIV Play may not write in the original's folder** (since 5.10): without the
+     * all-files permission, a file of another app or of the camera can be read and not
+     * replaced. So there the editors always write a new file, here first and then in Download
+     * ([delivered]), and the original stays as it is: no copy in the bin is needed, and none
+     * is made, because [Way.COPY] never asks for it.
+     */
+    private fun outDir(context: Context, source: File): File? =
+        if (Store.files) source.parentFile
+        else File(context.cacheDir, "editor").takeIf { it.isDirectory || it.mkdirs() }
+
+    /**
+     * In AIV Play, the file written in [outDir] goes to Download, and the private one is deleted
+     * either way; in AIV GitHub the result goes back as it came.
+     */
+    private suspend fun delivered(context: Context, result: Result): Result {
+        if (Store.files || result !is Result.Done) return result
+        val moved = ImageActions.fileToDownloads(context, result.file)
+        result.file.delete()
+        return if (moved) result.copy(downloads = true) else Result.Failed(R.string.edit_failed)
     }
 
     /**
@@ -308,7 +339,9 @@ object ImageEdit {
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
-        val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
+        val dir = outDir(context, source) ?: return@withContext Result.Failed(R.string.edit_no_file)
+        // ⚠️ In AIV Play the file is always a new one: see [outDir].
+        val accanto = beside || !Store.files
         // ⚠️ La filigrana e il ridimensionamento sono lavoro da fare anche a cursori fermi, e per
         // questo la guardia non guarda soltanto il [Look]: senza, chi apre l'editor per firmare o
         // per rimpicciolire si vedrebbe rispondere che non c'è niente da salvare.
@@ -326,7 +359,7 @@ object ImageEdit {
          * [lookTarget].
          */
         if (look.plain && look.geo.idle && look.healing.idle && look.drawing.idle) {
-            val way = if (!beside && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
+            val way = if (!accanto && canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
             return@withContext save(
                 context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup, mark,
                 resize
@@ -337,7 +370,7 @@ object ImageEdit {
         }
 
         val kind = lookFormat(source.name, quality)
-        val target = lookTarget(source, dir, kind, beside)
+        val target = lookTarget(source, dir, kind, accanto)
         // ⚠️ La copia di sicurezza si fa **solo** quando si sovrascrive, e prima di tutto: è la
         // stessa regola di [save], e la stessa ragione (chi l'ha accesa ha chiesto di non poter
         // perdere l'originale, quindi un fallimento ferma il salvataggio invece di procedere).
@@ -441,7 +474,7 @@ object ImageEdit {
             return@withContext Result.Failed(R.string.edit_failed)
         }
         FileTree.scan(context, listOfNotNull(source.absolutePath, target.absolutePath))
-        Result.Done(target, lossless = false)
+        delivered(context, Result.Done(target, lossless = false))
     }
 
     /** In che formato esce un salvataggio dell'editor completo, data la qualità scelta. */

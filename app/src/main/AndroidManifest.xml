@@ -56,27 +56,10 @@
     </queries>
 
     <!--
-        Serve a UNA cosa sola: sfogliare le altre immagini della stessa cartella
-        dopo averne aperta una. Senza, l'app resta quella di prima e mostra la
-        sola foto scelta.
-        ⚠️⚠️ È IL PERMESSO PESANTE, ed è una scelta esplicita dell'utente:
-        *preferisco chiedere un permesso pesante prima e poi essere a posto per
-        sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a leggere il
-        MediaStore, e la ragione per cui non è più dichiarato è che da Android 14
-        apre la porta all'accesso PARZIALE: la persona spunta tre foto, il
-        MediaStore ne mostra tre, e una cartella da quattrocento risponde 'tre'
-        senza che niente segnali l'inganno.
-        ⚠️ Il secondo permesso è per i soli Android 9 e 10, dove quello ampio non
-        esiste e quello classico sull'archivio fa già vedere tutto: si ferma alla
-        29, o il verificatore segnala un permesso chiesto a vuoto.
-        ⚠️ Il primo NON si concede con un dialogo: è un permesso speciale, e la
-        persona lo accende con un interruttore in una pagina di sistema (vedi
-        `Folder.settingsIntents`).
+        ⚠️⚠️ I PERMESSI SULL'ARCHIVIO NON VIVONO QUI, dalla 5.10: ogni variante dichiara i suoi
+        nel proprio manifest, `src/github` (accesso a tutti i file) e `src/play` (le sole
+        immagini e i video). Il perché vive in `build.gradle.kts`, sulle varianti.
     -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
 
     <!-- Il visualizzatore non è utile senza uno schermo decente, ma non
          pretende nulla di più: niente fotocamera, niente posizione.

@@ -853,10 +853,12 @@
     }).then(function (elenco) {
       var ultima = elenco && elenco[0];
       if (!ultima) throw new Error('nessuna release');
+      // ⚠️⚠️ L'APK si sceglie PER NOME, dalla 5.10: la release contiene anche quello di
+      // AIV Play (`AIV-Play-x.xx.apk`), e il primo `.apk` dell'elenco può essere lui.
       var apk = null;
       var assets = ultima.assets || [];
       for (var i = 0; i < assets.length; i++) {
-        if (/\.apk$/i.test(assets[i].name)) { apk = assets[i]; break; }
+        if (/^AIV-[\d.]+\.apk$/i.test(assets[i].name)) { apk = assets[i]; break; }
       }
       stato.rel = {
         tag: String(ultima.tag_name || '').replace(/^v/i, ''),

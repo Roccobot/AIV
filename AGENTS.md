@@ -279,8 +279,13 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **La firma** vive solo fra i secret GitHub del repo (`AIV_KEYSTORE_FILE`, `AIV_KEYSTORE_PASSWORD`,
   `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`). ⚠️ Senza di loro il build di release non fallisce: l'APK
   risulta non firmato, e il workflow lo chiede all'APK (`Rules.md` § '🔐 La firma, e dove NON vive').
-- **Il banco di prova è `./gradlew :app:testDebugUnitTest`** (Robolectric, app finta, niente
-  nell'APK): si lancia prima di aprire la PR, e `check.yml` e `release.yml` sono la rete. Prende i
+- **Due varianti dallo stesso codice, dalla `5.10`**: AIV GitHub con l'accesso a tutti i file e AIV
+  Play, una galleria senza le funzioni che scrivono sui file e col `Salva` in Download. La
+  differenza la legge solo `Store.kt`, e una release ha due APK (`Rules.md` § '🏪 Le due varianti,
+  e che cosa manca ad AIV Play').
+- **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove `*PlayTest` di
+  `app/src/testPlay/` con `:app:testPlayDebugUnitTest --tests '*PlayTest'` (Robolectric, app finta,
+  niente nell'APK): si lancia prima di aprire la PR, e `check.yml` e `release.yml` sono la rete. Prende i
   difetti di struttura, non quelli di resa o di apparecchio; la piattaforma 36 vuole Java 21
   (`Rules.md` § '🧰 Gli strumenti che questo repo si porta dietro').
 - **Quando si scrive una prova**: anche senza un difetto alle spalle se la modifica tocca la

@@ -6,6 +6,9 @@
 > due editor. Le regole del repo vivono in `Rules.md`, e gli invarianti dell'editor completo (il
 > conto in AGSL, il salvataggio a tessere, `ContoTest`, il senza perdita) in `Rules.md`
 > § '🎚️ L'editor completo, e il conto che esiste in una copia sola'.
+> ⚠️ **Dalla `5.10` in AIV Play il `Salva` scrive un file nuovo in Download e non tocca mai
+> l'originale**, e 'Modifica' apre sempre l'editor interno: `Rules.md` § '🏪 Le due varianti, e che
+> cosa manca ad AIV Play'.
 
 ## 🧭 Quale editor si apre: una voce sola, 'Editor interno'
 

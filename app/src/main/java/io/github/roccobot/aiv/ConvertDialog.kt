@@ -237,8 +237,10 @@ fun ConvertDialog(
                  * strumento, e il secondo la promessa che vuole leggere prima di premere. Sono
                  * stati ridettati nel giro della `1.41`, quando la pulizia è diventata una sola
                  * (riscontro `pulitore-web-via`), e il testo di prima parlava ancora di due.
+                 * ⚠️ **Not in AIV Play** (`Store.files`, since 5.10): cleaning writes over the
+                 * SVG itself, which that variant may not do.
                  */
-                if (isVector(image)) {
+                if (isVector(image) && Store.files) {
                     HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
                     Heading(stringResource(R.string.convert_clean))
                     Note(stringResource(R.string.convert_clean_why))

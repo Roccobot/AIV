@@ -180,6 +180,9 @@
     <string name="folders_title">Carpetas</string>
     <string name="folders_permission">Para listar las carpetas hace falta acceso a todos los archivos. Es el mismo permiso que deja pasar por una carpeta, y se concede desde una página del sistema.</string>
     <string name="folders_grant">Conceder acceso</string>
+    <string name="folders_partial">Solo se muestran las imágenes elegidas.</string>
+    <string name="folders_partial_all">Permitir todas</string>
+    <string name="folders_permission_media">Para listar las carpetas hace falta acceso a imágenes y videos.</string>
     <string name="folders_none">Ninguna carpeta contiene nada que mostrar.</string>
     <string name="folders_tablet_pick">Elige una carpeta en la barra de navegación</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -601,6 +604,7 @@
     <string name="editor_center_both">Centrar en horizontal y vertical</string>
     <string name="editor_done">Guardada</string>
     <string name="editor_done_copy">Copia guardada</string>
+    <string name="editor_done_downloads">Guardada en Download</string>
     <string name="editor_discard_ask">¿Quieres descartar los cambios?</string>
     <string name="editor_discard">Descartar</string>
     <string name="editor_done_lossless">Guardada sin volver a comprimir</string>
@@ -718,6 +722,7 @@
     <string name="hint_modules">Desliza los iconos para llegar a todos los módulos de edición. Mantén pulsado el icono de un módulo para restablecer solo sus cambios.</string>
     <string name="hint_tools">Además de los módulos, hay dos funciones que puedes activar o desactivar al momento con un toque en el icono, que se enciende: \'Marca de agua\' y \'Redimensionar\'. Con una pulsación larga accedes a los ajustes de cada una.</string>
     <string name="hint_save">Cuando termines, toca \'Guardar\' para sobrescribir el archivo (con copia de seguridad, si está activada); una pulsación larga guarda una copia nueva de la imagen en la misma carpeta.</string>
+    <string name="hint_save_play">Cuando termines, toca \'Guardar\': la edición se convierte en un archivo nuevo en Download, y la imagen original queda como estaba.</string>
     <string name="hint_draw">Con el módulo Dibujo puedes añadir a la imagen líneas, flechas, elipses, rectángulos redondeados, textos sencillos, recuadros \'píldora\' y paneles desenfocados. Al guardar, la imagen se acopla: no se puede volver a abrir para editar o mover los elementos. Mantén pulsado un color para ajustar su brillo.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

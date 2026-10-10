@@ -180,6 +180,9 @@
     <string name="folders_title">फ़ोल्डर</string>
     <string name="folders_permission">फ़ोल्डरों की सूची के लिए सभी फ़ाइलों तक पहुँच चाहिए। यह वही अनुमति है जो फ़ोल्डर पलटने देती है, और यह सिस्टम के पन्ने से दी जाती है।</string>
     <string name="folders_grant">पहुँच दें</string>
+    <string name="folders_partial">केवल आपकी चुनी हुई तस्वीरें दिख रही हैं।</string>
+    <string name="folders_partial_all">सबकी अनुमति दें</string>
+    <string name="folders_permission_media">फ़ोल्डर सूची के लिए तस्वीरों और वीडियो तक पहुँच चाहिए।</string>
     <string name="folders_none">किसी फ़ोल्डर में दिखाने को कुछ नहीं है।</string>
     <string name="folders_tablet_pick">नेविगेशन बार से कोई फ़ोल्डर चुनें</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">क्षैतिज और लंबवत रूप से बीच में</string>
     <string name="editor_done">सहेज लिया</string>
     <string name="editor_done_copy">प्रति सहेज ली</string>
+    <string name="editor_done_downloads">Download में सहेजी गई</string>
     <string name="editor_discard_ask">क्या बदलाव छोड़ दें?</string>
     <string name="editor_discard">छोड़ें</string>
     <string name="editor_done_lossless">दोबारा दबाए बिना सहेज लिया</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">सभी संपादन मॉड्यूल तक पहुँचने के लिए आइकन स्वाइप करें। किसी मॉड्यूल का आइकन देर तक दबाएँ ताकि सिर्फ़ उसके बदलाव रीसेट हों।</string>
     <string name="hint_tools">मॉड्यूल के अलावा दो सुविधाएँ हैं, जिन्हें आइकन पर एक टैप से तुरंत चालू या बंद किया जा सकता है और आइकन जल उठता है: \'वॉटरमार्क\' और \'आकार बदलें\'। देर तक दबाने पर हर एक की सेटिंग खुलती है।</string>
     <string name="hint_save">काम पूरा होने पर फ़ाइल पर लिखने के लिए \'सहेजें\' दबाएँ (बैकअप प्रति के साथ, यदि वह चालू हो); देर तक दबाने पर छवि की नई प्रति उसी फ़ोल्डर में सहेजी जाती है।</string>
+    <string name="hint_save_play">काम पूरा होने पर \'सहेजें\' छुएँ: बदलाव Download में एक नई फ़ाइल बन जाता है, और मूल तस्वीर जैसी थी वैसी रहती है।</string>
     <string name="hint_draw">ड्रॉइंग मॉड्यूल से आप छवि में रेखाएँ, तीर, दीर्घवृत्त, गोल कोनों वाले आयत, सादा टेक्स्ट, \'गोली\' जैसे बॉक्स और धुंधले पैनल जोड़ सकते हैं। सहेजने पर छवि एक परत में मिल जाती है: तत्वों को संपादित करने या खिसकाने के लिए उसे दोबारा नहीं खोला जा सकता। किसी रंग की चमक बदलने के लिए उसे देर तक दबाएँ।</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

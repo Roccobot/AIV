@@ -180,6 +180,9 @@
     <string name="folders_title">Ordner</string>
     <string name="folders_permission">Für die Ordnerliste braucht es Zugriff auf alle Dateien. Es ist dieselbe Berechtigung, die das Durchblättern erlaubt, und sie wird auf einer Systemseite erteilt.</string>
     <string name="folders_grant">Zugriff erteilen</string>
+    <string name="folders_partial">Nur die ausgewählten Bilder werden angezeigt.</string>
+    <string name="folders_partial_all">Alle erlauben</string>
+    <string name="folders_permission_media">Für die Ordnerliste braucht es Zugriff auf Bilder und Videos.</string>
     <string name="folders_none">Kein Ordner enthält etwas zum Anzeigen.</string>
     <string name="folders_tablet_pick">Einen Ordner in der Navigationsleiste auswählen</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">Waagerecht und senkrecht zentrieren</string>
     <string name="editor_done">Gespeichert</string>
     <string name="editor_done_copy">Kopie gespeichert</string>
+    <string name="editor_done_downloads">In Download gespeichert</string>
     <string name="editor_discard_ask">Änderungen verwerfen?</string>
     <string name="editor_discard">Verwerfen</string>
     <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
     <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen.</string>
     <string name="hint_save">Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
+    <string name="hint_save_play">Wenn du fertig bist, tippe auf \'Speichern\': Die Bearbeitung wird zu einer neuen Datei in Download, und das Originalbild bleibt unverändert.</string>
     <string name="hint_draw">Mit dem Modul Zeichnen fügst du dem Bild Linien, Pfeile, Ellipsen, abgerundete Rechtecke, einfache Texte, \'Pillen\'-Rahmen und weichgezeichnete Panels hinzu. Beim Speichern wird das Bild auf eine Ebene reduziert: Du kannst es nicht wieder öffnen, um die Elemente zu bearbeiten oder zu verschieben. Halte eine Farbe gedrückt, um ihre Helligkeit einzustellen.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

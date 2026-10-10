@@ -1,19 +1,15 @@
 package io.github.roccobot.aiv
 
-import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.MediaStore
 import java.text.Collator
 import android.provider.OpenableColumns
 import android.provider.Settings
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -631,34 +627,17 @@ object Folder {
     }
 
     /**
-     * ⚠️⚠️ **Il permesso è quello PESANTE, l'accesso a tutti i file, ed è una scelta
-     * dell'utente**: *preferisco chiedere un permesso pesante prima e poi essere a
-     * posto per sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a
-     * leggere il MediaStore, e la differenza che si paga volentieri è questa: da
-     * Android 14 quello leggero apre la porta all'accesso **parziale**, dove la
-     * persona spunta tre foto e il MediaStore ne mostra tre, e una cartella da
-     * quattrocento risponde 'tre' senza che niente segnali l'inganno. L'accesso a
-     * tutti i file quella scelta non ce l'ha.
-     *
-     * ⚠️ **Non è un dialogo ma una PAGINA DI SISTEMA**: `MANAGE_EXTERNAL_STORAGE` è
-     * un permesso speciale, si concede con un interruttore nelle impostazioni e non
-     * con il solito 'Consenti'. Da qui esce quindi un intent, non una richiesta.
+     * Se le cartelle si possono leggere. ⚠️ **Il permesso dipende dalla variante, e lo dice
+     * [Store]** (dalla `5.10`): in `github` è quello PESANTE, l'accesso a tutti i file, scelta
+     * dell'utente (*preferisco chiedere un permesso pesante prima e poi essere a posto per
+     * sempre*); in `play` sono i permessi su immagini e video, e l'accesso parziale conta.
      */
-    fun granted(context: Context): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            // Fino ad Android 10 il permesso ampio non esiste, e quello classico
-            // sull'archivio fa già vedere tutto: là si chiede quello, col dialogo.
-            ContextCompat.checkSelfPermission(context, legacyPermission) ==
-                PackageManager.PERMISSION_GRANTED
-        }
-
-    /** Quello da chiedere col dialogo, e serve solo sotto Android 11. */
-    const val legacyPermission: String = Manifest.permission.READ_EXTERNAL_STORAGE
+    fun granted(context: Context): Boolean = Store.granted(context)
 
     /**
-     * La pagina delle impostazioni dove si concede l'accesso a tutti i file.
+     * La pagina delle impostazioni dove si concede l'accesso a tutti i file, nella sola
+     * variante `github`: `MANAGE_EXTERNAL_STORAGE` è un permesso speciale, si concede con un
+     * interruttore nelle impostazioni e non con il solito 'Consenti'.
      *
      * ⚠️ Ne esistono DUE, e la seconda non è un lusso: quella mirata all'app manca
      * su qualche sistema, e senza il ripiego sull'elenco generale la richiesta

@@ -52,11 +52,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 360
+        versionCode = 361
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "5.03"
+        versionName = "5.10"
     }
 
     // The signing material comes from the environment and never from the
@@ -91,6 +91,34 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
+        }
+    }
+
+    /*
+     * ⚠️⚠️ **TWO VARIANTS FROM ONE CODE BASE, since 5.10** (his choices B1 and C1 of 2026-10-10).
+     * `github` is the app as it has always been, with the all-files permission he chose
+     * (*preferisco chiedere un permesso pesante prima e poi essere a posto per sempre*), and it is
+     * the APK the download page offers. `play` is the one meant for Google Play, whose policy
+     * grants `MANAGE_EXTERNAL_STORAGE` to file managers, backup, antivirus and document apps and
+     * names media access among the uses it refuses; a gallery may ask for the photo permissions.
+     * So `play` declares those, and every function that writes on shared storage through
+     * `java.io.File` stays out of it until it is rewritten for MediaStore (the list lives in
+     * `Rules.md` § '🏪 Le due varianti, e che cosa manca ad AIV Play').
+     * ⚠️ **The difference is one flag, `BuildConfig.FILES`, read in one place, [Store]**: the
+     * manifests differ in the permissions and nothing else, and the code asks [Store.files].
+     * ⚠️ **`play` has its own package name**, so the two install side by side on his phone for
+     * the test round. It is final: once on Google Play a package name never changes.
+     */
+    flavorDimensions += "store"
+    productFlavors {
+        create("github") {
+            dimension = "store"
+            buildConfigField("boolean", "FILES", "true")
+        }
+        create("play") {
+            dimension = "store"
+            applicationIdSuffix = ".play"
+            buildConfigField("boolean", "FILES", "false")
         }
     }
 
@@ -282,6 +310,18 @@ dependencies {
  * order of the failing run is the one fact missing to reproduce it. Off locally: 615 lines a
  * run is noise for a session that already knows its own order.
  */
+/*
+ * ⚠️⚠️ THE BENCH READS TWO FILES OUTSIDE THE MODULE, AND GRADLE HAS TO KNOW (5.10).
+ * `PaginettaTest` reads `publish/index.html` and the release workflow: undeclared, a change to
+ * them left the test task up to date, and the bench replayed the verdict of the run before.
+ * Measured: with the APK pattern of the page broken back, the bench stayed green until
+ * `--rerun`, and then fell.
+ */
+tasks.withType<Test>().configureEach {
+    inputs.file(rootProject.file("publish/index.html")).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file(rootProject.file(".github/workflows/release.yml")).withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
 if (providers.environmentVariable("CI").isPresent) {
     tasks.withType<Test>().configureEach {
         testLogging { events(org.gradle.api.tasks.testing.logging.TestLogEvent.STARTED) }

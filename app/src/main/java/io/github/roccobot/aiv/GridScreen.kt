@@ -1021,6 +1021,8 @@ fun GridScreen(
         // ⚠️ L'ordine è quello scelto dall'utente, e di fabbrica quello dettato per la
         // `1.54`: vedi `PICK_KEYS`. È un ordine SUO e non quello del menu del tocco lungo,
         // perché i due riquadri portano insiemi diversi in ordini diversi.
+        // ⚠️ In AIV Play i quattro tasti che scrivono sui file non ci sono (`Store.allows`).
+        .filter { Store.allows(it.key) }
         .inOrder(LocalPadLook.current.pick)
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che

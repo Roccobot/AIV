@@ -180,6 +180,9 @@
     <string name="folders_title">Folda</string>
     <string name="folders_permission">Kuorodhesha folda kunahitaji ufikiaji wa faili zote. Ni ruhusa ile ile inayokuwezesha kupitia folda, na hutolewa kwenye ukurasa wa mfumo.</string>
     <string name="folders_grant">Toa ufikiaji</string>
+    <string name="folders_partial">Zinaonyeshwa picha ulizochagua pekee.</string>
+    <string name="folders_partial_all">Ruhusu zote</string>
+    <string name="folders_permission_media">Kuorodhesha folda kunahitaji ufikiaji wa picha na video.</string>
     <string name="folders_none">Hakuna folda yenye kitu cha kuonyesha.</string>
     <string name="folders_tablet_pick">Chagua folda kutoka kwenye upau wa urambazaji</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">Weka katikati mlalo na wima</string>
     <string name="editor_done">Imehifadhiwa</string>
     <string name="editor_done_copy">Nakala imehifadhiwa</string>
+    <string name="editor_done_downloads">Imehifadhiwa kwenye Download</string>
     <string name="editor_discard_ask">Utupe mabadiliko?</string>
     <string name="editor_discard">Tupa</string>
     <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">Telezesha aikoni ili kufikia moduli zote za kuhariri. Bonyeza kwa muda mrefu aikoni ya moduli ili kuondoa mabadiliko yake pekee.</string>
     <string name="hint_tools">Zaidi ya moduli, kuna vitendaji viwili unavyoweza kuwasha au kuzima papo hapo kwa kugusa aikoni, nayo huwaka: \'Alama ya maji\' na \'Badilisha ukubwa\'. Kubonyeza kwa muda mrefu hufungua mipangilio ya kila kimoja.</string>
     <string name="hint_save">Ukimaliza, gusa \'Hifadhi\' ili kuandika juu ya faili (pamoja na nakala rudufu, ikiwa imewashwa); kubonyeza kwa muda mrefu huhifadhi nakala mpya ya picha katika folda ile ile.</string>
+    <string name="hint_save_play">Ukimaliza, gusa \'Hifadhi\': uhariri unakuwa faili jipya kwenye Download, na picha ya asili inabaki kama ilivyo.</string>
     <string name="hint_draw">Kwa moduli ya Kuchora unaweza kuongeza kwenye picha mistari, mishale, duaradufu, mistatili yenye pembe za mviringo, maandishi rahisi, visanduku vya \'kidonge\' na paneli zenye ukungu. Kuhifadhi huunganisha picha kuwa safu moja: huwezi kuifungua tena ili kuhariri au kusogeza vipengele. Bonyeza kwa muda mrefu rangi ili kurekebisha mwangaza wake.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->

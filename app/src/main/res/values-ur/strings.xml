@@ -180,6 +180,9 @@
     <string name="folders_title">فولڈر</string>
     <string name="folders_permission">فولڈر گنوانے کے لیے تمام فائلوں تک رسائی درکار ہے۔ یہ وہی اجازت ہے جو کسی فولڈر کو دیکھنے دیتی ہے، اور نظام کے ایک صفحے سے دی جاتی ہے۔</string>
     <string name="folders_grant">رسائی دیں</string>
+    <string name="folders_partial">صرف آپ کی منتخب کردہ تصاویر دکھائی جا رہی ہیں۔</string>
+    <string name="folders_partial_all">سب کی اجازت دیں</string>
+    <string name="folders_permission_media">فولڈرز کی فہرست کے لیے تصاویر اور ویڈیوز تک رسائی درکار ہے۔</string>
     <string name="folders_none">کسی فولڈر میں دکھانے کو کچھ نہیں ہے۔</string>
     <string name="folders_tablet_pick">نیویگیشن بار سے ایک فولڈر منتخب کریں</string>
     <string name="folders_rail_search">Search in folders</string>
@@ -584,6 +587,7 @@
     <string name="editor_center_both">افقی اور عمودی طور پر درمیان میں</string>
     <string name="editor_done">محفوظ ہو گیا</string>
     <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
+    <string name="editor_done_downloads">Download میں محفوظ ہو گئی</string>
     <string name="editor_discard_ask">تبدیلیاں رد کریں؟</string>
     <string name="editor_discard">رد کریں</string>
     <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>
@@ -700,6 +704,7 @@
     <string name="hint_modules">تمام ایڈیٹنگ ماڈیولز تک پہنچنے کے لیے آئیکنز کو سوائپ کریں۔ کسی ماڈیول کے آئیکن کو دیر تک دبائیں تاکہ صرف اُس کی تبدیلیاں صفر ہوں۔</string>
     <string name="hint_tools">ماڈیولز کے علاوہ دو سہولتیں ہیں جنہیں آئیکن پر ایک ٹیپ سے فوراً آن یا آف کیا جا سکتا ہے اور آئیکن روشن ہو جاتا ہے: \'واٹرمارک\' اور \'سائز تبدیل کریں\'۔ دیر تک دبانے پر ہر ایک کی ترتیبات کھلتی ہیں۔</string>
     <string name="hint_save">کام مکمل ہونے پر فائل کو دوبارہ لکھنے کے لیے \'محفوظ کریں\' دبائیں (بیک اپ کاپی کے ساتھ، اگر وہ فعال ہو)؛ دیر تک دبانے سے تصویر کی نئی کاپی اسی فولڈر میں محفوظ ہو جاتی ہے۔</string>
+    <string name="hint_save_play">کام ختم ہونے پر \'محفوظ کریں\' کو چھوئیں: ترمیم Download میں ایک نئی فائل بن جاتی ہے، اور اصل تصویر ویسی ہی رہتی ہے۔</string>
     <string name="hint_draw">ڈرائنگ ماڈیول سے آپ تصویر میں لکیریں، تیر، بیضوی شکلیں، گول کونوں والے مستطیل، سادہ متن، \'گولی\' نما خانے اور دھندلے پینل شامل کر سکتے ہیں۔ محفوظ کرنے پر تصویر ایک تہہ میں ضم ہو جاتی ہے: عناصر میں ترمیم کرنے یا انہیں منتقل کرنے کے لیے اسے دوبارہ نہیں کھولا جا سکتا۔ کسی رنگ کی چمک بدلنے کے لیے اسے دیر تک دبائیں۔</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
