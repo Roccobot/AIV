@@ -40,9 +40,9 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   filigrana, il ridimensionamento, i due tasti del salvataggio e l'uscita con del lavoro in corso.
 - ⚠️⚠️ **Prima di toccare una di queste funzioni (codice, stringhe, voci di collaudo) si legge il
   suo file per intero**: là vivono le decisioni dell'utente su quella funzione, e non si rovesciano
-  senza chiederglielo. Si caricano da soli solo `CLAUDE.md`, `AGENTS.md` e questo file, quindi
-  senza la lettura quelle decisioni non sono in scena.
-- **Qui restano le regole che valgono in ogni sessione**: il documento di feedback, il design
+  senza chiederglielo. Si caricano da soli solo `CLAUDE.md` e `AGENTS.md`, e questo file si
+  legge prima di lavorare su AIV, quindi senza la lettura quelle decisioni non sono in scena.
+- **Qui restano le regole che valgono in ogni lavoro su AIV**: il documento di feedback, il design
   system, i disegni, il vocabolario, le regole di interfaccia trasversali, gli invarianti
   dell'editor completo, il cestino, gli avvisi, le impostazioni, le prove, gli strumenti, il
   rilascio e la firma.
