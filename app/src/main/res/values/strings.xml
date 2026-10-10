@@ -244,9 +244,9 @@
     <string name="editor_pick_send">By sharing</string>
     <string name="editor_pick_send_desc">They receive a copy and save it where they choose. The original stays as it is.</string>
     <string name="settings_editor">Image editor</string>
-    <string name="settings_editor_desc">The app tied to the \'Edit\' command in the viewer menu. Shortcut: press and hold \'Edit\' to change app on the spot (the choice is remembered). You can also choose the editor built into Astonishing Image Viewer, which allows only two operations on images: cropping and rotation.</string>
+    <string name="settings_editor_desc">Choose which app opens the image with the Edit command (the viewer\'s long-press menu). Press and hold Edit to change app on the fly without reopening the settings.</string>
     <string name="settings_editor_none">None chosen</string>
-    <string name="settings_editor_pick">Choose</string>
+    <string name="settings_editor_pick">Set app</string>
     <string name="settings_editor_backup">Safety copy before writing over</string>
     <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
     <string name="settings_mark">Watermark</string>
@@ -256,7 +256,7 @@
     <string name="settings_mark_pick">Select</string>
     <string name="settings_mark_bad">This file cannot be used as a watermark: choose a PNG or an SVG.</string>
     <string name="settings_mark_on">Enabled</string>
-    <string name="settings_mark_on_desc">The watermark is a graphic element (e.g. a signature or logo) laid over the image according to your settings. You can turn it on or off here, or on the fly before saving with the on/off button in the editor\'s bottom bar; long-press the button to reach this screen quickly.</string>
+    <string name="settings_mark_on_desc">The watermark is a graphic element (e.g. a signature or logo) laid over the image. You can turn it on or off here, or on the fly before saving with the on/off button in the editor\'s bottom bar; long-press the button to reach this screen quickly.</string>
     <string name="settings_mark_lossy">⚠️ With a watermark, lossless operations such as JPEG rotation are not available: saving rewrites the whole file.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Top left</string>
@@ -268,7 +268,7 @@
     <string name="settings_mark_air">Edge distance</string>
     <string name="settings_mark_alpha">Opacity</string>
     <string name="settings_mark_preview">Watermark preview</string>
-    <string name="settings_mark_preview_note">⚠️ The preview is only indicative: check the result on the real image.</string>
+    <string name="settings_mark_preview_note">Enlarged draft-quality preview: check the watermark in the output.</string>
     <string name="look_resize">Resize</string>
     <string name="resize_long">Long edge</string>
     <string name="resize_short">Short edge</string>

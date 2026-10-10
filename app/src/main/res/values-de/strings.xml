@@ -598,9 +598,9 @@
     <string name="edit_failed">Es konnte nicht gespeichert werden</string>
     <string name="edit_app_gone">Dieser Editor ist weg. Wähle einen anderen.</string>
     <string name="settings_editor">Bildbearbeitung</string>
-    <string name="settings_editor_desc">Die App, die mit dem Befehl \'Bearbeiten\' im Menü des Betrachters verknüpft ist. Kurzweg: \'Bearbeiten\' lange drücken, um die App sofort zu wechseln (die Wahl wird gemerkt). Wählbar ist auch der interne Editor von Astonishing Image Viewer, der nur zwei Vorgänge an Bildern erlaubt: Zuschneiden und Drehen.</string>
+    <string name="settings_editor_desc">Wähle, welche App das Bild mit dem Befehl Bearbeiten öffnet (Menü beim langen Drücken im Betrachter). Halte Bearbeiten gedrückt, um die App spontan zu wechseln, ohne die Einstellungen erneut zu öffnen.</string>
     <string name="settings_editor_none">Keine gewählt</string>
-    <string name="settings_editor_pick">Wählen</string>
+    <string name="settings_editor_pick">App festlegen</string>
     <string name="view_grid">Raster</string>
     <string name="view_list">Liste</string>
     <string name="view_tree">Ordner</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">Auswählen</string>
     <string name="settings_mark_bad">Diese Datei eignet sich nicht als Wasserzeichen: Wähle eine PNG- oder SVG-Datei.</string>
     <string name="settings_mark_on">Aktiv</string>
-    <string name="settings_mark_on_desc">Das Wasserzeichen ist ein grafisches Element (z. B. eine Signatur oder ein Logo), das nach deinen Einstellungen über das Bild gelegt wird. Du kannst es hier ein- oder ausschalten oder vor dem Speichern mit der Ein/Aus-Taste in der unteren Leiste des Editors; halte die Taste gedrückt, um schnell zu diesem Bildschirm zu gelangen.</string>
+    <string name="settings_mark_on_desc">Das Wasserzeichen ist ein grafisches Element (z. B. eine Signatur oder ein Logo), das über das Bild gelegt wird. Du kannst es hier ein- oder ausschalten oder vor dem Speichern mit der Ein/Aus-Taste in der unteren Leiste des Editors; halte die Taste gedrückt, um schnell zu diesem Bildschirm zu gelangen.</string>
     <string name="settings_mark_lossy">⚠️ Mit Wasserzeichen sind verlustfreie Vorgänge wie das Drehen eines JPEG nicht möglich: Beim Speichern wird die Datei vollständig neu geschrieben.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Oben links</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">Randabstand</string>
     <string name="settings_mark_alpha">Deckkraft</string>
     <string name="settings_mark_preview">Vorschau des Wasserzeichens</string>
-    <string name="settings_mark_preview_note">⚠️ Die Vorschau ist nur ein Anhaltspunkt: Prüfe das Ergebnis am echten Bild.</string>
+    <string name="settings_mark_preview_note">Vergrößerte Vorschau in Entwurfsqualität: prüfe das Wasserzeichen im Ergebnis.</string>
     <string name="look_resize">Größe ändern</string>
     <string name="resize_long">Längere Seite</string>
     <string name="resize_short">Kürzere Seite</string>

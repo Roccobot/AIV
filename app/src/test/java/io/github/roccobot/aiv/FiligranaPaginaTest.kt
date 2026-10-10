@@ -4,9 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -21,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.text.BreakIterator
 import kotlin.math.abs
 
 /**
@@ -29,8 +34,11 @@ import kotlin.math.abs
  * ⚠️ **Che cosa misura**: l'ordine della pagina (l'interruttore 'Attiva' in cima, l'avviso sul
  * senza perdita in fondo, niente secondo titolo), la regola con cui l'anteprima sceglie fondo,
  * opacità e misura, la luminanza dell'inchiostro pesata sull'opacità, e la squadretta di un posto
- * dipinta una volta sola sulla piega. ⚠️ **Che cosa non vede**: come appare la firma vera
- * nell'anteprima sul telefono, che dipende dal file scelto; la voce di collaudo la chiede.
+ * dipinta una volta sola sulla piega. Dalla `5.00`, con le note su `4.99-01`, anche la spiegazione
+ * di 'Attiva' larga tutta la pagina, 'Posizione' dentro il riquadro, la nota accanto o sotto senza
+ * parole spezzate, e 'Imposta app' sulla riga del titolo dell'editor. ⚠️ **Che cosa non vede**:
+ * come appare la firma vera nell'anteprima sul telefono, che dipende dal file scelto; la voce di
+ * collaudo la chiede.
  *
  * ⚠️ **Usa la regola `v2`** (`Rules.md` di AIV, voce sul velo d'aiuto): le prove nuove non usano la
  * regola deprecata.
@@ -47,10 +55,17 @@ class FiligranaPaginaTest {
 
     private fun testo(id: Int) = app.getString(id)
 
+    /**
+     * Monta la pagina col rientro che ha nell'app.
+     *
+     * ⚠️ **Il rientro serve dalla `5.00`**: il blocco del riquadro si sposta a sinistra oltre il
+     * rientro, e senza di lui la squadretta sinistra cadrebbe fuori dalla finestra, dove una cattura
+     * la taglia.
+     */
     private fun monta(settings: Settings = Settings()) {
         banco.setContent {
             AivTheme(darkTheme = false) {
-                Column(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = PAGE_SIDE)) {
                     MarkPage(settings = settings, onChange = {})
                 }
             }
@@ -145,5 +160,156 @@ class FiligranaPaginaTest {
         assertEquals(1f, inkLuminance(disegno)!!, 0.001f)
         disegno.eraseColor(Color.TRANSPARENT)
         assertNull(inkLuminance(disegno))
+    }
+
+    /** Il risultato dell'impaginazione di un testo: righe e larghezza che gli è stata data. */
+    private fun impaginato(testo: String): TextLayoutResult {
+        val esiti = mutableListOf<TextLayoutResult>()
+        banco.onNodeWithText(testo, useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(esiti) }
+        return esiti.first()
+    }
+
+    /**
+     * **Caso 6: la spiegazione di 'Attiva' è larga tutta la pagina.**
+     *
+     * ⚠️ È la sua nota su `4.99-01` (*il testo deve occupare tutta la larghezza: l'interruttore sta
+     * sopra, allineato ad 'Attiva'*). La larghezza che la spiegazione riceve deve essere quella
+     * dell'avviso in fondo, che riempie la pagina: con l'interruttore accanto sarebbe più stretta
+     * della sua larghezza e dei 16 punti d'aria.
+     */
+    @Test
+    fun `la spiegazione di Attiva e larga tutta la pagina`() {
+        monta()
+        val spiegazione = impaginato(testo(R.string.settings_mark_on_desc))
+        val pagina = banco.onNodeWithText(testo(R.string.settings_mark_lossy)).fetchSemanticsNode().size.width
+        assertEquals(pagina, spiegazione.layoutInput.constraints.maxWidth)
+        val titolo = banco.onNodeWithText(testo(R.string.settings_mark_on), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val sotto = banco.onNodeWithText(testo(R.string.settings_mark_on_desc), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        assertTrue("la spiegazione sotto 'Attiva'", titolo.bottom <= sotto.top)
+    }
+
+    /**
+     * **Caso 7: 'Posizione' vive dentro il riquadro, centrata e in alto.**
+     *
+     * ⚠️ Sua nota su `4.99-01`: *non al centro, perché lì potrebbe apparire la filigrana, ma spostato
+     * verso l'alto*. Il centro della parola deve cadere nel terzo superiore del riquadro.
+     */
+    @Test
+    fun `Posizione e dentro il riquadro, in alto al centro`() {
+        monta()
+        val riquadro = banco.onNodeWithContentDescription(testo(R.string.settings_mark_preview))
+            .getUnclippedBoundsInRoot()
+        val parola = banco.onNodeWithText(testo(R.string.settings_mark_where)).getUnclippedBoundsInRoot()
+        assertTrue("dentro in orizzontale", parola.left >= riquadro.left && parola.right <= riquadro.right)
+        assertTrue("dentro in verticale", parola.top >= riquadro.top && parola.bottom <= riquadro.bottom)
+        val centroY = (parola.top + parola.bottom) / 2
+        assertTrue("nel terzo superiore", centroY < riquadro.top + (riquadro.bottom - riquadro.top) / 3)
+        val scarto = abs(((parola.left + parola.right) - (riquadro.left + riquadro.right)).value / 2)
+        assertTrue("centrata, scarto $scarto", scarto < 1f)
+    }
+
+    /** Se la nota va a capo solo dove si può, cioè mai a metà di una parola. */
+    private fun controllaGliACapo() {
+        val nota = testo(R.string.settings_mark_preview_note)
+        val righe = impaginato(nota)
+        val confini = BreakIterator.getLineInstance()
+        confini.setText(nota)
+        for (riga in 0 until righe.lineCount - 1) {
+            val fine = righe.getLineEnd(riga)
+            assertTrue("la riga $riga finisce a metà di una parola, al carattere $fine", confini.isBoundary(fine))
+        }
+    }
+
+    /**
+     * **Caso 8: con lo spazio, la nota va accanto al riquadro e senza parole spezzate.**
+     *
+     * ⚠️ Sua nota su `4.99-01`: *non andare a capo spezzando le parole*.
+     */
+    @Test
+    fun `con lo spazio la nota va accanto, senza parole spezzate`() {
+        monta()
+        val riquadro = banco.onNodeWithContentDescription(testo(R.string.settings_mark_preview))
+            .getUnclippedBoundsInRoot()
+        val nota = banco.onNodeWithText(testo(R.string.settings_mark_preview_note)).getUnclippedBoundsInRoot()
+        assertTrue("la nota a destra del riquadro", nota.left > riquadro.right)
+        controllaGliACapo()
+    }
+
+    /**
+     * **Caso 9: senza lo spazio, la nota va sotto il riquadro e resta senza parole spezzate.**
+     *
+     * ⚠️ A 280 punti la parola più larga non entra accanto al riquadro: tenendo la nota lì, Compose
+     * spezzerebbe 'ingrandita' a metà.
+     */
+    @Test
+    @Config(qualifiers = "it-w280dp-h1400dp")
+    fun `senza lo spazio la nota va sotto, senza parole spezzate`() {
+        monta()
+        val riquadro = banco.onNodeWithContentDescription(testo(R.string.settings_mark_preview))
+            .getUnclippedBoundsInRoot()
+        val nota = banco.onNodeWithText(testo(R.string.settings_mark_preview_note)).getUnclippedBoundsInRoot()
+        assertTrue("la nota sotto il riquadro", nota.top > riquadro.bottom)
+        controllaGliACapo()
+    }
+
+    /**
+     * **Caso 10: la parola più larga si cerca fra i punti in cui si può andare a capo.**
+     *
+     * ⚠️ In cinese gli spazi non ci sono: diviso sugli spazi, il testo sarebbe una parola sola, e la
+     * nota finirebbe sempre sotto il riquadro.
+     */
+    @Test
+    fun `la parola piu larga segue i punti di a capo`() {
+        assertEquals(10, longestWord("Anteprima ingrandita a qualità bozza:") { it.length })
+        assertEquals(12, longestWord("verifica nell'output.") { it.length })
+        assertTrue(longestWord("放大的草稿质量预览") { it.length } <= 2)
+        assertTrue(noteFits(longestWord = 40, room = 40))
+        assertTrue(!noteFits(longestWord = 41, room = 40))
+    }
+
+    /**
+     * **Caso 11: 'Posizione' segue il fondo che l'anteprima sceglie per la firma.**
+     *
+     * ⚠️ Sua nota su `4.99-01`: *con le stesse regole di contrasto/leggibilità della filigrana*.
+     */
+    @Test
+    fun `l'inchiostro di Posizione segue il fondo`() {
+        val pagina = androidx.compose.ui.graphics.Color(0xFF1A1C1B)
+        assertEquals(pagina, labelInk(Ground.SURFACE, pagina))
+        assertEquals(androidx.compose.ui.graphics.Color.White, labelInk(Ground.BLACK, pagina))
+        assertEquals(androidx.compose.ui.graphics.Color.Black, labelInk(Ground.WHITE, pagina))
+    }
+
+    /**
+     * **Caso 12: 'Imposta app' è sulla riga del titolo dell'editor.**
+     *
+     * ⚠️ Sua nota del giro della `4.99`: *deve stare a destra del titolo 'Editor di immagini'*. Il
+     * tasto deve stare a destra del titolo, alla sua altezza, e sopra la spiegazione.
+     */
+    @Test
+    fun `Imposta app e sulla riga del titolo dell'editor`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    EditorChoice(
+                        label = testo(R.string.settings_editor),
+                        detail = testo(R.string.settings_editor_desc),
+                        current = testo(R.string.settings_editor_none),
+                        onChoose = {}
+                    )
+                }
+            }
+        }
+        banco.waitForIdle()
+        val titolo = banco.onNodeWithText(testo(R.string.settings_editor)).getUnclippedBoundsInRoot()
+        val tasto = banco.onNodeWithText(testo(R.string.settings_editor_pick)).getUnclippedBoundsInRoot()
+        val spiegazione = banco.onNodeWithText(testo(R.string.settings_editor_desc)).getUnclippedBoundsInRoot()
+        assertTrue("il tasto a destra del titolo", tasto.left >= titolo.right)
+        val scarto = abs(((tasto.top + tasto.bottom) - (titolo.top + titolo.bottom)).value / 2)
+        assertTrue("il tasto alla quota del titolo, scarto $scarto", scarto < 1f)
+        assertTrue("il tasto sopra la spiegazione", tasto.bottom <= spiegazione.top)
     }
 }

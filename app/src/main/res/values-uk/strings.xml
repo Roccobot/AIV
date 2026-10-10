@@ -632,9 +632,9 @@
     <string name="edit_failed">Зберегти не вдалося</string>
     <string name="edit_app_gone">Цього редактора вже немає. Оберіть інший.</string>
     <string name="settings_editor">Редактор зображень</string>
-    <string name="settings_editor_desc">Застосунок, пов\'язаний із командою \'Змінити\' в меню переглядача. Швидкий спосіб: утримуйте \'Змінити\', щоб одразу змінити застосунок (вибір запам\'ятовується). Можна вибрати й внутрішній редактор Astonishing Image Viewer, який виконує над зображеннями лише дві дії: обрізання та обертання.</string>
+    <string name="settings_editor_desc">Виберіть застосунок, що відкриває зображення командою Змінити (меню довгого натискання в переглядачі). Утримуйте Змінити, щоб одразу змінити застосунок, не відкриваючи налаштування знову.</string>
     <string name="settings_editor_none">Не обрано</string>
-    <string name="settings_editor_pick">Обрати</string>
+    <string name="settings_editor_pick">Вибрати застосунок</string>
     <string name="view_grid">Сітка</string>
     <string name="view_list">Список</string>
     <string name="view_tree">Папки</string>
@@ -649,7 +649,7 @@
     <string name="settings_mark_pick">Обрати</string>
     <string name="settings_mark_bad">Цей файл не можна використати як водяний знак: виберіть PNG або SVG.</string>
     <string name="settings_mark_on">Увімкнено</string>
-    <string name="settings_mark_on_desc">Водяний знак є графічним елементом (наприклад, підписом або логотипом), що накладається на зображення відповідно до ваших налаштувань. Його можна увімкнути або вимкнути тут або одразу перед збереженням кнопкою увімк./вимк. на нижній панелі редактора; утримуйте кнопку, щоб швидко відкрити цей екран.</string>
+    <string name="settings_mark_on_desc">Водяний знак є графічним елементом (наприклад, підписом або логотипом), що накладається на зображення. Його можна увімкнути або вимкнути тут або одразу перед збереженням кнопкою увімк./вимк. на нижній панелі редактора; утримуйте кнопку, щоб швидко відкрити цей екран.</string>
     <string name="settings_mark_lossy">⚠️ Із водяним знаком операції без втрат, як-от поворот JPEG, недоступні: під час збереження файл перезаписується повністю.</string>
     <string name="settings_mark_where">Розташування</string>
     <string name="mark_spot_tl">Ліворуч угорі</string>
@@ -661,7 +661,7 @@
     <string name="settings_mark_air">Відступ від краю</string>
     <string name="settings_mark_alpha">Непрозорість</string>
     <string name="settings_mark_preview">Перегляд водяного знака</string>
-    <string name="settings_mark_preview_note">⚠️ Попередній перегляд лише орієнтовний: перевірте результат на справжньому зображенні.</string>
+    <string name="settings_mark_preview_note">Збільшений попередній перегляд чорнової якості: перевірте водяний знак у результаті.</string>
     <string name="look_resize">Змінити розмір</string>
     <string name="resize_long">Довша сторона</string>
     <string name="resize_short">Коротша сторона</string>

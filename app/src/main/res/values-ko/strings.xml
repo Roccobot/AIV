@@ -581,9 +581,9 @@
     <string name="edit_failed">저장하지 못했습니다</string>
     <string name="edit_app_gone">그 편집기가 사라졌습니다. 다른 것을 고르세요.</string>
     <string name="settings_editor">이미지 편집기</string>
-    <string name="settings_editor_desc">뷰어 메뉴의 \'편집\' 명령에 연결된 앱입니다. 지름길: \'편집\'을 길게 누르면 그 자리에서 앱을 바꿀 수 있고 선택은 기억됩니다. Astonishing Image Viewer 내장 편집기도 고를 수 있으며, 이미지에 대해 자르기와 회전 두 가지 작업만 지원합니다.</string>
+    <string name="settings_editor_desc">편집 명령으로 이미지를 열 앱을 고릅니다(뷰어의 길게 누르기 메뉴). 편집을 길게 누르면 설정을 다시 열지 않고 바로 앱을 바꿀 수 있습니다.</string>
     <string name="settings_editor_none">선택하지 않음</string>
-    <string name="settings_editor_pick">선택</string>
+    <string name="settings_editor_pick">앱 설정</string>
     <string name="view_grid">격자</string>
     <string name="view_list">목록</string>
     <string name="view_tree">폴더</string>
@@ -598,7 +598,7 @@
     <string name="settings_mark_pick">선택</string>
     <string name="settings_mark_bad">이 파일은 워터마크로 사용할 수 없습니다. PNG 또는 SVG를 선택하세요.</string>
     <string name="settings_mark_on">사용</string>
-    <string name="settings_mark_on_desc">워터마크는 설정에 따라 이미지 위에 겹쳐 놓는 그래픽 요소(예: 서명, 로고)입니다. 여기에서 켜거나 끌 수 있고, 저장하기 전에 편집기 아래쪽 막대의 켜기/끄기 버튼으로 바로 바꿀 수도 있습니다. 버튼을 길게 누르면 이 화면으로 빠르게 이동합니다.</string>
+    <string name="settings_mark_on_desc">워터마크는 이미지 위에 겹쳐 놓는 그래픽 요소(예: 서명, 로고)입니다. 여기에서 켜거나 끌 수 있고, 저장하기 전에 편집기 아래쪽 막대의 켜기/끄기 버튼으로 바로 바꿀 수도 있습니다. 버튼을 길게 누르면 이 화면으로 빠르게 이동합니다.</string>
     <string name="settings_mark_lossy">⚠️ 워터마크를 넣으면 JPEG 회전 같은 무손실 작업을 쓸 수 없습니다. 저장할 때 파일 전체를 다시 씁니다.</string>
     <string name="settings_mark_where">위치</string>
     <string name="mark_spot_tl">왼쪽 위</string>
@@ -610,7 +610,7 @@
     <string name="settings_mark_air">가장자리 여백</string>
     <string name="settings_mark_alpha">불투명도</string>
     <string name="settings_mark_preview">워터마크 미리보기</string>
-    <string name="settings_mark_preview_note">⚠️ 미리보기는 참고용입니다. 실제 이미지에서 결과를 확인하세요.</string>
+    <string name="settings_mark_preview_note">초안 품질로 확대한 미리보기입니다. 결과물에서 워터마크를 확인하세요.</string>
     <string name="look_resize">크기 조정</string>
     <string name="resize_long">긴 변</string>
     <string name="resize_short">짧은 변</string>

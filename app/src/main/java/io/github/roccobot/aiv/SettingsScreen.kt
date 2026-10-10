@@ -1852,23 +1852,7 @@ private fun EditingPage(
         val editorName = remember(settings.editorApp, noEditor) {
             Editors.labelOf(context, settings.editorApp)
         } ?: noEditor
-        // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio (titolo e spiegazione, poi
-        // una riga con il valore in vigore e il tasto): sono la stessa cosa, cioè una scelta
-        // che si fa altrove e qui si mostra, e dalla `1.81` la riga la disegna [ValueAndPick]
-        // per tutte e due, invece di essere scritta due volte con la raccomandazione di
-        // tenerle uguali.
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(text = editorLabel, style = MaterialTheme.typography.titleSmall)
-            Detail(editorDesc)
-        }
-        ValueAndPick(
-            value = editorName,
-            pick = stringResource(R.string.settings_editor_pick),
-            onPick = onChooseEditor
-        )
+        EditorChoice(editorLabel, editorDesc, editorName, onChooseEditor)
     }
 
     /*
@@ -1975,6 +1959,41 @@ private fun EditingPage(
         onOpen = { onOpen(Page.MARK) }
     ) { MarkPage(settings = settings, onChange = onChange) }
 
+}
+
+/**
+ * La riga dell'editor di immagini: il titolo col tasto 'Imposta app', la spiegazione e l'app in
+ * vigore.
+ *
+ * ⚠️⚠️ **DALLA `5.00` IL TASTO È SULLA RIGA DEL TITOLO, E SI CHIAMA 'Imposta app'** (sua nota del
+ * giro della `4.99`: *deve stare a destra del titolo 'Editor di immagini', oppure a destra
+ * dell'intero paragrafo, perché altrimenti non è chiaro a che cosa è riferito*). Fino alla `4.99`
+ * la forma era quella della cartella d'avvio, con il tasto sotto la spiegazione accanto al valore
+ * ([ValueAndPick]); la cartella d'avvio la tiene, perché lui ha nominato questa riga sola. Il
+ * valore in vigore resta sotto la spiegazione.
+ */
+@Composable
+internal fun EditorChoice(label: String, detail: String, current: String, onChoose: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(text = label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            TextButton(onClick = onChoose) { Text(stringResource(R.string.settings_editor_pick)) }
+        }
+        Detail(detail)
+        Text(
+            text = current,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
 }
 
 /**
@@ -3715,15 +3734,38 @@ internal fun SwitchRow(
     detail: String?,
     checked: Boolean,
     onChange: (Boolean) -> Unit,
-    extra: List<String> = emptyList()
+    extra: List<String> = emptyList(),
+    /**
+     * Se la spiegazione va sotto, larga tutta la pagina, con l'interruttore sulla riga del titolo.
+     *
+     * ⚠️ **Nasce con la `5.00` per la pagina 'Filigrana'** (sua nota su `4.99-01`: *il testo deve
+     * occupare tutta la larghezza: l'interruttore sta sopra, allineato ad 'Attiva'*), dove la
+     * spiegazione è un paragrafo lungo e accanto all'interruttore si stringeva in una colonna.
+     */
+    detailBelow: Boolean = false
 ) {
     if (!shown(label, detail, *extra.toTypedArray())) return
+    val riga = Modifier
+        .fillMaxWidth()
+        .bordo()
+        .toggleable(value = checked, role = Role.Switch, onValueChange = onChange)
+        .padding(horizontal = PAGE_SIDE, vertical = ROW_HIGH)
+    if (detailBelow) {
+        Column(modifier = riga, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(text = label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                Switch(checked = checked, onCheckedChange = null)
+            }
+            detail?.let { Detail(it) }
+        }
+        return
+    }
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .bordo()
-            .toggleable(value = checked, role = Role.Switch, onValueChange = onChange)
-            .padding(horizontal = PAGE_SIDE, vertical = ROW_HIGH),
+        modifier = riga,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {

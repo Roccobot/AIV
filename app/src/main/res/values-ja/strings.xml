@@ -581,9 +581,9 @@
     <string name="edit_failed">保存できませんでした</string>
     <string name="edit_app_gone">そのエディターはもうありません。別のものを選んでください。</string>
     <string name="settings_editor">画像エディター</string>
-    <string name="settings_editor_desc">ビューアーのメニューの「編集」に割り当てるアプリです。近道として、「編集」を長押しするとその場でアプリを変更でき、選択は記憶されます。Astonishing Image Viewer 内蔵のエディターも選べます。こちらは画像に対して切り抜きと回転の2つの操作だけを行えます。</string>
+    <string name="settings_editor_desc">コマンド「編集」で画像を開くアプリを選びます（ビューアの長押しメニュー）。編集を長押しすると、設定を開き直さずにその場でアプリを切り替えられます。</string>
     <string name="settings_editor_none">未選択</string>
-    <string name="settings_editor_pick">選ぶ</string>
+    <string name="settings_editor_pick">アプリを設定</string>
     <string name="view_grid">グリッド</string>
     <string name="view_list">リスト</string>
     <string name="view_tree">フォルダ</string>
@@ -598,7 +598,7 @@
     <string name="settings_mark_pick">選択</string>
     <string name="settings_mark_bad">このファイルは透かしに使えません。PNG か SVG を選んでください。</string>
     <string name="settings_mark_on">有効</string>
-    <string name="settings_mark_on_desc">透かしは、設定に従って画像の上に重ねるグラフィック要素（署名やロゴなど）です。ここでオン/オフできるほか、保存前にエディター下部のバーにあるオン/オフボタンでその場で切り替えられます。ボタンを長押しすると、この画面をすぐに開けます。</string>
+    <string name="settings_mark_on_desc">透かしは、画像の上に重ねるグラフィック要素（署名やロゴなど）です。ここでオン/オフできるほか、保存前にエディター下部のバーにあるオン/オフボタンでその場で切り替えられます。ボタンを長押しすると、この画面をすぐに開けます。</string>
     <string name="settings_mark_lossy">⚠️ 透かしを付けると、JPEG の回転のような劣化なしの操作は使えません。保存時にファイル全体が書き直されます。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上</string>
@@ -610,7 +610,7 @@
     <string name="settings_mark_air">端からの距離</string>
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">透かしのプレビュー</string>
-    <string name="settings_mark_preview_note">⚠️ プレビューは目安です。実際の画像で仕上がりを確認してください。</string>
+    <string name="settings_mark_preview_note">拡大した下書き品質のプレビューです。出力で透かしを確認してください。</string>
     <string name="look_resize">サイズ変更</string>
     <string name="resize_long">長辺</string>
     <string name="resize_short">短辺</string>

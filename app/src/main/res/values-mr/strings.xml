@@ -598,9 +598,9 @@
     <string name="edit_failed">जतन करता आले नाही</string>
     <string name="edit_app_gone">तो संपादक आता नाही. दुसरा निवडा.</string>
     <string name="settings_editor">प्रतिमा संपादक</string>
-    <string name="settings_editor_desc">दर्शकाच्या मेनूतील \'संपादित करा\' आदेशाशी जोडलेले ॲप. शॉर्टकट: लगेच ॲप बदलण्यासाठी \'संपादित करा\' दाबून धरा, निवड लक्षात ठेवली जाते. Astonishing Image Viewer चा अंतर्गत संपादकही निवडता येतो; तो प्रतिमांवर फक्त दोन क्रिया करतो: कापणे आणि फिरवणे.</string>
+    <string name="settings_editor_desc">संपादन आदेशाने कोणते ॲप प्रतिमा उघडेल ते निवडा (दर्शकाचा दीर्घ दाबाचा मेनू). सेटिंग्ज पुन्हा न उघडता लगेच ॲप बदलण्यासाठी संपादन दाबून ठेवा.</string>
     <string name="settings_editor_none">काहीच निवडलेले नाही</string>
-    <string name="settings_editor_pick">निवडा</string>
+    <string name="settings_editor_pick">ॲप सेट करा</string>
     <string name="view_grid">जाळी</string>
     <string name="view_list">यादी</string>
     <string name="view_tree">फोल्डर</string>
@@ -615,7 +615,7 @@
     <string name="settings_mark_pick">निवडा</string>
     <string name="settings_mark_bad">ही फाइल वॉटरमार्क म्हणून वापरता येत नाही: PNG किंवा SVG निवडा.</string>
     <string name="settings_mark_on">सक्रिय</string>
-    <string name="settings_mark_on_desc">वॉटरमार्क हा एक ग्राफिक घटक आहे (उदा. सही किंवा लोगो), जो तुमच्या सेटिंग्जनुसार प्रतिमेवर ठेवला जातो. तुम्ही तो इथून चालू किंवा बंद करू शकता, किंवा जतन करण्यापूर्वी संपादकाच्या खालच्या पट्टीतील चालू/बंद बटणाने लगेच; या स्क्रीनवर पटकन येण्यासाठी बटण दाबून ठेवा.</string>
+    <string name="settings_mark_on_desc">वॉटरमार्क हा एक ग्राफिक घटक आहे (उदा. सही किंवा लोगो), जो प्रतिमेवर ठेवला जातो. तुम्ही तो इथून चालू किंवा बंद करू शकता, किंवा जतन करण्यापूर्वी संपादकाच्या खालच्या पट्टीतील चालू/बंद बटणाने लगेच; या स्क्रीनवर पटकन येण्यासाठी बटण दाबून ठेवा.</string>
     <string name="settings_mark_lossy">⚠️ वॉटरमार्कसह JPEG फिरवण्यासारखी विनाहानी कामे उपलब्ध नाहीत: जतन करताना संपूर्ण फाइल पुन्हा लिहिली जाते.</string>
     <string name="settings_mark_where">स्थान</string>
     <string name="mark_spot_tl">वर डावीकडे</string>
@@ -627,7 +627,7 @@
     <string name="settings_mark_air">कडेपासूनचे अंतर</string>
     <string name="settings_mark_alpha">अपारदर्शकता</string>
     <string name="settings_mark_preview">वॉटरमार्कचे पूर्वावलोकन</string>
-    <string name="settings_mark_preview_note">⚠️ पूर्वावलोकन फक्त अंदाजे आहे: खऱ्या प्रतिमेवर परिणाम तपासा.</string>
+    <string name="settings_mark_preview_note">मसुदा दर्जाचे मोठे केलेले पूर्वावलोकन: आउटपुटमध्ये वॉटरमार्क तपासा.</string>
     <string name="look_resize">आकार बदला</string>
     <string name="resize_long">लांब बाजू</string>
     <string name="resize_short">लहान बाजू</string>
