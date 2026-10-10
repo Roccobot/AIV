@@ -449,9 +449,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編輯</string>
     <string name="menu_edit_hold">選擇應用程式</string>
-    <string name="editor_internal">簡易編輯器</string>
+    <string name="editor_internal">內建編輯器</string>
     <string name="editor_title">編輯</string>
-    <string name="editor_full">完整編輯器</string>
     <string name="look_light">光線</string>
     <string name="look_exposure">曝光</string>
     <string name="look_whites">白色色階</string>
@@ -581,9 +580,10 @@
     <string name="edit_failed">沒能儲存</string>
     <string name="edit_app_gone">那個編輯器已經不在了。換一個吧。</string>
     <string name="settings_editor">影像編輯器</string>
-    <string name="settings_editor_desc">選擇用「編輯」命令開啟影像的應用程式（檢視器的長按選單）。長按「編輯」可隨時更換應用程式，不必重新開啟設定。</string>
+    <string name="settings_editor_desc">選擇用\'編輯\'命令開啟影像的應用程式。長按\'編輯\'可隨時更換應用程式，不必重新開啟設定。</string>
     <string name="settings_editor_none">未選擇</string>
-    <string name="settings_editor_pick">設定應用程式</string>
+    <string name="settings_editor_pick">設定</string>
+    <string name="settings_editor_app">應用程式：</string>
     <string name="view_grid">格狀</string>
     <string name="view_list">清單</string>
     <string name="view_tree">資料夾</string>
@@ -597,8 +597,7 @@
     <string name="settings_mark_clear">移除</string>
     <string name="settings_mark_pick">選擇</string>
     <string name="settings_mark_bad">這個檔案不能當作浮水印：請選擇 PNG 或 SVG。</string>
-    <string name="settings_mark_on">啟用</string>
-    <string name="settings_mark_on_desc">浮水印是疊加在影像上的圖形元素（例如簽名、標誌）。可以在這裡開啟或關閉，也可以在儲存前用編輯器底部列的開關按鈕隨時切換；長按該按鈕可快速來到此畫面。</string>
+    <string name="settings_mark_on_desc">浮水印是疊加在影像上的圖形元素（例如簽名、標誌）。可以在儲存前用編輯器底部列的開關按鈕開啟或關閉；長按該按鈕可快速進入設定。</string>
     <string name="settings_mark_lossy">⚠️ 加上浮水印後，JPEG 旋轉這類無損操作無法使用：儲存時會完整重寫檔案。</string>
     <string name="settings_mark_where">位置</string>
     <string name="mark_spot_tl">左上角</string>
@@ -610,7 +609,7 @@
     <string name="settings_mark_air">邊距</string>
     <string name="settings_mark_alpha">不透明度</string>
     <string name="settings_mark_preview">浮水印預覽</string>
-    <string name="settings_mark_preview_note">放大的草稿品質預覽：請在輸出結果中確認浮水印。</string>
+    <string name="settings_mark_preview_note">預覽僅供參考：請檢查實際輸出。</string>
     <string name="look_resize">調整尺寸</string>
     <string name="resize_long">長邊</string>
     <string name="resize_short">短邊</string>

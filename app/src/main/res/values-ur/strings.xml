@@ -466,9 +466,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ترمیم</string>
     <string name="menu_edit_hold">ایپ منتخب کریں</string>
-    <string name="editor_internal">سادہ ایڈیٹر</string>
+    <string name="editor_internal">اندرونی ایڈیٹر</string>
     <string name="editor_title">ترمیم</string>
-    <string name="editor_full">مکمل ایڈیٹر</string>
     <string name="look_light">روشنی</string>
     <string name="look_exposure">ایکسپوژر</string>
     <string name="look_whites">سفید حصے</string>
@@ -598,9 +597,10 @@
     <string name="edit_failed">محفوظ نہ ہو سکا</string>
     <string name="edit_app_gone">وہ مدیر اب نہیں رہا۔ کوئی اور چنیں۔</string>
     <string name="settings_editor">تصویری ایڈیٹر</string>
-    <string name="settings_editor_desc">منتخب کریں کہ ترمیم کمانڈ سے کون سی ایپ تصویر کھولے (ویور کا دیر تک دبانے والا مینو)۔ ترتیبات دوبارہ کھولے بغیر فوراً ایپ بدلنے کے لیے ترمیم کو دبائے رکھیں۔</string>
+    <string name="settings_editor_desc">منتخب کریں کہ \'ترمیم\' کمانڈ سے کون سی ایپ تصویر کھولے۔ ترتیبات دوبارہ کھولے بغیر فوراً ایپ بدلنے کے لیے \'ترمیم\' کو دبائے رکھیں۔</string>
     <string name="settings_editor_none">کوئی نہیں چنی گئی</string>
-    <string name="settings_editor_pick">ایپ سیٹ کریں</string>
+    <string name="settings_editor_pick">سیٹ کریں</string>
+    <string name="settings_editor_app">ایپ:</string>
     <string name="view_grid">گرڈ</string>
     <string name="view_list">فہرست</string>
     <string name="view_tree">فولڈرز</string>
@@ -614,8 +614,7 @@
     <string name="settings_mark_clear">ہٹائیں</string>
     <string name="settings_mark_pick">منتخب کریں</string>
     <string name="settings_mark_bad">یہ فائل واٹرمارک کے طور پر استعمال نہیں ہو سکتی: PNG یا SVG منتخب کریں۔</string>
-    <string name="settings_mark_on">فعال</string>
-    <string name="settings_mark_on_desc">واٹر مارک ایک گرافک عنصر ہے (مثلاً دستخط یا لوگو) جو تصویر کے اوپر رکھا جاتا ہے۔ آپ اسے یہاں سے آن یا آف کر سکتے ہیں، یا محفوظ کرنے سے پہلے ایڈیٹر کی نیچے والی پٹی کے آن/آف بٹن سے فوراً؛ اس اسکرین تک جلدی پہنچنے کے لیے بٹن کو دبائے رکھیں۔</string>
+    <string name="settings_mark_on_desc">واٹر مارک ایک گرافک عنصر ہے (مثلاً دستخط یا لوگو) جو تصویر کے اوپر رکھا جاتا ہے۔ محفوظ کرنے سے پہلے ایڈیٹر کی نیچے والی پٹی کے آن/آف بٹن سے آپ اسے آن یا آف کر سکتے ہیں؛ ترتیبات تک جلدی پہنچنے کے لیے بٹن کو دبائے رکھیں۔</string>
     <string name="settings_mark_lossy">⚠️ واٹر مارک کے ساتھ JPEG گھمانے جیسے بغیر نقصان والے کام دستیاب نہیں: محفوظ کرنے پر پوری فائل دوبارہ لکھی جاتی ہے۔</string>
     <string name="settings_mark_where">مقام</string>
     <string name="mark_spot_tl">اوپر بائیں</string>
@@ -627,7 +626,7 @@
     <string name="settings_mark_air">کنارے سے فاصلہ</string>
     <string name="settings_mark_alpha">دھندلاپن</string>
     <string name="settings_mark_preview">واٹرمارک کا پیش منظر</string>
-    <string name="settings_mark_preview_note">مسودہ معیار کا بڑا کیا گیا پیش منظر: آؤٹ پٹ میں واٹر مارک دیکھ لیں۔</string>
+    <string name="settings_mark_preview_note">پیش منظر صرف اندازاً ہے: اصل آؤٹ پٹ دیکھ لیں۔</string>
     <string name="look_resize">سائز تبدیل کریں</string>
     <string name="resize_long">لمبا کنارہ</string>
     <string name="resize_short">چھوٹا کنارہ</string>

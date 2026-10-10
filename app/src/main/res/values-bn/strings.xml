@@ -466,9 +466,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">সম্পাদনা</string>
     <string name="menu_edit_hold">অ্যাপ বাছুন</string>
-    <string name="editor_internal">সরল সম্পাদক</string>
+    <string name="editor_internal">অভ্যন্তরীণ সম্পাদক</string>
     <string name="editor_title">সম্পাদনা</string>
-    <string name="editor_full">সম্পূর্ণ সম্পাদক</string>
     <string name="look_light">আলো</string>
     <string name="look_exposure">এক্সপোজার</string>
     <string name="look_whites">সাদা</string>
@@ -598,9 +597,10 @@
     <string name="edit_failed">সংরক্ষণ করা যায়নি</string>
     <string name="edit_app_gone">সেই সম্পাদকটি আর নেই। অন্য একটি বাছুন।</string>
     <string name="settings_editor">ছবি সম্পাদক</string>
-    <string name="settings_editor_desc">সম্পাদনা কমান্ডে কোন অ্যাপ ছবিটি খুলবে তা বেছে নিন (ভিউয়ারের দীর্ঘ চাপের মেনু)। সেটিংস আবার না খুলেই তাৎক্ষণিকভাবে অ্যাপ বদলাতে সম্পাদনা চেপে ধরে রাখুন।</string>
+    <string name="settings_editor_desc">\'সম্পাদনা\' কমান্ডে কোন অ্যাপ ছবিটি খুলবে তা বেছে নিন। সেটিংস আবার না খুলেই তাৎক্ষণিকভাবে অ্যাপ বদলাতে \'সম্পাদনা\' চেপে ধরে রাখুন।</string>
     <string name="settings_editor_none">কিছু বাছা হয়নি</string>
-    <string name="settings_editor_pick">অ্যাপ সেট করুন</string>
+    <string name="settings_editor_pick">সেট করুন</string>
+    <string name="settings_editor_app">অ্যাপ:</string>
     <string name="view_grid">গ্রিড</string>
     <string name="view_list">তালিকা</string>
     <string name="view_tree">ফোল্ডার</string>
@@ -614,8 +614,7 @@
     <string name="settings_mark_clear">সরান</string>
     <string name="settings_mark_pick">নির্বাচন করুন</string>
     <string name="settings_mark_bad">এই ফাইলটি জলছাপ হিসেবে ব্যবহার করা যাবে না: একটি PNG বা SVG বেছে নিন।</string>
-    <string name="settings_mark_on">চালু</string>
-    <string name="settings_mark_on_desc">জলছাপ হলো একটি গ্রাফিক উপাদান (যেমন স্বাক্ষর বা লোগো), যা ছবির উপরে বসে। এখান থেকে এটি চালু বা বন্ধ করতে পারেন, অথবা সংরক্ষণের আগে সম্পাদকের নিচের বারের চালু/বন্ধ বোতাম দিয়ে তাৎক্ষণিকভাবে; এই স্ক্রিনে দ্রুত আসতে বোতামটি চেপে ধরে রাখুন।</string>
+    <string name="settings_mark_on_desc">জলছাপ হলো একটি গ্রাফিক উপাদান (যেমন স্বাক্ষর বা লোগো), যা ছবির উপরে বসে। সংরক্ষণের আগে সম্পাদকের নিচের বারের চালু/বন্ধ বোতাম দিয়ে এটি চালু বা বন্ধ করতে পারেন; সেটিংসে দ্রুত আসতে বোতামটি চেপে ধরে রাখুন।</string>
     <string name="settings_mark_lossy">⚠️ জলছাপ যোগ করলে JPEG ঘোরানোর মতো ক্ষতিহীন কাজগুলি করা যায় না: সংরক্ষণ পুরো ফাইলটি নতুন করে লেখে।</string>
     <string name="settings_mark_where">অবস্থান</string>
     <string name="mark_spot_tl">উপরে বাঁদিকে</string>
@@ -627,7 +626,7 @@
     <string name="settings_mark_air">প্রান্ত থেকে দূরত্ব</string>
     <string name="settings_mark_alpha">অস্বচ্ছতা</string>
     <string name="settings_mark_preview">জলছাপের প্রাকদর্শন</string>
-    <string name="settings_mark_preview_note">বড় করা খসড়া মানের প্রিভিউ: আউটপুটে জলছাপ দেখে নিন।</string>
+    <string name="settings_mark_preview_note">প্রিভিউ কেবল আনুমানিক: আসল আউটপুট দেখে নিন।</string>
     <string name="look_resize">আকার বদলান</string>
     <string name="resize_long">লম্বা দিক</string>
     <string name="resize_short">ছোট দিক</string>

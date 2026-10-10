@@ -483,9 +483,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>
     <string name="menu_edit_hold">Elegir la aplicación</string>
-    <string name="editor_internal">Editor sencillo</string>
+    <string name="editor_internal">Editor interno</string>
     <string name="editor_title">Editar</string>
-    <string name="editor_full">Editor completo</string>
     <string name="look_light">Luz</string>
     <string name="look_exposure">Exposición</string>
     <string name="look_whites">Blancos</string>
@@ -615,9 +614,10 @@
     <string name="edit_failed">No se ha podido guardar</string>
     <string name="edit_app_gone">Ese editor ya no está. Elige otro.</string>
     <string name="settings_editor">Editor de imágenes</string>
-    <string name="settings_editor_desc">Elige qué app abre la imagen con el comando Editar (menú de pulsación larga del visor). Mantén pulsado Editar para cambiar de app al vuelo sin volver a abrir los ajustes.</string>
+    <string name="settings_editor_desc">Elige qué app abre la imagen con el comando \'Editar\'. Mantén pulsado \'Editar\' para cambiar de app al vuelo sin volver a abrir los ajustes.</string>
     <string name="settings_editor_none">Ninguna elegida</string>
-    <string name="settings_editor_pick">Elegir app</string>
+    <string name="settings_editor_pick">Elegir</string>
+    <string name="settings_editor_app">app:</string>
     <string name="view_grid">Cuadrícula</string>
     <string name="view_list">Lista</string>
     <string name="view_tree">Carpetas</string>
@@ -631,8 +631,7 @@
     <string name="settings_mark_clear">Quitar</string>
     <string name="settings_mark_pick">Seleccionar</string>
     <string name="settings_mark_bad">Este archivo no sirve como marca de agua: elige un PNG o un SVG.</string>
-    <string name="settings_mark_on">Activada</string>
-    <string name="settings_mark_on_desc">La marca de agua es un elemento gráfico (p. ej. una firma o un logo) que se superpone a la imagen. Puedes activarla o desactivarla aquí, o al vuelo antes de guardar con el botón de encendido/apagado de la barra inferior del editor; mantén pulsado el botón para llegar rápido a esta pantalla.</string>
+    <string name="settings_mark_on_desc">La marca de agua es un elemento gráfico (p. ej. una firma o un logo) que se superpone a la imagen. Puedes activarla o desactivarla antes de guardar con el botón de encendido/apagado de la barra inferior del editor; mantén pulsado el botón para llegar rápido a los ajustes.</string>
     <string name="settings_mark_lossy">⚠️ Con la marca de agua, las operaciones sin pérdida como girar un JPEG no están disponibles: al guardar se reescribe el archivo completo.</string>
     <string name="settings_mark_where">Posición</string>
     <string name="mark_spot_tl">Arriba a la izquierda</string>
@@ -644,7 +643,7 @@
     <string name="settings_mark_air">Distancia del borde</string>
     <string name="settings_mark_alpha">Opacidad</string>
     <string name="settings_mark_preview">Vista previa de la marca de agua</string>
-    <string name="settings_mark_preview_note">Vista previa ampliada en calidad de borrador: comprueba la marca de agua en el resultado.</string>
+    <string name="settings_mark_preview_note">Vista previa solo orientativa: comprueba el resultado real.</string>
     <string name="look_resize">Redimensionar</string>
     <string name="resize_long">Lado largo</string>
     <string name="resize_short">Lado corto</string>

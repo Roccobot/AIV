@@ -2385,7 +2385,7 @@ internal val STAGE_SIDE = 24.dp
  * impostazioni dev'essere *lo stesso che si presenta al primo utilizzo dal menu*). Due
  * finestre gemelle sarebbero divergite alla prima voce aggiunta, e la promessa 'lo stesso'
  * sarebbe diventata falsa senza che nessuno se ne accorgesse.
- * ⚠️⚠️ **L'editor semplice è in CIMA e non in ordine alfabetico fra gli altri**: è l'unico
+ * ⚠️⚠️ **L'editor interno è in CIMA e non in ordine alfabetico fra gli altri**: è l'unico
  * che c'è sempre, e su un telefono senza nessun editor installato sarebbe l'unica voce
  * dell'elenco. Metterlo in fila lo farebbe cercare.
  * ⚠️ **Chiudere senza scegliere NON ricorda niente**, ed è la differenza fra 'non ho ancora
@@ -2432,28 +2432,20 @@ fun EditorPicker(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
+                /*
+                 * ⚠️⚠️ **DALLA `5.01` I DUE EDITOR DELL'APP SONO UNA VOCE SOLA, 'Editor interno', ED
+                 * È SUA SCELTA** (nota su `5.00-02`: *per l'utente dev'essere trasparente, nessuno
+                 * deve preoccuparsi di quale editor interno scegliere*). Si apre il completo dove il
+                 * suo conto può girare, cioè da Android 13, e il semplice sotto (vedi
+                 * `Editors.INTERNAL`). Fino alla `5.00` le voci erano due, e il completo compariva
+                 * solo da Android 13.
+                 */
                 PickRow(
                     label = stringResource(R.string.editor_internal),
                     icon = null,
-                    here = chosen == Editors.INTERNAL,
+                    here = Editors.isInternal(chosen),
                     onClick = { onPick(Editors.INTERNAL) }
                 )
-                /*
-                 * ⚠️⚠️ **L'EDITOR COMPLETO STA SUBITO SOTTO QUELLO SEMPLICE, e compare solo
-                 * dove puo funzionare**: il conto che applica gira sulla scheda grafica con un
-                 * programma scritto a mano, che nasce con Android 13. Sotto quella versione la
-                 * voce **non si offre affatto**, invece di offrirla e poi dire di no: è
-                 * l'istruzione dell'utente (*sotto la 13 resta l'editor di oggi*), e una voce
-                 * che si puo toccare e non fa niente sarebbe peggio della sua assenza.
-                 */
-                if (advancedEditorAvailable()) {
-                    PickRow(
-                        label = stringResource(R.string.editor_full),
-                        icon = null,
-                        here = chosen == Editors.FULL,
-                        onClick = { onPick(Editors.FULL) }
-                    )
-                }
                 edit.forEach { one ->
                     PickRow(
                         label = one.label,

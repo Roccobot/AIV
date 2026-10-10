@@ -1686,8 +1686,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 editorFor = uri
                 editorAsk = true
             }
-            chosen == Editors.INTERNAL -> openEditor(uri)
-            chosen == Editors.FULL -> openFullEditor(uri)
+            Editors.isInternal(chosen) -> openInternal(uri)
             else -> openOutside(uri, chosen)
         }
     }
@@ -1727,11 +1726,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         editorFor = null
         settings?.let { updateSettings(it.copy(editorApp = id)) }
         if (waiting == null) return
-        when (id) {
-            Editors.INTERNAL -> openEditor(waiting)
-            Editors.FULL -> openFullEditor(waiting)
-            else -> openOutside(waiting, id)
-        }
+        if (Editors.isInternal(id)) openInternal(waiting) else openOutside(waiting, id)
+    }
+
+    /**
+     * L'editor interno: il completo dove il suo conto può girare, il semplice sotto Android 13.
+     *
+     * ⚠️⚠️ **DALLA `5.01` LO DECIDE IL TELEFONO E NON LA SCELTA SALVATA, ED È SUA SCELTA** (nota su
+     * `5.00-02`): la voce 'Editor interno' è una sola (vedi `Editors.INTERNAL`), e da Android 13 in
+     * su il semplice non si apre più.
+     */
+    private fun openInternal(uri: Uri) {
+        if (advancedEditorAvailable()) openFullEditor(uri) else openEditor(uri)
     }
 
     /** Selettore chiuso senza scegliere: non si ricorda niente e non si apre niente. */
@@ -1756,10 +1762,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * L'editor completo: come [openEditor], e il nome serve per la stessa ragione.
      *
-     * ⚠️ **Nessuna guardia di versione qui**: la voce non si offre affatto dove il conto non
-     * puo girare (vedi `EditorPicker`), e una scelta salvata su un telefono che non la regge
-     * torna a dire 'nessuno scelto' (vedi `Editors.labelOf`). Ripetere il controllo in un terzo
-     * posto vorrebbe dire tre risposte da tenere d'accordo.
+     * ⚠️ **Nessuna guardia di versione qui**: la mette [openInternal], che è la sola via per
+     * arrivarci. Ripetere il controllo in un secondo posto vorrebbe dire due risposte da tenere
+     * d'accordo.
      */
     private fun openFullEditor(uri: Uri) {
         val context = getApplication<Application>()

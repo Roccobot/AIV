@@ -52,23 +52,19 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.offset
-import java.text.BreakIterator
 import java.text.DecimalFormatSymbols
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -121,16 +117,17 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
                 Notices.say(context.getString(R.string.settings_mark_bad))
             } else {
                 /*
-                 * ⚠️⚠️ **SCEGLIERE UN FILE ACCENDE L'INTERRUTTORE, DALLA `2.71`, ED È SUA
+                 * ⚠️⚠️ **SCEGLIERE UN FILE ACCENDE LA FILIGRANA, DALLA `2.71`, ED È SUA
                  * RICHIESTA** (voce `filigrana`, punto 2). Chi entra qui e sceglie un logo ha
                  * detto che cosa vuole scrivere sulle immagini, e lasciare la firma spenta
-                 * vorrebbe dire una seconda riga da toccare perché il gesto appena fatto valga
-                 * qualcosa. È la stessa lettura dell''Applica' del ridimensionamento, che
-                 * accende il suo (§ [ResizeDialog]).
+                 * vorrebbe dire un secondo gesto perché quello appena fatto valga qualcosa. È la
+                 * stessa lettura dell''Applica' del ridimensionamento, che accende il suo
+                 * (§ [ResizeDialog]).
+                 * ⚠️ **Dalla `5.01` vale ancora di più**: l'interruttore di questa pagina non c'è
+                 * più, e la filigrana si accende e si spegne solo dal tasto dell'editor, che
+                 * senza un logo non compare.
                  * ⚠️ **Solo quando il file è stato adottato davvero**: un documento rifiutato
-                 * lascia le cose com'erano, interruttore compreso.
-                 * ⚠️ **Spegnerla resta un gesto**, e non si riaccende da sé: questo scatta sulla
-                 * scelta di un file, che si fa una volta.
+                 * lascia le cose com'erano.
                  */
                 onChange(settings.copy(markOn = true))
             }
@@ -140,23 +137,18 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
     val label = stringResource(R.string.settings_mark)
     val desc = stringResource(R.string.settings_mark_desc)
     /*
-     * ⚠️⚠️ **DALLA `4.99` L'INTERRUTTORE APRE LA PAGINA, SI CHIAMA 'Attiva' E SPIEGA CHE COS'È LA
-     * FILIGRANA, ED È LA SUA NOTA A DEL GIRO DELLA `4.98`** (*il paragrafo in fondo si sposta in
-     * cima alla pagina, con un nuovo titolo che sarà semplicemente 'Attiva'*). L'ordine della `2.71`
-     * (prima com'è fatta la firma, poi se scriverla) è rovesciato da lui, e con lui sono usciti il
-     * secondo titolo 'Filigrana' e il mini-paragrafo sotto il titolo della pagina, che ripetevano
-     * quello che la pagina dice già.
-     * ⚠️ **'Filigrana' resta fra i testi della ricerca della riga**, perché durante una ricerca
-     * la riga compare senza la pagina intorno, e chi cerca 'filigrana' cerca proprio lei.
+     * ⚠️⚠️ **DALLA `5.01` LA PAGINA SI APRE COL PARAGRAFO E SENZA INTERRUTTORE, ED È LA SUA NOTA SU
+     * `5.00-01`** (*dalla schermata si impostano i parametri, non si stabilisce se la filigrana è
+     * attiva o no: per quello c'è il tasto dell'editor*). Con l'interruttore se ne è andato anche il
+     * titolo 'Attiva', che senza di lui non diceva niente. Fino alla `5.00` la riga apriva la pagina
+     * col titolo 'Attiva' e il paragrafo sotto (nota A del giro della `4.98`).
+     * ⚠️ **'Filigrana' è fra i testi della ricerca del paragrafo**, perché durante una ricerca il
+     * paragrafo compare senza la pagina intorno, e chi cerca 'filigrana' cerca proprio lui.
      */
-    SwitchRow(
-        label = stringResource(R.string.settings_mark_on),
-        detail = stringResource(R.string.settings_mark_on_desc),
-        checked = settings.markOn,
-        onChange = { onChange(settings.copy(markOn = it)) },
-        extra = listOf(label),
-        detailBelow = true
-    )
+    val spiegazione = stringResource(R.string.settings_mark_on_desc)
+    Searchable(spiegazione, label) {
+        Detail(spiegazione, Modifier.padding(top = 8.dp, bottom = 4.dp))
+    }
     Searchable(label, desc) {
         /*
          * ⚠️⚠️ **I TIPI SI DICHIARANO AL SELETTORE, ED È LA SUA SPECIFICA** (*Input PNG o SVG*):
@@ -554,7 +546,8 @@ private fun markClean(text: String, step: Int): String {
  * posto prima di scegliere il file.
  *
  * ⚠️ **I selettori vivono tutti nella stessa fascia esterna**, larga [SPOT_RING]: i quattro angoli
- * l'abbracciano da fuori e il centro sta in mezzo a quella di sopra. Una fascia diversa per il
+ * l'abbracciano da fuori e il centro è in mezzo a quella di sotto (in quella di sopra fino alla
+ * `5.00`, vedi [spotAlign]). Una fascia diversa per il
  * quinto avrebbe dato due arie da tenere allineate, e il *senza coprirlo* della sua richiesta è
  * proprio quello che la fascia garantisce.
  *
@@ -569,30 +562,26 @@ private fun MarkSpot(plan: Watermark.Plan, giro: Int, onSpot: (Watermark.Spot) -
     // 'centro' cerca questa voce, ed è il criterio di [Choices], che li metteva fra i testi
     // confrontati proprio perché sono la parola con cui si pensa all'impostazione.
     Searchable(label, *names.toTypedArray()) {
-        val nota = stringResource(R.string.settings_mark_preview_note)
-        val stile = MaterialTheme.typography.labelSmall
-        val misura = rememberTextMeasurer()
-        // ⚠️ La parola più larga della nota, in pixel: la nota va accanto al riquadro solo se
-        // questa ci entra intera, o Compose la spezzerebbe a metà (vedi [noteFits]).
-        val parola = remember(nota, stile) { longestWord(nota) { misura.measure(it, stile).size.width } }
         /*
-         * ⚠️⚠️ **DALLA `4.99` IL RIQUADRO È PIÙ PICCOLO DEL 25%, E ACCANTO HA LA NOTA** (nota A del
-         * giro della `4.98`). Il 25% si toglie al riquadro e non alla fascia dei selettori, che resta
-         * larga quanto prima perché le squadrette hanno la misura che lui ha chiesto con la `2.78`.
-         * ⚠️⚠️ **DALLA `5.00` IL BLOCCO SI SPOSTA A SINISTRA DI [SPOT_LEAD], E 'Posizione' VIVE DENTRO
-         * IL RIQUADRO** (sua nota su `4.99-01`, col mockup: *sposta ulteriormente a sinistra
-         * l'anteprima, c'è spazio e il rettangolo rimane comunque allineato otticamente*). Il bordo
-         * esterno della squadretta sinistra cade sul rientro della pagina, dove comincia il testo;
-         * lo spazio che si libera va alla nota.
-         * ⚠️ **La nota va accanto quando la sua parola più lunga ci entra intera**, sotto quando no
-         * (sua nota: *non andare a capo spezzando le parole*).
+         * ⚠️⚠️ **DALLA `4.99` IL RIQUADRO È RIDOTTO, E 'Posizione' VIVE DENTRO DI LUI DALLA `5.00`**
+         * (nota A del giro della `4.98`, e sua nota su `4.99-01`). La riduzione si toglie al
+         * riquadro e non alla fascia dei selettori, che resta larga quanto prima perché le
+         * squadrette hanno la misura che lui ha chiesto con la `2.78`.
+         * ⚠️⚠️ **DALLA `5.01` IL BLOCCO È CENTRATO E LA NOTA È SOTTO, SU UNA RIGA, ED È LA SUA NOTA SU
+         * `5.00-01`** (*non mi piace la posizione variabile, risolviamo cambiando approccio*). Fino
+         * alla `5.00` il blocco si spostava a sinistra e la nota andava accanto al riquadro, o sotto
+         * quando la sua parola più larga non ci entrava, cioè cambiava posto con la lingua e con lo
+         * schermo. Senza la nota a lato il riquadro torna un po' più grande ([PREVIEW_SCALE]).
          */
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
             val riquadro = (maxWidth - SPOT_RING * 2) * PREVIEW_SCALE + SPOT_RING * 2
-            val densita = LocalDensity.current
-            val spazio = with(densita) { (maxWidth + SPOT_LEAD - riquadro - NOTE_GAP).roundToPx() }
-            @Composable
-            fun Riquadro() {
+            // ⚠️ Dal bordo di sotto del blocco al centro dell'anteprima, cioè fin dove sale lo
+            // stelo del centro: l'anteprima è 3:2 (vedi [MarkPreview]) e la fascia la circonda.
+            val stelo = ((riquadro - SPOT_RING * 2) * (2f / 3f) + SPOT_RING * 2) / 2
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(modifier = Modifier.width(riquadro).oneOf()) {
                     MarkPreview(plan, giro, label, Modifier.padding(SPOT_RING))
                     Watermark.Spot.entries.forEachIndexed { at, spot ->
@@ -601,84 +590,35 @@ private fun MarkSpot(plan: Watermark.Plan, giro: Int, onSpot: (Watermark.Spot) -
                             name = names[at],
                             chosen = spot == plan.spot,
                             onClick = { onSpot(spot) },
+                            stem = stelo,
                             modifier = Modifier.align(spotAlign(spot))
                         )
                     }
                 }
-            }
-            if (noteFits(parola, spazio)) {
-                Row(
-                    modifier = Modifier.towardStart(SPOT_LEAD),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Riquadro()
-                    PreviewNote(nota, Modifier.weight(1f).padding(start = NOTE_GAP))
-                }
-            } else {
-                Column(modifier = Modifier.towardStart(SPOT_LEAD)) {
-                    Riquadro()
-                    PreviewNote(nota, Modifier.padding(start = SPOT_RING))
-                }
+                PreviewNote(
+                    stringResource(R.string.settings_mark_preview_note),
+                    Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
             }
         }
     }
 }
 
 /**
- * Il pezzo più largo di un testo fra due punti in cui si può andare a capo, misurato da [width].
- *
- * ⚠️ **I punti li dà `BreakIterator` e non gli spazi**: in cinese, in giapponese e in thai gli
- * spazi non ci sono, e un testo diviso sugli spazi sarebbe una parola sola, cioè la nota finirebbe
- * sempre sotto il riquadro. Una parola con l'apostrofo (`nell'output.`) resta intera, come la
- * tiene Compose.
- */
-internal fun longestWord(text: String, width: (String) -> Int): Int {
-    val confini = BreakIterator.getLineInstance()
-    confini.setText(text)
-    var inizio = confini.first()
-    var fine = confini.next()
-    var massimo = 0
-    while (fine != BreakIterator.DONE) {
-        val pezzo = text.substring(inizio, fine).trimEnd()
-        if (pezzo.isNotEmpty()) massimo = maxOf(massimo, width(pezzo))
-        inizio = fine
-        fine = confini.next()
-    }
-    return massimo
-}
-
-/**
- * Se la nota ci sta accanto al riquadro senza spezzare una parola: lo spazio che resta deve
- * contenere la sua parola più larga.
- */
-internal fun noteFits(longestWord: Int, room: Int): Boolean = room >= longestWord
-
-/**
- * Allarga chi lo porta di [lead] verso sinistra, oltre il rientro della pagina.
- *
- * ⚠️ **È il gemello di `bordo` in `SettingsScreen.kt`, su un lato solo**: misura il figlio più
- * largo di [lead], dichiara al genitore la misura di prima e lo posa spostato a sinistra. Un
- * semplice `offset` sposterebbe il disegno e non lo spazio, e la nota resterebbe stretta.
- */
-private fun Modifier.towardStart(lead: Dp) = layout { misurabile, vincoli ->
-    val extra = lead.roundToPx()
-    val posato = misurabile.measure(vincoli.offset(horizontal = extra))
-    layout(posato.width - extra, posato.height) { posato.place(-extra, 0) }
-}
-
-/**
- * La nota che dice che l'anteprima non è la resa vera: piccola e grigia, senza corsivo.
+ * La nota che dice che l'anteprima non è la resa vera: piccola, grigia e centrata sotto il riquadro.
  *
  * ⚠️ **Esiste perché dalla `4.99` l'anteprima cambia di proposito quello che mostra** (vedi
  * [previewLook]): un fondo, un'opacità e una misura diverse da quelle del file, scelte perché la
  * firma si veda. Il testo è suo.
- * ⚠️⚠️ **DALLA `5.00` IL GRIGIO È UN TERZO DI INCHIOSTRO SUL FONDO** (sua nota su `4.99-01`: *niente
- * corsivo*, *se ne va anche ⚠️*, e il colore del suo mockup, `#B1B1B1`, misurato sul file). Lui
- * aveva scritto `#fcfbf7`, che è il fondo stesso della pagina (`LIGHT_BACK` vale `#FCFBF8`): con
- * quello la nota sparirebbe, quindi vale il mockup, e la lettura è dichiarata nel DF. Un terzo di
- * `onSurface` su `background` dà esattamente `#B1B1B1` col tema chiaro, e la stessa regola dà
- * un grigio di pari peso col tema scuro. Il contrasto è sotto la soglia, ed è la sua scelta: *sennò
- * è troppo allarmista*.
+ * ⚠️⚠️ **DALLA `5.00` IL GRIGIO È UN TERZO DI INCHIOSTRO SUL FONDO** (sua nota su `4.99-01`, e il
+ * colore del suo mockup, `#B1B1B1`, misurato sul file). Lui aveva scritto `#fcfbf7`, che è il fondo
+ * stesso della pagina (`LIGHT_BACK` vale `#FCFBF8`): con quello la nota sparirebbe, quindi vale il
+ * mockup. Un terzo di `onSurface` su `background` dà esattamente `#B1B1B1` col tema chiaro, e la
+ * stessa regola dà un grigio di pari peso col tema scuro. Il contrasto è sotto la soglia, ed è la
+ * sua scelta: *sennò è troppo allarmista*.
+ * ⚠️ **Dalla `5.01` entra in una riga in italiano e in inglese** (sua nota su `5.00-01`: *carattere
+ * abbastanza piccolo da far stare la frase in una sola riga almeno in ITA e ENG*), e lo misura
+ * `FiligranaPaginaTest`; in una lingua più lunga va a capo, centrata.
  */
 @Composable
 private fun PreviewNote(text: String, modifier: Modifier) {
@@ -687,6 +627,7 @@ private fun PreviewNote(text: String, modifier: Modifier) {
         text = text,
         style = MaterialTheme.typography.labelSmall,
         color = lerp(schema.background, schema.onSurface, NOTE_INK),
+        textAlign = TextAlign.Center,
         modifier = modifier
     )
 }
@@ -703,13 +644,18 @@ private fun spotName(spot: Watermark.Spot): String = stringResource(
     }
 )
 
-/** A quale angolo della fascia esterna vive il selettore di un posto. */
+/**
+ * In quale punto della fascia esterna vive il selettore di un posto.
+ *
+ * ⚠️ **Il centro è in basso dalla `5.01`**, come nel suo mockup di `5.00-01`: in alto c'è
+ * 'Posizione', e lo stelo sale dal tondo al centro del riquadro (vedi [SpotHandle]).
+ */
 private fun spotAlign(spot: Watermark.Spot): Alignment = when (spot) {
     Watermark.Spot.TOP_LEFT -> Alignment.TopStart
     Watermark.Spot.TOP_RIGHT -> Alignment.TopEnd
     Watermark.Spot.BOTTOM_LEFT -> Alignment.BottomStart
     Watermark.Spot.BOTTOM_RIGHT -> Alignment.BottomEnd
-    Watermark.Spot.CENTRE -> Alignment.TopCenter
+    Watermark.Spot.CENTRE -> Alignment.BottomCenter
 }
 
 /**
@@ -723,6 +669,10 @@ private fun spotAlign(spot: Watermark.Spot): Alignment = when (spot) {
  * ⚠️ **Il tondo del centro è pieno quando è scelto e vuoto quando no**, come la squadretta che
  * cambia inchiostro: un segno che restasse uguale direbbe dove si può toccare e non che cosa è
  * scelto, e il riquadro sotto non lo dice, perché senza un logo è vuoto.
+ * ⚠️⚠️ **DALLA `5.01` IL TONDO HA UNO STELO, ED È LA SUA NOTA SU `5.00-01`** (*aggiungi uno stelo
+ * al cerchio di selezione per il centro, è più chiaro*): dal tondo, in fondo alla fascia, sale fino
+ * al centro del riquadro, cioè per [stem] dal bordo di sotto del bersaglio. Il disegno esce dal
+ * bersaglio, e il tocco resta sul tondo.
  */
 @Composable
 private fun SpotHandle(
@@ -730,6 +680,7 @@ private fun SpotHandle(
     name: String,
     chosen: Boolean,
     onClick: () -> Unit,
+    stem: Dp,
     modifier: Modifier
 ) {
     val accento = MaterialTheme.colorScheme.primary
@@ -744,10 +695,26 @@ private fun SpotHandle(
             val spesso = (if (chosen) SPOT_THICK_ON else SPOT_THICK_OFF).toPx()
             val anello = SPOT_RING.toPx()
             if (spot == Watermark.Spot.CENTRE) {
-                val centro = Offset(size.width / 2f, anello / 2f)
+                val centro = Offset(size.width / 2f, size.height - anello / 2f)
                 val raggio = SPOT_DOT.toPx()
                 if (chosen) drawCircle(tinta, radius = raggio, center = centro)
                 else drawCircle(tinta, radius = raggio, center = centro, style = Stroke(spesso))
+                /*
+                 * ⚠️ **Lo stelo comincia dove finisce il tondo, senza toccarlo**: spento, il segno
+                 * è al [SPOT_FAINT], e un tratto che coprisse l'anello lo farebbe più scuro dove si
+                 * sovrappongono, che è il difetto della nota D del giro della `4.98` sulle
+                 * squadrette. Il capo tondo dello stelo sporge di mezzo tratto, quindi parte un
+                 * tratto intero sopra l'anello; acceso, il tondo è pieno e coprente, e lo stelo
+                 * parte dal suo bordo.
+                 */
+                val partenza = centro.y - raggio - if (chosen) 0f else spesso
+                drawLine(
+                    color = tinta,
+                    start = Offset(centro.x, partenza),
+                    end = Offset(centro.x, size.height - stem.toPx()),
+                    strokeWidth = spesso,
+                    cap = StrokeCap.Round
+                )
                 return@Canvas
             }
             val sinistra = spot == Watermark.Spot.TOP_LEFT || spot == Watermark.Spot.BOTTOM_LEFT
@@ -967,15 +934,15 @@ private const val PREVIEW_SIZE_CAP = 50
 /**
  * Quanto è grande il riquadro dell'anteprima rispetto alla larghezza che ha a disposizione.
  *
- * ⚠️ **Il 75% è la sua richiesta** (*rimpicciolisci del 25%*, nota A del giro della `4.98`).
+ * ⚠️ **L'80% è la sua richiesta della `5.01`** (sua nota su `5.00-01`: *dato che non c'è più la
+ * nota a lato, torna ad ingrandire leggermente l'anteprima*), ed è la misura del suo mockup, dove il
+ * blocco occupa l'81% della pagina. Dalla `4.99` alla `5.00` era il 75% (*rimpicciolisci del 25%*,
+ * nota A del giro della `4.98`), per far posto alla nota accanto.
  */
-private const val PREVIEW_SCALE = 0.75f
-
-/** L'aria fra il riquadro e la nota accanto. */
-private val NOTE_GAP = 24.dp
+private const val PREVIEW_SCALE = 0.8f
 
 /**
- * Quanto inchiostro ha la nota accanto al riquadro, sul fondo della pagina.
+ * Quanto inchiostro ha la nota sotto il riquadro, sul fondo della pagina.
  *
  * ⚠️ **Un terzo dà esattamente `#B1B1B1` col tema chiaro**, cioè il grigio del suo mockup: vedi
  * [PreviewNote].
@@ -1052,18 +1019,6 @@ private val SPOT_DOT = 9.dp
  */
 private val SPOT_THICK_ON = 5.dp
 private val SPOT_THICK_OFF = 3.dp
-
-/**
- * Di quanto il blocco del riquadro si sposta a sinistra, oltre il rientro della pagina.
- *
- * ⚠️ **È la distanza fra il bersaglio di un selettore e il bordo esterno della sua squadretta**:
- * la fascia, meno lo scostamento della piega, meno mezzo tratto del posto scelto. Così il bordo
- * esterno della squadretta cade sul rientro della pagina, dove comincia il testo, come nel suo
- * mockup della `5.00`.
- * ⚠️ **Vive dopo le costanti da cui si ricava**: in Kotlin le proprietà di un file si inizializzano
- * nell'ordine in cui sono scritte, e prima di loro questa varrebbe zero.
- */
-private val SPOT_LEAD = SPOT_RING - SPOT_OUT - SPOT_THICK_ON / 2
 
 /**
  * Quanto si spegne il segno di un posto non scelto.

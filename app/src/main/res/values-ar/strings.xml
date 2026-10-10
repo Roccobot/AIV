@@ -534,9 +534,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">تحرير</string>
     <string name="menu_edit_hold">اختيار التطبيق</string>
-    <string name="editor_internal">محرر بسيط</string>
+    <string name="editor_internal">المحرر الداخلي</string>
     <string name="editor_title">تحرير</string>
-    <string name="editor_full">محرر كامل</string>
     <string name="look_light">الإضاءة</string>
     <string name="look_exposure">التعريض</string>
     <string name="look_whites">الأبيض</string>
@@ -666,9 +665,10 @@
     <string name="edit_failed">تعذّر الحفظ</string>
     <string name="edit_app_gone">هذا المحرر لم يعد موجودًا. اختر غيره.</string>
     <string name="settings_editor">محرّر الصور</string>
-    <string name="settings_editor_desc">اختر التطبيق الذي يفتح الصورة بالأمر تحرير (قائمة الضغط المطوّل في العارض). اضغط مطولًا على تحرير لتغيير التطبيق فورًا دون إعادة فتح الإعدادات.</string>
+    <string name="settings_editor_desc">اختر التطبيق الذي يفتح الصورة بالأمر \'تحرير\'. اضغط مطولًا على \'تحرير\' لتغيير التطبيق فورًا دون إعادة فتح الإعدادات.</string>
     <string name="settings_editor_none">لم يُختر أي تطبيق</string>
-    <string name="settings_editor_pick">تعيين التطبيق</string>
+    <string name="settings_editor_pick">تعيين</string>
+    <string name="settings_editor_app">التطبيق:</string>
     <string name="view_grid">شبكة</string>
     <string name="view_list">قائمة</string>
     <string name="view_tree">مجلدات</string>
@@ -682,8 +682,7 @@
     <string name="settings_mark_clear">إزالة</string>
     <string name="settings_mark_pick">تحديد</string>
     <string name="settings_mark_bad">لا يصلح هذا الملف كعلامة مائية: اختر ملف PNG أو SVG.</string>
-    <string name="settings_mark_on">مفعّلة</string>
-    <string name="settings_mark_on_desc">العلامة المائية عنصر رسومي (مثل توقيع أو شعار) يوضع فوق الصورة. يمكنك تشغيلها أو إيقافها من هنا، أو فورًا قبل الحفظ بزر التشغيل/الإيقاف في الشريط السفلي للمحرر؛ اضغط مطولًا على الزر للوصول بسرعة إلى هذه الشاشة.</string>
+    <string name="settings_mark_on_desc">العلامة المائية عنصر رسومي (مثل توقيع أو شعار) يوضع فوق الصورة. يمكنك تشغيلها أو إيقافها قبل الحفظ بزر التشغيل/الإيقاف في الشريط السفلي للمحرر؛ اضغط مطولًا على الزر للوصول بسرعة إلى الإعدادات.</string>
     <string name="settings_mark_lossy">⚠️ مع العلامة المائية لا تتوفر العمليات دون فقدان الجودة مثل تدوير JPEG: يعيد الحفظ كتابة الملف كاملًا.</string>
     <string name="settings_mark_where">الموضع</string>
     <string name="mark_spot_tl">أعلى اليسار</string>
@@ -695,7 +694,7 @@
     <string name="settings_mark_air">المسافة من الحافة</string>
     <string name="settings_mark_alpha">التعتيم</string>
     <string name="settings_mark_preview">معاينة العلامة المائية</string>
-    <string name="settings_mark_preview_note">معاينة مكبّرة بجودة مسودة: تحقّق من العلامة المائية في الناتج.</string>
+    <string name="settings_mark_preview_note">معاينة تقريبية فقط: تحقّق من الناتج الفعلي.</string>
     <string name="look_resize">تغيير الحجم</string>
     <string name="resize_long">الضلع الأطول</string>
     <string name="resize_short">الضلع الأقصر</string>

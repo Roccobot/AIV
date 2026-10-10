@@ -466,9 +466,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ویرایش</string>
     <string name="menu_edit_hold">انتخاب برنامه</string>
-    <string name="editor_internal">ویرایشگر ساده</string>
+    <string name="editor_internal">ویرایشگر داخلی</string>
     <string name="editor_title">ویرایش</string>
-    <string name="editor_full">ویرایشگر کامل</string>
     <string name="look_light">نور</string>
     <string name="look_exposure">نوردهی</string>
     <string name="look_whites">سفیدی‌ها</string>
@@ -598,9 +597,10 @@
     <string name="edit_failed">ذخیره نشد</string>
     <string name="edit_app_gone">آن ویرایشگر دیگر نیست. یکی دیگر برگزین.</string>
     <string name="settings_editor">ویرایشگر تصویر</string>
-    <string name="settings_editor_desc">انتخاب کنید کدام برنامه تصویر را با فرمان ویرایش باز کند (منوی فشار طولانی نمایشگر). برای عوض کردن برنامه در همان لحظه و بدون باز کردن دوباره تنظیمات، ویرایش را نگه دارید.</string>
+    <string name="settings_editor_desc">انتخاب کنید کدام برنامه تصویر را با فرمان \'ویرایش\' باز کند. برای عوض کردن برنامه در همان لحظه و بدون باز کردن دوباره تنظیمات، \'ویرایش\' را نگه دارید.</string>
     <string name="settings_editor_none">چیزی برگزیده نشده</string>
-    <string name="settings_editor_pick">تنظیم برنامه</string>
+    <string name="settings_editor_pick">تنظیم</string>
+    <string name="settings_editor_app">برنامه:</string>
     <string name="view_grid">شبکه</string>
     <string name="view_list">فهرست</string>
     <string name="view_tree">پوشه‌ها</string>
@@ -614,8 +614,7 @@
     <string name="settings_mark_clear">برداشتن</string>
     <string name="settings_mark_pick">انتخاب</string>
     <string name="settings_mark_bad">این فایل به عنوان واترمارک کار نمی‌کند: یک PNG یا SVG انتخاب کنید.</string>
-    <string name="settings_mark_on">فعال</string>
-    <string name="settings_mark_on_desc">واترمارک یک عنصر گرافیکی (مثلاً امضا یا لوگو) است که روی تصویر قرار می‌گیرد. می‌توانید آن را از همین‌جا روشن یا خاموش کنید، یا پیش از ذخیره با دکمه روشن/خاموش در نوار پایین ویرایشگر؛ برای رسیدن سریع به این صفحه، دکمه را نگه دارید.</string>
+    <string name="settings_mark_on_desc">واترمارک یک عنصر گرافیکی (مثلاً امضا یا لوگو) است که روی تصویر قرار می‌گیرد. می‌توانید آن را پیش از ذخیره با دکمه روشن/خاموش در نوار پایین ویرایشگر روشن یا خاموش کنید؛ برای رسیدن سریع به تنظیمات، دکمه را نگه دارید.</string>
     <string name="settings_mark_lossy">⚠️ با واترمارک، عملیات بدون افت کیفیت مانند چرخاندن JPEG در دسترس نیست: ذخیره، کل فایل را بازنویسی می‌کند.</string>
     <string name="settings_mark_where">موقعیت</string>
     <string name="mark_spot_tl">بالا سمت چپ</string>
@@ -627,7 +626,7 @@
     <string name="settings_mark_air">فاصله از لبه</string>
     <string name="settings_mark_alpha">کدری</string>
     <string name="settings_mark_preview">پیش‌نمایش واترمارک</string>
-    <string name="settings_mark_preview_note">پیش‌نمایش بزرگ‌شده با کیفیت پیش‌نویس: واترمارک را در خروجی بررسی کنید.</string>
+    <string name="settings_mark_preview_note">پیش‌نمایش فقط تقریبی است: خروجی واقعی را بررسی کنید.</string>
     <string name="look_resize">تغییر اندازه</string>
     <string name="resize_long">ضلع بلند</string>
     <string name="resize_short">ضلع کوتاه</string>

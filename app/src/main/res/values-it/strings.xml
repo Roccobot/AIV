@@ -63,9 +63,8 @@
     <string name="convert_cloudconvert_why">L\'elenco di formati più lungo, AVIF e TIFF compresi.</string>
     <string name="menu_edit">Modifica</string>
     <string name="menu_edit_hold">Scegli l\'app</string>
-    <string name="editor_internal">Editor semplice</string>
+    <string name="editor_internal">Editor interno</string>
     <string name="editor_title">Modifica</string>
-    <string name="editor_full">Editor completo</string>
     <string name="look_light">Luce</string>
     <string name="look_exposure">Esposizione</string>
     <string name="look_whites">Bianchi</string>
@@ -201,9 +200,10 @@
     <string name="editor_pick_send">Per condivisione</string>
     <string name="editor_pick_send_desc">Ricevono una copia e la salvano dove decidono loro. L\'originale resta com\'è.</string>
     <string name="settings_editor">Editor di immagini</string>
-    <string name="settings_editor_desc">Scegli quale app deve aprire l\'immagine con il comando Modifica (menu a pressione lunga del visualizzatore). Premi a lungo Modifica per cambiare app al volo senza riaprire le impostazioni.</string>
+    <string name="settings_editor_desc">Scegli quale app deve aprire l\'immagine con il comando \'Modifica\'. Premi a lungo \'Modifica\' per cambiare app al volo senza riaprire le impostazioni.</string>
     <string name="settings_editor_none">Nessuna scelta</string>
-    <string name="settings_editor_pick">Imposta app</string>
+    <string name="settings_editor_pick">Imposta</string>
+    <string name="settings_editor_app">app:</string>
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
     <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
     <string name="settings_mark">Filigrana</string>
@@ -212,8 +212,7 @@
     <string name="settings_mark_clear">Rimuovi</string>
     <string name="settings_mark_pick">Seleziona</string>
     <string name="settings_mark_bad">Questo file non si può usare come filigrana: scegli un PNG o un SVG.</string>
-    <string name="settings_mark_on">Attiva</string>
-    <string name="settings_mark_on_desc">La filigrana è un elemento grafico (es. firma, logo) sovrapposto all\'immagine. Puoi attivarla o disattivarla da qui, o farlo al volo prima del salvataggio con l\'apposito tasto on/off nella barra in basso dell\'editor; tieni premuto il tasto per accedere rapidamente a questa schermata.</string>
+    <string name="settings_mark_on_desc">La filigrana è un elemento grafico (es. firma, logo) sovrapposto all\'immagine. Puoi attivarla o disattivarla prima del salvataggio con l\'apposito tasto on/off nella barra in basso dell\'editor; tieni premuto il tasto per accedere rapidamente alle impostazioni.</string>
     <string name="settings_mark_lossy">⚠️ Con l\'aggiunta della filigrana, le operazioni senza perdita come la rotazione JPEG non sono applicabili: il salvataggio prevede una riscrittura del file.</string>
     <string name="settings_mark_where">Posizione</string>
     <string name="mark_spot_tl">In alto a sinistra</string>
@@ -225,7 +224,7 @@
     <string name="settings_mark_air">Distanza dal bordo</string>
     <string name="settings_mark_alpha">Opacità</string>
     <string name="settings_mark_preview">Anteprima della filigrana</string>
-    <string name="settings_mark_preview_note">Anteprima ingrandita a qualità bozza: verifica la filigrana nell\'output.</string>
+    <string name="settings_mark_preview_note">Anteprima solo indicativa: controlla l\'output reale.</string>
     <string name="look_resize">Ridimensiona</string>
     <string name="resize_long">Lato lungo</string>
     <string name="resize_short">Lato corto</string>

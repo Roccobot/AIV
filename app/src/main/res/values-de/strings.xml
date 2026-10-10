@@ -466,9 +466,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bearbeiten</string>
     <string name="menu_edit_hold">App auswählen</string>
-    <string name="editor_internal">Einfacher Editor</string>
+    <string name="editor_internal">Interner Editor</string>
     <string name="editor_title">Bearbeiten</string>
-    <string name="editor_full">Vollständiger Editor</string>
     <string name="look_light">Licht</string>
     <string name="look_exposure">Belichtung</string>
     <string name="look_whites">Weiß</string>
@@ -598,9 +597,10 @@
     <string name="edit_failed">Es konnte nicht gespeichert werden</string>
     <string name="edit_app_gone">Dieser Editor ist weg. Wähle einen anderen.</string>
     <string name="settings_editor">Bildbearbeitung</string>
-    <string name="settings_editor_desc">Wähle, welche App das Bild mit dem Befehl Bearbeiten öffnet (Menü beim langen Drücken im Betrachter). Halte Bearbeiten gedrückt, um die App spontan zu wechseln, ohne die Einstellungen erneut zu öffnen.</string>
+    <string name="settings_editor_desc">Wähle, welche App das Bild mit dem Befehl \'Bearbeiten\' öffnet. Halte \'Bearbeiten\' gedrückt, um die App spontan zu wechseln, ohne die Einstellungen erneut zu öffnen.</string>
     <string name="settings_editor_none">Keine gewählt</string>
-    <string name="settings_editor_pick">App festlegen</string>
+    <string name="settings_editor_pick">Festlegen</string>
+    <string name="settings_editor_app">App:</string>
     <string name="view_grid">Raster</string>
     <string name="view_list">Liste</string>
     <string name="view_tree">Ordner</string>
@@ -614,8 +614,7 @@
     <string name="settings_mark_clear">Entfernen</string>
     <string name="settings_mark_pick">Auswählen</string>
     <string name="settings_mark_bad">Diese Datei eignet sich nicht als Wasserzeichen: Wähle eine PNG- oder SVG-Datei.</string>
-    <string name="settings_mark_on">Aktiv</string>
-    <string name="settings_mark_on_desc">Das Wasserzeichen ist ein grafisches Element (z. B. eine Signatur oder ein Logo), das über das Bild gelegt wird. Du kannst es hier ein- oder ausschalten oder vor dem Speichern mit der Ein/Aus-Taste in der unteren Leiste des Editors; halte die Taste gedrückt, um schnell zu diesem Bildschirm zu gelangen.</string>
+    <string name="settings_mark_on_desc">Das Wasserzeichen ist ein grafisches Element (z. B. eine Signatur oder ein Logo), das über das Bild gelegt wird. Du kannst es vor dem Speichern mit der Ein/Aus-Taste in der unteren Leiste des Editors ein- oder ausschalten; halte die Taste gedrückt, um schnell zu den Einstellungen zu gelangen.</string>
     <string name="settings_mark_lossy">⚠️ Mit Wasserzeichen sind verlustfreie Vorgänge wie das Drehen eines JPEG nicht möglich: Beim Speichern wird die Datei vollständig neu geschrieben.</string>
     <string name="settings_mark_where">Position</string>
     <string name="mark_spot_tl">Oben links</string>
@@ -627,7 +626,7 @@
     <string name="settings_mark_air">Randabstand</string>
     <string name="settings_mark_alpha">Deckkraft</string>
     <string name="settings_mark_preview">Vorschau des Wasserzeichens</string>
-    <string name="settings_mark_preview_note">Vergrößerte Vorschau in Entwurfsqualität: prüfe das Wasserzeichen im Ergebnis.</string>
+    <string name="settings_mark_preview_note">Vorschau nur zur Orientierung: prüfe das echte Ergebnis.</string>
     <string name="look_resize">Größe ändern</string>
     <string name="resize_long">Längere Seite</string>
     <string name="resize_short">Kürzere Seite</string>

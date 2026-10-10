@@ -449,9 +449,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Sửa</string>
     <string name="menu_edit_hold">Chọn ứng dụng</string>
-    <string name="editor_internal">Trình sửa đơn giản</string>
+    <string name="editor_internal">Trình sửa tích hợp</string>
     <string name="editor_title">Sửa</string>
-    <string name="editor_full">Trình sửa đầy đủ</string>
     <string name="look_light">Ánh sáng</string>
     <string name="look_exposure">Phơi sáng</string>
     <string name="look_whites">Vùng trắng</string>
@@ -581,9 +580,10 @@
     <string name="edit_failed">Không lưu được</string>
     <string name="edit_app_gone">Trình sửa đó không còn nữa. Hãy chọn cái khác.</string>
     <string name="settings_editor">Trình sửa ảnh</string>
-    <string name="settings_editor_desc">Chọn ứng dụng mở ảnh bằng lệnh Sửa (menu nhấn giữ của trình xem). Nhấn giữ Sửa để đổi ứng dụng ngay mà không cần mở lại cài đặt.</string>
+    <string name="settings_editor_desc">Chọn ứng dụng mở ảnh bằng lệnh \'Sửa\'. Nhấn giữ \'Sửa\' để đổi ứng dụng ngay mà không cần mở lại cài đặt.</string>
     <string name="settings_editor_none">Chưa chọn cái nào</string>
-    <string name="settings_editor_pick">Đặt ứng dụng</string>
+    <string name="settings_editor_pick">Đặt</string>
+    <string name="settings_editor_app">ứng dụng:</string>
     <string name="view_grid">Lưới</string>
     <string name="view_list">Danh sách</string>
     <string name="view_tree">Thư mục</string>
@@ -597,8 +597,7 @@
     <string name="settings_mark_clear">Gỡ bỏ</string>
     <string name="settings_mark_pick">Chọn</string>
     <string name="settings_mark_bad">Không thể dùng tệp này làm hình mờ: hãy chọn một tệp PNG hoặc SVG.</string>
-    <string name="settings_mark_on">Bật</string>
-    <string name="settings_mark_on_desc">Hình mờ là một thành phần đồ họa (ví dụ chữ ký, logo) được đặt chồng lên ảnh. Bạn có thể bật hoặc tắt ở đây, hoặc bật tắt ngay trước khi lưu bằng nút bật/tắt trên thanh dưới cùng của trình chỉnh sửa; nhấn giữ nút để mở nhanh màn hình này.</string>
+    <string name="settings_mark_on_desc">Hình mờ là một thành phần đồ họa (ví dụ chữ ký, logo) được đặt chồng lên ảnh. Bạn có thể bật hoặc tắt trước khi lưu bằng nút bật/tắt trên thanh dưới cùng của trình chỉnh sửa; nhấn giữ nút để mở nhanh phần cài đặt.</string>
     <string name="settings_mark_lossy">⚠️ Khi có hình mờ, các thao tác không mất dữ liệu như xoay JPEG không dùng được: khi lưu, toàn bộ tệp sẽ được ghi lại.</string>
     <string name="settings_mark_where">Vị trí</string>
     <string name="mark_spot_tl">Trên bên trái</string>
@@ -610,7 +609,7 @@
     <string name="settings_mark_air">Khoảng cách từ mép</string>
     <string name="settings_mark_alpha">Độ mờ đục</string>
     <string name="settings_mark_preview">Xem trước hình mờ</string>
-    <string name="settings_mark_preview_note">Bản xem trước phóng to ở chất lượng nháp: hãy kiểm tra hình mờ trong kết quả.</string>
+    <string name="settings_mark_preview_note">Bản xem trước chỉ mang tính tham khảo: hãy kiểm tra kết quả thật.</string>
     <string name="look_resize">Đổi kích thước</string>
     <string name="resize_long">Cạnh dài</string>
     <string name="resize_short">Cạnh ngắn</string>

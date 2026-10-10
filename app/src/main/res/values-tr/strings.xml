@@ -466,9 +466,8 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Düzenle</string>
     <string name="menu_edit_hold">Uygulamayı seç</string>
-    <string name="editor_internal">Basit düzenleyici</string>
+    <string name="editor_internal">Yerleşik düzenleyici</string>
     <string name="editor_title">Düzenle</string>
-    <string name="editor_full">Tam düzenleyici</string>
     <string name="look_light">Işık</string>
     <string name="look_exposure">Pozlama</string>
     <string name="look_whites">Beyazlar</string>
@@ -598,9 +597,10 @@
     <string name="edit_failed">Kaydedilemedi</string>
     <string name="edit_app_gone">O düzenleyici artık yok. Başka birini seç.</string>
     <string name="settings_editor">Görüntü düzenleyici</string>
-    <string name="settings_editor_desc">Düzenle komutuyla görüntüyü hangi uygulamanın açacağını seç (görüntüleyicinin uzun basma menüsü). Ayarları yeniden açmadan uygulamayı anında değiştirmek için Düzenle\'ye uzun bas.</string>
+    <string name="settings_editor_desc">\'Düzenle\' komutuyla görüntüyü hangi uygulamanın açacağını seç. Ayarları yeniden açmadan uygulamayı anında değiştirmek için \'Düzenle\' üzerine uzun bas.</string>
     <string name="settings_editor_none">Seçilmedi</string>
-    <string name="settings_editor_pick">Uygulamayı ayarla</string>
+    <string name="settings_editor_pick">Ayarla</string>
+    <string name="settings_editor_app">uygulama:</string>
     <string name="view_grid">Izgara</string>
     <string name="view_list">Liste</string>
     <string name="view_tree">Klasörler</string>
@@ -614,8 +614,7 @@
     <string name="settings_mark_clear">Kaldır</string>
     <string name="settings_mark_pick">Seç</string>
     <string name="settings_mark_bad">Bu dosya filigran olarak kullanılamaz: bir PNG veya SVG seçin.</string>
-    <string name="settings_mark_on">Etkin</string>
-    <string name="settings_mark_on_desc">Filigran, görüntünün üzerine yerleştirilen grafik bir öğedir (ör. imza, logo). Buradan açıp kapatabilir ya da kaydetmeden hemen önce düzenleyicinin alt çubuğundaki aç/kapat düğmesiyle anında değiştirebilirsin; bu ekrana hızlıca gelmek için düğmeye uzun bas.</string>
+    <string name="settings_mark_on_desc">Filigran, görüntünün üzerine yerleştirilen grafik bir öğedir (ör. imza, logo). Kaydetmeden önce düzenleyicinin alt çubuğundaki aç/kapat düğmesiyle açıp kapatabilirsin; ayarlara hızlıca gelmek için düğmeye uzun bas.</string>
     <string name="settings_mark_lossy">⚠️ Filigran eklendiğinde JPEG döndürme gibi kayıpsız işlemler kullanılamaz: kaydetme dosyanın tamamını yeniden yazar.</string>
     <string name="settings_mark_where">Konum</string>
     <string name="mark_spot_tl">Sol üst</string>
@@ -627,7 +626,7 @@
     <string name="settings_mark_air">Kenar mesafesi</string>
     <string name="settings_mark_alpha">Opaklık</string>
     <string name="settings_mark_preview">Filigran önizlemesi</string>
-    <string name="settings_mark_preview_note">Taslak kalitesinde büyütülmüş önizleme: filigranı çıktıda kontrol et.</string>
+    <string name="settings_mark_preview_note">Önizleme yalnızca fikir verir: gerçek çıktıyı kontrol et.</string>
     <string name="look_resize">Yeniden boyutlandır</string>
     <string name="resize_long">Uzun kenar</string>
     <string name="resize_short">Kısa kenar</string>
