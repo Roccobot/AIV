@@ -225,6 +225,18 @@
     <string name="pick_rename">Перейменувати</string>
     <string name="pick_delete">Видалити</string>
     <string name="draw_clear">Видалити все</string>
+    <string name="draw_text">Текст</string>
+    <string name="draw_pill">Капсула</string>
+    <string name="draw_panel">Панель</string>
+    <string name="draw_face">Шрифт</string>
+    <string name="draw_bold">Жирний</string>
+    <string name="draw_italic">Курсив</string>
+    <string name="draw_strike">Закреслений</string>
+    <string name="draw_ground">Тло</string>
+    <string name="draw_size">Розмір</string>
+    <string name="draw_text_edit">Змінити текст</string>
+    <string name="draw_align">Вирівнювання</string>
+    <string name="draw_center">По центру</string>
     <string name="pick_list">Список</string>
     <string name="pick_invert">Обернути</string>
     <string name="pick_all_short">Усе</string>
@@ -716,11 +728,13 @@
     <string name="settings_styles_import">Імпорт</string>
     <string name="settings_styles_saved">Стилі експортовано</string>
     <string name="settings_styles_loaded">Стилі імпортовано</string>
+    <string name="settings_style_saved">Стиль експортовано</string>
+    <string name="settings_style_loaded">Стиль імпортовано</string>
     <string name="settings_styles_bad">У цьому файлі немає стилів</string>
     <string name="hint_modules">Гортайте значки, щоб дістатися до всіх модулів обробки. Утримуйте значок модуля, щоб скинути лише його зміни.</string>
     <string name="hint_tools">Крім модулів, є дві функції, які можна миттєво ввімкнути або вимкнути дотиком до значка, і він засвічується: \'Водяний знак\' і \'Змінити розмір\'. Довге натискання відкриває налаштування кожної з них.</string>
     <string name="hint_save">Коли завершиш, торкнись \'Зберегти\', щоб перезаписати файл (з резервною копією, якщо її ввімкнено); довге натискання збереже нову копію зображення в тій самій теці.</string>
-    <string name="hint_draw">У модулі \'Малювання\' можна додавати на зображення лінії, стрілки, еліпси, заокруглені прямокутники, простий текст і рамки-\'пігулки\'. Під час збереження зображення зводиться в один шар: відкрити його знову, щоб змінити або перемістити елементи, не вийде. Утримуйте колір, щоб налаштувати його яскравість.</string>
+    <string name="hint_draw">У модулі \'Малювання\' можна додавати на зображення лінії, стрілки, еліпси, заокруглені прямокутники, простий текст, рамки-\'пігулки\' і розмиті панелі. Під час збереження зображення зводиться в один шар: відкрити його знову, щоб змінити або перемістити елементи, не вийде. Утримуйте колір, щоб налаштувати його яскравість.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Експорт та імпорт</string>

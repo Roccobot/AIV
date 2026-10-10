@@ -88,6 +88,39 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
         pass
 
 
+def check_attachment_buttons(path):
+    """Rinomina and Elimina stay inside their attachment card at every width (his screenshot of
+    2026-10-09: in the side column of Altro, on a desktop, the two rows ran out of their cards
+    and over each other). Two images in Altro, measured at the widths of a desktop and a phone."""
+    from playwright.sync_api import sync_playwright
+    browser_path = shutil.which('chromium') or shutil.which('google-chrome')
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: tasti degli allegati non verificati.')
+    # A 1x1 PNG, enough for a thumbnail with its card and its buttons.
+    pixel = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==')
+    with tempfile.TemporaryDirectory() as temporary:
+        files = []
+        for name in ['etichetta.png', 'pillola.png']:
+            file = Path(temporary) / name
+            file.write_bytes(pixel)
+            files.append(str(file))
+        with sync_playwright() as pw:
+            engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+            for width in [390, 800, 1024, 1280, 1440, 1920]:
+                page = engine.new_page(viewport={'width': width, 'height': 900})
+                page.goto(Path(path).resolve().as_uri())
+                page.locator('#extra-section input.images').set_input_files(files)
+                page.wait_for_function("document.querySelectorAll('#extra-section .image-list figure button').length >= 4")
+                out = page.evaluate("""() => [...document.querySelectorAll('#extra-section .image-list figure')]
+                    .flatMap((card) => { const r = card.getBoundingClientRect();
+                        return [...card.querySelectorAll('button')].filter((b) => { const q = b.getBoundingClientRect();
+                            return q.left < r.left - 0.5 || q.right > r.right + 0.5; }).map((b) => b.textContent.trim()); })""")
+                assert not out, f'A {width}px escono dal riquadro dell\'allegato: {out}'
+                page.close()
+            engine.close()
+    print('Allegati: Rinomina ed Elimina dentro il loro riquadro da 390 a 1920px verificati.')
+
+
 def check_questions_and_labels(path):
     """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
     synthetic source with the real generator and template: the questions come after the tests and
@@ -119,10 +152,36 @@ def check_questions_and_labels(path):
         try:
             with sync_playwright() as pw:
                 engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
-                page = engine.new_page()
+                page = engine.new_context(permissions=['clipboard-read', 'clipboard-write']).new_page()
                 page.on('pageerror', lambda e: errors.append(str(e)))
                 page.goto(url)
                 expect(page.locator('#save')).to_be_enabled()
+                # The copy mark (his request of 2026-10-09): one per card, test, question or
+                # label, in the top right corner, and a tap copies the card's reference.
+                cards = page.locator('.card.test, .card.question, .label-card')
+                expect(cards).to_have_count(3)
+                for index in range(3):
+                    card = cards.nth(index)
+                    mark = card.locator(':scope > .card-ref')
+                    expect(mark).to_have_count(1)
+                    card_box, mark_box = card.bounding_box(), mark.bounding_box()
+                    assert card_box['x'] + card_box['width'] - (mark_box['x'] + mark_box['width']) < 48, (index, card_box, mark_box)
+                    assert mark_box['y'] - card_box['y'] < 16, (index, card_box, mark_box)
+                    mark.click()
+                    # The rich copy is written asynchronously: the toast says when it is done.
+                    expect(page.locator('.toast')).to_contain_text(card.get_attribute('data-id').lower())
+                    copied = page.evaluate('navigator.clipboard.readText()')
+                    assert copied == '`' + card.get_attribute('data-id').lower() + '`', (copied, card.get_attribute('data-id'))
+                # Pasted in a comment, a reference between backticks is inline code (2026-10-09),
+                # and a text with backticks inside it stays plain.
+                field = page.locator('.test .rich-editor').first
+                for pasted, code in [('`4.91-01`', '4.91-01'), ('vedi `a` e `b`', None)]:
+                    field.evaluate('''(box, text) => { box.focus(); const data = new DataTransfer();
+                        data.setData('text/plain', text);
+                        box.dispatchEvent(new ClipboardEvent('paste', {bubbles: true, cancelable: true, clipboardData: data})); }''', pasted)
+                    found = field.evaluate("(box) => [...box.querySelectorAll('code')].map((c) => c.textContent)")
+                    assert found == ([code] if code else []), (pasted, found)
+                    field.evaluate("(box) => { box.textContent = ''; box.dispatchEvent(new Event('input', {bubbles: true})); }")
                 order = page.evaluate("""() => [...document.querySelectorAll('.test, #questions, #labels')]
                     .map((node) => node.classList.contains('test') ? 'prova' : node.id)""")
                 assert order == ['prova', 'questions', 'labels'], 'Ordine dei blocchi: ' + str(order)
@@ -168,7 +227,7 @@ def check_questions_and_labels(path):
             server.shutdown()
             server.server_close()
     assert not errors, 'Errori nella pagina di sintesi: ' + str(errors)
-    print('Domande ed etichette: ordine, opzioni, Rimando, commento, ricarica e riepilogo verificati.')
+    print('Domande ed etichette: ordine, opzioni, Rimando, commento, ricarica, riepilogo e copia dei riferimenti verificati.')
 
 
 def check_without_tests(path):
@@ -234,6 +293,7 @@ def check(path):
         assert re.fullmatch(r'd-[a-z0-9-]+', question.get('id', '')), 'Chiave di domanda non valida.'
         assert question.get('title') and question.get('paragraphs'), 'Domanda incompleta.'
     check_questions_and_labels(path)
+    check_attachment_buttons(path)
     if not data['items']:
         check_without_tests(path)
         return

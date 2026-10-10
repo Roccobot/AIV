@@ -225,6 +225,18 @@
     <string name="pick_rename">تغییر نام</string>
     <string name="pick_delete">پاک کردن</string>
     <string name="draw_clear">پاک کردن همه</string>
+    <string name="draw_text">متن</string>
+    <string name="draw_pill">کپسول</string>
+    <string name="draw_panel">پنل</string>
+    <string name="draw_face">قلم</string>
+    <string name="draw_bold">پررنگ</string>
+    <string name="draw_italic">کج</string>
+    <string name="draw_strike">خط‌خورده</string>
+    <string name="draw_ground">پس‌زمینه</string>
+    <string name="draw_size">اندازه</string>
+    <string name="draw_text_edit">ویرایش متن</string>
+    <string name="draw_align">تراز</string>
+    <string name="draw_center">وسط</string>
     <string name="pick_list">فهرست</string>
     <string name="pick_invert">وارونه</string>
     <string name="pick_all_short">همه</string>
@@ -680,11 +692,13 @@
     <string name="settings_styles_import">درون‌ریزی</string>
     <string name="settings_styles_saved">سبک‌ها برون‌بری شد</string>
     <string name="settings_styles_loaded">سبک‌ها درون‌ریزی شد</string>
+    <string name="settings_style_saved">سبک برون‌بری شد</string>
+    <string name="settings_style_loaded">سبک درون‌ریزی شد</string>
     <string name="settings_styles_bad">این فایل هیچ سبکی ندارد</string>
     <string name="hint_modules">نمادها را بکشید تا به همهٔ بخش‌های ویرایش برسید. نماد یک بخش را نگه دارید تا فقط تغییرات همان بخش صفر شود.</string>
     <string name="hint_tools">علاوه بر ماژول‌ها، دو قابلیت وجود دارد که با یک ضربه روی نماد، که روشن می‌شود، بی‌درنگ فعال یا غیرفعال می‌شوند: \'واترمارک\' و \'تغییر اندازه\'. با فشار طولانی به تنظیمات هرکدام می‌روی.</string>
     <string name="hint_save">وقتی کارت تمام شد، برای بازنویسی فایل روی \'ذخیره\' بزن (همراه نسخه پشتیبان، اگر فعال باشد)؛ با فشار طولانی یک نسخه تازه از تصویر در همان پوشه ذخیره می‌شود.</string>
-    <string name="hint_draw">با بخش طراحی می‌توانید به تصویر خط، پیکان، بیضی، مستطیل گوشه‌گرد، متن ساده و قاب \'کپسولی\' اضافه کنید. ذخیره، تصویر را یکپارچه می‌کند: دیگر نمی‌توان آن را باز کرد تا عناصر را ویرایش یا جابه‌جا کرد. یک رنگ را نگه دارید تا روشنایی آن را تنظیم کنید.</string>
+    <string name="hint_draw">با بخش طراحی می‌توانید به تصویر خط، پیکان، بیضی، مستطیل گوشه‌گرد، متن ساده، قاب \'کپسولی\' و پنل تار اضافه کنید. ذخیره، تصویر را یکپارچه می‌کند: دیگر نمی‌توان آن را باز کرد تا عناصر را ویرایش یا جابه‌جا کرد. یک رنگ را نگه دارید تا روشنایی آن را تنظیم کنید.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">برون‌بری و درون‌ریزی</string>

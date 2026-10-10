@@ -225,6 +225,18 @@
     <string name="pick_rename">Zmień nazwę</string>
     <string name="pick_delete">Usuń</string>
     <string name="draw_clear">Usuń wszystko</string>
+    <string name="draw_text">Tekst</string>
+    <string name="draw_pill">Pigułka</string>
+    <string name="draw_panel">Panel</string>
+    <string name="draw_face">Czcionka</string>
+    <string name="draw_bold">Pogrubienie</string>
+    <string name="draw_italic">Kursywa</string>
+    <string name="draw_strike">Przekreślenie</string>
+    <string name="draw_ground">Tło</string>
+    <string name="draw_size">Rozmiar</string>
+    <string name="draw_text_edit">Edytuj tekst</string>
+    <string name="draw_align">Wyrównanie</string>
+    <string name="draw_center">Środek</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Odwróć</string>
     <string name="pick_all_short">Wszystko</string>
@@ -716,11 +728,13 @@
     <string name="settings_styles_import">Importuj</string>
     <string name="settings_styles_saved">Wyeksportowano style</string>
     <string name="settings_styles_loaded">Zaimportowano style</string>
+    <string name="settings_style_saved">Wyeksportowano styl</string>
+    <string name="settings_style_loaded">Zaimportowano styl</string>
     <string name="settings_styles_bad">Ten plik nie zawiera żadnego stylu</string>
     <string name="hint_modules">Przesuwaj ikony, aby dotrzeć do wszystkich modułów edycji. Przytrzymaj ikonę modułu, aby wyzerować tylko jego zmiany.</string>
     <string name="hint_tools">Poza modułami są dwie funkcje, które włączysz i wyłączysz od razu jednym dotknięciem ikony, która się zapala: \'Znak wodny\' i \'Zmień rozmiar\'. Długie przytrzymanie otwiera ustawienia każdej z nich.</string>
     <string name="hint_save">Po zakończeniu dotknij \'Zapisz\', aby nadpisać plik (z kopią zapasową, jeśli jest włączona); długie przytrzymanie zapisuje nową kopię obrazu w tym samym folderze.</string>
-    <string name="hint_draw">W module Rysowanie dodasz do obrazu linie, strzałki, elipsy, zaokrąglone prostokąty, proste teksty i ramki \'pigułki\'. Zapisanie spłaszcza obraz: nie można go ponownie otworzyć, aby edytować lub przesuwać elementy. Przytrzymaj kolor, aby dostosować jego jasność.</string>
+    <string name="hint_draw">W module Rysowanie dodasz do obrazu linie, strzałki, elipsy, zaokrąglone prostokąty, proste teksty, ramki \'pigułki\' i rozmyte panele. Zapisanie spłaszcza obraz: nie można go ponownie otworzyć, aby edytować lub przesuwać elementy. Przytrzymaj kolor, aby dostosować jego jasność.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Eksport i import</string>

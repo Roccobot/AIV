@@ -322,9 +322,17 @@ function changed() {
   saved.textContent = "Modifiche da salvare...";
 }
 // Copy a text to the clipboard, with the selection fallback for browsers that refuse the API.
-async function copyText(text) {
+// With [html], the rich copy goes along, for the apps that read it.
+async function copyText(text, html) {
   try {
-    await navigator.clipboard.writeText(text);
+    if (html && window.ClipboardItem) {
+      await navigator.clipboard.write([new ClipboardItem({
+        "text/plain": new Blob([text], {type: "text/plain"}),
+        "text/html": new Blob([html], {type: "text/html"}),
+      })]);
+    } else {
+      await navigator.clipboard.writeText(text);
+    }
   } catch {
     const area = document.createElement("textarea");
     area.value = text;
@@ -384,6 +392,49 @@ for (const item of spec.labels || []) {
   card.append(label);
   document.querySelector("#label-list").append(card);
 }
+/* The copy mark at the top right of every card (the user's request, 2026-10-09, with his mockup
+   and his icon): a tap copies the card's reference (`4.90-05`, `d-velo-pannello`,
+   `e-draw_panel`), to quote it in another comment, lower case like the label ids.
+   ⚠️ As inline code (his request of the same day, after the first version: *formattato come
+   codice in linea e che appaia come tale quando lo incollo*): between backticks in the plain
+   text, which the comment fields of this page paste as code, and as `<code>` in the rich copy,
+   for the apps that read it. The icon is his file, viewBox and stroke as he drew them. */
+const REF_ICON = [
+  "M600,533.33c0,94.28,0,141.42-29.29,170.71-29.29,29.29-76.43,29.29-170.71,29.29h-100c-94.28,0-141.42,0-170.71-29.29-29.29-29.29-29.29-76.43-29.29-170.71v-166.67c0-94.28,0-141.42,29.29-170.71,29.29-29.29,76.43-29.29,170.71-29.29h100c94.28,0,141.42,0,170.71,29.29,29.29,29.29,29.29,76.43,29.29,170.71v166.67Z",
+  "M200,166.67c0-55.23,44.77-100,100-100h133.33c125.71,0,188.56,0,227.61,39.05,39.05,39.05,39.05,101.91,39.05,227.61v200c0,55.23-44.77,100-100,100",
+];
+function refButton(id) {
+  const ref = String(id || "").toLowerCase();
+  const button = el("button", undefined, "card-ref");
+  button.type = "button";
+  button.title = "Copia il riferimento " + ref;
+  button.setAttribute("aria-label", "Copia il riferimento " + ref);
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 800 800");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "50");
+  svg.setAttribute("aria-hidden", "true");
+  for (const d of REF_ICON) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    svg.append(path);
+  }
+  button.append(svg);
+  button.addEventListener("click", async () => {
+    try {
+      const safe = ref.replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+      await copyText("`" + ref + "`", "<code>" + safe + "</code>");
+      toast("Riferimento copiato: " + ref);
+      report("Riferimento copiato: " + ref);
+    } catch {
+      toast("Il browser non ha permesso la copia negli appunti.", true);
+    }
+  });
+  return button;
+}
+for (const card of document.querySelectorAll(".card.test, .card.question, .label-card"))
+  card.append(refButton(card.dataset.id));
 window.feedbackRestoreLabel = (area) => {
   const card = area.closest(".label-card");
   const item = card && labelById(card.dataset.id);

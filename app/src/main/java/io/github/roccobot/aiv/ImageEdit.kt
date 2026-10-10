@@ -389,6 +389,8 @@ object ImageEdit {
              * sliders must not repaint the ink, and straightening and the crop must move it with
              * the image (his answer D2a). The why lives at the top of `Drawing.kt`.
              */
+            // ⚠️ The faces of the text (4.90) are loaded here too: the save may run with no editor open.
+            Faces.load(context)
             drawn = Draw.onto(shaded, look.drawing, look.spin)
             warped = if (look.geo.idle) drawn else Warp.render(drawn, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)

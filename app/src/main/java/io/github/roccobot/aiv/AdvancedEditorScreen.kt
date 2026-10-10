@@ -58,7 +58,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.ControlPointDuplicate
 import androidx.compose.material.icons.filled.CropFree
@@ -71,6 +70,19 @@ import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.Typeface
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -107,14 +119,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
@@ -158,6 +173,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -250,6 +266,9 @@ fun AdvancedEditorScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    // ⚠️ The four faces of the text (4.90) are loaded once, off the main thread: eight files of
+    // some megabytes would hold the editor's first frame, and a text comes only after its words.
+    LaunchedEffect(Unit) { withContext(Dispatchers.IO) { Faces.load(context.applicationContext) } }
     /*
      * ⚠️ **La rotazione è inibita qui come nell'editor semplice, e per la sua stessa ragione**
      * (giro della `1.67`, domanda `d-rotazione`: *usare editor di immagini in orizzontale è
@@ -431,6 +450,19 @@ fun AdvancedEditorScreen(
     }
 
     /**
+     * **A gesture on the stage of the Disegno module is over**: the history takes the drawing, and
+     * the module loads the chosen mark's parameters again.
+     * ⚠️⚠️ **Since 4.92** (his note on `4.91-03`: *Se ingrandisco il testo e poi cambio colore, il
+     * colore si applica ma il testo ritorna piccolo come in origine*): a handle sets a text's size on
+     * the mark and not in the module, so the next change of a swatch laid the module's old size back
+     * on it ([Gaze.restyle]). Loaded again, the module holds what the stage has made.
+     */
+    fun drawn() {
+        push()
+        gaze.picked?.let { look.drawing.marks.getOrNull(it) }?.let { gaze.load(it) }
+    }
+
+    /**
      * Il colore mirato: che cosa vuol dire aver toccato il pixel [pixel].
      *
      * ⚠️⚠️ **DALLA `2.32` IL MIRATO È DELL'HSL E BASTA, ED È LA SUA RISPOSTA `via` A
@@ -558,6 +590,66 @@ fun AdvancedEditorScreen(
     fun holdDraw() {
         gaze.picked?.let { drawFor = it to look.drawing }
         drawMenu.open()
+    }
+
+    /*
+     * ⚠️⚠️ **The words of a text are written in a window of their own, since 4.90** (G3, reading
+     * `A1` of the session): a modal, as every window that gathers written input. A new text is
+     * laid centred where the finger tapped and comes chosen, so the module's keys change it at
+     * once; the chosen one keeps its place and its style, and takes the new words. A blank text is
+     * not a text: the key that confirms waits for a letter. A pill or a panel may have no words
+     * (4.92, his note C on the 4.91 round), and a tap with no words lays none, since a tap sizes it
+     * around its words.
+     */
+    fun askText(at: Offset) {
+        gaze.textAsk = TextAsk(at, null, "")
+    }
+    // ⚠️ A pill just drawn (4.90), or a panel (4.91), comes chosen, and its words are asked for at once.
+    fun askPill(i: Int) {
+        pick(i)
+        gaze.textAsk = TextAsk(null, i, "")
+    }
+    // ⚠️ The colour under the chosen text, or under the whole image, for the grounds' row (4.90).
+    LaunchedEffect(origin, gaze.picked, look.drawing) {
+        val base = origin ?: return@LaunchedEffect
+        val segno = gaze.picked?.let { look.drawing.marks.getOrNull(it) }?.takeIf { it.pen == Pen.TEXT }
+        gaze.under = withContext(Dispatchers.Default) { Draw.under(base, segno) }
+    }
+    gaze.textAsk?.let { ask ->
+        val per = ask.index?.let { look.drawing.marks.getOrNull(it)?.pen } ?: gaze.pen
+        TextDialog(
+            initial = ask.text,
+            blank = per.framed,
+            onDismiss = { gaze.textAsk = null },
+            onDone = { parole ->
+                gaze.textAsk = null
+                val dove = ask.at
+                if (ask.index == null && dove != null) {
+                    // ⚠️ A tap lays a pill or a panel around its words (4.90), so with none it lays nothing (4.92).
+                    if (parole.isBlank()) return@TextDialog
+                    val w = origin?.width?.toFloat() ?: 1f
+                    val h = origin?.height?.toFloat() ?: 1f
+                    // ⚠️ Since 4.92 a new text is born with its widest line half the image's width
+                    // (his note on `4.91-03`), and so are the words of a pill or a panel laid by a tap.
+                    val nuovo = if (gaze.pen.framed) {
+                        val pillola = gaze.pillWords(parole)
+                        gaze.penMark().copy(
+                            points = Draw.pillAround(pillola, Draw.fitSize(pillola, w, h), dove, w, h, gaze.pen), words = pillola
+                        )
+                    } else gaze.words(parole).let { testo ->
+                        gaze.penMark().copy(points = listOf(dove), width = Draw.fitSize(testo, w, h), words = testo)
+                    }
+                    look = look.copy(drawing = look.drawing.with(nuovo))
+                    push()
+                    pick(look.drawing.marks.size - 1)
+                } else ask.index?.let { i ->
+                    look.drawing.marks.getOrNull(i)?.takeIf { it.pen.written }?.let { segno ->
+                        look = look.copy(drawing = look.drawing.replacing(i, segno.copy(words = segno.words?.copy(text = parole))))
+                        push()
+                    }
+                }
+            }
+        )
     }
     origin?.let { base ->
         drawFor?.let { held ->
@@ -828,13 +920,16 @@ fun AdvancedEditorScreen(
                             gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
                         },
                         onDraw = { look = look.copy(drawing = it) },
-                        onDrawEnd = { push() },
+                        onDrawEnd = { drawn() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         drawPicked = { gaze.picked },
                         onDrawPick = { i -> pick(i) },
                         drawTurning = { gaze.turning },
                         onDrawTurn = { gaze.turning = !gaze.turning },
+                        onDrawText = { at -> askText(at) },
+                        onDrawWords = { i -> gaze.askWords(look.drawing, i) },
+                        onDrawPill = { i -> askPill(i) },
                         onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
@@ -994,13 +1089,16 @@ fun AdvancedEditorScreen(
                             gaze.penMark().takeIf { !busy && MODULES[gaze.module].extra == Extra.DRAW }
                         },
                         onDraw = { look = look.copy(drawing = it) },
-                        onDrawEnd = { push() },
+                        onDrawEnd = { drawn() },
                         inkSizing = { gaze.inkSizing && MODULES[gaze.module].extra == Extra.DRAW },
                         onViewLong = { if (gaze.viewLong != it) gaze.viewLong = it },
                         drawPicked = { gaze.picked },
                         onDrawPick = { i -> pick(i) },
                         drawTurning = { gaze.turning },
                         onDrawTurn = { gaze.turning = !gaze.turning },
+                        onDrawText = { at -> askText(at) },
+                        onDrawWords = { i -> gaze.askWords(look.drawing, i) },
+                        onDrawPill = { i -> askPill(i) },
                         onDrawHold = { holdDraw() },
                         onHealPaint = { polygon ->
                             if (!gaze.healingBusy) {
@@ -1366,6 +1464,12 @@ private fun LookStage(
     drawTurning: () -> Boolean,
     /** A tap on the chosen mark: 'Trasforma' and 'Ruota' swap (4.81), see [Gaze.turning]. */
     onDrawTurn: () -> Unit,
+    /** A tap on nothing with the Testo pen, at this point of the original image: the words are asked (4.90). */
+    onDrawText: (Offset) -> Unit,
+    /** A double tap on the mark at this index, a text, a pill or a panel: its words are asked (4.93). */
+    onDrawWords: (Int) -> Unit,
+    /** A pill just drawn with the Pillola pen, at this index: it is chosen and its words asked (4.90). */
+    onDrawPill: (Int) -> Unit,
     /** A finger held still on a mark, which the stage has just chosen: its menu opens (4.70). */
     onDrawHold: () -> Unit,
     modifier: Modifier = Modifier
@@ -1403,6 +1507,11 @@ private fun LookStage(
     val pickNow by rememberUpdatedState(onDrawPick)
     val turningNow by rememberUpdatedState(drawTurning)
     val turnNow by rememberUpdatedState(onDrawTurn)
+    val textNow by rememberUpdatedState(onDrawText)
+    val wordsNow by rememberUpdatedState(onDrawWords)
+    /** The last tap on a mark of the Disegno module, to read the next one as a double tap (4.93). */
+    val lastTap = remember { MarkTap() }
+    val pillNow by rememberUpdatedState(onDrawPill)
     val holdNow by rememberUpdatedState(onDrawHold)
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
     val metrics = LocalContext.current.resources.displayMetrics
@@ -1443,11 +1552,14 @@ private fun LookStage(
      * stessa ragione scritta sui passi dell'editor semplice).
      */
     /*
-     * ⚠️ The blurring elements of the Disegno module (4.80) change the image itself, before the
-     * development, like the patches of Correggi ([Draw.blurAreas]): they are the key of the posed
-     * preview, and the other elements are not, so drawing a line does not blur the image again.
+     * ⚠️ The glass of the pills and the panels of the Disegno module (4.80) changes the image itself,
+     * before the development, like the patches of Correggi ([Draw.blurAreas]): they are the key of
+     * the posed preview, and the other elements are not, so drawing a line does not blur the image
+     * again.
+     * ⚠️⚠️ **The pills are here since 4.91**: until 4.90 only the blurring rectangles and ellipses
+     * were, so the stage showed a pill with no glass under it, and only the saved file had it.
      */
-    val sfocature = remember(look.drawing) { Drawing(look.drawing.marks.filter { it.blurs }) }
+    val sfocature = remember(look.drawing) { Drawing(look.drawing.marks.filter { it.glass }) }
     val posed = remember(picture, look.spin, look.healing, sfocature) {
         val curato = Healing.render(picture, look.healing)
         Draw.blurAreas(curato, sfocature, mine = curato !== picture).spunBy(look.spin.turns, look.spin.mirror)
@@ -1570,6 +1682,12 @@ private fun LookStage(
      * request of 2026-10-08, 4.62).
      */
     var penEdges by remember(picture) { mutableStateOf(emptySet<ImageEdge>()) }
+    /**
+     * The guides between the element under the finger and the other elements it lines up with,
+     * as segments on the stage ([Draw.lines]), gone when the finger lifts (his request of
+     * 2026-10-08, 4.90).
+     */
+    var penLines by remember(picture) { mutableStateOf(emptyList<Pair<Offset, Offset>>()) }
     var brushHide by remember(picture) { mutableStateOf<Job?>(null) }
     /**
      * Quanto è grande il palco, misurato dal layout.
@@ -2094,6 +2212,31 @@ private fun LookStage(
                             if (presa != null) {
                                 val giro = turningNow()
                                 val scarto = maniglie[presa] - down.position
+                                /*
+                                 * ⚠️⚠️ **In 'Trasforma' the side the handle pulls rests on the edges
+                                 * and on the other elements, since 4.90** (his request of 2026-10-08:
+                                 * *allineare dinamicamente gli elementi a lati/centro/estremi di altri
+                                 * elementi già presenti*), as when the element is drawn or moved.
+                                 * Which sides a handle pulls is read on the screen, from where it is
+                                 * in the element's box, so a mirrored or a spun image pulls the
+                                 * sides it shows. A turned rectangle or ellipse does not rest: its
+                                 * box does not follow the handle.
+                                 */
+                                val altri = base.marks.filterIndexed { i, _ -> i != scelto }
+                                    .map { stageBox(it, sulPalco, lungo, w, h) }
+                                val prima = stageBox(tenendo, sulPalco, lungo, w, h)
+                                val tirati = buildSet {
+                                    val m = maniglie[presa]
+                                    if (abs(m.x - prima.center.x) > prima.width / 4f) {
+                                        add(if (m.x < prima.center.x) ImageEdge.LEFT else ImageEdge.RIGHT)
+                                    }
+                                    if (abs(m.y - prima.center.y) > prima.height / 4f) {
+                                        add(if (m.y < prima.center.y) ImageEdge.TOP else ImageEdge.BOTTOM)
+                                    }
+                                }
+                                // ⚠️ A text grows around its centre (4.90), so no side of it follows
+                                // the handle alone.
+                                val appoggia = !(tenendo.pen.boxed && tenendo.angle != 0f) && tenendo.pen != Pen.TEXT
                                 val perno = tenendo.centre(w, h)
                                 fun verso(p: Offset): Float = Math.toDegrees(
                                     kotlin.math.atan2(((p.y - perno.y) * h).toDouble(), ((p.x - perno.x) * w).toDouble())
@@ -2108,7 +2251,22 @@ private fun LookStage(
                                             val altro = maniglie[1 - presa]
                                             val (d, asse) = Draw.snap(altro, qui)
                                             penGuide = asse?.let { altro to it }
-                                            qui = d
+                                            val tratto = tenendo.width * lungo
+                                            val (fine, _) = Draw.restEnd(
+                                                tenendo.pen, altro, d, tratto, lungo, cornice, portata,
+                                                asse?.let { setOf(it) } ?: SnapAxis.entries.toSet(), altri
+                                            )
+                                            qui = fine
+                                            val box = Draw.extent(tenendo.pen, altro, fine, tratto, lungo)
+                                            penEdges = Draw.on(box, cornice)
+                                            penLines = Draw.lines(box, altri)
+                                        } else if (appoggia) {
+                                            val prova = tenendo.reshaped(presa, toImage(qui) ?: return, w, h)
+                                            val box = stageBox(prova, sulPalco, lungo, w, h)
+                                            val (d, _) = Draw.rest(box, cornice, portata, tirati, altri)
+                                            qui += d
+                                            penEdges = Draw.on(box.translate(d), cornice)
+                                            penLines = Draw.lines(box.translate(d), altri)
                                         }
                                         tenendo.reshaped(presa, toImage(qui) ?: return, w, h)
                                     }
@@ -2122,6 +2280,8 @@ private fun LookStage(
                                     }
                                 } finally {
                                     penGuide = null
+                                    penEdges = emptySet()
+                                    penLines = emptyList()
                                 }
                                 drawEnd()
                                 return@awaitEachGesture
@@ -2130,6 +2290,26 @@ private fun LookStage(
                         if (esito == Settled.UP) {
                             val preso = Draw.hit(base, start, picture.width, picture.height, reach)
                             /*
+                             * ⚠️⚠️ **A double tap on a text, a pill or a panel asks for its words,
+                             * since 4.93** (his note in Altro on the 4.92 round: *gli elementi che
+                             * hanno un testo (o che potrebbero averlo) dovrebbero accettare come input
+                             * un doppio tap, che equivale al tasto 'Testo'*). The first tap does what a
+                             * tap does, at once (it chooses the element, or swaps its mode); the second,
+                             * on the same element within the system's double-tap time, takes the swap
+                             * back and opens the window. So a tap is never slower, and a drag right
+                             * after a tap stays a drag: each gesture is its own, and only the last tap
+                             * is remembered ([MarkTap]).
+                             */
+                            val su = currentEvent.changes.firstOrNull()?.uptimeMillis ?: down.uptimeMillis
+                            if (preso != null && preso == scelto && base.marks[preso].pen.written &&
+                                lastTap.index == preso && down.uptimeMillis - lastTap.up <= viewConfiguration.doubleTapTimeoutMillis
+                            ) {
+                                if (lastTap.turned) turnNow()
+                                lastTap.index = null
+                                wordsNow(preso)
+                                return@awaitEachGesture
+                            }
+                            /*
                              * ⚠️⚠️ **A tap on the chosen element swaps 'Trasforma' and 'Ruota',
                              * since 4.81** (his note on `4.70-04`: *un tap singolo su un oggetto già
                              * selezionato lo fa passare ciclicamente da trasformazione e rotazione*).
@@ -2137,23 +2317,31 @@ private fun LookStage(
                              */
                             if (preso != null && preso == scelto) {
                                 turnNow()
+                                lastTap.set(preso, su, turned = true)
                                 return@awaitEachGesture
                             }
                             if (preso != null || scelto != null) {
                                 pickNow(preso)
+                                lastTap.set(preso, su, turned = false)
                                 return@awaitEachGesture
                             }
                         } else if (scelto != null) {
                             val segno = base.marks.getOrNull(scelto)
                             if (segno != null && Draw.hit(Drawing(listOf(segno)), start, picture.width, picture.height, reach) == 0) {
+                                // ⚠️ Since 4.90 the moving element rests on the others too.
+                                val sulPalco = toStage()
+                                val altri = base.marks.filterIndexed { i, _ -> i != scelto }
+                                    .map { stageBox(it, sulPalco, lungo, picture.width, picture.height) }
                                 fun sposta(at: Offset) {
                                     val dove = toImage(at) ?: return
                                     val prova = segno.moved(dove - start)
                                     val box = stageBox(prova, toStage(), lungo, picture.width, picture.height)
-                                    val (d, _) = Draw.rest(box, cornice, portata)
+                                    // ⚠️ Since 4.91 its centre rests on the middle of the image too (note A).
+                                    val (d, _) = Draw.rest(box, cornice, portata, others = altri, centred = true)
                                     val finale = if (d == Offset.Zero) prova
                                     else toImage(at + d)?.let { segno.moved(it - start) } ?: prova
                                     penEdges = Draw.on(box.translate(d), cornice)
+                                    penLines = Draw.lines(box.translate(d), altri, cornice)
                                     drawTo(base.replacing(scelto, finale))
                                 }
                                 try {
@@ -2164,17 +2352,37 @@ private fun LookStage(
                                     }
                                 } finally {
                                     penEdges = emptySet()
+                                    penLines = emptyList()
                                 }
                                 drawEnd()
                                 return@awaitEachGesture
                             }
                             pickNow(null)
                         }
+                        /*
+                         * ⚠️⚠️ **The Testo pen writes where the finger taps, since 4.90** (G3,
+                         * reading `A1` of the session): a tap on nothing asks for the words, which
+                         * come centred on that point. A drag with it does nothing: a text is not
+                         * drawn, it is written.
+                         * ⚠️ The Pillola pen (4.90) does both: a tap asks for the words and lays the
+                         * pill around them, a drag draws the pill as a rectangle and then asks. The
+                         * Pannello pen (4.91) does the same.
+                         */
+                        if (pen.pen.written && esito == Settled.UP) {
+                            textNow(start)
+                            return@awaitEachGesture
+                        }
+                        if (pen.pen == Pen.TEXT) return@awaitEachGesture
                         // ⚠️ The four pens of two points lay their start on an edge near it too
                         // (4.62); the free hand follows the finger.
                         val tratto = pen.width * lungo
+                        // ⚠️ Since 4.90 the start and the end rest on the other elements too.
+                        val altri = toStage().let { sulPalco ->
+                            base.marks.map { stageBox(it, sulPalco, lungo, picture.width, picture.height) }
+                        }
                         val inizio = if (pen.pen == Pen.FREE) down.position else down.position + Draw.rest(
-                            Draw.extent(pen.pen, down.position, down.position, tratto, lungo), cornice, portata
+                            Draw.extent(pen.pen, down.position, down.position, tratto, lungo), cornice, portata,
+                            others = altri
                         ).first
                         var mark = pen.copy(points = listOf(toImage(inizio) ?: start))
                         val draws = pen.pen == Pen.FREE || esito == Settled.MOVED
@@ -2195,8 +2403,10 @@ private fun LookStage(
                                 dove = d
                                 if (asse != null) assi = setOf(asse)
                             }
-                            val (fine, _) = Draw.restEnd(pen.pen, inizio, dove, tratto, lungo, cornice, portata, assi)
-                            penEdges = Draw.on(Draw.extent(pen.pen, inizio, fine, tratto, lungo), cornice)
+                            val (fine, _) = Draw.restEnd(pen.pen, inizio, dove, tratto, lungo, cornice, portata, assi, altri)
+                            val box = Draw.extent(pen.pen, inizio, fine, tratto, lungo)
+                            penEdges = Draw.on(box, cornice)
+                            penLines = Draw.lines(box, altri)
                             return fine
                         }
                         if (esito == Settled.MOVED) toImage(aimed(oltre))?.let { mark = mark.reaching(it) }
@@ -2234,8 +2444,10 @@ private fun LookStage(
                             penLoupe = null
                             penGuide = null
                             penEdges = emptySet()
+                            penLines = emptyList()
                         }
                         if (draws) drawEnd()
+                        if (draws && pen.pen.framed) pillNow(base.marks.size)
                         return@awaitEachGesture
                     }
                     if (liquifying()) {
@@ -2811,6 +3023,13 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
                         ImageEdge.BOTTOM -> Offset(visto.left, visto.bottom - g / 2f) to Offset(visto.right, visto.bottom - g / 2f)
                     }
                     drawLine(brushAccent, da, a, g)
+                }
+            }
+            // ⚠️ The guides to the other elements (4.90): the same line, from one element to the
+            // other along the side or the centre they share.
+            if (penLines.isNotEmpty()) {
+                clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+                    for ((da, a) in penLines) drawLine(brushAccent, da, a, GUIDE_LINE.toPx())
                 }
             }
             /*
@@ -3464,6 +3683,9 @@ private fun onStage(w: Int, h: Int, spin: Spin, view: RectF, plan: WarpPlan?, li
 
 /** The box on the stage that [mark]'s outline covers, with [toStage] carrying its points (4.62). */
 private fun stageBox(mark: Mark, toStage: (Offset) -> Offset, long: Float, w: Int, h: Int): Rect {
+    // ⚠️ A text and a pill (4.90) are their box, with no line around it: a text's width is its
+    // size, and a pill's traces are inside its box.
+    if (mark.pen.written) return Draw.extent(Draw.outline(mark, w, h).map(toStage), 0f)
     val stroke = mark.width * long
     // ⚠️ A turned rectangle or ellipse (4.70) is measured on its outline: its two corners say
     // nothing about where its sides went.
@@ -4532,7 +4754,7 @@ private class Gaze(
 
     /**
      * The fill's colour, without alpha, or `null` for none. At the factory the colour and the
-     * opacity of [Draw.FILL] (his values, since 4.44 the amber at 20%): shapes are born filled.
+     * opacity of [Draw.FILL] (his values, since 4.95 the red at 20%): shapes are born filled.
      */
     var fillInk by mutableStateOf<Int?>(Draw.FILL or 0xFF000000.toInt())
     var fillAlpha by mutableFloatStateOf((Draw.FILL ushr 24) / 255f)
@@ -4587,26 +4809,105 @@ private class Gaze(
     var inkSizing by mutableStateOf(false)
 
     /**
-     * **Whether the rectangle and the ellipse blur the image instead of being drawn**, and by how
-     * much (4.80, his specification: *Il tasto sarebbe un interruttore che accende/spegne la
-     * sfocatura per l'oggetto selezionato (anche se non esiste ancora la selezione)*): like the other
-     * parameters it sets the element chosen, or the next one drawn. Off at the factory, at
-     * [Draw.BLUR] when turned on.
+     * **How much a panel blurs the image under it** (4.80 for the rectangle and the ellipse, 4.91
+     * for the panel, his note on `4.81-01`: *Sfocatura: come adesso, con lo stesso slider, che
+     * funziona benissimo*): like the other parameters it sets the panel chosen, or the next one.
      */
-    var blurOn by mutableStateOf(false)
     var blurAmount by mutableFloatStateOf(Draw.BLUR)
+
+    /**
+     * **The panel's colour**, opaque, one of [Draw.PILL_INKS], or `null` for none, the factory value
+     * (4.91, his note on `4.81-01`: *stessa palette 'alternativa' della pillola, ma si applica sempre e
+     * solo al 20% di opacità e deve esserci anche 'nessuna'*; none at the factory is the session's
+     * reading, declared in the test item: a panel is first of all a blur).
+     */
+    var panelInk by mutableStateOf<Int?>(null)
+
+    /** The text being written, or `null` (4.90): the screen shows its window while it is set. */
+    var textAsk by mutableStateOf<TextAsk?>(null)
+
+    /**
+     * **Asks again for the words of the mark at [i] of [drawing]**, if it has words: the `Testo` key
+     * (4.90) and, since 4.93, a double tap on a text, a pill or a panel.
+     */
+    fun askWords(drawing: Drawing, i: Int) {
+        val segno = drawing.marks.getOrNull(i)?.takeIf { it.pen.written } ?: return
+        textAsk = TextAsk(null, i, segno.words?.text.orEmpty())
+    }
+
+    /**
+     * The colour of the image under the chosen text, or of the whole image (4.90): the screen
+     * measures it ([Draw.under]), and the grounds that do not stand out from it are off.
+     */
+    var under by mutableIntStateOf(0xFF808080.toInt())
+
+    /**
+     * **The text's own parameters** (G3, 4.90): its colour and the light of it, its size, its face,
+     * its three styles and its ground, with the colour each ground had last. The text has its own
+     * colour and size, apart from the line's, so going from a red rectangle to a text does not write
+     * in red, and back (his factory text is white: reading `A4`).
+     * ⚠️ The text is drawn opaque: the line's opacity is not the text's.
+     */
+    var textInk by mutableIntStateOf(Draw.TEXT_INK)
+    var textLight by mutableFloatStateOf(0f)
+    var textSize by mutableFloatStateOf(Draw.TEXT)
+    var face by mutableStateOf(Face.ROBOTO)
+    var bold by mutableStateOf(false)
+    var italic by mutableStateOf(false)
+    var strike by mutableStateOf(false)
+    var label by mutableStateOf(false)
+    var align by mutableStateOf(Align.CENTER)
+    var labelInk by mutableIntStateOf(Draw.LABEL_INK)
+
+    /** **The pill's colour**, opaque, one of [Draw.PILL_INKS] (4.91): the pill lays it at its alpha. */
+    var pillInk by mutableIntStateOf(Draw.PILL_INKS.first())
+
+    /** The words of a new text, or of the chosen one, with the module's styles. */
+    fun words(text: String): Words = Words(text, face, bold, italic, strike, label, labelInk, align)
+
+    /**
+     * The words of a new pill, or of the chosen one: the face, the three styles and where the lines
+     * sit, and no ground (4.90).
+     */
+    fun pillWords(text: String): Words = Words(text, face, bold, italic, strike, align = align)
+
+    /**
+     * **The `Sfondo` switch** (4.91): the label's strip on or off. Laid, it keeps the words in a
+     * colour that reads on it ([Draw.wordsOn]).
+     */
+    fun switchLabel() {
+        label = !label
+        if (!label) return
+        val parole = Draw.lit(textInk, textLight) or 0xFF000000.toInt()
+        val nuove = Draw.wordsOn(labelInk, parole)
+        if (nuove != parole) {
+            textInk = nuove
+            textLight = 0f
+        }
+    }
 
     /**
      * The pen as an empty mark, ready for the first point of the finger.
      *
      * ⚠️ The three pens that do not close a shape get no fill, so a mark never carries a value
      * that nothing draws (his note: the arrow ignores the fill).
+     * ⚠️ A text gets its own colour and size (4.90); its words arrive from the dialog.
      */
-    fun penMark(): Mark = Mark(
+    fun penMark(): Mark = if (pen == Pen.TEXT) Mark(
+        pen, emptyList(), Draw.lit(textInk, textLight) or 0xFF000000.toInt(), textSize, false, null,
+        tint = Tint(textInk, textLight, 1f, null, 0f, 1f), words = words("")
+    ) else if (pen == Pen.PILL) Mark(
+        // ⚠️ A pill has its own look (4.90): no width, and words with no ground. Its colour is its
+        // fill, chosen among its own (4.91).
+        pen, emptyList(), Draw.PILL_WORDS, 0f, false, Draw.pillFill(pillInk), words = pillWords("")
+    ) else if (pen == Pen.PANEL) Mark(
+        // ⚠️ A panel (4.91): the pill's words, its own colour at 20% or none, and its blur.
+        pen, emptyList(), Draw.PILL_WORDS, 0f, false, panelInk?.let { Draw.panelFill(it) },
+        blur = blurAmount, words = pillWords("")
+    ) else Mark(
         pen, emptyList(), Draw.withAlpha(litInk, inkAlpha), inkWidth, dashed,
         fill = litFill?.takeIf { pen.closed }?.let { Draw.withAlpha(it, fillAlpha) },
-        tint = tint(),
-        blur = blurAmount.takeIf { blurOn && pen.closed }
+        tint = tint()
     )
 
     /** How the colours are chosen now, which a mark keeps to be loaded back ([Tint]). */
@@ -4654,6 +4955,39 @@ private class Gaze(
      */
     fun load(mark: Mark) {
         pen = mark.pen
+        if (mark.pen.framed) {
+            // ⚠️ A pill loads its face, its styles and, since 4.91, its colour: its look is fixed.
+            // A panel (4.91) loads its colour, or none, and its blur.
+            if (mark.pen == Pen.PILL) pillInk = mark.fill?.let { it or 0xFF000000.toInt() } ?: Draw.PILL_INKS.first()
+            else {
+                panelInk = mark.fill?.let { it or 0xFF000000.toInt() }
+                blurAmount = mark.blur ?: Draw.BLUR
+            }
+            mark.words?.let { w ->
+                face = w.face
+                bold = w.bold
+                italic = w.italic
+                strike = w.strike
+                align = w.align
+            }
+            return
+        }
+        if (mark.pen == Pen.TEXT) {
+            // ⚠️ A text loads its own parameters (4.90), and leaves the line's as they were.
+            textSize = mark.width
+            textInk = mark.tint?.ink ?: (mark.ink or 0xFF000000.toInt())
+            textLight = mark.tint?.inkLight ?: 0f
+            mark.words?.let { w ->
+                face = w.face
+                bold = w.bold
+                italic = w.italic
+                strike = w.strike
+                align = w.align
+                label = w.label
+                if (w.label) labelInk = w.ground
+            }
+            return
+        }
         inkWidth = mark.width
         dashed = mark.dashed
         val t = mark.tint ?: Tint(
@@ -4667,19 +5001,29 @@ private class Gaze(
             fillInk = t.fill
             fillLight = t.fillLight
             fillAlpha = t.fillAlpha
-            blurOn = mark.blur != null
-            mark.blur?.let { blurAmount = it }
         }
     }
 
     /** [mark] with the module's parameters, its pen and its points kept (G2, 4.60). */
-    fun restyle(mark: Mark): Mark = mark.copy(
+    fun restyle(mark: Mark): Mark = if (mark.pen == Pen.PILL) mark.copy(
+        fill = Draw.pillFill(pillInk),
+        words = pillWords(mark.words?.text.orEmpty())
+    ) else if (mark.pen == Pen.PANEL) mark.copy(
+        fill = panelInk?.let { Draw.panelFill(it) },
+        blur = blurAmount,
+        words = pillWords(mark.words?.text.orEmpty())
+    ) else if (mark.pen == Pen.TEXT) mark.copy(
+        ink = Draw.lit(textInk, textLight) or 0xFF000000.toInt(),
+        width = textSize,
+        tint = Tint(textInk, textLight, 1f, null, 0f, 1f),
+        // ⚠️ The width the lines wrap at is the element's, as its words are (4.90, `B3`).
+        words = words(mark.words?.text.orEmpty()).copy(wrap = mark.words?.wrap ?: 0f)
+    ) else mark.copy(
         ink = Draw.withAlpha(litInk, inkAlpha),
         width = inkWidth,
         dashed = dashed,
         fill = if (mark.pen.closed) litFill?.let { Draw.withAlpha(it, fillAlpha) } else null,
-        tint = tint(),
-        blur = blurAmount.takeIf { blurOn && mark.pen.closed }
+        tint = tint()
     )
 
     companion object {
@@ -5357,7 +5701,7 @@ private fun DrawMenu(
  * corso (*un bordo rosso primario e un riempimento bianco 50%*): i colori e il cursore sono una
  * fila sola, e i due gettoni in cima dicono a che cosa si applicano, così la scheda non cresce di
  * una seconda tavolozza. Per il riempimento il primo colore è 'Nessuno'; quello di fabbrica, dalla
- * `4.44`, è l'ambra al 20% di [Draw.FILL].
+ * `4.95`, è il rosso al 20% di [Draw.FILL] (dalla `4.44` alla `4.94` era l'ambra al 20%).
  * ⚠️ **'Riempimento' si spegne per i tre strumenti che non chiudono una forma**, con lo stesso
  * criterio del 'Filtro BN': un comando che non cambia niente si legge come un guasto.
  */
@@ -5374,45 +5718,50 @@ private fun DrawBody(
     // shape it stands for Traccia: a key that changes nothing reads as broken.
     val bersaglio = if (gaze.target == DrawTarget.FILL && !chiusa) DrawTarget.STROKE else gaze.target
     val riempimento = bersaglio == DrawTarget.FILL
+    // ⚠️ With the Testo pen (4.90) the palette and the slider set the text's colour and size.
+    val scrive = gaze.pen == Pen.TEXT
+    // ⚠️ A pill has its own look (4.90, his note A on the 4.43 round: *senza dover configurare ogni
+    // volta tratto, riempimento, opacità*): the slider is off. Since 4.91 the swatches are on, and
+    // show the pill's own colours (his note on `4.90-05`: *vorrei solo che i colori rimanessero
+    // attivi*).
+    val pillola = gaze.pen == Pen.PILL
     /*
-     * ⚠️⚠️ **With Sfocatura on, the element ignores its line and its fill** (4.80, his specification:
-     * *se acceso, l'oggetto ignora traccia e riempimento e l'intera area diventa sfocata*): the keys
-     * and the swatches that set them go off, and the slider sets the blur (*Con la sfocatura accesa,
-     * appare uno slider che ne regola l'entità*). Only the rectangle and the ellipse blur.
+     * ⚠️⚠️ **The panel, since 4.91** (his `Non approvato` on `4.81-01`: the blur leaves the
+     * rectangle and the ellipse and becomes a tool, *un'altra pillola con uno stile diverso*): the
+     * keys of the text, the pill's colours at 20% with 'Nessuno' first, and the blur's slider.
      */
-    val sfoca = gaze.blurOn && chiusa
-    val tratto = live && !sfoca
+    val pannello = gaze.pen == Pen.PANEL
+    val incornicia = pillola || pannello
+    val tratto = live && !incornicia
+    val tondi = live
+    /*
+     * ⚠️⚠️ **The tools are keys like the ones below, since 4.91, with a larger glyph** (his note B on
+     * the 4.90 round: *le icone degli strumenti della prima fila sono diventate troppo piccole ... e
+     * hanno tutto lo spazio per essere ingrandite*): until 4.90 they were Material's chips, whose
+     * label keeps 8dp on each side, so the glyph had 24dp at most and less with eight tools. The
+     * chosen tool keeps the rim of the chosen keys, [KEY_RIM] (note A).
+     */
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         for (pen in Pen.entries) {
-            val nome = stringResource(penName(pen))
-            FilterChip(
-                selected = gaze.pen == pen,
-                // ⚠️ The chosen tool has the rim of the chosen keys below, [KEY_RIM] (note A).
-                border = FilterChipDefaults.filterChipBorder(
-                    enabled = live, selected = gaze.pen == pen,
-                    selectedBorderColor = MaterialTheme.colorScheme.primary, selectedBorderWidth = KEY_RIM
-                ),
+            TextKey(
+                stringResource(penName(pen)), selected = gaze.pen == pen, enabled = live, toggle = false, choice = true,
                 // ⚠️ The pen is not a parameter of a mark (G2, 4.60): a pen key drops the choice.
                 onClick = {
                     gaze.picked = null
                     gaze.pen = pen
                 },
-                label = {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Icon(Glyphs.pen(pen), contentDescription = nome)
-                    }
-                },
-                enabled = live,
                 modifier = Modifier.weight(1f)
-            )
+            ) { tinta -> Icon(Glyphs.pen(pen), contentDescription = null, tint = tinta, modifier = Modifier.size(PEN_GLYPH)) }
         }
     }
-    // ⚠️ Five columns, the same as the drawing tools above, so the keys line up with them (his
-    // mockup of 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and
-    // since 4.49 it sits left of Riempimento (his note on `4.47-01`); the fifth was empty until
-    // 4.50, and is Elimina since 4.60 (G2).
+    // ⚠️ The columns of the drawing tools above, so the keys line up with them (his mockup of
+    // 4.43-01). Spessore came in 4.47 where Luminosità was (his note on `4.45-02`), and since 4.49
+    // it sits left of Riempimento (his note on `4.47-01`). Since 4.95 the row ends with Elimina and
+    // is anchored to the right (his answer `B1`), so its first three columns are empty.
     // Traccia, Spessore and Riempimento are one choice: what the slider sets (his answer `S1`).
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    val elimina: @Composable (Modifier) -> Unit = { m -> DeleteKey(look, gaze, live, onLive, onSettled, m) }
+    if (scrive || incornicia) TextKeys(look, gaze, live, pill = incornicia, delete = elimina) else Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        repeat(3) { Spacer(Modifier.weight(1f)) }
         ArtKey(
             KeyKind.DASH, gaze, selected = gaze.dashed, enabled = tratto, name = R.string.draw_dashed,
             toggle = true, onClick = { gaze.dashed = !gaze.dashed }, modifier = Modifier.weight(1f)
@@ -5431,13 +5780,7 @@ private fun DrawBody(
             KeyKind.FILL, gaze, selected = riempimento, enabled = tratto && chiusa, name = R.string.draw_filled,
             toggle = false, onClick = { gaze.target = DrawTarget.FILL }, modifier = Modifier.weight(1f)
         )
-        // ⚠️ Since 4.80 the fifth column is Sfocatura, a switch like Tratteggio; 'Elimina', which was
-        // here from 4.60, lives in the menu of the long press since 4.70 (a reading of the session,
-        // declared in the test item).
-        ArtKey(
-            KeyKind.BLUR, gaze, selected = sfoca, enabled = live && chiusa, name = R.string.draw_blur,
-            toggle = true, onClick = { gaze.blurOn = !gaze.blurOn }, modifier = Modifier.weight(1f)
-        )
+        elimina(Modifier.weight(1f))
     }
     /*
      * ⚠️⚠️ **With a mark chosen, the module's parameters change it** (G2, 4.60, his specification:
@@ -5456,7 +5799,9 @@ private fun DrawBody(
         snapshotFlow {
             listOf(
                 gaze.ink, gaze.inkLight, gaze.inkAlpha, gaze.fillInk, gaze.fillLight, gaze.fillAlpha,
-                gaze.inkWidth, gaze.dashed, gaze.blurOn, gaze.blurAmount
+                gaze.inkWidth, gaze.dashed, gaze.blurAmount, gaze.panelInk,
+                gaze.textInk, gaze.textLight, gaze.textSize, gaze.face, gaze.bold, gaze.italic,
+                gaze.strike, gaze.label, gaze.labelInk, gaze.align, gaze.pillInk
             )
         }.drop(1).collectLatest {
             if (gaze.picked != scelto) return@collectLatest
@@ -5472,12 +5817,21 @@ private fun DrawBody(
      * Spessore chosen too, since a width belongs to the line (a reading of the session, declared
      * in the test item).
      */
-    fun luce(): Float = if (riempimento) gaze.fillLight else gaze.inkLight
+    fun luce(): Float = if (scrive) gaze.textLight else if (riempimento) gaze.fillLight else gaze.inkLight
     fun posa(luce: Float) {
-        if (riempimento) gaze.fillLight = luce else gaze.inkLight = luce
+        if (scrive) gaze.textLight = luce else if (riempimento) gaze.fillLight = luce else gaze.inkLight = luce
     }
     fun scegli(ink: Int?) {
-        if (riempimento) {
+        if (pannello) {
+            gaze.panelInk = ink
+        } else if (pillola) {
+            if (ink != null) gaze.pillInk = ink
+        } else if (scrive) {
+            if (ink != null) {
+                gaze.textInk = ink
+                gaze.textLight = 0f
+            }
+        } else if (riempimento) {
             gaze.fillInk = ink
             gaze.fillLight = 0f
         } else if (ink != null) {
@@ -5508,8 +5862,9 @@ private fun DrawBody(
     }
     // ⚠️ Ten places since 4.45 (his grey): 32dp each is 320dp, more than a narrow phone gives the
     // panel, so the swatch shrinks to fit and never grows past [SWATCH].
-    val voci: List<Int?> = listOf(null) + Draw.INKS
-    BoxWithConstraints(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    val voci: List<Int?> = listOf(null) + if (incornicia) Draw.PILL_INKS else Draw.INKS
+    val sfondo = stringResource(R.string.draw_ground)
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
         val lato = minOf(SWATCH, maxWidth / voci.size - SWATCH_GAP)
         Row(
             /*
@@ -5520,7 +5875,7 @@ private fun DrawBody(
              * checkerboard of the viewer does since 1.68, and read it while drawing.
              */
             modifier = Modifier.fillMaxWidth().graphicsLayer {
-                alpha = (1f - veilProgress()) * if (sfoca) OFF_SWATCHES else 1f
+                alpha = 1f - veilProgress()
             },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -5531,12 +5886,20 @@ private fun DrawBody(
             // colours do not move under the finger when the target changes.
             val nessuno = stringResource(R.string.settings_colour_none)
             voci.forEachIndexed { i, ink ->
-                val scelto = if (riempimento) gaze.fillInk == ink else ink != null && gaze.ink == ink
-                if (ink == null && !riempimento) {
+                val scelto = when {
+                    pannello -> gaze.panelInk == ink
+                    pillola -> ink != null && gaze.pillInk == ink
+                    scrive -> ink != null && gaze.textInk == ink
+                    riempimento -> gaze.fillInk == ink
+                    else -> ink != null && gaze.ink == ink
+                }
+                // ⚠️ The panel's row starts with 'Nessuno' too (4.91), the pill's does not.
+                if (ink == null && !riempimento && !pannello) {
                     Spacer(Modifier.size(lato))
                     return@forEachIndexed
                 }
-                val nome = if (ink == null) nessuno else stringResource(INK_NAMES[i - 1])
+                // ⚠️ The pill's colours have no names: they are numbered, as the label's strips are.
+                val nome = if (ink == null) nessuno else if (incornicia) "$sfondo $i" else stringResource(INK_NAMES[i - 1])
                 /*
                  * ⚠️⚠️ **Holding a swatch opens Luminosità** (his note on `4.45-02`, answers `L1a`,
                  * `L2a`, `L3a`): after the system's long press the finger that slides sets the
@@ -5553,7 +5916,7 @@ private fun DrawBody(
                  * colour; holding the chosen one starts from the light it has.
                  */
                 fun tieni() {
-                    if (ink == null) return
+                    if (ink == null || incornicia) return
                     if (!scelto) scegli(ink)
                     chiaro.open()
                 }
@@ -5563,11 +5926,11 @@ private fun DrawBody(
                         .size(lato)
                         .onGloballyPositioned {
                             qui.at = it
-                            if (ink == Draw.INKS.first()) gaze.redSpot = it.boundsInRoot()
+                            if (!incornicia && ink == Draw.INKS.first()) gaze.redSpot = it.boundsInRoot()
                         }
                         .clip(CircleShape)
-                        .pointerInput(ink, riempimento, tratto) {
-                            if (!tratto) return@pointerInput
+                        .pointerInput(ink, riempimento, tondi, incornicia) {
+                            if (!tondi) return@pointerInput
                             awaitEachGesture {
                                 val giu = awaitFirstDown()
                                 val lungo = awaitLongPressOrCancellation(giu.id)
@@ -5579,7 +5942,8 @@ private fun DrawBody(
                                     }
                                     return@awaitEachGesture
                                 }
-                                if (ink == null) return@awaitEachGesture
+                                // ⚠️ The pill's colours have no light to set (4.91): a hold does nothing.
+                                if (ink == null || incornicia) return@awaitEachGesture
                                 tieni()
                                 // ⚠️ A finger that only lifts leaves the light as it was (`L3a`):
                                 // the track takes over past the slop.
@@ -5603,9 +5967,9 @@ private fun DrawBody(
                             contentDescription = nome
                             role = Role.RadioButton
                             selected = scelto
-                            if (!tratto) disabled()
+                            if (!tondi) disabled()
                             onClick { scegli(ink); true }
-                            if (ink != null) onLongClick(nomeLuce) { tieni(); true }
+                            if (ink != null && !incornicia) onLongClick(nomeLuce) { tieni(); true }
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -5651,7 +6015,7 @@ private fun DrawBody(
          */
         CompositionLocalProvider(LocalAivDepth provides PanelDepth.SHADOW) {
             MenuShell(state = chiaro, position = sopra, minWidth = maxWidth) {
-                val base = (if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
+                val base = (if (scrive) gaze.textInk else if (riempimento) gaze.fillInk else gaze.ink) ?: Draw.INK
                 val valore = luce()
                 Row(
                     modifier = Modifier.width(maxWidth).padding(horizontal = 12.dp),
@@ -5674,60 +6038,74 @@ private fun DrawBody(
             }
         }
     }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    // ⚠️ The name of the slider and the slider are one row of the module: no air between them.
+    Column(Modifier.fillMaxWidth()) {
+        // ⚠️ Until 4.94 Elimina and Elimina tutto were two keys of words on this row: since 4.95 they
+        // are one key with an icon, the last of the row of keys above ([DeleteKey]).
         Text(
             stringResource(
                 when {
-                    sfoca -> R.string.draw_blur
+                    pannello -> R.string.draw_blur
+                    scrive || pillola -> R.string.draw_size
                     bersaglio == DrawTarget.WIDTH -> R.string.draw_width
                     else -> R.string.settings_mark_alpha
                 }
             ),
             style = MaterialTheme.typography.labelMedium
         )
-        TextButton(
-            onClick = {
-                gaze.picked = null
-                onLive { it.copy(drawing = Drawing.NONE) }
-                onSettled()
-            },
-            enabled = live && !look.drawing.idle,
-            contentPadding = PaddingValues(horizontal = 4.dp)
-        ) { Text(stringResource(R.string.draw_clear)) }
-    }
-    if (sfoca) Slider(
-        value = gaze.blurAmount,
-        onValueChange = { gaze.blurAmount = it },
-        valueRange = Draw.BLUR_MIN..Draw.BLUR_MAX,
-        enabled = live,
-        modifier = Modifier.semantics { contentDescription = nomeSfocatura }
-    ) else when (bersaglio) {
-        DrawTarget.STROKE -> Slider(
-            value = gaze.inkAlpha,
-            onValueChange = { gaze.inkAlpha = it },
-            valueRange = 0.1f..1f,
-            enabled = live
-        )
-        DrawTarget.FILL -> Slider(
-            value = gaze.fillAlpha,
-            onValueChange = { gaze.fillAlpha = it },
-            valueRange = 0.1f..1f,
-            enabled = live && gaze.fillInk != null
-        )
-        DrawTarget.WIDTH -> {
-            DisposableEffect(gaze) { onDispose { gaze.inkSizing = false } }
+        if (pannello) Slider(
+            value = gaze.blurAmount,
+            onValueChange = { gaze.blurAmount = it },
+            valueRange = Draw.BLUR_MIN..Draw.BLUR_MAX,
+            enabled = live,
+            modifier = Modifier.semantics { contentDescription = nomeSfocatura }
+        ) else if (scrive || pillola) {
+            val nomeDimensione = stringResource(R.string.draw_size)
+            // ⚠️ A pill's words take the largest size its box holds (4.90), so the slider is off.
+            // ⚠️ Since 4.91 the track is a ratio's ([Draw.textTrack]): the sizes reach 1,5.
+            // ⚠️ Since 4.92 a new text is born at its own size ([Draw.fitSize]), so the slider sets the
+            // chosen text only, and is off with none.
             Slider(
-                value = gaze.inkWidth,
-                onValueChange = { gaze.inkSizing = true; gaze.inkWidth = it },
-                onValueChangeFinished = { gaze.inkSizing = false },
-                valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
+                value = Draw.textTrack(gaze.textSize),
+                onValueChange = { gaze.textSize = Draw.textSize(it) },
+                enabled = live && scrive && gaze.picked != null,
+                modifier = Modifier.semantics { contentDescription = nomeDimensione }
+            )
+        } else when (bersaglio) {
+            DrawTarget.STROKE -> Slider(
+                value = gaze.inkAlpha,
+                onValueChange = { gaze.inkAlpha = it },
+                valueRange = 0.1f..1f,
                 enabled = live
             )
+            DrawTarget.FILL -> Slider(
+                value = gaze.fillAlpha,
+                onValueChange = { gaze.fillAlpha = it },
+                valueRange = 0.1f..1f,
+                enabled = live && gaze.fillInk != null
+            )
+            DrawTarget.WIDTH -> {
+                DisposableEffect(gaze) { onDispose { gaze.inkSizing = false } }
+                Slider(
+                    value = gaze.inkWidth,
+                    onValueChange = { gaze.inkSizing = true; gaze.inkWidth = it },
+                    onValueChangeFinished = { gaze.inkSizing = false },
+                    valueRange = Draw.WIDTH_MIN..Draw.WIDTH_MAX,
+                    enabled = live
+                )
+            }
         }
+    }
+    /*
+     * ⚠️⚠️ **The strips' row has its place with every pen, since 4.92** (his note E on the 4.91 round:
+     * *Quando si passa allo strumento Testo, le due file di tasti principali del modulo si avvicinano
+     * fino a toccarsi ... Per coerenza, posiziona lo slider nella stessa posizione anche con gli altri
+     * strumenti*): the sheet is as tall as its tallest module, measured once ([SteadyBody]), and the
+     * row that came with `Sfondo` took the air between the rows. Now the place is always there, empty
+     * when the strips are not, so the slider does not move from one pen to another.
+     */
+    Box(Modifier.fillMaxWidth().height(STRIP), contentAlignment = Alignment.Center) {
+        if (scrive && gaze.label) GroundRow(gaze, live)
     }
 }
 
@@ -5738,6 +6116,9 @@ private fun penName(pen: Pen): Int = when (pen) {
     Pen.ARROW -> R.string.draw_arrow
     Pen.RECT -> R.string.draw_rect
     Pen.ELLIPSE -> R.string.draw_ellipse
+    Pen.TEXT -> R.string.draw_text
+    Pen.PILL -> R.string.draw_pill
+    Pen.PANEL -> R.string.draw_panel
 }
 
 /**
@@ -5750,9 +6131,9 @@ private class Placed {
 }
 
 /** The four keys above the palette, drawn instead of named (`ArtKey`). */
-internal enum class KeyKind { STROKE, FILL, DASH, WIDTH, BLUR }
+internal enum class KeyKind { STROKE, FILL, DASH, WIDTH }
 
-/** How much of their colour the swatches keep while Sfocatura is on, the 38% of a key that is off. */
+/** How much of their colour the strips that would not stand out keep, the 38% of a key that is off. */
 private const val OFF_SWATCHES = 0.38f
 
 /** How long the module waits, still, before a change to the chosen mark enters the history. */
@@ -5856,12 +6237,16 @@ private fun ArtKey(
                      * [KEY_WIDTH_MIN], which he allows for the smallest widths, nor thicker than
                      * the key, with [KEY_GAP] above and below. Until 4.49 it went from 2 to 16dp
                      * along the slider.
-                     * ⚠️ The ends stay half the key's height in from its sides, so the round caps
-                     * of the thickest line keep the same gap.
+                     * ⚠️ **Since 4.97 the round caps end [KEY_GAP] in from the key's sides, at any
+                     * width** (his note on the 4.96 round: *il segmento del tasto 'Spessore' deve
+                     * essere un po' più lungo. Non fa niente se arriva vicino al bordo:
+                     * l'importante è che non lo tocchi*): the same thread of space as the Fill
+                     * rectangle. Until 4.96 the ends stayed half the key's height in, which only
+                     * the thickest line filled.
                      */
                     val spesso = (gaze.inkWidth * gaze.viewLong)
                         .coerceIn(KEY_WIDTH_MIN.toPx(), size.height - 2f * KEY_GAP.toPx())
-                    val margine = size.height / 2f
+                    val margine = KEY_GAP.toPx() + spesso / 2f
                     drawLine(
                         Color(gaze.litInk), Offset(margine, y), Offset(size.width - margine, y),
                         strokeWidth = spesso, cap = StrokeCap.Round
@@ -5896,14 +6281,8 @@ private fun ArtKey(
                         }
                     }
                 }
-                KeyKind.BLUR -> Unit
             }
         }
-        // ⚠️ Sfocatura is the one key drawn with a glyph (4.80): a blur has no line to show.
-        if (kind == KeyKind.BLUR) Icon(
-            Icons.Filled.BlurOn, contentDescription = null, modifier = Modifier.align(Alignment.Center),
-            tint = if (selected) schema.primary else schema.onSurfaceVariant
-        )
         /*
          * ⚠️⚠️ **A full rim around the chosen key, since 4.61** (his note A on the 4.60 round: *oltre
          * al riempimento verde semitrasparente ... aggiungi anche un bordo pieno di qualche DP intorno
@@ -6134,7 +6513,20 @@ private fun ModuleBody(
         return
     }
     if (mod.extra == Extra.DRAW) {
-        DrawBody(look, gaze, live = ready && !busy, onLive = onLive, onSettled = onSettled)
+        /*
+         * ⚠️⚠️ **The rows of the Disegno module stand [DRAW_AIR] apart, since 4.94** (his note on the
+         * 4.93 round, with his mockup: *Disponi meglio gli elementi dell'interfaccia: c'è spazio per
+         * tutto*): until 4.93 each row kept only its own margin, so the keys nearly touched and the
+         * air gathered under the slider. The module is the tallest, so the sheet grows with it.
+         * ⚠️ The top margin and the row of the modules' own 4dp ([MOD_GAP]) make one [DRAW_AIR]; at the
+         * bottom, [DRAW_FOOT] keeps the strips as far from the bar's icons as his mockup does.
+         */
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = DRAW_AIR - MOD_GAP, bottom = DRAW_FOOT),
+            verticalArrangement = Arrangement.spacedBy(DRAW_AIR)
+        ) {
+            DrawBody(look, gaze, live = ready && !busy, onLive = onLive, onSettled = onSettled)
+        }
         return
     }
     /*
@@ -7675,3 +8067,357 @@ private const val ZOOM_RIDE = 220
  * ⚠️ **Il perché esista vive su [fitted]**, insieme al difetto che ha corretto.
  */
 private val CROP_AIR = HANDLE_THICK + GRIP_HALO
+
+/**
+ * **A text being written** (4.90): [at] is the point of the original image where a new one goes,
+ * [index] the place of the chosen one being changed, [text] its words so far.
+ */
+internal data class TextAsk(val at: Offset?, val index: Int?, val text: String)
+
+/**
+ * **The last tap on a mark of the Disegno module** (4.93): which mark, when the finger lifted, and
+ * whether the tap swapped 'Trasforma' and 'Ruota', so a double tap can take that back.
+ * ⚠️ Not a state: the stage reads it at the next tap, so writing it recomposes nothing.
+ */
+private class MarkTap {
+    var index: Int? = null
+    var up: Long = 0L
+    var turned: Boolean = false
+
+    fun set(index: Int?, up: Long, turned: Boolean) {
+        this.index = index
+        this.up = up
+        this.turned = turned
+    }
+}
+
+/**
+ * **The window in which a text is written** (G3, 4.90): a field on several lines, since a text goes
+ * to a new line only where Invio puts one (reading `A1`), and the keys of [NewFolderDialog], with
+ * 'Applica' waiting for a letter.
+ * ⚠️⚠️ **For a pill and a panel 'Applica' takes an empty field too, since 4.92** ([blank]; his note C
+ * on the 4.91 round: *il testo non dev'essere obbligatorio. Se inserisco un testo, poi cambio idea e
+ * cancello tutto, devo poter cliccare su 'Applica' anche con il campo vuoto*): the box stays, with
+ * no words. A text is its words, so for a text it still waits for a letter.
+ * ⚠️ A modal, with the two lines of every window that gathers written input (`Rules.md` of AIV,
+ * § '👆 Che cosa fa il tocco FUORI da una finestra'), and the keyboard comes up with it.
+ */
+@Composable
+private fun TextDialog(initial: String, blank: Boolean, onDismiss: () -> Unit, onDone: (String) -> Unit) {
+    var text by remember { mutableStateOf(TextFieldValue(initial, TextRange(initial.length))) }
+    val fuoco = remember { FocusRequester() }
+    LaunchedEffect(Unit) { fuoco.requestFocus() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(null),
+        properties = loweredWindow(null),
+        title = { Text(stringResource(R.string.draw_text)) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    singleLine = false,
+                    shape = BOX_SHAPE,
+                    modifier = Modifier.fillMaxWidth().focusRequester(fuoco)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onDone(if (text.text.isBlank()) "" else text.text) },
+                enabled = blank || text.text.isNotBlank()
+            ) { Text(stringResource(R.string.editor_apply)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
+}
+
+/**
+ * **The seven keys of the Testo and Pillola pens** (G3, 4.90), under the seven tools: `Carattere`,
+ * `Grassetto`, `Corsivo`, `Barrato`, `Sfondo`, `Allineamento` and `Testo`. They set the next text or
+ * pill, or the chosen one, as the keys of the other pens do. With the Pillola and the Pannello pens
+ * ([pill]) `Sfondo` is off: a pill and a panel are their own ground.
+ * - `Carattere` goes to the next of the four faces at every tap, and shows its 'Aa' in the face
+ *   it has (a reading of the session, declared in the test item: four faces fit a tap).
+ * - Grassetto, Corsivo, Barrato and, since 4.91, Sfondo are switches, and combine (reading `A3`).
+ *   Sfondo lays the label's strip, and shows it; until 4.90 it went from none to `Evidenziato` to
+ *   `Etichetta` (his note on `4.90-04`: *possiamo liberarcene*).
+ * - `Allineamento` goes from the middle to the left to the right (his `B2`, and since 4.92 his note A
+ *   on the 4.91 round: until 4.91 it went to the right first), and shows where the lines sit; it
+ *   holds for the pill and the panel too.
+ * - `Testo` opens the window of the words of the chosen text. ⚠️ It is the last key since 4.91 (his
+ *   note E on the 4.90 round: *deve essere l'ultima icona a destra*), and until 4.90 was named
+ *   `Modifica testo`.
+ */
+@Composable
+private fun TextKeys(look: Look, gaze: Gaze, live: Boolean, pill: Boolean, delete: @Composable (Modifier) -> Unit) {
+    val segno = gaze.picked?.let { look.drawing.marks.getOrNull(it) }?.takeIf { it.pen.written }
+    val faccia = gaze.face.label
+    val carattere = stringResource(R.string.draw_face)
+    val famiglia = remember(gaze.face, Faces.loads) { faceFamily(gaze.face) }
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        TextKey("$carattere: $faccia", selected = false, enabled = live, toggle = false,
+            onClick = { gaze.face = Face.entries[(gaze.face.ordinal + 1) % Face.entries.size] },
+            modifier = Modifier.weight(1f)) { tinta ->
+            Text("Aa", color = tinta, fontFamily = famiglia, fontSize = KEY_GLYPH)
+        }
+        TextKey(stringResource(R.string.draw_bold), selected = gaze.bold, enabled = live, toggle = true,
+            onClick = { gaze.bold = !gaze.bold }, modifier = Modifier.weight(1f)) { tinta ->
+            Text("B", color = tinta, fontWeight = FontWeight.Bold, fontSize = KEY_GLYPH)
+        }
+        TextKey(stringResource(R.string.draw_italic), selected = gaze.italic, enabled = live, toggle = true,
+            onClick = { gaze.italic = !gaze.italic }, modifier = Modifier.weight(1f)) { tinta ->
+            Text("I", color = tinta, fontStyle = FontStyle.Italic, fontFamily = FontFamily.Serif, fontSize = KEY_GLYPH)
+        }
+        TextKey(stringResource(R.string.draw_strike), selected = gaze.strike, enabled = live, toggle = true,
+            onClick = { gaze.strike = !gaze.strike }, modifier = Modifier.weight(1f)) { tinta ->
+            Text("S", color = tinta, textDecoration = TextDecoration.LineThrough, fontSize = KEY_GLYPH)
+        }
+        val sfondo = gaze.label && !pill
+        TextKey(stringResource(R.string.draw_ground), selected = sfondo, enabled = live && !pill, toggle = true,
+            onClick = { gaze.switchLabel() },
+            modifier = Modifier.weight(1f)) { tinta ->
+            GroundGlyph(if (sfondo) Color(gaze.labelInk) else tinta)
+        }
+        val allineamento = stringResource(R.string.draw_align)
+        val dove = when (gaze.align) {
+            Align.LEFT -> stringResource(R.string.settings_left)
+            Align.CENTER -> stringResource(R.string.draw_center)
+            Align.RIGHT -> stringResource(R.string.settings_right)
+        }
+        TextKey("$allineamento: $dove", selected = false, enabled = live, toggle = false,
+            onClick = { gaze.align = gaze.align.next },
+            modifier = Modifier.weight(1f)) { tinta ->
+            Icon(Glyphs.align(gaze.align), contentDescription = null, tint = tinta)
+        }
+        TextKey(stringResource(R.string.draw_text_edit), selected = false, enabled = live && segno != null, toggle = false,
+            onClick = { gaze.picked?.let { gaze.askWords(look.drawing, it) } },
+            modifier = Modifier.weight(1f)) { tinta ->
+            Icon(Icons.Filled.Edit, contentDescription = null, tint = tinta)
+        }
+        delete(Modifier.weight(1f))
+    }
+}
+
+/**
+ * **The Elimina key, the last on the right of every row of keys, since 4.95** (his note B on the
+ * 4.94 round: *tocco per errore troppo spesso i tasti `Elimina` ed `Elimina tutto` ... Rimetto il
+ * tasto 'Elimina' (solo icona) nella quinta colonna; per 'Elimina tutto' si tiene premuto il
+ * pulsante (allo stesso modo di quello del modulo). Scompaiono entrambi i pulsanti testuali*, and
+ * his answer `B1`: *Ultima a destra, e anche quando sono meno di 7 pulsanti restano ancorati a
+ * destra*). A tap deletes the element chosen, a long press deletes them all.
+ * ⚠️ It is on while the drawing has an element, so the long press reaches it with none chosen; a
+ * tap with none chosen does nothing (a reading of the session, declared in the test item).
+ * ⚠️ From 4.92 to 4.94 they were two keys of words beside the slider's name; in 4.91 Elimina was
+ * the fifth column of the shapes' keys, and from 4.60 to 4.70 too.
+ */
+@Composable
+private fun DeleteKey(
+    look: Look,
+    gaze: Gaze,
+    live: Boolean,
+    onLive: ((Look) -> Look) -> Unit,
+    onSettled: () -> Unit,
+    modifier: Modifier
+) {
+    TextKey(
+        stringResource(R.string.pick_delete), selected = false, enabled = live && !look.drawing.idle, toggle = false,
+        onClick = {
+            val i = gaze.picked ?: return@TextKey
+            gaze.picked = null
+            onLive { l -> l.copy(drawing = l.drawing.without(i)) }
+            onSettled()
+        },
+        onLongClick = {
+            gaze.picked = null
+            onLive { it.copy(drawing = Drawing.NONE) }
+            onSettled()
+        },
+        longName = stringResource(R.string.draw_clear),
+        modifier = modifier
+    ) { tinta -> Icon(Glyphs.PickDelete, contentDescription = null, tint = tinta) }
+}
+
+/**
+ * **A key of the Testo pen** (4.90), and since 4.91 the tools and `Elimina` of the shapes: the shape, the colours, the height and the rim of the chosen
+ * key are [ArtKey]'s, so the row reads like the one of the other pens; the word stays as the
+ * description a screen reader announces, and [content] draws the key, in the colour it is given.
+ */
+@Composable
+private fun TextKey(
+    name: String,
+    selected: Boolean,
+    enabled: Boolean,
+    toggle: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    choice: Boolean = false,
+    /** A second gesture, the long press, and what a screen reader calls it (`Elimina tutto`, 4.95). */
+    onLongClick: (() -> Unit)? = null,
+    longName: String? = null,
+    content: @Composable (Color) -> Unit
+) {
+    val forma = FilterChipDefaults.shape
+    val schema = MaterialTheme.colorScheme
+    // ⚠️ A switch, one choice among several (the tools, 4.91), a button, or a button with a long press.
+    val scelta = Modifier
+        .then(
+            when {
+                toggle -> Modifier.toggleable(selected, enabled = enabled, role = Role.Switch) { onClick() }
+                choice -> Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
+                onLongClick != null -> Modifier.combinedClickable(
+                    enabled = enabled, role = Role.Button, onLongClickLabel = longName,
+                    onLongClick = onLongClick, onClick = onClick
+                )
+                else -> Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            }
+        )
+        .semantics { contentDescription = name }
+    Box(
+        modifier
+            .height(FilterChipDefaults.Height)
+            .alpha(if (enabled) 1f else 0.38f)
+            .clip(forma)
+            .background(if (selected) schema.secondaryContainer else Color.Transparent)
+            .then(if (selected) Modifier else Modifier.border(1.dp, schema.outlineVariant, forma))
+            .then(scelta),
+        contentAlignment = Alignment.Center
+    ) {
+        content(if (selected) schema.primary else schema.onSurfaceVariant)
+        if (selected) Box(Modifier.matchParentSize().border(KEY_RIM, schema.primary, forma))
+    }
+}
+
+/**
+ * **The strips offered for the text** (4.90, his note: *il colore dev'essere selezionabile tra
+ * 4-8 colori proposti da te in base al posizionamento (solo colori che contrastano a
+ * sufficienza)*): the six of [Draw.LABEL_INKS]. Those that do not stand out
+ * from the image under the text, or that would not keep the words readable ([Draw.readable], with
+ * [Gaze.under]), are off: they show, faded, so the row does not change length under the finger.
+ * ⚠️⚠️ **Rectangles side by side, with no gap, since 4.92** (his note E on the 4.91 round: *Rendi
+ * diversamente la barra dei colori inferiore: rettangoli colorati affiancati, senza distanziamento,
+ * più bassi in modo che lo slider non si sposti troppo in su*): until 4.91 they were round swatches
+ * as tall as the palette's. The chosen one has the ring of the chosen swatch, inside it.
+ */
+@Composable
+private fun GroundRow(gaze: Gaze, live: Boolean) {
+    val voci = Draw.LABEL_INKS
+    val parole = Draw.lit(gaze.textInk, gaze.textLight)
+    val fondo = stringResource(R.string.draw_ground)
+    val bordo = MaterialTheme.colorScheme.onSurface
+    val dentro = MaterialTheme.colorScheme.surface
+    Row(modifier = Modifier.fillMaxWidth().height(STRIP).clip(RoundedCornerShape(STRIP_ROUND))) {
+        voci.forEachIndexed { i, ink ->
+            val scelto = gaze.labelInk == ink
+            val leggibile = scelto || Draw.readable(ink, gaze.under, parole)
+            val attivo = live && leggibile
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .alpha(if (leggibile) 1f else OFF_SWATCHES)
+                    .selectable(scelto, enabled = attivo, role = Role.RadioButton) {
+                        gaze.labelInk = ink
+                    }
+                    .semantics { contentDescription = "$fondo ${i + 1}" }
+                    .drawBehind {
+                        if (!scelto) {
+                            drawRect(Color(ink))
+                            return@drawBehind
+                        }
+                        /*
+                         * ⚠️⚠️ **Three rounded rectangles, one inside the other, since 4.94** (his note
+                         * on the 4.93 round, with his drawing: *Disegna meglio il selettore del
+                         * colore 'secondario' in basso*): the dark ring fills the strip, the light
+                         * line and the colour are rounded, concentric with the row's own corner
+                         * ([STRIP_ROUND]), so the ring keeps the row's rounding on the outside and
+                         * the line follows it inside. Until 4.93 the line and the colour were square,
+                         * drawn as two strokes over the strip.
+                         */
+                        val anello = SWATCH_RING.toPx()
+                        val filo = anello / 2f
+                        val raggio = (STRIP_ROUND.toPx() - anello).coerceAtLeast(filo)
+                        drawRect(bordo)
+                        drawRoundRect(dentro, topLeft = Offset(anello, anello),
+                            size = Size(size.width - 2 * anello, size.height - 2 * anello), cornerRadius = CornerRadius(raggio))
+                        drawRoundRect(Color(ink), topLeft = Offset(anello + filo, anello + filo),
+                            size = Size(size.width - 2 * (anello + filo), size.height - 2 * (anello + filo)),
+                            cornerRadius = CornerRadius(raggio - filo))
+                    }
+            )
+        }
+    }
+}
+
+/**
+ * **The glyph of the `Sfondo` key** (4.92, his note F on the 4.91 round: *Il pulsante etichetta è
+ * troppo simile a quello del carattere: l'icona dev'essere un rettangolino arrotondato con il testo
+ * in negativo, che si accende e si spegne e volendo prende il colore dal vivo come adesso*): a round
+ * rectangle of [colour], the strip's when the key is on, with the letters cut out of it, so the
+ * key's own ground shows through them.
+ * ⚠️ The cut needs a layer of its own ([CompositingStrategy.Offscreen]): drawn on the key, the
+ * letters would cut through the key's ground as well.
+ */
+@Composable
+private fun GroundGlyph(colour: Color) {
+    val misura = rememberTextMeasurer()
+    val stile = TextStyle(fontSize = GROUND_GLYPH_TEXT, fontWeight = FontWeight.Bold)
+    Canvas(
+        Modifier
+            .size(GROUND_GLYPH_W, GROUND_GLYPH_H)
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    ) {
+        drawRoundRect(colour, cornerRadius = CornerRadius(GROUND_GLYPH_ROUND.toPx()))
+        val lettere = misura.measure("Aa", stile)
+        drawText(
+            lettere, color = Color.Black,
+            topLeft = Offset((size.width - lettere.size.width) / 2f, (size.height - lettere.size.height) / 2f),
+            blendMode = BlendMode.DstOut
+        )
+    }
+}
+
+/** The measures of the `Sfondo` glyph: a choice of the session, declared in the test item. */
+private val GROUND_GLYPH_W = 30.dp
+private val GROUND_GLYPH_H = 20.dp
+private val GROUND_GLYPH_ROUND = 5.dp
+private val GROUND_GLYPH_TEXT = 13.sp
+
+/**
+ * **How tall the strips are, and how round their row** (4.92, his note E on the 4.91 round): lower
+ * than the palette's swatches ([SWATCH]), so the slider moves up little. Choices of the session,
+ * declared in the test item. Since 4.94 the air around the row is [DRAW_AIR].
+ */
+private val STRIP = 20.dp
+private val STRIP_ROUND = 6.dp
+
+/**
+ * **The air between two rows of the Disegno module** (4.94, his mockup on the 4.93 round): the gaps
+ * of his drawing, measured on it, are 11 to 15dp. A choice of the session, declared in the test item.
+ */
+private val DRAW_AIR = 12.dp
+
+/** How far the strips stay from the bar under the module, past [DRAW_AIR] (4.94, his mockup). */
+private val DRAW_FOOT = 8.dp
+
+/**
+ * **The face of the 'Aa' on the Carattere key** (4.90): the typeface the drawing paints with,
+ * regular and upright, wrapped for Compose.
+ * ⚠️⚠️ **Not a resource font of Compose with its weight as a variation**, which it was at first: on
+ * the bench, as soon as another text was measured (the field of the words' window), the editor
+ * never came to rest, and the window never showed. One loader for the four faces, [Faces], and no
+ * second one.
+ */
+private fun faceFamily(face: Face): FontFamily = FontFamily(Typeface(Faces.of(face, italic = false, bold = false)))
+
+/** How big the letters on the keys of the Testo pen are. */
+private val KEY_GLYPH = 18.sp
+
+/**
+ * **How big the glyphs of the tools are** (4.91, note B): 28dp in a key 32dp tall, against Material's
+ * 24dp, which the chips squeezed further. A choice of the session, declared in the test item.
+ */
+private val PEN_GLYPH = 28.dp

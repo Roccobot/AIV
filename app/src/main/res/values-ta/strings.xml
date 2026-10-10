@@ -225,6 +225,18 @@
     <string name="pick_rename">பெயர் மாற்று</string>
     <string name="pick_delete">அழி</string>
     <string name="draw_clear">அனைத்தையும் அழி</string>
+    <string name="draw_text">உரை</string>
+    <string name="draw_pill">கேப்சூல்</string>
+    <string name="draw_panel">பலகம்</string>
+    <string name="draw_face">எழுத்துரு</string>
+    <string name="draw_bold">தடிமன்</string>
+    <string name="draw_italic">சாய்வு</string>
+    <string name="draw_strike">அடித்தல்</string>
+    <string name="draw_ground">பின்னணி</string>
+    <string name="draw_size">அளவு</string>
+    <string name="draw_text_edit">உரையைத் திருத்து</string>
+    <string name="draw_align">சீரமைப்பு</string>
+    <string name="draw_center">நடுவில்</string>
     <string name="pick_list">பட்டியல்</string>
     <string name="pick_invert">தலைகீழ்</string>
     <string name="pick_all_short">அனைத்தும்</string>
@@ -680,11 +692,13 @@
     <string name="settings_styles_import">இறக்குமதி</string>
     <string name="settings_styles_saved">பாணிகள் ஏற்றுமதி செய்யப்பட்டன</string>
     <string name="settings_styles_loaded">பாணிகள் இறக்குமதி செய்யப்பட்டன</string>
+    <string name="settings_style_saved">பாணி ஏற்றுமதி செய்யப்பட்டது</string>
+    <string name="settings_style_loaded">பாணி இறக்குமதி செய்யப்பட்டது</string>
     <string name="settings_styles_bad">இந்தக் கோப்பில் எந்தப் பாணியும் இல்லை</string>
     <string name="hint_modules">அனைத்து திருத்தத் தொகுதிகளையும் அடைய சின்னங்களை நகர்த்தவும். ஒரு தொகுதியின் சின்னத்தை நீண்ட நேரம் அழுத்தினால் அதன் மாற்றங்கள் மட்டும் மீட்டமைக்கப்படும்.</string>
     <string name="hint_tools">தொகுதிகளைத் தவிர, ஐகானை ஒரு முறை தொட்டு உடனே இயக்கவோ நிறுத்தவோ கூடிய இரு செயல்பாடுகள் உள்ளன, இயக்கும்போது ஐகான் ஒளிரும்: \'நீர்அடையாளம்\' மற்றும் \'அளவு மாற்று\'. நீண்ட அழுத்தம் ஒவ்வொன்றின் அமைப்புகளையும் திறக்கும்.</string>
     <string name="hint_save">முடிந்ததும் கோப்பை மேலெழுத \'சேமி\' என்பதைத் தொடவும் (காப்புப் பிரதி இயக்கத்தில் இருந்தால் அதனுடன்); நீண்ட அழுத்தம் படத்தின் புதிய நகலை அதே கோப்புறையில் சேமிக்கும்.</string>
-    <string name="hint_draw">வரைதல் தொகுதியில் படத்தில் கோடுகள், அம்புகள், நீள்வட்டங்கள், வளைந்த மூலைகளுள்ள செவ்வகங்கள், எளிய உரை மற்றும் \'மாத்திரை\' வடிவப் பெட்டிகளைச் சேர்க்கலாம். சேமிக்கும்போது படம் ஒரே அடுக்காக இணைக்கப்படும்: கூறுகளைத் திருத்தவோ நகர்த்தவோ அதை மீண்டும் திறக்க முடியாது. ஒரு நிறத்தின் ஒளிர்வைச் சரிசெய்ய அதை நீண்ட நேரம் அழுத்தவும்.</string>
+    <string name="hint_draw">வரைதல் தொகுதியில் படத்தில் கோடுகள், அம்புகள், நீள்வட்டங்கள், வளைந்த மூலைகளுள்ள செவ்வகங்கள், எளிய உரை, \'மாத்திரை\' வடிவப் பெட்டிகள் மற்றும் மங்கலான பலகங்களைச் சேர்க்கலாம். சேமிக்கும்போது படம் ஒரே அடுக்காக இணைக்கப்படும்: கூறுகளைத் திருத்தவோ நகர்த்தவோ அதை மீண்டும் திறக்க முடியாது. ஒரு நிறத்தின் ஒளிர்வைச் சரிசெய்ய அதை நீண்ட நேரம் அழுத்தவும்.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">ஏற்றுமதியும் இறக்குமதியும்</string>

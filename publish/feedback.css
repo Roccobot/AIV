@@ -330,6 +330,55 @@ progress {
 .card.test {
   scroll-margin-top: 120px;
 }
+/* The copy mark of a card's reference (2026-10-09, his mockup): top right, in the color of the
+   card's border, faded; a 32px target around a 22px icon. */
+.card.test,
+.card.question {
+  position: relative;
+}
+.card-ref {
+  appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 32px;
+  height: 32px;
+  min-width: 0;
+  min-height: 0;
+  padding: 5px;
+  margin: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--border-strong);
+  opacity: 0.45;
+  cursor: pointer;
+}
+.card-ref svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+.card-ref:hover,
+.card-ref:focus-visible {
+  background: transparent;
+  opacity: 0.9;
+}
+.card.has-response[data-outcome-kind="ok"] .card-ref {
+  color: var(--accent);
+}
+.card.has-response[data-outcome-kind="warn"] .card-ref {
+  color: var(--warn);
+}
+.card.has-response[data-outcome-kind="bad"] .card-ref {
+  color: var(--bad);
+}
+/* On a label card the screen reader mark keeps the corner, and the copy mark sits at its left. */
+.label-card:has(.label-a11y) .card-ref {
+  right: 41px;
+}
 fieldset {
   border: 0;
   margin: 20px 0;
@@ -396,6 +445,8 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px;
+  /* The buttons read the width of their own card (below). */
+  container-type: inline-size;
 }
 .image-list img {
   display: block;
@@ -466,6 +517,15 @@ textarea {
   flex: none;
   width: 16px;
   height: 16px;
+}
+/* ⚠️ A card too narrow for the two buttons side by side stacks them, the same width and with
+   their words (his screenshot of 2026-10-09: in the side column of Altro, on a desktop, the two
+   rows of buttons ran out of their cards and over each other). The words stay, as he asked for
+   wide screens on 2026-10-06; the row is as wide as its content, so the words decide. */
+@container (max-width: 250px) {
+  .attachment-actions {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 720px) {
   .image-list button {

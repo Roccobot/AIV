@@ -225,6 +225,18 @@
     <string name="pick_rename">Renombrar</string>
     <string name="pick_delete">Eliminar</string>
     <string name="draw_clear">Eliminar todo</string>
+    <string name="draw_text">Texto</string>
+    <string name="draw_pill">Píldora</string>
+    <string name="draw_panel">Panel</string>
+    <string name="draw_face">Fuente</string>
+    <string name="draw_bold">Negrita</string>
+    <string name="draw_italic">Cursiva</string>
+    <string name="draw_strike">Tachado</string>
+    <string name="draw_ground">Fondo</string>
+    <string name="draw_size">Tamaño</string>
+    <string name="draw_text_edit">Editar texto</string>
+    <string name="draw_align">Alineación</string>
+    <string name="draw_center">Centro</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Invertir</string>
     <string name="pick_all_short">Todo</string>
@@ -698,11 +710,13 @@
     <string name="settings_styles_import">Importar</string>
     <string name="settings_styles_saved">Estilos exportados</string>
     <string name="settings_styles_loaded">Estilos importados</string>
+    <string name="settings_style_saved">Estilo exportado</string>
+    <string name="settings_style_loaded">Estilo importado</string>
     <string name="settings_styles_bad">Este archivo no contiene ningún estilo</string>
     <string name="hint_modules">Desliza los iconos para llegar a todos los módulos de edición. Mantén pulsado el icono de un módulo para restablecer solo sus cambios.</string>
     <string name="hint_tools">Además de los módulos, hay dos funciones que puedes activar o desactivar al momento con un toque en el icono, que se enciende: \'Marca de agua\' y \'Redimensionar\'. Con una pulsación larga accedes a los ajustes de cada una.</string>
     <string name="hint_save">Cuando termines, toca \'Guardar\' para sobrescribir el archivo (con copia de seguridad, si está activada); una pulsación larga guarda una copia nueva de la imagen en la misma carpeta.</string>
-    <string name="hint_draw">Con el módulo Dibujo puedes añadir a la imagen líneas, flechas, elipses, rectángulos redondeados, textos sencillos y recuadros \'píldora\'. Al guardar, la imagen se acopla: no se puede volver a abrir para editar o mover los elementos. Mantén pulsado un color para ajustar su brillo.</string>
+    <string name="hint_draw">Con el módulo Dibujo puedes añadir a la imagen líneas, flechas, elipses, rectángulos redondeados, textos sencillos, recuadros \'píldora\' y paneles desenfocados. Al guardar, la imagen se acopla: no se puede volver a abrir para editar o mover los elementos. Mantén pulsado un color para ajustar su brillo.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>

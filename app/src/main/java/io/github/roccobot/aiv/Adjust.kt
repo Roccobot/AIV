@@ -2409,7 +2409,7 @@ internal data class Framed private constructor(
  *
  * ⚠️⚠️ **`null` VUOL DIRE ANDROID 12 O PRIMA**, e chi chiama non ha una seconda strada: l'editor
  * completo non si offre nemmeno, ed è l'istruzione dell'utente. È lo stesso controllo di
- * `ditherShader`, e per la stessa ragione vive in due funzioni (il controllo di versione e l'uso
+ * `grainShader`, in `Dither.kt`, e per la stessa ragione vive in due funzioni (il controllo di versione e l'uso
  * della classe che nasce con la 13 devono stare separati, o l'analizzatore statico non riconosce
  * la guardia).
  *

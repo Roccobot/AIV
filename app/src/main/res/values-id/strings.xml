@@ -225,6 +225,18 @@
     <string name="pick_rename">Ganti nama</string>
     <string name="pick_delete">Hapus</string>
     <string name="draw_clear">Hapus semua</string>
+    <string name="draw_text">Teks</string>
+    <string name="draw_pill">Pil</string>
+    <string name="draw_panel">Panel</string>
+    <string name="draw_face">Huruf</string>
+    <string name="draw_bold">Tebal</string>
+    <string name="draw_italic">Miring</string>
+    <string name="draw_strike">Coret</string>
+    <string name="draw_ground">Latar</string>
+    <string name="draw_size">Ukuran</string>
+    <string name="draw_text_edit">Edit teks</string>
+    <string name="draw_align">Perataan</string>
+    <string name="draw_center">Tengah</string>
     <string name="pick_list">Daftar</string>
     <string name="pick_invert">Balik</string>
     <string name="pick_all_short">Semua</string>
@@ -662,11 +674,13 @@
     <string name="settings_styles_import">Impor</string>
     <string name="settings_styles_saved">Gaya diekspor</string>
     <string name="settings_styles_loaded">Gaya diimpor</string>
+    <string name="settings_style_saved">Gaya diekspor</string>
+    <string name="settings_style_loaded">Gaya diimpor</string>
     <string name="settings_styles_bad">Berkas ini tidak berisi gaya apa pun</string>
     <string name="hint_modules">Geser ikonnya untuk menjangkau semua modul penyuntingan. Tekan lama ikon modul untuk mengatur ulang perubahannya saja.</string>
     <string name="hint_tools">Selain modul, ada dua fungsi yang bisa kamu nyalakan atau matikan seketika dengan satu ketukan pada ikonnya, yang lalu menyala: \'Tanda air\' dan \'Ubah ukuran\'. Tekan lama untuk membuka pengaturan masing-masing.</string>
     <string name="hint_save">Setelah selesai, ketuk \'Simpan\' untuk menimpa berkas (dengan salinan cadangan, jika aktif); tekan lama untuk menyimpan salinan baru gambar di folder yang sama.</string>
-    <string name="hint_draw">Dengan modul Gambar kamu bisa menambahkan garis, panah, elips, persegi panjang membulat, teks sederhana, dan kotak \'pil\' ke gambar. Menyimpan akan meratakan gambar: gambar tidak bisa dibuka lagi untuk menyunting atau memindahkan elemennya. Tekan lama sebuah warna untuk mengatur kecerahannya.</string>
+    <string name="hint_draw">Dengan modul Gambar kamu bisa menambahkan garis, panah, elips, persegi panjang membulat, teks sederhana, kotak \'pil\', dan panel buram ke gambar. Menyimpan akan meratakan gambar: gambar tidak bisa dibuka lagi untuk menyunting atau memindahkan elemennya. Tekan lama sebuah warna untuk mengatur kecerahannya.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Ekspor dan impor</string>

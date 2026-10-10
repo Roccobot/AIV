@@ -225,6 +225,18 @@
     <string name="pick_rename">Renomear</string>
     <string name="pick_delete">Excluir</string>
     <string name="draw_clear">Excluir tudo</string>
+    <string name="draw_text">Texto</string>
+    <string name="draw_pill">Pílula</string>
+    <string name="draw_panel">Painel</string>
+    <string name="draw_face">Fonte</string>
+    <string name="draw_bold">Negrito</string>
+    <string name="draw_italic">Itálico</string>
+    <string name="draw_strike">Tachado</string>
+    <string name="draw_ground">Fundo</string>
+    <string name="draw_size">Tamanho</string>
+    <string name="draw_text_edit">Editar texto</string>
+    <string name="draw_align">Alinhamento</string>
+    <string name="draw_center">Centro</string>
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Inverter</string>
     <string name="pick_all_short">Tudo</string>
@@ -698,11 +710,13 @@
     <string name="settings_styles_import">Importar</string>
     <string name="settings_styles_saved">Estilos exportados</string>
     <string name="settings_styles_loaded">Estilos importados</string>
+    <string name="settings_style_saved">Estilo exportado</string>
+    <string name="settings_style_loaded">Estilo importado</string>
     <string name="settings_styles_bad">Este ficheiro não contém nenhum estilo</string>
     <string name="hint_modules">Desliza os ícones para chegares a todos os módulos de edição. Mantém premido o ícone de um módulo para repor apenas as alterações dele.</string>
     <string name="hint_tools">Além dos módulos, há duas funções que você pode ligar ou desligar na hora com um toque no ícone, que se acende: \'Marca d\'água\' e \'Redimensionar\'. Com um toque longo você acessa as configurações de cada uma.</string>
     <string name="hint_save">Quando terminar, toque em \'Salvar\' para sobrescrever o arquivo (com cópia de segurança, se estiver ativada); um toque longo salva uma nova cópia da imagem na mesma pasta.</string>
-    <string name="hint_draw">Com o módulo Desenho você pode adicionar à imagem linhas, setas, elipses, retângulos arredondados, textos simples e caixas \'pílula\'. Ao salvar, a imagem é achatada: não é possível reabri-la para editar ou mover os elementos. Um toque longo em uma cor ajusta o brilho dela.</string>
+    <string name="hint_draw">Com o módulo Desenho você pode adicionar à imagem linhas, setas, elipses, retângulos arredondados, textos simples, caixas \'pílula\' e painéis desfocados. Ao salvar, a imagem é achatada: não é possível reabri-la para editar ou mover os elementos. Um toque longo em uma cor ajusta o brilho dela.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exportar e importar</string>

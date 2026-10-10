@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -540,17 +541,32 @@ object Glyphs {
     val ModDraw: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_draw)
 
-    /** Le cinque penne del modulo 'Disegno', dalla `4.40`: un tratto ciascuna, vedi i file. */
+    /**
+     * Le otto penne del modulo 'Disegno': le cinque della `4.40`, un tratto ciascuna (vedi i file),
+     * dalla `4.90` il testo, il glifo di Material ammorbidito, e la pillola, e dalla `4.91` il pannello.
+     */
     @Composable
-    fun pen(pen: Pen): ImageVector = ImageVector.vectorResource(
-        when (pen) {
-            Pen.FREE -> R.drawable.ic_pen_free
-            Pen.LINE -> R.drawable.ic_pen_line
-            Pen.ARROW -> R.drawable.ic_pen_arrow
-            Pen.RECT -> R.drawable.ic_pen_rect
-            Pen.ELLIPSE -> R.drawable.ic_pen_ellipse
-        }
-    )
+    fun pen(pen: Pen): ImageVector = when (pen) {
+        Pen.FREE -> ImageVector.vectorResource(R.drawable.ic_pen_free)
+        Pen.LINE -> ImageVector.vectorResource(R.drawable.ic_pen_line)
+        Pen.ARROW -> ImageVector.vectorResource(R.drawable.ic_pen_arrow)
+        Pen.RECT -> ImageVector.vectorResource(R.drawable.ic_pen_rect)
+        Pen.ELLIPSE -> ImageVector.vectorResource(R.drawable.ic_pen_ellipse)
+        Pen.TEXT -> ImageVector.vectorResource(R.drawable.ic_pen_text)
+        Pen.PILL -> ImageVector.vectorResource(R.drawable.ic_pen_pill)
+        Pen.PANEL -> ImageVector.vectorResource(R.drawable.ic_pen_panel)
+    }
+
+    /**
+     * Le righe a sinistra, al centro o a destra: il tasto 'Allineamento' del testo (dalla `4.90`),
+     * i glifi di Material ammorbiditi.
+     */
+    @Composable
+    fun align(align: Align): ImageVector = when (align) {
+        Align.LEFT -> ImageVector.vectorResource(R.drawable.ic_align_left)
+        Align.CENTER -> ImageVector.vectorResource(R.drawable.ic_align_center)
+        Align.RIGHT -> ImageVector.vectorResource(R.drawable.ic_align_right)
+    }
 
     /** Il mirino: il tasto 'Mirato', che arma il colore mirato. */
     val Aim: ImageVector

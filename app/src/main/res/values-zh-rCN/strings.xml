@@ -225,6 +225,18 @@
     <string name="pick_rename">重命名</string>
     <string name="pick_delete">删除</string>
     <string name="draw_clear">全部删除</string>
+    <string name="draw_text">文字</string>
+    <string name="draw_pill">胶囊</string>
+    <string name="draw_panel">面板</string>
+    <string name="draw_face">字体</string>
+    <string name="draw_bold">粗体</string>
+    <string name="draw_italic">斜体</string>
+    <string name="draw_strike">删除线</string>
+    <string name="draw_ground">背景</string>
+    <string name="draw_size">大小</string>
+    <string name="draw_text_edit">编辑文字</string>
+    <string name="draw_align">对齐</string>
+    <string name="draw_center">居中</string>
     <string name="pick_list">列表</string>
     <string name="pick_invert">反选</string>
     <string name="pick_all_short">全选</string>
@@ -662,11 +674,13 @@
     <string name="settings_styles_import">导入</string>
     <string name="settings_styles_saved">已导出风格</string>
     <string name="settings_styles_loaded">已导入风格</string>
+    <string name="settings_style_saved">已导出风格</string>
+    <string name="settings_style_loaded">已导入风格</string>
     <string name="settings_styles_bad">此文件不含任何风格</string>
     <string name="hint_modules">滑动图标即可到达所有编辑模块。长按某个模块的图标，只重置该模块的调整。</string>
     <string name="hint_tools">除了模块之外，还有两项功能可以随时轻触图标开启或关闭，开启后图标会亮起：\'水印\'和\'调整尺寸\'。长按可以打开各自的设置。</string>
     <string name="hint_save">完成后轻触\'保存\'覆盖原文件(如果已启用备份，备份也会保留)；长按则会在同一文件夹中保存图片的新副本。</string>
-    <string name="hint_draw">使用绘图模块，你可以在图片上添加直线、箭头、椭圆、圆角矩形、简单文字和\'胶囊\'框。保存会合并图像：之后无法重新打开来编辑或移动这些元素。长按某个颜色可以调节它的亮度。</string>
+    <string name="hint_draw">使用绘图模块，你可以在图片上添加直线、箭头、椭圆、圆角矩形、简单文字、\'胶囊\'框和模糊面板。保存会合并图像：之后无法重新打开来编辑或移动这些元素。长按某个颜色可以调节它的亮度。</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">导出与导入</string>

@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
  * vale il suo valore di riposo. Il preset si salva, si riapre, e fa un'altra cosa: chi lo ha
  * salvato pensa di averlo perso e non sa perché.
  *
- * ⚠️ **Quello che il banco non vede**: come i venti di casa cambiano un'immagine, che è la sola
+ * ⚠️ **Quello che il banco non vede**: come i dieci di casa cambiano un'immagine, che è la sola
  * cosa che conta davvero di un preset. Quello si guarda sul telefono, e la voce di collaudo lo
  * chiede.
  */
@@ -182,26 +182,38 @@ class PresetTest {
     }
 
     /**
-     * **Caso 6: i venti di casa sono venti, nessuno vuoto e nessuno omonimo.**
+     * **Caso 6: i dieci di casa sono dieci, pieni, distinti, in ordine e senza cursori secondari.**
      *
      * ⚠️⚠️ **UN PRESET VUOTO NON SI VEDE E NON DÀ NESSUN ERRORE**: toccarlo non cambierebbe un
-     * pixel, e chi lo prova penserebbe che i preset non funzionino. Quattordici nascono dai suoi
-     * XMP e sei sono scritti in casa, e un errore di battitura in uno dei due elenchi si ferma
-     * qui.
+     * pixel, e chi lo prova penserebbe che i preset non funzionino.
+     * ⚠️⚠️ **DALLA `4.97` SONO DIECI, SCRITTI DALLA SESSIONE** (sua risposta `A1` sul giro della
+     * `4.96`): 'Roccobot' per primo, gli altri in ordine alfabetico (suo ordine, dalla `2.50`), e
+     * nessuno nomina un cursore secondario, che col tocco lungo sovrascriverebbe quello di un altro
+     * stile invece di sommarsi ([Preset.addTo]). 'Bianco e nero' non c'è, per sua istruzione.
      */
     @Test
-    fun `i venti di casa sono venti pieni e distinti`() {
-        assertEquals("Non sono venti", 20, HOUSE.size)
+    fun `i dieci di casa sono dieci pieni distinti e in ordine`() {
+        assertEquals("Non sono dieci", 10, HOUSE.size)
         HOUSE.forEach { p ->
             assertTrue("Il preset '${p.name}' non cambia niente", !p.look.idle)
             assertTrue("Il preset '${p.name}' non si dichiara di casa", p.house)
             assertTrue("Un preset di casa ha il nome vuoto", p.name.isNotBlank())
+            val l = p.look
+            assertTrue(
+                "Il preset '${p.name}' nomina un cursore secondario",
+                l.chroma.filter == 0f && l.detail.radius == 0f && l.detail.masking == 0f &&
+                    l.effects.grainSize == 0f && l.effects.grainLift == 0f && l.effects.vignetteFeather == 0f
+            )
+            assertTrue("Il preset '${p.name}' è in bianco e nero", !l.chroma.mono)
         }
         assertEquals(
             "Due preset di casa si chiamano uguale",
             HOUSE.size,
             HOUSE.map { it.name.lowercase() }.toSet().size
         )
+        assertEquals("Il primo non è Roccobot", "Roccobot", HOUSE.first().name)
+        val altri = HOUSE.drop(1).map { it.name.lowercase() }
+        assertEquals("Dal secondo in poi non sono in ordine alfabetico", altri.sorted(), altri)
     }
 
     /**
@@ -221,7 +233,7 @@ class PresetTest {
         Presets.save(app, "Nuovo", Look(light = Light(contrast = 0.5f)))
 
         val tutti = Presets.all(app)
-        assertEquals("I venti di casa non aprono l'elenco", HOUSE.size + 2, tutti.size)
+        assertEquals("Quelli di casa non aprono l'elenco", HOUSE.size + 2, tutti.size)
         assertTrue("Il primo non è di casa", tutti[0].house)
         assertTrue("L'ultimo di casa non è al suo posto", tutti[HOUSE.size - 1].house)
         assertEquals("Il primo dei propri non segue quelli di casa", "Vecchio", tutti[HOUSE.size].name)
@@ -285,7 +297,7 @@ class PresetTest {
             }
         }
         /*
-         * ⚠️ **Si scorre fino a lui**: i propri stanno **sotto** i venti di casa (sua istruzione,
+         * ⚠️ **Si scorre fino a lui**: i propri sono **sotto** quelli di casa (sua istruzione,
          * *quelli salvati, in basso*), e in un elenco pigro quello che è fuori scena non è nemmeno
          * nell'albero. Senza questa riga la prova misurerebbe zero comandi perché la riga non c'è,
          * invece che perché il comando non esiste.
@@ -306,7 +318,7 @@ class PresetTest {
      * volta sola per regola, quindi le due scene vogliono due prove. Questa salva **prima** di
      * montare, perché la pagina legge l'archivio all'apertura.
      * ⚠️⚠️ **ANCHE QUELLI DI CASA SI CANCELLANO, ED È SUA ISTRUZIONE** (*sia i predefiniti di
-     * fabbrica che quelli creati dall'utente*): il conto è quindi i venti di casa più i propri, e
+     * fabbrica che quelli creati dall'utente*): il conto è quindi quelli di casa più i propri, e
      * una prova che ne contasse uno solo direbbe che i suoi non si toccano.
      */
     @Test
@@ -390,6 +402,29 @@ class PresetTest {
     private fun testo(id: Int): String = app.getString(id)
 
     /** Quanti comandi 'Elimina' sono in scena: il banco non ha un conto pronto. */
+    /**
+     * **Caso 9b: ogni riga della pagina degli stili ha il comando che la esporta da sola.**
+     *
+     * ⚠️ **Dalla `4.96`**, con il file `.aivstyle`: i comandi si contano per descrizione, e il tasto
+     * in fondo alla pagina, che esporta l'archivio intero, ha un testo e non una descrizione, quindi
+     * non entra nel conto.
+     */
+    @Test
+    fun `ogni riga della pagina degli stili si esporta da sola`() {
+        Presets.save(app, "Mio", Look(light = Light(exposure = 0.5f)))
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                StyleSettings(scroll = rememberScrollState())
+            }
+        }
+        assertEquals(
+            "I comandi che esportano non sono uno per stile",
+            HOUSE.size + 1,
+            banco.onAllNodesWithContentDescription(app.getString(R.string.settings_styles_export))
+                .fetchSemanticsNodes().size
+        )
+    }
+
     private fun comandiCheTolgono(): Int = banco
         .onAllNodesWithContentDescription(app.getString(R.string.look_preset_remove))
         .fetchSemanticsNodes().size
@@ -428,6 +463,142 @@ class PresetTest {
         assertEquals("Gli Effetti sono entrati da soli", Effects.NONE, letto.look.effects)
         assertEquals("Le Curve sono entrate da sole", Tone.NONE, letto.look.tone)
         assertNotEquals("La Luce non è arrivata", Light.NONE, letto.look.light)
+    }
+
+    /**
+     * **Caso 17: il tocco lungo somma, e due stili non si cancellano a vicenda.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `B1`, DALLA `4.97`** (giro della `4.96`: *ne posso usare più di uno
+     * e si sommino senza distruggersi a vicenda*). Fino alla `4.96` un modulo nominato si
+     * sostituiva per intero, e il secondo stile di luce cancellava il primo. Si misura: la somma
+     * dei principali e lo stesso stile due volte, il tetto della corsa, i secondari che prendono il
+     * valore dello stile solo se lo nomina, il bianco e nero, e le curve applicate una dopo l'altra.
+     */
+    @Test
+    fun `il tocco lungo somma gli stili`() {
+        val caldo = HOUSE.single { it.key == "caldo" }
+        val ombre = HOUSE.single { it.key == "ombre" }
+        val due = caldo.addTo(caldo.addTo(Look.NONE))
+        assertEquals("Lo stesso stile due volte non conta due volte", 0.24f, due.chroma.temp, 1e-6f)
+        val insieme = ombre.addTo(caldo.addTo(Look.NONE))
+        assertEquals("Il secondo stile ha cancellato il primo", caldo.look.chroma.temp, insieme.chroma.temp, 1e-6f)
+        assertEquals("Il secondo stile non è arrivato", ombre.look.light.shadows, insieme.light.shadows, 1e-6f)
+
+        val base = Look(
+            light = Light(contrast = 0.95f, exposure = 1.9f),
+            chroma = Chroma(saturation = 0.2f, filter = 0.4f),
+            detail = Detail(sharpen = 0.3f, radius = 0.5f, masking = 0.6f),
+            effects = Effects(grain = 0.2f, grainSize = 0.3f, vignette = 0.1f, vignetteFeather = -0.4f)
+        )
+        val stile = Preset.of(
+            "Prova",
+            Look(
+                light = Light(contrast = 0.2f, exposure = 0.5f),
+                chroma = Chroma(saturation = -0.5f, mono = true),
+                detail = Detail(sharpen = 0.9f, radius = -0.2f),
+                effects = Effects(grain = 0.1f, vignette = 0.2f)
+            )
+        )
+        val dopo = stile.addTo(base)
+        assertEquals("Il contrasto ha passato il tetto", 1f, dopo.light.contrast, 1e-6f)
+        assertEquals("L'esposizione ha passato il tetto", Light.EXPOSURE_RANGE, dopo.light.exposure, 1e-6f)
+        assertEquals("La saturazione non si è sommata", -0.3f, dopo.chroma.saturation, 1e-6f)
+        assertEquals("La nitidezza ha passato il tetto", 1f, dopo.detail.sharpen, 1e-6f)
+        assertEquals("La grana non si è sommata", 0.3f, dopo.effects.grain, 1e-6f)
+        assertEquals("La vignettatura non si è sommata", 0.3f, dopo.effects.vignette, 1e-6f)
+        assertEquals("Il raggio nominato dallo stile non è arrivato", -0.2f, dopo.detail.radius, 1e-6f)
+        assertEquals("La maschera che lo stile non nomina è cambiata", 0.6f, dopo.detail.masking, 1e-6f)
+        assertEquals("Il filtro che lo stile non nomina è cambiato", 0.4f, dopo.chroma.filter, 1e-6f)
+        assertEquals("La dimensione della grana è cambiata", 0.3f, dopo.effects.grainSize, 1e-6f)
+        assertEquals("La sfumatura della vignettatura è cambiata", -0.4f, dopo.effects.vignetteFeather, 1e-6f)
+        assertTrue("Il bianco e nero dello stile non è arrivato", dopo.chroma.mono)
+
+        val contrasto = HOUSE.single { it.key == "contrasto" }
+        val film = HOUSE.single { it.key == "film" }
+        val solo = contrasto.addTo(Look.NONE)
+        assertEquals("Una curva sopra nessuna non è quella dello stile", contrasto.look.tone.all, solo.tone.all)
+        val curve = film.addTo(solo)
+        for (x in listOf(0f, 0.25f, 0.5f, 0.75f, 1f)) {
+            val atteso = film.look.tone.all.valueAt(contrasto.look.tone.all.valueAt(x))
+            assertEquals("Le curve non si sono applicate una dopo l'altra in $x", atteso, curve.tone.all.valueAt(x), 0.01f)
+        }
+    }
+
+    /**
+     * **Caso 14: il file di uno stile solo si aggiunge agli altri, e non li sostituisce.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `dopo` A `d-stile-singolo`, DALLA `4.96`**: un'importazione che lo
+     * aggiunge. Il difetto che la prova ferma è il più costoso della pagina: letto come archivio, un
+     * file con un solo stile dà un elenco vuoto, e [Presets.load] lo scriverebbe al posto di tutti
+     * gli stili propri.
+     * ⚠️ **Lo stesso nome sostituisce**, come il salvataggio, e senza guardare le maiuscole.
+     */
+    @Test
+    fun `uno stile esportato da solo si aggiunge agli altri`() {
+        Presets.save(app, "Primo", Look(light = Light(exposure = 0.5f)))
+        Presets.save(app, "Secondo", Look(light = Light(contrast = 0.5f)))
+
+        val esito = Presets.load(app, Presets.exportOne(Preset.of("Arrivato", PIENO)))
+        assertEquals("Il file non è stato letto come uno stile solo", Presets.Loaded.ONE, esito)
+        val mine = Presets.mine(app)
+        assertEquals(
+            "Gli stili propri non sono i due di prima più quello arrivato",
+            listOf("Primo", "Secondo", "Arrivato"),
+            mine.map { it.name }
+        )
+        assertEquals("Lo stile arrivato non è quello esportato", PIENO, mine.last().look)
+
+        Presets.load(app, Presets.exportOne(Preset.of("primo", Look(chroma = Chroma(temp = 0.3f)))))
+        assertEquals("Lo stesso nome non ha sostituito", 3, Presets.mine(app).size)
+        assertEquals(
+            "Lo stile sostituito non ha i valori del file",
+            Chroma(temp = 0.3f),
+            Presets.mine(app).first().look.chroma
+        )
+    }
+
+    /**
+     * **Caso 15: il file di uno stile solo non passa per un archivio, e un archivio resta tale.**
+     *
+     * ⚠️ **Il file di impostazioni chiede a [Presets.readable] se il suo testo è un archivio**:
+     * uno stile solo che passasse di lì cancellerebbe gli stili propri all'importazione.
+     */
+    @Test
+    fun `il file di uno stile solo non vale come archivio`() {
+        val uno = Presets.exportOne(Preset.of("Solo", PIENO))
+        assertTrue("Uno stile solo vale come archivio", !Presets.readable(uno))
+
+        Presets.save(app, "Mio", PIENO)
+        val archivio = Presets.export(app)
+        assertTrue("L'archivio non vale più come archivio", Presets.readable(archivio))
+        assertEquals("L'archivio è stato letto come uno stile solo", Presets.Loaded.BOOK, Presets.load(app, archivio))
+        assertEquals("Un testo storto è stato letto", null, Presets.load(app, "{ storto"))
+        assertEquals("Uno stile senza nome è stato letto", null, Presets.load(app, "{\"name\": \" \"}"))
+    }
+
+    /**
+     * **Caso 16: ogni stile di casa esce da solo e rientra identico.**
+     *
+     * ⚠️⚠️ **TRE STILI DI CASA HANNO GLI EFFETTI** (dalla `4.97` 'Roccobot', 'Nitido' e
+     * 'Pellicola'), quindi un campo degli Effetti che il file di uno stile perdesse si vedrebbe qui
+     * e non solo sul [PIENO] della prova 1. Uno stile di casa rientra come stile proprio.
+     */
+    @Test
+    fun `ogni stile di casa esce da solo e rientra identico`() {
+        HOUSE.forEach { p ->
+            assertEquals(Presets.Loaded.ONE, Presets.load(app, Presets.exportOne(p)))
+            val tornato = Presets.mine(app).last()
+            assertEquals("'${p.name}' è tornato con un altro nome", p.name, tornato.name)
+            assertEquals("'${p.name}' è tornato diverso", p.look, tornato.look)
+            assertTrue("'${p.name}' è tornato come stile di casa", !tornato.house)
+        }
+        assertEquals("Non sono tornati tutti", HOUSE.size, Presets.mine(app).size)
+        val effetti = HOUSE.filter { !it.look.effects.idle }.map { it.key }.toSet()
+        assertEquals(
+            "Gli stili con gli Effetti non sono i tre attesi",
+            setOf("combo", "nitido", "film"),
+            effetti
+        )
     }
 }
 

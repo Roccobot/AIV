@@ -225,6 +225,18 @@
     <string name="pick_rename">Umbenennen</string>
     <string name="pick_delete">Löschen</string>
     <string name="draw_clear">Alles löschen</string>
+    <string name="draw_text">Text</string>
+    <string name="draw_pill">Kapsel</string>
+    <string name="draw_panel">Panel</string>
+    <string name="draw_face">Schriftart</string>
+    <string name="draw_bold">Fett</string>
+    <string name="draw_italic">Kursiv</string>
+    <string name="draw_strike">Durchgestrichen</string>
+    <string name="draw_ground">Hintergrund</string>
+    <string name="draw_size">Größe</string>
+    <string name="draw_text_edit">Text bearbeiten</string>
+    <string name="draw_align">Ausrichtung</string>
+    <string name="draw_center">Mitte</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Umkehren</string>
     <string name="pick_all_short">Alle</string>
@@ -680,11 +692,13 @@
     <string name="settings_styles_import">Importieren</string>
     <string name="settings_styles_saved">Stile exportiert</string>
     <string name="settings_styles_loaded">Stile importiert</string>
+    <string name="settings_style_saved">Stil exportiert</string>
+    <string name="settings_style_loaded">Stil importiert</string>
     <string name="settings_styles_bad">Diese Datei enthält keinen Stil</string>
     <string name="hint_modules">Wische über die Symbole, um alle Bearbeitungsmodule zu erreichen. Halte ein Modulsymbol gedrückt, um nur dessen Änderungen zurückzusetzen.</string>
     <string name="hint_tools">Neben den Modulen gibt es zwei Funktionen, die du jederzeit mit einem Tippen auf das Symbol ein- und ausschaltest, das dabei aufleuchtet: \'Wasserzeichen\' und \'Größe ändern\'. Ein langes Drücken öffnet die jeweiligen Einstellungen.</string>
     <string name="hint_save">Wenn du fertig bist, tippe auf \'Speichern\', um die Datei zu überschreiben (mit Sicherungskopie, falls sie aktiviert ist); ein langes Drücken speichert eine neue Kopie des Bildes im selben Ordner.</string>
-    <string name="hint_draw">Mit dem Modul Zeichnen fügst du dem Bild Linien, Pfeile, Ellipsen, abgerundete Rechtecke, einfache Texte und \'Pillen\'-Rahmen hinzu. Beim Speichern wird das Bild auf eine Ebene reduziert: Du kannst es nicht wieder öffnen, um die Elemente zu bearbeiten oder zu verschieben. Halte eine Farbe gedrückt, um ihre Helligkeit einzustellen.</string>
+    <string name="hint_draw">Mit dem Modul Zeichnen fügst du dem Bild Linien, Pfeile, Ellipsen, abgerundete Rechtecke, einfache Texte, \'Pillen\'-Rahmen und weichgezeichnete Panels hinzu. Beim Speichern wird das Bild auf eine Ebene reduziert: Du kannst es nicht wieder öffnen, um die Elemente zu bearbeiten oder zu verschieben. Halte eine Farbe gedrückt, um ihre Helligkeit einzustellen.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Export und Import</string>

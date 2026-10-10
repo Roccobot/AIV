@@ -225,6 +225,18 @@
     <string name="pick_rename">Renommer</string>
     <string name="pick_delete">Supprimer</string>
     <string name="draw_clear">Tout supprimer</string>
+    <string name="draw_text">Texte</string>
+    <string name="draw_pill">Pilule</string>
+    <string name="draw_panel">Panneau</string>
+    <string name="draw_face">Police</string>
+    <string name="draw_bold">Gras</string>
+    <string name="draw_italic">Italique</string>
+    <string name="draw_strike">Barré</string>
+    <string name="draw_ground">Fond</string>
+    <string name="draw_size">Taille</string>
+    <string name="draw_text_edit">Modifier le texte</string>
+    <string name="draw_align">Alignement</string>
+    <string name="draw_center">Centre</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Inverser</string>
     <string name="pick_all_short">Tout</string>
@@ -698,11 +710,13 @@
     <string name="settings_styles_import">Importer</string>
     <string name="settings_styles_saved">Styles exportés</string>
     <string name="settings_styles_loaded">Styles importés</string>
+    <string name="settings_style_saved">Style exporté</string>
+    <string name="settings_style_loaded">Style importé</string>
     <string name="settings_styles_bad">Ce fichier ne contient aucun style</string>
     <string name="hint_modules">Fais défiler les icônes pour atteindre tous les modules de retouche. Appuie longuement sur l\'icône d\'un module pour annuler ses seuls réglages.</string>
     <string name="hint_tools">En plus des modules, deux fonctions s\'activent et se désactivent à la volée d\'une simple pression sur l\'icône, qui s\'allume : \'Filigrane\' et \'Redimensionner\'. Un appui long ouvre les réglages de chacune.</string>
     <string name="hint_save">Quand tu as terminé, touche \'Enregistrer\' pour écraser le fichier (avec copie de sauvegarde, si elle est activée) ; un appui long enregistre une nouvelle copie de l\'image dans le même dossier.</string>
-    <string name="hint_draw">Avec le module Dessin, tu peux ajouter à l\'image des lignes, des flèches, des ellipses, des rectangles arrondis, des textes simples et des cadres \'pilule\'. L\'enregistrement aplatit l\'image : tu ne pourras pas la rouvrir pour modifier ou déplacer les éléments. Appuie longuement sur une couleur pour régler sa luminosité.</string>
+    <string name="hint_draw">Avec le module Dessin, tu peux ajouter à l\'image des lignes, des flèches, des ellipses, des rectangles arrondis, des textes simples, des cadres \'pilule\' et des panneaux floutés. L\'enregistrement aplatit l\'image : tu ne pourras pas la rouvrir pour modifier ou déplacer les éléments. Appuie longuement sur une couleur pour régler sa luminosité.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Exporter et importer</string>

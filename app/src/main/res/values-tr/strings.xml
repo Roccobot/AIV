@@ -225,6 +225,18 @@
     <string name="pick_rename">Yeniden adlandır</string>
     <string name="pick_delete">Sil</string>
     <string name="draw_clear">Tümünü sil</string>
+    <string name="draw_text">Metin</string>
+    <string name="draw_pill">Kapsül</string>
+    <string name="draw_panel">Panel</string>
+    <string name="draw_face">Yazı tipi</string>
+    <string name="draw_bold">Kalın</string>
+    <string name="draw_italic">İtalik</string>
+    <string name="draw_strike">Üstü çizili</string>
+    <string name="draw_ground">Arka plan</string>
+    <string name="draw_size">Boyut</string>
+    <string name="draw_text_edit">Metni düzenle</string>
+    <string name="draw_align">Hizalama</string>
+    <string name="draw_center">Orta</string>
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Tersine çevir</string>
     <string name="pick_all_short">Tümü</string>
@@ -680,11 +692,13 @@
     <string name="settings_styles_import">İçe aktar</string>
     <string name="settings_styles_saved">Stiller dışa aktarıldı</string>
     <string name="settings_styles_loaded">Stiller içe aktarıldı</string>
+    <string name="settings_style_saved">Stil dışa aktarıldı</string>
+    <string name="settings_style_loaded">Stil içe aktarıldı</string>
     <string name="settings_styles_bad">Bu dosyada hiç stil yok</string>
     <string name="hint_modules">Tüm düzenleme modüllerine ulaşmak için simgeleri kaydır. Yalnızca bir modülün değişikliklerini sıfırlamak için simgesine uzun bas.</string>
     <string name="hint_tools">Modüllerin yanı sıra, simgeye dokunarak anında açıp kapatabileceğin iki işlev var; açıkken simge yanar: \'Filigran\' ve \'Yeniden boyutlandır\'. Uzun basınca her birinin ayarları açılır.</string>
     <string name="hint_save">İşin bitince dosyanın üzerine yazmak için \'Kaydet\' düğmesine dokun (etkinse yedek kopyayla birlikte); uzun basış, görüntünün yeni bir kopyasını aynı klasöre kaydeder.</string>
-    <string name="hint_draw">Çizim modülüyle görüntüye çizgiler, oklar, elipsler, yuvarlatılmış dikdörtgenler, basit metinler ve \'hap\' kutuları ekleyebilirsin. Kaydetmek görüntüyü tek katmana indirir: öğeleri düzenlemek ya da taşımak için onu yeniden açamazsın. Parlaklığını ayarlamak için bir renge uzun bas.</string>
+    <string name="hint_draw">Çizim modülüyle görüntüye çizgiler, oklar, elipsler, yuvarlatılmış dikdörtgenler, basit metinler, \'hap\' kutuları ve bulanık paneller ekleyebilirsin. Kaydetmek görüntüyü tek katmana indirir: öğeleri düzenlemek ya da taşımak için onu yeniden açamazsın. Parlaklığını ayarlamak için bir renge uzun bas.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">Dışa ve içe aktarma</string>

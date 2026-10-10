@@ -225,6 +225,18 @@
     <string name="pick_rename">إعادة تسمية</string>
     <string name="pick_delete">حذف</string>
     <string name="draw_clear">حذف الكل</string>
+    <string name="draw_text">نص</string>
+    <string name="draw_pill">كبسولة</string>
+    <string name="draw_panel">لوحة</string>
+    <string name="draw_face">الخط</string>
+    <string name="draw_bold">عريض</string>
+    <string name="draw_italic">مائل</string>
+    <string name="draw_strike">يتوسطه خط</string>
+    <string name="draw_ground">الخلفية</string>
+    <string name="draw_size">الحجم</string>
+    <string name="draw_text_edit">تعديل النص</string>
+    <string name="draw_align">المحاذاة</string>
+    <string name="draw_center">وسط</string>
     <string name="pick_list">قائمة</string>
     <string name="pick_invert">عكس</string>
     <string name="pick_all_short">الكل</string>
@@ -752,11 +764,13 @@
     <string name="settings_styles_import">استيراد</string>
     <string name="settings_styles_saved">تم تصدير الأنماط</string>
     <string name="settings_styles_loaded">تم استيراد الأنماط</string>
+    <string name="settings_style_saved">تم تصدير النمط</string>
+    <string name="settings_style_loaded">تم استيراد النمط</string>
     <string name="settings_styles_bad">هذا الملف لا يحتوي على أي نمط</string>
     <string name="hint_modules">مرّر الأيقونات للوصول إلى كل وحدات التحرير. اضغط مطولاً على أيقونة وحدة لتصفير تعديلاتها وحدها.</string>
     <string name="hint_tools">إلى جانب الوحدات، هناك وظيفتان يمكنك تشغيلهما أو إيقافهما فورًا بنقرة على الأيقونة التي تضيء: \'علامة مائية\' و\'تغيير الحجم\'. الضغط المطول يفتح إعدادات كل منهما.</string>
     <string name="hint_save">عند الانتهاء، انقر على \'حفظ\' للكتابة فوق الملف (مع نسخة احتياطية، إن كانت مفعّلة)؛ الضغط المطول يحفظ نسخة جديدة من الصورة في المجلد نفسه.</string>
-    <string name="hint_draw">باستخدام وحدة الرسم يمكنك أن تضيف إلى الصورة خطوطًا وأسهمًا وقطوعًا ناقصة ومستطيلات مستديرة الزوايا ونصوصًا بسيطة وإطارات \'كبسولة\'. الحفظ يدمج الصورة في طبقة واحدة: لا يمكن إعادة فتحها لتعديل العناصر أو نقلها. اضغط مطولاً على لون لضبط سطوعه.</string>
+    <string name="hint_draw">باستخدام وحدة الرسم يمكنك أن تضيف إلى الصورة خطوطًا وأسهمًا وقطوعًا ناقصة ومستطيلات مستديرة الزوايا ونصوصًا بسيطة وإطارات \'كبسولة\' ولوحات مموهة. الحفظ يدمج الصورة في طبقة واحدة: لا يمكن إعادة فتحها لتعديل العناصر أو نقلها. اضغط مطولاً على لون لضبط سطوعه.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">تصدير واستيراد</string>

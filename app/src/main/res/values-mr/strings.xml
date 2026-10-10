@@ -225,6 +225,18 @@
     <string name="pick_rename">नाव बदला</string>
     <string name="pick_delete">पुसा</string>
     <string name="draw_clear">सर्व पुसा</string>
+    <string name="draw_text">मजकूर</string>
+    <string name="draw_pill">कॅप्सूल</string>
+    <string name="draw_panel">पॅनेल</string>
+    <string name="draw_face">फॉन्ट</string>
+    <string name="draw_bold">ठळक</string>
+    <string name="draw_italic">तिरपा</string>
+    <string name="draw_strike">खोडलेले</string>
+    <string name="draw_ground">पार्श्वभूमी</string>
+    <string name="draw_size">आकार</string>
+    <string name="draw_text_edit">मजकूर संपादित करा</string>
+    <string name="draw_align">संरेखन</string>
+    <string name="draw_center">मध्यभागी</string>
     <string name="pick_list">यादी</string>
     <string name="pick_invert">उलटा</string>
     <string name="pick_all_short">सर्व</string>
@@ -680,11 +692,13 @@
     <string name="settings_styles_import">आयात</string>
     <string name="settings_styles_saved">शैली निर्यात झाल्या</string>
     <string name="settings_styles_loaded">शैली आयात झाल्या</string>
+    <string name="settings_style_saved">शैली निर्यात झाली</string>
+    <string name="settings_style_loaded">शैली आयात झाली</string>
     <string name="settings_styles_bad">या फाइलमध्ये कोणतीही शैली नाही</string>
     <string name="hint_modules">सर्व संपादन मॉड्यूलपर्यंत पोहोचण्यासाठी चिन्हे सरकवा. एखाद्या मॉड्यूलचे चिन्ह दाबून धरल्यास फक्त त्याचे बदल शून्य होतात.</string>
     <string name="hint_tools">मॉड्यूलशिवाय आणखी दोन सुविधा आहेत, ज्या चिन्हावर एक टॅप करून लगेच चालू किंवा बंद करता येतात आणि चिन्ह उजळते: \'वॉटरमार्क\' आणि \'आकार बदला\'. दीर्घ दाबाने प्रत्येकीची सेटिंग उघडते.</string>
     <string name="hint_save">काम पूर्ण झाल्यावर फाइलवर लिहिण्यासाठी \'जतन करा\' दाबा (बॅकअप प्रत सुरू असल्यास तिच्यासह); दीर्घ दाबाने प्रतिमेची नवी प्रत त्याच फोल्डरमध्ये जतन होते.</string>
-    <string name="hint_draw">रेखाटन मॉड्यूलमधून तुम्ही प्रतिमेत रेषा, बाण, लंबवर्तुळ, गोल कोपऱ्यांचे आयत, साधा मजकूर आणि \'गोळी\'च्या आकाराच्या चौकटी जोडू शकता. जतन केल्यावर प्रतिमा एकाच थरात मिसळते: घटक संपादित करण्यासाठी किंवा हलवण्यासाठी ती पुन्हा उघडता येत नाही. एखाद्या रंगाचा उजळपणा बदलण्यासाठी तो दाबून धरा.</string>
+    <string name="hint_draw">रेखाटन मॉड्यूलमधून तुम्ही प्रतिमेत रेषा, बाण, लंबवर्तुळ, गोल कोपऱ्यांचे आयत, साधा मजकूर, \'गोळी\'च्या आकाराच्या चौकटी आणि धूसर पॅनेल जोडू शकता. जतन केल्यावर प्रतिमा एकाच थरात मिसळते: घटक संपादित करण्यासाठी किंवा हलवण्यासाठी ती पुन्हा उघडता येत नाही. एखाद्या रंगाचा उजळपणा बदलण्यासाठी तो दाबून धरा.</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">निर्यात आणि आयात</string>

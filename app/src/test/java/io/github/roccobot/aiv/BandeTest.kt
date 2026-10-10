@@ -3,10 +3,19 @@ package io.github.roccobot.aiv
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
@@ -101,6 +110,77 @@ class BandeTest {
             "Una riga porta $toniMax toni diversi: il rumore è una grana, non un livello",
             toniMax <= TONI_MAX
         )
+    }
+
+    /**
+     * **Anche le fasce in fondo allo schermo hanno il rumore** (`4.90`, sua segnalazione: *da quando
+     * abbiamo modificato le sfumature vedo di nuovo un po' di banding*, con una schermata scura e le
+     * bande sopra il FAB).
+     * ⚠️⚠️ **LA SCENA È UNA FOTOGRAFIA GRIGIA SOTTO IL FONDO SCURO**, cioè il caso della sua
+     * schermata: sopra un'immagine la rampa attraversa i livelli fra il fondo e l'immagine, e là un
+     * gradino viene alto una dozzina di pixel. Si guarda la sola fascia grande, senza la coda.
+     * ⚠️⚠️ **CONTROPROVATA**: con la rampa posata senza nessun rumore, come fino alla `4.81`, le righe
+     * miste sono 0 su 98.
+     */
+    @Test
+    fun `le fasce in fondo hanno il rumore che toglie le bande`() {
+        banco.setContent {
+            MaterialTheme(colorScheme = darkColorScheme()) {
+                Box(modifier = Modifier.background(FOTO)) {
+                    GroundFade(modifier = Modifier.testTag(FASCIA), footAlpha = null)
+                }
+            }
+        }
+        banco.waitForIdle()
+        val (miste, righe, toniMax) = righeMiste(banco.onNodeWithTag(FASCIA).captureToImage().toPixelMap())
+        assertTrue("Solo $miste righe su $righe hanno più di un tono: senza rumore le bande restano", miste >= righe * QUOTA_MISTE)
+        assertTrue("Una riga porta $toniMax toni diversi: il rumore è una grana, non un livello", toniMax <= TONI_MAX)
+    }
+
+    /**
+     * **Anche l'ombra della selezione ha il rumore** (`4.90`, stessa segnalazione): sopra la scheda
+     * la griglia scurisce fino al 24,5%, e su una fotografia chiara sono una cinquantina di livelli
+     * in 120 dp.
+     * ⚠️⚠️ **CONTROPROVATA**: con la rampa posata senza nessun rumore, come fino alla `4.81`, le righe
+     * miste sono 0 su 84.
+     */
+    @Test
+    fun `l'ombra della selezione ha il rumore che toglie le bande`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                var fondo by remember { mutableStateOf<Float?>(null) }
+                Box(
+                    modifier = Modifier
+                        .size(LARGA.dp, SHADE_TALL)
+                        .background(Color.White)
+                        .onGloballyPositioned { fondo = it.boundsInWindow().bottom }
+                        .testTag(FASCIA)
+                        .pickShade(fondo, behind = false)
+                )
+            }
+        }
+        banco.waitForIdle()
+        val (miste, righe, toniMax) = righeMiste(banco.onNodeWithTag(FASCIA).captureToImage().toPixelMap())
+        assertTrue("Solo $miste righe su $righe hanno più di un tono: senza rumore le bande restano", miste >= righe * QUOTA_MISTE)
+        assertTrue("Una riga porta $toniMax toni diversi: il rumore è una grana, non un livello", toniMax <= TONI_MAX)
+    }
+
+    /**
+     * Quante righe del tratto in cui la rampa cambia hanno più di un tono, su quante, e quanti toni
+     * porta al massimo una riga: né il primo decimo né l'ultimo quinto, dove la rampa è ferma.
+     */
+    private fun righeMiste(mappa: PixelMap): Triple<Int, Int, Int> {
+        val da = mappa.height / 10
+        val a = mappa.height * 4 / 5
+        var miste = 0
+        var toniMax = 0
+        for (y in da until a) {
+            val toni = HashSet<Color>()
+            for (x in 0 until mappa.width) toni += mappa[x, y]
+            if (toni.size > 1) miste++
+            toniMax = maxOf(toniMax, toni.size)
+        }
+        return Triple(miste, a - da, toniMax)
     }
 
     /**
@@ -246,6 +326,9 @@ private const val ALTA = 300
  * misurerebbe il caso facile.
  */
 private val TINTA = Color(0xFF1A3A6B)
+
+/** La fotografia sotto le fasce in fondo: un grigio medio, lontano dal fondo scuro. */
+private val FOTO = Color(0xFF8A8A8A)
 
 /**
  * Quante righe devono essere miste perché il rumore ci sia davvero.

@@ -225,6 +225,18 @@
     <string name="pick_rename">เปลี่ยนชื่อ</string>
     <string name="pick_delete">ลบ</string>
     <string name="draw_clear">ลบทั้งหมด</string>
+    <string name="draw_text">ข้อความ</string>
+    <string name="draw_pill">แคปซูล</string>
+    <string name="draw_panel">แผง</string>
+    <string name="draw_face">แบบอักษร</string>
+    <string name="draw_bold">ตัวหนา</string>
+    <string name="draw_italic">ตัวเอียง</string>
+    <string name="draw_strike">ขีดฆ่า</string>
+    <string name="draw_ground">พื้นหลัง</string>
+    <string name="draw_size">ขนาด</string>
+    <string name="draw_text_edit">แก้ไขข้อความ</string>
+    <string name="draw_align">การจัดแนว</string>
+    <string name="draw_center">ตรงกลาง</string>
     <string name="pick_list">รายชื่อ</string>
     <string name="pick_invert">สลับ</string>
     <string name="pick_all_short">ทั้งหมด</string>
@@ -662,11 +674,13 @@
     <string name="settings_styles_import">นำเข้า</string>
     <string name="settings_styles_saved">ส่งออกสไตล์แล้ว</string>
     <string name="settings_styles_loaded">นำเข้าสไตล์แล้ว</string>
+    <string name="settings_style_saved">ส่งออกสไตล์แล้ว</string>
+    <string name="settings_style_loaded">นำเข้าสไตล์แล้ว</string>
     <string name="settings_styles_bad">ไฟล์นี้ไม่มีสไตล์ใด ๆ</string>
     <string name="hint_modules">ปัดไอคอนเพื่อเข้าถึงโมดูลแก้ไขทั้งหมด แตะค้างที่ไอคอนของโมดูลเพื่อล้างเฉพาะการปรับของโมดูลนั้น</string>
     <string name="hint_tools">นอกจากโมดูลแล้ว ยังมีสองฟังก์ชันที่เปิดหรือปิดได้ทันทีด้วยการแตะที่ไอคอน ซึ่งจะสว่างขึ้น ได้แก่ \'ลายน้ำ\' และ \'ปรับขนาด\' กดค้างเพื่อเปิดการตั้งค่าของแต่ละอย่าง</string>
     <string name="hint_save">เมื่อเสร็จแล้วให้แตะ \'บันทึก\' เพื่อเขียนทับไฟล์ (พร้อมสำเนาสำรอง หากเปิดใช้งานไว้) การกดค้างจะบันทึกสำเนาใหม่ของภาพไว้ในโฟลเดอร์เดียวกัน</string>
-    <string name="hint_draw">ด้วยโมดูลวาด คุณเพิ่มเส้น ลูกศร วงรี สี่เหลี่ยมมุมมน ข้อความแบบง่าย และกรอบทรง\'แคปซูล\' ลงในภาพได้ การบันทึกจะรวมภาพเป็นชั้นเดียว จึงเปิดกลับมาแก้ไขหรือย้ายองค์ประกอบไม่ได้อีก กดค้างที่สีเพื่อปรับความสว่างของสีนั้น</string>
+    <string name="hint_draw">ด้วยโมดูลวาด คุณเพิ่มเส้น ลูกศร วงรี สี่เหลี่ยมมุมมน ข้อความแบบง่าย กรอบทรง\'แคปซูล\' และแผงเบลอ ลงในภาพได้ การบันทึกจะรวมภาพเป็นชั้นเดียว จึงเปิดกลับมาแก้ไขหรือย้ายองค์ประกอบไม่ได้อีก กดค้างที่สีเพื่อปรับความสว่างของสีนั้น</string>
 
     <!-- Esporta e importa, dalla 2.93: vedi Backup.kt -->
     <string name="backup_title">ส่งออกและนำเข้า</string>
