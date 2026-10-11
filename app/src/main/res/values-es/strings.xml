@@ -791,4 +791,15 @@
     <string name="folder_selection_desc">El modo incluidas muestra solo las carpetas autorizadas; el modo excluidas muestra todas salvo las ocultadas manualmente. En modo excluidas, mantén pulsada una carpeta en modo cuadrícula o lista para ocultarla. En modo incluidas, abre Carpetas del sistema y mantén pulsada una carpeta para autorizarla. Solo afecta a cuadrícula y lista; las carpetas del sistema siempre se muestran todas. Las autorizadas aparecen cuando contienen una imagen o un video.</string>
     <string name="folder_siblings_desc">¿Quieres ocultar todas las subcarpetas de %1$s? Las nuevas carpetas dentro de %1$s serán visibles inicialmente.</string>
     <string name="folder_authorize_question">¿Quieres añadir esta carpeta a la lista de autorizadas?</string>
+    <string name="settings_updates">Actualizaciones automáticas</string>
+    <string name="settings_updates_desc">Una vez al día, al abrirse, AIV busca una versión nueva en GitHub.</string>
+    <string name="settings_updates_check">Comprobar ahora</string>
+    <string name="update_title">AIV %1$s está disponible</string>
+    <string name="update_install">Actualizar</string>
+    <string name="update_later">Más tarde</string>
+    <string name="update_downloading">Descargando la actualización...</string>
+    <string name="update_latest">AIV está al día</string>
+    <string name="update_failed">No se pudo actualizar</string>
+    <string name="update_untrusted">La actualización no está firmada con la clave de AIV, así que no se instalará.</string>
+    <string name="update_permission">Para actualizar, permite que AIV instale aplicaciones.</string>
 </resources>

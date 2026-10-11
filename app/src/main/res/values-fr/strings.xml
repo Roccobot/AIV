@@ -791,4 +791,15 @@
     <string name="folder_selection_desc">Le mode inclus affiche uniquement les dossiers autorisés ; le mode exclus affiche tous les dossiers sauf ceux masqués manuellement. En mode exclus, maintenez un dossier appuyé en mode grille ou liste pour le masquer. En mode inclus, ouvrez les dossiers système et maintenez un dossier appuyé pour l\'autoriser. Seuls les modes grille et liste sont concernés ; les dossiers système restent tous visibles. Un dossier autorisé apparaît s\'il contient une image ou une vidéo.</string>
     <string name="folder_siblings_desc">Masquer tous les sous-dossiers de %1$s ? Les nouveaux dossiers dans %1$s seront initialement visibles.</string>
     <string name="folder_authorize_question">Ajouter ce dossier à la liste des dossiers autorisés ?</string>
+    <string name="settings_updates">Mises à jour automatiques</string>
+    <string name="settings_updates_desc">Une fois par jour, à l\'ouverture, AIV cherche une nouvelle version sur GitHub.</string>
+    <string name="settings_updates_check">Vérifier maintenant</string>
+    <string name="update_title">AIV %1$s est disponible</string>
+    <string name="update_install">Mettre à jour</string>
+    <string name="update_later">Plus tard</string>
+    <string name="update_downloading">Téléchargement de la mise à jour...</string>
+    <string name="update_latest">AIV est à jour</string>
+    <string name="update_failed">Échec de la mise à jour</string>
+    <string name="update_untrusted">La mise à jour n\'est pas signée avec la clé d\'AIV, elle ne sera donc pas installée.</string>
+    <string name="update_permission">Pour mettre à jour, autorisez AIV à installer des applications.</string>
 </resources>

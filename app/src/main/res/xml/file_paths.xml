@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Che cosa il FileProvider ha il permesso di servire, e la risposta è: una
-    cartella sola.
+    Che cosa il FileProvider ha il permesso di servire, e la risposta è: due
+    cartelle, ognuna per un solo scopo.
 
     ⚠️ `share/` sotto la cache, e non la cache intera. Quello che si consegna a
     un'altra app è solo la copia che si è appena scritta per lei, e allargare
@@ -9,7 +9,13 @@
     dell'app a chiunque riceva un intent da noi. La cache in più è il posto
     giusto per definizione: il sistema la svuota da sé quando serve spazio, e una
     copia consegnata non deve sopravvivere a niente.
+
+    ⚠️ `updates/` dalla 5.60: l'APK di una versione nuova, che `Updater` consegna
+    all'installazione di Android dopo averne verificato digest e firma. Una
+    cartella sua per la stessa ragione di `share/`: chi riceve l'APK non deve
+    poter leggere nient'altro.
 -->
 <paths>
     <cache-path name="share" path="share/" />
+    <cache-path name="updates" path="updates/" />
 </paths>

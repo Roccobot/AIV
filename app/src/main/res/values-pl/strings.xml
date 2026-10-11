@@ -809,4 +809,15 @@
     <string name="folder_selection_desc">Tryb uwzględniania pokazuje tylko dozwolone foldery; tryb wykluczania wszystkie poza ukrytymi ręcznie. W trybie wykluczania przytrzymaj folder w trybie siatki lub listy, aby go ukryć. W trybie uwzględniania otwórz Foldery systemowe i przytrzymaj folder, aby go dopuścić. Dotyczy to tylko siatki i listy; foldery systemowe zawsze pokazują wszystko. Dozwolone foldery pojawiają się, gdy zawierają obraz lub film.</string>
     <string name="folder_siblings_desc">Ukryć wszystkie podfoldery %1$s? Nowe foldery w %1$s będą początkowo widoczne.</string>
     <string name="folder_authorize_question">Dodać ten folder do listy dozwolonych?</string>
+    <string name="settings_updates">Automatyczne aktualizacje</string>
+    <string name="settings_updates_desc">Raz dziennie, przy otwarciu, AIV szuka nowej wersji na GitHubie.</string>
+    <string name="settings_updates_check">Sprawdź teraz</string>
+    <string name="update_title">AIV %1$s jest dostępna</string>
+    <string name="update_install">Aktualizuj</string>
+    <string name="update_later">Później</string>
+    <string name="update_downloading">Pobieranie aktualizacji...</string>
+    <string name="update_latest">AIV jest aktualna</string>
+    <string name="update_failed">Aktualizacja nie powiodła się</string>
+    <string name="update_untrusted">Aktualizacja nie jest podpisana kluczem AIV, więc nie zostanie zainstalowana.</string>
+    <string name="update_permission">Aby zaktualizować, zezwól AIV na instalowanie aplikacji.</string>
 </resources>

@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">حالت مشمول فقط پوشه‌های مجاز را نشان می‌دهد؛ حالت مستثنا همه را به‌جز پوشه‌های پنهان‌شدهٔ دستی نشان می‌دهد. در حالت مستثنا، پوشه را در حالت شبکه یا فهرست نگه دارید تا پنهان شود. در حالت مشمول، پوشه‌های سیستم را باز کنید و پوشه را نگه دارید تا مجاز شود. این تنظیم فقط بر شبکه و فهرست اثر دارد؛ پوشه‌های سیستم همیشه همه‌چیز را نشان می‌دهند. پوشه‌های مجاز وقتی تصویر یا ویدیو داشته باشند ظاهر می‌شوند.</string>
     <string name="folder_siblings_desc">همهٔ زیرپوشه‌های %1$s پنهان شوند؟ پوشه‌های جدید داخل %1$s در ابتدا نمایان خواهند بود.</string>
     <string name="folder_authorize_question">این پوشه به فهرست مجاز افزوده شود؟</string>
+    <string name="settings_updates">به‌روزرسانی خودکار</string>
+    <string name="settings_updates_desc">AIV روزی یک بار، هنگام باز شدن، در GitHub دنبال نسخهٔ جدید می‌گردد.</string>
+    <string name="settings_updates_check">اکنون بررسی کن</string>
+    <string name="update_title">AIV %1$s در دسترس است</string>
+    <string name="update_install">به‌روزرسانی</string>
+    <string name="update_later">بعداً</string>
+    <string name="update_downloading">در حال بارگیری به‌روزرسانی...</string>
+    <string name="update_latest">AIV به‌روز است</string>
+    <string name="update_failed">به‌روزرسانی انجام نشد</string>
+    <string name="update_untrusted">به‌روزرسانی با کلید AIV امضا نشده است، پس نصب نمی‌شود.</string>
+    <string name="update_permission">برای به‌روزرسانی، به AIV اجازهٔ نصب برنامه بدهید.</string>
 </resources>

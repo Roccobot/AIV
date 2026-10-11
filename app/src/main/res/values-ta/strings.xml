@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">சேர்க்கும் பயன்முறை அனுமதிக்கப்பட்ட கோப்புறைகளை மட்டும் காட்டும்; விலக்கும் பயன்முறை கைமுறையாக மறைத்தவை தவிர அனைத்தையும் காட்டும். விலக்கும் பயன்முறையில் கட்டம் அல்லது பட்டியலில் கோப்புறையை நீண்ட நேரம் அழுத்தி மறைக்கவும். சேர்க்கும் பயன்முறையில் கணினிக் கோப்புறைகளைத் திறந்து கோப்புறையை நீண்ட நேரம் அழுத்தி அனுமதிக்கவும். இது கட்டம் மற்றும் பட்டியலுக்கு மட்டுமே பொருந்தும்; கணினிக் கோப்புறைகள் எப்போதும் அனைத்தையும் காட்டும். அனுமதிக்கப்பட்ட கோப்புறையில் படம் அல்லது காணொளி இருந்தால் தெரியும்.</string>
     <string name="folder_siblings_desc">%1$s இன் எல்லாத் துணைக் கோப்புறைகளையும் மறைக்கவா? %1$s இல் புதிய கோப்புறைகள் முதலில் தெரியும்.</string>
     <string name="folder_authorize_question">இந்தக் கோப்புறையை அனுமதிப் பட்டியலில் சேர்க்கவா?</string>
+    <string name="settings_updates">தானியங்கு புதுப்பிப்புகள்</string>
+    <string name="settings_updates_desc">நாளுக்கு ஒருமுறை, திறக்கும்போது, AIV GitHub-இல் புதிய பதிப்பைத் தேடும்.</string>
+    <string name="settings_updates_check">இப்போது சரிபார்</string>
+    <string name="update_title">AIV %1$s கிடைக்கிறது</string>
+    <string name="update_install">புதுப்பி</string>
+    <string name="update_later">பிறகு</string>
+    <string name="update_downloading">புதுப்பிப்பு பதிவிறக்கப்படுகிறது...</string>
+    <string name="update_latest">AIV புதுப்பித்த நிலையில் உள்ளது</string>
+    <string name="update_failed">புதுப்பிப்பு தோல்வியடைந்தது</string>
+    <string name="update_untrusted">புதுப்பிப்பு AIV-இன் விசையால் கையொப்பமிடப்படவில்லை, எனவே நிறுவப்படாது.</string>
+    <string name="update_permission">புதுப்பிக்க, ஆப்ஸை நிறுவ AIV-க்கு அனுமதி அளிக்கவும்.</string>
 </resources>

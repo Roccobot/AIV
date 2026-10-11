@@ -1105,6 +1105,34 @@ private fun ColumnScope.RootPage(
         )
 
         /*
+         * ⚠️⚠️ **L'AGGIORNAMENTO AUTOMATICO VIVE QUI DALLA `5.60`, ED È LA DOMANDA A DECIDERLO**:
+         * chi lo cerca si chiede 'come tengo aggiornata l'app', cioè una domanda sull'app stessa,
+         * la stessa di miniature, esportazione e avvisi che vivono in questa sezione. Le sue scelte
+         * C1 e D1 (2026-10-11): l'interruttore, acceso di fabbrica, e `Controlla ora`, che cerca
+         * subito e dice com'è andata. Solo in AIV GitHub (`Store.updates`).
+         */
+        if (Store.updates) {
+            val updatesLabel = stringResource(R.string.settings_updates)
+            val updatesDesc = stringResource(R.string.settings_updates_desc)
+            val updatesCheck = stringResource(R.string.settings_updates_check)
+            Searchable(updatesLabel, updatesDesc, updatesCheck) {
+                SwitchRow(
+                    label = updatesLabel,
+                    detail = updatesDesc,
+                    checked = settings.autoUpdate,
+                    onChange = { onChange(settings.copy(autoUpdate = it)) }
+                )
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = { scope.launch { Updater.check(context, asked = true) } }) {
+                        Text(updatesCheck)
+                    }
+                }
+            }
+        }
+
+        /*
          * ⚠️⚠️ **STESSA SEZIONE DALLA `3.41`** (`3.40-04`): 'Funzionalità avanzate' e
          * 'Gestione dell'app' si fondono, nello stesso ordine relativo, sotto 'Avanzate'.
          * Prima la memoria grafica, poi miniature, esportazione e avvisi.

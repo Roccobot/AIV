@@ -967,4 +967,15 @@
     <string name="folder_selection_desc">Included mode shows only authorized folders. Excluded mode shows all folders except those hidden manually. In Excluded mode, press and hold a folder in grid or list mode to hide it. In Included mode, switch to System folders and press and hold a folder to authorize it. These settings affect grid and list modes only; System folders always shows everything. Authorized folders appear only when they contain an image or video.</string>
     <string name="folder_siblings_desc">Hide all subfolders of %1$s? New folders created inside %1$s will initially be visible.</string>
     <string name="folder_authorize_question">Add this folder to the authorized list?</string>
+    <string name="settings_updates">Automatic updates</string>
+    <string name="settings_updates_desc">Once a day, when it opens, AIV looks for a new version on GitHub.</string>
+    <string name="settings_updates_check">Check now</string>
+    <string name="update_title">AIV %1$s is available</string>
+    <string name="update_install">Update</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Downloading the update...</string>
+    <string name="update_latest">AIV is up to date</string>
+    <string name="update_failed">Update failed</string>
+    <string name="update_untrusted">The update is not signed with AIV\'s key, so it won\'t be installed.</string>
+    <string name="update_permission">To update, allow AIV to install apps.</string>
 </resources>

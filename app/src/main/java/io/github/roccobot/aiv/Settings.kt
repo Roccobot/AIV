@@ -991,6 +991,18 @@ data class Settings(
      */
     val gpuThumbs: Boolean = false,
     /**
+     * Se AIV GitHub cerca da sé una versione nuova all'apertura, una volta al giorno.
+     *
+     * ⚠️⚠️ **ACCESA DI FABBRICA, ED È LA SUA SCELTA D1** (2026-10-11: *interruttore, acceso di
+     * fabbrica*): chi scarica AIV da GitHub non ha nessun negozio che lo avvisi, e una versione
+     * nuova che nessuno vede è il problema da cui la richiesta è nata (*scaricare ogni volta
+     * manualmente la release è troppo scomodo*). Il controllo non scarica niente: propone, e chi
+     * conferma decide.
+     * ⚠️ **In AIV Play la voce non c'è** (`Store.updates`): là gli aggiornamenti li porta il Play
+     * Store, e il campo resta letto e scritto senza effetto. Il perché vive in `Updater`.
+     */
+    val autoUpdate: Boolean = true,
+    /**
      * Se salvare un'immagine chiede prima il nome.
      *
      * ⚠️⚠️ **SPENTA DI FABBRICA, ED È LA SUA SPECIFICA** (*Impostazione 'Consenti rinomina al
@@ -1544,6 +1556,7 @@ object SettingsStore {
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
     private val EXT_DOWNLOAD = booleanPreferencesKey("ext-download")
     private val GPU_THUMBS = booleanPreferencesKey("gpu-thumbs")
+    private val AUTO_UPDATE = booleanPreferencesKey("auto-update")
     private val SAVE_RENAME = booleanPreferencesKey("save-rename")
     private val DOWNLOAD_PATH = booleanPreferencesKey("download-path")
     private val BIN_KEEP = stringPreferencesKey("bin-keep")
@@ -1713,6 +1726,7 @@ object SettingsStore {
             extRename = p[EXT_EDIT] ?: false,
             extDownload = p[EXT_DOWNLOAD] ?: false,
             gpuThumbs = p[GPU_THUMBS] ?: false,
+            autoUpdate = p[AUTO_UPDATE] ?: true,
             saveRename = p[SAVE_RENAME] ?: false,
             downloadPath = p[DOWNLOAD_PATH] ?: false,
             binKeep = BinKeep.entries.byToken(p[BIN_KEEP], BinKeep.NEVER),
@@ -1836,6 +1850,7 @@ object SettingsStore {
             p[EXT_EDIT] = settings.extRename
             p[EXT_DOWNLOAD] = settings.extDownload
             p[GPU_THUMBS] = settings.gpuThumbs
+            p[AUTO_UPDATE] = settings.autoUpdate
             p[SAVE_RENAME] = settings.saveRename
             p[DOWNLOAD_PATH] = settings.downloadPath
             p[BIN_KEEP] = settings.binKeep.token

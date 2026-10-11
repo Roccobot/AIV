@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">చేర్చే మోడ్ అనుమతించిన ఫోల్డర్లను మాత్రమే చూపిస్తుంది; మినహాయించే మోడ్ చేతితో దాచినవి తప్ప అన్నింటినీ చూపిస్తుంది. మినహాయించే మోడ్‌లో గ్రిడ్ లేదా జాబితాలో ఫోల్డర్‌ను నొక్కి పట్టుకుని దాచండి. చేర్చే మోడ్‌లో సిస్టమ్ ఫోల్డర్లను తెరిచి ఫోల్డర్‌ను నొక్కి పట్టుకుని అనుమతించండి. ఇది గ్రిడ్ మరియు జాబితాకు మాత్రమే వర్తిస్తుంది; సిస్టమ్ ఫోల్డర్లు ఎల్లప్పుడూ అన్నింటినీ చూపిస్తాయి. అనుమతించిన ఫోల్డర్‌లో చిత్రం లేదా వీడియో ఉంటే కనిపిస్తుంది.</string>
     <string name="folder_siblings_desc">%1$s యొక్క అన్ని ఉపఫోల్డర్లను దాచాలా? %1$s లో కొత్త ఫోల్డర్లు మొదట కనిపిస్తాయి.</string>
     <string name="folder_authorize_question">ఈ ఫోల్డర్‌ను అనుమతించిన జాబితాకు జోడించాలా?</string>
+    <string name="settings_updates">ఆటోమేటిక్ అప్‌డేట్‌లు</string>
+    <string name="settings_updates_desc">రోజుకు ఒకసారి, తెరిచినప్పుడు, AIV GitHubలో కొత్త వెర్షన్ కోసం వెతుకుతుంది.</string>
+    <string name="settings_updates_check">ఇప్పుడే తనిఖీ చేయండి</string>
+    <string name="update_title">AIV %1$s అందుబాటులో ఉంది</string>
+    <string name="update_install">అప్‌డేట్ చేయండి</string>
+    <string name="update_later">తర్వాత</string>
+    <string name="update_downloading">అప్‌డేట్ డౌన్‌లోడ్ అవుతోంది...</string>
+    <string name="update_latest">AIV తాజాగా ఉంది</string>
+    <string name="update_failed">అప్‌డేట్ విఫలమైంది</string>
+    <string name="update_untrusted">అప్‌డేట్ AIV కీతో సంతకం చేయబడలేదు, కాబట్టి ఇన్‌స్టాల్ కాదు.</string>
+    <string name="update_permission">అప్‌డేట్ చేయడానికి, యాప్‌లను ఇన్‌స్టాల్ చేయడానికి AIVకి అనుమతి ఇవ్వండి.</string>
 </resources>

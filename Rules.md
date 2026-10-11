@@ -346,6 +346,12 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     tastiera, quindi Android non le ridimensiona: le sposta in alto, e un conto che contava sulla
     centratura posava il pannello altrove. Siccome il vincolo non cambia, il nodo si rimisura da
     sé quando lo spazio visibile cambia: senza, dalla griglia il conto non vedeva la tastiera.
+  - ⚠️⚠️ **Al primo fotogramma conta la tastiera che sta per arrivare, dalla `5.60`** (sua nota
+    prima del giro della `5.51`: il pannello saltava sempre alla comparsa). Il campo prende il
+    fuoco all'apertura, quindi la tastiera arriva sempre ma un attimo dopo: per un secondo al
+    massimo si conta l'altezza ricordata (`Keyboard`, per orientamento, fra un avvio e l'altro), e
+    la prima volta, senza un'altezza ricordata, il pannello resta invisibile finché lei arriva. Il
+    conto vive su `keyboardBottom`, e lo presidia `AltoTest`.
   - ⚠️⚠️ **Tentativo scartato: far salire il pannello all'arrivo della tastiera** (la deroga con
     `KEYBOARD_AIR`, la salita a soglia, `climbFor`, l'isteresi). La salita si ricavava da una
     misura che cambia mentre si scrive (la barra dei suggerimenti, l'animazione dell'IME), e il
@@ -992,6 +998,18 @@ quindi le due app si installano una accanto all'altra.
   pulsante predefinito sarà la pillola a scomparsa*): AIV GitHub resta col menu Start. Il valore lo
   dà `Store.mainControl`, vale dove l'archivio tace, lo presidia `PulsantePlayTest`, e torna come
   prima solo quando lo dice lui. Dalla `5.30` AIV Play il menu Start non lo ha più (voce qui sopra).
+- ⚠️⚠️ **AIV GitHub si aggiorna da sé dalla `5.60`, AIV Play no** (sue scelte C1 e D1, 2026-10-11;
+  `Updater.kt`, `Store.updates`). All'apertura, al massimo una volta per giorno di calendario,
+  chiede a GitHub l'ultima release e la propone se è più nuova; `Controlla ora`, in `Avanzate`,
+  cerca subito e dice com'è andata. Con `Aggiorna` scarica `AIV-x.xx.apk` (mai quello di AIV Play),
+  ne confronta il digest con quello che GitHub dichiara e la firma con quella dell'app installata,
+  e solo allora lo passa all'installazione di Android, attraverso la cartella `updates/` del
+  `FileProvider`. Se una delle due verifiche fallisce l'APK si cancella.
+  - **Il permesso di installare pacchetti è solo nel manifest di `github`**: la politica di Google
+    non lo ammette in un'app del Play Store. Android lo chiede la prima volta, nella pagina
+    'Installa app sconosciute'.
+  - ⚠️ **Senza digest nella release non si propone niente**: le verifiche scelte sono due, e una
+    sola non basta. Le presidiano `UpdaterTest` e `AggiornamentiPlayTest`.
 - ⚠️ **Il nome dell'app è lo stesso, ed è la sua scelta** (A2, 2026-10-10: *il nome va bene
   com'è, non le confondo*): sotto l'icona tutte e due dicono `AIV`, nelle pagine di sistema
   `Astonishing Image Viewer`. Non si cambia senza chiederglielo.

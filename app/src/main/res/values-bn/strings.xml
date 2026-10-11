@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">অন্তর্ভুক্তি মোড শুধু অনুমোদিত ফোল্ডার দেখায়; বর্জন মোড হাতে লুকানো ফোল্ডার ছাড়া সব দেখায়। বর্জন মোডে গ্রিড বা তালিকায় একটি ফোল্ডার চেপে ধরে লুকান। অন্তর্ভুক্তি মোডে সিস্টেম ফোল্ডার খুলে একটি ফোল্ডার চেপে ধরে অনুমোদন করুন। এটি শুধু গ্রিড ও তালিকায় প্রযোজ্য; সিস্টেম ফোল্ডার সব সময় সব দেখায়। অনুমোদিত ফোল্ডারে ছবি বা ভিডিও থাকলে তা দেখা যায়।</string>
     <string name="folder_siblings_desc">%1$s-এর সব সাবফোল্ডার লুকাবেন? %1$s-এর নতুন ফোল্ডারগুলি প্রথমে দেখা যাবে।</string>
     <string name="folder_authorize_question">এই ফোল্ডারটি অনুমোদিত তালিকায় যোগ করবেন?</string>
+    <string name="settings_updates">স্বয়ংক্রিয় আপডেট</string>
+    <string name="settings_updates_desc">দিনে একবার, খোলার সময়, AIV GitHub-এ নতুন সংস্করণ খোঁজে।</string>
+    <string name="settings_updates_check">এখনই দেখুন</string>
+    <string name="update_title">AIV %1$s পাওয়া যাচ্ছে</string>
+    <string name="update_install">আপডেট করুন</string>
+    <string name="update_later">পরে</string>
+    <string name="update_downloading">আপডেট ডাউনলোড হচ্ছে...</string>
+    <string name="update_latest">AIV হালনাগাদ আছে</string>
+    <string name="update_failed">আপডেট ব্যর্থ হয়েছে</string>
+    <string name="update_untrusted">আপডেটটি AIV-এর কী দিয়ে সাইন করা নেই, তাই ইনস্টল হবে না।</string>
+    <string name="update_permission">আপডেট করতে AIV-কে অ্যাপ ইনস্টল করার অনুমতি দিন।</string>
 </resources>

@@ -755,4 +755,15 @@
     <string name="folder_selection_desc">โหมดรวมแสดงเฉพาะโฟลเดอร์ที่อนุญาต โหมดยกเว้นแสดงทั้งหมดนอกจากที่ซ่อนไว้ด้วยตนเอง ในโหมดยกเว้น ให้กดโฟลเดอร์ค้างในโหมดตารางหรือรายการเพื่อซ่อน ในโหมดรวม ให้เปิดโฟลเดอร์ระบบแล้วกดโฟลเดอร์ค้างเพื่ออนุญาต การตั้งค่านี้มีผลเฉพาะตารางและรายการ โฟลเดอร์ระบบแสดงทุกอย่างเสมอ โฟลเดอร์ที่อนุญาตจะปรากฏเมื่อมีภาพหรือวิดีโอ</string>
     <string name="folder_siblings_desc">ซ่อนโฟลเดอร์ย่อยทั้งหมดของ %1$s หรือไม่? โฟลเดอร์ใหม่ภายใน %1$s จะปรากฏในตอนแรก</string>
     <string name="folder_authorize_question">เพิ่มโฟลเดอร์นี้ในรายการที่อนุญาตหรือไม่?</string>
+    <string name="settings_updates">อัปเดตอัตโนมัติ</string>
+    <string name="settings_updates_desc">วันละครั้ง เมื่อเปิดแอป AIV จะค้นหาเวอร์ชันใหม่บน GitHub</string>
+    <string name="settings_updates_check">ตรวจสอบเลย</string>
+    <string name="update_title">AIV %1$s พร้อมให้ใช้งาน</string>
+    <string name="update_install">อัปเดต</string>
+    <string name="update_later">ภายหลัง</string>
+    <string name="update_downloading">กำลังดาวน์โหลดอัปเดต...</string>
+    <string name="update_latest">AIV เป็นเวอร์ชันล่าสุด</string>
+    <string name="update_failed">อัปเดตไม่สำเร็จ</string>
+    <string name="update_untrusted">อัปเดตนี้ไม่ได้ลงนามด้วยคีย์ของ AIV จึงจะไม่ติดตั้ง</string>
+    <string name="update_permission">หากต้องการอัปเดต โปรดอนุญาตให้ AIV ติดตั้งแอป</string>
 </resources>

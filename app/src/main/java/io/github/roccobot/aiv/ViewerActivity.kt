@@ -2984,6 +2984,16 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
      */
     SideEffect { Thumbs.inGpu = settings.gpuThumbs }
     /*
+     * ⚠️⚠️ **IL CONTROLLO DEGLI AGGIORNAMENTI GIRA QUI, ALL'APERTURA, ED È LA SUA SCELTA D1**
+     * (2026-10-11): niente lavoro in sottofondo e niente notifiche, come lo svuotamento del cestino
+     * qui sotto. La chiave è l'interruttore, quindi riaccenderlo controlla subito; il limite di una
+     * volta al giorno lo tiene [Updater.check].
+     */
+    val contesto = LocalContext.current
+    LaunchedEffect(settings.autoUpdate) {
+        if (settings.autoUpdate) Updater.check(contesto, asked = false)
+    }
+    /*
      * ⚠️⚠️ **LO SVUOTAMENTO AUTOMATICO DEL CESTINO GIRA QUI, E SOLO QUI, PERCHÉ È QUELLO CHE
      * HA CHIESTO LUI** (giro della 1.67, `d-cestino-chiusa`: **`aperta`**, ribadito il
      * 2026-09-06: *nulla deve avvenire al di fuori dell'app aperta in primo piano*). Quindi
@@ -3189,6 +3199,9 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             Notices.line,
             modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
         )
+        // ⚠️ La proposta di aggiornamento vive qui per la ragione della notifica: la apre il
+        // controllo all'apertura oppure 'Controlla ora', e deve sopravvivere alla schermata.
+        UpdateDialog()
         /*
          * ⚠️⚠️ **LA FASCIA DELLA COPERTINA VIVE QUI PER LA STESSA RAGIONE DELLA NOTIFICA**: la
          * scelta comincia in una cartella e può finire in un'altra, quindi l'unica cosa che dice

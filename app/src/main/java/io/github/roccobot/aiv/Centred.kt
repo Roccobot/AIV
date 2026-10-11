@@ -1,6 +1,8 @@
 package io.github.roccobot.aiv
 
+import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
@@ -555,7 +557,11 @@ private class LowerNode(
         val box = if (constraints.hasBoundedHeight) constraints.maxHeight else top + placed.height
         aria.top = top
         aria.from = top + placed.height
-        return layout(placed.width, box) { placed.place(0, top) }
+        return layout(placed.width, box) {
+            // ⚠️ Invisibile, e non assente, mentre aspetta una tastiera di cui non sa l'altezza:
+            // il campo deve esistere per prendere il fuoco, che è quello che la fa comparire.
+            if (span.hidden) placed.placeWithLayer(0, top) { alpha = 0f } else placed.place(0, top)
+        }
     }
 
     /**
@@ -568,19 +574,39 @@ private class LowerNode(
      * esattamente lo spazio che toglie. Il conto sullo schermo ([windowHeight]) resta per le
      * superfici centrate e per il primo passaggio, quando la finestra non è ancora disposta.
      * ⚠️ **Nullo vuol dire 'non lo so ancora'**: una finestra alta zero non ha niente da dire.
+     * ⚠️⚠️ **E PER UN ATTIMO CONTA UNA TASTIERA CHE NON C'È ANCORA, DALLA `5.60`** (sua nota prima
+     * del giro della `5.51`: *all'apparizione c'è un salto velocissimo (e fastidioso)*, sempre,
+     * dalla griglia e dal visualizzatore, nelle due varianti). Queste finestre danno il fuoco al
+     * campo appena si aprono, quindi la tastiera arriva sempre, ma un attimo dopo: il primo
+     * fotogramma si misurava senza di lei, il pannello si posava a [TEXT_AIR], e con poco spazio
+     * saliva quando lei arrivava. Per [WAIT_MS] dall'aggancio, finché la tastiera non c'è, conta
+     * quella ricordata ([Keyboard]); il conto vive su [keyboardBottom].
      */
     private fun visible(): Span? {
         val view = attached ?: return null
         val root = view.rootView
         if (root.height <= 0) return null
-        val bars = ViewCompat.getRootWindowInsets(root)?.let(::barsOf) ?: return null
+        val insets = ViewCompat.getRootWindowInsets(root) ?: return null
+        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        val ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+        val orientation = view.resources.configuration.orientation
+        if (ime > 0) Keyboard.remember(view.context, orientation, ime)
+        val remembered = Keyboard.height(view.context, orientation)
+        val waiting = ime == 0 && SystemClock.uptimeMillis() - attachedAt < WAIT_MS
         val dove = IntArray(2)
         view.getLocationInWindow(dove)
         return Span(
             top = (bars.top - dove[1]).coerceAtLeast(0),
-            bottom = root.height - bars.bottom - dove[1]
+            bottom = root.height - keyboardBottom(bars.bottom, ime, remembered, waiting) - dove[1],
+            hidden = waiting && remembered == 0
         )
     }
+
+    /** Quando il nodo si è agganciato, cioè quando la finestra si è aperta: vedi [visible]. */
+    private var attachedAt = 0L
+
+    /** Rimisura alla fine dell'attesa, se la tastiera non è arrivata: vedi [visible]. */
+    private val endWait = Runnable { if (isAttached) invalidateMeasurement() }
 
     /** La vista che ospita questo nodo, letta all'aggancio: vedi [watch]. */
     private var attached: View? = null
@@ -607,11 +633,14 @@ private class LowerNode(
     override fun onAttach() {
         val view = currentValueOf(LocalView)
         attached = view
+        attachedAt = SystemClock.uptimeMillis()
         view.viewTreeObserver.addOnPreDrawListener(watch)
+        view.postDelayed(endWait, WAIT_MS)
     }
 
     override fun onDetach() {
         attached?.viewTreeObserver?.takeIf { it.isAlive }?.removeOnPreDrawListener(watch)
+        attached?.removeCallbacks(endWait)
         attached = null
         seen = null
     }
@@ -745,8 +774,60 @@ val TEXT_TUCK = 24.dp
  * Lo spazio visibile di una finestra, in pixel dal bordo di sopra del suo contenuto.
  *
  * ⚠️ È una classe di dati perché il nodo confronta due misure per sapere se rimisurare.
+ *
+ * @property hidden se il pannello aspetta, invisibile, una tastiera di cui non si sa l'altezza.
  */
-private data class Span(val top: Int, val bottom: Int)
+private data class Span(val top: Int, val bottom: Int, val hidden: Boolean = false)
+
+/**
+ * Quanto copre il bordo di sotto della finestra: le barre, la tastiera, o la tastiera che sta per
+ * arrivare.
+ *
+ * ⚠️⚠️ **È LA CORREZIONE DEL SALTO DELLA `5.51`, ED È UNA FUNZIONE A SÉ PERCHÉ IL BANCO LA MISURI**:
+ * quello che deve reggere è che il pannello sia dove resterà già al primo fotogramma, e in
+ * Robolectric nessuna tastiera arriva mai.
+ *
+ * @param bars quanto coprono le barre di sistema, in pixel.
+ * @param ime quanto copre la tastiera adesso; zero se non c'è.
+ * @param remembered l'altezza ricordata della tastiera in questo orientamento; zero se non si sa.
+ * @param waiting se la finestra si è appena aperta e la tastiera non è ancora arrivata.
+ */
+internal fun keyboardBottom(bars: Int, ime: Int, remembered: Int, waiting: Boolean): Int =
+    maxOf(bars, if (ime > 0) ime else if (waiting) remembered else 0)
+
+/**
+ * Per quanto, dall'apertura di una finestra in cui si scrive, si aspetta la tastiera.
+ *
+ * ⚠️ **Un secondo**: la tastiera compare in qualche centinaio di millisecondi, e l'attesa finisce
+ * appena arriva. Il numero conta solo quando non arriva, per esempio con una tastiera fisica: là la
+ * finestra si rimisura senza di lei, e la prima volta compare dopo questo tempo.
+ */
+private const val WAIT_MS = 1_000L
+
+/**
+ * L'altezza della tastiera, ricordata per orientamento.
+ *
+ * ⚠️⚠️ **SI RICORDA FRA UN AVVIO E L'ALTRO**, in un archivio a sé e non fra le impostazioni: è una
+ * misura del telefono e non una scelta, quindi non va nel file di impostazioni né in un backup. Con
+ * la sola memoria del processo, la prima rinomina di ogni avvio salterebbe.
+ * ⚠️ **Per orientamento**, perché in orizzontale la tastiera ha un'altra altezza.
+ * ⚠️ **Si scrive solo quando cambia**, perché la si legge a ogni misura della finestra.
+ */
+private object Keyboard {
+    private val seen = HashMap<Int, Int>()
+
+    private fun prefs(context: Context) =
+        context.applicationContext.getSharedPreferences("keyboard", Context.MODE_PRIVATE)
+
+    fun height(context: Context, orientation: Int): Int =
+        seen.getOrPut(orientation) { prefs(context).getInt("ime-$orientation", 0) }
+
+    fun remember(context: Context, orientation: Int, height: Int) {
+        if (height(context, orientation) == height) return
+        seen[orientation] = height
+        prefs(context).edit().putInt("ime-$orientation", height).apply()
+    }
+}
 
 /**
  * Quanto può essere alto, al massimo, il pannello di una finestra in cui si scrive.

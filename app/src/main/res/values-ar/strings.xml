@@ -845,4 +845,15 @@
     <string name="folder_selection_desc">يعرض وضع التضمين المجلدات المسموح بها فقط؛ ويعرض وضع الاستبعاد جميع المجلدات إلا المخفية يدويا. في وضع الاستبعاد، اضغط مطولا على مجلد في وضع الشبكة أو القائمة لإخفائه. في وضع التضمين، افتح مجلدات النظام واضغط مطولا على مجلد للسماح به. ينطبق ذلك على الشبكة والقائمة فقط؛ تعرض مجلدات النظام كل شيء دائما. تظهر المجلدات المسموح بها عندما تحتوي على صورة أو فيديو.</string>
     <string name="folder_siblings_desc">هل تريد إخفاء جميع المجلدات الفرعية لـ %1$s؟ ستكون المجلدات الجديدة داخل %1$s مرئية في البداية.</string>
     <string name="folder_authorize_question">هل تريد إضافة هذا المجلد إلى القائمة المسموح بها؟</string>
+    <string name="settings_updates">التحديثات التلقائية</string>
+    <string name="settings_updates_desc">مرة واحدة يوميًا، عند الفتح، يبحث AIV عن إصدار جديد على GitHub.</string>
+    <string name="settings_updates_check">تحقّق الآن</string>
+    <string name="update_title">يتوفر AIV %1$s</string>
+    <string name="update_install">تحديث</string>
+    <string name="update_later">لاحقًا</string>
+    <string name="update_downloading">جارٍ تنزيل التحديث...</string>
+    <string name="update_latest">AIV محدَّث</string>
+    <string name="update_failed">تعذّر التحديث</string>
+    <string name="update_untrusted">التحديث غير موقّع بمفتاح AIV، لذا لن يُثبَّت.</string>
+    <string name="update_permission">للتحديث، اسمح لـ AIV بتثبيت التطبيقات.</string>
 </resources>

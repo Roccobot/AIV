@@ -755,4 +755,15 @@
     <string name="folder_selection_desc">Chế độ bao gồm chỉ hiển thị thư mục được cho phép; chế độ loại trừ hiển thị tất cả trừ thư mục bị ẩn thủ công. Trong chế độ loại trừ, nhấn giữ thư mục trong chế độ lưới hoặc danh sách để ẩn. Trong chế độ bao gồm, mở Thư mục hệ thống và nhấn giữ thư mục để cho phép. Chỉ áp dụng cho lưới và danh sách; Thư mục hệ thống luôn hiển thị tất cả. Thư mục được cho phép chỉ xuất hiện khi chứa ảnh hoặc video.</string>
     <string name="folder_siblings_desc">Ẩn tất cả thư mục con của %1$s? Thư mục mới bên trong %1$s ban đầu sẽ hiển thị.</string>
     <string name="folder_authorize_question">Thêm thư mục này vào danh sách được cho phép?</string>
+    <string name="settings_updates">Tự động cập nhật</string>
+    <string name="settings_updates_desc">Mỗi ngày một lần, khi mở, AIV tìm phiên bản mới trên GitHub.</string>
+    <string name="settings_updates_check">Kiểm tra ngay</string>
+    <string name="update_title">Đã có AIV %1$s</string>
+    <string name="update_install">Cập nhật</string>
+    <string name="update_later">Để sau</string>
+    <string name="update_downloading">Đang tải bản cập nhật...</string>
+    <string name="update_latest">AIV đã là bản mới nhất</string>
+    <string name="update_failed">Cập nhật không thành công</string>
+    <string name="update_untrusted">Bản cập nhật không được ký bằng khóa của AIV nên sẽ không được cài đặt.</string>
+    <string name="update_permission">Để cập nhật, hãy cho phép AIV cài đặt ứng dụng.</string>
 </resources>

@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">شامل کرنے کا موڈ صرف اجازت یافتہ فولڈرز دکھاتا ہے؛ خارج کرنے کا موڈ دستی طور پر چھپائے گئے فولڈرز کے سوا سب دکھاتا ہے۔ خارج کرنے کے موڈ میں گرڈ یا فہرست میں فولڈر کو دیر تک دبائیں تاکہ وہ چھپ جائے۔ شامل کرنے کے موڈ میں سسٹم فولڈرز کھولیں اور اجازت دینے کے لیے فولڈر کو دیر تک دبائیں۔ یہ صرف گرڈ اور فہرست پر اثر کرتا ہے؛ سسٹم فولڈرز ہمیشہ سب کچھ دکھاتے ہیں۔ اجازت یافتہ فولڈر تصویر یا ویڈیو ہونے پر ظاہر ہوتا ہے۔</string>
     <string name="folder_siblings_desc">کیا %1$s کے تمام ذیلی فولڈرز چھپانے ہیں؟ %1$s میں نئے فولڈرز ابتدا میں نظر آئیں گے۔</string>
     <string name="folder_authorize_question">کیا اس فولڈر کو اجازت یافتہ فہرست میں شامل کرنا ہے؟</string>
+    <string name="settings_updates">خودکار اپ ڈیٹس</string>
+    <string name="settings_updates_desc">AIV دن میں ایک بار، کھلتے وقت، GitHub پر نیا ورژن تلاش کرتی ہے۔</string>
+    <string name="settings_updates_check">ابھی چیک کریں</string>
+    <string name="update_title">AIV %1$s دستیاب ہے</string>
+    <string name="update_install">اپ ڈیٹ کریں</string>
+    <string name="update_later">بعد میں</string>
+    <string name="update_downloading">اپ ڈیٹ ڈاؤن لوڈ ہو رہی ہے...</string>
+    <string name="update_latest">AIV اپ ٹو ڈیٹ ہے</string>
+    <string name="update_failed">اپ ڈیٹ ناکام رہی</string>
+    <string name="update_untrusted">اپ ڈیٹ AIV کی کلید سے سائن نہیں ہے، اس لیے انسٹال نہیں ہوگی۔</string>
+    <string name="update_permission">اپ ڈیٹ کرنے کے لیے AIV کو ایپس انسٹال کرنے کی اجازت دیں۔</string>
 </resources>

@@ -85,6 +85,28 @@ class AltoTest {
     }
 
     @Test
+    fun `con la tastiera ricordata il pannello non si muove quando lei arriva`() {
+        // ⚠️ È la forma esatta del salto della 5.51 (sua nota: *all'apparizione c'è un salto
+        // velocissimo*): i numeri sono quelli del visualizzatore, schermo alto 801dp, barre
+        // nascoste, tastiera di 373dp. Al primo fotogramma la tastiera non c'è ancora.
+        val schermo = 801
+        val tastiera = 373
+        fun posto(ime: Int, attesa: Boolean): Int {
+            val spazio = schermo - keyboardBottom(bars = 0, ime = ime, remembered = tastiera, waiting = attesa)
+            return top(spazio, pannello(spazio))
+        }
+        assertEquals("il pannello salta quando arriva la tastiera", posto(tastiera, false), posto(0, true))
+    }
+
+    @Test
+    fun `senza una tastiera in arrivo non si conta quella ricordata`() {
+        // ⚠️ Finita l'attesa (una tastiera fisica, o nessun campo col fuoco) conta solo quella vera.
+        assertEquals(0, keyboardBottom(bars = 0, ime = 0, remembered = 373, waiting = false))
+        assertEquals(48, keyboardBottom(bars = 48, ime = 0, remembered = 0, waiting = true))
+        assertEquals(373, keyboardBottom(bars = 48, ime = 373, remembered = 300, waiting = false))
+    }
+
+    @Test
     fun `senza una misura dello spazio non c'è tetto e il pannello resta all'aria dichiarata`() {
         // ⚠️ Succede al primo passaggio, quando la finestra non è ancora disposta: meglio la
         // misura di prima che un tetto costruito su uno spazio inventato.

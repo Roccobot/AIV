@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">De inclusiemodus toont alleen toegestane mappen; de uitsluitingsmodus toont alle mappen behalve handmatig verborgen mappen. Houd in de uitsluitingsmodus een map ingedrukt in de raster- of lijstmodus om hem te verbergen. Open in de inclusiemodus Systeemmappen en houd een map ingedrukt om hem toe te staan. Dit geldt alleen voor raster en lijst; Systeemmappen toont altijd alles. Toegestane mappen verschijnen zodra ze een afbeelding of video bevatten.</string>
     <string name="folder_siblings_desc">Alle submappen van %1$s verbergen? Nieuwe mappen in %1$s zijn aanvankelijk zichtbaar.</string>
     <string name="folder_authorize_question">Deze map aan de lijst met toegestane mappen toevoegen?</string>
+    <string name="settings_updates">Automatische updates</string>
+    <string name="settings_updates_desc">Eén keer per dag zoekt AIV bij het openen naar een nieuwe versie op GitHub.</string>
+    <string name="settings_updates_check">Nu controleren</string>
+    <string name="update_title">AIV %1$s is beschikbaar</string>
+    <string name="update_install">Bijwerken</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Update downloaden...</string>
+    <string name="update_latest">AIV is up-to-date</string>
+    <string name="update_failed">Bijwerken mislukt</string>
+    <string name="update_untrusted">De update is niet ondertekend met de sleutel van AIV en wordt daarom niet geïnstalleerd.</string>
+    <string name="update_permission">Sta AIV toe apps te installeren om bij te werken.</string>
 </resources>
