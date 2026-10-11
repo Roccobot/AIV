@@ -113,6 +113,11 @@ function countChip(kind, label, value) {
   chip.setAttribute("aria-label", label + ": " + value);
   return chip;
 }
+// The tests with an outcome: what the counter at the top shows, and what Invia reminds of.
+// Questions, labels and Altro do not count.
+function answeredCount() {
+  return spec.items.filter((item) => entry(item.id).status).length;
+}
 function refreshCounts() {
   for (const card of document.querySelectorAll(".test")) {
     const value = entry(card.dataset.id);
@@ -132,14 +137,11 @@ function refreshCounts() {
     if (dot) dot.hidden = !dirty;
   }
   const counters = Object.fromEntries(outcomes.map((o) => [o, 0]));
-  let done = 0;
   for (const item of spec.items) {
     const status = entry(item.id).status;
-    if (status) {
-      counters[status]++;
-      done++;
-    }
+    if (status) counters[status]++;
   }
+  const done = answeredCount();
   const counts = document.querySelector("#counts");
   const ratio = el("span", `${done}/${spec.items.length}`, "count-ratio");
   ratio.id = "count-answered";
@@ -809,7 +811,12 @@ async function send() {
       ? "Giro reso leggibile all'agente. Puoi modificarlo e inviarlo di nuovo; l'agente lo leggerà solo dopo il tuo via in chat."
       : "Risposte pronte. Per renderle leggibili dal cloud, esportale, importale nel documento cloud e premi Invia.",
   );
-  toast(remote ? "Giro inviato." : "Risposte pronte: esportale per inviarle.");
+  // With tests still without an outcome the round goes anyway, and the notice reminds of them
+  // (the user's request, 2026-10-11: *non è vincolante: è solo un promemoria*).
+  const done = answeredCount(), total = spec.items.length;
+  if (done < total)
+    toast(`Hai dato riscontro a ${done} ${done === 1 ? "punto" : "punti"} su ${total}.\nCompleta la verifica prima di inviare.`);
+  else toast(remote ? "Giro inviato." : "Risposte pronte: esportale per inviarle.");
 }
 // A save asked by hand answers with a toast, like Invia (the user's request, 2026-10-05): the
 // state line changes too, but while one writes it is out of sight. Ctrl/Cmd+S, the Salva command
