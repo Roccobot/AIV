@@ -295,6 +295,10 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   GitHub si aggiorna da sé (`Updater`), AIV Play no. La
   differenza la legge solo `Store.kt`, e una release ha due APK (`Rules.md` § '🏪 Le due varianti,
   e che cosa manca ad AIV Play').
+- **Ogni modifica si assegna a una variante, anche se lui dice solo 'app' o 'AIV'**: tutte e due
+  (nucleo, grafica, funzioni di base, correzioni), solo GitHub o solo Play; la scelta si dichiara, e
+  il comune si rilascia sempre senza chiedere (`Rules.md` § '🏪 Le due varianti, e che cosa manca
+  ad AIV Play').
 - **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove `*PlayTest` di
   `app/src/testPlay/` con `:app:testPlayDebugUnitTest --tests '*PlayTest'` (Robolectric, app finta,
   niente nell'APK): si lancia prima di aprire la PR, e `check.yml` e `release.yml` sono la rete. Prende i

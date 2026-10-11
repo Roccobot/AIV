@@ -896,6 +896,17 @@ rientra in nessuna delle quattro categorie. Le due varianti sono i due `productF
 `app/build.gradle.kts` (`github` e `play`); AIV Play ha il suffisso `.play` nell'identificativo,
 quindi le due app si installano una accanto all'altra.
 
+- ⚠️⚠️ **Ogni modifica si assegna a una variante, anche quando lui dice solo 'app' o 'AIV'**
+  (sua regola, 2026-10-11; il testo generale vive in `Roccobot.md` § '🧬 Un prodotto con più
+  varianti: ogni modifica si assegna a una variante'). Tutte e due: il nucleo, la grafica, le
+  funzioni di base, le correzioni. Solo AIV GitHub: l'aggiornamento automatico, il menu Start, le
+  funzioni che scrivono coi permessi pieni. Solo AIV Play: l'accesso alle foto e le funzioni sui
+  file rifatte col MediaStore. La scelta si dichiara nel resoconto e nella voce del DF, e il
+  comune si rilascia sempre, senza chiedere: le due varianti le pubblica l'agente, anche AIV Play
+  quando sarà sullo Store.
+  - **La verifica del 2026-10-11**, dalla `5.10` alla `5.71`: ogni release ha i due APK, le
+    varianti non hanno codice proprio (solo i due manifest), e ogni lettura di `Store` corrisponde
+    a una differenza voluta di questa sezione. Nessuna funzione comune mancava a una delle due.
 - **Nel codice la differenza la legge un posto solo**: `Store.kt` (`Store.files`, `Store.allows`,
   `Store.hasBin`, `Store.renames`, `Store.views`, `Store.access`). Un secondo lettore di `BuildConfig.FILES` sarebbe una seconda
   risposta alla stessa domanda.
