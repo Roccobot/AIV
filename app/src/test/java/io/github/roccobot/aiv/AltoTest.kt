@@ -5,82 +5,90 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Una finestra in cui si scrive va in alto, e non si muove mentre la tastiera cambia misura.
+ * Una finestra in cui si scrive va in alto, non si muove mentre la tastiera cambia misura, e
+ * quando la tastiera le toglie spazio cede l'aria prima del contenuto.
  *
- * ⚠️⚠️ **NASCE COL DIFETTO CHE È ARRIVATO A LUI** (riscontro del giro della `1.82`, voce
- * `rinomina-ferma` non approvata: *secondo terzo carattere inserito o cancellato la finestra si
- * sposta da troppo in basso a molto in alto, e poi ogni 3/4 caratteri c'è un flash della stessa
- * finestra in posizione molto più ribassata*), come prescrive `Rules.md` § '🧪 Quando si
- * scrive una prova, e quando no'.
- * ⚠️⚠️ **PROVA LA FUNZIONE E NON LA SCHERMATA, E LA RAGIONE È MISURATA**: quello che deve reggere
- * è che il pannello non si sposti **mentre la finestra cambia**, e in Robolectric
+ * ⚠️⚠️ **NASCE COI DUE DIFETTI CHE SONO ARRIVATI A LUI**, come prescrive `Rules.md` § '🧪 Quando
+ * si scrive una prova, e quando no': il pannello che ballava mentre si scriveva (giro della
+ * `1.82`, voce `rinomina-ferma`), e la rinomina tagliata quando la si apre dal visualizzatore
+ * (giro della `5.50`, nota su `5.50-01`: *la finestra Rinomina appare incompleta anche starebbe
+ * comodamente nello spazio a disposizione*).
+ * ⚠️⚠️ **PROVA LE FUNZIONI E NON LA SCHERMATA, E LA RAGIONE È MISURATA**: in Robolectric
  * `getRootWindowInsets` non riporta nessuna tastiera, quindi una prova che aprisse la rinomina
- * non vedrebbe mai la misura cambiare. Passerebbe in verde senza guardare niente, che è il modo
+ * non vedrebbe mai lo spazio cambiare. Passerebbe in verde senza guardare niente, che è il modo
  * in cui una prova mente.
- * ⚠️ **Sostituisce `SalitaTest`, che misurava la deroga della `1.82`**: quel conto non esiste
- * più, e una prova che sopravvive alla funzione che provava è una prova che ricopia il codice.
  */
 class AltoTest {
 
+    /** Le misure di casa, in dp: [TEXT_AIR], [LOWER_AIR] e [TEXT_TUCK]. */
+    private val cielo = 70
+    private val aria = 16
+    private val margine = 24
+
     /**
-     * I numeri sono quelli di un telefono con il notch: schermo alto 2400, barra di stato 100,
-     * barra di navigazione 100. La finestra a tastiera chiusa è 2200; con la tastiera aperta
-     * scende a 1300, e con la barra dei suggerimenti in più a 1220.
+     * I numeri delle sue due schermate del giro della `5.50` (Xiaomi 15, 3,33 pixel per dp): la
+     * rinomina di un file solo chiede 418dp; aperta dal visualizzatore, che nasconde le barre, ha
+     * 428dp sopra la tastiera; aperta dalla griglia, sotto la barra di stato, ne ha 392.
      */
-    private val chiusa = 2200
-    private val aperta = 1300
-    private val suggerimenti = 1220
-    private val pannello = 400
-    private val aria = 70
+    private val contenuto = 418
+    private val visualizzatore = 428
+    private val griglia = 392
 
-    /** Dove comincia il pannello dentro la finestra, che è il conto che la finestra stessa fa. */
-    private fun top(box: Int, panel: Int): Int {
-        val climb = pinClimb(box = box, panel = panel, air = aria)
-        return (box - (panel + climb * 2)) / 2
+    /** Il pannello che il tetto lascia a un contenuto di [contenuto]. */
+    private fun pannello(spazio: Int) = minOf(contenuto, pinRoof(avail = spazio, tuck = margine))
+
+    private fun top(spazio: Int, pannello: Int) =
+        pinTop(avail = spazio, panel = pannello, sky = cielo, air = aria)
+
+    @Test
+    fun `dal visualizzatore la rinomina è intera e sopra la tastiera`() {
+        // ⚠️ È la forma esatta del difetto: fino alla `5.50` il tetto toglieva 86dp e il pannello
+        // restava di 342dp, con l'anteprima tagliata a metà.
+        val alto = pannello(visualizzatore)
+        assertEquals("il contenuto è stato accorciato", contenuto, alto)
+        val sopra = top(visualizzatore, alto)
+        assertEquals("con lo spazio stretto l'aria sopra cede tutta", 0, sopra)
+        assertTrue("il pannello finisce dietro la tastiera", sopra + alto <= visualizzatore)
     }
 
     @Test
-    fun `il pannello comincia all'aria dichiarata, qualunque sia la finestra`() {
-        assertEquals(aria, top(chiusa, pannello))
-        assertEquals(aria, top(aperta, pannello))
-        assertEquals(aria, top(suggerimenti, pannello))
+    fun `dalla griglia dietro la tastiera finisce al più il margine sotto i tasti`() {
+        // ⚠️ La sua scelta B1: prima cede l'aria sopra, poi il margine sotto i tasti. Qui lo
+        // spazio è 26dp più corto del contenuto, quindi il margine cede tutto e l'anteprima
+        // scorre di 2dp.
+        val alto = pannello(griglia)
+        assertEquals(griglia + margine, alto)
+        val sopra = top(griglia, alto)
+        assertEquals(0, sopra)
+        assertTrue(sopra + alto - griglia <= margine)
     }
 
     @Test
-    fun `una tastiera che cambia misura non sposta il pannello di un pixel`() {
-        // ⚠️ È la forma esatta del difetto: fra questi tre numeri passa tutto quello che succede
-        // mentre si scrive (la tastiera che si apre, la barra dei suggerimenti che compare e
-        // sparisce), e il pannello deve stare fermo.
-        val posti = listOf(chiusa, aperta, suggerimenti).map { top(it, pannello) }
-        assertEquals(
-            "il pannello si è spostato al variare della finestra: $posti",
-            1,
-            posti.distinct().size
-        )
+    fun `con spazio a sufficienza il pannello comincia all'aria dichiarata`() {
+        // ⚠️ I numeri di un telefono con la tastiera chiusa, aperta, e con la barra dei
+        // suggerimenti in più: fra questi passa tutto quello che succede mentre si scrive.
+        val spazi = listOf(733, 433, 407)
+        val posti = spazi.map { top(it, 300) }
+        assertEquals("il pannello si è spostato al variare dello spazio: $posti", listOf(cielo), posti.distinct())
     }
 
     @Test
-    fun `nemmeno un pannello che cresce sposta il proprio bordo di sopra`() {
-        // ⚠️ Il campo che va a capo, o un comando che compare: il pannello si allunga in giù, e
-        // il testo in cima resta dov'era.
-        assertEquals(aria, top(aperta, pannello))
-        assertEquals(aria, top(aperta, pannello + 120))
+    fun `quando il pannello non ci sta più l'aria sopra cala senza salti`() {
+        // ⚠️ Al confine le due regole danno lo stesso numero: un carattere in più che allunga
+        // l'anteprima sposta il pannello di quanto si allunga, non di un salto.
+        val spazio = 500
+        val confine = spazio - cielo - aria
+        assertEquals(cielo, top(spazio, confine))
+        assertEquals(cielo - 1, top(spazio, confine + 1))
+        assertEquals(spazio - aria - (confine + 40), top(spazio, confine + 40))
+        assertEquals(0, top(spazio, spazio - aria))
     }
 
     @Test
-    fun `un pannello che riempie la finestra non si alza affatto`() {
-        val alto = aperta - aria
-        assertEquals(0, pinClimb(box = aperta, panel = alto, air = aria))
-        // ⚠️ Là il pannello è già più alto dell'aria concessa, quindi la finestra lo centra: è il
-        // caso in cui non c'è niente da guadagnare alzandolo.
-        assertTrue(top(aperta, alto) < aria)
-    }
-
-    @Test
-    fun `un contenitore senza vincolo non alza niente`() {
-        // ⚠️ Senza un `box` non esiste un bordo di sopra da cui misurare, e il chiamante ripiega
-        // sulla finestra dello schermo: se manca anche quella, meglio un pannello centrato che
-        // uno posato su un numero inventato.
-        assertEquals(0, pinClimb(box = 0, panel = pannello, air = aria))
+    fun `senza una misura dello spazio non c'è tetto e il pannello resta all'aria dichiarata`() {
+        // ⚠️ Succede al primo passaggio, quando la finestra non è ancora disposta: meglio la
+        // misura di prima che un tetto costruito su uno spazio inventato.
+        assertEquals(0, pinRoof(avail = 0, tuck = margine))
+        assertEquals(cielo, top(0, 300))
     }
 }
