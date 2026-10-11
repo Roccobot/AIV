@@ -791,4 +791,15 @@
     <string name="folder_selection_desc">O modo incluídas mostra apenas pastas autorizadas; o modo excluídas mostra todas, exceto as ocultadas manualmente. No modo excluídas, pressione e segure uma pasta no modo grade ou lista para ocultá-la. No modo incluídas, abra Pastas do sistema e pressione e segure uma pasta para autorizá-la. Isso afeta apenas grade e lista; as pastas do sistema mostram tudo. Pastas autorizadas aparecem quando contêm uma imagem ou um vídeo.</string>
     <string name="folder_siblings_desc">Ocultar todas as subpastas de %1$s? Novas pastas dentro de %1$s ficarão inicialmente visíveis.</string>
     <string name="folder_authorize_question">Adicionar esta pasta à lista de autorizadas?</string>
+    <string name="settings_updates">Atualizações automáticas</string>
+    <string name="settings_updates_desc">Uma vez por dia, ao abrir, o AIV procura uma nova versão no GitHub.</string>
+    <string name="settings_updates_check">Verificar agora</string>
+    <string name="update_title">AIV %1$s está disponível</string>
+    <string name="update_install">Atualizar</string>
+    <string name="update_later">Mais tarde</string>
+    <string name="update_downloading">Baixando a atualização...</string>
+    <string name="update_latest">O AIV está atualizado</string>
+    <string name="update_failed">Falha na atualização</string>
+    <string name="update_untrusted">A atualização não está assinada com a chave do AIV, então não será instalada.</string>
+    <string name="update_permission">Para atualizar, permita que o AIV instale apps.</string>
 </resources>

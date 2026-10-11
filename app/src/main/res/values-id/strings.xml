@@ -755,4 +755,15 @@
     <string name="folder_selection_desc">Mode disertakan hanya menampilkan folder yang diizinkan; mode dikecualikan menampilkan semua kecuali yang disembunyikan secara manual. Dalam mode dikecualikan, tekan lama folder dalam mode kisi atau daftar untuk menyembunyikannya. Dalam mode disertakan, buka Folder sistem dan tekan lama folder untuk mengizinkannya. Ini hanya berlaku untuk kisi dan daftar; Folder sistem selalu menampilkan semuanya. Folder yang diizinkan muncul jika berisi gambar atau video.</string>
     <string name="folder_siblings_desc">Sembunyikan semua subfolder %1$s? Folder baru di dalam %1$s awalnya akan terlihat.</string>
     <string name="folder_authorize_question">Tambahkan folder ini ke daftar yang diizinkan?</string>
+    <string name="settings_updates">Pembaruan otomatis</string>
+    <string name="settings_updates_desc">Sekali sehari, saat dibuka, AIV mencari versi baru di GitHub.</string>
+    <string name="settings_updates_check">Periksa sekarang</string>
+    <string name="update_title">AIV %1$s tersedia</string>
+    <string name="update_install">Perbarui</string>
+    <string name="update_later">Nanti</string>
+    <string name="update_downloading">Mengunduh pembaruan...</string>
+    <string name="update_latest">AIV sudah yang terbaru</string>
+    <string name="update_failed">Pembaruan gagal</string>
+    <string name="update_untrusted">Pembaruan tidak ditandatangani dengan kunci AIV, jadi tidak akan dipasang.</string>
+    <string name="update_permission">Untuk memperbarui, izinkan AIV memasang aplikasi.</string>
 </resources>

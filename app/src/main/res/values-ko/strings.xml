@@ -755,4 +755,15 @@
     <string name="folder_selection_desc">포함 모드는 허용된 폴더만 표시하고 제외 모드는 수동으로 숨긴 폴더 외에 모두 표시합니다. 제외 모드에서는 그리드나 목록에서 폴더를 길게 눌러 숨기세요. 포함 모드에서는 시스템 폴더를 열고 폴더를 길게 눌러 허용하세요. 이 설정은 그리드와 목록에만 적용되며 시스템 폴더는 항상 모두 표시합니다. 허용된 폴더는 이미지나 동영상이 있으면 표시됩니다.</string>
     <string name="folder_siblings_desc">%1$s의 모든 하위 폴더를 숨길까요? %1$s 안에 새로 만든 폴더는 처음에는 표시됩니다.</string>
     <string name="folder_authorize_question">이 폴더를 허용 목록에 추가할까요?</string>
+    <string name="settings_updates">자동 업데이트</string>
+    <string name="settings_updates_desc">하루에 한 번, 열 때 AIV가 GitHub에서 새 버전을 찾습니다.</string>
+    <string name="settings_updates_check">지금 확인</string>
+    <string name="update_title">AIV %1$s 사용 가능</string>
+    <string name="update_install">업데이트</string>
+    <string name="update_later">나중에</string>
+    <string name="update_downloading">업데이트 다운로드 중...</string>
+    <string name="update_latest">AIV가 최신 버전입니다</string>
+    <string name="update_failed">업데이트하지 못했습니다</string>
+    <string name="update_untrusted">업데이트가 AIV의 키로 서명되지 않아 설치하지 않습니다.</string>
+    <string name="update_permission">업데이트하려면 AIV가 앱을 설치하도록 허용하세요.</string>
 </resources>

@@ -289,7 +289,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   Play, una galleria senza le funzioni che scrivono sui file e col `Salva` in Download; dalla `5.20`
   il suo `Elimina` passa dal MediaStore, col cestino di sistema da Android 11, che dalla `5.40` ha
   la sua pagina `Cestino`, dalla `5.50` da Android 11 rinomina i file, e dalla `5.30` ha
-  meno impostazioni, coi valori fissati da `Store.fit` (scelte sue, voce per voce). La
+  meno impostazioni, coi valori fissati da `Store.fit` (scelte sue, voce per voce); dalla `5.60` AIV
+  GitHub si aggiorna da sé (`Updater`), AIV Play no. La
   differenza la legge solo `Store.kt`, e una release ha due APK (`Rules.md` § '🏪 Le due varianti,
   e che cosa manca ad AIV Play').
 - **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove `*PlayTest` di

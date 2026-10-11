@@ -809,4 +809,15 @@
     <string name="folder_selection_desc">Режим включення показує лише дозволені папки; режим виключення всі, крім прихованих вручну. У режимі виключення утримуйте папку в режимі сітки або списку, щоб приховати її. У режимі включення відкрийте Системні папки та утримуйте папку, щоб дозволити її. Це стосується лише сітки та списку; системні папки завжди показують усе. Дозволені папки з\'являються, коли містять зображення чи відео.</string>
     <string name="folder_siblings_desc">Приховати всі підпапки %1$s? Нові папки всередині %1$s спочатку будуть видимі.</string>
     <string name="folder_authorize_question">Додати цю папку до списку дозволених?</string>
+    <string name="settings_updates">Автоматичні оновлення</string>
+    <string name="settings_updates_desc">Раз на день під час відкриття AIV шукає нову версію на GitHub.</string>
+    <string name="settings_updates_check">Перевірити зараз</string>
+    <string name="update_title">Доступна версія AIV %1$s</string>
+    <string name="update_install">Оновити</string>
+    <string name="update_later">Пізніше</string>
+    <string name="update_downloading">Завантаження оновлення...</string>
+    <string name="update_latest">У вас остання версія AIV</string>
+    <string name="update_failed">Не вдалося оновити</string>
+    <string name="update_untrusted">Оновлення не підписане ключем AIV, тому його не буде встановлено.</string>
+    <string name="update_permission">Щоб оновити, дозвольте AIV встановлювати застосунки.</string>
 </resources>

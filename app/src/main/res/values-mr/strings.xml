@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">समावेश मोड फक्त परवानगी दिलेले फोल्डर दाखवतो; वगळण्याचा मोड हाताने लपवलेले सोडून सर्व दाखवतो. वगळण्याच्या मोडमध्ये ग्रिड किंवा यादीतील फोल्डर दाबून ठेवा म्हणजे तो लपेल. समावेश मोडमध्ये सिस्टम फोल्डर उघडा आणि परवानगी देण्यासाठी फोल्डर दाबून ठेवा. याचा परिणाम फक्त ग्रिड आणि यादीवर होतो; सिस्टम फोल्डर नेहमी सर्व दाखवतात. परवानगी दिलेले फोल्डर प्रतिमा किंवा व्हिडिओ असल्यावर दिसतात.</string>
     <string name="folder_siblings_desc">%1$s चे सर्व उपफोल्डर लपवायचे? %1$s मधील नवीन फोल्डर सुरुवातीला दिसतील.</string>
     <string name="folder_authorize_question">हा फोल्डर परवानगीच्या यादीत जोडायचा?</string>
+    <string name="settings_updates">स्वयंचलित अपडेट</string>
+    <string name="settings_updates_desc">दिवसातून एकदा, उघडताना, AIV GitHub वर नवीन आवृत्ती शोधते.</string>
+    <string name="settings_updates_check">आता तपासा</string>
+    <string name="update_title">AIV %1$s उपलब्ध आहे</string>
+    <string name="update_install">अपडेट करा</string>
+    <string name="update_later">नंतर</string>
+    <string name="update_downloading">अपडेट डाउनलोड होत आहे...</string>
+    <string name="update_latest">AIV अद्ययावत आहे</string>
+    <string name="update_failed">अपडेट अयशस्वी झाले</string>
+    <string name="update_untrusted">अपडेट AIV च्या कीने साइन केलेले नाही, म्हणून ते इंस्टॉल होणार नाही.</string>
+    <string name="update_permission">अपडेट करण्यासाठी AIV ला ॲप्स इंस्टॉल करण्याची परवानगी द्या.</string>
 </resources>

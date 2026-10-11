@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">Dahil etme modu yalnızca izin verilen klasörleri; hariç tutma modu elle gizlenenler dışında tüm klasörleri gösterir. Hariç tutma modunda, gizlemek için ızgara veya listede bir klasöre uzun bas. Dahil etme modunda Sistem klasörlerini aç ve izin vermek için bir klasöre uzun bas. Bu yalnızca ızgara ve listeyi etkiler; sistem klasörleri her şeyi gösterir. İzin verilen klasörler bir resim veya video içerdiğinde görünür.</string>
     <string name="folder_siblings_desc">%1$s alt klasörlerinin tümü gizlensin mi? %1$s içindeki yeni klasörler başlangıçta görünür olacaktır.</string>
     <string name="folder_authorize_question">Bu klasör izin verilenler listesine eklensin mi?</string>
+    <string name="settings_updates">Otomatik güncellemeler</string>
+    <string name="settings_updates_desc">AIV, günde bir kez açılırken GitHub\'da yeni bir sürüm arar.</string>
+    <string name="settings_updates_check">Şimdi denetle</string>
+    <string name="update_title">AIV %1$s kullanıma hazır</string>
+    <string name="update_install">Güncelle</string>
+    <string name="update_later">Daha sonra</string>
+    <string name="update_downloading">Güncelleme indiriliyor...</string>
+    <string name="update_latest">AIV güncel</string>
+    <string name="update_failed">Güncelleme başarısız oldu</string>
+    <string name="update_untrusted">Güncelleme AIV\'nin anahtarıyla imzalanmamış, bu yüzden yüklenmeyecek.</string>
+    <string name="update_permission">Güncellemek için AIV\'nin uygulama yüklemesine izin verin.</string>
 </resources>

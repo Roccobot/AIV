@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">Hali ya kujumuisha inaonyesha folda zilizoruhusiwa pekee; hali ya kutenga inaonyesha zote isipokuwa zilizofichwa kwa mkono. Katika hali ya kutenga, bonyeza na ushikilie folda katika gridi au orodha ili kuificha. Katika hali ya kujumuisha, fungua Folda za mfumo na ushikilie folda ili kuiruhusu. Hii inahusu gridi na orodha pekee; folda za mfumo huonyesha kila kitu. Folda zilizoruhusiwa huonekana ikiwa zina picha au video.</string>
     <string name="folder_siblings_desc">Ufiche folda zote ndogo za %1$s? Folda mpya ndani ya %1$s zitaonekana mwanzoni.</string>
     <string name="folder_authorize_question">Uongeze folda hii kwenye orodha iliyoruhusiwa?</string>
+    <string name="settings_updates">Masasisho ya kiotomatiki</string>
+    <string name="settings_updates_desc">Mara moja kwa siku, inapofunguliwa, AIV hutafuta toleo jipya kwenye GitHub.</string>
+    <string name="settings_updates_check">Angalia sasa</string>
+    <string name="update_title">AIV %1$s inapatikana</string>
+    <string name="update_install">Sasisha</string>
+    <string name="update_later">Baadaye</string>
+    <string name="update_downloading">Inapakua sasisho...</string>
+    <string name="update_latest">AIV imesasishwa</string>
+    <string name="update_failed">Imeshindwa kusasisha</string>
+    <string name="update_untrusted">Sasisho halijatiwa sahihi kwa ufunguo wa AIV, kwa hivyo halitasakinishwa.</string>
+    <string name="update_permission">Ili kusasisha, ruhusu AIV isakinishe programu.</string>
 </resources>

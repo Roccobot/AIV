@@ -131,7 +131,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
         "fit-grow", "info-visible", "veil", "zoom-in-menu", "sequence-reversed", "open-at-start",
         "clipboard-start", "pick-weight", "anim-counter", "list-count", "tree-hidden",
         "tree-pictures", "images-only", "clip-autoplay", "grid-names", "front-wash", "front-serif",
-        "front-facts", "front-pick-all", "gpu-thumbs", "folder-count"
+        "front-facts", "front-pick-all", "gpu-thumbs", "folder-count", "auto-update"
     )
     area(
         BackupArea.VIEW, PrefType.STRING,

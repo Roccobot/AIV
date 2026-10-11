@@ -22,4 +22,14 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
 
+    <!--
+        Dalla 5.60 AIV GitHub si aggiorna da sé (sue scelte C1 e D1; `Updater`): scarica l'APK
+        della release, lo verifica e lo passa all'installazione di Android. Questo permesso è quello
+        che Android chiede per aprirla, e la persona lo concede una volta nella pagina 'Installa
+        app sconosciute'.
+        ⚠️ Solo qui e non nel manifest comune: AIV Play si aggiorna dal Play Store, e la politica
+        di Google non ammette questo permesso in un'app che non sia un negozio.
+    -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
 </manifest>

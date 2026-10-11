@@ -773,4 +773,15 @@
     <string name="folder_selection_desc">शामिल मोड केवल अनुमत फ़ोल्डर दिखाता है; बहिष्करण मोड हाथ से छिपाए गए फ़ोल्डर को छोड़कर सभी दिखाता है। बहिष्करण मोड में ग्रिड या सूची में फ़ोल्डर को दबाकर रखें ताकि वह छिप जाए। शामिल मोड में सिस्टम फ़ोल्डर खोलें और अनुमति देने के लिए फ़ोल्डर को दबाकर रखें। यह केवल ग्रिड और सूची को प्रभावित करता है; सिस्टम फ़ोल्डर हमेशा सब कुछ दिखाते हैं। अनुमत फ़ोल्डर चित्र या वीडियो होने पर दिखाई देते हैं।</string>
     <string name="folder_siblings_desc">%1$s के सभी सबफ़ोल्डर छिपाएँ? %1$s के अंदर नए फ़ोल्डर शुरू में दिखाई देंगे।</string>
     <string name="folder_authorize_question">इस फ़ोल्डर को अनुमत सूची में जोड़ें?</string>
+    <string name="settings_updates">स्वचालित अपडेट</string>
+    <string name="settings_updates_desc">दिन में एक बार, खुलते समय, AIV GitHub पर नया संस्करण खोजता है।</string>
+    <string name="settings_updates_check">अभी जाँचें</string>
+    <string name="update_title">AIV %1$s उपलब्ध है</string>
+    <string name="update_install">अपडेट करें</string>
+    <string name="update_later">बाद में</string>
+    <string name="update_downloading">अपडेट डाउनलोड हो रहा है...</string>
+    <string name="update_latest">AIV अप-टू-डेट है</string>
+    <string name="update_failed">अपडेट विफल रहा</string>
+    <string name="update_untrusted">अपडेट AIV की कुंजी से साइन नहीं है, इसलिए इंस्टॉल नहीं होगा।</string>
+    <string name="update_permission">अपडेट करने के लिए AIV को ऐप इंस्टॉल करने की अनुमति दें।</string>
 </resources>

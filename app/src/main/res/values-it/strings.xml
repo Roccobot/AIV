@@ -850,4 +850,15 @@
     <string name="folder_selection_desc">Modalità incluse mostra solo le cartelle autorizzate; Modalità escluse mostra tutte le cartelle tranne quelle nascoste a mano. In Modalità escluse, tieni premuto su una cartella in modalità griglia o lista per nasconderla. In Modalità incluse, passa alla vista Cartelle di sistema e premi a lungo su una cartella che vuoi includere. N.B. L\'opzione riguarda solo le modalità griglia e lista; la vista cartelle di sistema mostra sempre tutto. Le cartelle autorizzate appaiono solo se contengono almeno un\'immagine o un video.</string>
     <string name="folder_siblings_desc">Vuoi davvero nascondere tutte le sottocartelle della cartella %1$s? Eventuali nuove cartelle create dentro %1$s saranno inizialmente visibili.</string>
     <string name="folder_authorize_question">Vuoi aggiungere questa cartella alla lista delle autorizzate?</string>
+    <string name="settings_updates">Aggiornamenti automatici</string>
+    <string name="settings_updates_desc">Una volta al giorno, all\'apertura, AIV cerca una versione nuova su GitHub.</string>
+    <string name="settings_updates_check">Controlla ora</string>
+    <string name="update_title">AIV %1$s è disponibile</string>
+    <string name="update_install">Aggiorna</string>
+    <string name="update_later">Più tardi</string>
+    <string name="update_downloading">Scarico l\'aggiornamento...</string>
+    <string name="update_latest">AIV è aggiornata</string>
+    <string name="update_failed">Aggiornamento non riuscito</string>
+    <string name="update_untrusted">L\'aggiornamento non è firmato con la chiave di AIV, quindi non lo installo.</string>
+    <string name="update_permission">Per aggiornare, consenti ad AIV di installare app.</string>
 </resources>

@@ -94,6 +94,16 @@ object Store {
     val hasBin: Boolean = files || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     /**
+     * Whether this variant updates itself from the GitHub releases (since 5.60, his choices C1 and
+     * D1; `Updater`).
+     *
+     * ⚠️ **Only AIV GitHub**: AIV Play is updated by the Play Store, and Google's policy does not
+     * allow an app from the store to install packages. The permission lives in the manifest of the
+     * `github` variant only.
+     */
+    val updates: Boolean = files
+
+    /**
      * The views of the home screen in this variant: AIV Play has no 'Cartelle di sistema', which
      * reads the disk folder by folder and is where 'Nuova cartella' lives.
      *
