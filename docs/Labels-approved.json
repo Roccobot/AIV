@@ -595,6 +595,7 @@
  "settings_list_path_desc": "Quando copi una lista di nomi di file, aggiunge in cima il percorso completo della cartella di origine.",
  "settings_main_control": "Elemento interattivo principale",
  "settings_main_control_desc": "Scegli come vuoi interagire con l\\'app quando tieni lo smartphone in verticale: puoi scegliere tra pulsante fluttuante (\\'FAB\\') con menu, pillola con icone, menu e menu \\'Start\\'.",
+ "settings_main_control_desc_play": "Scegli come vuoi interagire con l\\'app quando tieni lo smartphone in verticale: puoi scegliere tra pulsante fluttuante (\\'FAB\\') e \\'pillola\\' di icone.",
  "settings_mark": "Filigrana",
  "settings_mark_air": "Distanza dal bordo",
  "settings_mark_alpha": "Opacità",

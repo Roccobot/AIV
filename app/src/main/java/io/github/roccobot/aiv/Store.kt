@@ -46,6 +46,7 @@ object Store {
      *
      * ⚠️ **'Elimina' is back in AIV Play since 5.20**, through the MediaStore (`MediaDelete`): the
      * system's trash from Android 11, a deletion for good below (his choices A1 and B1).
+     * ⚠️ **'Rinomina' is back since 5.50, from Android 11** ([renames]): [allows] lets it through.
      * ⚠️ **Only those two pads read it**: the Disegno module has a 'Elimina' too, the same
      * [PadKey.DELETE], and there it removes an element of the drawing, not a file.
      */
@@ -65,14 +66,25 @@ object Store {
      * a key missing from the pad and present in the page that reorders it would be a button
      * that can be moved and never seen.
      */
-    fun allows(key: PadKey, bin: Boolean = false): Boolean =
-        files || (key !in trimmed && (key !in writers || (bin && key == PadKey.RENAME)))
+    fun allows(key: PadKey): Boolean =
+        files || (key !in trimmed && (key !in writers || (key == PadKey.RENAME && renames)))
 
     /*
-     * ⚠️ **In the bin the RENAME key is 'Ripristina'** (`GridScreen`, `ViewerScreen`), and since
-     * 5.40 AIV Play restores through the MediaStore, so there [allows] lets it through with
-     * `bin`. Its place in the pad comes from `withRestore`, in `ActionPad.kt`.
+     * ⚠️ **In the bin the RENAME key is 'Ripristina'** (`GridScreen`, `ViewerScreen`), and AIV
+     * Play restores through the MediaStore since 5.40: the bin exists only where [renames] is
+     * true, so the same key covers both, in the place the factory order gives it.
      */
+
+    /**
+     * Whether this variant renames files: AIV GitHub through `java.io.File`, AIV Play through the
+     * MediaStore from Android 11 (since 5.50, `MediaRename`), where `createWriteRequest` asks the
+     * system's window for files of other apps.
+     *
+     * ⚠️ **Below Android 11 AIV Play does not rename**: Android 10 asks a consent per file and
+     * Android 9 wants the write permission, and neither was measured. Folders are not renamed in
+     * AIV Play at all.
+     */
+    val renames: Boolean = files || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     /**
      * Whether this variant has a bin page: AIV GitHub its own, AIV Play the system's trash from

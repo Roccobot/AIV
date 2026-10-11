@@ -145,15 +145,16 @@ class CestinoPlayTest {
     }
 
     /**
-     * **'Ripristina' is in the bin's pads, and only there**: in AIV Play the key that renames is
-     * out, and in the bin the same key restores. It goes first, as in AIV GitHub's bin.
+     * **'Ripristina' is in the bin's pads**: in the bin the key that renames restores. Since 5.50
+     * that key is in AIV Play's factory lists, so a saved order that does not name it gets it in
+     * its factory place (`padOrderOf`), as in AIV GitHub's bin.
      */
     @Test
-    fun `nel cestino c'e Ripristina e solo li`() {
-        assertTrue(Store.allows(PadKey.RENAME, bin = true))
-        assertFalse(Store.allows(PadKey.RENAME))
-        assertEquals(listOf(PadKey.RENAME, PadKey.SHARE), listOf(PadKey.SHARE).withRestore(bin = true))
-        assertEquals(listOf(PadKey.SHARE), listOf(PadKey.SHARE).withRestore(bin = false))
+    fun `nel cestino c'e Ripristina`() {
+        assertTrue(Store.allows(PadKey.RENAME))
+        assertTrue("Il menu non ha il tasto: $MENU_KEYS", PadKey.RENAME in MENU_KEYS)
+        assertTrue("La selezione non ha il tasto: $PICK_KEYS", PadKey.RENAME in PICK_KEYS)
+        assertTrue(PadKey.RENAME in padOrderOf(listOf(PadKey.SHARE.token), MENU_KEYS))
     }
 
     /** Mounts the bin page on two trashed images, with a system that answers yes; returns what was launched. */

@@ -365,5 +365,16 @@ object Names {
         return letto
     }
 
+    /**
+     * Dimentica il nome di [uri], quando il file dietro di lui ne ha uno nuovo.
+     *
+     * ⚠️ **Serve alla rinomina di AIV Play** (dalla `5.50`, `MediaRename`): il MediaStore rinomina
+     * il file sul posto, quindi l'indirizzo resta lo stesso e il nome tenuto qui descriverebbe il
+     * file di prima. AIV GitHub rinomina sul disco, e i suoi file tornano con un indirizzo nuovo.
+     */
+    fun forget(uri: Uri) {
+        known.remove(uri)
+    }
+
     private val known = ConcurrentHashMap<Uri, String>()
 }
