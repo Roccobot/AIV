@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">لا يستطيع أندرويد كتابة سوى الصيغ أعلاه. أما البقية فتوفرها هذه الخدمات، وهي تُفتح في المتصفح: اختر الصورة هناك من ذاكرة الهاتف.</string>
     <string name="convert_clean">تنظيف</string>
     <string name="convert_clean_why">يزيل الترويسات والبيانات الوصفية والتعليقات والنصوص البرمجية وبيانات C2PA وبقايا المحرِّرات، وهي أثقل البيانات (حتى 99% من الملف) ويندر أن تكون مطلوبة.</string>
-    <string name="convert_clean_keeps">لا يغيّر محتوى الصورة (المسارات والأشكال والخطوط والرسوم والنصوص...): يبقى الرسم سليمًا 100%.</string>
+    <string name="convert_clean_keeps">لا يغيّر محتوى الصورة (المسارات والأشكال والخطوط والرسوم والنصوص…): يبقى الرسم سليمًا 100%.</string>
     <string name="convert_clean_c2pa">⚠️ تنبيه: يذهب أيضًا أصل C2PA، أي الجزء الذي يقول من صنع الملف. احتفظ بنسخة إن كنت بحاجة إليها.</string>
     <string name="clean_now">نظِّف</string>
     <string name="clean_done">تم التنظيف: من %1$s إلى %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">الصور فقط</string>
     <string name="filter_videos">الفيديو فقط</string>
     <string name="pick_forever">حذف نهائي</string>
-    <string name="pick_counting">جارٍ العد...</string>
+    <string name="pick_counting">جارٍ العد…</string>
     <plurals name="pick_count">
         <item quantity="zero">تم تحديد %1$d عنصر</item>
         <item quantity="one">تم تحديد عنصر واحد</item>
@@ -323,7 +323,7 @@
     <string name="dest_move_here">نقل إلى %1$s</string>
     <string name="dest_pick_copy">النسخ إلى مجلد</string>
     <string name="dest_pick_move">النقل إلى مجلد</string>
-    <string name="dest_browse">استعراض كل المجلدات...</string>
+    <string name="dest_browse">استعراض كل المجلدات…</string>
     <string name="menu_copy_here">نسخ</string>
     <plurals name="copy_done">
         <item quantity="zero">لم يُنسخ أي عنصر</item>
@@ -806,8 +806,8 @@
     <string name="backup_newer">ملف الإعدادات هذا بصيغة أحدث لا يستطيع هذا الإصدار من AIV فتحها. حدّث التطبيق لاستيراده.</string>
     <string name="backup_wrong">خطأ: كلمة المرور غير صحيحة، أو أن الملف تالف.</string>
     <string name="backup_broken">الملف تالف أو غير مكتمل.</string>
-    <string name="backup_exporting">جارٍ التصدير...</string>
-    <string name="backup_importing">جارٍ الاستيراد...</string>
+    <string name="backup_exporting">جارٍ التصدير…</string>
+    <string name="backup_importing">جارٍ الاستيراد…</string>
     <string name="backup_import_from">تصدير بتاريخ %1$s، %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">ستحل هذه الإعدادات محل الإعدادات الحالية، باستثناء الأنماط والألوان والأغلفة والمجلدات المضمّنة والمستبعدة وسلة المهملات، فهي ستُضاف إلى ما هو موجود من قبل.</string>
     <string name="backup_unlock">ملف الإعدادات محمي: أدخل كلمة المرور.</string>
@@ -851,7 +851,7 @@
     <string name="update_title">يتوفر AIV %1$s</string>
     <string name="update_install">تحديث</string>
     <string name="update_later">لاحقًا</string>
-    <string name="update_downloading">جارٍ تنزيل التحديث...</string>
+    <string name="update_downloading">جارٍ تنزيل التحديث…</string>
     <string name="update_latest">AIV محدَّث</string>
     <string name="update_failed">تعذّر التحديث</string>
     <string name="update_untrusted">التحديث غير موقّع بمفتاح AIV، لذا لن يُثبَّت.</string>

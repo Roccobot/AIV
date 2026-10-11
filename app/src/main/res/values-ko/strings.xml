@@ -251,7 +251,7 @@
     <string name="filter_images">사진만</string>
     <string name="filter_videos">동영상만</string>
     <string name="pick_forever">완전히 삭제</string>
-    <string name="pick_counting">세는 중...</string>
+    <string name="pick_counting">세는 중…</string>
     <plurals name="pick_count">
         <item quantity="other">%1$d개 선택</item>
     </plurals>
@@ -303,7 +303,7 @@
     <string name="dest_move_here">%1$s(으)로 이동</string>
     <string name="dest_pick_copy">폴더에 복사</string>
     <string name="dest_pick_move">폴더로 이동</string>
-    <string name="dest_browse">모든 폴더 찾아보기...</string>
+    <string name="dest_browse">모든 폴더 찾아보기…</string>
     <string name="menu_copy_here">복사</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d개 복사했습니다</item>
@@ -716,8 +716,8 @@
     <string name="backup_newer">이 설정 파일은 더 새로운 형식이라 이 버전의 AIV로는 열 수 없습니다. 가져오려면 앱을 업데이트하세요.</string>
     <string name="backup_wrong">오류: 비밀번호가 올바르지 않거나 파일이 손상되었습니다.</string>
     <string name="backup_broken">파일이 손상되었거나 불완전합니다.</string>
-    <string name="backup_exporting">내보내는 중...</string>
-    <string name="backup_importing">가져오는 중...</string>
+    <string name="backup_exporting">내보내는 중…</string>
+    <string name="backup_importing">가져오는 중…</string>
     <string name="backup_import_from">%1$s %2$s에 내보냄\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">이 설정이 지금의 설정을 대체합니다. 다만 스타일, 색상, 표지, 포함 및 제외 폴더와 휴지통은 이미 있는 것에 더해집니다.</string>
     <string name="backup_unlock">설정 파일이 보호되어 있습니다. 비밀번호를 입력하세요.</string>
@@ -761,7 +761,7 @@
     <string name="update_title">AIV %1$s 사용 가능</string>
     <string name="update_install">업데이트</string>
     <string name="update_later">나중에</string>
-    <string name="update_downloading">업데이트 다운로드 중...</string>
+    <string name="update_downloading">업데이트 다운로드 중…</string>
     <string name="update_latest">AIV가 최신 버전입니다</string>
     <string name="update_failed">업데이트하지 못했습니다</string>
     <string name="update_untrusted">업데이트가 AIV의 키로 서명되지 않아 설치하지 않습니다.</string>

@@ -1088,6 +1088,10 @@ il job le scrive su disco per la durata di una sola esecuzione.
   problemi**: un numero più basso vuol dire che una cartella non è stata vista. Le varianti
   regionali (`values-b+es+419`, `values-pt-rPT`) contengono solo le differenze, e il verificatore lo
   sa.
+  - ⚠️ **Nei testi dell'app i puntini sono il carattere unico `…`, e i tre punti sono vietati**
+    (dalla `5.61`): è la convenzione di Android, e la deroga di `Roccobot.md` § 'Caratteri' (2026-10-11)
+    la fa valere nei testi di interfaccia. Fino alla `5.60` il verificatore vietava il contrario. Nella
+    prosa (DF, regole, commenti) restano i tre punti, e un'etichetta del DF li scrive così.
 - **`tools/icon-check.py`**, dalla radice: legge ogni `res/drawable/*.xml`, col criterio di
   § '🖌️ Come entra un disegno'.
   - **Grammatica e vincoli girano sempre e bloccano**: un elemento o un attributo che Android non

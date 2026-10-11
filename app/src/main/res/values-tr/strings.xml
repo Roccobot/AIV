@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
     <string name="convert_clean">Temizle</string>
     <string name="convert_clean_why">Başlıkları, üst verileri, yorumları, betikleri, C2PA\'yı ve düzenleyici artıklarını kaldırır; bunlar en ağır verilerdir (dosyanın 99%\'una kadar) ve nadiren gerekir.</string>
-    <string name="convert_clean_keeps">Görüntünün içeriğini değiştirmez (yollar, şekiller, çizgiler, çizimler, metin...): çizim 100% olduğu gibi kalır.</string>
+    <string name="convert_clean_keeps">Görüntünün içeriğini değiştirmez (yollar, şekiller, çizgiler, çizimler, metin…): çizim 100% olduğu gibi kalır.</string>
     <string name="convert_clean_c2pa">⚠️ DİKKAT: dosyayı kimin yaptığını söyleyen C2PA kaynak bilgisi de gider. Gerekiyorsa bir kopyasını sakla.</string>
     <string name="clean_now">Temizle</string>
     <string name="clean_done">Temizlendi: %1$s boyutundan %2$s boyutuna.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Yalnızca görseller</string>
     <string name="filter_videos">Yalnızca videolar</string>
     <string name="pick_forever">Tamamen sil</string>
-    <string name="pick_counting">Sayılıyor...</string>
+    <string name="pick_counting">Sayılıyor…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d öge seçildi</item>
         <item quantity="other">%1$d öge seçildi</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">%1$s içine taşı</string>
     <string name="dest_pick_copy">Bir klasöre kopyala</string>
     <string name="dest_pick_move">Bir klasöre taşı</string>
-    <string name="dest_browse">Tüm klasörlere göz at...</string>
+    <string name="dest_browse">Tüm klasörlere göz at…</string>
     <string name="menu_copy_here">Kopyala</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d öge kopyalandı</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">Bu ayar dosyası, bu AIV sürümünün açamadığı daha yeni bir biçimde. İçe aktarmak için uygulamayı güncelle.</string>
     <string name="backup_wrong">Hata: şifre yanlış ya da dosya hasarlı.</string>
     <string name="backup_broken">Dosya bozuk ya da eksik.</string>
-    <string name="backup_exporting">Dışa aktarılıyor...</string>
-    <string name="backup_importing">İçe aktarılıyor...</string>
+    <string name="backup_exporting">Dışa aktarılıyor…</string>
+    <string name="backup_importing">İçe aktarılıyor…</string>
     <string name="backup_import_from">%1$s, %2$s tarihinde dışa aktarıldı\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Bu ayarlar mevcut olanların yerini alacak; stiller, renkler, kapaklar, dahil edilen ve hariç tutulan klasörler ve çöp kutusu hariç, bunlar zaten olanlara eklenecek.</string>
     <string name="backup_unlock">Ayar dosyası korumalı: şifreyi gir.</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s kullanıma hazır</string>
     <string name="update_install">Güncelle</string>
     <string name="update_later">Daha sonra</string>
-    <string name="update_downloading">Güncelleme indiriliyor...</string>
+    <string name="update_downloading">Güncelleme indiriliyor…</string>
     <string name="update_latest">AIV güncel</string>
     <string name="update_failed">Güncelleme başarısız oldu</string>
     <string name="update_untrusted">Güncelleme AIV\'nin anahtarıyla imzalanmamış, bu yüzden yüklenmeyecek.</string>

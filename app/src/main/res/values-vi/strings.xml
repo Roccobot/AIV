@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
     <string name="convert_clean">Làm sạch</string>
     <string name="convert_clean_why">Loại bỏ phần đầu tệp, siêu dữ liệu, chú thích, tập lệnh, C2PA và phần sót lại của các trình biên tập, tức là dữ liệu nặng nhất (tới 99% tệp) và ít khi cần đến.</string>
-    <string name="convert_clean_keeps">Không thay đổi nội dung hình ảnh (đường nét, hình khối, đường kẻ, hình vẽ, văn bản...): hình vẽ vẫn nguyên vẹn 100%.</string>
+    <string name="convert_clean_keeps">Không thay đổi nội dung hình ảnh (đường nét, hình khối, đường kẻ, hình vẽ, văn bản…): hình vẽ vẫn nguyên vẹn 100%.</string>
     <string name="convert_clean_c2pa">⚠️ CHÚ Ý: nguồn gốc C2PA cũng mất, tức là phần cho biết ai đã tạo tệp. Hãy giữ một bản sao nếu bạn cần.</string>
     <string name="clean_now">Làm sạch</string>
     <string name="clean_done">Đã dọn: từ %1$s xuống %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Chỉ ảnh</string>
     <string name="filter_videos">Chỉ video</string>
     <string name="pick_forever">Xóa hẳn</string>
-    <string name="pick_counting">Đang đếm...</string>
+    <string name="pick_counting">Đang đếm…</string>
     <plurals name="pick_count">
         <item quantity="other">Đã chọn %1$d mục</item>
     </plurals>
@@ -303,7 +303,7 @@
     <string name="dest_move_here">Di chuyển vào %1$s</string>
     <string name="dest_pick_copy">Sao chép vào một thư mục</string>
     <string name="dest_pick_move">Di chuyển vào một thư mục</string>
-    <string name="dest_browse">Xem tất cả thư mục...</string>
+    <string name="dest_browse">Xem tất cả thư mục…</string>
     <string name="menu_copy_here">Sao chép</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d mục đã sao chép</item>
@@ -716,8 +716,8 @@
     <string name="backup_newer">Tệp cài đặt này có định dạng mới hơn mà phiên bản AIV này không mở được. Hãy cập nhật ứng dụng để nhập tệp.</string>
     <string name="backup_wrong">Lỗi: mật khẩu không đúng, hoặc tệp bị hỏng.</string>
     <string name="backup_broken">Tệp bị hỏng hoặc không đầy đủ.</string>
-    <string name="backup_exporting">Đang xuất...</string>
-    <string name="backup_importing">Đang nhập...</string>
+    <string name="backup_exporting">Đang xuất…</string>
+    <string name="backup_importing">Đang nhập…</string>
     <string name="backup_import_from">Xuất lúc %2$s ngày %1$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Các cài đặt này sẽ thay thế cài đặt hiện tại, trừ kiểu, màu, ảnh bìa, thư mục được bao gồm và loại trừ và thùng rác, những thứ này sẽ được thêm vào những gì đã có.</string>
     <string name="backup_unlock">Tệp cài đặt được bảo vệ: hãy nhập mật khẩu.</string>
@@ -761,7 +761,7 @@
     <string name="update_title">Đã có AIV %1$s</string>
     <string name="update_install">Cập nhật</string>
     <string name="update_later">Để sau</string>
-    <string name="update_downloading">Đang tải bản cập nhật...</string>
+    <string name="update_downloading">Đang tải bản cập nhật…</string>
     <string name="update_latest">AIV đã là bản mới nhất</string>
     <string name="update_failed">Cập nhật không thành công</string>
     <string name="update_untrusted">Bản cập nhật không được ký bằng khóa của AIV nên sẽ không được cài đặt.</string>

@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
     <string name="convert_clean">Safisha</string>
     <string name="convert_clean_why">Huondoa vichwa, metadata, maoni, skripti, C2PA na masalia ya vihariri, ambayo ni data nzito zaidi (hadi 99% ya faili) na hayahitajiki mara nyingi.</string>
-    <string name="convert_clean_keeps">Haibadilishi yaliyomo kwenye picha (njia, maumbo, mistari, michoro, maandishi...): mchoro unasalia salama kwa 100%.</string>
+    <string name="convert_clean_keeps">Haibadilishi yaliyomo kwenye picha (njia, maumbo, mistari, michoro, maandishi…): mchoro unasalia salama kwa 100%.</string>
     <string name="convert_clean_c2pa">⚠️ TAHADHARI: chimbuko la C2PA pia linaondoka, sehemu inayosema ni nani aliyetengeneza faili. Weka nakala kama unaihitaji.</string>
     <string name="clean_now">Safisha</string>
     <string name="clean_done">Imesafishwa: kutoka %1$s hadi %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Picha pekee</string>
     <string name="filter_videos">Video pekee</string>
     <string name="pick_forever">Futa kabisa</string>
-    <string name="pick_counting">Inahesabu...</string>
+    <string name="pick_counting">Inahesabu…</string>
     <plurals name="pick_count">
         <item quantity="one">kipengee %1$d kimechaguliwa</item>
         <item quantity="other">vipengee %1$d vimechaguliwa</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">Hamishia ndani ya %1$s</string>
     <string name="dest_pick_copy">Nakili kwenye folda</string>
     <string name="dest_pick_move">Hamishia kwenye folda</string>
-    <string name="dest_browse">Vinjari folda zote...</string>
+    <string name="dest_browse">Vinjari folda zote…</string>
     <string name="menu_copy_here">Nakili</string>
     <plurals name="copy_done">
         <item quantity="one">kipengele %1$d kimenakiliwa</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">Faili hii ya mipangilio ina muundo mpya zaidi ambao toleo hili la AIV haliwezi kuufungua. Sasisha programu ili uiingize.</string>
     <string name="backup_wrong">Hitilafu: nenosiri si sahihi, au faili imeharibika.</string>
     <string name="backup_broken">Faili imeharibika au haijakamilika.</string>
-    <string name="backup_exporting">Inahamisha...</string>
-    <string name="backup_importing">Inaingiza...</string>
+    <string name="backup_exporting">Inahamisha…</string>
+    <string name="backup_importing">Inaingiza…</string>
     <string name="backup_import_from">Imehamishwa tarehe %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Mipangilio hii itachukua nafasi ya ile ya sasa, isipokuwa mitindo, rangi, majalada, folda zilizojumuishwa na zilizotengwa na tapishi, ambavyo vitaongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_unlock">Faili ya mipangilio imelindwa: andika nenosiri.</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s inapatikana</string>
     <string name="update_install">Sasisha</string>
     <string name="update_later">Baadaye</string>
-    <string name="update_downloading">Inapakua sasisho...</string>
+    <string name="update_downloading">Inapakua sasisho…</string>
     <string name="update_latest">AIV imesasishwa</string>
     <string name="update_failed">Imeshindwa kusasisha</string>
     <string name="update_untrusted">Sasisho halijatiwa sahihi kwa ufunguo wa AIV, kwa hivyo halitasakinishwa.</string>

@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">اندروید فقط قالب‌های بالا را می‌نویسد. برای بقیه این سرویس‌ها هستند که در مرورگر باز می‌شوند: تصویر را همان‌جا، از حافظهٔ گوشی انتخاب کنید.</string>
     <string name="convert_clean">پاک‌سازی</string>
     <string name="convert_clean_why">سرآمدها، فراداده‌ها، توضیح‌ها، اسکریپت‌ها، C2PA و ته‌مانده‌های ویرایشگرها را برمی‌دارد؛ سنگین‌ترین داده‌ها (تا 99% حجم پرونده) که کم پیش می‌آید به آن‌ها نیاز باشد.</string>
-    <string name="convert_clean_keeps">محتوای تصویر را تغییر نمی‌دهد (مسیرها، شکل‌ها، خط‌ها، نقاشی‌ها، متن‌ها...): تصویرسازی 100% دست‌نخورده می‌ماند.</string>
+    <string name="convert_clean_keeps">محتوای تصویر را تغییر نمی‌دهد (مسیرها، شکل‌ها، خط‌ها، نقاشی‌ها، متن‌ها…): تصویرسازی 100% دست‌نخورده می‌ماند.</string>
     <string name="convert_clean_c2pa">⚠️ هشدار: خاستگاه C2PA هم می‌رود، یعنی بخشی که می‌گوید پرونده را چه کسی ساخته است. اگر لازم داری یک رونوشت نگه دار.</string>
     <string name="clean_now">پاک‌سازی</string>
     <string name="clean_done">پاک‌سازی شد: از %1$s به %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">فقط تصویرها</string>
     <string name="filter_videos">فقط ویدیوها</string>
     <string name="pick_forever">حذف کامل</string>
-    <string name="pick_counting">در حال شمارش...</string>
+    <string name="pick_counting">در حال شمارش…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d عنصر انتخاب شد</item>
         <item quantity="other">%1$d عنصر انتخاب شد</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">جابجایی به %1$s</string>
     <string name="dest_pick_copy">کپی در یک پوشه</string>
     <string name="dest_pick_move">انتقال به یک پوشه</string>
-    <string name="dest_browse">مرور همه پوشه‌ها...</string>
+    <string name="dest_browse">مرور همه پوشه‌ها…</string>
     <string name="menu_copy_here">رونوشت</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d مورد رونوشت شد</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">این فایل تنظیمات قالبی تازه‌تر دارد که این نسخهٔ AIV نمی‌تواند آن را باز کند. برای درون‌ریزی آن، برنامه را به‌روز کنید.</string>
     <string name="backup_wrong">خطا: گذرواژه درست نیست، یا فایل آسیب دیده است.</string>
     <string name="backup_broken">فایل آسیب‌دیده یا ناقص است.</string>
-    <string name="backup_exporting">در حال برون‌بری...</string>
-    <string name="backup_importing">در حال درون‌ریزی...</string>
+    <string name="backup_exporting">در حال برون‌بری…</string>
+    <string name="backup_importing">در حال درون‌ریزی…</string>
     <string name="backup_import_from">برون‌بری در %1$s، %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">این تنظیمات جای تنظیمات کنونی را خواهند گرفت، جز سبک‌ها، رنگ‌ها، جلدها، پوشه‌های مشمول و مستثنا و سبد زباله، که به آنچه از پیش هست افزوده می‌شوند.</string>
     <string name="backup_unlock">فایل تنظیمات محافظت‌شده است: گذرواژه را وارد کنید.</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s در دسترس است</string>
     <string name="update_install">به‌روزرسانی</string>
     <string name="update_later">بعداً</string>
-    <string name="update_downloading">در حال بارگیری به‌روزرسانی...</string>
+    <string name="update_downloading">در حال بارگیری به‌روزرسانی…</string>
     <string name="update_latest">AIV به‌روز است</string>
     <string name="update_failed">به‌روزرسانی انجام نشد</string>
     <string name="update_untrusted">به‌روزرسانی با کلید AIV امضا نشده است، پس نصب نمی‌شود.</string>

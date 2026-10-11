@@ -72,7 +72,7 @@
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
     <string name="convert_clean">Clean up</string>
     <string name="convert_clean_why">Removes headers, metadata, comments, scripts, C2PA and editor leftovers, which are the heaviest data (up to 99% of the file) and are rarely needed.</string>
-    <string name="convert_clean_keeps">It does not change the image content (paths, shapes, lines, drawings, text...): the artwork stays 100% intact.</string>
+    <string name="convert_clean_keeps">It does not change the image content (paths, shapes, lines, drawings, text…): the artwork stays 100% intact.</string>
     <string name="convert_clean_c2pa">⚠️ WARNING: the C2PA provenance goes too, the part that says who made the file. Keep a copy if you need it.</string>
     <string name="clean_now">Clean up</string>
     <string name="clean_done">Cleaned up: from %1$s to %2$s.</string>
@@ -682,7 +682,7 @@
     <string name="filter_images">Only pictures</string>
     <string name="filter_videos">Only videos</string>
     <string name="pick_forever">Delete for good</string>
-    <string name="pick_counting">Counting...</string>
+    <string name="pick_counting">Counting…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d item selected</item>
         <item quantity="other">%1$d items selected</item>
@@ -761,7 +761,7 @@
     <string name="dest_move_here">Move into %1$s</string>
     <string name="dest_pick_copy">Copy into a folder</string>
     <string name="dest_pick_move">Move into a folder</string>
-    <string name="dest_browse">Browse all folders...</string>
+    <string name="dest_browse">Browse all folders…</string>
     <string name="menu_copy_here">Copy</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d item copied</item>
@@ -928,8 +928,8 @@
     <string name="backup_newer">This settings file uses a newer format that this version of AIV cannot open. Update the app to import it.</string>
     <string name="backup_wrong">Error: the password is wrong, or the file is damaged.</string>
     <string name="backup_broken">The file is damaged or incomplete.</string>
-    <string name="backup_exporting">Exporting...</string>
-    <string name="backup_importing">Importing...</string>
+    <string name="backup_exporting">Exporting…</string>
+    <string name="backup_importing">Importing…</string>
     <string name="backup_import_from">Exported on %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">These settings will replace the current ones, except styles, colors, covers, included and excluded folders and the bin, which will be added to those already there.</string>
     <string name="backup_unlock">The settings file is protected: enter the password.</string>
@@ -973,7 +973,7 @@
     <string name="update_title">AIV %1$s is available</string>
     <string name="update_install">Update</string>
     <string name="update_later">Later</string>
-    <string name="update_downloading">Downloading the update...</string>
+    <string name="update_downloading">Downloading the update…</string>
     <string name="update_latest">AIV is up to date</string>
     <string name="update_failed">Update failed</string>
     <string name="update_untrusted">The update is not signed with AIV\'s key, so it won\'t be installed.</string>

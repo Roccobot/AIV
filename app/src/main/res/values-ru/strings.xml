@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android умеет записывать только форматы выше. Для остальных есть эти сервисы, они открываются в браузере: изображение выбирается там, из памяти телефона.</string>
     <string name="convert_clean">Очистить</string>
     <string name="convert_clean_why">Убирает заголовки, метаданные, комментарии, скрипты, C2PA и остатки редакторов, то есть самые тяжёлые данные (до 99% файла), которые нужны редко.</string>
-    <string name="convert_clean_keeps">Содержимое изображения не меняется (контуры, формы, линии, рисунки, текст...): иллюстрация остаётся нетронутой на 100%.</string>
+    <string name="convert_clean_keeps">Содержимое изображения не меняется (контуры, формы, линии, рисунки, текст…): иллюстрация остаётся нетронутой на 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ВНИМАНИЕ: уходит и происхождение C2PA, то есть часть, которая говорит, кто сделал файл. Сохраните копию, если она нужна.</string>
     <string name="clean_now">Очистить</string>
     <string name="clean_done">Очищено: с %1$s до %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Только изображения</string>
     <string name="filter_videos">Только видео</string>
     <string name="pick_forever">Удалить навсегда</string>
-    <string name="pick_counting">Идёт подсчёт...</string>
+    <string name="pick_counting">Идёт подсчёт…</string>
     <plurals name="pick_count">
         <item quantity="one">Выбран %1$d элемент</item>
         <item quantity="few">Выбрано %1$d элемента</item>
@@ -315,7 +315,7 @@
     <string name="dest_move_here">Переместить в %1$s</string>
     <string name="dest_pick_copy">Копировать в папку</string>
     <string name="dest_pick_move">Переместить в папку</string>
-    <string name="dest_browse">Обзор всех папок...</string>
+    <string name="dest_browse">Обзор всех папок…</string>
     <string name="menu_copy_here">Копировать</string>
     <plurals name="copy_done">
         <item quantity="one">скопирован %1$d элемент</item>
@@ -770,8 +770,8 @@
     <string name="backup_newer">Этот файл настроек сохранён в более новом формате, который эта версия AIV открыть не может. Обновите приложение, чтобы его импортировать.</string>
     <string name="backup_wrong">Ошибка: пароль неверный, или файл повреждён.</string>
     <string name="backup_broken">Файл повреждён или неполный.</string>
-    <string name="backup_exporting">Экспорт...</string>
-    <string name="backup_importing">Импорт...</string>
+    <string name="backup_exporting">Экспорт…</string>
+    <string name="backup_importing">Импорт…</string>
     <string name="backup_import_from">Экспорт от %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Эти настройки заменят текущие, кроме стилей, цветов, обложек, включённых и исключённых папок и корзины: они добавятся к тому, что уже есть.</string>
     <string name="backup_unlock">Файл настроек защищён: введите пароль.</string>
@@ -815,7 +815,7 @@
     <string name="update_title">Доступна версия AIV %1$s</string>
     <string name="update_install">Обновить</string>
     <string name="update_later">Позже</string>
-    <string name="update_downloading">Загрузка обновления...</string>
+    <string name="update_downloading">Загрузка обновления…</string>
     <string name="update_latest">У вас последняя версия AIV</string>
     <string name="update_failed">Не удалось обновить</string>
     <string name="update_untrusted">Обновление не подписано ключом AIV, поэтому оно не будет установлено.</string>

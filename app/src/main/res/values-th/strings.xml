@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
     <string name="convert_clean">ล้างข้อมูล</string>
     <string name="convert_clean_why">ลบส่วนหัว ข้อมูลกำกับ ความคิดเห็น สคริปต์ C2PA และเศษที่โปรแกรมแก้ไขทิ้งไว้ ซึ่งเป็นข้อมูลที่หนักที่สุด (ถึง 99% ของไฟล์) และนานๆ ครั้งจึงจะได้ใช้</string>
-    <string name="convert_clean_keeps">ไม่เปลี่ยนเนื้อหาของภาพ (เส้นทาง รูปทรง เส้น ภาพวาด ข้อความ...): ภาพประกอบยังคงสมบูรณ์ 100%</string>
+    <string name="convert_clean_keeps">ไม่เปลี่ยนเนื้อหาของภาพ (เส้นทาง รูปทรง เส้น ภาพวาด ข้อความ…): ภาพประกอบยังคงสมบูรณ์ 100%</string>
     <string name="convert_clean_c2pa">⚠️ คำเตือน: ที่มาแบบ C2PA ก็หายไปด้วย นั่นคือส่วนที่บอกว่าใครสร้างไฟล์ ถ้าจำเป็นให้เก็บสำเนาไว้</string>
     <string name="clean_now">ล้างข้อมูล</string>
     <string name="clean_done">ทำความสะอาดแล้ว: จาก %1$s เป็น %2$s</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">เฉพาะภาพ</string>
     <string name="filter_videos">เฉพาะวิดีโอ</string>
     <string name="pick_forever">ลบถาวร</string>
-    <string name="pick_counting">กำลังนับ...</string>
+    <string name="pick_counting">กำลังนับ…</string>
     <plurals name="pick_count">
         <item quantity="other">เลือก %1$d รายการ</item>
     </plurals>
@@ -303,7 +303,7 @@
     <string name="dest_move_here">ย้ายไปที่ %1$s</string>
     <string name="dest_pick_copy">คัดลอกไปยังโฟลเดอร์</string>
     <string name="dest_pick_move">ย้ายไปยังโฟลเดอร์</string>
-    <string name="dest_browse">เรียกดูโฟลเดอร์ทั้งหมด...</string>
+    <string name="dest_browse">เรียกดูโฟลเดอร์ทั้งหมด…</string>
     <string name="menu_copy_here">คัดลอก</string>
     <plurals name="copy_done">
         <item quantity="other">คัดลอกแล้ว %1$d รายการ</item>
@@ -716,8 +716,8 @@
     <string name="backup_newer">ไฟล์การตั้งค่านี้ใช้รูปแบบที่ใหม่กว่า ซึ่ง AIV เวอร์ชันนี้เปิดไม่ได้ โปรดอัปเดตแอปเพื่อนำเข้า</string>
     <string name="backup_wrong">ข้อผิดพลาด: รหัสผ่านไม่ถูกต้อง หรือไฟล์เสียหาย</string>
     <string name="backup_broken">ไฟล์เสียหายหรือไม่สมบูรณ์</string>
-    <string name="backup_exporting">กำลังส่งออก...</string>
-    <string name="backup_importing">กำลังนำเข้า...</string>
+    <string name="backup_exporting">กำลังส่งออก…</string>
+    <string name="backup_importing">กำลังนำเข้า…</string>
     <string name="backup_import_from">ส่งออกเมื่อ %1$s %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">การตั้งค่าเหล่านี้จะแทนที่การตั้งค่าปัจจุบัน ยกเว้นสไตล์ สี ภาพปก โฟลเดอร์ที่รวมและยกเว้น และถังขยะ ซึ่งจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
     <string name="backup_unlock">ไฟล์การตั้งค่าได้รับการป้องกัน: ป้อนรหัสผ่าน</string>
@@ -761,7 +761,7 @@
     <string name="update_title">AIV %1$s พร้อมให้ใช้งาน</string>
     <string name="update_install">อัปเดต</string>
     <string name="update_later">ภายหลัง</string>
-    <string name="update_downloading">กำลังดาวน์โหลดอัปเดต...</string>
+    <string name="update_downloading">กำลังดาวน์โหลดอัปเดต…</string>
     <string name="update_latest">AIV เป็นเวอร์ชันล่าสุด</string>
     <string name="update_failed">อัปเดตไม่สำเร็จ</string>
     <string name="update_untrusted">อัปเดตนี้ไม่ได้ลงนามด้วยคีย์ของ AIV จึงจะไม่ติดตั้ง</string>

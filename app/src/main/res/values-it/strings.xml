@@ -46,7 +46,7 @@
     <string name="convert_elsewhere_desc">Android sa scrivere solo i formati qui sopra. Per gli altri ci sono questi servizi, che si aprono nel browser: l\'immagine si sceglie da lì, dalla memoria del telefono.</string>
     <string name="convert_clean">Pulisci</string>
     <string name="convert_clean_why">Rimuove intestazioni, metadati, commenti, script, C2PA e residui degli editor, che sono i dati più pesanti (fino al 99% del file) e servono raramente.</string>
-    <string name="convert_clean_keeps">Non modifica il contenuto dell\'immagine (tracciati, forme, linee, disegni, testi...): l\'illustrazione rimane intatta al 100%.</string>
+    <string name="convert_clean_keeps">Non modifica il contenuto dell\'immagine (tracciati, forme, linee, disegni, testi…): l\'illustrazione rimane intatta al 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ATTENZIONE: va via anche la provenienza C2PA, quella che dice chi ha fatto il file. Se ti serve, tienine una copia.</string>
     <string name="clean_now">Pulisci</string>
     <string name="clean_done">Ripulito: da %1$s a %2$s.</string>
@@ -495,7 +495,7 @@
     <string name="filter_images">Mostra solo immagini</string>
     <string name="filter_videos">Mostra solo video</string>
     <string name="pick_forever">Elimina del tutto</string>
-    <string name="pick_counting">Sto contando...</string>
+    <string name="pick_counting">Sto contando…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d elemento selezionato</item>
         <item quantity="other">%1$d elementi selezionati</item>
@@ -563,7 +563,7 @@
     <string name="dest_move_here">Sposta in %1$s</string>
     <string name="dest_pick_copy">Copia in una cartella</string>
     <string name="dest_pick_move">Sposta in una cartella</string>
-    <string name="dest_browse">Sfoglia tutte le cartelle...</string>
+    <string name="dest_browse">Sfoglia tutte le cartelle…</string>
     <string name="menu_copy_here">Copia</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d elemento copiato</item>
@@ -811,8 +811,8 @@
     <string name="backup_newer">Questo file di impostazioni è di un formato più recente, che questa versione di AIV non è in grado di aprire. Aggiorna l\'app per importarlo.</string>
     <string name="backup_wrong">Errore: la password non è corretta, oppure il file è danneggiato.</string>
     <string name="backup_broken">Il file è danneggiato o incompleto.</string>
-    <string name="backup_exporting">Esportazione...</string>
-    <string name="backup_importing">Importazione...</string>
+    <string name="backup_exporting">Esportazione…</string>
+    <string name="backup_importing">Importazione…</string>
     <string name="backup_import_from">Esportazione del %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Queste impostazioni sostituiranno le attuali, tranne stili, colori, copertine, cartelle incluse ed escluse e cestino, che si aggiungeranno a quelli già presenti.</string>
     <string name="backup_unlock">Il file di impostazioni è protetto: inserisci la password.</string>
@@ -850,15 +850,15 @@
     <string name="folder_selection_desc">Modalità incluse mostra solo le cartelle autorizzate; Modalità escluse mostra tutte le cartelle tranne quelle nascoste a mano. In Modalità escluse, tieni premuto su una cartella in modalità griglia o lista per nasconderla. In Modalità incluse, passa alla vista Cartelle di sistema e premi a lungo su una cartella che vuoi includere. N.B. L\'opzione riguarda solo le modalità griglia e lista; la vista cartelle di sistema mostra sempre tutto. Le cartelle autorizzate appaiono solo se contengono almeno un\'immagine o un video.</string>
     <string name="folder_siblings_desc">Vuoi davvero nascondere tutte le sottocartelle della cartella %1$s? Eventuali nuove cartelle create dentro %1$s saranno inizialmente visibili.</string>
     <string name="folder_authorize_question">Vuoi aggiungere questa cartella alla lista delle autorizzate?</string>
-    <string name="settings_updates">Aggiornamenti automatici</string>
+    <string name="settings_updates">Aggiornamento automatico</string>
     <string name="settings_updates_desc">Una volta al giorno, all\'apertura, AIV cerca una versione nuova su GitHub.</string>
-    <string name="settings_updates_check">Controlla ora</string>
-    <string name="update_title">AIV %1$s è disponibile</string>
+    <string name="settings_updates_check">Controlla adesso</string>
+    <string name="update_title">È disponibile AIV %1$s</string>
     <string name="update_install">Aggiorna</string>
     <string name="update_later">Più tardi</string>
-    <string name="update_downloading">Scarico l\'aggiornamento...</string>
+    <string name="update_downloading">Scarico l\'aggiornamento…</string>
     <string name="update_latest">AIV è aggiornata</string>
     <string name="update_failed">Aggiornamento non riuscito</string>
-    <string name="update_untrusted">L\'aggiornamento non è firmato con la chiave di AIV, quindi non lo installo.</string>
+    <string name="update_untrusted">L\'aggiornamento non è firmato con la chiave di AIV, e non può essere installato.</string>
     <string name="update_permission">Per aggiornare, consenti ad AIV di installare app.</string>
 </resources>

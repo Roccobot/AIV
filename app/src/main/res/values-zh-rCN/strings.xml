@@ -251,7 +251,7 @@
     <string name="filter_images">仅图片</string>
     <string name="filter_videos">仅视频</string>
     <string name="pick_forever">彻底删除</string>
-    <string name="pick_counting">正在统计...</string>
+    <string name="pick_counting">正在统计…</string>
     <plurals name="pick_count">
         <item quantity="other">已选择 %1$d 项</item>
     </plurals>
@@ -303,7 +303,7 @@
     <string name="dest_move_here">移动到 %1$s</string>
     <string name="dest_pick_copy">复制到文件夹</string>
     <string name="dest_pick_move">移动到文件夹</string>
-    <string name="dest_browse">浏览所有文件夹...</string>
+    <string name="dest_browse">浏览所有文件夹…</string>
     <string name="menu_copy_here">复制</string>
     <plurals name="copy_done">
         <item quantity="other">已复制 %1$d 项</item>
@@ -716,8 +716,8 @@
     <string name="backup_newer">此设置文件采用更新的格式，此版本的 AIV 无法打开。请更新应用后再导入。</string>
     <string name="backup_wrong">错误：密码不正确，或文件已损坏。</string>
     <string name="backup_broken">文件已损坏或不完整。</string>
-    <string name="backup_exporting">正在导出...</string>
-    <string name="backup_importing">正在导入...</string>
+    <string name="backup_exporting">正在导出…</string>
+    <string name="backup_importing">正在导入…</string>
     <string name="backup_import_from">导出于 %1$s %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">这些设置将替换当前的设置，但样式、颜色、封面、包含和排除的文件夹和回收站除外，它们将添加到已有的内容中。</string>
     <string name="backup_unlock">设置文件受保护：请输入密码。</string>
@@ -761,7 +761,7 @@
     <string name="update_title">AIV %1$s 已可用</string>
     <string name="update_install">更新</string>
     <string name="update_later">稍后</string>
-    <string name="update_downloading">正在下载更新...</string>
+    <string name="update_downloading">正在下载更新…</string>
     <string name="update_latest">AIV 已是最新版本</string>
     <string name="update_failed">更新失败</string>
     <string name="update_untrusted">此更新未使用 AIV 的密钥签名，因此不会安装。</string>

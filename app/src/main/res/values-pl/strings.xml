@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android potrafi zapisać tylko formaty powyżej. Dla pozostałych są te serwisy, które otwierają się w przeglądarce: obraz wybiera się tam, z pamięci telefonu.</string>
     <string name="convert_clean">Wyczyść</string>
     <string name="convert_clean_why">Usuwa nagłówki, metadane, komentarze, skrypty, C2PA i pozostałości edytorów, czyli najcięższe dane (do 99% pliku), które rzadko są potrzebne.</string>
-    <string name="convert_clean_keeps">Nie zmienia treści obrazu (ścieżek, kształtów, linii, rysunków, tekstu...): ilustracja pozostaje w 100% nietknięta.</string>
+    <string name="convert_clean_keeps">Nie zmienia treści obrazu (ścieżek, kształtów, linii, rysunków, tekstu…): ilustracja pozostaje w 100% nietknięta.</string>
     <string name="convert_clean_c2pa">⚠️ UWAGA: znika też pochodzenie C2PA, czyli część mówiąca, kto zrobił plik. Zachowaj kopię, jeśli jest potrzebna.</string>
     <string name="clean_now">Wyczyść</string>
     <string name="clean_done">Wyczyszczono: z %1$s do %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Tylko obrazy</string>
     <string name="filter_videos">Tylko filmy</string>
     <string name="pick_forever">Usuń na zawsze</string>
-    <string name="pick_counting">Liczenie...</string>
+    <string name="pick_counting">Liczenie…</string>
     <plurals name="pick_count">
         <item quantity="one">Wybrano %1$d element</item>
         <item quantity="few">Wybrano %1$d elementy</item>
@@ -315,7 +315,7 @@
     <string name="dest_move_here">Przenieś do %1$s</string>
     <string name="dest_pick_copy">Kopiuj do folderu</string>
     <string name="dest_pick_move">Przenieś do folderu</string>
-    <string name="dest_browse">Przeglądaj wszystkie foldery...</string>
+    <string name="dest_browse">Przeglądaj wszystkie foldery…</string>
     <string name="menu_copy_here">Kopiuj</string>
     <plurals name="copy_done">
         <item quantity="one">skopiowano %1$d element</item>
@@ -770,8 +770,8 @@
     <string name="backup_newer">Ten plik ustawień ma nowszy format, którego ta wersja AIV nie potrafi otworzyć. Zaktualizuj aplikację, aby go zaimportować.</string>
     <string name="backup_wrong">Błąd: hasło jest nieprawidłowe albo plik jest uszkodzony.</string>
     <string name="backup_broken">Plik jest uszkodzony lub niekompletny.</string>
-    <string name="backup_exporting">Eksportowanie...</string>
-    <string name="backup_importing">Importowanie...</string>
+    <string name="backup_exporting">Eksportowanie…</string>
+    <string name="backup_importing">Importowanie…</string>
     <string name="backup_import_from">Eksport z %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Te ustawienia zastąpią obecne, z wyjątkiem stylów, kolorów, okładek, uwzględnionych i wykluczonych folderów i kosza, które zostaną dodane do tego, co już jest.</string>
     <string name="backup_unlock">Plik ustawień jest chroniony: wpisz hasło.</string>
@@ -815,7 +815,7 @@
     <string name="update_title">AIV %1$s jest dostępna</string>
     <string name="update_install">Aktualizuj</string>
     <string name="update_later">Później</string>
-    <string name="update_downloading">Pobieranie aktualizacji...</string>
+    <string name="update_downloading">Pobieranie aktualizacji…</string>
     <string name="update_latest">AIV jest aktualna</string>
     <string name="update_failed">Aktualizacja nie powiodła się</string>
     <string name="update_untrusted">Aktualizacja nie jest podpisana kluczem AIV, więc nie zostanie zainstalowana.</string>
