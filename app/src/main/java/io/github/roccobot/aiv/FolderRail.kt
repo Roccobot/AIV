@@ -322,8 +322,8 @@ fun FolderRail(
                     .padding(horizontal = 4.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // ⚠️ AIV Play has no bin (`Store.files`).
-                if (Store.files) {
+                // ⚠️ AIV Play has a bin from Android 11 only (`Store.hasBin`, since 5.40).
+                if (Store.hasBin) {
                     RailAction(
                         icon = { tint ->
                             Icon(

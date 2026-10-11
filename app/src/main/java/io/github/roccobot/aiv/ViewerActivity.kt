@@ -1603,7 +1603,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * niente e che poi gira per il resto del modello.
      */
     private suspend fun binLookup(context: Context): Folder.Lookup {
-        val items = Bin.list(context)
+        // ⚠️ AIV Play's bin is the system's trash, from Android 11 (5.40): `Store.hasBin`.
+        val items = when {
+            Store.files -> Bin.list(context)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> MediaDelete.trashed(context)
+            else -> emptyList()
+        }
         val whole = Folder.Lookup.Found(Folder.Series(items, 0))
         return if (items.isEmpty()) whole else whole.atSequenceStart()
     }
@@ -3489,10 +3494,10 @@ private fun Stage(
                                         PillEntry(Icons.Default.Search, stringResource(R.string.hub_search)) {
                                             model.openSearch()
                                         },
-                                        // ⚠️ AIV Play has no bin (`Store.files`).
+                                        // ⚠️ AIV Play has a bin from Android 11 only (`Store.hasBin`).
                                         PillEntry(Glyphs.Bin, stringResource(R.string.bin_title)) {
                                             model.openBin()
-                                        }.takeIf { Store.files },
+                                        }.takeIf { Store.hasBin },
                                         PillEntry(
                                             Icons.Default.Settings,
                                             stringResource(R.string.hub_settings)
@@ -3636,7 +3641,7 @@ private fun Stage(
                  * ⚠️ **La ricerca e il cestino non li ricevono**: la prima è un elenco di
                  * risultati e non una cartella, il secondo porta già il suo menu.
                  */
-                onBin = { model.openBin() }.takeIf { Store.files },
+                onBin = { model.openBin() }.takeIf { Store.hasBin },
                 onSettings = { model.openSettings() },
                 /*
                  * ⚠️⚠️ **'Cerca' DENTRO LA CARTELLA, DALLA `1.83`** (risposta a `d-fab-voci` del
@@ -3834,7 +3839,7 @@ private fun Stage(
                      * non si raggiungerebbero più. Sul telefono restano fuori, come prima: là il
                      * FAB della ricerca non c'è.
                      */
-                    onBin = { model.openBin() }.takeIf { forma != Adaptive.Shape.PHONE && Store.files },
+                    onBin = { model.openBin() }.takeIf { forma != Adaptive.Shape.PHONE && Store.hasBin },
                     onSettings = { model.openSettings() }.takeIf { forma != Adaptive.Shape.PHONE },
                     shape = forma,
                     rail = colonna

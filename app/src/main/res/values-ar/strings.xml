@@ -124,7 +124,7 @@
     <string name="settings_hand_desc">الجهة المفضلة للأزرار الرئيسية عند الاستخدام بيد واحدة، لمن يستخدم اليمنى أو اليسرى. تحدد موضع زر الإجراء العائم (\'FAB\') وبعض أزرار التنقل وأجزاء من واجهة المحرر.</string>
     <string name="settings_main_control">عنصر التحكم الرئيسي</string>
     <string name="settings_main_control_desc">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') مع قائمة، أو شريط من الأيقونات، أو قائمة، أو قائمة \'ابدأ\'.</string>
-    <string name="settings_main_control_desc_play">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') مع قائمة، أو شريط من الأيقونات.</string>
+    <string name="settings_main_control_desc_play">اختر طريقة تفاعلك مع التطبيق حين تمسك الهاتف عموديًا: زر عائم (\'FAB\') أو \'شريط\' من الأيقونات.</string>
     <string name="main_control_fab">زر عائم</string>
     <string name="main_control_pill">شريط أيقونات</string>
     <string name="main_control_bar">القائمة السفلية</string>

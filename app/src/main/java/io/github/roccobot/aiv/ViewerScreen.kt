@@ -3795,8 +3795,9 @@ private fun ImageMenu(
                 // fabbrica è quello che ha dettato per la `1.54`: vedi `MENU_KEYS`.
                 ActionPad(
                     actions = listOf(copia, sposta, condividi, rinomina, elimina, info)
-                        .filter { Store.allows(it.key) }
-                        .inOrder(LocalPadLook.current.menu)
+                        // ⚠️ Nel cestino di AIV Play c'è 'Ripristina', dalla `5.40` (`Store.allows`).
+                        .filter { Store.allows(it.key, inBin) }
+                        .inOrder(LocalPadLook.current.menu.withRestore(inBin))
                 )
             }
             // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44**

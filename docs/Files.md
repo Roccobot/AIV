@@ -7,7 +7,9 @@
 > ⚠️ **Dalla `5.10` AIV Play non ha le funzioni che scrivono sui file** (copia, sposta, rinomina,
 > cestino di AIV): l'elenco e il perché vivono in `Rules.md` § '🏪 Le due varianti, e che cosa
 > manca ad AIV Play', e chi ne tocca una controlla che resti spenta là. **'Elimina' c'è dalla
-> `5.20`**, attraverso il MediaStore e il cestino di sistema (stessa sezione).
+> `5.20`**, attraverso il MediaStore e il cestino di sistema, e **dalla `5.40` la pagina `Cestino`
+> mostra il cestino di sistema** da Android 11 (stessa sezione). Il cestino descritto qui sotto,
+> con la cronologia, il backup e lo svuotamento automatico, resta di AIV GitHub.
 
 ## 📤 AIV come selettore: quando un'altra app chiede un'immagine
 

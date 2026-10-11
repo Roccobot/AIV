@@ -1075,6 +1075,15 @@ fun PadKey.glyph(): ImageVector = when (this) {
 }
 
 /**
+ * L'ordine di un riquadro dei file con il 'Ripristina' del cestino (il tasto [PadKey.RENAME]) in
+ * testa, quando l'ordine non lo nomina: in AIV Play le liste non hanno 'Rinomina'
+ * (`Store.allows`), e dalla `5.40` quel tasto c'è solo nel cestino. In AIV GitHub l'ordine lo
+ * nomina, e non cambia niente.
+ */
+fun List<PadKey>.withRestore(bin: Boolean): List<PadKey> =
+    if (bin && PadKey.RENAME !in this) listOf(PadKey.RENAME) + this else this
+
+/**
  * Rimette una lista di azioni nell'ordine che l'utente ha scelto.
  *
  * ⚠️⚠️ **UN TASTO CHE L'ORDINE NON NOMINA NON SPARISCE: finisce in coda.** Qui è una rete e non

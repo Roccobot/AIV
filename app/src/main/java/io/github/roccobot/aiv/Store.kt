@@ -65,7 +65,21 @@ object Store {
      * a key missing from the pad and present in the page that reorders it would be a button
      * that can be moved and never seen.
      */
-    fun allows(key: PadKey): Boolean = files || (key !in writers && key !in trimmed)
+    fun allows(key: PadKey, bin: Boolean = false): Boolean =
+        files || (key !in trimmed && (key !in writers || (bin && key == PadKey.RENAME)))
+
+    /*
+     * ⚠️ **In the bin the RENAME key is 'Ripristina'** (`GridScreen`, `ViewerScreen`), and since
+     * 5.40 AIV Play restores through the MediaStore, so there [allows] lets it through with
+     * `bin`. Its place in the pad comes from `withRestore`, in `ActionPad.kt`.
+     */
+
+    /**
+     * Whether this variant has a bin page: AIV GitHub its own, AIV Play the system's trash from
+     * Android 11 (since 5.40), where `MediaStore.createTrashRequest` exists. On Android 9 and 10
+     * AIV Play deletes for good (his choice B1), so there is nothing to show.
+     */
+    val hasBin: Boolean = files || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     /**
      * The views of the home screen in this variant: AIV Play has no 'Cartelle di sistema', which

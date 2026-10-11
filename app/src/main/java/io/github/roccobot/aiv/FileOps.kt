@@ -169,15 +169,20 @@ fun FileJobDialogs(
          * A1, 5.20): the files go into the system's trash, and AIV adds no window of its own in front
          * of Android's, which cannot be skipped. A 'no' there touches nothing and says nothing.
          */
+        /*
+         * ⚠️ **Since 5.40 `forGood` deletes for good, through `createDeleteRequest`**: it is what
+         * the bin page of AIV Play asks ('Elimina' and 'Svuota il cestino'), and what the long press
+         * on 'Elimina' asks outside it, as in AIV GitHub. Until 5.30 every deletion went into the trash.
+         */
         is FileJob.Delete if !Store.files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-            LaunchedEffect(job) {
-                val rows = withContext(Dispatchers.IO) { MediaDelete.rows(context, job.uris) }
-                // ⚠️ A system that gives no window leaves every file where it was, and says so.
-                val request = if (rows.isEmpty()) null else runCatching { MediaDelete.trashRequest(context, rows) }.getOrNull()
-                val yes = request != null && ask.ask(request)
-                val failed = if (request == null) job.uris.size else job.uris.size - rows.size
-                if (yes || failed > 0) onRun(FileKind.TRASH) { FileTree.Outcome(if (yes) rows.size else 0, failed) }
-                onClose()
+            SystemWindow(job, job.uris, if (job.forGood) FileKind.DELETE else FileKind.TRASH, ask, onRun, onClose) {
+                if (job.forGood) MediaDelete.deleteRequest(context, it) else MediaDelete.trashRequest(context, it)
+            }
+
+        // ⚠️ AIV Play's bin is the system's trash (5.40): the same window, turned the other way.
+        is FileJob.Restore if !Store.files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+            SystemWindow(job, job.uris, FileKind.RESTORE, ask, onRun, onClose) {
+                MediaDelete.restoreRequest(context, it)
             }
 
         // ⚠️ AIV Play on Android 9 and 10 deletes for good (his choice B1), after AIV's confirmation.
@@ -545,6 +550,35 @@ fun outcomeText(res: Resources, out: FileTree.Outcome, kind: FileKind): String =
  * intorno. Chi rimettesse il conto nel titolo deve rifare quel giro al contrario, non
  * cambiare una riga qui.
  */
+/**
+ * A job of AIV Play that Android's window confirms: it opens [request] on the MediaStore rows of
+ * [uris] and, after a yes, reports every row as done under [kind].
+ *
+ * ⚠️ **A 'no' touches nothing and says nothing**; files that have no row, or a system that gives
+ * no window, are counted as failed, and that is said. Shared by the trash (5.20), the restore and
+ * the deletion for good of the bin page (5.40), so the three cannot drift apart.
+ */
+@Composable
+private fun SystemWindow(
+    job: FileJob,
+    uris: List<Uri>,
+    kind: FileKind,
+    ask: SystemAsk,
+    onRun: (FileKind, suspend () -> FileTree.Outcome) -> Unit,
+    onClose: () -> Unit,
+    request: (List<Uri>) -> android.content.IntentSender
+) {
+    val context = LocalContext.current
+    LaunchedEffect(job) {
+        val rows = withContext(Dispatchers.IO) { MediaDelete.rows(context, uris) }
+        val window = if (rows.isEmpty()) null else runCatching { request(rows) }.getOrNull()
+        val yes = window != null && ask.ask(window)
+        val failed = if (window == null) uris.size else uris.size - rows.size
+        if (yes || failed > 0) onRun(kind) { FileTree.Outcome(if (yes) rows.size else 0, failed) }
+        onClose()
+    }
+}
+
 @Composable
 private fun DeleteDialog(
     count: Int,

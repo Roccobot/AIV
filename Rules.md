@@ -883,15 +883,15 @@ rientra in nessuna delle quattro categorie. Le due varianti sono i due `productF
 quindi le due app si installano una accanto all'altra.
 
 - **Nel codice la differenza la legge un posto solo**: `Store.kt` (`Store.files`, `Store.allows`,
-  `Store.views`, `Store.access`). Un secondo lettore di `BuildConfig.FILES` sarebbe una seconda
+  `Store.hasBin`, `Store.views`, `Store.access`). Un secondo lettore di `BuildConfig.FILES` sarebbe una seconda
   risposta alla stessa domanda.
 - **I permessi vivono nei manifest delle varianti** (`app/src/github/` e `app/src/play/`), e il
   manifest comune non ne dichiara nessuno sull'archivio.
 - ⚠️⚠️ **Che cosa manca ad AIV Play, e perché**: le funzioni che scrivono sui file con `java.io.File`.
   Senza il permesso su tutti i file falliscono su ogni file che non ha creato l'app, e un comando
   che fallisce sempre è peggio di nessun comando. Sono nascosti: i tasti Copia, Sposta e Rinomina
-  dei due riquadri dei file (e con loro dalla pagina che li riordina), il cestino di AIV con la sua
-  pagina, la vista 'Cartelle di sistema' con 'Nuova cartella', la rinomina di una cartella e quella
+  dei due riquadri dei file (e con loro dalla pagina che li riordina), il cestino di AIV (dalla
+  `5.40` la pagina `Cestino` mostra quello di sistema, voce qui sotto), la vista 'Cartelle di sistema' con 'Nuova cartella', la rinomina di una cartella e quella
   dal pannello Info, la scelta di un'app esterna per 'Modifica', la copia di sicurezza prima di
   sovrascrivere e 'Pulisci' degli SVG. La scaletta per riportarle, una per rilascio con MediaStore,
   vive nel brief.
@@ -908,8 +908,23 @@ quindi le due app si installano una accanto all'altra.
     continua dopo che la finestra di AIV si è chiusa, e un launcher tolto dalla composizione non
     consegnerebbe la risposta. Se l'attività si ricrea mentre la finestra di sistema è aperta, la
     risposta si perde: è accettato e dichiarato.
-  - **La pagina 'Cestino' di AIV Play, che leggerà il cestino di sistema, è la `5.40`**; fino ad
-    allora un file si recupera con un'app che legge quel cestino. Le presidia `EliminaPlayTest`.
+  - Le presidia `EliminaPlayTest`.
+- ⚠️⚠️ **La pagina `Cestino` di AIV Play c'è dalla `5.40`, e mostra il cestino di sistema** (residuo
+  del pezzo 2, sua scelta A1; `MediaDelete.trashed`): immagini e video che il sistema tiene nel suo
+  cestino, dal più recente, senza i PSD. Esiste **da Android 11**, dove il cestino di sistema c'è
+  (`Store.hasBin`); su Android 9 e 10 'Elimina' elimina per sempre, quindi la pagina non c'è.
+  - **Le tre azioni passano dalla finestra di Android, e AIV non ne aggiunge una sua**: `Ripristina`
+    e `Ripristina tutto` con `createTrashRequest` spento, `Elimina` e `Svuota il cestino` con
+    `createDeleteRequest` (`SystemWindow` in `FileOps.kt`). In AIV GitHub le conferme di AIV
+    restano, perché là il cestino è dell'app.
+  - ⚠️ **Il tocco lungo su `Elimina` fuori dal cestino elimina per sempre anche in AIV Play**, con
+    la finestra di Android che lo dice: prima della `5.40` spostava comunque nel cestino.
+  - **`Ripristina` è il tasto della rinomina**, come nel cestino di AIV GitHub: `Store.allows` lo
+    lascia passare solo con `bin`, e `withRestore` (`ActionPad.kt`) lo mette in testa ai due
+    riquadri, perché in AIV Play l'ordine salvato non lo nomina.
+  - **`Cronologia` non c'è**: il sistema non registra da dove viene un file del suo cestino.
+  - ⚠️ Miniature, apertura e `Info` di un file nel cestino di sistema dipendono da quello che il
+    sistema concede su quelle righe, e si dichiarano nel collaudo. Le presidia `CestinoPlayTest`.
 - ⚠️⚠️ **Dalla `5.30` AIV Play è più semplice, ed è sua scelta, voce per voce** (nota in Altro del
   giro della `5.20`, intestata *solo AIV Play*): niente `Menu basso` né menu Start (restano FAB e
   pillola, e un archivio che nomina uno dei due menu dà la pillola); niente `Lista` nella scheda

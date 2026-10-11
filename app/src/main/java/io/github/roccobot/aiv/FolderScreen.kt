@@ -1580,13 +1580,14 @@ private fun hubEntries(
      * regola, e 'Crea' resta accanto a 'Cerca'. Il FAB, la pillola e il menu basso tengono l'ordine
      * di prima: la nota parla del solo menu Start.
      */
-    // ⚠️ AIV Play has no bin (`Store.files`, since 5.10): nothing there ever goes into it.
+    // ⚠️ AIV Play has had no bin from 5.10 to 5.30; since 5.40 it has the system's trash, from
+    // Android 11 (`Store.hasBin`).
     if (steady) {
         add(impostazioni)
         add(indirizzo)
-        if (Store.files) add(cestino)
+        if (Store.hasBin) add(cestino)
     } else {
-        if (Store.files) add(cestino)
+        if (Store.hasBin) add(cestino)
         add(impostazioni)
     }
 }
