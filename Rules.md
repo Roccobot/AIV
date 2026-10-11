@@ -883,16 +883,16 @@ rientra in nessuna delle quattro categorie. Le due varianti sono i due `productF
 quindi le due app si installano una accanto all'altra.
 
 - **Nel codice la differenza la legge un posto solo**: `Store.kt` (`Store.files`, `Store.allows`,
-  `Store.hasBin`, `Store.views`, `Store.access`). Un secondo lettore di `BuildConfig.FILES` sarebbe una seconda
+  `Store.hasBin`, `Store.renames`, `Store.views`, `Store.access`). Un secondo lettore di `BuildConfig.FILES` sarebbe una seconda
   risposta alla stessa domanda.
 - **I permessi vivono nei manifest delle varianti** (`app/src/github/` e `app/src/play/`), e il
   manifest comune non ne dichiara nessuno sull'archivio.
 - ⚠️⚠️ **Che cosa manca ad AIV Play, e perché**: le funzioni che scrivono sui file con `java.io.File`.
   Senza il permesso su tutti i file falliscono su ogni file che non ha creato l'app, e un comando
-  che fallisce sempre è peggio di nessun comando. Sono nascosti: i tasti Copia, Sposta e Rinomina
-  dei due riquadri dei file (e con loro dalla pagina che li riordina), il cestino di AIV (dalla
-  `5.40` la pagina `Cestino` mostra quello di sistema, voce qui sotto), la vista 'Cartelle di sistema' con 'Nuova cartella', la rinomina di una cartella e quella
-  dal pannello Info, la scelta di un'app esterna per 'Modifica', la copia di sicurezza prima di
+  che fallisce sempre è peggio di nessun comando. Sono nascosti: i tasti Copia e Sposta dei due
+  riquadri dei file (e con loro dalla pagina che li riordina), il cestino di AIV (dalla `5.40` la
+  pagina `Cestino` mostra quello di sistema, voce qui sotto), la vista 'Cartelle di sistema' con
+  'Nuova cartella', la rinomina di una cartella, la scelta di un'app esterna per 'Modifica', la copia di sicurezza prima di
   sovrascrivere e 'Pulisci' degli SVG. La scaletta per riportarle, una per rilascio con MediaStore,
   vive nel brief.
 - ⚠️⚠️ **'Elimina' è tornato in AIV Play dalla `5.20`, attraverso il MediaStore** (sue scelte A1 e
@@ -919,12 +919,28 @@ quindi le due app si installano una accanto all'altra.
     restano, perché là il cestino è dell'app.
   - ⚠️ **Il tocco lungo su `Elimina` fuori dal cestino elimina per sempre anche in AIV Play**, con
     la finestra di Android che lo dice: prima della `5.40` spostava comunque nel cestino.
-  - **`Ripristina` è il tasto della rinomina**, come nel cestino di AIV GitHub: `Store.allows` lo
-    lascia passare solo con `bin`, e `withRestore` (`ActionPad.kt`) lo mette in testa ai due
-    riquadri, perché in AIV Play l'ordine salvato non lo nomina.
+  - **`Ripristina` è il tasto della rinomina**, come nel cestino di AIV GitHub. Dalla `5.50` quel
+    tasto è nelle liste di fabbrica di AIV Play (voce qui sotto), quindi un ordine salvato che non
+    lo nomina lo riceve al suo posto di fabbrica (`padOrderOf`); nella `5.40` era in testa.
   - **`Cronologia` non c'è**: il sistema non registra da dove viene un file del suo cestino.
   - ⚠️ Miniature, apertura e `Info` di un file nel cestino di sistema dipendono da quello che il
     sistema concede su quelle righe, e si dichiarano nel collaudo. Le presidia `CestinoPlayTest`.
+- ⚠️⚠️ **`Rinomina` è tornato in AIV Play dalla `5.50`, da Android 11** (scelta dell'agente dopo il
+  giro della `5.40`, nel piano di una funzione per rilascio; `MediaRename.kt`, `Store.renames`):
+  il tasto nei due riquadri dei file e il tocco lungo sul nome nella finestra `Info`.
+  - **È la stessa rinomina di AIV GitHub**: ordine alfabetico, cancelletti del modello, due fasi
+    con un nome temporaneo (senza il punto davanti, perché un nome nascosto il MediaStore smette
+    di elencarlo), un nome libero se quello voluto è di un file estraneo. Cambia solo chi scrive:
+    il nome nuovo va nella riga del MediaStore (`DISPLAY_NAME`), e il sistema rinomina il file.
+  - **La conferma è la finestra di Android** (`createWriteRequest`, una per tutti i file), come per
+    `Elimina`; col no non succede niente e non si dice niente (`FileKind.speaks` tace quando non è
+    passato e non è fallito niente).
+  - ⚠️ **L'indirizzo resta lo stesso**, quindi la memoria dei nomi della griglia si dimentica a mano
+    (`Names.forget`), o mostrerebbe il nome vecchio.
+  - ⚠️ **L'estensione non cambia**: in AIV Play il tasto `Estensione` non c'è (`Store.fit`).
+  - **Sotto Android 11 non c'è**: là `createWriteRequest` non esiste, e le strade di Android 10
+    (un consenso per file) e di Android 9 (il permesso di scrittura) non sono misurate. La
+    rinomina delle cartelle resta fuori. Le presidia `RinominaPlayTest`.
 - ⚠️⚠️ **Dalla `5.30` AIV Play è più semplice, ed è sua scelta, voce per voce** (nota in Altro del
   giro della `5.20`, intestata *solo AIV Play*): niente `Menu basso` né menu Start (restano FAB e
   pillola, e un archivio che nomina uno dei due menu dà la pillola); niente `Lista` nella scheda

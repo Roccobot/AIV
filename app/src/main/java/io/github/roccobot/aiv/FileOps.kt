@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.content.Context
 import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
@@ -146,7 +147,7 @@ fun FileJobDialogs(
             onRename = { template, start, extension ->
                 onClose()
                 onRun(FileKind.RENAME) {
-                    FileTree.rename(context, job.uris, template, start, extension)
+                    renameFiles(context, job.uris, template, start, extension, ask)
                 }
             }
         )
@@ -277,7 +278,7 @@ fun FileJobDialogs(
                     onRename = { template, start, extension ->
                         onClose()
                         onRun(FileKind.RENAME) {
-                            FileTree.rename(context, job.uris, template, start, extension)
+                            renameFiles(context, job.uris, template, start, extension, ask)
                         }
                     }
                 )
@@ -468,6 +469,25 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
 }
 
 /**
+ * The rename the two windows ask ([RenameDialog], straight or from the name in [FactsDialog]):
+ * AIV Play renames through the MediaStore from Android 11 (5.50, [MediaRename]), every other case
+ * on disk. One function, so the two roads cannot drift apart.
+ */
+private suspend fun renameFiles(
+    context: Context,
+    uris: List<Uri>,
+    template: String,
+    start: Int,
+    extension: String?,
+    ask: SystemAsk
+): FileTree.Outcome =
+    if (!Store.files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        MediaRename.rename(context, uris, template, start, ask)
+    } else {
+        FileTree.rename(context, uris, template, start, extension)
+    }
+
+/**
  * Se l'esito di un'operazione va detto con un avviso di sistema.
  *
  * ⚠️⚠️ **IL CESTINO NON PARLA PIÙ, DALLA `1.60`, e non è una perdita**: quello che è successo
@@ -486,8 +506,10 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
  * non avere.
  */
 fun FileKind.speaks(out: FileTree.Outcome): Boolean =
-    out.failed > 0 || (out.undo.isEmpty() && (this != FileKind.TRASH || !Store.files))
+    out.failed > 0 || (out.done > 0 && out.undo.isEmpty() && (this != FileKind.TRASH || !Store.files))
 // ⚠️ AIV Play's trash is the system's (5.20) and offers no 'Annulla', so there the outcome speaks.
+// ⚠️ Nothing done and nothing failed says nothing (5.50): it is a 'no' in Android's window, which
+// AIV Play's rename asks from inside the job (`MediaRename`).
 
 /**
  * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,
@@ -832,11 +854,11 @@ internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = M
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(name) {
-                // ⚠️ AIV Play cannot rename a file (`Store.files`): there the long press is
-                // not offered, and the tap still copies the name.
+                // ⚠️ AIV Play renames from Android 11 only (`Store.renames`, since 5.50): below,
+                // the long press is not offered, and the tap still copies the name.
                 detectTapGestures(
                     onTap = { copia() },
-                    onLongPress = if (Store.files) { _ -> rinomina() } else null
+                    onLongPress = if (Store.renames) { _ -> rinomina() } else null
                 )
             },
         shape = RoundedCornerShape(NAME_CORNER),

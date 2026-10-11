@@ -439,7 +439,7 @@ object FileTree {
      * diverse non devono ordinarsi a caso: la selezione viene da una cartella sola, ma
      * questo non è un motivo per lasciare l'ordine indefinito.
      */
-    private fun ordered(context: Context, uris: List<Uri>): List<File> =
+    internal fun ordered(context: Context, uris: List<Uri>): List<File> =
         uris.mapNotNull { fileOf(context, it) }
             .sortedWith { a, b ->
                 val byName = naturalCompare(a.name, b.name)

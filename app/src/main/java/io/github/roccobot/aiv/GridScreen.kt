@@ -1029,11 +1029,11 @@ fun GridScreen(
         // ⚠️ L'ordine è quello scelto dall'utente, e di fabbrica quello dettato per la
         // `1.54`: vedi `PICK_KEYS`. È un ordine SUO e non quello del menu del tocco lungo,
         // perché i due riquadri portano insiemi diversi in ordini diversi.
-        // ⚠️ In AIV Play i tre tasti che scrivono sui file non ci sono (`Store.allows`); 'Elimina'
-        // c'è dalla `5.20`, perché passa dal MediaStore (`MediaDelete`), e nel cestino dalla `5.40`
-        // c'è 'Ripristina', che usa il tasto della rinomina.
-        .filter { Store.allows(it.key, bin) }
-        .inOrder(LocalPadLook.current.pick.withRestore(bin))
+        // ⚠️ In AIV Play copia e sposta non ci sono (`Store.allows`); 'Elimina' c'è dalla `5.20` e
+        // 'Rinomina' dalla `5.50`, da Android 11, perché passano dal MediaStore. Nel cestino lo
+        // stesso tasto è 'Ripristina'.
+        .filter { Store.allows(it.key) }
+        .inOrder(LocalPadLook.current.pick)
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
     // non ha una densità sotto mano.

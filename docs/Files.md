@@ -4,11 +4,13 @@
 > impostazioni salvate: che cosa fa ognuna, le decisioni dell'utente su di lei e le sue trappole.
 > Non si carica da solo: si legge per intero prima di toccare una di queste funzioni. Le regole del
 > repo vivono in `Rules.md`, e un rimando a una sua sezione indica il nome del file.
-> ⚠️ **Dalla `5.10` AIV Play non ha le funzioni che scrivono sui file** (copia, sposta, rinomina,
-> cestino di AIV): l'elenco e il perché vivono in `Rules.md` § '🏪 Le due varianti, e che cosa
-> manca ad AIV Play', e chi ne tocca una controlla che resti spenta là. **'Elimina' c'è dalla
-> `5.20`**, attraverso il MediaStore e il cestino di sistema, e **dalla `5.40` la pagina `Cestino`
-> mostra il cestino di sistema** da Android 11 (stessa sezione). Il cestino descritto qui sotto,
+> ⚠️ **Dalla `5.10` AIV Play non ha le funzioni che scrivono sui file** (copia, sposta, cestino di
+> AIV): l'elenco e il perché vivono in `Rules.md` § '🏪 Le due varianti, e che cosa manca ad AIV
+> Play', e chi ne tocca una controlla che resti spenta là. **'Elimina' c'è dalla `5.20`**,
+> attraverso il MediaStore e il cestino di sistema, **dalla `5.40` la pagina `Cestino` mostra il
+> cestino di sistema** e **dalla `5.50` la rinomina dei file passa dal MediaStore**, tutte e due da
+> Android 11 (stessa sezione). La rinomina descritta qui sotto vale per le due varianti, salvo il
+> tasto `Estensione`, che AIV Play non ha. Il cestino descritto qui sotto,
 > con la cronologia, il backup e lo svuotamento automatico, resta di AIV GitHub.
 
 ## 📤 AIV come selettore: quando un'altra app chiede un'immagine
