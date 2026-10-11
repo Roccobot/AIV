@@ -1596,7 +1596,9 @@ object SettingsStore {
         // volte, e la seconda lettura potrebbe non essere la stessa il giorno che qualcuno la
         // tocca.
         val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], Resize.NONE.mode)
-        return Settings(
+        // ⚠️ Dalla `5.30` AIV Play fissa alcuni valori, qualunque cosa dica l'archivio: il perché
+        // vive su `Store.fit`.
+        return Store.fit(Settings(
             bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
             bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
             fitGrow = p[FIT_GROW] ?: false,
@@ -1738,7 +1740,7 @@ object SettingsStore {
                 .mapNotNull { t -> FactField.entries.firstOrNull { it.token == t } }
                 .filterNot { it.always }
                 .toSet(),
-        )
+        ))
     }
 
     /**

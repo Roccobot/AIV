@@ -569,8 +569,11 @@ internal fun extensionGate(
      * ⚠️ **Il velo PRIMA del pannellino e non insieme**: l'avviso dice che cosa comporta la cosa
      * che si sta per fare, e uno che comparisse sopra il campo già aperto arriverebbe dopo il
      * gesto. Chi lo chiude trova il pannellino, quindi il tocco non va perso.
+     * ⚠️⚠️ **In AIV Play il comando non c'è mai, dalla `5.30`, nemmeno col tocco lungo su
+     * 'Scarica'** (sua nota sul giro della `5.20`: l'estensione non si modifica, né scaricando né
+     * rinominando): la sua impostazione è sempre spenta (`Store.fit`), ma `force` la scavalcherebbe.
      */
-    return ExtensionGate(force || allowed) { if (warned) asking = true else warning = true }
+    return ExtensionGate(Store.fullSettings && (force || allowed)) { if (warned) asking = true else warning = true }
 }
 
 /**

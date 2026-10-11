@@ -908,8 +908,25 @@ quindi le due app si installano una accanto all'altra.
     continua dopo che la finestra di AIV si è chiusa, e un launcher tolto dalla composizione non
     consegnerebbe la risposta. Se l'attività si ricrea mentre la finestra di sistema è aperta, la
     risposta si perde: è accettato e dichiarato.
-  - **La pagina 'Cestino' di AIV Play, che leggerà il cestino di sistema, è la `5.30`**; fino ad
+  - **La pagina 'Cestino' di AIV Play, che leggerà il cestino di sistema, è la `5.40`**; fino ad
     allora un file si recupera con un'app che legge quel cestino. Le presidia `EliminaPlayTest`.
+- ⚠️⚠️ **Dalla `5.30` AIV Play è più semplice, ed è sua scelta, voce per voce** (nota in Altro del
+  giro della `5.20`, intestata *solo AIV Play*): niente `Menu basso` né menu Start (restano FAB e
+  pillola, e un archivio che nomina uno dei due menu dà la pillola); niente `Lista` nella scheda
+  della selezione; niente indicatore dell'ultimo elemento visto; dietro i pannelli solo l'ombra;
+  nell'intestazione delle cartelle il gradiente sempre acceso e niente titolo graziato (`Info` e
+  `Seleziona tutti` restano, accese di fabbrica); come colore delle cartelle il solo `Nome`; la
+  sequenza sempre dalla più recente; l'estensione mai modificabile, né scaricando né rinominando.
+  Le voci di quelle impostazioni non compaiono, nemmeno nel dialogo delle opzioni.
+  - **I valori li fissa `Store.fit` in lettura** (`SettingsStore.read`), e non si riscrive niente:
+    un archivio di una AIV Play di prima, o un file di impostazioni di AIV GitHub, non riporta
+    quello che è stato tolto, e tornare indietro su una scelta non chiede una migrazione.
+  - ⚠️ **Lettura dichiarata**: la sua riga sull'estensione (*modifica dell'estensione sia per
+    download che per rinomina*) è letta come 'via la voce e il tasto', come le altre righe
+    dell'elenco; la voce di collaudo lo dice.
+  - ⚠️ **La spiegazione di `Elemento interattivo principale` ha un testo suo in AIV Play**
+    (`settings_main_control_desc_play`): quella di AIV GitHub nomina i due menu.
+  - Le presidia `SemplificazioniPlayTest`.
 - ⚠️⚠️ **Il `Salva` degli editor di AIV Play scrive in Download**: il file nasce nella cache
   dell'app e poi passa a `MediaStore.Downloads` (`ImageEdit.outDir` e `delivered`), e l'originale
   resta com'è. ⚠️ **Su Android 9 non c'è questa strada** (`MediaStore.Downloads` nasce con Android
@@ -935,7 +952,7 @@ quindi le due app si installano una accanto all'altra.
   sua e temporanea** (nota sul giro della `5.11`: *Fino a nuovo ordine, solo per AIV Play, il
   pulsante predefinito sarà la pillola a scomparsa*): AIV GitHub resta col menu Start. Il valore lo
   dà `Store.mainControl`, vale dove l'archivio tace, lo presidia `PulsantePlayTest`, e torna come
-  prima solo quando lo dice lui.
+  prima solo quando lo dice lui. Dalla `5.30` AIV Play il menu Start non lo ha più (voce qui sopra).
 - ⚠️ **Il nome dell'app è lo stesso, ed è la sua scelta** (A2, 2026-10-10: *il nome va bene
   com'è, non le confondo*): sotto l'icona tutte e due dicono `AIV`, nelle pagine di sistema
   `Astonishing Image Viewer`. Non si cambia senza chiederglielo.

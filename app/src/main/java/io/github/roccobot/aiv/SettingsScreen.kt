@@ -906,9 +906,11 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_page_look),
-            summary = listOf(
+            // ⚠️ Le voci che AIV Play fissa non ci sono, e il riepilogo non le nomina
+            // (`Store.fullSettings`).
+            summary = listOfNotNull(
                 stringResource(R.string.settings_ui_theme),
-                stringResource(R.string.settings_depth),
+                if (Store.fullSettings) stringResource(R.string.settings_depth) else null,
                 stringResource(R.string.settings_button_look)
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.LOOK) }
@@ -934,7 +936,7 @@ private fun ColumnScope.RootPage(
             // dentro non si trova.
             summary = buildList {
                 add(stringResource(R.string.settings_front))
-                add(stringResource(R.string.settings_colour))
+                if (Store.fullSettings) add(stringResource(R.string.settings_colour))
                 add(stringResource(R.string.view_options))
                 add(stringResource(R.string.folder_selection))
             }.joinToString(SUMMARY_JOIN),
@@ -943,13 +945,13 @@ private fun ColumnScope.RootPage(
 
         PageOfRows(
             label = stringResource(R.string.settings_group_viewer),
-            summary = listOf(
+            summary = listOfNotNull(
                 stringResource(R.string.settings_background),
                 stringResource(R.string.settings_bg_theme),
                 stringResource(R.string.settings_zoom_page),
                 stringResource(R.string.settings_clip_autoplay),
                 stringResource(R.string.settings_images_only),
-                stringResource(R.string.settings_reverse_order)
+                if (Store.fullSettings) stringResource(R.string.settings_reverse_order) else null
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.VIEWER) }
         ) { ViewerPage(settings = settings, onChange = onChange, onOpen = onOpen) }
@@ -1022,10 +1024,10 @@ private fun ColumnScope.RootPage(
          */
         PageOfRows(
             label = stringResource(R.string.settings_rename_download),
-            summary = listOf(
+            summary = listOfNotNull(
                 stringResource(R.string.settings_save_rename),
                 stringResource(R.string.settings_download_path),
-                stringResource(R.string.settings_ext_edit)
+                if (Store.fullSettings) stringResource(R.string.settings_ext_edit) else null
             ).joinToString(SUMMARY_JOIN),
             onOpen = { onOpen(Page.SAVING) }
         ) { RenameAndDownload(settings = settings, onChange = onChange) }
@@ -1228,8 +1230,10 @@ private fun LookPage(
      * dell'app.
      * ⚠️ **Tre gettoni e non due interruttori** (dalla `1.81`): 'mai insieme' è una regola
      * strutturale, vedi [PanelDepth].
+     * ⚠️ **AIV Play non ha la voce, dalla `5.30`**: là resta solo l'ombra (`Store.fit`), e una
+     * scelta con una risposta sola non è una scelta.
      */
-    Choices(
+    if (Store.fullSettings) Choices(
         label = stringResource(R.string.settings_depth),
         detail = stringResource(R.string.settings_depth_desc),
         options = PanelDepth.entries,
@@ -1333,32 +1337,31 @@ private fun FoldersPage(
      * quello è il posto in cui l'effetto si vede, non quello in cui la voce si cerca.
      * ⚠️ **La ricerca le trova per nome**: [Toggles] passa i nomi delle pastiglie a `shown`,
      * quindi cercando 'gradiente' compare questa voce.
+     * ⚠️⚠️ **AIV Play ha le sole 'Info' e 'Seleziona tutti', dalla `5.30`** (sua nota sul giro
+     * della `5.20`): il gradiente è sempre acceso e il titolo graziato non c'è (`Store.fit`). Le
+     * pastiglie sono un elenco di [Chip], così il nome, il valore e il tocco di una pastiglia
+     * viaggiano insieme in tutte e due le varianti.
      */
+    val frontChips = listOfNotNull(
+        Chip(stringResource(R.string.settings_front_wash), settings.frontWash) {
+            it.copy(frontWash = !it.frontWash)
+        }.takeIf { Store.fullSettings },
+        Chip(stringResource(R.string.settings_front_serif), settings.frontSerif) {
+            it.copy(frontSerif = !it.frontSerif)
+        }.takeIf { Store.fullSettings },
+        Chip(stringResource(R.string.settings_front_facts), settings.frontFacts) {
+            it.copy(frontFacts = !it.frontFacts)
+        },
+        Chip(stringResource(R.string.pick_all), settings.frontPickAll) {
+            it.copy(frontPickAll = !it.frontPickAll)
+        }
+    )
     Toggles(
         label = stringResource(R.string.settings_front),
         detail = stringResource(R.string.settings_front_desc),
-        names = listOf(
-            stringResource(R.string.settings_front_wash),
-            stringResource(R.string.settings_front_serif),
-            stringResource(R.string.settings_front_facts),
-            stringResource(R.string.pick_all)
-        ),
-        on = listOf(
-            settings.frontWash,
-            settings.frontSerif,
-            settings.frontFacts,
-            settings.frontPickAll
-        ),
-        onFlip = { at ->
-            onChange(
-                when (at) {
-                    0 -> settings.copy(frontWash = !settings.frontWash)
-                    1 -> settings.copy(frontSerif = !settings.frontSerif)
-                    2 -> settings.copy(frontFacts = !settings.frontFacts)
-                    else -> settings.copy(frontPickAll = !settings.frontPickAll)
-                }
-            )
-        }
+        names = frontChips.map { it.name },
+        on = frontChips.map { it.on },
+        onFlip = { at -> onChange(frontChips[at].flip(settings)) }
     )
 
     /*
@@ -1376,8 +1379,10 @@ private fun FoldersPage(
      * ⚠️ **Ha una gemella nel dialogo delle opzioni**, cioè la scorciatoia del tocco lungo sul
      * FAB (vedi `ColourChips` in `FolderScreen.kt`): stessa preferenza, stessi cinque nomi, che
      * arrivano dalla stessa funzione.
+     * ⚠️ **AIV Play non ha la voce, dalla `5.30`**: là c'è il solo 'Nome', sempre acceso
+     * (`Store.fit`), e la gemella del dialogo sparisce con lei.
      */
-    Choices(
+    if (Store.fullSettings) Choices(
         label = stringResource(R.string.settings_colour),
         detail = stringResource(R.string.settings_colour_desc),
         options = FolderColour.entries,
@@ -1531,7 +1536,9 @@ private fun ViewerPage(
         checked = settings.imagesOnly,
         onChange = { onChange(settings.copy(imagesOnly = it)) }
     )
-    SwitchRow(
+    // ⚠️ AIV Play non ha la voce, dalla `5.30`: là la sequenza va sempre dalla più recente
+    // (`Store.fit`).
+    if (Store.fullSettings) SwitchRow(
         label = stringResource(R.string.settings_reverse_order),
         detail = stringResource(R.string.settings_reverse_order_desc),
         checked = settings.reverseSequence,
@@ -1786,8 +1793,9 @@ private fun ControlsPage(
      * quella parola ce l'ha già.
      * ⚠️ **Senza spiegazione**, per il criterio di questo file: il titolo dice per intero che
      * cos'è, e quello che resta da sapere lo dicono i nomi, che dalla `2.92` sono tre.
+     * ⚠️ **AIV Play non ha né il segno né la voce, dalla `5.30`** (`Store.marksLast`).
      */
-    Choices(
+    if (Store.marksLast) Choices(
         label = stringResource(R.string.settings_last_mark),
         detail = null,
         options = LastMark.entries,
@@ -3391,12 +3399,17 @@ internal fun <T : Choice> Choices(
  * secondo gettone si chiama `Fisso` invece di `Estesa`.
  * ⚠️ **La ricerca guarda anche i nomi dei gettoni**, di tutte e due le file: chi cerca 'Estesa'
  * trova la voce anche col FAB scelto.
+ * ⚠️⚠️ **AIV Play ha due gettoni soli dalla `5.30`, FAB e pillola** (sua nota sul giro della
+ * `5.20`: *rimangono pillola e FAB*), e quindi un paragrafo suo, che non nomina i due menu
+ * (`settings_main_control_desc_play`). Gli elenchi vengono da `Store.mainControls`.
  */
 @Composable
 private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit) {
     val label = stringResource(R.string.settings_main_control)
-    val detail = stringResource(R.string.settings_main_control_desc)
-    val controls = MainControl.entries
+    val detail = stringResource(
+        if (Store.fullSettings) R.string.settings_main_control_desc else R.string.settings_main_control_desc_play
+    )
+    val controls = Store.mainControls
     val controlNames = controls.map {
         stringResource(
             when (it) {
@@ -3419,7 +3432,9 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
             }
         )
     }
-    val searched = controlNames + modeNames + stringResource(R.string.bar_fixed)
+    // ⚠️ 'Fisso' è il gettone del solo menu basso: dove il menu non c'è, la ricerca non lo trova.
+    val searched = controlNames + modeNames +
+        listOfNotNull(stringResource(R.string.bar_fixed).takeIf { MainControl.BOTTOM in controls })
     if (!shown(label, detail, *searched.toTypedArray())) return
     Text(
         text = label,
@@ -3883,8 +3898,10 @@ private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) 
      * ⚠️ **I due nomi sono le stringhe dei due comandi veri**, `menu_save` e `pick_rename`:
      * dicono esattamente 'Scarica' e 'Rinomina', cioè le due voci a cui i chip si riferiscono,
      * e scriverne due copie vorrebbe dire due testi da tenere d'accordo in 28 lingue.
+     * ⚠️ **AIV Play non ha la voce, dalla `5.30`**: là l'estensione non si cambia, né scaricando
+     * né rinominando (`Store.fit`).
      */
-    Toggles(
+    if (Store.fullSettings) Toggles(
         label = stringResource(R.string.settings_ext_edit),
         detail = stringResource(R.string.settings_ext_edit_desc),
         names = listOf(
@@ -3900,6 +3917,12 @@ private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) 
         }
     )
 }
+
+/**
+ * Una pastiglia di [Toggles] col suo valore e col cambiamento che il tocco fa: nasce con la
+ * `5.30`, quando AIV Play ha cominciato a mostrare solo alcune pastiglie di una voce.
+ */
+private class Chip(val name: String, val on: Boolean, val flip: (Settings) -> Settings)
 
 /**
  * Una voce con più pastiglie **indipendenti**: ognuna si accende e si spegne da sé.
