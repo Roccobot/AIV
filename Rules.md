@@ -1010,6 +1010,11 @@ quindi le due app si installano una accanto all'altra.
     'Installa app sconosciute'.
   - ⚠️ **Senza digest nella release non si propone niente**: le verifiche scelte sono due, e una
     sola non basta. Le presidiano `UpdaterTest` e `AggiornamentiPlayTest`.
+  - ⚠️⚠️ **Il lavoro di `Aggiorna` vive in `Updater` e non nella finestra, dalla `5.71`** (giro
+    della `5.70`, `5.70-01` non approvato: *scaricato, ma poi non succede niente*). La finestra si
+    chiude al tocco, e fino alla `5.70` il lavoro partiva dentro di lei: si annullava con lei dopo
+    lo scaricamento, e l'installazione non si apriva, senza nessun avviso. Lo presidia
+    `AggiornaTest`.
 - ⚠️ **Il nome dell'app è lo stesso, ed è la sua scelta** (A2, 2026-10-10: *il nome va bene
   com'è, non le confondo*): sotto l'icona tutte e due dicono `AIV`, nelle pagine di sistema
   `Astonishing Image Viewer`. Non si cambia senza chiederglielo.

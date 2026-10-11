@@ -14,13 +14,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -71,6 +72,23 @@ object Updater {
      * 'Controlla ora' in the settings put it on stage, and the window must survive the screen.
      */
     var offer by mutableStateOf<Release?>(null)
+
+    /**
+     * Where the download and the installer run, for the life of the process.
+     *
+     * ⚠️⚠️ **NOT IN THE WINDOW, and 5.70 is why** (`5.70-01` not approved: *è stato anche
+     * scaricato, ma poi non succede niente*). Until 5.70 the work ran in the window's own scope,
+     * and the first thing it did was close the window: the scope was cancelled with it, the
+     * download still reached its end (a blocking read does not stop), and the installer never
+     * opened, with no notice. `AggiornaTest` is the proof.
+     */
+    private val work = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    /** Starts [install] where closing the window cannot stop it. */
+    fun start(context: Context, release: Release) {
+        val app = context.applicationContext
+        work.launch { install(app, release) }
+    }
 
     /**
      * Reads the latest release from the API answer: `null` when it has no usable APK.
@@ -308,7 +326,6 @@ object Updater {
 fun UpdateDialog() {
     val release = Updater.offer ?: return
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val later = { Updater.offer = null }
     AlertDialog(
         onDismissRequest = later,
@@ -316,7 +333,7 @@ fun UpdateDialog() {
         properties = loweredWindow(later),
         title = { Text(stringResource(R.string.update_title, release.version)) },
         confirmButton = {
-            TextButton(onClick = { scope.launch { Updater.install(context, release) } }) {
+            TextButton(onClick = { Updater.start(context, release) }) {
                 Text(stringResource(R.string.update_install))
             }
         },

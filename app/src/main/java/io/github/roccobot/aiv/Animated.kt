@@ -3,7 +3,9 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import java.io.ByteArrayOutputStream
 import java.io.Closeable
+import java.io.InputStream
 
 /**
  * Un'immagine animata aperta: quanti fotogrammi ha, quanto durano, e come si scorrono.
@@ -152,7 +154,6 @@ object Animations {
      */
     fun open(context: Context, uri: Uri): Animated? = runCatching {
         val bytes = bytesOf(context, uri) ?: return null
-        if (bytes.size > MAX_BYTES) return null
         val animated = when (kindOf(bytes.copyOf(minOf(SNIFF, bytes.size)))) {
             Kind.GIF -> AnimatedGif.open(bytes)
             Kind.WEBP -> AnimatedWebp.open(bytes)
@@ -186,9 +187,46 @@ object Animations {
      */
     private fun bytesOf(context: Context, uri: Uri): ByteArray? =
         when (uri.scheme?.lowercase()) {
-            "http", "https" -> RemoteCache.read(context, uri)
-            else -> context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            "http", "https" -> RemoteCache.read(context, uri)?.takeIf {
+                it.size <= MAX_BYTES && kindOf(it.copyOf(minOf(SNIFF, it.size))) != Kind.NONE
+            }
+            else -> context.contentResolver.openInputStream(uri)?.use { candidate(it) }
         }
+
+    /**
+     * Tutto il flusso, ma solo se può essere un'animazione: altrimenti `null`.
+     *
+     * ⚠️⚠️ **I PRIMI BYTE DECIDONO PRIMA CHE SI LEGGA IL RESTO, e fino alla `5.70` era il
+     * contrario** (sua nota sul giro della `5.70`: *un MKV di 250 MB ha fatto andare AIV in
+     * crash*). Il visualizzatore fa questa domanda per ogni pagina, filmati compresi, e il file
+     * si leggeva tutto in memoria prima di guardarne il peso e la firma: 250 MB in un solo
+     * blocco sono più di quanto l'app può tenere. Adesso un file che non è né GIF né WebP costa
+     * [SNIFF] byte, e uno oltre [MAX_BYTES] si scarta appena il flusso lo supera. Lo prova
+     * `AnimazioniGrandiTest`.
+     * ⚠️ **La testa si legge a mano e non con `readNBytes`**, che su Android esiste solo dalla
+     * 33: un `read` può restituire meno byte di quelli chiesti, quindi si ripete.
+     */
+    internal fun candidate(stream: InputStream): ByteArray? {
+        val head = ByteArray(SNIFF)
+        var got = 0
+        while (got < SNIFF) {
+            val n = stream.read(head, got, SNIFF - got)
+            if (n < 0) break
+            got += n
+        }
+        if (kindOf(head.copyOf(got)) == Kind.NONE) return null
+        val out = ByteArrayOutputStream().apply { write(head, 0, got) }
+        val buffer = ByteArray(BUFFER)
+        while (true) {
+            val n = stream.read(buffer)
+            if (n < 0) return out.toByteArray()
+            out.write(buffer, 0, n)
+            if (out.size() > MAX_BYTES) return null
+        }
+    }
+
+    /** Quanto legge [candidate] a ogni giro. */
+    private const val BUFFER = 64 * 1024
 
     /**
      * Oltre questo peso non si anima.

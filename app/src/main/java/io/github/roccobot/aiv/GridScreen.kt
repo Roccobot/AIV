@@ -130,6 +130,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import kotlin.math.roundToInt
@@ -3394,6 +3397,20 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
     val length by produceState(Videos.cachedLength(uri), uri, context) {
         if (value == null) value = Videos.length(context, uri)
     }
+    ClipLabel(length, modifier)
+}
+
+/**
+ * La targhetta vera e propria, per una durata già nota: `null` lascia il solo triangolo.
+ *
+ * ⚠️⚠️ **LA DURATA RESTA SU UNA RIGA, e se non ci sta rimpicciolisce** (sua nota A sul giro
+ * della `5.70`: *in orizzontale, le miniature video non riescono a contenere l'info sulla
+ * durata*). In orizzontale le miniature sono strette, e fino alla `5.70` `12:00` andava a capo in
+ * `12:0` e `0`. Adesso il testo non va mai a capo: rimpicciolisce fino a [BADGE_MIN_TEXT], e solo
+ * sotto quella misura si taglia. Lo prova `DurataStrettaTest`.
+ */
+@Composable
+internal fun ClipLabel(length: Long?, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .padding(BADGE_EDGE)
@@ -3410,10 +3427,16 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
             modifier = Modifier.size(BADGE_GLYPH)
         )
         length?.let {
-            Text(
+            val style = MaterialTheme.typography.labelSmall
+            BasicText(
                 text = Videos.stamp(it, floor = true),
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White
+                style = style.copy(color = Color.White),
+                maxLines = 1,
+                softWrap = false,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = BADGE_MIN_TEXT,
+                    maxFontSize = style.fontSize
+                )
             )
         }
     }
@@ -3750,6 +3773,9 @@ private val BADGE_INK = Color(0x99000000)
 
 /** Il respiro ai lati del testo dentro la targhetta. */
 private val BADGE_PAD = 4.dp
+
+/** Il corpo più piccolo della durata, quando la miniatura è troppo stretta per il suo. */
+private val BADGE_MIN_TEXT = 8.sp
 
 /** Il respiro sopra e sotto, e il distacco fra triangolo e cifre: sono la stessa misura. */
 private val BADGE_LIP = 2.dp
