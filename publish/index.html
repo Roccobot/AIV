@@ -888,6 +888,21 @@
     disegna();
   });
 
+  /* T cambia il tema e L la lingua (richiesta dell'utente, 2026-10-11), senza
+     modificatori e fuori dai campi, come il tasto T del documento di feedback.
+     ⚠️ Premono i due tasti della pagina, che restano l'unico posto in cui tema e
+     lingua cambiano; tenendo premuto non si ripetono. */
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.repeat || e.isComposing) return;
+    var t = e.target;
+    if (t && t.closest && (t.closest('input, textarea, select') || t.closest('[contenteditable]'))) return;
+    var lettera = String(e.key).toLowerCase();
+    var tasto = lettera === 't' ? 'tema' : (lettera === 'l' ? 'lingua' : null);
+    if (!tasto) return;
+    e.preventDefault();
+    el(tasto).click();
+  });
+
   applicaTema();
   disegna();
   leggiRelease();
