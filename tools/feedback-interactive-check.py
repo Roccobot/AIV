@@ -1348,10 +1348,19 @@ def check(path):
             # Salva answers with a toast as Invia does (the user's request, 2026-10-05).
             second.locator('#save').click()
             expect(second.locator('.toast.is-visible')).to_contain_text('Salvato')
+            done, total = map(int, second.locator('#count-answered').inner_text().split('/'))
+            assert done < total, ('Tutte le prove hanno un esito: il promemoria non si vede.', done, total)
             second.locator('#send').click()
             expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
-            # Invia answers with a visible notice too (the user's request, 2026-10-04).
-            expect(second.locator('.toast.is-visible')).to_contain_text('Risposte pronte')
+            # Invia answers with a visible notice too (the user's request, 2026-10-04). With tests
+            # still without an outcome the round goes anyway, and the notice reminds of them, on two
+            # lines, with the counter's numbers (his request, 2026-10-11).
+            reminder = second.locator('.toast.is-visible')
+            expected = f"Hai dato riscontro a {done} {'punto' if done == 1 else 'punti'} su {total}.\nCompleta la verifica prima di inviare."
+            expect(reminder).to_have_text(expected)
+            lines = reminder.evaluate("""(el) => { const s = getComputedStyle(el);
+                return Math.round((el.clientHeight - parseFloat(s.paddingTop) - parseFloat(s.paddingBottom)) / parseFloat(s.lineHeight)); }""")
+            assert lines == 2, ('Il promemoria di Invia non occupa due righe.', lines)
             # Thumbnails two per row, on desktop and on mobile.
             thumbs = [f.bounding_box() for f in second.locator('.test').first.locator('.image-list figure').all()]
             assert abs(thumbs[0]['y'] - thumbs[1]['y']) < 1 and thumbs[2]['y'] > thumbs[0]['y'] + 1, thumbs

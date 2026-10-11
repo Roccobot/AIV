@@ -283,7 +283,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - ⚠️ **Ritocchi del 2026-10-04 (sue richieste)**: l'introduzione dice soltanto *Giro x.yz:
   collaudo chiuso. Le migliorie e le scelte dei giri precedenti sono in archivio.*, su mobile
   non c'è, e dopo il titolo viene subito `Scarica AIV` (sua istruzione, 2026-10-04 sera), che
-  dalla 5.11 scarica AIV Play (sua richiesta, 2026-10-10: AIV GitHub lo aggiorna da Obtainium); `Invia` risponde anche con un toast in basso; il campo in cui
+  dalla 5.11 scarica AIV Play (sua richiesta, 2026-10-10: AIV GitHub lo aggiorna da Obtainium); `Invia` risponde anche con un toast in basso, e se qualche prova è ancora senza esito il giro parte lo stesso e il toast lo ricorda (*Hai dato riscontro a X punti su Y.* e, a capo, *Completa la verifica prima di inviare.*; sua richiesta, 2026-10-11): contano solo le prove del contatore, non domande, etichette e Altro; il campo in cui
   si scrive non ha il bordo colorato; le miniature degli allegati sono due per riga; il codice
   inline è reso nell'editor come grassetto, corsivo e link; su desktop `Prossimi passi` segue
   l'ultimo riquadro a 18 px e, a fine pagina, finisce dove finisce `Altro` (lo spazio in fondo lo
