@@ -55,10 +55,15 @@ jobs:
       # disposable, and git history keeps it if it is ever needed. Only the page and
       # its scripts are removed: `feedback.css` and the `feedback-favicon.*` icons
       # are shared by the download page and the two mockups, so they stay.
-      - name: Leave the feedback document out
+      # ⚠️ Since 5.70 the two mockups are left out too (tablet and settings proposal,
+      # with their own styles and script): the owner's working material, not meant to be
+      # public (his request, 2026-10-11). The download page no longer links them, and the
+      # Worker still serves them next to the feedback document.
+      - name: Leave the feedback document and the mockups out
         run: |
           cp -r publish site
           rm -f site/feedback.html site/feedback*.js site/README.md
+          rm -f site/tablet.html site/tablet.css site/tablet.js site/settings.html site/settings.css
           find site -type f | sort
 
       - name: Upload the page

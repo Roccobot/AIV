@@ -317,7 +317,7 @@
   .fatto .titolo{font-size:var(--titolo-corpo); line-height:var(--titolo-interlinea); font-weight:500}
   .fatto .corpo{font-size:14px; line-height:1.5; color:var(--text-muted)}
 
-  footer > nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:20px;font-size:15px}
+  footer > nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 16px;margin-bottom:20px;font-size:15px}
   footer{max-width:960px; width:100%; margin:56px auto 0; padding:0 24px 32px}
   .piede-riga{
     /* ⚠️ `nowrap`: firma a sinistra e tasti a destra sulla STESSA riga, come ha
@@ -552,7 +552,11 @@
 </main>
 
 <footer>
-  <nav aria-label="Documenti AIV"><a href="https://aiv-feedback.roccobot-b90.workers.dev/feedback" target="_blank" rel="noopener noreferrer">Feedback</a> <a href="tablet.html" target="_blank" rel="noopener noreferrer">Mockup tablet</a> <a href="settings.html" target="_blank" rel="noopener noreferrer">Proposta impostazioni</a> <a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a></nav>
+  <!-- ⚠️⚠️ SOLO `Privacy`, E A DESTRA (richiesta dell'utente, 2026-10-11): il DF, il mockup
+       del tablet e la proposta delle impostazioni sono materiale di lavoro suo, e un link
+       pubblico li esponeva a chiunque. Dalla 5.70 quelle due pagine non sono più nemmeno sul
+       sito (`pages.yml`): restano servite dal Worker del DF, insieme al documento. -->
+  <nav aria-label="Documenti AIV"><a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a></nav>
   <div class="piede-riga">
     <div class="firma">
       <svg viewBox="0 0 1024 1024" width="22" height="22" aria-hidden="true">
