@@ -744,11 +744,25 @@ const altroOverlay = document.querySelector("#altro-overlay");
    keys and the keyboard). When the overlay itself followed the visual viewport, any measure a
    step behind the keyboard left the page uncovered under it. */
 const altroPanel = document.querySelector(".altro-overlay-panel");
+/* The field gives up what the two rows of keys under it need, so both stay whole even when the
+   visible area is shorter than the 368px they were drawn for (his note of 2026-10-11, with a
+   screenshot: with Chrome's address bar at the bottom the page is told some 29px less than it
+   shows, and the second row was cut in half). The CSS keeps 269px as the most it takes. */
+function fitAltroField(height) {
+  const field = document.querySelector("#notes-mobile-editor") || document.querySelector("#notes-mobile");
+  const rows = altroPanel.querySelector(".format-actions");
+  if (!field || !rows) return;
+  const box = field.getBoundingClientRect();
+  const above = box.top - altroPanel.getBoundingClientRect().top + altroPanel.scrollTop;
+  const below = rows.getBoundingClientRect().bottom - box.bottom;
+  altroPanel.style.setProperty("--altro-field", height - above - below + "px");
+}
 function fitAltroOverlay() {
   const view = window.visualViewport;
   if (!altroOverlay || altroOverlay.hidden || !view) return;
   altroPanel.style.marginTop = view.offsetTop + "px";
   altroPanel.style.height = view.height + "px";
+  fitAltroField(view.height);
 }
 window.visualViewport?.addEventListener("resize", fitAltroOverlay);
 window.visualViewport?.addEventListener("scroll", fitAltroOverlay);
@@ -757,6 +771,7 @@ function setAltroOverlayOpen(open) {
   altroOverlay.hidden = !open;
   document.body.classList.toggle("altro-overlay-open", open);
   altroPanel.style.marginTop = altroPanel.style.height = "";
+  altroPanel.style.removeProperty("--altro-field");
   fitAltroOverlay();
   if (open) {
     syncAltroFields();
