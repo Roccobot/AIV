@@ -257,7 +257,10 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     (`pillCorner`). ⚠️ La barra del menu inferiore resta una fascia in fondo: con 2, 3 o 4
     tasti quello d'angolo è sull'asse verticale del tondo, ma non alla sua altezza.
   - ⚠️⚠️ **Dalla `4.31` il menu Start è il comando di fabbrica** (sua risposta in chat dopo la
-    `4.30`; nella `4.25` e nella `4.30` era la pillola a scomparsa). Vale per un telefono nuovo:
+    `4.30`; nella `4.25` e nella `4.30` era la pillola a scomparsa). ⚠️ **In AIV Play, dalla
+    `5.12`, il comando di fabbrica è la pillola a scomparsa** (sua nota sul giro della `5.11`: *fino
+    a nuovo ordine, solo per AIV Play*), e al primo avvio compare il velo del FAB; lo decide
+    `Store.mainControl`. Vale per un telefono nuovo:
     chi ha già l'app ritrova la sua scelta. Al primo avvio il velo d'aiuto lo mostra **aperto**, con
     le sue caselle disegnate e la copia del tondo nell'angolo, e la frase `Tutti i comandi sono nel
     menu 'Start'...` (`corner_hint`, sua richiesta: *magari espanso*). Dalla `4.33` la frase è la sua

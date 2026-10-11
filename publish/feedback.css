@@ -934,11 +934,14 @@ body.altro-overlay-open {
 .altro-overlay-panel {
   overscroll-behavior: contain;
 }
+/* The overlay covers the whole screen with the page's ground, and only the panel follows the
+   area the keyboard leaves visible (feedback-ui.js, fitAltroOverlay): a panel a step behind the
+   keyboard leaves ground under it, never the cards (his note of 2026-10-11). */
 .altro-overlay {
   position: fixed;
   inset: 0;
   z-index: 20;
-  background: var(--scrim);
+  background: var(--bg);
   display: flex;
   justify-content: stretch;
   align-items: stretch;

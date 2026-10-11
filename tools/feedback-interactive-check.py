@@ -1384,16 +1384,22 @@ def check(path):
             zoom = second_context.new_cdp_session(second)
             zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 900 / 368})
             second.wait_for_timeout(300)
+            # Only the panel follows the visible area: the overlay covers the whole screen, so a
+            # panel a step behind the keyboard leaves ground under it and never the cards (his note
+            # of 2026-10-11, with a screenshot of a strip of cards between the keys and the
+            # keyboard). Below the visible area the point must still fall on the overlay.
             reach = second.evaluate("""() => {
                 const view = visualViewport, panel = document.querySelector('.altro-overlay-panel');
                 panel.scrollTop = panel.scrollHeight;
                 const figures = document.querySelectorAll('#altro-overlay .image-list figure');
                 const last = figures[figures.length - 1].getBoundingClientRect();
-                return {overlay: document.querySelector('#altro-overlay').getBoundingClientRect().height,
-                        view: view.height, bottom: last.bottom - view.offsetTop};
+                const below = document.elementFromPoint(innerWidth / 2, Math.min(innerHeight - 2, view.offsetTop + view.height + 100));
+                return {panel: panel.getBoundingClientRect().height, view: view.height, bottom: last.bottom - view.offsetTop,
+                        covered: Boolean(below && below.closest('#altro-overlay'))};
             }""")
             assert reach['view'] < 400, ('La pagina non si è ingrandita: la prova non misura niente.', reach)
-            assert abs(reach['overlay'] - reach['view']) < 1 and reach['bottom'] <= reach['view'] + 1, reach
+            assert abs(reach['panel'] - reach['view']) < 1 and reach['bottom'] <= reach['view'] + 1, reach
+            assert reach['covered'], ('Sotto il pannello di Altro si vede la pagina.', reach)
             zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 1})
             second.wait_for_timeout(300)
             second.evaluate('document.activeElement.blur()')
