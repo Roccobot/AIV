@@ -131,6 +131,13 @@ class EliminaPlayTest {
                 )
             }
         }
+        /*
+         * ⚠️⚠️ **`waitForIdle` alone is not enough, and it failed once on 5.30**: the effect reads
+         * the MediaStore rows on `Dispatchers.IO`, which the test clock does not wait for, so the
+         * check could run before the system's window was launched (`0` launches where `1` was
+         * due). The test waits for the launch, and then for the composition to settle.
+         */
+        banco.waitUntil(timeoutMillis = 5_000) { lanciati.isNotEmpty() }
         banco.waitForIdle()
         return lanciati to fatti
     }

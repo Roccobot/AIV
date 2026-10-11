@@ -52,13 +52,20 @@ object Store {
     private val writers = setOf(PadKey.COPY, PadKey.MOVE, PadKey.RENAME)
 
     /**
+     * The keys AIV Play leaves out by his choice, not because they cannot work: 'Lista' of the
+     * selection sheet, which copies the names of the chosen files, since 5.30 (his note in Altro
+     * on the 5.20 round: *copia lista file*).
+     */
+    private val trimmed = setOf(PadKey.LIST)
+
+    /**
      * Whether a key of the file pads exists in this variant.
      *
      * ⚠️⚠️ **The factory lists filter with it too** (`MENU_KEYS`, `PICK_KEYS`), not only the pads:
      * a key missing from the pad and present in the page that reorders it would be a button
      * that can be moved and never seen.
      */
-    fun allows(key: PadKey): Boolean = files || key !in writers
+    fun allows(key: PadKey): Boolean = files || (key !in writers && key !in trimmed)
 
     /**
      * The views of the home screen in this variant: AIV Play has no 'Cartelle di sistema', which
@@ -79,6 +86,50 @@ object Store {
      * where the store says nothing, so whoever picked a control keeps it.
      */
     val mainControl: MainControl = if (files) MainControl.CORNER else MainControl.PILL
+
+    /*
+     * ⚠️⚠️ **What follows is AIV Play made simpler, since 5.30, and every line is his** (his
+     * note in Altro on the 5.20 round, headed *solo AIV Play*): fewer settings, each one gone
+     * with its row, and the value it leaves behind fixed. AIV GitHub keeps them all.
+     */
+
+    /**
+     * The phone's main controls this variant offers: AIV Play keeps the FAB and the pill, and
+     * drops 'Menu basso' and 'Menu Start' (*rimangono pillola e FAB*).
+     */
+    val mainControls: List<MainControl> =
+        if (files) MainControl.entries else listOf(MainControl.FAB, MainControl.PILL)
+
+    /** Whether the last item seen is marked in a grid: AIV Play has no such mark. */
+    val marksLast: Boolean = files
+
+    /**
+     * Whether the settings that AIV Play fixes have their rows: what is behind the panels, the
+     * gradient and the serif title of the folder header, the colour of the folders, the
+     * direction of the sequence and the button that edits a file extension.
+     */
+    val fullSettings: Boolean = files
+
+    /**
+     * The settings as this variant uses them: in AIV Play the values he fixed take the place of
+     * whatever the store says.
+     *
+     * ⚠️⚠️ **It runs on reading, not on saving** (`SettingsStore.read`): a store written by an
+     * earlier AIV Play, or a settings file exported from AIV GitHub, holds the old values, and
+     * only a reading that corrects them every time shows the app he asked for. Nothing is
+     * rewritten, so going back on a choice later costs no migration.
+     * ⚠️ **A main control that is gone becomes the pill**, the factory value of AIV Play.
+     */
+    fun fit(settings: Settings): Settings = if (files) settings else settings.copy(
+        mainControl = settings.mainControl.takeIf { it in mainControls } ?: mainControl,
+        panelDepth = PanelDepth.SHADOW,
+        frontWash = true,
+        frontSerif = false,
+        folderColour = FolderColour.NAME,
+        reverseSequence = false,
+        extRename = false,
+        extDownload = false
+    )
 
     /** How much of the photo library the app sees. */
     enum class Access { FULL, PARTIAL, NONE }

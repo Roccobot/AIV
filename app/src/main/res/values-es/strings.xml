@@ -124,6 +124,7 @@
     <string name="settings_hand_desc">El lado preferido para los botones principales al usar el teléfono con una mano, para diestros y zurdos. Define dónde se colocan el botón de acción flotante (\'FAB\'), algunos botones de navegación y partes de la interfaz del editor.</string>
     <string name="settings_main_control">Control principal</string>
     <string name="settings_main_control_desc">Elige cómo quieres interactuar con la app cuando sostienes el teléfono en vertical: botón flotante (\'FAB\') con menú, píldora de iconos, menú o menú \'Inicio\'.</string>
+    <string name="settings_main_control_desc_play">Elige cómo quieres interactuar con la app cuando sostienes el teléfono en vertical: botón flotante (\'FAB\') con menú o píldora de iconos.</string>
     <string name="main_control_fab">Botón flotante</string>
     <string name="main_control_pill">Píldora de iconos</string>
     <string name="main_control_bar">Menú inferior</string>

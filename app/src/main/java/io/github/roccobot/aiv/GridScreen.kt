@@ -2292,7 +2292,9 @@ fun GridScreen(
                                 uri = uri,
                                 position = index + 1,
                                 total = items.size,
-                                marked = index == highlight,
+                                // ⚠️ AIV Play non segna l'ultimo elemento visto (`Store.marksLast`),
+                                // ma il salto a quell'elemento, che usa lo stesso indice, resta.
+                                marked = Store.marksLast && index == highlight,
                                 chosen = uri in chosen,
                                 named = gridNames,
                                 mark = lastMark,

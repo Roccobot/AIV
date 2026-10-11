@@ -7,6 +7,10 @@
 > ⚠️ **Dalla `5.10` AIV Play non ha la vista 'Cartelle di sistema', 'Nuova cartella' e la rinomina
 > di una cartella**, e ha la riga dell'accesso parziale: l'elenco e il perché vivono in `Rules.md`
 > § '🏪 Le due varianti, e che cosa manca ad AIV Play'.
+> ⚠️ **Dalla `5.30` AIV Play ha anche meno impostazioni delle cartelle** (sua nota sul giro della
+> `5.20`): niente `Menu basso` né menu Start, niente indicatore dell'ultimo media, intestazione col
+> gradiente sempre acceso e senza titolo graziato, colore delle cartelle solo sul nome. Le sezioni
+> qui sotto descrivono AIV GitHub; l'elenco completo vive nella stessa sezione di `Rules.md`.
 
 ## 🖼️ Intestazione delle cartelle, e le due schermate che la mostrano
 

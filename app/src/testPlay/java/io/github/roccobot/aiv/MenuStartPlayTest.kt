@@ -31,6 +31,9 @@ import org.robolectric.Shadows.shadowOf
  * the top row holds one; the row's height and the panel's room were counted from the top row,
  * that is from one column instead of three. Both the menu and its copy in the hint lay out the
  * same rows (`cornerRows`), and both were squashed.
+ * ⚠️ **Since 5.30 AIV Play no longer offers the Start menu** (his note on the 5.20 round), so on
+ * the phone this home is not reachable: the test stays, because it measures `cornerRows` with the
+ * seven cells that only AIV Play's home has, and that menu comes back the day he asks for it.
  * ⚠️ Runs only in the `play` variant: see `AccessoPlayTest`.
  */
 @RunWith(AndroidJUnit4::class)

@@ -124,6 +124,7 @@
     <string name="settings_hand_desc">O lado preferido para os botões principais no uso com uma só mão, para destros e canhotos. Define onde ficam o botão de ação flutuante (\'FAB\'), alguns botões de navegação e partes da interface do editor.</string>
     <string name="settings_main_control">Controle principal</string>
     <string name="settings_main_control_desc">Escolha como quer interagir com o app quando segura o celular na vertical: botão flutuante (\'FAB\') com menu, pílula de ícones, menu ou menu \'Iniciar\'.</string>
+    <string name="settings_main_control_desc_play">Escolha como quer interagir com o app quando segura o celular na vertical: botão flutuante (\'FAB\') com menu ou pílula de ícones.</string>
     <string name="main_control_fab">Botão flutuante</string>
     <string name="main_control_pill">Pílula de ícones</string>
     <string name="main_control_bar">Menu inferior</string>

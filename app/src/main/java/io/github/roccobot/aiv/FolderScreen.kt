@@ -1820,6 +1820,8 @@ private fun ViewOptions(
  */
 @Composable
 private fun ColourChips(colour: FolderColour, onColour: (FolderColour) -> Unit) {
+    // ⚠️ AIV Play ha il solo 'Nome', sempre acceso, e la voce non c'è (`Store.fullSettings`).
+    if (!Store.fullSettings) return
     OptionLabel(R.string.settings_colour)
     /*
      * ⚠️ **`FlowRow` come le tre viste**: cinque pastiglie non entrano su una riga sola di uno
