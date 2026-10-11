@@ -274,7 +274,9 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   ricava il workflow. ⚠️ Il `versionCode` va fatto salire a ogni versione pubblicata, e nessun
   controllo lo verifica (`Rules.md` § '🚀 Che cosa produce un rilascio').
 - **Il rilascio**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia il
-  tag, costruisce l'APK firmato e crea la release; senza `publish` è la corsa a vuoto, che non si
+  tag, costruisce gli APK firmati e, dalla `5.70`, l'AAB di AIV Play per Google Play (scheda,
+  moduli e passi in `docs/Store.md`, conti con `tools/store-check.py`, informativa in
+  `publish/privacy.html`), e crea la release; senza `publish` è la corsa a vuoto, che non si
   chiama 'banco di prova'. Il cancello è il banco con le traduzioni: se `check.yml` è verde
   sullo stesso commit non si rifà, se è rosso il rilascio si ferma, se manca gira nel rilascio;
   intanto il build procede (`Rules.md` § '🚀 Che cosa produce un rilascio').

@@ -1030,7 +1030,8 @@ documento, riscontro'.
 - ⚠️ **Il `versionCode` va fatto salire a ogni versione pubblicata, e nessuno lo controlla**:
   Android rifiuta un aggiornamento che non lo fa salire, e non è legato al `versionName`.
 - **Come si pubblica**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia
-  il tag dal `versionName`, costruisce l'APK firmato e crea la release. Senza `publish` costruisce e
+  il tag dal `versionName`, costruisce gli APK firmati (e dalla `5.70` l'AAB di AIV Play) e crea la
+  release. Senza `publish` costruisce e
   si ferma, ed è la **corsa a vuoto**.
 - ⚠️⚠️ **Dalla `5.10` una release ha due APK**: `AIV-x.xx.apk` (la variante github) e
   `AIV-Play-x.xx.apk` (§ '🏪 Le due varianti, e che cosa manca ad AIV Play'). La paginetta prende
@@ -1039,6 +1040,21 @@ documento, riscontro'.
   - ⚠️ **Quella corsa non si chiama 'il banco di prova'**: quel nome è delle prove che aprono l'app
     finta (§ '🧰 Gli strumenti che questo repo si porta dietro'), e due cose con lo stesso nome
     prima o poi si scambiano.
+- ⚠️⚠️ **Dalla `5.70` c'è anche `AIV-Play-x.xx.aab`**, il pacchetto da caricare su Google Play, che
+  per un'app nuova non accetta un APK (scelte A1 e B1 dell'utente, 2026-10-11). È firmato con la
+  stessa chiave degli APK, che su Google Play è solo la chiave di caricamento: Google firma l'app che
+  consegna con una chiave sua (Play App Signing). `apksigner` non legge un AAB, quindi la firma la
+  controlla `jarsigner -verify`. Nessun link e nessun aggiornamento lo prendono, perché scelgono per
+  nome.
+  - **Tutto quello che non è codice vive in `docs/Store.md`**: i testi della scheda in italiano e in
+    inglese (scelta D1), le risposte ai moduli della Console e i passi dell'utente in ordine. I limiti
+    di lunghezza di Google li controlla `tools/store-check.py`, dalla radice.
+  - ⚠️⚠️ **L'informativa sulla privacy è `publish/privacy.html`** (italiano e inglese, scelta C1),
+    servita da Pages, e vale per le due varianti. Le sue frasi sono affermazioni sul codice:
+    nessuna libreria di statistiche, pubblicità o rapporti sugli errori, e la rete si apre solo per
+    un indirizzo scelto dalla persona o, in AIV GitHub, per l'aggiornamento. **Chi aggiunge una
+    libreria o una richiesta che manda qualcosa cambia la pagina e le risposte di `docs/Store.md`
+    nella stessa versione.**
 - ⚠️⚠️ **Il rilascio non scrive nel sito**: la paginetta la pubblica `pages.yml` da `publish/`,
   all'indirizzo <https://roccobot.github.io/AIV/> (sua scelta: Pages pubblicato da Actions).
   **L'APK non è sul sito**: il pulsante di download punta all'asset dell'ultima release
