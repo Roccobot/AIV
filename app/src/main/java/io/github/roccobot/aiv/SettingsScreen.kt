@@ -1037,7 +1037,8 @@ private fun ColumnScope.RootPage(
          * Le due voci che stavano qui in chiaro (attiva il cestino, e per quanto si tiene)
          * rispondono a una domanda sola e lui le vuole dietro una porta.
          */
-        // ⚠️ AIV Play has no bin (`Store.files`).
+        // ⚠️ AIV Play has no bin of its own (`Store.files`): from Android 11 it shows the
+        // system's trash, which keeps files by its own rules, so there is nothing to set here.
         if (Store.files) {
             PageOfRows(
                 label = stringResource(R.string.bin_title),
