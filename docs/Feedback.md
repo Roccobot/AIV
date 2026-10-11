@@ -1,15 +1,15 @@
 # Feedback AIV
 
-Versione **5.70**: AIV Play è pronta per Google Play (pacchetto, informativa, testi della scheda), e AIV GitHub fa il suo primo aggiornamento vero. Il documento è cumulativo con la 5.61.
+Versione **5.71**: l'aggiornamento automatico arriva fino all'installazione, un filmato grande non fa più chiudere AIV, e la durata dei video resta su una riga anche in orizzontale.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 5.70 è pubblicata: [v5.70](https://github.com/Roccobot/AIV/releases/tag/v5.70), con i due APK
-[AIV-5.70.apk](https://github.com/Roccobot/AIV/releases/download/v5.70/AIV-5.70.apk) (AIV GitHub) e [AIV-Play-5.70.apk](https://github.com/Roccobot/AIV/releases/download/v5.70/AIV-Play-5.70.apk) (AIV Play), più [AIV-Play-5.70.aab](https://github.com/Roccobot/AIV/releases/download/v5.70/AIV-Play-5.70.aab), il pacchetto da caricare su Google Play.
-Commit prodotto su `main`: `1af9f81`, release dal commit `1af9f81` (SlimVer 5.70 / versionCode 371; APK GitHub 11.073.921 byte, digest `70089324`; APK Play 10.948.349 byte, digest `cd3f4028`).
+La Release 5.71 è pubblicata: [v5.71](https://github.com/Roccobot/AIV/releases/tag/v5.71), con i due APK
+[AIV-5.71.apk](https://github.com/Roccobot/AIV/releases/download/v5.71/AIV-5.71.apk) (AIV GitHub) e [AIV-Play-5.71.apk](https://github.com/Roccobot/AIV/releases/download/v5.71/AIV-Play-5.71.apk) (AIV Play), più [AIV-Play-5.71.aab](https://github.com/Roccobot/AIV/releases/download/v5.71/AIV-Play-5.71.aab), il pacchetto da caricare su Google Play.
+Commit prodotto su `main`: `0a382cf`, release dal commit `0a382cf` (SlimVer 5.71 / versionCode 372; APK GitHub 11.073.921 byte, digest `bd2bc4bf`; APK Play 10.948.349 byte, digest `adb29aca`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **5.70**: una prova, tre domande e dieci etichette, cumulativo con la 5.61; nelle etichette i tre punti stanno per il carattere unico dei puntini, che nell'app è uno solo. Giro **5.60**: le finestre in cui si scrive e l'aggiornamento automatico confermati, con quattro etichette corrette.
+Giro **5.71**: tre prove e le tre domande sullo Store, rimaste senza risposta nel giro 5.70. Giro **5.70**: l'aggiornamento automatico si fermava dopo lo scaricamento, e le dieci etichette sono confermate.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,17 +22,31 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 5.70 sono superate: banco di prova completo di AIV GitHub (714 prove), prove di AIV Play (43), controllo delle traduzioni, compilazione delle due varianti e del pacchetto per Google Play, con la firma verificata.
+Le verifiche automatiche della 5.71 sono superate: banco di prova completo di AIV GitHub (719 prove), prove di AIV Play (43), controllo delle traduzioni, compilazione delle due varianti e del pacchetto per Google Play, con la firma verificata.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
-| 5.70-01 | Non provato | | Attendere il collaudo. |
+| 5.71-01 | Non provato | | Attendere il collaudo. |
+| 5.71-02 | Non provato | | Attendere il collaudo. |
+| 5.71-03 | Non provato | | Attendere il collaudo. |
 
-## 1. AIV GitHub: l'aggiornamento da una release alla successiva
+## 1. AIV GitHub: l'aggiornamento fino all'installazione
 
-Non scaricare la 5.70 a mano: parti dalla 5.60 di AIV GitHub che hai già. In `Impostazioni`, sezione `Avanzate`, tocca `Controlla ora`: compare la finestra `AIV 5.70 è disponibile`. Tocca `Aggiorna`. La prima volta Android apre la sua pagina per consentire ad AIV l'installazione di app: attiva l'interruttore e torna indietro. AIV scarica l'aggiornamento e apre l'installazione di Android: conferma. Riapri AIV: in `Avanzate` la voce si chiama `Aggiornamento automatico` e il tasto `Controlla adesso`, e toccandolo compare `AIV è aggiornata`. Le impostazioni, le copertine e gli stili sono quelli di prima.
+Parti dalla 5.70 di AIV GitHub che hai installato con Obtainium. In `Impostazioni`, sezione `Avanzate`, tocca `Controlla adesso`: compare la finestra `È disponibile AIV 5.71`. Tocca `Aggiorna`: la finestra si chiude, compare `Scarico l'aggiornamento...`, e alla fine si apre l'installazione di Android. Conferma, e riapri AIV: `Controlla adesso` deve rispondere `AIV è aggiornata`.
 
-Letture mie: la finestra e i testi che vedi prima dell'installazione sono ancora quelli della 5.60, che è l'app che li mostra; le tue correzioni compaiono dalla 5.61 in poi. La 5.61 non la vedi mai: c'è, ma la 5.60 propone l'ultima. Il controllo all'apertura si fa una volta per giorno di calendario, e oggi lo ha già fatto la 5.60: per questo la prova parte da `Controlla ora`. Se tocchi `Più tardi`, la proposta torna all'apertura del giorno dopo. Dalla 5.61 i puntini di tutti i testi dell'app sono il carattere unico, come vuole Android: oltre alle etichette qui sotto, anche `Correzione in corso...` degli effetti.
+Letture mie: nella 5.70 la finestra si chiudeva al tocco e si portava via il lavoro appena avviato, quindi lo scaricamento finiva e l'installazione non partiva, senza nessun avviso. Adesso il lavoro non dipende più dalla finestra. Se Android chiede di consentire ad AIV l'installazione di app, attiva l'interruttore, torna indietro e tocca di nuovo `Aggiorna`: la finestra in quel caso resta aperta apposta. La prova sul banco simula lo scaricamento con un server finto, quindi l'installazione vera si vede solo sul telefono.
+
+## 2. Un filmato grande
+
+Apri dalla griglia il file MKV da 250 MB che nella 5.70 faceva chiudere AIV, e lascialo partire. Prova anche a scorrere al filmato prima e a quello dopo. AIV non deve chiudersi.
+
+Letture mie: per ogni pagina il visualizzatore chiede se è un'immagine animata (GIF o WebP), filmati compresi, e fino alla 5.70 per rispondere leggeva tutto il file in memoria: 250 MB in un blocco solo sono più di quanto l'app può tenere. Adesso guarda i primi 64 byte, e di un filmato non legge altro. È la causa che ho trovato nel codice e che la prova sul banco misura; un crash con un'altra causa lo vedresti ancora, e allora mi serve sapere in che momento succede (all'apertura, durante la riproduzione, scorrendo).
+
+## 3. La durata dei video in orizzontale
+
+Metti il telefono in orizzontale e apri la cartella di un video, come nella schermata del giro 5.70. Sulla miniatura la durata resta su una riga sola, accanto al triangolo, anche quando la miniatura è stretta.
+
+Letture mie: quando lo spazio non basta, la durata si rimpicciolisce fino a un corpo minimo di 8 punti, e solo sotto quella misura verrebbe tagliata. In verticale, dove lo spazio c'è, resta della misura di sempre.
 
 ## Domande
 
@@ -63,49 +77,17 @@ Google vuole l'icona a 512 x 512, un'immagine in evidenza di 1024 x 500 e almeno
 
 Parere: **G1**: l'icona e l'immagine nascono dai disegni che il repository ha già, le schermate devono mostrare l'app vera.
 
-## Etichette testuali
-
-### e-settings_updates · Titolo della voce in `Avanzate`
-Aggiornamento automatico
-
-### e-settings_updates_check · Tasto della voce
-Controlla adesso
-
-### e-update_title · Titolo della finestra, col numero della versione nuova
-È disponibile AIV 5.71
-
-### e-update_untrusted · Avviso se la firma o il digest non tornano
-L'aggiornamento non è firmato con la chiave di AIV, e non può essere installato.
-
-### e-update_downloading · Avviso durante lo scaricamento
-Scarico l'aggiornamento...
-
-### e-backup_exporting · Avviso durante l'esportazione del file di impostazioni
-Esportazione...
-
-### e-backup_importing · Avviso durante l'importazione del file di impostazioni
-Importazione...
-
-### e-dest_browse · Voce della finestra che sceglie la cartella di destinazione
-Sfoglia tutte le cartelle...
-
-### e-pick_counting · Avviso mentre il selettore conta i file
-Sto contando...
-
-### e-convert_clean_keeps · Spiegazione di `Pulisci` per un SVG
-Non modifica il contenuto dell'immagine (tracciati, forme, linee, disegni, testi...): l'illustrazione rimane intatta al 100%.
-
 ## Aggiornamenti recenti
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
+| AIV GitHub: l'aggiornamento da una release alla successiva | 5.70-01 | Non approvato | Scaricato, ma poi non si installa: ripiegato su Obtainium. | Corretto nella 5.71. |
 | AIV GitHub: l'aggiornamento automatico | 5.60-01 | Tutto OK | Quattro etichette corrette. | Corrette nella 5.61. |
-| Le finestre in cui si scrive, con la tastiera aperta | 5.51-01 | Tutto OK | | Chiusa. |
 
 ## Prossimi passi
 
-- **In collaudo**: l'aggiornamento da una release alla successiva (`5.70-01`), e le tre domande sullo Store.
-- **Tuoi, in parallelo** (scelta A1): l'account sviluppatore su Google Play, la creazione dell'app e i 12 tester per i 14 giorni del test chiuso; i passi in ordine sono in fondo a `docs/Store.md`.
+- **In collaudo**: l'aggiornamento fino all'installazione (`5.71-01`), il filmato grande (`5.71-02`), la durata in orizzontale (`5.71-03`), e le tre domande sullo Store.
+- **Tuoi, in parallelo**: l'account sviluppatore su Google Play, la creazione dell'app e i 12 tester per i 14 giorni del test chiuso; i passi in ordine sono in fondo a `docs/Store.md`.
 - **Residuo per lo Store**: la grafica della scheda, secondo la risposta a `d-store-grafica`.
 - **AIV Play, dopo**: le altre funzioni sui file rifatte con MediaStore, una per rilascio (copia, sposta, duplica, nuova cartella, `Salva` sull'originale).
 - **AIV GitHub, prima del 2027**: la registrazione nella verifica degli sviluppatori di Android, dall'account di Google Play.
