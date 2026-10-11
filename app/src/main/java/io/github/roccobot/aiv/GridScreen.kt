@@ -1021,7 +1021,8 @@ fun GridScreen(
         // ⚠️ L'ordine è quello scelto dall'utente, e di fabbrica quello dettato per la
         // `1.54`: vedi `PICK_KEYS`. È un ordine SUO e non quello del menu del tocco lungo,
         // perché i due riquadri portano insiemi diversi in ordini diversi.
-        // ⚠️ In AIV Play i quattro tasti che scrivono sui file non ci sono (`Store.allows`).
+        // ⚠️ In AIV Play i tre tasti che scrivono sui file non ci sono (`Store.allows`); 'Elimina'
+        // c'è dalla `5.20`, perché passa dal MediaStore (`MediaDelete`).
         .filter { Store.allows(it.key) }
         .inOrder(LocalPadLook.current.pick)
 

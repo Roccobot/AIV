@@ -1165,7 +1165,8 @@ data class Settings(
  * all'ordine: è dire che quel tasto non esiste più in quel riquadro.
  * ⚠️ **L'ordine è quello dettato dall'utente per la `1.54`**, riga per riga, e non uno mio.
  * ⚠️ **In AIV Play le prime due perdono i tasti che scrivono sui file** (`Store.allows`, dalla
- * `5.10`), e con loro li perde la pagina che le riordina.
+ * `5.10`), e con loro li perde la pagina che le riordina. Dalla `5.20` 'Elimina' c'è, perché passa
+ * dal MediaStore (`MediaDelete`).
  */
 val MENU_KEYS = listOf(
     PadKey.COPY, PadKey.MOVE, PadKey.SHARE,

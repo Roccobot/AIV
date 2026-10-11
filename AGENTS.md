@@ -283,7 +283,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`). ⚠️ Senza di loro il build di release non fallisce: l'APK
   risulta non firmato, e il workflow lo chiede all'APK (`Rules.md` § '🔐 La firma, e dove NON vive').
 - **Due varianti dallo stesso codice, dalla `5.10`**: AIV GitHub con l'accesso a tutti i file e AIV
-  Play, una galleria senza le funzioni che scrivono sui file e col `Salva` in Download. La
+  Play, una galleria senza le funzioni che scrivono sui file e col `Salva` in Download; dalla `5.20`
+  il suo `Elimina` passa dal MediaStore, col cestino di sistema da Android 11. La
   differenza la legge solo `Store.kt`, e una release ha due APK (`Rules.md` § '🏪 Le due varianti,
   e che cosa manca ad AIV Play').
 - **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove `*PlayTest` di

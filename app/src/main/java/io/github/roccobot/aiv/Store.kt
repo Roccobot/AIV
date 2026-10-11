@@ -42,12 +42,14 @@ object Store {
 
     /**
      * The keys of the two file pads (the viewer's menu and the selection sheet) that write on
-     * the files: copy, move, rename (restore, in the bin) and delete.
+     * the files through `java.io.File`: copy, move, rename (restore, in the bin).
      *
+     * ⚠️ **'Elimina' is back in AIV Play since 5.20**, through the MediaStore (`MediaDelete`): the
+     * system's trash from Android 11, a deletion for good below (his choices A1 and B1).
      * ⚠️ **Only those two pads read it**: the Disegno module has a 'Elimina' too, the same
      * [PadKey.DELETE], and there it removes an element of the drawing, not a file.
      */
-    private val writers = setOf(PadKey.COPY, PadKey.MOVE, PadKey.RENAME, PadKey.DELETE)
+    private val writers = setOf(PadKey.COPY, PadKey.MOVE, PadKey.RENAME)
 
     /**
      * Whether a key of the file pads exists in this variant.
