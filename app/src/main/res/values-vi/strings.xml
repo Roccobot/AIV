@@ -124,7 +124,7 @@
     <string name="settings_hand_desc">Bên ưa thích cho các nút chính khi dùng một tay, cho người thuận tay phải và tay trái. Nó quyết định vị trí của nút tác vụ nổi (\'FAB\'), một số nút điều hướng và vài phần giao diện trình chỉnh sửa.</string>
     <string name="settings_main_control">Điều khiển chính</string>
     <string name="settings_main_control_desc">Chọn cách tương tác với ứng dụng khi cầm điện thoại dọc: nút nổi (\'FAB\') có menu, viên thuốc biểu tượng, menu hoặc menu \'Bắt đầu\'.</string>
-    <string name="settings_main_control_desc_play">Chọn cách tương tác với ứng dụng khi cầm điện thoại dọc: nút nổi (\'FAB\') có menu hoặc viên thuốc biểu tượng.</string>
+    <string name="settings_main_control_desc_play">Chọn cách tương tác với ứng dụng khi cầm điện thoại dọc: nút nổi (\'FAB\') hoặc \'viên thuốc\' biểu tượng.</string>
     <string name="main_control_fab">Nút nổi</string>
     <string name="main_control_pill">Viên biểu tượng</string>
     <string name="main_control_bar">Menu dưới</string>

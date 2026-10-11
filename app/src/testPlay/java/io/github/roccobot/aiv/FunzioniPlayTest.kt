@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config
 
 /*
  * AIV Play without the functions that write on the files (5.10): the four keys of the file
- * pads, the bin and the 'Cartelle di sistema' view.
+ * pads and the 'Cartelle di sistema' view. The bin came back in 5.40 (`CestinoPlayTest`).
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  *
@@ -75,12 +75,13 @@ class FunzioniPlayTest {
     }
 
     /**
-     * **On the real home, the extended pill has neither 'Cestino' nor 'Cartelle di sistema'**,
-     * and 'Impostazioni' is there: the pill is drawn, and only the two entries are out.
+     * **On the real home, the extended pill has 'Cestino' and not 'Cartelle di sistema'**, and
+     * 'Impostazioni' is there. Until 5.30 'Cestino' was out too: since 5.40 it is the system's
+     * trash, from Android 11 (`CestinoPlayTest`).
      */
     @Test
     @Config(qualifiers = "w411dp-h891dp")
-    fun `la pillola di casa non ha il cestino ne la vista di sistema`() {
+    fun `la pillola di casa ha il cestino ma non la vista di sistema`() {
         banco.setContent {
             AivTheme(darkTheme = false) {
                 CompositionLocalProvider(LocalPillLook provides PillLook(PhonePill.EXTENDED)) {
@@ -91,7 +92,7 @@ class FunzioniPlayTest {
         banco.waitForIdle()
         assertEquals(1, quante(R.string.hub_settings))
         assertEquals(1, quante(R.string.hub_view_list))
-        assertEquals(0, quante(R.string.bin_title))
+        assertEquals(1, quante(R.string.bin_title))
         assertEquals(0, quante(R.string.hub_view_tree))
     }
 }

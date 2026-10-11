@@ -124,7 +124,7 @@
     <string name="settings_hand_desc">Tek elle kullanımda ana düğmeler için tercih edilen taraf; sağ ve sol elini kullananlar için. Kayan işlem düğmesinin (\'FAB\'), bazı gezinme düğmelerinin ve düzenleyici arayüzünün bazı bölümlerinin yerini belirler.</string>
     <string name="settings_main_control">Ana denetim öğesi</string>
     <string name="settings_main_control_desc">Telefonu dik tutarken uygulamayla nasıl etkileşeceğini seç: menülü kayan düğme (\'FAB\'), simge hapı, menü ya da \'Başlat\' menüsü.</string>
-    <string name="settings_main_control_desc_play">Telefonu dik tutarken uygulamayla nasıl etkileşeceğini seç: menülü kayan düğme (\'FAB\') ya da simge hapı.</string>
+    <string name="settings_main_control_desc_play">Telefonu dik tutarken uygulamayla nasıl etkileşeceğini seç: kayan düğme (\'FAB\') ya da simge \'hapı\'.</string>
     <string name="main_control_fab">Kayan düğme</string>
     <string name="main_control_pill">Simge hapı</string>
     <string name="main_control_bar">Alt menü</string>

@@ -124,7 +124,7 @@
     <string name="settings_hand_desc">এক হাতে ব্যবহারের সময় প্রধান বোতামগুলির পছন্দের দিক, ডানহাতি ও বাঁহাতিদের জন্য। এটি ভাসমান অ্যাকশন বোতাম (\'FAB\'), কিছু নেভিগেশন বোতাম এবং সম্পাদকের UI-এর অংশগুলির অবস্থান ঠিক করে।</string>
     <string name="settings_main_control">প্রধান নিয়ন্ত্রণ</string>
     <string name="settings_main_control_desc">ফোন খাড়া করে ধরলে অ্যাপের সঙ্গে কীভাবে কাজ করবেন তা বেছে নিন: মেনুসহ ভাসমান বোতাম (\'FAB\'), আইকনের পিল, মেনু অথবা \'স্টার্ট\' মেনু।</string>
-    <string name="settings_main_control_desc_play">ফোন খাড়া করে ধরলে অ্যাপের সঙ্গে কীভাবে কাজ করবেন তা বেছে নিন: মেনুসহ ভাসমান বোতাম (\'FAB\') অথবা আইকনের পিল।</string>
+    <string name="settings_main_control_desc_play">ফোন খাড়া করে ধরলে অ্যাপের সঙ্গে কীভাবে কাজ করবেন তা বেছে নিন: ভাসমান বোতাম (\'FAB\') অথবা আইকনের \'পিল\'।</string>
     <string name="main_control_fab">ভাসমান বোতাম</string>
     <string name="main_control_pill">আইকনের পিল</string>
     <string name="main_control_bar">নিচের মেনু</string>

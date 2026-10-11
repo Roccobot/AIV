@@ -35,6 +35,9 @@ import kotlinx.coroutines.withContext
  * trash without the system's window. On Android 10 a file of another app asks once per file
  * (`RecoverableSecurityException`); on Android 9 the write permission is asked once.
  * ⚠️ AIV GitHub never comes here: it writes through `java.io.File`, and its bin is its own folder.
+ * ⚠️⚠️ **Since 5.40 AIV Play's bin page reads the system's trash** ([MediaDelete.trashed]): 'Ripristina'
+ * puts files back with the same trash request turned off, 'Elimina' and 'Svuota il cestino' delete
+ * them for good with `createDeleteRequest`. Each goes through Android's window, and AIV adds none.
  */
 object MediaDelete {
 
@@ -54,6 +57,59 @@ object MediaDelete {
     @RequiresApi(Build.VERSION_CODES.R)
     fun trashRequest(context: Context, rows: List<Uri>): IntentSender =
         MediaStore.createTrashRequest(context.contentResolver, rows, true).intentSender
+
+    /** The system's window that takes [rows] out of its trash, back where they were (5.40). */
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun restoreRequest(context: Context, rows: List<Uri>): IntentSender =
+        MediaStore.createTrashRequest(context.contentResolver, rows, false).intentSender
+
+    /** The system's window that deletes [rows] for good, from its trash too (5.40). */
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun deleteRequest(context: Context, rows: List<Uri>): IntentSender =
+        MediaStore.createDeleteRequest(context.contentResolver, rows).intentSender
+
+    /**
+     * The images and videos in the system's trash, the most recently trashed first: AIV Play's
+     * bin page (5.40, his choice A1).
+     *
+     * ⚠️ **The order is the expiry date, newest first**: the system sets it when a file is trashed
+     * (about 30 days later, `MediaColumns.DATE_EXPIRES`), so it is the order of trashing, the same
+     * as AIV GitHub's bin, which shows the latest deletions first.
+     * ⚠️ **One query per collection**, Images and Video, so each row has the address of its own
+     * collection, which the system's windows take; files of other kinds never go into AIV's bin.
+     * ⚠️ PSD files stay out, as everywhere in the app (`MediaFiles.ignored`).
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    suspend fun trashed(context: Context): List<Uri> = withContext(Dispatchers.IO) {
+        val args = android.os.Bundle().apply {
+            putInt(MediaStore.QUERY_ARG_MATCH_TRASHED, MediaStore.MATCH_ONLY)
+            putString(
+                android.content.ContentResolver.QUERY_ARG_SQL_SORT_ORDER,
+                "${MediaStore.MediaColumns.DATE_EXPIRES} DESC"
+            )
+        }
+        val columns = arrayOf(
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DATE_EXPIRES,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.MIME_TYPE
+        )
+        listOf(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).flatMap { collection ->
+            runCatching {
+                context.contentResolver.query(collection, columns, args, null)?.use { c ->
+                    buildList {
+                        while (c.moveToNext()) {
+                            if (MediaFiles.ignored(c.getString(2), c.getString(3))) continue
+                            add(c.getLong(1) to android.content.ContentUris.withAppendedId(collection, c.getLong(0)))
+                        }
+                    }
+                }
+            }.getOrNull().orEmpty()
+        }.sortedByDescending { it.first }.map { it.second }
+    }
 
     /**
      * Deletes [uris] for good, below Android 11.

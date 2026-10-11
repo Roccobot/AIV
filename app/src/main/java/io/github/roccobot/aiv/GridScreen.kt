@@ -581,6 +581,14 @@ fun GridScreen(
     var emptying by rememberSaveable { mutableStateOf(false) }
     /** Se la conferma di 'Ripristina tutto' è in scena. Vedi la nota su quella voce. */
     var restoringAll by rememberSaveable { mutableStateOf(false) }
+    /*
+     * ⚠️ **In AIV Play la conferma è la finestra di Android, dalla `5.40`**: il sistema chiede
+     * già per conto suo prima di ripristinare o di eliminare per sempre, quindi la conferma di
+     * AIV sarebbe una seconda domanda uguale alla prima. In AIV GitHub resta, perché là il
+     * cestino è dell'app e nessun altro chiede.
+     */
+    val askRestoreAll = { if (Store.files) restoringAll = true else job = FileJob.Restore(items.orEmpty()) }
+    val askEmpty = { if (Store.files) emptying = true else job = FileJob.Delete(items.orEmpty(), forGood = true) }
     /**
      * Se il selettore della tinta è in scena: lo apre il tocco lungo sull'icona
      * dell'intestazione.
@@ -785,13 +793,13 @@ fun GridScreen(
      * cancellare invece tutto il cestino sarebbe la sorpresa peggiore che l'app possa fare.
      * La conferma lo fermerebbe comunque, ma un dialogo che chiede una cosa che non hai
      * chiesto è già un difetto.
-     * ⚠️ Lo svuotamento **non** si esegue qui: accende il dialogo, che è l'unico posto in
-     * cui quel comando esiste (vedi `emptying`).
+     * ⚠️ Lo svuotamento **non** si esegue qui: passa da `askEmpty`, che in AIV GitHub accende
+     * il dialogo (vedi `emptying`) e in AIV Play chiede la finestra di Android.
      */
     val shortcut: () -> Unit = if (bin && !picking) {
         {
             haptics.performHapticFeedback(HOLD_BUZZ)
-            if (filled) emptying = true
+            if (filled) askEmpty()
         }
     } else takeAll
 
@@ -1022,9 +1030,10 @@ fun GridScreen(
         // `1.54`: vedi `PICK_KEYS`. È un ordine SUO e non quello del menu del tocco lungo,
         // perché i due riquadri portano insiemi diversi in ordini diversi.
         // ⚠️ In AIV Play i tre tasti che scrivono sui file non ci sono (`Store.allows`); 'Elimina'
-        // c'è dalla `5.20`, perché passa dal MediaStore (`MediaDelete`).
-        .filter { Store.allows(it.key) }
-        .inOrder(LocalPadLook.current.pick)
+        // c'è dalla `5.20`, perché passa dal MediaStore (`MediaDelete`), e nel cestino dalla `5.40`
+        // c'è 'Ripristina', che usa il tasto della rinomina.
+        .filter { Store.allows(it.key, bin) }
+        .inOrder(LocalPadLook.current.pick.withRestore(bin))
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
     // non ha una densità sotto mano.
@@ -1343,13 +1352,15 @@ fun GridScreen(
     val impostazioni = stringResource(R.string.hub_settings)
     val pillEntries: List<PillEntry> = when {
         picking || (shape == Adaptive.Shape.PHONE && pillLook.mode == PhonePill.OFF) -> emptyList()
-        bin -> listOf(
-            PillEntry(Glyphs.BinHistory, stringResource(R.string.bin_history), short = stringResource(R.string.bin_history)) { onHistory() },
+        // ⚠️ La Cronologia è di AIV GitHub: il cestino di sistema non registra da dove vengono i file.
+        bin -> listOfNotNull(
+            PillEntry(Glyphs.BinHistory, stringResource(R.string.bin_history), short = stringResource(R.string.bin_history)) { onHistory() }
+                .takeIf { Store.files },
             PillEntry(Glyphs.BinRestore, stringResource(R.string.bin_restore_all), enabled = filled, short = stringResource(R.string.start_restore)) {
-                restoringAll = true
+                askRestoreAll()
             },
             PillEntry(Icons.Default.DeleteForever, stringResource(R.string.bin_empty), enabled = filled, short = stringResource(R.string.start_empty)) {
-                emptying = true
+                askEmpty()
             }
         )
         else -> listOfNotNull(
@@ -2603,7 +2614,7 @@ fun GridScreen(
                          * cestino vuoto, quindi in cima ci sarebbero due righe grigie e la sola
                          * viva in fondo.
                          */
-                        MenuRow(
+                        if (Store.files) MenuRow(
                             text = stringResource(R.string.bin_history),
                             /*
                              * ⚠️⚠️ **UN DISEGNO SUO, dalla `1.55`, e la sua terza scelta su
@@ -2638,14 +2649,14 @@ fun GridScreen(
                              * che è il posto in cui quelle destinazioni sono scritte: le parole
                              * sono sue.
                              */
-                            onTap = { menu.close(); restoringAll = true }
+                            onTap = { menu.close(); askRestoreAll() }
                         )
                         MenuRow(
                             text = stringResource(R.string.bin_empty),
                             icon = Icons.Default.DeleteForever,
                             enabled = filled,
                             danger = true,
-                            onTap = { menu.close(); emptying = true }
+                            onTap = { menu.close(); askEmpty() }
                         )
                     }
                     val altroTema = aivLauncher(!LocalAivLight.current)
