@@ -65,6 +65,7 @@ jobs:
       signed: ${{ steps.keystore.outputs.signed }}
       apk: ${{ steps.apk.outputs.name }}
       apkplay: ${{ steps.apk.outputs.play }}
+      aab: ${{ steps.apk.outputs.aab }}
 
     steps:
       - name: Check out the sources
@@ -140,13 +141,20 @@ jobs:
       # is `play`, the one for Google Play, attached to the same release so the owner
       # can install it on his phone for the test round. The page picks its APK BY NAME
       # (`publish/index.html`), so the second asset never takes the first one's place.
-      - name: Build the release APKs
+      # ⚠️⚠️ AND SINCE 5.70 A THIRD FILE, `AIV-Play-x.xx.aab`: Google Play accepts only
+      # an Android App Bundle for a new app, never an APK. It is signed with the SAME
+      # key as the APKs (owner's choice B1, 2026-10-11): on Play that key is only the
+      # upload key, and Google signs what it delivers with a key of its own (Play App
+      # Signing), so AIV Play from Play and AIV GitHub keep two different signatures
+      # anyway. The bundle is attached to the release so the owner can upload it from
+      # there; no download link and no updater picks it, both choose by name.
+      - name: Build the release APKs and the Play bundle
         env:
           AIV_KEYSTORE_FILE: ${{ steps.keystore.outputs.signed == 'true' && format('{0}/aiv.jks', runner.temp) || '' }}
           AIV_KEYSTORE_PASSWORD: ${{ secrets.AIV_KEYSTORE_PASSWORD }}
           AIV_KEY_ALIAS: ${{ secrets.AIV_KEY_ALIAS }}
           AIV_KEY_PASSWORD: ${{ secrets.AIV_KEY_PASSWORD }}
-        run: ./gradlew --no-daemon :app:assembleGithubRelease :app:assemblePlayRelease
+        run: ./gradlew --no-daemon :app:assembleGithubRelease :app:assemblePlayRelease :app:bundlePlayRelease
 
       - name: Name the artefacts
         id: apk
@@ -165,10 +173,17 @@ jobs:
           play="AIV-Play-${{ steps.ver.outputs.version }}.apk"
           take github "$name"
           take play "$play"
+          aab="AIV-Play-${{ steps.ver.outputs.version }}.aab"
+          src="$(find app/build/outputs/bundle/playRelease -name '*.aab' -print -quit)"
+          if [ -z "$src" ]; then echo "No bundle was produced for play" >&2; exit 1; fi
+          cp "$src" "${RUNNER_TEMP}/out/$aab"
+          echo "Produced $aab ($(du -h "$src" | cut -f1)), from $(basename "$src")"
           echo "name=${name}" >> "$GITHUB_OUTPUT"
           echo "play=${play}" >> "$GITHUB_OUTPUT"
+          echo "aab=${aab}" >> "$GITHUB_OUTPUT"
           echo "path=${RUNNER_TEMP}/out/${name}" >> "$GITHUB_OUTPUT"
           echo "playpath=${RUNNER_TEMP}/out/${play}" >> "$GITHUB_OUTPUT"
+          echo "aabpath=${RUNNER_TEMP}/out/${aab}" >> "$GITHUB_OUTPUT"
 
       # `signed=true` only says the SECRET was there. If the keystore path had
       # failed to resolve while Gradle was configuring, `canSign` would be false,
@@ -185,6 +200,12 @@ jobs:
           if [ -z "$apksigner" ]; then echo "apksigner is not in the SDK" >&2; exit 1; fi
           "$apksigner" verify --print-certs "${{ steps.apk.outputs.path }}"
           "$apksigner" verify --print-certs "${{ steps.apk.outputs.playpath }}"
+          # apksigner does not read a bundle: an AAB is signed like a JAR, and
+          # `jarsigner -verify` answers 'jar verified.' only when every entry is signed.
+          # Play Console would refuse an unsigned bundle, but only after the upload.
+          out="$(jarsigner -verify "${{ steps.apk.outputs.aabpath }}")"
+          echo "$out"
+          case "$out" in *"jar verified."*) ;; *) echo "The Play bundle is not signed" >&2; exit 1;; esac
 
       # Kept even on a dispatch run, so a build can be inspected without a tag.
       - name: Keep the APK as a run artefact
@@ -199,6 +220,13 @@ jobs:
         with:
           name: ${{ steps.apk.outputs.play }}
           path: ${{ steps.apk.outputs.playpath }}
+          if-no-files-found: error
+
+      - name: Keep the Play bundle as a run artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.aab }}
+          path: ${{ steps.apk.outputs.aabpath }}
           if-no-files-found: error
 
 
@@ -308,6 +336,12 @@ jobs:
           name: ${{ needs.build.outputs.apkplay }}
           path: ${{ runner.temp }}/out
 
+      - name: Take the Play bundle the build job kept
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ needs.build.outputs.aab }}
+          path: ${{ runner.temp }}/out
+
       # The release asset is the ONLY place the APK lives, and it is also what
       # keeps old versions reachable: the download page points at the asset of
       # the latest release, and the releases page keeps every version for free.
@@ -336,13 +370,14 @@ jobs:
           # a person is most likely to take.
           apk="${RUNNER_TEMP}/out/${{ needs.build.outputs.apk }}"
           play="${RUNNER_TEMP}/out/${{ needs.build.outputs.apkplay }}"
+          aab="${RUNNER_TEMP}/out/${{ needs.build.outputs.aab }}"
           if gh release view "${TAG}" > /dev/null 2>&1; then
-            gh release upload "${TAG}" "$apk" "$play" --clobber
+            gh release upload "${TAG}" "$apk" "$play" "$aab" --clobber
           else
             # `--target` is what lets the workflow cut its own tag: gh creates
             # the ref at that commit. On a tag push it is the tagged commit
             # anyway, so the same line serves both ways in.
-            gh release create "${TAG}" "$apk" "$play" \
+            gh release create "${TAG}" "$apk" "$play" "$aab" \
               --target "${GITHUB_SHA}" \
               --title "AIV ${{ needs.build.outputs.version }}" \
               --generate-notes
