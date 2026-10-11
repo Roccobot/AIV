@@ -333,11 +333,19 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   - ⚠️ **Il tetto**: una superficie centrata non supera la finestra meno l'aria, toglie di sotto e
     non di sopra, e il suo scorrimento interno entra in funzione. L'aria minima della stretta e
     del tetto è `LOWER_AIR` (16dp).
-- ⚠️⚠️ **Le quattro finestre in cui si scrive non sono centrate: il loro bordo di sopra vale sempre
-  `TEXT_AIR`, qualunque sia la tastiera.** Sono le modali vere, che passano `null` a `lowered`
-  (§ '👆 Che cosa fa il tocco FUORI da una finestra'), e il conto vive su `pinned` in `Centred.kt`:
-  la tastiera può muovere la finestra quanto vuole, e a spostarsi è solo il bordo di sotto. La
-  prova è `AltoTest`.
+- ⚠️⚠️ **Le finestre in cui si scrive non sono centrate: il loro bordo di sopra vale `TEXT_AIR`
+  finché il pannello ci sta, qualunque sia la tastiera.** Sono le modali vere, che passano `null`
+  a `lowered` (§ '👆 Che cosa fa il tocco FUORI da una finestra'), e il conto vive su `pinned` in
+  `Centred.kt`: finché c'è spazio, a spostarsi è solo il bordo di sotto. La prova è `AltoTest`.
+  - ⚠️⚠️ **Quando la tastiera non lascia spazio cedono l'aria sopra e poi il margine sotto i
+    tasti (`TEXT_TUCK`), che può finire dietro la tastiera; solo oltre scorre il contenuto**
+    (sua scelta B1, 2026-10-11). Il conto vive su `pinTop` e `pinRoof`.
+  - ⚠️⚠️ **La scatola è alta quanto la finestra, e lo spazio si misura dentro di lei, dalla
+    `5.51`** (nota del giro della `5.50`: la rinomina aperta dal visualizzatore era tagliata). Con
+    il decoro che segue le barre, `DialogWrapper` non dà a queste finestre una modalità per la
+    tastiera, quindi Android non le ridimensiona: le sposta in alto, e un conto che contava sulla
+    centratura posava il pannello altrove. Siccome il vincolo non cambia, il nodo si rimisura da
+    sé quando lo spazio visibile cambia: senza, dalla griglia il conto non vedeva la tastiera.
   - ⚠️⚠️ **Tentativo scartato: far salire il pannello all'arrivo della tastiera** (la deroga con
     `KEYBOARD_AIR`, la salita a soglia, `climbFor`, l'isteresi). La salita si ricavava da una
     misura che cambia mentre si scrive (la barra dei suggerimenti, l'animazione dell'IME), e il

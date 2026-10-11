@@ -3149,9 +3149,9 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
      * cartelle normali e cestino*). Nel cestino il riquadro porta 'Ripristina' nel posto che
      * altrove tiene 'Rinomina': è lo stesso ordine, con una voce che cambia mestiere.
      */
-    // ⚠️ AIV Play has neither the bin nor 'Rinomina' (`Store.files`), so the sentence has
-    // nothing to explain there.
-    if (Store.files) Detail(stringResource(R.string.settings_buttons_bin))
+    // ⚠️ AIV Play has the bin from 5.40 and 'Rinomina' from 5.50, both from Android 11
+    // (`Store.renames`): below that the sentence has nothing to explain.
+    if (Store.renames) Detail(stringResource(R.string.settings_buttons_bin))
     PadOrder(
         title = stringResource(R.string.settings_buttons_menu),
         order = settings.menuOrder,
