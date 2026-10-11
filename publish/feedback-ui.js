@@ -738,12 +738,17 @@ const altroOverlay = document.querySelector("#altro-overlay");
    so on Android the keyboard opens with it; it shrinks only the visual viewport, and a panel as
    tall as the whole screen kept its end under the keyboard: measured with four attachments, the
    panel scrolled 213px while they were some 700px down. Following visualViewport, the panel
-   scrolls as far as its content goes; with nothing to scroll it still holds still. */
+   scrolls as far as its content goes; with nothing to scroll it still holds still.
+   Only the panel follows it, and the overlay always covers the whole screen with the page's
+   ground (his note of 2026-10-11, with a screenshot: a strip of the cards showed between the
+   keys and the keyboard). When the overlay itself followed the visual viewport, any measure a
+   step behind the keyboard left the page uncovered under it. */
+const altroPanel = document.querySelector(".altro-overlay-panel");
 function fitAltroOverlay() {
   const view = window.visualViewport;
   if (!altroOverlay || altroOverlay.hidden || !view) return;
-  altroOverlay.style.top = view.offsetTop + "px";
-  altroOverlay.style.height = view.height + "px";
+  altroPanel.style.marginTop = view.offsetTop + "px";
+  altroPanel.style.height = view.height + "px";
 }
 window.visualViewport?.addEventListener("resize", fitAltroOverlay);
 window.visualViewport?.addEventListener("scroll", fitAltroOverlay);
@@ -751,7 +756,7 @@ function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
   altroOverlay.hidden = !open;
   document.body.classList.toggle("altro-overlay-open", open);
-  altroOverlay.style.top = altroOverlay.style.height = "";
+  altroPanel.style.marginTop = altroPanel.style.height = "";
   fitAltroOverlay();
   if (open) {
     syncAltroFields();

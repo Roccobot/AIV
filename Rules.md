@@ -916,6 +916,11 @@ quindi le due app si installano una accanto all'altra.
 - **Le prove della sola variante play vivono in `app/src/testPlay/`** e i loro nomi finiscono in
   `PlayTest`: `check.yml` e `release.yml` lanciano `testPlayDebugUnitTest --tests '*PlayTest'`, e
   se nessuna classe corrisponde la corsa fallisce. Il resto del banco gira sulla variante github.
+- ⚠️⚠️ **Il comando di fabbrica di AIV Play è la pillola a scomparsa, dalla `5.12`, e la scelta è
+  sua e temporanea** (nota sul giro della `5.11`: *Fino a nuovo ordine, solo per AIV Play, il
+  pulsante predefinito sarà la pillola a scomparsa*): AIV GitHub resta col menu Start. Il valore lo
+  dà `Store.mainControl`, vale dove l'archivio tace, lo presidia `PulsantePlayTest`, e torna come
+  prima solo quando lo dice lui.
 - ⚠️ **Il nome dell'app è lo stesso, ed è la sua scelta** (A2, 2026-10-10: *il nome va bene
   com'è, non le confondo*): sotto l'icona tutte e due dicono `AIV`, nelle pagine di sistema
   `Astonishing Image Viewer`. Non si cambia senza chiederglielo.

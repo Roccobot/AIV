@@ -208,7 +208,12 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   campo, quindi su Android la tastiera si apre con lui, e lei riduce solo l'area visibile: un
   pannello alto quanto lo schermo teneva la sua fine sotto la tastiera, e misurato con quattro
   allegati scorreva di 213 px mentre loro erano circa 700 px più in basso. Il pannello scorre quando
-  ha qualcosa da scorrere, e resta fermo quando non ce l'ha. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
+  ha qualcosa da scorrere, e resta fermo quando non ce l'ha.
+  ⚠️ **Dal 2026-10-11 segue l'area visibile il solo pannello, e l'overlay copre sempre lo schermo
+  intero con lo sfondo della pagina** (sua nota, con uno screenshot: fra i tasti e la
+  tastiera si vedeva una striscia dei riquadri). Quando seguiva l'area anche l'overlay, una misura
+  in ritardo sulla tastiera lasciava scoperta la pagina sotto di lui; la presidia
+  `feedback-interactive-check.py`. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   ⚠️⚠️ **Su desktop la fine di Altro è sempre dentro la finestra** (dal 2026-10-10, sua nota con uno
   screenshot: con la pagina in cima non arrivava a `Rinomina` ed `Elimina` dell'ultimo allegato).
   Finché la pagina non lo porta a 18 px dal bordo, Altro comincia più in basso, e alto quanto la

@@ -67,6 +67,17 @@ object Store {
      */
     val views: List<FolderView> = FolderView.entries.filter { files || it != FolderView.TREE }
 
+    /**
+     * The phone's main control as it comes from the factory: the corner menu ('Menu Start') in
+     * AIV GitHub, the pill that slides out of its round key in AIV Play.
+     *
+     * ⚠️⚠️ **AIV Play's value is his choice, and a temporary one** (his note in Altro on the 5.11
+     * round: *Fino a nuovo ordine, solo per AIV Play, il pulsante predefinito sarà la pillola a
+     * scomparsa*): it goes back only when he says so. As every factory value, it counts only
+     * where the store says nothing, so whoever picked a control keeps it.
+     */
+    val mainControl: MainControl = if (files) MainControl.CORNER else MainControl.PILL
+
     /** How much of the photo library the app sees. */
     enum class Access { FULL, PARTIAL, NONE }
 

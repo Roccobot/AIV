@@ -201,7 +201,7 @@ enum class MainControl(override val token: String) : Choice {
     FAB("fab"),
     /**
      * La pillola di icone, a scomparsa o estesa secondo [Settings.phonePill]: 'Pillola di icone'.
-     * Valore di fabbrica nella `4.25` e nella `4.30`.
+     * Valore di fabbrica nella `4.25` e nella `4.30`, e in AIV Play dalla `5.12` ([Store.mainControl]).
      */
     PILL("pill"),
     /**
@@ -215,7 +215,8 @@ enum class MainControl(override val token: String) : Choice {
      * Il menu angolare, dalla `4.20`: 'Menu angolare'. Sempre a scomparsa (*il menu angolare
      * sempre*), quindi [Settings.phonePill] non lo riguarda: a riposo è la pillola verticale del
      * menu inferiore, aperto è un pannello 3x3 nella schermata iniziale e 2x2 nelle cartelle
-     * (decisioni G1 e C1-C3). Il disegno vive in `BottomMenu.kt`. Valore di fabbrica dalla `4.31`.
+     * (decisioni G1 e C1-C3). Il disegno vive in `BottomMenu.kt`. Valore di fabbrica dalla `4.31`,
+     * in AIV Play fino alla `5.11`.
      */
     CORNER("corner")
 }
@@ -533,10 +534,11 @@ data class Settings(
      * ⚠️ **Nato nella `4.10` con la chiave `main-control`**: un archivio senza di lei lo ricava da
      * `phone-pill-on` (4.02-4.05), e uno ancora più vecchio dal gettone di [phonePill] (4.00-4.01),
      * così chi aveva acceso la pillola la ritrova accesa.
-     * ⚠️ **Il valore di fabbrica vive qui e in [SettingsStore.read]**, e il banco legge un
-     * archivio vuoto contro questo campo.
+     * ⚠️ **Il valore di fabbrica lo dà [Store.mainControl]**, perché dalla `5.12` dipende dalla
+     * variante (in AIV Play la pillola a scomparsa, sua scelta temporanea); qui e in
+     * [SettingsStore.read] si legge da lì, e il banco legge un archivio vuoto contro questo campo.
      */
-    val mainControl: MainControl = MainControl.CORNER,
+    val mainControl: MainControl = Store.mainControl,
     /**
      * Quale pillola, quando [mainControl] è [MainControl.PILL]. Vedi [PhonePill].
      *
@@ -1633,11 +1635,11 @@ object SettingsStore {
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             // ⚠️ Un archivio dalla `4.02` alla `4.05` ha l'interruttore, uno della `4.00` o della
             // `4.01` il solo gettone: `off` vuol dire spenta, gli altri due accesa.
-            // ⚠️ Un archivio che non dice niente dà il menu 'Start', il valore di fabbrica della
-            // `4.31`; uno con la sola pillola dei giri vecchi dà la pillola o il FAB, come prima.
-            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, MainControl.CORNER) }
+            // ⚠️ Un archivio che non dice niente dà il valore di fabbrica della variante
+            // ([Store.mainControl]); uno con la sola pillola dei giri vecchi dà la pillola o il FAB.
+            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, Store.mainControl) }
                 ?: when (p[PHONE_PILL_ON] ?: p[PHONE_PILL]?.let { it != PhonePill.OFF.token }) {
-                    null -> MainControl.CORNER
+                    null -> Store.mainControl
                     true -> MainControl.PILL
                     false -> MainControl.FAB
                 },
