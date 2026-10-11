@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">O Android só sabe gravar os formatos acima. Para os demais existem estes serviços, que abrem no navegador: a imagem é escolhida por lá, na memória do telefone.</string>
     <string name="convert_clean">Limpar</string>
     <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do arquivo) e raramente servem.</string>
-    <string name="convert_clean_keeps">Não altera o conteúdo da imagem (traçados, formas, linhas, desenhos, textos...): a ilustração fica 100% intacta.</string>
+    <string name="convert_clean_keeps">Não altera o conteúdo da imagem (traçados, formas, linhas, desenhos, textos…): a ilustração fica 100% intacta.</string>
     <string name="convert_clean_c2pa">⚠️ ATENÇÃO: a procedência C2PA também vai embora, a parte que diz quem fez o arquivo. Guarde uma cópia se precisar dela.</string>
     <string name="clean_now">Limpar</string>
     <string name="clean_done">Limpo: de %1$s para %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Só imagens</string>
     <string name="filter_videos">Só vídeos</string>
     <string name="pick_forever">Excluir de vez</string>
-    <string name="pick_counting">Contando...</string>
+    <string name="pick_counting">Contando…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d item selecionado</item>
         <item quantity="other">%1$d itens selecionados</item>
@@ -311,7 +311,7 @@
     <string name="dest_move_here">Mover para %1$s</string>
     <string name="dest_pick_copy">Copiar para uma pasta</string>
     <string name="dest_pick_move">Mover para uma pasta</string>
-    <string name="dest_browse">Procurar em todas as pastas...</string>
+    <string name="dest_browse">Procurar em todas as pastas…</string>
     <string name="menu_copy_here">Copiar</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d item copiado</item>
@@ -752,8 +752,8 @@
     <string name="backup_newer">Este arquivo de configurações tem um formato mais recente, que esta versão do AIV não consegue abrir. Atualize o app para importá-lo.</string>
     <string name="backup_wrong">Erro: a senha está incorreta, ou o arquivo está danificado.</string>
     <string name="backup_broken">O arquivo está danificado ou incompleto.</string>
-    <string name="backup_exporting">Exportando...</string>
-    <string name="backup_importing">Importando...</string>
+    <string name="backup_exporting">Exportando…</string>
+    <string name="backup_importing">Importando…</string>
     <string name="backup_import_from">Exportação de %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Estas configurações vão substituir as atuais, exceto os estilos, as cores, as capas, as pastas incluídas e excluídas e a lixeira, que serão adicionados ao que já existe.</string>
     <string name="backup_unlock">O arquivo de configurações está protegido: insira a senha.</string>
@@ -797,7 +797,7 @@
     <string name="update_title">AIV %1$s está disponível</string>
     <string name="update_install">Atualizar</string>
     <string name="update_later">Mais tarde</string>
-    <string name="update_downloading">Baixando a atualização...</string>
+    <string name="update_downloading">Baixando a atualização…</string>
     <string name="update_latest">O AIV está atualizado</string>
     <string name="update_failed">Falha na atualização</string>
     <string name="update_untrusted">A atualização não está assinada com a chave do AIV, então não será instalada.</string>

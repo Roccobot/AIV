@@ -251,7 +251,7 @@
     <string name="filter_images">画像のみ</string>
     <string name="filter_videos">動画のみ</string>
     <string name="pick_forever">完全に削除</string>
-    <string name="pick_counting">計算中...</string>
+    <string name="pick_counting">計算中…</string>
     <plurals name="pick_count">
         <item quantity="other">%1$d 件を選択</item>
     </plurals>
@@ -303,7 +303,7 @@
     <string name="dest_move_here">%1$s に移動</string>
     <string name="dest_pick_copy">フォルダーにコピー</string>
     <string name="dest_pick_move">フォルダーに移動</string>
-    <string name="dest_browse">すべてのフォルダーを参照...</string>
+    <string name="dest_browse">すべてのフォルダーを参照…</string>
     <string name="menu_copy_here">コピー</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d 件コピーしました</item>
@@ -716,8 +716,8 @@
     <string name="backup_newer">この設定ファイルは新しい形式のため、このバージョンの AIV では開けません。読み込むにはアプリを更新してください。</string>
     <string name="backup_wrong">エラー: パスワードが正しくないか、ファイルが壊れています。</string>
     <string name="backup_broken">ファイルが破損しているか、不完全です。</string>
-    <string name="backup_exporting">書き出し中...</string>
-    <string name="backup_importing">読み込み中...</string>
+    <string name="backup_exporting">書き出し中…</string>
+    <string name="backup_importing">読み込み中…</string>
     <string name="backup_import_from">%1$s %2$s に書き出し\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">これらの設定で現在の設定が置き換わります。ただしスタイル、色、カバー、含めるフォルダと除外するフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_unlock">設定ファイルは保護されています。パスワードを入力してください。</string>
@@ -761,7 +761,7 @@
     <string name="update_title">AIV %1$s を利用できます</string>
     <string name="update_install">アップデート</string>
     <string name="update_later">後で</string>
-    <string name="update_downloading">アップデートをダウンロード中...</string>
+    <string name="update_downloading">アップデートをダウンロード中…</string>
     <string name="update_latest">AIVは最新です</string>
     <string name="update_failed">アップデートに失敗しました</string>
     <string name="update_untrusted">このアップデートはAIVの鍵で署名されていないため、インストールしません。</string>

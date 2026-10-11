@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">மேலே உள்ள வடிவங்களை மட்டுமே Android எழுத முடியும். மற்றவற்றுக்கு இந்தச் சேவைகள் உள்ளன, அவை உலாவியில் திறக்கும்: படத்தை அங்கேயே, தொலைபேசி நினைவகத்திலிருந்து தேர்ந்தெடுக்கவும்.</string>
     <string name="convert_clean">சுத்தம் செய்</string>
     <string name="convert_clean_why">தலைப்புத் தரவு, மேனிலைத் தரவு, குறிப்புகள், ஸ்க்ரிப்ட்கள், C2PA மற்றும் திருத்திகளின் எச்சங்களை நீக்குகிறது; இவை மிகக் கனமான தரவு (கோப்பின் 99% வரை) மற்றும் அரிதாகவே தேவைப்படும்.</string>
-    <string name="convert_clean_keeps">படத்தின் உள்ளடக்கம் மாறாது (பாதைகள், வடிவங்கள், கோடுகள், வரைபடங்கள், உரை...): ஓவியம் 100% அப்படியே இருக்கும்.</string>
+    <string name="convert_clean_keeps">படத்தின் உள்ளடக்கம் மாறாது (பாதைகள், வடிவங்கள், கோடுகள், வரைபடங்கள், உரை…): ஓவியம் 100% அப்படியே இருக்கும்.</string>
     <string name="convert_clean_c2pa">⚠️ எச்சரிக்கை: கோப்பை யார் உருவாக்கியது என்று சொல்லும் C2PA மூலத் தகவலும் போய்விடும். தேவைப்பட்டால் ஒரு நகலை வைத்துக்கொள்.</string>
     <string name="clean_now">சுத்தம் செய்</string>
     <string name="clean_done">சுத்தம் ஆனது: %1$s இல் இருந்து %2$s ஆக.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">படங்கள் மட்டும்</string>
     <string name="filter_videos">காணொளிகள் மட்டும்</string>
     <string name="pick_forever">முற்றிலும் நீக்கு</string>
-    <string name="pick_counting">எண்ணுகிறது...</string>
+    <string name="pick_counting">எண்ணுகிறது…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d உருப்படி தேர்ந்தெடுக்கப்பட்டது</item>
         <item quantity="other">%1$d உருப்படிகள் தேர்ந்தெடுக்கப்பட்டன</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">%1$s-இல் நகர்த்து</string>
     <string name="dest_pick_copy">ஒரு கோப்புறைக்கு நகலெடு</string>
     <string name="dest_pick_move">ஒரு கோப்புறைக்கு நகர்த்து</string>
-    <string name="dest_browse">எல்லா கோப்புறைகளையும் உலாவு...</string>
+    <string name="dest_browse">எல்லா கோப்புறைகளையும் உலாவு…</string>
     <string name="menu_copy_here">நகலெடு</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d கோப்பு நகலெடுக்கப்பட்டது</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">இந்த அமைப்புகள் கோப்பு புதிய வடிவத்தில் உள்ளது, அதை AIV-இன் இந்தப் பதிப்பால் திறக்க முடியாது. இதை இறக்குமதி செய்ய செயலியைப் புதுப்பிக்கவும்.</string>
     <string name="backup_wrong">பிழை: கடவுச்சொல் சரியில்லை, அல்லது கோப்பு சேதமடைந்துள்ளது.</string>
     <string name="backup_broken">கோப்பு சேதமடைந்துள்ளது அல்லது முழுமையாக இல்லை.</string>
-    <string name="backup_exporting">ஏற்றுமதி செய்கிறது...</string>
-    <string name="backup_importing">இறக்குமதி செய்கிறது...</string>
+    <string name="backup_exporting">ஏற்றுமதி செய்கிறது…</string>
+    <string name="backup_importing">இறக்குமதி செய்கிறது…</string>
     <string name="backup_import_from">%1$s, %2$s அன்று ஏற்றுமதி\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">இந்த அமைப்புகள் தற்போதைய அமைப்புகளுக்குப் பதிலாக வரும். பாணிகள், நிறங்கள், அட்டைகள், சேர்க்கப்பட்ட மற்றும் விலக்கப்பட்ட கோப்புறைகள், குப்பைத் தொட்டி மட்டும் ஏற்கெனவே உள்ளவற்றுடன் சேர்க்கப்படும்.</string>
     <string name="backup_unlock">அமைப்புகள் கோப்பு பாதுகாக்கப்பட்டுள்ளது: கடவுச்சொல்லை உள்ளிடவும்.</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s கிடைக்கிறது</string>
     <string name="update_install">புதுப்பி</string>
     <string name="update_later">பிறகு</string>
-    <string name="update_downloading">புதுப்பிப்பு பதிவிறக்கப்படுகிறது...</string>
+    <string name="update_downloading">புதுப்பிப்பு பதிவிறக்கப்படுகிறது…</string>
     <string name="update_latest">AIV புதுப்பித்த நிலையில் உள்ளது</string>
     <string name="update_failed">புதுப்பிப்பு தோல்வியடைந்தது</string>
     <string name="update_untrusted">புதுப்பிப்பு AIV-இன் விசையால் கையொப்பமிடப்படவில்லை, எனவே நிறுவப்படாது.</string>

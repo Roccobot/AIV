@@ -14,7 +14,7 @@ l'app nella propria lingua:
   crash solo su quei telefoni;
 - CATEGORIE DI PLURALE: dipendono dalla lingua, non dal numero di forme che ha l'inglese.
   Il russo ne vuole quattro, l'arabo sei, il giapponese una;
-- CARATTERI VIETATI dal repo: trattini lunghi, apici curvi, ellissi;
+- CARATTERI VIETATI dal repo: trattini lunghi, apici curvi, i tre punti al posto di `…`;
 - APOSTROFI NUDI, che in un file di risorse Android non sono ammessi: vanno scritti `\\'`
   (oppure la stringa intera va fra doppi apici). ⚠️⚠️ **Questo controllo nasce dalla `1.53`,
   e nasce da un difetto che è arrivato fino alla release**: due stringhe nuove con un
@@ -88,10 +88,13 @@ CATS = {
     'ar': ['zero', 'one', 'two', 'few', 'many', 'other'],
 }
 
+# ⚠️ Nei testi dell'app i puntini sono il carattere unico `…`, e i tre punti sono vietati: è la
+# convenzione di Android, e dal 2026-10-11 vale la deroga di `Roccobot.md` § 'Caratteri' (nei testi
+# di interfaccia vale la convenzione del sistema). Fino alla 5.60 era vietato il carattere unico.
 BANNED = {'—': 'trattino lungo', '–': 'trattino medio',
           '‘': 'apice curvo', '’': 'apice curvo',
           '“': 'virgolette curve', '”': 'virgolette curve',
-          '…': 'ellissi'}
+          '...': 'tre punti al posto di …'}
 
 
 def holders(text):

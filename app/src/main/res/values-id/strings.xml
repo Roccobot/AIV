@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
     <string name="convert_clean">Bersihkan</string>
     <string name="convert_clean_why">Menghapus header, metadata, komentar, skrip, C2PA, dan sisa-sisa editor, yaitu data paling berat (sampai 99% isi berkas) dan jarang dibutuhkan.</string>
-    <string name="convert_clean_keeps">Isi gambar tidak diubah (jalur, bentuk, garis, gambar, teks...): ilustrasinya tetap utuh 100%.</string>
+    <string name="convert_clean_keeps">Isi gambar tidak diubah (jalur, bentuk, garis, gambar, teks…): ilustrasinya tetap utuh 100%.</string>
     <string name="convert_clean_c2pa">⚠️ PERHATIAN: asal-usul C2PA juga hilang, yaitu bagian yang menyebut siapa yang membuat berkas. Simpan salinan jika kamu membutuhkannya.</string>
     <string name="clean_now">Bersihkan</string>
     <string name="clean_done">Dibersihkan: dari %1$s menjadi %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Hanya gambar</string>
     <string name="filter_videos">Hanya video</string>
     <string name="pick_forever">Hapus permanen</string>
-    <string name="pick_counting">Menghitung...</string>
+    <string name="pick_counting">Menghitung…</string>
     <plurals name="pick_count">
         <item quantity="other">%1$d item dipilih</item>
     </plurals>
@@ -303,7 +303,7 @@
     <string name="dest_move_here">Pindahkan ke dalam %1$s</string>
     <string name="dest_pick_copy">Salin ke folder</string>
     <string name="dest_pick_move">Pindahkan ke folder</string>
-    <string name="dest_browse">Jelajahi semua folder...</string>
+    <string name="dest_browse">Jelajahi semua folder…</string>
     <string name="menu_copy_here">Salin</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d item disalin</item>
@@ -716,8 +716,8 @@
     <string name="backup_newer">Berkas pengaturan ini memakai format yang lebih baru, yang tidak bisa dibuka versi AIV ini. Perbarui aplikasi untuk mengimpornya.</string>
     <string name="backup_wrong">Kesalahan: kata sandi salah, atau berkas rusak.</string>
     <string name="backup_broken">Berkas rusak atau tidak lengkap.</string>
-    <string name="backup_exporting">Mengekspor...</string>
-    <string name="backup_importing">Mengimpor...</string>
+    <string name="backup_exporting">Mengekspor…</string>
+    <string name="backup_importing">Mengimpor…</string>
     <string name="backup_import_from">Diekspor pada %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Pengaturan ini akan menggantikan yang sekarang, kecuali gaya, warna, sampul, folder disertakan dan dikecualikan, dan tempat sampah, yang akan ditambahkan ke yang sudah ada.</string>
     <string name="backup_unlock">Berkas pengaturan dilindungi: masukkan kata sandi.</string>
@@ -761,7 +761,7 @@
     <string name="update_title">AIV %1$s tersedia</string>
     <string name="update_install">Perbarui</string>
     <string name="update_later">Nanti</string>
-    <string name="update_downloading">Mengunduh pembaruan...</string>
+    <string name="update_downloading">Mengunduh pembaruan…</string>
     <string name="update_latest">AIV sudah yang terbaru</string>
     <string name="update_failed">Pembaruan gagal</string>
     <string name="update_untrusted">Pembaruan tidak ditandatangani dengan kunci AIV, jadi tidak akan dipasang.</string>

@@ -59,7 +59,7 @@
     <string name="update_title">AIV %1$s está disponible</string>
     <string name="update_install">Actualizar</string>
     <string name="update_later">Más tarde</string>
-    <string name="update_downloading">Descargando la actualización...</string>
+    <string name="update_downloading">Descargando la actualización…</string>
     <string name="update_latest">AIV está al día</string>
     <string name="update_failed">No se pudo actualizar</string>
     <string name="update_untrusted">La actualización no está firmada con la clave de AIV, así que no se instalará.</string>

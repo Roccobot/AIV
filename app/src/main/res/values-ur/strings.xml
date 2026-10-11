@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">اینڈرائیڈ صرف اوپر والے فارمیٹ لکھ سکتا ہے۔ باقی کے لیے یہ خدمات ہیں، جو براؤزر میں کھلتی ہیں: تصویر وہیں، فون کی یادداشت سے منتخب کریں۔</string>
     <string name="convert_clean">صفائی</string>
     <string name="convert_clean_why">سرخیاں، میٹا ڈیٹا، تبصرے، اسکرپٹ، C2PA اور ایڈیٹرز کی باقیات ہٹا دیتا ہے، جو سب سے بھاری ڈیٹا ہے (فائل کے 99% تک) اور کم ہی درکار ہوتا ہے۔</string>
-    <string name="convert_clean_keeps">تصویر کا مواد تبدیل نہیں ہوتا (راستے، شکلیں، لکیریں، خاکے، متن...): خاکہ 100% برقرار رہتا ہے۔</string>
+    <string name="convert_clean_keeps">تصویر کا مواد تبدیل نہیں ہوتا (راستے، شکلیں، لکیریں، خاکے، متن…): خاکہ 100% برقرار رہتا ہے۔</string>
     <string name="convert_clean_c2pa">⚠️ انتباہ: C2PA کا منبع بھی چلا جاتا ہے، یعنی وہ حصہ جو بتاتا ہے کہ فائل کس نے بنائی۔ ضرورت ہو تو ایک نقل رکھ لیں۔</string>
     <string name="clean_now">صاف کریں</string>
     <string name="clean_done">صاف ہو گیا: %1$s سے %2$s تک۔</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">صرف تصاویر</string>
     <string name="filter_videos">صرف ویڈیوز</string>
     <string name="pick_forever">مکمل حذف</string>
-    <string name="pick_counting">گنتی جاری ہے...</string>
+    <string name="pick_counting">گنتی جاری ہے…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d عنصر منتخب</item>
         <item quantity="other">%1$d عناصر منتخب</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">%1$s میں منتقل کریں</string>
     <string name="dest_pick_copy">کسی فولڈر میں کاپی کریں</string>
     <string name="dest_pick_move">کسی فولڈر میں منتقل کریں</string>
-    <string name="dest_browse">تمام فولڈرز براؤز کریں...</string>
+    <string name="dest_browse">تمام فولڈرز براؤز کریں…</string>
     <string name="menu_copy_here">نقل کریں</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d فائل نقل ہوئی</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">یہ ترتیبات کی فائل ایک نئے فارمیٹ میں ہے جسے AIV کا یہ ورژن نہیں کھول سکتا۔ اسے درآمد کرنے کے لیے ایپ اپ ڈیٹ کریں۔</string>
     <string name="backup_wrong">خرابی: پاس ورڈ درست نہیں ہے، یا فائل خراب ہے۔</string>
     <string name="backup_broken">فائل خراب یا نامکمل ہے۔</string>
-    <string name="backup_exporting">برآمد جاری ہے...</string>
-    <string name="backup_importing">درآمد جاری ہے...</string>
+    <string name="backup_exporting">برآمد جاری ہے…</string>
+    <string name="backup_importing">درآمد جاری ہے…</string>
     <string name="backup_import_from">%1$s، %2$s کو برآمد\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">یہ ترتیبات موجودہ ترتیبات کی جگہ لے لیں گی، سوائے اسٹائل، رنگ، سرورق، شامل اور خارج فولڈر اور ردی کی ٹوکری کے، جو پہلے سے موجود چیزوں میں شامل ہو جائیں گے۔</string>
     <string name="backup_unlock">ترتیبات کی فائل محفوظ ہے: پاس ورڈ درج کریں۔</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s دستیاب ہے</string>
     <string name="update_install">اپ ڈیٹ کریں</string>
     <string name="update_later">بعد میں</string>
-    <string name="update_downloading">اپ ڈیٹ ڈاؤن لوڈ ہو رہی ہے...</string>
+    <string name="update_downloading">اپ ڈیٹ ڈاؤن لوڈ ہو رہی ہے…</string>
     <string name="update_latest">AIV اپ ٹو ڈیٹ ہے</string>
     <string name="update_failed">اپ ڈیٹ ناکام رہی</string>
     <string name="update_untrusted">اپ ڈیٹ AIV کی کلید سے سائن نہیں ہے، اس لیے انسٹال نہیں ہوگی۔</string>

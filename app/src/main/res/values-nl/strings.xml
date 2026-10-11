@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android kan alleen de formaten hierboven schrijven. Voor de rest zijn er deze diensten, die in de browser openen: de afbeelding kies je daar, uit het geheugen van de telefoon.</string>
     <string name="convert_clean">Opschonen</string>
     <string name="convert_clean_why">Verwijdert headers, metadata, opmerkingen, scripts, C2PA en resten van editors: de zwaarste gegevens (tot 99% van het bestand), die je zelden nodig hebt.</string>
-    <string name="convert_clean_keeps">De inhoud van de afbeelding verandert niet (paden, vormen, lijnen, tekeningen, tekst...): de illustratie blijft 100% intact.</string>
+    <string name="convert_clean_keeps">De inhoud van de afbeelding verandert niet (paden, vormen, lijnen, tekeningen, tekst…): de illustratie blijft 100% intact.</string>
     <string name="convert_clean_c2pa">⚠️ LET OP: ook de C2PA-herkomst gaat weg, het deel dat zegt wie het bestand heeft gemaakt. Houd een kopie als je die nodig hebt.</string>
     <string name="clean_now">Opschonen</string>
     <string name="clean_done">Opgeschoond: van %1$s naar %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Alleen afbeeldingen</string>
     <string name="filter_videos">Alleen video\'s</string>
     <string name="pick_forever">Definitief wissen</string>
-    <string name="pick_counting">Aan het tellen...</string>
+    <string name="pick_counting">Aan het tellen…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d item geselecteerd</item>
         <item quantity="other">%1$d items geselecteerd</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">Verplaatsen naar %1$s</string>
     <string name="dest_pick_copy">Naar een map kopiëren</string>
     <string name="dest_pick_move">Naar een map verplaatsen</string>
-    <string name="dest_browse">Alle mappen doorzoeken...</string>
+    <string name="dest_browse">Alle mappen doorzoeken…</string>
     <string name="menu_copy_here">Kopiëren</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d item gekopieerd</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">Dit instellingenbestand heeft een nieuwer formaat dat deze versie van AIV niet kan openen. Werk de app bij om het te importeren.</string>
     <string name="backup_wrong">Fout: het wachtwoord klopt niet, of het bestand is beschadigd.</string>
     <string name="backup_broken">Het bestand is beschadigd of onvolledig.</string>
-    <string name="backup_exporting">Exporteren...</string>
-    <string name="backup_importing">Importeren...</string>
+    <string name="backup_exporting">Exporteren…</string>
+    <string name="backup_importing">Importeren…</string>
     <string name="backup_import_from">Geëxporteerd op %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Deze instellingen vervangen de huidige, behalve stijlen, kleuren, omslagen, inbegrepen en uitgesloten mappen en de prullenbak, die worden toegevoegd aan wat er al is.</string>
     <string name="backup_unlock">Het instellingenbestand is beveiligd: voer het wachtwoord in.</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s is beschikbaar</string>
     <string name="update_install">Bijwerken</string>
     <string name="update_later">Later</string>
-    <string name="update_downloading">Update downloaden...</string>
+    <string name="update_downloading">Update downloaden…</string>
     <string name="update_latest">AIV is up-to-date</string>
     <string name="update_failed">Bijwerken mislukt</string>
     <string name="update_untrusted">De update is niet ondertekend met de sleutel van AIV en wordt daarom niet geïnstalleerd.</string>

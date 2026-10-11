@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">Android ne sait écrire que les formats ci-dessus. Pour les autres, il y a ces services, qui s\'ouvrent dans le navigateur : l\'image se choisit là-bas, depuis la mémoire du téléphone.</string>
     <string name="convert_clean">Nettoyer</string>
     <string name="convert_clean_why">Retire les en-têtes, les métadonnées, les commentaires, les scripts, le C2PA et les restes des éditeurs, c\'est-à-dire les données les plus lourdes (jusqu\'à 99% du fichier), qui servent rarement.</string>
-    <string name="convert_clean_keeps">Le contenu de l\'image n\'est pas modifié (tracés, formes, lignes, dessins, textes...) : l\'illustration reste intacte à 100%.</string>
+    <string name="convert_clean_keeps">Le contenu de l\'image n\'est pas modifié (tracés, formes, lignes, dessins, textes…) : l\'illustration reste intacte à 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ATTENTION : la provenance C2PA part aussi, c\'est-à-dire la partie qui dit qui a fait le fichier. Gardez une copie si vous en avez besoin.</string>
     <string name="clean_now">Nettoyer</string>
     <string name="clean_done">Nettoyé : de %1$s à %2$s.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">Images seulement</string>
     <string name="filter_videos">Vidéos seulement</string>
     <string name="pick_forever">Supprimer définitivement</string>
-    <string name="pick_counting">Calcul en cours...</string>
+    <string name="pick_counting">Calcul en cours…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d élément sélectionné</item>
         <item quantity="other">%1$d éléments sélectionnés</item>
@@ -311,7 +311,7 @@
     <string name="dest_move_here">Déplacer dans %1$s</string>
     <string name="dest_pick_copy">Copier dans un dossier</string>
     <string name="dest_pick_move">Déplacer vers un dossier</string>
-    <string name="dest_browse">Parcourir tous les dossiers...</string>
+    <string name="dest_browse">Parcourir tous les dossiers…</string>
     <string name="menu_copy_here">Copier</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d élément copié</item>
@@ -752,8 +752,8 @@
     <string name="backup_newer">Ce fichier de réglages est dans un format plus récent, que cette version d\'AIV ne peut pas ouvrir. Mets à jour l\'app pour l\'importer.</string>
     <string name="backup_wrong">Erreur : le mot de passe est incorrect, ou le fichier est endommagé.</string>
     <string name="backup_broken">Le fichier est endommagé ou incomplet.</string>
-    <string name="backup_exporting">Exportation...</string>
-    <string name="backup_importing">Importation...</string>
+    <string name="backup_exporting">Exportation…</string>
+    <string name="backup_importing">Importation…</string>
     <string name="backup_import_from">Exportation du %1$s, %2$s\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">Ces réglages remplaceront les actuels, sauf les styles, les couleurs, les couvertures, les dossiers inclus et exclus et la corbeille, qui s\'ajouteront à ce qui s\'y trouve déjà.</string>
     <string name="backup_unlock">Le fichier de réglages est protégé : saisis le mot de passe.</string>
@@ -797,7 +797,7 @@
     <string name="update_title">AIV %1$s est disponible</string>
     <string name="update_install">Mettre à jour</string>
     <string name="update_later">Plus tard</string>
-    <string name="update_downloading">Téléchargement de la mise à jour...</string>
+    <string name="update_downloading">Téléchargement de la mise à jour…</string>
     <string name="update_latest">AIV est à jour</string>
     <string name="update_failed">Échec de la mise à jour</string>
     <string name="update_untrusted">La mise à jour n\'est pas signée avec la clé d\'AIV, elle ne sera donc pas installée.</string>

@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">एंड्रॉइड केवल ऊपर दिए प्रारूप ही लिख सकता है। बाकी के लिए ये सेवाएँ हैं, जो ब्राउज़र में खुलती हैं: छवि वहीं, फ़ोन की मेमोरी से चुनें।</string>
     <string name="convert_clean">साफ़ करें</string>
     <string name="convert_clean_why">हेडर, मेटाडेटा, टिप्पणियाँ, स्क्रिप्ट, C2PA और एडिटर के अवशेष हटाता है, जो सबसे भारी डेटा हैं (फ़ाइल का 99% तक) और कभी-कभार ही काम आते हैं।</string>
-    <string name="convert_clean_keeps">छवि की सामग्री नहीं बदलती (पथ, आकार, रेखाएँ, चित्र, पाठ...): चित्रांकन 100% अक्षुण्ण रहता है।</string>
+    <string name="convert_clean_keeps">छवि की सामग्री नहीं बदलती (पथ, आकार, रेखाएँ, चित्र, पाठ…): चित्रांकन 100% अक्षुण्ण रहता है।</string>
     <string name="convert_clean_c2pa">⚠️ चेतावनी: C2PA उद्गम भी चला जाता है, यानी वह हिस्सा जो बताता है कि फ़ाइल किसने बनाई। ज़रूरत हो तो एक प्रति रख लें।</string>
     <string name="clean_now">साफ़ करें</string>
     <string name="clean_done">साफ़ किया: %1$s से %2$s तक।</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">केवल चित्र</string>
     <string name="filter_videos">केवल वीडियो</string>
     <string name="pick_forever">पूरी तरह मिटाएँ</string>
-    <string name="pick_counting">गिना जा रहा है...</string>
+    <string name="pick_counting">गिना जा रहा है…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d आइटम चुना गया</item>
         <item quantity="other">%1$d आइटम चुने गए</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">%1$s में ले जाएँ</string>
     <string name="dest_pick_copy">किसी फ़ोल्डर में कॉपी करें</string>
     <string name="dest_pick_move">किसी फ़ोल्डर में ले जाएँ</string>
-    <string name="dest_browse">सभी फ़ोल्डर ब्राउज़ करें...</string>
+    <string name="dest_browse">सभी फ़ोल्डर ब्राउज़ करें…</string>
     <string name="menu_copy_here">कॉपी करें</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d आइटम कॉपी हुआ</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">यह सेटिंग्स फ़ाइल एक नए प्रारूप में है, जिसे AIV का यह संस्करण नहीं खोल सकता। इसे आयात करने के लिए ऐप अपडेट करें।</string>
     <string name="backup_wrong">त्रुटि: पासवर्ड सही नहीं है, या फ़ाइल ख़राब है।</string>
     <string name="backup_broken">फ़ाइल ख़राब या अधूरी है।</string>
-    <string name="backup_exporting">निर्यात हो रहा है...</string>
-    <string name="backup_importing">आयात हो रहा है...</string>
+    <string name="backup_exporting">निर्यात हो रहा है…</string>
+    <string name="backup_importing">आयात हो रहा है…</string>
     <string name="backup_import_from">%1$s, %2$s को निर्यात\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">ये सेटिंग्स मौजूदा सेटिंग्स की जगह ले लेंगी, सिवाय स्टाइल, रंग, कवर, शामिल और बाहर किए गए फ़ोल्डर और कूड़ेदान के, जो पहले से मौजूद चीज़ों में जुड़ जाएँगे।</string>
     <string name="backup_unlock">सेटिंग्स फ़ाइल सुरक्षित है: पासवर्ड लिखें।</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s उपलब्ध है</string>
     <string name="update_install">अपडेट करें</string>
     <string name="update_later">बाद में</string>
-    <string name="update_downloading">अपडेट डाउनलोड हो रहा है...</string>
+    <string name="update_downloading">अपडेट डाउनलोड हो रहा है…</string>
     <string name="update_latest">AIV अप-टू-डेट है</string>
     <string name="update_failed">अपडेट विफल रहा</string>
     <string name="update_untrusted">अपडेट AIV की कुंजी से साइन नहीं है, इसलिए इंस्टॉल नहीं होगा।</string>

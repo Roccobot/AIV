@@ -36,7 +36,7 @@
     <string name="convert_elsewhere_desc">పైన ఉన్న ఫార్మాట్లను మాత్రమే Android రాయగలదు. మిగతా వాటికి ఈ సేవలు ఉన్నాయి, అవి బ్రౌజర్‌లో తెరుచుకుంటాయి: చిత్రాన్ని అక్కడే, ఫోన్ మెమరీ నుండి ఎంచుకోండి.</string>
     <string name="convert_clean">శుభ్రం చేయి</string>
     <string name="convert_clean_why">శీర్షికలు, మెటాడేటా, వ్యాఖ్యలు, స్క్రిప్ట్‌లు, C2PA మరియు ఎడిటర్ అవశేషాలను తొలగిస్తుంది; ఇవి అత్యంత భారమైన డేటా (ఫైల్‌లో 99% వరకు) మరియు అరుదుగా అవసరమవుతాయి.</string>
-    <string name="convert_clean_keeps">చిత్రంలోని విషయం మారదు (మార్గాలు, ఆకారాలు, గీతలు, గీసినవి, వచనం...): చిత్రం 100% చెక్కుచెదరకుండా ఉంటుంది.</string>
+    <string name="convert_clean_keeps">చిత్రంలోని విషయం మారదు (మార్గాలు, ఆకారాలు, గీతలు, గీసినవి, వచనం…): చిత్రం 100% చెక్కుచెదరకుండా ఉంటుంది.</string>
     <string name="convert_clean_c2pa">⚠️ హెచ్చరిక: ఫైల్‌ను ఎవరు తయారు చేశారో చెప్పే C2PA మూలం కూడా పోతుంది. అవసరమైతే ఒక కాపీ ఉంచుకో.</string>
     <string name="clean_now">శుభ్రం చేయి</string>
     <string name="clean_done">శుభ్రం చేసింది: %1$s నుంచి %2$s కి.</string>
@@ -251,7 +251,7 @@
     <string name="filter_images">చిత్రాలు మాత్రమే</string>
     <string name="filter_videos">వీడియోలు మాత్రమే</string>
     <string name="pick_forever">పూర్తిగా తొలగించు</string>
-    <string name="pick_counting">లెక్కిస్తోంది...</string>
+    <string name="pick_counting">లెక్కిస్తోంది…</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d అంశం ఎంపికైంది</item>
         <item quantity="other">%1$d అంశాలు ఎంపికయ్యాయి</item>
@@ -307,7 +307,7 @@
     <string name="dest_move_here">%1$sలోకి తరలించు</string>
     <string name="dest_pick_copy">ఒక ఫోల్డర్‌కు కాపీ చేయి</string>
     <string name="dest_pick_move">ఒక ఫోల్డర్‌కు తరలించు</string>
-    <string name="dest_browse">అన్ని ఫోల్డర్‌లను బ్రౌజ్ చేయి...</string>
+    <string name="dest_browse">అన్ని ఫోల్డర్‌లను బ్రౌజ్ చేయి…</string>
     <string name="menu_copy_here">కాపీ</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d ఫైలు కాపీ అయింది</item>
@@ -734,8 +734,8 @@
     <string name="backup_newer">ఈ అమరికల ఫైల్ కొత్త ఫార్మాట్‌లో ఉంది, దాన్ని ఈ AIV వెర్షన్ తెరవలేదు. దీన్ని దిగుమతి చేయడానికి యాప్‌ను నవీకరించండి.</string>
     <string name="backup_wrong">లోపం: పాస్‌వర్డ్ సరైనది కాదు, లేదా ఫైల్ పాడైంది.</string>
     <string name="backup_broken">ఫైల్ పాడైంది లేదా అసంపూర్ణంగా ఉంది.</string>
-    <string name="backup_exporting">ఎగుమతి చేస్తోంది...</string>
-    <string name="backup_importing">దిగుమతి చేస్తోంది...</string>
+    <string name="backup_exporting">ఎగుమతి చేస్తోంది…</string>
+    <string name="backup_importing">దిగుమతి చేస్తోంది…</string>
     <string name="backup_import_from">%1$s, %2$sన ఎగుమతి\nAstonishing Image Viewer %3$s</string>
     <string name="backup_import_ask">ఈ అమరికలు ప్రస్తుత అమరికల స్థానంలోకి వస్తాయి, శైలులు, రంగులు, ముఖచిత్రాలు, చేర్చిన మరియు మినహాయించిన ఫోల్డర్‌లు, చెత్తబుట్ట తప్ప: అవి ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_unlock">అమరికల ఫైల్ రక్షించబడింది: పాస్‌వర్డ్‌ను నమోదు చేయండి.</string>
@@ -779,7 +779,7 @@
     <string name="update_title">AIV %1$s అందుబాటులో ఉంది</string>
     <string name="update_install">అప్‌డేట్ చేయండి</string>
     <string name="update_later">తర్వాత</string>
-    <string name="update_downloading">అప్‌డేట్ డౌన్‌లోడ్ అవుతోంది...</string>
+    <string name="update_downloading">అప్‌డేట్ డౌన్‌లోడ్ అవుతోంది…</string>
     <string name="update_latest">AIV తాజాగా ఉంది</string>
     <string name="update_failed">అప్‌డేట్ విఫలమైంది</string>
     <string name="update_untrusted">అప్‌డేట్ AIV కీతో సంతకం చేయబడలేదు, కాబట్టి ఇన్‌స్టాల్ కాదు.</string>
