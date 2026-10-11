@@ -51,17 +51,21 @@ class FunzioniPlayTest {
     }
 
     /**
-     * **The two file pads keep only what reads**: 'Condividi' and 'Info' in the viewer's menu, and
-     * in the selection sheet those two with 'Lista' and the three that choose. The same lists
-     * feed the page that reorders them.
+     * **The two file pads keep what reads, and 'Elimina'**: 'Condividi', 'Info' and, since 5.20,
+     * 'Elimina' in the viewer's menu, and in the selection sheet those with 'Lista' and the three
+     * that choose. 'Elimina' goes through the MediaStore (`MediaDelete`, his choices A1 and B1);
+     * the three that write through `java.io.File` stay out. The same lists feed the page that
+     * reorders them.
      */
     @Test
-    fun `i riquadri dei file non hanno i quattro tasti che scrivono`() {
-        val scrivono = setOf(PadKey.COPY, PadKey.MOVE, PadKey.RENAME, PadKey.DELETE)
-        assertEquals(listOf(PadKey.SHARE, PadKey.INFO), MENU_KEYS)
+    fun `i riquadri dei file non hanno i tre tasti che scrivono sui file ma hanno Elimina`() {
+        val scrivono = setOf(PadKey.COPY, PadKey.MOVE, PadKey.RENAME)
+        assertEquals(setOf(PadKey.SHARE, PadKey.INFO, PadKey.DELETE), MENU_KEYS.toSet())
         assertTrue("La selezione ha ancora $PICK_KEYS", PICK_KEYS.none { it in scrivono })
-        assertEquals(6, PICK_KEYS.size)
+        assertTrue("La selezione non ha Elimina: $PICK_KEYS", PadKey.DELETE in PICK_KEYS)
+        assertEquals(7, PICK_KEYS.size)
         scrivono.forEach { assertFalse("$it c'è ancora", Store.allows(it)) }
+        assertTrue("Elimina manca", Store.allows(PadKey.DELETE))
     }
 
     @Test

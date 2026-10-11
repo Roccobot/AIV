@@ -889,12 +889,27 @@ quindi le due app si installano una accanto all'altra.
   manifest comune non ne dichiara nessuno sull'archivio.
 - ⚠️⚠️ **Che cosa manca ad AIV Play, e perché**: le funzioni che scrivono sui file con `java.io.File`.
   Senza il permesso su tutti i file falliscono su ogni file che non ha creato l'app, e un comando
-  che fallisce sempre è peggio di nessun comando. Sono nascosti: i tasti Copia, Sposta, Rinomina ed
-  Elimina dei due riquadri dei file (e con loro dalla pagina che li riordina), il cestino con la sua
+  che fallisce sempre è peggio di nessun comando. Sono nascosti: i tasti Copia, Sposta e Rinomina
+  dei due riquadri dei file (e con loro dalla pagina che li riordina), il cestino di AIV con la sua
   pagina, la vista 'Cartelle di sistema' con 'Nuova cartella', la rinomina di una cartella e quella
   dal pannello Info, la scelta di un'app esterna per 'Modifica', la copia di sicurezza prima di
   sovrascrivere e 'Pulisci' degli SVG. La scaletta per riportarle, una per rilascio con MediaStore,
   vive nel brief.
+- ⚠️⚠️ **'Elimina' è tornato in AIV Play dalla `5.20`, attraverso il MediaStore** (sue scelte A1 e
+  B1, 2026-10-11; `MediaDelete.kt`):
+  - **da Android 11 sposta nel cestino di sistema** (`createTrashRequest`), dove il sistema tiene
+    i file circa 30 giorni (`MediaColumns.DATE_EXPIRES`). La conferma è la finestra di Android, che
+    non si può saltare, e AIV non ne aggiunge una sua; col no non succede niente e non si dice
+    niente. Non c'è 'Annulla', quindi l'esito lo dice la notifica (`FileKind.speaks`).
+  - **su Android 9 e 10 elimina per sempre**, dopo la conferma di AIV: su Android 10 un file di
+    un'altra app chiede il consenso di Android file per file (`RecoverableSecurityException`), su
+    Android 9 serve il permesso di scrittura, dichiarato solo fino alla 28 nel manifest di `play`.
+  - ⚠️ **La finestra di sistema la apre `SystemAsk`, in cima a `FileJobDialogs`**: il lavoro
+    continua dopo che la finestra di AIV si è chiusa, e un launcher tolto dalla composizione non
+    consegnerebbe la risposta. Se l'attività si ricrea mentre la finestra di sistema è aperta, la
+    risposta si perde: è accettato e dichiarato.
+  - **La pagina 'Cestino' di AIV Play, che leggerà il cestino di sistema, è la `5.30`**; fino ad
+    allora un file si recupera con un'app che legge quel cestino. Le presidia `EliminaPlayTest`.
 - ⚠️⚠️ **Il `Salva` degli editor di AIV Play scrive in Download**: il file nasce nella cache
   dell'app e poi passa a `MediaStore.Downloads` (`ImageEdit.outDir` e `delivered`), e l'originale
   resta com'è. ⚠️ **Su Android 9 non c'è questa strada** (`MediaStore.Downloads` nasce con Android

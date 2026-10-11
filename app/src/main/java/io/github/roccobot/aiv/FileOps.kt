@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.content.res.Resources
 import android.net.Uri
+import android.os.Build
 import androidx.annotation.PluralsRes
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -91,6 +92,9 @@ fun FileJobDialogs(
     onRun: (FileKind, suspend () -> FileTree.Outcome) -> Unit
 ) {
     val context = LocalContext.current
+    // ⚠️ Here and not in a job's branch: AIV Play's deletion waits for a system window after its
+    // own has closed (`MediaDelete`, `SystemAsk`).
+    val ask = rememberSystemAsk()
     when (job) {
         null -> Unit
 
@@ -160,6 +164,33 @@ fun FileJobDialogs(
          * (là si cancella per davvero) e fuori quando l'interruttore è spento. Vedi
          * [FileJob.Delete].
          */
+        /*
+         * ⚠️⚠️ **In AIV Play from Android 11 the system's window is the confirmation** (his choice
+         * A1, 5.20): the files go into the system's trash, and AIV adds no window of its own in front
+         * of Android's, which cannot be skipped. A 'no' there touches nothing and says nothing.
+         */
+        is FileJob.Delete if !Store.files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+            LaunchedEffect(job) {
+                val rows = withContext(Dispatchers.IO) { MediaDelete.rows(context, job.uris) }
+                // ⚠️ A system that gives no window leaves every file where it was, and says so.
+                val request = if (rows.isEmpty()) null else runCatching { MediaDelete.trashRequest(context, rows) }.getOrNull()
+                val yes = request != null && ask.ask(request)
+                val failed = if (request == null) job.uris.size else job.uris.size - rows.size
+                if (yes || failed > 0) onRun(FileKind.TRASH) { FileTree.Outcome(if (yes) rows.size else 0, failed) }
+                onClose()
+            }
+
+        // ⚠️ AIV Play on Android 9 and 10 deletes for good (his choice B1), after AIV's confirmation.
+        is FileJob.Delete if !Store.files ->
+            DeleteDialog(
+                count = job.uris.size,
+                onDismiss = onClose,
+                onConfirm = {
+                    onClose()
+                    onRun(FileKind.DELETE) { MediaDelete.forGood(context, job.uris, ask) }
+                }
+            )
+
         is FileJob.Delete ->
             if (job.forGood) {
                 DeleteDialog(
@@ -342,7 +373,14 @@ internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
             null -> emptyList()
             is FileJob.Transfer -> listOf(TRANSFER, job.move) + job.uris
             is FileJob.Rename -> listOf(RENAME, false) + job.uris
-            is FileJob.Delete -> if (job.forGood) listOf(DELETE, true) + job.uris else emptyList()
+            // ⚠️ Only AIV's own confirmation is a window to reopen: in AIV Play from Android 11 the
+            // window is the system's, and reopening the job would ask a second time.
+            is FileJob.Delete ->
+                if (if (Store.files) job.forGood else Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    listOf(DELETE, true) + job.uris
+                } else {
+                    emptyList()
+                }
             is FileJob.Facts -> listOf(FACTS, false) + job.uris
             is FileJob.Restore, is FileJob.Duplicate -> emptyList()
         }
@@ -443,7 +481,8 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
  * non avere.
  */
 fun FileKind.speaks(out: FileTree.Outcome): Boolean =
-    out.failed > 0 || (this != FileKind.TRASH && out.undo.isEmpty())
+    out.failed > 0 || (out.undo.isEmpty() && (this != FileKind.TRASH || !Store.files))
+// ⚠️ AIV Play's trash is the system's (5.20) and offers no 'Annulla', so there the outcome speaks.
 
 /**
  * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,

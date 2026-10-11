@@ -19,5 +19,13 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <!--
+        Dalla 5.20: su Android 9 'Elimina' cancella un file di un'altra app solo con questo
+        permesso (sua scelta B1). Da Android 10 la cancellazione passa dal consenso di Android
+        file per file, e da Android 11 dal cestino di sistema: lì il permesso non serve.
+    -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
 </manifest>
