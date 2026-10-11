@@ -1400,6 +1400,26 @@ def check(path):
             assert reach['view'] < 400, ('La pagina non si è ingrandita: la prova non misura niente.', reach)
             assert abs(reach['panel'] - reach['view']) < 1 and reach['bottom'] <= reach['view'] + 1, reach
             assert reach['covered'], ('Sotto il pannello di Altro si vede la pagina.', reach)
+            # Both rows of keys stay whole in the visible area, even when it is shorter than the
+            # 368px they were drawn for: the field gives up the difference (his note of
+            # 2026-10-11, with a screenshot: with Chrome's address bar at the bottom the page is
+            # told about 341px, and the second row was cut in half). With room enough the field
+            # keeps its 269px.
+            def rows_fit(height):
+                zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 900 / height})
+                second.wait_for_timeout(300)
+                return second.evaluate("""() => {
+                    const view = visualViewport, panel = document.querySelector('.altro-overlay-panel');
+                    panel.scrollTop = 0;
+                    const rows = panel.querySelector('.format-actions').getBoundingClientRect();
+                    const field = document.querySelector('#notes-mobile-editor').getBoundingClientRect();
+                    return {view: view.height, rows: rows.bottom - view.offsetTop, field: field.height};
+                }""")
+            roomy = rows_fit(368)
+            assert abs(roomy['field'] - 269) < 1 and roomy['rows'] <= roomy['view'] + 1, roomy
+            short = rows_fit(341)
+            assert short['view'] < 345, ('La pagina non si è ingrandita: la prova non misura niente.', short)
+            assert short['rows'] <= short['view'] + 1, ('La seconda fila di Altro è tagliata.', short)
             zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 1})
             second.wait_for_timeout(300)
             second.evaluate('document.activeElement.blur()')

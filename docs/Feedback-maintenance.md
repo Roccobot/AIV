@@ -203,6 +203,12 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   Nell'overlay il campo comincia in cima al pannello, senza titolo né spazio sopra, ed è alto
   269 px, senza anello di selezione: con la tastiera alta dell'utente sopra restano circa
   368 px, e il campo e le due file di tasti entrano in quello spazio (sue scelte, 2026-10-04 e 2026-10-06). Con l'overlay aperto la pagina sotto non scorre.
+  ⚠️ **Quando l'area visibile è più bassa, il campo cede la differenza** (`fitAltroField`, dal
+  2026-10-11, sua segnalazione con uno screenshot): con la barra degli indirizzi di Chrome in basso
+  la pagina riceve circa 29 px in meno di quelli che mostra (341 contro 370, misurati sullo
+  screenshot), e la seconda fila era tagliata a metà. Le due file restano intere, il campo resta
+  fra 96 e 269 px; la fascia vuota sotto le file è quella differenza, che la pagina non può
+  misurare.
   ⚠️⚠️ **L'overlay è alto quanto l'area che la tastiera lascia visibile** (`visualViewport`, dal
   2026-10-10, sua nota: con gli allegati non riusciva a scendere a vederli). Si apre col cursore nel
   campo, quindi su Android la tastiera si apre con lui, e lei riduce solo l'area visibile: un
