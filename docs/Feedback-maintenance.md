@@ -346,6 +346,15 @@ decisioni; escono `Altro` coi suoi allegati, la conferma della versione installa
 alle prove chiuse coi loro allegati. Prima si accumulavano: un JSON del 3.42 conteneva 76 risposte
 dal giro 3.13 in poi, e importato sembrava vuoto. L'importazione dice quante risposte riguardano
 prove non più in pagina.
+⚠️⚠️ **Un DF cumulativo conserva `Altro` del giro che prosegue** (regola di Rocco del 2026-10-12,
+`Roccobot.md` § '🚪 Il lavoro nuovo comincia dopo l'invio del giro precedente': con la deroga la
+versione nuova si rilascia, e il DF cumulativo va in scena subito dopo la release, mentre lui sta
+ancora compilando il giro vecchio). La fonte lo dichiara con una riga sua sotto il titolo,
+`Prosegue il giro **5.71**.`, che il generatore passa alla pagina come `continues`: una bozza di quel
+giro tiene `Altro` e i suoi allegati, e perde solo la conferma della versione installata. Il
+generatore si ferma se il giro nominato è quello in corso o non ha più prove in pagina. Fino a quel
+giorno il DF cumulativo svuotava `Altro` come ogni cambio di giro. Lo presidia
+`tools/feedback-interactive-check.py`, con una bozza del giro che prosegue.
 **Gli allegati sono file veri**, mai testo: nella pagina e nella bozza del browser un
 allegato è `{name, type, size, blob}`, con i byte originali (dal 2026-10-03; prima erano testo
 base64, un terzo più pesante e tenuto per intero nella memoria della pagina).
