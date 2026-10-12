@@ -246,41 +246,25 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   (selettore, salvataggio, rinomina, miniature, esporta e importa) e `docs/Editor.md` (pose,
   moduli, stili, filigrana, ridimensionamento). Prima di toccare una di quelle funzioni si legge il
   suo file per intero (`Rules.md` § '📚 Dove vivono le specifiche delle funzioni').
-- **Il documento di feedback condiviso da tutti gli agenti** vive in
-  <https://aiv-feedback.roccobot-b90.workers.dev/feedback>. Prima di aggiornarlo leggi
-  `docs/Feedback-maintenance.md`: fonti, identificatori stabili, cloud, formato dei dati,
-  verifiche e pubblicazione. Invio rende leggibile il giro, il via in chat autorizza
-  il recupero su richiesta con `tools/feedback-read.mjs` (`Rules.md` § '🔗 Il documento vivo del progetto').
-  Quando un testo per l'utente nomina il DF, la parola è sempre un link a quell'indirizzo.
-- **Dopo aver letto un giro, la release successiva può coprire solo una parte del backlog**: l'agente sceglie liberamente che cosa programmare, accorpare o lasciare da decidere, comunica proattivamente a Rocco in chat il piano e il residuo, e chiude ogni documento di feedback con la sezione esatta `Prossimi passi`, in forma breve e schematica.
-- **Blocchi del DF, in quest'ordine**: le prove numerate (una funzione, una serie di controlli), poi le **Domande** non numerate, poi le **Etichette testuali**, poi `Aggiornamenti recenti` e `Prossimi passi` (`Rules.md` § '🔗 Il documento vivo del progetto').
-- **Una voce ferma nel brief da più di dieci giri torna nel DF**, nelle Domande, con opzioni con la lettera e parere; se l'utente rimanda resta nel brief e torna dopo altri dieci. Nel DF entrano solo AIV, file di regole, convenzioni, impostazioni e il DF stesso: le voci degli altri progetti si ripropongono in chat.
-- **Ogni testo italiano nuovo o cambiato va nelle Etichette testuali del DF, anche quello scelto dall'utente**: `tools/feedback-build.py` si ferma se manca, confrontando `values-it/strings.xml` con `docs/Labels-approved.json`; letto il giro, `--approve-labels` registra i testi confermati.
-- **Il catalogo dei veli d'aiuto si aggiorna senza aspettare la richiesta**, ogni volta che un velo nasce o cambia, nello stesso giro della versione (la nota in testa a `Rules.md`).
-- **Il documento di feedback si pubblica o aggiorna solo dopo la GitHub Release pubblicata, con l'APK, della stessa versione**: verificare il tag `vX.XX`; numero e link all'APK non bastano. Eccezione: ritocco solo UX/documentale del DF → Feedback cloud/Pages senza nuova Release APK (`docs/Feedback-maintenance.md`).
-- **Forma del DF** (`docs/Feedback-maintenance.md`): solo feedback sull'app, la sua UI si gestisce in chat; intro di due righe più `Scarica AIV`, che scarica AIV Play; `Aggiornamenti recenti` copre un paio di giri; un'etichetta esce dopo la prima conferma; Etichette testuali e comandi di consegna sotto Altro come da guida.
-- **Dopo ogni giro elaborato: audit obbligatorio** contro l'export precedente.
-  Feedback doc = sorgente del lavoro aperto; brief = piano d'azione + backlog
-  (non archivio); una richiesta esce dal DF se fatta o nel brief (`Roccobot.md`
-  § '🔍 Audit obbligatorio'; `docs/Feedback-maintenance.md`). Niente richieste perse.
-- **Prima di pubblicarlo esegui `tools/feedback-check.py publish/feedback.html`**; per cloud
-  e salvataggio anche le suite Node/PostgreSQL e `tools/feedback-cloud-check.py`. Il workflow
-  `Feedback cloud` deve concludere check e deploy. Mentre l'utente compila si prepara una
-  bozza, salvo sua richiesta esplicita di aggiornamento; si prende in carico il giro intero.
-- **Il documento vivo è uno solo**: l'artefatto Claude precedente è un riferimento storico,
-  la copia su GitHub Pages non c'è più dal 2026-10-03; non creare copie per agente. Changelog e
-  piano d'azione sono ritirati, l'ordine dei lavori vive nel brief (`Rules.md` § '🔗 Il
-  documento vivo del progetto').
+- **Il documento di feedback (DF) è uno solo per tutti gli agenti**:
+  <https://aiv-feedback.roccobot-b90.workers.dev/feedback>, e nominato in un testo per l'utente è
+  sempre un link. Prima di aggiornarlo si legge per intero `docs/Feedback-maintenance.md`, che dice
+  fonti, forma e blocchi, Domande, Etichette testuali, verifiche, pubblicazione e audit del giro
+  (`Rules.md` § '🔗 Il documento vivo del progetto').
+- **Le regole del DF che servono sempre**: si pubblica dopo la GitHub Release `vX.XX` con l'APK,
+  salvo un ritocco solo UX o documentale; prima si lancia `tools/feedback-check.py`; mentre
+  l'utente compila si prepara una bozza; ogni testo italiano nuovo o cambiato entra nelle
+  Etichette testuali; dopo un giro letto, audit contro l'export precedente, piano e residuo in
+  chat, e `Prossimi passi` in fondo al DF.
+- **Il catalogo dei veli d'aiuto si aggiorna senza aspettare la richiesta**, nello stesso giro in
+  cui un velo nasce o cambia (la nota in testa a `Rules.md`).
 - **Versione SlimVer, con la fonte unica in `versionName` di `app/build.gradle.kts`**: il tag lo
   ricava il workflow. ⚠️ Il `versionCode` va fatto salire a ogni versione pubblicata, e nessun
   controllo lo verifica (`Rules.md` § '🚀 Che cosa produce un rilascio').
 - **Il rilascio**: `release.yml` in `workflow_dispatch` con l'ingresso `publish` acceso taglia il
-  tag, costruisce gli APK firmati e, dalla `5.70`, l'AAB di AIV Play per Google Play (scheda,
-  moduli e passi in `docs/Store.md`, conti con `tools/store-check.py`, informativa in
-  `publish/privacy.html`), e crea la release; senza `publish` è la corsa a vuoto, che non si
-  chiama 'banco di prova'. Il cancello è il banco con le traduzioni: se `check.yml` è verde
-  sullo stesso commit non si rifà, se è rosso il rilascio si ferma, se manca gira nel rilascio;
-  intanto il build procede (`Rules.md` § '🚀 Che cosa produce un rilascio').
+  tag, costruisce gli APK firmati e l'AAB di AIV Play (`docs/Store.md`) e crea la release; senza
+  `publish` è la corsa a vuoto. Il cancello è il banco con le traduzioni di `check.yml`
+  (`Rules.md` § '🚀 Che cosa produce un rilascio').
 - **Verifica di pubblicazione**: la release col suo tag e l'APK allegato (`get_release_by_tag`).
   ⚠️ Due build si distinguono dal `digest` dell'asset, non dal peso, che l'allineamento a 16 KB
   lascia uguale. Il sito si controlla solo quando cambia `publish/`, con la corsa di `pages.yml`
@@ -288,18 +272,12 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **La firma** vive solo fra i secret GitHub del repo (`AIV_KEYSTORE_FILE`, `AIV_KEYSTORE_PASSWORD`,
   `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`). ⚠️ Senza di loro il build di release non fallisce: l'APK
   risulta non firmato, e il workflow lo chiede all'APK (`Rules.md` § '🔐 La firma, e dove NON vive').
-- **Due varianti dallo stesso codice, dalla `5.10`**: AIV GitHub con l'accesso a tutti i file e AIV
-  Play, una galleria senza le funzioni che scrivono sui file e col `Salva` in Download; dalla `5.20`
-  il suo `Elimina` passa dal MediaStore, col cestino di sistema da Android 11, che dalla `5.40` ha
-  la sua pagina `Cestino`, dalla `5.50` da Android 11 rinomina i file, e dalla `5.30` ha
-  meno impostazioni, coi valori fissati da `Store.fit` (scelte sue, voce per voce); dalla `5.60` AIV
-  GitHub si aggiorna da sé (`Updater`), AIV Play no. La
-  differenza la legge solo `Store.kt`, e una release ha due APK (`Rules.md` § '🏪 Le due varianti,
-  e che cosa manca ad AIV Play').
-- **Ogni modifica si assegna a una variante, anche se lui dice solo 'app' o 'AIV'**: tutte e due
-  (nucleo, grafica, funzioni di base, correzioni), solo GitHub o solo Play; la scelta si dichiara, e
-  il comune si rilascia sempre senza chiedere (`Rules.md` § '🏪 Le due varianti, e che cosa manca
-  ad AIV Play').
+- **Due varianti dallo stesso codice**: AIV GitHub, con l'accesso a tutti i file e
+  l'aggiornamento da sé, e AIV Play, una galleria senza le funzioni che scrivono sui file e con
+  meno impostazioni (`Store.fit`). La differenza la legge solo `Store.kt` e una release ha due APK;
+  ogni modifica si assegna a tutte e due o a una sola, anche se l'utente dice solo 'AIV', la scelta
+  si dichiara e il comune si rilascia senza chiedere (`Rules.md` § '🏪 Le due varianti, e che cosa
+  manca ad AIV Play').
 - **Il banco di prova è `./gradlew :app:testGithubDebugUnitTest`**, più le prove `*PlayTest` di
   `app/src/testPlay/` con `:app:testPlayDebugUnitTest --tests '*PlayTest'` (Robolectric, app finta,
   niente nell'APK): si lancia prima di aprire la PR, e `check.yml` e `release.yml` sono la rete. Prende i
