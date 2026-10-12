@@ -263,6 +263,7 @@
  "folder_order_ask": "Come vuoi che siano ordinate le cartelle in vista griglia? Potrai cambiare la disposizione in qualsiasi momento dalle impostazioni.",
  "folder_order_desc": "Imposta l\\'ordine delle cartelle valido per la vista griglia. Il contenuto delle cartelle mostra sempre gli elementi più recenti in cima.",
  "folder_order_recent": "Più recenti in alto",
+ "folder_order_short": "Disposizione delle cartelle",
  "folder_remove": "Rimuovi autorizzazione",
  "folder_remove_desc": "Vuoi rimuovere questa cartella dalla lista delle autorizzate? Il suo contenuto sparirà dalle modalità griglia e lista.",
  "folder_rename_fail": "Non è stato possibile rinominare la cartella",
