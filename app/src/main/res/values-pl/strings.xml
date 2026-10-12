@@ -750,7 +750,6 @@
     <string name="backup_intro">Plik zawiera poniższe ustawienia i odczyta go tylko AIV. Przy imporcie style, kolory, okładki, uwzględnione i wykluczone foldery i kosz zostaną dodane do tego, co już jest.</string>
     <string name="backup_area_view">Wygląd i nawigacja</string>
     <string name="backup_area_editor">Ustawienia edytora</string>
-    <string name="backup_area_covers">Okładki folderów</string>
     <string name="backup_area_hints">Wskazówki i minisamouczki</string>
     <string name="backup_lock">Zabezpiecz hasłem</string>
     <string name="backup_lock_desc">Bez hasła plik otworzy tylko AIV, a każdy, kto ma AIV, może go zaimportować.</string>
@@ -820,4 +819,17 @@
     <string name="update_failed">Aktualizacja nie powiodła się</string>
     <string name="update_untrusted">Aktualizacja nie jest podpisana kluczem AIV, więc nie zostanie zainstalowana.</string>
     <string name="update_permission">Aby zaktualizować, zezwól AIV na instalowanie aplikacji.</string>
+    <string name="folder_order">Układ w widoku siatki</string>
+    <string name="folder_order_desc">Ustala kolejność folderów w widoku siatki. Zawartość folderów zawsze pokazuje najnowsze elementy na górze.</string>
+    <string name="folder_order_alpha">Alfabetycznie</string>
+    <string name="folder_order_recent">Najnowsze na górze</string>
+    <string name="folder_order_ask">Jak chcesz sortować foldery w widoku siatki? Układ możesz zmienić w każdej chwili w ustawieniach.</string>
+    <string name="folder_order_alpha_long">Kolejność alfabetyczna</string>
+    <string name="favourite_folders">Ulubione foldery</string>
+    <string name="favourite_folders_desc">Pojawiają się na górze siatki i listy, w tej kolejności.</string>
+    <string name="favourite_folders_none">Brak ulubionych folderów</string>
+    <string name="folder_action_title">Wybierz działanie dla folderu</string>
+    <string name="favourite_add">Dodaj do ulubionych</string>
+    <string name="favourite_remove">Usuń z ulubionych</string>
+    <string name="backup_area_folders">Foldery i ścieżki</string>
 </resources>

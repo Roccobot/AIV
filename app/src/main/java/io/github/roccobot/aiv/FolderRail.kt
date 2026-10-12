@@ -397,7 +397,9 @@ fun FolderRailList(
     val granted by remember { mutableStateOf(Folder.granted(context)) }
     LaunchedEffect(granted) { onRead(granted) }
 
+    // ⚠️ The column is a list: favourites first from the `5.80`, and no grid order.
     val folders = buckets?.filter { selection.visible(it.path, peeking) }
+        ?.let { selection.arrange(it, grid = false) }
     var holding by remember { mutableStateOf<Folder.Bucket?>(null) }
 
     when {

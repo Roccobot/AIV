@@ -696,7 +696,6 @@
     <string name="backup_intro">ไฟล์นี้มีการตั้งค่าด้านล่าง และมีเพียง AIV ที่อ่านได้ ตอนนำเข้า สไตล์ สี ภาพปก โฟลเดอร์ที่รวมและยกเว้น และถังขยะจะถูกเพิ่มเข้าไปในสิ่งที่มีอยู่แล้ว</string>
     <string name="backup_area_view">รูปลักษณ์และการนำทาง</string>
     <string name="backup_area_editor">การตั้งค่าตัวแก้ไข</string>
-    <string name="backup_area_covers">ภาพปกของโฟลเดอร์</string>
     <string name="backup_area_hints">คำแนะนำและบทแนะนำสั้น ๆ</string>
     <string name="backup_lock">ป้องกันด้วยรหัสผ่าน</string>
     <string name="backup_lock_desc">หากไม่มีรหัสผ่าน ไฟล์จะเปิดได้ด้วย AIV เท่านั้น และทุกคนที่มี AIV สามารถนำเข้าได้</string>
@@ -766,4 +765,17 @@
     <string name="update_failed">อัปเดตไม่สำเร็จ</string>
     <string name="update_untrusted">อัปเดตนี้ไม่ได้ลงนามด้วยคีย์ของ AIV จึงจะไม่ติดตั้ง</string>
     <string name="update_permission">หากต้องการอัปเดต โปรดอนุญาตให้ AIV ติดตั้งแอป</string>
+    <string name="folder_order">การเรียงในมุมมองตาราง</string>
+    <string name="folder_order_desc">กำหนดลำดับของโฟลเดอร์ในมุมมองตาราง เนื้อหาในโฟลเดอร์จะแสดงรายการใหม่ล่าสุดไว้ด้านบนเสมอ</string>
+    <string name="folder_order_alpha">ตามตัวอักษร</string>
+    <string name="folder_order_recent">ใหม่ล่าสุดอยู่บน</string>
+    <string name="folder_order_ask">ต้องการเรียงโฟลเดอร์ในมุมมองตารางอย่างไร คุณเปลี่ยนการเรียงได้ทุกเมื่อในการตั้งค่า</string>
+    <string name="folder_order_alpha_long">เรียงตามตัวอักษร</string>
+    <string name="favourite_folders">โฟลเดอร์โปรด</string>
+    <string name="favourite_folders_desc">จะแสดงที่ด้านบนของตารางและรายการ ตามลำดับนี้</string>
+    <string name="favourite_folders_none">ไม่มีโฟลเดอร์โปรด</string>
+    <string name="folder_action_title">เลือกการทำงานสำหรับโฟลเดอร์</string>
+    <string name="favourite_add">เพิ่มในรายการโปรด</string>
+    <string name="favourite_remove">นำออกจากรายการโปรด</string>
+    <string name="backup_area_folders">โฟลเดอร์และเส้นทาง</string>
 </resources>

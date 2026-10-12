@@ -714,7 +714,6 @@
     <string name="backup_intro">फाइलमध्ये खालील सेटिंग्ज असतात, आणि ती फक्त AIV वाचू शकते. आयातीच्या वेळी शैली, रंग, मुखपृष्ठे, समाविष्ट आणि वगळलेले फोल्डर आणि कचरापेटी आधीपासून असलेल्यांत जोडले जातात.</string>
     <string name="backup_area_view">स्वरूप आणि नेव्हिगेशन</string>
     <string name="backup_area_editor">एडिटरच्या सेटिंग्ज</string>
-    <string name="backup_area_covers">फोल्डरची मुखपृष्ठे</string>
     <string name="backup_area_hints">सूचना आणि छोटे ट्युटोरियल</string>
     <string name="backup_lock">पासवर्डने संरक्षित करा</string>
     <string name="backup_lock_desc">पासवर्डशिवाय फाइल फक्त AIVने उघडते, आणि ज्याच्याकडे AIV आहे असा कोणीही ती आयात करू शकतो.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">अपडेट अयशस्वी झाले</string>
     <string name="update_untrusted">अपडेट AIV च्या कीने साइन केलेले नाही, म्हणून ते इंस्टॉल होणार नाही.</string>
     <string name="update_permission">अपडेट करण्यासाठी AIV ला ॲप्स इंस्टॉल करण्याची परवानगी द्या.</string>
+    <string name="folder_order">ग्रिड दृश्यातील क्रम</string>
+    <string name="folder_order_desc">ग्रिड दृश्यात फोल्डरचा क्रम ठरवते. फोल्डरमधील सर्वात नवीन आयटम नेहमी सर्वात वर दिसतात.</string>
+    <string name="folder_order_alpha">वर्णक्रमानुसार</string>
+    <string name="folder_order_recent">सर्वात नवीन वर</string>
+    <string name="folder_order_ask">ग्रिड दृश्यात फोल्डर कोणत्या क्रमाने लावायचे? तुम्ही क्रम कधीही सेटिंग्जमध्ये बदलू शकता.</string>
+    <string name="folder_order_alpha_long">वर्णक्रम</string>
+    <string name="favourite_folders">आवडते फोल्डर</string>
+    <string name="favourite_folders_desc">ते ग्रिड आणि सूचीच्या सर्वात वर, याच क्रमाने दिसतात.</string>
+    <string name="favourite_folders_none">कोणतेही आवडते फोल्डर नाहीत</string>
+    <string name="folder_action_title">फोल्डरसाठी क्रिया निवडा</string>
+    <string name="favourite_add">आवडत्यांमध्ये जोडा</string>
+    <string name="favourite_remove">आवडत्यांमधून काढा</string>
+    <string name="backup_area_folders">फोल्डर आणि पाथ</string>
 </resources>

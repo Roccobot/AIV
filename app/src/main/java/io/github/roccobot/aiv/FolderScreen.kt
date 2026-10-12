@@ -660,15 +660,19 @@ fun FolderScreen(
                  */
                 view == FolderView.GRID ->
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                        // ⚠️ From the `5.80` the grid follows the chosen order and the list does
+                        // not, which is his request; favourites go first in both.
                         Covers(
-                            folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
+                            selection.arrange(folders!!, grid = true), columns, prestate, counted,
+                            nameStyle, colour, tints, covers,
                             onPick, coverScroll, modifier = Modifier.fillMaxSize(), off = emptySet()
                         ) { hiding = it }
                     }
                 else ->
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         Rows(
-                            folders!!, prestate, listCount, listText, colour, tints, covers, onPick,
+                            selection.arrange(folders!!, grid = false), prestate, listCount, listText,
+                            colour, tints, covers, onPick,
                             rowScroll, modifier = Modifier.fillMaxSize(), off = emptySet()
                         ) {
                             hiding = it
@@ -964,6 +968,21 @@ fun FolderScreen(
                 }
             }
         }
+    }
+
+    /*
+     * ⚠️⚠️ **THE GRID ORDER IS ASKED HERE, ONCE, FROM THE `5.80`** (his request, answer `C1`: also
+     * those who update): the home is where the grid is. It waits for the folders, so it never
+     * covers the request of the permission, and a dismissal holds for the session only.
+     * ⚠️ **On a wide screen the home is the folder column**, a list that does not follow the
+     * order, and the question waits for the phone in portrait or for the settings.
+     */
+    var orderAsked by rememberSaveable { mutableStateOf(false) }
+    if (home && selection.order == null && !orderAsked && !folders.isNullOrEmpty()) {
+        FolderOrderDialog(
+            onPick = { onSelectionChange(selection.copy(order = it)) },
+            onDismiss = { orderAsked = true }
+        )
     }
 
     hiding?.let { bucket ->

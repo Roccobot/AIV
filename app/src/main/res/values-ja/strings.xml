@@ -696,7 +696,6 @@
     <string name="backup_intro">このファイルには下の設定が含まれ、AIV でしか読めません。読み込むとき、スタイル、色、カバー、含めるフォルダと除外するフォルダ、ゴミ箱は、すでにあるものに追加されます。</string>
     <string name="backup_area_view">外観とナビゲーション</string>
     <string name="backup_area_editor">エディターの設定</string>
-    <string name="backup_area_covers">フォルダーのカバー</string>
     <string name="backup_area_hints">ヒントとミニチュートリアル</string>
     <string name="backup_lock">パスワードで保護</string>
     <string name="backup_lock_desc">パスワードがなければ、ファイルは AIV でしか開けませんが、AIV を持っている人なら誰でも読み込めます。</string>
@@ -766,4 +765,17 @@
     <string name="update_failed">アップデートに失敗しました</string>
     <string name="update_untrusted">このアップデートはAIVの鍵で署名されていないため、インストールしません。</string>
     <string name="update_permission">アップデートするには、AIVにアプリのインストールを許可してください。</string>
+    <string name="folder_order">グリッド表示の並び順</string>
+    <string name="folder_order_desc">グリッド表示でのフォルダの並び順を設定します。フォルダの中身は常に新しい項目が上に表示されます。</string>
+    <string name="folder_order_alpha">名前順</string>
+    <string name="folder_order_recent">新しい順</string>
+    <string name="folder_order_ask">グリッド表示のフォルダをどの順に並べますか？並び順は設定からいつでも変更できます。</string>
+    <string name="folder_order_alpha_long">名前順で並べる</string>
+    <string name="favourite_folders">お気に入りのフォルダ</string>
+    <string name="favourite_folders_desc">グリッドとリストの一番上に、この順番で表示されます。</string>
+    <string name="favourite_folders_none">お気に入りのフォルダはありません</string>
+    <string name="folder_action_title">フォルダの操作を選択</string>
+    <string name="favourite_add">お気に入りに追加</string>
+    <string name="favourite_remove">お気に入りから削除</string>
+    <string name="backup_area_folders">フォルダとパス</string>
 </resources>

@@ -714,7 +714,6 @@
     <string name="backup_intro">फ़ाइल में नीचे दी गई सेटिंग्स होती हैं, और इसे सिर्फ़ AIV पढ़ सकता है। आयात के समय स्टाइल, रंग, कवर, शामिल और बाहर किए गए फ़ोल्डर और कूड़ेदान पहले से मौजूद चीज़ों में जुड़ जाते हैं।</string>
     <string name="backup_area_view">रूप और नेविगेशन</string>
     <string name="backup_area_editor">एडिटर की सेटिंग्स</string>
-    <string name="backup_area_covers">फ़ोल्डरों के कवर</string>
     <string name="backup_area_hints">संकेत और छोटे ट्यूटोरियल</string>
     <string name="backup_lock">पासवर्ड से सुरक्षित करें</string>
     <string name="backup_lock_desc">पासवर्ड के बिना फ़ाइल सिर्फ़ AIV से खुलती है, और जिसके पास भी AIV है वह उसे आयात कर सकता है।</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">अपडेट विफल रहा</string>
     <string name="update_untrusted">अपडेट AIV की कुंजी से साइन नहीं है, इसलिए इंस्टॉल नहीं होगा।</string>
     <string name="update_permission">अपडेट करने के लिए AIV को ऐप इंस्टॉल करने की अनुमति दें।</string>
+    <string name="folder_order">ग्रिड व्यू में क्रम</string>
+    <string name="folder_order_desc">ग्रिड व्यू में फ़ोल्डरों का क्रम तय करता है। फ़ोल्डरों के अंदर हमेशा सबसे नए आइटम सबसे ऊपर दिखते हैं।</string>
+    <string name="folder_order_alpha">वर्णानुक्रम</string>
+    <string name="folder_order_recent">सबसे नए ऊपर</string>
+    <string name="folder_order_ask">ग्रिड व्यू में फ़ोल्डर किस क्रम में रखें? आप क्रम कभी भी सेटिंग में बदल सकते हैं।</string>
+    <string name="folder_order_alpha_long">वर्णानुक्रम में</string>
+    <string name="favourite_folders">पसंदीदा फ़ोल्डर</string>
+    <string name="favourite_folders_desc">ये ग्रिड और सूची में सबसे ऊपर, इसी क्रम में दिखते हैं।</string>
+    <string name="favourite_folders_none">कोई पसंदीदा फ़ोल्डर नहीं</string>
+    <string name="folder_action_title">फ़ोल्डर के लिए कार्रवाई चुनें</string>
+    <string name="favourite_add">पसंदीदा में जोड़ें</string>
+    <string name="favourite_remove">पसंदीदा से हटाएँ</string>
+    <string name="backup_area_folders">फ़ोल्डर और पाथ</string>
 </resources>

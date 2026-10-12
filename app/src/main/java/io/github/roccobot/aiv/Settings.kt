@@ -1083,6 +1083,24 @@ data class Settings(
     /** Camera, Screenshots and Movies are authorized by default when present. */
     val includedFolders: Set<String> = DEFAULT_INCLUDED_FOLDERS,
     /**
+     * The order of the folders in the home grid, from the `5.80`. See [FolderOrder].
+     *
+     * ⚠️⚠️ **`null` IS THE FACTORY VALUE, AND IT IS HIS**: *non ci sarà un default, perché al primo
+     * avvio un popup deve chiedere*. While it is `null` the grid stays alphabetical and the home
+     * asks once (`FolderOrderDialog`); his answer `C1` asks also those who update. The key is
+     * removed, not written, so 'not chosen' survives a save of the whole object.
+     */
+    val folderOrder: FolderOrder? = null,
+    /**
+     * The favourite folders, as portable paths (see `portablePath`), in the order shown at the
+     * top of the grid and of the list, from the `5.80`.
+     *
+     * ⚠️ **A list and not a set**, because the order is his (*in un ordine personalizzato*); it is
+     * stored as one string, one path per line, since a set of strings in `DataStore` has no order.
+     * ⚠️ **Empty by default**, his words: *una lista (vuota di default)*.
+     */
+    val favouriteFolders: List<String> = emptyList(),
+    /**
      * L'ordine dei campi delle informazioni sul file. Vedi [FactField].
      *
      * ⚠️ **Ci sono TUTTI, anche quelli spenti**, ed è la differenza fra un ordine e un
@@ -1379,6 +1397,8 @@ internal val HIDDEN_EXACT_FOLDERS = stringSetPreferencesKey("hidden-only")
 internal val INCLUDED_FOLDERS = stringSetPreferencesKey("included-relative")
 internal val FOLDER_MODE = stringPreferencesKey("folder-mode")
 internal val INCLUDED_INITIALIZED = booleanPreferencesKey("included-initialized")
+internal val FOLDER_ORDER = stringPreferencesKey("folder-order")
+internal val FAVOURITE_FOLDERS = stringPreferencesKey("favourite-folders")
 
 /**
  * L'elenco fino alla `2.95`, coi percorsi interi: si legge una volta sola, e poi non c'è più.
@@ -1734,6 +1754,10 @@ object SettingsStore {
             hiddenExactFolders = p[HIDDEN_EXACT_FOLDERS] ?: emptySet(),
             includedFolders = p[INCLUDED_FOLDERS] ?: DEFAULT_INCLUDED_FOLDERS,
             folderMode = FolderMode.entries.firstOrNull { it.token == p[FOLDER_MODE] } ?: FolderMode.EXCLUDED,
+            // ⚠️ An unknown token reads as 'not chosen', and the home asks again: a wrong order
+            // given in silence would be worse than one more question.
+            folderOrder = FolderOrder.entries.firstOrNull { it.token == p[FOLDER_ORDER] },
+            favouriteFolders = favouritesOf(p[FAVOURITE_FOLDERS]),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             menuOrder = padOrderOf((p[MENU_ORDER] ?: "").split(','), MENU_KEYS),
             pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
@@ -1858,6 +1882,8 @@ object SettingsStore {
             p[HIDDEN_EXACT_FOLDERS] = settings.hiddenExactFolders
             p[INCLUDED_FOLDERS] = settings.includedFolders
             p[FOLDER_MODE] = settings.folderMode.token
+            settings.folderOrder?.let { p[FOLDER_ORDER] = it.token } ?: p.remove(FOLDER_ORDER)
+            p[FAVOURITE_FOLDERS] = settings.favouriteFolders.joinToString(FAVOURITE_JOIN)
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[MENU_ORDER] = settings.menuOrder.joinToString(",") { it.token }
             p[PICK_ORDER] = settings.pickOrder.joinToString(",") { it.token }
@@ -1870,6 +1896,18 @@ object SettingsStore {
         }
     }
 }
+
+/** The separator of the stored favourites: a path never holds a line break. */
+internal const val FAVOURITE_JOIN = "\n"
+
+/**
+ * The favourites read back from their string, without blanks and without repeats.
+ *
+ * ⚠️ **Repeats go in reading**: a file of settings edited by hand, or two imports, must not put
+ * the same folder twice at the top of the grid.
+ */
+internal fun favouritesOf(stored: String?): List<String> =
+    stored.orEmpty().split(FAVOURITE_JOIN).filter { it.isNotBlank() }.distinct()
 
 /**
  * A token that is unknown, or missing, falls back to the default instead of

@@ -714,7 +714,6 @@
     <string name="backup_intro">ఫైల్‌లో కింది అమరికలు ఉంటాయి, దాన్ని AIV మాత్రమే చదవగలదు. దిగుమతి సమయంలో శైలులు, రంగులు, ముఖచిత్రాలు, చేర్చిన మరియు మినహాయించిన ఫోల్డర్‌లు, చెత్తబుట్ట ఇప్పటికే ఉన్నవాటికి జోడించబడతాయి.</string>
     <string name="backup_area_view">రూపం, నావిగేషన్</string>
     <string name="backup_area_editor">ఎడిటర్ అమరికలు</string>
-    <string name="backup_area_covers">ఫోల్డర్‌ల కవర్‌లు</string>
     <string name="backup_area_hints">సూచనలు, చిన్న ట్యుటోరియల్‌లు</string>
     <string name="backup_lock">పాస్‌వర్డ్‌తో రక్షించండి</string>
     <string name="backup_lock_desc">పాస్‌వర్డ్ లేకుంటే ఫైల్ AIVతో మాత్రమే తెరుచుకుంటుంది, AIV ఉన్న ఎవరైనా దాన్ని దిగుమతి చేయవచ్చు.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">అప్‌డేట్ విఫలమైంది</string>
     <string name="update_untrusted">అప్‌డేట్ AIV కీతో సంతకం చేయబడలేదు, కాబట్టి ఇన్‌స్టాల్ కాదు.</string>
     <string name="update_permission">అప్‌డేట్ చేయడానికి, యాప్‌లను ఇన్‌స్టాల్ చేయడానికి AIVకి అనుమతి ఇవ్వండి.</string>
+    <string name="folder_order">గ్రిడ్ వీక్షణలో క్రమం</string>
+    <string name="folder_order_desc">గ్రిడ్ వీక్షణలో ఫోల్డర్‌ల క్రమాన్ని నిర్ణయిస్తుంది. ఫోల్డర్‌లలోని కంటెంట్ ఎప్పుడూ కొత్తవాటిని పైన చూపిస్తుంది.</string>
+    <string name="folder_order_alpha">అక్షర క్రమం</string>
+    <string name="folder_order_recent">కొత్తవి పైన</string>
+    <string name="folder_order_ask">గ్రిడ్ వీక్షణలో ఫోల్డర్‌లను ఎలా క్రమపరచాలి? సెట్టింగ్‌లలో ఎప్పుడైనా క్రమాన్ని మార్చవచ్చు.</string>
+    <string name="folder_order_alpha_long">అక్షర క్రమంలో</string>
+    <string name="favourite_folders">ఇష్టమైన ఫోల్డర్‌లు</string>
+    <string name="favourite_folders_desc">ఇవి గ్రిడ్ మరియు జాబితాలో పైన, ఈ క్రమంలో కనిపిస్తాయి.</string>
+    <string name="favourite_folders_none">ఇష్టమైన ఫోల్డర్‌లు లేవు</string>
+    <string name="folder_action_title">ఫోల్డర్ కోసం చర్యను ఎంచుకోండి</string>
+    <string name="favourite_add">ఇష్టమైనవాటికి జోడించు</string>
+    <string name="favourite_remove">ఇష్టమైనవాటి నుండి తీసివేయి</string>
+    <string name="backup_area_folders">ఫోల్డర్‌లు మరియు పాత్‌లు</string>
 </resources>

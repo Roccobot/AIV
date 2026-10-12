@@ -696,7 +696,6 @@
     <string name="backup_intro">檔案包含下方的設定，只有 AIV 能讀取。匯入時，樣式、顏色、封面、包含和排除的資料夾和回收筒會加入已有的內容中。</string>
     <string name="backup_area_view">外觀與導覽</string>
     <string name="backup_area_editor">編輯器設定</string>
-    <string name="backup_area_covers">資料夾封面</string>
     <string name="backup_area_hints">提示與迷你教學</string>
     <string name="backup_lock">使用密碼保護</string>
     <string name="backup_lock_desc">沒有密碼時，檔案只能用 AIV 開啟，任何裝有 AIV 的人都能匯入。</string>
@@ -766,4 +765,17 @@
     <string name="update_failed">更新失敗</string>
     <string name="update_untrusted">此更新未使用 AIV 的金鑰簽署，因此不會安裝。</string>
     <string name="update_permission">若要更新，請允許 AIV 安裝應用程式。</string>
+    <string name="folder_order">格狀檢視排序</string>
+    <string name="folder_order_desc">設定格狀檢視中資料夾的順序。資料夾內容一律將最新的項目顯示在最上方。</string>
+    <string name="folder_order_alpha">依字母</string>
+    <string name="folder_order_recent">最新的在上</string>
+    <string name="folder_order_ask">格狀檢視中的資料夾要如何排序？你可以隨時在設定中變更排序。</string>
+    <string name="folder_order_alpha_long">依字母順序</string>
+    <string name="favourite_folders">收藏的資料夾</string>
+    <string name="favourite_folders_desc">它們會依此順序顯示在格狀檢視和清單的頂端。</string>
+    <string name="favourite_folders_none">沒有收藏的資料夾</string>
+    <string name="folder_action_title">選擇對資料夾的動作</string>
+    <string name="favourite_add">加入收藏</string>
+    <string name="favourite_remove">從收藏中移除</string>
+    <string name="backup_area_folders">資料夾與路徑</string>
 </resources>

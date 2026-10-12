@@ -535,6 +535,39 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   del menu e il suo interruttore, la fascia, la precedenza sulla predefinita e il ritorno all'elenco
   iniziale; non vede la copia dell'immagine né la vista 'Cartelle di sistema', che legge il disco.
 
+## ⭐ Disposizione della griglia e cartelle preferite
+
+**Com'è fatto.** Sua richiesta del 2026-10-12, per le due varianti, dalla `5.80`. L'ordine lo decide
+una funzione sola, `FolderSelection.arrange`, che griglia, lista e colonna del tablet chiamano tutte;
+le due scelte vivono in `FolderSelection` (`order`, `favourites`) e nell'archivio come
+`folder-order` e `favourite-folders`.
+
+- ⚠️⚠️ **'Disposizione in vista griglia' è la prima voce di Impostazioni → Cartelle**, coi gettoni
+  'Alfabetica' e 'Più recenti in alto', e **non ha un valore di fabbrica** (sue parole: *non ci sarà
+  un default*). Finché manca, la griglia resta alfabetica e la casa chiede una volta, con la sua
+  domanda e due tasti larghi uguali, uno sopra l'altro: 'Ordine alfabetico' e 'Più recenti in alto'
+  (il nome diverso dal gettone è voluto). La domanda compare anche a chi aggiorna (sua risposta
+  `C1`); chiusa senza rispondere torna al prossimo avvio. Il tocco lungo sul pulsante principale apre
+  già le impostazioni delle cartelle, quindi la voce è a un gesto.
+  - ⚠️ **Vale per la sola griglia** (sua richiesta): lista e colonna del tablet restano alfabetiche.
+    Sullo schermo largo la casa è la colonna, quindi là la domanda non compare.
+  - ⚠️ **'Più recenti' è la cartella col file modificato più di recente** (`Folder.Bucket.latest`, la
+    data della prima riga, che arriva già per prima). Il contenuto di una cartella resta sempre coi
+    più recenti in cima, e il testo della voce lo dice.
+- ⚠️⚠️ **'Cartelle preferite' è una sotto-pagina in fondo a Impostazioni → Cartelle**: vuota di
+  fabbrica, si riordina con le manopole delle info, una × toglie una voce e 'Aggiungi cartella' in
+  basso apre la scelta della destinazione (su AIV Play la vista a griglia, perché là non c'è
+  l'albero). Le preferite compaiono in cima alla griglia e alla lista, nel loro ordine, e poi le altre
+  nell'ordine di sempre.
+  - ⚠️ **Una preferita è la cartella e basta**, mai un ramo, e si scrive col percorso portabile.
+- ⚠️⚠️ **Il tocco lungo su una cartella apre 'Scegli l'azione sulla cartella'** (sua risposta `B1`:
+  griglia, lista e colonna del tablet), con due tasti grandi e arrotondati uno sopra l'altro:
+  'Nascondi' (o 'Mostra' per una cartella in prestito) prosegue nelle domande di sempre, descritte
+  qui sotto; 'Aggiungi alle preferite' o 'Rimuovi dalle preferite' agisce subito.
+- **Esporta e importa**: le due scelte viaggiano in 'Cartelle e percorsi' (`docs/Files.md`).
+- **`CartellePreferiteTest`** misura l'ordine delle tre viste, il gesto delle preferite, la lettura e
+  la scrittura delle due scelte, le due finestre e la domanda; ogni caso con la sua controprova.
+
 ## 🗂️ Cartelle incluse/escluse
 
 - La pagina 'Cartelle incluse/escluse' vive nelle impostazioni delle Cartelle ed è sempre

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -195,6 +197,26 @@ internal fun FolderHoldDialog(
         SiblingFoldersDialog(path, selection, onSelectionChange, onDismiss)
         return
     }
+    /*
+     * ⚠️⚠️ **FROM THE `5.80` THE LONG PRESS ASKS WHICH ACTION FIRST** (his request of 2026-10-12,
+     * answer `B1`: grid, list and tablet column): 'Nascondi' or 'Mostra' goes on to the questions
+     * below, unchanged; the favourite is flipped at once, because adding or removing it hides
+     * nothing and is undone by the same gesture.
+     */
+    var chosen by remember { mutableStateOf(false) }
+    if (!chosen) {
+        FolderActionDialog(
+            bucket = bucket,
+            selection = selection,
+            onVisibility = { chosen = true },
+            onFavourite = { path ->
+                onSelectionChange(selection.flipFavourite(path))
+                onDismiss()
+            },
+            onDismiss = onDismiss
+        )
+        return
+    }
     if (selection.mode == FolderMode.INCLUDED) {
         val path = bucket.path ?: return
         AuthorizeFolderDialog(path, selection, onSelectionChange, onDismiss)
@@ -254,4 +276,95 @@ internal fun FolderHoldDialog(
         }
     )
 }
+
+/**
+ * 'Scegli l'azione sulla cartella': the first step of the long press on a folder, from the `5.80`.
+ *
+ * ⚠️ **Two equal rounded keys, one above the other**, his specification; the favourite text may go
+ * on two lines, which he allowed (*possono stare anche su sue righe*).
+ * ⚠️ **The first key says what the gesture would do**: 'Mostra' for a folder on loan during 'Mostra
+ * nascoste', 'Nascondi' otherwise, also in the included mode, where it leads to taking away the
+ * authorization (the dialog that follows says so).
+ * ⚠️ **A folder without a path has no favourite key**: it could not be found again (see
+ * `Folder.Bucket.path`), and an enabled key that does nothing is worse than a missing one.
+ */
+@Composable
+internal fun FolderActionDialog(
+    bucket: Folder.Bucket,
+    selection: FolderSelection,
+    onVisibility: () -> Unit,
+    onFavourite: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val path = bucket.path
+    val shown = selection.mode == FolderMode.EXCLUDED &&
+        path?.let { selection.covering(it).isNotEmpty() } == true
+    val favourite = path?.let(selection::favourite) == true
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
+        title = { Text(stringResource(R.string.folder_action_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ActionKey(
+                    stringResource(if (shown) R.string.settings_hidden_show else R.string.hide_folder_do),
+                    onVisibility
+                )
+                if (path != null) ActionKey(
+                    stringResource(if (favourite) R.string.favourite_remove else R.string.favourite_add)
+                ) { onFavourite(path) }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
+}
+
+/**
+ * The question of the grid order, asked once while [FolderSelection.order] is `null`, from the
+ * `5.80`.
+ *
+ * ⚠️⚠️ **TEXT AND KEYS ARE HIS** (request of 2026-10-12): the question as the body, and two keys
+ * as wide as each other, one above the other, `Ordine alfabetico` and `Più recenti in alto`. The
+ * first is not the chip's name on purpose (*il nome diverso è voluto*).
+ * ⚠️ **No title**: the question is the whole window, and a title would say it twice.
+ * ⚠️ **Not modal**: it asks for no written input (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una
+ * finestra'). Closed without an answer it comes back at the next start, because the order is
+ * still not chosen.
+ */
+@Composable
+internal fun FolderOrderDialog(onPick: (FolderOrder) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(onDismiss), properties = loweredWindow(onDismiss),
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    stringResource(R.string.folder_order_ask),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                ActionKey(stringResource(R.string.folder_order_alpha_long)) { onPick(FolderOrder.ALPHA) }
+                ActionKey(stringResource(R.string.folder_order_recent)) { onPick(FolderOrder.RECENT) }
+            }
+        },
+        confirmButton = {}
+    )
+}
+
+/** One of the two keys of [FolderActionDialog]: full width, rounded, at least as tall as a key. */
+@Composable
+private fun ActionKey(text: String, onClick: () -> Unit) {
+    FilledTonalButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = ACTION_KEY)
+    ) {
+        Text(text, textAlign = TextAlign.Center, style = MaterialTheme.typography.titleSmall)
+    }
+}
+
+/** The height of a key of [FolderActionDialog]: larger than a text key, as he asked (*grandi*). */
+private val ACTION_KEY = 56.dp
 

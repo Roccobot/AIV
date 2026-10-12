@@ -79,7 +79,7 @@ internal object Backups {
         class Locked(
             val uri: Uri,
             val head: Backup.Head,
-            val areas: Set<BackupArea>,
+            val groups: Set<BackupGroup>,
             val wrong: Boolean
         ) : Step
 
@@ -88,7 +88,7 @@ internal object Backups {
             val uri: Uri,
             val opened: Backup.Opened,
             val manifest: Backup.Manifest,
-            val areas: Set<BackupArea>
+            val groups: Set<BackupGroup>
         ) : Step
 
         /** Un lavoro in corso, e a che punto è: `null` quando non si può dire. */
@@ -108,15 +108,15 @@ internal object Backups {
     val imported = MutableStateFlow(0)
 
     /** Quello che un'esportazione deve fare, fra la finestra della password e il selettore. */
-    private class Plan(val areas: Set<BackupArea>, val password: String?)
+    private class Plan(val groups: Set<BackupGroup>, val password: String?)
 
     private var plan: Plan? = null
     private var job: Job? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** Fissa le parti e la password dell'esportazione, prima di aprire il selettore. */
-    fun prepare(areas: Set<BackupArea>, password: String?) {
-        plan = Plan(areas, password)
+    fun prepare(groups: Set<BackupGroup>, password: String?) {
+        plan = Plan(groups, password)
     }
 
     /** Il selettore non ha dato una destinazione: il piano non serve più. */
@@ -166,10 +166,13 @@ internal object Backups {
         job = scope.launch {
             step = Step.Busy(export = true, done = 0f)
             val esito = runCatching {
-                val avanza = progress(export = true, total = Backup.estimate(app, piano.areas))
+                val aree = BackupGroup.areasOf(piano.groups)
+                val avanza = progress(export = true, total = Backup.estimate(app, aree))
                 val out = app.contentResolver.openOutputStream(uri, "w")
                     ?: throw IOException("destinazione")
-                out.use { Backup.write(app, it, piano.areas, piano.password, onBytes = avanza) }
+                out.use {
+                    Backup.write(app, it, aree, piano.password, onBytes = avanza, groups = piano.groups)
+                }
                 if (!landed(app, uri)) throw Empty()
             }
             withContext(NonCancellable) {
@@ -194,18 +197,18 @@ internal object Backups {
     /**
      * Apre il file scelto per importarlo: legge l'intestazione, e chiede la password o conferma.
      *
-     * @param areas le caselle spuntate al momento del tocco: si importano quelle, e solo se il file le
-     *   porta.
+     * @param groups le caselle spuntate al momento del tocco: si importano quelle, e solo se il file
+     *   le porta.
      */
-    fun inspect(context: Context, uri: Uri?, areas: Set<BackupArea>) {
+    fun inspect(context: Context, uri: Uri?, groups: Set<BackupGroup>) {
         if (uri == null || job?.isActive == true) return
         val app = context.applicationContext
         job = scope.launch {
             step = Step.Busy(export = false, done = null)
             val esito = runCatching {
                 val head = read(app, uri) { Backup.head(it) }
-                if (head.locked) Step.Locked(uri, head, areas, wrong = false)
-                else ready(app, uri, Backup.open(head, null), areas)
+                if (head.locked) Step.Locked(uri, head, groups, wrong = false)
+                else ready(app, uri, Backup.open(head, null), groups)
             }
             land(app, esito)
         }
@@ -228,11 +231,11 @@ internal object Backups {
             val esito = runCatching {
                 val opened = Backup.open(chiuso.head, password)
                 currentCoroutineContext().ensureActive()
-                ready(app, chiuso.uri, opened, chiuso.areas)
+                ready(app, chiuso.uri, opened, chiuso.groups)
             }
             val errore = esito.exceptionOrNull()
             if (errore is Backup.Failure && errore.reason == Backup.Reason.WRONG) {
-                step = Step.Locked(chiuso.uri, chiuso.head, chiuso.areas, wrong = true)
+                step = Step.Locked(chiuso.uri, chiuso.head, chiuso.groups, wrong = true)
             } else {
                 land(app, esito)
             }
@@ -249,7 +252,10 @@ internal object Backups {
             val esito = runCatching {
                 val avanza = progress(export = false, total = sizeOf(app, pronto.uri))
                 read(app, pronto.uri) {
-                    Backup.restore(app, it, pronto.opened, pronto.areas, onBytes = avanza)
+                    Backup.restore(
+                        app, it, pronto.opened, BackupGroup.areasOf(pronto.groups),
+                        onBytes = avanza, groups = pronto.groups
+                    )
                 }
             }
             withContext(NonCancellable) {
@@ -288,14 +294,14 @@ internal object Backups {
         context: Context,
         uri: Uri,
         opened: Backup.Opened,
-        areas: Set<BackupArea>
+        groups: Set<BackupGroup>
     ): Step? {
         val manifest = read(context, uri) { Backup.manifest(it, opened) }
-        if ((areas intersect manifest.areas).isEmpty()) {
+        if ((groups intersect manifest.groups).isEmpty()) {
             say(context, R.string.backup_none)
             return null
         }
-        return Step.Ready(uri, opened, manifest, areas)
+        return Step.Ready(uri, opened, manifest, groups)
     }
 
     /** Mette in scena la domanda che un passo ha prodotto, o dice perché non si va avanti. */
@@ -404,8 +410,8 @@ internal fun ColumnScope.BackupPage() {
     val context = LocalContext.current
     // ⚠️ Gli stili sono dell'editor completo, e dove quello non c'è la loro casella non avrebbe niente
     // da portare: è lo stesso criterio della loro pagina.
-    val offered = remember { BackupArea.entries.filter { it != BackupArea.STYLES || advancedEditorAvailable() } }
-    var chosen by rememberSaveable(stateSaver = AREAS) { mutableStateOf(offered.toSet() - BackupArea.BIN) }
+    val offered = remember { BackupGroup.entries.filter { it != BackupGroup.STYLES || advancedEditorAvailable() } }
+    var chosen by rememberSaveable(stateSaver = GROUPS) { mutableStateOf(offered.toSet() - BackupGroup.BIN) }
     var lock by rememberSaveable { mutableStateOf(false) }
     var asking by remember { mutableStateOf(false) }
     // ⚠️ Si rimisura a ogni importazione riuscita: il cestino è la sola parte che un'importazione fa
@@ -447,28 +453,30 @@ internal fun ColumnScope.BackupPage() {
      * ⚠️ **Le voci sono più strette** ([CheckRow] con `tight`), che è l'altra metà della stessa nota
      * (*restringi LEGGERMENTE l'interlinea*): sul telefono più diffuso la pagina intera ci sta senza
      * scorrere, e il resto lo garantisce la fila fissa.
+     * ⚠️ **From the `5.80` 'Proteggi con password' is part of the fixed band too**, his request of
+     * 2026-10-12: only the parts scroll.
      */
     Column(
         modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Detail(stringResource(R.string.backup_intro))
-        offered.forEach { area ->
+        offered.forEach { group ->
             CheckRow(
-                label = stringResource(area.label),
-                detail = if (area == BackupArea.BIN && binBytes > 0L) formatBytes(binBytes) else null,
-                checked = area in chosen,
-                onChange = { acceso -> chosen = if (acceso) chosen + area else chosen - area },
+                label = stringResource(group.label),
+                detail = if (group == BackupGroup.BIN && binBytes > 0L) formatBytes(binBytes) else null,
+                checked = group in chosen,
+                onChange = { acceso -> chosen = if (acceso) chosen + group else chosen - group },
                 tight = true
             )
         }
-        SwitchRow(
-            label = stringResource(R.string.backup_lock),
-            detail = stringResource(R.string.backup_lock_desc),
-            checked = lock,
-            onChange = { lock = it }
-        )
     }
+    SwitchRow(
+        label = stringResource(R.string.backup_lock),
+        detail = stringResource(R.string.backup_lock_desc),
+        checked = lock,
+        onChange = { lock = it }
+    )
 
     /*
      * ⚠️ **'Importa' a sinistra ed 'Esporta' a destra, dalla `2.99`**, ed è la stessa nota (*scambia la
@@ -650,7 +658,7 @@ private fun ConfirmDialog(ready: Backups.Step.Ready, onDismiss: () -> Unit, onDo
         DateFormat.getDateInstance(DateFormat.LONG, locale).format(quando) to
             DateFormat.getTimeInstance(DateFormat.SHORT, locale).format(quando)
     }
-    val parti = BackupArea.entries.filter { it in ready.areas && it in ready.manifest.areas }
+    val parti = BackupGroup.entries.filter { it in ready.groups && it in ready.manifest.groups }
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(onDismiss),
@@ -713,12 +721,12 @@ private fun PasswordField(
 /**
  * Come le caselle spuntate sopravvivono a una rotazione: i token, che sono il formato.
  *
- * ⚠️ **I token e non gli ordinali**: l'ordine delle aree è quello delle caselle, e il giorno che ne
+ * ⚠️ **I token e non gli ordinali**: l'ordine delle parti è quello delle caselle, e il giorno che ne
  * nasce una in mezzo un ordinale salvato indicherebbe la vicina.
  */
-private val AREAS = listSaver<Set<BackupArea>, String>(
-    save = { areas -> areas.map { it.token } },
-    restore = { saved -> saved.mapNotNull { t -> BackupArea.entries.firstOrNull { it.token == t } }.toSet() }
+private val GROUPS = listSaver<Set<BackupGroup>, String>(
+    save = { groups -> groups.map { it.token } },
+    restore = { saved -> saved.mapNotNull { t -> BackupGroup.entries.firstOrNull { it.token == t } }.toSet() }
 )
 
 /**

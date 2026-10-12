@@ -714,7 +714,6 @@
     <string name="backup_intro">Het bestand bevat de instellingen hieronder, en alleen AIV kan het lezen. Bij het importeren worden stijlen, kleuren, omslagen, inbegrepen en uitgesloten mappen en de prullenbak toegevoegd aan wat er al is.</string>
     <string name="backup_area_view">Vormgeving en navigatie</string>
     <string name="backup_area_editor">Instellingen van de editor</string>
-    <string name="backup_area_covers">Omslagen van mappen</string>
     <string name="backup_area_hints">Tips en minitutorials</string>
     <string name="backup_lock">Met wachtwoord beveiligen</string>
     <string name="backup_lock_desc">Zonder wachtwoord gaat het bestand alleen met AIV open, en iedereen die AIV heeft, kan het importeren.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">Bijwerken mislukt</string>
     <string name="update_untrusted">De update is niet ondertekend met de sleutel van AIV en wordt daarom niet geïnstalleerd.</string>
     <string name="update_permission">Sta AIV toe apps te installeren om bij te werken.</string>
+    <string name="folder_order">Indeling in rasterweergave</string>
+    <string name="folder_order_desc">Bepaalt de volgorde van de mappen in rasterweergave. De inhoud van mappen toont altijd de nieuwste items bovenaan.</string>
+    <string name="folder_order_alpha">Alfabetisch</string>
+    <string name="folder_order_recent">Nieuwste bovenaan</string>
+    <string name="folder_order_ask">Hoe wil je de mappen in rasterweergave sorteren? Je kunt de indeling altijd wijzigen in de instellingen.</string>
+    <string name="folder_order_alpha_long">Alfabetische volgorde</string>
+    <string name="favourite_folders">Favoriete mappen</string>
+    <string name="favourite_folders_desc">Ze staan bovenaan in het raster en in de lijst, in deze volgorde.</string>
+    <string name="favourite_folders_none">Geen favoriete mappen</string>
+    <string name="folder_action_title">Kies een actie voor de map</string>
+    <string name="favourite_add">Toevoegen aan favorieten</string>
+    <string name="favourite_remove">Verwijderen uit favorieten</string>
+    <string name="backup_area_folders">Mappen en paden</string>
 </resources>

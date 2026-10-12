@@ -732,7 +732,6 @@
     <string name="backup_intro">Le fichier contient les réglages ci-dessous, et seul AIV sait le lire. À l\'importation, les styles, les couleurs, les couvertures, les dossiers inclus et exclus et la corbeille s\'ajoutent à ce qui s\'y trouve déjà.</string>
     <string name="backup_area_view">Apparence et navigation</string>
     <string name="backup_area_editor">Réglages de l\'éditeur</string>
-    <string name="backup_area_covers">Couvertures des dossiers</string>
     <string name="backup_area_hints">Astuces et mini-tutoriels</string>
     <string name="backup_lock">Protéger par mot de passe</string>
     <string name="backup_lock_desc">Sans mot de passe, le fichier ne s\'ouvre qu\'avec AIV, et quiconque a AIV peut l\'importer.</string>
@@ -802,4 +801,17 @@
     <string name="update_failed">Échec de la mise à jour</string>
     <string name="update_untrusted">La mise à jour n\'est pas signée avec la clé d\'AIV, elle ne sera donc pas installée.</string>
     <string name="update_permission">Pour mettre à jour, autorisez AIV à installer des applications.</string>
+    <string name="folder_order">Disposition en vue grille</string>
+    <string name="folder_order_desc">Définit l\'ordre des dossiers en vue grille. Le contenu des dossiers affiche toujours les éléments les plus récents en haut.</string>
+    <string name="folder_order_alpha">Alphabétique</string>
+    <string name="folder_order_recent">Plus récents en haut</string>
+    <string name="folder_order_ask">Comment trier les dossiers en vue grille ? La disposition peut être modifiée à tout moment dans les paramètres.</string>
+    <string name="folder_order_alpha_long">Ordre alphabétique</string>
+    <string name="favourite_folders">Dossiers favoris</string>
+    <string name="favourite_folders_desc">Ils apparaissent en haut de la grille et de la liste, dans cet ordre.</string>
+    <string name="favourite_folders_none">Aucun dossier favori</string>
+    <string name="folder_action_title">Choisir une action pour le dossier</string>
+    <string name="favourite_add">Ajouter aux favoris</string>
+    <string name="favourite_remove">Retirer des favoris</string>
+    <string name="backup_area_folders">Dossiers et chemins</string>
 </resources>

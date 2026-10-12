@@ -750,7 +750,6 @@
     <string name="backup_intro">Файл содержит настройки ниже, и прочитать его может только AIV. При импорте стили, цвета, обложки, включённые и исключённые папки и корзина добавляются к тому, что уже есть.</string>
     <string name="backup_area_view">Внешний вид и навигация</string>
     <string name="backup_area_editor">Настройки редактора</string>
-    <string name="backup_area_covers">Обложки папок</string>
     <string name="backup_area_hints">Подсказки и мини-руководства</string>
     <string name="backup_lock">Защитить паролем</string>
     <string name="backup_lock_desc">Без пароля файл открывается только в AIV, и импортировать его может любой, у кого есть AIV.</string>
@@ -820,4 +819,17 @@
     <string name="update_failed">Не удалось обновить</string>
     <string name="update_untrusted">Обновление не подписано ключом AIV, поэтому оно не будет установлено.</string>
     <string name="update_permission">Чтобы обновить, разрешите AIV устанавливать приложения.</string>
+    <string name="folder_order">Порядок в виде сетки</string>
+    <string name="folder_order_desc">Задаёт порядок папок в виде сетки. Содержимое папок всегда показывает сначала самые новые элементы.</string>
+    <string name="folder_order_alpha">По алфавиту</string>
+    <string name="folder_order_recent">Сначала новые</string>
+    <string name="folder_order_ask">Как упорядочить папки в виде сетки? Порядок можно изменить в любой момент в настройках.</string>
+    <string name="folder_order_alpha_long">Алфавитный порядок</string>
+    <string name="favourite_folders">Избранные папки</string>
+    <string name="favourite_folders_desc">Они показываются вверху сетки и списка, в этом порядке.</string>
+    <string name="favourite_folders_none">Нет избранных папок</string>
+    <string name="folder_action_title">Выберите действие для папки</string>
+    <string name="favourite_add">Добавить в избранное</string>
+    <string name="favourite_remove">Убрать из избранного</string>
+    <string name="backup_area_folders">Папки и пути</string>
 </resources>

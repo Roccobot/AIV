@@ -348,10 +348,21 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
   - ⚠️ **Il tipo dichiarato è quello generico**, e deve esserlo: con un tipo vero il fornitore della
     cartella rimetterebbe il suffisso di quel tipo. Vale anche per gli stili (`docs/Editor.md`
     § '🎞️ I preset, quelli di casa e quelli che si salvano').
-- ⚠️⚠️ **Le parti sono macro-aree, ed è la sua riga**: 'Aspetto e navigazione', 'Comandi e
-  indicatori', 'Impostazioni dell'editor', 'Stili dell'editor', 'Colore delle cartelle', 'Copertine
-  delle cartelle', 'Cartelle incluse/escluse', 'Avvisi e micro-tutorial' e 'Cestino'. Le prime tre sono le
-  sezioni della schermata delle impostazioni, le altre quello che l'app ricorda fuori da lì.
+- ⚠️⚠️ **Le parti sono macro-aree, ed è la sua riga**. ⚠️⚠️ **Dalla `5.80` sono sei, nell'ordine
+  della sua risposta `A1`** (richiesta del 2026-10-12): 'Aspetto e navigazione', 'Cartelle e
+  percorsi', 'Impostazioni dell'editor', 'Stili dell'editor', 'Avvisi e micro-tutorial' e 'Cestino'.
+  'Comandi e indicatori' non c'è più: i comandi sono entrati in 'Aspetto e navigazione', e
+  l'indicatore dell'ultimo media in 'Cartelle e percorsi', con colore, copertine, cartelle incluse ed
+  escluse, disposizione e preferite.
+  - ⚠️⚠️ **Le parti della pagina (`BackupGroup`) raccolgono le aree del file (`BackupArea`) e non le
+    rinominano**: il file scrive ancora `view`, `buttons`, `tints`, `covers`, `hidden` e le altre,
+    quindi i file di prima si importano (seconda metà di `A1`) e una versione vecchia legge quelli
+    nuovi. L'indicatore viaggia ancora in `buttons` e segue 'Cartelle e percorsi' per la tabella
+    `PREF_REGROUPED`, perché l'area di una chiave non cambia mai.
+  - ⚠️ **Il resoconto del file elenca anche le parti** (campo `groups`, un'aggiunta al formato), così
+    la conferma nomina quelle che il file contiene davvero; di un file di prima le ricava dalle aree.
+  - **`BackupTest`**, caso 'le sei parti scelgono chiave per chiave', misura i due versi e il file di
+    prima, con due controprove.
   - **'Impostazioni dell'editor' comprende anche il file originale della filigrana**: PNG o
     SVG, copiato senza conversione e ripristinato insieme a posizione, dimensione, distanza e
     opacità. L'SVG si disegna alla misura necessaria, quindi non c'è una seconda copia PNG da
@@ -365,7 +376,8 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
     risposta `senza-cestino` a `d-backup-fabbrica`): può valere un gigabyte. La pagina non ricorda
     le caselle.
 - ⚠️⚠️ **Le caselle scorrono, e 'Importa' ed 'Esporta' sono una riga fissa in fondo, dalla `2.99`**
-  (sua nota su `backup-caselle`), con 'Importa' a sinistra. L'interlinea stretta vale per le sole
+  (sua nota su `backup-caselle`), con 'Importa' a sinistra. **Dalla `5.80` anche 'Proteggi con
+  password' è nella fascia fissa** (sua richiesta del 2026-10-12): scorrono solo le parti. L'interlinea stretta vale per le sole
   caselle di questa pagina (`CheckRow` col parametro `tight`). ⚠️ **Il 'form factor più diffuso'
   in cui i tasti si vedono senza scorrere non è misurato**, e la voce di collaudo lo chiede.
 - ⚠️⚠️ **È uno ZIP dentro un contenitore cifrato, e non uno ZIP con la password** (scelta dichiarata):

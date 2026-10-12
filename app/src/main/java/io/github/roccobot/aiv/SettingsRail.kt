@@ -115,7 +115,7 @@ internal fun SettingsTabletSplit(
 internal val SETTINGS_INDEX: List<Page> = listOf(
     Page.ROOT,
     Page.LOOK,
-    Page.FOLDERS, Page.VIEWS, Page.HIDDEN,
+    Page.FOLDERS, Page.VIEWS, Page.HIDDEN, Page.FAVOURITES,
     Page.VIEWER, Page.ZOOM,
     Page.INFO, Page.FACTS,
     Page.CONTROLS, Page.BUTTONS,
@@ -150,4 +150,5 @@ internal val Page.titleRes: Int
         Page.BACKUP -> R.string.backup_title
         Page.START -> R.string.settings_group_start
         Page.BIN -> R.string.bin_title
+        Page.FAVOURITES -> R.string.favourite_folders
     }

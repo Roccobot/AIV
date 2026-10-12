@@ -786,7 +786,6 @@
     <string name="backup_intro">يتضمن الملف الإعدادات أدناه، ولا يقرؤه إلا AIV. عند الاستيراد، تُضاف الأنماط والألوان والأغلفة والمجلدات المضمّنة والمستبعدة وسلة المهملات إلى ما هو موجود من قبل.</string>
     <string name="backup_area_view">المظهر والتنقّل</string>
     <string name="backup_area_editor">إعدادات المحرر</string>
-    <string name="backup_area_covers">أغلفة المجلدات</string>
     <string name="backup_area_hints">التلميحات والدروس المصغّرة</string>
     <string name="backup_lock">الحماية بكلمة مرور</string>
     <string name="backup_lock_desc">من دون كلمة مرور لا يُفتح الملف إلا في AIV، ويستطيع أي شخص لديه AIV استيراده.</string>
@@ -856,4 +855,17 @@
     <string name="update_failed">تعذّر التحديث</string>
     <string name="update_untrusted">التحديث غير موقّع بمفتاح AIV، لذا لن يُثبَّت.</string>
     <string name="update_permission">للتحديث، اسمح لـ AIV بتثبيت التطبيقات.</string>
+    <string name="folder_order">الترتيب في عرض الشبكة</string>
+    <string name="folder_order_desc">يحدد ترتيب المجلدات في عرض الشبكة. يعرض محتوى المجلدات دائمًا أحدث العناصر في الأعلى.</string>
+    <string name="folder_order_alpha">أبجدي</string>
+    <string name="folder_order_recent">الأحدث في الأعلى</string>
+    <string name="folder_order_ask">كيف تريد ترتيب المجلدات في عرض الشبكة؟ يمكنك تغيير الترتيب في أي وقت من الإعدادات.</string>
+    <string name="folder_order_alpha_long">ترتيب أبجدي</string>
+    <string name="favourite_folders">المجلدات المفضلة</string>
+    <string name="favourite_folders_desc">تظهر أعلى الشبكة والقائمة، بهذا الترتيب.</string>
+    <string name="favourite_folders_none">لا توجد مجلدات مفضلة</string>
+    <string name="folder_action_title">اختر إجراءً للمجلد</string>
+    <string name="favourite_add">إضافة إلى المفضلة</string>
+    <string name="favourite_remove">إزالة من المفضلة</string>
+    <string name="backup_area_folders">المجلدات والمسارات</string>
 </resources>

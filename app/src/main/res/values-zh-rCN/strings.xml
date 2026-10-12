@@ -696,7 +696,6 @@
     <string name="backup_intro">文件包含下方的设置，只有 AIV 能读取。导入时，样式、颜色、封面、包含和排除的文件夹和回收站会添加到已有的内容中。</string>
     <string name="backup_area_view">外观与导航</string>
     <string name="backup_area_editor">编辑器设置</string>
-    <string name="backup_area_covers">文件夹封面</string>
     <string name="backup_area_hints">提示与迷你教程</string>
     <string name="backup_lock">使用密码保护</string>
     <string name="backup_lock_desc">没有密码时，文件只能用 AIV 打开，任何装有 AIV 的人都能导入。</string>
@@ -766,4 +765,17 @@
     <string name="update_failed">更新失败</string>
     <string name="update_untrusted">此更新未使用 AIV 的密钥签名，因此不会安装。</string>
     <string name="update_permission">要更新，请允许 AIV 安装应用。</string>
+    <string name="folder_order">网格视图排序</string>
+    <string name="folder_order_desc">设置网格视图中文件夹的顺序。文件夹内容始终将最新的项目显示在最上方。</string>
+    <string name="folder_order_alpha">按字母</string>
+    <string name="folder_order_recent">最新的在上</string>
+    <string name="folder_order_ask">网格视图中的文件夹要如何排序？你可以随时在设置中更改排序。</string>
+    <string name="folder_order_alpha_long">按字母顺序</string>
+    <string name="favourite_folders">收藏的文件夹</string>
+    <string name="favourite_folders_desc">它们按此顺序显示在网格和列表的顶部。</string>
+    <string name="favourite_folders_none">没有收藏的文件夹</string>
+    <string name="folder_action_title">选择对文件夹的操作</string>
+    <string name="favourite_add">添加到收藏</string>
+    <string name="favourite_remove">从收藏中移除</string>
+    <string name="backup_area_folders">文件夹和路径</string>
 </resources>

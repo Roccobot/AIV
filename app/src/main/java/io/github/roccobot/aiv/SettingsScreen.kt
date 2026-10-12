@@ -488,6 +488,20 @@ fun SettingsScreen(
             HiddenFolders(settings = settings, onChange = onChange)
         }
 
+        // ⚠️ A list with commands on each row, like the info fields: the scroll is born here
+        // because the drag needs it too (see [Reorderable]).
+        Page.FAVOURITES -> {
+            val scroll = rememberScrollState()
+            Shell(
+                title = stringResource(R.string.favourite_folders),
+                onBack = { back() },
+                modifier = chrome,
+                scroll = scroll
+            ) {
+                FavouriteFolders(settings = settings, onChange = onChange, scroll = scroll)
+            }
+        }
+
         Page.ZOOM -> Shell(
             title = stringResource(R.string.settings_zoom_page),
             onBack = { back() },
@@ -692,7 +706,9 @@ internal enum class Page {
     // l'ordinale di START. Una pila salvata su NAV si mostra come il Visualizzatore.
     LOOK, NAV, START,
     // ⚠️ **BIN in coda**: le due voci del cestino, ultima sotto-pagina di Gestione dei file.
-    BIN
+    BIN,
+    // ⚠️ From the `5.80`, last for the same reason as the others: the saved stack keeps ordinals.
+    FAVOURITES
 }
 
 /**
@@ -1371,6 +1387,21 @@ private fun FoldersPage(
      * pastiglie sono un elenco di [Chip], così il nome, il valore e il tocco di una pastiglia
      * viaggiano insieme in tutte e due le varianti.
      */
+    /*
+     * ⚠️⚠️ **THE FIRST ENTRY FROM THE `5.80`, AND TITLE, PARAGRAPH AND CHIPS ARE HIS** (request of
+     * 2026-10-12): *Sarà la prima opzione in alto*. No chip is lit until he chooses, because there
+     * is no factory value; the window that asks lives in the home (`FolderOrderDialog`).
+     * ⚠️ **The same choice as the window, with other names on purpose**: *il nome diverso è voluto*.
+     */
+    Choices(
+        label = stringResource(R.string.folder_order),
+        detail = stringResource(R.string.folder_order_desc),
+        options = FolderOrder.entries,
+        selected = settings.folderOrder,
+        nameOf = { stringResource(it.chip()) },
+        onSelect = { onChange(settings.copy(folderOrder = it)) }
+    )
+
     val frontChips = listOfNotNull(
         Chip(stringResource(R.string.settings_front_wash), settings.frontWash) {
             it.copy(frontWash = !it.frontWash)
@@ -1459,6 +1490,97 @@ private fun FoldersPage(
             (settings.includedFolders + settings.folderSelection.excluded).map(::hiddenShown).sorted()
     )
 
+    /*
+     * ⚠️ **A sub-page because it is a list that grows with commands on each row** (the first way in
+     * `Rules.md` § '⚙️ Dove va un'impostazione'), and *in fondo* as he asked. The search finds it
+     * by the words of its page and by the folders in it, like 'Cartelle incluse/escluse'.
+     */
+    PageRow(
+        label = stringResource(R.string.favourite_folders),
+        summary = if (settings.favouriteFolders.isEmpty()) stringResource(R.string.favourite_folders_none)
+        else settings.favouriteFolders.joinToString(SUMMARY_JOIN) { hiddenName(it) },
+        onOpen = { onOpen(Page.FAVOURITES) },
+        extra = listOf(stringResource(R.string.favourite_folders_desc)) +
+            settings.favouriteFolders.map(::hiddenShown)
+    )
+}
+
+/** The name of a [FolderOrder] on its chip in the settings. The window uses longer ones. */
+private fun FolderOrder.chip(): Int = when (this) {
+    FolderOrder.ALPHA -> R.string.folder_order_alpha
+    FolderOrder.RECENT -> R.string.folder_order_recent
+}
+
+/**
+ * 'Cartelle preferite': the favourite folders in the order the grid and the list show them, from
+ * the `5.80` (his request of 2026-10-12).
+ *
+ * ⚠️ **The knobs are those of the info fields** (*manopole identiche a quelle delle info*), that is
+ * [Reorderable], and the page's own scroll reaches the drag, as on that page.
+ * ⚠️ **'Aggiungi cartella' at the bottom, as in the list of the hidden ones**, with the same
+ * destination dialog: a folder already there is not added twice.
+ * ⚠️ **The × takes a folder out at once, without asking**: a favourite hides nothing and goes back
+ * with a long press, so a confirmation would protect nothing.
+ */
+@Composable
+private fun FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit, scroll: ScrollState) {
+    Detail(stringResource(R.string.favourite_folders_desc))
+    val list = settings.favouriteFolders
+    if (list.isEmpty()) Detail(stringResource(R.string.favourite_folders_none))
+    Reorderable(
+        items = list,
+        scroll = scroll,
+        onMove = { da, a -> onChange(settings.copy(favouriteFolders = list.moved(da, a))) }
+    ) { entry, _ ->
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    camelBreak(hiddenName(entry)),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
+            }
+            IconButton(onClick = { onChange(settings.copy(favouriteFolders = list - entry)) }) {
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
+            }
+        }
+    }
+    var picking by remember { mutableStateOf(false) }
+    FilledTonalButton(
+        onClick = { picking = true },
+        modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
+    ) {
+        Text(stringResource(R.string.folder_add))
+    }
+    if (picking) {
+        // ⚠️ AIV GitHub goes straight into the tree, as for the included folders; AIV Play reads
+        // no tree (`Store.files`), and shows the folders with pictures, which are the ones a
+        // favourite can bring to the top anyway.
+        CompositionLocalProvider(
+            LocalDestLook provides DestLook(
+                view = if (Store.files) FolderView.TREE else FolderView.GRID,
+                folderMode = FolderMode.EXCLUDED
+            )
+        ) {
+            DestinationDialog(
+                action = R.string.favourite_add,
+                // Choosing a favourite moves no file, so nothing is a source here.
+                from = emptySet(),
+                onDismiss = { picking = false },
+                onPick = { dir ->
+                    val path = portablePath(dir.absolutePath)
+                    if (path !in list) onChange(settings.copy(favouriteFolders = list + path))
+                    picking = false
+                },
+                alreadyListed = list.toSet()
+            )
+        }
+    }
 }
 
 /**
@@ -3383,7 +3505,8 @@ internal fun <T : Choice> Choices(
     label: String,
     detail: String?,
     options: List<T>,
-    selected: T,
+    /** `null` when nothing is chosen yet: the grid order has no factory value, from the `5.80`. */
+    selected: T?,
     nameOf: @Composable (T) -> String,
     onSelect: (T) -> Unit
 ) {

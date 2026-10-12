@@ -714,7 +714,6 @@
     <string name="backup_intro">Faili hii ina mipangilio iliyo hapa chini, na ni AIV pekee inayoweza kuisoma. Wakati wa kuingiza, mitindo, rangi, majalada, folda zilizojumuishwa na zilizotengwa na tapishi huongezwa kwenye yaliyopo tayari.</string>
     <string name="backup_area_view">Mwonekano na usogezaji</string>
     <string name="backup_area_editor">Mipangilio ya kihariri</string>
-    <string name="backup_area_covers">Majalada ya folda</string>
     <string name="backup_area_hints">Vidokezo na mafunzo mafupi</string>
     <string name="backup_lock">Linda kwa nenosiri</string>
     <string name="backup_lock_desc">Bila nenosiri, faili hufunguka kwa AIV pekee, na yeyote aliye na AIV anaweza kuiingiza.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">Imeshindwa kusasisha</string>
     <string name="update_untrusted">Sasisho halijatiwa sahihi kwa ufunguo wa AIV, kwa hivyo halitasakinishwa.</string>
     <string name="update_permission">Ili kusasisha, ruhusu AIV isakinishe programu.</string>
+    <string name="folder_order">Mpangilio katika mwonekano wa gridi</string>
+    <string name="folder_order_desc">Huweka mpangilio wa folda katika mwonekano wa gridi. Maudhui ya folda huonyesha vipengee vipya zaidi juu kila wakati.</string>
+    <string name="folder_order_alpha">Kialfabeti</string>
+    <string name="folder_order_recent">Vipya zaidi juu</string>
+    <string name="folder_order_ask">Ungependa folda zipangwe vipi katika mwonekano wa gridi? Unaweza kubadilisha mpangilio wakati wowote kwenye mipangilio.</string>
+    <string name="folder_order_alpha_long">Mpangilio wa kialfabeti</string>
+    <string name="favourite_folders">Folda pendwa</string>
+    <string name="favourite_folders_desc">Huonekana juu ya gridi na orodha, kwa mpangilio huu.</string>
+    <string name="favourite_folders_none">Hakuna folda pendwa</string>
+    <string name="folder_action_title">Chagua kitendo kwa folda</string>
+    <string name="favourite_add">Ongeza kwenye pendwa</string>
+    <string name="favourite_remove">Ondoa kwenye pendwa</string>
+    <string name="backup_area_folders">Folda na njia</string>
 </resources>
