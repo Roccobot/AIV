@@ -209,6 +209,15 @@ if '--source' not in sys.argv:
                          '. Mettili in "Etichette testuali" (docs/Feedback-maintenance.md).')
 data = dict(project=PROJECT, version=version, items=items, questions=questions, labels=labels,
             outcomes=[dict(label=label, kind=kind) for label, kind in OUTCOMES])
+# A cumulative document (the user's rule of 2026-10-12: with the exception the new version is
+# released and the document goes on at once) names the round it continues on a line of its own,
+# `Prosegue il giro **5.71**.`; the page keeps a draft's Altro only for that round. It must be
+# an older round with tests still on the page, or the line would keep the notes of nothing.
+continued = re.search(r'^Prosegue il giro \*\*(\d+\.\d+)\*\*', md, re.M)
+if continued:
+    if continued[1] == version or not any(item['version'] == continued[1] for item in items):
+        raise SystemExit(f'Prosegue il giro {continued[1]}: deve essere un giro precedente con prove ancora in pagina')
+    data['continues'] = continued[1]
 next_match = re.search(r'^## Prossimi passi\n(.*?)(?=^## |\Z)', md, re.M | re.S)
 if not next_match:
     raise SystemExit('docs/Feedback.md deve contenere la sezione Prossimi passi')

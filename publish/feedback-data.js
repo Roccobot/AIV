@@ -214,13 +214,19 @@ function alignDocumentVersion() {
   // Answers to tests no longer listed go, with their attachments, and so do label revisions
   // no longer listed (2026-10-03): their round was delivered and read, and kept they made
   // every export carry every round since 3.13. Decisions stay: old drafts keep them as they are.
+  // A cumulative document (`spec.continues`, the user's rule of 2026-10-12) goes on with a round
+  // he has not sent yet: a draft of that round keeps Altro and its attachments, because he is
+  // still writing them, and only the 'installed' confirmation resets, since there is a new
+  // version to install.
   if (draft.version === spec.version) return;
   const listed = new Set(spec.items.map((item) => item.id));
   for (const id of Object.keys(draft.entries)) if (!listed.has(id)) delete draft.entries[id];
   const open = new Set(spec.labels.map((item) => item.id));
   for (const id of Object.keys(draft.labels)) if (!open.has(id)) delete draft.labels[id];
-  draft.notes = "";
-  draft.extra = { images: [] };
+  if (!spec.continues || draft.version !== spec.continues) {
+    draft.notes = "";
+    draft.extra = { images: [] };
+  }
   draft.completed = null;
   draft.version = spec.version;
   draft.installed = "";

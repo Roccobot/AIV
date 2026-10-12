@@ -1566,6 +1566,31 @@ def check(path):
                     continue
                 if item['version'] == data['version']:
                     expect(migration.locator(f'[data-id="{item["id"]}"] .item-state')).to_have_count(0)
+            # A closed round's free field goes with it.
+            expect(migration.locator('#notes')).to_have_value('')
+            # A cumulative document (the user's rule of 2026-10-12) keeps the free field of the
+            # round it continues, which he has not sent yet; only 'installed' resets.
+            if data.get('continues'):
+                going_on = dict(legacy, version=data['continues'], installed=data['continues'],
+                                notes='Altro del giro che prosegue')
+                migration.evaluate("""async draft => {
+                    const db = await new Promise((resolve, reject) => {
+                        const request = indexedDB.open('aiv-feedback', 1);
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    await new Promise((resolve, reject) => {
+                        const transaction = db.transaction('drafts', 'readwrite');
+                        transaction.objectStore('drafts').put(draft, 'current');
+                        transaction.oncomplete = resolve;
+                        transaction.onerror = () => reject(transaction.error);
+                    });
+                    db.close();
+                }""", going_on)
+                migration.reload()
+                expect(migration.locator('#save')).to_be_enabled()
+                expect(migration.locator('#notes')).to_have_value('Altro del giro che prosegue')
+                expect(migration.locator('#installed-confirm')).not_to_be_checked()
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)
