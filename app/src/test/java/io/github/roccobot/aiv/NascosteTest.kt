@@ -180,6 +180,7 @@ class NascosteTest {
 
         banco.onAllNodesWithText(SEGRETA)[0].performTouchInput { longClick() }
         banco.waitForIdle()
+        scegliVisibilita(R.string.settings_hidden_show)
 
         assertTrue(
             "La finestra non propone di mostrare di nuovo la cartella in prestito",
@@ -212,6 +213,7 @@ class NascosteTest {
 
         banco.onAllNodesWithText(NORMALE)[0].performTouchInput { longClick() }
         banco.waitForIdle()
+        scegliVisibilita(R.string.hide_folder_do)
 
         assertTrue(
             "La finestra non propone di nascondere una cartella normale",
@@ -246,6 +248,7 @@ class NascosteTest {
 
         banco.onAllNodesWithText("Camera")[0].performTouchInput { longClick() }
         banco.waitForIdle()
+        scegliVisibilita(R.string.settings_hidden_show)
 
         assertTrue(
             "Il titolo non nomina la cartella che torna davvero",
@@ -256,6 +259,16 @@ class NascosteTest {
         banco.waitForIdle()
 
         assertEquals("'Mostra' non ha tolto la voce che copre la cartella", listOf("DCIM"), tolte)
+    }
+
+    /**
+     * The first step of the long press from the `5.80`: 'Scegli l'azione sulla cartella', and its
+     * visibility key, [label] ('Nascondi' or 'Mostra'). It is also a check: the key must be there.
+     */
+    private fun scegliVisibilita(label: Int) {
+        banco.onAllNodesWithText(app.getString(R.string.folder_action_title))[0].assertExists()
+        banco.onAllNodesWithText(app.getString(label))[0].performClick()
+        banco.waitForIdle()
     }
 
     // ── I percorsi senza la radice del volume, dalla `2.96` ──────────────────
