@@ -735,36 +735,25 @@ for (const id of ["notes", "notes-mobile"]) {
 
 // --- Mobile Altro overlay (long press on the floating ⇥); same draft.notes as the page Altro ---
 const altroOverlay = document.querySelector("#altro-overlay");
-/* The overlay is as tall as what the keyboard leaves visible (his note of 2026-10-10: with
-   attachments he could not scroll down to them). The overlay opens with the caret in the field,
-   so on Android the keyboard opens with it; it shrinks only the visual viewport, and a panel as
-   tall as the whole screen kept its end under the keyboard: measured with four attachments, the
-   panel scrolled 213px while they were some 700px down. Following visualViewport, the panel
-   scrolls as far as its content goes; with nothing to scroll it still holds still.
-   Only the panel follows it, and the overlay always covers the whole screen with the page's
-   ground (his note of 2026-10-11, with a screenshot: a strip of the cards showed between the
-   keys and the keyboard). When the overlay itself followed the visual viewport, any measure a
-   step behind the keyboard left the page uncovered under it. */
+/* The overlay covers the whole screen with the page's ground (his note of 2026-10-11, with a
+   screenshot: a strip of the cards showed between the keys and the keyboard), and the panel runs
+   from the top of the visible area to the bottom of the screen. The overlay opens with the caret
+   in the field, so on Android the keyboard opens with it and shrinks only the visual viewport;
+   the part of the panel under it becomes scrollable room at its end (--altro-keyboard), so the
+   last attachment can be scrolled above the keyboard (his note of 2026-10-10: measured with four
+   attachments, the panel scrolled 213px while they were some 700px down).
+   The panel is not cut at the visual viewport: with Chrome's address bar at the bottom the page
+   is told some 29px less than it shows (370 against 341, his screenshot of 2026-10-11), and a
+   panel that tall cut the second row of keys, then left an empty band under them once the field
+   shrank to make room. Running to the bottom of the screen, the field keeps its 269px and both
+   rows show whole, as before 2026-10-10 (his note of 2026-10-12). */
 const altroPanel = document.querySelector(".altro-overlay-panel");
-/* The field gives up what the two rows of keys under it need, so both stay whole even when the
-   visible area is shorter than the 368px they were drawn for (his note of 2026-10-11, with a
-   screenshot: with Chrome's address bar at the bottom the page is told some 29px less than it
-   shows, and the second row was cut in half). The CSS keeps 269px as the most it takes. */
-function fitAltroField(height) {
-  const field = document.querySelector("#notes-mobile-editor") || document.querySelector("#notes-mobile");
-  const rows = altroPanel.querySelector(".format-actions");
-  if (!field || !rows) return;
-  const box = field.getBoundingClientRect();
-  const above = box.top - altroPanel.getBoundingClientRect().top + altroPanel.scrollTop;
-  const below = rows.getBoundingClientRect().bottom - box.bottom;
-  altroPanel.style.setProperty("--altro-field", height - above - below + "px");
-}
 function fitAltroOverlay() {
   const view = window.visualViewport;
   if (!altroOverlay || altroOverlay.hidden || !view) return;
+  const keyboard = altroOverlay.clientHeight - view.offsetTop - view.height;
   altroPanel.style.marginTop = view.offsetTop + "px";
-  altroPanel.style.height = view.height + "px";
-  fitAltroField(view.height);
+  altroPanel.style.setProperty("--altro-keyboard", Math.max(0, keyboard) + "px");
 }
 window.visualViewport?.addEventListener("resize", fitAltroOverlay);
 window.visualViewport?.addEventListener("scroll", fitAltroOverlay);
@@ -772,8 +761,8 @@ function setAltroOverlayOpen(open) {
   if (!altroOverlay) return;
   altroOverlay.hidden = !open;
   document.body.classList.toggle("altro-overlay-open", open);
-  altroPanel.style.marginTop = altroPanel.style.height = "";
-  altroPanel.style.removeProperty("--altro-field");
+  altroPanel.style.marginTop = "";
+  altroPanel.style.removeProperty("--altro-keyboard");
   fitAltroOverlay();
   if (open) {
     syncAltroFields();
