@@ -934,9 +934,9 @@ body.altro-overlay-open {
 .altro-overlay-panel {
   overscroll-behavior: contain;
 }
-/* The overlay covers the whole screen with the page's ground, and only the panel follows the
-   area the keyboard leaves visible (feedback-ui.js, fitAltroOverlay): a panel a step behind the
-   keyboard leaves ground under it, never the cards (his note of 2026-10-11). */
+/* The overlay covers the whole screen with the page's ground, and the panel starts at the top of
+   the area the keyboard leaves visible (feedback-ui.js, fitAltroOverlay): a panel a step behind
+   the keyboard leaves ground under it, never the cards (his note of 2026-10-11). */
 .altro-overlay {
   position: fixed;
   inset: 0;
@@ -955,7 +955,9 @@ body.altro-overlay-open {
   /* The field starts at the top, with no title and no room above it (the user's request,
      2026-10-06: *il titolo e lo spazio vuoto sono uno spreco*). Chiudi is in the row of keys. */
   padding: 0 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  /* --altro-keyboard is the part of the panel under the keyboard: as room at the end, it lets
+     the last attachment scroll above the keyboard (feedback-ui.js, fitAltroOverlay). */
+  padding-bottom: calc(16px + env(safe-area-inset-bottom) + var(--altro-keyboard, 0px));
   overflow: auto;
 }
 .altro-overlay-body {
@@ -967,12 +969,13 @@ body.altro-overlay-open {
    both rows of keys fit in them: the rows are 2px lower than before and the field 4px taller
    (his request). feedback-format.js moves the editor out of the body, so the rule names the
    panel. The focus ring is off here: the field is the whole overlay.
-   When the visible area is shorter, the field gives up the difference (feedback-ui.js,
-   fitAltroField), so both rows stay whole; 96px keep about four lines of text. */
+   With Chrome's address bar at the bottom the page is told some 29px less than it shows: the
+   field does not shrink for it, because the panel runs to the bottom of the screen and both
+   rows show whole there (his note of 2026-10-12). */
 .altro-overlay-panel textarea,
 .altro-overlay-panel .rich-editor {
-  height: clamp(96px, var(--altro-field, 269px), 269px);
-  min-height: clamp(96px, var(--altro-field, 269px), 269px);
+  height: 269px;
+  min-height: 269px;
 }
 .altro-overlay-panel textarea:focus-visible,
 .altro-overlay-panel .rich-editor:focus-visible {
@@ -1658,8 +1661,10 @@ button.devices-edit:disabled {
   color: var(--bg);
   font-size: 15px;
   line-height: 1.4;
-  /* A notice can have two lines (the Invia reminder). */
+  /* A notice can have two lines (the Invia reminder), and they are centred (his request,
+     2026-10-12). */
   white-space: pre-line;
+  text-align: center;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
   transform: translate(-50%, 12px);
   opacity: 0;

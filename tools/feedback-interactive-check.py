@@ -1361,6 +1361,14 @@ def check(path):
             lines = reminder.evaluate("""(el) => { const s = getComputedStyle(el);
                 return Math.round((el.clientHeight - parseFloat(s.paddingTop) - parseFloat(s.paddingBottom)) / parseFloat(s.lineHeight)); }""")
             assert lines == 2, ('Il promemoria di Invia non occupa due righe.', lines)
+            # The two lines are centred in the notice (his request, 2026-10-12): the middle of
+            # each line's text falls on the middle of the notice.
+            offsets = reminder.evaluate("""(el) => {
+                const box = el.getBoundingClientRect(), range = document.createRange();
+                range.selectNodeContents(el);
+                return [...range.getClientRects()].filter((r) => r.width > 1)
+                    .map((r) => r.left + r.width / 2 - (box.left + box.width / 2)); }""")
+            assert len(offsets) == 2 and all(abs(o) < 1.5 for o in offsets), ('Le righe del promemoria di Invia non sono centrate.', offsets)
             # Thumbnails two per row, on desktop and on mobile.
             thumbs = [f.bounding_box() for f in second.locator('.test').first.locator('.image-list figure').all()]
             assert abs(thumbs[0]['y'] - thumbs[1]['y']) < 1 and thumbs[2]['y'] > thumbs[0]['y'] + 1, thumbs
@@ -1403,18 +1411,19 @@ def check(path):
                 const figures = document.querySelectorAll('#altro-overlay .image-list figure');
                 const last = figures[figures.length - 1].getBoundingClientRect();
                 const below = document.elementFromPoint(innerWidth / 2, Math.min(innerHeight - 2, view.offsetTop + view.height + 100));
-                return {panel: panel.getBoundingClientRect().height, view: view.height, bottom: last.bottom - view.offsetTop,
+                return {view: view.height, bottom: last.bottom - view.offsetTop,
                         covered: Boolean(below && below.closest('#altro-overlay'))};
             }""")
             assert reach['view'] < 400, ('La pagina non si è ingrandita: la prova non misura niente.', reach)
-            assert abs(reach['panel'] - reach['view']) < 1 and reach['bottom'] <= reach['view'] + 1, reach
+            assert reach['bottom'] <= reach['view'] + 1, ('L\'ultimo allegato resta sotto la tastiera.', reach)
             assert reach['covered'], ('Sotto il pannello di Altro si vede la pagina.', reach)
-            # Both rows of keys stay whole in the visible area, even when it is shorter than the
-            # 368px they were drawn for: the field gives up the difference (his note of
-            # 2026-10-11, with a screenshot: with Chrome's address bar at the bottom the page is
-            # told about 341px, and the second row was cut in half). With room enough the field
-            # keeps its 269px.
-            def rows_fit(height):
+            # The panel is not cut at the visible area: with Chrome's address bar at the bottom the
+            # page is told about 341px while the screen shows 370 (his screenshot of 2026-10-11).
+            # A panel cut there cut the second row of keys, and a field shrunk to make room left an
+            # empty band under them (his note of 2026-10-12: before 2026-10-10 it was all right).
+            # So the field keeps its 269px and the panel runs to the bottom of the screen, as tall
+            # as the overlay below the visible area's top.
+            def panel_at(height):
                 zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 900 / height})
                 second.wait_for_timeout(300)
                 return second.evaluate("""() => {
@@ -1422,13 +1431,17 @@ def check(path):
                     panel.scrollTop = 0;
                     const rows = panel.querySelector('.format-actions').getBoundingClientRect();
                     const field = document.querySelector('#notes-mobile-editor').getBoundingClientRect();
-                    return {view: view.height, rows: rows.bottom - view.offsetTop, field: field.height};
+                    const box = panel.getBoundingClientRect();
+                    const overlay = document.querySelector('#altro-overlay').getBoundingClientRect();
+                    return {view: view.height, rows: rows.bottom - view.offsetTop, field: field.height,
+                            gap: overlay.bottom - box.bottom};
                 }""")
-            roomy = rows_fit(368)
+            roomy = panel_at(368)
             assert abs(roomy['field'] - 269) < 1 and roomy['rows'] <= roomy['view'] + 1, roomy
-            short = rows_fit(341)
+            short = panel_at(341)
             assert short['view'] < 345, ('La pagina non si è ingrandita: la prova non misura niente.', short)
-            assert short['rows'] <= short['view'] + 1, ('La seconda fila di Altro è tagliata.', short)
+            assert abs(short['field'] - 269) < 1, ('Il campo di Altro si accorcia, e sotto le file resta una fascia vuota.', short)
+            assert abs(short['gap']) < 1, ('Il pannello di Altro non arriva in fondo allo schermo.', short)
             zoom.send('Emulation.setPageScaleFactor', {'pageScaleFactor': 1})
             second.wait_for_timeout(300)
             second.evaluate('document.activeElement.blur()')

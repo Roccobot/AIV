@@ -203,23 +203,22 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   Nell'overlay il campo comincia in cima al pannello, senza titolo né spazio sopra, ed è alto
   269 px, senza anello di selezione: con la tastiera alta dell'utente sopra restano circa
   368 px, e il campo e le due file di tasti entrano in quello spazio (sue scelte, 2026-10-04 e 2026-10-06). Con l'overlay aperto la pagina sotto non scorre.
-  ⚠️ **Quando l'area visibile è più bassa, il campo cede la differenza** (`fitAltroField`, dal
-  2026-10-11, sua segnalazione con uno screenshot): con la barra degli indirizzi di Chrome in basso
-  la pagina riceve circa 29 px in meno di quelli che mostra (341 contro 370, misurati sullo
-  screenshot), e la seconda fila era tagliata a metà. Le due file restano intere, il campo resta
-  fra 96 e 269 px; la fascia vuota sotto le file è quella differenza, che la pagina non può
-  misurare.
-  ⚠️⚠️ **L'overlay è alto quanto l'area che la tastiera lascia visibile** (`visualViewport`, dal
-  2026-10-10, sua nota: con gli allegati non riusciva a scendere a vederli). Si apre col cursore nel
-  campo, quindi su Android la tastiera si apre con lui, e lei riduce solo l'area visibile: un
-  pannello alto quanto lo schermo teneva la sua fine sotto la tastiera, e misurato con quattro
-  allegati scorreva di 213 px mentre loro erano circa 700 px più in basso. Il pannello scorre quando
-  ha qualcosa da scorrere, e resta fermo quando non ce l'ha.
-  ⚠️ **Dal 2026-10-11 segue l'area visibile il solo pannello, e l'overlay copre sempre lo schermo
-  intero con lo sfondo della pagina** (sua nota, con uno screenshot: fra i tasti e la
-  tastiera si vedeva una striscia dei riquadri). Quando seguiva l'area anche l'overlay, una misura
-  in ritardo sulla tastiera lasciava scoperta la pagina sotto di lui; la presidia
-  `feedback-interactive-check.py`. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
+  ⚠️⚠️ **Il pannello va dalla cima dell'area visibile al fondo dello schermo, e la parte sotto la
+  tastiera diventa spazio da scorrere in fondo** (`fitAltroOverlay`, `--altro-keyboard`, dal
+  2026-10-12). Si apre col cursore nel campo, quindi su Android la tastiera si apre con lui e
+  riduce solo l'area visibile (`visualViewport`): quello spazio in fondo permette di portare
+  l'ultimo allegato sopra la tastiera (sua nota del 2026-10-10: misurato con quattro allegati, il
+  pannello scorreva di 213 px mentre loro erano circa 700 px più in basso).
+  ⚠️⚠️ **Il pannello non si taglia all'area visibile, e il campo resta di 269 px**: con la barra
+  degli indirizzi di Chrome in basso la pagina riceve circa 29 px in meno di quelli che mostra
+  (341 contro 370, misurati su un suo screenshot del 2026-10-11). Dal 2026-10-10 all'11 il pannello
+  era alto quanto l'area visibile e tagliava la seconda fila di tasti; dall'11 al 12 il campo si
+  accorciava per farle spazio, e sotto le file restava una fascia vuota di quei 29 px. Prima del
+  2026-10-10, col pannello lungo quanto lo schermo, era tutto a posto (sua nota del 2026-10-12).
+  ⚠️ **L'overlay copre sempre lo schermo intero con lo sfondo della pagina** (dal 2026-10-11, sua
+  nota con uno screenshot: fra i tasti e la tastiera si vedeva una striscia dei riquadri). Quando
+  seguiva l'area visibile anche l'overlay, una misura in ritardo sulla tastiera lasciava scoperta
+  la pagina sotto di lui. Le tre cose le presidia `feedback-interactive-check.py`. Su mobile la riga di stato del salvataggio è a 12 px, centrata e al 70%. Al tocco Android non disegna nessun riquadro (`-webkit-tap-highlight-color`).
   ⚠️⚠️ **Su desktop la fine di Altro è sempre dentro la finestra** (dal 2026-10-10, sua nota con uno
   screenshot: con la pagina in cima non arrivava a `Rinomina` ed `Elimina` dell'ultimo allegato).
   Finché la pagina non lo porta a 18 px dal bordo, Altro comincia più in basso, e alto quanto la
@@ -283,7 +282,7 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - ⚠️ **Ritocchi del 2026-10-04 (sue richieste)**: l'introduzione dice soltanto *Giro x.yz:
   collaudo chiuso. Le migliorie e le scelte dei giri precedenti sono in archivio.*, su mobile
   non c'è, e dopo il titolo viene subito `Scarica AIV` (sua istruzione, 2026-10-04 sera), che
-  dalla 5.11 scarica AIV Play (sua richiesta, 2026-10-10: AIV GitHub lo aggiorna da Obtainium); `Invia` risponde anche con un toast in basso, e se qualche prova è ancora senza esito il giro parte lo stesso e il toast lo ricorda (*Hai dato riscontro a X punti su Y.* e, a capo, *Completa la verifica prima di inviare.*; sua richiesta, 2026-10-11): contano solo le prove del contatore, non domande, etichette e Altro; il campo in cui
+  dalla 5.11 scarica AIV Play (sua richiesta, 2026-10-10: AIV GitHub lo aggiorna da Obtainium); `Invia` risponde anche con un toast in basso, e se qualche prova è ancora senza esito il giro parte lo stesso e il toast lo ricorda (*Hai dato riscontro a X punti su Y.* e, a capo, *Completa la verifica prima di inviare.*, con le due righe centrate; sue richieste del 2026-10-11 e del 2026-10-12, testo approvato da lui il 12): contano solo le prove del contatore, non domande, etichette e Altro; il campo in cui
   si scrive non ha il bordo colorato; le miniature degli allegati sono due per riga; il codice
   inline è reso nell'editor come grassetto, corsivo e link; su desktop `Prossimi passi` segue
   l'ultimo riquadro a 18 px e, a fine pagina, finisce dove finisce `Altro` (lo spazio in fondo lo
