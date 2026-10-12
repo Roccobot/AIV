@@ -732,7 +732,6 @@
     <string name="backup_intro">O arquivo inclui as configurações abaixo, e só o AIV consegue lê-lo. Na importação, os estilos, as cores, as capas, as pastas incluídas e excluídas e a lixeira são adicionados ao que já existe.</string>
     <string name="backup_area_view">Aparência e navegação</string>
     <string name="backup_area_editor">Configurações do editor</string>
-    <string name="backup_area_covers">Capas das pastas</string>
     <string name="backup_area_hints">Avisos e minitutoriais</string>
     <string name="backup_lock">Proteger com senha</string>
     <string name="backup_lock_desc">Sem senha, o arquivo só abre com o AIV, e qualquer pessoa que tenha o AIV pode importá-lo.</string>
@@ -802,4 +801,17 @@
     <string name="update_failed">Falha na atualização</string>
     <string name="update_untrusted">A atualização não está assinada com a chave do AIV, então não será instalada.</string>
     <string name="update_permission">Para atualizar, permita que o AIV instale apps.</string>
+    <string name="folder_order">Disposição na visualização em grade</string>
+    <string name="folder_order_desc">Define a ordem das pastas na visualização em grade. O conteúdo das pastas sempre mostra os itens mais recentes primeiro.</string>
+    <string name="folder_order_alpha">Alfabética</string>
+    <string name="folder_order_recent">Mais recentes no topo</string>
+    <string name="folder_order_ask">Como você quer ordenar as pastas na visualização em grade? Você pode mudar a disposição a qualquer momento nas configurações.</string>
+    <string name="folder_order_alpha_long">Ordem alfabética</string>
+    <string name="favourite_folders">Pastas favoritas</string>
+    <string name="favourite_folders_desc">Aparecem no topo da grade e da lista, nesta ordem.</string>
+    <string name="favourite_folders_none">Nenhuma pasta favorita</string>
+    <string name="folder_action_title">Escolha uma ação para a pasta</string>
+    <string name="favourite_add">Adicionar às favoritas</string>
+    <string name="favourite_remove">Remover das favoritas</string>
+    <string name="backup_area_folders">Pastas e caminhos</string>
 </resources>

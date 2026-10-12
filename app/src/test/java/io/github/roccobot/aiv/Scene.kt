@@ -30,7 +30,14 @@ internal fun Casa(
     buckets: List<Folder.Bucket> = emptyList(),
     /** I percorsi nascosti, per le prove di 'Mostra nascoste'. */
     hidden: Set<String> = emptySet(),
-    selection: FolderSelection = FolderSelection(hidden = hidden),
+    /**
+     * ⚠️ **The grid order is already chosen by default** (from the `5.80`): with `null` the home
+     * asks it in a window, which would cover what the other tests look at. The test of that window
+     * passes a selection without it.
+     */
+    selection: FolderSelection = FolderSelection(hidden = hidden, order = FolderOrder.ALPHA),
+    /** Riceve la selezione cambiata, per le prove della disposizione e delle preferite. */
+    onSelectionChange: (FolderSelection) -> Unit = {},
     /** Se le nascoste sono in scena col minuto in corso. */
     peeking: Boolean = false,
     /** Riceve le voci che 'Mostra' toglie: dalla `2.96` sono tutte quelle che coprono la cartella. */
@@ -46,6 +53,7 @@ internal fun Casa(
         tints = emptyMap(),
         hidden = hidden,
         selection = selection,
+        onSelectionChange = onSelectionChange,
         onHide = {},
         peeking = peeking,
         onPeek = {},

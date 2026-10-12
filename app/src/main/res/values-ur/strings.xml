@@ -714,7 +714,6 @@
     <string name="backup_intro">فائل میں نیچے دی گئی ترتیبات شامل ہیں، اور اسے صرف AIV پڑھ سکتا ہے۔ درآمد کے وقت اسٹائل، رنگ، سرورق، شامل اور خارج فولڈر اور ردی کی ٹوکری پہلے سے موجود چیزوں میں شامل ہو جاتے ہیں۔</string>
     <string name="backup_area_view">ظاہری شکل اور نیویگیشن</string>
     <string name="backup_area_editor">ایڈیٹر کی ترتیبات</string>
-    <string name="backup_area_covers">فولڈروں کے سرورق</string>
     <string name="backup_area_hints">اشارے اور مختصر رہنما سبق</string>
     <string name="backup_lock">پاس ورڈ سے حفاظت کریں</string>
     <string name="backup_lock_desc">پاس ورڈ کے بغیر فائل صرف AIV سے کھلتی ہے، اور جس کے پاس بھی AIV ہو وہ اسے درآمد کر سکتا ہے۔</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">اپ ڈیٹ ناکام رہی</string>
     <string name="update_untrusted">اپ ڈیٹ AIV کی کلید سے سائن نہیں ہے، اس لیے انسٹال نہیں ہوگی۔</string>
     <string name="update_permission">اپ ڈیٹ کرنے کے لیے AIV کو ایپس انسٹال کرنے کی اجازت دیں۔</string>
+    <string name="folder_order">گرڈ منظر میں ترتیب</string>
+    <string name="folder_order_desc">گرڈ منظر میں فولڈرز کی ترتیب طے کرتا ہے۔ فولڈرز کے اندر ہمیشہ سب سے نئی چیزیں اوپر دکھائی جاتی ہیں۔</string>
+    <string name="folder_order_alpha">حروفِ تہجی کے لحاظ سے</string>
+    <string name="folder_order_recent">سب سے نئے اوپر</string>
+    <string name="folder_order_ask">گرڈ منظر میں فولڈرز کو کیسے ترتیب دینا چاہیں گے؟ آپ ترتیب کسی بھی وقت ترتیبات سے بدل سکتے ہیں۔</string>
+    <string name="folder_order_alpha_long">حروفِ تہجی کی ترتیب</string>
+    <string name="favourite_folders">پسندیدہ فولڈرز</string>
+    <string name="favourite_folders_desc">یہ گرڈ اور فہرست کے سب سے اوپر، اسی ترتیب سے دکھائی دیتے ہیں۔</string>
+    <string name="favourite_folders_none">کوئی پسندیدہ فولڈر نہیں</string>
+    <string name="folder_action_title">فولڈر کے لیے عمل منتخب کریں</string>
+    <string name="favourite_add">پسندیدہ میں شامل کریں</string>
+    <string name="favourite_remove">پسندیدہ سے ہٹائیں</string>
+    <string name="backup_area_folders">فولڈرز اور راستے</string>
 </resources>

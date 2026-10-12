@@ -68,17 +68,67 @@ import javax.crypto.spec.SecretKeySpec
  * nascoste'*). Vive accanto alle altre due parti che parlano di cartelle, e porta l'etichetta della sua pagina nelle
  * impostazioni. Fino alla `2.95` l'elenco viaggiava dentro 'Aspetto e navigazione', e un file di
  * allora lo porta ancora là: il perché vive su [PREF_RETIRED].
+ * ⚠️⚠️ **FROM THE `5.80` THE PAGE NO LONGER SHOWS THESE AREAS, BUT [BackupGroup]**: the areas stay
+ * the format, with the same tokens, so every file written before still imports (his answer `A1`).
  */
-internal enum class BackupArea(val token: String, @StringRes val label: Int) {
-    VIEW("view", R.string.backup_area_view),
-    BUTTONS("buttons", R.string.settings_group_input),
-    EDITOR("editor", R.string.backup_area_editor),
-    STYLES("styles", R.string.settings_styles),
-    TINTS("tints", R.string.settings_colour),
-    COVERS("covers", R.string.backup_area_covers),
-    HIDDEN("hidden", R.string.folder_selection),
-    HINTS("hints", R.string.backup_area_hints),
-    BIN("bin", R.string.bin_title),
+internal enum class BackupArea(val token: String) {
+    VIEW("view"),
+    BUTTONS("buttons"),
+    EDITOR("editor"),
+    STYLES("styles"),
+    TINTS("tints"),
+    COVERS("covers"),
+    HIDDEN("hidden"),
+    HINTS("hints"),
+    BIN("bin"),
+}
+
+/**
+ * The parts of the 'Esporta e importa' page, from the `5.80`: six groups that gather the areas of
+ * the file.
+ *
+ * ⚠️⚠️ **THEY ARE HIS REQUEST OF 2026-10-12, IN THE ORDER OF HIS ANSWER `A1`**: 'Comandi e
+ * indicatori' is gone, its commands joined 'Aspetto e navigazione' and the indicator of the last
+ * media joined 'Cartelle e percorsi', with colours, covers, included and excluded folders, order and
+ * favourites.
+ * ⚠️⚠️ **A GROUP GATHERS AREAS AND NEVER RENAMES THEM**: the file keeps writing `view`, `buttons`,
+ * `hidden` and the others, so an older AIV reads a new file and a new AIV reads an old one. The one
+ * key that changed group without changing area is in [PREF_REGROUPED].
+ * ⚠️ **The token is written in the manifest** (see [Backup.Manifest.groups]), so the confirmation
+ * names what the file really carries; an older version ignores it, as it ignores every field it does
+ * not know.
+ */
+internal enum class BackupGroup(val token: String, @StringRes val label: Int, val areas: Set<BackupArea>) {
+    LOOK("look", R.string.backup_area_view, setOf(BackupArea.VIEW, BackupArea.BUTTONS)),
+    FOLDERS(
+        "folders", R.string.backup_area_folders,
+        setOf(BackupArea.TINTS, BackupArea.COVERS, BackupArea.HIDDEN)
+    ),
+    EDITOR("editor", R.string.backup_area_editor, setOf(BackupArea.EDITOR)),
+    STYLES("styles", R.string.settings_styles, setOf(BackupArea.STYLES)),
+    HINTS("hints", R.string.backup_area_hints, setOf(BackupArea.HINTS)),
+    BIN("bin", R.string.bin_title, setOf(BackupArea.BIN));
+
+    companion object {
+        /** The group an area belongs to: each area is in exactly one. */
+        fun of(area: BackupArea): BackupGroup = entries.first { area in it.areas }
+
+        /**
+         * The areas a file needs to carry [groups]: theirs, and the area of every key that moved
+         * into one of them ([PREF_REGROUPED]).
+         */
+        fun areasOf(groups: Set<BackupGroup>): Set<BackupArea> =
+            groups.flatMap { it.areas }.toSet() + PREF_KEYS.filter { it.group in groups }.map { it.area }
+
+        /**
+         * The groups an older file carries, which has no list of its own: those with an area in
+         * the file, or with a key living in one. ⚠️ Exact, because before the `5.80` every
+         * `prefs/<area>.json` named all the keys of its area.
+         */
+        fun carriedBy(areas: Set<BackupArea>): Set<BackupGroup> =
+            entries.filter { g -> g.areas.any { it in areas } || PREF_KEYS.any { it.group == g && it.area in areas } }
+                .toSet()
+    }
 }
 
 /** Il tipo di una preferenza, come `DataStore` la tiene e come il file la scrive. */
@@ -100,7 +150,19 @@ internal enum class PrefType(val token: String) {
 }
 
 /** Una preferenza che il backup porta: il suo nome nell'archivio, il suo tipo, la sua area. */
-internal class PrefKey(val name: String, val type: PrefType, val area: BackupArea)
+internal class PrefKey(val name: String, val type: PrefType, val area: BackupArea) {
+    /** The part of the page that carries it: the group of its area, unless it moved ([PREF_REGROUPED]). */
+    val group: BackupGroup get() = PREF_REGROUPED[name] ?: BackupGroup.of(area)
+}
+
+/**
+ * The keys that the page puts in a group other than the one of their area, from the `5.80`.
+ *
+ * ⚠️⚠️ **THE AREA OF A KEY NEVER CHANGES (see [PREF_KEYS]), SO A KEY THAT MOVES ON THE PAGE MOVES
+ * HERE**: `last-mark`, the indicator of the last media, keeps travelling in `buttons`, where every
+ * version looks for it, and follows 'Cartelle e percorsi', which is his request.
+ */
+internal val PREF_REGROUPED: Map<String, BackupGroup> = mapOf("last-mark" to BackupGroup.FOLDERS)
 
 /**
  * Tutte le preferenze che un backup porta, ognuna con la sua area.
@@ -168,7 +230,7 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
     area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative", "hidden-only", "included-relative")
-    area(BackupArea.HIDDEN, PrefType.STRING, "folder-mode")
+    area(BackupArea.HIDDEN, PrefType.STRING, "folder-mode", "folder-order", "favourite-folders")
     Hint.entries.forEach { add(PrefKey(it.token, PrefType.BOOLEAN, BackupArea.HINTS)) }
 }
 
@@ -415,8 +477,16 @@ internal object Backup {
      * Che cosa dice un backup di sé, prima di aprirlo tutto.
      *
      * @property foreign quante aree del file questa versione non conosce: vengono da una più nuova.
+     * @property groups the parts of the page the file carries: its own list from the `5.80`, worked
+     *   out from [areas] for an older file ([BackupGroup.carriedBy]).
      */
-    class Manifest(val app: String, val created: Long, val areas: Set<BackupArea>, val foreign: Int)
+    class Manifest(
+        val app: String,
+        val created: Long,
+        val areas: Set<BackupArea>,
+        val foreign: Int,
+        val groups: Set<BackupGroup>
+    )
 
     /**
      * Com'è andata un'importazione: le aree da rimettere, quelle che sono entrate davvero, e se il
@@ -473,6 +543,9 @@ internal object Backup {
      * @param rounds le iterazioni di PBKDF2: di serie [ROUNDS]. ⚠️ **Le prove ne usano meno**, o
      *   ogni caso costerebbe un secondo per niente.
      * @param onBytes quanti byte sono già usciti, per l'avanzamento.
+     * @param groups the parts ticked on the page, which also choose key by key what an area carries
+     *   ([PREF_REGROUPED]); `null` writes [areas] whole, as the tests do. ⚠️ With groups, [areas]
+     *   is [BackupGroup.areasOf] of them.
      */
     suspend fun write(
         context: Context,
@@ -480,14 +553,15 @@ internal object Backup {
         areas: Set<BackupArea>,
         password: String?,
         rounds: Int = ROUNDS,
-        onBytes: (Long) -> Unit = {}
+        onBytes: (Long) -> Unit = {},
+        groups: Set<BackupGroup>? = null
     ) = pack(out, password, rounds, onBytes) { zip ->
-        putText(zip, MANIFEST, manifestJson(areas).toString())
+        putText(zip, MANIFEST, manifestJson(areas, groups).toString())
         val stored = storedPreferences(context).asMap().entries
             .associate { it.key.name to it.value }
         for (area in BackupArea.entries) {
             if (area !in areas) continue
-            if (area in PREF_AREAS) putText(zip, prefsName(area), prefsJson(stored, area))
+            if (area in PREF_AREAS) putText(zip, prefsName(area), prefsJson(stored, area, groups))
             when (area) {
                 BackupArea.EDITOR -> Watermark.file(context)?.let {
                     putFile(zip, MARK_DIR + it.name, it)
@@ -580,11 +654,14 @@ internal object Backup {
      * aggiungendo, quindi non c'è niente che un numero debba fermare (vedi la testa di questo
      * oggetto). La versione dell'app c'è, e serve a chi legge la conferma.
      */
-    private fun manifestJson(areas: Set<BackupArea>): JSONObject = JSONObject()
+    private fun manifestJson(areas: Set<BackupArea>, groups: Set<BackupGroup>?): JSONObject = JSONObject()
         .put("format", FORMAT)
         .put("app", BuildConfig.VERSION_NAME)
         .put("created", System.currentTimeMillis())
         .put("areas", JSONArray(BackupArea.entries.filter { it in areas }.map { it.token }))
+        .apply {
+            if (groups != null) put("groups", JSONArray(BackupGroup.entries.filter { it in groups }.map { it.token }))
+        }
 
     /**
      * Le preferenze di un'area come testo: quelle che hanno un valore, e quelle che non ce l'hanno.
@@ -602,11 +679,13 @@ internal object Backup {
      * copertura delle chiavi confronta proprio i tipi. Se capitasse, l'app quel valore non lo sa
      * leggere, e all'arrivo il valore di fabbrica è l'unica cosa sensata da rimettere.
      */
-    private fun prefsJson(stored: Map<String, Any>, area: BackupArea): String {
+    private fun prefsJson(stored: Map<String, Any>, area: BackupArea, groups: Set<BackupGroup>?): String {
         val keys = JSONArray()
         val absent = JSONArray()
         for (k in PREF_KEYS) {
-            if (k.area != area) continue
+            // ⚠️ A key of a part that is not ticked is not named at all, neither present nor absent:
+            // on arrival it stays as it is, which is what an unticked part means.
+            if (k.area != area || (groups != null && k.group !in groups)) continue
             val value = stored[k.name]
             if (value == null || PrefType.of(value) != k.type) {
                 absent.put(k.name)
@@ -740,17 +819,20 @@ internal object Backup {
      *
      * @param chosen le caselle spuntate. ⚠️ Si importano quelle che sono anche nel resoconto.
      * @param onBytes quanti byte del file sono già stati letti, per l'avanzamento.
+     * @param groups the parts ticked on the page, which choose key by key what enters; `null` takes
+     *   [chosen] whole. The same pairing as in [write].
      */
     suspend fun restore(
         context: Context,
         input: InputStream,
         opened: Opened,
         chosen: Set<BackupArea>,
-        onBytes: (Long) -> Unit = {}
+        onBytes: (Long) -> Unit = {},
+        groups: Set<BackupGroup>? = null
     ): Outcome = withContext(Dispatchers.IO) {
         sweep(context)
         try {
-            val found = gather(context, CountingIn(input, onBytes), opened, chosen)
+            val found = gather(context, CountingIn(input, onBytes), opened, chosen, groups)
             withContext(NonCancellable) {
                 Outcome(found.wanted, apply(context, found), skipped = found.skipped > 0)
             }
@@ -815,7 +897,8 @@ internal object Backup {
         context: Context,
         raw: CountingIn,
         opened: Opened,
-        chosen: Set<BackupArea>
+        chosen: Set<BackupArea>,
+        groups: Set<BackupGroup>?
     ): Found {
         val plain = unseal(raw, opened)
         val zip = ZipInputStream(plain, Charsets.UTF_8)
@@ -836,7 +919,7 @@ internal object Backup {
             val area = PREF_AREAS.firstOrNull { prefsName(it) == name }
             when {
                 area != null -> if (area in want) {
-                    val letto = readPrefs(readText(zip, PREFS_MAX), area)
+                    val letto = readPrefs(readText(zip, PREFS_MAX), area, groups)
                     found.prefs[area] = letto
                     found.skipped += letto.skipped
                 }
@@ -1022,8 +1105,11 @@ internal object Backup {
      * versione lo scrive, e dei due valori non si saprebbe quale vale.
      * ⚠️ **Una chiave ritirata si traduce e non si conta** (vedi [PREF_RETIRED]): viene da una versione
      * più vecchia, e contarla farebbe dire alla notifica il contrario.
+     * ⚠️ **A key of a part that is not ticked is left out without being counted**, like the entries
+     * of an area that is not ticked: the person importing left it out, and the file is not newer.
      */
-    private fun readPrefs(text: String, area: BackupArea): Prefs {
+    private fun readPrefs(text: String, area: BackupArea, groups: Set<BackupGroup>?): Prefs {
+        fun wanted(key: PrefKey) = groups == null || key.group in groups
         val o = json(text)
         val keys = o.optJSONArray("keys") ?: throw Failure(Reason.BAD)
         val values = ArrayList<Pair<PrefKey, Any>>()
@@ -1043,23 +1129,24 @@ internal object Backup {
                     ?.takeIf { it.area == area && k.optString("type") == it.type.token }
                 val old = retired?.let { decode(it.type, k.opt("value")) }
                 if (retired != null && old != null) {
-                    values += retired.into to retired.convert(old)
-                } else {
+                    if (wanted(retired.into)) values += retired.into to retired.convert(old)
+                } else if (known == null || wanted(known)) {
                     skipped++
                 }
                 continue
             }
-            values += known to value
+            if (wanted(known)) values += known to value
         }
         // ⚠️ Un elenco che manca vale vuoto: il file dice soltanto meno cose.
         o.optJSONArray("absent")?.let { list ->
             for (i in 0 until list.length()) {
                 val name = list.opt(i) as? String ?: throw Failure(Reason.BAD)
                 if (name.isEmpty() || !names.add(name)) throw Failure(Reason.BAD)
-                PREF_KEYS.firstOrNull { it.name == name && it.area == area }?.let { absent += it }
+                PREF_KEYS.firstOrNull { it.name == name && it.area == area }
+                    ?.takeIf { wanted(it) }?.let { absent += it }
                 // An empty legacy hidden list still identifies the previous excluded mode.
                 PREF_RETIRED[name]?.takeIf { it.area == area && it.into.name == "hidden-relative" }
-                    ?.let { absent += it.into }
+                    ?.takeIf { wanted(it.into) }?.let { absent += it.into }
             }
         }
         return Prefs(values, absent, skipped)
@@ -1093,7 +1180,12 @@ internal object Backup {
         val tokens = (0 until list.length()).map { list.optString(it) }
         val areas = tokens.mapNotNull { t -> BackupArea.entries.firstOrNull { it.token == t } }.toSet()
         val foreign = tokens.count { t -> BackupArea.entries.none { it.token == t } }
-        return Manifest(o.optString("app"), o.optLong("created", 0L), areas, foreign)
+        // ⚠️ A group this version does not know comes from a newer one: its areas are already
+        // counted in `foreign`, so it is only left out.
+        val groups = o.optJSONArray("groups")?.let { g ->
+            (0 until g.length()).mapNotNull { i -> BackupGroup.entries.firstOrNull { it.token == g.optString(i) } }.toSet()
+        } ?: BackupGroup.carriedBy(areas)
+        return Manifest(o.optString("app"), o.optLong("created", 0L), areas, foreign, groups)
     }
 
     private fun json(text: String): JSONObject = try {

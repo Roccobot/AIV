@@ -272,6 +272,9 @@
                 <data android:pathPattern=".*\\.SVG" />
                 <data android:pathPattern=".*\\.svgz" />
                 <data android:pathPattern=".*\\.SVGZ" />
+                <!-- ⚠️ From the 5.80: the DNG, which the system decoder reads (see `Folder.EXTENSIONS`). -->
+                <data android:pathPattern=".*\\.dng" />
+                <data android:pathPattern=".*\\.DNG" />
             </intent-filter>
 
             <!--
@@ -341,6 +344,8 @@
                 <data android:pathSuffix=".SVG" />
                 <data android:pathSuffix=".svgz" />
                 <data android:pathSuffix=".SVGZ" />
+                <data android:pathSuffix=".dng" />
+                <data android:pathSuffix=".DNG" />
             </intent-filter>
         </activity>
 

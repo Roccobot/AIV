@@ -714,7 +714,6 @@
     <string name="backup_intro">இந்தக் கோப்பில் கீழே உள்ள அமைப்புகள் இருக்கும், அதை AIV மட்டுமே படிக்க முடியும். இறக்குமதியின்போது பாணிகள், நிறங்கள், அட்டைகள், சேர்க்கப்பட்ட மற்றும் விலக்கப்பட்ட கோப்புறைகள், குப்பைத் தொட்டி ஆகியவை ஏற்கெனவே உள்ளவற்றுடன் சேர்க்கப்படும்.</string>
     <string name="backup_area_view">தோற்றமும் வழிசெலுத்தலும்</string>
     <string name="backup_area_editor">எடிட்டரின் அமைப்புகள்</string>
-    <string name="backup_area_covers">கோப்புறைகளின் அட்டைப் படங்கள்</string>
     <string name="backup_area_hints">குறிப்புகளும் சிறு பயிற்சிகளும்</string>
     <string name="backup_lock">கடவுச்சொல்லால் பாதுகாக்கவும்</string>
     <string name="backup_lock_desc">கடவுச்சொல் இல்லாமல், கோப்பு AIV-இல் மட்டுமே திறக்கும், AIV உள்ள எவரும் அதை இறக்குமதி செய்யலாம்.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">புதுப்பிப்பு தோல்வியடைந்தது</string>
     <string name="update_untrusted">புதுப்பிப்பு AIV-இன் விசையால் கையொப்பமிடப்படவில்லை, எனவே நிறுவப்படாது.</string>
     <string name="update_permission">புதுப்பிக்க, ஆப்ஸை நிறுவ AIV-க்கு அனுமதி அளிக்கவும்.</string>
+    <string name="folder_order">கட்டக் காட்சியில் வரிசை</string>
+    <string name="folder_order_desc">கட்டக் காட்சியில் கோப்புறைகளின் வரிசையை அமைக்கிறது. கோப்புறைகளின் உள்ளடக்கம் எப்போதும் புதியவற்றை மேலே காட்டும்.</string>
+    <string name="folder_order_alpha">அகர வரிசை</string>
+    <string name="folder_order_recent">புதியவை மேலே</string>
+    <string name="folder_order_ask">கட்டக் காட்சியில் கோப்புறைகளை எப்படி வரிசைப்படுத்த வேண்டும்? அமைப்புகளில் எப்போது வேண்டுமானாலும் வரிசையை மாற்றலாம்.</string>
+    <string name="folder_order_alpha_long">அகர வரிசைப்படி</string>
+    <string name="favourite_folders">பிடித்த கோப்புறைகள்</string>
+    <string name="favourite_folders_desc">இவை கட்டத்திலும் பட்டியலிலும் மேலே, இந்த வரிசையில் தோன்றும்.</string>
+    <string name="favourite_folders_none">பிடித்த கோப்புறைகள் இல்லை</string>
+    <string name="folder_action_title">கோப்புறைக்கான செயலைத் தேர்வுசெய்க</string>
+    <string name="favourite_add">பிடித்தவையில் சேர்</string>
+    <string name="favourite_remove">பிடித்தவையிலிருந்து நீக்கு</string>
+    <string name="backup_area_folders">கோப்புறைகள் மற்றும் பாதைகள்</string>
 </resources>

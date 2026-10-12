@@ -328,6 +328,11 @@ class RailListaTest {
         banco.onNodeWithText("Vacanze").performTouchInput { longClick() }
         banco.waitForIdle()
         assertTrue("Il tocco lungo non deve nascondere da solo", !nascosta)
+        // ⚠️ From the `5.80` the column asks the action first, like the phone (his answer `B1`).
+        banco.onNodeWithText(testo(R.string.folder_action_title)).assertExists()
+        banco.onNodeWithText(testo(R.string.hide_folder_do)).performClick()
+        banco.waitForIdle()
+        assertTrue("Scegliere 'Nascondi' non deve nascondere da solo", !nascosta)
         banco.onNodeWithText(testo(R.string.hide_folder_do)).assertExists()
         banco.onNodeWithText(testo(R.string.cancel)).assertExists()
         banco.onNodeWithText(testo(R.string.hide_folder_do)).performClick()

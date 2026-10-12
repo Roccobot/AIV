@@ -750,7 +750,6 @@
     <string name="backup_intro">Файл містить налаштування нижче, і прочитати його може лише AIV. Під час імпорту стилі, кольори, обкладинки, включені та виключені папки й кошик додаються до того, що вже є.</string>
     <string name="backup_area_view">Вигляд і навігація</string>
     <string name="backup_area_editor">Налаштування редактора</string>
-    <string name="backup_area_covers">Обкладинки тек</string>
     <string name="backup_area_hints">Підказки та мініпосібники</string>
     <string name="backup_lock">Захистити паролем</string>
     <string name="backup_lock_desc">Без пароля файл відкривається лише в AIV, та імпортувати його може будь-хто, у кого є AIV.</string>
@@ -820,4 +819,17 @@
     <string name="update_failed">Не вдалося оновити</string>
     <string name="update_untrusted">Оновлення не підписане ключем AIV, тому його не буде встановлено.</string>
     <string name="update_permission">Щоб оновити, дозвольте AIV встановлювати застосунки.</string>
+    <string name="folder_order">Порядок у вигляді сітки</string>
+    <string name="folder_order_desc">Задає порядок папок у вигляді сітки. Вміст папок завжди показує спочатку найновіші елементи.</string>
+    <string name="folder_order_alpha">За абеткою</string>
+    <string name="folder_order_recent">Спочатку нові</string>
+    <string name="folder_order_ask">Як упорядкувати папки у вигляді сітки? Порядок можна змінити будь-коли в налаштуваннях.</string>
+    <string name="folder_order_alpha_long">Алфавітний порядок</string>
+    <string name="favourite_folders">Улюблені папки</string>
+    <string name="favourite_folders_desc">Вони показуються вгорі сітки та списку, у цьому порядку.</string>
+    <string name="favourite_folders_none">Немає улюблених папок</string>
+    <string name="folder_action_title">Виберіть дію для папки</string>
+    <string name="favourite_add">Додати до улюблених</string>
+    <string name="favourite_remove">Прибрати з улюблених</string>
+    <string name="backup_area_folders">Папки та шляхи</string>
 </resources>

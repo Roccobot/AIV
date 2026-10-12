@@ -714,7 +714,6 @@
     <string name="backup_intro">Die Datei enthält die Einstellungen unten, und nur AIV kann sie lesen. Beim Import kommen Stile, Farben, Titelbilder, einbezogene und ausgeschlossene Ordner und der Papierkorb zu dem hinzu, was schon da ist.</string>
     <string name="backup_area_view">Aussehen und Navigation</string>
     <string name="backup_area_editor">Einstellungen des Editors</string>
-    <string name="backup_area_covers">Titelbilder der Ordner</string>
     <string name="backup_area_hints">Hinweise und Mini-Tutorials</string>
     <string name="backup_lock">Mit Passwort schützen</string>
     <string name="backup_lock_desc">Ohne Passwort lässt sich die Datei nur mit AIV öffnen, und jeder, der AIV hat, kann sie importieren.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">Update fehlgeschlagen</string>
     <string name="update_untrusted">Das Update ist nicht mit dem Schlüssel von AIV signiert und wird daher nicht installiert.</string>
     <string name="update_permission">Erlaube AIV, Apps zu installieren, um zu aktualisieren.</string>
+    <string name="folder_order">Anordnung in der Rasteransicht</string>
+    <string name="folder_order_desc">Legt die Reihenfolge der Ordner in der Rasteransicht fest. Der Inhalt der Ordner zeigt immer die neuesten Elemente oben.</string>
+    <string name="folder_order_alpha">Alphabetisch</string>
+    <string name="folder_order_recent">Neueste oben</string>
+    <string name="folder_order_ask">Wie sollen die Ordner in der Rasteransicht sortiert werden? Du kannst die Anordnung jederzeit in den Einstellungen ändern.</string>
+    <string name="folder_order_alpha_long">Alphabetische Reihenfolge</string>
+    <string name="favourite_folders">Lieblingsordner</string>
+    <string name="favourite_folders_desc">Sie stehen oben im Raster und in der Liste, in dieser Reihenfolge.</string>
+    <string name="favourite_folders_none">Keine Lieblingsordner</string>
+    <string name="folder_action_title">Aktion für den Ordner wählen</string>
+    <string name="favourite_add">Zu Favoriten hinzufügen</string>
+    <string name="favourite_remove">Aus Favoriten entfernen</string>
+    <string name="backup_area_folders">Ordner und Pfade</string>
 </resources>

@@ -791,7 +791,6 @@
     <string name="backup_intro">Il file include le impostazioni qui sotto, e solo AIV lo sa leggere. All\'importazione, stili, colori, copertine, cartelle incluse ed escluse e cestino si aggiungono a quelli già presenti.</string>
     <string name="backup_area_view">Aspetto e navigazione</string>
     <string name="backup_area_editor">Impostazioni dell\'editor</string>
-    <string name="backup_area_covers">Copertine delle cartelle</string>
     <string name="backup_area_hints">Avvisi e micro-tutorial</string>
     <string name="backup_lock">Proteggi con password</string>
     <string name="backup_lock_desc">Senza password il file si apre solo con AIV, e chiunque abbia AIV lo può importare.</string>
@@ -861,4 +860,17 @@
     <string name="update_failed">Aggiornamento non riuscito</string>
     <string name="update_untrusted">L\'aggiornamento non è firmato con la chiave di AIV, e non può essere installato.</string>
     <string name="update_permission">Per aggiornare, consenti ad AIV di installare app.</string>
+    <string name="folder_order">Disposizione in vista griglia</string>
+    <string name="folder_order_desc">Imposta l\'ordine delle cartelle valido per la vista griglia. Il contenuto delle cartelle mostra sempre gli elementi più recenti in cima.</string>
+    <string name="folder_order_alpha">Alfabetica</string>
+    <string name="folder_order_recent">Più recenti in alto</string>
+    <string name="folder_order_ask">Come vuoi che siano ordinate le cartelle in vista griglia? Potrai cambiare la disposizione in qualsiasi momento dalle impostazioni.</string>
+    <string name="folder_order_alpha_long">Ordine alfabetico</string>
+    <string name="favourite_folders">Cartelle preferite</string>
+    <string name="favourite_folders_desc">Compaiono in cima alla griglia e alla lista, in quest\'ordine.</string>
+    <string name="favourite_folders_none">Nessuna cartella preferita</string>
+    <string name="folder_action_title">Scegli l\'azione sulla cartella</string>
+    <string name="favourite_add">Aggiungi alle preferite</string>
+    <string name="favourite_remove">Rimuovi dalle preferite</string>
+    <string name="backup_area_folders">Cartelle e percorsi</string>
 </resources>

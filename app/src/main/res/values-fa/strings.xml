@@ -714,7 +714,6 @@
     <string name="backup_intro">این فایل تنظیمات زیر را در بر دارد و فقط AIV می‌تواند آن را بخواند. هنگام درون‌ریزی، سبک‌ها، رنگ‌ها، جلدها، پوشه‌های مشمول و مستثنا و سبد زباله به آنچه از پیش هست افزوده می‌شوند.</string>
     <string name="backup_area_view">ظاهر و پیمایش</string>
     <string name="backup_area_editor">تنظیمات ویرایشگر</string>
-    <string name="backup_area_covers">جلد پوشه‌ها</string>
     <string name="backup_area_hints">راهنماها و آموزش‌های کوتاه</string>
     <string name="backup_lock">محافظت با گذرواژه</string>
     <string name="backup_lock_desc">بدون گذرواژه، فایل فقط با AIV باز می‌شود و هر کسی که AIV دارد می‌تواند آن را درون‌ریزی کند.</string>
@@ -784,4 +783,17 @@
     <string name="update_failed">به‌روزرسانی انجام نشد</string>
     <string name="update_untrusted">به‌روزرسانی با کلید AIV امضا نشده است، پس نصب نمی‌شود.</string>
     <string name="update_permission">برای به‌روزرسانی، به AIV اجازهٔ نصب برنامه بدهید.</string>
+    <string name="folder_order">چیدمان در نمای شبکه‌ای</string>
+    <string name="folder_order_desc">ترتیب پوشه‌ها را در نمای شبکه‌ای تعیین می‌کند. محتوای پوشه‌ها همیشه جدیدترین موارد را در بالا نشان می‌دهد.</string>
+    <string name="folder_order_alpha">الفبایی</string>
+    <string name="folder_order_recent">جدیدترین‌ها در بالا</string>
+    <string name="folder_order_ask">پوشه‌ها در نمای شبکه‌ای چگونه مرتب شوند؟ می‌توانید چیدمان را هر زمان از تنظیمات تغییر دهید.</string>
+    <string name="folder_order_alpha_long">ترتیب الفبایی</string>
+    <string name="favourite_folders">پوشه‌های برگزیده</string>
+    <string name="favourite_folders_desc">در بالای شبکه و فهرست، به همین ترتیب نمایش داده می‌شوند.</string>
+    <string name="favourite_folders_none">پوشهٔ برگزیده‌ای نیست</string>
+    <string name="folder_action_title">کاری برای پوشه انتخاب کنید</string>
+    <string name="favourite_add">افزودن به برگزیده‌ها</string>
+    <string name="favourite_remove">حذف از برگزیده‌ها</string>
+    <string name="backup_area_folders">پوشه‌ها و مسیرها</string>
 </resources>

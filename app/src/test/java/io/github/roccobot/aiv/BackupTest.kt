@@ -206,6 +206,63 @@ class BackupTest {
     }
 
     /**
+     * **Case 3b: the six parts of the `5.80` choose key by key, and the file keeps its areas.**
+     *
+     * ⚠️⚠️ **THE INDICATOR OF THE LAST MEDIA IS THE KEY THAT TESTS IT**: it travels in `buttons`,
+     * the area of the commands, and on the page it follows 'Cartelle e percorsi' ([PREF_REGROUPED]).
+     * So a file of 'Cartelle e percorsi' alone carries it and not the side of the buttons, one of
+     * 'Aspetto e navigazione' alone carries the side and not the indicator, and each manifest names
+     * only its own part.
+     * ⚠️ **And an older file, without the list of parts, names both**: its `buttons` held every key,
+     * and importing it with 'Cartelle e percorsi' alone takes the indicator and leaves the side.
+     * ⚠️ **Counter-tested twice.** Writing whole areas in `prefsJson` (its `groups` filter taken
+     * out): the file of 'Aspetto e navigazione' carries the indicator, and the test fails on
+     * 'l'indicatore non viaggia con l'aspetto'. Reading whole areas in `readPrefs` (`wanted` always
+     * true): the older file brings the side of the buttons, and it fails on the last import.
+     */
+    @Test
+    fun `le sei parti scelgono chiave per chiave`() {
+        val partenza = Settings(
+            hand = Hand.LEFT, lastMark = LastMark.FRAME, folderOrder = FolderOrder.RECENT,
+            favouriteFolders = listOf("DCIM/Viaggi", "Pictures/Mare")
+        )
+        val arrivo = Settings(hand = Hand.RIGHT, lastMark = LastMark.DOT)
+        runBlocking { SettingsStore.save(app, partenza) }
+        val cartelle = esportaParti(setOf(BackupGroup.FOLDERS))
+        val aspetto = esportaParti(setOf(BackupGroup.LOOK))
+
+        runBlocking { SettingsStore.save(app, arrivo) }
+        importaParti(cartelle, setOf(BackupGroup.FOLDERS))
+        val dopo = runBlocking { SettingsStore.flow(app).first() }
+        assertEquals("il lato dei tasti non viaggia con le cartelle", Hand.RIGHT, dopo.hand)
+        assertEquals("l'indicatore viaggia con le cartelle", LastMark.FRAME, dopo.lastMark)
+        assertEquals(FolderOrder.RECENT, dopo.folderOrder)
+        assertEquals("le preferite arrivano nel loro ordine", partenza.favouriteFolders, dopo.favouriteFolders)
+
+        runBlocking { SettingsStore.save(app, arrivo) }
+        importaParti(aspetto, BackupGroup.entries.toSet())
+        val poi = runBlocking { SettingsStore.flow(app).first() }
+        assertEquals("il lato dei tasti viaggia con l'aspetto", Hand.LEFT, poi.hand)
+        assertEquals("l'indicatore non viaggia con l'aspetto", LastMark.DOT, poi.lastMark)
+        assertNull("la disposizione non viaggia con l'aspetto", poi.folderOrder)
+
+        assertEquals(setOf(BackupGroup.FOLDERS), resocontoDi(cartelle).groups)
+        assertEquals(setOf(BackupGroup.LOOK), resocontoDi(aspetto).groups)
+        runBlocking { SettingsStore.save(app, partenza) }
+        val diPrima = esporta(setOf(BackupArea.BUTTONS))
+        assertEquals(
+            "un file di prima delle parti nomina tutte quelle delle sue aree",
+            setOf(BackupGroup.LOOK, BackupGroup.FOLDERS),
+            resocontoDi(diPrima).groups
+        )
+        runBlocking { SettingsStore.save(app, arrivo) }
+        importaParti(diPrima, setOf(BackupGroup.FOLDERS))
+        val infine = runBlocking { SettingsStore.flow(app).first() }
+        assertEquals("da un file di prima l'indicatore viaggia con le cartelle", LastMark.FRAME, infine.lastMark)
+        assertEquals("da un file di prima il lato dei tasti resta", Hand.RIGHT, infine.hand)
+    }
+
+    /**
      * **Caso 4: una preferenza di fabbrica alla partenza torna di fabbrica all'arrivo.**
      *
      * ⚠️⚠️ **È LA METÀ DELLA SUA RICHIESTA CHE NON SI VEDE**: sul telefono di partenza la misura
@@ -1086,8 +1143,16 @@ class BackupTest {
 
     private suspend fun scriviTutto() {
         // ⚠️ Come la cartella di partenza, i due colori del traslucido si scrivono solo quando sono
-        // scelti (dalla `4.25`): l'assenza è l'accento, cioè il valore di fabbrica.
-        SettingsStore.save(app, Settings(startFolder = 42L, glass = GlassTune(lightColour = 1, darkColour = 2)))
+        // scelti (dalla `4.25`): l'assenza è l'accento, cioè il valore di fabbrica. ⚠️ So is the
+        // order of the folders (from the `5.80`): its absence means 'not chosen yet'.
+        SettingsStore.save(
+            app,
+            Settings(
+                startFolder = 42L,
+                glass = GlassTune(lightColour = 1, darkColour = 2),
+                folderOrder = FolderOrder.RECENT
+            )
+        )
         SettingsStore.clipboardOpened(app, "https://esempio.it/a.jpg", 1L)
         FolderAsk.remember(app)
         Hint.entries.forEach { it.remember(app) }
@@ -1138,6 +1203,23 @@ class BackupTest {
         Backup.pack(out, null, GIRI) { corpo(it) }
         out.toByteArray()
     }
+
+    /** A backup of the parts ticked on the page, as the page writes it (`Backups.export`). */
+    private fun esportaParti(parti: Set<BackupGroup>): ByteArray = runBlocking {
+        val out = ByteArrayOutputStream()
+        Backup.write(app, out, BackupGroup.areasOf(parti), null, rounds = GIRI, groups = parti)
+        out.toByteArray()
+    }
+
+    /** An import of the parts ticked on the page, as the page runs it (`Backups.restore`). */
+    private fun importaParti(file: ByteArray, parti: Set<BackupGroup>): Backup.Outcome = runBlocking {
+        val opened = Backup.open(Backup.head(ByteArrayInputStream(file)), null)
+        Backup.restore(app, ByteArrayInputStream(file), opened, BackupGroup.areasOf(parti), groups = parti)
+    }
+
+    /** What the manifest of [file] says, as the confirmation reads it. */
+    private fun resocontoDi(file: ByteArray): Backup.Manifest =
+        Backup.manifest(ByteArrayInputStream(file), Backup.open(Backup.head(ByteArrayInputStream(file)), null))
 
     private fun importa(file: ByteArray, scelte: Set<BackupArea>, password: String? = null): Backup.Outcome =
         runBlocking {

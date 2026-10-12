@@ -696,7 +696,6 @@
     <string name="backup_intro">Tệp chứa các cài đặt bên dưới, và chỉ AIV đọc được. Khi nhập, kiểu, màu, ảnh bìa, thư mục được bao gồm và loại trừ và thùng rác được thêm vào những gì đã có.</string>
     <string name="backup_area_view">Giao diện và điều hướng</string>
     <string name="backup_area_editor">Cài đặt trình chỉnh sửa</string>
-    <string name="backup_area_covers">Ảnh bìa thư mục</string>
     <string name="backup_area_hints">Gợi ý và hướng dẫn nhanh</string>
     <string name="backup_lock">Bảo vệ bằng mật khẩu</string>
     <string name="backup_lock_desc">Khi không có mật khẩu, tệp chỉ mở được bằng AIV, và bất kỳ ai có AIV đều có thể nhập tệp.</string>
@@ -766,4 +765,17 @@
     <string name="update_failed">Cập nhật không thành công</string>
     <string name="update_untrusted">Bản cập nhật không được ký bằng khóa của AIV nên sẽ không được cài đặt.</string>
     <string name="update_permission">Để cập nhật, hãy cho phép AIV cài đặt ứng dụng.</string>
+    <string name="folder_order">Thứ tự ở dạng lưới</string>
+    <string name="folder_order_desc">Đặt thứ tự thư mục ở dạng lưới. Nội dung thư mục luôn hiển thị mục mới nhất ở trên cùng.</string>
+    <string name="folder_order_alpha">Theo bảng chữ cái</string>
+    <string name="folder_order_recent">Mới nhất ở trên</string>
+    <string name="folder_order_ask">Bạn muốn sắp xếp thư mục ở dạng lưới thế nào? Bạn có thể đổi thứ tự bất cứ lúc nào trong phần cài đặt.</string>
+    <string name="folder_order_alpha_long">Thứ tự bảng chữ cái</string>
+    <string name="favourite_folders">Thư mục yêu thích</string>
+    <string name="favourite_folders_desc">Chúng xuất hiện ở đầu lưới và danh sách, theo thứ tự này.</string>
+    <string name="favourite_folders_none">Không có thư mục yêu thích</string>
+    <string name="folder_action_title">Chọn thao tác cho thư mục</string>
+    <string name="favourite_add">Thêm vào yêu thích</string>
+    <string name="favourite_remove">Xóa khỏi yêu thích</string>
+    <string name="backup_area_folders">Thư mục và đường dẫn</string>
 </resources>

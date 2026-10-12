@@ -285,10 +285,12 @@ object ImageActions {
      * ⚠️ **`.svgz` arriva con la `1.34`**, su richiesta dell'utente, e nei tre elenchi
      * insieme: il decodificatore lo leggeva già (vedi [Folder]), quindi qui non c'era niente
      * da aspettare.
+     * ⚠️ **`.dng` arrives with the `5.80`**, in the three lists together, for the same reason (see
+     * [Folder]).
      */
     private val IMAGE_SUFFIXES = listOf(
         ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif",
-        ".svg", ".svgz"
+        ".svg", ".svgz", ".dng"
     )
 
     // ── Copying the original out ────────────────────────────────────────────

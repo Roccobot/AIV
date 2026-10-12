@@ -186,7 +186,15 @@ object Folder {
         val pictures: Int,
         val clips: Int,
         val cover: Uri?,
-        val path: String? = null
+        val path: String? = null,
+        /**
+         * When the most recently modified file of the folder was modified, in seconds, from the
+         * `5.80`: the key of [FolderOrder.RECENT].
+         *
+         * ⚠️ **It is the first row's `DATE_MODIFIED`**: the rows arrive newest first, which is
+         * also why the first row gives the cover, so it costs no query.
+         */
+        val latest: Long = 0L
     ) {
         /** Quante cose in tutto: la somma, per chi non ha bisogno della distinzione. */
         val count: Int get() = pictures + clips
@@ -217,7 +225,8 @@ object Folder {
      * ⚠️ L'ordine delle righe serve ancora a una cosa: fa sì che la prima riga di ogni cartella
      * sia la sua immagine più nuova, che è quella che diventa la copertina. Il primo dei suoi due
      * lavori (mettere davanti la cartella toccata più di recente) è decaduto con l'ordine
-     * alfabetico.
+     * alfabetico, e dalla `5.80` torna a richiesta: la data della prima riga diventa
+     * [Bucket.latest], e l'ordine della griglia lo decide `FolderSelection.arrange`.
      */
     suspend fun buckets(context: Context): List<Bucket> = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext emptyList()
@@ -242,6 +251,7 @@ object Folder {
                 @Suppress("DEPRECATION")
                 val pathAt = c.column(MediaStore.Images.Media.DATA)
                 val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                val dateAt = c.column(MediaStore.Images.Media.DATE_MODIFIED)
                 while (c.moveToNext()) {
                     val id = c.getLong(bucketAt)
                     val clip = c.isClip(kindAt)
@@ -265,7 +275,8 @@ object Folder {
                             pictures = if (clip) 0 else 1,
                             clips = if (clip) 1 else 0,
                             cover = idAt?.let { uriOf(c.getLong(it), clip) },
-                            path = folderOf(pathAt?.let { c.getString(it) })
+                            path = folderOf(pathAt?.let { c.getString(it) }),
+                            latest = dateAt?.let { c.getLong(it) } ?: 0L
                         )
                     } else if (clip) {
                         seen.copy(clips = seen.clips + 1)
@@ -669,7 +680,9 @@ object Folder {
         MediaStore.Images.Media.SIZE,
         MediaStore.Images.Media.DATA,
         MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-        MediaStore.Files.FileColumns.MEDIA_TYPE
+        MediaStore.Files.FileColumns.MEDIA_TYPE,
+        // ⚠️ From the `5.80`, for the grid ordered by date (`Bucket.latest`).
+        MediaStore.Images.Media.DATE_MODIFIED
     )
 
     /**
@@ -914,10 +927,16 @@ object Folder {
      * di androidsvg riconosce da sé la firma e si avvolge in un `GZIPInputStream`. Quindi qui
      * la dichiarazione arriva **dopo** la capacità, che è il verso giusto. L'ha chiesto
      * l'utente (giro della `1.31`, voce `svg-elenchi`: *aggiungi anche SVGZ*).
+     * ⚠️⚠️ **`dng` ARRIVES WITH THE `5.80`, HIS REQUEST OF 2026-10-12, AND IT IS THE ONE RAW
+     * FORMAT**: the system decoder reads it on its own (the Android image decoder lists *Digital
+     * negatives (via the DNG SDK)*), so here too the declaration comes after the capability. The
+     * other raw formats stay out: no decoder of the phone reads them. The editor cannot write a
+     * DNG back, so saving one makes a JPEG copy beside it (his answer `D1`, which is what
+     * `ImageEdit.canOverwrite` already does for every format it cannot write).
      */
     private val EXTENSIONS = setOf(
         "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "bmp",
-        "svg", "svgz"
+        "svg", "svgz", "dng"
     )
 
     /**

@@ -908,7 +908,6 @@
     <string name="backup_intro">The file includes the settings below, and only AIV can read it. When it is imported, styles, colors, covers, included and excluded folders and the bin are added to what is already there.</string>
     <string name="backup_area_view">Appearance and navigation</string>
     <string name="backup_area_editor">Editor settings</string>
-    <string name="backup_area_covers">Folder covers</string>
     <string name="backup_area_hints">Tips and micro-tutorials</string>
     <string name="backup_lock">Protect with a password</string>
     <string name="backup_lock_desc">Without a password the file opens only with AIV, and anyone who has AIV can import it.</string>
@@ -978,4 +977,17 @@
     <string name="update_failed">Update failed</string>
     <string name="update_untrusted">The update is not signed with AIV\'s key, so it won\'t be installed.</string>
     <string name="update_permission">To update, allow AIV to install apps.</string>
+    <string name="folder_order">Grid view order</string>
+    <string name="folder_order_desc">Sets the order of folders in grid view. Folder contents always show the newest items first.</string>
+    <string name="folder_order_alpha">Alphabetical</string>
+    <string name="folder_order_recent">Most recent first</string>
+    <string name="folder_order_ask">How should folders be sorted in grid view? You can change the order anytime in Settings.</string>
+    <string name="folder_order_alpha_long">Alphabetical order</string>
+    <string name="favourite_folders">Favorite folders</string>
+    <string name="favourite_folders_desc">They appear at the top of the grid and the list, in this order.</string>
+    <string name="favourite_folders_none">No favorite folders</string>
+    <string name="folder_action_title">Choose an action for the folder</string>
+    <string name="favourite_add">Add to favorites</string>
+    <string name="favourite_remove">Remove from favorites</string>
+    <string name="backup_area_folders">Folders and paths</string>
 </resources>

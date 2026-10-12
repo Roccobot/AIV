@@ -209,4 +209,17 @@
     <string name="update_failed">A atualização falhou</string>
     <string name="update_untrusted">A atualização não está assinada com a chave do AIV, por isso não será instalada.</string>
     <string name="update_permission">Para atualizar, permita que o AIV instale aplicações.</string>
+    <string name="folder_order">Disposição na vista de grelha</string>
+    <string name="folder_order_desc">Define a ordem das pastas na vista de grelha. O conteúdo das pastas mostra sempre os itens mais recentes primeiro.</string>
+    <string name="folder_order_alpha">Alfabética</string>
+    <string name="folder_order_recent">Mais recentes no topo</string>
+    <string name="folder_order_ask">Como queres ordenar as pastas na vista de grelha? Podes alterar a disposição a qualquer momento nas definições.</string>
+    <string name="folder_order_alpha_long">Ordem alfabética</string>
+    <string name="favourite_folders">Pastas favoritas</string>
+    <string name="favourite_folders_desc">Aparecem no topo da grelha e da lista, por esta ordem.</string>
+    <string name="favourite_folders_none">Nenhuma pasta favorita</string>
+    <string name="folder_action_title">Escolhe uma ação para a pasta</string>
+    <string name="favourite_add">Adicionar às favoritas</string>
+    <string name="favourite_remove">Remover das favoritas</string>
+    <string name="backup_area_folders">Pastas e caminhos</string>
 </resources>

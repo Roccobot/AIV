@@ -64,4 +64,17 @@
     <string name="update_failed">No se pudo actualizar</string>
     <string name="update_untrusted">La actualización no está firmada con la clave de AIV, así que no se instalará.</string>
     <string name="update_permission">Para actualizar, permite que AIV instale apps.</string>
+    <string name="folder_order">Disposición en vista de cuadrícula</string>
+    <string name="folder_order_desc">Establece el orden de las carpetas en la vista de cuadrícula. El contenido de las carpetas siempre muestra primero los elementos más recientes.</string>
+    <string name="folder_order_alpha">Alfabética</string>
+    <string name="folder_order_recent">Más recientes arriba</string>
+    <string name="folder_order_ask">¿Cómo quieres ordenar las carpetas en la vista de cuadrícula? Puedes cambiar la disposición en cualquier momento desde la configuración.</string>
+    <string name="folder_order_alpha_long">Orden alfabético</string>
+    <string name="favourite_folders">Carpetas favoritas</string>
+    <string name="favourite_folders_desc">Aparecen arriba en la cuadrícula y en la lista, en este orden.</string>
+    <string name="favourite_folders_none">Ninguna carpeta favorita</string>
+    <string name="folder_action_title">Elige una acción para la carpeta</string>
+    <string name="favourite_add">Agregar a favoritas</string>
+    <string name="favourite_remove">Quitar de favoritas</string>
+    <string name="backup_area_folders">Carpetas y rutas</string>
 </resources>
