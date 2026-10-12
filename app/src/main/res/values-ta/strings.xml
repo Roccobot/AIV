@@ -790,7 +790,7 @@
     <string name="folder_order_ask">கட்டக் காட்சியில் கோப்புறைகளை எப்படி வரிசைப்படுத்த வேண்டும்? அமைப்புகளில் எப்போது வேண்டுமானாலும் வரிசையை மாற்றலாம்.</string>
     <string name="folder_order_alpha_long">அகர வரிசைப்படி</string>
     <string name="favourite_folders">பிடித்த கோப்புறைகள்</string>
-    <string name="favourite_folders_desc">இவை கட்டத்திலும் பட்டியலிலும் மேலே, இந்த வரிசையில் தோன்றும்.</string>
+    <string name="favourite_folders_desc">இவை கட்டம் மற்றும் பட்டியல் காட்சிகளில் முதலில் (மேலே), நீங்கள் விரும்பும் வரிசையில் தோன்றும்: வரிசையை மாற்ற கீழே உள்ள பட்டியலின் உருப்படிகளை இழுக்கவும்.</string>
     <string name="favourite_folders_none">பிடித்த கோப்புறைகள் இல்லை</string>
     <string name="folder_action_title">கோப்புறைக்கான செயலைத் தேர்வுசெய்க</string>
     <string name="favourite_add">பிடித்தவையில் சேர்</string>

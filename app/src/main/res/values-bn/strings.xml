@@ -790,7 +790,7 @@
     <string name="folder_order_ask">গ্রিড ভিউতে ফোল্ডারগুলো কীভাবে সাজাতে চান? যেকোনো সময় সেটিংস থেকে ক্রম বদলাতে পারবেন।</string>
     <string name="folder_order_alpha_long">বর্ণানুক্রমিক ক্রম</string>
     <string name="favourite_folders">প্রিয় ফোল্ডার</string>
-    <string name="favourite_folders_desc">এগুলো গ্রিড ও তালিকার একেবারে ওপরে, এই ক্রমে দেখায়।</string>
+    <string name="favourite_folders_desc">এগুলো গ্রিড ও তালিকায় সবার আগে (ওপরে), আপনার পছন্দের ক্রমে দেখায়: ক্রম বদলাতে নিচের তালিকার আইটেমগুলো টেনে আনুন।</string>
     <string name="favourite_folders_none">কোনো প্রিয় ফোল্ডার নেই</string>
     <string name="folder_action_title">ফোল্ডারের জন্য একটি কাজ বেছে নিন</string>
     <string name="favourite_add">প্রিয়তে যোগ করুন</string>

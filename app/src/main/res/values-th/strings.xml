@@ -772,7 +772,7 @@
     <string name="folder_order_ask">ต้องการเรียงโฟลเดอร์ในมุมมองตารางอย่างไร คุณเปลี่ยนการเรียงได้ทุกเมื่อในการตั้งค่า</string>
     <string name="folder_order_alpha_long">เรียงตามตัวอักษร</string>
     <string name="favourite_folders">โฟลเดอร์โปรด</string>
-    <string name="favourite_folders_desc">จะแสดงที่ด้านบนของตารางและรายการ ตามลำดับนี้</string>
+    <string name="favourite_folders_desc">จะแสดงก่อน (ที่ด้านบน) ในมุมมองตารางและรายการ ตามลำดับที่คุณต้องการ ลากรายการในรายการด้านล่างเพื่อจัดลำดับใหม่</string>
     <string name="favourite_folders_none">ไม่มีโฟลเดอร์โปรด</string>
     <string name="folder_action_title">เลือกการทำงานสำหรับโฟลเดอร์</string>
     <string name="favourite_add">เพิ่มในรายการโปรด</string>

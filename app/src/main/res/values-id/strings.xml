@@ -772,7 +772,7 @@
     <string name="folder_order_ask">Bagaimana folder diurutkan di tampilan petak? Kamu bisa mengubah urutannya kapan saja di setelan.</string>
     <string name="folder_order_alpha_long">Urutan abjad</string>
     <string name="favourite_folders">Folder favorit</string>
-    <string name="favourite_folders_desc">Muncul di bagian atas petak dan daftar, dengan urutan ini.</string>
+    <string name="favourite_folders_desc">Folder ini ditampilkan paling awal (di atas) dalam tampilan petak dan daftar, sesuai urutan pilihan Anda: seret item di daftar bawah untuk mengurutkannya ulang.</string>
     <string name="favourite_folders_none">Tidak ada folder favorit</string>
     <string name="folder_action_title">Pilih tindakan untuk folder</string>
     <string name="favourite_add">Tambahkan ke favorit</string>

@@ -826,7 +826,7 @@
     <string name="folder_order_ask">Як упорядкувати папки у вигляді сітки? Порядок можна змінити будь-коли в налаштуваннях.</string>
     <string name="folder_order_alpha_long">Алфавітний порядок</string>
     <string name="favourite_folders">Улюблені папки</string>
-    <string name="favourite_folders_desc">Вони показуються вгорі сітки та списку, у цьому порядку.</string>
+    <string name="favourite_folders_desc">Вони показуються першими (вгорі) в сітці та списку, у потрібному вам порядку: перетягніть елементи списку нижче, щоб змінити порядок.</string>
     <string name="favourite_folders_none">Немає улюблених папок</string>
     <string name="folder_action_title">Виберіть дію для папки</string>
     <string name="favourite_add">Додати до улюблених</string>

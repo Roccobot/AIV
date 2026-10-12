@@ -488,18 +488,15 @@ fun SettingsScreen(
             HiddenFolders(settings = settings, onChange = onChange)
         }
 
-        // ⚠️ A list with commands on each row, like the info fields: the scroll is born here
-        // because the drag needs it too (see [Reorderable]).
-        Page.FAVOURITES -> {
-            val scroll = rememberScrollState()
-            Shell(
-                title = stringResource(R.string.favourite_folders),
-                onBack = { back() },
-                modifier = chrome,
-                scroll = scroll
-            ) {
-                FavouriteFolders(settings = settings, onChange = onChange, scroll = scroll)
-            }
+        // ⚠️ A list with commands on each row, like the info fields, under a fixed band: only the
+        // list scrolls, and its scroll is the one the drag needs (see [FavouriteFolders]).
+        Page.FAVOURITES -> Shell(
+            title = stringResource(R.string.favourite_folders),
+            onBack = { back() },
+            modifier = chrome,
+            scrolls = false
+        ) {
+            FavouriteFolders(settings = settings, onChange = onChange)
         }
 
         Page.ZOOM -> Shell(
@@ -1517,43 +1514,61 @@ private fun FolderOrder.chip(): Int = when (this) {
  *
  * ⚠️ **The knobs are those of the info fields** (*manopole identiche a quelle delle info*), that is
  * [Reorderable], and the page's own scroll reaches the drag, as on that page.
- * ⚠️ **'Aggiungi cartella' at the bottom, as in the list of the hidden ones**, with the same
- * destination dialog: a folder already there is not added twice.
+ * ⚠️ **'Aggiungi cartella' follows the content while the list is empty, and is a fixed band at the
+ * bottom once it is not** (his note A on the giro of the `5.80`): the page does not scroll as a
+ * whole, only the list does, so the button is always in sight above it, as the fixed band of
+ * 'Esporta e importa'. Its destination dialog is that of the hidden ones: a folder already there
+ * is not added twice.
+ * ⚠️ **The empty page centres its line and keeps it apart from the explanation**, the other half of
+ * the same note: with nothing under it, the line is the content of the page, not a footnote.
  * ⚠️ **The × takes a folder out at once, without asking**: a favourite hides nothing and goes back
  * with a long press, so a confirmation would protect nothing.
  */
 @Composable
-private fun FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit, scroll: ScrollState) {
+private fun ColumnScope.FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit) {
     Detail(stringResource(R.string.favourite_folders_desc))
     val list = settings.favouriteFolders
-    if (list.isEmpty()) Detail(stringResource(R.string.favourite_folders_none))
-    Reorderable(
-        items = list,
-        scroll = scroll,
-        onMove = { da, a -> onChange(settings.copy(favouriteFolders = list.moved(da, a))) }
-    ) { entry, _ ->
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    camelBreak(hiddenName(entry)),
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
-            }
-            IconButton(onClick = { onChange(settings.copy(favouriteFolders = list - entry)) }) {
-                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
+    if (list.isEmpty()) {
+        Text(
+            text = stringResource(R.string.favourite_folders_none),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
+        )
+    } else {
+        // The list's own scroll is the one the drag moves near the edges (see [Reorderable]).
+        val scroll = rememberScrollState()
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll)) {
+            Reorderable(
+                items = list,
+                scroll = scroll,
+                onMove = { da, a -> onChange(settings.copy(favouriteFolders = list.moved(da, a))) }
+            ) { entry, _ ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            camelBreak(hiddenName(entry)),
+                            style = MaterialTheme.typography.bodyLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
+                    }
+                    IconButton(onClick = { onChange(settings.copy(favouriteFolders = list - entry)) }) {
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
+                    }
+                }
             }
         }
     }
     var picking by remember { mutableStateOf(false) }
     FilledTonalButton(
         onClick = { picking = true },
-        modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
+        modifier = Modifier.padding(top = if (list.isEmpty()) 0.dp else 12.dp).fillMaxWidth()
     ) {
         Text(stringResource(R.string.folder_add))
     }

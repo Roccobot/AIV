@@ -862,7 +862,7 @@
     <string name="folder_order_ask">كيف تريد ترتيب المجلدات في عرض الشبكة؟ يمكنك تغيير الترتيب في أي وقت من الإعدادات.</string>
     <string name="folder_order_alpha_long">ترتيب أبجدي</string>
     <string name="favourite_folders">المجلدات المفضلة</string>
-    <string name="favourite_folders_desc">تظهر أعلى الشبكة والقائمة، بهذا الترتيب.</string>
+    <string name="favourite_folders_desc">تظهر أولًا (في الأعلى) في عرضَي الشبكة والقائمة، بالترتيب الذي تفضّله: اسحب عناصر القائمة أدناه لإعادة ترتيبها.</string>
     <string name="favourite_folders_none">لا توجد مجلدات مفضلة</string>
     <string name="folder_action_title">اختر إجراءً للمجلد</string>
     <string name="favourite_add">إضافة إلى المفضلة</string>

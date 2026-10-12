@@ -790,7 +790,7 @@
     <string name="folder_order_ask">ग्रिड दृश्यात फोल्डर कोणत्या क्रमाने लावायचे? तुम्ही क्रम कधीही सेटिंग्जमध्ये बदलू शकता.</string>
     <string name="folder_order_alpha_long">वर्णक्रम</string>
     <string name="favourite_folders">आवडते फोल्डर</string>
-    <string name="favourite_folders_desc">ते ग्रिड आणि सूचीच्या सर्वात वर, याच क्रमाने दिसतात.</string>
+    <string name="favourite_folders_desc">ते ग्रिड आणि सूचीमध्ये सर्वात आधी (वर), तुमच्या आवडीच्या क्रमाने दिसतात: क्रम बदलण्यासाठी खालील सूचीतील आयटम ओढा.</string>
     <string name="favourite_folders_none">कोणतेही आवडते फोल्डर नाहीत</string>
     <string name="folder_action_title">फोल्डरसाठी क्रिया निवडा</string>
     <string name="favourite_add">आवडत्यांमध्ये जोडा</string>

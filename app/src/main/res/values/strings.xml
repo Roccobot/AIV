@@ -984,7 +984,7 @@
     <string name="folder_order_ask">How should folders be sorted in grid view? You can change the order anytime in Settings.</string>
     <string name="folder_order_alpha_long">Alphabetical order</string>
     <string name="favourite_folders">Favorite folders</string>
-    <string name="favourite_folders_desc">They appear at the top of the grid and the list, in this order.</string>
+    <string name="favourite_folders_desc">They are shown first (at the top) in the grid and list views, in the order you prefer: drag the items in the list below to reorder them.</string>
     <string name="favourite_folders_none">No favorite folders</string>
     <string name="folder_action_title">Choose an action for the folder</string>
     <string name="favourite_add">Add to favorites</string>

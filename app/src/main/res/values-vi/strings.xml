@@ -772,7 +772,7 @@
     <string name="folder_order_ask">Bạn muốn sắp xếp thư mục ở dạng lưới thế nào? Bạn có thể đổi thứ tự bất cứ lúc nào trong phần cài đặt.</string>
     <string name="folder_order_alpha_long">Thứ tự bảng chữ cái</string>
     <string name="favourite_folders">Thư mục yêu thích</string>
-    <string name="favourite_folders_desc">Chúng xuất hiện ở đầu lưới và danh sách, theo thứ tự này.</string>
+    <string name="favourite_folders_desc">Chúng được hiển thị đầu tiên (ở trên cùng) trong chế độ lưới và danh sách, theo thứ tự bạn muốn: kéo các mục trong danh sách bên dưới để sắp xếp lại.</string>
     <string name="favourite_folders_none">Không có thư mục yêu thích</string>
     <string name="folder_action_title">Chọn thao tác cho thư mục</string>
     <string name="favourite_add">Thêm vào yêu thích</string>

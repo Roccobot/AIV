@@ -790,7 +790,7 @@
     <string name="folder_order_ask">گرڈ منظر میں فولڈرز کو کیسے ترتیب دینا چاہیں گے؟ آپ ترتیب کسی بھی وقت ترتیبات سے بدل سکتے ہیں۔</string>
     <string name="folder_order_alpha_long">حروفِ تہجی کی ترتیب</string>
     <string name="favourite_folders">پسندیدہ فولڈرز</string>
-    <string name="favourite_folders_desc">یہ گرڈ اور فہرست کے سب سے اوپر، اسی ترتیب سے دکھائی دیتے ہیں۔</string>
+    <string name="favourite_folders_desc">یہ گرڈ اور فہرست میں سب سے پہلے (اوپر)، آپ کی پسند کی ترتیب سے دکھائی دیتے ہیں: ترتیب بدلنے کے لیے نیچے کی فہرست کے آئٹمز گھسیٹیں۔</string>
     <string name="favourite_folders_none">کوئی پسندیدہ فولڈر نہیں</string>
     <string name="folder_action_title">فولڈر کے لیے عمل منتخب کریں</string>
     <string name="favourite_add">پسندیدہ میں شامل کریں</string>

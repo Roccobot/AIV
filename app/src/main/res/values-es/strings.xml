@@ -808,7 +808,7 @@
     <string name="folder_order_ask">¿Cómo quieres ordenar las carpetas en la vista de cuadrícula? Puedes cambiar la disposición en cualquier momento desde los ajustes.</string>
     <string name="folder_order_alpha_long">Orden alfabético</string>
     <string name="favourite_folders">Carpetas favoritas</string>
-    <string name="favourite_folders_desc">Aparecen arriba en la cuadrícula y en la lista, en este orden.</string>
+    <string name="favourite_folders_desc">Se muestran primero (arriba) en las vistas de cuadrícula y lista, en el orden que prefieras: arrastra los elementos de la lista de abajo para reordenarlas.</string>
     <string name="favourite_folders_none">Ninguna carpeta favorita</string>
     <string name="folder_action_title">Elige una acción para la carpeta</string>
     <string name="favourite_add">Añadir a favoritas</string>

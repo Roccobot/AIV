@@ -790,7 +790,7 @@
     <string name="folder_order_ask">గ్రిడ్ వీక్షణలో ఫోల్డర్‌లను ఎలా క్రమపరచాలి? సెట్టింగ్‌లలో ఎప్పుడైనా క్రమాన్ని మార్చవచ్చు.</string>
     <string name="folder_order_alpha_long">అక్షర క్రమంలో</string>
     <string name="favourite_folders">ఇష్టమైన ఫోల్డర్‌లు</string>
-    <string name="favourite_folders_desc">ఇవి గ్రిడ్ మరియు జాబితాలో పైన, ఈ క్రమంలో కనిపిస్తాయి.</string>
+    <string name="favourite_folders_desc">ఇవి గ్రిడ్ మరియు జాబితా వీక్షణల్లో ముందుగా (పైన), మీకు నచ్చిన క్రమంలో కనిపిస్తాయి: క్రమాన్ని మార్చడానికి కింది జాబితాలోని అంశాలను లాగండి.</string>
     <string name="favourite_folders_none">ఇష్టమైన ఫోల్డర్‌లు లేవు</string>
     <string name="folder_action_title">ఫోల్డర్ కోసం చర్యను ఎంచుకోండి</string>
     <string name="favourite_add">ఇష్టమైనవాటికి జోడించు</string>

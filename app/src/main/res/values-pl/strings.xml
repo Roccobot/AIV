@@ -826,7 +826,7 @@
     <string name="folder_order_ask">Jak chcesz sortować foldery w widoku siatki? Układ możesz zmienić w każdej chwili w ustawieniach.</string>
     <string name="folder_order_alpha_long">Kolejność alfabetyczna</string>
     <string name="favourite_folders">Ulubione foldery</string>
-    <string name="favourite_folders_desc">Pojawiają się na górze siatki i listy, w tej kolejności.</string>
+    <string name="favourite_folders_desc">Są pokazywane jako pierwsze (na górze) w widoku siatki i listy, w wybranej przez ciebie kolejności: przeciągnij elementy listy poniżej, aby zmienić ich kolejność.</string>
     <string name="favourite_folders_none">Brak ulubionych folderów</string>
     <string name="folder_action_title">Wybierz działanie dla folderu</string>
     <string name="favourite_add">Dodaj do ulubionych</string>

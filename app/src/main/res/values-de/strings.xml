@@ -790,7 +790,7 @@
     <string name="folder_order_ask">Wie sollen die Ordner in der Rasteransicht sortiert werden? Du kannst die Anordnung jederzeit in den Einstellungen ändern.</string>
     <string name="folder_order_alpha_long">Alphabetische Reihenfolge</string>
     <string name="favourite_folders">Lieblingsordner</string>
-    <string name="favourite_folders_desc">Sie stehen oben im Raster und in der Liste, in dieser Reihenfolge.</string>
+    <string name="favourite_folders_desc">Sie werden in Raster und Liste zuerst (oben) angezeigt, in der Reihenfolge, die du möchtest: Ziehe die Einträge der Liste unten, um sie neu anzuordnen.</string>
     <string name="favourite_folders_none">Keine Lieblingsordner</string>
     <string name="folder_action_title">Aktion für den Ordner wählen</string>
     <string name="favourite_add">Zu Favoriten hinzufügen</string>

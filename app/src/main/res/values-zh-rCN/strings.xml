@@ -772,7 +772,7 @@
     <string name="folder_order_ask">网格视图中的文件夹要如何排序？你可以随时在设置中更改排序。</string>
     <string name="folder_order_alpha_long">按字母顺序</string>
     <string name="favourite_folders">收藏的文件夹</string>
-    <string name="favourite_folders_desc">它们按此顺序显示在网格和列表的顶部。</string>
+    <string name="favourite_folders_desc">它们按你喜欢的顺序最先显示在网格和列表视图的顶部：拖动下方列表中的项目即可重新排序。</string>
     <string name="favourite_folders_none">没有收藏的文件夹</string>
     <string name="folder_action_title">选择对文件夹的操作</string>
     <string name="favourite_add">添加到收藏</string>

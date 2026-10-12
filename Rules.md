@@ -876,6 +876,8 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   È un file committato, e `pages.yml` la pubblica insieme al resto di `publish/` a ogni push che
   cambia quella cartella.
   - ⚠️ **Chi cambia una di quelle quattro cose rilancia lo strumento**: nessun controllo lo ricorda.
+    Lo stesso vale per `tools/store-graphics.py`, che con gli stessi pezzi compone l'icona e
+    l'immagine in evidenza della scheda di Google Play in `docs/store/` (`docs/Store.md`).
   - ⚠️ **I caratteri sono quelli veri** (Roboto da Google Fonts), o lo strumento si ferma invece di
     scrivere un'immagine col carattere di ripiego.
 - **Verifica**: la pagina servita contiene `og:image`, e quell'indirizzo risponde 200 con

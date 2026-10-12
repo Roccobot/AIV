@@ -555,10 +555,15 @@ le due scelte vivono in `FolderSelection` (`order`, `favourites`) e nell'archivi
     data della prima riga, che arriva già per prima). Il contenuto di una cartella resta sempre coi
     più recenti in cima, e il testo della voce lo dice.
 - ⚠️⚠️ **'Cartelle preferite' è una sotto-pagina in fondo a Impostazioni → Cartelle**: vuota di
-  fabbrica, si riordina con le manopole delle info, una × toglie una voce e 'Aggiungi cartella' in
-  basso apre la scelta della destinazione (su AIV Play la vista a griglia, perché là non c'è
-  l'albero). Le preferite compaiono in cima alla griglia e alla lista, nel loro ordine, e poi le altre
+  fabbrica, si riordina con le manopole delle info, una × toglie una voce e 'Aggiungi cartella' apre
+  la scelta della destinazione (su AIV Play la vista a griglia, perché là non c'è l'albero). Le
+  preferite compaiono in cima alla griglia e alla lista, nel loro ordine, e poi le altre
   nell'ordine di sempre.
+  - ⚠️ **Dalla `5.90` (sua nota A sul giro della `5.80`)**: con la lista vuota la riga `Nessuna
+    cartella preferita` è centrata e staccata dalla spiegazione, e 'Aggiungi cartella' la segue
+    subito sotto; con almeno una voce il pulsante è una fascia fissa in basso, sempre in vista, e
+    scorre la sola lista, come le parti di 'Esporta e importa'. Lo prova `CartellePreferiteTest`,
+    caso 7.
   - ⚠️ **Una preferita è la cartella e basta**, mai un ramo, e si scrive col percorso portabile.
 - ⚠️⚠️ **Il tocco lungo su una cartella apre 'Scegli l'azione sulla cartella'** (sua risposta `B1`:
   griglia, lista e colonna del tablet), con due tasti grandi e arrotondati uno sopra l'altro:

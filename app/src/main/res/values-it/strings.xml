@@ -867,7 +867,7 @@
     <string name="folder_order_ask">Come vuoi che siano ordinate le cartelle in vista griglia? Potrai cambiare la disposizione in qualsiasi momento dalle impostazioni.</string>
     <string name="folder_order_alpha_long">Ordine alfabetico</string>
     <string name="favourite_folders">Cartelle preferite</string>
-    <string name="favourite_folders_desc">Compaiono in cima alla griglia e alla lista, in quest\'ordine.</string>
+    <string name="favourite_folders_desc">Sono cartelle mostrate per prime (in alto) nelle modalità griglia e lista, nell\'ordine che preferisci: trascina gli elementi della lista qui sotto per riordinarle.</string>
     <string name="favourite_folders_none">Nessuna cartella preferita</string>
     <string name="folder_action_title">Scegli l\'azione sulla cartella</string>
     <string name="favourite_add">Aggiungi alle preferite</string>

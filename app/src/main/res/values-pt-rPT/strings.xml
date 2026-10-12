@@ -216,7 +216,7 @@
     <string name="folder_order_ask">Como queres ordenar as pastas na vista de grelha? Podes alterar a disposição a qualquer momento nas definições.</string>
     <string name="folder_order_alpha_long">Ordem alfabética</string>
     <string name="favourite_folders">Pastas favoritas</string>
-    <string name="favourite_folders_desc">Aparecem no topo da grelha e da lista, por esta ordem.</string>
+    <string name="favourite_folders_desc">São mostradas primeiro (no topo) nos modos grelha e lista, pela ordem que preferir: arraste os itens da lista abaixo para as reordenar.</string>
     <string name="favourite_folders_none">Nenhuma pasta favorita</string>
     <string name="folder_action_title">Escolhe uma ação para a pasta</string>
     <string name="favourite_add">Adicionar às favoritas</string>

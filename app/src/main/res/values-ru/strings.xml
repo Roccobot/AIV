@@ -826,7 +826,7 @@
     <string name="folder_order_ask">Как упорядочить папки в виде сетки? Порядок можно изменить в любой момент в настройках.</string>
     <string name="folder_order_alpha_long">Алфавитный порядок</string>
     <string name="favourite_folders">Избранные папки</string>
-    <string name="favourite_folders_desc">Они показываются вверху сетки и списка, в этом порядке.</string>
+    <string name="favourite_folders_desc">Они показываются первыми (вверху) в сетке и списке, в нужном вам порядке: перетащите элементы списка ниже, чтобы изменить порядок.</string>
     <string name="favourite_folders_none">Нет избранных папок</string>
     <string name="folder_action_title">Выберите действие для папки</string>
     <string name="favourite_add">Добавить в избранное</string>

@@ -790,7 +790,7 @@
     <string name="folder_order_ask">Hoe wil je de mappen in rasterweergave sorteren? Je kunt de indeling altijd wijzigen in de instellingen.</string>
     <string name="folder_order_alpha_long">Alfabetische volgorde</string>
     <string name="favourite_folders">Favoriete mappen</string>
-    <string name="favourite_folders_desc">Ze staan bovenaan in het raster en in de lijst, in deze volgorde.</string>
+    <string name="favourite_folders_desc">Ze worden als eerste (bovenaan) getoond in raster en lijst, in de volgorde die je wilt: sleep de items in de lijst hieronder om ze te herschikken.</string>
     <string name="favourite_folders_none">Geen favoriete mappen</string>
     <string name="folder_action_title">Kies een actie voor de map</string>
     <string name="favourite_add">Toevoegen aan favorieten</string>
