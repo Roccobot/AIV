@@ -1365,26 +1365,31 @@ def check(path):
             second.locator('#save').click()
             expect(second.locator('.toast.is-visible')).to_contain_text('Salvato')
             done, total = map(int, second.locator('#count-answered').inner_text().split('/'))
-            assert done < total, ('Tutte le prove hanno un esito: il promemoria non si vede.', done, total)
             second.locator('#send').click()
             expect(second.locator('#action-message')).to_contain_text('Risposte pronte')
             # Invia answers with a visible notice too (the user's request, 2026-10-04). With tests
             # still without an outcome the round goes anyway, and the notice reminds of them, on two
             # lines, with the counter's numbers (his request, 2026-10-11).
+            # ⚠️ The check answers the first test only, so a document with one test (the 5.91) has
+            # every test answered: there the notice is the plain one, and the reminder is measured
+            # on documents with two tests or more.
             reminder = second.locator('.toast.is-visible')
-            expected = f"Hai dato riscontro a {done} {'punto' if done == 1 else 'punti'} su {total}.\nCompleta la verifica prima di inviare."
-            expect(reminder).to_have_text(expected)
-            lines = reminder.evaluate("""(el) => { const s = getComputedStyle(el);
-                return Math.round((el.clientHeight - parseFloat(s.paddingTop) - parseFloat(s.paddingBottom)) / parseFloat(s.lineHeight)); }""")
-            assert lines == 2, ('Il promemoria di Invia non occupa due righe.', lines)
-            # The two lines are centred in the notice (his request, 2026-10-12): the middle of
-            # each line's text falls on the middle of the notice.
-            offsets = reminder.evaluate("""(el) => {
-                const box = el.getBoundingClientRect(), range = document.createRange();
-                range.selectNodeContents(el);
-                return [...range.getClientRects()].filter((r) => r.width > 1)
-                    .map((r) => r.left + r.width / 2 - (box.left + box.width / 2)); }""")
-            assert len(offsets) == 2 and all(abs(o) < 1.5 for o in offsets), ('Le righe del promemoria di Invia non sono centrate.', offsets)
+            if done == total:
+                expect(reminder).to_have_text('Risposte pronte: esportale per inviarle.')
+            else:
+                expected = f"Hai dato riscontro a {done} {'punto' if done == 1 else 'punti'} su {total}.\nCompleta la verifica prima di inviare."
+                expect(reminder).to_have_text(expected)
+                lines = reminder.evaluate("""(el) => { const s = getComputedStyle(el);
+                    return Math.round((el.clientHeight - parseFloat(s.paddingTop) - parseFloat(s.paddingBottom)) / parseFloat(s.lineHeight)); }""")
+                assert lines == 2, ('Il promemoria di Invia non occupa due righe.', lines)
+                # The two lines are centred in the notice (his request, 2026-10-12): the middle of
+                # each line's text falls on the middle of the notice.
+                offsets = reminder.evaluate("""(el) => {
+                    const box = el.getBoundingClientRect(), range = document.createRange();
+                    range.selectNodeContents(el);
+                    return [...range.getClientRects()].filter((r) => r.width > 1)
+                        .map((r) => r.left + r.width / 2 - (box.left + box.width / 2)); }""")
+                assert len(offsets) == 2 and all(abs(o) < 1.5 for o in offsets), ('Le righe del promemoria di Invia non sono centrate.', offsets)
             # Thumbnails two per row, on desktop and on mobile.
             thumbs = [f.bounding_box() for f in second.locator('.test').first.locator('.image-list figure').all()]
             assert abs(thumbs[0]['y'] - thumbs[1]['y']) < 1 and thumbs[2]['y'] > thumbs[0]['y'] + 1, thumbs
