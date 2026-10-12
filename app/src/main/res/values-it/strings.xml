@@ -861,7 +861,7 @@
     <string name="update_untrusted">L\'aggiornamento non è firmato con la chiave di AIV, e non può essere installato.</string>
     <string name="update_permission">Per aggiornare, consenti ad AIV di installare app.</string>
     <string name="folder_order">Disposizione in vista griglia</string>
-    <string name="folder_order_short">Disposizione</string>
+    <string name="folder_order_short">Disposizione delle cartelle</string>
     <string name="folder_order_desc">Imposta l\'ordine delle cartelle valido per la vista griglia. Il contenuto delle cartelle mostra sempre gli elementi più recenti in cima.</string>
     <string name="folder_order_alpha">Alfabetica</string>
     <string name="folder_order_recent">Più recenti in alto</string>

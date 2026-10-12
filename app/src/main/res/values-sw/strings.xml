@@ -784,7 +784,7 @@
     <string name="update_untrusted">Sasisho halijatiwa sahihi kwa ufunguo wa AIV, kwa hivyo halitasakinishwa.</string>
     <string name="update_permission">Ili kusasisha, ruhusu AIV isakinishe programu.</string>
     <string name="folder_order">Mpangilio katika mwonekano wa gridi</string>
-    <string name="folder_order_short">Mpangilio</string>
+    <string name="folder_order_short">Mpangilio wa folda</string>
     <string name="folder_order_desc">Huweka mpangilio wa folda katika mwonekano wa gridi. Maudhui ya folda huonyesha vipengee vipya zaidi juu kila wakati.</string>
     <string name="folder_order_alpha">Kialfabeti</string>
     <string name="folder_order_recent">Vipya zaidi juu</string>

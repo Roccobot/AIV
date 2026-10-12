@@ -766,7 +766,7 @@
     <string name="update_untrusted">此更新未使用 AIV 的金鑰簽署，因此不會安裝。</string>
     <string name="update_permission">若要更新，請允許 AIV 安裝應用程式。</string>
     <string name="folder_order">格狀檢視排序</string>
-    <string name="folder_order_short">排列順序</string>
+    <string name="folder_order_short">資料夾排列順序</string>
     <string name="folder_order_desc">設定格狀檢視中資料夾的順序。資料夾內容一律將最新的項目顯示在最上方。</string>
     <string name="folder_order_alpha">依字母</string>
     <string name="folder_order_recent">最新的在上</string>

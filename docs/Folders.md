@@ -552,7 +552,7 @@ le due scelte vivono in `FolderSelection` (`order`, `favourites`) e nell'archivi
 - ⚠️⚠️ **Dalla `5.90` la scelta è anche nelle opzioni di visualizzazione** (sua nota B del giro della
   `5.80`, mockup `homeLongPress.png`), cioè il dialogo che apre il tocco lungo sul pulsante
   principale: il tondo o la pillola del menu Start, il menu in basso, il tondo della pillola a
-  scomparsa. In vista griglia, sotto 'Dimensione della griglia', c'è 'Disposizione' coi due gettoni;
+  scomparsa. In vista griglia, sotto 'Dimensione della griglia', c'è 'Disposizione delle cartelle' (il titolino riveduto da lui nel giro della `5.90`) coi due gettoni;
   in griglia e in lista il dialogo finisce con la riga 'Cartelle preferite', che apre la pagina in una
   scheda sopra la casa (`FavouritesSheet`), così Indietro riporta alla casa. Il colore delle cartelle
   da lì è uscito (sua decisione). Ogni fila di gettoni riempie la larghezza: il primo parte sulla

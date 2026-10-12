@@ -217,7 +217,7 @@
  "facts_title": "Informazioni",
  "favourite_add": "Aggiungi alle preferite",
  "favourite_folders": "Cartelle preferite",
- "favourite_folders_desc": "Compaiono in cima alla griglia e alla lista, in quest\\'ordine.",
+ "favourite_folders_desc": "Sono cartelle mostrate per prime (in alto) nelle modalità griglia e lista, nell\\'ordine che preferisci: trascina gli elementi della lista qui sotto per riordinarle.",
  "favourite_folders_none": "Nessuna cartella preferita",
  "favourite_remove": "Rimuovi dalle preferite",
  "filter_all": "Mostra tutto",

@@ -784,7 +784,7 @@
     <string name="update_untrusted">అప్‌డేట్ AIV కీతో సంతకం చేయబడలేదు, కాబట్టి ఇన్‌స్టాల్ కాదు.</string>
     <string name="update_permission">అప్‌డేట్ చేయడానికి, యాప్‌లను ఇన్‌స్టాల్ చేయడానికి AIVకి అనుమతి ఇవ్వండి.</string>
     <string name="folder_order">గ్రిడ్ వీక్షణలో క్రమం</string>
-    <string name="folder_order_short">క్రమం</string>
+    <string name="folder_order_short">ఫోల్డర్‌ల క్రమం</string>
     <string name="folder_order_desc">గ్రిడ్ వీక్షణలో ఫోల్డర్‌ల క్రమాన్ని నిర్ణయిస్తుంది. ఫోల్డర్‌లలోని కంటెంట్ ఎప్పుడూ కొత్తవాటిని పైన చూపిస్తుంది.</string>
     <string name="folder_order_alpha">అక్షర క్రమం</string>
     <string name="folder_order_recent">కొత్తవి పైన</string>

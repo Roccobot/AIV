@@ -802,7 +802,7 @@
     <string name="update_untrusted">A atualização não está assinada com a chave do AIV, então não será instalada.</string>
     <string name="update_permission">Para atualizar, permita que o AIV instale apps.</string>
     <string name="folder_order">Disposição na visualização em grade</string>
-    <string name="folder_order_short">Ordem</string>
+    <string name="folder_order_short">Ordem das pastas</string>
     <string name="folder_order_desc">Define a ordem das pastas na visualização em grade. O conteúdo das pastas sempre mostra os itens mais recentes primeiro.</string>
     <string name="folder_order_alpha">Alfabética</string>
     <string name="folder_order_recent">Mais recentes no topo</string>

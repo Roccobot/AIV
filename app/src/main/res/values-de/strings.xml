@@ -784,7 +784,7 @@
     <string name="update_untrusted">Das Update ist nicht mit dem Schlüssel von AIV signiert und wird daher nicht installiert.</string>
     <string name="update_permission">Erlaube AIV, Apps zu installieren, um zu aktualisieren.</string>
     <string name="folder_order">Anordnung in der Rasteransicht</string>
-    <string name="folder_order_short">Reihenfolge</string>
+    <string name="folder_order_short">Ordnerreihenfolge</string>
     <string name="folder_order_desc">Legt die Reihenfolge der Ordner in der Rasteransicht fest. Der Inhalt der Ordner zeigt immer die neuesten Elemente oben.</string>
     <string name="folder_order_alpha">Alphabetisch</string>
     <string name="folder_order_recent">Neueste oben</string>

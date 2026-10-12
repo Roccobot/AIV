@@ -856,7 +856,7 @@
     <string name="update_untrusted">التحديث غير موقّع بمفتاح AIV، لذا لن يُثبَّت.</string>
     <string name="update_permission">للتحديث، اسمح لـ AIV بتثبيت التطبيقات.</string>
     <string name="folder_order">الترتيب في عرض الشبكة</string>
-    <string name="folder_order_short">الترتيب</string>
+    <string name="folder_order_short">ترتيب المجلدات</string>
     <string name="folder_order_desc">يحدد ترتيب المجلدات في عرض الشبكة. يعرض محتوى المجلدات دائمًا أحدث العناصر في الأعلى.</string>
     <string name="folder_order_alpha">أبجدي</string>
     <string name="folder_order_recent">الأحدث في الأعلى</string>

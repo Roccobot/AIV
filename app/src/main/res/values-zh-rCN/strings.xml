@@ -766,7 +766,7 @@
     <string name="update_untrusted">此更新未使用 AIV 的密钥签名，因此不会安装。</string>
     <string name="update_permission">要更新，请允许 AIV 安装应用。</string>
     <string name="folder_order">网格视图排序</string>
-    <string name="folder_order_short">排列顺序</string>
+    <string name="folder_order_short">文件夹排列顺序</string>
     <string name="folder_order_desc">设置网格视图中文件夹的顺序。文件夹内容始终将最新的项目显示在最上方。</string>
     <string name="folder_order_alpha">按字母</string>
     <string name="folder_order_recent">最新的在上</string>

@@ -784,7 +784,7 @@
     <string name="update_untrusted">Güncelleme AIV\'nin anahtarıyla imzalanmamış, bu yüzden yüklenmeyecek.</string>
     <string name="update_permission">Güncellemek için AIV\'nin uygulama yüklemesine izin verin.</string>
     <string name="folder_order">Izgara görünümünde düzen</string>
-    <string name="folder_order_short">Sıralama</string>
+    <string name="folder_order_short">Klasör sıralaması</string>
     <string name="folder_order_desc">Izgara görünümünde klasörlerin sırasını belirler. Klasörlerin içeriği her zaman en yeni öğeleri en üstte gösterir.</string>
     <string name="folder_order_alpha">Alfabetik</string>
     <string name="folder_order_recent">En yeniler üstte</string>

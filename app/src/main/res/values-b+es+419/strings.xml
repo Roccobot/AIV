@@ -65,7 +65,7 @@
     <string name="update_untrusted">La actualización no está firmada con la clave de AIV, así que no se instalará.</string>
     <string name="update_permission">Para actualizar, permite que AIV instale apps.</string>
     <string name="folder_order">Disposición en vista de cuadrícula</string>
-    <string name="folder_order_short">Orden</string>
+    <string name="folder_order_short">Orden de las carpetas</string>
     <string name="folder_order_desc">Establece el orden de las carpetas en la vista de cuadrícula. El contenido de las carpetas siempre muestra primero los elementos más recientes.</string>
     <string name="folder_order_alpha">Alfabética</string>
     <string name="folder_order_recent">Más recientes arriba</string>

@@ -766,7 +766,7 @@
     <string name="update_untrusted">Bản cập nhật không được ký bằng khóa của AIV nên sẽ không được cài đặt.</string>
     <string name="update_permission">Để cập nhật, hãy cho phép AIV cài đặt ứng dụng.</string>
     <string name="folder_order">Thứ tự ở dạng lưới</string>
-    <string name="folder_order_short">Thứ tự</string>
+    <string name="folder_order_short">Thứ tự thư mục</string>
     <string name="folder_order_desc">Đặt thứ tự thư mục ở dạng lưới. Nội dung thư mục luôn hiển thị mục mới nhất ở trên cùng.</string>
     <string name="folder_order_alpha">Theo bảng chữ cái</string>
     <string name="folder_order_recent">Mới nhất ở trên</string>

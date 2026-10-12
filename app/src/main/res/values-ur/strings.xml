@@ -784,7 +784,7 @@
     <string name="update_untrusted">اپ ڈیٹ AIV کی کلید سے سائن نہیں ہے، اس لیے انسٹال نہیں ہوگی۔</string>
     <string name="update_permission">اپ ڈیٹ کرنے کے لیے AIV کو ایپس انسٹال کرنے کی اجازت دیں۔</string>
     <string name="folder_order">گرڈ منظر میں ترتیب</string>
-    <string name="folder_order_short">ترتیب</string>
+    <string name="folder_order_short">فولڈرز کی ترتیب</string>
     <string name="folder_order_desc">گرڈ منظر میں فولڈرز کی ترتیب طے کرتا ہے۔ فولڈرز کے اندر ہمیشہ سب سے نئی چیزیں اوپر دکھائی جاتی ہیں۔</string>
     <string name="folder_order_alpha">حروفِ تہجی کے لحاظ سے</string>
     <string name="folder_order_recent">سب سے نئے اوپر</string>
