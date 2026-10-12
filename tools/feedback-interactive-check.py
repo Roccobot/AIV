@@ -1186,6 +1186,22 @@ def check(path):
             }''', svg_bytes.decode())
             first.dispatch_event('dragenter', {'dataTransfer': transfer})
             expect(first).to_have_class(re.compile(r'\bdrop-active\b'))
+            # On a card with an outcome the + box takes a deeper shade of that outcome, not the
+            # green of a card without one (his note of 2026-10-12, with a red card).
+            assert first.get_attribute('data-outcome-kind') in ('ok', 'warn', 'bad')
+            drop_box = first.evaluate('''card => {
+                const probe = document.createElement('div');
+                probe.style.background = 'var(--surface-drop)';
+                document.body.append(probe);
+                const neutral = getComputedStyle(probe).backgroundColor;
+                probe.remove();
+                const box = getComputedStyle(card.querySelector('.attachment'));
+                const own = getComputedStyle(card);
+                return {border: box.borderTopColor, cardBorder: own.borderTopColor,
+                        background: box.backgroundColor, card: own.backgroundColor, neutral};
+            }''')
+            assert drop_box['border'] == drop_box['cardBorder'], drop_box
+            assert drop_box['background'] not in (drop_box['neutral'], drop_box['card']), drop_box
             first.dispatch_event('drop', {'dataTransfer': transfer})
             expect(first.locator('.image-list img')).to_have_count(3)
             expect(first).not_to_have_class(re.compile(r'\bdrop-active\b'))

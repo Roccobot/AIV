@@ -765,19 +765,28 @@ footer {
 
 /* Only an explicit outcome carries its semantic color. */
 .card.has-response[data-outcome-kind="ok"] {
-  background: var(--surface-ok);
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
+  --outcome-ink: var(--accent);
+  --outcome-surface: var(--surface-ok);
 }
 .card.has-response[data-outcome-kind="warn"] {
-  background: var(--surface-warn);
-  border-color: var(--warn);
-  box-shadow: inset 0 0 0 1px var(--warn);
+  --outcome-ink: var(--warn);
+  --outcome-surface: var(--surface-warn);
 }
 .card.has-response[data-outcome-kind="bad"] {
-  background: var(--surface-bad);
-  border-color: var(--bad);
-  box-shadow: inset 0 0 0 1px var(--bad);
+  --outcome-ink: var(--bad);
+  --outcome-surface: var(--surface-bad);
+}
+.card.has-response:is([data-outcome-kind="ok"], [data-outcome-kind="warn"], [data-outcome-kind="bad"]) {
+  background: var(--outcome-surface);
+  border-color: var(--outcome-ink);
+  box-shadow: inset 0 0 0 1px var(--outcome-ink);
+}
+/* A file dragged over a card with an outcome tints the + box with a deeper shade of that
+   outcome, not with the green of the empty card (the user's note, 2026-10-12: green on a red
+   card). The mix darkens the light theme and lightens the dark one. */
+.card.has-response:is([data-outcome-kind="ok"], [data-outcome-kind="warn"], [data-outcome-kind="bad"]).drop-active .attachment {
+  border-color: var(--outcome-ink);
+  background: color-mix(in srgb, var(--outcome-ink) 16%, var(--outcome-surface));
 }
 
 /* The page has no footer since 2026-10-03: the room under the last card, which keeps it clear
