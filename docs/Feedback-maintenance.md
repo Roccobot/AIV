@@ -150,6 +150,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
 - Esiti: `Tutto OK`, `Accettabile`, `Non approvato`; nessuna scelta significa `Non provato`.
   Un secondo clic toglie l'esito. Verde, ambra e rosso seguono la scelta; commenti o allegati
   senza esito hanno evidenza neutra. Una risposta presente non equivale ad approvazione.
+  ⚠️ **Mentre si trascina un file su un riquadro con un esito, la casella `+` prende una variante
+  più carica del colore di quell'esito** (bordo dell'esito, fondo col 16% del suo colore), non il
+  verde del riquadro senza esito (sua nota del 2026-10-12, con uno screenshot: verde su un riquadro
+  rosso). Lo presidia `tools/feedback-interactive-check.py`.
 - Specifiche separate per telefono e tablet: modello e Android. I commenti indicano
   su quale dispositivo si è verificato un problema quando necessario.
 - Editor con formattazione visibile, senza anteprima duplicata; icone grassetto, corsivo,
