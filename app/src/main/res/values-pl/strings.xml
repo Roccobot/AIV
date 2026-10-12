@@ -820,6 +820,7 @@
     <string name="update_untrusted">Aktualizacja nie jest podpisana kluczem AIV, więc nie zostanie zainstalowana.</string>
     <string name="update_permission">Aby zaktualizować, zezwól AIV na instalowanie aplikacji.</string>
     <string name="folder_order">Układ w widoku siatki</string>
+    <string name="folder_order_short">Kolejność</string>
     <string name="folder_order_desc">Ustala kolejność folderów w widoku siatki. Zawartość folderów zawsze pokazuje najnowsze elementy na górze.</string>
     <string name="folder_order_alpha">Alfabetycznie</string>
     <string name="folder_order_recent">Najnowsze na górze</string>

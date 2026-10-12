@@ -8,6 +8,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +48,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Public
@@ -89,6 +92,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -103,6 +107,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -227,13 +232,6 @@ fun FolderScreen(
     listText: TextSize,
     treeHidden: Boolean,
     treePictures: Boolean,
-    /**
-     * Cambia dove si vede il colore di una cartella, dallo stesso popup delle colonne.
-     *
-     * ⚠️ **La stessa preferenza del pannello e non una sua**, come per le colonne: il popup è la
-     * scorciatoia a una scelta che deve sopravvivere alla chiusura dell'app.
-     */
-    onColour: (FolderColour) -> Unit,
     onListCount: (Boolean) -> Unit,
     onListText: (TextSize) -> Unit,
     onTreeHidden: (Boolean) -> Unit,
@@ -329,6 +327,8 @@ fun FolderScreen(
 
     /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul FAB. */
     var sizing by remember { mutableStateOf(false) }
+    /** If 'Cartelle preferite' is open over the home, from the row at the end of the options. */
+    var favouring by remember { mutableStateOf(false) }
     /** Selezione multipla in Cartelle di sistema: nasconde il FAB sotto [PickSheet]. */
     var treeBusy by remember { mutableStateOf(false) }
 
@@ -907,19 +907,30 @@ fun FolderScreen(
         ViewOptions(
             view = view,
             columns = columns,
-            colour = colour,
+            order = selection.order,
             listCount = listCount,
             listText = listText,
             treeHidden = treeHidden,
             treePictures = treePictures,
             onView = onView,
             onColumns = onColumns,
-            onColour = onColour,
+            onOrder = { onSelectionChange(selection.copy(order = it)) },
             onListCount = onListCount,
             onListText = onListText,
             onTreeHidden = onTreeHidden,
             onTreePictures = onTreePictures,
+            onFavourites = {
+                sizing = false
+                favouring = true
+            },
             onDismiss = { sizing = false }
+        )
+    }
+    if (favouring) {
+        FavouritesSheet(
+            list = selection.favourites,
+            onList = { onSelectionChange(selection.copy(favourites = it)) },
+            onDismiss = { favouring = false }
         )
     }
 
@@ -1703,23 +1714,29 @@ fun HomePill(
  * pastiglia toccata, e si può provare 2, 3 e 4 senza riaprire niente. Chiudendo a ogni scelta,
  * confrontarle vorrebbe dire tre tocchi lunghi. Il tasto in basso quindi non conferma niente:
  * dice che si è finito.
+ * ⚠️⚠️ **From the `5.90` it follows his mockup `homeLongPress.png`** (note B on the giro of the
+ * `5.80`): the grid adds 'Disposizione', the grid and the list end with a row that opens
+ * 'Cartelle preferite' over the home ([FavouritesSheet]), and the colour of the folders is gone
+ * from here (his decision: it stays in the settings). Every row of chips fills the width
+ * ([JustifiedChips]).
  */
 @Composable
-private fun ViewOptions(
+internal fun ViewOptions(
     view: FolderView,
     columns: Int,
-    colour: FolderColour,
+    order: FolderOrder?,
     listCount: Boolean,
     listText: TextSize,
     treeHidden: Boolean,
     treePictures: Boolean,
     onView: (FolderView) -> Unit,
     onColumns: (Int) -> Unit,
-    onColour: (FolderColour) -> Unit,
+    onOrder: (FolderOrder) -> Unit,
     onListCount: (Boolean) -> Unit,
     onListText: (TextSize) -> Unit,
     onTreeHidden: (Boolean) -> Unit,
     onTreePictures: (Boolean) -> Unit,
+    onFavourites: () -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -1728,24 +1745,22 @@ private fun ViewOptions(
         properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.view_options)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+            // ⚠️ The content scrolls from the `5.90`: with the order and the favourites row the
+            // grid no longer fits a low window (a phone held sideways), and the last row was out of
+            // reach.
+            Column(
+                verticalArrangement = Arrangement.spacedBy(OPTION_GAP),
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
                 /*
-                 * ⚠️ **`FlowRow` e non `Row`**: le tre viste si chiamano 'Vista a griglia',
-                 * 'Vista a elenco' e 'Cartelle di sistema', e in fila su uno schermo stretto
-                 * l'ultima uscirebbe dal dialogo. Andando a capo da sé, la stessa riga vale
-                 * per ogni larghezza e per ogni lingua, comprese quelle che scrivono lungo.
+                 * ⚠️ **A row that wraps**: the three views are 'Vista a griglia', 'Vista a elenco'
+                 * and 'Cartelle di sistema', and on a narrow screen or in a language that writes
+                 * long the last one would leave the dialog. [JustifiedChips] goes to a new line
+                 * by itself, like the `FlowRow` it replaces.
                  */
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
-                    modifier = Modifier.oneOf()
-                ) {
+                JustifiedChips {
                     Store.views.forEach { one ->
-                        FilterChip(
-                            selected = one == view,
-                            onClick = { onView(one) },
-                            label = { Text(stringResource(one.shortLabel())) },
-                            modifier = Modifier.picked(one == view)
-                        )
+                        OptionChip(stringResource(one.shortLabel()), one == view) { onView(one) }
                     }
                 }
                 HorizontalDivider()
@@ -1755,24 +1770,23 @@ private fun ViewOptions(
                 when (view) {
                     FolderView.GRID -> {
                         OptionLabel(R.string.columns_title)
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
-                            modifier = Modifier.oneOf()
-                        ) {
+                        JustifiedChips {
                             FOLDER_COLUMNS.forEach { n ->
-                                FilterChip(
-                                    selected = n == columns,
-                                    onClick = { onColumns(n) },
-                                    label = { Text(n.toString()) },
-                                    modifier = Modifier.picked(n == columns)
-                                )
+                                OptionChip(n.toString(), n == columns) { onColumns(n) }
                             }
                         }
-                        ColourChips(colour, onColour)
+                        // ⚠️ Only in the grid, as he wrote on the mockup: the list keeps its
+                        // alphabetical order, so the choice would change nothing there.
+                        OptionLabel(R.string.folder_order_short)
+                        JustifiedChips {
+                            FolderOrder.entries.forEach { one ->
+                                OptionChip(stringResource(one.chip()), one == order) { onOrder(one) }
+                            }
+                        }
+                        FavouritesRow(onFavourites)
                     }
                     FolderView.LIST -> {
                         OptionSwitch(R.string.list_count, listCount, onListCount)
-                        ColourChips(colour, onColour)
                         OptionLabel(R.string.text_size)
                         /*
                          * ⚠️⚠️ **UNO SLIDER A TRE FERMI E NON TRE PASTIGLIE, dalla 1.03**
@@ -1809,7 +1823,10 @@ private fun ViewOptions(
                                 modifier = Modifier.widthIn(min = SIZE_NAME)
                             )
                         }
+                        FavouritesRow(onFavourites)
                     }
+                    // ⚠️ No favourites row here: the tree shows the disk as it is, in no order of
+                    // ours, so the favourites change nothing in it.
                     FolderView.TREE -> {
                         OptionSwitch(R.string.tree_show_hidden, treeHidden, onTreeHidden)
                         OptionSwitch(R.string.tree_pictures, treePictures, onTreePictures)
@@ -1824,51 +1841,104 @@ private fun ViewOptions(
 }
 
 /**
- * Il colore delle cartelle, dentro il dialogo delle opzioni.
+ * A row of chips that fills the width of the dialog, wrapping when the chips do not fit.
  *
- * ⚠️⚠️ **LA STESSA VOCE DEL PANNELLO, DALLA `1.87`, ED È SUA RICHIESTA** (*la stessa opzione
- * dev'essere disponibile insieme alle colonne e alle dimensioni della griglia dal menu a
- * pressione lunga sul FAB principale*): il pannello è la casa e questa è la scorciatoia, cioè
- * la coppia che `Rules.md` descrive in § '⚙️ Dove va un'impostazione, e chi la deve
- * trovare'. Preferenza una, chiave una, valore di fabbrica uno.
- * ⚠️⚠️ **VIVE IN TUTTE E DUE LE VISTE, e non viola la regola delle opzioni della sola vista
- * scelta**: quella dice che nel dialogo si vedono le voci che agiscono su quello che si sta
- * guardando, e questa agisce su tutte e due, perché il colore si vede su tutte e due. Nella
- * terza vista non compare, perché là le cartelle non hanno colore (vedi [FolderColour]).
- * ⚠️ **Nuda, senza spiegazione**: il titolino dice già di che cosa si parla, e un dialogo che
- * spiega ogni voce sarebbe un secondo pannello.
+ * ⚠️⚠️ **His note B on the giro of the `5.80`**: the chips take the whole width, the first starts
+ * on the same vertical as the small titles and the last ends on the right edge. Each line shares
+ * what is left over in equal parts among its chips, so a long name keeps its room and a short one
+ * grows, and the gap between them stays [OPTION_GAP].
+ * ⚠️⚠️ **And this is also what aligns the first chip to the left** (his reminder of the same day:
+ * the chips of the columns were not aligned on the horizontal axis). A chip narrower than the
+ * 48 dp of a touch target gets a transparent margin on both sides from Material, so the border of
+ * '2' started a few dp to the right of the title above. Measured at its final width, which is
+ * always wider here, a chip has no such margin. `VistaOpzioniTest` measures it.
  */
 @Composable
-private fun ColourChips(colour: FolderColour, onColour: (FolderColour) -> Unit) {
-    // ⚠️ AIV Play ha il solo 'Nome', sempre acceso, e la voce non c'è (`Store.fullSettings`).
-    if (!Store.fullSettings) return
-    OptionLabel(R.string.settings_colour)
-    /*
-     * ⚠️ **`FlowRow` come le tre viste**: cinque pastiglie non entrano su una riga sola di uno
-     * schermo stretto, e in tante lingue nemmeno su uno largo. Andando a capo da sé, la stessa
-     * fila vale per ogni larghezza.
-     */
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
-        modifier = Modifier.oneOf()
-    ) {
-        FolderColour.entries.forEach { one ->
-            FilterChip(
-                selected = one == colour,
-                onClick = { onColour(one) },
-                label = { Text(stringResource(one.label())) },
-                modifier = Modifier.picked(one == colour)
-            )
+private fun JustifiedChips(content: @Composable () -> Unit) {
+    Layout(content = content, modifier = Modifier.fillMaxWidth().oneOf()) { items, constraints ->
+        val width = constraints.maxWidth
+        val gap = OPTION_GAP.roundToPx()
+        val natural = items.map { it.maxIntrinsicWidth(constraints.maxHeight).coerceAtMost(width) }
+        val lines = mutableListOf<List<Int>>()
+        var line = mutableListOf<Int>()
+        var used = 0
+        natural.forEachIndexed { at, w ->
+            val need = if (line.isEmpty()) w else used + gap + w
+            if (line.isNotEmpty() && need > width) {
+                lines += line
+                line = mutableListOf(at)
+                used = w
+            } else {
+                line += at
+                used = need
+            }
+        }
+        if (line.isNotEmpty()) lines += line
+        val placed = lines.map { members ->
+            val taken = members.sumOf { natural[it] } + gap * (members.size - 1)
+            val spare = (width - taken).coerceAtLeast(0)
+            members.mapIndexed { k, at ->
+                // The pixels that do not divide evenly go to the last chip, so the row ends on the edge.
+                val share = spare / members.size + if (k == members.lastIndex) spare % members.size else 0
+                items[at].measure(Constraints.fixedWidth(natural[at] + share))
+            }
+        }
+        val height = placed.sumOf { row -> row.maxOf { it.height } }
+        layout(width, height) {
+            var y = 0
+            placed.forEach { row ->
+                var x = 0
+                row.forEach { chip ->
+                    chip.placeRelative(x, y)
+                    x += chip.width + gap
+                }
+                y += row.maxOf { it.height }
+            }
         }
     }
 }
 
+/** A chip of the view options, with its name centred when [JustifiedChips] widens it. */
+@Composable
+private fun OptionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
+    FilterChip(
+        selected = chosen,
+        onClick = onClick,
+        label = { Text(label, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
+        modifier = Modifier.picked(chosen)
+    )
+}
+
+/** The row that opens 'Cartelle preferite' over the home, at the end of the view options. */
+@Composable
+private fun FavouritesRow(onOpen: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onOpen)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.favourite_folders),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 /**
- * Come si chiama uno stile del colore, nelle due superfici che lo offrono.
+ * Come si chiama uno stile del colore, nel pannello delle impostazioni.
  *
- * ⚠️ **Una funzione e non due elenchi**: le stesse cinque parole compaiono nel pannello e nella
- * scorciatoia, e scritte due volte sarebbero due elenchi da tenere allineati a mano ogni volta
- * che uno stile entra o cambia nome.
+ * ⚠️ **Una funzione e non un elenco scritto sul posto**: fino alla `5.80` le stesse cinque parole
+ * comparivano anche nelle opzioni di visualizzazione, che dalla `5.90` non hanno più il colore (sua
+ * decisione); la funzione resta il solo posto che dà un nome a ogni stile.
  */
 @StringRes
 internal fun FolderColour.label(): Int = when (this) {

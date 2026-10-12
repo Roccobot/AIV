@@ -496,7 +496,10 @@ fun SettingsScreen(
             modifier = chrome,
             scrolls = false
         ) {
-            FavouriteFolders(settings = settings, onChange = onChange)
+            FavouriteFolders(
+                list = settings.favouriteFolders,
+                onList = { onChange(settings.copy(favouriteFolders = it)) }
+            )
         }
 
         Page.ZOOM -> Shell(
@@ -1502,8 +1505,11 @@ private fun FoldersPage(
     )
 }
 
-/** The name of a [FolderOrder] on its chip in the settings. The window uses longer ones. */
-private fun FolderOrder.chip(): Int = when (this) {
+/**
+ * The name of a [FolderOrder] on its chip, in the settings and in the view options. The window that
+ * asks the order uses longer ones.
+ */
+internal fun FolderOrder.chip(): Int = when (this) {
     FolderOrder.ALPHA -> R.string.folder_order_alpha
     FolderOrder.RECENT -> R.string.folder_order_recent
 }
@@ -1523,53 +1529,89 @@ private fun FolderOrder.chip(): Int = when (this) {
  * the same note: with nothing under it, the line is the content of the page, not a footnote.
  * ⚠️ **The × takes a folder out at once, without asking**: a favourite hides nothing and goes back
  * with a long press, so a confirmation would protect nothing.
+ * ⚠️ **The same pieces make [FavouritesSheet]**, which the view options open over the home from the
+ * `5.90`: the list and the button are written once, and only the frame differs.
  */
 @Composable
-private fun ColumnScope.FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit) {
+private fun ColumnScope.FavouriteFolders(list: List<String>, onList: (List<String>) -> Unit) {
     Detail(stringResource(R.string.favourite_folders_desc))
-    val list = settings.favouriteFolders
     if (list.isEmpty()) {
-        Text(
-            text = stringResource(R.string.favourite_folders_none),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
-        )
+        FavouritesNone()
     } else {
         // The list's own scroll is the one the drag moves near the edges (see [Reorderable]).
         val scroll = rememberScrollState()
         Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll)) {
-            Reorderable(
-                items = list,
-                scroll = scroll,
-                onMove = { da, a -> onChange(settings.copy(favouriteFolders = list.moved(da, a))) }
-            ) { entry, _ ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            camelBreak(hiddenName(entry)),
-                            style = MaterialTheme.typography.bodyLarge,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
-                    }
-                    IconButton(onClick = { onChange(settings.copy(favouriteFolders = list - entry)) }) {
-                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
-                    }
-                }
+            FavouritesList(list, onList, scroll)
+        }
+    }
+    FavouritesAdd(list, onList, Modifier.padding(top = if (list.isEmpty()) 0.dp else 12.dp))
+}
+
+/**
+ * 'Cartelle preferite' over the home, from the long press on the main button (his note B on the
+ * giro of the `5.80`, mockup `homeLongPress.png`).
+ *
+ * ⚠️ **A sheet and not a trip to the settings**, for the reason written on [MarkSheet]: Back must
+ * bring him to the home he left, not up the settings stack. The sheet scrolls by itself, so the
+ * list takes no scroll of its own, and 'Aggiungi cartella' is its fixed foot.
+ */
+@Composable
+internal fun FavouritesSheet(list: List<String>, onList: (List<String>) -> Unit, onDismiss: () -> Unit) {
+    Sheet(
+        title = stringResource(R.string.favourite_folders),
+        onDismiss = onDismiss,
+        foot = { FavouritesAdd(list, onList) }
+    ) {
+        Detail(stringResource(R.string.favourite_folders_desc))
+        if (list.isEmpty()) FavouritesNone() else FavouritesList(list, onList, scroll = null)
+    }
+}
+
+/** The line of the empty page: centred, and apart from the explanation above it. */
+@Composable
+private fun FavouritesNone() {
+    Text(
+        text = stringResource(R.string.favourite_folders_none),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
+    )
+}
+
+/** The favourites with their knobs and their ×. */
+@Composable
+private fun FavouritesList(list: List<String>, onList: (List<String>) -> Unit, scroll: ScrollState?) {
+    Reorderable(
+        items = list,
+        scroll = scroll,
+        onMove = { da, a -> onList(list.moved(da, a)) }
+    ) { entry, _ ->
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    camelBreak(hiddenName(entry)),
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
+            }
+            IconButton(onClick = { onList(list - entry) }) {
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
             }
         }
     }
+}
+
+/** 'Aggiungi cartella', with the destination dialog it opens. */
+@Composable
+private fun FavouritesAdd(list: List<String>, onList: (List<String>) -> Unit, modifier: Modifier = Modifier) {
     var picking by remember { mutableStateOf(false) }
-    FilledTonalButton(
-        onClick = { picking = true },
-        modifier = Modifier.padding(top = if (list.isEmpty()) 0.dp else 12.dp).fillMaxWidth()
-    ) {
+    FilledTonalButton(onClick = { picking = true }, modifier = modifier.fillMaxWidth()) {
         Text(stringResource(R.string.folder_add))
     }
     if (picking) {
@@ -1589,7 +1631,7 @@ private fun ColumnScope.FavouriteFolders(settings: Settings, onChange: (Settings
                 onDismiss = { picking = false },
                 onPick = { dir ->
                     val path = portablePath(dir.absolutePath)
-                    if (path !in list) onChange(settings.copy(favouriteFolders = list + path))
+                    if (path !in list) onList(list + path)
                     picking = false
                 },
                 alreadyListed = list.toSet()

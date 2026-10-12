@@ -210,6 +210,7 @@
     <string name="update_untrusted">A atualização não está assinada com a chave do AIV, por isso não será instalada.</string>
     <string name="update_permission">Para atualizar, permita que o AIV instale aplicações.</string>
     <string name="folder_order">Disposição na vista de grelha</string>
+    <string name="folder_order_short">Ordem</string>
     <string name="folder_order_desc">Define a ordem das pastas na vista de grelha. O conteúdo das pastas mostra sempre os itens mais recentes primeiro.</string>
     <string name="folder_order_alpha">Alfabética</string>
     <string name="folder_order_recent">Mais recentes no topo</string>

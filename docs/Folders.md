@@ -479,8 +479,9 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
 - ⚠️⚠️ **La finestra delle destinazioni tinge** (sua risposta `tinta` a `d-dest-tinta`): chi sceglie
   dove mettere un file cerca la cartella che riconosce dal colore. Tinte e copertine si caricano
   dentro la finestra, nello stesso `produceState` delle cartelle.
-- **La voce vive nella pagina 'Cartelle'**, e la gemella nel dialogo delle opzioni della schermata iniziale (la
-  scorciatoia del tocco lungo sul FAB): una preferenza, una chiave, un valore di fabbrica.
+- **La voce vive nella sola pagina 'Cartelle'**: dalla `5.90` il dialogo delle opzioni della
+  schermata iniziale non la offre più (sua decisione sul mockup `homeLongPress.png`, nota B del giro
+  della `5.80`); fino alla `5.80` ne aveva la gemella.
 - ⚠️⚠️ **Il tocco lungo sul FAB in una cartella seleziona tutto, e non ha un rovescio** (sua
   richiesta): appena c'è una selezione il FAB lascia il posto alla scheda, quindi un secondo gesto
   non arriva a nessuno. Il rovescio sono il tasto 'Tutti' col suo tocco lungo e la pastiglia
@@ -547,8 +548,18 @@ le due scelte vivono in `FolderSelection` (`order`, `favourites`) e nell'archivi
   un default*). Finché manca, la griglia resta alfabetica e la casa chiede una volta, con la sua
   domanda e due tasti larghi uguali, uno sopra l'altro: 'Ordine alfabetico' e 'Più recenti in alto'
   (il nome diverso dal gettone è voluto). La domanda compare anche a chi aggiorna (sua risposta
-  `C1`); chiusa senza rispondere torna al prossimo avvio. Il tocco lungo sul pulsante principale apre
-  già le impostazioni delle cartelle, quindi la voce è a un gesto.
+  `C1`); chiusa senza rispondere torna al prossimo avvio.
+- ⚠️⚠️ **Dalla `5.90` la scelta è anche nelle opzioni di visualizzazione** (sua nota B del giro della
+  `5.80`, mockup `homeLongPress.png`), cioè il dialogo che apre il tocco lungo sul pulsante
+  principale: il tondo o la pillola del menu Start, il menu in basso, il tondo della pillola a
+  scomparsa. In vista griglia, sotto 'Dimensione della griglia', c'è 'Disposizione' coi due gettoni;
+  in griglia e in lista il dialogo finisce con la riga 'Cartelle preferite', che apre la pagina in una
+  scheda sopra la casa (`FavouritesSheet`), così Indietro riporta alla casa. Il colore delle cartelle
+  da lì è uscito (sua decisione). Ogni fila di gettoni riempie la larghezza: il primo parte sulla
+  verticale dei titolini, l'ultimo finisce sul bordo destro, e lo spazio avanzato si divide in parti
+  uguali (`JustifiedChips`); prima un gettone stretto come '2' prendeva da Material un margine
+  trasparente e partiva 7 dp a destra del titolo. Il contenuto del dialogo scorre, perché con le voci
+  nuove in orizzontale non ci sta più. Lo prova `VistaOpzioniTest`.
   - ⚠️ **Vale per la sola griglia** (sua richiesta): lista e colonna del tablet restano alfabetiche.
     Sullo schermo largo la casa è la colonna, quindi là la domanda non compare.
   - ⚠️ **'Più recenti' è la cartella col file modificato più di recente** (`Folder.Bucket.latest`, la

@@ -784,6 +784,7 @@
     <string name="update_untrusted">به‌روزرسانی با کلید AIV امضا نشده است، پس نصب نمی‌شود.</string>
     <string name="update_permission">برای به‌روزرسانی، به AIV اجازهٔ نصب برنامه بدهید.</string>
     <string name="folder_order">چیدمان در نمای شبکه‌ای</string>
+    <string name="folder_order_short">ترتیب</string>
     <string name="folder_order_desc">ترتیب پوشه‌ها را در نمای شبکه‌ای تعیین می‌کند. محتوای پوشه‌ها همیشه جدیدترین موارد را در بالا نشان می‌دهد.</string>
     <string name="folder_order_alpha">الفبایی</string>
     <string name="folder_order_recent">جدیدترین‌ها در بالا</string>

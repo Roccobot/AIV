@@ -784,6 +784,7 @@
     <string name="update_untrusted">अपडेट AIV च्या कीने साइन केलेले नाही, म्हणून ते इंस्टॉल होणार नाही.</string>
     <string name="update_permission">अपडेट करण्यासाठी AIV ला ॲप्स इंस्टॉल करण्याची परवानगी द्या.</string>
     <string name="folder_order">ग्रिड दृश्यातील क्रम</string>
+    <string name="folder_order_short">क्रम</string>
     <string name="folder_order_desc">ग्रिड दृश्यात फोल्डरचा क्रम ठरवते. फोल्डरमधील सर्वात नवीन आयटम नेहमी सर्वात वर दिसतात.</string>
     <string name="folder_order_alpha">वर्णक्रमानुसार</string>
     <string name="folder_order_recent">सर्वात नवीन वर</string>

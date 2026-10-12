@@ -766,6 +766,7 @@
     <string name="update_untrusted">อัปเดตนี้ไม่ได้ลงนามด้วยคีย์ของ AIV จึงจะไม่ติดตั้ง</string>
     <string name="update_permission">หากต้องการอัปเดต โปรดอนุญาตให้ AIV ติดตั้งแอป</string>
     <string name="folder_order">การเรียงในมุมมองตาราง</string>
+    <string name="folder_order_short">การจัดเรียง</string>
     <string name="folder_order_desc">กำหนดลำดับของโฟลเดอร์ในมุมมองตาราง เนื้อหาในโฟลเดอร์จะแสดงรายการใหม่ล่าสุดไว้ด้านบนเสมอ</string>
     <string name="folder_order_alpha">ตามตัวอักษร</string>
     <string name="folder_order_recent">ใหม่ล่าสุดอยู่บน</string>

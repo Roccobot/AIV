@@ -978,6 +978,7 @@
     <string name="update_untrusted">The update is not signed with AIV\'s key, so it won\'t be installed.</string>
     <string name="update_permission">To update, allow AIV to install apps.</string>
     <string name="folder_order">Grid view order</string>
+    <string name="folder_order_short">Order</string>
     <string name="folder_order_desc">Sets the order of folders in grid view. Folder contents always show the newest items first.</string>
     <string name="folder_order_alpha">Alphabetical</string>
     <string name="folder_order_recent">Most recent first</string>

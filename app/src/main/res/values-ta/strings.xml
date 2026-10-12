@@ -784,6 +784,7 @@
     <string name="update_untrusted">புதுப்பிப்பு AIV-இன் விசையால் கையொப்பமிடப்படவில்லை, எனவே நிறுவப்படாது.</string>
     <string name="update_permission">புதுப்பிக்க, ஆப்ஸை நிறுவ AIV-க்கு அனுமதி அளிக்கவும்.</string>
     <string name="folder_order">கட்டக் காட்சியில் வரிசை</string>
+    <string name="folder_order_short">வரிசை</string>
     <string name="folder_order_desc">கட்டக் காட்சியில் கோப்புறைகளின் வரிசையை அமைக்கிறது. கோப்புறைகளின் உள்ளடக்கம் எப்போதும் புதியவற்றை மேலே காட்டும்.</string>
     <string name="folder_order_alpha">அகர வரிசை</string>
     <string name="folder_order_recent">புதியவை மேலே</string>

@@ -766,6 +766,7 @@
     <string name="update_untrusted">Pembaruan tidak ditandatangani dengan kunci AIV, jadi tidak akan dipasang.</string>
     <string name="update_permission">Untuk memperbarui, izinkan AIV memasang aplikasi.</string>
     <string name="folder_order">Urutan di tampilan petak</string>
+    <string name="folder_order_short">Urutan</string>
     <string name="folder_order_desc">Mengatur urutan folder di tampilan petak. Isi folder selalu menampilkan item terbaru di atas.</string>
     <string name="folder_order_alpha">Abjad</string>
     <string name="folder_order_recent">Terbaru di atas</string>
