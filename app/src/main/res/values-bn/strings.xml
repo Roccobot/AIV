@@ -784,13 +784,14 @@
     <string name="update_untrusted">আপডেটটি AIV-এর কী দিয়ে সাইন করা নেই, তাই ইনস্টল হবে না।</string>
     <string name="update_permission">আপডেট করতে AIV-কে অ্যাপ ইনস্টল করার অনুমতি দিন।</string>
     <string name="folder_order">গ্রিড ভিউতে ক্রম</string>
+    <string name="folder_order_short">ক্রম</string>
     <string name="folder_order_desc">গ্রিড ভিউতে ফোল্ডারের ক্রম ঠিক করে। ফোল্ডারের ভেতরে সবসময় সবচেয়ে নতুন আইটেম ওপরে দেখায়।</string>
     <string name="folder_order_alpha">বর্ণানুক্রমে</string>
     <string name="folder_order_recent">সবচেয়ে নতুন ওপরে</string>
     <string name="folder_order_ask">গ্রিড ভিউতে ফোল্ডারগুলো কীভাবে সাজাতে চান? যেকোনো সময় সেটিংস থেকে ক্রম বদলাতে পারবেন।</string>
     <string name="folder_order_alpha_long">বর্ণানুক্রমিক ক্রম</string>
     <string name="favourite_folders">প্রিয় ফোল্ডার</string>
-    <string name="favourite_folders_desc">এগুলো গ্রিড ও তালিকার একেবারে ওপরে, এই ক্রমে দেখায়।</string>
+    <string name="favourite_folders_desc">এগুলো গ্রিড ও তালিকায় সবার আগে (ওপরে), আপনার পছন্দের ক্রমে দেখায়: ক্রম বদলাতে নিচের তালিকার আইটেমগুলো টেনে আনুন।</string>
     <string name="favourite_folders_none">কোনো প্রিয় ফোল্ডার নেই</string>
     <string name="folder_action_title">ফোল্ডারের জন্য একটি কাজ বেছে নিন</string>
     <string name="favourite_add">প্রিয়তে যোগ করুন</string>

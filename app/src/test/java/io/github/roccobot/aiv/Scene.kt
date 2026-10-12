@@ -69,7 +69,6 @@ internal fun Casa(
         onBin = {},
         onCornerRest = onCornerRest,
         onColumns = {},
-        onColour = {},
         listCount = true,
         listText = TextSize.NORMAL,
         treeHidden = false,

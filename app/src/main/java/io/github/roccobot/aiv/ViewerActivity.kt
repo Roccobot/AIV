@@ -3589,9 +3589,6 @@ private fun Stage(
                     // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
                     // come ogni altra voce.
                     onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
-                    // ⚠️ Come le colonne: la scorciatoia scrive la stessa preferenza del pannello,
-                    // che è la prima clausola della coppia casa/scorciatoia.
-                    onColour = { model.updateSettings(settings.copy(folderColour = it)) },
                     // Le opzioni delle altre due viste, dallo stesso popup: passano da
                     // `updateSettings` come le colonne, per la stessa ragione.
                     listCount = settings.listCount,

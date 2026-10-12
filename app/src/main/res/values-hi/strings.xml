@@ -784,13 +784,14 @@
     <string name="update_untrusted">अपडेट AIV की कुंजी से साइन नहीं है, इसलिए इंस्टॉल नहीं होगा।</string>
     <string name="update_permission">अपडेट करने के लिए AIV को ऐप इंस्टॉल करने की अनुमति दें।</string>
     <string name="folder_order">ग्रिड व्यू में क्रम</string>
+    <string name="folder_order_short">क्रम</string>
     <string name="folder_order_desc">ग्रिड व्यू में फ़ोल्डरों का क्रम तय करता है। फ़ोल्डरों के अंदर हमेशा सबसे नए आइटम सबसे ऊपर दिखते हैं।</string>
     <string name="folder_order_alpha">वर्णानुक्रम</string>
     <string name="folder_order_recent">सबसे नए ऊपर</string>
     <string name="folder_order_ask">ग्रिड व्यू में फ़ोल्डर किस क्रम में रखें? आप क्रम कभी भी सेटिंग में बदल सकते हैं।</string>
     <string name="folder_order_alpha_long">वर्णानुक्रम में</string>
     <string name="favourite_folders">पसंदीदा फ़ोल्डर</string>
-    <string name="favourite_folders_desc">ये ग्रिड और सूची में सबसे ऊपर, इसी क्रम में दिखते हैं।</string>
+    <string name="favourite_folders_desc">ये ग्रिड और सूची में सबसे पहले (ऊपर), आपकी पसंद के क्रम में दिखते हैं: क्रम बदलने के लिए नीचे की सूची के आइटम खींचें।</string>
     <string name="favourite_folders_none">कोई पसंदीदा फ़ोल्डर नहीं</string>
     <string name="folder_action_title">फ़ोल्डर के लिए कार्रवाई चुनें</string>
     <string name="favourite_add">पसंदीदा में जोड़ें</string>

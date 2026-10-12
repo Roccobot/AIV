@@ -802,13 +802,14 @@
     <string name="update_untrusted">La actualización no está firmada con la clave de AIV, así que no se instalará.</string>
     <string name="update_permission">Para actualizar, permite que AIV instale aplicaciones.</string>
     <string name="folder_order">Disposición en vista de cuadrícula</string>
+    <string name="folder_order_short">Orden</string>
     <string name="folder_order_desc">Establece el orden de las carpetas en la vista de cuadrícula. El contenido de las carpetas siempre muestra primero los elementos más recientes.</string>
     <string name="folder_order_alpha">Alfabética</string>
     <string name="folder_order_recent">Más recientes arriba</string>
     <string name="folder_order_ask">¿Cómo quieres ordenar las carpetas en la vista de cuadrícula? Puedes cambiar la disposición en cualquier momento desde los ajustes.</string>
     <string name="folder_order_alpha_long">Orden alfabético</string>
     <string name="favourite_folders">Carpetas favoritas</string>
-    <string name="favourite_folders_desc">Aparecen arriba en la cuadrícula y en la lista, en este orden.</string>
+    <string name="favourite_folders_desc">Se muestran primero (arriba) en las vistas de cuadrícula y lista, en el orden que prefieras: arrastra los elementos de la lista de abajo para reordenarlas.</string>
     <string name="favourite_folders_none">Ninguna carpeta favorita</string>
     <string name="folder_action_title">Elige una acción para la carpeta</string>
     <string name="favourite_add">Añadir a favoritas</string>

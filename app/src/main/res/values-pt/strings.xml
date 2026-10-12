@@ -802,13 +802,14 @@
     <string name="update_untrusted">A atualização não está assinada com a chave do AIV, então não será instalada.</string>
     <string name="update_permission">Para atualizar, permita que o AIV instale apps.</string>
     <string name="folder_order">Disposição na visualização em grade</string>
+    <string name="folder_order_short">Ordem</string>
     <string name="folder_order_desc">Define a ordem das pastas na visualização em grade. O conteúdo das pastas sempre mostra os itens mais recentes primeiro.</string>
     <string name="folder_order_alpha">Alfabética</string>
     <string name="folder_order_recent">Mais recentes no topo</string>
     <string name="folder_order_ask">Como você quer ordenar as pastas na visualização em grade? Você pode mudar a disposição a qualquer momento nas configurações.</string>
     <string name="folder_order_alpha_long">Ordem alfabética</string>
     <string name="favourite_folders">Pastas favoritas</string>
-    <string name="favourite_folders_desc">Aparecem no topo da grade e da lista, nesta ordem.</string>
+    <string name="favourite_folders_desc">São mostradas primeiro (no topo) nos modos grade e lista, na ordem que você preferir: arraste os itens da lista abaixo para reordená-las.</string>
     <string name="favourite_folders_none">Nenhuma pasta favorita</string>
     <string name="folder_action_title">Escolha uma ação para a pasta</string>
     <string name="favourite_add">Adicionar às favoritas</string>

@@ -488,18 +488,18 @@ fun SettingsScreen(
             HiddenFolders(settings = settings, onChange = onChange)
         }
 
-        // ⚠️ A list with commands on each row, like the info fields: the scroll is born here
-        // because the drag needs it too (see [Reorderable]).
-        Page.FAVOURITES -> {
-            val scroll = rememberScrollState()
-            Shell(
-                title = stringResource(R.string.favourite_folders),
-                onBack = { back() },
-                modifier = chrome,
-                scroll = scroll
-            ) {
-                FavouriteFolders(settings = settings, onChange = onChange, scroll = scroll)
-            }
+        // ⚠️ A list with commands on each row, like the info fields, under a fixed band: only the
+        // list scrolls, and its scroll is the one the drag needs (see [FavouriteFolders]).
+        Page.FAVOURITES -> Shell(
+            title = stringResource(R.string.favourite_folders),
+            onBack = { back() },
+            modifier = chrome,
+            scrolls = false
+        ) {
+            FavouriteFolders(
+                list = settings.favouriteFolders,
+                onList = { onChange(settings.copy(favouriteFolders = it)) }
+            )
         }
 
         Page.ZOOM -> Shell(
@@ -1505,8 +1505,11 @@ private fun FoldersPage(
     )
 }
 
-/** The name of a [FolderOrder] on its chip in the settings. The window uses longer ones. */
-private fun FolderOrder.chip(): Int = when (this) {
+/**
+ * The name of a [FolderOrder] on its chip, in the settings and in the view options. The window that
+ * asks the order uses longer ones.
+ */
+internal fun FolderOrder.chip(): Int = when (this) {
     FolderOrder.ALPHA -> R.string.folder_order_alpha
     FolderOrder.RECENT -> R.string.folder_order_recent
 }
@@ -1517,20 +1520,72 @@ private fun FolderOrder.chip(): Int = when (this) {
  *
  * ⚠️ **The knobs are those of the info fields** (*manopole identiche a quelle delle info*), that is
  * [Reorderable], and the page's own scroll reaches the drag, as on that page.
- * ⚠️ **'Aggiungi cartella' at the bottom, as in the list of the hidden ones**, with the same
- * destination dialog: a folder already there is not added twice.
+ * ⚠️ **'Aggiungi cartella' follows the content while the list is empty, and is a fixed band at the
+ * bottom once it is not** (his note A on the giro of the `5.80`): the page does not scroll as a
+ * whole, only the list does, so the button is always in sight above it, as the fixed band of
+ * 'Esporta e importa'. Its destination dialog is that of the hidden ones: a folder already there
+ * is not added twice.
+ * ⚠️ **The empty page centres its line and keeps it apart from the explanation**, the other half of
+ * the same note: with nothing under it, the line is the content of the page, not a footnote.
  * ⚠️ **The × takes a folder out at once, without asking**: a favourite hides nothing and goes back
  * with a long press, so a confirmation would protect nothing.
+ * ⚠️ **The same pieces make [FavouritesSheet]**, which the view options open over the home from the
+ * `5.90`: the list and the button are written once, and only the frame differs.
  */
 @Composable
-private fun FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit, scroll: ScrollState) {
+private fun ColumnScope.FavouriteFolders(list: List<String>, onList: (List<String>) -> Unit) {
     Detail(stringResource(R.string.favourite_folders_desc))
-    val list = settings.favouriteFolders
-    if (list.isEmpty()) Detail(stringResource(R.string.favourite_folders_none))
+    if (list.isEmpty()) {
+        FavouritesNone()
+    } else {
+        // The list's own scroll is the one the drag moves near the edges (see [Reorderable]).
+        val scroll = rememberScrollState()
+        Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(scroll)) {
+            FavouritesList(list, onList, scroll)
+        }
+    }
+    FavouritesAdd(list, onList, Modifier.padding(top = if (list.isEmpty()) 0.dp else 12.dp))
+}
+
+/**
+ * 'Cartelle preferite' over the home, from the long press on the main button (his note B on the
+ * giro of the `5.80`, mockup `homeLongPress.png`).
+ *
+ * ⚠️ **A sheet and not a trip to the settings**, for the reason written on [MarkSheet]: Back must
+ * bring him to the home he left, not up the settings stack. The sheet scrolls by itself, so the
+ * list takes no scroll of its own, and 'Aggiungi cartella' is its fixed foot.
+ */
+@Composable
+internal fun FavouritesSheet(list: List<String>, onList: (List<String>) -> Unit, onDismiss: () -> Unit) {
+    Sheet(
+        title = stringResource(R.string.favourite_folders),
+        onDismiss = onDismiss,
+        foot = { FavouritesAdd(list, onList) }
+    ) {
+        Detail(stringResource(R.string.favourite_folders_desc))
+        if (list.isEmpty()) FavouritesNone() else FavouritesList(list, onList, scroll = null)
+    }
+}
+
+/** The line of the empty page: centred, and apart from the explanation above it. */
+@Composable
+private fun FavouritesNone() {
+    Text(
+        text = stringResource(R.string.favourite_folders_none),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp)
+    )
+}
+
+/** The favourites with their knobs and their ×. */
+@Composable
+private fun FavouritesList(list: List<String>, onList: (List<String>) -> Unit, scroll: ScrollState?) {
     Reorderable(
         items = list,
         scroll = scroll,
-        onMove = { da, a -> onChange(settings.copy(favouriteFolders = list.moved(da, a))) }
+        onMove = { da, a -> onList(list.moved(da, a)) }
     ) { entry, _ ->
         Row(
             modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
@@ -1545,16 +1600,18 @@ private fun FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit, s
                 )
                 Text(hiddenShown(entry), style = MaterialTheme.typography.bodySmall)
             }
-            IconButton(onClick = { onChange(settings.copy(favouriteFolders = list - entry)) }) {
+            IconButton(onClick = { onList(list - entry) }) {
                 Icon(Icons.Default.Close, contentDescription = stringResource(R.string.favourite_remove))
             }
         }
     }
+}
+
+/** 'Aggiungi cartella', with the destination dialog it opens. */
+@Composable
+private fun FavouritesAdd(list: List<String>, onList: (List<String>) -> Unit, modifier: Modifier = Modifier) {
     var picking by remember { mutableStateOf(false) }
-    FilledTonalButton(
-        onClick = { picking = true },
-        modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
-    ) {
+    FilledTonalButton(onClick = { picking = true }, modifier = modifier.fillMaxWidth()) {
         Text(stringResource(R.string.folder_add))
     }
     if (picking) {
@@ -1574,7 +1631,7 @@ private fun FavouriteFolders(settings: Settings, onChange: (Settings) -> Unit, s
                 onDismiss = { picking = false },
                 onPick = { dir ->
                     val path = portablePath(dir.absolutePath)
-                    if (path !in list) onChange(settings.copy(favouriteFolders = list + path))
+                    if (path !in list) onList(list + path)
                     picking = false
                 },
                 alreadyListed = list.toSet()

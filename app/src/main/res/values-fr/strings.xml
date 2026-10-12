@@ -802,13 +802,14 @@
     <string name="update_untrusted">La mise à jour n\'est pas signée avec la clé d\'AIV, elle ne sera donc pas installée.</string>
     <string name="update_permission">Pour mettre à jour, autorisez AIV à installer des applications.</string>
     <string name="folder_order">Disposition en vue grille</string>
+    <string name="folder_order_short">Ordre</string>
     <string name="folder_order_desc">Définit l\'ordre des dossiers en vue grille. Le contenu des dossiers affiche toujours les éléments les plus récents en haut.</string>
     <string name="folder_order_alpha">Alphabétique</string>
     <string name="folder_order_recent">Plus récents en haut</string>
     <string name="folder_order_ask">Comment trier les dossiers en vue grille ? La disposition peut être modifiée à tout moment dans les paramètres.</string>
     <string name="folder_order_alpha_long">Ordre alphabétique</string>
     <string name="favourite_folders">Dossiers favoris</string>
-    <string name="favourite_folders_desc">Ils apparaissent en haut de la grille et de la liste, dans cet ordre.</string>
+    <string name="favourite_folders_desc">Ils s\'affichent en premier (en haut) dans les vues grille et liste, dans l\'ordre que tu préfères : fais glisser les éléments de la liste ci-dessous pour les réordonner.</string>
     <string name="favourite_folders_none">Aucun dossier favori</string>
     <string name="folder_action_title">Choisir une action pour le dossier</string>
     <string name="favourite_add">Ajouter aux favoris</string>

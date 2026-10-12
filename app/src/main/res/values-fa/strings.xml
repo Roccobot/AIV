@@ -784,13 +784,14 @@
     <string name="update_untrusted">به‌روزرسانی با کلید AIV امضا نشده است، پس نصب نمی‌شود.</string>
     <string name="update_permission">برای به‌روزرسانی، به AIV اجازهٔ نصب برنامه بدهید.</string>
     <string name="folder_order">چیدمان در نمای شبکه‌ای</string>
+    <string name="folder_order_short">ترتیب</string>
     <string name="folder_order_desc">ترتیب پوشه‌ها را در نمای شبکه‌ای تعیین می‌کند. محتوای پوشه‌ها همیشه جدیدترین موارد را در بالا نشان می‌دهد.</string>
     <string name="folder_order_alpha">الفبایی</string>
     <string name="folder_order_recent">جدیدترین‌ها در بالا</string>
     <string name="folder_order_ask">پوشه‌ها در نمای شبکه‌ای چگونه مرتب شوند؟ می‌توانید چیدمان را هر زمان از تنظیمات تغییر دهید.</string>
     <string name="folder_order_alpha_long">ترتیب الفبایی</string>
     <string name="favourite_folders">پوشه‌های برگزیده</string>
-    <string name="favourite_folders_desc">در بالای شبکه و فهرست، به همین ترتیب نمایش داده می‌شوند.</string>
+    <string name="favourite_folders_desc">در نمای شبکه و فهرست، به ترتیبی که ترجیح می‌دهید، اول (در بالا) نمایش داده می‌شوند: برای تغییر ترتیب، موارد فهرست زیر را بکشید.</string>
     <string name="favourite_folders_none">پوشهٔ برگزیده‌ای نیست</string>
     <string name="folder_action_title">کاری برای پوشه انتخاب کنید</string>
     <string name="favourite_add">افزودن به برگزیده‌ها</string>

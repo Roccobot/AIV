@@ -820,13 +820,14 @@
     <string name="update_untrusted">Обновление не подписано ключом AIV, поэтому оно не будет установлено.</string>
     <string name="update_permission">Чтобы обновить, разрешите AIV устанавливать приложения.</string>
     <string name="folder_order">Порядок в виде сетки</string>
+    <string name="folder_order_short">Порядок</string>
     <string name="folder_order_desc">Задаёт порядок папок в виде сетки. Содержимое папок всегда показывает сначала самые новые элементы.</string>
     <string name="folder_order_alpha">По алфавиту</string>
     <string name="folder_order_recent">Сначала новые</string>
     <string name="folder_order_ask">Как упорядочить папки в виде сетки? Порядок можно изменить в любой момент в настройках.</string>
     <string name="folder_order_alpha_long">Алфавитный порядок</string>
     <string name="favourite_folders">Избранные папки</string>
-    <string name="favourite_folders_desc">Они показываются вверху сетки и списка, в этом порядке.</string>
+    <string name="favourite_folders_desc">Они показываются первыми (вверху) в сетке и списке, в нужном вам порядке: перетащите элементы списка ниже, чтобы изменить порядок.</string>
     <string name="favourite_folders_none">Нет избранных папок</string>
     <string name="folder_action_title">Выберите действие для папки</string>
     <string name="favourite_add">Добавить в избранное</string>

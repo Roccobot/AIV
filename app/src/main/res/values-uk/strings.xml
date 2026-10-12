@@ -820,13 +820,14 @@
     <string name="update_untrusted">Оновлення не підписане ключем AIV, тому його не буде встановлено.</string>
     <string name="update_permission">Щоб оновити, дозвольте AIV встановлювати застосунки.</string>
     <string name="folder_order">Порядок у вигляді сітки</string>
+    <string name="folder_order_short">Порядок</string>
     <string name="folder_order_desc">Задає порядок папок у вигляді сітки. Вміст папок завжди показує спочатку найновіші елементи.</string>
     <string name="folder_order_alpha">За абеткою</string>
     <string name="folder_order_recent">Спочатку нові</string>
     <string name="folder_order_ask">Як упорядкувати папки у вигляді сітки? Порядок можна змінити будь-коли в налаштуваннях.</string>
     <string name="folder_order_alpha_long">Алфавітний порядок</string>
     <string name="favourite_folders">Улюблені папки</string>
-    <string name="favourite_folders_desc">Вони показуються вгорі сітки та списку, у цьому порядку.</string>
+    <string name="favourite_folders_desc">Вони показуються першими (вгорі) в сітці та списку, у потрібному вам порядку: перетягніть елементи списку нижче, щоб змінити порядок.</string>
     <string name="favourite_folders_none">Немає улюблених папок</string>
     <string name="folder_action_title">Виберіть дію для папки</string>
     <string name="favourite_add">Додати до улюблених</string>

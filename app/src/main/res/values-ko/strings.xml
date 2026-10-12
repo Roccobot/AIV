@@ -766,13 +766,14 @@
     <string name="update_untrusted">업데이트가 AIV의 키로 서명되지 않아 설치하지 않습니다.</string>
     <string name="update_permission">업데이트하려면 AIV가 앱을 설치하도록 허용하세요.</string>
     <string name="folder_order">격자 보기 정렬</string>
+    <string name="folder_order_short">정렬</string>
     <string name="folder_order_desc">격자 보기에서 폴더 순서를 정합니다. 폴더 안의 항목은 항상 최신 항목이 위에 표시됩니다.</string>
     <string name="folder_order_alpha">가나다순</string>
     <string name="folder_order_recent">최신순</string>
     <string name="folder_order_ask">격자 보기에서 폴더를 어떻게 정렬할까요? 정렬은 설정에서 언제든지 바꿀 수 있습니다.</string>
     <string name="folder_order_alpha_long">가나다순으로 정렬</string>
     <string name="favourite_folders">즐겨찾는 폴더</string>
-    <string name="favourite_folders_desc">격자와 목록의 맨 위에 이 순서로 표시됩니다.</string>
+    <string name="favourite_folders_desc">격자와 목록 보기에서 원하는 순서대로 맨 위에 먼저 표시됩니다. 아래 목록의 항목을 끌어서 순서를 바꾸세요.</string>
     <string name="favourite_folders_none">즐겨찾는 폴더가 없습니다</string>
     <string name="folder_action_title">폴더 작업 선택</string>
     <string name="favourite_add">즐겨찾기에 추가</string>

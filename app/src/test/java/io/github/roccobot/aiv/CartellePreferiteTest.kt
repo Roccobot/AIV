@@ -1,9 +1,11 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.flow.first
@@ -149,5 +151,36 @@ class CartellePreferiteTest {
         scene.onNodeWithText(app.getString(R.string.folder_order_ask)).assertExists()
         scene.onNodeWithText(app.getString(R.string.folder_order_recent)).performClick()
         assertEquals(FolderOrder.RECENT, scelta?.order)
+    }
+
+    /**
+     * **Case 7: with a long list 'Aggiungi cartella' stays in sight, under the list.**
+     *
+     * His note A on the giro of the `5.80`: the button follows the content while the list is empty,
+     * and becomes a fixed band at the bottom once it is not. Forty folders are taller than the
+     * window, so a button at the end of a page that scrolls as a whole is in the tree but off screen.
+     * ⚠️ **Counter-tested** with the page of the `5.80` (the whole page scrolling, the button after
+     * the list): `assertIsDisplayed` fails on the button.
+     */
+    @Test
+    fun `con tante preferite Aggiungi cartella resta in vista`() {
+        val tante = (1..40).map { "/storage/emulated/0/Pictures/Cartella$it" }
+        scene.setContent {
+            AivTheme(darkTheme = false) {
+                SettingsScreen(
+                    settings = Settings(favouriteFolders = tante),
+                    onChange = {},
+                    onStartFolder = {},
+                    onResetHints = {},
+                    onChooseEditor = {},
+                    onBack = {}
+                )
+            }
+        }
+        scene.onNodeWithText(app.getString(R.string.settings_group_browse)).performScrollTo().performClick()
+        scene.waitForIdle()
+        scene.onNodeWithText(app.getString(R.string.favourite_folders)).performScrollTo().performClick()
+        scene.waitForIdle()
+        scene.onNodeWithText(app.getString(R.string.folder_add)).assertIsDisplayed()
     }
 }

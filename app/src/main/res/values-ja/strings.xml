@@ -766,13 +766,14 @@
     <string name="update_untrusted">このアップデートはAIVの鍵で署名されていないため、インストールしません。</string>
     <string name="update_permission">アップデートするには、AIVにアプリのインストールを許可してください。</string>
     <string name="folder_order">グリッド表示の並び順</string>
+    <string name="folder_order_short">並び順</string>
     <string name="folder_order_desc">グリッド表示でのフォルダの並び順を設定します。フォルダの中身は常に新しい項目が上に表示されます。</string>
     <string name="folder_order_alpha">名前順</string>
     <string name="folder_order_recent">新しい順</string>
     <string name="folder_order_ask">グリッド表示のフォルダをどの順に並べますか？並び順は設定からいつでも変更できます。</string>
     <string name="folder_order_alpha_long">名前順で並べる</string>
     <string name="favourite_folders">お気に入りのフォルダ</string>
-    <string name="favourite_folders_desc">グリッドとリストの一番上に、この順番で表示されます。</string>
+    <string name="favourite_folders_desc">グリッドとリストの表示で、お好みの順番で一番上に表示されます。下のリストの項目をドラッグして並べ替えます。</string>
     <string name="favourite_folders_none">お気に入りのフォルダはありません</string>
     <string name="folder_action_title">フォルダの操作を選択</string>
     <string name="favourite_add">お気に入りに追加</string>

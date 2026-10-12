@@ -766,13 +766,14 @@
     <string name="update_untrusted">此更新未使用 AIV 的金鑰簽署，因此不會安裝。</string>
     <string name="update_permission">若要更新，請允許 AIV 安裝應用程式。</string>
     <string name="folder_order">格狀檢視排序</string>
+    <string name="folder_order_short">排列順序</string>
     <string name="folder_order_desc">設定格狀檢視中資料夾的順序。資料夾內容一律將最新的項目顯示在最上方。</string>
     <string name="folder_order_alpha">依字母</string>
     <string name="folder_order_recent">最新的在上</string>
     <string name="folder_order_ask">格狀檢視中的資料夾要如何排序？你可以隨時在設定中變更排序。</string>
     <string name="folder_order_alpha_long">依字母順序</string>
     <string name="favourite_folders">收藏的資料夾</string>
-    <string name="favourite_folders_desc">它們會依此順序顯示在格狀檢視和清單的頂端。</string>
+    <string name="favourite_folders_desc">它們會依你喜歡的順序最先顯示在格狀和清單檢視的頂端：拖曳下方清單中的項目即可重新排序。</string>
     <string name="favourite_folders_none">沒有收藏的資料夾</string>
     <string name="folder_action_title">選擇對資料夾的動作</string>
     <string name="favourite_add">加入收藏</string>

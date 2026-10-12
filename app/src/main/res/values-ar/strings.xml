@@ -856,13 +856,14 @@
     <string name="update_untrusted">التحديث غير موقّع بمفتاح AIV، لذا لن يُثبَّت.</string>
     <string name="update_permission">للتحديث، اسمح لـ AIV بتثبيت التطبيقات.</string>
     <string name="folder_order">الترتيب في عرض الشبكة</string>
+    <string name="folder_order_short">الترتيب</string>
     <string name="folder_order_desc">يحدد ترتيب المجلدات في عرض الشبكة. يعرض محتوى المجلدات دائمًا أحدث العناصر في الأعلى.</string>
     <string name="folder_order_alpha">أبجدي</string>
     <string name="folder_order_recent">الأحدث في الأعلى</string>
     <string name="folder_order_ask">كيف تريد ترتيب المجلدات في عرض الشبكة؟ يمكنك تغيير الترتيب في أي وقت من الإعدادات.</string>
     <string name="folder_order_alpha_long">ترتيب أبجدي</string>
     <string name="favourite_folders">المجلدات المفضلة</string>
-    <string name="favourite_folders_desc">تظهر أعلى الشبكة والقائمة، بهذا الترتيب.</string>
+    <string name="favourite_folders_desc">تظهر أولًا (في الأعلى) في عرضَي الشبكة والقائمة، بالترتيب الذي تفضّله: اسحب عناصر القائمة أدناه لإعادة ترتيبها.</string>
     <string name="favourite_folders_none">لا توجد مجلدات مفضلة</string>
     <string name="folder_action_title">اختر إجراءً للمجلد</string>
     <string name="favourite_add">إضافة إلى المفضلة</string>
