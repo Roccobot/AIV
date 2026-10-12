@@ -820,7 +820,7 @@
     <string name="update_untrusted">Оновлення не підписане ключем AIV, тому його не буде встановлено.</string>
     <string name="update_permission">Щоб оновити, дозвольте AIV встановлювати застосунки.</string>
     <string name="folder_order">Порядок у вигляді сітки</string>
-    <string name="folder_order_short">Порядок</string>
+    <string name="folder_order_short">Порядок папок</string>
     <string name="folder_order_desc">Задає порядок папок у вигляді сітки. Вміст папок завжди показує спочатку найновіші елементи.</string>
     <string name="folder_order_alpha">За абеткою</string>
     <string name="folder_order_recent">Спочатку нові</string>

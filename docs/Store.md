@@ -100,8 +100,8 @@ Respect
 - **Grafica richiesta da Google**: icona 512 x 512 in PNG, immagine in evidenza 1024 x 500, almeno
   due schermate del telefono. Con la sua risposta G1 a `d-store-grafica` (giro della `5.80`)
   icona e immagine in evidenza le compone `tools/store-graphics.py` in `docs/store/`, coi pezzi di
-  `og-image.py` (l'icona intera, senza ritaglio, perché la maschera la applica Google); le
-  schermate le fa lui dal telefono. Le schermate di `publish/schermate/` sono della paginetta e
+  `og-image.py` (l'icona intera, senza ritaglio, perché la maschera la applica Google), e lui le ha
+  approvate così (H1 a `d-store-immagini`, giro della `5.90`); le schermate le fa lui dal telefono. Le schermate di `publish/schermate/` sono della paginetta e
   non hanno le misure di Google.
 
 ## 🛡️ Le risposte ai moduli della Console

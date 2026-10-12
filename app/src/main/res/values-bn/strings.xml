@@ -784,7 +784,7 @@
     <string name="update_untrusted">আপডেটটি AIV-এর কী দিয়ে সাইন করা নেই, তাই ইনস্টল হবে না।</string>
     <string name="update_permission">আপডেট করতে AIV-কে অ্যাপ ইনস্টল করার অনুমতি দিন।</string>
     <string name="folder_order">গ্রিড ভিউতে ক্রম</string>
-    <string name="folder_order_short">ক্রম</string>
+    <string name="folder_order_short">ফোল্ডারের ক্রম</string>
     <string name="folder_order_desc">গ্রিড ভিউতে ফোল্ডারের ক্রম ঠিক করে। ফোল্ডারের ভেতরে সবসময় সবচেয়ে নতুন আইটেম ওপরে দেখায়।</string>
     <string name="folder_order_alpha">বর্ণানুক্রমে</string>
     <string name="folder_order_recent">সবচেয়ে নতুন ওপরে</string>

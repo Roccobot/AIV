@@ -766,7 +766,7 @@
     <string name="update_untrusted">このアップデートはAIVの鍵で署名されていないため、インストールしません。</string>
     <string name="update_permission">アップデートするには、AIVにアプリのインストールを許可してください。</string>
     <string name="folder_order">グリッド表示の並び順</string>
-    <string name="folder_order_short">並び順</string>
+    <string name="folder_order_short">フォルダの並び順</string>
     <string name="folder_order_desc">グリッド表示でのフォルダの並び順を設定します。フォルダの中身は常に新しい項目が上に表示されます。</string>
     <string name="folder_order_alpha">名前順</string>
     <string name="folder_order_recent">新しい順</string>
