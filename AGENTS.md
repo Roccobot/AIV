@@ -296,8 +296,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   il titolo, `og:url` o la schermata chiara (`Rules.md` § '🔗 L'anteprima del link della
   paginetta').
 - **Come si chiamano le cose**: una funzione si chiama con l'etichetta della sua voce nelle
-  impostazioni, e una prova non ovvia si scrive passo passo. Quindi 'intestazione' ('frontespizio'
-  è morto, il codice resta `front`), 'gradiente', 'FAB' e non 'tastino', 'Sfocatura dietro i
+  impostazioni, e una prova non ovvia si scrive passo passo. Quindi 'intestazione' (non
+  'frontespizio', anche se il codice resta `front`), 'gradiente', 'FAB' e non 'tastino', 'Sfocatura dietro i
   pannelli' e non 'velo', 'immagine' e non 'fotografia', 'editor semplice' ed 'editor completo',
   copertina 'predefinita' e non 'automatica', 'file di impostazioni', 'tondo' e non 'pallino',
   'stili' e non 'preset', 'elemento' del Disegno e non 'segno'; ogni peso si scrive con
@@ -306,12 +306,11 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   `Modifier.lowered`. Modale vera solo una finestra che raccoglie un input scritto, e allora usa
   **insieme** `Modifier.lowered(null)` e `properties = loweredWindow(null)`: senza la seconda non è
   modale e non dà errore (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra').
-- ⚠️ **Un nodo che copre lo schermo esiste solo quando serve**: la `1.70` si avviava senza
-  rispondere a nessun tocco, e nessun compilatore lo vedeva (`Rules.md` § '👆 Che cosa fa il tocco
-  FUORI da una finestra'). Un colore letto con `colorResource` non segue il tema scelto dentro
+- ⚠️ **Un nodo che copre lo schermo esiste solo quando serve**, o l'app non risponde ai tocchi e
+  nessun compilatore lo vede (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'). Un colore letto con `colorResource` non segue il tema scelto dentro
   l'app (`Rules.md` § '🌗 Il tema scelto DENTRO l'app non è quello di sistema').
 - ⚠️ **Il conto dell'editor completo vive in AGSL, una volta sola**: nessun compilatore guarda
-  quella stringa (nella `2.14` non compilava), la presidia `ContoTest`, e sotto Android 13 l'editor
+  quella stringa, la presidia `ContoTest`, e sotto Android 13 l'editor
   completo non c'è (`Rules.md` § '🎚️ L'editor completo, e il conto che esiste in una copia sola').
 - **Un disegno vive in `res/drawable/ic_<nome>.xml`, e `Glyphs.kt` è il catalogo**: `aapt2` non
   guarda `android:pathData`; a zero pixel di scarto vince Material, e gli angoli convessi esterni
