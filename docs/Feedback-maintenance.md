@@ -184,12 +184,19 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     `plainAfterCode` la sposta fuori all'evento `input`. Un codice vuoto non si scrive e non si
     rilegge: prima diventava due apici inversi, e al caricamento tornava come una pastiglia vuota
     che non si cancellava.
-  - **I simboli dei tasti del Mac si scrivono da tastiera** (richiesta di Rocco del 2026-10-13):
-    `⌘⌃C` scrive `⌃`, `⌘⇧C` `⌘`, `⌘⇧O` `⌥`, `⌘⇧S` `⇧`, `⌘⇧E` `⏎`. La tabella è `KEY_SYMBOLS` in
-    `feedback-format.js`; le combinazioni vogliono sempre `⌘`, e il tasto si riconosce dalla sua
-    posizione (`event.code`), perché `⇧` cambia la lettera che il browser riporta. Una combinazione
-    che il browser tiene per sé non arriva alla pagina, e si vede solo sul Mac. Dalla stessa
-    sera anche tre emoji: `⌘⇧K` `✅`, `⌘⇧N` `❌`, `⌘⇧M` `⚠️`.
+  - **I simboli dei tasti del Mac si scrivono da tastiera e dalla fila sopra Altro** (richieste
+    di Rocco del 2026-10-13, la fila dal suo mockup): `⌘⇧C` scrive `⌘`, `⌘⇧S` `⇧`, `⌘⇧O` `⌥`,
+    `⌘⌃C` `⌃`, `⌘⇧ù` `→`, `⌘⇧E` e `⌘⇧⏎` `⏎`, `⌘⇧X` `×`, `⌘⇧K` `✅`, `⌘⇧N` `❌`, `⌘⇧M` `⚠️`. La
+    tabella è una sola, `SYMBOL_KEYS` in `feedback-format.js`, con simbolo, nome, tasti e il testo
+    del tooltip, e da lì nascono scorciatoie e fila. Le combinazioni vogliono sempre `⌘`, e il tasto
+    si riconosce dalla sua posizione (`event.code`), perché `⇧` cambia la lettera che il browser
+    riporta: `ù` è `Backslash` su una tastiera ISO, e per gli altri casi valgono anche le sue lettere
+    (`ù`, `§`). Una combinazione che il browser tiene per sé non arriva alla pagina, e si vede solo
+    sul Mac.
+    - La fila vive sopra il campo di Altro, solo su desktop (sotto i 720 px è nascosta): dieci tasti
+      nell'ordine del mockup, col nome e la scorciatoia nel tooltip. Un clic scrive il simbolo dove
+      si trova il cursore, in qualunque campo: i tasti non prendono il fuoco, e se il fuoco è andato
+      altrove torna all'ultimo campo in cui si è scritto, col suo cursore; Altro se non ce n'è uno.
   - **Le emoji sono Noto Color Emoji di Google** (richiesta di Rocco del 2026-10-13), nell'ultima
     versione di Google Fonts: `tools/feedback-emoji.py` la scarica in `publish/assets/noto-emoji/`
     e riscrive il blocco fra i marcatori `noto-emoji` di `feedback.css`. Si rilancia per

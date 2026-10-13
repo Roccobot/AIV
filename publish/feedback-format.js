@@ -577,17 +577,28 @@
     const code = !editor.plain && codeAt(editor, range.startContainer);
     editor.box.parentElement.querySelector('[data-format="code"]').setAttribute("aria-pressed", String(Boolean(code)));
   }
-  /* The Mac's key symbols from the keyboard (his request of 2026-10-13): ⌘ with ⌃ or ⇧ and a
-     letter. Only with ⌘, so ⌃C and ⇧C elsewhere stay what they are; by the key's place
-     (event.code), because ⇧ and ⌥ change the letter event.key reports. */
-  // The three outcome emoji came with the second request of the same day.
-  const KEY_SYMBOLS = {
-    "Control+KeyC": "⌃", "Shift+KeyC": "⌘", "Shift+KeyO": "⌥", "Shift+KeyS": "⇧", "Shift+KeyE": "⏎",
-    "Shift+KeyK": "✅", "Shift+KeyN": "❌", "Shift+KeyM": "⚠️"
-  };
+  /* The Mac's key symbols and three outcome emoji, from the keyboard and from the row over Altro
+     (his requests of 2026-10-13, the row from his mockup, in its order). A shortcut is ⌘ with ⌃
+     or ⇧ and a key: only with ⌘, so ⌃C and ⇧C elsewhere stay what they are. A key is named by
+     its place (event.code), because ⇧ and ⌥ change the letter event.key reports; the ù key is
+     Backslash on an ISO keyboard, and its letters (ù, and § with ⇧) are there too, for a layout
+     that puts it elsewhere. `shown` is what the tooltip says. */
+  const SYMBOL_KEYS = [
+    {symbol: "⌘", name: "Comando", keys: ["Shift+KeyC"], shown: "⌘⇧C"},
+    {symbol: "⇧", name: "Maiuscole", keys: ["Shift+KeyS"], shown: "⌘⇧S"},
+    {symbol: "⌥", name: "Opzione", keys: ["Shift+KeyO"], shown: "⌘⇧O"},
+    {symbol: "⌃", name: "Controllo", keys: ["Control+KeyC"], shown: "⌘⌃C"},
+    {symbol: "→", name: "Freccia", keys: ["Shift+Backslash", "Shift+ù", "Shift+§"], shown: "⌘⇧ù"},
+    {symbol: "⏎", name: "Invio", keys: ["Shift+KeyE", "Shift+Enter", "Shift+NumpadEnter"], shown: "⌘⇧E, ⌘⇧⏎"},
+    {symbol: "×", name: "Per", keys: ["Shift+KeyX"], shown: "⌘⇧X"},
+    {symbol: "✅", name: "Spunta", keys: ["Shift+KeyK"], shown: "⌘⇧K"},
+    {symbol: "❌", name: "Croce", keys: ["Shift+KeyN"], shown: "⌘⇧N"},
+    {symbol: "⚠️", name: "Avviso", keys: ["Shift+KeyM"], shown: "⌘⇧M"}
+  ];
   function keySymbol(event) {
     if (!event.metaKey || event.altKey || event.ctrlKey === event.shiftKey) return null;
-    return KEY_SYMBOLS[(event.ctrlKey ? "Control+" : "Shift+") + event.code] || null;
+    const held = event.ctrlKey ? "Control+" : "Shift+";
+    return SYMBOL_KEYS.find(entry => entry.keys.includes(held + event.code) || entry.keys.includes(held + event.key))?.symbol || null;
   }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
@@ -837,6 +848,49 @@
   function writing() {
     return editors.find(editor => editor.box === document.activeElement && !editor.area.disabled) || null;
   }
+  // --- The row of symbols over Altro, on desktop (his mockup of 2026-10-13) ---
+  /* A key writes its symbol where the caret is, in whatever field: the keys never take the focus
+     (pointerdown), and when it has gone elsewhere the last field written in gets it back, with
+     its caret. Altro is the field when none has been. The row is hidden on a phone by the CSS. */
+  let lastField = null;
+  document.addEventListener("focusin", event => {
+    if (event.target.matches?.(".rich-editor, input[type=text], input:not([type]), textarea")) lastField = event.target;
+  });
+  function writeSymbol(symbol) {
+    const usable = lastField?.isConnected && lastField.getClientRects().length && lastField.getAttribute("aria-disabled") !== "true" && !lastField.disabled;
+    const field = usable ? lastField : document.getElementById("notes-editor");
+    const editor = editors.find(each => each.box === field);
+    if (editor) {
+      if (editor.area.disabled) return;
+      field.focus({preventScroll: true});
+      selection(editor);
+      editor.before = selectionOf(editor);
+      document.execCommand("insertText", false, symbol);
+      return;
+    }
+    if (!field) return;
+    field.focus({preventScroll: true});
+    field.setRangeText(symbol, field.selectionStart, field.selectionEnd, "end");
+    field.dispatchEvent(new Event("input", {bubbles: true}));
+  }
+  const symbolKeys = [];
+  const altroHeading = document.querySelector("#extra-section > h2");
+  if (altroHeading) {
+    const row = node("div", undefined, "symbol-keys");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", "Simboli");
+    for (const entry of SYMBOL_KEYS) {
+      const key = node("button", entry.symbol);
+      key.type = "button";
+      key.title = entry.name + " (" + entry.shown + ")";
+      key.setAttribute("aria-label", entry.name);
+      key.addEventListener("pointerdown", event => event.preventDefault());
+      key.addEventListener("click", () => writeSymbol(entry.symbol));
+      symbolKeys.push(key);
+      row.append(key);
+    }
+    altroHeading.after(row);
+  }
   window.feedbackFormatting = {
     refresh: () => editors.forEach(render),
     // Whether a field is being written in now: an attachment click then writes its name there.
@@ -853,9 +907,12 @@
       sync(editor, "format");
       return true;
     },
-    setDisabled: disabled => editors.forEach(editor => {
-      editor.box.contentEditable = String(!disabled);
-      editor.box.setAttribute("aria-disabled", String(disabled));
-    })
+    setDisabled: disabled => {
+      editors.forEach(editor => {
+        editor.box.contentEditable = String(!disabled);
+        editor.box.setAttribute("aria-disabled", String(disabled));
+      });
+      symbolKeys.forEach(key => { key.disabled = disabled; });
+    }
   };
 })();
