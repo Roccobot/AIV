@@ -807,6 +807,24 @@ def check(path):
             for combo in ['Meta+Shift+k', 'Meta+Shift+n', 'Meta+Shift+m']:
                 field.press(combo)
             expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎✅❌⚠️')
+            # And, from a later request of the same day: ⌘⇧X ×, ⌘⇧ù → (the ù key, Backslash by
+            # place), and ⌘⇧⏎ as a second way to ⏎.
+            for combo in ['Meta+Shift+x', 'Meta+Shift+Backslash', 'Meta+Shift+Enter']:
+                field.press(combo)
+            expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎✅❌⚠️×→⏎')
+            # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys in the
+            # mockup's order, each with its shortcut in the tooltip, and a click writes the symbol
+            # where the caret is, here a proof card's field and not Altro.
+            row = formatting.locator('#extra-section > .symbol-keys button')
+            expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠️'])
+            assert formatting.locator('#extra-section > .symbol-keys button').nth(5).get_attribute('title').endswith('(⌘⇧E, ⌘⇧⏎)')
+            assert formatting.evaluate("document.querySelector('#extra-section > .symbol-keys').getBoundingClientRect().bottom <= document.querySelector('#notes-editor').getBoundingClientRect().top")
+            fill_plain(field, 'ab')
+            select(field, 1, 1)
+            row.nth(6).click()
+            expect(stored).to_have_value('a×b')
+            assert field.evaluate('(box) => box === document.activeElement'), 'Il campo resta quello in cui si scriveva.'
+            expect(formatting.locator('#notes')).not_to_have_value(re.compile('×'))
             for width in [320,390,800,1280]:
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -871,6 +889,8 @@ def check(path):
             touch.goto(url)
             expect(touch.locator('#save')).to_be_enabled()
             touch_field = touch.locator('.test .rich-editor').first
+            # The row of symbols is a desktop row: a phone has no ⌘ to learn the shortcuts with.
+            expect(touch.locator('#extra-section > .symbol-keys')).to_be_hidden()
             touch_field.fill('mobile')
             select(touch_field,0,6)
             touch.locator('.test').first.locator('[data-format="bold"]').tap()

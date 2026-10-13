@@ -1110,6 +1110,33 @@ main > .feedback-columns {
   gap: 4px;
   margin-top: 0;
 }
+/* The row of symbols over Altro's field (his mockup of 2026-10-13): ten equal keys, 44px high
+   like the other rows of Altro, built by feedback-format.js. Desktop only: hidden on a phone. */
+.symbol-keys {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+}
+.symbol-keys > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  /* Lighter than the format keys, as in the mockup; the emoji keep their own colours. */
+  color: var(--muted);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+}
+@media (max-width: 720px) {
+  .symbol-keys {
+    display: none;
+  }
+}
 /* Dashed + fills the row left of the format tools (page Altro and overlay). */
 .altro-format-cluster {
   display: flex;
