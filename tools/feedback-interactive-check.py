@@ -798,19 +798,21 @@ def check(path):
             expect(stored).to_have_value('x `abcq`')
             # The Mac's key symbols and three outcome emoji from the keyboard, with the keys Rocco
             # assigned on 2026-10-13, in the row's order: ⌘⇧C ⌘, ⌘⇧M and ⌘⇧S ⇧, ⌘⇧O and ⌘⇧A ⌥,
-            # ⌘⇧Ì ⌃ (the ì key, Equal by place), ⌘⇧Ù → (the ù key, Backslash by place), ⌘⇧⏎ and
-            # ⌘⇧E ⏎, ⌘⇧X ×, ⌘⇧K ✅, ⌘⇧N ❌, ⌘⇧P ⚠️. They go in as typed letters, so ⌘Z groups them
-            # like typing.
+            # ⌘⇧Ì ⌃ (the ì key, Equal by place), ⌘⇧Ù → (the ù key, Backslash by place), ⌘⇧⏎ ⏎,
+            # ⌘⇧X ×, ⌘⇧K ✅, ⌘⇧N ❌, ⌘⇧P ⚠️. They go in as typed letters, so ⌘Z groups them like
+            # typing.
             fill_plain(field, 'tasti ')
             field.press('End')
             for combo in ['Meta+Shift+c', 'Meta+Shift+m', 'Meta+Shift+s', 'Meta+Shift+o', 'Meta+Shift+a',
-                          'Meta+Shift+Equal', 'Meta+Shift+Backslash', 'Meta+Shift+Enter', 'Meta+Shift+e',
+                          'Meta+Shift+Equal', 'Meta+Shift+Backslash', 'Meta+Shift+Enter',
                           'Meta+Shift+x', 'Meta+Shift+k', 'Meta+Shift+n', 'Meta+Shift+p']:
                 field.press(combo)
-            expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎⏎×✅❌⚠️')
-            # ⌘⌃C wrote ⌃ until that day, and no longer does.
+            expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎×✅❌⚠️')
+            # ⌘⌃C wrote ⌃ until that day, and no longer does; ⌘⇧E wrote ⏎ until the same evening,
+            # and no longer does, because another utility on Rocco's Mac uses it.
             field.press('Meta+Control+c')
-            expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎⏎×✅❌⚠️')
+            field.press('Meta+Shift+e')
+            expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎×✅❌⚠️')
             # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys 40px high
             # in the mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
             # writes the symbol where the caret is, here a proof card's field and not Altro.
@@ -818,7 +820,7 @@ def check(path):
             expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠️'])
             gap = ' ' * 4
             assert [row.nth(index).get_attribute('title') for index in range(10)] == [
-                '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎' + gap + '⌘⇧E',
+                '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎',
                 '⌘⇧X', '⌘⇧K', '⌘⇧N', '⌘⇧P']
             assert row.first.evaluate('(key) => key.getBoundingClientRect().height') == 40
             assert formatting.evaluate("document.querySelector('#extra-section > .symbol-keys').getBoundingClientRect().bottom <= document.querySelector('#notes-editor').getBoundingClientRect().top")
