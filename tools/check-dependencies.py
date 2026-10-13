@@ -6,10 +6,10 @@ universal rule is in rules/Roccobot.md of Roccobot/tools).
     tools/check-dependencies.py
 
 The version in use comes from where it is set: scripts/markdown/package.json for the npm
-packages, Package.resolved for the Swift packages, the file an `in_use` entry names (a font's
-Google Fonts version, written by the script that copies it), the register itself for what was
-ported or followed. GitHub is read with `gh` (authenticated), npm with `npm view`, Google Fonts
-with `curl`. Nothing is changed:
+packages, Package.resolved for the Swift packages, what an `in_use` entry names (a pattern in
+a file, such as a version catalogue, or a font file's own version), the register itself for
+what was ported or followed. GitHub is read with `gh` (authenticated), npm with `npm view`, and
+Google Fonts, the font files, Maven (Google and Central) and Gradle with `curl`. Nothing is changed:
 after reading a newer version, its number goes in the register (or the manifest) by hand, in
 the commit that brings in what was worth taking.
 Exits 1 when something is newer, 0 when everything is current.
@@ -20,6 +20,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,15 +43,62 @@ def file_version(repo, path):
     return match[1] if match else '?'
 
 
-def google_fonts_latest(family):
-    # A desktop Chrome, as tools/feedback-emoji.py asks: the version is in the files' addresses.
+def fetch(url):
+    # curl, not urllib, for the same reason as npm above. A desktop Chrome, as
+    # tools/feedback-emoji.py asks Google Fonts: the version is in the files' addresses.
     agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
-    css = subprocess.run(['curl', '-s', '-A', agent, f'https://fonts.googleapis.com/css2?family={family}'], capture_output=True, text=True, check=True).stdout
-    match = re.search(r'fonts\.gstatic\.com/s/[a-z]+/(v\d+)/', css)
+    # Up to six tries, each waiting twice as long (1 to 32 s): Maven Central answers 429 (too
+    # many requests) to about one call in three from a shared address, and serves the same file
+    # a moment later. curl's own --retry gave up too soon.
+    for attempt in range(6):
+        done = subprocess.run(['curl', '-sfL', '-A', agent, url], capture_output=True)
+        if done.returncode == 0:
+            return done.stdout
+        time.sleep(2 ** attempt)
+    raise SystemExit(f'{url} did not answer after six tries')
+
+
+def google_fonts_latest(family):
+    match = re.search(r'fonts\.gstatic\.com/s/[a-z]+/(v\d+)/', fetch(f'https://fonts.googleapis.com/css2?family={family}').decode())
     return match[1] if match else '?'
 
 
+def font_version(data):
+    """The number of a TrueType font's version string (name ID 5), read without fontTools."""
+    tables = int.from_bytes(data[4:6], 'big')
+    for index in range(tables):
+        entry = data[12 + 16 * index:28 + 16 * index]
+        if entry[:4] != b'name':
+            continue
+        start = int.from_bytes(entry[8:12], 'big')
+        count, strings = int.from_bytes(data[start + 2:start + 4], 'big'), start + int.from_bytes(data[start + 4:start + 6], 'big')
+        for record in range(count):
+            platform, _, _, name, length, offset = (int.from_bytes(data[start + 6 + 12 * record + 2 * k:start + 8 + 12 * record + 2 * k], 'big') for k in range(6))
+            if name == 5:
+                raw = data[strings + offset:strings + offset + length]
+                text = raw.decode('utf-16-be') if platform in (0, 3) else raw.decode('latin-1')
+                match = re.search(r'\d+\.\d+', text)
+                return match[0] if match else text
+    return '?'
+
+
+# A pre-release is skipped unless the entry follows that channel too ("channel": "any").
+PRERELEASE = re.compile(r'[-.](alpha|beta|rc|dev|snapshot|m\d)', re.IGNORECASE)
+MAVEN = {'google': 'https://dl.google.com/android/maven2', 'central': 'https://repo1.maven.org/maven2'}
+
+
+def maven_latest(dependency):
+    group, artifact = dependency['coordinates'].split(':')
+    metadata = fetch(f"{MAVEN[dependency['repository']]}/{group.replace('.', '/')}/{artifact}/maven-metadata.xml").decode()
+    versions = re.findall(r'<version>([^<]+)</version>', metadata)
+    if dependency.get('channel') != 'any':
+        versions = [version for version in versions if not PRERELEASE.search(version)]
+    return versions[-1] if versions else '?'
+
+
 def in_use(dependency, manifests, resolved):
+    if 'font' in dependency.get('in_use', {}):
+        return font_version((ROOT / dependency['in_use']['font']).read_bytes())
     if 'in_use' in dependency:
         match = re.search(dependency['in_use']['pattern'], (ROOT / dependency['in_use']['file']).read_text())
         return match[1] if match else '?'
@@ -73,6 +121,12 @@ def latest(dependency):
         return gh(f"repos/{dependency['repo']}/commits?path={dependency['path']}&per_page=1")[0]['sha'][:7]
     if source == 'google-fonts':
         return google_fonts_latest(dependency['family'])
+    if source == 'font-file':
+        return font_version(fetch(dependency['url']))
+    if source == 'maven':
+        return maven_latest(dependency)
+    if source == 'gradle':
+        return json.loads(fetch('https://services.gradle.org/versions/current'))['version']
     raise SystemExit(f'unknown source: {source}')
 
 

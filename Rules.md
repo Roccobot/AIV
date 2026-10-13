@@ -1119,9 +1119,13 @@ il job le scrive su disco per la durata di una sola esecuzione.
   documento vivo del progetto').
 - **`tools/check-dependencies.py`**: confronta le dipendenze di `docs/Dependencies.json` con le
   ultime versioni pubblicate, e si lancia prima di ogni release (`Roccobot.md` § '🔗 Le dipendenze
-  si seguono'). Il registro è nato il 2026-10-13 con Noto Color Emoji, le emoji del DF, che
-  `tools/feedback-emoji.py` porta all'ultima versione; ⚠️ le librerie dell'app
-  (`gradle/libs.versions.toml`) non ci sono ancora.
+  si seguono'). Contiene le librerie del catalogo `gradle/libs.versions.toml`, Gradle, i font
+  dell'editor e quelli del DF (Roboto e Noto Color Emoji, che `tools/feedback-emoji.py` porta
+  all'ultima versione). La versione in uso si legge dove è scritta, l'ultima da Maven (Google e
+  Central), da Gradle, da Google Fonts e dai file dei font in `google/fonts`. `material3` segue
+  anche le pre-release, perché l'alpha è voluta. ⚠️ Una libreria nuova nel catalogo entra anche
+  nel registro, o nessuno la segue. Lo script è una copia di quello di Aomidori: chi tocca l'uno
+  aggiorna l'altro.
 - **`tools/i18n-check.py`**, dalla radice: confronta tutte le lingue con l'inglese (chiavi
   mancanti, segnaposto, categorie di plurale, caratteri vietati) e deve dire **28 lingue, 0
   problemi**: un numero più basso vuol dire che una cartella non è stata vista. Le varianti
