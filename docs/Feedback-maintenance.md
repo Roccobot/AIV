@@ -176,6 +176,14 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     grassetto tornava normale.
   - **Codice e mono sono la stessa cosa**: il tasto `Codice`, il riferimento copiato dal simbolo di
     un riquadro e il nome di un allegato inserito nel testo fanno tutti lo stesso `<code>`.
+  - **Il codice si toglie e si lascia come gli altri stili** (segnalazione di Rocco del
+    2026-10-13): `Codice` su una parte di un codice toglie lo stile a quella parte sola, e col
+    cursore dentro un codice lo divide lì, quindi quello che si scrive dopo è normale; premuto di
+    nuovo prima di scrivere, riunisce le due metà. Fino a quel giorno toglieva lo stile a tutto il
+    codice. Il browser può scrivere la prima lettera dentro la metà di sinistra: la funzione
+    `plainAfterCode` la sposta fuori all'evento `input`. Un codice vuoto non si scrive e non si
+    rilegge: prima diventava due apici inversi, e al caricamento tornava come una pastiglia vuota
+    che non si cancellava.
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.
