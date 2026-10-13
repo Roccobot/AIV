@@ -885,6 +885,8 @@
       // Four no-break spaces: a tooltip may fold ordinary ones into one.
       key.title = entry.shown.join(" ".repeat(4));
       key.setAttribute("aria-label", entry.name);
+      // For the stylesheet, which lifts the × to the optical centre of its key.
+      key.dataset.symbol = entry.symbol;
       key.addEventListener("pointerdown", event => event.preventDefault());
       key.addEventListener("click", () => writeSymbol(entry.symbol));
       symbolKeys.push(key);

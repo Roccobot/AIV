@@ -1110,9 +1110,10 @@ main > .feedback-columns {
   gap: 4px;
   margin-top: 0;
 }
-/* The row of symbols over Altro's field (his mockup of 2026-10-13): ten equal keys, 40px high
-   (his request: lower than the other rows of Altro, which are 44px), built by
-   feedback-format.js. Desktop only: hidden on a phone. */
+/* The row of symbols over Altro's field (his mockup of 2026-10-13): ten equal square keys (his
+   request of the same evening, after 44 and then 40px high), built by feedback-format.js. The
+   width comes from the row, the height from the width: 34.6px in the side column of a wide
+   window. Desktop only: hidden on a phone. */
 .symbol-keys {
   display: grid;
   grid-template-columns: repeat(10, minmax(0, 1fr));
@@ -1123,8 +1124,9 @@ main > .feedback-columns {
   align-items: center;
   justify-content: center;
   width: auto;
-  height: 40px;
-  min-height: 40px;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
   margin: 0;
   padding: 0;
   /* Lighter than the format keys, as in the mockup; the emoji keep their own colours. */
@@ -1132,6 +1134,13 @@ main > .feedback-columns {
   font-size: 24px;
   font-weight: 300;
   line-height: 1;
+}
+/* Roboto's × sits low: measured on Rocco's screenshot at DPR 2, the centre of its ink was 1.5px
+   below the centre of the key, and the keys he called centred have theirs about 0.75px above.
+   Padding at the bottom lifts the flex-centred glyph by half of it without moving the border:
+   0.18em of 24px is 4.3px, so the × rises 2.16px, to the others' level (his request, 2026-10-13). */
+.symbol-keys > button[data-symbol="×"] {
+  padding-bottom: 0.18em;
 }
 @media (max-width: 720px) {
   .symbol-keys {

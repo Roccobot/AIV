@@ -813,8 +813,8 @@ def check(path):
             field.press('Meta+Control+c')
             field.press('Meta+Shift+e')
             expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎×✅❌⚠️')
-            # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys 40px high
-            # in the mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
+            # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys in the
+            # mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
             # writes the symbol where the caret is, here a proof card's field and not Altro.
             row = formatting.locator('#extra-section > .symbol-keys button')
             expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠️'])
@@ -822,7 +822,20 @@ def check(path):
             assert [row.nth(index).get_attribute('title') for index in range(10)] == [
                 '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎',
                 '⌘⇧X', '⌘⇧K', '⌘⇧N', '⌘⇧P']
-            assert row.first.evaluate('(key) => key.getBoundingClientRect().height') == 40
+            # The keys are square (his request of the same evening), and the × alone sits 0.09em
+            # (2.16px) above its key's centre, where the others' symbols sit on the centre: measured
+            # on the box of the text, which moves with the glyph.
+            for index in range(10):
+                key_box = row.nth(index).evaluate("""(key) => {
+                    const box = key.getBoundingClientRect();
+                    const range = document.createRange();
+                    range.selectNodeContents(key);
+                    const text = range.getBoundingClientRect();
+                    return {width: box.width, height: box.height,
+                            lift: (box.top + box.height / 2) - (text.top + text.height / 2)};
+                }""")
+                assert abs(key_box['width'] - key_box['height']) < 0.5, key_box
+                assert abs(key_box['lift'] - (2.16 if index == 6 else 0)) < 0.05, (index, key_box)
             assert formatting.evaluate("document.querySelector('#extra-section > .symbol-keys').getBoundingClientRect().bottom <= document.querySelector('#notes-editor').getBoundingClientRect().top")
             fill_plain(field, 'ab')
             select(field, 1, 1)
