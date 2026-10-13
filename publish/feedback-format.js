@@ -590,7 +590,7 @@
     {symbol: "⌥", name: "Opzione", keys: ["KeyO", "KeyA"], shown: ["⌘⇧O", "⌘⇧A"]},
     {symbol: "⌃", name: "Controllo", keys: ["Equal", "ì", "^"], shown: ["⌘⇧Ì"]},
     {symbol: "→", name: "Freccia", keys: ["Backslash", "ù", "§"], shown: ["⌘⇧Ù"]},
-    {symbol: "⏎", name: "Invio", keys: ["Enter", "NumpadEnter", "KeyE"], shown: ["⌘⇧⏎", "⌘⇧E"]},
+    {symbol: "⏎", name: "Invio", keys: ["Enter", "NumpadEnter"], shown: ["⌘⇧⏎"]},
     {symbol: "×", name: "Per", keys: ["KeyX"], shown: ["⌘⇧X"]},
     {symbol: "✅", name: "Spunta", keys: ["KeyK"], shown: ["⌘⇧K"]},
     {symbol: "❌", name: "Croce", keys: ["KeyN"], shown: ["⌘⇧N"]},

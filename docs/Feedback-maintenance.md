@@ -187,7 +187,8 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   - **I simboli dei tasti del Mac si scrivono da tastiera e dalla fila sopra Altro** (richieste
     di Rocco del 2026-10-13, la fila dal suo mockup, i tasti come li ha riassegnati la sera): nell'ordine
     della fila, `⌘⇧C` scrive `⌘`; `⌘⇧M` e `⌘⇧S` `⇧`; `⌘⇧O` e `⌘⇧A` `⌥`; `⌘⇧Ì` `⌃`; `⌘⇧Ù` `→`;
-    `⌘⇧⏎` e `⌘⇧E` `⏎`; `⌘⇧X` `×`; `⌘⇧K` `✅`; `⌘⇧N` `❌`; `⌘⇧P` `⚠️`. La tabella è una sola,
+    `⌘⇧⏎` `⏎`; `⌘⇧X` `×`; `⌘⇧K` `✅`; `⌘⇧N` `❌`; `⌘⇧P` `⚠️`. `⌘⇧E` non scrive più `⏎` dalla
+    stessa sera, perché lo usa un'altra utility sul Mac di Rocco. La tabella è una sola,
     `SYMBOL_KEYS` in `feedback-format.js`, con simbolo, nome (per il lettore di schermo), tasti e
     scorciatoie da mostrare, e da lì nascono scorciatoie e fila. Ogni combinazione è `⌘⇧` più un
     tasto, riconosciuto dalla sua posizione (`event.code`), perché `⇧` cambia la lettera che il
