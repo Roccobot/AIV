@@ -111,6 +111,12 @@
       }
       if (text[index] === "`") {
         const close = text.indexOf("`", index + 1);
+        // Two backticks with nothing between are an empty code an older page saved: it came
+        // back as a pill that could not be deleted, so it goes (his note of 2026-10-13).
+        if (close === index + 1) {
+          index += 2;
+          continue;
+        }
         if (close > index) {
           flush();
           parent.append(node("code", text.slice(index + 1, close)));
@@ -207,9 +213,10 @@
       if (block && element.previousSibling) add("\n", {});
       // ⚠️ A run of its own, written back as it is: escaped with the rest, its backticks
       // became \` and the code came back as plain text (found by the check, 2026-10-04).
-      // Bold and italic around it or inside it travel with it, as **`code`**.
+      // Bold and italic around it or inside it travel with it, as **`code`**. Two codes side by
+      // side are one: the key splits a code where the plain text is about to go.
       if (tag === "CODE") {
-        add("`" + element.textContent + "`", {
+        add(element.textContent, {
           bold: codeStyle(element, Boolean(style.bold), weightOf),
           italic: codeStyle(element, Boolean(style.italic), slantOf),
           href: style.href,
@@ -234,7 +241,7 @@
       for (const child of root.childNodes) visit(child, {});
     }
     return runs.map(run => {
-      let text = run.code ? run.text : run.text.replace(/[\\*`\[\]_]/g, "\\$&");
+      let text = run.code ? "`" + run.text + "`" : run.text.replace(/[\\*`\[\]_]/g, "\\$&");
       const marker = (run.bold ? "**" : "") + (run.italic ? "*" : "");
       if (marker) text = text.replace(/^(\s*)([\s\S]*?\S)(\s*)$/, (_, before, body, after) => before + marker + body + marker + after);
       if (run.href) text = "[" + text + "](" + run.href.replace(/\(/g, "%28").replace(/\)/g, "%29") + ")";
@@ -442,6 +449,134 @@
       anchor.rel = "noopener noreferrer";
     }
   }
+  // --- Inline code, split and left like the other styles (his note of 2026-10-13) ---
+  /* Bold and italic are the browser's: ⌘B on a word inside bold takes the bold off that word,
+     and ⌘B with no selection makes the next letters plain. The code key builds its node by hand,
+     so it does both here. A selection inside a code splits it in three, and the middle goes back
+     to plain text. A caret inside a code splits it there and leaves an empty text in the gap;
+     the browser may still type into the code before it, so the first input moves those letters
+     out (plainAfterCode). The key again, before typing, joins the two halves. */
+  function codeAt(editor, point) {
+    const element = point.nodeType === Node.ELEMENT_NODE ? point : point.parentElement;
+    const code = element?.closest("code");
+    return code && editor.box.contains(code) ? code : null;
+  }
+  // A point inside an element, as a count of its letters.
+  function letterPoint(element, count) {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    for (let text; (text = walker.nextNode());) {
+      if (count <= text.length) return [text, count];
+      count -= text.length;
+    }
+    return [element, element.childNodes.length];
+  }
+  // A piece split off a code: a code again, plain text if only spaces are left, or nothing.
+  function codePiece(code, content) {
+    if (!content.textContent) return null;
+    if (!content.textContent.trim()) return document.createTextNode(content.textContent);
+    const piece = code.cloneNode(false);
+    piece.append(content);
+    return piece;
+  }
+  // Takes out what comes before and after the range inside the code; the code keeps the middle.
+  function splitCode(code, range) {
+    const head = document.createRange(), tail = document.createRange();
+    head.setStart(code, 0);
+    head.setEnd(range.startContainer, range.startOffset);
+    tail.setStart(range.endContainer, range.endOffset);
+    tail.setEnd(code, code.childNodes.length);
+    const after = codePiece(code, tail.extractContents());
+    return {before: codePiece(code, head.extractContents()), after};
+  }
+  function choose(range) {
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  }
+  function uncodeSelection(code, range) {
+    const {before, after} = splitCode(code, range);
+    const middle = [...code.childNodes];
+    code.replaceWith(...[before, ...middle, after].filter(Boolean));
+    if (!middle.length) return;
+    const chosen = document.createRange();
+    chosen.setStartBefore(middle[0]);
+    chosen.setEndAfter(middle.at(-1));
+    choose(chosen);
+  }
+  function leaveCode(editor, code, range) {
+    const {before, after} = splitCode(code, range);
+    const gap = document.createTextNode("");
+    code.replaceWith(...[before, gap, after].filter(Boolean));
+    const caret = document.createRange();
+    caret.setStart(gap, 0);
+    choose(caret);
+    const asCode = piece => piece?.nodeName === "CODE" ? piece : null;
+    editor.plain = {gap, before: asCode(before), after: asCode(after), beforeText: before?.textContent || "", afterText: after?.textContent || ""};
+    editor.plain.at = countTo(editor.box, gap, 0);
+  }
+  function rejoinCode(editor) {
+    const {gap, before, after} = editor.plain;
+    editor.plain = null;
+    const joined = before?.isConnected ? before : after?.isConnected ? after : null;
+    if (!gap.isConnected || !joined) return;
+    const caret = document.createRange();
+    caret.setStart(...letterPoint(joined, joined === before ? before.textContent.length : 0));
+    if (joined === before && after?.isConnected && gap.nextSibling === after) {
+      before.append(...after.childNodes);
+      after.remove();
+    }
+    gap.remove();
+    choose(caret);
+  }
+  // After the first input in the gap: letters the browser typed into a half go to the gap.
+  // True when it moved some.
+  function plainAfterCode(editor) {
+    const pending = editor.plain;
+    editor.plain = null;
+    if (!pending?.gap.isConnected) return false;
+    let typed = "", ahead = "";
+    for (const [code, text, atEnd] of [[pending.before, pending.beforeText, true], [pending.after, pending.afterText, false]]) {
+      if (!code?.isConnected) continue;
+      const extra = code.textContent.length - text.length;
+      if (extra <= 0 || !(atEnd ? code.textContent.startsWith(text) : code.textContent.endsWith(text))) continue;
+      const range = document.createRange();
+      if (atEnd) {
+        range.setStart(...letterPoint(code, text.length));
+        range.setEnd(code, code.childNodes.length);
+        typed = range.extractContents().textContent;
+      } else {
+        range.setStart(code, 0);
+        range.setEnd(...letterPoint(code, extra));
+        ahead = range.extractContents().textContent;
+      }
+    }
+    if (!typed && !ahead) return false;
+    pending.gap.data = typed + pending.gap.data + ahead;
+    const caret = document.createRange();
+    caret.setStart(pending.gap, pending.gap.length);
+    choose(caret);
+    return true;
+  }
+  // An empty code is a pill that can no longer be reached: it goes, and a caret in it stays.
+  function dropEmptyCodes(editor) {
+    for (const code of editor.box.querySelectorAll("code")) {
+      if (code.textContent) continue;
+      const selected = window.getSelection();
+      const held = selected.rangeCount && code.contains(selected.getRangeAt(0).startContainer);
+      const gap = document.createTextNode("");
+      code.replaceWith(gap);
+      if (!held) continue;
+      const caret = document.createRange();
+      caret.setStart(gap, 0);
+      choose(caret);
+    }
+  }
+  function showPressed(editor, range) {
+    for (const kind of ["bold", "italic"]) {
+      editor.box.parentElement.querySelector('[data-format="' + kind + '"]').setAttribute("aria-pressed", String(document.queryCommandState(kind)));
+    }
+    const code = !editor.plain && codeAt(editor, range.startContainer);
+    editor.box.parentElement.querySelector('[data-format="code"]').setAttribute("aria-pressed", String(Boolean(code)));
+  }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
@@ -472,11 +607,15 @@
     } else if (kind === "code") {
       // Rendered in the editor like bold, italic and links (the user's request, 2026-10-04):
       // a <code> node, which markdown() writes back between backticks. Inside one, the key
-      // takes the code away again.
-      const container = range.startContainer.nodeType === Node.ELEMENT_NODE ? range.startContainer : range.startContainer.parentElement;
-      const current = container.closest("code");
-      if (current && editor.box.contains(current)) {
-        current.replaceWith(document.createTextNode(current.textContent));
+      // takes the code off the selection, or splits it at the caret so the text goes on plain.
+      const start = codeAt(editor, range.startContainer), end = codeAt(editor, range.endContainer);
+      if (editor.plain) rejoinCode(editor);
+      else if (start && start === end) {
+        if (range.collapsed) leaveCode(editor, start, range);
+        else uncodeSelection(start, range);
+      } else if (start || end) {
+        // A selection that reaches out of a code: the code it touches goes, its text stays.
+        for (const code of [start, end]) code?.replaceWith(...code.childNodes);
       } else {
         // The selection's bold and italic go on the new code: replacing the text emptied its <b>.
         let made = node("code", range.toString() || "codice");
@@ -490,6 +629,7 @@
       }
     } else document.execCommand(kind === "bold" ? "bold" : "italic", false);
     sync(editor, "format");
+    if (window.getSelection().rangeCount) showPressed(editor, window.getSelection().getRangeAt(0));
   }
   for (const [index, area] of Array.from(document.querySelectorAll("textarea:not([readonly])")).entries()) {
     const label = area.parentElement;
@@ -530,7 +670,7 @@
     }
     actions.append(toolbar);
     wrapper.append(area, box, actions);
-    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null};
+    const editor = {area, box, range: null, lastMarkdown: null, history: fresh(area.value), before: null, plain: null};
     editors.push(editor);
     for (const [kind, title, key] of [["bold", "Grassetto", "B"], ["italic", "Corsivo", "I"], ["code", "Codice", "M"], ["link", "Link", "K"]]) {
       const button = node("button");
@@ -583,7 +723,18 @@
         document.execCommand("insertParagraph", false);
       }
     });
-    box.addEventListener("input", event => { links(editor); sync(editor, event.inputType); });
+    box.addEventListener("input", event => {
+      // Mid-composition (a phone's keyboard) the nodes are left alone: compositionend does it.
+      if (!event.isComposing) {
+        plainAfterCode(editor);
+        dropEmptyCodes(editor);
+      }
+      links(editor);
+      sync(editor, event.inputType);
+    });
+    box.addEventListener("compositionend", () => {
+      if (plainAfterCode(editor)) sync(editor, "insertText");
+    });
     box.addEventListener("paste", event => {
       if (window.feedbackPasteImage?.(event, box)) return;
       event.preventDefault();
@@ -659,9 +810,9 @@
     for (const editor of editors) {
       if (!inside(editor, range)) continue;
       editor.range = range.cloneRange();
-      for (const kind of ["bold", "italic"]) {
-        editor.box.parentElement.querySelector('[data-format="' + kind + '"]').setAttribute("aria-pressed", String(document.queryCommandState(kind)));
-      }
+      // A caret moved away from the gap drops the wait for plain text.
+      if (editor.plain && !(range.collapsed && countTo(editor.box, range.startContainer, range.startOffset) === editor.plain.at)) editor.plain = null;
+      showPressed(editor, range);
     }
   });
   // The editor being written in: the one that has the focus, and only if it can be edited.

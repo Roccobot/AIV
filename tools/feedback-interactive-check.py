@@ -747,6 +747,55 @@ def check(path):
             formatting.reload()
             expect(stored).to_have_value('x **`abc`** y')
             expect(field.locator('strong code')).to_have_text('abc')
+            # Inline code behaves like the other styles (his note of 2026-10-13, with three faults):
+            # an empty code left two backticks in the draft and came back as an empty pill that
+            # could not be deleted; the key inside a code took the style off all of it; and with
+            # the caret at the end of a code, ⌘M did not let the text go on plain.
+            stored.evaluate("(area) => { area.value = 'a `` b'; area.dispatchEvent(new Event('input', {bubbles: true})); }")
+            expect(field.locator('code')).to_have_count(0)
+            expect(field).to_have_text('a  b')
+            fill_plain(field, 'x abc y')
+            select(field,2,5)
+            field.press('Meta+m')
+            select(field,2,5)
+            field.press('Backspace')
+            expect(field.locator('code')).to_have_count(0)
+            assert '``' not in stored.input_value(), stored.input_value()
+            fill_plain(field, 'prima abc def ghi dopo')
+            select(field,6,17)
+            field.press('Meta+m')
+            expect(stored).to_have_value('prima `abc def ghi` dopo')
+            select(field,10,13)
+            field.press('Meta+m')
+            expect(stored).to_have_value('prima `abc `def` ghi` dopo')
+            assert formatting.evaluate('getSelection().toString()') == 'def', 'La parola tolta dal codice resta selezionata.'
+            field.press('Meta+z')
+            expect(stored).to_have_value('prima `abc def ghi` dopo')
+            fill_plain(field, 'x abc')
+            select(field,2,5)
+            field.press('Meta+m')
+            select(field,5,5)
+            expect(card.locator('[data-format="code"]')).to_have_attribute('aria-pressed', 'true')
+            field.press('Meta+m')
+            expect(card.locator('[data-format="code"]')).to_have_attribute('aria-pressed', 'false')
+            field.press_sequentially('yz')
+            expect(stored).to_have_value('x `abc`yz')
+            fill_plain(field, 'x abcdef')
+            select(field,2,8)
+            field.press('Meta+m')
+            select(field,5,5)
+            field.press('Meta+m')
+            field.press_sequentially('-')
+            expect(stored).to_have_value('x `abc`-`def`')
+            # ⌘M a second time, before typing, gives the code back.
+            fill_plain(field, 'x abc')
+            select(field,2,5)
+            field.press('Meta+m')
+            select(field,5,5)
+            field.press('Meta+m')
+            field.press('Meta+m')
+            field.press_sequentially('q')
+            expect(stored).to_have_value('x `abcq`')
             for width in [320,390,800,1280]:
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -835,12 +884,14 @@ def check(path):
             page.locator('#extra-section [data-format="code"]').click()
             expect(page.locator('#notes-editor code')).to_have_text('codice')
             assert page.locator('#notes').input_value().endswith('`codice`'), page.locator('#notes').input_value()
-            # With the caret inside the code, the key takes it away again.
+            # With the caret inside the code, the key splits it there, and what is typed next is
+            # plain (until 2026-10-13 it took the code off the whole word: his note of that day).
             page.evaluate("""() => { const code = document.querySelector('#notes-editor code');
                 const range = document.createRange(); range.setStart(code.firstChild, 2); range.collapse(true);
                 const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range); }""")
             page.locator('#extra-section [data-format="code"]').click()
-            expect(page.locator('#notes-editor code')).to_have_count(0)
+            expect(page.locator('#notes-editor code')).to_have_text(['co', 'dice'])
+            assert page.locator('#notes').input_value().endswith('`codice`'), page.locator('#notes').input_value()
             page.evaluate("() => { const box = document.querySelector('#notes-editor'); box.replaceChildren(); box.dispatchEvent(new Event('input', {bubbles: true})); }")
             # Desktop: Prossimi passi follows the last card at the cards' own 18px, and at the
             # end of the page it ends where Altro ends.
