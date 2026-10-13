@@ -577,6 +577,14 @@
     const code = !editor.plain && codeAt(editor, range.startContainer);
     editor.box.parentElement.querySelector('[data-format="code"]').setAttribute("aria-pressed", String(Boolean(code)));
   }
+  /* The Mac's key symbols from the keyboard (his request of 2026-10-13): ⌘ with ⌃ or ⇧ and a
+     letter. Only with ⌘, so ⌃C and ⇧C elsewhere stay what they are; by the key's place
+     (event.code), because ⇧ and ⌥ change the letter event.key reports. */
+  const KEY_SYMBOLS = {"Control+KeyC": "⌃", "Shift+KeyC": "⌘", "Shift+KeyO": "⌥", "Shift+KeyS": "⇧", "Shift+KeyE": "⏎"};
+  function keySymbol(event) {
+    if (!event.metaKey || event.altKey || event.ctrlKey === event.shiftKey) return null;
+    return KEY_SYMBOLS[(event.ctrlKey ? "Control+" : "Shift+") + event.code] || null;
+  }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
@@ -792,6 +800,12 @@
       if ((event.metaKey || event.ctrlKey) && !event.altKey && (key === "z" || key === "y" && !event.shiftKey)) {
         event.preventDefault();
         travel(editor, key === "y" || event.shiftKey ? 1 : -1);
+        return;
+      }
+      const symbol = keySymbol(event);
+      if (symbol) {
+        event.preventDefault();
+        if (!editor.area.disabled) document.execCommand("insertText", false, symbol);
         return;
       }
       const kind = {b: "bold", i: "italic", m: "code", k: "link"}[key];

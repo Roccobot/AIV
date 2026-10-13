@@ -184,6 +184,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     `plainAfterCode` la sposta fuori all'evento `input`. Un codice vuoto non si scrive e non si
     rilegge: prima diventava due apici inversi, e al caricamento tornava come una pastiglia vuota
     che non si cancellava.
+  - **I simboli dei tasti del Mac si scrivono da tastiera** (richiesta di Rocco del 2026-10-13):
+    `⌘⌃C` scrive `⌃`, `⌘⇧C` `⌘`, `⌘⇧O` `⌥`, `⌘⇧S` `⇧`, `⌘⇧E` `⏎`. La tabella è `KEY_SYMBOLS` in
+    `feedback-format.js`; le combinazioni vogliono sempre `⌘`, e il tasto si riconosce dalla sua
+    posizione (`event.code`), perché `⇧` cambia la lettera che il browser riporta. Una combinazione
+    che il browser tiene per sé non arriva alla pagina, e si vede solo sul Mac.
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.
