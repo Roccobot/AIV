@@ -196,7 +196,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     casi valgono anche le loro lettere (`ì` e `^`, `ù` e `§`). Una combinazione che il browser tiene
     per sé non arriva alla pagina, e si vede solo sul Mac.
     - La fila vive sopra il campo di Altro, solo su desktop (sotto i 720 px è nascosta): dieci tasti
-      alti 40 px, più bassi delle altre righe di Altro per sua richiesta. Il tooltip dice solo le
+      quadrati, che prendono la larghezza dalla fila (34,6 px nella colonna laterale di una
+      finestra larga), per sua richiesta. La `×` di Roboto cade in basso, e un margine interno di
+      0,18 em sotto la alza di 0,09 em al livello degli altri simboli, misurato sul suo
+      screenshot. Il tooltip dice solo le
       scorciatoie, a lettere maiuscole e separate da quattro spazi (insecabili, perché un tooltip
       può ridurre gli spazi normali a uno). Un clic scrive il simbolo dove si trova il cursore, in
       qualunque campo: i tasti non prendono il fuoco, e se il fuoco è andato altrove torna
