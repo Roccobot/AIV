@@ -1117,6 +1117,11 @@ il job le scrive su disco per la durata di una sola esecuzione.
 
 - **`tools/feedback-check.py`**: si lancia prima di pubblicare il documento di feedback (§ '🔗 Il
   documento vivo del progetto').
+- **`tools/check-dependencies.py`**: confronta le dipendenze di `docs/Dependencies.json` con le
+  ultime versioni pubblicate, e si lancia prima di ogni release (`Roccobot.md` § '🔗 Le dipendenze
+  si seguono'). Il registro è nato il 2026-10-13 con Noto Color Emoji, le emoji del DF, che
+  `tools/feedback-emoji.py` porta all'ultima versione; ⚠️ le librerie dell'app
+  (`gradle/libs.versions.toml`) non ci sono ancora.
 - **`tools/i18n-check.py`**, dalla radice: confronta tutte le lingue con l'inglese (chiavi
   mancanti, segnaposto, categorie di plurale, caratteri vietati) e deve dire **28 lingue, 0
   problemi**: un numero più basso vuol dire che una cartella non è stata vista. Le varianti

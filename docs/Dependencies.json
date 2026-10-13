@@ -1,0 +1,8 @@
+{
+  "_about": "What AIV takes from elsewhere, at which version, and where its new versions appear. tools/check-dependencies.py compares these with the latest published; a newer one is read for what is worth bringing in (Roccobot.md, 'Le dipendenze si seguono'). For now it lists the feedback page only: the app's libraries (gradle/libs.versions.toml) are not in it yet.",
+  "dependencies": [
+    {"name": "Noto Color Emoji", "kind": "bundled", "source": "google-fonts", "family": "Noto+Color+Emoji",
+     "in_use": {"file": "publish/feedback.css", "pattern": "noto-emoji:begin: Noto Color Emoji (v\\d+)"},
+     "into": "publish/assets/noto-emoji (the feedback page's emoji); tools/feedback-emoji.py brings it up to date"}
+  ]
+}
