@@ -878,6 +878,11 @@ def check(path):
             # No coloured ring around the field being written in.
             page.locator('#notes-editor').focus()
             assert page.locator('#notes-editor').evaluate('(el)=>getComputedStyle(el).outlineStyle') == 'none'
+            # A symbol Roboto lacks (⏎, ◨) is drawn by the system font, the same in every field: with
+            # Arial next, the Mac picked a font per neighbour, and one ⏎ had two shapes (his note of
+            # 2026-10-13, choice A1).
+            family = page.locator('#notes-editor').evaluate('(el)=>getComputedStyle(el).fontFamily')
+            assert family.startswith('Roboto, system-ui'), family
             # Inline code is rendered in the editor, like bold: a <code> node, and backticks in
             # what is saved.
             page.locator('#notes-editor').press('End')

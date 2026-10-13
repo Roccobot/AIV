@@ -69,10 +69,14 @@
 html {
   -webkit-tap-highlight-color: transparent;
 }
+/* system-ui right after Roboto draws the symbols Roboto lacks (⏎, ◨) with one font, SF Pro on the
+   Mac: further down the list, the system picked a font by the neighbouring characters, and one ⏎
+   had two shapes (Rocco's note and choice A1, 2026-10-13). The text stays Roboto. */
 body {
   margin: 0;
   font:
     16px/1.6 Roboto,
+    system-ui,
     Arial,
     sans-serif;
   background: var(--bg);
