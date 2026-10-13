@@ -796,6 +796,13 @@ def check(path):
             field.press('Meta+m')
             field.press_sequentially('q')
             expect(stored).to_have_value('x `abcq`')
+            # Five Mac shortcuts write the key symbols (his request of 2026-10-13): ⌘⌃C ⌃, ⌘⇧C ⌘,
+            # ⌘⇧O ⌥, ⌘⇧S ⇧, ⌘⇧E ⏎. They go in as typed letters, so ⌘Z groups them like typing.
+            fill_plain(field, 'tasti ')
+            field.press('End')
+            for combo in ['Meta+Control+c', 'Meta+Shift+c', 'Meta+Shift+o', 'Meta+Shift+s', 'Meta+Shift+e']:
+                field.press(combo)
+            expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎')
             for width in [320,390,800,1280]:
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
