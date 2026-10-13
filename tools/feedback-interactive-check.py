@@ -796,28 +796,31 @@ def check(path):
             field.press('Meta+m')
             field.press_sequentially('q')
             expect(stored).to_have_value('x `abcq`')
-            # Five Mac shortcuts write the key symbols (his request of 2026-10-13): ⌘⌃C ⌃, ⌘⇧C ⌘,
-            # ⌘⇧O ⌥, ⌘⇧S ⇧, ⌘⇧E ⏎. They go in as typed letters, so ⌘Z groups them like typing.
+            # The Mac's key symbols and three outcome emoji from the keyboard, with the keys Rocco
+            # assigned on 2026-10-13, in the row's order: ⌘⇧C ⌘, ⌘⇧M and ⌘⇧S ⇧, ⌘⇧O and ⌘⇧A ⌥,
+            # ⌘⇧Ì ⌃ (the ì key, Equal by place), ⌘⇧Ù → (the ù key, Backslash by place), ⌘⇧⏎ and
+            # ⌘⇧E ⏎, ⌘⇧X ×, ⌘⇧K ✅, ⌘⇧N ❌, ⌘⇧P ⚠️. They go in as typed letters, so ⌘Z groups them
+            # like typing.
             fill_plain(field, 'tasti ')
             field.press('End')
-            for combo in ['Meta+Control+c', 'Meta+Shift+c', 'Meta+Shift+o', 'Meta+Shift+s', 'Meta+Shift+e']:
+            for combo in ['Meta+Shift+c', 'Meta+Shift+m', 'Meta+Shift+s', 'Meta+Shift+o', 'Meta+Shift+a',
+                          'Meta+Shift+Equal', 'Meta+Shift+Backslash', 'Meta+Shift+Enter', 'Meta+Shift+e',
+                          'Meta+Shift+x', 'Meta+Shift+k', 'Meta+Shift+n', 'Meta+Shift+p']:
                 field.press(combo)
-            expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎')
-            # And three outcome emoji (his request of 2026-10-13): ⌘⇧K ✅, ⌘⇧N ❌, ⌘⇧M ⚠️.
-            for combo in ['Meta+Shift+k', 'Meta+Shift+n', 'Meta+Shift+m']:
-                field.press(combo)
-            expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎✅❌⚠️')
-            # And, from a later request of the same day: ⌘⇧X ×, ⌘⇧ù → (the ù key, Backslash by
-            # place), and ⌘⇧⏎ as a second way to ⏎.
-            for combo in ['Meta+Shift+x', 'Meta+Shift+Backslash', 'Meta+Shift+Enter']:
-                field.press(combo)
-            expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎✅❌⚠️×→⏎')
-            # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys in the
-            # mockup's order, each with its shortcut in the tooltip, and a click writes the symbol
-            # where the caret is, here a proof card's field and not Altro.
+            expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎⏎×✅❌⚠️')
+            # ⌘⌃C wrote ⌃ until that day, and no longer does.
+            field.press('Meta+Control+c')
+            expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎⏎×✅❌⚠️')
+            # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys 40px high
+            # in the mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
+            # writes the symbol where the caret is, here a proof card's field and not Altro.
             row = formatting.locator('#extra-section > .symbol-keys button')
             expect(row).to_have_text(['⌘', '⇧', '⌥', '⌃', '→', '⏎', '×', '✅', '❌', '⚠️'])
-            assert formatting.locator('#extra-section > .symbol-keys button').nth(5).get_attribute('title').endswith('(⌘⇧E, ⌘⇧⏎)')
+            gap = ' ' * 4
+            assert [row.nth(index).get_attribute('title') for index in range(10)] == [
+                '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎' + gap + '⌘⇧E',
+                '⌘⇧X', '⌘⇧K', '⌘⇧N', '⌘⇧P']
+            assert row.first.evaluate('(key) => key.getBoundingClientRect().height') == 40
             assert formatting.evaluate("document.querySelector('#extra-section > .symbol-keys').getBoundingClientRect().bottom <= document.querySelector('#notes-editor').getBoundingClientRect().top")
             fill_plain(field, 'ab')
             select(field, 1, 1)

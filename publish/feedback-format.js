@@ -578,27 +578,27 @@
     editor.box.parentElement.querySelector('[data-format="code"]').setAttribute("aria-pressed", String(Boolean(code)));
   }
   /* The Mac's key symbols and three outcome emoji, from the keyboard and from the row over Altro
-     (his requests of 2026-10-13, the row from his mockup, in its order). A shortcut is ⌘ with ⌃
-     or ⇧ and a key: only with ⌘, so ⌃C and ⇧C elsewhere stay what they are. A key is named by
-     its place (event.code), because ⇧ and ⌥ change the letter event.key reports; the ù key is
-     Backslash on an ISO keyboard, and its letters (ù, and § with ⇧) are there too, for a layout
-     that puts it elsewhere. `shown` is what the tooltip says. */
+     (his requests of 2026-10-13, the row from his mockup, in its order; the keys as he assigned
+     them that evening). A shortcut is ⌘⇧ and a key, so ⇧ and a key alone stay what they are. A
+     key is named by its place (event.code), because ⇧ changes the letter event.key reports: on an
+     Italian ISO keyboard ì is Equal and ù is Backslash, and their letters (ì and ^, ù and §) are
+     there too, for a layout that puts them elsewhere. The tooltip is the shortcuts only, in
+     capitals, four spaces apart (his request): `shown`, in that order. */
   const SYMBOL_KEYS = [
-    {symbol: "⌘", name: "Comando", keys: ["Shift+KeyC"], shown: "⌘⇧C"},
-    {symbol: "⇧", name: "Maiuscole", keys: ["Shift+KeyS"], shown: "⌘⇧S"},
-    {symbol: "⌥", name: "Opzione", keys: ["Shift+KeyO"], shown: "⌘⇧O"},
-    {symbol: "⌃", name: "Controllo", keys: ["Control+KeyC"], shown: "⌘⌃C"},
-    {symbol: "→", name: "Freccia", keys: ["Shift+Backslash", "Shift+ù", "Shift+§"], shown: "⌘⇧ù"},
-    {symbol: "⏎", name: "Invio", keys: ["Shift+KeyE", "Shift+Enter", "Shift+NumpadEnter"], shown: "⌘⇧E, ⌘⇧⏎"},
-    {symbol: "×", name: "Per", keys: ["Shift+KeyX"], shown: "⌘⇧X"},
-    {symbol: "✅", name: "Spunta", keys: ["Shift+KeyK"], shown: "⌘⇧K"},
-    {symbol: "❌", name: "Croce", keys: ["Shift+KeyN"], shown: "⌘⇧N"},
-    {symbol: "⚠️", name: "Avviso", keys: ["Shift+KeyM"], shown: "⌘⇧M"}
+    {symbol: "⌘", name: "Comando", keys: ["KeyC"], shown: ["⌘⇧C"]},
+    {symbol: "⇧", name: "Maiuscole", keys: ["KeyM", "KeyS"], shown: ["⌘⇧M", "⌘⇧S"]},
+    {symbol: "⌥", name: "Opzione", keys: ["KeyO", "KeyA"], shown: ["⌘⇧O", "⌘⇧A"]},
+    {symbol: "⌃", name: "Controllo", keys: ["Equal", "ì", "^"], shown: ["⌘⇧Ì"]},
+    {symbol: "→", name: "Freccia", keys: ["Backslash", "ù", "§"], shown: ["⌘⇧Ù"]},
+    {symbol: "⏎", name: "Invio", keys: ["Enter", "NumpadEnter", "KeyE"], shown: ["⌘⇧⏎", "⌘⇧E"]},
+    {symbol: "×", name: "Per", keys: ["KeyX"], shown: ["⌘⇧X"]},
+    {symbol: "✅", name: "Spunta", keys: ["KeyK"], shown: ["⌘⇧K"]},
+    {symbol: "❌", name: "Croce", keys: ["KeyN"], shown: ["⌘⇧N"]},
+    {symbol: "⚠️", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
   ];
   function keySymbol(event) {
-    if (!event.metaKey || event.altKey || event.ctrlKey === event.shiftKey) return null;
-    const held = event.ctrlKey ? "Control+" : "Shift+";
-    return SYMBOL_KEYS.find(entry => entry.keys.includes(held + event.code) || entry.keys.includes(held + event.key))?.symbol || null;
+    if (!event.metaKey || !event.shiftKey || event.altKey || event.ctrlKey) return null;
+    return SYMBOL_KEYS.find(entry => entry.keys.includes(event.code) || entry.keys.includes(event.key))?.symbol || null;
   }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
@@ -882,7 +882,8 @@
     for (const entry of SYMBOL_KEYS) {
       const key = node("button", entry.symbol);
       key.type = "button";
-      key.title = entry.name + " (" + entry.shown + ")";
+      // Four no-break spaces: a tooltip may fold ordinary ones into one.
+      key.title = entry.shown.join(" ".repeat(4));
       key.setAttribute("aria-label", entry.name);
       key.addEventListener("pointerdown", event => event.preventDefault());
       key.addEventListener("click", () => writeSymbol(entry.symbol));
