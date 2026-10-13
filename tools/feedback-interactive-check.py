@@ -803,6 +803,10 @@ def check(path):
             for combo in ['Meta+Control+c', 'Meta+Shift+c', 'Meta+Shift+o', 'Meta+Shift+s', 'Meta+Shift+e']:
                 field.press(combo)
             expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎')
+            # And three outcome emoji (his request of 2026-10-13): ⌘⇧K ✅, ⌘⇧N ❌, ⌘⇧M ⚠️.
+            for combo in ['Meta+Shift+k', 'Meta+Shift+n', 'Meta+Shift+m']:
+                field.press(combo)
+            expect(stored).to_have_value('tasti ⌃⌘⌥⇧⏎✅❌⚠️')
             for width in [320,390,800,1280]:
                 formatting.set_viewport_size({'width':width,'height':900})
                 assert formatting.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -889,7 +893,13 @@ def check(path):
             # Arial next, the Mac picked a font per neighbour, and one ⏎ had two shapes (his note of
             # 2026-10-13, choice A1).
             family = page.locator('#notes-editor').evaluate('(el)=>getComputedStyle(el).fontFamily')
-            assert family.startswith('Roboto, system-ui'), family
+            assert family.startswith('Roboto, "Noto Color Emoji", system-ui'), family
+            # Emoji come from Google's Noto Color Emoji, served by the page (his request of
+            # 2026-10-13): the slice with ✅ loads, and it is one of the files in assets/noto-emoji.
+            page.locator('#notes-editor').evaluate("(el) => { el.textContent = '✅'; }")
+            loaded = page.evaluate("async () => { await document.fonts.load('16px \"Noto Color Emoji\"', '✅'); return [...document.fonts].filter((f) => f.family.replace(/\"/g, '') === 'Noto Color Emoji' && f.status === 'loaded').length; }")
+            assert loaded >= 1, loaded
+            page.locator('#notes-editor').evaluate("(el) => { el.replaceChildren(); el.dispatchEvent(new Event('input', {bubbles: true})); }")
             # Inline code is rendered in the editor, like bold: a <code> node, and backticks in
             # what is saved.
             page.locator('#notes-editor').press('End')

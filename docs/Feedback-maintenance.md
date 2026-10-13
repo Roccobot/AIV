@@ -188,7 +188,15 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     `⌘⌃C` scrive `⌃`, `⌘⇧C` `⌘`, `⌘⇧O` `⌥`, `⌘⇧S` `⇧`, `⌘⇧E` `⏎`. La tabella è `KEY_SYMBOLS` in
     `feedback-format.js`; le combinazioni vogliono sempre `⌘`, e il tasto si riconosce dalla sua
     posizione (`event.code`), perché `⇧` cambia la lettera che il browser riporta. Una combinazione
-    che il browser tiene per sé non arriva alla pagina, e si vede solo sul Mac.
+    che il browser tiene per sé non arriva alla pagina, e si vede solo sul Mac. Dalla stessa
+    sera anche tre emoji: `⌘⇧K` `✅`, `⌘⇧N` `❌`, `⌘⇧M` `⚠️`.
+  - **Le emoji sono Noto Color Emoji di Google** (richiesta di Rocco del 2026-10-13), nell'ultima
+    versione di Google Fonts: `tools/feedback-emoji.py` la scarica in `publish/assets/noto-emoji/`
+    e riscrive il blocco fra i marcatori `noto-emoji` di `feedback.css`. Si rilancia per
+    aggiornarla. Le parti vivono nel repo perché la pagina accetta font solo dal suo indirizzo;
+    il browser scarica solo quelle con i caratteri che la pagina mostra (1,4 MB all'apertura,
+    misurati il 2026-10-13). Sono COLRv1, e Safari, che non lo legge, salta il font e usa le emoji di
+    sistema.
   Su viewport stretti (≤ 720px) i controlli stanno nell'angolo in basso a destra,
   dentro la cornice del testo, così la barra di selezione di sistema (Taglia/Copia/Incolla),
   che compare sopra il cursore, non li copre. Su desktop restano in riga sopra il campo.

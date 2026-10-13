@@ -580,7 +580,11 @@
   /* The Mac's key symbols from the keyboard (his request of 2026-10-13): ⌘ with ⌃ or ⇧ and a
      letter. Only with ⌘, so ⌃C and ⇧C elsewhere stay what they are; by the key's place
      (event.code), because ⇧ and ⌥ change the letter event.key reports. */
-  const KEY_SYMBOLS = {"Control+KeyC": "⌃", "Shift+KeyC": "⌘", "Shift+KeyO": "⌥", "Shift+KeyS": "⇧", "Shift+KeyE": "⏎"};
+  // The three outcome emoji came with the second request of the same day.
+  const KEY_SYMBOLS = {
+    "Control+KeyC": "⌃", "Shift+KeyC": "⌘", "Shift+KeyO": "⌥", "Shift+KeyS": "⇧", "Shift+KeyE": "⏎",
+    "Shift+KeyK": "✅", "Shift+KeyN": "❌", "Shift+KeyM": "⚠️"
+  };
   function keySymbol(event) {
     if (!event.metaKey || event.altKey || event.ctrlKey === event.shiftKey) return null;
     return KEY_SYMBOLS[(event.ctrlKey ? "Control+" : "Shift+") + event.code] || null;
