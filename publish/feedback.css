@@ -1159,6 +1159,14 @@ main > .feedback-columns {
 .symbol-keys > button:is([data-symbol="✅"], [data-symbol="❌"], [data-symbol="⚠️"]) > span {
   opacity: 0.85;
 }
+/* The ❌ 15% smaller again, 16.32px (his request, 2026-10-14). At that size its ink can only sit
+   0.48px above or 0.48px below the key's centre, measured on the ink at DPR 4: below, with the
+   other emoji, the × and the →, which sit 0.36px below. Every padding from 0.11 to past 0.21em
+   gives it: 0.16em, the middle. */
+.symbol-keys > button[data-symbol="❌"] {
+  padding-top: 0.16em;
+  font-size: 16.32px;
+}
 @media (max-width: 720px) {
   .symbol-keys {
     display: none;

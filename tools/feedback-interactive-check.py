@@ -832,11 +832,12 @@ def check(path):
             # The keys are square (his request of the same evening). His requests of 2026-10-14: the
             # × is 28.8px, 20% larger than the others, with its box of text 1.55px above the key's
             # centre; the three emoji are 19.2px, 20% smaller, at 85% opacity on the symbol alone,
-            # with their box of text 0.57px below; the others' sit on the centre. The ink moves in
-            # whole-pixel steps, and those lifts put the ink of the × and of the emoji 0.36px below
-            # the centre, as feedback.css says.
-            sizes = ['24px'] * 6 + ['28.8px'] + ['19.2px'] * 3
-            lifts = [0] * 6 + [1.55] + [-0.57] * 3
+            # with their box of text 0.57px below, and the ❌ 15% smaller again, 16.32px, with its
+            # box 0.64px below; the others' sit on the centre. The ink moves in whole-pixel steps,
+            # and those lifts put the ink of the ×, ✅ and ⚠️ 0.36px below the centre and that of the
+            # ❌ 0.48px below, as feedback.css says.
+            sizes = ['24px'] * 6 + ['28.8px', '19.2px', '16.32px', '19.2px']
+            lifts = [0] * 6 + [1.55, -0.57, -0.64, -0.57]
             for index in range(10):
                 key_box = row.nth(index).evaluate("""(key) => {
                     const box = key.getBoundingClientRect();
