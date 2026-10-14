@@ -829,10 +829,14 @@ def check(path):
             assert [row.nth(index).get_attribute('title') for index in range(10)] == [
                 '⌘⇧C', '⌘⇧M' + gap + '⌘⇧S', '⌘⇧O' + gap + '⌘⇧A', '⌘⇧Ì', '⌘⇧Ù', '⌘⇧⏎',
                 '⌘⇧X', '⌘⇧K', '⌘⇧N', '⌘⇧P']
-            # The keys are square (his request of the same evening), and the × alone is 28.8px, 20%
-            # larger than the others (his request of 2026-10-14), with its box of text 1.55px above
-            # the key's centre, where the others' sit on the centre. The ink moves in whole-pixel
-            # steps, and that lift puts it 0.36px below the centre, as feedback.css says.
+            # The keys are square (his request of the same evening). His requests of 2026-10-14: the
+            # × is 28.8px, 20% larger than the others, with its box of text 1.55px above the key's
+            # centre; the three emoji are 19.2px, 20% smaller, at 85% opacity on the symbol alone,
+            # with their box of text 0.57px below; the others' sit on the centre. The ink moves in
+            # whole-pixel steps, and those lifts put the ink of the × and of the emoji 0.36px below
+            # the centre, as feedback.css says.
+            sizes = ['24px'] * 6 + ['28.8px'] + ['19.2px'] * 3
+            lifts = [0] * 6 + [1.55] + [-0.57] * 3
             for index in range(10):
                 key_box = row.nth(index).evaluate("""(key) => {
                     const box = key.getBoundingClientRect();
@@ -840,11 +844,15 @@ def check(path):
                     range.selectNodeContents(key);
                     const text = range.getBoundingClientRect();
                     return {width: box.width, height: box.height, size: getComputedStyle(key).fontSize,
+                            opacity: key.firstElementChild && getComputedStyle(key.firstElementChild).opacity,
+                            border: getComputedStyle(key).opacity,
                             lift: (box.top + box.height / 2) - (text.top + text.height / 2)};
                 }""")
                 assert abs(key_box['width'] - key_box['height']) < 0.5, key_box
-                assert abs(key_box['lift'] - (1.55 if index == 6 else 0)) < 0.05, (index, key_box)
-                assert key_box['size'] == ('28.8px' if index == 6 else '24px'), (index, key_box)
+                assert abs(key_box['lift'] - lifts[index]) < 0.05, (index, key_box)
+                assert key_box['size'] == sizes[index], (index, key_box)
+                assert key_box['opacity'] == ('0.85' if index >= 7 else '1'), (index, key_box)
+                assert key_box['border'] == '1', (index, key_box)
             assert formatting.evaluate("document.querySelector('#extra-section > .symbol-keys').getBoundingClientRect().bottom <= document.querySelector('#notes-editor').getBoundingClientRect().top")
             fill_plain(field, 'ab')
             select(field, 1, 1)

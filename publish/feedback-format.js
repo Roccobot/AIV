@@ -897,7 +897,9 @@
     row.setAttribute("role", "group");
     row.setAttribute("aria-label", "Simboli");
     for (const entry of SYMBOL_KEYS) {
-      const key = node("button", entry.symbol);
+      // The symbol in a span of its own: the stylesheet fades the emoji, not the key's border.
+      const key = node("button");
+      key.append(node("span", entry.symbol));
       key.type = "button";
       // Four no-break spaces: a tooltip may fold ordinary ones into one.
       key.title = entry.shown.join(" ".repeat(4));

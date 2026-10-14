@@ -1147,6 +1147,18 @@ main > .feedback-columns {
   padding-bottom: 0.08em;
   font-size: 28.8px;
 }
+/* The three emoji are 20% smaller than the other symbols, 19.2px, and at 85% opacity (his request,
+   2026-10-14). The opacity is on the symbol's span, so the key's border stays as it is. Centred:
+   Chromium sets the baseline on whole pixels, and at 19.2px the centre of their ink fell 0.60px
+   above the key's centre, measured on the ink at DPR 4. Padding at the top, from 0.05 to 0.09em,
+   moves it to the next step, 0.36px below, the closer to the centre: 0.07em, the middle. */
+.symbol-keys > button:is([data-symbol="✅"], [data-symbol="❌"], [data-symbol="⚠️"]) {
+  padding-top: 0.07em;
+  font-size: 19.2px;
+}
+.symbol-keys > button:is([data-symbol="✅"], [data-symbol="❌"], [data-symbol="⚠️"]) > span {
+  opacity: 0.85;
+}
 @media (max-width: 720px) {
   .symbol-keys {
     display: none;
