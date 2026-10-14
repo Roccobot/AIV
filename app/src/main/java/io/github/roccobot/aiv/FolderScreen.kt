@@ -2180,7 +2180,9 @@ internal fun Covers(
                 cover = bucket.coverIn(covers),
                 tint = frontTintOf(tints[bucket.id]),
                 onClick = { onPick(bucket) },
-                onLongClick = withHaptics { onHide(bucket) }
+                // ⚠️ Niente [withHaptics] qui: la vibrazione la aggiunge [FolderCard], e fino
+                // alla 5.92 questa seconda copia la raddoppiava.
+                onLongClick = { onHide(bucket) }
             )
         }
     }
@@ -2253,7 +2255,8 @@ internal fun Rows(
                         enabled = !spenta,
                         role = Role.Button,
                         onClick = { onPick(bucket) },
-                        onLongClick = withHaptics { onHide(bucket) }
+                        onLongClick = withHaptics { onHide(bucket) },
+                        hapticFeedbackEnabled = false
                     )
                     .padding(vertical = 8.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -2366,7 +2369,8 @@ private fun FolderCard(
                 enabled = !off,
                 role = Role.Button,
                 onClick = onClick,
-                onLongClick = withHaptics(onLongClick)
+                onLongClick = withHaptics(onLongClick),
+                hapticFeedbackEnabled = false
             ),
         verticalArrangement = Arrangement.spacedBy(CARD_GAP)
     ) {

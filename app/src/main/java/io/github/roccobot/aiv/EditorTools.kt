@@ -82,6 +82,7 @@ private fun EditorTool(
                     haptics.performHapticFeedback(HOLD_BUZZ)
                     onSetup()
                 },
+                hapticFeedbackEnabled = false,
                 onClick = onToggle
             )
             /*

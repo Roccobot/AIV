@@ -1104,6 +1104,7 @@ fun MenuRow(
         enabled = enabled,
         onLongClickLabel = holdLabel,
         onLongClick = onHold?.let { withHaptics(it) },
+        hapticFeedbackEnabled = false,
         onClick = onTap
     )
     Row(

@@ -436,6 +436,7 @@ fun FolderRailList(
                             role = Role.Button,
                             onClick = { onPick(bucket) },
                             onLongClick = withHaptics { holding = bucket },
+                            hapticFeedbackEnabled = false,
                         )
                         .padding(horizontal = rowInset, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,

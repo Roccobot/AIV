@@ -1294,6 +1294,7 @@ private fun SaveButton(
                     haptics.performHapticFeedback(HOLD_BUZZ)
                     onBeside()
                 },
+                hapticFeedbackEnabled = false,
                 onClick = onSave
             )
             .padding(horizontal = TEXT_BUTTON_PAD, vertical = TEXT_BUTTON_PAD / 2)
@@ -7184,7 +7185,10 @@ private fun ModuleChip(
                 enabled = enabled,
                 role = Role.Tab,
                 onClick = onTap,
-                onLongClick = onHold,
+                // ⚠️ Dalla 5.92 la vibrazione è [HOLD_BUZZ] e quella di Compose è spenta: vedi
+                // [withHaptics].
+                onLongClick = withHaptics(onHold),
+                hapticFeedbackEnabled = false,
                 onLongClickLabel = wipe
             )
             .padding(horizontal = if (icon == null) MODULE_SIDE else 0.dp, vertical = MODULE_PAD)
@@ -7256,7 +7260,8 @@ private fun BandChip(
             .combinedClickable(
                 enabled = enabled,
                 onClick = onTap,
-                onLongClick = onHold,
+                onLongClick = withHaptics(onHold),
+                hapticFeedbackEnabled = false,
                 onLongClickLabel = wipe
             )
             .alpha(if (enabled) 1f else OFF_INK)
@@ -8275,7 +8280,8 @@ private fun TextKey(
                 choice -> Modifier.selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
                 onLongClick != null -> Modifier.combinedClickable(
                     enabled = enabled, role = Role.Button, onLongClickLabel = longName,
-                    onLongClick = onLongClick, onClick = onClick
+                    onLongClick = withHaptics(onLongClick), hapticFeedbackEnabled = false,
+                    onClick = onClick
                 )
                 else -> Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             }

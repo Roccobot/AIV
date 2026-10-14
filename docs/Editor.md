@@ -503,8 +503,10 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
 - ⚠️⚠️ **Trappola generale: un `Canvas` si ridisegna quando cambia uno stato che il suo disegno
   legge**, quindi una cosa che si muove sopra l'immagine vive in una tela sua, senza
   `pointerInput`, o ogni pixel di dito rifarebbe tutto il conto dello sviluppo.
-- ⚠️ **La vibrazione del tocco lungo (`HOLD_BUZZ`) non si alza**: è discreta su sua richiesta, in
-  tutta l'app.
+- ⚠️ **La vibrazione del tocco lungo è una sola, `HOLD_BUZZ`, la piena `LongPress` dalla 5.92**
+  (sua scelta B1), in tutta l'app: ogni `combinedClickable` spegne la sua (`hapticFeedbackEnabled =
+  false`), e lo presidia `VibrazioneTest`. Fino alla 5.91 era il colpetto leggero
+  `TextHandleMove`, che sommato a quello di Compose dava due vibrazioni per gesto.
 - **Modulo, fascia e canale vivono in `Gaze`**, condiviso fra palco e scheda, fuori dalla storia.
 - ⚠️⚠️ **La scheda ha un'altezza sola per tutti i moduli** (sua richiesta): `SteadyBody` misura ogni
   corpo e tiene il massimo, perché un numero in dp sarebbe giusto su un telefono solo. Le copie

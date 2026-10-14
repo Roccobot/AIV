@@ -1214,6 +1214,7 @@ private fun PadButton(
                 // ⚠️ Qui il gesto può non esserci, quindi la vibrazione si compone a mano
                 // invece di passare da [withHaptics]: vedi la sua nota.
                 onLongClick = hold,
+                hapticFeedbackEnabled = false,
                 onClick = action.onClick
             )
             .heightIn(min = PAD_TAP)
@@ -1290,13 +1291,17 @@ private fun padLabel(): TextStyle =
     )
 
 /**
- * Lo stesso gesto, con la vibrazione breve del sistema davanti.
+ * Lo stesso gesto, con la vibrazione del tocco lungo davanti.
  *
- * ⚠️⚠️ **COMPOSE NON VIBRA DA SÉ SUL TOCCO LUNGO, e questa è la differenza con le View di
- * Android**, dove `setOnLongClickListener` lo fa per conto suo quando il richiamo risponde
- * `true`. `combinedClickable` no: il gesto arriva muto, e su un telefono un tocco lungo che
- * non si sente non si distingue da un tocco lungo non riuscito. Richiesta dell'utente,
- * 2026-09-01: *feedback aptico in tutti gli eventi a pressione lunga*.
+ * Richiesta dell'utente, 2026-09-01: *feedback aptico in tutti gli eventi a pressione lunga*.
+ * ⚠️⚠️ **E OGNI `combinedClickable` SPEGNE LA VIBRAZIONE SUA (`hapticFeedbackEnabled = false`),
+ * dalla 5.92.** Quando questa funzione è nata `combinedClickable` arrivava muto; oggi (Compose
+ * Foundation 1.12.0, letto nel bytecode) vibra da sé con `LongPress`, e sopra questa funzione
+ * aggiungeva la sua: due colpi per un gesto, mentre i tocchi lunghi scritti con `pointerInput`
+ * ne davano uno leggero. La differenza l'ha sentita lui (*leggerissimo, diverso da altre
+ * vibrazioni*). Una vibrazione sola, sempre da [HOLD_BUZZ]: lo presidia `VibrazioneTest`, che
+ * legge anche i sorgenti, perché il prossimo `combinedClickable` scritto senza il parametro non
+ * lo vedrebbe nessuno.
  * ⚠️ **Sta qui e non in dieci punti**, ed è la ragione per cui è una funzione: i tocchi
  * lunghi dell'app sono sette in cinque file, e il giorno che ne nasce l'ottavo lo prende
  * anche lui se passa di qui. Un `performHapticFeedback` copiato sette volte se lo dimentica
@@ -1318,25 +1323,23 @@ fun withHaptics(action: () -> Unit): () -> Unit {
 }
 
 /**
- * Il colpetto di **ogni** pressione lunga dell'app, scritto in un posto solo.
+ * La vibrazione di **ogni** pressione lunga dell'app, scritta in un posto solo.
  *
- * ⚠️⚠️ **DALLA 1.21 È `TextHandleMove` E NON `LongPress`, per riscontro dell'utente**
- * (2026-09-01: *vorrei una vibrazione leggermente più breve di quella attualmente impostata:
- * dev'essere morbida e discreta*). `LongPress` è la vibrazione piena che Android usa per
- * questo gesto di serie, e sul suo telefono era troppo: `TextHandleMove` è il colpetto
- * leggero delle maniglie del testo, cioè la stessa cosa più corta.
- * ⚠️⚠️ **E NON `SegmentTick` o `ToggleOn`, che per nome sarebbero i tipi giusti**: quelle
- * costanti sono arrivate con **Android 14**, e Compose passa il numero grezzo a
- * `performHapticFeedback` **senza nessun ripiego** (verificato sul bytecode di
- * `DefaultHapticFeedback`). Sotto Android 14 il telefono riceve una costante che non conosce
- * e **non vibra affatto**, e il minSdk qui è 28. `TextHandleMove` esiste dall'API 27.
- * ⚠️ **Con questo cade la distinzione fra ENTRARE nella selezione e muoversi dentro**, che
- * fino alla 1.20 era un colpetto forte contro uno leggero: adesso sono lo stesso. È una
- * conseguenza voluta della richiesta, non una svista, e si dichiara perché il giorno che
- * l'ingresso nella selezione dovesse tornare a farsi sentire, quello è il posto da cui
- * ripartire.
+ * ⚠️⚠️ **DALLA 5.92 È `LongPress`, la vibrazione piena di Android, per sua scelta B1**
+ * (2026-10-14). Dalla 1.21 era `TextHandleMove`, il colpetto leggero delle maniglie del testo
+ * (*morbida e discreta*); ma i tocchi lunghi fatti con `combinedClickable` vibravano anche con
+ * il `LongPress` di Compose (nota di [withHaptics]), quindi lui sentiva quello pieno quasi
+ * dappertutto e il leggero solo dove il gesto è scritto con `pointerInput`, come l'ingresso
+ * nella selezione della griglia, che gli risultava *leggerissimo*. Fra le tre vie proposte ha
+ * scelto la vibrazione piena ovunque.
+ * ⚠️⚠️ **Mai `SegmentTick` o `ToggleOn`**: quelle costanti sono arrivate con **Android 14**, e
+ * Compose passa il numero grezzo a `performHapticFeedback` **senza nessun ripiego** (verificato
+ * sul bytecode di `DefaultHapticFeedback`). Sotto Android 14 il telefono riceve una costante
+ * che non conosce e **non vibra affatto**, e il minSdk qui è 28.
+ * ⚠️ **Entrare nella selezione e muoversi dentro vibrano uguale**, come dalla 1.21: il giorno che
+ * l'ingresso dovesse distinguersi, si riparte da qui.
  */
-val HOLD_BUZZ = HapticFeedbackType.TextHandleMove
+val HOLD_BUZZ = HapticFeedbackType.LongPress
 
 
 /**
@@ -1939,6 +1942,7 @@ fun TapHoldFab(
                     role = Role.Button,
                     onLongClickLabel = holdLabel,
                     onLongClick = withHaptics(onHold),
+                    hapticFeedbackEnabled = false,
                     onClick = onTap
                 ),
                 contentAlignment = Alignment.Center
