@@ -820,6 +820,27 @@ def check(path):
             field.press('Meta+Control+Alt+c')
             field.press('x')
             expect(stored).to_have_value('vedi `⌘C` x')
+            # The other keys of an Italian ISO keyboard he asked for, read by place, and with ⇧ the
+            # shortcut gets ⌘⇧ (his requests of the same day). The key left of 1 is \ under both
+            # of the names macOS can report for it.
+            italian = [('Quote', 'À'), ('BracketLeft', 'È'), ('Equal', 'Ì'), ('Semicolon', 'Ò'),
+                       ('Backslash', 'Ù'), ('Minus', "'"), ('BracketRight', '+'), ('Backquote', '\\'),
+                       ('IntlBackslash', '\\'), ('Comma', ','), ('Period', '.'), ('Slash', '-')]
+            # Playwright has no IntlBackslash key: that one is a keydown dispatched on the field,
+            # which goes through the same handler.
+            dispatch = '''(field, shift) => field.dispatchEvent(new KeyboardEvent('keydown', {
+                key: '<', code: 'IntlBackslash', metaKey: true, ctrlKey: true, altKey: true,
+                shiftKey: shift, bubbles: true, cancelable: true}))'''
+            for code, shown in italian + [('KeyC', 'C')]:
+                for shift, prefix in [('', '⌘'), ('Shift+', '⌘⇧')]:
+                    fill_plain(field, 'vedi ')
+                    field.press('End')
+                    if code == 'IntlBackslash':
+                        field.evaluate(dispatch, bool(shift))
+                    else:
+                        field.press('Meta+Control+Alt+' + shift + code)
+                    field.press('x')
+                    expect(stored).to_have_value('vedi `' + prefix + shown + '` x')
             # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys in the
             # mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
             # writes the symbol where the caret is, here a proof card's field and not Altro.
