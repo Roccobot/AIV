@@ -206,7 +206,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       bassa: un margine interno di 0,08 em sotto la porta 0,36 px sotto il centro del tasto, dove
       Rocco la voleva (il 2026-10-14, un pixel del suo schermo più in basso del giorno prima).
       Chromium posa il testo a pixel interi, quindi la `×` si sposta a scatti di circa 1 px, e
-      ogni margine da 0,07 a 0,09 em dà la stessa posizione. Il tooltip dice solo le
+      ogni margine da 0,07 a 0,09 em dà la stessa posizione. Le tre emoji sono più piccole del
+      20% (19,2 px) e all'85% di opacità, sul solo simbolo e non sul bordo del tasto (richiesta di
+      Rocco del 2026-10-14); un margine interno di 0,07 em sopra le porta, come la `×`, 0,36 px
+      sotto il centro, lo scatto più vicino al centro. Il tooltip dice solo le
       scorciatoie, a lettere maiuscole e separate da quattro spazi (insecabili, perché un tooltip
       può ridurre gli spazi normali a uno). Un clic scrive il simbolo dove si trova il cursore, in
       qualunque campo: i tasti non prendono il fuoco, e se il fuoco è andato altrove torna
