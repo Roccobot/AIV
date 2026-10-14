@@ -354,6 +354,10 @@ cifrato e leggibile solo da AIV, e protetto da password se lo si chiede.
   'Comandi e indicatori' non c'è più: i comandi sono entrati in 'Aspetto e navigazione', e
   l'indicatore dell'ultimo media in 'Cartelle e percorsi', con colore, copertine, cartelle incluse ed
   escluse, disposizione e preferite.
+  - ⚠️ **Dalla `6.02` quella parte si chiama 'File e cartelle'**, come la sezione delle impostazioni
+    (sua richiesta: *anche nell'esportazione delle impostazioni la voce `Cartelle` diventa `File e
+    cartelle`*), e prende la stringa della sezione: il suo nome non esiste più due volte. Con lei
+    viaggia anche la data del Feed (`feed-date`). Il token del gruppo resta `folders`.
   - ⚠️⚠️ **Le parti della pagina (`BackupGroup`) raccolgono le aree del file (`BackupArea`) e non le
     rinominano**: il file scrive ancora `view`, `buttons`, `tints`, `covers`, `hidden` e le altre,
     quindi i file di prima si importano (seconda metà di `A1`) e una versione vecchia legge quelli

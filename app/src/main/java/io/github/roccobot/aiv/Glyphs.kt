@@ -170,13 +170,15 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_browse_bottom)
 
     /**
-     * Il commutatore del menu angolare col tondo a riposo: una capsula, cioè la pillola verticale
-     * che il tocco mette a riposo. Disegno dell'utente, dalla `4.25`.
+     * La pillola verticale del menu angolare a riposo: una capsula. Disegno dell'utente, dalla `4.25`.
+     *
+     * ⚠️ **From 4.25 to 6.01 it was the switch's glyph in the Start menu**; from 6.02 it marks the
+     * `Pillola` chip of the rest in the settings, where the choice moved (see `MainControlChoices`).
      */
     val RestPill: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_rest_pill)
 
-    /** Il commutatore con la pillola a riposo: il tondo, che il tocco rimette. Disegno suo. */
+    /** Il tondo del menu angolare a riposo, sul gettone `Tondo`. Disegno suo. */
     val RestRound: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_rest_round)
 

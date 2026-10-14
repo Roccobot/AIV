@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">اللون الداكن</string>
     <string name="glass_default">الافتراضي</string>
     <string name="glass_reset">إعادة الضبط</string>
-    <string name="corner_rest_pill">الشريط عند السكون</string>
-    <string name="corner_rest_round">الزر الدائري عند السكون</string>
     <string name="settings_button_look">مظهر الأزرار الرئيسية</string>
     <string name="settings_button_look_desc">التعبئة وتأثيرات الشفافية أو التمويه مطبقة على الزر العائم وشريط الأيقونات والقوائم.</string>
     <string name="pill_slide">قابلة للإخفاء</string>
@@ -441,7 +439,7 @@
     <string name="settings_group_viewer">العارض</string>
     <string name="settings_group_input">التحكم والمؤشرات</string>
     <string name="settings_group_files">إدارة الملفات</string>
-    <string name="settings_group_browse">المجلدات</string>
+    <string name="settings_group_browse">الملفات والمجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">متقدمة</string>
     <string name="settings_page_info">المعلومات</string>
@@ -868,5 +866,12 @@
     <string name="folder_action_title">اختر إجراءً للمجلد</string>
     <string name="favourite_add">إضافة إلى المفضلة</string>
     <string name="favourite_remove">إزالة من المفضلة</string>
-    <string name="backup_area_folders">المجلدات والمسارات</string>
+    <string name="view_feed">الخلاصة</string>
+    <string name="feed_none">لا توجد صور أو فيديوهات لعرضها.</string>
+    <string name="feed_date">التاريخ المعتمد للترتيب</string>
+    <string name="feed_date_taken">الالتقاط، التعديل</string>
+    <string name="feed_date_modified">التعديل</string>
+    <string name="feed_order">الترتيب في عرض الخلاصة</string>
+    <string name="feed_order_desc">يعرض وضع الخلاصة الصور والفيديوهات فقط، دون تنظيمها في مجلدات، والأحدث في الأعلى. ولأن \'الأحدث\' قد يحمل معاني مختلفة، يمكنك اختيار تاريخ الالتقاط (مع الرجوع إلى تاريخ التعديل)، أو الاكتفاء بتاريخي الإنشاء والتعديل.</string>
+    <string name="hint_feed">تعرض الخلاصة صور وفيديوهات كل المجلدات، والأحدث في الأعلى. لتختار أي تاريخ يُعتمد، الالتقاط أو التعديل، اضغط مطولا على الزر.</string>
 </resources>

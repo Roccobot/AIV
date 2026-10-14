@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">গাঢ় রং</string>
     <string name="glass_default">ডিফল্ট</string>
     <string name="glass_reset">রিসেট</string>
-    <string name="corner_rest_pill">বিশ্রামে পিল</string>
-    <string name="corner_rest_round">বিশ্রামে গোল বোতাম</string>
     <string name="settings_button_look">প্রধান বোতামের চেহারা</string>
     <string name="settings_button_look_desc">ভাসমান বোতাম, আইকনের পিল ও মেনুগুলিতে প্রয়োগ করা ভরাট এবং স্বচ্ছতা বা ঝাপসা প্রভাব।</string>
     <string name="pill_slide">লুকানো যায়</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">প্রদর্শক</string>
     <string name="settings_group_input">নিয়ন্ত্রণ ও নির্দেশক</string>
     <string name="settings_group_files">ফাইল ব্যবস্থাপনা</string>
-    <string name="settings_group_browse">ফোল্ডার</string>
+    <string name="settings_group_browse">ফাইল ও ফোল্ডার</string>
     <string name="settings_group_start">সূচনা</string>
     <string name="settings_group_advanced">উন্নত</string>
     <string name="settings_page_info">তথ্য</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">ফোল্ডারের জন্য একটি কাজ বেছে নিন</string>
     <string name="favourite_add">প্রিয়তে যোগ করুন</string>
     <string name="favourite_remove">প্রিয় থেকে সরান</string>
-    <string name="backup_area_folders">ফোল্ডার ও পাথ</string>
+    <string name="view_feed">ফিড</string>
+    <string name="feed_none">দেখানোর মতো কোনো ছবি বা ভিডিও নেই।</string>
+    <string name="feed_date">সাজানোর তারিখ</string>
+    <string name="feed_date_taken">তোলা, পরিবর্তন</string>
+    <string name="feed_date_modified">পরিবর্তন</string>
+    <string name="feed_order">ফিড ভিউতে ক্রম</string>
+    <string name="feed_order_desc">ফিড ভিউ শুধু ছবি ও ভিডিও দেখায়, ফোল্ডারে ভাগ না করে, সবচেয়ে নতুনগুলো ওপরে। \'নতুন\' কথাটির মানে আলাদা হতে পারে, তাই আপনি ছবি তোলার তারিখ ব্যবহার করতে পারেন (না থাকলে পরিবর্তনের তারিখ), অথবা শুধু তৈরি ও পরিবর্তনের তারিখ বিবেচনা করতে পারেন।</string>
+    <string name="hint_feed">ফিড সব ফোল্ডারের ছবি ও ভিডিও দেখায়, সবচেয়ে নতুনগুলো ওপরে। তোলার তারিখ না পরিবর্তনের তারিখ গণ্য হবে তা বেছে নিতে বোতামটি চেপে ধরুন।</string>
 </resources>

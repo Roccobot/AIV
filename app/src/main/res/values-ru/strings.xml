@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Тёмный цвет</string>
     <string name="glass_default">По умолчанию</string>
     <string name="glass_reset">Сбросить</string>
-    <string name="corner_rest_pill">Таблетка в покое</string>
-    <string name="corner_rest_round">Круглая кнопка в покое</string>
     <string name="settings_button_look">Вид главных кнопок</string>
     <string name="settings_button_look_desc">Заливка и эффекты прозрачности или размытия для плавающей кнопки, таблетки со значками и меню.</string>
     <string name="pill_slide">Скрываемая</string>
@@ -411,7 +409,7 @@
     <string name="settings_group_viewer">Просмотр</string>
     <string name="settings_group_input">Управление и индикаторы</string>
     <string name="settings_group_files">Управление файлами</string>
-    <string name="settings_group_browse">Папки</string>
+    <string name="settings_group_browse">Файлы и папки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Дополнительно</string>
     <string name="settings_page_info">Информация</string>
@@ -832,5 +830,12 @@
     <string name="folder_action_title">Выберите действие для папки</string>
     <string name="favourite_add">Добавить в избранное</string>
     <string name="favourite_remove">Убрать из избранного</string>
-    <string name="backup_area_folders">Папки и пути</string>
+    <string name="view_feed">Лента</string>
+    <string name="feed_none">Нет фото и видео для показа.</string>
+    <string name="feed_date">Дата для сортировки</string>
+    <string name="feed_date_taken">Съёмка, изменение</string>
+    <string name="feed_date_modified">Изменение</string>
+    <string name="feed_order">Порядок в виде ленты</string>
+    <string name="feed_order_desc">Режим ленты показывает только фото и видео, без разбивки по папкам, самые новые сверху. Поскольку \'новое\' можно понимать по-разному, вы можете использовать дату съёмки (а при её отсутствии дату изменения) или учитывать только даты создания и изменения.</string>
+    <string name="hint_feed">Лента показывает фото и видео из всех папок, самые новые сверху. Чтобы выбрать, какая дата важна, съёмки или изменения, удерживайте кнопку.</string>
 </resources>

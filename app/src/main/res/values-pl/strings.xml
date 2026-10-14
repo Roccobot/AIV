@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Ciemny kolor</string>
     <string name="glass_default">Domyślny</string>
     <string name="glass_reset">Przywróć</string>
-    <string name="corner_rest_pill">Pigułka w spoczynku</string>
-    <string name="corner_rest_round">Okrągły przycisk w spoczynku</string>
     <string name="settings_button_look">Wygląd głównych przycisków</string>
     <string name="settings_button_look_desc">Wypełnienie oraz efekty przezroczystości lub rozmycia dla przycisku pływającego, pigułki z ikonami i menu.</string>
     <string name="pill_slide">Chowana</string>
@@ -411,7 +409,7 @@
     <string name="settings_group_viewer">Podgląd</string>
     <string name="settings_group_input">Sterowanie i wskaźniki</string>
     <string name="settings_group_files">Zarządzanie plikami</string>
-    <string name="settings_group_browse">Foldery</string>
+    <string name="settings_group_browse">Pliki i foldery</string>
     <string name="settings_group_start">Uruchamianie</string>
     <string name="settings_group_advanced">Zaawansowane</string>
     <string name="settings_page_info">Informacje</string>
@@ -832,5 +830,12 @@
     <string name="folder_action_title">Wybierz działanie dla folderu</string>
     <string name="favourite_add">Dodaj do ulubionych</string>
     <string name="favourite_remove">Usuń z ulubionych</string>
-    <string name="backup_area_folders">Foldery i ścieżki</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Brak zdjęć i filmów do pokazania.</string>
+    <string name="feed_date">Data do sortowania</string>
+    <string name="feed_date_taken">Wykonanie, Modyfikacja</string>
+    <string name="feed_date_modified">Modyfikacja</string>
+    <string name="feed_order">Układ w widoku feedu</string>
+    <string name="feed_order_desc">Widok feedu pokazuje tylko zdjęcia i filmy, bez podziału na foldery, najnowsze na górze. Ponieważ \'najnowsze\' może znaczyć różne rzeczy, możesz użyć daty wykonania (a gdy jej brak, daty modyfikacji) albo brać pod uwagę tylko daty utworzenia i modyfikacji.</string>
+    <string name="hint_feed">Feed pokazuje zdjęcia i filmy ze wszystkich folderów, najnowsze na górze. Aby wybrać, czy liczy się data wykonania, czy modyfikacji, przytrzymaj przycisk.</string>
 </resources>

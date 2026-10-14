@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Koyu renk</string>
     <string name="glass_default">Varsayılan</string>
     <string name="glass_reset">Sıfırla</string>
-    <string name="corner_rest_pill">Beklerken hap</string>
-    <string name="corner_rest_round">Beklerken yuvarlak düğme</string>
     <string name="settings_button_look">Ana düğmelerin görünümü</string>
     <string name="settings_button_look_desc">Kayan düğmeye, simge hapına ve menülere uygulanan dolgu ile saydamlık veya bulanıklık efektleri.</string>
     <string name="pill_slide">Gizlenen</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">Görüntüleyici</string>
     <string name="settings_group_input">Denetimler ve göstergeler</string>
     <string name="settings_group_files">Dosya yönetimi</string>
-    <string name="settings_group_browse">Klasörler</string>
+    <string name="settings_group_browse">Dosyalar ve klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
     <string name="settings_group_advanced">Gelişmiş</string>
     <string name="settings_page_info">Bilgiler</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">Klasör için bir işlem seç</string>
     <string name="favourite_add">Favorilere ekle</string>
     <string name="favourite_remove">Favorilerden çıkar</string>
-    <string name="backup_area_folders">Klasörler ve yollar</string>
+    <string name="view_feed">Akış</string>
+    <string name="feed_none">Gösterilecek fotoğraf veya video yok.</string>
+    <string name="feed_date">Sıralama tarihi</string>
+    <string name="feed_date_taken">Çekim, Değişiklik</string>
+    <string name="feed_date_modified">Değişiklik</string>
+    <string name="feed_order">Akış görünümünde düzen</string>
+    <string name="feed_order_desc">Akış görünümü yalnızca fotoğrafları ve videoları, klasörlere ayırmadan, en yeniler üstte olacak şekilde gösterir. \'Yeni\' farklı anlamlara gelebileceği için çekim tarihini (yoksa değişiklik tarihini) kullanmayı ya da yalnızca oluşturma ve değişiklik tarihlerini dikkate almayı seçebilirsin.</string>
+    <string name="hint_feed">Akış, tüm klasörlerindeki fotoğraf ve videoları en yeniler üstte olacak şekilde gösterir. Çekim tarihinin mi değişiklik tarihinin mi sayılacağını seçmek için düğmeye uzun bas.</string>
 </resources>

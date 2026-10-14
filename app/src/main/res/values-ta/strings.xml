@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">அடர் நிறம்</string>
     <string name="glass_default">இயல்புநிலை</string>
     <string name="glass_reset">மீட்டமை</string>
-    <string name="corner_rest_pill">ஓய்வில் மாத்திரை</string>
-    <string name="corner_rest_round">ஓய்வில் வட்டப் பொத்தான்</string>
     <string name="settings_button_look">முதன்மைப் பொத்தான்களின் தோற்றம்</string>
     <string name="settings_button_look_desc">மிதக்கும் பொத்தான், ஐகான் மாத்திரை, மெனுக்கள் ஆகியவற்றுக்கான நிரப்பு மற்றும் ஒளிபுகுதல் அல்லது மங்கல் விளைவுகள்.</string>
     <string name="pill_slide">மறையும்</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">காட்சியாளர்</string>
     <string name="settings_group_input">கட்டுப்பாடுகளும் காட்டிகளும்</string>
     <string name="settings_group_files">கோப்பு மேலாண்மை</string>
-    <string name="settings_group_browse">கோப்புறைகள்</string>
+    <string name="settings_group_browse">கோப்புகளும் கோப்புறைகளும்</string>
     <string name="settings_group_start">தொடக்கம்</string>
     <string name="settings_group_advanced">மேம்பட்ட</string>
     <string name="settings_page_info">தகவல்</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">கோப்புறைக்கான செயலைத் தேர்வுசெய்க</string>
     <string name="favourite_add">பிடித்தவையில் சேர்</string>
     <string name="favourite_remove">பிடித்தவையிலிருந்து நீக்கு</string>
-    <string name="backup_area_folders">கோப்புறைகள் மற்றும் பாதைகள்</string>
+    <string name="view_feed">ஃபீட்</string>
+    <string name="feed_none">காட்ட படங்களோ காணொளிகளோ இல்லை.</string>
+    <string name="feed_date">வரிசைப்படுத்தும் தேதி</string>
+    <string name="feed_date_taken">எடுத்தது, மாற்றம்</string>
+    <string name="feed_date_modified">மாற்றம்</string>
+    <string name="feed_order">ஃபீட் காட்சியில் வரிசை</string>
+    <string name="feed_order_desc">ஃபீட் காட்சி படங்களையும் காணொளிகளையும் மட்டும், கோப்புறைகளாகப் பிரிக்காமல், புதியவற்றை மேலே காட்டும். \'புதியது\' என்பதற்குப் பல பொருள்கள் இருக்கலாம் என்பதால், எடுத்த தேதியைப் பயன்படுத்தலாம் (இல்லையெனில் மாற்றிய தேதி), அல்லது உருவாக்கிய மற்றும் மாற்றிய தேதிகளை மட்டும் கணக்கில் கொள்ளலாம்.</string>
+    <string name="hint_feed">ஃபீட் எல்லாக் கோப்புறைகளின் படங்களையும் காணொளிகளையும் புதியவற்றை மேலே வைத்துக் காட்டும். எடுத்த தேதியா மாற்றிய தேதியா என்பதைத் தேர்வுசெய்ய பொத்தானை நீண்ட நேரம் அழுத்தவும்.</string>
 </resources>

@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">สีเข้ม</string>
     <string name="glass_default">ค่าเริ่มต้น</string>
     <string name="glass_reset">รีเซ็ต</string>
-    <string name="corner_rest_pill">แคปซูลขณะพัก</string>
-    <string name="corner_rest_round">ปุ่มกลมขณะพัก</string>
     <string name="settings_button_look">ลักษณะของปุ่มหลัก</string>
     <string name="settings_button_look_desc">การเติมสีและเอฟเฟกต์โปร่งใสหรือเบลอสำหรับปุ่มลอย แคปซูลไอคอน และเมนู</string>
     <string name="pill_slide">แบบซ่อนได้</string>
@@ -366,7 +364,7 @@
     <string name="settings_group_viewer">ตัวแสดงภาพ</string>
     <string name="settings_group_input">การควบคุมและตัวบ่งชี้</string>
     <string name="settings_group_files">การจัดการไฟล์</string>
-    <string name="settings_group_browse">โฟลเดอร์</string>
+    <string name="settings_group_browse">ไฟล์และโฟลเดอร์</string>
     <string name="settings_group_start">การเริ่มต้น</string>
     <string name="settings_group_advanced">ขั้นสูง</string>
     <string name="settings_page_info">ข้อมูล</string>
@@ -778,5 +776,12 @@
     <string name="folder_action_title">เลือกการทำงานสำหรับโฟลเดอร์</string>
     <string name="favourite_add">เพิ่มในรายการโปรด</string>
     <string name="favourite_remove">นำออกจากรายการโปรด</string>
-    <string name="backup_area_folders">โฟลเดอร์และเส้นทาง</string>
+    <string name="view_feed">ฟีด</string>
+    <string name="feed_none">ไม่มีรูปภาพหรือวิดีโอให้แสดง</string>
+    <string name="feed_date">วันที่ใช้เรียงลำดับ</string>
+    <string name="feed_date_taken">วันที่ถ่าย, วันที่แก้ไข</string>
+    <string name="feed_date_modified">วันที่แก้ไข</string>
+    <string name="feed_order">การเรียงในมุมมองฟีด</string>
+    <string name="feed_order_desc">มุมมองฟีดแสดงเฉพาะรูปภาพและวิดีโอ โดยไม่แบ่งตามโฟลเดอร์ รายการใหม่ล่าสุดอยู่ด้านบน เนื่องจาก \'ใหม่ล่าสุด\' อาจมีความหมายต่างกัน คุณจึงเลือกได้ว่าจะใช้วันที่ถ่าย (ถ้าไม่มีจะใช้วันที่แก้ไข) หรือพิจารณาเฉพาะวันที่สร้างและวันที่แก้ไข</string>
+    <string name="hint_feed">ฟีดแสดงรูปภาพและวิดีโอจากทุกโฟลเดอร์ โดยรายการใหม่ล่าสุดอยู่ด้านบน หากต้องการเลือกว่าจะใช้วันที่ถ่ายหรือวันที่แก้ไข ให้กดปุ่มค้างไว้</string>
 </resources>

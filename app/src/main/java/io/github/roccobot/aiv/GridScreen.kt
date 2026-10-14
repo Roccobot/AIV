@@ -878,8 +878,9 @@ fun GridScreen(
             // ⚠️ E dalla `2.50` quello della fila dei moduli, che vive nell'editor completo,
             // con dalla `2.73` la sua seconda slide sui due comandi del salvataggio, e dalla
             // `4.61` quello del modulo Disegno.
+            // ⚠️ And from 6.02 the Feed's, which lives in the home.
             Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN, Hint.COVER, Hint.MODULES,
-            Hint.EDITOR_TOOLS, Hint.DRAW -> Unit
+            Hint.EDITOR_TOOLS, Hint.DRAW, Hint.FEED -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -2854,6 +2855,8 @@ fun GridScreen(
                             // ⚠️ E per quello del modulo Disegno, dalla `4.61`: anche lui un
                             // `HintSpots`, sul tondo rosso.
                             Hint.DRAW -> R.string.hint_draw
+                            // ⚠️ And the Feed's, from 6.02: a `HintCentre` in the home.
+                            Hint.FEED -> R.string.hint_feed
                         }
                     ),
                     // ⚠️ L'angolo del comando vero, tondo o FAB, col centro sul centro del tondo
@@ -3143,7 +3146,7 @@ private fun PickFab(
 }
 
 @Composable
-private fun Thumbnail(
+internal fun Thumbnail(
     uri: Uri,
     position: Int,
     total: Int,
@@ -3741,7 +3744,7 @@ private val GAP = 3.dp
 
 /** Aria fra le miniature: più larga sul tablet (giro 3.37, `3.31-01` C). */
 @Composable
-private fun gridGap(): Dp {
+internal fun gridGap(): Dp {
     val w = LocalWindowInfo.current.containerSize.width
     val dp = with(LocalDensity.current) { w.toDp() }
     return if (dp.value >= Adaptive.PHONE_MAX) 8.dp else GAP
@@ -4003,7 +4006,7 @@ internal val EDGE_SPEED = 14.dp
 
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
-private const val THUMB_KIND = "thumb"
+internal const val THUMB_KIND = "thumb"
 
 /**
  * I rientri della schermata: quanto sta il contenuto dai bordi dell'area sicura.

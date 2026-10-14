@@ -77,5 +77,5 @@
     <string name="folder_action_title">Elige una acción para la carpeta</string>
     <string name="favourite_add">Agregar a favoritas</string>
     <string name="favourite_remove">Quitar de favoritas</string>
-    <string name="backup_area_folders">Carpetas y rutas</string>
+    <string name="hint_feed">El feed muestra las fotos y los videos de todas tus carpetas, los más recientes arriba. Para elegir si cuenta la fecha de captura o la de modificación, mantén presionado el botón.</string>
 </resources>

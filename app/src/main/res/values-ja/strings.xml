@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">暗い色</string>
     <string name="glass_default">デフォルト</string>
     <string name="glass_reset">リセット</string>
-    <string name="corner_rest_pill">待機時はピル</string>
-    <string name="corner_rest_round">待機時は丸ボタン</string>
     <string name="settings_button_look">メインボタンの見た目</string>
     <string name="settings_button_look_desc">フローティングボタン、アイコンのピル、メニューに適用される塗りと透明・ぼかしの効果です。</string>
     <string name="pill_slide">格納式</string>
@@ -366,7 +364,7 @@
     <string name="settings_group_viewer">ビューア</string>
     <string name="settings_group_input">操作と表示</string>
     <string name="settings_group_files">ファイル管理</string>
-    <string name="settings_group_browse">フォルダー</string>
+    <string name="settings_group_browse">ファイルとフォルダ</string>
     <string name="settings_group_start">起動</string>
     <string name="settings_group_advanced">詳細</string>
     <string name="settings_page_info">情報</string>
@@ -778,5 +776,12 @@
     <string name="folder_action_title">フォルダの操作を選択</string>
     <string name="favourite_add">お気に入りに追加</string>
     <string name="favourite_remove">お気に入りから削除</string>
-    <string name="backup_area_folders">フォルダとパス</string>
+    <string name="view_feed">フィード</string>
+    <string name="feed_none">表示する写真や動画がありません。</string>
+    <string name="feed_date">並べ替えの日付</string>
+    <string name="feed_date_taken">撮影日、更新日</string>
+    <string name="feed_date_modified">更新日</string>
+    <string name="feed_order">フィード表示の並び順</string>
+    <string name="feed_order_desc">フィード表示では、写真と動画だけをフォルダに分けずに、新しいものから上に表示します。\'新しい\'の意味は一つではないため、撮影日 (ない場合は更新日) を使うか、作成日と更新日だけを使うかを選べます。</string>
+    <string name="hint_feed">フィードには全フォルダの写真と動画が新しい順に表示されます。撮影日と更新日のどちらを使うかは、ボタンを長押しして選べます。</string>
 </resources>

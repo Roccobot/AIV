@@ -338,7 +338,7 @@
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_input">Controls and indicators</string>
     <string name="settings_group_files">File management</string>
-    <string name="settings_group_browse">Folders</string>
+    <string name="settings_group_browse">Files and folders</string>
     <string name="settings_group_start">Startup</string>
     <string name="settings_group_advanced">Advanced</string>
 
@@ -443,8 +443,6 @@
     <string name="glass_colour_dark">Dark color</string>
     <string name="glass_default">Default</string>
     <string name="glass_reset">Reset</string>
-    <string name="corner_rest_pill">Pill at rest</string>
-    <string name="corner_rest_round">Round button at rest</string>
     <string name="settings_button_look">Look of the main buttons</string>
     <string name="settings_button_look_desc">Fill and transparency or blur effects applied to the floating button, the icon pill and the menus.</string>
     <string name="pill_slide">Retractable</string>
@@ -990,5 +988,12 @@
     <string name="folder_action_title">Choose an action for the folder</string>
     <string name="favourite_add">Add to favorites</string>
     <string name="favourite_remove">Remove from favorites</string>
-    <string name="backup_area_folders">Folders and paths</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">No photos or videos to show.</string>
+    <string name="feed_date">Date for sorting</string>
+    <string name="feed_date_taken">Taken, Modified</string>
+    <string name="feed_date_modified">Modified</string>
+    <string name="feed_order">Feed view order</string>
+    <string name="feed_order_desc">Feed view shows only photos and videos, not sorted into folders, with the newest at the top. Since \'recent\' can mean different things, you can choose to use the date taken (falling back on the date modified) or only the dates of creation and modification.</string>
+    <string name="hint_feed">The Feed shows the photos and videos of all your folders, newest at the top. To choose whether the date taken or the date modified counts, press and hold the button.</string>
 </resources>

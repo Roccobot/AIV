@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">어두운 색</string>
     <string name="glass_default">기본값</string>
     <string name="glass_reset">초기화</string>
-    <string name="corner_rest_pill">대기 시 알약</string>
-    <string name="corner_rest_round">대기 시 원형 버튼</string>
     <string name="settings_button_look">기본 버튼 모양</string>
     <string name="settings_button_look_desc">플로팅 버튼, 아이콘 알약, 메뉴에 적용되는 채우기와 투명 또는 흐림 효과입니다.</string>
     <string name="pill_slide">접이식</string>
@@ -366,7 +364,7 @@
     <string name="settings_group_viewer">보기</string>
     <string name="settings_group_input">조작과 표시</string>
     <string name="settings_group_files">파일 관리</string>
-    <string name="settings_group_browse">폴더</string>
+    <string name="settings_group_browse">파일 및 폴더</string>
     <string name="settings_group_start">시작</string>
     <string name="settings_group_advanced">고급</string>
     <string name="settings_page_info">정보</string>
@@ -778,5 +776,12 @@
     <string name="folder_action_title">폴더 작업 선택</string>
     <string name="favourite_add">즐겨찾기에 추가</string>
     <string name="favourite_remove">즐겨찾기에서 제거</string>
-    <string name="backup_area_folders">폴더 및 경로</string>
+    <string name="view_feed">피드</string>
+    <string name="feed_none">표시할 사진이나 동영상이 없습니다.</string>
+    <string name="feed_date">정렬 기준 날짜</string>
+    <string name="feed_date_taken">촬영일, 수정일</string>
+    <string name="feed_date_modified">수정일</string>
+    <string name="feed_order">피드 보기 정렬</string>
+    <string name="feed_order_desc">피드 보기는 사진과 동영상만 폴더로 나누지 않고 최신 항목부터 위에 표시합니다. \'최신\'의 뜻은 여러 가지일 수 있으므로 촬영일(없으면 수정일)을 사용할지, 생성일과 수정일만 고려할지 선택할 수 있습니다.</string>
+    <string name="hint_feed">피드에는 모든 폴더의 사진과 동영상이 최신 항목부터 위에 표시됩니다. 촬영일과 수정일 중 무엇을 기준으로 할지 고르려면 버튼을 길게 누르세요.</string>
 </resources>

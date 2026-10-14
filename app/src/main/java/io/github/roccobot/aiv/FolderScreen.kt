@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
+import android.text.format.DateFormat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +39,7 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -49,6 +51,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.DynamicFeed
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Public
@@ -94,6 +97,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -111,6 +115,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -208,10 +214,23 @@ fun FolderScreen(
     onSearch: () -> Unit,
     onBin: () -> Unit,
     /**
-     * Il commutatore del menu angolare, dalla `4.25`: passa il riposo dal tondo alla pillola
-     * verticale e ritorno. Vedi `Settings.cornerRound`.
+     * The Feed, and `null` until its first reading ends. See `ViewerViewModel.feed`.
+     *
+     * ⚠️ **From 6.02 the Feed takes the Start menu box of the switch between the round key and
+     * the pill** (his choice: *non serve, ed era solo un riempitivo*): the switch lives in the
+     * settings, under the main control.
      */
-    onCornerRest: () -> Unit,
+    feed: Feed.Page?,
+    /** Which date puts the Feed in order. See [FeedDate]. */
+    feedDate: FeedDate,
+    onFeedDate: (FeedDate) -> Unit,
+    /**
+     * Asks the model to read the Feed, saying whether the permission is there: it reads only when
+     * something the stream depends on has changed (`ViewerViewModel.readFeed`).
+     */
+    onFeedRead: (Boolean) -> Unit,
+    /** A picture touched in the Feed: the stream and the position. */
+    onFeedOpen: (List<Uri>, Int) -> Unit,
     /**
      * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
      *
@@ -358,6 +377,14 @@ fun FolderScreen(
      */
     var columnsOff by remember { mutableStateOf(false) }
 
+    /** Whether the Feed's veil has been seen: starts at 'seen' for the reason of [columnsSeen]. */
+    val feedSeen by produceState(initialValue = true, context) {
+        Hint.FEED.flow(context).collect { value = it }
+    }
+
+    /** The local flag of the Feed's veil, for the reason of [columnsOff]. */
+    var feedOff by remember { mutableStateOf(false) }
+
     // ⚠️ L'esito si RICHIEDE allo stato delle cose, come fa il viewer: [Store] sceglie la
     // strada della variante, e qui il tocco è della persona, quindi la pagina non si spiega.
     val askAccess = Store.rememberAccessRequest(explain = false) { reread() }
@@ -366,6 +393,11 @@ fun FolderScreen(
     // Il permesso può essere appena arrivato: il modello decide da sé se c'è davvero
     // qualcosa da rileggere.
     LaunchedEffect(granted) { onRead(granted) }
+    // ⚠️ The Feed is read only when it is on screen: a home in the grid does not pay for a query on
+    // every picture of the phone. Folders and date are keys because they change the stream.
+    LaunchedEffect(granted, view, forStart, selection, feedDate) {
+        if (view == FolderView.FEED && !forStart) onFeedRead(granted)
+    }
 
     // ⚠️ Il filtro sta QUI e non dentro `Folder.buckets`, che resta un elenco puro: le
     // impostazioni sono una faccenda della schermata, e una funzione che legge il
@@ -484,6 +516,15 @@ fun FolderScreen(
          */
         val coverScroll = rememberLazyGridState()
         val rowScroll = rememberLazyListState()
+        // ⚠️ The Feed has its own, from 6.02: the position among the pictures means nothing among
+        // the folders, as the note above says of the other two.
+        val feedScroll = rememberLazyGridState()
+        /** The grid on screen, covers or Feed, and `null` in the two lists. */
+        val gridScroll: LazyGridState? = when (view) {
+            FolderView.GRID -> coverScroll
+            FolderView.FEED -> feedScroll
+            else -> null
+        }
 
         /**
          * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
@@ -511,9 +552,9 @@ fun FolderScreen(
                 // ⚠️ **In cima alla griglia o all'elenco** (voce `3.13-02`): senza, con poche
                 // cartelle il trascinamento verso il basso non riapriva l'intestazione.
                 inCima = {
-                    if (view == FolderView.GRID)
-                        coverScroll.firstVisibleItemIndex == 0 &&
-                            coverScroll.firstVisibleItemScrollOffset == 0
+                    if (gridScroll != null)
+                        gridScroll.firstVisibleItemIndex == 0 &&
+                            gridScroll.firstVisibleItemScrollOffset == 0
                     else
                         rowScroll.firstVisibleItemIndex == 0 &&
                             rowScroll.firstVisibleItemScrollOffset == 0
@@ -530,23 +571,11 @@ fun FolderScreen(
          * salto muoverebbe una lista che non è in scena. Spegnere il solo tocco lascerebbe il
          * chevron a comparire per niente.
          */
-        val scorre: ScrollableState = if (view == FolderView.GRID) coverScroll else rowScroll
+        val scorre: ScrollableState = gridScroll ?: rowScroll
         val arm = rememberJumpArm(
             state = scorre,
-            up = {
-                shut() + if (view == FolderView.GRID) {
-                    coverScroll.jumpUpPixels()
-                } else {
-                    rowScroll.jumpUpPixels()
-                }
-            },
-            down = {
-                if (view == FolderView.GRID) {
-                    coverScroll.jumpDownPixels()
-                } else {
-                    rowScroll.jumpDownPixels()
-                }
-            }
+            up = { shut() + (gridScroll?.jumpUpPixels() ?: rowScroll.jumpUpPixels()) },
+            down = { gridScroll?.jumpDownPixels() ?: rowScroll.jumpDownPixels() }
         )
         /*
          * ⚠️ **Quello che la pillola di vetro sfoca, dalla `4.00`**: la colonna intera, che è sorella
@@ -640,6 +669,31 @@ fun FolderScreen(
                         onOpen = onTreeOpen,
                         onBusy = { treeBusy = it }
                     )
+
+                /*
+                 * ⚠️⚠️ **THE FEED, FROM 6.02, AND IT IS HIS REQUEST** (2026-10-13: *un unico feed di
+                 * foto con le più recenti in cima*): before the folder branches, like the tree, because
+                 * it reads its own stream and does not wait for the folders. Like the tree it exists
+                 * only in the home: picking the start folder wants a folder, so there it falls to the
+                 * list at the bottom.
+                 */
+                view == FolderView.FEED && home -> when {
+                    feed == null -> CircularProgressIndicator(
+                        Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)
+                    )
+                    feed.items.isEmpty() -> Text(
+                        text = stringResource(R.string.feed_none),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 24.dp)
+                    )
+                    // ⚠️ The same filling slot as the grid (`3.25`): with few pictures a drag on the
+                    // empty space must still open the header again.
+                    else -> Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                        FeedGrid(feed, columns, feedScroll, Modifier.fillMaxSize()) { at ->
+                            onFeedOpen(feed.items, at)
+                        }
+                    }
+                }
 
                 folders == null -> CircularProgressIndicator(
                     Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)
@@ -739,7 +793,6 @@ fun FolderScreen(
                 onSettings = onSettings,
                 onSearch = onSearch,
                 onBin = onBin,
-                onCornerRest = onCornerRest,
                 hiddenCount = if (selection.mode == FolderMode.EXCLUDED) selection.excluded.size else 0,
                 peeking = peeking,
                 onPeek = onPeek,
@@ -859,9 +912,7 @@ fun FolderScreen(
                             onNewFolder = null,
                             onBin = onBin,
                             onSettings = onSettings,
-                            steady = true,
-                            onCornerRest = onCornerRest,
-                            cornerRound = LocalPillLook.current.cornerRound
+                            steady = true
                         ),
                         atEnd = LocalPadLook.current.hand == Hand.RIGHT,
                         key = tasto
@@ -870,6 +921,23 @@ fun FolderScreen(
                     tasto()
                 }
             }
+        }
+
+        /*
+         * ⚠️⚠️ **THE FEED'S VEIL, FROM 6.02, THE FIRST TIME THE STREAM IS ON SCREEN** (his request:
+         * *un mini-onboarding ... che spieghi in breve la scelta della data*). Only with pictures
+         * to show: on an empty stream or before the permission the sentence would explain nothing.
+         */
+        if (home && granted && view == FolderView.FEED && !feed?.items.isNullOrEmpty() &&
+            !feedSeen && !feedOff
+        ) {
+            HintCentre(
+                text = stringResource(R.string.hint_feed),
+                onDone = {
+                    feedOff = true
+                    scope.launch { Hint.FEED.remember(context) }
+                }
+            )
         }
     }
 
@@ -912,9 +980,11 @@ fun FolderScreen(
             listText = listText,
             treeHidden = treeHidden,
             treePictures = treePictures,
+            feedDate = feedDate,
             onView = onView,
             onColumns = onColumns,
             onOrder = { onSelectionChange(selection.copy(order = it)) },
+            onFeedDate = onFeedDate,
             onListCount = onListCount,
             onListText = onListText,
             onTreeHidden = onTreeHidden,
@@ -1090,6 +1160,8 @@ private fun FolderView.label(): Int = when (this) {
     FolderView.GRID -> R.string.hub_view_grid
     FolderView.LIST -> R.string.hub_view_list
     FolderView.TREE -> R.string.hub_view_tree
+    // ⚠️ His name, everywhere: like 'Cartelle di sistema' it is a name and not a description.
+    FolderView.FEED -> R.string.view_feed
 }
 
 /** Il nome breve di una vista, sotto la sua icona nel menu Start (nota F del giro della `4.32`). */
@@ -1097,6 +1169,7 @@ private fun FolderView.short(): Int = when (this) {
     FolderView.GRID -> R.string.start_grid
     FolderView.LIST -> R.string.start_list
     FolderView.TREE -> R.string.start_tree
+    FolderView.FEED -> R.string.view_feed
 }
 
 /**
@@ -1112,6 +1185,8 @@ private val FolderView.glyph: ImageVector
         FolderView.GRID -> Glyphs.ViewGrid
         FolderView.LIST -> Glyphs.ViewList
         FolderView.TREE -> Icons.Default.Folder
+        // ⚠️ Material's stream of cards, as for the tree: no drawing of his yet (6.02).
+        FolderView.FEED -> Icons.Default.DynamicFeed
     }
 
 /**
@@ -1127,6 +1202,7 @@ private fun FolderView.shortLabel(): Int = when (this) {
     FolderView.GRID -> R.string.view_grid
     FolderView.LIST -> R.string.view_list
     FolderView.TREE -> R.string.view_tree
+    FolderView.FEED -> R.string.view_feed
 }
 
 @Composable
@@ -1218,8 +1294,6 @@ private fun Hub(
      * alla sola pillola in cui si ripiega. Vedi `corner` in [PhonePillBar].
      */
     corner: Modifier = Modifier,
-    /** Il commutatore del riposo del menu angolare. Vedi [hubEntries]. */
-    onCornerRest: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
@@ -1261,9 +1335,7 @@ private fun Hub(
         onNewFolder = onNewFolder,
         onBin = onBin,
         onSettings = onSettings,
-        steady = true,
-        onCornerRest = onCornerRest,
-        cornerRound = LocalPillLook.current.cornerRound
+        steady = true
     ) else null
 
     /*
@@ -1468,39 +1540,20 @@ private fun hubEntries(
      * nascoste' sempre al suo posto, spenta quando non ce n'è una e sostituita da 'Seleziona
      * immagine' senza il permesso. Così le caselle sono nove in ogni caso, e ogni icona resta nella
      * sua casella.
-     * ⚠️ **Dalla `4.25` le viste sono di nuovo le due diverse da quella corrente**, come nel menu del
-     * FAB: la terza casella della prima riga è il commutatore ([onCornerRest]). Nella `4.20` c'erano
-     * tutte e tre, con quella corrente segnata da un disco.
+     * ⚠️ **Dalla `4.25` le viste sono di nuovo le altre, diverse da quella corrente**, come nel menu
+     * del FAB. Nella `4.20` c'erano tutte, con quella corrente segnata da un disco.
+     * ⚠️⚠️ **FROM 6.02 THE FIRST ROW IS THE THREE OTHER VIEWS, AND THE FEED TOOK THE SWITCH'S BOX**
+     * (his choice of 2026-10-14: *non serve, ed era solo un riempitivo. È anche la posizione più
+     * naturale*): the switch between the round key and the pill, which opened the row from 4.25,
+     * lives in the settings under the main control. In AIV Play there is no tree view, so the row
+     * is the two other views and 'Mostra nascoste', as it was.
+     * ⚠️ **With 'Nuova cartella' the Feed is left out** (his note E on the 4.32 round, with
+     * `10icons.png`, said the same of the switch): there the boxes would be ten, and the tenth
+     * opened a fourth row for itself. From inside a folder of the tree the Feed is one tap away in
+     * the main menu.
      */
-    steady: Boolean = false,
-    /**
-     * Il commutatore del riposo del menu angolare, che dalla `4.25` apre la prima riga (giro della
-     * `4.20`, `4.20-01`: *una nona icona fa da commutatore ... non si vedono più tutte e tre le viste
-     * con la selezionata*). `null` fuori dal menu angolare.
-     */
-    onCornerRest: (() -> Unit)? = null,
-    /** Come riposa adesso il menu angolare: decide il glifo e l'etichetta del commutatore. */
-    cornerRound: Boolean = true
+    steady: Boolean = false
 ): List<PillEntry> = buildList {
-    /*
-     * ⚠️⚠️ **DALLA `4.25` NEL MENU ANGOLARE LA PRIMA RIGA È IL COMMUTATORE E LE DUE ALTRE VISTE**: la
-     * vista in cui si è non c'è più, e la sua casella la prende il commutatore. Il glifo mostra il
-     * riposo che il tocco mette (la capsula col tondo attivo, il tondo con la pillola attiva), e
-     * l'etichetta nomina quello che il tocco fa, come ogni voce di un menu.
-     * ⚠️⚠️ **DALLA `4.33` NON C'È QUANDO C'È 'Nuova cartella'** (nota E del giro della `4.32`, con
-     * `10icons.png`): là le caselle sarebbero dieci, e la decima apriva una quarta riga per il solo
-     * commutatore. Nelle altre forme l'icona in più va bene (sue parole).
-     */
-    if (onCornerRest != null && onNewFolder == null) {
-        add(
-            PillEntry(
-                icon = if (cornerRound) Glyphs.RestPill else Glyphs.RestRound,
-                label = stringResource(if (cornerRound) R.string.corner_rest_pill else R.string.corner_rest_round),
-                group = 0,
-                short = stringResource(if (cornerRound) R.string.start_pill else R.string.start_round)
-            ) { onCornerRest() }
-        )
-    }
     // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
     // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
     // è una richiesta, non un indicatore di stato, quindi in griglia si legge
@@ -1518,7 +1571,10 @@ private fun hubEntries(
     // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
     // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
     // vorrebbe dire ribattezzare una cosa che ha già un nome.
-    Store.views.filter { it != view }.forEach { other ->
+    // ⚠️ In the Start menu the Feed comes first, in the box the switch had (*al posto di*).
+    Store.views.filter { it != view && !(steady && it == FolderView.FEED && onNewFolder != null) }
+        .sortedBy { !(steady && it == FolderView.FEED) }
+        .forEach { other ->
         add(PillEntry(other.glyph, stringResource(other.label()), group = 0, short = stringResource(other.short())) { onView(other) })
     }
 
@@ -1729,9 +1785,11 @@ internal fun ViewOptions(
     listText: TextSize,
     treeHidden: Boolean,
     treePictures: Boolean,
+    feedDate: FeedDate,
     onView: (FolderView) -> Unit,
     onColumns: (Int) -> Unit,
     onOrder: (FolderOrder) -> Unit,
+    onFeedDate: (FeedDate) -> Unit,
     onListCount: (Boolean) -> Unit,
     onListText: (TextSize) -> Unit,
     onTreeHidden: (Boolean) -> Unit,
@@ -1830,6 +1888,26 @@ internal fun ViewOptions(
                     FolderView.TREE -> {
                         OptionSwitch(R.string.tree_show_hidden, treeHidden, onTreeHidden)
                         OptionSwitch(R.string.tree_pictures, treePictures, onTreePictures)
+                    }
+                    /*
+                     * ⚠️⚠️ **THE FEED, FROM 6.02: THE COLUMNS AND HIS TITLE WITH HIS TWO CHIPS**
+                     * (*titolino `Data per l'ordinamento` e due gettoni, `Scatto, Modifica` e
+                     * `Modifica`*). The columns are the grid's, one setting for the two grids.
+                     * ⚠️ No favourites row and no order: the Feed has no folders to put first.
+                     */
+                    FolderView.FEED -> {
+                        OptionLabel(R.string.columns_title)
+                        JustifiedChips {
+                            FOLDER_COLUMNS.forEach { n ->
+                                OptionChip(n.toString(), n == columns) { onColumns(n) }
+                            }
+                        }
+                        OptionLabel(R.string.feed_date)
+                        JustifiedChips {
+                            FeedDate.entries.forEach { one ->
+                                OptionChip(stringResource(one.chip()), one == feedDate) { onFeedDate(one) }
+                            }
+                        }
                     }
                 }
             }
@@ -2187,6 +2265,85 @@ internal fun Covers(
         }
     }
 }
+
+/**
+ * The Feed as a grid: a heading for every month (his choice C1), and under it the pictures, newest
+ * first. From 6.02.
+ *
+ * ⚠️⚠️ **THE CELLS ARE THOSE OF A FOLDER'S GRID** ([Thumbnail], [gridGap]): they are the same
+ * pictures, and a second drawing of a thumbnail would part from the first at the first change.
+ * ⚠️ **The columns are the folders' choice** ([columns], `Settings.folderColumns`), counted on the
+ * short side by [spread] like every grid of the app: the long press on the Start key changes them
+ * here as it does in the grid of covers.
+ * ⚠️ **The month name comes from the system's pattern for the language** (`MMMMy`): Italian writes
+ * `ottobre 2026`, Japanese `2026年10月`, and a pattern written here would be right for one of them.
+ */
+@Composable
+private fun FeedGrid(
+    page: Feed.Page,
+    columns: Int,
+    state: LazyGridState,
+    modifier: Modifier,
+    onOpen: (Int) -> Unit
+) {
+    val locale = LocalConfiguration.current.locales[0]
+    val months = remember(locale) {
+        DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMMy"), locale)
+    }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
+        state = state,
+        horizontalArrangement = Arrangement.spacedBy(gridGap()),
+        verticalArrangement = Arrangement.spacedBy(gridGap()),
+        // ⚠️ The same bottom room as the covers: the last row clears the Start key and the gesture bar.
+        contentPadding = PaddingValues(bottom = BELOW_FAB + extraRoom() + bottomInset()),
+        modifier = modifier
+    ) {
+        page.months.forEachIndexed { m, month ->
+            val end = page.months.getOrNull(m + 1)?.start ?: page.items.size
+            item(
+                key = "month-${month.year}-${month.month}",
+                span = { GridItemSpan(maxLineSpan) },
+                contentType = MONTH_KIND
+            ) {
+                Text(
+                    text = YearMonth.of(month.year, month.month).format(months)
+                        .replaceFirstChar { it.titlecase(locale) },
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier
+                        .padding(top = if (m == 0) 0.dp else MONTH_GAP, bottom = 4.dp)
+                        .heading()
+                )
+            }
+            items(
+                count = end - month.start,
+                // ⚠️ The address is the key, as in a folder's grid: decoded thumbnails stay with
+                // their picture when the stream moves.
+                key = { page.items[month.start + it].toString() },
+                contentType = { THUMB_KIND }
+            ) { i ->
+                val at = month.start + i
+                Thumbnail(
+                    uri = page.items[at],
+                    position = at + 1,
+                    total = page.items.size,
+                    marked = false,
+                    chosen = false,
+                    named = false,
+                    mark = LastMark.FRAME,
+                    room = 0,
+                    shade = null
+                ) { onOpen(at) }
+            }
+        }
+    }
+}
+
+/** One content type for every month heading of the Feed, as [FOLDER_KIND] is for the covers. */
+private const val MONTH_KIND = "month"
+
+/** The air above a month's heading, after the first: a month starts a new group. */
+private val MONTH_GAP = 16.dp
 
 /**
  * Le cartelle come elenco.

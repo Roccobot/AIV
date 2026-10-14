@@ -580,9 +580,58 @@ le due scelte vivono in `FolderSelection` (`order`, `favourites`) e nell'archivi
   griglia, lista e colonna del tablet), con due tasti grandi e arrotondati uno sopra l'altro:
   'Nascondi' (o 'Mostra' per una cartella in prestito) prosegue nelle domande di sempre, descritte
   qui sotto; 'Aggiungi alle preferite' o 'Rimuovi dalle preferite' agisce subito.
-- **Esporta e importa**: le due scelte viaggiano in 'Cartelle e percorsi' (`docs/Files.md`).
+- **Esporta e importa**: le due scelte viaggiano in 'File e cartelle' (`docs/Files.md`; fino alla
+  `6.01` 'Cartelle e percorsi').
 - **`CartellePreferiteTest`** misura l'ordine delle tre viste, il gesto delle preferite, la lettura e
   la scrittura delle due scelte, le due finestre e la domanda; ogni caso con la sua controprova.
+
+## 📰 Il Feed
+
+**Com'è fatto.** Sua richiesta del 2026-10-13 (*un unico feed di foto con le più recenti in cima*),
+con le risposte del 2026-10-14, per le due varianti, dalla `6.02`. È la quarta vista della casa,
+`FolderView.FEED`: foto e video di tutte le cartelle, senza le cartelle. L'ordine e i mesi li fa una
+funzione pura, `Feed.order`; le righe le legge `Folder.feed` dal MediaStore; la griglia è
+`FeedGrid`, in `FolderScreen.kt`, con le stesse miniature della griglia di una cartella.
+
+- ⚠️⚠️ **Si apre dal menu Start, nella casella che era del commutatore fra tondo e pillola** (sue
+  parole: *non serve, ed era solo un riempitivo. È anche la posizione più naturale*). Il commutatore
+  è andato nelle impostazioni, in 'Elemento interattivo principale' sotto 'Menu Start', coi gettoni
+  `Tondo` e `Pillola` e i suoi due disegni (*al limite mettiamo la scelta nelle impostazioni*); il
+  tondo resta il riposo di fabbrica.
+  - ⚠️ **Lettura dichiarata**: nella vista ad albero, dentro una cartella, c'è 'Crea' e le caselle
+    sarebbero dieci, quindi là il Feed non compare, come prima il commutatore (nota E del giro della
+    `4.32`). Il Feed resta nel menu del FAB e nelle opzioni di visualizzazione.
+  - ⚠️⚠️ **Nelle pillole e nel menu inferiore le voci possono essere otto** (sua scelta A1 del
+    2026-10-14): con le tre viste e 'Mostra nascoste' si supera il tetto di sette della `4.15`, i
+    tasti si stringono un poco e 'Cerca' non è più esattamente al centro. Senza cartelle nascoste le
+    voci restano sette, e la regola di 'Cerca' al centro vale com'era.
+- ⚠️⚠️ **Le cartelle sono quelle della griglia** (risposta D1): valgono nascoste, incluse ed escluse,
+  come nella ricerca, e il cestino resta fuori per costruzione. ⚠️ **'Mostra nascoste' non le
+  aggiunge**: il minuto in prestito vale per le cartelle, non per il Feed.
+- ⚠️⚠️ **La data la sceglie lui, e di fabbrica è lo scatto con ripiego sulla modifica** (risposta B1):
+  un file senza data di scatto (una cattura dello schermo, un download) si mette alla data di
+  modifica, invece di finire in fondo al 1970. La scelta è in due posti, con gli stessi due gettoni,
+  `Scatto, Modifica` e `Modifica`:
+  - nelle opzioni di visualizzazione, in vista Feed: le colonne e il titolino `Data per l'ordinamento`;
+  - in Impostazioni → File e cartelle, sotto 'Disposizione in vista griglia': 'Disposizione in vista
+    feed', col suo paragrafo alla lettera.
+  - ⚠️ **'Modifica' legge `DATE_MODIFIED`**, cioè la data in cui il file è stato scritto l'ultima
+    volta: per un file mai toccato coincide con quella di creazione, che Android non conserva a parte.
+- ⚠️ **Un'intestazione per mese** (risposta C1), col nome del mese nella forma della lingua
+  (`DateFormat.getBestDateTimePattern`, `MMMMy`) e la prima lettera maiuscola.
+- ⚠️ **Le colonne sono quelle della griglia delle cartelle** (`Settings.folderColumns`): una manopola
+  per le due griglie della casa, come la vuole la sua regola della `1.66` (*che resta globale*).
+- ⚠️ **Sullo schermo largo il Feed prende la schermata intera**, come la vista ad albero: una colonna di
+  cartelle accanto contraddirebbe una vista senza cartelle.
+- ⚠️ **Il tocco apre l'immagine nel visualizzatore, con tutto il Feed come sequenza**, e Indietro
+  riporta alla casa; nella scelta della copertina o di un'immagine per un'altra app il tocco consegna,
+  come nell'albero. Nessuna selezione multipla, per ora.
+- **Il velo** `Hint.FEED` (testo mio, a sua discrezione) compare la prima volta che il Feed mostra
+  delle immagini, e dice dove si sceglie la data.
+- **Esporta e importa**: la data viaggia in 'File e cartelle' (`feed-date`).
+- **`FeedTest`** misura l'ordine con le due date, il ripiego, i mesi, i pareggi, la griglia coi mesi,
+  il tocco e il velo; `VistaOpzioniTest` il dialogo; `MenuInferioreTest` la casella e i gettoni del
+  riposo.
 
 ## 🗂️ Cartelle incluse/escluse
 

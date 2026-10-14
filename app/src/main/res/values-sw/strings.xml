@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Rangi nzito</string>
     <string name="glass_default">Chaguo-msingi</string>
     <string name="glass_reset">Weka upya</string>
-    <string name="corner_rest_pill">Kidonge kikiwa kimetulia</string>
-    <string name="corner_rest_round">Kitufe cha duara kikiwa kimetulia</string>
     <string name="settings_button_look">Mwonekano wa vitufe vikuu</string>
     <string name="settings_button_look_desc">Ujazo na athari za uwazi au ukungu kwa kitufe kinachoelea, kidonge cha aikoni na menyu.</string>
     <string name="pill_slide">Inayojificha</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">Kitazamaji</string>
     <string name="settings_group_input">Vidhibiti na viashiria</string>
     <string name="settings_group_files">Usimamizi wa faili</string>
-    <string name="settings_group_browse">Folda</string>
+    <string name="settings_group_browse">Faili na folda</string>
     <string name="settings_group_start">Kuanza</string>
     <string name="settings_group_advanced">Za hali ya juu</string>
     <string name="settings_page_info">Taarifa</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">Chagua kitendo kwa folda</string>
     <string name="favourite_add">Ongeza kwenye pendwa</string>
     <string name="favourite_remove">Ondoa kwenye pendwa</string>
-    <string name="backup_area_folders">Folda na njia</string>
+    <string name="view_feed">Mlisho</string>
+    <string name="feed_none">Hakuna picha wala video za kuonyesha.</string>
+    <string name="feed_date">Tarehe ya kupanga</string>
+    <string name="feed_date_taken">Kupigwa, Kubadilishwa</string>
+    <string name="feed_date_modified">Kubadilishwa</string>
+    <string name="feed_order">Mpangilio katika mwonekano wa mlisho</string>
+    <string name="feed_order_desc">Mwonekano wa mlisho unaonyesha picha na video pekee, bila kuzipanga katika folda, mpya zaidi juu. Kwa kuwa \'mpya\' inaweza kuwa na maana tofauti, unaweza kutumia tarehe ya kupigwa (na tarehe ya kubadilishwa isipokuwepo) au kuzingatia tarehe za kuundwa na kubadilishwa pekee.</string>
+    <string name="hint_feed">Mlisho unaonyesha picha na video za folda zako zote, mpya zaidi juu. Ili kuchagua tarehe ipi ihesabiwe, ya kupigwa au ya kubadilishwa, bonyeza na ushikilie kitufe.</string>
 </resources>
