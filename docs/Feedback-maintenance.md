@@ -154,6 +154,14 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   più carica del colore di quell'esito** (bordo dell'esito, fondo col 16% del suo colore), non il
   verde del riquadro senza esito (sua nota del 2026-10-12, con uno screenshot: verde su un riquadro
   rosso). Lo presidia `tools/feedback-interactive-check.py`.
+  ⚠️ **Il tratteggio della casella `+` è una variante della cornice del suo riquadro, nello
+  stato in cui si trova** (sua richiesta del 2026-10-14, con uno screenshot: tratteggio verde su un
+  riquadro giallo): con una risposta prende l'inchiostro della cornice al 90% sul fondo del
+  riquadro, cioè grigio-azzurro senza esito e verde, ambra o rosso con un esito; un riquadro vuoto,
+  `Altro` e il suo pannello restano sul verde di `--border-strong`, la variante forte della loro
+  cornice. Il 90% è la dose più chiara, fra 100, 90, 85 e 80%, che tiene 3:1 sul fondo in ogni
+  stato e tema (il minimo è 3,03, risposta senza esito, tema chiaro). Il colore vive in `--dash`,
+  calcolato da `--frame-ink` e `--frame-ground` su `.card.has-response`; lo presidia la stessa prova.
 - Specifiche separate per telefono e tablet: modello e Android. I commenti indicano
   su quale dispositivo si è verificato un problema quando necessario.
 - Editor con formattazione visibile, senza anteprima duplicata; icone grassetto, corsivo,

@@ -1253,14 +1253,63 @@ def check(path):
             expect(first).to_have_class(re.compile(r'\bhas-response\b'))
             first.locator('.rich-editor').fill('')
             expect(first).not_to_have_class(re.compile(r'\bhas-response\b'))
+            # The dashed + box is a shade of its card's frame in every state (the user's request,
+            # 2026-10-14, with green dashes on a yellow card): nearer to the frame than to the
+            # green of an empty card, and 3:1 on the card's ground. Colors are read through a
+            # canvas, which turns color-mix() and light-dark() into the same sRGB bytes.
+            dash_probe = '''card => {
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = 1;
+                const context = canvas.getContext('2d', {willReadFrequently: true});
+                const rgb = (color) => {
+                    context.clearRect(0, 0, 1, 1);
+                    context.fillStyle = color;
+                    context.fillRect(0, 0, 1, 1);
+                    return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3);
+                };
+                const probe = document.createElement('i');
+                probe.style.color = 'var(--border-strong)';
+                document.body.append(probe);
+                const green = rgb(getComputedStyle(probe).color);
+                probe.remove();
+                const own = getComputedStyle(card);
+                const box = card.querySelector('.attachment, .altro-attach');
+                return {dash: rgb(getComputedStyle(box).borderTopColor), frame: rgb(own.borderTopColor),
+                        ground: rgb(own.backgroundColor), green};
+            }'''
+            def luminance(rgb):
+                def channel(value):
+                    value /= 255
+                    return value / 12.92 if value <= 0.03928 else ((value + 0.055) / 1.055) ** 2.4
+                red, green, blue = (channel(value) for value in rgb)
+                return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+            def contrast(first_color, second_color):
+                high, low = sorted((luminance(first_color), luminance(second_color)), reverse=True)
+                return (high + 0.05) / (low + 0.05)
+            def distance(first_color, second_color):
+                return sum((x - y) ** 2 for x, y in zip(first_color, second_color))
+            def check_dash(card, state):
+                colors = card.evaluate(dash_probe)
+                if state == 'vuota':
+                    assert colors['dash'] == colors['green'], ('Il tratteggio di una scheda vuota non è il verde.', colors)
+                    return
+                assert distance(colors['dash'], colors['frame']) < distance(colors['dash'], colors['green']), (
+                    'Il tratteggio non è una variante della cornice.', state, colors)
+                assert contrast(colors['dash'], colors['ground']) >= 3, ('Il tratteggio non arriva a 3:1.', state, colors)
+            # The theme goes on the root: the page sets data-theme above, and once it is set the
+            # emulated scheme alone no longer changes the colors (both rounds were light).
             for theme in ['light', 'dark']:
-                page.emulate_media(color_scheme=theme)
+                page.evaluate("(theme)=>document.documentElement.setAttribute('data-theme', theme)", theme)
+                check_dash(first, 'vuota')
+                check_dash(page.locator('#extra-section'), 'vuota')
                 first.locator('.rich-editor').fill('Solo commento, senza approvazione')
+                check_dash(first, theme + ', risposta senza esito')
                 neutral = first.evaluate('(el)=>getComputedStyle(el).backgroundColor')
                 backgrounds = []
                 for status in ['Tutto OK', 'Accettabile', 'Non approvato']:
                     button = first.locator('[data-status="'+status+'"]')
                     button.click()
+                    check_dash(first, theme + ', ' + status)
                     border = first.evaluate('(el)=>getComputedStyle(el).borderTopColor')
                     selected = button.evaluate('(el)=>getComputedStyle(el).backgroundColor')
                     def hue(rgb):
@@ -1275,6 +1324,7 @@ def check(path):
                     assert first.evaluate('(el)=>getComputedStyle(el).backgroundColor') == neutral
                 assert len(set(backgrounds)) == 3, 'The three outcomes use the same card color.'
                 first.locator('.rich-editor').fill('')
+            page.evaluate("document.documentElement.setAttribute('data-theme', 'light')")
             page.emulate_media(color_scheme='light')
             for field in page.locator('.rich-editor,textarea:not([hidden]),input:not([type="file"])').all():
                 assert field.evaluate('(el)=>getComputedStyle(el).fontWeight') == '400'
