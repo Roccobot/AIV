@@ -596,13 +596,21 @@
     {symbol: "❌", name: "Croce", keys: ["KeyN"], shown: ["⌘⇧N"]},
     {symbol: "⚠️", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
   ];
-  /* ⌃⌘⌥ and a letter write the shortcut ⌘ and that letter, in capitals, as inline code, then a
-     plain space, so what is typed next is plain text (his request of 2026-10-14, choice B1). The
-     letter is read from the key's place, because ⌥ changes the letter event.key reports. */
+  /* ⌃⌘⌥ and a key write the shortcut ⌘ and that key, as inline code, then a plain space, so what
+     is typed next is plain text (his request of 2026-10-14, choice B1); with ⇧ too they write ⌘⇧
+     and the key (his request of the same day). The key is read from its place, because ⌥ changes
+     what event.key reports: the letters in capitals, and the other keys he asked for as an
+     Italian ISO keyboard prints them. The key left of 1 is \, and macOS can report it as
+     IntlBackslash on an ISO keyboard, so both names write it. */
+  const SHORTCUT_KEYS = {
+    Quote: "À", BracketLeft: "È", Equal: "Ì", Semicolon: "Ò", Backslash: "Ù",
+    Minus: "'", BracketRight: "+", Backquote: "\\", IntlBackslash: "\\",
+    Comma: ",", Period: ".", Slash: "-"
+  };
   function shortcutText(event) {
-    if (!event.metaKey || !event.ctrlKey || !event.altKey || event.shiftKey) return null;
-    const letter = /^Key([A-Z])$/.exec(event.code);
-    return letter ? "⌘" + letter[1] : null;
+    if (!event.metaKey || !event.ctrlKey || !event.altKey) return null;
+    const key = /^Key([A-Z])$/.exec(event.code)?.[1] || SHORTCUT_KEYS[event.code];
+    return key ? (event.shiftKey ? "⌘⇧" : "⌘") + key : null;
   }
   function keySymbol(event) {
     if (!event.metaKey || !event.shiftKey || event.altKey || event.ctrlKey) return null;
