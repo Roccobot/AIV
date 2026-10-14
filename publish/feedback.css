@@ -1135,12 +1135,17 @@ main > .feedback-columns {
   font-weight: 300;
   line-height: 1;
 }
-/* Roboto's × sits low: measured on Rocco's screenshot at DPR 2, the centre of its ink was 1.5px
-   below the centre of the key, and the keys he called centred have theirs about 0.75px above.
-   Padding at the bottom lifts the flex-centred glyph by half of it without moving the border:
-   0.18em of 24px is 4.3px, so the × rises 2.16px, to the others' level (his request, 2026-10-13). */
+/* The × is 20% larger than the other symbols, 28.8px (his request, 2026-10-14), and Roboto's ×
+   sits low: with no help the centre of its ink falls 1.3px below the key's centre (1.5px at 24px,
+   measured on Rocco's screenshot at DPR 2 and in Chromium alike). The day before it was lifted to
+   0.36px above, and that was one pixel of his screen too high: the aim is 0.14px below. Padding at
+   the bottom lifts the flex-centred glyph without moving the border, but Chromium sets the
+   baseline on whole pixels, so the ink moves in steps of about 1px: 1.32px below, 0.36px below,
+   0.60px above. 0.36px below is the closest, and every padding from 0.07 to 0.09em gives it:
+   0.08em, the middle, measured on the ink at DPR 4. */
 .symbol-keys > button[data-symbol="×"] {
-  padding-bottom: 0.18em;
+  padding-bottom: 0.08em;
+  font-size: 28.8px;
 }
 @media (max-width: 720px) {
   .symbol-keys {
