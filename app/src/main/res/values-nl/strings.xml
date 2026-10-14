@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Donkere kleur</string>
     <string name="glass_default">Standaard</string>
     <string name="glass_reset">Herstellen</string>
-    <string name="corner_rest_pill">Pil in rust</string>
-    <string name="corner_rest_round">Ronde knop in rust</string>
     <string name="settings_button_look">Uiterlijk van de hoofdknoppen</string>
     <string name="settings_button_look_desc">Vulling en transparantie- of vervagingseffecten voor de zwevende knop, de pil met pictogrammen en de menu\'s.</string>
     <string name="pill_slide">Inklapbaar</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_input">Bediening en indicatoren</string>
     <string name="settings_group_files">Bestandsbeheer</string>
-    <string name="settings_group_browse">Mappen</string>
+    <string name="settings_group_browse">Bestanden en mappen</string>
     <string name="settings_group_start">Opstarten</string>
     <string name="settings_group_advanced">Geavanceerd</string>
     <string name="settings_page_info">Informatie</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">Kies een actie voor de map</string>
     <string name="favourite_add">Toevoegen aan favorieten</string>
     <string name="favourite_remove">Verwijderen uit favorieten</string>
-    <string name="backup_area_folders">Mappen en paden</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Geen foto\'s of video\'s om te tonen.</string>
+    <string name="feed_date">Datum voor sortering</string>
+    <string name="feed_date_taken">Opname, Wijziging</string>
+    <string name="feed_date_modified">Wijziging</string>
+    <string name="feed_order">Indeling in feedweergave</string>
+    <string name="feed_order_desc">De feedweergave toont alleen foto\'s en video\'s, niet geordend in mappen, met de nieuwste bovenaan. Omdat \'recent\' verschillende betekenissen kan hebben, kun je de opnamedatum gebruiken (met de wijzigingsdatum als terugval) of alleen de aanmaak- en wijzigingsdatum meetellen.</string>
+    <string name="hint_feed">De feed toont de foto\'s en video\'s van al je mappen, de nieuwste bovenaan. Houd de knop ingedrukt om te kiezen of de opnamedatum of de wijzigingsdatum telt.</string>
 </resources>

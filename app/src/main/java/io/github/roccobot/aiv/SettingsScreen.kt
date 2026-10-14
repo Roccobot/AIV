@@ -51,6 +51,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -1402,6 +1403,21 @@ private fun FoldersPage(
         onSelect = { onChange(settings.copy(folderOrder = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **THE FEED'S DATE, FROM 6.02, UNDER 'Disposizione in vista griglia', AND TITLE,
+     * PARAGRAPH AND CHIPS ARE HIS** (2026-10-14): the same choice as the view options of the Feed,
+     * with the same two chips. Here the paragraph says what the Feed is, because this is the place
+     * where someone who never opened it reads about it.
+     */
+    Choices(
+        label = stringResource(R.string.feed_order),
+        detail = stringResource(R.string.feed_order_desc),
+        options = FeedDate.entries,
+        selected = settings.feedDate,
+        nameOf = { stringResource(it.chip()) },
+        onSelect = { onChange(settings.copy(feedDate = it)) }
+    )
+
     val frontChips = listOfNotNull(
         Chip(stringResource(R.string.settings_front_wash), settings.frontWash) {
             it.copy(frontWash = !it.frontWash)
@@ -1512,6 +1528,12 @@ private fun FoldersPage(
 internal fun FolderOrder.chip(): Int = when (this) {
     FolderOrder.ALPHA -> R.string.folder_order_alpha
     FolderOrder.RECENT -> R.string.folder_order_recent
+}
+
+/** The name of a [FeedDate] on its chip, in the settings and in the view options: his two names. */
+internal fun FeedDate.chip(): Int = when (this) {
+    FeedDate.TAKEN -> R.string.feed_date_taken
+    FeedDate.MODIFIED -> R.string.feed_date_modified
 }
 
 /**
@@ -3643,7 +3665,13 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
     }
     // ⚠️ 'Fisso' è il gettone del solo menu basso: dove il menu non c'è, la ricerca non lo trova.
     val searched = controlNames + modeNames +
-        listOfNotNull(stringResource(R.string.bar_fixed).takeIf { MainControl.BOTTOM in controls })
+        listOfNotNull(stringResource(R.string.bar_fixed).takeIf { MainControl.BOTTOM in controls }) +
+        // ⚠️ And the two rests of the Start menu, where that menu exists (6.02).
+        if (MainControl.CORNER in controls) {
+            listOf(stringResource(R.string.start_round), stringResource(R.string.start_pill))
+        } else {
+            emptyList()
+        }
     if (!shown(label, detail, *searched.toTypedArray())) return
     Text(
         text = label,
@@ -3662,7 +3690,32 @@ private fun MainControlChoices(settings: Settings, onChange: (Settings) -> Unit)
                 )
             }
         }
-        // ⚠️ Il menu angolare è sempre a scomparsa (*il menu angolare sempre*): niente seconda fila.
+        /*
+         * ⚠️ Il menu angolare è sempre a scomparsa (*il menu angolare sempre*), e la sua seconda fila
+         * dice come riposa: ⚠️⚠️ **FROM 6.02 THE ROUND KEY AND THE PILL ARE CHOSEN HERE** (his choice of
+         * 2026-10-14: *al limite mettiamo la scelta nelle impostazioni*). From 4.25 to 6.01 a box of
+         * the Start menu switched them, and the Feed took that box. The names are those of the box.
+         */
+        if (settings.mainControl == MainControl.CORNER) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
+                listOf(true, false).forEach { round ->
+                    FilterChip(
+                        selected = round == settings.cornerRound,
+                        onClick = { onChange(settings.copy(cornerRound = round)) },
+                        label = { Text(stringResource(if (round) R.string.start_round else R.string.start_pill)) },
+                        // ⚠️ His two drawings of the switch, which now name a rest each.
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (round) Glyphs.RestRound else Glyphs.RestPill,
+                                contentDescription = null,
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
+                        },
+                        modifier = Modifier.picked(round == settings.cornerRound)
+                    )
+                }
+            }
+        }
         if (settings.mainControl == MainControl.PILL || settings.mainControl == MainControl.BOTTOM) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
                 modes.forEachIndexed { at, mode ->

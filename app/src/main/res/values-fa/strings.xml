@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">رنگ تیره</string>
     <string name="glass_default">پیش‌فرض</string>
     <string name="glass_reset">بازنشانی</string>
-    <string name="corner_rest_pill">قرص در حالت سکون</string>
-    <string name="corner_rest_round">دکمهٔ گرد در حالت سکون</string>
     <string name="settings_button_look">ظاهر دکمه‌های اصلی</string>
     <string name="settings_button_look_desc">پرکردن و جلوه‌های شفافیت یا محوشدگی برای دکمهٔ شناور، قرص نمادها و منوها.</string>
     <string name="pill_slide">جمع‌شونده</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">نمایشگر</string>
     <string name="settings_group_input">کنترل‌ها و نشانگرها</string>
     <string name="settings_group_files">مدیریت پرونده‌ها</string>
-    <string name="settings_group_browse">پوشه‌ها</string>
+    <string name="settings_group_browse">فایل‌ها و پوشه‌ها</string>
     <string name="settings_group_start">راه‌اندازی</string>
     <string name="settings_group_advanced">پیشرفته</string>
     <string name="settings_page_info">اطلاعات</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">کاری برای پوشه انتخاب کنید</string>
     <string name="favourite_add">افزودن به برگزیده‌ها</string>
     <string name="favourite_remove">حذف از برگزیده‌ها</string>
-    <string name="backup_area_folders">پوشه‌ها و مسیرها</string>
+    <string name="view_feed">فید</string>
+    <string name="feed_none">هیچ عکس یا ویدیویی برای نمایش نیست.</string>
+    <string name="feed_date">تاریخ مبنای مرتب‌سازی</string>
+    <string name="feed_date_taken">عکاسی، ویرایش</string>
+    <string name="feed_date_modified">ویرایش</string>
+    <string name="feed_order">چیدمان در نمای فید</string>
+    <string name="feed_order_desc">نمای فید فقط عکس‌ها و ویدیوها را، بدون دسته‌بندی در پوشه‌ها، با جدیدترین‌ها در بالا نشان می‌دهد. چون \'جدید\' می‌تواند معناهای مختلفی داشته باشد، می‌توانید تاریخ عکاسی را به کار ببرید (و اگر نبود، تاریخ ویرایش را) یا فقط تاریخ‌های ایجاد و ویرایش را در نظر بگیرید.</string>
+    <string name="hint_feed">فید عکس‌ها و ویدیوهای همهٔ پوشه‌ها را با جدیدترین‌ها در بالا نشان می‌دهد. برای انتخاب اینکه تاریخ عکاسی یا تاریخ ویرایش ملاک باشد، دکمه را نگه دارید.</string>
 </resources>

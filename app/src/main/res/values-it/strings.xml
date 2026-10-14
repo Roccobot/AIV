@@ -367,8 +367,6 @@
     <string name="glass_colour_dark">Colore scuro</string>
     <string name="glass_default">Predefinito</string>
     <string name="glass_reset">Ripristina</string>
-    <string name="corner_rest_pill">Pillola a riposo</string>
-    <string name="corner_rest_round">Tondo a riposo</string>
     <string name="settings_button_look">Aspetto dei pulsanti principali</string>
     <string name="settings_button_look_desc">Riempimento ed effetti di trasparenza/sfocatura applicati al pulsante fluttuante, alla pillola di icone e ai menu.</string>
     <string name="pill_slide">A scomparsa</string>
@@ -663,7 +661,7 @@
     <string name="settings_group_viewer">Visualizzatore</string>
     <string name="settings_group_input">Comandi e indicatori</string>
     <string name="settings_group_files">Gestione dei file</string>
-    <string name="settings_group_browse">Cartelle</string>
+    <string name="settings_group_browse">File e cartelle</string>
     <string name="settings_group_start">Avvio</string>
     <string name="settings_group_advanced">Avanzate</string>
     <string name="settings_page_info">Informazioni</string>
@@ -873,5 +871,12 @@
     <string name="folder_action_title">Scegli l\'azione sulla cartella</string>
     <string name="favourite_add">Aggiungi alle preferite</string>
     <string name="favourite_remove">Rimuovi dalle preferite</string>
-    <string name="backup_area_folders">Cartelle e percorsi</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Nessuna foto o video da mostrare.</string>
+    <string name="feed_date">Data per l\'ordinamento</string>
+    <string name="feed_date_taken">Scatto, Modifica</string>
+    <string name="feed_date_modified">Modifica</string>
+    <string name="feed_order">Disposizione in vista feed</string>
+    <string name="feed_order_desc">La modalità feed mostra solo foto e video, non organizzati in cartelle, con i più recenti in alto. Dato che \'recente\' può avere accezioni diverse, puoi scegliere se usare la data di scatto (e ripiegare sulla data di modifica), o se considerare solo le date di creazione/modifica.</string>
+    <string name="hint_feed">Il Feed mostra foto e video di tutte le cartelle, i più recenti in alto. Per scegliere se conta la data di scatto o quella di modifica, tieni premuto il pulsante.</string>
 </resources>

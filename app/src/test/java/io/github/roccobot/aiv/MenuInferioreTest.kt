@@ -109,13 +109,17 @@ class MenuInferioreTest {
     // fill it anyway, and the test passed with the rule taken out.
     @Config(shadows = [ArchivioAperto::class], qualifiers = "w411dp-h891dp")
     fun `con sette voci la pillola estesa mette Cerca al centro`() {
-        banco.setContent { Home(PillLook(PhonePill.EXTENDED), Hand.RIGHT) }
+        // ⚠️ From 6.02 the views are three with the Feed, so seven entries are the home without hidden
+        // folders: with them the pill has eight (his choice A1 of 2026-10-14).
+        banco.setContent { Home(PillLook(PhonePill.EXTENDED), Hand.RIGHT, hidden = emptySet()) }
         banco.waitForIdle()
         assertEquals(
             "La pillola della prova non ha sette voci",
             PILL_FULL,
-            listOf(R.string.hub_search, R.string.hub_url, R.string.bin_title, R.string.hub_settings, R.string.hub_peek)
-                .sumOf { banco.onAllNodesWithContentDescription(voce(it)).fetchSemanticsNodes().size } + 2
+            listOf(
+                R.string.hub_view_list, R.string.hub_view_tree, R.string.view_feed, R.string.hub_search,
+                R.string.hub_url, R.string.bin_title, R.string.hub_settings, R.string.hub_peek
+            ).sumOf { banco.onAllNodesWithContentDescription(voce(it)).fetchSemanticsNodes().size }
         )
         val cerca = banco.onNodeWithContentDescription(voce(R.string.hub_search)).fetchSemanticsNode()
         val centro = cerca.positionInRoot.x + cerca.size.width / 2f
@@ -323,13 +327,14 @@ class MenuInferioreTest {
     }
 
     /**
-     * **In the home the corner menu is a 3x3: on top the switch and the two other views, and the ×
+     * **In the home the corner menu is a 3x3: on top the Feed and the two other views, and the ×
      * under the thumb** (decisions C1 and C2, and since 4.25 `4.20-01`: *non si vedono più tutte e
      * tre le viste con la selezionata*), mirrored on the left.
+     * ⚠️ **From 6.02 the Feed has the switch's box** (his choice of 2026-10-14): the switch is gone.
      */
     @Test
     @Config(shadows = [ArchivioAperto::class])
-    fun `nella home il menu angolare e un 3x3 col commutatore e le due viste`() {
+    fun `nella home il menu angolare e un 3x3 col Feed e le due viste`() {
         banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.LEFT) }
         banco.waitForIdle()
         val tondo = banco.onNodeWithContentDescription(voce(R.string.hub_open)).fetchSemanticsNode().boundsInRoot
@@ -339,20 +344,22 @@ class MenuInferioreTest {
         assertEquals("La vista in cui si è è ancora nel menu", 0, quanti(R.string.hub_view_grid))
         // ⚠️ Since 4.33 (note F on the 4.32 round): a short label under every icon but the ×, and
         // the ×, in a larger cell, still centred on the round key.
-        for (id in listOf(R.string.start_pill, R.string.start_list, R.string.start_tree, R.string.start_show, R.string.start_url)) {
+        for (id in listOf(R.string.start_list, R.string.start_tree, R.string.start_show, R.string.start_url)) {
             banco.onNodeWithText(voce(id), useUnmergedTree = true).assertExists()
         }
+        // ⚠️ The Feed's short label is its name, the same as its long one: one node per box.
+        assertEquals("Il commutatore è ancora nel menu", 0, quanti(R.string.start_pill))
         val x = banco.onNodeWithContentDescription(voce(R.string.pick_close)).fetchSemanticsNode().boundsInRoot
         val dp = app.resources.displayMetrics.density
         assertEquals("Il tasto della × non è di 64dp", 64f * dp, x.width, 0.5f * dp)
         assertEquals("La × non è sul centro del tondo in orizzontale", tondo.center.x, x.center.x, 0.5f * dp)
         assertEquals("La × non è sul centro del tondo in verticale", tondo.center.y, x.center.y, 0.5f * dp)
-        val commutatore = pos(R.string.corner_rest_pill)
+        val feed = pos(R.string.view_feed)
         val lista = pos(R.string.hub_view_list)
         val albero = pos(R.string.hub_view_tree)
-        assertEquals("Il commutatore non è sulla riga delle viste", commutatore.y, albero.y, 1f)
-        assertEquals(commutatore.y, lista.y, 1f)
-        assertTrue("A sinistra la prima riga non è a specchio", albero.x < lista.x && lista.x < commutatore.x)
+        assertEquals("Il Feed non è sulla riga delle viste", feed.y, albero.y, 1f)
+        assertEquals(feed.y, lista.y, 1f)
+        assertTrue("A sinistra la prima riga non è a specchio", albero.x < lista.x && lista.x < feed.x)
         val chiudi = pos(R.string.pick_close)
         assertTrue("A sinistra la × non è nell'angolo", chiudi.x < pos(R.string.bin_title).x)
         assertTrue("La × non è nell'ultima riga", chiudi.y > pos(R.string.hub_search).y)
@@ -462,29 +469,49 @@ class MenuInferioreTest {
     }
 
     /**
-     * **The switch in the home's corner menu writes the rest and closes the menu** (`4.20-01`, R1 and
-     * R3: *il menu angolare deve chiudersi dopo ogni interazione*), and with the pill at rest it
-     * offers the round key back.
+     * **The Feed's box in the home's corner menu opens the Feed and closes the menu** (6.02, in the
+     * box of the switch; `4.20-01`, R3: *il menu angolare deve chiudersi dopo ogni interazione*).
      */
     @Test
     @Config(shadows = [ArchivioAperto::class])
-    fun `il commutatore cambia il riposo e chiude il menu angolare`() {
-        var cambi = 0
-        var look by mutableStateOf(PillLook(PhonePill.SLIDE, corner = true))
-        banco.setContent { Home(look, Hand.RIGHT, onCornerRest = { cambi++ }) }
+    fun `la casella del Feed apre il Feed e chiude il menu angolare`() {
+        var vista: FolderView? = null
+        banco.setContent { Home(PillLook(PhonePill.SLIDE, corner = true), Hand.RIGHT, onView = { vista = it }) }
         banco.waitForIdle()
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithContentDescription(voce(R.string.corner_rest_pill)).performClick()
+        banco.onNodeWithContentDescription(voce(R.string.view_feed)).performClick()
         banco.waitForIdle()
-        assertEquals("Il commutatore non ha scritto il riposo", 1, cambi)
-        assertEquals("Il commutatore non ha chiuso il menu", 0, quanti(R.string.hub_search))
+        assertEquals("La casella non ha aperto il Feed", FolderView.FEED, vista)
+        assertEquals("La casella non ha chiuso il menu", 0, quanti(R.string.hub_search))
+    }
 
-        look = look.copy(cornerRound = false)
+    /**
+     * **The rest of the Start menu is chosen in the settings, with his two names** (6.02: *al
+     * limite mettiamo la scelta nelle impostazioni*), and only with the Start menu chosen.
+     */
+    @Test
+    fun `il riposo del menu Start si sceglie nelle impostazioni`() {
+        var scritte: Settings? = null
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SettingsScreen(
+                    settings = Settings(mainControl = MainControl.CORNER, cornerRound = true),
+                    onChange = { scritte = it },
+                    onStartFolder = {},
+                    onResetHints = {},
+                    onChooseEditor = {},
+                    onBack = {}
+                )
+            }
+        }
         banco.waitForIdle()
-        banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
+        banco.onAllNodesWithText(voce(R.string.settings_page_controls), substring = false)[0]
+            .performScrollTo().performClick()
         banco.waitForIdle()
-        banco.onNodeWithContentDescription(voce(R.string.corner_rest_round)).assertExists()
+        banco.onNodeWithText(voce(R.string.start_round)).assertExists()
+        banco.onNodeWithText(voce(R.string.start_pill)).performClick()
+        assertEquals("Il gettone non ha scritto la pillola a riposo", false, scritte?.cornerRound)
     }
 
     /**
@@ -506,7 +533,9 @@ class MenuInferioreTest {
         banco.onNodeWithContentDescription(voce(R.string.hub_open)).performClick()
         banco.waitForIdle()
         // ⚠️ Since 4.34 the row keeps 6dp from both ends of the pill (note A on the 4.33 round).
-        val cella = (scena - 60f * dp) / 8f
+        // ⚠️ Nine cells from 6.02: eight entries with the Feed and the hidden folder, and the ×
+        // (his choice A1 of 2026-10-14).
+        val cella = (scena - 60f * dp) / 9f
         val centro = { id: Int ->
             banco.onNodeWithContentDescription(voce(id)).fetchSemanticsNode().let { it.positionInRoot.x + it.size.width / 2f }
         }
@@ -915,11 +944,16 @@ class MenuInferioreTest {
 
     /** The home with one hidden folder, so the pill has its seven entries. */
     @Composable
-    private fun Home(look: PillLook, hand: Hand, onCornerRest: () -> Unit = {}) {
+    private fun Home(
+        look: PillLook,
+        hand: Hand,
+        onView: (FolderView) -> Unit = {},
+        hidden: Set<String> = setOf("Segreta")
+    ) {
         AivTheme(darkTheme = false) {
             CompositionLocalProvider(LocalPillLook provides look, LocalPadLook provides PadLook(hand = hand)) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Casa(CARTELLE, hidden = setOf("Segreta"), onCornerRest = onCornerRest)
+                    Casa(CARTELLE, hidden = hidden, onView = onView)
                 }
             }
         }

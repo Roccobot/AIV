@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">深色</string>
     <string name="glass_default">預設</string>
     <string name="glass_reset">重設</string>
-    <string name="corner_rest_pill">靜止時為膠囊</string>
-    <string name="corner_rest_round">靜止時為圓形按鈕</string>
     <string name="settings_button_look">主要按鈕外觀</string>
     <string name="settings_button_look_desc">套用於懸浮按鈕、圖示膠囊和選單的填色及透明或模糊效果。</string>
     <string name="pill_slide">收合式</string>
@@ -366,7 +364,7 @@
     <string name="settings_group_viewer">檢視器</string>
     <string name="settings_group_input">操作與指示</string>
     <string name="settings_group_files">檔案管理</string>
-    <string name="settings_group_browse">資料夾</string>
+    <string name="settings_group_browse">檔案和資料夾</string>
     <string name="settings_group_start">啟動</string>
     <string name="settings_group_advanced">進階</string>
     <string name="settings_page_info">資訊</string>
@@ -778,5 +776,12 @@
     <string name="folder_action_title">選擇對資料夾的動作</string>
     <string name="favourite_add">加入收藏</string>
     <string name="favourite_remove">從收藏中移除</string>
-    <string name="backup_area_folders">資料夾與路徑</string>
+    <string name="view_feed">動態消息</string>
+    <string name="feed_none">沒有可顯示的相片或影片。</string>
+    <string name="feed_date">排序所用日期</string>
+    <string name="feed_date_taken">拍攝、修改</string>
+    <string name="feed_date_modified">修改</string>
+    <string name="feed_order">動態消息檢視排序</string>
+    <string name="feed_order_desc">動態消息檢視只顯示相片和影片，不依資料夾分組，最新的在最上方。由於\'最新\'可以有不同含義，你可以使用拍攝日期 (沒有時改用修改日期)，或只考慮建立和修改日期。</string>
+    <string name="hint_feed">動態消息依最新在上的順序顯示所有資料夾中的相片和影片。若要選擇以拍攝日期或修改日期為準，請長按按鈕。</string>
 </resources>

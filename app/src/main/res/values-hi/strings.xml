@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">गहरा रंग</string>
     <string name="glass_default">डिफ़ॉल्ट</string>
     <string name="glass_reset">रीसेट करें</string>
-    <string name="corner_rest_pill">विश्राम में पिल</string>
-    <string name="corner_rest_round">विश्राम में गोल बटन</string>
     <string name="settings_button_look">मुख्य बटनों का रूप</string>
     <string name="settings_button_look_desc">फ़्लोटिंग बटन, आइकन पिल और मेनुओं पर लागू भराव और पारदर्शिता या धुंधलापन प्रभाव।</string>
     <string name="pill_slide">छिपने वाली</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">प्रदर्शक</string>
     <string name="settings_group_input">नियंत्रण और संकेतक</string>
     <string name="settings_group_files">फ़ाइल प्रबंधन</string>
-    <string name="settings_group_browse">फ़ोल्डर</string>
+    <string name="settings_group_browse">फ़ाइलें और फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
     <string name="settings_group_advanced">उन्नत</string>
     <string name="settings_page_info">जानकारी</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">फ़ोल्डर के लिए कार्रवाई चुनें</string>
     <string name="favourite_add">पसंदीदा में जोड़ें</string>
     <string name="favourite_remove">पसंदीदा से हटाएँ</string>
-    <string name="backup_area_folders">फ़ोल्डर और पाथ</string>
+    <string name="view_feed">फ़ीड</string>
+    <string name="feed_none">दिखाने के लिए कोई फ़ोटो या वीडियो नहीं है।</string>
+    <string name="feed_date">क्रम के लिए तारीख</string>
+    <string name="feed_date_taken">फ़ोटो लेना, बदलाव</string>
+    <string name="feed_date_modified">बदलाव</string>
+    <string name="feed_order">फ़ीड व्यू में क्रम</string>
+    <string name="feed_order_desc">फ़ीड व्यू केवल फ़ोटो और वीडियो दिखाता है, फ़ोल्डरों में बाँटे बिना, सबसे नए सबसे ऊपर। क्योंकि \'नया\' के अलग-अलग मतलब हो सकते हैं, आप फ़ोटो लेने की तारीख इस्तेमाल कर सकते हैं (न हो तो बदलाव की तारीख), या केवल बनने और बदलाव की तारीखें गिन सकते हैं।</string>
+    <string name="hint_feed">फ़ीड सभी फ़ोल्डरों के फ़ोटो और वीडियो सबसे नए ऊपर रखकर दिखाता है। फ़ोटो लेने की तारीख गिनी जाए या बदलाव की, यह चुनने के लिए बटन को दबाकर रखें।</string>
 </resources>

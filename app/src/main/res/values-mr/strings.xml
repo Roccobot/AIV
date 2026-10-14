@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">गडद रंग</string>
     <string name="glass_default">डीफॉल्ट</string>
     <string name="glass_reset">रीसेट करा</string>
-    <string name="corner_rest_pill">विश्रांतीत पिल</string>
-    <string name="corner_rest_round">विश्रांतीत गोल बटण</string>
     <string name="settings_button_look">मुख्य बटणांचे स्वरूप</string>
     <string name="settings_button_look_desc">तरंगते बटण, चिन्हांची पिल आणि मेनूंना लागू होणारे भरण आणि पारदर्शकता किंवा धूसरपणाचे परिणाम.</string>
     <string name="pill_slide">लपणारी</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">प्रदर्शक</string>
     <string name="settings_group_input">नियंत्रणे आणि निर्देशक</string>
     <string name="settings_group_files">फाइल व्यवस्थापन</string>
-    <string name="settings_group_browse">फोल्डर</string>
+    <string name="settings_group_browse">फाइल आणि फोल्डर</string>
     <string name="settings_group_start">सुरुवात</string>
     <string name="settings_group_advanced">प्रगत</string>
     <string name="settings_page_info">माहिती</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">फोल्डरसाठी क्रिया निवडा</string>
     <string name="favourite_add">आवडत्यांमध्ये जोडा</string>
     <string name="favourite_remove">आवडत्यांमधून काढा</string>
-    <string name="backup_area_folders">फोल्डर आणि पाथ</string>
+    <string name="view_feed">फीड</string>
+    <string name="feed_none">दाखवण्यासाठी कोणतेही फोटो किंवा व्हिडिओ नाहीत.</string>
+    <string name="feed_date">क्रमासाठी तारीख</string>
+    <string name="feed_date_taken">फोटो काढणे, बदल</string>
+    <string name="feed_date_modified">बदल</string>
+    <string name="feed_order">फीड दृश्यातील क्रम</string>
+    <string name="feed_order_desc">फीड दृश्य फक्त फोटो आणि व्हिडिओ दाखवते, फोल्डरमध्ये न विभागता, सर्वात नवीन वर. \'नवीन\' चे वेगवेगळे अर्थ असू शकतात, म्हणून तुम्ही फोटो काढल्याची तारीख वापरू शकता (ती नसल्यास बदलाची तारीख), किंवा फक्त निर्मिती आणि बदलाच्या तारखा विचारात घेऊ शकता.</string>
+    <string name="hint_feed">फीड सर्व फोल्डरमधील फोटो आणि व्हिडिओ सर्वात नवीन वर ठेवून दाखवते. फोटो काढल्याची तारीख मोजायची की बदलाची, हे निवडण्यासाठी बटण दाबून ठेवा.</string>
 </resources>

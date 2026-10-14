@@ -73,7 +73,8 @@ class FunzioniPlayTest {
 
     @Test
     fun `la vista Cartelle di sistema non c'e`() {
-        assertEquals(listOf(FolderView.GRID, FolderView.LIST), Store.views)
+        // ⚠️ The Feed is in both variants from 6.02 (his request: *in entrambe le varianti*).
+        assertEquals(listOf(FolderView.GRID, FolderView.LIST, FolderView.FEED), Store.views)
     }
 
     /**

@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Dunkle Farbe</string>
     <string name="glass_default">Standard</string>
     <string name="glass_reset">Zurücksetzen</string>
-    <string name="corner_rest_pill">Pille in Ruhe</string>
-    <string name="corner_rest_round">Runde Schaltfläche in Ruhe</string>
     <string name="settings_button_look">Aussehen der Hauptschaltflächen</string>
     <string name="settings_button_look_desc">Füllung sowie Transparenz- oder Unschärfeeffekte für die schwebende Schaltfläche, die Symbol-Pille und die Menüs.</string>
     <string name="pill_slide">Einklappbar</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">Betrachter</string>
     <string name="settings_group_input">Bedienung und Anzeigen</string>
     <string name="settings_group_files">Dateiverwaltung</string>
-    <string name="settings_group_browse">Ordner</string>
+    <string name="settings_group_browse">Dateien und Ordner</string>
     <string name="settings_group_start">Start</string>
     <string name="settings_group_advanced">Erweitert</string>
     <string name="settings_page_info">Informationen</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">Aktion für den Ordner wählen</string>
     <string name="favourite_add">Zu Favoriten hinzufügen</string>
     <string name="favourite_remove">Aus Favoriten entfernen</string>
-    <string name="backup_area_folders">Ordner und Pfade</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Keine Fotos oder Videos zum Anzeigen.</string>
+    <string name="feed_date">Datum für die Sortierung</string>
+    <string name="feed_date_taken">Aufnahme, Änderung</string>
+    <string name="feed_date_modified">Änderung</string>
+    <string name="feed_order">Anordnung in der Feed-Ansicht</string>
+    <string name="feed_order_desc">Die Feed-Ansicht zeigt nur Fotos und Videos, nicht nach Ordnern sortiert, die neuesten oben. Da \'neu\' Verschiedenes bedeuten kann, kannst du das Aufnahmedatum verwenden (ersatzweise das Änderungsdatum) oder nur die Erstellungs- und Änderungsdaten berücksichtigen.</string>
+    <string name="hint_feed">Der Feed zeigt die Fotos und Videos aller Ordner, die neuesten oben. Ob das Aufnahme- oder das Änderungsdatum zählt, wählst du, indem du die Taste gedrückt hältst.</string>
 </resources>

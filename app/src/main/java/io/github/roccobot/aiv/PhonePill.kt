@@ -841,6 +841,9 @@ private fun ExtendedPill(
      * the eight cells: in 4.15 it was *solo nella pillola estesa*.
      * ⚠️ **The cells widen, the keys do not**: the touch target and the round ripple stay the
      * key's, and the extra width is spacing.
+     * ⚠️⚠️ **From 6.02 the home can have eight** (his choice A1 of 2026-10-14): the Feed is a third
+     * view, so with a hidden folder the entries pass seven. [keyFor] shrinks the keys a little, and
+     * 'Cerca' is the fourth of eight, off the centre line by half a cell.
      */
     val cell = if (count >= PILL_FULL) room / count else key
     // ⚠️ The two keys at the corner, in reading order: on the right they are the last two.

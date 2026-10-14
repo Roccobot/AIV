@@ -42,11 +42,19 @@ internal fun Casa(
     peeking: Boolean = false,
     /** Riceve le voci che 'Mostra' toglie: dalla `2.96` sono tutte quelle che coprono la cartella. */
     onUnhide: (Collection<String>) -> Unit = {},
-    /** Il commutatore del menu angolare, per le prove della `4.25`. */
-    onCornerRest: () -> Unit = {}
+    /** The view, for the tests of the Feed (6.02); the grid of covers by default. */
+    view: FolderView = FolderView.GRID,
+    /** Receives the view chosen in a menu. */
+    onView: (FolderView) -> Unit = {},
+    /** The Feed's stream, `null` while it is read. */
+    feed: Feed.Page? = null,
+    /** Receives the date chosen in the view options of the Feed. */
+    onFeedDate: (FeedDate) -> Unit = {},
+    /** Receives the stream and the position of a picture touched in the Feed. */
+    onFeedOpen: (List<android.net.Uri>, Int) -> Unit = { _, _ -> }
 ) {
     FolderScreen(
-        view = FolderView.GRID,
+        view = view,
         columns = 3,
         counted = true,
         colour = FolderColour.NONE,
@@ -62,12 +70,16 @@ internal fun Casa(
         onPick = {},
         onOpen = {},
         onOpenPage = {},
-        onView = {},
+        onView = onView,
         onForget = {},
         onSettings = {},
         onSearch = {},
         onBin = {},
-        onCornerRest = onCornerRest,
+        feed = feed,
+        feedDate = FeedDate.TAKEN,
+        onFeedDate = onFeedDate,
+        onFeedRead = {},
+        onFeedOpen = onFeedOpen,
         onColumns = {},
         listCount = true,
         listText = TextSize.NORMAL,

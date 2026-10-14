@@ -334,8 +334,26 @@ enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTO
  * condividono niente.
  */
 enum class FolderView(override val token: String) : Choice {
-    GRID("grid"), LIST("list"), TREE("tree")
+    GRID("grid"), LIST("list"), TREE("tree"),
+
+    /**
+     * Every photo and video in one stream, by month, from 6.02 ([Feed]). His name for it.
+     *
+     * ⚠️ **Not a rendering of the folder list like [GRID] and [LIST]**: it shows the pictures of
+     * the folders those two show, without the folders. In the Start menu it takes the place of
+     * the switch between the round key and the pill (his choice: *non serve, era solo un
+     * riempitivo*).
+     */
+    FEED("feed")
 }
+
+/**
+ * Which date puts the Feed in order: his choice of 2026-10-14, with [TAKEN] as the factory value.
+ *
+ * ⚠️ **[TAKEN] falls back on the modification date** where a file has no date of taking: see
+ * [Feed.moment]. The two chips say so (`Scatto, Modifica` and `Modifica`).
+ */
+enum class FeedDate(override val token: String) : Choice { TAKEN("taken"), MODIFIED("modified") }
 
 /**
  * Dove si vede il colore di una cartella, **fuori** dalla sua intestazione.
@@ -1100,6 +1118,8 @@ data class Settings(
      * ⚠️ **Empty by default**, his words: *una lista (vuota di default)*.
      */
     val favouriteFolders: List<String> = emptyList(),
+    /** Which date puts the Feed in order, from 6.02. See [FeedDate]. */
+    val feedDate: FeedDate = FeedDate.TAKEN,
     /**
      * L'ordine dei campi delle informazioni sul file. Vedi [FactField].
      *
@@ -1399,6 +1419,7 @@ internal val FOLDER_MODE = stringPreferencesKey("folder-mode")
 internal val INCLUDED_INITIALIZED = booleanPreferencesKey("included-initialized")
 internal val FOLDER_ORDER = stringPreferencesKey("folder-order")
 internal val FAVOURITE_FOLDERS = stringPreferencesKey("favourite-folders")
+internal val FEED_DATE = stringPreferencesKey("feed-date")
 
 /**
  * L'elenco fino alla `2.95`, coi percorsi interi: si legge una volta sola, e poi non c'è più.
@@ -1758,6 +1779,7 @@ object SettingsStore {
             // given in silence would be worse than one more question.
             folderOrder = FolderOrder.entries.firstOrNull { it.token == p[FOLDER_ORDER] },
             favouriteFolders = favouritesOf(p[FAVOURITE_FOLDERS]),
+            feedDate = FeedDate.entries.byToken(p[FEED_DATE], FeedDate.TAKEN),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             menuOrder = padOrderOf((p[MENU_ORDER] ?: "").split(','), MENU_KEYS),
             pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
@@ -1884,6 +1906,7 @@ object SettingsStore {
             p[FOLDER_MODE] = settings.folderMode.token
             settings.folderOrder?.let { p[FOLDER_ORDER] = it.token } ?: p.remove(FOLDER_ORDER)
             p[FAVOURITE_FOLDERS] = settings.favouriteFolders.joinToString(FAVOURITE_JOIN)
+            p[FEED_DATE] = settings.feedDate.token
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[MENU_ORDER] = settings.menuOrder.joinToString(",") { it.token }
             p[PICK_ORDER] = settings.pickOrder.joinToString(",") { it.token }
@@ -2104,7 +2127,19 @@ enum class Hint(internal val token: String) {
      * ⚠️ **Viene dopo le due slide dell'editor**, e la condizione le guarda: con un velo già in
      * scena le frasi sarebbero due, sovrapposte.
      */
-    DRAW("draw-hint-seen");
+    DRAW("draw-hint-seen"),
+
+    /**
+     * The Feed, from 6.02: **the first time the home shows it**, a sentence in the middle.
+     *
+     * ⚠️⚠️ **HIS REQUEST, WITH THE TEXT LEFT TO ME** (2026-10-14: *un mini-onboarding a tua
+     * discrezione ... che spieghi in breve la scelta della data*): 'recent' has two meanings, and
+     * the stream follows one of them until someone chooses the other. The sentence says where the
+     * choice is.
+     * ⚠️ **It points at nothing**, like [ZOOM_TAP]: the choice is behind the long press on the main
+     * control, which the columns' veil already teaches in the grid of covers. Hence `HintCentre`.
+     */
+    FEED("feed-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 

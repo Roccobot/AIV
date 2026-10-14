@@ -30,7 +30,12 @@ class VistaOpzioniTest {
 
     private fun testo(id: Int) = app.getString(id)
 
-    private fun apri(view: FolderView, onOrder: (FolderOrder) -> Unit = {}, onFavourites: () -> Unit = {}) {
+    private fun apri(
+        view: FolderView,
+        onOrder: (FolderOrder) -> Unit = {},
+        onFavourites: () -> Unit = {},
+        onFeedDate: (FeedDate) -> Unit = {}
+    ) {
         scene.setContent {
             AivTheme(darkTheme = false) {
                 ViewOptions(
@@ -41,9 +46,11 @@ class VistaOpzioniTest {
                     listText = TextSize.NORMAL,
                     treeHidden = false,
                     treePictures = false,
+                    feedDate = FeedDate.TAKEN,
                     onView = {},
                     onColumns = {},
                     onOrder = onOrder,
+                    onFeedDate = onFeedDate,
                     onListCount = {},
                     onListText = {},
                     onTreeHidden = {},
@@ -82,6 +89,25 @@ class VistaOpzioniTest {
         scene.onNodeWithText(testo(R.string.favourite_folders)).assertExists()
         scene.onNodeWithText(testo(R.string.folder_order_short)).assertDoesNotExist()
         scene.onNodeWithText(testo(R.string.settings_colour)).assertDoesNotExist()
+    }
+
+    /**
+     * **Case 4: the Feed has the columns and his date chips, and nothing of the folders** (6.02).
+     *
+     * His words: *titolino `Data per l'ordinamento` e due gettoni, `Scatto, Modifica` e `Modifica`*.
+     * The order and the favourites are of the folders, which the Feed does not show.
+     */
+    @Test
+    fun `nel Feed le colonne e la data, senza disposizione`() {
+        var scelta: FeedDate? = null
+        apri(FolderView.FEED, onFeedDate = { scelta = it })
+        scene.onNodeWithText(testo(R.string.columns_title)).assertExists()
+        scene.onNodeWithText(testo(R.string.feed_date)).assertExists()
+        scene.onNodeWithText(testo(R.string.feed_date_taken)).assertExists()
+        scene.onNodeWithText(testo(R.string.feed_date_modified)).performClick()
+        assertEquals(FeedDate.MODIFIED, scelta)
+        scene.onNodeWithText(testo(R.string.folder_order_short)).assertDoesNotExist()
+        scene.onNodeWithText(testo(R.string.favourite_folders)).assertDoesNotExist()
     }
 
     /**

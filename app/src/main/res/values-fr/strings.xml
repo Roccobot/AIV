@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Couleur sombre</string>
     <string name="glass_default">Par défaut</string>
     <string name="glass_reset">Réinitialiser</string>
-    <string name="corner_rest_pill">Pilule au repos</string>
-    <string name="corner_rest_round">Bouton rond au repos</string>
     <string name="settings_button_look">Aspect des boutons principaux</string>
     <string name="settings_button_look_desc">Remplissage et effets de transparence ou de flou appliqués au bouton flottant, à la pilule d\'icônes et aux menus.</string>
     <string name="pill_slide">Rétractable</string>
@@ -396,7 +394,7 @@
     <string name="settings_group_viewer">Visionneuse</string>
     <string name="settings_group_input">Commandes et indicateurs</string>
     <string name="settings_group_files">Gestion des fichiers</string>
-    <string name="settings_group_browse">Dossiers</string>
+    <string name="settings_group_browse">Fichiers et dossiers</string>
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_group_advanced">Avancé</string>
     <string name="settings_page_info">Informations</string>
@@ -814,5 +812,12 @@
     <string name="folder_action_title">Choisir une action pour le dossier</string>
     <string name="favourite_add">Ajouter aux favoris</string>
     <string name="favourite_remove">Retirer des favoris</string>
-    <string name="backup_area_folders">Dossiers et chemins</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Aucune photo ni vidéo à afficher.</string>
+    <string name="feed_date">Date pour le tri</string>
+    <string name="feed_date_taken">Prise de vue, Modification</string>
+    <string name="feed_date_modified">Modification</string>
+    <string name="feed_order">Disposition en vue feed</string>
+    <string name="feed_order_desc">La vue feed affiche uniquement les photos et les vidéos, sans les classer par dossier, les plus récentes en haut. Comme \'récent\' peut avoir plusieurs sens, vous pouvez utiliser la date de prise de vue (avec repli sur la date de modification) ou ne tenir compte que des dates de création et de modification.</string>
+    <string name="hint_feed">Le feed affiche les photos et vidéos de tous vos dossiers, les plus récentes en haut. Pour choisir si c\'est la date de prise de vue ou celle de modification qui compte, maintenez le bouton appuyé.</string>
 </resources>

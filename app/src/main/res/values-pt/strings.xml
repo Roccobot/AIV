@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Cor escura</string>
     <string name="glass_default">Padrão</string>
     <string name="glass_reset">Redefinir</string>
-    <string name="corner_rest_pill">Pílula em repouso</string>
-    <string name="corner_rest_round">Botão redondo em repouso</string>
     <string name="settings_button_look">Aparência dos botões principais</string>
     <string name="settings_button_look_desc">Preenchimento e efeitos de transparência ou desfoque aplicados ao botão flutuante, à pílula de ícones e aos menus.</string>
     <string name="pill_slide">Retrátil</string>
@@ -396,7 +394,7 @@
     <string name="settings_group_viewer">Visualizador</string>
     <string name="settings_group_input">Controles e indicadores</string>
     <string name="settings_group_files">Gestão de ficheiros</string>
-    <string name="settings_group_browse">Pastas</string>
+    <string name="settings_group_browse">Arquivos e pastas</string>
     <string name="settings_group_start">Início</string>
     <string name="settings_group_advanced">Avançado</string>
     <string name="settings_page_info">Informações</string>
@@ -814,5 +812,12 @@
     <string name="folder_action_title">Escolha uma ação para a pasta</string>
     <string name="favourite_add">Adicionar às favoritas</string>
     <string name="favourite_remove">Remover das favoritas</string>
-    <string name="backup_area_folders">Pastas e caminhos</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Nenhuma foto ou vídeo para mostrar.</string>
+    <string name="feed_date">Data para ordenar</string>
+    <string name="feed_date_taken">Captura, Modificação</string>
+    <string name="feed_date_modified">Modificação</string>
+    <string name="feed_order">Disposição na visualização feed</string>
+    <string name="feed_order_desc">A visualização feed mostra apenas fotos e vídeos, sem organizá-los em pastas, com os mais recentes no topo. Como \'recente\' pode ter sentidos diferentes, você pode usar a data de captura (recorrendo à data de modificação) ou considerar só as datas de criação e modificação.</string>
+    <string name="hint_feed">O feed mostra as fotos e os vídeos de todas as suas pastas, os mais recentes no topo. Para escolher se conta a data de captura ou a de modificação, pressione e segure o botão.</string>
 </resources>

@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Warna gelap</string>
     <string name="glass_default">Bawaan</string>
     <string name="glass_reset">Atur ulang</string>
-    <string name="corner_rest_pill">Pil saat diam</string>
-    <string name="corner_rest_round">Tombol bulat saat diam</string>
     <string name="settings_button_look">Tampilan tombol utama</string>
     <string name="settings_button_look_desc">Isian serta efek transparansi atau buram yang diterapkan pada tombol mengambang, pil ikon, dan menu.</string>
     <string name="pill_slide">Dapat disembunyikan</string>
@@ -366,7 +364,7 @@
     <string name="settings_group_viewer">Penampil</string>
     <string name="settings_group_input">Kendali dan indikator</string>
     <string name="settings_group_files">Pengelolaan file</string>
-    <string name="settings_group_browse">Folder</string>
+    <string name="settings_group_browse">File dan folder</string>
     <string name="settings_group_start">Permulaan</string>
     <string name="settings_group_advanced">Lanjutan</string>
     <string name="settings_page_info">Informasi</string>
@@ -778,5 +776,12 @@
     <string name="folder_action_title">Pilih tindakan untuk folder</string>
     <string name="favourite_add">Tambahkan ke favorit</string>
     <string name="favourite_remove">Hapus dari favorit</string>
-    <string name="backup_area_folders">Folder dan jalur</string>
+    <string name="view_feed">Feed</string>
+    <string name="feed_none">Tidak ada foto atau video untuk ditampilkan.</string>
+    <string name="feed_date">Tanggal untuk pengurutan</string>
+    <string name="feed_date_taken">Pengambilan, Perubahan</string>
+    <string name="feed_date_modified">Perubahan</string>
+    <string name="feed_order">Urutan di tampilan feed</string>
+    <string name="feed_order_desc">Tampilan feed hanya menampilkan foto dan video, tanpa dikelompokkan dalam folder, yang terbaru di atas. Karena \'terbaru\' bisa berarti berbeda, Anda dapat memakai tanggal pengambilan (dengan tanggal perubahan sebagai cadangan) atau hanya memperhitungkan tanggal pembuatan dan perubahan.</string>
+    <string name="hint_feed">Feed menampilkan foto dan video dari semua folder, yang terbaru di atas. Untuk memilih tanggal mana yang dihitung, pengambilan atau perubahan, tekan lama tombolnya.</string>
 </resources>

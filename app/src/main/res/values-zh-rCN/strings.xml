@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">深色</string>
     <string name="glass_default">默认</string>
     <string name="glass_reset">重置</string>
-    <string name="corner_rest_pill">静止时为胶囊</string>
-    <string name="corner_rest_round">静止时为圆形按钮</string>
     <string name="settings_button_look">主要按钮外观</string>
     <string name="settings_button_look_desc">应用于悬浮按钮、图标胶囊和菜单的填充及透明或模糊效果。</string>
     <string name="pill_slide">收起式</string>
@@ -366,7 +364,7 @@
     <string name="settings_group_viewer">查看器</string>
     <string name="settings_group_input">操作与指示</string>
     <string name="settings_group_files">文件管理</string>
-    <string name="settings_group_browse">文件夹</string>
+    <string name="settings_group_browse">文件和文件夹</string>
     <string name="settings_group_start">启动</string>
     <string name="settings_group_advanced">高级</string>
     <string name="settings_page_info">信息</string>
@@ -778,5 +776,12 @@
     <string name="folder_action_title">选择对文件夹的操作</string>
     <string name="favourite_add">添加到收藏</string>
     <string name="favourite_remove">从收藏中移除</string>
-    <string name="backup_area_folders">文件夹和路径</string>
+    <string name="view_feed">信息流</string>
+    <string name="feed_none">没有可显示的照片或视频。</string>
+    <string name="feed_date">排序所用日期</string>
+    <string name="feed_date_taken">拍摄、修改</string>
+    <string name="feed_date_modified">修改</string>
+    <string name="feed_order">信息流视图排序</string>
+    <string name="feed_order_desc">信息流视图只显示照片和视频，不按文件夹分组，最新的在最上方。由于\'最新\'可以有不同含义，你可以使用拍摄日期 (没有时改用修改日期)，或只考虑创建和修改日期。</string>
+    <string name="hint_feed">信息流按最新在上的顺序显示所有文件夹中的照片和视频。要选择以拍摄日期还是修改日期为准，请长按按钮。</string>
 </resources>

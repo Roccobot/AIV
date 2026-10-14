@@ -252,7 +252,7 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
 - **Ramo principale `main`**; una sessione vincolata a un branch `claude/*` apre la PR e la mergia
   subito, squash (`Rules.md` § '🌿 Branch').
 - ⚠️ **Le specifiche delle funzioni vivono in tre file che non si caricano da soli**:
-  `docs/Folders.md` (intestazione, griglie, copertina, nascoste, indicatore), `docs/Files.md`
+  `docs/Folders.md` (intestazione, griglie, copertina, nascoste, indicatore, Feed), `docs/Files.md`
   (selettore, salvataggio, rinomina, miniature, esporta e importa) e `docs/Editor.md` (pose,
   moduli, stili, filigrana, ridimensionamento). Prima di toccare una di quelle funzioni si legge il
   suo file per intero (`Rules.md` § '📚 Dove vivono le specifiche delle funzioni').

@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">گہرا رنگ</string>
     <string name="glass_default">طے شدہ</string>
     <string name="glass_reset">ری سیٹ کریں</string>
-    <string name="corner_rest_pill">آرام میں گولی</string>
-    <string name="corner_rest_round">آرام میں گول بٹن</string>
     <string name="settings_button_look">مرکزی بٹنوں کی شکل</string>
     <string name="settings_button_look_desc">تیرتے بٹن، آئیکن گولی اور مینوز پر لاگو بھرائی اور شفافیت یا دھندلاہٹ کے اثرات۔</string>
     <string name="pill_slide">چھپنے والی</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">ناظر</string>
     <string name="settings_group_input">کنٹرول اور اشارے</string>
     <string name="settings_group_files">فائل کا انتظام</string>
-    <string name="settings_group_browse">فولڈرز</string>
+    <string name="settings_group_browse">فائلیں اور فولڈرز</string>
     <string name="settings_group_start">آغاز</string>
     <string name="settings_group_advanced">اعلیٰ</string>
     <string name="settings_page_info">معلومات</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">فولڈر کے لیے عمل منتخب کریں</string>
     <string name="favourite_add">پسندیدہ میں شامل کریں</string>
     <string name="favourite_remove">پسندیدہ سے ہٹائیں</string>
-    <string name="backup_area_folders">فولڈرز اور راستے</string>
+    <string name="view_feed">فیڈ</string>
+    <string name="feed_none">دکھانے کے لیے کوئی تصویر یا ویڈیو نہیں۔</string>
+    <string name="feed_date">ترتیب کی تاریخ</string>
+    <string name="feed_date_taken">عکس بندی، ترمیم</string>
+    <string name="feed_date_modified">ترمیم</string>
+    <string name="feed_order">فیڈ منظر میں ترتیب</string>
+    <string name="feed_order_desc">فیڈ منظر صرف تصاویر اور ویڈیوز دکھاتا ہے، فولڈرز میں بانٹے بغیر، سب سے نئی اوپر۔ چونکہ \'نیا\' کے مختلف مطلب ہو سکتے ہیں، آپ تصویر کھینچنے کی تاریخ استعمال کر سکتے ہیں (اور نہ ہو تو ترمیم کی تاریخ)، یا صرف بنانے اور ترمیم کی تاریخوں کو مدنظر رکھ سکتے ہیں۔</string>
+    <string name="hint_feed">فیڈ تمام فولڈرز کی تصاویر اور ویڈیوز سب سے نئی اوپر رکھ کر دکھاتا ہے۔ یہ چننے کے لیے کہ کھینچنے کی تاریخ گنی جائے یا ترمیم کی، بٹن کو دیر تک دبائیں۔</string>
 </resources>

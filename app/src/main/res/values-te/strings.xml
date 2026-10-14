@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">ముదురు రంగు</string>
     <string name="glass_default">డిఫాల్ట్</string>
     <string name="glass_reset">రీసెట్ చేయి</string>
-    <string name="corner_rest_pill">విశ్రాంతిలో పిల్</string>
-    <string name="corner_rest_round">విశ్రాంతిలో గుండ్రని బటన్</string>
     <string name="settings_button_look">ప్రధాన బటన్‌ల రూపం</string>
     <string name="settings_button_look_desc">తేలియాడే బటన్, ఐకాన్ పిల్, మెనూలకు వర్తించే నింపు మరియు పారదర్శకత లేదా మసక ప్రభావాలు.</string>
     <string name="pill_slide">ముడుచుకునే</string>
@@ -381,7 +379,7 @@
     <string name="settings_group_viewer">వీక్షకం</string>
     <string name="settings_group_input">నియంత్రణలు, సూచికలు</string>
     <string name="settings_group_files">ఫైల్ నిర్వహణ</string>
-    <string name="settings_group_browse">ఫోల్డర్‌లు</string>
+    <string name="settings_group_browse">ఫైల్‌లు మరియు ఫోల్డర్‌లు</string>
     <string name="settings_group_start">ప్రారంభం</string>
     <string name="settings_group_advanced">అధునాతన</string>
     <string name="settings_page_info">సమాచారం</string>
@@ -796,5 +794,12 @@
     <string name="folder_action_title">ఫోల్డర్ కోసం చర్యను ఎంచుకోండి</string>
     <string name="favourite_add">ఇష్టమైనవాటికి జోడించు</string>
     <string name="favourite_remove">ఇష్టమైనవాటి నుండి తీసివేయి</string>
-    <string name="backup_area_folders">ఫోల్డర్‌లు మరియు పాత్‌లు</string>
+    <string name="view_feed">ఫీడ్</string>
+    <string name="feed_none">చూపడానికి ఫోటోలు లేదా వీడియోలు లేవు.</string>
+    <string name="feed_date">క్రమానికి తేదీ</string>
+    <string name="feed_date_taken">తీసినది, మార్పు</string>
+    <string name="feed_date_modified">మార్పు</string>
+    <string name="feed_order">ఫీడ్ వీక్షణలో క్రమం</string>
+    <string name="feed_order_desc">ఫీడ్ వీక్షణ ఫోటోలు, వీడియోలను మాత్రమే, ఫోల్డర్లుగా విభజించకుండా, కొత్తవాటిని పైన చూపిస్తుంది. \'కొత్త\' అనే మాటకు వేర్వేరు అర్థాలు ఉండవచ్చు కాబట్టి, మీరు తీసిన తేదీని వాడవచ్చు (లేకపోతే మార్చిన తేదీ), లేదా సృష్టించిన, మార్చిన తేదీలను మాత్రమే పరిగణించవచ్చు.</string>
+    <string name="hint_feed">ఫీడ్ అన్ని ఫోల్డర్ల ఫోటోలు, వీడియోలను కొత్తవాటిని పైన ఉంచి చూపిస్తుంది. తీసిన తేదీనా మార్చిన తేదీనా అన్నది ఎంచుకోవడానికి బటన్‌ను నొక్కి పట్టుకోండి.</string>
 </resources>

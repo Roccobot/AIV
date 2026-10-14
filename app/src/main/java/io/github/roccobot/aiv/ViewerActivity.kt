@@ -2257,6 +2257,44 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * The Feed of the home, and `null` until the first reading ends. See [Feed].
+     *
+     * ⚠️ **It lives here for the reason of [buckets]**: the home goes away at every picture
+     * opened, and coming back must find the stream where it was, not a spinner.
+     */
+    var feed: Feed.Page? by mutableStateOf(null)
+        private set
+
+    /** What [feed] was read for: permission, [outsideStamp], folders and date. */
+    private var feedFor: List<Any>? = null
+
+    /** The last arguments of [readFeed], for [outsideChange], which cannot ask the screen. */
+    private var feedArgs: Triple<Boolean, FolderSelection, FeedDate>? = null
+
+    private var feedJob: Job? = null
+
+    /**
+     * Reads the Feed again, but only when something it depends on has changed.
+     *
+     * ⚠️ **Unlike [readBuckets], the folders and the date are keys**: hiding a folder or choosing
+     * the other date changes which pictures the stream holds and in what order, so here they are
+     * a reading and not a filter.
+     * ⚠️ **The old stream stays on screen until the new one arrives**: changing the date does not
+     * flash a spinner over pictures that are still there.
+     */
+    fun readFeed(granted: Boolean, selection: FolderSelection, date: FeedDate) {
+        feedArgs = Triple(granted, selection, date)
+        val key = listOf(granted, outsideStamp, selection, date)
+        if (feedFor == key) return
+        feedFor = key
+        val context = getApplication<Application>()
+        feedJob?.cancel()
+        feedJob = viewModelScope.launch {
+            feed = Folder.feed(context, selection, date) ?: Feed.Page(emptyList(), emptyList())
+        }
+    }
+
+    /**
      * Dov'è la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
      * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `0.84`**: si esce dalla casa ogni volta che
@@ -2312,6 +2350,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ritrova nella sua terza vista, alla cartella giusta, perché [treePath] vive nel modello.
      * ⚠️ **Nessun anello dell'ultima vista** (`gridVisited`): quello è il segno della griglia
      * di una cartella, e qui la griglia non c'è.
+     * ⚠️ **From 6.02 the Feed opens its pictures here too**: the same case, a series drawn by the
+     * home and the home as the place to go back to.
      */
     fun openFromTree(items: List<Uri>, index: Int) {
         val whole = Folder.Series(items, index)
@@ -2512,7 +2552,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 // dell'ultima volta, perché a saperlo è la schermata e in questo istante non
                 // le si può chiedere niente; se non ha ancora letto, non c'è niente da
                 // rifare e ci penserà lei entrando.
-                screen is Screen.Folders -> bucketsFor?.let { readBuckets(it.first) }
+                screen is Screen.Folders -> {
+                    bucketsFor?.let { readBuckets(it.first) }
+                    // ⚠️ And the Feed, with what it was last read for: a picture arrived from
+                    // outside belongs at the top of the stream.
+                    feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
+                }
                 else -> Unit
             }
         }
@@ -2861,7 +2906,12 @@ class ViewerActivity : ComponentActivity() {
                 // dalla `1.81` quella entra dalla vista normale dell'app, e il perché per
                 // esteso sta su [LocalDestLook].
                 val dove = model.settings?.let {
-                    DestLook(it.folderView, it.folderColumns, it.folderCount, it.listCount, it.listText, it.folderMode)
+                    // ⚠️ From the Feed the window shows the folders as covers: it picks a folder,
+                    // and the Feed has none to show (6.02).
+                    DestLook(
+                        if (it.folderView == FolderView.FEED) FolderView.GRID else it.folderView,
+                        it.folderColumns, it.folderCount, it.listCount, it.listText, it.folderMode
+                    )
                 } ?: DestLook()
                 // ⚠️ E accanto a loro il minuto di 'Mostra nascoste', dalla `2.03`: la finestra
                 // delle destinazioni deve sapere se è acceso, e il perché per esteso, con la
@@ -3381,9 +3431,12 @@ private fun Stage(
              * elenco a lato e contenuto a destra. Fuori dalla scelta d'avvio e fuori dalla
              * vista ad albero, che ha una navigazione propria (mockup `system`).
              */
+            // ⚠️ Nor in the Feed (6.02): it shows pictures without folders, so a column of
+            // folders beside it would contradict it.
             val dualFolders = Adaptive.sideAvailable(widthDp) &&
                 !screen.forStart &&
-                settings.folderView != FolderView.TREE
+                settings.folderView != FolderView.TREE &&
+                settings.folderView != FolderView.FEED
             val shape = screenShape()
             if (dualFolders && shape == Adaptive.Shape.WIDE) {
                 /*
@@ -3583,7 +3636,13 @@ private fun Stage(
                     onSettings = { model.openSettings() },
                     onSearch = { model.openSearch() },
                     onBin = { model.openBin() },
-                    onCornerRest = { model.updateSettings(settings.copy(cornerRound = !settings.cornerRound)) },
+                    feed = model.feed,
+                    feedDate = settings.feedDate,
+                    onFeedDate = { model.updateSettings(settings.copy(feedDate = it)) },
+                    onFeedRead = { model.readFeed(it, settings.folderSelection, settings.feedDate) },
+                    // ⚠️ The Feed hands over like the tree view does: a cover or an answer to an app
+                    // that asked for a picture, otherwise the viewer.
+                    onFeedOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
                     // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
                     // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
                     // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`

@@ -138,8 +138,6 @@
     <string name="glass_colour_dark">Темний колір</string>
     <string name="glass_default">Типово</string>
     <string name="glass_reset">Скинути</string>
-    <string name="corner_rest_pill">Пігулка в спокої</string>
-    <string name="corner_rest_round">Кругла кнопка в спокої</string>
     <string name="settings_button_look">Вигляд головних кнопок</string>
     <string name="settings_button_look_desc">Заливка та ефекти прозорості чи розмиття для плаваючої кнопки, пігулки зі значками та меню.</string>
     <string name="pill_slide">Згортна</string>
@@ -411,7 +409,7 @@
     <string name="settings_group_viewer">Перегляд</string>
     <string name="settings_group_input">Керування та індикатори</string>
     <string name="settings_group_files">Керування файлами</string>
-    <string name="settings_group_browse">Теки</string>
+    <string name="settings_group_browse">Файли й теки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Додатково</string>
     <string name="settings_page_info">Інформація</string>
@@ -832,5 +830,12 @@
     <string name="folder_action_title">Виберіть дію для папки</string>
     <string name="favourite_add">Додати до улюблених</string>
     <string name="favourite_remove">Прибрати з улюблених</string>
-    <string name="backup_area_folders">Папки та шляхи</string>
+    <string name="view_feed">Стрічка</string>
+    <string name="feed_none">Немає фото та відео для показу.</string>
+    <string name="feed_date">Дата для сортування</string>
+    <string name="feed_date_taken">Зйомка, зміна</string>
+    <string name="feed_date_modified">Зміна</string>
+    <string name="feed_order">Порядок у вигляді стрічки</string>
+    <string name="feed_order_desc">Режим стрічки показує лише фото та відео, без розподілу на теки, найновіші вгорі. Оскільки \'нове\' можна розуміти по-різному, ви можете використовувати дату зйомки (а якщо її немає, дату зміни) або враховувати лише дати створення та зміни.</string>
+    <string name="hint_feed">Стрічка показує фото та відео з усіх тек, найновіші вгорі. Щоб вибрати, яка дата важлива, зйомки чи зміни, утримуйте кнопку.</string>
 </resources>

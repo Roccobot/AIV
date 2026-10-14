@@ -638,6 +638,51 @@ object Folder {
     }
 
     /**
+     * Every photo and video of the folders the grid shows, in Feed order ([Feed.order]), or
+     * `null` without the permission.
+     *
+     * ⚠️⚠️ **The folders are those of [selection]**, the same filter as the grid and the search
+     * (his choice D1): hidden, included and excluded folders count as they do there. The bin is
+     * out by construction, as in the search: AIV GitHub keeps it in the app's own folder, where
+     * the MediaStore does not look, and the system's trash of AIV Play is left out of a query by
+     * default.
+     * ⚠️ **`DATE_TAKEN` is read from the files table too**: the column lives in the table, like
+     * the others of [COLUMNS], and for a row without it the cursor gives `null`.
+     */
+    suspend fun feed(context: Context, selection: FolderSelection, date: FeedDate): Feed.Page? =
+        withContext(Dispatchers.IO) {
+            if (!granted(context)) return@withContext null
+            val rows = mutableListOf<Feed.Row>()
+            runCatching {
+                context.contentResolver.query(TABLE, COLUMNS + TAKEN, MEDIA, null, null)?.use { c ->
+                    val idAt = c.column(MediaStore.Images.Media._ID) ?: return@use
+                    @Suppress("DEPRECATION")
+                    val pathAt = c.column(MediaStore.Images.Media.DATA)
+                    val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                    val modifiedAt = c.column(MediaStore.Images.Media.DATE_MODIFIED)
+                    val takenAt = c.column(TAKEN)
+                    while (c.moveToNext()) {
+                        val dir = pathAt?.let { c.getString(it) }
+                            ?.substringBeforeLast('/')
+                            ?.takeIf { it.isNotBlank() }
+                        if (!selection.visible(dir)) continue
+                        val id = c.getLong(idAt)
+                        rows += Feed.Row(
+                            uri = uriOf(id, c.isClip(kindAt)),
+                            id = id,
+                            taken = takenAt?.takeUnless { c.isNull(it) }?.let { c.getLong(it) },
+                            modified = modifiedAt?.let { c.getLong(it) } ?: 0L
+                        )
+                    }
+                }
+            }
+            Feed.order(rows, date)
+        }
+
+    /** The date of taking, which only the Feed reads: see [feed]. */
+    private const val TAKEN = MediaStore.Images.Media.DATE_TAKEN
+
+    /**
      * Se le cartelle si possono leggere. ⚠️ **Il permesso dipende dalla variante, e lo dice
      * [Store]** (dalla `5.10`): in `github` è quello PESANTE, l'accesso a tutti i file, scelta
      * dell'utente (*preferisco chiedere un permesso pesante prima e poi essere a posto per

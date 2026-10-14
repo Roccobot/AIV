@@ -100,8 +100,11 @@ internal enum class BackupArea(val token: String) {
  */
 internal enum class BackupGroup(val token: String, @StringRes val label: Int, val areas: Set<BackupArea>) {
     LOOK("look", R.string.backup_area_view, setOf(BackupArea.VIEW, BackupArea.BUTTONS)),
+    // ⚠️ From 6.02 the group takes the name of its settings section, 'File e cartelle' (his request:
+    // *anche nell'esportazione delle impostazioni la voce `Cartelle` diventa `File e cartelle`*), and
+    // its own string 'Cartelle e percorsi' is gone: one name in one place.
     FOLDERS(
-        "folders", R.string.backup_area_folders,
+        "folders", R.string.settings_group_browse,
         setOf(BackupArea.TINTS, BackupArea.COVERS, BackupArea.HIDDEN)
     ),
     EDITOR("editor", R.string.backup_area_editor, setOf(BackupArea.EDITOR)),
@@ -230,7 +233,8 @@ internal val PREF_KEYS: List<PrefKey> = buildList {
     area(BackupArea.TINTS, PrefType.STRING, "folder-colour")
     area(BackupArea.TINTS, PrefType.SET, "folder-tints")
     area(BackupArea.HIDDEN, PrefType.SET, "hidden-relative", "hidden-only", "included-relative")
-    area(BackupArea.HIDDEN, PrefType.STRING, "folder-mode", "folder-order", "favourite-folders")
+    // ⚠️ 'feed-date' (6.02) goes with 'folder-order', its sibling on the settings page.
+    area(BackupArea.HIDDEN, PrefType.STRING, "folder-mode", "folder-order", "favourite-folders", "feed-date")
     Hint.entries.forEach { add(PrefKey(it.token, PrefType.BOOLEAN, BackupArea.HINTS)) }
 }
 

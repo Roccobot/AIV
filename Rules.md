@@ -31,7 +31,7 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 
 - **`docs/Folders.md`**: l'intestazione delle cartelle, le griglie che arrivano al vetro, il salto
   in cima e in fondo sul FAB, lo scorrimento che sopravvive alla schermata, il colore di una
-  cartella, la copertina scelta a mano, 'Mostra nascoste' e l'indicatore dell'ultimo media.
+  cartella, la copertina scelta a mano, 'Mostra nascoste', l'indicatore dell'ultimo media e il Feed.
 - **`docs/Files.md`**: AIV come selettore per le altre app, il salvataggio in Download e il nome,
   l'anteprima della rinomina, lo spazio liberato dal cestino, disfare una copia o uno spostamento,
   le miniature che mentono dopo una riscrittura, le miniature memorizzate, la miniatura dei video,
