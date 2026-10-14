@@ -3,7 +3,9 @@
 Versione **6.02**: il Feed, tutte le foto e i video in un flusso con le più recenti in alto. Il documento è cumulativo con la 5.92.
 Prosegue il giro **5.92**.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-@@RELEASE@@
+La Release 6.02 è pubblicata: [v6.02](https://github.com/Roccobot/AIV/releases/tag/v6.02), con i due APK
+[AIV-6.02.apk](https://github.com/Roccobot/AIV/releases/download/v6.02/AIV-6.02.apk) (AIV GitHub) e [AIV-Play-6.02.apk](https://github.com/Roccobot/AIV/releases/download/v6.02/AIV-Play-6.02.apk) (AIV Play), più [AIV-Play-6.02.aab](https://github.com/Roccobot/AIV/releases/download/v6.02/AIV-Play-6.02.aab), il pacchetto da caricare su Google Play.
+Commit prodotto su `main`: `b1a96b1`, release dal commit `b1a96b1` (SlimVer 6.02 / versionCode 377; APK GitHub 11.167.149 byte, digest `0fc30a55`; APK Play 11.056.745 byte, digest `a0f14a99`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
@@ -98,8 +100,8 @@ File e cartelle
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
-| Il Feed | 6.02 | Scelte del 2026-10-14 | Accesso dal menu Start, data B1 a scelta, mesi C1, cartelle D1, velo, `File e cartelle`; pillole a otto voci A1. | Fatto nella 6.02 (`6.02-01`...`6.02-05`). |
-| La vibrazione della pressione lunga | 5.92 | Scelta B1 | Il tocco che apre la selezione era *leggerissimo, diverso da altre vibrazioni*. | Fatta nella 5.92 (`5.92-01`). |
+| Il Feed | 6.02-01 | Scelte del 2026-10-14 | Accesso dal menu Start, data B1 a scelta, mesi C1, cartelle D1, velo, `File e cartelle`; pillole a otto voci A1. | Fatto nella 6.02 (`6.02-01`...`6.02-05`). |
+| La vibrazione della pressione lunga | 5.92-01 | Scelta B1 | Il tocco che apre la selezione era *leggerissimo, diverso da altre vibrazioni*. | Fatta nella 5.92 (`5.92-01`). |
 
 ## Prossimi passi
 
