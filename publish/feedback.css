@@ -536,7 +536,7 @@ textarea {
 }
 .attachment {
   font-size: 14px;
-  border: 2px dashed var(--border-strong);
+  border: 2px dashed var(--dash, var(--border-strong));
   border-radius: 10px;
   padding: 14px;
 }
@@ -787,11 +787,20 @@ footer {
   }
 }
 
-/* Responses stand out without changing the cards' dimensions. */
+/* Responses stand out without changing the cards' dimensions. --frame-ink and --frame-ground are
+   the frame and the ground of the card's state: an outcome sets its own below. */
 .card.has-response {
-  background: var(--surface-response);
-  border-color: var(--border-response);
-  box-shadow: inset 0 0 0 1px var(--border-response);
+  --frame-ink: var(--border-response);
+  --frame-ground: var(--surface-response);
+  background: var(--frame-ground);
+  border-color: var(--frame-ink);
+  box-shadow: inset 0 0 0 1px var(--frame-ink);
+  /* The dashed + box is a shade of its card's frame, 90% of the frame's ink over the card's
+     ground (the user's request, 2026-10-14, with green dashes on a yellow card). Of 100, 90, 85
+     and 80%, 90 is the lightest that keeps 3:1 on the ground in every state and theme; the lowest
+     is a response without an outcome, light, at 3.03. A card without a response, Altro and its
+     overlay keep --border-strong, the strong shade of their own green frame. */
+  --dash: color-mix(in srgb, var(--frame-ink) 90%, var(--frame-ground));
 }
 .attachment {
   display: flex;
@@ -852,9 +861,8 @@ footer {
   --outcome-surface: var(--surface-bad);
 }
 .card.has-response:is([data-outcome-kind="ok"], [data-outcome-kind="warn"], [data-outcome-kind="bad"]) {
-  background: var(--outcome-surface);
-  border-color: var(--outcome-ink);
-  box-shadow: inset 0 0 0 1px var(--outcome-ink);
+  --frame-ink: var(--outcome-ink);
+  --frame-ground: var(--outcome-surface);
 }
 /* A file dragged over a card with an outcome tints the + box with a deeper shade of that
    outcome, not with the green of the empty card (the user's note, 2026-10-12: green on a red
@@ -1202,7 +1210,7 @@ main > .feedback-columns {
   min-height: 44px;
   margin: 0;
   padding: 0;
-  border: 2px dashed var(--border-strong);
+  border: 2px dashed var(--dash, var(--border-strong));
   border-radius: 10px;
   background: transparent;
   color: var(--ink-strong);
