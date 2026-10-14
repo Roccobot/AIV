@@ -195,6 +195,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     browser riporta: su una tastiera italiana ISO `ì` è `Equal` e `ù` è `Backslash`, e per gli altri
     casi valgono anche le loro lettere (`ì` e `^`, `ù` e `§`). Una combinazione che il browser tiene
     per sé non arriva alla pagina, e si vede solo sul Mac.
+    - `⌃⌘⌥` più una lettera scrive la scorciatoia `⌘` e quella lettera, maiuscola, come codice
+      inline, e poi uno spazio normale, così il testo che segue è semplice (richiesta di Rocco del
+      2026-10-14, scelta B1): `⌃⌘⌥C` scrive `⌘C`. Come i simboli, vale nei campi con la
+      formattazione, e la lettera si legge dalla posizione del tasto, perché `⌥` la cambia
+      (`shortcutText` in `feedback-format.js`).
     - La fila vive sopra il campo di Altro, solo su desktop (sotto i 720 px è nascosta): dieci tasti
       quadrati, che prendono la larghezza dalla fila (34,6 px nella colonna laterale di una
       finestra larga), per sua richiesta. La `×` è più grande del 20% (28,8 px) e Roboto la disegna
