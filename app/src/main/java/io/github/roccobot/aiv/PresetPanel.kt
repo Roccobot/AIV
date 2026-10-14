@@ -215,6 +215,7 @@ private fun PresetRow(preset: Preset, onPick: (Preset, Boolean) -> Unit) {
             .combinedClickable(
                 onClick = { onPick(preset, false) },
                 onLongClick = add,
+                hapticFeedbackEnabled = false,
                 onLongClickLabel = stringResource(R.string.look_preset_add)
             )
             .padding(horizontal = 8.dp, vertical = 6.dp),

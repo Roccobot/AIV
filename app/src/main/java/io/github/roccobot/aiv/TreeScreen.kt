@@ -557,7 +557,12 @@ private fun SpotRow(
                     )
                 ) else Modifier
             )
-            .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = hold)
+            .combinedClickable(
+                role = Role.Button,
+                onClick = onClick,
+                onLongClick = hold,
+                hapticFeedbackEnabled = false
+            )
             .padding(vertical = ROW_PAD, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)

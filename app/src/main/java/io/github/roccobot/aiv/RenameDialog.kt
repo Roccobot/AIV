@@ -1353,7 +1353,10 @@ internal fun Quiet(
                 enabled = enabled,
                 role = Role.Button,
                 onClick = onTap,
-                onLongClick = onHold
+                // ⚠️ La vibrazione si aggiunge qui dalla 5.92: il tocco lungo dei chiamanti
+                // ('Data') vibrava solo con quella di Compose, adesso spenta. Vedi [withHaptics].
+                onLongClick = onHold?.let { withHaptics(it) },
+                hapticFeedbackEnabled = false
             )
             .tapRoom()
             .padding(horizontal = 8.dp, vertical = 6.dp)

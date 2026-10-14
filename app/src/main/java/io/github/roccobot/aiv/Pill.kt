@@ -198,7 +198,8 @@ internal fun PillKey(
                     onLongClick = {
                         haptics.performHapticFeedback(HOLD_BUZZ)
                         if (hold != null) hold() else scope.launch { tip.show() }
-                    }
+                    },
+                    hapticFeedbackEnabled = false
                 )
                 .semantics { contentDescription = entry.label }
                 .alpha(if (entry.enabled) 1f else DISABLED_INK)

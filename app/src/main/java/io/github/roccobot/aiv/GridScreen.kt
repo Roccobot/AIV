@@ -2202,8 +2202,8 @@ fun GridScreen(
                                 // ⚠️ **Il colpetto è UNO SOLO dalla 1.21**, e qui stava il
                                 // condizionale che dava quello forte all'ingresso nel modo
                                 // selezione e quello leggero ai gesti dentro. Adesso sono la
-                                // stessa cosa perché la vibrazione l'utente la vuole discreta
-                                // dappertutto: il perché sta su [HOLD_BUZZ].
+                                // stessa cosa, e dalla 5.92 è la vibrazione piena (sua scelta
+                                // B1): il perché è su [HOLD_BUZZ].
                                 haptics.performHapticFeedback(HOLD_BUZZ)
                                 chosen =
                                     if (dragOff) chosen - items[hit] else chosen + items[hit]
@@ -3527,6 +3527,7 @@ private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit, onSearch
                 .combinedClickable(
                     onClick = { menu.open() },
                     onLongClick = withHaptics(onSearch),
+                    hapticFeedbackEnabled = false,
                     onLongClickLabel = stringResource(R.string.hub_search),
                     role = Role.Button
                 )
