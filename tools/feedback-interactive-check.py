@@ -813,6 +813,13 @@ def check(path):
             field.press('Meta+Control+c')
             field.press('Meta+Shift+e')
             expect(stored).to_have_value('tasti ⌘⇧⇧⌥⌥⌃→⏎×✅❌⚠️')
+            # ⌃⌘⌥ and a letter write ⌘ and the capital letter as inline code, then a plain space, so
+            # what is typed next is plain (his request of 2026-10-14, choice B1).
+            fill_plain(field, 'vedi ')
+            field.press('End')
+            field.press('Meta+Control+Alt+c')
+            field.press('x')
+            expect(stored).to_have_value('vedi `⌘C` x')
             # The row of symbols over Altro, on desktop (his mockup of 2026-10-13): ten keys in the
             # mockup's order, the tooltip only the shortcuts, four spaces apart, and a click
             # writes the symbol where the caret is, here a proof card's field and not Altro.

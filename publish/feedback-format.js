@@ -596,6 +596,14 @@
     {symbol: "❌", name: "Croce", keys: ["KeyN"], shown: ["⌘⇧N"]},
     {symbol: "⚠️", name: "Avviso", keys: ["KeyP"], shown: ["⌘⇧P"]}
   ];
+  /* ⌃⌘⌥ and a letter write the shortcut ⌘ and that letter, in capitals, as inline code, then a
+     plain space, so what is typed next is plain text (his request of 2026-10-14, choice B1). The
+     letter is read from the key's place, because ⌥ changes the letter event.key reports. */
+  function shortcutText(event) {
+    if (!event.metaKey || !event.ctrlKey || !event.altKey || event.shiftKey) return null;
+    const letter = /^Key([A-Z])$/.exec(event.code);
+    return letter ? "⌘" + letter[1] : null;
+  }
   function keySymbol(event) {
     if (!event.metaKey || !event.shiftKey || event.altKey || event.ctrlKey) return null;
     return SYMBOL_KEYS.find(entry => entry.keys.includes(event.code) || entry.keys.includes(event.key))?.symbol || null;
@@ -815,6 +823,15 @@
       if ((event.metaKey || event.ctrlKey) && !event.altKey && (key === "z" || key === "y" && !event.shiftKey)) {
         event.preventDefault();
         travel(editor, key === "y" || event.shiftKey ? 1 : -1);
+        return;
+      }
+      const shortcut = shortcutText(event);
+      if (shortcut) {
+        event.preventDefault();
+        if (editor.area.disabled) return;
+        editor.before = selectionOf(editor);
+        insertNodes(editor, [node("code", shortcut), document.createTextNode(" ")]);
+        sync(editor, "format");
         return;
       }
       const symbol = keySymbol(event);
