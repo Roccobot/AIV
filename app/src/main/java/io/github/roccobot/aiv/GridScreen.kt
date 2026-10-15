@@ -2855,8 +2855,9 @@ fun GridScreen(
                             // ⚠️ E per quello del modulo Disegno, dalla `4.61`: anche lui un
                             // `HintSpots`, sul tondo rosso.
                             Hint.DRAW -> R.string.hint_draw
-                            // ⚠️ And the Feed's, from 6.02: a `HintCentre` in the home.
-                            Hint.FEED -> R.string.hint_feed
+                            // ⚠️ And the Feed's, from 6.02: a `HintFeed` in the home, whose
+                            // sentence is the text of 'Disposizione in vista feed' (6.20).
+                            Hint.FEED -> R.string.feed_order_desc
                         }
                     ),
                     // ⚠️ L'angolo del comando vero, tondo o FAB, col centro sul centro del tondo

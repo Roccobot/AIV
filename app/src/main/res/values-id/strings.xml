@@ -776,12 +776,14 @@
     <string name="folder_action_title">Pilih tindakan untuk folder</string>
     <string name="favourite_add">Tambahkan ke favorit</string>
     <string name="favourite_remove">Hapus dari favorit</string>
+    <string name="folder_pin_home">Tambahkan ke layar utama</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">Tidak ada foto atau video untuk ditampilkan.</string>
     <string name="feed_date">Tanggal untuk pengurutan</string>
     <string name="feed_date_taken">Pengambilan, Perubahan</string>
     <string name="feed_date_modified">Perubahan</string>
     <string name="feed_order">Urutan di tampilan feed</string>
-    <string name="feed_order_desc">Tampilan feed hanya menampilkan foto dan video, tanpa dikelompokkan dalam folder, yang terbaru di atas. Karena \'terbaru\' bisa berarti berbeda, Anda dapat memakai tanggal pengambilan (dengan tanggal perubahan sebagai cadangan) atau hanya memperhitungkan tanggal pembuatan dan perubahan.</string>
-    <string name="hint_feed">Tampilan &lt;i&gt;feed&lt;/i&gt; menampilkan file dari semua lokasi yang diizinkan, tanpa dibagi ke dalam folder, dengan yang terbaru di atas. Untuk memilih apakah tanggal pengambilan atau tanggal perubahan yang diutamakan dalam susunan, tekan lama tombol utama.</string>
+    <string name="feed_order_desc">Tampilan feed hanya menampilkan foto dan video, tanpa dikelompokkan dalam folder, yang terbaru di atas. Anda dapat mengurutkan menurut tanggal pengambilan (dengan tanggal perubahan sebagai cadangan) atau hanya memperhitungkan tanggal perubahan terakhir.</string>
+    <string name="hint_feed_newer">Terbaru</string>
+    <string name="hint_feed_older">Terlama</string>
 </resources>

@@ -581,23 +581,24 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * Whether the home shows the Feed for this time only, opened from the launcher's 'Feed' action
-     * (6.10, his condition on A1: *Feed solo se è una vista temporanea e poi aprendo l'app
-     * normalmente torno alla mia vista*).
+     * The view the home shows for this time only, or `null` for the saved one: the Feed of the
+     * launcher's 'Feed' action (6.10, his condition on A1: *Feed solo se è una vista temporanea e
+     * poi aprendo l'app normalmente torno alla mia vista*), and from the 6.20 'Cartelle di sistema'
+     * for a folder pinned with 'Faro'.
      *
      * ⚠️⚠️ **Not saved, and the settings keep their view**: the app opened from its icon goes
-     * back to that view ([handleIntent] turns this off), and so does a view chosen by hand
+     * back to that view ([handleIntent] clears this), and so does a view chosen by hand
      * ([chooseView]).
      */
-    var feedOnce: Boolean by mutableStateOf(false)
+    var viewOnce: FolderView? by mutableStateOf(null)
         private set
 
-    /** The home's view in force: the Feed while [feedOnce] holds, otherwise the saved one. */
-    fun shownView(saved: FolderView): FolderView = if (feedOnce) FolderView.FEED else saved
+    /** The home's view in force: [viewOnce] while it holds, otherwise the saved one. */
+    fun shownView(saved: FolderView): FolderView = viewOnce ?: saved
 
-    /** A view chosen on the home: it is written, and the Feed of the shortcut ends. */
+    /** A view chosen on the home: it is written, and the view of a shortcut ends. */
     fun chooseView(view: FolderView) {
-        feedOnce = false
+        viewOnce = null
         settings?.let { updateSettings(it.copy(folderView = view)) }
     }
 
@@ -884,11 +885,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             fromIcon = false
             clipboardTried = true
             atStart = false
-            feedOnce = false
+            viewOnce = null
             addressAsked = false
             screen = HOME
             when (shortcut) {
-                Shortcuts.FEED -> feedOnce = true
+                Shortcuts.FEED -> viewOnce = FolderView.FEED
                 Shortcuts.SEARCH -> openSearch()
                 Shortcuts.ADDRESS -> addressAsked = true
                 Shortcuts.FOLDER -> {
@@ -896,12 +897,21 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                     val bucket = intent.getLongExtra(Shortcuts.BUCKET, 0L)
                     if (name != null) openGrid(bucket, name)
                 }
+                // ⚠️ 'Faro' (6.20): the folder opens where it was pinned from, 'Cartelle di
+                // sistema', for this time; AIV Play has no such view and pins nothing.
+                Shortcuts.TREE -> {
+                    val path = intent.getStringExtra(Shortcuts.PATH)
+                    if (path != null && FolderView.TREE in Store.views) {
+                        viewOnce = FolderView.TREE
+                        treeTo(path)
+                    }
+                }
             }
             return
         }
-        // ⚠️ The app opened from its icon goes back to the saved view (6.10, `feedOnce`), also
+        // ⚠️ The app opened from its icon goes back to the saved view (6.10, `viewOnce`), also
         // when it was already open and nothing else changes.
-        if (intent?.action == Intent.ACTION_MAIN) feedOnce = false
+        if (intent?.action == Intent.ACTION_MAIN) viewOnce = null
         /*
          * ⚠️⚠️ **UN INTENTO NUDO CHE ARRIVA A GIRO INIZIATO NON AZZERA NIENTE, DALLA `2.78`, ED È
          * IL PUNTO A DEL SUO CAMPO LIBERO** (*quando l'editor è aperto, se passo a un'altra app
@@ -2819,7 +2829,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun updateSettings(next: Settings) {
         val before = settings
         // ⚠️ A view changed in the settings ends the Feed of the shortcut, as on the home (6.10).
-        if (before != null && before.folderView != next.folderView) feedOnce = false
+        if (before != null && before.folderView != next.folderView) viewOnce = null
         // ⚠️ Hidden folders changed: the launcher's folder action may name one (6.10, `Shortcuts`).
         if (before != null && (
                 before.folderMode != next.folderMode ||
@@ -3526,7 +3536,7 @@ private fun Stage(
              * fare niente è peggio di non averlo.
              */
             // ⚠️ The view in force, which the 'Feed' shortcut can make the Feed for one time
-            // without writing it (6.10, `ViewerViewModel.feedOnce`).
+            // without writing it (6.10), and 'Faro' the system folders (6.20; `ViewerViewModel.viewOnce`).
             val view = model.shownView(settings.folderView)
             val climbing = view == FolderView.TREE && model.treeClimbing
             BackHandler(enabled = climbing) { model.treeUp() }

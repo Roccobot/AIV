@@ -14,11 +14,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -121,7 +124,8 @@ internal fun SystemFolderDialog(
         }
     ) {
         if (step == 0) {
-            // Body stays empty on purpose: the primary action lives in the foot (3.13-08).
+            // The primary action lives in the foot (3.13-08). The body has 'Faro' from the 6.20.
+            PinHomeKey(path, onDismiss)
         } else {
             val descendants = children.orEmpty()
             fun hideBranch(paths: List<String>, recursive: Boolean) {
@@ -156,6 +160,30 @@ internal fun SystemFolderDialog(
             }
         }
     }
+}
+
+/**
+ * 'Aggiungi alla schermata Home' ('Faro', from the 6.20): the folder becomes an icon of its own on
+ * the home screen, which opens it here, in 'Cartelle di sistema' (`Shortcuts.pinFolder`).
+ *
+ * ⚠️ **Only from 'Cartelle di sistema'**, his rule (note C on the giro of the 6.10: *solo dalla
+ * vista cartelle di sistema*): this sheet is the long press of that view only, so the key needs no
+ * condition on the view. AIV Play has no such view.
+ * ⚠️ **Missing when the launcher does not take pinned icons**: a key that does nothing is worse
+ * than a missing one. Android asks where to put the icon, so the sheet closes at once.
+ */
+@Composable
+private fun PinHomeKey(path: String, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    if (!remember(context) { Shortcuts.canPin(context) }) return
+    val scope = rememberCoroutineScope()
+    FilledTonalButton(
+        onClick = {
+            scope.launch(NonCancellable) { Shortcuts.pinFolder(context.applicationContext, path) }
+            onDismiss()
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) { Text(stringResource(R.string.folder_pin_home)) }
 }
 
 @Composable

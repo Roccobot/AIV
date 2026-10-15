@@ -866,12 +866,14 @@
     <string name="folder_action_title">اختر إجراءً للمجلد</string>
     <string name="favourite_add">إضافة إلى المفضلة</string>
     <string name="favourite_remove">إزالة من المفضلة</string>
+    <string name="folder_pin_home">إضافة إلى الشاشة الرئيسية</string>
     <string name="view_feed">الخلاصة</string>
     <string name="feed_none">لا توجد صور أو فيديوهات لعرضها.</string>
     <string name="feed_date">التاريخ المعتمد للترتيب</string>
     <string name="feed_date_taken">الالتقاط، التعديل</string>
     <string name="feed_date_modified">التعديل</string>
     <string name="feed_order">الترتيب في عرض الخلاصة</string>
-    <string name="feed_order_desc">يعرض وضع الخلاصة الصور والفيديوهات فقط، دون تنظيمها في مجلدات، والأحدث في الأعلى. ولأن \'الأحدث\' قد يحمل معاني مختلفة، يمكنك اختيار تاريخ الالتقاط (مع الرجوع إلى تاريخ التعديل)، أو الاكتفاء بتاريخي الإنشاء والتعديل.</string>
-    <string name="hint_feed">يعرض عرض &lt;i&gt;الخلاصة&lt;/i&gt; الملفات من جميع المواقع المصرّح بها، دون تقسيمها إلى مجلدات، مع الأحدث في الأعلى. لاختيار ما إذا كانت الأولوية في الترتيب لتاريخ الالتقاط أم لتاريخ التعديل، اضغط مطولًا على الزر الرئيسي.</string>
+    <string name="feed_order_desc">يعرض وضع الخلاصة الصور والفيديوهات فقط، دون تنظيمها في مجلدات، والأحدث في الأعلى. يمكنك الترتيب حسب تاريخ الالتقاط (مع الرجوع إلى تاريخ التعديل)، أو الاكتفاء بتواريخ آخر تعديل.</string>
+    <string name="hint_feed_newer">الأحدث</string>
+    <string name="hint_feed_older">الأقدم</string>
 </resources>

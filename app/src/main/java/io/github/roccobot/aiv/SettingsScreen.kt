@@ -481,10 +481,13 @@ fun SettingsScreen(
             ButtonOrders(settings = settings, onChange = onChange)
         }
 
+        // ⚠️ From the 6.20 the page does not scroll as a whole: its content does, and 'Aggiungi
+        // cartella' stays on a fixed band at the bottom (see [HiddenFolders]).
         Page.HIDDEN -> Shell(
             title = stringResource(R.string.folder_selection),
             onBack = { back() },
-            modifier = chrome
+            modifier = chrome,
+            scrolls = false
         ) {
             HiddenFolders(settings = settings, onChange = onChange)
         }
@@ -3043,6 +3046,7 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
                 }
             )
         },
+        stacked = true,
         onSelect = { onChange(settings.copy(scaleMode = it)) }
     )
 
@@ -3071,9 +3075,29 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
     )
 }
 
-/** The two independent lists share a page with the display mode selector. */
+/**
+ * The two independent lists share a page with the display mode selector.
+ *
+ * ⚠️ **From the 6.20 'Aggiungi cartella' is a fixed band at the bottom, and the rest scrolls above
+ * it** (his note A on the giro of the 6.10: *il pulsante Aggiungi cartella... in basso che rimane
+ * fisso su una fascia bianca che non scorre*), as on 'Cartelle preferite' ([FavouriteFolders]).
+ * Before, the button came after the whole list, and with a long list it was off screen.
+ */
 @Composable
-private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
+private fun ColumnScope.HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
+    val included = settings.folderMode == FolderMode.INCLUDED
+    Column(
+        modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        HiddenFoldersList(settings, onChange, included)
+    }
+    if (included) IncludedAdd(settings, onChange)
+}
+
+/** The description, the mode chips and the list of [HiddenFolders]: the part that scrolls. */
+@Composable
+private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, included: Boolean) {
     FolderSelectionDetail()
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
         FolderMode.entries.forEach { mode ->
@@ -3093,7 +3117,6 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
             )
         }
     }
-    val included = settings.folderMode == FolderMode.INCLUDED
     val entries = if (included) settings.includedFolders else settings.folderSelection.excluded
     Text(stringResource(if (included) R.string.folder_authorized else R.string.settings_hidden),
         style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
@@ -3144,46 +3167,49 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
             }
         )
     }
-    /*
-     * ⚠️⚠️ **'Aggiungi cartella' in modalità incluse** (giro 3.24, resto di `3.13-03`):
-     * autorizza una cartella senza passare da Cartelle di sistema. Usa lo stesso dialogo
-     * destinazione dell'app, che già conosce scorciatoie e albero.
-     */
-    if (included) {
-        var picking by remember { mutableStateOf(false) }
-        FilledTonalButton(
-            onClick = { picking = true },
-            modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
+}
+
+/**
+ * ⚠️⚠️ **'Aggiungi cartella' in modalità incluse** (giro 3.24, resto di `3.13-03`):
+ * autorizza una cartella senza passare da Cartelle di sistema. Usa lo stesso dialogo
+ * destinazione dell'app, che già conosce scorciatoie e albero. Dalla 6.20 è la fascia fissa in
+ * fondo alla pagina ([HiddenFolders]).
+ */
+@Composable
+private fun IncludedAdd(settings: Settings, onChange: (Settings) -> Unit) {
+    var picking by remember { mutableStateOf(false) }
+    FilledTonalButton(
+        onClick = { picking = true },
+        modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
+    ) {
+        Text(stringResource(R.string.folder_add))
+    }
+    if (picking) {
+        // ⚠️ Albero subito (vista TREE + modalità escluse finta): in modalità incluse
+        // il dialogo partrebbe dalle scorciatoie già autorizzate, cioè l'elenco che
+        // si sta proprio cercando di allungare. 'Sfoglia' resta comunque raggiungibile
+        // da chi parte dalle scorciatoie in altri flussi.
+        CompositionLocalProvider(
+            LocalDestLook provides DestLook(
+                view = FolderView.TREE,
+                folderMode = FolderMode.EXCLUDED
+            )
         ) {
-            Text(stringResource(R.string.folder_add))
-        }
-        if (picking) {
-            // ⚠️ Albero subito (vista TREE + modalità escluse finta): in modalità incluse
-            // il dialogo partrebbe dalle scorciatoie già autorizzate, cioè l'elenco che
-            // si sta proprio cercando di allungare. 'Sfoglia' resta comunque raggiungibile
-            // da chi parte dalle scorciatoie in altri flussi.
-            CompositionLocalProvider(
-                LocalDestLook provides DestLook(
-                    view = FolderView.TREE,
-                    folderMode = FolderMode.EXCLUDED
-                )
-            ) {
-                DestinationDialog(
-                    action = R.string.folder_authorize,
-                    // Picking a folder to authorize moves no file, so nothing is a source here.
-                    from = emptySet(),
-                    onDismiss = { picking = false },
-                    onPick = { dir ->
-                        val path = portablePath(dir.absolutePath)
-                        // ⚠️ **Non ri-aggiungere** se già in lista (`3.27-02`).
-                        if (path !in settings.includedFolders) {
-                            onChange(settings.copy(includedFolders = settings.includedFolders + path))
-                        }
-                        picking = false
-                    },
-                    alreadyListed = settings.includedFolders
-                )
-            }
+            DestinationDialog(
+                action = R.string.folder_authorize,
+                // Picking a folder to authorize moves no file, so nothing is a source here.
+                from = emptySet(),
+                onDismiss = { picking = false },
+                onPick = { dir ->
+                    val path = portablePath(dir.absolutePath)
+                    // ⚠️ **Non ri-aggiungere** se già in lista (`3.27-02`).
+                    if (path !in settings.includedFolders) {
+                        onChange(settings.copy(includedFolders = settings.includedFolders + path))
+                    }
+                    picking = false
+                },
+                alreadyListed = settings.includedFolders
+            )
         }
     }
 }
@@ -3191,6 +3217,10 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
 /**
  * Descrizione della pagina cartelle con i nomi delle modalità in grassetto
  * (giro 3.25-3.30, `3.26-03` / `3.13-01`): non tra apici e non nei gettoni.
+ *
+ * ⚠️ **In corpo piccolo dalla 6.20** (sua nota A sul giro della 6.10: *il testo introduttivo più
+ * piccolo per occupare meno spazio*): è il paragrafo più lungo delle impostazioni, e col corpo
+ * medio prendeva mezza pagina sopra i gettoni.
  */
 @Composable
 private fun FolderSelectionDetail() {
@@ -3211,7 +3241,7 @@ private fun FolderSelectionDetail() {
     }
     Text(
         annotated,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(bottom = 8.dp)
     )
@@ -3587,6 +3617,12 @@ internal fun <T : Choice> Choices(
     /** `null` when nothing is chosen yet: the grid order has no factory value, from the `5.80`. */
     selected: T?,
     nameOf: @Composable (T) -> String,
+    /**
+     * One chip per line, each as wide as the page, from the 6.20 (his note B on the giro of the
+     * 6.10, on 'Rendering dei pixel': *devono essere grandi uguali ed entrambi devono essere a tutta
+     * larghezza*). For chips with a sentence for a name, which a flowing row sizes one by one.
+     */
+    stacked: Boolean = false,
     onSelect: (T) -> Unit
 ) {
     // ⚠️⚠️ **ANCHE I NOMI DELLE PASTIGLIE entrano nella ricerca**, e non solo il titolo della
@@ -3603,6 +3639,21 @@ internal fun <T : Choice> Choices(
         modifier = Modifier.padding(top = 12.dp)
     )
     detail?.let { Detail(it) }
+    if (stacked) {
+        Column(modifier = Modifier.oneOf()) {
+            options.forEachIndexed { at, option ->
+                FilterChip(
+                    selected = option == selected,
+                    onClick = { onSelect(option) },
+                    label = {
+                        Text(names[at], textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    },
+                    modifier = Modifier.fillMaxWidth().picked(option == selected)
+                )
+            }
+        }
+        return
+    }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
         options.forEachIndexed { at, option ->
             FilterChip(

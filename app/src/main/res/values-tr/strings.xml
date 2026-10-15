@@ -794,12 +794,14 @@
     <string name="folder_action_title">Klasör için bir işlem seç</string>
     <string name="favourite_add">Favorilere ekle</string>
     <string name="favourite_remove">Favorilerden çıkar</string>
+    <string name="folder_pin_home">Ana ekrana ekle</string>
     <string name="view_feed">Akış</string>
     <string name="feed_none">Gösterilecek fotoğraf veya video yok.</string>
     <string name="feed_date">Sıralama tarihi</string>
     <string name="feed_date_taken">Çekim, Değişiklik</string>
     <string name="feed_date_modified">Değişiklik</string>
     <string name="feed_order">Akış görünümünde düzen</string>
-    <string name="feed_order_desc">Akış görünümü yalnızca fotoğrafları ve videoları, klasörlere ayırmadan, en yeniler üstte olacak şekilde gösterir. \'Yeni\' farklı anlamlara gelebileceği için çekim tarihini (yoksa değişiklik tarihini) kullanmayı ya da yalnızca oluşturma ve değişiklik tarihlerini dikkate almayı seçebilirsin.</string>
-    <string name="hint_feed">&lt;i&gt;Akış&lt;/i&gt; görünümü, izin verilen tüm konumlardaki dosyaları klasörlere ayırmadan, en yenileri üstte olacak şekilde gösterir. Sıralamada çekim tarihinin mi yoksa değiştirme tarihinin mi öncelikli olacağını seçmek için ana düğmeyi basılı tutun.</string>
+    <string name="feed_order_desc">Akış görünümü yalnızca fotoğrafları ve videoları, klasörlere ayırmadan, en yeniler üstte olacak şekilde gösterir. Çekim tarihine göre (yoksa değişiklik tarihine göre) sıralayabilir ya da yalnızca son değişiklik tarihlerini dikkate alabilirsin.</string>
+    <string name="hint_feed_newer">En yeni</string>
+    <string name="hint_feed_older">En eski</string>
 </resources>

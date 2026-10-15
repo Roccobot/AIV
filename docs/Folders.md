@@ -645,20 +645,31 @@ funzione pura, `Feed.order`; le righe le legge `Folder.feed` dal MediaStore; la 
     copia i nomi senza il percorso in testa, perché le immagini vengono da cartelle diverse; uscire dal
     Feed o premere Indietro scioglie la selezione; dopo un'operazione il Feed si rilegge
     (`ViewerViewModel.rereadFeed`).
-- **Il velo** `Hint.FEED` compare la prima volta che il Feed mostra delle immagini. ⚠️ **Dalla `6.03`
-  il testo è suo**, con *feed* in corsivo: *La vista feed mostra i file provenienti da tutti i percorsi
-  autorizzati, senza la suddivisione in cartelle, con gli elementi più recenti in alto. Per scegliere
-  se nella disposizione ha priorità la data di scatto o quella di modifica, tieni premuto il pulsante
-  principale.* Il corsivo vive nella risorsa come marcatore `<i>` codificato, e la schermata lo legge
-  con `AnnotatedString.fromHtml`: `getString` toglierebbe un marcatore vero.
+- **Il velo** `Hint.FEED` compare la prima volta che il Feed mostra delle immagini.
+  - ⚠️⚠️ **Dalla `6.20` è il suo disegno, alla lettera** (nota sulla voce `6.02-04`, giro della
+    `6.10`): *copri del tutto le cartelle reali e disegnaci sopra una griglia a 3 colonne stilizzata
+    con dei riquadri di colore giallo onboarding, ma con un'ulteriore velo nero sopra*; solo il
+    riquadro in alto a sinistra e quello più in basso a destra fra quelli visibili restano gialli
+    pieni sopra il velo, con *Più recenti* e *Meno recenti* (`hint_feed_newer`, `hint_feed_older`).
+    La frase è il paragrafo di 'Disposizione in vista feed' (`feed_order_desc`, riscritto da lui
+    nello stesso giro), fra le due caselle piene. Il codice è `HintFeed`, in `Hints.kt`, e la
+    geometria la dà la funzione pura `feedSketch`.
+  - ⚠️ **Letture dichiarate**: lo schizzo ha tre colonne a ogni larghezza, perché disegna l'ordine e
+    non la griglia, e le caselle si fermano a 160 dp, o su un tablet sarebbero due righe di quadrati
+    enormi; 'il più in basso fra quelli visibili' è l'ultima casella a destra dell'ultima riga
+    **intera**, e la riga tagliata dal bordo resta disegnata sotto; con una riga sola (un telefono in
+    orizzontale) la frase va sotto la riga.
+  - Fino alla `6.10` il velo era un testo centrato, quello della `6.03` con *feed* in corsivo:
+    `hint_feed` non c'è più dalla `6.20`.
 - **L'icona**: dalla `6.03` è la pila di immagini, `ic_feed.xml` (`Glyphs.Feed`), sua scelta **A5**
   fra le sei proposte dell'artefatto [Icona del Feed](https://claude.ai/artifact/SW5RJssonxpCJXH1WfzBjv)
   (risposta del 2026-10-15: *A5 per l'icona*). Fino alla `6.02` era Material `DynamicFeed`.
 - **Esporta e importa**: la data viaggia in 'File e cartelle' (`feed-date`).
 - **`FeedTest`** misura l'ordine con le due date, il ripiego, i mesi, i pareggi, la griglia coi mesi,
-  il tocco, il velo col suo corsivo, le cartelle nascoste col minuto acceso, la rilettura quando il
-  minuto cambia e la selezione multipla; `VistaOpzioniTest` il dialogo; `MenuInferioreTest` la casella e i gettoni del
-  riposo.
+  il tocco, il velo con le sue due parole, le cartelle nascoste col minuto acceso, la rilettura quando
+  il minuto cambia e la selezione multipla; `SchizzoDelFeedTest` le due caselle piene del velo sul
+  telefono, sul tablet e con una riga sola; `VistaOpzioniTest` il dialogo; `MenuInferioreTest` la
+  casella e i gettoni del riposo.
 
 ## 📌 Le azioni dell'icona nel launcher
 
@@ -670,7 +681,7 @@ aperta. Il codice è `Shortcuts.kt`; le decisioni vivono in `ViewerViewModel.han
 
 - ⚠️⚠️ **`Feed` apre il Feed per quella volta sola** (sua condizione su A1: *Feed solo se è una vista
   temporanea e poi aprendo l'app normalmente torno alla mia vista*). La vista salvata non cambia
-  (`ViewerViewModel.feedOnce`): l'app aperta dalla sua icona torna alla vista di prima, anche se era
+  (`ViewerViewModel.viewOnce`): l'app aperta dalla sua icona torna alla vista di prima, anche se era
   già aperta, e lo stesso fa una vista scelta a mano.
 - **`Cerca`** apre la ricerca in tutta la galleria; **`Apri un indirizzo`** apre la finestra
   dell'indirizzo sopra la casa, la stessa del menu del FAB.
@@ -694,8 +705,34 @@ aperta. Il codice è `Shortcuts.kt`; le decisioni vivono in `ViewerViewModel.han
 - **`ScorciatoieTest`** misura le quattro azioni, il Feed temporaneo e il ritorno alla vista salvata,
   l'ordine delle voci, la cartella che sostituisce la precedente e quella aperta con le nascoste in
   vista; **`IconaScorciatoiaTest`** legge i pixel di un'icona.
-- ⏳ **In coda per il prossimo giro, nome in codice `Faro`** (sua risposta C): una cartella sulla
-  schermata Home come icona a sé, con una voce nel menu della cartella.
+
+### 🏠 Una cartella sulla schermata Home (`Faro`)
+
+**Com'è fatto.** Sua risposta C del giro della `6.10`, nome in codice `Faro`, con la specifica alla
+lettera: *l'UX prevede una pressione lunga su una cartella e l'opzione `Aggiungi alla schermata
+home`, solo dalla vista cartelle di sistema. La cartella sulla home deve essere adattiva, avere il
+nome della cartella, lo sfondo del colore della cartella (se applicato) e il glifo della cartella AIV
+(`AIVfolder.svg`) sovrapposto in semitrasparenza, lasciato bianco o colorato per avere un minimo di
+contrasto come da norme*. Dalla `6.20`, solo in AIV GitHub, perché AIV Play non ha la vista
+`Cartelle di sistema`. Il codice è `Shortcuts.pinFolder`; il tasto `Aggiungi alla schermata Home`
+(`folder_pin_home`) è nella finestra della pressione lunga (`PinHomeKey`, in
+`FolderSelectionDialogs.kt`), e compare solo se il launcher accetta le icone fissate
+(`isRequestPinShortcutSupported`).
+
+- ⚠️ **Il glifo è il suo disegno così com'è**: `ic_folder_home.xml`, dal suo `AIVfolder.svg`, col
+  tracciato invariato; il sole e la montagna risultano vuoti per il verso dei tracciati. Occupa il
+  45% del lato dell'icona.
+- ⚠️ **Il fondo è il colore della cartella nella variante chiara** (`FolderTints`, `FRONT_TINTS`),
+  oppure il verde dell'icona di AIV per una cartella senza colore. Il glifo è bianco all'85%, e
+  diventa nero al 55% dove il bianco non tiene il **3 a 1**, il rapporto minimo delle WCAG per la
+  grafica (`Shortcuts.folderInk`).
+- ⚠️ **Letture dichiarate**: l'icona apre la cartella nella vista `Cartelle di sistema` per quella
+  volta sola, come il Feed della scorciatoia (`viewOnce`), e l'app aperta dalla sua icona torna alla
+  vista salvata; il colore è quello del momento in cui si aggiunge l'icona, e cambiandolo dopo
+  l'icona resta com'era, perché un'icona fissata la ridisegna solo il launcher.
+- **`ScorciatoieTest`** misura l'apertura nella vista di sistema per una volta e il contrasto su ogni
+  colore; **`IconaScorciatoiaTest`** legge i pixel dell'icona (il corpo della cartella, il sole vuoto,
+  il fondo).
 
 ## 🗂️ Cartelle incluse/escluse
 
@@ -725,6 +762,12 @@ aperta. Il codice è `Shortcuts.kt`; le decisioni vivono in `ViewerViewModel.han
   L'elenco nelle impostazioni permette di rimuovere ogni autorizzazione.
 - ⚠️⚠️ **Dalla `3.27`, in modalità incluse Impostazioni → Cartelle ha 'Aggiungi cartella'**
   (resto di `3.13-03`): apre l'albero destinazione e autorizza la cartella scelta.
+  - ⚠️ **Dalla `6.20` il tasto è fermo in fondo, su una fascia che non scorre** (sua nota A sul giro
+    della `6.10`: *il pulsante Aggiungi cartella... in basso che rimane fisso su una fascia bianca che
+    non scorre*), e il paragrafo in testa è nel corpo piccolo, per occupare meno spazio. Scorrono il
+    paragrafo, i gettoni e l'elenco (`Page.HIDDEN` ha `scrolls = false`, e `IncludedAdd` vive fuori
+    dalla colonna che scorre); la fascia ha il fondo della pagina, che nel tema chiaro è il bianco della sua nota.
+    `FasciaEGettoniTest` lo misura con quaranta cartelle.
 - 'Nascondi' in modalità griglia e lista mantiene l'esclusione ricorsiva. La conferma offre
   'Applica a tutte le cartelle allo stesso livello' quando il genitore contiene almeno un'altra
   directory non nascosta: si contano anche le directory vuote sul disco. Una seconda conferma

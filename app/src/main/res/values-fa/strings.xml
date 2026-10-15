@@ -794,12 +794,14 @@
     <string name="folder_action_title">کاری برای پوشه انتخاب کنید</string>
     <string name="favourite_add">افزودن به برگزیده‌ها</string>
     <string name="favourite_remove">حذف از برگزیده‌ها</string>
+    <string name="folder_pin_home">افزودن به صفحهٔ اصلی</string>
     <string name="view_feed">فید</string>
     <string name="feed_none">هیچ عکس یا ویدیویی برای نمایش نیست.</string>
     <string name="feed_date">تاریخ مبنای مرتب‌سازی</string>
     <string name="feed_date_taken">عکاسی، ویرایش</string>
     <string name="feed_date_modified">ویرایش</string>
     <string name="feed_order">چیدمان در نمای فید</string>
-    <string name="feed_order_desc">نمای فید فقط عکس‌ها و ویدیوها را، بدون دسته‌بندی در پوشه‌ها، با جدیدترین‌ها در بالا نشان می‌دهد. چون \'جدید\' می‌تواند معناهای مختلفی داشته باشد، می‌توانید تاریخ عکاسی را به کار ببرید (و اگر نبود، تاریخ ویرایش را) یا فقط تاریخ‌های ایجاد و ویرایش را در نظر بگیرید.</string>
-    <string name="hint_feed">نمای &lt;i&gt;فید&lt;/i&gt; فایل‌های همهٔ مکان‌های مجاز را بدون تقسیم به پوشه‌ها و با جدیدترین‌ها در بالا نشان می‌دهد. برای انتخاب اینکه در چینش، تاریخ عکس‌برداری اولویت داشته باشد یا تاریخ تغییر، دکمهٔ اصلی را نگه دارید.</string>
+    <string name="feed_order_desc">نمای فید فقط عکس‌ها و ویدیوها را، بدون دسته‌بندی در پوشه‌ها، با جدیدترین‌ها در بالا نشان می‌دهد. می‌توانید بر اساس تاریخ عکاسی مرتب کنید (و اگر نبود، تاریخ ویرایش) یا فقط تاریخ‌های آخرین ویرایش را در نظر بگیرید.</string>
+    <string name="hint_feed_newer">جدیدترین</string>
+    <string name="hint_feed_older">قدیمی‌ترین</string>
 </resources>

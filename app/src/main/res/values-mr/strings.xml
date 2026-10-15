@@ -794,12 +794,14 @@
     <string name="folder_action_title">फोल्डरसाठी क्रिया निवडा</string>
     <string name="favourite_add">आवडत्यांमध्ये जोडा</string>
     <string name="favourite_remove">आवडत्यांमधून काढा</string>
+    <string name="folder_pin_home">होम स्क्रीनवर जोडा</string>
     <string name="view_feed">फीड</string>
     <string name="feed_none">दाखवण्यासाठी कोणतेही फोटो किंवा व्हिडिओ नाहीत.</string>
     <string name="feed_date">क्रमासाठी तारीख</string>
     <string name="feed_date_taken">फोटो काढणे, बदल</string>
     <string name="feed_date_modified">बदल</string>
     <string name="feed_order">फीड दृश्यातील क्रम</string>
-    <string name="feed_order_desc">फीड दृश्य फक्त फोटो आणि व्हिडिओ दाखवते, फोल्डरमध्ये न विभागता, सर्वात नवीन वर. \'नवीन\' चे वेगवेगळे अर्थ असू शकतात, म्हणून तुम्ही फोटो काढल्याची तारीख वापरू शकता (ती नसल्यास बदलाची तारीख), किंवा फक्त निर्मिती आणि बदलाच्या तारखा विचारात घेऊ शकता.</string>
-    <string name="hint_feed">&lt;i&gt;फीड&lt;/i&gt; दृश्य सर्व परवानगी असलेल्या ठिकाणांमधील फाइल्स फोल्डरमध्ये विभागणी न करता, सर्वात नवीन वर ठेवून दाखवते. मांडणीत काढल्याच्या तारखेला प्राधान्य द्यायचे की बदलाच्या तारखेला, हे निवडण्यासाठी मुख्य बटण दाबून ठेवा.</string>
+    <string name="feed_order_desc">फीड दृश्य फक्त फोटो आणि व्हिडिओ दाखवते, फोल्डरमध्ये न विभागता, सर्वात नवीन वर. तुम्ही फोटो काढल्याच्या तारखेनुसार क्रम लावू शकता (ती नसल्यास बदलाच्या तारखेनुसार), किंवा फक्त शेवटच्या बदलाच्या तारखा विचारात घेऊ शकता.</string>
+    <string name="hint_feed_newer">सर्वात नवीन</string>
+    <string name="hint_feed_older">सर्वात जुने</string>
 </resources>

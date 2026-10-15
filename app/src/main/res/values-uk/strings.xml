@@ -830,12 +830,14 @@
     <string name="folder_action_title">Виберіть дію для папки</string>
     <string name="favourite_add">Додати до улюблених</string>
     <string name="favourite_remove">Прибрати з улюблених</string>
+    <string name="folder_pin_home">Додати на головний екран</string>
     <string name="view_feed">Стрічка</string>
     <string name="feed_none">Немає фото та відео для показу.</string>
     <string name="feed_date">Дата для сортування</string>
     <string name="feed_date_taken">Зйомка, зміна</string>
     <string name="feed_date_modified">Зміна</string>
     <string name="feed_order">Порядок у вигляді стрічки</string>
-    <string name="feed_order_desc">Режим стрічки показує лише фото та відео, без розподілу на теки, найновіші вгорі. Оскільки \'нове\' можна розуміти по-різному, ви можете використовувати дату зйомки (а якщо її немає, дату зміни) або враховувати лише дати створення та зміни.</string>
-    <string name="hint_feed">Вигляд &lt;i&gt;Стрічка&lt;/i&gt; показує файли з усіх дозволених місць, без поділу на папки, найновіші вгорі. Щоб вибрати, що важливіше під час упорядкування, дата зйомки чи дата зміни, утримуйте головну кнопку.</string>
+    <string name="feed_order_desc">Режим стрічки показує лише фото та відео, без розподілу на теки, найновіші вгорі. Можна сортувати за датою зйомки (а якщо її немає, за датою зміни) або враховувати лише дати останньої зміни.</string>
+    <string name="hint_feed_newer">Найновіші</string>
+    <string name="hint_feed_older">Найстаріші</string>
 </resources>

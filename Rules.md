@@ -31,8 +31,8 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 
 - **`docs/Folders.md`**: l'intestazione delle cartelle, le griglie che arrivano al vetro, il salto
   in cima e in fondo sul FAB, lo scorrimento che sopravvive alla schermata, il colore di una
-  cartella, la copertina scelta a mano, 'Mostra nascoste', l'indicatore dell'ultimo media, il Feed e
-  le azioni dell'icona nel launcher.
+  cartella, la copertina scelta a mano, 'Mostra nascoste', l'indicatore dell'ultimo media, il Feed,
+  le azioni dell'icona nel launcher e la cartella sulla schermata Home.
 - **`docs/Files.md`**: AIV come selettore per le altre app, il salvataggio in Download e il nome,
   l'anteprima della rinomina, lo spazio liberato dal cestino, disfare una copia o uno spostamento,
   le miniature che mentono dopo una riscrittura, le miniature memorizzate, la miniatura dei video,
@@ -860,6 +860,19 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
 - ⚠️ **Un oggetto di processo scritto dopo `setContent` non arriva alla composizione a clock
   fermo**: in una prova la riga (per esempio di `Notices`) si mette prima di montare la scena, col
   clock fermo (`autoAdvance = false`), o `waitForIdle` la fa scadere.
+- ⚠️⚠️ **Una prova che fa leggere una cartella al modello monta `OmbraArchivio` o
+  `ArchivioAperto`**, anche se non guarda niente della memoria: `openGrid` legge in sottofondo, la
+  lettura chiede `Environment.isExternalStorageManager()`, che Robolectric non copre, e senza
+  l'ombra fallisce sul suo filo. L'errore non cade nella prova che l'ha causato, ma nella prima
+  classe successiva che usa il banco di Compose: sui banchi della `6.20` sono cadute `AggiornaTest`
+  e `SelezioneTest` per colpa di `ScorciatoieTest`, che dalla `6.10` non montava l'ombra.
+  - ⚠️ **Si riproduce con tre classi in quest'ordine**: una col banco di Compose, che accende il
+    raccoglitore delle eccezioni, poi la colpevole, poi un'altra col banco di Compose (misurato con
+    `CopertinaTest`, `ScorciatoieTest`, `SelezioneTest`). Gradle fa girare per prime le classi rosse
+    della corsa precedente, quindi l'ordine giusto si ottiene dopo una corsa verde, con `--rerun`.
+  - ⚠️ **La prima ipotesi, scartata**: una lettura che finisce dopo la prova, ad ambiente smontato.
+    Chiudere il modello e aspettarne le letture non cambiava niente, perché la lettura falliva già
+    durante la prova.
 - ⚠️ **Il banco non sostituisce il giro con lui**: un banco verde dice che la struttura regge, non
   che la versione è buona.
 - ⚠️ **Si lancia prima di aprire la PR**: le corse automatiche (§ '🧰 Gli strumenti che questo

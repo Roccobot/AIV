@@ -776,12 +776,14 @@
     <string name="folder_action_title">Chọn thao tác cho thư mục</string>
     <string name="favourite_add">Thêm vào yêu thích</string>
     <string name="favourite_remove">Xóa khỏi yêu thích</string>
+    <string name="folder_pin_home">Thêm vào màn hình chính</string>
     <string name="view_feed">Bảng tin</string>
     <string name="feed_none">Không có ảnh hoặc video nào để hiển thị.</string>
     <string name="feed_date">Ngày dùng để sắp xếp</string>
     <string name="feed_date_taken">Ngày chụp, Ngày sửa</string>
     <string name="feed_date_modified">Ngày sửa</string>
     <string name="feed_order">Thứ tự ở dạng bảng tin</string>
-    <string name="feed_order_desc">Chế độ bảng tin chỉ hiển thị ảnh và video, không chia theo thư mục, mới nhất ở trên cùng. Vì \'mới\' có thể hiểu theo nhiều cách, bạn có thể dùng ngày chụp (nếu không có thì dùng ngày sửa) hoặc chỉ tính ngày tạo và ngày sửa.</string>
-    <string name="hint_feed">Chế độ xem &lt;i&gt;Bảng tin&lt;/i&gt; hiển thị các tệp từ mọi vị trí được cấp quyền, không chia theo thư mục, mục mới nhất ở trên cùng. Để chọn ưu tiên ngày chụp hay ngày sửa đổi khi sắp xếp, hãy nhấn giữ nút chính.</string>
+    <string name="feed_order_desc">Chế độ bảng tin chỉ hiển thị ảnh và video, không chia theo thư mục, mới nhất ở trên cùng. Bạn có thể sắp xếp theo ngày chụp (nếu không có thì dùng ngày sửa) hoặc chỉ tính ngày sửa gần nhất.</string>
+    <string name="hint_feed_newer">Mới nhất</string>
+    <string name="hint_feed_older">Cũ nhất</string>
 </resources>

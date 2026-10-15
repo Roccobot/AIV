@@ -871,12 +871,14 @@
     <string name="folder_action_title">Scegli l\'azione sulla cartella</string>
     <string name="favourite_add">Aggiungi alle preferite</string>
     <string name="favourite_remove">Rimuovi dalle preferite</string>
+    <string name="folder_pin_home">Aggiungi alla schermata Home</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">Nessuna foto o video da mostrare.</string>
     <string name="feed_date">Data per l\'ordinamento</string>
     <string name="feed_date_taken">Scatto, Modifica</string>
     <string name="feed_date_modified">Modifica</string>
     <string name="feed_order">Disposizione in vista feed</string>
-    <string name="feed_order_desc">La modalità feed mostra solo foto e video, non organizzati in cartelle, con i più recenti in alto. Dato che \'recente\' può avere accezioni diverse, puoi scegliere se usare la data di scatto (e ripiegare sulla data di modifica), o se considerare solo le date di creazione/modifica.</string>
-    <string name="hint_feed">La vista &lt;i&gt;feed&lt;/i&gt; mostra i file provenienti da tutti i percorsi autorizzati, senza la suddivisione in cartelle, con gli elementi più recenti in alto. Per scegliere se nella disposizione ha priorità la data di scatto o quella di modifica, tieni premuto il pulsante principale.</string>
+    <string name="feed_order_desc">La modalità feed mostra solo foto e video, non organizzati in cartelle, con i più recenti in alto. Puoi scegliere se ordinare per data di scatto (e ripiegare sulla data di modifica), o se considerare solo le date di ultima modifica.</string>
+    <string name="hint_feed_newer">Più recenti</string>
+    <string name="hint_feed_older">Meno recenti</string>
 </resources>

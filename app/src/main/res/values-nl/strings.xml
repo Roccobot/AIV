@@ -794,12 +794,14 @@
     <string name="folder_action_title">Kies een actie voor de map</string>
     <string name="favourite_add">Toevoegen aan favorieten</string>
     <string name="favourite_remove">Verwijderen uit favorieten</string>
+    <string name="folder_pin_home">Toevoegen aan startscherm</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">Geen foto\'s of video\'s om te tonen.</string>
     <string name="feed_date">Datum voor sortering</string>
     <string name="feed_date_taken">Opname, Wijziging</string>
     <string name="feed_date_modified">Wijziging</string>
     <string name="feed_order">Indeling in feedweergave</string>
-    <string name="feed_order_desc">De feedweergave toont alleen foto\'s en video\'s, niet geordend in mappen, met de nieuwste bovenaan. Omdat \'recent\' verschillende betekenissen kan hebben, kun je de opnamedatum gebruiken (met de wijzigingsdatum als terugval) of alleen de aanmaak- en wijzigingsdatum meetellen.</string>
-    <string name="hint_feed">De weergave &lt;i&gt;Feed&lt;/i&gt; toont de bestanden van alle toegestane locaties, zonder indeling in mappen, met de nieuwste bovenaan. Houd de hoofdknop ingedrukt om te kiezen of bij de indeling de opnamedatum of de wijzigingsdatum voorrang heeft.</string>
+    <string name="feed_order_desc">De feedweergave toont alleen foto\'s en video\'s, niet geordend in mappen, met de nieuwste bovenaan. Je kunt sorteren op opnamedatum (met de wijzigingsdatum als terugval) of alleen de datum van de laatste wijziging meetellen.</string>
+    <string name="hint_feed_newer">Nieuwste</string>
+    <string name="hint_feed_older">Oudste</string>
 </resources>
