@@ -801,5 +801,5 @@
     <string name="feed_date_modified">Änderung</string>
     <string name="feed_order">Anordnung in der Feed-Ansicht</string>
     <string name="feed_order_desc">Die Feed-Ansicht zeigt nur Fotos und Videos, nicht nach Ordnern sortiert, die neuesten oben. Da \'neu\' Verschiedenes bedeuten kann, kannst du das Aufnahmedatum verwenden (ersatzweise das Änderungsdatum) oder nur die Erstellungs- und Änderungsdaten berücksichtigen.</string>
-    <string name="hint_feed">Der Feed zeigt die Fotos und Videos aller Ordner, die neuesten oben. Ob das Aufnahme- oder das Änderungsdatum zählt, wählst du, indem du die Taste gedrückt hältst.</string>
+    <string name="hint_feed">Die Ansicht &lt;i&gt;Feed&lt;/i&gt; zeigt die Dateien aus allen freigegebenen Speicherorten, ohne Aufteilung in Ordner, die neuesten oben. Ob bei der Anordnung das Aufnahme- oder das Änderungsdatum Vorrang hat, wählst du, indem du die Haupttaste gedrückt hältst.</string>
 </resources>

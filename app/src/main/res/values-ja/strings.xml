@@ -783,5 +783,5 @@
     <string name="feed_date_modified">更新日</string>
     <string name="feed_order">フィード表示の並び順</string>
     <string name="feed_order_desc">フィード表示では、写真と動画だけをフォルダに分けずに、新しいものから上に表示します。\'新しい\'の意味は一つではないため、撮影日 (ない場合は更新日) を使うか、作成日と更新日だけを使うかを選べます。</string>
-    <string name="hint_feed">フィードには全フォルダの写真と動画が新しい順に表示されます。撮影日と更新日のどちらを使うかは、ボタンを長押しして選べます。</string>
+    <string name="hint_feed">&lt;i&gt;フィード&lt;/i&gt;表示では、許可されたすべての場所のファイルをフォルダに分けずに、新しい順に上から表示します。並べ方で撮影日と更新日のどちらを優先するかは、メインボタンを長押しして選べます。</string>
 </resources>

@@ -783,5 +783,5 @@
     <string name="feed_date_modified">Perubahan</string>
     <string name="feed_order">Urutan di tampilan feed</string>
     <string name="feed_order_desc">Tampilan feed hanya menampilkan foto dan video, tanpa dikelompokkan dalam folder, yang terbaru di atas. Karena \'terbaru\' bisa berarti berbeda, Anda dapat memakai tanggal pengambilan (dengan tanggal perubahan sebagai cadangan) atau hanya memperhitungkan tanggal pembuatan dan perubahan.</string>
-    <string name="hint_feed">Feed menampilkan foto dan video dari semua folder, yang terbaru di atas. Untuk memilih tanggal mana yang dihitung, pengambilan atau perubahan, tekan lama tombolnya.</string>
+    <string name="hint_feed">Tampilan &lt;i&gt;feed&lt;/i&gt; menampilkan file dari semua lokasi yang diizinkan, tanpa dibagi ke dalam folder, dengan yang terbaru di atas. Untuk memilih apakah tanggal pengambilan atau tanggal perubahan yang diutamakan dalam susunan, tekan lama tombol utama.</string>
 </resources>

@@ -783,5 +783,5 @@
     <string name="feed_date_modified">修改</string>
     <string name="feed_order">信息流视图排序</string>
     <string name="feed_order_desc">信息流视图只显示照片和视频，不按文件夹分组，最新的在最上方。由于\'最新\'可以有不同含义，你可以使用拍摄日期 (没有时改用修改日期)，或只考虑创建和修改日期。</string>
-    <string name="hint_feed">信息流按最新在上的顺序显示所有文件夹中的照片和视频。要选择以拍摄日期还是修改日期为准，请长按按钮。</string>
+    <string name="hint_feed">&lt;i&gt;信息流&lt;/i&gt;视图显示所有已授权位置中的文件，不按文件夹划分，最新的在最上方。要选择排列时优先使用拍摄日期还是修改日期，请长按主按钮。</string>
 </resources>

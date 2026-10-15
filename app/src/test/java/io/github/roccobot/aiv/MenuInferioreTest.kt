@@ -449,13 +449,17 @@ class MenuInferioreTest {
     }
 
     /**
-     * **At rest the corner menu is a single round key, and while scrolling it stretches into the
-     * vertical pill of the two jumps** (`4.20-01`, R2 and R4, the factory rest since 4.25).
+     * **At rest the corner menu is a single round key, and while scrolling it stays one round key
+     * whose tap is the jump, as the sliding pill's** (6.03, his request: *rendi il comportamento del
+     * tondo identico a quello della pillola a scomparsa (non diventa pillola verticale al
+     * movimento)*). From 4.25 to 6.02 it stretched into the vertical pill of the two jumps.
      *
      * ⚠️ **The clock is stopped**, as in the other jump tests.
+     * ⚠️ **Counter-tested** with the 6.02 rest put back (the folded pill with the growing key): two
+     * jump keys appear, and the pill is taller than wide.
      */
     @Test
-    fun `col tondo a riposo il menu angolare scorrendo diventa la pillola dei salti`() {
+    fun `col tondo a riposo il menu angolare scorrendo resta un tondo come la pillola a scomparsa`() {
         banco.mainClock.autoAdvance = false
         banco.setContent { Griglia(PillLook(PhonePill.SLIDE, corner = true)) }
         banco.mainClock.advanceTimeBy(NASCITA)
@@ -464,8 +468,11 @@ class MenuInferioreTest {
 
         scorri()
 
-        assertEquals("Scorrendo non compare 'in cima'", 1, quanti(R.string.jump_top))
-        assertEquals("Scorrendo il tondo non diventa 'in fondo'", 1, quanti(R.string.jump_bottom))
+        val salti = quanti(R.string.jump_top) + quanti(R.string.jump_bottom)
+        assertEquals("Scorrendo il tondo non è un tasto solo, che salta", 1, salti)
+        val etichetta = if (quanti(R.string.jump_top) == 1) R.string.jump_top else R.string.jump_bottom
+        val tondo = banco.onNodeWithContentDescription(voce(etichetta)).fetchSemanticsNode().boundsInRoot
+        assertEquals("Scorrendo il tondo si allunga", tondo.width, tondo.height, 1f)
     }
 
     /**

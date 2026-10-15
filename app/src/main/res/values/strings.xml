@@ -995,5 +995,5 @@
     <string name="feed_date_modified">Modified</string>
     <string name="feed_order">Feed view order</string>
     <string name="feed_order_desc">Feed view shows only photos and videos, not sorted into folders, with the newest at the top. Since \'recent\' can mean different things, you can choose to use the date taken (falling back on the date modified) or only the dates of creation and modification.</string>
-    <string name="hint_feed">The Feed shows the photos and videos of all your folders, newest at the top. To choose whether the date taken or the date modified counts, press and hold the button.</string>
+    <string name="hint_feed">The &lt;i&gt;feed&lt;/i&gt; view shows the files from all authorized locations, without splitting them into folders, with the newest at the top. To choose whether the date taken or the date modified takes priority in the arrangement, press and hold the main button.</string>
 </resources>

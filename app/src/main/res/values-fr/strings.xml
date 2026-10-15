@@ -819,5 +819,5 @@
     <string name="feed_date_modified">Modification</string>
     <string name="feed_order">Disposition en vue feed</string>
     <string name="feed_order_desc">La vue feed affiche uniquement les photos et les vidéos, sans les classer par dossier, les plus récentes en haut. Comme \'récent\' peut avoir plusieurs sens, vous pouvez utiliser la date de prise de vue (avec repli sur la date de modification) ou ne tenir compte que des dates de création et de modification.</string>
-    <string name="hint_feed">Le feed affiche les photos et vidéos de tous vos dossiers, les plus récentes en haut. Pour choisir si c\'est la date de prise de vue ou celle de modification qui compte, maintenez le bouton appuyé.</string>
+    <string name="hint_feed">La vue &lt;i&gt;feed&lt;/i&gt; affiche les fichiers de tous les emplacements autorisés, sans les répartir en dossiers, les plus récents en haut. Pour choisir si la disposition donne la priorité à la date de prise de vue ou à celle de modification, maintenez le bouton principal appuyé.</string>
 </resources>

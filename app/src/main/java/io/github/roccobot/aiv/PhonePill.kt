@@ -533,7 +533,12 @@ fun PhonePillBar(
                 corner = corner,
                 modifier = modifier,
                 onJump = { toward -> scope.launch { arm?.leapToward(toward, nested) } },
-                mark = mark
+                mark = mark,
+                // ⚠️ The round rest is the sliding pill's round key since 6.03: its label, jump and
+                // glyph are the FAB's, as there.
+                roundLabel = fabLabel,
+                onLeap = { scope.launch { arm?.leap(nested) } },
+                fabGlyph = fabGlyph
             )
         }
         return

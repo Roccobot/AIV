@@ -425,6 +425,15 @@ object Glyphs {
     val TurnLeft: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_turn_left)
 
+    /**
+     * Una pila di immagini: la vista 'Feed', dalla 6.03 (sua scelta A5). Vedi `ic_feed.xml`.
+     *
+     * ⚠️ Prende il posto di `Icons.Default.DynamicFeed` di Material, che non c'entra niente: è un
+     * disegno nuovo, non un glifo di Material ammorbidito.
+     */
+    val Feed: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_feed)
+
     /** Quattro riquadri cavi: 'Visualizzazione griglia'. Ammorbidisce `Icons.Default.GridView`. */
     val ViewGrid: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_grid)

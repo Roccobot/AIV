@@ -224,6 +224,6 @@
     <string name="favourite_remove">Remover das favoritas</string>
     <string name="feed_order">Disposição na vista feed</string>
     <string name="feed_order_desc">A vista feed mostra apenas fotos e vídeos, sem os organizar em pastas, com os mais recentes no topo. Como \'recente\' pode ter sentidos diferentes, pode usar a data de captura (recorrendo à data de modificação) ou considerar só as datas de criação e modificação.</string>
-    <string name="hint_feed">O feed mostra as fotos e os vídeos de todas as suas pastas, os mais recentes no topo. Para escolher se conta a data de captura ou a de modificação, mantenha o botão premido.</string>
+    <string name="hint_feed">A vista &lt;i&gt;feed&lt;/i&gt; mostra os ficheiros de todas as localizações autorizadas, sem a divisão em pastas, com os mais recentes no topo. Para escolher se na disposição tem prioridade a data de captura ou a de modificação, mantenha premido o botão principal.</string>
     <string name="settings_group_browse">Ficheiros e pastas</string>
 </resources>
