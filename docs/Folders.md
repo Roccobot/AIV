@@ -226,10 +226,14 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
     pannello d'accento che cresce dal suo angolo, sopra la linea dei gesti (che non cambia colore), con
     caselle grandi quanto i tasti della pillola, e **dalla `4.25` si richiude dopo ogni tocco** (R1 del
     giro della `4.20`):
-    - ⚠️⚠️ **a riposo, dalla `4.25`, è un tasto tondo solo** (R2), che scorrendo si allunga in su nella
-      pillola verticale dei due salti, `in cima` sopra e `in fondo` al posto del marchio, col ritmo
-      del salto (R4); oppure, scelta dal commutatore, la pillola verticale del menu inferiore com'era
-      nella `4.20` (R3, `corner-round`);
+    - ⚠️⚠️ **a riposo, dalla `4.25`, è un tasto tondo solo** (R2); oppure, scelta dal commutatore, la
+      pillola verticale del menu inferiore com'era nella `4.20` (R3, `corner-round`);
+      - ⚠️⚠️ **dalla `6.03` il tondo si comporta come quello della pillola a scomparsa** (sua
+        richiesta: *rendi il comportamento del tondo identico a quello della pillola a scomparsa (non
+        diventa pillola verticale al movimento)*): scorrendo resta un tasto solo, il marchio diventa
+        la freccia del FAB e il tocco salta dove punta; da fermo apre il menu, e la pressione lunga è
+        quella del FAB. Dalla `4.25` alla `6.02` scorrendo si allungava in su nella pillola verticale
+        dei due salti (R4). La pillola a riposo tiene i suoi due tasti;
     - nella schermata iniziale un 3x3: il commutatore e le due viste diverse da quella in cui sei;
       'Mostra nascoste' (spenta senza nascoste; senza permesso al suo posto 'Seleziona immagine'),
       Cerca, Indirizzo; Cestino, Impostazioni, ×. Il commutatore (R3, dalla `4.25`) mostra il riposo che
@@ -647,9 +651,9 @@ funzione pura, `Feed.order`; le righe le legge `Folder.feed` dal MediaStore; la 
   se nella disposizione ha priorità la data di scatto o quella di modifica, tieni premuto il pulsante
   principale.* Il corsivo vive nella risorsa come marcatore `<i>` codificato, e la schermata lo legge
   con `AnnotatedString.fromHtml`: `getString` toglierebbe un marcatore vero.
-- **L'icona**: oggi è Material `DynamicFeed`. Dalla `6.03` c'è una proposta di sei alternative,
-  nell'artefatto [Icona del Feed](https://claude.ai/artifact/SW5RJssonxpCJXH1WfzBjv) e nella domanda
-  `d-feed-icona` del DF; l'icona cambia quando lui sceglie.
+- **L'icona**: dalla `6.03` è la pila di immagini, `ic_feed.xml` (`Glyphs.Feed`), sua scelta **A5**
+  fra le sei proposte dell'artefatto [Icona del Feed](https://claude.ai/artifact/SW5RJssonxpCJXH1WfzBjv)
+  (risposta del 2026-10-15: *A5 per l'icona*). Fino alla `6.02` era Material `DynamicFeed`.
 - **Esporta e importa**: la data viaggia in 'File e cartelle' (`feed-date`).
 - **`FeedTest`** misura l'ordine con le due date, il ripiego, i mesi, i pareggi, la griglia coi mesi,
   il tocco, il velo col suo corsivo, le cartelle nascoste col minuto acceso, la rilettura quando il

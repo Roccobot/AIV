@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -43,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -272,10 +270,18 @@ internal fun BottomMenu(
  * pillola a scomparsa, che rimane aperta, il menu angolare deve chiudersi dopo ogni interazione*):
  * open, it covers a thumbnail of the grid. In 4.20 a tap on the current view left it open.
  * ⚠️⚠️ **AND AT REST IT IS A SINGLE ROUND KEY, unless he chose the pill** (`4.20-01`, R2-R4, and
- * [PillLook.cornerRound]): while scrolling the key stretches upwards into the vertical pill of the
- * two jumps, following the jump's own state, as the sliding pill stretches sideways.
+ * [PillLook.cornerRound]).
+ * ⚠️⚠️ **SINCE 6.03 THE ROUND KEY BEHAVES AS THE SLIDING PILL'S, AND IT IS HIS REQUEST** (2026-10-15:
+ * *rendi il comportamento del tondo identico a quello della pillola a scomparsa (non diventa pillola
+ * verticale al movimento)*): while scrolling it stays one key, its glyph turns into the FAB's
+ * chevron and a tap jumps the way the chevron points ([RoundRest]). From 4.25 to 6.02 it stretched
+ * upwards into the vertical pill of the two jumps. The pill rest ([PillLook.cornerRound] `false`)
+ * keeps its two keys.
  *
  * @param entries the cells in the right-handed reading order, without the ×.
+ * @param roundLabel what the round key does now, following the FAB's chevron, as the sliding pill's.
+ * @param onLeap the round key's jump while scrolling: the FAB's own ([JumpArm.leap]).
+ * @param fabGlyph the round key's glyph: the app's mark, or the chevron while armed.
  */
 @Composable
 internal fun CornerMenu(
@@ -289,7 +295,10 @@ internal fun CornerMenu(
     corner: Modifier,
     modifier: Modifier,
     onJump: (Int) -> Unit,
-    mark: @Composable (String?) -> Unit
+    mark: @Composable (String?) -> Unit,
+    roundLabel: String,
+    onLeap: () -> Unit,
+    fabGlyph: @Composable (String?) -> Unit
 ) {
     var open by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = open) { open = false }
@@ -298,6 +307,7 @@ internal fun CornerMenu(
         animationSpec = tween(BAR_IN_MS, easing = PILL_EASE),
         label = "corner"
     )
+    val round = LocalPillLook.current.cornerRound
     val close = PillEntry(icon = Icons.Default.Close, label = stringResource(R.string.pick_close)) { open = false }
     val cells = entries.map { e ->
         e.copy(onTap = { open = false; e.onTap() }, onHold = e.onHold?.let { hold -> { open = false; hold() } })
@@ -319,7 +329,20 @@ internal fun CornerMenu(
         contentAlignment = if (atEnd) Alignment.BottomEnd else Alignment.BottomStart,
         modifier = modifier.then(corner)
     ) {
-        if (p < 1f) {
+        if (p < 1f && round) {
+            RoundRest(
+                label = roundLabel,
+                holdLabel = holdLabel,
+                onHold = onHold,
+                backdrop = backdrop,
+                enabled = !open,
+                armed = armed,
+                onOpen = { open = true },
+                onLeap = onLeap,
+                glyph = fabGlyph,
+                modifier = Modifier.graphicsLayer { alpha = 1f - p }
+            )
+        } else if (p < 1f) {
             FoldedPill(
                 arm = arm,
                 fabLabel = fabLabel,
@@ -330,7 +353,6 @@ internal fun CornerMenu(
                 onOpen = { open = true },
                 onJump = onJump,
                 mark = mark,
-                round = LocalPillLook.current.cornerRound,
                 modifier = Modifier.graphicsLayer { alpha = 1f - p }
             )
         }
@@ -692,8 +714,8 @@ private fun Bar(
  * con il solito meccanismo*).
  * ⚠️ **Where the screen has no jump only the mark is left**: an upper key that does nothing would
  * be a command that lies.
- * ⚠️ **With [round] the upper key exists only while scrolling** (the corner menu's round rest,
- * since 4.25): it grows out of the round key with the jump's state, and goes with it.
+ * ⚠️ **The corner menu's round rest is not this one since 6.03** ([RoundRest]): from 4.25 to 6.02 it
+ * was this pill with the upper key growing out of the round one while scrolling.
  */
 @Composable
 private fun FoldedPill(
@@ -706,38 +728,18 @@ private fun FoldedPill(
     onOpen: () -> Unit,
     onJump: (Int) -> Unit,
     mark: @Composable (String?) -> Unit,
-    modifier: Modifier,
-    round: Boolean = false
+    modifier: Modifier
 ) {
     val q = arm?.shown ?: 0f
     val armed = arm?.armed == true
     val top = stringResource(R.string.jump_top)
     val bottom = stringResource(R.string.jump_bottom)
     Column(modifier = modifier.declaresFoot().pillFill(backdrop)) {
-        if (arm != null && !round) {
+        if (arm != null) {
             PillKey(
                 entry = PillEntry(Glyphs.BrowseTop, top, enabled = enabled) { onJump(-1) },
                 size = PILL_KEY
             )
-        } else if (arm != null && q > 0f) {
-            /*
-             * ⚠️ **The key keeps its size and the box around it grows**, anchored at the bottom:
-             * the glyph rises out of the round key instead of being squashed, as the sliding
-             * pill's keys come out from behind its round one.
-             */
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier
-                    .height(PILL_KEY * q)
-                    .clipToBounds()
-                    .graphicsLayer { alpha = q }
-            ) {
-                PillKey(
-                    entry = PillEntry(Glyphs.BrowseTop, top, enabled = enabled && armed) { onJump(-1) },
-                    size = PILL_KEY,
-                    modifier = Modifier.wrapContentHeight(align = Alignment.Bottom, unbounded = true)
-                )
-            }
         }
         val opener = PillEntry(Icons.Default.Close, fabLabel, enabled = enabled, onHold = onHold) { onOpen() }
         JumpKey(
@@ -751,6 +753,39 @@ private fun FoldedPill(
             onJump = onJump,
             holdLabel = holdLabel,
             rest = { CompositionLocalProvider(LocalRoundKey provides true) { mark(null) } }
+        )
+    }
+}
+
+/**
+ * The corner menu's round key at rest, since 6.03: the sliding pill's round key, closed (his request:
+ * *rendi il comportamento del tondo identico a quello della pillola a scomparsa*).
+ *
+ * ⚠️ **One key while scrolling too**: the glyph is the FAB's ([glyph]), which turns into the chevron
+ * while the jump is armed, and the tap jumps the way it points ([onLeap]); otherwise it opens the
+ * menu. The long press is the FAB's, as on the sliding pill's round key.
+ */
+@Composable
+private fun RoundRest(
+    label: String,
+    holdLabel: String?,
+    onHold: (() -> Unit)?,
+    backdrop: Backdrop?,
+    enabled: Boolean,
+    armed: Boolean,
+    onOpen: () -> Unit,
+    onLeap: () -> Unit,
+    glyph: @Composable (String?) -> Unit,
+    modifier: Modifier
+) {
+    Box(modifier = modifier.declaresFoot().pillFill(backdrop)) {
+        PillKey(
+            entry = PillEntry(Icons.Default.Close, label, enabled = enabled, onHold = onHold) {
+                if (armed) onLeap() else onOpen()
+            },
+            size = PILL_KEY,
+            holdLabel = holdLabel,
+            glyph = { CompositionLocalProvider(LocalRoundKey provides true) { glyph(null) } }
         )
     }
 }
