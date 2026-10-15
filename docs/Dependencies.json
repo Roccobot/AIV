@@ -1,5 +1,5 @@
 {
-  "_about": "What AIV takes from elsewhere, at which version, and where its new versions appear. tools/check-dependencies.py compares the version in use (read where it is set: the version catalogue, the Gradle wrapper, the CSS of the feedback page, the font files) with the latest published; a newer one is read for what is worth bringing in before it is taken (Roccobot.md, 'Le dipendenze si seguono').",
+  "_about": "What AIV takes from elsewhere, at which version, and where its new versions appear. check-dependencies.py of roccobot.github.io (.memo/scripts), run from this repo's root, compares the version in use (read where it is set: the version catalogue, the Gradle wrapper, the CSS of the feedback page, the font files) with the latest published; a newer one is read for what is worth bringing in before it is taken (Roccobot.md, 'Le dipendenze si seguono').",
   "dependencies": [
     {"name": "Gradle", "kind": "tool", "source": "gradle", "in_use": {"file": "gradle/wrapper/gradle-wrapper.properties", "pattern": "gradle-([\\d.]+)-bin\\.zip"}, "into": "the build (wrapper)"},
     {"name": "Android Gradle Plugin", "kind": "linked", "source": "maven", "repository": "google", "coordinates": "com.android.tools.build:gradle", "in_use": {"file": "gradle/libs.versions.toml", "pattern": "(?m)^agp = \"([^\"]+)\""}, "into": "the build"},

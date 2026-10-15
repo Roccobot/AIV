@@ -17,5 +17,3 @@ permissions:
 jobs:
   check:
     uses: Roccobot/roccobot.github.io/.github/workflows/dependencies.yml@master
-    with:
-      script: tools/check-dependencies.py

@@ -1131,15 +1131,17 @@ il job le scrive su disco per la durata di una sola esecuzione.
 
 - **`tools/feedback-check.py`**: si lancia prima di pubblicare il documento di feedback (§ '🔗 Il
   documento vivo del progetto').
-- **`tools/check-dependencies.py`**: confronta le dipendenze di `docs/Dependencies.json` con le
-  ultime versioni pubblicate, e si lancia prima di ogni release (`Roccobot.md` § '🔗 Le dipendenze
-  si seguono'). Contiene le librerie del catalogo `gradle/libs.versions.toml`, Gradle, i font
-  dell'editor e quelli del DF (Roboto e Noto Color Emoji, che `tools/feedback-emoji.py` porta
-  all'ultima versione). La versione in uso si legge dove è scritta, l'ultima da Maven (Google e
-  Central), da Gradle, da Google Fonts e dai file dei font in `google/fonts`. `material3` segue
-  anche le pre-release, perché l'alpha è voluta. ⚠️ Una libreria nuova nel catalogo entra anche
-  nel registro, o nessuno la segue. Lo script è una copia di quello di Aomidori: chi tocca l'uno
-  aggiorna l'altro.
+- **Il registro delle dipendenze, `docs/Dependencies.json`**: lo confronta con le ultime versioni
+  pubblicate lo script unico del repo del sito, lanciato dalla radice
+  (`python3 ../roccobot.github.io/.memo/scripts/check-dependencies.py`), prima di ogni release
+  (`Roccobot.md` § '🔗 Le dipendenze si seguono'). Contiene le librerie del catalogo
+  `gradle/libs.versions.toml`, Gradle, i font dell'editor e quelli del DF (Roboto e Noto Color
+  Emoji, che `tools/feedback-emoji.py` porta all'ultima versione). La versione in uso si legge dove
+  è scritta, l'ultima da Maven (Google e Central), da Gradle, da Google Fonts e dai file dei font in
+  `google/fonts`. `material3` segue anche le pre-release, perché l'alpha è voluta. ⚠️ Una libreria
+  nuova nel catalogo entra anche nel registro, o nessuno la segue. ⚠️ Lo script è uno solo dal
+  2026-10-15 (scelta F1a di Rocco): fino a quel giorno ne vivevano due copie, una qui in `tools/` e
+  una in Aomidori.
   - **E gira da sé ogni lunedì, dal 2026-10-15** (richiesta di Rocco):
     `.github/workflows/dependencies.yml` richiama il workflow riusabile del repo del sito, che apre
     la issue `Dipendenze da leggere` quando c'è una versione nuova e la chiude quando il registro la
