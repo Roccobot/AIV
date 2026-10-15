@@ -325,19 +325,19 @@ jobs:
 
     steps:
       - name: Take the APK the build job kept
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.build.outputs.apk }}
           path: ${{ runner.temp }}/out
 
       - name: Take the Play APK the build job kept
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.build.outputs.apkplay }}
           path: ${{ runner.temp }}/out
 
       - name: Take the Play bundle the build job kept
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: ${{ needs.build.outputs.aab }}
           path: ${{ runner.temp }}/out
