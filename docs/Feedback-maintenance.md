@@ -184,6 +184,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
     grassetto tornava normale.
   - **Codice e mono sono la stessa cosa**: il tasto `Codice`, il riferimento copiato dal simbolo di
     un riquadro e il nome di un allegato inserito nel testo fanno tutti lo stesso `<code>`.
+    ⚠️ **Un codice non entra mai dentro un altro codice**: incollato col cursore dentro un codice,
+    entra come testo di quel codice (`insertNodes`). Prima ne nasceva uno annidato, che prendeva
+    il 92% del foglio di stile due volte e risultava più piccolo degli altri nello stesso campo (sua
+    nota del 2026-10-15, con due `Imposta carattere…` di misure diverse). Lo presidia
+    `tools/feedback-interactive-check.py`.
   - **Il codice si toglie e si lascia come gli altri stili** (segnalazione di Rocco del
     2026-10-13): `Codice` su una parte di un codice toglie lo stile a quella parte sola, e col
     cursore dentro un codice lo divide lì, quindi quello che si scrive dopo è normale; premuto di

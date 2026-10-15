@@ -403,6 +403,12 @@
     range.deleteContents();
     const piece = document.createDocumentFragment();
     piece.append(...nodes);
+    /* Inside a code, a code that comes in goes as its text: a code in a code took the 92% of the
+       stylesheet twice, and showed smaller than the others (his note of 2026-10-15). */
+    const start = range.startContainer;
+    if ((start.nodeType === Node.ELEMENT_NODE ? start : start.parentElement)?.closest("code")) {
+      for (const code of piece.querySelectorAll("code")) code.replaceWith(...code.childNodes);
+    }
     const after = document.createTextNode("");
     piece.append(after);
     range.insertNode(piece);
