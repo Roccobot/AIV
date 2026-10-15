@@ -1,16 +1,16 @@
 # Feedback AIV
 
-Versione **6.22**: Material 3 1.5.0-beta01, in una versione a sé. Il documento è cumulativo con la 6.20 e la 6.21, cioè il velo del Feed disegnato, la cartella sulla schermata Home (`Faro`), le note A e B e le librerie aggiornate.
+Versione **6.23**: AIV GitHub scrive sui file anche su Android 9 e 10. Il documento è cumulativo con la 6.20, la 6.21 e la 6.22, cioè il velo del Feed disegnato, la cartella sulla schermata Home (`Faro`), le note A e B, le librerie aggiornate e i cursori con Material 3 1.5.0-beta01.
 Prosegue il giro **6.20**.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 6.22 è pubblicata: [v6.22](https://github.com/Roccobot/AIV/releases/tag/v6.22), con i due APK
-[AIV-6.22.apk](https://github.com/Roccobot/AIV/releases/download/v6.22/AIV-6.22.apk) (AIV GitHub) e [AIV-Play-6.22.apk](https://github.com/Roccobot/AIV/releases/download/v6.22/AIV-Play-6.22.apk) (AIV Play), più [AIV-Play-6.22.aab](https://github.com/Roccobot/AIV/releases/download/v6.22/AIV-Play-6.22.aab), il pacchetto da caricare su Google Play.
-Commit prodotto su `main`: `63c14ce`, release dal commit `63c14ce` (SlimVer 6.22 / versionCode 382; APK GitHub 11.213.989 byte, digest `19fffdc8`; APK Play 11.087.197 byte, digest `3db54eae`).
+La Release 6.23 è pubblicata: [v6.23](https://github.com/Roccobot/AIV/releases/tag/v6.23), con i due APK
+[AIV-6.23.apk](https://github.com/Roccobot/AIV/releases/download/v6.23/AIV-6.23.apk) (AIV GitHub) e [AIV-Play-6.23.apk](https://github.com/Roccobot/AIV/releases/download/v6.23/AIV-Play-6.23.apk) (AIV Play), più [AIV-Play-6.23.aab](https://github.com/Roccobot/AIV/releases/download/v6.23/AIV-Play-6.23.aab), il pacchetto da caricare su Google Play.
+Commit prodotto su `main`: `6a8ca83`, release dal commit `6a8ca83` (SlimVer 6.23 / versionCode 383; APK GitHub 11.214.045 byte, digest `f356aa6f`; APK Play 11.087.201 byte, digest `fb414cf0`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **6.22**: cumulativo con la 6.20 e la 6.21, quindi le loro cinque prove e le tre etichette restano, con quello che hai già scritto in pagina e in `Altro`, e si aggiunge una prova dei cursori. Giro **6.10**: tutte e tredici le prove del cumulativo 5.92 + 6.02 + 6.03 + 6.10 approvate; le etichette confermate sono registrate.
+Giro **6.23**: cumulativo con la 6.20, la 6.21 e la 6.22, quindi le loro sei prove e le tre etichette restano, con quello che hai già scritto in pagina e in `Altro`, e si aggiunge una prova dei comandi sui file su Android 9 e 10. Giro **6.10**: tutte e tredici le prove del cumulativo 5.92 + 6.02 + 6.03 + 6.10 approvate; le etichette confermate sono registrate.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -23,7 +23,7 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, salvo in un documento cumulativo, dove restano quelli del giro che prosegue, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 6.22 sono superate: banco di prova completo di AIV GitHub (766 prove), prove di AIV Play (43), traduzioni (28 lingue, 0 problemi), compilazione delle due varianti e del pacchetto per Google Play. La prova nuova `ValueSliderTest` controlla che un cursore segua un valore cambiato da fuori, un intervallo che arriva dopo e uno spostamento del dito; con la sostituzione suggerita da Google falliscono tutte e tre. Nel primo banco completo è caduta la prova del velo del Feed (verde da sola), per una causa già trovata nella 4.98 su un altro velo: la prova adesso usa la regola nuova del banco, e col banco completo rilanciato è verde. Le prove della 6.20 e della 6.21 passano anche con la versione nuova di Material 3.
+Le verifiche automatiche della 6.23 sono superate: banco di prova completo di AIV GitHub (770 prove), prove di AIV Play (43), traduzioni (28 lingue, 0 problemi), compilazione delle due varianti e del pacchetto per Google Play. La prova nuova `ScritturaVecchiAndroidTest` controlla, su Android 9 e 10, che l'accesso conti pieno solo con lettura e scrittura, che la richiesta le chieda insieme e che il manifest dichiari la scrittura e l'archivio classico; col codice e il manifest della 6.22 falliscono tutte e quattro.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -33,6 +33,7 @@ Le verifiche automatiche della 6.22 sono superate: banco di prova completo di AI
 | 6.20-04 | Non provato | | Attendere il collaudo. |
 | 6.21-01 | Non provato | | Attendere il collaudo. |
 | 6.22-01 | Non provato | | Attendere il collaudo. |
+| 6.23-01 | Non provato | | Attendere il collaudo. |
 
 ## 1. Il velo del Feed disegna l'ordine
 
@@ -70,6 +71,12 @@ Vale per AIV GitHub e per AIV Play. La 6.22 non cambia funzioni né aspetto: por
 
 Letture mie: la beta01 dichiara superata la forma con cui AIV creava i suoi 16 cursori, e la sostituzione che suggerisce non fa la stessa cosa: ricorda il valore solo all'inizio, quindi la barra di un video resterebbe ferma mentre il video va, e ferma a zero, perché la durata arriva dopo il primo fotogramma. Per questo i 16 cursori passano da un componente solo di AIV, che fa esattamente quello che faceva la forma vecchia, letta nel codice della beta01. La prova nuova lo controlla, e con la sostituzione suggerita fallisce. Tre cursori disegnati con la versione di prima e con questa danno 0 pixel diversi, in chiaro e in scuro; i valori che AIV copia da Material (le misure dei menu, il colore del FAB, le opacità dei gettoni spenti, il rientro dei pulsanti di testo) sono uguali nella beta01.
 
+## 7. I comandi sui file su Android 9 e 10
+
+Vale solo per AIV GitHub, su un apparecchio con Android 9 o 10. Installa la 6.23 sopra la versione che c'è: la vista delle cartelle mostra di nuovo l'invito a concedere l'accesso. Toccalo e conferma; se la lettura era già concessa, Android non chiede niente e le cartelle tornano subito. In una cartella di prova, con immagini di cui hai una copia, prova uno alla volta: rinomina un'immagine, mettila nel cestino e ripristinala, copiala e spostala in un'altra cartella, eliminala. Ogni comando riesce, e il cambiamento si vede anche nella galleria di sistema. Sui tuoi apparecchi con Android 14 e 16 la 6.23 non cambia niente: una rinomina funziona come prima.
+
+Letture mie: è la tua `Veterani`, scelta B1. Fino alla 6.22 AIV GitHub chiedeva sotto Android 11 la sola lettura: le cartelle si vedevano, ma i comandi che scrivono sui file fallivano, su Android 9 perché mancava il permesso di scrittura, su Android 10 perché il sistema blocca la scrittura sui file delle altre app. Adesso la richiesta chiede lettura e scrittura insieme, e su Android 10 AIV chiede l'archivio classico, che da Android 11 in su il sistema ignora. AIV Play non cambia. La prova del banco controlla i permessi, la richiesta e il manifest; la scrittura su un archivio vero la misura questa prova. Il punto da guardare è Android 10 dopo l'aggiornamento dalla 6.22: non ho trovato scritto se il sistema accende l'archivio classico anche per un'app aggiornata o solo per una installata da zero, quindi se lì i comandi falliscono ancora, è da segnalare qui.
+
 ## Etichette testuali
 
 ### e-feed_order · La voce in Impostazioni → File e cartelle, e la frase del velo del Feed
@@ -91,6 +98,7 @@ Aggiungi alla schermata Home
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
+| I comandi sui file su Android 9 e 10 | 6.23-01 | Scelta del 2026-10-15 | La tua B1 sulla voce `Veterani`: *correggo*. | Fatto nella 6.23 (`6.23-01`). |
 | I cursori con Material 3 1.5.0-beta01 | 6.22-01 | Richiesta del 2026-10-15 | *passa alla nuova versione di Material e rilascia la 6.22*, dopo la misura dei cursori (0 pixel diversi). | Fatto nella 6.22 (`6.22-01`). |
 | Le librerie aggiornate | 6.21-01 | Richiesta del 2026-10-15 | *dopo il rilascio fai l'aggiornamento delle dipendenze, in una versione a sé*. | Fatto nella 6.21 (`6.21-01`). |
 | Velo del Feed, `Faro`, note A e B | 6.20-01 | Giro della 6.10 | Il velo del Feed come tuo disegno (voce `6.02-04`), `Disposizione in vista feed` riscritta, `Faro` col via (*solo dalla vista cartelle di sistema*), il tasto `Aggiungi cartella` fermo in fondo (A), i gettoni dei pixel larghi uguali (B). | Fatto nella 6.20 (`6.20-01`...`6.20-04`). |
@@ -98,9 +106,8 @@ Aggiungi alla schermata Home
 
 ## Prossimi passi
 
-- **In collaudo, giro cumulativo 6.20 + 6.21 + 6.22**: il velo del Feed (`6.20-01`), `Aggiungi cartella` fermo in fondo (`6.20-02`), i gettoni dei pixel (`6.20-03`), la cartella sulla schermata Home (`6.20-04`), le librerie aggiornate (`6.21-01`), i cursori con Material 3 1.5.0-beta01 (`6.22-01`) e le tre etichette.
+- **In collaudo, giro cumulativo 6.20 + 6.21 + 6.22 + 6.23**: il velo del Feed (`6.20-01`), `Aggiungi cartella` fermo in fondo (`6.20-02`), i gettoni dei pixel (`6.20-03`), la cartella sulla schermata Home (`6.20-04`), le librerie aggiornate (`6.21-01`), i cursori con Material 3 1.5.0-beta01 (`6.22-01`), i comandi sui file su Android 9 e 10 (`6.23-01`) e le tre etichette.
+- **In preparazione, la 6.24**: Compose 1.13.0-beta01, le prove del banco sulla regola nuova di Compose e il banco su Android 17. Il suo DF sarà cumulativo sopra questo.
 - **Fermi fino al tuo via**: le funzioni sui file di AIV Play rifatte con MediaStore, una per rilascio (copia, sposta, duplica, nuova cartella); `Salva` sull'originale non serve, perché AIV Play salva già una copia `-aivEdit` accanto all'originale.
-- **In attesa del tuo via, dalle verifiche**: i permessi di scrittura su Android 9 e 10, la correzione di Chromium in `feedback-check.py`, le 52 classi di prova da portare sulla regola nuova del banco (contate dopo la 6.22, che ne ha portate due), la prova dell'altezza del pannello dell'editor, e il banco su Android 17, che Robolectric 4.17 adesso conosce.
 - **Tuoi, in parallelo**: l'account sviluppatore su Google Play, la creazione dell'app, i 12 tester per i 14 giorni del test chiuso e le schermate del telefono per la scheda (risposta G1); icona e immagine in evidenza sono pronte in `docs/store/`, e i passi in ordine sono in fondo a `docs/Store.md`.
-- **AIV GitHub, prima del 2027**: la registrazione nella verifica degli sviluppatori di Android, dall'account di Google Play.
 - **Escluso per ora**: scegliere e spostare un elemento con un solo trascinamento (nota D del giro 4.90), come hai deciso.
