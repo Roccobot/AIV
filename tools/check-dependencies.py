@@ -104,7 +104,7 @@ def in_use(dependency, manifests, resolved):
         return match[1] if match else '?'
     if dependency['source'] == 'npm':
         return manifests[dependency['manifest']]['dependencies'][dependency['package']]
-    if dependency['source'] == 'github-release':
+    if 'resolved' in dependency:
         return resolved[dependency['resolved']]
     return dependency['version']
 

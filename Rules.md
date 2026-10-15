@@ -1140,6 +1140,12 @@ il job le scrive su disco per la durata di una sola esecuzione.
   anche le pre-release, perché l'alpha è voluta. ⚠️ Una libreria nuova nel catalogo entra anche
   nel registro, o nessuno la segue. Lo script è una copia di quello di Aomidori: chi tocca l'uno
   aggiorna l'altro.
+  - **E gira da sé ogni lunedì, dal 2026-10-15** (richiesta di Rocco):
+    `.github/workflows/dependencies.yml` richiama il workflow riusabile del repo del sito, che apre
+    la issue `Dipendenze da leggere` quando c'è una versione nuova e la chiude quando il registro la
+    raggiunge; Dependabot (`.github/dependabot.yml`) apre una pull request per le azioni di GitHub.
+    Una sessione che trova la issue aperta la prende come la lista di quello che va letto
+    (`docs/Workflow.md` del repo del sito, § '🔗 Il controllo settimanale delle dipendenze').
 - **`tools/i18n-check.py`**, dalla radice: confronta tutte le lingue con l'inglese (chiavi
   mancanti, segnaposto, categorie di plurale, caratteri vietati) e deve dire **28 lingue, 0
   problemi**: un numero più basso vuol dire che una cartella non è stata vista. Le varianti

@@ -1,0 +1,21 @@
+# Every Monday, the dependencies in docs/Dependencies.json against their latest versions
+# (Rules.md, '🧰 Gli strumenti che questo repo si porta dietro'): a newer one opens the issue
+# 'Dipendenze da leggere'. The logic is the reusable workflow of the site's repository, like
+# rules-check.
+# Author: Rocco Casadei, a.k.a. Roccobot
+name: dependencies
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'  # Mondays at 06:17 UTC: 08:17 in Rome in summer, 07:17 in winter
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    uses: Roccobot/roccobot.github.io/.github/workflows/dependencies.yml@master
+    with:
+      script: tools/check-dependencies.py
