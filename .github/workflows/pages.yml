@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       # ⚠️ The feedback document is NOT part of the site since 2026-10-03: its only
       # address is the private Worker (`cloud/feedback/`), which serves the same
