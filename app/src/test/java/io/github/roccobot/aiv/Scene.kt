@@ -51,7 +51,9 @@ internal fun Casa(
     /** Receives the date chosen in the view options of the Feed. */
     onFeedDate: (FeedDate) -> Unit = {},
     /** Receives the stream and the position of a picture touched in the Feed. */
-    onFeedOpen: (List<android.net.Uri>, Int) -> Unit = { _, _ -> }
+    onFeedOpen: (List<android.net.Uri>, Int) -> Unit = { _, _ -> },
+    /** Counts the readings of the Feed the home asks for (6.03, 'Mostra nascoste'). */
+    onFeedRead: (Boolean) -> Unit = {}
 ) {
     FolderScreen(
         view = view,
@@ -78,8 +80,9 @@ internal fun Casa(
         feed = feed,
         feedDate = FeedDate.TAKEN,
         onFeedDate = onFeedDate,
-        onFeedRead = {},
+        onFeedRead = onFeedRead,
         onFeedOpen = onFeedOpen,
+        onFeedChanged = {},
         onColumns = {},
         listCount = true,
         listText = TextSize.NORMAL,

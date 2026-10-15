@@ -837,5 +837,5 @@
     <string name="feed_date_modified">Modyfikacja</string>
     <string name="feed_order">Układ w widoku feedu</string>
     <string name="feed_order_desc">Widok feedu pokazuje tylko zdjęcia i filmy, bez podziału na foldery, najnowsze na górze. Ponieważ \'najnowsze\' może znaczyć różne rzeczy, możesz użyć daty wykonania (a gdy jej brak, daty modyfikacji) albo brać pod uwagę tylko daty utworzenia i modyfikacji.</string>
-    <string name="hint_feed">Feed pokazuje zdjęcia i filmy ze wszystkich folderów, najnowsze na górze. Aby wybrać, czy liczy się data wykonania, czy modyfikacji, przytrzymaj przycisk.</string>
+    <string name="hint_feed">Widok &lt;i&gt;Feed&lt;/i&gt; pokazuje pliki ze wszystkich dozwolonych lokalizacji, bez podziału na foldery, najnowsze na górze. Aby wybrać, czy w układzie pierwszeństwo ma data wykonania, czy modyfikacji, przytrzymaj główny przycisk.</string>
 </resources>

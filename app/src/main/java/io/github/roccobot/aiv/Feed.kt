@@ -22,8 +22,15 @@ object Feed {
      * @param taken when the picture was taken, in milliseconds, or `null` when the file does not
      *   say (screenshots, downloads, edited copies often do not).
      * @param modified when the file was last written, in **seconds**, as `DATE_MODIFIED` is.
+     * @param dir the folder the file lives in, for [shown], or `null` when the row does not say.
      */
-    data class Row(val uri: Uri, val id: Long, val taken: Long?, val modified: Long)
+    data class Row(
+        val uri: Uri,
+        val id: Long,
+        val taken: Long?,
+        val modified: Long,
+        val dir: String? = null
+    )
 
     /** A month of the stream: its first item's place in [Page.items]. */
     data class Month(val year: Int, val month: Int, val start: Int)
@@ -45,6 +52,17 @@ object Feed {
         FeedDate.TAKEN -> row.taken?.takeIf { it > 0 } ?: (row.modified * 1000)
         FeedDate.MODIFIED -> row.modified * 1000
     }
+
+    /**
+     * The rows of the folders the grid shows: the filter of [FolderSelection.visible], the same as
+     * the grid's and the search's (his choice D1).
+     *
+     * ⚠️ **[peeking] lets the hidden folders in**, from 6.03 (his request: *`Mostra nascoste` deve
+     * far apparire nel feed anche gli elementi di quelle cartelle*): for the minute of 'Mostra
+     * nascoste' their pictures are in the stream, as their folders are in the grid.
+     */
+    fun shown(rows: List<Row>, selection: FolderSelection, peeking: Boolean): List<Row> =
+        rows.filter { selection.visible(it.dir, peeking) }
 
     /**
      * The rows in stream order, newest first, and the months they fall in, read in [zone].

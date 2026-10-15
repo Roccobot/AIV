@@ -648,8 +648,16 @@ object Folder {
      * default.
      * ⚠️ **`DATE_TAKEN` is read from the files table too**: the column lives in the table, like
      * the others of [COLUMNS], and for a row without it the cursor gives `null`.
+     * ⚠️ **[peeking] shows the hidden folders here too** (his request for the `6.03`): 'Mostra
+     * nascoste' adds their pictures to the stream for as long as it lasts, as it adds their
+     * folders to the grid.
      */
-    suspend fun feed(context: Context, selection: FolderSelection, date: FeedDate): Feed.Page? =
+    suspend fun feed(
+        context: Context,
+        selection: FolderSelection,
+        date: FeedDate,
+        peeking: Boolean
+    ): Feed.Page? =
         withContext(Dispatchers.IO) {
             if (!granted(context)) return@withContext null
             val rows = mutableListOf<Feed.Row>()
@@ -665,18 +673,18 @@ object Folder {
                         val dir = pathAt?.let { c.getString(it) }
                             ?.substringBeforeLast('/')
                             ?.takeIf { it.isNotBlank() }
-                        if (!selection.visible(dir)) continue
                         val id = c.getLong(idAt)
                         rows += Feed.Row(
                             uri = uriOf(id, c.isClip(kindAt)),
                             id = id,
                             taken = takenAt?.takeUnless { c.isNull(it) }?.let { c.getLong(it) },
-                            modified = modifiedAt?.let { c.getLong(it) } ?: 0L
+                            modified = modifiedAt?.let { c.getLong(it) } ?: 0L,
+                            dir = dir
                         )
                     }
                 }
             }
-            Feed.order(rows, date)
+            Feed.order(Feed.shown(rows, selection, peeking), date)
         }
 
     /** The date of taking, which only the Feed reads: see [feed]. */

@@ -878,5 +878,5 @@
     <string name="feed_date_modified">Modifica</string>
     <string name="feed_order">Disposizione in vista feed</string>
     <string name="feed_order_desc">La modalità feed mostra solo foto e video, non organizzati in cartelle, con i più recenti in alto. Dato che \'recente\' può avere accezioni diverse, puoi scegliere se usare la data di scatto (e ripiegare sulla data di modifica), o se considerare solo le date di creazione/modifica.</string>
-    <string name="hint_feed">Il Feed mostra foto e video di tutte le cartelle, i più recenti in alto. Per scegliere se conta la data di scatto o quella di modifica, tieni premuto il pulsante.</string>
+    <string name="hint_feed">La vista &lt;i&gt;feed&lt;/i&gt; mostra i file provenienti da tutti i percorsi autorizzati, senza la suddivisione in cartelle, con gli elementi più recenti in alto. Per scegliere se nella disposizione ha priorità la data di scatto o quella di modifica, tieni premuto il pulsante principale.</string>
 </resources>

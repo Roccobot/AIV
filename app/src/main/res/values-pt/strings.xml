@@ -819,5 +819,5 @@
     <string name="feed_date_modified">Modificação</string>
     <string name="feed_order">Disposição na visualização feed</string>
     <string name="feed_order_desc">A visualização feed mostra apenas fotos e vídeos, sem organizá-los em pastas, com os mais recentes no topo. Como \'recente\' pode ter sentidos diferentes, você pode usar a data de captura (recorrendo à data de modificação) ou considerar só as datas de criação e modificação.</string>
-    <string name="hint_feed">O feed mostra as fotos e os vídeos de todas as suas pastas, os mais recentes no topo. Para escolher se conta a data de captura ou a de modificação, pressione e segure o botão.</string>
+    <string name="hint_feed">A visualização &lt;i&gt;feed&lt;/i&gt; mostra os arquivos de todos os locais autorizados, sem a divisão em pastas, com os mais recentes no topo. Para escolher se na disposição a prioridade é da data de captura ou da de modificação, pressione e segure o botão principal.</string>
 </resources>

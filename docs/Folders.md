@@ -606,8 +606,13 @@ funzione pura, `Feed.order`; le righe le legge `Folder.feed` dal MediaStore; la 
     tasti si stringono un poco e 'Cerca' non è più esattamente al centro. Senza cartelle nascoste le
     voci restano sette, e la regola di 'Cerca' al centro vale com'era.
 - ⚠️⚠️ **Le cartelle sono quelle della griglia** (risposta D1): valgono nascoste, incluse ed escluse,
-  come nella ricerca, e il cestino resta fuori per costruzione. ⚠️ **'Mostra nascoste' non le
-  aggiunge**: il minuto in prestito vale per le cartelle, non per il Feed.
+  come nella ricerca, e il cestino resta fuori per costruzione. Il filtro è la funzione pura
+  `Feed.shown`.
+  - ⚠️⚠️ **Dalla `6.03` 'Mostra nascoste' aggiunge anche le immagini delle cartelle nascoste** (sua
+    richiesta: *`Mostra nascoste` deve far apparire nel feed anche gli elementi di quelle
+    cartelle*), per la durata del minuto: il Feed si rilegge quando il minuto comincia e quando
+    finisce, perché `peeking` è una delle chiavi della sua lettura. Fino alla `6.02` il minuto valeva
+    solo per le cartelle.
 - ⚠️⚠️ **La data la sceglie lui, e di fabbrica è lo scatto con ripiego sulla modifica** (risposta B1):
   un file senza data di scatto (una cattura dello schermo, un download) si mette alla data di
   modifica, invece di finire in fondo al 1970. La scelta è in due posti, con gli stessi due gettoni,
@@ -625,12 +630,30 @@ funzione pura, `Feed.order`; le righe le legge `Folder.feed` dal MediaStore; la 
   cartelle accanto contraddirebbe una vista senza cartelle.
 - ⚠️ **Il tocco apre l'immagine nel visualizzatore, con tutto il Feed come sequenza**, e Indietro
   riporta alla casa; nella scelta della copertina o di un'immagine per un'altra app il tocco consegna,
-  come nell'albero. Nessuna selezione multipla, per ora.
-- **Il velo** `Hint.FEED` (testo mio, a sua discrezione) compare la prima volta che il Feed mostra
-  delle immagini, e dice dove si sceglie la data.
+  come nell'albero.
+- ⚠️⚠️ **Dalla `6.03` il Feed ha la selezione multipla** (sua richiesta: *il feed deve avere la
+  selezione multipla*), uguale a quella della griglia di una cartella: la pressione lunga sceglie, il
+  trascinamento sceglie da un'immagine a un'altra anche attraverso i mesi, ai bordi la griglia scorre,
+  e durante la selezione il tocco sceglie invece di aprire. Il tasto Start lascia il posto alla scheda
+  delle azioni, con le stesse dieci voci e lo stesso ordine della griglia (`feedPickActions`, in
+  `FeedPick.kt`); AIV Play tiene le sole voci che `Store.allows` ammette, come nella griglia.
+  - ⚠️ **Letture dichiarate**: 'Tutti' e 'Inverti' lavorano sull'intero Feed e non sul mese; 'Lista'
+    copia i nomi senza il percorso in testa, perché le immagini vengono da cartelle diverse; uscire dal
+    Feed o premere Indietro scioglie la selezione; dopo un'operazione il Feed si rilegge
+    (`ViewerViewModel.rereadFeed`).
+- **Il velo** `Hint.FEED` compare la prima volta che il Feed mostra delle immagini. ⚠️ **Dalla `6.03`
+  il testo è suo**, con *feed* in corsivo: *La vista feed mostra i file provenienti da tutti i percorsi
+  autorizzati, senza la suddivisione in cartelle, con gli elementi più recenti in alto. Per scegliere
+  se nella disposizione ha priorità la data di scatto o quella di modifica, tieni premuto il pulsante
+  principale.* Il corsivo vive nella risorsa come marcatore `<i>` codificato, e la schermata lo legge
+  con `AnnotatedString.fromHtml`: `getString` toglierebbe un marcatore vero.
+- **L'icona**: oggi è Material `DynamicFeed`. Dalla `6.03` c'è una proposta di sei alternative,
+  nell'artefatto [Icona del Feed](https://claude.ai/artifact/SW5RJssonxpCJXH1WfzBjv) e nella domanda
+  `d-feed-icona` del DF; l'icona cambia quando lui sceglie.
 - **Esporta e importa**: la data viaggia in 'File e cartelle' (`feed-date`).
 - **`FeedTest`** misura l'ordine con le due date, il ripiego, i mesi, i pareggi, la griglia coi mesi,
-  il tocco e il velo; `VistaOpzioniTest` il dialogo; `MenuInferioreTest` la casella e i gettoni del
+  il tocco, il velo col suo corsivo, le cartelle nascoste col minuto acceso, la rilettura quando il
+  minuto cambia e la selezione multipla; `VistaOpzioniTest` il dialogo; `MenuInferioreTest` la casella e i gettoni del
   riposo.
 
 ## 🗂️ Cartelle incluse/escluse

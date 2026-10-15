@@ -2265,13 +2265,22 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var feed: Feed.Page? by mutableStateOf(null)
         private set
 
-    /** What [feed] was read for: permission, [outsideStamp], folders and date. */
+    /** What [feed] was read for: permission, [outsideStamp], folders, date and [peeking]. */
     private var feedFor: List<Any>? = null
 
     /** The last arguments of [readFeed], for [outsideChange], which cannot ask the screen. */
     private var feedArgs: Triple<Boolean, FolderSelection, FeedDate>? = null
 
     private var feedJob: Job? = null
+
+    /**
+     * Reads the Feed again whatever its key says, after an operation of its own selection has
+     * changed the files (see [readFeed]).
+     */
+    fun rereadFeed() {
+        feedFor = null
+        feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
+    }
 
     /**
      * Reads the Feed again, but only when something it depends on has changed.
@@ -2281,16 +2290,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * a reading and not a filter.
      * ⚠️ **The old stream stays on screen until the new one arrives**: changing the date does not
      * flash a spinner over pictures that are still there.
+     * ⚠️ **[peeking] is read here and not passed**, so no caller can pass a stale one; the screen
+     * calls again when it changes, the minute that ends it included, because it is a key of the
+     * screen's reading.
      */
     fun readFeed(granted: Boolean, selection: FolderSelection, date: FeedDate) {
         feedArgs = Triple(granted, selection, date)
-        val key = listOf(granted, outsideStamp, selection, date)
+        val peek = peeking
+        val key = listOf(granted, outsideStamp, selection, date, peek)
         if (feedFor == key) return
         feedFor = key
         val context = getApplication<Application>()
         feedJob?.cancel()
         feedJob = viewModelScope.launch {
-            feed = Folder.feed(context, selection, date) ?: Feed.Page(emptyList(), emptyList())
+            feed = Folder.feed(context, selection, date, peek) ?: Feed.Page(emptyList(), emptyList())
         }
     }
 
@@ -3643,6 +3656,7 @@ private fun Stage(
                     // ⚠️ The Feed hands over like the tree view does: a cover or an answer to an app
                     // that asked for a picture, otherwise the viewer.
                     onFeedOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
+                    onFeedChanged = model::rereadFeed,
                     // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
                     // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
                     // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`

@@ -801,5 +801,5 @@
     <string name="feed_date_modified">Kubadilishwa</string>
     <string name="feed_order">Mpangilio katika mwonekano wa mlisho</string>
     <string name="feed_order_desc">Mwonekano wa mlisho unaonyesha picha na video pekee, bila kuzipanga katika folda, mpya zaidi juu. Kwa kuwa \'mpya\' inaweza kuwa na maana tofauti, unaweza kutumia tarehe ya kupigwa (na tarehe ya kubadilishwa isipokuwepo) au kuzingatia tarehe za kuundwa na kubadilishwa pekee.</string>
-    <string name="hint_feed">Mlisho unaonyesha picha na video za folda zako zote, mpya zaidi juu. Ili kuchagua tarehe ipi ihesabiwe, ya kupigwa au ya kubadilishwa, bonyeza na ushikilie kitufe.</string>
+    <string name="hint_feed">Mwonekano wa &lt;i&gt;Mlisho&lt;/i&gt; unaonyesha faili kutoka maeneo yote yaliyoruhusiwa, bila kuzigawa katika folda, mpya zaidi zikiwa juu. Ili kuchagua kama tarehe ya kupiga picha au ya kubadilisha ndiyo ipewe kipaumbele katika mpangilio, bonyeza na ushikilie kitufe kikuu.</string>
 </resources>

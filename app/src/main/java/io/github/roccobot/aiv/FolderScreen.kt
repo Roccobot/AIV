@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import android.text.format.DateFormat
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +37,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -81,7 +84,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -107,7 +116,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -232,6 +243,11 @@ fun FolderScreen(
     /** A picture touched in the Feed: the stream and the position. */
     onFeedOpen: (List<Uri>, Int) -> Unit,
     /**
+     * An operation of the Feed's selection has ended: the stream is read again whatever its keys
+     * say (`ViewerViewModel.rereadFeed`), because renaming or moving changes no key of its own.
+     */
+    onFeedChanged: () -> Unit,
+    /**
      * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
      *
      * ⚠️ **La stessa impostazione delle preferenze e non una seconda**: la scorciatoia è una
@@ -352,6 +368,26 @@ fun FolderScreen(
     var treeBusy by remember { mutableStateOf(false) }
 
     /**
+     * The pictures chosen in the Feed, from 6.03 (his request: *il feed deve avere la selezione
+     * multipla*). Saveable, as the grid's: turning the phone keeps it.
+     * ⚠️ **Only addresses still in the stream count**: after an operation, or a reading that lost a
+     * picture, the others stay chosen and the lost one leaves (see the effect below).
+     */
+    var feedChosen by rememberSaveable(stateSaver = UriSetSaver) { mutableStateOf(emptySet()) }
+    val feedPicking = !forStart && view == FolderView.FEED && feedChosen.isNotEmpty()
+    /** The operation the Feed's sheet has opened, as `job` in the grid. */
+    var feedTask by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
+    /** How tall the Feed's sheet is, for the room under the last row. */
+    var feedSheet by remember { mutableIntStateOf(0) }
+    LaunchedEffect(feed) {
+        val there = feed?.items?.toSet() ?: return@LaunchedEffect
+        if (!there.containsAll(feedChosen)) feedChosen = feedChosen intersect there
+    }
+    // ⚠️ Leaving the Feed lets the selection go, as leaving a folder does.
+    LaunchedEffect(view) { if (view != FolderView.FEED) feedChosen = emptySet() }
+    BackHandler(enabled = feedPicking) { feedChosen = emptySet() }
+
+    /**
      * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
      *
      * ⚠️ **Lo stato vive qui e non nel menu**, come `sizing`: un FAB che si apre un
@@ -394,8 +430,9 @@ fun FolderScreen(
     // qualcosa da rileggere.
     LaunchedEffect(granted) { onRead(granted) }
     // ⚠️ The Feed is read only when it is on screen: a home in the grid does not pay for a query on
-    // every picture of the phone. Folders and date are keys because they change the stream.
-    LaunchedEffect(granted, view, forStart, selection, feedDate) {
+    // every picture of the phone. Folders, date and 'Mostra nascoste' are keys because they change
+    // the stream (the last one from 6.03, his request).
+    LaunchedEffect(granted, view, forStart, selection, feedDate, peeking) {
         if (view == FolderView.FEED && !forStart) onFeedRead(granted)
     }
 
@@ -689,9 +726,15 @@ fun FolderScreen(
                     // ⚠️ The same filling slot as the grid (`3.25`): with few pictures a drag on the
                     // empty space must still open the header again.
                     else -> Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                        FeedGrid(feed, columns, feedScroll, Modifier.fillMaxSize()) { at ->
-                            onFeedOpen(feed.items, at)
-                        }
+                        FeedGrid(
+                            page = feed,
+                            columns = columns,
+                            state = feedScroll,
+                            chosen = feedChosen,
+                            onChosen = { feedChosen = it },
+                            sheetRoom = with(LocalDensity.current) { feedSheet.toDp() },
+                            modifier = Modifier.fillMaxSize()
+                        ) { at -> onFeedOpen(feed.items, at) }
                     }
                 }
 
@@ -740,7 +783,7 @@ fun FolderScreen(
         // nessuno.
         // ⚠️ E manca durante la selezione in Cartelle di sistema: [PickSheet] prende il
         // suo posto, come il FAB di selezione in griglia.
-        if (home && !treeBusy) {
+        if (home && !treeBusy && !feedPicking) {
             /*
              * ⚠️⚠️ **LA SFUMATURA CHE INGHIOTTE QUELLO CHE STA SOTTO, dalla 0.77** (richiesta
              * dell'utente: *dalla coordinata Y in cui comincia il FAB, una piccola
@@ -923,6 +966,22 @@ fun FolderScreen(
             }
         }
 
+        // ⚠️ The Feed's selection sheet (6.03), in the Start key's place: the key is hidden while
+        // something is chosen, as in a folder's grid.
+        if (home && view == FolderView.FEED) {
+            PickSheet(
+                visible = feedPicking,
+                actions = feedPickActions(
+                    chosen = feedChosen,
+                    items = feed?.items.orEmpty(),
+                    binOn = binOn,
+                    onChosen = { feedChosen = it },
+                    onJob = { feedTask = it }
+                ),
+                onHeight = { feedSheet = it }
+            )
+        }
+
         /*
          * ⚠️⚠️ **THE FEED'S VEIL, FROM 6.02, THE FIRST TIME THE STREAM IS ON SCREEN** (his request:
          * *un mini-onboarding ... che spieghi in breve la scelta della data*). Only with pictures
@@ -932,7 +991,9 @@ fun FolderScreen(
             !feedSeen && !feedOff
         ) {
             HintCentre(
-                text = stringResource(R.string.hint_feed),
+                // ⚠️ From 6.03 the text is his and names the view in italics: the tag is escaped in
+                // the resources, where `getString` would drop a real one.
+                text = AnnotatedString.fromHtml(stringResource(R.string.hint_feed)),
                 onDone = {
                     feedOff = true
                     scope.launch { Hint.FEED.remember(context) }
@@ -955,6 +1016,17 @@ fun FolderScreen(
      * (permessi, nome già preso, volume di sola lettura), e navigare in una cartella che non
      * esiste mostrerebbe un elenco vuoto che sembra un guasto dell'app.
      */
+    // ⚠️ The Feed's operations (6.03): the selection empties before the work starts, as in the grid,
+    // and the stream is read again after it.
+    FileJobDialogs(job = feedTask, fields = factFields, onClose = { feedTask = null }) { kind, work ->
+        feedChosen = emptySet()
+        scope.launch {
+            val out = work()
+            if (kind.speaks(out)) Notices.say(outcomeText(context.resources, out, kind), NOTICE_LONG_MS)
+            onFeedChanged()
+        }
+    }
+
     if (making) {
         NewFolderDialog(
             onDismiss = { making = false },
@@ -2277,12 +2349,21 @@ internal fun Covers(
  * here as it does in the grid of covers.
  * ⚠️ **The month name comes from the system's pattern for the language** (`MMMMy`): Italian writes
  * `ottobre 2026`, Japanese `2026年10月`, and a pattern written here would be right for one of them.
+ * ⚠️⚠️ **THE SELECTION IS THE GRID'S, FROM 6.03** (his request: *il feed deve avere la selezione
+ * multipla*): a long press chooses, a drag chooses from one picture to another, the edges scroll,
+ * and while something is chosen a tap chooses instead of opening. The reasons of each part are on
+ * the folder's grid (`GridScreen`); what changes here is that the month headings are items of the
+ * lazy grid too, so a picture is found by its key ([feedIndexAt]).
  */
 @Composable
 private fun FeedGrid(
     page: Feed.Page,
     columns: Int,
     state: LazyGridState,
+    chosen: Set<Uri>,
+    onChosen: (Set<Uri>) -> Unit,
+    /** The room of the selection's sheet under the last row, `0.dp` without a selection. */
+    sheetRoom: Dp,
     modifier: Modifier,
     onOpen: (Int) -> Unit
 ) {
@@ -2290,14 +2371,69 @@ private fun FeedGrid(
     val months = remember(locale) {
         DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMMy"), locale)
     }
+    val picking = chosen.isNotEmpty()
+    val haptics = LocalHapticFeedback.current
+    val keys = remember(page) { page.items.withIndex().associate { (i, uri) -> uri.toString() to i } }
+    // ⚠️ Read inside the gesture and not keys of it, as in the folder's grid: a key that changes
+    // cancels the drag under the finger.
+    val current by rememberUpdatedState(chosen)
+    val choose by rememberUpdatedState(onChosen)
+    var dragAt by remember { mutableStateOf<Offset?>(null) }
+    var dragFrom by remember { mutableStateOf<Int?>(null) }
+    var dragBase by remember { mutableStateOf<Set<Uri>>(emptySet()) }
+    var dragOff by remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    val edgePx = with(density) { EDGE_BAND.toPx() }
+    val speedPx = with(density) { EDGE_SPEED.toPx() }
+    val grab = Modifier.pointerInput(page) {
+        detectDragGesturesAfterLongPress(
+            onDragStart = { at ->
+                val hit = state.feedIndexAt(at, keys)
+                if (hit != null) {
+                    dragFrom = hit
+                    dragBase = current
+                    dragOff = page.items[hit] in current
+                    haptics.performHapticFeedback(HOLD_BUZZ)
+                    choose(feedSpan(page.items, current, hit, hit, dragOff))
+                    dragAt = at
+                }
+            },
+            onDrag = { change, _ ->
+                change.consume()
+                if (dragFrom != null) dragAt = change.position
+            },
+            onDragEnd = { dragFrom = null; dragAt = null },
+            onDragCancel = { dragFrom = null; dragAt = null }
+        )
+    }
+    LaunchedEffect(dragAt != null, page) {
+        while (dragAt != null) {
+            withFrameNanos { }
+            val at = dragAt ?: break
+            val from = dragFrom ?: break
+            val height = state.layoutInfo.viewportSize.height.toFloat()
+            val push = when {
+                height <= 0f -> 0f
+                at.y < edgePx -> -(edgePx - at.y) / edgePx
+                at.y > height - edgePx -> (at.y - (height - edgePx)) / edgePx
+                else -> 0f
+            }
+            if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
+            val hit = state.feedIndexAt(at, keys) ?: continue
+            choose(feedSpan(page.items, dragBase, from, hit, dragOff))
+        }
+    }
     LazyVerticalGrid(
         columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
         state = state,
         horizontalArrangement = Arrangement.spacedBy(gridGap()),
         verticalArrangement = Arrangement.spacedBy(gridGap()),
-        // ⚠️ The same bottom room as the covers: the last row clears the Start key and the gesture bar.
-        contentPadding = PaddingValues(bottom = BELOW_FAB + extraRoom() + bottomInset()),
-        modifier = modifier
+        // ⚠️ The same bottom room as the covers: the last row clears the Start key and the gesture
+        // bar. While choosing, the sheet takes the key's place and the room is the sheet's.
+        contentPadding = PaddingValues(
+            bottom = bottomInset() + if (picking) sheetRoom else BELOW_FAB + extraRoom()
+        ),
+        modifier = modifier.then(grab)
     ) {
         page.months.forEachIndexed { m, month ->
             val end = page.months.getOrNull(m + 1)?.start ?: page.items.size
@@ -2323,17 +2459,29 @@ private fun FeedGrid(
                 contentType = { THUMB_KIND }
             ) { i ->
                 val at = month.start + i
+                val uri = page.items[at]
                 Thumbnail(
-                    uri = page.items[at],
+                    uri = uri,
                     position = at + 1,
                     total = page.items.size,
                     marked = false,
-                    chosen = false,
+                    chosen = uri in chosen,
                     named = false,
                     mark = LastMark.FRAME,
                     room = 0,
                     shade = null
-                ) { onOpen(at) }
+                ) {
+                    // ⚠️ The first branch is the tail of a long press, as in the folder's grid: the
+                    // tile's tap fires on release whatever the press lasted.
+                    when {
+                        dragFrom != null -> Unit
+                        picking -> {
+                            haptics.performHapticFeedback(HOLD_BUZZ)
+                            onChosen(if (uri in chosen) chosen - uri else chosen + uri)
+                        }
+                        else -> onOpen(at)
+                    }
+                }
             }
         }
     }

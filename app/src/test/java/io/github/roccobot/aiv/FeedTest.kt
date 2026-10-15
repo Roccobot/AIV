@@ -3,11 +3,23 @@ package io.github.roccobot.aiv
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.fromHtml
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.LocalDateTime
@@ -15,6 +27,7 @@ import java.time.ZoneOffset
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -131,7 +144,7 @@ class FeedTest {
      * for good.
      */
     @Test
-    @Config(shadows = [ArchivioAperto::class])
+    @Config(qualifiers = "it", shadows = [ArchivioAperto::class])
     fun `la prima volta il velo del Feed spiega la data`() {
         val app = ApplicationProvider.getApplicationContext<android.content.Context>()
         runBlocking { Hint.FEED.forget(app) }
@@ -142,9 +155,104 @@ class FeedTest {
             }
         }
         scene.waitForIdle()
-        scene.onNodeWithText(app.getString(R.string.hint_feed)).assertExists().performClick()
+        // ⚠️ The veil reads its resource as HTML from 6.03 (*feed* in italics): the node holds the
+        // text without the tag.
+        val velo = AnnotatedString.fromHtml(app.getString(R.string.hint_feed)).text
+        // ⚠️ **The view's name is in italics, as he wrote it** (6.03): counter-tested with the
+        // resource passed as plain text, where the italics are gone and the tag is shown.
+        val scritto = scene.onNodeWithText(velo).fetchSemanticsNode().config[SemanticsProperties.Text].first()
+        val corsivo = scritto.spanStyles.filter { it.item.fontStyle == FontStyle.Italic }
+            .map { scritto.text.substring(it.start, it.end) }
+        assertEquals(listOf("feed"), corsivo)
+        scene.onNodeWithText(velo).assertExists().performClick()
         scene.waitForIdle()
-        scene.onNodeWithText(app.getString(R.string.hint_feed)).assertDoesNotExist()
+        scene.onNodeWithText(velo).assertDoesNotExist()
         assertTrue("Il velo non si è archiviato", runBlocking { Hint.FEED.flow(app).first() })
+    }
+
+    /**
+     * **Case 7: 'Mostra nascoste' lets the hidden folders' pictures into the stream** (his request
+     * for 6.03: *`Mostra nascoste` deve far apparire nel feed anche gli elementi di quelle
+     * cartelle*). The rows are read by [Folder.feed] and filtered by the real [Feed.shown].
+     * ⚠️ **Counter-tested** with the filter that ignores [peeking] (`visible(it.dir)`): the hidden
+     * picture stays out with the minute on.
+     */
+    @Test
+    fun `mostra nascoste porta nel Feed le immagini delle cartelle nascoste`() {
+        val nascosta = "/storage/emulated/0/Nascosta"
+        val selezione = FolderSelection().exclude(listOf(nascosta), recursive = true)
+        val righe = listOf(
+            riga(1, ms(2026, 10, 2), 0).copy(dir = "/storage/emulated/0/DCIM/Camera"),
+            riga(2, ms(2026, 10, 1), 0).copy(dir = nascosta)
+        )
+        assertEquals(listOf(righe[0]), Feed.shown(righe, selezione, peeking = false))
+        assertEquals(righe, Feed.shown(righe, selezione, peeking = true))
+    }
+
+    /**
+     * **Case 8: turning 'Mostra nascoste' on, and its minute ending, reads the Feed again**: the
+     * home asks for a reading whenever the switch changes.
+     * ⚠️ **Counter-tested** with `peeking` out of the keys of the reading: one reading only.
+     */
+    @Test
+    @Config(shadows = [ArchivioAperto::class])
+    fun `mostra nascoste chiede una nuova lettura del Feed`() {
+        val app = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking { Hint.FEED.remember(app) }
+        val pagina = Feed.order(listOf(riga(1, ms(2026, 10, 2), 0)), FeedDate.TAKEN, zone)
+        var letture = 0
+        var guarda by mutableStateOf(false)
+        scene.setContent {
+            AivTheme(darkTheme = false) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Casa(view = FolderView.FEED, feed = pagina, peeking = guarda, onFeedRead = { letture++ })
+                }
+            }
+        }
+        scene.waitForIdle()
+        val prima = letture
+        guarda = true
+        scene.waitForIdle()
+        assertEquals(prima + 1, letture)
+        guarda = false
+        scene.waitForIdle()
+        assertEquals(prima + 2, letture)
+    }
+
+    /**
+     * **Case 9: the Feed has the multiple selection** (his request for 6.03): a long press chooses
+     * a picture without opening it, the sheet of the actions appears, and while choosing a tap
+     * chooses another one.
+     * ⚠️ **Counter-tested** without the long press gesture on the Feed's grid: the first picture
+     * is not chosen and the sheet does not appear.
+     * ⚠️ **A phone's height**: on the bench's default screen the second month falls under the sheet,
+     * which takes the tap as it does on a phone.
+     */
+    @Test
+    @Config(qualifiers = "it-w393dp-h873dp", shadows = [ArchivioAperto::class])
+    fun `il Feed ha la selezione multipla`() {
+        val app = ApplicationProvider.getApplicationContext<android.content.Context>()
+        runBlocking { Hint.FEED.remember(app) }
+        val righe = listOf(riga(1, ms(2026, 10, 2), 0), riga(2, ms(2026, 9, 1), 0))
+        val pagina = Feed.order(righe, FeedDate.TAKEN, zone)
+        var aperta = false
+        scene.setContent {
+            AivTheme(darkTheme = false) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Casa(view = FolderView.FEED, feed = pagina, onFeedOpen = { _, _ -> aperta = true })
+                }
+            }
+        }
+        scene.waitForIdle()
+        val prima = scene.onNodeWithContentDescription(app.getString(R.string.grid_item, 1, 2))
+        val seconda = scene.onNodeWithContentDescription(app.getString(R.string.grid_item, 2, 2))
+        prima.performTouchInput { longClick() }
+        scene.waitForIdle()
+        prima.assertIsSelected()
+        scene.onAllNodesWithText(app.getString(R.string.pick_invert)).onFirst().assertExists()
+        seconda.performClick()
+        scene.waitForIdle()
+        seconda.assertIsSelected()
+        assertFalse("Il tocco in selezione ha aperto l'immagine", aperta)
     }
 }

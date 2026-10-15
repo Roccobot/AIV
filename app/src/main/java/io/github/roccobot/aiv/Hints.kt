@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -451,7 +452,14 @@ fun BoxScope.HintStrip(
  * volte non è un onboarding.
  */
 @Composable
-fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
+fun BoxScope.HintCentre(text: String, onDone: () -> Unit) = HintCentre(AnnotatedString(text), onDone)
+
+/**
+ * The same veil with a styled text, from 6.03: the Feed's says the view's name in italics, as he
+ * wrote it (*La vista *feed* mostra...*).
+ */
+@Composable
+fun BoxScope.HintCentre(text: AnnotatedString, onDone: () -> Unit) {
     // ⚠️ `matchParentSize` e non `fillMaxSize`: dentro un `Box` questo velo prende la misura
     // del genitore **senza** entrare nel suo conto, e il genitore qui è una schermata intera.
     CentredHint(text = text, onDone = onDone, modifier = Modifier.matchParentSize())
@@ -469,7 +477,7 @@ fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
  * `Box` che lo contiene, l'altro apre una finestra propria per stare sopra un dialogo.
  */
 @Composable
-private fun CentredHint(text: String, onDone: () -> Unit, modifier: Modifier) {
+private fun CentredHint(text: AnnotatedString, onDone: () -> Unit, modifier: Modifier) {
     Box(
         modifier = modifier
             .background(HINT_SCRIM)
@@ -523,7 +531,7 @@ fun HintNotice(text: String, onDone: () -> Unit) {
         properties = fullWindow()
     ) {
         // ⚠️ Qui `fillMaxSize`, perché la finestra è sua e la deve riempire tutta.
-        CentredHint(text = text, onDone = onDone, modifier = Modifier.fillMaxSize())
+        CentredHint(text = AnnotatedString(text), onDone = onDone, modifier = Modifier.fillMaxSize())
     }
 }
 

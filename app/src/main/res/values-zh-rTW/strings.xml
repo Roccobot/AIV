@@ -783,5 +783,5 @@
     <string name="feed_date_modified">修改</string>
     <string name="feed_order">動態消息檢視排序</string>
     <string name="feed_order_desc">動態消息檢視只顯示相片和影片，不依資料夾分組，最新的在最上方。由於\'最新\'可以有不同含義，你可以使用拍攝日期 (沒有時改用修改日期)，或只考慮建立和修改日期。</string>
-    <string name="hint_feed">動態消息依最新在上的順序顯示所有資料夾中的相片和影片。若要選擇以拍攝日期或修改日期為準，請長按按鈕。</string>
+    <string name="hint_feed">&lt;i&gt;動態消息&lt;/i&gt;檢視會顯示所有已授權位置中的檔案，不依資料夾區分，最新的在最上方。若要選擇排列時優先使用拍攝日期或修改日期，請長按主要按鈕。</string>
 </resources>
