@@ -162,6 +162,11 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   cornice. Il 90% è la dose più chiara, fra 100, 90, 85 e 80%, che tiene 3:1 sul fondo in ogni
   stato e tema (il minimo è 3,03, risposta senza esito, tema chiaro). Il colore vive in `--dash`,
   calcolato da `--frame-ink` e `--frame-ground` su `.card.has-response`; lo presidia la stessa prova.
+  ⚠️ **Con una risposta, anche i campi e i tasti di formattazione prendono quel colore** (sua
+  richiesta del 2026-10-15): il bordo grigio-verde del campo `Commento` e quello verde dei tasti
+  appartengono alla cornice verde del riquadro vuoto, e su un riquadro colorato stonavano. Il
+  bordo del campo regge almeno 3:1 sul fondo del campo; un tasto premuto tiene il suo accento. Lo
+  presidia la stessa prova, che controlla anche che il riquadro vuoto li tenga com'erano.
 - Specifiche separate per telefono e tablet: modello e Android. I commenti indicano
   su quale dispositivo si è verificato un problema quando necessario.
 - Editor con formattazione visibile, senza anteprima duplicata; icone grassetto, corsivo,

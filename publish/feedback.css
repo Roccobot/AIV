@@ -802,6 +802,12 @@ footer {
      overlay keep --border-strong, the strong shade of their own green frame. */
   --dash: color-mix(in srgb, var(--frame-ink) 90%, var(--frame-ground));
 }
+/* The fields and the format keys of a card with a response take the same shade as its dashes (the
+   user's request, 2026-10-15): their grey-green belonged to the green frame of an empty card. A
+   pressed key keeps its accent, which is more specific. */
+.card.has-response :is(.rich-editor, .format-toolbar button, .format-actions > .label-reset) {
+  border-color: var(--dash);
+}
 .attachment {
   display: flex;
   align-items: center;
