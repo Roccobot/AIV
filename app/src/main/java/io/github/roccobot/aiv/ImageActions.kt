@@ -396,7 +396,8 @@ object ImageActions {
      *
      * ⚠️⚠️ **DA ANDROID 10 IN SU, E SU 9 NON C'È NIENTE DA FARE QUI**: `MediaStore.Downloads`
      * nasce con l'API 29, e su 28 la stessa cartella si raggiunge solo con
-     * `WRITE_EXTERNAL_STORAGE`, cioè con un permesso in più che questa app non chiede. Là questa
+     * `WRITE_EXTERNAL_STORAGE`, che AIV Play non chiede (AIV GitHub sì, dalla `6.23`, per i
+     * comandi sui file, e il gesto resta lo stesso nelle due varianti). Là questa
      * funzione dice **no** e il chiamante torna al selettore di sistema: è una via in meno, non
      * una funzione mancante, ed è dichiarata invece di essere scoperta.
      *
