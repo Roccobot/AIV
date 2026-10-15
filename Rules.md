@@ -1183,13 +1183,19 @@ il job le scrive su disco per la durata di una sola esecuzione.
     `DefaultSdkProvider`), e su Java 17 non parte una prova, con un errore che sembra una catena di
     strumenti rotta. Il CI monta 21, e chi tocca uno dei due numeri guarda l'altro. Una prova che
     deve girare su versioni diverse di Android le dichiara nel suo `@Config` (`ConvertiTest`, su
-    Android 9, 10 e 11).
+    Android 9, 10 e 11). Robolectric 4.17 (dalla `6.21`) conosce anche la 37, sempre con Java 21:
+    il passaggio è una scelta a sé.
+    ⚠️⚠️ **E da Robolectric 4.17 la JVM delle prove apre `java.base/jdk.internal.access`**
+    (`testOptions` in `app/build.gradle.kts`): senza, 665 prove su 763 falliscono con `Failed to
+    interact with raw FileDescriptor internals`, perché preparando Android 16 Robolectric scrive un
+    campo interno di `FileDescriptor`. La guida di Robolectric elenca nove aperture per Java 17 e
+    successivi: entra solo quella che una prova chiede.
   - ⚠️ **Le prove montano `AivTheme` e le schermate vere**: il velo e il cancello dei menu vivono là
     dentro. Una prova che montava una copia accanto, al posto della schermata vera, è passata col
     difetto dentro.
   - ⚠️⚠️ **`OmbraArchivio` copre `Environment.isExternalStorageManager()`**, che Robolectric non
     copre, **e prende il posto dell'ombra di Robolectric per `Environment`**: chi la dichiara perde
-    le altre implementazioni, e `getExternalFilesDir` muore dentro `Environment`. Il `@Config` di
+    le altre implementazioni, e `getExternalFilesDir` va in errore dentro `Environment`. Il `@Config` di
     un metodo si somma a quello della classe, quindi una prova che la vuole e una che no vivono in
     due classi.
   - **Gira da sé in due posti**: in `check.yml` a ogni push su `main` e a ogni PR, tranne i push
@@ -1237,6 +1243,16 @@ il job le scrive su disco per la durata di una sola esecuzione.
   - ⚠️ **La piattaforma finta pesa 213 MB e si scarica al primo giro**: in CI la tiene una cache
     sui due file che la decidono (il catalogo delle versioni e `robolectric.properties`), perché
     `setup-gradle` non copre `~/.m2`. In una sessione il primo giro paga il download.
+  - ⚠️⚠️ **In un container senza `LANG` il banco si lancia con `LC_ALL=C.UTF-8`** (dalla `6.21`, con
+    Gradle 9.8.1): il report di Gradle scrive un file per prova col nome della prova, e senza una
+    codifica UTF-8 Java scrive i nomi di file in ASCII, quindi il compito delle prove fallisce su
+    `Malformed input or input contains unmappable characters` mentre scrive il report. La codifica
+    la fissa il demone al suo avvio: prima lo si ferma (`./gradlew --stop`).
+  - ⚠️ **Maven Central limita le richieste**, e al primo giro dopo un aggiornamento delle dipendenze
+    risponde `429` o, peggio, come se il file mancasse (`Could not find`): misurato il 2026-10-15 su
+    `kotlin-compiler-embeddable` 2.4.21, Robolectric 4.17 e `test-parameter-injector` 1.22, tutti
+    pubblicati. Ogni giro conserva quello che ha scaricato, quindi si rilancia dopo un minuto e
+    mezzo: alla `6.21` sono serviti otto giri.
 - ⚠️ **`refcheck.py` non vive qui** ma in `roccobot.github.io/.memo/scripts/`: in una sessione
   senza l'hub i controlli sui caratteri e sui rimandi non girano, e prima di un commit va detto.
   `AGENTS.md`, `Rules.md` e il `CLAUDE.md` di questo repo sono coperti come file di regole, e i loro

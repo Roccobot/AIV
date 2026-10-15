@@ -150,6 +150,9 @@ class MiniaturaVideoTest {
      * ⚠️ Quattro fotogrammi neri con qualche punto chiaro in numero diverso: vince quello con più
      * punti, cioè il terzo momento, anche se viene dopo.
      * ⚠️ **Controprovata tenendo il primo**: vince quello di metà video, e la prova cade.
+     * ⚠️ **Il fotogramma scelto si riconosce dai pixel, non dall'oggetto**: da Robolectric 4.17
+     * (`6.21`) l'ombra restituisce una copia di quello registrato, come Android vero, e il
+     * confronto per identità dava per sbagliata una scelta giusta.
      */
     @Test
     fun `se sono tutti neri vince il meno buio`() {
@@ -163,7 +166,8 @@ class MiniaturaVideoTest {
         fotogramma(fonte, 6_000_000L, tela(Color.BLACK))
 
         assertTrue("la prova non misura niente se il meno buio non è nero", ClipFrames.isBlack(meno))
-        assertTrue(ClipFrames.pick(app, uri, BOX) === meno)
+        val scelto = ClipFrames.pick(app, uri, BOX)
+        assertTrue("doveva vincere il fotogramma con tre punti accesi", scelto != null && scelto.sameAs(meno))
     }
 
     /**

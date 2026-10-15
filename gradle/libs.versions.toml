@@ -3,12 +3,12 @@
 # 2026-08-26, non ricordati: le versioni di Android invecchiano in fretta e una
 # scritta a memoria manda a caccia di un errore che non esiste.
 [versions]
-agp = "9.3.2"
-kotlin = "2.4.10"
-coreKtx = "1.18.0"
-lifecycle = "2.10.0"
-activityCompose = "1.12.4"
-composeBom = "2026.06.01"
+agp = "9.4.1"
+kotlin = "2.4.21"
+coreKtx = "1.19.1"
+lifecycle = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.09.00"
 datastore = "1.2.1"
 exif = "1.4.2"
 # material3 esce dal BOM: le API Expressive (MaterialExpressiveTheme,
@@ -26,14 +26,14 @@ material3Alpha = "1.5.0-alpha26"
 # e la nota vale come metodo: `search.maven.org` per lo stesso artefatto dava
 # ancora la 3.2.0 del maggio 2025, cioè quattro minor indietro. L'indice di
 # ricerca resta indietro, i metadati del repository no.
-coil = "3.6.0"
+coil = "3.6.3"
 # Media3 entra col PEZZO 2 dei video (0.86): riprodurre un filmato in casa vuol
 # dire un decoder, un buffer, la gestione dell'audio e i codici che ogni telefono
 # implementa a modo suo, cioè esattamente quello che una libreria di sistema fa.
 # ⚠️ Il numero è LETTO da `dl.google.com/dl/android/maven2/.../maven-metadata.xml`
 # il 2026-08-31 (ultima stabile, con le 1.11.0-alpha e beta già passate), non
 # ricordato: vale la stessa regola di coil qui sopra.
-media3 = "1.11.0"
+media3 = "1.11.1"
 # libavif entra con la DECODIFICA AVIF (1.26), ed è la libreria ufficiale di AOMedia,
 # cioè libavif con dav1d compilati per Android. Serve perché `ImageDecoder` dichiara
 # AVIF da API 31 ma poi chiede al decodificatore AV1 del telefono, che sui file veri
@@ -62,7 +62,7 @@ androidsvg = "1.4"
 # ⚠️ I numeri sono LETTI dai metadati dei repository il 2026-09-05 e non ricordati, come
 # ogni altro numero di questo file: `robolectric` da `repo1.maven.org`, `androidxTest`
 # da `dl.google.com/dl/android/maven2`.
-robolectric = "4.16.1"
+robolectric = "4.17"
 junit = "4.13.2"
 androidxTestJunit = "1.3.0"
 androidxTestCore = "1.7.0"
