@@ -1,16 +1,16 @@
 # Feedback AIV
 
-Versione **6.03**: nel Feed le cartelle nascoste con `Mostra nascoste`, la selezione multipla, il tuo testo del velo e l'icona A5; il tondo del menu Start si comporta come quello della pillola a scomparsa. Il documento è cumulativo con la 5.92 e la 6.02.
+Versione **6.10**: le azioni dell'icona nel launcher (`Feed`, `Cerca`, `Apri URL` e l'ultima cartella aperta). Il documento è cumulativo con la 5.92, la 6.02 e la 6.03.
 Prosegue il giro **5.92**.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 6.03 è pubblicata: [v6.03](https://github.com/Roccobot/AIV/releases/tag/v6.03), con i due APK
-[AIV-6.03.apk](https://github.com/Roccobot/AIV/releases/download/v6.03/AIV-6.03.apk) (AIV GitHub) e [AIV-Play-6.03.apk](https://github.com/Roccobot/AIV/releases/download/v6.03/AIV-Play-6.03.apk) (AIV Play), più [AIV-Play-6.03.aab](https://github.com/Roccobot/AIV/releases/download/v6.03/AIV-Play-6.03.aab), il pacchetto da caricare su Google Play.
-Commit prodotto su `main`: `8acf0ba`, release dal commit `8acf0ba` (SlimVer 6.03 / versionCode 378; APK GitHub 11.187.437 byte, digest `3eafdf63`; APK Play 11.077.029 byte, digest `10c6b178`).
+La Release 6.10 è pubblicata: [v6.10](https://github.com/Roccobot/AIV/releases/tag/v6.10), con i due APK
+[AIV-6.10.apk](https://github.com/Roccobot/AIV/releases/download/v6.10/AIV-6.10.apk) (AIV GitHub) e [AIV-Play-6.10.apk](https://github.com/Roccobot/AIV/releases/download/v6.10/AIV-Play-6.10.apk) (AIV Play), più [AIV-Play-6.10.aab](https://github.com/Roccobot/AIV/releases/download/v6.10/AIV-Play-6.10.aab), il pacchetto da caricare su Google Play.
+Commit prodotto su `main`: `5ad4f6d`, release dal commit `5ad4f6d` (SlimVer 6.10 / versionCode 379; APK GitHub 11.203.817 byte, digest `433243db`; APK Play 11.077.025 byte, digest `789d5abe`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE). Le sei proposte per l'icona del Feed, fra cui hai scelto la A5: [Icona del Feed](https://claude.ai/artifact/SW5RJssonxpCJXH1WfzBjv).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **6.03**: cumulativo con la 5.92 e la 6.02, quindi le loro prove restano, con quello che hai già scritto; si aggiungono cinque prove (le ultime due sono le tue aggiunte: l'icona A5 e il tondo), e l'etichetta del velo cambia col tuo testo. Giro **6.02**: non ancora inviato. Giro **5.91**: il titolino `Disposizione delle cartelle` è approvato e registrato.
+Giro **6.10**: cumulativo con la 5.92, la 6.02 e la 6.03, su tua richiesta, quindi le loro prove restano con quello che hai già scritto; si aggiungono due prove, le azioni dell'icona e l'ultima cartella. Giro **6.03**: cinque prove, l'icona A5 e il tondo compresi. Giro **5.91**: il titolino `Disposizione delle cartelle` è approvato e registrato.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -22,6 +22,8 @@ formattazione, e sotto ancora i sei comandi: Azzera tutto, Copia il riepilogo (n
 appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **Etichette testuali** (se presenti) vanno prima dell'archivio.
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, salvo in un documento cumulativo, dove restano quelli del giro che prosegue, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
+
+Le verifiche automatiche della 6.10 sono superate: banco di prova completo di AIV GitHub (754 prove), prove di AIV Play e traduzioni (28 lingue, 0 problemi). `ScorciatoieTest` misura le quattro azioni, il Feed che vale una volta, l'ordine delle voci e l'ultima cartella; `IconaScorciatoiaTest` legge i pixel di un'icona; rimesso ciascuno dei tre difetti (ritorno alla vista salvata, cartella nascosta, glifo non disegnato), il suo caso fallisce. Nessuna stringa nuova: le voci usano i nomi che l'app ha già.
 
 Le verifiche automatiche della 6.03 sono superate: banco di prova completo di AIV GitHub e prove di AIV Play (788 prove in tutto), controllo delle traduzioni (28 lingue, 0 problemi), compilazione delle due varianti e del pacchetto per Google Play, con la firma verificata. In `FeedTest` quattro casi nuovi o cambiati: le cartelle nascoste con `Mostra nascoste`, la rilettura quando il minuto comincia e finisce, la selezione multipla e il corsivo del velo; in `MenuInferioreTest` il tondo che scorrendo resta un tasto solo. Rimesso ciascuno dei cinque difetti, il suo caso fallisce. L'icona nuova passa i due controlli dei disegni (`icon-check.py` e `icon-round.py`). Prima della release ho letto le note delle 11 dipendenze con una versione nuova. Nessuna è entrata nella 6.03: vanno aggiornate insieme in una versione a sé, perché il nuovo plugin di compilazione (AGP 9.4) rompe la build di release senza la Coil 3.6.3, e Material 3 beta01 cambia il cursore `Slider`, che AIV usa in 16 punti. Quello che conviene: Gradle 9.8.1 corregge tre vulnerabilità, Media3 1.11.1 dei blocchi nella riproduzione dei video, e Compose passa da una beta alla stabile.
 
@@ -38,6 +40,8 @@ Le verifiche automatiche della 6.03 sono superate: banco di prova completo di AI
 | 6.03-03 | Non provato | | Attendere il collaudo. |
 | 6.03-04 | Non provato | | Attendere il collaudo. |
 | 6.03-05 | Non provato | | Attendere il collaudo. |
+| 6.10-01 | Non provato | | Attendere il collaudo. |
+| 6.10-02 | Non provato | | Attendere il collaudo. |
 
 ## 1. Una vibrazione sola, piena, su ogni pressione lunga
 
@@ -105,6 +109,22 @@ Vale per AIV GitHub e per AIV Play. Col menu Start e il riposo `Tondo` (quello d
 
 Letture mie: è la tua richiesta, *identico a quello della pillola a scomparsa*. Fino alla 6.02 scorrendo il tondo si allungava in su nella pillola verticale coi due salti, `in cima` e `in fondo`; adesso il salto è uno, quello della freccia, come nella pillola. Col riposo `Pillola` non cambia niente: la pillola verticale tiene i suoi due tasti.
 
+## 12. Le azioni dell'icona nel launcher
+
+Vale per AIV GitHub e per AIV Play. Apri AIV una volta dopo l'aggiornamento, poi torna alla schermata Home e tieni premuta l'icona di AIV: sopra o sotto l'icona compaiono `Feed`, `Cerca` e `Apri URL`, con le icone dell'app su fondo chiaro. Prova le tre voci:
+
+- `Feed`: AIV si apre sul Feed. Chiudi l'app con Indietro e riaprila dalla sua icona: torni alla tua vista di prima, non al Feed.
+- `Cerca`: si apre la ricerca nel nome del file, in tutta la galleria.
+- `Apri URL`: si apre la finestra `Apri un indirizzo` sopra la casa; se negli appunti c'è un indirizzo, il campo può essere già compilato.
+
+Letture mie: sono le tue scelte A1, A2 e A4, con la tua condizione su A1: il Feed vale per quella volta e non cambia la vista salvata; anche una vista scelta a mano lo chiude. Le voci si scrivono a ogni avvio dell'app, quindi prima del primo avvio dopo l'aggiornamento non ci sono, e seguono la lingua dell'app. L'etichetta lunga di `Apri URL` è `Apri un indirizzo`: alcuni launcher mostrano quella. Quello che il banco non vede: se toccando una voce Android chiude l'app già aperta, per esempio con un'immagine nell'editor; se succede, dimmelo qui.
+
+## 13. L'ultima cartella aperta come quarta azione
+
+Vale per AIV GitHub e per AIV Play. Apri una cartella, poi un'altra. Tieni premuta l'icona di AIV: sotto le tre voci fisse c'è il nome dell'ultima cartella aperta, con l'icona della cartella; toccala e AIV riapre la sua griglia. La voce è sempre una sola: la cartella successiva prende il suo posto.
+
+Letture mie: è la tua scelta B1. Non diventa una voce una cartella aperta mentre `Mostra nascoste` è acceso, né una scelta per un'altra app che chiede un'immagine; quando cambi le cartelle nascoste o incluse la voce sparisce, e torna alla prossima cartella che apri: così il nome di una cartella nascosta non resta sulla schermata Home. L'icona di una cartella sulla Home, la tua C, è in coda per il prossimo giro col nome `Faro`.
+
 ## Etichette testuali
 
 ### e-view_feed · Il nome della vista, e il Feed vuoto
@@ -135,6 +155,7 @@ File e cartelle
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
+| Le azioni dell'icona nel launcher | 6.10-01 | Scelte del 2026-10-15 | *Voglio aggiungere delle azioni utili alla pressione lunga dell'icona sulla homescreen*; poi A1 (*Feed solo se è una vista temporanea*), A2, A4 e B1; C in coda. | Fatto nella 6.10 (`6.10-01`, `6.10-02`); C in coda come `Faro`. |
 | Il Feed: nascoste, selezione, velo, icona | 6.03-01 | Richiesta del 2026-10-15 | `Mostra nascoste` anche nel Feed, la selezione multipla, il tuo testo del velo, una proposta d'icona; poi *A5 per l'icona*. | Fatto nella 6.03 (`6.03-01`...`6.03-04`). |
 | Il tondo del menu Start | 6.03-05 | Richiesta del 2026-10-15 | *Rendi il comportamento del tondo identico a quello della pillola a scomparsa (non diventa pillola verticale al movimento).* | Fatto nella 6.03 (`6.03-05`). |
 | Il Feed | 6.02-01 | Scelte del 2026-10-14 | Accesso dal menu Start, data B1 a scelta, mesi C1, cartelle D1, velo, `File e cartelle`; pillole a otto voci A1. | Fatto nella 6.02 (`6.02-01`...`6.02-05`). |
@@ -142,7 +163,8 @@ File e cartelle
 
 ## Prossimi passi
 
-- **In collaudo, giro cumulativo 5.92 + 6.02 + 6.03**: la vibrazione (`5.92-01`), il Feed dal menu Start (`6.02-01`), il flusso e i mesi (`6.02-02`), la data (`6.02-03`), il velo (`6.02-04`), tondo e pillola nelle impostazioni (`6.02-05`), le nascoste nel Feed (`6.03-01`), la selezione nel Feed (`6.03-02`), il tuo testo del velo (`6.03-03`), l'icona A5 (`6.03-04`), il tondo del menu Start (`6.03-05`) e le cinque etichette.
+- **In collaudo, giro cumulativo 5.92 + 6.02 + 6.03 + 6.10**: la vibrazione (`5.92-01`), il Feed dal menu Start (`6.02-01`), il flusso e i mesi (`6.02-02`), la data (`6.02-03`), il velo (`6.02-04`), tondo e pillola nelle impostazioni (`6.02-05`), le nascoste nel Feed (`6.03-01`), la selezione nel Feed (`6.03-02`), il tuo testo del velo (`6.03-03`), l'icona A5 (`6.03-04`), il tondo del menu Start (`6.03-05`), le azioni dell'icona (`6.10-01`), l'ultima cartella (`6.10-02`) e le cinque etichette.
+- **Al prossimo giro**: `Faro`, una cartella sulla schermata Home come icona a sé (la tua risposta C).
 - **Fermi fino al tuo via**: le funzioni sui file di AIV Play rifatte con MediaStore, una per rilascio (copia, sposta, duplica, nuova cartella); `Salva` sull'originale non serve, perché AIV Play salva già una copia `-aivEdit` accanto all'originale.
 - **Dopo questo giro, senza chiedere**: l'aggiornamento delle dipendenze lette per la 6.03, in una versione a sé: Gradle 9.8.1, AGP 9.4.1 con Coil 3.6.3, Kotlin 2.4.21, Core, Lifecycle, Activity, Compose 1.12, Media3 1.11.1 e Robolectric 4.17. Material 3 beta01, col passaggio dei 16 cursori, viene in una versione successiva con le sue prove.
 - **In attesa del tuo via, dalle verifiche**: i permessi di scrittura su Android 9 e 10, la correzione di Chromium in `feedback-check.py`, le 50 classi di prova da aggiornare, la prova dell'altezza del pannello dell'editor.
