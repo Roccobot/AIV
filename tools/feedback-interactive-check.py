@@ -231,6 +231,17 @@ def check_questions_and_labels(path):
                     found = field.evaluate("(box) => [...box.querySelectorAll('code')].map((c) => c.textContent)")
                     assert found == ([code] if code else []), (pasted, found)
                     field.evaluate("(box) => { box.textContent = ''; box.dispatchEvent(new Event('input', {bubbles: true})); }")
+                # A code pasted with the caret inside a code joins it, with no code in the code:
+                # that one took the 92% twice and showed smaller (his note of 2026-10-15).
+                field.evaluate('''(box) => { box.focus(); const code = document.createElement('code');
+                    code.textContent = 'dentro'; box.replaceChildren(code);
+                    const caret = document.createRange(); caret.setStart(code.firstChild, 3); caret.collapse(true);
+                    getSelection().removeAllRanges(); getSelection().addRange(caret);
+                    const data = new DataTransfer(); data.setData('text/plain', '`4.91-01`');
+                    box.dispatchEvent(new ClipboardEvent('paste', {bubbles: true, cancelable: true, clipboardData: data})); }''')
+                nested = field.evaluate("(box) => ({inner: box.querySelectorAll('code code').length, codes: [...box.querySelectorAll('code')].map((c) => c.textContent)})")
+                assert nested == {'inner': 0, 'codes': ['den4.91-01tro']}, nested
+                field.evaluate("(box) => { box.textContent = ''; box.dispatchEvent(new Event('input', {bubbles: true})); }")
                 order = page.evaluate("""() => [...document.querySelectorAll('.test, #questions, #labels')]
                     .map((node) => node.classList.contains('test') ? 'prova' : node.id)""")
                 assert order == ['prova', 'questions', 'labels'], 'Ordine dei blocchi: ' + str(order)
