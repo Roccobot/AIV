@@ -16,11 +16,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -275,7 +276,7 @@ class BandeTest {
                             costruita = true
                             val pittura = Paint().apply {
                                 color = TINTA
-                                asFrameworkPaint().shader = maschera
+                                nativePaint.shader = maschera
                             }
                             drawIntoCanvas { tela ->
                                 tela.drawRect(0f, 0f, size.width, size.height, pittura)

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativePaint
 import java.nio.ByteBuffer
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -217,7 +218,7 @@ internal class GrainedRamp(private val stops: List<Pair<Float, Float>>, private 
                 endY = to
             )
             val dentro = (pennello as ShaderBrush).createShader(Size(right - left, bottom - top))
-            val cornice = pittura.asFrameworkPaint()
+            val cornice = pittura.nativePaint
             if (grana != null) {
                 feed(grana, dentro)
                 cornice.isDither = false
