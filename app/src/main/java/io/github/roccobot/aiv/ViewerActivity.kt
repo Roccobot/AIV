@@ -580,6 +580,33 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var peeking: Boolean by mutableStateOf(false)
         private set
 
+    /**
+     * Whether the home shows the Feed for this time only, opened from the launcher's 'Feed' action
+     * (6.10, his condition on A1: *Feed solo se è una vista temporanea e poi aprendo l'app
+     * normalmente torno alla mia vista*).
+     *
+     * ⚠️⚠️ **Not saved, and the settings keep their view**: the app opened from its icon goes
+     * back to that view ([handleIntent] turns this off), and so does a view chosen by hand
+     * ([chooseView]).
+     */
+    var feedOnce: Boolean by mutableStateOf(false)
+        private set
+
+    /** The home's view in force: the Feed while [feedOnce] holds, otherwise the saved one. */
+    fun shownView(saved: FolderView): FolderView = if (feedOnce) FolderView.FEED else saved
+
+    /** A view chosen on the home: it is written, and the Feed of the shortcut ends. */
+    fun chooseView(view: FolderView) {
+        feedOnce = false
+        settings?.let { updateSettings(it.copy(folderView = view)) }
+    }
+
+    /**
+     * Whether the address window is open over the app, asked by the launcher's 'Apri un
+     * indirizzo' action (6.10). The menus of the home open the same window by themselves.
+     */
+    var addressAsked: Boolean by mutableStateOf(false)
+
     /*
      * ⚠️⚠️ **LIFT E SCORRIMENTO DEL RAIL TABLET, DALLA `3.40`** (`3.39-03`): le tre
      * schermate a due colonne ricreano ciascuna il rail, e senza stato nel modello la
@@ -846,6 +873,35 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * questa guardia non cambia il caso della `1.89`.
          */
         val uri = if (wants) null else intent.imageUri()
+        /*
+         * ⚠️⚠️ **THE LAUNCHER'S ACTIONS, from 6.10 (`Shortcuts`)**: they say what to open, so they
+         * act also with the app already open, before the guard below. The clipboard is not read
+         * and the start folder does not open: the person has already chosen where to go.
+         */
+        val shortcut = intent?.action?.takeIf { it in Shortcuts.actions }
+        if (shortcut != null) {
+            picking = false
+            fromIcon = false
+            clipboardTried = true
+            atStart = false
+            feedOnce = false
+            addressAsked = false
+            screen = HOME
+            when (shortcut) {
+                Shortcuts.FEED -> feedOnce = true
+                Shortcuts.SEARCH -> openSearch()
+                Shortcuts.ADDRESS -> addressAsked = true
+                Shortcuts.FOLDER -> {
+                    val name = intent.getStringExtra(Shortcuts.NAME)
+                    val bucket = intent.getLongExtra(Shortcuts.BUCKET, 0L)
+                    if (name != null) openGrid(bucket, name)
+                }
+            }
+            return
+        }
+        // ⚠️ The app opened from its icon goes back to the saved view (6.10, `feedOnce`), also
+        // when it was already open and nothing else changes.
+        if (intent?.action == Intent.ACTION_MAIN) feedOnce = false
         /*
          * ⚠️⚠️ **UN INTENTO NUDO CHE ARRIVA A GIRO INIZIATO NON AZZERA NIENTE, DALLA `2.78`, ED È
          * IL PUNTO A DEL SUO CAMPO LIBERO** (*quando l'editor è aperto, se passo a un'altra app
@@ -1533,6 +1589,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // un bitmap grande mentre si guarda tutt'altro.
         stopLoad()
         val context = getApplication<Application>()
+        /*
+         * ⚠️ The folder becomes the launcher's fourth action (6.10, choice B1), but not while the
+         * hidden folders are shown, nor while the app answers another one that asked for a picture:
+         * a hidden name would end up on the home screen, and a pick is not the person's browsing.
+         */
+        if (!peeking && !picking) Shortcuts.lastFolder(context, bucket, name)
         // ⚠️ Anche qui l'inizio è quello della sequenza SCELTA: la griglia si apre in
         // cima, e il tocco sulla prima miniatura dà la stessa foto da cui parte l'avvio.
         facts = Folder.Facts()
@@ -2755,6 +2817,19 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun updateSettings(next: Settings) {
+        val before = settings
+        // ⚠️ A view changed in the settings ends the Feed of the shortcut, as on the home (6.10).
+        if (before != null && before.folderView != next.folderView) feedOnce = false
+        // ⚠️ Hidden folders changed: the launcher's folder action may name one (6.10, `Shortcuts`).
+        if (before != null && (
+                before.folderMode != next.folderMode ||
+                    before.hiddenFolders != next.hiddenFolders ||
+                    before.hiddenExactFolders != next.hiddenExactFolders ||
+                    before.includedFolders != next.includedFolders
+                )
+        ) {
+            Shortcuts.dropFolder(getApplication())
+        }
         applySettings(next)
         viewModelScope.launch { SettingsStore.save(getApplication(), next) }
     }
@@ -2832,6 +2907,9 @@ class ViewerActivity : ComponentActivity() {
          * caricherebbe una seconda volta.
          */
         if (!model.intentRead) model.handleIntent(intent, fresh = true)
+        // ⚠️ The launcher's actions, rewritten at every creation so their labels follow the
+        // language in force (6.10; the why lives on `Shortcuts`).
+        Shortcuts.publish(this)
         // ⚠️ Il tema si legge QUI, fuori da `AivApp`, perché deve avvolgerlo: dentro,
         // avrebbe già ereditato la tavolozza sbagliata. Finché le impostazioni non sono
         // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
@@ -3098,6 +3176,17 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             settings = settings,
             onChange = { model.updateSettings(it) },
             onDismiss = { model.closeMarkSetup() }
+        )
+    }
+    // ⚠️ The address window of the launcher's action (6.10), out of the `when` like the two above:
+    // it opens over the home and must not depend on which screen is drawn under it.
+    if (model.addressAsked) {
+        AddressDialog(
+            recents = model.recents,
+            onOpen = { model.open(it) },
+            onOpenPage = { model.openPage(it) },
+            onForget = { model.forgetRecents() },
+            onDismiss = { model.addressAsked = false }
         )
     }
     val context = LocalContext.current
@@ -3436,7 +3525,10 @@ private fun Stage(
              * sempre, cioè Indietro chiude l'app. Un gestore aperto che ingoia il gesto senza
              * fare niente è peggio di non averlo.
              */
-            val climbing = settings.folderView == FolderView.TREE && model.treeClimbing
+            // ⚠️ The view in force, which the 'Feed' shortcut can make the Feed for one time
+            // without writing it (6.10, `ViewerViewModel.feedOnce`).
+            val view = model.shownView(settings.folderView)
+            val climbing = view == FolderView.TREE && model.treeClimbing
             BackHandler(enabled = climbing) { model.treeUp() }
             val widthDp = LocalConfiguration.current.screenWidthDp
             /*
@@ -3448,8 +3540,8 @@ private fun Stage(
             // folders beside it would contradict it.
             val dualFolders = Adaptive.sideAvailable(widthDp) &&
                 !screen.forStart &&
-                settings.folderView != FolderView.TREE &&
-                settings.folderView != FolderView.FEED
+                view != FolderView.TREE &&
+                view != FolderView.FEED
             val shape = screenShape()
             if (dualFolders && shape == Adaptive.Shape.WIDE) {
                 /*
@@ -3477,7 +3569,7 @@ private fun Stage(
                             pillRoom = PaddingValues(end = PILL_KEY + PILL_AIR * 2)
                         )
                         HomePill(
-                            view = settings.folderView,
+                            view = view,
                             // ⚠️ Letto qui come nella schermata delle cartelle: decide se compare
                             // 'Scegli un'immagine', l'unica via senza il permesso sui file.
                             granted = Folder.granted(LocalContext.current),
@@ -3490,7 +3582,7 @@ private fun Stage(
                             onOpen = { model.open(it) },
                             onOpenPage = { model.openPage(it) },
                             onForget = { model.forgetRecents() },
-                            onView = { model.updateSettings(settings.copy(folderView = it)) },
+                            onView = { model.chooseView(it) },
                             onSearch = { model.openSearch() },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
@@ -3594,7 +3686,7 @@ private fun Stage(
                 )
             } else {
                 FolderScreen(
-                    view = settings.folderView,
+                    view = view,
                     columns = settings.folderColumns,
                     counted = settings.folderCount,
                     colour = settings.folderColour,
@@ -3644,7 +3736,7 @@ private fun Stage(
                         }
                     },
                     onOpenPage = { model.openPage(it) },
-                    onView = { model.updateSettings(settings.copy(folderView = it)) },
+                    onView = { model.chooseView(it) },
                     onForget = { model.forgetRecents() },
                     onSettings = { model.openSettings() },
                     onSearch = { model.openSearch() },
