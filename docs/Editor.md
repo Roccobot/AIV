@@ -511,7 +511,10 @@ succede più*, e `trascina` a `d-mescola-gesto`, giro della `2.20`, con *comunqu
 - ⚠️⚠️ **La scheda ha un'altezza sola per tutti i moduli** (sua richiesta): `SteadyBody` misura ogni
   corpo e tiene il massimo, perché un numero in dp sarebbe giusto su un telefono solo. Le copie
   misurate vivono un giro e senza semantica, o un lettore di schermo annuncerebbe i cursori di
-  tutti i moduli. Oggi il modulo più alto è quello delle Curve.
+  tutti i moduli. Oggi il modulo più alto è il Disegno, 244 punti, con le Curve subito sotto a 238
+  e Colore, Luce ed Effetti fra 216 e 220 (misurato il 2026-10-15 col banco, con una stampa
+  provvisoria in `SteadyBody` dentro `SviluppoTest`: stesse altezze a 360, 390 e 600 punti di
+  larghezza).
   - ⚠️ **I limiti dei riquadri passano da `within`**: un intervallo vuoto in `coerceIn` faceva cadere
     l'app tirando una squadretta su un palco corto.
 - ⚠️⚠️ **Compattezza** (sua richiesta): `DIAL_ROW` è 36 punti, e sotto non si scende; il nome è un

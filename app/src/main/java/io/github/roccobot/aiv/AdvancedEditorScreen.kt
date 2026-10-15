@@ -7997,11 +7997,13 @@ private val KNOB_GAP = 12.dp
  * ⚠️ **È l'area di tocco e non l'altezza del disegno**: il tondo è alto la metà, e il resto serve
  * perché il dito prenda la barra senza centrarla.
  *
- * ⚠️⚠️ **SCESA DI QUATTRO PUNTI CON LA `2.35`, ED È IL NUMERO CHE PAGA PIÙ DI TUTTI** (sua
- * richiesta, 2026-09-13: *cerca di mantenere tutto più compatto*): la scheda è alta quanto il
- * modulo più alto, che è la Luce coi suoi sei cursori, quindi ogni punto tolto qui vale **sei
- * volte** e lo guadagnano tutti e sette i moduli. Il conto: sei righe passano da 240 a 216 punti,
- * cioè il palco cresce di 24 su una scheda che ne vale circa 360.
+ * ⚠️⚠️ **SCESA DI QUATTRO PUNTI CON LA `2.35`** (sua richiesta, 2026-09-13: *cerca di mantenere
+ * tutto più compatto*): allora la scheda era alta quanto la Luce coi suoi sei cursori, quindi ogni
+ * punto tolto qui valeva **sei volte**. Il conto di allora: sei righe passavano da 240 a 216 punti,
+ * cioè il palco cresceva di 24 su una scheda che ne valeva circa 360.
+ * ⚠️ **Dalla `4.94` il modulo più alto è il Disegno** (misurato il 2026-10-15 col banco: 244 punti,
+ * poi le Curve a 238 e la Luce a 216, uguali a 360, 390 e 600 punti di larghezza): un punto tolto
+ * qui accorcia la scheda solo se accorcia il Disegno.
  * ⚠️ **Sotto questo numero non si scende**: il bersaglio resta largo tutta la riga, ma l'altezza
  * è già sotto i 48 punti di Material, e il tondo ne vale 22.
  */
