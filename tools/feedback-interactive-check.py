@@ -1282,11 +1282,17 @@ def check(path):
                 probe.style.color = 'var(--border-strong)';
                 document.body.append(probe);
                 const green = rgb(getComputedStyle(probe).color);
+                probe.style.color = 'var(--border-field)';
+                const fieldGrey = rgb(getComputedStyle(probe).color);
                 probe.remove();
                 const own = getComputedStyle(card);
                 const box = card.querySelector('.attachment, .altro-attach');
+                const field = getComputedStyle(card.querySelector('.rich-editor'));
+                const key = card.querySelector('.format-toolbar button:not([aria-pressed="true"])');
                 return {dash: rgb(getComputedStyle(box).borderTopColor), frame: rgb(own.borderTopColor),
-                        ground: rgb(own.backgroundColor), green};
+                        ground: rgb(own.backgroundColor), green, fieldGrey,
+                        field: rgb(field.borderTopColor), fieldGround: rgb(field.backgroundColor),
+                        key: rgb(getComputedStyle(key).borderTopColor)};
             }'''
             def luminance(rgb):
                 def channel(value):
@@ -1303,10 +1309,17 @@ def check(path):
                 colors = card.evaluate(dash_probe)
                 if state == 'vuota':
                     assert colors['dash'] == colors['green'], ('Il tratteggio di una scheda vuota non è il verde.', colors)
+                    assert colors['field'] == colors['fieldGrey'], ('Il campo di una scheda vuota cambia bordo.', colors)
+                    assert colors['key'] == colors['green'], ('I tasti di una scheda vuota cambiano bordo.', colors)
                     return
                 assert distance(colors['dash'], colors['frame']) < distance(colors['dash'], colors['green']), (
                     'Il tratteggio non è una variante della cornice.', state, colors)
                 assert contrast(colors['dash'], colors['ground']) >= 3, ('Il tratteggio non arriva a 3:1.', state, colors)
+                # The comment field and the format keys take the same shade (the user's request,
+                # 2026-10-15: their grey-green belonged to the green frame of an empty card).
+                assert colors['field'] == colors['dash'], ('Il bordo del campo non è la variante della cornice.', state, colors)
+                assert colors['key'] == colors['dash'], ('Il bordo dei tasti non è la variante della cornice.', state, colors)
+                assert contrast(colors['field'], colors['fieldGround']) >= 3, ('Il bordo del campo non arriva a 3:1.', state, colors)
             # The theme goes on the root: the page sets data-theme above, and once it is set the
             # emulated scheme alone no longer changes the colors (both rounds were light).
             for theme in ['light', 'dark']:
