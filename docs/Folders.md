@@ -660,6 +660,43 @@ funzione pura, `Feed.order`; le righe le legge `Folder.feed` dal MediaStore; la 
   minuto cambia e la selezione multipla; `VistaOpzioniTest` il dialogo; `MenuInferioreTest` la casella e i gettoni del
   riposo.
 
+## 📌 Le azioni dell'icona nel launcher
+
+**Com'è fatto.** Sua richiesta del 2026-10-15 (*voglio aggiungere delle azioni utili alla pressione
+lunga dell'icona sulla homescreen*), con le sue scelte A1, A2, A4 e B1, per le due varianti, dalla
+`6.10`. Tenendo premuta l'icona di AIV, il launcher mostra quattro voci, dalla più vicina
+all'icona: `Feed`, `Cerca`, `Apri URL` (per esteso `Apri un indirizzo`) e il nome dell'ultima cartella
+aperta. Il codice è `Shortcuts.kt`; le decisioni vivono in `ViewerViewModel.handleIntent`.
+
+- ⚠️⚠️ **`Feed` apre il Feed per quella volta sola** (sua condizione su A1: *Feed solo se è una vista
+  temporanea e poi aprendo l'app normalmente torno alla mia vista*). La vista salvata non cambia
+  (`ViewerViewModel.feedOnce`): l'app aperta dalla sua icona torna alla vista di prima, anche se era
+  già aperta, e lo stesso fa una vista scelta a mano.
+- **`Cerca`** apre la ricerca in tutta la galleria; **`Apri un indirizzo`** apre la finestra
+  dell'indirizzo sopra la casa, la stessa del menu del FAB.
+- ⚠️⚠️ **L'ultima cartella è la quarta voce, e una sola** (scelta B1): ogni griglia aperta prende il
+  posto della precedente. Non ci entra una cartella aperta mentre 'Mostra nascoste' è acceso, né una
+  scelta per un'altra app che chiede un'immagine, e la voce sparisce quando cambiano le cartelle
+  nascoste o incluse: un nome nascosto non resta sulla schermata Home.
+- ⚠️ **Escluse in partenza**: `Mostra nascoste`, che dalla Home mostrerebbe le cartelle nascoste a
+  chiunque abbia il telefono in mano, e `Impostazioni`, che si aprono di rado. `Cestino` (A3) l'ha
+  scartato lui.
+- ⚠️⚠️ **Le voci sono tutte dinamiche, scritte dal codice a ogni avvio**: una scorciatoia statica
+  nomina nel suo XML il pacchetto dell'app, e AIV ne ha quattro (le varianti con `.play` e `.debug`).
+  Il prezzo è che il menu compare dopo il primo avvio. Le etichette sono le stringhe che l'app ha già
+  (`view_feed`, `hub_search`, `start_url`, `hub_url`), quindi seguono la lingua.
+- ⚠️ **Le icone sono i glifi dell'app**, disegnati dallo stesso `ImageVector` (`Glyphs.Feed`, `Search`,
+  `Public`, `Folder` di Material) coi due colori dell'icona del launcher invertiti, come bitmap
+  adattiva: ogni launcher le ritaglia nella sua forma. Un file in `res/drawable/` per `Search` sarebbe
+  una seconda copia di un glifo di Material, che `Glyphs.kt` vieta.
+- ⚠️ **Che cosa il banco non vede**: come un launcher dispone il menu, e se toccando una voce Android
+  chiude l'attività già aperta (con un'immagine nell'editor, per esempio). Si guarda sul telefono.
+- **`ScorciatoieTest`** misura le quattro azioni, il Feed temporaneo e il ritorno alla vista salvata,
+  l'ordine delle voci, la cartella che sostituisce la precedente e quella aperta con le nascoste in
+  vista; **`IconaScorciatoiaTest`** legge i pixel di un'icona.
+- ⏳ **In coda per il prossimo giro, nome in codice `Faro`** (sua risposta C): una cartella sulla
+  schermata Home come icona a sé, con una voce nel menu della cartella.
+
 ## 🗂️ Cartelle incluse/escluse
 
 - La pagina 'Cartelle incluse/escluse' vive nelle impostazioni delle Cartelle ed è sempre
