@@ -1829,26 +1829,38 @@ def check(path):
             # A cumulative document (the user's rule of 2026-10-12) keeps the free field of the
             # round it continues, which he has not sent yet; only 'installed' resets.
             if data.get('continues'):
-                going_on = dict(legacy, version=data['continues'], installed=data['continues'],
-                                notes='Altro del giro che prosegue')
-                migration.evaluate("""async draft => {
-                    const db = await new Promise((resolve, reject) => {
-                        const request = indexedDB.open('aiv-feedback', 1);
-                        request.onsuccess = () => resolve(request.result);
-                        request.onerror = () => reject(request.error);
-                    });
-                    await new Promise((resolve, reject) => {
-                        const transaction = db.transaction('drafts', 'readwrite');
-                        transaction.objectStore('drafts').put(draft, 'current');
-                        transaction.oncomplete = resolve;
-                        transaction.onerror = () => reject(transaction.error);
-                    });
-                    db.close();
-                }""", going_on)
-                migration.reload()
-                expect(migration.locator('#save')).to_be_enabled()
+                def reopen_with(draft):
+                    migration.evaluate("""async draft => {
+                        const db = await new Promise((resolve, reject) => {
+                            const request = indexedDB.open('aiv-feedback', 1);
+                            request.onsuccess = () => resolve(request.result);
+                            request.onerror = () => reject(request.error);
+                        });
+                        await new Promise((resolve, reject) => {
+                            const transaction = db.transaction('drafts', 'readwrite');
+                            transaction.objectStore('drafts').put(draft, 'current');
+                            transaction.oncomplete = resolve;
+                            transaction.onerror = () => reject(transaction.error);
+                        });
+                        db.close();
+                    }""", draft)
+                    migration.reload()
+                    expect(migration.locator('#save')).to_be_enabled()
+                reopen_with(dict(legacy, version=data['continues'], installed=data['continues'],
+                                 notes='Altro del giro che prosegue'))
                 expect(migration.locator('#notes')).to_have_value('Altro del giro che prosegue')
                 expect(migration.locator('#installed-confirm')).not_to_be_checked()
+                # The round can go on for more releases in a row (6.20, 6.21 and 6.22, the user's
+                # go-ahead of 2026-10-15): a draft saved on a page in the middle of the series is
+                # the same round, and keeps Altro too. Until 6.22 the page kept it only for a
+                # draft of the round named, and emptied Altro of a draft saved on the 6.21 page.
+                middle = sorted({item['version'] for item in data['items']
+                                 if float(data['continues']) < float(item['version']) < float(data['version'])})
+                if middle:
+                    reopen_with(dict(legacy, version=middle[-1], installed=middle[-1],
+                                     notes='Altro salvato sulla pagina di mezzo'))
+                    expect(migration.locator('#notes')).to_have_value('Altro salvato sulla pagina di mezzo')
+                    expect(migration.locator('#installed-confirm')).not_to_be_checked()
             migration_context.close()
             browser.close()
         assert not errors, 'Errori nella pagina: '+str(errors)

@@ -211,7 +211,8 @@ data = dict(project=PROJECT, version=version, items=items, questions=questions, 
             outcomes=[dict(label=label, kind=kind) for label, kind in OUTCOMES])
 # A cumulative document (the user's rule of 2026-10-12: with the exception the new version is
 # released and the document goes on at once) names the round it continues on a line of its own,
-# `Prosegue il giro **5.71**.`; the page keeps a draft's Altro only for that round. It must be
+# `Prosegue il giro **5.71**.`; the page keeps a draft's Altro only for that round and for the
+# cumulative pages that came after it, up to this one (from 6.22). It must be
 # an older round with tests still on the page, or the line would keep the notes of nothing.
 continued = re.search(r'^Prosegue il giro \*\*(\d+\.\d+)\*\*', md, re.M)
 if continued:
