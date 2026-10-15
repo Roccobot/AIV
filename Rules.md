@@ -1151,7 +1151,8 @@ il job le scrive su disco per la durata di una sola esecuzione.
   `gradle/libs.versions.toml`, Gradle, i font dell'editor e quelli del DF (Roboto e Noto Color
   Emoji, che `tools/feedback-emoji.py` porta all'ultima versione). La versione in uso si legge dove
   è scritta, l'ultima da Maven (Google e Central), da Gradle, da Google Fonts e dai file dei font in
-  `google/fonts`. `material3` segue anche le pre-release, perché l'alpha è voluta. ⚠️ Una libreria
+  `google/fonts`. Compose segue la linea di prova col BOM alpha (`compose-bom-alpha`, dalla
+  `6.24`), Material 3 compreso, perché la versione di prova è voluta. ⚠️ Una libreria
   nuova nel catalogo entra anche nel registro, o nessuno la segue. ⚠️ Lo script è uno solo dal
   2026-10-15 (scelta F1a di Rocco): fino a quel giorno ne vivevano due copie, una qui in `tools/` e
   una in Aomidori.
@@ -1205,7 +1206,17 @@ il job le scrive su disco per la durata di una sola esecuzione.
     strumenti rotta. Il CI monta 21, e chi tocca uno dei due numeri guarda l'altro. Una prova che
     deve girare su versioni diverse di Android le dichiara nel suo `@Config` (`ConvertiTest`, su
     Android 9, 10 e 11). Robolectric 4.17 (dalla `6.21`) conosce anche la 37, sempre con Java 21:
-    il passaggio è una scelta a sé.
+    il passaggio è una scelta a sé, il lavoro `Diciassette` del brief.
+    ⚠️⚠️ **Nella `6.24` la 37 non ha retto, per difetti del simulatore** (sua scelta A1 del
+    2026-10-16: la `6.24` esce sulla 36). Sulla 37 l'onda del tocco di Material resta ferma a metà
+    sopra l'elemento toccato, quindi una prova che legge i pixel di un pulsante appena toccato li
+    trova più scuri del 6-7%; e nella prova della luminosità di `DisegnoTest` la cattura del palco
+    non si aggiorna, anche se il valore arriva all'elemento. Banco intero: quattro corse con 3-5
+    prove rosse sulla 37, due verdi sulla 36 con lo stesso codice.
+    ⚠️⚠️ **E la 37 vuole Compose 1.13**: la 1.12 si porta dietro Espresso 3.5.0, che al primo tocco
+    cerca per riflessione un metodo di Android (`InputManager.getInstance()`) che sulla 37 non
+    esiste più, e al primo tentativo sono fallite 521 prove su 766. La 1.13, in uso dalla `6.24`, si
+    porta dietro Espresso 3.7.0, che lo chiede al `Context`.
     ⚠️⚠️ **E da Robolectric 4.17 la JVM delle prove apre `java.base/jdk.internal.access`**
     (`testOptions` in `app/build.gradle.kts`): senza, 665 prove su 763 falliscono con `Failed to
     interact with raw FileDescriptor internals`, perché preparando Android 16 Robolectric scrive un
@@ -1244,9 +1255,10 @@ il job le scrive su disco per la durata di una sola esecuzione.
       arriva da un thread di sfondo, scrive lo stato fuori dal thread principale e la schermata non
       si ridisegna. Le due classi che aspettano il velo usano `junit4.v2.createComposeRule`. Misure,
       tentativo scartato e perché l'app non c'entra vivono nel KDoc di `aspettaIlVelo`.
-    - ⚠️ **Le altre classi usano ancora la regola vecchia**, che Compose dichiara deprecata: una
-      prova nuova che aspetta un valore dell'archivio usa la nuova, e il passaggio delle altre è un
-      lavoro a sé, nel brief.
+    - ⚠️⚠️ **Dalla `6.24` tutte le classi usano la regola nuova** (`junit4.v2.createComposeRule` e
+      `junit4.v2.createAndroidComposeRule`), e una prova nuova si scrive solo con quella: la
+      vecchia, che Compose dichiara deprecata, non compare più nel banco. Fino alla `6.23` le altre
+      classi usavano la vecchia, e il passaggio era il lavoro `Travaso` del brief.
     - ⚠️ **Il 2026-10-10 la regola vecchia ha fermato il rilascio della `5.10`**: sul server
       `VideoScorreTest` è caduta a metà di un trascinamento con 'performMeasureAndLayout called
       during measure layout', cioè una seconda misura partita dentro la prima. La classe è passata

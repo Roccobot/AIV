@@ -8,16 +8,23 @@ kotlin = "2.4.21"
 coreKtx = "1.19.1"
 lifecycle = "2.11.0"
 activityCompose = "1.13.0"
-composeBom = "2026.09.00"
+# Dalla 6.24 è il BOM ALPHA (`compose-bom-alpha`), cioè l'ultima versione di prova di
+# ogni libreria Compose, e non più quello stabile: Compose 1.13.0-beta01 col BOM
+# 2026.10.00, che il 2026-10-15 era l'ultimo pubblicato (letto dai metadati di
+# `dl.google.com`). Scelta dell'utente del 2026-10-15 (*l'ultimo compose*), sulla
+# stessa linea di material3 del 2026-08-26: il progetto è sperimentale, quindi si
+# accetta una versione di prova.
+# ⚠️⚠️ E DA LÌ DIPENDE IL BANCO SU ANDROID 17 (`Diciassette`): `ui-test-junit4` 1.13
+# si porta dietro Espresso 3.7.0, mentre la 1.12 si fermava alla 3.5.0, che chiede ad
+# Android un `InputManager.getInstance()` che sulla 37 non esiste più e fa fallire
+# quasi tutte le prove. Chi torna al BOM stabile prima che arrivi una 1.13 stabile non
+# può portare il banco sulla 37 (`app/src/test/resources/robolectric.properties`).
+# material3 non ha più una versione sua: le API Expressive (MaterialExpressiveTheme,
+# MotionScheme) sono pubbliche solo sulla linea 1.5.0, e il BOM alpha porta già la
+# 1.5.0-beta01, la stessa che il catalogo fissava a mano fra la 6.22 e la 6.23.
+composeBom = "2026.10.00"
 datastore = "1.2.1"
 exif = "1.4.2"
-# material3 esce dal BOM: le API Expressive (MaterialExpressiveTheme,
-# MotionScheme) sono INTERNAL nella 1.4.0 stabile e diventano pubbliche solo
-# sulla linea 1.5.0, che non è ancora stabile. Scelta dell'utente, 2026-08-26:
-# il progetto è sperimentale, quindi si accetta una versione di prova. Dalla
-# 6.22 è la beta01, che congela le API della 1.5.0: la sua sola modifica che
-# tocca AIV è la forma deprecata di `Slider`, sostituita da `ValueSlider`.
-material3 = "1.5.0-beta01"
 # Coil entra con la GRIGLIA (0.33) e non prima: una vista che decodifica decine di
 # miniature mentre scorrono vuole una cache e un annullamento per riquadro, cioè
 # proprio quello che una libreria di caricamento fa e che scriverlo in casa
@@ -76,12 +83,12 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exif" }

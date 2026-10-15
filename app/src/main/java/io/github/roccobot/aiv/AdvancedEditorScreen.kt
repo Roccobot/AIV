@@ -142,6 +142,7 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -1847,8 +1848,8 @@ private fun LookStage(
          */
         val shader = if (look.plain) null else lookShader(image, look, dentro)
         return Paint().apply {
-            asFrameworkPaint().isFilterBitmap = !nitido
-            asFrameworkPaint().shader = shader ?: image
+            nativePaint.isFilterBitmap = !nitido
+            nativePaint.shader = shader ?: image
         }
     }
 
@@ -2751,7 +2752,7 @@ private fun LookStage(
             clipRect(dove.left, dove.top, dove.right, dove.bottom) {
                 drawIntoCanvas { tela ->
                     Warp.draw(
-                        tela.nativeCanvas, dove, piano, paint.asFrameworkPaint(), look.geo.liquify
+                        tela.nativeCanvas, dove, piano, paint.nativePaint, look.geo.liquify
                     )
                 }
             }

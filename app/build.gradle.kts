@@ -23,8 +23,18 @@ android {
      * targetSdk stays on 36 on purpose: compiling against a newer SDK and opting in to
      * its runtime behaviour are two separate decisions, and only the first is forced on
      * us here. Play's current floor is API 36, so 36 is compliant.
+     *
+     * 37.1 and not 37.0 since 6.24: Compose 1.13.0-beta01 (ui, foundation, animation and the
+     * tooling) declares "compileSdk of at least 37.1" in its AAR metadata, and the check
+     * stops the build before any compiling. The toolchain action already installs
+     * `platforms;android-37.1`, and a minor level adds APIs without changing behaviour, so
+     * targetSdk is untouched by it.
      */
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "io.github.roccobot.aiv"
@@ -52,11 +62,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 383
+        versionCode = 384
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "6.23"
+        versionName = "6.24"
     }
 
     // The signing material comes from the environment and never from the
