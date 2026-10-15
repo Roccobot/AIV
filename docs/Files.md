@@ -330,7 +330,8 @@ Dalla 3.14:
   continuo, che cosa si vede prima di Play, se succede con 'Riproduzione diretta dei video' accesa,
   e la versione di Android.
   - ⚠️ **Le esclusioni valgono per le versioni lette allora**: material3 1.5.0-alpha26
-    (`onValueChange` parte solo da un gesto), media3-ui-compose 1.11.0 (non chiama `seekTo` e
+    (`onValueChange` parte solo da un gesto; riletto nella beta01 per la 6.22: lo chiamano solo il
+    trascinamento, il tocco, la tastiera e l'accessibilità, mai il valore scritto da fuori), media3-ui-compose 1.11.0 (non chiama `seekTo` e
     aggancia la superficie una volta sola) ed ExoPlayer 1.11.0 (`mayRenderStartOfStream` è vero
     per il periodo in riproduzione). Se il difetto torna dopo un aggiornamento di quelle librerie,
     le esclusioni si rileggono.

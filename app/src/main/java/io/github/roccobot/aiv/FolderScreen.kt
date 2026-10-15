@@ -70,7 +70,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -1931,7 +1930,7 @@ internal fun ViewOptions(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)
                         ) {
-                            Slider(
+                            ValueSlider(
                                 value = listText.ordinal.toFloat(),
                                 onValueChange = { at ->
                                     val step = at.roundToInt()

@@ -353,7 +353,7 @@ fun EditorScreen(
                  * cominciano il palco e le file di chip, e il testo di 'Salva' ci arriva
                  * togliendo dal rientro i 12dp che il tasto si porta dentro
                  * (`TextButtonHorizontalPadding`, letto sul bytecode di material3
-                 * 1.5.0-alpha26).
+                 * 1.5.0-alpha26 e uguale nella beta01).
                  * ⚠️ **A sinistra resta 4dp**, quindi la freccia cade a 16dp dal bordo: è
                  * l'allineamento **ottico** che Material dà a un'icona di navigazione, e un
                  * glifo tondeggiante appoggiato sulla linea del testo si legge come rientrato.
@@ -1169,7 +1169,7 @@ private fun EditorSheet(
  * scelto restava pieno e l'altro restava col suo filetto. Con 'Originale' i due versi si spengono
  * dalla `2.87`, ed è il primo caso in cui un chip spento resta in scena da solo.
  * ⚠️ **I numeri sono quelli di Material, letti nel bytecode di material3 1.5.0-alpha26**
- * (`FilterChipTokens`): il testo e l'icona a [CHIP_OFF_INK] del colore del testo, il fondo del
+ * (`FilterChipTokens`, uguali nella beta01): il testo e l'icona a [CHIP_OFF_INK] del colore del testo, il fondo del
  * chip scelto e il filetto degli altri a [CHIP_OFF_FILL]. Sono lo stato spento del `FilterChip`,
  * cioè quello che il componente di partenza avrebbe fatto da sé.
  * ⚠️ **Vale per tutti i chip del pannello**, e non è un effetto collaterale: si spengono anche
@@ -1481,7 +1481,8 @@ private val CHIP_PAD = 6.dp
  * Le due opacità di un chip spento, dalla `2.88`: vedi [SheetChip].
  *
  * ⚠️ **Sono quelle di Material** (`FilterChipTokens.DisabledLabelTextOpacity` e
- * `FlatDisabledSelectedContainerOpacity`, lette nel bytecode di material3 1.5.0-alpha26): due
+ * `FlatDisabledSelectedContainerOpacity`, lette nel bytecode di material3 1.5.0-alpha26 e uguali
+ * nella beta01): due
  * numeri scelti qui darebbero un chip spento diverso da tutti gli altri comandi spenti dell'app,
  * che quei numeri li prendono da Material.
  */
@@ -1509,7 +1510,7 @@ internal val SHEET_TOP = 16.dp
 /**
  * Il rientro che un `TextButton` di Material si porta dentro, per lato.
  *
- * ⚠️ **Letto sul bytecode di material3 1.5.0-alpha26** (`ButtonDefaults`,
+ * ⚠️ **Letto sul bytecode di material3 1.5.0-alpha26**, uguale nella beta01 (`ButtonDefaults`,
  * `TextButtonHorizontalPadding`): serve a far cadere il testo di 'Salva'
  * sulla linea del resto della schermata, e un numero sbagliato lo sposterebbe in silenzio.
  * Vedi la nota sulla testata, in [EditorScreen].

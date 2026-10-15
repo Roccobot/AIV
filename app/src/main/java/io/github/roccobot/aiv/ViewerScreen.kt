@@ -84,7 +84,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -2074,7 +2073,7 @@ private fun BoxScope.ClipKeys(
             // `C.TIME_UNSET`, che è un numero negativo enorme. Passarlo a `Slider` darebbe
             // un intervallo rovesciato, quindi finché non si sa la barra non c'è.
             if (duration > 0) {
-                Slider(
+                ValueSlider(
                     value = position.coerceIn(0, duration).toFloat(),
                     onValueChange = { onSeek(it.toLong()) },
                     valueRange = 0f..duration.toFloat(),

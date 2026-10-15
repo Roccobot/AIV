@@ -55,7 +55,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -3024,7 +3023,7 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(top = 12.dp)
         )
-        Slider(
+        ValueSlider(
             value = quanto,
             onValueChange = { quanto = it.roundToInt().toFloat() },
             onValueChangeFinished = { onChange(settings.copy(zoomMax = quanto)) },
@@ -3956,7 +3955,7 @@ private fun HslSlider(label: Int, value: Float, range: ClosedFloatingPointRange<
         style = MaterialTheme.typography.titleSmall,
         modifier = Modifier.padding(top = 12.dp)
     )
-    Slider(value = value, onValueChange = onMove, valueRange = range, modifier = Modifier.fillMaxWidth())
+    ValueSlider(value = value, onValueChange = onMove, valueRange = range, modifier = Modifier.fillMaxWidth())
 }
 
 /** Il tondo che mostra un colore del traslucido nella sua riga. */
@@ -3987,7 +3986,7 @@ private fun GlassSlider(
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(top = 12.dp)
         )
-        Slider(
+        ValueSlider(
             value = value.toFloat(),
             onValueChange = { onMove(it.roundToInt()) },
             onValueChangeFinished = onDone,

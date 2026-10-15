@@ -93,7 +93,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -6030,7 +6029,7 @@ private fun DrawBody(
                     // ⚠️ The colour as it will be drawn, which the swatch does not show: it keeps its
                     // base colour by his request.
                     Canvas(Modifier.size(SWATCH)) { drawCircle(Color(Draw.lit(base, valore))) }
-                    Slider(
+                    ValueSlider(
                         value = valore,
                         onValueChange = { posa(it) },
                         valueRange = -1f..1f,
@@ -6059,7 +6058,7 @@ private fun DrawBody(
             ),
             style = MaterialTheme.typography.labelMedium
         )
-        if (pannello) Slider(
+        if (pannello) ValueSlider(
             value = gaze.blurAmount,
             onValueChange = { gaze.blurAmount = it },
             valueRange = Draw.BLUR_MIN..Draw.BLUR_MAX,
@@ -6071,20 +6070,20 @@ private fun DrawBody(
             // ⚠️ Since 4.91 the track is a ratio's ([Draw.textTrack]): the sizes reach 1,5.
             // ⚠️ Since 4.92 a new text is born at its own size ([Draw.fitSize]), so the slider sets the
             // chosen text only, and is off with none.
-            Slider(
+            ValueSlider(
                 value = Draw.textTrack(gaze.textSize),
                 onValueChange = { gaze.textSize = Draw.textSize(it) },
                 enabled = live && scrive && gaze.picked != null,
                 modifier = Modifier.semantics { contentDescription = nomeDimensione }
             )
         } else when (bersaglio) {
-            DrawTarget.STROKE -> Slider(
+            DrawTarget.STROKE -> ValueSlider(
                 value = gaze.inkAlpha,
                 onValueChange = { gaze.inkAlpha = it },
                 valueRange = 0.1f..1f,
                 enabled = live
             )
-            DrawTarget.FILL -> Slider(
+            DrawTarget.FILL -> ValueSlider(
                 value = gaze.fillAlpha,
                 onValueChange = { gaze.fillAlpha = it },
                 valueRange = 0.1f..1f,
@@ -6092,7 +6091,7 @@ private fun DrawBody(
             )
             DrawTarget.WIDTH -> {
                 DisposableEffect(gaze) { onDispose { gaze.inkSizing = false } }
-                Slider(
+                ValueSlider(
                     value = gaze.inkWidth,
                     onValueChange = { gaze.inkSizing = true; gaze.inkWidth = it },
                     onValueChangeFinished = { gaze.inkSizing = false },
@@ -6442,7 +6441,7 @@ private fun ModuleBody(
             style = MaterialTheme.typography.bodySmall
         )
         Text(stringResource(R.string.look_brush_size), style = MaterialTheme.typography.labelMedium)
-        Slider(value = gaze.healingRadius, onValueChange = {
+        ValueSlider(value = gaze.healingRadius, onValueChange = {
             gaze.healingSizing = true; gaze.healingRadius = it
         }, onValueChangeFinished = { gaze.healingSizing = false },
             valueRange = Healing.MIN_RADIUS..Healing.MAX_RADIUS, enabled = ready && !busy)
@@ -6499,7 +6498,7 @@ private fun ModuleBody(
             ) { Text(stringResource(R.string.editor_original)) }
         }
         Text(stringResource(R.string.look_brush_size), style = MaterialTheme.typography.labelMedium)
-        Slider(
+        ValueSlider(
             value = gaze.brushRadius,
             onValueChange = {
                 gaze.brushSizing = true
@@ -6510,7 +6509,7 @@ private fun ModuleBody(
             enabled = ready && !busy
         )
         Text(stringResource(R.string.look_brush_strength), style = MaterialTheme.typography.labelMedium)
-        Slider(
+        ValueSlider(
             value = gaze.brushStrength,
             onValueChange = { gaze.brushStrength = it },
             valueRange = 0.05f..1f,

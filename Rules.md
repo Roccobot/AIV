@@ -593,6 +593,19 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     fondo e l'immagine, e là un gradino viene alto una dozzina di pixel. Restano fuori le sfumature
     alte o larghe pochi punti (il filetto, l'alone di una copertina), dove un gradino è di un pixel.
 
+## 🎛️ Ogni cursore è `ValueSlider`
+
+- ⚠️⚠️ **Dalla `6.22` un cursore nuovo si scrive con `ValueSlider`, mai con lo `Slider` di
+  Material**: Material 3 1.5.0-beta01 dichiara superata la forma `Slider(value, onValueChange,
+  ...)`, che AIV usava in 16 punti, e la sostituzione che suggerisce
+  (`rememberSliderState(value, ...)`) usa il valore solo come partenza. Con lei la barra di un video
+  resterebbe ferma mentre il video va, e su un intervallo da 0 a 0, perché la durata arriva dopo il
+  primo fotogramma. `ValueSlider` ripete il corpo della forma vecchia, letto nei sorgenti della
+  beta01, e `ValueSliderTest` fallisce con la sostituzione suggerita.
+- Il passaggio non ha cambiato l'aspetto: tre cursori disegnati con la alpha26 e con la beta01 danno
+  0 pixel diversi, in chiaro e in scuro. Un parametro che `ValueSlider` non ha ancora (colori, la
+  sorgente delle interazioni) si aggiunge lì, passato a `Slider` così com'è.
+
 ## 🎚️ L'editor completo, e il conto che esiste in una copia sola
 
 - ⚠️⚠️ **Gli editor sono due, ed è la sua scelta**: il semplice mette l'immagine in posa e la
