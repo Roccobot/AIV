@@ -52,11 +52,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 380
+        versionCode = 381
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "6.20"
+        versionName = "6.21"
     }
 
     // The signing material comes from the environment and never from the
@@ -180,11 +180,18 @@ android {
      * risorse dell'app, quindi `AivTheme` non trova i suoi colori e i suoi testi e il
      * montaggio va in errore su una risorsa mancante invece che sul difetto cercato.
      * ⚠️ `isReturnDefaultValues` riguarda un'altra cosa: i metodi del `android.jar` finto
-     * che, senza Robolectric, sollevano `RuntimeException("Stub!")`. Qui Robolectric c'è,
-     * quindi la riga non serve e non si scrive.
+     * che, senza Robolectric, vanno in errore con `RuntimeException("Stub!")`. Qui Robolectric
+     * c'è, quindi la riga non serve e non si scrive.
+     * ⚠️⚠️ **DA ROBOLECTRIC 4.17 (6.21) LA JVM DELLE PROVE DEVE APRIRE `jdk.internal.access`**:
+     * preparando Android 16, Robolectric scrive un campo interno di `FileDescriptor` passando da
+     * `SharedSecrets`, e Java 21 glielo nega. Senza la riga falliscono 665 prove su 763, tutte
+     * con `Failed to interact with raw FileDescriptor internals; perhaps JRE has changed?`. La
+     * guida di Robolectric ('Running with Java 17 and higher') elenca altre otto aperture: qui
+     * c'è la sola che il banco chiede, misurata, e un'altra entra quando una prova la chiede.
      */
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        unitTests.all { it.jvmArgs("--add-opens=java.base/jdk.internal.access=ALL-UNNAMED") }
     }
 
     buildFeatures {
