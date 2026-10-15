@@ -776,12 +776,14 @@
     <string name="folder_action_title">選擇對資料夾的動作</string>
     <string name="favourite_add">加入收藏</string>
     <string name="favourite_remove">從收藏中移除</string>
+    <string name="folder_pin_home">新增至主畫面</string>
     <string name="view_feed">動態消息</string>
     <string name="feed_none">沒有可顯示的相片或影片。</string>
     <string name="feed_date">排序所用日期</string>
     <string name="feed_date_taken">拍攝、修改</string>
     <string name="feed_date_modified">修改</string>
     <string name="feed_order">動態消息檢視排序</string>
-    <string name="feed_order_desc">動態消息檢視只顯示相片和影片，不依資料夾分組，最新的在最上方。由於\'最新\'可以有不同含義，你可以使用拍攝日期 (沒有時改用修改日期)，或只考慮建立和修改日期。</string>
-    <string name="hint_feed">&lt;i&gt;動態消息&lt;/i&gt;檢視會顯示所有已授權位置中的檔案，不依資料夾區分，最新的在最上方。若要選擇排列時優先使用拍攝日期或修改日期，請長按主要按鈕。</string>
+    <string name="feed_order_desc">動態消息檢視只顯示相片和影片，不依資料夾分組，最新的在最上方。你可以依拍攝日期排序 (沒有時改用修改日期)，或只考慮最後修改日期。</string>
+    <string name="hint_feed_newer">最新</string>
+    <string name="hint_feed_older">最舊</string>
 </resources>

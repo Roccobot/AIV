@@ -776,12 +776,14 @@
     <string name="folder_action_title">フォルダの操作を選択</string>
     <string name="favourite_add">お気に入りに追加</string>
     <string name="favourite_remove">お気に入りから削除</string>
+    <string name="folder_pin_home">ホーム画面に追加</string>
     <string name="view_feed">フィード</string>
     <string name="feed_none">表示する写真や動画がありません。</string>
     <string name="feed_date">並べ替えの日付</string>
     <string name="feed_date_taken">撮影日、更新日</string>
     <string name="feed_date_modified">更新日</string>
     <string name="feed_order">フィード表示の並び順</string>
-    <string name="feed_order_desc">フィード表示では、写真と動画だけをフォルダに分けずに、新しいものから上に表示します。\'新しい\'の意味は一つではないため、撮影日 (ない場合は更新日) を使うか、作成日と更新日だけを使うかを選べます。</string>
-    <string name="hint_feed">&lt;i&gt;フィード&lt;/i&gt;表示では、許可されたすべての場所のファイルをフォルダに分けずに、新しい順に上から表示します。並べ方で撮影日と更新日のどちらを優先するかは、メインボタンを長押しして選べます。</string>
+    <string name="feed_order_desc">フィード表示では、写真と動画だけをフォルダに分けずに、新しいものから上に表示します。撮影日 (ない場合は更新日) で並べるか、最終更新日だけを使うかを選べます。</string>
+    <string name="hint_feed_newer">新しい</string>
+    <string name="hint_feed_older">古い</string>
 </resources>

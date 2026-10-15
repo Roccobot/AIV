@@ -794,12 +794,14 @@
     <string name="folder_action_title">Chagua kitendo kwa folda</string>
     <string name="favourite_add">Ongeza kwenye pendwa</string>
     <string name="favourite_remove">Ondoa kwenye pendwa</string>
+    <string name="folder_pin_home">Ongeza kwenye skrini ya mwanzo</string>
     <string name="view_feed">Mlisho</string>
     <string name="feed_none">Hakuna picha wala video za kuonyesha.</string>
     <string name="feed_date">Tarehe ya kupanga</string>
     <string name="feed_date_taken">Kupigwa, Kubadilishwa</string>
     <string name="feed_date_modified">Kubadilishwa</string>
     <string name="feed_order">Mpangilio katika mwonekano wa mlisho</string>
-    <string name="feed_order_desc">Mwonekano wa mlisho unaonyesha picha na video pekee, bila kuzipanga katika folda, mpya zaidi juu. Kwa kuwa \'mpya\' inaweza kuwa na maana tofauti, unaweza kutumia tarehe ya kupigwa (na tarehe ya kubadilishwa isipokuwepo) au kuzingatia tarehe za kuundwa na kubadilishwa pekee.</string>
-    <string name="hint_feed">Mwonekano wa &lt;i&gt;Mlisho&lt;/i&gt; unaonyesha faili kutoka maeneo yote yaliyoruhusiwa, bila kuzigawa katika folda, mpya zaidi zikiwa juu. Ili kuchagua kama tarehe ya kupiga picha au ya kubadilisha ndiyo ipewe kipaumbele katika mpangilio, bonyeza na ushikilie kitufe kikuu.</string>
+    <string name="feed_order_desc">Mwonekano wa mlisho unaonyesha picha na video pekee, bila kuzipanga katika folda, mpya zaidi juu. Unaweza kupanga kwa tarehe ya kupigwa (na tarehe ya kubadilishwa isipokuwepo) au kuzingatia tarehe za mabadiliko ya mwisho pekee.</string>
+    <string name="hint_feed_newer">Mpya zaidi</string>
+    <string name="hint_feed_older">Za zamani zaidi</string>
 </resources>

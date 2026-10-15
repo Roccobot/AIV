@@ -988,12 +988,14 @@
     <string name="folder_action_title">Choose an action for the folder</string>
     <string name="favourite_add">Add to favorites</string>
     <string name="favourite_remove">Remove from favorites</string>
+    <string name="folder_pin_home">Add to Home screen</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">No photos or videos to show.</string>
     <string name="feed_date">Date for sorting</string>
     <string name="feed_date_taken">Taken, Modified</string>
     <string name="feed_date_modified">Modified</string>
     <string name="feed_order">Feed view order</string>
-    <string name="feed_order_desc">Feed view shows only photos and videos, not sorted into folders, with the newest at the top. Since \'recent\' can mean different things, you can choose to use the date taken (falling back on the date modified) or only the dates of creation and modification.</string>
-    <string name="hint_feed">The &lt;i&gt;feed&lt;/i&gt; view shows the files from all authorized locations, without splitting them into folders, with the newest at the top. To choose whether the date taken or the date modified takes priority in the arrangement, press and hold the main button.</string>
+    <string name="feed_order_desc">Feed view shows only photos and videos, not sorted into folders, with the newest at the top. You can sort by date taken (falling back on the date modified), or consider only the dates of last modification.</string>
+    <string name="hint_feed_newer">Newest</string>
+    <string name="hint_feed_older">Oldest</string>
 </resources>

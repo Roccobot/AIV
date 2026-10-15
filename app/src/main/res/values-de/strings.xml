@@ -794,12 +794,14 @@
     <string name="folder_action_title">Aktion für den Ordner wählen</string>
     <string name="favourite_add">Zu Favoriten hinzufügen</string>
     <string name="favourite_remove">Aus Favoriten entfernen</string>
+    <string name="folder_pin_home">Zum Startbildschirm hinzufügen</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">Keine Fotos oder Videos zum Anzeigen.</string>
     <string name="feed_date">Datum für die Sortierung</string>
     <string name="feed_date_taken">Aufnahme, Änderung</string>
     <string name="feed_date_modified">Änderung</string>
     <string name="feed_order">Anordnung in der Feed-Ansicht</string>
-    <string name="feed_order_desc">Die Feed-Ansicht zeigt nur Fotos und Videos, nicht nach Ordnern sortiert, die neuesten oben. Da \'neu\' Verschiedenes bedeuten kann, kannst du das Aufnahmedatum verwenden (ersatzweise das Änderungsdatum) oder nur die Erstellungs- und Änderungsdaten berücksichtigen.</string>
-    <string name="hint_feed">Die Ansicht &lt;i&gt;Feed&lt;/i&gt; zeigt die Dateien aus allen freigegebenen Speicherorten, ohne Aufteilung in Ordner, die neuesten oben. Ob bei der Anordnung das Aufnahme- oder das Änderungsdatum Vorrang hat, wählst du, indem du die Haupttaste gedrückt hältst.</string>
+    <string name="feed_order_desc">Die Feed-Ansicht zeigt nur Fotos und Videos, nicht nach Ordnern sortiert, die neuesten oben. Du kannst nach Aufnahmedatum sortieren (ersatzweise nach Änderungsdatum) oder nur die Daten der letzten Änderung berücksichtigen.</string>
+    <string name="hint_feed_newer">Neueste</string>
+    <string name="hint_feed_older">Älteste</string>
 </resources>

@@ -115,9 +115,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -989,10 +987,12 @@ fun FolderScreen(
         if (home && granted && view == FolderView.FEED && !feed?.items.isNullOrEmpty() &&
             !feedSeen && !feedOff
         ) {
-            HintCentre(
-                // ⚠️ From 6.03 the text is his and names the view in italics: the tag is escaped in
-                // the resources, where `getString` would drop a real one.
-                text = AnnotatedString.fromHtml(stringResource(R.string.hint_feed)),
+            // ⚠️ From 6.20 his sketch of the stream, with the text of 'Disposizione in vista feed'
+            // as the sentence (note on `6.02-04`; the why lives on [HintFeed]).
+            HintFeed(
+                text = stringResource(R.string.feed_order_desc),
+                newer = stringResource(R.string.hint_feed_newer),
+                older = stringResource(R.string.hint_feed_older),
                 onDone = {
                     feedOff = true
                     scope.launch { Hint.FEED.remember(context) }

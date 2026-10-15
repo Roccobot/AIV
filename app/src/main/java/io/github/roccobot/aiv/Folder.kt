@@ -488,6 +488,13 @@ object Folder {
     }
 
     /**
+     * The MediaStore folder at [path], or `null` when it holds no picture: the key of its colour
+     * (`FolderTints`), for 'Faro' from the 6.20, which starts from a disk folder.
+     */
+    suspend fun bucketOf(context: Context, path: String): Long? =
+        withContext(Dispatchers.IO) { bucketAt(context, path) }
+
+    /**
      * L'identificatore che il `MediaStore` dà alla cartella in [path], letto da un file che ci
      * vive dentro.
      *

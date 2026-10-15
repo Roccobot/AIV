@@ -812,12 +812,14 @@
     <string name="folder_action_title">Choisir une action pour le dossier</string>
     <string name="favourite_add">Ajouter aux favoris</string>
     <string name="favourite_remove">Retirer des favoris</string>
+    <string name="folder_pin_home">Ajouter à l\'écran d\'accueil</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">Aucune photo ni vidéo à afficher.</string>
     <string name="feed_date">Date pour le tri</string>
     <string name="feed_date_taken">Prise de vue, Modification</string>
     <string name="feed_date_modified">Modification</string>
     <string name="feed_order">Disposition en vue feed</string>
-    <string name="feed_order_desc">La vue feed affiche uniquement les photos et les vidéos, sans les classer par dossier, les plus récentes en haut. Comme \'récent\' peut avoir plusieurs sens, vous pouvez utiliser la date de prise de vue (avec repli sur la date de modification) ou ne tenir compte que des dates de création et de modification.</string>
-    <string name="hint_feed">La vue &lt;i&gt;feed&lt;/i&gt; affiche les fichiers de tous les emplacements autorisés, sans les répartir en dossiers, les plus récents en haut. Pour choisir si la disposition donne la priorité à la date de prise de vue ou à celle de modification, maintenez le bouton principal appuyé.</string>
+    <string name="feed_order_desc">La vue feed affiche uniquement les photos et les vidéos, sans les classer par dossier, les plus récentes en haut. Vous pouvez trier par date de prise de vue (avec repli sur la date de modification) ou ne tenir compte que des dates de dernière modification.</string>
+    <string name="hint_feed_newer">Plus récents</string>
+    <string name="hint_feed_older">Moins récents</string>
 </resources>

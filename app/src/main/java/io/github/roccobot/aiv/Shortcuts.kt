@@ -17,7 +17,10 @@ import androidx.compose.ui.graphics.vector.toPath
 import androidx.compose.ui.res.vectorResource
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.IconCompat
+import java.io.File
 import kotlin.math.roundToInt
 
 /**
@@ -49,10 +52,27 @@ object Shortcuts {
     const val BUCKET = "bucket"
     const val NAME = "name"
 
+    /** Opens the disk folder in [PATH] in 'Cartelle di sistema': a folder pinned with 'Faro'. */
+    const val TREE = "io.github.roccobot.aiv.action.TREE"
+    const val PATH = "path"
+
     /** The actions this object answers, for [ViewerViewModel.handleIntent]. */
-    val actions = setOf(FEED, SEARCH, ADDRESS, FOLDER)
+    val actions = setOf(FEED, SEARCH, ADDRESS, FOLDER, TREE)
 
     private const val ID_FOLDER = "folder"
+
+    /** The beginning of the identifier of a folder pinned with 'Faro': the path follows. */
+    private const val ID_PINNED = "faro:"
+
+    /** The share of the icon's side the AIV folder takes: larger than an action's glyph, it is the icon. */
+    private const val FOLDER_SHARE = 0.45f
+
+    /** The opacity of the AIV folder in white and in black, out of 255: *in semitrasparenza*. */
+    private const val INK_WHITE = 217
+    private const val INK_DARK = 140
+
+    /** The contrast a graphic that is not text must hold on its ground. */
+    private const val CONTRAST_MIN = 3.0
 
     /**
      * The share of the icon's side the glyph's viewport takes: a third of 108 dp is 36, so the
@@ -105,6 +125,53 @@ object Shortcuts {
         ShortcutManagerCompat.removeDynamicShortcuts(context, listOf(ID_FOLDER))
     }
 
+    /** Whether the launcher takes an icon pinned by the app: not all of them do. */
+    fun canPin(context: Context): Boolean = ShortcutManagerCompat.isRequestPinShortcutSupported(context)
+
+    /**
+     * 'Faro', from the 6.20: a disk folder becomes an icon of its own on the home screen (his note C
+     * on the giro of the 6.10, after his answer C of the same day).
+     *
+     * ⚠️⚠️ **HIS ICON, TO THE LETTER**: *adattiva, avere il nome della cartella, lo sfondo del colore
+     * della cartella (se applicato) e il glifo della cartella AIV sovrapposto in semitrasparenza,
+     * lasciato bianco o colorato per avere un minimo di contrasto come da norme*. So the ground is the
+     * folder's colour, or the app's green without one; the glyph is his `ic_folder_home.xml`, and
+     * [folderInk] picks white or the ground darkened, whichever keeps 3 to 1.
+     * ⚠️ **The light variant of the colour**: the home screen does not follow the theme chosen inside
+     * the app, and the light variants are the ones with more body.
+     * ⚠️ **One icon per folder**: the identifier is the path, so pinning it again updates it (a new
+     * colour, a new name) instead of asking for a second one. Android asks where to put it.
+     */
+    suspend fun pinFolder(context: Context, path: String) {
+        val index = Folder.bucketOf(context, path)?.let { FolderTints.of(context, it) }
+        val ground = index?.let { FRONT_TINTS.getOrNull(it) }?.light?.toArgb()
+            ?: context.getColor(R.color.launcher_background)
+        val name = File(path).name
+        val info = ShortcutInfoCompat.Builder(context, "$ID_PINNED$path")
+            .setShortLabel(name)
+            .setLongLabel(name)
+            .setIcon(
+                IconCompat.createWithAdaptiveBitmap(
+                    iconBitmap(context, Glyphs.folderHome(context), ground, folderInk(ground), FOLDER_SHARE)
+                )
+            )
+            .setIntent(Intent(context, ViewerActivity::class.java).setAction(TREE).putExtra(PATH, path))
+            .build()
+        ShortcutManagerCompat.requestPinShortcut(context, info, null)
+    }
+
+    /**
+     * The colour of the AIV folder on [ground]: white in transparency, or, where white does not hold
+     * 3 to 1, black in transparency, which reads as the ground darkened. 3 to 1 is the contrast of a
+     * graphic that is not text (WCAG 1.4.11), his *minimo di contrasto come da norme*.
+     */
+    internal fun folderInk(ground: Int): Int {
+        val white = ColorUtils.setAlphaComponent(android.graphics.Color.WHITE, INK_WHITE)
+        val dark = ColorUtils.setAlphaComponent(android.graphics.Color.BLACK, INK_DARK)
+        val contrast = { ink: Int -> ColorUtils.calculateContrast(ColorUtils.compositeColors(ink, ground), ground) }
+        return if (contrast(white) >= CONTRAST_MIN) white else dark
+    }
+
     private fun entry(
         context: Context,
         id: String,
@@ -137,22 +204,30 @@ object Shortcuts {
     private fun icon(context: Context, glyph: ImageVector): IconCompat =
         IconCompat.createWithAdaptiveBitmap(iconBitmap(context, glyph))
 
-    /** The picture of [icon], apart so the test bench can read its pixels. */
-    internal fun iconBitmap(context: Context, glyph: ImageVector): Bitmap {
+    /**
+     * The picture of an icon, apart so the test bench can read its pixels: [glyph] in [ink] on
+     * [ground], its viewport [share] of the side and centred. The actions take the launcher icon's
+     * two colours swapped; a folder pinned with 'Faro' its own.
+     */
+    internal fun iconBitmap(
+        context: Context,
+        glyph: ImageVector,
+        ground: Int = context.getColor(R.color.launcher_foreground),
+        ink: Int = context.getColor(R.color.launcher_background),
+        share: Float = GLYPH_SHARE
+    ): Bitmap {
         val side = (ICON_DP * context.resources.displayMetrics.density).roundToInt()
         val bitmap = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawColor(context.getColor(R.color.launcher_foreground))
-        val ink = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = context.getColor(R.color.launcher_background)
-        }
-        val scale = side * GLYPH_SHARE / glyph.viewportWidth
+        canvas.drawColor(ground)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = ink }
+        val scale = side * share / glyph.viewportWidth
         canvas.translate(
             (side - glyph.viewportWidth * scale) / 2f,
             (side - glyph.viewportHeight * scale) / 2f
         )
         canvas.scale(scale, scale)
-        draw(canvas, glyph.root, ink)
+        draw(canvas, glyph.root, paint)
         return bitmap
     }
 

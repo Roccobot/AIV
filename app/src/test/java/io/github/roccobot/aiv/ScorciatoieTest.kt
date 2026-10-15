@@ -2,7 +2,9 @@ package io.github.roccobot.aiv
 
 import android.app.Application
 import android.content.Intent
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.ColorUtils
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -10,6 +12,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 /**
  * The actions of the long press on the app icon, from 6.10 (choices A1, A2, A4 and B1; `Shortcuts`).
@@ -18,8 +21,14 @@ import org.junit.runner.RunWith
  * mounting anything, and what is measured is where the screen goes and which view is in force.
  * ⚠️ **What this bench does NOT measure**: how a launcher shows the menu, and whether it clears the
  * app's task when an action is touched. That is looked at on the phone, in the round's test.
+ * ⚠️⚠️ **[OmbraArchivio] is mounted because `openGrid` reads the folder in the background**, and the
+ * reading asks `Environment.isExternalStorageManager()`, which Robolectric does not cover: without
+ * the shadow it fails on its own thread, and the failure is charged to the next class that runs a
+ * Compose rule. Up to 6.10 nobody saw it; on the 6.20 bench `AggiornaTest` and `SelezioneTest` fell
+ * for it, and the order `CopertinaTest`, `ScorciatoieTest`, `SelezioneTest` shows it every time.
  */
 @RunWith(AndroidJUnit4::class)
+@Config(shadows = [OmbraArchivio::class])
 class ScorciatoieTest {
 
     private val app = ApplicationProvider.getApplicationContext<Application>()
@@ -114,6 +123,41 @@ class ScorciatoieTest {
         val cartella = tutte.single { it.id == "folder" }
         assertEquals("Camera", cartella.shortLabel.toString())
         assertEquals(9L, cartella.intent.getLongExtra(Shortcuts.BUCKET, 0L))
+    }
+
+    /**
+     * **'Faro' (6.20): a pinned folder opens in 'Cartelle di sistema' for this time**, at its path,
+     * and the app opened from its icon goes back to the saved view.
+     *
+     * ⚠️ Counter-tested with the branch of the action removed: the screen is the home in its saved
+     * view and the tree stays at the top.
+     */
+    @Test
+    fun `una cartella sulla Home si apre nelle cartelle di sistema per una volta`() {
+        val model = modello()
+        val percorso = "/storage/emulated/0/DCIM/Camera"
+        model.handleIntent(azione(Shortcuts.TREE).putExtra(Shortcuts.PATH, percorso), fresh = true)
+        assertEquals(FolderView.TREE, model.shownView(FolderView.GRID))
+        assertEquals(percorso, model.treePath)
+        model.handleIntent(Intent(Intent.ACTION_MAIN), fresh = false)
+        assertEquals(FolderView.GRID, model.shownView(FolderView.GRID))
+    }
+
+    /**
+     * **The AIV folder holds 3 to 1 on every ground it can have** (his *minimo di contrasto come da
+     * norme*): the sixteen folder colours, light variant, and the app's green for a folder without one.
+     *
+     * ⚠️ Counter-tested with white always: on the app's green and on the lighter colours the contrast
+     * falls under 3.
+     */
+    @Test
+    fun `il glifo della cartella tiene 3 a 1 su ogni colore`() {
+        val fondi = FRONT_TINTS.map { it.light.toArgb() } + app.getColor(R.color.launcher_background)
+        fondi.forEach { fondo ->
+            val inchiostro = Shortcuts.folderInk(fondo)
+            val contrasto = ColorUtils.calculateContrast(ColorUtils.compositeColors(inchiostro, fondo), fondo)
+            assertTrue("contrasto %.2f su #%06X".format(contrasto, fondo and 0xFFFFFF), contrasto >= 3.0)
+        }
     }
 
     /**

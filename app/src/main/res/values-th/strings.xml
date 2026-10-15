@@ -776,12 +776,14 @@
     <string name="folder_action_title">เลือกการทำงานสำหรับโฟลเดอร์</string>
     <string name="favourite_add">เพิ่มในรายการโปรด</string>
     <string name="favourite_remove">นำออกจากรายการโปรด</string>
+    <string name="folder_pin_home">เพิ่มไปยังหน้าจอหลัก</string>
     <string name="view_feed">ฟีด</string>
     <string name="feed_none">ไม่มีรูปภาพหรือวิดีโอให้แสดง</string>
     <string name="feed_date">วันที่ใช้เรียงลำดับ</string>
     <string name="feed_date_taken">วันที่ถ่าย, วันที่แก้ไข</string>
     <string name="feed_date_modified">วันที่แก้ไข</string>
     <string name="feed_order">การเรียงในมุมมองฟีด</string>
-    <string name="feed_order_desc">มุมมองฟีดแสดงเฉพาะรูปภาพและวิดีโอ โดยไม่แบ่งตามโฟลเดอร์ รายการใหม่ล่าสุดอยู่ด้านบน เนื่องจาก \'ใหม่ล่าสุด\' อาจมีความหมายต่างกัน คุณจึงเลือกได้ว่าจะใช้วันที่ถ่าย (ถ้าไม่มีจะใช้วันที่แก้ไข) หรือพิจารณาเฉพาะวันที่สร้างและวันที่แก้ไข</string>
-    <string name="hint_feed">มุมมอง&lt;i&gt;ฟีด&lt;/i&gt;แสดงไฟล์จากทุกตำแหน่งที่ได้รับอนุญาต โดยไม่แบ่งเป็นโฟลเดอร์ และรายการใหม่สุดอยู่ด้านบน หากต้องการเลือกว่าจะให้ความสำคัญกับวันที่ถ่ายหรือวันที่แก้ไขในการจัดเรียง ให้กดปุ่มหลักค้างไว้</string>
+    <string name="feed_order_desc">มุมมองฟีดแสดงเฉพาะรูปภาพและวิดีโอ โดยไม่แบ่งตามโฟลเดอร์ รายการใหม่ล่าสุดอยู่ด้านบน คุณเลือกเรียงตามวันที่ถ่ายได้ (ถ้าไม่มีจะใช้วันที่แก้ไข) หรือพิจารณาเฉพาะวันที่แก้ไขล่าสุด</string>
+    <string name="hint_feed_newer">ใหม่ล่าสุด</string>
+    <string name="hint_feed_older">เก่าที่สุด</string>
 </resources>

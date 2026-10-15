@@ -776,12 +776,14 @@
     <string name="folder_action_title">폴더 작업 선택</string>
     <string name="favourite_add">즐겨찾기에 추가</string>
     <string name="favourite_remove">즐겨찾기에서 제거</string>
+    <string name="folder_pin_home">홈 화면에 추가</string>
     <string name="view_feed">피드</string>
     <string name="feed_none">표시할 사진이나 동영상이 없습니다.</string>
     <string name="feed_date">정렬 기준 날짜</string>
     <string name="feed_date_taken">촬영일, 수정일</string>
     <string name="feed_date_modified">수정일</string>
     <string name="feed_order">피드 보기 정렬</string>
-    <string name="feed_order_desc">피드 보기는 사진과 동영상만 폴더로 나누지 않고 최신 항목부터 위에 표시합니다. \'최신\'의 뜻은 여러 가지일 수 있으므로 촬영일(없으면 수정일)을 사용할지, 생성일과 수정일만 고려할지 선택할 수 있습니다.</string>
-    <string name="hint_feed">&lt;i&gt;피드&lt;/i&gt; 보기는 허용된 모든 위치의 파일을 폴더로 나누지 않고 최신 항목이 위에 오도록 보여 줍니다. 정렬에서 촬영 날짜와 수정 날짜 중 무엇을 우선할지 선택하려면 기본 버튼을 길게 누르세요.</string>
+    <string name="feed_order_desc">피드 보기는 사진과 동영상만 폴더로 나누지 않고 최신 항목부터 위에 표시합니다. 촬영일(없으면 수정일)로 정렬하거나 마지막 수정일만 고려하도록 선택할 수 있습니다.</string>
+    <string name="hint_feed_newer">최신</string>
+    <string name="hint_feed_older">가장 오래됨</string>
 </resources>

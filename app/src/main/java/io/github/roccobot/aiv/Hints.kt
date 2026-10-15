@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
@@ -40,8 +43,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
@@ -452,18 +455,135 @@ fun BoxScope.HintStrip(
  * volte non è un onboarding.
  */
 @Composable
-fun BoxScope.HintCentre(text: String, onDone: () -> Unit) = HintCentre(AnnotatedString(text), onDone)
-
-/**
- * The same veil with a styled text, from 6.03: the Feed's says the view's name in italics, as he
- * wrote it (*La vista *feed* mostra...*).
- */
-@Composable
-fun BoxScope.HintCentre(text: AnnotatedString, onDone: () -> Unit) {
+fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
     // ⚠️ `matchParentSize` e non `fillMaxSize`: dentro un `Box` questo velo prende la misura
     // del genitore **senza** entrare nel suo conto, e il genitore qui è una schermata intera.
     CentredHint(text = text, onDone = onDone, modifier = Modifier.matchParentSize())
 }
+
+/**
+ * The Feed's veil, from 6.20: a sketch of the stream that says where the newest and the oldest are.
+ *
+ * ⚠️⚠️ **HIS DRAWING, TO THE LETTER** (note on `6.02-04`, giro of the 6.10): *copri del tutto le
+ * cartelle reali e disegnaci sopra una griglia a 3 colonne stilizzata con dei riquadri di colore
+ * giallo onboarding, ma con un'ulteriore velo nero sopra ... Solo il rettangolo arrotondato giallo in
+ * alto a sinistra e quello più in basso a destra tra quelli visibili appaiono del loro colore giallo
+ * pieno, sopra il velo*, with 'Più recenti' and 'Meno recenti' in them, and the text of the setting
+ * 'Disposizione in vista feed' as the sentence. So four layers: the page's ground, which hides the
+ * real pictures; the sketch in [HINT_KEY]; the veil; the two full cells and the sentence.
+ * ⚠️ **The sketch has three columns whatever the Feed shows**: it is a picture of the order, not of
+ * the grid, and the cells stop growing at [SKETCH_CELL_MAX] so that a tablet does not get two rows of
+ * giant squares. The geometry is [feedSketch], a pure function, and both layers read it.
+ * ⚠️ **The sentence sits between the two full cells**, where it reads after 'Più recenti' and before
+ * 'Meno recenti'; with one row only (a phone on its side) it goes under it.
+ * ⚠️ **A tap anywhere closes it**, as every veil.
+ */
+@Composable
+fun BoxScope.HintFeed(text: String, newer: String, older: String, onDone: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .matchParentSize()
+            .background(MaterialTheme.colorScheme.background)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDone
+            )
+    ) {
+        BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
+            feedSketch(maxWidth, maxHeight).cells.forEach { SketchCell(it) }
+        }
+        Box(Modifier.fillMaxSize().background(HINT_SCRIM))
+        BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
+            val sketch = feedSketch(maxWidth, maxHeight)
+            SketchCell(sketch.newest, newer)
+            SketchCell(sketch.oldest, older)
+            val sameRow = sketch.oldest.y == sketch.newest.y
+            val top = sketch.newest.y + sketch.newest.size + HINT_GAP
+            val bottom = if (sameRow) maxHeight else sketch.oldest.y - HINT_GAP
+            Box(
+                modifier = Modifier
+                    .offset(y = top)
+                    .fillMaxWidth()
+                    .height((bottom - top).coerceAtLeast(0.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = HINT_SIDE).widthIn(max = HINT_WIDTH)
+                )
+            }
+        }
+    }
+}
+
+/** A cell of the Feed's sketch, at its place: empty, or full with a word in it. */
+@Composable
+private fun SketchCell(cell: SketchSquare, word: String? = null) {
+    Box(
+        modifier = Modifier
+            .offset(x = cell.x, y = cell.y)
+            .size(cell.size)
+            .background(HINT_KEY, RoundedCornerShape(SKETCH_CORNER)),
+        contentAlignment = Alignment.Center
+    ) {
+        word?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleSmall,
+                color = HINT_KEY_INK,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+    }
+}
+
+/** A square of the Feed's sketch: its corner and its side, in dp from the safe area's corner. */
+data class SketchSquare(val x: Dp, val y: Dp, val size: Dp)
+
+/**
+ * The Feed's sketch: every cell that shows, the newest one (top left) and the oldest one (on the
+ * right of the last row that shows whole).
+ *
+ * ⚠️ **A row cut by the bottom is drawn and not chosen**: the grid goes on under the edge, as a
+ * stream does, but 'the lowest one on the right among those you see' is a whole cell.
+ */
+class FeedSketch(val cells: List<SketchSquare>, val newest: SketchSquare, val oldest: SketchSquare)
+
+/** The geometry of [HintFeed] in a safe area [width] by [height]: three columns, centred. */
+fun feedSketch(width: Dp, height: Dp): FeedSketch {
+    val cell = ((width - SKETCH_SIDE * 2 - SKETCH_GAP * (SKETCH_COLUMNS - 1)) / SKETCH_COLUMNS)
+        .coerceIn(0.dp, SKETCH_CELL_MAX)
+    val left = (width - cell * SKETCH_COLUMNS - SKETCH_GAP * (SKETCH_COLUMNS - 1)) / 2
+    val step = cell + SKETCH_GAP
+    // Rows that fit whole, at least one; plus the one the bottom edge cuts.
+    val whole = ((height - SKETCH_SIDE + SKETCH_GAP) / step).toInt().coerceAtLeast(1)
+    val cells = (0..whole).flatMap { row ->
+        (0 until SKETCH_COLUMNS).map { col ->
+            SketchSquare(x = left + step * col, y = SKETCH_SIDE + step * row, size = cell)
+        }
+    }
+    return FeedSketch(
+        cells = cells,
+        newest = cells.first(),
+        oldest = cells[whole * SKETCH_COLUMNS - 1]
+    )
+}
+
+/** The columns of the Feed's sketch: his number. */
+private const val SKETCH_COLUMNS = 3
+
+/** The margin around the sketch and the air between its cells. */
+private val SKETCH_SIDE = 16.dp
+private val SKETCH_GAP = 8.dp
+private val SKETCH_CORNER = 12.dp
+
+/** The largest cell of the sketch: past it, a tablet would show two rows of giant squares. */
+private val SKETCH_CELL_MAX = 160.dp
 
 /**
  * Il corpo di un velo centrato: il velo, il testo e i suoi margini.
@@ -477,7 +597,7 @@ fun BoxScope.HintCentre(text: AnnotatedString, onDone: () -> Unit) {
  * `Box` che lo contiene, l'altro apre una finestra propria per stare sopra un dialogo.
  */
 @Composable
-private fun CentredHint(text: AnnotatedString, onDone: () -> Unit, modifier: Modifier) {
+private fun CentredHint(text: String, onDone: () -> Unit, modifier: Modifier) {
     Box(
         modifier = modifier
             .background(HINT_SCRIM)
@@ -531,7 +651,7 @@ fun HintNotice(text: String, onDone: () -> Unit) {
         properties = fullWindow()
     ) {
         // ⚠️ Qui `fillMaxSize`, perché la finestra è sua e la deve riempire tutta.
-        CentredHint(text = AnnotatedString(text), onDone = onDone, modifier = Modifier.fillMaxSize())
+        CentredHint(text = text, onDone = onDone, modifier = Modifier.fillMaxSize())
     }
 }
 

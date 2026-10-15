@@ -794,12 +794,14 @@
     <string name="folder_action_title">फ़ोल्डर के लिए कार्रवाई चुनें</string>
     <string name="favourite_add">पसंदीदा में जोड़ें</string>
     <string name="favourite_remove">पसंदीदा से हटाएँ</string>
+    <string name="folder_pin_home">होम स्क्रीन पर जोड़ें</string>
     <string name="view_feed">फ़ीड</string>
     <string name="feed_none">दिखाने के लिए कोई फ़ोटो या वीडियो नहीं है।</string>
     <string name="feed_date">क्रम के लिए तारीख</string>
     <string name="feed_date_taken">फ़ोटो लेना, बदलाव</string>
     <string name="feed_date_modified">बदलाव</string>
     <string name="feed_order">फ़ीड व्यू में क्रम</string>
-    <string name="feed_order_desc">फ़ीड व्यू केवल फ़ोटो और वीडियो दिखाता है, फ़ोल्डरों में बाँटे बिना, सबसे नए सबसे ऊपर। क्योंकि \'नया\' के अलग-अलग मतलब हो सकते हैं, आप फ़ोटो लेने की तारीख इस्तेमाल कर सकते हैं (न हो तो बदलाव की तारीख), या केवल बनने और बदलाव की तारीखें गिन सकते हैं।</string>
-    <string name="hint_feed">&lt;i&gt;फ़ीड&lt;/i&gt; व्यू सभी अनुमत स्थानों की फ़ाइलें फ़ोल्डरों में बाँटे बिना दिखाता है, सबसे नई सबसे ऊपर। व्यवस्था में खींचने की तारीख़ को प्राथमिकता मिले या बदलाव की तारीख़ को, यह चुनने के लिए मुख्य बटन दबाकर रखें।</string>
+    <string name="feed_order_desc">फ़ीड व्यू केवल फ़ोटो और वीडियो दिखाता है, फ़ोल्डरों में बाँटे बिना, सबसे नए सबसे ऊपर। आप फ़ोटो लेने की तारीख से क्रम लगा सकते हैं (न हो तो बदलाव की तारीख से), या केवल आख़िरी बदलाव की तारीखें गिन सकते हैं।</string>
+    <string name="hint_feed_newer">सबसे नए</string>
+    <string name="hint_feed_older">सबसे पुराने</string>
 </resources>

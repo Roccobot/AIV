@@ -830,12 +830,14 @@
     <string name="folder_action_title">Wybierz działanie dla folderu</string>
     <string name="favourite_add">Dodaj do ulubionych</string>
     <string name="favourite_remove">Usuń z ulubionych</string>
+    <string name="folder_pin_home">Dodaj do ekranu głównego</string>
     <string name="view_feed">Feed</string>
     <string name="feed_none">Brak zdjęć i filmów do pokazania.</string>
     <string name="feed_date">Data do sortowania</string>
     <string name="feed_date_taken">Wykonanie, Modyfikacja</string>
     <string name="feed_date_modified">Modyfikacja</string>
     <string name="feed_order">Układ w widoku feedu</string>
-    <string name="feed_order_desc">Widok feedu pokazuje tylko zdjęcia i filmy, bez podziału na foldery, najnowsze na górze. Ponieważ \'najnowsze\' może znaczyć różne rzeczy, możesz użyć daty wykonania (a gdy jej brak, daty modyfikacji) albo brać pod uwagę tylko daty utworzenia i modyfikacji.</string>
-    <string name="hint_feed">Widok &lt;i&gt;Feed&lt;/i&gt; pokazuje pliki ze wszystkich dozwolonych lokalizacji, bez podziału na foldery, najnowsze na górze. Aby wybrać, czy w układzie pierwszeństwo ma data wykonania, czy modyfikacji, przytrzymaj główny przycisk.</string>
+    <string name="feed_order_desc">Widok feedu pokazuje tylko zdjęcia i filmy, bez podziału na foldery, najnowsze na górze. Możesz sortować według daty wykonania (a gdy jej brak, daty modyfikacji) albo brać pod uwagę tylko daty ostatniej modyfikacji.</string>
+    <string name="hint_feed_newer">Najnowsze</string>
+    <string name="hint_feed_older">Najstarsze</string>
 </resources>

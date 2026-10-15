@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -17,9 +16,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.fromHtml
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.LocalDateTime
@@ -139,13 +135,17 @@ class FeedTest {
     }
 
     /**
-     * **Case 6: the first time the Feed shows pictures, its veil explains the date** (his request:
+     * **Case 6: the first time the Feed shows pictures, its veil explains the order** (his request:
      * *un mini-onboarding ... che spieghi in breve la scelta della data*), and a tap puts it away
      * for good.
+     *
+     * ⚠️ **From 6.20 it is his sketch** (note on `6.02-04`): the text of 'Disposizione in vista feed'
+     * as the sentence, and 'Più recenti' and 'Meno recenti' in the two full cells. Counter-tested
+     * with the centred veil of the 6.03, where the two words are missing.
      */
     @Test
     @Config(qualifiers = "it", shadows = [ArchivioAperto::class])
-    fun `la prima volta il velo del Feed spiega la data`() {
+    fun `la prima volta il velo del Feed spiega l'ordine`() {
         val app = ApplicationProvider.getApplicationContext<android.content.Context>()
         runBlocking { Hint.FEED.forget(app) }
         val pagina = Feed.order(listOf(riga(1, ms(2026, 10, 2), 0)), FeedDate.TAKEN, zone)
@@ -155,15 +155,9 @@ class FeedTest {
             }
         }
         scene.waitForIdle()
-        // ⚠️ The veil reads its resource as HTML from 6.03 (*feed* in italics): the node holds the
-        // text without the tag.
-        val velo = AnnotatedString.fromHtml(app.getString(R.string.hint_feed)).text
-        // ⚠️ **The view's name is in italics, as he wrote it** (6.03): counter-tested with the
-        // resource passed as plain text, where the italics are gone and the tag is shown.
-        val scritto = scene.onNodeWithText(velo).fetchSemanticsNode().config[SemanticsProperties.Text].first()
-        val corsivo = scritto.spanStyles.filter { it.item.fontStyle == FontStyle.Italic }
-            .map { scritto.text.substring(it.start, it.end) }
-        assertEquals(listOf("feed"), corsivo)
+        val velo = app.getString(R.string.feed_order_desc)
+        scene.onNodeWithText(app.getString(R.string.hint_feed_newer)).assertExists()
+        scene.onNodeWithText(app.getString(R.string.hint_feed_older)).assertExists()
         scene.onNodeWithText(velo).assertExists().performClick()
         scene.waitForIdle()
         scene.onNodeWithText(velo).assertDoesNotExist()

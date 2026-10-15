@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -466,6 +467,16 @@ object Glyphs {
     /** La cartella col marchio dell'app: l'icona dell'intestazione di una cartella. */
     val FolderAiv: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_aiv)
+
+    /**
+     * The AIV folder of a folder's icon on the home screen ('Faro', from the 6.20): his drawing,
+     * `ic_folder_home.xml`.
+     *
+     * ⚠️ **Read outside a composition**, because the icon is painted into a bitmap for the launcher
+     * (`Shortcuts.folderIcon`); hence a function with a context and not a composable getter.
+     */
+    fun folderHome(context: Context): ImageVector =
+        ImageVector.vectorResource(context.theme, context.resources, R.drawable.ic_folder_home)
 
     /**
      * Il glifo che firma il piede della schermata delle informazioni.
