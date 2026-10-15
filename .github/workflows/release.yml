@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Check out the sources
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       # The four toolchain steps live in a composite action because `check.yml`
       # needs exactly the same ones: see `.github/actions/toolchain`.
@@ -288,7 +288,7 @@ jobs:
 
       - name: Check out the sources
         if: steps.ask.outputs.green != 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up the Android toolchain
         if: steps.ask.outputs.green != 'true'
