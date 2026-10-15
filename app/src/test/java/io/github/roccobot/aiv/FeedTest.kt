@@ -167,6 +167,10 @@ class FeedTest {
         scene.onNodeWithText(velo).assertExists().performClick()
         scene.waitForIdle()
         scene.onNodeWithText(velo).assertDoesNotExist()
+        // ⚠️ The veil is stored by a coroutine that writes the DataStore on its own thread: read at
+        // once, on a slower machine the value may still be the old one (6.03, red on the CI bench
+        // with the same line that was green on 6.02). The case waits for the write, up to 5 s.
+        scene.waitUntil(5_000) { runBlocking { Hint.FEED.flow(app).first() } }
         assertTrue("Il velo non si è archiviato", runBlocking { Hint.FEED.flow(app).first() })
     }
 
