@@ -427,6 +427,13 @@ giro tiene `Altro` e i suoi allegati, e perde solo la conferma della versione in
 generatore si ferma se il giro nominato è quello in corso o non ha più prove in pagina. Fino a quel
 giorno il DF cumulativo svuotava `Altro` come ogni cambio di giro. Lo presidia
 `tools/feedback-interactive-check.py`, con una bozza del giro che prosegue.
+⚠️ **Il giro può proseguire per più versioni di fila, e la riga resta la stessa** (6.20, 6.21 e
+6.22, col suo via del 2026-10-15): la riga nomina sempre il giro da cui la serie è partita, e una
+bozza salvata su una pagina qualunque della serie, dal giro nominato a quello prima della versione in
+pagina, tiene `Altro`. Le versioni si confrontano come numeri, perché SlimVer è decimale. Fino alla
+6.22 la pagina lo teneva solo per una bozza del giro nominato, e una bozza salvata sulla pagina della
+6.21 avrebbe perso `Altro` su quella della 6.22: la stessa prova lo controlla con una bozza della
+pagina di mezzo, e col codice di prima fallisce.
 **Gli allegati sono file veri**, mai testo: nella pagina e nella bozza del browser un
 allegato è `{name, type, size, blob}`, con i byte originali (dal 2026-10-03; prima erano testo
 base64, un terzo più pesante e tenuto per intero nella memoria della pagina).

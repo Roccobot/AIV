@@ -217,13 +217,21 @@ function alignDocumentVersion() {
   // A cumulative document (`spec.continues`, the user's rule of 2026-10-12) goes on with a round
   // he has not sent yet: a draft of that round keeps Altro and its attachments, because he is
   // still writing them, and only the 'installed' confirmation resets, since there is a new
-  // version to install.
+  // version to install. The round can go on for more releases in a row (6.20, 6.21 and 6.22,
+  // the user's go-ahead of 2026-10-15), so a draft saved on any page of the series keeps them,
+  // from the round named up to this one. Until 6.22 only a draft of the round named did, and a
+  // draft saved on the 6.21 page lost Altro on the 6.22 one. Versions are SlimVer, decimal
+  // numbers with two digits after the point, so they compare as numbers.
   if (draft.version === spec.version) return;
+  const goesOn =
+    Boolean(spec.continues) &&
+    Number(draft.version) >= Number(spec.continues) &&
+    Number(draft.version) < Number(spec.version);
   const listed = new Set(spec.items.map((item) => item.id));
   for (const id of Object.keys(draft.entries)) if (!listed.has(id)) delete draft.entries[id];
   const open = new Set(spec.labels.map((item) => item.id));
   for (const id of Object.keys(draft.labels)) if (!open.has(id)) delete draft.labels[id];
-  if (!spec.continues || draft.version !== spec.continues) {
+  if (!goesOn) {
     draft.notes = "";
     draft.extra = { images: [] };
   }
