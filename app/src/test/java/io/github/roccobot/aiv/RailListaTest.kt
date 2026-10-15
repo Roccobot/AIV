@@ -293,7 +293,8 @@ class RailListaTest {
     fun `il tocco lungo chiede di nascondere come sul telefono`() {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         org.robolectric.Shadows.shadowOf(app).grantPermissions(
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         var nascosta = false
         val cartella = Folder.Bucket(7, "Vacanze", 3, 0, null, "/tmp/Vacanze")
@@ -348,10 +349,12 @@ class RailListaTest {
      */
     @Test
     fun `il nome lungo va a capo sulle giunture camelCase`() {
-        // Senza il permesso di lettura il rail mostra l'invito e non la lista.
+        // Senza i permessi sull'archivio il rail mostra l'invito e non la lista: dalla 6.23, su
+        // Android 9 e 10, sono lettura e scrittura insieme (`Store.access`).
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         org.robolectric.Shadows.shadowOf(app).grantPermissions(
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
         val nome = "FotografieVacanzeEstateLunghissimeDavvero"
         val cartella = Folder.Bucket(8, nome, 3, 0, null, "/tmp/$nome")

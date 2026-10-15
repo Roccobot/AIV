@@ -185,9 +185,9 @@ object Store {
             val all = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Environment.isExternalStorageManager()
             } else {
-                // Up to Android 10 the wide permission does not exist, and the classic one
-                // on storage already shows everything.
-                has(Manifest.permission.READ_EXTERNAL_STORAGE)
+                // Up to Android 10 the wide permission does not exist: the classic pair on
+                // storage shows everything and lets the file commands write (see [storagePair]).
+                storagePair.all(::has)
             }
             return if (all) Access.FULL else Access.NONE
         }
@@ -204,6 +204,30 @@ object Store {
 
     /** Whether the folders can be read at all: a partial grant counts. */
     fun granted(context: Context): Boolean = access(context) != Access.NONE
+
+    /**
+     * The permissions `github` asks with the system dialog on Android 9 and 10, where the wide
+     * permission does not exist: reading and writing together.
+     *
+     * ⚠️⚠️ **Writing is there since 6.23** (his choice B1, 2026-10-15): until 6.22 only reading
+     * was asked, so the folders showed and every command that writes through `java.io.File`
+     * (delete, the bin, rename, copy, move) failed on Android 9 for lack of the permission, and on
+     * Android 10 because scoped storage refused another app's files. On Android 10 the write
+     * permission works only together with `requestLegacyExternalStorage`, in the manifest of
+     * `github`. The access counts as full only with both, so an install updated from 6.22 shows
+     * the invitation to grant access once more: the two are in the same group, and Android
+     * grants the second without showing its dialog.
+     */
+    private val storagePair = arrayOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
+    /**
+     * The permissions the system dialog asks in this variant: in `github` only below Android 11,
+     * because from there the access is the switch in a system page.
+     */
+    internal fun dialogPermissions(): Array<String> = if (files) storagePair.copyOf() else mediaPermissions()
 
     /**
      * The permissions `play` asks with the system dialog.
@@ -277,8 +301,7 @@ object Store {
                     }
                     if (!opened) onAnswer(false)
                 } else {
-                    val asked = if (files) arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE) else mediaPermissions()
-                    runCatching { fromDialog.launch(asked) }.onFailure { onAnswer(false) }
+                    runCatching { fromDialog.launch(dialogPermissions()) }.onFailure { onAnswer(false) }
                 }
             }
         }

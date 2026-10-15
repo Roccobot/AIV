@@ -10,9 +10,13 @@
         apre la porta all'accesso PARZIALE: la persona spunta tre foto, il
         MediaStore ne mostra tre, e una cartella da quattrocento risponde 'tre'.
         La variante `play` lo dichiara, e quel caso lo riconosce (`Store`).
-        ⚠️ Il secondo permesso è per i soli Android 9 e 10, dove quello ampio non
-        esiste e quello classico sull'archivio fa già vedere tutto: si ferma alla
-        29, o il verificatore segnala un permesso chiesto a vuoto.
+        ⚠️ Il secondo e il terzo sono per i soli Android 9 e 10, dove quello ampio
+        non esiste e la coppia classica sull'archivio fa vedere tutto e lascia
+        scrivere: si fermano alla 29, o il verificatore segnala un permesso chiesto
+        a vuoto. ⚠️⚠️ La scrittura c'è dalla 6.23 (sua scelta B1): fino alla 6.22
+        si chiedeva la sola lettura, e su Android 9 e 10 i comandi che scrivono sui
+        file (elimina, cestino, rinomina, copia, sposta) fallivano. `Store.access`
+        conta pieno l'accesso solo con tutti e due.
         ⚠️ Il primo NON si concede con un dialogo: è un permesso speciale, e la
         persona lo accende con un interruttore in una pagina di sistema (vedi
         `Folder.settingsIntents`).
@@ -21,6 +25,18 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+
+    <!--
+        ⚠️⚠️ Su Android 10 il permesso di scrittura da solo non basta: l'archivio a
+        compartimenti rifiuta i file delle altre app a `java.io.File`, e questa
+        richiesta lo spegne per AIV GitHub (dalla 6.23). Da Android 11 il sistema la
+        ignora, e là vale `MANAGE_EXTERNAL_STORAGE`. AIV Play non la chiede: elimina
+        attraverso il MediaStore (`MediaDelete`).
+    -->
+    <application android:requestLegacyExternalStorage="true" />
 
     <!--
         Dalla 5.60 AIV GitHub si aggiorna da sé (sue scelte C1 e D1; `Updater`): scarica l'APK

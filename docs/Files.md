@@ -57,8 +57,9 @@
 - ⚠️⚠️ **'Scarica' scrive in Download senza selettore** (sua istruzione: l'unica cartella che
   funziona senza autorizzazioni, anche in vista di Play).
   - ⚠️⚠️ **Su Android 9 resta il selettore**: `MediaStore.Downloads` nasce con l'API 29, e sotto
-    quella la cartella vuole `WRITE_EXTERNAL_STORAGE`, che l'app non chiede. Là il gesto apre il
-    selettore col nome già scritto. `ImageActions.downloadsWritable` sceglie la strada prima di
+    quella la cartella vuole `WRITE_EXTERNAL_STORAGE`, che AIV Play non chiede. AIV GitHub lo chiede
+    dalla `6.23` per i comandi sui file, e il gesto resta lo stesso nelle due varianti. Là il gesto
+    apre il selettore col nome già scritto. `ImageActions.downloadsWritable` sceglie la strada prima di
     provare, quindi un `false` di `saveToDownloads` vuol dire guasto e nient'altro.
   - ⚠️ **`IS_PENDING`**: la riga si scrive in sospeso e si chiude alla fine, e se la copia fallisce
     si cancella; senza, un download interrotto lascia in galleria un'immagine tagliata.
