@@ -1031,7 +1031,8 @@ fun rememberMenuState(vararg keys: Any?): MenuState = remember(*keys) { MenuStat
  * conclusione: per avere due gesti su un comando, il nodo che ascolta dev'essere **uno**.
  *
  * ⚠️ **LE MISURE SONO LETTE NEL BYTECODE DI `MenuKt`, NON RICORDATE** (`material3`
- * `1.5.0-alpha26`), perché queste voci stanno in mezzo al resto e due pixel si vedono:
+ * `1.5.0-alpha26`, uguali nei sorgenti della beta01), perché queste voci sono in mezzo al resto
+ * e due pixel si vedono:
  * altezza minima **48dp**, rientro orizzontale **12dp**, spazio fra icona e testo **8dp**
  * (`DropdownMenuIconTextPadding`, che diventa 12 solo con la resa da puntatore di precisione,
  * cioè col mouse), corpo **labelLarge**.

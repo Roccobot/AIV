@@ -16,7 +16,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -189,7 +188,7 @@ fun ConvertDialog(
                      * numerazione di quella lingua.
                      */
                     Heading(stringResource(R.string.convert_quality_at, quality))
-                    Slider(
+                    ValueSlider(
                         value = quality.toFloat(),
                         onValueChange = { quality = it.roundToInt() },
                         valueRange = QUALITY_MIN..QUALITY_MAX,

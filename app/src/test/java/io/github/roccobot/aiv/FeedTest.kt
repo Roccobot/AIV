@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
@@ -37,6 +37,12 @@ import org.robolectric.annotation.Config
  * ⚠️ **The order is the real [Feed.order]**, the function [Folder.feed] hands the MediaStore's rows
  * to: the cases build rows as the cursor gives them (taken in milliseconds or `null`, modified in
  * seconds) and read the stream the home draws.
+ *
+ * ⚠️⚠️ **The rule is `junit4.v2.createComposeRule` from 6.22**, for the reason found in 4.98 and
+ * written on `aspettaIlVelo` in `MenuInferioreTest`: the Feed's veil comes from the `produceState` of
+ * `FolderScreen` that reads the preferences' store, and with the old rule, when the store reads its
+ * file again, 'not seen' arrives on a worker thread and the home does not recompose. Case 6 fell so
+ * in the full bench of 6.22, green on its own.
  *
  * Author: Rocco Casadei, a.k.a. Roccobot
  */

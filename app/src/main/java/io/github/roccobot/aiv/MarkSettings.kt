@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -428,7 +427,7 @@ private fun MarkNumber(
                 }
             )
         }
-        Slider(
+        ValueSlider(
             value = quanto.toFloat(),
             onValueChange = {
                 quanto = it.roundToInt()

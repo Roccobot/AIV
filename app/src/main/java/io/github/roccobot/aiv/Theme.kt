@@ -139,8 +139,8 @@ private val LINK_DARK = Color(0xFF4FD9BE)
 /**
  * ⚠️⚠️ **IL FAB NON PRENDE `primary`, PRENDE `primaryContainer`**, e saperlo è la
  * differenza fra una tavolozza applicata e una tavolozza scritta. Verificato sul bytecode
- * di material3 1.5.0-alpha26: `FloatingActionButtonDefaults.containerColor`
- * risolve il token `PrimaryContainer`. Lasciando quel ruolo al suo valore di serie, il
+ * di material3 1.5.0-alpha26, e invariato nei sorgenti della beta01 (6.22):
+ * `FloatingActionButtonDefaults.containerColor` risolve il token `PrimaryContainer`. Lasciando quel ruolo al suo valore di serie, il
  * FAB sarebbe rimasto **viola** in mezzo a tutto il resto.
  * ⚠️ Qui `primaryContainer` vale **quanto** `primary`, e non è una svista: la richiesta
  * dice un accento solo, e un contenitore più tenue sarebbe un secondo accento.
