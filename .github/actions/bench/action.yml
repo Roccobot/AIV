@@ -1,0 +1,42 @@
+name: Bench
+description: The translation check, the bench of the two variants, and the bench report when it fails.
+
+# ⚠️⚠️ ONE COPY FOR `check.yml` AND THE GATE OF `release.yml` (6.30, Setaccio G9). Two copies of
+# the same steps are two lists that drift: a step added to one would make the gate test
+# something else than the check. Same reason as the toolchain action next to this one.
+# Author: Rocco Casadei, a.k.a. Roccobot
+
+runs:
+  using: composite
+  steps:
+    # First, because it fails in seconds and the bench takes minutes (Setaccio G3): a missing
+    # translation is known at once, and the bench still runs after it.
+    - name: Check the translations
+      shell: bash
+      run: python3 tools/i18n-check.py
+
+    # ⚠️⚠️ TWO VARIANTS, AND THE BENCH RUNS ON BOTH IN TWO DIFFERENT WAYS. The whole bench runs on
+    # `github`; on `play` only the classes named `*PlayTest` run (`app/src/testPlay`), because
+    # the shared tests click Delete, Rename, Move and the rest, which `play` leaves out. Which
+    # functions `play` leaves out lives in `Rules.md`.
+    # ⚠️⚠️ A TIME LIMIT ON THE COMMAND (6.25, Setaccio E1). Without one GitHub waits 6 hours, and a
+    # bench stuck on a DataStore write once stood still for four. A composite action takes no
+    # `timeout-minutes` on its steps, so the shell's `timeout` does it: when it runs out the
+    # step FAILS, and the report below is kept. A whole bench takes 5-7 minutes on GitHub.
+    - name: Run the bench
+      if: ${{ !cancelled() }}
+      shell: bash
+      run: timeout 30m ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:testPlayDebugUnitTest --tests '*PlayTest'
+
+    # ⚠️ Without the report a failure gives a name and nothing else: it says WHICH assertion fell
+    # and with what message, and the XML results say which class was running when a bench
+    # stopped.
+    - name: Keep the bench report when it fails
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: bench-report
+        path: |
+          app/build/reports/tests/
+          app/build/test-results/
+        if-no-files-found: ignore

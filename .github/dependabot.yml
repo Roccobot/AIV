@@ -1,4 +1,4 @@
-# Dependabot: the versions of GitHub's actions that the workflows and the toolchain action use,
+# Dependabot: the versions of GitHub's actions that the workflows and the two composite actions use,
 # every Monday, as pull requests (Rules.md, '🧰 Gli strumenti che questo repo si porta dietro').
 # Each one is read before it is merged. The libraries of the app are not here: they are in the
 # register, docs/Dependencies.json, which the weekly check reads.
@@ -9,6 +9,7 @@ updates:
     directories:
       - /
       - /.github/actions/toolchain
+      - /.github/actions/bench
     schedule:
       interval: weekly
       day: monday

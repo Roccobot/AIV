@@ -62,12 +62,22 @@ runs:
     # first time it runs, and that file lands in ~/.m2, which `setup-gradle`
     # does NOT cache: its cache covers Gradle's own, and Robolectric fetches
     # this one itself, through Maven's local repository.
-    # ⚠️ The key is the two files that decide WHICH platform is fetched: the
-    # version catalogue, which pins Robolectric, and the properties file, which
-    # pins the API level. Anything else changing must not throw the cache away,
-    # and either of those changing must.
+    # ⚠️ The key is what decides WHICH platforms are fetched: the version
+    # catalogue, which pins Robolectric, the properties file, which pins the API
+    # level of most tests, and the `@Config(sdk = [...])` of the tests that ask
+    # for another one (28, 29, 30 and 33 today). Without the last part a test on a
+    # new API level fetched its platform at every run, because `actions/cache`
+    # does not save again under a key it already has (6.30, Setaccio G22).
+    - name: List the API levels the tests ask for
+      id: sdks
+      shell: bash
+      run: |
+        set -euo pipefail
+        levels="$(grep -rhoE 'sdk = \[[^]]*\]' app/src/test app/src/testPlay | sort -u | sha256sum | cut -c1-16)"
+        echo "hash=${levels}" >> "$GITHUB_OUTPUT"
+
     - name: Cache the platform the bench needs
       uses: actions/cache@v6
       with:
         path: ~/.m2/repository/org/robolectric
-        key: robolectric-${{ hashFiles('gradle/libs.versions.toml', 'app/src/test/resources/robolectric.properties') }}
+        key: robolectric-${{ hashFiles('gradle/libs.versions.toml', 'app/src/test/resources/robolectric.properties') }}-${{ steps.sdks.outputs.hash }}

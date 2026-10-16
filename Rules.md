@@ -1306,6 +1306,9 @@ esecuzione.
     che cambiano soltanto file `.md` (il banco non li legge, e l'Action `core-sync` vi committa
     `AGENTS.md`); ed è il cancello di `release.yml`, che si fida della corsa di `check.yml` sullo
     stesso commit (§ '🚀 Che cosa produce un rilascio'). Si lancia comunque a mano prima della PR.
+    I passi (traduzioni, banco col tempo massimo, rapporto) sono scritti una volta sola
+    nell'azione `.github/actions/bench`, dalla `6.30`, e le traduzioni vengono prima: falliscono in
+    pochi secondi, e il banco gira lo stesso.
   - ⚠️⚠️ **Le cache di Actions si potano da sole dalla `4.45`** (B1): il lavoro `caches` di
     `check.yml`, a ogni push su `main`, toglie per prime le meno usate di recente finché il totale
     è sotto i 6 GB, e scrive l'occupazione nel riepilogo della corsa. Prima lo svuotamento lo
