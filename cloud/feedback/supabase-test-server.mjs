@@ -8,7 +8,7 @@ export async function testServer(port = 0) {
   await db.exec('create role anon; create role authenticated; create role service_role bypassrls; create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);');
   await db.exec(await readFile(new URL('./supabase-setup.sql',import.meta.url),'utf8'));
   await db.exec('grant usage on schema storage to service_role; grant select on storage.buckets to service_role; set role service_role;');
-  const files = new Map(), calls = [];
+  const files = new Map(), calls = [], fixture = {listing:'ok'};
   const server = createServer(async (request,response) => {
     const reply = (body,status=200,type='application/json') => {
       response.writeHead(status,{'Content-Type':type});
@@ -37,6 +37,14 @@ export async function testServer(port = 0) {
         const args=JSON.parse(bytes.toString());
         return reply((await db.query('select public.aiv_feedback_save($1,$2,$3) as result',[args.p_owner_id,args.p_expected_revision,JSON.stringify(args.p_draft)])).rows[0].result);
       }
+      // The listing of one folder, as the storage API answers it: names relative to the prefix.
+      // `listing` set to 'broken' answers in another shape, for the fallback of SupabaseStore.sizes.
+      if (url.pathname === '/storage/v1/object/list/aiv-feedback' && request.method === 'POST') {
+        const {prefix,limit,offset}=JSON.parse(bytes.toString());
+        if (fixture.listing === 'broken') return reply({error:'InvalidRequest'},400);
+        const names=[...files.keys()].filter(key=>key.startsWith(prefix+'/')).map(key=>key.slice(prefix.length+1)).filter(name=>!name.includes('/')).sort();
+        return reply(names.slice(offset,offset+limit).map(name=>({name,id:name,metadata:{size:files.get(prefix+'/'+name).length}})));
+      }
       if (url.pathname === '/storage/v1/object/aiv-feedback' && request.method === 'DELETE') {
         const {prefixes}=JSON.parse(bytes.toString());
         for (const key of prefixes) files.delete(key);
@@ -59,8 +67,8 @@ export async function testServer(port = 0) {
     }
   });
   await new Promise(resolve=>server.listen(port,'127.0.0.1',resolve));
-  return {url:'http://127.0.0.1:'+server.address().port,db,files,calls,
-    close:async()=>{await new Promise(resolve=>server.close(resolve));await db.close();}};
+  return Object.assign(fixture,{url:'http://127.0.0.1:'+server.address().port,db,files,calls,
+    close:async()=>{await new Promise(resolve=>server.close(resolve));await db.close();}});
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const fixture=await testServer(Number(process.argv[2] || 8790));

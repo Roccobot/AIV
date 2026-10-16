@@ -123,11 +123,11 @@ async function handle(request, env) {
       let draft;
       try { draft = JSON.parse(text); } catch { return json({error:'JSON non valido.'},400); }
       if (!validDraft(draft)) return json({error:'Documento non valido.'},400);
-      // A draft references only fully uploaded immutable files belonging to this owner.
-      for (const file of draftFiles(draft)) {
-        const stored = await store.head(root(env)+'files/'+file.storageKey);
-        if (!stored || stored.size !== file.size) return json({error:'Allegato non ancora salvato.'},400);
-      }
+      // A draft references only fully uploaded immutable files belonging to this owner. Since 6.29
+      // the keys are checked once each and together (`sizes`): see SupabaseStore.sizes.
+      const files = draftFiles(draft), keys = [...new Set(files.map(file => root(env)+'files/'+file.storageKey))];
+      const sizes = await store.sizes(keys);
+      if (files.some(file => sizes.get(root(env)+'files/'+file.storageKey) !== file.size)) return json({error:'Allegato non ancora salvato.'},400);
       const match = request.headers.get('If-Match');
       if (!match) return json({error:'Versione del documento obbligatoria.'},428);
       // Compression may weaken an HTTP ETag without changing the database revision.

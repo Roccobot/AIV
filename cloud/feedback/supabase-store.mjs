@@ -1,4 +1,5 @@
 // Server-only adapter. The browser never receives Supabase credentials or endpoints.
+const LIST_PAGE = 1000;
 export class SupabaseStore {
   constructor(env) {
     this.url = new URL(env.SUPABASE_URL);
@@ -51,6 +52,39 @@ export class SupabaseStore {
     const info = await response.json();
     if (!Number.isInteger(info.size) || info.size < 1) throw Error('Allegato cloud incompleto.');
     return {size:info.size};
+  }
+  /*
+   * The sizes of the attachments [keys] that are stored, since 6.29 (H1 of the 6.25 review): one
+   * listing of the owner's files folder, a page of a thousand at a time, in place of one request per
+   * attachment. Workers Free allows 50 outgoing requests per request, so a draft with 50
+   * attachments could no longer be saved. The listing (`POST /storage/v1/object/list`, body read in
+   * the storage sources) answers names relative to the prefix and the size in `metadata.size`;
+   * whatever it does not confirm is asked one by one, as before, so a listing that answered in
+   * another shape would cost the old requests and never a refused draft.
+   */
+  async sizes(keys) {
+    const wanted = new Set(keys), found = new Map(), folder = this.prefix+'files';
+    try {
+      for (let offset = 0; ; offset += LIST_PAGE) {
+        const response = await this.request('/storage/v1/object/list/aiv-feedback',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({prefix:folder,limit:LIST_PAGE,offset,sortBy:{column:'name',order:'asc'}})
+        });
+        const page = await response.json();
+        if (!Array.isArray(page)) break;
+        for (const item of page) {
+          const key = folder+'/'+item?.name, size = item?.metadata?.size;
+          if (wanted.has(key) && Number.isInteger(size) && size > 0) found.set(key,size);
+        }
+        if (page.length < LIST_PAGE || found.size === wanted.size) break;
+      }
+    } catch { /* The single checks below answer for whatever the listing did not confirm. */ }
+    for (const key of wanted) {
+      if (found.has(key)) continue;
+      const stored = await this.head(key);
+      if (stored) found.set(key,stored.size);
+    }
+    return found;
   }
   async get(key) {
     if (key === this.prefix+'current.json') return this.current();

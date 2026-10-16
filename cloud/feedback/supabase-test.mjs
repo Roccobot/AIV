@@ -46,8 +46,28 @@ try {
   assert.equal((await put(tag,missing)).status,400);
   const wrongSize=structuredClone(withFiles);wrongSize.extra.images[0].size++;
   assert.equal((await put(tag,wrongSize)).status,400);
+  // 6.29 (H1): sixty attachments, one of them in two places, are checked with one listing and no
+  // single request; Workers Free refuses the 51st outgoing request of a request.
+  const many=[];
+  for (let i=0;i<60;i++) {
+    const bytes=Buffer.from('allegato '+i), storageKey=createHash('sha256').update(bytes).digest('hex');
+    assert.equal((await worker.fetch(request('/api/files/'+storageKey,{method:'PUT',body:bytes}),env)).status,204);
+    many.push({name:'schermata-'+i+'.png',type:'image/png',size:bytes.length,storageKey});
+  }
+  const crowded={...draft,entries:{a:{status:'',comment:'',images:many.slice(0,30)},b:{status:'',comment:'',images:[...many.slice(30,59),many[0]]}},extra:{images:[many[59]]}};
+  let before=fixture.calls.length;
+  let saved=await put(tag,crowded);
+  assert.equal(saved.status,200);
+  const checks=fixture.calls.slice(before).filter(call=>call.path.startsWith('/storage/'));
+  assert.deepEqual(checks.map(call=>call.path),['/storage/v1/object/list/aiv-feedback'],'one listing, no single checks');
+  // A listing that answers in another shape costs the old single checks, never a refused draft.
+  fixture.listing='broken';
+  before=fixture.calls.length;
+  assert.equal((await put(saved.headers.get('ETag'),{...crowded,notes:'ancora'})).status,200);
+  assert.equal(fixture.calls.slice(before).filter(call=>call.path.startsWith('/storage/v1/object/info/')).length,60);
+  fixture.listing='ok';
   assert.equal(fixture.calls.filter(call=>call.authorization!==undefined).length,0);
-  assert.equal((await fixture.db.query('select count(*)::int as count from public.aiv_feedback_history')).rows[0].count,3);
+  assert.equal((await fixture.db.query('select count(*)::int as count from public.aiv_feedback_history')).rows[0].count,5);
   assert.equal((await worker.fetch(request('/api/feedback'),{...env,SUPABASE_SECRET_KEY:'wrong-key'})).status,503);
   console.log('Supabase: Worker reale, HTTP e PostgreSQL, due scritture concorrenti, revisioni, SVG/ZIP identici, duplicati, riferimenti, chiave solo server ed errori verificati.');
 } finally {await fixture.close();}

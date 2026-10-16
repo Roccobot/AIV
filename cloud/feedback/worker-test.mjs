@@ -4,6 +4,7 @@ import worker from './worker.mjs';
 class Bucket {
   objects = new Map();
   async head(key) { const value=this.objects.get(key); return value ? {size:value.bytes.length,etag:value.etag,httpEtag:'"'+value.etag+'"'} : null; }
+  async sizes(keys) { const found=new Map(); for (const key of keys) { const value=await this.head(key); if (value) found.set(key,value.size); } return found; }
   async get(key) { const value=this.objects.get(key); return value ? {...await this.head(key),body:new Response(value.bytes).body} : null; }
   async put(key,body,options={}) {
     const existing=await this.head(key), condition=options.onlyIf;
