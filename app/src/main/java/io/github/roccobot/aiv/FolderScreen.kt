@@ -126,23 +126,15 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
- * Le cartelle di immagini del telefono: **la schermata iniziale dell'app**, dalla `0.41`.
+ * Le cartelle di immagini del telefono: **la schermata iniziale dell'app** (decisione
+ * dell'utente: chi apre un visualizzatore vuole vedere immagini, e le altre vie sono dietro il
+ * FAB).
  *
- * ⚠️⚠️ **PRIMA C'ERA UNA SCHERMATA CHE CHIEDEVA DA DOVE COMINCIARE, con cinque tasti, ed
- * è sparita** (decisione dell'utente, 2026-08-29: *non ha più senso la scelta multipla
- * all'avvio, la risolviamo in modo smart*). Chi apre un visualizzatore di immagini vuole
- * vedere immagini: la domanda 'da dove?' la si risponde da soli, e le vie che non sono la
- * risposta di quasi sempre vivono dietro un FAB.
+ * Serve a due cose: aprire una cartella adesso, e scegliere quella da aprire all'avvio. È la
+ * stessa domanda, quindi la stessa schermata. Nella seconda veste il FAB non c'è e il gesto
+ * Indietro sì: si risponde a una domanda.
  *
- * ⚠️ **Serve a DUE cose e la seconda non è un doppione**: da qui si apre una cartella
- * adesso, e da qui si sceglie quella da aprire all'avvio. È la stessa domanda ('quale
- * cartella?'), quindi è la stessa schermata: due elenchi identici che divergono al primo
- * ritocco sono il modo classico di far invecchiare una funzione. ⚠️ Nella seconda veste
- * il FAB **non c'è** e il gesto Indietro **sì**, che è l'esatto contrario della
- * prima: si sta rispondendo a una domanda, non girando per l'app.
- *
- * ⚠️ Le copertine e l'elenco sono **due viste della stessa cosa** e non una migliore
- * dell'altra: vedi `FolderView`.
+ * Le viste sono modi diversi di guardare la stessa cosa: `FolderView`.
  */
 @Composable
 fun FolderScreen(
@@ -150,18 +142,13 @@ fun FolderScreen(
     /**
      * Quante colonne mostrano le copertine. Vedi `FOLDER_COLUMNS` in `Settings.kt`.
      *
-     * ⚠️ **Dalla `0.93` decide SOLO la larghezza delle copertine**, e quante righe si
-     * vedano è una conseguenza: l'intestazione si prende [HEADER_SHARE] dello schermo e la
-     * griglia riempie il resto. Fra la `0.60` e la `0.92` il numero governava anche le
-     * righe, che venivano riservate una per una.
+     * Decide solo la larghezza delle copertine: quante righe si vedono è una conseguenza,
+     * perché l'intestazione prende [HEADER_SHARE] dello schermo e la griglia il resto.
      */
     columns: Int,
     /**
      * Se sotto la copertina si vede il conto delle immagini. Vedi `Settings.folderCount`.
-     *
-     * ⚠️ **Spegnendolo la riga si accorcia**, quindi nello stesso spazio ne entra qualcuna
-     * in più: dalla `0.93` l'intestazione non si adatta, ed è la griglia a riempire quello
-     * che le tocca.
+     * Spento, la riga si accorcia e ne entrano di più: l'intestazione non si adatta.
      */
     counted: Boolean,
     /**
@@ -171,16 +158,14 @@ fun FolderScreen(
     /**
      * Il colore scelto per ogni cartella che ne ha uno. Vedi `ViewerViewModel.folderTints`.
      *
-     * ⚠️ **La mappa arriva intera e non una tinta per cella**: le voci sono poche e vivono in
-     * una chiave sola dell'archivio, mentre le celle sono decine (vedi `FolderTints.all`).
+     * La mappa arriva intera: le voci sono poche e vivono in una chiave sola dell'archivio,
+     * le celle sono decine (`FolderTints.all`).
      */
     tints: Map<Long, Int>,
     /**
      * La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`.
-     *
-     * ⚠️ **Arriva come la mappa delle tinte e per la stessa ragione**, e come quella dice chi è
-     * segnato e non quante cartelle ci sono: chi non compare qui dentro tiene la sua copertina
-     * automatica, cioè l'immagine più recente.
+     * Arriva come la mappa delle tinte: chi non compare tiene la copertina predefinita,
+     * l'immagine più recente.
      */
     covers: Map<Long, Uri> = emptyMap(),
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
@@ -192,8 +177,8 @@ fun FolderScreen(
      * Se le nascoste sono in scena adesso, per il minuto di 'Mostra nascoste'. Vedi
      * `ViewerViewModel.peeking`.
      *
-     * ⚠️ **Le cartelle in più si vedono per quello che sono**: al 70% di inchiostro e con il
-     * segno del vuoto in un angolo, che è la sua specifica.
+     * Le cartelle in più si riconoscono: al 70% di inchiostro e col segno del vuoto in un
+     * angolo (specifica dell'utente).
      */
     peeking: Boolean = false,
     /** Accende e spegne la vista temporanea. */
@@ -201,11 +186,9 @@ fun FolderScreen(
     /**
      * Rimostra per sempre, cioè toglie queste voci da `Settings.hiddenFolders`.
      *
-     * ⚠️⚠️ **LE VOCI ARRIVANO TUTTE INSIEME, DALLA `2.96`**: una cartella dentro una nascosta è
-     * coperta dalla sua antenata, e rimostrarla vuol dire togliere anche quella voce. Fino alla
-     * `2.95` il dialogo toglieva la sola voce col percorso della cartella, cioè niente, e la cartella
-     * restava nascosta. Due chiamate da una voce ciascuna scriverebbero due volte partendo dallo
-     * stesso elenco, e la seconda rimetterebbe quello che la prima ha tolto.
+     * ⚠️ **Le voci arrivano tutte insieme**: una cartella dentro una nascosta è coperta
+     * dall'antenata, e rimostrarla vuol dire togliere anche quella voce. Due chiamate partirebbero
+     * dallo stesso elenco, e la seconda rimetterebbe quello che la prima ha tolto.
      */
     onUnhide: (Collection<String>) -> Unit = {},
     recents: List<RecentImage>,
@@ -219,46 +202,42 @@ fun FolderScreen(
     onSearch: () -> Unit,
     onBin: () -> Unit,
     /**
-     * The Feed, and `null` until its first reading ends. See `ViewerViewModel.feed`.
+     * Il Feed, e `null` finché la prima lettura non è finita. Vedi `ViewerViewModel.feed`.
      *
-     * ⚠️ **From 6.02 the Feed takes the Start menu box of the switch between the round key and
-     * the pill** (his choice: *non serve, ed era solo un riempitivo*): the switch lives in the
-     * settings, under the main control.
+     * Nel Menu 'Start' il Feed ha preso la casella dell'interruttore fra tondo e pillola (scelta
+     * dell'utente, 6.02), che è nelle impostazioni, sotto l'elemento principale.
      */
     feed: Feed.Page?,
-    /** Which date puts the Feed in order. See [FeedDate]. */
+    /** Quale data ordina il Feed. Vedi [FeedDate]. */
     feedDate: FeedDate,
     onFeedDate: (FeedDate) -> Unit,
     /**
-     * Asks the model to read the Feed, saying whether the permission is there: it reads only when
-     * something the stream depends on has changed (`ViewerViewModel.readFeed`).
+     * Chiede al modello di leggere il Feed, dicendo se il permesso c'è: legge solo quando è
+     * cambiato qualcosa da cui il flusso dipende (`ViewerViewModel.readFeed`).
      */
     onFeedRead: (Boolean) -> Unit,
     onFeedLeft: () -> Unit = {},
-    /** A picture touched in the Feed: the stream and the position. */
+    /** Un'immagine toccata nel Feed: il flusso e la posizione. */
     onFeedOpen: (List<Uri>, Int) -> Unit,
     /**
-     * An operation of the Feed's selection has ended: the stream is read again whatever its keys
-     * say (`ViewerViewModel.rereadFeed`), because renaming or moving changes no key of its own.
+     * Un'operazione della selezione del Feed è finita: il flusso si rilegge comunque
+     * (`ViewerViewModel.rereadFeed`), perché rinominare o spostare non cambia nessuna sua chiave.
      */
     onFeedChanged: () -> Unit,
-    /** Whether a selection is alive in the Feed: `ViewerViewModel.feedBusy`. */
+    /** Se nel Feed c'è una selezione aperta: `ViewerViewModel.feedBusy`. */
     onFeedBusy: (Boolean) -> Unit = {},
     /**
-     * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
+     * Cambia il numero di colonne: lo scrive la scorciatoia del tocco lungo.
      *
-     * ⚠️ **La stessa impostazione delle preferenze e non una seconda**: la scorciatoia è una
-     * via più corta per la stessa manopola, quindi il numero resta globale e la si ritrova
-     * cambiata anche là. Era la richiesta (*che resta globale per tutte le cartelle*).
+     * È la stessa impostazione delle preferenze: il numero resta globale per tutte le cartelle,
+     * come chiesto.
      */
     onColumns: (Int) -> Unit,
     /**
      * Le opzioni delle altre due viste, dal popup del tocco lungo. Vedi `Settings`.
      *
-     * ⚠️ **Senza valore predefinito apposta**: con uno, un giorno che il richiamo si
-     * dimenticasse di passarle il compilatore tacerebbe e la schermata mostrerebbe le
-     * opzioni funzionanti ma scollegate dalle preferenze, che è il difetto che non si
-     * vede. Il modificatore resta l'unico parametro con un valore suo.
+     * Senza valore predefinito apposta: con uno, un chiamante che si dimenticasse di passarle
+     * mostrerebbe opzioni scollegate dalle preferenze, e il compilatore tacerebbe.
      */
     listCount: Boolean,
     listText: TextSize,
@@ -271,10 +250,8 @@ fun FolderScreen(
     /**
      * Dov'è la vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
-     * ⚠️⚠️ **VIVE NEL MODELLO e non qui dentro**, ed è la ragione per cui arriva come
-     * parametro invece di essere un `remember`: si esce da questa schermata ogni volta che si
-     * apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
-     * locale si azzererebbe a ogni andata e ritorno, riportando in cima.
+     * Vive nel modello: da questa schermata si esce a ogni immagine aperta, e un `remember`
+     * locale riporterebbe in cima a ogni ritorno.
      */
     treePath: String?,
     /** Se eliminare vuol dire mandare nel cestino: serve alle azioni della vista ad albero. */
@@ -282,42 +259,26 @@ fun FolderScreen(
     /** I campi delle informazioni, per la voce 'Info' della vista ad albero. */
     factFields: List<FactField>,
     onTreePath: (String?) -> Unit,
-    /** Una fotografia toccata nella vista delle cartelle di sistema: la serie e la posizione. */
+    /** Un'immagine toccata nella vista delle cartelle di sistema: la serie e la posizione. */
     onTreeOpen: (List<Uri>, Int) -> Unit,
     /**
-     * Se questa è la veste **'scegli la cartella d'avvio'** invece della casa.
-     *
-     * ⚠️⚠️ **È IL DATO TIPIZZATO, E FINO ALLA `1.80` LA VESTE SI DEDUCEVA DA UN `onBack` NULLO**
-     * (censimento della UI del 2026-09-05). Il valore esisteva già nel chiamante,
-     * `Screen.Folders.forStart`, quindi la deduzione traduceva un dato in una convenzione e
-     * chiedeva a chi legge di sapere che 'senza Indietro' vuol dire 'sono la casa'.
-     * ⚠️ **La deduzione teneva in piedi anche uno smart cast**, e va saputo per non rifarla: con
-     * `home` ricavato dal confronto con `null`, Kotlin sapeva che dentro il ramo `onBack` non era
-     * nullo. Adesso quel parametro non è più annullabile, quindi non c'è niente da dedurre.
+     * Se questa è la veste **'scegli la cartella d'avvio'** invece della casa: il dato del
+     * chiamante (`Screen.Folders.forStart`), senza dedurlo da altri parametri.
      */
     forStart: Boolean,
-    /**
-     * Torna indietro dalla scelta della cartella d'avvio.
-     *
-     * ⚠️ **Vale solo con [forStart] acceso**: nella casa non c'è nessun posto da cui tornare, e
-     * là questa non viene chiamata mai.
-     */
+    /** Torna indietro dalla scelta della cartella d'avvio; vale solo con [forStart] acceso. */
     onBack: () -> Unit = {},
     /**
      * Le cartelle del telefono, non filtrate, e `null` finché la prima lettura non è finita.
      * Vedi `ViewerViewModel.buckets`.
      *
-     * ⚠️⚠️ **ARRIVA DA FUORI DALLA `1.46`, e prima se la leggeva questa schermata**: da qui si
-     * esce a ogni immagine aperta, quindi un elenco ricordato qui dentro moriva col
-     * composabile e ogni ritorno pagava una query sul MediaStore, con la rotella al posto
-     * delle copertine, per riottenere l'elenco di un attimo prima.
+     * Arriva dal modello: da qui si esce a ogni immagine aperta, e un elenco tenuto qui
+     * costerebbe a ogni ritorno una query sul MediaStore, con la rotella al posto delle copertine.
      */
     buckets: List<Folder.Bucket>?,
     /**
-     * Chiede al modello di rileggere, dicendogli se il permesso c'è.
-     *
-     * ⚠️ **Il permesso lo sa questa schermata e non il modello**: è lei a rinfrescarlo al
-     * ritorno dalla pagina di sistema, e nessuno gliene manda notizia.
+     * Chiede al modello di rileggere, dicendogli se il permesso c'è: il permesso lo sa questa
+     * schermata, che lo rinfresca al ritorno dalla pagina di sistema.
      */
     onRead: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -329,9 +290,9 @@ fun FolderScreen(
     /**
      * Se in AIV Play la persona ha concesso solo alcune immagini (da Android 14, [Store]).
      *
-     * ⚠️ **Si rilegge a ogni ritorno nell'app, insieme a [granted]**: il permesso si cambia
-     * anche dalle impostazioni di sistema, senza chiudere l'app, e Android dice di non tenerlo
-     * da parte. Nella variante `github` vale sempre `false`.
+     * Si rilegge a ogni ritorno nell'app, con [granted]: il permesso cambia anche dalle
+     * impostazioni di sistema, e Android dice di non tenerlo da parte. In AIV GitHub è sempre
+     * `false`.
      */
     var partial by remember { mutableStateOf(Store.access(context) == Store.Access.PARTIAL) }
     val reread = {
@@ -347,10 +308,8 @@ fun FolderScreen(
      * La cartella che si sta per nascondere, e `null` quando non se ne sta nascondendo
      * nessuna.
      *
-     * ⚠️⚠️ **IL TOCCO LUNGO CHIEDE, NON FA**, e non è pignoleria: su questa schermata il
-     * tocco lungo non esisteva, quindi il primo che capita è quasi sempre un tocco
-     * normale venuto male. Far sparire una cartella per sbaglio, senza dire dove è
-     * finita, è il modo di far credere che l'app abbia perso delle foto.
+     * ⚠️ **Il tocco lungo chiede, non fa**: un tocco lungo per sbaglio farebbe sparire una
+     * cartella senza dire dov'è finita, e sembrerebbe che l'app abbia perso delle immagini.
      */
     var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
 
@@ -359,127 +318,111 @@ fun FolderScreen(
 
     /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul FAB. */
     var sizing by remember { mutableStateOf(false) }
-    /** If 'Cartelle preferite' is open over the home, from the row at the end of the options. */
+    /** Se 'Cartelle preferite' è aperta sopra la casa, dalla riga in fondo alle opzioni. */
     var favouring by remember { mutableStateOf(false) }
     /** Selezione multipla in Cartelle di sistema: nasconde il FAB sotto [PickSheet]. */
     var treeBusy by remember { mutableStateOf(false) }
 
     /**
-     * The pictures chosen in the Feed, from 6.03 (his request: *il feed deve avere la selezione
-     * multipla*). Saveable, as the grid's: turning the phone keeps it.
-     * ⚠️ **Only addresses still in the stream count**: after an operation, or a reading that lost a
-     * picture, the others stay chosen and the lost one leaves (see the effect below).
+     * Le immagini scelte nel Feed (richiesta dell'utente, 6.03). Salvabile, come quella della
+     * griglia: sopravvive alla rotazione.
+     * Contano solo gli indirizzi ancora nel flusso: dopo un'operazione, o una lettura che ha perso
+     * un'immagine, le altre restano scelte (effetto qui sotto).
      */
     var feedChosen by rememberSaveable(stateSaver = UriSetSaver) { mutableStateOf(emptySet()) }
     val feedPicking = !forStart && view == FolderView.FEED && feedChosen.isNotEmpty()
-    /** The operation the Feed's sheet has opened, as `job` in the grid. */
+    /** L'operazione aperta dalla scheda del Feed, come `job` nella griglia. */
     var feedTask by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
-    /** How tall the Feed's sheet is, for the room under the last row. */
+    /** L'altezza della scheda del Feed, per lo spazio sotto l'ultima riga. */
     var feedSheet by remember { mutableIntStateOf(0) }
     LaunchedEffect(feed) {
         val there = feed?.items?.toSet() ?: return@LaunchedEffect
         if (!there.containsAll(feedChosen)) feedChosen = feedChosen intersect there
     }
-    // ⚠️ Leaving the Feed lets the selection go, as leaving a folder does.
+    // Uscire dal Feed lascia la selezione, come uscire da una cartella.
     LaunchedEffect(view) { if (view != FolderView.FEED) feedChosen = emptySet() }
     BackHandler(enabled = feedPicking) { feedChosen = emptySet() }
-    // ⚠️ While something is chosen the model puts off reading the Feed from outside (6.27, finding
-    // D15 of the 6.25 review), as it does for a folder's grid: a new page is a new key of the
-    // gesture, and the drag under the finger would end. The reading is paid when the choice ends.
+    // ⚠️ Con una selezione aperta il modello rimanda le riletture del Feed da fuori (rilievo D15),
+    // come per la griglia di una cartella: una pagina nuova è una chiave nuova del gesto, e il
+    // trascinamento sotto il dito finirebbe. La lettura si paga a selezione chiusa.
     LaunchedEffect(feedPicking) { onFeedBusy(feedPicking) }
     DisposableEffect(Unit) { onDispose { onFeedBusy(false) } }
 
     /**
-     * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
+     * Se si sta scrivendo il nome di una sottocartella nuova.
      *
-     * ⚠️ **Lo stato vive qui e non nel menu**, come `sizing`: un FAB che si apre un
-     * dialogo da sé diventa il posto in cui cercare quel dialogo, che non è il punto in cui vive.
+     * Lo stato è qui e non nel menu, come `sizing`: il dialogo si cerca nella schermata.
      */
     var making by remember { mutableStateOf(false) }
 
     /**
      * Se il velo che insegna la scorciatoia delle colonne si è già visto.
      *
-     * ⚠️ **Parte da 'già visto', e come nella griglia delle foto è la scelta prudente**: il
-     * valore vero arriva dall'archivio un attimo DOPO la prima composizione, quindi partendo
-     * da `false` il velo comparirebbe per un fotogramma anche a chi l'ha già chiuso.
+     * Parte da 'già visto', come nella griglia: il valore vero arriva dall'archivio dopo la
+     * prima composizione, e da `false` il velo comparirebbe per un fotogramma a chi l'ha chiuso.
      */
     val columnsSeen by produceState(initialValue = true, context) {
         Hint.COLUMNS.flow(context).collect { value = it }
     }
 
     /**
-     * ⚠️ La bandierina locale esiste perché l'archivio risponde con un giro di ritardo:
-     * scrivere in DataStore e aspettare che il flusso riemetta vuol dire un fotogramma o due
-     * col velo ancora steso, e nel caso peggiore col dialogo che si apre **sotto** di lui.
+     * La bandierina locale, perché l'archivio risponde con un giro di ritardo: il velo
+     * resterebbe steso un fotogramma o due, col dialogo che si apre sotto di lui.
      */
     var columnsOff by remember { mutableStateOf(false) }
 
-    /** Whether the Feed's veil has been seen: starts at 'seen' for the reason of [columnsSeen]. */
+    /** Se il velo del Feed si è già visto: parte da 'già visto' come [columnsSeen]. */
     val feedSeen by produceState(initialValue = true, context) {
         Hint.FEED.flow(context).collect { value = it }
     }
 
-    /** The local flag of the Feed's veil, for the reason of [columnsOff]. */
+    /** La bandierina locale del velo del Feed, come [columnsOff]. */
     var feedOff by remember { mutableStateOf(false) }
 
-    // ⚠️ L'esito si RICHIEDE allo stato delle cose, come fa il viewer: [Store] sceglie la
-    // strada della variante, e qui il tocco è della persona, quindi la pagina non si spiega.
+    // L'esito si rilegge dallo stato delle cose, come nel visualizzatore: [Store] sceglie la
+    // strada della variante; qui il tocco è della persona, quindi la pagina non si spiega.
     val askAccess = Store.rememberAccessRequest(explain = false) { reread() }
     val allowAll = Store.rememberAppPage { reread() }
 
     // Il permesso può essere appena arrivato: il modello decide da sé se c'è davvero
     // qualcosa da rileggere.
     LaunchedEffect(granted) { onRead(granted) }
-    // ⚠️ The Feed is read only when it is on screen: a home in the grid does not pay for a query on
-    // every picture of the phone. Folders, date and 'Mostra nascoste' are keys because they change
-    // the stream (the last one from 6.03, his request).
-    // ⚠️ And leaving it says so (since 6.28, finding D16): the model stops reading it again at every
-    // news from the disk.
+    // ⚠️ Il Feed si legge solo quando è sullo schermo: una casa in griglia non paga una query su
+    // tutte le immagini del telefono. Cartelle, data e 'Mostra nascoste' sono chiavi perché
+    // cambiano il flusso. Uscendo lo si dice (rilievo D16), e il modello smette di rileggerlo a
+    // ogni notizia dal disco.
     LaunchedEffect(granted, view, forStart, selection, feedDate, peeking) {
         if (view == FolderView.FEED && !forStart) onFeedRead(granted) else onFeedLeft()
     }
 
-    // ⚠️ Il filtro sta QUI e non dentro `Folder.buckets`, che resta un elenco puro: le
-    // impostazioni sono una faccenda della schermata, e una funzione che legge il
-    // MediaStore non deve sapere che cosa l'utente ha deciso di non guardare.
-    // ⚠️ Ed è un filtro e non una chiave di rilettura, dalla 1.46: nascondere una cartella
-    // cambia quello che si guarda, non quello che c'è sul disco, quindi si vede al
-    // fotogramma dopo senza costare una query.
-    // ⚠️⚠️ **CON 'Mostra nascoste' ACCESO IL FILTRO NON GIRA, DALLA `1.92`**: la vista temporanea
-    // è esattamente 'guarda anche quelle', e toglierle qui per rimetterle dopo vorrebbe dire due
-    // elenchi. Quali fossero nascoste si sa lo stesso, perché [hidden] arriva comunque: è quello
-    // che serve al segno del vuoto e all'inchiostro ridotto.
+    // Il filtro è qui, non in `Folder.buckets`, che resta un elenco puro: che cosa l'utente non
+    // vuole guardare è una faccenda della schermata. È un filtro e non una chiave di rilettura:
+    // nascondere una cartella non cambia il disco, e si vede al fotogramma dopo senza una query.
+    // Con 'Mostra nascoste' acceso il filtro le lascia passare; quali siano nascoste lo dice
+    // comunque [hidden], per il segno del vuoto e l'inchiostro ridotto.
     val folders = buckets?.filter { selection.visible(it.path, peeking) }
 
-    // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
-    // la prima porta l'intestazione e il FAB, la seconda la freccia Indietro.
+    // Da qui in giù la casa ha l'intestazione e il FAB, la scelta della cartella d'avvio la
+    // freccia Indietro.
     val home = !forStart
 
     /**
-     * Quali cartelle sono in scena **in prestito**: le nascoste, e solo mentre dura il minuto.
-     *
-     * ⚠️ **Si ricava e non si tiene**: è l'insieme delle nascoste quando la vista temporanea è
-     * accesa e niente quando è spenta, cioè un dato derivato da due che ci sono già.
+     * Quali cartelle sono in scena in prestito: le nascoste, solo finché dura 'Mostra nascoste'.
+     * Si ricava da due dati che ci sono già.
      */
     val prestate = if (peeking && selection.mode == FolderMode.EXCLUDED)
         buckets.orEmpty().filter { it.path?.let(selection::hidden) == true }
             .mapNotNull { it.path?.let(::portablePath) }.toSet() else emptySet()
 
     /*
-     * ⚠️⚠️ **IL RIENTRO DI SOTTO NON STA PIÙ QUI, DALLA `1.90`** (sua richiesta: *non si può
-     * estendere la vista della griglia fino al margine inferiore dello schermo?*). Un
-     * `safeDrawingPadding()` sul contenitore toglie lo spazio **prima** che la griglia cominci
-     * a disegnare, quindi le copertine non potevano arrivare sotto la barra gestuale; adesso
-     * quel rientro vive nel `contentPadding` delle due viste, che è lo stesso spazio ma dalla
-     * parte giusta: le cartelle ci scorrono sotto e l'ultima riga resta raggiungibile.
-     * ⚠️ **Con lui la sfumatura in fondo arriva al vetro**, e non è un effetto da correggere: è
-     * quello che tiene la barra gestuale sopra un fondo neutro invece che sopra le copertine.
-     * ⚠️ **`steadyDrawing` e non `safeDrawing`, dalla `6.27`** (rilievo D13 della revisione della
-     * 6.25), come nella griglia di una cartella dalla `3.73`: dalla `6.02` il Feed apre il
-     * visualizzatore dalla casa, e tornando le barre ricompaiono animate; `safeDrawing` le seguiva
-     * fotogramma per fotogramma, e la fascia e il Feed scendevano a scatti. La ragione intera vive
-     * su [steadyDrawing].
+     * Il rientro di sotto non è qui ma nel `contentPadding` delle viste (richiesta dell'utente:
+     * la griglia fino al bordo inferiore): sul contenitore toglierebbe lo spazio prima che la
+     * griglia disegni, mentre così le cartelle scorrono sotto la barra gestuale e l'ultima riga
+     * resta raggiungibile. La sfumatura in fondo arriva al vetro, e tiene la barra gestuale su un
+     * fondo neutro.
+     * ⚠️ **`steadyDrawing` e non `safeDrawing`** (rilievo D13), come nella griglia di una
+     * cartella: tornando dal visualizzatore le barre ricompaiono animate, e `safeDrawing` farebbe
+     * scendere a scatti la fascia e il Feed. Il perché è su [steadyDrawing].
      */
     BoxWithConstraints(
         modifier = modifier
@@ -493,24 +436,10 @@ fun FolderScreen(
         val nameStyle = folderNameStyle(columns)
 
         /*
-         * ⚠️⚠️ **IL INTESTAZIONE È UNA FRAZIONE FISSA, dalla 0.93, e prima si CALCOLAVA**
-         * (istruzione dell'utente, 2026-08-31: *preferisco semplificare e tornare alla
-         * logica precedente, che mi piaceva*). Qui viveva `coverHeader`, che riservava alla
-         * griglia un numero esatto di righe e dava all'intestazione quello che avanzava,
-         * misurando i due testi sotto ogni copertina per sapere quanto è alta una riga.
-         * Funzionava, e non era quello che serviva: l'utente vuole l'intestazione come
-         * spazio **deliberato**, per tenere le cartelle in basso a portata di pollice, e un
-         * avanzo non è uno spazio deliberato. Il suo riscontro è la misura di quel divario:
-         * *c'era una parte troppo grande della schermata dedicata alla griglia, e troppo
-         * poco spazio per l'intestazione*.
-         * ⚠️ **Quante righe si vedono adesso NON è più una scelta ma una conseguenza**, e va
-         * saputo prima di rimettere mano qui: con la frazione fissa il numero di righe cade
-         * dove cade, e a volte l'ultima è mezza. Non è il difetto della `0.68`: là i pezzi
-         * di riga contraddicevano una richiesta di N righe esatte, qui sono il modo in cui
-         * si vede che sotto c'è dell'altro.
-         * ⚠️ **Con `coverHeader` se ne sono andate `startRows` e la misura dei testi**, che
-         * servivano solo a lui. Il ragionamento che portavano vive nel corpo della PR e in
-         * questa nota, non in codice che nessuno chiama.
+         * ⚠️ **L'intestazione è una frazione fissa dello schermo** (istruzione dell'utente): è
+         * uno spazio deliberato, che tiene le cartelle in basso a portata di pollice, non quello
+         * che avanza dopo un numero esatto di righe. Quante righe si vedono è una conseguenza, e
+         * a volte l'ultima è mezza: è il segno che sotto c'è dell'altro.
          */
         val headerMax = if (home) maxHeight * HEADER_SHARE else 0.dp
         val headerPx = with(density) { headerMax.toPx() }
@@ -518,54 +447,32 @@ fun FolderScreen(
         /**
          * Quanta parte dell'intestazione è già chiusa, da 0 (tutta aperta) a 1.
          *
-         * ⚠️⚠️ **DALLA `1.92` È UNA FRAZIONE SALVATA, E PRIMA ERANO PIXEL CHE SI PERDEVANO**
-         * (riscontro del giro della `1.91`, voce `scorri-torna` accettabile: *al ritorno in home
-         * ritorno al punto giusto ma l'intestazione è attiva. Comportamento sbagliato:
-         * l'intestazione deve apparire solo se mi trovo in cima alla griglia/lista*). La `1.91` ha
-         * fatto sopravvivere lo **scorrimento** alla schermata e questo stato è rimasto indietro:
-         * la lista rientrava dov'era e la fascia ripartiva aperta, cioè due misure della stessa
-         * cosa che dicevano il contrario.
-         * ⚠️⚠️ **LA FASCIA È UNA FUNZIONE DELLA POSIZIONE DI SCORRIMENTO, quindi vive dove vive
-         * lei**: in `rememberSaveable`, cioè dentro il `SaveableStateHolder` che `AivApp` tiene per
-         * schermata. Così le due cose tornano insieme **per costruzione**, e non perché qualcuno si
-         * ricorda di sincronizzarle. La griglia di una cartella ha lo stesso invariante scritto
-         * come regola (`GridScreen`, la riga che chiude la fascia quando la lista non è in cima):
-         * là serve perché il salto all'immagine da cui si torna scorre la lista **senza** passare
-         * dallo scorrimento annidato, e qui quel salto non c'è.
-         * ⚠️⚠️ **UNA FRAZIONE E NON I PIXEL, perché la rotazione cambia l'altezza della fascia**:
-         * salvando i pixel, tornando in verticale una fascia chiusa a metà sarebbe chiusa di
-         * un'altra quantità. ⚠️ **E la nota di prima diceva il contrario** (*riaprirlo alla
-         * rotazione è anche la cosa giusta da vedere*): quella ragione è **decaduta con la
-         * `1.91`**, perché allora la lista si azzerava insieme alla fascia, mentre adesso resta
-         * dov'era, e una fascia aperta sopra una lista scorsa è il difetto che gli è arrivato.
+         * ⚠️ **Vive dove vive lo scorrimento**, in `rememberSaveable` (il `SaveableStateHolder` di
+         * `AivApp`): la fascia è funzione della posizione di scorrimento, e al ritorno nella casa
+         * le due tornano insieme per costruzione (voce `scorri-torna`: l'intestazione solo in cima
+         * alla lista). La griglia di una cartella ha lo stesso invariante come regola, perché là
+         * il salto all'immagine da cui si torna scorre la lista senza lo scorrimento annidato.
+         * Una frazione e non pixel: la rotazione cambia l'altezza della fascia.
          */
         var shutFrac by rememberSaveable { mutableFloatStateOf(0f) }
 
         /**
          * Quanti pixel di fascia sono chiusi adesso: la frazione riportata sull'altezza di oggi.
          *
-         * ⚠️ **Si legge da una lambda e non da un valore**: chi la usa lo fa in fase di misura e di
-         * disegno, dove un valore nuovo costa un ridisegno invece di una ricomposizione. È lo
-         * stesso motivo per cui [FrontBand] prende `shut` come funzione.
+         * Una lambda e non un valore: si legge in misura e disegno, dove un valore nuovo costa un
+         * ridisegno e non una ricomposizione (come `shut` di [FrontBand]).
          */
         val shut = { shutFrac * headerPx }
 
         /*
-         * ⚠️⚠️ **I DUE SCORRIMENTI VIVONO QUI DALLA `1.95`, PERCHÉ I TASTI DEL SALTO LI DEVONO
-         * MUOVERE**: prima nascevano dentro [Covers] e [Rows], che è il posto naturale finché
-         * nessun altro li tocca. ⚠️ **Continuano a sopravvivere alla schermata**, che è la cosa
-         * da non rompere (la `1.91`): sono `rememberSaveable` come prima, e il
-         * `SaveableStateHolder` che li tiene da parte è quello di `AivApp`, che sta più in alto
-         * di questa funzione.
-         * ⚠️ **Due e non uno**: le due viste sono una griglia e un elenco, cioè due tipi di
-         * stato diversi, e la posizione dell'una non vuol dire niente per l'altra.
+         * Gli scorrimenti sono qui perché li muovono i tasti del salto; sopravvivono alla
+         * schermata grazie al `SaveableStateHolder` di `AivApp`. Uno per vista: la posizione in
+         * una non vuol dire niente nelle altre.
          */
         val coverScroll = rememberLazyGridState()
         val rowScroll = rememberLazyListState()
-        // ⚠️ The Feed has its own, from 6.02: the position among the pictures means nothing among
-        // the folders, as the note above says of the other two.
         val feedScroll = rememberLazyGridState()
-        /** The grid on screen, covers or Feed, and `null` in the two lists. */
+        /** La griglia sullo schermo, copertine o Feed, e `null` nei due elenchi. */
         val gridScroll: LazyGridState? = when (view) {
             FolderView.GRID -> coverScroll
             FolderView.FEED -> feedScroll
@@ -573,30 +480,18 @@ fun FolderScreen(
         }
 
         /**
-         * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
-         * funziona anche con DUE cartelle**: il trascinamento verso l'alto viene
-         * intercettato **prima** (`onPreScroll`) e speso tutto qui, quindi l'elenco non ha
-         * bisogno di avere niente da scorrere. Verificato sul sorgente di Compose e non
-         * supposto: `ScrollingLogic.performScroll` chiama `dispatchPreScroll` prima di
-         * consumare, e l'avvio del trascinamento dipende dal **tipo di puntatore**
-         * (`canDrag`) e non dal fatto che ci sia spazio da scorrere. Senza questo fatto
-         * avrei dovuto gonfiare l'elenco con spazio finto in fondo.
-         * ⚠️ Si riapre in cima via [frontScroll] (`inCima`), anche con poche cartelle.
-         */
-        /**
-         * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
-         * funziona anche con DUE cartelle**: il fatto per esteso sta su [frontScroll].
+         * L'intestazione si chiude prima che l'elenco scorra, quindi funziona anche con due
+         * cartelle: il perché è su [frontScroll].
          */
         val paging = remember(headerPx, view) {
             frontScroll(
                 quanto = headerPx,
                 chiuso = shut,
-                // ⚠️ I pixel che arrivano dallo scorrimento tornano frazione qui, che è il solo
-                // posto in cui si scrive: l'altezza della fascia è il denominatore, e a zero
-                // (la veste 'scegli la cartella', dove l'intestazione non c'è) non si divide.
+                // I pixel dello scorrimento tornano frazione qui, il solo posto in cui si scrive;
+                // a fascia zero (la scelta della cartella d'avvio) non si divide.
                 chiudi = { quanti -> shutFrac = if (headerPx > 0f) quanti / headerPx else 0f },
-                // ⚠️ **In cima alla griglia o all'elenco** (voce `3.13-02`): senza, con poche
-                // cartelle il trascinamento verso il basso non riapriva l'intestazione.
+                // In cima alla griglia o all'elenco (voce `3.13-02`): con poche cartelle il
+                // trascinamento verso il basso deve riaprire l'intestazione.
                 inCima = {
                     if (gridScroll != null)
                         gridScroll.firstVisibleItemIndex == 0 &&
@@ -609,13 +504,11 @@ fun FolderScreen(
         }
 
         /*
-         * ⚠️⚠️ **IL GLIFO DEL FAB DIVENTA IL CHEVRON SCORRENDO, DALLA `2.07`**: lo stato vive
-         * qui perché lo leggono in due, il contenitore (che gli passa il gesto) e [Hub] (che
-         * disegna il FAB). Il perché di tutto il meccanismo vive in `Jump.kt`.
-         * ⚠️⚠️ **NELLA VISTA AD ALBERO NON SI ARMA, E LA DIFESA È NON MONTARE IL GESTO**: là
-         * l'elenco è di [TreeList], che tiene il proprio scorrimento e non lo espone, quindi il
-         * salto muoverebbe una lista che non è in scena. Spegnere il solo tocco lascerebbe il
-         * chevron a comparire per niente.
+         * Il glifo del FAB diventa la freccia scorrendo (il meccanismo è in `Jump.kt`): lo stato
+         * è qui perché lo leggono il contenitore, che gli passa il gesto, e [Hub], che disegna il
+         * FAB.
+         * ⚠️ **Nella vista ad albero il gesto non si monta**: l'elenco è di [TreeList], che non
+         * espone lo scorrimento, e il salto muoverebbe una lista fuori scena.
          */
         val scorre: ScrollableState = gridScroll ?: rowScroll
         val arm = rememberJumpArm(
@@ -624,9 +517,8 @@ fun FolderScreen(
             down = { gridScroll?.jumpDownPixels() ?: rowScroll.jumpDownPixels() }
         )
         /*
-         * ⚠️ **Quello che la pillola di vetro sfoca, dalla `4.00`**: la colonna intera, che è sorella
-         * della pillola e non sua madre (il perché su [Backdrop]). Fuori dal vetro non registra
-         * niente.
+         * Quello che la pillola di vetro sfoca: la colonna intera, sorella della pillola e non
+         * madre (il perché è su [Backdrop]). Fuori dal vetro non registra niente.
          */
         val backdrop = rememberBackdrop()
         Column(
@@ -634,26 +526,21 @@ fun FolderScreen(
                 .fillMaxSize()
                 .backdropSource(backdrop)
                 /*
-                 * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una
-                 * catena di modificatori il `nestedScroll` scritto **per primo** riceve per primo
-                 * il delta della lista, e `frontScroll` ne consuma la parte con cui chiude
-                 * l'intestazione. Scritto dopo, al motore del glifo arrivava **zero** finché la
-                 * fascia aveva spazio da chiudere.
+                 * ⚠️ **Il gesto si guarda prima di `paging`** (ordine misurato): il `nestedScroll`
+                 * scritto per primo riceve per primo il delta, e `frontScroll` ne consuma la parte
+                 * che chiude l'intestazione. Dopo, al motore del glifo arriverebbe zero.
                  */
                 .then(
                     if (view == FolderView.TREE) Modifier else Modifier.nestedScroll(arm.watch)
                 )
                 .nestedScroll(paging)
-                // ⚠️ Il margine laterale è 12 e non 20 perché è quello che permette **due**
-                // colonne di copertine su uno schermo da 360dp. Il conto sta in `FOLDER_CELL`.
+                // Il margine laterale permette due colonne di copertine su uno schermo da 360dp:
+                // il conto è in `FOLDER_CELL`.
                 .padding(SCREEN_PAD)
         ) {
             if (home) {
-                // ⚠️ L'icona si stringe se l'intestazione è basso, e i casi bassi sono
-                // due: l'ORIZZONTALE, dove non resta niente, e le QUATTRO COLONNE, dove
-                // il quadrato di copertine lascia poco più di 180dp, cioè meno di quanto
-                // occupano icona e righe. Senza questo la tela verrebbe tagliata sopra e
-                // sotto invece di stare dentro.
+                // L'icona si stringe quando l'intestazione è bassa (in orizzontale, e con quattro
+                // colonne, dove restano poco più di 180dp): se no sarebbe tagliata sopra e sotto.
                 Header(headerPx, minOf(HEADER_ICON, headerMax * 0.5f), shut)
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -676,15 +563,10 @@ fun FolderScreen(
             when {
                 !granted -> AccessPlea(onAsk = askAccess, modifier = Modifier.padding(top = 24.dp))
 
-                // ⚠️ Prima dei rami che guardano `folders`, e non dopo: la vista delle
-                // cartelle di sistema legge il disco, non il MediaStore, quindi non ha
-                // niente da aspettare e non le importa se l'elenco delle cartelle è vuoto.
-                // ⚠️⚠️ **`home &&`, e senza quello la scelta della cartella d'avvio si
-                // romperebbe**: là la domanda è *quale cartella apro all'avvio*, e la
-                // risposta dev'essere una cartella **del MediaStore**, perché l'avvio ne apre
-                // la griglia. Navigando il disco non si produce quel genere di risposta, e
-                // toccare una cartella non sceglierebbe niente. Nella veste 'scegli la
-                // cartella' si scivola quindi sul ramo in fondo, cioè l'elenco.
+                // Prima dei rami che guardano `folders`: la vista delle cartelle di sistema legge
+                // il disco, non il MediaStore, e non aspetta l'elenco.
+                // ⚠️ **`home &&`**: la cartella d'avvio dev'essere una cartella del MediaStore,
+                // perché l'avvio ne apre la griglia; nella scelta si finisce sull'elenco in fondo.
                 view == FolderView.TREE && home ->
                     TreeList(
                         path = treePath,
@@ -701,11 +583,9 @@ fun FolderScreen(
                     )
 
                 /*
-                 * ⚠️⚠️ **THE FEED, FROM 6.02, AND IT IS HIS REQUEST** (2026-10-13: *un unico feed di
-                 * foto con le più recenti in cima*): before the folder branches, like the tree, because
-                 * it reads its own stream and does not wait for the folders. Like the tree it exists
-                 * only in the home: picking the start folder wants a folder, so there it falls to the
-                 * list at the bottom.
+                 * Il Feed (richiesta dell'utente, 6.02): prima dei rami delle cartelle, come
+                 * l'albero, perché legge il suo flusso e non le aspetta. Come l'albero esiste solo
+                 * nella casa: la scelta della cartella d'avvio vuole una cartella.
                  */
                 view == FolderView.FEED && home -> when {
                     feed == null -> CircularProgressIndicator(
@@ -716,8 +596,8 @@ fun FolderScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 24.dp)
                     )
-                    // ⚠️ The same filling slot as the grid (`3.25`): with few pictures a drag on the
-                    // empty space must still open the header again.
+                    // Lo stesso vano che riempie l'altezza della griglia: con poche immagini un
+                    // trascinamento sul vuoto deve riaprire l'intestazione.
                     else -> Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         FeedGrid(
                             page = feed,
@@ -742,16 +622,14 @@ fun FolderScreen(
                 )
 
                 /*
-                 * ⚠️⚠️ **IL VANO SCORREVOLE RIEMPIE L'ALTEZZA, DALLA `3.25`** (giro 3.24,
-                 * voce `3.13-02`): in Modalità incluse le cartelle sono poche; senza
-                 * `weight` griglia ed elenco restavano alti quanto il contenuto, e il
-                 * trascinamento sul vuoto non riapriva l'intestazione (in Modalità escluse
-                 * l'elenco lungo mascherava il difetto). Stesso criterio di `GridScreen`.
+                 * ⚠️ **Il vano scorrevole riempie l'altezza** (voce `3.13-02`): con poche cartelle
+                 * (modalità incluse) griglia ed elenco resterebbero alti quanto il contenuto, e il
+                 * trascinamento sul vuoto non riaprirebbe l'intestazione. Come in `GridScreen`.
                  */
                 view == FolderView.GRID ->
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                        // ⚠️ From the `5.80` the grid follows the chosen order and the list does
-                        // not, which is his request; favourites go first in both.
+                        // La griglia segue l'ordine scelto e l'elenco no (richiesta dell'utente);
+                        // i preferiti vanno primi in tutti e due.
                         Covers(
                             selection.arrange(folders!!, grid = true), columns, prestate, counted,
                             nameStyle, colour, tints, covers,
@@ -771,51 +649,26 @@ fun FolderScreen(
             }
         }
 
-        // ⚠️ Il FAB manca quando si sta scegliendo la cartella dell'avvio: là dentro
-        // ci sono le impostazioni, da cui si è arrivati, e un giro chiuso non serve a
-        // nessuno.
-        // ⚠️ E manca durante la selezione in Cartelle di sistema: [PickSheet] prende il
-        // suo posto, come il FAB di selezione in griglia.
+        // Il FAB manca nella scelta della cartella d'avvio, a cui si arriva dalle impostazioni, e
+        // durante una selezione in Cartelle di sistema o nel Feed, dove la scheda prende il suo
+        // posto.
         if (home && !treeBusy && !feedPicking) {
             /*
-             * ⚠️⚠️ **LA SFUMATURA CHE INGHIOTTE QUELLO CHE STA SOTTO, dalla 0.77** (richiesta
-             * dell'utente: *dalla coordinata Y in cui comincia il FAB, una piccola
-             * sfumatura verso il colore di fondo del tema, che inghiotte ciò che sta giù
-             * abbastanza velocemente, in modo che dia poco fastidio, e che allo stesso tempo
-             * suggerisce che la griglia si scorre*). Al riposo non copre niente, perché
-             * lo spazio riservato ([BELOW_FAB]) tiene l'ultima cartella sopra di lei; serve
-             * quando si scorre, dove l'alternativa era una riga tagliata di netto dal bordo
-             * dello schermo.
-             * ⚠️⚠️ **STA PRIMA DEL FAB E NON DOPO**: in un `Box` l'ultimo figlio si
-             * disegna sopra, quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
-             * ⚠️⚠️ **NON RUBA I TOCCHI, e non è una speranza**: Compose fa la prova del tocco
-             * solo sui nodi che hanno un modificatore di puntatore, e questo ne ha uno solo di
-             * disegno. Senza questo fatto servirebbe un `pointerInput` che lascia passare, che
-             * è il rimedio a un problema che non c'è.
-             * ⚠️ Il colore è `background` e non `surface`: è quello che la `Surface` del tema
-             * mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
-             * **esattamente** al fondo su cui sta.
-             */
-            /*
-             * ⚠️⚠️ **LE DUE SFUMATURE VIVONO IN `Front.kt` DALLA `1.76`**, insieme al
-             * intestazione e per la stessa ragione: dalla `1.76` le schermate che le portano sono
-             * due, e i numeri che lui ha dettato giro per giro (l'altezza, la curva, il picco, la
-             * coda e il suo pianoro) sono **una** decisione per l'app. Copiarli nella griglia di
-             * una cartella avrebbe fatto due tavolozze che divergono al primo ritocco.
-             * ⚠️⚠️ **QUI SI VEDONO SEMPRE, e non è una dimenticanza**: in questa schermata il
-             * FAB c'è sempre, quindi la fascia che lo tiene su un fondo neutro non ha ragione
-             * di andarsene. Nella griglia di una cartella se ne va scorrendo, ed è una richiesta
-             * sua: là il FAB non c'è.
-             * ⚠️⚠️ **STA PRIMA DEL FAB E NON DOPO**: in un `Box` l'ultimo figlio si disegna sopra,
-             * quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
+             * La sfumatura in fondo, verso il colore di fondo, dalla quota del FAB (richiesta
+             * dell'utente): suggerisce che la griglia scorre e inghiotte quello che c'è sotto. A
+             * riposo non copre niente, perché [BELOW_FAB] tiene l'ultima cartella sopra di lei. È
+             * in `Front.kt`, una decisione sola per l'app; qui si vede sempre, perché il FAB c'è
+             * sempre.
+             * ⚠️ **È prima del FAB**: in un `Box` l'ultimo figlio si disegna sopra.
+             * Non prende i tocchi: ha solo un modificatore di disegno, e Compose fa la prova del
+             * tocco solo sui nodi di puntatore.
              */
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
             Hub(
                 view = view,
                 /*
-                 * ⚠️ **Il salto passa dallo scorrimento annidato, come un dito**: è quello che
-                 * riapre l'intestazione arrivando in cima, che è la sua richiesta. Nella vista
-                 * ad albero l'arm non si arma mai, perché là il gesto non gli arriva.
+                 * Il salto passa dallo scorrimento annidato, come un dito: così arrivando in cima
+                 * riapre l'intestazione. Nella vista ad albero non si arma mai.
                  */
                 arm = arm,
                 nested = paging,
@@ -836,29 +689,22 @@ fun FolderScreen(
                 onSize = { sizing = true },
                 backdrop = backdrop,
                 /*
-                 * ⚠️ **Le due condizioni sono quelle scritte nel menu**: la vista ad albero, e
-                 * una cartella in cui si sia già scesi. Alla radice `treePath` è nullo, e là
-                 * l'elenco è fatto di volumi.
+                 * Le condizioni del menu: la vista ad albero, dentro una cartella. Alla radice
+                 * `treePath` è nullo, e l'elenco è fatto di volumi.
                  */
                 onNewFolder = if (view == FolderView.TREE && treePath != null) {
                     { making = true }
                 } else {
                     null
                 },
-                // ⚠️ Costante e non numero: [FAB_REACH] dice quanto è alta la fascia
-                // dipinta, e [BELOW_FAB] quanto spazio si lascia sotto l'ultima cartella.
-                // ⚠️⚠️ **IL RIENTRO DI SISTEMA SE LO METTE DA SÉ, DALLA `1.90`**: fino a lì
-                // glielo dava il contenitore, che adesso lo lascia al `contentPadding` della
-                // griglia perché le copertine arrivino al vetro. Senza questa riga il FAB
-                // scenderebbe sopra la barra gestuale. ⚠️ Sono gli stessi due rientri che il
-                // velo della scorciatoia si mette qui sotto, e adesso le due righe coincidono.
-                // ⚠️ Il menu inferiore della `4.15` si posa in fondo a tutta larghezza, e tiene
-                // l'angolo per la sola pillola in cui si ripiega.
+                // Il Menu basso si posa in fondo a tutta larghezza, e tiene l'angolo per la sola
+                // pillola in cui si piega. Il rientro di sistema lo mette [pillCorner], perché il
+                // contenitore lo lascia al `contentPadding` della griglia.
                 modifier = Modifier.align(
                     if (LocalPillLook.current.bar) Alignment.BottomCenter else fabSide()
                 ),
-                // ⚠️ Le pillole e il loro tondo stanno a [PILL_SIDE] dal vetro di fianco, dalla
-                // `4.25` (scelta A2), e dalla `4.31` il FAB ha il centro sul centro del tondo.
+                // Pillole e tondo a [PILL_SIDE] dal vetro (scelta A2), e il FAB col centro sul
+                // centro del tondo.
                 corner = Modifier.pillCorner(
                     if (LocalPillLook.current.mode != PhonePill.OFF) PILL_KEY else FAB_SIZE
                 )
@@ -866,27 +712,13 @@ fun FolderScreen(
         }
 
         /*
-         * ⚠️⚠️ **IL VELO CHE INSEGNA LA SCORCIATOIA DELLE COLONNE, dalla 0.78** (richiesta
-         * dell'utente, con la sua frase): è il terzo della famiglia, e gli altri due stanno
-         * nella griglia delle foto. La macchina è la stessa, [HintVeil], e qui cambiano la
-         * frase e il FAB.
-         * ⚠️⚠️ **COMPARE SOLO QUANDO C'È UNA GRIGLIA DA DIMENSIONARE**, e ognuna delle
-         * condizioni serve: fuori dalla casa il FAB non c'è, senza il permesso non ci
-         * sono cartelle, senza cartelle non c'è niente da disporre, e nell'elenco le colonne
-         * non esistono. Al primo avvio, che è anche il primo posto in cui l'app si mostra,
-         * insegnare a dimensionare una griglia vuota sarebbe rumore sopra una schermata che
-         * chiede un permesso.
-         * ⚠️ **Il tocco sulla copia NON apre il menu**, al contrario di quella della
-         * selezione: là il tocco breve del FAB è l'azione principale (le operazioni),
-         * qui è il menu dell'app, che si scopre da sé perché è l'unica cosa che quel FAB
-         * fa da sempre. Quello che va insegnato è il tocco **lungo**, ed è quello che la
-         * copia fa.
-         */
-        /*
-         * ⚠️ **Con la pillola estesa della `4.00` il velo non compare**: il FAB non c'è, e con lui
-         * il tocco lungo che il velo insegna (risposta B1: nella pillola nessuna funzione
-         * secondaria). Con la pillola a scorrimento il tasto tondo il tocco lungo lo tiene, e la
-         * copia illuminata è tonda.
+         * Il velo che insegna la scorciatoia delle colonne ([HintVeil], come i due della
+         * griglia), solo quando c'è una griglia da dimensionare: nella casa, col permesso, con
+         * delle cartelle, nella vista griglia. Al primo avvio insegnare a dimensionare una
+         * griglia vuota sarebbe rumore sopra la richiesta del permesso.
+         * Il tocco sulla copia non apre il menu: si insegna il tocco lungo.
+         * Con la pillola estesa il velo non compare: non c'è il tocco lungo da insegnare
+         * (risposta B1); con la pillola a scomparsa il tondo lo tiene, e la copia è tonda.
          */
         val pill = LocalPillLook.current.mode
         val hint = home && granted && view == FolderView.GRID &&
@@ -900,39 +732,35 @@ fun FolderScreen(
 
         if (hint) {
             /*
-             * ⚠️⚠️ **COL MENU 'START' IL VELO LO MOSTRA APERTO, DALLA `4.31`, ED È SUA RICHIESTA**
-             * (dopo la `4.30`: *è fondamentale che al primo avvio il micro-onboarding mostri
-             * quello, magari espanso*), insieme al menu 'Start' di fabbrica: le caselle sono le sue,
-             * disegnate, e nell'angolo la copia del tasto tondo, che è quella che risponde. La
-             * frase dice le due cose che il tasto fa.
+             * Col Menu 'Start' il velo lo mostra aperto (richiesta dell'utente, 4.31): le caselle
+             * disegnate, e nell'angolo la copia del tondo, che risponde. La frase dice le due cose
+             * che il tasto fa.
              */
             val start = LocalPillLook.current.corner
             HintVeil(
                 text = stringResource(if (start) R.string.corner_hint else R.string.columns_hint),
-                // ⚠️ L'angolo del comando vero, tondo o FAB, col centro sul centro del tondo dalla
-                // `4.31` ([pillCorner]). Il perché è scritto su [HintVeil], sul parametro.
+                // L'angolo del comando vero, tondo o FAB ([pillCorner]); il perché è su [HintVeil].
                 inset = Modifier.pillCorner(if (pill != PhonePill.OFF) PILL_KEY else FAB_SIZE),
                 onDone = hintDone
             ) {
                 val tasto = @Composable {
                     TapHoldFab(
                         label = stringResource(R.string.hub_open),
-                        // ⚠️ Sul menu Start del velo la copia è gialla (voce `4.33-05`): l'arancione
-                        // del pannello la nasconderebbe. Il perché è scritto su [HINT_KEY].
+                        // Sul Menu 'Start' del velo la copia è gialla (voce `4.33-05`): l'arancione
+                        // del pannello la nasconderebbe ([HINT_KEY]).
                         container = if (start) HINT_KEY else HINT_MARK,
                         ink = if (start) HINT_KEY_INK else HINT_INK,
                         holdLabel = stringResource(R.string.columns_title),
                         onTap = hintDone,
                         onHold = { hintDone(); sizing = true },
                         round = pill == PhonePill.SLIDE,
-                        // ⚠️ Lo stesso glifo del FAB vero, e non uno che gli somiglia: questo è
-                        // il suo ritratto sull'onboarding, e deve essere la stessa cosa.
+                        // Lo stesso glifo del FAB vero: la copia è il suo ritratto.
                         glyph = { Marchio(it) }
                     )
                 }
                 if (start) {
-                    // ⚠️ Le stesse caselle del menu vero, scritte da [hubEntries]: qui sono un
-                    // disegno, quindi i comandi che chiedono uno stato di [Hub] restano vuoti.
+                    // Le stesse caselle del menu vero, da [hubEntries]: qui sono un disegno, e i
+                    // comandi che chiedono uno stato di [Hub] restano vuoti.
                     CornerMenuCopy(
                         entries = hubEntries(
                             view = view,
@@ -959,8 +787,8 @@ fun FolderScreen(
             }
         }
 
-        // ⚠️ The Feed's selection sheet (6.03), in the Start key's place: the key is hidden while
-        // something is chosen, as in a folder's grid.
+        // La scheda della selezione del Feed, al posto del tasto principale, nascosto mentre
+        // qualcosa è scelto, come nella griglia di una cartella.
         if (home && view == FolderView.FEED) {
             PickSheet(
                 visible = feedPicking,
@@ -976,15 +804,15 @@ fun FolderScreen(
         }
 
         /*
-         * ⚠️⚠️ **THE FEED'S VEIL, FROM 6.02, THE FIRST TIME THE STREAM IS ON SCREEN** (his request:
-         * *un mini-onboarding ... che spieghi in breve la scelta della data*). Only with pictures
-         * to show: on an empty stream or before the permission the sentence would explain nothing.
+         * Il velo del Feed, la prima volta che il flusso è sullo schermo (richiesta dell'utente:
+         * spiegare la scelta della data). Solo con immagini da mostrare: su un flusso vuoto o
+         * senza permesso la frase non spiegherebbe niente.
          */
         if (home && granted && view == FolderView.FEED && !feed?.items.isNullOrEmpty() &&
             !feedSeen && !feedOff
         ) {
-            // ⚠️ From 6.20 his sketch of the stream, with the text of 'Disposizione in vista feed'
-            // as the sentence (note on `6.02-04`; the why lives on [HintFeed]).
+            // Il suo schizzo del flusso, col testo di 'Disposizione in vista feed' (nota su
+            // `6.02-04`; il perché è su [HintFeed]).
             HintFeed(
                 text = stringResource(R.string.feed_order_desc),
                 newer = stringResource(R.string.hint_feed_newer),
@@ -997,26 +825,11 @@ fun FolderScreen(
         }
     }
 
-    /*
-     * ⚠️⚠️ **LA FINESTRA È QUELLA DEL SELETTORE DI DESTINAZIONE, non una seconda**
-     * ([NewFolderDialog], in `DestinationDialog.kt`): lì dentro 'Nuova cartella' esiste dalla
-     * `0.90` con la stessa domanda, la stessa ripulitura del nome e la stessa modale. Scriverne
-     * una copia qui darebbe due finestre che chiedono la stessa cosa e divergono al primo
-     * ritocco.
-     * ⚠️⚠️ **CREATA LA CARTELLA CI SI ENTRA, e non è un vezzo**: l'elenco dell'albero si
-     * rilegge dal disco quando cambia il percorso, quindi entrarci è anche il modo in cui la
-     * cartella nuova si vede senza un meccanismo di aggiornamento in più. E chi crea una
-     * cartella la sta creando per metterci qualcosa.
-     * ⚠️ **Se la creazione fallisce non si va da nessuna parte, e lo si dice** (dalla `6.26`): il
-     * disco può rifiutare (permessi, volume di sola lettura), e navigare in una cartella che non
-     * esiste mostrerebbe un elenco vuoto che sembra un guasto dell'app. Un nome già preso porta
-     * nella cartella che c'è: il perché vive su [FileTree.makeFolder].
-     */
-    // ⚠️ The Feed's operations (6.03): the selection empties before the work starts, as in the grid,
-    // and the stream is read again after it.
+    // Le operazioni del Feed: la selezione si svuota prima del lavoro, come nella griglia, e il
+    // flusso si rilegge dopo.
     FileJobDialogs(job = feedTask, fields = factFields, onClose = { feedTask = null }) { kind, work ->
         feedChosen = emptySet()
-        // ⚠️ In [FileWork], as every file job from 6.27: see the note there.
+        // In [FileWork], come ogni lavoro sui file: il perché è là.
         FileWork.scope.launch {
             val out = work()
             if (kind.speaks(out)) Notices.say(outcomeText(context.resources, out, kind), NOTICE_LONG_MS)
@@ -1024,6 +837,15 @@ fun FolderScreen(
         }
     }
 
+    /*
+     * La finestra è quella del selettore di destinazione ([NewFolderDialog], in
+     * `DestinationDialog.kt`), non una copia.
+     * Creata la cartella ci si entra: l'albero si rilegge quando cambia il percorso, quindi la
+     * cartella nuova si vede, e chi la crea vuole metterci qualcosa.
+     * ⚠️ **Se la creazione fallisce si resta dove si è, e lo si dice** (rilievo D10): una cartella
+     * che non esiste mostrerebbe un elenco vuoto che sembra un guasto. Un nome già preso porta
+     * nella cartella che c'è ([FileTree.makeFolder]).
+     */
     if (making) {
         NewFolderDialog(
             onDismiss = { making = false },
@@ -1075,14 +897,10 @@ fun FolderScreen(
     }
 
     /*
-     * ⚠️⚠️ **IL PANNELLO È LA STESSA COSA DELLA PAGINA NELLE IMPOSTAZIONI, e lo dice lui**
-     * (*un pannello (scrollabile, se necessario) con le cartelle nascoste dalla vista
-     * principale, che possono essere ripristinate come visibili, esattamente come nelle
-     * impostazioni alla voce 'Cartelle nascoste'*). Quindi porta le stesse due stringhe di
-     * quella pagina, il titolo e il comando: sono la stessa richiesta fatta da due posti, e
-     * scriverne altre due vorrebbe dire due testi da tradurre e da tenere allineati.
-     * ⚠️ **Lo scorrimento non si aggiunge**: [Sheet] scorre già da sé, e un secondo scorrimento
-     * verticale annidato nello stesso verso è un errore che Compose segnala a mano tesa.
+     * Il pannello è la pagina 'Cartelle nascoste' delle impostazioni (richiesta dell'utente),
+     * con le stesse stringhe per titolo e comando.
+     * Lo scorrimento non si aggiunge: [Sheet] scorre già, e due scorrimenti verticali annidati
+     * nello stesso verso fanno andare Compose in errore.
      */
     if (listing) {
         Sheet(title = stringResource(R.string.settings_hidden), onDismiss = { listing = false }) {
@@ -1093,15 +911,13 @@ fun FolderScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        // ⚠️ Il nome davanti e il percorso sotto, come nelle impostazioni: due
-                        // cartelle possono chiamarsi uguale, e il percorso è l'unica cosa che le
-                        // distingue. ⚠️ Dalla `2.96` il percorso parte dalla radice del volume,
-                        // e i due testi li scrivono `hiddenName` e `hiddenShown`.
+                        // Il nome davanti e il percorso sotto, come nelle impostazioni: due
+                        // cartelle possono chiamarsi uguale. I testi li scrivono `hiddenName` e
+                        // `hiddenShown`, col percorso dalla radice del volume.
                         val nome = hiddenName(voce)
                         val percorso = hiddenShown(voce)
                         Text(text = nome, style = MaterialTheme.typography.bodyLarge)
-                        // ⚠️ La radice di un volume ha per nome e per percorso la stessa barra, e
-                        // due righe uguali non dicono niente in più di una.
+                        // La radice di un volume ha nome e percorso uguali: una riga basta.
                         if (percorso != nome) {
                             Text(
                                 text = percorso,
@@ -1112,8 +928,7 @@ fun FolderScreen(
                     }
                     TextButton(onClick = {
                         onUnhide(listOf(voce))
-                        // ⚠️ L'ultima riga che se ne va chiude il pannello: restare davanti a un
-                        // elenco vuoto vorrebbe dire cercare da soli la via d'uscita.
+                        // L'ultima riga che esce chiude il pannello, che resterebbe vuoto.
                         if (selection.excluded.size <= 1) listing = false
                     }) { Text(stringResource(R.string.settings_hidden_show)) }
                 }
@@ -1122,11 +937,11 @@ fun FolderScreen(
     }
 
     /*
-     * ⚠️⚠️ **THE GRID ORDER IS ASKED HERE, ONCE, FROM THE `5.80`** (his request, answer `C1`: also
-     * those who update): the home is where the grid is. It waits for the folders, so it never
-     * covers the request of the permission, and a dismissal holds for the session only.
-     * ⚠️ **On a wide screen the home is the folder column**, a list that does not follow the
-     * order, and the question waits for the phone in portrait or for the settings.
+     * L'ordine della griglia si chiede qui, una volta (risposta `C1`: anche a chi aggiorna):
+     * la casa è dove c'è la griglia. Aspetta le cartelle, così non copre la richiesta del
+     * permesso, e un rifiuto vale per la sola sessione.
+     * Sullo schermo largo la casa è la colonna delle cartelle, un elenco che non segue l'ordine:
+     * la domanda aspetta il telefono in verticale o le impostazioni.
      */
     var orderAsked by rememberSaveable { mutableStateOf(false) }
     if (home && selection.order == null && !orderAsked && !folders.isNullOrEmpty()) {
@@ -1148,22 +963,12 @@ fun FolderScreen(
     }
 }
 
-/*
- * ⚠️ `Folder.Bucket.isHidden` viveva qui e dalla `2.02` vive in `Folder.kt`, perché adesso la
- * leggono in due: questa schermata e la finestra delle destinazioni. La domanda 'questa
- * cartella è esclusa?' è della cartella e non della schermata che la disegna.
- */
-
 /**
  * Il corpo del nome di una cartella, che dipende da quante colonne ci sono.
  *
- * ⚠️⚠️ **A QUATTRO COLONNE SCENDE** (richiesta dell'utente): là la cella è larga meno di un
- * quarto di schermo, cioè 78dp su 360, e a `titleSmall` due parole ci stanno a stento.
- * `labelMedium` toglie due punti e **tiene il peso medio**, che è quello che distingue il nome
- * dal conto sotto: passare a `bodySmall` avrebbe reso i due indistinguibili.
- * ⚠️ **Una funzione e non un corpo scritto due volte**: la scheda lo usa per disegnare, e
- * fino alla `0.92` lo usava anche il conto delle righe. Quel conto non c'è più, ma la
- * funzione resta la sola fonte del corpo del nome.
+ * A quattro colonne scende (richiesta dell'utente): la cella è larga 78dp su 360, e a
+ * `titleSmall` due parole entrano a stento. `labelMedium` tiene il peso medio, che distingue il
+ * nome dal conto sotto.
  */
 @Composable
 internal fun folderNameStyle(columns: Int): TextStyle =
@@ -1173,27 +978,14 @@ internal fun folderNameStyle(columns: Int): TextStyle =
 /**
  * L'intestazione dell'app, che si chiude scorrendo.
  *
- * ⚠️⚠️ **NON È SPAZIO DECORATIVO: è spazio messo lì apposta perché ogni cartella sia
- * raggiungibile col pollice** tenendo il telefono a una mano (richiesta dell'utente). Poi
- * si scorre e la vista arriva al 100%, che è la seconda metà della stessa richiesta.
- * ⚠️ **Quanto sia alto NON lo decide lui**: lo decide [HEADER_SHARE], in tutte e due le
- * viste. Fra la `0.60` e la `0.92` la griglia faceva eccezione e si calcolava l'altezza da
- * sé, e l'utente ha chiesto di tornare alla frazione fissa.
+ * ⚠️ **È spazio deliberato, perché ogni cartella sia raggiungibile col pollice** a una mano
+ * (richiesta dell'utente); scorrendo la vista arriva al 100%. L'altezza la decide [HEADER_SHARE].
  *
- * ⚠️⚠️ **IL FIGLIO SI MISURA SEMPRE ALL'ALTEZZA PIENA e si RITAGLIA, non si schiaccia.**
- * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre l'intestazione
- * si chiude, cioè un disegno che si deforma invece di uscire di scena. Qui si misura
- * intero, si dichiara alta quel che resta, e lo si colloca **centrato in quel che
- * resta**: il contenuto sale da sé mentre lo spazio si stringe, ed è la parallasse, non
- * un secondo movimento aggiunto sopra.
- *
- * ⚠️ **Sparisce prima che lo spazio finisca** (l'opacità va col quadrato della frazione
- * aperta): a metà corsa è già al 25%, quindi l'ultimo tratto della chiusura è spazio
- * vuoto che si richiude invece di un titolo che si accartoccia sul bordo.
- *
- * ⚠️ Lo stato si legge dentro `layout` e `graphicsLayer`, cioè in fase di misura e di
- * disegno: il trascinamento non fa ricomporre **niente**, e questa schermata contiene
- * una griglia che non deve rifarsi sessanta volte al secondo.
+ * Il contenuto si misura all'altezza piena e si ritaglia, centrato in quello che resta: così
+ * l'icona sale mentre lo spazio si stringe, senza deformarsi ([FrontBand]).
+ * L'opacità va col quadrato della frazione aperta: a metà corsa è già al 25%, e l'ultimo tratto è
+ * spazio vuoto che si richiude.
+ * Lo stato si legge in misura e disegno: il trascinamento non fa ricomporre la griglia.
  */
 @Composable
 private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
@@ -1205,36 +997,17 @@ private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
     }
 }
 
-/**
- * Il FAB quadrato in basso a destra, e tutto quello che c'è dietro.
- *
- * ⚠️⚠️ **È IL MENU DELL'APP, non una scorciatoia**: con la schermata iniziale sparita,
- * impostazioni, indirizzo manuale, selettore di sistema e scelta della vista non hanno
- * più nessun altro posto dove stare. Sta **in basso a destra** perché è l'unico angolo
- * che un pollice raggiunge senza cambiare presa, ed è **piccolo** perché non deve
- * competere con le fotografie: la richiesta dell'utente era *un FAB quadrato piccolo*.
- *
- * ⚠️⚠️ **E il selettore di sistema è QUI dentro anche per una ragione che non è di
- * comodo**: è l'unica via per aprire un'immagine **senza il permesso** sui file. Chi
- * quel permesso non lo concede vede una schermata delle cartelle vuota, e senza questa
- * voce l'app non gli servirebbe più a niente.
- * ⚠️⚠️ **Dalla `0.74` quella voce compare SE E SOLO SE il permesso manca** (decisione
- * dell'utente), e il bivio scioglie una tensione vera invece di scegliere un lato: col
- * permesso concesso il selettore era una seconda strada per una cosa che le cartelle già
- * fanno, cioè rumore; senza permesso è l'unica strada. La stessa voce, quindi, era
- * ridondante e indispensabile a seconda dello stato dell'app, e il menu ora lo riflette.
- */
 /** Come si chiama una vista nel menu. Vedi la nota dentro [Hub]. */
 @StringRes
 private fun FolderView.label(): Int = when (this) {
     FolderView.GRID -> R.string.hub_view_grid
     FolderView.LIST -> R.string.hub_view_list
     FolderView.TREE -> R.string.hub_view_tree
-    // ⚠️ His name, everywhere: like 'Cartelle di sistema' it is a name and not a description.
+    // Il nome dell'utente, dappertutto: come 'Cartelle di sistema', è un nome e non una descrizione.
     FolderView.FEED -> R.string.view_feed
 }
 
-/** Il nome breve di una vista, sotto la sua icona nel menu Start (nota F del giro della `4.32`). */
+/** Il nome breve di una vista, sotto la sua icona nel Menu 'Start' (nota F del giro della 4.32). */
 private fun FolderView.short(): Int = when (this) {
     FolderView.GRID -> R.string.start_grid
     FolderView.LIST -> R.string.start_list
@@ -1243,30 +1016,26 @@ private fun FolderView.short(): Int = when (this) {
 }
 
 /**
- * Il glifo di una vista nel menu, dalla `1.51`.
+ * Il glifo di una vista nel menu.
  *
- * ⚠️ **Le prime due le ha disegnate l'utente e la terza no**: 'Cartelle di sistema' è una
- * cartella, e la cartella di Material è già quella che l'app usa dappertutto (nella riga di
- * una cartella, nel selettore di destinazione, nell'albero). Disegnarne una quarta versione
- * qui vorrebbe dire che la stessa cosa ha due facce a seconda di dove la si guarda.
+ * Griglia ed elenco li ha disegnati l'utente; 'Cartelle di sistema' usa la cartella di Material,
+ * la stessa che l'app usa dappertutto.
  */
 private val FolderView.glyph: ImageVector
     @Composable get() = when (this) {
         FolderView.GRID -> Glyphs.ViewGrid
         FolderView.LIST -> Glyphs.ViewList
         FolderView.TREE -> Icons.Default.Folder
-        // ⚠️ The pile of pictures, his choice A5 from 6.03; Material's stream of cards until 6.02.
+        // La pila di immagini, scelta A5 dell'utente.
         FolderView.FEED -> Glyphs.Feed
     }
 
 /**
  * Il nome corto della vista, per le pastiglie del dialogo delle opzioni.
  *
- * ⚠️⚠️ **DUE NOMI PER LA STESSA COSA, ed è voluto** (richiesta dell'utente, 2026-08-31): nel
- * menu del FAB la voce dice 'Visualizzazione griglia', perché là dentro sta accanto ad
- * 'Apri un indirizzo' e a 'Impostazioni' e deve dire di che cosa parla. Nel dialogo il titolo
- * è già 'Opzioni di visualizzazione', quindi ripeterlo su ogni pastiglia è la stessa parola
- * scritta quattro volte, e le pastiglie diventano lunghe il doppio del necessario.
+ * Due nomi per la stessa cosa, voluti (richiesta dell'utente): nel menu del FAB la voce è accanto
+ * ad 'Apri un indirizzo' e 'Impostazioni' e dice di che cosa parla; nel dialogo il titolo è già
+ * 'Opzioni di visualizzazione', e ripeterlo allungherebbe ogni pastiglia.
  */
 private fun FolderView.shortLabel(): Int = when (this) {
     FolderView.GRID -> R.string.view_grid
@@ -1275,50 +1044,46 @@ private fun FolderView.shortLabel(): Int = when (this) {
     FolderView.FEED -> R.string.view_feed
 }
 
+/**
+ * Il FAB in basso a destra, e tutto quello che c'è dietro.
+ *
+ * ⚠️ **È il menu dell'app**: impostazioni, indirizzo, selettore di sistema e scelta della vista
+ * non hanno un altro posto. In basso a destra perché il pollice ci arriva senza cambiare presa;
+ * piccolo per non competere con le immagini (richiesta dell'utente).
+ *
+ * ⚠️ **Il selettore di sistema compare solo se il permesso manca** (decisione dell'utente): è la
+ * sola via per aprire un'immagine senza il permesso, e col permesso sarebbe una seconda strada
+ * per quello che le cartelle già fanno.
+ */
 @Composable
 private fun Hub(
     view: FolderView,
     /**
-     * Lo stato del glifo del FAB, che scorrendo diventa il chevron del salto.
-     *
-     * ⚠️ **Arriva da fuori e non nasce qui**: a riempirlo è il gesto, che il contenitore
-     * raccoglie, e questo composabile è il posto in cui quel disegno si vede. Il perché di
-     * tutto il meccanismo vive in `Jump.kt`.
+     * Lo stato del glifo del FAB, che scorrendo diventa la freccia del salto. Lo riempie il gesto
+     * raccolto dal contenitore; il meccanismo è in `Jump.kt`.
      */
     arm: JumpArm,
     /**
-     * Lo scorrimento annidato della schermata, che la corsa attraversa come un dito.
-     *
-     * ⚠️ **Senza, il salto arriverebbe in cima con l'intestazione ancora chiusa**, e lui ha
-     * chiesto il contrario: *fa scorrere in cima fino alla visualizzazione piena
-     * dell'intestazione*.
+     * Lo scorrimento annidato della schermata, che la corsa attraversa come un dito: senza, il
+     * salto arriverebbe in cima con l'intestazione chiusa, e l'utente la vuole aperta.
      */
     nested: NestedScrollConnection,
     /**
-     * Quante colonne ha la griglia sotto: serve alla **larghezza** del menu, non al FAB.
-     *
-     * ⚠️ **È la scelta e non il numero effettivo**, cioè lo stesso valore che riceve la griglia:
-     * a tradurlo in colonne vere ci pensa `spread`, e farlo qui darebbe due conti da tenere
-     * d'accordo. Il perché della misura vive su `menuFloor`.
+     * Quante colonne ha la griglia sotto: serve alla larghezza del menu, non al FAB. È la
+     * scelta, lo stesso valore della griglia; le colonne vere le ricava `spread`, e la misura è
+     * su `menuFloor`.
      */
     columns: Int,
     /**
-     * Se l'app ha il permesso sui file, cioè se le cartelle si possono leggere.
-     *
-     * ⚠️ **Arriva da fuori e non si rilegge qui**: chi chiama ce l'ha già, e lo tiene
-     * aggiornato al ritorno dalla pagina di sistema. Un secondo `Folder.granted` in questo
-     * composabile darebbe la risposta giusta al primo disegno e poi resterebbe fermo,
-     * perché niente lo farebbe ricomporre.
+     * Se l'app ha il permesso sui file. Arriva da chi chiama, che lo aggiorna al ritorno dalla
+     * pagina di sistema: letto qui, niente lo farebbe ricomporre.
      */
     granted: Boolean,
     recents: List<RecentImage>,
     onOpen: (Uri) -> Unit,
     /**
      * Apre le immagini di una pagina, quando l'indirizzo digitato è una pagina e non
-     * un'immagine: il sesto gradino dello sfogliatore Web.
-     *
-     * ⚠️ **Arriva fin qui come parametro invece di essere il modello**: questa schermata
-     * non conosce il modello, come nessun'altra, e il dialogo che ne ha bisogno è suo.
+     * un'immagine. Un parametro, perché la schermata non conosce il modello.
      */
     onOpenPage: (Folder.Series) -> Unit,
     onView: (FolderView) -> Unit,
@@ -1327,10 +1092,8 @@ private fun Hub(
     onSearch: () -> Unit,
     onBin: () -> Unit,
     /**
-     * Quante cartelle sono nascoste: la voce 'Mostra nascoste' c'è **se e solo se** ce n'è una.
-     *
-     * ⚠️ **Un conto e non l'insieme**: qui serve solo sapere se la voce ha un oggetto, e
-     * l'elenco lo mostra il pannello, che vive nella schermata insieme all'insieme vero.
+     * Quante cartelle sono nascoste: la voce 'Mostra nascoste' c'è solo se ce n'è una. Un conto
+     * basta; l'elenco lo mostra il pannello della schermata.
      */
     hiddenCount: Int,
     /** Se le nascoste sono in scena adesso: decide il testo e il glifo della voce. */
@@ -1340,19 +1103,13 @@ private fun Hub(
     /** Il tocco lungo sulla voce: apre il pannello delle nascoste. */
     onPeekList: () -> Unit,
     /**
-     * Il tocco lungo: la scorciatoia della dimensione della griglia, dalla `0.78`.
-     *
-     * ⚠️ **Il dialogo lo apre chi chiama e non questo composabile**, come per il velo: sono
-     * cose della schermata, e un FAB che si apre un dialogo da sé diventa il posto in cui
-     * cercare quel dialogo, che non è il punto in cui vive.
+     * Il tocco lungo: la scorciatoia della dimensione della griglia. Il dialogo lo apre chi
+     * chiama, come il velo: sono cose della schermata.
      */
     onSize: () -> Unit,
     /**
-     * Crea una sottocartella nella cartella in cui si è, e `null` quando non c'è una cartella in
-     * cui si sia: alla radice dell'albero e nelle altre due viste.
-     *
-     * ⚠️ **La decisione la prende chi chiama**, come per ogni altro parametro di questo menu:
-     * qui non si sa in che vista si è né dove si è arrivati navigando.
+     * Crea una sottocartella nella cartella in cui si è, e `null` fuori da una cartella: alla
+     * radice dell'albero e nelle altre viste. Lo decide chi chiama, che sa dove si è.
      */
     onNewFolder: (() -> Unit)? = null,
     /** Quello che la pillola di vetro sfoca, o `null` fuori dal vetro. Vedi [Backdrop]. */
@@ -1360,8 +1117,8 @@ private fun Hub(
     /**
      * I rientri e il margine dell'angolo del FAB, dentro [modifier].
      *
-     * ⚠️ **Separati dalla `4.15`**: il menu inferiore arriva ai bordi dello schermo, e l'angolo resta
-     * alla sola pillola in cui si ripiega. Vedi `corner` in [PhonePillBar].
+     * Separati: il Menu basso arriva ai bordi dello schermo, e l'angolo resta alla sola pillola in
+     * cui si piega. Vedi `corner` in [PhonePillBar].
      */
     corner: Modifier = Modifier,
     modifier: Modifier = Modifier
@@ -1409,10 +1166,10 @@ private fun Hub(
     ) else null
 
     /*
-     * ⚠️⚠️ **DALLA `4.00` AL POSTO DEL FAB PUÒ ESSERCI LA PILLOLA** (sua richiesta del 2026-10-05):
-     * le stesse voci del menu, nello stesso ordine, scritte una volta da [hubEntries]. Col tasto
-     * tondo restano il salto e il tocco lungo delle colonne (risposta C1); con la pillola estesa
-     * il salto diventa i due tasti in fondo, e il tocco lungo non c'è (risposte C2 e B1).
+     * Al posto del FAB può esserci la pillola (richiesta dell'utente): le stesse voci, nello
+     * stesso ordine, da [hubEntries]. Col tondo restano il salto e il tocco lungo delle colonne
+     * (risposta C1); con la pillola estesa il salto diventa i due tasti in fondo, e il tocco
+     * lungo non c'è (risposte C2 e B1).
      */
     if (LocalPillLook.current.mode != PhonePill.OFF) {
         PhonePillBar(
@@ -1432,61 +1189,27 @@ private fun Hub(
         )
     } else Box(modifier = modifier.then(corner)) {
         /*
-         * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL FAB, e quest'ordine è la funzione** (1.39):
-         * il FAB si stacca in una finestra sua per restare sopra il velo (vedi `lifted` in
-         * [TapHoldFab]), e fra finestre dello stesso tipo comanda l'ordine in cui sono state
-         * aggiunte, che è quello della composizione. Scritto dopo, il menu coprirebbe il
-         * FAB invece del contrario.
-         * ⚠️ **L'ancoraggio non cambia**: il menu si posiziona contro un punto senza misura,
-         * messo nell'angolo di questo riquadro, e quell'angolo è lo stesso qualunque sia
-         * l'ordine dei figli.
-         */
-        /*
-         * ⚠️⚠️ **PASSA DALLA SUPERFICIE UNICA DALLA `1.46`, e questo menu è il caso che ha
-         * dimostrato che serviva.** Era l'ultimo `DropdownMenu` di Material, e la ragione
-         * scritta qui era tecnica e non pigrizia: quella superficie voleva un posizionatore, e
-         * i due che c'erano mettevano il menu al centro della finestra o sopra un FAB
-         * centrato, mentre questo deve nascere **dall'angolo** in basso a destra. Adesso il
-         * posizionatore è uno e sa fare anche quello, quindi la ragione è caduta.
-         * ⚠️⚠️ **IL PREZZO STORICO DI ESSERE STATO FUORI**: la `1.28` aveva unificato il raggio
-         * di 'tutti i menu' e aveva dimenticato questo, perché era il solo a non passare dalla
-         * superficie condivisa; il difetto è uscito otto versioni dopo, nella `1.36`, e l'ha
-         * visto l'utente (*il menu del FAB nella schermata home ha ancora la vecchia stondatura
-         * piccola*). Uniformare non è un gusto: è il modo di non ripagare quel prezzo.
-         * ⚠️ **Il velo non si chiede più a mano**, perché lo porta la superficie. Fino alla
-         * `1.46` questa riga lo chiedeva e diceva di essere 'l'unico' menu fuori dalla
-         * superficie, che era **falso**: l'altro era il filtro nella testata della griglia, e
-         * per una versione è stato l'unico menu dell'app senza velo.
-         * ⚠️ **Le voci cambiano di aspetto in tre modi, tutti voluti**: crescono dal centro del
-         * riquadro e non dall'angolo del FAB, la scala è 0,96 al posto dello 0,8 di
-         * Material, e la durata è quella scelta dall'utente sul mockup.
-         * ⚠️⚠️ **LE ICONE LE HA DALLA `1.51`, e fino a lì era l'unico menu dell'app senza**:
-         * due voci volevano un disegno che in Material non c'è, e con icone su alcune righe e
-         * non su altre i testi comincerebbero in due posti diversi (il perché per esteso sta
-         * sul parametro `icon` di [MenuRow]). Quei due disegni sono arrivati insieme agli
-         * altri, quindi la clausola è caduta da sé.
-         * ⚠️ **Metà vengono da Material e metà da un file**, e non è un'incoerenza: quelle di
-         * Material rendono a zero pixel di scarto dal glifo che l'utente ha approvato, quindi
-         * copiarle in `res/` sarebbe la duplicazione che la nota in testa a `Glyphs.kt` vieta.
+         * ⚠️ **Il menu è scritto prima del FAB, e l'ordine conta**: il FAB si stacca in una
+         * finestra sua per restare sopra il velo (`lifted` in [TapHoldFab]), e fra finestre dello
+         * stesso tipo comanda l'ordine della composizione. Dopo, il menu coprirebbe il FAB.
+         * L'ancoraggio è un punto nell'angolo di questo riquadro, qualunque sia l'ordine.
+         * Il menu passa dalla superficie unica dei menu ([MenuShell]), che dà raggio, velo e
+         * animazione uguali a tutti. Le icone sono in parte di Material e in parte nostre: quelle
+         * di Material rendono a zero pixel di scarto dal glifo approvato (nota in testa a
+         * `Glyphs.kt`).
          */
         MenuShell(
             state = menu,
             position = rememberMenuAtAnchor(),
             /*
-             * ⚠️⚠️ **LA LARGHEZZA LA DETTA LA GRIGLIA SOTTO, dalla `1.91`** (riscontro del giro
-             * della `1.89`, voce `menu-bordo`): il pannello deve essere più largo di due celle
-             * più lo spazio che le separa, e non deve cadere a filo coi bordi delle colonne. Il
-             * conto, il tetto e le misure del suo mockup vivono su `menuFloor`.
-             * ⚠️ **Qui le colonne sono due di fabbrica**, cioè il caso in cui il tetto entra in
-             * funzione: il menu si ferma a `MENU_INSET` dai due lati invece di allargarsi quanto
-             * la griglia intera.
+             * La larghezza la detta la griglia sotto (voce `menu-bordo`): più di due celle e del
+             * loro spazio, senza cadere a filo coi bordi delle colonne. Il conto è su `menuFloor`;
+             * con due colonne di fabbrica il menu si ferma a `MENU_INSET` dai lati.
              */
             minWidth = menuFloor(spread(columns, LocalWindowInfo.current), FOLDER_GAP)
         ) {
-            // ⚠️ Le voci le scrive [hubEntries], una volta sola, e le legge anche la pillola dello
-            // schermo largo (`HomePill`, dalla `3.70`): due elenchi delle stesse voci
-            // divergerebbero alla prima voce nuova. Qui il menu le dispone, col filetto fra un
-            // gruppo e l'altro.
+            // Le voci le scrive [hubEntries], una volta sola, e le legge anche la pillola dello
+            // schermo largo (`HomePill`). Qui il menu le dispone, col filetto fra i gruppi.
             voci.forEachIndexed { i, voce ->
                 if (i > 0 && voce.group != voci[i - 1].group) HorizontalDivider()
                 MenuRow(
@@ -1498,68 +1221,36 @@ private fun Hub(
             }
         }
         /*
-         * ⚠️⚠️ **NON È PIÙ `SmallFloatingActionButton`, dalla 0.78**, e la ragione è la
-         * stessa dell'altro FAB: quel composabile prende un `onClick` solo, e un
-         * `combinedClickable` messo sul suo modificatore non vedrebbe mai il tocco lungo. La
-         * resa non cambia: [TapHoldFab] è la stessa `Surface` da 40dp, quadrata con gli
-         * angoli appena smussati come chiesto, perché il tondo pieno griderebbe 'azione
-         * principale' e qui l'azione principale sono le cartelle.
-         *
-         * ⚠️⚠️ **L'ENTRATA A MOLLA NON C'È PIÙ, DALLA `1.75`** (riscontro dell'utente, giro
-         * della `1.74`: *animazione all'ingresso (avvio e ritorno in home): se ne va. Preferisco
-         * semplificare*). Era nata nella `1.58` da una sua richiesta, ed è costata sei versioni
-         * di ritocchi al punto di partenza, alla durata, all'ombra, e infine all'attesa della
-         * dissolvenza della `1.74`, che era la diagnosi giusta e non è bastata a farla piacere.
-         * ⚠️⚠️ **CON LEI SE NE VA `Entrata.kt` INTERO, e con quel file `LocalArrivo` e
-         * `ConArrivo`**: l'unico dell'app a chiedersi se una schermata stesse ancora arrivando
-         * era questo FAB, quindi il meccanismo non ha un secondo chiamante da servire. Chi lo
-         * cercasse per un'altra animazione lo ritrova nella storia git, con le sue misure.
-         * ⚠️ **La pressione resta, ed è un'altra cosa**: vive in [TapHoldFab], la governa il dito
-         * e lui l'ha approvata nello stesso riscontro (*animazione alla pressione del FAB: va
-         * bene e rimane*).
+         * [TapHoldFab] e non `SmallFloatingActionButton`, che prende un `onClick` solo e non
+         * vedrebbe il tocco lungo. Una `Surface` da 40dp, quadrata con gli angoli appena smussati
+         * come chiesto: il tondo pieno direbbe 'azione principale', e qui lo sono le cartelle.
+         * Senza animazione d'ingresso (riscontro dell'utente sul giro della 1.74); la pressione
+         * invece resta, in [TapHoldFab], approvata nello stesso riscontro.
          */
         val altroTema = aivLauncher(!LocalAivLight.current)
         /*
-         * ⚠️⚠️ **A TASTO ARMATO IL TOCCO FA IL SALTO E NON APRE IL MENU, DALLA `2.07`**: è la
-         * conseguenza diretta della sua scelta, cioè che il comando viva **sul** FAB invece che
-         * accanto. Il tratto in cui il menu non si apre è quello in cui il chevron si vede, e
-         * finisce da sé un secondo dopo l'ultimo pixel scorso.
-         * ⚠️ **L'etichetta segue il comando**: un lettore di schermo che annunciasse il menu
-         * mentre il tasto porta in fondo direbbe la cosa sbagliata proprio a chi non vede il
-         * glifo.
+         * A tasto armato il tocco fa il salto e non apre il menu: il comando vive sul FAB, e il
+         * tratto armato è quello in cui si vede la freccia, che sparisce un secondo dopo l'ultimo
+         * scorrimento. L'etichetta segue il comando, per chi usa un lettore di schermo.
          */
         val salto = rememberCoroutineScope()
         TapHoldFab(
             label = jumpLabel(arm, stringResource(R.string.hub_open)),
             /*
-             * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
-             * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
-             * combinazione dell'icona nuova nei due temi*). Prima erano `primaryContainer` e il
-             * suo inchiostro, cioè la coppia che Material ricava dalla tavolozza: vicina, ma
-             * un'altra cosa.
-             * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
-             * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
-             * versione in `values-night`, e il giorno che l'utente cambia la coppia dell'icona
-             * cambia anche il FAB. Due numeri copiati qui si scollerebbero al primo ritocco.
-             * ⚠️⚠️ **MA NON PIÙ CON `colorResource`, DALLA `1.86`, E LA DIFFERENZA LUI L'HA
-             * VISTA**: quella legge la configurazione **di sistema**, mentre il tema dell'app è
-             * una sua impostazione, quindi col tema scuro scelto dentro AIV il FAB restava
-             * chiaro. Adesso il tema in vigore lo dà [aivLauncher]. Il perché per esteso vive là.
-             * ⚠️⚠️ **E LA COPPIA È QUELLA DELL'ALTRO TEMA** (*il FAB di tutte le pagine incluso
-             * il cestino deve avere il FAB del colore del tema scuro, che poi diventa chiaro
-             * quando premuto*): il colore di questo tema torna quando si preme, e a scambiarli è
-             * [TapHoldFab].
-             * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
-             * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
-             * colori scelti da lui, e questo FAB porta un glifo, non del testo.
+             * ⚠️ **I colori sono quelli dell'icona dell'app** (richiesta dell'utente), presi dalle
+             * sue risorse (`launcher_background`, `launcher_foreground`) con [aivLauncher], che
+             * segue il tema scelto dentro l'app: `colorResource` leggerebbe quello di sistema
+             * (`Rules.md` § '🌗 Il tema scelto DENTRO l'app non è quello di sistema').
+             * La coppia è quella dell'altro tema (richiesta dell'utente), e il colore di questo
+             * tema torna alla pressione: li scambia [TapHoldFab].
+             * Il contrasto è quello dell'icona (2,42 chiaro, 3,25 scuro; il perché in
+             * `colors.xml`): colori scelti dall'utente, per un glifo e non per del testo.
              */
             container = altroTema.first,
             ink = altroTema.second,
             holdLabel = stringResource(R.string.columns_title),
-            // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
-            // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne sta
-            // andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling` finché la
-            // patina durava più del pannello.
+            // `visible` e non `wanted`: il FAB resta staccato per tutta l'uscita del menu, o
+            // rientrerebbe nella finestra dell'app sotto il velo che se ne va.
             lifted = menu.visible,
             pressed = menu.wanted,
             backdrop = backdrop,
@@ -1583,12 +1274,9 @@ private fun Hub(
 /**
  * Le voci del FAB della schermata iniziale, in ordine e coi loro gruppi.
  *
- * ⚠️⚠️ **SONO UN ELENCO DALLA `3.70`, E PRIMA ERANO LE RIGHE DEL MENU**: sullo schermo largo le
- * stesse voci vanno nella pillola d'accento (scelta B5: *la pillola prende tutte le voci del FAB
- * di casa*), quindi l'elenco si scrive qui una volta e il menu ([Hub]) e la pillola ([HomePill])
- * lo leggono. Il gruppo dice dove il menu mette il filetto: le viste, le azioni, le impostazioni.
- * ⚠️ **Le note di ogni voce sono rimaste accanto alla sua riga**, che adesso aggiunge una voce
- * invece di disegnarla: il perché di ognuna non è cambiato.
+ * Un elenco solo, che leggono il menu ([Hub]), le pillole e, sullo schermo largo, la pillola
+ * d'accento ([HomePill]; scelta B5: tutte le voci del FAB di casa). Il gruppo dice dove il menu
+ * mette il filetto: viste, azioni, impostazioni.
  */
 @Composable
 private fun hubEntries(
@@ -1606,42 +1294,23 @@ private fun hubEntries(
     onBin: () -> Unit,
     onSettings: () -> Unit,
     /**
-     * Le voci del menu angolare invece di quelle del FAB, dalla `4.20` (decisione C2): 'Mostra
-     * nascoste' sempre al suo posto, spenta quando non ce n'è una e sostituita da 'Seleziona
-     * immagine' senza il permesso. Così le caselle sono nove in ogni caso, e ogni icona resta nella
-     * sua casella.
-     * ⚠️ **Dalla `4.25` le viste sono di nuovo le altre, diverse da quella corrente**, come nel menu
-     * del FAB. Nella `4.20` c'erano tutte, con quella corrente segnata da un disco.
-     * ⚠️⚠️ **FROM 6.02 THE FIRST ROW IS THE THREE OTHER VIEWS, AND THE FEED TOOK THE SWITCH'S BOX**
-     * (his choice of 2026-10-14: *non serve, ed era solo un riempitivo. È anche la posizione più
-     * naturale*): the switch between the round key and the pill, which opened the row from 4.25,
-     * lives in the settings under the main control. In AIV Play there is no tree view, so the row
-     * is the two other views and 'Mostra nascoste', as it was.
-     * ⚠️ **With 'Nuova cartella' the Feed is left out** (his note E on the 4.32 round, with
-     * `10icons.png`, said the same of the switch): there the boxes would be ten, and the tenth
-     * opened a fourth row for itself. From inside a folder of the tree the Feed is one tap away in
-     * the main menu.
+     * Le voci del Menu 'Start' invece di quelle del FAB (decisione C2): 'Mostra nascoste' sempre
+     * al suo posto, spenta quando non ce n'è una e sostituita da 'Seleziona immagine' senza il
+     * permesso, così ogni icona resta nella sua casella.
+     * La prima riga sono le altre viste, col Feed per primo nella casella che era
+     * dell'interruttore fra tondo e pillola (scelta dell'utente, 6.02). In AIV Play non c'è la
+     * vista ad albero.
+     * Con 'Nuova cartella' il Feed resta fuori (nota E del giro della 4.32): le caselle sarebbero
+     * dieci, e la decima aprirebbe una quarta riga. Dentro l'albero il Feed è nel menu principale.
      */
     steady: Boolean = false
 ): List<PillEntry> = buildList {
-    // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
-    // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
-    // è una richiesta, non un indicatore di stato, quindi in griglia si legge
-    // 'Visualizzazione lista'. Chi la leggesse come stato la invertirebbe, e da
-    // quel momento il menu direbbe il contrario di quello che fa.
-    // ⚠️ Le due etichette vanno cambiate INSIEME e nella stessa forma: si vedono
-    // una per volta, quindi due registri diversi non si notano subito e restano.
-    // Erano 'Vedile come elenco' e 'Vedile come copertine' fino alla 0.46,
-    // quando l'utente le ha volute al nominale.
-    // ⚠️⚠️ **DALLA `0.84` LE VISTE SONO TRE, e il menu mostra le DUE che non sono
-    // quella corrente**: con due bastava una riga sola che nominava l'altra, e la
-    // regola qui sopra resta intatta, perché una riga che nomina la vista in cui si
-    // è già non sarebbe una richiesta ma un indicatore di stato spento.
-    // ⚠️ **'Cartelle di sistema' non segue la forma delle altre due** ('Visualizzazione
-    // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
-    // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
-    // vorrebbe dire ribattezzare una cosa che ha già un nome.
-    // ⚠️ In the Start menu the Feed comes first, in the box the switch had (*al posto di*).
+    // ⚠️ **La voce nomina la vista che si ottiene, non quella in cui si è**: una riga di menu è
+    // una richiesta, non un indicatore di stato, quindi in griglia si legge 'Visualizzazione
+    // lista'. Il menu mostra le viste diverse da quella corrente. Le etichette si cambiano
+    // insieme e nella stessa forma.
+    // 'Cartelle di sistema' e 'Feed' non seguono la forma delle altre: sono nomi che l'utente ha
+    // dato alle viste, non descrizioni.
     Store.views.filter { it != view && !(steady && it == FolderView.FEED && onNewFolder != null) }
         .sortedBy { !(steady && it == FolderView.FEED) }
         .forEach { other ->
@@ -1649,16 +1318,11 @@ private fun hubEntries(
     }
 
     /*
-     * ⚠️⚠️ **'Mostra nascoste' STA COL GRUPPO DELLE VISTE, e non con le azioni**: quelle
-     * righe rispondono a *come guardo le cartelle*, e questa risponde a *quali ne
-     * guardo*, che è la stessa domanda vista dall'altro lato. Le azioni sotto invece
-     * portano da un'altra parte.
-     * ⚠️⚠️ **C'È SE E SOLO SE CE N'È UNA NASCOSTA**: senza, la voce accenderebbe un
-     * minuto in cui non compare niente e il tocco lungo aprirebbe un pannello vuoto.
-     * ⚠️ **La riga nomina quello che il tocco FA, come le viste**: con le nascoste in
-     * scena dice 'Nascondi cartelle', perché è quello che succede toccandola.
-     * ⚠️ **I due glifi sono suoi** (2026-09-08), e sono una cartella con un occhio:
-     * quelli di Material dicono 'vedi' e 'non vedere' senza dire di che cosa.
+     * 'Mostra nascoste' è nel gruppo delle viste: risponde a 'quali cartelle guardo', l'altro
+     * lato di 'come le guardo'. Nel menu del FAB c'è solo se ce n'è una nascosta (senza, il
+     * tocco lungo aprirebbe un pannello vuoto); nel Menu 'Start' è spenta.
+     * La riga nomina quello che il tocco fa, come le viste: con le nascoste in scena dice
+     * 'Nascondi cartelle'. I due glifi sono dell'utente, una cartella con un occhio.
      */
     if (steady && !granted) {
         add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 0, short = stringResource(R.string.start_pick)) { onPickImage() })
@@ -1679,65 +1343,40 @@ private fun hubEntries(
         )
     }
 
-    // ⚠️ È in cima al gruppo delle azioni, prima delle tre vie che aprono
-    // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
-    // dove andare, ed è il caso in cui una persona apre questo menu.
+    // Cerca è in cima alle azioni: è la domanda più frequente di chi apre questo menu senza
+    // sapere già dove andare.
     add(PillEntry(Icons.Default.Search, stringResource(R.string.hub_search), group = 1, short = stringResource(R.string.hub_search)) { onSearch() })
     val indirizzo = PillEntry(Icons.Default.Public, stringResource(R.string.hub_url), group = 1, short = stringResource(R.string.start_url)) { onAddress() }
     val impostazioni = PillEntry(Icons.Default.Settings, stringResource(R.string.hub_settings), group = 2, short = stringResource(R.string.hub_settings)) { onSettings() }
     if (!steady) add(indirizzo)
     /*
-     * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
-     * dell'utente, 2026-08-31: *facciamo un bivio, lo mostriamo se e solo se l'app
-     * non ha il permesso di accedere alla memoria*). La richiesta di partenza era di
-     * toglierla del tutto, *a meno che non mi sia perso qualcosa*: quel qualcosa era
-     * che questa voce è l'**unica via per aprire un'immagine senza quel permesso**,
-     * ed è scritto sopra questo composabile.
-     * ⚠️ **Il bivio la rende utile invece di ridondante**, che è la ragione per cui
-     * dava fastidio: col permesso concesso le cartelle ci sono, e allora il selettore
-     * di sistema è una seconda strada per la stessa cosa; senza permesso è l'unica
-     * strada che c'è.
-     * ⚠️ **Sparisce da sé quando il permesso arriva**, senza uscire e rientrare: lo
-     * stato di `granted` si rinfresca al ritorno dalla richiesta (vedi `askAccess` in chi
-     * chiama), quindi il menu si ricompone.
+     * Solo se il permesso manca (decisione dell'utente; il perché è su [Hub]). Sparisce da sé
+     * quando il permesso arriva: `granted` si rinfresca al ritorno dalla richiesta (`askAccess`
+     * in chi chiama), e il menu si ricompone.
      */
     if (!granted && !steady) {
         add(PillEntry(Icons.Default.Image, stringResource(R.string.hub_pick), group = 1) { onPickImage() })
     }
-    // ⚠️⚠️ **IL CESTINO SI RAGGIUNGE SOLO DA QUI, ed è per costruzione**: le sue
-    // fotografie stanno nella cartella dell'app, dove il MediaStore non guarda,
-    // quindi non compaiono nell'elenco delle cartelle e non possono comparirci.
-    // Senza questa voce sarebbero irraggiungibili, cioè cancellate.
-    // ⚠️ È in fondo al gruppo di quelle che aprono qualcosa: è un posto dove si
-    // va, come una cartella, ma è il meno frequentato dei quattro.
+    // ⚠️ **Il cestino si raggiunge solo da qui**: le sue immagini sono nella cartella dell'app,
+    // dove il MediaStore non guarda, quindi non compaiono fra le cartelle. È in fondo alle azioni:
+    // un posto dove si va, ma il meno frequentato.
     /*
-     * ⚠️⚠️ **'Nuova cartella' C'È SOLO DENTRO UNA CARTELLA DELLA VISTA AD ALBERO**
-     * (riscontro del giro della `1.81`, campo libero punto B: *in vista 'Cartelle di
-     * sistema', il menu del FAB deve avere una funzione in più: `Nuova cartella` sopra
-     * 'Cestino', che crea una nuova sottocartella nella cartella corrente*).
-     * ⚠️ **Alla radice dell'albero non c'è, e non è una dimenticanza**: là l'elenco è
-     * fatto di volumi (la memoria interna, una scheda), che non sono cartelle in cui si
-     * possa scrivere. La 'cartella corrente' esiste dal primo passo in giù.
-     * ⚠️ **Nelle altre due viste nemmeno**: quelle elencano le cartelle che il
-     * MediaStore conosce, cioè un indice, non un posto sul disco. Una cartella creata là
-     * non comparirebbe finché non ci finisce dentro un'immagine.
+     * 'Nuova cartella' c'è solo dentro una cartella della vista ad albero, sopra 'Cestino'
+     * (riscontro del giro della 1.81, punto B). Alla radice l'elenco è fatto di volumi, e le altre
+     * viste elencano le cartelle che il MediaStore conosce, un indice: una cartella creata là non
+     * comparirebbe finché non contiene un'immagine.
      */
     if (onNewFolder != null) {
         add(PillEntry(Glyphs.FolderNew, stringResource(R.string.dest_new), group = 1, short = stringResource(R.string.start_new)) { onNewFolder() })
     }
     val cestino = PillEntry(Glyphs.Bin, stringResource(R.string.bin_title), group = 1, short = stringResource(R.string.bin_title)) { onBin() }
     /*
-     * ⚠️⚠️ **NEL MENU START, DALLA `5.03`, 'Impostazioni' VIENE PRIMA DI 'Apri URL' E DEL CESTINO**
-     * (sua nota del giro della `5.02`: *Impostazioni al posto di Apri URL, Cestino al posto di
-     * Impostazioni, Apri URL al posto di Cestino*). Le caselle si riempiono dall'alto con la × in
-     * fondo, quindi nella vista Griglia la seconda riga è 'Mostra', 'Cerca', 'Impostazioni' e la terza
-     * 'Apri URL', 'Cestino', ×: 'Impostazioni' è sopra la ×, e in basso ci sono le due voci che si
-     * usano di meno. ⚠️ **Lettura dichiarata**: con 'Crea', nella vista ad albero, vale la stessa
-     * regola, e 'Crea' resta accanto a 'Cerca'. Il FAB, la pillola e il menu basso tengono l'ordine
-     * di prima: la nota parla del solo menu Start.
+     * Nel Menu 'Start' 'Impostazioni' viene prima di 'Apri URL' e del cestino (nota dell'utente
+     * sul giro della 5.02): con la × in fondo, 'Impostazioni' è sopra la ×, e in basso ci sono le
+     * due voci meno usate. Lettura dichiarata: con 'Crea', nell'albero, vale la stessa regola. Il
+     * FAB, la pillola e il Menu basso tengono l'altro ordine.
      */
-    // ⚠️ AIV Play has had no bin from 5.10 to 5.30; since 5.40 it has the system's trash, from
-    // Android 11 (`Store.hasBin`).
+    // AIV Play ha il cestino di sistema solo da Android 11 (`Store.hasBin`).
     if (steady) {
         add(impostazioni)
         add(indirizzo)
@@ -1750,7 +1389,7 @@ private fun hubEntries(
 
 /**
  * Quanto spazio in più del FAB chiede sotto l'ultima cartella il comando in vigore: la pillola
- * verticale del menu inferiore a scomparsa è alta due tasti, dalla `4.15`. Vedi [controlRoom].
+ * verticale del Menu basso a scomparsa è alta due tasti. Vedi [controlRoom].
  */
 @Composable
 private fun extraRoom(): Dp = (controlRoom() - PILL_KEY - PILL_AIR * 2).coerceAtLeast(0.dp)
@@ -1759,11 +1398,10 @@ private fun extraRoom(): Dp = (controlRoom() - PILL_KEY - PILL_AIR * 2).coerceAt
  * La pillola della schermata iniziale sullo schermo largo: le voci del FAB di casa, con le due
  * finestre che alcune aprono (l'indirizzo e il selettore di sistema).
  *
- * ⚠️ **Le finestre vivono qui e non nella schermata**: sullo schermo largo la schermata delle
- * cartelle non è in scena (al suo posto ci sono la colonna e l'invito a scegliere una cartella),
- * quindi chi apre la finestra deve anche tenerla.
- * ⚠️ **Il tocco lungo su 'Mostra nascoste' qui non c'è**: apre il pannello delle nascoste, che
- * vive nella schermata delle cartelle; la stessa pagina si raggiunge dalle impostazioni.
+ * Le finestre vivono qui: sullo schermo largo la schermata delle cartelle non è in scena, quindi
+ * chi apre la finestra deve anche tenerla.
+ * Il tocco lungo su 'Mostra nascoste' qui non c'è: il pannello delle nascoste è della schermata
+ * delle cartelle, e la stessa pagina è nelle impostazioni.
  */
 @Composable
 fun HomePill(
@@ -1821,30 +1459,19 @@ fun HomePill(
 /**
  * Le opzioni di visualizzazione, chieste col tocco lungo sul FAB.
  *
- * ⚠️⚠️ **DALLA `0.99` PORTA ANCHE LA VISTA, e con lei le opzioni di ognuna** (richiesta
- * dell'utente): prima era il solo numero di colonne, quindi la scorciatoia serviva a una
- * vista su tre e nelle altre due apriva un dialogo che non c'entrava niente. Adesso la
- * prima fila sceglie la vista e sotto compaiono le sue, cioè le colonne per la griglia, il
- * contatore e il corpo del testo per l'elenco, i file nascosti e il filtro delle immagini
- * per le cartelle di sistema.
- * ⚠️⚠️ **SONO LE STESSE IMPOSTAZIONI DELLE PREFERENZE, non delle seconde** (richiesta
- * dell'utente sulle colonne: *che resta globale per tutte le cartelle*, ed è il criterio di
- * tutte): questa è una via più corta per arrivarci, e chi la usa le ritrova cambiate anche
- * là dentro. Un valore 'della sessione' sarebbe una terza cosa da capire. Il solo filtro
- * dei generi non è qui, perché per richiesta è volatile.
- * ⚠️ **Le pastiglie sono quelle delle impostazioni**, `FilterChip` coi valori nudi: chi ha
- * già visto quelle righe riconosce queste senza leggerle. Una copia della riga intera (con
- * titolo e spiegazione) non serviva: qui il titolino dice già di che cosa si parla.
- * ⚠️⚠️ **SCEGLIERE NON CHIUDE, e non è una dimenticanza**: un dialogo di Material lascia
- * vedere quello che c'è dietro, quindi la schermata si rifà **sotto gli occhi** a ogni
- * pastiglia toccata, e si può provare 2, 3 e 4 senza riaprire niente. Chiudendo a ogni scelta,
- * confrontarle vorrebbe dire tre tocchi lunghi. Il tasto in basso quindi non conferma niente:
- * dice che si è finito.
- * ⚠️⚠️ **From the `5.90` it follows his mockup `homeLongPress.png`** (note B on the giro of the
- * `5.80`): the grid adds 'Disposizione', the grid and the list end with a row that opens
- * 'Cartelle preferite' over the home ([FavouritesSheet]), and the colour of the folders is gone
- * from here (his decision: it stays in the settings). Every row of chips fills the width
+ * La prima fila sceglie la vista (richiesta dell'utente), e sotto compaiono le sue opzioni:
+ * colonne e disposizione per la griglia, contatore e corpo del testo per l'elenco, file nascosti
+ * e filtro delle immagini per le cartelle di sistema, colonne e data per il Feed. Griglia ed
+ * elenco finiscono con la riga che apre 'Cartelle preferite' ([FavouritesSheet]). È il mockup
+ * `homeLongPress.png` (nota B del giro della 5.80); il colore delle cartelle è solo nelle
+ * impostazioni.
+ *
+ * ⚠️ **Sono le stesse impostazioni delle preferenze** (richiesta dell'utente: globali per tutte
+ * le cartelle): una via più corta, e chi la usa le ritrova cambiate là. Le pastiglie sono quelle
+ * delle impostazioni, `FilterChip` coi valori nudi, e ogni fila riempie la larghezza
  * ([JustifiedChips]).
+ * ⚠️ **Scegliere non chiude**: la schermata dietro si rifà a ogni pastiglia toccata, e si possono
+ * confrontare 2, 3 e 4 colonne senza riaprire niente. Il tasto in basso dice che si è finito.
  */
 @Composable
 internal fun ViewOptions(
@@ -1873,18 +1500,16 @@ internal fun ViewOptions(
         properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.view_options)) },
         text = {
-            // ⚠️ The content scrolls from the `5.90`: with the order and the favourites row the
-            // grid no longer fits a low window (a phone held sideways), and the last row was out of
-            // reach.
+            // Il contenuto scorre: con l'ordine e la riga dei preferiti la griglia non entra in una
+            // finestra bassa (telefono in orizzontale), e l'ultima riga sarebbe irraggiungibile.
             Column(
                 verticalArrangement = Arrangement.spacedBy(OPTION_GAP),
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 /*
-                 * ⚠️ **A row that wraps**: the three views are 'Vista a griglia', 'Vista a elenco'
-                 * and 'Cartelle di sistema', and on a narrow screen or in a language that writes
-                 * long the last one would leave the dialog. [JustifiedChips] goes to a new line
-                 * by itself, like the `FlowRow` it replaces.
+                 * Una fila che va a capo: le viste sono quattro ('Vista a griglia', 'Vista a
+                 * elenco', 'Cartelle di sistema' e 'Feed'; tre in AIV Play, senza l'albero), e su
+                 * uno schermo stretto o in una lingua che le scrive lunghe uscirebbero dal dialogo.
                  */
                 JustifiedChips {
                     Store.views.forEach { one ->
@@ -1892,9 +1517,8 @@ internal fun ViewOptions(
                     }
                 }
                 HorizontalDivider()
-                // ⚠️ Le opzioni sono quelle della vista SCELTA e non tutte insieme: un
-                // dialogo con nove voci di cui sei spente sarebbe un pannello di
-                // impostazioni, e questa è una scorciatoia.
+                // Le opzioni della sola vista scelta: con tutte insieme, quasi tutte spente, sarebbe
+                // un pannello di impostazioni e non una scorciatoia.
                 when (view) {
                     FolderView.GRID -> {
                         OptionLabel(R.string.columns_title)
@@ -1903,8 +1527,8 @@ internal fun ViewOptions(
                                 OptionChip(n.toString(), n == columns) { onColumns(n) }
                             }
                         }
-                        // ⚠️ Only in the grid, as he wrote on the mockup: the list keeps its
-                        // alphabetical order, so the choice would change nothing there.
+                        // Solo nella griglia, come nel mockup: l'elenco tiene l'ordine alfabetico,
+                        // e la scelta là non cambierebbe niente.
                         OptionLabel(R.string.folder_order_short)
                         JustifiedChips {
                             FolderOrder.entries.forEach { one ->
@@ -1917,14 +1541,10 @@ internal fun ViewOptions(
                         OptionSwitch(R.string.list_count, listCount, onListCount)
                         OptionLabel(R.string.text_size)
                         /*
-                         * ⚠️⚠️ **UNO SLIDER A TRE FERMI E NON TRE PASTIGLIE, dalla 1.03**
-                         * (richiesta dell'utente): le tre misure sono una scala, non tre
-                         * scelte alla pari, e in fila andavano a capo mangiandosi due righe
-                         * del dialogo. Con tre fermi il gesto dice già che si sta girando una
-                         * manopola, e la riga è una.
-                         * ⚠️ **`steps` conta gli scalini IN MEZZO**, non i fermi: per tre
-                         * posizioni se ne dichiara **uno**. Con 3 i fermi diventerebbero
-                         * cinque e due non avrebbero nome.
+                         * Un cursore a tre fermi (richiesta dell'utente): le misure sono una
+                         * scala, e tre pastiglie in fila andrebbero a capo.
+                         * ⚠️ **`steps` conta gli scalini in mezzo**, non i fermi: per tre
+                         * posizioni se ne dichiara uno.
                          */
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -1942,9 +1562,8 @@ internal fun ViewOptions(
                                 steps = TextSize.entries.size - 2,
                                 modifier = Modifier.weight(1f)
                             )
-                            // ⚠️ La larghezza minima tiene ferma la manopola: senza, lo
-                            // slider si allunga e si accorcia a ogni passo, perché 'Normale'
-                            // e 'Piccolo' non misurano uguale.
+                            // La larghezza minima tiene fermo il cursore: 'Normale' e 'Piccolo'
+                            // non misurano uguale, e il cursore cambierebbe lunghezza a ogni passo.
                             Text(
                                 text = stringResource(listText.label()),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -1953,17 +1572,16 @@ internal fun ViewOptions(
                         }
                         FavouritesRow(onFavourites)
                     }
-                    // ⚠️ No favourites row here: the tree shows the disk as it is, in no order of
-                    // ours, so the favourites change nothing in it.
+                    // Senza la riga dei preferiti: l'albero mostra il disco com'è, e i preferiti
+                    // non vi cambiano niente.
                     FolderView.TREE -> {
                         OptionSwitch(R.string.tree_show_hidden, treeHidden, onTreeHidden)
                         OptionSwitch(R.string.tree_pictures, treePictures, onTreePictures)
                     }
                     /*
-                     * ⚠️⚠️ **THE FEED, FROM 6.02: THE COLUMNS AND HIS TITLE WITH HIS TWO CHIPS**
-                     * (*titolino `Data per l'ordinamento` e due gettoni, `Scatto, Modifica` e
-                     * `Modifica`*). The columns are the grid's, one setting for the two grids.
-                     * ⚠️ No favourites row and no order: the Feed has no folders to put first.
+                     * Il Feed: le colonne e il titolino della data coi due gettoni (specifica
+                     * dell'utente). Le colonne sono quelle della griglia, un'impostazione sola per
+                     * le due griglie. Niente preferiti né ordine: il Feed non ha cartelle.
                      */
                     FolderView.FEED -> {
                         OptionLabel(R.string.columns_title)
@@ -1989,17 +1607,15 @@ internal fun ViewOptions(
 }
 
 /**
- * A row of chips that fills the width of the dialog, wrapping when the chips do not fit.
+ * Una fila di pastiglie che riempie la larghezza del dialogo, e va a capo quando non entrano.
  *
- * ⚠️⚠️ **His note B on the giro of the `5.80`**: the chips take the whole width, the first starts
- * on the same vertical as the small titles and the last ends on the right edge. Each line shares
- * what is left over in equal parts among its chips, so a long name keeps its room and a short one
- * grows, and the gap between them stays [OPTION_GAP].
- * ⚠️⚠️ **And this is also what aligns the first chip to the left** (his reminder of the same day:
- * the chips of the columns were not aligned on the horizontal axis). A chip narrower than the
- * 48 dp of a touch target gets a transparent margin on both sides from Material, so the border of
- * '2' started a few dp to the right of the title above. Measured at its final width, which is
- * always wider here, a chip has no such margin. `VistaOpzioniTest` measures it.
+ * Nota B dell'utente sul giro della 5.80: la prima pastiglia comincia sulla verticale dei
+ * titolini, l'ultima finisce sul bordo destro. Ogni riga divide l'avanzo in parti uguali fra le
+ * sue pastiglie, e lo stacco resta [OPTION_GAP].
+ * ⚠️ **È anche quello che allinea la prima a sinistra**: una pastiglia più stretta dei 48dp di un
+ * bersaglio riceve da Material un margine trasparente sui due lati, e il bordo di '2' cadrebbe a
+ * destra del titolino. Misurata alla larghezza finale, sempre più larga, quel margine non c'è.
+ * Presidiato da `VistaOpzioniTest`.
  */
 @Composable
 private fun JustifiedChips(content: @Composable () -> Unit) {
@@ -2026,7 +1642,7 @@ private fun JustifiedChips(content: @Composable () -> Unit) {
             val taken = members.sumOf { natural[it] } + gap * (members.size - 1)
             val spare = (width - taken).coerceAtLeast(0)
             members.mapIndexed { k, at ->
-                // The pixels that do not divide evenly go to the last chip, so the row ends on the edge.
+                // I pixel del resto vanno all'ultima pastiglia, così la riga finisce sul bordo.
                 val share = spare / members.size + if (k == members.lastIndex) spare % members.size else 0
                 items[at].measure(Constraints.fixedWidth(natural[at] + share))
             }
@@ -2046,7 +1662,7 @@ private fun JustifiedChips(content: @Composable () -> Unit) {
     }
 }
 
-/** A chip of the view options, with its name centred when [JustifiedChips] widens it. */
+/** Una pastiglia delle opzioni di visualizzazione, col nome centrato quando [JustifiedChips] la allarga. */
 @Composable
 private fun OptionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
     FilterChip(
@@ -2057,7 +1673,7 @@ private fun OptionChip(label: String, chosen: Boolean, onClick: () -> Unit) {
     )
 }
 
-/** The row that opens 'Cartelle preferite' over the home, at the end of the view options. */
+/** La riga che apre 'Cartelle preferite' sopra la casa, in fondo alle opzioni di visualizzazione. */
 @Composable
 private fun FavouritesRow(onOpen: () -> Unit) {
     Row(
@@ -2084,9 +1700,7 @@ private fun FavouritesRow(onOpen: () -> Unit) {
 /**
  * Come si chiama uno stile del colore, nel pannello delle impostazioni.
  *
- * ⚠️ **Una funzione e non un elenco scritto sul posto**: fino alla `5.80` le stesse cinque parole
- * comparivano anche nelle opzioni di visualizzazione, che dalla `5.90` non hanno più il colore (sua
- * decisione); la funzione resta il solo posto che dà un nome a ogni stile.
+ * Il solo posto che dà un nome a ogni stile del colore.
  */
 @StringRes
 internal fun FolderColour.label(): Int = when (this) {
@@ -2110,19 +1724,13 @@ private fun OptionLabel(@StringRes text: Int) {
 /**
  * Una voce con l'interruttore, dentro il dialogo delle opzioni.
  *
- * ⚠️⚠️ **UN BERSAGLIO SOLO, dalla `1.46`, e prima erano DUE**: la riga portava un `clickable` e
- * l'interruttore teneva vivo il suo `onCheckedChange`, quindi per una scelta sola un lettore
- * di schermo annunciava due voci. Adesso il tocco è un `toggleable` con `role = Role.Switch`
- * sulla riga e dentro l'interruttore non c'è niente, che è la forma con cui la pagina delle
- * impostazioni disegna la stessa riga: le due superfici scrivono la stessa voce due volte, e
- * quello che si può tenere uguale va tenuto uguale.
- * ⚠️ Il tocco sta su **tutta la riga** e non sul solo interruttore: un bersaglio da 32dp in
- * un dialogo si manca, e la riga intera è la convenzione di ogni schermata di impostazioni.
- * ⚠️⚠️ **L'ETICHETTA PRENDE IL PESO, e senza questo gli interruttori si disallineano**
- * (difetto visto su uno screenshot dell'utente, 2026-08-31): con `SpaceBetween` e un testo
- * senza peso, una riga lunga si prende tutta la larghezza e spinge il suo interruttore fuori
- * squadra rispetto a quello sopra. Col peso il testo va a capo e l'interruttore resta
- * incolonnato, centrato sulle due righe perché la riga allinea al centro.
+ * ⚠️ **Un bersaglio solo**: il tocco è un `toggleable` con `role = Role.Switch` su tutta la
+ * riga, e l'interruttore non ha un `onCheckedChange` suo, o un lettore di schermo annuncerebbe
+ * due voci per una scelta. È la stessa forma della riga nella pagina delle impostazioni, e la
+ * riga intera è anche il bersaglio che un dito non manca.
+ * ⚠️ **L'etichetta prende il peso**: senza, una riga lunga spinge il suo interruttore fuori
+ * squadra rispetto a quello sopra; col peso il testo va a capo e l'interruttore resta
+ * incolonnato, centrato sulle due righe.
  */
 @Composable
 private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
@@ -2143,18 +1751,15 @@ private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Bool
 }
 
 /**
- * I due contatori sotto una copertina: le fotografie e, se ce ne sono, i filmati.
+ * I due contatori sotto una copertina: le immagini e, se ce ne sono, i filmati (scelta
+ * dell'utente: un numero unico non dice se una cartella contiene video o immagini).
  *
- * ⚠️⚠️ **DUE COPPIE E NON UN NUMERO SOLO, dalla 0.98** (richiesta dell'utente): da quando i
- * filmati si sfogliano, un numero unico dice 'ottantotto cose' a chi sta cercando di capire
- * se là dentro ci sono i video delle vacanze o le foto.
- * ⚠️ **Il secondo contatore compare solo se serve**: in una cartella di sole fotografie uno
- * zero accanto a una pellicola è rumore, e la riga sotto le copertine è larga quanto una
- * cella. In una cartella di soli filmati sparisce il primo, per la stessa ragione.
- * ⚠️⚠️ **`clearAndSetSemantics` E NON `semantics`**: il tocco della scheda fonde le
- * semantiche dei figli, quindi aggiungere una descrizione lascerebbe **anche** i numeri
- * nudi, e TalkBack leggerebbe '1284 immagini 1284 12 video 12'. Qui si buttano quelle dei
- * figli e si mette la frase intera.
+ * Un contatore a zero non compare: accanto alla sua icona sarebbe rumore, in una riga larga
+ * quanto una cella.
+ * ⚠️ **`clearAndSetSemantics` e non `semantics`**: il tocco della scheda fonde le semantiche
+ * dei figli, quindi una descrizione aggiunta lascerebbe anche i numeri nudi, e TalkBack
+ * leggerebbe '1284 immagini 1284 12 video 12'. Qui le semantiche dei figli si tolgono e resta
+ * la frase intera.
  */
 @Composable
 private fun Tally(bucket: Folder.Bucket) {
@@ -2200,9 +1805,8 @@ private fun TallyPair(icon: ImageVector, howMany: Int) {
  * I due corpi di una riga d'elenco, per la misura scelta.
  *
  * ⚠️ **Sono stili del tema e non numeri in sp**: il tema li scala già col corpo di sistema,
- * quindi chi ha ingrandito i caratteri di Android continua a vederli ingranditi, e questa
- * scelta gli si somma invece di sostituirlo. Con degli sp scritti a mano, 'grande' sarebbe
- * diventato 'più piccolo di prima' proprio per chi ha bisogno del grande.
+ * quindi questa scelta si somma all'ingrandimento dei caratteri di Android. Con degli sp
+ * scritti a mano, 'grande' risulterebbe più piccolo proprio per chi ha ingrandito i caratteri.
  */
 @Composable
 private fun TextSize.title() = when (this) {
@@ -2226,15 +1830,13 @@ internal fun Covers(
     /**
      * I percorsi delle cartelle in scena **in prestito**, cioè col minuto di 'Mostra nascoste'.
      *
-     * ⚠️ **Un insieme e non un booleano per cella**: chi chiama ha già l'elenco delle nascoste, e
-     * la selezione comune calcola quali bucket sono realmente in prestito. Qui il confronto
-     * è esatto: un'esclusione della sola cartella non deve segnare i discendenti. Un insieme
-     * vuoto vuol dire che nessuna è in prestito.
-     * ⚠️⚠️ **NON HA UN VALORE DI SERIE, DALLA `2.03`, PER LA STESSA RAGIONE DI [covers]**: fino
-     * alla `2.02` la finestra delle destinazioni ereditava `emptySet()` senza scriverlo, quindi
-     * là una cartella in prestito si vedeva senza il segno che dice perché c'è. Adesso chi apre
-     * una vista di cartelle deve dichiarare quali sono in prestito, e a presidiarlo è il
-     * compilatore.
+     * Un insieme e non un booleano per cella: chi chiama ha già l'elenco delle nascoste, e la
+     * selezione comune calcola quali bucket sono in prestito. Il confronto è esatto,
+     * perché un'esclusione della sola cartella non segna i discendenti. Vuoto, nessuna è in
+     * prestito.
+     * ⚠️ **Senza valore di serie, come [covers]**: chi apre una vista di cartelle dichiara quali
+     * sono in prestito, e il compilatore lo presidia. Con un valore di serie la finestra delle
+     * destinazioni mostrava una cartella in prestito senza il suo segno.
      */
     peeked: Set<String>,
     counted: Boolean,
@@ -2247,27 +1849,20 @@ internal fun Covers(
     /**
      * La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`.
      *
-     * ⚠️⚠️ **NON HA UN VALORE DI SERIE, DALLA `2.01`, E L'AVERLO AVUTO È STATO IL DIFETTO**
-     * (sua segnalazione, 2026-09-09: nella finestra delle destinazioni *le cartelle appaiono
-     * con la loro copertina originale, non con la personalizzata*). Questa vista ha due
-     * chiamanti, e il secondo ereditava `emptyMap()` senza scriverlo: `coverIn` cadeva sempre
-     * sulla copertina predefinita, e nel codice non c'era niente da leggere che lo dicesse.
-     * Adesso chi apre una vista di cartelle **deve dichiarare** che copertine porta, e a
-     * presidiarlo è il compilatore invece di una prova. È lo stesso criterio del parametro di
-     * `Modifier.lowered`, e la prova che regge è [tints], che il valore di serie non l'ha mai
-     * avuto: là infatti la finestra scrive la sua scelta a chiare lettere.
+     * ⚠️ **Senza valore di serie**: con `emptyMap()` di serie la finestra delle destinazioni lo
+     * ereditava senza scriverlo, e `coverIn` ricadeva sempre sulla copertina predefinita. Chi
+     * apre una vista di cartelle dichiara le copertine che usa, e il compilatore lo presidia,
+     * come per [tints] e per il parametro di `Modifier.lowered`.
      */
     covers: Map<Long, Uri>,
     onPick: (Folder.Bucket) -> Unit,
     /**
      * Lo scorrimento della griglia.
      *
-     * ⚠️⚠️ **SI PUÒ PASSARE DALLA `1.95` PERCHÉ I DUE TASTI DEL SALTO LO DEVONO MUOVERE**, e
-     * il valore di serie tiene com'erano gli altri due chiamanti (la finestra delle
-     * destinazioni e il banco di prova): quello che cambia è **chi** lo tiene, non dove vive.
-     * ⚠️ **Vive qui in fondo e non dopo la prima riga com'è d'uso**, perché i chiamanti passano
-     * gli argomenti per posizione: messo in mezzo, il primo di loro avrebbe consegnato una
-     * lambda a questo parametro.
+     * Si passa da fuori perché i due tasti del salto lo devono muovere; il valore di serie
+     * serve agli altri chiamanti (la finestra delle destinazioni e il banco di prova).
+     * ⚠️ **È in fondo all'elenco perché i chiamanti passano gli argomenti per posizione**: messo
+     * in mezzo, uno di loro consegnerebbe una lambda a questo parametro.
      */
     state: LazyGridState = rememberLazyGridState(),
     /**
@@ -2277,45 +1872,37 @@ internal fun Covers(
      */
     modifier: Modifier = Modifier.fillMaxWidth(),
     /**
-     * The folders that cannot be picked here, in the form of [portablePath]: the ones the files
-     * come from, when this view picks where to copy or move them (`4.45`, his note C).
+     * Le cartelle che qui non si possono scegliere, nella forma di [portablePath]: quelle da cui
+     * vengono i file, quando questa vista sceglie dove copiarli o spostarli (nota C dell'utente,
+     * `4.45`).
      *
-     * ⚠️ **No default value**, like [covers]: a caller declares it, so the destination window
-     * cannot forget it by omission. The home passes an empty set.
+     * ⚠️ **Senza valore di serie**, come [covers]: chi chiama lo dichiara, quindi la finestra
+     * delle destinazioni non lo può dimenticare. La home passa un insieme vuoto.
      */
     off: Set<String>,
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyVerticalGrid(
         state = state,
-        // ⚠️⚠️ **FISSO E NON PIÙ ADATTIVO dalla 0.45**, perché il numero adesso lo sceglie
-        // l'utente (richiesta del 2026-08-29, dopo aver confermato che le copertine
-        // bastano): un minimo in dp e un numero scelto sono due modi opposti di
-        // rispondere alla stessa domanda, e tenerli tutti e due vorrebbe dire che la
-        // scelta vale solo sugli schermi abbastanza larghi. La misura minima resta
-        // scritta in `FOLDER_CELL`, che dice a quante colonne una copertina smette di
-        // servire.
-        // ⚠️⚠️ **IL NUMERO SCELTO VALE SUL LATO CORTO, DALLA `1.81`, come nella griglia delle
-        // immagini**: [spread] ne aggiunge altrettante quando la finestra è larga, invece di
-        // allargare le copertine. Fino alla `1.80` questo conto lo faceva la sola griglia
-        // delle immagini, quindi la stessa voce dava due comportamenti nelle due viste
-        // gemelle: il perché per esteso è sulla funzione.
+        // ⚠️ **Colonne fisse e non adattive**: il numero lo sceglie l'utente, e un minimo in dp
+        // farebbe valere la scelta solo sugli schermi larghi. `FOLDER_CELL` dice a quante
+        // colonne una copertina smette di servire.
+        // Il numero scelto vale sul lato corto, come nella griglia delle immagini: [spread]
+        // aggiunge colonne quando la finestra è larga, e il perché è sulla funzione.
         columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
         horizontalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         verticalArrangement = Arrangement.spacedBy(FOLDER_GAP),
-        // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il FAB, che
-        // le si siederebbe sopra proprio quando si è scorso fino in fondo.
-        // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
-        // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
-        // l'ultima riga fuori da sotto la barra gestuale vive qui.
+        // Lo spazio in fondo tiene l'ultima cartella libera dal FAB, che la coprirebbe
+        // proprio a fine scorrimento, e dalla barra gestuale: il contenitore non ha il
+        // rientro di sotto, perché le copertine arrivino al vetro.
         contentPadding = PaddingValues(bottom = BELOW_FAB + extraRoom() + bottomInset()),
         modifier = modifier
     ) {
         items(
             items = folders,
             key = { it.id },
-            // Una piastrella sola per tutte, così Compose riusa la composizione di quelle
-            // che escono invece di ricostruirla mentre si scorre.
+            // Un tipo solo per tutte le celle, così Compose riusa la composizione di quelle
+            // che escono dallo schermo mentre si scorre.
             contentType = { FOLDER_KIND }
         ) { bucket ->
             FolderCard(
@@ -2328,8 +1915,8 @@ internal fun Covers(
                 cover = bucket.coverIn(covers),
                 tint = frontTintOf(tints[bucket.id]),
                 onClick = { onPick(bucket) },
-                // ⚠️ Niente [withHaptics] qui: la vibrazione la aggiunge [FolderCard], e fino
-                // alla 5.92 questa seconda copia la raddoppiava.
+                // ⚠️ Niente [withHaptics] qui: la vibrazione la aggiunge [FolderCard], e una
+                // seconda copia la raddoppierebbe.
                 onLongClick = { onHide(bucket) }
             )
         }
@@ -2337,21 +1924,23 @@ internal fun Covers(
 }
 
 /**
- * The Feed as a grid: a heading for every month (his choice C1), and under it the pictures, newest
- * first. From 6.02.
+ * Il Feed come griglia: un'intestazione per ogni mese (scelta C1 dell'utente) e sotto le
+ * immagini, dalla più recente.
  *
- * ⚠️⚠️ **THE CELLS ARE THOSE OF A FOLDER'S GRID** ([Thumbnail], [gridGap]): they are the same
- * pictures, and a second drawing of a thumbnail would part from the first at the first change.
- * ⚠️ **The columns are the folders' choice** ([columns], `Settings.folderColumns`), counted on the
- * short side by [spread] like every grid of the app: the long press on the Start key changes them
- * here as it does in the grid of covers.
- * ⚠️ **The month name comes from the system's pattern for the language** (`MMMMy`): Italian writes
- * `ottobre 2026`, Japanese `2026年10月`, and a pattern written here would be right for one of them.
- * ⚠️⚠️ **THE SELECTION IS THE GRID'S, FROM 6.03** (his request: *il feed deve avere la selezione
- * multipla*): a long press chooses, a drag chooses from one picture to another, the edges scroll,
- * and while something is chosen a tap chooses instead of opening. The reasons of each part are on
- * the folder's grid (`GridScreen`); what changes here is that the month headings are items of the
- * lazy grid too, so a picture is found by its key ([feedIndexAt]).
+ * ⚠️ **Le celle sono quelle della griglia di una cartella** ([Thumbnail], [gridGap]): sono le
+ * stesse immagini, e un secondo disegno della miniatura si separerebbe dal primo alla prima
+ * modifica.
+ * Le colonne sono quelle scelte per le cartelle ([columns], `Settings.folderColumns`), contate
+ * sul lato corto da [spread] come in ogni griglia dell'app: la pressione lunga sul Menu 'Start'
+ * le cambia qui come nella griglia delle copertine.
+ * ⚠️ **Il nome del mese viene dallo schema di sistema per la lingua** (`MMMMy`): l'italiano
+ * scrive `ottobre 2026`, il giapponese `2026年10月`, e uno schema scritto qui andrebbe bene per
+ * una lingua sola.
+ * La selezione multipla è quella della griglia (richiesta dell'utente, `6.03`): la pressione
+ * lunga sceglie, il trascinamento sceglie da un'immagine all'altra, i bordi scorrono, e mentre
+ * qualcosa è scelto un tocco sceglie e non apre. Il perché di ogni parte è nella griglia di una
+ * cartella (`GridScreen`); qui le intestazioni dei mesi sono anch'esse elementi della griglia,
+ * quindi un'immagine si trova per chiave ([feedIndexAt]).
  */
 @Composable
 private fun FeedGrid(
@@ -2360,7 +1949,7 @@ private fun FeedGrid(
     state: LazyGridState,
     chosen: Set<Uri>,
     onChosen: (Set<Uri>) -> Unit,
-    /** The room of the selection's sheet under the last row, `0.dp` without a selection. */
+    /** Lo spazio del pannello della selezione sotto l'ultima riga, `0.dp` senza selezione. */
     sheetRoom: Dp,
     modifier: Modifier,
     onOpen: (Int) -> Unit
@@ -2372,8 +1961,8 @@ private fun FeedGrid(
     val picking = chosen.isNotEmpty()
     val haptics = LocalHapticFeedback.current
     val keys = remember(page) { page.items.withIndex().associate { (i, uri) -> uri.toString() to i } }
-    // ⚠️ Read inside the gesture and not keys of it, as in the folder's grid: a key that changes
-    // cancels the drag under the finger.
+    // ⚠️ Letti dentro il gesto e non come sue chiavi, come nella griglia di una cartella: una
+    // chiave che cambia annulla il trascinamento sotto il dito.
     val current by rememberUpdatedState(chosen)
     val choose by rememberUpdatedState(onChosen)
     var dragAt by remember { mutableStateOf<Offset?>(null) }
@@ -2405,8 +1994,8 @@ private fun FeedGrid(
         )
     }
     LaunchedEffect(dragAt != null, page) {
-        // ⚠️ The cell of the last round, since 6.28 (finding D7): as in the grid, the selection is
-        // built again only when the finger reaches another cell.
+        // La cella del giro precedente (rilievo D7): come nella griglia, la selezione si
+        // ricostruisce solo quando il dito arriva su un'altra cella.
         var last = -1
         while (dragAt != null) {
             withFrameNanos { }
@@ -2431,8 +2020,9 @@ private fun FeedGrid(
         state = state,
         horizontalArrangement = Arrangement.spacedBy(gridGap()),
         verticalArrangement = Arrangement.spacedBy(gridGap()),
-        // ⚠️ The same bottom room as the covers: the last row clears the Start key and the gesture
-        // bar. While choosing, the sheet takes the key's place and the room is the sheet's.
+        // Lo stesso spazio in fondo delle copertine: l'ultima riga resta libera dal Menu 'Start'
+        // e dalla barra gestuale. Durante la selezione il pannello prende il posto del tasto, e
+        // lo spazio è il suo.
         contentPadding = PaddingValues(
             bottom = bottomInset() + if (picking) sheetRoom else BELOW_FAB + extraRoom()
         ),
@@ -2456,8 +2046,8 @@ private fun FeedGrid(
             }
             items(
                 count = end - month.start,
-                // ⚠️ The address is the key, as in a folder's grid: decoded thumbnails stay with
-                // their picture when the stream moves.
+                // L'indirizzo è la chiave, come nella griglia di una cartella: le miniature già
+                // decodificate restano con la loro immagine quando il flusso si sposta.
                 key = { page.items[month.start + it].toString() },
                 contentType = { THUMB_KIND }
             ) { i ->
@@ -2474,8 +2064,9 @@ private fun FeedGrid(
                     room = 0,
                     shade = null
                 ) {
-                    // ⚠️ The first branch is the tail of a long press, as in the folder's grid: the
-                    // tile's tap fires on release whatever the press lasted.
+                    // ⚠️ Il primo ramo è la coda di una pressione lunga, come nella griglia di una
+                    // cartella: il tocco della cella scatta al rilascio, comunque sia durata la
+                    // pressione.
                     when {
                         dragFrom != null -> Unit
                         picking -> {
@@ -2490,19 +2081,17 @@ private fun FeedGrid(
     }
 }
 
-/** One content type for every month heading of the Feed, as [FOLDER_KIND] is for the covers. */
+/** Un tipo solo per le intestazioni dei mesi del Feed, come [FOLDER_KIND] per le copertine. */
 private const val MONTH_KIND = "month"
 
-/** The air above a month's heading, after the first: a month starts a new group. */
+/** Lo spazio sopra l'intestazione di un mese, dalla seconda: un mese apre un gruppo nuovo. */
 private val MONTH_GAP = 16.dp
 
 /**
  * Le cartelle come elenco.
  *
- * ⚠️ **Porta la copertina anche qui, piccola**: l'elenco della `0.29` mostrava la stessa
- * icona di cartella davanti a ogni riga, ed è esattamente il difetto che le copertine
- * hanno corretto. Questa vista serve a leggere **più nomi insieme**, non a rinunciare a
- * vedere che cosa c'è dentro.
+ * Anche qui ogni riga mostra la copertina, piccola: la stessa icona di cartella davanti a ogni
+ * riga non dice che cosa c'è dentro. Questa vista serve a leggere più nomi insieme.
  */
 @Composable
 internal fun Rows(
@@ -2519,9 +2108,9 @@ internal fun Rows(
     /**
      * Dove si vede il colore di una cartella. Vedi [FolderColour].
      *
-     * ⚠️ **Gli stessi quattro della griglia, con le stesse misure**: la copertina di una riga è
-     * più piccola, ma un filetto è una riga e non una frazione della cella, quindi rimpicciolirlo
-     * qui vorrebbe dire due numeri per la stessa decisione.
+     * Gli stessi modi della griglia, con le stesse misure: la copertina di una riga è più
+     * piccola, ma un filetto è una riga e non una frazione della cella, e rimpicciolirlo qui
+     * vorrebbe dire due numeri per la stessa decisione.
      */
     colour: FolderColour,
     /** Il colore di ogni cartella che ne ha uno, per identificatore. */
@@ -2533,21 +2122,14 @@ internal fun Rows(
     state: LazyListState = rememberLazyListState(),
     /** Vedi il gemello di [Covers]: di serie `fillMaxWidth`, in home `fillMaxSize`. */
     modifier: Modifier = Modifier.fillMaxWidth(),
-    /**
-     * The folders that cannot be picked here, in the form of [portablePath]: the ones the files
-     * come from, when this view picks where to copy or move them (`4.45`, his note C).
-     *
-     * ⚠️ **No default value**, like [covers]: a caller declares it, so the destination window
-     * cannot forget it by omission. The home passes an empty set.
-     */
+    /** Le cartelle che qui non si scelgono, senza valore di serie: vedi il gemello di [Covers]. */
     off: Set<String>,
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyColumn(
         state = state,
-        // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
-        // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
-        // l'ultima riga fuori da sotto la barra gestuale vive qui.
+        // Lo spazio in fondo come in [Covers]: il contenitore non ha il rientro di sotto,
+        // quindi quello per la barra gestuale si somma qui.
         contentPadding = PaddingValues(bottom = BELOW_FAB + extraRoom() + bottomInset()),
         modifier = modifier
     ) {
@@ -2584,10 +2166,9 @@ internal fun Rows(
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     /*
-                     * ⚠️ **Il corpo lo sceglie l'utente, dalla `0.99`**, e i due testi si
-                     * muovono insieme: il nome sale di un gradino e il conto lo segue, o a
-                     * corpo grande la riga diventerebbe un titolo con una didascalia
-                     * minuscola sotto.
+                     * Il corpo lo sceglie l'utente, e i due testi si muovono insieme: il nome
+                     * sale di un gradino e il conto lo segue, o a corpo grande la riga
+                     * diventerebbe un titolo con una didascalia minuscola sotto.
                      */
                     Text(
                         text = bucket.name,
@@ -2598,10 +2179,9 @@ internal fun Rows(
                         overflow = TextOverflow.Ellipsis
                     )
                     /*
-                     * ⚠️ **Nell'elenco i due conti sono PAROLE e non icone**, al contrario
-                     * delle copertine: là sotto ogni cella c'è spazio per un glifo e un
-                     * numero, qui la riga è larga e le parole si leggono meglio di due
-                     * pittogrammi appaiati. La distinzione arriva lo stesso.
+                     * Nell'elenco i due conti sono parole e non icone, al contrario delle
+                     * copertine: la riga è larga, e le parole si leggono meglio di due
+                     * pittogrammi appaiati.
                      */
                     if (counted) Text(
                         text = listOfNotNull(
@@ -2623,18 +2203,16 @@ internal fun Rows(
 }
 
 /**
- * Una cartella: la sua foto più recente, il nome e quante ne contiene.
+ * Una cartella: la copertina, il nome e quante immagini contiene.
  *
- * ⚠️ **La miniatura è la STESSA richiesta della griglia e del visualizzatore**
- * (`Thumbs.request`, 512 px): la misura è parte della chiave di cache, quindi una
- * copertina già vista altrove è gratis, e chiederla più piccola perché il riquadro è più
- * piccolo costerebbe una seconda generazione della stessa immagine. Vale anche per la
- * copertina minuscola dell'elenco, che è la stessa identica richiesta.
- * ⚠️ **La copertina è decorativa e non porta descrizione**: sotto ci sono già il nome e
- * il conto, e `clickable` fonde le semantiche dei figli, quindi TalkBack legge una voce
- * sola. Descrivere anche l'immagine la farebbe leggere due volte.
- * ⚠️ Il simbolo di ripiego non è un riquadro vuoto: una cartella senza copertina resta
- * toccabile e va detto che è una cartella, o sembra una piastrella rotta.
+ * ⚠️ **La miniatura è la stessa richiesta della griglia e del visualizzatore**
+ * (`Thumbs.request`, 512 px), anche per la copertina piccola dell'elenco: la misura è parte
+ * della chiave di cache, quindi una copertina già vista altrove non costa niente, e chiederla
+ * più piccola genererebbe una seconda volta la stessa immagine.
+ * La copertina è decorativa e non ha descrizione: sotto ci sono già il nome e il conto, e
+ * `clickable` fonde le semantiche dei figli, quindi TalkBack legge una voce sola.
+ * Senza copertina compare l'icona della cartella e non un riquadro vuoto, che sembrerebbe una
+ * cella guasta.
  */
 @Composable
 private fun FolderCard(
@@ -2643,9 +2221,8 @@ private fun FolderCard(
     /**
      * Il corpo del nome, che dipende dalle colonne.
      *
-     * ⚠️ **Arriva da fuori e non si ricava qui**: chi chiama lo ha già usato per misurare
-     * l'altezza di una riga di griglia, e un secondo [folderNameStyle] qui darebbe la stessa
-     * risposta oggi e sarebbe il posto da cui i due potrebbero divergere domani.
+     * Arriva da fuori: chi chiama lo ha già scelto con [folderNameStyle], e una seconda
+     * chiamata qui sarebbe un secondo posto da cui i due potrebbero divergere.
      */
     nameStyle: TextStyle,
     /** Dove si vede il colore di questa cartella. Vedi [FolderColour]. */
@@ -2653,24 +2230,22 @@ private fun FolderCard(
     /**
      * L'immagine da mostrare: quella scelta a mano se c'è, altrimenti la più recente.
      *
-     * ⚠️ **La sceglie chi chiama, con [coverIn], e non questa cella**: la mappa delle copertine
-     * scelte arriva intera, e risolverla qui vorrebbe dire passarla a ogni cella per farle fare
-     * la stessa ricerca. È lo stesso criterio della tinta, che arriva già risolta.
+     * La sceglie chi chiama, con [coverIn]: risolverla qui vorrebbe dire passare a ogni cella la
+     * mappa intera delle copertine. Anche la tinta arriva già risolta.
      */
     cover: Uri?,
     /** Il colore di questa cartella, o `null` se non ne ha scelto uno. */
     tint: Color?,
     /** Se questa cartella è in scena **in prestito**, cioè col minuto di 'Mostra nascoste'. */
     peeked: Boolean = false,
-    /** If this folder cannot be picked: see `off` on [Covers]. */
+    /** Se questa cartella non si può scegliere: vedi `off` su [Covers]. */
     off: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(FOLDER_CORNER)
     Column(
-        // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
-        // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
+        // Il tocco lungo nasconde, con lo stesso gesto nelle due viste.
         modifier = Modifier
             .alpha(if (off) OFF_INK else if (peeked) PEEK_INK else 1f)
             .combinedClickable(
@@ -2683,13 +2258,9 @@ private fun FolderCard(
         verticalArrangement = Arrangement.spacedBy(CARD_GAP)
     ) {
         /*
-         * ⚠️ **Il segno del vuoto vive DENTRO la copertina e sotto la stessa opacità della
-         * cella**, che è la sua specifica alla lettera (*devono avere il 70% di opacità e un
-         * badge `∅` del colore dell'accento nell'angolo in alto a destra*): l'inchiostro ridotto
-         * dice *questa non dovrebbe essere qui*, il segno dice **perché**.
-         * ⚠️ **Il carattere è il suo**, e non un glifo disegnato: `∅` vuol dire 'insieme vuoto'
-         * in ogni lingua, e un'icona nuova sarebbe un disegno in più da mantenere per dire lo
-         * stesso.
+         * Il segno del prestito è dentro la copertina e sotto la stessa opacità della cella,
+         * come vuole la specifica dell'utente: l'opacità ridotta dice che la cartella è
+         * nascosta, il segno dice perché si vede. Vedi [PeekMark].
          */
         Box(
             modifier = Modifier
@@ -2704,17 +2275,9 @@ private fun FolderCard(
             if (peeked) PeekMark(Modifier.align(Alignment.TopEnd))
         }
         /*
-         * ⚠️⚠️ **UN A CAPO E NON PIÙ DI UNO, dalla 0.77** (richiesta dell'utente: *con
-         * qualunque numero di colonne è ammesso un a capo, non più di uno*). Fino alla `0.76`
-         * era una riga sola, e a quattro colonne quasi ogni nome finiva con i tre puntini
-         * dopo la prima parola.
-         * ⚠️ **L'ellissi resta**, perché due righe non bastano sempre: un nome che sfora
-         * anche la seconda si taglia là, e senza `Ellipsis` si taglierebbe a metà lettera
-         * senza dire che manca qualcosa.
-         * ⚠️⚠️ **E [NAME_LINES] È LA STESSA COSTANTE CHE MISURA L'ALTEZZA DELLA RIGA**, cioè
-         * chi la cambia qui cambia anche il conto dell'intestazione, che è quello che vuole.
-         * Un numero scritto due volte qui avrebbe rifatto il difetto della `0.68`: mezza
-         * cartella in vista in fondo alla schermata.
+         * Al massimo un a capo, con qualunque numero di colonne ([NAME_LINES], scelta
+         * dell'utente). L'ellissi resta perché due righe non bastano sempre: senza
+         * `Ellipsis` un nome lungo si taglierebbe senza dire che manca qualcosa.
          */
         Text(
             text = bucket.name,
@@ -2725,18 +2288,11 @@ private fun FolderCard(
             overflow = TextOverflow.Ellipsis
         )
         /*
-         * ⚠️⚠️ **PRIMA L'ICONA, POI IL NUMERO, ed è la proposta B del mockup** (scelta
-         * dell'utente): l'icona è larga sempre uguale, quindi resta **incolonnata** sotto il
-         * nome in tutte le cartelle, e il numero cresce verso destra dove lo spazio è vuoto.
-         * Con l'ordine opposto sarebbe l'icona a spostarsi, di tante posizioni quante sono
-         * le cifre.
-         * ⚠️ **La parola 'immagini' non c'è più** (richiesta dell'utente): su quattro colonne
-         * si tagliava, e a schermo pieno erano dodici volte la stessa parola. Il plurale
-         * `folders_count` resta e serve alla **descrizione per TalkBack**, che di parole ha
-         * bisogno: là dentro 'x immagini' è l'informazione, non rumore.
-         * ⚠️ **`maxLines = 1` resta**, anche se dalla `0.93` non c'è più un conto delle
-         * righe da far quadrare: una dicitura che va a capo fa ballare l'altezza di una
-         * cella rispetto alle sue vicine, e la griglia diventa irregolare.
+         * Prima l'icona, poi il numero (proposta B del mockup, scelta dell'utente): l'icona
+         * ha larghezza fissa e resta incolonnata sotto il nome, e il numero cresce verso
+         * destra. Il conto non ha la parola 'immagini', che su quattro colonne si tagliava:
+         * il plurale `folders_count` serve alla descrizione per TalkBack ([Tally]), e
+         * `maxLines = 1` tiene uguale l'altezza delle celle vicine.
          */
         if (counted) Tally(bucket)
     }
@@ -2745,13 +2301,11 @@ private fun FolderCard(
 /**
  * Il segno che dice 'questa cartella è nascosta, la stai vedendo in prestito'.
  *
- * ⚠️⚠️ **NASCE DALLA `1.92` CON 'Mostra nascoste', ED È LA SUA SPECIFICA** (*un badge `∅` del
- * colore dell'accento nell'angolo in alto a destra*). Vive in un pezzo solo perché lo disegnano
- * le due viste della schermata iniziale: scritto due volte, il giorno che cambia il segno o il
- * suo posto ne cambierebbe uno.
- * ⚠️ **Il fondo scuro sotto il segno non è decorazione**: una copertina può essere di qualunque
- * colore, e un carattere d'accento su una miniatura chiara sparisce. La pastiglia gli dà il
- * contrasto che il testo di un'app ha sempre.
+ * La specifica di 'Mostra nascoste' vuole un `∅` del colore dell'accento nell'angolo in alto a
+ * destra: è un carattere e non un'icona, perché vuol dire 'insieme vuoto' in ogni lingua. È una
+ * funzione sola perché lo disegnano le due viste della schermata iniziale.
+ * ⚠️ **La pastiglia sotto il segno non è decorazione**: un carattere d'accento su una copertina
+ * chiara sparisce, e la pastiglia gli dà il contrasto.
  */
 @Composable
 private fun PeekMark(modifier: Modifier = Modifier) {
@@ -2770,17 +2324,13 @@ private fun PeekMark(modifier: Modifier = Modifier) {
 /**
  * Il colore di una cartella, disegnato dentro la sua copertina.
  *
- * ⚠️⚠️ **UN PEZZO SOLO PER LE DUE VISTE E PER I TRE STILI DI COPERTINA**, ed è la ragione per cui
- * questa funzione esiste invece di tre righe in ognuna delle due celle: gli stili sono una
- * scelta sola dell'utente, e scritti due volte diventerebbero due rese che divergono al primo
- * ritocco. Il quarto stile ([FolderColour.NAME]) non passa di qui perché non si disegna: è il
- * colore di un testo, e vive su [folderNameInk].
- * ⚠️ **Senza tinta non disegna niente**: una cartella che non ha un colore suo resta com'era,
- * qualunque stile sia in vigore. Quindi accendere lo stile non cambia nulla finché non si sceglie
- * un colore, ed è la ragione per cui la voce di collaudo porta il passo passo.
- * ⚠️ **Vive DENTRO il riquadro ritagliato della copertina**, e i tre stili ci contano: il filetto
- * segue la curva degli angoli invece di sporgere in un rettangolo, e l'alone non esce dal
- * riquadro. Chi lo spostasse fuori dal `clip` se ne accorgerebbe solo guardando.
+ * Una funzione sola per le due viste e per i tre stili disegnati sulla copertina, perché le due
+ * celle non divergano. Lo stile [FolderColour.NAME] non passa di qui: è il colore di un testo,
+ * su [folderNameInk].
+ * Senza una tinta scelta disegna nell'accento dell'app: vedi [folderInk].
+ * ⚠️ **È dentro il riquadro ritagliato della copertina**, e i tre stili ci contano: il filetto
+ * segue la curva degli angoli e l'alone non esce dal riquadro. Fuori dal `clip` il difetto si
+ * vedrebbe solo guardando.
  */
 @Composable
 private fun BoxScope.FolderMark(colour: FolderColour, tint: Color?, shape: Shape) {
@@ -2811,14 +2361,11 @@ private fun BoxScope.FolderMark(colour: FolderColour, tint: Color?, shape: Shape
 /**
  * Di che colore è una cartella: il suo, o l'accento dell'app.
  *
- * ⚠️⚠️ **UNA CARTELLA SENZA SCELTA NON È UNA CARTELLA SENZA COLORE, ED È SUA CORREZIONE**
- * (2026-09-08: *'di fabbrica' è il colore di accento del tema, che è comunque un colore, e se
- * attivassi il filetto dovrebbero essere tutti di quel colore*). La `1.87` era uscita col
- * disegno saltato quando la tinta mancava, quindi accendendo uno stile si vedeva **solo** sulle
- * cartelle già segnate, e le altre restavano nude: uno stile acceso che si applica a metà
- * elenco si legge come un difetto, non come una scelta.
- * ⚠️ **È lo stesso ripiego dell'intestazione**, dove il gradiente prende `primary` quando la
- * cartella non ha una tinta sua: un colore solo per la stessa cartella nei due posti.
+ * ⚠️ **Una cartella senza scelta non è una cartella senza colore** (correzione dell'utente,
+ * `1.89`): il colore di fabbrica è l'accento del tema, quindi uno stile acceso si applica a
+ * tutte le cartelle e non solo a quelle con una tinta. Senza ripiego, uno stile applicato a metà
+ * elenco si leggerebbe come un difetto.
+ * È lo stesso ripiego dell'intestazione, dove il gradiente prende `primary`.
  */
 @Composable
 private fun folderInk(tint: Color?): Color = tint ?: MaterialTheme.colorScheme.primary
@@ -2826,10 +2373,8 @@ private fun folderInk(tint: Color?): Color = tint ?: MaterialTheme.colorScheme.p
 /**
  * Di che colore si scrive il nome di una cartella: il suo, o quello di sempre.
  *
- * ⚠️ **[Color.Unspecified] e non il colore del tema**: così il testo prende quello del suo stile,
- * che è il comportamento di prima, invece di scriverlo una seconda volta qui.
- * ⚠️ **Senza una tinta scelta scrive nell'accento**, come gli altri tre stili dalla `1.89`: il
- * perché vive su [folderInk].
+ * [Color.Unspecified] e non il colore del tema: così il testo prende quello del suo stile, senza
+ * scriverlo una seconda volta qui. Senza una tinta scelta scrive nell'accento: vedi [folderInk].
  */
 @Composable
 private fun folderNameInk(colour: FolderColour, tint: Color?): Color =
@@ -2839,12 +2384,10 @@ private fun folderNameInk(colour: FolderColour, tint: Color?): Color =
  * Quanto pesa il nome di una cartella tinta: **un gradino in più**, e viene dal mockup.
  *
  * ⚠️ **Il peso è metà dello stile 'nome'**, non una rifinitura: una tinta chiara su un fondo
- * chiaro si legge peggio dell'inchiostro di sempre, e il mezzo grado di peso è quello che gli
- * restituisce il contrasto perso. Nel mockup che ha guardato erano dichiarati insieme.
- * ⚠️ **`null` vuol dire quello dello stile**, come sopra: negli altri tre stili il nome non si
- * tocca affatto.
- * ⚠️ **Non guarda più se la tinta è scelta**, dalla `1.89`: il nome è tinto in tutte e due i
- * casi, quindi il peso lo segue in tutti e due (vedi [folderInk]).
+ * chiaro si legge peggio dell'inchiostro di sempre, e il gradino di peso restituisce il
+ * contrasto perso. Nel mockup erano dichiarati insieme.
+ * `null` vuol dire il peso dello stile: negli altri stili il nome non si tocca. Il peso non
+ * guarda se la tinta è scelta, perché il nome è tinto in tutti e due i casi (vedi [folderInk]).
  */
 @Composable
 private fun folderNameWeight(colour: FolderColour): FontWeight? =
@@ -2853,8 +2396,7 @@ private fun folderNameWeight(colour: FolderColour): FontWeight? =
 /**
  * Quanto è spesso il filetto sotto la copertina: **quattro punti**, che è il numero del mockup.
  *
- * ⚠️ **La ragione è scritta là e regge la scelta dello stile**: su un filetto spesso quattro
- * punti si distinguono tutte e sedici le tinte, mentre su una riga più sottile le quattro
+ * Su un filetto di quattro punti le tinte si distinguono, mentre su una riga più sottile le
  * varianti dello stesso verde si confondono.
  */
 private val TINT_EDGE = 4.dp
@@ -2862,9 +2404,8 @@ private val TINT_EDGE = 4.dp
 /**
  * Quanto è spessa la cornice: **due punti**, come il bordo d'accento dell'app.
  *
- * ⚠️ **Lo stesso numero di `Edge.kt` e non per caso**: quella è la riga con cui questa app
- * dichiara 'questa è una mia superficie', e una cornice più grossa intorno a una copertina
- * suonerebbe come un elemento di un'altra famiglia.
+ * Lo stesso numero di `Edge.kt`, il bordo delle superfici dell'app: una cornice più grossa
+ * intorno a una copertina sembrerebbe un elemento di un'altra famiglia.
  */
 private val TINT_FRAME = 2.dp
 
@@ -2896,19 +2437,16 @@ private fun Cover(uri: Uri?) {
 }
 
 /**
- * Il lato a cui una copertina è stata disegnata per stare, e il metro con cui si giudica
- * il numero di colonne che l'utente sceglie.
+ * Il lato per cui una copertina è disegnata, e il metro del numero di colonne che l'utente
+ * sceglie.
  *
- * ⚠️⚠️ **FINO ALLA 0.45 DECIDEVA LUI QUANTE COLONNE, e il conto resta utile**:
- * `GridCells.Adaptive` teneva `(spazio + distacco) / (minimo + distacco)` colonne. Su uno
- * schermo da 360dp, tolti i 12 di margine per lato, restano 336: `(336 + 12) / (150 + 12)`
- * fa 2.1, quindi **due**, ed è il valore di fabbrica dell'impostazione che l'ha
- * sostituito. Lo stesso conto dice quanto si stringe scegliendone di più: a **tre**
- * colonne una copertina misura 104dp, a **quattro** 78dp.
- * ⚠️ **Due e non tre come le foto**: qui sotto la copertina ci sono un nome e un conto, e
- * su tre colonne un nome vero (`WhatsApp Images`) resta una sigla. Le miniature di una
- * cartella non hanno didascalia, e infatti stanno a 108dp. È il costo che chi sceglie
- * quattro colonne accetta, ed è la ragione per cui il valore di fabbrica non cambia.
+ * Il conto: le colonne che ci stanno sono `(spazio + distacco) / (minimo + distacco)`. Su uno
+ * schermo da 360dp, tolti i 12 di margine per lato, restano 336: `(336 + 12) / (150 + 12)` fa
+ * 2,1, quindi **due**, il valore di fabbrica dell'impostazione. A tre colonne una copertina
+ * misura 104dp, a quattro 78dp.
+ * ⚠️ **Due e non tre come le immagini**: sotto la copertina ci sono un nome e un conto, e su
+ * tre colonne un nome vero (`WhatsApp Images`) si riduce a una sigla. Le miniature di una
+ * cartella non hanno didascalia, e misurano 108dp.
  */
 private val FOLDER_CELL = 150.dp
 
@@ -2919,8 +2457,8 @@ private val FOLDER_GAP = 12.dp
  * Il margine della schermata, uguale sui quattro lati.
  *
  * ⚠️ **Il valore laterale non è estetico**: è quello che permette **due** colonne di
- * copertine su uno schermo da 360dp, e il conto sta in [FOLDER_CELL]. Chi lo allarga
- * stringe le copertine.
+ * copertine su uno schermo da 360dp, e il conto è in [FOLDER_CELL]. Allargarlo stringe le
+ * copertine.
  */
 private val SCREEN_PAD = 12.dp
 
@@ -2933,9 +2471,8 @@ private val CARD_GAP = 6.dp
 /**
  * Lo smusso della copertina.
  *
- * ⚠️ Più tondo dei 4dp delle miniature apposta: una piastrella molto smussata si legge
- * come un **contenitore**, una quasi quadrata come una fotografia. Qui la differenza fra
- * le due cose è tutta quella che l'occhio ha per capire dove si trova.
+ * Più tondo dei 4dp delle miniature: una cella molto smussata si legge come un contenitore,
+ * una quasi quadrata come un'immagine, e l'occhio distingue così le due schermate.
  */
 private val FOLDER_CORNER = 12.dp
 
@@ -2943,14 +2480,14 @@ private val FOLDER_CORNER = 12.dp
 private val ROW_COVER = 48.dp
 
 /**
- * Quanto inchiostro tiene una cartella vista **in prestito**: il 70%, che è il suo numero.
+ * L'opacità di una cartella vista **in prestito**: il 70%, dalla specifica dell'utente.
  *
- * ⚠️ **Non è un grigio ma un'opacità**: la copertina resta la sua, e quello che cambia è che la
- * cella si legge come una cosa che sta per andarsene.
+ * Un'opacità e non un grigio: la copertina resta la sua, e la cella si legge come una cosa di
+ * passaggio.
  */
 private const val PEEK_INK = 0.7f
 
-/** Il segno del prestito: l'insieme vuoto, come lo ha chiesto lui. */
+/** Il segno del prestito: l'insieme vuoto, dalla specifica dell'utente. */
 private const val PEEK_MARK = "∅"
 
 /** Quanto il segno rientra dall'angolo della copertina. */
@@ -2965,41 +2502,37 @@ private const val PEEK_PAD_INK = 0.85f
 /**
  * Lo spazio fra le voci del dialogo delle opzioni, e fra le pastiglie di una sua fila.
  *
- * ⚠️ **Lo stesso numero per le due cose apposta**: il dialogo è una colonna di righe che
- * a loro volta sono file di pastiglie, e due spaziature diverse darebbero una griglia
- * storta a chi la guarda senza saperne il motivo.
+ * Lo stesso numero per le due cose: il dialogo è una colonna di file di pastiglie, e due
+ * spaziature diverse darebbero una griglia storta.
  */
 private val OPTION_GAP = 8.dp
 
 /**
  * Quanto spazio si tiene per il nome della misura accanto allo slider.
  *
- * ⚠️ Tarato sulla parola più lunga fra le tre ('Normale' in italiano, 'Normal' in inglese):
- * senza un minimo, la manopola si accorcerebbe passando da 'Piccolo' a 'Grande' e il pollice
- * si troverebbe il fermo spostato sotto il dito.
+ * Tarato sulla parola più lunga fra le tre ('Normale' in italiano): senza un minimo, lo
+ * slider si accorcerebbe passando da 'Piccolo' a 'Grande', e il fermo si sposterebbe sotto il
+ * dito.
  */
 private val SIZE_NAME = 72.dp
 
 /**
  * Quanto è larga l'icona accanto al conto delle immagini.
  *
- * ⚠️ **15dp e non 16**: accanto a un corpo di 12sp (`bodySmall`) una da 16 pesa più del
- * numero e diventa lei la voce principale, mentre qui il dato è il numero.
- * ⚠️ A corpo di sistema piccolo è **lei** e non il testo a decidere quanto è alta la riga
- * del conto, perché sp e dp non scalano insieme.
+ * 15dp e non 16: accanto a un corpo di 12sp (`bodySmall`) un'icona da 16 pesa più del numero,
+ * che è il dato.
+ * ⚠️ A corpo di sistema piccolo è l'icona e non il testo a decidere l'altezza della riga del
+ * conto, perché sp e dp non scalano insieme.
  */
 private val COUNT_ICON = 15.dp
 
-/** Quanto sta l'icona dal numero: abbastanza da non toccarlo, non tanto da separarli. */
+/** La distanza dell'icona dal numero: abbastanza da non toccarlo, non tanto da separarli. */
 private val COUNT_GAP = 4.dp
 
 /**
  * Quante righe può prendere il nome di una cartella: **due**, cioè un a capo e non più di uno
- * (richiesta dell'utente, dalla `0.77`).
- *
- * ⚠️ Fino alla `0.92` serviva in due posti che dovevano restare d'accordo, il `maxLines`
- * della scheda e la misura dell'altezza di una riga; adesso il secondo non c'è più, e
- * resta una costante perché è una scelta dell'utente e non un dettaglio del disegno.
+ * (scelta dell'utente, `0.77`). È una costante perché è una sua scelta e non un dettaglio del
+ * disegno.
  */
 private const val NAME_LINES = 2
 
@@ -3007,13 +2540,12 @@ private const val NAME_LINES = 2
  * Da quante colonne il nome della cartella passa a un corpo più piccolo. Vedi
  * [folderNameStyle].
  *
- * ⚠️ Quattro è anche il massimo che le impostazioni offrono, quindi oggi la condizione vale
- * per un solo valore: è scritta come soglia perché il giorno che le colonne diventassero
- * cinque la risposta giusta sarebbe la stessa, e non una riga in più da ricordare.
+ * Quattro è anche il massimo delle impostazioni, quindi la condizione vale per un solo valore:
+ * è scritta come soglia perché con più colonne la risposta giusta sarebbe la stessa.
  */
 private const val NARROW_COLUMNS = 4
 
-/** Tutte le piastrelle sono la stessa cosa, e dirlo permette a Compose di riusarle. */
+/** Un tipo solo per tutte le copertine, che permette a Compose di riusarle. */
 private const val FOLDER_KIND = "folder"
 
 /** Come sopra, per le righe dell'elenco. */
@@ -3022,11 +2554,11 @@ private const val ROW_KIND = "folder-row"
 /**
  * Le cartelle senza il permesso: che cosa serve e il tasto per chiederlo.
  *
- * ⚠️ Il testo dice quale permesso serve, e i permessi sono due: quello di `github` nomina tutti i
+ * Il testo dice quale permesso serve, e i permessi sono due: quello di `github` nomina tutti i
  * file e una pagina di sistema, che in AIV Play non esistono.
- * ⚠️⚠️ **UNO SOLO PER LA CASA E PER LA COLONNA, dalla `6.27`** (rilievo D28 della revisione della
- * 6.25): la colonna del tablet e del telefono in orizzontale aveva una sua copia, col solo testo di
- * AIV GitHub e senza il tasto, quindi da quella casa il permesso non si poteva chiedere.
+ * ⚠️ **Uno solo per la home e per la colonna laterale** (rilievo D28): una copia nella colonna
+ * del tablet aveva il solo testo di AIV GitHub e niente tasto, quindi da là il permesso non si
+ * poteva chiedere.
  */
 @Composable
 fun AccessPlea(onAsk: () -> Unit, modifier: Modifier = Modifier) {
@@ -3048,21 +2580,18 @@ fun AccessPlea(onAsk: () -> Unit, modifier: Modifier = Modifier) {
 
 /**
  * La riga che dice, in AIV Play, che l'app vede solo le immagini che la persona ha scelto, col
- * tasto che le richiede tutte (dalla `5.10`).
+ * tasto che le richiede tutte.
  *
- * ⚠️⚠️ **Senza questa riga l'accesso parziale è l'inganno per cui la variante `github` non lo
- * chiede**: una cartella da quattrocento immagini direbbe 'tre', e niente direbbe perché.
- *
- * ⚠️⚠️ **Il tasto apre la pagina di AIV nelle impostazioni di sistema, dalla `5.11`** (sua nota
- * sulla prova `5.10-03`: *Consenti tutte è allineato male e oltretutto un tocco non rimanda alla
- * vera autorizzazione: torna alla selezione 'limitata'*). Con l'accesso parziale già dato, il
- * dialogo di sistema ripropone la scelta delle foto; nella pagina dell'app `Foto e video` si
- * concede per intero. Al ritorno la schermata rilegge il permesso.
- *
- * ⚠️ **Gli allineamenti sono quelli della griglia**: la frase comincia dove cominciano le
- * copertine e il testo del tasto finisce dove finiscono, quindi niente rientro aggiunto e un
- * tasto senza il margine interno di `TextButton`, che lo spostava di 12dp verso il centro. Frase
- * e tasto condividono la linea di base, e sotto c'è lo stacco della griglia.
+ * ⚠️ **Senza questa riga l'accesso parziale inganna**, ed è la ragione per cui la variante
+ * `github` non lo chiede: una cartella da quattrocento immagini direbbe 'tre', senza dire perché.
+ * ⚠️ **Il tasto apre la pagina di AIV nelle impostazioni di sistema** (nota dell'utente sulla
+ * prova `5.10-03`): con l'accesso parziale già dato, il dialogo di sistema ripropone la scelta
+ * delle immagini, mentre nella pagina dell'app `Foto e video` si concede per intero. Al ritorno
+ * la schermata rilegge il permesso.
+ * Gli allineamenti sono quelli della griglia: la frase comincia dove cominciano le copertine e
+ * il testo del tasto finisce dove finiscono, quindi il tasto non ha il margine interno di
+ * `TextButton`, che lo spostava di 12dp verso il centro. Frase e tasto condividono la linea di
+ * base.
  */
 @Composable
 private fun PartialAccess(onAllowAll: () -> Unit) {
