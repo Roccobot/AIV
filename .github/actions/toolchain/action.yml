@@ -23,7 +23,7 @@ runs:
     # runner now matches the machine the code is written on: a build that only
     # fails in one of the two is the worst kind to chase.
     - name: Set up JDK 21
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         distribution: temurin
         java-version: '21'
@@ -49,8 +49,14 @@ runs:
         set -o pipefail
         "$sdk/cmdline-tools/latest/bin/sdkmanager" --channel=3 "platforms;android-37.1"
 
+    # ⚠️⚠️ `cache-provider: basic`, Rocco's choice A1 of 2026-10-16. From v6 the
+    # default is `enhanced`, a proprietary caching service of Gradle Inc.; `basic`
+    # (from v6.1.0) is built on GitHub's own cache, which is what v4 used. Its
+    # limits (no cleanup, no deduplication) do not matter for a cache this small.
     - name: Set up Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v6
+      with:
+        cache-provider: basic
 
     # ⚠️ The bench downloads a fake Android platform of 213.431.622 bytes the
     # first time it runs, and that file lands in ~/.m2, which `setup-gradle`
@@ -61,7 +67,7 @@ runs:
     # pins the API level. Anything else changing must not throw the cache away,
     # and either of those changing must.
     - name: Cache the platform the bench needs
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/.m2/repository/org/robolectric
         key: robolectric-${{ hashFiles('gradle/libs.versions.toml', 'app/src/test/resources/robolectric.properties') }}
