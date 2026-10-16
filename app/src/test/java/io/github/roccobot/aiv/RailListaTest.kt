@@ -202,9 +202,9 @@ class RailListaTest {
         val scarto = abs(((maniglia.left + maniglia.right) / 2 - (rail.left + rail.right) / 2).value)
         assertTrue("La maniglia non è al centro della colonna: $scarto", scarto <= 1f)
         /*
-         * ⚠️ **Il bersaglio è di 48 dp** (scelta F1 sulla voce G5 della revisione Setaccio): fino
-         * alla `6.29` era alto 24. I limiti sono quelli del nodo che ascolta il dito, che porta
-         * anche il nome per il lettore di schermo.
+         * ⚠️ **Il bersaglio è di 48 dp** (scelta F1 sulla voce G5 della revisione Setaccio). I
+         * limiti sono quelli del nodo che ascolta il dito, che ha anche il nome per il lettore di
+         * schermo.
          */
         val alta = (maniglia.bottom - maniglia.top).value
         val larga = (maniglia.right - maniglia.left).value

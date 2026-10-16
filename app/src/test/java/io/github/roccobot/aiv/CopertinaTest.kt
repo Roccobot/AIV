@@ -99,9 +99,8 @@ class CopertinaTest {
      *
      * ⚠️⚠️ **LA COPERTINA NON HA VOCI NEL MENU, PER SUA SCELTA**: la voce 'Copertina predefinita'
      * toglieva per un tocco involontario una scelta che non si ritrova (voce `copertina-togli`),
-     * e a togliere la copertina è il secondo tocco sull'icona. Fino alla `6.29` la voce era spenta
-     * da un interruttore e questa prova ne seguiva il legame; tolta la voce, la prova misura il
-     * menu intero, così una voce che rientra, della copertina o d'altro, la fa cadere.
+     * e a togliere la copertina è il secondo tocco sull'icona. La prova misura il menu intero, così
+     * una voce che rientra, della copertina o d'altro, la fa cadere.
      * Le voci sono i nodi toccabili che compaiono aprendo il menu: quelli della griglia c'erano
      * già prima. 'Cerca' manca perché la scena non passa `onSearchHere`.
      */

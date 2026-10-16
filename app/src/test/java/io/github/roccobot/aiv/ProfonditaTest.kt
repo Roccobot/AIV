@@ -247,9 +247,9 @@ class ProfonditaTest {
     /**
      * **Caso 6: un archivio vuoto dà esattamente i valori di fabbrica dichiarati.**
      *
-     * ⚠️⚠️ **PRESIDIA QUELLO CHE LA LETTURA FA AL VALORE DI FABBRICA**: dalla `6.30` (scelta G1
-     * sulla voce G6 della revisione Setaccio) ogni ripiego di [SettingsStore.read] è il campo di un
-     * `Settings()`, quindi il valore non è più scritto due volte. Restano però i ripieghi con una
+     * ⚠️⚠️ **PRESIDIA QUELLO CHE LA LETTURA FA AL VALORE DI FABBRICA**: ogni ripiego di
+     * [SettingsStore.read] è il campo di un `Settings()` (scelta G1 sulla voce G6 della revisione
+     * Setaccio), quindi il valore è scritto una volta sola. Restano però i ripieghi con una
      * logica loro (le chiavi vecchie di [Settings.panelDepth] e di [Settings.mainControl], la
      * catena di [Settings.markAir]), e i confini messi in lettura (`coerceIn`, l'elenco delle
      * colonne): uno di loro che desse un altro valore darebbe un'app in un modo al primo avvio e in
