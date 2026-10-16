@@ -1201,18 +1201,24 @@ il job le scrive su disco per la durata di una sola esecuzione.
   non quelli di resa né di apparecchio: un banco verde non vuol dire che l'app è a posto.
   - ⚠️ **La piattaforma delle prove si dichiara in `app/src/test/resources/robolectric.properties`**,
     invece del `targetSdk`, che cambia con la politica di Google Play.
-    ⚠️⚠️ **E quel numero decide la versione di Java**: la 36 vuole Java 21 (letto nel bytecode di
-    `DefaultSdkProvider`), e su Java 17 non parte una prova, con un errore che sembra una catena di
-    strumenti rotta. Il CI monta 21, e chi tocca uno dei due numeri guarda l'altro. Una prova che
-    deve girare su versioni diverse di Android le dichiara nel suo `@Config` (`ConvertiTest`, su
-    Android 9, 10 e 11). Robolectric 4.17 (dalla `6.21`) conosce anche la 37, sempre con Java 21:
-    il passaggio è una scelta a sé, il lavoro `Diciassette` del brief.
-    ⚠️⚠️ **Nella `6.24` la 37 non ha retto, per difetti del simulatore** (sua scelta A1 del
-    2026-10-16: la `6.24` esce sulla 36). Sulla 37 l'onda del tocco di Material resta ferma a metà
-    sopra l'elemento toccato, quindi una prova che legge i pixel di un pulsante appena toccato li
-    trova più scuri del 6-7%; e nella prova della luminosità di `DisegnoTest` la cattura del palco
-    non si aggiorna, anche se il valore arriva all'elemento. Banco intero: quattro corse con 3-5
-    prove rosse sulla 37, due verdi sulla 36 con lo stesso codice.
+    ⚠️⚠️ **E quel numero decide la versione di Java**: la 36 e la 37 vogliono Java 21 (letto nel
+    bytecode di `DefaultSdkProvider`), e su Java 17 non parte una prova, con un errore che sembra una
+    catena di strumenti rotta. Il CI monta 21, e chi tocca uno dei due numeri guarda l'altro. Una
+    prova che deve girare su versioni diverse di Android le dichiara nel suo `@Config`
+    (`ConvertiTest`, su Android 9, 10 e 11).
+    ⚠️⚠️ **Dalla `6.25` il banco gira su Android 17, la 37** (il lavoro `Diciassette`, sua richiesta
+    del 2026-10-15). Nella `6.24` non aveva retto (sua scelta A1 del 2026-10-16: la `6.24` esce
+    sulla 36), per due difetti del simulatore della 37, che le prove ora evitano:
+    - **l'onda del tocco resta a metà dissolvenza sopra l'elemento toccato**: Compose 1.13 disegna
+      sempre l'onda di Android (`RippleDrawable`), che si dissolve con un'animazione di Android e non
+      con l'orologio di Compose, quindi una prova che legge i pixel di un pulsante appena toccato li
+      trova più scuri del 6-7%. Quelle prove scelgono il pulsante con l'azione di accessibilità
+      (`scegli()` in `DisegnoTest`), che esegue lo stesso `onClick` senza onda;
+    - **il palco, a caso, non mostra il disegno aggiornato**: nella prova della luminosità di
+      `DisegnoTest` il valore arriva, il palco si ridisegna e l'immagine del disegno risulta
+      cambiata, ma la cattura, anche della schermata intera, resta identica al pixel circa due corse
+      su tre. La seconda metà di quella prova legge il disegno salvato (sua scelta A1 del
+      2026-10-16), e il controllo a schermo resta nella prima, sempre verde.
     ⚠️⚠️ **E la 37 vuole Compose 1.13**: la 1.12 si porta dietro Espresso 3.5.0, che al primo tocco
     cerca per riflessione un metodo di Android (`InputManager.getInstance()`) che sulla 37 non
     esiste più, e al primo tentativo sono fallite 521 prove su 766. La 1.13, in uso dalla `6.24`, si
