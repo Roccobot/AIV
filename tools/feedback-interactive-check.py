@@ -182,6 +182,78 @@ def check_altro_reaches_last_attachment(path):
     print('Altro: la rotella porta all\'ultimo allegato senza muovere la pagina, verificato a tre misure.')
 
 
+def check_back_button(path):
+    """Back closes Altro's panel and stays on the page, and leaving asks first (the user's request,
+    2026-10-16: on Android the Back of the phone left the document). On a phone, with real touches,
+    because the guard entries are added only during a gesture; then once with a mouse."""
+    from playwright.sync_api import sync_playwright, expect
+    browser_path = chromium()
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: tasto Indietro non verificato.')
+    before = 'data:text/html,<title>prima</title>'
+    url = Path(path).resolve().as_uri()
+    state = "() => history.state && history.state.df"
+    with sync_playwright() as pw:
+        engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+        context = engine.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
+        page = context.new_page()
+        page.goto(before)
+        page.goto(url)
+        expect(page.locator('#save')).to_be_enabled()
+        overlay, dialog = page.locator('#altro-overlay'), page.locator('#leave-dialog')
+        page.locator('h1').tap()
+        assert page.evaluate(state) == 'guard', 'Nessuna voce di guardia dopo il primo tocco.'
+
+        def open_altro():
+            fab = page.locator('#floating-save')
+            fab.dispatch_event('pointerdown', {'button': 0})
+            page.wait_for_timeout(600)
+            fab.dispatch_event('pointerup', {'button': 0})
+            fab.dispatch_event('click')
+            expect(overlay).to_be_visible()
+            page.locator('#notes-mobile-editor').tap()
+            page.wait_for_function(state + " === 'altro'")
+
+        # Back with the panel open closes it, and the page stays.
+        open_altro()
+        page.go_back()
+        expect(overlay).to_be_hidden()
+        assert page.url == url and not dialog.evaluate('(d) => d.open'), 'Indietro col pannello aperto lascia la pagina.'
+        # Back again asks; Resta keeps the page and puts the guard back.
+        page.go_back()
+        expect(dialog).to_be_visible()
+        expect(page.locator('#leave-state')).to_have_text('Le risposte sono salvate.')
+        dialog.get_by_role('button', name='Resta').tap()
+        expect(dialog).to_be_hidden()
+        page.wait_for_function(state + " === 'guard'")
+        # Chiudi takes the panel's entry away too: one Back after it asks, it does not reopen.
+        open_altro()
+        page.locator('#altro-overlay-close').tap()
+        expect(overlay).to_be_hidden()
+        page.wait_for_function(state + " === 'guard'")
+        page.go_back()
+        expect(dialog).to_be_visible()
+        expect(overlay).to_be_hidden()
+        # Lascia leaves.
+        dialog.get_by_role('button', name='Lascia').tap()
+        page.wait_for_url(before)
+        context.close()
+        # On a desktop the same question, after a click.
+        page = engine.new_page(viewport={'width': 1280, 'height': 900})
+        page.goto(before)
+        page.goto(url)
+        expect(page.locator('#save')).to_be_enabled()
+        page.locator('h1').click()
+        page.go_back()
+        expect(page.locator('#leave-dialog')).to_be_visible()
+        assert page.url == url, 'Indietro su desktop lascia la pagina senza chiedere.'
+        page.keyboard.press('Escape')
+        expect(page.locator('#leave-dialog')).to_be_hidden()
+        assert page.url == url
+        engine.close()
+    print('Indietro: chiude il pannello di Altro, e lasciare la pagina chiede conferma, verificato.')
+
+
 def check_questions_and_labels(path):
     """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
     synthetic source with the real generator and template: the questions come after the tests and
@@ -367,6 +439,7 @@ def check(path):
     check_questions_and_labels(path)
     check_attachment_buttons(path)
     check_altro_reaches_last_attachment(path)
+    check_back_button(path)
     if not data['items']:
         check_without_tests(path)
         return

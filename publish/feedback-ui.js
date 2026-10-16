@@ -770,6 +770,11 @@ function setAltroOverlayOpen(open) {
       document.querySelector("#notes-mobile-editor") ||
       document.querySelector("#notes-mobile");
     editor?.focus?.();
+    syncHistory();
+  } else if (history.state?.df === "altro") {
+    // Closed by Chiudi, Escape or the scrim: its history entry goes too, and the popstate
+    // that follows finds the panel already closed.
+    history.back();
   }
 }
 // The overlay has no header since 2026-10-06: its Chiudi key, in the row under the field, is
@@ -777,6 +782,49 @@ function setAltroOverlayOpen(open) {
 window.feedbackCloseAltro = () => setAltroOverlayOpen(false);
 altroOverlay?.addEventListener("click", (event) => {
   if (event.target === altroOverlay) setAltroOverlayOpen(false);
+});
+
+// --- Back: Altro's panel closes first, and the page asks before it is left ---
+/* The user's request, 2026-10-16: on a phone Android's Back closes Altro's panel and stays on the
+   page, and no Back leaves the document without a question that can be answered no. The page
+   keeps a guard entry in the history ({df: "guard"}), and a second one while the panel is open
+   ({df: "altro"}): Back takes them away inside the page, and reaching the first entry opens the
+   question. Chrome's Back skips the entries added without a gesture of the user, so they are
+   added only during one, and every touch or key puts back the one that is missing. */
+const leaveDialog = document.querySelector("#leave-dialog");
+let leaving = false;
+function syncHistory() {
+  if (leaving || leaveDialog.open || !(navigator.userActivation?.isActive ?? true)) return;
+  if (!history.state?.df) history.pushState({ df: "guard" }, "");
+  if (altroOverlay && !altroOverlay.hidden && history.state.df === "guard")
+    history.pushState({ df: "altro" }, "");
+}
+for (const type of ["pointerdown", "pointerup", "keydown"])
+  document.addEventListener(type, () => {
+    leaving = false;
+    syncHistory();
+  }, true);
+window.addEventListener("pageshow", () => { leaving = false; });
+window.addEventListener("popstate", () => {
+  if (altroOverlay && !altroOverlay.hidden && history.state?.df !== "altro") setAltroOverlayOpen(false);
+  else if (!history.state?.df && !leaving && !leaveDialog.open) askLeave();
+});
+function askLeave() {
+  document.querySelector("#leave-state").textContent = window.feedbackHasUnsaved?.()
+    ? "Alcune modifiche non sono ancora salvate."
+    : "Le risposte sono salvate.";
+  // controls() may have disabled every button of the page while a draft was loading.
+  for (const button of leaveDialog.querySelectorAll("button")) button.disabled = false;
+  leaveDialog.returnValue = "";
+  leaveDialog.showModal();
+}
+// Lascia goes back once more, out of the page; Resta, Escape and Android's Back keep it, and
+// the guard entry comes back at once (Resta is a gesture) or at the next touch.
+leaveDialog.addEventListener("close", () => {
+  if (leaveDialog.returnValue === "leave") {
+    leaving = true;
+    history.back();
+  } else syncHistory();
 });
 
 // --- Consegna commands: one row under Altro, copied into the mobile Altro overlay ---

@@ -27,7 +27,7 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 | [feedback.html](../publish/feedback.html) | Documento generato da pubblicare, mai unica fonte di una modifica |
 | [feedback-zip.js](../publish/feedback-zip.js) | Scrittura e lettura dello ZIP di `Esporta` e `Importa`, senza librerie |
 | [feedback-data.js](../publish/feedback-data.js) | Dati della pagina, bozza, validazione JSON, riepilogo, coda dei salvataggi |
-| [feedback-ui.js](../publish/feedback-ui.js) | Tema, messaggi, contatori, riquadri e allegati, Altro, i sei comandi di consegna |
+| [feedback-ui.js](../publish/feedback-ui.js) | Tema, messaggi, contatori, riquadri e allegati, Altro, i sei comandi di consegna, il tasto Indietro |
 | [feedback-nav.js](../publish/feedback-nav.js) | Striscia, spostamento fra i riquadri, pulsanti flottanti e pressione lunga |
 | [feedback-start.js](../publish/feedback-start.js) | Avvio: caricamento della bozza e allineamento con gli altri dispositivi |
 | [feedback-format.js](../publish/feedback-format.js) | Editor visivo, Markdown, icone e scorciatoie |
@@ -303,6 +303,17 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
   colori di una risposta** (`has-response`, sfondo e bordo grigio-azzurri) quando contiene testo:
   li aveva dal 2026-10-02 e lui l'ha visto diventare blu (2026-10-06); restano alle prove. Non usare un riquadro `position: fixed` staccato dal flusso come unica
   sede di Altro.
+- ⚠️ **Il tasto Indietro non lascia il DF senza chiedere** (sua richiesta del 2026-10-16): col
+  pannello di Altro aperto su mobile, Indietro lo chiude e la pagina resta; altrimenti apre la
+  modale `Vuoi lasciare il documento?`, con `Lascia` e `Resta` (il predefinito) e una riga che dice
+  se ci sono modifiche non ancora salvate. La pagina tiene nella cronologia una voce di guardia, e
+  una seconda finché il pannello è aperto. Chrome salta col tasto Indietro le voci aggiunte senza un
+  gesto dell'utente, quindi `syncHistory` in `feedback-ui.js` le aggiunge solo durante un tocco o un
+  tasto, e rimette quella che manca al gesto successivo: prima del primo tocco la guardia non c'è, e
+  un Indietro esce senza chiedere, quando non c'è ancora niente da perdere. In una scheda in cui il
+  DF è la prima pagina, `Lascia` non ha una pagina a cui tornare, e la scheda la chiude l'Indietro
+  successivo. Lo presidia `check_back_button` in `tools/feedback-interactive-check.py`, che però
+  non riproduce il salto delle voci di Chrome: quello si verifica sul telefono.
 - ⚠️⚠️ **Etichette testuali: OGNI testo italiano nuovo o cambiato, anche quello scelto da
   Rocco** (sua istruzione, ribadita il 2026-10-08: *tutti i testi nuovi (anche quelli scelti da
   me) mi fossero sottoposti nel DF*). Dal DF 4.02 al 4.64 la sezione non è più comparsa mentre

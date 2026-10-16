@@ -1433,6 +1433,10 @@ button.devices-edit:disabled {
   margin: 0 0 12px;
   font-size: 20px;
 }
+.devices-dialog p {
+  margin: 0 0 12px;
+  text-wrap: pretty;
+}
 .devices-dialog label {
   display: block;
   margin-bottom: 12px;
