@@ -56,13 +56,12 @@ data class Geometry(
 
     /** Se questo modulo non sposta un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
     val idle: Boolean
-        get() = abs(straighten) < DEAD && abs(aspect) < DEAD && abs(horizontal) < DEAD &&
-            abs(vertical) < DEAD && abs(distortion) < DEAD && corners.idle && liquify.idle
+        get() = abs(straighten) < DIAL_REST && abs(aspect) < DIAL_REST &&
+            abs(horizontal) < DIAL_REST && abs(vertical) < DIAL_REST &&
+            abs(distortion) < DIAL_REST && corners.idle && liquify.idle
 
     companion object {
         val NONE = Geometry()
-
-        private const val DEAD = 0.0005f
     }
 }
 
@@ -169,8 +168,10 @@ data class Corners(
 
     /** Se nessun angolo si è mosso. */
     val idle: Boolean
-        get() = abs(x0) < DEAD && abs(y0) < DEAD && abs(x1) < DEAD && abs(y1) < DEAD &&
-            abs(x2) < DEAD && abs(y2) < DEAD && abs(x3) < DEAD && abs(y3) < DEAD
+        get() = abs(x0) < DIAL_REST && abs(y0) < DIAL_REST &&
+            abs(x1) < DIAL_REST && abs(y1) < DIAL_REST &&
+            abs(x2) < DIAL_REST && abs(y2) < DIAL_REST &&
+            abs(x3) < DIAL_REST && abs(y3) < DIAL_REST
 
     /** Lo scarto orizzontale dell'angolo [i], con [i] da 0 a 3 in senso orario da in alto a sinistra. */
     fun dx(i: Int): Float = when (i) {
@@ -198,8 +199,6 @@ data class Corners(
 
     companion object {
         val NONE = Corners()
-
-        private const val DEAD = 0.0005f
     }
 }
 

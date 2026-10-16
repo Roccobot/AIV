@@ -6555,7 +6555,7 @@ private fun LookKnob(
             },
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.End,
-            color = if (abs(value) < 0.0005f) MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (abs(value) < DIAL_REST) MaterialTheme.colorScheme.onSurfaceVariant
             else MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .width(KNOB_VALUE)

@@ -39,6 +39,13 @@ import kotlin.math.sqrt
  */
 
 /**
+ * Sotto questa soglia un cursore vale zero: la leggono tutti i moduli per dire se sono a riposo, e
+ * gli stili per non scrivere un valore a riposo. Il perché del numero è su [Light.idle].
+ * Le Curve (`Curve`) e la Fluidifica (`Liquify`) misurano altre grandezze, e hanno una soglia loro.
+ */
+internal const val DIAL_REST = 0.0005f
+
+/**
  * Il modulo **Luce**: i sei valori di quanta luce ha un'immagine e come è distribuita, quelli del
  * pannello base di Lightroom, nello stesso ordine (voce `luce-taratura`).
  *
@@ -66,8 +73,9 @@ data class Light(
      * il file. La soglia è quella sotto cui il conto non muove un livello su 255.
      */
     val idle: Boolean
-        get() = abs(exposure) < DEAD && abs(contrast) < DEAD && abs(highlights) < DEAD &&
-            abs(shadows) < DEAD && abs(whites) < DEAD && abs(blacks) < DEAD
+        get() = abs(exposure) < DIAL_REST && abs(contrast) < DIAL_REST &&
+            abs(highlights) < DIAL_REST && abs(shadows) < DIAL_REST &&
+            abs(whites) < DIAL_REST && abs(blacks) < DIAL_REST
 
     /**
      * Il fattore per cui si moltiplica la luce, cioè due elevato agli stop. Il conto è qui e non
@@ -78,9 +86,6 @@ data class Light(
 
     companion object {
         val NONE = Light()
-
-        /** Sotto questa soglia un cursore vale zero: vedi [idle]. */
-        private const val DEAD = 0.0005f
 
         /** Quanti stop può coprire il cursore dell'esposizione, in su e in giù. */
         const val EXPOSURE_RANGE = 2f
@@ -124,8 +129,8 @@ data class Chroma(
      * entra: senza [mono] non tocca niente, e con [mono] questa risposta è già `false`.
      */
     val idle: Boolean
-        get() = !mono && abs(temp) < DEAD && abs(tint) < DEAD &&
-            abs(saturation) < DEAD && abs(vibrance) < DEAD
+        get() = !mono && abs(temp) < DIAL_REST && abs(tint) < DIAL_REST &&
+            abs(saturation) < DIAL_REST && abs(vibrance) < DIAL_REST
 
     /**
      * I tre pesi con cui questo filtro fa il grigio, nell'ordine rosso, verde, blu.
@@ -168,13 +173,11 @@ data class Chroma(
         /** I pesi del grigio per il filtro [f], da -1 (blu) a +1 (rosso): vedi [Chroma.grey]. */
         fun greyMix(f: Float): FloatArray {
             val k = f.coerceIn(-1f, 1f)
-            if (abs(k) < DEAD) return REC709
+            if (abs(k) < DIAL_REST) return REC709
             val verso = if (k > 0f) WARM else COOL
             val quanto = abs(k)
             return FloatArray(3) { REC709[it] + (verso[it] - REC709[it]) * quanto }
         }
-
-        private const val DEAD = 0.0005f
     }
 }
 
@@ -185,12 +188,10 @@ data class Chroma(
 data class Band(val hue: Float = 0f, val sat: Float = 0f, val lum: Float = 0f) {
 
     /** Se questa fascia non cambia un pixel: vedi la tolleranza in [Light.idle]. */
-    val idle: Boolean get() = abs(hue) < DEAD && abs(sat) < DEAD && abs(lum) < DEAD
+    val idle: Boolean get() = abs(hue) < DIAL_REST && abs(sat) < DIAL_REST && abs(lum) < DIAL_REST
 
     companion object {
         val NONE = Band()
-
-        private const val DEAD = 0.0005f
     }
 }
 
@@ -310,10 +311,10 @@ data class Detail(
 
     /** Se questo modulo non cambia un pixel: vedi la nota sui due cursori che non lavorano. */
     val idle: Boolean
-        get() = abs(sharpen) < DEAD && abs(noise) < DEAD && abs(noiseColor) < DEAD
+        get() = abs(sharpen) < DIAL_REST && abs(noise) < DIAL_REST && abs(noiseColor) < DIAL_REST
 
     /** Se la maschera di contrasto è spenta, cioè se [radius] e [masking] non governano niente. */
-    val flat: Boolean get() = abs(sharpen) < DEAD
+    val flat: Boolean get() = abs(sharpen) < DIAL_REST
 
     /**
      * Il raggio della maschera di contrasto nello spazio in cui il conto gira, dato il lato lungo
@@ -333,16 +334,16 @@ data class Detail(
      */
     fun bleed(long: Float): Int {
         var reach = 0f
-        if (abs(sharpen) >= DEAD) reach = max(reach, sharpReach(long))
-        if (abs(noise) >= DEAD || abs(noiseColor) >= DEAD) reach = max(reach, grainReach(long))
+        if (abs(sharpen) >= DIAL_REST) reach = max(reach, sharpReach(long))
+        if (abs(noise) >= DIAL_REST || abs(noiseColor) >= DIAL_REST) {
+            reach = max(reach, grainReach(long))
+        }
         if (reach <= 0f) return 0
         return ceil(reach).toInt() + 1
     }
 
     companion object {
         val NONE = Detail()
-
-        private const val DEAD = 0.0005f
 
         /**
          * Il raggio di serie della maschera di contrasto, in frazione del lato lungo: quattro pixel
@@ -495,13 +496,13 @@ data class Effects(
      * dicono come lavorano gli altri, e contandoli un'immagine sarebbe ricompressa per niente.
      */
     val idle: Boolean
-        get() = abs(haze) < DEAD && abs(vignette) < DEAD && abs(grain) < DEAD
+        get() = abs(haze) < DIAL_REST && abs(vignette) < DIAL_REST && abs(grain) < DIAL_REST
 
     /** Se la grana è spenta, cioè se [grainSize] e [grainLift] non governano niente. */
-    val noGrain: Boolean get() = abs(grain) < DEAD
+    val noGrain: Boolean get() = abs(grain) < DIAL_REST
 
     /** Se la vignettatura è spenta, cioè se [vignetteFeather] non governa niente. */
-    val noVignette: Boolean get() = abs(vignette) < DEAD
+    val noVignette: Boolean get() = abs(vignette) < DIAL_REST
 
     /**
      * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
@@ -513,7 +514,7 @@ data class Effects(
      */
     fun bleed(long: Float): Int {
         var reach = 0f
-        if (abs(haze) >= DEAD) reach = max(reach, hazeReach(long))
+        if (abs(haze) >= DIAL_REST) reach = max(reach, hazeReach(long))
         // La guardia non è su [idle]: un modulo mosso con la sola vignettatura o la sola grana non
         // è a riposo, e pagherebbe un bordo per niente.
         if (reach <= 0f) return 0
@@ -522,8 +523,6 @@ data class Effects(
 
     companion object {
         val NONE = Effects()
-
-        private const val DEAD = 0.0005f
 
         /**
          * Quanto lontano si guarda per stimare il velo, in frazione del lato lungo. È largo perché

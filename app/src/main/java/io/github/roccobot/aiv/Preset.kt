@@ -553,7 +553,7 @@ object Presets {
 
     /** Scrive [v] solo se non è a riposo: vedi la nota qui sopra. */
     private fun JSONObject.num(key: String, v: Float) {
-        if (v > DEAD || v < -DEAD) put(key, v.toDouble())
+        if (v > DIAL_REST || v < -DIAL_REST) put(key, v.toDouble())
     }
 
     private fun JSONObject.num(key: String): Float = optDouble(key, 0.0).toFloat()
@@ -578,9 +578,6 @@ object Presets {
         }
         return Curve(punti)
     }
-
-    /** Sotto questa soglia un valore non si scrive: è la stessa dei moduli. */
-    private const val DEAD = 0.0005f
 
     /** Il nome del file degli stili, dentro `filesDir`. */
     private const val STORE = "presets.json"
