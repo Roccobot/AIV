@@ -2179,14 +2179,14 @@ class DisegnoTest {
         val h = 200
         val corpo = 0.05f * w
         val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null, words = Words("Ciao mondo"))
-        val (hw, hh) = Draw.textHalf(testo, w.toFloat(), h.toFloat())
+        val (_, hw, hh) = Draw.textFrame(testo, w.toFloat(), h.toFloat())
         assertEquals("una riga è alta un passo, 1,3 volte il corpo", corpo * 1.3f / 2f, hh, 1e-3f)
         assertTrue("la riga doveva avere la sua larghezza", hw > corpo)
-        val due = Draw.textHalf(testo.copy(words = Words("Ciao mondo\nCiao")), w.toFloat(), h.toFloat())
-        assertEquals("due righe sono alte due passi", 2f * hh, due.second, 1e-3f)
-        assertEquals("e larghe come la più larga", hw, due.first, 1e-3f)
-        val etichetta = Draw.textHalf(testo.copy(words = Words("Ciao mondo", label = true)), w.toFloat(), h.toFloat())
-        assertEquals("il fondo aggiunge il suo margine ai due capi", hw + 0.35f * corpo, etichetta.first, 1e-3f)
+        val due = Draw.textFrame(testo.copy(words = Words("Ciao mondo\nCiao")), w.toFloat(), h.toFloat())
+        assertEquals("due righe sono alte due passi", 2f * hh, due.third, 1e-3f)
+        assertEquals("e larghe come la più larga", hw, due.second, 1e-3f)
+        val etichetta = Draw.textFrame(testo.copy(words = Words("Ciao mondo", label = true)), w.toFloat(), h.toFloat())
+        assertEquals("il fondo aggiunge il suo margine ai due capi", hw + 0.35f * corpo, etichetta.second, 1e-3f)
         // ⚠️ Il banco non disegna le variazioni di un carattere (misurato: il grassetto vi risulta largo
         // quanto il normale), quindi qui si guarda il peso che il carattere dichiara.
         assertEquals("il grassetto doveva avere il suo peso nel carattere", Faces.BOLD, Faces.of(Face.ROBOTO, false, true).weight)
@@ -2262,15 +2262,15 @@ class DisegnoTest {
         val f = lato.toFloat()
         val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.05f, false, null,
             words = Words("Ciao mondo, come stai oggi"))
-        val (hw, hh) = Draw.textHalf(testo, f, f)
+        val (_, hw, hh) = Draw.textFrame(testo, f, f)
         val stretto = testo.reshaped(5, Offset(0.5f, 0.5f), lato, lato)
-        val (shw, shh) = Draw.textHalf(stretto, f, f)
+        val (_, shw, shh) = Draw.textFrame(stretto, f, f)
         assertTrue("stretto, il testo doveva andare a capo", shh > 1.5f * hh)
         assertEquals("largo quanto la maniglia tirata", hw / 2f, shw, 0.5f)
         assertEquals("col lato sinistro fermo", 0.5f * f - hw, stretto.points.single().x * f - shw, 0.5f)
         val doppio = stretto.reshaped(2, Offset(stretto.points.single().x + 2f * shw / f, 0.5f + 2f * shh / f), lato, lato)
         assertEquals("l'angolo doveva ingrandire anche la larghezza", 2f * stretto.words!!.wrap, doppio.words!!.wrap, 1e-3f)
-        assertEquals("e le righe restare quelle", 2f * shh, Draw.textHalf(doppio, f, f).second, 1f)
+        assertEquals("e le righe restare quelle", 2f * shh, Draw.textFrame(doppio, f, f).third, 1f)
 
         fun righe(align: Align): Pair<IntRange, IntRange> {
             val segno = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, 0.08f, false, null,
@@ -2655,7 +2655,7 @@ class DisegnoTest {
             val parole = Words("Ciao mondo\nCiao")
             val corpo = Draw.fitSize(parole, w.toFloat(), h.toFloat())
             val testo = Mark(Pen.TEXT, listOf(Offset(0.5f, 0.5f)), Color.WHITE, corpo, false, null, words = parole)
-            val (hw, _) = Draw.textHalf(testo, w.toFloat(), h.toFloat())
+            val (_, hw, _) = Draw.textFrame(testo, w.toFloat(), h.toFloat())
             // ⚠️ Il banco arrotonda il corpo al pixel intero (misurato: a 20 e a 20,75 px la riga è
             // larga uguale), quindi lo scarto ammesso è quello di un pixel di corpo.
             val pixel = w / 2f / (corpo * maxOf(w, h)) + 1f

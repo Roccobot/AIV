@@ -890,13 +890,6 @@ internal object Draw {
     }
 
     /**
-     * Metà della larghezza e metà dell'altezza del testo di [mark], nei pixel di un originale [w] x
-     * [h].
-     */
-    fun textHalf(mark: Mark, w: Float, h: Float): Pair<Float, Float> =
-        textFrame(mark, w, h).let { it.second to it.third }
-
-    /**
      * Il centro del riquadro di un testo o di una pillola e i due semilati, nei pixel di un
      * originale [w] x [h], negli assi del riquadro: quello che leggono maniglie, tocco, contorno e
      * guide. Il riquadro di un testo sono le parole misurate intorno al punto; quello di una
