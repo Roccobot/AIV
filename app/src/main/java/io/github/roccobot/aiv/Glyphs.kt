@@ -12,91 +12,39 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 
 /**
- * Le icone che Material non ha: il catalogo, coi nomi con cui si chiamano dal codice.
+ * Le icone che Material non ha: il catalogo, coi nomi con cui si chiamano dal codice. Come entra
+ * un disegno, e quando vince Material, lo dice `Rules.md` § '🖌️ Come entra un disegno'.
  *
- * ⚠️⚠️ **DALLA 1.46 I DISEGNI NON VIVONO QUI MA IN `res/drawable`**, un file per glifo, e
- * questo file è diventato il posto in cui si dice **che cosa vuol dire** ognuno. Fino alla
- * `1.45` i tracciati erano costanti di stringa qui sotto, e la ragione dello spostamento è
- * una misura, non un gusto: il verificatore `tools/icon-check.py` e l'app leggono adesso **lo
- * stesso file**, mentre prima il verificatore doveva ricostruire il tracciato dalle stringhe
- * Kotlin, e quella ricostruzione **ha sbagliato**. Diceva che i due glifi dell'allineamento
- * erano alti 0,75 unità su 24, perché trattava ogni riga come un sottotracciato mentre là le
- * righe spezzano **un numero a metà**. Un controllo che deve interpretare il codice sorgente
- * per vedere il disegno prima o poi misura il codice invece del disegno.
- * ⚠️ **La nota che c'era qui era proprio quella sbagliata**, e va saputo per non riscriverla:
- * diceva che 'le lettere di comando spezzano le righe e nient'altro, quindi ogni riga è un
- * sottotracciato'. Era falsa per due glifi su dieci.
- * ⚠️⚠️ **QUELLO CHE LO SPOSTAMENTO NON COMPRA È LA VALIDAZIONE AL BUILD**, e conviene
- * saperlo per non credere di avere una rete che non c'è: `aapt2` **non** guarda dentro
- * `android:pathData`. Provato con un tracciato che contiene la parola `ciao`: compila con
- * esito 0. Il tracciato lo legge `PathParser` al primo disegno a schermo, esattamente come
- * prima. La rete è il verificatore, e va lanciato.
+ * I disegni vivono in `res/drawable`, un file per glifo, e questo file dice che cosa vuol dire
+ * ognuno: così il verificatore `tools/icon-check.py` e l'app leggono lo stesso file.
+ * ⚠️ **`aapt2` non guarda dentro `android:pathData`**: un tracciato malformato compila, e lo
+ * legge `PathParser` al primo disegno a schermo. La rete è il verificatore, e va lanciato.
  *
- * ⚠️ **Il cursore di testo è il solo disegno che resta scritto qui**, e non è una
- * dimenticanza: tutti gli altri sono **trasportati** da un file dell'utente, questo è
- * **calcolato** da quattro costanti con una relazione dichiarata ([PULL] è il doppio di
- * [NOTCH], e chi lo ignora ottiene metà rientranza credendola giusta). In XML quelle
- * diventerebbero i numeri `4.8` e `1.6`, cioè la relazione sparirebbe e la trappola con lei.
- * E non ci sarebbe niente da guadagnare: un tracciato composto da chiamate tipizzate non può
- * essere malformato, quindi non c'è nessun controllo a cui sottoporlo.
+ * Il cursore di testo è il solo disegno scritto qui: è calcolato da costanti con una relazione
+ * ([PULL] è il doppio di [NOTCH]) che in XML diventerebbe due numeri slegati.
  *
- * ⚠️ **Come si legge un disegno**: `ImageVector.vectorResource`, che è `@Composable` e tiene
- * il risultato in un `remember` con chiave la risorsa, il tema e la configurazione. Quindi il
- * tracciato si legge una volta per punto di chiamata e non a ogni ricomposizione, che è il
- * comportamento che avevano i `by lazy` di prima.
- * ⚠️ **Il tipo resta `ImageVector` e non diventa `Painter`**, ed è una scelta: `MenuRow` di
- * `Menus.kt` misura lo slot dell'icona con `icon.defaultWidth` e `icon.defaultHeight`, che un
- * `Painter` non ha (la sua dimensione intrinseca è in pixel e chiederebbe una `Density`).
- * Così i punti di chiamata non hanno cambiato una riga, e il glifo da 25 unità continua a
- * dichiararsi 25dp.
+ * Un disegno si legge con `ImageVector.vectorResource`, che è `@Composable` e tiene il risultato
+ * in un `remember` con chiave la risorsa, il tema e la configurazione. Il tipo resta
+ * `ImageVector`, non `Painter`: `MenuRow` di `Menus.kt` misura lo spazio dell'icona con
+ * `defaultWidth` e `defaultHeight`, che un `Painter` non ha.
+ * Il colore dei file è nero pieno: `Icon` lo tinge con un `ColorFilter.tint`, come le icone di
+ * Material.
  *
- * ⚠️ **Il colore dichiarato nei file è nero pieno e non è un difetto**: `Icon` disegna il
- * vettore con un `ColorFilter.tint`, quindi la tinta che si vede è quella passata a `Icon` e
- * quella dei file non si vede mai. È la stessa convenzione delle icone di Material.
- * ⚠️ Chi volesse aggiungere qui un glifo che Material ha già sta duplicando un disegno
- * mantenuto da altri, e prima o poi i due divergeranno. ⚠️ **L'eccezione, dalla `1.51`, è il
- * glifo che l'utente ha ammorbidito**, dove la divergenza è voluta e misurata: il blocco che
- * la dichiara sta più sotto, sopra [PickDelete].
- *
- * ⚠️⚠️ **QUESTO CATALOGO È ANDATO AVANTI E TORNATO INDIETRO, e la storia va saputa per non
- * rifare il giro.** Nella `1.33` gli otto glifi trasportati sono stati **sostituiti** con una
- * famiglia nuova disegnata dall'utente (tratto 1,8, capi e giunti tondi, una staffa a L al
- * posto della seconda forma cava, un solo riquadro per le tre voci di selezione), e nella
- * `1.35` sono **tornati questi**, su sua istruzione: *per il momento ripristina le icone
- * precedenti*.
- * ⚠️ **NON era un errore di lettura del brief**, ed è la parte che conta: quei glifi stavano
- * nella sezione 2 del brief dei disegni e la richiesta li nominava. L'utente ha spiegato dopo
- * che quel brief era un copiaincolla e che quella parte non l'aveva vista: *volevo cambiare
- * solo l'icona principale e la pagina di download per il momento*. Quindi il lavoro era
- * corretto e la **priorità** è cambiata.
- * ⚠️⚠️ **I DISEGNI NUOVI NON SONO PERSI, e stanno in due posti**: gli otto SVG dell'utente
- * (griglia 24) in Claude Design, progetto `Roccobot Design`, cartella `assets/icons/`, e il
- * codice che li portava qui nella **storia git**, commit della `1.33`. ⚠️ **L'ICONA NUOVA
- * DELL'APP RESTA**: quella era l'altra metà del lavoro e non è mai stata in discussione (vedi
- * `res/drawable/ic_launcher_foreground.xml`).
- * ⚠️ **Chi li rimettesse rifaccia il trasporto dalla storia git**, non a mano: la conversione
- * di `<rect rx>`, `<circle>` e `stroke-dasharray` in tracciati è misurata (da 0 a 25 pixel di
- * scarto su 57.600, rese a 240px), e rifarla senza quella misura la butterebbe via.
+ * Una famiglia di glifi alternativa disegnata dall'utente è in Claude Design (`Roccobot Design`,
+ * `assets/icons/`) e nella storia git; per ora restano questi, su sua istruzione.
  */
 object Glyphs {
 
     /**
      * Il cursore di testo, cioè la I con le due lineette: 'Rinomina'.
      *
-     * ⚠️ **Di tratto e non di pieno**, a differenza di tutti gli altri: è l'unico fatto di
-     * aria, ed è il baratto dichiarato quando l'utente l'ha scelto (*adesso è perfetta*). Lo
-     * spessore è 2, come le altre a 24dp, così non sembra più leggero.
-     * ⚠️ **Le estremità sono tonde** (`StrokeCap.Round`): a spigolo vivo, a 24dp, i tre
-     * tratti sembrano tagliati da una lama e l'insieme perde il richiamo al cursore.
-     * ⚠️ Material non ha niente che gli somigli: la cosa più vicina è la matita di
-     * `Icons.Default.Edit`, che dice 'modifica' e non 'rinomina'.
+     * Di tratto e non di pieno, a differenza di tutti gli altri, come l'ha scelto l'utente; lo
+     * spessore è 2, come le altre a 24dp. Le estremità sono tonde (`StrokeCap.Round`): a spigolo
+     * vivo i tre tratti perdono il richiamo al cursore.
      *
-     * ⚠️⚠️ **LE DUE LINEETTE RIENTRANO VERSO IL CENTRO**, richiesta dell'utente (*un accenno
-     * di rientranza sopra e sotto al centro delle lineette orizzontali, appena
-     * percettibile*): è la forma della I maiuscola dei caratteri con le grazie, ed è ciò che
-     * distingue un cursore di testo da una I stampatello. La rientranza vale [NOTCH] unità
-     * di griglia su 24, cioè un trentesimo dell'icona: a densità 2,75 sono due pixel scarsi,
-     * che è esattamente il 'appena percettibile' chiesto.
+     * Le due lineette rientrano verso il centro, appena percettibili (richiesta dell'utente):
+     * è la forma della I con le grazie. La rientranza vale [NOTCH] unità su 24, due pixel scarsi
+     * a densità 2,75.
      */
     val TextCursor: ImageVector by lazy {
         ImageVector.Builder(
@@ -117,12 +65,9 @@ object Glyphs {
                 // Quella in basso, che si incurva verso l'alto.
                 moveTo(9f, 20f)
                 quadTo(12f, 20f - PULL, 15f, 20f)
-                // ⚠️⚠️ L'asta si ferma sul VENTRE della curva, non sui 4 e sui 20 dove
-                // stanno le punte delle lineette: lassù sporgerebbe oltre la rientranza e
-                // il glifo diventerebbe una farfalla. Provato disegnandolo, perché a
-                // leggerlo sembrava indifferente. ⚠️ La capocchia tonda sporge di mezzo
-                // spessore, cioè di 1, e va a coincidere col bordo esterno del tratto
-                // della lineetta: è per questo che i due si saldano senza gradino.
+                // ⚠️ L'asta si ferma sul ventre della curva, non su 4 e 20, dove sono le punte
+                // delle lineette: sporgerebbe oltre la rientranza. La capocchia tonda sporge di
+                // mezzo spessore e coincide col bordo esterno della lineetta, senza gradino.
                 moveTo(12f, 4f + NOTCH)
                 verticalLineTo(20f - NOTCH)
             }
@@ -132,13 +77,8 @@ object Glyphs {
     /**
      * Un cursore di testo davanti alle lettere `xyz`: 'Estensione'.
      *
-     * ⚠️ **Disegnato dall'utente** e arrivato nello ZIP del giro della `1.81`. Fino alla `1.81`
-     * qui c'era `Icons.Filled.DriveFileRenameOutline` di Material, dichiarato provvisorio
-     * quando la `1.80` ha messo i due comandi sulla riga del titolo.
-     * ⚠️ **Il cursore è lo stesso segno di [TextCursor]**, che firma 'Rinomina': le due
-     * finestre portano gli stessi comandi, quindi il glifo che cambia il suffisso di un nome
-     * dichiara di appartenere alla stessa famiglia. Il resto sta in testa a
-     * `res/drawable/ic_extension.xml`.
+     * Disegnato dall'utente. Il cursore è lo stesso segno di [TextCursor], che firma 'Rinomina':
+     * le due finestre hanno gli stessi comandi. Il resto è in testa a `ic_extension.xml`.
      */
     val Extension: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_extension)
@@ -146,8 +86,7 @@ object Glyphs {
     /**
      * 'Mostra nascoste': una cartella con un occhio, nel menu della schermata iniziale.
      *
-     * ⚠️ **Non è l'occhio di Material**, ed è la ragione per cui è un file: quello dice 'vedi'
-     * senza dire di che cosa, e qui la cosa da nominare è la **cartella**.
+     * Non è l'occhio di Material, che non dice di che cosa: qui si nomina la cartella.
      */
     val FolderEye: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_eye)
@@ -159,9 +98,8 @@ object Glyphs {
     /**
      * Un chevron in su: il tasto che porta in cima alla lista.
      *
-     * ⚠️ **Disegnato dall'utente** e arrivato col riscontro del giro della `1.94`, insieme alla
-     * richiesta dei due tasti di scorrimento. Non è la freccia di Material: quella è un tratto di
-     * spessore costante, questo si assottiglia verso le punte, che sono tonde.
+     * Disegnato dall'utente. Non è la freccia di Material, di spessore costante: questo si
+     * assottiglia verso le punte, che sono tonde.
      */
     val BrowseTop: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_browse_top)
@@ -171,25 +109,22 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_browse_bottom)
 
     /**
-     * La pillola verticale del menu angolare a riposo: una capsula. Disegno dell'utente, dalla `4.25`.
-     *
-     * ⚠️ **From 4.25 to 6.01 it was the switch's glyph in the Start menu**; from 6.02 it marks the
-     * `Pillola` chip of the rest in the settings, where the choice moved (see `MainControlChoices`).
+     * La pillola verticale del Menu 'Start' a riposo: una capsula, disegno dell'utente. Segna il
+     * chip `Pillola` della forma a riposo nelle impostazioni (`MainControlChoices`).
      */
     val RestPill: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_rest_pill)
 
-    /** Il tondo del menu angolare a riposo, sul gettone `Tondo`. Disegno suo. */
+    /** Il tondo del Menu 'Start' a riposo, sul chip `Tondo`. Disegno dell'utente. */
     val RestRound: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_rest_round)
 
     /**
      * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
      *
-     * ⚠️⚠️ **È IL SOLO GLIFO CHE ESCE DALLA PROPRIA TELA, dalla 1.37**, quindi si dichiara
-     * 25dp su una griglia da 25 e chi lo disegna deve dargli uno slot da 24. Il perché, con
-     * le misure, sta in testa a `res/drawable/ic_photo_pair.xml`, e come si tratta lo slot
-     * sta in `MenuRow` di `Menus.kt`.
+     * ⚠️ **È il solo glifo che esce dalla propria tela**: si dichiara 25dp su una griglia da 25, e
+     * chi lo disegna gli dà uno spazio da 24. Il perché è in testa a `ic_photo_pair.xml`, il
+     * trattamento dello spazio in `MenuRow` di `Menus.kt`.
      */
     val PhotoPair: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_photo_pair)
@@ -197,18 +132,14 @@ object Glyphs {
     /**
      * Una matita dentro un riquadro: 'Modifica'.
      *
-     * ⚠️ Sostituisce `Icons.Outlined.Edit` dalla `1.29`: la matita nuda diceva 'modifica' e
-     * non 'modifica un'immagine'. Il riquadro è il segno di famiglia delle tre voci
-     * sull'immagine, come le due cartelle sovrapposte lo sono di 'Copia' e 'Sposta'.
+     * Il riquadro è il segno di famiglia delle voci sull'immagine, come le due cartelle
+     * sovrapposte lo sono di 'Copia' e 'Sposta'.
      */
     val ImageEdit: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_image_edit)
 
     /**
-     * Due frecce opposte dentro un riquadro: 'Esporta/Converti'.
-     *
-     * ⚠️ Sostituisce `Icons.Outlined.SwapHoriz` dalla `1.29`: quelle erano due frecce nude,
-     * cioè 'scambia', che è quello che fa un convertitore ma non dice su che cosa.
+     * Due frecce opposte dentro un riquadro: 'Esporta/Converti'. Il riquadro dice su che cosa.
      */
     val ImageConvert: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_image_convert)
@@ -220,10 +151,8 @@ object Glyphs {
     /**
      * Due cartelle sovrapposte con quella dietro **tratteggiata**: 'Sposta'.
      *
-     * ⚠️ Il tratteggio sta sulla cartella **di dietro** e non su quella davanti, e il verso
-     * conta: spostare vuol dire che l'originale non resta dov'era, quindi la cartella che si
-     * svuota è quella da cui si parte. Perché i trattini sono pezzi di tracciato, e non un
-     * tratteggio, sta in testa a `res/drawable/ic_folder_pair_dashed.xml`.
+     * Il tratteggio è sulla cartella di dietro: spostando, l'originale non resta dov'era. Perché i
+     * trattini sono pezzi di tracciato è scritto in testa a `ic_folder_pair_dashed.xml`.
      */
     val FolderPairDashed: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_pair_dashed)
@@ -231,11 +160,9 @@ object Glyphs {
     /**
      * Una cartella a contorno con dentro un più: 'Nuova cartella'.
      *
-     * ⚠️ **Disegnata dall'utente** e arrivata nello ZIP del giro della `1.81`, per la voce che
-     * la `1.82` aggiunge al menu del FAB in 'Cartelle di sistema'.
-     * ⚠️ **Non è `Icons.Filled.CreateNewFolder`**, che è una cartella piena col più intagliato:
-     * misurato, il 21,6% della tela di differenza. La misura sta in testa a
-     * `res/drawable/ic_folder_new.xml`.
+     * Disegnata dall'utente, per la voce del menu del FAB in 'Cartelle di sistema'. Non è
+     * `Icons.Filled.CreateNewFolder`, una cartella piena (la misura è in testa a
+     * `ic_folder_new.xml`).
      */
     val FolderNew: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_new)
@@ -243,14 +170,9 @@ object Glyphs {
     /**
      * Una cartella a contorno con dentro una freccia che scende: 'Percorso'.
      *
-     * ⚠️ **Disegnata dall'utente** e arrivata nello ZIP del giro della `1.81`. Fino alla `1.81`
-     * qui c'era `Icons.Filled.FolderOpen` di Material, dichiarato provvisorio quando la `1.80`
-     * ha messo i due comandi sulla riga del titolo.
-     * ⚠️ **La freccia scende**, e il verso è tutto quello che il disegno deve dire: la sagoma
-     * più vicina di Material, `DriveFolderUpload`, ha la stessa cartella con la freccia in su,
-     * cioè dice il contrario. La misura sta in testa a `res/drawable/ic_folder_download.xml`.
-     * ⚠️ **La cartella è la stessa di [FolderNew] e di [FolderAiv]**, allo stesso inchiostro:
-     * le tre si incontrano nella stessa app e una che divergesse si noterebbe subito.
+     * Disegnata dall'utente. La freccia scende: la sagoma più vicina di Material,
+     * `DriveFolderUpload`, ha la freccia in su (la misura è in testa a `ic_folder_download.xml`).
+     * La cartella è la stessa di [FolderNew] e di [FolderAiv], allo stesso inchiostro.
      */
     val FolderDownload: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_download)
@@ -258,15 +180,8 @@ object Glyphs {
     /**
      * Un foglio dietro, e davanti un riquadro **tagliato da una spunta**: 'Seleziona tutto'.
      *
-     * ⚠️⚠️ **UNA SPUNTA GRANDE AL POSTO DI DUE PICCOLE, dalla 1.46**, e qui era scritto il
-     * contrario: la nota diceva che *due spunte e non una: una sola vuol dire 'questo è
-     * scelto', due vogliono dire 'tutti'*. L'argomento era buono e l'utente ha deciso
-     * altrimenti mandando il disegno nuovo, che è quello che decide. ⚠️ La spunta non è
-     * dipinta dentro il riquadro: è il **taglio** che lo divide in due pezzi, quindi è spazio
-     * non dipinto. Il resto sta in testa a `res/drawable/ic_pick_all.xml`.
-     * ⚠️ Prima della `1.01` qui c'era `Icons.Outlined.SelectAll` di Material, un rettangolo
-     * tratteggiato, cioè il gesto del riquadro di selezione col mouse, che su un telefono non
-     * esiste.
+     * Una spunta grande, nel disegno dell'utente. La spunta non è dipinta: è il taglio che divide
+     * il riquadro in due pezzi. Il resto è in testa a `ic_pick_all.xml`.
      */
     val PickAll: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_all)
@@ -274,8 +189,7 @@ object Glyphs {
     /**
      * Un foglio dietro a un riquadro con una **croce**: 'Svuota selezione'.
      *
-     * ⚠️ Ridisegnato dall'utente nella `1.46`: la croce è più grande e arriva quasi al bordo
-     * del riquadro. Il segno di famiglia, cioè il foglio e il riquadro, non è cambiato.
+     * Disegno dell'utente: la croce arriva quasi al bordo del riquadro.
      */
     val PickNone: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_none)
@@ -283,10 +197,8 @@ object Glyphs {
     /**
      * Un riquadro con una freccia che scende: 'Scarica'.
      *
-     * ⚠️ **Disegnato dall'utente nella `1.46`**, e sostituisce `Icons.Outlined.Download` di
-     * Material: quella era una freccia nuda sopra una lineetta, cioè diceva 'scarica' e non
-     * 'scarica QUESTO', e nel menu del visualizzatore stava fra voci che portano tutte il
-     * riquadro come segno di famiglia. Adesso lo porta anche lei.
+     * Disegnato dall'utente: il riquadro è il segno di famiglia delle voci del menu del
+     * visualizzatore, e dice che cosa si scarica.
      */
     val Download: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_download)
@@ -294,10 +206,8 @@ object Glyphs {
     /**
      * Un foglio dietro a un riquadro con **mezzo quadrato pieno**: 'Inverti selezione'.
      *
-     * ⚠️ Dalla `1.37` la forma dentro il riquadro è un triangolo e non più due frecce che
-     * girano: quelle dicevano 'ricomincia', il mezzo quadrato dice 'l'altra metà'. Che il
-     * triangolo giri al contrario del riquadro non è un dettaglio del file ma il modo in cui
-     * buca: il perché sta in testa a `res/drawable/ic_pick_invert.xml`.
+     * Il mezzo quadrato dice 'l'altra metà'. Il triangolo gira al contrario del riquadro perché è
+     * così che lo buca: il perché è in testa a `ic_pick_invert.xml`.
      */
     val PickInvert: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_invert)
@@ -305,13 +215,10 @@ object Glyphs {
     /**
      * Centra la selezione in orizzontale, nell'editor.
      *
-     * ⚠️ **Disegnata dall'utente** (2026-09-01) e arrivata in una griglia **800x800**, non
-     * nel 24x24 di Material: la tela resta la sua e a dichiarare la misura sono
-     * `android:width` e `android:height`. Sostituisce `Icons.Outlined.AlignHorizontalCenter`,
-     * che ha giudicato non abbastanza chiara (voce `ed-sheet` del collaudo).
-     * ⚠️ **È più piccola della famiglia e va bene così**: 17,04 unità riportate su 24 dove
-     * gli altri glifi stanno fra 18 e 20. L'utente lo ha confermato il 2026-09-03, quindi non
-     * si corregge.
+     * Disegnata dall'utente su una griglia 800x800 (voce `ed-sheet`): la tela resta la sua, e la
+     * misura la dichiarano `android:width` e `android:height`.
+     * ⚠️ **È più piccola della famiglia** (17,04 unità su 24, gli altri fra 18 e 20), e l'utente
+     * l'ha confermata così: non si corregge.
      */
     val AlignAcross: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_align_across)
@@ -321,46 +228,25 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_align_down)
 
     /*
-     * ⚠️⚠️ **I SEI DELLA `1.51` SONO UN CASO NUOVO: AMMORBIDISCONO UN GLIFO CHE MATERIAL HA**,
-     * mentre i dieci di prima disegnavano una cosa che Material non aveva. Sembra la
-     * duplicazione che la nota in testa a questo file vieta, e non lo è, perché la ragione del
-     * divieto è che i due divergano: qui **divergono apposta**, e la divergenza è il disegno.
-     * Lo scarto contro il glifo di sistema è misurato in testa a ogni file, e va dallo 0,1% al
-     * 5% della tela.
-     * ⚠️⚠️ **E SEI CHE ARRIVAVANO NELLO STESSO INVIO NON SONO ENTRATI**, ed è la parte da non
-     * rifare: `search`, `image`, `public`, `settings`, `folder` e `recycling` rendono a **zero
-     * pixel di scarto** dal glifo che Compose già porta (misurato a 240px ricostruendo il
-     * tracciato dal bytecode di `material-icons`), quindi là il divieto vale in pieno e le
-     * voci chiamano `Icons` invece di un file.
-     * ⚠️ **Con un'eccezione dichiarata, `settings`**: il file dell'utente e quello di Compose
-     * differiscono del 5,6% della tela, ma è **la stessa ruota al 96%** (l'inchiostro va da
-     * 19,20 a 20,00 unità, stesso centro), cioè due esportazioni successive dello stesso
-     * disegno di Google. Nessuno dei due è una scelta di nessuno, e congelarne uno qui
-     * costerebbe un file per una differenza che a 24dp non si vede.
+     * Da qui molti glifi ammorbidiscono un glifo che Material ha: divergono apposta, e lo scarto
+     * è misurato in testa a ogni file. I glifi che l'ammorbidimento lascia a zero pixel di scarto
+     * (`search`, `image`, `public`, `folder`, `recycling`) restano chiamate a `Icons`; `settings`
+     * pure, perché la differenza è fra due esportazioni dello stesso disegno di Google.
      */
 
     /**
      * Il cestino pieno: 'Elimina', l'icona rossa del pannello della selezione.
      *
-     * ⚠️ **Ammorbidisce `Icons.Default.Delete`** e non cambia nient'altro: gli spigoli vivi
-     * diventano raccordi, per lo 0,2% della tela. L'inchiostro cade nello stesso riquadro.
-     * ⚠️ **Non è [Bin]**, che è il cassone vuoto di contorno: quello dice il posto, questo
-     * l'azione, e il pieno contro il contorno è ciò che li distingue a colpo d'occhio.
+     * Ammorbidisce `Icons.Default.Delete` (0,2% della tela). Non è [Bin], il cassone vuoto di
+     * contorno: quello dice il posto, questo l'azione.
      */
     val PickDelete: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_delete)
 
     /**
-     * Il cestino con la freccia che sale: 'Ripristina', **e anche 'Ripristina tutto'**.
-     *
-     * ⚠️ **Sostituisce `Icons.Default.SettingsBackupRestore`**, che era un orologio con la
-     * freccia circolare, cioè 'torna indietro nel tempo': nel cestino la domanda è 'tira fuori
-     * questo file', e il cassone la dice mentre l'orologio no.
-     * ⚠️⚠️ **UNO SOLO PER LE DUE VOCI, dalla `1.56`, e prima erano due** (istruzione
-     * dell'utente, giro della `1.55`: *sostituisci l'icona di 'Ripristina tutto' con quella
-     * usata per il ripristino di un file singolo*). Il disegno di prima aveva il cassone aperto
-     * in fondo per dire 'tutti', e quella distinzione a 24dp era un dettaglio che nessuno
-     * leggeva: a dire 'tutti' ci pensa la parola, che nel menu sta accanto all'icona.
+     * Il cestino con la freccia che sale: 'Ripristina', e anche 'Ripristina tutto' (istruzione
+     * dell'utente: 'tutti' lo dice la parola accanto). Il cassone dice 'tira fuori questo file',
+     * che un orologio con la freccia non dice.
      */
     val BinRestore: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_restore)
@@ -368,8 +254,8 @@ object Glyphs {
     /**
      * Il cassone di contorno, vuoto: la voce 'Cestino' del menu della schermata iniziale.
      *
-     * ⚠️ **Ammorbidisce `Icons.Outlined.Delete`**, per lo 0,1% della tela. Perché sia di
-     * contorno e non di pieno sta su [PickDelete].
+     * Ammorbidisce `Icons.Outlined.Delete` (0,1% della tela). Perché sia di contorno è scritto su
+     * [PickDelete].
      */
     val Bin: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin)
@@ -377,13 +263,8 @@ object Glyphs {
     /**
      * Il cassone con dentro la freccia che torna indietro: 'Cronologia del cestino'.
      *
-     * ⚠️⚠️ **DISEGNO DELL'UTENTE, dalla `1.55`, e prende il posto di `Icons.Default.Recycling`**
-     * (giro della `1.54`: *pensavo che l'icona 'Cronologia del cestino' fosse un miglioramento,
-     * ma non mi piaceva. L'ho ridisegnata*). Le tre frecce del riciclo dicevano il giro, che era
-     * il punto della scelta della `1.51`, ma non dicevano il cestino: questa dice tutte e due.
-     * ⚠️ **Qui non c'è nessun glifo di Material da cui questo sarebbe una copia**, e la regola
-     * chiede di dirlo: il catalogo ha il bidone e ha l'orologio con la freccia, non la loro
-     * unione. Il perché per esteso sta in testa a `ic_bin_history.xml`.
+     * Disegno dell'utente: dice il giro e il cestino insieme. Material ha il bidone e l'orologio
+     * con la freccia, non la loro unione (vedi `ic_bin_history.xml`).
      */
     val BinHistory: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_history)
@@ -391,15 +272,10 @@ object Glyphs {
     /*
      * ── I sei comandi dell'editor ────────────────────────────────────────────
      *
-     * ⚠️⚠️ **DISEGNATI DALL'UTENTE E ARRIVATI IL 2026-09-04**, entrati con la `1.63`. Sono la
-     * stessa famiglia di forme dei glifi di sistema che sostituiscono, con gli angoli e le
-     * punte raccordati: quello che cambia non è il segno, è la sua morbidezza.
-     * ⚠️⚠️ **OGNUNO È STATO MISURATO CONTRO IL SUO, come chiede la regola**: lo scarto va dallo
-     * **0,11%** della tela (`ic_redo`) al **2,52%** (`ic_apply`), quindi nessuno cade sullo zero
-     * che avrebbe fatto vincere Material. I numeri per esteso stanno in testa a ogni file.
-     * ⚠️ **`Undo` e `Redo` si specchiano in RTL e le due rotazioni no**, come i glifi che
-     * sostituiscono: una freccia che dice 'indietro' segue il verso di lettura, un'ora no. Sta
-     * scritto nei file, perché un vettore non si specchia da sé.
+     * Disegnati dall'utente: i glifi di sistema con angoli e punte raccordati, da 0,11% a 2,52%
+     * della tela di scarto (i numeri sono in testa a ogni file).
+     * ⚠️ **`Undo` e `Redo` si specchiano nelle lingue da destra a sinistra, le rotazioni no**: lo
+     * dichiarano i file, perché un vettore non si specchia da sé.
      */
 
     /** La freccia che torna indietro: 'Annulla'. Vedi `ic_undo.xml`. */
@@ -427,10 +303,8 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_turn_left)
 
     /**
-     * Una pila di immagini: la vista 'Feed', dalla 6.03 (sua scelta A5). Vedi `ic_feed.xml`.
-     *
-     * ⚠️ Prende il posto di `Icons.Default.DynamicFeed` di Material, che non c'entra niente: è un
-     * disegno nuovo, non un glifo di Material ammorbidito.
+     * Una pila di immagini: la vista 'Feed' (scelta A5 dell'utente). È un disegno nuovo, non un
+     * glifo di Material ammorbidito. Vedi `ic_feed.xml`.
      */
     val Feed: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_feed)
@@ -442,9 +316,8 @@ object Glyphs {
     /**
      * Tre righe con la miniatura a sinistra: 'Visualizzazione lista'.
      *
-     * ⚠️ **È quello che si scosta di più dal suo glifo di sistema**, il 5% della tela contro
-     * `Icons.Default.ViewList`: oltre ai raccordi, l'inchiostro è un'unità più stretto. Non è
-     * un difetto del trasporto, che di pixel non ne cambia nessuno.
+     * È quello che si scosta di più dal suo glifo di sistema, il 5% della tela contro
+     * `Icons.Default.ViewList`: oltre ai raccordi, l'inchiostro è un'unità più stretto.
      */
     val ViewList: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_list)
@@ -452,14 +325,9 @@ object Glyphs {
     /**
      * La A di AIV senza la piastrella: il marchio che firma una superficie.
      *
-     * ⚠️⚠️ **NON È QUADRATO, ed è il solo del catalogo**: la sua tela è il riquadro dei due
-     * tracciati, 70 x 60, quindi chi lo disegna gli dà **larghezza e altezza** e non un lato
-     * solo, o lo schiaccia su un asse. I due chiamanti lo fanno già (il marchio sul FAB della
-     * schermata iniziale e quello in coda al nome nella barra delle info).
-     * ⚠️ **Entra nel catalogo con la `1.81`**, e fino alla `1.80` i due chiamanti lo leggevano
-     * per identificatore di risorsa: cioè lo stesso disegno era chiamato in due modi, e chi
-     * cercava dove vive un'icona dell'app in questo file non lo trovava (censimento della UI
-     * del 2026-09-05).
+     * ⚠️ **Non è quadrato, il solo del catalogo**: la tela è 70 x 60, quindi chi lo disegna gli
+     * dà larghezza e altezza, o lo schiaccia su un asse. I due chiamanti (il FAB della schermata
+     * iniziale e la barra delle informazioni) lo fanno già.
      */
     val AivMark: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_aiv_mark)
@@ -469,11 +337,11 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_aiv)
 
     /**
-     * The AIV folder of a folder's icon on the home screen ('Faro', from the 6.20): his drawing,
-     * `ic_folder_home.xml`.
+     * La cartella AIV dell'icona di una cartella nella schermata Home ('Aggiungi alla schermata
+     * Home'): disegno dell'utente, `ic_folder_home.xml`.
      *
-     * ⚠️ **Read outside a composition**, because the icon is painted into a bitmap for the launcher
-     * (`Shortcuts.folderIcon`); hence a function with a context and not a composable getter.
+     * Si legge fuori da una composizione, perché l'icona si dipinge in una bitmap per il launcher
+     * (`Shortcuts.folderIcon`): per questo è una funzione con un contesto.
      */
     fun folderHome(context: Context): ImageVector =
         ImageVector.vectorResource(context.theme, context.resources, R.drawable.ic_folder_home)
@@ -481,30 +349,18 @@ object Glyphs {
     /**
      * Il glifo che firma il piede della schermata delle informazioni.
      *
-     * ⚠️ **Si disegna dentro una riga di testo** (`InlineTextContent`), quindi la misura gliela
-     * dà il `Placeholder` del chiamante e non questo file.
+     * Si disegna dentro una riga di testo (`InlineTextContent`): la misura gliela dà il
+     * `Placeholder` del chiamante.
      */
     val Tian: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_tian)
 
     /*
-     * ⚠️⚠️ **I SETTE DELLA `2.32` SONO UN TERZO CASO: AMMORBIDISCONO UN GLIFO DI MATERIAL CHE
-     * NESSUNO HA RIDISEGNATO**, cioè li ha lavorati la sessione invece di arrivare da un file
-     * dell'utente. La sua richiesta è del 2026-09-13, dopo aver guardato la tavola dei glifi
-     * dell'editor completo: *cerca solo di arrotondare di ~0,4px i bordi esterni, che è il
-     * trattamento che ho fatto a tutte quelle preparate da me finora*.
-     * ⚠️⚠️ **NON È LA DUPLICAZIONE CHE LA NOTA IN TESTA VIETA, per la stessa ragione dei sei
-     * della `1.51`**: il divieto esiste perché due copie dello stesso disegno divergano, e qui
-     * divergono apposta. Lo scarto contro il glifo di Material è misurato in testa a ogni file
-     * e va dallo 0,10% allo 0,66% della tela.
-     * ⚠️⚠️ **E DUE DEI NOVE NON SONO ENTRATI, che è la stessa nota dei sei di allora**: la
-     * tavolozza (`Palette`) e il grafico (`Timeline`) sono disegnati **tutti** di curve e
-     * cerchi, quindi non hanno un solo spigolo da raccordare e l'ammorbidimento li lascia a
-     * **zero pixel** di scarto. Là il divieto vale in pieno, e i moduli 'Colore' e 'Curve'
-     * chiamano `Icons` invece di un file.
-     * ⚠️ **Il tracciato è ricostruito dal bytecode di `material-icons`** e non copiato da un
-     * elenco: il criterio, e il perché quella sia la sola fonte attendibile, vivono in
-     * `Rules.md`, § 'Come entra un disegno'.
+     * I glifi dei moduli dell'editor completo: glifi di Material coi bordi esterni arrotondati di
+     * 0,4, su richiesta dell'utente, da 0,10% a 0,66% della tela di scarto (in testa a ogni file).
+     * `Palette` e `Timeline` sono tutti curve, l'arrotondamento li lascia identici, quindi i
+     * moduli 'Colore' e 'Curve' chiamano `Icons`. Il tracciato si ricostruisce dal bytecode di
+     * `material-icons` (`Rules.md` § '🖌️ Come entra un disegno').
      */
 
     /** Le forbici del ritaglio: il primo modulo dell'editor completo. */
@@ -515,7 +371,7 @@ object Glyphs {
     val ModGeometry: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_geometry)
 
-    /** Adhesive strip bandage: local healing (Correggi/Rimuovi). */
+    /** Il cerotto: la correzione locale ('Correggi' e 'Rimuovi'). */
     val Heal: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_heal)
 
@@ -530,10 +386,8 @@ object Glyphs {
     /**
      * I tre cursori: il modulo 'HSL', che lavora su un colore per volta.
      *
-     * ⚠️ **Era il contagocce fino alla `2.35`**, ed è sua istruzione che sia cambiato
-     * (2026-09-13: *l'icona di HLS dev'essere più simile a una serie di slider stilizzati, non
-     * dev'essere un contagocce*). Il perché, e lo scarto contro il glifo di Material, vivono in
-     * testa al file.
+     * Cursori stilizzati e non un contagocce, su istruzione dell'utente; lo scarto dal glifo di
+     * Material è in testa al file.
      */
     val ModMix: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_mix)
@@ -545,27 +399,22 @@ object Glyphs {
     /**
      * La cornice quadrata col tondo scavato: il modulo 'Effetti'.
      *
-     * ⚠️ **È il suo disegno dalla `2.62`**, cioè la vignettatura che gli ho mandato come SVG alla
-     * fine del giro della `2.55`, rimodellata da lui: fino alla `2.61` il modulo chiamava
-     * `Icons.Filled.Vignette`. ⚠️ **E dalla `2.63` è il suo secondo disegno**, arrivato poche ore
-     * dopo il primo: la cornice è un superellisse invece di un rettangolo stondato. Le misure e lo
-     * scarto del trasporto vivono in testa al file.
+     * Disegno dell'utente: la cornice è un superellisse. Le misure e lo scarto del trasporto sono
+     * in testa al file.
      */
     val ModEffects: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_effects)
 
     /**
-     * La matita con lo scarabocchio: il modulo 'Disegno', dalla `4.40`.
-     *
-     * ⚠️ È `Icons.Filled.Draw` di Material con gli spigoli convessi esterni raccordati: le misure
-     * vivono in testa al file.
+     * La matita con lo scarabocchio: il modulo 'Disegno'. È `Icons.Filled.Draw` con gli spigoli
+     * convessi esterni raccordati (le misure sono in testa al file).
      */
     val ModDraw: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_draw)
 
     /**
-     * Le otto penne del modulo 'Disegno': le cinque della `4.40`, un tratto ciascuna (vedi i file),
-     * dalla `4.90` il testo, il glifo di Material ammorbidito, e la pillola, e dalla `4.91` il pannello.
+     * Le otto penne del modulo 'Disegno': cinque tratti (vedi i file), il testo (il glifo di
+     * Material ammorbidito), la pillola e il pannello.
      */
     @Composable
     fun pen(pen: Pen): ImageVector = when (pen) {
@@ -580,8 +429,8 @@ object Glyphs {
     }
 
     /**
-     * Le righe a sinistra, al centro o a destra: il tasto 'Allineamento' del testo (dalla `4.90`),
-     * i glifi di Material ammorbiditi.
+     * Le righe a sinistra, al centro o a destra: il tasto 'Allineamento' del testo, coi glifi di
+     * Material ammorbiditi.
      */
     @Composable
     fun align(align: Align): ImageVector = when (align) {
@@ -601,25 +450,17 @@ object Glyphs {
     /**
      * Il segnalibro col più: il comando 'Salva stile' della barra dell'editor completo.
      *
-     * ⚠️ **È il glifo di Material ammorbidito**, e non un disegno nuovo: la sua istruzione del
-     * giro della `2.54` dice *Va bene quello di Material, ma con l'arrotondamento*, quindi il
-     * disegno resta `Icons.Filled.BookmarkAdd` e cambia il solo trattamento. Lo scarto misurato
-     * e il perché di ogni raccordo vivono in testa al file.
+     * È `Icons.Filled.BookmarkAdd` ammorbidito, su istruzione dell'utente; lo scarto e il perché
+     * di ogni raccordo sono in testa al file.
      */
     val PresetSave: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_preset_save)
 
     /**
-     * La fotografia nella cornice tratteggiata: il tasto 'Ridimensiona' in testata all'editor.
+     * L'immagine nella cornice tratteggiata: il tasto 'Ridimensiona' in testata all'editor.
      *
-     * ⚠️ **È il glifo di Material ammorbidito**, e non un disegno nuovo: il punto 4 del campo
-     * libero del giro della `2.70` dice che le due icone della testata possono venire dalla
-     * famiglia *ma vanno arrotondate come da regola nuova*, quindi il disegno resta
-     * `Icons.Filled.PhotoSizeSelectLarge` e cambia il solo trattamento.
-     * ⚠️ **La gemella 'Filigrana' è entrata due versioni dopo, e per un'altra strada**: di angoli
-     * convessi esterni non ne ha, quindi l'arrotondamento la lasciava identica e Material
-     * vinceva; a farla diventare un file è lo **specchio** della `2.79`, che il disegno lo
-     * cambia davvero. Lo scarto misurato e il perché di ogni raccordo vivono in testa al file.
+     * È `Icons.Filled.PhotoSizeSelectLarge` ammorbidito, su richiesta dell'utente; lo scarto e il
+     * perché di ogni raccordo sono in testa al file.
      */
     val Resize: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_resize)
@@ -627,24 +468,16 @@ object Glyphs {
     /**
      * La cornice col rettangolino in basso a sinistra: il tasto 'Filigrana' dei due editor.
      *
-     * ⚠️⚠️ **È `Icons.Filled.BrandingWatermark` SPECCHIATO IN ORIZZONTALE, DALLA `2.79`, ED È SUA
-     * RICHIESTA** (punto B del campo libero del giro dalla `2.75` alla `2.77`: *è ciò che associo
-     * istantaneamente al concetto di filigrana perché di solito la metto lì*). Quindi il disegno
-     * resta di Material e a cambiare è da che parte cade il rettangolino.
-     * ⚠️ **Fino alla `2.78` viveva fuori di qui**, in una costante di `EditorTools.kt`, perché
-     * questo catalogo espone i disegni di `res/` e quello era una chiamata a `Icons`: uno
-     * specchio non è più il disegno di Material, quindi adesso è un file come gli altri. Chi
-     * trova `MARK_GLYPH` in una nota vecchia sappia che è questo.
+     * È `Icons.Filled.BrandingWatermark` specchiato in orizzontale, su richiesta dell'utente: il
+     * rettangolino è dove di solito lui mette la filigrana. Lo specchio cambia il disegno, quindi
+     * è un file come gli altri.
      */
     val Watermark: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_watermark)
 
     /*
-     * ⚠️⚠️ **`ic_launcher_foreground.xml` NON ENTRA QUI, e non è una dimenticanza**: quello è
-     * l'icona dell'app, si disegna con `Image` sopra il proprio fondo colorato e **non è
-     * tinto**, cioè non è un'icona di comando. Questo catalogo espone disegni che `Icon`
-     * colora col colore del contenuto, e un `ImageVector` letto da qui inviterebbe a
-     * trattarlo come gli altri. Il suo chiamante è `Identity.kt`, che lo dichiara.
+     * ⚠️ `ic_launcher_foreground.xml` non è nel catalogo: è l'icona dell'app, si disegna con
+     * `Image` sopra il proprio fondo colorato e non si tinge. Il suo chiamante è `Identity.kt`.
      */
 
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
@@ -656,18 +489,16 @@ object Glyphs {
     /**
      * Quanto rientra il centro di una lineetta, in unità di griglia.
      *
-     * ⚠️ Scelto fra quattro provini (0 / 0,5 / 0,8 / 1,2) mostrati all'utente: sotto lo
-     * 0,5 la curva sparisce nell'antialiasing, sopra l'1 il glifo diventa una clessidra.
+     * Scelto dall'utente fra quattro provini: sotto 0,5 la curva sparisce nell'antialiasing,
+     * sopra 1 il glifo diventa una clessidra.
      */
     private const val NOTCH = 0.8f
 
     /**
-     * Dov'è il punto di controllo della curva, che NON è dove passa la curva.
+     * Dov'è il punto di controllo della curva, che non è dove passa la curva.
      *
-     * ⚠️⚠️ Una quadratica passa a **metà** fra la corda e il suo punto di controllo, quindi
-     * per una rientranza vera di [NOTCH] il controllo va al doppio. Chi mettesse [NOTCH] qui
-     * otterrebbe metà rientranza e la crederebbe giusta, perché il numero nel codice
-     * direbbe la cosa voluta.
+     * ⚠️ Una quadratica passa a metà fra la corda e il suo punto di controllo: per una rientranza
+     * vera di [NOTCH] il controllo va al doppio, o la rientranza sarebbe la metà.
      */
     private const val PULL = NOTCH * 2f
 
