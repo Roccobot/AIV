@@ -115,6 +115,7 @@
     <string name="folder_renamed">تمت إعادة تسمية المجلد</string>
     <string name="folder_rename_taken">يوجد مجلد بهذا الاسم بالفعل</string>
     <string name="folder_rename_fail">تعذّرت إعادة تسمية المجلد</string>
+    <string name="folder_create_fail">تعذّر إنشاء المجلد</string>
     <string name="jump_top">الانتقال إلى البداية</string>
     <string name="jump_bottom">الانتقال إلى النهاية</string>
     <string name="settings_folder_columns">أعمدة الشبكات</string>

@@ -115,6 +115,7 @@
     <string name="folder_renamed">ఫోల్డర్ పేరు మార్చబడింది</string>
     <string name="folder_rename_taken">ఈ పేరుతో ఒక ఫోల్డర్ ఇప్పటికే ఉంది</string>
     <string name="folder_rename_fail">ఫోల్డర్ పేరును మార్చలేకపోయాం</string>
+    <string name="folder_create_fail">ఫోల్డర్‌ను సృష్టించలేకపోయాం</string>
     <string name="jump_top">ప్రారంభానికి వెళ్లు</string>
     <string name="jump_bottom">చివరకు వెళ్లు</string>
     <string name="settings_folder_columns">గడుల్లోని నిలువు వరుసలు</string>

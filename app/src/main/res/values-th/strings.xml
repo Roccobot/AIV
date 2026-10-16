@@ -115,6 +115,7 @@
     <string name="folder_renamed">เปลี่ยนชื่อโฟลเดอร์แล้ว</string>
     <string name="folder_rename_taken">มีโฟลเดอร์ชื่อนี้อยู่แล้ว</string>
     <string name="folder_rename_fail">เปลี่ยนชื่อโฟลเดอร์ไม่สำเร็จ</string>
+    <string name="folder_create_fail">สร้างโฟลเดอร์ไม่สำเร็จ</string>
     <string name="jump_top">ไปที่จุดเริ่มต้น</string>
     <string name="jump_bottom">ไปที่จุดสิ้นสุด</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>

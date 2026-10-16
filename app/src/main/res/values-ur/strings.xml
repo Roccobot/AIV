@@ -115,6 +115,7 @@
     <string name="folder_renamed">فولڈر کا نام تبدیل ہو گیا</string>
     <string name="folder_rename_taken">اس نام کا فولڈر پہلے سے موجود ہے</string>
     <string name="folder_rename_fail">فولڈر کا نام تبدیل نہیں ہو سکا</string>
+    <string name="folder_create_fail">فولڈر نہیں بنایا جا سکا</string>
     <string name="jump_top">شروع میں جائیں</string>
     <string name="jump_bottom">آخر میں جائیں</string>
     <string name="settings_folder_columns">گرڈز کے کالم</string>

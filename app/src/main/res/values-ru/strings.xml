@@ -115,6 +115,7 @@
     <string name="folder_renamed">Папка переименована</string>
     <string name="folder_rename_taken">Папка с таким именем уже есть</string>
     <string name="folder_rename_fail">Не удалось переименовать папку</string>
+    <string name="folder_create_fail">Не удалось создать папку</string>
     <string name="jump_top">В начало</string>
     <string name="jump_bottom">В конец</string>
     <string name="settings_folder_columns">Столбцы в сетках</string>

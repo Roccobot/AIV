@@ -115,6 +115,7 @@
     <string name="folder_renamed">Nama folder diubah</string>
     <string name="folder_rename_taken">Folder dengan nama ini sudah ada</string>
     <string name="folder_rename_fail">Nama folder tidak dapat diubah</string>
+    <string name="folder_create_fail">Folder tidak dapat dibuat</string>
     <string name="jump_top">Ke awal</string>
     <string name="jump_bottom">Ke akhir</string>
     <string name="settings_folder_columns">Kolom pada kisi</string>

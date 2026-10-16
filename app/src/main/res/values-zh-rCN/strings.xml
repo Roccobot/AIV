@@ -115,6 +115,7 @@
     <string name="folder_renamed">已重命名文件夹</string>
     <string name="folder_rename_taken">已有同名文件夹</string>
     <string name="folder_rename_fail">无法重命名文件夹</string>
+    <string name="folder_create_fail">无法创建文件夹</string>
     <string name="jump_top">回到开头</string>
     <string name="jump_bottom">前往结尾</string>
     <string name="settings_folder_columns">网格的列数</string>

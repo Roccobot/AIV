@@ -343,6 +343,7 @@
     <string name="folder_renamed">Cartella rinominata</string>
     <string name="folder_rename_taken">Esiste già una cartella con questo nome</string>
     <string name="folder_rename_fail">Non è stato possibile rinominare la cartella</string>
+    <string name="folder_create_fail">Non è stato possibile creare la cartella</string>
     <string name="jump_top">Vai all\'inizio</string>
     <string name="jump_bottom">Vai alla fine</string>
 

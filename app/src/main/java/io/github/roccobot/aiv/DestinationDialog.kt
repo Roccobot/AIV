@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -53,7 +54,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -128,16 +132,25 @@ fun DestinationDialog(
         )
         return
     }
-    val roots = remember { FileTree.roots(context) }
+    // ⚠️ The roots are read on `Dispatchers.IO` (6.26, finding E29 of the 6.25 review): asking the
+    // system for them touches the disk and can create folders, and `null` is the list still loading.
+    val roots by produceState<List<File>?>(null) {
+        value = withContext(Dispatchers.IO) { FileTree.roots(context) }
+    }
+    val scope = rememberCoroutineScope()
 
     /**
      * Dove si sta guardando, e `null` finché si è all'elenco delle memorie.
      *
      * ⚠️ **La radice non è una cartella qualunque**: sui telefoni con la scheda ce ne sono
      * due, e senza un livello sopra non ci sarebbe modo di passare dall'una all'altra. Su
-     * un telefono senza scheda ne ha una sola, e allora si entra dritti dentro.
+     * un telefono senza scheda ne ha una sola, e allora si entra dritti dentro, appena le
+     * radici sono lette.
      */
-    var here by remember { mutableStateOf(roots.singleOrNull()) }
+    var here by remember { mutableStateOf<File?>(null) }
+    LaunchedEffect(roots) {
+        if (here == null) roots?.singleOrNull()?.let { here = it }
+    }
     var children by remember { mutableStateOf<List<File>?>(null) }
     var naming by remember { mutableStateOf(false) }
 
@@ -157,11 +170,12 @@ fun DestinationDialog(
     /** Risale di un livello, e torna `false` quando non c'è più niente sopra. */
     fun up(): Boolean {
         val at = here ?: return false
+        val radici = roots.orEmpty()
         // ⚠️ Il confronto è sul PERCORSO e non sull'oggetto: due `File` costruiti in due
         // modi diversi non sono uguali fra loro nemmeno quando indicano la stessa cosa.
-        if (roots.any { it.absolutePath == at.absolutePath }) {
+        if (radici.any { it.absolutePath == at.absolutePath }) {
             // Con una memoria sola non esiste un elenco a cui tornare: si esce.
-            if (roots.size <= 1) return false
+            if (radici.size <= 1) return false
             here = null
             return true
         }
@@ -323,8 +337,13 @@ fun DestinationDialog(
                 onCreate = { name ->
                     naming = false
                     val parent = here ?: return@NewFolderDialog
-                    val made = File(parent, name)
-                    if (runCatching { made.mkdirs() }.getOrDefault(false)) here = made
+                    // ⚠️ A taken name enters the folder that is there, a failure says so (6.26):
+                    // the why lives on FileTree.makeFolder.
+                    scope.launch {
+                        val made = FileTree.makeFolder(parent, name)
+                        if (made != null) here = made
+                        else Notices.say(context.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
+                    }
                 }
             )
         }
@@ -675,9 +694,10 @@ internal fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) 
             }
         },
         confirmButton = {
+            // ⚠️ `.` and `..` are not names but this folder and the one above (6.26, finding D10).
             TextButton(
                 onClick = { onCreate(clean) },
-                enabled = clean.isNotEmpty()
+                enabled = clean.isNotEmpty() && clean != "." && clean != ".."
             ) { Text(stringResource(R.string.dest_create)) }
         },
         dismissButton = {

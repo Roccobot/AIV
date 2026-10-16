@@ -115,6 +115,7 @@
     <string name="folder_renamed">கோப்புறையின் பெயர் மாற்றப்பட்டது</string>
     <string name="folder_rename_taken">இந்தப் பெயரில் ஒரு கோப்புறை ஏற்கெனவே உள்ளது</string>
     <string name="folder_rename_fail">கோப்புறையின் பெயரை மாற்ற முடியவில்லை</string>
+    <string name="folder_create_fail">கோப்புறையை உருவாக்க முடியவில்லை</string>
     <string name="jump_top">தொடக்கத்திற்குச் செல்</string>
     <string name="jump_bottom">இறுதிக்குச் செல்</string>
     <string name="settings_folder_columns">கட்டங்களின் நிரல்கள்</string>

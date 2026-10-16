@@ -115,6 +115,7 @@
     <string name="folder_renamed">Đã đổi tên thư mục</string>
     <string name="folder_rename_taken">Đã có thư mục trùng tên</string>
     <string name="folder_rename_fail">Không thể đổi tên thư mục</string>
+    <string name="folder_create_fail">Không thể tạo thư mục</string>
     <string name="jump_top">Đến đầu</string>
     <string name="jump_bottom">Đến cuối</string>
     <string name="settings_folder_columns">Số cột trong lưới</string>

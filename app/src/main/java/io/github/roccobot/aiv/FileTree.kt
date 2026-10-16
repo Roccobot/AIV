@@ -475,6 +475,21 @@ object FileTree {
     }.getOrDefault(false)
 
     /**
+     * La cartella [name] dentro [parent], creata se non c'è, oppure `null` se non si è potuta
+     * creare. La usano le due 'Nuova cartella', quella dell'albero e quella della destinazione.
+     *
+     * ⚠️⚠️ **UN NOME GIÀ PRESO DÀ LA CARTELLA CHE C'È, dalla `6.26`** (rilievi D10 ed E29 della
+     * revisione della 6.25): `mkdirs` risponde `false` anche quando la cartella esiste, e le due
+     * finestre si chiudevano senza fare niente e senza dire niente. Chi crea una cartella ci vuole
+     * entrare, e quella col suo nome c'è già.
+     * ⚠️ **Su `Dispatchers.IO`**: prima si scriveva sul disco nel richiamo del tocco.
+     */
+    suspend fun makeFolder(parent: File, name: String): File? = withContext(Dispatchers.IO) {
+        val folder = File(parent, name)
+        runCatching { folder.takeIf { it.isDirectory || it.mkdirs() } }.getOrNull()
+    }
+
+    /**
      * Versa [input] in [target], che non esiste ancora, e dice se è arrivato in fondo.
      *
      * ⚠️⚠️ **UNA COPIA INTERROTTA NON LASCIA NIENTE** (rilievo D31 della revisione della 6.25):

@@ -115,6 +115,7 @@
     <string name="folder_renamed">Zmieniono nazwę folderu</string>
     <string name="folder_rename_taken">Folder o tej nazwie już istnieje</string>
     <string name="folder_rename_fail">Nie udało się zmienić nazwy folderu</string>
+    <string name="folder_create_fail">Nie udało się utworzyć folderu</string>
     <string name="jump_top">Przejdź na początek</string>
     <string name="jump_bottom">Przejdź na koniec</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>

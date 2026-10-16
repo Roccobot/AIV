@@ -1010,9 +1010,10 @@ fun FolderScreen(
      * rilegge dal disco quando cambia il percorso, quindi entrarci è anche il modo in cui la
      * cartella nuova si vede senza un meccanismo di aggiornamento in più. E chi crea una
      * cartella la sta creando per metterci qualcosa.
-     * ⚠️ **Se la creazione fallisce non si va da nessuna parte**: il disco può rifiutare
-     * (permessi, nome già preso, volume di sola lettura), e navigare in una cartella che non
-     * esiste mostrerebbe un elenco vuoto che sembra un guasto dell'app.
+     * ⚠️ **Se la creazione fallisce non si va da nessuna parte, e lo si dice** (dalla `6.26`): il
+     * disco può rifiutare (permessi, volume di sola lettura), e navigare in una cartella che non
+     * esiste mostrerebbe un elenco vuoto che sembra un guasto dell'app. Un nome già preso porta
+     * nella cartella che c'è: il perché vive su [FileTree.makeFolder].
      */
     // ⚠️ The Feed's operations (6.03): the selection empties before the work starts, as in the grid,
     // and the stream is read again after it.
@@ -1032,9 +1033,10 @@ fun FolderScreen(
                 making = false
                 val dove = treePath
                 if (dove != null) {
-                    val nata = java.io.File(dove, name)
-                    if (runCatching { nata.mkdirs() }.getOrDefault(false)) {
-                        onTreePath(nata.absolutePath)
+                    scope.launch {
+                        val nata = FileTree.makeFolder(java.io.File(dove), name)
+                        if (nata != null) onTreePath(nata.absolutePath)
+                        else Notices.say(context.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
                     }
                 }
             }

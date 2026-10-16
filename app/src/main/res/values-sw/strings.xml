@@ -115,6 +115,7 @@
     <string name="folder_renamed">Jina la folda limebadilishwa</string>
     <string name="folder_rename_taken">Folda yenye jina hili tayari ipo</string>
     <string name="folder_rename_fail">Folda haikuweza kubadilishwa jina</string>
+    <string name="folder_create_fail">Folda haikuweza kuundwa</string>
     <string name="jump_top">Nenda mwanzoni</string>
     <string name="jump_bottom">Nenda mwishoni</string>
     <string name="settings_folder_columns">Safu kwenye gridi</string>

@@ -115,6 +115,7 @@
     <string name="folder_renamed">ফোল্ডারের নাম বদলানো হয়েছে</string>
     <string name="folder_rename_taken">এই নামের ফোল্ডার আগে থেকেই আছে</string>
     <string name="folder_rename_fail">ফোল্ডারের নাম বদলানো যায়নি</string>
+    <string name="folder_create_fail">ফোল্ডার তৈরি করা যায়নি</string>
     <string name="jump_top">শুরুতে যান</string>
     <string name="jump_bottom">শেষে যান</string>
     <string name="settings_folder_columns">গ্রিডের কলাম</string>
