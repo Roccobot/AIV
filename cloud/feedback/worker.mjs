@@ -53,13 +53,18 @@ function draftFiles(draft) {
 }
 function validDraft(draft) {
   if (!draft || draft.schema !== 1 || draft.project !== 'AIV' || typeof draft.version !== 'string' || !draft.entries || !draft.decisions || !draft.extra) return false;
-  if (Array.isArray(draft.entries) || Array.isArray(draft.decisions)) return false;
+  // Plain objects with keys of a known shape and bounded fields, since 6.29 (H5): until 6.28
+  // `entries: 5` passed, because Object.values(5) is empty, and a choice had no length cap.
+  const record = value => value && typeof value === 'object' && !Array.isArray(value);
+  if (!record(draft.entries) || !record(draft.decisions) || !record(draft.extra)) return false;
+  if (!Object.keys(draft.entries).every(id => /^[0-9]+\.[0-9]+-[0-9]+$/.test(id))) return false;
+  if (!Object.keys(draft.decisions).every(id => /^d-[a-z0-9-]+$/.test(id))) return false;
   for (const field of ['version','installed','device','notes']) if (typeof draft[field] !== 'string' || draft[field].length > 100000) return false;
   if (draft.tablet !== undefined && (typeof draft.tablet !== 'string' || draft.tablet.length > 100000)) return false;
   for (const entry of Object.values(draft.entries)) {
     if (!entry || !['','Tutto OK','Accettabile','Non approvato'].includes(entry.status) || typeof entry.comment !== 'string' || entry.comment.length > 100000 || !Array.isArray(entry.images) || entry.images.length > 30) return false;
   }
-  for (const entry of Object.values(draft.decisions)) if (!entry || typeof entry.choice !== 'string' || typeof entry.comment !== 'string' || entry.comment.length > 100000) return false;
+  for (const entry of Object.values(draft.decisions)) if (!entry || typeof entry.choice !== 'string' || entry.choice.length > 100 || typeof entry.comment !== 'string' || entry.comment.length > 100000) return false;
   if (draft.labels !== undefined) {
     if (!draft.labels || typeof draft.labels !== 'object' || Array.isArray(draft.labels) || Object.keys(draft.labels).length > 200) return false;
     for (const [id, entry] of Object.entries(draft.labels)) {
@@ -171,7 +176,12 @@ export default {
   async fetch(request,env) {
     let response;
     try { response = await handle(request,env); }
-    catch { response = json({error:'Servizio cloud temporaneamente non disponibile. Le modifiche non sono state confermate.'},503); }
+    catch (error) {
+      // Since 6.29 (H4 of the 6.25 review) the log keeps name, message, status and code, and
+      // nothing of the draft: until 6.28 a 503 in production left no trace at all.
+      console.error(JSON.stringify({name:error?.name,message:error?.message,status:error?.status,code:error?.code}));
+      response = json({error:'Servizio cloud temporaneamente non disponibile. Le modifiche non sono state confermate.'},503);
+    }
     const protectedResponse = new Response(response.body,response);
     // Every answered call of the page renews a session that is in use; logout clears it instead.
     const path = new URL(request.url).pathname;

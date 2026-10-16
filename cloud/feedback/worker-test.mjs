@@ -86,6 +86,10 @@ try {
   assert.equal((await put('"empty"')).status,412);
   assert.equal((await put(firstTag,{...draft,notes:'**nuove note**'})).status,200);
   assert.equal((await put(firstTag)).status,412);
+  // 6.29 (H5): containers that are not objects, keys of another shape and a choice past its cap.
+  for (const broken of [{...draft,entries:5},{...draft,decisions:true},{...draft,entries:{x:draft.entries['3.14-03']}},
+    {...draft,decisions:{'d-prova':{choice:'A'.repeat(101),comment:''}}},{...draft,decisions:{prova:{choice:'A1',comment:''}}}])
+    assert.equal((await put(firstTag,broken)).status,400,JSON.stringify(broken).slice(0,80));
   let latest=await worker.fetch(authenticated('/api/feedback'),env);
   let etag=latest.headers.get('ETag');assert.equal((await latest.json()).notes,'**nuove note**');
   const bytes=Buffer.from('Original ZIP/SVG bytes for storage integrity');

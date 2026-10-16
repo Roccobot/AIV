@@ -60,7 +60,7 @@ try {
     assert.equal((await worker.fetch(request('/api/files/'+storageKey,{method:'PUT',body:bytes}),env)).status,204);
     many.push({name:'schermata-'+i+'.png',type:'image/png',size:bytes.length,storageKey});
   }
-  const crowded={...draft,entries:{a:{status:'',comment:'',images:many.slice(0,30)},b:{status:'',comment:'',images:[...many.slice(30,59),many[0]]}},extra:{images:[many[59]]}};
+  const crowded={...draft,entries:{'0.01-01':{status:'',comment:'',images:many.slice(0,30)},'0.01-02':{status:'',comment:'',images:[...many.slice(30,59),many[0]]}},extra:{images:[many[59]]}};
   let before=fixture.calls.length;
   let saved=await put(tag,crowded);
   assert.equal(saved.status,200);
