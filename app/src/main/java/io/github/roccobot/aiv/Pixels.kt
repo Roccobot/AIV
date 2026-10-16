@@ -7,35 +7,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Quanto è grande DAVVERO un file di immagine, senza decodificarlo.
+ * Il lato lungo di un file di immagine, letto senza decodificarlo.
  *
- * ⚠️⚠️ **SERVE ALLA MINIATURA, non alla fotografia**, ed è la sola ragione per cui esiste.
- * Il sostituto che si vede mentre la fotografia si apre deve essere disegnato **alla misura
- * che avrà la fotografia**, o al suo arrivo l'immagine cambia di dimensione sotto gli occhi.
- * Quella misura dipende da quanto è grande il file, che è precisamente l'unica cosa che una
- * miniatura non può dire: una miniatura da 512 px può venire da un'immagine di 600 px o da
- * una di seimila, e sono due misure finali diverse.
+ * Serve alla miniatura che si vede mentre l'immagine si apre: va disegnata alla misura che avrà
+ * l'immagine, o al suo arrivo cambia dimensione sotto gli occhi. Una miniatura da 512 px non dice
+ * se viene da un'immagine di 600 px o di seimila.
  *
- * ⚠️⚠️ **SI TIENE IL LATO LUNGO E NON LA COPPIA, e non è pigrizia: è l'ORIENTAMENTO.**
- * `inJustDecodeBounds` legge le dimensioni del flusso **codificato**, che per una foto
- * scattata in verticale sono quelle orizzontali: la rotazione sta nell'EXIF, e chi decodifica
- * per davvero la applica. Prendere quella coppia per buona darebbe proporzioni girate su
- * tutte le foto verticali. Il **lato lungo** invece è lo stesso prima e dopo una rotazione
- * di un quarto di giro, quindi non ha questo problema; le proporzioni le sa già la miniatura,
- * che dal decodificatore è passata. Due dati veri, presi ognuno da chi lo conosce.
+ * ⚠️ **Si tiene il lato lungo e non la coppia, per l'orientamento**: `inJustDecodeBounds` legge le
+ * dimensioni del flusso codificato, che per una foto verticale sono orizzontali (la rotazione è
+ * nell'EXIF). Il lato lungo non cambia con un quarto di giro, e le proporzioni le dà la miniatura.
  *
- * ⚠️ **La lettura costa un'intestazione, non un'immagine** (qualche decina di byte contro
- * trenta megapixel), ed è la stessa via di `factsOf`. Resta comunque I/O, quindi non si fa
- * mentre si compone: si chiede prima e si ritrova qui.
+ * La lettura costa un'intestazione, come in `factsOf`, ma resta I/O: si chiede prima e si ritrova
+ * qui mentre si compone.
  */
 object Pixels {
 
     /**
-     * ⚠️ Tante quante ne serve a coprire una sfogliata, non un archivio: la misura si
-     * ricava in un istante, quindi tenerne mille non farebbe risparmiare niente di
-     * apprezzabile e terrebbe in vita indirizzi di cartelle già chiuse.
-     * ⚠️ **In ordine d'uso** (`accessOrder`), non d'inserimento: chi sfoglia avanti e
-     * indietro sulle stesse foto le vuole ancora dentro.
+     * Abbastanza per una sfogliata: la misura si ricava in un istante, e tenerne di più terrebbe
+     * indirizzi di cartelle già chiuse. In ordine d'uso (`accessOrder`), così chi sfoglia avanti e
+     * indietro ritrova le stesse.
      */
     private const val KEEP = 64
 
@@ -45,11 +35,10 @@ object Pixels {
     }
 
     /**
-     * Il lato lungo se lo si è già letto, e `null` se no.
+     * Il lato lungo se è già stato letto, altrimenti `null`.
      *
-     * ⚠️ **Sincrona apposta**: si legge **mentre si compone**, che è l'unico momento in cui
-     * serve. È la stessa forma di `Thumbs.cached` e per la stessa ragione: un dato che
-     * arriva un fotogramma dopo arriva quando il disegno sbagliato è già sullo schermo.
+     * Sincrona apposta, come `Thumbs.cached`: si legge mentre si compone, e un dato che arriva un
+     * fotogramma dopo arriva col disegno sbagliato già sullo schermo.
      */
     @Synchronized
     fun known(uri: Uri): Int? = seen[uri.toString()]
@@ -60,11 +49,9 @@ object Pixels {
     }
 
     /**
-     * Dimentica il lato di [uri]: il file dietro quell'indirizzo è stato riscritto.
-     *
-     * ⚠️ **La chiama `Thumbs.forget`**, dalla `6.26` (rilievo B14 della revisione della 6.25):
-     * dopo un ritaglio salvato sopra l'originale il lato restava quello di prima, e la finestra
-     * del ridimensionamento mostrava misure sbagliate e decideva su quelle.
+     * Dimentica il lato di [uri], il cui file è stato riscritto. La chiama `Thumbs.forget`: dopo un
+     * ritaglio salvato sopra l'originale la finestra del ridimensionamento leggerebbe la misura di
+     * prima.
      */
     @Synchronized
     fun forget(uri: Uri) {
@@ -72,11 +59,9 @@ object Pixels {
     }
 
     /**
-     * Il lato lungo del file dietro [uri], letto dall'intestazione e poi ricordato.
-     *
-     * ⚠️ Torna `null` per tutto quello che non si riesce ad aprire, e chi chiama deve
-     * saperci fare: un indirizzo di rete, un file sparito, un formato che il decodificatore
-     * non riconosce. Non sapere la misura non è un guasto, è un caso.
+     * Il lato lungo del file dietro [uri], letto dall'intestazione e poi ricordato. `null` per tutto
+     * quello che non si apre (un indirizzo di rete, un file sparito, un formato sconosciuto): chi
+     * chiama lo tratta come un caso normale.
      */
     suspend fun longSideOf(context: Context, uri: Uri): Int? {
         known(uri)?.let { return it }
