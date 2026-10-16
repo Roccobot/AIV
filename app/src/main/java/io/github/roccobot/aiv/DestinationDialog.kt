@@ -61,49 +61,37 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Dove mettere le fotografie scelte: prima le cartelle **dell'app**, e a un tocco si va.
+ * Dove mettere i file scelti: prima le cartelle dell'app, e a un tocco si va.
  *
- * ⚠️⚠️ **È UN DIALOGO A TUTTO SCHERMO E NON UNA SCHERMATA DEL MODELLO, e la ragione è la
- * SELEZIONE**: quello che si sta per copiare vive in `GridScreen` e se ne va con lei
- * (deliberatamente: uscire da una cartella vuol dire 'lascia stare'). Navigando davvero
- * verso un'altra schermata la selezione sparirebbe proprio mentre la si sta usando, e per
- * evitarlo bisognerebbe spostarla nel modello, cioè farle sopravvivere anche quando non
- * serve. Un dialogo sta **sopra** la griglia, che resta viva sotto.
+ * ⚠️ **Un dialogo a tutto schermo e non una schermata, per la selezione**: quello che si sta per
+ * copiare vive in `GridScreen` e se ne va con lei (uscire da una cartella vuol dire 'lascia
+ * stare'). Navigando verso un'altra schermata la selezione sparirebbe mentre la si usa; il dialogo
+ * è sopra la griglia, che resta viva sotto.
  *
- * ⚠️⚠️ **DALLA `1.81` SI ENTRA DALLA VISTA NORMALE DELL'APP, E L'ALBERO È DIETRO
- * 'Sfoglia...'** (riscontro del giro della `1.80`, punto F: *'Copia' e 'Sposta' usano sempre
- * la vista ad albero di sistema per decidere la cartella destinazione. Voglio usare la
- * normale vista già attiva per l'uso normale di AIV, e voglio che la copia o lo spostamento
- * avvengano direttamente al tocco della cartella destinazione ... Da qualche parte, comunque
- * ... dovrebbe esserci un tasto 'Sfoglia...' per attivare ESATTAMENTE la modalità attuale*).
- * ⚠️⚠️ **NON ROVESCIA LA SUA RICHIESTA DEL 2026-08-29** (*una vista del filesystem, NON degli
- * album di foto*), e conviene saperlo per non 'correggere' una delle due: l'albero è ancora
- * **tutto** quello che si può scegliere, e le cartelle della galleria sono la **scorciatoia**
- * ai posti più probabili. Il perché l'elenco della galleria da solo sarebbe l'insieme
- * sbagliato sta in testa a `FileTree`, e vale ancora: lascia fuori le cartelle vuote, quelle
- * escluse e quelle che di immagini non ne hanno mai viste. Per quelle c'è 'Sfoglia...'.
- * ⚠️ **La scorciatoia non chiede conferma, ed è la richiesta alla lettera**: *dovrebbe bastare
- * un tap*. Nell'albero la conferma resta, perché là il tocco su una riga **entra** e serve un
- * gesto diverso per dire 'questa'.
+ * Si entra dalla vista normale dell'app, e l'albero è dietro 'Sfoglia...' (riscontro dell'utente,
+ * giro della `1.80`). ⚠️ L'albero resta tutto quello che si può scegliere, e le cartelle della
+ * galleria sono la scorciatoia ai posti più probabili: da sole sarebbero l'insieme sbagliato (vedi
+ * la testa di `FileTree`), perché lasciano fuori le cartelle vuote, quelle escluse e quelle senza
+ * immagini. La scorciatoia non chiede conferma, come chiesto; nell'albero la conferma resta, perché
+ * là il tocco su una riga entra nella cartella.
  *
- * ⚠️ **[action] dice che cosa succederà, e non è un dettaglio di parole**: copiare e
- * spostare chiedono la stessa cartella e fanno due cose diverse, una innocua e una no.
- * L'ultimo posto in cui si può ancora distinguerle è il tasto che le avvia.
+ * [action] dice che cosa succederà: copiare e spostare chiedono la stessa cartella e fanno due cose
+ * diverse, e il tasto che le avvia è l'ultimo posto in cui distinguerle.
  */
 @Composable
 fun DestinationDialog(
     @StringRes action: Int,
     onDismiss: () -> Unit,
     onPick: (File) -> Unit,
-    /** Percorsi già in lista (autorizzate/escluse): indicatore e niente ri-aggiunta (`3.27-02`). */
+    /** Percorsi già in elenco (inclusi o esclusi): hanno l'indicatore e non si aggiungono (`3.27-02`). */
     alreadyListed: Set<String> = emptySet(),
     /**
-     * The folders the files come from, in the form of [portablePath] (`4.45`, his note C: *la
-     * destinazione dev'essere diversa dall'origine, e piuttosto che inserire un messaggio di errore
-     * sarebbe meglio impedirlo all'origine*). In the list they are greyed and do not answer a
-     * touch; in the tree a source folder can still be entered, because its subfolders are fair
-     * destinations, and only the button that would pick it is off.
-     * ⚠️ No default value: a caller that copies files has to say where they come from.
+     * Le cartelle da cui vengono i file, nella forma di [portablePath]: la destinazione deve essere
+     * diversa dall'origine, e si impedisce invece di segnalare un errore (nota C dell'utente,
+     * 4.45). Nell'elenco sono grigie e non rispondono al tocco; nell'albero ci si può entrare,
+     * perché le sue sottocartelle sono destinazioni valide, ed è spento solo il tasto che la
+     * sceglierebbe.
+     * ⚠️ Senza valore di serie: chi copia file deve dire da dove vengono.
      */
     from: Set<String>
 ) {
@@ -111,14 +99,11 @@ fun DestinationDialog(
     val look = LocalDestLook.current
 
     /*
-     * ⚠️⚠️ **CHI HA LA VISTA AD ALBERO ENTRA NELL'ALBERO, e non è un caso particolare da
-     * ricordare**: la scorciatoia mostra 'la normale vista già attiva', e per chi naviga le
-     * cartelle di sistema quella **è** l'albero. Così la richiesta si applica a tutte e tre le
-     * viste con una riga sola.
-     * Included mode first shows authorized destinations even from the system view:
-     * browsing every directory remains an explicit choice through Browse.
-     * ⚠️ **Salvabile**: girando il telefono a metà scelta si tornava in cima, che è il difetto
-     * del punto I visto da un'altra parte.
+     * Chi ha la vista ad albero, in modalità esclusione, entra nell'albero: la scorciatoia mostra
+     * la vista già attiva, e per lui quella è l'albero. In modalità inclusione si parte dalle
+     * destinazioni incluse anche con la vista ad albero, e sfogliare tutte le cartelle resta una
+     * scelta esplicita, con 'Sfoglia...'. Salvabile, così girando il telefono a metà scelta non si
+     * torna in cima.
      */
     var sfoglia by rememberSaveable { mutableStateOf(look.view == FolderView.TREE && look.folderMode == FolderMode.EXCLUDED) }
     if (!sfoglia) {
@@ -132,20 +117,17 @@ fun DestinationDialog(
         )
         return
     }
-    // ⚠️ The roots are read on `Dispatchers.IO` (6.26, finding E29 of the 6.25 review): asking the
-    // system for them touches the disk and can create folders, and `null` is the list still loading.
+    // Le radici si leggono su `Dispatchers.IO` (rilievo E29): chiederle al sistema tocca il disco e
+    // può creare cartelle, e `null` è l'elenco ancora in lettura.
     val roots by produceState<List<File>?>(null) {
         value = withContext(Dispatchers.IO) { FileTree.roots(context) }
     }
     val scope = rememberCoroutineScope()
 
     /**
-     * Dove si sta guardando, e `null` finché si è all'elenco delle memorie.
-     *
-     * ⚠️ **La radice non è una cartella qualunque**: sui telefoni con la scheda ce ne sono
-     * due, e senza un livello sopra non ci sarebbe modo di passare dall'una all'altra. Su
-     * un telefono senza scheda ne ha una sola, e allora si entra dritti dentro, appena le
-     * radici sono lette.
+     * Dove si sta guardando, e `null` all'elenco delle memorie: sui telefoni con la scheda le
+     * radici sono due, e serve un livello sopra per passare dall'una all'altra. Con una memoria
+     * sola si entra dritti dentro, appena le radici sono lette.
      */
     var here by remember { mutableStateOf<File?>(null) }
     LaunchedEffect(roots) {
@@ -155,13 +137,10 @@ fun DestinationDialog(
     var naming by remember { mutableStateOf(false) }
 
     /*
-     * ⚠️⚠️ **IL CESTINO NON È UNA DESTINAZIONE, ed è una richiesta esplicita**: copiarci
-     * dentro vorrebbe dire mettere una fotografia in un posto che si svuota, e spostarcela
-     * sarebbe eliminarla passando dalla porta di servizio, senza la conferma e senza che
-     * l'archivio delle provenienze ne sappia niente. Quindi sparisce dall'elenco.
-     * ⚠️ **Il tasto in fondo controlla di nuovo**, e non è una ripetizione inutile: ci si
-     * arriva anche entrando nella cartella dell'app da un altro ramo, e in quel caso
-     * l'elenco non c'entra. Due controlli per due strade diverse.
+     * ⚠️ **Il cestino non è una destinazione** (richiesta dell'utente): copiarci un file vorrebbe
+     * dire metterlo in un posto che si svuota, e spostarcelo sarebbe eliminarlo senza conferma e
+     * senza che l'archivio delle provenienze lo sappia. Quindi sparisce dall'elenco, e il tasto in
+     * fondo controlla di nuovo, perché alla cartella dell'app si arriva anche da un altro ramo.
      */
     LaunchedEffect(here) {
         children = here?.let { dir -> FileTree.children(dir).filterNot { Bin.holds(context, it) } }
@@ -171,8 +150,8 @@ fun DestinationDialog(
     fun up(): Boolean {
         val at = here ?: return false
         val radici = roots.orEmpty()
-        // ⚠️ Il confronto è sul PERCORSO e non sull'oggetto: due `File` costruiti in due
-        // modi diversi non sono uguali fra loro nemmeno quando indicano la stessa cosa.
+        // Il confronto è sul percorso: due `File` costruiti in modi diversi non sono uguali anche
+        // quando indicano la stessa cartella.
         if (radici.any { it.absolutePath == at.absolutePath }) {
             // Con una memoria sola non esiste un elenco a cui tornare: si esce.
             if (radici.size <= 1) return false
@@ -183,20 +162,16 @@ fun DestinationDialog(
         return true
     }
 
-    // ⚠️⚠️ **LARGHEZZA CONTENUTA SUL TABLET, DALLA `3.35`**: su telefono resta a tutto
-    // schermo come prima (servono spazio e SafeArea); da 600 dp il foglio non supera
-    // [Adaptive.destinationMaxWidth], centrato, come `.dialog-preview` nel mockup
-    // Copia/sposta. I dialoghi corti (rinomina, scarica, converti) usano invece
-    // [Centred] → [Adaptive.dialogMaxWidth].
+    // Sul tablet, da 600 dp, il foglio non supera [Adaptive.destinationMaxWidth] ed è centrato,
+    // come nel mockup di Copia o sposta; sul telefono è a tutto schermo. I dialoghi corti usano
+    // [Centred] con [Adaptive.dialogMaxWidth].
     val destMaxW = Adaptive.destinationMaxWidth(
         LocalConfiguration.current.screenWidthDp
     )
     Dialog(
         onDismissRequest = onDismiss,
-        // ⚠️⚠️ **LE DUE RIGHE VIVONO IN [fullWindow], DALLA `1.81`**: qui dentro c'è un elenco da
-        // scorrere (senza, il dialogo resta una fessura in mezzo allo schermo) **e** un
-        // `safeDrawingPadding()`, che fino alla `1.80` lavorava su rientri che il decoro aveva
-        // già consumato, cioè aggiungeva un margine due volte. Il perché per esteso è là.
+        // [fullWindow]: qui c'è un elenco da scorrere e un `safeDrawingPadding()`, e il perché
+        // delle due righe è là.
         properties = fullWindow()
     ) {
         BackHandler { if (!up()) onDismiss() }
@@ -229,9 +204,8 @@ fun DestinationDialog(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.heading()
                         )
-                        // ⚠️ Il percorso intero sotto il nome, e non al suo posto: due
-                        // cartelle possono chiamarsi uguale, ma un percorso da settanta
-                        // caratteri come titolo non si legge.
+                        // Il percorso intero sotto il nome, non al suo posto: due cartelle possono
+                        // chiamarsi uguale, ma un percorso lungo come titolo non si legge.
                         here?.let {
                             Text(
                                 text = it.absolutePath,
@@ -242,7 +216,7 @@ fun DestinationDialog(
                             )
                         }
                     }
-                    // ⚠️ AIV Play cannot make a shared folder (`Store.files`).
+                    // AIV Play non può creare una cartella condivisa (`Store.files`).
                     if (here != null && Store.files) {
                         IconButton(onClick = { naming = true }) {
                             Icon(
@@ -256,9 +230,8 @@ fun DestinationDialog(
                 HorizontalDivider()
 
                 val listed = if (here == null) roots else children
-                // ⚠️ Il peso sta sul contenitore e non sull'elenco: così il tasto in fondo
-                // resta in fondo anche quando la cartella è vuota, invece di saltare a
-                // metà schermo.
+                // Il peso è sul contenitore e non sull'elenco: così il tasto resta in fondo anche
+                // quando la cartella è vuota.
                 Box(modifier = Modifier.weight(1f)) {
                 when {
                     listed == null -> Unit
@@ -308,10 +281,9 @@ fun DestinationDialog(
                 }
                 }
 
-                // ⚠️⚠️ **SI SCEGLIE LA CARTELLA IN CUI SI È, non una toccata nell'elenco**:
-                // il tocco su una riga ENTRA, e deve farlo, o non si potrebbe mai arrivare
-                // in fondo a un ramo. Le due cose sono gesti diversi apposta, e il tasto
-                // dice quale cartella prenderebbe.
+                // ⚠️ **Si sceglie la cartella in cui si è, non una toccata nell'elenco**: il tocco
+                // su una riga entra, o non si arriverebbe mai in fondo a un ramo. Il tasto dice
+                // quale cartella prende.
                 here?.let { dir ->
                     val inList = portablePath(dir.absolutePath) in alreadyListed
                     Button(
@@ -337,8 +309,8 @@ fun DestinationDialog(
                 onCreate = { name ->
                     naming = false
                     val parent = here ?: return@NewFolderDialog
-                    // ⚠️ A taken name enters the folder that is there, a failure says so (6.26):
-                    // the why lives on FileTree.makeFolder.
+                    // Un nome già preso entra nella cartella che c'è, un fallimento si dice: il
+                    // perché è su `FileTree.makeFolder`.
                     scope.launch {
                         val made = FileTree.makeFolder(parent, name)
                         if (made != null) here = made
@@ -353,13 +325,10 @@ fun DestinationDialog(
 /**
  * Come l'utente guarda le cartelle nell'app, cioè quello che serve per rifarne la vista.
  *
- * ⚠️⚠️ **ARRIVA DA CHI CHIAMA E NON SI LEGGE QUI**: questo dialogo non ha le impostazioni in
- * mano, e le tre schermate che lo aprono sì. È la stessa scelta dei campi delle informazioni
- * in `FileJobDialogs`, e per la stessa ragione: un file che legge da sé un'impostazione
- * diventa il secondo posto in cui quella scelta vive.
- * ⚠️ **Porta i cinque valori delle due viste e non l'oggetto intero delle impostazioni**: così
- * si vede da fuori che cosa cambia il disegno di questa finestra, e una preferenza in più non
- * ricompone niente qui.
+ * Arriva da chi chiama e non si legge qui: questo dialogo non ha le impostazioni in mano, e le tre
+ * schermate che lo aprono sì (la stessa scelta dei campi delle informazioni in `FileJobDialogs`).
+ * Contiene solo i valori che cambiano il disegno della finestra, e non l'oggetto intero delle
+ * impostazioni, così una preferenza in più non ricompone niente qui.
  */
 data class DestLook(
     val view: FolderView = FolderView.GRID,
@@ -371,51 +340,36 @@ data class DestLook(
     val listCount: Boolean = true,
     /** Il corpo del testo della lista. Vedi `Settings.listText`. */
     val listText: TextSize = TextSize.NORMAL,
-    /** Included mode requires the filtered shortcut until Browse is explicitly chosen. */
+    /** La modalità inclusione vuole la scorciatoia filtrata finché non si sceglie 'Sfoglia...'. */
     val folderMode: FolderMode = FolderMode.EXCLUDED
 )
 
 /**
  * Come l'utente guarda le cartelle, per la finestra che le usa come destinazioni.
  *
- * ⚠️ **Un `CompositionLocal` per la stessa ragione di [LocalAivDepth] e di `LocalPadLook`**:
- * a chiederlo è una **finestra**, e le finestre le impostazioni non le ricevono. La catena per
- * portarci cinque valori attraverserebbe la griglia, l'albero e il visualizzatore, cioè tre
- * schermate per un dato che non cambia mai durante un gesto.
- * ⚠️ **I valori di serie sono quelli di fabbrica delle impostazioni**, quindi una finestra che
- * nascesse fuori dall'albero della composizione si comporta come l'app appena installata invece
- * di mostrare un elenco vuoto.
+ * Un `CompositionLocal`, come [LocalAivDepth] e `LocalPadLook`, perché a chiederlo è una finestra,
+ * che le impostazioni non le riceve: la catena attraverserebbe griglia, albero e visualizzatore per
+ * un dato che non cambia durante un gesto. I valori di serie sono quelli di fabbrica, così una
+ * finestra nata fuori dall'albero della composizione si comporta come l'app appena installata.
  */
 val LocalDestLook = staticCompositionLocalOf { DestLook() }
 
 /**
- * Se il minuto di **'Mostra nascoste'** è acceso mentre si sceglie una destinazione.
+ * Se il minuto di 'Mostra nascoste' è acceso mentre si sceglie una destinazione: il prestito vale
+ * anche per le destinazioni (voce `dest-nascoste` del giro della `2.02`).
  *
- * ⚠️⚠️ **DALLA `2.03`, ED È IL SUO RISCONTRO** (giro della `2.02`, voce `dest-nascoste`
- * accettabile: *deve valere anche per le destinazioni*). La `2.02` aveva letto la sua parentesi
- * al contrario, e la voce di collaudo gli chiedeva proprio questo: fino a lei una cartella in
- * prestito compariva in casa e non fra le destinazioni, cioè il prestito valeva a metà.
- * ⚠️ **Un `CompositionLocal` per la ragione di [LocalDestLook]**: a chiederlo è una finestra, e
- * il prestito vive nel modello della schermata iniziale. Passarlo come argomento vorrebbe dire
- * quattro livelli (la griglia, i dialoghi dei file, questa finestra, la scorciatoia) per un dato
- * che nessuno di loro guarda.
- * ⚠️⚠️ **MA NON È `staticCompositionLocalOf` come lui, ed è la differenza che conta**: questo
- * valore **cambia** due volte per prestito, e uno static local ricompone l'app intera a ogni
- * cambiamento. Con quello normale si ricompone chi lo legge, che è questa finestra e nessun
- * altro.
+ * Un `CompositionLocal` per la ragione di [LocalDestLook], ma ⚠️ **non `static`**: questo valore
+ * cambia due volte per prestito, e uno `staticCompositionLocalOf` ricomporrebbe l'app intera a ogni
+ * cambiamento. Con quello normale si ricompone solo chi lo legge.
  */
 val LocalPeek = compositionLocalOf { false }
 
 /**
  * Quello che la finestra delle destinazioni carica da sé, in una lettura sola.
  *
- * ⚠️⚠️ **NON PASSA DA [DestLook], ED È LA DIFFERENZA CHE CONTA**: quello è uno
- * `staticCompositionLocalOf`, quindi ogni suo cambiamento ricompone l'app intera, e per un
- * colore scelto su una cartella sarebbe un prezzo assurdo. Questi dati invece nascono e muoiono
- * con la finestra, che è l'unica a guardarli.
- * ⚠️ **Insieme e non in quattro attese**: l'elenco compare già coi suoi colori e le sue
- * copertine, mentre con letture separate ci sarebbe un tratto in cui si vedono le cartelle
- * vestite da un'altra parte.
+ * ⚠️ **Non passa da [DestLook]**, che è uno `staticCompositionLocalOf`: un colore scelto su una
+ * cartella ricomporrebbe l'app intera. Questi dati nascono e finiscono con la finestra. Insieme e
+ * non in quattro attese, così l'elenco compare già coi suoi colori e le sue copertine.
  */
 private data class DestData(
     val folders: List<Folder.Bucket>,
@@ -423,27 +377,20 @@ private data class DestData(
     val tints: Map<Long, Int>,
     val colour: FolderColour,
     /**
-     * Le cartelle in elenco **in prestito**: le nascoste, e solo mentre dura il minuto.
-     *
-     * ⚠️ **Si ricava come nella schermata iniziale e non si tiene a parte**: è l'insieme delle
-     * nascoste col prestito acceso e niente col prestito spento, cioè lo stesso conto che
-     * `FolderScreen` fa su `prestate`. Serve al segno del vuoto e all'inchiostro ridotto, che
-     * dicono perché quella cartella è in elenco.
+     * Le cartelle in elenco in prestito: le nascoste, e solo mentre dura il minuto. Si ricava come
+     * nella schermata iniziale, e serve al segno del vuoto e all'inchiostro ridotto, che dicono
+     * perché quella cartella è in elenco.
      */
     val peeked: Set<String>
 )
 
 /**
- * Le cartelle dell'app come **destinazioni**: un tocco e l'operazione parte.
+ * Le cartelle dell'app come destinazioni: un tocco e l'operazione parte.
  *
- * ⚠️⚠️ **RIUSA LE DUE VISTE DELLA SCHERMATA INIZIALE, non ne disegna una terza**: `Covers` e
- * `Rows` sono le stesse funzioni che quella schermata chiama, quindi le copertine, i conti, i
- * corpi e il numero di colonne sono quelli che l'utente ha scelto. Una copia qui dentro
- * avrebbe fatto due viste che divergono al primo ritocco, che è la trappola scritta in
- * `rules/Roccobot.md` § '🪶 Come si mantiene un file di regole'.
- * ⚠️ **Il tocco lungo non nasconde niente**: nella schermata iniziale quel gesto esclude una
- * cartella dall'elenco, e qui si sta scegliendo dove mettere dei file. Un gesto che in un
- * selettore cambia le impostazioni è un modo di fare danni per sbaglio.
+ * Riusa le due viste della schermata iniziale, `Covers` e `Rows`, quindi copertine, conti, corpi e
+ * colonne sono quelli scelti dall'utente, e le viste non divergono. Il tocco lungo non nasconde
+ * niente: in un selettore di destinazione un gesto che cambia le impostazioni farebbe danni per
+ * sbaglio.
  */
 @Composable
 private fun FolderShortcut(
@@ -452,38 +399,23 @@ private fun FolderShortcut(
     onDismiss: () -> Unit,
     onPick: (File) -> Unit,
     onBrowse: () -> Unit,
-    /** See `from` on [DestinationDialog]. */
+    /** Vedi `from` su [DestinationDialog]. */
     from: Set<String>
 ) {
     val context = LocalContext.current
     val peekNow = LocalPeek.current
     /*
-     * ⚠️ **Le cartelle si chiedono al MediaStore come fa la schermata iniziale**, e non si
-     * ricevono da chi chiama: il visualizzatore e l'albero non ne hanno un elenco in mano, e
-     * farglielo caricare per passarlo qui vorrebbe dire la stessa query in tre posti.
-     */
-    /*
-     * ⚠️⚠️ **LE COPERTINE SCELTE A MANO SI CARICANO QUI, dalla `2.01`, E PRIMA NON ARRIVAVANO**
-     * (sua segnalazione, 2026-09-09: *quando copio o sposto e devo selezionare la destinazione,
-     * le cartelle appaiono con la loro copertina originale, non con la personalizzata*). Le due
-     * viste hanno il parametro da sempre, ma con un valore di serie vuoto: questa finestra lo
-     * ereditava in silenzio, e `coverIn` cadeva sempre sulla copertina predefinita. Adesso quel
-     * parametro è obbligatorio, quindi il difetto non si può più rifare per omissione.
-     * ⚠️ **Si caricano nello STESSO `produceState` delle cartelle**, e non in un secondo: così
-     * l'elenco compare già con le copertine giuste, mentre con due attese ci sarebbe un tratto
-     * in cui si vedono quelle predefinite.
-     */
-    /*
-     * ⚠️⚠️ **IL PRESTITO SI FOTOGRAFA ALL'APERTURA, e il `remember` è la riga che lo dice**: il
-     * minuto scade da sé, e un elenco che lo seguisse farebbe sparire delle righe da sotto il
-     * dito mentre si sceglie dove mettere un file. È la stessa scelta dell'elenco qui sotto, che
-     * pure è una fotografia: quello che cambia dopo l'apertura si guarda alla prossima.
+     * Le cartelle si chiedono al MediaStore come fa la schermata iniziale: il visualizzatore e
+     * l'albero non ne hanno un elenco in mano. Nella stessa lettura arrivano le copertine scelte a
+     * mano (le due viste le vogliono come parametro obbligatorio, così non si dimenticano), le
+     * tinte e il colore, così l'elenco compare già completo.
+     * ⚠️ **Il prestito si fotografa all'apertura**: il minuto scade da sé, e un elenco che lo
+     * seguisse farebbe sparire delle righe da sotto il dito. Quello che cambia dopo l'apertura si
+     * vede alla prossima.
      */
     val prestito = remember { peekNow }
     val dati by produceState<DestData?>(null, context) {
-        // ⚠️ **Una lettura sola e non un flusso in ascolto**, come per le cartelle: qui
-        // l'elenco è una fotografia presa all'apertura, e né le esclusioni né il colore
-        // cambiano mentre si sceglie dove mettere un file.
+        // Una lettura sola e non un flusso: l'elenco è una fotografia presa all'apertura.
         val preferenze = SettingsStore.flow(context).first()
         val buckets = Folder.buckets(context)
         value = DestData(
@@ -505,7 +437,7 @@ private fun FolderShortcut(
 
     Dialog(
         onDismissRequest = onDismiss,
-        // ⚠️ Le stesse della vista ad albero, e per le stesse due ragioni: vedi [fullWindow].
+        // Le stesse della vista ad albero, per le stesse ragioni: vedi [fullWindow].
         properties = fullWindow()
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -534,8 +466,8 @@ private fun FolderShortcut(
 
                 HorizontalDivider()
 
-                // ⚠️ Il peso sta sul contenitore, come nell'albero: così 'Sfoglia...' resta in
-                // fondo anche mentre l'elenco si carica, invece di saltare a metà schermo.
+                // Il peso è sul contenitore, come nell'albero: 'Sfoglia...' resta in fondo anche
+                // mentre l'elenco si carica.
                 Box(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     val elenco = dati?.folders
                     when {
@@ -547,21 +479,11 @@ private fun FolderShortcut(
                             modifier = Modifier.padding(24.dp)
                         )
                         /*
-                         * ⚠️⚠️ **QUI LE CARTELLE SI TINGONO, DALLA `2.02`, E FINO ALLA `2.01`
-                         * NO** (risposta `tinta` a `d-dest-tinta`, giro della `2.01`: *una
-                         * cartella si riconosce allo stesso modo dappertutto*). La scelta di
-                         * prima era dichiarata e aveva due ragioni: questa finestra non è
-                         * l'elenco di casa, e le tinte sarebbero passate da [DestLook], cioè uno
-                         * `staticCompositionLocalOf`, ricomponendo l'app intera a ogni colore
-                         * scelto.
-                         * ⚠️ **La seconda ragione è caduta col lavoro della `2.01`**: i dati di
-                         * una cartella si caricano nel `produceState` qui sopra, quindi il
-                         * colore arriva senza toccare nessun `CompositionLocal`. La prima l'ha
-                         * decisa lui, ed è la risposta.
-                         * ⚠️ **Lo STILE è quello che ha scelto nelle impostazioni**, non uno
-                         * fissato qui: se in casa vede i nomi colorati, li vede colorati anche
-                         * qui, e chi ha scelto 'Nessuno' non vede niente. Un valore scritto a
-                         * mano avrebbe fatto due impostazioni per la stessa domanda.
+                         * Le cartelle si tingono come in casa (risposta `tinta` a `d-dest-tinta`:
+                         * una cartella si riconosce allo stesso modo dappertutto), e il colore
+                         * arriva dal `produceState` qui sopra, senza toccare un `CompositionLocal`.
+                         * Lo stile è quello scelto nelle impostazioni: chi ha scelto 'Nessuno' non
+                         * vede niente.
                          */
                         look.view == FolderView.GRID -> Covers(
                             folders = elenco,
@@ -592,13 +514,8 @@ private fun FolderShortcut(
                 }
 
                 /*
-                 * ⚠️⚠️ **'Sfoglia...' PORTA ALL'ALBERO ESATTAMENTE COM'ERA, ed è la sua
-                 * richiesta alla lettera**: *per attivare ESATTAMENTE la modalità attuale
-                 * (albero delle cartelle così com'è, con la conferma così com'è)*. Quindi non è
-                 * una vista nuova: è la stessa funzione di prima, che da qui in avanti si apre
-                 * su richiesta.
-                 * ⚠️ **In basso perché lo ha immaginato là** (*ho immaginato un in basso*), e
-                 * perché è la via secondaria: la prima cosa che si vede sono le cartelle.
+                 * 'Sfoglia...' apre l'albero esattamente com'era, con la sua conferma, come
+                 * chiesto. In basso, perché è la via secondaria e l'utente l'ha immaginato là.
                  */
                 TextButton(
                     onClick = onBrowse,
@@ -614,36 +531,17 @@ private fun FolderShortcut(
 /**
  * Le cartelle che si possono usare come destinazione, fra quelle che l'app elenca.
  *
- * ⚠️⚠️ **SENZA UN PERCORSO NON C'È NIENTE DOVE COPIARE, e per questo il filtro esiste**: una
- * copia scrive su **disco**, e la colonna che dà il percorso di una cartella del MediaStore
- * può mancare (vedi `Folder.Bucket.path`). Una riga toccabile che non porta da nessuna parte è
- * peggio di una riga che non c'è.
- * ⚠️⚠️ **E IL CESTINO NON È UNA DESTINAZIONE**, come nell'albero e per la stessa ragione:
- * copiarci dentro vuol dire mettere un file in un posto che si svuota, e spostarcelo è
- * eliminarlo passando dalla porta di servizio. Là il controllo è doppio (l'elenco e il tasto),
- * qui basta una volta, perché di gesti per scegliere ce n'è uno solo.
- * ⚠️⚠️ **E NEMMENO UNA CARTELLA NASCOSTA, DALLA `2.02`** (sua richiesta, 2026-09-09: *le
- * cartelle nascoste devono rimanere nascoste anche quando si copiano/spostano file (se serve le
- * rendo visibili di volta in volta)*). Fino alla `2.01` l'esclusione valeva per la schermata
- * iniziale e non per questa finestra, quindi una cartella tolta dall'elenco di casa ricompariva
- * appena si toccava 'Copia'.
- * ⚠️ **Il filtro vive QUI e non nella finestra**, cioè accanto a quello del cestino: sono la
- * stessa domanda (*questa cartella può essere una destinazione?*), e una condizione scritta nel
- * corpo della finestra sarebbe fuori da quello che il banco misura.
- * ⚠️⚠️ **MA IL MINUTO DI 'Mostra nascoste' APRE UN'ECCEZIONE, DALLA `2.03`, ED È IL SUO
- * RISCONTRO** (giro della `2.02`, voce `dest-nascoste` accettabile: *deve valere anche per le
- * destinazioni*). La `2.02` aveva letto la sua parentesi al contrario, e la nota di allora
- * diceva che un elenco legato a un conto alla rovescia acceso altrove sarebbe imprevedibile:
- * quello che quel ragionamento non guardava è che il prestito **si accende apposta per entrare
- * in una cartella nascosta**, quindi copiarci dentro è la cosa che si vuole fare mentre dura.
- * ⚠️ **Il prestito è un argomento e non un secondo insieme**: chi chiama passa le nascoste come
- * prima e dice se il minuto è acceso, che è lo stesso conto della schermata iniziale
- * (`filterNot { !peeking && ... }`). Sottrarre le prestate da [hidden] avrebbe dato lo stesso
- * elenco e avrebbe reso il prestito invisibile a chi legge questa firma.
- * ⚠️ **Funzione a sé perché il banco la misura**: è la sola parte di questa finestra che si può
- * provare senza uno schermo, ed è quella in cui un errore manda dei file in un posto sbagliato.
- * ⚠️ **Il percorso del cestino arriva come argomento e non si chiede a `Bin`**: quello vuole un
- * `Context`, e con lui questa funzione smetterebbe di essere misurabile senza un telefono.
+ * - Senza un percorso non c'è dove copiare: la copia scrive su disco, e la colonna del percorso
+ *   di una cartella del MediaStore può mancare (vedi `Folder.Bucket.path`).
+ * - Il cestino non è una destinazione, come nell'albero. Qui basta un controllo, perché il gesto
+ *   per scegliere è uno solo.
+ * - Il conto delle cartelle visibili è quello della schermata iniziale, `FolderSelection.visible`:
+ *   in modalità inclusione restano le sole incluse; in esclusione le nascoste restano fuori
+ *   (richiesta dell'utente), salvo durante il minuto di 'Mostra nascoste' ([peeking]), che si
+ *   accende apposta per entrare in una cartella nascosta (voce `dest-nascoste`).
+ *
+ * Funzione a sé, col percorso del cestino come argomento e senza `Context`, perché il banco la
+ * misura senza un telefono: è il punto in cui un errore manda dei file nel posto sbagliato.
  */
 internal fun destinations(
     buckets: List<Folder.Bucket>,
@@ -659,11 +557,8 @@ internal fun destinations(
     }
 
 /**
- * Il nome di una cartella nuova.
- *
- * ⚠️ **I nomi si ripuliscono invece di essere rifiutati**: la barra è l'unico carattere
- * che su Android non può stare in un nome di file, e uno incollato per sbaglio
- * trasformerebbe una cartella in due. Toglierlo è più utile di un messaggio d'errore.
+ * Il nome di una cartella nuova. La barra, l'unico carattere che Android non ammette in un nome di
+ * file, si toglie: una incollata per sbaglio trasformerebbe una cartella in due.
  */
 @Composable
 internal fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
@@ -676,25 +571,22 @@ internal fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) 
         properties = loweredWindow(null),
         title = { Text(stringResource(R.string.dest_new)) },
         text = {
-            // ⚠️ Lo scorrimento serve al tetto della `1.62`, come nei due dialoghi gemelli:
-            // il perché per esteso vive nel pannellino dell'estensione, in `RenameDialog.kt`.
+            // Lo scorrimento è quello dei due dialoghi gemelli: il perché è nel pannellino
+            // dell'estensione, in `RenameDialog.kt`.
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    // ⚠️ **La stondatura condivisa, dalla `1.81`**: era l'unico dei cinque
-                    // campi della superficie a portare quella di Material (`extraSmall`, cioè
-                    // 4) invece degli 8 di [BOX_SHAPE], e la costante è nata proprio perché i
-                    // riquadri di una stessa finestra divergevano.
+                    // La stondatura condivisa [BOX_SHAPE], come gli altri riquadri della finestra.
                     shape = BOX_SHAPE,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
         },
         confirmButton = {
-            // ⚠️ `.` and `..` are not names but this folder and the one above (6.26, finding D10).
+            // `.` e `..` non sono nomi ma questa cartella e quella sopra (rilievo D10).
             TextButton(
                 onClick = { onCreate(clean) },
                 enabled = clean.isNotEmpty() && clean != "." && clean != ".."
