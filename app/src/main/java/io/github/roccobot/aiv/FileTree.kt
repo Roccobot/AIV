@@ -574,9 +574,50 @@ object FileTree {
      *
      * ⚠️ A file whose path cannot be read adds nothing: the window then leaves its folder
      * pickable, and the copy itself still works as before.
+     * ⚠️⚠️ **ONE QUESTION PER [SOURCES_BATCH] ROWS, SINCE 6.28** (finding E8 of the 6.25 review):
+     * the window waits for this answer before it appears, and one question per file meant,
+     * with three thousand files chosen, seconds of a touch with no answer (measured in
+     * `OriginiTest`). Addresses of the MediaStore, `<collection>/<number>`, are asked by
+     * collection with `_id IN (...)`; any other address goes on its own, as before.
      */
-    internal fun sourcesOf(context: Context, uris: List<Uri>): Set<String> =
-        uris.mapNotNull { fileOf(context, it)?.parentFile?.absolutePath?.let(::portablePath) }.toSet()
+    internal fun sourcesOf(context: Context, uris: List<Uri>): Set<String> {
+        val folders = mutableSetOf<String>()
+        fun add(path: String?) {
+            path?.let(::File)?.parentFile?.absolutePath?.let(::portablePath)?.let(folders::add)
+        }
+        val (rows, others) = uris.partition {
+            it.scheme?.lowercase() == "content" && it.lastPathSegment?.toLongOrNull() != null
+        }
+        others.forEach { add(fileOf(context, it)?.absolutePath) }
+        rows.groupBy { it.buildUpon().path(it.path?.substringBeforeLast('/')).build() }
+            .forEach { (collection, members) ->
+                members.chunked(SOURCES_BATCH).forEach { batch ->
+                    val ids = batch.map { it.lastPathSegment!! }
+                    @Suppress("DEPRECATION")
+                    val column = MediaStore.Images.Media.DATA
+                    val read = runCatching {
+                        context.contentResolver.query(
+                            collection,
+                            arrayOf(column),
+                            "${MediaStore.MediaColumns._ID} IN (${ids.joinToString(",") { "?" }})",
+                            ids.toTypedArray(),
+                            null
+                        )?.use { c ->
+                            val at = c.getColumnIndex(column)
+                            while (at >= 0 && c.moveToNext()) add(c.getString(at))
+                        }
+                    }
+                    // ⚠️ A provider that refuses the question is asked one address at a time.
+                    if (read.isFailure || read.getOrNull() == null) {
+                        batch.forEach { add(fileOf(context, it)?.absolutePath) }
+                    }
+                }
+            }
+        return folders
+    }
+
+    /** How many rows one question of [sourcesOf] asks for: well below SQLite's 999 arguments. */
+    private const val SOURCES_BATCH = 500
 
     internal fun fileOf(context: Context, uri: Uri): File? {
         val path = when (uri.scheme?.lowercase()) {
