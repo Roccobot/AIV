@@ -340,10 +340,44 @@ object ImageActions {
         val fromSource = image.displayName?.takeIf { it.isNotBlank() }
             ?: uri?.lastPathSegment?.takeIf { it.isNotBlank() }
             ?: "image"
-        val cleaned = fromSource.substringBefore('?').replace(Regex("""[\\/:*?"<>|]"""), "_")
-        if (Regex("""\.[a-z0-9]{2,5}$""", RegexOption.IGNORE_CASE).containsMatchIn(cleaned)) return cleaned
-        val suffix = image.mimeType?.substringAfter('/')?.lowercase()?.let { if (it == "jpeg") "jpg" else it }
-        return if (suffix.isNullOrBlank()) cleaned else "$cleaned.$suffix"
+        val cleaned = fromSource.substringBefore('?').replace(FORBIDDEN, "_")
+        val own = Regex("""\.[a-z0-9]{2,5}$""", RegexOption.IGNORE_CASE).find(cleaned)?.value
+        val base = if (own != null) cleaned.dropLast(own.length) else cleaned
+        val suffix = own ?: image.mimeType?.substringAfter('/')?.lowercase()
+            ?.let { if (it == "jpeg") "jpg" else it }
+            ?.takeIf { it.isNotBlank() }?.let { ".$it" }
+            ?: ""
+        return fitBytes(base, NAME_BYTES).ifBlank { "image" } + suffix
+    }
+
+    /**
+     * I caratteri che un nome di file non può contenere: quelli che il filesystem o il
+     * MediaStore rifiutano, e dalla `6.26` i caratteri di controllo (rilievo E30), fra cui il
+     * carattere nullo che un `%00` dell'indirizzo diventa una volta decodificato.
+     */
+    private val FORBIDDEN = Regex("""[\\/:*?"<>|\p{Cntrl}]""")
+
+    /**
+     * ⚠️⚠️ **IL TETTO È IN BYTE E NON IN CARATTERI** (rilievo E30): il filesystem ne accetta 255
+     * per nome, e oltre `FileOutputStream` dà errore. L'ultimo pezzo dell'indirizzo di
+     * un'immagine del web è spesso un identificativo di centinaia di caratteri, e una lettera
+     * accentata o un ideogramma ne occupano da due a quattro. 180 lasciano il posto al suffisso
+     * e al contatore di [FileTree.freeName].
+     */
+    private const val NAME_BYTES = 180
+
+    /** [text] accorciato a [max] byte in UTF-8, senza spezzare un carattere. */
+    internal fun fitBytes(text: String, max: Int): String {
+        var bytes = 0
+        var end = 0
+        while (end < text.length) {
+            val cp = text.codePointAt(end)
+            val size = String(Character.toChars(cp)).toByteArray(Charsets.UTF_8).size
+            if (bytes + size > max) break
+            bytes += size
+            end += Character.charCount(cp)
+        }
+        return text.substring(0, end)
     }
 
     /**
@@ -613,17 +647,27 @@ object ImageActions {
      * stile: 'T&O - Blu/Rosso' ha una barra.
      */
     internal fun safeName(raw: String): String =
-        raw.replace(Regex("""[\\/:*?"<>|]"""), "_").trim().ifBlank { "image" }
+        raw.replace(FORBIDDEN, "_").trim().ifBlank { "image" }
 
     // ── Sharing ─────────────────────────────────────────────────────────────
 
-    /** Hands the original to whatever the person picks from the chooser. */
+    /**
+     * Hands the original to whatever the person picks from the chooser.
+     *
+     * ⚠️⚠️ **La copia è su `Dispatchers.IO` e dentro un `runCatching`, dalla `6.26`** (rilievo
+     * E30): prima un nome che il filesystem rifiutava dava un errore che nessuno raccoglieva, e
+     * l'app si chiudeva; e la potatura della cartella girava sul filo dell'interfaccia.
+     */
     suspend fun share(context: Context, image: LoadedImage, uri: Uri?): Boolean {
         if (uri == null) return false
-        trimShare(context)
-        val file = File(shareDir(context), fileName(image, uri))
-        val ok = file.outputStream().use { copyOriginalTo(context, uri, it) }
-        if (!ok) return false
+        val file = withContext(Dispatchers.IO) {
+            runCatching {
+                trimShare(context)
+                val file = File(shareDir(context), fileName(image, uri))
+                val ok = file.outputStream().use { copyOriginalTo(context, uri, it) }
+                file.takeIf { ok }
+            }.getOrNull()
+        } ?: return false
         val content = FileProvider.getUriForFile(context, authority(context), file)
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = image.mimeType ?: "image/*"
