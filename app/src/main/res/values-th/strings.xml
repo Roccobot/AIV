@@ -21,7 +21,6 @@
     <string name="menu_convert">ส่งออกและแปลง</string>
     <string name="convert_format">รูปแบบ</string>
     <string name="convert_webp_lossless">WebP ไม่สูญเสีย</string>
-    <string name="convert_quality">คุณภาพ</string>
     <string name="convert_quality_at">คุณภาพ\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -204,7 +203,6 @@
     <string name="show_folder_desc">โฟลเดอร์จะกลับมาปรากฏตามปกติในมุมมองตารางและมุมมองรายการ</string>
     <string name="hide_folder_do">ซ่อน</string>
     <string name="settings_hidden">โฟลเดอร์ที่ซ่อนไว้</string>
-    <string name="settings_hidden_desc">กดโฟลเดอร์ค้างไว้เพื่อซ่อน โฟลเดอร์เหล่านี้จะไม่ปรากฏในรายการอีก แต่ในโทรศัพท์ยังอยู่ครบ</string>
     <string name="settings_hidden_show">แสดง</string>
     <string name="search_hint">ค้นหาในชื่อไฟล์</string>
     <string name="search_clear">ล้าง</string>
@@ -354,7 +352,6 @@
     <string name="settings_facts_down">เลื่อนลง</string>
     <string name="settings_group_look">รูปลักษณ์</string>
     <string name="settings_group_viewer">ตัวแสดงภาพ</string>
-    <string name="settings_group_input">การควบคุมและตัวบ่งชี้</string>
     <string name="settings_group_files">การจัดการไฟล์</string>
     <string name="settings_group_browse">ไฟล์และโฟลเดอร์</string>
     <string name="settings_group_start">การเริ่มต้น</string>
@@ -377,9 +374,6 @@
     <string name="settings_thumbs_gen_title">กำลังสร้างภาพย่อ</string>
     <string name="settings_thumbs_gen_done">สร้างภาพย่อเรียบร้อยแล้ว</string>
     <string name="settings_hidden_none">ไม่มีโฟลเดอร์ที่ซ่อนไว้</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="other">%1$d โฟลเดอร์</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="other">แสดง %1$d รายการ</item>
     </plurals>

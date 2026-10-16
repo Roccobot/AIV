@@ -21,7 +21,6 @@
     <string name="menu_convert">내보내기 및 변환</string>
     <string name="convert_format">형식</string>
     <string name="convert_webp_lossless">WebP 무손실</string>
-    <string name="convert_quality">품질</string>
     <string name="convert_quality_at">품질\u0020\u0020\u0020%1$d%%</string>
     <string name="convert_percent">%1$d%%</string>
     <string name="convert_pixels">%1$d x %2$d</string>
@@ -204,7 +203,6 @@
     <string name="show_folder_desc">그리드 보기와 목록 보기에서 폴더가 다시 정상적으로 표시됩니다.</string>
     <string name="hide_folder_do">숨기기</string>
     <string name="settings_hidden">숨긴 폴더</string>
-    <string name="settings_hidden_desc">폴더를 길게 누르면 숨겨집니다. 목록에는 나오지 않지만 기기 안에서는 그대로입니다.</string>
     <string name="settings_hidden_show">표시</string>
     <string name="search_hint">파일 이름으로 검색</string>
     <string name="search_clear">지우기</string>
@@ -354,7 +352,6 @@
     <string name="settings_facts_down">아래로</string>
     <string name="settings_group_look">모양</string>
     <string name="settings_group_viewer">보기</string>
-    <string name="settings_group_input">조작과 표시</string>
     <string name="settings_group_files">파일 관리</string>
     <string name="settings_group_browse">파일 및 폴더</string>
     <string name="settings_group_start">시작</string>
@@ -377,9 +374,6 @@
     <string name="settings_thumbs_gen_title">축소판 생성 중</string>
     <string name="settings_thumbs_gen_done">축소판을 생성했습니다.</string>
     <string name="settings_hidden_none">숨긴 폴더가 없습니다</string>
-    <plurals name="settings_hidden_count">
-        <item quantity="other">폴더 %1$d개</item>
-    </plurals>
     <plurals name="settings_facts_count">
         <item quantity="other">항목 %1$d개 표시</item>
     </plurals>

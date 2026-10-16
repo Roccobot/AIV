@@ -332,7 +332,8 @@ class ImpostazioniTest {
     @Test
     fun `pulsanti e indicatori si aprono dalla radice`() {
         apriIlPannello()
-        val vecchia = testo(R.string.settings_group_input)
+        // Il titolo della sezione tolta, nella lingua del banco: la sua stringa non esiste più.
+        val vecchia = "Controls and indicators"
         val porta = testo(R.string.settings_page_controls)
         val mano = testo(R.string.settings_hand)
 
