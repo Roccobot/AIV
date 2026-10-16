@@ -16,6 +16,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
@@ -123,21 +124,23 @@ object ImageSource {
         )
     }
 
+    /** I byte tenuti da parte, aperti come un'immagine scaricata adesso. */
+    private fun fromCache(uri: Uri, cached: ByteArray): LoadResult = decode(
+        source = ImageDecoder.createSource(ByteBuffer.wrap(cached)),
+        mimeType = null,
+        byteSize = cached.size.toLong(),
+        displayName = uri.lastPathSegment,
+        raw = { cached }
+    )
+
     private suspend fun loadRemote(context: Context, uri: Uri, onProgress: (Float) -> Unit): LoadResult {
         // ⚠️⚠️ LA CACHE SI GUARDA PRIMA DI APRIRE LA CONNESSIONE, e questo è l'unico
-        // punto in cui va guardata: chi ha già questi byte non deve nemmeno sapere che
-        // esiste una rete. Il tipo dichiarato non si conserva insieme ai byte perché
+        // punto in cui va guardata: chi ha già questi byte, ancora freschi, non deve nemmeno
+        // sapere che esiste una rete. Il tipo dichiarato non si conserva insieme ai byte perché
         // `ImageDecoder` lo ricava dal contenuto, e un tipo salvato è un secondo dato da
         // tenere d'accordo con il primo.
-        RemoteCache.read(context, uri)?.let { cached ->
-            return decode(
-                source = ImageDecoder.createSource(ByteBuffer.wrap(cached)),
-                mimeType = null,
-                byteSize = cached.size.toLong(),
-                displayName = uri.lastPathSegment,
-                raw = { cached }
-            )
-        }
+        val cached = RemoteCache.entry(context, uri)
+        if (cached != null && cached.fresh) return fromCache(uri, cached.bytes)
         val connection = (URL(uri.toString()).openConnection() as HttpURLConnection).apply {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
@@ -146,9 +149,29 @@ object ImageSource {
             // renamed .jpg decodes into nothing: better to look like a browser.
             setRequestProperty("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
             setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+            // ⚠️ Una copia scaduta si rivalida (dalla `6.27`): se il server dice che è la stessa,
+            // risponde `304` senza corpo e si riapre quella. Vedi la nota su [RemoteCache].
+            cached?.etag?.let { setRequestProperty("If-None-Match", it) }
+            cached?.lastModified?.let { setRequestProperty("If-Modified-Since", it) }
         }
         try {
-            val status = connection.responseCode
+            // ⚠️ **Senza rete, una copia scaduta vale più di un errore**: è l'immagine che si è
+            // vista, solo forse non la più recente, e l'alternativa è non vedere niente.
+            val status = try {
+                connection.responseCode
+            } catch (e: IOException) {
+                if (cached != null) return fromCache(uri, cached.bytes)
+                throw e
+            }
+            if (status == HttpURLConnection.HTTP_NOT_MODIFIED && cached != null) {
+                RemoteCache.renew(
+                    context, uri, cached,
+                    connection.getHeaderField("Cache-Control"),
+                    connection.getHeaderField("ETag"),
+                    connection.getHeaderField("Last-Modified")
+                )
+                return fromCache(uri, cached.bytes)
+            }
             if (status !in 200..299) {
                 return LoadResult.Failed(LoadResult.Reason.OPEN_FAILED, "HTTP $status")
             }
@@ -210,7 +233,14 @@ object ImageSource {
             // stato 200 e nome `.jpg`: da lì in poi 'Riprova' rileggerebbe quei byte
             // rotti senza toccare la rete, cioè il tasto smetterebbe di poter
             // funzionare. Un download perso si rifà, una cache avvelenata no.
-            if (result is LoadResult.Ok) RemoteCache.write(context, uri, bytes)
+            if (result is LoadResult.Ok) {
+                RemoteCache.write(
+                    context, uri, bytes,
+                    connection.getHeaderField("Cache-Control"),
+                    connection.getHeaderField("ETag"),
+                    connection.getHeaderField("Last-Modified")
+                )
+            }
             return result
         } finally {
             connection.disconnect()

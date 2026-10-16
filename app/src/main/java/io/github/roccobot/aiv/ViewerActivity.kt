@@ -1146,7 +1146,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * server lento. Senza, l'unica via era tornare indietro e rifare tutto il giro
      * dell'indirizzo, e con un URL incollato dagli appunti vuol dire ritrovarlo.
      * ⚠️ Riprovando **si ripassa dalla cache**, quindi un errore avvenuto dopo un
-     * download riuscito (la memoria finita in decodifica) si ritenta senza rete.
+     * download riuscito (la memoria finita in decodifica) si ritenta senza rete. Dalla `6.27` una
+     * copia scaduta si rivalida col server (`RemoteCache`), quindi anche da qui un'immagine
+     * cambiata arriva nuova.
      */
     fun retry() {
         val uri = source ?: return
