@@ -137,11 +137,13 @@
     logo.hidden = !connected;
     username.hidden = !connected;
     username.textContent = accountUsername;
+    // ⚠️ Emptied as well as hidden: the hidden text is still in the chip's text, and a reader of
+    // the chip (or the cloud check) would find 'Accedi' while signed in.
     login.textContent = connected ? '' : 'Accedi con GitHub';
     login.hidden = connected;
     logout.hidden = !connected;
   };
-  request(config.account || '/auth/me').then(response => response.json()).then(account => {
+  request(config.account).then(response => response.json()).then(account => {
     syncAccount(account.authenticated === true,account.username);
   }).catch(() => { /* The document load reports cloud errors separately. */ });
   login.addEventListener('click',event => {

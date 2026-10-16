@@ -5,6 +5,11 @@
    validation, the text summary and the save queue (cloud or IndexedDB). It only calls
    the other files at run time, never while loading: alignDocumentVersion() uses
    syncAltroFields() from feedback-ui.js. */
+// The two widths of the page, for the scripts in one place since 6.29 (H24 of the 6.25 review):
+// the phone up to 720 px, the two columns from 1100 px. feedback.css writes the same two numbers
+// in its @media blocks, and its note there names these constants.
+const MOBILE_UI = window.matchMedia("(max-width: 720px)");
+const DESKTOP_UI = window.matchMedia("(min-width: 1100px)");
 const spec = JSON.parse(document.querySelector("#feedback-data").textContent);
 if (!Array.isArray(spec.labels)) spec.labels = [];
 if (!Array.isArray(spec.questions)) spec.questions = [];

@@ -301,6 +301,47 @@ def check_declared_round(path):
     print('Giro della pagina: quello dichiarato nella fonte, mai oltre versionName, verificato.')
 
 
+def check_scroll_writes(path):
+    """Scrolling writes only what changes, since 6.29 (H11): on a desktop the offset of the cards
+    is fixed, so ten frames of scroll write neither the variable on the root nor the labels of
+    the floating buttons."""
+    from playwright.sync_api import sync_playwright
+    browser_path = chromium()
+    if not browser_path:
+        raise AssertionError('Chromium non disponibile: scorrimento non verificato.')
+    folder = Path(path).resolve().parent
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=str(folder)))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with sync_playwright() as pw:
+            engine = pw.chromium.launch(executable_path=browser_path, args=['--no-sandbox'])
+            page = engine.new_page(viewport={'width': 1400, 'height': 800})
+            page.goto(f'http://127.0.0.1:{server.server_port}/{Path(path).name}')
+            page.wait_for_function('typeof refreshNavigation === "function"')
+            page.evaluate('refreshNavigation()')
+            writes = page.evaluate('''async () => {
+                let count = 0;
+                const style = document.documentElement.style, setProperty = style.setProperty.bind(style);
+                style.setProperty = (...args) => { count++; return setProperty(...args); };
+                const buttons = [document.querySelector('#first-empty'), document.querySelector('#floating-save')];
+                for (const button of buttons) {
+                    const setAttribute = button.setAttribute.bind(button);
+                    button.setAttribute = (...args) => { count++; return setAttribute(...args); };
+                }
+                for (let i = 0; i < 10; i++) {
+                    window.scrollBy(0, 40);
+                    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                }
+                return count;
+            }''')
+            assert writes == 0, f'Scorrendo la pagina ha riscritto {writes} valori uguali.'
+            engine.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+    print('Scorrimento: nessuna scrittura di valori uguali in dieci fotogrammi, verificato.')
+
+
 def check_questions_and_labels(path):
     """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
     synthetic source with the real generator and template: the questions come after the tests and
@@ -486,6 +527,7 @@ def check(path):
         assert re.fullmatch(r'd-[a-z0-9-]+', question.get('id', '')), 'Chiave di domanda non valida.'
         assert question.get('title') and question.get('paragraphs'), 'Domanda incompleta.'
     check_declared_round(path)
+    check_scroll_writes(path)
     check_questions_and_labels(path)
     check_attachment_buttons(path)
     check_altro_reaches_last_attachment(path)

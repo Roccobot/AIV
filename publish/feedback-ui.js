@@ -18,8 +18,7 @@ const toggleTheme = (function initFeedbackTheme() {
   function onSystemChange() {
     if (override === null) apply();
   }
-  if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
-  else if (mq.addListener) mq.addListener(onSystemChange);
+  mq.addEventListener("change", onSystemChange);
   apply();
   return function toggleTheme() {
     override = effective() === "dark" ? "light" : "dark";
@@ -473,9 +472,9 @@ async function attachFiles(card, files) {
       if (!allowedMime.includes(type) || file.size < 1 || file.size > maxFile)
         throw Error("Usa PNG, JPG, WebP, GIF, SVG o ZIP fino a 8 MB ciascuno e 20 MB complessivi.");
       if (type === "image/svg+xml") {
-        const document = new DOMParser().parseFromString(await file.text(), "image/svg+xml");
-        if (document.querySelector("parsererror") || document.documentElement.localName !== "svg" ||
-            document.documentElement.namespaceURI !== "http://www.w3.org/2000/svg")
+        const svg = new DOMParser().parseFromString(await file.text(), "image/svg+xml");
+        if (svg.querySelector("parsererror") || svg.documentElement.localName !== "svg" ||
+            svg.documentElement.namespaceURI !== "http://www.w3.org/2000/svg")
           throw Error("Il file SVG non è valido.");
       }
       if (type === "application/zip") {
@@ -1017,7 +1016,7 @@ function controls(disabled) {
 // where no box under the pointer can scroll, so there the event is stopped here.
 (() => {
   const altro = document.querySelector("#extra-section");
-  const wide = window.matchMedia("(min-width: 1100px)");
+  const wide = DESKTOP_UI;
   if (!altro) return;
   const canScroll = (box, dy) =>
     box.scrollHeight > box.clientHeight + 1 &&
@@ -1083,7 +1082,7 @@ function controls(disabled) {
 (() => {
   const columns = document.querySelector(".feedback-columns");
   const altro = document.querySelector("#extra-section");
-  const wide = window.matchMedia("(min-width: 1100px)");
+  const wide = DESKTOP_UI;
   if (!columns || !altro) return;
   // Altro's height follows its position until it is held at the top (--altro-max, above), so the
   // height that counts here is the one it has there: its content, up to the window minus its gaps.
