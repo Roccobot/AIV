@@ -222,6 +222,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       posizione, perché `⌥` cambia il carattere (`shortcutText` e `SHORTCUT_KEYS` in
       `feedback-format.js`). Il tasto a sinistra dell'1 scrive `\` con tutti e due i nomi che macOS
       può dargli su una tastiera ISO (`Backquote` e `IntlBackslash`).
+    - `⌘⇧␣` scrive `␣`, il simbolo della barra spaziatrice, e `⌃⌘⇧␣` lo scrive come codice inline
+      seguito da uno spazio normale, come una scorciatoia `⌃⌘⌥` (sua richiesta del 2026-10-16). Il
+      tasto non è nella fila sopra Altro, che segue il suo mockup (`spaceSymbol` in
+      `feedback-format.js`).
     - La fila vive sopra il campo di Altro, solo su desktop (sotto i 720 px è nascosta): dieci tasti
       quadrati, che prendono la larghezza dalla fila (34,6 px nella colonna laterale di una
       finestra larga), per sua richiesta. La `×` è più grande del 20% (28,8 px) e Roboto la disegna

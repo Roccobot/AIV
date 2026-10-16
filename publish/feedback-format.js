@@ -622,6 +622,14 @@
     if (!event.metaKey || !event.shiftKey || event.altKey || event.ctrlKey) return null;
     return SYMBOL_KEYS.find(entry => entry.keys.includes(event.code) || entry.keys.includes(event.key))?.symbol || null;
   }
+  /* The space bar's symbol, ␣, from the keyboard only (his request of 2026-10-16): ⌘⇧␣ writes it
+     as text, and ⌃⌘⇧␣ as inline code followed by a plain space, like a ⌃⌘⌥ shortcut. It stays out
+     of the row over Altro, whose ten keys are his mockup. */
+  const SPACE_SYMBOL = "␣";
+  function spaceSymbol(event) {
+    if (event.code !== "Space" || !event.metaKey || !event.shiftKey || event.altKey) return null;
+    return event.ctrlKey ? "code" : "text";
+  }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
@@ -837,6 +845,19 @@
       if ((event.metaKey || event.ctrlKey) && !event.altKey && (key === "z" || key === "y" && !event.shiftKey)) {
         event.preventDefault();
         travel(editor, key === "y" || event.shiftKey ? 1 : -1);
+        return;
+      }
+      const space = spaceSymbol(event);
+      if (space) {
+        event.preventDefault();
+        if (editor.area.disabled) return;
+        if (space === "text") {
+          document.execCommand("insertText", false, SPACE_SYMBOL);
+          return;
+        }
+        editor.before = selectionOf(editor);
+        insertNodes(editor, [node("code", SPACE_SYMBOL), document.createTextNode(" ")]);
+        sync(editor, "format");
         return;
       }
       const shortcut = shortcutText(event);
