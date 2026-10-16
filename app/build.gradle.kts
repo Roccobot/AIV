@@ -214,11 +214,12 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    // ⚠️ Arriva col PEZZO 2 dei video (0.86) e serve a una cosa sola: `LocalLifecycleOwner`
-    // di `androidx.lifecycle.compose`, con cui il lettore si mette in pausa quando l'app va
-    // in fondo. Quello vecchio di `compose.ui.platform` è deprecato e rimanda qui.
+    // `LocalLifecycleOwner` e `LifecycleResumeEffect` di `androidx.lifecycle.compose`: con il
+    // primo il lettore si mette in pausa quando l'app va in fondo (quello vecchio di
+    // `compose.ui.platform` è deprecato e rimanda qui). Porta con sé `lifecycle-runtime`, dove
+    // vivono `lifecycleScope` e `repeatOnLifecycle`: `lifecycle-runtime-ktx` dalla 2.8 è un
+    // pacchetto vuoto, e non serve dichiararlo.
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.exifinterface)
