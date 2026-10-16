@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
@@ -24,6 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * La pagina 'Stili di modifica': l'elenco degli stili, riordinabile, rinominabile e sfoltibile.
@@ -84,18 +88,28 @@ fun StyleSettings(
      * l'assenza di chiavi.
      */
     val scrittura = remember { ActivityResultContracts.CreateDocument(STYLE_MIME) }
+    /*
+     * ⚠️⚠️ **LE TRE LETTURE E SCRITTURE GIRANO SU `Dispatchers.IO`, DALLA `6.28`** (rilievo B24
+     * della revisione della 6.25): il documento arriva dal selettore di sistema, quindi può vivere
+     * in un cloud, e leggerlo sul thread principale voleva dire un'app ferma per qualche secondo.
+     * ⚠️ **Nell'ambito dei lavori sui file** ([FileWork]), come la filigrana: lasciata la pagina,
+     * l'avviso dell'esito arriva lo stesso.
+     */
+    fun scrivi(dove: Uri, testo: () -> String, riuscito: Int) {
+        FileWork.scope.launch {
+            val fatto = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openOutputStream(dove)?.use { flusso ->
+                        flusso.write(testo().toByteArray())
+                    } != null
+                }.getOrDefault(false)
+            }
+            Notices.say(context.getString(if (fatto) riuscito else R.string.toast_save_failed))
+        }
+    }
     val esporta = rememberLauncherForActivityResult(scrittura) { dove ->
         if (dove == null) return@rememberLauncherForActivityResult
-        val fatto = runCatching {
-            context.contentResolver.openOutputStream(dove)?.use { flusso ->
-                flusso.write(Presets.export(context).toByteArray())
-            } != null
-        }.getOrDefault(false)
-        Notices.say(
-            context.getString(
-                if (fatto) R.string.settings_styles_saved else R.string.toast_save_failed
-            )
-        )
+        scrivi(dove, { Presets.export(context) }, R.string.settings_styles_saved)
     }
     /*
      * ⚠️ **Lo stile da esportare si ricorda in [sending]**, perché il selettore di sistema torna
@@ -106,16 +120,7 @@ fun StyleSettings(
         val chi = sending
         sending = null
         if (dove == null || chi == null) return@rememberLauncherForActivityResult
-        val fatto = runCatching {
-            context.contentResolver.openOutputStream(dove)?.use { flusso ->
-                flusso.write(Presets.exportOne(chi).toByteArray())
-            } != null
-        }.getOrDefault(false)
-        Notices.say(
-            context.getString(
-                if (fatto) R.string.settings_style_saved else R.string.toast_save_failed
-            )
-        )
+        scrivi(dove, { Presets.exportOne(chi) }, R.string.settings_style_saved)
     }
     fun mandaFuori(p: Preset) {
         sending = p
@@ -124,20 +129,23 @@ fun StyleSettings(
     val lettura = remember { ActivityResultContracts.OpenDocument() }
     val importa = rememberLauncherForActivityResult(lettura) { da ->
         if (da == null) return@rememberLauncherForActivityResult
-        val testo = runCatching {
-            context.contentResolver.openInputStream(da)?.use { it.readBytes().decodeToString() }
-        }.getOrNull()
-        val esito = testo?.let { Presets.load(context, it) }
-        rileggi()
-        Notices.say(
-            context.getString(
-                when (esito) {
-                    Presets.Loaded.BOOK -> R.string.settings_styles_loaded
-                    Presets.Loaded.ONE -> R.string.settings_style_loaded
-                    null -> R.string.settings_styles_bad
-                }
+        FileWork.scope.launch {
+            val esito = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openInputStream(da)?.use { it.readBytes().decodeToString() }
+                }.getOrNull()?.let { Presets.load(context, it) }
+            }
+            rileggi()
+            Notices.say(
+                context.getString(
+                    when (esito) {
+                        Presets.Loaded.BOOK -> R.string.settings_styles_loaded
+                        Presets.Loaded.ONE -> R.string.settings_style_loaded
+                        null -> R.string.settings_styles_bad
+                    }
+                )
             )
-        )
+        }
     }
 
     StyleGroup(stringResource(R.string.look_preset_house))
