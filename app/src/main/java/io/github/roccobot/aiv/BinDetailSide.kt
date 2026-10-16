@@ -25,11 +25,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Dettagli del file scelto nel cestino, a colonna sul tablet.
- *
- * ⚠️⚠️ **NASCE CON LA `3.35`**: il mockup (`bin`) vuole anteprime e dettagli leggibili
- * insieme. Sul telefono resta la sola griglia; da 600 dp in su ([Adaptive.sideAvailable])
- * questa colonna mostra nome e fatti del file evidenziato.
+ * Dettagli del file scelto nel cestino, in colonna sul tablet: il mockup `bin` vuole anteprime e
+ * dettagli leggibili insieme. Sul telefono c'è la sola griglia; da 600 dp in su
+ * ([Adaptive.sideAvailable]) la colonna mostra nome e informazioni del file evidenziato.
  */
 @Composable
 fun BinDetailSide(
