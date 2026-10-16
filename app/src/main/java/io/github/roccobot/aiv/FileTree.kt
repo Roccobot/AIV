@@ -11,6 +11,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
+import java.io.InputStream
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.resume
 
@@ -106,9 +107,9 @@ object FileTree {
                 val ok = runCatching {
                     val name = displayName(context, uri) ?: return@runCatching false
                     val target = freeName(dest, name)
-                    context.contentResolver.openInputStream(uri)?.use { input ->
-                        target.outputStream().use { input.copyTo(it) }
-                    } ?: return@runCatching false
+                    val input = context.contentResolver.openInputStream(uri)
+                        ?: return@runCatching false
+                    if (!input.use { pour(it, target) }) return@runCatching false
                     written += target.absolutePath
                     true
                 }.getOrDefault(false)
@@ -464,7 +465,7 @@ object FileTree {
      */
     internal fun carry(from: File, to: File): Boolean = runCatching {
         if (from.renameTo(to)) return@runCatching true
-        from.inputStream().use { input -> to.outputStream().use { input.copyTo(it) } }
+        if (!from.inputStream().use { pour(it, to) }) return@runCatching false
         if (from.delete()) {
             true
         } else {
@@ -472,6 +473,21 @@ object FileTree {
             false
         }
     }.getOrDefault(false)
+
+    /**
+     * Versa [input] in [target], che non esiste ancora, e dice se è arrivato in fondo.
+     *
+     * ⚠️⚠️ **UNA COPIA INTERROTTA NON LASCIA NIENTE** (rilievo D31 della revisione della 6.25):
+     * con la memoria piena a metà strada, il file di arrivo restava troncato col nome giusto,
+     * cioè un'immagine rotta in più nella cartella di destinazione, e la copia contata come
+     * fallita. Qui non serve [AtomicWrite]: [target] è un nome libero, quindi non c'è un file
+     * vecchio da proteggere, solo uno nuovo da togliere.
+     */
+    internal fun pour(input: InputStream, target: File): Boolean {
+        val ok = runCatching { target.outputStream().use { input.copyTo(it) } }.isSuccess
+        if (!ok) runCatching { target.delete() }
+        return ok
+    }
 
     /**
      * Un nome libero dentro [dir], partendo da [name].

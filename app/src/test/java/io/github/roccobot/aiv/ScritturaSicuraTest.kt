@@ -65,6 +65,41 @@ class ScritturaSicuraTest {
     }
 
     /**
+     * **Una copia interrotta non lascia un file a metà** (rilievo D31): la usano la copia in
+     * un'altra cartella e lo spostamento fra due volumi.
+     *
+     * ⚠️ **Controprovata** togliendo la cancellazione da `FileTree.pour`: il file di arrivo
+     * resta, con i soli byte arrivati prima dell'errore.
+     */
+    @Test
+    fun `una copia interrotta non lascia niente`() {
+        val cartella = File(app.cacheDir, "copia-interrotta").also { it.mkdirs() }
+        val arrivo = File(cartella, "foto.jpg")
+        // ⚠️⚠️ **Anche la lettura a blocchi dà errore, e non è ridondanza**: quella di base di
+        // `InputStream` ingoia l'errore di `read()` dopo il primo byte e restituisce un blocco
+        // corto, quindi un flusso che sbaglia solo in `read()` dà zeri senza fine. Misurato: la
+        // prima versione di questa prova ha riempito il disco.
+        val origine = object : java.io.InputStream() {
+            private var letti = 0
+            override fun read(): Int {
+                if (letti >= 4096) throw IOException("memoria piena")
+                letti++
+                return 0
+            }
+            override fun read(b: ByteArray, off: Int, len: Int): Int {
+                if (letti >= 4096) throw IOException("memoria piena")
+                val n = minOf(len, 4096 - letti)
+                b.fill(0, off, off + n)
+                letti += n
+                return n
+            }
+        }
+
+        assertFalse(FileTree.pour(origine, arrivo))
+        assertFalse("il file a metà doveva sparire", arrivo.exists())
+    }
+
+    /**
      * **Senza l'archivio scritto, i file mandati nel cestino tornano a casa** e l'esito li conta
      * come falliti.
      *
