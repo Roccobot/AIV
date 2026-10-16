@@ -777,6 +777,16 @@ fun ViewerScreen(
                     }
                 }
             },
+            copy = { picture ->
+                scope.launch {
+                    Notices.say(
+                        context.getString(
+                            if (ImageActions.copyImage(context, picture)) R.string.toast_image_copied
+                            else R.string.toast_copy_failed
+                        )
+                    )
+                }
+            },
             /*
              * ⚠️⚠️ **`settings.saveRename` STA FRA LE CHIAVI DEL `remember` QUI SOPRA, E NON È
              * UN DETTAGLIO**: questo blocco cattura i valori del momento in cui gira, quindi
@@ -1276,12 +1286,14 @@ private class Naming(val picture: LoadedImage, val hold: Boolean)
  * prima sospensione, l'esito del selettore di sistema non tornerebbe a nessuno, e un
  * dialogo aperto da là sparirebbe insieme alla fotografia su cui agisce.
  * ⚠️ **Non ci finisce tutto, e la riga di confine è chiara**: quello che comincia e
- * finisce dentro il tocco (gli appunti, lo zoom, la riga dei dettagli) resta nel menu.
- * Qui sale ciò che **dura più del gesto**.
+ * finisce dentro il tocco (lo zoom, la riga dei dettagli) resta nel menu.
+ * Qui sale ciò che **dura più del gesto**, e dalla `6.27` anche 'Copia immagine'.
  */
 private class MenuOps(
     val job: (FileJob) -> Unit,
     val share: (LoadedImage) -> Unit,
+    /** 'Copia immagine': la PNG negli appunti, scritta fuori dal filo dell'interfaccia. */
+    val copy: (LoadedImage) -> Unit,
     val save: (LoadedImage) -> Unit,
     /**
      * Tocco lungo su 'Scarica': chiede il nome adesso, per questa volta sola.
@@ -3536,21 +3548,16 @@ private fun ImageMenu(
              * cartelle, e l'etichetta torna a dire la cosa ('Copia immagine') invece
              * della destinazione. Una distinzione che un'etichetta non riesce a fare non
              * la si fa allungando l'etichetta.
-             * ⚠️ Gli appunti sono l'unica cosa che il menu fa da sé, e può: è una
-             * chiamata che non sospende e finisce prima che il menu si chiuda. Tutto il
-             * resto passa da [MenuOps], e là sta scritto perché.
+             * ⚠️ **Dalla `6.27` anche gli appunti passano da [MenuOps]** (rilievi C40 ed E31):
+             * la PNG di una foto grande costa secondi, e farla nel tocco fermava l'app sotto
+             * il dito.
              */
             MenuRow(
                 text = stringResource(R.string.menu_copy_image),
                 icon = Glyphs.PhotoPair,
                 onTap = {
                     menu.close()
-                    Notices.say(
-                        context.getString(
-                            if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
-                            else R.string.toast_copy_failed
-                        )
-                    )
+                    ops.copy(image)
                 }
             )
             /*

@@ -87,11 +87,19 @@ object ImageActions {
      * Puts the picture itself in the clipboard, as a content URI: an app that
      * pastes gets read access from the system, which is the whole reason this goes
      * through a FileProvider instead of a plain file path.
+     *
+     * ⚠️⚠️ **Suspending, with the PNG written on `Dispatchers.IO`, since 6.27**
+     * (findings C40 and E31 of the 6.25 review): a full-size PNG of a 24-megapixel photo takes
+     * seconds, and it used to run inside the tap, with the app frozen under the finger. The menu
+     * hands it to [MenuOps], whose scope outlives the menu.
      */
-    fun copyImage(context: Context, image: LoadedImage): Boolean = try {
-        val file = File(shareDir(context), "clipboard.png")
-        file.outputStream().use { out ->
-            image.bitmap.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, out)
+    suspend fun copyImage(context: Context, image: LoadedImage): Boolean = try {
+        val file = withContext(Dispatchers.IO) {
+            File(shareDir(context), "clipboard.png").also { file ->
+                file.outputStream().use { out ->
+                    image.bitmap.asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+            }
         }
         val uri = FileProvider.getUriForFile(context, authority(context), file)
         val clipboard = context.getSystemService(ClipboardManager::class.java)
