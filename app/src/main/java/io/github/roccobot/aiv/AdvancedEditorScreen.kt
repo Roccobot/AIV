@@ -104,6 +104,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -309,11 +310,20 @@ fun AdvancedEditorScreen(
      * ⚠️ **Il primo elemento è sempre il niente**, quindi 'Annulla' fino in fondo torna
      * all'originale per costruzione, e 'Originale' non è altro che portare l'indice a zero.
      */
-    var history by remember(uri) { mutableStateOf(listOf(Look.NONE)) }
-    var at by remember(uri) { mutableIntStateOf(0) }
+    // ⚠️⚠️ **They live in [EditorKeep], a ViewModel, since 6.27** (finding A9 of the 6.25 review):
+    // `remember` ended with the activity, which Android rebuilds on a rotation of the wide tablet,
+    // a change of system theme, of language or of font size, and the whole work vanished without
+    // a question. The keep is emptied when the editor really closes, and kept across a rebuild.
+    val keep: EditorKeep = viewModel()
+    keep.open(uri)
+    DisposableEffect(keep) {
+        onDispose { if (activity?.isChangingConfigurations != true) keep.close() }
+    }
+    var history by keep.history
+    var at by keep.at
 
     /** Quello che si vede adesso, compreso il movimento di cursore ancora in corso. */
-    var look by remember(uri) { mutableStateOf(Look.NONE) }
+    var look by keep.look
 
     /** Se il dito è premuto sull'immagine: si guarda l'originale intero. */
     var comparing by remember(uri) { mutableStateOf(false) }
