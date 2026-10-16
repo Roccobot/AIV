@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -170,11 +169,11 @@ fun StyleSettings(
             }
         ) { p, _ ->
             StyleRow(
-            preset = p,
-            onRename = { renaming = p },
-            onExport = { mandaFuori(p) },
-            onRemove = { togli(p) }
-        )
+                preset = p,
+                onRename = { renaming = p },
+                onExport = { mandaFuori(p) },
+                onRemove = { togli(p) }
+            )
         }
     }
 
