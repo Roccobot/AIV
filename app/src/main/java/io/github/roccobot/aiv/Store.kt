@@ -235,19 +235,39 @@ object Store {
      * ⚠️ **On Android 14 and later the third one goes in the same request** (Android's own
      * guidance): it is what makes the dialog offer 'select photos' and lets the app tell a
      * partial grant from a refusal.
+     * ⚠️ **From Android 10 the location of the photos goes in the same request too** (6.27, his
+     * choice R1): without it the system strips the coordinates from the EXIF it serves, and the
+     * 'Posizione' row of the details was missing. It is not part of [granted]: refusing it leaves
+     * the gallery working, without that row.
      */
     private fun mediaPermissions(): Array<String> = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> arrayOf(
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.READ_MEDIA_VIDEO,
-            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+            Manifest.permission.ACCESS_MEDIA_LOCATION
         )
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> arrayOf(
             Manifest.permission.READ_MEDIA_IMAGES,
-            Manifest.permission.READ_MEDIA_VIDEO
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.ACCESS_MEDIA_LOCATION
+        )
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_MEDIA_LOCATION
         )
         else -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
+
+    /**
+     * Whether the original of a MediaStore photo, with its coordinates, can be asked: from Android
+     * 10 and with the location permission, which only `play` declares. `github` reads the file
+     * itself and does not need it. See [mediaPermissions].
+     */
+    fun seesLocation(context: Context): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_MEDIA_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
 
     /**
      * The request for the folder permission, the same for every caller: it returns the

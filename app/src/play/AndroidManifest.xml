@@ -27,5 +27,12 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <!--
+        Dalla 6.27 (sua scelta R1, rilievo C21 della revisione della 6.25): da Android 10 il sistema
+        toglie le coordinate dall'EXIF che serve a un'app senza questo permesso, e la riga
+        'Posizione' delle informazioni non compariva per le foto della fotocamera. Si chiede
+        insieme a quello delle foto (`Store`), e la lettura passa da `MediaStore.setRequireOriginal`.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
 
 </manifest>

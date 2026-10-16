@@ -122,6 +122,11 @@ da incollare, in inglese perché lo legge il revisore:
 > videos on the device. It needs broad access to show every folder of images and videos, with
 > covers, grids, renaming and the system trash.
 
+Dalla `6.27` (sua scelta R1) AIV Play dichiara e chiede anche `ACCESS_MEDIA_LOCATION`, che da
+Android 10 serve per leggere le coordinate nell'EXIF delle foto: la riga 'Posizione' della scheda
+Info le mostra sul telefono, e non escono dall'app. Per questo la risposta della Sicurezza dei dati
+qui sopra resta 'no': l'app legge la posizione delle foto ma non la raccoglie né la condivide.
+
 ### Classificazione dei contenuti
 
 - **Tipo di app**: tutte le altre (non è un gioco, non è un social).
