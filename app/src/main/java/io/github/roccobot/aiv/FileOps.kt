@@ -59,70 +59,59 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 
 /**
- * L'ambito dei lavori sui file (copia, sposta, cestino, rinomina, eliminazione), dalla `6.27`; dalla
- * `6.28` anche l'importazione e l'esportazione degli stili.
+ * L'ambito dei lavori sui file (copia, sposta, cestino, rinomina, eliminazione), e
+ * dell'importazione e dell'esportazione degli stili.
  *
- * ⚠️⚠️ **VIVE QUANTO IL PROCESSO, NON QUANTO LA SCHERMATA** (rilievo E10 della revisione della
- * 6.25): fino alla `6.26` i quattro posti che lanciano un lavoro usavano l'ambito della loro
- * schermata, che una rotazione o un'uscita dalla cartella chiude. La scrittura sul disco si salvava
- * da sé (`NonCancellable`), ma tutto quello che viene dopo no: con una copia di qualche minuto si
- * perdevano 'Annulla' e l'avviso dell'esito.
+ * ⚠️⚠️ **Vive quanto il processo, non quanto la schermata**: l'ambito di una schermata si chiude
+ * con una rotazione o uscendo dalla cartella, e la scrittura sul disco si salverebbe da sé
+ * (`NonCancellable`), ma con lei si perderebbero 'Annulla' e l'avviso dell'esito.
  * ⚠️ **Sul thread principale**: le finestre di sistema che un lavoro aspetta ([SystemAsk]) si
  * aprono da lì, e il lavoro sul disco passa da sé su `Dispatchers.IO`.
- * ⚠️ **`SupervisorJob`**: un lavoro che va in errore non ferma gli altri in corso.
+ * `SupervisorJob`: un lavoro che va in errore non ferma gli altri in corso.
  */
 object FileWork {
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 }
 
 /**
- * Le operazioni sui file e i loro dialoghi, in un posto solo.
+ * Le operazioni sui file e i loro dialoghi, in un posto solo per tutte le schermate che le
+ * chiedono (la selezione nella griglia, il tocco lungo nel visualizzatore...).
  *
- * ⚠️⚠️ **NASCE DALLA 0.62, PERCHÉ I POSTI CHE LE CHIEDONO SONO DIVENTATI DUE**: la
- * selezione nella griglia e il tocco lungo nel visualizzatore. Fino alla `0.61` tutto questo
- * viveva dentro `GridScreen`, che era giusto finché era l'unico a chiedere; una seconda copia
- * nel visualizzatore avrebbe voluto dire due dialoghi di eliminazione da tenere d'accordo, e
- * il cestino (che arriva dopo) ne cambia il testo.
- *
- * ⚠️ **Quello che NON sta qui, e non è una dimenticanza**: che cosa fare a operazione
- * finita. La griglia svuota la selezione e si rilegge, il visualizzatore deve capire quale
- * fotografia mostrare al posto di quella che non c'è più. Sono due risposte diverse alla
- * stessa domanda, quindi le decide chi chiama ([onRun]) e non questo file.
+ * ⚠️ **Che cosa fare a operazione finita lo decide chi chiama** ([onRun]): la griglia svuota la
+ * selezione e si rilegge, il visualizzatore cerca l'immagine da mostrare al posto di quella che
+ * non c'è più.
  */
 @Composable
 fun FileJobDialogs(
     job: FileJob?,
     /**
-     * I campi delle informazioni, nell'ordine scelto e senza quelli spenti: arrivano da
-     * `Settings.factRows`.
-     *
-     * ⚠️ **Li riceve invece di leggerli**: questo file non sa niente delle impostazioni, e
-     * la griglia non ne ha una copia da cui leggerle. Chi chiama ce le passa perché è
-     * l'unico che le ha in mano.
+     * I campi delle informazioni, nell'ordine scelto e senza quelli spenti, da
+     * `Settings.factRows`: li passa chi chiama, perché questo file non legge le impostazioni.
      */
     fields: List<FactField>,
     onClose: () -> Unit,
     /**
-     * Fa partire l'operazione: riceve **che cosa** si sta facendo e il lavoro da svolgere.
+     * Fa partire l'operazione: riceve che cosa si sta facendo e il lavoro da svolgere.
      *
      * ⚠️ Il lavoro arriva come funzione sospesa e non eseguito: chi chiama lo lancia in
-     * [FileWork], che è la sola cosa che gli permette di sopravvivere al dialogo che si chiude,
-     * alla schermata che cambia e alla rotazione.
+     * [FileWork], che lo fa sopravvivere al dialogo che si chiude, alla schermata che cambia e
+     * alla rotazione.
      */
     onRun: (FileKind, suspend () -> FileTree.Outcome) -> Unit
 ) {
     val context = LocalContext.current
-    // ⚠️ Here and not in a job's branch: AIV Play's deletion waits for a system window after its
-    // own has closed (`MediaDelete`, `SystemAsk`).
+    // ⚠️ Qui e non nel ramo di un lavoro: l'eliminazione di AIV Play aspetta una finestra di
+    // sistema dopo che la sua si è chiusa (`MediaDelete`, `SystemAsk`).
     val ask = rememberSystemAsk()
     when (job) {
         null -> Unit
 
         is FileJob.Transfer -> {
             /*
-             * ⚠️ The folders the files come from, read before the window opens (`4.45`, his note
-             * C): with an empty set first, the source would answer a touch for the moment the
-             * query takes. One MediaStore lookup per file, off the main thread.
+             * ⚠️ Le cartelle da cui vengono i file, lette prima che la finestra si apra (nota C
+             * dell'utente): con un insieme vuoto all'inizio, l'origine risponderebbe a un tocco
+             * per il tempo della domanda. Una domanda al MediaStore per file, fuori dal thread
+             * principale.
              */
             val from by produceState<Set<String>?>(null, job) {
                 value = withContext(Dispatchers.IO) { FileTree.sourcesOf(context, job.uris) }
@@ -132,14 +121,11 @@ fun FileJobDialogs(
             from = from,
             onDismiss = onClose,
             /*
-             * ⚠️⚠️ **E DALLA `1.83` LE DUE APRONO L'OFFERTA DI DISFARE** (campo libero del giro
-             * della `1.82`, punto B: *aggiungi degli 'Annulla' temporizzati (avvisi in basso)
-             * anche per le operazioni di copia e spostamento*). Sta **qui dentro** e non in chi
-             * chiama, per la stessa ragione scritta sull'eliminazione: questo è l'unico punto
-             * dell'app da cui si copia e si sposta, e le schermate che ci passano sono tre.
-             * ⚠️ **L'offerta si apre dopo l'operazione e con i suoi passi**: quello che si può
-             * disfare lo sa solo chi ha scritto i file, e un elenco costruito qui dalla
-             * destinazione sarebbe una seconda ipotesi sui nomi che `freeName` ha scelto.
+             * ⚠️ **Copia e spostamento offrono 'Annulla'** (richiesta dell'utente, punto B del
+             * giro della 1.82): l'offerta è qui perché è l'unico punto dell'app da cui si copia e
+             * si sposta. Si apre dopo l'operazione e con i suoi passi: quello che si può disfare
+             * lo sa solo chi ha scritto i file, e non si ricostruisce qui dai nomi che `freeName`
+             * ha scelto.
              */
             onPick = { dir ->
                 onClose()
@@ -172,40 +158,29 @@ fun FileJobDialogs(
         )
 
         /*
-         * ⚠️⚠️ **LA CONFERMA C'È QUANDO E SOLO QUANDO NON SI TORNA INDIETRO, dalla 0.79**
-         * (testo dettato dall'utente sull'interruttore 'Attiva il cestino': *l'eliminazione di
-         * file non prevede alcun avviso, ma l'azione è reversibile con un 'Ripristina' dal
-         * cestino... in quel caso, apparirà una conferma prima di ogni eliminazione*). Fino
-         * alla `0.78` si chiedeva conferma anche per il cestino, con la ragione scritta che su
-         * quaranta foto toccate per sbaglio valeva un tocco: quella ragione **decade**, perché
-         * il gesto si disfa dal cestino, e chiedere per una cosa reversibile insegna a
-         * confermare senza leggere.
-         * ⚠️ **`forGood` porta già la decisione** e non serve un secondo dato: vale nel cestino
-         * (là si cancella per davvero) e fuori quando l'interruttore è spento. Vedi
-         * [FileJob.Delete].
-         */
-        /*
-         * ⚠️⚠️ **In AIV Play from Android 11 the system's window is the confirmation** (his choice
-         * A1, 5.20): the files go into the system's trash, and AIV adds no window of its own in front
-         * of Android's, which cannot be skipped. A 'no' there touches nothing and says nothing.
-         */
-        /*
-         * ⚠️ **Since 5.40 `forGood` deletes for good, through `createDeleteRequest`**: it is what
-         * the bin page of AIV Play asks ('Elimina' and 'Svuota il cestino'), and what the long press
-         * on 'Elimina' asks outside it, as in AIV GitHub. Until 5.30 every deletion went into the trash.
+         * ⚠️⚠️ **La conferma c'è quando e solo quando non si torna indietro** (testo
+         * dell'utente sull'interruttore 'Attiva il cestino'): chiedere per una cosa reversibile
+         * insegna a confermare senza leggere. `forGood` contiene già la decisione (vedi
+         * [FileJob.Delete]).
+         *
+         * ⚠️⚠️ **In AIV Play da Android 11 la conferma è la finestra di sistema** (scelta A1):
+         * AIV non ne aggiunge una sua davanti a quella di Android, che non si salta. Un 'no' là
+         * non tocca niente e non dice niente. `forGood` elimina definitivamente con
+         * `createDeleteRequest`: lo chiedono la pagina del cestino di AIV Play e, fuori, il
+         * tocco lungo su 'Elimina'.
          */
         is FileJob.Delete if !Store.files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
             SystemWindow(job, job.uris, if (job.forGood) FileKind.DELETE else FileKind.TRASH, ask, onRun, onClose) {
                 if (job.forGood) MediaDelete.deleteRequest(context, it) else MediaDelete.trashRequest(context, it)
             }
 
-        // ⚠️ AIV Play's bin is the system's trash (5.40): the same window, turned the other way.
+        // ⚠️ Il cestino di AIV Play è quello di sistema: la stessa finestra, girata al contrario.
         is FileJob.Restore if !Store.files && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
             SystemWindow(job, job.uris, FileKind.RESTORE, ask, onRun, onClose) {
                 MediaDelete.restoreRequest(context, it)
             }
 
-        // ⚠️ AIV Play on Android 9 and 10 deletes for good (his choice B1), after AIV's confirmation.
+        // ⚠️ AIV Play su Android 9 e 10 elimina definitivamente (scelta B1), dopo la conferma di AIV.
         is FileJob.Delete if !Store.files ->
             DeleteDialog(
                 count = job.uris.size,
@@ -228,13 +203,10 @@ fun FileJobDialogs(
                 )
             } else {
                 /*
-                 * ⚠️ Parte da sé, come il ripristino: non c'è niente da chiedere. L'effetto è
-                 * legato al lavoro e non alla composizione, e il perché sta là.
-                 * ⚠️⚠️ **E APRE L'OFFERTA DI DISFARE, dalla `1.60`** (richiesta dell'utente,
-                 * giro della `1.59`): sta **qui dentro** e non in chi chiama perché questo è
-                 * l'unico punto dell'app in cui un file finisce nel cestino per eliminazione,
-                 * mentre le schermate che passano di qua sono tre. Il perché lo stato viva
-                 * fuori da loro sta in testa a [Undo].
+                 * Parte da sé, come il ripristino (vedi là l'effetto legato al lavoro), e offre
+                 * 'Annulla' (richiesta dell'utente): qui perché è l'unico punto dell'app in cui un
+                 * file finisce nel cestino per eliminazione. Lo stato vive fuori dalle schermate:
+                 * vedi la testa di [Undo].
                  */
                 LaunchedEffect(job) {
                     onRun(FileKind.TRASH) {
@@ -247,13 +219,11 @@ fun FileJobDialogs(
             }
 
         /*
-         * ⚠️⚠️ **PARTE DA SÉ, ed è l'unica voce che non apre niente**: il ripristino non ha
-         * domande da fare, quindi passa da qui solo per usare lo stesso imbuto delle altre
-         * (l'avviso dell'esito, la rilettura, l'ambito che sopravvive). Un secondo canale
-         * per una sola operazione avrebbe voluto un richiamo in più su due schermate.
+         * Parte da sé: il ripristino non ha domande da fare, e passa di qui per lo stesso imbuto
+         * delle altre (l'avviso dell'esito, la rilettura, l'ambito che sopravvive).
          * ⚠️ **L'effetto è legato al lavoro e non alla composizione**: gira una volta, poi
-         * `onClose` toglie questo ramo di scena e con lui l'effetto. Il lavoro no: `onRun`
-         * lo ha già lanciato nell'ambito di chi chiama.
+         * `onClose` toglie il ramo di scena e con lui l'effetto, ma non il lavoro, che `onRun` ha
+         * già lanciato in [FileWork].
          */
         is FileJob.Restore -> LaunchedEffect(job) {
             onRun(FileKind.RESTORE) { Bin.restore(context, job.uris) }
@@ -261,13 +231,11 @@ fun FileJobDialogs(
         }
 
         /*
-         * ⚠️ **Come il ripristino, parte da sé**: non c'è niente da chiedere, perché la
-         * destinazione è la cartella in cui il file già sta. Passa da qui per usare lo stesso
-         * imbuto delle altre (l'avviso dell'esito, la rilettura, l'ambito che sopravvive).
+         * Come il ripristino, parte da sé: la destinazione è la cartella in cui il file è già.
          */
         is FileJob.Duplicate -> LaunchedEffect(job) {
-            // ⚠️ Anche il duplicato si disfa, ed è una copia come le altre: la voce nasce dal
-            // tocco lungo su 'Copia', quindi è il gesto più facile da dare per sbaglio.
+            // ⚠️ Anche il duplicato si disfa: nasce dal tocco lungo su 'Copia', il gesto più
+            // facile da dare per sbaglio.
             onRun(FileKind.COPY) {
                 val out = FileTree.duplicate(context, job.uris)
                 Undo.offer(Undo.Offer.Files(FileKind.COPY, out.undo))
@@ -277,16 +245,13 @@ fun FileJobDialogs(
         }
 
         /*
-         * ⚠️⚠️ **DALLA 1.40 QUESTO RAMO PUÒ DIVENTARE UNA RINOMINA, e lo stato che lo decide
-         * vive QUI** (richiesta dell'utente, 2026-09-03: *pressione lunga sulla pillola del
-         * nome -> rinomina del file singolo*). La scheda delle informazioni non apre finestre
-         * da sé: chiede, e a cambiare finestra è l'imbuto, che è il posto in cui le finestre
-         * dei lavori sui file stanno tutte.
-         * ⚠️ **`remember(job)` e non `remember`**: legato al lavoro, così una scheda chiusa e
-         * riaperta su un altro file non nasce già in rinomina.
-         * ⚠️ **La rinomina è quella di sempre**, con gli stessi indirizzi e lo stesso
-         * `onRun`: non è una seconda strada per la stessa operazione, è la stessa raggiunta
-         * da un gesto in più.
+         * ⚠️ **Questo ramo può diventare una rinomina**: il tocco lungo sulla pastiglia del nome
+         * rinomina il file (richiesta dell'utente). La scheda delle informazioni non apre
+         * finestre da sé: chiede, e cambia finestra l'imbuto, dove vivono tutte le finestre dei
+         * lavori sui file. La rinomina è la stessa di sempre, con gli stessi indirizzi e lo
+         * stesso `onRun`.
+         * `remember(job)`: legato al lavoro, così una scheda riaperta su un altro file non nasce
+         * già in rinomina.
          */
         is FileJob.Facts -> {
             var renaming by remember(job) { mutableStateOf(false) }
@@ -316,87 +281,64 @@ fun FileJobDialogs(
 /**
  * Il dialogo aperto, e su quali immagini.
  *
- * ⚠️⚠️ **LE IMMAGINI SI FOTOGRAFANO QUANDO IL DIALOGO SI APRE, non quando si conferma**:
- * l'elenco viaggia dentro il lavoro invece di essere riletto dalla selezione viva. Il
- * dialogo è modale, quindi le due letture darebbero lo stesso risultato **oggi**, e domani
- * basterebbe un dialogo non modale o una selezione che si aggiorna da sola perché una
- * conferma agisse su file diversi da quelli che sono stati mostrati.
+ * ⚠️⚠️ **L'elenco delle immagini si fissa quando il dialogo si apre, non quando si conferma**:
+ * viaggia dentro il lavoro e non si rilegge dalla selezione viva, così un dialogo non modale o una
+ * selezione che si aggiorna da sola non farebbero agire la conferma su file diversi da quelli
+ * mostrati.
  */
 sealed interface FileJob {
     val uris: List<Uri>
 
     /**
-     * Copia o spostamento, che differiscono **solo** per la parola sul tasto e per il
-     * fatto che il secondo porta via l'originale: la cartella di arrivo la si chiede allo
-     * stesso modo.
+     * Copia o spostamento, che differiscono solo per la parola sul tasto e per l'originale che
+     * il secondo toglie: la cartella di arrivo si chiede allo stesso modo.
      */
     class Transfer(override val uris: List<Uri>, val move: Boolean) : FileJob
     class Rename(override val uris: List<Uri>) : FileJob
 
     /**
-     * L'eliminazione, che dalla `0.64` vuol dire due cose diverse.
+     * L'eliminazione, che vuol dire due cose diverse.
      *
-     * ⚠️⚠️ **[forGood] NON è un'opzione ma il POSTO in cui si è, più l'interruttore**: dentro
-     * il cestino si cancella sempre, fuori si sposta là dentro finché 'Attiva il cestino' è
-     * accesa. Chi passasse `false` stando nel cestino manderebbe una foto del cestino nel
-     * cestino, cioè da nessuna parte.
-     * ⚠️⚠️ **DECIDE ANCHE LA CONFERMA, dalla 0.79**: la si chiede quando e solo quando è
-     * `true`, cioè quando non si torna indietro. Le due cose viaggiano insieme perché sono la
-     * stessa cosa vista da due parti, e tenerle in due dati avrebbe permesso la combinazione
-     * senza senso: cancellare per sempre senza chiedere.
+     * ⚠️⚠️ **[forGood] non è un'opzione ma il posto in cui si è, più l'interruttore**: dentro il
+     * cestino si cancella sempre, fuori si sposta là finché 'Attiva il cestino' è acceso. Con
+     * `false` nel cestino un file finirebbe nel cestino stesso, cioè da nessuna parte.
+     * ⚠️⚠️ **Decide anche la conferma**, che si chiede solo quando è `true`: in un dato solo non
+     * esiste la combinazione 'cancellare per sempre senza chiedere'.
      */
     class Delete(override val uris: List<Uri>, val forGood: Boolean) : FileJob
 
     /**
-     * Il ripristino, che è la sola voce **senza dialogo**.
-     *
-     * ⚠️ Non c'è niente da chiedere e niente da scegliere: la destinazione è scritta
-     * nell'archivio del cestino, e l'operazione è reversibile (si rielimina). Chiedere
-     * conferma per un gesto che rimette le cose come stavano è il modo di insegnare a
-     * confermare senza leggere.
+     * Il ripristino, senza dialogo: la destinazione è scritta nell'archivio del cestino, e il
+     * gesto è reversibile, quindi una conferma insegnerebbe a confermare senza leggere.
      */
     class Restore(override val uris: List<Uri>) : FileJob
 
     /**
-     * La duplicazione dove il file già sta, dalla `0.79`: l'altra voce **senza dialogo**.
+     * La duplicazione dove il file è già: l'altra voce senza dialogo.
      *
-     * ⚠️ **Non è [Transfer] con la cartella corrente**: quella ne prende **una** per tutti i
-     * file, e qui ogni file torna nella **sua**, che in una ricerca possono essere venti
-     * diverse. Il perché sta in `FileTree.duplicate`.
-     * ⚠️ **Nessuna conferma**: aggiunge un file e non ne tocca nessuno, quindi non c'è niente
-     * da perdere. Chi non lo voleva cancella il duplicato.
+     * ⚠️ **Non è [Transfer] con la cartella corrente**: quella ne prende una per tutti i file, qui
+     * ogni file torna nella sua, e in una ricerca possono essere venti diverse (vedi
+     * `FileTree.duplicate`). Nessuna conferma: aggiunge un file e non ne tocca nessuno.
      */
     class Duplicate(override val uris: List<Uri>) : FileJob
     class Facts(override val uris: List<Uri>) : FileJob
 }
 
 /**
- * Come un lavoro **sopravvive a una rotazione**, cioè al fatto che l'attività si ricrei.
+ * Come un lavoro sopravvive a una rotazione, cioè alla ricreazione dell'attività: lo stato passa
+ * dal `Bundle` del sistema e la finestra si riapre dov'era, col testo che si stava scrivendo.
+ * Gli indirizzi si salvano da sé, perché un `Uri` è `Parcelable`.
  *
- * ⚠️⚠️ **NASCE NELLA `1.81` DA UN DIFETTO CHE LUI HA SEGNALATO**: *ruotando si chiude la
- * finestra aperta e con lei quello che stavi scrivendo*. La causa è che questo stato viveva in
- * un `remember` in ognuna delle tre schermate che chiamano [FileJobDialogs]: quel ricordo muore
- * con la composizione, e una rotazione la rifà da zero. Con un salvatore lo stato passa dal
- * `Bundle` del sistema e la finestra si riapre dov'era.
- * ⚠️ **Gli indirizzi si salvano da sé**: un `Uri` è `Parcelable`, quindi il `Bundle` lo scrive
- * senza che nessuno lo trasformi in stringa e lo ricomponga (che è il punto in cui si perde uno
- * schema o un permesso).
- *
- * ⚠️⚠️ **I LAVORI CHE PARTONO DA SÉ NON SI RIPRISTINANO, E NON È UNA DIMENTICANZA: RIPRISTINARLI
- * LI FAREBBE RIFARE.** Il ripristino, la duplicazione e l'eliminazione col cestino attivo non
- * hanno una finestra da riaprire: partono da un `LaunchedEffect` sulla chiave del lavoro, quindi
- * un lavoro rimesso in scena dopo la rotazione farebbe partire l'operazione **una seconda
- * volta**, cioè un file duplicato due volte o due giri di cestino. Quelli si salvano come
- * 'niente': l'operazione era già in corso quando il telefono ha girato, e chi la sta facendo è
- * [FileWork], che alla rotazione resta (fino alla `6.26` era l'ambito della schermata, e questa
- * nota lo diceva del modello, a torto).
- * ⚠️ **Quindi qui si salvano le sole finestre**: la destinazione di 'Copia' e 'Sposta', la
- * rinomina, la conferma di un'eliminazione definitiva e la scheda delle informazioni.
- * ⚠️⚠️ **E OLTRE [SAVED_URIS] INDIRIZZI NON SI SALVA NIENTE** (rilievo E7 della revisione della
- * 6.25): lo stato salvato passa da una transazione del sistema con un tetto di 1 MB, e una
- * selezione di qualche migliaio di file lo supera quando l'app va in secondo piano, che basta a
- * chiuderla. Fra una finestra che dopo la rotazione non si riapre e un'app che si chiude, il
- * male minore è il primo.
+ * ⚠️⚠️ **I lavori che partono da sé non si ripristinano, perché ripristinarli li farebbe
+ * rifare**: ripristino, duplicazione ed eliminazione col cestino attivo partono da un
+ * `LaunchedEffect` sulla chiave del lavoro, quindi rimessi in scena ripartirebbero una seconda
+ * volta. Si salvano come 'niente': l'operazione è già in corso in [FileWork], che alla rotazione
+ * resta. Si salvano le sole finestre: la destinazione di 'Copia' e 'Sposta', la rinomina, la
+ * conferma di un'eliminazione definitiva e la scheda delle informazioni.
+ * ⚠️⚠️ **Oltre [SAVED_URIS] indirizzi non si salva niente**: lo stato salvato passa da una
+ * transazione del sistema con un tetto di 1 MB, e una selezione di qualche migliaio di file lo
+ * supera quando l'app va in secondo piano, che basta a chiuderla. Meglio una finestra che dopo la
+ * rotazione non si riapre.
  */
 internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
     save = { job ->
@@ -405,8 +347,8 @@ internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
             null -> emptyList()
             is FileJob.Transfer -> listOf(TRANSFER, job.move) + job.uris
             is FileJob.Rename -> listOf(RENAME, false) + job.uris
-            // ⚠️ Only AIV's own confirmation is a window to reopen: in AIV Play from Android 11 the
-            // window is the system's, and reopening the job would ask a second time.
+            // ⚠️ Solo la conferma di AIV è una finestra da riaprire: in AIV Play da Android 11 la
+            // finestra è quella di sistema, e riaprire il lavoro chiederebbe una seconda volta.
             is FileJob.Delete ->
                 if (if (Store.files) job.forGood else Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                     listOf(DELETE, true) + job.uris
@@ -434,14 +376,9 @@ internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
 /**
  * Come un insieme di indirizzi sopravvive a una rotazione.
  *
- * ⚠️ **Sta qui accanto a [FileJobSaver] e non nella griglia**, che è il suo unico chiamante di
- * oggi: sono la stessa idea (uno stato di indirizzi che deve attraversare la ricreazione
- * dell'attività), e la seconda schermata che ne avesse bisogno lo troverebbe scritto una volta.
- * ⚠️ **Un `Set` il `Bundle` non lo scrive, una lista di `Uri` sì**, perché un `Uri` è
- * `Parcelable`: quindi si passa da una lista e a rientrare è di nuovo un insieme. L'ordine che
- * la lista impone non conta.
- * ⚠️ **Oltre [SAVED_URIS] indirizzi la selezione non si salva**, per la ragione scritta su
- * [FileJobSaver]: dopo una rotazione si riparte senza selezione.
+ * Vive accanto a [FileJobSaver], perché è la stessa idea. Un `Set` il `Bundle` non lo scrive, una
+ * lista di `Uri` sì: si passa da una lista, e l'ordine non conta. Oltre [SAVED_URIS] indirizzi la
+ * selezione non si salva, per la ragione scritta su [FileJobSaver].
  */
 internal val UriSetSaver: Saver<Set<Uri>, Any> = listSaver(
     save = { if (it.size > SAVED_URIS) emptyList() else it.toList() },
@@ -457,9 +394,9 @@ internal val UriSetSaver: Saver<Set<Uri>, Any> = listSaver(
 internal const val SAVED_URIS = 500
 
 /*
- * ⚠️ **Etichette scritte a mano e non `nomeDellaClasse`**: un nome di classe cambia con una
- * rinomina del codice, e quello che qui si scrive finisce in un `Bundle` che il sistema può
- * restituire dopo un aggiornamento dell'app. È lo stesso criterio dei token delle impostazioni.
+ * ⚠️ **Etichette scritte a mano e non il nome della classe**: un nome di classe cambia con una
+ * rinomina del codice, e quello che si scrive qui finisce in un `Bundle` che il sistema può
+ * restituire dopo un aggiornamento dell'app. Lo stesso criterio dei token delle impostazioni.
  */
 private const val TRANSFER = "transfer"
 private const val RENAME = "rename"
@@ -467,16 +404,13 @@ private const val DELETE = "delete"
 private const val FACTS = "facts"
 
 /**
- * Le quattro operazioni che toccano i file, con quello che di ognuna serve sapere dopo.
+ * Le operazioni che toccano i file, con quello che di ognuna serve sapere dopo.
  *
- * ⚠️⚠️ **[gone] è la ragione per cui questo elenco esiste** invece di passare in giro la
- * sola stringa dell'esito: dice se l'indirizzo di partenza vale ancora. Per il
- * visualizzatore è la differenza fra restare dov'è e dover trovare un'altra fotografia da
- * mostrare, e scritto qui è una riga, sparso fra le schermate sarebbe una condizione da
- * ricordare in ogni posto.
- * ⚠️ **La rinomina è fra quelle che 'portano via' il file**, e non è un errore: la
- * fotografia c'è ancora, ma la sua riga nel MediaStore cambia numero, quindi l'indirizzo
- * che si aveva in mano non apre più niente.
+ * ⚠️⚠️ **[gone] dice se l'indirizzo di partenza vale ancora**: per il visualizzatore è la
+ * differenza fra restare dov'è e cercare un'altra immagine da mostrare, e scritto qui è una
+ * riga sola.
+ * ⚠️ **La rinomina toglie il file**: l'immagine c'è ancora, ma la sua riga nel MediaStore cambia
+ * numero, e l'indirizzo che si aveva non apre più niente.
  */
 enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
     COPY(R.plurals.copy_done, gone = false),
@@ -484,11 +418,8 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
     RENAME(R.plurals.rename_done, gone = true),
 
     /**
-     * L'eliminazione di tutti i giorni, dalla `0.64`: il file va nel **cestino**.
-     *
-     * ⚠️ Porta `gone = true` come le altre perché per la schermata è la stessa cosa: quel
-     * file non è più là. Che sia recuperabile è una faccenda del cestino, non di chi
-     * guardava.
+     * L'eliminazione di tutti i giorni: il file va nel cestino. `gone = true` come le altre,
+     * perché per la schermata il file non è più là; che sia recuperabile riguarda il cestino.
      */
     TRASH(R.plurals.trash_done, gone = true),
 
@@ -505,9 +436,9 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
 }
 
 /**
- * The rename the two windows ask ([RenameDialog], straight or from the name in [FactsDialog]):
- * AIV Play renames through the MediaStore from Android 11 (5.50, [MediaRename]), every other case
- * on disk. One function, so the two roads cannot drift apart.
+ * La rinomina che chiedono le due finestre ([RenameDialog], diretta o dal nome in [FactsDialog]):
+ * AIV Play rinomina col MediaStore da Android 11 ([MediaRename]), ogni altro caso sul disco. Una
+ * funzione sola, così le due strade non divergono.
  */
 private suspend fun renameFiles(
     context: Context,
@@ -526,50 +457,33 @@ private suspend fun renameFiles(
 /**
  * Se l'esito di un'operazione va detto con un avviso di sistema.
  *
- * ⚠️⚠️ **IL CESTINO NON PARLA PIÙ, DALLA `1.60`, e non è una perdita**: quello che è successo
- * lo dice la notifica con 'Annulla' (vedi [Undo]), che porta la stessa frase e in più il modo
- * di tornare indietro. Due messaggi insieme sarebbero **sovrapposti**, perché un avviso di
- * sistema compare in fondo allo schermo esattamente dov'è la notifica.
- * ⚠️⚠️ **E DALLA `1.83` NON PARLANO PIÙ NEMMENO LA COPIA E LO SPOSTAMENTO, PER LO STESSO
- * MOTIVO** (campo libero del giro della `1.82`, punto B): adesso anche loro offrono di disfare,
- * quindi la loro notizia arriva dalla notifica. ⚠️ **La regola non nomina i tipi ma guarda se
- * c'è un'offerta** (`out.undo`), che è il solo modo di non doverla riscrivere il giorno che una
- * quarta operazione diventi reversibile: chi ha qualcosa da disfare ha già chi parla per lui.
- * ⚠️ **Ma se qualcosa è fallito parla lo stesso**: la notifica dice quante sono passate, non
- * quante no, e un'eliminazione a metà è la cosa che va detta per intero.
- * ⚠️ **È una regola sola e sta qui**, non tre condizioni uguali nelle tre schermate che
- * eseguono: quelle divergerebbero al primo ritocco, ed è il difetto che questo file esiste per
- * non avere.
+ * ⚠️⚠️ **Un'operazione che offre 'Annulla' non parla**: la notizia la dà la notifica con
+ * 'Annulla' (vedi [Undo]), e un avviso di sistema le comparirebbe sopra, in fondo allo schermo.
+ * La regola guarda se c'è un'offerta (`out.undo`) e non i tipi, così vale anche per
+ * un'operazione che diventi reversibile domani. Il cestino di AIV GitHub tace anche senza
+ * offerta; quello di AIV Play, che è di sistema e non offre 'Annulla', parla.
+ * ⚠️ **Se qualcosa è fallito parla lo stesso**: la notifica dice quante sono passate, non quante
+ * no. Niente fatto e niente fallito non dice niente: è un 'no' nella finestra di Android, che la
+ * rinomina di AIV Play chiede da dentro il lavoro (`MediaRename`).
+ * Una regola sola, qui, e non tre condizioni nelle tre schermate che eseguono.
  */
 fun FileKind.speaks(out: FileTree.Outcome): Boolean =
     out.failed > 0 || (out.done > 0 && out.undo.isEmpty() && (this != FileKind.TRASH || !Store.files))
-// ⚠️ AIV Play's trash is the system's (5.20) and offers no 'Annulla', so there the outcome speaks.
-// ⚠️ Nothing done and nothing failed says nothing (5.50): it is a 'no' in Android's window, which
-// AIV Play's rename asks from inside the job (`MediaRename`).
 
 /**
  * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,
  * quante no.
  *
- * ⚠️ Le forme plurali si risolvono con `getQuantityString` e non con
- * `pluralStringResource`, perché il numero si sa solo a lavoro finito e quella funzione si
- * può chiamare soltanto mentre si compone.
- * ⚠️ **Un avviso solo con tutti e due i numeri**: due avvisi di fila si coprono a vicenda,
- * e il secondo si leggerebbe senza il primo.
+ * Le forme plurali si risolvono con `getQuantityString`, perché il numero si sa solo a lavoro
+ * finito e `pluralStringResource` si chiama soltanto mentre si compone. Un avviso solo con tutti
+ * e due i numeri: due di fila si coprirebbero.
  *
- * ⚠️⚠️ **DALLA `2.86` UN'ELIMINAZIONE DEFINITIVA CHE HA MISURATO LO SPAZIO LO DICE, ED È SUA
- * RICHIESTA** (2026-09-21: *quando si svuota il cestino, oltre al numero di file eliminati,
- * l'avviso deve dire anche quanti KB/MB/GB di archivio sono stati liberati*). Oggi lo misura il
- * solo svuotamento (`Bin.empty`), quindi l'eliminazione di una selezione dice la frase di sempre.
- * ⚠️ **La frase è una chiave a sé e non un pezzo aggiunto in coda**: in metà delle lingue il
- * verbo, l'accordo o la particella cambiano con quello che segue, e un pezzo attaccato a una
- * frase finita non lo sa.
- * ⚠️ **Lo spazio si scrive con [formatBytes]**, cioè come il peso di una selezione
- * (`pick_facts`): nel cestino è l'unico peso che si vede, e chi lo guarda prima di svuotare
- * deve ritrovare lo stesso numero dopo.
- * ⚠️ **Chiede il tipo e non la sola frase**, perché la scelta dipende da tutti e due: lo spazio
- * liberato ha senso detto di un'eliminazione, e il giorno che un'altra operazione ne misurasse
- * uno la frase che dice 'eliminati' non sarebbe la sua.
+ * ⚠️ **Un'eliminazione definitiva che ha misurato lo spazio lo dice** (richiesta dell'utente):
+ * oggi lo misura il solo svuotamento del cestino (`Bin.empty`). La frase è una chiave a sé e non
+ * un pezzo in coda, perché in molte lingue verbo e accordo cambiano con quello che segue. Lo
+ * spazio si scrive con [formatBytes], come il peso di una selezione (`pick_facts`), così chi lo
+ * guarda prima di svuotare ritrova lo stesso numero dopo. Si chiede il tipo perché lo spazio
+ * liberato ha senso detto di un'eliminazione.
  */
 fun outcomeText(res: Resources, out: FileTree.Outcome, kind: FileKind): String =
     buildString {
@@ -587,34 +501,12 @@ fun outcomeText(res: Resources, out: FileTree.Outcome, kind: FileKind): String =
     }
 
 /**
- * La conferma dell'eliminazione **definitiva**.
+ * Un lavoro di AIV Play che conferma la finestra di Android: apre [request] sulle righe del
+ * MediaStore di [uris] e, dopo un sì, conta ogni riga come fatta sotto [kind].
  *
- * ⚠️⚠️ **UN TESTO SOLO DALLA 0.79, e prima erano due**: si vede soltanto quando la
- * fotografia va via per davvero, cioè dentro il cestino o col cestino spento, quindi il testo
- * che diceva *stai per spostare (X) immagini nel cestino* non aveva più occasione di
- * comparire. È stato tolto dalle 27 lingue invece di restare a fare compagnia: una frase che
- * nessuno può vedere è una frase che nessuno correggerà.
- * ⚠️ **Chi rimettesse la conferma sul cestino** rifaccia anche quella, e sappia che va contro
- * il testo dell'interruttore, che promette il contrario.
- *
- * ⚠️⚠️ **IL CONTO SI È SPOSTATO DAL TITOLO AL CORPO nella 0.68** (testo dettato
- * dall'utente: titolo *Confermi l'eliminazione?*, corpo *Stai per spostare (X) immagini nel
- * cestino: potrai recuperarle fino all'eliminazione definitiva*). Fino alla `0.67` era il
- * contrario, con la ragione scritta che chi tocca in fretta legge solo la prima riga:
- * quella nota è **superata**, e il baratto nuovo è che il titolo dice il **gesto** e il
- * corpo dice **quanto** e **cosa succede dopo**.
- * ⚠️⚠️ **Perciò `delete_ask` NON è più un plurale e i due corpi lo sono diventati**, in
- * tutte e sedici le lingue: il conto se l'è portato dietro la frase che gli deve concordare
- * intorno. Chi rimettesse il conto nel titolo deve rifare quel giro al contrario, non
- * cambiare una riga qui.
- */
-/**
- * A job of AIV Play that Android's window confirms: it opens [request] on the MediaStore rows of
- * [uris] and, after a yes, reports every row as done under [kind].
- *
- * ⚠️ **A 'no' touches nothing and says nothing**; files that have no row, or a system that gives
- * no window, are counted as failed, and that is said. Shared by the trash (5.20), the restore and
- * the deletion for good of the bin page (5.40), so the three cannot drift apart.
+ * ⚠️ **Un 'no' non tocca niente e non dice niente**; i file senza riga, o un sistema che non dà
+ * la finestra, contano come non riusciti, e si dice. Lo condividono lo spostamento nel cestino, il
+ * ripristino e l'eliminazione definitiva della pagina del cestino, così non divergono.
  */
 @Composable
 private fun SystemWindow(
@@ -637,6 +529,15 @@ private fun SystemWindow(
     }
 }
 
+/**
+ * La conferma dell'eliminazione definitiva: si vede soltanto quando il file va via davvero, cioè
+ * dentro il cestino o col cestino spento. Rimettere la conferma sul cestino andrebbe contro il
+ * testo dell'interruttore 'Attiva il cestino'.
+ *
+ * Il titolo dice il gesto, il corpo quanto e che cosa succede dopo (testo dell'utente): per
+ * questo `delete_ask` non è un plurale e `delete_desc` sì, e rimettere il conto nel titolo
+ * vorrebbe rifare le stringhe in tutte le lingue.
+ */
 @Composable
 private fun DeleteDialog(
     count: Int,
@@ -649,10 +550,9 @@ private fun DeleteDialog(
         properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.delete_ask)) },
         text = {
-            // ⚠️ Lo scorrimento serve al tetto della `1.62`, come nei due dialoghi gemelli (il
-            // perché per esteso vive nel pannellino dell'estensione, in `RenameDialog.kt`).
-            // ⚠️ **Qui è un `Column` con dentro un `Text` e non un `Text` che scorre**: quel
-            // testo è un plurale che in qualche lingua viene lungo, e lo scorrimento vuole un
+            // ⚠️ Lo scorrimento serve al tetto d'altezza dei dialoghi, come nei due gemelli (il
+            // perché vive nel pannellino dell'estensione, in `RenameDialog.kt`). Un `Column` con
+            // dentro un `Text`: il plurale in qualche lingua è lungo, e lo scorrimento vuole un
             // contenitore che possa essere più alto del suo riquadro.
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(pluralStringResource(R.plurals.delete_desc, count, count))
@@ -675,37 +575,18 @@ private fun DeleteDialog(
 /**
  * Che cosa si è scelto: i numeri di una selezione, o i dati di un file solo.
  *
- * ⚠️⚠️ **È UNA BOTTOMSHEET DALLA 1.38, e prima era un dialogo centrato** (richiesta
- * dell'utente, giro della 1.37: *info dettagliate come bottomsheet (ma che non deve entrare
- * scorrendo da sotto). Appare con animazione semplice e veloce, senza scorrere dal basso, e
- * la pillola con il nome è in fondo, verso il bordo inferiore, ancorata: il resto rimane
- * sotto allo scorrimento*). Le tre cose che chiedeva vanno lette separate: **dove** sta
- * (appoggiata in basso, larga quanto lo schermo), **come** arriva, e **che cosa è fermo**
- * dentro di lei (la pastiglia del nome).
+ * È una scheda appoggiata in basso, larga quanto lo schermo, con la pastiglia del nome ferma in
+ * fondo (richiesta dell'utente, giro della 1.37), e arriva dal basso con una mini dissolvenza
+ * (istruzione dell'utente, 1.43).
+ * ⚠️⚠️ **Sale dal basso anche se 'senza scorrere dal basso' era stato chiesto due volte**: l'utente
+ * l'ha visto in mano e ha cambiato idea, perché una scheda appoggiata al bordo di sotto che non
+ * viene da lì contraddice il posto in cui è. Chi rilegge solo le richieste di allora rifà il
+ * divieto. Il movimento, coi tempi e la curva, vive in `Sheet.kt`.
  *
- * ⚠️⚠️ **E DELLE TRE, IL 'COME ARRIVA' È STATO RIBALTATO DALLA 1.43** (istruzione
- * dell'utente, 2026-09-03: *ho visto che una bottomsheet che non appare dal basso è troppo
- * strana. Facciamo che arriva dal basso con un'animazione fluida ed entra decelerando, ma al
- * tempo stesso c'è una mini dissolvenza*). Quindi **sale**, e le altre due cose restano come
- * le aveva chieste.
- * ⚠️⚠️ **LA STORIA VALE LA PENA DI SAPERLA, perché è il caso in cui una richiesta ripetuta
- * era da non eseguire**: 'senza slide-in' era stato chiesto **due volte**, nella `1.25` e nel
- * giro della `1.37`, quindi la `1.38` lo ha fatto per davvero (con l'animazione della
- * finestra spenta, che la `1.25` aveva concluso impossibile). Poi lui l'ha visto in mano e ha
- * cambiato idea: una scheda appoggiata al bordo di sotto che compare senza venire da lì
- * **contraddice il posto in cui sta**. Non era un difetto di esecuzione, ed è la ragione per
- * cui la nota resta: chi rilegge solo le due richieste di allora rifà il divieto.
- * ⚠️ **Il movimento è scritto in `Sheet.kt`**, con i suoi tempi e la sua curva, e quelli non
- * sono più i numeri dei menu: là il perché.
- *
- * ⚠️ **I dati si leggono quando si apre e non prima**: contare il peso di trecento file vuol
- * dire trecento interrogazioni, e farle a ogni tocco su una miniatura sarebbe pagarle per una
- * domanda che quasi nessuno fa.
- * ⚠️⚠️ **SU UN FILE SOLO NON SI APRE FINCHÉ NON HA I DATI, dalla 1.25**: si apriva **due
- * volte**, prima con la sola riga 'Sto contando...' e poi coi dati, e su un riquadro centrato
- * quella crescita si vedeva come uno scivolamento. Con un file è una interrogazione sola, cioè
- * decine di millisecondi. ⚠️ **Su molti file resta com'era**, perché là l'attesa è vera e una
- * scheda che tarda mezzo secondo senza dire niente si legge come un tocco andato a vuoto.
+ * I dati si leggono quando si apre: il peso di trecento file vuol dire trecento domande.
+ * ⚠️ **Su un file solo non si apre finché non ha i dati**: aprendosi prima con 'Sto contando...'
+ * e poi coi dati, la crescita si vedrebbe; con un file è una domanda sola. Su molti file si apre
+ * subito, perché l'attesa è vera e una scheda muta per mezzo secondo sembra un tocco a vuoto.
  */
 @Composable
 private fun FactsDialog(
@@ -719,11 +600,9 @@ private fun FactsDialog(
     if (facts == null && uris.size == 1) return
 
     Sheet(onDismiss = onDismiss, title = stringResource(R.string.facts_title), foot = {
-        // ⚠️ La pastiglia c'è solo con UN file: con una selezione non c'è un nome da mettere
-        // in fondo, e un piede vuoto lascerebbe una striscia di niente sopra il bordo.
-        // ⚠️ **Ed è anche quello che rende sicura la rinomina del tocco lungo**: `one` non è
-        // nullo quando i file sono uno, quindi 'rinomina del file singolo' non è una
-        // condizione da controllare a parte, è la stessa che fa comparire la pastiglia.
+        // ⚠️ La pastiglia c'è solo con un file: con una selezione non c'è un nome, e un piede
+        // vuoto lascerebbe una striscia vuota sopra il bordo. È anche quello che rende sicura la
+        // rinomina col tocco lungo: `one` non è nullo solo quando il file è uno.
         facts?.one?.name?.let { NamePill(name = it, onRename = onRename) }
     }) {
         val f = facts
@@ -733,12 +612,9 @@ private fun FactsDialog(
                 style = MaterialTheme.typography.bodyMedium
             )
             /*
-             * ⚠️ **Il PESO davanti e il conto dietro, dalla 0.63** (richiesta dell'utente:
-             * *'X MB in Y file'*). Era 'X file, Y MB totali' della `0.59`: la revisione mette
-             * avanti il numero che si va a cercare, perché quante immagini si sono scelte lo
-             * dice già la barra sopra.
-             * ⚠️ Resta un **plurale** e non una stringa fissa: con un file solo la forma cambia
-             * in diverse lingue, e l'italiano non è quella che lo mostra.
+             * Il peso davanti e il conto dietro ('X MB in Y file', richiesta dell'utente): quante
+             * immagini si sono scelte lo dice già la barra sopra. È un plurale perché con un file
+             * solo la forma cambia in diverse lingue.
              */
             f.one == null -> Text(
                 text = pluralStringResource(
@@ -754,51 +630,28 @@ private fun FactsDialog(
 /**
  * I dati di un file, una riga per campo.
  *
- * ⚠️⚠️ **UN CAMPO SENZA DATO NON PRENDE NESSUNA RIGA** (richiesta dell'utente): il `continue`
- * qui sotto è tutta la regola. Niente righe vuote e niente 'n.d.', quindi il dialogo di una
- * foto scaricata dal web è corto e quello di uno scatto col telefono è lungo, e la
- * differenza **è** l'informazione.
- * ⚠️ **Il nome sta in testa e non porta etichetta**: è il titolo di quello che si sta
- * guardando, non un dato fra gli altri, e la parola 'nome' davanti al nome è rumore.
- * ⚠️⚠️ **Dalla 0.68 il nome è in una PASTIGLIA del colore d'accento, in grassetto**
- * (richiesta dell'utente). Prima era un `titleSmall` nudo, che in un elenco di righe si
- * distingueva poco da un dato fra gli altri: la pastiglia lo rende quello che è, cioè il
- * titolo. ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano
- * lo stesso: è il ruolo giusto per una superficie colorata, e se un giorno i due si
- * separassero questa resterebbe corretta.
- * ⚠️⚠️ **QUESTO BLOCCO NON SCORRE PIÙ DA SÉ, dalla 1.39, E LO SCORRIMENTO SUO MANDAVA L'APP
- * IN CRASH** (riscontro dell'utente, 2026-09-03: *se provo ad aprire la nuova bottomsheet
- * delle info, l'app va sistematicamente in crash*). Fino alla 1.38 questo era il contenuto di
- * un `AlertDialog` e lo scorrimento se lo doveva mettere da sé; con la bottomsheet lo
- * scorrimento è della scheda, e i due si sono trovati **annidati**.
- * ⚠️⚠️ **Due scorrimenti verticali uno dentro l'altro non sono un difetto estetico: sono
- * un'eccezione**, e non ci vuole nemmeno un caso limite. Quello di fuori misura il contenuto
- * con altezza **infinita**, e `ScrollNode.measure` chiama `checkScrollableContainerConstraints`,
- * che su un'altezza infinita **dà errore** con un messaggio che nomina proprio questo caso
- * (*nesting layouts like LazyColumn and Column(Modifier.verticalScroll())*). Letto nel
- * bytecode di `compose-foundation` 1.12.0, non ricordato.
- * ⚠️ **Quindi lo scorrimento sta in UN posto solo**, la scheda che contiene questo blocco
- * (vedi [Sheet]): chi rimettesse un `verticalScroll` qui rimetterebbe il crash.
+ * ⚠️⚠️ **Un campo senza dato non prende nessuna riga** (richiesta dell'utente): il `continue`
+ * qui sotto è tutta la regola. Niente righe vuote né 'n.d.', quindi la scheda di un'immagine
+ * scaricata dal web è corta e quella di uno scatto col telefono è lunga.
+ * Il nome non è una riga: è nella pastiglia in fondo alla scheda ([NamePill], vedi [FactsDialog]).
+ * ⚠️⚠️ **Questo blocco non scorre da sé**: lo scorrimento è della scheda che lo contiene (vedi
+ * [Sheet]), e due scorrimenti verticali annidati non sono un difetto estetico ma un crash: quello
+ * di fuori misura il contenuto con altezza infinita, e `checkScrollableContainerConstraints` va
+ * in errore. Un `verticalScroll` qui rimetterebbe il crash.
  */
 @Composable
 internal fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         for (field in fields) {
-            // ⚠️ Il nome NON è più una riga di questo elenco: dalla `0.69` sta nella testata
-            // del dialogo, accanto alla parola 'Info'. Vedi [NamePill] e [FactsDialog].
+            // ⚠️ Il nome non è una riga di questo elenco: è nella pastiglia in fondo alla scheda.
             if (field == FactField.NAME) continue
             val value = factValue(field, facts, one) ?: continue
             FactRow(label = stringResource(field.label), value = value)
             /*
-             * ⚠️⚠️ **L'ALTITUDINE È UNA VOCE A SÉ MA NON UN CAMPO A SÉ** (richiesta
-             * dell'utente: *da scrivere come voce a parte, senza parentesi*). Prima stava
-             * fra parentesi in coda alle coordinate, dove si leggeva come una loro
-             * precisazione invece che come il terzo numero che è.
-             * ⚠️ **Perché non un `FactField` suo**: comparirebbe nell'elenco delle
-             * impostazioni come una spunta in più, in una schermata che l'utente ha già
-             * chiesto di alleggerire, e sarebbe una spunta che non decide niente da sola.
-             * Altitudine e coordinate vengono dallo stesso dato GPS e viaggiano insieme:
-             * chi spegne le coordinate spegne anche lei, ed è quello che ci si aspetta.
+             * ⚠️ **L'altitudine è una riga a sé ma non un campo a sé** (richiesta dell'utente):
+             * un `FactField` suo sarebbe una spunta in più nelle impostazioni, che l'utente ha
+             * chiesto di alleggerire. Viene dallo stesso dato GPS delle coordinate, e chi spegne
+             * le coordinate spegne anche lei.
              */
             if (field == FactField.PLACE) {
                 altitudeText(one)?.let {
@@ -810,66 +663,26 @@ internal fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
 }
 
 /**
- * Il nome del file in una pastiglia del colore d'accento, larga quanto il dialogo e alta
- * quanto serve fino a [NAME_LINES] righe.
+ * Il nome del file in una pastiglia del colore d'accento, larga quanto la scheda e alta quanto
+ * serve fino a [NAME_LINES] righe.
  *
- * ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano lo stesso:
- * è il ruolo giusto per una superficie colorata, e se un giorno i due si separassero questa
- * resterebbe corretta. Il contrasto del testo sopra l'accento è misurato in `Theme.kt`: 5.19.
+ * `primaryContainer` e non `primary`, anche se in questa tavolozza valgono lo stesso: è il ruolo
+ * giusto per una superficie colorata.
  *
- * ⚠️⚠️ **CRESCE IN VERTICALE FINO A TRE RIGHE E POI ACCORCIA, e le tre regole dell'utente
- * sono tutte e tre necessarie** (2026-08-31: *massimo 3 righe, che per un nome file mi
- * sembrano già un'enormità; se sfora ancora, metti un'ellissi finale nel nome, poi riporta
- * comunque l'estensione; non spezzare mai l'estensione andando a capo*).
- * ⚠️⚠️ **`TextOverflow.Ellipsis` NON serviva e faceva il danno esatto che si voleva
- * evitare**: mette i tre punti alla **fine**, cioè mangia proprio l'estensione, che è la
- * parte che l'utente ha chiesto di salvare sempre. Serve un'ellissi **in mezzo**, che
- * Compose non ha: da qui la misura in [fitName].
+ * ⚠️⚠️ **Fino a tre righe, poi accorcia con l'ellissi, e l'estensione non si spezza mai** (regole
+ * dell'utente): l'ellissi in mezzo e l'estensione salva le fa [fitName], perché
+ * `TextOverflow.Ellipsis` toglierebbe proprio l'estensione.
+ * L'estensione è in grassetto e il resto del nome al peso di `titleSmall`: il grassetto si vede
+ * solo accanto a qualcosa che non lo è. Vale sempre, non solo quando il nome si accorcia.
  *
- * ⚠️⚠️ **L'ESTENSIONE È IN GRASSETTO E IL RESTO DEL NOME NON PIÙ, e la seconda metà di
- * questa frase è una CONSEGUENZA e non una scelta a parte.** Nasce da un difetto che avevo
- * dichiarato e che l'utente ha risolto meglio di come l'avevo posto: accorciando, i tre punti
- * dell'ellissi finivano attaccati al punto dell'estensione, e si leggevano **quattro punti di
- * fila** (`IMG_202....HEIC`). Il rimedio è suo: *uno spazio in più dopo i tre puntini
- * dell'ellisse più l'estensione (incluso il suo punto) in grassetto*.
- * - ⚠️ **La pastiglia era tutta in grassetto**, quindi mettere in grassetto l'estensione non
- *   si sarebbe visto: il grassetto distingue solo da qualcosa che non lo è. Il nome passa
- *   quindi al peso naturale di `titleSmall` (Medium) e il grassetto resta all'estensione.
- * - ⚠️ **Il grassetto vale SEMPRE, non solo quando il nome si accorcia**: un'estensione che
- *   ingrassa solo nei nomi lunghi si legge come un difetto di resa, e comunque
- *   l'estensione è la parte più informativa del nome anche quando ci sta tutto.
- * - ⚠️ **Lo spazio invece SOLO quando si accorcia**: serve a staccare l'ellissi dal punto, e
- *   in un nome intero non ci sarebbe niente da staccare.
- *
- * ⚠️⚠️ **IL TOCCO COPIA IL NOME INTERO, non quello che si vede** (richiesta dell'utente,
- * 2026-09-02: *tener premuta la pillola del nome deve copiare il nome completo
- * (nome.estensione) negli appunti*), e la distinzione è tutta la funzione: a schermo il nome
- * può essere accorciato dall'ellissi, e copiare quello vorrebbe dire incollare `IMG_202... .HEIC`
- * in mezzo a un messaggio. Negli appunti va [name], la stringa di partenza.
- * ⚠️⚠️ **E DALLA 1.25 VALE ANCHE IL TOCCO BREVE** (riscontro dell'utente: *quando vedo una
- * pillola con il nome, mi viene più naturale fare un normale tap anziché un tocco lungo*).
- * ⚠️ **Non era una scorciatoia in più per la stessa cosa: era la CORREZIONE di un gesto
- * indovinato male.** Una pastiglia sembra un tasto, quindi il gesto che chiede è il tocco.
- * ⚠️⚠️ **DALLA 1.40 I DUE GESTI FANNO DUE COSE, e il tocco breve è quello che resta com'era**
- * (richiesta dell'utente, 2026-09-03: *pressione lunga sulla pillola del nome -> rinomina del
- * file singolo*): tocco breve **copia**, tocco lungo **rinomina**. La `1.25` li aveva
- * pareggiati perché la pastiglia al tocco non faceva niente, e quel difetto resta risolto: il
- * gesto ovvio ha ancora la sua risposta, e il gesto nascosto ha smesso di essere un doppione.
- * ⚠️ **La vibrazione è la stessa per tutti e due**, perché in tutti e due i casi è il solo
- * segno immediato che il gesto è passato: il messaggio degli appunti e la finestra di rinomina
- * arrivano un istante dopo.
- * ⚠️ **La rinomina la apre chi chiama e non questa pastiglia** ([onRename]): è un lavoro sui
- * file, e passa dallo stesso imbuto delle altre operazioni (vedi `FileJobDialogs`). Una
- * pastiglia che si apre da sé una finestra di rinomina diventerebbe il posto in cui cercare
- * quella finestra, che non è il punto in cui vive.
- * ⚠️ **[detectTapGestures] e non [androidx.compose.foundation.combinedClickable]**: adesso
- * che i due gesti fanno la stessa cosa quello basterebbe, ma porterebbe con sé l'onda del
- * tocco su una superficie che è il **titolo** del dialogo, e un titolo che si illumina si
- * legge come una voce di elenco.
- * ⚠️ **La vibrazione è [HOLD_BUZZ], la stessa di ogni tocco lungo dell'app**, e la si sente
- * anche sul tocco breve perché era la richiesta (*entrambi hanno la stessa vibrazione e lo
- * stesso effetto*): qui è il solo segno che qualcosa è successo, dato che il messaggio arriva
- * un istante dopo.
+ * ⚠️⚠️ **Il tocco copia il nome intero, non quello che si vede**: a schermo il nome può essere
+ * accorciato, e negli appunti va [name]. Tocco breve copia, tocco lungo rinomina (richieste
+ * dell'utente): una pastiglia sembra un tasto, quindi il gesto ovvio è il tocco. La vibrazione,
+ * [HOLD_BUZZ], è la stessa per i due gesti, ed è il solo segno immediato che il gesto è passato.
+ * La rinomina la apre chi chiama ([onRename]), perché è un lavoro sui file e passa da
+ * `FileJobDialogs`.
+ * [detectTapGestures] e non `combinedClickable`, che metterebbe l'onda del tocco su una superficie
+ * che fa da titolo, e un titolo che si illumina si legge come una voce di elenco.
  */
 @Composable
 internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Modifier) {
@@ -890,8 +703,8 @@ internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = M
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(name) {
-                // ⚠️ AIV Play renames from Android 11 only (`Store.renames`, since 5.50): below,
-                // the long press is not offered, and the tap still copies the name.
+                // ⚠️ AIV Play rinomina solo da Android 11 (`Store.renames`): sotto, il tocco lungo
+                // non c'è, e il tocco copia comunque il nome.
                 detectTapGestures(
                     onTap = { copia() },
                     onLongPress = if (Store.renames) { _ -> rinomina() } else null
@@ -900,24 +713,18 @@ internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = M
         shape = RoundedCornerShape(NAME_CORNER),
         color = MaterialTheme.colorScheme.primaryContainer,
         /*
-         * ⚠️⚠️ **SUL TEMA CHIARO IL TESTO PRENDE IL COLORE DELLO SFONDO DELLA SCHEDA, dalla
-         * 1.40** (richiesta dell'utente, 2026-09-03: *testo sulla pillola del nome: in tema
-         * chiaro dev'essere del colore dello sfondo*), cioè il nome è **ritagliato** nella
-         * pastiglia invece di esserci scritto sopra.
-         * ⚠️⚠️ **IL PREZZO È MISURATO E VA DETTO: il contrasto scende da 5,19 a 2,23.** Sotto
-         * il 4,5 che si chiede a un testo di questa misura, e sotto anche il 3 dei testi
-         * grandi. Non è un ripiego mio: è la resa chiesta, e il numero serve a saperlo. Chi
-         * volesse tutte e due le cose deve **scurire l'accento**: con `#2C7667` (la stessa
-         * tinta al 65% di luminosità) lo stesso testo torna a 4,78.
-         * ⚠️ **Solo sul chiaro**: sullo scuro il bianco resta, e con lui il suo 5,69. La
-         * richiesta nomina un tema solo, e applicarla anche all'altro sarebbe un'aggiunta mia.
+         * ⚠️⚠️ **Sul tema chiaro il testo ha il colore dello sfondo della scheda** (richiesta
+         * dell'utente), come ritagliato nella pastiglia. Il prezzo misurato: il contrasto scende
+         * da 5,19 a 2,23, sotto il 4,5 di un testo di questa misura. Per avere tutte e due le
+         * cose si scurisce l'accento: con `#2C7667` lo stesso testo torna a 4,78.
+         * Solo sul chiaro: sullo scuro il bianco resta (5,69), perché la richiesta nomina un tema
+         * solo.
          */
         contentColor = if (LocalAivLight.current) MaterialTheme.colorScheme.surfaceContainerHigh
         else MaterialTheme.colorScheme.onPrimaryContainer
     ) {
-        // ⚠️ `BoxWithConstraints` e non una misura in dp: la larghezza utile dipende dal
-        // dialogo, che dipende dallo schermo, e una misura scritta a mano sarebbe giusta su
-        // un telefono solo.
+        // ⚠️ `BoxWithConstraints` e non una misura in dp: la larghezza utile dipende dalla
+        // scheda, cioè dallo schermo.
         BoxWithConstraints(
             modifier = Modifier.padding(horizontal = NAME_PAD_SIDE, vertical = NAME_PAD_TOP)
         ) {
@@ -928,9 +735,8 @@ internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = M
             }
             Text(
                 text = shown.text,
-                // ⚠️ Lo stile a cui il nome è stato MISURATO e non quello pieno: `fitName` può
-                // stringere il corpo o la spaziatura per far stare il nome intero, e scriverlo
-                // alla misura piena rimetterebbe lo sforo che quella stretta ha appena tolto.
+                // ⚠️ Lo stile a cui il nome è stato misurato e non quello pieno: `fitName` può
+                // stringere corpo o spaziatura, e la misura piena rimetterebbe lo sforo.
                 style = shown.style,
                 maxLines = NAME_LINES,
                 textAlign = TextAlign.Center,
@@ -943,14 +749,9 @@ internal fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = M
 /**
  * Una riga di dati: etichetta a sinistra, valore a destra.
  *
- * ⚠️⚠️ **[Modifier.alignByBaseline] SU TUTTI E DUE, ed è la correzione di un difetto che si
- * vedeva** (riscontro dell'utente: *sono sfalsati, le linee di base non combaciano*).
- * L'etichetta è `bodySmall` e il valore `bodyMedium`, cioè 12sp contro 14sp con interlinee
- * diverse: allineati in alto come erano, i due riquadri cominciavano insieme e le lettere
- * no. La linea di base è l'unica cosa che si vede davvero allineata, perché è quella su cui
- * poggiano i caratteri.
- * ⚠️ Su un valore di **due righe** si allinea la prima, che è quella accanto all'etichetta:
- * è esattamente quello che serve adesso che i megapixel e gli ISO vanno a capo.
+ * ⚠️ **`alignByBaseline` su tutti e due**: etichetta `bodySmall` e valore `bodyMedium` hanno
+ * corpi e interlinee diversi, e allineati in alto le lettere sarebbero sfalsate (riscontro
+ * dell'utente). Su un valore di due righe si allinea la prima, quella accanto all'etichetta.
  */
 @Composable
 private fun FactRow(label: String, value: String) {
@@ -982,32 +783,23 @@ private val NAME_PAD_TOP = 4.dp
 /**
  * Quante righe può prendere il nome nella pastiglia.
  *
- * ⚠️ Tre, scelta dell'utente: *che per un nome file mi sembrano già un'enormità, ma non
- * oltre*. Alla larghezza di un dialogo su un telefono sono circa novanta caratteri, cioè
- * più del doppio del nome più lungo che una fotocamera produce.
+ * Tre, scelta dell'utente: alla larghezza della scheda su un telefono sono circa novanta
+ * caratteri, più del doppio del nome più lungo che una fotocamera produce.
  */
 private const val NAME_LINES = 3
 
 /**
  * Il valore di un campo, già scritto come si legge, oppure `null` se il file non ce l'ha.
  *
- * ⚠️⚠️ **LA FORMATTAZIONE STA QUI E NON NELLA LETTURA DEI DATI, e non è pignoleria**: qui
- * si è dentro la composizione, quindi si possono leggere le stringhe tradotte e la lingua
- * del telefono. Un `Double` trasformato in testo dentro `factsOf` sarebbe un dato che non si
- * può più formattare bene, e le date e i separatori decimali cambiano con la lingua.
+ * ⚠️ **La formattazione vive qui e non nella lettura dei dati**: dentro la composizione si
+ * leggono le stringhe tradotte e la lingua del telefono, che cambia date e separatori decimali.
  */
 @Composable
 private fun factValue(field: FactField, facts: Facts, one: OneFile): String? = when (field) {
     FactField.NAME -> one.name
 
-    // ⚠️ Si mostra la CODA del tipo MIME (`image/jpeg` -> `JPEG`): la prima metà è
-    // 'image' su ogni fotografia, quindi è una parola che non distingue niente.
-    /*
-     * ⚠️ **Il nome del formato lo calcola [kindOf] e non questa riga**, dalla `1.42`: la
-     * stessa regola serviva anche alla barra delle info, che per due versioni ha continuato a
-     * scrivere `SVG+XML` perché se lo ricavava da sé. Il perché del taglio, e la misura sui
-     * tipi che l'app dichiara, stanno là.
-     */
+    // ⚠️ Il nome del formato lo calcola [kindOf], che serve anche alla barra delle informazioni:
+    // il perché del taglio del tipo MIME vive là.
     FactField.KIND -> kindOf(one.mime)
 
     FactField.PIXELS -> pixelsText(one)
@@ -1026,8 +818,7 @@ private fun factValue(field: FactField, facts: Facts, one: OneFile): String? = w
 /**
  * Le misure, coi megapixel quando ce ne sono abbastanza per dire qualcosa.
  *
- * ⚠️ **Sotto un decimo di megapixel il numero non si scrive**: su un'icona da 48x48 direbbe
- * '0,0 Mpx', che è una riga in più per dire meno di quello che le due misure già dicono.
+ * Sotto un decimo di megapixel il numero non si scrive: su un'icona da 48x48 direbbe '0,0 Mpx'.
  */
 @Composable
 private fun pixelsText(one: OneFile): String? {
@@ -1041,9 +832,8 @@ private fun pixelsText(one: OneFile): String? {
 /**
  * La codifica, dai byte del file. Vedi [Encoding], che spiega perché non dall'EXIF.
  *
- * ⚠️ **La parola dell'ordine di scansione dipende dal formato**: un JPEG è 'progressivo',
- * un PNG 'interlacciato'. È la stessa idea con due nomi, e usarne uno per tutti e due
- * suonerebbe sbagliato a chi conosce il formato.
+ * La parola dell'ordine di scansione dipende dal formato: un JPEG è 'progressivo', un PNG
+ * 'interlacciato', la stessa idea con i due nomi che usa chi conosce il formato.
  */
 @Composable
 private fun encodingText(encoding: Encoding?): String? {
@@ -1064,21 +854,14 @@ private fun encodingText(encoding: Encoding?): String? {
 /**
  * Il metodo colore, su DUE righe.
  *
- * ⚠️⚠️ **LE DUE RIGHE SONO UNA RICHIESTA ALLA LETTERA, e non una scelta tipografica**
- * (l'utente, 2026-09-01, con i suoi due esempi: `Scala di colore` a capo `(256 colori, con
- * trasparenza)`, e `RGBA 32 bit` a capo `8 bit/canale`). Sopra sta **che cosa** contiene un
- * pixel, sotto **quanto** ne contiene: sono due domande diverse, e su una riga sola separate
- * da una virgola si leggono come un elenco di dettagli.
- * ⚠️ **Ma il NOME nel primo esempio è corretto in 'Colore indicizzato'**, ed è una modifica a
- * un testo dell'utente, dichiarata qui perché si veda: `Metodo colore` e `Scala di grigio`
- * sono i termini italiani di Photoshop, e in quel vocabolario la tavolozza si chiama
- * 'Colore indicizzato'. `Scala di colore` non esiste da nessuna parte, e accanto agli altri
- * due si legge come un refuso proprio perché gli altri due sono giusti.
- * ⚠️ **La trasparenza non ha una voce sua**, ed è la stessa richiesta: entra nella seconda
- * riga di questa, perché è una proprietà del metodo colore e non un dato a sé.
- * ⚠️ **Su RGBA e su grigio con alfa non si ripete**: la `A` del nome lo dice già, e
- * aggiungere 'con trasparenza' sarebbe dirlo due volte nella stessa voce. Si scrive dove
- * serve davvero, cioè su un RGB o una tavolozza che dichiarano un colore trasparente.
+ * ⚠️ **Le due righe sono una richiesta dell'utente**, coi suoi esempi (`RGBA 32 bit` a capo
+ * `8 bit/canale`): sopra che cosa contiene un pixel, sotto quanto. La trasparenza entra nella
+ * seconda riga, perché è una proprietà del metodo colore.
+ * ⚠️ **Il nome della tavolozza è 'Colore indicizzato'**, una correzione dichiarata al suo esempio
+ * ('Scala di colore'): è il termine italiano di Photoshop, come `Metodo colore` e `Scala di
+ * grigio`.
+ * Su RGBA la trasparenza non si ripete, perché la `A` del nome la dice già (per il grigio con
+ * alfa vedi la nota nel corpo).
  */
 @Composable
 private fun coloursText(colours: Colours?): String? {
@@ -1103,9 +886,8 @@ private fun coloursText(colours: Colours?): String? {
             second += stringResource(R.string.facts_colour_channel, it)
         }
     }
-    // ⚠️ **Solo RGBA lo sottintende, e non il grigio con alfa**: la `A` sta nel nome del
-    // primo e non nel secondo, che si chiama 'scala di grigio' come quello senza. Là la
-    // trasparenza va detta, o due file diversi mostrerebbero la stessa riga.
+    // ⚠️ Solo RGBA la sottintende: il grigio con alfa si chiama 'scala di grigio' come quello
+    // senza, e là la trasparenza va detta, o due file diversi mostrerebbero la stessa riga.
     if (colours.transparent && colours.model != Colours.Model.RGBA) {
         second += stringResource(R.string.facts_colour_alpha)
     }
@@ -1117,11 +899,9 @@ private fun coloursText(colours: Colours?): String? {
 /**
  * Quanto dura un'animazione.
  *
- * ⚠️⚠️ **SOTTO IL MINUTO SI SCRIVONO I SECONDI CON UN DECIMALE, e non `0:01`**: una GIF dura
- * quasi sempre un paio di secondi, e la forma dell'orologio la schiaccerebbe in un numero
- * solo, perdendo proprio la cifra che distingue un'animazione svelta da una lenta. Sopra il
- * minuto torna [Videos.stamp], che è la forma che l'utente legge già sulle miniature dei
- * filmati: due formati, ma ognuno dove dice qualcosa.
+ * ⚠️ **Sotto il minuto i secondi con un decimale, e non `0:01`**: una GIF dura quasi sempre un
+ * paio di secondi, e la forma dell'orologio perderebbe la cifra che distingue un'animazione
+ * svelta da una lenta. Sopra il minuto [Videos.stamp], la forma delle miniature dei video.
  */
 @Composable
 private fun durationText(ms: Int): String? {
@@ -1133,16 +913,11 @@ private fun durationText(ms: Int): String? {
 /**
  * Obiettivo ed esposizione, i tre dati che l'utente ha chiesto insieme.
  *
- * ⚠️ **Su una voce sola e non su tre**: focale, tempo e ISO sono i parametri di **uno**
- * scatto, e chi li guarda li guarda insieme. Tre voci con un numero ciascuna
- * allungherebbero il dialogo di tre volte per la stessa informazione.
- * ⚠️⚠️ **Ma dalla 0.68 gli ISO vanno a capo** (richiesta dell'utente): la voce resta una,
- * e sono le due **righe** a separare l'obiettivo dalla sensibilità. Focale e tempo
- * descrivono la luce che entra, gli ISO quanto la si amplifica dopo: sono due cose, e su
- * una riga sola di tre numeri separati da virgole non si vedeva.
- * ⚠️ **Il tempo si scrive come una frazione quando è meno di un secondo** (`1/120 s`), che
- * è come lo scrivono le fotocamere e chi fotografa: `0,008 s` è lo stesso numero e non lo
- * legge nessuno.
+ * Una voce sola: focale, tempo e ISO sono i parametri di uno scatto, e si guardano insieme. Gli
+ * ISO vanno a capo (richiesta dell'utente): focale e tempo dicono la luce che entra, gli ISO
+ * quanto la si amplifica dopo.
+ * Il tempo sotto il secondo si scrive come una frazione (`1/120 s`), come lo scrivono le
+ * fotocamere e chi fotografa.
  */
 @Composable
 private fun cameraText(one: OneFile): String? {
@@ -1157,8 +932,7 @@ private fun cameraText(one: OneFile): String? {
     }
     val iso = one.iso?.let { stringResource(R.string.facts_iso, it) }
     val head = lens.joinToString(", ")
-    // ⚠️ L'a capo esiste solo quando ci sono tutte e due le metà: una riga vuota sopra o
-    // sotto sarebbe uno spazio che dice di aver perso un dato che non c'era.
+    // ⚠️ L'a capo esiste solo quando ci sono tutte e due le metà, o resterebbe una riga vuota.
     return when {
         head.isEmpty() -> iso
         iso == null -> head
@@ -1167,19 +941,13 @@ private fun cameraText(one: OneFile): String? {
 }
 
 /**
- * Dove è stata scattata: le sole coordinate.
+ * Dove è stata scattata: le sole coordinate (l'altitudine è una riga sua, [altitudeText]).
  *
- * ⚠️⚠️ **L'ALTITUDINE È USCITA DA QUI NELLA 0.68**, e adesso la scrive [altitudeText] su
- * una voce sua (richiesta dell'utente: *da scrivere come voce a parte, senza parentesi*).
- * Fra parentesi in coda alle coordinate si leggeva come una loro precisazione invece che
- * come il terzo numero che è.
- * ⚠️⚠️ **LE COORDINATE SI SCRIVONO COL PUNTO, sempre, anche in italiano**, ed è l'unica
- * deroga alla lingua del telefono in tutta questa schermata: sono un numero da **incollare
- * in una mappa**, e nessuna mappa accetta la virgola decimale, perché la virgola è già il
- * separatore fra i due valori. Scriverle come le scrive la lingua le renderebbe illeggibili
- * proprio a chi le usa.
- * ⚠️ **Sei decimali**: sono circa undici centimetri all'equatore, cioè più della precisione
- * di qualunque GPS di telefono. Con quattro si perderebbe la casa giusta.
+ * ⚠️⚠️ **Le coordinate si scrivono col punto, sempre, anche in italiano**, l'unica deroga alla
+ * lingua del telefono in questa scheda: sono un numero da incollare in una mappa, e la virgola è
+ * già il separatore fra i due valori.
+ * Sei decimali: circa undici centimetri all'equatore, più della precisione di qualunque GPS di
+ * telefono. Con quattro si perderebbe la casa giusta.
  */
 @Composable
 private fun placeText(one: OneFile): String? {
@@ -1191,11 +959,8 @@ private fun placeText(one: OneFile): String? {
 /**
  * L'altitudine, nella forma che l'utente ha chiesto: `X m s.l.m.`
  *
- * ⚠️ **Si mostra solo insieme alle coordinate**, e la condizione sta in chi la chiama: un
- * file con l'altitudine e senza latitudine non esiste in pratica, ma se esistesse
- * mostrarla da sola sarebbe un dato senza il suo posto.
- * ⚠️ **Arrotondata al metro**: l'altitudine di un GPS di telefono sbaglia di parecchi
- * metri, e scriverne i decimali sarebbe dichiarare una precisione che non c'è.
+ * Si mostra solo insieme alle coordinate, e la condizione è in chi la chiama. Arrotondata al
+ * metro: il GPS di un telefono sbaglia l'altitudine di parecchi metri.
  */
 @Composable
 private fun altitudeText(one: OneFile): String? {
@@ -1206,8 +971,7 @@ private fun altitudeText(one: OneFile): String? {
 /**
  * Un numero con un decimale, e senza lo zero inutile.
  *
- * ⚠️ `30,0 s` e `26,0 mm` sono il modo di scrivere un numero intero che si legge come una
- * misura di precisione che non c'è: quando il decimale è zero si toglie.
+ * `30,0 s` e `26,0 mm` dichiarerebbero una precisione che non c'è: un decimale zero si toglie.
  */
 private fun neat(value: Double): String =
     if (value == floor(value) && abs(value) < 1e9) value.toLong().toString()
@@ -1216,16 +980,11 @@ private fun neat(value: Double): String =
 /**
  * Un istante come lo scrive la lingua del telefono.
  *
- * ⚠️ **Data media e ora breve**: la data per esteso ('30 agosto 2026') su una riga
- * affiancata a un'etichetta va a capo, e i secondi non servono a nessuno per sapere quando
- * è stata scattata una fotografia.
- * ⚠️ **Nessun formato scritto a mano** (`dd/MM/yyyy`): il giorno prima del mese è vero in
- * italiano e falso in inglese, e con quindici lingue in arrivo un formato fisso sarebbe
- * sbagliato in tredici.
- * ⚠️ **Non è più privata dalla 0.76**: la usa anche la cronologia dei ripristini, per il capo
- * di ogni gruppo. Una seconda copia là dentro avrebbe voluto dire due formati da tenere
- * d'accordo, ed è precisamente il tipo di divergenza che nessuno nota fino a che una delle
- * due schermate scrive la data all'americana.
+ * Data media e ora breve: la data per esteso accanto a un'etichetta va a capo, e i secondi non
+ * servono. ⚠️ **Nessun formato scritto a mano** (`dd/MM/yyyy`): il giorno prima del mese vale in
+ * italiano e non in inglese.
+ * È `internal` perché la usa anche la cronologia dei ripristini, per il capo di ogni gruppo: un
+ * formato solo per le due schermate.
  */
 internal fun moment(millis: Long): String =
     DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(millis))
