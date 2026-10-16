@@ -1842,8 +1842,21 @@ object SettingsStore {
         }
     }
 
+    /**
+     * Scrive l'oggetto intero.
+     *
+     * ⚠️⚠️ **IN AIV PLAY LE CHIAVI CHE `Store.fit` FISSA NON SI SCRIVONO, DALLA `6.29`** (rilievo E17
+     * della revisione della 6.25): l'oggetto che arriva qui è già passato da `Store.fit`, quindi
+     * porta i valori fissati, e scriverli voleva dire riscrivere l'archivio, contro la regola di
+     * `Store.fit` (*nothing is rewritten*). Si vedeva il giorno in cui una restrizione cade, o
+     * esportando le impostazioni da AIV Play verso AIV GitHub. Il pulsante principale si scrive
+     * quando la scelta è cambiata rispetto a quello che l'archivio dava, cioè quando l'hai
+     * cambiato tu.
+     */
     suspend fun save(context: Context, settings: Settings) {
+        val fixed = !Store.fullSettings
         context.writeStore { p ->
+            val control = read(p).mainControl
             p[BG_TYPE] = settings.bgType.token
             p[BG_THEME] = settings.bgTheme.token
             p[FIT_GROW] = settings.fitGrow
@@ -1851,9 +1864,9 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
-            p[PANEL_DEPTH] = settings.panelDepth.token
+            if (!fixed) p[PANEL_DEPTH] = settings.panelDepth.token
             p[ZOOM_IN_MENU] = settings.zoomInMenu
-            p[REVERSE_SEQUENCE] = settings.reverseSequence
+            if (!fixed) p[REVERSE_SEQUENCE] = settings.reverseSequence
             // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è
             // un id come un altro, e un giorno finirebbe per somigliare a una cartella
             // vera. L'assenza della chiave è l'unico modo di dire 'nessuna'.
@@ -1863,7 +1876,7 @@ object SettingsStore {
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
-            p[MAIN_CONTROL] = settings.mainControl.token
+            if (!fixed || settings.mainControl != control) p[MAIN_CONTROL] = settings.mainControl.token
             p[PHONE_PILL] = settings.phonePill.token
             p[PILL_FILL] = settings.pillFill.token
             p[GLASS_RADIUS] = settings.glass.radius
@@ -1901,17 +1914,17 @@ object SettingsStore {
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount
-            p[FOLDER_COLOUR] = settings.folderColour.token
+            if (!fixed) p[FOLDER_COLOUR] = settings.folderColour.token
             p[BIN_ON] = settings.binOn
             p[IMAGES_ONLY] = settings.imagesOnly
             p[CLIP_AUTOPLAY] = settings.clipAutoplay
             p[GRID_NAMES] = settings.gridNames
-            p[FRONT_WASH] = settings.frontWash
-            p[FRONT_SERIF] = settings.frontSerif
+            if (!fixed) p[FRONT_WASH] = settings.frontWash
+            if (!fixed) p[FRONT_SERIF] = settings.frontSerif
             p[FRONT_FACTS] = settings.frontFacts
             p[FRONT_PICK_ALL] = settings.frontPickAll
-            p[EXT_EDIT] = settings.extRename
-            p[EXT_DOWNLOAD] = settings.extDownload
+            if (!fixed) p[EXT_EDIT] = settings.extRename
+            if (!fixed) p[EXT_DOWNLOAD] = settings.extDownload
             p[GPU_THUMBS] = settings.gpuThumbs
             p[AUTO_UPDATE] = settings.autoUpdate
             p[SAVE_RENAME] = settings.saveRename
