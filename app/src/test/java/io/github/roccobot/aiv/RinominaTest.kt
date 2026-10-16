@@ -134,12 +134,3 @@ class RinominaTest {
         Uri.fromFile(file)
     }
 }
-
-/**
- * Quanto si aspetta che la finestra si apra, in millisecondi.
- *
- * ⚠️ **Largo di proposito**: quello che deve fallire è una finestra che non si apre affatto, non
- * una macchina lenta. La lettura dei nomi passa da un thread di I/O e cinquanta file sono
- * cinquanta accessi al disco.
- */
-private const val ATTESA = 5_000L

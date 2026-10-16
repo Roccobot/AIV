@@ -765,6 +765,3 @@ private const val SOGLIA = 200
 
 /** Dove cade la firma quando il posto non è quello che si sta misurando. */
 private val SPOT = Watermark.Spot.BOTTOM_RIGHT
-
-/** Quanto si aspetta che l'anteprima dell'editor arrivi. */
-private const val ATTESA = 10_000L

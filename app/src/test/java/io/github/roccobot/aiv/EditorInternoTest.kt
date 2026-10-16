@@ -5,7 +5,6 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.net.Uri
-import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -44,18 +43,17 @@ class EditorInternoTest {
      * Sceglie [id] dal selettore aperto su una fotografia, e dice quale schermata si apre.
      *
      * ⚠️ **L'apertura passa da un lavoro in sottofondo** (il nome del file si legge fuori dal filo
-     * principale), quindi si aspetta che la schermata cambi, al più due secondi. Un indirizzo
-     * `file` dà il nome senza toccare il disco.
+     * principale), quindi si aspetta che la schermata cambi. Un indirizzo `file` dà il nome senza
+     * toccare il disco.
+     * ⚠️ **Se nessun editor si apre, la prova cade qui e lo dice**, con la schermata in cui è
+     * rimasta: un'asserzione sul tipo, dopo, cadrebbe senza messaggio.
      */
     private fun apreCon(id: String): Screen {
         val model = modelli.nuovo(app)
         model.editWith(Uri.parse("file:///storage/emulated/0/Pictures/prova.jpg"))
         model.editorChosen(id)
-        repeat(200) {
-            shadowOf(Looper.getMainLooper()).idle()
-            val ora = model.screen
-            if (ora is Screen.Editor || ora is Screen.FullEditor) return ora
-            Thread.sleep(10)
+        aspetta("nessun editor si è aperto con '$id'", dettaglio = { ": schermata ${model.screen}" }) {
+            model.screen.let { it is Screen.Editor || it is Screen.FullEditor }
         }
         return model.screen
     }

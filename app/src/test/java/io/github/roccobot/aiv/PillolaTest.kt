@@ -399,12 +399,6 @@ private val CARTELLE = (1..4).map {
     )
 }
 
-/** As in `SaltiTest`: the first composition and its effects. */
-private const val NASCITA = 1_000L
-
-/** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
-private const val RESPIRO = 100L
-
 /** As in `SaltiTest`: the flick's steps. */
 private const val PASSI = 6
 private const val PASSO_MS = 10L

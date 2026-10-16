@@ -792,6 +792,3 @@ class RidimensionaTest {
 
 /** Il lato del foglio su cui questo banco lavora. */
 private const val LATO = 240
-
-/** Quanto si aspetta che l'anteprima arrivi, come negli altri banchi dell'editor. */
-private const val ATTESA = 10_000L

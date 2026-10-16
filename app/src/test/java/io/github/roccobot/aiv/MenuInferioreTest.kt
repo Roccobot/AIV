@@ -1002,63 +1002,6 @@ private val CARTELLE = (1..4).map {
     )
 }
 
-/** As in `SaltiTest`: the first composition and its effects. */
-private const val NASCITA = 1_000L
-
-/** As in `SaltiTest`: shorter than the jump's quiet, so the pill does not open again. */
-private const val RESPIRO = 100L
-
-/**
- * How long a test waits for the first start's hint, read from the preferences' store.
- *
- * ⚠️ **20 s since 4.36, and it was 5**: see [aspettaIlVelo].
- */
-internal const val VELO_MS = 20_000L
-
-/**
- * Waits for the first start's hint of the Start menu, and says why when it does not come.
- *
- * ⚠️ The hint comes from the preferences' store, read on another thread that `waitForIdle` does not
- * wait for: in the full bench the veil was not there yet, and the test failed.
- * ⚠️⚠️ **WHY IT FELL NOW AND THEN, FOUND IN 4.98** (B2, after it stopped the releases of 4.96 and
- * 4.97): the old `createComposeRule` runs a composition's effects on an unconfined test dispatcher,
- * so the coroutine of `produceState` in `FolderScreen` resumes on whatever thread hands it the
- * value. When the store has to read its file again (after `DisegnoTest`, which writes other hints),
- * 'not seen' arrives on a `DefaultDispatcher` worker, the state is written there, and no recomposition
- * follows: the hint never comes, with the store saying 'not seen'. Measured on this machine on two
- * cores, `DisegnoTest` first: the value logged on a worker thread in every fall, 3 falls in 6 runs.
- * Calling `Snapshot.sendApplyNotifications` while waiting was tried and is not enough (2 falls in
- * 5 runs, in `EtichetteStartTest`).
- * ⚠️⚠️ **THE FIX IS THE NEW RULE, `junit4.v2.createComposeRule`**, in this class and in
- * `EtichetteStartTest`, the two that wait for the hint: its standard dispatcher runs every resume
- * on the test's main thread, as the app's own dispatcher does on a phone. 0 falls in 5 runs on the
- * same two cores, every value logged on the main thread. The app was never at fault.
- * ⚠️ The earlier guesses are fallen: not a slow machine, not two class loaders, not a stuck store.
- * The 20 s wait and the report on a timeout stay, as a net.
- */
-internal fun aspettaIlVelo(banco: androidx.compose.ui.test.junit4.ComposeContentTestRule, app: android.content.Context) {
-    val frase = app.getString(R.string.corner_hint)
-    val inizio = System.nanoTime()
-    try {
-        banco.waitUntil(VELO_MS) { banco.onAllNodesWithText(frase).fetchSemanticsNodes().isNotEmpty() }
-    } catch (e: androidx.compose.ui.test.ComposeTimeoutException) {
-        val p = runBlocking { storedPreferences(app) }
-        val testi = banco.onAllNodes(androidx.compose.ui.test.hasText("", substring = true), useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .mapNotNull { n -> n.config.getOrElseNullable(androidx.compose.ui.semantics.SemanticsProperties.Text) { null }?.joinToString() }
-        val flusso = runBlocking { kotlinx.coroutines.withTimeoutOrNull(2_000) { Hint.COLUMNS.flow(app).first() } }
-        throw AssertionError(
-            "Il velo non è comparso. permesso=${Folder.granted(app)} flusso=$flusso archivio=${p.asMap()} " +
-                "vista=${SettingsStore.read(p).folderView} testi=$testi", e
-        )
-    }
-    val ms = (System.nanoTime() - inizio) / 1_000_000
-    if (ms > VELO_LENTO_MS) println("VELO LENTO: $ms ms")
-}
-
-/** Beyond this, a hint that came is reported as slow: the solid variant took 0,3 s. */
-private const val VELO_LENTO_MS = 2_000L
-
 /** As in `SaltiTest`: the flick's steps. */
 private const val PASSI = 6
 private const val PASSO_MS = 10L

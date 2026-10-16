@@ -158,9 +158,6 @@ class SemanticheTest {
     }
 
     private companion object {
-        /** Quanto si aspetta che una finestra si apra, in millisecondi. */
-        const val ATTESA = 5_000L
-
         /**
          * Il nome dell'app come lo scrive l'intestazione.
          *

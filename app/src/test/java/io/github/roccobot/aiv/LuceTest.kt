@@ -758,9 +758,6 @@ private const val OMBRE = 3
 /** Il lato del quadrato finto: piccolo, perché di lui serve solo che esista. */
 private const val LATO = 64
 
-/** Quanto si aspetta che l'anteprima arrivi: vedi `pronta()`. */
-private const val ATTESA = 5000L
-
 /**
  * Quanto si avanza per guardare la corsa del doppio tocco a metà strada.
  *
