@@ -2250,6 +2250,14 @@ fun GridScreen(
                  * in fondo alla cartella prima di accorgersene.
                  */
                 LaunchedEffect(dragAt != null, items) {
+                    /*
+                     * ⚠️ **La casella dell'ultimo giro, dalla `6.28`** (rilievo D7 della revisione
+                     * della 6.25): la selezione si ricostruiva a ogni fotogramma anche col dito
+                     * fermo, cioè un insieme nuovo grande quanto la selezione sessanta volte al
+                     * secondo. Partenza, selezione di partenza e verso restano gli stessi per tutto
+                     * il trascinamento, quindi la casella basta.
+                     */
+                    var last = -1
                     while (dragAt != null) {
                         withFrameNanos { }
                         val at = dragAt ?: break
@@ -2263,6 +2271,8 @@ fun GridScreen(
                         }
                         if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
                         val hit = state.itemIndexAt(at) ?: continue
+                        if (hit == last) continue
+                        last = hit
                         // ⚠️ L'intervallo si SOMMA o si SOTTRAE alla selezione di partenza
                         // secondo il verso deciso da [dragOff]: nei due casi il conto resta
                         // 'quella di prima più (o meno) l'intervallo di adesso', quindi

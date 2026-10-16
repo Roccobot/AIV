@@ -2370,8 +2370,24 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /** What [feed] was read for: permission, [outsideStamp], folders, date and [peeking]. */
     private var feedFor: List<Any>? = null
 
-    /** The last arguments of [readFeed], for [outsideChange], which cannot ask the screen. */
+    /**
+     * The last arguments of [readFeed], for [outsideChange], which cannot ask the screen, and `null`
+     * while the Feed is not on screen ([leaveFeed]).
+     */
     private var feedArgs: Triple<Boolean, FolderSelection, FeedDate>? = null
+
+    /**
+     * The home has left the Feed (another view, or the menu Start in front of it).
+     *
+     * ⚠️⚠️ **SINCE 6.28, AND IT IS WHAT KEEPS THE PROMISE OF `FolderScreen`** (finding D16 of the 6.25
+     * review): [feedArgs] was written at the first reading and never cleared, so from then on every
+     * news from the disk, with the home in the grid, the list or the tree, read again every picture of
+     * the phone (measured in `FeedFuoriPlayTest`). Back on the Feed the screen asks again, and the key
+     * of [readFeed], which holds [outsideStamp], reads it if something changed meanwhile.
+     */
+    fun leaveFeed() {
+        feedArgs = null
+    }
 
     private var feedJob: Job? = null
 
@@ -3807,6 +3823,7 @@ private fun Stage(
                     feedDate = settings.feedDate,
                     onFeedDate = { model.updateSettings(settings.copy(feedDate = it)) },
                     onFeedRead = { model.readFeed(it, settings.folderSelection, settings.feedDate) },
+                    onFeedLeft = model::leaveFeed,
                     // ⚠️ The Feed hands over like the tree view does: a cover or an answer to an app
                     // that asked for a picture, otherwise the viewer.
                     onFeedOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
