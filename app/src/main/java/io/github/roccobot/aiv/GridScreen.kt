@@ -1121,7 +1121,8 @@ fun GridScreen(
      */
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
         chosen = emptySet()
-        scope.launch {
+        // ⚠️ In [FileWork] e non nell'ambito della schermata (dalla `6.27`): vedi la nota là.
+        FileWork.scope.launch {
             val out = work()
             // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo

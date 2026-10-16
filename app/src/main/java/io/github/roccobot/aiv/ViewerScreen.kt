@@ -368,14 +368,15 @@ fun ViewerScreen(
      * Il giro di un'operazione: si parte, si dice com'è andata, e se la fotografia non c'è
      * più si avverte chi sa che cosa mostrare al suo posto.
      *
-     * ⚠️⚠️ **GIRA NELL'AMBITO DI QUESTA SCHERMATA, e non in quello del menu o della tela**:
-     * quelli se ne vanno, il primo quando il menu si chiude e la seconda al cambio di stato,
-     * cioè **esattamente** nell'istante in cui un'eliminazione riesce. Una coroutine
-     * lasciata là dentro verrebbe annullata alla prima sospensione, e si perderebbero
-     * l'avviso e la rilettura, non il lavoro sui file, che `FileTree` protegge da sé.
+     * ⚠️⚠️ **GIRA IN [FileWork], e non nell'ambito del menu o della tela**: quelli se ne
+     * vanno, il primo quando il menu si chiude e la seconda al cambio di stato, cioè
+     * **esattamente** nell'istante in cui un'eliminazione riesce. Una coroutine lasciata là
+     * dentro verrebbe annullata alla prima sospensione, e si perderebbero l'avviso e la
+     * rilettura, non il lavoro sui file, che `FileTree` protegge da sé. Fino alla `6.26` girava
+     * nell'ambito di questa schermata, che una rotazione chiude allo stesso modo.
      */
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
-        scope.launch {
+        FileWork.scope.launch {
             val out = work()
             // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo

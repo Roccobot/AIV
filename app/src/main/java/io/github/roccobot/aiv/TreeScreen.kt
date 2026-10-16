@@ -152,13 +152,13 @@ fun TreeList(
     var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /**
-     * ⚠️ **Svuota la selezione PRIMA di lanciare**, come nella griglia: il lavoro vive
-     * nell'ambito della schermata e sopravvive alla scheda che si chiude, mentre una selezione
+     * ⚠️ **Svuota la selezione PRIMA di lanciare**, come nella griglia: il lavoro vive in
+     * [FileWork] e sopravvive alla scheda che si chiude e alla rotazione, mentre una selezione
      * lasciata aperta sopra un'operazione in corso invita a toccarla due volte.
      */
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
         chosen = emptySet()
-        scope.launch {
+        FileWork.scope.launch {
             val out = work()
             // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo

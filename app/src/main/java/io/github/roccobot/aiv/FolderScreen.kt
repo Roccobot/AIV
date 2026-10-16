@@ -1013,7 +1013,8 @@ fun FolderScreen(
     // and the stream is read again after it.
     FileJobDialogs(job = feedTask, fields = factFields, onClose = { feedTask = null }) { kind, work ->
         feedChosen = emptySet()
-        scope.launch {
+        // ⚠️ In [FileWork], as every file job from 6.27: see the note there.
+        FileWork.scope.launch {
             val out = work()
             if (kind.speaks(out)) Notices.say(outcomeText(context.resources, out, kind), NOTICE_LONG_MS)
             onFeedChanged()

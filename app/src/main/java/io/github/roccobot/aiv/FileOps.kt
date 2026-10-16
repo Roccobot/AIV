@@ -53,8 +53,26 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
+
+/**
+ * L'ambito dei lavori sui file (copia, sposta, cestino, rinomina, eliminazione), dalla `6.27`.
+ *
+ * ⚠️⚠️ **VIVE QUANTO IL PROCESSO, NON QUANTO LA SCHERMATA** (rilievo E10 della revisione della
+ * 6.25): fino alla `6.26` i quattro posti che lanciano un lavoro usavano l'ambito della loro
+ * schermata, che una rotazione o un'uscita dalla cartella chiude. La scrittura sul disco si salvava
+ * da sé (`NonCancellable`), ma tutto quello che viene dopo no: con una copia di qualche minuto si
+ * perdevano 'Annulla' e l'avviso dell'esito.
+ * ⚠️ **Sul thread principale**: le finestre di sistema che un lavoro aspetta ([SystemAsk]) si
+ * aprono da lì, e il lavoro sul disco passa da sé su `Dispatchers.IO`.
+ * ⚠️ **`SupervisorJob`**: un lavoro che va in errore non ferma gli altri in corso.
+ */
+object FileWork {
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+}
 
 /**
  * Le operazioni sui file e i loro dialoghi, in un posto solo.
@@ -86,9 +104,9 @@ fun FileJobDialogs(
     /**
      * Fa partire l'operazione: riceve **che cosa** si sta facendo e il lavoro da svolgere.
      *
-     * ⚠️ Il lavoro arriva come funzione sospesa e non eseguito: chi chiama lo lancia nel
-     * **suo** ambito, che è la sola cosa che gli permette di sopravvivere al dialogo che
-     * si chiude e alla schermata che cambia.
+     * ⚠️ Il lavoro arriva come funzione sospesa e non eseguito: chi chiama lo lancia in
+     * [FileWork], che è la sola cosa che gli permette di sopravvivere al dialogo che si chiude,
+     * alla schermata che cambia e alla rotazione.
      */
     onRun: (FileKind, suspend () -> FileTree.Outcome) -> Unit
 ) {
@@ -369,7 +387,8 @@ sealed interface FileJob {
  * un lavoro rimesso in scena dopo la rotazione farebbe partire l'operazione **una seconda
  * volta**, cioè un file duplicato due volte o due giri di cestino. Quelli si salvano come
  * 'niente': l'operazione era già in corso quando il telefono ha girato, e chi la sta facendo è
- * l'ambito del modello, che alla rotazione non muore.
+ * [FileWork], che alla rotazione resta (fino alla `6.26` era l'ambito della schermata, e questa
+ * nota lo diceva del modello, a torto).
  * ⚠️ **Quindi qui si salvano le sole finestre**: la destinazione di 'Copia' e 'Sposta', la
  * rinomina, la conferma di un'eliminazione definitiva e la scheda delle informazioni.
  * ⚠️⚠️ **E OLTRE [SAVED_URIS] INDIRIZZI NON SI SALVA NIENTE** (rilievo E7 della revisione della
