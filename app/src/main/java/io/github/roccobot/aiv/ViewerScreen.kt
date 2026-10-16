@@ -129,6 +129,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -1651,10 +1652,10 @@ private fun BoxScope.KnobBadge(knob: Knob) {
  * ⚠️ Scritti qui e non presi da `PlayerView`, che è una `View` e si prende i tocchi: con lei la
  * strisciata per cambiare pagina non arriverebbe mai. Spariscono mentre il filmato va, e
  * tornano toccando; in pausa restano. La barra si trascina ([ValueSlider]) per saltare avanti,
- * e accanto c'è il tempo.
+ * e accanto c'è il tempo. Interno per `SemanticheTest`.
  */
 @Composable
-private fun BoxScope.ClipKeys(
+internal fun BoxScope.ClipKeys(
     playing: Boolean,
     onPlayPause: () -> Unit,
     position: Long,
@@ -1691,7 +1692,8 @@ private fun BoxScope.ClipKeys(
                 .size(CLIP_KEY)
                 .clip(CircleShape)
                 .background(CLIP_INK)
-                .clickable(onClick = onPlayPause),
+                // Il ruolo, o un lettore di schermo dice 'Riproduci' senza dire che è un tasto.
+                .clickable(role = Role.Button, onClick = onPlayPause),
             contentAlignment = Alignment.Center
         ) {
             Icon(

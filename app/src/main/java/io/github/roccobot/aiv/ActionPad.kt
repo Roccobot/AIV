@@ -362,17 +362,20 @@ fun PadArrange(
                         .semantics {
                             // ⚠️ Con un lettore di schermo non si trascina: queste due azioni
                             // sono l'unica via al riordino, come nell'elenco dei campi della
-                            // scheda Info.
-                            customActions = listOf(
-                                CustomAccessibilityAction(prima) {
+                            // scheda Info. Si offre solo quella che sposta davvero: la prima
+                            // cella non va più indietro, l'ultima non va più avanti, e
+                            // un'azione che non fa niente sarebbe annunciata come disponibile.
+                            val qui = order.indexOf(chiave)
+                            customActions = buildList {
+                                if (qui > 0) add(CustomAccessibilityAction(prima) {
                                     val i = order.indexOf(chiave)
                                     onOrder(order.moved(i, i - 1)); true
-                                },
-                                CustomAccessibilityAction(dopo) {
+                                })
+                                if (qui < order.lastIndex) add(CustomAccessibilityAction(dopo) {
                                     val i = order.indexOf(chiave)
                                     onOrder(order.moved(i, i + 1)); true
-                                }
-                            )
+                                })
+                            }
                         },
                     contentAlignment = Alignment.Center
                 ) {

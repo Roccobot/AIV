@@ -54,6 +54,9 @@ internal fun SettingsIndexRail(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                // Le voci sono una scelta sola: senza, un lettore di schermo legge testi
+                // toccabili, e la pagina aperta si distingue solo dal colore.
+                .oneOf()
         ) {
             for (page in SETTINGS_INDEX) {
                 val chosen = page == selected
@@ -74,6 +77,7 @@ internal fun SettingsIndexRail(
                             else MaterialTheme.colorScheme.surface
                         )
                         .clickable { onPick(page) }
+                        .picked(chosen)
                         .padding(horizontal = 12.dp, vertical = 12.dp)
                 )
             }

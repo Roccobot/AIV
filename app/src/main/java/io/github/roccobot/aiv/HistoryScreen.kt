@@ -164,9 +164,14 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/** L'indice delle operazioni in colonna, per la cronologia sul tablet. */
+/**
+ * L'indice delle operazioni in colonna, per la cronologia sul tablet.
+ *
+ * Le date sono una scelta sola ([oneOf] e [picked]): senza, un lettore di schermo legge testi
+ * toccabili e la data scelta si distingue solo dal colore. Interno per `SemanticheTest`.
+ */
 @Composable
-private fun HistoryDateRail(
+internal fun HistoryDateRail(
     groups: List<History.Batch>,
     selected: Long,
     onPick: (Long) -> Unit,
@@ -178,6 +183,7 @@ private fun HistoryDateRail(
             .width(width)
             .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
+            .oneOf()
     ) {
         for (batch in groups) {
             val chosen = batch.at == selected
@@ -198,6 +204,7 @@ private fun HistoryDateRail(
                         else MaterialTheme.colorScheme.surface
                     )
                     .clickable { onPick(batch.at) }
+                    .picked(chosen)
                     .padding(horizontal = 12.dp, vertical = 12.dp)
             )
         }
