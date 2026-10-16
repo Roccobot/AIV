@@ -158,6 +158,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -4833,6 +4834,8 @@ private fun DrawMenu(
     onPick: (Int?) -> Unit
 ) {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     val (i, prima) = held
     val segno = prima.marks.getOrNull(i) ?: return
     /** Sposta la scelta su [j] tenendo la modalità, perché l'elemento è lo stesso. */
@@ -4860,7 +4863,7 @@ private fun DrawMenu(
             onHold = {
                 state.close()
                 gaze.styleClip = null
-                Notices.say(context.getString(R.string.draw_style_cleared))
+                Notices.say(res.getString(R.string.draw_style_cleared))
             },
             holdLabel = R.string.draw_paste_clear
         ) {

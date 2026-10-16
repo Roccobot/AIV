@@ -103,6 +103,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -283,6 +284,8 @@ fun FolderScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     var granted by remember { mutableStateOf(Folder.granted(context)) }
 
     /**
@@ -830,7 +833,7 @@ fun FolderScreen(
         // In [FileWork], come ogni lavoro sui file: il perché è là.
         FileWork.scope.launch {
             val out = work()
-            if (kind.speaks(out)) Notices.say(outcomeText(context.resources, out, kind), NOTICE_LONG_MS)
+            if (kind.speaks(out)) Notices.say(outcomeText(res, out, kind), NOTICE_LONG_MS)
             onFeedChanged()
         }
     }
@@ -854,7 +857,7 @@ fun FolderScreen(
                     scope.launch {
                         val nata = FileTree.makeFolder(java.io.File(dove), name)
                         if (nata != null) onTreePath(nata.absolutePath)
-                        else Notices.say(context.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
+                        else Notices.say(res.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
                     }
                 }
             }

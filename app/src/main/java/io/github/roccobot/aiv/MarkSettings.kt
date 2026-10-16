@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -88,6 +89,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
     val context = LocalContext.current
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
     val scope = rememberCoroutineScope()
     // ⚠️ Il contatore fa rileggere il disco: il file scelto è in `filesDir`, fuori dallo stato di
     // Compose, e dopo averlo adottato o tolto niente direbbe alla pagina di guardare di nuovo.
@@ -103,7 +106,7 @@ fun MarkPage(settings: Settings, onChange: (Settings) -> Unit) {
             val fatto = Watermark.adopt(context, da)
             giro++
             if (!fatto) {
-                Notices.say(context.getString(R.string.settings_mark_bad))
+                Notices.say(res.getString(R.string.settings_mark_bad))
             } else {
                 /*
                  * ⚠️ **Scegliere un file accende la filigrana** (voce `filigrana` dell'utente,

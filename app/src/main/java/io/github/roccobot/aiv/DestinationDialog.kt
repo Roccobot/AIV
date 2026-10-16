@@ -48,6 +48,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -122,6 +123,8 @@ fun DestinationDialog(
         value = withContext(Dispatchers.IO) { FileTree.roots(context) }
     }
     val scope = rememberCoroutineScope()
+    // Le frasi degli avvisi da `LocalResources`, come nella griglia: il perché è là.
+    val res = LocalResources.current
 
     /**
      * Dove si sta guardando, e `null` all'elenco delle memorie: sui telefoni con la scheda le
@@ -311,7 +314,7 @@ fun DestinationDialog(
                     scope.launch {
                         val made = FileTree.makeFolder(parent, name)
                         if (made != null) here = made
-                        else Notices.say(context.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
+                        else Notices.say(res.getString(R.string.folder_create_fail), NOTICE_LONG_MS)
                     }
                 }
             )

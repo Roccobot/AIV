@@ -444,7 +444,7 @@ fun ViewerScreen(
                 val ok = context.contentResolver.openOutputStream(target)?.use { out ->
                     ImageActions.copyOriginalTo(context, from, out)
                 } ?: false
-                Notices.say(context.getString(
+                Notices.say(res.getString(
                     if (ok) R.string.toast_saved else R.string.toast_save_failed
                 ))
             }
@@ -507,7 +507,7 @@ fun ViewerScreen(
                             val ok = ImageActions.saveToFolder(
                                 context, picture, from, chosen.toUri(), name, suffix
                             )
-                            Notices.say(context.getString(
+                            Notices.say(res.getString(
                                 if (ok) R.string.toast_saved else R.string.toast_save_failed
                             ))
                             if (ok) noteDownload(context, picture, from, suffix)
@@ -516,7 +516,7 @@ fun ViewerScreen(
                         scope.launch {
                             val ok =
                                 ImageActions.saveToDownloads(context, picture, from, name, suffix)
-                            Notices.say(context.getString(
+                            Notices.say(res.getString(
                                 if (ok) R.string.toast_saved else R.string.toast_save_failed
                             ))
                             if (ok) noteDownload(context, picture, from, suffix)
@@ -659,14 +659,14 @@ fun ViewerScreen(
             share = { picture ->
                 scope.launch {
                     if (!ImageActions.share(context, picture, source)) {
-                        Notices.say(context.getString(R.string.toast_copy_failed))
+                        Notices.say(res.getString(R.string.toast_copy_failed))
                     }
                 }
             },
             copy = { picture ->
                 scope.launch {
                     Notices.say(
-                        context.getString(
+                        res.getString(
                             if (ImageActions.copyImage(context, picture)) R.string.toast_image_copied
                             else R.string.toast_copy_failed
                         )
