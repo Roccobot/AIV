@@ -1,6 +1,8 @@
 package io.github.roccobot.aiv
 
+import android.content.Context
 import android.content.pm.Signature
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -8,6 +10,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 
 /**
  * L'aggiornamento automatico di AIV GitHub (5.60, sue scelte C1 e D1): che cosa si propone e che
@@ -82,6 +85,30 @@ class UpdaterTest {
         assertFalse(Updater.sameSigners(setOf(nostra), setOf(altra)))
         assertFalse(Updater.sameSigners(setOf(nostra), setOf(nostra, altra)))
         assertFalse(Updater.sameSigners(emptySet(), emptySet()))
+    }
+
+    /**
+     * **Gli APK già installati o più vecchi si cancellano dalla cache, dalla `6.29`** (rilievo E19
+     * della revisione della 6.25, voce B15): resta solo quello di una versione più nuova, che si
+     * può ancora installare. Prima di scaricare, resta solo quello che si sta scaricando.
+     *
+     * ⚠️ **Controprovata** senza la pulizia: tutti i file restavano.
+     */
+    @Test
+    fun `la cache degli aggiornamenti tiene solo quello che si può installare`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val dir = File(context.cacheDir, "updates").apply { mkdirs() }
+        val vecchia = Updater.apkName("1.00")
+        val questa = Updater.apkName(BuildConfig.VERSION_NAME)
+        val nuova = Updater.apkName("999.00")
+        val altra = Updater.apkName("998.00")
+        listOf(vecchia, questa, nuova, altra).forEach { File(dir, it).writeText("apk") }
+
+        Updater.sweep(context, keep = null)
+        assertEquals(setOf(nuova, altra), dir.list()!!.toSet())
+
+        Updater.sweep(context, keep = nuova)
+        assertEquals(setOf(nuova), dir.list()!!.toSet())
     }
 
     @Test

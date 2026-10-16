@@ -151,6 +151,7 @@ object Updater {
      */
     suspend fun check(context: Context, asked: Boolean) {
         if (!Store.updates) return
+        withContext(Dispatchers.IO) { sweep(context, keep = null) }
         val today = LocalDate.now().toEpochDay()
         val store = prefs(context)
         if (!asked && !due(store.getLong(LAST, -1).takeIf { it >= 0 }, today)) return
@@ -196,8 +197,9 @@ object Updater {
         }
         offer = null
         Notices.say(context.getString(R.string.update_downloading), NOTICE_LONG_MS)
-        val file = File(File(context.cacheDir, DIR).apply { mkdirs() }, "AIV-${release.version}.apk")
+        val file = File(File(context.cacheDir, DIR).apply { mkdirs() }, apkName(release.version))
         val outcome = withContext(Dispatchers.IO) {
+            sweep(context, keep = file.name)
             runCatching {
                 val sha = download(release.url, file)
                 when {
@@ -232,6 +234,31 @@ object Updater {
     }
 
     private enum class Outcome { READY, FAILED, UNTRUSTED }
+
+    /** The name of the downloaded APK of [version] in the cache. */
+    internal fun apkName(version: String): String = "AIV-$version.apk"
+
+    /**
+     * The files of the update cache that nobody needs any more, since 6.29.
+     *
+     * ⚠️ **An APK stays only while it can still be installed**: one of a version newer than this
+     * app, or the one being downloaded ([keep]). The others are the update already installed and
+     * the ones before it, about eleven megabytes each, and until 6.28 nothing removed them.
+     */
+    internal fun stale(names: List<String>, current: String, keep: String?): List<String> =
+        names.filter { name ->
+            if (name == keep) return@filter false
+            if (keep != null) return@filter true
+            val version = name.removePrefix("AIV-").removeSuffix(".apk")
+            name == version || !newer(version, current)
+        }
+
+    /** Deletes the [stale] files of the update cache. */
+    internal fun sweep(context: Context, keep: String?) {
+        val dir = File(context.cacheDir, DIR)
+        val names = dir.list()?.toList() ?: return
+        stale(names, BuildConfig.VERSION_NAME, keep).forEach { File(dir, it).delete() }
+    }
 
     /** The body of [url], as text. */
     private fun read(url: String): String {
