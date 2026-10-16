@@ -23,12 +23,12 @@ def option(name, default):
     return default
 
 
-md = option('--source', ROOT / 'docs/Feedback.md').read_text()
+md = option('--source', ROOT / 'docs/Feedback.md').read_text(encoding='utf-8')
 # The round of the page is the one the source declares on its first line, `Versione **x.yy**`, since
 # 6.29 (H34 of the 6.25 review); versionName only bounds it. Until 6.28 the round came from
 # versionName, so between the version bump and its release the page could not be rebuilt (a touch to
 # its CSS or JS changes the `?v=`) without moving it to a round whose APK did not exist yet.
-app_version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text()).group(1)
+app_version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text(encoding='utf-8')).group(1)
 declared = re.search(r'^Versione \*\*(\d+\.\d+)\*\*', md, re.M)
 if not declared:
     raise SystemExit('docs/Feedback.md deve dire il suo giro nella prima riga: Versione **x.yy**')
@@ -201,7 +201,7 @@ def italian_strings():
 
 
 if '--approve-labels' in sys.argv:
-    current, approved = italian_strings(), json.loads(APPROVED.read_text())
+    current, approved = italian_strings(), json.loads(APPROVED.read_text(encoding='utf-8'))
     for key in sorted(label_keys):
         if key not in current:
             raise SystemExit(f'Etichetta {key}: la chiave non esiste in values-it/strings.xml')
@@ -210,14 +210,18 @@ if '--approve-labels' in sys.argv:
     APPROVED.write_text(json.dumps(dict(sorted(approved.items())), ensure_ascii=False, indent=1) + '\n')
     sys.exit(0)
 if '--source' not in sys.argv:
-    approved = json.loads(APPROVED.read_text())
+    approved = json.loads(APPROVED.read_text(encoding='utf-8'))
     unsubmitted = [key for key, text in italian_strings().items()
                    if approved.get(key) != text and key not in label_keys]
     if unsubmitted:
         raise SystemExit('Testi italiani nuovi o cambiati senza etichetta nel DF (' + str(len(unsubmitted)) +
                          '): ' + ', '.join(sorted(unsubmitted)) +
                          '. Mettili in "Etichette testuali" (docs/Feedback-maintenance.md).')
-data = dict(project=PROJECT, version=version, items=items, questions=questions, labels=labels,
+# The steps of a test live in its card and not in the embedded data, since 6.29 (H10 of the 6.25
+# review): no script of the page reads them, and they were a fifth of the page.
+data = dict(project=PROJECT, version=version,
+            items=[{key: item[key] for key in ('id', 'version', 'title')} for item in items],
+            questions=questions, labels=labels,
             outcomes=[dict(label=label, kind=kind) for label, kind in OUTCOMES])
 # A cumulative document (the user's rule of 2026-10-12: with the exception the new version is
 # released and the document goes on at once) names the round it continues on a line of its own,
@@ -306,7 +310,7 @@ if questions:
     parts.append('</section>')
     questions_html = ''.join(parts)
 
-tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text()
+tpl = (Path(__file__).resolve().parent / 'feedback-page.html.in').read_text(encoding='utf-8')
 page = (tpl
     .replace('__TOTAL__', str(len(items)))
     .replace('__VERSION__', version)
@@ -329,9 +333,9 @@ if '__HASH__' in page:
     raise SystemExit('Un segnaposto __HASH__ del modello non è stato sostituito.')
 output = option('--output', ROOT / 'publish/feedback.html')
 if '--check' in sys.argv:
-    if not output.exists() or output.read_text() != page:
+    if not output.exists() or output.read_text(encoding='utf-8') != page:
         sys.exit('Il documento HTML non corrisponde a docs/Feedback.md: esegui tools/feedback-build.py.')
     print(f'Documento HTML allineato alle {len(items)} prove, {len(questions)} domande, {len(labels)} etichette e alla versione {version}')
 else:
-    output.write_text(page)
+    output.write_text(page, encoding='utf-8')
     print('Creato ' + str(output))

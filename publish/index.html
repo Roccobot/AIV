@@ -316,21 +316,21 @@
   .piede-riga{
     /* ⚠️ `nowrap`: firma a sinistra e tasti a destra sulla STESSA riga, come ha
        chiesto l'utente, e adesso a OGNI larghezza di telefono.
-       ⚠️⚠️ **SOTTO LA SOGLIA CI STA PERCHE LA FIRMA SI ACCORCIA AL SOLO NOME**
+       ⚠️⚠️ **SOTTO LA SOGLIA CI STA PERCHÉ LA FIRMA SI ACCORCIA AL SOLO NOME**
        (richiesta dell'utente, 2026-09-04), e prima quel caso andava in colonna:
        la colonna era il rimedio a una firma che non entrava, non una scelta di
        disegno, e togliere la causa costa meno che curare l'effetto.
-       ⚠️ Le misure sono prese col carattere di RIPIEGO (DejaVu Sans), che e il
-       piu largo della pila e quello su cui era tarata la soglia; dichiararlo
+       ⚠️ Le misure sono prese col carattere di RIPIEGO (DejaVu Sans), che è il
+       più largo della pila e quello su cui era tarata la soglia; dichiararlo
        serve a poterle confrontare con quelle di domani. La firma intera vuole
-       216, piu 24 di respiro, piu 141 di tasti e 48 di rientro: 429px di
-       finestra. Col solo nome ne vuole 93, e il caso piu largo dei tasti (pagina
+       216, più 24 di respiro, più 141 di tasti e 48 di rientro: 429px di
+       finestra. Col solo nome ne vuole 93, e il caso più largo dei tasti (pagina
        italiana, 'Tema chiaro' con 'English') 144: 309px in tutto. Con Roboto,
-       che e il carattere vero sul telefono, ne bastano 290. */
+       che è il carattere vero sul telefono, ne bastano 290. */
     border-top:1px solid var(--outline-variant); padding-top:18px;
     display:flex; flex-wrap:nowrap; gap:12px 24px; align-items:center; justify-content:space-between;
   }
-  /* ⚠️ 460 e non 429: la soglia sta sopra la misura perche i caratteri non si
+  /* ⚠️ 460 e non 429: la soglia è sopra la misura perché i caratteri non si
      rendono identici su tutti i sistemi, e fra 429 e 460 la firma corta non
      costa niente. */
   @media (max-width:460px){
@@ -338,18 +338,18 @@
        e con lui la firma. */
     .firma-lunga{display:none}
   }
-  /* ⚠️⚠️ **LA COLONNA TORNA SOTTO I 305px, e non e un ripensamento**: li sotto non
-     ci sta piu nemmeno la firma corta, e `.piede-tasti` porta `flex:none` mentre
-     'Roccobot' e una parola sola che non va a capo, quindi la riga sborderebbe in
+  /* ⚠️⚠️ **LA COLONNA TORNA SOTTO I 305px, e non è un ripensamento**: lì sotto non
+     ci sta più nemmeno la firma corta, e `.piede-tasti` ha `flex:none` mentre
+     'Roccobot' è una parola sola che non va a capo, quindi la riga sborderebbe in
      orizzontale. Senza questa regola la firma corta avrebbe TOLTO la colonna anche
      dove serviva davvero.
-     ⚠️ **305 e la misura presa nel browser**: col carattere di ripiego, che
-     e il piu largo della pila, la riga chiede 305,2px nel caso peggiore (pagina
-     inglese, 92,0 di firma piu 141,3 di tasti piu 24 di respiro e 48 di rientro).
+     ⚠️ **305 è la misura presa nel browser**: col carattere di ripiego, che
+     è il più largo della pila, la riga chiede 305,2px nel caso peggiore (pagina
+     inglese, 92,0 di firma più 141,3 di tasti più 24 di respiro e 48 di rientro).
      Il caso italiano ne chiede 300,6.
-     ⚠️ **Sotto i 300px la pagina sborda comunque, e NON e colpa del piede**: il
-     difetto c'era gia prima di questa modifica, misurato sulla pagina di partenza
-     (20px a 300, 40px a 280) col piede gia in colonna. Sta altrove, e chi lo
+     ⚠️ **Sotto i 300px la pagina sborda comunque, e NON è colpa del piede**: il
+     difetto c'era già prima di questa modifica, misurato sulla pagina di partenza
+     (20px a 300, 40px a 280) col piede già in colonna. È altrove, e chi lo
      cerca non lo cerchi qui. */
   @media (max-width:305px){
     .piede-riga{flex-direction:column; align-items:flex-start; gap:14px}

@@ -278,18 +278,23 @@ def check_declared_round(path):
         # feedback and outcome in three labelled parts, the identifier as code.
         recent = ('## Aggiornamenti recenti\n\n| Funzione | Versione | Stato | Riscontro dell\'utente | Azione successiva |\n'
                   '|---|---|---|---|---|\n| La prova di sintesi | 0.01-01 | Richiesta del 2026-10-16 | Il tuo A1. | Fatto nella 0.01. |\n\n')
-        source.write_text(SYNTHETIC_BLOCKS.replace('## Prossimi passi', recent + '## Prossimi passi', 1))
+        source.write_text(SYNTHETIC_BLOCKS.replace('## Prossimi passi', recent + '## Prossimi passi', 1), encoding='utf-8')
         subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
                         '--output', str(page)], check=True, stdout=subprocess.DEVNULL)
-        built = page.read_text()
+        built = page.read_text(encoding='utf-8')
         data = json.loads(re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', built, re.S)[1])
         assert data['version'] == '0.01', data['version']
+        # 6.29 (H10): of a test the embedded data keep id, version and title, and the steps stay
+        # in the card.
+        assert data['items'] == [{'id': '0.00-01', 'version': '0.00', 'title': 'Prova di sintesi'}], data['items']
+        # 6.29 (H13): the tests have their level of heading, for screen readers only.
+        assert '<h2 id="tests-title" class="sr-only">Prove del giro 0.01</h2>' in built, 'Manca il titolo delle prove.'
         assert 'releases/download/v0.01/' in built, 'Il tasto di download non punta al giro dichiarato.'
         sentence = re.sub(r'<[^>]+>', '', re.search(r'<section class="card archive">.*?</section>', built, re.S)[0])
         assert ('Giro 0.01: La prova di sintesi (0.01-01). Richiesta del 2026-10-16. Riscontro: il tuo A1. '
                 'Esito: fatto nella 0.01.') in sentence, sentence
         assert '<code>0.01-01</code>' in built, 'L\'identificatore non è scritto come codice.'
-        source.write_text(SYNTHETIC_BLOCKS.replace('Versione **0.01**', 'Versione **999.00**'))
+        source.write_text(SYNTHETIC_BLOCKS.replace('Versione **0.01**', 'Versione **999.00**'), encoding='utf-8')
         refused = subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
                                   '--output', str(page)], capture_output=True, text=True)
         assert refused.returncode != 0 and 'supera versionName' in refused.stderr, refused.stderr
@@ -317,7 +322,7 @@ def check_questions_and_labels(path):
             if entry.name != Path(path).name:
                 (stage / entry.name).symlink_to(entry)
         source = stage / 'Feedback.md'
-        source.write_text(SYNTHETIC_BLOCKS)
+        source.write_text(SYNTHETIC_BLOCKS, encoding='utf-8')
         page_copy = stage / Path(path).name
         subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'),
                         '--source', str(source), '--output', str(page_copy)], check=True, stdout=subprocess.DEVNULL)
@@ -448,7 +453,7 @@ def check_without_tests(path):
             if entry.name != Path(path).name:
                 (stage / entry.name).symlink_to(entry)
         source = stage / 'Feedback.md'
-        source.write_text((root / 'docs/Feedback.md').read_text() + SYNTHETIC_TEST)
+        source.write_text((root / 'docs/Feedback.md').read_text(encoding='utf-8') + SYNTHETIC_TEST, encoding='utf-8')
         page_copy = stage / Path(path).name
         import subprocess
         import sys
@@ -458,7 +463,7 @@ def check_without_tests(path):
 
 
 def check(path):
-    text = Path(path).read_text()
+    text = Path(path).read_text(encoding='utf-8')
     match = re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', text, re.S)
     if not match:
         raise AssertionError('Mancano i dati del documento.')
@@ -466,8 +471,10 @@ def check(path):
     assert data.get('project') == 'AIV' and data.get('version'), 'Progetto o versione mancanti.'
     ids = set()
     for item in data['items']:
-        assert all(item.get(k) for k in ['id', 'version', 'title', 'paragraphs']), 'Voce incompleta.'
-        assert isinstance(item['paragraphs'], list) and all(isinstance(p, str) and p.strip() for p in item['paragraphs']), 'Passi mancanti.'
+        assert all(item.get(k) for k in ['id', 'version', 'title']), 'Voce incompleta.'
+        # The steps are read from the card, where they live since 6.29 (H10).
+        card = re.search(r'<article class="card test" id="' + re.escape(item['id']) + r'".*?</h3>(.*?)<fieldset', text, re.S)
+        assert card and re.search(r'<p>\s*\S', card[1]), 'Passi mancanti.'
         assert item['id'] not in ids, 'Identificatore duplicato.'
         ids.add(item['id'])
     assert isinstance(data.get('labels', []), list), 'labels deve essere una lista.'
@@ -1572,7 +1579,7 @@ def check(path):
             assert not external, 'SVG fetched an external resource.'
             page.wait_for_function("Array.from(document.querySelectorAll('.test:first-child .image-list img')).every(image => image.complete && image.naturalWidth > 0)")
             bad_svg = Path(temporary) / 'invalid.svg'
-            bad_svg.write_text('<html>not an SVG</html>')
+            bad_svg.write_text('<html>not an SVG</html>', encoding='utf-8')
             first.locator('.images').set_input_files(str(bad_svg))
             expect(page.locator('#action-message')).to_contain_text('SVG non è valido')
             expect(first.locator('.image-list img')).to_have_count(3)
@@ -1740,7 +1747,7 @@ def check(path):
             old_json = Path(temporary) / 'old.json'
             old_draft = to_legacy(exported, exported_files)
             old_draft['entries']['3.13-01'] = {'status': 'Tutto OK', 'comment': 'Prova chiusa', 'images': []}
-            old_json.write_text(json.dumps(old_draft))
+            old_json.write_text(json.dumps(old_draft), encoding='utf-8')
             second.locator('#import').set_input_files(str(old_json))
             # The import says how many answers belong to tests no longer on the page.
             expect(second.locator('#action-message')).to_contain_text('1 sono di prove chiuse')
