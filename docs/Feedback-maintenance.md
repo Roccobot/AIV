@@ -230,6 +230,10 @@ da recuperare: non va cancellato né considerato approvato automaticamente.
       seguito da uno spazio normale, come una scorciatoia `⌃⌘⌥` (sua richiesta del 2026-10-16). Il
       tasto non è nella fila sopra Altro, che segue il suo mockup (`spaceSymbol` in
       `feedback-format.js`).
+    - `⌘⌥⇥` scrive `⇥`, il simbolo del tasto Tab (sua richiesta e sua scelta del 2026-10-16), fuori
+      dalla fila come `␣` (`isTabSymbol`). ⚠️ `⌘⇧⇥` era la prima richiesta, ma è di macOS (le app al
+      contrario) e la pagina non la riceve. Se anche `⌘⌥⇥` apre il selettore delle app, la prende il
+      sistema, e la combinazione va cambiata.
     - La fila vive sopra il campo di Altro, solo su desktop (sotto i 720 px è nascosta): dieci tasti
       quadrati, che prendono la larghezza dalla fila (34,6 px nella colonna laterale di una
       finestra larga), per sua richiesta. La `×` è più grande del 20% (28,8 px) e Roboto la disegna

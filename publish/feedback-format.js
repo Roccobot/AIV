@@ -642,6 +642,12 @@
     if (event.code !== "Space" || !event.metaKey || !event.shiftKey || event.altKey) return null;
     return event.ctrlKey ? "code" : "text";
   }
+  /* The tab key's symbol, ⇥, as text (his request of 2026-10-16): ⌘⌥⇥, his choice, since ⌘⇧⇥ is
+     macOS's own and never reaches the page. Out of the row over Altro, like ␣. */
+  const TAB_SYMBOL = "⇥";
+  function isTabSymbol(event) {
+    return event.code === "Tab" && event.metaKey && event.altKey && !event.ctrlKey && !event.shiftKey;
+  }
   function edit(editor, kind) {
     if (editor.area.disabled) return;
     editor.box.focus({preventScroll: true});
@@ -857,6 +863,11 @@
       if ((event.metaKey || event.ctrlKey) && !event.altKey && (key === "z" || key === "y" && !event.shiftKey)) {
         event.preventDefault();
         travel(editor, key === "y" || event.shiftKey ? 1 : -1);
+        return;
+      }
+      if (isTabSymbol(event)) {
+        event.preventDefault();
+        if (!editor.area.disabled) document.execCommand("insertText", false, TAB_SYMBOL);
         return;
       }
       const space = spaceSymbol(event);

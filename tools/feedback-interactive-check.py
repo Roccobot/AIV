@@ -1070,6 +1070,11 @@ def check(path):
             field.press('Control+Meta+Shift+Space')
             field.press('x')
             expect(stored).to_have_value('premi `␣` x')
+            # The tab key's symbol (his request of the same day): ⌘⌥⇥ writes ⇥ as text.
+            fill_plain(field, 'tasto ')
+            field.press('End')
+            field.press('Meta+Alt+Tab')
+            expect(stored).to_have_value('tasto ⇥')
             # The other keys of an Italian ISO keyboard he asked for, read by place, and with ⇧ the
             # shortcut gets ⌘⇧ (his requests of the same day). The key left of 1 is \ under both
             # of the names macOS can report for it.
