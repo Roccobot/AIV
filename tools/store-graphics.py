@@ -22,7 +22,6 @@ Usage, from the root of the repository:
 
 Author: Rocco Casadei, a.k.a. Roccobot
 """
-import html
 import importlib.util
 import pathlib
 import sys
@@ -52,11 +51,7 @@ def scena_icona(svg):
 
 def scena_evidenza(svg, titolo):
     """Icon and title on the left, the light screenshot on the right."""
-    parole = titolo.split()
-    if len(parole) == 3:
-        righe = html.escape(parole[0]) + '<br>' + html.escape(' '.join(parole[1:]))
-    else:
-        righe = html.escape(titolo)
+    righe = og.righe_titolo(titolo)
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=block">
@@ -91,9 +86,6 @@ def main():
         from playwright.sync_api import sync_playwright
     except ImportError:
         sys.exit('Playwright is missing: without a browser nothing is composed')
-    via = og.eseguibile()
-    if not via:
-        sys.exit('Chromium is missing under PLAYWRIGHT_BROWSERS_PATH')
     if not og.SCHERMATA.exists():
         sys.exit('the screenshot is missing: %s' % og.SCHERMATA)
 
@@ -108,24 +100,14 @@ def main():
         prima.write_text(scena_icona(svg.replace('class="icona"', '')), encoding='utf-8')
         seconda.write_text(scena_evidenza(svg, titolo), encoding='utf-8')
         with sync_playwright() as p:
-            b = p.chromium.launch(executable_path=via, args=['--no-sandbox'])
+            b = og.avvia(p)
             pg = b.new_page(viewport={'width': ICONA, 'height': ICONA}, device_scale_factor=1)
             pg.goto(prima.as_uri())
             pg.screenshot(path=str(icona), type='png')
             pg = b.new_page(viewport={'width': LARGO, 'height': ALTO}, device_scale_factor=1)
             pg.goto(seconda.as_uri())
-            pg.wait_for_load_state('networkidle')
-            pronti = pg.evaluate('''async () => {
-                await document.fonts.ready;
-                const img = document.querySelector('.schermata');
-                if (!img.complete) await new Promise(r => img.addEventListener('load', r));
-                return { medio: document.fonts.check('500 68px Roboto'), schermata: img.naturalWidth > 0 };
-            }''')
-            if not pronti['medio']:
-                sys.exit('Roboto did not arrive from Google Fonts: no picture written')
-            if not pronti['schermata']:
-                sys.exit('the screenshot did not load: no picture written')
-            pg.screenshot(path=str(evidenza), type='png')
+            # The same check and capture as the link preview (og-image.py, `fotografa`).
+            og.fotografa(pg, evidenza, ['500'], type='png')
             b.close()
     for f in (icona, evidenza):
         print('%s: %d bytes' % (f.relative_to(RADICE), f.stat().st_size))
