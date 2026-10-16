@@ -1491,6 +1491,28 @@ private fun LookStage(
      * `Canvas`), ma una richiesta vive in una coroutine, dove quel numero non si legge.
      */
     var stage by remember(picture) { mutableStateOf(Size.Zero) }
+
+    /*
+     * Il lato lungo dell'immagine sul palco, per il tasto 'Spessore' del modulo Disegno: lo stesso
+     * conto del disegno ([viewport]), fatto fuori dal disegno.
+     * ⚠️ **Scritto dentro il disegno, uno stato fa ridisegnare un altro disegno**: durante una
+     * pinza ogni fotogramma del palco ne invalidava uno del tasto, che seguiva con un fotogramma
+     * di ritardo. Il flusso legge gli stessi stati e scrive solo quando il numero cambia.
+     */
+    val viewLongTo by rememberUpdatedState(onViewLong)
+    val drawPenNow by rememberUpdatedState(drawPen)
+    val airNow by rememberUpdatedState(airPx)
+    LaunchedEffect(picture) {
+        snapshotFlow {
+            if (drawPenNow() == null || stage.width <= 0f || stage.height <= 0f) {
+                null
+            } else {
+                val vista = viewport(stage, shownNow, scale, shift, airNow, framedNow)
+                max(vista.width(), vista.height())
+            }
+        }.collect { lungo -> if (lungo != null) viewLongTo(lungo) }
+    }
+
     /**
      * Sale di uno ogni volta che la vista si ferma, ed è il via alla richiesta del pezzo.
      *
@@ -1607,6 +1629,8 @@ private fun LookStage(
          * shader chiede a un altro.
          * ⚠️ **Nella lente si vogliono i pixel interi**: là si guarda fra quali pixel passa il
          * bordo del taglio, e il filtro lineare li mescolerebbe.
+         * ⚠️ `setFilterMode` e le sue costanti sono dell'API 33: l'editor completo si apre solo da
+         * lì ([advancedEditorAvailable]), e il controllo lo dice a chi usasse il palco altrove.
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             image.setFilterMode(
@@ -1629,8 +1653,6 @@ private fun LookStage(
             nativePaint.shader = shader ?: image
         }
     }
-         * ⚠️ `setFilterMode` e le sue costanti sono dell'API 33: l'editor completo si apre solo da
-         * lì ([advancedEditorAvailable]), e il controllo lo dice a chi usasse il palco altrove.
 
     /*
      * ⚠️ **La tela è una sola**, anche con la lente del ritaglio: mentre si tira un angolo la tela
@@ -2655,7 +2677,6 @@ if (brushTouching && touching != null && radius * 2f < brushCmPx * 0.58f) {
          */
         val penura = drawPen()
         if (penura != null) {
-            onViewLong(max(view.width(), view.height()))
             if (inkSizing() && visto.width() > 0f && visto.height() > 0f) {
                 val tratto = (penura.width * max(view.width(), view.height())).coerceAtLeast(1f)
                 val largo = max(SAMPLE_LONG.toPx(), tratto * 4f)
