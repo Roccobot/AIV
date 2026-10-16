@@ -523,8 +523,8 @@ La forma dello schermo la decide `Adaptive.shape`: telefono vuol dire lato minor
   richiesta): il gesto è uno, e fa e disfa. **Su un'altra cartella sposta la scelta là**, ed è la
   ragione per cui la modalità conserva il bucket da cui è partita.
 - ⚠️ **Nel menu del FAB la copertina non ha voci**: a sceglierla e a toglierla è il tocco
-  sull'icona. La voce 'Copertina predefinita', spenta dalla `1.95` perché un tocco involontario
-  toglieva una scelta che non si ritrova, è stata tolta nella `6.30` (sua scelta C1).
+  sull'icona: una voce di menu toglieva per un tocco involontario una scelta che non si ritrova.
+  La voce che c'era, e come si recupera, in `docs/Removed.md`.
 - **Il primo tocco mostra un mini-onboarding col testo suo**, una volta sola (`Hint.COVER`). Il
   riquadro illuminato arriva da `onGloballyPositioned`, perché l'icona vive in una fascia che si
   stringe a ogni pixel di scorrimento.
