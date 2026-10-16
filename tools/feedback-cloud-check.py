@@ -206,14 +206,53 @@ with sync_playwright() as pw, tempfile.TemporaryDirectory() as temporary:
     third.evaluate('window.dispatchEvent(new Event("online"))')
     expect(third.locator('#saved')).to_contain_text('Salvato nel cloud')
     assert third.evaluate('fetch("/api/feedback").then(response=>response.json()).then(draft=>draft.notes)')=='Modifica senza connessione'
-    third.remove_listener('dialog',accept)
     assert 'confirm' in offers, offers
+    # 6.29 (F7): a save that arrives writes the copy once, and then the small mark of its arrival.
+    third.evaluate('''() => {
+      window.copyWrites = [];
+      const put = IDBObjectStore.prototype.put;
+      IDBObjectStore.prototype.put = function(value, key) {
+        if (this.name === "copies") window.copyWrites.push([key, typeof value]);
+        return put.call(this, value, key);
+      };
+    }''')
+    altro_editor(third).fill('Modifica contata')
+    third.locator('#floating-save').click()
+    expect(third.locator('#saved')).to_contain_text('Salvato nel cloud')
+    third.wait_for_function('window.copyWrites.length >= 2')
+    assert third.evaluate('window.copyWrites')==[['cloud','object'],['arrived','string']], third.evaluate('window.copyWrites')
+    # 6.29 (H20): the copy is offered by the cloud revision it starts from, not by the device's
+    # clock: a copy dated well before the cloud's last save still comes back.
+    third.route('**/api/feedback',lambda route:route.abort() if route.request.method=='PUT' else route.continue_())
+    altro_editor(third).fill('Modifica con orologio indietro')
+    third.locator('#floating-save').click()
+    expect(third.locator('#saved')).to_contain_text('Non salvato')
+    third.evaluate('''() => new Promise((resolve, reject) => {
+      const request = indexedDB.open("aiv-feedback-backup", 1);
+      request.onsuccess = () => {
+        const store = request.result.transaction("copies", "readwrite").objectStore("copies");
+        const read = store.get("cloud");
+        read.onsuccess = () => {
+          store.put({ ...read.result, at: "2000-01-01T00:00:00.000Z" }, "cloud");
+          store.transaction.oncomplete = () => { request.result.close(); resolve(); };
+        };
+      };
+      request.onerror = () => reject(request.error);
+    })''')
+    offers.clear()
+    third.reload()
+    expect(altro_editor(third)).to_have_text('Modifica con orologio indietro')
+    assert 'confirm' in offers, offers
+    third.unroute('**/api/feedback')
+    third.evaluate('window.dispatchEvent(new Event("online"))')
+    expect(third.locator('#saved')).to_contain_text('Salvato nel cloud')
+    third.remove_listener('dialog',accept)
     # 6.29 (H3): the other device's save reloads the draft, and the attachments it already has,
     # here the two it uploaded itself, are not downloaded again.
     downloads=[]
     second.on('request',lambda request:downloads.append(request.url) if request.method=='GET' and '/api/files/' in request.url else None)
     second.evaluate('window.dispatchEvent(new Event("focus"))')
-    expect(altro_editor(second)).to_have_text('Modifica senza connessione')
+    expect(altro_editor(second)).to_have_text('Modifica con orologio indietro')
     assert downloads==[], downloads
     third_context.close()
     second_context.close()

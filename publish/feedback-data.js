@@ -250,18 +250,26 @@ function alignDocumentVersion() {
 // the copy is marked as arrived when the cloud confirms. A copy that never arrived (a session
 // that expired, a lost connection) is offered back at the next load, if it is newer than the
 // cloud's. Until then the edits lived only in memory, and a reload lost them.
+// ⚠️ Since 6.29 (H19 and H20 of the 6.25 review) three things changed here:
+// - one connection for the page, kept open; until 6.28 every write opened a new one;
+// - the arrival is a small key of its own (`arrived`, the time of the copy that arrived), so the
+//   copy with its attachments is written once per save and not twice;
+// - the copy keeps the cloud revision it starts from (`from`), and is offered back when the cloud
+//   is still at that revision. Until 6.28 the device's clock was compared with the server's, and a
+//   phone a few seconds behind hid the very edit the copy was there to save.
+let backupBase = null;
 function backupStore(mode) {
-  return new Promise((resolve, reject) => {
+  if (!backupBase) backupBase = new Promise((resolve, reject) => {
     const request = indexedDB.open("aiv-feedback-backup", 1);
     request.onupgradeneeded = () => request.result.createObjectStore("copies");
-    request.onerror = () => reject(request.error);
+    request.onerror = () => { backupBase = null; reject(request.error); };
     request.onsuccess = () => {
       const base = request.result;
-      const transaction = base.transaction("copies", mode);
-      transaction.oncomplete = () => base.close();
-      resolve(transaction.objectStore("copies"));
+      base.onversionchange = () => { base.close(); backupBase = null; };
+      resolve(base);
     };
   });
+  return backupBase.then((base) => base.transaction("copies", mode).objectStore("copies"));
 }
 async function writeBackup(copy) {
   try {
@@ -269,21 +277,30 @@ async function writeBackup(copy) {
     store.put(copy, "cloud");
   } catch { /* A browser without storage keeps working on the cloud alone. */ }
 }
+async function markBackupArrived(copy) {
+  try {
+    const store = await backupStore("readwrite");
+    store.put(copy.at, "arrived");
+  } catch { /* Without the mark the copy is offered once more, and can be declined. */ }
+}
 // Esci clears the copy: on a borrowed device nothing of the round stays behind.
 async function dropBackup() {
   try {
     const store = await backupStore("readwrite");
     store.delete("cloud");
+    store.delete("arrived");
   } catch { /* Nothing to clear. */ }
 }
 async function readBackup() {
   try {
     const store = await backupStore("readonly");
-    return await new Promise((resolve) => {
-      const request = store.get("cloud");
+    const read = (key) => new Promise((resolve) => {
+      const request = store.get(key);
       request.onsuccess = () => resolve(request.result ?? null);
       request.onerror = () => resolve(null);
     });
+    const [copy, arrived] = await Promise.all([read("cloud"), read("arrived")]);
+    return copy ? { ...copy, arrived: Boolean(copy.arrived) || arrived === copy.at } : null;
   } catch { return null; }
 }
 function save() {
@@ -298,12 +315,19 @@ function save() {
   snapshot.version = spec.version;
   saved.textContent = "Salvataggio in corso...";
   saved.classList.remove("error");
-  const copy = remote ? { draft: { ...structuredClone(draft), version: spec.version }, at: snapshot.updated, arrived: false } : null;
+  const copy = remote ? { draft: { ...structuredClone(draft), version: spec.version }, at: snapshot.updated, from: remote.revision() } : null;
   if (copy) writeBackup(copy);
   saveQueue = saveQueue
     .catch(() => {})
     .then(
-      () => remote ? remote.save(snapshot) :
+      () => {
+        // A save queued behind another starts from the revision that one left: the copy follows,
+        // or a failure after an arrival would leave a copy the reload never offers.
+        if (copy && copy.from !== remote.revision()) {
+          copy.from = remote.revision();
+          writeBackup(copy);
+        }
+        return remote ? remote.save(snapshot) :
         new Promise((resolve, reject) => {
           if (!db) {
             reject(Error("Memoria del browser non disponibile."));
@@ -314,12 +338,13 @@ function save() {
           transaction.oncomplete = () => resolve();
           transaction.onerror = transaction.onabort = () =>
             reject(transaction.error ?? Error("Salvataggio interrotto."));
-        }),
+        });
+      },
     )
     .then((result) => {
       if (result?.updated) snapshot.updated = result.updated;
       // Only when nothing changed since: a newer edit has its own copy, still on its way.
-      if (copy && current === revision) writeBackup({ ...copy, arrived: true });
+      if (copy && current === revision) markBackupArrived(copy);
       persistedRevision = current;
       if (current === revision) {
         draft.updated = snapshot.updated;

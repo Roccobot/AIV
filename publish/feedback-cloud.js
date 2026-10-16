@@ -151,6 +151,8 @@
   });
   window.feedbackRemote = {
     load,save,hasUpdates,snapshot,
+    // The cloud revision the page holds: a save starts from it (the safety copy keeps it).
+    revision: () => etag,
     account: syncAccount,
     failed: error => {
       if (error.status === 401) {
