@@ -28,11 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -467,12 +464,17 @@ fun FolderScreen(
      * parte giusta: le cartelle ci scorrono sotto e l'ultima riga resta raggiungibile.
      * ⚠️ **Con lui la sfumatura in fondo arriva al vetro**, e non è un effetto da correggere: è
      * quello che tiene la barra gestuale sopra un fondo neutro invece che sopra le copertine.
+     * ⚠️ **`steadyDrawing` e non `safeDrawing`, dalla `6.27`** (rilievo D13 della revisione della
+     * 6.25), come nella griglia di una cartella dalla `3.73`: dalla `6.02` il Feed apre il
+     * visualizzatore dalla casa, e tornando le barre ricompaiono animate; `safeDrawing` le seguiva
+     * fotogramma per fotogramma, e la fascia e il Feed scendevano a scatti. La ragione intera vive
+     * su [steadyDrawing].
      */
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+                steadyDrawing().only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
             )
     ) {
         val density = LocalDensity.current
