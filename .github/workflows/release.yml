@@ -394,10 +394,13 @@ jobs:
           # harmless only for the same commit: a dispatch from a newer `main` that
           # nobody bumped would put that commit's APKs under the old number, while
           # the tag and the notes stay on the old commit, and whoever has the version
-          # would never be offered them. A tag that does not exist yet answers
-          # nothing, and the release below creates it.
-          tagged="$(gh api "repos/${GH_REPO}/commits/${TAG}" --jq .sha 2> /dev/null || true)"
-          if [ -n "$tagged" ] && [ "$tagged" != "${GITHUB_SHA}" ]; then
+          # would never be offered them. A tag that does not exist yet makes the
+          # call fail, and the release below creates it.
+          # ⚠️ The answer counts only when the call succeeds: on a missing tag `gh
+          # api` writes GitHub's error body to standard output, and the first 6.29
+          # run read that body as a commit and stopped (`RilascioTest`).
+          if tagged="$(gh api "repos/${GH_REPO}/commits/${TAG}" --jq .sha 2> /dev/null)" \
+            && [ "$tagged" != "${GITHUB_SHA}" ]; then
             echo "${TAG} already points at ${tagged}, not at ${GITHUB_SHA}." >&2
             echo "Raise versionName and versionCode in app/build.gradle.kts, then release again." >&2
             exit 1
