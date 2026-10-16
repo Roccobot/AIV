@@ -48,7 +48,10 @@ Non occorre una sessione Claude autenticata per aggiornare questo documento.
 - Le versioni dei file nei link (`?v=`) le calcola `feedback-build.py` dal contenuto di
   ogni file: dopo una modifica a CSS o JS si rigenera la pagina, e `--check` lo ricorda.
 
-La versione delle prove si ricava da `versionName` in `app/build.gradle.kts`.
+Il giro della pagina è quello della prima riga di `docs/Feedback.md`, `Versione **x.yy**`, dalla
+6.29; `versionName` in `app/build.gradle.kts` fa da tetto, e un giro oltre di lei ferma il
+generatore. Fino alla 6.28 il giro veniva da `versionName`, quindi fra il cambio di versione e la
+release la pagina non si poteva rigenerare senza spostarla su un APK che non esisteva ancora.
 Una modifica al documento non produce una nuova versione Android.
 Le proposte tablet e impostazioni rimangono nei rispettivi file e pagine, collegati dal
 documento. Il vecchio artefatto Claude è un riferimento storico per le sue voci ancora

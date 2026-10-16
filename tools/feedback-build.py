@@ -24,7 +24,17 @@ def option(name, default):
 
 
 md = option('--source', ROOT / 'docs/Feedback.md').read_text()
-version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text()).group(1)
+# The round of the page is the one the source declares on its first line, `Versione **x.yy**`, since
+# 6.29 (H34 of the 6.25 review); versionName only bounds it. Until 6.28 the round came from
+# versionName, so between the version bump and its release the page could not be rebuilt (a touch to
+# its CSS or JS changes the `?v=`) without moving it to a round whose APK did not exist yet.
+app_version = re.search(r'versionName\s*=\s*"([^"]+)"', (ROOT / 'app/build.gradle.kts').read_text()).group(1)
+declared = re.search(r'^Versione \*\*(\d+\.\d+)\*\*', md, re.M)
+if not declared:
+    raise SystemExit('docs/Feedback.md deve dire il suo giro nella prima riga: Versione **x.yy**')
+version = declared[1]
+if tuple(int(x) for x in version.split('.')) > tuple(int(x) for x in app_version.split('.')):
+    raise SystemExit(f'Il giro {version} di docs/Feedback.md supera versionName {app_version}.')
 identifiers = re.findall(r'^\| (\d+\.\d+-\d+) \|', md, re.M)
 items = []
 def inline_md(text):

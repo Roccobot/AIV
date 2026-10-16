@@ -62,7 +62,7 @@ Scheda generata dal controllo e mai pubblicata: serve a esercitare la pagina qua
 
 SYNTHETIC_BLOCKS = '''# Feedback AIV
 
-Documento di sintesi, costruito dal controllo e mai pubblicato.
+Versione **0.01**: documento di sintesi, costruito dal controllo e mai pubblicato.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -254,6 +254,29 @@ def check_back_button(path):
     print('Indietro: chiude il pannello di Altro, e lasciare la pagina chiede conferma, verificato.')
 
 
+def check_declared_round(path):
+    """The round of the page is the one its source declares, since 6.29 (H34): a source of round
+    0.01 builds a page of round 0.01 whatever versionName says, with the download of that round,
+    and a source whose round is past versionName is refused."""
+    import subprocess
+    import sys
+    root = Path(__file__).resolve().parents[1]
+    with tempfile.TemporaryDirectory() as temporary:
+        source, page = Path(temporary) / 'Feedback.md', Path(temporary) / 'feedback.html'
+        source.write_text(SYNTHETIC_BLOCKS)
+        subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
+                        '--output', str(page)], check=True, stdout=subprocess.DEVNULL)
+        built = page.read_text()
+        data = json.loads(re.search(r'<script id="feedback-data" type="application/json">(.*?)</script>', built, re.S)[1])
+        assert data['version'] == '0.01', data['version']
+        assert 'releases/download/v0.01/' in built, 'Il tasto di download non punta al giro dichiarato.'
+        source.write_text(SYNTHETIC_BLOCKS.replace('Versione **0.01**', 'Versione **999.00**'))
+        refused = subprocess.run([sys.executable, str(root / 'tools/feedback-build.py'), '--source', str(source),
+                                  '--output', str(page)], capture_output=True, text=True)
+        assert refused.returncode != 0 and 'supera versionName' in refused.stderr, refused.stderr
+    print('Giro della pagina: quello dichiarato nella fonte, mai oltre versionName, verificato.')
+
+
 def check_questions_and_labels(path):
     """The blocks after the tests (the user's rule of 2026-10-08), on a page built from a
     synthetic source with the real generator and template: the questions come after the tests and
@@ -436,6 +459,7 @@ def check(path):
     for question in data.get('questions', []):
         assert re.fullmatch(r'd-[a-z0-9-]+', question.get('id', '')), 'Chiave di domanda non valida.'
         assert question.get('title') and question.get('paragraphs'), 'Domanda incompleta.'
+    check_declared_round(path)
     check_questions_and_labels(path)
     check_attachment_buttons(path)
     check_altro_reaches_last_attachment(path)
