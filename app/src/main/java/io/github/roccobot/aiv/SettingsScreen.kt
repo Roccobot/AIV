@@ -2630,6 +2630,8 @@ private fun HiddenFoldersList(settings: Settings, onChange: (Settings) -> Unit, 
     removing?.let { entry ->
         AlertDialog(
             onDismissRequest = { removing = null },
+            modifier = Modifier.lowered { removing = null },
+            properties = loweredWindow { removing = null },
             title = { Text(stringResource(R.string.folder_list_remove_title)) },
             confirmButton = {
                 TextButton(onClick = {
@@ -2985,6 +2987,7 @@ private fun PadOrder(
         AlertDialog(
             onDismissRequest = { chiedendo = false },
             modifier = Modifier.lowered { chiedendo = false },
+            properties = loweredWindow { chiedendo = false },
             title = { Text(stringResource(R.string.settings_buttons_reset_ask)) },
             confirmButton = {
                 TextButton(

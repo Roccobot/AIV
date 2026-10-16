@@ -2151,6 +2151,7 @@ fun GridScreen(
         AlertDialog(
             onDismissRequest = { restoringAll = false },
             modifier = Modifier.lowered { restoringAll = false },
+            properties = loweredWindow { restoringAll = false },
             title = { Text(stringResource(R.string.bin_restore_all_ask)) },
             text = { Text(stringResource(R.string.bin_restore_all_desc)) },
             confirmButton = {
@@ -2178,6 +2179,7 @@ fun GridScreen(
         AlertDialog(
             onDismissRequest = { emptying = false },
             modifier = Modifier.lowered { emptying = false },
+            properties = loweredWindow { emptying = false },
             title = { Text(stringResource(R.string.bin_empty_ask)) },
             text = { Text(stringResource(R.string.bin_empty_desc)) },
             confirmButton = {
