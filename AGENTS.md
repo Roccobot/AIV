@@ -298,8 +298,8 @@ Un file più specifico vince **dove parla**, e il suo silenzio non è una deroga
   ⚠️ Due build si distinguono dal `digest` dell'asset, non dal peso, che l'allineamento a 16 KB
   lascia uguale. Il sito si controlla solo quando cambia `publish/`, con la corsa di `pages.yml`
   (`Rules.md` § '🚀 Che cosa produce un rilascio').
-- **La firma** vive solo fra i secret GitHub del repo (`AIV_KEYSTORE_FILE`, `AIV_KEYSTORE_PASSWORD`,
-  `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`). ⚠️ Senza di loro il build di release non fallisce: l'APK
+- **La firma** vive solo fra i secret GitHub del repo (`AIV_KEYSTORE_BASE64`, `AIV_KEYSTORE_PASSWORD`,
+  `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`; `AIV_KEYSTORE_FILE` è un percorso, non un secret). ⚠️ Senza di loro il build di release non fallisce: l'APK
   risulta non firmato, e il workflow lo chiede all'APK (`Rules.md` § '🔐 La firma, e dove NON vive').
 - **Due varianti dallo stesso codice**: AIV GitHub, con l'accesso a tutti i file e
   l'aggiornamento da sé, e AIV Play, una galleria senza le funzioni che scrivono sui file e con

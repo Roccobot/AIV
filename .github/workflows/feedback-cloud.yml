@@ -4,17 +4,21 @@ on:
   push:
     branches: [main]
     paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
+  # The local checks of the Worker also on a pull request, so a broken Worker is red before the
+  # merge; the deploy job below never runs on one.
+  pull_request:
+    paths: ['cloud/feedback/**', 'publish/**', 'tools/feedback-cloud-check.py', 'tools/feedback-read*.mjs', '.github/workflows/feedback-cloud.yml']
 permissions:
   contents: read
 concurrency:
-  group: feedback-cloud
+  group: feedback-cloud-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
   cancel-in-progress: false
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -49,11 +53,11 @@ jobs:
           /tmp/aiv-cloud-tests/bin/python tools/feedback-cloud-check.py
   deploy:
     needs: check
-    if: github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_ACCOUNT_ID != '' && vars.FEEDBACK_GITHUB_CLIENT_ID != '')
+    if: github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_ACCOUNT_ID != '' && vars.FEEDBACK_GITHUB_CLIENT_ID != ''))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm

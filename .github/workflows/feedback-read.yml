@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
       - run: npm ci --prefix cloud/feedback
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
       - name: Prepara soltanto il giro inviato e cifra il trasferimento
@@ -49,7 +49,7 @@ jobs:
           FEEDBACK_VERIFY_ONLY: ${{ inputs.verify_only }}
           FEEDBACK_SUPABASE_SECRET_KEY: ${{ secrets.FEEDBACK_SUPABASE_SECRET_KEY }}
         run: node cloud/feedback/feedback-export.mjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: feedback-envelope
           path: /tmp/aiv-feedback-export/feedback-envelope.json

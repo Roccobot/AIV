@@ -210,21 +210,21 @@ jobs:
 
       # Kept even on a dispatch run, so a build can be inspected without a tag.
       - name: Keep the APK as a run artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.apk.outputs.name }}
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
 
       - name: Keep the Play APK as a run artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.apk.outputs.play }}
           path: ${{ steps.apk.outputs.playpath }}
           if-no-files-found: error
 
       - name: Keep the Play bundle as a run artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.apk.outputs.aab }}
           path: ${{ steps.apk.outputs.aabpath }}
@@ -315,7 +315,7 @@ jobs:
       # tells a red bench from a broken toolchain.
       - name: Keep the bench report when it fails
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bench-report
           path: |

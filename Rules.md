@@ -98,7 +98,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
   § '⏸️ Il giro si prende INTERO, e solo quando lo dice lui'.
 - ⚠️ **La copia su GitHub Pages non c'è più dal 2026-10-03** (sua decisione: *è talmente vecchio
   che possiamo liberarcene senza problemi*): `pages.yml` lascia fuori dal sito la pagina del
-  documento e i suoi script, che restano in `publish/` perché il Worker serve quella stessa cartella. La vecchia
+  documento e i suoi script, che restano in `publish/` perché il Worker serve quella stessa cartella.
+  ⚠️ **Il rovescio è voluto**: il Worker serve **tutta** `publish/`, quindi anche la paginetta di
+  download, la politica sulla privacy e le schermate si raggiungono dall'indirizzo del DF. Sono
+  pagine già pubbliche, quindi la seconda via non espone niente (dichiarato il 2026-10-16,
+  rilievo del `Tagliando`). La vecchia
   bozza locale è recuperabile dalla storia git, se mai servisse. Il precedente [artefatto Claude](https://claude.ai/artifact/Ln1tAcq47MCidgYd3BaNfq)
   rimane un riferimento storico per le sue voci ancora aperte, senza chiuderle implicitamente.
 
@@ -1132,8 +1136,13 @@ documento, riscontro'.
 ## 🔐 La firma, e dove NON vive
 
 La chiave di firma e le sue parole d'ordine vivono **solo** fra i secret GitHub di questo
-repository (`AIV_KEYSTORE_FILE`, `AIV_KEYSTORE_PASSWORD`, `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`), e
-il job le scrive su disco per la durata di una sola esecuzione.
+repository (`AIV_KEYSTORE_BASE64`, cioè il keystore in base64, `AIV_KEYSTORE_PASSWORD`,
+`AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`), e il job le scrive su disco per la durata di una sola
+esecuzione.
+- ⚠️ **`AIV_KEYSTORE_FILE` NON è un secret**: è il percorso del keystore decodificato, che
+  `release.yml` ricava e passa a Gradle. Fino al 2026-10-16 queste regole lo elencavano fra i
+  secret al posto di `AIV_KEYSTORE_BASE64` (rilievo del `Tagliando`): chi li avesse ricreati
+  seguendole avrebbe avuto un APK non firmato, con un solo avviso nella run.
 
 - ⚠️ **Senza quelle variabili il build di release non fallisce: l'APK risulta non firmato.** È
   voluto, perché chi non ha la chiave possa compilare e controllare il minificatore. Il rovescio è
