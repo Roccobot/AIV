@@ -1,16 +1,16 @@
 # Feedback AIV
 
-Versione **6.24**: Compose 1.13.0-beta01, la versione di prova della libreria che disegna l'interfaccia. Il documento è cumulativo con la 6.20, la 6.21, la 6.22 e la 6.23, cioè il velo del Feed disegnato, la cartella sulla schermata Home (`Faro`), le note A e B, le librerie aggiornate, i cursori con Material 3 1.5.0-beta01 e i comandi sui file su Android 9 e 10.
+Versione **6.25**: le impostazioni si scrivono in un modo che non blocca più il banco di prova. Il documento è cumulativo con la 6.20, la 6.21, la 6.22, la 6.23 e la 6.24, cioè il velo del Feed disegnato, la cartella sulla schermata Home (`Faro`), le note A e B, le librerie aggiornate, i cursori con Material 3 1.5.0-beta01, i comandi sui file su Android 9 e 10 e Compose 1.13.
 Prosegue il giro **6.20**.
 [il DF](https://aiv-feedback.roccobot-b90.workers.dev/feedback).
-La Release 6.24 è pubblicata: [v6.24](https://github.com/Roccobot/AIV/releases/tag/v6.24), con i due APK
-[AIV-6.24.apk](https://github.com/Roccobot/AIV/releases/download/v6.24/AIV-6.24.apk) (AIV GitHub) e [AIV-Play-6.24.apk](https://github.com/Roccobot/AIV/releases/download/v6.24/AIV-Play-6.24.apk) (AIV Play), più [AIV-Play-6.24.aab](https://github.com/Roccobot/AIV/releases/download/v6.24/AIV-Play-6.24.aab), il pacchetto da caricare su Google Play.
-Commit prodotto su `main`: `507087c`, release dal commit `b3394a8` (SlimVer 6.24 / versionCode 384; APK GitHub 11.263.325 byte, digest `d2112c15`; APK Play 11.136.481 byte, digest `07a5fccc`).
+La Release 6.25 è pubblicata: [v6.25](https://github.com/Roccobot/AIV/releases/tag/v6.25), con i due APK
+[AIV-6.25.apk](https://github.com/Roccobot/AIV/releases/download/v6.25/AIV-6.25.apk) (AIV GitHub) e [AIV-Play-6.25.apk](https://github.com/Roccobot/AIV/releases/download/v6.25/AIV-Play-6.25.apk) (AIV Play), più [AIV-Play-6.25.aab](https://github.com/Roccobot/AIV/releases/download/v6.25/AIV-Play-6.25.aab), il pacchetto da caricare su Google Play.
+Commit prodotto su `main`: `e655cbc`, release dal commit `04e2a40` (SlimVer 6.25 / versionCode 385; APK GitHub 11.263.325 byte, digest `0f2ef973`; APK Play 11.136.481 byte, digest `6e37092f`).
 Tutti i veli d'aiuto, con le schermate: [Micro-onboarding di AIV](https://claude.ai/artifact/2HTm7ggPohapv6KMPEBLGE).
 
 Questo è il documento condiviso da tutti gli agenti e le piattaforme.
 La [guida di manutenzione](Feedback-maintenance.md) spiega come prenderlo in carico e aggiornarlo.
-Giro **6.24**: cumulativo con la 6.20, la 6.21, la 6.22 e la 6.23, quindi le loro sette prove e le tre etichette restano, con quello che hai già scritto in pagina e in `Altro`, e si aggiunge una prova di Compose 1.13. Giro **6.10**: tutte e tredici le prove del cumulativo 5.92 + 6.02 + 6.03 + 6.10 approvate; le etichette confermate sono registrate.
+Giro **6.25**: cumulativo con la 6.20, la 6.21, la 6.22, la 6.23 e la 6.24, quindi le loro otto prove e le tre etichette restano, con quello che hai già scritto in pagina e in `Altro`, e si aggiunge una prova sul salvataggio delle impostazioni. Giro **6.10**: tutte e tredici le prove del cumulativo 5.92 + 6.02 + 6.03 + 6.10 approvate; le etichette confermate sono registrate.
 
 Nel documento interattivo scegli **Tutto OK**, **Accettabile** o **Non approvato**;
 nessuna scelta significa **Non provato**. Un secondo clic sulla scelta la cancella.
@@ -23,7 +23,7 @@ appunti), Esporta e Importa (uno ZIP con risposte e allegati), Salva, Invia. **E
 I campi Telefono e Tablet restano al cambio versione; Altro e allegati liberi si azzerano, salvo in un documento cumulativo, dove restano quelli del giro che prosegue, e le risposte alle prove chiuse escono dalla bozza.
 `Invia` rende leggibile il giro senza avviare lavori.
 
-Le verifiche automatiche della 6.24 sono superate: banco di prova completo di AIV GitHub (770 prove, in tre corse), prove di AIV Play (43), traduzioni (28 lingue, 0 problemi), compilazione delle due varianti e del pacchetto per Google Play. Tutte le prove del banco usano adesso la regola nuova di Compose, e nessuna la vecchia.
+Le verifiche automatiche della 6.25 sono superate: banco di prova completo di AIV GitHub (771 prove, ripetuto otto volte senza blocchi), prove di AIV Play, traduzioni (28 lingue, 0 problemi), compilazione delle due varianti e del pacchetto per Google Play. Sulle macchine di GitHub il banco intero dura adesso circa 3 minuti invece di 6.
 
 | Voce | Stato | Commento dell'utente | Azione successiva |
 |---|---|---|---|
@@ -35,6 +35,7 @@ Le verifiche automatiche della 6.24 sono superate: banco di prova completo di AI
 | 6.22-01 | Non provato | | Attendere il collaudo. |
 | 6.23-01 | Non provato | | Attendere il collaudo. |
 | 6.24-01 | Non provato | | Attendere il collaudo. |
+| 6.25-01 | Non provato | | Attendere il collaudo. |
 
 ## 1. Il velo del Feed disegna l'ordine
 
@@ -84,6 +85,12 @@ Vale per AIV GitHub e per AIV Play. La 6.24 non cambia funzioni: porta Compose, 
 
 Letture mie: hai chiesto *l'ultimo compose*. La versione definitiva più recente, la 1.12.1, è in AIV dalla 6.21, quindi l'ho letto come l'ultima pubblicata in assoluto, cioè la 1.13.0-beta01. È una beta, come Material 3 dalla 6.22: le funzioni sono fissate, ma può avere difetti. Nel codice di AIV sono cambiate due cose: la funzione con cui l'editor completo e il gradiente passavano ad Android il loro pennello non c'è più, e adesso ne usano un'altra che restituisce lo stesso oggetto; e AIV si compila contro Android 17.1 invece che 17.0, cosa che non cambia il comportamento sul telefono. Le prove del banco usano adesso tutte la regola nuova di Compose, e per te non cambia niente. Il banco su Android 17 invece non è entrato: il perché è nei Prossimi passi.
 
+## 9. Le impostazioni si salvano come prima
+
+Vale per AIV GitHub e per AIV Play. La 6.25 cambia solo il modo in cui AIV scrive le impostazioni. Cambia qualche scelta in punti diversi: `Tema dell'app` in `Impostazioni`, il numero di colonne dalle opzioni della vista, la vista stessa (per esempio `Lista` al posto di `Griglia`), e chiudi un velo d'aiuto. Poi chiudi AIV dalla schermata delle app recenti e riaprila: ritrovi tutte le scelte come le hai lasciate, e il velo chiuso non torna. Se usi `Esporta e importa`, prova anche quello: l'importazione di un file di impostazioni rimette le sue scelte.
+
+Letture mie: fino alla 6.24 ogni scrittura delle impostazioni faceva il suo lavoro nel posto da cui veniva chiesta. Sul telefono non si vedeva niente, ma nel banco di prova una scrittura rimasta a metà fermava tutte quelle dopo, e una corsa su GitHub è rimasta ferma quattro ore. Adesso le quindici scritture passano da un punto solo, che le esegue sui thread riservati alla lettura e alla scrittura dei file. Sul telefono il risultato è lo stesso di prima, quindi questa prova cerca solo che niente si sia perso per strada.
+
 ## Etichette testuali
 
 ### e-feed_order · La voce in Impostazioni → File e cartelle, e la frase del velo del Feed
@@ -105,17 +112,18 @@ Aggiungi alla schermata Home
 
 | Funzione | Versione | Stato | Riscontro dell'utente | Azione successiva |
 |---|---|---|---|---|
+| Il banco sistemato, Android 17 rimandato | 6.25-01 | Scelte del 2026-10-16 | Il tuo A1 sull'ordine di Setaccio (*la 6.25 col banco sistemato e Android 17*), poi B1: il banco resta su Android 16 finché il simulatore della 17 non è corretto. | Fatto nella 6.25 (`6.25-01`); Android 17 rimandato. |
 | Compose 1.13 e le prove sulla regola nuova | 6.24-01 | Richiesta del 2026-10-15 | *l'ultimo compose, le prove riscritte e `Diciassette` fatto*; poi la tua A1: la 6.24 esce senza Android 17. | Fatto nella 6.24 (`6.24-01`); Android 17 nella 6.25. |
 | I comandi sui file su Android 9 e 10 | 6.23-01 | Scelta del 2026-10-15 | La tua B1 sulla voce `Veterani`: *correggo*. | Fatto nella 6.23 (`6.23-01`). |
 | I cursori con Material 3 1.5.0-beta01 | 6.22-01 | Richiesta del 2026-10-15 | *passa alla nuova versione di Material e rilascia la 6.22*, dopo la misura dei cursori (0 pixel diversi). | Fatto nella 6.22 (`6.22-01`). |
 | Le librerie aggiornate | 6.21-01 | Richiesta del 2026-10-15 | *dopo il rilascio fai l'aggiornamento delle dipendenze, in una versione a sé*. | Fatto nella 6.21 (`6.21-01`). |
 | Velo del Feed, `Faro`, note A e B | 6.20-01 | Giro della 6.10 | Il velo del Feed come tuo disegno (voce `6.02-04`), `Disposizione in vista feed` riscritta, `Faro` col via (*solo dalla vista cartelle di sistema*), il tasto `Aggiungi cartella` fermo in fondo (A), i gettoni dei pixel larghi uguali (B). | Fatto nella 6.20 (`6.20-01`...`6.20-04`). |
-| Le azioni dell'icona nel launcher | 6.10-01 | Scelte del 2026-10-15 | *Voglio aggiungere delle azioni utili alla pressione lunga dell'icona sulla homescreen*; poi A1 (*Feed solo se è una vista temporanea*), A2, A4 e B1; C in coda. | Fatte nella 6.10 e approvate; la C è la `Faro` della 6.20. |
 
 ## Prossimi passi
 
-- **In collaudo, giro cumulativo 6.20 + 6.21 + 6.22 + 6.23 + 6.24**: il velo del Feed (`6.20-01`), `Aggiungi cartella` fermo in fondo (`6.20-02`), i gettoni dei pixel (`6.20-03`), la cartella sulla schermata Home (`6.20-04`), le librerie aggiornate (`6.21-01`), i cursori con Material 3 1.5.0-beta01 (`6.22-01`), i comandi sui file su Android 9 e 10 (`6.23-01`), Compose 1.13 (`6.24-01`) e le tre etichette.
-- **In preparazione, la 6.25**: le preferenze si scrivono in un modo che non blocca più il banco di prova. Sul telefono non cambia niente di visibile: nelle prove, una scrittura rimasta a metà fermava tutte quelle dopo, e una corsa su GitHub è rimasta ferma quattro ore. Poi il banco su Android 17 (`Diciassette`). Nella 6.24 non ha retto per due difetti del simulatore che esegue le prove, non dell'app: l'onda del tocco resta ferma a metà sopra il pulsante toccato, e una cattura del palco del Disegno non si aggiorna. Le prove che ne dipendono si correggono una per volta.
+- **In collaudo, giro cumulativo 6.20 + 6.21 + 6.22 + 6.23 + 6.24 + 6.25**: il velo del Feed (`6.20-01`), `Aggiungi cartella` fermo in fondo (`6.20-02`), i gettoni dei pixel (`6.20-03`), la cartella sulla schermata Home (`6.20-04`), le librerie aggiornate (`6.21-01`), i cursori con Material 3 1.5.0-beta01 (`6.22-01`), i comandi sui file su Android 9 e 10 (`6.23-01`), Compose 1.13 (`6.24-01`), il salvataggio delle impostazioni (`6.25-01`) e le tre etichette.
+- **Rimandato, il banco su Android 17** (`Diciassette`, la tua B1): aggirati l'onda del tocco e la prova della luminosità, sulle macchine di GitHub sono cadute altre tre prove, tutte perché il simulatore della 17, a caso, non disegna il contenuto aggiornato. È un difetto del simulatore, non dell'app, e si riprova con una versione nuova di Robolectric, lo strumento che lo fornisce.
+- **Le versioni dopo, dal rapporto di Setaccio** (il tuo A1 sull'ordine): la 6.26 sui dati, la 6.27 sui difetti visibili, la 6.28 sulle prestazioni misurate prima, la 6.29 su DF, sito e workflow, la 6.30 sulla pulizia. Le scelte che spettano a te te le chiedo in chat prima della versione che le riguarda.
 - **Fermi fino al tuo via**: le funzioni sui file di AIV Play rifatte con MediaStore, una per rilascio (copia, sposta, duplica, nuova cartella); `Salva` sull'originale non serve, perché AIV Play salva già una copia `-aivEdit` accanto all'originale.
 - **Tuoi, in parallelo**: l'account sviluppatore su Google Play, la creazione dell'app, i 12 tester per i 14 giorni del test chiuso e le schermate del telefono per la scheda (risposta G1); icona e immagine in evidenza sono pronte in `docs/store/`, e i passi in ordine sono in fondo a `docs/Store.md`.
 - **Escluso per ora**: scegliere e spostare un elemento con un solo trascinamento (nota D del giro 4.90), come hai deciso.
