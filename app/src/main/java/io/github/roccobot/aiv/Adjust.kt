@@ -835,24 +835,6 @@ data class Tone(
 
         /** Quanti canali ha questo modulo. */
         const val COUNT = 4
-
-        /**
-         * A quale livello della curva del canale [channel] è il colore [pixel], per il colore
-         * mirato. Per il composito è la luminanza percettiva di Rec. 709, il tono che l'occhio
-         * vede: un giallo pieno cade in alto, un blu pieno in basso. Per i tre canali è il canale,
-         * che la sua curva governa.
-         */
-        fun levelOf(pixel: Int, channel: Int): Float {
-            val r = ((pixel shr 16) and 0xFF) / 255f
-            val g = ((pixel shr 8) and 0xFF) / 255f
-            val b = (pixel and 0xFF) / 255f
-            return when (channel) {
-                RED -> r
-                GREEN -> g
-                BLUE -> b
-                else -> 0.2126f * r + 0.7152f * g + 0.0722f * b
-            }
-        }
     }
 }
 

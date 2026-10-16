@@ -898,28 +898,18 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 23: i due conti che il colore mirato fa su un pixel.**
+     * **Caso 23: la fascia del colore a cui appartiene un pixel.**
      *
      * ⚠️⚠️ **UN GRIGIO NON APPARTIENE A NESSUNA FASCIA, ed è la risposta che non si può inventare**:
      * dando 'rosso' a un pixel senza colore, il dito finirebbe su una fascia che con quel pixel non
      * c'entra, e i tre cursori parlerebbero di un colore che là non esiste.
-     * ⚠️ **E per il composito il livello è la luminanza percettiva**: un giallo pieno è un tono
-     * alto e un blu pieno un tono basso, che è dove l'occhio li vede; con la media dei canali
-     * sarebbero lo stesso tono.
      */
     @Test
-    fun `il mirato legge la fascia e il livello di un pixel`() {
+    fun `il mirato legge la fascia di un pixel`() {
         assertEquals(0, Mix.bandOf(Color.rgb(255, 0, 0)))
         assertEquals(5, Mix.bandOf(Color.rgb(0, 0, 255)))
         assertEquals(3, Mix.bandOf(Color.rgb(0, 255, 0)))
         assertEquals("un grigio non ha fascia", -1, Mix.bandOf(Color.rgb(128, 128, 128)))
-
-        val giallo = Color.rgb(255, 255, 0)
-        val blu = Color.rgb(0, 0, 255)
-        assertTrue(Tone.levelOf(giallo, Tone.WHOLE) > 0.9f)
-        assertTrue(Tone.levelOf(blu, Tone.WHOLE) < 0.1f)
-        assertEquals(1f, Tone.levelOf(giallo, Tone.RED), 1e-3f)
-        assertEquals(0f, Tone.levelOf(giallo, Tone.BLUE), 1e-3f)
     }
 
     /**
