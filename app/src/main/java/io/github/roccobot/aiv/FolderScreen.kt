@@ -671,23 +671,7 @@ fun FolderScreen(
             if (home && partial) PartialAccess(onAllowAll = allowAll)
 
             when {
-                !granted -> Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        // ⚠️ Il testo dice quale permesso serve, e i permessi sono due: quello di
-                        // `github` nomina tutti i file e una pagina di sistema, che in AIV Play
-                        // non esistono.
-                        text = stringResource(
-                            if (Store.files) R.string.folders_permission else R.string.folders_permission_media
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    FilledTonalButton(onClick = askAccess) { Text(stringResource(R.string.folders_grant)) }
-                }
+                !granted -> AccessPlea(onAsk = askAccess, modifier = Modifier.padding(top = 24.dp))
 
                 // ⚠️ Prima dei rami che guardano `folders`, e non dopo: la vista delle
                 // cartelle di sistema legge il disco, non il MediaStore, quindi non ha
@@ -3025,6 +3009,33 @@ private const val FOLDER_KIND = "folder"
 
 /** Come sopra, per le righe dell'elenco. */
 private const val ROW_KIND = "folder-row"
+
+/**
+ * Le cartelle senza il permesso: che cosa serve e il tasto per chiederlo.
+ *
+ * ⚠️ Il testo dice quale permesso serve, e i permessi sono due: quello di `github` nomina tutti i
+ * file e una pagina di sistema, che in AIV Play non esistono.
+ * ⚠️⚠️ **UNO SOLO PER LA CASA E PER LA COLONNA, dalla `6.27`** (rilievo D28 della revisione della
+ * 6.25): la colonna del tablet e del telefono in orizzontale aveva una sua copia, col solo testo di
+ * AIV GitHub e senza il tasto, quindi da quella casa il permesso non si poteva chiedere.
+ */
+@Composable
+fun AccessPlea(onAsk: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(
+                if (Store.files) R.string.folders_permission else R.string.folders_permission_media
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(16.dp))
+        FilledTonalButton(onClick = onAsk) { Text(stringResource(R.string.folders_grant)) }
+    }
+}
 
 /**
  * La riga che dice, in AIV Play, che l'app vede solo le immagini che la persona ha scelto, col
