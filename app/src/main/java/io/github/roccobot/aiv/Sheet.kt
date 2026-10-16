@@ -66,52 +66,28 @@ import kotlin.math.exp
 import kotlin.math.sqrt
 
 /**
- * Una **bottomsheet**: una scheda appoggiata al bordo di sotto, larga quanto lo schermo, con
- * un titolo in cima, un contenuto che scorre e un piede fermo.
+ * Una scheda dal basso: appoggiata al bordo di sotto, larga quanto lo schermo, con un titolo in
+ * cima, un contenuto che scorre e un piede fermo.
  *
- * ⚠️⚠️ **ENTRA SALENDO DAL BASSO, DALLA 1.43, e fino alla 1.42 era vietato** (istruzione
- * dell'utente, 2026-09-03: *ho visto che una bottomsheet che non appare dal basso è troppo
- * strana. Facciamo che arriva dal basso con un'animazione fluida ed entra decelerando, ma al
- * tempo stesso c'è una mini dissolvenza*). Il divieto veniva dal giro della `1.37` (*info
- * dettagliate come bottomsheet, ma che non deve entrare scorrendo da sotto*) ed era una
- * richiesta vera, provata: quello che l'ha ribaltata è averla vista in mano.
- * ⚠️⚠️ **LA SALITA È NOSTRA E NON QUELLA DELLA FINESTRA, e la differenza va saputa perché
- * sono due movimenti che si sommerebbero**: l'animazione della finestra resta **spenta**
- * (`setWindowAnimations(0)` in [sheetWindow]), e la scheda sale per conto suo con la molla di
- * [ARRIVO_RIGIDITA]. Riaccendere quella di sistema adesso darebbe due salite sovrapposte, una
- * col nostro tempo e una col tempo del telefono.
- * ⚠️⚠️ **LA CRESCITA DA 0,96 È USCITA, e non è una dimenticanza**: era il *sostituto* della
- * salita, quando la salita non si poteva fare. Tenuta insieme a lei, una superficie larga
- * quanto lo schermo e ancorata al bordo si stringerebbe ai fianchi mentre arriva, cioè un
- * secondo movimento che contraddice il primo: 'arriva dal basso' si legge se il solo asse che
- * si muove è quello verticale.
- * ⚠️ **La dissolvenza è 'mini' come l'ha chiesta**, cioè finisce presto: a [SHEET_FADE_MS] la
- * scheda è già opaca e la molla è appena oltre metà strada, quindi il resto del viaggio lo fa
- * da corpo solido. È quello che distingue un accenno da un fantasma che sale.
- * ⚠️ **Perciò non è una `ModalBottomSheet`**: quella si trascina e si prende tutti i tocchi,
- * e sono le due cose che qui non si vogliono. Che salga adesso non la rende quella: la salita
- * era la sola delle sue proprietà che questa scheda non aveva.
+ * ⚠️ **Entra salendo dal basso, con la sua animazione e non con quella della finestra** (richiesta
+ * dell'utente: arrivo fluido che decelera, con una breve dissolvenza). L'animazione della finestra
+ * è spenta (`setWindowAnimations(0)` in [sheetWindow]) e la scheda sale con la molla di
+ * [ARRIVO_RIGIDITA]: riaccendere quella di sistema darebbe due salite sovrapposte. Si muove solo
+ * l'asse verticale, senza crescita, perché una superficie ancorata al bordo che si stringe ai
+ * fianchi contraddirebbe la salita. La dissolvenza finisce presto ([SHEET_FADE_MS]), e il resto del
+ * viaggio la scheda lo fa opaca. Non è una `ModalBottomSheet`, che si trascina e prende tutti i
+ * tocchi.
  *
- * ⚠️⚠️ **IL PIEDE È FERMO E IL CORPO SCORRE SOTTO DI LUI** (*la pillola con il nome è in fondo,
- * verso il bordo inferiore, ancorata: il resto rimane sotto allo scorrimento*): il piede sta
- * fuori dalla colonna che scorre e porta il fondo della scheda, quindi il contenuto gli
- * sparisce dietro invece di scorrergli sopra.
- * ⚠️ **Il corpo prende il posto che avanza e non di più** (`weight(1f, fill = false)`): con
- * poche righe la scheda è bassa, con molte cresce fino allo schermo e da lì scorre. Una
- * altezza fissa sarebbe giusta su un telefono solo.
- * ⚠️⚠️ **LO SCORRIMENTO È DI QUESTA SCHEDA, E IL CONTENUTO NON DEVE AVERNE UN ALTRO: due
- * annidati fanno CRASHARE l'app** (riscontro dell'utente, 2026-09-03, sulla 1.38: *va
- * sistematicamente in crash*). Quello di fuori misura il contenuto con altezza **infinita**, e
- * `ScrollNode.measure` chiama `checkScrollableContainerConstraints`, che su un'altezza infinita
- * va in errore. Il caso vero era `FileFacts`, che si portava dietro il proprio scorrimento da quando
- * viveva in un `AlertDialog`: la nota per esteso sta là.
+ * Il piede è fuori dalla colonna che scorre, quindi il contenuto gli scorre dietro. Il corpo prende
+ * il posto che avanza e non di più (`weight(1f, fill = false)`): con poche righe la scheda è bassa,
+ * con molte cresce fino allo schermo e scorre.
+ * ⚠️ **Lo scorrimento è di questa scheda, e il contenuto non deve averne un altro: due annidati
+ * chiudono l'app.** Quello di fuori misura il contenuto con altezza infinita, e
+ * `checkScrollableContainerConstraints` va in errore (il caso vero era `FileFacts`, nota là).
  *
- * ⚠️⚠️ **SI CHIUDE TOCCANDO FUORI, e quel tocco lo raccogliamo NOI**: con
- * `usePlatformDefaultWidth = false` la finestra copre lo schermo, quindi per il sistema non
- * esiste più un 'fuori' da riconoscere. Il velo sopra la scheda è una superficie trasparente
- * che chiude, ed è deterministico invece di dipendere da come Compose misura il contenuto.
- * ⚠️ **Il gesto Indietro chiude sempre**, come in ogni dialogo, e la crocetta in testa è la
- * via visibile per chi non conosce nessuna delle due.
+ * Si chiude toccando fuori, e quel tocco lo raccoglie la scheda: con `usePlatformDefaultWidth =
+ * false` la finestra copre lo schermo, e per il sistema non esiste un fuori. Il gesto Indietro
+ * chiude sempre, e la crocetta è la via visibile.
  */
 @Composable
 fun Sheet(
@@ -121,41 +97,29 @@ fun Sheet(
     content: @Composable () -> Unit
 ) {
     /*
-     * ⚠️⚠️ **LA SCHEDA SI CHIUDE IN DUE TEMPI, dalla 1.44, e senza questo non ci sarebbe
-     * nessuna uscita da vedere** (istruzione dell'utente, 2026-09-03: *le bottomsheet devono
-     * sparire nello stesso modo in cui entrano, ma con animazione speculare*). Il congedo di un
-     * dialogo è immediato: chiamato `onDismiss`, la finestra non c'è più e qualunque animazione
-     * non ha nessuno da animare. Quindi `chiudi` **non** congeda: spegne [visibile], che avvia
-     * la discesa, e il congedo vero lo fa il `finishedListener` quando il movimento è a zero.
-     * ⚠️ **I tre modi di chiudere passano tutti da qui** (il tocco sopra la scheda, la
-     * crocetta, il gesto Indietro): uno che chiamasse `onDismiss` dritto salterebbe l'uscita, e
-     * si vedrebbe come una scheda che a volte scende e a volte sparisce.
-     * ⚠️ **Parte da `false` e si accende all'ingresso in scena**: è la stessa riga che faceva
-     * partire la salita, e adesso serve a due animazioni invece che a una.
+     * ⚠️ **La scheda si chiude in due tempi**, o l'uscita non si vedrebbe: chiamato `onDismiss`, la
+     * finestra non c'è più. Quindi `chiudi` spegne [visibile], che avvia la discesa, e il congedo
+     * vero lo fa il `finishedListener` quando il movimento è a zero. I tre modi di chiudere (tocco
+     * sopra la scheda, crocetta, gesto Indietro) passano tutti da qui. [visibile] parte da `false`
+     * e si accende all'ingresso, e serve anche alla salita.
      */
     var visibile by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visibile = true }
     val chiudi: () -> Unit = { visibile = false }
     /*
-     * ⚠️⚠️ **LARGHEZZA CONTENUTA SUL TABLET, DALLA `3.36`** (mockup `help` / `.dialog-preview`):
-     * su telefono la scheda resta a tutta fascia; da 600 dp non supera [Adaptive.sheetMaxWidth],
-     * centrata in basso. Guida, Filigrana e Informazioni diventano finestre scorrevoli invece
-     * di pagine a tutta larghezza.
+     * Sul tablet, da 600 dp, la scheda non supera [Adaptive.sheetMaxWidth] ed è centrata in basso
+     * (mockup `help`, `.dialog-preview`); sul telefono è a tutta larghezza.
      */
     val sheetMax = Adaptive.sheetMaxWidth(LocalConfiguration.current.screenWidthDp)
 
     Dialog(
         onDismissRequest = chiudi,
         /*
-         * ⚠️⚠️ **`decorFitsSystemWindows = false` È QUELLO CHE PORTA LA SCHEDA SOTTO LA BARRA
-         * DI SISTEMA** (richiesta dell'utente, 2026-09-03: *fa' in modo che la barra
-         * multi-attività in basso assuma lo stesso colore dello sfondo, altrimenti l'effetto è
-         * tremendo, se sommato alla stondatura fisica del display*). Di serie la finestra di un
-         * dialogo si ferma **sopra** quella barra, quindi là sotto si vedeva la pagina, di un
-         * colore diverso dalla scheda, e le due strisce si leggevano come due pannelli.
-         * ⚠️ **Il contenuto non si muove di un pixel**: il rientro che la finestra applicava da
-         * sé adesso lo applica la colonna qui dentro ([navigationBarsPadding]), quindi a
-         * cambiare è il solo **fondo**, che arriva fino al bordo. Vedi la nota là.
+         * ⚠️ **`decorFitsSystemWindows = false` porta il fondo della scheda sotto la barra di
+         * sistema** (richiesta dell'utente: la barra in basso del colore della scheda). Di serie la
+         * finestra di un dialogo si ferma sopra quella barra, e là sotto si vedeva la pagina. Il
+         * contenuto resta dov'è: il rientro lo applica la colonna interna
+         * ([navigationBarsPadding]).
          */
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -165,13 +129,9 @@ fun Sheet(
         sheetWindow()
 
         /*
-         * ⚠️⚠️ **LA PATINA SI SCIOGLIE, DALLA `1.61`, e prima saltava a zero con la finestra**
-         * (istruzione dell'utente, giro della `1.60`: *il passaggio da sfocatura massima a
-         * nessuna sfocatura dev'essere graduale e decelerare sul finale*). Qui non costa
-         * **niente** in più: l'uscita della scheda dura già [USCITA_MS], che è più della coda.
-         * ⚠️ **All'andata resta piena da subito** ([snap]), cioè esattamente come prima: la
-         * richiesta riguarda il passaggio da velato a sgombro, e dosare anche l'entrata sarebbe
-         * un secondo cambiamento nello stesso giro.
+         * La patina si scioglie all'uscita con una coda che decelera (richiesta dell'utente), e
+         * all'andata è piena da subito ([snap]). Non costa niente: l'uscita dura già [USCITA_MS],
+         * più della coda.
          */
         val patina by animateFloatAsState(
             targetValue = if (visibile) 1f else 0f,
@@ -180,14 +140,10 @@ fun Sheet(
         )
 
         /*
-         * ⚠️⚠️ **LA SFOCATURA HA IL SUO NUMERO, DALLA `1.64`, E SE NE VA COL PANNELLO**: fino alla
-         * `1.63` seguiva anche lei la coda qui sopra, cioè scendeva da trentatré pixel a zero in
-         * [VEIL_FADE_MS] decelerando, ed è la cosa che l'utente ha bocciato sui menu (*anziché un
-         * livello sovrapposto che se ne va sembra una messa a fuoco che si muove*). Ridurre un
-         * raggio è mettere a fuoco: il fatto per esteso sta in fondo a `Veil.kt`. Adesso segue la
-         * dissolvenza della scheda, che è la più corta delle sue animazioni d'uscita.
-         * ⚠️ **A funzione spenta conta la sola [patina]**, che dosa il velo semplice della finestra
-         * ([SHEET_DIM]): quello è un livello con la sua opacità, quindi la coda là è giusta e resta.
+         * La sfocatura ha il suo tempo e se ne va con la dissolvenza della scheda: ridurre un
+         * raggio a poco a poco si legge come una messa a fuoco (il perché per esteso è in fondo a
+         * `Veil.kt`). A funzione spenta conta la sola [patina], che dosa il velo semplice
+         * ([SHEET_DIM]): quello è un livello con la sua opacità, e la coda là è giusta.
          */
         val sfoca by animateFloatAsState(
             targetValue = if (visibile) 1f else 0f,
@@ -200,20 +156,13 @@ fun Sheet(
         WindowVeil(bare = SHEET_DIM, patina = { patina }) { if (acceso) sfoca else patina }
 
         /*
-         * ⚠️⚠️ **DUE ANIMAZIONI E NON UNA, e sono due perché durano tempi diversi**: la
-         * salita è una molla che frena ([ARRIVO_RIGIDITA]), la dissolvenza dura
-         * [SHEET_FADE_MS] e basta. Una sola con due letture (l'opacità ricavata dalla
-         * posizione) legherebbe la 'mini dissolvenza' alla curva della salita, cioè la
-         * farebbe rallentare insieme a lei proprio in fondo, dov'è già finita.
-         * ⚠️⚠️ **E OGNUNA HA DUE VERSI, dalla 1.44**: all'andata la molla e la dissolvenza
-         * corta, al ritorno la curva che accelera ([fuga]) e la stessa dissolvenza **in
-         * coda** ([sfumaVia]). Il perché quelle due e non altre sta sulle costanti: sono la
-         * prima letta all'indietro e la seconda spostata dall'inizio alla fine, cioè
-         * l'animazione speculare che l'utente ha chiesto.
-         * ⚠️ **Il congedo vero sta nel `finishedListener` della SALITA e non della
-         * dissolvenza**: la posizione è quella che dura più a lungo, quindi è l'unica che
-         * finisce quando la scheda è davvero fuori. Legato all'altra, la finestra si
-         * chiuderebbe con la scheda ancora a metà strada, invisibile ma non arrivata.
+         * ⚠️ **Due animazioni e non una, perché durano tempi diversi**: la salita è una molla, la
+         * dissolvenza dura [SHEET_FADE_MS]. Un'opacità ricavata dalla posizione rallenterebbe con
+         * la molla proprio in fondo. Ognuna ha due versi: all'andata la molla e la dissolvenza in
+         * testa, al ritorno la molla letta all'indietro ([fuga]) e la dissolvenza in coda
+         * ([sfumaVia]).
+         * ⚠️ **Il congedo vero è nel `finishedListener` della salita**: è l'animazione più lunga,
+         * quindi la sola che finisce quando la scheda è davvero fuori.
          */
         val lift by animateFloatAsState(
             targetValue = if (visibile) 1f else 0f,
@@ -231,21 +180,16 @@ fun Sheet(
             modifier = Modifier
                 .fillMaxSize()
                 /*
-                 * ⚠️⚠️ **IL RIENTRO IN ALTO STA QUI, ed è la contropartita di
-                 * `decorFitsSystemWindows = false`**: senza la finestra a fitto sistema, una
-                 * scheda con molte righe crescerebbe fino al bordo di sopra e il titolo
-                 * finirebbe sotto l'orologio. Applicato al riquadro che la contiene, diventa
-                 * un **tetto** invece di uno spazio: una scheda corta non si muove di niente,
-                 * e una lunga si ferma sotto la barra di stato.
-                 * ⚠️ **Solo in alto**: in fondo il riquadro deve arrivare al bordo, o la
-                 * scheda tornerebbe a fermarsi sopra la barra di sistema, che è il difetto
-                 * che questa versione toglie.
+                 * ⚠️ **Il rientro in alto è qui, contropartita di `decorFitsSystemWindows =
+                 * false`**: senza, una scheda lunga crescerebbe fino al bordo di sopra e il titolo
+                 * finirebbe sotto l'orologio. Applicato al riquadro diventa un tetto: una scheda
+                 * corta non si muove, una lunga si ferma sotto la barra di stato. Solo in alto: in
+                 * fondo il riquadro deve arrivare al bordo.
                  */
                 .statusBarsPadding()
                 /*
-                 * ⚠️ **Niente increspatura e nessuna descrizione**: questo non è un tasto, è
-                 * lo spazio vuoto sopra la scheda, e un cerchio d'inchiostro che si apre dove
-                 * si tocca per chiudere direbbe che là c'era qualcosa da premere.
+                 * Niente increspatura e nessuna descrizione: è lo spazio vuoto sopra la scheda, non
+                 * un tasto.
                  */
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -261,42 +205,29 @@ fun Sheet(
                         if (sheetMax != null) Modifier.widthIn(max = sheetMax) else Modifier
                     )
                     /*
-                     * ⚠️⚠️ **LA DISTANZA È L'ALTEZZA DELLA SCHEDA STESSA, letta qui dentro**:
-                     * `size` è la misura di questo strato, quindi la scheda parte esattamente
-                     * da sotto il proprio bordo inferiore e arriva a posto, qualunque sia la
-                     * sua altezza. Una distanza in `dp` sarebbe giusta su una scheda sola:
-                     * quella delle informazioni cresce col numero di righe, e con un numero
-                     * fisso una scheda alta partirebbe già mezza dentro e una bassa da fuori
-                     * schermo.
-                     * ⚠️ **Non serve nessun `clip`**: quello che sta sotto il bordo del
-                     * riquadro è fuori dalla finestra, cioè fuori dallo schermo, e il sistema
-                     * non lo disegna. Un `clipToBounds` sul riquadro taglierebbe invece anche
-                     * il velo, che deve coprire tutto.
+                     * ⚠️ **La distanza è l'altezza della scheda stessa** (`size` di questo strato):
+                     * la scheda parte da sotto il proprio bordo qualunque sia la sua altezza,
+                     * mentre una distanza fissa in `dp` farebbe partire una scheda alta già mezza
+                     * dentro. Nessun `clip`: quello che è sotto il bordo è fuori dallo schermo, e
+                     * un `clipToBounds` taglierebbe anche il velo.
                      */
                     .graphicsLayer {
                         alpha = show
                         translationY = (1f - lift) * size.height
                     }
                     /*
-                     * ⚠️⚠️ **L'ARIA IN CIMA C'È SOLO CON L'OMBRA, E SENZA DI LEI L'OMBRA NON SI
-                     * VEDREBBE**: il `graphicsLayer` qui sopra porta un'opacità, quindi Compose
-                     * disegna tutto quello che sta sotto in un buffer grande **quanto questo
-                     * nodo**, e un'ombra che esce dalla scheda finirebbe contro il suo bordo. Il
-                     * perché per esteso, coi due tagli che questa aria evita, sta su [LIFT_ROOM].
-                     * ⚠️ **Solo in cima**: i fianchi di una scheda in fondo stanno sui bordi
-                     * dello schermo e il fondo è appoggiato al vetro, quindi là l'ombra non ha
-                     * niente da mostrare e l'aria stringerebbe la scheda.
-                     * ⚠️ **E sta FUORI dal `clickable` qui sotto**, quindi un tocco sull'aria
-                     * chiude la scheda come il resto dello spazio sopra di lei: dentro, sarebbe
-                     * una fascia di sedici dp che non risponde, che è l'asimmetria del giro della
-                     * `1.69`.
+                     * ⚠️ **L'aria in cima c'è solo con l'ombra, e senza l'ombra sarebbe tagliata**:
+                     * il `graphicsLayer` qui sopra ha un'opacità, quindi Compose disegna quello che
+                     * è sotto in un buffer grande quanto questo nodo (il perché per esteso è su
+                     * [LIFT_ROOM]). Solo in cima, perché fianchi e fondo sono contro i bordi dello
+                     * schermo. È fuori dal `clickable` qui sotto, quindi un tocco sull'aria chiude
+                     * la scheda come il resto dello spazio sopra.
                      */
                     .padding(top = if (alzata) LIFT_ROOM else 0.dp)
                     /*
-                     * ⚠️ **Il tocco sulla scheda NON deve chiudere**, e senza questa riga lo
-                     * farebbe: il velo di sopra è un genitore, e un tocco che nessuno consuma
-                     * gli arriverebbe. Un `clickable` senza effetto è il modo di dire 'qui mi
-                     * fermo' senza inventare un gesto.
+                     * Il tocco sulla scheda non deve chiudere: il velo di sopra è un genitore, e un
+                     * tocco che nessuno consuma gli arriverebbe. Un `clickable` senza effetto lo
+                     * ferma qui.
                      */
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -304,23 +235,12 @@ fun Sheet(
                         onClick = { }
                     )
                     /*
-                     * ⚠️⚠️ **IL BORDO D'ACCENTO SU TRE LATI, dalla `1.54`** (richiesta
-                     * dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del
-                     * colore di accento*). Il quarto lato è appoggiato al bordo dello schermo e
-                     * non si disegna: il perché, e che cosa il bordo sostituisce, stanno in
-                     * testa a `Edge.kt`.
-                     * ⚠️⚠️ **E DALLA `1.56` LA RIGA CORRE DI FUORI, non intorno** (sua prova,
-                     * giro della `1.55`): i fianchi finiscono oltre il bordo dello schermo e di
-                     * lei si vedono la cima e i due archi. ⚠️ **Quindi disegna sopra la propria
-                     * scatola**, e nessuno dei modificatori qui sopra deve ritagliare: il
-                     * `graphicsLayer` non lo fa (`clip` è spento di fabbrica), e il velo che sta
-                     * dietro non è un genitore che taglia.
-                     */
-                    /*
-                     * ⚠️ **L'ombra sta PRIMA del bordo**, cioè avvolge anche il tratto d'accento:
-                     * il bordo è parte della superficie che si alza, non un disegno che le sta
-                     * accanto. Il perché dell'ombra, e perché è alternativa alla sfocatura,
-                     * stanno in testa a `Edge.kt`.
+                     * Il bordo d'accento su tre lati (richiesta dell'utente): il quarto è
+                     * appoggiato al bordo dello schermo. La riga corre di fuori, e dei fianchi,
+                     * oltre lo schermo, si vedono la cima e i due archi: quindi nessuno dei
+                     * modificatori qui sopra deve ritagliare (il `graphicsLayer` non lo fa, `clip`
+                     * è spento di fabbrica). L'ombra viene prima del bordo, e avvolge anche il
+                     * tratto d'accento. Il perché di bordo e ombra è in testa a `Edge.kt`.
                      */
                     .liftedTop(PANEL_ROUND)
                     .edgedTop(PANEL_ROUND),
@@ -329,11 +249,9 @@ fun Sheet(
             ) {
                 Column(
                     /*
-                     * ⚠️ **Il rientro di sistema sta QUI e non sulla scheda**: il fondo della
-                     * scheda deve arrivare al bordo dello schermo (vedi la nota sul dialogo),
-                     * il contenuto no, o l'ultima riga finirebbe sotto la barra. Applicandolo
-                     * al contenuto, quello che si vede resta dov'era e cambia il solo colore
-                     * della striscia in fondo.
+                     * Il rientro di sistema è qui e non sulla scheda: il fondo della scheda arriva
+                     * al bordo dello schermo, il contenuto no, o l'ultima riga finirebbe sotto la
+                     * barra.
                      */
                     modifier = Modifier
                         .navigationBarsPadding()
@@ -346,16 +264,8 @@ fun Sheet(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         /*
-                         * ⚠️⚠️ **IL TITOLO È ALLINEATO A SINISTRA DALLA 1.40, e prima era
-                         * centrato** (richiesta dell'utente, 2026-09-03: *'Info dettagliate sul
-                         * file' -> 'Informazioni' (allineato a sinistra)*). Il centro era una
-                         * decisione della `0.73` presa su un suo mockup, quando la pastiglia
-                         * del nome stava sulla riga sotto e faceva da contrappeso; scesa la
-                         * pastiglia in fondo, quella ragione era caduta e restava la sola
-                         * abitudine.
-                         * ⚠️ **Con lui se n'è andato lo spazio speculare alla crocetta**, che
-                         * serviva solo a fare del centro il centro vero della scheda: un titolo
-                         * a sinistra comincia dal rientro, come ogni altro testo qui dentro.
+                         * Il titolo è allineato a sinistra (richiesta dell'utente) e comincia dal
+                         * rientro, come ogni altro testo qui dentro.
                          */
                         Text(
                             text = title,
@@ -366,15 +276,9 @@ fun Sheet(
                         )
                         IconButton(onClick = chiudi, modifier = Modifier.size(SHEET_SHUT)) {
                             Icon(
-                                /*
-                                 * ⚠️ **Piena e non di contorno, dalla `1.81`**: era l'unica
-                                 * croce di contorno dell'app, e la differenza fra le due
-                                 * grafie non distingueva niente (anche questa chiusura è
-                                 * un'azione, come le altre cinque).
-                                 */
+                                /* La croce piena, come tutte le altre chiusure dell'app. */
                                 imageVector = Icons.Default.Close,
-                                // ⚠️ Descritta col nome che il tasto aveva quando era una
-                                // parola: chi la sente leggere sente 'Chiudi', come prima.
+                                // Descritta come 'Chiudi', il nome del tasto.
                                 contentDescription = stringResource(R.string.pick_close)
                             )
                         }
@@ -398,28 +302,18 @@ fun Sheet(
 /**
  * Toglie alla finestra del dialogo la sua animazione e la stende su tutto lo schermo.
  *
- * ⚠️⚠️ **`setWindowAnimations(0)` È LA RIGA CHE CHIUDE UNA QUESTIONE APERTA DALLA 1.25**: là
- * si era concluso che l'animazione di entrata la decide il telefono e che *da dentro non si
- * spegne*. Si spegne: uno stile di animazione a zero vuol dire nessuna animazione, e senza di
- * lei l'unico movimento è quello scritto in [Sheet].
- * ⚠️⚠️ **E SERVE ANCORA ADESSO CHE LA SALITA È TORNATA, per una ragione OPPOSTA a quella per
- * cui era nata**: fino alla `1.42` spegneva un movimento vietato; dalla `1.43` evita che i
- * movimenti siano **due**. L'animazione di serie di una finestra appoggiata in basso è proprio
- * una salita, quindi accesa si sommerebbe alla nostra: due corse sulla stessa distanza, una
- * col nostro tempo e una col tempo che decide il telefono. Chi togliesse
- * questa riga pensando che adesso non serva più otterrebbe un sussulto.
- * ⚠️ **La finestra si stende su tutto** e la scheda si appoggia in basso da sé, dentro: così
- * lo spazio sopra esiste, è nostro, e può raccogliere il tocco che chiude.
- * ⚠️ **`Gravity.BOTTOM` con una finestra a tutto schermo non sposta niente**, e si scrive lo
- * stesso: dice qual è il bordo di riferimento se un domani la finestra tornasse alta quanto il
- * contenuto.
+ * ⚠️ **`setWindowAnimations(0)` evita due movimenti**: l'animazione di serie di una finestra
+ * appoggiata in basso è proprio una salita, e accesa si sommerebbe a quella di [Sheet], con un
+ * tempo deciso dal telefono. Togliendo questa riga si otterrebbe un sussulto. La finestra si stende
+ * su tutto e la scheda si appoggia in basso da sé, così lo spazio sopra raccoglie il tocco che
+ * chiude. `Gravity.BOTTOM` con una finestra a tutto schermo non sposta niente: dice qual è il bordo
+ * di riferimento se la finestra tornasse alta quanto il contenuto.
  */
 @Composable
 private fun sheetWindow() {
     val view = LocalView.current
     DisposableEffect(view) {
-        // ⚠️ La stessa risalita del velo, e non un secondo modo di trovare la finestra:
-        // vedi `dialogWindow` in `Veil.kt`.
+        // La stessa risalita del velo per trovare la finestra: vedi `dialogWindow` in `Veil.kt`.
         val window = view.dialogWindow()
         window?.apply {
             setWindowAnimations(0)
@@ -428,8 +322,8 @@ private fun sheetWindow() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            // ⚠️ Lo sfondo della finestra deve essere trasparente, o dietro la scheda si
-            // vedrebbe il rettangolo di serie del dialogo al posto del velo.
+            // Sfondo trasparente, o dietro la scheda si vedrebbe il rettangolo di serie del
+            // dialogo.
             setBackgroundDrawableResource(android.R.color.transparent)
             edgeToEdge()
         }
@@ -438,27 +332,19 @@ private fun sheetWindow() {
 }
 
 /**
- * Le tre cose che servono a una finestra di dialogo per **dipingere da sé** sotto le barre di
- * sistema, cioè quello che `enableEdgeToEdge()` fa all'attività e a nessun'altra finestra.
+ * Le tre cose che servono a una finestra di dialogo per dipingere da sé sotto le barre di sistema,
+ * cioè quello che `enableEdgeToEdge()` fa all'attività e a nessun'altra finestra.
  *
- * ⚠️⚠️ **ESISTE PERCHÉ LA 1.40 NON HA FUNZIONATO, e la causa è la riga sopra a questa**
- * (riscontro `sotto-barra` della `1.41`: *fallo dappertutto, ma anche dove l'avevi già fatto,
- * perché non ha funzionato*). Misurato sul sorgente di `compose-ui` 1.12.0, non ragionato:
- * `DialogLayout.internalOnMeasure` aggiunge `FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS` **solo** se
- * `window.attributes.height == WRAP_CONTENT`, e questa scheda l'altezza della finestra la mette
- * a `MATCH_PARENT` da sé (le serve per avere lo spazio sopra che raccoglie il tocco che chiude).
- * Quindi `decorFitsSystemWindows = false` stendeva sì la finestra fino al bordo, ma senza quel
- * flag il sistema continuava a dipingersi la sua barra opaca sopra: il fondo della scheda
- * arrivava là sotto e non si vedeva.
- * ⚠️⚠️ **E DA ANDROID 10 NON BASTA IL FLAG: c'è un velo che il sistema aggiunge da sé**
- * (`isNavigationBarContrastEnforced`, vero di fabbrica), che su una barra trasparente in
- * navigazione a gesti dipinge una patina traslucida. `enableEdgeToEdge()` lo spegne
- * sull'attività, e su una finestra nuova torna acceso: senza questa riga la striscia in fondo
- * sarebbe **quasi** del colore della scheda, che è il modo peggiore di sbagliare, perché
- * sembra un difetto di tinta e non un velo.
- * ⚠️ **I due colori si dichiarano benché siano già nel tema**: `Theme.AIV` li ha trasparenti,
- * ma il dialogo vive su una finestra sua, e un tema che un domani non li portasse più li
- * rimetterebbe opachi qui senza che nessuno colleghi le due cose.
+ * ⚠️ **Il flag lo aggiunge Compose solo a una finestra alta quanto il contenuto**: nel sorgente di
+ * `compose-ui` 1.12.0 `DialogLayout.internalOnMeasure` aggiunge `FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS`
+ * solo se `window.attributes.height == WRAP_CONTENT`, e questa scheda la mette a `MATCH_PARENT`.
+ * Senza il flag il sistema dipinge la sua barra opaca sopra il fondo della scheda.
+ * ⚠️ **Da Android 10 serve anche spegnere il contrasto della barra**
+ * (`isNavigationBarContrastEnforced`, vero di fabbrica), che nella navigazione a gesti dipinge una
+ * patina traslucida: `enableEdgeToEdge()` lo spegne sull'attività, e su una finestra nuova torna
+ * acceso. La striscia in fondo sarebbe quasi del colore della scheda, e sembrerebbe un difetto di
+ * tinta. I due colori si dichiarano anche se `Theme.AIV` li ha già trasparenti: il dialogo ha una
+ * finestra sua, e un tema cambiato li rimetterebbe opachi qui senza che nessuno se ne accorga.
  */
 @Suppress("DEPRECATION")
 private fun Window.edgeToEdge() {
@@ -476,54 +362,33 @@ private val SHEET_PAD = 24.dp
 private val SHEET_GAP = 12.dp
 
 /**
- * Il rientro in ALTO, che è la metà degli altri.
- *
- * ⚠️ **12 e non 24, dalla 1.40** (richiesta dell'utente, 2026-09-03: *leggermente meno spazio
- * in alto (oltre la posizione verticale della × di chiusura)*). Il numero da guardare non è
- * questo ma quello che si vede: la crocetta vive in un bersaglio da [SHEET_SHUT], quindi sopra
- * il suo disegno c'erano 24 di rientro più 12 di bersaglio, cioè **36**; adesso 24. Chi
- * ritoccasse questo valore ragionando sul solo rientro sbaglierebbe di dodici punti.
- * ⚠️ **Solo in alto**: ai lati e in fondo il rientro è quello di prima, e una scheda che si
- * stringe da tutte le parti sarebbe un'altra richiesta.
+ * Il rientro in alto, la metà degli altri (richiesta dell'utente: meno spazio sopra la crocetta).
+ * ⚠️ Quello che si vede è il rientro più il bersaglio di [SHEET_SHUT]: sopra il disegno della
+ * crocetta ci sono 12 di rientro più 12 di bersaglio, cioè 24. Ritoccando il solo rientro si
+ * sbaglia di dodici punti.
  */
 private val SHEET_PAD_TOP = 12.dp
 
 /**
- * Il lato della crocetta, che è anche lo spazio speculare a sinistra del titolo.
- *
- * ⚠️ **48dp e non 24**: è l'area toccabile minima di Material, non la misura del disegno. Un
- * numero solo per i due lati, o il titolo sarebbe centrato di sbieco.
+ * Il lato della crocetta: 48 dp, l'area toccabile minima di Material, non la misura del disegno.
  */
 private val SHEET_SHUT = 48.dp
 
 /**
- * Come arriva una scheda dal basso: una **molla** critica, cioè che frena e non rimbalza.
+ * Come arriva una scheda dal basso: una molla critica, che frena e non rimbalza.
  *
- * ⚠️⚠️ **È `internal` PERCHÉ LE BOTTOMSHEET SONO DUE**: questa e quella della selezione
- * (`PickSheet`). Non sono la stessa cosa (l'altra vive dentro la schermata, non in una
- * finestra, e ha anche un'uscita), ma *arrivare dal basso* è un gesto solo, e due definizioni
- * dello stesso gesto divergono al primo ritocco: è il difetto che `InfoBar.kt` è nato per
- * chiudere.
+ * `internal` perché le schede dal basso sono due, questa e quella della selezione (`PickSheet`), e
+ * arrivare dal basso è un gesto solo (vedi [arrivaDalBasso]).
  *
- * ⚠️⚠️ **UNA MOLLA E NON UNA CURVA, ed è una MISURA che ha scartato la prima scelta.** Avevo
- * preso l'`emphasized decelerate` di Material 3 (`cubic-bezier(0.05, 0.7, 0.1, 1.0)`) su 320
- * ms, perché è la curva che le linee guida prescrivono a un elemento che entra in scena.
- * Valutandola, quella curva su quel tempo fa **l'83% della strada nei primi 80 ms** e passa
- * gli altri 240 a percorrere il 17% che resta: a schermo è uno scatto seguito da niente, cioè
- * il contrario dell'arrivo fluido che l'utente ha chiesto. La molla qui sotto, agli stessi 80
- * ms, ha ancora da fare il **52%**, ed entra nell'ultimo 1% a **332 ms**: il movimento è
- * distribuito su tutto il tempo.
- * ⚠️ **Il numero scartato resta scritto** perché la curva è quella che qualunque documento di
- * Material consiglia: chi ci ricapita la prende in buona fede, e la misura è la sola cosa che
- * la ferma.
- * ⚠️⚠️ **E NON SONO I 170 DEI MENU**: quel numero l'utente lo ha scelto su un mockup per un
- * **menu**, che compare dov'era il dito, cioè non viaggia. Una scheda percorre la propria
- * altezza, qualche centinaio di punti, e la stessa durata su quella distanza si legge come uno
- * scatto. I menu tengono i loro 170, e non si allineano a questo: là il numero è giusto, ed è
- * di chi lo ha scelto.
- * ⚠️ **`StiffnessMediumLow` è anche la molla di fabbrica di `slideInVertically`**, cioè quella
- * che la scheda della selezione ha da sempre e su cui non è mai arrivato un riscontro: la
- * scelta è di allineare la scheda nuova a un movimento già provato, invece di inventarne uno.
+ * ⚠️ **Una molla e non una curva, per una misura**: l'`emphasized decelerate` di Material 3
+ * (`cubic-bezier(0.05, 0.7, 0.1, 1.0)`) su 320 ms fa l'83% della strada nei primi 80 ms, e a
+ * schermo è uno scatto seguito da niente. La molla, agli stessi 80 ms, ha ancora da fare il 52%, ed
+ * entra nell'ultimo 1% a 332 ms. La curva scartata resta scritta perché è quella che ogni documento
+ * di Material consiglia.
+ * ⚠️ **Non è il tempo dei menu** (`MENU_IN` in `Menus.kt`): un menu compare dov'era il dito e non
+ * viaggia, una scheda percorre la sua altezza, e lo stesso tempo su quella distanza sarebbe uno
+ * scatto. `StiffnessMediumLow` è anche la molla di fabbrica di `slideInVertically`, quella che la
+ * scheda della selezione ha da sempre.
  */
 internal const val ARRIVO_RIGIDITA = Spring.StiffnessMediumLow
 
@@ -534,51 +399,31 @@ internal fun arrivo(): SpringSpec<Float> = spring(
 )
 
 /**
- * Quanto dura la dissolvenza.
- *
- * ⚠️ **'Mini' sono parole sue**, quindi finisce presto: a 110 ms la scheda è già opaca, e la
- * molla a quel punto ha fatto poco più della metà della strada. Il resto del viaggio lo fa da
- * corpo solido, che è quello che distingue un accenno di dissolvenza da un fantasma che sale.
- * ⚠️ **Con un tempo suo e non con la curva della salita**: legata alla molla rallenterebbe
- * insieme a lei proprio in fondo, dove ha già finito.
- * ⚠️⚠️ **E LA CURVA È QUELLA DI SERIE, `FastOutSlowIn`, non lineare come diceva questa nota
- * fino alla `1.78`**: nessuno dei posti che scrivono questa durata passa una curva, e il valore
- * di serie di `tween` è quello (misurato sul bytecode di `animation-core`). In questo progetto
- * `LinearEasing` si scrive per esteso quando lo si vuole, quindi la parola prometteva una cosa
- * che il codice non fa.
+ * Quanto dura la dissolvenza: breve, come chiesto, quindi a 110 ms la scheda è già opaca e la molla
+ * ha fatto poco più di metà strada. Ha un tempo suo e non la curva della salita, che la farebbe
+ * rallentare in fondo. La curva è quella di serie di `tween`, `FastOutSlowIn` (misurato sul
+ * bytecode di `animation-core`).
  */
 internal const val SHEET_FADE_MS = 110
 
 // ── L'uscita, che è l'entrata letta all'indietro ────────────────────────────
 /*
- * ⚠️⚠️ **'SPECULARE' QUI È PRESO ALLA LETTERA, e per questo non c'è nessuna curva nuova da
- * scegliere** (istruzione dell'utente, 2026-09-03: *le bottomsheet devono sparire nello stesso
- * modo in cui entrano, ma con animazione speculare, accelerazione e scorrimento giù + breve
- * dissolvenza*). La strada ovvia sarebbe stata l'`emphasized accelerate` di Material, cioè
- * un'altra curva con altri quattro numeri, che non è la specularità: è un'altra animazione che
- * accelera. Qui l'uscita è **la stessa molla percorsa dalla fine all'inizio**, quindi accelera
- * per costruzione e i due movimenti sono l'uno l'immagine dell'altro.
- * ⚠️ **Costa una formula chiusa e nessuna misura da tarare**: la molla critica ha una
- * posizione scrivibile in una riga, e [MOLLA] la scrive.
+ * 'Speculare' preso alla lettera (richiesta dell'utente: uscita speculare all'entrata, che accelera
+ * e scorre giù con una breve dissolvenza): l'uscita è la stessa molla percorsa dalla fine
+ * all'inizio, quindi accelera per costruzione. L'`emphasized accelerate` di Material sarebbe
+ * un'altra animazione. La molla critica ha una posizione in forma chiusa, scritta in [MOLLA].
  */
 
 /**
- * Quanto dura l'uscita: **il tempo in cui la molla dell'entrata si posa**.
- *
- * ⚠️ **332 non è un numero scelto ma misurato**: è l'istante in cui la molla di
- * [ARRIVO_RIGIDITA] entra nel suo ultimo 1%, cioè quando l'entrata è finita. Prenderne uno
- * diverso renderebbe le due animazioni due durate diverse, e la specularità si perderebbe nel
- * punto in cui si nota di più, cioè aprendo e chiudendo di seguito.
+ * Quanto dura l'uscita: 332 ms, misurato, l'istante in cui la molla di [ARRIVO_RIGIDITA] entra nel
+ * suo ultimo 1%. Una durata diversa romperebbe la specularità aprendo e chiudendo di seguito.
  */
 internal const val USCITA_MS = 332
 
 /**
- * La curva dell'uscita: **[MOLLA] letta all'indietro**, quindi accelera.
- *
- * A che velocità va, misurato, per non doverlo ricavare da capo: a un decimo del tempo ha
- * fatto lo **0,8%** della strada, a un quarto il **3,1%**, a metà il **14,8%**, e nell'ultimo
- * quarto percorre la metà di tutto. È il rovescio esatto dell'entrata, che agli stessi istanti
- * sta al **14,5%**, al **49,9%** e all'**85,2%**.
+ * La curva dell'uscita: [MOLLA] letta all'indietro, quindi accelera. Misurata: a un decimo del
+ * tempo ha fatto lo 0,8% della strada, a un quarto il 3,1%, a metà il 14,8%; l'entrata agli stessi
+ * istanti è al 14,5%, al 49,9% e all'85,2%.
  */
 internal val ACCELERA: Easing = Easing { f -> 1f - MOLLA(1f - f) }
 
@@ -586,18 +431,11 @@ internal val ACCELERA: Easing = Easing { f -> 1f - MOLLA(1f - f) }
 internal fun fuga(): TweenSpec<Float> = tween(durationMillis = USCITA_MS, easing = ACCELERA)
 
 /**
- * **Arrivare dal basso**: la forma del gesto che in questa app hanno tutte le superfici
- * appoggiate al bordo di sotto.
- *
- * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA TRE VOLTE PAROLA PER PAROLA** (censimento della UI del
- * 2026-09-05): nella scheda della selezione, in quella dell'editor e nella notifica. I quattro
- * numeri erano già condivisi ([ARRIVO_RIGIDITA], [SHEET_FADE_MS], [USCITA_MS], [ACCELERA]),
- * quindi un ritocco numerico arrivava a tutte e tre da sé; quello che restava duplicato era la
- * **forma**, cioè quale curva su quale proprietà e dove cade la dissolvenza. Ed è la parte che
- * l'utente ha dettato (*devono sparire nello stesso modo in cui entrano, ma con animazione
- * speculare*), quindi è anche quella che non deve poter divergere.
- * - ⚠️ **La molla di fabbrica si scrive a mano di proposito**: lasciata implicita, il numero
- *   tornerebbe quello di Compose e un ritocco a [ARRIVO_RIGIDITA] non arriverebbe qui.
+ * Arrivare dal basso: il gesto di tutte le superfici appoggiate al bordo di sotto (la scheda della
+ * selezione, quella dell'editor e la notifica). Oltre ai numeri condivisi è condivisa la forma,
+ * cioè quale curva su quale proprietà e dove cade la dissolvenza, che l'utente ha dettato.
+ * - La molla si scrive per esteso apposta: lasciata implicita, sarebbe quella di Compose e un
+ *   ritocco a [ARRIVO_RIGIDITA] non arriverebbe qui.
  */
 internal fun arrivaDalBasso(): EnterTransition = slideInVertically(
     animationSpec = spring(
@@ -609,25 +447,20 @@ internal fun arrivaDalBasso(): EnterTransition = slideInVertically(
 ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS))
 
 /**
- * **Andarsene in basso**: l'uscita speculare a [arrivaDalBasso].
- *
- * ⚠️ **La dissolvenza sta in CODA**, che è l'altra metà della specularità: il perché per esteso
- * vive su [sfumaVia], da cui questa prende il ritardo.
+ * Andarsene in basso: l'uscita speculare a [arrivaDalBasso], con la dissolvenza in coda (vedi
+ * [sfumaVia]).
  */
 internal fun vaGiu(): ExitTransition = slideOutVertically(
-    // ⚠️ **La curva è quella di [fuga], scritta per un `IntOffset`**: quella funzione torna una
-    // specifica per un numero da 0 a 1, e uno spostamento in pixel vuole la sua. I due numeri
-    // sono gli stessi, e sono quelli che [fuga] usa.
+    // La curva di [fuga], scritta per un `IntOffset`: quella funzione torna una specifica per un
+    // numero da 0 a 1, e uno spostamento in pixel vuole la sua. I numeri sono gli stessi.
     animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
     targetOffsetY = { it }
 ) + fadeOut(animationSpec = sfumaVia())
 
 /**
- * La dissolvenza dell'uscita: la stessa di [SHEET_FADE_MS], ma **in coda invece che in testa**.
- *
- * ⚠️ **È l'altra metà della specularità**: all'andata la dissolvenza sta nei primi 110 ms,
- * quindi al ritorno sta negli ultimi. Senza il ritardo la scheda diventerebbe trasparente
- * subito e scenderebbe da fantasma, che è proprio l'effetto che sull'entrata si è evitato.
+ * La dissolvenza dell'uscita: la stessa di [SHEET_FADE_MS], ma in coda e non in testa. All'andata è
+ * nei primi 110 ms, al ritorno negli ultimi: senza il ritardo la scheda diventerebbe trasparente
+ * subito e scenderebbe come un fantasma.
  */
 internal fun sfumaVia(): TweenSpec<Float> =
     tween(durationMillis = SHEET_FADE_MS, delayMillis = USCITA_MS - SHEET_FADE_MS)
@@ -635,13 +468,10 @@ internal fun sfumaVia(): TweenSpec<Float> =
 /**
  * La posizione della molla critica di [ARRIVO_RIGIDITA], normalizzata a 0..1 su [USCITA_MS].
  *
- * ⚠️ **La formula è quella di uno smorzamento critico**, `1 - (1 + wt)e^(-wt)`, con `w` la
- * radice della rigidità: qui non c'è niente di scelto a occhio, e chi cambia
- * [ARRIVO_RIGIDITA] deve cambiare [TAU] con lei o le due animazioni smettono di essere
- * specchiate.
- * ⚠️ **La divisione per [CODA] serve perché a `USCITA_MS` la molla è al 99% e non al 100%**:
- * senza, l'uscita partirebbe da un gradino dell'1%, che su una scheda alta sono qualche pixel
- * di salto al primo fotogramma.
+ * La formula dello smorzamento critico, `1 - (1 + wt)e^(-wt)`, con `w` la radice della rigidità:
+ * chi cambia [ARRIVO_RIGIDITA] cambia [TAU] con lei, o le due animazioni non sono più speculari. La
+ * divisione per [CODA] serve perché a `USCITA_MS` la molla è al 99%: senza, l'uscita partirebbe con
+ * un gradino dell'1%.
  */
 private val MOLLA: (Float) -> Float = { u ->
     val x = TAU * u
@@ -655,20 +485,13 @@ private val TAU = sqrt(ARRIVO_RIGIDITA) * (USCITA_MS / 1000f)
 private val CODA = 1f - (1f + TAU) * exp(-TAU)
 
 /**
- * Il velo che resta dietro la scheda quando la funzione della `1.39` è spenta.
+ * Il velo dietro la scheda quando la Sfocatura dietro i pannelli è spenta: 0,6, il
+ * `backgroundDimAmount` del tema da cui discende `Theme.AIV`, come ogni altro dialogo. Si imposta e
+ * non si somma (`setDimAmount`).
  *
- * ⚠️ **0,6 è quello di Android**, il valore di `backgroundDimAmount` del tema da cui discende
- * `Theme.AIV`: così a funzione spenta la scheda è velata come ogni altro dialogo dell'app,
- * invece di essere velata a modo suo. ⚠️ Si **imposta** e non si somma (`setDimAmount`), quindi
- * scritto due volte resta 0,6.
- *
- * ⚠️⚠️ **NASCE PERCHÉ NELLA 1.39 LA SCHEDA NON AVEVA VELO, e dalla 1.40 CE L'HA: si scrive lo
- * stesso, e la ragione è che quel velo non ce l'ha per una scelta nostra.** Misurato nelle
- * risorse di `compose-ui` 1.12.0: la finestra di un dialogo prende `DialogWindowTheme`, che
- * **non** dichiara `backgroundDimEnabled`, oppure `FloatingDialogWindowTheme`, che lo dichiara,
- * e quale dei due lo decide `decorFitsSystemWindows`. Questa scheda ha cambiato ramo nella
- * `1.40` per un'altra richiesta (arrivare sotto la barra di sistema), cioè si è ritrovata un
- * velo di sistema come effetto collaterale. Chi togliesse questa riga fidandosi di quello si
- * consegnerebbe alla prossima richiesta che sposta quel parametro.
+ * ⚠️ **Si scrive anche se oggi la finestra ha già un velo di sistema**: nelle risorse di
+ * `compose-ui` 1.12.0 la finestra prende `DialogWindowTheme`, senza `backgroundDimEnabled`, o
+ * `FloatingDialogWindowTheme`, che lo dichiara, e lo decide `decorFitsSystemWindows`. Il velo di
+ * sistema è un effetto collaterale di quel parametro, e cambiandolo sparirebbe.
  */
 private const val SHEET_DIM = 0.6f

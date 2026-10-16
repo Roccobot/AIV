@@ -2,41 +2,42 @@ package io.github.roccobot.aiv
 
 import java.io.File
 
-/** The two saved lists remain independent when the display mode changes. */
+/** Le due liste salvate restano indipendenti quando cambia la modalità. */
 enum class FolderMode(override val token: String) : Choice {
     INCLUDED("included"), EXCLUDED("excluded")
 }
 
 /**
- * How the home grid orders its folders, from the `5.80` (his request of 2026-10-12).
+ * Come la griglia della casa ordina le cartelle.
  *
- * ⚠️ **There is no factory value**: until the person chooses, [Settings.folderOrder] is `null`, the
- * grid stays alphabetical and a window asks once, also to those who update (his answer `C1`).
- * ⚠️ **Only the grid follows it**: the list and the tablet column stay alphabetical, which is his
- * request (*solo per la modalità griglia*).
+ * ⚠️ **Non c'è un valore di fabbrica**: finché la persona non sceglie, [Settings.folderOrder] è
+ * `null`, la griglia resta alfabetica e una finestra lo chiede una volta, anche a chi aggiorna
+ * (risposta `C1` dell'utente, 5.80).
+ * ⚠️ **Lo segue solo la griglia**: la lista e la colonna del tablet restano alfabetiche, per scelta
+ * dell'utente.
  */
 enum class FolderOrder(override val token: String) : Choice {
-    /** By name, with the collator of the language in force: what the grid did up to the `5.71`. */
+    /** Per nome, con l'ordinamento della lingua in vigore. */
     ALPHA("alpha"),
-    /** The folder holding the most recently modified file first ([Folder.Bucket.latest]). */
+    /** Prima la cartella col file modificato più di recente ([Folder.Bucket.latest]). */
     RECENT("recent")
 }
 
 /**
- * Portable paths; exclusions may cover a branch or only the directory itself.
+ * Percorsi portabili; un'esclusione può coprire un ramo o la sola cartella.
  *
- * ⚠️ **Order and favourites live here too, from the `5.80`**: every view of the folders already
- * receives this object and writes it back through `onSelectionChange`, so the long press can add
- * a favourite and the views can arrange themselves without a new parameter in each caller.
+ * Qui vivono anche l'ordine e le preferite: ogni vista delle cartelle riceve già questo oggetto e
+ * lo riscrive con `onSelectionChange`, quindi la pressione lunga aggiunge una preferita e le viste
+ * si ordinano senza un parametro nuovo in ogni chiamante.
  */
 data class FolderSelection(
     val mode: FolderMode = FolderMode.EXCLUDED,
     val hidden: Set<String> = emptySet(),
     val exact: Set<String> = emptySet(),
     val included: Set<String> = DEFAULT_INCLUDED_FOLDERS,
-    /** The favourite folders as portable paths, in the order he gave them. */
+    /** Le cartelle preferite come percorsi portabili, nell'ordine in cui le ha messe l'utente. */
     val favourites: List<String> = emptyList(),
-    /** The grid order, `null` until it is chosen. See [FolderOrder]. */
+    /** L'ordine della griglia, `null` finché non è scelto. Vedi [FolderOrder]. */
     val order: FolderOrder? = null
 ) {
     val excluded: Set<String> get() = hidden + exact
@@ -60,23 +61,23 @@ data class FolderSelection(
         else copy(exact = exact + portable, hidden = hidden - portable)
     }
 
-    /** Whether the folder at [path], a full path, is a favourite. A favourite is the folder itself, never a branch. */
+    /** Se la cartella in [path], un percorso completo, è preferita: la cartella stessa, mai un ramo. */
     fun favourite(path: String): Boolean = portablePath(path) in favourites
 
-    /** Adds the folder at [path] at the end of the favourites, or takes it out if it is there. */
+    /** Mette la cartella in [path] in fondo alle preferite, o la toglie se c'è già. */
     fun flipFavourite(path: String): FolderSelection {
         val own = portablePath(path)
         return copy(favourites = if (own in favourites) favourites - own else favourites + own)
     }
 
     /**
-     * The folders in the order a view shows them: the favourites first, in their order, then the
-     * others.
+     * Le cartelle nell'ordine in cui una vista le mostra: prima le preferite, nel loro ordine, poi
+     * le altre.
      *
-     * ⚠️ **[buckets] arrive alphabetical** (`Folder.buckets`), so the alphabetical order costs
-     * nothing, and the recent one is a stable sort on top of it: two folders touched in the same
-     * second keep their alphabetical order.
-     * @param grid whether the view is the grid, the only one that follows [order].
+     * ⚠️ **[buckets] arrivano in ordine alfabetico** (`Folder.buckets`), quindi l'ordine alfabetico
+     * non costa niente, e quello per data è un ordinamento stabile sopra di lui: due cartelle
+     * toccate nello stesso secondo restano in ordine alfabetico.
+     * @param grid se la vista è la griglia, l'unica che segue [order].
      */
     fun arrange(buckets: List<Folder.Bucket>, grid: Boolean): List<Folder.Bucket> {
         val base = if (grid && order == FolderOrder.RECENT) buckets.sortedByDescending { it.latest } else buckets
@@ -87,7 +88,7 @@ data class FolderSelection(
     }
 }
 
-// Absent folders produce no media bucket. These defaults also work after restoring to another phone.
+// Una cartella assente non produce nessun gruppo; questi valori valgono anche dopo il ripristino su un altro telefono.
 internal val DEFAULT_INCLUDED_FOLDERS = setOf("DCIM/Camera", "Pictures/Screenshots", "Movies")
 
 internal val Settings.folderSelection: FolderSelection
@@ -101,7 +102,7 @@ internal fun Settings.withFolders(selection: FolderSelection): Settings = copy(
     favouriteFolders = selection.favourites, folderOrder = selection.order
 )
 
-/** Reads direct directories on disk, including empty ones; storage aliases remain valid. */
+/** Le sottocartelle dirette sul disco, anche vuote; i percorsi alias della memoria restano validi. */
 internal fun childFolders(parent: File): List<File> =
     runCatching { parent.listFiles()?.filter { it.isDirectory }?.sortedBy { it.name } }
         .getOrNull().orEmpty()
@@ -114,7 +115,7 @@ internal fun siblingFolders(path: String, selection: FolderSelection): List<File
         children else emptyList()
 }
 
-/** Seeds existing folders once; both common screenshot locations and removable volumes count. */
+/** Le cartelle incluse di partenza, fra quelle che esistono: contano tutte e due le sedi comuni delle schermate e le memorie rimovibili. */
 internal fun defaultIncludedFolders(roots: List<File>, buckets: List<Folder.Bucket>): Set<String> {
     val names = setOf("Camera", "Screenshots", "Movies")
     val paths = buckets.filter { it.name in names }.mapNotNull { it.path }

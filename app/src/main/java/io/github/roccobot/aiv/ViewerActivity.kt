@@ -78,32 +78,25 @@ import java.io.File
 
 sealed interface ViewerState {
     /**
-     * Si sta aprendo qualcosa, e [progress] dice a che punto è il **trasferimento**
-     * quando lo si può sapere.
+     * Si sta aprendo qualcosa, e [progress] dice a che punto è il trasferimento, quando lo si
+     * può sapere.
      *
-     * ⚠️⚠️ **Il numero vive QUI e non in un campo a parte del modello**, ed è la
-     * lezione dell'anello della `0.34`: un dato tenuto in un secondo posto va
-     * azzerato a mano, e prima o poi qualcuno se ne dimentica lasciando l'80% di
-     * ieri sopra l'immagine di adesso. Attaccato allo stato, ogni apertura nuova ne
-     * costruisce uno nuovo, e dimenticarsene non è possibile.
-     * ⚠️ Null vuol dire **non lo so**, non zero: un file locale non ha nessuna attesa
-     * da raccontare, e un server che non dichiara la lunghezza non permette di
-     * contare. Chi legge mostra il giro indeterminato, che è la risposta onesta.
+     * ⚠️ **Il numero vive nello stato**: un campo a parte del modello andrebbe azzerato a mano,
+     * e un'apertura nuova potrebbe mostrare l'avanzamento di quella prima.
+     * `null` vuol dire 'non lo so', non zero (un file locale, un server che non dichiara la
+     * lunghezza): chi legge mostra il giro indeterminato.
      */
     data class Loading(val progress: Float? = null) : ViewerState
     data class Ready(val image: LoadedImage) : ViewerState
 
     /**
-     * Un FILMATO, che non si decodifica e non si sfoglia come una fotografia.
+     * Un video, che non si decodifica come un'immagine.
      *
-     * ⚠️⚠️ **È il quarto stato dalla `0.83`, e sta accanto agli altri tre invece di essere
-     * un caso di [Ready]**: `Ready` porta una `LoadedImage`, cioè pixel, proporzioni, formato
-     * e profondità di colore, e un video non ha niente di tutto questo da dare. Fingere un
-     * `Ready` vuoto avrebbe fatto passare il filmato per tutta la catena dello zoom, della
-     * tavolozza e delle informazioni, che gli chiedono cose che non ha.
-     * ⚠️ **Porta il proprio indirizzo** anche se il modello ne ha già uno in `source`: chi
-     * disegna lo stato deve poter chiedere la miniatura e la durata senza incrociare due
-     * campi che potrebbero raccontare due momenti diversi.
+     * ⚠️ **È uno stato a sé e non un caso di [Ready]**: `Ready` contiene una `LoadedImage`
+     * (pixel, proporzioni, formato, profondità di colore), e un video passerebbe per zoom,
+     * tavolozza e informazioni che gli chiedono cose che non ha.
+     * Ha il proprio indirizzo, anche se il modello ne ha uno in `source`: chi disegna lo stato
+     * chiede miniatura e durata senza incrociare due campi di due momenti diversi.
      */
     data class Clip(val uri: Uri, val from: Arrival) : ViewerState
 
@@ -113,164 +106,100 @@ sealed interface ViewerState {
 /**
  * Come si è arrivati su quello che si sta guardando.
  *
- * ⚠️⚠️ **VIVE NELLO STATO PERCHÉ È L'UNICA COSA CHE SOPRAVVIVE AL VIAGGIO**: fra il dito e la
- * superficie del lettore ci sono più funzioni che ricevono un indirizzo e nient'altro
- * (`showAt`, `startLoad`, `ClipStage`). Chiedere in fondo alla catena 'sono arrivato con un
- * tocco' non si può: là quell'informazione non c'è mai stata, e leggere l'impostazione da là
- * risponderebbe a un'altra domanda, cioè 'è acceso l'interruttore' invece di 'me l'hanno
- * chiesto'.
- * ⚠️ **Tre valori e non un booleano**: non sono 'sì, no e forse', sono tre provenienze con
- * tre risposte, e la terza è una porta che esiste anche se oggi un filmato non ci passa.
- * ⚠️⚠️ **È UN FATTO E NON UNA DECISIONE**: dice come si è arrivati, non che cosa fare. La
- * regola sta in un posto solo, [plays], così chi disegna lo stato non la rifà a modo suo.
+ * ⚠️ **Vive nello stato**: fra il dito e il lettore ci sono funzioni che ricevono solo un
+ * indirizzo (`showAt`, `startLoad`, `ClipStage`), e in fondo alla catena l'informazione non
+ * arriverebbe.
+ * Tre valori, tre provenienze. È un fatto e non una decisione: la regola è solo in [plays].
  */
 enum class Arrival {
     /**
-     * Qualcuno ha toccato **questa** cosa: una miniatura della griglia, dei risultati o del
-     * cestino, oppure una riga delle cartelle di sistema.
+     * Qualcuno ha toccato questa cosa: una miniatura della griglia, dei risultati o del
+     * cestino, o una riga di 'Cartelle di sistema'.
      */
     TAPPED,
 
     /**
-     * È venuto su da sé: la strisciata, e la rilettura della cartella dopo uno spostamento,
-     * una rinomina o un'eliminazione.
-     *
-     * ⚠️ I due casi stanno insieme perché la domanda è la stessa: nessuno ha chiesto
-     * **questo** file, quindi niente parte da sé.
+     * È arrivato da sé: la strisciata, o la rilettura della cartella dopo uno spostamento, una
+     * rinomina o un'eliminazione. Nessuno ha chiesto questo file.
      */
     LEAFED,
 
     /**
-     * Un indirizzo consegnato all'app da fuori: un collegamento, una condivisione, gli
-     * appunti, il selettore di sistema, l'indirizzo digitato.
+     * Un indirizzo consegnato da fuori: un collegamento, una condivisione, gli appunti, il
+     * selettore di sistema, l'indirizzo digitato.
      *
-     * ⚠️⚠️ **OGGI UN FILMATO NON ARRIVA MAI DA QUI, ed è misurato**: il manifesto dichiara il
-     * solo tipo `image` col jolly, il selettore chiede `PickVisualMedia.ImageOnly` e gli
-     * appunti passano da `ImageActions.looksLikeImage`, che ammette i soli `http(s)`. Il
-     * valore esiste perché la porta esiste, e perché il giorno che si aprisse ai video la
-     * risposta va **decisa** invece di ereditata da uno degli altri due valori.
+     * ⚠️ **Oggi un video non arriva mai da qui**: il manifesto dichiara solo `image`, il
+     * selettore chiede `PickVisualMedia.ImageOnly` e gli appunti ammettono solo `http(s)`. Se si
+     * aprisse ai video, la risposta di [plays] va decisa.
      */
     HANDED;
 
     /**
-     * Se arrivando così un filmato parte da sé, con `Settings.clipAutoplay` a quel valore.
+     * Se arrivando così un video parte da sé, con `Settings.clipAutoplay` a quel valore.
      *
-     * ⚠️⚠️ **LA REGOLA STA QUI E IN NESSUN ALTRO POSTO** (richiesta dell'utente, 2026-09-03:
-     * *al tocco sulla miniatura di un video parte subito la riproduzione. Quando si sfoglia,
-     * invece, i video sono sempre in modalità con 'Play' in sovrimpressione*).
-     * ⚠️ **[LEAFED] non parte nemmeno con l'interruttore acceso**, e non è una dimenticanza:
-     * è la seconda metà della richiesta. Là la persona non ha chiesto niente, e un audio che
-     * esplode a metà di una strisciata è una sorpresa sgradevole.
-     * ⚠️ **[HANDED] resta silenzioso finché non lo si decide**: oggi non è raggiungibile da un
-     * filmato, quindi non c'è nessun comportamento da conservare, e ereditare la risposta di
-     * un altro valore vorrebbe dire prendere una decisione senza accorgersene.
+     * ⚠️ **La regola è solo qui** (richiesta dell'utente): al tocco su una miniatura il video
+     * parte, sfogliando resta col tasto 'Play' in sovrimpressione anche con l'interruttore
+     * acceso. [HANDED] resta fermo finché non lo si decide.
      */
     fun plays(autoplay: Boolean): Boolean = autoplay && this == TAPPED
 }
 
 /** Quale schermata è davanti. */
 sealed interface Screen {
-    /**
-     * Le impostazioni.
-     *
-     * ⚠⚠ **PORTAVA UNA PAGINA D'ARRIVO DALLA `2.72` ALLA `2.74`, E DALLA `2.75` NON PIÙ**:
-     * serviva al tocco lungo sul tasto 'Filigrana', che apriva quella pagina **cambiando
-     * schermata**; adesso quel gesto apre una scheda sopra l'editor e non naviga affatto, quindi
-     * quel dato non aveva più chiamanti. Il perché della scheda vive su `MarkSheet`.
-     */
+    /** Le impostazioni. */
     data object Settings : Screen
 
     data object Viewer : Screen
 
     /**
-     * L'elenco delle cartelle, e **la casa dell'app** dalla 0.41.
-     *
-     * ⚠️⚠️ **QUI C'ERA `Home`, la schermata che chiedeva da dove cominciare, ed è
-     * sparita** (decisione dell'utente, 2026-08-29). Non è stata sostituita da un'altra
-     * schermata ma da una **risposta**, che è questa. Chi cerca dove siano finite le sue
-     * cinque vie le trova dentro il FAB di `FolderScreen`.
-     * ⚠️ Porta [forStart] perché la stessa schermata risponde a due domande: 'quale
-     * cartella apro adesso' e 'quale cartella apro all'avvio'. È l'unico dato che
-     * distingue i due usi, e sta qui e non nel modello perché se ne va con la schermata.
+     * L'elenco delle cartelle, la casa dell'app (decisione dell'utente). Le vie che apriva la
+     * vecchia schermata iniziale sono nel FAB di `FolderScreen`.
+     * [forStart] distingue le due domande a cui la schermata risponde: quale cartella aprire
+     * adesso e quale all'avvio. È qui e non nel modello perché se ne va con la schermata.
      */
     data class Folders(val forStart: Boolean) : Screen
 
     /**
-     * Una cartella in miniature, dalla 0.33: il primo passo della galleria.
-     *
-     * ⚠️ Porta il **nome** oltre all'identificativo, e non è ridondanza: il nome lo sa
-     * l'elenco da cui si arriva, e ricavarlo di nuovo vorrebbe dire rileggere il
-     * MediaStore per scrivere un titolo. ⚠️ Porta anche la cartella perché è la
-     * destinazione del gesto Indietro dal visualizzatore, che deve poter tornare
-     * ESATTAMENTE a questa griglia.
+     * Una cartella in miniature. Contiene anche il nome, che l'elenco di partenza conosce già
+     * (ricavarlo rileggerebbe il MediaStore), e la cartella è la destinazione di Indietro dal
+     * visualizzatore.
      */
     data class Grid(val bucket: Long, val name: String) : Screen
 
     /**
-     * I risultati di una ricerca, dalla 0.59.
+     * I risultati di una ricerca, una griglia come le altre.
      *
-     * ⚠️⚠️ **NON PORTA IL TESTO CERCATO, e sarebbe l'errore facile**: il testo cambia a
-     * ogni lettera digitata, quindi metterlo qui vorrebbe dire ricostruire la schermata a
-     * ogni tasto, e con lei lo stato della griglia. Il testo vive nel modello, dove può
-     * cambiare senza che la schermata cambi identità.
-     * ⚠️ Per tutto il resto è una **griglia come le altre**: i risultati sono una serie, e
-     * da qui si apre il visualizzatore, si sfoglia e si seleziona esattamente come in una
-     * cartella.
-     *
-     * ⚠️⚠️ **DALLA `1.83` PORTA UN CONFINE, E PER QUESTO NON È PIÙ UN OGGETTO** (risposta a
-     * `d-fab-voci` del giro della `1.82`: la voce nuova del menu del FAB è *`cerca`*, con la sua
-     * nota: *in quel caso, 'Cerca' è limitato alla cartella corrente*). Il bucket non è come il
-     * testo: non cambia mentre si scrive, quindi appartiene all'identità della schermata e non al
-     * modello. Cambiandolo si è in un'altra ricerca, ed è giusto che la griglia riparta.
-     * ⚠️ **`null` è la ricerca di sempre**, quella di tutta la galleria che si apre dalla
-     * schermata iniziale: il valore di serie fa sì che i suoi chiamanti non cambino di una riga.
-     * ⚠️ **Il nome serve solo a scriverlo nel campo**, che è il modo di dire dove si sta cercando
-     * senza una stringa nuova in ventotto lingue: il bucket da solo è un numero, e la testata non
-     * ha nessun altro posto da cui ricavare il nome della cartella.
+     * ⚠️ **Non contiene il testo cercato**: cambia a ogni lettera, e la schermata si ricostruirebbe
+     * a ogni tasto. Il testo vive nel modello.
+     * Il confine ([bucket]) invece fa parte dell'identità: 'Cerca' dal menu del FAB è limitato
+     * alla cartella corrente (risposta dell'utente a `d-fab-voci`), e cambiarlo è un'altra
+     * ricerca. `null` è la ricerca in tutta la galleria. Il nome serve solo a scriverlo nel
+     * campo, senza una stringa nuova.
      */
     data class Search(val bucket: Long? = null, val name: String? = null) : Screen
 
     /**
-     * Il cestino, dalla 0.64.
+     * Il cestino.
      *
-     * ⚠️⚠️ **NON È UNA `Grid` con una cartella particolare, e il motivo è tecnico**: le
-     * fotografie del cestino vivono nella cartella dell'app, dove il MediaStore non guarda,
-     * quindi non hanno un identificativo di album da mettere in [Grid]. Si elencano leggendo
-     * il disco (vedi `Bin.list`), e per il resto dell'app sono una serie come le altre.
-     * ⚠️ Come [Search], non porta dati: quello che c'è dentro lo dice il disco, e tenerne una
-     * copia qui vorrebbe dire ricostruire la schermata a ogni eliminazione.
+     * ⚠️ **Non è una `Grid`**: i file del cestino vivono nella cartella dell'app, dove il
+     * MediaStore non guarda, e non hanno un album. Si elencano leggendo il disco (`Bin.list`).
+     * Non contiene dati, come [Search]: il contenuto lo dice il disco.
      */
     data object Bin : Screen
 
-    /**
-     * La cronologia dei ripristini, dalla 0.76.
-     *
-     * ⚠️ **Si apre SOLO dal cestino e ci torna**, quindi non ha bisogno di sapere da dove
-     * viene: la destinazione di Indietro è una sola, e scriverla qui sarebbe un dato che può
-     * solo assumere un valore.
-     */
+    /** La cronologia dei ripristini: si apre solo dal cestino e ci torna. */
     data object History : Screen
 
     /**
-     * L'editor semplice, dalla 1.03: si ritaglia e si gira, e basta.
-     *
-     * ⚠️ **Porta il nome del file oltre all'indirizzo**, per la stessa ragione di [Grid]: il
-     * nome serve in testata e serve al dialogo del salvataggio (per dire se il formato si può
-     * riscrivere), e chi apre l'editor lo ha già letto. Ricavarlo di nuovo vorrebbe dire una
-     * query al MediaStore per scrivere un titolo.
-     * ⚠️ **Si apre SOLO dal menu del tocco lungo**, quindi la destinazione di Indietro è una
-     * sola, il visualizzatore, e non ha bisogno di viaggiare qui dentro.
+     * L'editor semplice: si ritaglia e si gira. Contiene il nome del file come [Grid], che serve
+     * in testata e al salvataggio. Si apre solo dal menu del tocco lungo, quindi Indietro torna
+     * sempre al visualizzatore.
      */
     data class Editor(val uri: Uri, val name: String) : Screen
 
     /**
-     * L'editor **completo**, dalla `2.14`: quello che cambia i pixel.
-     *
-     * ⚠️⚠️ **È UNA SCHERMATA A SÉ E NON UNA MODALITÀ DELL'ALTRA**, ed è la sua scelta (*due
-     * editor separati*): i due hanno comandi diversi, un salvataggio diverso e un perimetro
-     * diverso, e un `if` dentro una schermata sola avrebbe dovuto reggere tutte e due le
-     * forme. ⚠️ **Porta il nome come l'altra**, e per la stessa ragione: serve al salvataggio
-     * per sapere che formato ha in mano.
+     * L'editor completo, quello che cambia i pixel: una schermata a sé, per scelta dell'utente,
+     * con comandi, salvataggio e perimetro suoi. Il nome serve al salvataggio.
      */
     data class FullEditor(val uri: Uri, val name: String) : Screen
 }
@@ -279,14 +208,10 @@ sealed interface Screen {
  * La chiave con cui questa schermata ritrova quello che aveva da parte: vedi il
  * `SaveableStateProvider` in `AivApp`.
  *
- * ⚠️⚠️ **UNA STRINGA E NON LA SCHERMATA STESSA**, benché siano tutte `data class` e quindi
- * confrontabili: la chiave finisce in un `Bundle` quando il sistema mette via l'activity, e là
- * dentro ci vanno i tipi che un `Bundle` conosce. Un `Uri` o un oggetto nostro non ci starebbero.
- * ⚠️⚠️ **PORTA SOLO QUELLO CHE FA IDENTITÀ, e il nome della cartella non lo fa**: una cartella
- * rinominata resta la stessa cartella, e con il nome nella chiave si ritroverebbe in cima. Il
- * criterio è lo stesso con cui [Screen.Search] non porta il testo cercato.
- * ⚠️ **`forStart` invece fa identità**: la stessa schermata risponde a due domande diverse, e
- * chi sceglie la cartella d'avvio non sta scorrendo l'elenco di casa.
+ * ⚠️ **Una stringa e non la schermata**: la chiave finisce in un `Bundle`, che non accetta un
+ * `Uri` o un oggetto nostro.
+ * ⚠️ **Contiene solo quello che fa identità**: una cartella rinominata resta la stessa, e col nome
+ * nella chiave si ritroverebbe in cima. `forStart` invece fa identità.
  */
 private fun Screen.saveKey(): String = when (this) {
     is Screen.Folders -> "folders:$forStart"
@@ -304,86 +229,57 @@ private fun Screen.saveKey(): String = when (this) {
  * Se questa schermata è una griglia di miniature, cioè una delle tre che `reloadGrid`
  * sa rileggere.
  *
- * ⚠️ Le tre sono la cartella, i risultati di una ricerca e il cestino: si guardano allo
- * stesso modo e hanno la stessa selezione, quindi la domanda 'sono in una griglia' si fa in
- * più punti e scritta a mano ne dimenticherebbe una.
+ * La cartella, i risultati di una ricerca e il cestino hanno lo stesso aspetto e la stessa
+ * selezione: la domanda si fa in più punti, e scritta a mano ne dimenticherebbe una.
  */
 private fun Screen.isGrid(): Boolean =
     this is Screen.Grid || this is Screen.Search || this == Screen.Bin
 
 /**
- * Se in questa schermata il FAB può esserci.
+ * Se in questa schermata il FAB può esserci: la casa e le tre griglie.
  *
- * ⚠️⚠️ **SERVE A FARLO USCIRE RIMPICCIOLENDOSI, DALLA `2.11`** (punto A del campo libero del giro
- * accorpato: *quando dal menu del FAB approdo ad una schermata senza FAB (esempio → Impostazioni),
- * il pulsante deve sparire rimpicciolendosi fino a sparire*), e la domanda la fa la schermata che
- * **se ne va**, guardando dove si sta andando: vedi [LocalSenzaFab].
- * ⚠️ **Dice 'può', non 'ce l'ha'**: in una griglia il FAB compare solo se c'è dove mandare, e da
- * qui quel dato non si vede. Un falso positivo costa niente, perché un FAB che non c'è non ha
- * nessuna uscita da animare.
- * ⚠️ **Le quattro sono la casa e le tre griglie**, cioè [isGrid] più l'elenco delle cartelle: nel
- * visualizzatore, nell'editor, nelle impostazioni e nella cronologia il FAB non è mai esistito.
+ * Serve a farlo uscire rimpicciolendosi verso una schermata senza FAB (vedi [LocalSenzaFab]).
+ * Dice 'può', non 'ce l'ha': un falso positivo non costa niente.
  */
 private fun Screen.hasFab(): Boolean = this is Screen.Folders || isGrid()
 
 /**
- * Se questa schermata, mentre si va verso [verso], è quella che se ne va **e** là il FAB non c'è.
+ * Se questa schermata, andando verso [verso], è quella che se ne va e là il FAB non c'è.
  *
- * ⚠️⚠️ **VIVE IN UNA FUNZIONE SUA PER LA STESSA RAGIONE DI [cambioSchermata]: perché il banco
- * possa misurare questa e non una copia.** Sono due termini e una negazione, cioè la forma in cui
- * un `!` di troppo dà un FAB che sparisce quando dovrebbe restare, senza che niente vada in
- * errore.
- * ⚠️ **Il primo termine dice CHI SONO IO**: dentro la transizione la stessa funzione gira due
- * volte, una per il contenuto che esce e una per quello che entra, e solo il primo ha un FAB da
- * congedare. Senza quel termine sparirebbe anche il FAB della schermata che arriva.
+ * ⚠️ **È una funzione sua perché il banco misuri questa**, come [cambioSchermata]: un `!` di
+ * troppo darebbe un FAB che sparisce senza nessun errore.
+ * ⚠️ **Il primo termine dice chi sono io**: nella transizione la funzione gira per il contenuto
+ * che esce e per quello che entra, e solo il primo ha un FAB da congedare.
  */
 internal fun Screen.senzaFabVerso(verso: Screen): Boolean = this != verso && !verso.hasFab()
 
-/**
- * La casa dell'app.
- *
- * ⚠️ Un nome solo perché i posti che ci tornano sono sei (l'avvio, l'uscita dal
- * visualizzatore, le impostazioni chiuse senza una foto aperta, e le tre vie che aprono):
- * scritta a mano in ognuno, il giorno che la casa cambia se ne aggiornerebbero cinque.
- */
+/** La casa dell'app: un nome solo per tutti i posti che ci tornano. */
 private val HOME = Screen.Folders(forStart = false)
 
 /**
- * Quanto si aspetta, dopo l'ultimo tasto, prima di interrogare il MediaStore.
- *
- * ⚠️ Tarato su come si scrive e non su un numero tondo: sotto i due decimi la pausa non
- * raggruppa niente perché fra una lettera e l'altra passa di più, sopra il mezzo secondo si
- * sente il ritardo fra il testo e i risultati. Da rivedere solo con una misura sul telefono,
- * non a naso.
+ * Quanto si aspetta, dopo l'ultimo tasto, prima di interrogare il MediaStore: sotto i due decimi
+ * la pausa non raggruppa le lettere, sopra il mezzo secondo si sente il ritardo.
  */
 private const val SEARCH_PAUSE_MS = 280L
 
 /**
- * Quanto si aspetta, dopo l'ultima notizia del MediaStore, prima di rileggere la cartella.
- *
- * ⚠️ Molto più lunga di quella della ricerca, e per il motivo opposto: là si insegue un dito
- * che scrive e il ritardo si sente, qui si aspetta che un trasferimento finisca, e chi manda
- * venti file da un altro dispositivo li manda in qualche secondo. Sotto il mezzo secondo si
- * rileggerebbe a metà copia, e l'elenco crescerebbe a scatti sotto gli occhi.
+ * Quanto si aspetta, dopo l'ultima notizia del MediaStore, prima di rileggere la cartella: più
+ * della ricerca, perché si aspetta che finisca un trasferimento, e sotto il mezzo secondo si
+ * rileggerebbe a metà copia.
  */
 private const val OUTSIDE_PAUSE_MS = 700L
 
 /**
- * Quanto restano in scena le cartelle nascoste: **un minuto**, e il numero è suo.
- *
- * ⚠️ **Non è una manopola**: la richiesta dice *temporaneamente (per un minuto)*, e un minuto è
- * quello che serve a entrare in una cartella nascosta, guardarla e uscirne. Chi ne volesse di più
- * ha 'Annulla' sulla notifica, che ne concede un altro.
+ * Quanto restano visibili le cartelle nascoste: un minuto, come chiesto dall'utente. 'Annulla'
+ * sulla notifica ne concede un altro.
  */
 private const val PEEK_MS = 60_000L
 
 /**
- * Fills [into] as far as the stream goes, and answers how many bytes it put there.
+ * Riempie [into] fin dove arriva il flusso, e risponde quanti byte ci ha messo.
  *
- * ⚠️⚠️ **A SINGLE `read` IS ALLOWED TO RETURN LESS THAN IT WAS ASKED FOR, and that is the
- * whole reason this exists**: a comparison written on a bare `read` would see two identical
- * files answer with different chunk sizes and call them different. The loop is what makes a
- * short read a non-event.
+ * ⚠️ **Un `read` può restituire meno di quanto chiesto**: un confronto su un `read` nudo
+ * vedrebbe diversi due file identici letti a pezzi di misura diversa.
  */
 private fun java.io.InputStream.fill(into: ByteArray): Int {
     var done = 0
@@ -396,9 +292,8 @@ private fun java.io.InputStream.fill(into: ByteArray): Int {
 }
 
 /**
- * The decoded picture lives in the ViewModel and not in the composition: a
- * rotation must not send the phone back to the network, and on a big file that
- * would be a visible pause rather than a purist's detail.
+ * L'immagine decodificata vive nel ViewModel e non nella composizione: una rotazione non deve
+ * rimandare il telefono in rete o a decodificare, che su un file grande è una pausa visibile.
  */
 class ViewerViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -406,15 +301,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * Il filmato in scena è partito: da qui in poi la provenienza non chiede più niente.
+     * Il video in scena è partito: da qui in poi la provenienza non chiede più niente.
      *
-     * ⚠️⚠️ **SERVE ALLA ROTAZIONE, e senza di lei un filmato ripartirebbe dall'inizio a ogni
-     * giro del telefono**: la composizione si rifà, il modello no, quindi l'effetto che
-     * prepara il lettore leggerebbe di nuovo [Arrival.TAPPED] e rifarebbe partire da capo
-     * quello che era già in corso. Consumato il fatto, la seconda lettura non trova più
-     * niente da fare.
-     * ⚠️ **Sta nel modello e non nella schermata perché [state] ha il setter privato**, ed è
-     * giusto che l'abbia: chi disegna non riscrive lo stato, lo riferisce.
+     * ⚠️ **Serve alla rotazione**: la composizione si rifà, il modello no, e l'effetto che prepara
+     * il lettore rileggerebbe [Arrival.TAPPED] e farebbe ripartire il video dall'inizio. È nel
+     * modello perché [state] ha il setter privato: chi disegna non riscrive lo stato.
      */
     fun clipStarted() {
         val here = state
@@ -427,39 +318,29 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * Null until the stored settings have been read once.
+     * `null` finché le impostazioni salvate non sono state lette una volta.
      *
-     * ⚠️ The screens wait for it instead of starting on the defaults, and the
-     * reason is visible rather than theoretical: the resting scale of a picture
-     * depends on two settings, so drawing with the defaults and then receiving the
-     * real ones would show the image at one size and snap it to another.
+     * ⚠️ **Le schermate le aspettano**: la scala a riposo di un'immagine dipende da due
+     * impostazioni, e coi valori di fabbrica l'immagine comparirebbe a una misura e poi
+     * scatterebbe a un'altra.
      */
     var settings: Settings? by mutableStateOf(null)
         private set
 
     /**
-     * Se una **filigrana** è pronta da scrivere: l'interruttore è acceso e un file è stato
-     * scelto.
+     * Se una filigrana è pronta da scrivere: l'interruttore è acceso e un file è stato scelto.
      *
-     * ⚠️⚠️ **SERVE AL TASTO 'SALVA' E NON AL SALVATAGGIO, ED È QUESTA LA RAGIONE PER CUI ESISTE**:
-     * chi apre l'editor per firmare un'immagine e basta non tocca niente, quindi senza questo
-     * valore il tasto resterebbe spento e la filigrana non si potrebbe applicare mai da sola. Il
-     * salvataggio invece il file se lo guarda da sé.
-     * ⚠️ **Si aggiorna quando cambiano le impostazioni**, cioè anche tornando dalla pagina in cui
-     * la filigrana si sceglie: quella scrittura passa dallo stesso archivio, e il flusso la porta
-     * qui senza che nessuno debba ricordarsi di chiedere.
+     * ⚠️ **Serve al tasto 'Salva'**: chi apre l'editor solo per firmare un'immagine non tocca
+     * niente, e senza questo valore il tasto resterebbe spento. Si aggiorna quando cambiano le
+     * impostazioni, anche tornando dalla pagina della filigrana.
      */
     var markReady: Boolean by mutableStateOf(false)
         private set
 
     /**
-     * Se un **logo è stato scelto**, cioè se in casa dell'app c'è un file da scrivere.
-     *
-     * ⚠️⚠️ **È UN'ALTRA DOMANDA DA [markReady], E DALLA `2.72` SERVONO TUTTE E DUE**: quello dice
-     * *si scrive una firma su questa immagine*, questo dice *questa app una firma ce l'ha*. Il
-     * tasto in testata all'editor c'è solo nel secondo caso, perché senza un file non c'è niente
-     * da accendere né da spegnere, ed è lo stesso criterio di 'Mostra nascoste', che compare se e
-     * solo se una cartella è nascosta.
+     * Se un logo è stato scelto, cioè se l'app ha un file da scrivere: un'altra domanda da
+     * [markReady]. Il tasto 'Filigrana' in testata all'editor c'è solo in questo caso, come
+     * 'Mostra nascoste' compare solo se una cartella è nascosta.
      */
     var markHas: Boolean by mutableStateOf(false)
         private set
@@ -479,14 +360,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Se la pagina della **filigrana** è aperta sopra l'editor, dal tocco lungo su quel tasto.
-     *
-     * ⚠⚠ **DALLA `2.75` QUEL GESTO NON CAMBIA SCHERMATA, ED È LA SUA RICHIESTA** (voce
-     * `mark-imposta`: *se torno indietro deve tornare direttamente nell'editor aperto*). Il
-     * perché una scheda e non un ritorno, che sarebbe costato il lavoro in corso, vive su
-     * `MarkSheet`.
-     * ⚠️ **Vive nel modello come [editorAsk]**, e per la stessa ragione: la superficie si
-     * disegna sopra il `when` delle schermate, cioè in un ramo che non discende dall'editor.
+     * Se la pagina della filigrana è aperta sopra l'editor, dal tocco lungo su quel tasto: una
+     * scheda e non un cambio di schermata (voce `mark-imposta`; il perché è su `MarkSheet`).
+     * Vive nel modello come [editorAsk]: la superficie si disegna sopra il `when` delle schermate.
      */
     var markSetup: Boolean by mutableStateOf(false)
         private set
@@ -502,13 +378,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il ridimensionamento **predefinito**, cioè quello scritto nelle preferenze.
-     *
-     * ⚠️⚠️ **DALLA `2.81` LO SCRIVE SOLO 'Rendi predefinito', ED È UNA SUA FUNZIONE NUOVA**
-     * (voce `resize-finestra`: *'Rendi predefinito' (nuova funzione): fa in modo che le
-     * impostazioni di ridimensionamento restino memorizzate per i salvataggi seguenti*). Fino
-     * alla `2.80` lo scriveva 'Applica', quindi ogni configurazione sopravviveva al riavvio
-     * dell'app senza che nessuno l'avesse chiesto.
+     * Il ridimensionamento predefinito, quello scritto nelle preferenze. Lo scrive solo 'Rendi
+     * predefinito' (voce `resize-finestra`), non 'Applica'.
      */
     fun resizeSaved(): Resize.Plan {
         val now = settings
@@ -517,14 +388,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il **ridimensionamento** che il salvataggio userà, che esiste anche quando non si applica:
-     * l'editor lo mostra nella sua finestra, e spegnere l'interruttore non deve farlo perdere.
+     * Il ridimensionamento che il salvataggio userà. Esiste anche a interruttore spento: l'editor
+     * lo mostra nella sua finestra.
      *
-     * ⚠️⚠️ **È QUELLO APPLICATO SE QUALCUNO L'HA APPLICATO, ALTRIMENTI IL PREDEFINITO**: dalla
-     * `2.81` 'Applica' vale per l'app viva e 'Rendi predefinito' vale per sempre, che è la
-     * distinzione su cui la sua richiesta si regge. ⚠️ **E il piano applicato vive nel modello e
-     * non nella schermata**, perché chi rimpicciolisce a una misura lo fa su parecchie immagini
-     * di fila: uno stato dentro l'editor gli farebbe riscrivere la misura a ogni apertura.
+     * ⚠️ È quello applicato, se c'è, altrimenti il predefinito: 'Applica' vale finché l'app è
+     * aperta, 'Rendi predefinito' vale per sempre (`2.81`). Il piano applicato vive nel modello
+     * perché chi rimpicciolisce lo fa su più immagini di fila, e non deve riscrivere la misura a
+     * ogni apertura dell'editor.
      */
     fun resizePlan(): Resize.Plan = resizeNow ?: resizeSaved()
 
@@ -537,13 +407,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Lo scrive e lo accende, o lo spegne con `null`.
      *
-     * ⚠️⚠️ **SCRIVERLO VUOL DIRE ACCENDERLO, ED È LA SUA SPECIFICA ALLA LETTERA** (risposta
-     * `editor` a `d-resize-dove`: *una volta che premo 'OK' l'interruttore è acceso e salva con
-     * ridimensionamento se non lo spengo*). Chi entra a configurare ha già detto che lo vuole.
-     * ⚠️ **Spegnere non porta via il piano**, che è l'altra metà della stessa frase: quello che
-     * si era scelto resta scritto, e riaccendere non chiede di riscriverlo.
-     * ⚠️⚠️ **DALLA `2.81` SCRIVE NEL MODELLO E NON NELLE PREFERENZE**: le preferenze tengono il
-     * predefinito, che si scrive col comando apposta (vedi [setResizeDefault]).
+     * ⚠️ Scriverlo vuol dire accenderlo (scelta `editor` a `d-resize-dove`). Spegnere non toglie
+     * il piano: riaccendere non chiede di riscriverlo. Scrive nel modello; il predefinito nelle
+     * preferenze lo scrive [setResizeDefault] (`2.81`).
      */
     fun setResize(plan: Resize.Plan?) {
         val now = settings ?: return
@@ -552,11 +418,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il piano diventa quello **predefinito**, e con lui si salva anche adesso.
+     * Il piano diventa quello predefinito, e vale anche per il salvataggio di adesso.
      *
-     * ⚠️ **Accende l'interruttore come 'Applica'**, perché la sua frase lega le due cose (*restino
-     * memorizzate per i salvataggi seguenti (se l'icona 'Ridimensiona' è accesa)*): un predefinito
-     * scritto a interruttore spento non rimpicciolirebbe niente.
+     * ⚠️ Accende l'interruttore come 'Applica': un predefinito scritto a interruttore spento non
+     * rimpicciolirebbe niente.
      */
     fun setResizeDefault(plan: Resize.Plan) {
         val now = settings ?: return
@@ -568,54 +433,46 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * Se le cartelle nascoste sono in scena **adesso**, per il minuto che lui ha chiesto.
+     * Se le cartelle nascoste sono visibili adesso, per un minuto ('Mostra nascoste', scelta
+     * dell'utente nel giro della `1.91`).
      *
-     * ⚠️⚠️ **NASCE DALLA `1.92`, ED È SUA SPECIFICA ALLA LETTERA** (campo libero del giro della
-     * `1.91`: *'Mostra nascoste', che rende visibili le cartelle nascoste temporaneamente (per un
-     * minuto). Alla fine del minuto, le cartelle tornano ad essere nascoste con un avviso
-     * temporizzato in basso*).
-     * ⚠️⚠️ **VIVE NEL MODELLO E NON NELLA SCHERMATA, e la ragione è il caso d'uso**: le nascoste
-     * si mostrano **per entrarci**, quindi fra l'accensione e la scadenza c'è un giro in una
-     * cartella e il ritorno. Uno stato dentro `FolderScreen` se ne andrebbe con la composizione,
-     * cioè si spegnerebbe proprio nel momento in cui serve.
-     * ⚠️ **Non si salva**, e non è una dimenticanza: quello che si spegne da sé dopo un minuto
-     * non ha senso ritrovarlo riaprendo l'app, dove il minuto sarebbe già passato da un pezzo.
+     * ⚠️ Vive nel modello perché le nascoste si mostrano per entrarci: uno stato dentro
+     * `FolderScreen` si perderebbe con la composizione, entrando nella cartella. Non si salva:
+     * riaprendo l'app il minuto è già passato.
      */
     var peeking: Boolean by mutableStateOf(false)
         private set
 
     /**
-     * The view the home shows for this time only, or `null` for the saved one: the Feed of the
-     * launcher's 'Feed' action (6.10, his condition on A1: *Feed solo se è una vista temporanea e
-     * poi aprendo l'app normalmente torno alla mia vista*), and from the 6.20 'Cartelle di sistema'
-     * for a folder pinned with 'Faro'.
+     * La vista che la schermata iniziale mostra per questa volta sola, o `null` per quella salvata:
+     * il Feed dell'azione 'Feed' del launcher (`6.10`, scelta A1) e 'Cartelle di sistema' per una
+     * cartella aggiunta alla schermata Home (`6.20`).
      *
-     * ⚠️⚠️ **Not saved, and the settings keep their view**: the app opened from its icon goes
-     * back to that view ([handleIntent] clears this), and so does a view chosen by hand
-     * ([chooseView]).
+     * ⚠️ Non si salva: l'app aperta dalla sua icona torna alla vista delle impostazioni
+     * ([handleIntent] la azzera), e così una vista scelta a mano ([chooseView]).
      */
     var viewOnce: FolderView? by mutableStateOf(null)
         private set
 
-    /** The home's view in force: [viewOnce] while it holds, otherwise the saved one. */
+    /** La vista in vigore nella schermata iniziale: [viewOnce] finché vale, altrimenti la salvata. */
     fun shownView(saved: FolderView): FolderView = viewOnce ?: saved
 
-    /** A view chosen on the home: it is written, and the view of a shortcut ends. */
+    /** Una vista scelta nella schermata iniziale: si scrive, e la vista di una scorciatoia finisce. */
     fun chooseView(view: FolderView) {
         viewOnce = null
         settings?.let { updateSettings(it.copy(folderView = view)) }
     }
 
     /**
-     * Whether the address window is open over the app, asked by the launcher's 'Apri un
-     * indirizzo' action (6.10). The menus of the home open the same window by themselves.
+     * Se la finestra dell'indirizzo è aperta sopra l'app, chiesta dall'azione 'Apri un indirizzo'
+     * del launcher (`6.10`). I menu della schermata iniziale aprono la stessa finestra da sé.
      */
     var addressAsked: Boolean by mutableStateOf(false)
 
     /*
-     * ⚠️⚠️ **LIFT E SCORRIMENTO DEL RAIL TABLET, DALLA `3.40`** (`3.39-03`): le tre
-     * schermate a due colonne ricreano ciascuna il rail, e senza stato nel modello la
-     * posizione (maniglia + elenco) tornava a zero a ogni tap su una cartella.
+     * ⚠️ Sollevamento e scorrimento del rail del tablet (`3.39-03`): le tre schermate a due
+     * colonne ricreano ciascuna il rail, e senza uno stato nel modello la posizione della maniglia
+     * e dell'elenco tornerebbe a zero a ogni tocco su una cartella.
      */
     var folderRailLift by mutableFloatStateOf(0f)
     var folderRailIndex by mutableIntStateOf(0)
@@ -627,12 +484,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Accende o spegne la vista temporanea delle cartelle nascoste.
      *
-     * ⚠️⚠️ **LA SCADENZA PARLA, e il suo 'Annulla' PROROGA invece di disfare** (sue parole: *un
-     * tasto 'Annulla' che prolunga di un minuto*). È lo stesso canale di ogni altro esito
-     * (`Notices`, dalla `1.84`), quindi la voce dell'app resta una: quello che cambia è che qui
-     * l'azione guarda avanti invece che indietro.
-     * ⚠️ **Spegnere a mano non dice niente**: la notifica serve a spiegare una sparizione che
-     * l'utente non ha chiesto, e chi tocca 'Nascondi cartelle' l'ha chiesta.
+     * ⚠️ Alla scadenza compare un avviso (`Notices`), e il suo 'Annulla' proroga di un minuto
+     * (scelta dell'utente). Spegnere a mano non mostra niente: l'avviso spiega una sparizione non
+     * chiesta, e chi tocca 'Nascondi cartelle' l'ha chiesta.
      */
     fun peek(on: Boolean) {
         peekJob?.cancel()
@@ -651,45 +505,36 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Where the picture on screen came from. The menu needs it, the loader has already used it. */
+    /** Da dove viene l'immagine sullo schermo. Serve al menu; il caricatore l'ha già usata. */
     var source: Uri? by mutableStateOf(null)
         private set
 
     /**
-     * Dove torna il gesto Indietro dal visualizzatore, e **null quando deve uscire
-     * dall'app**.
+     * Dove torna il gesto Indietro dal visualizzatore, e `null` quando deve uscire dall'app.
      *
-     * ⚠️ Era un booleano (`cameFromHome`) finché le provenienze erano due, la schermata
-     * iniziale e un collegamento da fuori. Dalla 0.33 sono tre, perché si arriva anche
-     * da una griglia, e quella griglia è una cartella precisa: un secondo booleano
-     * avrebbe descritto quattro stati di cui due impossibili, mentre la destinazione è
-     * esattamente il dato che serve.
+     * ⚠️ È la destinazione e non un booleano: le provenienze sono tre (schermata iniziale,
+     * collegamento da fuori, una griglia, che è una cartella precisa).
      */
     var viewerBack: Screen? by mutableStateOf(null)
         private set
 
     /**
-     * L'esito della ricerca della cartella nell'ordine di BASE, cioè dalla foto più
-     * recente alla più vecchia, che dalla 0.30 è anche il verso predefinito di lettura.
+     * L'esito della ricerca della cartella nell'ordine di base, dall'immagine più recente alla
+     * più vecchia. `null` finché la ricerca non è finita.
      *
-     * ⚠️ Porta la ragione e non solo la serie perché la serie mancante è muta: vedi
-     * `Folder.Lookup`, e le due versioni che sono servite a scoprirlo.
-     * ⚠️ Privato perché **non è l'ordine in cui si sfoglia**: quello lo decide
-     * l'impostazione, e vive in [folder]. Null soltanto finché la ricerca non è finita.
+     * ⚠️ Contiene la ragione e non solo la serie, perché una serie mancante non dice perché
+     * (vedi `Folder.Lookup`). È privato perché non è l'ordine in cui si sfoglia: quello lo
+     * decide l'impostazione, in [folder].
      */
     private var listed: Folder.Lookup? by mutableStateOf(null)
 
     /**
      * L'esito nell'ordine in cui si sfoglia: è questo che guardano tutti gli altri.
      *
-     * ⚠️⚠️ **Girato al momento dell'uso e non a quello della lettura, e la differenza
-     * è una corsa evitata**: la ricerca della cartella e la lettura delle impostazioni
-     * sono due coroutine indipendenti, e quale delle due arrivi prima non è deciso.
-     * Orientando qui l'ordine è giusto comunque, e spostare l'interruttore rigira la
-     * serie che si ha in mano senza rileggere niente dal database.
-     * ⚠️ `derivedStateOf` e non un getter nudo: girare copia una lista che può avere
-     * qualche centinaio di voci, e senza cache la copia si rifarebbe a ogni lettura
-     * durante la composizione.
+     * ⚠️ Si gira al momento dell'uso: la ricerca della cartella e la lettura delle impostazioni
+     * sono due coroutine indipendenti, e non si sa quale arrivi prima. Così spostare
+     * l'interruttore rigira la serie senza rileggere il database. `derivedStateOf` evita di
+     * ricopiare la lista, anche di centinaia di voci, a ogni lettura durante la composizione.
      */
     val folder: Folder.Lookup? by derivedStateOf { listed.oriented().sifted() }
 
@@ -699,19 +544,15 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * L'esito nel verso scelto dall'impostazione.
      *
-     * ⚠️ Serve **in entrambi i versi** e una funzione sola basta, perché girare una
-     * serie è la sua stessa inversa: di qui si passa sia per mostrare l'ordine di
-     * lettura sia per riscrivere in [listed] quello grezzo (vedi [step]).
+     * ⚠️ Serve in tutti e due i versi, perché girare una serie è la sua stessa inversa: mostra
+     * l'ordine di lettura e riscrive in [listed] quello grezzo (vedi [step]).
      */
     private fun Folder.Lookup?.oriented(): Folder.Lookup? {
         if (settings?.reverseSequence != true) return this
         /*
-         * ⚠️⚠️ **IL VERSO NON TOCCA IL WEB, e l'impostazione lo dice da sé**: si chiama
-         * 'cambia verso della sequenza immagini (in ordine di data)', ed è nata per una
-         * galleria, dove sfogliare vuol dire andare avanti o indietro nel tempo. Una serie
-         * remota è ordinata per **numero**, e girarla farebbe andare la strisciata da
-         * `foto_013` a `foto_012`, cioè al contrario di quello che chiunque si aspetta
-         * guardando un indirizzo numerato.
+         * ⚠️ Il verso non tocca il web: l'impostazione parla di ordine di data. Una serie remota
+         * è ordinata per numero, e girarla farebbe andare la strisciata da `foto_013` a
+         * `foto_012`.
          */
         val first = this?.seriesOrNull?.items?.firstOrNull()
         if (first != null && WebSeries.isWeb(first)) return this
@@ -719,15 +560,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Lo stesso esito posizionato sull'INIZIO della sequenza scelta.
+     * Lo stesso esito posizionato sull'inizio della sequenza scelta.
      *
-     * ⚠️⚠️ **Nell'ordine grezzo la prima foto della sequenza è l'ULTIMA riga quando il
-     * verso è invertito**, e chi lo dimentica apre la cartella su un vicolo cieco, con
-     * la strisciata in avanti che non ha dove andare: è il difetto della 0.29, che si
-     * vedeva come un gesto che non fa niente.
-     * ⚠️ Vive in una funzione sola perché dalla 0.33 i posti che aprono una cartella
-     * sono **due**, l'avvio e la griglia, e la seconda copia di questo calcolo sarebbe
-     * quella che un domani resta indietro.
+     * ⚠️ A verso invertito la prima immagine della sequenza è l'ultima riga dell'ordine grezzo:
+     * dimenticarlo apre la cartella con la strisciata in avanti che non ha dove andare. Lo usano
+     * l'avvio e la griglia.
      */
     private fun Folder.Lookup.atSequenceStart(): Folder.Lookup {
         val whole = seriesOrNull ?: return this
@@ -736,24 +573,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Se in questa visita alla griglia si è già aperta una foto.
+     * Se in questa visita alla griglia si è già aperta un'immagine.
      *
-     * ⚠️⚠️ **È un SÌ o NO e non l'indice, ed è la correzione della `0.34`**, che l'anello
-     * non lo mostrava: là il segno era un indice **copiato** al momento del ritorno, cioè
-     * un dato in più da tenere d'accordo con la serie, scritto in un punto solo e in un
-     * istante solo. Bastava che quella scrittura non avvenisse, o avvenisse quando la
-     * serie non era quella attesa, perché il segno restasse vuoto e l'anello sparisse
-     * senza lasciare traccia.
-     * ⚠️ Adesso la posizione **non si copia**: la griglia legge `series.index`, cioè
-     * l'unico posto in cui la foto corrente è già scritta e che la strisciata tiene
-     * aggiornato da sé. Questa bandierina risponde alla sola domanda che quel numero non
-     * sa rispondere: se una foto sia mai stata aperta in questa visita. Senza, entrando in
-     * una cartella si evidenzierebbe la prima miniatura, che nessuno ha guardato.
+     * ⚠️ È un sì o no e non l'indice: la posizione la griglia la legge da `series.index`, che la
+     * strisciata tiene aggiornato. Un indice copiato al ritorno poteva restare vuoto, e l'anello
+     * spariva. Senza questa bandierina, entrando in una cartella si evidenzierebbe la prima
+     * miniatura, che nessuno ha guardato.
      */
     var gridVisited: Boolean by mutableStateOf(false)
         private set
 
-    /** Whether the folder permission has already been asked for once. */
+    /** Se il permesso sulle cartelle è già stato chiesto una volta. */
     var folderAsked: Boolean by mutableStateOf(true)
         private set
 
@@ -762,13 +592,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             SettingsStore.flow(context).collect { fresh ->
                 applySettings(fresh)
-                // ⚠️ Il disco si guarda FUORI dal thread principale, come ogni altra lettura di
-                // file: costa un `isFile`, ma la regola non fa eccezioni per le letture corte.
+                // Il disco si legge fuori dal thread principale, anche per un solo `isFile`.
                 val logo = withContext(Dispatchers.IO) { Watermark.file(context) != null }
                 markHas = logo
                 markReady = fresh.markOn && logo
-                // ⚠️ Gli appunti PRIMA della cartella d'avvio, o la seconda coprirebbe
-                // la fotografia che i primi hanno appena aperto.
+                // ⚠️ Gli appunti prima della cartella d'avvio, o la seconda coprirebbe
+                // l'immagine che i primi hanno appena aperto.
                 readClipboard()
                 openStartFolder(fresh)
             }
@@ -776,9 +605,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
         viewModelScope.launch { sweepClipLeftovers(context) }
-        // ⚠️ `drop(1)` salta il valore che il contatore ha già: quello dice quante importazioni
-        // sono andate in porto prima che questo modello nascesse, e quelle il modello le ha già
-        // lette all'avvio.
+        // ⚠️ `drop(1)` salta il valore iniziale del contatore: le importazioni precedenti il
+        // modello le ha già lette all'avvio.
         viewModelScope.launch { Backups.imported.drop(1).collect { reloadStored() } }
         viewModelScope.launch { Backup.sweep(context) }
     }
@@ -787,12 +615,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * Rilegge quello che un'importazione cambia senza passare dal flusso delle preferenze: il
      * logo della filigrana, le tinte delle cartelle e le loro copertine.
      *
-     * ⚠️⚠️ **SENZA DI LEI UN'IMPORTAZIONE SI VEDREBBE A METÀ FINO AL RIAVVIO**: le tre cose si
-     * leggono una volta e poi si aggiornano a mano, dal gesto che le cambia ([tintFolder],
-     * [coverFolder], la pagina della filigrana), e l'importazione non passa da nessuno di quei
-     * gesti. Le preferenze invece arrivano da sé, perché la scrittura passa dallo stesso archivio
-     * che il flusso legge; ma un'importazione che rimette il **solo** logo non cambia nessuna
-     * preferenza, quindi il flusso non emette niente.
+     * ⚠️ Senza di lei un'importazione si vedrebbe a metà fino al riavvio: le tre cose si leggono
+     * una volta e poi le aggiorna il gesto che le cambia ([tintFolder], [applyCover], la pagina
+     * della filigrana), da cui l'importazione non passa. Un'importazione del solo logo non cambia
+     * nessuna preferenza, quindi il flusso delle preferenze non emette niente.
      */
     private suspend fun reloadStored() {
         val context = getApplication<Application>()
@@ -804,17 +630,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Butta via i modelli della ricerca per contenuto, che la `1.12` ha tolto.
+     * Cancella i modelli della ricerca per contenuto, funzione tolta nella `1.12`.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ SUL TELEFONO DI CHI AGGIORNA RESTANO 86 MB CHE NESSUNO PUÒ PIÙ
-     * TOGLIERE**: quei file li scaricava l'app in `filesDir/clip`, e il tasto che li
-     * cancellava se n'è andato con la funzione. Senza questa riga sopravvivrebbero fino alla
-     * disinstallazione o a un 'cancella dati', che porterebbe via anche il cestino.
-     * ⚠️ **Costa un `stat` su una cartella che quasi sempre non c'è**, quindi non si tiene
-     * una preferenza per ricordarsi di averlo fatto: quella sarebbe una chiave in archivio
-     * per sempre, per risparmiare una chiamata al filesystem a ogni avvio.
-     * ⚠️ **Si potrà togliere fra qualche versione**, quando nessuno aggiornerà più da una
-     * `1.11` o precedente. Non prima, e non 'tanto ormai': chi salta dieci versioni esiste.
+     * ⚠️ Chi aggiorna da una `1.11` o precedente ha in `filesDir/clip` 86 MB che nessun tasto
+     * cancella più. Costa un `stat` su una cartella che quasi sempre non c'è, quindi non si tiene
+     * una preferenza per ricordare di averlo fatto. Si potrà togliere quando nessuno aggiornerà
+     * più da quelle versioni.
      */
     private suspend fun sweepClipLeftovers(context: Context) {
         withContext(Dispatchers.IO) {
@@ -825,63 +646,48 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Se l'intento di partenza è già stato letto da **questa** istanza del modello.
      *
-     * ⚠️⚠️ **È LA GUARDIA DELL'AVVIO, e vive qui perché il modello è la cosa che distingue una
-     * rotazione dalla morte del processo**: sopravvive alla prima e non alla seconda, quindi la
-     * risposta a 'l'ho già letto?' è giusta in tutti e due i casi. Il perché per esteso, col
-     * difetto che chiude, è in `onCreate`.
+     * ⚠️ È la guardia dell'avvio, e vive nel modello perché il modello resiste a una rotazione e
+     * non alla chiusura del processo: la risposta a 'l'ho già letto?' è giusta nei due casi. Il
+     * perché per esteso è in `onCreate`.
      */
     var intentRead = false
         private set
 
     /**
-     * La si chiama da `onCreate` e da `onNewIntent`, e **non** dalla composizione: leggere
-     * l'intento mentre si compone vorrebbe dire rileggerlo a ogni ricomposizione, e a tenerlo
-     * fermo era soltanto una guardia sull'indirizzo.
-     */
-    /**
-     * Se questa esecuzione serve a **scegliere** un'immagine per un'altra app.
+     * Se questa esecuzione serve a scegliere un'immagine per un'altra app (`1.89`, richiesta
+     * dell'utente).
      *
-     * ⚠️⚠️ **NASCE NELLA `1.89` DA UNA SUA RICHIESTA** (*vorrei che AIV comparisse anche quando
-     * scelgo 'Altre app' su WhatsApp*): con `ACTION_GET_CONTENT` l'app si apre come sempre, e a
-     * cambiare è una cosa sola, cioè che cosa fa il tocco su una miniatura. Là dove aprirebbe il
-     * visualizzatore, consegna il file a chi lo ha chiesto e si chiude.
-     * ⚠️ **È uno stato del modello e non un parametro di schermata**: l'intento si legge una
-     * volta in `onCreate`, e la scelta deve sopravvivere alla rotazione e alla navigazione fra
-     * cartelle, che sono esattamente le cose che il modello tiene in piedi.
-     *
-     * ⚠️⚠️ **E DALLA `1.91` LE AZIONI SONO DUE, PERCHÉ LA PRIMA NON BASTAVA** (riscontro del giro
-     * della `1.89`, voce `selettore-app` non approvata: *non appare in elenco: né tra le app
-     * galleria, né tra le app per allegare file*). Il filtro c'era davvero nell'APK, misurato sul
-     * manifesto binario del file servito: a non bastare è la strada. `ACTION_PICK` è quella che
-     * usa chi chiede *un'immagine dalla galleria*, ed è l'unica delle tre che un'app di terze
-     * parti può ancora servire; il perché le altre due non si possano raggiungere vive nel
-     * manifesto, accanto ai due filtri.
+     * Con `ACTION_GET_CONTENT` o `ACTION_PICK` l'app si apre come sempre, e cambia solo il tocco
+     * su una miniatura: consegna il file a chi lo ha chiesto e chiude l'app. È uno stato del
+     * modello perché la scelta deve resistere alla rotazione e alla navigazione fra cartelle.
+     * ⚠️ `ACTION_PICK` c'è dalla `1.91` (voce `selettore-app`): col solo `GET_CONTENT` l'app non
+     * compariva nell'elenco. Il perché è nel manifesto, accanto ai due filtri.
      */
     var picking: Boolean by mutableStateOf(false)
         private set
 
+    /**
+     * Legge l'intento. La si chiama da `onCreate` e da `onNewIntent`, mai dalla composizione, che
+     * lo rileggerebbe a ogni ricomposizione.
+     */
     fun handleIntent(intent: Intent?, fresh: Boolean) {
         intentRead = true
         /*
-         * ⚠️ **Si legge PRIMA di guardare l'indirizzo**: un `GET_CONTENT` non ne porta nessuno,
-         * quindi finisce nel ramo di sotto insieme all'avvio dall'icona, che è giusto (si parte
-         * dalle cartelle). Quello che lo distingue è solo questa bandierina.
+         * Si legge prima dell'indirizzo: un `GET_CONTENT` non ne ha, quindi finisce nel ramo
+         * dell'avvio dall'icona (si parte dalle cartelle), e lo distingue solo questa bandierina.
          */
         val wants = intent?.action == Intent.ACTION_GET_CONTENT ||
             intent?.action == Intent.ACTION_PICK
         /*
-         * ⚠️⚠️ **UN `ACTION_PICK` PORTA UN INDIRIZZO, E NON È UN'IMMAGINE DA APRIRE**: chi lo
-         * lancia ci mette la **sorgente** in cui scegliere, cioè di solito
-         * `MediaStore.Images.Media.EXTERNAL_CONTENT_URI`. Passandolo a `imageUri` l'app si
-         * aprirebbe sul visualizzatore con in mano l'elenco intero invece di lasciar scegliere,
-         * che è il difetto che questa riga evita. `GET_CONTENT` invece non porta niente, quindi
-         * questa guardia non cambia il caso della `1.89`.
+         * ⚠️ L'indirizzo di un `ACTION_PICK` è la sorgente in cui scegliere (di solito
+         * `MediaStore.Images.Media.EXTERNAL_CONTENT_URI`), non un'immagine da aprire: passato a
+         * `imageUri`, aprirebbe il visualizzatore sull'elenco intero.
          */
         val uri = if (wants) null else intent.imageUri()
         /*
-         * ⚠️⚠️ **THE LAUNCHER'S ACTIONS, from 6.10 (`Shortcuts`)**: they say what to open, so they
-         * act also with the app already open, before the guard below. The clipboard is not read
-         * and the start folder does not open: the person has already chosen where to go.
+         * ⚠️ Le azioni del launcher (`Shortcuts`, `6.10`) dicono che cosa aprire, quindi agiscono
+         * anche ad app già aperta, prima della guardia qui sotto. Gli appunti non si leggono e la
+         * cartella d'avvio non si apre: la persona ha già scelto dove andare.
          */
         val shortcut = intent?.action?.takeIf { it in Shortcuts.actions }
         if (shortcut != null) {
@@ -897,11 +703,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 Shortcuts.SEARCH -> openSearch()
                 Shortcuts.ADDRESS -> addressAsked = true
                 /*
-                 * ⚠️⚠️ **THE TWO ACTIONS CHECK WHAT THEY ARE ASKED, SINCE 6.29** (findings C29 and
-                 * E22 of the 6.25 review): the activity is exported, so any app installed could
-                 * send them, open a hidden folder (and put its name on the home screen as the
-                 * fourth action) or any path in 'Cartelle di sistema'. Our own shortcuts never ask
-                 * for either, so refusing them costs nothing.
+                 * ⚠️ Le due azioni controllano che cosa si chiede (`6.29`, rilievi C29 ed E22):
+                 * l'activity è esportata, quindi qualunque app installata potrebbe aprire una
+                 * cartella nascosta (e metterne il nome nella schermata Home come quarta azione) o
+                 * un percorso qualunque in 'Cartelle di sistema'. Le nostre scorciatoie non lo
+                 * chiedono mai, quindi rifiutarlo non costa niente.
                  */
                 Shortcuts.FOLDER -> {
                     val name = intent.getStringExtra(Shortcuts.NAME)
@@ -912,9 +718,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                         if (known != null && selection.visible(known.path)) openGrid(bucket, name)
                     }
                 }
-                // ⚠️ 'Faro' (6.20): the folder opens where it was pinned from, 'Cartelle di
-                // sistema', for this time; AIV Play has no such view and pins nothing. Only a path
-                // inside one of the phone's storages, since 6.29 (see above).
+                // 'Aggiungi alla schermata Home' (`6.20`): la cartella si apre per questa volta in
+                // 'Cartelle di sistema', da cui è stata aggiunta; AIV Play non ha quella vista.
+                // Solo un percorso dentro una memoria del telefono (`6.29`, vedi sopra).
                 Shortcuts.TREE -> {
                     val path = intent.getStringExtra(Shortcuts.PATH)
                     if (path != null && FolderView.TREE in Store.views && insideRoots(path)) {
@@ -925,37 +731,29 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             }
             return
         }
-        // ⚠️ The app opened from its icon goes back to the saved view (6.10, `viewOnce`), also
-        // when it was already open and nothing else changes.
+        // L'app aperta dalla sua icona torna alla vista salvata (`viewOnce`), anche quando era
+        // già aperta e non cambia altro.
         if (intent?.action == Intent.ACTION_MAIN) viewOnce = null
         /*
-         * ⚠️⚠️ **UN INTENTO NUDO CHE ARRIVA A GIRO INIZIATO NON AZZERA NIENTE, DALLA `2.78`, ED È
-         * IL PUNTO A DEL SUO CAMPO LIBERO** (*quando l'editor è aperto, se passo a un'altra app
-         * (senza chiudere AIV), poi torno, mi ritrovo l'editor chiuso e le modifiche in corso
-         * perse*). L'app è `singleTop`, quindi toccando la sua icona mentre è già in cima al
-         * proprio task Android non ricrea niente: consegna un `onNewIntent` con l'intento del
-         * launcher, che non porta nessun indirizzo. Fino alla `2.77` quello cadeva nel ramo di
-         * sotto, cioè riportava a [HOME] e riapriva la cartella d'avvio, buttando via qualunque
-         * schermata in corso.
-         * ⚠️ **La guardia sta PRIMA di [picking]**, e non è un dettaglio d'ordine: quel valore
-         * dice a che cosa serve **questa esecuzione**, e un intento che non chiede niente non lo
-         * deve riscrivere.
-         * ⚠️ **Che cosa resta fuori, e si dichiara**: se il sistema uccide il processo in
-         * secondo piano, il modello muore con lui e l'editor riparte comunque, perché il lavoro
-         * in corso vive nella composizione. Questa correzione copre il caso in cui l'app è
-         * ancora viva, che è quello che succede tornando da un'altra app.
+         * ⚠️ Un intento senza indirizzo che arriva ad app già aperta non azzera niente (`2.78`):
+         * l'app è `singleTop`, e toccare la sua icona consegna un `onNewIntent` del launcher.
+         * Senza questa guardia tornerebbe a [HOME] e chiuderebbe l'editor con le modifiche in
+         * corso. Viene prima di [picking], che un intento che non chiede niente non deve
+         * riscrivere.
+         * Resta fuori il processo chiuso dal sistema in secondo piano: il lavoro dell'editor vive
+         * nella composizione, e riparte comunque.
          */
         if (!fresh && uri == null && !wants) return
         picking = wants
         if (uri == null) {
-            // Partita dalla propria icona: si va dove sono le immagini, cioè alle cartelle.
+            // Aperta dalla propria icona: si va alle cartelle.
             screen = HOME
             atStart = true
             fromIcon = true
             settings?.let(::openStartFolder)
         } else {
-            // ⚠️ Un collegamento da fuori NON deve far guardare negli appunti: la
-            // persona ha già detto che cosa vuole aprire.
+            // Un collegamento da fuori non guarda negli appunti: la persona ha già detto che
+            // cosa vuole aprire.
             fromIcon = false
             clipboardTried = true
             open(uri, backToApp = false)
@@ -969,29 +767,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var clipboardTried = false
 
     /**
-     * Gli appunti, guardati **una volta sola** e solo all'avvio dall'icona.
-     *
-     * ⚠️⚠️ **VA CHIAMATA QUANDO LA FINESTRA PRENDE IL FUOCO, e non da `onCreate`**: da
-     * Android 10 un'app può leggere gli appunti **solo mentre ha il fuoco**, quindi un
-     * controllo fatto alla creazione tornerebbe a mani vuote e la funzione sembrerebbe
-     * guasta invece che impossibile.
-     * ⚠️⚠️ **E DA ANDROID 12 IL SISTEMA LO ANNUNCIA** col suo avvisino: leggerli a ogni
-     * avvio vuol dire quell'avviso a ogni avvio. È il costo visibile della funzione che
-     * l'utente ha chiesto, non un difetto da nascondere; l'unico modo di ridurlo sarebbe
-     * leggere di meno, cioè non fare quello che serve.
-     * ⚠️ **Nessuna richiesta di rete qui**: 'indirizzo diretto a un'immagine' si decide
-     * dall'estensione nel percorso e non con una `HEAD`, o l'apertura dell'app
-     * aspetterebbe un server. Se poi l'indirizzo non è un'immagine lo dice il
-     * visualizzatore, che dalla 0.38 ha il suo errore e il suo Riprova.
-     */
-    /**
      * Se la finestra ha il fuoco adesso.
      *
-     * ⚠️⚠️ **SERVE PERCHÉ LE DUE CONDIZIONI ARRIVANO DA DUE PARTI E IN ORDINE IGNOTO**: il
-     * fuoco è un evento di sistema, le impostazioni sono una coroutine. Guardando negli
-     * appunti solo al fuoco, chi avesse le impostazioni ancora in volo non li guarderebbe
-     * mai; guardandoli solo all'arrivo delle impostazioni, chi le ha già lette prima del
-     * fuoco non li guarderebbe mai. Segnata la prima, la seconda può chiamare.
+     * ⚠️ Il fuoco è un evento di sistema e le impostazioni arrivano da una coroutine, in ordine
+     * ignoto: segnato il primo dei due, il secondo può leggere gli appunti.
      */
     private var focused = false
 
@@ -1002,12 +781,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         if (hasFocus) backFromOutside()
     }
 
+    /**
+     * Gli appunti, guardati una volta sola e solo all'avvio dall'icona.
+     *
+     * ⚠️ Si chiama quando la finestra prende il fuoco: da Android 10 un'app legge gli appunti
+     * solo mentre ha il fuoco. Da Android 12 il sistema mostra un avviso a ogni lettura, che è il
+     * costo della funzione. Nessuna richiesta di rete: un indirizzo d'immagine si riconosce
+     * dall'estensione, e se non lo è lo dice l'errore del visualizzatore, con 'Riprova'.
+     */
     private fun readClipboard() {
         if (clipboardTried || !fromIcon || !focused) return
-        // ⚠️⚠️ **SPENTA FINCHÉ NON LA SI ACCENDE, e il controllo sta PRIMA della
-        // lettura**: è l'unico punto in cui metterlo che eviti davvero l'avviso di
-        // sistema, perché quell'avviso lo fa scattare la lettura e non l'uso di quello
-        // che si è letto.
+        // ⚠️ Spenta finché non la si accende, e il controllo viene prima della lettura: è la
+        // lettura a far comparire l'avviso di sistema.
         val fresh = settings ?: return
         if (!fresh.clipboardStart) {
             // Detto di no: non si guarda, e non si riproverà più in questa esecuzione.
@@ -1020,36 +805,21 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val uri = clip.address
         if (!ImageActions.looksLikeImage(uri)) return
         /*
-         * ⚠️⚠️ **LO STESSO INDIRIZZO SI APRE UNA VOLTA SOLA** (richiesta dell'utente,
-         * 2026-08-31): negli appunti una cosa ci resta per giorni, quindi senza questa
-         * memoria l'app riaprirebbe la stessa fotografia a ogni avvio, e chi ha acceso
-         * l'impostazione si troverebbe l'app che non ascolta più il tocco sull'icona.
-         * ⚠️ Si confronta l'INDIRIZZO e non un 'già fatto' generico: copiando un indirizzo
-         * nuovo la funzione deve tornare a rispondere, che è la ragione per cui esiste.
-         * ⚠️⚠️ **MA DALLA 1.45 ANCHE RICOPIARE LO STESSO INDIRIZZO RIAPRE, e prima no**
-         * (segnalazione dell'utente, 2026-09-03: *se l'URL è negli appunti, non si apre
-         * all'avvio*). La nota della `0.94` diceva la cosa giusta a metà: un indirizzo
-         * **nuovo** tornava a rispondere, ma lo stesso indirizzo copiato di nuovo è una
-         * richiesta altrettanto esplicita, e restava indistinguibile da un link fermo là da
-         * tre giorni. Adesso si guarda **anche l'istante** in cui gli appunti sono stati
-         * scritti: più recente di quello che avevamo segnato, è una copia nuova.
-         * ⚠️ **Le due prove sono in OR e non in AND**: basta che una delle due dica 'è
-         * un'altra richiesta'. In AND, un indirizzo nuovo copiato da un sistema che non dà
-         * l'istante (zero) non aprirebbe più niente.
+         * ⚠️ Lo stesso indirizzo si apre una volta sola (richiesta dell'utente): negli appunti
+         * resta per giorni, e l'app lo riaprirebbe a ogni avvio. Riapre un indirizzo nuovo, o lo
+         * stesso copiato di nuovo, riconosciuto dall'istante di scrittura degli appunti (`1.45`).
+         * Le due prove sono in OR: un sistema che non dà l'istante (zero) non deve bloccare un
+         * indirizzo nuovo.
          */
         val address = uri.toString()
         val again = clip.at > 0L && clip.at > fresh.clipboardWhen
         if (address == fresh.clipboardDone && !again) return
-        // ⚠️ La scrittura è a parte e non blocca: quello che decide è il valore appena
-        // confrontato, e l'apertura qui sotto deve restare **sincrona** per non perdere la
-        // corsa con la cartella d'avvio.
+        // ⚠️ La scrittura è a parte e non blocca: l'apertura qui sotto deve restare sincrona
+        // per non perdere la corsa con la cartella d'avvio.
         viewModelScope.launch { SettingsStore.clipboardOpened(context, address, clip.at) }
-        // ⚠️⚠️ **SPEGNE LA CARTELLA D'AVVIO, e senza questa riga l'ordine deciderebbe il
-        // vincitore**: le impostazioni arrivano da una coroutine e il fuoco da un evento
-        // di sistema, quindi quale dei due sia primo non è stabilito. Se il fuoco arriva
-        // prima, `openStartFolder` scatterebbe **dopo** e coprirebbe la fotografia degli
-        // appunti con la cartella. L'utente ha detto che gli appunti vengono per primi,
-        // quindi qui la corsa si chiude invece di sperare che vada bene.
+        // ⚠️ Spegne la cartella d'avvio: se il fuoco arriva prima delle impostazioni,
+        // `openStartFolder` scatterebbe dopo e coprirebbe l'immagine degli appunti, che per
+        // scelta dell'utente vengono prima.
         atStart = false
         open(uri)
     }
@@ -1057,76 +827,54 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Se questo è l'avvio dell'app e non un ritorno.
      *
-     * ⚠️ Serve perché la scelta di aprire una cartella all'avvio si può prendere solo
-     * quando le impostazioni sono state lette, e quella lettura arriva quando arriva:
-     * la bandierina fa aspettare senza far succedere niente nel frattempo.
+     * ⚠️ La cartella d'avvio si apre solo a impostazioni lette: la bandierina tiene la scelta in
+     * attesa fino ad allora.
      */
     private var atStart = false
 
     /**
-     * La cartella dell'avvio, aperta una volta sola.
-     *
-     * ⚠️⚠️ **Una volta per PROCESSO, e non a ogni tocco dell'icona**: chi è tornato alla
-     * schermata iniziale ci è tornato apposta, e ritrovarsi la foto in faccia al tocco
-     * successivo sarebbe l'app che non ascolta. Per questo la bandierina si spegne qui
-     * e non si riaccende.
+     * La cartella dell'avvio, aperta una volta per processo e non a ogni tocco dell'icona: chi è
+     * tornato alla schermata iniziale ci è tornato apposta.
      */
     private fun openStartFolder(fresh: Settings) {
         if (!atStart) return
         atStart = false
         val bucket = fresh.startFolder ?: return
         if (!fresh.openAtStart) return
-        // ⚠️⚠️ **PORTA ALLA GRIGLIA E NON PIÙ A UNA FOTOGRAFIA, dalla 0.48** (decisione
-        // dell'utente, che aveva chiesto se questa scorciatoia servisse ancora). Fino alla
-        // `0.47` apriva il visualizzatore sulla foto più recente della cartella: aveva
-        // senso quando l'app si apriva su una schermata di scelte, molto meno da
-        // quando la casa è **l'elenco delle cartelle** e sta nel 60% basso. La cosa che si
-        // fa davvero è **scegliere fra le proprie foto**, e atterrare su una sola
-        // costringeva a tornare indietro per vedere le altre.
-        // ⚠️ Il nome arriva dalle impostazioni e non dal MediaStore: è scritto lì apposta
-        // (vedi `Settings.startFolderName`), e chiederlo qui vorrebbe dire un'altra
-        // interrogazione col permesso, all'avvio, per scrivere un titolo.
+        // Apre la griglia e non un'immagine (`0.48`, scelta dell'utente). Il nome arriva dalle
+        // impostazioni (`Settings.startFolderName`): chiederlo al MediaStore vorrebbe dire
+        // un'altra interrogazione all'avvio.
         openGrid(bucket, fresh.startFolderName)
     }
 
     /**
-     * L'apertura in corso, per poterla annullare.
-     *
-     * ⚠️⚠️ **Serve perché un'immagine del web si SCARICA, e prima di questo nessuno
-     * fermava quel download**: chi apriva un indirizzo sbagliato e tornava indietro
-     * continuava a tirare giù decine di megabyte per una cosa che non avrebbe più
-     * guardato, sulla sua connessione dati. Per un file locale il guadagno è piccolo,
-     * per un indirizzo remoto è la differenza fra un'app che rispetta il traffico e una
-     * che no.
+     * L'apertura in corso, per poterla annullare: chi apre un indirizzo sbagliato e torna
+     * indietro non deve continuare a scaricare megabyte sulla sua connessione dati.
      */
     private var loadJob: Job? = null
 
     /**
      * A quale apertura appartiene il progresso che arriva.
      *
-     * ⚠️ Il download vive in un ciclo bloccante, quindi fra l'annullamento e l'ultimo
-     * pezzo già in volo passa una frazione di secondo: senza questo numero, la
-     * percentuale dell'immagine abbandonata comparirebbe per un istante sopra quella
-     * appena aperta. Un contatore risolve quello che un `Job` non può, perché chi
-     * riferisce il progresso non è dentro una coroutine.
+     * ⚠️ Il download gira in un ciclo bloccante, fuori da una coroutine: dopo l'annullamento può
+     * arrivare ancora un pezzo, e senza questo contatore la percentuale dell'immagine
+     * abbandonata comparirebbe per un istante sopra quella nuova.
      */
     private var loadToken = 0
 
     /**
-     * L'unica strada per cui un indirizzo diventa una fotografia sullo schermo.
+     * L'unica strada per cui un indirizzo diventa un'immagine sullo schermo.
      *
-     * ⚠️ Chi chiama ha già sistemato schermata, provenienza e serie: qui si fa **solo**
-     * il caricamento, e i tre posti che aprono lo condividono invece di ripeterlo. Una
-     * seconda copia divergerebbe sull'annullamento, che è la cosa che si dimentica.
+     * Chi chiama ha già sistemato schermata, provenienza e serie: qui si fa solo il caricamento,
+     * condiviso dai tre punti che aprono, perché una seconda copia dimenticherebbe l'annullamento.
      */
     private fun startLoad(uri: Uri, from: Arrival, remember: Boolean = false) {
         val context = getApplication<Application>()
         loadJob?.cancel()
         val token = ++loadToken
-        // ⚠️⚠️ **UN FILMATO NON ENTRA NEL DECODIFICATORE, e si ferma qui** (`0.83`): non c'è
-        // niente da aprire e niente da scaricare, quindi non c'è nemmeno un lavoro da
-        // annullare. Il contatore però si è già mosso: se una fotografia si stava aprendo,
-        // la sua percentuale in volo non deve comparire sopra il filmato.
+        // ⚠️ Un video non passa dal decodificatore (`0.83`) e non ha niente da annullare. Il
+        // contatore si è già mosso, quindi la percentuale di un'immagine che si stava aprendo
+        // non compare sopra il video.
         if (Videos.isVideo(uri)) {
             loadJob = null
             state = ViewerState.Clip(uri, from)
@@ -1137,8 +885,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             val next = load(context, uri) { fraction ->
                 if (token == loadToken) state = ViewerState.Loading(fraction)
             }
-            // Remembered only once it has actually opened: a list of addresses that
-            // failed would be a list of traps.
+            // Si ricorda solo se si è aperto davvero: un elenco di indirizzi falliti sarebbe un
+            // elenco di trappole.
             if (remember && next is ViewerState.Ready) {
                 Recents.remember(context, uri.toString(), ImageActions.fileName(next.image, uri))
             }
@@ -1157,58 +905,46 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Riprova quello che non si è aperto.
      *
-     * ⚠️ Esiste per la rete: un `403` di passaggio, il tunnel della metropolitana, un
-     * server lento. Senza, l'unica via era tornare indietro e rifare tutto il giro
-     * dell'indirizzo, e con un URL incollato dagli appunti vuol dire ritrovarlo.
-     * ⚠️ Riprovando **si ripassa dalla cache**, quindi un errore avvenuto dopo un
-     * download riuscito (la memoria finita in decodifica) si ritenta senza rete. Dalla `6.27` una
-     * copia scaduta si rivalida col server (`RemoteCache`), quindi anche da qui un'immagine
-     * cambiata arriva nuova.
+     * Esiste per la rete: un `403` di passaggio, una galleria senza segnale, un server lento.
+     * ⚠️ Si ripassa dalla cache, quindi un errore dopo un download riuscito (memoria finita in
+     * decodifica) si ritenta senza rete; una copia scaduta si rivalida col server
+     * (`RemoteCache`, `6.27`).
      */
     fun retry() {
         val uri = source ?: return
-        // ⚠️ La provenienza si CONSERVA e non si reinventa: riprovare non è un modo nuovo di
-        // arrivare, e un ripiego a caso deciderebbe qui una cosa che si decide altrove.
+        // La provenienza si conserva: riprovare non è un modo nuovo di arrivare.
         startLoad(uri, (state as? ViewerState.Clip)?.from ?: Arrival.HANDED)
     }
 
     fun open(uri: Uri, backToApp: Boolean = true) {
-        // ⚠️⚠️ **L'indirizzo si riscrive in sicuro PRIMA di ogni altra cosa**, e da qui in
-        // poi quello in chiaro non esiste più: se restasse, `source`, la condivisione, la
-        // cache e le vicine dello sfogliatore parlerebbero di un indirizzo diverso da
-        // quello che si è aperto davvero. Il perché sta in [WebSeries.secured].
+        // ⚠️ L'indirizzo si riscrive in `https` prima di ogni altra cosa, o `source`, la
+        // condivisione, la cache e le vicine parlerebbero di un indirizzo diverso da quello
+        // aperto. Il perché è in [WebSeries.secured].
         val target = WebSeries.secured(uri)
         upgraded = target != uri
         webRule = null
         source = target
-        // ⚠️ Null vuol dire **esci dall'app**: chi è arrivato da un collegamento non ha
-        // nessun posto dell'app in cui tornare, e trattenerlo in una schermata che non ha
-        // chiesto sarebbe peggio che chiudersi.
+        // `null` vuol dire 'esci dall'app': chi arriva da un collegamento non ha un posto
+        // dell'app in cui tornare.
         viewerBack = if (backToApp) HOME else null
         screen = Screen.Viewer
         putList(null)
         startLoad(target, Arrival.HANDED, remember = true)
-        // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
-        // above: it is a database query that the picture does not wait for, and
-        // hanging it off the load would delay what the person is looking at in
-        // order to prepare a gesture they may never make.
+        // ⚠️ La cartella si cerca in una coroutine sua: è un'interrogazione del database che
+        // l'immagine non aspetta, e legarla al caricamento ritarderebbe quello che si guarda
+        // per preparare un gesto che forse non arriverà.
         val context = getApplication<Application>()
         relist { if (WebSeries.isWeb(target)) webWindow(target) else Folder.seriesAround(context, target) }
     }
 
     /**
-     * Apre le immagini di una **pagina** come serie, dalla prima.
+     * Apre le immagini di una pagina come serie, dalla prima. Si arriva dalla finestra 'Apri un
+     * indirizzo'; il perché è su `WebSeries.Rule.PAGE_LINKS`.
      *
-     * ⚠️⚠️ **È IL SESTO GRADINO DELLO SFOGLIATORE WEB, e la sua porta è il dialogo 'Apri un
-     * indirizzo'** (istruzione dell'utente, 2026-09-03: *inizia a lavorarci*). Il perché
-     * quella porta e non una condivisione nuova sta su `WebSeries.Rule.PAGE_LINKS`.
-     * ⚠️ **Non passa da [open], e la differenza è una riga sola**: là la serie si cerca con
-     * la cascata (`webWindow`), qui si ha già in mano ed è intera. Chiamare `open` e poi
-     * sovrascrivere `listed` vorrebbe dire una richiesta di rete per niente, e una finestra
-     * di tre indirizzi che compare per un istante al posto della serie vera.
-     * ⚠️ **Il criterio si segna PRIMA di [startLoad]**: da lui dipende che la strisciata
-     * non rifaccia la finestra a ogni passo (vedi [showAt]), e segnarlo dopo lascerebbe il
-     * primo passo a rifarla.
+     * ⚠️ Non passa da [open], che cerca la serie con la cascata (`webWindow`): qui la serie è già
+     * intera, e passare di là farebbe una richiesta di rete inutile e mostrerebbe per un istante
+     * una finestra di tre indirizzi. Il criterio si segna prima di [startLoad], o il primo passo
+     * della strisciata rifarebbe la finestra (vedi [showAt]).
      */
     fun openPage(page: Folder.Series) {
         val first = page.at(page.index) ?: return
@@ -1224,8 +960,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il criterio che ha funzionato per l'indirizzo remoto aperto, quando ce n'è uno.
      *
-     * ⚠️ Vive nel modello e non dentro [WebSeries] perché è **stato di questa apertura**:
-     * si azzera aprendo un altro indirizzo, e un oggetto senza stato non saprebbe quando.
+     * Vive nel modello perché è lo stato di questa apertura: si azzera aprendo un altro
+     * indirizzo, e [WebSeries], che non ha stato, non saprebbe quando.
      */
     private var webRule: WebSeries.Rule? = null
 
@@ -1233,18 +969,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var upgraded = false
 
     /**
-     * Il filtro volatile della griglia: immagini, filmati o tutto.
+     * Il filtro temporaneo della griglia: immagini, video o tutto.
      *
-     * ⚠️⚠️ **SI AZZERA A OGNI INGRESSO IN UNA GRIGLIA, e non a mano** (richiesta
-     * dell'utente): la sua ragione di esistere è portare il fuoco su un tipo *al volo*, e
-     * un filtro che sopravvive al cambio di cartella diventa una cartella che sembra aver
-     * perso metà delle sue cose. Le tre porte d'ingresso lo rimettono a [MediaKind.ALL], e
-     * non c'è nessun altro posto in cui una griglia si apra.
-     * ⚠️ **Filtra la SERIE e non solo quello che si vede**, cioè vale anche per la
-     * strisciata nel visualizzatore: chi ha isolato i filmati e ne apre uno si aspetta di
-     * sfogliare i filmati, non di ritrovarsi in mezzo alle fotografie che aveva appena
-     * tolto di mezzo. È anche l'unica lettura che tiene gli indici d'accordo: la griglia e
-     * il visualizzatore leggono la **stessa** lista.
+     * ⚠️ Si azzera a ogni ingresso in una griglia (richiesta dell'utente): un filtro rimasto dalla
+     * cartella di prima farebbe sembrare la nuova mezza vuota. I tre punti d'ingresso lo
+     * rimettono a [MediaKind.ALL]. Filtra la serie, quindi vale anche per la strisciata nel
+     * visualizzatore, e griglia e visualizzatore leggono la stessa lista con gli stessi indici.
      */
     var gridFilter: MediaKind by mutableStateOf(MediaKind.ALL)
         private set
@@ -1256,10 +986,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * L'esito senza le cose che il filtro esclude.
      *
-     * ⚠️ **L'indice segue la fotografia e non il numero**: filtrando, la posizione corrente
-     * cambia valore, e conservare il numero vecchio vorrebbe dire ritrovarsi l'anello su
-     * una fotografia diversa. Si cerca dove è finita quella di prima, e se il filtro l'ha
-     * appena esclusa si riparte da capo.
+     * ⚠️ L'indice segue l'immagine e non il numero: si cerca dove è finita quella corrente, e se
+     * il filtro l'ha esclusa si riparte da capo.
      */
     private fun Folder.Lookup?.sifted(): Folder.Lookup? {
         val kind = gridFilter
@@ -1274,9 +1002,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * La finestra attorno a un indirizzo remoto, ricordandosi il criterio che ha vinto.
      *
-     * ⚠️ Il criterio **non si dimentica** se questa volta non ne ha vinto nessuno: alla fine
-     * della serie nessuna vicina esiste, e cancellarlo là costringerebbe la strisciata
-     * indietro a ripercorrere tutta la cascata.
+     * ⚠️ Il criterio resta anche se questa volta non ne ha vinto nessuno: alla fine della serie
+     * non c'è nessuna vicina, e cancellarlo costringerebbe la strisciata indietro a rifare tutta
+     * la cascata.
      */
     private suspend fun webWindow(uri: Uri): Folder.Lookup {
         val window = WebSeries.around(uri, webRule)
@@ -1284,16 +1012,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         return window.lookup
     }
 
-    // ⚠️⚠️ **QUI VIVEVA `openFolder`, che apriva una cartella dritta sulla sua foto più
-    // recente, ed è uscita nella 0.48**: dalla `0.33` la chiamava solo l'avvio
-    // automatico, e dalla `0.48` nemmeno quello, perché l'utente ha deciso che quella
-    // scorciatoia deve portare alla **griglia**. Restava una funzione senza chiamanti.
-    // ⚠️ Chi la volesse rimettere non riparta da `seriesAround`, che era la strada corta
-    // e sbagliata: la cartella è già nota, quindi ripartire dall'immagine per chiedere al
-    // MediaStore in quale cartella stia significa fare due volte la stessa domanda, la
-    // seconda passando dalle chiavi del selettore, che sono il posto in cui questo pezzo
-    // ha già sbagliato per cinque versioni. La strada buona è quella di `openGrid`:
-    // `Folder.newestIn` più `atSequenceStart`.
+    // ⚠️ Per aprire una cartella sulla sua immagine più recente la strada è quella di
+    // `openGrid`, `Folder.newestIn` più `atSequenceStart`, non `seriesAround`: la cartella è
+    // già nota, e ripartire dall'immagine rifà la domanda al MediaStore passando dalle chiavi
+    // del selettore, dove questo pezzo ha già sbagliato.
 
     /** L'unico posto in cui un indirizzo diventa uno stato: i tre che aprono passano di qui. */
     private suspend fun load(
@@ -1306,14 +1028,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             is LoadResult.Failed -> ViewerState.Error(reasonFor(result.reason), result.detail)
         }
 
-    /**
-     * L'elenco delle cartelle nella veste 'scegli quella dell'avvio'.
-     *
-     * ⚠️ Un tempo questa funzione portava un parametro, perché la stessa schermata la
-     * apriva anche la voce 'Apri una cartella'. Dalla 0.41 quella voce non esiste più,
-     * visto che l'elenco delle cartelle **è** la casa: restava un parametro che valeva
-     * sempre `true`, cioè una scelta che non si poteva più fare.
-     */
+    /** L'elenco delle cartelle nella veste 'scegli quella dell'avvio'. */
     fun chooseStartFolder() {
         screen = Screen.Folders(forStart = true)
     }
@@ -1321,9 +1036,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Fuori dalla scelta della cartella d'avvio: si torna alle impostazioni.
      *
-     * ⚠️ Vale **solo** per quella veste: l'elenco delle cartelle nell'altra è la casa, e
-     * da casa non si torna da nessuna parte. Là il gesto Indietro chiude l'app, che è
-     * quello che ci si aspetta da una schermata iniziale.
+     * Vale solo per quella veste: nell'altra l'elenco è la schermata iniziale, e là il gesto
+     * Indietro chiude l'app.
      */
     fun leaveStartFolderChoice() {
         screen = Screen.Settings
@@ -1332,9 +1046,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Una cartella scelta: o se ne apre la griglia, o diventa quella dell'avvio.
      *
-     * ⚠️ Sceglierla **accende** anche l'avvio automatico, e non è un'iniziativa: si
-     * arriva qui dall'interruttore o dal tasto sotto di lui, quindi l'intenzione è
-     * quella. Spegnerlo resta un tocco, e la scelta rimane scritta.
+     * Sceglierla accende anche l'avvio automatico: si arriva qui dall'interruttore o dal tasto
+     * sotto, quindi l'intenzione è quella. Spegnerlo lascia scritta la scelta.
      */
     fun folderPicked(bucket: Folder.Bucket, forStart: Boolean) {
         if (!forStart) {
@@ -1353,21 +1066,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Una cartella in miniature.
-     *
-     * ⚠️⚠️ **La serie che carica è la STESSA che poi sfoglia il visualizzatore** (finisce
-     * in [listed], come quella trovata intorno a una foto): la griglia e la strisciata
-     * leggono un solo elenco, quindi non possono dare due ordini diversi e aprire una
-     * foto dalla griglia non costa nessuna seconda interrogazione del MediaStore.
-     */
-    /**
      * Il peso della cartella aperta e quanti video ha, per le due pastiglie dell'intestazione.
      *
-     * ⚠️⚠️ **SI LEGGE UNA VOLTA PER CARTELLA E VIVE QUI**, come la cartella stessa: la griglia
-     * riceve due numeri già pronti, e non ha modo di chiederli da sé perché conosce gli
-     * indirizzi e non le righe. Il conto lo fa `Folder.weigh`, con una query sola.
-     * ⚠️ **Si azzera aprendo**, o entrando in una cartella si vedrebbe per un istante il peso di
-     * quella di prima, che è il genere di bugia che non si nota e resta.
+     * Si legge una volta per cartella con `Folder.weigh`: la griglia conosce gli indirizzi e non
+     * le righe, quindi riceve i numeri pronti. ⚠️ Si azzera aprendo, o entrando in una cartella
+     * comparirebbe per un istante il peso di quella di prima.
      */
     var facts: Folder.Facts by mutableStateOf(Folder.Facts())
         private set
@@ -1375,12 +1078,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * La tinta scelta per la cartella aperta, come indice in [FRONT_TINTS], oppure `null`.
      *
-     * ⚠️⚠️ **VIVE QUI E NON FRA LE IMPOSTAZIONI, ED È UN DATO DELLA CARTELLA**: la scelta si fa
-     * col tocco lungo sull'icona dell'intestazione (richiesta sua, giro della `1.83`), quindi non
-     * è una preferenza dell'app ma una proprietà di quella cartella. Nel pannello sarebbe una
-     * riga che chiede *di quale?*.
-     * ⚠️ **Si legge una volta per cartella come [facts]**, e non da un flusso: cambia solo quando
-     * lo cambia lui, e in quell'istante lo scriviamo qui e nell'archivio insieme.
+     * È un dato della cartella e non un'impostazione: si sceglie col tocco lungo sull'icona
+     * dell'intestazione (richiesta dell'utente, giro della `1.83`). Si legge una volta per
+     * cartella come [facts]: cambia solo col gesto, che la scrive qui e nell'archivio insieme.
      */
     var tint: Int? by mutableStateOf(null)
         private set
@@ -1388,27 +1088,24 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Segna (o toglie) la tinta della cartella aperta.
      *
-     * ⚠️ **Scrive due volte di proposito**: lo stato in memoria, perché la fascia cambi colore
-     * nello stesso fotogramma, e l'archivio, perché ci sia ancora domani. Aspettare la scrittura
-     * per ridisegnare vorrebbe dire un colore che arriva dopo il tocco.
+     * Scrive due volte: lo stato in memoria, perché la fascia cambi colore nello stesso
+     * fotogramma, e l'archivio, perché il colore resti.
      */
     fun tintFolder(index: Int?) {
         val dove = (screen as? Screen.Grid)?.bucket ?: return
         tint = index
-        // ⚠️ E dalla `1.87` anche la mappa della casa, per la stessa ragione della riga sopra:
-        // uscendo di qui la cartella deve portare il colore nuovo senza aspettare una
-        // rilettura, che con la guardia di [readBuckets] non arriverebbe affatto.
+        // Anche la mappa della schermata iniziale: con la guardia di [readBuckets] una rilettura
+        // non arriverebbe, e la cartella mostrerebbe il colore vecchio.
         folderTints = if (index == null) folderTints - dove else folderTints + (dove to index)
         val context = getApplication<Application>()
         viewModelScope.launch { FolderTints.set(context, dove, index) }
     }
 
     /**
-     * La copertina scelta a mano per la cartella aperta, o `null` se ha quella automatica.
+     * La copertina scelta a mano per la cartella aperta, o `null` se ha quella predefinita.
      *
-     * ⚠️ **Vive qui accanto a [tint] e per la stessa ragione**: è un dato della cartella e non
-     * una preferenza dell'app. Serve al menu del FAB, che offre di toglierla **se e solo se**
-     * c'è, come la voce 'Mostra nascoste' della schermata iniziale.
+     * È un dato della cartella, come [tint]. Serve al menu del FAB, che offre di toglierla solo
+     * se c'è.
      */
     var cover: Uri? by mutableStateOf(null)
         private set
@@ -1416,17 +1113,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Per quale cartella si sta scegliendo una copertina, e come si chiama.
      *
-     * ⚠️⚠️ **È UNA MODALITÀ E NON UNA FINESTRA, PERCHÉ LO DICE LA SUA RISPOSTA** (risposta a
-     * `d-copertina-come`, giro della `1.92`: *può essere scelta dalla normale vista di AIV da
-     * qualsiasi cartella, non necessariamente quella di cui si sta impostando la copertina*).
-     * Una finestra che elenca immagini sarebbe una seconda galleria da scrivere e da tenere
-     * allineata a quella vera; così invece si sfoglia l'app com'è, e il tocco su una miniatura
-     * vale come scelta.
-     * ⚠️ **Vive nel modello e non in una schermata, come [peek]**: fra l'inizio e la scelta si
-     * cambia cartella, quindi uno stato dentro `GridScreen` se ne andrebbe con la composizione,
-     * cioè proprio nel momento in cui serve.
-     * ⚠️ **Porta anche il nome**: la fascia che dice che cosa si sta facendo lo nomina, e alla
-     * cartella di partenza non si torna, quindi da un identificatore non lo si ricaverebbe più.
+     * ⚠️ È una modalità e non una finestra (scelta a `d-copertina-come`, giro della `1.92`): si
+     * sfoglia l'app com'è, da qualunque cartella, e il tocco su una miniatura vale come scelta.
+     * Vive nel modello, come [peek], perché fra l'inizio e la scelta si cambia cartella. Contiene
+     * anche il nome, che la fascia mostra e che dal solo identificatore non si ricaverebbe.
      */
     var covering: Covering? by mutableStateOf(null)
         private set
@@ -1435,25 +1125,14 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     data class Covering(val bucket: Long, val name: String)
 
     /**
-     * Il tocco sull'icona dell'intestazione: comincia a scegliere la copertina, **oppure** riporta
+     * Il tocco sull'icona dell'intestazione: comincia a scegliere la copertina, oppure riporta
      * quella predefinita se la scelta era già partita da questa stessa cartella.
      *
-     * ⚠️⚠️ **DALLA `2.96` DOPO QUESTO TOCCO SI TORNA ALL'ELENCO INIZIALE, E FINO ALLA `2.95` SI
-     * RESTAVA NELLA CARTELLA**, perché la copertina che si vuole è spesso una delle sue immagini:
-     * lui ha chiesto il contrario, e lo fa [coverAway], che la griglia chiama dopo di questa.
-     *
-     * ⚠️⚠️ **IL SECONDO TOCCO SULLA STESSA CARTELLA RIPORTA LA PREDEFINITA, DALLA `1.95`, ED È IL
-     * SOLO MODO DI TORNARCI** (sua richiesta, giro della `1.94`: *aggiungiamo un gesto ricorsivo:
-     * se in modalità 'scegli copertina' tocco di nuovo l'icona dell'intestazione DELLA STESSA
-     * CARTELLA, la copertina torna quella predefinita*). Con lui la voce del menu che toglieva la
-     * copertina si spegne, e la ragione è sua: *un tocco involontario ripristina troppo facilmente
-     * la copertina PREDEFINITA, e se non ricordi più qual era la personalizzata (o non ce l'hai
-     * più) non puoi selezionarla di nuovo*. Qui il tocco involontario non basta: ce ne vogliono
-     * due, e in mezzo c'è una fascia che dice che cosa sta succedendo.
-     * ⚠️⚠️ **SU UN'ALTRA CARTELLA IL GESTO RICOMINCIA INVECE DI AZZERARE, e lo ha chiesto lui
-     * dirimendo il caso** (*se tocco una cartella di intestazione, poi vado in un'altra cartella e
-     * tocco la cartella dell'intestazione, si attiva la scelta della copertina per quella*). Cioè
-     * il confronto è sull'identificatore, non sul fatto che una scelta sia in corso.
+     * ⚠️ Il secondo tocco sulla stessa cartella è il solo modo di tornare alla predefinita
+     * (`1.95`, richiesta dell'utente): servono due tocchi, con la fascia in mezzo, così un tocco
+     * involontario non cancella una copertina scelta. Su un'altra cartella il gesto ricomincia
+     * (scelta dell'utente): il confronto è sull'identificatore. Il ritorno all'elenco iniziale lo
+     * fa [coverAway].
      */
     fun startCover() {
         val quale = screen as? Screen.Grid ?: return
@@ -1468,17 +1147,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Porta all'elenco iniziale delle cartelle chi ha appena cominciato a scegliere una copertina.
      *
-     * ⚠️⚠️ **DALLA `2.96`, ED È SUA RICHIESTA** (campo libero del giro della `2.93` e della `2.94`:
-     * *quando si tocca l'icona dell'intestazione, la vista deve tornare sulla cartella root (elenco
-     * delle cartelle iniziale) per facilitare la selezione da qualsiasi percorso*). Fino alla `2.95` la scelta
-     * restava nella cartella, perché la copertina che si vuole è spesso una delle sue immagini:
-     * adesso quella si prende rientrandoci dall'elenco, cioè con un tocco in più, e tutte le altre
-     * con qualcuno in meno.
-     * ⚠️ **Si esce SOLO se una scelta è partita**: lo stesso tocco, sulla stessa cartella, la chiude
-     * e rimette la copertina predefinita ([startCover]), e allora si resta dove si è. Chiedere qui
-     * a [covering] dice quale dei due è successo, senza che chi chiama lo debba sapere.
-     * ⚠️ **Lo chiama la griglia, e non [startCover]**: la prima volta la griglia deve mostrare il
-     * mini-onboarding, che indica un'icona della cartella, e si esce quando lui lo chiude.
+     * Richiesta dell'utente (`2.96`): la scelta parte dall'elenco iniziale, da cui si raggiunge
+     * qualunque cartella.
+     * ⚠️ Si esce solo se una scelta è partita: se lo stesso tocco ha rimesso la predefinita
+     * ([startCover]) si resta, e [covering] dice quale dei due casi è successo. Lo chiama la
+     * griglia e non [startCover]: la prima volta la griglia mostra il mini-onboarding, e si esce
+     * quando la persona lo chiude.
      */
     fun coverAway() {
         if (covering != null && screen is Screen.Grid) leaveGrid()
@@ -1504,16 +1178,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Scrive (o toglie) la copertina di [dove], e dice com'è andata.
      *
-     * ⚠️⚠️ **QUI LO STATO SI SCRIVE DOPO E NON PRIMA, al contrario di [tintFolder]**, e la
-     * differenza è che questa operazione **può non riuscire**: la copia decodifica l'immagine e
-     * la scrive sul disco, quindi scrivere lo stato in anticipo vorrebbe dire una copertina che
-     * la schermata mostra e che sul disco non c'è. Una tinta invece è un numero, e là non c'è
-     * niente che possa andare storto.
-     * ⚠️⚠️ **L'ESITO LO DICE UNA NOTIFICA, E NON È UN DI PIÙ**: la copertina si vede nella
-     * schermata iniziale, cioè quasi mai in quella da cui si è scelto, quindi senza una riga che
-     * parli il comando sembrerebbe non aver fatto niente. È lo stesso caso di 'Copia lista'.
-     * ⚠️ **[cover] si aggiorna solo se la cartella aperta è quella**: scegliendo da un'altra
-     * cartella, quella che si ha davanti non c'entra niente con la copertina appena scritta.
+     * ⚠️ Lo stato si scrive dopo, al contrario di [tintFolder], perché la copia può non riuscire:
+     * decodifica l'immagine e la scrive sul disco. L'esito lo dice un avviso, perché la copertina
+     * si vede nella schermata iniziale e non in quella da cui si è scelto. [cover] si aggiorna
+     * solo se la cartella aperta è quella della copertina.
      */
     private fun applyCover(dove: Long, source: Uri?) {
         val context = getApplication<Application>()
@@ -1533,12 +1201,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             } else {
                 folderCovers + (dove to scelta)
             }
-            /*
-             * ⚠️ **Due frasi e non una, dalla `1.95`**: 'aggiornata' dice che c'è una copertina
-             * nuova, e tornando alla predefinita non ce n'è nessuna. Con una frase sola il gesto
-             * ricorsivo direbbe la stessa cosa dei due versi opposti, e quello che serve a chi lo
-             * fa è sapere **quale** dei due è successo.
-             */
+            // Due frasi: chi ripete il tocco deve sapere se ha messo una copertina nuova o è
+            // tornato alla predefinita.
             Notices.say(
                 context.getString(
                     if (scelta == null) R.string.folder_cover_reset else R.string.folder_cover_done
@@ -1550,18 +1214,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Rinomina la cartella aperta, e ci resta dentro.
      *
-     * ⚠️⚠️ **IL `BUCKET_ID` CAMBIA, QUINDI LA GRIGLIA SI RIAPRE SU UN'ALTRA CARTELLA**: per il
-     * MediaStore l'identificatore viene dal percorso, e quello di prima non esiste più. Restando
-     * sul vecchio, la stessa schermata mostrerebbe una cartella vuota senza dare nessun errore.
-     * ⚠️⚠️ **E PRIMA DI RIAPRIRE SI TRAVASANO COPERTINA E COLORE**, che è la risposta alla sua
-     * domanda (*cosa succede all'immagine memorizzata come copertina se rinomino la cartella da
-     * AIV?*): sono appesi all'identificatore, quindi senza questo passaggio una rinomina li
-     * perderebbe tutte le volte. Da **fuori** non si può, e là interviene la potatura di
-     * [FolderCovers.sweep].
-     * ⚠️ **Il percorso arriva da [facts], che la griglia ha già letto**: chiederlo di nuovo qui
-     * vorrebbe dire una query in più per un dato che è già in mano.
-     * ⚠️ **Senza percorso non si fa niente e si dice**: una cartella appena aperta può non averlo
-     * ancora, e una rinomina che tace si legge come un'app che non risponde.
+     * ⚠️ Il `BUCKET_ID` viene dal percorso, quindi cambia: la griglia si riapre sul nuovo, o
+     * mostrerebbe una cartella vuota senza errori. Prima si spostano copertina e colore, che sono
+     * legati all'identificatore; una rinomina fatta da fuori li perde, e li pota
+     * [FolderCovers.sweep]. Il percorso arriva da [facts]; se una cartella appena aperta non lo
+     * ha ancora, si mostra l'errore.
      */
     fun renameFolder(name: String) {
         val quale = screen as? Screen.Grid ?: return
@@ -1583,16 +1240,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                         folderTints = FolderTints.all(context)
                         openGrid(nato, name.trim())
                     } else {
-                        /*
-                         * ⚠️ **Senza identificatore nuovo si torna alla casa invece di restare**:
-                         * succede quando la cartella non ha media indicizzati, e là non c'è nessuna
-                         * griglia da mostrare. Restare vorrebbe dire una schermata vuota che sembra
-                         * un guasto.
-                         */
+                        // Senza identificatore nuovo (la cartella non ha media indicizzati)
+                        // non c'è una griglia da mostrare: si torna alla schermata iniziale.
                         screen = HOME
                     }
-                    // ⚠️ La casa rilegge le cartelle da sé, perché il MediaStore è cambiato:
-                    // legge [outsideStamp] come chiave, quindi basta muoverlo.
+                    // La schermata iniziale rilegge le cartelle quando [outsideStamp] cambia.
                     outsideStamp++
                     Notices.say(context.getString(R.string.folder_renamed))
                 }
@@ -1604,39 +1256,40 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /**
+     * Una cartella in miniature.
+     *
+     * ⚠️ La serie che carica finisce in [listed], ed è la stessa che sfoglia il visualizzatore:
+     * griglia e strisciata non possono dare due ordini diversi, e aprire un'immagine dalla
+     * griglia non chiede una seconda interrogazione del MediaStore.
+     */
     fun openGrid(bucket: Long, name: String) {
         gridFilter = MediaKind.ALL
         screen = Screen.Grid(bucket, name)
         putList(null)
         source = null
-        // Cartella nuova, nessuna foto ancora guardata.
+        // Cartella nuova, nessuna immagine ancora guardata.
         gridVisited = false
-        // La fotografia di prima non serve più: tenerla vorrebbe dire tenere in memoria
-        // un bitmap grande mentre si guarda tutt'altro.
+        // L'immagine di prima non serve più, e il suo bitmap occuperebbe memoria.
         stopLoad()
         val context = getApplication<Application>()
         /*
-         * ⚠️ The folder becomes the launcher's fourth action (6.10, choice B1), but not while the
-         * hidden folders are shown, nor while the app answers another one that asked for a picture:
-         * a hidden name would end up on the home screen, and a pick is not the person's browsing.
+         * ⚠️ La cartella diventa la quarta azione del launcher (`6.10`, scelta B1), ma non mentre
+         * le nascoste sono visibili, né mentre l'app sceglie un'immagine per un'altra app: un
+         * nome nascosto finirebbe nella schermata Home, e una scelta per altri non è una visita.
          */
         if (!peeking && !picking) Shortcuts.lastFolder(context, bucket, name)
-        // ⚠️ Anche qui l'inizio è quello della sequenza SCELTA: la griglia si apre in
-        // cima, e il tocco sulla prima miniatura dà la stessa foto da cui parte l'avvio.
+        // ⚠️ Numeri, tinta e copertina si azzerano, o entrando in una cartella si vedrebbero
+        // per un istante quelli di prima (e la voce che toglie la copertina comparirebbe a
+        // vuoto). L'inizio è quello della sequenza scelta: la prima miniatura è l'immagine da
+        // cui parte l'avvio.
         facts = Folder.Facts()
-        // ⚠️ **Anche la tinta si azzera**, per la stessa ragione dei numeri: entrando in una
-        // cartella si vedrebbe per un istante il colore di quella di prima.
         tint = null
-        // ⚠️ E la copertina scelta con lei, per la stessa ragione: la voce del menu che la
-        // toglie compare solo se c'è, e col ricordo della cartella di prima comparirebbe dove
-        // non c'è niente da togliere.
         cover = null
         relist { Folder.newestIn(context, bucket).atSequenceStart() }
-        // ⚠️ In un lancio a sé e non in coda all'altro: i due numeri servono alla fascia in
-        // cima, che si vede subito, mentre le miniature arrivano quando arrivano. Uno dopo
-        // l'altro, la cartella si peserebbe solo dopo aver letto tutta la lista.
-        // ⚠️ E dentro [folderJob], per la stessa ragione di [listJob]: aprendo due cartelle di
-        // seguito, i numeri della prima non devono arrivare nella seconda.
+        // ⚠️ In un lancio a sé: i numeri servono alla fascia in cima, che si vede subito, e non
+        // devono aspettare la lista. Dentro [folderJob], come [listJob], perché aprendo due
+        // cartelle di seguito i numeri della prima non arrivino nella seconda.
         folderJob?.cancel()
         folderJob = viewModelScope.launch {
             launch { facts = Folder.weigh(context, bucket) }
@@ -1651,33 +1304,29 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il testo che si sta cercando. Vuoto quando la ricerca si apre.
      *
-     * ⚠️ Vive qui e non in [Screen.Search] perché cambia a ogni lettera: vedi la nota su
-     * quella schermata.
+     * Vive qui e non in [Screen.Search] perché cambia a ogni lettera (vedi la nota su quella
+     * schermata).
      */
     var query: String by mutableStateOf("")
         private set
 
     /**
-     * La lettura di [listed] in corso, per poterla **annullare** quando la lista cambia di nuovo.
+     * La lettura di [listed] in corso, per poterla annullare quando la lista cambia di nuovo.
      *
-     * ⚠️⚠️ **Senza questo la risposta più lenta vincerebbe sulla più recente**: digitando
-     * `mare` partono quattro ricerche, e l'ordine in cui il MediaStore risponde non è quello
-     * in cui sono partite. Chi non annulla si ritrova i risultati di `mar` sopra quelli di
-     * `mare`, e il difetto si vede solo quando il telefono è occupato, cioè quasi mai
-     * durante una prova.
-     * ⚠️⚠️ **Dalla `6.27` è uno solo per TUTTE le letture della lista**, non più per la sola
-     * ricerca (rilievo C30 della revisione della 6.25): una cascata del web lasciata a metà, o una
-     * ricerca chiusa entro la pausa, arrivava dopo e metteva la sua lista nella schermata nuova. Chi
-     * scrive [listed] passa da [relist] o da [putList], e tutti e due annullano la lettura di prima.
+     * ⚠️ Senza, la risposta più lenta vincerebbe sulla più recente: digitando `mare` partono
+     * quattro ricerche, e il MediaStore non risponde nell'ordine di partenza. Vale per tutte le
+     * letture della lista (`6.27`, rilievo C30): una cascata del web lasciata a metà arriverebbe
+     * nella schermata nuova. Chi scrive [listed] passa da [relist] o da [putList], che annullano
+     * la lettura di prima.
      */
     private var listJob: Job? = null
 
     /**
      * Legge la lista nuova fuori dal thread principale, e annulla la lettura di prima.
      *
-     * ⚠️ **`ensureActive` prima di scrivere**: una lettura annullata mentre finisce un lavoro che
-     * non si interrompe (una query già partita) non deve scrivere lo stesso. `withContext` lo
-     * garantisce già al ritorno, e la riga lo rende vero anche per una [read] che non lo usa.
+     * ⚠️ `ensureActive` prima di scrivere: una lettura annullata mentre finisce una query già
+     * partita non deve scrivere. `withContext` lo garantisce al ritorno; la riga copre anche una
+     * [read] che non lo usa.
      */
     private fun relist(read: suspend () -> Folder.Lookup?) {
         listJob?.cancel()
@@ -1697,11 +1346,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Apre il cestino.
      *
-     * ⚠️ **La lista si spegne prima**: leggere una cartella dal disco costa poco ma non
-     * niente, e mostrare per un istante le miniature della schermata di prima sarebbe un
-     * lampeggio con dentro le foto sbagliate.
-     * ⚠️ **Nessun anello dell'ultima vista**: si entra da un menu, non si sta tornando da
-     * nessuna fotografia.
+     * La lista si svuota prima, o per un istante comparirebbero le miniature della schermata di
+     * prima. Nessun anello dell'ultima vista: si entra da un menu, non da un'immagine.
      */
     fun openBin() {
         gridFilter = MediaKind.ALL
@@ -1717,15 +1363,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il cestino come serie, pronto per la griglia.
      *
-     * ⚠️ **Il cestino vuoto è una serie VUOTA e non un errore**: `Lookup.Unreadable`
-     * farebbe scrivere alla griglia che la cartella non si legge, mentre un cestino vuoto è
-     * la cosa più normale del mondo, e la griglia ha una frase apposta.
-     * ⚠️ **Solo la serie piena passa da `atSequenceStart`**: su una lista vuota quel conto
-     * darebbe indice `-1` col verso cronologico acceso, cioè un numero che non indica
-     * niente e che poi gira per il resto del modello.
+     * ⚠️ Il cestino vuoto è una serie vuota e non un errore: con `Lookup.Unreadable` la griglia
+     * direbbe che la cartella non si legge, e per il cestino vuoto ha una frase sua. Solo la serie
+     * piena passa da `atSequenceStart`, che su una lista vuota a verso invertito darebbe `-1`.
      */
     private suspend fun binLookup(context: Context): Folder.Lookup {
-        // ⚠️ AIV Play's bin is the system's trash, from Android 11 (5.40): `Store.hasBin`.
+        // ⚠️ Il cestino di AIV Play è quello di sistema, da Android 11 (`5.40`): `Store.hasBin`.
         val items = when {
             Store.files -> Bin.list(context)
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> MediaDelete.trashed(context)
@@ -1738,11 +1381,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Apre la cronologia dei ripristini, e ci si torna dal cestino.
      *
-     * ⚠️⚠️ **NON AZZERA NIENTE, al contrario di [openBin]**, ed è la differenza che conta: si
-     * va e si torna, quindi la griglia del cestino deve ritrovarsi **pronta** invece di
-     * essere riletta dal disco. È la stessa scelta di `openSettings`, e la ragione per cui
-     * `leaveHistory` rimette in scena una schermata che non ha mai smesso di avere i suoi
-     * dati.
+     * ⚠️ Non azzera niente, al contrario di [openBin]: si va e si torna, e la griglia del cestino
+     * si ritrova pronta senza rileggere il disco, come con `openSettings`.
      */
     fun openHistory() {
         screen = Screen.History
@@ -1753,26 +1393,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         screen = Screen.Bin
     }
 
-    // ── Modifica di una fotografia (1.03) ──
+    // ── Modifica di un'immagine ──
 
     /**
-     * Se il selettore dell'app di modifica è davanti.
+     * Se il selettore dell'app di modifica è aperto.
      *
-     * ⚠️ **Vive nel modello e non nella schermata, perché lo aprono in DUE**: il menu del
-     * tocco lungo al primo uso, e le impostazioni quando si vuole cambiare idea. Tenuto in
-     * una delle due schermate, l'altra avrebbe dovuto averne una copia propria, e le due
-     * copie sarebbero divergite al primo ritocco.
+     * Vive nel modello perché lo aprono in due: il menu del tocco lungo al primo uso, e le
+     * impostazioni per cambiare idea.
      */
     var editorAsk: Boolean by mutableStateOf(false)
         private set
 
     /**
-     * La fotografia che aspetta un editor, e `null` quando la domanda arriva dalle
-     * impostazioni.
+     * L'immagine che aspetta un editor, e `null` quando la domanda arriva dalle impostazioni.
      *
-     * ⚠️ È ciò che distingue i due usi del **medesimo** selettore: scelta l'app, con un
-     * indirizzo si prosegue e si apre la fotografia, senza si è solo cambiata un'impostazione.
-     * Non è uno stato di composizione (nessuno lo disegna), quindi non è `mutableStateOf`.
+     * Distingue i due usi dello stesso selettore: con un indirizzo, scelta l'app si apre
+     * l'immagine; senza, si è solo cambiata un'impostazione. Nessuno lo disegna, quindi non è
+     * `mutableStateOf`.
      */
     private var editorFor: Uri? = null
 
@@ -1781,12 +1418,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * Una frase da mostrare e buttare, e `null` quando non ce n'è nessuna.
+     * Una frase da mostrare una volta, e `null` quando non ce n'è nessuna.
      *
-     * ⚠️ **Sta nel modello perché l'esito arriva DOPO la schermata che l'ha chiesto**: il
-     * salvataggio chiude l'editor, quindi un avviso appeso a quella composizione se ne andrebbe
-     * prima di comparire. Chi lo mostra lo azzera con [noticeShown], e senza quell'azzeramento
-     * tornerebbe a ogni ricomposizione.
+     * ⚠️ Vive nel modello perché l'esito arriva dopo la chiusura dell'editor che l'ha chiesto.
+     * Chi lo mostra lo azzera con [noticeShown], o tornerebbe a ogni ricomposizione.
      */
     var notice: Int? by mutableStateOf(null)
         private set
@@ -1797,17 +1432,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il menu chiede di modificare una fotografia: tre vie, e la prima volta si domanda.
+     * Il menu chiede di modificare un'immagine: tre vie, e la prima volta si domanda.
      *
-     * ⚠️ **L'impostazione vuota e 'nessuna' sono cose diverse**, ed è la ragione per cui il
-     * valore di fabbrica è la stringa vuota: vuota vuol dire *non ho mai chiesto*, ed è
-     * l'unico caso in cui si apre il selettore da sé. Vedi `Settings.editorApp`.
+     * ⚠️ Il valore di fabbrica è la stringa vuota, che vuol dire 'mai chiesto' ed è diversa da
+     * 'nessuna': è il solo caso in cui il selettore si apre da sé (vedi `Settings.editorApp`).
      */
     fun edit(uri: Uri) {
         val chosen = settings?.editorApp.orEmpty()
         when {
-            // ⚠️ AIV Play has only its own editors (since 5.10): an app outside would be asked to
-            // write over a file that AIV Play cannot let it write.
+            // ⚠️ AIV Play ha solo i suoi editor (`5.10`): a un'app esterna chiederebbe di
+            // scrivere su un file su cui AIV Play non può farla scrivere.
             !Store.files -> openInternal(uri)
             chosen.isBlank() -> {
                 editorFor = uri
@@ -1819,33 +1453,28 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Il tocco lungo su 'Modifica': si sceglie l'app **adesso**, per questa fotografia.
+     * Il tocco lungo su 'Modifica': si sceglie l'app adesso, per questa immagine.
      *
-     * ⚠️⚠️ **LA DIFFERENZA CON [edit] È UNA SOLA, e sta tutta qui**: [edit] apre il selettore
-     * **solo** la prima volta e poi non lo chiede più, che è quello che deve fare una scelta
-     * memorizzata; questo lo apre **sempre**, perché è il gesto con cui si cambia idea senza
-     * passare dalle impostazioni.
-     * ⚠️ **La scelta resta memorizzata** (richiesta dell'utente): non è un'apertura 'con
-     * un'altra app solo stavolta', è la stessa scelta di sempre fatta da un posto più comodo.
-     * Ci pensa [editorChosen], che è lo stesso di prima e non sa da dove gli arriva l'utente.
+     * Al contrario di [edit], che chiede solo la prima volta, apre sempre il selettore: è il
+     * gesto per cambiare idea senza passare dalle impostazioni. La scelta resta memorizzata
+     * (richiesta dell'utente), e la scrive [editorChosen].
      */
     fun editWith(uri: Uri) {
         editorFor = uri
         editorAsk = true
     }
 
-    /** Le impostazioni vogliono cambiare l'app: stesso selettore, senza nessuna fotografia. */
+    /** Le impostazioni vogliono cambiare l'app: stesso selettore, senza nessuna immagine. */
     fun chooseEditor() {
         editorFor = null
         editorAsk = true
     }
 
     /**
-     * L'utente ha scelto: si ricorda, e se c'era una fotografia in attesa si prosegue.
+     * L'app è scelta: si ricorda, e se c'era un'immagine in attesa si prosegue.
      *
-     * ⚠️⚠️ **SI PROSEGUE CON `id` E NON RILEGGENDO LE IMPOSTAZIONI**: la scrittura è
-     * asincrona (DataStore), quindi un istante dopo `settings.editorApp` porta ancora il
-     * valore di prima, e ripassare da [edit] riaprirebbe il selettore appena chiuso.
+     * ⚠️ Si prosegue con `id`: la scrittura in DataStore è asincrona, `settings.editorApp`
+     * contiene ancora il valore di prima, e ripassare da [edit] riaprirebbe il selettore.
      */
     fun editorChosen(id: String) {
         editorAsk = false
@@ -1859,9 +1488,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * L'editor interno: il completo dove il suo conto può girare, il semplice sotto Android 13.
      *
-     * ⚠️⚠️ **DALLA `5.01` LO DECIDE IL TELEFONO E NON LA SCELTA SALVATA, ED È SUA SCELTA** (nota su
-     * `5.00-02`): la voce 'Editor interno' è una sola (vedi `Editors.INTERNAL`), e da Android 13 in
-     * su il semplice non si apre più.
+     * ⚠️ Lo decide il telefono e non la scelta salvata (`5.01`, nota su `5.00-02`): la voce
+     * 'Editor interno' è una sola (vedi `Editors.INTERNAL`), e da Android 13 in su l'editor
+     * semplice non si apre.
      */
     private fun openInternal(uri: Uri) {
         if (advancedEditorAvailable()) openFullEditor(uri) else openEditor(uri)
@@ -1873,7 +1502,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         editorFor = null
     }
 
-    /** L'editor semplice: il nome serve alla testata e al dialogo del salvataggio. */
+    /** L'editor semplice: il nome serve all'intestazione e alla finestra del salvataggio. */
     private fun openEditor(uri: Uri) {
         val context = getApplication<Application>()
         viewModelScope.launch {
@@ -1887,11 +1516,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * L'editor completo: come [openEditor], e il nome serve per la stessa ragione.
-     *
-     * ⚠️ **Nessuna guardia di versione qui**: la mette [openInternal], che è la sola via per
-     * arrivarci. Ripetere il controllo in un secondo posto vorrebbe dire due risposte da tenere
-     * d'accordo.
+     * L'editor completo: come [openEditor]. La guardia di versione è in [openInternal], la sola
+     * via per arrivarci.
      */
     private fun openFullEditor(uri: Uri) {
         val context = getApplication<Application>()
@@ -1906,35 +1532,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Un'app di fuori.
+     * Un'app esterna.
      *
-     * ⚠️ **Se non parte si torna a CHIEDERE invece di dire soltanto che è andata male**: il
-     * caso normale è l'app disinstallata, e un avviso senza via d'uscita lascerebbe la voce
-     * 'Modifica' rotta per sempre, perché la scelta memorizzata punta a qualcosa che non
-     * c'è. Riaprire il selettore è la sola risposta che rimette in piedi la funzione.
+     * ⚠️ Se non parte (di solito perché è disinstallata) si riapre il selettore: la scelta
+     * memorizzata punta a un'app che non c'è, e un avviso da solo lascerebbe 'Modifica' guasta.
      *
-     * ⚠️⚠️ **LA COPIA DI SICUREZZA VALE ANCHE QUI, dalla 1.13** (domanda dell'utente: *vale
-     * solo per l'editor interno o per tutti quelli che supportano 'Modifica'?*). L'interruttore
-     * promette che una modifica non fa perdere l'originale, e chi lo accende non sta pensando
-     * a **quale** editor riscriverà il file: un'app di fuori lo riscrive esattamente come
-     * l'editor semplice, e prima della 1.13 era la sola via da cui l'originale se ne andava per
-     * sempre.
-     * ⚠️⚠️ **SI COPIA PRIMA DI LANCIARE, e l'ordine è tutto**: l'editor esterno può salvare
-     * un istante dopo essersi aperto, quindi una copia fatta 'intanto' arriverebbe a
-     * fotografare il file già riscritto, cioè salverebbe il nulla credendo di aver salvato
-     * qualcosa.
-     * ⚠️ **Una copia che non riesce ferma il giro**, come nell'editor semplice e per la stessa
-     * ragione: aprire lo stesso vorrebbe dire dare a chi si stava proteggendo proprio il
-     * rischio da cui si proteggeva, in silenzio.
-     * ⚠️ **Se poi l'editor non parte, la copia si ritira**: quel file non è stato toccato da
-     * nessuno, e lasciare nel cestino una copia di un'immagine ancora intatta è spazzatura
-     * che l'utente dovrebbe capire e buttare da sé.
-     * ⚠️⚠️ **DOVE NON C'È UN FILE NOSTRO NON SI BLOCCA NIENTE, e senza questa riga la
-     * modifica si sarebbe rotta su tutte le immagini prese dal web**: un indirizzo che non
-     * corrisponde a un file su disco (una pagina remota, un allegato di un'altra app) non ha
-     * un originale che noi possiamo perdere, quindi la promessa dell'interruttore è già
-     * mantenuta senza fare niente. Trattare quel caso come una copia fallita avrebbe negato
-     * l'editor proprio dove non c'era nulla da proteggere.
+     * ⚠️ La copia di sicurezza vale anche qui (`1.13`, domanda dell'utente): un'app esterna
+     * riscrive il file come l'editor semplice. Si copia prima di lanciare, perché l'editor può
+     * salvare subito dopo l'apertura. Una copia che non riesce ferma tutto, come nell'editor
+     * semplice; se poi l'editor non parte, la copia si toglie dal cestino. Un indirizzo che non è
+     * un file su disco (web, allegato di un'altra app) non ha un originale da perdere, quindi non
+     * blocca niente.
      */
     private fun openOutside(uri: Uri, id: String) {
         val context = getApplication<Application>()
@@ -1967,11 +1575,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * La fotografia mandata a un'app di fuori, finché non si torna.
+     * L'immagine mandata a un'app esterna, finché non si torna.
      *
-     * ⚠️ Serve perché un editor esterno **non risponde**: si apre con `startActivity` e non
-     * con una richiesta di esito, quindi l'unico momento in cui si può sapere che il giro è
-     * finito è quando la finestra di AIV riprende il fuoco.
+     * Un editor esterno si apre con `startActivity` e non restituisce un esito: si sa che ha
+     * finito quando la finestra di AIV riprende il fuoco.
      */
     private var editedOutside: Uri? = null
 
@@ -1979,33 +1586,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var keptOutside: File? = null
 
     /**
-     * Si torna da un'app di fuori: quello che ha modificato va riletto.
+     * Si torna da un'app esterna: quello che ha modificato va riletto.
      *
-     * ⚠️⚠️ **SENZA QUESTO SI TORNEREBBE ALLA FOTOGRAFIA DI PRIMA, e sembrerebbe che l'editor
-     * non abbia salvato**: l'indirizzo non cambia, quindi né la miniatura in memoria né
-     * l'immagine già decodificata hanno un motivo per rifarsi. È il difetto classico di chi
-     * apre un'app esterna e non ricarica al ritorno.
-     * ⚠️ **Si rilegge anche quando l'editor non ha salvato niente**, e va bene: costa una
-     * decodifica in un momento in cui non si sta facendo altro, mentre la via furba
-     * (guardare la data del file) sbaglierebbe su un editor che riscrive senza cambiarla.
+     * ⚠️ L'indirizzo non cambia, quindi senza questa rilettura miniatura e immagine decodificata
+     * resterebbero quelle di prima, e sembrerebbe che l'editor non abbia salvato. Si rilegge
+     * sempre: la data del file sbaglierebbe con un editor che riscrive senza cambiarla.
      *
-     * ⚠️⚠️ **QUI SI DECIDE SE LA COPIA RESTA, e la domanda non è 'l'editor ha salvato?' ma
-     * 'il file è cambiato?'**: un editor esterno non risponde niente, quindi la sola prova
-     * che esista è il file stesso. Chi apre 'Modifica' e poi esce senza toccare niente non
-     * deve trovarsi un doppione nel cestino a ogni ripensamento.
-     * ⚠️⚠️ **SI CONFRONTA IL CONTENUTO E NON LA DATA, ed è già scritto qui sopra perché
-     * questa funzione ci era cascata una volta**: la data di modifica la cambia anche chi
-     * riscrive gli stessi identici byte, e non la cambia affatto qualche editor che la
-     * conserva apposta. Sbaglierebbe in tutte e due le direzioni, e quella grave è buttare
-     * la copia di un file che invece è stato riscritto.
-     * ⚠️⚠️ **E DALLA 1.48 LA COPIA BUTTATA SI DICE** (istruzione dell'utente, ripetuta nel
-     * giro della `1.47`: *farlo sapere all'utente con una notifica toast*). Cancellarla in
-     * silenzio era giusto e insieme indistinguibile da una promessa non mantenuta: chi ha
-     * acceso l'interruttore va a cercare la copia nel cestino, non la trova, e non ha modo di
-     * sapere se manca perché non serviva o perché la protezione non ha funzionato.
-     * ⚠️ **L'avviso esce SOLO qui**, ed è l'unico posto in cui il caso esiste: l'editor
-     * semplice rifiuta un salvataggio che non cambia niente (`edit_nothing`), e la pulizia di un
-     * SVG si ferma prima di fare la copia quando non c'è niente da togliere.
+     * ⚠️ Qui si decide se la copia resta, confrontando il contenuto del file: un editor esterno
+     * non dice se ha salvato, e la data di modifica sbaglia nei due versi (cambia per gli stessi
+     * byte, e certi editor la conservano). Chi esce senza toccare niente non trova un doppione
+     * nel cestino, e un avviso glielo dice (`1.48`, richiesta dell'utente). È il solo caso:
+     * l'editor semplice rifiuta un salvataggio identico (`edit_nothing`).
      */
     private fun backFromOutside() {
         val uri = editedOutside ?: return
@@ -2030,17 +1621,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Se due file portano gli stessi identici byte.
+     * Se due file contengono gli stessi byte.
      *
-     * ⚠️ **La lunghezza si guarda per prima e chiude quasi tutti i casi**: un editor che
-     * salva cambia quasi sempre il peso del file, e leggerne due da capo a fondo per
-     * scoprirlo sarebbe lavoro buttato. Restano da leggere davvero i soli file che pesano
-     * uguale, che sono il caso raro.
-     * ⚠️ **A blocchi e non tutto in memoria**: qui non c'è il tetto che [Animations] si
-     * impone, perché una fotografia da centinaia di megabyte è rara ma non impossibile, e
-     * leggerne due intere per confrontarle la renderebbe una chiusura dell'app.
-     * ⚠️ **In caso di errore risponde 'diversi'**, che è la risposta prudente: la copia
-     * resta nel cestino, e il peggio che succede è un file di troppo da buttare a mano.
+     * La lunghezza si guarda per prima e decide quasi tutti i casi. Poi si legge a blocchi: un
+     * file da centinaia di megabyte è raro, e caricarne due in memoria chiuderebbe l'app. In caso
+     * di errore risponde 'diversi', che lascia la copia nel cestino.
      */
     private fun sameBytes(one: File, two: File): Boolean {
         if (one.length() != two.length()) return false
@@ -2075,29 +1660,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Salva quello che l'editor semplice ha in mano.
      *
-     * ⚠️⚠️ **GIRA NELL'AMBITO DEL MODELLO E NON DELLA SCHERMATA, ed è il punto**: il primo
-     * atto di un salvataggio riuscito è chiudere l'editor, cioè smontare la composizione che
-     * l'ha chiesto. Un lavoro appeso a quella si interromperebbe a metà scrittura, sul file vero.
-     * ⚠️ La miniatura si butta **solo dopo un esito buono**: il ritaglio fallito lascia il
-     * file com'era, e cancellarla costringerebbe a rigenerarla per niente.
+     * ⚠️ Gira nell'ambito del modello: un salvataggio riuscito chiude l'editor, e un lavoro legato
+     * alla sua composizione si interromperebbe a metà scrittura, sul file vero. La miniatura si
+     * cancella solo dopo un esito buono.
      */
     fun editSave(turns: Int, mirror: Boolean, crop: ImageEdit.Crop) {
         if (editorBusy) return
         val here = screen as? Screen.Editor ?: return
         val context = getApplication<Application>()
         /*
-         * ⚠️⚠️ **SI SOVRASCRIVE, E NON LO SI CHIEDE PIÙ, dalla 1.08** (richiesta dell'utente):
-         * la domanda proteggeva dalla sola cosa irreversibile dell'editor, e dalla `1.03`
-         * quella cosa non è più irreversibile, perché l'originale finisce nel cestino prima di
-         * essere riscritto.
-         * ⚠️⚠️ **LA COPIA RESTA PER I FORMATI CHE NON SI SANNO RISCRIVERE, e non è una
-         * scappatoia**: di un HEIC o di un AVIF si leggono i pixel e non si sanno rimettere
-         * dentro, quindi l'unica uscita è un JPEG, e un JPEG dentro un file che si chiama
-         * `.heic` mentirebbe per sempre sul proprio contenuto. Là esce una copia accanto,
-         * l'avviso finale lo dice, e non c'è niente da scegliere: lo decide il formato.
-         * ⚠️ **Il formato lo guarda il MODELLO e non la schermata**: quella sceglie che cosa
-         * tagliare e di quanto girare, che è il suo mestiere; come si chiama il file che ne
-         * esce è una faccenda di file.
+         * ⚠️ Si sovrascrive senza chiedere (`1.08`, richiesta dell'utente): l'originale va nel
+         * cestino prima di essere riscritto. Per i formati che si leggono e non si sanno
+         * riscrivere (HEIC, AVIF) l'uscita è un JPEG, che non può finire in un file `.heic`:
+         * esce una copia accanto, e l'avviso lo dice. Il formato lo guarda il modello, perché
+         * il nome del file non riguarda la schermata.
          */
         val way = if (ImageEdit.canOverwrite(here.name)) ImageEdit.Way.OVERWRITE
         else ImageEdit.Way.COPY
@@ -2133,18 +1709,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Salva quello che l'editor completo ha in mano.
      *
-     * ⚠️⚠️ **GIRA NELL'AMBITO DEL MODELLO, come l'altro e per la stessa ragione**: il primo atto
-     * di un salvataggio riuscito è chiudere l'editor, cioè smontare la composizione che l'ha
-     * chiesto, e un lavoro appeso a quella si fermerebbe a metà scrittura sul file vero. Qui pesa
-     * di piu: applicare il conto a venti megapixel dura secondi, non decimi.
-     * ⚠️ **Il formato di uscita lo decide la QUALITÀ e non questa funzione**: 'Senza perdita'
-     * scrive un PNG accanto, le altre due riscrivono il file dov'è. Il conto vive in
-     * `ImageEdit.saveLook`, che è il posto in cui vivono tutte le domande sui file.
+     * ⚠️ Gira nell'ambito del modello, come [editSave], e qui pesa di più: applicare il conto a
+     * venti megapixel dura secondi. Il formato di uscita lo decide la qualità in
+     * `ImageEdit.saveLook`: 'Senza perdita' scrive un PNG accanto, le altre due riscrivono il
+     * file dov'è.
      *
-     * @param beside il **tocco lungo** su 'Salva', dalla `2.58`: un file nuovo accanto
-     * all'originale invece di riscriverlo. ⚠️ **La notifica non ha un ramo in più**: quale delle
-     * due frasi dire lo decide già il confronto qui sotto, cioè se il file scritto è quello di
-     * partenza, e quel conto vale per tutte e tre le strade che scrivono accanto.
+     * @param beside il tocco lungo su 'Salva' (`2.58`): un file nuovo accanto all'originale. La
+     * frase dell'avviso la decide il confronto qui sotto, se il file scritto è quello di partenza.
      */
     fun lookSave(look: Look, beside: Boolean = false) {
         if (editorBusy) return
@@ -2164,10 +1735,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             when (esito) {
                 is ImageEdit.Result.Failed -> notice = esito.why
                 is ImageEdit.Result.Done -> {
-                    /*
-                     * ⚠️ **La miniatura si butta solo quando si è riscritto SOPRA**: con 'Senza
-                     * perdita' esce un file nuovo, e quella di partenza è ancora giusta.
-                     */
+                    // La miniatura si cancella solo se si è riscritto il file di partenza.
                     val sopra = esito.file.absolutePath ==
                         FileTree.fileOf(context, here.uri)?.absolutePath
                     notice = when {
@@ -2187,11 +1755,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno.
+     * Si entra nella ricerca col campo vuoto.
      *
-     * ⚠️ **I due argomenti sono il confine**, e senza di loro si cerca in tutta la galleria come
-     * si è sempre fatto: li passa il menu del FAB di una cartella, che è l'unico posto da cui si
-     * chiede una ricerca ristretta.
+     * I due argomenti restringono la ricerca a una cartella, e li passa solo il menu del FAB di
+     * una cartella; senza, si cerca in tutta la galleria.
      */
     fun openSearch(bucket: Long? = null, name: String? = null) {
         gridFilter = MediaKind.ALL
@@ -2206,24 +1773,19 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il testo cambia, e i risultati lo seguono dopo una pausa.
      *
-     * ⚠️⚠️ **La PAUSA non è cortesia verso il database: è quello che rende la ricerca
-     * scrivibile.** Senza, ogni lettera lancerebbe una query su tutta la galleria, e su
-     * `panorama` sarebbero otto interrogazioni di cui sette buttate, con la tastiera che
-     * rallenta mentre si scrive. Con la pausa parte solo l'ultima.
-     * ⚠️ **Il testo si aggiorna SUBITO e i risultati dopo**, che è l'unico ordine
-     * accettabile: un campo di testo che aspetta il database per mostrare la lettera
-     * appena battuta sembra rotto.
+     * ⚠️ Senza la pausa ogni lettera lancerebbe una query su tutta la galleria (otto per
+     * `panorama`), e la tastiera rallenterebbe. Il testo invece si aggiorna subito, o il campo
+     * sembrerebbe guasto.
      */
     fun search(text: String) {
         query = text
         val context = getApplication<Application>()
         val hidden = settings?.hiddenFolders.orEmpty()
-        // ⚠️ Il confine si legge dalla schermata a ogni ricerca e non si tiene in un campo: è un
-        // dato della schermata (vedi [Screen.Search]), e una seconda copia direbbe il falso il
-        // giorno che si passa da una ricerca ristretta a una globale.
+        // Il confine si legge dalla schermata a ogni ricerca (vedi [Screen.Search]): una seconda
+        // copia sbaglierebbe passando da una ricerca ristretta a una globale.
         val entro = (screen as? Screen.Search)?.bucket
-        // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista indicherebbe una
-        // posizione della lista di prima.
+        // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima immagine vista indicherebbe
+        // una posizione della lista di prima.
         gridVisited = false
         relist {
             delay(SEARCH_PAUSE_MS)
@@ -2232,25 +1794,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Rilegge la cartella aperta, dopo che le sue foto sono cambiate sul disco.
+     * Rilegge la griglia aperta, dopo che i suoi file sono cambiati sul disco.
      *
-     * ⚠️⚠️ **NON PASSA DA [openGrid], ed è la differenza che conta**: quella riparte da
-     * zero, cioè spegne la lista, ferma il caricamento e riporta la griglia in cima.
-     * Dopo una copia o una rinomina la persona sta guardando un punto preciso della
-     * cartella, e farla saltare all'inizio sarebbe farle perdere il posto per una
-     * rilettura che dura un istante.
-     * ⚠️ **La lista NON si azzera prima**: mostrare la rotellina al posto delle miniature
-     * per il tempo di una query darebbe un lampeggio, e le foto di prima sono sbagliate
-     * per pochi decimi di secondo, non inguardabili.
-     * ⚠️ **L'anello dell'ultima guardata invece si spegne**: le righe del MediaStore
-     * cambiano numero quando i file si spostano o si rinominano, quindi quell'indice
-     * indicherebbe una fotografia a caso.
+     * ⚠️ Non passa da [openGrid], che riporta la griglia in cima: dopo una copia o una rinomina la
+     * persona perderebbe il punto in cui era. La lista non si svuota prima, o le miniature
+     * lampeggerebbero; l'anello dell'ultima vista invece si spegne, perché le righe del
+     * MediaStore cambiano posizione quando i file si spostano o si rinominano.
      */
     fun reloadGrid() {
-        // ⚠️ Dalla 0.59 le griglie sono DUE, la cartella e i risultati di una ricerca, e
-        // rileggere vuol dire due cose diverse. Rifare la ricerca dopo aver rinominato o
-        // spostato è anzi il caso in cui serve di più: i nomi appena cambiati decidono chi
-        // resta nell'elenco.
+        // Le griglie sono tre: la cartella, i risultati di una ricerca (che dopo una rinomina
+        // cambiano) e il cestino.
         gridVisited = false
         val context = getApplication<Application>()
         when (val here = screen) {
@@ -2263,8 +1816,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                     Folder.byName(context, text, hidden, entro, settings?.folderSelection ?: FolderSelection()).atSequenceStart()
                 }
             }
-            // ⚠️ Il cestino si rilegge dal disco e non dal MediaStore, che là non guarda:
-            // dopo un ripristino o uno svuotamento è l'unica cosa che dice la verità.
+            // Il cestino si rilegge con [binLookup], non dalla query delle cartelle.
             Screen.Bin -> relist { binLookup(context) }
             else -> Unit
         }
@@ -2273,14 +1825,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Le cartelle di immagini del telefono, e `null` finché la prima lettura non è finita.
      *
-     * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `1.46`, per la stessa ragione di
-     * [treePath]**: dalla casa si esce ogni volta che si apre un'immagine, e un ricordo dentro
-     * il composabile muore con lui. Prima l'elenco era un `remember` della schermata, quindi
-     * ogni ritorno dal visualizzatore rifaceva la query sul MediaStore e rimetteva la rotella
-     * al posto delle copertine, per riottenere l'elenco di un attimo prima.
-     * ⚠️ **Non filtrato**: le cartelle nascoste le toglie la schermata, perché sono una
-     * preferenza e non un fatto del disco. Così nasconderne una si vede all'istante, senza
-     * chiedere niente al MediaStore.
+     * ⚠️ Vive nel modello, come [treePath] (`1.46`): dalla schermata iniziale si esce a ogni
+     * immagine aperta, e un `remember` della schermata rifarebbe la query a ogni ritorno. Non è
+     * filtrato: le nascoste le toglie la schermata, così nasconderne una si vede subito senza
+     * interrogare il MediaStore.
      */
     var buckets: List<Folder.Bucket>? by mutableStateOf(null)
         private set
@@ -2288,11 +1836,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Per quale stato delle cose l'elenco qui sopra è stato letto: permesso e [outsideStamp].
      *
-     * ⚠️⚠️ **È QUESTO A RENDERE LA LETTURA RARA, non il fatto che il valore viva nel
-     * modello**: la schermata rinasce a ogni ritorno, quindi il suo effetto di avvio riparte
-     * comunque, e senza un confronto rifarebbe la query esattamente come prima.
-     * ⚠️ **Porta anche il permesso dell'ultima volta**, e serve a [outsideChange]: quando una
-     * notizia arriva mentre la casa è in scena, nessuno gliela può chiedere.
+     * ⚠️ È questo confronto a rendere la lettura rara: l'effetto di avvio della schermata riparte
+     * a ogni ritorno. Il permesso dell'ultima volta serve a [outsideChange], che arriva quando la
+     * schermata iniziale è già visibile e nessuno lo può chiedere.
      */
     private var bucketsFor: Pair<Boolean, Int>? = null
 
@@ -2301,13 +1847,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il colore scelto per ogni cartella che ne ha uno, per la schermata iniziale.
      *
-     * ⚠️⚠️ **SI LEGGE COL SUO ELENCO E SI AGGIORNA A MANO, dalla `1.87`**: la lettura vive in
-     * [readBuckets], che però ha una guardia e non riparte al ritorno da una cartella; quindi un
-     * colore appena scelto arriverebbe alla casa solo dopo un riavvio. A chiudere il buco è
-     * [tintFolder], che scrive anche qui, com'è già per [tint].
-     * ⚠️ **Vuota finché [FolderColour] è [FolderColour.NONE]** non sarebbe un risparmio da
-     * cercare: la lettura è una riga sola dell'archivio, e legarla all'impostazione vorrebbe
-     * dire ricaricare l'elenco quando la si cambia.
+     * ⚠️ Si legge con l'elenco e si aggiorna a mano (`1.87`): [readBuckets] ha una guardia e non
+     * riparte al ritorno da una cartella, quindi [tintFolder] scrive anche qui. Si legge anche
+     * con [FolderColour.NONE]: è una riga sola dell'archivio, e legarla all'impostazione vorrebbe
+     * dire ricaricare l'elenco quando cambia.
      */
     var folderTints: Map<Long, Int> by mutableStateOf(emptyMap())
         private set
@@ -2315,9 +1858,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * La copertina scelta a mano per ogni cartella che ne ha una, per la schermata iniziale.
      *
-     * ⚠️ **Vale parola per parola la nota di [folderTints]**, letta con la sua stessa guardia e
-     * aggiornata a mano da [coverFolder]: senza quella scrittura, una copertina appena scelta
-     * arriverebbe alla casa solo dopo un riavvio.
+     * Come [folderTints]: stessa guardia, e la aggiorna a mano [applyCover].
      */
     var folderCovers: Map<Long, Uri> by mutableStateOf(emptyMap())
         private set
@@ -2325,18 +1866,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Rilegge le cartelle, ma solo se è cambiato qualcosa che le riguarda.
      *
-     * ⚠️ **Le chiavi sono due e sono tutte quelle che contano**: il permesso, senza il quale
-     * non c'è niente da leggere, e [outsideStamp], cioè la notizia del MediaStore che l'app
-     * ascolta già. Le cartelle nascoste **non** sono fra le chiavi, perché non cambiano quello
-     * che c'è sul disco.
+     * Le chiavi sono il permesso e [outsideStamp], la notizia del MediaStore. Le cartelle
+     * nascoste non lo sono: non cambiano quello che c'è sul disco.
      */
     fun readBuckets(granted: Boolean) {
         val key = granted to outsideStamp
         if (bucketsFor == key) return
         bucketsFor = key
         val context = getApplication<Application>()
-        // ⚠️ La lettura precedente si annulla: due notizie ravvicinate darebbero due query in
-        // volo, e l'ultima a rispondere non è detto sia l'ultima partita.
+        // ⚠️ La lettura precedente si annulla: con due query in corso, l'ultima a rispondere
+        // può non essere l'ultima partita.
         bucketsJob?.cancel()
         bucketsJob = viewModelScope.launch {
             val letti = if (granted) Folder.buckets(context) else emptyList()
@@ -2348,57 +1887,47 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             }
             buckets = letti
             /*
-             * ⚠️⚠️ **QUI SI POTANO LE COPERTINE ORFANE, E QUESTO È L'UNICO MOMENTO IN CUI SI PUÒ**
-             * (sua domanda, 2026-09-08: *forse dopotutto serve un sistema che una volta alla
-             * settimana verifichi che non siano memorizzate copertine per cartelle che non
-             * esistono più*): il `BUCKET_ID` viene dal percorso, quindi una rinomina fatta da
-             * un'altra app lascia in casa un file appeso a una cartella che non esiste più. Serve
-             * l'elenco **vero** dei bucket, ed è quello che si è appena letto.
-             * ⚠️ **Non è un lavoro programmato**, che è la sua regola sul cestino (`d-cestino-chiusa`:
-             * *nulla deve avvenire al di fuori dell'app aperta in primo piano*). Il periodo di
-             * grazia, che è quello che rende sicura una potatura fatta a ogni lettura, vive su
-             * [FolderCovers.sweep].
-             * ⚠️ **In coda alla lettura e non in un lancio suo**: dipende dal suo risultato, e con
-             * un elenco vuoto non fa niente.
+             * ⚠️ Qui si potano le copertine orfane (richiesta dell'utente): il `BUCKET_ID` viene
+             * dal percorso, e una rinomina fatta da un'altra app lascia una copertina legata a una
+             * cartella che non esiste più. Serve l'elenco vero dei bucket, appena letto. Non è un
+             * lavoro programmato (regola `d-cestino-chiusa`: niente fuori dall'app in primo
+             * piano); il periodo di grazia è su [FolderCovers.sweep].
              */
             FolderCovers.sweep(context, letti.map { it.id }.toSet())
         }
-        // ⚠️ In un lancio a sé e non in coda all'altro, come per i due numeri di una cartella:
-        // le tinte sono una riga di preferenze e arrivano subito, mentre l'elenco passa da una
-        // query al MediaStore. In coda, una cartella colorata si vedrebbe grigia per il tempo
-        // di quella query.
+        // ⚠️ Tinte e copertine in lanci a sé: arrivano prima dell'elenco, che passa dal
+        // MediaStore, e in coda una cartella colorata si vedrebbe grigia per il tempo della
+        // query.
         viewModelScope.launch { folderTints = FolderTints.all(context) }
-        // ⚠️ In un lancio suo, per la stessa ragione delle tinte: qui si legge una cartella sul
-        // disco, che è un'altra attesa da quella della query al MediaStore.
         viewModelScope.launch { folderCovers = FolderCovers.all(context) }
     }
 
     /**
-     * The Feed of the home, and `null` until the first reading ends. See [Feed].
+     * Il Feed della schermata iniziale, e `null` finché la prima lettura non è finita. Vedi
+     * [Feed].
      *
-     * ⚠️ **It lives here for the reason of [buckets]**: the home goes away at every picture
-     * opened, and coming back must find the stream where it was, not a spinner.
+     * Vive nel modello per la ragione di [buckets]: tornando da un'immagine il flusso deve essere
+     * dov'era.
      */
     var feed: Feed.Page? by mutableStateOf(null)
         private set
 
-    /** What [feed] was read for: permission, [outsideStamp], folders, date and [peeking]. */
+    /** Per che cosa è stato letto [feed]: permesso, [outsideStamp], cartelle, data e [peeking]. */
     private var feedFor: List<Any>? = null
 
     /**
-     * The last arguments of [readFeed], for [outsideChange], which cannot ask the screen, and `null`
-     * while the Feed is not on screen ([leaveFeed]).
+     * Gli ultimi argomenti di [readFeed], per [outsideChange], che non li può chiedere alla
+     * schermata; `null` mentre il Feed non è visibile ([leaveFeed]).
      */
     private var feedArgs: Triple<Boolean, FolderSelection, FeedDate>? = null
 
     /**
-     * The home has left the Feed (another view, or the menu Start in front of it).
+     * La schermata iniziale ha lasciato il Feed (un'altra vista, o il Menu 'Start' davanti).
      *
-     * ⚠️⚠️ **SINCE 6.28, AND IT IS WHAT KEEPS THE PROMISE OF `FolderScreen`** (finding D16 of the 6.25
-     * review): [feedArgs] was written at the first reading and never cleared, so from then on every
-     * news from the disk, with the home in the grid, the list or the tree, read again every picture of
-     * the phone (measured in `FeedFuoriPlayTest`). Back on the Feed the screen asks again, and the key
-     * of [readFeed], which holds [outsideStamp], reads it if something changed meanwhile.
+     * ⚠️ `6.28`, rilievo D16: senza azzerare [feedArgs], ogni notizia del disco rileggerebbe
+     * tutte le immagini del telefono anche con un'altra vista (presidiato da
+     * `FeedFuoriPlayTest`). Tornando al Feed la schermata richiede la lettura, e la chiave di
+     * [readFeed], che contiene [outsideStamp], la rifà se nel frattempo è cambiato qualcosa.
      */
     fun leaveFeed() {
         feedArgs = null
@@ -2407,8 +1936,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var feedJob: Job? = null
 
     /**
-     * Reads the Feed again whatever its key says, after an operation of its own selection has
-     * changed the files (see [readFeed]).
+     * Rilegge il Feed senza guardare la chiave, dopo che un'operazione sulla sua selezione ha
+     * cambiato i file (vedi [readFeed]).
      */
     fun rereadFeed() {
         feedFor = null
@@ -2416,16 +1945,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Reads the Feed again, but only when something it depends on has changed.
+     * Rilegge il Feed, ma solo quando è cambiato qualcosa da cui dipende.
      *
-     * ⚠️ **Unlike [readBuckets], the folders and the date are keys**: hiding a folder or choosing
-     * the other date changes which pictures the stream holds and in what order, so here they are
-     * a reading and not a filter.
-     * ⚠️ **The old stream stays on screen until the new one arrives**: changing the date does not
-     * flash a spinner over pictures that are still there.
-     * ⚠️ **[peeking] is read here and not passed**, so no caller can pass a stale one; the screen
-     * calls again when it changes, the minute that ends it included, because it is a key of the
-     * screen's reading.
+     * ⚠️ Al contrario di [readBuckets], cartelle e data sono chiavi: cambiano quali immagini il
+     * flusso contiene e in che ordine. Il flusso vecchio resta visibile finché arriva il nuovo.
+     * [peeking] si legge qui, così nessuno può passarne uno vecchio; la schermata richiama quando
+     * cambia, perché è una chiave anche della sua lettura.
      */
     fun readFeed(granted: Boolean, selection: FolderSelection, date: FeedDate) {
         feedArgs = Triple(granted, selection, date)
@@ -2443,12 +1968,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Dov'è la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
-     * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `0.84`**: si esce dalla casa ogni volta che
-     * si apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
-     * dentro il composabile si azzererebbe a ogni andata e ritorno, riportando in cima dopo ogni
-     * foto guardata, che è il difetto che rende inutilizzabile un gestore di file.
-     * ⚠️ **Non si salva nelle impostazioni**, ed è voluto: è lo stato di una sessione, non una
-     * preferenza. Riaprendo l'app si riparte dalla radice, che è dove si sa di essere.
+     * ⚠️ Vive nel modello: si esce dalla schermata iniziale a ogni immagine aperta, e uno stato
+     * del composabile riporterebbe in cima a ogni ritorno. Non si salva: riaprendo l'app si
+     * riparte dalla radice.
      */
     var treePath: String? by mutableStateOf(null)
         private set
@@ -2457,9 +1979,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * Se dalla cartella corrente si può risalire, cioè se il gesto Indietro ha un posto dove
      * portare.
      *
-     * ⚠️⚠️ **SI CALCOLA QUANDO SI NAVIGA e non a ogni lettura**: dirlo richiede di risolvere i
-     * collegamenti dei percorsi (`canonicalPath`), che è I/O sul disco, e una proprietà
-     * calcolata lo farebbe a ogni ricomposizione, cioè sul filo principale mentre si scorre.
+     * ⚠️ Si calcola quando si naviga: richiede `canonicalPath`, che legge il disco, e una
+     * proprietà calcolata lo farebbe a ogni ricomposizione sul thread principale.
      */
     var treeClimbing: Boolean by mutableStateOf(false)
         private set
@@ -2478,18 +1999,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Le memorie, lette una volta sola.
-     *
-     * ⚠️ Pigra e non nel costruttore: l'elenco delle memorie si chiede al sistema, e chi non
-     * apre mai quella vista non deve pagarlo all'avvio dell'app.
+     * Le memorie, lette una volta sola e solo quando servono: chi non apre mai quella vista non
+     * paga la domanda al sistema all'avvio.
      */
     private val treeRoots: List<Tree.Root> by lazy { Tree.roots(getApplication()) }
 
     /**
-     * Se [path] è una delle memorie del telefono o una cartella al suo interno, dalla `6.29`.
+     * Se [path] è una delle memorie del telefono o una cartella al suo interno (`6.29`).
      *
-     * ⚠️ **Si confrontano i percorsi canonici**, cioè senza `..` e senza collegamenti: un percorso
-     * come `/storage/emulated/0/../../data` comincia con la memoria ma porta altrove.
+     * ⚠️ Si confrontano i percorsi canonici, senza `..` e senza collegamenti:
+     * `/storage/emulated/0/../../data` comincia con la memoria ma conduce altrove.
      */
     internal fun insideRoots(path: String): Boolean {
         val asked = runCatching { File(path).canonicalPath }.getOrNull() ?: return false
@@ -2500,18 +2019,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Una fotografia toccata nella vista delle cartelle di sistema.
+     * Un'immagine toccata in 'Cartelle di sistema' o nel Feed (`6.02`).
      *
-     * ⚠️⚠️ **LA SERIE ARRIVA GIÀ FATTA da chi ha disegnato l'elenco, e non si rilegge**: così
-     * l'ordine che si sfoglia è **esattamente** quello che si aveva davanti agli occhi, per
-     * costruzione. Rileggere la cartella qui avrebbe voluto dire due letture e la possibilità
-     * che la seconda dia un elenco diverso dalla prima.
-     * ⚠️ **Non tocca `viewerBack`**: la destinazione del ritorno resta la casa, e la casa si
-     * ritrova nella sua terza vista, alla cartella giusta, perché [treePath] vive nel modello.
-     * ⚠️ **Nessun anello dell'ultima vista** (`gridVisited`): quello è il segno della griglia
-     * di una cartella, e qui la griglia non c'è.
-     * ⚠️ **From 6.02 the Feed opens its pictures here too**: the same case, a series drawn by the
-     * home and the home as the place to go back to.
+     * ⚠️ La serie arriva già fatta da chi ha disegnato l'elenco, e non si rilegge: l'ordine che si
+     * sfoglia è quello che si aveva davanti. Il ritorno va alla schermata iniziale, che ritrova
+     * la cartella perché [treePath] vive nel modello. Nessun anello dell'ultima vista
+     * (`gridVisited`): qui la griglia non c'è.
      */
     fun openFromTree(items: List<Uri>, index: Int) {
         val whole = Folder.Series(items, index)
@@ -2522,26 +2035,22 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * La foto toccata nella griglia.
+     * L'immagine toccata nella griglia.
      *
-     * ⚠️ [index] è la posizione nell'ordine di **lettura**, cioè quello che la griglia
-     * mostra: è la stessa lista, quindi la terza miniatura apre la terza foto della
-     * sequenza, e non c'è nessuna conversione da fare.
+     * [index] è la posizione nell'ordine di lettura, lo stesso che la griglia mostra: nessuna
+     * conversione.
      */
     fun openFromGrid(index: Int) {
-        // ⚠️ Vale per tutt'e due le griglie, la cartella e i risultati: il gesto è lo
-        // stesso, e la destinazione del ritorno è la schermata da cui si è partiti.
+        // Vale per le tre griglie (cartella, ricerca, cestino): il ritorno va alla schermata da
+        // cui si è partiti.
         val grid = screen.takeIf { it is Screen.Grid || it is Screen.Search || it is Screen.Bin }
             ?: return
         val current = series ?: return
-        // Prima di cambiare schermata: entrare nel visualizzatore e poi accorgersi che
-        // non c'è niente da mostrare lascerebbe una schermata vuota al posto della
-        // griglia che c'era.
+        // Prima di cambiare schermata, o un indice vuoto lascerebbe una schermata vuota.
         if (current.at(index) == null) return
         viewerBack = grid
-        // ⚠️ Si scrive QUI, nel momento del tocco, e non al ritorno: questo è il punto in
-        // cui è certo che una foto della griglia si sta aprendo. La `0.34` lo scriveva
-        // all'indietro, ed è il motivo per cui l'anello non compariva.
+        // ⚠️ Si scrive al tocco, il solo momento in cui è certo che un'immagine della griglia si
+        // sta aprendo.
         gridVisited = true
         screen = Screen.Viewer
         showAt(current, index, Arrival.TAPPED)
@@ -2550,10 +2059,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Fuori dalla griglia: si torna all'elenco delle cartelle, da dove ci si è arrivati.
      *
-     * ⚠️ **Passa da [HOME] come gli altri sette ritorni**, e fino alla `1.80` era il solo a
-     * riscrivere quel valore a mano: il KDoc della costante è scritto apposta per questo caso, e
-     * questo gli sfuggiva. Il difetto era **latente**, cioè oggi non si vedeva niente, che è
-     * esattamente la forma che quella costante esiste per evitare.
+     * Passa da [HOME], come gli altri ritorni (vedi il suo KDoc).
      */
     fun leaveGrid() {
         screen = HOME
@@ -2563,25 +2069,19 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Indietro dal visualizzatore, dove [viewerBack] dice.
      *
-     * ⚠️⚠️ **Tornando a una griglia la serie NON si butta**, ed è la ragione per cui
-     * questa funzione non passa da [goHome]: è la stessa cartella, quindi la griglia
-     * deve ritrovarla pronta invece di rileggerla, e con lei l'indice della foto da cui
-     * si esce, che è dove la griglia si riposiziona.
+     * ⚠️ Tornando a una griglia la serie resta, quindi non si passa da [goHome]: la griglia la
+     * ritrova pronta, con l'indice dell'immagine da cui si esce, dove si riposiziona. Vale anche
+     * per la ricerca, che ritrova risultati e testo.
      */
     fun backFromViewer() {
         when (val dest = viewerBack) {
             null -> Unit
-            // ⚠️ La ricerca sta qui accanto alla cartella per la stessa ragione: i suoi
-            // risultati sono costati una query e vanno ritrovati pronti, col testo ancora
-            // nel campo. Passando da `goHome` si tornerebbe a un elenco vuoto.
             is Screen.Grid, is Screen.Search, Screen.Bin -> {
                 screen = dest
                 source = null
                 stopLoad()
-                // ⚠️ **Dopo** l'assegnazione di `screen`, e non prima: [reloadGrid] guarda
-                // lì per sapere quale delle tre griglie rileggere, e chiamata un attimo
-                // prima leggerebbe ancora `Screen.Viewer`, cioè il suo ramo che non fa
-                // niente. Vedi [afterFileAdded].
+                // ⚠️ Dopo l'assegnazione di `screen`: [reloadGrid] guarda lì per sapere quale
+                // griglia rileggere, e prima troverebbe `Screen.Viewer`. Vedi [afterFileAdded].
                 if (gridStale) {
                     gridStale = false
                     reloadGrid()
@@ -2592,20 +2092,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Mentre si guardava una fotografia è comparso un file nuovo nella cartella.
+     * Mentre si guardava un'immagine è comparso un file nuovo nella cartella.
      *
-     * ⚠️⚠️ **NON SI RILEGGE SUBITO, e non è pigrizia**: la griglia in questo momento non è in
-     * scena, e rileggerla vorrebbe dire una query per una schermata che nessuno sta
-     * guardando, mentre si sta guardando altro. Si segna soltanto che è vecchia, e la
-     * rilettura si paga al ritorno, che è quando serve.
-     * ⚠️⚠️ **E soprattutto NON si passa da [afterFileChanged], che sposterebbe la fotografia
-     * sotto gli occhi**: quella conserva la **posizione** nella cartella, e un file nuovo
-     * entra in cima all'ordine per data, quindi la stessa posizione dopo l'aggiunta è la foto
-     * di prima. Chi esporta un fotogramma si ritroverebbe davanti un'altra immagine, senza
-     * aver toccato niente.
-     * ⚠️ Chi la chiama: l'esportazione di un fotogramma (`AnimatedBar`) e 'Converti/Esporta'
-     * (`ConvertDialog`). Difetto riscontrato dall'utente il 2026-09-01: il fotogramma salvato
-     * non compariva finché non si usciva dalla cartella e ci si rientrava.
+     * ⚠️ Non si rilegge subito: la griglia non è visibile, e la rilettura si fa al ritorno. Non si
+     * passa da [afterFileChanged], che conserva la posizione nella cartella: un file nuovo entra in
+     * cima all'ordine per data, e la stessa posizione mostrerebbe un'altra immagine.
+     * La chiamano l'esportazione di un fotogramma (`AnimatedBar`) e 'Converti/Esporta'
+     * (`ConvertDialog`).
      */
     fun afterFileAdded() {
         gridStale = true
@@ -2617,21 +2110,15 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /*
      * ══════════════ Quando i file cambiano per mano di qualcun altro ══════════════
      *
-     * ⚠️⚠️ **NASCE DA UN RISCONTRO PRECISO** (utente, 2026-09-01: *i file che arrivano in
-     * Download da NearDrop o da Blip hanno ancora bisogno di uscire e rientrare nella
-     * cartella. Serve un tasto Aggiorna?*). La risposta è **no, non serve**, e vale dire
-     * perché: un tasto Aggiorna chiede a chi guarda di sapere che l'elenco è vecchio, cioè
-     * proprio la cosa che non può sapere. Il MediaStore invece **avvisa** quando qualcuno
-     * scrive, e ascoltarlo costa un osservatore.
+     * Niente tasto 'Aggiorna': chiederebbe a chi guarda di sapere che l'elenco è vecchio. Il
+     * MediaStore avvisa quando qualcuno scrive, e ascoltarlo costa un osservatore.
      */
 
     /**
      * Quante volte il disco è cambiato da fuori, da quando l'app è aperta.
      *
-     * ⚠️ **Un contatore e non un booleano**: le schermate che leggono da sé (la casa e
-     * l'albero delle cartelle) lo usano come chiave di un `LaunchedEffect`, e una chiave
-     * deve **cambiare** a ogni notizia. Un `true` che resta `true` non farebbe ripartire
-     * niente dalla seconda volta in poi.
+     * Un contatore e non un booleano: le schermate che leggono da sé lo usano come chiave di un
+     * `LaunchedEffect`, che deve cambiare a ogni notizia.
      */
     var outsideStamp: Int by mutableStateOf(0)
         private set
@@ -2640,12 +2127,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * Se la griglia sta facendo qualcosa che una rilettura rovinerebbe: oggi, una selezione
      * viva.
      *
-     * ⚠️⚠️ **SENZA QUESTO L'AGGIORNAMENTO AUTOMATICO SAREBBE UN DANNO**: la selezione della
-     * griglia è `remember(items)`, quindi una lista nuova la azzera. Chi ha spuntato trenta
-     * foto e riceve un file da fuori se le vedrebbe sparire tutte, senza aver toccato
-     * niente, e non capirebbe mai perché. Meglio un elenco vecchio di qualche secondo.
-     * ⚠️ Il debito non si perde: appena la selezione si scioglie, la rilettura rimandata si
-     * paga qui sotto.
+     * ⚠️ La selezione della griglia è `remember(items)`, quindi una lista nuova la azzera: un file
+     * arrivato da fuori cancellerebbe trenta immagini spuntate. La rilettura si rimanda, e si fa
+     * qui sotto quando la selezione si scioglie.
      */
     var gridBusy: Boolean = false
         set(value) {
@@ -2657,11 +2141,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
 
     /**
-     * Se nel Feed c'è una selezione viva, dalla `6.27` (rilievo D15 della revisione della 6.25).
+     * Se nel Feed c'è una selezione in corso (`6.27`, rilievo D15).
      *
-     * ⚠️ **È [gridBusy] per il Feed**: una pagina nuova è una chiave nuova del gesto di selezione,
-     * quindi un trascinamento in corso finiva sotto il dito, e le immagini arrivate in cima
-     * spostavano tutte le altre. La rilettura rimandata si fa quando la selezione si scioglie.
+     * ⚠️ È [gridBusy] per il Feed: una pagina nuova è una chiave nuova del gesto di selezione, e
+     * interromperebbe un trascinamento; le immagini arrivate in cima sposterebbero le altre. La
+     * rilettura rimandata si fa quando la selezione si scioglie.
      */
     var feedBusy: Boolean = false
         set(value) {
@@ -2676,21 +2160,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var feedStale = false
 
     /**
-     * L'orecchio sul MediaStore, acceso finché il modello vive.
+     * L'osservatore del MediaStore, attivo per tutta la vita del modello.
      *
-     * ⚠️ **`notifyForDescendants` acceso**: l'indirizzo registrato è quello della collezione,
-     * e le notizie arrivano su quello della singola riga. Senza, non si sentirebbe niente.
-     * ⚠️ **`Files` e non `Images`**: l'app sfoglia anche i video, e una copia in arrivo può
-     * essere l'uno o l'altro.
-     * ⚠️⚠️ **SI REGISTRA QUI E NON NEL BLOCCO `init`, e non è una preferenza di stile**: le
-     * proprietà si inizializzano nell'ordine in cui sono scritte, e `init` sta più in su,
-     * quindi da là questo osservatore non esiste ancora ('Variable must be initialized', che
-     * è un errore di compilazione e non un difetto in agguato). Registrandosi da sé, il
-     * momento giusto è garantito dal punto in cui è scritto.
-     * ⚠️ **Acceso per tutta la vita del modello e non a schermata**: il modello sopravvive
-     * alla rotazione e ai passaggi fra le schermate, mentre un osservatore acceso e spento a
-     * ogni passaggio perderebbe proprio le notizie che arrivano mentre si cambia pagina. Chi
-     * le riceve decide da sé se gli servono.
+     * ⚠️ `notifyForDescendants` acceso: si registra la collezione, e le notizie arrivano sulla
+     * singola riga. `Files` e non `Images`, perché arrivano anche video. Si registra qui e non
+     * in `init`, che è più in alto: le proprietà si inizializzano in ordine, e da là
+     * l'osservatore non esisterebbe ancora (errore di compilazione). Attivo per tutta la vita
+     * del modello, perché acceso e spento a ogni schermata perderebbe le notizie dei passaggi.
      */
     private val outsideWatch = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean, uri: Uri?) = outsideChange()
@@ -2702,15 +2178,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var outsideJob: Job? = null
 
     /**
-     * Qualcuno ha scritto sul disco: si rilegge quello che è in scena.
+     * Qualcuno ha scritto sul disco: si rilegge quello che è visibile.
      *
-     * ⚠️⚠️ **CON UNA PAUSA, e non a ogni notizia**: una copia di venti file arriva come venti
-     * notizie in due secondi, e senza la pausa sarebbero venti query di fila mentre si
-     * guarda. Il timer riparte a ogni notizia, quindi si legge una volta sola, quando il
-     * traffico si ferma.
-     * ⚠️ **Anche le nostre scritture passano di qui**, e va bene così: la rilettura che segue
-     * una conversione o un'esportazione è già chiesta da chi la fa, e questa arriva dopo,
-     * trova le stesse righe, e non si vede.
+     * ⚠️ Con una pausa che riparte a ogni notizia: una copia di venti file dà venti notizie in due
+     * secondi, e si legge una volta sola. Passano di qui anche le scritture dell'app: la
+     * rilettura che segue trova le stesse righe, e non si vede.
      */
     private fun outsideChange() {
         outsideJob?.cancel()
@@ -2718,24 +2190,19 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             delay(OUTSIDE_PAUSE_MS)
             outsideStamp++
             when {
-                // ⚠️ Il cestino NON si rilegge da qui: le sue righe stanno nella cartella
-                // privata dell'app, dove il MediaStore non guarda, quindi una notizia che lo
-                // riguarda non arriva mai e una che arriva non parla di lui.
+                // Il cestino non si rilegge da qui: in AIV GitHub vive nella cartella privata
+                // dell'app, che il MediaStore non guarda.
                 screen == Screen.Bin -> Unit
                 screen.isGrid() -> if (gridBusy) gridStale = true else reloadGrid()
-                // ⚠️ Mentre si guarda una fotografia si segna e basta, per la stessa ragione
-                // di [afterFileAdded]: la griglia non è in scena, e la si paga al ritorno.
+                // Mentre si guarda un'immagine si segna soltanto, come in [afterFileAdded].
                 screen == Screen.Viewer || screen is Screen.Editor -> gridStale = true
-                // ⚠️ La casa non guarda le righe ma le CARTELLE, e un file arrivato da fuori
-                // può averne fatta nascere una: qui la rilettura serve. Si rifà col permesso
-                // dell'ultima volta, perché a saperlo è la schermata e in questo istante non
-                // le si può chiedere niente; se non ha ancora letto, non c'è niente da
-                // rifare e ci penserà lei entrando.
+                // ⚠️ La schermata iniziale mostra cartelle, e un file arrivato da fuori può averne
+                // creata una. Si rilegge col permesso dell'ultima volta, che sa solo la schermata;
+                // se non ha ancora letto, lo farà entrando.
                 screen is Screen.Folders -> {
                     bucketsFor?.let { readBuckets(it.first) }
-                    // ⚠️ And the Feed, with what it was last read for: a picture arrived from
-                    // outside belongs at the top of the stream. Not while something is chosen
-                    // there ([feedBusy]).
+                    // E il Feed, con gli ultimi argomenti: un'immagine arrivata da fuori va in
+                    // cima al flusso. Non durante una selezione ([feedBusy]).
                     if (feedBusy) feedStale = true
                     else feedArgs?.let { (granted, selection, date) -> readFeed(granted, selection, date) }
                 }
@@ -2750,36 +2217,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * La fotografia che si sta guardando non è più a quell'indirizzo: si rilegge la
-     * cartella e si mostra quella che ha preso il suo posto.
+     * L'immagine che si sta guardando non è più a quell'indirizzo: si rilegge la cartella e si
+     * mostra quella che ha preso il suo posto.
      *
-     * ⚠️⚠️ **UNA SOLA FUNZIONE PER SPOSTA, RINOMINA ED ELIMINA, e non è una
-     * semplificazione**: in tutti e tre i casi la domanda è la stessa, 'che cosa c'è ora
-     * in quella posizione della cartella'. Dopo un'eliminazione o uno spostamento c'è la
-     * foto **seguente**, perché la lista si è accorciata; dopo una rinomina c'è la
-     * **stessa** foto, con l'indirizzo nuovo, perché l'ordine è per data e la data non è
-     * cambiata. La posizione è quello che si conserva, non l'indirizzo.
-     * ⚠️ **Ci si aggancia alla POSIZIONE e non alla foto vicina**: cercare 'la prossima'
-     * per indirizzo vorrebbe dire cercare un indirizzo in una lista che è appena cambiata.
-     * ⚠️ **Se la cartella si è svuotata, o non c'è niente da rileggere, si torna
-     * indietro**: restare su una fotografia che non esiste più mostrerebbe l'errore di
-     * caricamento al posto di una galleria.
-     * ⚠️ **Il caso senza cartella da rileggere è quello di una foto aperta da fuori**
-     * (una chat, il web), e là dopo una rinomina si perde di vista il file: non c'è nessun
-     * elenco in cui ritrovarlo, e inventarne uno vorrebbe dire interrogare il MediaStore
-     * su un percorso che non si conosce più. Costa un ritorno alle cartelle, ed è raro.
-     * ⚠️ **`gridVisited` NON si spegne**, al contrario di [reloadGrid]: là gli indici
-     * cambiano sotto una griglia che li sta mostrando, qui la posizione la si riscrive
-     * subito con quella giusta, quindi l'anello dell'ultima vista continua a dire il vero.
+     * ⚠️ Una funzione sola per sposta, rinomina ed elimina, che conserva la posizione: dopo
+     * un'eliminazione o uno spostamento c'è l'immagine seguente, dopo una rinomina la stessa con
+     * l'indirizzo nuovo (l'ordine è per data). Se la cartella si è svuotata, o non c'è un elenco
+     * da rileggere (un'immagine aperta da fuori), si torna indietro, o comparirebbe l'errore di
+     * caricamento. `gridVisited` resta acceso, al contrario di [reloadGrid]: la posizione si
+     * riscrive subito con quella giusta.
      */
     fun afterFileChanged() {
         val context = getApplication<Application>()
         val place = series?.index ?: 0
         val from = viewerBack
-        // ⚠️ Nel lavoro della lista ([listJob]), perché scrive la lista anche lei: una strisciata o
-        // un'uscita arrivate durante la rilettura la annullano. [showAt] chiama [putList], che
-        // annulla questo stesso lavoro mentre finisce: non c'è più niente da sospendere, quindi
-        // non toglie niente.
+        // ⚠️ Nel lavoro della lista ([listJob]), perché scrive la lista: una strisciata o
+        // un'uscita durante la rilettura la annullano. Il [putList] di [showAt] annulla questo
+        // stesso lavoro mentre finisce, senza effetti.
         listJob?.cancel()
         listJob = viewModelScope.launch {
             val fresh = when (from) {
@@ -2794,45 +2248,25 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 backFromViewer()
                 return@launch
             }
-            // ⚠️ `listed` lo riscrive [showAt], nell'ordine grezzo: scriverlo anche qui
-            // vorrebbe dire scriverlo due volte con due significati diversi.
+            // `listed` lo riscrive [showAt], nell'ordine grezzo.
             showAt(reading, place.coerceIn(0, reading.items.lastIndex), Arrival.LEAFED)
         }
     }
 
     /**
-     * The next or previous picture in the folder, if there is one.
+     * L'immagine seguente o precedente della serie, se c'è.
      *
-     * ⚠️⚠️ **The series is carried over rather than looked up again**, and it has to
-     * be: rebuilding it from the new picture would query the database on every
-     * swipe, and worse, a folder whose contents changed underneath would renumber
-     * itself while it is being leafed through. One list, one order, until the
-     * viewer is left.
-     * ⚠️ It does NOT wrap around: at the last picture a swipe does nothing. Coming
-     * back to the first one after the last is the kind of surprise that makes
-     * people lose their place.
-     * ⚠️ [delta] si conta nell'**ordine di lettura**, quello di [folder]: `+1` è la foto
-     * dopo come la si sfoglia, cioè la più **vecchia** di default e la più **recente** col
-     * verso cronologico acceso. Chi cerca il verso della strisciata non trova nessun segno
-     * qui, ed è voluto: l'impostazione gira la serie, non il gesto.
-     */
-    /*
-     * ⚠️⚠️ **È IL PEZZO 3 DEI VIDEO** (`0.86`, impostazione 'Sfoglia solo le immagini',
-     * spenta di fabbrica): l'alternativa era una seconda serie, filtrata, da tenere
-     * d'accordo con la prima; ma una serie filtrata avrebbe cambiato anche il **contatore**
-     * e la griglia, che dei video li mostrano. Così cambia solo di quanto avanza il dito,
-     * che è esattamente ciò che l'impostazione dice.
-     * ⚠️⚠️ **IL TOCCO SULLA GRIGLIA NON PASSA DI QUI** ([openFromGrid] chiama [showAt] con una
-     * posizione), e questa impostazione spegne il **gesto** e non il tocco. ⚠️ **Fino alla
-     * `1.45` qui c'era scritto che toccando un video dalla griglia parte la riproduzione, e
-     * non era vero**: in tutta l'app non esisteva nessun `play`, quindi quella riga dava per
-     * fatta una cosa mai scritta. Adesso la risposta esiste e sta in un altro posto: chi tocca
-     * arriva con [Arrival.TAPPED], e se il filmato parta lo decide `Settings.clipAutoplay`,
-     * spenta di fabbrica.
-     * ⚠️⚠️ **IL CONTO STA SULLA SERIE, dalla 1.06** (`Folder.Series.stepping`), e non più
-     * qui dentro: là lo vede anche la schermata, che delle vicine da disegnare ha bisogno
-     * dello stesso identico salto. Il perché e il difetto che l'ha fatto spostare stanno
-     * scritti là.
+     * ⚠️ La serie si porta avanti e non si ricerca: ricostruirla interrogherebbe il database a
+     * ogni strisciata, e una cartella cambiata nel frattempo si rinumererebbe mentre la si
+     * sfoglia. Non ricomincia dall'inizio: all'ultima immagine la strisciata non fa niente.
+     * [delta] si conta nell'ordine di lettura di [folder]: l'impostazione gira la serie, non il
+     * gesto.
+     *
+     * Con 'Sfoglia solo le immagini' (`0.86`) cambia solo di quanto avanza il dito: una serie
+     * filtrata cambierebbe anche il contatore e la griglia, che i video li mostrano. Il tocco
+     * sulla griglia non passa di qui ([openFromGrid]), e arriva con [Arrival.TAPPED]: se il video
+     * parte lo decide `Settings.clipAutoplay`. Il conto del salto è in `Folder.Series.stepping`,
+     * dove lo vede anche la schermata per disegnare le vicine.
      */
     fun step(delta: Int) {
         val current = series ?: return
@@ -2844,44 +2278,36 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Mostra la foto che sta in quella posizione della serie di lettura.
+     * Mostra l'immagine in quella posizione della serie di lettura.
      *
-     * ⚠️ Condivisa fra la strisciata ([step]) e il tocco sulla griglia
-     * ([openFromGrid]), che sono la stessa cosa con due modi di dire quale foto: un
-     * passo relativo e una posizione. Due copie divergerebbero sul punto peggiore, cioè
-     * su come si riscrive [listed].
-     * ⚠️ Fuori dalla serie non fa **niente**, e da qui viene il fatto che la sequenza
-     * non gira su sé stessa: all'ultima foto la strisciata in avanti resta senza esito.
+     * Condivisa fra la strisciata ([step]) e il tocco sulla griglia ([openFromGrid]): due copie
+     * divergerebbero su come si riscrive [listed]. Fuori dalla serie non fa niente.
      */
     private fun showAt(current: Folder.Series, index: Int, from: Arrival) {
         val uri = current.at(index) ?: return
         source = uri
-        // ⚠️ La vicina di un indirizzo riscritto è già in sicuro: il motivo dell'errore,
-        // se arriva, non è più il traffico in chiaro, e dirlo sarebbe una bugia.
+        // La vicina di un indirizzo riscritto è già in `https`: un errore non viene più dal
+        // traffico in chiaro.
         upgraded = false
-        // ⚠️ `current` sta nell'ordine di lettura, `listed` in quello grezzo: si
-        // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
-        // è la sua stessa inversa.
+        // `current` è nell'ordine di lettura, `listed` in quello grezzo: si rigira con la
+        // stessa funzione, che è la sua stessa inversa.
         putList(Folder.Lookup.Found(current.copy(index = index)).oriented())
         startLoad(uri, from)
         /*
-         * ⚠️⚠️ **LA FINESTRA DEL WEB SI RIFÀ A OGNI PASSO, e quella di una cartella mai.**
-         * Una serie remota è larga tre e non ha fine nota: appena il dito la attraversa, la
-         * vicina di là va ancora indovinata e verificata. La riga sopra intanto ha già
-         * spostato l'indice, quindi la strisciata risponde subito e la rete arriva dopo.
-         * ⚠️ **Tranne quando la serie è già INTERA** (`WebSeries.WHOLE`: l'indice della
-         * cartella e le immagini di una pagina), che è ordinata come quella di una cartella
-         * vera: rifarla vorrebbe dire riscaricare la stessa pagina a ogni fotografia.
+         * ⚠️ La finestra del web si rifà a ogni passo: una serie remota è larga tre e non ha fine
+         * nota. L'indice è già spostato, quindi la strisciata risponde subito e la rete arriva
+         * dopo. Non si rifà quando la serie è già intera (`WebSeries.WHOLE`), o si riscaricherebbe
+         * la stessa pagina a ogni immagine.
          */
         if (WebSeries.isWeb(uri) && webRule !in WebSeries.WHOLE) relist { webWindow(uri) }
     }
 
-    /** Called once the permission dialog has been answered, whatever the answer. */
+    /** Chiamata quando la finestra del permesso ha avuto risposta, qualunque sia. */
     fun folderAnswered(allowed: Boolean) {
         val context = getApplication<Application>()
         viewModelScope.launch { FolderAsk.remember(context) }
-        // Granted while a picture is already open: the folder is looked for now,
-        // instead of making the person open the same picture a second time.
+        // Permesso dato con un'immagine già aperta: la cartella si cerca adesso, senza far
+        // riaprire la stessa immagine.
         val uri = source
         if (allowed && uri != null) relist { Folder.seriesAround(context, uri) }
     }
@@ -2899,21 +2325,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Accende o spegne la **filigrana** al salvataggio, cioè lo stesso interruttore che vive
-     * nelle sue impostazioni.
-     *
-     * ⚠️⚠️ **È LA STESSA CHIAVE E NON UNA COPIA DELLA SESSIONE, ED È LA SUA ISTRUZIONE ALLA
-     * LETTERA** (riscontro del giro della `2.70`: *Abilitare o disabilitare la filigrana da lì
-     * equivale esattamente a muovere questo interruttore*). Un valore che valesse per il solo
-     * editor aperto sarebbe una terza cosa da capire, ed è il criterio delle voci che vivono in
-     * due posti (`Rules.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare').
+     * Accende o spegne la filigrana al salvataggio: è lo stesso interruttore delle sue
+     * impostazioni, con la stessa chiave (scelta dell'utente, giro della `2.70`; `Rules.md`
+     * § '⚙️ Dove va un'impostazione, e chi la deve trovare').
      */
     fun setMark(on: Boolean) {
         val now = settings ?: return
         updateSettings(now.copy(markOn = on))
     }
 
-    /** Out of the settings, back to whichever screen was showing the picture, or home. */
+    /** Fuori dalle impostazioni: al visualizzatore se un'immagine è aperta, altrimenti a [HOME]. */
     fun leaveSettings() {
         screen = if (state is ViewerState.Ready) Screen.Viewer else HOME
     }
@@ -2925,9 +2346,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun updateSettings(next: Settings) {
         val before = settings
-        // ⚠️ A view changed in the settings ends the Feed of the shortcut, as on the home (6.10).
+        // Una vista cambiata nelle impostazioni chiude il Feed della scorciatoia (`6.10`).
         if (before != null && before.folderView != next.folderView) viewOnce = null
-        // ⚠️ Hidden folders changed: the launcher's folder action may name one (6.10, `Shortcuts`).
+        // ⚠️ Cartelle nascoste cambiate: l'azione cartella del launcher potrebbe nominarne una
+        // (`Shortcuts`).
         if (before != null && (
                 before.folderMode != next.folderMode ||
                     before.hiddenFolders != next.hiddenFolders ||
@@ -2946,24 +2368,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Rimette in piedi tutto quello che si mostra **una volta sola**, come alla prima
-     * installazione.
+     * Fa tornare tutto quello che si mostra una volta sola, come alla prima installazione.
      *
-     * ⚠️ **Sta nel modello e non nella schermata**, come `forgetRecents`: quella scrive
-     * nell'archivio, e una schermata che scrive nell'archivio da sé smette di essere una
-     * schermata. ⚠️ Gira su **tutte** le voci di [Hint] e non su un elenco scritto a mano:
-     * il giorno che ne nasce una quarta, questa funzione la copre già.
-     *
-     * ⚠️⚠️ **DALLA 1.16 AZZERA ANCHE [FolderAsk], e non è un di più**: il testo del tasto
-     * promette 'i suggerimenti **e gli avvisi**', e la richiesta della cartella iniziale è
-     * l'unica cosa una-tantum che restava fuori. Era anche la più costosa da subire: gli
-     * onboarding tornano da soli cancellando i dati dell'app, mentre un 'no' alla cartella
-     * chiudeva la porta per sempre, ed è proprio il caso in cui serve tornare indietro
-     * (richiesta dell'utente, 2026-09-01).
-     * ⚠️ **Quello che NON copre, perché non esiste**: un avviso alla prima eliminazione (la
-     * conferma esce **ogni** volta, ed è una conferma, non un onboarding) e uno al primo
-     * salvataggio dell'editor (c'era fino alla `1.07`, ed è uscito con la domanda
-     * 'sovrascrivi o copia'). Sta scritto qui perché sono le due cose che si va a cercare.
+     * Vive nel modello, come `forgetRecents`, perché scrive nell'archivio. Gira su tutte le voci
+     * di [Hint], così copre anche quelle nuove. Azzera anche [FolderAsk] (`1.16`, richiesta
+     * dell'utente): il tasto promette 'i suggerimenti e gli avvisi', e un 'no' alla cartella
+     * altrimenti resterebbe per sempre. Non ci sono un avviso alla prima eliminazione (la
+     * conferma compare ogni volta) né uno al primo salvataggio dell'editor.
      */
     fun resetHints() {
         val context = getApplication<Application>()
@@ -2976,10 +2387,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il messaggio d'errore, con un caso in più che senza [upgraded] sarebbe muto.
      *
-     * ⚠️⚠️ **Un indirizzo in chiaro non fallisce come gli altri**: Android lo blocca prima
-     * che parta, l'app lo ha già riscritto in `https`, e se anche quello non risponde la
-     * persona merita di sapere che cosa è successo. Con il solo 'non si è potuta aprire'
-     * cercherebbe il difetto nella propria rete, che è l'unico posto in cui non c'è.
+     * ⚠️ Un indirizzo in chiaro Android lo blocca, e l'app lo ha già riscritto in `https`: se
+     * anche quello non risponde, il messaggio lo dice, o la persona cercherebbe il difetto nella
+     * propria rete.
      */
     private fun reasonFor(reason: LoadResult.Reason): Int =
         if (upgraded && reason == LoadResult.Reason.OPEN_FAILED) R.string.open_cleartext
@@ -3001,51 +2411,31 @@ class ViewerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         /*
-         * ⚠️⚠️ **LA GUARDIA È IL MODELLO E NON `savedInstanceState`, DALLA `1.81`: COSÌ UN
-         * COLLEGAMENTO APERTO DA FUORI NON SI PERDE PIÙ QUANDO IL SISTEMA UCCIDE IL PROCESSO**
-         * (censimento della UI del 2026-09-05). La domanda giusta non è 'questa è la prima
-         * creazione?' ma 'l'intento di partenza è già stato letto?', e le due divergono in un
-         * caso: con il processo ucciso in fondo e ricreato, il `Bundle` c'è (quindi la vecchia
-         * guardia saltava la lettura) ma il modello è **nuovo**, quindi la schermata nasceva a
-         * [HOME]. Cioè si tornava dalla galleria di un'altra app e al posto dell'immagine si
-         * trovava la casa.
-         * ⚠️ **Alla rotazione non cambia niente**, che è la ragione per cui la guardia esiste: là
-         * il modello sopravvive e ha già l'immagine in mano, quindi rileggere l'intento la
+         * ⚠️ La guardia è il modello e non `savedInstanceState` (`1.81`): la domanda è se
+         * l'intento è già stato letto. Col processo chiuso in secondo piano e ricreato il
+         * `Bundle` c'è ma il modello è nuovo, e un collegamento aperto da fuori finiva a [HOME].
+         * Alla rotazione il modello resta e ha già l'immagine, e rileggere l'intento la
          * caricherebbe una seconda volta.
          */
         if (!model.intentRead) model.handleIntent(intent, fresh = true)
-        // ⚠️ The launcher's actions, rewritten at every creation so their labels follow the
-        // language in force (6.10; the why lives on `Shortcuts`).
+        // Le azioni del launcher si riscrivono a ogni creazione, così le etichette seguono la
+        // lingua in vigore (`6.10`; il perché è su `Shortcuts`).
         Shortcuts.publish(this)
-        // ⚠️ Il tema si legge QUI, fuori da `AivApp`, perché deve avvolgerlo: dentro,
-        // avrebbe già ereditato la tavolozza sbagliata. Finché le impostazioni non sono
-        // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
+        // ⚠️ Il tema si legge qui, fuori da `AivApp`, perché deve avvolgerlo. Finché le
+        // impostazioni non sono arrivate vale il sistema, che è anche il valore di fabbrica.
         setContent {
             val chosen = model.settings?.uiTheme ?: UiTheme.SYSTEM
             val scuro = chosen.isDark()
             /*
-             * ⚠️⚠️ **LE BARRE DI SISTEMA SEGUONO IL TEMA DELL'APP, e fino alla `1.80` seguivano
-             * quello del SISTEMA** (censimento della UI del 2026-09-05, l'unico rilievo di
-             * gravità alta). `enableEdgeToEdge()` senza argomenti costruisce due
-             * `SystemBarStyle.auto`, il cui riconoscimento del buio legge la configurazione
-             * delle risorse, e da quel valore scrive l'aspetto chiaro o scuro delle **icone**
-             * di stato e di navigazione. Il tema dell'app invece si risolve qui, nella
-             * composizione, da `model.settings?.uiTheme`: le due fonti divergono ogni volta che
-             * si sceglie 'Chiaro' o 'Scuro' contro il sistema, e nel caso peggiore le icone
-             * finiscono chiare su fondo chiaro, cioè illeggibili.
-             * ⚠️ **Si rifà quando il tema cambia**, e non solo in `onCreate`: la scelta si può
-             * cambiare dalle impostazioni senza ricreare l'attività, e una chiamata sola
-             * lascerebbe le icone del tema di prima. La chiave è il tema risolto, quindi
-             * seguire il sistema mentre il sistema cambia funziona da sé.
-             * ⚠️ **`SystemBarStyle.dark` e non `auto`**: `auto` fa la stessa lettura sbagliata.
-             * Il colore di fondo resta trasparente in tutti e due i casi, che è quello che
-             * l'app dipinge da sé.
-             */
-            /*
-             * ⚠️⚠️ **E DALLA `4.15` LA LINEA DEI GESTI È BIANCA SOPRA IL MENU INFERIORE** (nota D del
-             * giro della `4.04`, col suo mockup): sull'accento la linea scura del tema chiaro quasi
-             * sparisce, e il sistema la colora solo intera. Chi è sotto la linea lo dice
-             * [BarStage].
+             * ⚠️ Le barre di sistema seguono il tema dell'app (`1.80`). `SystemBarStyle.auto`, che
+             * `enableEdgeToEdge()` usa di serie, legge il buio dalla configurazione del sistema:
+             * con 'Chiaro' o 'Scuro' scelti contro il sistema le icone di stato e di navigazione
+             * finirebbero chiare su fondo chiaro. Per questo `dark` e `light`, con fondo
+             * trasparente. Si rifà quando il tema risolto cambia, perché si cambia senza ricreare
+             * l'activity.
+             * La linea dei gesti è bianca sopra il menu inferiore (`4.15`, nota D del giro della
+             * `4.04`): sull'accento quella scura del tema chiaro quasi sparisce, e il sistema la
+             * colora solo intera. Che cosa c'è sotto la linea lo dice [BarStage].
              */
             val sottoBarra = BarStage.under
             LaunchedEffect(scuro, sottoBarra) {
@@ -3060,16 +2450,11 @@ class ViewerActivity : ComponentActivity() {
                 )
             }
             /*
-             * ⚠️⚠️ **SUL TELEFONO IN ORIZZONTALE L'APP È A TUTTO SCHERMO, DALLA `3.70`**
-             * (richiesta dell'utente del 2026-10-04, B1: *l'app dev'essere a tutto schermo per
-             * recuperare un po' di prezioso spazio verticale*; scelte B2 e A4). Le barre di stato
-             * e di navigazione si nascondono, e uno scorrimento dal bordo le richiama per qualche
-             * secondo: è il comportamento immersivo di Android.
-             * ⚠️ **In orizzontale vale per tutta l'app, e in verticale per il solo
-             * visualizzatore, dalla `3.71`** (voce `3.70-01`): la regola vive in
-             * [Adaptive.immersive], e qui si dice soltanto quale schermata è in scena.
-             * ⚠️ **Gli spazi di sistema si azzerano da sé**: con le barre nascoste `safeDrawing` non
-             * le conta più, quindi chi se ne scansava riprende lo spazio senza toccare niente.
+             * ⚠️ A tutto schermo (`3.70`, scelte B1, B2 e A4; `3.71`, voce `3.70-01`): le barre di
+             * sistema si nascondono, e uno scorrimento dal bordo le richiama per qualche secondo.
+             * La regola (sul telefono in orizzontale tutta l'app, in verticale il solo
+             * visualizzatore) è in [Adaptive.immersive]; qui si dice quale schermata è visibile.
+             * Con le barre nascoste `safeDrawing` non le conta più, e lo spazio torna da sé.
              */
             val conf = LocalConfiguration.current
             val immersivo = Adaptive.immersive(
@@ -3087,36 +2472,30 @@ class ViewerActivity : ComponentActivity() {
                 }
             }
             AivTheme(darkTheme = scuro) {
-                // ⚠️ Anche la scelta di che cosa c'è dietro un pannello si mette in scena QUI,
-                // accanto al tema e per la stessa ragione: la chiedono finestre che le
-                // impostazioni non le ricevono. Il perché per esteso sta su [LocalAivDepth].
-                // ⚠️ E accanto a lui i riquadri: le parole sotto le icone e i cinque
-                // ordini dei tasti. Stessa ragione del velo, scritta su [LocalPadLook]: li
-                // chiedono finestre che le impostazioni non ricevono. Finché le impostazioni
-                // non sono arrivate vale quello che l'app ha sempre fatto.
+                // ⚠️ Accanto al tema si forniscono i valori che chiedono finestre a cui le
+                // impostazioni non arrivano: 'Sfocatura dietro i pannelli' ([LocalAivDepth]), le
+                // etichette sotto le icone e gli ordini dei tasti ([LocalPadLook]). Finché le
+                // impostazioni non sono arrivate valgono i valori di fabbrica.
                 val look = model.settings?.let {
                     PadLook(
                         it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder,
                         it.modOrder, it.hand
                     )
                 } ?: PadLook()
-                // ⚠️ E la vista delle cartelle, che serve alla finestra della destinazione:
-                // dalla `1.81` quella entra dalla vista normale dell'app, e il perché per
-                // esteso sta su [LocalDestLook].
+                // La vista delle cartelle, per la finestra della destinazione (vedi
+                // [LocalDestLook]).
                 val dove = model.settings?.let {
-                    // ⚠️ From the Feed the window shows the folders as covers: it picks a folder,
-                    // and the Feed has none to show (6.02).
+                    // Col Feed la finestra mostra le cartelle come copertine: sceglie una
+                    // cartella, e il Feed non ne mostra (`6.02`).
                     DestLook(
                         if (it.folderView == FolderView.FEED) FolderView.GRID else it.folderView,
                         it.folderColumns, it.folderCount, it.listCount, it.listText, it.folderMode
                     )
                 } ?: DestLook()
-                // ⚠️ E accanto a loro il minuto di 'Mostra nascoste', dalla `2.03`: la finestra
-                // delle destinazioni deve sapere se è acceso, e il perché per esteso, con la
-                // ragione per cui questo non è uno static local, vive su [LocalPeek].
-                // ⚠️ E la pillola della `4.00`, coi due valori **in vigore** e non quelli scritti:
-                // sul tablet niente pillola al posto del FAB, e sotto Android 12 niente vetro.
-                // Il perché per esteso vive su [PillLook].
+                // Il minuto di 'Mostra nascoste', che serve alla finestra delle destinazioni
+                // (vedi [LocalPeek]). E la pillola, coi valori in vigore e non quelli scritti:
+                // sul tablet niente pillola al posto del FAB, e sotto Android 12 niente vetro
+                // (vedi [PillLook]).
                 val pillola = model.settings?.let {
                     PillLook(
                         mode = pillMode(it.mainControl, it.phonePill, LocalConfiguration.current.smallestScreenWidthDp),
@@ -3141,12 +2520,9 @@ class ViewerActivity : ComponentActivity() {
     }
 
     /**
-     * ⚠️⚠️ **GLI APPUNTI SI GUARDANO QUI E NON IN `onCreate`, e non è una preferenza di
-     * ordine**: da Android 10 un'app può leggerli **solo mentre ha il fuoco**, e alla
-     * creazione la finestra non ce l'ha ancora. Un controllo fatto là tornerebbe sempre a
-     * mani vuote, e la funzione sembrerebbe scritta male invece che chiamata troppo
-     * presto. Il modello si difende da sé dalle chiamate successive: il fuoco va e viene
-     * a ogni dialogo di sistema.
+     * ⚠️ Gli appunti si guardano qui e non in `onCreate`: da Android 10 un'app li legge solo
+     * mentre ha il fuoco, che alla creazione non ha ancora. Il fuoco va e viene a ogni finestra
+     * di sistema, e il modello ignora le chiamate successive.
      */
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -3154,17 +2530,11 @@ class ViewerActivity : ComponentActivity() {
     }
 
     /**
-     * The activity is singleTop, so a second link arrives here instead of starting
-     * a new copy of the app. Without this the screen would keep showing the
-     * previous picture, which looks exactly like a bug.
-     */
-    /**
-     * Un intento nuovo mentre l'app è già aperta: una condivisione da un'altra app, oppure il
-     * ritorno dall'icona del launcher.
+     * Un intento nuovo mentre l'app è già aperta (l'activity è `singleTop`): una condivisione da
+     * un'altra app, oppure il ritorno dall'icona del launcher.
      *
-     * ⚠️⚠️ **`fresh = false` È LA CORREZIONE DELLA `2.78`**: qui l'app sta già facendo qualcosa,
-     * quindi un intento che non porta niente non deve riportare a casa. Il perché per esteso, col
-     * difetto che chiude, vive su [ViewerViewModel.handleIntent].
+     * ⚠️ `fresh = false`: l'app sta già facendo qualcosa, e un intento senza indirizzo non deve
+     * riportare alla schermata iniziale. Il perché è su [ViewerViewModel.handleIntent].
      */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -3173,23 +2543,14 @@ class ViewerActivity : ComponentActivity() {
     }
 
     /**
-     * Consegna l'immagine scelta a chi ha aperto AIV come **selettore**, e chiude.
+     * Consegna l'immagine scelta a chi ha aperto AIV come selettore, e chiude (`1.89`).
      *
-     * ⚠️⚠️ **NASCE NELLA `1.89`** (*vorrei che AIV comparisse anche quando scelgo 'Altre app' su
-     * WhatsApp*): il selettore di sistema elenca, oltre agli archivi, le app che rispondono a
-     * `ACTION_GET_CONTENT`, e per esserci bisogna sia dichiararlo nel manifesto sia saper
-     * **restituire** un file.
-     * ⚠️⚠️ **L'INDIRIZZO SI PREPARA E NON SI PASSA COM'È, o l'app può cadere**: un `file://` che
-     * esce dal processo fa scattare `FileUriExposedException` da Android 7, e le cartelle lette
-     * dal disco portano proprio quello. [ImageActions.readableOutside] è la stessa strada della
-     * condivisione, quindi un `content://` passa senza copiare niente e un `file://` diventa una
-     * copia servita dal FileProvider.
-     * ⚠️ **Il permesso viaggia con l'intento**: senza `FLAG_GRANT_READ_URI_PERMISSION` chi riceve
-     * si vede un indirizzo che non può aprire, che è il modo peggiore di fallire.
-     * ⚠️ **Se la preparazione non riesce non si consegna e non si chiude**: meglio restare
-     * nell'app con un avviso che tornare a chi ha chiesto con le mani vuote e senza spiegazione.
-     * ⚠️ **Un'immagine per volta**: `EXTRA_ALLOW_MULTIPLE` non è gestito, e un chiamante che lo
-     * chiede riceve comunque un file solo, che è una risposta legittima.
+     * ⚠️ L'indirizzo si prepara con [ImageActions.readableOutside], la strada della
+     * condivisione: un `file://` che esce dal processo fa scattare `FileUriExposedException` da
+     * Android 7, quindi diventa una copia servita dal FileProvider; un `content://` passa com'è.
+     * Il permesso viaggia con l'intento (`FLAG_GRANT_READ_URI_PERMISSION`), o chi riceve non può
+     * aprire l'indirizzo. Se la preparazione non riesce, l'app resta aperta con un avviso.
+     * `EXTRA_ALLOW_MULTIPLE` non è gestito: si consegna un file solo, risposta comunque valida.
      */
     private fun deliver(uri: Uri) {
         lifecycleScope.launch {
@@ -3209,10 +2570,9 @@ class ViewerActivity : ComponentActivity() {
 
 @Composable
 private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
-    // ⚠️ PRIMA DI TUTTO IL RESTO, e non è una preferenza di ordine: la fabbrica va
-    // dichiarata prima che una qualunque immagine chieda il caricatore, o quella
-    // richiesta si prende quello predefinito e le miniature tornano a passare dalla
-    // decodifica normale. Il perché di un caricatore nostro sta in `Thumbs`.
+    // ⚠️ Prima di tutto il resto: la fabbrica va dichiarata prima che un'immagine chieda il
+    // caricatore, o si prende quello predefinito e le miniature passano dalla decodifica
+    // normale. Il perché di un caricatore nostro è in `Thumbs`.
     setSingletonImageLoaderFactory { context -> Thumbs.loader(context) }
     val settings = model.settings
     if (settings == null) {
@@ -3222,48 +2582,35 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
         return
     }
     /*
-     * ⚠️⚠️ **QUI L'IMPOSTAZIONE ESCE DALL'INTERFACCIA E ARRIVA A COIL**: un `Fetcher` non vede
-     * le preferenze, quindi qualcuno deve portargliele, e questo è l'unico posto dell'app in
-     * cui le preferenze ci sono e il caricatore è già dichiarato. Il perché di una variabile
-     * globale invece di un parametro sta su [Thumbs.inGpu].
-     * ⚠️ **`SideEffect` e non una riga nuda**: scrivere fuori dalla composizione durante la
-     * composizione è esattamente ciò per cui quel blocco esiste, e senza di lui la scrittura
-     * si rifarebbe a ogni ricomposizione della radice, cioè molte volte per niente.
+     * ⚠️ Qui l'impostazione arriva a Coil: un `Fetcher` non vede le preferenze, e questo è il
+     * solo posto in cui ci sono le preferenze e il caricatore è già dichiarato (perché una
+     * variabile globale: vedi [Thumbs.inGpu]). `SideEffect` è il blocco fatto per scrivere fuori
+     * dalla composizione.
      */
     SideEffect { Thumbs.inGpu = settings.gpuThumbs }
     /*
-     * ⚠️⚠️ **IL CONTROLLO DEGLI AGGIORNAMENTI GIRA QUI, ALL'APERTURA, ED È LA SUA SCELTA D1**
-     * (2026-10-11): niente lavoro in sottofondo e niente notifiche, come lo svuotamento del cestino
-     * qui sotto. La chiave è l'interruttore, quindi riaccenderlo controlla subito; il limite di una
-     * volta al giorno lo tiene [Updater.check].
+     * ⚠️ Il controllo degli aggiornamenti gira all'apertura (scelta D1): niente lavoro in
+     * sottofondo e niente notifiche, come lo svuotamento del cestino qui sotto. La chiave è
+     * l'interruttore, quindi riaccenderlo controlla subito; il limite di una volta al giorno lo
+     * tiene [Updater.check].
      */
     val contesto = LocalContext.current
     LaunchedEffect(settings.autoUpdate) {
         if (settings.autoUpdate) Updater.check(contesto, asked = false)
     }
     /*
-     * ⚠️⚠️ **LO SVUOTAMENTO AUTOMATICO DEL CESTINO GIRA QUI, E SOLO QUI, PERCHÉ È QUELLO CHE
-     * HA CHIESTO LUI** (giro della 1.67, `d-cestino-chiusa`: **`aperta`**, ribadito il
-     * 2026-09-06: *nulla deve avvenire al di fuori dell'app aperta in primo piano*). Quindi
-     * niente operazione programmata di sistema e nessuna libreria in più: la pulizia è un
-     * effetto dell'app che è in scena.
-     * ⚠️ **La chiave è la durata scelta**, quindi passa una volta all'avvio e un'altra ogni
-     * volta che lui la cambia, che è esattamente quando serve: cambiarla da 'Mai' a 'Un mese'
-     * deve avere un effetto visibile subito, o sembra che non abbia fatto niente.
-     * ⚠️ **Con 'Mai' non tocca il disco**: [Bin.sweep] esce prima di leggere l'archivio, quindi
-     * questo effetto costa niente nel caso di fabbrica.
-     * ⚠️ **Il conto dei file tolti non si mostra**: una pulizia che si annuncia da sola
-     * sarebbe un avviso a ogni avvio per un lavoro che l'utente ha già deciso una volta, e i
-     * file spariti sono esattamente quelli che aveva accettato di perdere.
+     * ⚠️ Lo svuotamento automatico del cestino gira qui e solo qui (scelta `aperta` a
+     * `d-cestino-chiusa`: niente fuori dall'app aperta in primo piano), senza lavori programmati.
+     * La chiave è la durata scelta: passa all'avvio e a ogni cambio, che ha effetto subito. Con
+     * 'Mai' [Bin.sweep] non legge il disco. Il conto dei file tolti non si mostra: sarebbe un
+     * avviso a ogni avvio per una scelta già fatta.
      */
     val perPulizia = LocalContext.current
     LaunchedEffect(settings.binKeep) { Bin.sweep(perPulizia, settings.binKeep.days) }
     /*
-     * ⚠️⚠️ **IL SELETTORE E L'AVVISO STANNO PRIMA DEL `when`, e non dentro un ramo**: la
-     * scelta dell'editor si chiede da due schermate diverse (il menu del tocco lungo e le
-     * impostazioni), e l'esito di un salvataggio arriva quando l'editor si è **già** chiuso.
-     * Scritti dentro un ramo si perderebbero al cambio di schermata, cioè nell'istante esatto in
-     * cui devono comparire.
+     * ⚠️ Il selettore e l'avviso vengono prima della scelta della schermata: il selettore lo
+     * aprono due schermate, e l'esito di un salvataggio arriva a editor già chiuso. Dentro una
+     * schermata si perderebbero al cambio, proprio quando devono comparire.
      */
     if (model.editorAsk) {
         EditorPicker(
@@ -3273,10 +2620,8 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
         )
     }
     /*
-     * ⚠⚠ **LA PAGINA DELLA FILIGRANA SI APRE QUI SOPRA, DALLA `2.75`, E STA FUORI DAL `when`
-     * PER LA STESSA RAGIONE DEL SELETTORE**: la chiama il tocco lungo su un tasto dell'editor, e
-     * l'editor non deve uscire di scena. Il perché non sia più una navigazione vive su
-     * [MarkSheet].
+     * La pagina della filigrana si apre qui, per la ragione del selettore (`2.75`): la apre il
+     * tocco lungo su un tasto dell'editor, che deve restare aperto. Vedi [MarkSheet].
      */
     if (model.markSetup) {
         MarkSheet(
@@ -3285,8 +2630,8 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             onDismiss = { model.closeMarkSetup() }
         )
     }
-    // ⚠️ The address window of the launcher's action (6.10), out of the `when` like the two above:
-    // it opens over the home and must not depend on which screen is drawn under it.
+    // La finestra dell'indirizzo dell'azione del launcher (`6.10`), qui come le due sopra: si
+    // apre sopra la schermata iniziale e non dipende da quale schermata c'è sotto.
     if (model.addressAsked) {
         AddressDialog(
             recents = model.recents,
@@ -3299,12 +2644,9 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
     val context = LocalContext.current
     val said = model.notice
     if (said != null) {
-        // ⚠️ L'avviso si azzera subito dopo averlo mostrato: senza, la chiave resterebbe la
-        // stessa e la frase tornerebbe identica al primo ridisegno, ma soprattutto non si
-        // potrebbe più mostrare **due volte** la stessa (due copie salvate di fila).
-        // ⚠️⚠️ **DALLA `1.84` PASSA DAL CANALE E NON DALL'AVVISO DI SISTEMA** (sua risposta
-        // `casa` a `d-avvisi`): la frase è la stessa, cambia la superficie. Il testo si risolve
-        // qui, dove la composizione c'è, perché [Notices] prende parole e non risorse.
+        // ⚠️ L'avviso si azzera dopo averlo mostrato, o non si potrebbe mostrare due volte di
+        // fila la stessa frase (due copie salvate). Passa da [Notices] (scelta `casa` a
+        // `d-avvisi`), che prende testo e non risorse: si risolve qui, nella composizione.
         val frase = stringResource(said)
         LaunchedEffect(said) {
             Notices.say(frase, NOTICE_LONG_MS)
@@ -3312,31 +2654,19 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
         }
     }
     /*
-     * ⚠️⚠️ **L'OFFERTA DI DISFARE UN'ELIMINAZIONE STA QUI, SOPRA LA TRANSIZIONE FRA SCHERMATE**
-     * (richiesta dell'utente, giro della `1.59`: *resta disponibile anche se si cambia
-     * cartella*). È la stessa ragione del selettore e dell'avviso qui sopra, scritta un'altra
-     * volta perché qui la clausola è **esplicita**: dentro un ramo del `when` la notifica se ne
-     * andrebbe proprio nell'istante in cui deve restare. Che cosa la tiene in vita, e perché lo
-     * stato non è un parametro, sta in testa a [Undo].
-     * ⚠️ **Il conto alla rovescia riparte a ogni offerta nuova**: la chiave dell'effetto è
-     * l'elenco, e due eliminazioni di fila non ne producono mai uno uguale, perché i nomi nel
-     * cestino sono unici (`FileTree.freeName`).
-     * ⚠️ **Il tasto si prende l'elenco PRIMA di azzerarlo**: fra il tocco e il lavoro passa un
-     * fotogramma, e leggere l'offerta dentro l'ambito la troverebbe già vuota.
+     * ⚠️ L'offerta di annullare un'eliminazione è qui, sopra la transizione fra schermate:
+     * resta disponibile anche cambiando cartella (richiesta dell'utente, giro della `1.59`).
+     * Che cosa la tiene in vita è in testa a [Undo]. Il conto alla rovescia riparte a ogni offerta
+     * nuova: la chiave è l'elenco, e i nomi nel cestino sono unici (`FileTree.freeName`).
      */
     val disfare = Undo.offerta
     val scope = rememberCoroutineScope()
     /*
-     * ⚠️⚠️ **DALLA `1.84` L'OFFERTA DIVENTA UNA RIGA DEL CANALE, e l'attesa non è più qui**: la
-     * vita della notifica la governa chi la disegna, quindi il tempo è scritto in un posto solo.
-     * Quello che resta a questo effetto è comporre la frase e dire che cosa fa il tasto.
-     * ⚠️ **`onGone` chiude l'offerta**, per scadenza o perché il tasto è stato toccato: con due
-     * attese parallele i due istanti sarebbero due sorgenti della stessa verità, e il giorno che
-     * una delle due cambia resterebbe in scena un 'Annulla' che non fa più niente.
-     * ⚠️ **Il tasto si prende l'offerta PRIMA che sparisca**: fra il tocco e il lavoro passa un
-     * fotogramma, e rileggere `Undo.offerta` dentro l'ambito la troverebbe già vuota.
-     * ⚠️ **Il valore di riserva della frase non si vede mai**: l'effetto gira soltanto quando
-     * l'offerta c'è, e a quel punto il plurale è già stato risolto.
+     * ⚠️ L'offerta è una riga di [Notices], che ne governa la durata: qui si compone la frase e
+     * si dice che cosa fa il tasto. `onGone` chiude l'offerta alla scadenza o al tocco, così c'è
+     * una sola attesa. Il tasto si prende l'offerta prima che sparisca: fra il tocco e il lavoro
+     * passa un fotogramma. Il valore di riserva della frase non si vede mai, perché l'effetto
+     * gira solo con l'offerta presente.
      */
     val annulla = stringResource(R.string.pick_undo)
     val frase = disfare?.let { pluralStringResource(it.kind.done, it.count, it.count) }
@@ -3350,8 +2680,8 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
         ) {
             scope.launch {
                 when (quale) {
-                    // ⚠️ Il ripristino dal cestino lo fa `Bin`, che sa da dove veniva ogni file:
-                    // le altre due si disfano sui percorsi, e non passano di là.
+                    // Il ripristino dal cestino lo fa `Bin`, che sa da dove veniva ogni file;
+                    // le altre operazioni si annullano sui percorsi.
                     is Undo.Offer.Trashed -> Bin.restore(context, quale.landed)
                     is Undo.Offer.Files -> FileTree.revert(context, quale.steps)
                 }
@@ -3361,48 +2691,20 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
     }
     Box(modifier = Modifier.fillMaxSize()) {
     /*
-     * ⚠️⚠️ **OGNI CAMBIO DI SCHERMATA È UNA DISSOLVENZA, dalla `1.56`** (riscontro dell'utente,
-     * giro della `1.55`: *la transizione da FAB -> menu -> Impostazioni è molto brusca, quasi
-     * glitchata, soprattutto con la sfocatura attiva*). Fino a qui le schermate si
-     * **sostituivano** in un fotogramma: non c'era nessuna transizione da nessuna parte, e
-     * quello che cambiava era solo quanto le due schermate si somigliassero. Fra il cestino e la
-     * cronologia, che hanno la stessa testata, il taglio non si notava; fra la schermata
-     * iniziale, che ha il FAB e la fascia sfumata in fondo, e le impostazioni, che non hanno
-     * nessuno dei due, si notava tutto.
-     * ⚠️⚠️ **E LA DISSOLVENZA FA UNA SECONDA COSA, che è metà della correzione: tiene in vita
-     * la schermata che se ne va, quindi il MENU FA IN TEMPO A CHIUDERSI.** Una voce di menu
-     * chiama `menu.close()` e subito dopo la navigazione; finora la schermata spariva nello
-     * stesso fotogramma, si portava via il `Popup` e l'uscita del menu non veniva disegnata
-     * affatto. Con la sfocatura accesa spariva anche quella di colpo, ed è la ragione per cui
-     * lui la vede peggio proprio là.
-     * ⚠️ **Il visualizzatore resta fuori, e si dichiara**: è il passaggio più frequente
-     * dell'app, quello che si fa a ogni immagine aperta, e una dissolvenza mostrerebbe per due
-     * decimi di secondo la griglia e l'immagine insieme.
-     * ⚠️⚠️ **LA RAGIONE SCRITTA QUI FINO ALLA `1.78` ERA FALSA, e la correzione dice il metodo
-     * invece del solo esito**: diceva che entrando o uscendo *le barre di sistema cambiano e lo
-     * schermo passa a immersivo*, e allora in questa app non c'era niente che nascondesse le
-     * barre. ⚠️ **Dalla `3.70` le barre si nascondono sul telefono in orizzontale**, ma per tutta
-     * l'app e non entrando nel visualizzatore (vedi `immersivo` in `onCreate`), quindi il
-     * passaggio fra le schermate continua a non cambiarle. Una frase falsa in un commento ferma
-     * chi verifica, ed è un costo già pagato due volte in questo progetto.
+     * ⚠️ Ogni cambio di schermata è una dissolvenza (`1.56`, richiesta dell'utente: il passaggio
+     * dal menu alle impostazioni era brusco). La dissolvenza tiene in vita la schermata che se ne
+     * va, quindi il menu fa in tempo a chiudersi: una voce chiama `menu.close()` e subito la
+     * navigazione, e senza dissolvenza il `Popup` sparirebbe di colpo, con la sfocatura. Il
+     * visualizzatore, il passaggio più frequente, ha la dissolvenza corta ([CUT_FADE_MS]).
+     * Le barre di sistema non cambiano fra le schermate (vedi `immersivo` in `onCreate`).
      */
         /*
-         * ⚠️⚠️ **LO SCORRIMENTO DI UNA SCHERMATA SOPRAVVIVE ALLA SCHERMATA, DALLA `1.91`, ED È
-         * UNA SUA RICHIESTA** (campo libero del giro della `1.89`, punto A: *se scorro la
-         * schermata home, entro in una cartella e poi torno alla home, voglio che sia nello
-         * stesso punto dello scorrimento in cui si trovava al mio tocco sulla cartella*). Fino
-         * alla `1.90` la posizione viveva **dentro** la schermata, e una schermata che cambia
-         * esce dalla composizione portandosela via: tornando, la griglia ripartiva da capo.
-         * ⚠️⚠️ **NON SERVE UN ARCHIVIO SCRITTO A MANO: Compose ne ha uno fatto per questo.** Un
-         * `SaveableStateHolder` tiene da parte tutto quello che una schermata ha in
-         * `rememberSaveable` e glielo restituisce quando rientra, e `rememberLazyGridState` è
-         * proprio un `rememberSaveable`. Una mappa di posizioni scritta da noi avrebbe coperto la
-         * sola griglia, e ogni schermata nuova avrebbe dovuto ricordarsi di usarla.
-         * ⚠️ **La chiave distingue le cartelle fra loro** (vedi [saveKey]): due cartelle sono due
-         * posizioni, e con una chiave sola la seconda erediterebbe quella della prima.
-         * ⚠️ **Cresce di una voce per schermata visitata**, e non si pota: quello che tiene sono
-         * un indice e uno scarto, cioè due numeri, mentre un limite col suo sfratto sarebbe più
-         * codice di quanto ne risparmi.
+         * ⚠️ Lo scorrimento di una schermata resta quando la si lascia e ci si torna (`1.91`,
+         * richiesta dell'utente). Lo tiene `SaveableStateHolder`, che conserva quello che una
+         * schermata ha in `rememberSaveable` (come `rememberLazyGridState`) e glielo restituisce
+         * quando rientra. La chiave distingue le cartelle (vedi [saveKey]), o la seconda
+         * erediterebbe la posizione della prima. Cresce di una voce per schermata visitata e non
+         * si pota: ogni voce sono due numeri.
          */
         val stanze = rememberSaveableStateHolder()
         AnimatedContent(
@@ -3411,16 +2713,11 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             label = "schermata"
         ) { schermo ->
             /*
-             * ⚠️⚠️ **QUESTA È LA SOLA COSA CHE SA DOVE SI STA ANDANDO, ED È PER IL FAB CHE ESCE**
-             * (punto A del campo libero del giro accorpato). Il contenuto uscente vive ancora per
-             * i 180 ms della dissolvenza, e in quel tratto `schermo` è la schermata di prima
-             * mentre [ViewerViewModel.screen] è già quella nuova: il confronto fra i due dice
-             * insieme *io sono quella che se ne va* e *dove si sta andando il FAB non c'è*.
-             * ⚠️ **Si legge il modello QUI DENTRO apposta**: così il contenuto uscente si
-             * ricompone quando il bersaglio cambia, che è l'istante in cui l'uscita deve partire.
-             * ⚠️ **Non è il ritorno di `LocalArrivo`**, che la `1.75` ha tolto: quello diceva
-             * quando una schermata aveva finito di **entrare**, e serviva a far aspettare
-             * un'animazione; questo dice dove si va, e serve a farne partire una.
+             * ⚠️ Questo è il solo punto che sa dove si sta andando, e serve al FAB che esce.
+             * Durante la dissolvenza `schermo` è la schermata di prima mentre
+             * [ViewerViewModel.screen] è già la nuova: il confronto dice che questa se ne va e se
+             * dove si va il FAB non c'è. Il modello si legge qui dentro, così il contenuto uscente
+             * si ricompone quando la destinazione cambia.
              */
             CompositionLocalProvider(LocalSenzaFab provides schermo.senzaFabVerso(model.screen)) {
                 stanze.SaveableStateProvider(schermo.saveKey()) {
@@ -3429,53 +2726,29 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             }
         }
         /*
-         * ⚠️⚠️ **QUESTA È L'UNICA SUPERFICIE CON CUI L'APP DICE COM'È ANDATA, DALLA `1.84`** (sua
-         * risposta `casa` a `d-avvisi`): vive qui, sopra la transizione fra schermate, perché una
-         * notizia deve poter sopravvivere alla schermata che l'ha prodotta. Dentro un ramo del
-         * `when` se ne andrebbe proprio nell'istante in cui deve restare, che è la clausola
-         * esplicita dell'offerta di disfare (*resta disponibile anche se si cambia cartella*).
-         * ⚠️ **La frase la porta la riga**: qui non si sa che cosa dica, e non serve saperlo.
-         * ⚠️⚠️ **E DALLA `2.11` SALE SOPRA LA SCHEDA DELLA SELEZIONE** (punto C del campo libero
-         * del giro accorpato: *in alcune circostanze (es. si inizia una selezione dopo un 'copia',
-         * 'sposta' o 'elimina'), la bottomsheet della selezione va a finire sotto la notifica in
-         * basso*). Le due superfici sono appoggiate allo stesso bordo e nascono da due gesti che
-         * si susseguono, quindi prima o poi si incontrano: il perché a muoversi sia questa, e non
-         * la scheda, vive su [Modifier.aboveFoot].
-         * ⚠️⚠️ **E DALLA `2.24` SI SCANSA ANCHE DAL FAB** (punto A1 del campo libero del giro della
-         * `2.23`: *la notifica inferiore con 'Annulla' (es. per 'Sposta') a volte va sopra il FAB
-         * (su qualunque lato sia)*). Quel tasto vive in un angolo e questa riga è larga quasi tutto
-         * lo schermo, quindi si incontrano **sempre**; e a disegnarla è questa radice, cioè dopo la
-         * schermata, quindi gli finiva sopra. Il meccanismo non è nuovo: è lo stesso della scheda,
-         * con un secondo chiedente in [FootStage].
-         * ⚠️⚠️ **MA DALLA `2.25` SI STRINGE INVECE DI SALIRE, ED È LA SUA RISPOSTA `stringe`** (giro
-         * della `2.24`, voce `avviso-fab` approvata con una richiesta: *non si potrebbe fare lo
-         * stesso avviso meno largo di quel tanto che basta a stare a fianco del FAB?*). Sopra una
-         * scheda larga tutto lo schermo si sale, perché accanto non c'è niente; accanto a un tasto
-         * in un angolo si sta, e salirgli sopra lascia vuota una striscia larga quanto la finestra.
-         * ⚠️ **Il lato lo dichiara il FAB**, che sa dov'è: qui non si legge nessuna preferenza.
+         * ⚠️ L'unica superficie con cui l'app dice com'è andata (scelta `casa` a `d-avvisi`): è
+         * qui, sopra la transizione, perché una notizia deve restare oltre la schermata che l'ha
+         * prodotta. La frase la contiene la riga. Sale sopra la scheda della selezione (`2.11`,
+         * il perché è su [Modifier.aboveFoot]); accanto al FAB invece si stringe (`2.25`, scelta
+         * `stringe` alla voce `avviso-fab`), e il lato lo dichiara il FAB in [FootStage].
          */
         AppNotice(
             Notices.line,
             modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
         )
-        // ⚠️ La proposta di aggiornamento vive qui per la ragione della notifica: la apre il
-        // controllo all'apertura oppure 'Controlla ora', e deve sopravvivere alla schermata.
+        // La proposta di aggiornamento è qui per la ragione della notifica: la apre il controllo
+        // all'apertura oppure 'Controlla ora', e deve restare oltre la schermata.
         UpdateDialog()
         /*
-         * ⚠️⚠️ **LA FASCIA DELLA COPERTINA VIVE QUI PER LA STESSA RAGIONE DELLA NOTIFICA**: la
-         * scelta comincia in una cartella e può finire in un'altra, quindi l'unica cosa che dice
-         * *stai scegliendo una copertina* deve stare sopra la transizione fra schermate. Dentro
-         * una schermata se ne andrebbe al primo passo della navigazione, cioè subito.
-         * ⚠️ **Non è una notifica**: una notifica dice che cosa è successo e se ne va da sé,
-         * questa dice che cosa sta succedendo e resta finché la modalità è viva.
+         * ⚠️ La fascia della copertina è qui per la ragione della notifica: la scelta comincia in
+         * una cartella e può finire in un'altra. Non è una notifica: dice che cosa sta
+         * succedendo, e resta finché la modalità è attiva.
          */
         model.covering?.let { quale ->
             CoverInvite(
                 name = quale.name,
                 onCancel = { model.stopCover() },
-                // ⚠️ **Sale anche lei**, per la stessa ragione della notifica: è appoggiata allo
-                // stesso bordo, e una riga in meno di così vorrebbe dire scommettere che le due
-                // cose non si incontrino mai.
+                // Sale anche lei, come la notifica: è appoggiata allo stesso bordo.
                 modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
             )
         }
@@ -3485,45 +2758,21 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
 /**
  * Quanto dura la dissolvenza fra due schermate.
  *
- * ⚠️ **Più lunga dell'uscita di un menu**, che sono 75ms (`MENU_OUT_MS` in `Menus.kt`): la
- * schermata di partenza deve restare in vita finché il menu da cui si è usciti ha finito di
- * chiudersi, o si torna al taglio di prima.
- * ⚠️⚠️ **IL MARGINE NON È 'POCO', E FINO ALLA `1.78` LA NOTA NOMINAVA LA COSTANTE SBAGLIATA**:
- * citava `MENU_IN`, cioè l'**entrata** di un menu, mentre il conto che serve riguarda l'uscita.
- * Con l'uscita a 75 ms il margine è di 105 ms su 180, cioè largo: chi ritoccasse questa durata
- * fidandosi di 'poco' lavorerebbe su un numero che non è quello.
+ * ⚠️ Più lunga dell'uscita di un menu (`MENU_OUT_MS` in `Menus.kt`, 75 ms): la schermata di
+ * partenza deve restare in vita finché il menu ha finito di chiudersi. Il margine è di 105 ms.
  */
 private const val SCHERMO_MS = 180
 
 /**
  * La dissolvenza con cui una schermata prende il posto di un'altra.
  *
- * ⚠️⚠️ **`null` E NON UNA `SizeTransform`, MA NON PER LA RAGIONE CHE QUI ERA SCRITTA FINO ALLA
- * `1.73`.** La `1.72` l'aveva tolta per correggere un difetto del FAB (riscontro dell'utente,
- * 2026-09-05: *se torno in home da una cartella arriva di nuovo da in basso a destra ...
- * l'ingrandimento dev'essere dal centro del FAB, quindi ingrandimento sì, movimento no*), e la
- * `1.74` ha **misurato** quella correzione sul banco di prova: con e senza `SizeTransform` il
- * centro del FAB sta nello stesso punto a **ogni fotogramma**, cifra per cifra, nella
- * schermata vera. Quindi quel rimedio era un **niente**, e la voce di collaudo che ne
- * annunciava l'effetto ha detto all'utente una cosa falsa.
- * - ⚠️⚠️ **PERCHÉ UNA `SizeTransform` QUI NON FA NIENTE**: anima la misura del **contenitore**,
- *   e le due schermate riempiono tutte e due la finestra, quindi quella misura non cambia e
- *   l'animazione parte e arriva sullo stesso numero. Il ragionamento della `1.72` (un angolo
- *   segue il bordo che si muove) è giusto in generale e non si applica qui, perché nessun bordo
- *   si muove.
- * - ⚠️ **`null` resta lo stesso**, ed è la forma che la `AnimatedContent` del visualizzatore usa
- *   già (`ViewerScreen.kt`): dice che il contenitore prende subito la misura della schermata che
- *   entra, invece di dichiarare un'animazione che non ha niente da animare. Con lei se ne va il
- *   `clip = false`, che riguardava soltanto il ritaglio durante quella misura.
- * - ⚠️⚠️ **E IL MOVIMENTO CHE LUI VEDEVA NASCEVA DALL'ENTRATA DEL FAB, che dalla `1.75` non
- *   esiste più**: la `1.74` gliela aveva fatta aspettare, lui ha guardato il risultato e ha
- *   deciso di toglierla (*se ne va. Preferisco semplificare*). Quindi non c'è più niente da
- *   cercare da questa parte, e questa nota resta perché la `SizeTransform` non torni.
+ * ⚠️ `null` e non una `SizeTransform`: quella anima la misura del contenitore, e le due
+ * schermate riempiono la finestra, quindi non avrebbe niente da animare (misurato nella `1.74`:
+ * il centro del FAB era identico a ogni fotogramma con e senza). `null` dice che il contenitore
+ * prende subito la misura della schermata che entra, come nella `AnimatedContent` del
+ * visualizzatore (`ViewerScreen.kt`). Questa nota esiste perché la `SizeTransform` non torni.
  *
- * ⚠️⚠️ **STA IN UNA FUNZIONE SUA, DALLA `1.74`, PERCHÉ IL BANCO DI PROVA DEVE MISURARE QUESTA
- * E NON UNA COPIA**: scritta dentro la `AnimatedContent`, una prova poteva soltanto riscriverla
- * accanto, e da quel momento avrebbe continuato a passare qualunque cosa fosse successa qui.
- * Una prova che non guarda il codice vero è una prova che mente in verde.
+ * È una funzione a sé perché il banco di prova misuri questa e non una copia.
  */
 internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTransform =
     if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
@@ -3533,44 +2782,29 @@ internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTr
     } using null
 
 /**
- * The short fade that takes the place of every hard cut between two screens.
+ * La dissolvenza breve al posto di ogni taglio netto fra due schermate (nota A del giro della
+ * `4.35`: il passaggio dalla griglia alla scacchiera sembrava un lampo a ogni tocco).
  *
- * ⚠️⚠️ **Until 4.35 the viewer came and went with a hard cut**, and so did the settings' pages: the
- * jump from the grid to the checkerboard read as a flash at every tap on a thumbnail (note A of the
- * 4.35 round, and his message of 2026-10-06: *una transizione di 100ms ogni volta che c'è un cambio
- * netto di schermata*). Opacity only, and his length; the screens that already had the longer fade
- * ([SCHERMO_MS]) keep it.
- * ⚠️ **One value for every cut**: the viewer here, and the settings' pages (`SettingsScreen.kt`).
- * ⚠️ **The video is a `TextureView`** (`ViewerScreen.kt`), which fades with the tree: a
- * `SurfaceView` would have appeared at once over the fade.
+ * Solo opacità, con la durata scelta dall'utente; le schermate che avevano già la dissolvenza
+ * lunga ([SCHERMO_MS]) la tengono. ⚠️ Un valore solo per ogni taglio: il visualizzatore qui, e le
+ * pagine delle impostazioni (`SettingsScreen.kt`). Il video è una `TextureView`
+ * (`ViewerScreen.kt`), che sfuma con il resto: una `SurfaceView` comparirebbe di colpo.
  */
 internal const val CUT_FADE_MS = 100
 
 /**
- * Quello che sta in scena adesso.
+ * La schermata visibile adesso.
  *
- * ⚠️⚠️ **NESSUNA DELLE INTERCETTAZIONI DI 'INDIETRO' HA L'ANTEPRIMA DEL GESTO, E RESTA COSÌ
- * FINCHÉ NON LO CHIEDE LUI** (censimento della UI del 2026-09-05: il rilievo è confermato e non
- * è un difetto da chiudere in un lotto di igiene). Il fatto è esatto: `PredictiveBackHandler`
- * non compare mai, la libreria che lo offre è già in progetto, e con `targetSdk` 36 l'anteprima
- * di sistema è accesa di serie, quindi trascinando dal bordo si vede la schermata **di sotto**
- * invece della nostra che si scosta.
- * ⚠️⚠️ **PERCHÉ NON ENTRA QUI: NON È IGIENE, È UN'ANIMAZIONE NUOVA IN QUATTORDICI PUNTI.** Ogni
- * intercettazione dovrebbe raccontare il proprio scostamento mentre il dito trascina, cioè una
- * decisione di movimento per ciascuna, e il movimento in questa app lo detta lui giro per giro
- * (i dieci giri della sfocatura sono la misura di quanto conti). Farlo da sé vorrebbe dire
- * quattordici animazioni mai chieste, e il banco di prova non le vede nemmeno.
- * ⚠️ **Quello che si può dire misurato**: non manca nessuna dipendenza, e non serve nessun flag
- * nel manifesto (`android:enableOnBackInvokedCallback` da `targetSdk` 33 il sistema lo ignora).
- * Il lavoro è tutto nel decidere che cosa si vede mentre il dito tira.
+ * ⚠️ Una funzione a sé perché durante la dissolvenza ce ne sono due, e il `when` deve leggere la
+ * schermata che gli passa la transizione: `model.screen` è già la nuova per tutte e due, e il
+ * ramo in uscita disegnerebbe quella in arrivo. Le due leggono lo stesso modello, e quella che
+ * se ne va si ricompone sui dati nuovi per due decimi di secondo.
  *
- * ⚠️⚠️ **STA IN UNA FUNZIONE SUA perché durante la dissolvenza ne vivono DUE**, una per
- * schermata, e il `when` deve leggere quella che gli passa la transizione invece di
- * `model.screen`, che è già quella nuova per tutti e due. Scritto dentro [AivApp] il ramo in
- * uscita disegnerebbe la schermata in arrivo, cioè la dissolvenza non si vedrebbe.
- * ⚠️ **I due rami leggono lo stesso modello**, e va bene: per due decimi di secondo la
- * schermata che se ne va si ricompone sui dati nuovi, che è quello che farebbe comunque se
- * restasse.
+ * ⚠️ Nessuna intercettazione di 'Indietro' ha l'anteprima del gesto (`PredictiveBackHandler`),
+ * e resta così finché non lo chiede l'utente: sarebbe un'animazione nuova in quattordici punti,
+ * e il movimento lo decide lui. Con `targetSdk` 36 l'anteprima di sistema è accesa, quindi
+ * trascinando dal bordo si vede la schermata di sotto. Non manca nessuna dipendenza né flag del
+ * manifesto.
  */
 @Composable
 private fun Stage(
@@ -3581,22 +2815,19 @@ private fun Stage(
     onPicked: (Uri) -> Unit
 ) {
     /**
-     * Consegna la miniatura toccata invece di aprirla, quando l'app è un selettore.
+     * Consegna la miniatura toccata invece di aprirla, quando l'app è un selettore o si sceglie
+     * una copertina.
      *
-     * ⚠️⚠️ **VALE PER TUTTE E TRE LE GRIGLIE, e non per la sola cartella**: la ricerca e il
-     * cestino mostrano immagini come le altre, e chi arriva da un'altra app può volere proprio
-     * quelle. Una modalità che funziona in una schermata su tre è una modalità che sembra rotta.
-     * ⚠️ **Torna `false` quando non c'è niente da consegnare**, e allora chi chiama apre come
-     * sempre: fuori dalla modalità scelta, e su un indice che l'elenco non ha più.
+     * Vale per tutte e tre le griglie: anche ricerca e cestino mostrano immagini. Restituisce
+     * `false` quando non c'è niente da consegnare (fuori dalle due modalità, o su un indice che
+     * l'elenco non ha più), e allora chi chiama apre come sempre.
      */
     fun consegna(items: List<Uri>?, quale: Int): Boolean {
         if (!model.picking && model.covering == null) return false
         val scelto = items?.getOrNull(quale) ?: return false
         /*
-         * ⚠️⚠️ **LA COPERTINA VIENE PRIMA, e i due casi non si sovrappongono mai**: la modalità
-         * copertina si accende da dentro l'app, e quella del selettore da un'altra app che ha
-         * chiesto un'immagine. Ma se un giorno si sovrapponessero, quella che l'utente ha
-         * appena acceso col dito è la sua ultima intenzione.
+         * La copertina viene prima: le due modalità non si sovrappongono, ma se capitasse, quella
+         * accesa dentro l'app è l'ultima intenzione.
          */
         if (model.covering != null) {
             model.coverPicked(scelto)
@@ -3620,31 +2851,27 @@ private fun Stage(
         }
 
         is Screen.Folders -> {
-            // ⚠️ Il gesto Indietro si intercetta SOLO nella veste 'scegli la cartella
-            // d'avvio': nell'altra questa è la casa, e da casa Indietro chiude l'app.
+            // Il gesto Indietro si intercetta solo nella veste 'scegli la cartella d'avvio':
+            // nell'altra questa è la schermata iniziale, e Indietro chiude l'app.
             if (screen.forStart) BackHandler { model.leaveStartFolderChoice() }
             /*
-             * ⚠️⚠️ **NELLA VISTA DELLE CARTELLE DI SISTEMA IL GESTO INDIETRO RISALE, e senza
-             * questo l'app si chiuderebbe da tre cartelle di profondità** (`0.84`). È l'unico
-             * posto in cui la casa ha uno stato di navigazione, e il gesto Indietro deve
-             * significare quello che significa dappertutto: torna al passo di prima.
-             * ⚠️ **Si arma solo quando c'è dove risalire**: in cima resta il comportamento di
-             * sempre, cioè Indietro chiude l'app. Un gestore aperto che ingoia il gesto senza
-             * fare niente è peggio di non averlo.
+             * ⚠️ In 'Cartelle di sistema' il gesto Indietro risale di una cartella (`0.84`), o
+             * l'app si chiuderebbe da tre cartelle di profondità. È attivo solo quando c'è dove
+             * risalire: in cima Indietro chiude l'app.
+             * La vista in vigore può essere il Feed della scorciatoia o 'Cartelle di sistema' di
+             * una cartella aggiunta alla schermata Home, per una volta sola
+             * (`ViewerViewModel.viewOnce`).
              */
-            // ⚠️ The view in force, which the 'Feed' shortcut can make the Feed for one time
-            // without writing it (6.10), and 'Faro' the system folders (6.20; `ViewerViewModel.viewOnce`).
             val view = model.shownView(settings.folderView)
             val climbing = view == FolderView.TREE && model.treeClimbing
             BackHandler(enabled = climbing) { model.treeUp() }
             val widthDp = LocalConfiguration.current.screenWidthDp
             /*
-             * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.32`** (mockup `folders` / `grid`):
-             * elenco a lato e contenuto a destra. Fuori dalla scelta d'avvio e fuori dalla
-             * vista ad albero, che ha una navigazione propria (mockup `system`).
+             * Due colonne da 600 dp (`3.32`, mockup `folders` e `grid`): elenco a lato e
+             * contenuto accanto. Non nella scelta d'avvio, non in 'Cartelle di sistema', che ha
+             * una navigazione sua (mockup `system`), e non nel Feed (`6.02`), che mostra immagini
+             * senza cartelle.
              */
-            // ⚠️ Nor in the Feed (6.02): it shows pictures without folders, so a column of
-            // folders beside it would contradict it.
             val dualFolders = Adaptive.sideAvailable(widthDp) &&
                 !screen.forStart &&
                 view != FolderView.TREE &&
@@ -3652,10 +2879,9 @@ private fun Stage(
             val shape = screenShape()
             if (dualFolders && shape == Adaptive.Shape.WIDE) {
                 /*
-                 * ⚠️⚠️ **SULLO SCHERMO LARGO, DALLA `3.70`** (richiesta B2, scelta B5): la colonna
-                 * ha in testa l'intestazione di casa (l'identità dell'app) e in basso l'elenco
-                 * delle cartelle fra il 40 e il 70%; a destra dell'invito, la pillola con tutte le
-                 * voci del FAB di casa.
+                 * Sullo schermo largo (`3.70`, richiesta B2, scelta B5): la colonna ha in testa
+                 * l'intestazione della schermata iniziale e in basso l'elenco delle cartelle, fra
+                 * il 40 e il 70%; accanto all'invito, la pillola con tutte le voci del FAB.
                  */
                 val railWide: @Composable () -> Unit = {
                     FolderRailWide(
@@ -3677,7 +2903,7 @@ private fun Stage(
                         )
                         HomePill(
                             view = view,
-                            // ⚠️ Letto qui come nella schermata delle cartelle: decide se compare
+                            // Letto qui come nella schermata delle cartelle: decide se compare
                             // 'Scegli un'immagine', l'unica via senza il permesso sui file.
                             granted = Folder.granted(LocalContext.current),
                             hiddenCount = settings.folderSelection.let {
@@ -3693,8 +2919,7 @@ private fun Stage(
                             onSearch = { model.openSearch() },
                             onBin = { model.openBin() },
                             onSettings = { model.openSettings() },
-                            // ⚠️ In basso dalla `3.71` (voce `3.70-05`: *pillola agganciata in basso
-                            // con padding*).
+                            // In basso, col suo margine (voce `3.70-05`).
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .safeDrawingPadding()
@@ -3759,12 +2984,10 @@ private fun Stage(
                                 }
                             )
                             /*
-                             * ⚠️⚠️ **SUL TABLET IN VERTICALE CERCA, CESTINO E IMPOSTAZIONI SONO
-                             * NELLA PILLOLA IN BASSO, DALLA `3.70`** (richiesta B3, mockup
-                             * `Tablet_V`). In fondo alla colonna non ci sono più.
-                             * ⚠️ **Dalla `3.71` è compatta e a destra** (voce `3.70-07`: *solo
-                             * le tre icone*): il campo 'Cerca nelle cartelle' della `3.70` è
-                             * diventato un tasto, nell'ordine dello schermo largo.
+                             * Sul tablet in verticale Cerca, Cestino e Impostazioni sono nella
+                             * pillola in basso a destra, con le sole tre icone e nell'ordine
+                             * dello schermo largo (`3.70`, richiesta B3, mockup `Tablet_V`;
+                             * voce `3.70-07`).
                              */
                             if (shape == Adaptive.Shape.TALL) {
                                 ActionPill(
@@ -3772,7 +2995,7 @@ private fun Stage(
                                         PillEntry(Icons.Default.Search, stringResource(R.string.hub_search)) {
                                             model.openSearch()
                                         },
-                                        // ⚠️ AIV Play has a bin from Android 11 only (`Store.hasBin`).
+                                        // ⚠️ AIV Play ha il cestino solo da Android 11 (`Store.hasBin`).
                                         PillEntry(Glyphs.Bin, stringResource(R.string.bin_title)) {
                                             model.openBin()
                                         }.takeIf { Store.hasBin },
@@ -3802,11 +3025,9 @@ private fun Stage(
                     hidden = settings.hiddenFolders,
                     selection = settings.folderSelection,
                     onSelectionChange = { model.updateSettings(settings.withFolders(it)) },
-                    // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
-                    // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
-                    // invece di scrivere una chiave vuota che nasconderebbe la radice.
-                    // ⚠️ Dalla `2.96` la voce si scrive senza la radice del volume: vedi
-                    // `portablePath`.
+                    // ⚠️ Una cartella senza percorso non si può nascondere: si scarta in
+                    // silenzio, perché una chiave vuota nasconderebbe la radice. La voce si
+                    // scrive senza la radice del volume (`portablePath`).
                     onHide = { bucket ->
                         bucket.path?.let {
                             model.updateSettings(
@@ -3814,15 +3035,12 @@ private fun Stage(
                             )
                         }
                     },
-                    // ⚠️ La vista temporanea delle nascoste vive nel modello e non qui: il perché
-                    // (ci si entra dentro, e la schermata nel frattempo se ne va) vive su `peeking`.
+                    // La vista temporanea delle nascoste vive nel modello (vedi `peeking`).
                     peeking = model.peeking,
                     onPeek = { model.peek(it) },
-                    // ⚠️ Rimostrare per sempre scrive la stessa preferenza della pagina 'Cartelle
-                    // nascoste' nelle impostazioni: una cosa, una chiave, come la coppia
-                    // casa/scorciatoia di ogni altra voce.
-                    // ⚠️ Le voci arrivano tutte insieme e si tolgono in una scrittura sola: il
-                    // perché vive sul parametro, in `FolderScreen`.
+                    // Mostrare per sempre scrive la stessa preferenza della pagina 'Cartelle
+                    // nascoste'. Le voci si tolgono in una scrittura sola (il perché è sul
+                    // parametro, in `FolderScreen`).
                     onUnhide = { voci ->
                         model.updateSettings(
                             settings.withFolders(settings.folderSelection.remove(voci))
@@ -3830,11 +3048,8 @@ private fun Stage(
                     },
                     recents = model.recents,
                     onPick = { model.folderPicked(it, screen.forStart) },
-                    // ⚠️ Anche i recenti consegnano, in modalità scelta: sono immagini come quelle
-                    // della griglia, e chi apre un selettore spesso vuole proprio l'ultima aperta.
-                    // ⚠️ E in modalità copertina l'immagine toccata diventa la copertina, come in
-                    // ogni altra griglia: dai recenti si sceglie l'ultima aperta, che è spesso
-                    // proprio quella che si vuole mettere davanti a una cartella.
+                    // Anche i recenti consegnano, al selettore o come copertina, come ogni
+                    // griglia: spesso si vuole proprio l'ultima immagine aperta.
                     onOpen = { quale ->
                         when {
                             model.covering != null -> model.coverPicked(quale)
@@ -3853,18 +3068,15 @@ private fun Stage(
                     onFeedDate = { model.updateSettings(settings.copy(feedDate = it)) },
                     onFeedRead = { model.readFeed(it, settings.folderSelection, settings.feedDate) },
                     onFeedLeft = model::leaveFeed,
-                    // ⚠️ The Feed hands over like the tree view does: a cover or an answer to an app
-                    // that asked for a picture, otherwise the viewer.
+                    // Il Feed consegna come 'Cartelle di sistema': copertina o risposta all'app che
+                    // ha chiesto un'immagine, altrimenti il visualizzatore.
                     onFeedOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
                     onFeedChanged = model::rereadFeed,
                     onFeedBusy = { model.feedBusy = it },
-                    // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
-                    // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
-                    // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
-                    // come ogni altra voce.
+                    // La scorciatoia scrive la stessa impostazione delle preferenze, valida per
+                    // tutte le cartelle (richiesta dell'utente).
                     onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
-                    // Le opzioni delle altre due viste, dallo stesso popup: passano da
-                    // `updateSettings` come le colonne, per la stessa ragione.
+                    // Le opzioni delle altre due viste, dallo stesso popup, allo stesso modo.
                     listCount = settings.listCount,
                     listText = settings.listText,
                     treeHidden = settings.treeHidden,
@@ -3877,11 +3089,9 @@ private fun Stage(
                     binOn = settings.binOn,
                     factFields = settings.factRows,
                     onTreePath = { model.treeTo(it) },
-                    // ⚠️⚠️ **DALLA `2.96` ANCHE LA VISTA AD ALBERO CONSEGNA**, cioè sceglie la
-                    // copertina o risponde a chi ha chiesto un'immagine: la scelta della copertina
-                    // adesso comincia da questa schermata (vedi `coverAway`), e in una delle sue tre
-                    // viste il tocco apriva l'immagine invece di sceglierla. Una modalità che
-                    // funziona in due viste su tre sembra rotta.
+                    // ⚠️ Anche 'Cartelle di sistema' consegna (`2.96`): la scelta della copertina
+                    // comincia da questa schermata (vedi `coverAway`), e deve valere in tutte le
+                    // sue viste.
                     onTreeOpen = { items, at -> if (!consegna(items, at)) model.openFromTree(items, at) },
                     forStart = screen.forStart,
                     onBack = { model.leaveStartFolderChoice() },
@@ -3893,88 +3103,57 @@ private fun Stage(
 
         is Screen.Grid -> {
             BackHandler { model.leaveGrid() }
-            // ⚠️ `null` mentre la ricerca è in corso, elenco VUOTO quando la cartella
-            // non ha (più) niente da mostrare: sono due schermate diverse, il giro che
-            // aspetta e il messaggio che spiega, e collassarle darebbe una rotellina
-            // che non finisce mai.
+            // ⚠️ `null` mentre la lettura è in corso, elenco vuoto quando la cartella non ha
+            // niente da mostrare: l'indicatore di attesa e il messaggio sono due cose diverse,
+            // e confonderle darebbe un'attesa senza fine.
             val lookup = model.folder
             val widthDp = LocalConfiguration.current.screenWidthDp
             val shape = screenShape()
             val dualGrid = Adaptive.sideAvailable(widthDp) &&
                 settings.folderView != FolderView.TREE
             /*
-             * ⚠️⚠️ **UNA CHIAMATA SOLA, DALLA `3.70`**: fino alla `3.60` la griglia della cartella
-             * era scritta due volte, identica, nel ramo del tablet e in quello del telefono, cioè
-             * due posti da tenere d'accordo a ogni parametro nuovo. Adesso le tre vesti (colonna
-             * larga, colonna di sempre, telefono) chiamano questa.
+             * Una chiamata sola per le tre vesti (colonna larga, colonna normale, telefono), così
+             * un parametro nuovo si scrive in un posto solo.
              */
             @Composable
             fun FolderGrid(forma: Adaptive.Shape, colonna: WideRail?) {
             GridScreen(
                 title = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
-                // ⚠️ L'indice si legge dalla serie VIVA e non da una copia: è quello
-                // della foto mostrata per ultima nel visualizzatore, che la strisciata
-                // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
+                // L'indice si legge dalla serie, che la strisciata tiene aggiornata; la
+                // bandierina dice solo se un'immagine è stata aperta.
                 highlight = if (model.gridVisited) model.series?.index else null,
                 /*
-                 * ⚠️⚠️ **I DUE RICHIAMI DEL FAB ARRIVANO SOLO QUI, DALLA `1.82`** (campo
-                 * libero del giro della `1.81`, punto B: *il FAB deve vedersi in tutte le
-                 * cartelle*): questa è la griglia di una cartella vera, cioè il posto da cui
-                 * lui vuole raggiungere il cestino e le impostazioni senza tornare indietro.
-                 * ⚠️ **La ricerca e il cestino non li ricevono**: la prima è un elenco di
-                 * risultati e non una cartella, il secondo porta già il suo menu.
+                 * Cestino e impostazioni dal FAB della cartella (`1.82`, richiesta dell'utente).
+                 * Solo la griglia di una cartella riceve queste voci, 'Cerca' ristretto (`1.83`,
+                 * scelta a `d-fab-voci`; vedi [Screen.Search]), la copertina (vedi
+                 * [ViewerViewModel.covering]), la rinomina e i valori dell'intestazione: la
+                 * ricerca è un elenco di risultati con un campo di testo, il cestino ha il suo menu
+                 * e nessun bucket, e l'intestazione esiste solo qui.
                  */
                 onBin = { model.openBin() }.takeIf { Store.hasBin },
                 onSettings = { model.openSettings() },
-                /*
-                 * ⚠️⚠️ **'Cerca' DENTRO LA CARTELLA, DALLA `1.83`** (risposta a `d-fab-voci` del
-                 * giro della `1.82`: *cerca*, con la nota *in quel caso, 'Cerca' è limitato alla
-                 * cartella corrente*). Il bucket e il nome viaggiano insieme perché la ricerca
-                 * ristretta è un'altra schermata da quella globale: vedi [Screen.Search].
-                 * ⚠️ **Arriva al solo ramo della cartella**, come i due richiami qui sopra: nella
-                 * ricerca sarebbe una ricerca dentro una ricerca, e nel cestino non c'è nessun
-                 * bucket da cui partire.
-                 */
                 onSearchHere = { model.openSearch(screen.bucket, screen.name) },
-                /*
-                 * ⚠️⚠️ **ANCHE QUESTI DUE ARRIVANO AL SOLO RAMO DELLA CARTELLA**: l'intestazione
-                 * con la sua icona esiste qui e non nella ricerca né nel cestino, e una
-                 * copertina è di una cartella. Il perché per esteso vive su
-                 * [ViewerViewModel.covering].
-                 */
                 onCoverPick = { model.startCover() },
                 onCoverAway = { model.coverAway() },
                 onCoverClear = { model.clearCover() },
                 coverSet = model.cover != null,
-                // ⚠️ Serve al solo mini onboarding, e vuole **questa** cartella: scegliendo la
-                // copertina di un'altra si naviga, e un velo che comparisse là indicherebbe
-                // l'icona sbagliata.
+                // Serve al mini-onboarding, e solo nella cartella da cui parte la scelta: in
+                // un'altra indicherebbe l'icona sbagliata.
                 coverHere = model.covering?.bucket == screen.bucket,
-                // ⚠️ Anche la rinomina è del solo ramo della cartella, e per la stessa ragione:
-                // il gesto vive sul nome dell'intestazione, che qui c'è e altrove no.
-                // ⚠️ Not in AIV Play, which cannot rename a shared folder (`Store.files`).
+                // ⚠️ Non in AIV Play, che non può rinominare una cartella condivisa
+                // (`Store.files`).
                 onFolderRename = { name: String -> model.renameFolder(name) }.takeIf { Store.files },
-                /*
-                 * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**:
-                 * l'intestazione esiste nella griglia di una **cartella** e non nelle altre due
-                 * (nel cestino il FAB c'è sempre, nella ricerca la testata porta un campo di
-                 * testo), quindi passarli anche là sarebbe dare valori a una fascia che non si
-                 * disegna.
-                 */
                 frontWash = settings.frontWash,
                 frontSerif = settings.frontSerif,
                 frontFacts = settings.frontFacts,
                 frontPickAll = settings.frontPickAll,
-                /*
-                 * ⚠️ **La tinta di questa cartella non viene dalle impostazioni**: è un dato
-                 * della cartella, e il perché vive su [ViewerViewModel.tint].
-                 */
+                // La tinta è un dato della cartella (vedi [ViewerViewModel.tint]).
                 frontTint = model.tint,
                 onFrontTint = { model.tintFolder(it) },
                 facts = model.facts,
                 onOpen = { quale ->
-                    // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                    // Al selettore o come copertina consegna, altrimenti apre come sempre.
                     if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
                 },
                 onBack = { model.leaveGrid() },
@@ -3986,16 +3165,10 @@ private fun Stage(
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
                 /*
-                 * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
-                 * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
-                 * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
-                 * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
-                 * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
-                 * il gesto vibrava e chiamava una funzione che non fa niente, che è
-                 * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
-                 * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
-                 * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
-                 * nello stesso giro parlando dei pannelli.
+                 * ⚠️ Va passato a tutti e tre i rami: il parametro ha un valore di riserva vuoto
+                 * (vedi `onSearch` in `GridScreen`), e senza il tocco lungo sul tasto del filtro
+                 * vibra e non fa niente. Vale anche nel cestino: due controlli identici si
+                 * comportano allo stesso modo.
                  */
                 onSearch = { model.openSearch() },
                 onFilter = { model.sift(it) },
@@ -4007,9 +3180,9 @@ private fun Stage(
             )
             }
             /*
-             * ⚠️⚠️ **SULLO SCHERMO LARGO LA COLONNA LA COMPONE LA GRIGLIA, DALLA `3.70`**: in cima
-             * alla colonna ci sono le pastiglie dell'intestazione, che agiscono sulla selezione,
-             * e la selezione vive nella griglia. Il perché per esteso è sul parametro `rail`.
+             * Sullo schermo largo la colonna la compone la griglia (`3.70`): in cima ci sono le
+             * pastiglie dell'intestazione, che agiscono sulla selezione della griglia. Il perché è
+             * sul parametro `rail`.
              */
             when {
                 dualGrid && shape == Adaptive.Shape.WIDE -> FolderGrid(
@@ -4075,14 +3248,13 @@ private fun Stage(
 
         is Screen.Search -> {
             BackHandler { model.leaveGrid() }
-            // ⚠️ La stessa `GridScreen` della cartella, con due parametri in più: vedi la
-            // nota su `query` là dentro per il perché non è una schermata a sé.
+            // La stessa `GridScreen` della cartella, con due parametri in più (perché non è una
+            // schermata a sé: vedi la nota su `query` là dentro).
             val lookup = model.folder
             val widthDp = LocalConfiguration.current.screenWidthDp
             /*
-             * ⚠️⚠️ **DUE COLONNE DA 600 dp, DALLA `3.34`** (mockup `search`): elenco cartelle
-             * a lato e risultati nello spazio principale, come Cartelle/Griglia. Fuori dalla
-             * vista ad albero. Telefono invariato.
+             * Due colonne da 600 dp (`3.34`, mockup `search`): elenco delle cartelle a lato e
+             * risultati accanto, come per la griglia. Non in 'Cartelle di sistema'.
              */
             val dualSearch = Adaptive.sideAvailable(widthDp) &&
                 settings.folderView != FolderView.TREE
@@ -4091,14 +3263,14 @@ private fun Stage(
             fun SearchGrid(forma: Adaptive.Shape, colonna: WideRail?) {
                 GridScreen(
                     title = "",
-                    // ⚠️ Il nome della cartella in cui si cerca, e `null` per la ricerca di tutta la
-                    // galleria: lo scrive il campo al posto del suo invito, che è il modo di dire
-                    // dove si sta cercando senza una stringa nuova in ventotto lingue.
+                    // Il nome della cartella in cui si cerca, `null` per tutta la galleria: il
+                    // campo lo mostra al posto del suo invito, senza una stringa nuova in
+                    // ventotto lingue.
                     searchIn = screen.name,
                     items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
                     highlight = if (model.gridVisited) model.series?.index else null,
                     onOpen = { quale ->
-                        // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                        // Al selettore o come copertina consegna, altrimenti apre come sempre.
                         if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
                     },
                     onBack = { model.leaveGrid() },
@@ -4117,11 +3289,9 @@ private fun Stage(
                     lastMark = settings.lastMark,
                     onBusy = { model.gridBusy = it },
                     /*
-                     * ⚠️⚠️ **CESTINO E IMPOSTAZIONI ARRIVANO ANCHE QUI FUORI DAL TELEFONO, DALLA
-                     * `3.70`**: sul tablet stavano in fondo alla colonna delle cartelle, e
-                     * dalla `3.70` vivono nella pillola (decisioni B4 e B7). Senza, dalla ricerca
-                     * non si raggiungerebbero più. Sul telefono restano fuori, come prima: là il
-                     * FAB della ricerca non c'è.
+                     * ⚠️ Cestino e impostazioni arrivano qui fuori dal telefono (`3.70`, scelte B4
+                     * e B7): sul tablet vivono nella pillola, e senza non si raggiungerebbero dalla
+                     * ricerca. Sul telefono il FAB della ricerca non c'è.
                      */
                     onBin = { model.openBin() }.takeIf { forma != Adaptive.Shape.PHONE && Store.hasBin },
                     onSettings = { model.openSettings() }.takeIf { forma != Adaptive.Shape.PHONE },
@@ -4195,10 +3365,9 @@ private fun Stage(
 
         Screen.Bin -> {
             BackHandler { model.leaveGrid() }
-            // ⚠️ La stessa `GridScreen` di una cartella, con `bin` acceso: quello che cambia
-            // vive là dentro (elimina definitiva, ripristina al posto di rinomina, e il
-            // FAB anche senza selezione). Il cestino si naviga come una cartella
-            // qualunque, che era la richiesta.
+            // La stessa `GridScreen` di una cartella, con `bin` acceso: quello che cambia è là
+            // dentro (eliminazione definitiva, ripristino al posto della rinomina, il FAB anche
+            // senza selezione). Il cestino si sfoglia come una cartella (richiesta dell'utente).
             val lookup = model.folder
             val widthDp = LocalConfiguration.current.screenWidthDp
             val listed = lookup?.seriesOrNull?.items
@@ -4213,7 +3382,7 @@ private fun Stage(
                     items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
                     highlight = highlight,
                     onOpen = { quale ->
-                        // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                        // Al selettore o come copertina consegna, altrimenti apre come sempre.
                         if (!consegna(listed, quale)) model.openFromGrid(quale)
                     },
                     onBack = { model.leaveGrid() },
@@ -4224,18 +3393,7 @@ private fun Stage(
                     listPath = settings.listPath,
                     pickWeight = settings.pickWeight,
                     filter = model.gridFilter,
-                    /*
-                     * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
-                     * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
-                     * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
-                     * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
-                     * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
-                     * il gesto vibrava e chiamava una funzione che non fa niente, che è
-                     * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
-                     * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
-                     * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
-                     * nello stesso giro parlando dei pannelli.
-                     */
+                    // ⚠️ Passato a tutti e tre i rami: vedi la nota nel ramo della cartella.
                     onSearch = { model.openSearch() },
                     onFilter = { model.sift(it) },
                     gridNames = settings.gridNames,
@@ -4243,15 +3401,13 @@ private fun Stage(
                     bin = true,
                     onHistory = { model.openHistory() },
                     onBusy = { model.gridBusy = it },
-                    // ⚠️ Dalla `3.70` le voci del FAB del cestino vanno nella pillola fuori dal
-                    // telefono (richiesta B2, *stessa cosa per pagine analoghe (es. Cestino)*).
+                    // Fuori dal telefono le voci del FAB del cestino vanno nella pillola (`3.70`,
+                    // richiesta B2).
                     shape = screenShape()
                 )
             }
-            /*
-             * ⚠️⚠️ **DALLA `3.38` NIENTE DETTAGLI A LATO** (giro 3.37, `3.35-01`): la griglia
-             * del cestino occupa tutta la larghezza; i dettagli a lato non servivano.
-             */
+            // La griglia del cestino occupa tutta la larghezza, senza dettagli a lato (voce
+            // `3.35-01`).
             BinGrid()
         }
 
@@ -4280,11 +3436,8 @@ private fun Stage(
             )
         }
 
-        /*
-         * ⚠️ **Indietro va dove va l'altro editor**, cioè al visualizzatore: tutti e due si
-         * aprono dal menu del tocco lungo e da nessun altro posto, quindi la destinazione è
-         * una sola e non ha bisogno di viaggiare nella schermata.
-         */
+        // Indietro va al visualizzatore, come per l'editor semplice: tutti e due si aprono solo
+        // da lì, quindi la destinazione non viaggia nella schermata.
         is Screen.FullEditor -> {
             BackHandler { model.leaveEditor() }
             AdvancedEditorScreen(
@@ -4306,13 +3459,10 @@ private fun Stage(
         }
 
         Screen.Viewer -> {
-            // Back returns to where the viewer was opened from, and only if there is
-            // such a place. Opened from a link, Back has to leave the app: swallowing
-            // it would trap the reader in a viewer they never chose to enter.
-            // ⚠️ Il DOPPIO TOCCO non è una seconda via per uscire, ed è una scelta:
-            // alterna adattata e 100%, e l'utente l'ha dichiarato *fondamentale*
-            // (2026-08-27). Dargli anche il ritorno alla griglia significherebbe
-            // toglierlo a una delle due direzioni dello zoom.
+            // Indietro torna da dove si è aperto il visualizzatore, se quel posto c'è; aperto
+            // da un collegamento, Indietro esce dall'app.
+            // ⚠️ Il doppio tocco non è una via d'uscita: alterna adattata e 100%, e per
+            // l'utente è fondamentale.
             if (model.viewerBack != null) BackHandler { model.backFromViewer() }
             FolderPermission(model)
             ViewerScreen(
@@ -4328,17 +3478,14 @@ private fun Stage(
                 onFileAdded = { model.afterFileAdded() },
                 onEdit = { model.edit(it) },
                 onEditWith = { model.editWith(it) },
-                // ⚠️ Scrive le STESSE due chiavi che scrive la schermata delle impostazioni,
-                // e non una copia volatile: la scorciatoia del tocco lungo su 'Info' deve
-                // restare, ed è quello che l'utente ha chiesto ('e si memorizza').
+                // Scrive le stesse due chiavi delle impostazioni: la scelta fatta col tocco
+                // lungo su 'Info' resta (richiesta dell'utente).
                 onInfoBar = { visible, where ->
                     model.updateSettings(
                         settings.copy(infoVisible = visible, infoPosition = where)
                     )
                 },
-                // ⚠️ Da dove si è entrati dice se si sta guardando il cestino: la
-                // fotografia in sé non lo sa, ed è la ragione per cui questo dato non vive
-                // nell'immagine.
+                // Se si sta guardando il cestino lo dice la provenienza: l'immagine non lo sa.
                 inBin = model.viewerBack is Screen.Bin
             )
         }
@@ -4346,25 +3493,19 @@ private fun Stage(
 }
 
 /**
- * Asks for the folder permission, once, at the moment it would first be useful.
+ * Chiede il permesso sulle cartelle una volta, quando servirebbe la prima volta.
  *
- * ⚠️⚠️ **The condition is narrow on purpose, and every clause earns its place.** It
- * asks only for a picture that came off this phone (`content://`), only when the
- * permission is missing, and only if it has never been asked before. A viewer that
- * puts up a system dialog while somebody is looking at a photograph from a chat is
- * asking for something it cannot even use: a shared picture has no folder.
- * ⚠️⚠️ **Una volta sola vale ANCHE se la risposta è stata no**, ed è voluto: qui si
- * apre una pagina di sistema, e un'app che ce la rimanda davanti a ogni foto è
- * quella che insegna a rifiutare per riflesso. Chi cambia idea accende
- * l'interruttore dalle impostazioni del telefono, e l'app se ne accorge da sola
- * alla prossima immagine, perché `Folder.granted` chiede al sistema e non a un
- * valore che si era annotato.
+ * ⚠️ Solo per un'immagine di questo telefono (`content://`), solo se il permesso manca e solo
+ * se non è mai stato chiesto: un'immagine condivisa da una chat non ha una cartella.
+ * Una volta sola anche se la risposta è stata no: riproporre la pagina di sistema a ogni
+ * immagine insegna a rifiutare. Chi cambia idea accende l'interruttore nelle impostazioni del
+ * telefono, e `Folder.granted` lo legge dal sistema alla prossima immagine.
  */
 @Composable
 private fun FolderPermission(model: ViewerViewModel) {
     val context = LocalContext.current
-    // ⚠️ La strada (pagina di sistema o dialogo) la sceglie [Store], che conosce la variante;
-    // qui resta la sola domanda 'se e quando'. Il perché della pagina arriva prima di lei.
+    // La strada (pagina di sistema o finestra) la sceglie [Store], che conosce la variante;
+    // qui resta 'se e quando'. La spiegazione compare prima della pagina.
     val ask = Store.rememberAccessRequest(explain = true) { allowed -> model.folderAnswered(allowed) }
     val source = model.source
     val local = source?.scheme?.lowercase() == "content"
@@ -4375,9 +3516,9 @@ private fun FolderPermission(model: ViewerViewModel) {
 }
 
 /**
- * Three ways in, and they are all real: a tap on a link (VIEW with the address),
- * a file opened from another app (VIEW with a content:// address) and a share
- * (SEND with the address in an extra).
+ * Tre vie d'ingresso: un tocco su un collegamento (`VIEW` con l'indirizzo), un file aperto da
+ * un'altra app (`VIEW` con un indirizzo `content://`) e una condivisione (`SEND`, con
+ * l'indirizzo in un extra).
  */
 private fun Intent?.imageUri(): Uri? {
     if (this == null) return null
@@ -4397,11 +3538,10 @@ private fun Intent.getParcelableExtraCompat(name: String): Uri? =
 
 /**
  * L'elenco delle cartelle per la colonna dello schermo largo, con le stesse scritture della
- * colonna di sempre: nascondere, rimostrare, la modalità delle incluse, la posizione dello
+ * colonna normale: nascondere, mostrare di nuovo, la modalità delle incluse, la posizione dello
  * scorrimento.
  *
- * ⚠️ **Vive qui una volta sola** perché lo chiedono la griglia della cartella, la ricerca e la
- * schermata iniziale: tre copie delle stesse scritture divergerebbero alla prima voce nuova.
+ * Una copia sola per la griglia della cartella, la ricerca e la schermata iniziale.
  */
 private fun railListFor(
     model: ViewerViewModel,

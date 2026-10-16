@@ -56,14 +56,14 @@ internal fun AuthorizeFolderDialog(
 }
 
 /**
- * Long-press on a system-folder row: authorize in included mode, or hide/show choices.
+ * Il tocco lungo su una riga di 'Cartelle di sistema': autorizza nella modalità delle incluse,
+ * altrimenti le scelte per nascondere o mostrare.
  *
- * ⚠️⚠️ **Dalla `3.26` il piede della scheda tiene Annulla a sinistra e l'azione principale
- * a destra** (giro 3.24, voce `3.13-08`): le scelte intermedie stanno nel corpo, allineate
- * a sinistra e come tasti pieni, mai "nel vuoto" al centro della scheda.
- * ⚠️⚠️ **Nascondendo una cartella con le sue sottocartelle si registrano anche i figli
- * presenti** (stessa voce): altrimenti restano coperti dal padre ma senza voce in elenco
- * e senza la dicitura "nascosta" nella vista di sistema.
+ * Il piede della scheda ha 'Annulla' a sinistra e l'azione principale a destra; le scelte
+ * intermedie sono nel corpo, come tasti pieni a tutta larghezza (voce `3.13-08`).
+ * ⚠️ **Nascondendo una cartella con le sue sottocartelle si registrano anche i figli presenti**:
+ * altrimenti resterebbero coperti dal padre, ma senza una voce in elenco e senza la dicitura
+ * 'nascosta' nella vista di sistema.
  */
 @Composable
 internal fun SystemFolderDialog(
@@ -113,8 +113,7 @@ internal fun SystemFolderDialog(
             ) {
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                 if (step == 0) {
-                    // ⚠️ **Tasto pieno a destra** (giro 3.24, `3.13-03` / `3.13-08`):
-                    // Autorizza/Nascondi non è più una riga nel vuoto della scheda.
+                    // L'azione principale è un tasto pieno a destra (voci `3.13-03` e `3.13-08`).
                     FilledTonalButton(
                         onClick = { step = 1 },
                         enabled = primaryEnabled
@@ -124,7 +123,7 @@ internal fun SystemFolderDialog(
         }
     ) {
         if (step == 0) {
-            // The primary action lives in the foot (3.13-08). The body has 'Faro' from the 6.20.
+            // L'azione principale è nel piede; il corpo ha 'Aggiungi alla schermata Home'.
             PinHomeKey(path, onDismiss)
         } else {
             val descendants = children.orEmpty()
@@ -163,14 +162,14 @@ internal fun SystemFolderDialog(
 }
 
 /**
- * 'Aggiungi alla schermata Home' ('Faro', from the 6.20): the folder becomes an icon of its own on
- * the home screen, which opens it here, in 'Cartelle di sistema' (`Shortcuts.pinFolder`).
+ * 'Aggiungi alla schermata Home': la cartella diventa un'icona sua nella schermata Home, che la
+ * apre qui, in 'Cartelle di sistema' (`Shortcuts.pinFolder`).
  *
- * ⚠️ **Only from 'Cartelle di sistema'**, his rule (note C on the giro of the 6.10: *solo dalla
- * vista cartelle di sistema*): this sheet is the long press of that view only, so the key needs no
- * condition on the view. AIV Play has no such view.
- * ⚠️ **Missing when the launcher does not take pinned icons**: a key that does nothing is worse
- * than a missing one. Android asks where to put the icon, so the sheet closes at once.
+ * Solo da 'Cartelle di sistema', per regola dell'utente (nota C del giro della 6.10): questa
+ * scheda è il tocco lungo di quella sola vista, quindi il tasto non ha bisogno di condizioni.
+ * AIV Play non ha quella vista.
+ * Il tasto manca quando il launcher non accetta icone fissate. Android chiede dove mettere
+ * l'icona, quindi la scheda si chiude subito.
  */
 @Composable
 private fun PinHomeKey(path: String, onDismiss: () -> Unit) {
@@ -204,12 +203,11 @@ internal fun SiblingFoldersDialog(path: String, selection: FolderSelection,
 /**
  * Il tocco lungo su una cartella della casa: chiede, non nasconde subito.
  *
- * ⚠️⚠️ **È LO STESSO DIALOGO DEL TELEFONO E DEL RAIL TABLET, DALLA `3.42`**
- * (`3.41-01`): prima viveva solo dentro [FolderScreen], e il rail non aveva il
- * gesto. Le voci restano quelle (nascondi, mostra, sorelle, autorizza in modalità
- * incluse). Il tocco lungo apre questo, il conferma esegue.
- * ⚠️ **Le sorelle stanno qui dentro e non in un secondo stato del chiamante**:
- * aprirle chiude la domanda e lascia solo il loro dialogo, come prima.
+ * È la stessa finestra per il telefono e per la colonna del tablet (voce `3.41-01`): nascondi,
+ * mostra, sorelle, autorizza nella modalità delle incluse. Il tocco lungo la apre, la conferma
+ * esegue.
+ * Le sorelle vivono qui dentro e non in un secondo stato del chiamante: aprirle chiude la domanda
+ * e lascia solo la loro finestra.
  */
 @Composable
 internal fun FolderHoldDialog(
@@ -226,10 +224,9 @@ internal fun FolderHoldDialog(
         return
     }
     /*
-     * ⚠️⚠️ **FROM THE `5.80` THE LONG PRESS ASKS WHICH ACTION FIRST** (his request of 2026-10-12,
-     * answer `B1`: grid, list and tablet column): 'Nascondi' or 'Mostra' goes on to the questions
-     * below, unchanged; the favourite is flipped at once, because adding or removing it hides
-     * nothing and is undone by the same gesture.
+     * Il tocco lungo chiede prima quale azione (risposta `B1` dell'utente: griglia, lista e
+     * colonna del tablet): 'Nascondi' o 'Mostra' prosegue con le domande sotto; la preferita si
+     * cambia subito, perché non nasconde niente e lo stesso gesto la annulla.
      */
     var chosen by remember { mutableStateOf(false) }
     if (!chosen) {
@@ -251,11 +248,9 @@ internal fun FolderHoldDialog(
         return
     }
     /*
-     * ⚠️⚠️ **IL TOCCO LUNGO SU UNA CARTELLA IN PRESTITO PROPONE IL CONTRARIO, DALLA
-     * `1.93`**. Con 'Mostra nascoste' acceso una cartella nascosta è in scena, e il
-     * gesto offre di rimostrarla, non di nasconderla un'altra volta.
-     * ⚠️⚠️ **LE VOCI CHE LA COPRONO, DALLA `2.96`**: una cartella dentro una nascosta
-     * è coperta dall'antenata. Si tolgono tutte, e il titolo nomina la più in alto.
+     * Con 'Mostra nascoste' acceso una cartella nascosta è visibile, e il gesto offre di
+     * rimostrarla. Una cartella dentro una nascosta è coperta dall'antenata: si tolgono tutte le
+     * voci che la coprono, e il titolo nomina la più in alto.
      */
     val coprono = bucket.path?.let { selection.covering(it) }.orEmpty()
     val nascosta = coprono.isNotEmpty()
@@ -306,15 +301,15 @@ internal fun FolderHoldDialog(
 }
 
 /**
- * 'Scegli l'azione sulla cartella': the first step of the long press on a folder, from the `5.80`.
+ * 'Scegli l'azione sulla cartella': il primo passo del tocco lungo su una cartella.
  *
- * ⚠️ **Two equal rounded keys, one above the other**, his specification; the favourite text may go
- * on two lines, which he allowed (*possono stare anche su sue righe*).
- * ⚠️ **The first key says what the gesture would do**: 'Mostra' for a folder on loan during 'Mostra
- * nascoste', 'Nascondi' otherwise, also in the included mode, where it leads to taking away the
- * authorization (the dialog that follows says so).
- * ⚠️ **A folder without a path has no favourite key**: it could not be found again (see
- * `Folder.Bucket.path`), and an enabled key that does nothing is worse than a missing one.
+ * Due tasti arrotondati uguali, uno sopra l'altro, come li ha descritti l'utente; il testo della
+ * preferita può andare su due righe.
+ * Il primo tasto dice che cosa farebbe il gesto: 'Mostra' per una cartella nascosta resa visibile
+ * da 'Mostra nascoste', altrimenti 'Nascondi', anche nella modalità delle incluse, dove porta a
+ * togliere l'autorizzazione (lo dice la finestra che segue).
+ * Una cartella senza percorso non ha il tasto della preferita: non si potrebbe ritrovare
+ * (`Folder.Bucket.path`).
  */
 @Composable
 internal fun FolderActionDialog(
@@ -351,16 +346,13 @@ internal fun FolderActionDialog(
 }
 
 /**
- * The question of the grid order, asked once while [FolderSelection.order] is `null`, from the
- * `5.80`.
+ * La domanda sull'ordine della griglia, fatta finché [FolderSelection.order] è `null`.
  *
- * ⚠️⚠️ **TEXT AND KEYS ARE HIS** (request of 2026-10-12): the question as the body, and two keys
- * as wide as each other, one above the other, `Ordine alfabetico` and `Più recenti in alto`. The
- * first is not the chip's name on purpose (*il nome diverso è voluto*).
- * ⚠️ **No title**: the question is the whole window, and a title would say it twice.
- * ⚠️ **Not modal**: it asks for no written input (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una
- * finestra'). Closed without an answer it comes back at the next start, because the order is
- * still not chosen.
+ * ⚠️ **Testo e tasti sono dell'utente**: la domanda come corpo e due tasti larghi uguali, uno
+ * sopra l'altro. Il primo ha di proposito un nome diverso da quello del chip.
+ * Senza titolo: la domanda è tutta la finestra. Non è modale, perché non chiede input scritto
+ * (`Rules.md` § '👆 Che cosa fa il tocco FUORI da una finestra'); chiusa senza risposta, torna
+ * al prossimo avvio.
  */
 @Composable
 internal fun FolderOrderDialog(onPick: (FolderOrder) -> Unit, onDismiss: () -> Unit) {
@@ -382,7 +374,7 @@ internal fun FolderOrderDialog(onPick: (FolderOrder) -> Unit, onDismiss: () -> U
     )
 }
 
-/** One of the two keys of [FolderActionDialog]: full width, rounded, at least as tall as a key. */
+/** Un tasto di [FolderActionDialog] e di [FolderOrderDialog]: a tutta larghezza, arrotondato. */
 @Composable
 private fun ActionKey(text: String, onClick: () -> Unit) {
     FilledTonalButton(
@@ -393,6 +385,6 @@ private fun ActionKey(text: String, onClick: () -> Unit) {
     }
 }
 
-/** The height of a key of [FolderActionDialog]: larger than a text key, as he asked (*grandi*). */
+/** L'altezza minima di un [ActionKey]: più alto di un tasto di testo, come ha chiesto l'utente. */
 private val ACTION_KEY = 56.dp
 
