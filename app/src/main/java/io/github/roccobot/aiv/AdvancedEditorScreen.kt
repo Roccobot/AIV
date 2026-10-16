@@ -1608,7 +1608,7 @@ private fun LookStage(
          * ⚠️ **Nella lente si vogliono i pixel interi**: là si guarda fra quali pixel passa il
          * bordo del taglio, e il filtro lineare li mescolerebbe.
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             image.setFilterMode(
                 if (nitido) BitmapShader.FILTER_MODE_NEAREST else BitmapShader.FILTER_MODE_LINEAR
             )
@@ -1629,6 +1629,8 @@ private fun LookStage(
             nativePaint.shader = shader ?: image
         }
     }
+         * ⚠️ `setFilterMode` e le sue costanti sono dell'API 33: l'editor completo si apre solo da
+         * lì ([advancedEditorAvailable]), e il controllo lo dice a chi usasse il palco altrove.
 
     /*
      * ⚠️ **La tela è una sola**, anche con la lente del ritaglio: mentre si tira un angolo la tela
@@ -4760,7 +4762,8 @@ private fun Comandi(
                 gaze.aiming = false
                 gaze.liquifying = !gaze.liquifying
             },
-            enabled = ready && !busy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            // Nessun controllo di versione: l'editor completo esiste solo da Android 13.
+            enabled = ready && !busy
         ) {
             Icon(
                 Glyphs.Liquify,
