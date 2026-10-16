@@ -460,10 +460,11 @@ modifichiamo un velo esistente*). Le schermate si fanno col banco a grafica nati
     valore ereditato, e una migrazione rovescerebbe una scelta vera.
   - ⚠️ **I casi della migrazione del velo sono tre** (acceso, spento, mai toccato) e non si
     accorpano, anche se due oggi rispondono lo stesso.
-  - ⚠️ **Il valore di fabbrica vive in due posti** (il campo di `Settings` e la lettura del
-    flusso): cambiarne uno solo dà un'app accesa al primo avvio e spenta dopo il primo salvataggio.
-    Lo presidia il caso 6 di `ProfonditaTest`, che legge un archivio vuoto con
-    `SettingsStore.read` e lo confronta con `Settings()`.
+  - ⚠️ **Il valore di fabbrica vive sul campo di `Settings`, e solo lì** (dalla `6.30`, sua scelta
+    G1): `SettingsStore.read` prende ogni ripiego da un `Settings()`. Il ramo della chiave vecchia
+    del velo ha però una logica sua, e un suo valore diverso darebbe un'app accesa al primo avvio e
+    spenta dopo il primo salvataggio: lo presidia il caso 6 di `ProfonditaTest`, che legge un
+    archivio vuoto con `SettingsStore.read` e lo confronta con `Settings()`.
   - ⚠️ **La sfocatura la esegue il compositore di sistema** (`FLAG_BLUR_BEHIND` più
     `blurBehindRadius`, da Android 12): dove il sistema dice di no non si vede e non costa
     fotogrammi, e l'app lo chiede (`blurs`, in `Veil.kt`). Si paga solo a pannello aperto, e lo

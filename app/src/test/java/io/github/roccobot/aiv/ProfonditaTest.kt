@@ -247,20 +247,21 @@ class ProfonditaTest {
     /**
      * **Caso 6: un archivio vuoto dà esattamente i valori di fabbrica dichiarati.**
      *
-     * ⚠️⚠️ **PRESIDIA UN VALORE SCRITTO IN DUE POSTI, ED È IL CASO PROATTIVO DELLA REGOLA**: ogni
-     * campo di [Settings] dichiara il proprio valore di fabbrica, e [SettingsStore.read] lo
-     * ripete come ripiego. Cambiarne uno solo dà un'app in un modo al primo avvio e in un altro
-     * dopo il primo salvataggio, che è un difetto che non dà **nessun** errore: il compilatore
-     * vede due costanti valide. Il confronto è sull'**oggetto intero**, quindi copre i campi di
-     * adesso e quelli che verranno.
-     * ⚠️ **Nasce con la `2.61`**, cioè col giro in cui quel valore è cambiato per la seconda
-     * volta in settanta versioni ([Settings.panelDepth]), che è la prova che il caso non è
-     * teorico.
+     * ⚠️⚠️ **PRESIDIA QUELLO CHE LA LETTURA FA AL VALORE DI FABBRICA**: dalla `6.30` (scelta G1
+     * sulla voce G6 della revisione Setaccio) ogni ripiego di [SettingsStore.read] è il campo di un
+     * `Settings()`, quindi il valore non è più scritto due volte. Restano però i ripieghi con una
+     * logica loro (le chiavi vecchie di [Settings.panelDepth] e di [Settings.mainControl], la
+     * catena di [Settings.markAir]), e i confini messi in lettura (`coerceIn`, l'elenco delle
+     * colonne): uno di loro che desse un altro valore darebbe un'app in un modo al primo avvio e in
+     * un altro dopo il primo salvataggio, senza **nessun** errore. Il confronto è sull'**oggetto
+     * intero**, quindi copre i campi di adesso e quelli che verranno.
+     * ⚠️ **Controprovata** dopo la scelta G1, col ramo dell'archivio senza chiavi di
+     * [Settings.panelDepth] riportato a `PanelDepth.NONE`: la prova cade.
      */
     @Test
     fun `un archivio vuoto da i valori di fabbrica`() {
         assertEquals(
-            "La lettura e i campi di Settings non dichiarano gli stessi valori di fabbrica",
+            "La lettura di un archivio vuoto non dà i valori di fabbrica dei campi di Settings",
             Settings(),
             SettingsStore.read(emptyPreferences())
         )

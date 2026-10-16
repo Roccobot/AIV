@@ -122,8 +122,7 @@ enum class LastMark(override val token: String) : Choice {
  * finiscono sotto lo stesso dito dell'altra mano. Si rovesciano le file, non l'ordine dell'elenco:
  * la prima fila resta la prima. L'ordine di dichiarazione è quello dei due tasti, sinistra prima
  * (richiesta dell'utente): la scelta parla di lati. Il valore di fabbrica, `RIGHT`, è scritto in
- * `Settings.hand` e nel ripiego della rilettura; sul disco va il token (vedi `byToken`), non la
- * posizione.
+ * `Settings.hand`; sul disco va il token (vedi `byToken`), non la posizione.
  */
 enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("right") }
 
@@ -334,8 +333,7 @@ data class Settings(
      * di fabbrica vale solo dove l'archivio tace. Una migrazione come quella dell'indicatore
      * ([MarkMigration]) non si può fare: qui il valore di prima è scritto, e l'archivio non
      * distingue una scelta da un valore ereditato.
-     * ⚠️ **Il valore di fabbrica è in due posti**: qui e in [SettingsStore.read], e il banco li
-     * confronta leggendo un archivio vuoto. La sfocatura non costa fotogrammi dove il telefono non
+     * La sfocatura non costa fotogrammi dove il telefono non
      * la regge: è un attributo di finestra (`FLAG_BLUR_BEHIND` più `blurBehindRadius`), che da
      * Android 12 esegue il compositore di sistema, e il sistema decide se farla (risparmio
      * energetico, hardware). L'app lo chiede in `blurs`, in `Veil.kt`.
@@ -1148,22 +1146,28 @@ object SettingsStore {
     /**
      * Le preferenze come le legge l'app, coi ripieghi di fabbrica di [Settings]. È una funzione a
      * sé perché il banco la possa chiamare con delle `Preferences` scritte a mano, come
-     * `IndicatoreTest` con [MarkMigration]: un valore di fabbrica vive qui e sul campo (vedi
-     * [Settings.panelDepth]).
+     * `IndicatoreTest` con [MarkMigration].
+     *
+     * ⚠️ **Ogni ripiego è il campo di un `Settings()`** ([d]), quindi un valore di fabbrica è
+     * scritto una volta sola, sul campo (scelta G1 sulla voce G6 della revisione Setaccio): prima
+     * era scritto anche qui, una settantina di volte, e una prova teneva uguali le due copie.
+     * Restano scritti qui solo i ripieghi che hanno una logica loro: le chiavi vecchie di
+     * [Settings.panelDepth], [Settings.mainControl] e [Settings.markAir].
      */
     internal fun read(p: Preferences): Settings {
+        val d = Settings()
         // Il modo si legge prima, perché il valore del ridimensionamento ha confini diversi secondo
         // il modo: leggerlo nel costruttore vorrebbe leggere la chiave due volte.
-        val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], Resize.NONE.mode)
+        val sizeMode = Resize.Mode.entries.byToken(p[SIZE_MODE], d.sizeMode)
         // AIV Play fissa alcuni valori, qualunque cosa dica l'archivio: il perché è su `Store.fit`.
         return Store.fit(Settings(
-            bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
-            bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
-            fitGrow = p[FIT_GROW] ?: false,
-            zoomMax = (p[ZOOM_MAX] ?: 40f).coerceIn(ZOOM_MAX_MIN, ZOOM_MAX_MAX),
-            scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
-            infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
-            infoVisible = p[INFO_VISIBLE] ?: true,
+            bgType = BgType.entries.byToken(p[BG_TYPE], d.bgType),
+            bgTheme = BgTheme.entries.byToken(p[BG_THEME], d.bgTheme),
+            fitGrow = p[FIT_GROW] ?: d.fitGrow,
+            zoomMax = (p[ZOOM_MAX] ?: d.zoomMax).coerceIn(ZOOM_MAX_MIN, ZOOM_MAX_MAX),
+            scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], d.scaleMode),
+            infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], d.infoPosition),
+            infoVisible = p[INFO_VISIBLE] ?: d.infoVisible,
             /*
              * Il ripiego sulla chiave vecchia vale finché la nuova non è mai stata scritta (vedi
              * [VEIL]). I casi sono tre: chi aveva acceso la sfocatura la tiene, chi l'aveva spenta
@@ -1172,118 +1176,114 @@ object SettingsStore {
              * scelta esplicita se ne andrebbe con lui.
              */
             panelDepth = p[PANEL_DEPTH]
-                ?.let { PanelDepth.entries.byToken(it, PanelDepth.BLUR) }
+                ?.let { PanelDepth.entries.byToken(it, d.panelDepth) }
                 ?: when (p[VEIL]) {
                     false -> PanelDepth.NONE
                     true -> PanelDepth.BLUR
-                    else -> PanelDepth.BLUR
+                    else -> d.panelDepth
                 },
-            zoomInMenu = p[ZOOM_IN_MENU] ?: false,
-            reverseSequence = p[REVERSE_SEQUENCE] ?: false,
+            zoomInMenu = p[ZOOM_IN_MENU] ?: d.zoomInMenu,
+            reverseSequence = p[REVERSE_SEQUENCE] ?: d.reverseSequence,
             startFolder = p[START_FOLDER],
-            startFolderName = p[START_FOLDER_NAME] ?: "",
-            openAtStart = p[OPEN_AT_START] ?: false,
-            folderView = Store.views.byToken(p[FOLDER_VIEW], FolderView.GRID),
-            clipboardStart = p[CLIPBOARD_START] ?: false,
-            clipboardDone = p[CLIPBOARD_DONE] ?: "",
-            clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,
-            hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
+            startFolderName = p[START_FOLDER_NAME] ?: d.startFolderName,
+            openAtStart = p[OPEN_AT_START] ?: d.openAtStart,
+            folderView = Store.views.byToken(p[FOLDER_VIEW], d.folderView),
+            clipboardStart = p[CLIPBOARD_START] ?: d.clipboardStart,
+            clipboardDone = p[CLIPBOARD_DONE] ?: d.clipboardDone,
+            clipboardWhen = p[CLIPBOARD_WHEN] ?: d.clipboardWhen,
+            hand = Hand.entries.byToken(p[HAND], d.hand),
             // Un archivio vecchio ha l'interruttore, uno più vecchio il solo gettone: `off` vuol
             // dire spenta, gli altri due accesa. Un archivio che non dice niente dà il valore di
             // fabbrica della variante ([Store.mainControl]).
-            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, Store.mainControl) }
+            mainControl = p[MAIN_CONTROL]?.let { MainControl.entries.byToken(it, d.mainControl) }
                 ?: when (p[PHONE_PILL_ON] ?: p[PHONE_PILL]?.let { it != PhonePill.OFF.token }) {
-                    null -> Store.mainControl
+                    null -> d.mainControl
                     true -> MainControl.PILL
                     false -> MainControl.FAB
                 },
-            phonePill = PhonePill.entries.byToken(p[PHONE_PILL], PhonePill.SLIDE)
-                .takeIf { it != PhonePill.OFF } ?: PhonePill.SLIDE,
-            pillFill = PillFill.entries.byToken(p[PILL_FILL], PillFill.GLASS),
+            phonePill = PhonePill.entries.byToken(p[PHONE_PILL], d.phonePill)
+                .takeIf { it != PhonePill.OFF } ?: d.phonePill,
+            pillFill = PillFill.entries.byToken(p[PILL_FILL], d.pillFill),
             glass = GlassTune(
-                radius = (p[GLASS_RADIUS] ?: GlassTune.RADIUS).coerceIn(GlassTune.RADIUS_RANGE),
-                intensity = (p[GLASS_INTENSITY] ?: GlassTune.INTENSITY).coerceIn(GlassTune.INTENSITY_RANGE),
-                tint = (p[GLASS_TINT] ?: GlassTune.TINT).coerceIn(GlassTune.TINT_RANGE),
+                radius = (p[GLASS_RADIUS] ?: d.glass.radius).coerceIn(GlassTune.RADIUS_RANGE),
+                intensity = (p[GLASS_INTENSITY] ?: d.glass.intensity).coerceIn(GlassTune.INTENSITY_RANGE),
+                tint = (p[GLASS_TINT] ?: d.glass.tint).coerceIn(GlassTune.TINT_RANGE),
                 // Non si ricava da `glass-light`: là zero era il valore di fabbrica, e un archivio
                 // vecchio spegnerebbe lo scostamento che l'utente ha voluto di fabbrica.
-                shift = (p[GLASS_SHIFT] ?: GlassTune.SHIFT).coerceIn(GlassTune.SHIFT_RANGE),
+                shift = (p[GLASS_SHIFT] ?: d.glass.shift).coerceIn(GlassTune.SHIFT_RANGE),
                 lightColour = p[GLASS_COLOUR_LIGHT],
                 darkColour = p[GLASS_COLOUR_DARK]
             ),
-            cornerRound = p[CORNER_ROUND] ?: true,
-            listPath = p[LIST_PATH] ?: false,
-            pickWeight = p[PICK_WEIGHT] ?: true,
-            editorApp = p[EDITOR_APP] ?: "",
-            editorQuality = Quality.entries.byToken(p[EDITOR_QUALITY], Quality.DEFAULT),
-            editorBackup = p[EDITOR_BACKUP] ?: true,
-            markOn = p[MARK_ON] ?: false,
-            markSpot = Watermark.Spot.entries.byToken(
-                p[MARK_SPOT], Watermark.Spot.BOTTOM_RIGHT
-            ),
+            cornerRound = p[CORNER_ROUND] ?: d.cornerRound,
+            listPath = p[LIST_PATH] ?: d.listPath,
+            pickWeight = p[PICK_WEIGHT] ?: d.pickWeight,
+            editorApp = p[EDITOR_APP] ?: d.editorApp,
+            editorQuality = Quality.entries.byToken(p[EDITOR_QUALITY], d.editorQuality),
+            editorBackup = p[EDITOR_BACKUP] ?: d.editorBackup,
+            markOn = p[MARK_ON] ?: d.markOn,
+            markSpot = Watermark.Spot.entries.byToken(p[MARK_SPOT], d.markSpot),
             // I tre numeri si riportano nei loro confini in lettura: un archivio scritto a mano, o
             // da una versione che allarga una corsa, darebbe un cursore fuori scala.
-            markSize = (p[MARK_SIZE] ?: Watermark.SIZE_DEFAULT).coerceIn(Watermark.SIZE),
+            markSize = (p[MARK_SIZE] ?: d.markSize).coerceIn(Watermark.SIZE),
             // Il ripiego traduce i centesimi di prima in decimi: il perché è su [MARK_AIR_FINE].
             markAir = (
                 p[MARK_AIR_FINE]
                     ?: p[MARK_AIR_OLD]?.times(Watermark.AIR_STEP)
-                    ?: Watermark.AIR_DEFAULT
+                    ?: d.markAir
                 ).coerceIn(Watermark.AIR),
-            markAlpha = (p[MARK_ALPHA] ?: Watermark.ALPHA_DEFAULT).coerceIn(Watermark.ALPHA),
-            sizeOn = p[SIZE_ON] ?: false,
+            markAlpha = (p[MARK_ALPHA] ?: d.markAlpha).coerceIn(Watermark.ALPHA),
+            sizeOn = p[SIZE_ON] ?: d.sizeOn,
             sizeMode = sizeMode,
             // Il valore si riporta nei confini del suo modo: fra pixel e percentuale i limiti sono
             // diversi.
-            sizeValue = (p[SIZE_VALUE] ?: Resize.NONE.value).coerceIn(Resize.range(sizeMode)),
-            animCounter = p[ANIM_COUNTER] ?: true,
-            listCount = p[LIST_COUNT] ?: true,
-            listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
-            treeHidden = p[TREE_HIDDEN] ?: false,
-            treePictures = p[TREE_PICTURES] ?: false,
-            uiTheme = UiTheme.entries.byToken(p[UI_THEME], UiTheme.SYSTEM),
+            sizeValue = (p[SIZE_VALUE] ?: d.sizeValue).coerceIn(Resize.range(sizeMode)),
+            animCounter = p[ANIM_COUNTER] ?: d.animCounter,
+            listCount = p[LIST_COUNT] ?: d.listCount,
+            listText = TextSize.entries.byToken(p[LIST_TEXT], d.listText),
+            treeHidden = p[TREE_HIDDEN] ?: d.treeHidden,
+            treePictures = p[TREE_PICTURES] ?: d.treePictures,
+            uiTheme = UiTheme.entries.byToken(p[UI_THEME], d.uiTheme),
             // Ricondotto all'elenco ammesso: un numero fuori posto darebbe una griglia a zero
             // colonne, cioè una schermata vuota senza errori.
-            folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
-            folderCount = p[FOLDER_COUNT] ?: true,
-            folderColour = FolderColour.entries.byToken(p[FOLDER_COLOUR], FolderColour.NAME),
-            binOn = p[BIN_ON] ?: true,
-            imagesOnly = p[IMAGES_ONLY] ?: false,
-            clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
-            gridNames = p[GRID_NAMES] ?: false,
-            // I quattro valori di fabbrica sono scritti anche qui e non solo sui campi: il perché è
-            // in `Rules.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
-            frontWash = p[FRONT_WASH] ?: true,
-            frontSerif = p[FRONT_SERIF] ?: false,
-            frontFacts = p[FRONT_FACTS] ?: true,
-            frontPickAll = p[FRONT_PICK_ALL] ?: true,
-            extRename = p[EXT_EDIT] ?: false,
-            extDownload = p[EXT_DOWNLOAD] ?: false,
-            gpuThumbs = p[GPU_THUMBS] ?: false,
-            autoUpdate = p[AUTO_UPDATE] ?: true,
-            saveRename = p[SAVE_RENAME] ?: false,
-            downloadPath = p[DOWNLOAD_PATH] ?: false,
-            binKeep = BinKeep.entries.byToken(p[BIN_KEEP], BinKeep.NEVER),
-            hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
-            hiddenExactFolders = p[HIDDEN_EXACT_FOLDERS] ?: emptySet(),
-            includedFolders = p[INCLUDED_FOLDERS] ?: DEFAULT_INCLUDED_FOLDERS,
-            folderMode = FolderMode.entries.firstOrNull { it.token == p[FOLDER_MODE] } ?: FolderMode.EXCLUDED,
+            folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: d.folderColumns,
+            folderCount = p[FOLDER_COUNT] ?: d.folderCount,
+            folderColour = FolderColour.entries.byToken(p[FOLDER_COLOUR], d.folderColour),
+            binOn = p[BIN_ON] ?: d.binOn,
+            imagesOnly = p[IMAGES_ONLY] ?: d.imagesOnly,
+            clipAutoplay = p[CLIP_AUTOPLAY] ?: d.clipAutoplay,
+            gridNames = p[GRID_NAMES] ?: d.gridNames,
+            frontWash = p[FRONT_WASH] ?: d.frontWash,
+            frontSerif = p[FRONT_SERIF] ?: d.frontSerif,
+            frontFacts = p[FRONT_FACTS] ?: d.frontFacts,
+            frontPickAll = p[FRONT_PICK_ALL] ?: d.frontPickAll,
+            extRename = p[EXT_EDIT] ?: d.extRename,
+            extDownload = p[EXT_DOWNLOAD] ?: d.extDownload,
+            gpuThumbs = p[GPU_THUMBS] ?: d.gpuThumbs,
+            autoUpdate = p[AUTO_UPDATE] ?: d.autoUpdate,
+            saveRename = p[SAVE_RENAME] ?: d.saveRename,
+            downloadPath = p[DOWNLOAD_PATH] ?: d.downloadPath,
+            binKeep = BinKeep.entries.byToken(p[BIN_KEEP], d.binKeep),
+            hiddenFolders = p[HIDDEN_FOLDERS] ?: d.hiddenFolders,
+            hiddenExactFolders = p[HIDDEN_EXACT_FOLDERS] ?: d.hiddenExactFolders,
+            includedFolders = p[INCLUDED_FOLDERS] ?: d.includedFolders,
+            folderMode = FolderMode.entries.firstOrNull { it.token == p[FOLDER_MODE] } ?: d.folderMode,
             // Un token sconosciuto vale 'non scelto', e la schermata iniziale chiede di nuovo: un
             // ordine sbagliato dato in silenzio sarebbe peggio di una domanda in più.
             folderOrder = FolderOrder.entries.firstOrNull { it.token == p[FOLDER_ORDER] },
             favouriteFolders = favouritesOf(p[FAVOURITE_FOLDERS]),
-            feedDate = FeedDate.entries.byToken(p[FEED_DATE], FeedDate.TAKEN),
+            feedDate = FeedDate.entries.byToken(p[FEED_DATE], d.feedDate),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             menuOrder = padOrderOf((p[MENU_ORDER] ?: "").split(','), MENU_KEYS),
             pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
             turnOrder = padOrderOf((p[TURN_ORDER] ?: "").split(','), TURN_KEYS),
             stepOrder = padOrderOf((p[STEP_ORDER] ?: "").split(','), STEP_KEYS),
             modOrder = stylesLast(padOrderOf((p[MOD_ORDER] ?: "").split(','), MOD_KEYS)),
-            padLabels = p[PAD_LABELS] ?: true,
+            padLabels = p[PAD_LABELS] ?: d.padLabels,
             /*
-             * Il ripiego è il valore di fabbrica dichiarato, e in pratica non si usa: la chiave la
-             * scrive `MarkMigration` prima della prima lettura.
+             * Il ripiego in pratica non si usa: la chiave la scrive `MarkMigration` prima della
+             * prima lettura.
              */
-            lastMark = LastMark.entries.byToken(p[LAST_MARK], LastMark.DOT),
+            lastMark = LastMark.entries.byToken(p[LAST_MARK], d.lastMark),
             // I campi sempre visibili si tolgono in lettura: un archivio che li dichiarasse spenti
             // non deve far sparire il nome del file.
             factOff = (p[FACT_OFF] ?: emptySet())
