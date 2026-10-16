@@ -37,7 +37,7 @@ jobs:
       - name: Prepara il browser di prova
         run: |
           python3 -m venv /tmp/aiv-cloud-tests
-          /tmp/aiv-cloud-tests/bin/pip install playwright==1.55.0
+          /tmp/aiv-cloud-tests/bin/pip install playwright==1.64.0
           /tmp/aiv-cloud-tests/bin/python -m playwright install --with-deps chromium
       - name: Verifica due dispositivi sul Worker locale con Supabase e PostgreSQL
         env:
