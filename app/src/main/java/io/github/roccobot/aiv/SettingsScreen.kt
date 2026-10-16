@@ -156,8 +156,8 @@ fun SettingsScreen(
     /*
      * ⚠️ **Salvata e non solo ricordata**: `ViewerActivity` non dichiara `configChanges`, quindi
      * una rotazione ricrea la composizione, e con un `remember` si tornerebbe nella radice
-     * perdendo anche la ricerca. Si salvano gli ordinali, perché un `Int` si serializza senza un
-     * `Saver`; il valore vero è [page].
+     * perdendo anche la ricerca. Si salvano i nomi delle pagine ([PAGE_STACK]); il valore vero è
+     * [page].
      */
     val stack = rememberSaveable(saver = PAGE_STACK) { mutableStateListOf() }
     val page = stack.lastOrNull() ?: Page.ROOT
@@ -519,16 +519,6 @@ fun SettingsScreen(
             LookPage(settings = settings, onChange = onChange)
         }
 
-        // ⚠️ Per una pila salvata quando Navigazione era una pagina: le sue voci sono nel
-        // Visualizzatore, e l'ordinale di NAV non si riusa (vedi [Page]).
-        Page.NAV -> Shell(
-            title = stringResource(R.string.settings_group_viewer),
-            onBack = { back() },
-            modifier = chrome
-        ) {
-            ViewerPage(settings = settings, onChange = onChange, onOpen = { open(it) })
-        }
-
         Page.START -> Shell(
             title = stringResource(R.string.settings_group_start),
             onBack = { back() },
@@ -582,17 +572,14 @@ fun SettingsScreen(
  * sotto-pagina ne può aprire un'altra, e Indietro risale di un gradino.
  * ⚠️ **`ROOT` non entra mai nella pila**: la radice è la pila vuota, e mettercela dentro
  * darebbe due modi di dire la stessa cosa, con un Indietro che a volte non esce.
- * ⚠️ **Le voci nuove vanno in coda**: la pila si salva per ordinali ([PAGE_STACK]), e una voce
- * in mezzo sposterebbe quelle dopo, quindi una rotazione durante un aggiornamento riaprirebbe
- * una pagina diversa.
+ * L'ordine delle voci è libero: la pila si salva per nome ([PAGE_STACK]).
  */
 internal enum class Page {
     ROOT,
     FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
     FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING, STYLES, MARK, BACKUP,
-    // LOOK: tema e profondità dei pannelli; START: avvio. ⚠️ NAV non si apre più, ma toglierlo
-    // sposterebbe l'ordinale di START: una pila salvata su NAV mostra il Visualizzatore.
-    LOOK, NAV, START,
+    // LOOK: tema e profondità dei pannelli; START: avvio.
+    LOOK, START,
     // Le voci del cestino, sotto-pagina di 'Gestione dei file'.
     BIN,
     FAVOURITES
@@ -601,12 +588,35 @@ internal enum class Page {
 /**
  * Come la pila delle pagine sopravvive a una rotazione.
  *
- * Salva gli ordinali, perché un `Int` il `Bundle` lo sa scrivere e un enum no. Il ripristino
- * restituisce una lista di stato, la stessa che si modifica aprendo una pagina.
+ * Salva i nomi, che il `Bundle` sa scrivere e che non cambiano quando le voci di [Page] cambiano
+ * ordine. Un nome che questa versione non conosce (uno stato salvato da una versione più nuova,
+ * dopo un ritorno indietro) si scarta: la pila riparte più corta, e non va in errore. Il
+ * ripristino restituisce una lista di stato, la stessa che si modifica aprendo una pagina.
+ * ⚠️ **Uno stato salvato fino alla `6.29` contiene numeri d'ordine**: si leggono con
+ * [PAGE_ORDER_629], l'ordine di allora.
  */
-private val PAGE_STACK = listSaver<SnapshotStateList<Page>, Int>(
-    save = { it.map(Page::ordinal) },
-    restore = { saved -> saved.map { Page.entries[it] }.toMutableStateList() }
+internal val PAGE_STACK = listSaver<SnapshotStateList<Page>, Any>(
+    save = { it.map(Page::name) },
+    restore = { saved ->
+        saved.mapNotNull { voce ->
+            val nome = if (voce is Int) PAGE_ORDER_629.getOrNull(voce) else voce as? String
+            Page.entries.firstOrNull { it.name == nome && it != Page.ROOT }
+        }.toMutableStateList()
+    }
+)
+
+/**
+ * L'ordine di [Page] fino alla `6.29`, quando la pila si salvava per numero d'ordine: serve solo
+ * a leggere uno stato salvato allora. `NAV`, la pagina 'Navigazione' che non si apriva più dalla
+ * `3.41`, è diventata il Visualizzatore, che ne contiene le voci.
+ */
+private val PAGE_ORDER_629 = listOf(
+    "ROOT",
+    "FOLDERS", "VIEWER", "INFO", "CONTROLS", "EDITING",
+    "FACTS", "HIDDEN", "ZOOM", "VIEWS", "THUMBS", "BUTTONS", "SAVING", "STYLES", "MARK", "BACKUP",
+    "LOOK", "VIEWER", "START",
+    "BIN",
+    "FAVOURITES"
 )
 
 /**

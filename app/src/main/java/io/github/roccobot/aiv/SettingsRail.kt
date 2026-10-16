@@ -133,9 +133,6 @@ internal val Page.titleRes: Int
         Page.FOLDERS -> R.string.settings_group_browse
         Page.VIEWER -> R.string.settings_group_viewer
         Page.INFO -> R.string.settings_page_info
-        // Non è nell'indice, ma una pila vecchia può ancora nominarla: il titolo è quello della
-        // pagina che oggi contiene quelle voci.
-        Page.NAV -> R.string.settings_group_viewer
         Page.CONTROLS -> R.string.settings_page_controls
         Page.EDITING -> R.string.settings_page_editing
         Page.FACTS -> R.string.settings_facts
